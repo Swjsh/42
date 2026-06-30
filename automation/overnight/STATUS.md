@@ -1,3 +1,17 @@
+## [2026-06-30 ~17:58 ET] conductor: OK -- DRAINED A LIVE `### BROKEN:` FLAG AT ITS PRODUCER (close-a-loop on the rig-never-traded audit, fix-order #4): the content-aware self-check (committed 3f5d575 today) was RED on the live state with TWO problems. Picked the one that is rail-CLEAR + bounded: **KEY-LEVELS CONTRADICTORY ROLES** -- prices 741.61 (x7) and 741.81 (x9) in the live `key-levels.json` each carried BOTH a ceiling (resistance) AND a floor (support) role, so the engine read the same price as resistance and support at once. Normalized at the producer (`refresh_levels_intraday._normalize_levels`), repaired the live file 26->11 levels (RED->GREEN), guarded +5. Commit b04cd8e.
+
+> **Signal J wakes to (OP-25) -- drained one of the two live self-check BROKEN problems at its source + guarded the producer/consumer contract; the engine no longer reads contradictory level structure.** After-hours conductor fire, market CLOSED (Tue 17:58 ET; engine-health verdict **GREEN** -- both heartbeats/beacon/watcher-feed/kill-switches/level-feed/gex/dispatch GREEN, both accounts flat). The engine-health.json verdict was GREEN but STATUS carried two un-actioned `### BROKEN: self-check` blocks (17:32 + 17:39) from today's new content-aware checker -- the rig-never-traded audit's own organ flagging FUNCTION failures the liveness-only health beacon can't see.
+> - **THE PICK (priority-1 live BROKEN flag > the MED/rail-4 queue):** self_check BROKEN had 2 problems. (1) ENGINE-CANNOT-ENTER (bull structurally unreachable, 32x SKIP_ELITE_BULL_LEVEL_RECLAIM) touches `filters.py`+params = **rail-4 propose-only** AND the audit memory explicitly says do NOT hot-apply (needs A/B + replay) -> multi-fire research, not a bounded fire. (2) KEY-LEVELS CONTRADICTORY ROLES lives in `refresh_levels_intraday.py` = producer ENGINE CODE (NOT params/orders/heartbeat/filters/CLAUDE) = **rail-4 CLEAR**, bounded, mechanical, and is literally audit fix-order #4 ("levels role/dedup AT THE PRODUCER"). Took #2.
+> - **DIAGNOSED before fixing (OP-33):** `refresh()` deduped only its OWN `INTRADAY_*` labels (line 126); it preserved upstream-duplicated curated `PMH_/PML_` (6-9x each) and re-added `INTRADAY_PMH/PML` at a colliding price whose polarity-derived role (`price>=spot`) CONTRADICTED the curated fixed role -> one price, two roles. The 06-29 producer guard (8/8) was blind to it: it certified the feed is FRESH + UPSERTS (MOTION) but never that the set is SELF-CONSISTENT (FUNCTION) -- the exact audit disease applied to the level feed.
+> - **SHIPPED (engine-benefit producer-correctness + guard, rail-4 CLEAR -- normalizes a state-file producer; touches NO params/doctrine-rules/orders/heartbeat-PROMPT/filters/CLAUDE, places NO order, arms NOTHING -> ships on green tests, no A/B):** `_polarity_role` + `_normalize_levels(levels, spot)` enforce one-polarity-role-per-price + price-cluster dedup over the FULL written set (refresh is the freshest every-few-min writer, so the file self-heals each run regardless of which upstream producer pollutes it; expired levels pass through untouched). Wired before the level write. **Repaired the LIVE file** ($0, no network): 26->11 levels, `self_check.check_level_integrity` 1 problem -> 0; full self_check now BROKEN with only the 1 rail-4 problem (down from 2).
+> - **GRADUATED TO A GUARD (OP-25, $0):** `test_refresh_levels_intraday.py` +5 (13/13) -- the producer/consumer CONTRACT test `test_refresh_output_passes_level_integrity_check` (asserts the producer's output satisfies the REAL `self_check.check_level_integrity`, so the contract can't drift), collapse-contradictory-roles, collapse-heavy-duplicates, expired-passthrough, + the **non-vacuous bite** `test_bite_pre_normalize_contradiction_is_real` (the input genuinely contradicts; `_normalize_levels` is what clears it). All 8 prior tests no-regression.
+> - **LEARN (4.5):** lesson-inbox `2026-06-30-producer-guard-checks-presence-not-consistency.md` -- "when guarding a PRODUCER, assert the OUTPUT INVARIANT the consumer depends on (one-role-per-price), not just presence/freshness; wire the producer guard to call the consumer's actual integrity check" (C7 + the rig-never-traded MOTION-vs-FUNCTION disease).
+> - **VALIDATED ($0, verify-now-not-later):** py_compile OK; guard 13/13 (0.38s); live-file repaired + re-checked (1->0 integrity problems, each 741.x price now single-role); pre-commit curated safety gate **31 + 5 suites PASS** at b04cd8e; verify-committed clean (all 4 files absent from porcelain).
+> - **NEXT FIRE picks up:** the live self-check is down to its ONE remaining BROKEN problem -- **ENGINE-CANNOT-ENTER (bull structurally unreachable)**, the single highest-value thread in the project (the rig has never filled an ENTER_BULL in 2544 lifetime decisions). It is rail-4 (filters.py block_elite_bull + the level_reclaim single-bar-straddle gate) + needs A/B-replay validation (audit: do NOT repeat the recency-RED hot-apply) -> the next bounded slice = a $0 REPLAY probe of the bull-unblock on real bars (propose-only DRAFT + ping J if it clears OOS), NOT a hot params edit. Also queued LOW: find the UPSTREAM producer creating the 6-9x curated PMH/PML dupes (refresh now self-heals them, but a non-duplicating source is cleaner). Standing direction stays GEX-calendar-gated (premium axis dead L182-184; ~8 GEX days of ~60-90 owed). J: OPEN decisions cd-2026-06-29-001 (revert vs keep+doc the 06-28 live params change), cd-2026-06-28-002 (CLAUDE-INDEX-FOLD), cd-2026-06-27-001 (G7 EOD-flatten activate).
+> - Files: `setup/scripts/refresh_levels_intraday.py` (+ROLE_EPSILON +_polarity_role +_normalize_levels +wire), `backtest/tests/test_refresh_levels_intraday.py` (+5, 13/13), `automation/state/key-levels.json` (repaired 26->11), `strategy/candidates/_lesson-inbox/2026-06-30-producer-guard-checks-presence-not-consistency.md` -- all b04cd8e; `conductor-outcomes.jsonl`, `queue.md`, this STATUS entry.
+
+---
+
 ## [2026-06-30 ~07:55 ET] conductor: OK -- DRAINED THE WINDOW-LEAK-COMPLIANCE RED TO GREEN + GRADUATED IT TO A BUILD-TIME RATCHET (close-a-loop on a recurring monitor RED that nothing was fixing): the 04:00 ET audit flagged **13 `subprocess.run` calls without `creationflags=CREATE_NO_WINDOW`** across 11 files -- a headless (pythonw) scheduled task spawning a bare subprocess allocates a fresh conhost window on Win11 (the documented window-flash foot-gun, C8/OP-27 L41), and one offender (`heartbeat_core._engine_verdict`) fires the engine_cli subprocess **EVERY RTH tick** while J is at his machine = a direct hit on the "don't disturb user" top-priority. Audit now GREEN (0/0/0); guard added so it can't silently re-accumulate. Commit pending.
 
 > **Signal J wakes to (OP-25) -- fixed a real, recurring, J-disturbing RED at its source AND graduated the daily-monitored-but-never-enforced audit into a hard build ratchet (monitored-prose -> code assertion, OP-25).** After-hours conductor fire, market CLOSED (Tue 07:55 ET; engine **GREEN** -- both heartbeats/beacon/watcher-feed/kill-switches/level-feed/gex/dispatch all GREEN, both accounts flat). The engine-health verdict was GREEN, but STATUS carried two un-actioned RED *audit* monitor lines from 04:00 (`window-leak-compliance RED`, `scheduled-tasks-audit RED`). Picked window-leak: a concrete, bounded, mechanical loop-closer with a clear J-disturb impact; deferred scheduled-tasks-RED (its 8 SILENT_TASK flags are mostly on-demand `Funnel_*`/`Grind_all` tasks where the "expected within 26h" threshold is the wrong yardstick -- likely a false-alarm needing an audit-threshold fix, murkier and lower-value).
@@ -154,10 +168,91 @@
 [2026-06-30 04:00:02] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-06-30.md
 
 ## Kitchen
-Kitchen: alive, queue 45 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 40 pending, last cook 0 min ago, today $0.00, model=groq::llama-3.3-70b-versatile
 
 - [2026-06-30 04:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 54.17% in last 24h (26/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 44.61% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
 - [2026-06-30 04:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 54.17% in last 24h (26/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 44.82% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
 - [2026-06-30 05:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 54.17% in last 24h (26/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 44.75% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-30 05:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 56.25% in last 24h (27/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 43.59% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-30 06:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 58.33% in last 24h (28/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 41.46% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+[2026-06-30T08:42 ET] PREMARKET COMPLETE (partial). BIAS=BEARISH. PMH=742.97 PML=740.50 VIX=17.71-rising RIBBON-BEAR-52c. loop-state+aggressive+journal+dashboard OK. today-bias.json partial (bias field=neutral_lean_fade, concurrent lock by refresh_levels_intraday). Chart wipe/redraw DEFERRED. Known: Gamma_Premarket LLM silent failure root fix OWED; key-levels.json duplicate entries OWED; macro-calendar 16d stale. Heartbeat fires 09:30 ET.
+
+- [2026-06-30 06:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 60.42% in last 24h (29/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 39.36% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-30 07:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 62.5% in last 24h (30/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 37.46% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-30 07:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 64.58% in last 24h (31/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 35.28% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-30 08:27:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 64.58% in last 24h (31/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 34.4% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-30 08:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 64.58% in last 24h (31/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 34.4% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-30 09:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 64.58% in last 24h (31/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 34.4% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-30 09:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 64.58% in last 24h (31/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 34.4% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-30 10:27:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 34.26% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-30 10:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 33.67% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-30 11:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 68.75% in last 24h (33/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | v02 source parity drift in 31.78% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-30 11:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-30 12:27:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 72.92% in last 24h (35/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-30 12:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 72.92% in last 24h (35/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-30 13:27:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 72.92% in last 24h (35/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-30 13:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 72.92% in last 24h (35/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-06-30T20:00:14+00:00
+- task: eod-summary
+- date_et: 2026-06-30
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-06-30 14:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 72.92% in last 24h (35/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-06-30T20:45:21+00:00
+- task: analyst
+- date_et: 2026-06-30
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-06-30 14:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 72.92% in last 24h (35/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-06-30 21:00:02] gym-session (2026-06-30) → **YELLOW** :: see `automation\state\gym-scorecard-2026-06-30.json`[2026-06-30 17:10] Gamma_WatcherGrader FAILED exit=1 shotgun_exit=0 � check C:\Users\jackw\Desktop\42\automation\state\logs\watcher-grader-2026-06-30.log
+
+- [2026-06-30 15:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 72.92% in last 24h (35/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-06-30T21:30:26+00:00
+- task: manager
+- date_et: 2026-06-30
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### BROKEN: self-check 2026-06-30T17:32:57
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 32x SKIP_ELITE_BULL_LEVEL_RECLAIM -- setups scored AND fired a trigger but every entry was gate-blocked. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- KEY-LEVELS CONTRADICTORY ROLES: price(s) [741.61, 741.81] carry BOTH a ceiling and a floor role -- the engine reads the same price as resistance AND support at once. refresh_levels_intraday role/dedup bug (2026-06-30).
+
+### BROKEN: self-check 2026-06-30T17:39:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 32x SKIP_ELITE_BULL_LEVEL_RECLAIM -- setups scored AND fired a trigger but every entry was gate-blocked. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- KEY-LEVELS CONTRADICTORY ROLES: price(s) [741.61, 741.81] carry BOTH a ceiling and a floor role -- the engine reads the same price as resistance AND support at once. refresh_levels_intraday role/dedup bug (2026-06-30).
+
+### BROKEN: self-check 2026-06-30T17:56:44
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 32x SKIP_ELITE_BULL_LEVEL_RECLAIM -- setups scored AND fired a trigger but every entry was gate-blocked. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+
+- [2026-06-30 15:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 72.92% in last 24h (35/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
