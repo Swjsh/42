@@ -33,6 +33,13 @@ def _redirect(tmp_path, monkeypatch):
 def test_bar_approves_only_safe_class(tmp_path, monkeypatch):
     prop = _redirect(tmp_path, monkeypatch)
     monkeypatch.setattr(act, "REPO", tmp_path)
+    # The op11_evalbar path now also requires the CONFIRM-BEFORE-CAPITAL recency gate
+    # (defense in depth). Provide a recency-confirmed fixture so the scorecard-clearing
+    # path can approve; a dedicated test (test_actuator_recency_gate) proves a RED verdict
+    # blocks it.
+    rec = tmp_path / "recency.json"
+    rec.write_text(json.dumps({"headline": {"edges_confirmed_on_recent": True}}), encoding="utf-8")
+    monkeypatch.setattr(act, "RECENCY", rec)
     sc = tmp_path / "analysis" / "recommendations"
     sc.mkdir(parents=True)
     (sc / "pass.json").write_text(json.dumps(

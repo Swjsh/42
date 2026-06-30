@@ -46,6 +46,7 @@ REPO = Path(__file__).resolve().parents[2]
 STATE = REPO / "automation" / "state"
 PROPOSALS = STATE / "conductor-proposals.jsonl"
 COMPANION_DECISIONS = STATE / "companion-decisions.jsonl"
+RECENCY = STATE / "recency-confirmation.json"
 CHANGELOG = STATE / "autonomy-changelog.jsonl"
 SNAP_DIR = STATE / ".autonomy-snapshots"
 GATE = REPO / "backtest" / "tests" / "run_safety_gate.py"
@@ -230,6 +231,34 @@ def _scorecard_clears_bar(scorecard_rel: str) -> bool:
     return anchor_ok is True
 
 
+def _recency_gate_clears(path: Path | None = None) -> bool:
+    """CONFIRM-BEFORE-CAPITAL recency gate at the SECOND chokepoint (defense in depth).
+
+    The first chokepoint (contender_oos_check.assess_recency_gate, OP-11 gate 5) checks
+    recency when it FLIPS eval_bar_cleared=true. But the actuator's op11_evalbar path
+    re-verifies the scorecard (wf/oos/anchor) and historically did NOT re-check recency --
+    so a proposal whose eval_bar_cleared was set by a different path, a pre-gate emit, or a
+    manual flip could auto-apply a recency-RED change to live params. This re-check closes
+    that hole: NO autonomous params apply while the freshest-weeks recency verdict is RED.
+
+    Self-contained pure-stdlib mirror of assess_recency_gate (the actuator stays decoupled
+    from the heavy autoresearch stack); a parity guard pins the two to identical verdicts so
+    they can never drift (C14). FAILS CLOSED on any unreadable/missing/garbled input --
+    uncertainty must never auto-ship a live-params change (mirrors risk_gate). This only
+    gates the AUTONOMOUS auto-approve; J can always still approve manually (rail-2)."""
+    p = path or RECENCY
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    if not isinstance(d, dict):
+        return False
+    headline = d.get("headline", {})
+    if not isinstance(headline, dict):
+        return False
+    return headline.get("edges_confirmed_on_recent") is True
+
+
 def auto_approve_pending() -> int:
     """Flip qualifying `pending` proposals to `approved` per OP-11/OP-25 with NO human
     tap -- the autonomous half of the apply hop. The actuator's full safety contract
@@ -258,7 +287,11 @@ def auto_approve_pending() -> int:
         reason = None
         if kind in AUTO_APPROVE_KINDS and all(_is_doc_file(op.get("file", "")) for op in ops):
             reason = "op25_docindex"
-        elif prop.get("eval_bar_cleared") is True and _scorecard_clears_bar(prop.get("scorecard", "")):
+        elif (
+            prop.get("eval_bar_cleared") is True
+            and _scorecard_clears_bar(prop.get("scorecard", ""))
+            and _recency_gate_clears()  # belt-and-suspenders: no live-params apply while recency RED
+        ):
             reason = "op11_evalbar"
         if reason is None:
             continue
