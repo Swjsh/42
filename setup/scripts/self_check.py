@@ -131,6 +131,16 @@ def run() -> dict:
     # 4. broker key / account health (the 401-stale-key class)
     problems.extend(check_broker_keys())
 
+    # 5. premarket bias freshness -- catches Gamma_Premarket silent-failure (06-30: the LLM task
+    # fired 08:30 ET, exited 0, but wrote NO bias; today-bias sat stale-dated until caught by hand).
+    if now.weekday() < 5 and hm >= "08:35":
+        try:
+            tb = json.loads((STATE / "today-bias.json").read_text(encoding="utf-8"))
+            if tb.get("date") != now.strftime("%Y-%m-%d"):
+                problems.append(f"PREMARKET STALE: today-bias.json date={tb.get('date')} != today {now.strftime('%Y-%m-%d')} -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.")
+        except Exception:  # noqa: BLE001
+            pass
+
     _broken = lambda p: ("crash" in p.lower()) or ("RED" in p) or ("STALE/REVOKED" in p) or ("KEY MISSING" in p)
     verdict = "GREEN" if not problems else ("BROKEN" if any(_broken(p) for p in problems) else "DEGRADED")
     result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth}

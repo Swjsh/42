@@ -1,116 +1,133 @@
 {
-  "date": "2026-06-26",
-  "bias": "bearish",
-  "bias_note": "SPY at 729.51 (08:40 ET premarket) is ~$2.50 below prior close (~732) with all ribbon EMAs overhead (729.85-729.98). PMH 732.62 set at 04:00 ET then sold off all premarket to PML 728.50. All key levels (734.97, 743.35, 745.33) are overhead resistance. VIX 20.02 is above bull hard-cap 18.0 — calls mechanically BLOCKED. Bear entries eligible. Setup OP-16: BEARISH_REJECTION_RIDE_THE_RIBBON only. SWARM_CONTEXT_UNAVAILABLE (22h stale). No macro events today (calendar 12d stale; PCE was yesterday). Quarter-end week (Q2 ends Tue June 30).",
-  "key_levels": {
-    "resistance": [
-      { "price": 732.62, "label": "PMH_2026-06-26", "tier": "Active", "role": "resistance" },
-      { "price": 734.97, "label": "PRIOR_CLOSE_2026-06-23", "tier": "Reference", "role": "broken_to_resistance", "note": "expires today EOD" },
-      { "price": 743.35, "label": "DOUBLE_BOTTOM_RTH_LOW_6-18_6-22", "tier": "Carry", "role": "broken_to_resistance" },
-      { "price": 745.33, "label": "CARRY_SESSION_HIGH_2026-06-08", "tier": "Active", "role": "broken_to_resistance", "note": "expires today EOD" },
-      { "price": 752.09, "label": "BATTLE_PMH_2026-06-15", "tier": "Reference", "role": null }
-    ],
-    "support": [
-      { "price": 728.50, "label": "PML_2026-06-26", "tier": "Active", "role": "support" }
-    ],
-    "ema_fast": 729.98,
-    "ema_pivot": 729.85,
-    "ema_slow": 729.91,
-    "sma_50": 729.65,
-    "ribbon_spread_cents": 13,
-    "ribbon_stack": "mixed",
-    "price_vs_ribbon": "below_all_emas",
-    "ema_read_failed": false
-  },
-  "falsifiable_predictions": [
-    {
-      "claim": "SPY will test today's PML of 728.50 within the first 60 minutes of RTH (by 10:30 ET)",
-      "trigger_window": "09:30-10:30 ET",
-      "invalidation": "SPY closes a 5m bar above 732.00 by 10:30 ET without testing 728.50",
-      "confidence": 0.60,
-      "specificity": 1.0,
-      "novelty": "fresh",
-      "outcome": null
-    },
-    {
-      "claim": "First RTH bounce fails at or below 734.97 — overhead broken-to-resistance",
-      "trigger_window": "09:35-12:00 ET",
-      "invalidation": "SPY closes a 5m bar above 735.50 by 12:00 ET",
-      "confidence": 0.55,
-      "specificity": 1.0,
-      "novelty": "fresh",
-      "outcome": null
-    },
-    {
-      "claim": "Ribbon stays bear-biased (SPY price below all three EMAs) through the 10:05 ET 5m bar close",
-      "trigger_window": "09:35-10:05 ET",
-      "invalidation": "Fast EMA crosses above Slow EMA AND SPY closes above 731.00 on any 5m bar by 10:05 ET",
-      "confidence": 0.65,
-      "specificity": 1.0,
-      "novelty": "fresh",
-      "outcome": null
-    }
+ "date": "2026-06-30",
+ "updated_at": "2026-06-30T08:43:00-04:00",
+ "updated_by": "interactive_premarket_rebuild (Gamma_Premarket LLM task fired 08:30 ET, exit 0, but produced NO bias -- silent failure; rebuilt by hand from live TV chart + Alpaca)",
+ "bias": "neutral_lean_fade",
+ "bias_confidence": "low",
+ "bias_note": "2-day uptrend: SPY gapped up again to ~741 (Mon ~737 -> Tue ~741), now consolidating just UNDER the Saty ribbon (Fast 741.36 < Pivot 741.81 < Slow 741.85 = mild BEAR stack, price 740.99 below all three; ~49c spread) and UNDER the 743.35 carry resistance (~$2 above, EXPIRES today EOD). Premarket range 740.50-742.97 (12 bars, low vol ~5.8K avg). PRIMARY READ: watch 743.35 carry for a first-test rejection = bear-fade setup; OR a reclaim of 742+ with a ribbon flip to BULL = bull. VIX un-read at premarket (TV quote returns chart symbol; engine reads VIX live each tick) -- carry ~18 MID from yesterday => bull likely double-blocked (>17.2) until VIX confirmed live. LOW conviction, premarket noise. Engine confirms VIX + ribbon at 09:35 entry gate. WARNING: key-levels.json is stale-dated 06-29 + the 5-min refresh is mislabeling premarket low as resistance + duplicating -- engine should weight near-price structure (743.35, 742.97 PMH, 740.50 PML, 738.10) over the polluted feed entries.",
+ "prior_day_close_note": "Mon 06-29 RTH close unconfirmed from data window; SPY traded ~737 area Mon premarket, now ~741 Tue premarket = continued gap-up.",
+ "premarket_high": 742.97,
+ "premarket_low": 740.5,
+ "premarket_open": 742.35,
+ "spot_at_compute": 740.99,
+ "spot_at_compute_time": "2026-06-30T08:40:00-04:00",
+ "key_levels": {
+  "resistance": [
+   738.1,
+   741.61,
+   741.81
   ],
-  "falsifiable_hypothesis": {
-    "claim": "SPY will test today's PML of 728.50 within the first 60 minutes of RTH (by 10:30 ET)",
-    "trigger_window": "09:30-10:30 ET",
-    "invalidation": "SPY closes a 5m bar above 732.00 by 10:30 ET without testing 728.50",
-    "confidence": 0.60,
-    "specificity": 1.0,
-    "novelty": "fresh",
-    "outcome": null
+  "support": [
+   734.52
+  ],
+  "ema_fast": 740.86,
+  "ema_pivot": 740.74,
+  "ema_slow": 739.94,
+  "ema_read_failed": false,
+  "ribbon_stack": "BEAR",
+  "ribbon_spread_cents": 49,
+  "ribbon_source": "refresh_levels_intraday_08:47ET",
+  "sma_50": 741.89,
+  "carry_expiry_note": "743.35 DOUBLE_BOTTOM carry resistance EXPIRES 2026-06-30 EOD -- last session it is active."
+ },
+ "vix": {
+  "value": null,
+  "carry_value": 18.4,
+  "direction": "unconfirmed",
+  "regime": "MID_carry",
+  "source": "carry_from_2026-06-29 (live read pending -- TV quote returns chart symbol; engine fetches VIX each tick)",
+  "bull_blocked": "pending_live_confirm",
+  "bull_block_reason": "carry VIX 18.40 > 17.2 => bull double-blocked IF VIX confirms >17.2 non-falling at open",
+  "bear_eligible": "pending_live_confirm"
+ },
+ "falsifiable_predictions": [
+  {
+   "id": "P1",
+   "text": "SPY tests the 743.35 carry resistance within the first 90 min of RTH (by 11:00 ET)",
+   "invalidation": "No 5m bar trades >= 743.20 before 11:00 ET",
+   "grade": null
   },
-  "vix_at_open": 20.02,
-  "vix_bias": "bear_zone",
-  "iv_regime": "MID",
-  "iv_source": "vix_proxy",
-  "iv_value": 20.02,
-  "vix_vs_gates": {
-    "bull_hard_cap": 18.0,
-    "calls_blocked_by_vix": true,
-    "bear_hard_cap": 23.0,
-    "bears_blocked_by_vix": false,
-    "note": "VIX 20.02 > bull_hard_cap 18.0 → CALL entries blocked. VIX 20.02 < bear_hard_cap 23.0 → bear entries eligible."
+  {
+   "id": "P2",
+   "text": "First test of 743.35 from below REJECTS -- no 5m bar closes above 743.50 before 13:00 ET",
+   "invalidation": "Any 5m bar closes above 743.50 before 13:00 ET",
+   "grade": null
   },
-  "session_window": { "open_et": "09:30", "close_et": "16:00" },
-  "news_calendar": {
-    "events_today": [],
-    "no_trade_window": [],
-    "size_modifier_windows": [],
-    "catalyst_narrative": { "stale": true, "note": "No events today. PCE was yesterday June 25. Calendar 12d stale (threshold 7d). Q2 ends Tue June 30." },
-    "stale": true,
-    "calendar_freshness_days": 12
+  {
+   "id": "P3",
+   "text": "Premarket low 740.50 acts as first support: a 5m close below 740.30 opens a move toward 738.10 same session",
+   "invalidation": "SPY does not 5m-close below 740.30, OR closes below and does NOT reach 738.50",
+   "grade": null
   },
-  "swarm_context": {
-    "status": "SWARM_CONTEXT_UNAVAILABLE",
-    "reason": "swarm_output.json generated 2026-06-25T14:18 UTC (~22h ago) — exceeds 6h threshold",
-    "consensus_bias": null,
-    "swarm_confidence": null,
-    "agreement_with_premarket": null
+  {
+   "id": "P4",
+   "text": "VIX stays >= 17.2 non-falling at the 09:35 gate -> bull entries blocked, only bear setups filter-eligible",
+   "invalidation": "VIX prints < 17.2 falling at/after the 09:35 gate",
+   "grade": null
+  }
+ ],
+ "session_window": {
+  "open_et": "09:30",
+  "close_et": "16:00",
+  "entry_gate_et": "09:35",
+  "flatten_et": "15:50",
+  "eod_flatten_et": "15:55"
+ },
+ "accounts": {
+  "safe": {
+   "alias": "Gamma-Safe-2",
+   "account_id": "PA3S2PYAS2WQ",
+   "equity_bod": 1762.69,
+   "kill_switch_dollars": 528.81,
+   "kill_switch_pct": 0.3,
+   "daytrade_count_5d": 0,
+   "daytrade_remaining": 3,
+   "strike_tier": "OTM-3",
+   "base_qty": 3,
+   "elite_qty": 3,
+   "tier_note": "Equity $1,762.69 < $2K -> OTM-3. Live-verified ACTIVE, flat, 0 DT."
   },
-  "prior_day_close": 732.13,
-  "prior_day_high": null,
-  "prior_day_low": null,
-  "premarket_high": 732.62,
-  "premarket_low": 728.50,
-  "gap_dollars": -2.62,
-  "gap_direction": "down",
-  "current_price_premarket": 729.51,
-  "daily_loss_budget_dollars": 600.0,
-  "day_trades_remaining": 3,
-  "safe_equity_confirmed": 2000.0,
-  "bold_equity": 1648.75,
-  "prior_day_review_hint": "EOD NOOP — flat into close",
-  "gates_passed": {
-    "tv_connected": true,
-    "market_open_today": true,
-    "safe_flat": true,
-    "bold_flat": true,
-    "rule_version_pin": "OK_v15.3",
-    "SAFE_EQUITY_BOD_PENDING": false,
-    "drift_gate": "DRIFT_GATE_NO_DATA_48H_STALE",
-    "MACRO_CALENDAR_STALE": "12 days — journal warned",
-    "SWARM_CONTEXT_UNAVAILABLE": true
-  },
-  "updated_at": "2026-06-26T08:40:00-04:00"
+  "bold": {
+   "alias": "Gamma-Risky-2",
+   "account_id": "PA33W2KUAT40",
+   "equity_bod": 1633.25,
+   "kill_switch_dollars": 816.63,
+   "kill_switch_pct": 0.5,
+   "daytrade_count_5d": 0,
+   "daytrade_remaining": 3,
+   "strike_tier": "OTM-3",
+   "base_qty": 3,
+   "elite_qty": 3,
+   "tier_note": "Equity $1,633.25 < $2K -> OTM-3. Carried from 06-29 (no overnight change)."
+  }
+ },
+ "news_calendar": {
+  "stale": true,
+  "freshness_days": 16,
+  "threshold_days": 7,
+  "events_today": [],
+  "no_trade_window": [],
+  "note": "news.json last refreshed 2026-06-14 (16 days stale). NO catalyst data for today -- manually verify if a major event is scheduled. No automated no_trade_window active."
+ },
+ "rule_pin": {
+  "rule_version": "v15.3",
+  "status": "OK"
+ },
+ "tv_status": {
+  "connected": true,
+  "cdp": 200,
+  "chart": "BATS:SPY 5m",
+  "studies": [
+   "Volume",
+   "SMA50",
+   "Saty Pivot Ribbon"
+  ],
+  "note": "TV live + CDP healthy at rebuild. The TvWatchdog kill-loop (force-restart every 5 min) was fixed 2026-06-29 -- chart should stay up through RTH now."
+ },
+ "readiness_flags": [
+  "Gamma_Premarket (LLM) SILENT FAILURE: fired 08:30 ET, exit 0, wrote no bias. ROOT FIX OWED.",
+  "key-levels.json stale-dated 06-29 + refresh_levels_intraday mislabels premarket LOW as resistance + 5-min duplicates -- ROOT FIX OWED.",
+  "news.json 16 days stale -- premarket news refresh not running.",
+  "VIX live read pending (engine fetches each tick; bias carries ~18.4 MID)."
+ ]
 }

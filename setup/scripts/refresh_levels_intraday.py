@@ -113,8 +113,10 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
     if sl is not None:
         computed.append(("INTRADAY_SWING_LOW", sl, "intraday_swing_low"))
     if len(pre):
-        computed.append(("PMH", float(pre["high"].max()), "premarket_high"))
-        computed.append(("PML", float(pre["low"].min()), "premarket_low"))
+        # INTRADAY_ prefix so the line-124 dedup catches them (else they piled up 2/run = the
+        # 06-30 duplication bug); distinct from the curated PMH_<date> the premarket draws.
+        computed.append(("INTRADAY_PMH", float(pre["high"].max()), "premarket_high"))
+        computed.append(("INTRADAY_PML", float(pre["low"].min()), "premarket_low"))
 
     # Load existing levels, drop our own prior INTRADAY_* upserts (idempotent), keep the rest.
     try:
@@ -133,6 +135,10 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
     kl["as_of"] = now_iso
     kl["spot_at_compute"] = round(spot, 2)
     kl["computed_from"] = "refresh_levels_intraday.py (live Alpaca REST, TV-independent)"
+    # the live feed owns the session date so key-levels never sits stale-dated when the
+    # premarket LLM silent-fails (06-30: premarket exit-0-no-write left date frozen at 06-29).
+    kl["date"] = today
+    kl["for_session"] = today
 
     tmp = KEY_LEVELS.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(kl, indent=1), encoding="utf-8")

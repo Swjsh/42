@@ -3561,3 +3561,21 @@ def test_self_check_broker_keys() -> None:
     assert "safe-2" in src and "bold-2" in src, "ping only the engine-wired arms"
     assert "/v2/account" in src, "read-only account ping"
     assert "STALE/REVOKED" in src, "401 must map to a BROKEN-class problem"
+
+
+def test_level_refresh_dedups_and_dates() -> None:
+    """G-LEVELFEED (2026-06-30): refresh_levels_intraday must (a) INTRADAY_-prefix premarket
+    levels so the dedup catches them (else they piled up 2/run = the 06-30 duplication), and
+    (b) stamp the session date so key-levels never sits stale-dated when Gamma_Premarket
+    silent-fails."""
+    src = (REPO / "setup" / "scripts" / "refresh_levels_intraday.py").read_text(encoding="utf-8")
+    assert '"INTRADAY_PMH"' in src and '"INTRADAY_PML"' in src, "premarket levels must be INTRADAY_-prefixed (dedup)"
+    assert 'kl["date"] = today' in src, "must stamp key-levels date=today (premarket-failure resilience)"
+
+
+def test_self_check_flags_stale_premarket() -> None:
+    """G-PREMARKET (2026-06-30): self_check must flag a stale-dated today-bias (the Gamma_Premarket
+    exit-0-no-write silent failure that left the engine on a stale bias on 06-30), so it surfaces
+    proactively instead of being found at the open."""
+    src = (REPO / "setup" / "scripts" / "self_check.py").read_text(encoding="utf-8")
+    assert "PREMARKET STALE" in src, "self_check must detect a stale-dated today-bias (premarket silent-failure)"
