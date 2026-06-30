@@ -3515,5 +3515,9 @@ def test_operator_friction_harvest_wired() -> None:
     for sig in ("is it (running", "trading", "did|has) it (crash"):
         assert sig in hook, f"hook missing interrogative pattern: {sig}"
     assert "UTF8Encoding($false)" in hook, "hook must write the ledger BOM-less (json-safe)"
+    # the hook must SKIP system/agent/tool messages, else task-notifications phantom-fire and
+    # falsely trip BUILD_ELIMINATING_INSTRUMENT (caught 2026-06-29 by self-verification)
+    assert "qIsSystem" in hook and "task-notification" in hook, \
+        "hook must skip system/agent/tool messages (no phantom operator-question fires)"
     # the hook is in the UserPromptSubmit chain -- a non-ASCII parse crash kills BOTH captures
     assert all(ord(c) < 128 for c in hook), "prompt-submit hook must be pure ASCII (PS 5.1 silent-crash class)"

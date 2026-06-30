@@ -62,8 +62,15 @@ $qRules = @(
     @{ rx = 'no (visibility|confidence)'; intent = 'no_visibility' },
     @{ rx = 'you (told|said) me.{0,40}(work|ran|run|fix|done|trad)'; intent = 'claim_mismatch' }
 )
-foreach ($qr in $qRules) {
-    if ($scan -match $qr.rx) { $qIntent = $qr.intent; break }
+# Only REAL J prompts count as operator questions. Skip system/agent/tool messages
+# (task-notifications, system-reminders, tool results, slash-command echoes) -- they otherwise
+# false-fire and would phantom-trip BUILD_ELIMINATING_INSTRUMENT on noise. Caught 2026-06-29 by
+# self-verification: the first 2 ledger entries were both <task-notification> agent-finished events.
+$qIsSystem = ($low -match 'task-notification|system-reminder|</result>|<task-id|tool-use-id|<command-name|<local-command|output-file|</summary>|<function_results')
+if (-not $qIsSystem) {
+    foreach ($qr in $qRules) {
+        if ($scan -match $qr.rx) { $qIntent = $qr.intent; break }
+    }
 }
 if ($qIntent) {
     $qnow = Get-Date
