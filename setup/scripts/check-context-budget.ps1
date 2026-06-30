@@ -17,7 +17,7 @@
 # Exit: always 0 (fail-open). Read status from the state json if you need it.
 
 param(
-    [int]$BudgetTokens = 8000,
+    [int]$BudgetTokens = 9000,
     [switch]$AutoFix
 )
 $ErrorActionPreference = "Continue"

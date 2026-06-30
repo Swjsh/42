@@ -26,8 +26,8 @@ from __future__ import annotations
 import argparse, datetime, json, os, re, sys
 
 # ---- BENCHMARKS / GUARD SCORES (single source of truth) --------------------
-BUDGET_TOKENS = 8000          # hard ceiling for CLAUDE.md
-WARN_PCT      = 95            # >= this % of budget -> YELLOW (NEAR)
+BUDGET_TOKENS = 9000          # hard ceiling for CLAUDE.md (raised 8000->9000 2026-06-29, Opus audit: Python heartbeat = CLAUDE.md off the hot path + Max sub = ~$0 marginal; cap raised so doctrine stops being hand-shaved. Do NOT exceed ~10500 = attention/instruction ceiling.)
+WARN_PCT      = 90            # >= this % of budget -> YELLOW; 90 opens an early-warning shoulder at 8100 instead of a 400-tok hair-trigger
 BYTES_PER_TOKEN = 3.6         # fallback estimate divisor
 MOVABLE_MIN_TOKENS = 500      # OP/section blocks above this are relocation candidates
 

@@ -75,7 +75,7 @@ J's rules — Gamma enforces them, doesn't write them.
 | Nemotron shadow eval | `shadow_model_eval.py` + `Gamma_ShadowEval` (16:05 ET) | $0. Scores decisions.jsonl daily; grad bar ≥85% DT over ≥15 days. [Scorecard](analysis/shadow-model/PROMOTION-SCORECARD.md). |
 | Kitchen R&D loop | `setup/scripts/kitchen_daemon.py` + free-tier models | 24/7 autonomous. Spec: [`markdown/infra/KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md). |
 | Dashboard | Next.js 15 + React 19 + Canvas pixel-art | **DEPLOYED 2026-05-06.** localhost:3000. `dashboard/` |
-| Context leanness | `check-context-budget.ps1` + `context-leanness` skill | Keeps CLAUDE.md <= 8K tokens. Daily score/alert; auto-trims after hours on RED. Spec: [`markdown/infra/CONTEXT-LEANNESS.md`](markdown/infra/CONTEXT-LEANNESS.md) |
+| Context leanness | `check-context-budget.ps1` + `context-leanness` skill | Keeps CLAUDE.md <= 9K tokens (cap bounds attention, not $; don't hand-shave doctrine to undershoot). Daily score/alert. Spec: [`markdown/infra/CONTEXT-LEANNESS.md`](markdown/infra/CONTEXT-LEANNESS.md) |
 | Source control | GitHub — `https://github.com/Swjsh/42` | **PUBLIC repo.** `gh` CLI authenticated as Swjsh. Remote `origin` wired 2026-06-24. Branch: `main`. |
 
 Install: [`markdown/infra/mcp-install.md`](markdown/infra/mcp-install.md). Verification: [`markdown/infra/verification.md`](markdown/infra/verification.md).
@@ -176,6 +176,8 @@ See [`markdown/doctrine/FRONTEND-OPS.md`](markdown/doctrine/FRONTEND-OPS.md) —
 
 These are non-negotiable, second only to the 10 rules above.
 
+> **OPs are numbered non-contiguously BY DESIGN** — archived OPs (1–2, 4–10, 12–15, 17–21, 23–24, 26–30, 32) live verbatim in [`DOCTRINE-ARCHIVE.md`](markdown/doctrine/DOCTRINE-ARCHIVE.md); the LIVE set is **0, 3, 11, 16, 22, 25, 31, 32, 33**.
+
 > ## ⛔ OP-0 — DEFAULT = ACT, NEVER ASK. (J's #1 repeated frustration, hard-coded 2026-06-28.)
 >
 > If an action is **sanctioned by these OPs**, **reversible** (git-revertible / paper-only), or **already authorized standing** (J has said "if it's profitable, ship it" / "make it auto") — you **DO IT and report for REVOKE.** You do **NOT** end a turn with *"want me to…?" / "your call?" / "should I…?"* — that framing is the banned anti-pattern (OP-11 FORBIDDEN FRAMING).
@@ -188,13 +190,11 @@ These are non-negotiable, second only to the 10 rules above.
 >
 > If you catch yourself writing a question to J, first ask: *does it hit 1–4?* If no → delete the question, do the work, report what you did. A turn that ends in a permission-question on sanctioned work is a **failed turn**.
 
-> **Archived OPs** (1–2, 4–10, 12–15, 17–21, 23–24, 26–30, 32) moved verbatim to [`markdown/doctrine/DOCTRINE-ARCHIVE.md`](markdown/doctrine/DOCTRINE-ARCHIVE.md) on 2026-05-23.
-
 3. **Cost-effectiveness gate.** $200/mo Max 20x plan budget (upgraded from $100/5x 2026-06-24). Before adding any new feature, estimate per-day cost and show how it fits. Lean is the default; spam is the enemy.
 
 11. **Karpathy method — eval-first, shadow mode, data flywheel.** Loop details + repro spec: [`markdown/infra/KARPATHY-METHOD.md`](markdown/infra/KARPATHY-METHOD.md).
     - **Eval-first gate:** every HIGH+ urgency recommendation needs A/B scorecard at `analysis/recommendations/{rule_id}.json` BEFORE ratification. Auto-ratify requires: OOS_positive AND WF ≥ 0.70 AND sub_window_stable AND anchor_no_regression. **J is NOT a ratification gate** — J's role is REVOKE only. evidence_n ≥ 15 is advisory. Ratify any after-hours evening.
-    - **FORBIDDEN FRAMING:** NEVER present a profitable/validated edge as "flip-ready / your call / want me to flip it?" If it clears the auto-ship bar OR J has ever said "if it's profitable implement it" (he has — STANDING authorization), SHIP it and report for REVOKE. Asking permission to ship a profitable edge IS the banned anti-pattern.
+    - **FORBIDDEN FRAMING (see OP-0):** a cleared/standing-authorized edge SHIPS and reports for REVOKE; asking permission to ship a profitable edge IS the banned anti-pattern.
 
 16. **J's edge is the source of truth — measure edge capture, NOT aggregate optimization.**
 
@@ -278,7 +278,7 @@ These are non-negotiable, second only to the 10 rules above.
 > - **(c) VISIBILITY is the #1 gap — J is effectively blind.** Every autonomous component must emit a state J can glance at and verify **independent of your word.** Proactively surface the REAL status (what fired, what crashed, are we actually trading) BEFORE he asks — and prefer giving him a command/view he can run himself over asking him to trust you.
 > - **(d) THINK LIKE JACK:** be skeptical of your OWN output; the goal is **TRADING + money**, not demos/artifacts/green checkmarks; if you hit the same wall twice, audit the FRAME (OP-32) instead of grinding. Measure a session by *"can J see it, and does it still run tomorrow,"* not by what you shipped.
 > - **(e) A REPEATED QUESTION FROM J IS A MISSING INSTRUMENT, not a query** (the generative half; metacog 2026-06-29). The 2nd time J asks any variant of is-it-running / did-it-crash / is-it-trading / where-is-X, **STOP answering ad-hoc and BUILD the standing surface that retires it** (state file + glanceable view + auto-ping-on-change), then report you built it. Assurance — J not having to ask — is the deliverable; the artifact is its carrier. **I am the monitoring loop; J is the off-switch** — if J saw the break before I did, my visibility layer has a hole. Mechanized so it survives session amnesia: `j-question-ledger` → `friction_distiller` `recurring_user_question` escalates at ≥2. Ritual: the **J-MIND CHECK** in `/self-check`.
-> - **(f) LEAN OUTPUT.** Lead with the decision/result (HOLD/SKIP/ENTER, or the answer), then minimal reasoning — no walls of text (J's standing gripe). NEVER end an authorized-work turn with "No response requested" or a permission-question — that's a failed turn (OP-0).
+> - **(f) LEAN OUTPUT.** Lead with the decision/result (HOLD/SKIP/ENTER, or the answer), then minimal reasoning — no walls of text (J's standing gripe). NEVER end an authorized-work turn with "No response requested" or a permission-question (OP-0).
 ---
 
 ## Update log
