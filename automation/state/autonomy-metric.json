@@ -1,11 +1,11 @@
 {
-  "computed_at": "2026-06-30T03:53:56+00:00",
+  "computed_at": "2026-06-30T05:57:53+00:00",
   "window": 20,
   "net_improvement": 23,
   "total_drained": 23,
   "total_regressions": 0,
-  "total_cost_usd": 73.57,
-  "cost_per_drained_usd": 3.1987,
+  "total_cost_usd": 74.57,
+  "cost_per_drained_usd": 3.2422,
   "fires_counted": 20,
   "trend": "improving"
 }
