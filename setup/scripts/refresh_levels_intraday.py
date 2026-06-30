@@ -89,11 +89,12 @@ def _level(price: float, spot: float, label: str, source: str, now_iso: str) -> 
     }
 
 
-def refresh() -> dict:
+def refresh(df: pd.DataFrame | None = None) -> dict:
     now = et_now()
     now_iso = now.strftime("%Y-%m-%dT%H:%M:%S-04:00")
     today = now.strftime("%Y-%m-%d")
-    df = _spy_bars()
+    # df injectable for tests/replay (G6 seam pattern); default = live REST, byte-identical.
+    df = _spy_bars() if df is None else df
     if df.empty:
         return {"ok": False, "error": "no bars"}
 

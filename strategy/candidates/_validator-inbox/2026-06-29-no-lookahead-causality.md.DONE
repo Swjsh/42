@@ -1,3 +1,17 @@
+> **RESOLVED 2026-06-29 gamma-drive — SUPERSEDED by the post-mortem's own redundancy backtest.**
+> The post-mortem this was authored from (`markdown/research/MISSED-SETUPS-POSTMORTEM-2026-06-29.md`)
+> was CORRECTED by its appended REDUNDANCY/BASE-RATE/CALL-SIDE backtests. NET conclusion:
+> DUAL_REJECTION candle detector is REDUNDANT (level_rejection already fires at bear 8);
+> filter-5 relaxation is a COIN FLIP (48% vs 47% null) — Do NOT arm; double-bottom calls wash
+> out by EOD. 'Both setups J flagged are mirages in aggregate. The engine's HOLD was correct
+> process, not a bug.' The detectors here do NOT exist in code and the research rejected
+> building them — these gym validators must NOT be built (OP-22 anti-bloat).
+>
+> The ONE real shippable win — the intraday level feed (`refresh_levels_intraday.py`) — DID
+> ship. Its lasting regression intent (the `v_dual_rejection_starved_without_level` frozen-
+> key-levels pin) is now ENCODED: `backtest/tests/test_refresh_levels_intraday.py` (8/8, incl.
+> `test_frozen_levels_bug_would_be_caught` bite). Loop closed > artifact built.
+
 # Gym validators: no-lookahead-causality (from 2026-06-29 missed-setups post-mortem)
 
 Source: markdown/research/MISSED-SETUPS-POSTMORTEM-2026-06-29.md. N=1 discipline: assert DETECTION on fixtures, arm nothing.
