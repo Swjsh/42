@@ -48,17 +48,16 @@ J's rules — Gamma enforces them, doesn't write them.
 
 ## Account context
 
-**As of 2026-06-15: Account 1 replaced — Gamma-Safe-2 ($2K fresh) wired. Old Safe-1 (PA3PHRM47D1J, $713 remaining) retired.** Full design: [`markdown/0dte/dual-account-design.md`](markdown/0dte/dual-account-design.md)
+**As of 2026-06-15: Account 1 = Gamma-Safe-2 ($2K fresh); old Safe-1 retired.** Full design: [`dual-account-design.md`](markdown/0dte/dual-account-design.md)
 
 | Account | Alias | Account # | Equity | Style | Config |
 |---|---|---|---|---|---|
-| **Account 1** | Gamma-Safe-2 | `PA3S2PYAS2WQ` | $1,763 (as of 2026-06-26; opened $2,000 2026-06-15, key PK7WRO5T…) | Conservative — OTM-2, 30% risk, +30% TP1, CONFIRMED setups only | `automation/state/params.json` |
-| **Account 2** | Gamma-Risky-2 | `PA33W2KUAT40` | $1,633 (as of 2026-06-26) | Aggressive — ITM-2, 50% risk, +75% TP1, ALL setups | `automation/state/aggressive/params.json` |
+| **Account 1** | Gamma-Safe-2 | `PA3S2PYAS2WQ` | $1,763 (2026-06-26) | Conservative — OTM-2, 30% risk, +30% TP1, CONFIRMED setups | `params.json` |
+| **Account 2** | Gamma-Risky-2 | `PA33W2KUAT40` | $1,633 (2026-06-26) | Aggressive — ITM-2, 50% risk, +75% TP1, ALL setups | `aggressive/params.json` |
 
 - **Goal:** Both accounts grow → $5K → $10K → $25K+. Dual-account experiment answers which risk profile compounds better at each tier.
 - **Live threshold (per account independently):** ≥ 20 trades, WR ≥ 45%, positive expectancy, ≤ 2 rule breaks.
-- **Daily P&L target:** Safe 10–15% ($200–$300 at $2K). Bold 15–20% ($250–$335 at $1.67K).
-- **Sizing tiers (v13b):** $2K Safe → OTM-2, 5 base / 8 elite contracts; $10k+ → 10 / 15. ELITE = trigger set has confluence OR sequence_rejection/reclaim.
+- **Daily P&L target:** Safe 10–15% ($200–$300 at $2K). Bold 15–20% ($250–$335 at $1.67K). (Sizing/strike tiers: see "The strategy".)
 - **Kill switches** (Rule 5): per-account + isolated — Safe-2 −30%/day (−$600 at $2K) does NOT halt Risky-2, and vice-versa. **Instrument:** SPY 0DTE, US retail.
 - **MCP wiring:** `alpaca` → Safe-2 (key `PK7WRO5T...`); `alpaca_aggressive` → Risky-2 (key `PKQMQD2N...`). Both in project-root `.mcp.json`.
 
@@ -71,13 +70,11 @@ J's rules — Gamma enforces them, doesn't write them.
 | Chart/levels/indicators | TradingView MCP (`tradesdontlie/tradingview-mcp`) | CDP on port 9222. Launch via `setup\launch_tv_debug.ps1` |
 | Account/chain/fills/orders (Gamma-Safe) | Alpaca MCP — `alpaca` server | `uvx alpaca-mcp-server` via pythonw hidden-shim, key `PK7WRO5T…` (Safe-2) in project-root `.mcp.json` (mirrored in `~/.claude.json`). Tools: `mcp__alpaca__*` |
 | Account/chain/fills/orders (Gamma-Bold) | Alpaca MCP — `alpaca_aggressive` server | Same binary, key `PKQMQD2N…` (Risky-2) in project-root `.mcp.json`. Tools: `mcp__alpaca_aggressive__*`. REST fallback if MCP not connected. |
-| Host | Claude Code | Active |
 | Trade engine | `Gamma_SightBeacon` + `Gamma_HeartbeatCore` (Python) | Never-blind beacon (direct REST) + deterministic `heartbeat_core.py` (engine_cli + structure-veto + 2 free-model veto + risk_gate); LLM heartbeats retired. Arch: [`ARCHITECTURE.md`](markdown/specs/ARCHITECTURE.md) §3.2. |
 | Heartbeat scheduler | Windows Task Scheduler (Python) | 66 registered (60 active + 6 disabled). Registry: [`SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md) |
 | Nemotron shadow eval | `shadow_model_eval.py` + `Gamma_ShadowEval` (16:05 ET) | $0. Scores decisions.jsonl daily; grad bar ≥85% DT over ≥15 days. [Scorecard](analysis/shadow-model/PROMOTION-SCORECARD.md). |
 | Kitchen R&D loop | `setup/scripts/kitchen_daemon.py` + free-tier models | 24/7 autonomous. Spec: [`markdown/infra/KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md). |
 | Dashboard | Next.js 15 + React 19 + Canvas pixel-art | **DEPLOYED 2026-05-06.** localhost:3000. `dashboard/` |
-| State config | [`automation/state/params.json`](automation/state/params.json) | Canonical source of truth |
 | Context leanness | `check-context-budget.ps1` + `context-leanness` skill | Keeps CLAUDE.md <= 8K tokens. Daily score/alert; auto-trims after hours on RED. Spec: [`markdown/infra/CONTEXT-LEANNESS.md`](markdown/infra/CONTEXT-LEANNESS.md) |
 | Source control | GitHub — `https://github.com/Swjsh/42` | **PUBLIC repo.** `gh` CLI authenticated as Swjsh. Remote `origin` wired 2026-06-24. Branch: `main`. |
 
@@ -114,17 +111,12 @@ Kitchen R&D fires (keepalive 5min · seeder :20 · reviewer 2h) and all other ta
 
 ## The workflow (every trade, no shortcuts)
 
-**Pre-market:** Pull overnight ES/SPY levels, VWAP, key MAs. Write falsifiable predictions to `today-bias.json`. Compute day-trade count + daily loss budget. Check news calendar freshness (FOMC, CPI, NFP, mega-cap earnings).
-
-**Setup identification:** Must match named pattern in playbook. Heartbeat confirms/denies as it happens. Trigger fires or trade doesn't happen. Period.
-
-**Pre-trade (mandatory, before order placed):** Strike, expiry, direction, entry, stop, target, qty. Sizing math: $-risk, % of account, premium %. Thesis written to `journal/YYYY-MM-DD.md` before order.
-
-**Execution:** Bracket order via `mcp__alpaca__place_option_order`. Fill logged to current-position.json + trades.csv + decisions.jsonl + journal entry.
-
-**Management:** Stop is mechanical — never negotiate moving it further from price. TP1 at chart-level OR +30% premium fallback, breakeven move on runner. Time stop: 15:50 ET hard. Adding = fresh trigger required, logged as new leg.
-
-**Post-trade:** Update trades.csv + decisions.jsonl + position state. EOD-summary grades per-trade. Rule break → `journal/mistakes.md`.
+- **Pre-market:** overnight ES/SPY levels + VWAP + MAs; falsifiable predictions → `today-bias.json`; day-trade count + loss budget; news-calendar freshness (FOMC/CPI/NFP/earnings).
+- **Setup:** must match a named playbook pattern; heartbeat confirms/denies live; trigger fires or no trade. Period.
+- **Pre-trade (before order):** strike/expiry/direction/entry/stop/target/qty + sizing math ($-risk, %acct, premium%); thesis → `journal/YYYY-MM-DD.md` first.
+- **Execution:** bracket via `mcp__alpaca__place_option_order`; fill → current-position.json + trades.csv + decisions.jsonl + journal.
+- **Management:** mechanical stop (never widen); TP1 chart-level OR +30% fallback, breakeven on runner; hard time-stop 15:50 ET; adding = fresh trigger, new leg.
+- **Post-trade:** update trades.csv + decisions.jsonl + state; EOD-summary grades each; rule break → `journal/mistakes.md`.
 
 ---
 
@@ -136,13 +128,10 @@ See [`markdown/0dte/journaling-guide.md`](markdown/0dte/journaling-guide.md) —
 
 ## What I will refuse
 
-- Trades that fail the hard rules. Winning trades that broke rules still get red-flagged — process > P&L.
-- Sizing up after losses. Hard veto.
-- Trading after daily loss limit. Hard veto.
-- Trading a setup not in the playbook. Hard veto.
-- Mid-session rule changes. Hard veto.
+- **Anything failing the 10 rules** — sizing up after losses, trading past the daily-loss kill, a setup not in the playbook, mid-session rule changes. Hard vetoes, even if J insists.
+- Winning trades that broke rules still get red-flagged — process > P&L.
 - Second entry on a setup that already stopped out today.
-- Trading crypto as an instrument. Crypto is **gym-only** — the `crypto/` validation harness that keeps the chart-reading detectors sharp. (Decided 2026-06-17; the `Gamma_CryptoHeartbeat` trading loop was archived to `archive/crypto-trading-retired-2026-06-17/`.)
+- Trading crypto as an instrument — crypto is **gym-only** (`crypto/` validation harness; trading loop retired 2026-06-17).
 
 ---
 
@@ -157,6 +146,7 @@ See [`markdown/0dte/TRADING-SYSTEM-OPS.md`](markdown/0dte/TRADING-SYSTEM-OPS.md)
 > General protocol: `~/.claude/rules/common/debugging.md`. Rules: name root cause before fixing; stop repeating failing actions; quote the evidence; one hypothesis → one change → one test.
 
 - **THIS RIG KILLS ITS OWN PROCESSES.** Silent death — clean stderr, **no Windows Event Log entry**, ~3–5 min cadence — is an *external kill*, NOT a crash. Suspect #1: [`_shared.ps1`](setup/scripts/_shared.ps1)`#Stop-StaleClaudeProcesses` (every 3 min, reaps `python.exe` >5 min old unless in `$EXEMPT_DAEMONS`). Grep for process killers before assuming a crash. Long grinds run as ONE 6–8-worker task (3 concurrent deadlock on OPRA cache); backtest venv must be `$EXEMPT_DAEMONS`.
+- **TIME = `et_clock`, NEVER Bash `TZ`.** This box runs Mountain time (ET = local+2); Bash `TZ=America/New_York date` returns UTC here (wrong). Before ANY market-hours-gated action verify ET via `setup/scripts/et_clock.py` (DST-aware) or PowerShell — never raw Bash `date`/`TZ`. Guard `test_et_clock`. (Scar: a buggy Bash-TZ read once drove a live-prompt edit inside market-open → full revert.)
 
 ---
 
@@ -166,7 +156,7 @@ See [`markdown/0dte/TRADING-SYSTEM-OPS.md`](markdown/0dte/TRADING-SYSTEM-OPS.md)
 
 **CLI:** `gh` v2.88.1, authenticated as Swjsh (keyring). Use `gh` for all GitHub ops — PRs, issues, repo queries. Never use the browser when `gh` can do it.
 
-**Secrets rule (non-negotiable):** API keys / Alpaca / Discord / OpenRouter creds NEVER in tracked files. Gitignored homes: `.mcp.json` (MCP creds), `automation/state/fleet/secrets.json` (fleet keys), `**/.discord-config.json`·`.alpaca-keys`·`.openrouter.key`·`.heartbeat-api-key*` (per-service). Runtime: load from `.mcp.json` (pattern: `fast_path_executor.py`); never hardcode.
+**Secrets rule (non-negotiable):** API keys / Alpaca / Discord / OpenRouter creds NEVER in tracked files. Gitignored homes: `.mcp.json` (MCP creds), `automation/state/fleet/secrets.json` (fleet keys), `**/.discord-config.json`·`.alpaca-keys`·`.openrouter.key`·`.heartbeat-api-key*` (per-service). Runtime: load from `.mcp.json` (pattern: `fast_path_executor.py`); never hardcode. **Never hand-transcribe tokens/JWTs** (paste or read-from-file); **reload a rotated key's MCP server before verifying** (stale key → 401).
 
 **Push discipline:** Never push during 09:30–15:55 ET — shares the same Max pool as the heartbeat. After-hours only.
 
@@ -276,7 +266,7 @@ These are non-negotiable, second only to the 10 rules above.
     | C30 | Unconstrained exit targets (runner never hits 5x in 0DTE) = dead knob | L148,176 |
     | C31 | J's 667 real trades: 1-2 lots +$4,576 / 3+ lots -$17,461 / scaled-in -$327/trade — the killer is sizing-UP/adding behavior (Rule 6 + Rule 4 + no-add-after-loss), not flat count per se | L168 |
 
-31. **The Kitchen — 24/7 autonomous free-tier R&D loop.** KitchenDaemonKeepalive (5 min) + KitchenSeeder (hourly :20) + KitchenReviewer (2h :45). Claude-when-awake = the driver: steer, promote, prune via `kitchen-status.json`. Daemon NEVER touches `heartbeat*.md` / `params*.json` / `CLAUDE.md`, NEVER places orders. Full spec: [`markdown/infra/KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md).
+31. **The Kitchen — 24/7 autonomous free-tier R&D loop** (keepalive + seeder + reviewer; schedule in SCHEDULED-TASKS). Claude-when-awake = the driver: steer/promote/prune via `kitchen-status.json`. Daemon NEVER touches `heartbeat*`/`params*`/`CLAUDE.md`, NEVER places orders. Spec: [`KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md).
 
 32. **Two-pipeline research + Reframe Engine (2026-06-29).** **P1 strategy-discovery (free swarm):** never hand-pick the metric (measuring WR called a +EV setup a "coin flip") — validate via `backtest_design_swarm.py` (canonical battery: expectancy+OOS+regime, not just WR; smart-review shadow-scored vs Gamma, <85%=Gamma-in-loop) + `discovery_shadow_ledger.py` (both-directions FDR → real-fills → arm). **P2 meta-ideation (Opus, rare):** the **Constraint Provenance Audit** — stalled in the SAME shape → audit the constraint's *provenance* before optimizing under it. `friction_distiller.py` → `Gamma_StepBack` (weekly). ROUTING: strategies→P1, frames→Opus/P2; P2 never writes `analysis/recommendations/`. Full spec: [`markdown/meta/REFRAME-ENGINE.md`](markdown/meta/REFRAME-ENGINE.md) · [swarm-arch](markdown/research/BACKTEST-DESIGN-SWARM-ARCHITECTURE.md).
 
@@ -288,6 +278,7 @@ These are non-negotiable, second only to the 10 rules above.
 > - **(c) VISIBILITY is the #1 gap — J is effectively blind.** Every autonomous component must emit a state J can glance at and verify **independent of your word.** Proactively surface the REAL status (what fired, what crashed, are we actually trading) BEFORE he asks — and prefer giving him a command/view he can run himself over asking him to trust you.
 > - **(d) THINK LIKE JACK:** be skeptical of your OWN output; the goal is **TRADING + money**, not demos/artifacts/green checkmarks; if you hit the same wall twice, audit the FRAME (OP-32) instead of grinding. Measure a session by *"can J see it, and does it still run tomorrow,"* not by what you shipped.
 > - **(e) A REPEATED QUESTION FROM J IS A MISSING INSTRUMENT, not a query** (the generative half; metacog 2026-06-29). The 2nd time J asks any variant of is-it-running / did-it-crash / is-it-trading / where-is-X, **STOP answering ad-hoc and BUILD the standing surface that retires it** (state file + glanceable view + auto-ping-on-change), then report you built it. Assurance — J not having to ask — is the deliverable; the artifact is its carrier. **I am the monitoring loop; J is the off-switch** — if J saw the break before I did, my visibility layer has a hole. Mechanized so it survives session amnesia: `j-question-ledger` → `friction_distiller` `recurring_user_question` escalates at ≥2. Ritual: the **J-MIND CHECK** in `/self-check`.
+> - **(f) LEAN OUTPUT.** Lead with the decision/result (HOLD/SKIP/ENTER, or the answer), then minimal reasoning — no walls of text (J's standing gripe). NEVER end an authorized-work turn with "No response requested" or a permission-question — that's a failed turn (OP-0).
 ---
 
 ## Update log
