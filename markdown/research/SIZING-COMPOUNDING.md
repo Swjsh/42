@@ -3,7 +3,7 @@
 > **Status: ANALYSIS + DESIGN (Rule 9 — nothing live changed).** No edit to `risk_gate.py`,
 > `params.json`, or either heartbeat. Markets closed. Ratification of any change is a separate
 > after-hours step. This is the forward, per-trade-distribution Kelly/compounding companion to
-> the historical-behavior study [`SIZING-STUDY-2026-06-19.md`](SIZING-STUDY-2026-06-19.md)
+> the historical-behavior study [`SIZING-STUDY-2026-06-19.md`](../_attic/SIZING-STUDY-2026-06-19.md)
 > (which designed the 6% premium ceiling from J's Webull ledger). This doc stress-tests that
 > ceiling against the survivor edge's *own* compounding math — and finds a tension.
 
@@ -187,7 +187,7 @@ of how well they grow the account while honoring the 10 rules:
    removes the strand-trap (above $10K, P(strand)=0). This is the highest-leverage single change:
    it converts a +$21/trade account into a +$78/trade account for ~$1K of capital.
 3. **Relax the 6% ceiling toward a 30%-cap-only rule with the post-loss throttle** (the throttle
-   from `SIZING-STUDY-2026-06-19.md` neutralizes revenge-sizing without a hard premium ceiling).
+   from `markdown/_attic/SIZING-STUDY-2026-06-19.md` neutralizes revenge-sizing without a hard premium ceiling).
    The 30%-cap rule grows fastest and never strands in the MC — but carries deeper drawdowns (8%
    vs 3%) and re-opens the size-up surface the ceiling was meant to close. Only attractive *paired*
    with the post-loss throttle.

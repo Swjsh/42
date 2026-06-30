@@ -1,7 +1,7 @@
 # Confluence / Structure — Real-Fills Verdict (KILL as a trigger) — 2026-06-20
 
 > **J's challenge:** "I don't believe a word until I see you've backtested it to infinity."
-> **Answer:** done — on real OPRA option fills (C1, the only WR authority), 16 months, OOS-split, every quarter, every VIX band. **The signal loses money as a 0DTE trigger.** This supersedes the SPY-direction proxy ([STRUCTURE-EDGE-STUDY](STRUCTURE-EDGE-STUDY-2026-06-20.md)), which was explicitly *not* an option-edge claim (C3/L58).
+> **Answer:** done — on real OPRA option fills (C1, the only WR authority), 16 months, OOS-split, every quarter, every VIX band. **The signal loses money as a 0DTE trigger.** This supersedes the SPY-direction proxy ([STRUCTURE-EDGE-STUDY](../_attic/STRUCTURE-EDGE-STUDY-2026-06-20.md)), which was explicitly *not* an option-edge claim (C3/L58).
 > **Harness:** [`backtest/autoresearch/confluence_real_fills_validate.py`](../../backtest/autoresearch/confluence_real_fills_validate.py) → `simulate_trade_real`. Entry = fresh BOS/CHoCH + confluence bias agrees + conviction ≥ T; CALL (bull) / PUT (bear), ATM, qty 3, chart-stop-only (−99% premium), v15 exits, 45-min cooldown.
 
 ## The numbers (conviction sweep, real fills)

@@ -10,7 +10,7 @@ description: The Chart Master's one-shot structured chart read for SPY. Fuses MA
 
 Pairs the **[market_structure.py](../../../crypto/lib/market_structure.py)** detector (new — swing labeling + trend + BOS/CHoCH), the existing **[chart_patterns.py](../../../crypto/lib/chart_patterns.py)** library, and **key-levels.json** into a single read via **[backtest/autoresearch/chart_read.py](../../../backtest/autoresearch/chart_read.py)**.
 
-Reference for what every term means + cited geometry: **[TA-PATTERN-REFERENCE.md](../../../markdown/research/TA-PATTERN-REFERENCE.md)**. Capability map + gaps: **[TA-CAPABILITY-AND-GAPS-2026-06-20.md](../../../markdown/research/TA-CAPABILITY-AND-GAPS-2026-06-20.md)**.
+Reference for what every term means + cited geometry: **[TA-PATTERN-REFERENCE.md](../../../markdown/research/TA-PATTERN-REFERENCE.md)**. Capability map + gaps: **[TA-CAPABILITY-AND-GAPS-2026-06-20.md](../../../markdown/_attic/TA-CAPABILITY-AND-GAPS-2026-06-20.md)**.
 
 ---
 

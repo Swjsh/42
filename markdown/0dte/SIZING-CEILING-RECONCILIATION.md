@@ -59,7 +59,7 @@ floor are mutually incompatible.**
 
 ### Two ceilings exist and they disagree
 
-- **6% = the SIZING-STUDY *recommendation*** ([`markdown/research/SIZING-STUDY-2026-06-19.md`](../research/SIZING-STUDY-2026-06-19.md))
+- **6% = the SIZING-STUDY *recommendation*** ([`markdown/_attic/SIZING-STUDY-2026-06-19.md`](../_attic/SIZING-STUDY-2026-06-19.md))
   — prudent in spirit, but explicitly derived for J's **cheap OTM-3** style ($0.30–0.50, mean $1.94)
   and tabled only those premiums. **NOT ratified into params.**
 - **40% = what `params.json` `v15_max_premium_pct_of_account[$0-2K]` actually enforces TODAY** ($800).
@@ -160,7 +160,7 @@ Nothing is changed in `params.json`, `risk_gate.py`, or either heartbeat. This i
 
 - Script: `backtest/autoresearch/sizing_ceiling_reconciliation.py` (`backtest/.venv/Scripts/python.exe …`)
 - Scorecard JSON: `analysis/recommendations/sizing-ceiling-reconciliation.json`
-- Source docs: `markdown/research/SIZING-STUDY-2026-06-19.md` (the 6% derivation),
+- Source docs: `markdown/_attic/SIZING-STUDY-2026-06-19.md` (the 6% derivation),
   `markdown/0dte/J-DAILY-TRADING-BOOK.md` (B1 feasibility), `automation/state/params.json` (live rails)
 - Master-plan row: **B6** in `markdown/research/J-DATA-RESEARCH-MASTER-PLAN.md`
 

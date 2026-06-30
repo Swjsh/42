@@ -1,8 +1,8 @@
 # Research Backlog — Trading Knowledge, Strategies & Algo Tech
 
 > **What this is:** the *external-knowledge intake loop* for Project Gamma. It is NOT a strategy list — those already exist and stay canonical:
-> - **[`markdown/research/STRATEGY-DIRECTION-BACKLOG.md`](../markdown/research/STRATEGY-DIRECTION-BACKLOG.md)** — self-generated structural *classes/dimensions* (premium-selling, DTE expansion, regime-switch…). The loop drives through these.
-> - **[`markdown/research/STRATEGY-HUNT-BACKLOG.md`](../markdown/research/STRATEGY-HUNT-BACKLOG.md)** — the tactical signal-family sweep + gate tally.
+> - **[`markdown/research/STRATEGY-BACKLOG.md` (Direction backlog)](../research/STRATEGY-BACKLOG.md)** — self-generated structural *classes/dimensions* (premium-selling, DTE expansion, regime-switch…). The loop drives through these.
+> - **[`markdown/research/STRATEGY-BACKLOG.md` (Hunt queue)](../research/STRATEGY-BACKLOG.md)** — the tactical signal-family sweep + gate tally.
 >
 > **This file is the upstream feeder:** where do NEW ideas/techniques/data feeds enter from the outside world, on what cadence do we review them, prototype them cheaply, and log the lesson. An external idea that survives a quick prototype here graduates into one of the two backlogs above (or a `markdown/research/` study) for the full gate gauntlet.
 >
@@ -111,7 +111,7 @@ Lightweight append-only JSONL (one event per line — git-friendly, grep-friendl
 - `event` is the lifecycle stage; append a fresh line each transition (immutable history, never edit in place — C-immutability).
 - `verdict` ∈ `WIN | DEAD | LEAD | NEEDS_DATA` once `event:tested`.
 - `metrics` mirrors the gate stack so a glance tells you if it's graduate-able.
-- `routed_to` = path it graduated into (e.g. `markdown/research/STRATEGY-DIRECTION-BACKLOG.md#7`) or the death-doc.
+- `routed_to` = path it graduated into (e.g. `markdown/research/STRATEGY-BACKLOG.md` Direction backlog #7) or the death-doc.
 - **Why JSONL not a DB:** matches the rig's existing pattern (`decisions.jsonl`, `cook-queue.jsonl`, `recommendations-log.jsonl`) — same tooling, same retention discipline, zero new infra (OP-3).
 
 A one-line roll-up (`research/session-log.summary.md`, regenerated on each LOG phase) can give J a glance-view: open cards by status, this-week verdicts, graduation count. _(generate later — JSONL is the source of truth.)_

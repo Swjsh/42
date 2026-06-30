@@ -2,7 +2,7 @@
 
 > **Status:** DESIGN ONLY. This document changes no live code. It specifies the final big architectural refactor so it can be executed deliberately and safely, one conductor-sized task at a time, with a parity gate as backpressure.
 >
-> **Source:** Blueprint `markdown/planning/GAMMA-AUTONOMY-BLUEPRINT-2026-06-18.md`, Phase 2b ("Detector→Insight registry + one shared decision library (backtest=live parity)") and the cross-cutting "drift-detection test kills manual `gamma-sync` … better: **generate** the derived copies … the manual sync ritual IS the drift vector."
+> **Source:** Blueprint `markdown/planning/AUTONOMY-ROADMAP.md` (Superseded snapshots appendix — the 2026-06-18 blueprint), Phase 2b ("Detector→Insight registry + one shared decision library (backtest=live parity)") and the cross-cutting "drift-detection test kills manual `gamma-sync` … better: **generate** the derived copies … the manual sync ritual IS the drift vector."
 >
 > **Owner of execution:** the `Gamma_Conductor` after-hours fire (`automation/prompts/conductor.md`), one bounded task per fire, parity gate g-by-gate.
 >

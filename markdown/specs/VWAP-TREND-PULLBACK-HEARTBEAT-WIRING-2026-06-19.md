@@ -94,7 +94,7 @@ STRIKE: per the v15 per-tier table (OTM-3 at $1K / OTM-2 at $2–10K / OTM-1 at 
 at $25K+). The edge was validated ATM and ITM1; map to the account tier at execution (same
 strike logic as the other setups — do NOT hardcode).
 
-SIZING: **min-3 floor + per-trade premium ceiling ~6% of equity** (markdown/research/SIZING-STUDY-2026-06-19.md).
+SIZING: **min-3 floor + per-trade premium ceiling ~6% of equity** (markdown/_attic/SIZING-STUDY-2026-06-19.md).
 BASE tier qty (this is a WATCH→LIVE setup; no ELITE upsize until a live archive accrues). The
 post-loss throttle (if/when wired) applies normally.
 

@@ -87,7 +87,7 @@ If a side fires:
   (`premium_stop_pct` / `premium_stop_pct_bear`) — already the live default. DO NOT
   set a tight premium stop; that is exactly what choked this setup (−8% → WR 42.9%).
 - **sizing**: min 3 contracts (`min_contracts`), premium ceiling ~6% equity
-  (`markdown/research/SIZING-STUDY-2026-06-19.md`); `risk_gate.check_order` is the authority.
+  (`markdown/_attic/SIZING-STUDY-2026-06-19.md`); `risk_gate.check_order` is the authority.
 - **TP / runner / time stop**: the standard v15 stack (TP1 chart-level OR +50% premium
   fallback, `tp1_qty_fraction`; runner 2.5×; 15:50 ET hard time stop). No special exits.
 - Route through the SAME `### Pre-execution gate sequence` + `### Execution steps` as a

@@ -61,7 +61,7 @@ The pieces this session built are not separate features — they are one continu
               (repeat — next fire, fresh context, durable memory in STATUS.md + queue)
 ```
 
-The full operating model and the evidence behind it live in [`markdown/planning/GAMMA-AUTONOMY-BLUEPRINT-2026-06-18.md`](../../markdown/planning/GAMMA-AUTONOMY-BLUEPRINT-2026-06-18.md). The one-sentence north star: **stop describing invariants in prose and start enforcing them in code at every boundary — then let Gamma, not J, hold the plan.**
+The full operating model and the evidence behind it live in [`markdown/planning/AUTONOMY-ROADMAP.md`](../../markdown/planning/AUTONOMY-ROADMAP.md) (Superseded snapshots appendix — the 2026-06-18 blueprint). The one-sentence north star: **stop describing invariants in prose and start enforcing them in code at every boundary — then let Gamma, not J, hold the plan.**
 
 ## How I get better over time (the learn loop, explicit)
 

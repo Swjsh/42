@@ -268,7 +268,7 @@ Task Scheduler → wscript.exe //nologo run_exe_hidden.vbs
 
 **Cost discipline:** $0.07/day replay × 5 days/week = $0.35/week. 90-day one-shot ≈ $6. Total recurring ≈ $3/mo.
 
-**Encoded in:** `automation/swarm/replay/` + `markdown/research/SWARM-REPLAY-PLAYBOOK.md` + `markdown/research/SWARM-BENCHMARK-WEEK-1.md` + `analysis/swarm-benchmark/aggregate.json`.
+**Encoded in:** `automation/swarm/replay/` + `markdown/research/SWARM-REPLAY-PLAYBOOK.md` + `markdown/research/SWARM-BENCHMARK.md` (Week-1 section) + `analysis/swarm-benchmark/aggregate.json`.
 
 ---
 

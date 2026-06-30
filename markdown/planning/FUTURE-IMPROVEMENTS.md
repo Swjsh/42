@@ -207,7 +207,7 @@ Current grinder varies 7 knobs. Unexplored (rough list):
 - **Estimate:** 30 min code + smoke test
 
 ### 15. SNIPER aggregate-only ratification (T42d)
-- **Trigger:** J morning decision per `markdown/research/SNIPER-FINAL-VERDICT-2026-05-13.md`
+- **Trigger:** J morning decision per `markdown/_attic/SNIPER-FINAL-VERDICT-2026-05-13.md`
 - **Scope:** ratify SNIPER on AGGREGATE metrics (drop OP-16 J-anchor floor). Best real-fills combo: stop=-0.10, PL=0.05/0.08, ITM-2, wide $14K over 16mo, 193 trades, 58.5% WR, edge_per_trade ~$74.
 - **Recommendation:** retire SNIPER unless J wants the small marginal edge — v14_enhanced + PFF cover the same setups better.
 

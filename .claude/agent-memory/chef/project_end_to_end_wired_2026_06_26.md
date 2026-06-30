@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-End-to-end wired map written to `markdown/planning/PROJECT-END-TO-END-WIRED-2026-06-26.md`. The loop = eye(sight_beacon)→brain(heartbeat_core+engine_cli 15 gates + Gate16 structure-veto)→hand(_execute+fleet_broker+exit_actuator)→ledger(core-decisions.jsonl)→presence(discord-watcher→bridge→J ~45s)→learn(kitchen+conductor)→APPLY(discord-responder ship<id>→autonomy_actuator commit).
+End-to-end wired map written to `markdown/planning/AUTONOMY-ROADMAP.md` (2026-06-26 section; originally `PROJECT-END-TO-END-WIRED-2026-06-26.md`, folded into the living roadmap 2026-06-29). The loop = eye(sight_beacon)→brain(heartbeat_core+engine_cli 15 gates + Gate16 structure-veto)→hand(_execute+fleet_broker+exit_actuator)→ledger(core-decisions.jsonl)→presence(discord-watcher→bridge→J ~45s)→learn(kitchen+conductor)→APPLY(discord-responder ship<id>→autonomy_actuator commit).
 
 **Why:** J asked for the strung-together autonomy picture + blunt scorecard after a 5-subsystem audit + a fix pass.
 

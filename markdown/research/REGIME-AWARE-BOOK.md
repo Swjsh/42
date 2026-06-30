@@ -2,7 +2,7 @@
 
 > **Status: DESIGN + LEAN SCAFFOLD (propose-only, Rule 9).** This document + `backtest/lib/engine/regime_book.py` define the architecture that ends the **one-setup fragility** by deploying *the right setup per regime*. **Nothing here is wired into the live heartbeat, params, or any trading path.** The regime→setup map is **provisional** — populated by candidates found on **proxy ★★ levels** this weekend (`analysis/recommendations/fleet-standalone-regime.json`), each of which must still **earn its place on real ★★★ levels** before it goes regime-active. The book is the *framework*; the validated setups slot into it as they pass the promotion bar.
 >
-> Authored 2026-06-19. Inputs: `fleet-standalone-regime.json`, `bullish-reclaim-standalone.json`, `WEEKEND-FINDINGS-RATIFICATION-2026-06-19.md`, `backtest/lib/engine/gex_regime.py`.
+> Authored 2026-06-19. Inputs: `fleet-standalone-regime.json`, `bullish-reclaim-standalone.json`, `markdown/_attic/WEEKEND-FINDINGS-RATIFICATION-2026-06-19.md`, `backtest/lib/engine/gex_regime.py`.
 
 ---
 

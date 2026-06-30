@@ -134,7 +134,7 @@ any strike that has a validated edge** (only OTM-5+ lottery tickets cost that li
 validated gap-and-go edge). **So on $2K the 6% ceiling and min-3 are mutually incompatible for this setup.**
 
 Two ceilings exist and they disagree:
-- **6% = the SIZING-STUDY *recommendation*** (`markdown/research/SIZING-STUDY-2026-06-19.md`) — prudent in
+- **6% = the SIZING-STUDY *recommendation*** (`markdown/_attic/SIZING-STUDY-2026-06-19.md`) — prudent in
   principle, but it was derived for J's cheap **OTM-3** ($0.30-0.40) style, **not** for ATM/ITM gap-and-go
   on a $600 underlying. It is **NOT yet ratified into params**.
 - **40% = what `params.json` `v15_max_premium_pct_of_account[$0-2K]` actually enforces TODAY** ($800). This is
