@@ -99,6 +99,101 @@ def check_broker_keys() -> list[str]:
     return out
 
 
+ENTRY_MIN_TICKS = 30  # enough session elapsed that a tradeable engine should show entries-or-nothing-fired
+
+
+def _today_decisions(now, path=None) -> list:
+    """Today's core-decisions rows (ET-date match). Fail-open -> []."""
+    p = path or (STATE / "core-decisions.jsonl")
+    day = now.strftime("%Y-%m-%d")
+    rows = []
+    try:
+        for ln in p.read_text(encoding="utf-8", errors="replace").splitlines():
+            ln = ln.strip()
+            if not ln or day not in ln:
+                continue
+            try:
+                o = json.loads(ln)
+            except Exception:  # noqa: BLE001
+                continue
+            if str(o.get("ts_et", "")).startswith(day):
+                rows.append(o)
+    except OSError:
+        pass
+    return rows
+
+
+def check_engine_tradeability(now, path=None) -> list:
+    """CONTENT check (not mtime): did the engine actually REACH an ENTER today, or did
+    high-scoring / trigger-firing setups get silently gate-blocked? The 2026-06-30 disease:
+    772 ticks, 0 ENTER, 64x SKIP_ELITE_BULL_LEVEL_RECLAIM on a clean bull trend -- self_check
+    read GREEN because every check was liveness-only. Flag the exact signature: a populated
+    session with 0 entries AND >=1 trigger fired-but-blocked. Weekday, after ~10:30 ET."""
+    out = []
+    if now.weekday() >= 5 or now.strftime("%H:%M") < "10:30":
+        return out  # weekend / too early -- not enough session elapsed to judge
+    rows = _today_decisions(now, path)
+    safe = [r for r in rows if r.get("account") == "safe"] or rows
+    if len(safe) < ENTRY_MIN_TICKS:
+        return out  # engine barely ticked -- the staleness checks cover that, not this
+    if any(str(r.get("verdict", "")).startswith("ENTER") for r in safe):
+        return out  # it entered (or could) -- fine
+    blocked = [r for r in safe if str(r.get("verdict", "")).startswith("SKIP") and r.get("triggers")]
+    if blocked:
+        from collections import Counter
+        verdict, n = Counter(r.get("verdict") for r in blocked).most_common(1)[0]
+        out.append(f"ENGINE CANNOT ENTER: {len(safe)} ticks today, 0 ENTER, {n}x {verdict} -- setups "
+                   f"scored AND fired a trigger but every entry was gate-blocked. The engine is "
+                   f"structurally sitting out (the 2026-06-30 zero-trade signature).")
+        return out
+    hi = [r for r in safe if max(r.get("bull_score") or 0, r.get("bear_score") or 0) >= 9]
+    if len(hi) >= ENTRY_MIN_TICKS:
+        out.append(f"ENGINE NOT ENTERING: {len(safe)} ticks today, 0 ENTER, {len(hi)} ticks scored >=9 "
+                   f"but no trigger fired (HOLD all day). High conviction never converted to a trade -- "
+                   f"check the trigger detector (straddle-only reclaim gap).")
+    return out
+
+
+_CEIL_ROLES = {"resistance", "broken_to_support"}
+_FLOOR_ROLES = {"support", "broken_to_resistance"}
+
+
+def check_level_integrity(path=None) -> list:
+    """CONTENT check: key-levels.json must be self-consistent. The engine reads every active
+    level near spot; if one price carries BOTH a ceiling role (resistance/broken_to_support)
+    AND a floor role (support/broken_to_resistance) it is fed contradictory structure (the
+    2026-06-30 pollution: 741.81 x9 + 741.61 x7, each as both). Flag contradictory roles (RED)
+    and heavy duplicates (>2x, DEGRADED). Fail-open."""
+    out = []
+    p = path or (STATE / "key-levels.json")
+    try:
+        d = json.loads(p.read_text(encoding="utf-8-sig"))
+    except Exception:  # noqa: BLE001
+        return out  # missing/unreadable -> staleness check owns it
+    from collections import defaultdict, Counter
+    roles = defaultdict(set)
+    counts = Counter()
+    for x in d.get("levels", []):
+        if str(x.get("tier", "")).lower() == "expired":
+            continue
+        try:
+            price = round(float(x["price"]), 2)
+        except (KeyError, TypeError, ValueError):
+            continue
+        roles[price].add(x.get("role"))
+        counts[price] += 1
+    contra = sorted(pr for pr, r in roles.items() if (r & _CEIL_ROLES) and (r & _FLOOR_ROLES))
+    if contra:
+        out.append(f"KEY-LEVELS CONTRADICTORY ROLES: price(s) {contra} carry BOTH a ceiling and a "
+                   f"floor role -- the engine reads the same price as resistance AND support at once. "
+                   f"refresh_levels_intraday role/dedup bug (2026-06-30).")
+    dups = sorted(pr for pr, c in counts.items() if c > 2)
+    if dups and not contra:
+        out.append(f"KEY-LEVELS DUPLICATED: price(s) {dups} appear >2x in the active feed -- dedup "
+                   f"not collapsing repeated writes.")
+    return out
+
+
 def run() -> dict:
     now = et_now(); hm = now.strftime("%H:%M")
     rth = ("09:30" <= hm <= "15:55") and now.weekday() < 5
@@ -141,7 +236,13 @@ def run() -> dict:
         except Exception:  # noqa: BLE001
             pass
 
-    _broken = lambda p: ("crash" in p.lower()) or ("RED" in p) or ("STALE/REVOKED" in p) or ("KEY MISSING" in p)
+    # 6. ENGINE TRADEABILITY (content, not mtime) -- the 2026-06-30 disease: GREEN while 0 ENTER all day
+    problems.extend(check_engine_tradeability(now))
+
+    # 7. KEY-LEVELS INTEGRITY (content) -- contradictory ceiling/floor roles fed to the engine
+    problems.extend(check_level_integrity())
+
+    _broken = lambda p: ("crash" in p.lower()) or ("RED" in p) or ("STALE/REVOKED" in p) or ("KEY MISSING" in p) or ("CANNOT ENTER" in p) or ("CONTRADICTORY ROLES" in p)
     verdict = "GREEN" if not problems else ("BROKEN" if any(_broken(p) for p in problems) else "DEGRADED")
     result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth}
     LAST.write_text(json.dumps(result, indent=2), encoding="utf-8")

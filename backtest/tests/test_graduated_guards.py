@@ -3589,3 +3589,47 @@ def test_premarket_verifies_work_not_exitcode() -> None:
     assert "today-bias" in src and "biasDate" in src, "wrapper must read + check today-bias.date"
     assert "PREMARKET SILENT FAILURE" in src, "must fail loudly on exit-0-no-bias"
     assert "$exit = 3" in src, "must force a non-zero result when the bias is stale"
+
+
+def test_self_check_flags_zero_entry_with_blocks(tmp_path) -> None:
+    """G-TRADEABILITY (2026-06-30): self_check must CONTENT-check that the engine actually
+    REACHES an ENTER -- not just that it's ticking. The disease: 772 ticks / 0 ENTER / 64x
+    SKIP_ELITE_BULL_LEVEL_RECLAIM read GREEN because every check was liveness-only. A populated
+    session with 0 ENTER and >=1 trigger fired-but-gate-blocked MUST surface (RED)."""
+    sys.path.insert(0, str(REPO / "setup" / "scripts"))
+    import importlib, datetime as _dt, json as _json
+    sc = importlib.import_module("self_check")
+    assert hasattr(sc, "check_engine_tradeability"), "self_check must expose check_engine_tradeability"
+    now = _dt.datetime(2026, 6, 30, 16, 5)  # a weekday, after close
+    rows = [_json.dumps({"ts_et": f"2026-06-30T1{i % 6}:{i % 6}0:00", "account": "safe",
+            "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM", "triggers": ["level_reclaim", "confluence"],
+            "bull_score": 11, "bear_score": 4}) for i in range(40)]
+    p = tmp_path / "dec.jsonl"
+    p.write_text("\n".join(rows), encoding="utf-8")
+    probs = sc.check_engine_tradeability(now, p)
+    assert any("CANNOT ENTER" in x for x in probs), f"0-entry+blocked day must flag: {probs}"
+    # control: the same day with a single real ENTER must be clean
+    rows.append(_json.dumps({"ts_et": "2026-06-30T11:00:00", "account": "safe",
+        "verdict": "ENTER_BULL", "triggers": ["level_reclaim"], "bull_score": 11, "bear_score": 4}))
+    p.write_text("\n".join(rows), encoding="utf-8")
+    assert sc.check_engine_tradeability(now, p) == [], "a day with an ENTER must be clean"
+
+
+def test_self_check_flags_contradictory_level_roles(tmp_path) -> None:
+    """G-LEVEL-INTEGRITY (2026-06-30): self_check must flag a key-levels.json where one price
+    carries BOTH a ceiling and a floor role (741.81 / 741.61 each x both on 06-30) -- the engine
+    reads that price as resistance AND support at once."""
+    sys.path.insert(0, str(REPO / "setup" / "scripts"))
+    import importlib, json as _json
+    sc = importlib.import_module("self_check")
+    assert hasattr(sc, "check_level_integrity"), "self_check must expose check_level_integrity"
+    bad = {"levels": [{"price": 741.81, "role": "resistance", "tier": "Active"},
+                      {"price": 741.81, "role": "support", "tier": "Active"}]}
+    p = tmp_path / "kl.json"
+    p.write_text(_json.dumps(bad), encoding="utf-8")
+    assert any("CONTRADICTORY ROLES" in x for x in sc.check_level_integrity(p)), "contradictory roles must flag"
+    # control: self-consistent levels must be clean
+    good = {"levels": [{"price": 741.81, "role": "resistance", "tier": "Active"},
+                       {"price": 740.50, "role": "support", "tier": "Active"}]}
+    p.write_text(_json.dumps(good), encoding="utf-8")
+    assert sc.check_level_integrity(p) == [], "self-consistent levels must be clean"
