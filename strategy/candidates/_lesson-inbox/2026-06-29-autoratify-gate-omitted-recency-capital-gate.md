@@ -1,0 +1,11 @@
+# Lesson candidate: an auto-ratify gate that omits a documented capital gate auto-ships a recency-RED change
+
+**Surfaced:** 2026-06-29 21:56 ET (conductor fire, commit cb82456)
+
+**Symptom:** On 2026-06-28 a dead-premium-axis contender (OTM-2 long single leg, WR 12.15%, tp+150%, stop -8%) auto-applied to LIVE params.json (commit b8896df: tp1_qty_fraction 0.667->0.8 + v15_profit_lock_mode trailing->fixed) via the promote_keeper -> contender_oos_check -> autonomy_actuator op11 path -- DESPITE the documented CONFIRM-BEFORE-CAPITAL gate (recency-confirmation.json headline.edges_confirmed_on_recent=false, any_red=true) which states "NO live flip while an edge's recency verdict is RED."
+
+**Root cause:** The OP-11 auto-ship bar in contender_oos_check.py checked 4 gates (oos_positive, wf>=0.70, sub_window_stable, anchor_no_regression) but NOT the recency gate. The CONFIRM-BEFORE-CAPITAL gate existed as a SEPARATE organ (recency-confirmation.json + license_monitor + recency_check.py) that was never wired into the auto-clear/apply chokepoint. A documented capital-safety gate that lives only in prose + a sibling script, not in the apply path, does not actually gate anything autonomous. Compounded: the contender was on the doctrinally-dead premium axis (L182-184) AND created a CLAUDE.md doctrine drift (doctrine says "chandelier trailing"; live params now "fixed").
+
+**Fix (graduated to code, OP-25):** Added gate 5 (assess_recency_gate, fails CLOSED on unreadable input, never blocks J's manual approval) to contender_oos_check.py's ALL_PASS. A recency-RED edge can no longer auto-clear. Guard: backtest/tests/test_contender_oos_recency_gate.py (11/11, non-vacuous bite reproduces the 06-28 shape). Commit cb82456. The already-applied 06-28 change flagged to J for revert-or-keep (proposal cd-2026-06-29-001, rail-4 propose-only).
+
+**Generalizable rule:** Every documented capital/safety gate (recency, kill-switch, PDT, daily-loss) must be ENFORCED at the autonomous apply chokepoint, not described in a sibling organ. If a gate exists in prose/JSON but the auto-apply path doesn't read it, it is decorative. Class: C7 (silent-success-is-failure) + the reward-hacking surface (auto-apply must honor ALL capital gates).
