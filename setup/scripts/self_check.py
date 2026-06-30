@@ -91,7 +91,7 @@ def check_broker_keys() -> list[str]:
                 out.append(f"BROKER account {arm} status={d.get('status')} (not ACTIVE) -- trades may be blocked.")
         except urllib.error.HTTPError as e:
             if e.code in (401, 403):
-                out.append(f"BROKER KEY STALE/REVOKED: {arm} account-ping HTTP {e.code} -- rotate + RELOAD the MCP key before trading (CLAUDE.md secret rule). NO trades can place.")
+                out.append(f"BROKER KEY STALE/REVOKED: {arm} account-ping HTTP {e.code} -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).")
             else:
                 out.append(f"BROKER UNREACHABLE: {arm} account-ping HTTP {e.code}.")
         except Exception as e:  # noqa: BLE001
