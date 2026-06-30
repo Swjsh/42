@@ -1,0 +1,10 @@
+# Gym validators: no-lookahead-causality (from 2026-06-29 missed-setups post-mortem)
+
+Source: markdown/research/MISSED-SETUPS-POSTMORTEM-2026-06-29.md. N=1 discipline: assert DETECTION on fixtures, arm nothing.
+
+Fixtures = the real 06-29 SPY 5m bars (in the post-mortem). Build crypto/validators/v{NN}_{slug}.py with run_offline()+run_live().
+
+## v_no_lookahead_both_detectors
+Both detectors, given prior_bars sliced to the trigger bar, never read bar_idx+1 fields for the DECISION (entry timing reads next bar only as the EXECUTION bar, not the trigger) — C6 causality guard; fails if the detector peeks forward to decide.
+
+<!-- SUPERSEDED 2026-06-29 conductor :: The MISSED-SETUPS-POSTMORTEM-2026-06-29.md that SPAWNED this spec later ran its own redundancy + base-rate + call-side + OOS triage and REJECTED all three detector ideas: DUAL_REJECTION = 'largely REDUNDANT (level_rejection already fires at bear 8)' + filter-5 relaxation is a coin-flip / OOS-NEGATIVE loser (do NOT arm); double-bottom adjacent patch 'made ZERO difference (identical n=318)... empirically irrelevant' and the call edge 'washes out by EOD, likely theta-eaten'. DUAL_REJECTION_SEQUENCE_BREAKDOWN + vol_expansion_ratio detectors do NOT exist -> building these validators = building NEW detector code the same document says not to build. The ONE load-bearing residual this spec groped toward (frozen-key-levels can't silently rot) was SHIPPED instead as engine_health.check_level_feed + test_engine_health_level_feed.py (13/13). Verify-don't-inherit (L181/L185); compound-don't-accumulate (OP-22). Revisit only if the regime shifts to trend-down (the post-mortem's own revisit condition). -->

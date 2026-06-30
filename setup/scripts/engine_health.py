@@ -77,6 +77,21 @@ HEARTBEAT_LOG_STEM = {
 # TV watchdog writes ~every 5 min; flag if its own timestamp is older than this.
 TV_STALE_MIN = 20
 
+# Intraday level feed (2026-06-29): the ONLY shippable win of the 06-29 missed-setups
+# mission. refresh_levels_intraday.py (Gamma_LevelRefresh, ~every 5 min during RTH) rewrites
+# key-levels.json .as_of with live RTH high/low/swings so the engine isn't blind to intraday
+# structure (the frozen-levels root cause that cost two J-readable setups). The fix is purely
+# PRODUCER-side: _read_levels() rejects NO stale timestamp, so if the refresh task silently
+# dies (reaped / un-scheduled / Alpaca error) the engine reads FROZEN levels again, undetected
+# -- the exact regression, the C7 silent-rot class. This check surfaces it. NON-CRITICAL: a
+# stale level feed degrades level-awareness but the engine still trades on ribbon/structure, so
+# it must NEVER trade-halt -- it degrades the verdict to YELLOW and a genuine RTH stall returns
+# RED *status* so the transition-only alerter pings J once. Refresh cadence is ~5 min, so 20m
+# = 4 missed refreshes of slack (no cry-wolf); WARMUP guards the open (the first refresh needs
+# RTH bars + a beat to write, like watcher_feed's open grace).
+LEVEL_FEED_STALE_MIN = 20
+LEVEL_FEED_WARMUP_MIN = 12
+
 # GEX OI archive continuity (2026-06-29): the months-long dealer-positioning accrual
 # (Gamma_CboeOiBank, daily 15:55 ET -> journal/gex-archive/) is the 'class'-rung data
 # engine. It can die SILENTLY (un-scheduled / reaped / CBOE format change) and only be
@@ -477,6 +492,40 @@ def check_gex_archive(et: datetime) -> dict:
     return _chk(name, status, detail, critical=False)
 
 
+def check_level_feed(market_open: bool, et: datetime) -> dict:
+    """Freshness of the intraday level feed (key-levels.json .as_of). NON-CRITICAL: a stale
+    feed degrades the engine's level-awareness (the frozen-levels root cause) but never
+    trade-halts -- it can only degrade the verdict to YELLOW, and a genuine RTH stall returns
+    RED *status* so the transition-only alerter pings J once. .as_of is naive ET wall-clock
+    (refresh writes %Y-%m-%dT%H:%M:%S with a literal -04:00 suffix), so parse as_of[:19] and
+    compare to et (also naive ET) -- the et_clock-consistent read, NOT _parse_ts (the -04:00
+    literal is wrong on the MT/DST rig and ignored). Fail-open: missing/garbled/unparseable
+    -> benign YELLOW, never crashes the beacon. Market-closed or pre-warmup -> GREEN (the
+    refresh only runs during RTH; a stale as_of overnight or in the first minutes is expected)."""
+    name = "level_feed"
+    data, err = _read_json(STATE / "key-levels.json")
+    if data is None:
+        return _chk(name, "YELLOW", f"key-levels.json {err}", critical=False)
+    as_of = data.get("as_of")
+    if not isinstance(as_of, str) or len(as_of) < 19:
+        return _chk(name, "YELLOW", "no parseable as_of", critical=False)
+    try:
+        dt = datetime.strptime(as_of[:19], "%Y-%m-%dT%H:%M:%S")  # naive ET wall-clock
+    except ValueError:
+        return _chk(name, "YELLOW", f"unparseable as_of {as_of!r}", critical=False)
+    age = (et - dt).total_seconds() / 60.0
+    detail = f"as_of {as_of[11:19]} ({age:.1f}m old)"
+    if not market_open:
+        return _chk(name, "GREEN", f"{detail} (market closed -- refresh idle, quiet OK)", critical=True)
+    if _minutes_since_open(et) < LEVEL_FEED_WARMUP_MIN:
+        return _chk(name, "GREEN", f"{detail} (open warmup -- first refresh pending)", critical=True)
+    if age > LEVEL_FEED_STALE_MIN:
+        return _chk(name, "RED",
+                    f"LEVEL FEED STALE {age:.1f}m (>{LEVEL_FEED_STALE_MIN}m) during RTH -- engine "
+                    f"reading FROZEN levels; check Gamma_LevelRefresh -- {detail}", critical=False)
+    return _chk(name, "GREEN", detail, critical=True)
+
+
 def check_position(name: str, path: Path) -> dict:
     data, err = _read_json(path)
     if data is None:
@@ -536,6 +585,11 @@ def build_report() -> dict:
         # NON-CRITICAL research-data continuity watcher (2026-06-29): surfaces a silent
         # GEX-accrual death without ever trade-halting or RED-ing the critical verdict.
         check_gex_archive(et),
+        # NON-CRITICAL intraday-level-feed freshness (2026-06-29): surfaces a silent
+        # Gamma_LevelRefresh death (engine reading FROZEN levels again) -- the regression
+        # guard for the only shippable win of the 06-29 missed-setups mission. Never
+        # trade-halts; degrades to YELLOW and pings J once on a genuine RTH stall.
+        check_level_feed(mkt, et),
     ]
     verdict, reds = fuse(checks)
     red_checks = sorted(c["name"] for c in checks if c["status"] == "RED")
