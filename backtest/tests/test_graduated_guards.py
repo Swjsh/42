@@ -3323,6 +3323,12 @@ def test_enable_bullish_live_true() -> None:
         "heartbeat_core must set enable_bullish=True so the engine scores bull. "
         "Bull and bear are BOTH active setups (CLAUDE.md OP-16 — direction is not a scope)."
     )
+    # Doctrine parity (2026-06-30): params.json must also carry enable_bullish=true so a future
+    # params-direct consumer can't read None->False (the absent-key landmine the 06-30 audit named).
+    import json as _json
+    for _pf in ("params.json", "aggressive/params.json"):
+        _p = _json.loads((REPO / "automation" / "state" / _pf).read_text(encoding="utf-8"))
+        assert _p.get("enable_bullish") is True, f"{_pf} must set enable_bullish=true (OP-16 parity)"
 
 
 def test_enter_bull_in_placement_path() -> None:
