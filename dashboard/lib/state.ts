@@ -131,6 +131,12 @@ export interface CurrentPosition {
 
 // ─── Kitchen Status ───────────────────────────────────────────────────────────
 
+export interface KitchenCompletedTask {
+  task_id: string;
+  task: string;
+  completed_at: string;
+}
+
 export interface KitchenStatus {
   updated_at_et: string;
   daemon_pid: number | null;
@@ -143,9 +149,12 @@ export interface KitchenStatus {
       pending: number;
       failed_permanent: number;
     };
+    by_priority_pending?: Record<string, number>;
+    total?: number;
   };
   today_cost_usd_paid_tier: number;
   today_cost_cap_usd: number;
+  recent_completed_top_10?: KitchenCompletedTask[];
 }
 
 // ─── Decision Tick ────────────────────────────────────────────────────────────
