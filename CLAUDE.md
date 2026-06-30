@@ -57,12 +57,10 @@ J's rules — Gamma enforces them, doesn't write them.
 
 - **Goal:** Both accounts grow → $5K → $10K → $25K+. Dual-account experiment answers which risk profile compounds better at each tier.
 - **Live threshold (per account independently):** ≥ 20 trades, WR ≥ 45%, positive expectancy, ≤ 2 rule breaks.
-- **Daily P&L target:** Safe: 10–15% ($200–$300 at $2K). Bold: 15–20% ($250–$335 at $1.67K).
-- **Sizing tiers (v13b):** At $2K Safe account → OTM-2 strikes, 5 base / 8 elite contracts. $10k+ = 10 base / 15 elite. ELITE = trigger set includes confluence OR sequence_rejection/reclaim.
-- **Kill switch Safe-2:** −30% of start-of-day equity = −$600/day hard limit.
-- **Instrument:** SPY 0DTE options. **Tax/regulatory:** US retail.
-- **Kill switches isolated:** Safe-2's −30% does NOT halt Risky-2. Risky-2's −50% does NOT halt Safe-2.
-- **MCP wiring:** `alpaca` → Gamma-Safe-2 (key `PK7WRO5T...`). `alpaca_aggressive` → Gamma-Risky-2 (key `PKQMQD2N...`). Both in project-root `.mcp.json`.
+- **Daily P&L target:** Safe 10–15% ($200–$300 at $2K). Bold 15–20% ($250–$335 at $1.67K).
+- **Sizing tiers (v13b):** $2K Safe → OTM-2, 5 base / 8 elite contracts; $10k+ → 10 / 15. ELITE = trigger set has confluence OR sequence_rejection/reclaim.
+- **Kill switches** (Rule 5): per-account + isolated — Safe-2 −30%/day (−$600 at $2K) does NOT halt Risky-2, and vice-versa. **Instrument:** SPY 0DTE, US retail.
+- **MCP wiring:** `alpaca` → Safe-2 (key `PK7WRO5T...`); `alpaca_aggressive` → Risky-2 (key `PKQMQD2N...`). Both in project-root `.mcp.json`.
 
 ---
 
@@ -74,9 +72,9 @@ J's rules — Gamma enforces them, doesn't write them.
 | Account/chain/fills/orders (Gamma-Safe) | Alpaca MCP — `alpaca` server | `uvx alpaca-mcp-server` via pythonw hidden-shim, key `PK7WRO5T…` (Safe-2) in project-root `.mcp.json` (mirrored in `~/.claude.json`). Tools: `mcp__alpaca__*` |
 | Account/chain/fills/orders (Gamma-Bold) | Alpaca MCP — `alpaca_aggressive` server | Same binary, key `PKQMQD2N…` (Risky-2) in project-root `.mcp.json`. Tools: `mcp__alpaca_aggressive__*`. REST fallback if MCP not connected. |
 | Host | Claude Code | Active |
-| Trade engine | `Gamma_SightBeacon` + `Gamma_HeartbeatCore` (Python) | Never-blind sight beacon (direct REST) + deterministic `heartbeat_core.py` (engine_cli score+gates + 2 free-model veto + risk_gate). LLM heartbeats RETIRED 2026-06-25. Arch: [`markdown/specs/ARCHITECTURE.md`](markdown/specs/ARCHITECTURE.md) §3.2. |
-| Heartbeat scheduler | Windows Task Scheduler (Python tasks; LLM `claude --print` heartbeats retired) | 66 registered (60 active + 6 disabled; reconciled 2026-06-29). Registry: [`automation/state/SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md) |
-| Nemotron shadow eval | `setup/scripts/shadow_model_eval.py` + `Gamma_ShadowEval` (16:05 ET) | $0. Scores decisions.jsonl daily. 27/27 DTs = 100%. Grad bar: ≥85% DT over ≥15 days. Scorecard: [`analysis/shadow-model/PROMOTION-SCORECARD.md`](analysis/shadow-model/PROMOTION-SCORECARD.md). |
+| Trade engine | `Gamma_SightBeacon` + `Gamma_HeartbeatCore` (Python) | Never-blind beacon (direct REST) + deterministic `heartbeat_core.py` (engine_cli + structure-veto + 2 free-model veto + risk_gate); LLM heartbeats retired. Arch: [`ARCHITECTURE.md`](markdown/specs/ARCHITECTURE.md) §3.2. |
+| Heartbeat scheduler | Windows Task Scheduler (Python) | 66 registered (60 active + 6 disabled). Registry: [`SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md) |
+| Nemotron shadow eval | `shadow_model_eval.py` + `Gamma_ShadowEval` (16:05 ET) | $0. Scores decisions.jsonl daily; grad bar ≥85% DT over ≥15 days. [Scorecard](analysis/shadow-model/PROMOTION-SCORECARD.md). |
 | Kitchen R&D loop | `setup/scripts/kitchen_daemon.py` + free-tier models | 24/7 autonomous. Spec: [`markdown/infra/KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md). |
 | Dashboard | Next.js 15 + React 19 + Canvas pixel-art | **DEPLOYED 2026-05-06.** localhost:3000. `dashboard/` |
 | State config | [`automation/state/params.json`](automation/state/params.json) | Canonical source of truth |
@@ -101,19 +99,16 @@ Lean Tier-1 soul file (this) + `markdown/<topic>/` mid-sized single-topic docs u
 
 ## Session startup — autonomous
 
-**Daily lifecycle runs autonomously via Windows Task Scheduler. J does not start sessions manually.**
+**Daily lifecycle runs autonomously via Windows Task Scheduler — J does not start sessions manually.** Full registry: [`SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md). Trading-critical fires:
 
 | Time ET | Task | What runs |
 |---|---|---|
-| 08:00 | Gamma_LaunchTV | TradingView up with CDP |
-| 08:05–16:00 /5min | Gamma_TvWatchdog | Keeps TV+CDP alive, relaunches on death, flags stale heartbeat — the "no TV = no trades" fix |
-| 08:30 | Gamma_Premarket | Level audit, bias, falsifiable hypothesis, levels drawn, journal seeded, rule-version pin check |
-| 09:30–15:55 | Gamma_HeartbeatCore | **THE live trading engine** — both accounts, every 1 min. engine_cli score+gates + structure-veto + 2 free-model veto + risk_gate. |
-| 15:55 | Gamma_EodFlatten | Closes any 0DTE Safe position not closed by 15:50 |
-| 15:55 | Gamma_EodFlatten_Aggressive | Closes any 0DTE Bold position not closed by 15:50 |
-| 24/7 every 5 min | Gamma_KitchenDaemonKeepalive | Keeps kitchen_daemon.py alive; daemon polls cook-queue.jsonl |
-| Hourly :20 | Gamma_KitchenSeeder | Generates 5 fresh cook tasks via Nemotron free tier |
-| Every 2h :45 | Gamma_KitchenReviewer | Triages cook outputs → PROMOTE/VALIDATE/DUPLICATE/LOW_QUALITY |
+| 08:00 · 08:05–16:00 /5min | Gamma_LaunchTV · Gamma_TvWatchdog | TV+CDP up & kept alive (the "no TV = no trades" fix); flags stale heartbeat |
+| 08:30 | Gamma_Premarket | Level audit, bias, hypothesis, levels drawn, journal seeded, pin check |
+| 09:30–15:55 /1min | Gamma_HeartbeatCore | **THE live trading engine** — both accounts. engine_cli score+gates + structure-veto + 2 free-model veto + risk_gate |
+| 15:55 | Gamma_EodFlatten (+_Aggressive) | Closes any 0DTE Safe/Bold position not out by 15:50 |
+
+Kitchen R&D fires (keepalive 5min · seeder :20 · reviewer 2h) and all other tasks → [`SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md).
 
 ---
 
@@ -161,7 +156,7 @@ See [`markdown/0dte/TRADING-SYSTEM-OPS.md`](markdown/0dte/TRADING-SYSTEM-OPS.md)
 
 > General protocol: `~/.claude/rules/common/debugging.md`. Rules: name root cause before fixing; stop repeating failing actions; quote the evidence; one hypothesis → one change → one test.
 
-- **THIS RIG KILLS ITS OWN PROCESSES.** Silent process death — clean stderr, **no Windows Event Log entry**, recurring ~3–5 min cadence — is an *external kill*, NOT a crash. Suspect #1: [`setup/scripts/_shared.ps1`](setup/scripts/_shared.ps1)`#Stop-StaleClaudeProcesses` (fires every 3 min, reaps `python.exe` older than 5 min unless in `$EXEMPT_DAEMONS`). Grep repo + OS for process killers before assuming a crash. Long grinds run as ONE 6–8-worker Scheduled Task (3 concurrent deadlock on OPRA cache); backtest venv must be in `$EXEMPT_DAEMONS`.
+- **THIS RIG KILLS ITS OWN PROCESSES.** Silent death — clean stderr, **no Windows Event Log entry**, ~3–5 min cadence — is an *external kill*, NOT a crash. Suspect #1: [`_shared.ps1`](setup/scripts/_shared.ps1)`#Stop-StaleClaudeProcesses` (every 3 min, reaps `python.exe` >5 min old unless in `$EXEMPT_DAEMONS`). Grep for process killers before assuming a crash. Long grinds run as ONE 6–8-worker task (3 concurrent deadlock on OPRA cache); backtest venv must be `$EXEMPT_DAEMONS`.
 
 ---
 
@@ -171,12 +166,7 @@ See [`markdown/0dte/TRADING-SYSTEM-OPS.md`](markdown/0dte/TRADING-SYSTEM-OPS.md)
 
 **CLI:** `gh` v2.88.1, authenticated as Swjsh (keyring). Use `gh` for all GitHub ops — PRs, issues, repo queries. Never use the browser when `gh` can do it.
 
-**Secrets rule (non-negotiable):** API keys, Alpaca credentials, Discord tokens, OpenRouter keys MUST NEVER appear in tracked files. Canonical secret locations (all gitignored):
-- `.mcp.json` — MCP server credentials (Alpaca keys, TradingView paths)
-- `automation/state/fleet/secrets.json` — fleet per-account keys
-- `**/.discord-config.json`, `**/.alpaca-keys`, `**/.openrouter.key`, `**/.heartbeat-api-key*` — per-service secrets
-
-If a script needs Alpaca keys at runtime, load from `.mcp.json` (see `setup/scripts/fast_path_executor.py` for the pattern). Never hardcode.
+**Secrets rule (non-negotiable):** API keys / Alpaca / Discord / OpenRouter creds NEVER in tracked files. Gitignored homes: `.mcp.json` (MCP creds), `automation/state/fleet/secrets.json` (fleet keys), `**/.discord-config.json`·`.alpaca-keys`·`.openrouter.key`·`.heartbeat-api-key*` (per-service). Runtime: load from `.mcp.json` (pattern: `fast_path_executor.py`); never hardcode.
 
 **Push discipline:** Never push during 09:30–15:55 ET — shares the same Max pool as the heartbeat. After-hours only.
 
@@ -229,7 +219,7 @@ These are non-negotiable, second only to the 10 rules above.
 
     **Setup scope = BOTH directions (UNLOCKED 2026-06-28).** Direction is NOT a scope — *validation* is. BEARISH_REJECTION + BULLISH_RECLAIM_RIDE_THE_RIBBON both ACTIVE; `enable_bullish=True`, ENTER_BULL executes via the identical path as ENTER_BEAR. Bull is net-positive on real OPRA fills (+$5,586 / 56% WR, chef-bull-scope-ab 2026-06-26). Per-direction block-filters stay ON — each A/B-validated to remove a *losing* cohort, not the direction (validated winner = the NON-ribbon_flip BULLISH_RECLAIM cohort; cohort/VIX-block detail → C22 + the A/B scorecard). Guards: `test_enable_bullish_live_true` + `test_enter_bull_in_placement_path`. **Live-money arming of EITHER direction needs J (OP-0 #1); paper/shadow does not.**
 
-22. **Compound, don't accumulate.** "Always-on" = always-IMPROVING. Session measured by net improvement (shipped fix, promotion, closed loop) — not artifacts. "Good enough" is a valid terminal state. BANNED: SILENT stopping (no logged outcome) and blocked-on-J-with-no-stated-reason. Every append-only producer has a retention cap; hitting it triggers CONSOLIDATION (prune/dedupe/archive). **BOUNDED-task priority:** (1) perfect current work, (2) known TODOs, (3) `markdown/planning/FUTURE-IMPROVEMENTS.md`, (4) audit staleness, (5) replays/validations, (6) improve BACKTESTING-PLAYBOOK/LESSONS-LEARNED, (7) investigate underperformers.
+22. **Compound, don't accumulate.** "Always-on" = always-IMPROVING. Session measured by net improvement (shipped fix, promotion, closed loop) — not artifacts. "Good enough" is a valid terminal state. BANNED: SILENT stopping (no logged outcome) and blocked-on-J-with-no-stated-reason. Every append-only producer has a retention cap; hitting it triggers CONSOLIDATION (prune/dedupe/archive). **BOUNDED-task priority:** perfect current work → known TODOs → `markdown/planning/FUTURE-IMPROVEMENTS.md` → audit staleness → replays/validations → improve playbook/lessons → investigate underperformers.
 
     **Work-cadence windows:**
 
@@ -252,48 +242,48 @@ These are non-negotiable, second only to the 10 rules above.
 
     **Lessons index** (full prose + symptom/root-cause/fix in [markdown/doctrine/LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md) — through L192 as of 2026-06-28). Themed canonical set; when you hit a NEW anti-pattern, add prose to LESSONS-LEARNED.md and fold the L# into a row here. A lesson that gets re-violated is a missing guardrail — graduate it to a code assertion (see `backtest/tests/test_graduated_guards.py`).
 
-    | # | Theme |
-    |---|---|
-    | C1 | Real-fills is the only WR authority |
-    | C2 | First-strike entries: chart-stop only, premium-stop disabled |
-    | C3 | SPY-price edge != option edge (delta/theta/stop-misfire) |
-    | C4 | Disclose concentration, normalize OOS, stratify by regime |
-    | C5 | VIX *character* > VIX level |
-    | C6 | No look-ahead: filter <= current bar, verify bar closed, slice prior_bars |
-    | C7 | Silent success is failure — audit outputs, not exit codes |
-    | C8 | Headless Windows spawn = system-pythonw + CREATE_NO_WINDOW + WMI liveness |
-    | C9 | Anchor paths to __file__ |
-    | C10 | Rate-limit pool: separate prod key |
-    | C11 | Broker is source of truth: verify flat before entry |
-    | C12 | Stateful detectors need warmup / persisted state |
-    | C13 | Confidence tiers must be reachable AND diverse over N>=20 |
-    | C14 | Dead/translated-but-unapplied knobs: vary-and-assert |
-    | C15 | Gates interact multiplicatively — trace session cascades |
-    | C16 | Multi-bar reversal vs single-bar continuation discriminator |
-    | C17 | Build reusable skills + crypto validation, not one-shots |
-    | C18 | Status-format discipline |
-    | C19 | Cowork FUSE mount: no deletes + truncated read-after-edit |
-    | C20 | Gate direction must match setup structure: proximity gates anti-correlate with breakout setups |
-    | C21 | Bypass fires at bar-level not date-level: verify trigger+time+type match J's entry |
-    | C22 | Backward-looking classifiers anti-correlate with recovery periods |
-    | C23 | Quality-tier blocking fails when IS/OOS VIX regimes differ — tier labels conflate multiple VIX populations |
-    | C24 | Anchor trades are one-off exceptional setups — general population of same pattern class may be losers |
-    | C25 | Level score formula must be validated for direction: high touch_count drives both stars AND eventual breaks (inverse correlation) |
-    | C26 | Level ROLE determines correct metric: reaction-predictor → DM-null lift |
-    | C27 | Pattern detectors firing >80% of days measure noise not signal |
-    | C28 | Ribbon flip is a lagging exit |
-    | C29 | Exit target/stop knobs ratified on one strike tier (ITM-2) don't transfer to another (OTM-2) — verify independently per account/strike |
-    | C30 | Unconstrained exit targets (runner never hits 5x in 0DTE) = dead knob |
-    | C31 | J's 667 real trades: 1-2 lots +$4,576 / 3+ lots -$17,461 / scaled-in -$327/trade — the killer is sizing-UP/adding behavior (Rule 6 + Rule 4 + no-add-after-loss), not flat count per se |
+    | # | Theme | Lessons |
+    |---|---|---|
+    | C1 | Real-fills is the only WR authority | L02,12,23,50,71,99,100,107,182 |
+    | C2 | First-strike entries: chart-stop only, premium-stop disabled | L51,55,64,171 |
+    | C3 | SPY-price edge != option edge (delta/theta/stop-misfire) | L58,74,100,101,112,136,148,149,172,177,183,184,188 |
+    | C4 | Disclose concentration, normalize OOS, stratify by regime | L01,04,05,10,11,22,46,48,92,104,122,124,128,129,154,166,167,174,175,178 |
+    | C5 | VIX *character* > VIX level | L40,44,45,73,93,118,133,134,154,162,167 |
+    | C6 | No look-ahead: filter <= current bar, verify bar closed, slice prior_bars | L14,34,57,61,94,161,165,166,191 |
+    | C7 | Silent success is failure — audit outputs, not exit codes | L19,26,28,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161,164,169,170,173,179,181,185,186,187,189,190 |
+    | C8 | Headless Windows spawn = system-pythonw + CREATE_NO_WINDOW + WMI liveness | L20,27,33,41,81 |
+    | C9 | Anchor paths to __file__ | L21,42,49,60 |
+    | C10 | Rate-limit pool: separate prod key | L54,62,68,69 |
+    | C11 | Broker is source of truth: verify flat before entry | L47,76,180 |
+    | C12 | Stateful detectors need warmup / persisted state | L30,35 |
+    | C13 | Confidence tiers must be reachable AND diverse over N>=20 | L63,65 |
+    | C14 | Dead/translated-but-unapplied knobs: vary-and-assert | L38,70,72,77,88,89,96,99,106,108,109,110,111,113,114,115,116,117,123,127,130,131,147,152,155,176,180 |
+    | C15 | Gates interact multiplicatively — trace session cascades | L07,08,09,66,95,163,180 |
+    | C16 | Multi-bar reversal vs single-bar continuation discriminator | L52,59,75 |
+    | C17 | Build reusable skills + crypto validation, not one-shots | L36,37 |
+    | C18 | Status-format discipline | L06,15,17,18 |
+    | C19 | Cowork FUSE mount: no deletes + truncated read-after-edit | L78 |
+    | C20 | Gate direction must match setup structure: proximity gates anti-correlate with breakout setups | L102 |
+    | C21 | Bypass fires at bar-level not date-level: verify trigger+time+type match J's entry | L103,153 |
+    | C22 | Backward-looking classifiers anti-correlate with recovery periods | L118,119,120,121,125,132,133,134,135,138,159 |
+    | C23 | Quality-tier blocking fails when IS/OOS VIX regimes differ — tier labels conflate multiple VIX populations | L122 |
+    | C24 | Anchor trades are one-off exceptional setups — general population of same pattern class may be losers | L140,158 |
+    | C25 | Level score formula must be validated for direction: high touch_count drives both stars AND eventual breaks (inverse correlation) | L142 |
+    | C26 | Level ROLE determines correct metric: reaction-predictor → DM-null lift | L143,L144 |
+    | C27 | Pattern detectors firing >80% of days measure noise not signal | L145 |
+    | C28 | Ribbon flip is a lagging exit | L139,141,156,157,175 |
+    | C29 | Exit target/stop knobs ratified on one strike tier (ITM-2) don't transfer to another (OTM-2) — verify independently per account/strike | L149 |
+    | C30 | Unconstrained exit targets (runner never hits 5x in 0DTE) = dead knob | L148,176 |
+    | C31 | J's 667 real trades: 1-2 lots +$4,576 / 3+ lots -$17,461 / scaled-in -$327/trade — the killer is sizing-UP/adding behavior (Rule 6 + Rule 4 + no-add-after-loss), not flat count per se | L168 |
 
 31. **The Kitchen — 24/7 autonomous free-tier R&D loop.** KitchenDaemonKeepalive (5 min) + KitchenSeeder (hourly :20) + KitchenReviewer (2h :45). Claude-when-awake = the driver: steer, promote, prune via `kitchen-status.json`. Daemon NEVER touches `heartbeat*.md` / `params*.json` / `CLAUDE.md`, NEVER places orders. Full spec: [`markdown/infra/KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md).
 
 32. **Two-pipeline research + Reframe Engine (2026-06-29).** **P1 strategy-discovery (free swarm):** never hand-pick the metric (measuring WR called a +EV setup a "coin flip") — validate via `backtest_design_swarm.py` (canonical battery: expectancy+OOS+regime, not just WR; smart-review shadow-scored vs Gamma, <85%=Gamma-in-loop) + `discovery_shadow_ledger.py` (both-directions FDR → real-fills → arm). **P2 meta-ideation (Opus, rare):** the **Constraint Provenance Audit** — stalled in the SAME shape → audit the constraint's *provenance* before optimizing under it. `friction_distiller.py` → `Gamma_StepBack` (weekly). ROUTING: strategies→P1, frames→Opus/P2; P2 never writes `analysis/recommendations/`. Full spec: [`markdown/meta/REFRAME-ENGINE.md`](markdown/meta/REFRAME-ENGINE.md) · [swarm-arch](markdown/research/BACKTEST-DESIGN-SWARM-ARCHITECTURE.md).
 
-> ## ⛔ OP-33 — VERIFY, DON'T CLAIM. VISIBILITY IS THE PRODUCT. (J 2026-06-29: "you're overconfident; I have no visibility; no confidence anything works." OP-0's missing other half.)
+> ## ⛔ OP-33 — VERIFY, DON'T CLAIM. VISIBILITY IS THE PRODUCT. (J 2026-06-29 — OP-0's missing other half.)
 >
 > The loop is **ACT → VERIFY → report only the VERIFIED truth.** Acting without verifying, then declaring victory, is the #1 trust-killer.
-> - **(a) NEVER say something "works / runs / is fixed / is trading" without quoting the check you ran THIS turn.** `lastResult=0`, "it's built", "registered", "I ran it once" are **NOT proof** — a wrapper exits 0 while the actual work crashed (today: the engine-stress parse bug; the dead TV watchdog firing exit-0 every 5 min for hours). Proof = the real output / log line / fill / decision row, quoted. If you can't verify it right now, say **UNVERIFIED** — never imply it works.
+> - **(a) NEVER say something "works / runs / is fixed / is trading" without quoting the check you ran THIS turn.** `lastResult=0`, "it's built", "registered", "I ran it once" are **NOT proof** — a wrapper exits 0 while the actual work crashed. Proof = the real output / log line / fill / decision row, quoted. If you can't verify it right now, say **UNVERIFIED** — never imply it works.
 > - **(b) "Built" ≠ "running."** A build is done ONLY when verified FIRING on its schedule, reaper-exempt, and surviving at least one real fire. A file that exists is not a system that runs. A tool you ran once by hand is NOT autonomous — say so.
 > - **(c) VISIBILITY is the #1 gap — J is effectively blind.** Every autonomous component must emit a state J can glance at and verify **independent of your word.** Proactively surface the REAL status (what fired, what crashed, are we actually trading) BEFORE he asks — and prefer giving him a command/view he can run himself over asking him to trust you.
 > - **(d) THINK LIKE JACK:** be skeptical of your OWN output; the goal is **TRADING + money**, not demos/artifacts/green checkmarks; if you hit the same wall twice, audit the FRAME (OP-32) instead of grinding. Measure a session by *"can J see it, and does it still run tomorrow,"* not by what you shipped.
