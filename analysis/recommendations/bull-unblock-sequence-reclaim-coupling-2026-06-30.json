@@ -1,0 +1,31 @@
+{
+  "probe": "bull_sequence_reclaim_coupling",
+  "slice": "SLICE 3 of BULL-UNBLOCK-REPLAY-PROBE (the #1 project thread)",
+  "lever": "detect_sequence_reclaim (multi-bar higher-lows reclaim) decoupling from the single-bar straddle",
+  "generated_at": "2026-06-30",
+  "method": "read-only behavioral proof via evaluate_bullish_setup with a crafted independent broken_to_support level_state; all filters except 11 disabled to isolate trigger assembly; no engine backtest, no Alpaca, no params/filters edit",
+  "finding": {
+    "coupling_location": "backtest/lib/filters.py:~937 (level_state looked up ONLY when reclaim_level is not None)",
+    "reclaim_level_source": "detect_level_reclaim (single-bar straddle: bar.low < level AND bar.close > level)",
+    "case_a_no_straddle": {
+      "reclaim_level": null,
+      "triggers_fired": [],
+      "sequence_reclaim_fired": false,
+      "filter_11_blocked": true
+    },
+    "case_b_straddle_control": {
+      "reclaim_level": 745.0,
+      "triggers_fired": ["level_reclaim", "sequence_reclaim"],
+      "sequence_reclaim_fired": true,
+      "filter_11_blocked": false
+    },
+    "independent_detector_check": "detect_sequence_reclaim(crafted level_state) == True (the structure genuinely fires on its own; the suppression is real, not vacuous)"
+  },
+  "interpretation": "sequence_reclaim -- the ONLY bull trigger that could catch a smooth uptrend that never prints a single-bar straddle -- is structurally coupled OFF. It can only appear as a REDUNDANT CO-TRIGGER of the straddle it depends on, never as an independent path. This is the exact structural root of 'bull unreachable on smooth uptrends' (0 ENTER_BULL in 2544 lifetime decisions).",
+  "why_not_probed_for_pnl": "Decoupling requires a filters.py LOGIC change (look up level_state independently of reclaim_level) = rail-4 J-gated. A robust P&L probe cannot be run without either editing filters.py or duplicating the ~150-line evaluate_bullish_setup (drift risk). SLICE 1+2 already established the 25-day OPRA window cannot prove ANY bull sub-lever to significance (n<10).",
+  "verdict": "LAST_BULL_LEVER_LOCATED_DATA_GATED_DECOUPLE_FILED_FOR_WIDER_DATA",
+  "project_conclusion": "All three bull-unblock levers are now audited on the fresh window: block_elite_bull (KEEP, net -$241), min_triggers_bull (thin/fragile, n=8), sequence_reclaim (structurally coupled off, un-probeable without a rail-4 filters change). NEITHER sim-tuning lever unblocks a proposable bull edge. The 0DTE-SPY bull frontier is DATA-GATED on the 25-day OPRA wall -- the same wall that blocks range-scalp (n=8). Resolving it needs a WIDER data window, not more sim tuning.",
+  "next_lever_if_data_widens": "Decouple detect_sequence_reclaim from reclaim_level (propose-only DRAFT + ping J, dormant flag default off), then run the SLICE-1/2 real-fills A/B harness on a >=15-20-trade cohort.",
+  "guard": "backtest/tests/test_bull_sequence_reclaim_coupling.py (5/5) -- pins the coupling; re-REDs if a future refactor silently decouples it.",
+  "rail_4": "CLEAR -- read-only proof + new test + JSON; touches NO params/orders/filters/heartbeat/CLAUDE, places NO order, arms NOTHING, proposes NOTHING (verdict is not-proposable)."
+}
