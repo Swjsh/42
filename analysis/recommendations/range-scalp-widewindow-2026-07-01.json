@@ -1,0 +1,412 @@
+{
+  "probe": "range_scalp_tier2_regime_gated_widewindow",
+  "generated_at": "2026-07-01T07:58:52.949891+00:00",
+  "verdict": "DIES_ON_SLIPPAGE",
+  "window": {
+    "start": "2025-01-02",
+    "end": "2026-06-18",
+    "oos_start": "2026-01-01"
+  },
+  "frame_audit": "Slices 1+2 declared this slice DATA-BLOCKED (n=8, 25-day window). Verified 2026-07-01 the master SPY/VIX 5m (2025-01-01..2026-06-18) + OPRA real-fills (370 0DTE days) already cover the full history; the probes hardcoded a 25-day recent CSV on a stale 'master ends 2026-05-22' comment. This runs the SAME regime-gated fade over the full history.",
+  "gate": {
+    "flat_ribbon_spread_max_cents": 30.0,
+    "vix_low": 14.0,
+    "vix_high": 20.0
+  },
+  "n_trading_days": 365,
+  "gated_full_history": {
+    "summary": {
+      "n_trades": 155,
+      "wins": 97,
+      "losses": 58,
+      "win_rate": 0.626,
+      "expectancy_per_trade_usd": 3.97,
+      "total_pnl_usd": 615.6,
+      "mean_trade_usd": 3.97,
+      "median_trade_usd": 12.0,
+      "worst_trade_usd": -200.4,
+      "best_trade_usd": 200.4
+    },
+    "concentration": {
+      "n_active_days": 69,
+      "n_losing_days": 29,
+      "total_pnl_usd": 615.6,
+      "top3_day_pct_of_net": 160.9,
+      "median_day_usd": 13.8,
+      "trimmed_day_mean_usd": 7.1,
+      "trimmed_day_total_usd": 475.8
+    },
+    "significance": {
+      "n": 155,
+      "min_n": 10,
+      "sufficient": true,
+      "note": "n=155 >= 10: sample sufficient"
+    },
+    "concentration_flag": {
+      "top3_day_pct_of_net": 160.9,
+      "max_pct": 150.0,
+      "concentrated": true,
+      "note": "top-3 days = 160.9% of net (> 150.0%): CONCENTRATED -- fragile, not deploy-ready; needs more spread-out days"
+    },
+    "slippage": {
+      "n_trades": 155,
+      "gross_expectancy_per_trade_usd": 3.97,
+      "breakeven_half_spread": 0.0066,
+      "realistic_half_spread": 0.05,
+      "verdict": "FRAGILE_TO_SLIPPAGE",
+      "grid": [
+        {
+          "half_spread": 0.0,
+          "expectancy_per_trade_usd": 3.97,
+          "total_pnl_usd": 615.6,
+          "win_rate": 0.626,
+          "positive": true
+        },
+        {
+          "half_spread": 0.01,
+          "expectancy_per_trade_usd": -2.03,
+          "total_pnl_usd": -314.4,
+          "win_rate": 0.555,
+          "positive": false
+        },
+        {
+          "half_spread": 0.02,
+          "expectancy_per_trade_usd": -8.03,
+          "total_pnl_usd": -1244.4,
+          "win_rate": 0.497,
+          "positive": false
+        },
+        {
+          "half_spread": 0.03,
+          "expectancy_per_trade_usd": -14.03,
+          "total_pnl_usd": -2174.4,
+          "win_rate": 0.439,
+          "positive": false
+        },
+        {
+          "half_spread": 0.05,
+          "expectancy_per_trade_usd": -26.03,
+          "total_pnl_usd": -4034.4,
+          "win_rate": 0.335,
+          "positive": false
+        },
+        {
+          "half_spread": 0.075,
+          "expectancy_per_trade_usd": -41.03,
+          "total_pnl_usd": -6359.4,
+          "win_rate": 0.245,
+          "positive": false
+        },
+        {
+          "half_spread": 0.1,
+          "expectancy_per_trade_usd": -56.03,
+          "total_pnl_usd": -8684.4,
+          "win_rate": 0.142,
+          "positive": false
+        }
+      ],
+      "note": "edge breakeven at 0.0066 $/share half-spread (realistic reference 0.05); FRAGILE_TO_SLIPPAGE"
+    },
+    "base_verdict": "CONCENTRATED"
+  },
+  "gated_in_sample_2025": {
+    "summary": {
+      "n_trades": 123,
+      "wins": 74,
+      "losses": 49,
+      "win_rate": 0.602,
+      "expectancy_per_trade_usd": 0.95,
+      "total_pnl_usd": 116.4,
+      "mean_trade_usd": 0.95,
+      "median_trade_usd": 10.8,
+      "worst_trade_usd": -200.4,
+      "best_trade_usd": 200.4
+    },
+    "concentration": {
+      "n_active_days": 54,
+      "n_losing_days": 25,
+      "total_pnl_usd": 116.4,
+      "top3_day_pct_of_net": 706.7,
+      "median_day_usd": 12.9,
+      "trimmed_day_mean_usd": -0.32,
+      "trimmed_day_total_usd": -16.8
+    },
+    "significance": {
+      "n": 123,
+      "min_n": 10,
+      "sufficient": true,
+      "note": "n=123 >= 10: sample sufficient"
+    },
+    "concentration_flag": {
+      "top3_day_pct_of_net": 706.7,
+      "max_pct": 150.0,
+      "concentrated": true,
+      "note": "top-3 days = 706.7% of net (> 150.0%): CONCENTRATED -- fragile, not deploy-ready; needs more spread-out days"
+    },
+    "slippage": {
+      "n_trades": 123,
+      "gross_expectancy_per_trade_usd": 0.95,
+      "breakeven_half_spread": 0.0016,
+      "realistic_half_spread": 0.05,
+      "verdict": "FRAGILE_TO_SLIPPAGE",
+      "grid": [
+        {
+          "half_spread": 0.0,
+          "expectancy_per_trade_usd": 0.95,
+          "total_pnl_usd": 116.4,
+          "win_rate": 0.602,
+          "positive": true
+        },
+        {
+          "half_spread": 0.01,
+          "expectancy_per_trade_usd": -5.05,
+          "total_pnl_usd": -621.6,
+          "win_rate": 0.537,
+          "positive": false
+        },
+        {
+          "half_spread": 0.02,
+          "expectancy_per_trade_usd": -11.05,
+          "total_pnl_usd": -1359.6,
+          "win_rate": 0.472,
+          "positive": false
+        },
+        {
+          "half_spread": 0.03,
+          "expectancy_per_trade_usd": -17.05,
+          "total_pnl_usd": -2097.6,
+          "win_rate": 0.407,
+          "positive": false
+        },
+        {
+          "half_spread": 0.05,
+          "expectancy_per_trade_usd": -29.05,
+          "total_pnl_usd": -3573.6,
+          "win_rate": 0.317,
+          "positive": false
+        },
+        {
+          "half_spread": 0.075,
+          "expectancy_per_trade_usd": -44.05,
+          "total_pnl_usd": -5418.6,
+          "win_rate": 0.236,
+          "positive": false
+        },
+        {
+          "half_spread": 0.1,
+          "expectancy_per_trade_usd": -59.05,
+          "total_pnl_usd": -7263.6,
+          "win_rate": 0.13,
+          "positive": false
+        }
+      ],
+      "note": "edge breakeven at 0.0016 $/share half-spread (realistic reference 0.05); FRAGILE_TO_SLIPPAGE"
+    },
+    "base_verdict": "CONCENTRATED"
+  },
+  "gated_out_of_sample_2026": {
+    "summary": {
+      "n_trades": 32,
+      "wins": 23,
+      "losses": 9,
+      "win_rate": 0.719,
+      "expectancy_per_trade_usd": 15.6,
+      "total_pnl_usd": 499.2,
+      "mean_trade_usd": 15.6,
+      "median_trade_usd": 22.5,
+      "worst_trade_usd": -171.6,
+      "best_trade_usd": 114.0
+    },
+    "concentration": {
+      "n_active_days": 15,
+      "n_losing_days": 4,
+      "total_pnl_usd": 499.2,
+      "top3_day_pct_of_net": 106.6,
+      "median_day_usd": 27.0,
+      "trimmed_day_mean_usd": 24.37,
+      "trimmed_day_total_usd": 316.8
+    },
+    "significance": {
+      "n": 32,
+      "min_n": 10,
+      "sufficient": true,
+      "note": "n=32 >= 10: sample sufficient"
+    },
+    "concentration_flag": {
+      "top3_day_pct_of_net": 106.6,
+      "max_pct": 150.0,
+      "concentrated": false,
+      "note": "concentration within tolerance"
+    },
+    "slippage": {
+      "n_trades": 32,
+      "gross_expectancy_per_trade_usd": 15.6,
+      "breakeven_half_spread": 0.026,
+      "realistic_half_spread": 0.05,
+      "verdict": "FRAGILE_TO_SLIPPAGE",
+      "grid": [
+        {
+          "half_spread": 0.0,
+          "expectancy_per_trade_usd": 15.6,
+          "total_pnl_usd": 499.2,
+          "win_rate": 0.719,
+          "positive": true
+        },
+        {
+          "half_spread": 0.01,
+          "expectancy_per_trade_usd": 9.6,
+          "total_pnl_usd": 307.2,
+          "win_rate": 0.625,
+          "positive": true
+        },
+        {
+          "half_spread": 0.02,
+          "expectancy_per_trade_usd": 3.6,
+          "total_pnl_usd": 115.2,
+          "win_rate": 0.594,
+          "positive": true
+        },
+        {
+          "half_spread": 0.03,
+          "expectancy_per_trade_usd": -2.4,
+          "total_pnl_usd": -76.8,
+          "win_rate": 0.562,
+          "positive": false
+        },
+        {
+          "half_spread": 0.05,
+          "expectancy_per_trade_usd": -14.4,
+          "total_pnl_usd": -460.8,
+          "win_rate": 0.406,
+          "positive": false
+        },
+        {
+          "half_spread": 0.075,
+          "expectancy_per_trade_usd": -29.4,
+          "total_pnl_usd": -940.8,
+          "win_rate": 0.281,
+          "positive": false
+        },
+        {
+          "half_spread": 0.1,
+          "expectancy_per_trade_usd": -44.4,
+          "total_pnl_usd": -1420.8,
+          "win_rate": 0.188,
+          "positive": false
+        }
+      ],
+      "note": "edge breakeven at 0.026 $/share half-spread (realistic reference 0.05); FRAGILE_TO_SLIPPAGE"
+    },
+    "base_verdict": "CLEAN"
+  },
+  "ungated_full_history": {
+    "summary": {
+      "n_trades": 595,
+      "wins": 360,
+      "losses": 235,
+      "win_rate": 0.605,
+      "expectancy_per_trade_usd": -0.71,
+      "total_pnl_usd": -423.6,
+      "mean_trade_usd": -0.71,
+      "median_trade_usd": 12.0,
+      "worst_trade_usd": -252.0,
+      "best_trade_usd": 281.4
+    },
+    "concentration": {
+      "n_active_days": 178,
+      "n_losing_days": 81,
+      "total_pnl_usd": -423.6,
+      "top3_day_pct_of_net": -258.4,
+      "median_day_usd": 13.2,
+      "trimmed_day_mean_usd": -1.53,
+      "trimmed_day_total_usd": -269.4
+    },
+    "significance": {
+      "n": 595,
+      "min_n": 10,
+      "sufficient": true,
+      "note": "n=595 >= 10: sample sufficient"
+    },
+    "concentration_flag": {
+      "top3_day_pct_of_net": -258.4,
+      "max_pct": 150.0,
+      "concentrated": false,
+      "note": "concentration within tolerance"
+    },
+    "slippage": {
+      "n_trades": 595,
+      "gross_expectancy_per_trade_usd": -0.71,
+      "breakeven_half_spread": null,
+      "realistic_half_spread": 0.05,
+      "verdict": "DRY_AT_ZERO",
+      "grid": [
+        {
+          "half_spread": 0.0,
+          "expectancy_per_trade_usd": -0.71,
+          "total_pnl_usd": -423.6,
+          "win_rate": 0.605,
+          "positive": false
+        },
+        {
+          "half_spread": 0.01,
+          "expectancy_per_trade_usd": -6.71,
+          "total_pnl_usd": -3993.6,
+          "win_rate": 0.538,
+          "positive": false
+        },
+        {
+          "half_spread": 0.02,
+          "expectancy_per_trade_usd": -12.71,
+          "total_pnl_usd": -7563.6,
+          "win_rate": 0.486,
+          "positive": false
+        },
+        {
+          "half_spread": 0.03,
+          "expectancy_per_trade_usd": -18.71,
+          "total_pnl_usd": -11133.6,
+          "win_rate": 0.435,
+          "positive": false
+        },
+        {
+          "half_spread": 0.05,
+          "expectancy_per_trade_usd": -30.71,
+          "total_pnl_usd": -18273.6,
+          "win_rate": 0.348,
+          "positive": false
+        },
+        {
+          "half_spread": 0.075,
+          "expectancy_per_trade_usd": -45.71,
+          "total_pnl_usd": -27198.6,
+          "win_rate": 0.254,
+          "positive": false
+        },
+        {
+          "half_spread": 0.1,
+          "expectancy_per_trade_usd": -60.71,
+          "total_pnl_usd": -36123.6,
+          "win_rate": 0.18,
+          "positive": false
+        }
+      ],
+      "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+    },
+    "base_verdict": "DRY"
+  },
+  "walk_forward": {
+    "is_expectancy_usd": 0.95,
+    "oos_expectancy_usd": 15.6,
+    "both_sufficient_n": true,
+    "both_positive": true,
+    "slippage_survives_realistic": false,
+    "not_concentrated": false
+  },
+  "method_disclosures": {
+    "reuse": "run_shotgun_day(tier_filter=2) + RANGE_SCALP_COMBO + regime-gate constants + probe_stats; both original probes byte-identical (no regression risk).",
+    "causality": "ribbon spread = full-frame causal EMA indexed at entry bar (== per-trade slice, O(N) not O(N^2)); VIX = as-of last bar<=entry via searchsorted. No look-ahead.",
+    "fill_model": "Real OPRA bars via run_shotgun_day/_simulate_trade_real (NO Black-Scholes).",
+    "yardstick": "per-trade expectancy + IS/OOS sign agreement + probe_stats significance/concentration/slippage. J edge_capture NOT used (auto-rejects range edges).",
+    "limitations": "ONE combo, no tp/stop/strike sweep. A PROMOTABLE verdict justifies the multi-combo IS/OOS sweep next; any other verdict is the honest full-history answer the 25-day window could not give."
+  }
+}
