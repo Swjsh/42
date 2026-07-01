@@ -97,6 +97,14 @@ EXPENSIVE_RE = re.compile(
     r"spec|design|research|redesign|investigate",
     re.IGNORECASE,
 )
+# Trading-path marker — order/fill/entry/exit/placement/arm/stop/position-monitor
+# work is the FUNCTION of the rig and is NEVER expense-penalized. (2026-07-01
+# pipeline audit: EXPENSIVE_RE halved J's own HIGH trading items — RIBBON-LAG,
+# POSITION-MONITOR-1MIN — for ~7 days while doc-folds outranked them.)
+TRADING_PATH_RE = re.compile(
+    r"\b(?:order|fill|entr|exit|placement|arm|stop|position[\s-]*monitor)",
+    re.IGNORECASE,
+)
 # Pure-bookkeeping marker in the priority parens (de-prioritize busywork).
 DOC_INDEX_RE = re.compile(r"doc-index", re.IGNORECASE)
 
@@ -157,14 +165,73 @@ def _recency_explicitly_red(path: Path | None = None) -> bool:
         return False
 
 
-def _is_blocked_by_deps(depends: str) -> bool:
-    """True when a depends:<...> value names a real (non-trivial) dependency.
+# Statuses that mean a DEPENDENCY item is still genuinely OPEN (blocks its
+# dependents). Anything else — done, done-with-annotation, or unknown compound
+# vocab like 'wiring-done-arm-is-j-gated' — is treated as satisfied. (2026-07-01
+# pipeline audit: G4's unrecognized status string permanently blocked G14, the
+# v15.3 PRIMARY exit wiring. A dep only blocks when its item is provably open.)
+OPEN_DEP_STATUSES = {
+    "",
+    "pending",
+    "in_progress",
+    "blocked",
+    "awaiting-j-ratification",
+    "awaiting-j-action",
+}
 
-    ``depends:none`` / ``depends:`` (empty) / missing == not blocked.
-    Anything else is a real dependency → blocked.
+
+def _dep_tokens(depends: str) -> list[str]:
+    """Split a ``depends:<...>`` value into dependency ids, ignoring annotations.
+
+    Parenthesized text is prose, NOT a dependency: ``none (was X; decoupled
+    2026-06-27)`` == none. (2026-07-01 audit: this parse bug hid J's HIGH items
+    — RIBBON-LAG, POSITION-MONITOR-1MIN — from the ready list for ~7 days.)
+    Comma-separated multi-deps are supported; per-chunk only the leading token
+    counts. Never raises.
     """
-    d = depends.strip().lower()
-    return d not in ("", "none")
+    cleaned = re.sub(r"\([^)]*\)", " ", depends)
+    toks: list[str] = []
+    for chunk in cleaned.split(","):
+        parts = chunk.strip().split()
+        lead = parts[0] if parts else ""
+        if lead and lead.lower() != "none":
+            toks.append(lead)
+    return toks
+
+
+def _open_item_ids(lines: list[str]) -> set[str]:
+    """Ids of items in the given (active-section) lines that are genuinely OPEN.
+
+    Open = an unchecked ``- [ ]`` item whose status is in OPEN_DEP_STATUSES.
+    ``- [x]`` / ``- [~]`` / status:done / unknown-status items are NOT open, so
+    dependencies naming them are satisfied.
+    """
+    ids: set[str] = set()
+    for line in lines:
+        m = ITEM_RE.match(line.strip())
+        if not m or m.group("check").lower() == "x":
+            continue
+        status = _extract_field(m.group("rest"), "status").lower()
+        if status in OPEN_DEP_STATUSES:
+            ids.add(m.group("id"))
+    return ids
+
+
+def _is_blocked_by_deps(depends: str, open_ids: set[str] | None = None) -> bool:
+    """True when a depends:<...> value names a dependency that is still OPEN.
+
+    ``depends:none`` / ``depends:`` (empty) / missing / ``none (annotation)``
+    == not blocked. When ``open_ids`` is provided (the parsed queue's open item
+    ids), a named dependency blocks ONLY if it is an open item — a dep whose
+    item is done/absent/unknown-status is satisfied. Without ``open_ids`` any
+    named dependency blocks (legacy conservative behavior).
+    """
+    deps = _dep_tokens(depends)
+    if not deps:
+        return False
+    if open_ids is None:
+        return True
+    return any(d in open_ids for d in deps)
 
 
 def score_item(
@@ -208,9 +275,14 @@ def score_item(
         reasons.append(f"-{DOC_INDEX_PENALTY:g} doc-index")
 
     # Cost proxy divisor for expensive design/research work → ROI = value/cost.
+    # TRADING-PATH EXEMPTION (2026-07-01 audit): order/fill/entry/exit/placement/
+    # arm/stop/position-monitor items are the rig's FUNCTION — never divided.
     if EXPENSIVE_RE.search(description):
-        value /= EXPENSIVE_DIVISOR
-        reasons.append(f"/{EXPENSIVE_DIVISOR:g} expensive(cost)")
+        if TRADING_PATH_RE.search(description):
+            reasons.append("expensive-exempt(trading-path)")
+        else:
+            value /= EXPENSIVE_DIVISOR
+            reasons.append(f"/{EXPENSIVE_DIVISOR:g} expensive(cost)")
 
     if penalized and value < MIN_SCORE:
         value = MIN_SCORE
@@ -247,7 +319,10 @@ def parse_queue(text: str) -> list[Task]:
     blows up mid-parse, is skipped — this function NEVER raises on bad input.
     """
     tasks: list[Task] = []
-    for line in _active_lines(text):
+    active = _active_lines(text)
+    # First pass: which item ids are genuinely OPEN (for dependency resolution).
+    open_ids = _open_item_ids(active)
+    for line in active:
         try:
             m = ITEM_RE.match(line.strip())
             if not m:
@@ -272,8 +347,8 @@ def parse_queue(text: str) -> list[Task]:
             status = _extract_field(rest, "status").lower()
             depends = _extract_field(rest, "depends")
 
-            # Exclusions: bad status, or a real dependency = not ready.
-            has_deps = _is_blocked_by_deps(depends)
+            # Exclusions: bad status, or a still-open dependency = not ready.
+            has_deps = _is_blocked_by_deps(depends, open_ids)
             status_ok = status in READY_STATUSES or status == ""
             if status in EXCLUDED_STATUSES:
                 # Excluded entirely — never surfaced even with --all.

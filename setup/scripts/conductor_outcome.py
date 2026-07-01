@@ -10,8 +10,13 @@ This module closes that gap with two pure-stdlib functions + a thin CLI:
 
   1. record(...)  -> appends one JSON line to conductor-outcomes.jsonl (best-effort,
      never throws — a failure to journal must never crash a conductor fire).
+     Each row also snapshots the TRADING FUNCTION funnel from the ledgers
+     (enters / orders_accepted / fills / distinct_setups_traded — 2026-07-01
+     re-aim: the metric measured artifacts only, so the loop optimized for
+     tests/lessons while the rig never traded).
   2. compute_metric(window) -> folds the last N outcome rows into a rolling
-     net-improvement scorecard written to autonomy-metric.json.
+     net-improvement scorecard written to autonomy-metric.json. The trend
+     weights FUNCTION (fills > accepted orders > enters) over artifact count.
 
 The metric is deliberately simple and explainable (see compute_metric docstring
 for the net_improvement formula + thrash heuristic). It is a *signal* for J and the
@@ -41,6 +46,12 @@ REPO = Path(__file__).resolve().parents[2]
 STATE_DIR = REPO / "automation" / "state"
 OUTCOMES_FILE = STATE_DIR / "conductor-outcomes.jsonl"
 METRIC_FILE = STATE_DIR / "autonomy-metric.json"
+# Trading-function ledgers (2026-07-01 re-aim: the metric measured artifacts
+# only — drained/lessons/tests — so a fire adding 41 tests scored like one that
+# made an order fill. These are the ground-truth function sources.)
+DECISIONS_FILE = STATE_DIR / "core-decisions.jsonl"
+FLEET_DIR = STATE_DIR / "fleet"
+TRADES_CSV = REPO / "journal" / "trades.csv"
 
 DEFAULT_WINDOW = 20
 
@@ -54,10 +65,134 @@ _NUMERIC_FIELDS = (
     "regressions",
 )
 
+# Trading-function snapshot fields (per fire, from the ledgers).
+_FUNCTION_FIELDS = (
+    "enters_last_trading_day",
+    "orders_accepted",
+    "fills",
+    "distinct_setups_traded",
+)
+
 
 def _utc_now_iso() -> str:
     """Current UTC time as an ISO8601 string (seconds precision, 'Z' suffix)."""
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
+
+# --- trading-function snapshot ------------------------------------------------
+def _iter_jsonl_reversed(path: Path):
+    """Yield parsed dict rows from a .jsonl file, newest line first.
+
+    Robust to missing/torn files: unreadable file yields nothing, a malformed
+    line is skipped. Never raises.
+    """
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except (FileNotFoundError, OSError):
+        return
+    for line in reversed(lines):
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obj = json.loads(line)
+        except (json.JSONDecodeError, ValueError):
+            continue
+        if isinstance(obj, dict):
+            yield obj
+
+
+def trading_function_snapshot(
+    *,
+    decisions_file: Path | None = None,
+    fleet_dir: Path | None = None,
+    trades_csv: Path | None = None,
+) -> dict[str, Any]:
+    """Snapshot the LAST TRADING DAY's function funnel from the ledgers.
+
+    Sources (all best-effort, never raises):
+      - core-decisions.jsonl: ENTER verdicts + broker-accepted orders
+        (``exec.status == "PLACED"``) for both core accounts.
+      - fleet/*/decisions.jsonl: fleet-arm ENTER actions + accepted placements
+        (``placement.placed is True``).
+      - journal/trades.csv: filled round-trips journaled for that day.
+
+    "Last trading day" = the newest ``ts_et`` date in core-decisions.jsonl
+    (falling back to the newest fleet date when the core ledger is empty).
+    Returns zeros + ``trading_day: ""`` when no ledger is readable — a missing
+    funnel must never crash a conductor fire.
+    """
+    dec_path = decisions_file or DECISIONS_FILE
+    fl_dir = fleet_dir or FLEET_DIR
+    csv_path = trades_csv or TRADES_CSV
+
+    snap: dict[str, Any] = {
+        "trading_day": "",
+        "enters_last_trading_day": 0,
+        "orders_accepted": 0,
+        "fills": 0,
+        "distinct_setups_traded": 0,
+    }
+    setups: set[str] = set()
+    try:
+        # 1) Core ledger — establishes the canonical last trading day.
+        day = ""
+        for row in _iter_jsonl_reversed(dec_path):
+            ts = str(row.get("ts_et", "") or "")
+            if len(ts) < 10:
+                continue
+            if not day:
+                day = ts[:10]
+            if ts[:10] != day:
+                break  # chronological file — older day reached, stop
+            if str(row.get("verdict", "") or "").startswith("ENTER"):
+                snap["enters_last_trading_day"] += 1
+            ex = row.get("exec") or {}
+            if isinstance(ex, dict) and ex.get("status") == "PLACED":
+                snap["orders_accepted"] += 1
+                if ex.get("setup"):
+                    setups.add(str(ex["setup"]))
+
+        # 2) Fleet ledgers (same day only; establish day if core was empty).
+        try:
+            fleet_files = sorted(fl_dir.glob("*/decisions.jsonl"))
+        except OSError:
+            fleet_files = []
+        for fpath in fleet_files:
+            for row in _iter_jsonl_reversed(fpath):
+                ts = str(row.get("ts_et", "") or "")
+                if len(ts) < 10:
+                    continue
+                if not day:
+                    day = ts[:10]
+                if ts[:10] != day:
+                    break
+                if str(row.get("action", "") or "").startswith("ENTER"):
+                    snap["enters_last_trading_day"] += 1
+                pl = row.get("placement") or {}
+                if isinstance(pl, dict) and pl.get("placed") is True:
+                    snap["orders_accepted"] += 1
+                    if row.get("setup_name"):
+                        setups.add(str(row["setup_name"]))
+
+        # 3) Fills journal (round-trips recorded for that day).
+        if day:
+            try:
+                for line in csv_path.read_text(encoding="utf-8").splitlines():
+                    if line.startswith(day + ","):
+                        snap["fills"] += 1
+                        parts = line.split(",")
+                        if len(parts) > 3 and parts[3]:
+                            setups.add(parts[3])
+            except (FileNotFoundError, OSError):
+                pass
+
+        snap["trading_day"] = day
+        snap["distinct_setups_traded"] = len(setups)
+    except Exception:
+        # Any surprise -> return whatever was accumulated; never raise.
+        pass
+    return snap
 
 
 # --- 1) RECORD ---------------------------------------------------------------
@@ -73,6 +208,7 @@ def record(
     note: str = "",
     fired_at: str | None = None,
     outcomes_file: Path | None = None,
+    function_snapshot: dict[str, Any] | None = None,
 ) -> dict[str, Any] | None:
     """Append one structured fire-outcome row to conductor-outcomes.jsonl.
 
@@ -80,9 +216,19 @@ def record(
     a conductor fire. On any error we swallow it (returning None) rather than
     propagate. Missing dirs/file are created on demand.
 
+    Each row also snapshots the TRADING FUNCTION funnel from the ledgers
+    (enters / orders_accepted / fills / distinct_setups_traded for the last
+    trading day) so the metric can weight function over artifact count.
+    Pass ``function_snapshot`` to override (tests / backfill).
+
     Returns the row dict that was written, or None if the append failed.
     """
     path = outcomes_file or OUTCOMES_FILE
+    snap = (
+        function_snapshot
+        if function_snapshot is not None
+        else trading_function_snapshot()
+    )
     row: dict[str, Any] = {
         "fired_at": fired_at or _utc_now_iso(),
         "task_id": str(task_id or ""),
@@ -93,6 +239,11 @@ def record(
         "tests_delta": int(tests_delta or 0),
         "regressions": int(regressions or 0),
         "note": str(note or ""),
+        "trading_day": str(snap.get("trading_day", "") or ""),
+        "enters_last_trading_day": int(snap.get("enters_last_trading_day", 0) or 0),
+        "orders_accepted": int(snap.get("orders_accepted", 0) or 0),
+        "fills": int(snap.get("fills", 0) or 0),
+        "distinct_setups_traded": int(snap.get("distinct_setups_traded", 0) or 0),
     }
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -178,8 +329,36 @@ def _net_improvement(rows: list[dict[str, Any]]) -> int:
     return int(drained_total - regressions_total - thrash)
 
 
+def _fire_function_score(row: dict[str, Any]) -> float:
+    """Weighted trading-function score of one fire's ledger snapshot.
+
+    fills are the goal (x3), broker-accepted orders prove the placement path
+    (x2), ENTER verdicts prove reachability (x1). Rows without the snapshot
+    fields (pre-2026-07-01) score 0.
+    """
+    return (
+        3.0 * _num(row, "fills")
+        + 2.0 * _num(row, "orders_accepted")
+        + 1.0 * _num(row, "enters_last_trading_day")
+    )
+
+
+def _avg_function_score(rows: list[dict[str, Any]]) -> float:
+    """MEAN per-fire function score (not sum — several same-night fires snapshot
+    the SAME trading day; summing would reward firing more, not trading more)."""
+    if not rows:
+        return 0.0
+    return round(sum(_fire_function_score(r) for r in rows) / len(rows), 4)
+
+
 def _trend(rows: list[dict[str, Any]]) -> str:
-    """Compare net_improvement of the recent half vs the older half of the window.
+    """Compare the recent half vs the older half of the window — FUNCTION FIRST.
+
+    2026-07-01 re-aim: the trend used to compare artifact net_improvement only,
+    so a fire adding 41 tests scored like one that made an order fill. Now the
+    halves are compared on the trading-function score (fills/orders/enters from
+    the ledgers) FIRST; artifact net_improvement only breaks a function tie
+    (which is also the exact legacy behavior for pre-snapshot rows, all 0.0).
 
     Returns "improving" | "flat" | "regressing". With fewer than 2 rows there is
     no basis for a trend -> "flat".
@@ -190,6 +369,12 @@ def _trend(rows: list[dict[str, Any]]) -> str:
     mid = n // 2
     older = rows[:mid]
     recent = rows[mid:]
+    older_fn = _avg_function_score(older)
+    recent_fn = _avg_function_score(recent)
+    if recent_fn > older_fn:
+        return "improving"
+    if recent_fn < older_fn:
+        return "regressing"
     older_ni = _net_improvement(older)
     recent_ni = _net_improvement(recent)
     if recent_ni > older_ni:
@@ -225,6 +410,7 @@ def compute_metric(
     fires_counted = len(rows)
     cost_per_drained = round(total_cost / max(1, total_drained), 4)
 
+    latest_snap = rows[-1] if rows else {}
     metric: dict[str, Any] = {
         "computed_at": _utc_now_iso(),
         "window": window,
@@ -234,6 +420,15 @@ def compute_metric(
         "total_cost_usd": total_cost,
         "cost_per_drained_usd": cost_per_drained,
         "fires_counted": fires_counted,
+        # Trading function (the point of the rig — weighted above artifacts):
+        "function_score_avg": _avg_function_score(rows),
+        "function_latest": {
+            "trading_day": str(latest_snap.get("trading_day", "") or ""),
+            "enters_last_trading_day": int(_num(latest_snap, "enters_last_trading_day")),
+            "orders_accepted": int(_num(latest_snap, "orders_accepted")),
+            "fills": int(_num(latest_snap, "fills")),
+            "distinct_setups_traded": int(_num(latest_snap, "distinct_setups_traded")),
+        },
         "trend": _trend(rows),
     }
 

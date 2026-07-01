@@ -1,5 +1,5 @@
 {
-  "computed_at": "2026-07-01T21:53:49+00:00",
+  "computed_at": "2026-07-01T22:10:21+00:00",
   "window": 20,
   "net_improvement": 25,
   "total_drained": 25,
@@ -7,5 +7,13 @@
   "total_cost_usd": 62.08,
   "cost_per_drained_usd": 2.4832,
   "fires_counted": 20,
+  "function_score_avg": 0.0,
+  "function_latest": {
+    "trading_day": "",
+    "enters_last_trading_day": 0,
+    "orders_accepted": 0,
+    "fills": 0,
+    "distinct_setups_traded": 0
+  },
   "trend": "regressing"
 }
