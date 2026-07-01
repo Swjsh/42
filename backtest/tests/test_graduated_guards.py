@@ -3598,25 +3598,35 @@ def test_premarket_verifies_work_not_exitcode() -> None:
 
 
 def test_self_check_flags_zero_entry_with_blocks(tmp_path) -> None:
-    """G-TRADEABILITY (2026-06-30): self_check must CONTENT-check that the engine actually
-    REACHES an ENTER -- not just that it's ticking. The disease: 772 ticks / 0 ENTER / 64x
-    SKIP_ELITE_BULL_LEVEL_RECLAIM read GREEN because every check was liveness-only. A populated
-    session with 0 ENTER and >=1 trigger fired-but-gate-blocked MUST surface (RED)."""
+    """G-TRADEABILITY (2026-06-30, frame-corrected same day): self_check must CONTENT-check that the
+    engine REACHES an ENTER -- but it must distinguish a GENUINE fault from a validated data-gated
+    sit-out. A 0-ENTER day whose blocks are an *unexpected* verdict (real gate misfire) MUST flag
+    (RED). A 0-ENTER day whose ONLY blocks are `SKIP_ELITE_BULL_LEVEL_RECLAIM` is the proven-correct
+    data-gated bull sit-out (bull-unblock thread CLOSED: block_elite_bull KEEP -$241) and must be
+    SILENT -- flagging it made self_check perpetually-RED, masking a real future fault (L189). Full
+    matrix lives in backtest/tests/test_self_check_tradeability.py."""
     sys.path.insert(0, str(REPO / "setup" / "scripts"))
     import importlib, datetime as _dt, json as _json
     sc = importlib.import_module("self_check")
     assert hasattr(sc, "check_engine_tradeability"), "self_check must expose check_engine_tradeability"
     now = _dt.datetime(2026, 6, 30, 16, 5)  # a weekday, after close
+    # A NON-data-gated block (real gate misfire) with 0 ENTER MUST flag CANNOT ENTER.
     rows = [_json.dumps({"ts_et": f"2026-06-30T1{i % 6}:{i % 6}0:00", "account": "safe",
-            "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM", "triggers": ["level_reclaim", "confluence"],
-            "bull_score": 11, "bear_score": 4}) for i in range(40)]
+            "verdict": "SKIP_LIQUIDITY", "triggers": ["rejection", "confluence"],
+            "bull_score": 4, "bear_score": 11}) for i in range(40)]
     p = tmp_path / "dec.jsonl"
     p.write_text("\n".join(rows), encoding="utf-8")
     probs = sc.check_engine_tradeability(now, p)
-    assert any("CANNOT ENTER" in x for x in probs), f"0-entry+blocked day must flag: {probs}"
-    # control: the same day with a single real ENTER must be clean
+    assert any("CANNOT ENTER" in x for x in probs), f"real-block 0-entry day must flag: {probs}"
+    # FRAME FIX: an all-SKIP_ELITE_BULL day is the validated data-gated sit-out -> now SILENT.
+    benign = [_json.dumps({"ts_et": f"2026-06-30T1{i % 6}:{i % 6}0:00", "account": "safe",
+              "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM", "triggers": ["level_reclaim", "confluence"],
+              "bull_score": 11, "bear_score": 4}) for i in range(40)]
+    p.write_text("\n".join(benign), encoding="utf-8")
+    assert sc.check_engine_tradeability(now, p) == [], "data-gated elite-bull sit-out must be silent (L189)"
+    # control: the same real-block day with a single real ENTER must be clean
     rows.append(_json.dumps({"ts_et": "2026-06-30T11:00:00", "account": "safe",
-        "verdict": "ENTER_BULL", "triggers": ["level_reclaim"], "bull_score": 11, "bear_score": 4}))
+        "verdict": "ENTER_BEAR", "triggers": ["rejection"], "bull_score": 4, "bear_score": 11}))
     p.write_text("\n".join(rows), encoding="utf-8")
     assert sc.check_engine_tradeability(now, p) == [], "a day with an ENTER must be clean"
 

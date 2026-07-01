@@ -101,6 +101,16 @@ def check_broker_keys() -> list[str]:
 
 ENTRY_MIN_TICKS = 30  # enough session elapsed that a tradeable engine should show entries-or-nothing-fired
 
+# Data-gated / validated-correct sit-out signatures — proven NOT a fault by the 2026-06-30
+# bull-unblock audit (thread CLOSED): `block_elite_bull` is KEEP (removed cohort net -$241 on
+# the fresh OPRA window, DRY_AT_ZERO), `detect_sequence_reclaim` is structurally coupled off,
+# and the whole 0DTE-SPY bull frontier is DATA-GATED, not a fixable engine bug. Treating these
+# blocks as BROKEN made self_check perpetually-RED on validated behavior, which MASKS a genuine
+# future "cannot enter" fault (L189: a persistently-RED audit masks new orphans). The correct
+# layer to catch a bull-EDGE regression is `test_bull_unblock_replay_probe.py` (re-REDs the build
+# if "block removes losers" ever flips to "unblock adds edge"), NOT the live liveness monitor.
+_DATA_GATED_BLOCK_VERDICTS = frozenset({"SKIP_ELITE_BULL_LEVEL_RECLAIM"})
+
 
 def _today_decisions(now, path=None) -> list:
     """Today's core-decisions rows (ET-date match). Fail-open -> []."""
@@ -138,19 +148,26 @@ def check_engine_tradeability(now, path=None) -> list:
         return out  # engine barely ticked -- the staleness checks cover that, not this
     if any(str(r.get("verdict", "")).startswith("ENTER") for r in safe):
         return out  # it entered (or could) -- fine
+    # (1) A trigger fired but the entry was gate-blocked. Only a NON-data-gated block is a fault;
+    # a validated data-gated block (block_elite_bull) is the engine CORRECTLY sitting out (bull
+    # thread CLOSED 2026-06-30). Flag BROKEN only on an *unexpected* blocking verdict.
     blocked = [r for r in safe if str(r.get("verdict", "")).startswith("SKIP") and r.get("triggers")]
-    if blocked:
+    real_blocked = [r for r in blocked if r.get("verdict") not in _DATA_GATED_BLOCK_VERDICTS]
+    if real_blocked:
         from collections import Counter
-        verdict, n = Counter(r.get("verdict") for r in blocked).most_common(1)[0]
+        verdict, n = Counter(r.get("verdict") for r in real_blocked).most_common(1)[0]
         out.append(f"ENGINE CANNOT ENTER: {len(safe)} ticks today, 0 ENTER, {n}x {verdict} -- setups "
-                   f"scored AND fired a trigger but every entry was gate-blocked. The engine is "
-                   f"structurally sitting out (the 2026-06-30 zero-trade signature).")
+                   f"scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated "
+                   f"verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).")
         return out
-    hi = [r for r in safe if max(r.get("bull_score") or 0, r.get("bear_score") or 0) >= 9]
-    if len(hi) >= ENTRY_MIN_TICKS:
-        out.append(f"ENGINE NOT ENTERING: {len(safe)} ticks today, 0 ENTER, {len(hi)} ticks scored >=9 "
-                   f"but no trigger fired (HOLD all day). High conviction never converted to a trade -- "
-                   f"check the trigger detector (straddle-only reclaim gap).")
+    # (2) High conviction that never fired a trigger. Bull-side (straddle-only reclaim gap) is the
+    # DATA-GATED structural condition (thread CLOSED) -> expected, silent. A high BEAR score with no
+    # bear trigger is the LIVE-validated direction failing to convert -> a genuine detector concern.
+    hi_bear = [r for r in safe if (r.get("bear_score") or 0) >= 9 and not r.get("triggers")]
+    if len(hi_bear) >= ENTRY_MIN_TICKS:
+        out.append(f"ENGINE NOT ENTERING (bear): {len(safe)} ticks today, 0 ENTER, {len(hi_bear)} ticks "
+                   f"scored bear>=9 but no trigger fired (HOLD all day). The LIVE bear direction never "
+                   f"converted to a trade -- check the bear trigger detector.")
     return out
 
 
