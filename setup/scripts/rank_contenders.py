@@ -11,9 +11,15 @@ one-glance summary. Flags PROFITABLE survivors (clear the floor + positive) to t
 Discord outbox so J hears about money, not noise.
 
 Safe to run while the sweep is still going — it just reports "N of M so far".
+
+OP-33 honesty gate (2026-07-01): if the input hasn't changed since the last output,
+this writes NOTHING and logs SKIP_UNCHANGED — a frozen sweep must never restamp
+contender-rank-{date}.json into fake "fresh research" (6 days of byte-identical
+rewrites, 06-26..07-01).
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from datetime import datetime, timedelta, timezone
@@ -23,6 +29,7 @@ REPO = Path(__file__).resolve().parents[1].parent
 GRIND = REPO / "analysis" / "recommendations" / "mass-grind-progress.jsonl"
 STATE = REPO / "automation" / "state"
 OUTBOX = STATE / "discord-outbox.jsonl"
+RANK_STATE = REPO / "analysis" / "recommendations" / ".contender-rank-input-state.json"
 
 J_EDGE_FLOOR = 771.0   # OP-16: 50% of the 1542 max edge_capture; below = REJECT
 WF_PREF = 0.70
@@ -112,5 +119,39 @@ def rank():
     return out
 
 
+def _input_fingerprint() -> dict:
+    """Fingerprint the GRIND input so an untouched sweep never restamps output."""
+    if not GRIND.exists():
+        return {"sha256": None, "mtime": None, "size": None}
+    st = GRIND.stat()
+    return {"sha256": hashlib.sha256(GRIND.read_bytes()).hexdigest(),
+            "mtime": st.st_mtime, "size": st.st_size}
+
+
+def main():
+    """Rank only when the input actually changed; otherwise write NOTHING."""
+    fp = _input_fingerprint()
+    prev = None
+    if RANK_STATE.exists():
+        try:
+            prev = json.loads(RANK_STATE.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            prev = None
+    if prev is not None and fp["sha256"] == prev.get("sha256"):
+        if fp["mtime"] is not None:
+            frozen = datetime.fromtimestamp(fp["mtime"], tz=timezone.utc) + timedelta(hours=-4)
+            since = frozen.strftime("%Y-%m-%d %H:%M ET")
+        else:
+            since = "never (input missing)"
+        print(f"SKIP_UNCHANGED (input frozen since {since})")
+        return None
+    out = rank()
+    try:
+        RANK_STATE.write_text(json.dumps(fp), encoding="utf-8")
+    except OSError:
+        pass
+    return out
+
+
 if __name__ == "__main__":
-    rank()
+    main()

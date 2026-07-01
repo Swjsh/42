@@ -41,17 +41,47 @@ $drift = Invoke-PythonHidden -ScriptPath "crypto\benchmarks\track_drift.py" -Tas
 Add-Content -Path $logFile -Value ("[$now] drift exit=" + $drift.ExitCode)
 
 # 4. Surface RED health to STATUS.md (OP-26 + OP-25) -- read drift_report.json directly in PS instead of `python -c`
+#    Change-detection + 6h cooldown (2026-07-01 consolidate-hard): the same self-acknowledged
+#    v02 artifact was re-appended every 30 min, burying signal. Append ONLY when the
+#    health/alert text CHANGES or >= 6h since the last append; RED->GREEN appends one recovery line.
 $driftJson = Join-Path $projectRoot "crypto\data\scorecards\drift_report.json"
 if (Test-Path $driftJson) {
     try {
         $driftObj = Get-Content $driftJson -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
         $health = $driftObj.overall_health
+        $alertsText = ($driftObj.alerts -join ' | ')
+        $statusPath = Join-Path $projectRoot "automation\overnight\STATUS.md"
+        $lastAppendFile = Join-Path $projectRoot "crypto\data\scorecards\.drift-status-last-append.json"
+        $last = $null
+        if (Test-Path $lastAppendFile) {
+            try { $last = Get-Content $lastAppendFile -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop } catch { $last = $null }
+        }
+        $cooldownExpired = $true
+        if ($null -ne $last -and $last.appended_at) {
+            try {
+                $lastDt = [datetime]::ParseExact([string]$last.appended_at, 'yyyy-MM-dd HH:mm:ss', $null)
+                $nowDt = [datetime]::ParseExact([string]$now, 'yyyy-MM-dd HH:mm:ss', $null)
+                $cooldownExpired = ($nowDt - $lastDt).TotalHours -ge 6
+            } catch { $cooldownExpired = $true }
+        }
+        $verdictChanged = ($null -eq $last) -or ($last.health -ne $health) -or ($last.alerts_text -ne $alertsText)
+        $appended = $false
         if ($health -eq "RED") {
-            $statusPath = Join-Path $projectRoot "automation\overnight\STATUS.md"
-            if (Test-Path $statusPath) {
-                $alertsText = ($driftObj.alerts -join ' | ')
+            if (($verdictChanged -or $cooldownExpired) -and (Test-Path $statusPath)) {
                 Add-Content -Path $statusPath -Value "`n- [$now] crypto-harness drift RED :: $alertsText :: see crypto/data/scorecards/drift_report.json"
+                $appended = $true
+            } else {
+                Add-Content -Path $logFile -Value "[$now] drift RED unchanged; STATUS append suppressed (change-detection/6h cooldown)"
             }
+        } elseif ($health -eq "GREEN" -and $null -ne $last -and $last.health -eq "RED") {
+            if (Test-Path $statusPath) {
+                Add-Content -Path $statusPath -Value "`n- [$now] crypto-harness drift GREEN (recovered) :: see crypto/data/scorecards/drift_report.json"
+                $appended = $true
+            }
+        }
+        if ($appended) {
+            @{ health = $health; alerts_text = $alertsText; appended_at = $now } | ConvertTo-Json -Compress |
+                Set-Content -Path $lastAppendFile -Encoding utf8
         }
     } catch {
         Add-Content -Path $logFile -Value "[$now] drift_report.json parse error: $_"

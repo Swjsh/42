@@ -23,7 +23,9 @@ $existing = Get-WmiObject Win32_Process -Filter "Name='python.exe' OR Name='pyth
     Where-Object { $_.CommandLine -like '*live_grinder*' }
 
 if ($existing) {
-    Add-Content -Path $logFile -Value "[$now] grinder-keepalive: alive (PID=$($existing.ProcessId | Out-String -NoNewline))"
+    # PS 5.1 has no `Out-String -NoNewline` (NamedParameterNotFound every fire; log showed "PID=").
+    $pidList = @($existing | ForEach-Object { $_.ProcessId }) -join ','
+    Add-Content -Path $logFile -Value "[$now] grinder-keepalive: alive (PID=$pidList)"
     exit 0
 }
 

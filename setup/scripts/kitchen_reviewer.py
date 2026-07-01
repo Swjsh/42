@@ -274,34 +274,79 @@ def _check_op20_disclosures(candidate_text: str) -> tuple[bool, list[str]]:
     return len(missing) == 0, missing
 
 
-def _check_op16_floor(candidate_text: str) -> tuple[bool, str]:
+def _find_numeric_edge_capture(obj) -> Optional[float]:
+    """Depth-first search a scorecard JSON structure for a numeric edge_capture."""
+    if isinstance(obj, dict):
+        v = obj.get("edge_capture")
+        if isinstance(v, (int, float)) and not isinstance(v, bool):
+            return float(v)
+        for val in obj.values():
+            found = _find_numeric_edge_capture(val)
+            if found is not None:
+                return found
+    elif isinstance(obj, list):
+        for val in obj:
+            found = _find_numeric_edge_capture(val)
+            if found is not None:
+                return found
+    return None
+
+
+def _scorecard_edge_capture(candidate_file: Path, candidate_text: str) -> tuple[Optional[float], str]:
+    """Parse a NUMERIC edge_capture from an actual scorecard JSON on disk.
+
+    Checks analysis/recommendations/{slug}.json plus any analysis/recommendations/
+    *.json paths referenced in the candidate text. Returns (value, source_relpath)
+    or (None, why_not).
+    """
+    cands: list[Path] = [REPO / "analysis" / "recommendations" / f"{candidate_file.stem}.json"]
+    for m in re.finditer(r"analysis/recommendations/[\w\-.]+\.json",
+                         candidate_text.replace("\\", "/")):
+        cands.append(REPO / m.group(0))
+    checked: list[str] = []
+    for path in cands:
+        if not path.exists():
+            checked.append(f"{path.name}:missing")
+            continue
+        try:
+            obj = json.loads(path.read_text(encoding="utf-8", errors="replace"))
+        except (OSError, json.JSONDecodeError) as exc:
+            checked.append(f"{path.name}:unreadable({type(exc).__name__})")
+            continue
+        val = _find_numeric_edge_capture(obj)
+        if val is None:
+            checked.append(f"{path.name}:no-numeric-edge_capture")
+            continue
+        try:
+            rel = str(path.relative_to(REPO)).replace("\\", "/")
+        except ValueError:
+            rel = str(path)
+        return val, rel
+    return None, "no scorecard JSON with numeric edge_capture (" + "; ".join(checked) + ")"
+
+
+def _check_op16_floor(candidate_file: Path, candidate_text: str) -> tuple[bool, str]:
     """Return (passes, reason_string).
 
-    Passes if:
-      (a) edge_capture numeric value >= _OP16_PROMOTE_FLOOR found, OR
+    Passes ONLY on evidence that exists outside the LLM's own prose:
+      (a) a NUMERIC edge_capture >= _OP16_PROMOTE_FLOOR parsed from a scorecard
+          JSON on disk (analysis/recommendations/), OR
       (b) "new trade class" label AND "guard pass" both present.
+    Free-text dollar amounts (e.g. 'inferred edge_capture=$25000') are NOT
+    evidence — 7/7 recent auto-promotes cleared the floor on hallucinated
+    strings (2026-07-01 consolidation audit).
     """
     lower = candidate_text.lower()
     # Pattern (b): new trade class with guard pass
     if "new trade class" in lower and "guard pass" in lower:
         return True, "new-trade-class with guard PASS"
-    # Pattern (a): extract edge_capture value
-    for m in re.finditer(r"edge[_\-\s]?capture[^\d]{0,20}([\d,]+)", lower):
-        try:
-            val = float(m.group(1).replace(",", ""))
-            if val >= _OP16_PROMOTE_FLOOR:
-                return True, f"edge_capture={val:.0f} >= {_OP16_PROMOTE_FLOOR}"
-        except ValueError:
-            pass
-    # Pattern: "edge_capture: $NNN" or "edge_capture=$NNN"
-    for m in re.finditer(r"\$\s*([\d,]+)", lower):
-        try:
-            val = float(m.group(1).replace(",", ""))
-            if val >= _OP16_PROMOTE_FLOOR:
-                return True, f"inferred edge_capture=${val:.0f} >= {_OP16_PROMOTE_FLOOR}"
-        except ValueError:
-            pass
-    return False, f"edge_capture not found or < {_OP16_PROMOTE_FLOOR}"
+    # Pattern (a): NUMERIC edge_capture from a scorecard JSON on disk
+    val, source = _scorecard_edge_capture(candidate_file, candidate_text)
+    if val is None:
+        return False, f"no numeric scorecard edge_capture: {source}"
+    if val >= _OP16_PROMOTE_FLOOR:
+        return True, f"edge_capture={val:.0f} >= {_OP16_PROMOTE_FLOOR} (scorecard {source})"
+    return False, f"scorecard edge_capture={val:.0f} < {_OP16_PROMOTE_FLOOR} ({source})"
 
 
 def _next_leaderboard_rank() -> int:
@@ -314,17 +359,40 @@ def _next_leaderboard_rank() -> int:
     return (max(ranks) + 1) if ranks else 1
 
 
+def _resolve_candidate(out_path_str: str) -> Optional[Path]:
+    """Resolve a reviewer-provided output path to a candidate file on disk."""
+    candidate_file = CANDIDATES_DIR / Path(out_path_str).name
+    if candidate_file.exists():
+        return candidate_file
+    # Try with full repo-relative path
+    candidate_file = REPO / out_path_str
+    return candidate_file if candidate_file.exists() else None
+
+
+def _cap_promote_if_unevidenced(verdict: str, out_path: str) -> tuple[str, str]:
+    """OP-33: PROMOTE requires numeric scorecard evidence on disk; else cap at VALIDATE.
+
+    Returns (possibly-capped verdict, cap_reason) — cap_reason empty when not capped.
+    """
+    if verdict != "PROMOTE" or not out_path:
+        return verdict, ""
+    candidate_file = _resolve_candidate(out_path)
+    if candidate_file is None:
+        return "VALIDATE", f"capped: candidate file not found: {out_path}"
+    text = candidate_file.read_text(encoding="utf-8", errors="replace")
+    op16_ok, op16_reason = _check_op16_floor(candidate_file, text)
+    if op16_ok:
+        return verdict, ""
+    return "VALIDATE", f"capped: {op16_reason}"
+
+
 def _auto_promote_candidate(out_path_str: str, rationale: str) -> str:
     """Check gates and append to _LEADERBOARD.md or _LEADERBOARD-pending.md.
 
     Returns 'promoted', 'pending:<reasons>', or 'skip:<reason>'.
     """
-    # Resolve candidate file
-    candidate_file = CANDIDATES_DIR / Path(out_path_str).name
-    if not candidate_file.exists():
-        # Try with full repo-relative path
-        candidate_file = REPO / out_path_str
-    if not candidate_file.exists():
+    candidate_file = _resolve_candidate(out_path_str)
+    if candidate_file is None:
         return f"skip:file-not-found:{out_path_str}"
 
     text = candidate_file.read_text(encoding="utf-8", errors="replace")
@@ -332,7 +400,7 @@ def _auto_promote_candidate(out_path_str: str, rationale: str) -> str:
     now_str = _et_now().strftime("%Y-%m-%d")
 
     op20_ok, missing = _check_op20_disclosures(text)
-    op16_ok, op16_reason = _check_op16_floor(text)
+    op16_ok, op16_reason = _check_op16_floor(candidate_file, text)
 
     if op20_ok and op16_ok:
         # Full auto-promote
@@ -464,6 +532,12 @@ def main() -> int:
         out_path = (d.get("output_path") or "").strip()
         rationale = d.get("rationale", "")
         followup = (d.get("followup_task") or "").strip()
+        # OP-33 evidence gate: an LLM PROMOTE with no numeric scorecard JSON on
+        # disk is a hallucination risk (7/7 recent promotes rode the literal
+        # string 'inferred edge_capture=$25000') -> cap at VALIDATE and log why.
+        verdict, cap_reason = _cap_promote_if_unevidenced(verdict, out_path)
+        if cap_reason:
+            _log(f"  PROMOTE capped to VALIDATE: {cap_reason}")
         # Log every decision
         _append_review_log({
             "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -471,6 +545,7 @@ def main() -> int:
             "verdict": verdict,
             "rationale": rationale,
             "followup_task": followup,
+            "cap_reason": cap_reason,
             "reviewer_model": model,
             "reviewer_tier": tier,
             "reviewer_cost_usd": cost,
