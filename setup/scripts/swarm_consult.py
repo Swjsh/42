@@ -25,10 +25,12 @@ USAGE
   python swarm_consult.py brainstorm --question "..." --n 3
   python swarm_consult.py decide --question "..."
 
-DEFAULT MODELS (parallel fan-out, $0 each)
+DEFAULT MODELS (parallel fan-out, $0 each — see DEFAULT_PERSPECTIVE_MODELS below;
+the list here is illustrative and the CODE is the source of truth. Verify slugs
+against the live catalog with --audit-roster, never from memory.)
   nvidia/nemotron-3-super-120b-a12b:free   (primary reasoner, 1M ctx)
-  deepseek/deepseek-v4-flash:free          (coding-focused, 1M ctx)
-  minimax/minimax-m2.5:free                (general, 204K ctx)
+  openai/gpt-oss-120b:free                 (distinct lineage, 131K ctx)
+  google/gemma-4-31b-it:free               (262K ctx)
 Synthesizer: Nemotron.
 
 OUTPUT

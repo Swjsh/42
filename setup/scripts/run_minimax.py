@@ -64,12 +64,14 @@ TIMEOUT_DEFAULT_S: int = 120
 # OpenRouter pricing in USD per token (verified 2026-05-20 via WebFetch).
 # Update when OpenRouter publishes new tiers.
 #
-# FREE-TIER MODELS (cost=0 per OpenRouter Models API 2026-05-20):
+# FREE-TIER MODELS (cost=0 per OpenRouter Models API; re-verified 2026-07-01 audit):
 #   * nvidia/nemotron-3-super-120b-a12b:free  -- 120B MoE / 12B active, 1M ctx, AGENTIC PRIMARY
-#   * minimax/minimax-m2.5:free               -- 204K ctx, MiniMax mid-tier free variant
-#   * deepseek/deepseek-v4-flash:free         -- 1M ctx, coding-focused
 #   * qwen/qwen3-coder:free                   -- 1M ctx, coding-focused
+#   * openai/gpt-oss-120b:free                -- 131K ctx, general
+#   * google/gemma-4-31b-it:free              -- 262K ctx, general
 #   * meta-llama/llama-3.3-70b-instruct:free  -- 131K ctx, general
+# DEAD (2026-07-01, de-tagged to paid — see model-roster.json "dead"):
+#   minimax/minimax-m2.5:free, deepseek/deepseek-v4-flash:free
 # Free tier is rate-limited (not $-capped), so callers should fallback gracefully
 # on 429. Pricing entries are 0/0; daily $-cap logic does not apply.
 PRICING: dict[str, dict[str, float]] = {
@@ -79,8 +81,9 @@ PRICING: dict[str, dict[str, float]] = {
     "nvidia/nemotron-3-super-120b-a12b:free":   {"input": 0.0, "output": 0.0},
     "nvidia/nemotron-3-nano-30b-a3b:free":      {"input": 0.0, "output": 0.0},
     "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free": {"input": 0.0, "output": 0.0},
-    "minimax/minimax-m2.5:free":                {"input": 0.0, "output": 0.0},
-    "deepseek/deepseek-v4-flash:free":          {"input": 0.0, "output": 0.0},
+    "openai/gpt-oss-120b:free":                 {"input": 0.0, "output": 0.0},
+    "openai/gpt-oss-20b:free":                  {"input": 0.0, "output": 0.0},
+    "google/gemma-4-31b-it:free":               {"input": 0.0, "output": 0.0},
     "qwen/qwen3-coder:free":                    {"input": 0.0, "output": 0.0},
     "meta-llama/llama-3.3-70b-instruct:free":   {"input": 0.0, "output": 0.0},
 }
@@ -217,7 +220,12 @@ def _alert_status_md(severity: str, msg: str) -> None:
 def _estimate_cost(model: str, in_tokens: int, out_tokens: int) -> float:
     pricing = PRICING.get(model)
     if not pricing:
-        # Unknown model: charge as M2 (conservative default). Telemetry flags it.
+        if _is_free_model(model):
+            # :free suffix = OpenRouter charges 0 regardless of table membership.
+            # (2026-07-01 fix: unknown :free models were billed at paid-M2 default,
+            # writing PHANTOM cost into minimax-calls.jsonl / spend summaries.)
+            return 0.0
+        # Unknown PAID model: charge as M2 (conservative default). Telemetry flags it.
         pricing = PRICING[DEFAULT_MODEL]
     return round(in_tokens * pricing["input"] + out_tokens * pricing["output"], 6)
 

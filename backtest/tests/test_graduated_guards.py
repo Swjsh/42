@@ -3296,6 +3296,55 @@ def test_swarm_roster_models_distinct_vendors() -> None:
             assert m.endswith(":free"), f"OpenRouter perspective must be :free, got {m}"
 
 
+def test_free_model_cost_estimate_is_zero() -> None:
+    """G-PHANTOM-COST (2026-07-01): any ':free' slug must cost $0 in telemetry even if
+    absent from the PRICING table. Scar: unknown :free models (gemma-4-31b, gpt-oss-20b,
+    nemotron-ultra) fell through to the paid-M2 default in _estimate_cost, writing
+    phantom cost_usd into minimax-calls.jsonl and corrupting the spend summaries."""
+    sys.path.insert(0, str(REPO / "setup" / "scripts"))
+    import importlib
+    rm = importlib.import_module("run_minimax")
+    # A :free slug deliberately NOT in PRICING — must be $0, not paid-default rates.
+    assert rm._estimate_cost("vendor/not-in-table:free", 100_000, 100_000) == 0.0
+    # A known paid slug must still be charged.
+    assert rm._estimate_cost("minimax/minimax-m2.5", 100_000, 100_000) > 0.0
+    # An UNKNOWN paid slug still falls back to conservative default (unchanged behavior).
+    assert rm._estimate_cost("vendor/unknown-paid-model", 100_000, 100_000) > 0.0
+
+
+def test_no_dead_slug_in_active_model_configs() -> None:
+    """G-DEAD-SLUG (2026-07-01 free-model audit): a slug recorded in model-roster.json
+    "dead" must never reappear in an ACTIVE model config. Scar: deepseek-v4-flash:free +
+    minimax-m2.5:free 404'd (de-tagged to paid) while still wired as kitchen ladder T1/T2
+    and eod_fallback T2/T3 — every ladder fall-through skipped two dead rungs and landed
+    on the PAID last-resort. Text-scan (no imports: face_brain sys.exits on import guard)."""
+    roster = json.loads((REPO / "automation" / "state" / "model-roster.json").read_text(encoding="utf-8"))
+    dead_ids = [d["id"] for d in roster.get("dead", [])]
+    assert dead_ids, "roster dead-list unexpectedly empty — guard would be vacuous"
+
+    active_configs = [
+        REPO / "setup" / "scripts" / "chef_nemotron.py",      # kitchen MODEL_LADDER
+        REPO / "setup" / "scripts" / "eod_fallback.py",       # EOD _MODEL_LADDER
+        REPO / "setup" / "scripts" / "swarm_consult.py",      # perspective roster
+        REPO / "setup" / "scripts" / "shadow_model_eval.py",  # shadow challengers
+        REPO / "gamma-companion" / "face" / "face_brain.py",  # FACE_MODELS
+    ]
+    offenders: list[str] = []
+    for path in active_configs:
+        text = path.read_text(encoding="utf-8")
+        for slug in dead_ids:
+            for i, line in enumerate(text.splitlines(), 1):
+                # Only flag QUOTED occurrences (active config values), not prose/comments.
+                if (f'"{slug}"' in line or f"'{slug}'" in line) and not line.lstrip().startswith("#"):
+                    offenders.append(f"{path.name}:{i} uses dead slug {slug}")
+    # Roster role lanes must not reference dead ids either.
+    for role, cfg in roster.get("roles", {}).items():
+        for lane in cfg.get("lanes", []):
+            if lane.get("model") in dead_ids:
+                offenders.append(f"model-roster.json role={role} lane uses dead slug {lane.get('model')}")
+    assert not offenders, "Dead model slugs wired in active configs:\n  " + "\n  ".join(offenders)
+
+
 def test_swarm_split_spec_routing() -> None:
     """G-SWARM-MP: provider routing parses specs correctly. Bare slugs -> openrouter;
     'cerebras:'/'groq:' prefixes -> that provider. Guards GLM (Cerebras) staying reachable."""

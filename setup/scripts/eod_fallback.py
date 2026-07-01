@@ -56,9 +56,11 @@ _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 # Try each tier in order; advance on 429 / rate-limit errors.
 # Nemotron first: 120B MoE reasoning model, 1M ctx, $0.
 # Last tier is paid MiniMax M2.5 (~$0.003/call) — only fires if all free tiers 429.
+# 2026-07-01 audit: deepseek-v4-flash:free + minimax-m2.5:free 404'd (de-tagged to paid) —
+# replaced with gpt-oss-120b + gemma-4-31b, both live-call verified from the free catalog.
 _LADDER_FREE_1 = "nvidia/nemotron-3-super-120b-a12b:free"
-_LADDER_FREE_2 = "deepseek/deepseek-v4-flash:free"
-_LADDER_FREE_3 = "minimax/minimax-m2.5:free"
+_LADDER_FREE_2 = "openai/gpt-oss-120b:free"
+_LADDER_FREE_3 = "google/gemma-4-31b-it:free"
 _LADDER_PAID   = "minimax/minimax-m2.5"
 _MODEL_LADDER  = [_LADDER_FREE_1, _LADDER_FREE_2, _LADDER_FREE_3, _LADDER_PAID]
 

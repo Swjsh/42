@@ -37,9 +37,11 @@ except Exception as exc:  # pragma: no cover - import guard
     sys.exit(0)
 
 # Free-tier ladder -- try in order, fall through on failure / rate-limit.
+# 2026-07-01 audit: minimax-m2.5:free 404'd (de-tagged to paid) -> gpt-oss-20b:free
+# (live-call verified, fast small model - right class for the cheap face layer).
 FACE_MODELS = (
     "nvidia/nemotron-3-super-120b-a12b:free",
-    "minimax/minimax-m2.5:free",
+    "openai/gpt-oss-20b:free",
     "nvidia/nemotron-3-nano-30b-a3b:free",
 )
 
@@ -147,7 +149,7 @@ def main() -> None:
     # guaranteed fallback (the loop skips any model that is 404 / rate-limited).
     models = (
         "nvidia/nemotron-3-nano-30b-a3b:free",
-        "minimax/minimax-m2.5:free",
+        "openai/gpt-oss-20b:free",
         "nvidia/nemotron-3-super-120b-a12b:free",
     ) if fast else FACE_MODELS
     # Non-fast cap raised 420 -> 800: a rich self-contained escalation task plus the

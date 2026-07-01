@@ -58,11 +58,14 @@ from run_minimax import call_minimax  # noqa: E402
 
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
-# Tier preference: try Nemotron first (free + 1M ctx + reasoning), fallback to MiniMax
-# free, last-resort paid MiniMax M2.5. Any 429 on a free tier triggers next-tier fallback.
+# Tier preference: try Nemotron first (free + 1M ctx + reasoning), fall back through two
+# more free tiers, last-resort paid MiniMax M2.5. Any 429 on a free tier triggers next-tier
+# fallback. 2026-07-01 audit: deepseek-v4-flash:free + minimax-m2.5:free 404'd (de-tagged to
+# paid) — replaced from the live free catalog (qwen3-coder 1M ctx coding, gpt-oss-120b live-
+# verified). Dead ids recorded in automation/state/model-roster.json "dead".
 PRIMARY_FREE = "nvidia/nemotron-3-super-120b-a12b:free"
-FALLBACK_FREE_1 = "deepseek/deepseek-v4-flash:free"
-FALLBACK_FREE_2 = "minimax/minimax-m2.5:free"
+FALLBACK_FREE_1 = "qwen/qwen3-coder:free"
+FALLBACK_FREE_2 = "openai/gpt-oss-120b:free"
 LAST_RESORT_PAID = "minimax/minimax-m2.5"  # ~$0.003/call
 
 MODEL_LADDER = [PRIMARY_FREE, FALLBACK_FREE_1, FALLBACK_FREE_2, LAST_RESORT_PAID]

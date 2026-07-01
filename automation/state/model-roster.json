@@ -40,6 +40,8 @@
   },
   "dead": [
     { "id": "moonshotai/kimi-k2.6:free", "since": "2026-06-13", "reason": "404 no endpoints" },
-    { "id": "deepseek/deepseek-r1:free", "since": "2026-06-24", "reason": "404 — de-tagged to paid (caught by roster_liveness probe)" }
+    { "id": "deepseek/deepseek-r1:free", "since": "2026-06-24", "reason": "404 — de-tagged to paid (caught by roster_liveness probe)" },
+    { "id": "deepseek/deepseek-v4-flash:free", "since": "2026-07-01", "reason": "404 — de-tagged to paid (free-model audit; was chef ladder T1 + eod ladder T2)" },
+    { "id": "minimax/minimax-m2.5:free", "since": "2026-07-01", "reason": "404 — de-tagged to paid (free-model audit; was chef ladder T2 + eod ladder T3 + face_brain T1)" }
   ]
 }
