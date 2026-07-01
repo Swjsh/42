@@ -243,9 +243,9 @@ def poll_fill(creds: dict[str, str], order_id: str, *, attempts: int = 3,
         if o and not o.get("_error"):
             status = str(o.get("status", "")).lower()
             try:
-                fq = int(float(o.get("filled_qty") or 0))
+                fq = float(o.get("filled_qty") or 0)  # float: whole option contracts AND fractional crypto
             except (TypeError, ValueError):
-                fq = 0
+                fq = 0.0
             try:
                 fap = (float(o["filled_avg_price"])
                        if o.get("filled_avg_price") not in (None, "") else None)
