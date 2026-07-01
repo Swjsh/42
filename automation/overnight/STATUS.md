@@ -1,3 +1,16 @@
+## [2026-07-01 ~17:50 ET] conductor: OK -- CLOSED A RECURRING SELF-AUDIT NOISE HOLE AT ITS FRAME (the 06-29 L-lesson recurred = a missing guardrail): tonight's un-actioned self-audit batch (9 gaps) had **5 of 9 = SCAFFOLD** the 06-29 `_is_real_gap` filter never anticipated. Hardened the filter + graduated the guard + DONE-marked the batch. Commit aab30bb.
+
+> **Signal J wakes to (OP-25) -- the proactive gap-finder organ was flagging its own reasoning-scaffold as "gaps," crowding real gaps out of the [:12] budget (the exact 06-29 crowding-out failure, recurring). Fixed at the producer + guarded so it can't regress; the batch's 4 substantive items are all already-tracked, so no new actionable gap tonight.** After-hours conductor fire, market CLOSED (Wed 17:50 ET; engine-health verdict **GREEN** -- both heartbeats/beacon/watcher-feed/kill-switches/level-feed/gex/dispatch GREEN, both accounts flat, gex-archive healthy 9 sessions). No `### BROKEN:` flags (reds:[]). All 4 author inboxes clear (skill correction-queue 3/3 processed). task_scorer top-3 all MED multi-day / LOW rail-4 doc-folds -> the priority-2 pick (un-actioned self-audit batch) beat them.
+> - **THE PICK (priority-2 self-audit gap > the MED multi-day queue):** the `2026-07-01T17:33:35` batch of 9 gaps was NOT DONE-marked. Triaged each (OP-33 skepticism, not hand-wave "noise"): 5 are SCAFFOLD -- "Question for reviewer" (3 words, passed the <3-word gate) + four "Perspective N flags/zeroes/warns/enumerates ..." cross-reference lead-ins (the SYNTHESIS describing perspectives, not stating gaps). The 4 substantive items all overlap tracked/just-fixed work (slippage=range-scalp closed + SKIP_LIQUIDITY; data-feed health=engine-health beacon; lesson-inbox-quarantine-risks-Rule-9=a misconception, conductor never applies lessons to params; volatility-adaptive sizing=SAFE-VIX-CONDITIONAL-SIZING MED queue).
+> - **SHIPPED (engine-benefit observability code, rail-4 CLEAR -- self_audit.py is the gap-finder organ, touches NO params/doctrine-rules/orders/heartbeat/filters/CLAUDE, places NO order, arms NOTHING -> ships on green gate):** added "question for reviewer"/"question for the reviewer" to `_SCAFFOLD_PREFIXES` + a `_PERSPECTIVE_REF_RE` (`^perspective\s*\d`) lead-in reject to `_is_real_gap`. Verified in-process ($0): 5 scaffold now rejected, 5 substantive kept (incl. a mid-sentence "per-perspective backtest validation" survivor proving no over-rejection). The narrow-nbsp+CRLF in the real flagged text normalizes to "perspective5" -> still caught.
+> - **GRADUATED TO A GUARD (OP-25, $0):** `test_self_audit_extract.py` 41->47 -- +5 scaffold cases (this batch's exact 5) + 1 non-over-rejection survivor. The load-bearing crowding-out regression test already covers the [:12]-budget mechanism.
+> - **LEARN (4.5):** no new L## -- this is the SAME L-lesson the 06-29 `_is_real_gap` filter encoded (self-audit scaffold crowds real gaps), now with two more scaffold classes it didn't anticipate. Extending an existing guard, not a new foot-gun (compound, not accumulate).
+> - **VALIDATED ($0, verify-now-not-later):** in-process scaffold/substantive check PASS; guard 47/47 (0.10s); pre-commit curated safety gate **31 + 5 suites PASS** at aab30bb; verify-committed clean (all 3 files absent from porcelain). Metric: net +25, 0 regressions, $2.48/drained, trend **regressing** (recent fires close small correctness loops -> low per-fire net; not a break, but next fire should prefer a genuine needle-mover if one is unblocked).
+> - **NEXT FIRE picks up:** self-audit batches now DONE-marked through 07-01; the gap-finder organ won't re-flag "Perspective N"/"Question for reviewer" scaffold. Standing direction unchanged: NO armable edge tonight -- premium axis dead (L182-184), instrument rung closed (04adc35), range-scalp DIES_ON_SLIPPAGE on full history (c2bfe39), bull frontier FAILS_WALK_FORWARD on full history / EDGE-gated (6250b15), GEX class rung CALENDAR-gated (~9 of ~60-90 days accrued, free CBOE banker healthy). The high-value genre remains engine-correctness close-a-loops + foot-gun guards until GEX fills OR a genuinely-new needle-mover is unblocked. Two LOW hygiene items still open (rail-3): LESSON-INBOX-ORPHAN-DOTDONE + LEVELS-UPSTREAM-DEDUP-SOURCE. J: OPEN decisions cd-2026-06-29-001 (revert vs keep+doc the 06-28 live params change), cd-2026-06-28-002 (CLAUDE-INDEX-FOLD, carries L192-198), cd-2026-06-27-001 (G7 EOD-flatten activate).
+> - Files: `setup/scripts/self_audit.py` (+_PERSPECTIVE_REF_RE +2 scaffold prefixes), `backtest/tests/test_self_audit_extract.py` (41->47), `analysis/self-audit/new-gaps-flagged.md` (batch DONE-marked) -- all aab30bb; `conductor-outcomes.jsonl`, this STATUS entry.
+
+---
+
 ## [2026-06-30] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-05-21..2026-06-26), real OPRA fills, floor n>=10
 
 > **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-06-26). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
@@ -131,3 +144,76 @@
 
 ---
 
+
+- [2026-07-01 05:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-01 06:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-01T08:39:56
+- PREMARKET STALE: today-bias.json date=2026-06-30 != today 2026-07-01 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-01 06:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-01 07:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-01 07:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+## Kitchen
+Kitchen: alive, queue 50 pending, last cook 0 min ago, today $0.00, model=groq::llama-3.3-70b-versatile
+
+- [2026-07-01 08:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+- [07-01 10:40 ET] TvWatchdog: tv=relaunch_fresh heartbeat=fresh no TV process and CDP dead - launching
+
+- [2026-07-01 08:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-01 09:27:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-01 09:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-01 10:27:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 72.92% in last 24h (35/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-01 10:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-01 11:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-01 11:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-01 12:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-01 12:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-01 13:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-01 13:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-01T20:00:53+00:00
+- task: eod-summary
+- date_et: 2026-07-01
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-07-01 14:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-01T20:45:32+00:00
+- task: analyst
+- date_et: 2026-07-01
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-07-01 14:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-01 21:00:03] gym-session (2026-07-01) → **YELLOW** :: see `automation\state\gym-scorecard-2026-07-01.json`[2026-07-01 17:10] Gamma_WatcherGrader FAILED exit=1 shotgun_exit=0 � check C:\Users\jackw\Desktop\42\automation\state\logs\watcher-grader-2026-07-01.log
+
+- [2026-07-01 15:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-07-01T21:31:02+00:00
+- task: manager
+- date_et: 2026-07-01
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
