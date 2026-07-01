@@ -35,6 +35,14 @@ SCAFFOLD = [
     "Rule 9", "Rule 10", "Trade missed", "Wrong direction", "Overfit",
     "First, a ranked list of 6-8 gaps (each with a brief description).",
     "Then, for the top gap (or maybe overall), produce the seven sections as requested.",
+    # 2026-07-01 batch: the synthesis echoed a "Question for reviewer" template
+    # section-name + cross-referenced each perspective as a bold lead-in. 5 of 9
+    # flagged "gaps" were this scaffold -- crowding real gaps out of the [:12] cap.
+    "Question for reviewer",
+    "Perspective 2 flags the perpetual-RED state and lack of an automatic circuit-breaker as the most dangerous",
+    "Perspective 3 zeroes in on an operational oversight: unbounded lesson-inbox CSV growth causing silent crashes",
+    "Perspective 4 warns that widening history probes creates a history-slippage feedback loop that overfits",
+    "Perspective 5 enumerates a broad checklist (latency failover, liquidity checks, ML retraining, retry logic).",
 ]
 
 # The EXACT real gaps that must survive (from the 06-28/06-29 batches + perspective 4).
@@ -47,6 +55,9 @@ REAL_GAPS = [
     "Slippage analysis is limited to two fixed haircuts; no automated sweep across a range of slippage assumptions.",
     "No automated performance drift detection and kill-switch based on P&L drawdown",
     "Face UI approval button not wired to actuator",
+    # non-over-rejection: a genuine gap that merely CONTAINS 'perspective' mid-sentence
+    # must survive (the _PERSPECTIVE_REF_RE is anchored to a LEAD-IN + digit only).
+    "Filter thresholds lack a per-perspective backtest validation before shipping",
 ]
 
 

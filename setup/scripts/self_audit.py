@@ -102,8 +102,17 @@ _SCAFFOLD_PREFIXES = (
     "analyze the", "identify gaps", "refine and rank", "drafting the response",
     "specific output format", "final polish", "impact on pilotheartbeat",
     "first a ranked", "then for the", "produce the seven",
+    # 2026-07-01: the synthesis echoes a "Question for reviewer" template section
+    # and cross-references each perspective ("Perspective 2 flags ...") as bold
+    # lead-ins -> pure scaffold that crowded 5 of 9 real-gap slots this batch.
+    "question for reviewer", "question for the reviewer",
 )
 _COMMIT_RE = re.compile(r"^[0-9a-f]{7,8}(?:/[0-9a-f]{6,8})*$")
+# "Perspective 2 flags ...", "Perspective 3 zeroes in ..." -- the synthesis
+# describing WHAT a perspective said, not stating a gap. Reject the cross-ref
+# lead-in (normalized to 'perspective 2 flags ...'). Word-boundary + digit so a
+# genuine gap that merely contains the word 'perspective' mid-sentence survives.
+_PERSPECTIVE_REF_RE = re.compile(r"^perspective\s*\d")
 
 
 def _is_real_gap(text: str) -> bool:
@@ -120,6 +129,8 @@ def _is_real_gap(text: str) -> bool:
         return False
     n = _norm(t)
     if len(n.split()) < 3:                   # 'Overfit' / 'Risk score' / 'Trade missed'
+        return False
+    if _PERSPECTIVE_REF_RE.match(n):         # 'Perspective 2 flags ...' cross-ref lead-in
         return False
     for p in _SCAFFOLD_PREFIXES:
         # multi-word scaffold prefixes match as a true prefix (handles tokens the
