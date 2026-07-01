@@ -97,9 +97,14 @@ def test_decide_arm_no_signal_returns_tuple():
     assert decision.action == "HOLD" and exit_shape is None
 
 
-# --- _place_live builds the bracket from the exit shape ----------------------
+# --- _place_live builds the exit levels from the exit shape ------------------
+# FIX2 (2026-07-01): _place_live now places ONE plain marketable limit directly (no
+# bracket/oto -- Alpaca 42210000). The strategy's stop/TP levels are still computed from
+# its ExitShape and carried on the placement record for the ticking exit_manager, so these
+# tests now assert them on the RETURNED record (res["stop"]/res["tp"]) instead of a
+# captured broker bracket.
 class _FakeBroker:
-    """Stub broker: returns a fixed mid + records the bracket levels (NO real order)."""
+    """Stub broker: returns a fixed mid/entry price + records the order POST (NO real order)."""
     def __init__(self, mid):
         self.mid = mid
         self.captured = None
@@ -107,18 +112,27 @@ class _FakeBroker:
     def get_option_mid(self, creds, symbol):
         return self.mid
 
-    def place_bracket(self, creds, *, symbol, qty, limit_price, take_profit_price,
-                      stop_price, live, simple_fallback=False):
-        self.captured = {"symbol": symbol, "qty": qty, "limit_price": limit_price,
-                         "take_profit_price": take_profit_price, "stop_price": stop_price,
-                         "live": live, "simple_fallback": simple_fallback}
+    def marketable_limit_price(self, creds, symbol, side="buy", buffer=0.03):
+        return round(self.mid + buffer, 2)
+
+    def open_buy_orders(self, creds, symbol):
+        return []
+
+    def cancel_order(self, creds, order_id, *, live):
+        return {}
+
+    def request(self, creds, endpoint, method="GET", data=None, timeout=15):
+        self.captured = {"endpoint": endpoint, "method": method, "data": data}
         return {"id": "fake-order", "status": "accepted"}
 
 
 def _place_with(monkeypatch, exit_shape, mid=1.00):
     fake = _FakeBroker(mid)
     monkeypatch.setattr(fl.fb, "get_option_mid", fake.get_option_mid)
-    monkeypatch.setattr(fl.fb, "place_bracket", fake.place_bracket)
+    monkeypatch.setattr(fl.fb, "marketable_limit_price", fake.marketable_limit_price)
+    monkeypatch.setattr(fl.fb, "open_buy_orders", fake.open_buy_orders)
+    monkeypatch.setattr(fl.fb, "cancel_order", fake.cancel_order)
+    monkeypatch.setattr(fl.fb, "_request", fake.request)
     # Isolate the exit_manager state write _place_live now does on a fill (don't pollute the
     # real fleet dir): redirect the actuator's state root to a throwaway tmp dir for this call.
     import tempfile
@@ -133,15 +147,20 @@ def _place_with(monkeypatch, exit_shape, mid=1.00):
 
 
 def test_place_live_bracket_matches_ribbon_exit_shape(monkeypatch):
-    """stop = mid*(1+premium_stop_pct), tp = mid*(1+tp1_premium_pct), from the exit shape."""
+    """stop = mid*(1+premium_stop_pct), tp = mid*(1+tp1_premium_pct), from the exit shape.
+    FIX2: the levels live on the placement record (exit_manager-owned), not a broker bracket."""
     ribbon_exit = {"premium_stop_pct": -0.20, "tp1_premium_pct": 1.5,
                    "tp1_qty_fraction": 0.8, "profit_lock_mode": "fixed"}
     res, fake = _place_with(monkeypatch, ribbon_exit, mid=1.00)
-    assert fake.captured["stop_price"] == 0.80   # 1.00 * (1 - 0.20)
-    assert fake.captured["take_profit_price"] == 2.50  # 1.00 * (1 + 1.5)
+    assert res["stop"] == 0.80   # 1.00 * (1 - 0.20)
+    assert res["tp"] == 2.50     # 1.00 * (1 + 1.5)
     # the placement record echoes the strategy's fractions/lock for the EOD layer
     assert res["tp1_qty_fraction"] == 0.8 and res["profit_lock_mode"] == "fixed"
     assert res["placed"] is True
+    # FIX2: the ONE broker POST is a plain marketable limit (no bracket/oto)
+    assert fake.captured["method"] == "POST" and fake.captured["endpoint"] == "orders"
+    assert "order_class" not in fake.captured["data"]
+    assert fake.captured["data"]["type"] == "limit"
 
 
 def test_place_live_bracket_matches_vwap_exit_shape(monkeypatch):
@@ -149,8 +168,8 @@ def test_place_live_bracket_matches_vwap_exit_shape(monkeypatch):
     vwap_exit = {"premium_stop_pct": -0.08, "tp1_premium_pct": 0.3,
                  "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing"}
     res, fake = _place_with(monkeypatch, vwap_exit, mid=1.00)
-    assert fake.captured["stop_price"] == 0.92   # 1.00 * (1 - 0.08)
-    assert fake.captured["take_profit_price"] == 1.30  # 1.00 * (1 + 0.30)
+    assert res["stop"] == 0.92   # 1.00 * (1 - 0.08)
+    assert res["tp"] == 1.30     # 1.00 * (1 + 0.30)
     assert res["profit_lock_mode"] == "trailing"
 
 
@@ -159,14 +178,14 @@ def test_place_live_invalid_stop_falls_back_to_catastrophe_cap(monkeypatch):
     bad_exit = {"premium_stop_pct": 0, "tp1_premium_pct": 1.5,
                 "tp1_qty_fraction": 0.8, "profit_lock_mode": "fixed"}
     res, fake = _place_with(monkeypatch, bad_exit, mid=1.00)
-    assert fake.captured["stop_price"] == 0.50   # -50% catastrophe cap
+    assert res["stop"] == 0.50   # -50% catastrophe cap
     assert res["premium_stop_pct"] == -0.50
 
 
 def test_place_live_none_exit_shape_uses_catastrophe_cap(monkeypatch):
     """exit_shape None (defensive) -> catastrophe cap stop + params/30% TP fallback."""
     res, fake = _place_with(monkeypatch, None, mid=1.00)
-    assert fake.captured["stop_price"] == 0.50
+    assert res["stop"] == 0.50
 
 
 # --- pre_plan prefetch determinism (same selection as decide_arm) ------------

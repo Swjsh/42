@@ -32,7 +32,7 @@ import argparse
 import json
 import sys
 from dataclasses import asdict, replace
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, time as dt_time, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -212,6 +212,23 @@ def _occ_symbol(side: str, strike: int, expiry: datetime) -> str:
     return f"SPY{expiry.strftime('%y%m%d')}{cp}{int(round(strike * 1000)):08d}"
 
 
+def _past_entry_ceiling(params: dict, now_et: datetime) -> bool:
+    """FIX1 (2026-07-01): hard entry-time ceiling (mirror of heartbeat_core._past_entry_ceiling).
+    safe-1/risky-3 hit the same 2026-06-30 failure: ENTER at 15:52 -> Alpaca rejected the order
+    ('expires soon'). True => now_et is AT/AFTER params entry_no_trade_after_et => _place_live
+    returns a SKIP_LATE_ENTRY row instead of attempting an order. Missing/malformed key fails
+    CLOSED to the 15:00 doctrine default (v15.1 [09:35,15:00) entry window)."""
+    raw = params.get("entry_no_trade_after_et") if isinstance(params, dict) else None
+    ceiling = dt_time(15, 0)
+    if raw:
+        try:
+            parts = str(raw).split(":")
+            ceiling = dt_time(int(parts[0]), int(parts[1]) if len(parts) > 1 else 0)
+        except (TypeError, ValueError, IndexError):
+            ceiling = dt_time(15, 0)
+    return now_et.time() >= ceiling
+
+
 def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
                 signal: dict, params: dict, now: datetime) -> dict:
     """LIVE bracket placement (gated). Built for the Monday flip; never runs in WATCH.
@@ -227,6 +244,11 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
     if arm.get("structure_override"):
         return {"mode": "LIVE", "placed": False,
                 "reason": "structure_override (e.g. 1DTE/vertical) not implemented -- held"}
+    # FIX1 (2026-07-01): entry-time ceiling — a late ENTER is a logged SKIP row, never an
+    # order attempt (2026-06-30: safe-1/risky-3 fired 15:52, Alpaca rejected 'expires soon').
+    if _past_entry_ceiling(params, now):
+        return {"mode": "LIVE", "placed": False, "reason": "SKIP_LATE_ENTRY",
+                "entry_ceiling_et": str(params.get("entry_no_trade_after_et") or "15:00")}
     side = decision.side
     strike = decision.strike
     qty = decision.qty
@@ -262,16 +284,23 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
         stop_pct = CATASTROPHE_STOP
         stop_price = round(mid * (1 + stop_pct), 2)
 
-    # simple_fallback=True (2026-06-28 MONEY-PATH FIX): Alpaca rejects BOTH bracket and oto for
-    # options (42210000) -> WITHOUT this, every fleet ENTER returned _error -> placed=False ->
-    # ZERO fills since 2026-06-22 (the "nothing is working" root cause). With it, on the complex-
-    # order rejection we place a plain limit entry; TP/stop are owned by the ticking exit_manager
-    # (register_entry below + ea.manage_tick runs FIRST each cycle, enforcing premium/target/time
-    # stops via the per-tick worst<=stop check). SAFE: exits ARE engine-managed here, the exact C2
-    # condition place_bracket's docstring requires. Identical to the proven core-engine fix.
-    res = fb.place_bracket(creds, symbol=symbol, qty=qty, limit_price=entry_px,
-                           take_profit_price=tp_price, stop_price=stop_price, live=True,
-                           simple_fallback=True)
+    # FIX2 (2026-07-01, supersedes the 2026-06-28 simple_fallback ladder): Alpaca NEVER
+    # accepts bracket/oto for options (42210000) — the old place_bracket(simple_fallback=True)
+    # path ate 2 guaranteed 422s (bracket_err + oto_err) before EVERY simple attempt
+    # (2026-06-30 exec.broker rows). Place the marketable simple limit DIRECTLY; TP/stop stay
+    # engine-managed (register_entry below + ea.manage_tick runs FIRST each cycle, enforcing
+    # premium/target/time stops via the per-tick worst<=stop check — the exact C2 condition).
+    if qty is None or int(qty) < 1:
+        return {"mode": "LIVE", "placed": False, "reason": f"invalid qty {qty}"}
+    _order = {"symbol": symbol, "qty": str(int(qty)), "side": "buy", "type": "limit",
+              "limit_price": str(round(float(entry_px), 2)), "time_in_force": "day"}
+    res = fb._request(creds, "orders", method="POST", data=_order)
+    if not isinstance(res, dict):
+        res = {"_error": f"unexpected broker response: {res!r}"}
+    if not res.get("_error"):
+        res["_simple_first"] = True
+        res["_note"] = ("simple marketable limit placed directly (options: no broker bracket); "
+                        "TP/stop engine-managed (exit_manager)")
     placed = not res.get("_error") and not res.get("_refused")
     # EXIT ENGINE WIRING (FIX1 follow-up, 2026-06-25): the bracket above is only the
     # entry leg + a catastrophe-floor stop. Register the position with the exit_manager so

@@ -118,8 +118,12 @@ ACCOUNTS = {
              "fleet_arm": "bold-2"},
 }
 # Gate knobs engine_cli reads from params.json (pass-through; missing -> engine default).
+# FIX3 (2026-07-01): block_elite_bull_vix_low/high were OMITTED here, so gates.py ran its
+# defaults [0.0, 999.0) and the elite-bull block applied at ALL VIX instead of the ratified
+# bands (Safe [0,25), Bold [15,18)). Guard: test_money_path_2026_07_01.py::TestGateKeysVixBand.
 GATE_KEYS = [
     "block_level_rejection", "trendline_requires_ribbon_flip", "block_elite_bull",
+    "block_elite_bull_vix_low", "block_elite_bull_vix_high",
     "block_bull_ribbon_flip", "block_bull_1100_1200", "block_bull_morning_agg",
     "require_bearish_fill_bar", "min_ribbon_momentum_cents", "max_ribbon_duration_bars",
     "midday_trendline_gate", "block_conf_lvl_rej_midday_afternoon", "block_conf_lvl_rec_afternoon",
@@ -139,6 +143,25 @@ def _et_now() -> datetime:
 def _is_rth(et: datetime) -> bool:
     h = et.hour + et.minute / 60
     return et.weekday() < 5 and 9.5 <= h <= 16.0
+
+
+def _past_entry_ceiling(params: dict, now_et: datetime) -> bool:
+    """FIX1 (2026-07-01): hard entry-time ceiling. params entry_no_trade_after_et ('15:00',
+    the v15.1 [09:35,15:00) window) was NEVER forwarded to engine_cli (only no_trade_before +
+    no_trade_window), so on 2026-06-30 the engine's only 10 ENTER verdicts fired 15:51-15:55 ET
+    and Alpaca rejected every order ('expires soon'). True => now_et is AT/AFTER the ceiling =>
+    the caller logs SKIP_LATE_ENTRY and NEVER attempts an order. Missing/malformed key fails
+    CLOSED to the 15:00 doctrine default (theta kills after 3pm — J, v15.1).
+    Guard: test_money_path_2026_07_01.py::TestEntryCeiling."""
+    raw = params.get("entry_no_trade_after_et") if isinstance(params, dict) else None
+    ceiling = time(15, 0)
+    if raw:
+        try:
+            parts = str(raw).split(":")
+            ceiling = time(int(parts[0]), int(parts[1]) if len(parts) > 1 else 0)
+        except (TypeError, ValueError, IndexError):
+            ceiling = time(15, 0)
+    return now_et.time() >= ceiling
 
 
 # ----- live market state -----------------------------------------------------
@@ -609,7 +632,14 @@ def run_account(account: str) -> dict:
         logger.warning("[DISPATCH] setup_dispatch import/run failed: %s", _disp_err)
 
     v = verdict.get("verdict", "")
-    if v in ("ENTER_BEAR", "ENTER_BULL"):
+    if v in ("ENTER_BEAR", "ENTER_BULL") and _past_entry_ceiling(params, et):
+        # FIX1 (2026-07-01): entry-time ceiling — a late ENTER is a logged SKIP, never an
+        # order attempt (2026-06-30: all 10 ENTER verdicts fired 15:51-15:55, all rejected
+        # by Alpaca 'expires soon'). Checked BEFORE the free-model eval so a late tick spends
+        # nothing. _execute has the same check (belt-and-suspenders for the extra-setup route).
+        rec["action"] = "SKIP_LATE_ENTRY"
+        rec["entry_ceiling_et"] = str(params.get("entry_no_trade_after_et") or "15:00")
+    elif v in ("ENTER_BEAR", "ENTER_BULL"):
         rec["free_eval"] = _free_model_eval(account, payload, verdict)
         if rec["free_eval"].get("veto"):
             rec["action"] = "VETOED_BY_MODELS"
@@ -649,6 +679,31 @@ def run_account(account: str) -> dict:
 def _occ(side: str, strike: int, expiry: datetime) -> str:
     cp = "C" if side == "C" else "P"
     return f"SPY{expiry.strftime('%y%m%d')}{cp}{int(round(strike * 1000)):08d}"
+
+
+def _place_simple_entry(creds: dict, *, symbol: str, qty: int, limit_price: float) -> dict:
+    """FIX2 (2026-07-01): the ONE order-POST for a live options entry — a plain marketable
+    limit, placed DIRECTLY (no bracket/oto attempt first). Alpaca rejects complex orders for
+    options 100% of the time (code 42210000), so the old bracket->oto->simple ladder just ate
+    2 guaranteed 422s per entry. TP/stop are engine-managed (exit_manager); the caller enforces
+    CORE_MANAGES_EXITS before calling (C2: never a stopless entry without engine-managed exits).
+    Mirrors fleet_broker.place_bracket's base leg (buy/limit/day) byte-for-byte.
+    Guard: test_money_path_2026_07_01.py::TestSimpleFirstPlacement."""
+    import fleet_broker as fb  # noqa: PLC0415
+    if qty is None or int(qty) < 1:
+        return {"_refused": f"invalid qty {qty}"}
+    if limit_price is None or float(limit_price) <= 0:
+        return {"_refused": f"invalid limit_price {limit_price}"}
+    order = {"symbol": symbol, "qty": str(int(qty)), "side": "buy", "type": "limit",
+             "limit_price": str(round(float(limit_price), 2)), "time_in_force": "day"}
+    res = fb._request(creds, "orders", method="POST", data=order)
+    if not isinstance(res, dict):
+        return {"_error": f"unexpected broker response: {res!r}"}
+    if not res.get("_error"):
+        res["_simple_first"] = True
+        res["_note"] = ("simple marketable limit placed directly (options: no broker bracket); "
+                        "TP/stop engine-managed (exit_manager)")
+    return res
 
 
 # ----- quality-lock (per-day, per-setup escalation lock) ---------------------
@@ -796,8 +851,14 @@ def _quality_lock_check(account: str, side: str, triggers: list, setup_name: str
 
 
 def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: bool) -> dict:
-    """SIZE + PLACE a 0DTE bracket via the TESTED fleet_broker + risk_gate primitives.
+    """SIZE + PLACE a 0DTE entry via the TESTED fleet_broker + risk_gate primitives.
     dry=True computes everything and returns the plan WITHOUT placing (shadow / self-test)."""
+    # FIX1 belt-and-suspenders (2026-07-01): EVERY route into _execute (core ribbon verdict
+    # AND the extra-setup G4 route) hits this ceiling before any broker call. A late signal
+    # is a logged SKIP verdict, never an order attempt.
+    if _past_entry_ceiling(params, _et_now()):
+        return {"status": "SKIP_LATE_ENTRY",
+                "entry_ceiling_et": str(params.get("entry_no_trade_after_et") or "15:00")}
     import urllib.request
     import fleet_broker as fb  # noqa: PLC0415
     import risk_gate as rg  # noqa: PLC0415
@@ -843,6 +904,21 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     # strike + contract + premium
     strike = ss.pick_strike(spy, equity, side, ss.V15_BOLD_TIERS if account == "bold" else ss.V15_SAFE_TIERS) \
         if ss else (int(round(spy)) + (2 if side == "P" else -2))
+    # FIX4/WP-5 (2026-07-01): per-setup strike override — vwap_continuation is VALIDATED at
+    # ATM on Safe (j_vwap_cont_strike_offset_safe=0) / ITM-2 on Bold (=+2); the generic tier
+    # above is a different, UNVALIDATED cell (C29: strikes don't transfer across tiers).
+    # Live-params convention (same as v15_strike_offset_per_tier): 0=ATM, POSITIVE=ITM,
+    # NEGATIVE=OTM; puts strike=ATM+off, calls strike=ATM-off (heartbeat.md:254 formula).
+    # Mirrors risk_gate.select_strike_offset's dispatch (the sim/orchestrator-side resolver).
+    if (str(setup_name or "").lower() == "vwap_continuation"
+            and params.get("j_vwap_cont_strike_override_enabled")):
+        _off_key = "j_vwap_cont_strike_offset_bold" if account == "bold" else "j_vwap_cont_strike_offset_safe"
+        try:
+            _off = int(params.get(_off_key, 0))
+        except (TypeError, ValueError):
+            _off = 0
+        _atm = int(round(spy))
+        strike = (_atm + _off) if side == "P" else (_atm - _off)
     expiry = _et_now()
     symbol = _occ(side, strike, expiry)
     mid = fb.get_option_mid(creds, symbol)
@@ -878,14 +954,21 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     for _o in fb.open_buy_orders(creds, symbol):
         if _o.get("id"):
             fb.cancel_order(creds, _o["id"], live=True)
-    # Options reject broker brackets/oto (code 42210000) -> place a SIMPLE limit entry and
-    # let the tick-managed exit_manager own TP/stop. Gated on CORE_MANAGES_EXITS so a simple
-    # (stopless-at-broker) entry is NEVER placed unless the engine is managing exits (else it
-    # stays PLACE_FAIL, the safe no-op). 2026-06-26: this was the bug blocking every entry.
-    res = fb.place_bracket(creds, symbol=symbol, qty=qty, limit_price=entry_px,
-                           take_profit_price=tp, stop_price=stop, live=True,
-                           simple_fallback=CORE_MANAGES_EXITS)
-    plan["status"] = "PLACED" if not res.get("_error") else "PLACE_FAIL"
+    # FIX2 (2026-07-01): Alpaca NEVER accepts bracket/oto for options (code 42210000) — the
+    # old place_bracket(simple_fallback=...) ladder ate 2 guaranteed 422s (bracket_err +
+    # oto_err) on EVERY entry before the simple attempt (2026-06-30 exec.broker rows). Go
+    # STRAIGHT to the marketable simple limit (#15 pricing: entry_px = ask + entry_cross_buffer).
+    # C2 preserved: a simple entry has NO broker-side stop, so it is ONLY placed when the
+    # engine manages exits (CORE_MANAGES_EXITS=1 -> exit_manager owns TP/stop); otherwise
+    # refuse — the same safe PLACE_FAIL no-op the old path terminated in.
+    if not CORE_MANAGES_EXITS:
+        plan["status"] = "PLACE_FAIL"
+        plan["broker"] = {"_refused": ("options need a simple entry (no broker bracket, 42210000) "
+                                       "but exits are not engine-managed -- set GAMMA_CORE_MANAGES_EXITS=1")}
+        plan["entry_px"] = entry_px
+        return plan
+    res = _place_simple_entry(creds, symbol=symbol, qty=qty, limit_price=entry_px)
+    plan["status"] = "PLACED" if not res.get("_error") and not res.get("_refused") else "PLACE_FAIL"
     plan["broker"] = res
     plan["entry_px"] = entry_px
     # EXIT-ENGINE WIRING (flag-gated, default OFF): on a real fill, register the position
