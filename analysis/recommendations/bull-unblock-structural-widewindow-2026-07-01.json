@@ -1,0 +1,740 @@
+{
+  "probe": "bull_unblock_structural_widewindow_probe",
+  "lever": "filter_10_min_triggers_bull (2 -> 1)",
+  "block_elite_bull": "True (production, held FIXED to isolate the structural lever)",
+  "generated_at": "2026-07-01T09:53:58.848367+00:00",
+  "verdict": "FAILS_WALK_FORWARD_SIGN_FLIP",
+  "window": {
+    "start": "2025-01-02",
+    "end": "2026-06-18",
+    "oos_start": "2026-01-01"
+  },
+  "real_fills": true,
+  "frame_audit": "SLICE-2 (946530f) declared the structural bull lever NOT proposable at n=8 on a 25-day OPRA window. The 2026-07-01 range-scalp frame-audit proved the master SPY/VIX 5m (2025-01-01..2026-06-18) + OPRA real-fills (370 0DTE days) cover the full history; the 25-day window was a hardcoded-CSV misread, cited as a SHARED bull wall. This re-runs the SAME min_triggers 2->1 A/B over the full history for the honest, n-sufficient answer.",
+  "base": {
+    "n": 243,
+    "pnl": 3811.4,
+    "min_triggers_bull": 2
+  },
+  "unblock": {
+    "n": 323,
+    "pnl": 4154.5,
+    "min_triggers_bull": 1
+  },
+  "added_bull_cohort_pooled": {
+    "n": 82,
+    "net_pnl": 607.58,
+    "summary": {
+      "n_trades": 82,
+      "wins": 21,
+      "losses": 61,
+      "win_rate": 0.256,
+      "expectancy_per_trade_usd": 7.41,
+      "total_pnl_usd": 607.58,
+      "mean_trade_usd": 7.41,
+      "median_trade_usd": -56.4,
+      "worst_trade_usd": -85.68,
+      "best_trade_usd": 549.35
+    },
+    "significance": {
+      "n": 82,
+      "min_n": 10,
+      "sufficient": true,
+      "note": "n=82 >= 10: sample sufficient"
+    },
+    "day_concentration": {
+      "n_active_days": 65,
+      "n_losing_days": 44,
+      "total_pnl_usd": 607.58,
+      "top3_day_pct_of_net": 215.3,
+      "median_day_usd": -55.92,
+      "trimmed_day_mean_usd": 3.1,
+      "trimmed_day_total_usd": 195.26
+    },
+    "concentration_flag": {
+      "top3_day_pct_of_net": 215.3,
+      "max_pct": 150.0,
+      "concentrated": true,
+      "note": "top-3 days = 215.3% of net (> 150.0%): CONCENTRATED -- fragile, not deploy-ready; needs more spread-out days"
+    },
+    "slippage": {
+      "n_trades": 82,
+      "gross_expectancy_per_trade_usd": 7.41,
+      "breakeven_half_spread": 0.0123,
+      "realistic_half_spread": 0.05,
+      "verdict": "FRAGILE_TO_SLIPPAGE",
+      "grid": [
+        {
+          "half_spread": 0.0,
+          "expectancy_per_trade_usd": 7.41,
+          "total_pnl_usd": 607.55,
+          "win_rate": 0.256,
+          "positive": true
+        },
+        {
+          "half_spread": 0.01,
+          "expectancy_per_trade_usd": 1.41,
+          "total_pnl_usd": 115.55,
+          "win_rate": 0.256,
+          "positive": true
+        },
+        {
+          "half_spread": 0.02,
+          "expectancy_per_trade_usd": -4.59,
+          "total_pnl_usd": -376.45,
+          "win_rate": 0.256,
+          "positive": false
+        },
+        {
+          "half_spread": 0.03,
+          "expectancy_per_trade_usd": -10.59,
+          "total_pnl_usd": -868.45,
+          "win_rate": 0.256,
+          "positive": false
+        },
+        {
+          "half_spread": 0.05,
+          "expectancy_per_trade_usd": -22.59,
+          "total_pnl_usd": -1852.45,
+          "win_rate": 0.256,
+          "positive": false
+        },
+        {
+          "half_spread": 0.075,
+          "expectancy_per_trade_usd": -37.59,
+          "total_pnl_usd": -3082.45,
+          "win_rate": 0.256,
+          "positive": false
+        },
+        {
+          "half_spread": 0.1,
+          "expectancy_per_trade_usd": -52.59,
+          "total_pnl_usd": -4312.45,
+          "win_rate": 0.256,
+          "positive": false
+        }
+      ],
+      "note": "edge breakeven at 0.0123 $/share half-spread (realistic reference 0.05); FRAGILE_TO_SLIPPAGE"
+    }
+  },
+  "added_bull_cohort_in_sample_2025": {
+    "n": 54,
+    "net_pnl": -299.7,
+    "summary": {
+      "n_trades": 54,
+      "wins": 12,
+      "losses": 42,
+      "win_rate": 0.222,
+      "expectancy_per_trade_usd": -5.55,
+      "total_pnl_usd": -299.7,
+      "mean_trade_usd": -5.55,
+      "median_trade_usd": -56.4,
+      "worst_trade_usd": -85.68,
+      "best_trade_usd": 308.29
+    },
+    "significance": {
+      "n": 54,
+      "min_n": 10,
+      "sufficient": true,
+      "note": "n=54 >= 10: sample sufficient"
+    },
+    "day_concentration": {
+      "n_active_days": 44,
+      "n_losing_days": 32,
+      "total_pnl_usd": -299.7,
+      "top3_day_pct_of_net": -248.5,
+      "median_day_usd": -57.12,
+      "trimmed_day_mean_usd": -11.53,
+      "trimmed_day_total_usd": -484.39
+    },
+    "concentration_flag": {
+      "top3_day_pct_of_net": -248.5,
+      "max_pct": 150.0,
+      "concentrated": false,
+      "note": "concentration within tolerance"
+    },
+    "slippage": {
+      "n_trades": 54,
+      "gross_expectancy_per_trade_usd": -5.55,
+      "breakeven_half_spread": null,
+      "realistic_half_spread": 0.05,
+      "verdict": "DRY_AT_ZERO",
+      "grid": [
+        {
+          "half_spread": 0.0,
+          "expectancy_per_trade_usd": -5.55,
+          "total_pnl_usd": -299.72,
+          "win_rate": 0.222,
+          "positive": false
+        },
+        {
+          "half_spread": 0.01,
+          "expectancy_per_trade_usd": -11.55,
+          "total_pnl_usd": -623.72,
+          "win_rate": 0.222,
+          "positive": false
+        },
+        {
+          "half_spread": 0.02,
+          "expectancy_per_trade_usd": -17.55,
+          "total_pnl_usd": -947.72,
+          "win_rate": 0.222,
+          "positive": false
+        },
+        {
+          "half_spread": 0.03,
+          "expectancy_per_trade_usd": -23.55,
+          "total_pnl_usd": -1271.72,
+          "win_rate": 0.222,
+          "positive": false
+        },
+        {
+          "half_spread": 0.05,
+          "expectancy_per_trade_usd": -35.55,
+          "total_pnl_usd": -1919.72,
+          "win_rate": 0.222,
+          "positive": false
+        },
+        {
+          "half_spread": 0.075,
+          "expectancy_per_trade_usd": -50.55,
+          "total_pnl_usd": -2729.72,
+          "win_rate": 0.222,
+          "positive": false
+        },
+        {
+          "half_spread": 0.1,
+          "expectancy_per_trade_usd": -65.55,
+          "total_pnl_usd": -3539.72,
+          "win_rate": 0.222,
+          "positive": false
+        }
+      ],
+      "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+    }
+  },
+  "added_bull_cohort_out_of_sample_2026": {
+    "n": 28,
+    "net_pnl": 907.28,
+    "summary": {
+      "n_trades": 28,
+      "wins": 9,
+      "losses": 19,
+      "win_rate": 0.321,
+      "expectancy_per_trade_usd": 32.4,
+      "total_pnl_usd": 907.28,
+      "mean_trade_usd": 32.4,
+      "median_trade_usd": -56.4,
+      "worst_trade_usd": -74.16,
+      "best_trade_usd": 549.35
+    },
+    "significance": {
+      "n": 28,
+      "min_n": 10,
+      "sufficient": true,
+      "note": "n=28 >= 10: sample sufficient"
+    },
+    "day_concentration": {
+      "n_active_days": 21,
+      "n_losing_days": 12,
+      "total_pnl_usd": 907.28,
+      "top3_day_pct_of_net": 141.4,
+      "median_day_usd": -51.36,
+      "trimmed_day_mean_usd": 26.05,
+      "trimmed_day_total_usd": 494.96
+    },
+    "concentration_flag": {
+      "top3_day_pct_of_net": 141.4,
+      "max_pct": 150.0,
+      "concentrated": false,
+      "note": "concentration within tolerance"
+    },
+    "slippage": {
+      "n_trades": 28,
+      "gross_expectancy_per_trade_usd": 32.4,
+      "breakeven_half_spread": 0.054,
+      "realistic_half_spread": 0.05,
+      "verdict": "SURVIVES_REALISTIC",
+      "grid": [
+        {
+          "half_spread": 0.0,
+          "expectancy_per_trade_usd": 32.4,
+          "total_pnl_usd": 907.27,
+          "win_rate": 0.321,
+          "positive": true
+        },
+        {
+          "half_spread": 0.01,
+          "expectancy_per_trade_usd": 26.4,
+          "total_pnl_usd": 739.27,
+          "win_rate": 0.321,
+          "positive": true
+        },
+        {
+          "half_spread": 0.02,
+          "expectancy_per_trade_usd": 20.4,
+          "total_pnl_usd": 571.27,
+          "win_rate": 0.321,
+          "positive": true
+        },
+        {
+          "half_spread": 0.03,
+          "expectancy_per_trade_usd": 14.4,
+          "total_pnl_usd": 403.27,
+          "win_rate": 0.321,
+          "positive": true
+        },
+        {
+          "half_spread": 0.05,
+          "expectancy_per_trade_usd": 2.4,
+          "total_pnl_usd": 67.27,
+          "win_rate": 0.321,
+          "positive": true
+        },
+        {
+          "half_spread": 0.075,
+          "expectancy_per_trade_usd": -12.6,
+          "total_pnl_usd": -352.73,
+          "win_rate": 0.321,
+          "positive": false
+        },
+        {
+          "half_spread": 0.1,
+          "expectancy_per_trade_usd": -27.6,
+          "total_pnl_usd": -772.73,
+          "win_rate": 0.321,
+          "positive": false
+        }
+      ],
+      "note": "edge breakeven at 0.054 $/share half-spread (realistic reference 0.05); SURVIVES_REALISTIC"
+    }
+  },
+  "walk_forward": {
+    "is_expectancy_usd": -5.55,
+    "oos_expectancy_usd": 32.4,
+    "both_sufficient_n": true,
+    "both_positive": false,
+    "slippage_survives_realistic": false,
+    "not_concentrated": false,
+    "anchor_no_regression": false
+  },
+  "added_trades": [
+    {
+      "date": "2025-01-06",
+      "strike": 595.0,
+      "pnl": -62.88
+    },
+    {
+      "date": "2025-01-15",
+      "strike": 589.0,
+      "pnl": 181.55
+    },
+    {
+      "date": "2025-01-22",
+      "strike": 604.0,
+      "pnl": -58.56
+    },
+    {
+      "date": "2025-01-24",
+      "strike": 608.0,
+      "pnl": -56.4
+    },
+    {
+      "date": "2025-01-24",
+      "strike": 608.0,
+      "pnl": -54.0
+    },
+    {
+      "date": "2025-01-29",
+      "strike": 601.0,
+      "pnl": -85.68
+    },
+    {
+      "date": "2025-01-31",
+      "strike": 606.0,
+      "pnl": 156.35
+    },
+    {
+      "date": "2025-02-05",
+      "strike": 599.0,
+      "pnl": -67.2
+    },
+    {
+      "date": "2025-02-06",
+      "strike": 604.0,
+      "pnl": -59.52
+    },
+    {
+      "date": "2025-02-06",
+      "strike": 603.0,
+      "pnl": 155.21
+    },
+    {
+      "date": "2025-02-10",
+      "strike": 602.0,
+      "pnl": -66.48
+    },
+    {
+      "date": "2025-02-10",
+      "strike": 603.0,
+      "pnl": -53.04
+    },
+    {
+      "date": "2025-02-14",
+      "strike": 608.0,
+      "pnl": -64.32
+    },
+    {
+      "date": "2025-02-14",
+      "strike": 608.0,
+      "pnl": -59.28
+    },
+    {
+      "date": "2025-05-12",
+      "strike": 580.0,
+      "pnl": -52.8
+    },
+    {
+      "date": "2025-06-06",
+      "strike": 597.0,
+      "pnl": -50.88
+    },
+    {
+      "date": "2025-06-24",
+      "strike": 602.0,
+      "pnl": -71.28
+    },
+    {
+      "date": "2025-06-26",
+      "strike": 608.0,
+      "pnl": -63.6
+    },
+    {
+      "date": "2025-06-27",
+      "strike": 612.0,
+      "pnl": 122.56
+    },
+    {
+      "date": "2025-06-30",
+      "strike": 615.0,
+      "pnl": -55.92
+    },
+    {
+      "date": "2025-07-03",
+      "strike": 622.0,
+      "pnl": 238.47
+    },
+    {
+      "date": "2025-07-10",
+      "strike": 623.0,
+      "pnl": 165.68
+    },
+    {
+      "date": "2025-07-22",
+      "strike": 627.0,
+      "pnl": -55.68
+    },
+    {
+      "date": "2025-07-23",
+      "strike": 631.0,
+      "pnl": -46.08
+    },
+    {
+      "date": "2025-07-23",
+      "strike": 630.0,
+      "pnl": -56.4
+    },
+    {
+      "date": "2025-07-24",
+      "strike": 633.0,
+      "pnl": -61.92
+    },
+    {
+      "date": "2025-07-24",
+      "strike": 633.0,
+      "pnl": -53.28
+    },
+    {
+      "date": "2025-07-31",
+      "strike": 636.0,
+      "pnl": -63.36
+    },
+    {
+      "date": "2025-08-07",
+      "strike": 635.0,
+      "pnl": -58.32
+    },
+    {
+      "date": "2025-08-13",
+      "strike": 643.0,
+      "pnl": -65.76
+    },
+    {
+      "date": "2025-08-13",
+      "strike": 642.0,
+      "pnl": 135.0
+    },
+    {
+      "date": "2025-08-20",
+      "strike": 636.0,
+      "pnl": 177.33
+    },
+    {
+      "date": "2025-08-27",
+      "strike": 644.0,
+      "pnl": -70.08
+    },
+    {
+      "date": "2025-08-28",
+      "strike": 646.0,
+      "pnl": -56.4
+    },
+    {
+      "date": "2025-08-28",
+      "strike": 646.0,
+      "pnl": 254.37
+    },
+    {
+      "date": "2025-09-03",
+      "strike": 641.0,
+      "pnl": -52.8
+    },
+    {
+      "date": "2025-09-05",
+      "strike": 650.0,
+      "pnl": -56.88
+    },
+    {
+      "date": "2025-09-08",
+      "strike": 647.0,
+      "pnl": -50.16
+    },
+    {
+      "date": "2025-09-10",
+      "strike": 652.0,
+      "pnl": -52.56
+    },
+    {
+      "date": "2025-09-15",
+      "strike": 658.0,
+      "pnl": -60.24
+    },
+    {
+      "date": "2025-09-18",
+      "strike": 659.0,
+      "pnl": -75.12
+    },
+    {
+      "date": "2025-09-26",
+      "strike": 659.0,
+      "pnl": -58.32
+    },
+    {
+      "date": "2025-09-29",
+      "strike": 662.0,
+      "pnl": -66.72
+    },
+    {
+      "date": "2025-10-03",
+      "strike": 669.0,
+      "pnl": -62.4
+    },
+    {
+      "date": "2025-10-03",
+      "strike": 670.0,
+      "pnl": -60.72
+    },
+    {
+      "date": "2025-10-06",
+      "strike": 670.0,
+      "pnl": -42.96
+    },
+    {
+      "date": "2025-10-08",
+      "strike": 669.0,
+      "pnl": 308.29
+    },
+    {
+      "date": "2025-10-20",
+      "strike": 667.0,
+      "pnl": -70.56
+    },
+    {
+      "date": "2025-10-24",
+      "strike": 676.0,
+      "pnl": -57.36
+    },
+    {
+      "date": "2025-10-28",
+      "strike": 685.0,
+      "pnl": -55.44
+    },
+    {
+      "date": "2025-12-05",
+      "strike": 684.0,
+      "pnl": 183.27
+    },
+    {
+      "date": "2025-12-18",
+      "strike": 676.0,
+      "pnl": -66.96
+    },
+    {
+      "date": "2025-12-22",
+      "strike": 682.0,
+      "pnl": -58.08
+    },
+    {
+      "date": "2025-12-22",
+      "strike": 682.0,
+      "pnl": 138.6
+    },
+    {
+      "date": "2026-01-07",
+      "strike": 691.0,
+      "pnl": -56.16
+    },
+    {
+      "date": "2026-01-09",
+      "strike": 690.0,
+      "pnl": -74.16
+    },
+    {
+      "date": "2026-01-09",
+      "strike": 691.0,
+      "pnl": 118.55
+    },
+    {
+      "date": "2026-01-15",
+      "strike": 692.0,
+      "pnl": -66.24
+    },
+    {
+      "date": "2026-01-22",
+      "strike": 688.0,
+      "pnl": -63.36
+    },
+    {
+      "date": "2026-01-22",
+      "strike": 687.0,
+      "pnl": 160.94
+    },
+    {
+      "date": "2026-04-08",
+      "strike": 674.0,
+      "pnl": -72.72
+    },
+    {
+      "date": "2026-04-08",
+      "strike": 673.0,
+      "pnl": -69.12
+    },
+    {
+      "date": "2026-04-08",
+      "strike": 673.0,
+      "pnl": 153.49
+    },
+    {
+      "date": "2026-04-14",
+      "strike": 688.0,
+      "pnl": 450.6
+    },
+    {
+      "date": "2026-04-15",
+      "strike": 695.0,
+      "pnl": -57.6
+    },
+    {
+      "date": "2026-04-16",
+      "strike": 700.0,
+      "pnl": -51.36
+    },
+    {
+      "date": "2026-04-17",
+      "strike": 706.0,
+      "pnl": 282.79
+    },
+    {
+      "date": "2026-04-21",
+      "strike": 708.0,
+      "pnl": -68.4
+    },
+    {
+      "date": "2026-04-22",
+      "strike": 708.0,
+      "pnl": -57.12
+    },
+    {
+      "date": "2026-04-24",
+      "strike": 711.0,
+      "pnl": -67.68
+    },
+    {
+      "date": "2026-04-27",
+      "strike": 713.0,
+      "pnl": -54.24
+    },
+    {
+      "date": "2026-04-28",
+      "strike": 710.0,
+      "pnl": -46.8
+    },
+    {
+      "date": "2026-04-30",
+      "strike": 713.0,
+      "pnl": 549.35
+    },
+    {
+      "date": "2026-05-01",
+      "strike": 722.0,
+      "pnl": -64.8
+    },
+    {
+      "date": "2026-05-01",
+      "strike": 721.0,
+      "pnl": -56.64
+    },
+    {
+      "date": "2026-05-22",
+      "strike": 746.0,
+      "pnl": -70.56
+    },
+    {
+      "date": "2026-05-22",
+      "strike": 745.0,
+      "pnl": -66.48
+    },
+    {
+      "date": "2026-05-27",
+      "strike": 748.0,
+      "pnl": -70.8
+    },
+    {
+      "date": "2026-05-27",
+      "strike": 749.0,
+      "pnl": -49.92
+    },
+    {
+      "date": "2026-05-29",
+      "strike": 755.0,
+      "pnl": 146.05
+    },
+    {
+      "date": "2026-06-01",
+      "strike": 755.0,
+      "pnl": 132.3
+    },
+    {
+      "date": "2026-06-12",
+      "strike": 738.0,
+      "pnl": 97.36
+    }
+  ],
+  "method_disclosures": {
+    "reuse": "_bull_cfg / _key / _date / ANCHOR_DATES from SLICE-1/2 probes + probe_stats; both original probes byte-identical (no regression risk).",
+    "isolation": "block_elite_bull held at production True across BOTH runs so the added cohort is EXACTLY what the 2-trigger requirement removes, not a re-test of the elite block.",
+    "fill_model": "Real OPRA bars via run_backtest(use_real_fills=True). NO Black-Scholes.",
+    "yardstick": "added-cohort net + IS/OOS sign agreement + probe_stats significance/concentration/slippage. J edge_capture NOT used (auto-rejects; and no bull anchors exist).",
+    "limitations": "ONE lever (min_triggers 2->1), production strike/risk held constant. A PROPOSE verdict is DRAFT+ping-J (rail-4), NEVER a hot edit; any other verdict is the honest full-history answer the 25-day window could not give."
+  }
+}
