@@ -1,0 +1,159 @@
+{
+  "probe": "bull_unblock_structural_probe",
+  "lever": "filter_10_min_triggers_bull (2 -> 1)",
+  "block_elite_bull": "True (production, held FIXED to isolate structural lever)",
+  "generated_at": "2026-06-30T18:02:06.081125",
+  "window": [
+    "2026-05-21",
+    "2026-06-30"
+  ],
+  "real_fills": true,
+  "base": {
+    "n": 30,
+    "pnl": 659.35,
+    "min_triggers_bull": 2
+  },
+  "unblock": {
+    "n": 38,
+    "pnl": 735.54,
+    "min_triggers_bull": 1
+  },
+  "added_bull_cohort": {
+    "n": 8,
+    "wr": 0.375,
+    "exp_per_trade": 9.52,
+    "net_pnl": 76.19,
+    "significance": {
+      "n": 8,
+      "min_n": 10,
+      "sufficient": false,
+      "note": "n=8 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+    },
+    "day_concentration": {
+      "n_active_days": 6,
+      "n_losing_days": 3,
+      "total_pnl_usd": 76.19,
+      "top3_day_pct_of_net": 493.1,
+      "median_day_usd": 15.44,
+      "trimmed_day_mean_usd": 12.72,
+      "trimmed_day_total_usd": 50.86,
+      "by_day_pnl": {
+        "2026-05-22": -66.48,
+        "2026-05-27": -120.71999999999989,
+        "2026-05-29": 146.04545454545453,
+        "2026-06-01": 132.3,
+        "2026-06-12": 97.3636363636363,
+        "2026-06-26": -112.31999999999988
+      }
+    },
+    "concentration_flag": {
+      "top3_day_pct_of_net": 493.1,
+      "max_pct": 150.0,
+      "concentrated": true,
+      "note": "top-3 days = 493.1% of net (> 150.0%): CONCENTRATED -- fragile, not deploy-ready; needs more spread-out days"
+    },
+    "slippage": {
+      "n_trades": 8,
+      "gross_expectancy_per_trade_usd": 9.52,
+      "breakeven_half_spread": 0.0159,
+      "realistic_half_spread": 0.05,
+      "verdict": "FRAGILE_TO_SLIPPAGE",
+      "grid": [
+        {
+          "half_spread": 0.0,
+          "expectancy_per_trade_usd": 9.52,
+          "total_pnl_usd": 76.19,
+          "win_rate": 0.375,
+          "positive": true
+        },
+        {
+          "half_spread": 0.01,
+          "expectancy_per_trade_usd": 3.52,
+          "total_pnl_usd": 28.19,
+          "win_rate": 0.375,
+          "positive": true
+        },
+        {
+          "half_spread": 0.02,
+          "expectancy_per_trade_usd": -2.48,
+          "total_pnl_usd": -19.81,
+          "win_rate": 0.375,
+          "positive": false
+        },
+        {
+          "half_spread": 0.03,
+          "expectancy_per_trade_usd": -8.48,
+          "total_pnl_usd": -67.81,
+          "win_rate": 0.375,
+          "positive": false
+        },
+        {
+          "half_spread": 0.05,
+          "expectancy_per_trade_usd": -20.48,
+          "total_pnl_usd": -163.81,
+          "win_rate": 0.375,
+          "positive": false
+        },
+        {
+          "half_spread": 0.075,
+          "expectancy_per_trade_usd": -35.48,
+          "total_pnl_usd": -283.81,
+          "win_rate": 0.375,
+          "positive": false
+        },
+        {
+          "half_spread": 0.1,
+          "expectancy_per_trade_usd": -50.48,
+          "total_pnl_usd": -403.81,
+          "win_rate": 0.375,
+          "positive": false
+        }
+      ],
+      "note": "edge breakeven at 0.0159 $/share half-spread (realistic reference 0.05); FRAGILE_TO_SLIPPAGE"
+    },
+    "anchor_no_regression": true,
+    "trades": [
+      {
+        "date": "2026-05-22",
+        "strike": 745.0,
+        "pnl": -66.48
+      },
+      {
+        "date": "2026-05-27",
+        "strike": 748.0,
+        "pnl": -70.8
+      },
+      {
+        "date": "2026-05-27",
+        "strike": 749.0,
+        "pnl": -49.92
+      },
+      {
+        "date": "2026-05-29",
+        "strike": 755.0,
+        "pnl": 146.05
+      },
+      {
+        "date": "2026-06-01",
+        "strike": 755.0,
+        "pnl": 132.3
+      },
+      {
+        "date": "2026-06-12",
+        "strike": 738.0,
+        "pnl": 97.36
+      },
+      {
+        "date": "2026-06-26",
+        "strike": 733.0,
+        "pnl": -58.32
+      },
+      {
+        "date": "2026-06-26",
+        "strike": 733.0,
+        "pnl": -54.0
+      }
+    ]
+  },
+  "verdict": "UNBLOCK_POSITIVE_BUT_THIN_OR_FRAGILE"
+}
