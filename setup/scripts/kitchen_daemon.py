@@ -926,6 +926,7 @@ def _run_pipeline_scorecard(task_state: dict) -> dict:
 
     # Build env so the module can import backtest deps
     import importlib
+    import inspect
     venv_site = _BACKTEST_DIR / ".venv" / "Lib" / "site-packages"
     orig_path = list(sys.path)
     try:
@@ -933,14 +934,27 @@ def _run_pipeline_scorecard(task_state: dict) -> dict:
             if p not in sys.path:
                 sys.path.insert(0, p)
         mod = importlib.import_module(module_name)
-        # Stage5 modules expose a main() or run() function
+        # Stage5 modules expose a main() or run() function.
+        # POISON-PILL FIX 2026-07-01: pass explicit argv=[] when supported —
+        # calling main() bare made argparse read the DAEMON's sys.argv (which
+        # contains 'run' from the keepalive launch) -> SystemExit(2) -> daemon death.
         if hasattr(mod, "main"):
-            exit_code = mod.main()
+            entry = mod.main
         elif hasattr(mod, "run"):
-            exit_code = mod.run()
+            entry = mod.run
         else:
             _log(f"PIPELINE_SCORECARD ERROR: {module_name} has no main() or run()")
             return {"ok": False, "error": "no entry point"}
+        try:
+            accepts_argv = "argv" in inspect.signature(entry).parameters
+        except (TypeError, ValueError):
+            accepts_argv = False
+        exit_code = entry(argv=[]) if accepts_argv else entry()
+    except SystemExit as exc:
+        # argparse (or the module itself) called sys.exit — a task must NEVER
+        # kill the daemon. Log it, mark the task failed, keep looping.
+        _log(f"PIPELINE_SCORECARD ERROR: SystemExit({exc.code}) escaped {module_name} — task failed, daemon continues")
+        return {"ok": False, "error": f"SystemExit({exc.code})"}
     except Exception as exc:  # noqa: BLE001
         _log(f"PIPELINE_SCORECARD ERROR: {type(exc).__name__}: {exc}")
         return {"ok": False, "error": str(exc)}
@@ -1310,6 +1324,13 @@ def main() -> int:
                     result = _run_grinder_task(task)
                 else:
                     result = _run_task(task, paid_tier_blocked=paid_blocked)
+            except SystemExit as exc:
+                # POISON-PILL FIX 2026-07-01: SystemExit is NOT an Exception subclass —
+                # it escaped this handler and killed the daemon 1-7s after every claim
+                # (stage5 argparse reading the daemon's 'run' argv). A task exit must
+                # never be a daemon exit. KeyboardInterrupt still propagates (outer handler).
+                _log(f"SYSTEMEXIT in dispatch code={exc.code} — task failed, daemon continues\n{traceback.format_exc()[:1500]}")
+                result = {"ok": False, "error": f"SystemExit({exc.code})"}
             except Exception as exc:  # noqa: BLE001
                 _log(f"EXCEPTION in dispatch: {exc}\n{traceback.format_exc()[:1500]}")
                 result = {"ok": False, "error": f"exception: {type(exc).__name__}: {str(exc)[:300]}"}

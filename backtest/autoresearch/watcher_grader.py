@@ -65,9 +65,17 @@ def main() -> int:
     from collections import defaultdict
     import pandas as pd
     by_date = defaultdict(list)
+    n_skipped_no_direction = 0
     for r in ungraded:
+        # 2026-07-01: rows logged without a 'direction' are ungradeable —
+        # skip + count instead of KeyError-crashing the whole batch
+        # (3 straight days of grader death, 362/584 rows left ungraded).
+        if r.get("direction") not in ("long", "short", "neutral"):
+            n_skipped_no_direction += 1
+            continue
         d = dt.date.fromisoformat(r["bar_timestamp_et"][:10])
         by_date[d].append(r)
+    print(f"skipped {n_skipped_no_direction} direction-less rows")
 
     for d, day_rows in by_date.items():
         # Load bars for this day.  We use end=d (same day) so that the
@@ -129,9 +137,12 @@ def main() -> int:
     pnl_by_watcher = defaultdict(float)
     for r in dedup_rows:
         outcome = r.get("would_be_outcome", "open") or "open"
-        outcomes[(r["watcher_name"], outcome)] += 1
+        # 2026-07-01: same tolerance as the grading loop — a foreign row
+        # (e.g. a stray MNQ status line) must not crash the summary either.
+        wname = r.get("watcher_name") or "unknown_watcher"
+        outcomes[(wname, outcome)] += 1
         pnl = r.get("would_be_pnl_dollars") or 0
-        pnl_by_watcher[r["watcher_name"]] += pnl
+        pnl_by_watcher[wname] += pnl
 
     summary = {
         "graded_at": dt.datetime.now().isoformat(),

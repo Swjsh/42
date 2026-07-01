@@ -66,13 +66,24 @@ if ($result2.Stderr) {
     Add-Content -Path $logFile -Value "SHOTGUN STDERR: $($result2.Stderr.TrimEnd())"
 }
 
-# Surface failures to STATUS.md so Manager + wake fires see them
-$combinedExit = [Math]::Max($exit, $exit2)
+# Combine exit codes: ANY non-zero inner exit must propagate (2026-07-01 fix).
+# [Math]::Max was wrong here — a timeout returns -1 and Max(-1, 0) = 0, silently
+# reporting success on a killed grader.
+$combinedExit = 0
+if ($exit -ne 0) { $combinedExit = $exit }
+elseif ($exit2 -ne 0) { $combinedExit = $exit2 }
+
+# Surface failures to STATUS.md so Manager + wake fires see them.
+# NOTE: the scheduled-task launch chain (wscript -> run_exe_hidden.vbs) is
+# fire-and-forget (shell.Run wait=False), so LastTaskResult stays 0 regardless
+# of this exit code — the STATUS.md line + watcher-grader-*.log ARE the real
+# failure surface for this task.
 if ($combinedExit -ne 0) {
     $statusPath = Join-Path $projectRoot "automation\overnight\STATUS.md"
     $statusLine = "[$dateStr 17:10] Gamma_WatcherGrader FAILED exit=$exit shotgun_exit=$exit2 — check $logFile"
     Add-Content -Path $statusPath -Value $statusLine
 }
-$exit = $combinedExit
 
-exit $exit
+# Propagate the combined inner exit code to powershell.exe's process exit
+# (picked up by run_ps1_hidden.py and logged to run-ps1-hidden-*.log).
+exit $combinedExit

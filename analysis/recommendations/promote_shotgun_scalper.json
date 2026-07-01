@@ -1,0 +1,16 @@
+{
+  "gates_checked_at_et": "2026-07-01T18:09:55.530266",
+  "gates": {
+    "wf_passed": false,
+    "wf_ratio": 0.0,
+    "wf_ratio_gate": 0.7,
+    "sub_window_stable": false,
+    "test_positive_quarters": 0,
+    "anchor_no_regression": false,
+    "directional_score": 0,
+    "concentration_ok": false,
+    "top5_pct": 1.0,
+    "all_gates_passed": false
+  },
+  "passed": false
+}

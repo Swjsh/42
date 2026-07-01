@@ -480,7 +480,14 @@ def grade_observation(obs: dict, future_bars: pd.DataFrame) -> dict:
     if obs.get("would_be_outcome") is not None:
         return obs
 
-    direction = obs["direction"]
+    # Tolerate rows missing 'direction' (2026-07-01): some producers logged
+    # observations without it, and the KeyError here killed the whole grader
+    # run for 3 straight days (362/584 rows left ungraded). Ungradeable row =
+    # skip it, never crash the batch. Callers count skips via this early return.
+    direction = obs.get("direction")
+    if direction not in ("long", "short", "neutral"):
+        return obs
+
     entry = obs["entry_price"]
     stop = obs["stop_price"]
     tp1 = obs["tp1_price"]

@@ -35,6 +35,9 @@ AGG_PARAMS_PATH = STATE_DIR / "aggressive" / "params.json"
 WF_RATIO_GATE = 0.70          # test_pnl / train_pnl
 MIN_DIRECTIONAL_SCORE = 2     # J's anchor days: fire in the right direction
 MAX_CONCENTRATION = 0.50      # top-5 days <= 50% of total P&L
+MAX_SCORECARD_AGE_DAYS = 7    # freshness guard: refuse stale scorecards (the
+                              # dash-variant fallback once resolved to a 2026-05-16
+                              # file — promoting on 6-week-old research is a bug)
 
 
 def _et_now() -> datetime:
@@ -48,8 +51,31 @@ def _et_now() -> datetime:
     return (now_utc + timedelta(hours=offset)).replace(tzinfo=None)
 
 
+def _scorecard_age_days(path: Path, scorecard: dict) -> float:
+    """Age of a scorecard in days — generated_at field if parseable, else file mtime."""
+    gen = scorecard.get("generated_at")
+    if gen:
+        try:
+            gen_dt = datetime.fromisoformat(str(gen).replace("Z", "+00:00"))
+            if gen_dt.tzinfo is None:
+                gen_dt = gen_dt.replace(tzinfo=timezone.utc)
+            return (datetime.now(timezone.utc) - gen_dt).total_seconds() / 86400.0
+        except ValueError:
+            pass
+    try:
+        return (datetime.now(timezone.utc).timestamp() - path.stat().st_mtime) / 86400.0
+    except OSError:
+        return float("inf")
+
+
 def _read_scorecard(script_name: str) -> Optional[dict]:
-    """Read the JSON scorecard produced by the stage5 script."""
+    """Read the JSON scorecard produced by the stage5 script.
+
+    Freshness guard (2026-07-01): refuse scorecards older than
+    MAX_SCORECARD_AGE_DAYS. The dash-variant fallback below can resolve to a
+    stale file from a long-dead run; auto-promoting on it would ship weeks-old
+    research as if it were tonight's result.
+    """
     candidates = [
         RECS_DIR / f"{script_name}.json",
         RECS_DIR / f"{script_name.replace('_stage5', '-stage5')}.json",
@@ -58,9 +84,18 @@ def _read_scorecard(script_name: str) -> Optional[dict]:
     for p in candidates:
         if p.exists():
             try:
-                return json.loads(p.read_text(encoding="utf-8"))
+                scorecard = json.loads(p.read_text(encoding="utf-8"))
             except (json.JSONDecodeError, OSError):
-                pass
+                continue
+            age_days = _scorecard_age_days(p, scorecard)
+            if age_days > MAX_SCORECARD_AGE_DAYS:
+                print(
+                    f"[pipeline_promoter] REFUSED stale scorecard {p.name} "
+                    f"(age={age_days:.1f}d > {MAX_SCORECARD_AGE_DAYS}d freshness gate)",
+                    file=sys.stderr,
+                )
+                continue
+            return scorecard
     return None
 
 
