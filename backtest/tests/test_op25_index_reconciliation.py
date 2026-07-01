@@ -45,7 +45,7 @@ LESSONS_MD = ROOT / "markdown" / "doctrine" / "LESSONS-LEARNED.md"
 # pre-existing gaps the new reconciliation surfaced. TRIM as folds land; the
 # ratchet asserts this set only ever SHRINKS.
 KNOWN_UNINDEXED_BASELINE = frozenset(
-    {3, 13, 16, 24, 25, 29, 31, 43, 56, 126, 137, 146, 192, 193, 194, 195, 196, 197}
+    {3, 13, 16, 24, 25, 29, 31, 43, 56, 126, 137, 146, 192, 193, 194, 195, 196, 197, 198}
     # 193 pending fold to C7 (L193 a documented capital gate must be enforced at the
     #   autonomous apply chokepoint, not a sibling organ); proposal cd-2026-06-28-002
     # 194 pending fold to C14/C15 (L194 gate the SELECTOR too, not only the executor);
@@ -56,6 +56,8 @@ KNOWN_UNINDEXED_BASELINE = frozenset(
     #   consistency ships a contradictory-structure regression green); trims on same apply
     # 197 pending fold to C7 (L197 a graduated guard bakes in the old frame -> frame-fix a
     #   monitor and its guard in the SAME commit); trims on cd-2026-06-28-002 apply
+    # 198 pending fold to C14/C4/C7 (L198 a hardcoded recent-window file + stale comment
+    #   fakes a data-blocked wall; re-measure the span from source); trims on same apply
     # 192 pending fold to C4/C24 (L192 edge_capture is a directional-anchor metric ->
     #   auto-rejects regime strategies); proposal cd-2026-06-28-002 trims on apply
     # 169,170,173,174,177,178,179,181,182,183,184,185,186,187 folded 2026-06-24 batch
