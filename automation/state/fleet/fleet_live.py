@@ -233,8 +233,18 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
     expiry = now  # 0DTE
     symbol = _occ_symbol(side, strike, expiry)
     mid = fb.get_option_mid(creds, symbol)
-    if mid is None or mid <= 0:
+    # MARKETABLE-LIMIT (#15): a limit @ mid rarely crosses on 0DTE -> the "zero fills ever" bug.
+    # Price the ENTRY at ask+buffer so it actually fills; mid stays the base for the TP/stop pct
+    # math (unchanged). No two-sided quote -> HOLD (never blind-price).
+    entry_px = fb.marketable_limit_price(creds, symbol, side="buy",
+                                         buffer=float(params.get("entry_cross_buffer", 0.03)))
+    if mid is None or mid <= 0 or entry_px is None or entry_px <= 0:
         return {"mode": "LIVE", "placed": False, "reason": f"no quote for {symbol}"}
+    # CANCEL-REPLACE (#15): clear any stale never-crossed BUY limit on this symbol from a prior
+    # tick before placing a fresh marketable one (prevents a pile of dead pendings).
+    for _o in fb.open_buy_orders(creds, symbol):
+        if _o.get("id"):
+            fb.cancel_order(creds, _o["id"], live=True)
 
     ex = exit_shape or {}
     # TP1 from the strategy's exit shape (positive pct); fall back to params, then +30%.
@@ -259,7 +269,7 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
     # (register_entry below + ea.manage_tick runs FIRST each cycle, enforcing premium/target/time
     # stops via the per-tick worst<=stop check). SAFE: exits ARE engine-managed here, the exact C2
     # condition place_bracket's docstring requires. Identical to the proven core-engine fix.
-    res = fb.place_bracket(creds, symbol=symbol, qty=qty, limit_price=mid,
+    res = fb.place_bracket(creds, symbol=symbol, qty=qty, limit_price=entry_px,
                            take_profit_price=tp_price, stop_price=stop_price, live=True,
                            simple_fallback=True)
     placed = not res.get("_error") and not res.get("_refused")
@@ -271,7 +281,7 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
     # registered on a real fill (placed) so a rejected order leaves no orphan exit state.
     if placed:
         try:
-            ea.register_entry(arm["id"], symbol=symbol, side=side, entry_premium=mid,
+            ea.register_entry(arm["id"], symbol=symbol, side=side, entry_premium=entry_px,
                               qty=qty, exit_shape=ex, strategy=str(decision.setup_name or ""))
         except Exception:  # never let exit-state bookkeeping fail an accepted entry
             pass
@@ -282,7 +292,7 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
             "tp1_qty_fraction": ex.get("tp1_qty_fraction"),
             "profit_lock_mode": ex.get("profit_lock_mode"),
             "exit_managed": placed,
-            "broker": res, "placed": placed}
+            "entry_px": entry_px, "broker": res, "placed": placed}
 
 
 def run(signal_path: Path, master_live: bool) -> list[dict]:

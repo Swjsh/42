@@ -846,7 +846,11 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     expiry = _et_now()
     symbol = _occ(side, strike, expiry)
     mid = fb.get_option_mid(creds, symbol)
-    if not mid or mid <= 0:
+    # MARKETABLE-LIMIT (#15): mid rarely crosses on 0DTE -> "zero fills ever". Price the entry at
+    # ask+buffer so it fills; mid stays the base for TP/stop pct + sizing. No quote -> NO_PREMIUM.
+    entry_px = fb.marketable_limit_price(creds, symbol, side="buy",
+                                         buffer=float(params.get("entry_cross_buffer", 0.03)))
+    if not mid or mid <= 0 or not entry_px or entry_px <= 0:
         return {"status": "NO_PREMIUM", "symbol": symbol}
     # sizing: tier base qty, then cap-aware clamp (L180/C11)
     qty = int(params.get("min_contracts", 3))
@@ -870,15 +874,20 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
             "setup": setup_name, "quality_rank": ql["rank"], "quality_tier": ql["tier"]}
     if dry:
         return plan
+    # CANCEL-REPLACE (#15): clear any stale never-crossed BUY limit on this symbol from a prior tick.
+    for _o in fb.open_buy_orders(creds, symbol):
+        if _o.get("id"):
+            fb.cancel_order(creds, _o["id"], live=True)
     # Options reject broker brackets/oto (code 42210000) -> place a SIMPLE limit entry and
     # let the tick-managed exit_manager own TP/stop. Gated on CORE_MANAGES_EXITS so a simple
     # (stopless-at-broker) entry is NEVER placed unless the engine is managing exits (else it
     # stays PLACE_FAIL, the safe no-op). 2026-06-26: this was the bug blocking every entry.
-    res = fb.place_bracket(creds, symbol=symbol, qty=qty, limit_price=mid,
+    res = fb.place_bracket(creds, symbol=symbol, qty=qty, limit_price=entry_px,
                            take_profit_price=tp, stop_price=stop, live=True,
                            simple_fallback=CORE_MANAGES_EXITS)
     plan["status"] = "PLACED" if not res.get("_error") else "PLACE_FAIL"
     plan["broker"] = res
+    plan["entry_px"] = entry_px
     # EXIT-ENGINE WIRING (flag-gated, default OFF): on a real fill, register the position
     # with the exit_manager so the validated scale-out (partial TP1 + runner + profit-lock)
     # is realized on later ticks. The bracket above stays the catastrophe-floor backstop;
@@ -898,7 +907,7 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
                           "tp1_qty_fraction": float(params.get("tp1_qty_fraction", 0.667)),
                           "profit_lock_mode": str(params.get("profit_lock_mode", "fixed"))}
             _ea.register_entry(ACCOUNTS[account]["fleet_arm"], symbol=symbol, side=side,
-                               entry_premium=mid, qty=qty, exit_shape=_shape, strategy=setup_name)
+                               entry_premium=entry_px, qty=qty, exit_shape=_shape, strategy=setup_name)
             plan["exit_managed"] = True
         except Exception:  # bookkeeping must never fail an accepted entry
             plan["exit_managed"] = False

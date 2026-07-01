@@ -199,6 +199,84 @@ def get_option_quote_hilo(creds: dict[str, str], symbol: str) -> "tuple[float, f
     return None
 
 
+# --- MONEY-PATH FIX (#15, 2026-06-30): real-fill primitives --------------------------------
+# The rig placed limit @ mid and called that "placed" -> a mid limit rarely crosses on 0DTE,
+# so it filled 0 orders ever while logging them as entries. These add (a) marketable pricing so
+# the order actually crosses, and (b) fill-confirm / cancel-replace helpers (used by the poll
+# refinement + the #16 reconciler). Additive: nothing here changes existing callers on import.
+
+def marketable_limit_price(creds: dict[str, str], symbol: str, *, side: str = "buy",
+                           buffer: float = 0.03) -> "float | None":
+    """Marketable ENTRY limit so the order CROSSES and fills. BUY = ask + buffer; a sell uses
+    bid - buffer. `buffer` is an absolute premium add ($/contract) so a wide 0DTE spread still
+    fills without a blind market order. None when no two-sided quote (caller HOLDS -- never
+    blind-prices). buffer is a knob on how aggressively we cross an already-decided entry."""
+    hilo = get_option_quote_hilo(creds, symbol)  # (ask, bid)
+    if hilo is None:
+        return None
+    ask, bid = hilo
+    if side == "buy":
+        return round(ask + max(0.0, float(buffer)), 2)
+    return round(max(0.01, bid - max(0.0, float(buffer))), 2)
+
+
+def get_order(creds: dict[str, str], order_id: str) -> dict:
+    """Single order by id (status / filled_qty / filled_avg_price). {} or {_error} on failure."""
+    res = _request(creds, f"orders/{order_id}")
+    return res if isinstance(res, dict) else {}
+
+
+_FILLED_STATUSES = ("filled", "partially_filled")
+
+
+def poll_fill(creds: dict[str, str], order_id: str, *, attempts: int = 3,
+              sleep_sec: float = 1.5) -> dict:
+    """Poll get_order up to `attempts` times. Returns {filled, status, filled_qty,
+    filled_avg_price, order}. filled is True iff status in (filled, partially_filled) AND
+    filled_qty > 0. NEVER raises; an _error/absent order yields filled=False. This is what
+    turns 'broker accepted' into 'actually filled'."""
+    import time
+    last: dict = {"filled": False, "status": "unknown", "filled_qty": 0,
+                  "filled_avg_price": None, "order": {}}
+    for i in range(max(1, int(attempts))):
+        o = get_order(creds, order_id)
+        if o and not o.get("_error"):
+            status = str(o.get("status", "")).lower()
+            try:
+                fq = int(float(o.get("filled_qty") or 0))
+            except (TypeError, ValueError):
+                fq = 0
+            try:
+                fap = (float(o["filled_avg_price"])
+                       if o.get("filled_avg_price") not in (None, "") else None)
+            except (TypeError, ValueError):
+                fap = None
+            last = {"filled": status in _FILLED_STATUSES and fq > 0, "status": status,
+                    "filled_qty": fq, "filled_avg_price": fap, "order": o}
+            if last["filled"]:
+                return last
+        if i < int(attempts) - 1:
+            time.sleep(max(0.0, float(sleep_sec)))
+    return last
+
+
+def cancel_order(creds: dict[str, str], order_id: str, *, live: bool) -> dict:
+    """DELETE /orders/{id}. WATCH-gated. Cancel a stale pending entry limit before re-pricing."""
+    if not live:
+        return {"_skipped": "live flag False -- cancel_order refused (WATCH)"}
+    return _request(creds, f"orders/{order_id}", method="DELETE")
+
+
+def open_buy_orders(creds: dict[str, str], symbol: str) -> list:
+    """Open (un-filled) BUY orders for this exact OCC symbol -- the stale pending entries a
+    later tick cancel-replaces so a never-crossing limit doesn't sit all day. [] on failure."""
+    res = _request(creds, "orders?status=open&limit=100&nested=false")
+    if not isinstance(res, list):
+        return []
+    return [o for o in res
+            if str(o.get("symbol")) == symbol and str(o.get("side")) == "buy"]
+
+
 def get_position_qty(creds: dict[str, str], symbol: str) -> int:
     """Open contracts the broker shows for this exact option symbol (0 if flat). Broker is
     the source of truth (C11) — the exit manager re-derives runner state from this each tick."""
