@@ -1,3 +1,17 @@
+## [2026-07-01 ~19:30 ET] interactive (J + Gamma): FULL PIPELINE AUDIT -> J RATIFIED 4 DOCTRINE CHANGES -> MONEY-PATH FIX BURST SHIPPED (5 commits, ~92 new guards)
+
+> **Signal J wakes to (OP-33): the engine can now actually place a fillable order tomorrow, and the fill funnel will prove it either way.** J commissioned a full swarm->kitchen->winners->engine->Alpaca audit ("not functional, not trading, crashing"). 7-agent recon found every research->engine handoff broken — full report `markdown/audits/PIPELINE-AUDIT-2026-07-01.md`. J then ratified: (1) FULL PAPER AUTONOMY (rail-4 rewritten — paper trading-path edits ship w/ guard+revert+REVOKE); (2) TRADE-TO-LEARN on paper; (3) CONSOLIDATE HARD; (4) success bar = daily paper trading + honest digest.
+> - **Money path (b0d6ca0):** 15:00 entry ceiling now ENFORCED core+fleet (today's 10 late ENTERs -> PLACE_FAIL class is dead); placement goes straight to marketable simple limit (bracket/OTO 422 ladder removed); GATE_KEYS forwards the ratified elite-bull VIX bands; **vwap_continuation ARMED on Safe-2 paper** (extra_setup_exec_armed, ATM qty3, WP-5 override now honored — J's #1 edge, n=153 +$38.3/tr scorecard).
+> - **Crash-loops (652bed9):** kitchen stage5 argv poison pill FIXED (daemon survived 158s + completed the poison task exit_code=0, was dying in 1-7s x10 today); fresh stage5 scorecard regenerated (was 2026-05-16-stale); promoter freshness guard; watcher_grader now grades all 584 obs (KeyError x3 days fixed); wrapper exit codes propagate.
+> - **Truth instruments (commit 3):** fill_funnel.py per-day funnel (ENTER->attempted->accepted->filled->exited) wired into self_check (BROKEN on ENTER>0/accepted=0) + gamma_glance; EOD quant section now code-generated (today's journal regenerated: 16 ENTERs incl. 4 fleet fills w/ order IDs — replaces the fabricated "ENTER signals: 0"); loop-state ticks_today lie fixed.
+> - **Autonomy re-aim (commit 4):** conductor Stage-1 = FUNCTION FIRST (fill-funnel drives the pick); outcome metric now records enters/accepted/fills per fire and trend weights FUNCTION; task_scorer depends-annotation + expense-penalty bugs fixed — J's buried HIGH engine items now top the ready list (9 trading-path HIGH items).
+> - **Consolidate-hard (commit 5):** rank_contenders SKIP_UNCHANGED (no more restamping frozen data); kitchen_reviewer requires numeric scorecard evidence (hallucinated "$25000" auto-promotes dead); 8 dead grind/funnel tasks DISABLED (registry reconciled, 58 active rows); crypto drift spam cooldown + PS5.1 -NoNewline fix.
+> - **FIRST ENGINE ROUND TRIPS EVER (today 11:22-11:34 ET):** 4 fleet arms placed marketable ENTER_BULL orders, filled, exit-managed to flat (fix #15 PROVEN on the fleet path). Core accounts still 0 post-fix fills — that is tomorrow's UNVERIFIED item; the funnel auto-reports it.
+> - **UNVERIFIED until 2026-07-02 open:** engine-originated core-account fill via simple-first path; SKIP_LATE_ENTRY rows on any post-15:00 signal; armed vwap_continuation routing end-to-end on real tape; FUNCTION-FIRST steering the next conductor fire. Gamma_Conductor + Gamma_AutoApply re-enabled after the burst.
+> - J: OPEN decisions now queued as HIGH items (ADJUDICATE-CD-2026-06-29-001-TP1-REVERT, FIX-CD-2026-06-28-002-ID-COLLISION, G7 EOD-flatten) — the loop can now pick them.
+
+---
+
 ## [2026-07-01 ~17:50 ET] conductor: OK -- CLOSED A RECURRING SELF-AUDIT NOISE HOLE AT ITS FRAME (the 06-29 L-lesson recurred = a missing guardrail): tonight's un-actioned self-audit batch (9 gaps) had **5 of 9 = SCAFFOLD** the 06-29 `_is_real_gap` filter never anticipated. Hardened the filter + graduated the guard + DONE-marked the batch. Commit aab30bb.
 
 > **Signal J wakes to (OP-25) -- the proactive gap-finder organ was flagging its own reasoning-scaffold as "gaps," crowding real gaps out of the [:12] budget (the exact 06-29 crowding-out failure, recurring). Fixed at the producer + guarded so it can't regress; the batch's 4 substantive items are all already-tracked, so no new actionable gap tonight.** After-hours conductor fire, market CLOSED (Wed 17:50 ET; engine-health verdict **GREEN** -- both heartbeats/beacon/watcher-feed/kill-switches/level-feed/gex/dispatch GREEN, both accounts flat, gex-archive healthy 9 sessions). No `### BROKEN:` flags (reds:[]). All 4 author inboxes clear (skill correction-queue 3/3 processed). task_scorer top-3 all MED multi-day / LOW rail-4 doc-folds -> the priority-2 pick (un-actioned self-audit batch) beat them.
@@ -159,7 +173,7 @@
 - [2026-07-01 07:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
 
 ## Kitchen
-Kitchen: alive, queue 50 pending, last cook 0 min ago, today $0.00, model=groq::llama-3.3-70b-versatile
+Kitchen: alive, queue 57 pending, last cook 0 min ago, today $0.00, model=scorecard-python
 
 - [2026-07-01 08:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
 - [07-01 10:40 ET] TvWatchdog: tv=relaunch_fresh heartbeat=fresh no TV process and CDP dead - launching
@@ -217,3 +231,31 @@ Kitchen: alive, queue 50 pending, last cook 0 min ago, today $0.00, model=groq::
 - route: free-tier-primary
 - ok: True
 - cost_usd: 0.0000
+
+- [2026-07-01 15:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-01T18:09:57
+- FILL-FUNNEL PLACEMENT BROKEN[core:bold]: 5 ENTER, 5 attempted, 0 broker-accepted. Reasons: 5x bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 5 ENTER after 15:00 ET: ['15:51 ENTER_BEAR SPY260701P00744000', '15:52 ENTER_BEAR SPY260701P00744000', '15:53 ENTER_BEAR SPY260701P00744000']
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 5 ENTER, 5 attempted, 0 broker-accepted. Reasons: 5x bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:51 ENTER_BEAR SPY260701P00747000', '15:52 ENTER_BEAR SPY260701P00747000', '15:53 ENTER_BEAR SPY260701P00747000']
+- FILL-FUNNEL ENTER AFTER CEILING[fleet:risky-3]: 1 ENTER after 15:00 ET: ['15:52 ENTER_BEAR SPY260701P00744000']
+- FILL-FUNNEL ENTER AFTER CEILING[fleet:safe-1]: 1 ENTER after 15:00 ET: ['15:52 ENTER_BEAR SPY260701P00744000']
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-01T22:11:22+00:00
+- task: analyst
+- date_et: 2026-07-01
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-01T22:22:56+00:00
+- task: eod-summary
+- date_et: 2026-07-01
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-07-01 16:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 68.75% in last 24h (33/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
