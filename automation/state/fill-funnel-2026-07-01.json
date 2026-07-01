@@ -1,0 +1,320 @@
+{
+ "date": "2026-07-01",
+ "generated_at_et": "2026-07-01T18:09:57",
+ "accounts": {
+  "core:bold": {
+   "ticks": 383,
+   "signals": 11,
+   "enter": 5,
+   "attempted": 5,
+   "accepted": 0,
+   "filled": 0,
+   "exited": 0,
+   "enter_events": [
+    {
+     "ts_et": "2026-07-01T15:51:10",
+     "hhmm": "15:51",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260701P00744000",
+     "qty": 5,
+     "status": "PLACE_FAIL",
+     "order_id": null,
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    },
+    {
+     "ts_et": "2026-07-01T15:52:12",
+     "hhmm": "15:52",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260701P00744000",
+     "qty": 5,
+     "status": "PLACE_FAIL",
+     "order_id": null,
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    },
+    {
+     "ts_et": "2026-07-01T15:53:16",
+     "hhmm": "15:53",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260701P00744000",
+     "qty": 5,
+     "status": "PLACE_FAIL",
+     "order_id": null,
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    },
+    {
+     "ts_et": "2026-07-01T15:54:19",
+     "hhmm": "15:54",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260701P00744000",
+     "qty": 5,
+     "status": "PLACE_FAIL",
+     "order_id": null,
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    },
+    {
+     "ts_et": "2026-07-01T15:55:14",
+     "hhmm": "15:55",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260701P00744000",
+     "qty": 5,
+     "status": "PLACE_FAIL",
+     "order_id": null,
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    }
+   ],
+   "place_fail_reasons": [
+    "bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex orders not supported for options trading | simple_err: contract \"SPY260701P00744000\" expires soon, unable to open new positions",
+    "bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex orders not supported for options trading | simple_err: contract \"SPY260701P00744000\" expires soon, unable to open new positions",
+    "bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex orders not supported for options trading | simple_err: contract \"SPY260701P00744000\" expires soon, unable to open new positions",
+    "bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex orders not supported for options trading | simple_err: contract \"SPY260701P00744000\" expires soon, unable to open new positions",
+    "bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex orders not supported for options trading | simple_err: contract \"SPY260701P00744000\" expires soon, unable to open new positions"
+   ],
+   "enters_after_ceiling": [
+    "15:51 ENTER_BEAR SPY260701P00744000",
+    "15:52 ENTER_BEAR SPY260701P00744000",
+    "15:53 ENTER_BEAR SPY260701P00744000",
+    "15:54 ENTER_BEAR SPY260701P00744000",
+    "15:55 ENTER_BEAR SPY260701P00744000"
+   ],
+   "open_fills_no_exit": []
+  },
+  "core:safe": {
+   "ticks": 383,
+   "signals": 11,
+   "enter": 5,
+   "attempted": 5,
+   "accepted": 0,
+   "filled": 0,
+   "exited": 0,
+   "enter_events": [
+    {
+     "ts_et": "2026-07-01T15:51:02",
+     "hhmm": "15:51",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260701P00747000",
+     "qty": 3,
+     "status": "PLACE_FAIL",
+     "order_id": null,
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    },
+    {
+     "ts_et": "2026-07-01T15:52:02",
+     "hhmm": "15:52",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260701P00747000",
+     "qty": 3,
+     "status": "PLACE_FAIL",
+     "order_id": null,
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    },
+    {
+     "ts_et": "2026-07-01T15:53:02",
+     "hhmm": "15:53",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260701P00747000",
+     "qty": 3,
+     "status": "PLACE_FAIL",
+     "order_id": null,
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    },
+    {
+     "ts_et": "2026-07-01T15:54:02",
+     "hhmm": "15:54",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260701P00747000",
+     "qty": 3,
+     "status": "PLACE_FAIL",
+     "order_id": null,
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    },
+    {
+     "ts_et": "2026-07-01T15:55:03",
+     "hhmm": "15:55",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260701P00747000",
+     "qty": 3,
+     "status": "PLACE_FAIL",
+     "order_id": null,
+     "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)"
+    }
+   ],
+   "place_fail_reasons": [
+    "bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex orders not supported for options trading | simple_err: contract \"SPY260701P00747000\" expires soon, unable to open new positions",
+    "bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex orders not supported for options trading | simple_err: contract \"SPY260701P00747000\" expires soon, unable to open new positions",
+    "bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex orders not supported for options trading | simple_err: contract \"SPY260701P00747000\" expires soon, unable to open new positions",
+    "bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex orders not supported for options trading | simple_err: contract \"SPY260701P00747000\" expires soon, unable to open new positions",
+    "bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex orders not supported for options trading | simple_err: contract \"SPY260701P00747000\" expires soon, unable to open new positions"
+   ],
+   "enters_after_ceiling": [
+    "15:51 ENTER_BEAR SPY260701P00747000",
+    "15:52 ENTER_BEAR SPY260701P00747000",
+    "15:53 ENTER_BEAR SPY260701P00747000",
+    "15:54 ENTER_BEAR SPY260701P00747000",
+    "15:55 ENTER_BEAR SPY260701P00747000"
+   ],
+   "open_fills_no_exit": []
+  },
+  "fleet:risky-1": {
+   "ticks": 128,
+   "signals": 1,
+   "enter": 1,
+   "attempted": 1,
+   "accepted": 1,
+   "filled": 1,
+   "exited": 1,
+   "enter_events": [
+    {
+     "ts_et": "2026-07-01T11:22:01.456422-04:00",
+     "hhmm": "11:22",
+     "verdict": "ENTER_BULL",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "symbol": "SPY260701C00751000",
+     "qty": 5,
+     "status": "ACCEPTED",
+     "order_id": "e49e29c0-22c8-474b-97c4-21ad50eb2531",
+     "reason": "ribbon_ride C (ELITE)"
+    }
+   ],
+   "place_fail_reasons": [],
+   "enters_after_ceiling": [],
+   "open_fills_no_exit": []
+  },
+  "fleet:risky-3": {
+   "ticks": 128,
+   "signals": 2,
+   "enter": 2,
+   "attempted": 2,
+   "accepted": 1,
+   "filled": 1,
+   "exited": 1,
+   "enter_events": [
+    {
+     "ts_et": "2026-07-01T11:22:01.456422-04:00",
+     "hhmm": "11:22",
+     "verdict": "ENTER_BULL",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "symbol": "SPY260701C00751000",
+     "qty": 5,
+     "status": "ACCEPTED",
+     "order_id": "c7aac15c-a2d3-4ebc-8a56-7690eeea985d",
+     "reason": "ribbon_ride C (ELITE)"
+    },
+    {
+     "ts_et": "2026-07-01T15:52:01.987096-04:00",
+     "hhmm": "15:52",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260701P00744000",
+     "qty": 5,
+     "status": "PLACE_FAIL",
+     "order_id": null,
+     "reason": "ribbon_ride P (BASE)"
+    }
+   ],
+   "place_fail_reasons": [
+    "bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex orders not supported for options trading | simple_err: contract \"SPY260701P00744000\" expires soon, unable to open new positions"
+   ],
+   "enters_after_ceiling": [
+    "15:52 ENTER_BEAR SPY260701P00744000"
+   ],
+   "open_fills_no_exit": []
+  },
+  "fleet:safe-1": {
+   "ticks": 128,
+   "signals": 2,
+   "enter": 2,
+   "attempted": 2,
+   "accepted": 1,
+   "filled": 1,
+   "exited": 1,
+   "enter_events": [
+    {
+     "ts_et": "2026-07-01T11:22:01.456422-04:00",
+     "hhmm": "11:22",
+     "verdict": "ENTER_BULL",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "symbol": "SPY260701C00751000",
+     "qty": 3,
+     "status": "ACCEPTED",
+     "order_id": "5a7a7efd-05ff-4df9-abd6-ed8ef59c8ece",
+     "reason": "ribbon_ride C (ELITE)"
+    },
+    {
+     "ts_et": "2026-07-01T15:52:01.987096-04:00",
+     "hhmm": "15:52",
+     "verdict": "ENTER_BEAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "symbol": "SPY260701P00744000",
+     "qty": 3,
+     "status": "PLACE_FAIL",
+     "order_id": null,
+     "reason": "ribbon_ride P (BASE)"
+    }
+   ],
+   "place_fail_reasons": [
+    "bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex orders not supported for options trading | simple_err: contract \"SPY260701P00744000\" expires soon, unable to open new positions"
+   ],
+   "enters_after_ceiling": [
+    "15:52 ENTER_BEAR SPY260701P00744000"
+   ],
+   "open_fills_no_exit": []
+  },
+  "fleet:safe-3": {
+   "ticks": 128,
+   "signals": 1,
+   "enter": 1,
+   "attempted": 1,
+   "accepted": 1,
+   "filled": 1,
+   "exited": 1,
+   "enter_events": [
+    {
+     "ts_et": "2026-07-01T11:22:01.456422-04:00",
+     "hhmm": "11:22",
+     "verdict": "ENTER_BULL",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "symbol": "SPY260701C00751000",
+     "qty": 3,
+     "status": "ACCEPTED",
+     "order_id": "58954d00-829e-40d7-9185-c11692b901d9",
+     "reason": "ribbon_ride C (ELITE)"
+    }
+   ],
+   "place_fail_reasons": [],
+   "enters_after_ceiling": [],
+   "open_fills_no_exit": []
+  }
+ },
+ "totals": {
+  "ticks": 1278,
+  "signals": 28,
+  "enter": 16,
+  "attempted": 16,
+  "accepted": 4,
+  "filled": 4,
+  "exited": 4
+ },
+ "sources": {
+  "core": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\core-decisions.jsonl",
+  "fleet": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\fleet"
+ },
+ "flags": [
+  "PLACEMENT BROKEN[core:bold]: 5 ENTER, 5 attempted, 0 broker-accepted. Reasons: 5x bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex",
+  "ENTER AFTER CEILING[core:bold]: 5 ENTER after 15:00 ET: ['15:51 ENTER_BEAR SPY260701P00744000', '15:52 ENTER_BEAR SPY260701P00744000', '15:53 ENTER_BEAR SPY260701P00744000']",
+  "PLACEMENT BROKEN[core:safe]: 5 ENTER, 5 attempted, 0 broker-accepted. Reasons: 5x bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex",
+  "ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:51 ENTER_BEAR SPY260701P00747000', '15:52 ENTER_BEAR SPY260701P00747000', '15:53 ENTER_BEAR SPY260701P00747000']",
+  "ENTER AFTER CEILING[fleet:risky-3]: 1 ENTER after 15:00 ET: ['15:52 ENTER_BEAR SPY260701P00744000']",
+  "ENTER AFTER CEILING[fleet:safe-1]: 1 ENTER after 15:00 ET: ['15:52 ENTER_BEAR SPY260701P00744000']"
+ ],
+ "verdict": "RED"
+}

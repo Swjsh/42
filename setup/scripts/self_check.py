@@ -171,6 +171,31 @@ def check_engine_tradeability(now, path=None) -> list:
     return out
 
 
+def check_fill_funnel(now, core_path=None, fleet_dir=None) -> list:
+    """FILL-FUNNEL check (the instrument that retires "is it actually trading?",
+    OP-33e). Re-derives ticks -> ENTER -> attempted -> accepted -> filled -> exited
+    per account from the decision ledgers (fill_funnel.py) and flags:
+      BROKEN   any account attempted>0 with 0 broker-accepted (placement dead --
+               the 2026-07-01 signature: 10 ENTER_BEAR, all PLACE_FAIL)
+      DEGRADED any ENTER after the 15:00 ET entry ceiling, or (post-EOD) a fill
+               with no exit record in the ledger.
+    Weekdays only, after 09:40 ET (needs a live session to judge). Fail-open."""
+    if now.weekday() >= 5 or now.strftime("%H:%M") < "09:40":
+        return []
+    try:
+        import fill_funnel
+        f = fill_funnel.compute_funnel(now.strftime("%Y-%m-%d"), now=now,
+                                       core_path=core_path, fleet_dir=fleet_dir)
+    except Exception as e:  # noqa: BLE001
+        return [f"FILL-FUNNEL UNAVAILABLE: {type(e).__name__}: {e} -- cannot verify the money path."]
+    if core_path is None and fleet_dir is None:
+        try:
+            fill_funnel.write_artifact(f)  # glanceable state file for J (OP-33c)
+        except Exception:  # noqa: BLE001
+            pass
+    return [f"FILL-FUNNEL {fl}" for fl in f.get("flags", [])]
+
+
 _CEIL_ROLES = {"resistance", "broken_to_support"}
 _FLOOR_ROLES = {"support", "broken_to_resistance"}
 
@@ -209,6 +234,14 @@ def check_level_integrity(path=None) -> list:
         out.append(f"KEY-LEVELS DUPLICATED: price(s) {dups} appear >2x in the active feed -- dedup "
                    f"not collapsing repeated writes.")
     return out
+
+
+def _problem_is_broken(p: str) -> bool:
+    """BROKEN (vs DEGRADED) classifier for a problem string. Module-level so the
+    graduated guards can assert the mapping (e.g. PLACEMENT BROKEN -> BROKEN)."""
+    return (("crash" in p.lower()) or ("RED" in p) or ("STALE/REVOKED" in p)
+            or ("KEY MISSING" in p) or ("CANNOT ENTER" in p)
+            or ("CONTRADICTORY ROLES" in p) or ("PLACEMENT BROKEN" in p))
 
 
 def run() -> dict:
@@ -259,8 +292,18 @@ def run() -> dict:
     # 7. KEY-LEVELS INTEGRITY (content) -- contradictory ceiling/floor roles fed to the engine
     problems.extend(check_level_integrity())
 
-    _broken = lambda p: ("crash" in p.lower()) or ("RED" in p) or ("STALE/REVOKED" in p) or ("KEY MISSING" in p) or ("CANNOT ENTER" in p) or ("CONTRADICTORY ROLES" in p)
-    verdict = "GREEN" if not problems else ("BROKEN" if any(_broken(p) for p in problems) else "DEGRADED")
+    # 8. FILL FUNNEL (content) -- placement broken / late ENTER / fill-without-exit
+    problems.extend(check_fill_funnel(now))
+
+    # 9. loop-state tick truth -- keep the legacy artifact honest for its readers
+    # (dashboard, companion, EOD prompts). Fail-open; a failure is a note, not a raise.
+    try:
+        import loop_state_refresh
+        loop_state_refresh.refresh(now)
+    except Exception:  # noqa: BLE001
+        pass
+
+    verdict = "GREEN" if not problems else ("BROKEN" if any(_problem_is_broken(p) for p in problems) else "DEGRADED")
     result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth}
     LAST.write_text(json.dumps(result, indent=2), encoding="utf-8")
 

@@ -32,8 +32,12 @@ def test_gamma_glance_builds_and_prints_entries_line():
 
     # the load-bearing line J glances at: how many real entries today
     assert "entries-today" in lower, "missing entries-today line"
-    # the fill-path truth (the audit's core finding: never filled a real trade)
-    assert "fills-today" in lower, "missing fills-today line"
+    # the fill-path truth (the audit's core finding: never filled a real trade).
+    # 2026-07-01: the old fills-today block read the dead fleet/decisions/ dir and
+    # showed 0 fills while 4 fleet round trips happened; replaced by the FUNNEL
+    # block (fill_funnel.py: ticks->sig->ENTER->attempt->accept->fill->exit).
+    assert "funnel" in lower, "missing FUNNEL block (fill-path truth)"
+    assert "accept->fill->exit" in lower, "missing funnel stage header (fill-path truth)"
     # ASCII-only [GREEN]/[RED] tags (no emoji -- Windows cp1252 safe)
     assert ("[green]" in lower) or ("[red]" in lower), "missing GREEN/RED tag vocabulary"
     # must be pure ASCII so it never cp1252-crashes a PS 5.1 console (the em-dash class)

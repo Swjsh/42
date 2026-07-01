@@ -13,7 +13,7 @@ Reads only:
   - et_clock                                  -> ET time + market open/closed
   - automation/state/self-check-last.json     -> self-check verdict + problems
   - automation/state/core-decisions.jsonl     -> ENGINE TODAY (entries, dominant SKIP, age)
-  - automation/state/fleet/decisions/*.jsonl  -> FILLS placed-vs-filled across 6 arms
+  - automation/state/fleet/<arm>/decisions.jsonl -> FUNNEL (via fill_funnel.py; exit_pass = fill truth)
   - automation/state/*current-position*.json  -> filled / flat detection
   - automation/state/key-levels.json          -> level integrity (via self_check)
   - automation/state/today-bias.json          -> premarket bias freshness
@@ -43,9 +43,6 @@ except Exception:  # noqa: BLE001
 GREEN = "[GREEN]"
 RED = "[RED]"
 GRAY = "[ ?  ]"
-
-# The 6 fleet arms (sizing x gate grid). safe-2 + bold-2 are the heartbeat controls.
-ARMS = ("safe-3", "safe-2", "safe-1", "risky-1", "bold-2", "risky-3")
 
 
 def _j(p: Path):
@@ -128,49 +125,30 @@ def _engine_today(now: dt.datetime) -> tuple[str, list[str]]:
     return tag, lines
 
 
-def _fills_today(now: dt.datetime) -> tuple[str, list[str]]:
-    """FILLS block: across the 6 arms, ENTER_* placed today vs actually filled.
-
-    placed  = ENTER_* intents in today's per-arm fleet decisions + the safe/bold heartbeat
-    filled  = a non-null current-position OR a fleet row carrying a fill/order marker
-    The 2026-06-30 audit truth: the rig has never FILLED a real trade. N placed, 0 filled = RED.
-    """
-    day = now.strftime("%Y-%m-%d")
-    placed = 0
-    filled = 0
-
-    # heartbeat controls (safe + bold) live in core-decisions
-    for r in _today_rows(STATE / "core-decisions.jsonl", day):
-        if str(r.get("verdict", "")).startswith("ENTER"):
-            placed += 1
-
-    # the 4 fleet_rest arms (+ control mirrors) live in fleet/decisions/<arm>.jsonl
-    for arm in ARMS:
-        p = STATE / "fleet" / "decisions" / f"{arm}.jsonl"
-        for r in _today_rows(p, day):
-            if str(r.get("action", "")).startswith("ENTER"):
-                # a DRY_RUN row is an intent, not a placement; only LIVE counts as placed
-                if str(r.get("mode", "")).upper() == "LIVE":
-                    placed += 1
-                if r.get("filled_qty") or r.get("fill_price") or r.get("order_id"):
-                    filled += 1
-
-    # broker-truth fills: a non-null current-position means we hold a real fill right now
-    for pos_name in ("current-position-safe.json", "current-position-bold.json"):
-        d = _j(STATE / pos_name) or {}
-        if d.get("status"):  # null/absent = flat
-            filled += 1
-
-    if placed > 0 and filled == 0:
-        tag = RED
-    elif filled > 0:
-        tag = GREEN
-    else:
-        tag = GRAY  # 0 placed -- nothing to fill (engine sat out); not a fill-path failure
-    lines = [
-        f"  {tag} fills-today: {placed} placed (LIVE), {filled} filled  across {len(ARMS)} arms",
-        "        (DRY_RUN intents are NOT counted as placed; broker position = fill truth)",
-    ]
+def _funnel_today(now: dt.datetime) -> tuple[str, list[str]]:
+    """FUNNEL block: ticks -> signals -> ENTER -> attempted -> accepted -> filled
+    -> exited, per account, re-derived from the decision ledgers via fill_funnel.py
+    (core-decisions.jsonl + fleet/<arm>/decisions.jsonl incl. exit_pass fill truth).
+    This is the instrument that retires "is it actually trading?" (OP-33e).
+    Replaces the old FILLS block, which read the dead fleet/decisions/ dir and
+    reported 0 fills on 2026-07-01 while 4 fleet round trips actually happened."""
+    try:
+        import fill_funnel
+        f = fill_funnel.compute_funnel(now.strftime("%Y-%m-%d"), now=now)
+    except Exception as e:  # noqa: BLE001
+        return GRAY, [f"  {GRAY} funnel: fill_funnel unavailable ({type(e).__name__}: {e})"]
+    verdict = f.get("verdict", "?")
+    tag = RED if verdict in ("RED", "DEGRADED") else (GREEN if verdict == "GREEN" else GRAY)
+    lines = [f"  {tag} verdict: {verdict}   (ticks->sig->ENTER->attempt->accept->fill->exit)"]
+    for name, a in f.get("accounts", {}).items():
+        lines.append(f"        {name:<14} {a['ticks']:>4} -> {a['signals']:>3} -> {a['enter']:>2} "
+                     f"-> {a['attempted']:>2} -> {a['accepted']:>2} -> {a['filled']:>2} -> {a['exited']:>2}")
+    t = f.get("totals", {})
+    if t:
+        lines.append(f"        {'TOTAL':<14} {t['ticks']:>4} -> {t['signals']:>3} -> {t['enter']:>2} "
+                     f"-> {t['attempted']:>2} -> {t['accepted']:>2} -> {t['filled']:>2} -> {t['exited']:>2}")
+    for fl in f.get("flags", [])[:4]:
+        lines.append(f"        ! {fl[:100]}")
     return tag, lines
 
 
@@ -247,8 +225,8 @@ def build() -> str:
     out.append("\nENGINE TODAY")
     out.extend(eng_lines)
 
-    fill_tag, fill_lines = _fills_today(now)
-    out.append("\nFILLS")
+    fill_tag, fill_lines = _funnel_today(now)
+    out.append("\nFUNNEL")
     out.extend(fill_lines)
 
     lvl_tag, lvl_lines = _levels()
