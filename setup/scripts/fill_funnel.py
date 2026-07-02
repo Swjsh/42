@@ -22,9 +22,13 @@ Funnel stage definitions (deterministic, no LLM):
   exited     = distinct filled symbols with a placed exit action (SELL_ALL/TP/...)
 
 Verdict rules (shared by self_check + gamma_glance + guard tests):
-  RED       any account with attempted>0 and accepted==0  (placement broken)
-  DEGRADED  any ENTER after the 15:00 ET entry ceiling, or (at/after EOD) a fill
-            with no exit record
+  RED       any account with attempted>0 and accepted==0  (placement broken) --
+            UNLESS every failed attempt carries bracket_err/oto_err, i.e. the
+            retired bracket->oto->simple ladder produced it: the shipped
+            _place_simple_entry code never emits those, so such a day is PROVABLY
+            pre-fix history (DEGRADED "PLACEMENT PRE-FIX ARTIFACT", not a live RED).
+  DEGRADED  any ENTER after the 15:00 ET entry ceiling; a pre-fix retired-ladder
+            placement day; or (at/after EOD) a fill with no exit record
   GREEN     ENTER>0 and none of the above
   IDLE      no ENTER fired (not a fault by itself)
 
@@ -108,7 +112,7 @@ def _acct_funnel(rows: list[dict], kind: str) -> dict:
     """Fold one account's day rows into funnel stages. kind: 'core' | 'fleet'."""
     f = {
         "ticks": len(rows), "signals": 0, "enter": 0, "attempted": 0,
-        "accepted": 0, "filled": 0, "exited": 0,
+        "accepted": 0, "filled": 0, "exited": 0, "retired_ladder_fails": 0,
         "enter_events": [], "place_fail_reasons": [],
         "enters_after_ceiling": [], "open_fills_no_exit": [],
     }
@@ -146,6 +150,15 @@ def _acct_funnel(rows: list[dict], kind: str) -> dict:
             f["accepted"] += 1
         elif attempted:
             f["place_fail_reasons"].append(_fail_reason(broker))
+            # A rejection carrying bracket_err/oto_err was produced by the RETIRED
+            # bracket->oto->simple ladder. The shipped _place_simple_entry path emits
+            # only simple_err/_error (no order_class), so such an attempt is PROVABLY
+            # pre-fix history, not a live fault -- and the code invariant is guarded
+            # build-side (test_money_path_2026_07_01: AST test_no_place_bracket_call_*
+            # + behavioral test_execute_first_and_only_order_call_is_simple_marketable),
+            # so a regression re-adding the ladder REDs at build before it reaches here.
+            if broker.get("bracket_err") or broker.get("oto_err"):
+                f["retired_ladder_fails"] += 1
         # fill evidence on the entry order itself
         sym = ex.get("symbol") or broker.get("symbol")
         try:
@@ -223,11 +236,19 @@ def _evaluate(funnel: dict, now: dt.datetime) -> tuple[list[str], str]:
         now.strftime("%Y-%m-%d") == day and now.strftime("%H:%M") >= EOD_HHMM)
     for name, a in funnel["accounts"].items():
         if a["attempted"] > 0 and a["accepted"] == 0:
-            red = True
             reasons = Counter(a["place_fail_reasons"])
             top = "; ".join(f"{n}x {r[:120]}" for r, n in reasons.most_common(2))
-            flags.append(f"PLACEMENT BROKEN[{name}]: {a['enter']} ENTER, "
-                         f"{a['attempted']} attempted, 0 broker-accepted. Reasons: {top}")
+            if a.get("retired_ladder_fails", 0) == a["attempted"]:
+                # EVERY failed attempt used the retired bracket/oto ladder -> this day is
+                # pre-fix history (current code is simple-first). DEGRADED, not a live RED:
+                # surfaced for J's visibility but does not falsely flag placement dead.
+                flags.append(f"PLACEMENT PRE-FIX ARTIFACT[{name}]: {a['attempted']} attempted via the "
+                             f"retired bracket/oto ladder (current code is simple-first) -- stale pre-fix "
+                             f"decisions, not a live fault. Reasons: {top}")
+            else:
+                red = True
+                flags.append(f"PLACEMENT BROKEN[{name}]: {a['enter']} ENTER, "
+                             f"{a['attempted']} attempted, 0 broker-accepted. Reasons: {top}")
         if a["enters_after_ceiling"]:
             flags.append(f"ENTER AFTER CEILING[{name}]: {len(a['enters_after_ceiling'])} ENTER "
                          f"after {ENTRY_CEILING_HHMM} ET: {a['enters_after_ceiling'][:3]}")

@@ -51,23 +51,67 @@ def _empty_fleet(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# BUILD 1 guard: today's REAL rows -> ENTER=10, accepted=0 -> RED
+# BUILD 1 guard: today's REAL rows -> ENTER=10, accepted=0. FRAME-CORRECTED
+# 2026-07-02: every 2026-07-01 rejection carries bracket_err/oto_err (the retired
+# bracket->oto->simple ladder). The shipped _place_simple_entry code emits only
+# simple_err/_error (guarded build-side: test_money_path_2026_07_01 AST + behavioral),
+# so this day is PROVABLY pre-fix history -> DEGRADED "PLACEMENT PRE-FIX ARTIFACT",
+# NOT a live RED. Leaving it RED left self_check perpetually-BROKEN on stale data,
+# masking a genuine future placement fault (L189/L197).
 # ---------------------------------------------------------------------------
 
-def test_real_day_core_placement_broken_red(tmp_path):
+def test_real_day_core_is_pre_fix_artifact_degraded(tmp_path):
     f = ff.compute_funnel(DAY, core_path=Path(CORE_FIXTURE),
                           fleet_dir=_empty_fleet(tmp_path), now=EOD)
     t = f["totals"]
     assert t["enter"] == 10, f"expected 10 ENTER from today's real rows, got {t['enter']}"
     assert t["attempted"] == 10
     assert t["accepted"] == 0, "0 broker-accepted was today's ground truth"
+    # every failed attempt used the retired ladder -> pre-fix artifact, not live RED
+    for name in ("core:safe", "core:bold"):
+        a = f["accounts"][name]
+        assert a["retired_ladder_fails"] == a["attempted"] > 0, \
+            f"{name}: all 2026-07-01 fails carry bracket_err/oto_err (retired ladder)"
+    assert f["verdict"] != "RED", "a provably pre-fix day must NOT be a live RED"
+    joined = " | ".join(f["flags"])
+    assert "PLACEMENT PRE-FIX ARTIFACT[core:safe]" in joined
+    assert "PLACEMENT PRE-FIX ARTIFACT[core:bold]" in joined
+    assert "PLACEMENT BROKEN" not in joined, "retired-ladder rejections are not a live fault"
+    # PLACE_FAIL reasons must still be surfaced verbatim from the broker response
+    assert "expires soon" in joined or any(
+        "expires soon" in r for a in f["accounts"].values() for r in a["place_fail_reasons"])
+
+
+# ---------------------------------------------------------------------------
+# THE NON-VACUOUS BITE: a GENUINE placement fault (simple order rejected, NO
+# bracket/oto attempt) must STILL fire PLACEMENT BROKEN -> RED. This proves the
+# pre-fix carve-out narrows only the retired-ladder signature, not real faults.
+# ---------------------------------------------------------------------------
+
+def _simple_only_reject_rows(day="2026-07-02"):
+    """An ENTER whose simple-first order was rejected (e.g. buying power / bad limit).
+    No bracket_err/oto_err -> current code produced it -> a live fault."""
+    return [{
+        "ts_et": f"{day}T10:15:02", "account": "safe", "verdict": "ENTER_BEAR",
+        "triggers": ["trendline_rejection"], "reason": "test",
+        "exec": {"status": "PLACE_FAIL", "symbol": "SPY_TEST_P00740000", "qty": 3,
+                 "broker": {"_error": "HTTP Error 403", "simple_err": {
+                     "_status": 403, "_body": {"message": "insufficient buying power"}}}},
+    }]
+
+
+def test_genuine_simple_only_rejection_is_placement_broken_red(tmp_path):
+    core = tmp_path / "core.jsonl"
+    _write_jsonl(core, _simple_only_reject_rows())
+    f = ff.compute_funnel("2026-07-02", core_path=core, fleet_dir=_empty_fleet(tmp_path),
+                          now=dt.datetime(2026, 7, 2, 12, 0))
+    a = f["accounts"]["core:safe"]
+    assert a["attempted"] == 1 and a["accepted"] == 0
+    assert a["retired_ladder_fails"] == 0, "no bracket/oto attempt -> not a retired-ladder day"
     assert f["verdict"] == "RED"
     joined = " | ".join(f["flags"])
     assert "PLACEMENT BROKEN[core:safe]" in joined
-    assert "PLACEMENT BROKEN[core:bold]" in joined
-    # PLACE_FAIL reasons must be verbatim from the broker response
-    assert "expires soon" in joined or any(
-        "expires soon" in r for a in f["accounts"].values() for r in a["place_fail_reasons"])
+    assert "insufficient buying power" in joined
 
 
 def test_real_day_enter_after_ceiling_flagged(tmp_path):
@@ -159,14 +203,29 @@ def test_idle_day_is_not_a_fault(tmp_path):
 # self_check wiring: PLACEMENT BROKEN must classify as BROKEN
 # ---------------------------------------------------------------------------
 
-def test_self_check_flags_placement_broken_as_broken(tmp_path):
+def test_self_check_pre_fix_artifact_not_broken(tmp_path):
+    # FRAME-CORRECTED 2026-07-02: today's real rows are a provable pre-fix
+    # retired-ladder day -> self_check must surface them (DEGRADED) but NOT flag
+    # BROKEN (which would keep self_check perpetually-RED on immutable stale data).
     problems = sc.check_fill_funnel(EOD, core_path=Path(CORE_FIXTURE),
                                     fleet_dir=_empty_fleet(tmp_path))
-    assert problems, "today's real rows must produce fill-funnel problems"
+    assert problems, "today's real rows must still surface fill-funnel problems"
+    joined = " | ".join(problems)
+    assert "PRE-FIX ARTIFACT" in joined, "retired-ladder day must be surfaced as a pre-fix artifact"
+    assert "PLACEMENT BROKEN" not in joined
+    assert not any(sc._problem_is_broken(p) for p in problems), \
+        "a provably pre-fix day must NOT map to the BROKEN verdict"
+
+
+def test_self_check_genuine_placement_fault_is_broken(tmp_path):
+    # THE BITE: a real simple-first rejection (no bracket/oto) must map to BROKEN.
+    core = tmp_path / "core.jsonl"
+    _write_jsonl(core, _simple_only_reject_rows(day=DAY))
+    problems = sc.check_fill_funnel(EOD, core_path=core, fleet_dir=_empty_fleet(tmp_path))
     joined = " | ".join(problems)
     assert "PLACEMENT BROKEN" in joined
     assert any(sc._problem_is_broken(p) for p in problems), \
-        "PLACEMENT BROKEN must map to the BROKEN verdict (not merely DEGRADED)"
+        "a genuine simple-first placement fault must map to the BROKEN verdict"
 
 
 def test_self_check_healthy_day_silent(tmp_path):
