@@ -236,6 +236,42 @@ def check_level_integrity(path=None) -> list:
     return out
 
 
+def check_dress_rehearsal(now, path=None) -> list:
+    """Nightly REAL-broker dress-rehearsal reader (dress_rehearsal.py via Gamma_DressRehearsal
+    ~20:45 ET) — the "are we good for tomorrow" instrument. J's pain class: green-lit in the
+    evening, fails at the open. BROKEN when the latest rehearsal's overall verdict is RED, or
+    when it is >24h old on a weekday evening (the task silently died). INCONCLUSIVE surfaces
+    as DEGRADED (after-hours unprovable is NOT a green light). Fail-open outside the weekday-
+    evening window when the artifact is missing."""
+    p = path or (STATE / "dress-rehearsal.json")
+    weekday_evening = now.weekday() < 5 and now.strftime("%H:%M") >= "21:00"
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        if weekday_evening:
+            return ["DRESS-REHEARSAL MISSING (RED): no broker-boundary rehearsal artifact on a "
+                    "weekday evening -- tomorrow's open is UNPROVEN. Run setup/scripts/dress_rehearsal.py."]
+        return []
+    out: list = []
+    overall = str(d.get("overall", "RED"))
+    ran = str(d.get("ran_at_et", ""))
+    age_h = None
+    try:
+        age_h = (now - dt.datetime.strptime(ran, "%Y-%m-%dT%H:%M:%S")).total_seconds() / 3600.0
+    except ValueError:
+        pass
+    if overall == "RED":
+        out.append(f"DRESS-REHEARSAL RED: broker-boundary rehearsal at {ran} FAILED -- see "
+                   f"automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.")
+    elif overall.startswith("INCONCLUSIVE"):
+        out.append(f"DRESS-REHEARSAL INCONCLUSIVE at {ran}: a broker-boundary check could not be "
+                   f"proven after hours -- do NOT treat tomorrow as green-lit.")
+    if weekday_evening and (age_h is None or age_h > 24):
+        out.append(f"DRESS-REHEARSAL STALE (RED): last rehearsal '{ran}' is >24h old on a weekday "
+                   f"evening -- Gamma_DressRehearsal likely not firing.")
+    return out
+
+
 def _problem_is_broken(p: str) -> bool:
     """BROKEN (vs DEGRADED) classifier for a problem string. Module-level so the
     graduated guards can assert the mapping (e.g. PLACEMENT BROKEN -> BROKEN)."""
@@ -295,7 +331,10 @@ def run() -> dict:
     # 8. FILL FUNNEL (content) -- placement broken / late ENTER / fill-without-exit
     problems.extend(check_fill_funnel(now))
 
-    # 9. loop-state tick truth -- keep the legacy artifact honest for its readers
+    # 9. NIGHTLY DRESS REHEARSAL (real broker boundary) -- "are we good for tomorrow" reader
+    problems.extend(check_dress_rehearsal(now))
+
+    # 10. loop-state tick truth -- keep the legacy artifact honest for its readers
     # (dashboard, companion, EOD prompts). Fail-open; a failure is a note, not a raise.
     try:
         import loop_state_refresh
