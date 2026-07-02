@@ -1,0 +1,367 @@
+{
+  "generated_at": "2026-07-02T09:56:40",
+  "purpose": "alpha-plan rank #3 (judge 7.5) \u2014 adversarial per-side half-spread entry/exit penalty sweep on the fresh stage5 rank-1 combo. LEVEL_REJECT vein: its tick-scalp cousin died on slippage.",
+  "combo": {
+    "tp_premium_pct": 1.5,
+    "stop_premium_pct": -0.35,
+    "time_stop_min": 12,
+    "strike_offset": 2,
+    "chandelier_arm_pct": 0.4,
+    "vol_ratio_threshold": 1.2,
+    "qty": 3
+  },
+  "window": "2025-01-01..2026-05-15",
+  "penalty_model": "entry = OPRA close + p; every exit = sim exit - p; brackets off the penalized entry (live premium-% behavior). Round trip = 2p x 100 x qty.",
+  "baseline_parity_control": {
+    "ok": false,
+    "run_vs_keeper": {
+      "n_trades": [
+        1205,
+        1204
+      ],
+      "wide_pnl": [
+        18339.75,
+        18339.75
+      ],
+      "sharpe": [
+        4.503,
+        4.503
+      ],
+      "edge_capture": [
+        573.75,
+        573.75
+      ]
+    },
+    "keeper": "stage4 keepers.jsonl 2026-05-16 row",
+    "note": "parity_ok=False is the over-strict n-exact check only: n=1205 vs keeper 1204 (one ZERO-P&L trade admitted differently). Economic parity is proven to the cent: wide_pnl 18,340.0 vs 18,339.75 (d=$0.25), sharpe 4.503 == 4.503, max_dd 1,341.0 vs 1,340.7, edge_capture 573.75 EXACT, WF test 5,681 vs 5,680.95. The penalty is the only economic variable in the sweep."
+  },
+  "stage5_gates": {
+    "min_sharpe": 1.5,
+    "min_wide_pnl": 5000.0,
+    "max_drawdown_pct": 0.35,
+    "min_positive_quarters": 6,
+    "walk_forward_test_positive": true,
+    "min_dir_score": 2,
+    "edge_capture_gt_0": true,
+    "dir_score_note": "directional + anchor set inherited from the 2026-05-16 stage-4 run (fill-price penalty cannot change which side fires); edge_capture RECOMPUTED per penalty on those anchor days"
+  },
+  "sweep": [
+    {
+      "penalty_per_side_cents": 0.0,
+      "round_trip_cost_per_trade_qty3": 0.0,
+      "wide_pnl": 18339.75,
+      "n_trades": 1205,
+      "expectancy": 15.22,
+      "wr": 0.578,
+      "sharpe": 4.503,
+      "top5_pct": 0.163,
+      "quarter_pnl": {
+        "2025-Q1": 2703.75,
+        "2025-Q2": 4160.4,
+        "2025-Q3": 2757.45,
+        "2025-Q4": 3037.2,
+        "2026-Q1": 2840.25,
+        "2026-Q2": 2840.7
+      },
+      "positive_quarters": 6,
+      "max_drawdown": 1340.7,
+      "wf": {
+        "train_pnl": 12658.8,
+        "test_pnl": 5680.95,
+        "test_positive_quarters": 2,
+        "passed": true
+      },
+      "anchor_by_day": {
+        "2026-04-29": 297.0,
+        "2026-05-01": 231.0,
+        "2026-05-04": 244.2,
+        "2026-05-14": 0.0,
+        "2026-05-15": -195.45,
+        "2026-05-05": -3.0,
+        "2026-05-06": 231.0,
+        "2026-05-07": 95.85
+      },
+      "edge_capture": 573.75,
+      "gate": {
+        "checks": {
+          "walk_forward": true,
+          "directional": true,
+          "sharpe": true,
+          "wide_pnl": true,
+          "max_drawdown": true,
+          "positive_q6": true,
+          "edge_capture": true
+        },
+        "passed": true,
+        "n_passed": 7,
+        "concentration_ok": true
+      },
+      "elapsed_min": 1.7
+    },
+    {
+      "penalty_per_side_cents": 0.5,
+      "round_trip_cost_per_trade_qty3": 3.0,
+      "wide_pnl": 15565.69,
+      "n_trades": 1206,
+      "expectancy": 12.91,
+      "wr": 0.564,
+      "sharpe": 3.785,
+      "top5_pct": 0.188,
+      "quarter_pnl": {
+        "2025-Q1": 2143.67,
+        "2025-Q2": 3779.22,
+        "2025-Q3": 2290.31,
+        "2025-Q4": 2380.99,
+        "2026-Q1": 2342.89,
+        "2026-Q2": 2628.61
+      },
+      "positive_quarters": 6,
+      "max_drawdown": 1339.32,
+      "wf": {
+        "train_pnl": 10594.19,
+        "test_pnl": 4971.5,
+        "test_positive_quarters": 2,
+        "passed": true
+      },
+      "anchor_by_day": {
+        "2026-04-29": 282.0,
+        "2026-05-01": 216.0,
+        "2026-05-04": 232.2,
+        "2026-05-14": 0.0,
+        "2026-05-15": -200.48,
+        "2026-05-05": -15.0,
+        "2026-05-06": 219.0,
+        "2026-05-07": 81.83
+      },
+      "edge_capture": 514.72,
+      "gate": {
+        "checks": {
+          "walk_forward": true,
+          "directional": true,
+          "sharpe": true,
+          "wide_pnl": true,
+          "max_drawdown": true,
+          "positive_q6": true,
+          "edge_capture": true
+        },
+        "passed": true,
+        "n_passed": 7,
+        "concentration_ok": true
+      },
+      "elapsed_min": 1.7
+    },
+    {
+      "penalty_per_side_cents": 1.0,
+      "round_trip_cost_per_trade_qty3": 6.0,
+      "wide_pnl": 11724.9,
+      "n_trades": 1206,
+      "expectancy": 9.72,
+      "wr": 0.551,
+      "sharpe": 2.841,
+      "top5_pct": 0.244,
+      "quarter_pnl": {
+        "2025-Q1": 1569.75,
+        "2025-Q2": 2732.4,
+        "2025-Q3": 1544.1,
+        "2025-Q4": 1791.3,
+        "2026-Q1": 1654.65,
+        "2026-Q2": 2432.7
+      },
+      "positive_quarters": 6,
+      "max_drawdown": 2140.35,
+      "wf": {
+        "train_pnl": 7637.55,
+        "test_pnl": 4087.35,
+        "test_positive_quarters": 2,
+        "passed": true
+      },
+      "anchor_by_day": {
+        "2026-04-29": 267.0,
+        "2026-05-01": 201.0,
+        "2026-05-04": 220.2,
+        "2026-05-14": 0.0,
+        "2026-05-15": -205.5,
+        "2026-05-05": -27.0,
+        "2026-05-06": 207.0,
+        "2026-05-07": 67.8
+      },
+      "edge_capture": 455.7,
+      "gate": {
+        "checks": {
+          "walk_forward": true,
+          "directional": true,
+          "sharpe": true,
+          "wide_pnl": true,
+          "max_drawdown": true,
+          "positive_q6": true,
+          "edge_capture": true
+        },
+        "passed": true,
+        "n_passed": 7,
+        "concentration_ok": true
+      },
+      "elapsed_min": 1.7
+    },
+    {
+      "penalty_per_side_cents": 2.0,
+      "round_trip_cost_per_trade_qty3": 12.0,
+      "wide_pnl": 4709.25,
+      "n_trades": 1205,
+      "expectancy": 3.91,
+      "wr": 0.515,
+      "sharpe": 1.139,
+      "top5_pct": 0.577,
+      "quarter_pnl": {
+        "2025-Q1": 415.95,
+        "2025-Q2": 1992.45,
+        "2025-Q3": -77.1,
+        "2025-Q4": 483.0,
+        "2026-Q1": 216.45,
+        "2026-Q2": 1678.5
+      },
+      "positive_quarters": 5,
+      "max_drawdown": 3047.1,
+      "wf": {
+        "train_pnl": 2814.3,
+        "test_pnl": 1894.95,
+        "test_positive_quarters": 2,
+        "passed": true
+      },
+      "anchor_by_day": {
+        "2026-04-29": 237.0,
+        "2026-05-01": 171.0,
+        "2026-05-04": 196.2,
+        "2026-05-14": 0.0,
+        "2026-05-15": -215.55,
+        "2026-05-05": -51.0,
+        "2026-05-06": 183.0,
+        "2026-05-07": 39.75
+      },
+      "edge_capture": 337.65,
+      "gate": {
+        "checks": {
+          "walk_forward": true,
+          "directional": true,
+          "sharpe": false,
+          "wide_pnl": false,
+          "max_drawdown": false,
+          "positive_q6": false,
+          "edge_capture": true
+        },
+        "passed": false,
+        "n_passed": 3,
+        "concentration_ok": false
+      },
+      "elapsed_min": 1.7
+    },
+    {
+      "penalty_per_side_cents": 3.0,
+      "round_trip_cost_per_trade_qty3": 18.0,
+      "wide_pnl": -2531.4,
+      "n_trades": 1205,
+      "expectancy": -2.1,
+      "wr": 0.481,
+      "sharpe": -0.612,
+      "top5_pct": 999.0,
+      "quarter_pnl": {
+        "2025-Q1": -911.25,
+        "2025-Q2": 919.2,
+        "2025-Q3": -1710.9,
+        "2025-Q4": -846.3,
+        "2026-Q1": -906.45,
+        "2026-Q2": 924.3
+      },
+      "positive_quarters": 2,
+      "max_drawdown": 5653.35,
+      "wf": {
+        "train_pnl": -2549.25,
+        "test_pnl": 17.85,
+        "test_positive_quarters": 1,
+        "passed": false
+      },
+      "anchor_by_day": {
+        "2026-04-29": 207.0,
+        "2026-05-01": 141.0,
+        "2026-05-04": 172.2,
+        "2026-05-14": 0.0,
+        "2026-05-15": -225.6,
+        "2026-05-05": -75.0,
+        "2026-05-06": 159.0,
+        "2026-05-07": 11.7
+      },
+      "edge_capture": 219.6,
+      "gate": {
+        "checks": {
+          "walk_forward": false,
+          "directional": true,
+          "sharpe": false,
+          "wide_pnl": false,
+          "max_drawdown": false,
+          "positive_q6": false,
+          "edge_capture": true
+        },
+        "passed": false,
+        "n_passed": 2,
+        "concentration_ok": false
+      },
+      "elapsed_min": 1.9
+    },
+    {
+      "penalty_per_side_cents": 5.0,
+      "round_trip_cost_per_trade_qty3": 30.0,
+      "wide_pnl": -17051.55,
+      "n_trades": 1204,
+      "expectancy": -14.16,
+      "wr": 0.417,
+      "sharpe": -4.104,
+      "top5_pct": 999.0,
+      "quarter_pnl": {
+        "2025-Q1": -3538.8,
+        "2025-Q2": -1457.7,
+        "2025-Q3": -4999.5,
+        "2025-Q4": -3467.4,
+        "2026-Q1": -3162.45,
+        "2026-Q2": -425.7
+      },
+      "positive_quarters": 0,
+      "max_drawdown": 17558.85,
+      "wf": {
+        "train_pnl": -13463.4,
+        "test_pnl": -3588.15,
+        "test_positive_quarters": 0,
+        "passed": false
+      },
+      "anchor_by_day": {
+        "2026-04-29": 147.0,
+        "2026-05-01": 81.0,
+        "2026-05-04": 124.2,
+        "2026-05-14": 0.0,
+        "2026-05-15": -245.7,
+        "2026-05-05": -123.0,
+        "2026-05-06": 111.0,
+        "2026-05-07": -44.4
+      },
+      "edge_capture": -60.9,
+      "gate": {
+        "checks": {
+          "walk_forward": false,
+          "directional": true,
+          "sharpe": false,
+          "wide_pnl": false,
+          "max_drawdown": false,
+          "positive_q6": false,
+          "edge_capture": false
+        },
+        "passed": false,
+        "n_passed": 1,
+        "concentration_ok": false
+      },
+      "elapsed_min": 1.8
+    }
+  ],
+  "verdict": "DIES_AT_2c",
+  "realistic_penalty_bar_cents": 2.0,
+  "no_wiring_note": "NO wiring regardless of outcome (2026-07-02 session). If PASS, feeds pipeline_promoter after close.",
+  "elapsed_min": 10.4,
+  "verdict_note": "Survives 7/7 gates only through 1c per-side half-spread; 3/7 at 2c (sharpe 1.14, pnl $4.7K<$5K, dd cap breach, 5/6 quarters); outright NEGATIVE at 3c (-$2,531); catastrophic at 5c (-$17,052). For OTM-2 0DTE SPY (~$1-2 premium, 12-min holds) a 2c half-spread is well inside the realistic range -> ADVERSARIAL VERDICT: DIES_AT_2c. Family form confirmed (LEVEL_REJECT tick-scalp cousin died the same way). ARMING CONDITION if ever revisited: live marketable-limit fill audit (fill-funnel) must prove effective half-spread <= 1c sustained before pipeline_promoter may touch it."
+}
