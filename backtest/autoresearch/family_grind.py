@@ -52,6 +52,7 @@ for _p in (str(_REPO), str(_ROOT)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
+from lib.et_frame import DEFAULT_FRAME                        # noqa: E402 — DST frame conventions
 from lib.simulator_real import simulate_trade_real            # noqa: E402 — real OPRA fills (C1)
 from autoresearch.null_baseline import (  # noqa: E402 — C3/L58/L171/L188
     random_entry_null, null_gate, _eligible_indices, _swing_invalidation)
@@ -161,10 +162,12 @@ def _exit_kwargs(tp1: float, tq: float, trail: Optional[float]) -> dict:
     )
 
 
-def sim_cell(rth, signals, so: int, stop: float, tp1=0.30, tq=0.667, trail=None):
+def sim_cell(rth, signals, so: int, stop: float, tp1=0.30, tq=0.667, trail=None,
+             frame: str = DEFAULT_FRAME):
     """Run simulate_trade_real over all signals for one (strike, stop, exit) cell.
     Each signal carries its own side + bar_idx + swing rejection_level. Returns (fills, metrics).
-    no_data (uncached strike) fills are skipped + counted, never faked (anti-pattern, honest n)."""
+    no_data (uncached strike) fills are skipped + counted, never faked (anti-pattern, honest n).
+    frame MUST match the convention rth was built with (build_rth's frame arg)."""
     ek = _exit_kwargs(tp1, tq, trail)
     fills, no_data = [], 0
     for s in signals:
@@ -172,7 +175,7 @@ def sim_cell(rth, signals, so: int, stop: float, tp1=0.30, tq=0.667, trail=None)
             entry_bar_idx=s["bar_idx"], entry_bar=rth.iloc[s["bar_idx"]], spy_df=rth,
             ribbon_df=None, rejection_level=s["rejection_level"],
             triggers_fired=[s["family"]], side=s["side"], qty=QTY, setup=s["family"].upper(),
-            premium_stop_pct=stop, strike_offset=so, **ek)
+            premium_stop_pct=stop, strike_offset=so, frame=frame, **ek)
         if f is None:
             no_data += 1
             continue
@@ -196,7 +199,8 @@ def candidate_bar(m: dict) -> tuple[bool, list[str]]:
     return (not reasons), reasons
 
 
-def _run_null(rth, fills, so: int, stop: float, tp1, tq, trail, window) -> dict:
+def _run_null(rth, fills, so: int, stop: float, tp1, tq, trail, window,
+              frame: str = DEFAULT_FRAME) -> dict:
     """Random-entry null with the cell's MATCHING exit bracket (isolates entry timing, not
     the exit structure — stricter than the stock funnel null which uses the default bracket)."""
     n_call = sum(1 for f in fills if f.side == "C")
@@ -208,7 +212,7 @@ def _run_null(rth, fills, so: int, stop: float, tp1, tq, trail, window) -> dict:
     top5 = {d for d, _ in sorted(by_day.items(), key=lambda kv: kv[1], reverse=True)[:5]}
     kept = [f for f in fills if _tdate(f) not in top5]
     drop5 = (sum(float(f.dollar_pnl) for f in kept) / len(kept)) if kept else 0.0
-    sim_fn = functools.partial(simulate_trade_real, **_exit_kwargs(tp1, tq, trail))
+    sim_fn = functools.partial(simulate_trade_real, frame=frame, **_exit_kwargs(tp1, tq, trail))
     null = random_entry_null(
         rth, n_signals=len(fills), n_call=n_call, n_put=n_put,
         strike_offset=so, premium_stop_pct=stop, seeds=N_NULL_SEEDS,
@@ -270,7 +274,8 @@ def p5_verdict(p4_verdict: str, family_directional: bool, dir_null: Optional[dic
 
 
 def _dir_null(rth, fills, so: int, stop: float, tp1, tq, trail, window,
-              drop_top5: float, seeds: int = N_DIR_NULL_SEEDS) -> dict:
+              drop_top5: float, seeds: int = N_DIR_NULL_SEEDS,
+              frame: str = DEFAULT_FRAME) -> dict:
     """Direction-controlled null (L188): random eligible bars, side = the random bar's OWN
     direction (call if up-bar, put if down-bar) = a momentum-aware random entry. Causal swing
     stop geometry matches the signal's (same _swing_invalidation as the stock null)."""
@@ -289,7 +294,8 @@ def _dir_null(rth, fills, so: int, stop: float, tp1, tq, trail, window,
             f = simulate_trade_real(
                 entry_bar_idx=idx, entry_bar=rth.iloc[idx], spy_df=rth, ribbon_df=None,
                 rejection_level=round(float(rej), 2), triggers_fired=["dir_null"], side=side,
-                qty=QTY, setup="DIR_NULL", premium_stop_pct=stop, strike_offset=so, **ek)
+                qty=QTY, setup="DIR_NULL", premium_stop_pct=stop, strike_offset=so,
+                frame=frame, **ek)
             if f is None:
                 continue
             pnl += float(f.dollar_pnl); nn += 1
@@ -308,8 +314,11 @@ def _dir_null(rth, fills, so: int, stop: float, tp1, tq, trail, window,
     }
 
 
-def run_family(rth, family: str, signals: list, log=print) -> dict:
-    """Full pipeline for one family. Writes progress + funnel + consolidation JSONLs."""
+def run_family(rth, family: str, signals: list, log=print,
+               frame: str = DEFAULT_FRAME) -> dict:
+    """Full pipeline for one family. Writes progress + funnel + consolidation JSONLs.
+    frame MUST match the convention rth was built with (build_rth's frame arg);
+    it is threaded to every simulate_trade_real so the OPRA join stays consistent."""
     prog = _RECO / f"mass-grind-{family}-progress.jsonl"
     funnel = _RECO / f"mass-grind-{family}-funnel.jsonl"
     prog.write_text("", encoding="utf-8")     # fresh run
@@ -323,7 +332,7 @@ def run_family(rth, family: str, signals: list, log=print) -> dict:
     p1: list[dict] = []
     for sk, so in STRIKES.items():
         for stp, sv in STOPS.items():
-            fills, m = sim_cell(rth, signals, so, sv)
+            fills, m = sim_cell(rth, signals, so, sv, frame=frame)
             cb, reasons = candidate_bar(m)
             qf = qty_realizability(fills) if (m.get("n", 0) >= 20) else {}
             row = {"family": family, "phase": 1, "cell": f"{sk}|stop{stp}",
@@ -346,7 +355,7 @@ def run_family(rth, family: str, signals: list, log=print) -> dict:
         for tp1 in EXIT_TP1:
             for tq in EXIT_TQ:
                 for trail in EXIT_TRAIL:
-                    fills, m = sim_cell(rth, signals, so, sv, tp1, tq, trail)
+                    fills, m = sim_cell(rth, signals, so, sv, tp1, tq, trail, frame=frame)
                     cb, reasons = candidate_bar(m)
                     qf = qty_realizability(fills) if (m.get("n", 0) >= 20) else {}
                     row = {"family": family, "phase": 2, "cell": base["cell"],
@@ -379,13 +388,13 @@ def run_family(rth, family: str, signals: list, log=print) -> dict:
         if pass_p3:
             p3_survivors += 1
             null = _run_null(rth, row["_fills"], row["strike_offset"], row["stop_pct"],
-                             row["tp1"], row["tq"], row["trail"], window)
+                             row["tp1"], row["tq"], row["trail"], window, frame=frame)
             verdict = "PASS-P4" if null["null_pass"] else "PASS-P3"
             # ── P5 (L188): a directional family must ALSO beat the direction-controlled null
             if verdict == "PASS-P4" and family_directional:
                 dir_null = _dir_null(rth, row["_fills"], row["strike_offset"], row["stop_pct"],
                                      row["tp1"], row["tq"], row["trail"], window,
-                                     null["drop_top5_per_trade"])
+                                     null["drop_top5_per_trade"], frame=frame)
                 verdict = p5_verdict("PASS-P4", family_directional, dir_null)
         elif pass_p2:
             verdict = "PASS-P2"

@@ -36,6 +36,27 @@ DATA = REPO / "data"
 
 SPY_URL = "https://data.alpaca.markets/v2/stocks/SPY/bars"
 
+# DST FIX 2026-07-02 (markdown/audits/DST-FRAME-AUDIT-2026-07-02.md): this writer
+# used to do `ts_utc - timedelta(hours=4)` + a hardcoded "-04:00" suffix — UTC
+# instant correct, offset LABEL wrong for EST months (Nov-Mar). Every naive
+# (wall-time) parse downstream inherited a +1h winter shift that clipped the last
+# true trading hour from RTH slices. New rows now carry the REAL per-row offset
+# (like the VIX writer below always did). Historical master CSVs keep the legacy
+# fixed offset — consumers normalize via lib/et_frame.py (UTC instants are
+# correct either way).
+_ET_TZINFO = None  # lazy zoneinfo handle
+
+
+def utc_iso_to_et_string(ts_iso_z: str) -> str:
+    """Alpaca UTC bar time (e.g. '2025-01-07T14:30:00Z') -> DST-correct ET string
+    with the real offset ('2025-01-07 09:30:00-0500')."""
+    global _ET_TZINFO
+    if _ET_TZINFO is None:
+        from zoneinfo import ZoneInfo
+        _ET_TZINFO = ZoneInfo("America/New_York")
+    ts_utc = dt.datetime.fromisoformat(ts_iso_z.replace("Z", "+00:00"))
+    return ts_utc.astimezone(_ET_TZINFO).strftime("%Y-%m-%d %H:%M:%S%z")
+
 
 def _month_windows(start: dt.date, end: dt.date) -> Iterator[tuple[dt.date, dt.date]]:
     """Yield (start, end) pairs broken into ~30-day chunks (Alpaca paging is fine
@@ -78,11 +99,9 @@ def fetch_spy_window(
             return rows
         bars = data.get("bars", []) or []
         for b in bars:
-            ts_utc = dt.datetime.fromisoformat(b["t"].replace("Z", "+00:00"))
-            ts_et = ts_utc - dt.timedelta(hours=4)
             rows.append(
                 {
-                    "timestamp_et": ts_et.strftime("%Y-%m-%d %H:%M:%S-04:00"),
+                    "timestamp_et": utc_iso_to_et_string(b["t"]),
                     "open": b["o"],
                     "high": b["h"],
                     "low": b["l"],

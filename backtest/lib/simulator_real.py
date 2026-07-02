@@ -37,6 +37,7 @@ from typing import Optional
 
 import pandas as pd
 
+from .et_frame import DEFAULT_FRAME, ET_TZ, FRAME_ET_V2, parse_timestamp_et
 from .option_pricing_real import (
     OptionBar,
     bar_at_or_after,
@@ -56,6 +57,27 @@ from .simulator import (
     ExitReason,
     TradeFill,
 )
+
+
+def _naive_in_frame(ts, frame: str = DEFAULT_FRAME):
+    """Scalar timestamp -> tz-naive Python datetime in the requested et_frame.
+
+    wall-v1: strip the attached offset in place (legacy wall time).
+    et-v2:   convert to America/New_York first, then strip (true ET).
+    Naive input passes through under both frames (already normalized upstream,
+    e.g. by build_rth)."""
+    if hasattr(ts, "tz_localize"):  # pandas Timestamp
+        if ts.tz is not None:
+            if frame == FRAME_ET_V2:
+                ts = ts.tz_convert(ET_TZ)
+            ts = ts.tz_localize(None)
+        return ts.to_pydatetime()
+    if hasattr(ts, "tzinfo") and ts.tzinfo is not None:  # stdlib datetime
+        if frame == FRAME_ET_V2:
+            from zoneinfo import ZoneInfo
+            ts = ts.astimezone(ZoneInfo(ET_TZ))
+        return ts.replace(tzinfo=None)
+    return ts
 
 
 def _strike_from_spot(spot: float) -> int:
@@ -336,6 +358,14 @@ def simulate_trade_real(
     # re-typed here.
     cap_equity: Optional[float] = None,
     cap_params: Optional[dict] = None,
+    # --- DST FRAME (2026-07-02, markdown/audits/DST-FRAME-AUDIT-2026-07-02.md) ---
+    # Timestamp convention of the INCOMING spy_df, threaded to the OPRA option-bar
+    # normalization so the join stays frame-consistent (SPY master + OPRA cache share
+    # the same fixed -04:00 storage; same-frame joins hit the same UTC instants).
+    # "wall-v1" (default) = legacy wall-time, byte-for-byte identical to prior
+    # behavior. "et-v2" = DST-correct true ET — pass it when spy_df was built with
+    # build_rth(frame="et-v2"). NEVER mix frames across this call.
+    frame: str = DEFAULT_FRAME,
 ) -> Optional[TradeFill]:
     """Simulate a bracket trade with real option fills.
 
@@ -353,14 +383,10 @@ def simulate_trade_real(
     Returns None if the option contract bars aren't cached (caller should fall back
     to BS simulator or skip the trade and report).
     """
-    entry_time = entry_bar["timestamp_et"]
-    # Normalize to TZ-naive Python datetime (the SPY CSV is TZ-aware -04:00)
-    if hasattr(entry_time, "tz_localize"):
-        if entry_time.tz is not None:
-            entry_time = entry_time.tz_localize(None)
-        entry_time = entry_time.to_pydatetime()
-    elif hasattr(entry_time, "tzinfo") and entry_time.tzinfo is not None:
-        entry_time = entry_time.replace(tzinfo=None)
+    # Normalize to TZ-naive Python datetime in the requested frame (the SPY CSV
+    # stores a fixed -04:00 offset; wall-v1 strips it in place, et-v2 converts
+    # to true ET first).
+    entry_time = _naive_in_frame(entry_bar["timestamp_et"], frame)
 
     entry_spot = float(entry_bar["close"])
     if strike_override is not None:
@@ -380,10 +406,11 @@ def simulate_trade_real(
     if opt_df is None:
         return None  # not cached — caller decides what to do
 
-    # Normalize option bars to TZ-naive too
+    # Normalize option bars to TZ-naive in the SAME frame as spy_df (frame-consistent
+    # join: both files store fixed -04:00, so same-frame naive comparisons hit the
+    # same UTC instants; mixed frames would misalign EST months by 1h).
     opt_df = opt_df.copy()
-    if opt_df["timestamp_et"].dt.tz is not None:
-        opt_df["timestamp_et"] = opt_df["timestamp_et"].dt.tz_localize(None)
+    opt_df["timestamp_et"] = parse_timestamp_et(opt_df["timestamp_et"], frame)
 
     # Entry: NEXT bar after the trigger bar (no look-ahead).
     # Trigger bar timestamp = bar START. Trigger fires at bar CLOSE.
@@ -502,13 +529,7 @@ def simulate_trade_real(
 
     while opt_idx < len(opt_df) and spy_idx < len(spy_df):
         spy_bar = spy_df.iloc[spy_idx]
-        spy_time = spy_bar["timestamp_et"]
-        if hasattr(spy_time, "tz_localize"):
-            if spy_time.tz is not None:
-                spy_time = spy_time.tz_localize(None)
-            spy_time = spy_time.to_pydatetime()
-        elif hasattr(spy_time, "tzinfo") and spy_time.tzinfo is not None:
-            spy_time = spy_time.replace(tzinfo=None)
+        spy_time = _naive_in_frame(spy_bar["timestamp_et"], frame)
         opt_bar = quote_at_index(opt_df, opt_idx)
         if opt_bar is None:
             opt_idx += 1
@@ -860,12 +881,8 @@ def simulate_trade_real(
         fill.dollar_pnl / (entry_premium * qty * 100.0) if entry_premium > 0 else 0.0
     )
     if fill.runner_exit_time_et:
-        exit_t = fill.runner_exit_time_et
         # Normalize to tz-naive (entry_time was already normalized to tz-naive above)
-        if hasattr(exit_t, "tz_localize") and exit_t.tz is not None:
-            exit_t = exit_t.tz_localize(None).to_pydatetime()
-        elif hasattr(exit_t, "tzinfo") and exit_t.tzinfo is not None:
-            exit_t = exit_t.replace(tzinfo=None)
+        exit_t = _naive_in_frame(fill.runner_exit_time_et, frame)
         delta_min = (exit_t - entry_time).total_seconds() / 60.0
         fill.hold_minutes = int(round(delta_min))
         fill.bars_held = int(round(delta_min / 5.0))

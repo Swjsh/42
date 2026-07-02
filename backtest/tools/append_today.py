@@ -123,10 +123,16 @@ def append_symbol(
 
     existing = pd.read_csv(latest)
     combined = pd.concat([existing, new_bars], ignore_index=True)
-    # Dedupe on timestamp_et (keep last — newer fetch wins on collision)
-    combined["timestamp_et"] = pd.to_datetime(combined["timestamp_et"])
-    combined = combined.drop_duplicates(subset=["timestamp_et"], keep="last")
-    combined = combined.sort_values("timestamp_et").reset_index(drop=True)
+    # Dedupe on the UTC INSTANT (keep last — newer fetch wins on collision).
+    # utc=True is required: legacy master rows carry a fixed -04:00 offset while
+    # fresh yfinance rows carry the real per-row offset (-0500 in EST months), and
+    # pandas refuses mixed offsets without it (DST fix 2026-07-02, see
+    # markdown/audits/DST-FRAME-AUDIT-2026-07-02.md). Original timestamp strings
+    # are preserved per row — this only parses a scratch column for dedupe/sort.
+    combined["_ts_utc"] = pd.to_datetime(combined["timestamp_et"], utc=True)
+    combined = combined.drop_duplicates(subset=["_ts_utc"], keep="last")
+    combined = combined.sort_values("_ts_utc").reset_index(drop=True)
+    combined = combined.drop(columns=["_ts_utc"])
     combined["timestamp_et"] = combined["timestamp_et"].astype(str)
 
     new_end = today

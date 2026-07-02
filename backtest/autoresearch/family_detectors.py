@@ -48,6 +48,7 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
 from autoresearch.null_baseline import _swing_invalidation  # noqa: E402 — shared stop geometry
+from lib.et_frame import DEFAULT_FRAME, parse_timestamp_et  # noqa: E402 — DST frame conventions
 
 # ── shared windows / params ──────────────────────────────────────────────────
 RTH_OPEN = dt.time(9, 30)
@@ -61,13 +62,18 @@ SIDE_PUT = "P"
 
 
 # ── frame prep ───────────────────────────────────────────────────────────────
-def build_rth(spy: pd.DataFrame) -> pd.DataFrame:
+def build_rth(spy: pd.DataFrame, frame: str = DEFAULT_FRAME) -> pd.DataFrame:
     """RTH-only frame with a reset RangeIndex + tz-naive timestamp_et + a `date` column.
-    Positional index == the bar_idx every detector emits and simulate_trade_real consumes."""
+    Positional index == the bar_idx every detector emits and simulate_trade_real consumes.
+
+    frame: lib.et_frame convention. "wall-v1" (default, legacy) keeps the stored
+    fixed -04:00 wall time — EST-month sessions are +1h-labeled and lose the last
+    true trading hour to the RTH slice. "et-v2" is DST-correct true ET. Callers
+    passing "et-v2" MUST also pass frame="et-v2" to simulate_trade_real so the
+    OPRA option-bar join stays frame-consistent (same-frame joins hit the same
+    UTC instants; mixed joins misalign winter by 1h)."""
     df = spy.copy()
-    ts = pd.to_datetime(df["timestamp_et"])
-    if getattr(ts.dt, "tz", None) is not None:
-        ts = ts.dt.tz_localize(None)
+    ts = parse_timestamp_et(df["timestamp_et"], frame)
     df["timestamp_et"] = ts
     times = ts.dt.time
     df = df[(times >= RTH_OPEN) & (times < RTH_CLOSE)].reset_index(drop=True)

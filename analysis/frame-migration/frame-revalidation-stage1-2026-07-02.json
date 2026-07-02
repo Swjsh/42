@@ -1,0 +1,105 @@
+{
+  "stage": 1,
+  "window": "2025-01-01..2026-06-18",
+  "generated": "2026-07-02T10:15:40",
+  "frames": {
+    "wall-v1": {
+      "rth_bars": 27239,
+      "trading_days": 365,
+      "days_66_bars": 36,
+      "days_78_bars": 234,
+      "first_bar_time_min": "09:30:00"
+    },
+    "et-v2": {
+      "rth_bars": 28284,
+      "trading_days": 365,
+      "days_66_bars": 0,
+      "days_78_bars": 357,
+      "first_bar_time_min": "09:30:00"
+    }
+  },
+  "families": {
+    "supply_demand_zone": {
+      "wall-v1": {
+        "signals": 248,
+        "signal_days": 178
+      },
+      "et-v2": {
+        "signals": 243,
+        "signal_days": 172
+      },
+      "delta_signals": -5,
+      "delta_by_month": {
+        "2025-01": 6,
+        "2025-02": 7,
+        "2025-03": 2,
+        "2025-11": -5,
+        "2025-12": -7,
+        "2026-02": -6,
+        "2026-03": -2
+      }
+    },
+    "ema_adx": {
+      "wall-v1": {
+        "signals": 136,
+        "signal_days": 107
+      },
+      "et-v2": {
+        "signals": 137,
+        "signal_days": 110
+      },
+      "delta_signals": 1,
+      "delta_by_month": {
+        "2025-01": 1,
+        "2025-02": -1,
+        "2025-03": 1,
+        "2025-11": -3,
+        "2025-12": -4,
+        "2026-01": -1,
+        "2026-02": 8
+      }
+    },
+    "three_ducks": {
+      "wall-v1": {
+        "signals": 1133,
+        "signal_days": 357
+      },
+      "et-v2": {
+        "signals": 1180,
+        "signal_days": 359
+      },
+      "delta_signals": 47,
+      "delta_by_month": {
+        "2025-01": 6,
+        "2025-02": 15,
+        "2025-03": 4,
+        "2025-11": 3,
+        "2025-12": 11,
+        "2026-01": -1,
+        "2026-02": 7,
+        "2026-03": 2
+      }
+    },
+    "bollinger_squeeze": {
+      "wall-v1": {
+        "signals": 316,
+        "signal_days": 248
+      },
+      "et-v2": {
+        "signals": 351,
+        "signal_days": 268
+      },
+      "delta_signals": 35,
+      "delta_by_month": {
+        "2025-01": 6,
+        "2025-02": 5,
+        "2025-03": 3,
+        "2025-11": 3,
+        "2025-12": 6,
+        "2026-01": 6,
+        "2026-02": 2,
+        "2026-03": 4
+      }
+    }
+  }
+}

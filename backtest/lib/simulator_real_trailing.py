@@ -35,6 +35,7 @@ from typing import Optional
 
 import pandas as pd
 
+from .et_frame import DEFAULT_FRAME, parse_timestamp_et
 from .option_pricing_real import (
     bar_at_or_after,
     load_contract_bars,
@@ -46,6 +47,7 @@ from .simulator_real import (
     DEFAULT_ENTRY_SLIPPAGE,
     DEFAULT_EXIT_SLIPPAGE,
     _is_runner_exit_signal,
+    _naive_in_frame,
     _next_level_past_entry,
     _ribbon_at,
     _strike_from_spot,
@@ -108,6 +110,9 @@ def simulate_trade_real_trailing(
     # ── NEW: profit-lock mode + trail ────────────────────────────────────────
     profit_lock_mode: str = "fixed",
     trail_pct: float = 0.30,
+    # DST frame convention of the incoming spy_df (see lib/et_frame.py);
+    # threaded to the OPRA join exactly like simulator_real.simulate_trade_real.
+    frame: str = DEFAULT_FRAME,
 ) -> Optional[TradeFill]:
     """Bracket simulation with selectable profit-lock mode.
 
@@ -126,13 +131,7 @@ def simulate_trade_real_trailing(
             f"got {profit_lock_mode!r}"
         )
 
-    entry_time = entry_bar["timestamp_et"]
-    if hasattr(entry_time, "tz_localize"):
-        if entry_time.tz is not None:
-            entry_time = entry_time.tz_localize(None)
-        entry_time = entry_time.to_pydatetime()
-    elif hasattr(entry_time, "tzinfo") and entry_time.tzinfo is not None:
-        entry_time = entry_time.replace(tzinfo=None)
+    entry_time = _naive_in_frame(entry_bar["timestamp_et"], frame)
 
     entry_spot = float(entry_bar["close"])
     if strike_override is not None:
@@ -149,9 +148,9 @@ def simulate_trade_real_trailing(
     if opt_df is None:
         return None
 
+    # Frame-consistent OPRA join (see simulator_real.simulate_trade_real).
     opt_df = opt_df.copy()
-    if opt_df["timestamp_et"].dt.tz is not None:
-        opt_df["timestamp_et"] = opt_df["timestamp_et"].dt.tz_localize(None)
+    opt_df["timestamp_et"] = parse_timestamp_et(opt_df["timestamp_et"], frame)
 
     next_bar_start = entry_time + dt.timedelta(minutes=5)
     entry_bar_opt = bar_at_or_after(opt_df, next_bar_start)
@@ -225,13 +224,7 @@ def simulate_trade_real_trailing(
 
     while opt_idx < len(opt_df) and spy_idx < len(spy_df):
         spy_bar = spy_df.iloc[spy_idx]
-        spy_time = spy_bar["timestamp_et"]
-        if hasattr(spy_time, "tz_localize"):
-            if spy_time.tz is not None:
-                spy_time = spy_time.tz_localize(None)
-            spy_time = spy_time.to_pydatetime()
-        elif hasattr(spy_time, "tzinfo") and spy_time.tzinfo is not None:
-            spy_time = spy_time.replace(tzinfo=None)
+        spy_time = _naive_in_frame(spy_bar["timestamp_et"], frame)
         opt_bar = quote_at_index(opt_df, opt_idx)
         if opt_bar is None:
             opt_idx += 1

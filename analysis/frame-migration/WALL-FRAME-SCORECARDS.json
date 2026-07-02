@@ -1,0 +1,73 @@
+{
+  "generated": "2026-07-02",
+  "audit": "markdown/audits/DST-FRAME-AUDIT-2026-07-02.md",
+  "rule": "A wall-frame scorecard stays citable for wall-frame comparisons (wall-v1 is guarded byte-reproducible) but may NOT certify an et-v2 wiring/params decision. Any NEW ratification citing Nov-Mar data must first cite the matching frame-revalidation diff.",
+  "frame_semantics": "wall-v1 winter sessions = thin premarket prints mislabeled as the open + last true trading hour clipped + all labels +1h. 129 of 365 trading days in the 2025-01-01..2026-06-18 master are EST days.",
+  "artifacts": [
+    {
+      "group": "family-grind elites",
+      "paths": ["analysis/recommendations/family-grind-bollinger_squeeze.json",
+                "analysis/recommendations/family-grind-supply_demand_zone.json",
+                "analysis/recommendations/family-grind-three_ducks.json",
+                "analysis/recommendations/family-grind-ema_adx.json",
+                "analysis/recommendations/bollinger-squeeze-fresh-reverify.json"],
+      "produced_by": "autoresearch family pipeline (build_rth wall-v1 + simulate_trade_real)",
+      "est_days_in_window": true,
+      "feeds_live": "bollinger elites are the WIRE-BOLLINGER wiring candidates (not yet armed)",
+      "rerun": "REQUIRED (stage 2) before any cell is wired using et-v2 numbers",
+      "stage1_delta": {"bollinger_squeeze": "316->351 signals", "three_ducks": "1133->1180", "supply_demand_zone": "248->243", "ema_adx": "136->137"}
+    },
+    {
+      "group": "mass-grind funnels",
+      "paths": ["analysis/recommendations/mass-grind-*-funnel.jsonl", "analysis/recommendations/mass-grind-*-progress.jsonl"],
+      "produced_by": "family_grind.run_family (wall-v1)",
+      "est_days_in_window": true,
+      "feeds_live": "indirect (candidate pool feeding family-grind validation)",
+      "rerun": "RECOMMENDED after default-frame flip (Phase B); candidate discovery re-runs on et-v2"
+    },
+    {
+      "group": "edge-hunt confirmations",
+      "paths": ["analysis/recommendations/EDGE-HUNT-VERIFIED.json"],
+      "produced_by": "mixed (per-family scanners; several use ar.load_data + naive parses)",
+      "est_days_in_window": true,
+      "feeds_live": "gap_and_go / vwap_continuation trace to these lineages",
+      "rerun": "REQUIRED for any edge cited in a NEW arming decision; per-scanner parse convention must be classified first (some are UTC-correct)"
+    },
+    {
+      "group": "orchestrator A/B scorecards (params ratifications)",
+      "paths": ["analysis/recommendations/vix-bull-hard-cap-01.json",
+                "analysis/recommendations/safe_vix_bear_hard_cap.json",
+                "analysis/recommendations/agg_*.json",
+                "analysis/recommendations/safe_*.json"],
+      "produced_by": "lib/orchestrator.py run_backtest (RTH slice wall-v1 at orchestrator.py:782-794)",
+      "est_days_in_window": true,
+      "feeds_live": "YES - ratified params.json / aggressive/params.json values",
+      "rerun": "STAGE 3 (separate task): orchestrator frame fix + anchor/A-B baseline re-runs. Ratified values remain internally valid AS MEASURED (consistent truncated winter frame, both A and B arms equally affected); no live halt warranted - live engine consumes beacon bars, not these CSVs. Do NOT ratify NEW winter-data-dependent changes until stage 3 lands."
+    },
+    {
+      "group": "replay / parity validators",
+      "paths": ["backtest/replay_heartbeat_core.py", "backtest/replay_fleet_arms.py", "backtest/validate_six_account_grid.py"],
+      "produced_by": "deliberate parse-EXACTLY-like-orchestrator parity",
+      "est_days_in_window": true,
+      "feeds_live": "no (validation surfaces)",
+      "rerun": "move to et-v2 IN LOCKSTEP with the orchestrator (stage 3) to preserve parity"
+    },
+    {
+      "group": "UNAFFECTED (UTC-correct pipelines)",
+      "paths": ["shotgun_scalper_grinder outputs", "chart_data_verify", "futures/*", "sniper_matrix", "atr_regime_chandelier", "aggressive_vix_tp1_regime"],
+      "rerun": "NO"
+    },
+    {
+      "group": "MIXED-convention files (case-by-case before re-citing)",
+      "paths": ["backtest/autoresearch/watcher_live.py", "backtest/autoresearch/eval_fleet_standalone_regime.py", "backtest/autoresearch/gate_sweep_combinations.py"],
+      "note": "naive SPY + true-ET VIX joins risk winter VIX 1h look-ahead (C6). None backs a currently-armed param.",
+      "rerun": "classify parse pair before any citation"
+    }
+  ],
+  "follow_ups": [
+    "Stage 2 re-sim of family-grind elite cells both frames (after-hours): python backtest/autoresearch/frame_migration_revalidate.py --stage 2",
+    "Stage 3: orchestrator + replay parity frame fix + anchor/A-B re-runs (separate commit, own diff report)",
+    "Before 2026-11-01: verify sight_beacon/live bar serialization writes real offsets (live paths are correct today because it IS EDT)",
+    "Phase B: flip lib/et_frame.DEFAULT_FRAME to et-v2 + update test_default_frame_is_wall_v1_until_migration, citing stage 1+2 reports"
+  ]
+}
