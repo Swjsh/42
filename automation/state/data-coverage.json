@@ -6,18 +6,18 @@
   "classes": {
     "option_chain_realfills": {
       "first": "2025-01-02",
-      "last": "2026-06-18",
-      "n_days": 365
+      "last": "2026-07-01",
+      "n_days": 373
     },
     "spy_5m_bars": {
       "first": "2025-01-01",
-      "last": "2026-06-18",
-      "n_days": 533
+      "last": "2026-07-01",
+      "n_days": 546
     },
     "vix_5m": {
       "first": "2025-01-01",
-      "last": "2026-06-19",
-      "n_days": 534
+      "last": "2026-07-01",
+      "n_days": 546
     }
   }
 }

@@ -1,6 +1,6 @@
 {
   "proposal_id": "pk-2026-07-01-001",
-  "scored_at": "2026-07-01T23:58:28Z",
+  "scored_at": "2026-07-02T03:17:37Z",
   "contender_file": "contender-rank-2026-07-01.json",
   "contender_label": "OTM-2:LR0:mt1:stop-8:tp+150%:sell80%:fixed",
   "contender_ranked_at": "2026-07-01 17:33",
@@ -87,8 +87,10 @@
   },
   "recency_gate_detail": "edges_confirmed_on_recent=False (any_red=True) -> CONFIRM-BEFORE-CAPITAL blocks auto-clear",
   "eval_bar_cleared": false,
-  "verdict": "BLOCKED",
+  "verdict": "BLOCKED-FINAL",
   "failed_gates": [
     "recency_confirmed"
-  ]
+  ],
+  "blocked_final_note": "2026-07-02 clear-or-kill on the REFRESHED OPRA cache (option_chain_realfills extended 2026-06-26 -> 2026-07-01, +3 trading days; recency_check re-run same night, recent window 2026-05-27..2026-07-01). The recency gate STILL fails on the freshest data -- and not marginally: the Safe2 ATM live book is RED at -$510.96 over the freshest 7 trading days (14 admitted trades), every live-tier edge recent-negative (YELLOW). This is therefore a FINAL kill for this proposal, not a stale-cache artifact awaiting a restamp. Adversarial context: the contender is a WR-12.66% long-tail lotto shape (tp+150%/sell80%) whose full-window P&L is 63.5% concentrated in 2026Q2 ($4,529 of $7,129) -- exactly the shape L182-184 flagged when its 2026-06-28 sibling auto-applied off an IS sweep. Do NOT restamp this proposal id; a future contender of the same shape must re-enter via a NEW rank + a CONFIRMed recency window.",
+  "restamper_directive": "TERMINAL -- restamper loop must not re-score pk-2026-07-01-001"
 }

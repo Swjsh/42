@@ -176,13 +176,34 @@ def read_cache_last_date() -> dt.date:
     return dt.date.fromisoformat(last)
 
 
+def _latest_rolling(symbol: str) -> Path:
+    """Newest rolling daily-append file for `symbol` by end-date in the filename.
+    2026-07-01 fix: the recent file was HARDCODED (spy_5m_2026-05-19_2026-06-26.csv),
+    freezing the frame at 06-26 even after append_today extended the data — the
+    docstring's 'same code runs weekly as the cache extends' contract was broken
+    (C9/C14: a stale literal is a dead knob). Auto-resolve instead."""
+    import re
+    pat = re.compile(rf"^{symbol}_5m_(\d{{4}}-\d{{2}}-\d{{2}})_(\d{{4}}-\d{{2}}-\d{{2}})\.csv$")
+    best: tuple[str, Path] | None = None
+    for p in DATA.glob(f"{symbol}_5m_*.csv"):
+        m = pat.match(p.name)
+        if not m:
+            continue
+        if best is None or m.group(2) > best[0]:
+            best = (m.group(2), p)
+    if best is None:
+        raise FileNotFoundError(f"no rolling {symbol}_5m_*.csv in {DATA}")
+    return best[1]
+
+
 def load_merged_spy_vix() -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Master + recent daily file, concatenated and de-duped (same as the Sunday driver),
-    so the frame covers full IS + the freshest OOS. De-dup is by (timestamp) keep-last."""
-    master_spy = pd.read_csv(DATA / "spy_5m_2025-01-01_2026-06-16.csv")
-    master_vix = pd.read_csv(DATA / "vix_5m_2025-01-01_2026-06-16.csv")
-    recent_spy = pd.read_csv(DATA / "spy_5m_2026-05-19_2026-06-18.csv")
-    recent_vix = pd.read_csv(DATA / "vix_5m_2026-05-19_2026-06-18.csv")
+    """Master + NEWEST recent daily file, concatenated and de-duped (same as the Sunday
+    driver), so the frame covers full IS + the freshest OOS. De-dup is by (timestamp)
+    keep-last."""
+    master_spy = pd.read_csv(DATA / "spy_5m_2025-01-01_2026-06-18.csv")
+    master_vix = pd.read_csv(DATA / "vix_5m_2025-01-01_2026-06-18.csv")
+    recent_spy = pd.read_csv(_latest_rolling("spy"))
+    recent_vix = pd.read_csv(_latest_rolling("vix"))
     spy = pd.concat([master_spy, recent_spy], ignore_index=True)
     vix = pd.concat([master_vix, recent_vix], ignore_index=True)
     return spy, vix
