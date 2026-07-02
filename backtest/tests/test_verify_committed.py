@@ -51,10 +51,33 @@ from verify_committed import (  # noqa: E402
 
 GIT = "git"
 
+# Env hygiene (2026-07-01): when this suite runs from inside a `git commit --only`
+# pre-commit hook, git exports GIT_INDEX_FILE (a temp index of the PARENT repo)
+# into the hook's environment. The throwaway tmp repo's git subprocesses would
+# inherit it and try to build trees from parent-repo objects -> "invalid object
+# ... Error building trees" -> the safety gate REDs on a hygiene artifact, not a
+# real guard trip. Scrub repo-scoping GIT_* vars for every subprocess here.
+_POISON_GIT_ENV = ("GIT_INDEX_FILE", "GIT_DIR", "GIT_WORK_TREE", "GIT_PREFIX",
+                   "GIT_OBJECT_DIRECTORY", "GIT_COMMON_DIR")
+
+
+@pytest.fixture(autouse=True)
+def _clean_git_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Strip parent-repo git scoping vars so tmp-repo git calls (both the _git
+    helper below AND the imported verify_committed helpers) stay self-contained."""
+    for var in _POISON_GIT_ENV:
+        monkeypatch.delenv(var, raising=False)
+
+
+def _scrubbed_env() -> dict:
+    import os
+    return {k: v for k, v in os.environ.items() if k not in _POISON_GIT_ENV}
+
 
 def _git(repo: Path, *args: str) -> subprocess.CompletedProcess:
     return subprocess.run(
-        [GIT, *args], cwd=str(repo), capture_output=True, text=True, check=False
+        [GIT, *args], cwd=str(repo), capture_output=True, text=True, check=False,
+        env=_scrubbed_env(),
     )
 
 

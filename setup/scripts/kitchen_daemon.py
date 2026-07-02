@@ -970,7 +970,11 @@ def _run_pipeline_scorecard(task_state: dict) -> dict:
             from autoresearch.pipeline_promoter import check_and_promote  # noqa: E402
             promoted = check_and_promote(script_name, watcher_name)
             if promoted:
-                _log(f"PIPELINE_CHAIN promoted {watcher_name} -> WATCH_NOT_ARMED in params.json")
+                # New contract (2026-07-01): roster watcher -> real '<flag>_enabled' WATCH
+                # key in params.json; un-wired watcher -> WIRE-DETECTOR proposal row
+                # (see promote_{watcher}.json for which path fired).
+                _log(f"PIPELINE_CHAIN promoted {watcher_name} -> gates passed; "
+                     f"see analysis/recommendations/promote_{watcher_name}.json for outcome")
             else:
                 _log(f"PIPELINE_CHAIN {watcher_name} did not clear auto-promote gates (not promoted)")
         except Exception as exc:  # noqa: BLE001
