@@ -1,0 +1,2402 @@
+{
+ "rule_id": "ribbon-rejection-wick",
+ "setup_name": "RIBBON_REJECTION_WICK",
+ "generated_at": "2026-07-02T09:30:57",
+ "spec_origin": "J live read 2026-07-02 ~11:00 ET \u2014 10:30/10:35 ribbon wick rejections, 30 min before the 11:00 confirmatory ribbon flip",
+ "window": {
+  "start": "2025-01-02",
+  "end": "2026-07-01",
+  "oos_cut": "2026-01-01"
+ },
+ "pnl_authority": "OPRA real fills (backtest/data/options), entry next-5m-bar, shotgun_scalper_grinder._simulate_trade_real walker",
+ "fixed_exits": {
+  "tp_premium_pct": 0.5,
+  "stop_premium_pct": -0.3,
+  "time_stop_min": 60,
+  "strike_offset": 0,
+  "chandelier_arm_pct": 0.25,
+  "vol_ratio_threshold": 0.0,
+  "qty": 3
+ },
+ "grid": {
+  "wick_frac_min": [
+   0.35,
+   0.5
+  ],
+  "break_lookback_bars": [
+   6,
+   12
+  ],
+  "vol_mult_min": [
+   0.0,
+   1.5,
+   2.5
+  ],
+  "stack_filter": [
+   "not_flipped",
+   "any"
+  ],
+  "n_combos": 24
+ },
+ "superset_events": 3532,
+ "opra_missing_events": 266,
+ "null_expectancy_per_direction": {
+  "short": -23.53,
+  "long": -33.41
+ },
+ "null_pool_n": {
+  "short": 559,
+  "long": 579
+ },
+ "fdr": {
+  "method": "benjamini-hochberg",
+  "alpha": 0.1,
+  "survivors": 16
+ },
+ "anchor_case_2026_07_02": {
+  "requirement": "bearish fire at 10:30 and/or 10:35 ET on today's live bars",
+  "result": "HIT \u2014 bearish fires 10:25 / 10:30 / 10:40 ET (10:35 closed back inside band on IEX feed); 3 fires total (<=5 gate PASS); stack=BULL at all fires (not yet flipped \u2014 J's anticipatory case)",
+  "fixture": "backtest/tests/fixtures/spy_5m_2026-07-02_anchor.csv",
+  "checker": "backtest/autoresearch/ribbon_rejection_wick_anchor_today.py"
+ },
+ "verdict": "FAIL",
+ "combos": [
+  {
+   "combo": {
+    "wick_frac_min": 0.5,
+    "break_lookback_bars": 6,
+    "vol_mult_min": 2.5,
+    "stack_filter": "any"
+   },
+   "full": {
+    "n": 58,
+    "pnl": 159.0,
+    "wr": 0.655,
+    "expectancy": 2.74
+   },
+   "short": {
+    "n": 38,
+    "pnl": 184.2,
+    "wr": 0.632,
+    "expectancy": 4.85
+   },
+   "long": {
+    "n": 20,
+    "pnl": -25.2,
+    "wr": 0.7,
+    "expectancy": -1.26
+   },
+   "is": {
+    "n": 29,
+    "pnl": 782.4,
+    "wr": 0.759,
+    "expectancy": 26.98
+   },
+   "oos": {
+    "n": 29,
+    "pnl": -623.4,
+    "wr": 0.552,
+    "expectancy": -21.5
+   },
+   "drop_top3_pnl": -810.0,
+   "half1": {
+    "n": 29,
+    "pnl": 782.4,
+    "wr": 0.759,
+    "expectancy": 26.98
+   },
+   "half2": {
+    "n": 29,
+    "pnl": -623.4,
+    "wr": 0.552,
+    "expectancy": -21.5
+   },
+   "slippage_breakeven_cents_per_side": 0.46,
+   "p_null": 0.0215,
+   "exit_reasons": {
+    "CHANDELIER": 36,
+    "TIME_STOP": 2,
+    "STOP": 20
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 22,
+     "pnl": 825.6,
+     "wr": 0.682,
+     "expectancy": 37.53
+    },
+    "20-25": {
+     "n": 11,
+     "pnl": -1096.5,
+     "wr": 0.364,
+     "expectancy": -99.68
+    },
+    "<17": {
+     "n": 22,
+     "pnl": 269.7,
+     "wr": 0.727,
+     "expectancy": 12.26
+    },
+    ">=25": {
+     "n": 3,
+     "pnl": 160.2,
+     "wr": 1.0,
+     "expectancy": 53.4
+    }
+   },
+   "n_days_traded": 43,
+   "bh_fdr_survivor": true,
+   "bh_rank": 13,
+   "clears": false,
+   "fails": [
+    "oos_expectancy -21.5 <= 0",
+    "drop_top3 -810.0 <= 0",
+    "halves 782.4/-623.4 not both > 0",
+    "slip_breakeven 0.46c < 2c"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.35,
+    "break_lookback_bars": 6,
+    "vol_mult_min": 2.5,
+    "stack_filter": "any"
+   },
+   "full": {
+    "n": 62,
+    "pnl": -15.3,
+    "wr": 0.661,
+    "expectancy": -0.25
+   },
+   "short": {
+    "n": 41,
+    "pnl": 341.4,
+    "wr": 0.659,
+    "expectancy": 8.33
+   },
+   "long": {
+    "n": 21,
+    "pnl": -356.7,
+    "wr": 0.667,
+    "expectancy": -16.99
+   },
+   "is": {
+    "n": 31,
+    "pnl": 433.5,
+    "wr": 0.742,
+    "expectancy": 13.98
+   },
+   "oos": {
+    "n": 31,
+    "pnl": -448.8,
+    "wr": 0.581,
+    "expectancy": -14.48
+   },
+   "drop_top3_pnl": -984.3,
+   "half1": {
+    "n": 31,
+    "pnl": 433.5,
+    "wr": 0.742,
+    "expectancy": 13.98
+   },
+   "half2": {
+    "n": 31,
+    "pnl": -448.8,
+    "wr": 0.581,
+    "expectancy": -14.48
+   },
+   "slippage_breakeven_cents_per_side": -0.04,
+   "p_null": 0.018,
+   "exit_reasons": {
+    "CHANDELIER": 39,
+    "STOP": 21,
+    "TIME_STOP": 2
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 22,
+     "pnl": 825.6,
+     "wr": 0.682,
+     "expectancy": 37.53
+    },
+    "20-25": {
+     "n": 13,
+     "pnl": -1024.5,
+     "wr": 0.462,
+     "expectancy": -78.81
+    },
+    "<17": {
+     "n": 24,
+     "pnl": 23.4,
+     "wr": 0.708,
+     "expectancy": 0.97
+    },
+    ">=25": {
+     "n": 3,
+     "pnl": 160.2,
+     "wr": 1.0,
+     "expectancy": 53.4
+    }
+   },
+   "n_days_traded": 45,
+   "bh_fdr_survivor": true,
+   "bh_rank": 12,
+   "clears": false,
+   "fails": [
+    "expectancy -0.25 <= 0",
+    "oos_expectancy -14.48 <= 0",
+    "drop_top3 -984.3 <= 0",
+    "halves 433.5/-448.8 not both > 0",
+    "slip_breakeven -0.04c < 2c"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.5,
+    "break_lookback_bars": 12,
+    "vol_mult_min": 2.5,
+    "stack_filter": "any"
+   },
+   "full": {
+    "n": 74,
+    "pnl": -273.6,
+    "wr": 0.635,
+    "expectancy": -3.7
+   },
+   "short": {
+    "n": 49,
+    "pnl": 88.8,
+    "wr": 0.633,
+    "expectancy": 1.81
+   },
+   "long": {
+    "n": 25,
+    "pnl": -362.4,
+    "wr": 0.64,
+    "expectancy": -14.5
+   },
+   "is": {
+    "n": 37,
+    "pnl": 749.4,
+    "wr": 0.757,
+    "expectancy": 20.25
+   },
+   "oos": {
+    "n": 37,
+    "pnl": -1023.0,
+    "wr": 0.514,
+    "expectancy": -27.65
+   },
+   "drop_top3_pnl": -1242.6,
+   "half1": {
+    "n": 37,
+    "pnl": 749.4,
+    "wr": 0.757,
+    "expectancy": 20.25
+   },
+   "half2": {
+    "n": 37,
+    "pnl": -1023.0,
+    "wr": 0.514,
+    "expectancy": -27.65
+   },
+   "slippage_breakeven_cents_per_side": -0.62,
+   "p_null": 0.035,
+   "exit_reasons": {
+    "CHANDELIER": 45,
+    "STOP": 27,
+    "TIME_STOP": 2
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 25,
+     "pnl": 412.5,
+     "wr": 0.6,
+     "expectancy": 16.5
+    },
+    "20-25": {
+     "n": 14,
+     "pnl": -1189.5,
+     "wr": 0.429,
+     "expectancy": -84.96
+    },
+    "<17": {
+     "n": 31,
+     "pnl": 541.2,
+     "wr": 0.742,
+     "expectancy": 17.46
+    },
+    ">=25": {
+     "n": 4,
+     "pnl": -37.8,
+     "wr": 0.75,
+     "expectancy": -9.45
+    }
+   },
+   "n_days_traded": 50,
+   "bh_fdr_survivor": true,
+   "bh_rank": 15,
+   "clears": false,
+   "fails": [
+    "expectancy -3.7 <= 0",
+    "oos_expectancy -27.65 <= 0",
+    "drop_top3 -1242.6 <= 0",
+    "halves 749.4/-1023.0 not both > 0",
+    "slip_breakeven -0.62c < 2c"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.35,
+    "break_lookback_bars": 6,
+    "vol_mult_min": 2.5,
+    "stack_filter": "not_flipped"
+   },
+   "full": {
+    "n": 44,
+    "pnl": -426.0,
+    "wr": 0.659,
+    "expectancy": -9.68
+   },
+   "short": {
+    "n": 26,
+    "pnl": 33.3,
+    "wr": 0.654,
+    "expectancy": 1.28
+   },
+   "long": {
+    "n": 18,
+    "pnl": -459.3,
+    "wr": 0.667,
+    "expectancy": -25.52
+   },
+   "is": {
+    "n": 21,
+    "pnl": 461.7,
+    "wr": 0.81,
+    "expectancy": 21.99
+   },
+   "oos": {
+    "n": 23,
+    "pnl": -887.7,
+    "wr": 0.522,
+    "expectancy": -38.6
+   },
+   "drop_top3_pnl": -993.0,
+   "half1": {
+    "n": 22,
+    "pnl": 584.7,
+    "wr": 0.818,
+    "expectancy": 26.58
+   },
+   "half2": {
+    "n": 22,
+    "pnl": -1010.7,
+    "wr": 0.5,
+    "expectancy": -45.94
+   },
+   "slippage_breakeven_cents_per_side": -1.61,
+   "p_null": 0.1485,
+   "exit_reasons": {
+    "CHANDELIER": 28,
+    "STOP": 15,
+    "TIME_STOP": 1
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 14,
+     "pnl": 537.3,
+     "wr": 0.786,
+     "expectancy": 38.38
+    },
+    "20-25": {
+     "n": 9,
+     "pnl": -1098.3,
+     "wr": 0.222,
+     "expectancy": -122.03
+    },
+    "<17": {
+     "n": 19,
+     "pnl": -18.6,
+     "wr": 0.737,
+     "expectancy": -0.98
+    },
+    ">=25": {
+     "n": 2,
+     "pnl": 153.6,
+     "wr": 1.0,
+     "expectancy": 76.8
+    }
+   },
+   "n_days_traded": 35,
+   "bh_fdr_survivor": false,
+   "bh_rank": 20,
+   "clears": false,
+   "fails": [
+    "expectancy -9.68 <= 0",
+    "oos_expectancy -38.6 <= 0",
+    "drop_top3 -993.0 <= 0",
+    "halves 584.7/-1010.7 not both > 0",
+    "p_null 0.1485 > 0.05",
+    "BH-FDR non-survivor",
+    "slip_breakeven -1.61c < 2c"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.5,
+    "break_lookback_bars": 6,
+    "vol_mult_min": 2.5,
+    "stack_filter": "not_flipped"
+   },
+   "full": {
+    "n": 40,
+    "pnl": -425.1,
+    "wr": 0.65,
+    "expectancy": -10.63
+   },
+   "short": {
+    "n": 24,
+    "pnl": -141.3,
+    "wr": 0.625,
+    "expectancy": -5.89
+   },
+   "long": {
+    "n": 16,
+    "pnl": -283.8,
+    "wr": 0.688,
+    "expectancy": -17.74
+   },
+   "is": {
+    "n": 19,
+    "pnl": 637.2,
+    "wr": 0.842,
+    "expectancy": 33.54
+   },
+   "oos": {
+    "n": 21,
+    "pnl": -1062.3,
+    "wr": 0.476,
+    "expectancy": -50.59
+   },
+   "drop_top3_pnl": -992.1,
+   "half1": {
+    "n": 19,
+    "pnl": 637.2,
+    "wr": 0.842,
+    "expectancy": 33.54
+   },
+   "half2": {
+    "n": 21,
+    "pnl": -1062.3,
+    "wr": 0.476,
+    "expectancy": -50.59
+   },
+   "slippage_breakeven_cents_per_side": -1.77,
+   "p_null": 0.157,
+   "exit_reasons": {
+    "CHANDELIER": 25,
+    "STOP": 14,
+    "TIME_STOP": 1
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 14,
+     "pnl": 537.3,
+     "wr": 0.786,
+     "expectancy": 38.38
+    },
+    "20-25": {
+     "n": 8,
+     "pnl": -1149.9,
+     "wr": 0.125,
+     "expectancy": -143.74
+    },
+    "<17": {
+     "n": 16,
+     "pnl": 33.9,
+     "wr": 0.75,
+     "expectancy": 2.12
+    },
+    ">=25": {
+     "n": 2,
+     "pnl": 153.6,
+     "wr": 1.0,
+     "expectancy": 76.8
+    }
+   },
+   "n_days_traded": 32,
+   "bh_fdr_survivor": false,
+   "bh_rank": 21,
+   "clears": false,
+   "fails": [
+    "expectancy -10.63 <= 0",
+    "oos_expectancy -50.59 <= 0",
+    "drop_top3 -992.1 <= 0",
+    "halves 637.2/-1062.3 not both > 0",
+    "p_null 0.157 > 0.05",
+    "BH-FDR non-survivor",
+    "slip_breakeven -1.77c < 2c",
+    "bear-side expectancy -5.89 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.35,
+    "break_lookback_bars": 12,
+    "vol_mult_min": 2.5,
+    "stack_filter": "any"
+   },
+   "full": {
+    "n": 77,
+    "pnl": -699.3,
+    "wr": 0.623,
+    "expectancy": -9.08
+   },
+   "short": {
+    "n": 49,
+    "pnl": -90.6,
+    "wr": 0.612,
+    "expectancy": -1.85
+   },
+   "long": {
+    "n": 28,
+    "pnl": -608.7,
+    "wr": 0.643,
+    "expectancy": -21.74
+   },
+   "is": {
+    "n": 37,
+    "pnl": 359.7,
+    "wr": 0.73,
+    "expectancy": 9.72
+   },
+   "oos": {
+    "n": 40,
+    "pnl": -1059.0,
+    "wr": 0.525,
+    "expectancy": -26.48
+   },
+   "drop_top3_pnl": -1668.3,
+   "half1": {
+    "n": 38,
+    "pnl": 482.7,
+    "wr": 0.737,
+    "expectancy": 12.7
+   },
+   "half2": {
+    "n": 39,
+    "pnl": -1182.0,
+    "wr": 0.513,
+    "expectancy": -30.31
+   },
+   "slippage_breakeven_cents_per_side": -1.51,
+   "p_null": 0.066,
+   "exit_reasons": {
+    "CHANDELIER": 46,
+    "STOP": 29,
+    "TIME_STOP": 2
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 27,
+     "pnl": 497.7,
+     "wr": 0.63,
+     "expectancy": 18.43
+    },
+    "20-25": {
+     "n": 15,
+     "pnl": -989.7,
+     "wr": 0.533,
+     "expectancy": -65.98
+    },
+    "<17": {
+     "n": 31,
+     "pnl": -169.5,
+     "wr": 0.645,
+     "expectancy": -5.47
+    },
+    ">=25": {
+     "n": 4,
+     "pnl": -37.8,
+     "wr": 0.75,
+     "expectancy": -9.45
+    }
+   },
+   "n_days_traded": 52,
+   "bh_fdr_survivor": true,
+   "bh_rank": 16,
+   "clears": false,
+   "fails": [
+    "expectancy -9.08 <= 0",
+    "oos_expectancy -26.48 <= 0",
+    "drop_top3 -1668.3 <= 0",
+    "halves 482.7/-1182.0 not both > 0",
+    "p_null 0.066 > 0.05",
+    "slip_breakeven -1.51c < 2c",
+    "bear-side expectancy -1.85 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.35,
+    "break_lookback_bars": 6,
+    "vol_mult_min": 1.5,
+    "stack_filter": "any"
+   },
+   "full": {
+    "n": 240,
+    "pnl": -2239.2,
+    "wr": 0.667,
+    "expectancy": -9.33
+   },
+   "short": {
+    "n": 149,
+    "pnl": -986.4,
+    "wr": 0.664,
+    "expectancy": -6.62
+   },
+   "long": {
+    "n": 91,
+    "pnl": -1252.8,
+    "wr": 0.67,
+    "expectancy": -13.77
+   },
+   "is": {
+    "n": 150,
+    "pnl": -619.5,
+    "wr": 0.68,
+    "expectancy": -4.13
+   },
+   "oos": {
+    "n": 90,
+    "pnl": -1619.7,
+    "wr": 0.644,
+    "expectancy": -18.0
+   },
+   "drop_top3_pnl": -3241.2,
+   "half1": {
+    "n": 120,
+    "pnl": -229.5,
+    "wr": 0.7,
+    "expectancy": -1.91
+   },
+   "half2": {
+    "n": 120,
+    "pnl": -2009.7,
+    "wr": 0.633,
+    "expectancy": -16.75
+   },
+   "slippage_breakeven_cents_per_side": -1.55,
+   "p_null": 0.0075,
+   "exit_reasons": {
+    "CHANDELIER": 159,
+    "STOP": 77,
+    "TIME_STOP": 4
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 83,
+     "pnl": 78.6,
+     "wr": 0.735,
+     "expectancy": 0.95
+    },
+    "20-25": {
+     "n": 34,
+     "pnl": -1412.4,
+     "wr": 0.559,
+     "expectancy": -41.54
+    },
+    "<17": {
+     "n": 105,
+     "pnl": -492.6,
+     "wr": 0.648,
+     "expectancy": -4.69
+    },
+    ">=25": {
+     "n": 18,
+     "pnl": -412.8,
+     "wr": 0.667,
+     "expectancy": -22.93
+    }
+   },
+   "n_days_traded": 153,
+   "bh_fdr_survivor": true,
+   "bh_rank": 9,
+   "clears": false,
+   "fails": [
+    "expectancy -9.33 <= 0",
+    "oos_expectancy -18.0 <= 0",
+    "drop_top3 -3241.2 <= 0",
+    "halves -229.5/-2009.7 not both > 0",
+    "slip_breakeven -1.55c < 2c",
+    "bear-side expectancy -6.62 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.35,
+    "break_lookback_bars": 12,
+    "vol_mult_min": 2.5,
+    "stack_filter": "not_flipped"
+   },
+   "full": {
+    "n": 45,
+    "pnl": -624.0,
+    "wr": 0.644,
+    "expectancy": -13.87
+   },
+   "short": {
+    "n": 26,
+    "pnl": 33.3,
+    "wr": 0.654,
+    "expectancy": 1.28
+   },
+   "long": {
+    "n": 19,
+    "pnl": -657.3,
+    "wr": 0.632,
+    "expectancy": -34.59
+   },
+   "is": {
+    "n": 21,
+    "pnl": 461.7,
+    "wr": 0.81,
+    "expectancy": 21.99
+   },
+   "oos": {
+    "n": 24,
+    "pnl": -1085.7,
+    "wr": 0.5,
+    "expectancy": -45.24
+   },
+   "drop_top3_pnl": -1191.0,
+   "half1": {
+    "n": 22,
+    "pnl": 584.7,
+    "wr": 0.818,
+    "expectancy": 26.58
+   },
+   "half2": {
+    "n": 23,
+    "pnl": -1208.7,
+    "wr": 0.478,
+    "expectancy": -52.55
+   },
+   "slippage_breakeven_cents_per_side": -2.31,
+   "p_null": 0.193,
+   "exit_reasons": {
+    "CHANDELIER": 28,
+    "STOP": 16,
+    "TIME_STOP": 1
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 14,
+     "pnl": 537.3,
+     "wr": 0.786,
+     "expectancy": 38.38
+    },
+    "20-25": {
+     "n": 9,
+     "pnl": -1098.3,
+     "wr": 0.222,
+     "expectancy": -122.03
+    },
+    "<17": {
+     "n": 19,
+     "pnl": -18.6,
+     "wr": 0.737,
+     "expectancy": -0.98
+    },
+    ">=25": {
+     "n": 3,
+     "pnl": -44.4,
+     "wr": 0.667,
+     "expectancy": -14.8
+    }
+   },
+   "n_days_traded": 35,
+   "bh_fdr_survivor": false,
+   "bh_rank": 23,
+   "clears": false,
+   "fails": [
+    "expectancy -13.87 <= 0",
+    "oos_expectancy -45.24 <= 0",
+    "drop_top3 -1191.0 <= 0",
+    "halves 584.7/-1208.7 not both > 0",
+    "p_null 0.193 > 0.05",
+    "BH-FDR non-survivor",
+    "slip_breakeven -2.31c < 2c"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.5,
+    "break_lookback_bars": 6,
+    "vol_mult_min": 1.5,
+    "stack_filter": "any"
+   },
+   "full": {
+    "n": 226,
+    "pnl": -2388.9,
+    "wr": 0.655,
+    "expectancy": -10.57
+   },
+   "short": {
+    "n": 138,
+    "pnl": -1140.6,
+    "wr": 0.652,
+    "expectancy": -8.27
+   },
+   "long": {
+    "n": 88,
+    "pnl": -1248.3,
+    "wr": 0.659,
+    "expectancy": -14.19
+   },
+   "is": {
+    "n": 139,
+    "pnl": -392.1,
+    "wr": 0.676,
+    "expectancy": -2.82
+   },
+   "oos": {
+    "n": 87,
+    "pnl": -1996.8,
+    "wr": 0.621,
+    "expectancy": -22.95
+   },
+   "drop_top3_pnl": -3390.9,
+   "half1": {
+    "n": 113,
+    "pnl": -227.1,
+    "wr": 0.69,
+    "expectancy": -2.01
+   },
+   "half2": {
+    "n": 113,
+    "pnl": -2161.8,
+    "wr": 0.619,
+    "expectancy": -19.13
+   },
+   "slippage_breakeven_cents_per_side": -1.76,
+   "p_null": 0.0095,
+   "exit_reasons": {
+    "CHANDELIER": 147,
+    "STOP": 75,
+    "TIME_STOP": 4
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 80,
+     "pnl": -79.2,
+     "wr": 0.725,
+     "expectancy": -0.99
+    },
+    "20-25": {
+     "n": 31,
+     "pnl": -1396.2,
+     "wr": 0.548,
+     "expectancy": -45.04
+    },
+    "<17": {
+     "n": 98,
+     "pnl": -223.5,
+     "wr": 0.643,
+     "expectancy": -2.28
+    },
+    ">=25": {
+     "n": 17,
+     "pnl": -690.0,
+     "wr": 0.588,
+     "expectancy": -40.59
+    }
+   },
+   "n_days_traded": 151,
+   "bh_fdr_survivor": true,
+   "bh_rank": 10,
+   "clears": false,
+   "fails": [
+    "expectancy -10.57 <= 0",
+    "oos_expectancy -22.95 <= 0",
+    "drop_top3 -3390.9 <= 0",
+    "halves -227.1/-2161.8 not both > 0",
+    "slip_breakeven -1.76c < 2c",
+    "bear-side expectancy -8.27 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.5,
+    "break_lookback_bars": 12,
+    "vol_mult_min": 2.5,
+    "stack_filter": "not_flipped"
+   },
+   "full": {
+    "n": 42,
+    "pnl": -750.9,
+    "wr": 0.619,
+    "expectancy": -17.88
+   },
+   "short": {
+    "n": 25,
+    "pnl": -269.1,
+    "wr": 0.6,
+    "expectancy": -10.76
+   },
+   "long": {
+    "n": 17,
+    "pnl": -481.8,
+    "wr": 0.647,
+    "expectancy": -28.34
+   },
+   "is": {
+    "n": 19,
+    "pnl": 637.2,
+    "wr": 0.842,
+    "expectancy": 33.54
+   },
+   "oos": {
+    "n": 23,
+    "pnl": -1388.1,
+    "wr": 0.435,
+    "expectancy": -60.35
+   },
+   "drop_top3_pnl": -1317.9,
+   "half1": {
+    "n": 21,
+    "pnl": 615.9,
+    "wr": 0.81,
+    "expectancy": 29.33
+   },
+   "half2": {
+    "n": 21,
+    "pnl": -1366.8,
+    "wr": 0.429,
+    "expectancy": -65.09
+   },
+   "slippage_breakeven_cents_per_side": -2.98,
+   "p_null": 0.29,
+   "exit_reasons": {
+    "CHANDELIER": 25,
+    "STOP": 16,
+    "TIME_STOP": 1
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 14,
+     "pnl": 537.3,
+     "wr": 0.786,
+     "expectancy": 38.38
+    },
+    "20-25": {
+     "n": 9,
+     "pnl": -1277.7,
+     "wr": 0.111,
+     "expectancy": -141.97
+    },
+    "<17": {
+     "n": 16,
+     "pnl": 33.9,
+     "wr": 0.75,
+     "expectancy": 2.12
+    },
+    ">=25": {
+     "n": 3,
+     "pnl": -44.4,
+     "wr": 0.667,
+     "expectancy": -14.8
+    }
+   },
+   "n_days_traded": 32,
+   "bh_fdr_survivor": false,
+   "bh_rank": 24,
+   "clears": false,
+   "fails": [
+    "expectancy -17.88 <= 0",
+    "oos_expectancy -60.35 <= 0",
+    "drop_top3 -1317.9 <= 0",
+    "halves 615.9/-1366.8 not both > 0",
+    "p_null 0.29 > 0.05",
+    "BH-FDR non-survivor",
+    "slip_breakeven -2.98c < 2c",
+    "bear-side expectancy -10.76 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.35,
+    "break_lookback_bars": 12,
+    "vol_mult_min": 1.5,
+    "stack_filter": "any"
+   },
+   "full": {
+    "n": 258,
+    "pnl": -3457.8,
+    "wr": 0.643,
+    "expectancy": -13.4
+   },
+   "short": {
+    "n": 157,
+    "pnl": -1465.5,
+    "wr": 0.65,
+    "expectancy": -9.33
+   },
+   "long": {
+    "n": 101,
+    "pnl": -1992.3,
+    "wr": 0.634,
+    "expectancy": -19.73
+   },
+   "is": {
+    "n": 157,
+    "pnl": -981.3,
+    "wr": 0.662,
+    "expectancy": -6.25
+   },
+   "oos": {
+    "n": 101,
+    "pnl": -2476.5,
+    "wr": 0.614,
+    "expectancy": -24.52
+   },
+   "drop_top3_pnl": -4459.8,
+   "half1": {
+    "n": 129,
+    "pnl": -571.2,
+    "wr": 0.674,
+    "expectancy": -4.43
+   },
+   "half2": {
+    "n": 129,
+    "pnl": -2886.6,
+    "wr": 0.612,
+    "expectancy": -22.38
+   },
+   "slippage_breakeven_cents_per_side": -2.23,
+   "p_null": 0.0175,
+   "exit_reasons": {
+    "CHANDELIER": 164,
+    "STOP": 90,
+    "TIME_STOP": 4
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 91,
+     "pnl": -392.4,
+     "wr": 0.703,
+     "expectancy": -4.31
+    },
+    "20-25": {
+     "n": 36,
+     "pnl": -1545.9,
+     "wr": 0.583,
+     "expectancy": -42.94
+    },
+    "<17": {
+     "n": 112,
+     "pnl": -908.7,
+     "wr": 0.616,
+     "expectancy": -8.11
+    },
+    ">=25": {
+     "n": 19,
+     "pnl": -610.8,
+     "wr": 0.632,
+     "expectancy": -32.15
+    }
+   },
+   "n_days_traded": 155,
+   "bh_fdr_survivor": true,
+   "bh_rank": 11,
+   "clears": false,
+   "fails": [
+    "expectancy -13.4 <= 0",
+    "oos_expectancy -24.52 <= 0",
+    "drop_top3 -4459.8 <= 0",
+    "halves -571.2/-2886.6 not both > 0",
+    "slip_breakeven -2.23c < 2c",
+    "bear-side expectancy -9.33 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.5,
+    "break_lookback_bars": 12,
+    "vol_mult_min": 1.5,
+    "stack_filter": "any"
+   },
+   "full": {
+    "n": 245,
+    "pnl": -3356.1,
+    "wr": 0.637,
+    "expectancy": -13.7
+   },
+   "short": {
+    "n": 149,
+    "pnl": -1283.1,
+    "wr": 0.651,
+    "expectancy": -8.61
+   },
+   "long": {
+    "n": 96,
+    "pnl": -2073.0,
+    "wr": 0.615,
+    "expectancy": -21.59
+   },
+   "is": {
+    "n": 148,
+    "pnl": -713.1,
+    "wr": 0.662,
+    "expectancy": -4.82
+   },
+   "oos": {
+    "n": 97,
+    "pnl": -2643.0,
+    "wr": 0.598,
+    "expectancy": -27.25
+   },
+   "drop_top3_pnl": -4358.1,
+   "half1": {
+    "n": 122,
+    "pnl": -498.0,
+    "wr": 0.672,
+    "expectancy": -4.08
+   },
+   "half2": {
+    "n": 123,
+    "pnl": -2858.1,
+    "wr": 0.602,
+    "expectancy": -23.24
+   },
+   "slippage_breakeven_cents_per_side": -2.28,
+   "p_null": 0.03,
+   "exit_reasons": {
+    "CHANDELIER": 154,
+    "STOP": 87,
+    "TIME_STOP": 4
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 86,
+     "pnl": -635.4,
+     "wr": 0.686,
+     "expectancy": -7.39
+    },
+    "20-25": {
+     "n": 34,
+     "pnl": -1657.5,
+     "wr": 0.559,
+     "expectancy": -48.75
+    },
+    "<17": {
+     "n": 107,
+     "pnl": -175.2,
+     "wr": 0.636,
+     "expectancy": -1.64
+    },
+    ">=25": {
+     "n": 18,
+     "pnl": -888.0,
+     "wr": 0.556,
+     "expectancy": -49.33
+    }
+   },
+   "n_days_traded": 154,
+   "bh_fdr_survivor": true,
+   "bh_rank": 14,
+   "clears": false,
+   "fails": [
+    "expectancy -13.7 <= 0",
+    "oos_expectancy -27.25 <= 0",
+    "drop_top3 -4358.1 <= 0",
+    "halves -498.0/-2858.1 not both > 0",
+    "slip_breakeven -2.28c < 2c",
+    "bear-side expectancy -8.61 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.35,
+    "break_lookback_bars": 6,
+    "vol_mult_min": 1.5,
+    "stack_filter": "not_flipped"
+   },
+   "full": {
+    "n": 174,
+    "pnl": -2812.5,
+    "wr": 0.655,
+    "expectancy": -16.16
+   },
+   "short": {
+    "n": 106,
+    "pnl": -1315.8,
+    "wr": 0.66,
+    "expectancy": -12.41
+   },
+   "long": {
+    "n": 68,
+    "pnl": -1496.7,
+    "wr": 0.647,
+    "expectancy": -22.01
+   },
+   "is": {
+    "n": 108,
+    "pnl": -826.2,
+    "wr": 0.676,
+    "expectancy": -7.65
+   },
+   "oos": {
+    "n": 66,
+    "pnl": -1986.3,
+    "wr": 0.621,
+    "expectancy": -30.1
+   },
+   "drop_top3_pnl": -3615.3,
+   "half1": {
+    "n": 87,
+    "pnl": -420.6,
+    "wr": 0.701,
+    "expectancy": -4.83
+   },
+   "half2": {
+    "n": 87,
+    "pnl": -2391.9,
+    "wr": 0.609,
+    "expectancy": -27.49
+   },
+   "slippage_breakeven_cents_per_side": -2.69,
+   "p_null": 0.083,
+   "exit_reasons": {
+    "CHANDELIER": 114,
+    "STOP": 57,
+    "TIME_STOP": 3
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 61,
+     "pnl": -217.8,
+     "wr": 0.754,
+     "expectancy": -3.57
+    },
+    "20-25": {
+     "n": 22,
+     "pnl": -1620.0,
+     "wr": 0.409,
+     "expectancy": -73.64
+    },
+    "<17": {
+     "n": 78,
+     "pnl": -584.1,
+     "wr": 0.654,
+     "expectancy": -7.49
+    },
+    ">=25": {
+     "n": 13,
+     "pnl": -390.6,
+     "wr": 0.615,
+     "expectancy": -30.05
+    }
+   },
+   "n_days_traded": 121,
+   "bh_fdr_survivor": false,
+   "bh_rank": 17,
+   "clears": false,
+   "fails": [
+    "expectancy -16.16 <= 0",
+    "oos_expectancy -30.1 <= 0",
+    "drop_top3 -3615.3 <= 0",
+    "halves -420.6/-2391.9 not both > 0",
+    "p_null 0.083 > 0.05",
+    "BH-FDR non-survivor",
+    "slip_breakeven -2.69c < 2c",
+    "bear-side expectancy -12.41 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.35,
+    "break_lookback_bars": 12,
+    "vol_mult_min": 1.5,
+    "stack_filter": "not_flipped"
+   },
+   "full": {
+    "n": 175,
+    "pnl": -3010.5,
+    "wr": 0.651,
+    "expectancy": -17.2
+   },
+   "short": {
+    "n": 106,
+    "pnl": -1315.8,
+    "wr": 0.66,
+    "expectancy": -12.41
+   },
+   "long": {
+    "n": 69,
+    "pnl": -1694.7,
+    "wr": 0.638,
+    "expectancy": -24.56
+   },
+   "is": {
+    "n": 108,
+    "pnl": -826.2,
+    "wr": 0.676,
+    "expectancy": -7.65
+   },
+   "oos": {
+    "n": 67,
+    "pnl": -2184.3,
+    "wr": 0.612,
+    "expectancy": -32.6
+   },
+   "drop_top3_pnl": -3813.3,
+   "half1": {
+    "n": 87,
+    "pnl": -420.6,
+    "wr": 0.701,
+    "expectancy": -4.83
+   },
+   "half2": {
+    "n": 88,
+    "pnl": -2589.9,
+    "wr": 0.602,
+    "expectancy": -29.43
+   },
+   "slippage_breakeven_cents_per_side": -2.87,
+   "p_null": 0.116,
+   "exit_reasons": {
+    "CHANDELIER": 114,
+    "STOP": 58,
+    "TIME_STOP": 3
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 61,
+     "pnl": -217.8,
+     "wr": 0.754,
+     "expectancy": -3.57
+    },
+    "20-25": {
+     "n": 22,
+     "pnl": -1620.0,
+     "wr": 0.409,
+     "expectancy": -73.64
+    },
+    "<17": {
+     "n": 78,
+     "pnl": -584.1,
+     "wr": 0.654,
+     "expectancy": -7.49
+    },
+    ">=25": {
+     "n": 14,
+     "pnl": -588.6,
+     "wr": 0.571,
+     "expectancy": -42.04
+    }
+   },
+   "n_days_traded": 121,
+   "bh_fdr_survivor": false,
+   "bh_rank": 18,
+   "clears": false,
+   "fails": [
+    "expectancy -17.2 <= 0",
+    "oos_expectancy -32.6 <= 0",
+    "drop_top3 -3813.3 <= 0",
+    "halves -420.6/-2589.9 not both > 0",
+    "p_null 0.116 > 0.05",
+    "BH-FDR non-survivor",
+    "slip_breakeven -2.87c < 2c",
+    "bear-side expectancy -12.41 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.5,
+    "break_lookback_bars": 12,
+    "vol_mult_min": 0.0,
+    "stack_filter": "not_flipped"
+   },
+   "full": {
+    "n": 695,
+    "pnl": -9501.0,
+    "wr": 0.642,
+    "expectancy": -13.67
+   },
+   "short": {
+    "n": 364,
+    "pnl": -5367.9,
+    "wr": 0.657,
+    "expectancy": -14.75
+   },
+   "long": {
+    "n": 331,
+    "pnl": -4133.1,
+    "wr": 0.625,
+    "expectancy": -12.49
+   },
+   "is": {
+    "n": 461,
+    "pnl": -5079.3,
+    "wr": 0.644,
+    "expectancy": -11.02
+   },
+   "oos": {
+    "n": 234,
+    "pnl": -4421.7,
+    "wr": 0.637,
+    "expectancy": -18.9
+   },
+   "drop_top3_pnl": -11099.4,
+   "half1": {
+    "n": 345,
+    "pnl": -4185.0,
+    "wr": 0.646,
+    "expectancy": -12.13
+   },
+   "half2": {
+    "n": 350,
+    "pnl": -5316.0,
+    "wr": 0.637,
+    "expectancy": -15.19
+   },
+   "slippage_breakeven_cents_per_side": -2.28,
+   "p_null": 0.0,
+   "exit_reasons": {
+    "CHANDELIER": 430,
+    "STOP": 238,
+    "TIME_STOP": 24,
+    "TP_PREMIUM": 3
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 240,
+     "pnl": -2628.9,
+     "wr": 0.671,
+     "expectancy": -10.95
+    },
+    "20-25": {
+     "n": 118,
+     "pnl": -2957.4,
+     "wr": 0.602,
+     "expectancy": -25.06
+    },
+    "<17": {
+     "n": 285,
+     "pnl": -2593.2,
+     "wr": 0.621,
+     "expectancy": -9.1
+    },
+    ">=25": {
+     "n": 52,
+     "pnl": -1321.5,
+     "wr": 0.712,
+     "expectancy": -25.41
+    }
+   },
+   "n_days_traded": 277,
+   "bh_fdr_survivor": true,
+   "bh_rank": 3,
+   "clears": false,
+   "fails": [
+    "expectancy -13.67 <= 0",
+    "oos_expectancy -18.9 <= 0",
+    "drop_top3 -11099.4 <= 0",
+    "halves -4185.0/-5316.0 not both > 0",
+    "slip_breakeven -2.28c < 2c",
+    "bear-side expectancy -14.75 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.5,
+    "break_lookback_bars": 6,
+    "vol_mult_min": 0.0,
+    "stack_filter": "not_flipped"
+   },
+   "full": {
+    "n": 691,
+    "pnl": -9563.7,
+    "wr": 0.641,
+    "expectancy": -13.84
+   },
+   "short": {
+    "n": 358,
+    "pnl": -5105.1,
+    "wr": 0.656,
+    "expectancy": -14.26
+   },
+   "long": {
+    "n": 333,
+    "pnl": -4458.6,
+    "wr": 0.625,
+    "expectancy": -13.39
+   },
+   "is": {
+    "n": 459,
+    "pnl": -5028.6,
+    "wr": 0.645,
+    "expectancy": -10.96
+   },
+   "oos": {
+    "n": 232,
+    "pnl": -4535.1,
+    "wr": 0.634,
+    "expectancy": -19.55
+   },
+   "drop_top3_pnl": -11162.1,
+   "half1": {
+    "n": 344,
+    "pnl": -4158.9,
+    "wr": 0.645,
+    "expectancy": -12.09
+   },
+   "half2": {
+    "n": 347,
+    "pnl": -5404.8,
+    "wr": 0.637,
+    "expectancy": -15.58
+   },
+   "slippage_breakeven_cents_per_side": -2.31,
+   "p_null": 0.0,
+   "exit_reasons": {
+    "CHANDELIER": 427,
+    "STOP": 237,
+    "TIME_STOP": 24,
+    "TP_PREMIUM": 3
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 238,
+     "pnl": -2656.5,
+     "wr": 0.672,
+     "expectancy": -11.16
+    },
+    "20-25": {
+     "n": 116,
+     "pnl": -2849.4,
+     "wr": 0.603,
+     "expectancy": -24.56
+    },
+    "<17": {
+     "n": 285,
+     "pnl": -2654.4,
+     "wr": 0.621,
+     "expectancy": -9.31
+    },
+    ">=25": {
+     "n": 52,
+     "pnl": -1403.4,
+     "wr": 0.692,
+     "expectancy": -26.99
+    }
+   },
+   "n_days_traded": 277,
+   "bh_fdr_survivor": true,
+   "bh_rank": 2,
+   "clears": false,
+   "fails": [
+    "expectancy -13.84 <= 0",
+    "oos_expectancy -19.55 <= 0",
+    "drop_top3 -11162.1 <= 0",
+    "halves -4158.9/-5404.8 not both > 0",
+    "slip_breakeven -2.31c < 2c",
+    "bear-side expectancy -14.26 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.5,
+    "break_lookback_bars": 6,
+    "vol_mult_min": 1.5,
+    "stack_filter": "not_flipped"
+   },
+   "full": {
+    "n": 161,
+    "pnl": -2906.4,
+    "wr": 0.646,
+    "expectancy": -18.05
+   },
+   "short": {
+    "n": 97,
+    "pnl": -1459.2,
+    "wr": 0.649,
+    "expectancy": -15.04
+   },
+   "long": {
+    "n": 64,
+    "pnl": -1447.2,
+    "wr": 0.641,
+    "expectancy": -22.61
+   },
+   "is": {
+    "n": 98,
+    "pnl": -543.0,
+    "wr": 0.684,
+    "expectancy": -5.54
+   },
+   "oos": {
+    "n": 63,
+    "pnl": -2363.4,
+    "wr": 0.587,
+    "expectancy": -37.51
+   },
+   "drop_top3_pnl": -3709.2,
+   "half1": {
+    "n": 80,
+    "pnl": -176.4,
+    "wr": 0.713,
+    "expectancy": -2.2
+   },
+   "half2": {
+    "n": 81,
+    "pnl": -2730.0,
+    "wr": 0.58,
+    "expectancy": -33.7
+   },
+   "slippage_breakeven_cents_per_side": -3.01,
+   "p_null": 0.133,
+   "exit_reasons": {
+    "CHANDELIER": 104,
+    "STOP": 54,
+    "TIME_STOP": 3
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 59,
+     "pnl": -347.4,
+     "wr": 0.746,
+     "expectancy": -5.89
+    },
+    "20-25": {
+     "n": 20,
+     "pnl": -1583.4,
+     "wr": 0.4,
+     "expectancy": -79.17
+    },
+    "<17": {
+     "n": 70,
+     "pnl": -508.8,
+     "wr": 0.643,
+     "expectancy": -7.27
+    },
+    ">=25": {
+     "n": 12,
+     "pnl": -466.8,
+     "wr": 0.583,
+     "expectancy": -38.9
+    }
+   },
+   "n_days_traded": 116,
+   "bh_fdr_survivor": false,
+   "bh_rank": 19,
+   "clears": false,
+   "fails": [
+    "expectancy -18.05 <= 0",
+    "oos_expectancy -37.51 <= 0",
+    "drop_top3 -3709.2 <= 0",
+    "halves -176.4/-2730.0 not both > 0",
+    "p_null 0.133 > 0.05",
+    "BH-FDR non-survivor",
+    "slip_breakeven -3.01c < 2c",
+    "bear-side expectancy -15.04 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.5,
+    "break_lookback_bars": 12,
+    "vol_mult_min": 1.5,
+    "stack_filter": "not_flipped"
+   },
+   "full": {
+    "n": 163,
+    "pnl": -3232.2,
+    "wr": 0.638,
+    "expectancy": -19.83
+   },
+   "short": {
+    "n": 98,
+    "pnl": -1587.0,
+    "wr": 0.643,
+    "expectancy": -16.19
+   },
+   "long": {
+    "n": 65,
+    "pnl": -1645.2,
+    "wr": 0.631,
+    "expectancy": -25.31
+   },
+   "is": {
+    "n": 98,
+    "pnl": -543.0,
+    "wr": 0.684,
+    "expectancy": -5.54
+   },
+   "oos": {
+    "n": 65,
+    "pnl": -2689.2,
+    "wr": 0.569,
+    "expectancy": -41.37
+   },
+   "drop_top3_pnl": -4035.0,
+   "half1": {
+    "n": 80,
+    "pnl": -176.4,
+    "wr": 0.713,
+    "expectancy": -2.2
+   },
+   "half2": {
+    "n": 83,
+    "pnl": -3055.8,
+    "wr": 0.566,
+    "expectancy": -36.82
+   },
+   "slippage_breakeven_cents_per_side": -3.3,
+   "p_null": 0.183,
+   "exit_reasons": {
+    "CHANDELIER": 104,
+    "STOP": 56,
+    "TIME_STOP": 3
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 59,
+     "pnl": -347.4,
+     "wr": 0.746,
+     "expectancy": -5.89
+    },
+    "20-25": {
+     "n": 21,
+     "pnl": -1711.2,
+     "wr": 0.381,
+     "expectancy": -81.49
+    },
+    "<17": {
+     "n": 70,
+     "pnl": -508.8,
+     "wr": 0.643,
+     "expectancy": -7.27
+    },
+    ">=25": {
+     "n": 13,
+     "pnl": -664.8,
+     "wr": 0.538,
+     "expectancy": -51.14
+    }
+   },
+   "n_days_traded": 116,
+   "bh_fdr_survivor": false,
+   "bh_rank": 22,
+   "clears": false,
+   "fails": [
+    "expectancy -19.83 <= 0",
+    "oos_expectancy -41.37 <= 0",
+    "drop_top3 -4035.0 <= 0",
+    "halves -176.4/-3055.8 not both > 0",
+    "p_null 0.183 > 0.05",
+    "BH-FDR non-survivor",
+    "slip_breakeven -3.3c < 2c",
+    "bear-side expectancy -16.19 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.35,
+    "break_lookback_bars": 6,
+    "vol_mult_min": 0.0,
+    "stack_filter": "not_flipped"
+   },
+   "full": {
+    "n": 705,
+    "pnl": -10994.4,
+    "wr": 0.635,
+    "expectancy": -15.59
+   },
+   "short": {
+    "n": 378,
+    "pnl": -5948.4,
+    "wr": 0.646,
+    "expectancy": -15.74
+   },
+   "long": {
+    "n": 327,
+    "pnl": -5046.0,
+    "wr": 0.624,
+    "expectancy": -15.43
+   },
+   "is": {
+    "n": 467,
+    "pnl": -5744.1,
+    "wr": 0.638,
+    "expectancy": -12.3
+   },
+   "oos": {
+    "n": 238,
+    "pnl": -5250.3,
+    "wr": 0.63,
+    "expectancy": -22.06
+   },
+   "drop_top3_pnl": -12299.4,
+   "half1": {
+    "n": 351,
+    "pnl": -4679.4,
+    "wr": 0.641,
+    "expectancy": -13.33
+   },
+   "half2": {
+    "n": 354,
+    "pnl": -6315.0,
+    "wr": 0.63,
+    "expectancy": -17.84
+   },
+   "slippage_breakeven_cents_per_side": -2.6,
+   "p_null": 0.001,
+   "exit_reasons": {
+    "CHANDELIER": 432,
+    "STOP": 246,
+    "TIME_STOP": 23,
+    "TP_PREMIUM": 4
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 240,
+     "pnl": -3011.4,
+     "wr": 0.667,
+     "expectancy": -12.55
+    },
+    "20-25": {
+     "n": 124,
+     "pnl": -3068.1,
+     "wr": 0.589,
+     "expectancy": -24.74
+    },
+    "<17": {
+     "n": 289,
+     "pnl": -3813.6,
+     "wr": 0.612,
+     "expectancy": -13.2
+    },
+    ">=25": {
+     "n": 52,
+     "pnl": -1101.3,
+     "wr": 0.731,
+     "expectancy": -21.18
+    }
+   },
+   "n_days_traded": 277,
+   "bh_fdr_survivor": true,
+   "bh_rank": 6,
+   "clears": false,
+   "fails": [
+    "expectancy -15.59 <= 0",
+    "oos_expectancy -22.06 <= 0",
+    "drop_top3 -12299.4 <= 0",
+    "halves -4679.4/-6315.0 not both > 0",
+    "slip_breakeven -2.6c < 2c",
+    "bear-side expectancy -15.74 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.35,
+    "break_lookback_bars": 12,
+    "vol_mult_min": 0.0,
+    "stack_filter": "not_flipped"
+   },
+   "full": {
+    "n": 707,
+    "pnl": -11189.7,
+    "wr": 0.634,
+    "expectancy": -15.83
+   },
+   "short": {
+    "n": 382,
+    "pnl": -6123.0,
+    "wr": 0.647,
+    "expectancy": -16.03
+   },
+   "long": {
+    "n": 325,
+    "pnl": -5066.7,
+    "wr": 0.618,
+    "expectancy": -15.59
+   },
+   "is": {
+    "n": 468,
+    "pnl": -5770.8,
+    "wr": 0.637,
+    "expectancy": -12.33
+   },
+   "oos": {
+    "n": 239,
+    "pnl": -5418.9,
+    "wr": 0.628,
+    "expectancy": -22.67
+   },
+   "drop_top3_pnl": -12494.7,
+   "half1": {
+    "n": 352,
+    "pnl": -4705.5,
+    "wr": 0.642,
+    "expectancy": -13.37
+   },
+   "half2": {
+    "n": 355,
+    "pnl": -6484.2,
+    "wr": 0.625,
+    "expectancy": -18.27
+   },
+   "slippage_breakeven_cents_per_side": -2.64,
+   "p_null": 0.003,
+   "exit_reasons": {
+    "CHANDELIER": 432,
+    "STOP": 248,
+    "TIME_STOP": 23,
+    "TP_PREMIUM": 4
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 242,
+     "pnl": -2983.8,
+     "wr": 0.665,
+     "expectancy": -12.33
+    },
+    "20-25": {
+     "n": 124,
+     "pnl": -3065.1,
+     "wr": 0.589,
+     "expectancy": -24.72
+    },
+    "<17": {
+     "n": 289,
+     "pnl": -3711.6,
+     "wr": 0.612,
+     "expectancy": -12.84
+    },
+    ">=25": {
+     "n": 52,
+     "pnl": -1429.2,
+     "wr": 0.712,
+     "expectancy": -27.48
+    }
+   },
+   "n_days_traded": 277,
+   "bh_fdr_survivor": true,
+   "bh_rank": 7,
+   "clears": false,
+   "fails": [
+    "expectancy -15.83 <= 0",
+    "oos_expectancy -22.67 <= 0",
+    "drop_top3 -12494.7 <= 0",
+    "halves -4705.5/-6484.2 not both > 0",
+    "slip_breakeven -2.64c < 2c",
+    "bear-side expectancy -16.03 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.5,
+    "break_lookback_bars": 12,
+    "vol_mult_min": 0.0,
+    "stack_filter": "any"
+   },
+   "full": {
+    "n": 898,
+    "pnl": -15142.5,
+    "wr": 0.638,
+    "expectancy": -16.86
+   },
+   "short": {
+    "n": 473,
+    "pnl": -7568.7,
+    "wr": 0.658,
+    "expectancy": -16.0
+   },
+   "long": {
+    "n": 425,
+    "pnl": -7573.8,
+    "wr": 0.616,
+    "expectancy": -17.82
+   },
+   "is": {
+    "n": 593,
+    "pnl": -9195.0,
+    "wr": 0.642,
+    "expectancy": -15.51
+   },
+   "oos": {
+    "n": 305,
+    "pnl": -5947.5,
+    "wr": 0.63,
+    "expectancy": -19.5
+   },
+   "drop_top3_pnl": -16804.5,
+   "half1": {
+    "n": 448,
+    "pnl": -7746.6,
+    "wr": 0.636,
+    "expectancy": -17.29
+   },
+   "half2": {
+    "n": 450,
+    "pnl": -7395.9,
+    "wr": 0.64,
+    "expectancy": -16.44
+   },
+   "slippage_breakeven_cents_per_side": -2.81,
+   "p_null": 0.0005,
+   "exit_reasons": {
+    "CHANDELIER": 551,
+    "STOP": 302,
+    "TIME_STOP": 41,
+    "TP_PREMIUM": 4
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 310,
+     "pnl": -4730.4,
+     "wr": 0.648,
+     "expectancy": -15.26
+    },
+    "20-25": {
+     "n": 167,
+     "pnl": -2353.5,
+     "wr": 0.665,
+     "expectancy": -14.09
+    },
+    "<17": {
+     "n": 355,
+     "pnl": -5095.5,
+     "wr": 0.611,
+     "expectancy": -14.35
+    },
+    ">=25": {
+     "n": 66,
+     "pnl": -2963.1,
+     "wr": 0.667,
+     "expectancy": -44.9
+    }
+   },
+   "n_days_traded": 326,
+   "bh_fdr_survivor": true,
+   "bh_rank": 5,
+   "clears": false,
+   "fails": [
+    "expectancy -16.86 <= 0",
+    "oos_expectancy -19.5 <= 0",
+    "drop_top3 -16804.5 <= 0",
+    "halves -7746.6/-7395.9 not both > 0",
+    "slip_breakeven -2.81c < 2c",
+    "bear-side expectancy -16.0 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.35,
+    "break_lookback_bars": 12,
+    "vol_mult_min": 0.0,
+    "stack_filter": "any"
+   },
+   "full": {
+    "n": 904,
+    "pnl": -15730.8,
+    "wr": 0.639,
+    "expectancy": -17.4
+   },
+   "short": {
+    "n": 482,
+    "pnl": -7781.1,
+    "wr": 0.656,
+    "expectancy": -16.14
+   },
+   "long": {
+    "n": 422,
+    "pnl": -7949.7,
+    "wr": 0.621,
+    "expectancy": -18.84
+   },
+   "is": {
+    "n": 595,
+    "pnl": -8798.7,
+    "wr": 0.644,
+    "expectancy": -14.79
+   },
+   "oos": {
+    "n": 309,
+    "pnl": -6932.1,
+    "wr": 0.631,
+    "expectancy": -22.43
+   },
+   "drop_top3_pnl": -17137.2,
+   "half1": {
+    "n": 450,
+    "pnl": -7209.9,
+    "wr": 0.642,
+    "expectancy": -16.02
+   },
+   "half2": {
+    "n": 454,
+    "pnl": -8520.9,
+    "wr": 0.637,
+    "expectancy": -18.77
+   },
+   "slippage_breakeven_cents_per_side": -2.9,
+   "p_null": 0.0,
+   "exit_reasons": {
+    "CHANDELIER": 556,
+    "STOP": 302,
+    "TIME_STOP": 41,
+    "TP_PREMIUM": 5
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 312,
+     "pnl": -5043.3,
+     "wr": 0.654,
+     "expectancy": -16.16
+    },
+    "20-25": {
+     "n": 170,
+     "pnl": -1728.6,
+     "wr": 0.676,
+     "expectancy": -10.17
+    },
+    "<17": {
+     "n": 355,
+     "pnl": -5958.9,
+     "wr": 0.606,
+     "expectancy": -16.79
+    },
+    ">=25": {
+     "n": 67,
+     "pnl": -3000.0,
+     "wr": 0.657,
+     "expectancy": -44.78
+    }
+   },
+   "n_days_traded": 326,
+   "bh_fdr_survivor": true,
+   "bh_rank": 1,
+   "clears": false,
+   "fails": [
+    "expectancy -17.4 <= 0",
+    "oos_expectancy -22.43 <= 0",
+    "drop_top3 -17137.2 <= 0",
+    "halves -7209.9/-8520.9 not both > 0",
+    "slip_breakeven -2.9c < 2c",
+    "bear-side expectancy -16.14 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.35,
+    "break_lookback_bars": 6,
+    "vol_mult_min": 0.0,
+    "stack_filter": "any"
+   },
+   "full": {
+    "n": 879,
+    "pnl": -15448.8,
+    "wr": 0.639,
+    "expectancy": -17.58
+   },
+   "short": {
+    "n": 465,
+    "pnl": -8153.4,
+    "wr": 0.652,
+    "expectancy": -17.53
+   },
+   "long": {
+    "n": 414,
+    "pnl": -7295.4,
+    "wr": 0.626,
+    "expectancy": -17.62
+   },
+   "is": {
+    "n": 581,
+    "pnl": -7802.7,
+    "wr": 0.651,
+    "expectancy": -13.43
+   },
+   "oos": {
+    "n": 298,
+    "pnl": -7646.1,
+    "wr": 0.617,
+    "expectancy": -25.66
+   },
+   "drop_top3_pnl": -16855.2,
+   "half1": {
+    "n": 439,
+    "pnl": -6783.3,
+    "wr": 0.64,
+    "expectancy": -15.45
+   },
+   "half2": {
+    "n": 440,
+    "pnl": -8665.5,
+    "wr": 0.639,
+    "expectancy": -19.69
+   },
+   "slippage_breakeven_cents_per_side": -2.93,
+   "p_null": 0.0005,
+   "exit_reasons": {
+    "CHANDELIER": 537,
+    "STOP": 295,
+    "TIME_STOP": 42,
+    "TP_PREMIUM": 5
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 303,
+     "pnl": -5070.6,
+     "wr": 0.653,
+     "expectancy": -16.73
+    },
+    "20-25": {
+     "n": 164,
+     "pnl": -2122.8,
+     "wr": 0.671,
+     "expectancy": -12.94
+    },
+    "<17": {
+     "n": 347,
+     "pnl": -5590.5,
+     "wr": 0.605,
+     "expectancy": -16.11
+    },
+    ">=25": {
+     "n": 65,
+     "pnl": -2664.9,
+     "wr": 0.677,
+     "expectancy": -41.0
+    }
+   },
+   "n_days_traded": 324,
+   "bh_fdr_survivor": true,
+   "bh_rank": 4,
+   "clears": false,
+   "fails": [
+    "expectancy -17.58 <= 0",
+    "oos_expectancy -25.66 <= 0",
+    "drop_top3 -16855.2 <= 0",
+    "halves -6783.3/-8665.5 not both > 0",
+    "slip_breakeven -2.93c < 2c",
+    "bear-side expectancy -17.53 <= 0"
+   ]
+  },
+  {
+   "combo": {
+    "wick_frac_min": 0.5,
+    "break_lookback_bars": 6,
+    "vol_mult_min": 0.0,
+    "stack_filter": "any"
+   },
+   "full": {
+    "n": 874,
+    "pnl": -15670.5,
+    "wr": 0.635,
+    "expectancy": -17.93
+   },
+   "short": {
+    "n": 458,
+    "pnl": -8245.8,
+    "wr": 0.651,
+    "expectancy": -18.0
+   },
+   "long": {
+    "n": 416,
+    "pnl": -7424.7,
+    "wr": 0.618,
+    "expectancy": -17.85
+   },
+   "is": {
+    "n": 578,
+    "pnl": -8627.7,
+    "wr": 0.645,
+    "expectancy": -14.93
+   },
+   "oos": {
+    "n": 296,
+    "pnl": -7042.8,
+    "wr": 0.615,
+    "expectancy": -23.79
+   },
+   "drop_top3_pnl": -17332.5,
+   "half1": {
+    "n": 437,
+    "pnl": -7772.7,
+    "wr": 0.629,
+    "expectancy": -17.79
+   },
+   "half2": {
+    "n": 437,
+    "pnl": -7897.8,
+    "wr": 0.641,
+    "expectancy": -18.07
+   },
+   "slippage_breakeven_cents_per_side": -2.99,
+   "p_null": 0.004,
+   "exit_reasons": {
+    "CHANDELIER": 530,
+    "STOP": 298,
+    "TIME_STOP": 42,
+    "TP_PREMIUM": 4
+   },
+   "vix_buckets": {
+    "17-20": {
+     "n": 303,
+     "pnl": -4816.2,
+     "wr": 0.65,
+     "expectancy": -15.9
+    },
+    "20-25": {
+     "n": 160,
+     "pnl": -2863.5,
+     "wr": 0.656,
+     "expectancy": -17.9
+    },
+    "<17": {
+     "n": 347,
+     "pnl": -4970.4,
+     "wr": 0.608,
+     "expectancy": -14.32
+    },
+    ">=25": {
+     "n": 64,
+     "pnl": -3020.4,
+     "wr": 0.656,
+     "expectancy": -47.19
+    }
+   },
+   "n_days_traded": 324,
+   "bh_fdr_survivor": true,
+   "bh_rank": 8,
+   "clears": false,
+   "fails": [
+    "expectancy -17.93 <= 0",
+    "oos_expectancy -23.79 <= 0",
+    "drop_top3 -17332.5 <= 0",
+    "halves -7772.7/-7897.8 not both > 0",
+    "slip_breakeven -2.99c < 2c",
+    "bear-side expectancy -18.0 <= 0"
+   ]
+  }
+ ],
+ "kill_nail": {
+  "anchor": "PASS \u2014 detector sees J case (bearish 10:25/10:30/10:40 ET 2026-07-02, stack pre-flip, 3 fires <= 5)",
+  "j_exact_config": "not_flipped + vol>=1.5: N=174 WR=65.5% expectancy=-16.16/trade, OOS -30.10, drop_top3 -3615, short -12.41 / long -22.01 (both negative)",
+  "best_of_24": "wick>=0.5 lb<=6 vol>=2.5 any: full +2.74/trade but IS +26.98 vs OOS -21.50; drop_top3 -810; slippage breakeven 0.46c/side",
+  "mechanism": "C3: WR ~65% with negative expectancy \u2014 chandelier locks small wins, -30% stops eat big losses; R:R inverted (NLWB failure family, L58)",
+  "signal_vs_null": "beats random entry (null short -23.53 / long -33.41 per trade; several combos p<0.05 and BH-FDR survive) \u2014 relative info exists, absolute edge does not",
+  "disclosed_limit": "exits FIXED (TP+50/stop-30/60min/ATM/chandelier), not gridded; exit-redesign rescue not ruled out but L58 precedent says this family does not rescue via exit knobs",
+  "future_vein": "repurpose as exit/veto signal (bear rejection wick = do-not-enter-bull / tighten runner), not an entry"
+ },
+ "premarket_open_level_check": {
+  "in_key_levels_feed": false,
+  "finding": "refresh_levels_intraday.py computes INTRADAY_PMH/PML (premarket high/low) only; no producer emits the premarket session OPEN price",
+  "one_line_spec_do_not_apply_today": "setup/scripts/refresh_levels_intraday.py refresh(): after the len(pre) INTRADAY_PMH/PML block add: computed.append(('INTRADAY_PMO', float(pre['open'].iloc[0]), 'premarket_open')) \u2014 plus 'premarket_open': None entry in the role map so _normalize_levels derives role from price-vs-spot"
+ }
+}
