@@ -1,0 +1,117 @@
+{
+  "generated": "2026-07-02T09:35:10",
+  "purpose": "WIRE-BOLLINGER step 3 \u2014 chosen-cell re-verification on the fresh-to-2026-07-01 OPRA cache (alpha-plan rank #2, 2026-07-02)",
+  "cell": {
+    "family": "bollinger_squeeze",
+    "strike": "ATM",
+    "strike_offset": 0,
+    "stop_pct": -0.08,
+    "tp1": 0.3,
+    "tq": 0.667,
+    "trail": 0.15,
+    "qty": 3
+  },
+  "frame": {
+    "first": "2025-01-02",
+    "last": "2026-07-01",
+    "trading_days": 373,
+    "opra_cache_last": "2026-07-01"
+  },
+  "signals": {
+    "n": 325,
+    "n_old_window": 316,
+    "old_window_matches_grind_316": true,
+    "n_fresh_tail": 9,
+    "n_call": 161,
+    "n_put": 164,
+    "firing_rate": 0.684,
+    "family_directional": false,
+    "port_parity_vs_original": true
+  },
+  "frame_convention_disclosure": "Grind wall-time convention reproduced byte-identically (master CSV stores a fixed -04:00 offset year-round; tz-strip keeps wall time, so winter sessions run 10:30..15:55 wall = true 09:30..14:55 ET, last true hour clipped). Fresh tail appended in EDT months where conventions agree. A DST-correct re-parse changes the winter signal population (360 vs 316) \u2014 flagged as a separate research-stack data artifact, NOT mixed into this re-verification.",
+  "metrics": {
+    "n": 312,
+    "total": 11001.2,
+    "wr": 37.2,
+    "exp": 35.3,
+    "is_n": 202,
+    "is_total": 6160.9,
+    "oos_n": 110,
+    "oos_total": 4840.3,
+    "oos_exp": 44.0,
+    "quarters": {
+      "2025Q1": 582.3,
+      "2025Q2": 2190.6,
+      "2025Q3": 1215.8,
+      "2025Q4": 2172.1,
+      "2026Q1": 2669.8,
+      "2026Q2": 1929.3,
+      "2026Q3": 241.2
+    },
+    "qpf": 1.0,
+    "top5_day_pct": 31.0,
+    "max_dd": -139.2,
+    "wf": 1.443,
+    "edge_capture": -53.28,
+    "edge_capture_vacuous": false,
+    "n_call": 159,
+    "n_put": 153,
+    "no_data": 13
+  },
+  "candidate_bar": {
+    "pass": true,
+    "fail_reasons": []
+  },
+  "null": {
+    "null_pass": true,
+    "per_trade": 35.26,
+    "drop_top5_per_trade": 24.75,
+    "null_mean": 17.54,
+    "null_max": 23.73,
+    "edge_over_null": 17.72,
+    "beats_null_max": true,
+    "drop_top5_beats_null_mean": true,
+    "seeds": 10
+  },
+  "dir_null": {
+    "dir_null_pass": true,
+    "per_trade": 35.26,
+    "drop_top5_per_trade": 24.75,
+    "null_mean": 17.88,
+    "null_max": 26.12,
+    "edge_over_dir_null": 9.14,
+    "seeds": 20
+  },
+  "side_split": {
+    "P": {
+      "total": 6414.39,
+      "n": 153,
+      "exp": 41.92
+    },
+    "C": {
+      "total": 4586.84,
+      "n": 159,
+      "exp": 28.85
+    }
+  },
+  "recency": {
+    "fresh_tail_after": "2026-06-18",
+    "fresh_tail_n": 9,
+    "fresh_tail_pnl": 433.17,
+    "last20_pnl": 639.66,
+    "last20_wr_pct": 45.0
+  },
+  "grind_baseline_2026_06_25": {
+    "n": 303,
+    "exp": 34.9,
+    "oos_exp": 43.6,
+    "wf": 1.431,
+    "qpf": 1.0,
+    "top5_day_pct": 33.0,
+    "max_dd": -139.2,
+    "source": "analysis/recommendations/family-grind-bollinger_squeeze.json"
+  },
+  "verdict": "PASS",
+  "authority": "real OPRA fills (C1); ported-watcher signals parity-asserted vs family_detectors (C14); stock null (C3/L58/L171) + dir-null (L188)",
+  "elapsed_min": 0.4
+}
