@@ -158,7 +158,7 @@ class TestExecuteValidatedCell:
                                     generic_strike):
         _wire_execute(hc, monkeypatch, tmp_path)
         verdict = {"verdict": verdict_name, "setup_name": SETUP, "triggers_fired": [SETUP]}
-        payload = {"bar_ctx": {"bar": {"close": 620.4}}}
+        payload = {"bar_ctx": {"timestamp_et": "2026-07-02 10:55:00", "bar": {"close": 620.4}}}
         plan = hc._execute("safe", verdict, payload, SAFE_PARAMS, dry=True)
         assert plan["status"] == "WOULD_PLACE", plan
         # (b) validated pcts on mid=1.00 — NOT the -0.50 global catastrophe shape
@@ -181,7 +181,7 @@ class TestRegisteredExitShape:
         reg = _RegRecorder()
         _wire_execute(hc, monkeypatch, tmp_path, reg=reg)
         verdict = {"verdict": "ENTER_BULL", "setup_name": SETUP, "triggers_fired": [SETUP]}
-        plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.4}}},
+        plan = hc._execute("safe", verdict, {"bar_ctx": {"timestamp_et": "2026-07-02 10:55:00", "bar": {"close": 620.4}}},
                            params, dry=False)
         assert plan["status"] == "PLACED", plan
         assert len(reg.calls) == 1, "register_entry must fire exactly once on PLACED"

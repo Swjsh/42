@@ -164,6 +164,38 @@ def _past_entry_ceiling(params: dict, now_et: datetime) -> bool:
     return now_et.time() >= ceiling
 
 
+def _before_entry_floor(params: dict, now_et: datetime) -> bool:
+    """FIX (2026-07-02): wall-clock entry-time floor — mirror of _past_entry_ceiling.
+    entry_no_trade_before_et was enforced only against the TRIGGER BAR timestamp
+    (filters.py filter-1), which at the open ticks is still the PRIOR day's 15:50/15:55
+    bar — so the 09:35 floor could never fire (2026-07-02: ENTER_BEAR placed 09:30:03).
+    True => now_et is BEFORE the floor => the caller logs SKIP_EARLY_ENTRY and never
+    attempts an order. Missing/malformed key fails CLOSED to the 09:35 doctrine default.
+    Guard: test_entry_floor_2026_07_02.py::TestCoreWallClockFloor."""
+    raw = params.get("entry_no_trade_before_et") if isinstance(params, dict) else None
+    floor = time(9, 35)
+    if raw:
+        try:
+            parts = str(raw).split(":")
+            floor = time(int(parts[0]), int(parts[1]) if len(parts) > 1 else 0)
+        except (TypeError, ValueError, IndexError):
+            floor = time(9, 35)
+    return now_et.time() < floor
+
+
+def _stale_trigger_bar(payload: dict, now_et: datetime) -> bool:
+    """FIX (2026-07-02): an ENTER is only actionable when its trigger bar is from
+    TODAY's session. At the open ticks the 2nd-to-last fetched bar is the PRIOR day's
+    15:50/15:55 bar — scoring it re-emits yesterday's dying signal at today's prices
+    (the 2026-07-02 09:30:03 incident). Malformed/absent timestamp fails CLOSED (stale).
+    Guard: test_entry_floor_2026_07_02.py::TestCoreStaleTriggerBar."""
+    try:
+        ts = str(payload["bar_ctx"]["timestamp_et"])
+        return ts[:10] != now_et.strftime("%Y-%m-%d")
+    except (KeyError, TypeError, IndexError):
+        return True
+
+
 # ----- live market state -----------------------------------------------------
 def _fetch_spy_5m() -> pd.DataFrame:
     """SPY 5m OHLCV, ~5 trading days, via direct Alpaca REST (same un-blockable path as the beacon)."""
@@ -648,6 +680,14 @@ def run_account(account: str) -> dict:
         # nothing. _execute has the same check (belt-and-suspenders for the extra-setup route).
         rec["action"] = "SKIP_LATE_ENTRY"
         rec["entry_ceiling_et"] = str(params.get("entry_no_trade_after_et") or "15:00")
+    elif v in ("ENTER_BEAR", "ENTER_BULL") and _stale_trigger_bar(payload, et):
+        # FIX (2026-07-02): prior-day trigger bar — yesterday's signal, not today's.
+        rec["action"] = "SKIP_STALE_TRIGGER"
+        rec["trigger_bar_et"] = str(payload["bar_ctx"].get("timestamp_et"))
+    elif v in ("ENTER_BEAR", "ENTER_BULL") and _before_entry_floor(params, et):
+        # FIX (2026-07-02): wall-clock floor — [09:35, 15:00) now enforced on BOTH ends.
+        rec["action"] = "SKIP_EARLY_ENTRY"
+        rec["entry_floor_et"] = str(params.get("entry_no_trade_before_et") or "09:35")
     elif v in ("ENTER_BEAR", "ENTER_BULL"):
         rec["free_eval"] = _free_model_eval(account, payload, verdict)
         if rec["free_eval"].get("veto"):
@@ -933,9 +973,16 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     # FIX1 belt-and-suspenders (2026-07-01): EVERY route into _execute (core ribbon verdict
     # AND the extra-setup G4 route) hits this ceiling before any broker call. A late signal
     # is a logged SKIP verdict, never an order attempt.
-    if _past_entry_ceiling(params, _et_now()):
+    _now_exec = _et_now()
+    if _past_entry_ceiling(params, _now_exec):
         return {"status": "SKIP_LATE_ENTRY",
                 "entry_ceiling_et": str(params.get("entry_no_trade_after_et") or "15:00")}
+    if _stale_trigger_bar(payload, _now_exec):
+        return {"status": "SKIP_STALE_TRIGGER",
+                "trigger_bar_et": str(payload["bar_ctx"].get("timestamp_et"))}
+    if _before_entry_floor(params, _now_exec):
+        return {"status": "SKIP_EARLY_ENTRY",
+                "entry_floor_et": str(params.get("entry_no_trade_before_et") or "09:35")}
     import urllib.request
     import fleet_broker as fb  # noqa: PLC0415
     import risk_gate as rg  # noqa: PLC0415

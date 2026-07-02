@@ -229,6 +229,22 @@ def _past_entry_ceiling(params: dict, now_et: datetime) -> bool:
     return now_et.time() >= ceiling
 
 
+def _before_entry_floor(params: dict, now_et: datetime) -> bool:
+    """FIX (2026-07-02): wall-clock entry-time floor (mirror of heartbeat_core).
+    Fleet had a ceiling mirror but NO floor — safe-1 entered 09:31:01 on 2026-07-02 off
+    the core's stale 09:30:03 verdict. Fails CLOSED to the 09:35 doctrine default.
+    Guard: test_entry_floor_2026_07_02.py::TestFleetFloorMirror."""
+    raw = params.get("entry_no_trade_before_et") if isinstance(params, dict) else None
+    floor = dt_time(9, 35)
+    if raw:
+        try:
+            parts = str(raw).split(":")
+            floor = dt_time(int(parts[0]), int(parts[1]) if len(parts) > 1 else 0)
+        except (TypeError, ValueError, IndexError):
+            floor = dt_time(9, 35)
+    return now_et.time() < floor
+
+
 def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
                 signal: dict, params: dict, now: datetime) -> dict:
     """LIVE bracket placement (gated). Built for the Monday flip; never runs in WATCH.
@@ -249,6 +265,11 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
     if _past_entry_ceiling(params, now):
         return {"mode": "LIVE", "placed": False, "reason": "SKIP_LATE_ENTRY",
                 "entry_ceiling_et": str(params.get("entry_no_trade_after_et") or "15:00")}
+    # FIX (2026-07-02): wall-clock floor mirror — the fleet consumes the core verdict
+    # via shared-signal (passed derives from VERDICT, not action), so it needs its own gate.
+    if _before_entry_floor(params, now):
+        return {"mode": "LIVE", "placed": False, "reason": "SKIP_EARLY_ENTRY",
+                "entry_floor_et": str(params.get("entry_no_trade_before_et") or "09:35")}
     side = decision.side
     strike = decision.strike
     qty = decision.qty

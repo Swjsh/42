@@ -101,8 +101,16 @@ def _decision_is_blind(row: dict | None, today: str, now: datetime, stale_min: i
 # outcome (e.g. PLACE_FAIL) while `verdict` stays the brain's decision, and the
 # validated replay_fleet_arms harness keys off the verdict. We surface the
 # verdict-as-action so derive-passed (startswith ENTER_*) is faithful to the brain.
+# 2026-07-02 entry-floor fix: brain-level TIME-GATE skips must not fan out as ENTER.
+# Unlike PLACE_FAIL (execution noise — arms may succeed where the core's broker call
+# failed), these mean the entry was never actionable at this wall-clock time.
+_TIME_GATE_SKIPS = frozenset({"SKIP_EARLY_ENTRY", "SKIP_STALE_TRIGGER", "SKIP_LATE_ENTRY"})
+
+
 def _map_core_row(row: dict) -> dict:
     verdict = row.get("verdict")
+    if row.get("action") in _TIME_GATE_SKIPS:
+        verdict = "HOLD"
     trig = row.get("triggers") or []
     if not isinstance(trig, list):
         trig = [trig] if trig else []

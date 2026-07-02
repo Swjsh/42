@@ -278,7 +278,7 @@ class TestStrikeOverride:
                                                      setup, verdict_name, generic_strike):
         posts = _wire_execute(hc, monkeypatch, tmp_path, equity="25000.0")
         verdict = {"verdict": verdict_name, "setup_name": setup, "triggers_fired": [setup]}
-        payload = {"bar_ctx": {"bar": {"close": 620.4}}}
+        payload = {"bar_ctx": {"timestamp_et": "2026-07-02 10:55:00", "bar": {"close": 620.4}}}
         plan = hc._execute("safe", verdict, payload, SAFE_PARAMS, dry=False)
         assert plan["status"] == "PLACED", plan
         assert plan["strike"] == 620, f"{setup} must trade ATM (its validated cell)"
@@ -296,7 +296,7 @@ class TestStrikeOverride:
         _wire_execute(hc, monkeypatch, tmp_path, equity="25000.0")
         verdict = {"verdict": "ENTER_BEAR", "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON",
                    "triggers_fired": ["level_rejection"]}
-        plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.4}}},
+        plan = hc._execute("safe", verdict, {"bar_ctx": {"timestamp_et": "2026-07-02 10:55:00", "bar": {"close": 620.4}}},
                            SAFE_PARAMS, dry=True)
         assert plan["strike"] == 622  # generic Safe ITM-2 tier at $25K, unchanged
 
@@ -327,7 +327,7 @@ class TestIsolatedExitShape:
         reg = _RegRecorder()
         _wire_execute(hc, monkeypatch, tmp_path, reg=reg)
         verdict = {"verdict": verdict_name, "setup_name": setup, "triggers_fired": [setup]}
-        plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.4}}},
+        plan = hc._execute("safe", verdict, {"bar_ctx": {"timestamp_et": "2026-07-02 10:55:00", "bar": {"close": 620.4}}},
                            SAFE_PARAMS, dry=False)
         assert plan["status"] == "PLACED", plan
         # plan-level tp/stop reflect the isolated knobs (mid mocked at 1.00)
@@ -348,7 +348,7 @@ class TestIsolatedExitShape:
         _wire_execute(hc, monkeypatch, tmp_path, reg=reg)
         verdict = {"verdict": "ENTER_BEAR", "setup_name": "vwap_continuation",
                    "triggers_fired": ["vwap_continuation"]}
-        plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.4}}},
+        plan = hc._execute("safe", verdict, {"bar_ctx": {"timestamp_et": "2026-07-02 10:55:00", "bar": {"close": 620.4}}},
                            SAFE_PARAMS, dry=False)
         assert plan["status"] == "PLACED", plan
         assert plan["stop"] == 0.92  # mid 1.00 * (1 - 0.08) — the validated isolated stop
@@ -372,7 +372,7 @@ class TestIsolatedExitShape:
         monkeypatch.setitem(sys.modules, "strategies", real_strat)  # undo the None mask
         verdict = {"verdict": "ENTER_BEAR", "setup_name": "vwap_continuation",
                    "triggers_fired": ["vwap_continuation"]}
-        plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.4}}},
+        plan = hc._execute("safe", verdict, {"bar_ctx": {"timestamp_et": "2026-07-02 10:55:00", "bar": {"close": 620.4}}},
                            SAFE_PARAMS, dry=False)
         assert plan["status"] == "PLACED", plan
         shape = reg.calls[0]["exit_shape"]
@@ -388,7 +388,7 @@ class TestIsolatedExitShape:
         _wire_execute(hc, monkeypatch, tmp_path, reg=reg)
         verdict = {"verdict": "ENTER_BEAR", "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON",
                    "triggers_fired": ["level_rejection"]}
-        plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.4}}},
+        plan = hc._execute("safe", verdict, {"bar_ctx": {"timestamp_et": "2026-07-02 10:55:00", "bar": {"close": 620.4}}},
                            SAFE_PARAMS, dry=False)
         assert plan["status"] == "PLACED", plan
         assert reg.calls[0]["exit_shape"]["premium_stop_pct"] == -0.50

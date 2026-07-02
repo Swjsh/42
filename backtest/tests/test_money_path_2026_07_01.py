@@ -93,6 +93,9 @@ class TestEntryCeiling:
     @staticmethod
     def _wire_run_account(hc, monkeypatch, now):
         payload = {"bar_ctx": {
+            # 2026-07-02 entry-floor fix: trigger bar must be same-day as the harness
+            # clock or run_account/_execute now emit SKIP_STALE_TRIGGER (by design).
+            "timestamp_et": now.strftime("%Y-%m-%d %H:%M:%S"),
             "bar": {"close": 620.0},
             "ribbon_now": {"stack": "BEARISH", "spread_cents": 45.0},
             "vix_now": 17.2, "vix_prior": 17.3, "htf_15m_stack": "BEARISH"}}
@@ -148,7 +151,7 @@ class TestEntryCeiling:
         monkeypatch.setattr(fb, "load_creds", _boom)
         monkeypatch.setattr(fb, "_request", _boom)
         monkeypatch.setattr(hc, "_et_now", lambda: dt.datetime(2026, 7, 2, 15, 30))
-        out = hc._execute("safe", {"verdict": "ENTER_BEAR"}, {"bar_ctx": {"bar": {"close": 620.0}}},
+        out = hc._execute("safe", {"verdict": "ENTER_BEAR"}, {"bar_ctx": {"timestamp_et": "2026-07-02 10:55:00", "bar": {"close": 620.0}}},
                           SAFE_PARAMS, dry=False)
         assert out["status"] == "SKIP_LATE_ENTRY"
 
@@ -254,7 +257,7 @@ class TestSimpleFirstPlacement:
         posts = _wire_execute(hc, monkeypatch, tmp_path)
         verdict = {"verdict": "ENTER_BEAR", "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON",
                    "triggers_fired": ["level_rejection"]}
-        plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.0}}},
+        plan = hc._execute("safe", verdict, {"bar_ctx": {"timestamp_et": "2026-07-02 10:55:00", "bar": {"close": 620.0}}},
                            SAFE_PARAMS, dry=False)
         assert plan["status"] == "PLACED", plan
         assert len(posts) == 1, f"exactly ONE order POST expected, got {posts}"
@@ -270,7 +273,7 @@ class TestSimpleFirstPlacement:
         posts = _wire_execute(hc, monkeypatch, tmp_path, manages_exits=False)
         verdict = {"verdict": "ENTER_BEAR", "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON",
                    "triggers_fired": ["level_rejection"]}
-        plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.0}}},
+        plan = hc._execute("safe", verdict, {"bar_ctx": {"timestamp_et": "2026-07-02 10:55:00", "bar": {"close": 620.0}}},
                            SAFE_PARAMS, dry=False)
         assert plan["status"] == "PLACE_FAIL"
         assert "_refused" in plan["broker"]
@@ -414,7 +417,7 @@ class TestVwapContinuationArmed:
         posts = _wire_execute(hc, monkeypatch, tmp_path, equity="25000.0")
         verdict = {"verdict": "ENTER_BEAR", "setup_name": "vwap_continuation",
                    "triggers_fired": ["vwap_continuation"]}
-        payload = {"bar_ctx": {"bar": {"close": 620.4}}}
+        payload = {"bar_ctx": {"timestamp_et": "2026-07-02 10:55:00", "bar": {"close": 620.4}}}
         plan = hc._execute("safe", verdict, payload, SAFE_PARAMS, dry=False)
         assert plan["status"] == "PLACED", plan
         assert plan["strike"] == 620, "vwap_continuation must trade ATM (WP-5 validated cell)"
@@ -433,7 +436,7 @@ class TestVwapContinuationArmed:
         _wire_execute(hc, monkeypatch, tmp_path, equity="25000.0")
         verdict = {"verdict": "ENTER_BEAR", "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON",
                    "triggers_fired": ["level_rejection"]}
-        plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.4}}},
+        plan = hc._execute("safe", verdict, {"bar_ctx": {"timestamp_et": "2026-07-02 10:55:00", "bar": {"close": 620.4}}},
                            SAFE_PARAMS, dry=True)
         assert plan["strike"] == 622  # generic Safe ITM-2 tier at $25K, unchanged
 
@@ -454,7 +457,7 @@ class TestVwapContinuationArmed:
         monkeypatch.setitem(sys.modules, "strategies", real_strat)  # undo the None mask
         verdict = {"verdict": "ENTER_BEAR", "setup_name": "vwap_continuation",
                    "triggers_fired": ["vwap_continuation"]}
-        plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.4}}},
+        plan = hc._execute("safe", verdict, {"bar_ctx": {"timestamp_et": "2026-07-02 10:55:00", "bar": {"close": 620.4}}},
                            SAFE_PARAMS, dry=False)
         assert plan["status"] == "PLACED", plan
         assert plan["stop"] == 0.92  # mid 1.00 * (1 - 0.08) — validated isolated stop
