@@ -1,3 +1,18 @@
+## [2026-07-01 ~20:15 ET] conductor: OK -- FUNCTION-FIRST: VERIFIED tonight's money-path fix (entry funnel) is real, THEN CLOSED THE EXIT HALF -- the v15.3 PRIMARY exit was SILENTLY DEAD (ribbon-flip-back never fired) + the guard that should have caught it was VACUOUS. Commit f76ac48 (guard) + concurrent-fire 4e71618 (prod).
+
+> **Signal J wakes to (OP-33 verify-don't-claim + FUNCTION FIRST): the engine can now (a) place a fillable order AND (b) actually run its v15.3 chart-stop-PRIMARY exit tomorrow -- both halves of the money path verified, not claimed.** After-hours conductor fire, market CLOSED (Wed 20:15 ET; engine-health **GREEN**, both accounts flat, reds:[]). The live self_check verdict was **BROKEN** (Stage-1 priority-1 FUNCTION signal): today's core:safe+bold had 5 ENTER / 0 broker-accepted + 5 ENTER-after-15:00-ceiling. **DIAGNOSED (OP-33, not trusted the STATUS claim):** those are TODAY's PRE-fix decisions (RTH trading ran before b0d6ca0 committed ~19:30) -> stale-day artifact, not a live code fault. VERIFIED the money-path fix is genuinely shipped: FIX1 ceiling enforced at decision (L635) + placement (L906); FIX2 simple-first (`_place_simple_entry` mirrors the fleet primitive that PROVED filled today); wrapper arms BOTH `GAMMA_CORE_ARMED=1`+`GAMMA_CORE_MANAGES_EXITS=1`; end-to-end guarded (`test_money_path_2026_07_01.py` 35/35 incl. `test_execute_first_and_only_order_call_is_simple_marketable`). Entry funnel = closed-pending-tomorrow's-tape.
+> - **THE PICK (the EXIT half of FUNCTION, task_scorer HIGH tied 6.0 -- G14-EXIT-RIBBON-FLIPBACK-WIRE):** the natural sequel -- we made entries fillable tonight; the first fill tomorrow needs its exits correct. Audit #6 said the v15.3 PRIMARY invalidation (ribbon-flip-back) has "no live consumer (`ribbon_flip_back_fn=None`)".
+> - **OP-33 FINDING -- the queue claim was STALE but a REAL, WORSE bug sat underneath:** the wiring EXISTS (`_ribbon_flip_fn` L564 + `_manage_exits` passes `flip_fn` L586), so "fn=None" was already fixed. BUT `_ribbon_flip_fn` compared `ribbon_stack == ("BULLISH"/"BEARISH")` while the producer (`backtest/lib/ribbon.py` L102-104) ONLY emits `"BULL"/"BEAR"/"MIXED"/"WARMUP"/"UNKNOWN"` -> the comparison could NEVER match -> **the v15.3 chart-stop-PRIMARY exit silently never fired on ANY live position** (only the -50% catastrophe cap / target / time stops ran). A C14 string-mismatch dead-knob. Verified `manage_tick` (fleet/exit_actuator.py L121) calls the fn with `st.side`="P"/"C" -> invoked exactly as designed; the ONLY defect was the literal.
+> - **HIDDEN BY A VACUOUS GUARD (the L197/G16 class):** `test_g14_ribbon_flip_fn_direction` RE-IMPLEMENTED the buggy logic INLINE (asserting the wrong `"BULLISH"` literals) instead of importing the real fn -> it green-lit a dead exit. Exactly L197 (a guard baking in the frame you later need to correct) + the G13/G16 "the test mocked the thing it should exercise" hole.
+> - **SHIPPED (rail-4 PAPER trading-path fix -- guard + revert + REVOKE):** prod fix `_ribbon_flip_fn` `"BULLISH"/"BEARISH"` -> `"BULL"/"BEAR"` landed in **concurrent-fire commit 4e71618** (a parallel gamma-drive "arm 3 setups" fire independently converged on the identical fix, byte-identical comment -- same model/context -- but LEFT the vacuous guard, violating L197). MY commit **f76ac48** closed that hole: rewrote the guard to **import the REAL `heartbeat_core._ribbon_flip_fn`**, assert against the producer's ACTUAL literals, pin a producer-alphabet contract (REDs if ribbon.py renames its tokens), add MIXED/UNKNOWN/WARMUP hold cases + a BITE that the retired `"BULLISH"`/`"BEARISH"` literals are dead. Anchor 5/04 721P +$730 (ribbon stayed BEAR -> no premature flip exit) preserved. The guard now PROTECTS the prod fix -> a revert to `"BULLISH"` REDs.
+> - **VALIDATED ($0, verify-now-not-later):** in-process behavioral check of the fixed fn vs real literals PASS (`f('BULL')('SPY','P') is True`, `f('BULLISH')...is False`); G14 guard 1/1; money-path 35/35; exit/funnel/trade-to-learn 45/45; **full graduated_guards 105 passed / 1 skipped**; pre-commit curated safety gate **31 + 5 suites PASS** at f76ac48.
+> - **LEARN (4.5):** the concurrent fire's 4e71618 fixed prod but left the vacuous guard = a fresh instance of L197 (frame-fix the guard IN THE SAME COMMIT). Not a new L## -- L197 already encodes it; this fire is L197 APPLIED. Compound, not accumulate.
+> - **REVERT PATH:** `git revert f76ac48` restores the prior (vacuous) guard; prod behavior lives in 4e71618 (validated-correct, so revert is not indicated -- REVOKE is the surface, not rollback).
+> - **NEXT FIRE picks up:** both money-path halves are code-verified + guarded; the ONLY remaining proof is tomorrow's real tape (self_check/fill_funnel auto-report the first engine-originated core fill + that the v15.3 ribbon-flip-back exit fires on a real reversal). NOTE: a concurrent Gamma fire committed 5+ commits during this fire (e03aca5..67fd8ab) -- expect parallel work; STATUS.md saw a mid-fire external modification. Standing direction beyond the money path stays GEX-calendar-gated (premium axis dead L182-184; instrument+bull+range-scalp all closed; ~9 of ~60-90 GEX days accrued). J: OPEN decisions cd-2026-06-29-001 (TP1 revert), cd-2026-06-28-002 (CLAUDE-INDEX-FOLD L192-198), cd-2026-06-27-001 (G7 EOD-flatten activate).
+> - Files: `setup/scripts/heartbeat_core.py` (`_ribbon_flip_fn` literal, via concurrent 4e71618), `backtest/tests/test_graduated_guards.py` (non-vacuous G14 guard, f76ac48); `automation/overnight/queue.md`, `conductor-outcomes.jsonl`, this STATUS entry.
+
+---
+
 ## [2026-07-01 ~19:30 ET] interactive (J + Gamma): FULL PIPELINE AUDIT -> J RATIFIED 4 DOCTRINE CHANGES -> MONEY-PATH FIX BURST SHIPPED (5 commits, ~92 new guards)
 
 > **Signal J wakes to (OP-33): the engine can now actually place a fillable order tomorrow, and the fill funnel will prove it either way.** J commissioned a full swarm->kitchen->winners->engine->Alpaca audit ("not functional, not trading, crashing"). 7-agent recon found every research->engine handoff broken — full report `markdown/audits/PIPELINE-AUDIT-2026-07-01.md`. J then ratified: (1) FULL PAPER AUTONOMY (rail-4 rewritten — paper trading-path edits ship w/ guard+revert+REVOKE); (2) TRADE-TO-LEARN on paper; (3) CONSOLIDATE HARD; (4) success bar = daily paper trading + honest digest.
@@ -131,110 +146,12 @@
 
 ---
 
-## [2026-06-30 ~20:04 ET] gamma-drive: OK -- CLOSED THE #1 PROJECT THREAD'S SECOND (STRUCTURAL) BULL-UNBLOCK LEVER WITH A $0 REAL-FILLS A/B: SLICE 1 (19:55) retired `block_elite_bull` (net -$241 KEEP); SLICE 2 this fire re-audits the remaining lever `filter_10_min_triggers_bull` (2->1) on the fresh OPRA window, block_elite_bull held FIXED at prod to isolate it. Added bull cohort = **n=8, net +$76 GROSS but INCONCLUSIVE (n<10) + 493% day-concentrated + FRAGILE_TO_SLIPPAGE (breakeven 1.6c)** -> `UNBLOCK_POSITIVE_BUT_THIN_OR_FRAGILE` = **NOT proposable.** Both bull-unblock levers are now audited; neither yields a proposable bull edge on this regime -> the 0DTE-SPY bull frontier is DATA-GATED on the same 25-day OPRA wall as range-scalp. Commit 946530f.
 
-> **Signal J wakes to (OP-25) -- spent the fire on the single highest-value thread (rig has never filled an ENTER_BULL in 2544 decisions) and produced a HARD real-fills answer that CLOSES the bull-unblock question for this window: neither lever is armable, and the honest project-level conclusion is the bull lens is DATA-gated, not merely un-tuned.** After-hours gamma-drive fire, market CLOSED (Tue 20:04 ET; engine-health **GREEN** -- both heartbeats/beacon/watcher-feed/kill-switches/level-feed/gex/dispatch GREEN, both accounts flat). task_scorer top-3 all MED multi-day (EOD-PHASE-2.x / MORNING-BULL J-gated / SAFE-VIX heavily-mined) -> excluded by rail-3; only 1 author-inbox item (lesson-inbox, priority-4). THE PICK = queue HIGH `BULL-UNBLOCK-REPLAY-PROBE` SLICE 2, the named #1 thread and the 19:55 fire's explicit next slice.
-> - **DIAGNOSED before building (OP-33):** SLICE 1 proved the EMPIRICALLY-firing block (`block_elite_bull`, 32x SKIP on 06-30) correctly removes losers (net -$241, DRY_AT_ZERO). The remaining lever is STRUCTURAL: filter 11 requires 2 bull triggers, so a smooth uptrend's single-bar straddle reclaim is starved before block_elite_bull even sees it. Correct isolation = toggle min_triggers_bull 2->1 while holding block_elite_bull=True (prod), so the added cohort is EXACTLY what the 2-trigger requirement removes (not a re-test of the already-retired elite block).
-> - **SHIPPED (engine-benefit research + guard, rail-4 CLEAR -- $0 real-fills probe + JSON evidence + CI guard; touches NO params/orders/filters/heartbeat-PROMPT/CLAUDE, places NO order, arms NOTHING, proposes NOTHING since the verdict is not-proposable -> ships on green tests, no A/B):** `backtest/autoresearch/bull_unblock_structural_probe.py` runs the REAL engine twice over 2026-05-21..06-30 (use_real_fills=True) at min_triggers_bull 2 vs 1, diffs the added bull cohort, scores it with the canonical probe_stats helpers, REUSING SLICE-1's `classify_verdict`/`_key`/`_date`/window constants (compound, not duplicate). RESULT (real OPRA fills): BASE n=30/+$659, UNBLOCK n=38/+$736 -> 8 added bulls (3 wins +$375 on 3 separate days / 5 losers -$299) net **+$76 gross**, WR 37.5%, exp +$9.5/tr, top3-day 493%, slippage breakeven **0.0159** (1.6c/side kills it), significance INCONCLUSIVE (n=8<10). VERDICT `UNBLOCK_POSITIVE_BUT_THIN_OR_FRAGILE`. Result JSON `analysis/recommendations/bull-unblock-structural-2026-06-30.json`.
-> - **GRADUATED TO A GUARD (OP-25, $0):** `backtest/tests/test_bull_unblock_structural_probe.py` (5/5) -- pins the golden finding (verdict != PROPOSE; the cohort is gross-positive BUT insufficient-n AND slippage-fragile), a **ladder-parity** check (recompute verdict from committed cohort numbers, no drift, C14), and a **non-vacuous bite** (feeding the SAME net-positive cohort with survives+sufficient=True flips the ladder to PROPOSE -> proves the reason it's not proposed is the fragility, not a hollow hardcoded reject). If a future engine change silently turns this into a clean proposable edge, the golden guard re-REDs the build.
-> - **LEARN (4.5):** no new L## -- this is the C24/range-scalp "cannot tune to significance on the 25-day OPRA window; the faint positive is slippage-bleed + day-concentration, not edge" class already in doctrine. The structural probe IS that discipline applied to the bull lever; finding recorded in the result JSON.
-> - **VALIDATED ($0, verify-now-not-later):** probe ran end-to-end on real fills (<60s, no reaper risk); guard 5/5 + SLICE-1 5/5 no-regression (0.92s); graduated-guards 68 passed/1 skip; pre-commit curated safety gate **31 + 5 suites PASS** at 946530f; verify-committed clean (all 3 files absent from porcelain).
-> - **NEXT FIRE picks up:** BOTH bull-unblock levers (elite + structural) are now RETIRED/CLOSED with real-fills evidence -- neither is armable on this window. The remaining bull slice is `detect_sequence_reclaim` (a MULTI-BAR reclaim vs the single-bar straddle), but the honest project-level finding is the 0DTE-SPY bull lens is DATA-gated on the 25-day OPRA wall (same wall that blocks range-scalp n=8) -- resolving ANY of these needs a WIDER data window, not more sim tuning. Standing direction stays GEX-calendar-gated (premium axis dead L182-184; instrument rung closed 04adc35; ~8 GEX days of ~60-90 owed). J: OPEN decisions cd-2026-06-29-001 (revert vs keep+doc the 06-28 live params change), cd-2026-06-28-002 (CLAUDE-INDEX-FOLD), cd-2026-06-27-001 (G7 EOD-flatten activate).
-> - Files: `backtest/autoresearch/bull_unblock_structural_probe.py` (new), `backtest/tests/test_bull_unblock_structural_probe.py` (new, 5/5), `analysis/recommendations/bull-unblock-structural-2026-06-30.json` (new) -- all 946530f; `conductor-outcomes.jsonl`, `queue.md`, this STATUS entry.
+- [2026-07-01 17:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-01T23:57:07.953867+00:00) | fail streak: 3 consecutive fires | stage v02_source_parity pass rate dropped to 62.5% in last 24h (30/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 93.75% in last 24h (45/48) | v02 source parity drift in 34.74% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
----
+- [2026-07-01 17:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-01.log
 
-## [2026-06-30 ~19:55 ET] conductor: OK -- ATTACKED THE #1 PROJECT THREAD (rig has never filled an ENTER_BULL in 2544 decisions) WITH A $0 REAL-FILLS RE-AUDIT + RETIRED ONE OF ITS TWO BULL-UNBLOCK LEVERS: the live self-check's remaining BROKEN problem is ENGINE-CANNOT-ENTER (bull structurally unreachable). The 06-30 RTH logged **32x SKIP_ELITE_BULL_LEVEL_RECLAIM** on a bull day -> the empirically-firing block on bull days is `block_elite_bull` (VIX band [0,25)), whose OP-22 A/B was run on the OLD engine over 2025-26. Re-audited it on the FRESH OPRA real-fills window via `run_backtest` twice (block on vs off): the added cohort = n=7, WR 14.3%, **net -$241, 6/7 losers, DRY_AT_ZERO** -> the block correctly removes losers on the fresh window too. **VERDICT: BLOCK_CORRECTLY_REMOVES_LOSERS_KEEP** -- this lever does NOT unblock a profitable bull (no params change to propose). Commit 79f842c.
-
-> **Signal J wakes to (OP-25) -- spent the fire on the single highest-value thread and produced a HARD, real-fills NULL that retires a candidate lever instead of leaving it as an open hypothesis (compound: close a question, don't accumulate one).** After-hours conductor fire, market CLOSED (Tue 19:55 ET; engine-health verdict **GREEN** -- both heartbeats/beacon/watcher-feed/kill-switches/level-feed/gex/dispatch GREEN, both accounts flat). task_scorer #1 = BULL-UNBLOCK-REPLAY-PROBE (HIGH, 6.0, ready); self-audit gaps all actioned/noise; only 1 author-inbox item (lesson-inbox, priority-4 < queue-HIGH).
-> - **THE PICK (priority-3 queue HIGH = task_scorer #1, the named #1 thread):** the prior fire (17:58) drained the level-roles BROKEN flag and explicitly named the bull-unblock as the next thread. The two compounding bull blocks are (1) **filter 11 / `filter_10_min_triggers_bull=2`** (a smooth uptrend rarely produces a single-bar straddle reclaim AND a 2nd trigger) and (2) **`block_elite_bull`** VIX band [0,25). The 32x SKIP on 06-30 are block_elite_bull firing (the reclaim DID fire, reached ELITE, then got blocked) -> it is the *empirically-firing* lever, so I re-audited IT first (the structural reclaim lever is the remaining slice).
-> - **DIAGNOSED before fixing (OP-33):** read the live params -- block_elite_bull=True vix_low=0.0 vix_high=25.0; its `_block_elite_bull_doc` A/B (2026-06-18) concluded "remove the OOS losers @ VIX 17.5-25" but ran on the OLD engine over 2025-01..2026-06. Per memory `bull-blocks A/B'd on OLD engine, re-audit on engine change` + OP-16 (each per-direction block removes a *losing* cohort) -> the correct test is a FRESH-window re-audit, not a hot unblock (the audit memory explicitly says do NOT repeat the recency-RED hot-apply).
-> - **SHIPPED (engine-benefit research + guard, rail-4 CLEAR -- a $0 real-fills probe + JSON evidence + a CI guard; touches NO params/orders/filters/heartbeat-PROMPT/CLAUDE, places NO order, arms NOTHING, proposes NOTHING since the verdict is KEEP -> ships on green tests, no A/B):** `backtest/autoresearch/bull_unblock_replay_probe.py` runs the REAL engine twice over 2026-05-21..06-30 (use_real_fills=True) with block_elite_bull True vs False, diffs the added-bull cohort, and scores it with the canonical `probe_stats` helpers (significance n<10, day-concentration, slippage-sweep breakeven). RESULT (real OPRA fills): BASE n=30/+$659, UNBLOCK n=37/+$418 -> the 7 added bulls are net **-$241** (exp -$34.5/tr, WR 14.3%, DRY_AT_ZERO = no edge even at zero slippage; n=7 also INCONCLUSIVE). The block is correct on the fresh window. Result JSON `analysis/recommendations/bull-unblock-elite-replay-2026-06-30.json`.
-> - **GRADUATED TO A GUARD (OP-25, $0):** extracted the pure `classify_verdict` ladder + `backtest/tests/test_bull_unblock_replay_probe.py` (5/5) -- pins the ladder (net-negative cohort -> KEEP; propose requires net-positive AND survives-slippage AND sufficient-n), a **non-vacuous bite** (flipping ANY single precondition stops the propose), + a golden assertion that the committed finding stays net-negative/KEEP so a future engine change that silently flips "block removes losers" -> "unblock adds edge" re-REDs the build (C7/C14).
-> - **LEARN (4.5):** no new L## -- this is the OP-16/C24 class already in doctrine ("a documented block A/B was validated on the OLD engine; re-audit on engine change; anchor trades are exceptional, the general cohort of the same pattern may be losers"). The probe IS the re-audit discipline applied; finding recorded in the result JSON.
-> - **VALIDATED ($0, verify-now-not-later):** probe ran end-to-end on real fills (<60s, no reaper risk); guard 5/5 (0.66s); curated safety gate **31 + 5 suites PASS** at 79f842c; verify-committed clean (all 3 files absent from porcelain).
-> - **NEXT FIRE picks up:** the block_elite_bull bull-unblock lever is RETIRED with real-fills evidence (KEEP). The remaining bull-unblock slice = the **structural lever**: `filter_10_min_triggers_bull=2` + the single-bar-straddle requirement in `detect_level_reclaim`. The bounded next probe = re-run the same A/B harness with `min_triggers_bull=1` (and/or a multi-bar reclaim via `detect_sequence_reclaim`) over the fresh window, score the added cohort, and if it clears -> propose-only DRAFT + ping J (NEVER a hot edit). If it ALSO comes back net-negative, the honest project-level finding is the 0DTE-SPY bull lens is structurally + edge-gated on this regime (which would re-point standing direction fully at the GEX-calendar-gated class rung). Standing direction stays GEX-calendar-gated (premium axis dead L182-184; instrument rung closed 04adc35; ~8 GEX days of ~60-90 owed). J: OPEN decisions cd-2026-06-29-001 (revert vs keep+doc the 06-28 live params change), cd-2026-06-28-002 (CLAUDE-INDEX-FOLD), cd-2026-06-27-001 (G7 EOD-flatten activate).
-> - Files: `backtest/autoresearch/bull_unblock_replay_probe.py` (new), `backtest/tests/test_bull_unblock_replay_probe.py` (new, 5/5), `analysis/recommendations/bull-unblock-elite-replay-2026-06-30.json` (new) -- all 79f842c; `conductor-outcomes.jsonl`, `queue.md`, this STATUS entry.
-
----
-
-
-- [2026-07-01 05:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-- [2026-07-01 06:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-### DEGRADED: self-check 2026-07-01T08:39:56
-- PREMARKET STALE: today-bias.json date=2026-06-30 != today 2026-07-01 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
-
-- [2026-07-01 06:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-- [2026-07-01 07:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-- [2026-07-01 07:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-## Kitchen
-Kitchen: alive, queue 57 pending, last cook 0 min ago, today $0.00, model=scorecard-python
-
-- [2026-07-01 08:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-- [07-01 10:40 ET] TvWatchdog: tv=relaunch_fresh heartbeat=fresh no TV process and CDP dead - launching
-
-- [2026-07-01 08:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-- [2026-07-01 09:27:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-- [2026-07-01 09:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-- [2026-07-01 10:27:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 72.92% in last 24h (35/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-- [2026-07-01 10:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-- [2026-07-01 11:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-- [2026-07-01 11:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-- [2026-07-01 12:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-- [2026-07-01 12:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-- [2026-07-01 13:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-- [2026-07-01 13:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
-- ts: 2026-07-01T20:00:53+00:00
-- task: eod-summary
-- date_et: 2026-07-01
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-- [2026-07-01 14:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
-- ts: 2026-07-01T20:45:32+00:00
-- task: analyst
-- date_et: 2026-07-01
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-- [2026-07-01 14:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-- [2026-07-01 21:00:03] gym-session (2026-07-01) → **YELLOW** :: see `automation\state\gym-scorecard-2026-07-01.json`[2026-07-01 17:10] Gamma_WatcherGrader FAILED exit=1 shotgun_exit=0 � check C:\Users\jackw\Desktop\42\automation\state\logs\watcher-grader-2026-07-01.log
-
-- [2026-07-01 15:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-### INFO: eod-analytics manager used free-tier model (free-tier-primary)
-- ts: 2026-07-01T21:31:02+00:00
-- task: manager
-- date_et: 2026-07-01
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-- [2026-07-01 15:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 70.83% in last 24h (34/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
-
-### BROKEN: self-check 2026-07-01T18:09:57
+### BROKEN: self-check 2026-07-01T20:09:57
 - FILL-FUNNEL PLACEMENT BROKEN[core:bold]: 5 ENTER, 5 attempted, 0 broker-accepted. Reasons: 5x bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex
 - FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 5 ENTER after 15:00 ET: ['15:51 ENTER_BEAR SPY260701P00744000', '15:52 ENTER_BEAR SPY260701P00744000', '15:53 ENTER_BEAR SPY260701P00744000']
 - FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 5 ENTER, 5 attempted, 0 broker-accepted. Reasons: 5x bracket, oto, and simple all rejected | bracket_err: complex orders not supported for options trading | oto_err: complex
@@ -242,20 +159,6 @@ Kitchen: alive, queue 57 pending, last cook 0 min ago, today $0.00, model=scorec
 - FILL-FUNNEL ENTER AFTER CEILING[fleet:risky-3]: 1 ENTER after 15:00 ET: ['15:52 ENTER_BEAR SPY260701P00744000']
 - FILL-FUNNEL ENTER AFTER CEILING[fleet:safe-1]: 1 ENTER after 15:00 ET: ['15:52 ENTER_BEAR SPY260701P00744000']
 
-### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
-- ts: 2026-07-01T22:11:22+00:00
-- task: analyst
-- date_et: 2026-07-01
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
+- [2026-07-01 18:27:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T00:27:02.886876+00:00) | fail streak: 4 consecutive fires | stage v02_source_parity pass rate dropped to 62.5% in last 24h (30/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 91.67% in last 24h (44/48) | v02 source parity drift in 35.77% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
-### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
-- ts: 2026-07-01T22:22:56+00:00
-- task: eod-summary
-- date_et: 2026-07-01
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-- [2026-07-01 16:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 68.75% in last 24h (33/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+- [2026-07-01 18:27:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-01.log
