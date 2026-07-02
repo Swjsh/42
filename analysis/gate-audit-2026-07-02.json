@@ -1,0 +1,5613 @@
+{
+ "generated": "2026-07-02T14:23:27.733918",
+ "window": "2026-06-02..2026-07-02",
+ "core_rows": 4082,
+ "verdict_counts": {
+  "safe|HOLD": 1936,
+  "bold|HOLD": 1935,
+  "safe|SKIP_ELITE_BULL_LEVEL_RECLAIM": 45,
+  "bold|SKIP_ELITE_BULL_LEVEL_RECLAIM": 45,
+  "safe|ENTER_BEAR": 31,
+  "bold|ENTER_BEAR": 25,
+  "bold|SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": 21,
+  "safe|SKIP_RIBBON_MOMENTUM_GATE": 16,
+  "safe|SKIP_BAD_INPUT": 8,
+  "bold|SKIP_BAD_INPUT": 8,
+  "bold|ERROR": 7,
+  "safe|SKIP_DOJI_ENTRY_BAR": 5
+ },
+ "action_counts": {
+  "safe|HOLD": 1936,
+  "bold|HOLD": 1935,
+  "safe|SKIP_ELITE_BULL_LEVEL_RECLAIM": 45,
+  "bold|SKIP_ELITE_BULL_LEVEL_RECLAIM": 45,
+  "bold|SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": 21,
+  "extra:vwap_continuation|NOT_FLAT": 21,
+  "safe|SKIP_RIBBON_MOMENTUM_GATE": 16,
+  "extra:vwap_continuation|WATCH_NOT_ARMED": 15,
+  "safe|SKIP_QUALITY_LOCK": 15,
+  "bold|PLACE_FAIL": 11,
+  "safe|SKIP_BAD_INPUT": 8,
+  "bold|SKIP_BAD_INPUT": 8,
+  "safe|NOT_FLAT": 8,
+  "bold|NOT_FLAT": 7,
+  "extra:vwap_continuation|PLACED": 6,
+  "extra:gap_and_go|WATCH_NOT_ARMED": 5,
+  "safe|PLACE_FAIL": 5,
+  "safe|SKIP_DOJI_ENTRY_BAR": 5,
+  "bold|SKIP_QUALITY_LOCK": 4,
+  "safe|PLACED": 3,
+  "bold|PLACED": 3,
+  "extra:vwap_continuation|RISK_DENY_RISK_CAP": 3,
+  "extra:vix_regime_dayside|RISK_DENY_RISK_CAP": 3,
+  "extra:vix_regime_dayside|SKIP_TICK_ENTRY_TAKEN": 1
+ },
+ "exec_status_counts": {
+  "safe|SKIP_QUALITY_LOCK": 15,
+  "bold|PLACE_FAIL": 11,
+  "safe|NOT_FLAT": 8,
+  "bold|NOT_FLAT": 7,
+  "safe|PLACE_FAIL": 5,
+  "bold|SKIP_QUALITY_LOCK": 4,
+  "safe|PLACED": 3,
+  "bold|PLACED": 3
+ },
+ "blocked_rows_by_gate": {
+  "SKIP_ELITE_BULL_LEVEL_RECLAIM": 90,
+  "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": 21,
+  "EXTRA_NOT_FLAT": 21,
+  "EXEC_SKIP_QUALITY_LOCK": 19,
+  "SKIP_RIBBON_MOMENTUM_GATE": 16,
+  "EXEC_PLACE_FAIL": 16,
+  "EXEC_NOT_FLAT": 15,
+  "EXTRA_RISK_DENY_RISK_CAP": 6,
+  "SKIP_DOJI_ENTRY_BAR": 5,
+  "EXTRA_SKIP_TICK_ENTRY_TAKEN": 1
+ },
+ "scenarios": {
+  "SKIP_ELITE_BULL_LEVEL_RECLAIM": {
+   "count": 90,
+   "samples": [
+    {
+     "ts": "2026-06-30T15:11:04",
+     "account": "safe",
+     "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "side": "C",
+     "bear": 5,
+     "bull": 11,
+     "triggers": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "vix": 16.51,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 747.49,
+     "spy_+30m": 746.93,
+     "move_+30m": -0.56,
+     "spy_+60m": 747.43,
+     "move_+60m": -0.06
+    },
+    {
+     "ts": "2026-06-30T15:11:05",
+     "account": "bold",
+     "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "side": "C",
+     "bear": 5,
+     "bull": 11,
+     "triggers": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "vix": 16.51,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 747.49,
+     "spy_+30m": 746.93,
+     "move_+30m": -0.56,
+     "spy_+60m": 747.43,
+     "move_+60m": -0.06
+    },
+    {
+     "ts": "2026-07-01T11:21:02",
+     "account": "safe",
+     "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "side": "C",
+     "bear": 4,
+     "bull": 11,
+     "triggers": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "vix": 16.25,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 748.47,
+     "spy_+30m": 748.475,
+     "move_+30m": 0.0,
+     "spy_+60m": 749.04,
+     "move_+60m": 0.57
+    },
+    {
+     "ts": "2026-07-01T11:21:03",
+     "account": "bold",
+     "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "side": "C",
+     "bear": 4,
+     "bull": 11,
+     "triggers": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "vix": 16.25,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 748.47,
+     "spy_+30m": 748.475,
+     "move_+30m": 0.0,
+     "spy_+60m": 749.04,
+     "move_+60m": 0.57
+    },
+    {
+     "ts": "2026-07-01T11:31:03",
+     "account": "safe",
+     "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "side": "C",
+     "bear": 5,
+     "bull": 11,
+     "triggers": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "vix": 16.22,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 749.29,
+     "spy_+30m": 748.81,
+     "move_+30m": -0.48,
+     "spy_+60m": 748.99,
+     "move_+60m": -0.3
+    },
+    {
+     "ts": "2026-07-01T11:31:05",
+     "account": "bold",
+     "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "side": "C",
+     "bear": 5,
+     "bull": 11,
+     "triggers": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "vix": 16.22,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 749.29,
+     "spy_+30m": 748.81,
+     "move_+30m": -0.48,
+     "spy_+60m": 748.99,
+     "move_+60m": -0.3
+    },
+    {
+     "ts": "2026-07-02T10:16:03",
+     "account": "safe",
+     "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "side": "C",
+     "bear": 4,
+     "bull": 11,
+     "triggers": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "vix": 15.9,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 750.98,
+     "spy_+30m": 746.845,
+     "move_+30m": -4.13,
+     "spy_+60m": 746.11,
+     "move_+60m": -4.87
+    },
+    {
+     "ts": "2026-07-02T10:16:27",
+     "account": "bold",
+     "verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+     "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "side": "C",
+     "bear": 4,
+     "bull": 11,
+     "triggers": [
+      "level_reclaim",
+      "confluence"
+     ],
+     "vix": 15.9,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 750.98,
+     "spy_+30m": 746.845,
+     "move_+30m": -4.13,
+     "spy_+60m": 746.11,
+     "move_+60m": -4.87
+    }
+   ]
+  },
+  "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": {
+   "count": 21,
+   "samples": [
+    {
+     "ts": "2026-06-25T14:10:27",
+     "account": "bold",
+     "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+     "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 9,
+     "bull": 4,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 18.92,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 731.94,
+     "spy_+30m": 734.445,
+     "move_+30m": 2.5,
+     "spy_+60m": 733.09,
+     "move_+60m": 1.15
+    },
+    {
+     "ts": "2026-06-26T15:55:04",
+     "account": "bold",
+     "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+     "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 9,
+     "bull": 4,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 18.75,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 733.04,
+     "spy_+30m": 733.205,
+     "move_+30m": 0.17,
+     "spy_+60m": 733.205,
+     "move_+60m": 0.17
+    },
+    {
+     "ts": "2026-07-02T11:46:20",
+     "account": "bold",
+     "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+     "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 9,
+     "bull": 8,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 16.69,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 745.38,
+     "spy_+30m": 744.51,
+     "move_+30m": -0.87,
+     "spy_+60m": 743.28,
+     "move_+60m": -2.1
+    },
+    {
+     "ts": "2026-07-02T12:11:37",
+     "account": "bold",
+     "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+     "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 8,
+     "bull": 7,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 16.75,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 743.86,
+     "spy_+30m": 742.67,
+     "move_+30m": -1.19,
+     "spy_+60m": 741.52,
+     "move_+60m": -2.34
+    },
+    {
+     "ts": "2026-07-02T12:52:09",
+     "account": "bold",
+     "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+     "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 8,
+     "bull": 6,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 16.73,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 742.94,
+     "spy_+30m": 741.44,
+     "move_+30m": -1.5,
+     "spy_+60m": 740.625,
+     "move_+60m": -2.32
+    },
+    {
+     "ts": "2026-07-02T13:54:09",
+     "account": "bold",
+     "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+     "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 9,
+     "bull": 6,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 16.92,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 740.625,
+     "spy_+30m": 741.74,
+     "move_+30m": 1.12,
+     "spy_+60m": 743.24,
+     "move_+60m": 2.62
+    },
+    {
+     "ts": "2026-07-02T14:04:13",
+     "account": "bold",
+     "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+     "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 9,
+     "bull": 6,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 16.97,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 740.23,
+     "spy_+30m": 742.73,
+     "move_+30m": 2.5,
+     "spy_+60m": 742.97,
+     "move_+60m": 2.74
+    }
+   ]
+  },
+  "EXTRA_NOT_FLAT": {
+   "count": 21,
+   "samples": [
+    {
+     "ts": "2026-07-02T09:54:03",
+     "account": "safe",
+     "verdict": "HOLD",
+     "action": "HOLD",
+     "setup": "vwap_continuation",
+     "side": null,
+     "bear": 5,
+     "bull": 10,
+     "triggers": [],
+     "vix": 16.1,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 750.49,
+     "spy_+30m": 750.67,
+     "move_+30m": 0.18,
+     "spy_+60m": 747.22,
+     "move_+60m": -3.27
+    },
+    {
+     "ts": "2026-07-02T10:00:04",
+     "account": "safe",
+     "verdict": "HOLD",
+     "action": "HOLD",
+     "setup": "vwap_continuation",
+     "side": null,
+     "bear": 6,
+     "bull": 10,
+     "triggers": [],
+     "vix": 15.93,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 750.48,
+     "spy_+30m": 749.65,
+     "move_+30m": -0.83,
+     "spy_+60m": 746.53,
+     "move_+60m": -3.95
+    }
+   ]
+  },
+  "EXEC_SKIP_QUALITY_LOCK": {
+   "count": 19,
+   "samples": [
+    {
+     "ts": "2026-06-26T15:51:03",
+     "account": "bold",
+     "verdict": "ENTER_BEAR",
+     "action": "SKIP_QUALITY_LOCK",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 9,
+     "bull": 4,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 18.74,
+     "exec": {
+      "status": "SKIP_QUALITY_LOCK",
+      "quality_rank": 1,
+      "prior_quality": 4,
+      "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+     },
+     "spy_at_block": 733.04,
+     "spy_+30m": 733.205,
+     "move_+30m": 0.17,
+     "spy_+60m": 733.205,
+     "move_+60m": 0.17
+    },
+    {
+     "ts": "2026-07-02T11:46:03",
+     "account": "safe",
+     "verdict": "ENTER_BEAR",
+     "action": "SKIP_QUALITY_LOCK",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 9,
+     "bull": 8,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 16.69,
+     "exec": {
+      "status": "SKIP_QUALITY_LOCK",
+      "quality_rank": 1,
+      "prior_quality": 1,
+      "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+     },
+     "spy_at_block": 745.38,
+     "spy_+30m": 744.51,
+     "move_+30m": -0.87,
+     "spy_+60m": 743.28,
+     "move_+60m": -2.1
+    },
+    {
+     "ts": "2026-07-02T12:11:03",
+     "account": "safe",
+     "verdict": "ENTER_BEAR",
+     "action": "SKIP_QUALITY_LOCK",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 8,
+     "bull": 7,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 16.76,
+     "exec": {
+      "status": "SKIP_QUALITY_LOCK",
+      "quality_rank": 1,
+      "prior_quality": 1,
+      "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+     },
+     "spy_at_block": 743.86,
+     "spy_+30m": 742.67,
+     "move_+30m": -1.19,
+     "spy_+60m": 741.52,
+     "move_+60m": -2.34
+    }
+   ]
+  },
+  "SKIP_RIBBON_MOMENTUM_GATE": {
+   "count": 16,
+   "samples": [
+    {
+     "ts": "2026-06-25T14:10:26",
+     "account": "safe",
+     "verdict": "SKIP_RIBBON_MOMENTUM_GATE",
+     "action": "SKIP_RIBBON_MOMENTUM_GATE",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 9,
+     "bull": 4,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 18.92,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 731.94,
+     "spy_+30m": 734.445,
+     "move_+30m": 2.5,
+     "spy_+60m": 733.09,
+     "move_+60m": 1.15
+    },
+    {
+     "ts": "2026-06-26T10:36:02",
+     "account": "safe",
+     "verdict": "SKIP_RIBBON_MOMENTUM_GATE",
+     "action": "SKIP_RIBBON_MOMENTUM_GATE",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 7,
+     "bull": 5,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 19.0,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 733.34,
+     "spy_+30m": 732.76,
+     "move_+30m": -0.58,
+     "spy_+60m": 734.47,
+     "move_+60m": 1.13
+    },
+    {
+     "ts": "2026-06-26T15:51:02",
+     "account": "safe",
+     "verdict": "SKIP_RIBBON_MOMENTUM_GATE",
+     "action": "SKIP_RIBBON_MOMENTUM_GATE",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 9,
+     "bull": 4,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 18.74,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 733.04,
+     "spy_+30m": 733.205,
+     "move_+30m": 0.17,
+     "spy_+60m": 733.205,
+     "move_+60m": 0.17
+    }
+   ]
+  },
+  "EXEC_PLACE_FAIL": {
+   "count": 16,
+   "samples": [
+    {
+     "ts": "2026-06-25T14:16:05",
+     "account": "bold",
+     "verdict": "ENTER_BEAR",
+     "action": "PLACE_FAIL",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 8,
+     "bull": 5,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 18.95,
+     "exec": {
+      "status": "PLACE_FAIL",
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 733.21,
+     "spy_+30m": 733.9,
+     "move_+30m": 0.69,
+     "spy_+60m": 732.38,
+     "move_+60m": -0.83
+    },
+    {
+     "ts": "2026-06-26T10:36:03",
+     "account": "bold",
+     "verdict": "ENTER_BEAR",
+     "action": "PLACE_FAIL",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 7,
+     "bull": 5,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 19.03,
+     "exec": {
+      "status": "PLACE_FAIL",
+      "quality_rank": 1,
+      "prior_quality": null,
+      "reason": null,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+     },
+     "spy_at_block": 733.34,
+     "spy_+30m": 732.76,
+     "move_+30m": -0.58,
+     "spy_+60m": 734.47,
+     "move_+60m": 1.13
+    },
+    {
+     "ts": "2026-07-01T15:51:02",
+     "account": "safe",
+     "verdict": "ENTER_BEAR",
+     "action": "PLACE_FAIL",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 9,
+     "bull": 9,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 16.27,
+     "exec": {
+      "status": "PLACE_FAIL",
+      "quality_rank": 1,
+      "prior_quality": null,
+      "reason": null,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+     },
+     "spy_at_block": 746.52,
+     "spy_+30m": 746.26,
+     "move_+30m": -0.26,
+     "spy_+60m": 746.26,
+     "move_+60m": -0.26
+    },
+    {
+     "ts": "2026-07-01T15:51:10",
+     "account": "bold",
+     "verdict": "ENTER_BEAR",
+     "action": "PLACE_FAIL",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 9,
+     "bull": 9,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 16.27,
+     "exec": {
+      "status": "PLACE_FAIL",
+      "quality_rank": 1,
+      "prior_quality": null,
+      "reason": null,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+     },
+     "spy_at_block": 746.52,
+     "spy_+30m": 746.26,
+     "move_+30m": -0.26,
+     "spy_+60m": 746.26,
+     "move_+60m": -0.26
+    }
+   ]
+  },
+  "EXEC_NOT_FLAT": {
+   "count": 15,
+   "samples": [
+    {
+     "ts": "2026-07-02T12:52:03",
+     "account": "safe",
+     "verdict": "ENTER_BEAR",
+     "action": "NOT_FLAT",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 8,
+     "bull": 6,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 16.73,
+     "exec": {
+      "status": "NOT_FLAT",
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 742.94,
+     "spy_+30m": 741.44,
+     "move_+30m": -1.5,
+     "spy_+60m": 740.625,
+     "move_+60m": -2.32
+    },
+    {
+     "ts": "2026-07-02T12:54:18",
+     "account": "bold",
+     "verdict": "ENTER_BEAR",
+     "action": "NOT_FLAT",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 8,
+     "bull": 6,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 16.81,
+     "exec": {
+      "status": "NOT_FLAT",
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 742.94,
+     "spy_+30m": 741.44,
+     "move_+30m": -1.5,
+     "spy_+60m": 740.625,
+     "move_+60m": -2.32
+    },
+    {
+     "ts": "2026-07-02T13:00:05",
+     "account": "bold",
+     "verdict": "ENTER_BEAR",
+     "action": "NOT_FLAT",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 8,
+     "bull": 6,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 16.62,
+     "exec": {
+      "status": "NOT_FLAT",
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 742.9,
+     "spy_+30m": 741.35,
+     "move_+30m": -1.55,
+     "spy_+60m": 740.96,
+     "move_+60m": -1.94
+    },
+    {
+     "ts": "2026-07-02T13:54:03",
+     "account": "safe",
+     "verdict": "ENTER_BEAR",
+     "action": "NOT_FLAT",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 9,
+     "bull": 6,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 16.92,
+     "exec": {
+      "status": "NOT_FLAT",
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 740.625,
+     "spy_+30m": 741.74,
+     "move_+30m": 1.12,
+     "spy_+60m": 743.24,
+     "move_+60m": 2.62
+    },
+    {
+     "ts": "2026-07-02T14:04:03",
+     "account": "safe",
+     "verdict": "ENTER_BEAR",
+     "action": "NOT_FLAT",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 9,
+     "bull": 6,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 16.97,
+     "exec": {
+      "status": "NOT_FLAT",
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 740.23,
+     "spy_+30m": 742.73,
+     "move_+30m": 2.5,
+     "spy_+60m": 742.97,
+     "move_+60m": 2.74
+    }
+   ]
+  },
+  "EXTRA_RISK_DENY_RISK_CAP": {
+   "count": 6,
+   "samples": [
+    {
+     "ts": "2026-07-02T09:51:03",
+     "account": "safe",
+     "verdict": "HOLD",
+     "action": "HOLD",
+     "setup": "vwap_continuation",
+     "side": null,
+     "bear": 5,
+     "bull": 10,
+     "triggers": [],
+     "vix": 16.03,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 750.49,
+     "spy_+30m": 750.67,
+     "move_+30m": 0.18,
+     "spy_+60m": 747.22,
+     "move_+60m": -3.27
+    }
+   ]
+  },
+  "SKIP_DOJI_ENTRY_BAR": {
+   "count": 5,
+   "samples": [
+    {
+     "ts": "2026-07-02T12:56:03",
+     "account": "safe",
+     "verdict": "SKIP_DOJI_ENTRY_BAR",
+     "action": "SKIP_DOJI_ENTRY_BAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 8,
+     "bull": 6,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 16.68,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 742.9,
+     "spy_+30m": 741.35,
+     "move_+30m": -1.55,
+     "spy_+60m": 740.96,
+     "move_+60m": -1.94
+    },
+    {
+     "ts": "2026-07-02T13:00:03",
+     "account": "safe",
+     "verdict": "SKIP_DOJI_ENTRY_BAR",
+     "action": "SKIP_DOJI_ENTRY_BAR",
+     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+     "side": "P",
+     "bear": 8,
+     "bull": 6,
+     "triggers": [
+      "trendline_rejection"
+     ],
+     "vix": 16.62,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 742.9,
+     "spy_+30m": 741.35,
+     "move_+30m": -1.55,
+     "spy_+60m": 740.96,
+     "move_+60m": -1.94
+    }
+   ]
+  },
+  "EXTRA_SKIP_TICK_ENTRY_TAKEN": {
+   "count": 1,
+   "samples": [
+    {
+     "ts": "2026-07-02T09:55:03",
+     "account": "safe",
+     "verdict": "HOLD",
+     "action": "HOLD",
+     "setup": "vix_regime_dayside",
+     "side": null,
+     "bear": 5,
+     "bull": 10,
+     "triggers": [],
+     "vix": 16.03,
+     "exec": {
+      "status": null,
+      "quality_rank": null,
+      "prior_quality": null,
+      "reason": null,
+      "setup": null
+     },
+     "spy_at_block": 750.49,
+     "spy_+30m": 750.67,
+     "move_+30m": 0.18,
+     "spy_+60m": 747.22,
+     "move_+60m": -3.27
+    }
+   ]
+  }
+ },
+ "today_lockout_window": [
+  {
+   "ts": "2026-07-02T11:00:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.53,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:00:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.53,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:01:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 747.62,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:01:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 747.62,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:02:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 747.62,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:02:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 747.62,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:03:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 747.62,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:03:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 747.62,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:04:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 747.62,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:04:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 747.62,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:05:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 747.62,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:05:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 747.62,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:06:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.1,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:06:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.1,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:07:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.1,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:07:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.1,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:08:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.1,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:08:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.1,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:09:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.1,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:09:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.1,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:10:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.1,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:10:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.1,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:11:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.36,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:11:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.36,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:12:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.36,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:12:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.36,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:13:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.36,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:13:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.36,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:14:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.36,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:14:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.36,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:15:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.36,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:15:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.36,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:16:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.11,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:16:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.11,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:17:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.11,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:17:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.11,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:18:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.11,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:18:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.11,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:19:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.11,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:19:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.11,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:20:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.11,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:20:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.11,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:21:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.53,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:21:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.53,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:22:10",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.53,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:22:17",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.53,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:23:08",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.53,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:23:09",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.53,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:24:04",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.53,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:24:05",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.53,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:25:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.53,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:25:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.53,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:26:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.75,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:26:05",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.75,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:27:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.75,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:27:05",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.75,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:28:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.75,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:28:05",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.75,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:29:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.75,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:29:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.75,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:30:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.75,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:30:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 745.75,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:31:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.89,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:31:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.89,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:32:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.89,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:32:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.89,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:33:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.89,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:33:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.89,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:34:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.89,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:34:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.89,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:35:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.89,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:35:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.89,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:36:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.04,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:36:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.04,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:37:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.04,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:37:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.04,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:38:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.04,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:38:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.04,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:39:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.04,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:39:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.04,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:40:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.04,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:40:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.04,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:41:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.22,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:41:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.22,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:42:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.22,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:42:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.22,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:43:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.22,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:43:05",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.22,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:44:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.22,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:44:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.22,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:45:04",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.22,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:45:05",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 746.22,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:46:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "SKIP_QUALITY_LOCK",
+   "spy": 745.38,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "SKIP_QUALITY_LOCK",
+   "quality": {
+    "quality_rank": 1,
+    "quality_tier": "TRENDLINE",
+    "prior_quality": 1
+   },
+   "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:46:20",
+   "account": "bold",
+   "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "spy": 745.38,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "blocked by entry gate require_bearish_fill_bar",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:47:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "SKIP_QUALITY_LOCK",
+   "spy": 745.38,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "SKIP_QUALITY_LOCK",
+   "quality": {
+    "quality_rank": 1,
+    "quality_tier": "TRENDLINE",
+    "prior_quality": 1
+   },
+   "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:47:15",
+   "account": "bold",
+   "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "spy": 745.38,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "blocked by entry gate require_bearish_fill_bar",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:48:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "SKIP_QUALITY_LOCK",
+   "spy": 745.38,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "SKIP_QUALITY_LOCK",
+   "quality": {
+    "quality_rank": 1,
+    "quality_tier": "TRENDLINE",
+    "prior_quality": 1
+   },
+   "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:48:12",
+   "account": "bold",
+   "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "spy": 745.38,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "blocked by entry gate require_bearish_fill_bar",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:49:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "SKIP_QUALITY_LOCK",
+   "spy": 745.38,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "SKIP_QUALITY_LOCK",
+   "quality": {
+    "quality_rank": 1,
+    "quality_tier": "TRENDLINE",
+    "prior_quality": 1
+   },
+   "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:49:17",
+   "account": "bold",
+   "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "spy": 745.38,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "blocked by entry gate require_bearish_fill_bar",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:50:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "SKIP_QUALITY_LOCK",
+   "spy": 745.38,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "SKIP_QUALITY_LOCK",
+   "quality": {
+    "quality_rank": 1,
+    "quality_tier": "TRENDLINE",
+    "prior_quality": 1
+   },
+   "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:50:02",
+   "account": "bold",
+   "verdict": "ERROR",
+   "action": null,
+   "spy": null,
+   "side": null,
+   "triggers": null,
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": null,
+   "error": "can't subtract offset-naive and offset-aware datetimes",
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:51:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "SKIP_QUALITY_LOCK",
+   "spy": 744.79,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "SKIP_QUALITY_LOCK",
+   "quality": {
+    "quality_rank": 1,
+    "quality_tier": "TRENDLINE",
+    "prior_quality": 1
+   },
+   "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:51:02",
+   "account": "bold",
+   "verdict": "ERROR",
+   "action": null,
+   "spy": null,
+   "side": null,
+   "triggers": null,
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": null,
+   "error": "can't subtract offset-naive and offset-aware datetimes",
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:52:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "SKIP_QUALITY_LOCK",
+   "spy": 744.79,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "SKIP_QUALITY_LOCK",
+   "quality": {
+    "quality_rank": 1,
+    "quality_tier": "TRENDLINE",
+    "prior_quality": 1
+   },
+   "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:52:02",
+   "account": "bold",
+   "verdict": "ERROR",
+   "action": null,
+   "spy": null,
+   "side": null,
+   "triggers": null,
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": null,
+   "error": "can't subtract offset-naive and offset-aware datetimes",
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:53:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "SKIP_QUALITY_LOCK",
+   "spy": 744.79,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "SKIP_QUALITY_LOCK",
+   "quality": {
+    "quality_rank": 1,
+    "quality_tier": "TRENDLINE",
+    "prior_quality": 1
+   },
+   "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:53:02",
+   "account": "bold",
+   "verdict": "ERROR",
+   "action": null,
+   "spy": null,
+   "side": null,
+   "triggers": null,
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": null,
+   "error": "can't subtract offset-naive and offset-aware datetimes",
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:54:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "SKIP_QUALITY_LOCK",
+   "spy": 744.79,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "SKIP_QUALITY_LOCK",
+   "quality": {
+    "quality_rank": 1,
+    "quality_tier": "TRENDLINE",
+    "prior_quality": 1
+   },
+   "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:54:02",
+   "account": "bold",
+   "verdict": "ERROR",
+   "action": null,
+   "spy": null,
+   "side": null,
+   "triggers": null,
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": null,
+   "error": "can't subtract offset-naive and offset-aware datetimes",
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:55:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "SKIP_QUALITY_LOCK",
+   "spy": 744.79,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "SKIP_QUALITY_LOCK",
+   "quality": {
+    "quality_rank": 1,
+    "quality_tier": "TRENDLINE",
+    "prior_quality": 1
+   },
+   "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:55:02",
+   "account": "bold",
+   "verdict": "ERROR",
+   "action": null,
+   "spy": null,
+   "side": null,
+   "triggers": null,
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": null,
+   "error": "can't subtract offset-naive and offset-aware datetimes",
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:56:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.63,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:56:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.63,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:57:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.63,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:57:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.63,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:58:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.63,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:58:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.63,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:59:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.63,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T11:59:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.63,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:00:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.63,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:00:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.63,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:01:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.645,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:01:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.645,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:02:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.645,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:02:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.645,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:03:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.645,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:03:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.645,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:04:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.645,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:04:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.645,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:05:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.645,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:05:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.645,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:06:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.32,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:06:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.32,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:07:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.32,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:07:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.32,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:08:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.32,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:08:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.32,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:09:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.32,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:09:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.32,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:10:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.32,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:10:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.32,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:11:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "SKIP_QUALITY_LOCK",
+   "spy": 743.86,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "SKIP_QUALITY_LOCK",
+   "quality": {
+    "quality_rank": 1,
+    "quality_tier": "TRENDLINE",
+    "prior_quality": 1
+   },
+   "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:11:37",
+   "account": "bold",
+   "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "spy": 743.86,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "blocked by entry gate require_bearish_fill_bar",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:12:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "SKIP_QUALITY_LOCK",
+   "spy": 743.86,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "SKIP_QUALITY_LOCK",
+   "quality": {
+    "quality_rank": 1,
+    "quality_tier": "TRENDLINE",
+    "prior_quality": 1
+   },
+   "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:12:11",
+   "account": "bold",
+   "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "spy": 743.86,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "blocked by entry gate require_bearish_fill_bar",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:13:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "SKIP_QUALITY_LOCK",
+   "spy": 743.86,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "SKIP_QUALITY_LOCK",
+   "quality": {
+    "quality_rank": 1,
+    "quality_tier": "TRENDLINE",
+    "prior_quality": 1
+   },
+   "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:13:10",
+   "account": "bold",
+   "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "spy": 743.86,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "blocked by entry gate require_bearish_fill_bar",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:14:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "SKIP_QUALITY_LOCK",
+   "spy": 743.86,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "SKIP_QUALITY_LOCK",
+   "quality": {
+    "quality_rank": 1,
+    "quality_tier": "TRENDLINE",
+    "prior_quality": 1
+   },
+   "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:14:10",
+   "account": "bold",
+   "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "spy": 743.86,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "blocked by entry gate require_bearish_fill_bar",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:15:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "SKIP_QUALITY_LOCK",
+   "spy": 743.86,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "SKIP_QUALITY_LOCK",
+   "quality": {
+    "quality_rank": 1,
+    "quality_tier": "TRENDLINE",
+    "prior_quality": 1
+   },
+   "reason": "blocked by quality lock (downgrade or same-quality after winner)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:15:10",
+   "account": "bold",
+   "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "spy": 743.86,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "blocked by entry gate require_bearish_fill_bar",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:16:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.51,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:16:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.51,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:17:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.51,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:17:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.51,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:18:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.51,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:18:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.51,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:19:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.51,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:19:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.51,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:20:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.51,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:20:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.51,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:21:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.05,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:21:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.05,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:22:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.05,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:22:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.05,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:23:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.05,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:23:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.05,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:24:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.05,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:24:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.05,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:25:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.05,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:25:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 744.05,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:26:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.43,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:26:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.43,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:27:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.43,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:27:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.43,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:28:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.43,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:28:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.43,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:29:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.43,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:29:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.43,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:30:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.43,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:30:05",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.43,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:31:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.54,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:31:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.54,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:32:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.54,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:32:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.54,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:33:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.54,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:33:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.54,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:34:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.54,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:34:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.54,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:35:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.54,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:35:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.54,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:36:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.87,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:36:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.87,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:37:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.87,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:37:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.87,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:38:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.87,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:38:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.87,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:39:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.87,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:39:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.87,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:40:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.87,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:40:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.87,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:41:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.67,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:41:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.67,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:42:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.67,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:42:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.67,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:43:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.67,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:43:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.67,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:44:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.67,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:44:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.67,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:45:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.67,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:45:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 742.67,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:46:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.28,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:46:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.28,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:47:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.28,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:47:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.28,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:48:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.28,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:48:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.28,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:49:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.28,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:49:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.28,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:50:03",
+   "account": "safe",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.28,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:50:04",
+   "account": "bold",
+   "verdict": "HOLD",
+   "action": "HOLD",
+   "spy": 743.28,
+   "side": null,
+   "triggers": [],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "no setup passed scoring (neither bear nor bull)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:51:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "PLACED",
+   "spy": 742.94,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "PLACED",
+   "quality": {
+    "quality_rank": 1,
+    "quality_tier": "TRENDLINE",
+    "prior_quality": null
+   },
+   "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:51:14",
+   "account": "bold",
+   "verdict": "ENTER_BEAR",
+   "action": "PLACED",
+   "spy": 742.94,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "PLACED",
+   "quality": {
+    "quality_rank": 1,
+    "quality_tier": "TRENDLINE",
+    "prior_quality": null
+   },
+   "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:52:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "NOT_FLAT",
+   "spy": 742.94,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "NOT_FLAT",
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:52:09",
+   "account": "bold",
+   "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "spy": 742.94,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "blocked by entry gate require_bearish_fill_bar",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:53:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "NOT_FLAT",
+   "spy": 742.94,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "NOT_FLAT",
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:53:19",
+   "account": "bold",
+   "verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "spy": 742.94,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "blocked by entry gate require_bearish_fill_bar",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:54:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "NOT_FLAT",
+   "spy": 742.94,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "NOT_FLAT",
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:54:18",
+   "account": "bold",
+   "verdict": "ENTER_BEAR",
+   "action": "NOT_FLAT",
+   "spy": 742.94,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "NOT_FLAT",
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:55:03",
+   "account": "safe",
+   "verdict": "ENTER_BEAR",
+   "action": "NOT_FLAT",
+   "spy": 742.94,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "NOT_FLAT",
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:55:38",
+   "account": "bold",
+   "verdict": "ENTER_BEAR",
+   "action": "NOT_FLAT",
+   "spy": 742.94,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "NOT_FLAT",
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:56:03",
+   "account": "safe",
+   "verdict": "SKIP_DOJI_ENTRY_BAR",
+   "action": "SKIP_DOJI_ENTRY_BAR",
+   "spy": 742.9,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "blocked by entry gate entry_bar_body_pct_min",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:56:04",
+   "account": "bold",
+   "verdict": "ENTER_BEAR",
+   "action": "NOT_FLAT",
+   "spy": 742.9,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "NOT_FLAT",
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:57:03",
+   "account": "safe",
+   "verdict": "SKIP_DOJI_ENTRY_BAR",
+   "action": "SKIP_DOJI_ENTRY_BAR",
+   "spy": 742.9,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "blocked by entry gate entry_bar_body_pct_min",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:57:05",
+   "account": "bold",
+   "verdict": "ENTER_BEAR",
+   "action": "NOT_FLAT",
+   "spy": 742.9,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "NOT_FLAT",
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:58:03",
+   "account": "safe",
+   "verdict": "SKIP_DOJI_ENTRY_BAR",
+   "action": "SKIP_DOJI_ENTRY_BAR",
+   "spy": 742.9,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "blocked by entry gate entry_bar_body_pct_min",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:58:05",
+   "account": "bold",
+   "verdict": "ENTER_BEAR",
+   "action": "NOT_FLAT",
+   "spy": 742.9,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "NOT_FLAT",
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:59:03",
+   "account": "safe",
+   "verdict": "SKIP_DOJI_ENTRY_BAR",
+   "action": "SKIP_DOJI_ENTRY_BAR",
+   "spy": 742.9,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": null,
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "blocked by entry gate entry_bar_body_pct_min",
+   "error": null,
+   "extra_exec": null
+  },
+  {
+   "ts": "2026-07-02T12:59:04",
+   "account": "bold",
+   "verdict": "ENTER_BEAR",
+   "action": "NOT_FLAT",
+   "spy": 742.9,
+   "side": "P",
+   "triggers": [
+    "trendline_rejection"
+   ],
+   "exec_status": "NOT_FLAT",
+   "quality": {
+    "quality_rank": null,
+    "quality_tier": null,
+    "prior_quality": null
+   },
+   "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+   "error": null,
+   "extra_exec": null
+  }
+ ],
+ "fleet": {
+  "risky-1": {
+   "n_rows": 1033,
+   "actions": {
+    "HOLD": 1018,
+    "ENTER_BULL": 10,
+    "ENTER_BEAR": 5
+   },
+   "top_reasons": {
+    "no qualifying setup (no strategy fired)": 611,
+    "no qualifying setup (neither side passed)": 385,
+    "gate: 1 triggers < 2": 15,
+    "ribbon_ride C (ELITE)": 10,
+    "risk_gate denied: PA3W17FD8G19: position already open (status='open') \u2014 flatten ": 5,
+    "clean P entry (BASE)": 4,
+    "no live signal": 2,
+    "clean P entry (ELITE)": 1
+   }
+  },
+  "risky-3": {
+   "n_rows": 1033,
+   "actions": {
+    "HOLD": 1016,
+    "ENTER_BULL": 9,
+    "ENTER_BEAR": 8
+   },
+   "top_reasons": {
+    "no qualifying setup (no strategy fired)": 611,
+    "no qualifying setup (neither side passed)": 385,
+    "risk_gate denied: PA31WIU8X15Q: position already open (status='open') \u2014 flatten ": 14,
+    "ribbon_ride C (ELITE)": 9,
+    "ribbon_ride P (BASE)": 5,
+    "risk_gate denied: premium is missing/NaN/unparseable (None)": 4,
+    "no live signal": 2,
+    "clean P entry (ELITE)": 1,
+    "[cap-reduced 8->7]": 1,
+    "[cap-reduced 8->6]": 1
+   }
+  },
+  "safe-1": {
+   "n_rows": 772,
+   "actions": {
+    "HOLD": 759,
+    "ENTER_BEAR": 7,
+    "ENTER_BULL": 6
+   },
+   "top_reasons": {
+    "no qualifying setup (no strategy fired)": 611,
+    "no qualifying setup (neither side passed)": 129,
+    "risk_gate denied: PA3DHPT7KIQE: position already open (status='open') \u2014 flatten ": 17,
+    "ribbon_ride C (ELITE)": 6,
+    "ribbon_ride P (BASE)": 5,
+    "no live signal": 2,
+    "[cap-reduced 5->4]": 1,
+    "[cap-reduced 5->3]": 1
+   }
+  },
+  "safe-3": {
+   "n_rows": 1033,
+   "actions": {
+    "HOLD": 1022,
+    "ENTER_BULL": 10,
+    "ENTER_BEAR": 1
+   },
+   "top_reasons": {
+    "no qualifying setup (no strategy fired)": 611,
+    "no qualifying setup (neither side passed)": 385,
+    "gate: 1 triggers < 2": 15,
+    "ribbon_ride C (ELITE)": 10,
+    "risk_gate denied: PA32RD49OB0Q: position already open (status='open') \u2014 flatten ": 5,
+    "A+ gate: confidence missing, need >= 0.65": 4,
+    "no live signal": 2,
+    "clean P entry (ELITE)": 1
+   }
+  }
+ },
+ "report": "markdown/audits/GATE-PROVENANCE-AUDIT-2026-07-02.md",
+ "inventory_verdicts": {
+  "safety_never_relax": [
+   "kill_switch",
+   "pdt",
+   "flat_verify",
+   "risk_cap+tier_max_premium",
+   "min_contracts",
+   "entry_floor_0935(FIX:wall-clock leak F3)",
+   "entry_ceiling_1500",
+   "one_entry_per_tick",
+   "eod_flatten",
+   "fail_closed_inputs",
+   "level_tied_required",
+   "catastrophe_stop_-50"
+  ],
+  "keep": [
+   "block_level_rejection(safe)",
+   "vix_bear_hard_cap(safe)",
+   "structure_veto(safe,fail-open)",
+   "require_bearish_fill_bar(bold control)",
+   "entry_bar_body_pct_min(safe)",
+   "fleet_signal_staleness",
+   "fleet_circuit_breaker",
+   "cap_aware_qty_reduce"
+  ],
+  "relax_for_risky": [
+   "block_elite_bull",
+   "require_bearish_fill_bar(loose arms via _HARD_SKIP_VERDICTS)",
+   "entry_bar_body_pct_min",
+   "block_bull_1100_1200",
+   "free_model_veto(sync)",
+   "min_triggers->1(already loose-arm axis)"
+  ],
+  "kill_candidates": [
+   "min_ribbon_momentum_cents=0 SEMI-ARMED BUG (G8/F1)",
+   "max_ribbon_duration_bars=999 key hygiene",
+   "block_conf_lvl_rec_afternoon(bold, documented dead)",
+   "safe-3 A+ confidence gate (always-block, F6)"
+  ],
+  "type_specimen_excluded": [
+   "quality_lock/first_entry_lock (J ordered DELETED tonight)"
+  ],
+  "unknown_needs_ab": [
+   "block_bull_1100_1200 (OOS n=1)",
+   "free_model_veto (0 vetoes ever)",
+   "macro_hard_veto (dead knob: wire or delete)"
+  ]
+ },
+ "ranked_unblock_per_week": [
+  {
+   "rank": 1,
+   "item": "block_elite_bull off on RISKY arms",
+   "eps_per_week": 4.2
+  },
+  {
+   "rank": 2,
+   "item": "fix min_ribbon_momentum_cents=0 semi-armed bug (SAFE core)",
+   "eps_per_week": 0.7
+  },
+  {
+   "rank": 3,
+   "item": "per-arm _HARD_SKIP_VERDICTS (fill-bar off loose arms)",
+   "eps_per_week": 1.6
+  },
+  {
+   "rank": 4,
+   "item": "doji gate off on RISKY arms",
+   "eps_per_week": 0.5
+  },
+  {
+   "rank": 5,
+   "item": "fix safe-3 A+ confidence dead-block",
+   "eps_per_week": 0.2
+  }
+ ]
+}
