@@ -370,8 +370,13 @@ def run(signal_path: Path, master_live: bool) -> list[dict]:
         # never abort the entry pass below.
         exit_pass = []
         try:
+            # G14 (2026-07-01): fleet arms get the same v15.3 ribbon-flip-back PRIMARY
+            # invalidation as the core accounts. Stale/absent signal -> None (fail-open;
+            # catastrophe cap / targets / time stops still run inside manage_tick).
+            _flip = ea.make_ribbon_flip_fn((usable_signal or {}).get("ribbon_stack"))
             exit_pass = ea.manage_tick(arm_id, creds, live=bool(master_live) and bool(arm.get("live"))
-                                       and not bool(breaker.get("tripped")), now_et=now)
+                                       and not bool(breaker.get("tripped")), now_et=now,
+                                       ribbon_flip_back_fn=_flip)
         except Exception as e:  # noqa: BLE001
             exit_pass = [{"error": f"exit_manage: {type(e).__name__}: {e}"}]
 

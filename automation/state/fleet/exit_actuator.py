@@ -82,6 +82,23 @@ def _now_et() -> datetime:
     return datetime.now(timezone.utc).astimezone(ET)
 
 
+def make_ribbon_flip_fn(ribbon_stack: Optional[str]):
+    """Single source for the v15.3 chart-stop-PRIMARY ribbon-flip-back invalidation (G14).
+
+    The producer (backtest/lib/ribbon.py) emits stack == 'BULL'|'BEAR'|'MIXED'|'WARMUP'|
+    'UNKNOWN'. A PUT position exits when the stack turns BULL; a CALL when it turns BEAR;
+    MIXED/WARMUP/UNKNOWN never flip (loss-of-stack is not an opposite-direction reversal).
+    Returns None when the stack is unknown/absent (fail-open: the -50% catastrophe cap,
+    targets and time stops still run). Shared by heartbeat_core (core accounts) AND
+    fleet_live (fleet arms) so the two exit paths cannot drift (C14/G14 parity)."""
+    if not ribbon_stack:
+        return None
+
+    def fn(symbol: str, side: str) -> bool:  # noqa: ANN001
+        return ribbon_stack == ("BULL" if side == "P" else "BEAR")
+    return fn
+
+
 def manage_tick(arm_id: str, creds: dict, *, live: bool,
                 ribbon_flip_back_fn=None, now_et: Optional[datetime] = None,
                 broker=None) -> list[dict]:
