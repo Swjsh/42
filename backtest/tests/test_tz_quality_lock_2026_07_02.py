@@ -192,7 +192,6 @@ class TestFixAppliedSentinel:
     the fix lands — forcing the apply commit to delete this marker, which proves the
     probe-gated guards below actually armed. Apply-plan step 4 removes the marker."""
 
-    @pytest.mark.xfail(reason=_NOT_APPLIED, strict=True)
     def test_fix_is_applied(self):
         assert TZ_APPLIED
 

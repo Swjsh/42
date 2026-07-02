@@ -798,7 +798,15 @@ def _prior_fill_stopped(creds: dict, last_entry_symbol: "str | None") -> tuple[b
             last_exit_utc = datetime.fromisoformat(str(last.get("transaction_time")).replace("Z", "+00:00"))
             # DST-aware conversion: use et_clock instead of hardcoded -4 (TZ-SYSTEMIC fix)
             from et_clock import _et_offset_hours  # noqa: PLC0415
-            last_exit = last_exit_utc + timedelta(hours=_et_offset_hours(last_exit_utc.replace(tzinfo=timezone.utc)))
+            # G15 tz-fix (2026-07-02): fromisoformat('...+00:00') returns an AWARE datetime
+            # and timedelta addition PRESERVES tzinfo, so last_exit was aware while _et_now()
+            # is NAIVE ET (et_clock convention). The leg-2 gap check (now_et - last_exit)
+            # then raised "can't subtract offset-naive and offset-aware datetimes" -- bold,
+            # 6 ERROR ticks 11:50-11:55 ET 2026-07-02, killing an ALLOW-path re-entry.
+            # Normalize to naive ET after the shift (same as et_clock.et_now).
+            # Guard: test_tz_quality_lock_2026_07_02.py
+            _shift = timedelta(hours=_et_offset_hours(last_exit_utc.replace(tzinfo=timezone.utc)))
+            last_exit = (last_exit_utc + _shift).replace(tzinfo=None)
         except (ValueError, TypeError):
             last_exit = None
         # any partial TP fill on the same symbol today? (qty < position implies a TP1 leg)
