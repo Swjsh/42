@@ -147,6 +147,8 @@ class SetupDispatcher:
             # Evidence: edgehunt-double_bottom_base_quiet.json, 4 cells clear full bar, OOS>0.
             # ARM requires: extra_setup_exec_armed["double_bottom_base_quiet"]=True in params.json.
             ("double_bottom_base_quiet",  "db_base_quiet_enabled",      self._dispatch_db_base_quiet),
+            # WIRE-BOLLINGER 2026-07-02: family-grind survivor, validated ATM|stop-8 cell.
+            ("bollinger_squeeze",         "bollinger_squeeze_enabled",  self._dispatch_bollinger_squeeze),
         ]
 
         for setup_name, flag_key, method in dispatchers:
@@ -449,6 +451,29 @@ class SetupDispatcher:
             return DispatchResult("double_bottom_base_quiet", fired=False,
                                   skip_reason="SKIP_NO_SIGNAL")
         return DispatchResult("double_bottom_base_quiet", fired=True, signal=sig)
+
+
+    def _dispatch_bollinger_squeeze(self) -> DispatchResult:
+        """Dispatch the bollinger_squeeze detector (WIRE-BOLLINGER, 2026-07-02).
+
+        Feed: session sameday_5m_bars with timestamps + volume — same ctx as
+        double_bottom_base_quiet. Needs ~40 session bars of BB/percentile warmup,
+        so earliest live fire is early afternoon (matches the validated population).
+        """
+        ctx = self._build_ctx()
+        if ctx is None:
+            return DispatchResult("bollinger_squeeze", fired=False,
+                                  skip_reason="SKIP_NO_FEED:sameday_5m_bars_missing")
+        try:
+            from backtest.lib.watchers.bollinger_squeeze_watcher import detect_bollinger_squeeze_setup  # type: ignore[import]
+        except ImportError as e:
+            return DispatchResult("bollinger_squeeze", fired=False,
+                                  skip_reason=f"SKIP_IMPORT_ERROR:{e}")
+        sig = detect_bollinger_squeeze_setup(ctx)
+        if sig is None:
+            return DispatchResult("bollinger_squeeze", fired=False,
+                                  skip_reason="SKIP_NO_SIGNAL")
+        return DispatchResult("bollinger_squeeze", fired=True, signal=sig)
 
     # ------------------------------------------------------------------
     # Helpers

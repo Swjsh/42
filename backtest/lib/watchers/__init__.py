@@ -155,6 +155,7 @@ from .vwap_continuation_watcher import detect_vwap_continuation_setup  # noqa: E
 from .double_top_watcher import detect_double_top_setup  # noqa: E402  (mirror of double_bottom; 2026-06-20)
 from .market_structure_watcher import detect_market_structure_setup  # noqa: E402  (BOS/CHoCH; 2026-06-20)
 from .vwap_reclaim_failed_break_watcher import detect_vwap_reclaim_failed_break_setup  # noqa: E402  (edge #2 DORMANT; 2026-06-21)
+from .bollinger_squeeze_watcher import detect_bollinger_squeeze_setup  # noqa: E402  (WIRE-BOLLINGER; 2026-07-02)
 from .vix_regime_dayside_watcher import detect_vix_regime_dayside_setup  # noqa: E402  (edge #4 DORMANT; 2026-06-21)
 
 __all__ = [

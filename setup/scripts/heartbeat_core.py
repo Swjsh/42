@@ -889,6 +889,9 @@ _SETUP_STRIKE_OVERRIDES = {
     "double_bottom_base_quiet": ("j_db_base_quiet_strike_override_enabled",
                                  "j_db_base_quiet_strike_offset_safe",
                                  "j_db_base_quiet_strike_offset_bold"),
+    "bollinger_squeeze": ("j_bollinger_squeeze_strike_override_enabled",
+                          "j_bollinger_squeeze_strike_offset_safe",
+                          "j_bollinger_squeeze_strike_offset_bold"),
 }
 # ISOLATED per-setup exit knobs (params _j_*_isolated_exit_doc): the validated cells for
 # these setups carry their OWN stop/TP1 — silently sourcing the global -50% catastrophe
@@ -908,6 +911,11 @@ _SETUP_EXIT_OVERRIDES = {
     "double_bottom_base_quiet": {"stop": "j_db_base_quiet_premium_stop_pct",
                                  "tp1": "j_db_base_quiet_tp1_pct",
                                  "runner": "j_db_base_quiet_runner_target_pct"},
+    "bollinger_squeeze": {"stop": "j_bollinger_squeeze_premium_stop_pct",
+                          "tp1": "j_bollinger_squeeze_tp1_pct",
+                          "tq": "j_bollinger_squeeze_tp1_qty_fraction",
+                          "plmode": "j_bollinger_squeeze_profit_lock_mode",
+                          "trail": "j_bollinger_squeeze_profit_lock_trail_pct"},
 }
 
 
@@ -1058,9 +1066,18 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
                 # TRADE-TO-LEARN (2026-07-01): the exit_manager runs the setup's ISOLATED
                 # validated shape (same _stop_pct/_tp1_pct as the plan above), never the
                 # generic ribbon_ride shape — the stop IS part of the validated cell.
+                # WIRE-BOLLINGER (2026-07-02): optional per-setup tq / plmode / trail keys
+                # so a cell validated with a runner split + chandelier trail
+                # (bollinger_squeeze: tq 0.667 / trailing 0.15) trades ITS shape,
+                # not the global 0.8 / hard-coded "fixed".
                 _shape = {"premium_stop_pct": _stop_pct, "tp1_premium_pct": _tp1_pct,
-                          "tp1_qty_fraction": float(params.get("tp1_qty_fraction", 0.667)),
-                          "profit_lock_mode": "fixed"}
+                          "tp1_qty_fraction": (_params_float(params, _xov["tq"], 0.667)
+                                               if _xov.get("tq")
+                                               else float(params.get("tp1_qty_fraction", 0.667))),
+                          "profit_lock_mode": (str(params.get(_xov["plmode"], "fixed"))
+                                               if _xov.get("plmode") else "fixed")}
+                if _xov.get("trail"):
+                    _shape["trail_pct"] = _params_float(params, _xov["trail"], 0.15)
                 if _xov.get("runner"):
                     _shape["runner_target_pct"] = _params_float(params, _xov["runner"], 2.5)
             else:
