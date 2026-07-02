@@ -205,10 +205,19 @@ def test_kill_switch_blocks_when_breached(fpe):
 
 
 def test_happy_path_enter_bull_with_strike_and_qty(fpe):
-    """Full filter pipeline passes -> ENTER_BULL with strike + qty + stop + tp1."""
+    """Full filter pipeline passes -> ENTER_BULL with strike + qty + stop + tp1.
+
+    Exit knobs are patched explicitly (params_safe.json was deleted in the 06-25
+    port; live params.json values move with doctrine) — this pins the stop/tp1
+    FORMULA (premium * (1 + pct)), not any live value.
+    """
     alert = _synthetic_alert(bias="bullish")
+    params = dict(fpe._load_params("safe"),
+                  premium_stop_pct_bull=-0.08,
+                  tp1_premium_pct=0.30)
     with patch.object(fpe, "_is_rth_now", return_value=True), \
          patch.object(fpe, "_is_in_entry_window", return_value=True), \
+         patch.object(fpe, "_load_params", return_value=params), \
          patch.object(fpe, "_alpaca", return_value=_stub_account_info(equity=1000)):
         d = fpe.evaluate_alert("safe", alert,
                                 vix_data={"value": 16.0, "direction": "falling"})
@@ -217,7 +226,7 @@ def test_happy_path_enter_bull_with_strike_and_qty(fpe):
     assert d.proposed_qty >= 3  # min contracts rule 6
     assert d.proposed_stop_premium is not None
     assert d.proposed_tp1_premium is not None
-    # Bull premium_stop_pct=-0.08 from params_safe -> stop = 1.0 * 0.92 = 0.92
+    # Bull premium_stop_pct=-0.08 -> stop = 1.0 * 0.92 = 0.92
     assert d.proposed_stop_premium == 0.92
     # TP1 premium_pct=0.30 -> tp1 = 1.30
     assert d.proposed_tp1_premium == 1.30

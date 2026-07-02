@@ -4,6 +4,8 @@
   "rule_version": "v15.2",
   "rule_version_ratified_at": "2026-05-18",
   "enable_bullish": true,
+  "setups_allowed": ["ALL"],
+  "_setups_allowed_doc": "RESTORED 2026-07-02: key was LOST in the 2026-06-25 port (PIPELINE-AUDIT-2026-07-01); survived only in .lastgood/params_bold.json. 'ALL' sentinel = Bold trades every mapped setup archetype (fast_path_executor.py#_compute_filter_setup_allowed). Absent key = empty allowlist = every alert dies SKIP_SETUP. Guard: backtest/tests/test_graduated_guards.py#test_setups_allowed_present_in_live_params.",
   "rule_version_notes": "Bumped from v14-aggressive to v15.1 on 2026-05-14 evening. Intentional aggressive differences preserved: -15% stop, +50% TP1, 75% risk cap, 09:40 entry gate, ITM-1 strike, VIX hard cap 30, 15:50 time stop on open positions. v15.1 additions applied: (a) closed-bar filter R1 - TV in-progress bar discarded via bar_close_et = bar.time+5min <= now_et; (b) entry cutoff 15:00 ET (entries blocked after 15:00, open positions still held to 15:50).",
   "heartbeat_interval_minutes": 3,
   "_exits_section": "v15.1 Bold-aligned 2026-05-17 + Rank-31 2026-06-16 + TIGHTER_STOP 2026-06-17 + TIGHTER_STOP_2 2026-06-17. Asymmetric stop: bear -7% (TIGHTER_STOP_2: -0.10->-0.07, WF=0.725, scorecard: analysis/recommendations/agg-premium-stop-07.json), bull -5% (tight). TP1 +75% taking 2/3 off (66.7% at TP1, 1/3 runner). Time stop 15:40 ET (L110). Runner target 5x. Rank 31 J authorized 2026-06-16.",

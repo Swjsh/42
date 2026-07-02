@@ -146,21 +146,31 @@ def _is_in_entry_window(params: dict) -> bool:
 
 
 def _load_params(account: str) -> dict:
-    """Load params_{account}.json + merge over params.json."""
+    """Load the account overlay merged over params.json.
+
+    Overlay resolution (2026-07-02 fix): params_{account}.json was deleted in the
+    06-25 port — the post-port live home for the bold overlay is
+    automation/state/aggressive/params.json (same file heartbeat_core reads).
+    params_{account}.json is still tried first for backward compatibility.
+    """
     base = PROJECT_ROOT / "automation" / "state" / "params.json"
-    acct = PROJECT_ROOT / "automation" / "state" / f"params_{account}.json"
+    candidates = [PROJECT_ROOT / "automation" / "state" / f"params_{account}.json"]
+    if account == "bold":
+        candidates.append(PROJECT_ROOT / "automation" / "state" / "aggressive" / "params.json")
     merged: dict = {}
     if base.exists():
         try:
             merged = json.loads(base.read_text())
         except (json.JSONDecodeError, OSError):
             merged = {}
-    if acct.exists():
-        try:
-            override = json.loads(acct.read_text())
-            merged.update(override)
-        except (json.JSONDecodeError, OSError):
-            pass
+    for acct in candidates:
+        if acct.exists():
+            try:
+                override = json.loads(acct.read_text())
+                merged = {**merged, **override}
+            except (json.JSONDecodeError, OSError):
+                pass
+            break
     return merged
 
 

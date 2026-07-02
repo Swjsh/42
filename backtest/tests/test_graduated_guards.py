@@ -3717,3 +3717,26 @@ def test_self_check_flags_contradictory_level_roles(tmp_path) -> None:
                        {"price": 740.50, "role": "support", "tier": "Active"}]}
     p.write_text(_json.dumps(good), encoding="utf-8")
     assert sc.check_level_integrity(p) == [], "self-consistent levels must be clean"
+
+
+def test_setups_allowed_present_in_live_params() -> None:
+    """G-SETUPS-ALLOWED (2026-07-02): both live params files must carry a non-empty
+    setups_allowed list. The key was LOST in the 06-25 port (PIPELINE-AUDIT-2026-07-01
+    dead-keys class) and survived only in .lastgood/ — with it absent,
+    fast_path_executor._compute_filter_setup_allowed reads an empty allowlist and every
+    alert dies SKIP_SETUP (11 suite failures, zero fast-path entries possible). RED if
+    the key goes missing, empties, or carries an unknown archetype again."""
+    import json as _json
+    valid = {"ALL", "BEARISH_REJECTION_RIDE_THE_RIBBON", "BULLISH_RECLAIM_RIDE_THE_RIBBON"}
+    for rel in ("params.json", "aggressive/params.json"):
+        p = _json.loads((REPO / "automation" / "state" / rel).read_text(encoding="utf-8"))
+        allowed = p.get("setups_allowed")
+        assert isinstance(allowed, list) and allowed, (
+            f"{rel} must carry a non-empty setups_allowed list — absent/empty means the "
+            f"fast-path setup filter blocks EVERY alert (SKIP_SETUP), got {allowed!r}"
+        )
+        unknown = set(allowed) - valid
+        assert not unknown, (
+            f"{rel} setups_allowed has unknown archetype(s) {unknown} — must be drawn from "
+            f"{sorted(valid)} (fast_path_executor pattern_to_setup vocab)"
+        )
