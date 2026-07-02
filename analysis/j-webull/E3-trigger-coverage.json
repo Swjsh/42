@@ -1,0 +1,661 @@
+{
+  "experiment": "E3_trigger_coverage",
+  "generated_at": "2026-07-02T02:20:27.690690+00:00",
+  "window_2025_26": [
+    "2025-01-02",
+    "2026-06-18"
+  ],
+  "at_level_threshold_pct": 0.1,
+  "n_engine_entries_total": 571,
+  "n_engine_by_trigger": {
+    "core_bear": 71,
+    "core_bull": 27,
+    "vwap_continuation": 167,
+    "vwap_reclaim_failed_break": 87,
+    "vix_regime_dayside": 87,
+    "double_bottom_base_quiet": 132
+  },
+  "j_population": "542 closed SPX/SPY-family ctx_ok episodes (2021-23, J's real fills)",
+  "matrix": {
+    "at_level=N|aligned=N|late": {
+      "j_n": 14,
+      "j_total_pnl": -148.0,
+      "j_exp_per_trade": -10.57,
+      "engine_total": 11,
+      "engine_share_pct": 1.9,
+      "core_bear": 1,
+      "core_bull": 0,
+      "vwap_continuation": 0,
+      "vwap_reclaim_failed_break": 0,
+      "vix_regime_dayside": 0,
+      "double_bottom_base_quiet": 10
+    },
+    "at_level=N|aligned=N|midday": {
+      "j_n": 59,
+      "j_total_pnl": -849.0,
+      "j_exp_per_trade": -14.39,
+      "engine_total": 20,
+      "engine_share_pct": 3.5,
+      "core_bear": 5,
+      "core_bull": 0,
+      "vwap_continuation": 0,
+      "vwap_reclaim_failed_break": 0,
+      "vix_regime_dayside": 2,
+      "double_bottom_base_quiet": 13
+    },
+    "at_level=N|aligned=N|morning": {
+      "j_n": 38,
+      "j_total_pnl": -2385.0,
+      "j_exp_per_trade": -62.76,
+      "engine_total": 11,
+      "engine_share_pct": 1.9,
+      "core_bear": 1,
+      "core_bull": 0,
+      "vwap_continuation": 0,
+      "vwap_reclaim_failed_break": 0,
+      "vix_regime_dayside": 5,
+      "double_bottom_base_quiet": 5
+    },
+    "at_level=N|aligned=N|open": {
+      "j_n": 23,
+      "j_total_pnl": -2122.0,
+      "j_exp_per_trade": -92.26,
+      "engine_total": 9,
+      "engine_share_pct": 1.6,
+      "core_bear": 0,
+      "core_bull": 1,
+      "vwap_continuation": 0,
+      "vwap_reclaim_failed_break": 0,
+      "vix_regime_dayside": 8,
+      "double_bottom_base_quiet": 0
+    },
+    "at_level=N|aligned=N|other": {
+      "j_n": 1,
+      "j_total_pnl": 100.0,
+      "j_exp_per_trade": 100.0,
+      "engine_total": 0,
+      "engine_share_pct": 0.0,
+      "core_bear": 0,
+      "core_bull": 0,
+      "vwap_continuation": 0,
+      "vwap_reclaim_failed_break": 0,
+      "vix_regime_dayside": 0,
+      "double_bottom_base_quiet": 0
+    },
+    "at_level=N|aligned=Y|late": {
+      "j_n": 36,
+      "j_total_pnl": -705.0,
+      "j_exp_per_trade": -19.58,
+      "engine_total": 26,
+      "engine_share_pct": 4.6,
+      "core_bear": 6,
+      "core_bull": 2,
+      "vwap_continuation": 0,
+      "vwap_reclaim_failed_break": 0,
+      "vix_regime_dayside": 0,
+      "double_bottom_base_quiet": 18
+    },
+    "at_level=N|aligned=Y|midday": {
+      "j_n": 100,
+      "j_total_pnl": -491.0,
+      "j_exp_per_trade": -4.91,
+      "engine_total": 58,
+      "engine_share_pct": 10.2,
+      "core_bear": 34,
+      "core_bull": 2,
+      "vwap_continuation": 0,
+      "vwap_reclaim_failed_break": 0,
+      "vix_regime_dayside": 3,
+      "double_bottom_base_quiet": 19
+    },
+    "at_level=N|aligned=Y|morning": {
+      "j_n": 104,
+      "j_total_pnl": -4473.0,
+      "j_exp_per_trade": -43.01,
+      "engine_total": 97,
+      "engine_share_pct": 17.0,
+      "core_bear": 1,
+      "core_bull": 3,
+      "vwap_continuation": 15,
+      "vwap_reclaim_failed_break": 48,
+      "vix_regime_dayside": 5,
+      "double_bottom_base_quiet": 25
+    },
+    "at_level=N|aligned=Y|open": {
+      "j_n": 73,
+      "j_total_pnl": -2015.0,
+      "j_exp_per_trade": -27.6,
+      "engine_total": 171,
+      "engine_share_pct": 29.9,
+      "core_bear": 1,
+      "core_bull": 10,
+      "vwap_continuation": 105,
+      "vwap_reclaim_failed_break": 13,
+      "vix_regime_dayside": 42,
+      "double_bottom_base_quiet": 0
+    },
+    "at_level=Y|aligned=N|late": {
+      "j_n": 7,
+      "j_total_pnl": -173.0,
+      "j_exp_per_trade": -24.71,
+      "engine_total": 4,
+      "engine_share_pct": 0.7,
+      "core_bear": 0,
+      "core_bull": 0,
+      "vwap_continuation": 0,
+      "vwap_reclaim_failed_break": 0,
+      "vix_regime_dayside": 0,
+      "double_bottom_base_quiet": 4
+    },
+    "at_level=Y|aligned=N|midday": {
+      "j_n": 11,
+      "j_total_pnl": -809.0,
+      "j_exp_per_trade": -73.55,
+      "engine_total": 10,
+      "engine_share_pct": 1.8,
+      "core_bear": 1,
+      "core_bull": 0,
+      "vwap_continuation": 0,
+      "vwap_reclaim_failed_break": 0,
+      "vix_regime_dayside": 0,
+      "double_bottom_base_quiet": 9
+    },
+    "at_level=Y|aligned=N|morning": {
+      "j_n": 12,
+      "j_total_pnl": -173.0,
+      "j_exp_per_trade": -14.42,
+      "engine_total": 6,
+      "engine_share_pct": 1.1,
+      "core_bear": 1,
+      "core_bull": 1,
+      "vwap_continuation": 0,
+      "vwap_reclaim_failed_break": 0,
+      "vix_regime_dayside": 3,
+      "double_bottom_base_quiet": 1
+    },
+    "at_level=Y|aligned=N|open": {
+      "j_n": 4,
+      "j_total_pnl": 245.0,
+      "j_exp_per_trade": 61.25,
+      "engine_total": 6,
+      "engine_share_pct": 1.1,
+      "core_bear": 1,
+      "core_bull": 1,
+      "vwap_continuation": 0,
+      "vwap_reclaim_failed_break": 0,
+      "vix_regime_dayside": 4,
+      "double_bottom_base_quiet": 0
+    },
+    "at_level=Y|aligned=Y|late": {
+      "j_n": 4,
+      "j_total_pnl": -17.0,
+      "j_exp_per_trade": -4.25,
+      "engine_total": 13,
+      "engine_share_pct": 2.3,
+      "core_bear": 7,
+      "core_bull": 0,
+      "vwap_continuation": 0,
+      "vwap_reclaim_failed_break": 0,
+      "vix_regime_dayside": 0,
+      "double_bottom_base_quiet": 6
+    },
+    "at_level=Y|aligned=Y|midday": {
+      "j_n": 13,
+      "j_total_pnl": -388.0,
+      "j_exp_per_trade": -29.85,
+      "engine_total": 25,
+      "engine_share_pct": 4.4,
+      "core_bear": 9,
+      "core_bull": 3,
+      "vwap_continuation": 0,
+      "vwap_reclaim_failed_break": 0,
+      "vix_regime_dayside": 2,
+      "double_bottom_base_quiet": 11
+    },
+    "at_level=Y|aligned=Y|morning": {
+      "j_n": 29,
+      "j_total_pnl": 2613.0,
+      "j_exp_per_trade": 90.1,
+      "engine_total": 38,
+      "engine_share_pct": 6.7,
+      "core_bear": 2,
+      "core_bull": 0,
+      "vwap_continuation": 4,
+      "vwap_reclaim_failed_break": 18,
+      "vix_regime_dayside": 3,
+      "double_bottom_base_quiet": 11
+    },
+    "at_level=Y|aligned=Y|open": {
+      "j_n": 14,
+      "j_total_pnl": -947.0,
+      "j_exp_per_trade": -67.64,
+      "engine_total": 66,
+      "engine_share_pct": 11.6,
+      "core_bear": 1,
+      "core_bull": 4,
+      "vwap_continuation": 43,
+      "vwap_reclaim_failed_break": 8,
+      "vix_regime_dayside": 10,
+      "double_bottom_base_quiet": 0
+    }
+  },
+  "j_profit_cells_n15_positive": [
+    "at_level=Y|aligned=Y|morning"
+  ],
+  "uncovered_profit_cells": [],
+  "thin_profit_cells_lt10": [],
+  "verdict": [
+    "All J profitable cells (n>=15, +exp) have >=10 engine entries \u2014 coverage already expresses J's profit context.",
+    "J PROFIT-CELL (at_level=Y|aligned=Y|midday): J n=13, exp $-29.9/tr; engine entries: 25 (4.4% of engine flow).",
+    "Engine flow in J's TOXIC open window (09:30-10:00): 44.2% (J there: -$35.9/tr on 24% of his volume)."
+  ],
+  "caveats": [
+    "C22: J cells are 2021-23 SPX/SPY context; engine cells are 2025-26 SPY. Structure port only.",
+    "Coverage audit ONLY \u2014 extra-setup P&L authority remains their own real-fills scorecards (C1).",
+    "double_bottom replay omits NOT_NEAR_NAMED (over-counts that watcher's coverage slightly).",
+    "Watcher-replay VWAP = typical-price session cumulative; marginal count drift possible vs live wrappers.",
+    "core engine = run_backtest(use_real_fills=True) with live params.json (Safe) \u2014 the real gate cascade."
+  ],
+  "entries_sample": [
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-01-07 13:50:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "late",
+      "direction": "bear",
+      "ts": "2025-01-07 15:40:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": false,
+      "tod": "morning",
+      "direction": "bear",
+      "ts": "2025-01-10 10:35:00"
+    },
+    {
+      "trigger": "core_bull",
+      "at_level": true,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bull",
+      "ts": "2025-01-16 12:05:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": true,
+      "aligned": true,
+      "tod": "late",
+      "direction": "bear",
+      "ts": "2025-01-16 15:15:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-01-29 12:40:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": true,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-02-07 12:50:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "late",
+      "direction": "bear",
+      "ts": "2025-02-21 14:05:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-02-24 11:05:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": false,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-02-24 13:50:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-03-18 11:00:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-05-09 12:25:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-05-20 12:15:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": false,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-05-21 12:35:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "late",
+      "direction": "bear",
+      "ts": "2025-06-05 14:05:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": true,
+      "aligned": true,
+      "tod": "late",
+      "direction": "bear",
+      "ts": "2025-06-05 15:05:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "late",
+      "direction": "bear",
+      "ts": "2025-06-13 14:05:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-06-20 12:15:00"
+    },
+    {
+      "trigger": "core_bull",
+      "at_level": true,
+      "aligned": false,
+      "tod": "open",
+      "direction": "bull",
+      "ts": "2025-06-26 09:45:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": true,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-07-07 11:00:00"
+    },
+    {
+      "trigger": "core_bull",
+      "at_level": false,
+      "aligned": true,
+      "tod": "open",
+      "direction": "bull",
+      "ts": "2025-07-09 09:45:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": true,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-07-15 12:40:00"
+    },
+    {
+      "trigger": "core_bull",
+      "at_level": false,
+      "aligned": true,
+      "tod": "open",
+      "direction": "bull",
+      "ts": "2025-07-17 09:40:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-07-18 13:00:00"
+    },
+    {
+      "trigger": "core_bull",
+      "at_level": false,
+      "aligned": true,
+      "tod": "open",
+      "direction": "bull",
+      "ts": "2025-07-21 09:45:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": true,
+      "aligned": true,
+      "tod": "late",
+      "direction": "bear",
+      "ts": "2025-07-21 15:30:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-08-05 11:40:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": true,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-08-07 11:50:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-08-07 13:05:00"
+    },
+    {
+      "trigger": "core_bull",
+      "at_level": false,
+      "aligned": true,
+      "tod": "open",
+      "direction": "bull",
+      "ts": "2025-08-08 09:40:00"
+    },
+    {
+      "trigger": "core_bull",
+      "at_level": true,
+      "aligned": true,
+      "tod": "open",
+      "direction": "bull",
+      "ts": "2025-08-11 09:40:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "late",
+      "direction": "bear",
+      "ts": "2025-08-11 14:45:00"
+    },
+    {
+      "trigger": "core_bull",
+      "at_level": false,
+      "aligned": false,
+      "tod": "open",
+      "direction": "bull",
+      "ts": "2025-08-12 09:55:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-08-19 11:55:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "open",
+      "direction": "bear",
+      "ts": "2025-08-20 09:55:00"
+    },
+    {
+      "trigger": "core_bull",
+      "at_level": false,
+      "aligned": true,
+      "tod": "open",
+      "direction": "bull",
+      "ts": "2025-08-22 09:40:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-08-29 13:20:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-09-02 11:40:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-09-10 13:10:00"
+    },
+    {
+      "trigger": "core_bull",
+      "at_level": true,
+      "aligned": true,
+      "tod": "open",
+      "direction": "bull",
+      "ts": "2025-09-11 09:50:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": true,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-09-17 11:55:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-09-23 12:05:00"
+    },
+    {
+      "trigger": "core_bull",
+      "at_level": false,
+      "aligned": true,
+      "tod": "open",
+      "direction": "bull",
+      "ts": "2025-09-26 09:40:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-10-02 11:30:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": false,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-10-06 11:40:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": false,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-10-07 11:40:00"
+    },
+    {
+      "trigger": "core_bear",
+      "at_level": true,
+      "aligned": true,
+      "tod": "midday",
+      "direction": "bear",
+      "ts": "2025-10-15 13:05:00"
+    },
+    {
+      "trigger": "core_bull",
+      "at_level": false,
+      "aligned": true,
+      "tod": "open",
+      "direction": "bull",
+      "ts": "2025-10-24 09:40:00"
+    },
+    {
+      "trigger": "core_bull",
+      "at_level": false,
+      "aligned": true,
+      "tod": "open",
+      "direction": "bull",
+      "ts": "2025-10-27 09:40:00"
+    },
+    {
+      "trigger": "core_bull",
+      "at_level": true,
+      "aligned": true,
+      "tod": "open",
+      "direction": "bull",
+      "ts": "2025-10-29 09:40:00"
+    }
+  ]
+}
