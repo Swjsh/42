@@ -128,3 +128,87 @@
      trig = row.get("triggers") or []
      if not isinstance(trig, list):
          trig = [trig] if trig else []
+--- a/backtest/tests/test_money_path_2026_07_01.py
++++ b/backtest/tests/test_money_path_2026_07_01.py
+@@ -51,6 +51,18 @@ BOLD_PARAMS = json.loads(BOLD_PARAMS_PATH.read_text(encoding="utf-8"))
+ 
+ _CREDS = {"key": "k", "secret": "s", "base_url": "https://paper-api.example.invalid"}
+ 
++_EXEC_NOW = dt.datetime(2026, 7, 2, 11, 0)  # frozen _et_now shared by the _execute harnesses
++
++
++def _fresh_bar_ctx(close: float, now: dt.datetime = _EXEC_NOW) -> dict:
++    """Trigger-bar context stamped SAME-DAY as the harness's frozen _et_now. The
++    2026-07-02 entry-floor fix's _stale_trigger_bar gate fails CLOSED on any ENTER whose
++    bar_ctx.timestamp_et is not today — live payloads always carry the real bar
++    timestamp (heartbeat_core._build_payload -> trig["timestamp"].isoformat()), so
++    synthetic fixtures must too."""
++    return {"bar": {"close": close},
++            "timestamp_et": (now - dt.timedelta(minutes=5)).isoformat()}
++
+ 
+ @pytest.fixture()
+ def hc():
+@@ -93,7 +105,7 @@ class TestEntryCeiling:
+     @staticmethod
+     def _wire_run_account(hc, monkeypatch, now):
+         payload = {"bar_ctx": {
+-            "bar": {"close": 620.0},
++            **_fresh_bar_ctx(620.0, now),
+             "ribbon_now": {"stack": "BEARISH", "spread_cents": 45.0},
+             "vix_now": 17.2, "vix_prior": 17.3, "htf_15m_stack": "BEARISH"}}
+         verdict = {"verdict": "ENTER_BEAR", "side": "P",
+@@ -187,7 +199,7 @@ class TestEntryCeiling:
+ # FIX2 — simple-FIRST options placement (no bracket/oto attempt, ever)
+ # =============================================================================
+ def _wire_execute(hc, monkeypatch, tmp_path, *, equity="2000.0", manages_exits=True,
+-                  now=dt.datetime(2026, 7, 2, 11, 0)):
++                  now=_EXEC_NOW):
+     """Full _execute harness: fake broker REST, real risk_gate/strike_selection/params."""
+     import fleet_broker as fb
+     posts: list = []
+@@ -254,7 +266,7 @@ class TestSimpleFirstPlacement:
+         posts = _wire_execute(hc, monkeypatch, tmp_path)
+         verdict = {"verdict": "ENTER_BEAR", "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+                    "triggers_fired": ["level_rejection"]}
+-        plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.0}}},
++        plan = hc._execute("safe", verdict, {"bar_ctx": _fresh_bar_ctx(620.0)},
+                            SAFE_PARAMS, dry=False)
+         assert plan["status"] == "PLACED", plan
+         assert len(posts) == 1, f"exactly ONE order POST expected, got {posts}"
+@@ -270,7 +282,7 @@ class TestSimpleFirstPlacement:
+         posts = _wire_execute(hc, monkeypatch, tmp_path, manages_exits=False)
+         verdict = {"verdict": "ENTER_BEAR", "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+                    "triggers_fired": ["level_rejection"]}
+-        plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.0}}},
++        plan = hc._execute("safe", verdict, {"bar_ctx": _fresh_bar_ctx(620.0)},
+                            SAFE_PARAMS, dry=False)
+         assert plan["status"] == "PLACE_FAIL"
+         assert "_refused" in plan["broker"]
+@@ -414,7 +426,7 @@ class TestVwapContinuationArmed:
+         posts = _wire_execute(hc, monkeypatch, tmp_path, equity="25000.0")
+         verdict = {"verdict": "ENTER_BEAR", "setup_name": "vwap_continuation",
+                    "triggers_fired": ["vwap_continuation"]}
+-        payload = {"bar_ctx": {"bar": {"close": 620.4}}}
++        payload = {"bar_ctx": _fresh_bar_ctx(620.4)}
+         plan = hc._execute("safe", verdict, payload, SAFE_PARAMS, dry=False)
+         assert plan["status"] == "PLACED", plan
+         assert plan["strike"] == 620, "vwap_continuation must trade ATM (WP-5 validated cell)"
+@@ -433,7 +445,7 @@ class TestVwapContinuationArmed:
+         _wire_execute(hc, monkeypatch, tmp_path, equity="25000.0")
+         verdict = {"verdict": "ENTER_BEAR", "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+                    "triggers_fired": ["level_rejection"]}
+-        plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.4}}},
++        plan = hc._execute("safe", verdict, {"bar_ctx": _fresh_bar_ctx(620.4)},
+                            SAFE_PARAMS, dry=True)
+         assert plan["strike"] == 622  # generic Safe ITM-2 tier at $25K, unchanged
+ 
+@@ -454,7 +466,7 @@ class TestVwapContinuationArmed:
+         monkeypatch.setitem(sys.modules, "strategies", real_strat)  # undo the None mask
+         verdict = {"verdict": "ENTER_BEAR", "setup_name": "vwap_continuation",
+                    "triggers_fired": ["vwap_continuation"]}
+-        plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.4}}},
++        plan = hc._execute("safe", verdict, {"bar_ctx": _fresh_bar_ctx(620.4)},
+                            SAFE_PARAMS, dry=False)
+         assert plan["status"] == "PLACED", plan
+         assert plan["stop"] == 0.92  # mid 1.00 * (1 - 0.08) — validated isolated stop

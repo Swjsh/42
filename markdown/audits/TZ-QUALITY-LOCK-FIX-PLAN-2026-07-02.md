@@ -135,6 +135,13 @@ verification step 2 expects money-path all-green — **the apply commit must als
 today-dated `timestamp_et` to those 6 fixtures** (or the suite goes RED and looks like a
 bad apply). This tz patch is unaffected either way.
 
+**RESOLVED 2026-07-02 (same day, before apply):** the 6 fixture updates are now staged
+as hunks INSIDE `entry-floor-fix-2026-07-02.patch` itself (4th file; see that plan's
+Edit 8), so they land in the same apply commit automatically. Re-verified:
+`git apply --check` clean; both patches applied to a worktree copy →
+`test_money_path_2026_07_01.py` **36 passed**. No action needed at apply time beyond
+the standard `git apply`.
+
 ## Verification after apply (OP-33: quote the check)
 
 1. `backtest/.venv/Scripts/python.exe -m pytest -q backtest/tests/test_tz_quality_lock_2026_07_02.py`

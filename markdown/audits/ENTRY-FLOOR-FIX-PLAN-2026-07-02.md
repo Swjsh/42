@@ -191,7 +191,20 @@ Delete the `@pytest.mark.xfail(...)` line in `TestFixAppliedSentinel.test_fix_is
 (strict xfail goes XPASS=RED the moment edits 1-6 land — this step IS the proof the 21
 skipped guards armed).
 
-## Mechanical apply (edits 1–6 as one command)
+### Edit 8 — money-path fixture freshness (staged INTO the patch, 2026-07-02 follow-up)
+
+The tz-quality-lock plan's coordination warning flagged that the new fail-closed
+`_stale_trigger_bar` gate flips 6 `test_money_path_2026_07_01.py` tests from PLACED to
+SKIP_STALE_TRIGGER — their synthetic payloads carried no today-dated
+`bar_ctx.timestamp_et` (test-fixture interaction, not a production defect). The patch
+now ALSO updates those fixtures (4th file in the diff): a `_fresh_bar_ctx(close, now)`
+helper stamps each payload `timestamp_et = (now - 5min).isoformat()` derived from the
+same frozen `_et_now` each harness already uses (production format:
+`_build_payload` → `trig["timestamp"].isoformat()`). The gate itself is untouched.
+`test_execute_skip_late_entry_touches_no_broker` deliberately KEEPS its stale payload —
+it pins that the ceiling check still fires before the staleness gate.
+
+## Mechanical apply (edits 1–6 + 8 as one command)
 
 The exact edits above are also staged as a verified unified diff:
 
@@ -199,8 +212,9 @@ The exact edits above are also staged as a verified unified diff:
 git apply markdown/audits/entry-floor-fix-2026-07-02.patch
 ```
 
-(`git apply --check --stat` verified clean against the tree at commit time: 3 files,
-+77/−1.) Then do Edit 7 (delete the sentinel's xfail marker) by hand.
+(`git apply --check --stat` verified clean against the tree at staging time: 4 files,
++96/−8 — engine edits +77/−1 plus the Edit-8 fixture hunks.) Then do Edit 7 (delete the
+sentinel's xfail marker) by hand.
 
 **Pre-validated 2026-07-02 (staged copies, live files untouched):** the patch was
 applied to scratchpad copies and the full guard suite run against them via module
@@ -211,7 +225,7 @@ and green; sentinel deselected because its XPASS-goes-RED is the apply-time remi
 
 1. `backtest/.venv/Scripts/python.exe -m pytest -q backtest/tests/test_entry_floor_2026_07_02.py`
    → expect **31 passed, 0 skipped, 0 xfailed** (soft ledger pin may skip if pruned).
-2. Full regression: `... -m pytest -q backtest/tests/test_money_path_2026_07_01.py backtest/tests/test_graduated_guards.py` → all green.
+2. Full regression: `... -m pytest -q backtest/tests/test_money_path_2026_07_01.py backtest/tests/test_graduated_guards.py` → money-path **36 passed** (pre-validated 2026-07-02: both staged patches applied to a worktree copy → `36 passed in 0.38s`; the Edit-8 fixture hunks are load-bearing for this). Graduated guards: green from the MAIN checkout (3 cache-anchored tests are known worktree-only artifacts).
 3. Next session open (09:30–09:34 ET): core-decisions.jsonl shows `SKIP_STALE_TRIGGER`
    (or `SKIP_EARLY_ENTRY`) with `armed: true` and **no** `exec` block; fleet decisions
    show `SKIP_EARLY_ENTRY` reason rows; first possible ENTER ≈ 09:40–09:41.
