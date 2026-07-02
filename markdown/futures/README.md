@@ -10,6 +10,7 @@
 | [MARGIN-LEVERAGE-RISK.md](MARGIN-LEVERAGE-RISK.md) | Initial/maintenance/day/overnight margin, leverage, notional risk, margin calls |
 | [SESSIONS-ROLLOVER-TAX.md](SESSIONS-ROLLOVER-TAX.md) | Trading hours, maintenance break, settlement, quarterly rollover, Section 1256 tax, costs |
 | [SOURCES.md](SOURCES.md) | All authoritative source links + retrieval dates |
+| [FUTURES-REVIVAL-PLAN-2026-07-02.md](FUTURES-REVIVAL-PLAN-2026-07-02.md) | **Multiday-swing revival: verified inventory (what exists/works/dead) + phased build plan** (J directive 2026-07-02) |
 
 ---
 
