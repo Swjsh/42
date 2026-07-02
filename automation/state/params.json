@@ -242,7 +242,6 @@
   "per_trade_risk_cap_pct": 0.3,
   "daily_loss_kill_switch_pct": 0.3,
   "_first_entry_rule_section": "Added 2026-05-08. If a setup name has been entered AND stopped out today, no second entry on that setup name today. Was in risk-rules.md doctrine, not in heartbeat code. Now both (sync).",
-  "first_entry_after_stop_blocked": true,
   "first_entry_after_tp_size_reduction": 1,
   "_macro_section": "Macro Bias Inheritance v2 - HARD VETO if event <= 120 min ahead AND counter-trend to today-bias.bias. SOFT MODIFIER 120-240 min raises bull threshold to >=10/11, lowers bear to >=7/10.",
   "macro_hard_veto_minutes": 120,

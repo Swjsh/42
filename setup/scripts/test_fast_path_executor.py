@@ -149,8 +149,14 @@ def test_setups_allowed_all_accepts_mapped_setup(fpe):
     assert "via_ALL" in d.filter_results.get("setup", "")
 
 
-def test_first_entry_lock_blocks_after_stop(fpe, tmp_path, monkeypatch):
-    """If a prior trade today exited via stop, block re-entry."""
+def test_first_entry_lock_deleted_reentry_allowed_after_stop(fpe, tmp_path, monkeypatch):
+    """RE-ENTRY LOCK ABSENCE PIN (J directive 2026-07-02: 'Gone. We no longer have it
+    in our codebase.'): a prior same-setup stop-out recorded in loop-state
+    first_entry_lock[] must NOT suppress a fresh entry — the alert routes through to
+    ENTER (flat-verify + risk_gate remain the only gates). RED = someone re-introduced
+    the Claude-invented re-entry suppression."""
+    assert not hasattr(fpe, "_compute_filter_first_entry_lock"), \
+        "re-entry suppression re-introduced (deleted per J directive 2026-07-02)"
     today = datetime.now(fpe.ET_TZ).date().isoformat()
     loop_state = {
         "first_entry_lock": [{
@@ -166,15 +172,23 @@ def test_first_entry_lock_blocks_after_stop(fpe, tmp_path, monkeypatch):
     def _fake_load_loop():
         return loop_state
 
+    # NOTE: _load_params is patched to carry setups_allowed because the live
+    # params.json lost that key in the 06-25 port (pre-existing suite breakage,
+    # flagged separately) — this pin must not depend on that unrelated bug.
+    params = dict(fpe._load_params("safe"),
+                  setups_allowed=["BULLISH_RECLAIM_RIDE_THE_RIBBON",
+                                  "BEARISH_REJECTION_RIDE_THE_RIBBON"])
     alert = _synthetic_alert(bias="bullish", pattern="failed_breakdown_wick")
     with patch.object(fpe, "_is_rth_now", return_value=True), \
          patch.object(fpe, "_is_in_entry_window", return_value=True), \
          patch.object(fpe, "_load_loop_state", _fake_load_loop), \
+         patch.object(fpe, "_load_params", return_value=params), \
          patch.object(fpe, "_alpaca", return_value=_stub_account_info()):
         d = fpe.evaluate_alert("safe", alert,
                                 vix_data={"value": 16, "direction": "falling"})
-    assert d.decision == "SKIP_LOCK"
-    assert "first_entry_after_stop" in d.reason
+    assert d.decision not in ("SKIP_LOCK",), d.reason
+    assert "first_entry" not in str(d.reason)
+    assert d.decision == "ENTER_BULL", d.reason
 
 
 def test_kill_switch_blocks_when_breached(fpe):

@@ -195,20 +195,28 @@ def test_not_flat_open_mapping_denies():
     assert d.code == CODE_NOT_FLAT
 
 
-def test_first_entry_lock_denies_when_setup_stopped():
+def test_first_entry_lock_deleted_same_setup_reentry_allowed():
+    """ABSENCE PIN (J directive 2026-07-02: 'Gone. We no longer have it in our
+    codebase.'): a same-setup re-entry after a stop-out must be ALLOWED — the
+    FIRST_ENTRY_LOCK deny was Claude-invented and never A/B-validated. RED here
+    = someone re-introduced the re-entry suppression."""
     d = _clean_safe(prior_stops_today=[SETUP])
-    assert isinstance(d, Deny)
-    assert d.code == CODE_FIRST_ENTRY_LOCK
-
-
-def test_first_entry_lock_allows_different_setup():
-    d = _clean_safe(prior_stops_today=["SOME_OTHER_SETUP"])
     assert isinstance(d, Allow), d.reason
+    assert d.code != CODE_FIRST_ENTRY_LOCK
 
 
-def test_first_entry_lock_disabled_by_param():
-    params = dict(SAFE_PARAMS, first_entry_after_stop_blocked=False)
-    d = _clean_safe(prior_stops_today=[SETUP], params=params)
+def test_first_entry_lock_param_is_dead_knob():
+    """The old first_entry_after_stop_blocked knob must have NO effect either way."""
+    for flag in (True, False):
+        params = dict(SAFE_PARAMS, first_entry_after_stop_blocked=flag)
+        d = _clean_safe(prior_stops_today=[SETUP], params=params)
+        assert isinstance(d, Allow), d.reason
+
+
+def test_prior_stops_today_garbage_no_longer_denies():
+    """prior_stops_today is accepted-but-ignored: even a non-iterable must not
+    trip UNREADABLE_INPUT (the old lock's input validation went with it)."""
+    d = _clean_safe(prior_stops_today=12345)
     assert isinstance(d, Allow), d.reason
 
 
@@ -306,8 +314,9 @@ def test_oversized_bold_replays_2026_06_15_incident():
         ("kill_switch_tripped", None),   # ambiguous halt state
         ("kill_switch_tripped", "yes"),  # must be a real bool
         ("kill_switch_tripped", 1),
-        ("prior_stops_today", 42),       # not iterable
-        ("prior_stops_today", "ONE_SETUP"),  # bare string is ambiguous
+        # prior_stops_today cases removed 2026-07-02: the FIRST_ENTRY_LOCK deny
+        # was deleted per J directive, so the arg is accepted-but-ignored (see
+        # test_prior_stops_today_garbage_no_longer_denies).
     ],
 )
 def test_fail_closed_on_unreadable_input(field, bad):

@@ -81,9 +81,10 @@ if not logger.handlers:
 # historical replay (backtest/replay_heartbeat_core.py) now PASSES the full arm-gate:
 #   - bear_score exact-match 98.0% (avg diff 0.02) — input/score wiring byte-faithful
 #   - ENTRY FIDELITY 5/5 matched, 0 extra, 0 missed over the 8-day window: after the live
-#     FLAT-verify dedup AND the quality-lock (ported below: _quality_lock_check, mirrors the
-#     orchestrator's setup_quality_taken_today escalation lock) the live engine trades at the
-#     SAME bars/sides the backtest does — no over-trade. SKIP_NO_PULLBACK is irrelevant
+#     FLAT-verify dedup the live engine trades at the SAME bars/sides the backtest does.
+#     (The quality-lock re-entry suppression that also gated this replay was DELETED
+#     2026-07-02 per J's written order — never validated, cost the 07-02 midday trade.)
+#     SKIP_NO_PULLBACK is irrelevant
 #     (V_PULLBACK off by default; 0 such decisions in-window).
 # ARMED still defaults False: arming is J's call, never automatic. Re-arm: `set GAMMA_CORE_ARMED=1`.
 ARMED = os.environ.get("GAMMA_CORE_ARMED", "0") == "1"
@@ -755,156 +756,15 @@ def _place_simple_entry(creds: dict, *, symbol: str, qty: int, limit_price: floa
     return res
 
 
-# ----- quality-lock (per-day, per-setup escalation lock) ---------------------
-# Faithful port of the orchestrator's SKIP_QUALITY_LOCK (backtest/lib/orchestrator.py
-# ~1170-1262 + mutation 1474): at most one trade per (date, setup) unless a strictly
-# stronger trigger set fires, with one stop-out leg-2 exemption (same rank allowed only
-# if the prior fill stopped AND >=45min has passed). The live engine is stateless, so the
-# per-day state is reconstructed each tick from today's own ledger rows (entries written by
-# _execute) + the broker (prior-fill stop outcome). Filtering rows to "today ET + this
-# account + this setup" gives the orchestrator's day-boundary reset for free.
-def _quality_rank(side: str, triggers: list) -> tuple[int, str]:
-    """(quality_rank, quality_tier) — mirror of orchestrator.py:1174-1207 ranks.
-    SUPER=4, ELITE=3, LEVEL=2, TRENDLINE/BASE=1. side: 'P' (bear) | 'C' (bull)."""
-    trig = list(triggers or [])
-    level_tied = "level_reclaim" if side == "C" else "level_rejection"
-    seq_trig = "sequence_reclaim" if side == "C" else "sequence_rejection"
-    has_level = level_tied in trig
-    has_confluence = "confluence" in trig
-    has_sequence = seq_trig in trig
-    has_ribbon_flip = "ribbon_flip" in trig
-    has_trendline = "trendline_rejection" in trig
-    n = len(trig)
-    if (has_confluence and has_ribbon_flip) or n >= 3:
-        return 4, "SUPER"
-    if has_confluence or has_sequence:
-        return 3, "ELITE"
-    if has_level:
-        return 2, "LEVEL"
-    if has_trendline:
-        return 1, "TRENDLINE"
-    return 1, "BASE"
-
-
-def _todays_ledger_rows(account: str) -> list[dict]:
-    """Today's (ET) committed ledger rows for this account. Tail-read only — cheap."""
-    if not LEDGER.exists():
-        return []
-    today = _et_now().strftime("%Y-%m-%d")
-    rows: list[dict] = []
-    try:
-        with open(LEDGER, encoding="utf-8") as f:
-            lines = f.readlines()
-    except OSError:
-        return []
-    for line in lines[-400:]:  # a single trading day is well under 400 ticks/account
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            r = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        if r.get("account") != account:
-            continue
-        if not str(r.get("ts_et", "")).startswith(today):
-            continue
-        rows.append(r)
-    return rows
-
-
-def _prior_fill_stopped(creds: dict, last_entry_symbol: "str | None") -> tuple[bool, "datetime | None"]:
-    """Did the most-recent CLOSED position on this setup today stop out (no TP1, loss)?
-    Broker = source of truth (C11). Returns (stopped_without_tp1, last_exit_dt).
-    Conservative default (False, None) on any failure -> blocks same-quality re-entry,
-    which is the STRICTER behavior (never over-permits a leg-2)."""
-    import urllib.request
-    try:
-        today = _et_now().strftime("%Y-%m-%d")
-        url = (creds["base_url"].rstrip("/") +
-               f"/v2/account/activities/FILL?date={today}&direction=desc&page_size=100")
-        acts = json.loads(urllib.request.urlopen(urllib.request.Request(
-            url, headers={"APCA-API-KEY-ID": creds["key"], "APCA-API-SECRET-KEY": creds["secret"]}),
-            timeout=10).read())
-        # SPY option sells closing a long today; most recent first. If the close was a
-        # stop (price <= entry) with no intervening TP1 partial, treat as stopped_without_tp1.
-        sells = [a for a in acts if a.get("symbol", "").startswith("SPY")
-                 and a.get("side") in ("sell", "sell_short") and a.get("type") == "fill"]
-        if not sells:
-            return False, None
-        last = sells[0]
-        last_exit = None
-        try:
-            last_exit_utc = datetime.fromisoformat(str(last.get("transaction_time")).replace("Z", "+00:00"))
-            # DST-aware conversion: use et_clock instead of hardcoded -4 (TZ-SYSTEMIC fix)
-            from et_clock import _et_offset_hours  # noqa: PLC0415
-            # G15 tz-fix (2026-07-02): fromisoformat('...+00:00') returns an AWARE datetime
-            # and timedelta addition PRESERVES tzinfo, so last_exit was aware while _et_now()
-            # is NAIVE ET (et_clock convention). The leg-2 gap check (now_et - last_exit)
-            # then raised "can't subtract offset-naive and offset-aware datetimes" -- bold,
-            # 6 ERROR ticks 11:50-11:55 ET 2026-07-02, killing an ALLOW-path re-entry.
-            # Normalize to naive ET after the shift (same as et_clock.et_now).
-            # Guard: test_tz_quality_lock_2026_07_02.py
-            _shift = timedelta(hours=_et_offset_hours(last_exit_utc.replace(tzinfo=timezone.utc)))
-            last_exit = (last_exit_utc + _shift).replace(tzinfo=None)
-        except (ValueError, TypeError):
-            last_exit = None
-        # any partial TP fill on the same symbol today? (qty < position implies a TP1 leg)
-        same_sym_sells = [a for a in sells if a.get("symbol") == last.get("symbol")]
-        had_partial = len(same_sym_sells) >= 2  # a TP1 leg + runner leg => not a clean stop
-        return (not had_partial), last_exit
-    except Exception:  # noqa: BLE001 — broker unreachable -> strict default
-        return False, None
-
-
-def _quality_lock_check(account: str, side: str, triggers: list, setup_name: str,
-                        creds: dict, now_et: datetime) -> dict:
-    """Faithful live port of the orchestrator's escalation lock. Returns
-    {"allow": bool, "rank": int, "tier": str, "prior_quality": int, ...}.
-
-    allow rule (orchestrator.py:1218-1234, verbatim):
-      rank >  prior                                         -> ENTER (escalation)
-      rank == prior AND prior_stopped AND gap >= 45min      -> ENTER (leg-2)
-      else                                                  -> BLOCK (SKIP_QUALITY_LOCK)
-    """
-    rank, tier = _quality_rank(side, triggers)
-    rows = _todays_ledger_rows(account)
-    # prior_quality = highest quality_rank already TAKEN today on this setup. A row counts
-    # as "taken" when it actually placed (or would place in dry/shadow) AND records its rank.
-    TAKEN = {"WOULD_PLACE", "PLACING", "PLACED"}
-    prior_quality = 0
-    last_entry_symbol = None
-    for r in rows:
-        ex = r.get("exec") or {}
-        # quality fields live in the exec sub-dict (see _execute plan); fall back to row-level
-        row_setup = ex.get("setup") or r.get("setup")
-        row_rank = ex.get("quality_rank")
-        if not isinstance(row_rank, int):
-            row_rank = r.get("quality_rank")
-        if row_setup != setup_name:
-            continue
-        if (r.get("action") in TAKEN or ex.get("status") in TAKEN) and isinstance(row_rank, int):
-            if row_rank >= prior_quality:
-                prior_quality = row_rank
-                last_entry_symbol = ex.get("symbol") or last_entry_symbol
-    if prior_quality == 0:
-        return {"allow": True, "rank": rank, "tier": tier, "prior_quality": 0,
-                "prior_stopped": False, "gap_min": None}
-    if rank > prior_quality:
-        return {"allow": True, "rank": rank, "tier": tier, "prior_quality": prior_quality,
-                "prior_stopped": None, "gap_min": None}
-    # rank <= prior_quality: only the leg-2 exemption can re-open (rank == prior + stopped + gap).
-    prior_stopped, last_exit = (False, None)
-    if rank == prior_quality:
-        prior_stopped, last_exit = _prior_fill_stopped(creds, last_entry_symbol)
-    gap_min = None
-    gap_ok = False
-    if prior_stopped and last_exit is not None:
-        gap_min = (now_et - last_exit).total_seconds() / 60.0
-        gap_ok = gap_min >= 45.0
-    allow = (rank == prior_quality) and prior_stopped and gap_ok
-    return {"allow": allow, "rank": rank, "tier": tier, "prior_quality": prior_quality,
-            "prior_stopped": prior_stopped, "gap_min": gap_min}
+# ----- re-entry lock: DELETED (J directive 2026-07-02) -----------------------
+# The quality-lock / first-entry re-entry suppression (_quality_rank,
+# _todays_ledger_rows, _prior_fill_stopped, _quality_lock_check, SKIP_QUALITY_LOCK)
+# was removed in full per J's written order: "Gone. We no longer have it in our
+# codebase." It was Claude-invented, never A/B-validated, and cost the 2026-07-02
+# midday re-entry. An ENTER after a same-setup stop now routes straight to _execute
+# (FLAT-verify + risk_gate still apply). Guard: test_tz_quality_lock_2026_07_02.py
+# pins the lock's ABSENCE. Any future cooldown gate ships only with A/B evidence
+# (analysis/recommendations/reentry-cooldown-ab.json).
 
 
 # TRADE-TO-LEARN (2026-07-01, J-ratified): per-setup VALIDATED-cell overrides for armed
@@ -1012,19 +872,11 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     # FLAT-verify (broker = source of truth, L47/C11)
     if not fb.is_flat_spy_options(creds):
         return {"status": "NOT_FLAT"}
-    # QUALITY-LOCK (orchestrator parity, 2026-06-25): being flat is not enough — block a
-    # same-or-lower-quality re-entry on the same setup TODAY unless this is a leg-2 re-fire
-    # (prior fill stopped + >=45min gap). Without this the live engine over-trades vs the
-    # backtest validation by re-entering setups the orchestrator's setup_quality_taken_today
-    # lock forbids (measured: +10 SKIP_QUALITY_LOCK bars over the 8-day replay window).
+    # RE-ENTRY LOCK DELETED (J directive 2026-07-02): the quality-lock that blocked a
+    # same-or-lower-quality re-entry on the same setup today is GONE — flat-verify +
+    # risk_gate is the gate. Guard: test_tz_quality_lock_2026_07_02.py (absence pin).
     setup_name = verdict.get("setup_name") or (
         "BEARISH_REJECTION_RIDE_THE_RIBBON" if side == "P" else "BULLISH_RECLAIM_RIDE_THE_RIBBON")
-    ql = _quality_lock_check(account, side, verdict.get("triggers_fired") or [],
-                             setup_name, creds, _et_now())
-    if not ql["allow"]:
-        return {"status": "SKIP_QUALITY_LOCK", "quality_rank": ql["rank"], "quality_tier": ql["tier"],
-                "prior_quality": ql["prior_quality"], "setup": setup_name,
-                "reason": "blocked by quality lock (downgrade or same-quality after winner)"}
     # strike + contract + premium
     strike = ss.pick_strike(spy, equity, side, ss.V15_BOLD_TIERS if account == "bold" else ss.V15_SAFE_TIERS) \
         if ss else (int(round(spy)) + (2 if side == "P" else -2))
@@ -1076,8 +928,7 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     stop = round(mid * (1 + _stop_pct), 2)
     plan = {"status": "WOULD_PLACE" if dry else "PLACING", "symbol": symbol, "side": side,
             "strike": strike, "qty": qty, "premium": mid, "tp": tp, "stop": stop, "equity": equity,
-            # quality fields persisted so the NEXT tick's quality-lock can read prior_quality
-            "setup": setup_name, "quality_rank": ql["rank"], "quality_tier": ql["tier"]}
+            "setup": setup_name}
     if dry:
         return plan
     # CANCEL-REPLACE (#15): clear any stale never-crossed BUY limit on this symbol from a prior tick.

@@ -188,8 +188,9 @@ class _RibbonState(_StateModel):
 class _FirstEntryLock(_StateModel):
     """One entry in ``first_entry_lock[]`` -- a setup already traded today.
 
-    Heartbeat reads ``setup_name`` to enforce Rule: no second entry on a setup
-    that already stopped out today (``first_entry_after_stop_blocked``).
+    JOURNALING ONLY since 2026-07-02: the re-entry suppression that consumed this
+    list (fast_path_executor SKIP_LOCK + heartbeat_core SKIP_QUALITY_LOCK) was
+    DELETED per J's written order. Writes remain for the ledger record.
     """
 
     setup_name: str
@@ -210,7 +211,8 @@ class LoopStateModel(_StateModel):
       * Self-healing ``_shared.ps1#Repair-StateFiles`` validates ``schema_version``
         + ``session_id`` before/after each invocation.
 
-    ``first_entry_lock`` is the load-bearing list (re-entry suppression). The
+    ``first_entry_lock`` is journaling-only (its re-entry suppression consumers
+    were deleted 2026-07-02 per J directive). The
     two account variants differ only in extra keys (aggressive adds
     ``macro_pre_event_bias``), handled by ``extra='allow'``.
     """

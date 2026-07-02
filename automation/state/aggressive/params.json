@@ -110,7 +110,6 @@
   "per_trade_risk_cap_pct": 0.5,
   "daily_loss_kill_switch_pct": 0.5,
   "_first_entry_rule_section": "Same re-entry rules as safe - stops block re-entry on same setup.",
-  "first_entry_after_stop_blocked": true,
   "first_entry_after_tp_size_reduction": 1,
   "_macro_section": "Same macro hard veto windows as safe - no trading into FOMC/CPI/NFP.",
   "macro_hard_veto_minutes": 120,

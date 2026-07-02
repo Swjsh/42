@@ -322,43 +322,12 @@ def _compute_filter_setup_allowed(decision: Decision, params: dict,
     return True
 
 
-def _compute_filter_first_entry_lock(decision: Decision, alert_pattern: str) -> bool:
-    """Check if today's first-entry-after-stop lock blocks this setup."""
-    state = _load_loop_state()
-    locks = state.get("first_entry_lock", [])
-    if not isinstance(locks, list):
-        decision.filter_results["first_entry_lock"] = "pass_no_locks"
-        return True
-
-    pattern_to_setup = {
-        "failed_breakdown_wick": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
-        "double_bottom": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
-        "rejection_at_level_bearish": "BEARISH_REJECTION_RIDE_THE_RIBBON",
-        "double_top": "BEARISH_REJECTION_RIDE_THE_RIBBON",
-        "head_and_shoulders_top": "BEARISH_REJECTION_RIDE_THE_RIBBON",
-    }
-    setup_for_alert = pattern_to_setup.get(alert_pattern.split("::")[0])
-    today_str = datetime.now(ET_TZ).date().isoformat()
-
-    for lock in locks:
-        if not isinstance(lock, dict):
-            continue
-        if lock.get("setup_name") != setup_for_alert:
-            continue
-        exit_at = lock.get("exited_at_et", "")
-        if not exit_at.startswith(today_str):
-            continue
-        exit_reason = lock.get("exit_reason", "")
-        if exit_reason in ("premium_stop", "chart_stop", "ribbon_flip_back", "stop_market"):
-            decision.decision = "SKIP_LOCK"
-            decision.reason = (
-                f"first_entry_after_stop_blocked — prior {setup_for_alert} "
-                f"exited at {exit_at} via {exit_reason}"
-            )
-            decision.filter_results["first_entry_lock"] = "blocked"
-            return False
-    decision.filter_results["first_entry_lock"] = "pass"
-    return True
+# RE-ENTRY LOCK DELETED (J directive 2026-07-02): _compute_filter_first_entry_lock
+# (SKIP_LOCK on a same-setup re-entry after a stop-out) is GONE — "Gone. We no longer
+# have it in our codebase." The rule was Claude-invented, never A/B-validated, and cost
+# the 2026-07-02 midday trade. loop-state first_entry_lock[] WRITES remain (journaling /
+# LoopStateModel schema); only the SUPPRESSION was removed. Any future cooldown gate
+# ships only with A/B evidence (analysis/recommendations/reentry-cooldown-ab.json).
 
 
 def _has_active_position(account: str) -> tuple[bool, dict | None]:
@@ -588,9 +557,7 @@ def evaluate_alert(account: str, alert: dict, *, vix_data: dict | None = None) -
         decision.elapsed_ms = int((time.monotonic() - started) * 1000)
         return decision
 
-    if not _compute_filter_first_entry_lock(decision, pattern):
-        decision.elapsed_ms = int((time.monotonic() - started) * 1000)
-        return decision
+    # (first_entry_lock filter deleted 2026-07-02 per J directive — see note above.)
 
     # CRITICAL safeguard (J 2026-05-18 chat): "one trade at a time per account,
     # no hedging." Checks local state + Alpaca positions + pending orders +

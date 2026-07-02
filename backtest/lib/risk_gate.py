@@ -43,9 +43,11 @@ testable. The rules, with their doctrine source:
                      runner). A proposal below the floor is denied.
   PDT                CLAUDE.md Rule 7. >=3 day-trades in rolling 5 business days
                      AND equity < $25,000 -> deny (pattern-day-trader rule).
-  FIRST_ENTRY_LOCK   CLAUDE.md Rule 5 ("No revenge trades") + Rule on second
-                     entry + params `first_entry_after_stop_blocked`. If this
-                     setup already stopped out today -> deny.
+  FIRST_ENTRY_LOCK   DELETED (J directive 2026-07-02: "Gone. We no longer have
+                     it in our codebase."). The 'no second entry on a setup that
+                     stopped out today' deny was Claude-invented and never
+                     A/B-validated. `prior_stops_today` is still ACCEPTED (API
+                     compat + journaling) but never denies.
   NOT_FLAT           CLAUDE.md Rule 4 ("No adding without a NEW confirmed
                      trigger") + the broker-is-source-of-truth flat-before-entry
                      invariant (C11/L47/L76). If a position is already open ->
@@ -55,11 +57,12 @@ testable. The rules, with their doctrine source:
 
 DECISION CODES (stable — callers + logs key off these strings)
   KILL_SWITCH, RISK_CAP, MAX_PREMIUM_TIER, MIN_CONTRACTS, PDT,
-  FIRST_ENTRY_LOCK, NOT_FLAT, UNREADABLE_INPUT, ALLOW
+  NOT_FLAT, UNREADABLE_INPUT, ALLOW
+  (FIRST_ENTRY_LOCK retired 2026-07-02 — constant kept for old-log readers.)
 
 EVALUATION ORDER
   Safety/uncertainty first (UNREADABLE_INPUT), then the hard halts that mean "no
-  trading at all right now" (KILL_SWITCH, PDT, NOT_FLAT, FIRST_ENTRY_LOCK), then
+  trading at all right now" (KILL_SWITCH, PDT, NOT_FLAT), then
   the per-order sizing gates (MIN_CONTRACTS, RISK_CAP, MAX_PREMIUM_TIER). The
   first failing rule wins; the returned `RiskDecision` is the single reason.
 
@@ -83,7 +86,7 @@ CODE_RISK_CAP = "RISK_CAP"
 CODE_MAX_PREMIUM_TIER = "MAX_PREMIUM_TIER"
 CODE_MIN_CONTRACTS = "MIN_CONTRACTS"
 CODE_PDT = "PDT"
-CODE_FIRST_ENTRY_LOCK = "FIRST_ENTRY_LOCK"
+CODE_FIRST_ENTRY_LOCK = "FIRST_ENTRY_LOCK"  # RETIRED 2026-07-02 (kept for old-log readers)
 CODE_NOT_FLAT = "NOT_FLAT"
 CODE_UNREADABLE_INPUT = "UNREADABLE_INPUT"
 
@@ -356,24 +359,11 @@ def check_order(
         )
 
     # ---------------------------------------------------------------------
-    # 4. FIRST-ENTRY-AFTER-STOP LOCK (CLAUDE.md Rule 5; params
-    #    first_entry_after_stop_blocked). If this setup already stopped out
-    #    today, no second entry on it today.
+    # 4. FIRST-ENTRY-AFTER-STOP LOCK: DELETED (J directive 2026-07-02 —
+    #    "Gone. We no longer have it in our codebase."). prior_stops_today is
+    #    accepted but IGNORED (API compat/journaling); a same-setup re-entry
+    #    after a stop is ALLOWED. Guard: test_risk_gate.py absence pins.
     # ---------------------------------------------------------------------
-    if bool(params.get("first_entry_after_stop_blocked", True)):
-        stopped = _as_name_set(prior_stops_today)
-        if stopped is None:
-            return Deny(
-                CODE_UNREADABLE_INPUT,
-                f"prior_stops_today is not an iterable of setup names "
-                f"({prior_stops_today!r})",
-            )
-        if setup_name in stopped:
-            return Deny(
-                CODE_FIRST_ENTRY_LOCK,
-                f"{account}: setup '{setup_name}' already stopped out today — "
-                "no second entry on a stopped setup (no revenge trades)",
-            )
 
     # ---------------------------------------------------------------------
     # 5. MIN CONTRACTS (CLAUDE.md Rule 6: >=3 = 2 TP + 1 runner).
@@ -757,23 +747,6 @@ def _is_flat(status: Any) -> bool:
             return st.strip().lower() in _FLAT_TOKENS
         return False  # unrecognised mapping -> assume open (safe)
     return False  # any other type -> assume open (safe)
-
-
-def _as_name_set(value: Any) -> Optional[frozenset]:
-    """Coerce prior_stops_today into a set of names, or None if not iterable.
-
-    None / empty is a valid 'nothing stopped yet' -> empty set. A non-iterable
-    (e.g. an int) is unreadable -> None so the caller fails closed.
-    """
-    if value is None:
-        return frozenset()
-    if isinstance(value, (str, bytes)):
-        # A bare string is ambiguous (one name? char iterable?) — reject.
-        return None
-    try:
-        return frozenset(value)
-    except TypeError:
-        return None
 
 
 def _assert_never_locks_human() -> None:

@@ -131,7 +131,6 @@ See [`markdown/0dte/journaling-guide.md`](markdown/0dte/journaling-guide.md) —
 
 - **Anything failing the 10 rules** — sizing up after losses, trading past the daily-loss kill, a setup not in the playbook, mid-session rule changes. Hard vetoes, even if J insists.
 - Winning trades that broke rules still get red-flagged — process > P&L.
-- Second entry on a setup that already stopped out today.
 - Trading crypto as an instrument — crypto is **gym-only** (`crypto/` validation harness; trading loop retired 2026-06-17).
 
 ---

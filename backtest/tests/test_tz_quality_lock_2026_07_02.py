@@ -1,46 +1,26 @@
-"""G15 tz-crash guards — the 2026-07-02 11:50-11:55 bold quality-lock ERROR window.
+"""RE-ENTRY LOCK ABSENCE PINS (J directive 2026-07-02) + G15 incident record.
 
-INCIDENT: 2026-07-02 the core BOLD account logged verdict=ERROR
-"can't subtract offset-naive and offset-aware datetimes" for exactly 6 ticks
-(11:50:02-11:55:02 ET), then "self-cleared". During the same minutes SAFE emitted
-ENTER_BEAR -> SKIP_QUALITY_LOCK (re-entry lock after its 09:30 stop-out).
+HISTORY (two events, same file):
+  1. G15 tz-crash (morning): _prior_fill_stopped built an AWARE last_exit while
+     _et_now() is naive ET -> 6 bold ERROR ticks 11:50-11:55 killed an ALLOW-path
+     re-entry. Fixed 253f64b (last_exit normalized to naive ET).
+  2. LOCK DELETED (evening, J's written order): "Gone. We no longer have it in our
+     codebase." The 'already stopped out on this setup today' re-entry suppression
+     (SKIP_QUALITY_LOCK incl. _prior_fill_stopped + the leg-2 45-min gap machinery,
+     where the tz fix had landed hours earlier) was Claude-invented, never
+     A/B-validated, and cost the 2026-07-02 midday trade. The whole path is gone.
 
-ROOT CAUSE (one sentence):
-    _prior_fill_stopped builds last_exit from datetime.fromisoformat('...+00:00')
-    (tz-AWARE, and the +timedelta ET shift PRESERVES tzinfo — heartbeat_core.py:798-801)
-    while _et_now() is NAIVE ET (et_clock convention), so the leg-2 re-entry gap check
-    `gap_min = (now_et - last_exit).total_seconds()` (heartbeat_core.py:855) raises
-    TypeError whenever it is reached.
+THIS FILE NOW PINS THE LOCK'S ABSENCE:
+  * heartbeat_core exposes NONE of the lock symbols;
+  * _execute's source contains no SKIP_QUALITY_LOCK branch;
+  * functionally: an ENTER after a same-setup stop-out earlier today routes to the
+    placement path (reaches the broker/strike stage), it is NOT suppressed.
+RED here = someone re-introduced re-entry suppression without evidence. Any future
+cooldown gate ships only with A/B evidence (analysis/recommendations/
+reentry-cooldown-ab.json) via a conductor proposal — never as a silent refactor.
 
-WHY ONLY BOLD (verified from today's ledger + fill funnel):
-  * Both accounts entered 09:30 on the same rank-1 TRENDLINE setup and stopped out, so
-    both later hit the rank == prior_quality leg-2 branch that calls _prior_fill_stopped.
-  * BOLD's 5-lot premium_stop SELL_ALL (09:32:04) filled in ONE execution -> one sell
-    FILL activity -> had_partial=False -> prior_stopped=True + aware last_exit -> the
-    gap subtraction RAN -> crash.
-  * SAFE's 3-lot SELL_ALL (09:31) filled in MULTIPLE partial executions (funnel
-    exited=3 vs bold's 1) -> >=2 same-symbol sell activities -> had_partial=True ->
-    prior_stopped=False -> line 854 short-circuits BEFORE the subtraction -> clean
-    SKIP_QUALITY_LOCK. Safe was lucky, not immune: one single-execution stop-out and
-    it crashes identically.
-
-WHY IT SELF-CLEARED AT 11:56: the bear signal died (safe went HOLD "no setup passed
-scoring" at 11:56:03) — _execute stopped being called, so the crash line stopped being
-reached. The bug stayed latent, not fixed.
-
-IMPACT: the 6 dead ticks were ALLOW-path ticks — bold's gap was ~138 min >= 45, so the
-leg-2 exemption would have permitted the re-entry the crash killed. Bold ended the day
-with a single 09:30 stop-out and zero recovery entries; SPY fell 745.38 -> 744.63 by
-11:56 and ~742.67 by 12:45 (favorable for the blocked put).
-
-Part A (evidence pins) pass TODAY and keep passing. Part B (fix guards) skip until the
-staged patch lands, then arm automatically via a FUNCTIONAL probe (no hasattr — the fix
-adds no symbol; we detect it by driving _prior_fill_stopped through a stubbed broker
-response and checking last_exit.tzinfo). The strict-xfail sentinel FORCES the apply
-commit to delete its marker (no silent-skip-forever, C7).
-
-STAGED FIX: markdown/audits/tz-quality-lock-fix-2026-07-02.patch — apply AFTER the
-entry-floor patch per markdown/audits/TZ-QUALITY-LOCK-FIX-PLAN-2026-07-02.md.
+The G15 Python-semantics repro + incident-ledger pins are kept as the executable
+historical record (they are code-independent).
 
 Run:  backtest/.venv/Scripts/python.exe -m pytest -q backtest/tests/test_tz_quality_lock_2026_07_02.py
 """
@@ -51,6 +31,7 @@ import importlib
 import inspect
 import json
 import sys
+import types
 from pathlib import Path
 
 import pytest
@@ -58,7 +39,8 @@ import pytest
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 _SCRIPTS = ROOT / "setup" / "scripts"
-for _p in (str(ROOT / "backtest"), str(ROOT), str(_SCRIPTS)):
+_FLEET = ROOT / "automation" / "state" / "fleet"
+for _p in (str(ROOT / "backtest"), str(ROOT), str(_SCRIPTS), str(_FLEET)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
@@ -67,90 +49,112 @@ hc = importlib.import_module("heartbeat_core")
 CORE_LEDGER = ROOT / "automation" / "state" / "core-decisions.jsonl"
 ERR_MSG = "can't subtract offset-naive and offset-aware datetimes"
 SETUP = "BEARISH_REJECTION_RIDE_THE_RIBBON"
-CREDS = {"base_url": "https://paper-api.test.invalid", "key": "k", "secret": "s"}
+_CREDS = {"key": "k", "secret": "s", "base_url": "https://paper-api.example.invalid"}
 
-
-# --------------------------------------------------------------------------- #
-# offline broker stub + functional fix probe
-# --------------------------------------------------------------------------- #
-def _stub_urlopen_factory(activities: list[dict]):
-    """A urllib.request.urlopen replacement returning a canned activities payload.
-    _prior_fill_stopped does `import urllib.request` INSIDE the function, so patching
-    the module-global attribute intercepts it (attribute lookup happens at call time)."""
-    payload = json.dumps(activities).encode()
-
-    class _Resp:
-        def read(self):
-            return payload
-
-    return lambda *a, **k: _Resp()
-
-
-_ONE_SELL_FILL = [{
-    "symbol": "SPY260702P00743000", "side": "sell", "type": "fill",
-    "transaction_time": "2026-07-02T13:32:04Z",  # 09:32:04 ET (EDT = UTC-4)
-}]
-
-
-def _probe_prior_fill_stopped() -> "tuple[bool, dt.datetime | None]":
-    """Drive the REAL _prior_fill_stopped through the stub — offline + deterministic."""
-    import urllib.request as _ur
-    orig = _ur.urlopen
-    _ur.urlopen = _stub_urlopen_factory(_ONE_SELL_FILL)
-    try:
-        return hc._prior_fill_stopped(CREDS, "SPY260702P00743000")
-    finally:
-        _ur.urlopen = orig
-
-
-_PROBE_STOPPED, _PROBE_EXIT = _probe_prior_fill_stopped()
-# Fix applied <=> the ET-shifted exit timestamp comes back NAIVE (subtraction-safe).
-TZ_APPLIED = bool(_PROBE_STOPPED) and _PROBE_EXIT is not None and _PROBE_EXIT.tzinfo is None
-_NOT_APPLIED = ("tz-quality-lock patch not applied yet "
-                "(staged: markdown/audits/TZ-QUALITY-LOCK-FIX-PLAN-2026-07-02.md)")
+SAFE_PARAMS = json.loads(
+    (ROOT / "automation" / "state" / "params.json").read_text(encoding="utf-8"))
 
 
 # =============================================================================
-# Part A — EVIDENCE PINS (pass today; pin the diagnosed mechanism)
+# Part A — LOCK ABSENCE PINS (the new load-bearing guards)
 # =============================================================================
-class TestEvidenceClockConvention:
-    def test_et_now_is_naive(self):
-        """The engine-wide convention the fix normalizes to: _et_now() (via
-        et_clock.et_now) returns a NAIVE ET datetime. If this ever becomes aware,
-        the quality-lock contract flips and this whole guard file must be revisited."""
-        now = hc._et_now()
-        assert now.tzinfo is None
+class TestLockSymbolsGone:
+    @pytest.mark.parametrize("symbol", [
+        "_quality_lock_check", "_prior_fill_stopped", "_quality_rank",
+        "_todays_ledger_rows",
+    ])
+    def test_heartbeat_core_has_no_lock_machinery(self, symbol):
+        assert not hasattr(hc, symbol), (
+            f"{symbol} re-introduced — the re-entry lock was DELETED per J's written "
+            "order 2026-07-02 ('Gone. We no longer have it in our codebase.')")
 
-    def test_gap_check_subtracts_now_minus_last_exit(self):
-        """Pin the crash site's shape: the leg-2 gap is computed by direct datetime
-        subtraction inside _quality_lock_check — which is only safe while BOTH operands
-        stay naive. (The fix normalizes last_exit; this pin keeps the site honest.)"""
-        src = inspect.getsource(hc._quality_lock_check)
-        assert "gap_min = (now_et - last_exit).total_seconds()" in src
+    def test_execute_source_has_no_quality_lock_branch(self):
+        src = inspect.getsource(hc._execute)
+        assert "SKIP_QUALITY_LOCK" not in src
+        assert "_quality_lock_check" not in src
 
-    def test_leg2_branch_only_runs_on_equal_rank(self):
-        """Why safe 'escaped' for a different reason than bold: _prior_fill_stopped
-        (and therefore the gap subtraction) is only reached when rank == prior_quality
-        AND prior_stopped is True AND last_exit is not None."""
-        src = inspect.getsource(hc._quality_lock_check)
-        assert "if rank == prior_quality:" in src
-        assert "if prior_stopped and last_exit is not None:" in src
+    def test_fast_path_executor_has_no_first_entry_lock_filter(self):
+        fpe = importlib.import_module("fast_path_executor")
+        assert not hasattr(fpe, "_compute_filter_first_entry_lock")
+        src = inspect.getsource(fpe.evaluate_alert)
+        assert "_compute_filter_first_entry_lock" not in src
 
 
-class TestEvidenceMechanismUnitRepro:
-    """Self-contained repro of the exact failure — Python semantics pin, passes forever."""
+class TestReentryAfterStopRoutesToExecute:
+    """FUNCTIONAL absence pin: the exact shape the lock used to suppress — an ENTER
+    on a setup that already entered AND stopped out earlier today — must now route
+    to the placement path. We drive the REAL _execute with a stubbed broker; the
+    prior stop-out exists both in the ledger shape and at the (stubbed) broker.
+    Reaching PLACED means no re-entry suppression fired anywhere on the way."""
+
+    def _run(self, monkeypatch, tmp_path):
+        import fleet_broker as fb
+        posts: list = []
+        monkeypatch.setattr(fb, "_request",
+                            lambda creds, endpoint, method="GET", data=None, timeout=15:
+                            posts.append({"endpoint": endpoint, "method": method, "data": data})
+                            or {"id": "ord-1", "status": "accepted"})
+        monkeypatch.setattr(fb, "load_creds", lambda: {"safe-2": _CREDS, "bold-2": _CREDS})
+        monkeypatch.setattr(fb, "is_flat_spy_options", lambda c: True)  # stop-out -> flat again
+        monkeypatch.setattr(fb, "get_option_mid", lambda c, s: 1.00)
+        monkeypatch.setattr(fb, "marketable_limit_price",
+                            lambda c, s, side="buy", buffer=0.03: 1.08)
+        monkeypatch.setattr(fb, "open_buy_orders", lambda c, s: [])
+        monkeypatch.setattr(fb, "cancel_order", lambda *a, **k: {})
+        monkeypatch.setattr(hc, "STATE", tmp_path)
+        now = dt.datetime(2026, 7, 2, 11, 50, 2)  # the tick the old lock/crash killed
+        monkeypatch.setattr(hc, "_et_now", lambda: now)
+        monkeypatch.setattr(hc, "CORE_MANAGES_EXITS", True)
+        monkeypatch.setitem(sys.modules, "exit_actuator",
+                            types.SimpleNamespace(register_entry=lambda *a, **k: None))
+        monkeypatch.setitem(sys.modules, "strategies",
+                            types.SimpleNamespace(by_name=lambda n: None))
+
+        class _Resp:
+            def read(self):
+                return json.dumps({"equity": "2000.0"}).encode("utf-8")
+
+        import urllib.request as _ur
+        monkeypatch.setattr(_ur, "urlopen", lambda req, timeout=10: _Resp())
+        # SAME setup + SAME rank-1 trigger as the 09:30 stop-out — the old lock's
+        # exact block case (rank == prior, would have needed the leg-2 exemption).
+        verdict = {"verdict": "ENTER_BEAR", "setup_name": SETUP,
+                   "triggers_fired": ["trendline_rejection"]}
+        payload = {"bar_ctx": {"timestamp_et": "2026-07-02 11:45:00",
+                               "bar": {"close": 620.0}}}
+        return hc._execute("safe", verdict, payload, SAFE_PARAMS, dry=False), posts
+
+    def test_same_setup_reentry_after_stop_is_placed_not_locked(self, monkeypatch, tmp_path):
+        plan, posts = self._run(monkeypatch, tmp_path)
+        assert plan["status"] != "SKIP_QUALITY_LOCK", plan
+        assert plan["status"] == "PLACED", plan
+        assert len(posts) == 1 and posts[0]["method"] == "POST"
+
+    def test_no_broker_activities_probe_on_the_entry_path(self, monkeypatch, tmp_path):
+        """The lock's tell was a /v2/account/activities/FILL probe before placement.
+        The entry path must not query activities at all anymore."""
+        plan, posts = self._run(monkeypatch, tmp_path)
+        assert plan["status"] == "PLACED"
+        assert all("activities" not in str(p.get("endpoint", "")) for p in posts)
+
+
+# =============================================================================
+# Part B — G15 incident record (code-independent; kept as executable history)
+# =============================================================================
+class TestG15MechanismUnitRepro:
+    """Python-semantics pin of the original tz crash — passes forever, documents
+    WHY naive-ET is the engine-wide convention (et_clock)."""
 
     def test_naive_minus_aware_raises_the_incident_error(self):
-        # exactly what heartbeat_core.py:798+801 produced pre-fix:
         aware_utc = dt.datetime.fromisoformat("2026-07-02T13:32:04+00:00")
         aware_et_wallclock = aware_utc + dt.timedelta(hours=-4)  # tzinfo PRESERVED
-        assert aware_et_wallclock.tzinfo is not None, "timedelta addition must keep tzinfo"
-        naive_now = dt.datetime(2026, 7, 2, 11, 50, 2)  # _et_now() at the first ERROR tick
+        assert aware_et_wallclock.tzinfo is not None
+        naive_now = dt.datetime(2026, 7, 2, 11, 50, 2)
         with pytest.raises(TypeError, match=ERR_MSG):
             naive_now - aware_et_wallclock  # noqa: B018 — the subtraction IS the assertion
 
 
-class TestEvidenceIncidentLedger:
+class TestG15IncidentLedger:
     """Executable record of the incident rows (soft pin — skips if ledger pruned)."""
 
     def _rows(self):
@@ -177,77 +181,10 @@ class TestEvidenceIncidentLedger:
         assert len(errs) == 6, "incident record: 6 bold ERROR ticks 11:50:02-11:55:02"
         assert all(r.get("error") == ERR_MSG for r in errs)
 
-    def test_safe_hit_quality_lock_cleanly_same_minutes(self):
+    def test_safe_hit_quality_lock_same_minutes_historical(self):
+        """Historical ledger record only — SKIP_QUALITY_LOCK no longer exists in code
+        (TestLockSymbolsGone); these rows are why J ordered the lock deleted."""
         safes = [r for r in self._rows() if r.get("account") == "safe"]
         assert len(safes) == 6
         assert all(r.get("verdict") == "ENTER_BEAR" and r.get("action") == "SKIP_QUALITY_LOCK"
-                   for r in safes), "safe must show the crash-free path through the same lock"
-
-
-# =============================================================================
-# Part B — FIX GUARDS (skip until applied; arm automatically; RED on regression)
-# =============================================================================
-class TestFixAppliedSentinel:
-    """strict xfail: XFAIL (green) while the patch is staged; XPASS (RED) the moment
-    the fix lands — forcing the apply commit to delete this marker, which proves the
-    probe-gated guards below actually armed. Apply-plan step 4 removes the marker."""
-
-    def test_fix_is_applied(self):
-        assert TZ_APPLIED
-
-
-@pytest.mark.skipif(not TZ_APPLIED, reason=_NOT_APPLIED)
-class TestPriorFillStoppedNaiveEt:
-    def test_last_exit_is_naive_et_wallclock(self):
-        """13:32:04Z on a July date == 09:32:04 ET (EDT), returned NAIVE — the exact
-        shape _et_now() subtraction requires."""
-        assert _PROBE_STOPPED is True
-        assert _PROBE_EXIT == dt.datetime(2026, 7, 2, 9, 32, 4)
-        assert _PROBE_EXIT.tzinfo is None
-
-    def test_partial_fills_still_mean_not_stopped(self):
-        """The safe-account path must survive the fix byte-identically: >=2 same-symbol
-        sell fills -> had_partial -> (False, ...) -> lock blocks without the gap check."""
-        import urllib.request as _ur
-        two = [dict(_ONE_SELL_FILL[0]), dict(_ONE_SELL_FILL[0], transaction_time="2026-07-02T13:31:30Z")]
-        orig = _ur.urlopen
-        _ur.urlopen = _stub_urlopen_factory(two)
-        try:
-            stopped, _ = hc._prior_fill_stopped(CREDS, "SPY260702P00743000")
-        finally:
-            _ur.urlopen = orig
-        assert stopped is False
-
-
-@pytest.mark.skipif(not TZ_APPLIED, reason=_NOT_APPLIED)
-class TestIncidentReplayLeg2:
-    """The 11:50:02 bold tick, end-to-end through the REAL _quality_lock_check.
-    Pre-fix this exact call raised the incident TypeError; post-fix it must ALLOW
-    (rank 1 == prior 1, prior stopped, gap ~138min >= 45)."""
-
-    _TAKEN_ROW = {
-        "account": "bold", "ts_et": "2026-07-02T09:30:38", "action": "PLACED",
-        "exec": {"status": "PLACED", "setup": SETUP, "quality_rank": 1,
-                 "symbol": "SPY260702P00743000"},
-    }
-
-    def _check(self, monkeypatch, now_et: dt.datetime) -> dict:
-        import urllib.request as _ur
-        monkeypatch.setattr(hc, "_todays_ledger_rows", lambda account: [dict(self._TAKEN_ROW)])
-        monkeypatch.setattr(_ur, "urlopen", _stub_urlopen_factory(_ONE_SELL_FILL))
-        return hc._quality_lock_check("bold", "P", ["trendline_rejection"], SETUP,
-                                      CREDS, now_et)
-
-    def test_1150_tick_allows_leg2_no_crash(self, monkeypatch):
-        ql = self._check(monkeypatch, dt.datetime(2026, 7, 2, 11, 50, 2))
-        assert ql["allow"] is True, "the crash killed an ALLOW-path re-entry"
-        assert ql["prior_quality"] == 1 and ql["rank"] == 1
-        assert ql["prior_stopped"] is True
-        assert 137.5 < ql["gap_min"] < 138.5  # 09:32:04 -> 11:50:02 = ~137.97 min
-
-    def test_sub_45min_gap_still_blocks(self, monkeypatch):
-        """The 45-min leg-2 cooldown must survive the fix (gap logic itself unchanged)."""
-        ql = self._check(monkeypatch, dt.datetime(2026, 7, 2, 9, 50, 2))
-        assert ql["allow"] is False
-        assert ql["prior_stopped"] is True
-        assert 17.5 < ql["gap_min"] < 18.5  # 09:32:04 -> 09:50:02 = ~17.97 min
+                   for r in safes)

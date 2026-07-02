@@ -98,8 +98,7 @@ def _wire_execute(hc, monkeypatch, tmp_path, *, equity="25000.0", manages_exits=
     monkeypatch.setattr(fb, "open_buy_orders", lambda c, s: [])
     monkeypatch.setattr(fb, "cancel_order", lambda *a, **k: {})
     monkeypatch.setattr(hc, "STATE", tmp_path)  # no circuit-breaker / kill-switch files
-    monkeypatch.setattr(hc, "_quality_lock_check",
-                        lambda *a, **k: {"allow": True, "rank": 1, "tier": "BASE", "prior_quality": 0})
+    # (_quality_lock_check monkeypatch removed -- lock DELETED 2026-07-02 per J directive)
     monkeypatch.setattr(hc, "_et_now", lambda: now)
     monkeypatch.setattr(hc, "CORE_MANAGES_EXITS", manages_exits)
     monkeypatch.setitem(sys.modules, "exit_actuator",
