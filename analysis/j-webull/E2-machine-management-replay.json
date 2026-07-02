@@ -1,0 +1,117 @@
+{
+  "generated": "2026-07-01",
+  "caveat": "BS-SYNTHETIC OPTION PRICING \u2014 RANKING-ONLY EVIDENCE PER C1. No smile, no spread, no fills. Never a promotion gate.",
+  "exit_stack": {
+    "tp1_ret": 0.3,
+    "tp1_frac": 0.8,
+    "runner_target_ret": 1.5,
+    "catastrophe_stop_ret": -0.5,
+    "time_stop_et": "15:50 (close of 15:45 bar)",
+    "qty": "hard-capped at J's FIRST fill size (no adds ever)"
+  },
+  "e2": {
+    "spy_5m_master_span": {
+      "min_bar_ts": "2021-06-01 09:30:00",
+      "max_bar_ts": "2023-10-31 15:55:00",
+      "n_rth_bars": 47488
+    },
+    "drops": {
+      "no_ctx": 25,
+      "no_vix": 0,
+      "no_entry_bar": 0,
+      "no_path_bars": 3,
+      "unpriceable_low_prem": 102
+    },
+    "bs_calibration": {
+      "note": "BS entry premium (his strike, VIX-open IV) vs J's ACTUAL entry premium \u2014 quantifies how badly the smile-less BS+VIX model misprices his (often deep-OTM) contracts.",
+      "n": 539,
+      "median_bs_over_actual": 0.222,
+      "pct_bs_below_half_actual": 69.8,
+      "pct_bs_above_double_actual": 1.3
+    },
+    "variants": {
+      "a_his_strike": {
+        "label": "his entry+strike, machine exits, first-fill qty cap",
+        "n": 437,
+        "machine_total": 8183.66,
+        "machine_exp_per_trade": 18.73,
+        "machine_wr_pct": 63.8,
+        "machine_max_drawdown": 1329.08,
+        "machine_total_drop_top3": 6506.06,
+        "bootstrap_p_sum_gt_0": 0.999,
+        "j_actual_total_same_population": -11169.0,
+        "j_actual_exp_same_population": -25.56,
+        "j_actual_wr_same_population_pct": 41.9,
+        "delta_vs_j_actual": 19352.66,
+        "exit_reasons": {
+          "catastrophe_stop": 165,
+          "runner_target": 137,
+          "runner_breakeven": 120,
+          "time_stop": 8,
+          "time_stop_runner": 7
+        }
+      },
+      "b_atm_strike": {
+        "label": "his entry, ATM strike, machine exits, first-fill qty cap",
+        "n": 539,
+        "machine_total": 109111.92,
+        "machine_exp_per_trade": 202.43,
+        "machine_wr_pct": 67.0,
+        "machine_max_drawdown": 5487.66,
+        "machine_total_drop_top3": 97484.07,
+        "bootstrap_p_sum_gt_0": 1.0,
+        "j_actual_total_same_population": -12818.0,
+        "j_actual_exp_same_population": -23.78,
+        "j_actual_wr_same_population_pct": 41.0,
+        "delta_vs_j_actual": 121929.92,
+        "exit_reasons": {
+          "runner_breakeven": 203,
+          "catastrophe_stop": 179,
+          "runner_target": 128,
+          "time_stop_runner": 17,
+          "time_stop": 12
+        }
+      },
+      "c_atm_best_cell": {
+        "label": "(b) restricted to at-level & aligned & morning 10:00-11:00",
+        "n": 29,
+        "machine_total": 12061.97,
+        "machine_exp_per_trade": 415.93,
+        "machine_wr_pct": 79.3,
+        "machine_max_drawdown": 867.56,
+        "machine_total_drop_top3": 7154.43,
+        "bootstrap_p_sum_gt_0": 1.0,
+        "j_actual_total_same_population": 2613.0,
+        "j_actual_exp_same_population": 90.1,
+        "j_actual_wr_same_population_pct": 65.5,
+        "delta_vs_j_actual": 9448.97,
+        "exit_reasons": {
+          "runner_breakeven": 12,
+          "runner_target": 11,
+          "catastrophe_stop": 6
+        }
+      },
+      "b_null_opposite_direction": {
+        "label": "NULL CONTROL: same entries, ATM strike, OPPOSITE direction",
+        "n": 539,
+        "machine_total": -27556.61,
+        "machine_exp_per_trade": -51.13,
+        "machine_wr_pct": 49.7,
+        "machine_max_drawdown": 39819.74,
+        "machine_total_drop_top3": -37566.09,
+        "bootstrap_p_sum_gt_0": 0.085,
+        "j_actual_total_same_population": -12818.0,
+        "j_actual_exp_same_population": -23.78,
+        "j_actual_wr_same_population_pct": 41.0,
+        "delta_vs_j_actual": -14738.61,
+        "exit_reasons": {
+          "catastrophe_stop": 261,
+          "runner_breakeven": 150,
+          "runner_target": 95,
+          "time_stop": 19,
+          "time_stop_runner": 14
+        }
+      }
+    }
+  }
+}

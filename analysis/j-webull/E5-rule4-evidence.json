@@ -1,0 +1,118 @@
+{
+  "generated": "2026-07-01",
+  "e5": {
+    "population": {
+      "closed_family_episodes": 567,
+      "total_pnl": -12885.0
+    },
+    "scaled_in": {
+      "n": 67,
+      "actual_total": -9281.0,
+      "actual_exp_per_trade": -138.52,
+      "cf_first_fill_total": -8487.0,
+      "cf_first_fill_exp_per_trade": -126.67,
+      "delta_saved_by_no_adds": 794.0,
+      "cf_no_adds_plus_50cap_total": -5853.5,
+      "delta_saved_by_no_adds_plus_50cap": 3427.5
+    },
+    "averaged_down_subset": {
+      "definition": "any add fill at a LOWER premium than the first fill",
+      "n": 63,
+      "share_of_scaled_in_pct": 94.0,
+      "actual_total": -8628.0,
+      "cf_first_fill_total": -8107.0,
+      "delta_saved_by_no_adds": 521.0,
+      "wr_pct": 31.7
+    },
+    "held_past_minus50": {
+      "n_losers": 330,
+      "n_past_50pct": 130,
+      "share_of_losers_pct": 39.4,
+      "gross_loss_of_past50": -30381.0,
+      "gross_excess_beyond_cap": 6175.5,
+      "note": "BOUND, not a sim: assumes exit at exactly -50% of premium at risk; gap-through/path effects unknown without option paths."
+    },
+    "per_episode_scaled_in": [
+      {
+        "symbol": "SPXW220513P03750000",
+        "entry": "2022-05-12 09:50:45",
+        "qty_max": 6,
+        "first_qty": 2,
+        "actual_pnl": -1380.0,
+        "cf_pnl": -840.0
+      },
+      {
+        "symbol": "SPXW220729P04060000",
+        "entry": "2022-07-29 11:12:20",
+        "qty_max": 6,
+        "first_qty": 4,
+        "actual_pnl": -990.0,
+        "cf_pnl": -800.0
+      },
+      {
+        "symbol": "SPXW230616C04460000",
+        "entry": "2023-06-16 10:01:12",
+        "qty_max": 5,
+        "first_qty": 4,
+        "actual_pnl": -860.0,
+        "cf_pnl": -700.0
+      },
+      {
+        "symbol": "SPXW230605P04270000",
+        "entry": "2023-06-05 10:15:33",
+        "qty_max": 3,
+        "first_qty": 2,
+        "actual_pnl": -839.0,
+        "cf_pnl": -606.0
+      },
+      {
+        "symbol": "SPXW220608P04090000",
+        "entry": "2022-06-08 13:33:00",
+        "qty_max": 8,
+        "first_qty": 4,
+        "actual_pnl": -820.0,
+        "cf_pnl": -600.0
+      },
+      {
+        "symbol": "SPXW220511P03880000",
+        "entry": "2022-05-11 09:36:29",
+        "qty_max": 4,
+        "first_qty": 2,
+        "actual_pnl": -695.0,
+        "cf_pnl": -560.0
+      },
+      {
+        "symbol": "SPXW220728P03960000",
+        "entry": "2022-07-28 09:56:34",
+        "qty_max": 4,
+        "first_qty": 2,
+        "actual_pnl": -670.0,
+        "cf_pnl": -450.0
+      },
+      {
+        "symbol": "SPXW220614P03700000",
+        "entry": "2022-06-14 09:49:15",
+        "qty_max": 3,
+        "first_qty": 1,
+        "actual_pnl": -660.0,
+        "cf_pnl": -290.0
+      },
+      {
+        "symbol": "SPXW220606C04200000",
+        "entry": "2022-06-06 10:03:32",
+        "qty_max": 4,
+        "first_qty": 2,
+        "actual_pnl": -535.0,
+        "cf_pnl": -380.0
+      },
+      {
+        "symbol": "SPXW220718P03850000",
+        "entry": "2022-07-18 09:36:41",
+        "qty_max": 4,
+        "first_qty": 2,
+        "actual_pnl": -525.0,
+        "cf_pnl": -330.0
+      }
+    ]
+  }
+}
