@@ -38,6 +38,10 @@ sys.path.insert(0, str(REPO / "backtest"))
 from lib.orchestrator import _params_to_kwargs, run_backtest  # noqa: E402
 
 # Every profit-lock knob the params layer could be tempted to translate.
+# NOTE: production params.json uses the v15_ prefix (v15_profit_lock_mode etc.) --
+# those REAL key names are included so this guard exercises the actual production
+# surface, not a synthetic un-prefixed alias the mapper never sees (the L197/G16
+# "the test exercised a key production doesn't use" vacuousness class).
 PROFIT_LOCK_FIELDS = [
     "profit_lock_threshold_pct",
     "profit_lock_mode",
@@ -47,6 +51,10 @@ PROFIT_LOCK_FIELDS = [
     "profit_lock_enabled",
     "chandelier_arm_pct",
     "chandelier_trail_pct",
+    # the ACTUAL production param names (automation/state/params.json):
+    "v15_profit_lock_mode",
+    "v15_profit_lock_threshold_pct",
+    "v15_profit_lock_trail_pct",
 ]
 
 
@@ -71,6 +79,46 @@ def test_params_to_kwargs_drops_profit_lock() -> None:
         "trending IS windows). Keep profit-lock in heartbeat.md for live risk "
         "management only; leave it out of the params->baseline translation. The "
         "knobs remain on run_backtest() for explicit research sweeps."
+    )
+
+
+def test_real_params_chandelier_keys_dropped() -> None:
+    """Real-data bite (2026-07-02 frame-audit): feed the ACTUAL live params.json
+    through _params_to_kwargs and assert its v15_profit_lock_* / chandelier keys
+    do NOT survive. This is the anti-misdiagnosis pin.
+
+    Provenance: the PARAMS-TO-KWARGS-CHANDELIER-DEADKNOB queue item (from
+    PHASEC RESULTS.md caveat 7) re-labelled this INTENTIONAL, L156-encoded drop
+    as a "C14 dead-knob to fix". It is not a dead knob: the chandelier is
+    regime-conditional (net-negative on the volume-dominant trending windows),
+    so mapping it into the baseline biases EVERY candidate comparison negative.
+    The absence is ALSO symmetric across A/B arms (baseline + candidate both go
+    through this mapper), so it does not corrupt relative verdicts. A future
+    fire that "fixes" the mapping to include the chandelier REDs here.
+    """
+    import json
+
+    params_path = REPO / "automation" / "state" / "params.json"
+    params = json.loads(params_path.read_text(encoding="utf-8"))
+
+    real_pl_keys = sorted(
+        k for k in params if "profit_lock" in k or "chandelier" in k
+    )
+    # Non-vacuous: the live params.json must actually carry chandelier keys, else
+    # this test proves nothing. If production drops them entirely, update this.
+    assert real_pl_keys, (
+        "live params.json carries no profit_lock/chandelier keys -- this "
+        "real-data guard is now vacuous; re-anchor it or remove it."
+    )
+
+    kwargs = _params_to_kwargs(params)
+    leaked = sorted(k for k in kwargs if "profit_lock" in k or "chandelier" in k)
+    assert not leaked, (
+        "L156 GUARD (real-params bite): the live params.json chandelier keys "
+        f"{real_pl_keys} leaked into backtest kwargs as {leaked}. This is the "
+        "PARAMS-TO-KWARGS-CHANDELIER-DEADKNOB misdiagnosis applied -- the drop "
+        "is BY DESIGN (L156), not a dead knob. Do NOT map the chandelier into "
+        "the params->baseline path."
     )
 
 
