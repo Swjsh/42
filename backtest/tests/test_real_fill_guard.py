@@ -51,4 +51,8 @@ def test_callers_price_marketable_not_mid() -> None:
     hc = (REPO / "setup" / "scripts" / "heartbeat_core.py").read_text(encoding="utf-8")
     for src, name in ((fl, "fleet_live"), (hc, "heartbeat_core")):
         assert "marketable_limit_price" in src, f"{name} must price the entry marketable"
-        assert "limit_price=entry_px" in src, f"{name} must place at entry_px (not mid)"
+        # The POST payload must carry entry_px as the limit price. Both call styles count:
+        # kwarg style (limit_price=entry_px) or dict-payload style ("limit_price": str(...entry_px...)).
+        kwarg_style = "limit_price=entry_px" in src
+        payload_style = '"limit_price": str(round(float(entry_px)' in src
+        assert kwarg_style or payload_style, f"{name} must place at entry_px (not mid)"

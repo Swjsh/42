@@ -1,18 +1,41 @@
 {
   "schema_version": 3,
-  "session_id": "2026-06-26",
-  "last_change_at": "2026-06-26T08:40:00-04:00",
-  "last_change_reason": "session_init_bloat_reset",
-  "last_bar_timestamp": 1782477600,
-  "current_mode": "HOT",
+  "session_id": "2026-07-01",
+  "last_change_at": "2026-07-01T08:30:35-04:00",
+  "last_change_reason": "session_init",
+  "last_bar_timestamp": 0,
+  "current_mode": "BASE",
   "writes_today": 0,
-  "ticks_today": 0,
-  "spy": { "last": 729.51, "session_high": null, "session_low": null },
-  "vix_cache": { "value": 20.02, "prior_value": null, "dir": "flat", "fetched_at": "2026-06-26T08:40:00-04:00" },
-  "ribbon": { "fast": 729.98, "pivot": 729.85, "slow": 729.91, "spread_cents": 13, "stack": "mixed" },
+  "ticks_today": 383,
+  "spy": {
+    "last": 745.665,
+    "session_high": null,
+    "session_low": null
+  },
+  "vix_cache": {
+    "value": null,
+    "prior_value": null,
+    "dir": null,
+    "fetched_at": null
+  },
+  "ribbon": {
+    "fast": 746.7377,
+    "pivot": 746.926,
+    "slow": 747.2265,
+    "spread_cents": 48.9,
+    "stack": "BEAR"
+  },
   "htf_15m": null,
-  "last_filter_score": { "bear": 0, "bear_blockers": [], "bull": 0, "bull_blockers": [] },
+  "last_filter_score": {
+    "bear": 0,
+    "bear_blockers": [],
+    "bull": 0,
+    "bull_blockers": []
+  },
   "developing_setup": null,
   "first_entry_lock": [],
-  "next_tick_model": "haiku"
+  "next_tick_model": "haiku",
+  "ticks_today_source": "core-decisions.jsonl",
+  "ticks_refreshed_at_et": "2026-07-01T20:24:58",
+  "last_decision_ts_et": "2026-07-01T15:55:14"
 }

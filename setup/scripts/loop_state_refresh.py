@@ -62,14 +62,40 @@ def derive_ticks(day: str, core_path: Path) -> tuple[int, str | None]:
     return len(minutes), last_ts
 
 
+def _heal_nulls_from_beacon(ls: dict, state_dir: Path) -> bool:
+    """Backfill null spy.last / ribbon in a legacy loop-state from sight-beacon truth.
+
+    The aggressive variant was orphaned when the LLM heartbeat retired (2026-06-25)
+    and carried spy.last=null + ribbon=null, violating LoopStateModel. The beacon
+    is the never-blind truth source, so a null here is strictly worse than beacon
+    data of any age. Returns True if anything was patched. Fail-open."""
+    try:
+        beacon = json.loads((state_dir / "sight-beacon.json").read_text(encoding="utf-8-sig"))
+    except Exception:  # noqa: BLE001
+        return False
+    changed = False
+    spy = ls.get("spy")
+    if isinstance(spy, dict) and spy.get("last") is None and isinstance(beacon.get("spy"), (int, float)):
+        spy["last"] = beacon["spy"]
+        changed = True
+    if ls.get("ribbon") is None and beacon.get("ribbon_stack"):
+        ls["ribbon"] = {
+            "fast": beacon.get("ema_fast"), "pivot": beacon.get("ema_pivot"),
+            "slow": beacon.get("ema_slow"), "spread_cents": beacon.get("spread_cents"),
+            "stack": str(beacon["ribbon_stack"]),
+        }
+        changed = True
+    return changed
+
+
 def refresh(now: dt.datetime | None = None, *, state_dir: Path | None = None,
-            core_path: Path | None = None) -> dict:
+            core_path: Path | None = None, ls_path: Path | None = None) -> dict:
     """Patch loop-state.json tick fields from the ledger. Returns a summary dict.
     Never raises (fail-open into self_check / the scheduler)."""
     now = now or et_now()
     state_dir = state_dir or STATE
     core_path = core_path or (state_dir / "core-decisions.jsonl")
-    ls_path = state_dir / "loop-state.json"
+    ls_path = ls_path or (state_dir / "loop-state.json")
     day = now.strftime("%Y-%m-%d")
     summary = {"day": day, "changed": False, "ticks_today": None, "note": ""}
     try:
@@ -86,7 +112,9 @@ def refresh(now: dt.datetime | None = None, *, state_dir: Path | None = None,
             return summary
         ticks, last_ts = derive_ticks(day, core_path)
         summary["ticks_today"] = ticks
-        if ls.get("ticks_today") == ticks and ls.get("ticks_today_source") == "core-decisions.jsonl":
+        healed = _heal_nulls_from_beacon(ls, state_dir)
+        if (not healed and ls.get("ticks_today") == ticks
+                and ls.get("ticks_today_source") == "core-decisions.jsonl"):
             summary["note"] = "already current"
             return summary
         ls["ticks_today"] = ticks
@@ -104,7 +132,9 @@ def refresh(now: dt.datetime | None = None, *, state_dir: Path | None = None,
 
 
 if __name__ == "__main__":
-    s = refresh()
-    print(f"[loop-state-refresh] {s['day']} ticks_today={s['ticks_today']} "
-          f"changed={s['changed']} -- {s['note']}")
+    for _label, _ls in (("safe", STATE / "loop-state.json"),
+                        ("aggressive", STATE / "aggressive" / "loop-state.json")):
+        s = refresh(ls_path=_ls)
+        print(f"[loop-state-refresh] {_label} {s['day']} ticks_today={s['ticks_today']} "
+              f"changed={s['changed']} -- {s['note']}")
     raise SystemExit(0)
