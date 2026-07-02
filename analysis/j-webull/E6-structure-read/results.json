@@ -1,0 +1,77 @@
+{
+  "study": "E6-structure-read",
+  "registered": "REGISTRATION.md (commit precedes compute)",
+  "population": {
+    "joined_n": 467,
+    "train_n": 402,
+    "test_n": 65,
+    "drops": {
+      "start_closed_family_ctx": 542,
+      "no_entry_bar": 0,
+      "early_entry_lt3_bars": 50,
+      "no_exit_bar_after_entry": 25,
+      "no_prior_daily": 0
+    }
+  },
+  "sanity": {
+    "nearest_level_agreement": 1.0,
+    "overall_dir_hit_rate": 0.6167,
+    "traits_reference_hit_rate": 0.592,
+    "hit_rate_within_2pp": false
+  },
+  "train_weights_point_biserial": {
+    "wick_favor": 0.0321,
+    "level_sweep_favor": 0.0806,
+    "hold_bars": -0.0644,
+    "structure_align": 0.03,
+    "event_recency": 0.0752,
+    "body_favor": -0.0079,
+    "vwap_streak": 0.0199,
+    "touch_count": 0.0773,
+    "ribbon_slope_favor": 0.0287,
+    "abs_level_dist": -0.0995
+  },
+  "train_quartiles_descriptive": {
+    "k": 101,
+    "top": {
+      "n": 101,
+      "hit_rate": 0.6931,
+      "pnl_per_trade": 13.81,
+      "pnl_total": 1395.0
+    },
+    "bottom": {
+      "n": 101,
+      "hit_rate": 0.4752,
+      "pnl_per_trade": -51.7,
+      "pnl_total": -5222.0
+    },
+    "delta_hit": 0.2178,
+    "delta_pnl": 65.51
+  },
+  "test_quartiles_EVALUATED_ONCE": {
+    "k": 17,
+    "top": {
+      "n": 17,
+      "hit_rate": 0.5294,
+      "pnl_per_trade": 43.53,
+      "pnl_total": 740.0
+    },
+    "bottom": {
+      "n": 17,
+      "hit_rate": 0.7059,
+      "pnl_per_trade": -96.53,
+      "pnl_total": -1641.0
+    },
+    "delta_hit": -0.1765,
+    "delta_pnl": 140.06
+  },
+  "permutation": {
+    "p_hit": 0.8761,
+    "p_pnl": 0.1049,
+    "obs_delta_hit": -0.1765,
+    "obs_delta_pnl": 140.06,
+    "n_perm": 1000,
+    "seed": 42
+  },
+  "verdict": "NO_SEPARATION"
+}
