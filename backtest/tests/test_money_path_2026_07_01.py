@@ -436,3 +436,34 @@ class TestVwapContinuationArmed:
         plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.4}}},
                            SAFE_PARAMS, dry=True)
         assert plan["strike"] == 622  # generic Safe ITM-2 tier at $25K, unchanged
+
+    def test_vwap_exit_shape_is_validated_cell_not_ribbon_ride(self, hc, monkeypatch,
+                                                               tmp_path):
+        """Exit-parity fix (2026-07-02, analysis/recommendations/vwapcont-exit-parity.json):
+        a vwap_continuation fill must be exit-managed by its VALIDATED isolated cell
+        (stop -0.08 / tp1 0.30), NEVER ribbon_ride's (-0.20 / +1.50). Uses the REAL
+        production strategies module so the ribbon_ride resolution path is present —
+        this test REDs if the _SETUP_EXIT_OVERRIDES entry is ever removed."""
+        import strategies as real_strat  # automation/state/fleet — production module
+        rr = real_strat.by_name("ribbon_ride")
+        assert rr is not None, "precondition: production ribbon_ride must resolve"
+        calls: list = []
+        _wire_execute(hc, monkeypatch, tmp_path)
+        monkeypatch.setitem(sys.modules, "exit_actuator",
+                            types.SimpleNamespace(register_entry=lambda *a, **k: calls.append(k)))
+        monkeypatch.setitem(sys.modules, "strategies", real_strat)  # undo the None mask
+        verdict = {"verdict": "ENTER_BEAR", "setup_name": "vwap_continuation",
+                   "triggers_fired": ["vwap_continuation"]}
+        plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.4}}},
+                           SAFE_PARAMS, dry=False)
+        assert plan["status"] == "PLACED", plan
+        assert plan["stop"] == 0.92  # mid 1.00 * (1 - 0.08) — validated isolated stop
+        assert plan["tp"] == 1.30    # mid 1.00 * (1 + 0.30) — validated tp1
+        assert len(calls) == 1
+        shape = calls[0]["exit_shape"]
+        assert shape["premium_stop_pct"] == -0.08, \
+            f"regressed to ribbon_ride/global shape: {shape}"
+        assert shape["tp1_premium_pct"] == 0.30
+        assert (shape["premium_stop_pct"], shape["tp1_premium_pct"]) != (
+            rr.exit.premium_stop_pct, rr.exit.tp1_premium_pct), \
+            "registered shape must NOT be ribbon_ride's (-0.20 / +1.50)"

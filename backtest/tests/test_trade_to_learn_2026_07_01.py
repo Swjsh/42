@@ -23,8 +23,10 @@ Pins, RED-on-regression — three setups armed on SAFE ONLY, each at its VALIDAT
 
   Cross-cutting: per-setup strike overrides (_SETUP_STRIKE_OVERRIDES) and ISOLATED exit
   shapes (_SETUP_EXIT_OVERRIDES) are load-bearing (C14 vary-and-assert both ways);
-  vwap_continuation keeps its FIX4 behavior byte-identical (global exit knobs); Bold is
-  NOT armed; gap_and_go stays NOT armed (0 robust cells on the 06-28 re-validation).
+  vwap_continuation trades its VALIDATED isolated cell stop -0.08 / tp1 0.30 (exit-parity
+  A/B 2026-07-02 — before that the un-overridden setup was exit-managed by ribbon_ride's
+  shape, a WR-22% lotto with negative J-anchor capture); Bold is NOT armed; gap_and_go
+  stays NOT armed (0 robust cells on the 06-28 re-validation).
 
 Run:  backtest/.venv/Scripts/python.exe -m pytest -q backtest/tests/test_trade_to_learn_2026_07_01.py
 """
@@ -339,9 +341,9 @@ class TestIsolatedExitShape:
         if runner is not None:
             assert shape["runner_target_pct"] == runner
 
-    def test_vwap_continuation_keeps_fix4_global_shape(self, hc, monkeypatch, tmp_path):
-        """vwap_continuation (armed earlier tonight) must stay BYTE-IDENTICAL: global
-        -50% catastrophe stop + global tp1 — NOT any isolated override."""
+    def test_vwap_continuation_trades_validated_isolated_cell(self, hc, monkeypatch, tmp_path):
+        """vwap_continuation trades its VALIDATED isolated cell (exit-parity A/B
+        2026-07-02: stop -0.08 / tp1 0.30) — NOT the ribbon_ride fallback shape."""
         reg = _RegRecorder()
         _wire_execute(hc, monkeypatch, tmp_path, reg=reg)
         verdict = {"verdict": "ENTER_BEAR", "setup_name": "vwap_continuation",
@@ -349,10 +351,37 @@ class TestIsolatedExitShape:
         plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.4}}},
                            SAFE_PARAMS, dry=False)
         assert plan["status"] == "PLACED", plan
-        assert plan["stop"] == 0.50  # mid 1.00 * (1 - 0.50) — the global catastrophe cap
+        assert plan["stop"] == 0.92  # mid 1.00 * (1 - 0.08) — the validated isolated stop
         shape = reg.calls[0]["exit_shape"]
-        assert shape["premium_stop_pct"] == -0.50
-        assert shape["tp1_premium_pct"] == float(SAFE_PARAMS["tp1_premium_pct"])
+        assert shape["premium_stop_pct"] == -0.08
+        assert shape["tp1_premium_pct"] == 0.30
+
+    def test_vwap_continuation_override_beats_production_ribbon_ride(self, hc, monkeypatch,
+                                                                     tmp_path):
+        """ROUTE VERIFICATION (the subtle bug this batch fixes): the harness default
+        monkeypatches strategies.by_name -> None, which masked production — where
+        by_name('ribbon_ride') RESOLVES and the un-overridden setup registered ribbon_ride's
+        shape (-0.20 / +1.50). Wire the REAL fleet strategies module and assert the
+        override still wins: the registered shape is the validated cell, NOT ribbon_ride."""
+        import strategies as real_strat  # automation/state/fleet — the production module
+        rr = real_strat.by_name("ribbon_ride")
+        assert rr is not None and rr.exit.premium_stop_pct == -0.20, \
+            "precondition: production ribbon_ride must resolve with its -20% stop"
+        reg = _RegRecorder()
+        _wire_execute(hc, monkeypatch, tmp_path, reg=reg)
+        monkeypatch.setitem(sys.modules, "strategies", real_strat)  # undo the None mask
+        verdict = {"verdict": "ENTER_BEAR", "setup_name": "vwap_continuation",
+                   "triggers_fired": ["vwap_continuation"]}
+        plan = hc._execute("safe", verdict, {"bar_ctx": {"bar": {"close": 620.4}}},
+                           SAFE_PARAMS, dry=False)
+        assert plan["status"] == "PLACED", plan
+        shape = reg.calls[0]["exit_shape"]
+        assert shape["premium_stop_pct"] == -0.08, \
+            f"regressed to ribbon_ride/global shape: {shape}"
+        assert shape["tp1_premium_pct"] == 0.30
+        assert (shape["premium_stop_pct"], shape["tp1_premium_pct"]) != (
+            rr.exit.premium_stop_pct, rr.exit.tp1_premium_pct), \
+            "registered shape must NOT be ribbon_ride's (-0.20 / +1.50)"
 
     def test_ribbon_setup_shape_unchanged(self, hc, monkeypatch, tmp_path):
         reg = _RegRecorder()

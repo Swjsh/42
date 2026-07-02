@@ -885,9 +885,14 @@ _SETUP_STRIKE_OVERRIDES = {
 # ISOLATED per-setup exit knobs (params _j_*_isolated_exit_doc): the validated cells for
 # these setups carry their OWN stop/TP1 — silently sourcing the global -50% catastrophe
 # cap would trade an UNVALIDATED cell (C14/L149; for vix_regime_dayside the -8% stop is
-# LOAD-BEARING per its G8 gate). vwap_continuation is deliberately ABSENT (its armed FIX4
-# behavior — global knobs — stays byte-identical). "runner" is optional.
+# LOAD-BEARING per its G8 gate). vwap_continuation ADDED 2026-07-02 (exit-parity A/B,
+# analysis/recommendations/vwapcont-exit-parity.json): un-overridden it was exit-managed
+# by the ribbon_ride shape (-20% stop / tp1 +150%) — a WR-22% lotto with NEGATIVE
+# J-anchor capture; its validated cell (stop -0.08 / tp1 0.30) wins per OP-16.
+# "runner" is optional.
 _SETUP_EXIT_OVERRIDES = {
+    "vwap_continuation": {"stop": "j_vwap_cont_premium_stop_pct",
+                          "tp1": "j_vwap_cont_tp1_pct"},
     "vwap_reclaim_failed_break": {"stop": "j_vwap_reclaim_fb_premium_stop_pct",
                                   "tp1": "j_vwap_reclaim_fb_tp1_pct"},
     "vix_regime_dayside": {"stop": "j_vix_dayside_premium_stop_pct",
