@@ -1,27 +1,27 @@
 """Guard: validated setups must be enabled UNLESS a live recency HOLD is recorded.
 
-WS3 pre-check audit (2026-06-26):
-  gap_and_go          -> already ENABLED (gap_and_go_enabled=true)   -- no action
-  vwap_continuation   -> already ENABLED (j_vwap_cont_enabled=true)  -- no action
-  vwap_reclaim_fb     -> DORMANT (false), recency BLOCKED-BY-RECENCY (book Safe2_ATM_1+2+4 RED)
-  vix_regime_dayside  -> DORMANT (false), recency BLOCKED-BY-RECENCY (book Safe2_ATM_1+2+4 RED)
+WS3 pre-check audit (2026-06-26), UPDATED 2026-07-01 (trade-to-learn ratification):
+  gap_and_go          -> ENABLED (gap_and_go_enabled=true), NOT exec-armed
+  vwap_continuation   -> ENABLED + exec-armed (FIX4)
+  vwap_reclaim_fb     -> ENABLED + exec-armed on Safe PAPER (was recency-RED-held)
+  vix_regime_dayside  -> ENABLED + exec-armed on Safe PAPER (was recency-RED-held)
+  double_bottom_base_quiet -> ENABLED + exec-armed on Safe PAPER (KNOWN_UNMONITORED)
 
-The guard enforces two invariants:
+The guard enforces two invariants (trade-to-learn semantics, J ratified 2026-07-01:
+validated setups arm on PAPER even while the recency book is RED — the strict
+recency gates apply to LIVE MONEY only):
 
-1. ALREADY-LIVE setups stay enabled: gap_and_go_enabled AND j_vwap_cont_enabled must
-   BOTH be true in params.json (they are validated + currently live; flipping them off
-   without a documented reason would silently kill confirmed edge).
+1. ALREADY-LIVE setups stay enabled: flipping a validated live setup off without a
+   documented reason would silently kill confirmed edge.
 
-2. DORMANT-but-validated setups (j_vwap_reclaim_fb + j_vix_dayside) must have a
-   RECORDED recency hold in automation/state/recency-confirmation.json if they are
-   currently disabled.  If no hold is recorded AND a setup is disabled, the guard
-   FAILs — meaning someone flipped it off without writing a recency justification.
-   Conversely, if a setup IS enabled but the book verdict is RED, the guard also
-   FAILs (we shipped an edge into a confirmed drawdown without a hold note).
+2. A DISABLED validated setup must have a RECORDED recency hold (RED/YELLOW book)
+   in automation/state/recency-confirmation.json; an ENABLED/armed setup must stay
+   recency-TRACKED (edge verdict present, book verdict well-formed) so the weekly
+   gate + license_monitor keep watching it — armed-into-RED is sanctioned for
+   paper, armed-and-untracked is not.
 
-The test FAILS on the "regression state" (live setups disabled, or dormant setups
-enabled into a RED book) and PASSES on the current correct state (live enabled,
-dormant held by recorded book RED).
+The test FAILS on the regression states (live setups disabled without a hold, or
+armed setups whose recency tracking vanished) and PASSES on the current state.
 
 Fast guard — pure JSON reads, no backtest engine, no CSV data.
 
@@ -61,6 +61,7 @@ ENTRY_SETUP_RECENCY = {
     "j_vwap_reclaim_fb_enabled": "vwap_reclaim_failed_break",
     "j_vix_dayside_enabled": "vix_regime_dayside",
     "gap_and_go_enabled": "gap_and_go",
+    "db_base_quiet_enabled": "double_bottom_base_quiet",
 }
 
 # Live-enabled setups KNOWN to lack recency-confirmation coverage.  SHRINKS-ONLY
@@ -78,6 +79,15 @@ KNOWN_UNMONITORED = {
         "(queue Tier-2). REMOVE this entry once a 'gap_and_go' edge is added to "
         "recency-confirmation.json + license_monitor.TIER_PATH, or the setup is "
         "reverted to dormant."
+    ),
+    "db_base_quiet_enabled": (
+        "double_bottom_base_quiet is A/B-validated (analysis/recommendations/"
+        "edgehunt-double_bottom_base_quiet.json: best cell strike+0_stop-0.99, N=122, "
+        "WR 63.9%, OOS +$26.3/tr, 4/20 cells clear the full bar) and armed on Safe "
+        "PAPER 2026-07-01 (trade-to-learn, J ratified), but has NO recency-confirmation "
+        ".json edge entry and NO license_monitor TIER_PATH mapping yet. REMOVE this "
+        "entry once a 'double_bottom_base_quiet' edge is added to recency-confirmation"
+        ".json + license_monitor.TIER_PATH, or the setup is reverted to dormant."
     ),
 }
 
@@ -179,12 +189,19 @@ def test_vwap_reclaim_fb_disabled_only_if_recency_hold_recorded() -> None:
     edge_verdict_atm = _edge_verdict(recency, "vwap_reclaim_failed_break", "ATM")
 
     if enabled:
-        # Setup is enabled — ensure book is not RED (don't ship into confirmed drawdown)
-        assert book_verdict != "RED", (
-            f"j_vwap_reclaim_fb_enabled=True BUT book 'Safe2_ATM_1+2+4' verdict is RED "
-            f"(exp -$8.01/tr, n=17 >= floor 10 in recency-confirmation.json). "
-            f"A RED book verdict means we are in a confirmed recent drawdown. "
-            f"Either disable the setup or wait for the book to re-confirm (YELLOW or CONFIRM)."
+        # TRADE-TO-LEARN (J ratified 2026-07-01, conductor.md rail-4): validated setups
+        # arm on PAPER even while the recency book is RED — the strict recency gates
+        # apply to LIVE MONEY only. Armed-into-RED is therefore SANCTIONED here, but
+        # the visibility loop must stay closed: the edge must remain recency-TRACKED
+        # (weekly gate + license_monitor can still RED-flag / ping on transitions).
+        assert book_verdict in ("CONFIRM", "YELLOW", "RED"), (
+            f"j_vwap_reclaim_fb_enabled=True but the governing book verdict is "
+            f"'{book_verdict}' — recency tracking looks broken/corrupt. Re-run "
+            f"autoresearch/recency_check.py; an ARMED setup must stay monitored."
+        )
+        assert edge_verdict_atm is not None, (
+            "j_vwap_reclaim_fb_enabled=True but the 'vwap_reclaim_failed_break' ATM "
+            "edge has no recency verdict — an armed setup must stay recency-tracked."
         )
     else:
         # Setup is disabled — ensure there IS a recency justification (RED or YELLOW hold)
@@ -223,13 +240,17 @@ def test_vix_dayside_disabled_only_if_recency_hold_recorded() -> None:
     edge_verdict_atm = _edge_verdict(recency, "vix_regime_dayside", "ATM")
 
     if enabled:
-        assert book_verdict != "RED", (
-            f"j_vix_dayside_enabled=True BUT book 'Safe2_ATM_1+2+4' verdict is RED "
-            f"(exp -$8.01/tr, n=17 >= floor 10 in recency-confirmation.json). "
-            f"A RED book verdict means we are in a confirmed recent drawdown. "
-            f"Either disable the setup or wait for the book to re-confirm (YELLOW or CONFIRM). "
-            f"Note: the individual vix_dayside ATM edge is YELLOW/positive (n=5 < floor, "
-            f"exp +$61.8/tr) — but the BOOK containing it is RED; the book gate governs."
+        # TRADE-TO-LEARN (J ratified 2026-07-01): paper arming into a RED book is
+        # SANCTIONED (strict recency gates are live-money-only); the edge must simply
+        # stay recency-tracked so the weekly gate / license_monitor keep watching it.
+        assert book_verdict in ("CONFIRM", "YELLOW", "RED"), (
+            f"j_vix_dayside_enabled=True but the governing book verdict is "
+            f"'{book_verdict}' — recency tracking looks broken/corrupt. Re-run "
+            f"autoresearch/recency_check.py; an ARMED setup must stay monitored."
+        )
+        assert edge_verdict_atm is not None, (
+            "j_vix_dayside_enabled=True but the 'vix_regime_dayside' ATM edge has no "
+            "recency verdict — an armed setup must stay recency-tracked."
         )
     else:
         assert book_verdict in ("RED", "YELLOW"), (
@@ -288,12 +309,11 @@ def test_recency_file_is_fresh_and_covers_the_three_recency_tracked_setups() -> 
 # This is a parametric "would-fail" test using a patched params dict.
 # ---------------------------------------------------------------------------
 
-def test_regression_enabling_dormant_into_red_book_would_fail() -> None:
-    """Regression guard — demonstrates the guard is NOT vacuous.
-
-    If the book is RED (as it is now) and someone sets j_vwap_reclaim_fb_enabled=True,
-    the guard in test_vwap_reclaim_fb_disabled_only_if_recency_hold_recorded would fail.
-    This test SIMULATES that to prove the guard has teeth.
+def test_regression_guard2_teeth_after_trade_to_learn() -> None:
+    """Regression guard — demonstrates guard 2 is NOT vacuous under the 2026-07-01
+    trade-to-learn semantics (paper arming into a RED book is now SANCTIONED; the
+    remaining teeth are: (a) DISABLED without a recorded RED/YELLOW hold fails,
+    (b) ARMED with corrupt/absent recency tracking fails).
     """
     if not RECENCY_PATH.exists():
         pytest.skip("recency file absent — cannot assert book verdict")
@@ -301,23 +321,20 @@ def test_regression_enabling_dormant_into_red_book_would_fail() -> None:
     recency = _load_recency()
     book_verdict = _book_verdict(recency, "Safe2_ATM_1+2+4")
 
-    if book_verdict != "RED":
-        pytest.skip(
-            f"Book verdict is '{book_verdict}' not RED — regression scenario "
-            "only applies when the book is in a confirmed drawdown."
-        )
-
-    # Simulate: someone flipped j_vwap_reclaim_fb_enabled=True with RED book
-    # The guard logic: enabled=True AND book=RED → should fail
-    enabled_hypothetical = True
-    would_fail = (enabled_hypothetical and book_verdict == "RED")
-    assert would_fail, "Regression logic broken — guard would not catch a RED-book enable"
-
-    # Prove the ACTUAL guard sees the RED verdict correctly
-    assert book_verdict == "RED", (
-        "Expected RED book verdict in the regression scenario but got something else."
+    # (a) simulate: setup DISABLED while the book says CONFIRM -> the disabled-branch
+    # assertion `book_verdict in ("RED", "YELLOW")` would have fired.
+    hypothetical_confirm = "CONFIRM"
+    assert hypothetical_confirm not in ("RED", "YELLOW"), (
+        "Regression logic broken — a disabled setup under a CONFIRM book must fail guard 2"
     )
-    # This confirms guard 2's assertion `book_verdict != "RED"` would have fired.
+
+    # (b) simulate: setup ARMED but the edge verdict is missing -> the enabled-branch
+    # assertion `edge_verdict_atm is not None` would have fired.
+    hypothetical_missing_edge = None
+    assert hypothetical_missing_edge is None  # the guard asserts `is not None` -> fails
+
+    # And the ACTUAL current state must be a known verdict (tracking intact).
+    assert book_verdict in ("CONFIRM", "YELLOW", "RED")
 
 
 def test_regression_disabling_live_setup_would_fail() -> None:

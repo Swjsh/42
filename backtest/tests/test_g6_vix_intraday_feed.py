@@ -101,10 +101,11 @@ def test_dormant_adds_no_key_and_never_fetches(monkeypatch):
     rec = _Recorder(["should", "not", "appear"])
     monkeypatch.setattr(hc, "_fetch_vix_intraday", rec)
     df = _synth_rth_bars()
-    # SAFE_PARAMS has j_vix_dayside_enabled=false on disk.
-    assert SAFE_PARAMS.get("j_vix_dayside_enabled", False) is False, \
-        "premise: params.json must keep vix_dayside dormant (recency-RED) — update this guard"
-    payload = hc._build_payload(df, SAFE_PARAMS, vix=(18.0, 17.9),
+    # 2026-07-01: params.json flipped j_vix_dayside_enabled=true (trade-to-learn arming),
+    # so the DORMANT premise is now pinned with an explicit flag-off snapshot — the
+    # producer/consumer contract itself is unchanged.
+    dormant = dict(SAFE_PARAMS, j_vix_dayside_enabled=False)
+    payload = hc._build_payload(df, dormant, vix=(18.0, 17.9),
                                 levels=([], []), vix_ma=(17.0, 16.5))
     assert payload is not None
     assert "vix_intraday" not in payload["bar_ctx"], "dormant must not add the key"

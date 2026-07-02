@@ -296,12 +296,14 @@ def test_filters_dormant_flag_default_false_and_delegator_present():
     assert hasattr(_filters, "detect_vix_regime_dayside")
 
 
-def test_live_params_json_dormant_and_well_formed():
+def test_live_params_json_armed_and_well_formed():
     """The shipped params.json must be valid JSON, carry the edge-#4 keys, and have the
-    dormant flag OFF (the whole point: zero behavior change until J flips it)."""
+    flag ON (armed on Safe paper 2026-07-01 per J's trade-to-learn ratification — was
+    pinned dormant/False until then; the validated ATM cell knobs below are unchanged).
+    Full cell pins: backtest/tests/test_trade_to_learn_2026_07_01.py."""
     import json
     p = json.loads((REPO.parent / "automation" / "state" / "params.json").read_text(encoding="utf-8"))
-    assert p["j_vix_dayside_enabled"] is False
+    assert p["j_vix_dayside_enabled"] is True
     assert p["j_vix_dayside_premium_stop_pct"] == -0.08
     assert p["j_vix_dayside_tp1_pct"] == 0.30
     assert p["j_vix_dayside_low_margin"] == 0.25

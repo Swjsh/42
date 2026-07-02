@@ -35,20 +35,24 @@ WIRING NOTE (heartbeat_core.py integration)
   Called from run_account() AFTER _engine_verdict() and BEFORE _execute(), so
   extra signals are evaluated on the same tick state.
 
-PER-DETECTOR STATUS (as of 2026-06-28):
-  vwap_continuation        : j_vwap_cont_enabled=true  → ALREADY LIVE in params
-  gap_and_go               : gap_and_go_enabled=true    → ALREADY LIVE in params
-  vwap_reclaim_failed_break: j_vwap_reclaim_fb_enabled=false → DORMANT (recency RED)
-  vix_regime_dayside       : j_vix_dayside_enabled=false  → DORMANT (no vix_intraday feed)
-  double_bottom_base_quiet : db_base_quiet_enabled=false → WIRED DISARMED (exec gated on
-                             extra_setup_exec_armed["double_bottom_base_quiet"]=True; NOT present
-                             in params.json → default-off byte-identical no-op; 2026-06-28)
+PER-DETECTOR STATUS (as of 2026-07-01, trade-to-learn batch — J ratified paper arming):
+  vwap_continuation        : j_vwap_cont_enabled=true + exec-ARMED (Safe) → LIVE PAPER (FIX4)
+  gap_and_go               : gap_and_go_enabled=true, NOT exec-armed (2026-06-28 re-validation:
+                             0 robust cells) → WATCH only
+  vwap_reclaim_failed_break: j_vwap_reclaim_fb_enabled=true + exec-ARMED (Safe) → LIVE PAPER
+                             at the validated ATM rescue cell (RECLAIM-RESCUE-SCORECARD.md)
+  vix_regime_dayside       : j_vix_dayside_enabled=true + exec-ARMED (Safe) → LIVE PAPER at
+                             the validated ATM cell; vix_intraday feed wired via
+                             heartbeat_core._fetch_vix_intraday (G6), verified 2026-07-01
+  double_bottom_base_quiet : db_base_quiet_enabled=true + exec-ARMED (Safe) → LIVE PAPER
+                             at the best clearing cell (ATM, stop -0.99, tp1 0.3, runner 2.0)
                              EVIDENCE: edgehunt-double_bottom_base_quiet.json (2026-06-20)
                              4 cells clear full bar (OOS>0, posQ>=4, top5<200, N>=20):
                              strike+0_stop-0.99: N=122, WR=63.9%, OOS_avg=+$26.3/trade
                              strike-1_stop-0.99: N=121, WR=62.0%, OOS_avg=+$13.2/trade
                              strike-2_stop-0.2:  N=115, WR=41.7%, OOS_avg=+$1.3/trade
                              strike-1_stop-0.5:  N=121, WR=61.2%, OOS_avg=+$5.9/trade
+  (Bold/aggressive params arm NONE of these — Safe-only per the 2026-07-01 mandate.)
   head_and_shoulders_bear  : DOES NOT CLEAR — N=19 completed (7 missing OPRA), all cells
                              fail n_trades<20; anchor-no-regression pending; NOT wired.
                              Source: edgehunt-hs_bear.json (2026-06-20).
@@ -362,7 +366,7 @@ class SetupDispatcher:
         """Dispatch the vwap_reclaim_failed_break detector.
 
         Feed: needs session VWAP from sameday_5m_bars → WIRED_CLEAN (same as vwap_cont).
-        Currently DORMANT (j_vwap_reclaim_fb_enabled=false, recency RED).
+        LIVE PAPER on Safe since 2026-07-01 (trade-to-learn; validated ATM rescue cell).
         """
         ctx = self._build_ctx()
         if ctx is None:
@@ -385,11 +389,10 @@ class SetupDispatcher:
         """Dispatch the vix_regime_dayside detector.
 
         Feed: needs ctx.vix_intraday (78-bar intraday VIX history + slope).
-        heartbeat_core does NOT supply vix_intraday — only vix_now/vix_prior.
-        Result: SKIP_NO_FEED until the feed is wired in heartbeat_core.py.
-
-        The detector itself handles a missing vix_intraday gracefully (returns None),
-        but we surface an explicit SKIP_NO_FEED reason here for clarity.
+        heartbeat_core._build_payload supplies bar_ctx['vix_intraday'] (G6 producer,
+        gated on the SAME j_vix_dayside_enabled flag) and _build_ctx threads it onto
+        the BarContext. Fail-open: a fetch miss leaves the attr unset and we surface
+        an explicit SKIP_NO_FEED here (the watcher never guesses the regime).
         """
         ctx = self._build_ctx()
         if ctx is None:

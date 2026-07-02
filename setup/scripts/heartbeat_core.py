@@ -564,11 +564,20 @@ def _log(rec: dict) -> None:
 def _ribbon_flip_fn(ribbon_stack: str):
     """Return a ribbon_flip_back_fn for exit_actuator.manage_tick.
     Fires when the ribbon reverses against the open position's direction:
-      PUT (bearish): exits when ribbon turns BULLISH.
-      CALL (bullish): exits when ribbon turns BEARISH.
+      PUT (bearish): exits when ribbon turns BULL.
+      CALL (bullish): exits when ribbon turns BEAR.
+
+    G14 FIX (2026-07-01): the producer (backtest/lib/ribbon.py) emits stack ==
+    'BULL'|'BEAR'|'MIXED'|'WARMUP'|'UNKNOWN' — NEVER 'BULLISH'/'BEARISH'. The old
+    literals could not match any real ribbon_now['stack'], so the v15.3 chart-stop-
+    PRIMARY ribbon-flip-back invalidation silently never fired (C14 string-mismatch
+    dead-knob; only the −50% catastrophe cap / target / time stops ran). MIXED/UNKNOWN
+    correctly do NOT flip (a genuine opposite-direction reversal, not loss-of-stack).
+    Guard: test_graduated_guards.py::test_g14_ribbon_flip_fn_direction (imports the REAL
+    fn + asserts against the producer's actual literals).
     """
     def fn(symbol: str, side: str) -> bool:  # noqa: ANN001
-        return ribbon_stack == ("BULLISH" if side == "P" else "BEARISH")
+        return ribbon_stack == ("BULL" if side == "P" else "BEAR")
     return fn
 
 
@@ -850,6 +859,53 @@ def _quality_lock_check(account: str, side: str, triggers: list, setup_name: str
             "prior_stopped": prior_stopped, "gap_min": gap_min}
 
 
+# TRADE-TO-LEARN (2026-07-01, J-ratified): per-setup VALIDATED-cell overrides for armed
+# extra setups. C29 — validated knobs don't transfer across strike tiers, so each armed
+# setup trades ITS scorecard cell, never the generic v15 ladder. Values are params.json
+# key names (single source of truth; backtest/lib/filters.py reads the same keys on the
+# sim side). Live-params strike convention (v15_strike_offset_per_tier): 0=ATM,
+# POSITIVE=ITM, NEGATIVE=OTM; puts strike=ATM+off, calls strike=ATM-off (heartbeat.md:254).
+# A setup absent here (or its enable flag off) keeps today's generic behavior byte-identical.
+# Guards: test_money_path_2026_07_01.py (vwap_continuation) + test_trade_to_learn_2026_07_01.py.
+_SETUP_STRIKE_OVERRIDES = {
+    # dispatcher setup_name (lower): (enable_flag_key, safe_offset_key, bold_offset_key)
+    "vwap_continuation": ("j_vwap_cont_strike_override_enabled",
+                          "j_vwap_cont_strike_offset_safe",
+                          "j_vwap_cont_strike_offset_bold"),
+    "vwap_reclaim_failed_break": ("j_vwap_reclaim_fb_strike_override_enabled",
+                                  "j_vwap_reclaim_fb_strike_offset_safe",
+                                  "j_vwap_reclaim_fb_strike_offset_bold"),
+    "vix_regime_dayside": ("j_vix_dayside_strike_override_enabled",
+                           "j_vix_dayside_strike_offset_safe",
+                           "j_vix_dayside_strike_offset_bold"),
+    "double_bottom_base_quiet": ("j_db_base_quiet_strike_override_enabled",
+                                 "j_db_base_quiet_strike_offset_safe",
+                                 "j_db_base_quiet_strike_offset_bold"),
+}
+# ISOLATED per-setup exit knobs (params _j_*_isolated_exit_doc): the validated cells for
+# these setups carry their OWN stop/TP1 — silently sourcing the global -50% catastrophe
+# cap would trade an UNVALIDATED cell (C14/L149; for vix_regime_dayside the -8% stop is
+# LOAD-BEARING per its G8 gate). vwap_continuation is deliberately ABSENT (its armed FIX4
+# behavior — global knobs — stays byte-identical). "runner" is optional.
+_SETUP_EXIT_OVERRIDES = {
+    "vwap_reclaim_failed_break": {"stop": "j_vwap_reclaim_fb_premium_stop_pct",
+                                  "tp1": "j_vwap_reclaim_fb_tp1_pct"},
+    "vix_regime_dayside": {"stop": "j_vix_dayside_premium_stop_pct",
+                           "tp1": "j_vix_dayside_tp1_pct"},
+    "double_bottom_base_quiet": {"stop": "j_db_base_quiet_premium_stop_pct",
+                                 "tp1": "j_db_base_quiet_tp1_pct",
+                                 "runner": "j_db_base_quiet_runner_target_pct"},
+}
+
+
+def _params_float(params: dict, key: str, default: float) -> float:
+    """params[key] as float; missing/malformed -> the validated default (never raises)."""
+    try:
+        return float(params.get(key, default))
+    except (TypeError, ValueError):
+        return float(default)
+
+
 def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: bool) -> dict:
     """SIZE + PLACE a 0DTE entry via the TESTED fleet_broker + risk_gate primitives.
     dry=True computes everything and returns the plan WITHOUT placing (shadow / self-test)."""
@@ -904,15 +960,14 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     # strike + contract + premium
     strike = ss.pick_strike(spy, equity, side, ss.V15_BOLD_TIERS if account == "bold" else ss.V15_SAFE_TIERS) \
         if ss else (int(round(spy)) + (2 if side == "P" else -2))
-    # FIX4/WP-5 (2026-07-01): per-setup strike override — vwap_continuation is VALIDATED at
-    # ATM on Safe (j_vwap_cont_strike_offset_safe=0) / ITM-2 on Bold (=+2); the generic tier
-    # above is a different, UNVALIDATED cell (C29: strikes don't transfer across tiers).
-    # Live-params convention (same as v15_strike_offset_per_tier): 0=ATM, POSITIVE=ITM,
-    # NEGATIVE=OTM; puts strike=ATM+off, calls strike=ATM-off (heartbeat.md:254 formula).
+    # FIX4/WP-5 + trade-to-learn (2026-07-01): per-setup strike override — each armed extra
+    # setup is VALIDATED at a specific strike tier (e.g. vwap_continuation ATM on Safe /
+    # ITM-2 on Bold); the generic tier above is a different, UNVALIDATED cell (C29: strikes
+    # don't transfer across tiers). Table + convention: _SETUP_STRIKE_OVERRIDES above.
     # Mirrors risk_gate.select_strike_offset's dispatch (the sim/orchestrator-side resolver).
-    if (str(setup_name or "").lower() == "vwap_continuation"
-            and params.get("j_vwap_cont_strike_override_enabled")):
-        _off_key = "j_vwap_cont_strike_offset_bold" if account == "bold" else "j_vwap_cont_strike_offset_safe"
+    _sov = _SETUP_STRIKE_OVERRIDES.get(str(setup_name or "").lower())
+    if _sov and params.get(_sov[0]):
+        _off_key = _sov[2] if account == "bold" else _sov[1]
         try:
             _off = int(params.get(_off_key, 0))
         except (TypeError, ValueError):
@@ -942,8 +997,15 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     if not getattr(decision, "allowed", False):
         return {"status": f"RISK_DENY_{getattr(decision,'code','?')}", "reason": getattr(decision, "reason", ""),
                 "symbol": symbol, "qty": qty, "premium": mid}
-    tp = round(mid * (1 + float(params.get("tp1_premium_pct", 0.30))), 2)
-    stop = round(mid * (1 - 0.50), 2)  # -50% catastrophe cap (chart-stop is a v2 enhancement)
+    # TRADE-TO-LEARN (2026-07-01): per-setup ISOLATED exit knobs — an armed extra setup
+    # trades ITS validated stop/TP1 (see _SETUP_EXIT_OVERRIDES); every other setup keeps
+    # the global knobs byte-identical (-50% catastrophe cap; chart-stop is a v2 enhancement).
+    _xov = _SETUP_EXIT_OVERRIDES.get(str(setup_name or "").lower())
+    _tp1_pct = (_params_float(params, _xov["tp1"], 0.30) if _xov
+                else float(params.get("tp1_premium_pct", 0.30)))
+    _stop_pct = _params_float(params, _xov["stop"], -0.50) if _xov else -0.50
+    tp = round(mid * (1 + _tp1_pct), 2)
+    stop = round(mid * (1 + _stop_pct), 2)
     plan = {"status": "WOULD_PLACE" if dry else "PLACING", "symbol": symbol, "side": side,
             "strike": strike, "qty": qty, "premium": mid, "tp": tp, "stop": stop, "equity": equity,
             # quality fields persisted so the NEXT tick's quality-lock can read prior_quality
@@ -979,12 +1041,22 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     if CORE_MANAGES_EXITS and plan["status"] == "PLACED":
         try:
             import exit_actuator as _ea  # noqa: PLC0415
-            try:
-                import strategies as _strat  # noqa: PLC0415
-                _s = _strat.by_name("ribbon_ride")
-                _shape = _s.exit.to_dict() if _s else None
-            except Exception:
-                _shape = None
+            if _xov is not None:
+                # TRADE-TO-LEARN (2026-07-01): the exit_manager runs the setup's ISOLATED
+                # validated shape (same _stop_pct/_tp1_pct as the plan above), never the
+                # generic ribbon_ride shape — the stop IS part of the validated cell.
+                _shape = {"premium_stop_pct": _stop_pct, "tp1_premium_pct": _tp1_pct,
+                          "tp1_qty_fraction": float(params.get("tp1_qty_fraction", 0.667)),
+                          "profit_lock_mode": "fixed"}
+                if _xov.get("runner"):
+                    _shape["runner_target_pct"] = _params_float(params, _xov["runner"], 2.5)
+            else:
+                try:
+                    import strategies as _strat  # noqa: PLC0415
+                    _s = _strat.by_name("ribbon_ride")
+                    _shape = _s.exit.to_dict() if _s else None
+                except Exception:
+                    _shape = None
             if _shape is None:  # fallback to the placed bracket's own pcts
                 _shape = {"premium_stop_pct": -0.50, "tp1_premium_pct": float(params.get("tp1_premium_pct", 0.30)),
                           "tp1_qty_fraction": float(params.get("tp1_qty_fraction", 0.667)),
@@ -1034,8 +1106,18 @@ def _extra_exec_armed(params: dict, setup_name: "str | None") -> bool:
 
 def _route_extra_setups(account: str, extra: list, payload: dict, params: dict) -> list:
     """Route fired + exec-armed extra-setup signals through the SAME _execute path as the
-    ribbon verdict. Returns a list of {setup, action, ...} ledger outcomes. Never raises."""
+    ribbon verdict. Returns a list of {setup, action, ...} ledger outcomes. Never raises.
+
+    ONE ENTRY PER TICK (2026-07-01, trade-to-learn hardening): with 4 setups armed, two
+    rows can fire on the SAME tick (the reclaim/dayside families share trend days; db is
+    the opposite side of a below-VWAP day). _execute's flat-verify reads POSITIONS, not
+    working orders, so two same-tick placements would both pass it and could fill 3P+3C
+    simultaneously — violating one-position-at-a-time. First placement wins the tick;
+    later fired rows log SKIP_TICK_ENTRY_TAKEN (they re-fire on a later tick only if
+    still the current-bar signal, which the watchers' current-bar guards enforce)."""
     out: list = []
+    placed_this_tick = False
+    _TAKEN = {"PLACED", "PLACING", "WOULD_PLACE"}
     for row in extra or []:
         sv = _synthetic_verdict_from_extra(row)
         if sv is None:
@@ -1043,6 +1125,9 @@ def _route_extra_setups(account: str, extra: list, payload: dict, params: dict) 
         setup = sv.get("setup_name")
         if not _extra_exec_armed(params, setup):
             out.append({"setup": setup, "action": "WATCH_NOT_ARMED"})
+            continue
+        if placed_this_tick:
+            out.append({"setup": setup, "action": "SKIP_TICK_ENTRY_TAKEN"})
             continue
         try:
             ev = _free_model_eval(account, payload, sv)
@@ -1054,6 +1139,8 @@ def _route_extra_setups(account: str, extra: list, payload: dict, params: dict) 
                 continue
             ex = _execute(account, sv, payload, params, dry=not ARMED)
             out.append({"setup": setup, "action": ex.get("status"), "exec": ex})
+            if ex.get("status") in _TAKEN:
+                placed_this_tick = True
         except Exception as e:  # noqa: BLE001 — never crash the tick
             out.append({"setup": setup, "action": "EXTRA_EXEC_ERROR", "err": str(e)[:120]})
     return out

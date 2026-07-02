@@ -194,20 +194,29 @@ class TestAllFlagsOff:
             "If disabling, record the reason in recency-confirmation.json first."
         )
 
-    def test_real_params_dormant_setups_are_off(self) -> None:
-        """Guard: the REAL params.json has recency-held setups DISABLED."""
+    def test_real_params_trade_to_learn_setups_are_on(self) -> None:
+        """Guard: the REAL params.json has the trade-to-learn setups ENABLED (Safe paper).
+
+        History: until 2026-07-01 this pinned both flags FALSE (recency-RED hold + missing
+        vix_intraday feed). J's 2026-07-01 trade-to-learn ratification supersedes the hold
+        for PAPER (strict recency gates apply to live money only) and the vix_intraday
+        feed is wired + verified (test_g6_vix_intraday_feed.py). The pin now points the
+        other way, so a silent un-arming regression REDs here. Full validated-cell pins:
+        backtest/tests/test_trade_to_learn_2026_07_01.py.
+        """
         params_path = REPO / "automation" / "state" / "params.json"
         params = json.loads(params_path.read_text(encoding="utf-8"))
-        # These are dormant due to recency RED / no vix_intraday feed.
-        # If they're flipped ON without a hold note, the test_validated_setups_enabled
-        # guards would catch it too. This is belt-and-suspenders.
-        assert params.get("j_vwap_reclaim_fb_enabled", False) is False, (
-            "j_vwap_reclaim_fb_enabled must be False in params.json — recency book is RED. "
-            "Enable only after the recency-confirmation book turns CONFIRM/YELLOW."
+        assert params.get("j_vwap_reclaim_fb_enabled") is True, (
+            "j_vwap_reclaim_fb_enabled must be True — armed on Safe paper 2026-07-01 "
+            "(trade-to-learn, validated ATM rescue cell). If disarming, record why."
         )
-        assert params.get("j_vix_dayside_enabled", False) is False, (
-            "j_vix_dayside_enabled must be False in params.json — recency book is RED. "
-            "Enable only after vix_intraday feed is wired in heartbeat_core.py."
+        assert params.get("j_vix_dayside_enabled") is True, (
+            "j_vix_dayside_enabled must be True — armed on Safe paper 2026-07-01 "
+            "(trade-to-learn, validated ATM cell; G6 feed wired). If disarming, record why."
+        )
+        assert params.get("db_base_quiet_enabled") is True, (
+            "db_base_quiet_enabled must be True — armed on Safe paper 2026-07-01 "
+            "(trade-to-learn, best clearing cell of edgehunt-double_bottom_base_quiet)."
         )
 
 
