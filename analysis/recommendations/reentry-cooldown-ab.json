@@ -1,0 +1,322 @@
+{
+  "rule_id": "reentry-cooldown-ab",
+  "run_date": "2026-07-02",
+  "question": "would a per-setup cooldown after a premium-stop exit (grid [5, 10, 15, 30] min) have net-positive expectancy impact?",
+  "context": "evidence run mandated by the 2026-07-02 re-entry-lock deletion (J directive) + same-day vwap_continuation churn; per new doctrine no gate ships without evidence",
+  "live_ledger_30d": {
+    "grid": {
+      "0": {
+        "n_kept": 6,
+        "n_suppressed": 4,
+        "kept_pnl": -388.0,
+        "suppressed_pnl": -27.0,
+        "pnl_delta_vs_no_cooldown": 0.0
+      },
+      "5": {
+        "n_kept": 5,
+        "n_suppressed": 5,
+        "kept_pnl": -310.0,
+        "suppressed_pnl": -105.0,
+        "pnl_delta_vs_no_cooldown": 78.0
+      },
+      "10": {
+        "n_kept": 5,
+        "n_suppressed": 5,
+        "kept_pnl": -310.0,
+        "suppressed_pnl": -105.0,
+        "pnl_delta_vs_no_cooldown": 78.0
+      },
+      "15": {
+        "n_kept": 5,
+        "n_suppressed": 5,
+        "kept_pnl": -310.0,
+        "suppressed_pnl": -105.0,
+        "pnl_delta_vs_no_cooldown": 78.0
+      },
+      "30": {
+        "n_kept": 5,
+        "n_suppressed": 5,
+        "kept_pnl": -310.0,
+        "suppressed_pnl": -105.0,
+        "pnl_delta_vs_no_cooldown": 78.0
+      }
+    },
+    "n_round_trips": 11,
+    "trades": [
+      {
+        "account": "bold",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "entry_ts": "2026-06-26T14:53:10",
+        "exit_ts": "2026-06-26T14:56:04",
+        "exit_stage": "premium_stop",
+        "entry_px": 0.21,
+        "exit_px": 0.17,
+        "qty": 5,
+        "pnl": -20.0
+      },
+      {
+        "account": "safe",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "entry_ts": "2026-07-02T09:30:03",
+        "exit_ts": "2026-07-02T09:31:03",
+        "exit_stage": "premium_stop",
+        "entry_px": 1.33,
+        "exit_px": 1.06,
+        "qty": 3,
+        "pnl": -81.0
+      },
+      {
+        "account": "bold",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "entry_ts": "2026-07-02T09:30:38",
+        "exit_ts": "2026-07-02T09:32:04",
+        "exit_stage": "premium_stop",
+        "entry_px": 0.49,
+        "exit_px": 0.39,
+        "qty": 5,
+        "pnl": -50.0
+      },
+      {
+        "account": "safe",
+        "setup": "vwap_continuation",
+        "entry_ts": "2026-07-02T09:55:03",
+        "exit_ts": "2026-07-02T10:21:03",
+        "exit_stage": "premium_stop",
+        "entry_px": 1.68,
+        "exit_px": 1.43,
+        "qty": 3,
+        "pnl": -75.0
+      },
+      {
+        "account": "safe",
+        "setup": "vwap_continuation",
+        "entry_ts": "2026-07-02T09:57:03",
+        "exit_ts": "2026-07-02T09:57:03",
+        "exit_stage": "premium_stop",
+        "entry_px": 1.69,
+        "exit_px": 1.55,
+        "qty": 3,
+        "pnl": -42.0
+      },
+      {
+        "account": "safe",
+        "setup": "vwap_continuation",
+        "entry_ts": "2026-07-02T10:11:03",
+        "exit_ts": "2026-07-02T10:11:03",
+        "exit_stage": "premium_stop",
+        "entry_px": 1.55,
+        "exit_px": 1.55,
+        "qty": 3,
+        "pnl": 0.0
+      },
+      {
+        "account": "safe",
+        "setup": "vwap_continuation",
+        "entry_ts": "2026-07-02T10:21:03",
+        "exit_ts": "2026-07-02T10:27:03",
+        "exit_stage": "premium_stop",
+        "entry_px": 0.99,
+        "exit_px": 0.73,
+        "qty": 3,
+        "pnl": -78.0
+      },
+      {
+        "account": "safe",
+        "setup": "vwap_continuation",
+        "entry_ts": "2026-07-02T10:22:03",
+        "exit_ts": "2026-07-02T10:22:03",
+        "exit_stage": "premium_stop",
+        "entry_px": 0.88,
+        "exit_px": 0.91,
+        "qty": 3,
+        "pnl": 9.0
+      },
+      {
+        "account": "safe",
+        "setup": "vwap_continuation",
+        "entry_ts": "2026-07-02T10:25:03",
+        "exit_ts": "2026-07-02T10:25:03",
+        "exit_stage": "premium_stop",
+        "entry_px": 0.79,
+        "exit_px": 0.81,
+        "qty": 3,
+        "pnl": 6.0
+      },
+      {
+        "account": "safe",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "entry_ts": "2026-07-02T12:51:03",
+        "exit_ts": "2026-07-02T14:29:03",
+        "exit_stage": "premium_stop",
+        "entry_px": 1.4,
+        "exit_px": 1.12,
+        "qty": 3,
+        "pnl": -84.0
+      },
+      {
+        "account": "bold",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "entry_ts": "2026-07-02T12:51:14",
+        "exit_ts": "2026-07-02T13:05:05",
+        "exit_stage": "tp1",
+        "entry_px": 0.43,
+        "exit_px": null,
+        "qty": 5,
+        "pnl": null
+      }
+    ]
+  },
+  "backtest_real_fills": {
+    "window": "2025-01-02..2026-05-15",
+    "n_days": 342,
+    "n_trigger_bars": 961,
+    "cells": {
+      "ATM_stop8_prod_safe": {
+        "0": {
+          "n_trades": 254,
+          "total_pnl": 7709.76,
+          "exp_per_trade": 30.35,
+          "n_premium_stops": 145,
+          "n_suppressed": 0,
+          "suppressed_pnl_would_have_been": 0,
+          "oos_2026_n": 73,
+          "oos_2026_pnl": 2909.08,
+          "oos_exp": 39.85,
+          "pnl_delta_vs_no_cooldown": 0.0,
+          "oos_delta_vs_no_cooldown": 0.0
+        },
+        "5": {
+          "n_trades": 233,
+          "total_pnl": 6962.72,
+          "exp_per_trade": 29.88,
+          "n_premium_stops": 131,
+          "n_suppressed": 55,
+          "suppressed_pnl_would_have_been": 780.4,
+          "oos_2026_n": 67,
+          "oos_2026_pnl": 2794.68,
+          "oos_exp": 41.71,
+          "pnl_delta_vs_no_cooldown": -747.04,
+          "oos_delta_vs_no_cooldown": -114.4
+        },
+        "10": {
+          "n_trades": 209,
+          "total_pnl": 7136.24,
+          "exp_per_trade": 34.14,
+          "n_premium_stops": 111,
+          "n_suppressed": 95,
+          "suppressed_pnl_would_have_been": 35.76,
+          "oos_2026_n": 57,
+          "oos_2026_pnl": 2307.36,
+          "oos_exp": 40.48,
+          "pnl_delta_vs_no_cooldown": -573.52,
+          "oos_delta_vs_no_cooldown": -601.72
+        },
+        "15": {
+          "n_trades": 203,
+          "total_pnl": 7132.52,
+          "exp_per_trade": 35.14,
+          "n_premium_stops": 110,
+          "n_suppressed": 126,
+          "suppressed_pnl_would_have_been": 222.36,
+          "oos_2026_n": 57,
+          "oos_2026_pnl": 2223.44,
+          "oos_exp": 39.01,
+          "pnl_delta_vs_no_cooldown": -577.24,
+          "oos_delta_vs_no_cooldown": -685.64
+        },
+        "30": {
+          "n_trades": 183,
+          "total_pnl": 7312.28,
+          "exp_per_trade": 39.96,
+          "n_premium_stops": 93,
+          "n_suppressed": 188,
+          "suppressed_pnl_would_have_been": -255.96,
+          "oos_2026_n": 53,
+          "oos_2026_pnl": 2395.52,
+          "oos_exp": 45.2,
+          "pnl_delta_vs_no_cooldown": -397.48,
+          "oos_delta_vs_no_cooldown": -513.56
+        }
+      },
+      "ITM2_stop8_edgehunt_best": {
+        "0": {
+          "n_trades": 243,
+          "total_pnl": 13024.48,
+          "exp_per_trade": 53.6,
+          "n_premium_stops": 136,
+          "n_suppressed": 0,
+          "suppressed_pnl_would_have_been": 0,
+          "oos_2026_n": 68,
+          "oos_2026_pnl": 5396.84,
+          "oos_exp": 79.37,
+          "pnl_delta_vs_no_cooldown": 0.0,
+          "oos_delta_vs_no_cooldown": 0.0
+        },
+        "5": {
+          "n_trades": 226,
+          "total_pnl": 11894.84,
+          "exp_per_trade": 52.63,
+          "n_premium_stops": 127,
+          "n_suppressed": 50,
+          "suppressed_pnl_would_have_been": 137.12,
+          "oos_2026_n": 64,
+          "oos_2026_pnl": 4876.08,
+          "oos_exp": 76.19,
+          "pnl_delta_vs_no_cooldown": -1129.64,
+          "oos_delta_vs_no_cooldown": -520.76
+        },
+        "10": {
+          "n_trades": 204,
+          "total_pnl": 12761.56,
+          "exp_per_trade": 62.56,
+          "n_premium_stops": 107,
+          "n_suppressed": 81,
+          "suppressed_pnl_would_have_been": -1728.68,
+          "oos_2026_n": 56,
+          "oos_2026_pnl": 4904.36,
+          "oos_exp": 87.58,
+          "pnl_delta_vs_no_cooldown": -262.92,
+          "oos_delta_vs_no_cooldown": -492.48
+        },
+        "15": {
+          "n_trades": 201,
+          "total_pnl": 12787.72,
+          "exp_per_trade": 63.62,
+          "n_premium_stops": 108,
+          "n_suppressed": 112,
+          "suppressed_pnl_would_have_been": -654.72,
+          "oos_2026_n": 56,
+          "oos_2026_pnl": 4962.88,
+          "oos_exp": 88.62,
+          "pnl_delta_vs_no_cooldown": -236.76,
+          "oos_delta_vs_no_cooldown": -433.96
+        },
+        "30": {
+          "n_trades": 181,
+          "total_pnl": 13198.52,
+          "exp_per_trade": 72.92,
+          "n_premium_stops": 91,
+          "n_suppressed": 171,
+          "suppressed_pnl_would_have_been": -54.96,
+          "oos_2026_n": 51,
+          "oos_2026_pnl": 5190.68,
+          "oos_exp": 101.78,
+          "pnl_delta_vs_no_cooldown": 174.04,
+          "oos_delta_vs_no_cooldown": -206.16
+        }
+      }
+    },
+    "method": "sequential position-exclusive replay of ALL detector trigger bars through simulate_trade_real (real OPRA fills); cooldown blocks same-setup re-entry within c min of a premium-stop exit; c=0 == the post-lock-deletion engine"
+  },
+  "verdict": {
+    "ship_worthy": false,
+    "best_cooldown_min": null,
+    "mean_pnl_delta_at_best": null,
+    "live_agrees_in_sign": null
+  },
+  "DISCLOSURE": {
+    "sources_not_blended": "live (tiny N, anecdote-grade) and backtest reported separately",
+    "detector_caveat": "backtest part relaxes the ratified one-entry/day detector to all trigger bars to model live re-fire behavior \u2014 that relaxed surface is itself unvalidated; deltas are RELATIVE within it",
+    "expectancy_not_wr": "deltas are $ P&L and per-trade expectancy, never WR alone"
+  }
+}
