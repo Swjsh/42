@@ -1,0 +1,1043 @@
+{
+  "family": "vwap_continuation",
+  "run_date": "2026-07-01",
+  "purpose": "EXIT PARITY A/B (C29/L149): the armed Safe config matches no validated cell. Head-to-head on the SAME signals/window as edgehunt-vwap_continuation.json (2026-06-20).",
+  "window": "2025-01-01..2026-05-15",
+  "n_signals": 158,
+  "armed_actual_disclosure": "CODE-VERIFIED armed exit shape: heartbeat_core._execute registers vwap_continuation fills with exit_manager using strategies.ribbon_ride.exit (stop -0.20 / TP1 +150% sell 80% / runner 2.5x / profit-lock FIXED arm +5% BE floor) because _SETUP_EXIT_OVERRIDES omits it. The judge-described hybrid (-0.50/tp1 0.30/global trail) is the _execute PLAN annotation, not the managing shape; both are simmed.",
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1)",
+  "oos_split": "IS=2025 / OOS=2026 (calendar-year)",
+  "gate_definitions": {
+    "OOS_positive": "OOS per-trade expectancy > 0",
+    "WF_ge_0.70": "OOS_exp / IS_exp >= 0.70 (IS_exp must be > 0)",
+    "sub_window_stable": "fraction of quarters positive >= 0.6",
+    "anchor_no_regression": "OP-16 edge_capture on J's 6 anchor dates >= the armed-actual cell's (vacuous-true if the family fires on none of them)"
+  },
+  "cells": {
+    "validated_itm2_stop8": {
+      "role": "reference (best_base_cell_by_oos_exp)",
+      "strike_offset": -2,
+      "exit_shape": {
+        "premium_stop_pct": -0.08,
+        "tp1_premium_pct": 0.3,
+        "runner_target_premium_pct": 2.5
+      },
+      "cap_aware": false,
+      "coverage": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 0,
+        "fill_rate": 0.943,
+        "median_entry_premium": 2.5
+      },
+      "metrics": {
+        "n": 149,
+        "wr_pct": 51.7,
+        "exp_dollar": 78.29,
+        "total_dollar": 11665.56,
+        "is_n": 107,
+        "is_exp": 67.56,
+        "is_total": 7229.4,
+        "oos_n": 42,
+        "oos_exp": 105.62,
+        "oos_total": 4436.16,
+        "quarters": {
+          "2025Q1": {
+            "n": 25,
+            "exp": 84.93,
+            "total": 2123.32
+          },
+          "2025Q2": {
+            "n": 23,
+            "exp": 35.67,
+            "total": 820.32
+          },
+          "2025Q3": {
+            "n": 26,
+            "exp": 23.37,
+            "total": 607.52
+          },
+          "2025Q4": {
+            "n": 33,
+            "exp": 111.46,
+            "total": 3678.24
+          },
+          "2026Q1": {
+            "n": 26,
+            "exp": 159.58,
+            "total": 4149.12
+          },
+          "2026Q2": {
+            "n": 16,
+            "exp": 17.94,
+            "total": 287.04
+          }
+        },
+        "positive_quarters": "6/6",
+        "positive_quarters_n": 6,
+        "n_quarters": 6,
+        "top5_day_pct": 20.6,
+        "by_side": {
+          "C": {
+            "n": 82,
+            "exp": 84.07,
+            "wr": 53.7,
+            "total": 6893.4
+          },
+          "P": {
+            "n": 67,
+            "exp": 71.23,
+            "wr": 49.3,
+            "total": 4772.16
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 2,
+          "EXIT_ALL_PREMIUM_STOP": 72,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 22,
+          "EXIT_ALL_TIME_STOP": 2,
+          "TP1_THEN_RUNNER_RIBBON": 35,
+          "TP1_THEN_RUNNER_TIME": 16
+        }
+      },
+      "anchor": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 99.48,
+        "loser_day_pnl": 215.76,
+        "edge_capture": 30.84
+      },
+      "clears_candidate_bar": true,
+      "clears_candidate_bar_fails": [],
+      "gates": {
+        "OOS_positive": true,
+        "WF": 1.563,
+        "WF_ge_0.70": true,
+        "sub_window_positive_fraction": 1.0,
+        "sub_window_stable": true,
+        "anchor_no_regression": true,
+        "anchor_detail": "cell edge_capture 30.84 vs armed -97.2",
+        "ALL_PASS": true
+      },
+      "delta_vs_armed_actual": {
+        "exp_dollar": 23.82,
+        "oos_exp": 19.6,
+        "total_dollar": 3550.16
+      }
+    },
+    "validated_itm2_stop8_capaware_safe2": {
+      "role": "affordability probe @ Safe-2",
+      "strike_offset": -2,
+      "exit_shape": {
+        "premium_stop_pct": -0.08,
+        "tp1_premium_pct": 0.3,
+        "runner_target_premium_pct": 2.5
+      },
+      "cap_aware": true,
+      "coverage": {
+        "signals": 158,
+        "filled": 21,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 128,
+        "fill_rate": 0.133,
+        "median_entry_premium": 1.5
+      },
+      "metrics": {
+        "n": 21,
+        "wr_pct": 90.5,
+        "exp_dollar": 228.39,
+        "total_dollar": 4796.2,
+        "is_n": 13,
+        "is_exp": 191.74,
+        "is_total": 2492.68,
+        "oos_n": 8,
+        "oos_exp": 287.94,
+        "oos_total": 2303.52,
+        "quarters": {
+          "2025Q1": {
+            "n": 2,
+            "exp": 95.94,
+            "total": 191.88
+          },
+          "2025Q2": {
+            "n": 1,
+            "exp": 83.4,
+            "total": 83.4
+          },
+          "2025Q4": {
+            "n": 10,
+            "exp": 221.74,
+            "total": 2217.4
+          },
+          "2026Q1": {
+            "n": 8,
+            "exp": 287.94,
+            "total": 2303.52
+          }
+        },
+        "positive_quarters": "4/4",
+        "positive_quarters_n": 4,
+        "n_quarters": 4,
+        "top5_day_pct": 42.9,
+        "by_side": {
+          "C": {
+            "n": 10,
+            "exp": 262.46,
+            "wr": 100.0,
+            "total": 2624.6
+          },
+          "P": {
+            "n": 11,
+            "exp": 197.42,
+            "wr": 81.8,
+            "total": 2171.6
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_PREMIUM_STOP": 2,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 7,
+          "EXIT_ALL_TIME_STOP": 1,
+          "TP1_THEN_RUNNER_RIBBON": 6,
+          "TP1_THEN_RUNNER_TIME": 5
+        }
+      },
+      "anchor": {
+        "anchor_signals": 0,
+        "edge_capture": null,
+        "note": "no vwap_continuation signals on J's 6 anchor dates -> vacuous"
+      },
+      "clears_candidate_bar": true,
+      "clears_candidate_bar_fails": [],
+      "gates": {
+        "OOS_positive": true,
+        "WF": 1.502,
+        "WF_ge_0.70": true,
+        "sub_window_positive_fraction": 1.0,
+        "sub_window_stable": true,
+        "anchor_no_regression": false,
+        "anchor_detail": "anchor coverage differs between cells",
+        "ALL_PASS": false
+      },
+      "delta_vs_armed_actual": {
+        "exp_dollar": 173.92,
+        "oos_exp": 201.92,
+        "total_dollar": -3319.2
+      }
+    },
+    "headline_atm_chartstop": {
+      "role": "reference (headline)",
+      "strike_offset": 0,
+      "exit_shape": {
+        "premium_stop_pct": -0.99,
+        "tp1_premium_pct": 0.3,
+        "runner_target_premium_pct": 2.5
+      },
+      "cap_aware": false,
+      "coverage": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 0,
+        "fill_rate": 0.943,
+        "median_entry_premium": 1.35
+      },
+      "metrics": {
+        "n": 149,
+        "wr_pct": 78.5,
+        "exp_dollar": 46.15,
+        "total_dollar": 6876.8,
+        "is_n": 107,
+        "is_exp": 44.31,
+        "is_total": 4741.4,
+        "oos_n": 42,
+        "oos_exp": 50.84,
+        "oos_total": 2135.4,
+        "quarters": {
+          "2025Q1": {
+            "n": 25,
+            "exp": 101.2,
+            "total": 2530.0
+          },
+          "2025Q2": {
+            "n": 23,
+            "exp": -10.51,
+            "total": -241.8
+          },
+          "2025Q3": {
+            "n": 26,
+            "exp": 12.43,
+            "total": 323.2
+          },
+          "2025Q4": {
+            "n": 33,
+            "exp": 64.55,
+            "total": 2130.0
+          },
+          "2026Q1": {
+            "n": 26,
+            "exp": 92.95,
+            "total": 2416.6
+          },
+          "2026Q2": {
+            "n": 16,
+            "exp": -17.57,
+            "total": -281.2
+          }
+        },
+        "positive_quarters": "4/6",
+        "positive_quarters_n": 4,
+        "n_quarters": 6,
+        "top5_day_pct": 32.6,
+        "by_side": {
+          "C": {
+            "n": 82,
+            "exp": 34.45,
+            "wr": 79.3,
+            "total": 2825.2
+          },
+          "P": {
+            "n": 67,
+            "exp": 60.47,
+            "wr": 77.6,
+            "total": 4051.6
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 18,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 42,
+          "EXIT_ALL_TIME_STOP": 2,
+          "TP1_THEN_RUNNER_RIBBON": 67,
+          "TP1_THEN_RUNNER_TIME": 20
+        }
+      },
+      "anchor": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 173.4,
+        "loser_day_pnl": -193.2,
+        "edge_capture": -183.6
+      },
+      "clears_candidate_bar": true,
+      "clears_candidate_bar_fails": [],
+      "gates": {
+        "OOS_positive": true,
+        "WF": 1.147,
+        "WF_ge_0.70": true,
+        "sub_window_positive_fraction": 0.667,
+        "sub_window_stable": true,
+        "anchor_no_regression": false,
+        "anchor_detail": "cell edge_capture -183.6 vs armed -97.2",
+        "ALL_PASS": false
+      },
+      "delta_vs_armed_actual": {
+        "exp_dollar": -8.32,
+        "oos_exp": -35.18,
+        "total_dollar": -1238.6
+      }
+    },
+    "validated_atm_stop8": {
+      "role": "reference (best ATM base cell)",
+      "strike_offset": 0,
+      "exit_shape": {
+        "premium_stop_pct": -0.08,
+        "tp1_premium_pct": 0.3,
+        "runner_target_premium_pct": 2.5
+      },
+      "cap_aware": false,
+      "coverage": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 0,
+        "fill_rate": 0.943,
+        "median_entry_premium": 1.35
+      },
+      "metrics": {
+        "n": 149,
+        "wr_pct": 51.7,
+        "exp_dollar": 48.33,
+        "total_dollar": 7200.6,
+        "is_n": 107,
+        "is_exp": 43.82,
+        "is_total": 4688.68,
+        "oos_n": 42,
+        "oos_exp": 59.81,
+        "oos_total": 2511.92,
+        "quarters": {
+          "2025Q1": {
+            "n": 25,
+            "exp": 88.06,
+            "total": 2201.56
+          },
+          "2025Q2": {
+            "n": 23,
+            "exp": 28.91,
+            "total": 664.84
+          },
+          "2025Q3": {
+            "n": 26,
+            "exp": 15.34,
+            "total": 398.8
+          },
+          "2025Q4": {
+            "n": 33,
+            "exp": 43.14,
+            "total": 1423.48
+          },
+          "2026Q1": {
+            "n": 26,
+            "exp": 89.01,
+            "total": 2314.32
+          },
+          "2026Q2": {
+            "n": 16,
+            "exp": 12.35,
+            "total": 197.6
+          }
+        },
+        "positive_quarters": "6/6",
+        "positive_quarters_n": 6,
+        "n_quarters": 6,
+        "top5_day_pct": 28.3,
+        "by_side": {
+          "C": {
+            "n": 82,
+            "exp": 44.83,
+            "wr": 53.7,
+            "total": 3676.28
+          },
+          "P": {
+            "n": 67,
+            "exp": 52.6,
+            "wr": 49.3,
+            "total": 3524.32
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 2,
+          "EXIT_ALL_PREMIUM_STOP": 71,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 22,
+          "EXIT_ALL_TIME_STOP": 1,
+          "TP1_THEN_RUNNER_RIBBON": 42,
+          "TP1_THEN_RUNNER_TIME": 11
+        }
+      },
+      "anchor": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 47.4,
+        "loser_day_pnl": 124.92,
+        "edge_capture": 8.52
+      },
+      "clears_candidate_bar": true,
+      "clears_candidate_bar_fails": [],
+      "gates": {
+        "OOS_positive": true,
+        "WF": 1.365,
+        "WF_ge_0.70": true,
+        "sub_window_positive_fraction": 1.0,
+        "sub_window_stable": true,
+        "anchor_no_regression": true,
+        "anchor_detail": "cell edge_capture 8.52 vs armed -97.2",
+        "ALL_PASS": true
+      },
+      "delta_vs_armed_actual": {
+        "exp_dollar": -6.14,
+        "oos_exp": -26.21,
+        "total_dollar": -914.8
+      }
+    },
+    "validated_atm_stop50": {
+      "role": "reference (ATM catastrophe-cap cell)",
+      "strike_offset": 0,
+      "exit_shape": {
+        "premium_stop_pct": -0.5,
+        "tp1_premium_pct": 0.3,
+        "runner_target_premium_pct": 2.5
+      },
+      "cap_aware": false,
+      "coverage": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 0,
+        "fill_rate": 0.943,
+        "median_entry_premium": 1.35
+      },
+      "metrics": {
+        "n": 149,
+        "wr_pct": 74.5,
+        "exp_dollar": 42.49,
+        "total_dollar": 6330.5,
+        "is_n": 107,
+        "is_exp": 36.62,
+        "is_total": 3918.5,
+        "oos_n": 42,
+        "oos_exp": 57.43,
+        "oos_total": 2412.0,
+        "quarters": {
+          "2025Q1": {
+            "n": 25,
+            "exp": 60.66,
+            "total": 1516.6
+          },
+          "2025Q2": {
+            "n": 23,
+            "exp": 23.33,
+            "total": 536.7
+          },
+          "2025Q3": {
+            "n": 26,
+            "exp": 16.6,
+            "total": 431.5
+          },
+          "2025Q4": {
+            "n": 33,
+            "exp": 43.45,
+            "total": 1433.7
+          },
+          "2026Q1": {
+            "n": 26,
+            "exp": 80.39,
+            "total": 2090.2
+          },
+          "2026Q2": {
+            "n": 16,
+            "exp": 20.11,
+            "total": 321.8
+          }
+        },
+        "positive_quarters": "6/6",
+        "positive_quarters_n": 6,
+        "n_quarters": 6,
+        "top5_day_pct": 35.4,
+        "by_side": {
+          "C": {
+            "n": 82,
+            "exp": 31.34,
+            "wr": 74.4,
+            "total": 2569.9
+          },
+          "P": {
+            "n": 67,
+            "exp": 56.13,
+            "wr": 74.6,
+            "total": 3760.6
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 5,
+          "EXIT_ALL_PREMIUM_STOP": 24,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 38,
+          "EXIT_ALL_TIME_STOP": 1,
+          "TP1_THEN_RUNNER_RIBBON": 64,
+          "TP1_THEN_RUNNER_TIME": 17
+        }
+      },
+      "anchor": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 173.4,
+        "loser_day_pnl": -79.2,
+        "edge_capture": -69.6
+      },
+      "clears_candidate_bar": true,
+      "clears_candidate_bar_fails": [],
+      "gates": {
+        "OOS_positive": true,
+        "WF": 1.568,
+        "WF_ge_0.70": true,
+        "sub_window_positive_fraction": 1.0,
+        "sub_window_stable": true,
+        "anchor_no_regression": true,
+        "anchor_detail": "cell edge_capture -69.6 vs armed -97.2",
+        "ALL_PASS": true
+      },
+      "delta_vs_armed_actual": {
+        "exp_dollar": -11.98,
+        "oos_exp": -28.59,
+        "total_dollar": -1784.9
+      }
+    },
+    "armed_hybrid_as_judged": {
+      "role": "armed per judge prose (plan fields)",
+      "strike_offset": 0,
+      "exit_shape": {
+        "premium_stop_pct": -0.5,
+        "tp1_premium_pct": 0.3,
+        "runner_target_premium_pct": 2.5,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "trailing",
+        "profit_lock_trail_pct": 0.125,
+        "profit_lock_threshold_pct": 0.05
+      },
+      "cap_aware": false,
+      "coverage": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 0,
+        "fill_rate": 0.943,
+        "median_entry_premium": 1.35
+      },
+      "metrics": {
+        "n": 149,
+        "wr_pct": 67.1,
+        "exp_dollar": 45.97,
+        "total_dollar": 6848.95,
+        "is_n": 107,
+        "is_exp": 41.42,
+        "is_total": 4432.1,
+        "oos_n": 42,
+        "oos_exp": 57.54,
+        "oos_total": 2416.85,
+        "quarters": {
+          "2025Q1": {
+            "n": 25,
+            "exp": 61.09,
+            "total": 1527.36
+          },
+          "2025Q2": {
+            "n": 23,
+            "exp": 30.65,
+            "total": 704.99
+          },
+          "2025Q3": {
+            "n": 26,
+            "exp": 33.42,
+            "total": 868.86
+          },
+          "2025Q4": {
+            "n": 33,
+            "exp": 40.33,
+            "total": 1330.89
+          },
+          "2026Q1": {
+            "n": 26,
+            "exp": 94.18,
+            "total": 2448.72
+          },
+          "2026Q2": {
+            "n": 16,
+            "exp": -1.99,
+            "total": -31.87
+          }
+        },
+        "positive_quarters": "5/6",
+        "positive_quarters_n": 5,
+        "n_quarters": 6,
+        "top5_day_pct": 26.5,
+        "by_side": {
+          "C": {
+            "n": 82,
+            "exp": 39.23,
+            "wr": 65.9,
+            "total": 3217.09
+          },
+          "P": {
+            "n": 67,
+            "exp": 54.21,
+            "wr": 68.7,
+            "total": 3631.86
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_PREMIUM_STOP": 142,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 7
+        }
+      },
+      "anchor": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 286.5,
+        "loser_day_pnl": -169.5,
+        "edge_capture": 43.5
+      },
+      "clears_candidate_bar": true,
+      "clears_candidate_bar_fails": [],
+      "gates": {
+        "OOS_positive": true,
+        "WF": 1.389,
+        "WF_ge_0.70": true,
+        "sub_window_positive_fraction": 0.833,
+        "sub_window_stable": true,
+        "anchor_no_regression": true,
+        "anchor_detail": "cell edge_capture 43.5 vs armed -97.2",
+        "ALL_PASS": true
+      },
+      "delta_vs_armed_actual": {
+        "exp_dollar": -8.5,
+        "oos_exp": -28.48,
+        "total_dollar": -1266.45
+      }
+    },
+    "armed_actual_ribbonride_shape": {
+      "role": "ARMED-ACTUAL (exit_manager shape)",
+      "strike_offset": 0,
+      "exit_shape": {
+        "premium_stop_pct": -0.2,
+        "tp1_premium_pct": 1.5,
+        "runner_target_premium_pct": 2.5,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "profit_lock_threshold_pct": 0.05,
+        "profit_lock_stop_offset_pct": 0.0
+      },
+      "cap_aware": false,
+      "coverage": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 0,
+        "fill_rate": 0.943,
+        "median_entry_premium": 1.35
+      },
+      "metrics": {
+        "n": 149,
+        "wr_pct": 22.1,
+        "exp_dollar": 54.47,
+        "total_dollar": 8115.4,
+        "is_n": 107,
+        "is_exp": 42.08,
+        "is_total": 4502.6,
+        "oos_n": 42,
+        "oos_exp": 86.02,
+        "oos_total": 3612.8,
+        "quarters": {
+          "2025Q1": {
+            "n": 25,
+            "exp": 42.83,
+            "total": 1070.8
+          },
+          "2025Q2": {
+            "n": 23,
+            "exp": 69.54,
+            "total": 1599.4
+          },
+          "2025Q3": {
+            "n": 26,
+            "exp": 3.08,
+            "total": 80.2
+          },
+          "2025Q4": {
+            "n": 33,
+            "exp": 53.1,
+            "total": 1752.2
+          },
+          "2026Q1": {
+            "n": 26,
+            "exp": 140.08,
+            "total": 3642.0
+          },
+          "2026Q2": {
+            "n": 16,
+            "exp": -1.83,
+            "total": -29.2
+          }
+        },
+        "positive_quarters": "5/6",
+        "positive_quarters_n": 5,
+        "n_quarters": 6,
+        "top5_day_pct": 47.2,
+        "by_side": {
+          "C": {
+            "n": 82,
+            "exp": 55.62,
+            "wr": 23.2,
+            "total": 4561.2
+          },
+          "P": {
+            "n": 67,
+            "exp": 53.05,
+            "wr": 20.9,
+            "total": 3554.2
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 1,
+          "EXIT_ALL_PREMIUM_STOP": 113,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 17,
+          "EXIT_ALL_TIME_STOP": 1,
+          "TP1_THEN_RUNNER_RIBBON": 6,
+          "TP1_THEN_RUNNER_TIME": 11
+        }
+      },
+      "anchor": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 0.0,
+        "loser_day_pnl": -97.2,
+        "edge_capture": -97.2
+      },
+      "clears_candidate_bar": true,
+      "clears_candidate_bar_fails": [],
+      "gates": {
+        "OOS_positive": true,
+        "WF": 2.044,
+        "WF_ge_0.70": true,
+        "sub_window_positive_fraction": 0.833,
+        "sub_window_stable": true,
+        "anchor_no_regression": true,
+        "anchor_detail": "cell edge_capture -97.2 vs armed -97.2",
+        "ALL_PASS": true
+      },
+      "delta_vs_armed_actual": {
+        "exp_dollar": 0.0,
+        "oos_exp": 0.0,
+        "total_dollar": 0.0
+      }
+    },
+    "proposed_live_atm_stop8": {
+      "role": "PROPOSED (validated stop/tp1 in live shape)",
+      "strike_offset": 0,
+      "exit_shape": {
+        "premium_stop_pct": -0.08,
+        "tp1_premium_pct": 0.3,
+        "runner_target_premium_pct": 2.5,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "profit_lock_threshold_pct": 0.05,
+        "profit_lock_stop_offset_pct": 0.0
+      },
+      "cap_aware": false,
+      "coverage": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 0,
+        "fill_rate": 0.943,
+        "median_entry_premium": 1.35
+      },
+      "metrics": {
+        "n": 149,
+        "wr_pct": 36.9,
+        "exp_dollar": 47.27,
+        "total_dollar": 7043.76,
+        "is_n": 107,
+        "is_exp": 39.6,
+        "is_total": 4236.76,
+        "oos_n": 42,
+        "oos_exp": 66.83,
+        "oos_total": 2807.0,
+        "quarters": {
+          "2025Q1": {
+            "n": 25,
+            "exp": 56.45,
+            "total": 1411.24
+          },
+          "2025Q2": {
+            "n": 23,
+            "exp": 53.74,
+            "total": 1235.92
+          },
+          "2025Q3": {
+            "n": 26,
+            "exp": 7.85,
+            "total": 204.04
+          },
+          "2025Q4": {
+            "n": 33,
+            "exp": 41.99,
+            "total": 1385.56
+          },
+          "2026Q1": {
+            "n": 26,
+            "exp": 97.8,
+            "total": 2542.92
+          },
+          "2026Q2": {
+            "n": 16,
+            "exp": 16.51,
+            "total": 264.08
+          }
+        },
+        "positive_quarters": "6/6",
+        "positive_quarters_n": 6,
+        "n_quarters": 6,
+        "top5_day_pct": 29.0,
+        "by_side": {
+          "C": {
+            "n": 82,
+            "exp": 36.9,
+            "wr": 34.1,
+            "total": 3025.64
+          },
+          "P": {
+            "n": 67,
+            "exp": 59.97,
+            "wr": 40.3,
+            "total": 4018.12
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 1,
+          "EXIT_ALL_PREMIUM_STOP": 94,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 13,
+          "EXIT_ALL_TIME_STOP": 1,
+          "TP1_THEN_RUNNER_RIBBON": 29,
+          "TP1_THEN_RUNNER_TIME": 11
+        }
+      },
+      "anchor": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 83.4,
+        "loser_day_pnl": 43.32,
+        "edge_capture": 44.52
+      },
+      "clears_candidate_bar": true,
+      "clears_candidate_bar_fails": [],
+      "gates": {
+        "OOS_positive": true,
+        "WF": 1.688,
+        "WF_ge_0.70": true,
+        "sub_window_positive_fraction": 1.0,
+        "sub_window_stable": true,
+        "anchor_no_regression": true,
+        "anchor_detail": "cell edge_capture 44.52 vs armed -97.2",
+        "ALL_PASS": true
+      },
+      "delta_vs_armed_actual": {
+        "exp_dollar": -7.2,
+        "oos_exp": -19.19,
+        "total_dollar": -1071.64
+      }
+    },
+    "proposed_live_atm_stop50": {
+      "role": "PROPOSED alt (-50 cap kept, tp1 0.30)",
+      "strike_offset": 0,
+      "exit_shape": {
+        "premium_stop_pct": -0.5,
+        "tp1_premium_pct": 0.3,
+        "runner_target_premium_pct": 2.5,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "profit_lock_threshold_pct": 0.05,
+        "profit_lock_stop_offset_pct": 0.0
+      },
+      "cap_aware": false,
+      "coverage": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 0,
+        "fill_rate": 0.943,
+        "median_entry_premium": 1.35
+      },
+      "metrics": {
+        "n": 149,
+        "wr_pct": 36.9,
+        "exp_dollar": 33.63,
+        "total_dollar": 5010.6,
+        "is_n": 107,
+        "is_exp": 26.42,
+        "is_total": 2827.3,
+        "oos_n": 42,
+        "oos_exp": 51.98,
+        "oos_total": 2183.3,
+        "quarters": {
+          "2025Q1": {
+            "n": 25,
+            "exp": 47.14,
+            "total": 1178.5
+          },
+          "2025Q2": {
+            "n": 23,
+            "exp": 47.99,
+            "total": 1103.8
+          },
+          "2025Q3": {
+            "n": 26,
+            "exp": 3.35,
+            "total": 87.1
+          },
+          "2025Q4": {
+            "n": 33,
+            "exp": 13.88,
+            "total": 457.9
+          },
+          "2026Q1": {
+            "n": 26,
+            "exp": 92.28,
+            "total": 2399.4
+          },
+          "2026Q2": {
+            "n": 16,
+            "exp": -13.51,
+            "total": -216.1
+          }
+        },
+        "positive_quarters": "5/6",
+        "positive_quarters_n": 5,
+        "n_quarters": 6,
+        "top5_day_pct": 40.7,
+        "by_side": {
+          "C": {
+            "n": 82,
+            "exp": 27.85,
+            "wr": 34.1,
+            "total": 2283.5
+          },
+          "P": {
+            "n": 67,
+            "exp": 40.7,
+            "wr": 40.3,
+            "total": 2727.1
+          }
+        },
+        "exit_hist": {
+          "EXIT_ALL_LEVEL_STOP": 1,
+          "EXIT_ALL_PREMIUM_STOP": 87,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 20,
+          "EXIT_ALL_TIME_STOP": 1,
+          "TP1_THEN_RUNNER_RIBBON": 29,
+          "TP1_THEN_RUNNER_TIME": 11
+        }
+      },
+      "anchor": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 83.4,
+        "loser_day_pnl": -160.8,
+        "edge_capture": -159.6
+      },
+      "clears_candidate_bar": true,
+      "clears_candidate_bar_fails": [],
+      "gates": {
+        "OOS_positive": true,
+        "WF": 1.967,
+        "WF_ge_0.70": true,
+        "sub_window_positive_fraction": 0.833,
+        "sub_window_stable": true,
+        "anchor_no_regression": false,
+        "anchor_detail": "cell edge_capture -159.6 vs armed -97.2",
+        "ALL_PASS": false
+      },
+      "delta_vs_armed_actual": {
+        "exp_dollar": -20.84,
+        "oos_exp": -34.04,
+        "total_dollar": -3104.8
+      }
+    }
+  },
+  "itm2_affordability_safe2": {
+    "safe2_equity": 1759.0,
+    "per_trade_cap_dollars": 527.7,
+    "qty": 3,
+    "median_entry_premium_itm2": 2.5,
+    "median_notional_qty3": 750.0,
+    "risk_cap_blocked": 128,
+    "block_rate_of_fillable": 0.859,
+    "affordable": false
+  },
+  "verdict": {
+    "winner": "proposed_live_atm_stop8",
+    "ranking": "OP-16: anchor edge_capture PRIMARY, oos_exp tiebreak",
+    "ranked_all_pass_affordable": [
+      "proposed_live_atm_stop8",
+      "armed_hybrid_as_judged",
+      "validated_atm_stop8",
+      "validated_atm_stop50",
+      "armed_actual_ribbonride_shape"
+    ],
+    "reasoning": "The ARMED-ACTUAL ribbon_ride shape posts the best aggregate OOS (+$86.02/tr, WF 2.04) but is a WR-22.1% lotto profile: 76% of trades die at the -20% premium stop, top-5 days carry 47.2% of P&L (C4), the freshest in-window quarter (2026Q2) is NEGATIVE, and J-anchor edge capture is -$97.2 (ZERO winner-day capture) \u2014 the same tp+150%/sell80% family as the killed pk-2026-07-01-001 contender (L182-184). The proposed validated-shape cell (stop -0.08 / tp1 0.30 in the live exit_manager shape) gives up -$19.19/tr aggregate OOS but wins the OP-16 primary metric (+$44.52 anchor capture), is 6/6 quarters positive (2026Q2 +$16.51), halves concentration (29.0%), and lifts WR to 36.9%. Per OP-16 the aggregate is the tiebreaker, not the ranking \u2014 the validated shape wins."
+  },
+  "DISCLOSURE": {
+    "same_signals": "all cells share ONE detector pass \u2014 differences are pure exit/strike shape",
+    "tp1_qty_fraction": "reference cells keep the simulator default 2/3 (byte-parity with the filed scorecard); armed/proposed cells use the live 0.8 so the A/B compares what the engine would ACTUALLY trade",
+    "no_survivor_pick": "every cell reported with gates + failing reasons"
+  }
+}
