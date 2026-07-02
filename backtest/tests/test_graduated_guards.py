@@ -3025,28 +3025,47 @@ def test_l177_event_condor_wide_cache_covers_band() -> None:
 def test_g14_ribbon_flip_fn_direction() -> None:
     """G14/v15.3 chart-stop-primary: ribbon_flip_back_fn direction guard.
 
-    PUT (bearish) exits when ribbon turns BULLISH; CALL (bullish) exits when BEARISH.
-    Anchor no-regression: 5/04 SPY 721P +$730 — ribbon stayed BEARISH throughout → must NOT
+    PUT (bearish) exits when ribbon turns BULL; CALL (bullish) exits when BEAR.
+    Anchor no-regression: 5/04 SPY 721P +$730 — ribbon stayed BEAR throughout → must NOT
     trigger a premature flip exit on a winning bearish trade.
 
-    heartbeat_core._ribbon_flip_fn is the wired implementation; this guard documents and
-    locks the direction invariant so a sign-flip or P/C swap is caught by CI.
+    NON-VACUOUS (L197/G16 fix): imports the REAL heartbeat_core._ribbon_flip_fn and asserts
+    against the producer's ACTUAL stack literals. The prior version of this guard re-implemented
+    the (buggy) logic inline with 'BULLISH'/'BEARISH' literals the producer never emits, so it
+    was vacuous — it green-lit a dead exit for weeks. This version fails if the real fn ever
+    stops matching the ribbon.py producer alphabet.
     """
-    def ribbon_flip_fn(stack: str):
-        def fn(symbol: str, side: str) -> bool:
-            return stack == ("BULLISH" if side == "P" else "BEARISH")
-        return fn
+    import importlib.util as _ilu
+    _hc_path = REPO / "setup" / "scripts" / "heartbeat_core.py"
+    _spec = _ilu.spec_from_file_location("heartbeat_core_g14", _hc_path)
+    _hc = _ilu.module_from_spec(_spec)
+    # heartbeat_core imports are guarded; only _ribbon_flip_fn (pure) is needed, so exec is safe.
+    _spec.loader.exec_module(_hc)
+    ribbon_flip_fn = _hc._ribbon_flip_fn
 
-    # bearish PUT: ribbon now BULLISH = flip against position → exit
-    assert ribbon_flip_fn("BULLISH")("SPY", "P") is True
-    # bearish PUT: ribbon still BEARISH = no flip → hold
-    assert ribbon_flip_fn("BEARISH")("SPY", "P") is False
-    # bullish CALL: ribbon now BEARISH = flip against position → exit
-    assert ribbon_flip_fn("BEARISH")("SPY", "C") is True
-    # bullish CALL: ribbon still BULLISH = no flip → hold
-    assert ribbon_flip_fn("BULLISH")("SPY", "C") is False
-    # anchor: 5/04 SPY 721P +$730 — ribbon stayed BEARISH → no premature exit
-    assert ribbon_flip_fn("BEARISH")("SPY", "P") is False
+    # PRODUCER-ALPHABET CONTRACT: the literals the real fn compares against MUST be the ones
+    # backtest/lib/ribbon.py actually writes. If the producer renames its stack tokens this REDs.
+    _ribbon_src = (REPO / "backtest" / "lib" / "ribbon.py").read_text(encoding="utf-8")
+    assert '"BULL"' in _ribbon_src and '"BEAR"' in _ribbon_src, "ribbon.py producer alphabet changed"
+
+    # bearish PUT: ribbon now BULL = flip against position → exit
+    assert ribbon_flip_fn("BULL")("SPY", "P") is True
+    # bearish PUT: ribbon still BEAR = no flip → hold
+    assert ribbon_flip_fn("BEAR")("SPY", "P") is False
+    # bullish CALL: ribbon now BEAR = flip against position → exit
+    assert ribbon_flip_fn("BEAR")("SPY", "C") is True
+    # bullish CALL: ribbon still BULL = no flip → hold
+    assert ribbon_flip_fn("BULL")("SPY", "C") is False
+    # MIXED/UNKNOWN are NOT an opposite-direction reversal → never a flip exit (hold)
+    for _neutral in ("MIXED", "UNKNOWN", "WARMUP"):
+        assert ribbon_flip_fn(_neutral)("SPY", "P") is False
+        assert ribbon_flip_fn(_neutral)("SPY", "C") is False
+    # BITE: the retired buggy literals must be DEAD — a real ribbon never emits them, so they
+    # must never trigger an exit (this is the exact bug this fix retired).
+    assert ribbon_flip_fn("BULLISH")("SPY", "P") is False
+    assert ribbon_flip_fn("BEARISH")("SPY", "C") is False
+    # anchor: 5/04 SPY 721P +$730 — ribbon stayed BEAR → no premature exit
+    assert ribbon_flip_fn("BEAR")("SPY", "P") is False
 
 
 def test_l188_dir_null_p5_gate_wired_into_family_grind() -> None:
