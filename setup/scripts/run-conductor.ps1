@@ -74,11 +74,14 @@ if (-not (Test-Path $promptFile)) {
 # specialist sub-agents (whose tokens roll up into this session) blows past 1.50
 # immediately. 10.00 lets one bounded fan-out fire + validation actually COMPLETE;
 # the real runaway guard is -TimeoutSec 600 below, not the dollar cap.
+# MODEL (2026-07-02, J quota directive): opus -> sonnet. Conductor fires are queue-drain
+# fix-and-guard work; sonnet + the fable-judgment suite (mandatory via CLAUDE.md) handles
+# them at ~1/5 the pool cost. Reserve opus-class for frame-audit/architecture sessions only.
 $exitCode = Invoke-ClaudeWithRetry `
     -PromptFile $promptFile `
     -TaskName $task `
     -MaxBudgetUsd 10.00 `
-    -Model "opus" `
+    -Model "sonnet" `
     -Effort "high" `
     -AgentName "gamma" `
     -TimeoutSec 600 `
