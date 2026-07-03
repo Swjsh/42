@@ -168,14 +168,78 @@ if sys.platform == "win32" and os.path.basename(sys.executable).lower() == "pyth
 # Market-hours model
 # ---------------------------------------------------------------------------
 
+def _refresh_calendar_from_alpaca(cal_path: Path, year: int) -> bool:
+    """Rebuild calendar.json from the real Alpaca /v2/calendar for `year`. Pure
+    stdlib (urllib), $0, fail-open -- any error just leaves the stale/absent
+    file alone so the caller falls back to its existing (possibly empty) set.
+
+    WHY THIS EXISTS (2026-07-03 incident): calendar.json never had a producer,
+    so _load_holidays() silently returned {} forever -- market_is_open() then
+    used pure weekday+clock logic and called the 2026-07-03 holiday (July 4th
+    observed) a live trading day. The engine correctly stayed flat (all HOLD),
+    but engine-health/self-check false-RED'd on watcher_feed staleness and the
+    heartbeat ticked all morning scoring a frozen tape for nothing. Self-healed
+    here (not via the LLM premarket persona) to stay pure-Python / $0."""
+    import urllib.error
+    import urllib.request
+
+    secrets_path = REPO / "automation" / "state" / "fleet" / "secrets.json"
+    try:
+        secrets = json.loads(secrets_path.read_text(encoding="utf-8"))
+        accounts = secrets.get("accounts", secrets)
+        creds = next(
+            (c for c in accounts.values() if isinstance(c, dict) and (c.get("key") or c.get("api_key"))),
+            None,
+        )
+        if not creds:
+            return False
+        key = creds.get("key") or creds.get("api_key")
+        secret = creds.get("secret") or creds.get("secret_key")
+        base = (creds.get("base_url") or "https://paper-api.alpaca.markets").rstrip("/")
+        req = urllib.request.Request(
+            f"{base}/v2/calendar?start={year}-01-01&end={year}-12-31",
+            headers={"APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": secret},
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:  # noqa: S310 -- fixed https host
+            days = json.loads(resp.read())
+        open_dates = {d["date"] for d in days}
+        d = datetime(year, 1, 1)
+        end = datetime(year, 12, 31)
+        holidays = []
+        while d <= end:
+            if d.weekday() < 5 and d.strftime("%Y-%m-%d") not in open_dates:
+                holidays.append(d.strftime("%Y-%m-%d"))
+            d += timedelta(days=1)
+        cal_path.write_text(json.dumps({
+            "source": "alpaca_v2_calendar", "fetched_at_et": _et_now().isoformat(),
+            "year_range": [f"{year}-01-01", f"{year}-12-31"], "holidays": sorted(holidays),
+        }, indent=2), encoding="utf-8")
+        return True
+    except (OSError, urllib.error.URLError, KeyError, ValueError, StopIteration):
+        return False
+
+
 def _load_holidays() -> set:
-    """Read automation/state/calendar.json .holidays[] (ISO yyyy-mm-dd) if present.
-    Matches _shared.ps1 Test-HolidayFromAlpaca: absent file -> no holidays."""
+    """Read automation/state/calendar.json .holidays[] (ISO yyyy-mm-dd), self-healing
+    the cache if it's absent or stale for the current year (see
+    _refresh_calendar_from_alpaca). Matches _shared.ps1 Test-HolidayFromAlpaca's
+    contract: any remaining failure -> empty set (never blocks the health check)."""
     cal = STATE / "calendar.json"
+    year = _et_now().year
     try:
         data = json.loads(cal.read_text(encoding="utf-8"))
-        return {str(d) for d in data.get("holidays", [])}
+        holidays = {str(d) for d in data.get("holidays", [])}
+        year_range = data.get("year_range") or ["", ""]
+        if not any(str(year) in str(v) for v in year_range):
+            raise ValueError("calendar.json stale for current year")
+        return holidays
     except Exception:
+        if _refresh_calendar_from_alpaca(cal, year):
+            try:
+                data = json.loads(cal.read_text(encoding="utf-8"))
+                return {str(d) for d in data.get("holidays", [])}
+            except Exception:
+                return set()
         return set()
 
 
