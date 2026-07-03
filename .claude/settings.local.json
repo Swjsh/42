@@ -74,11 +74,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/jackw/Desktop/42/setup/hook-autoresearch-status.ps1"
+            "command": "C:/Users/jackw/AppData/Local/Programs/Python/Python313/pythonw.exe C:/Users/jackw/Desktop/42/setup/scripts/run_hook_hidden.py C:/Users/jackw/Desktop/42/setup/hook-autoresearch-status.ps1"
           },
           {
             "type": "command",
-            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/jackw/Desktop/42/setup/hook-detect-correction.ps1"
+            "command": "C:/Users/jackw/AppData/Local/Programs/Python/Python313/pythonw.exe C:/Users/jackw/Desktop/42/setup/scripts/run_hook_hidden.py C:/Users/jackw/Desktop/42/setup/hook-detect-correction.ps1"
           }
         ]
       }
@@ -89,7 +89,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/jackw/Desktop/42/cockpit/hook-emit.ps1 -HookType pre"
+            "command": "C:/Users/jackw/AppData/Local/Programs/Python/Python313/pythonw.exe C:/Users/jackw/Desktop/42/setup/scripts/run_hook_hidden.py C:/Users/jackw/Desktop/42/cockpit/hook-emit.ps1 -HookType pre"
           }
         ]
       },
@@ -98,7 +98,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/jackw/Desktop/42/setup/hook-market-hours-doctrine-guard.ps1"
+            "command": "C:/Users/jackw/AppData/Local/Programs/Python/Python313/pythonw.exe C:/Users/jackw/Desktop/42/setup/scripts/run_hook_hidden.py C:/Users/jackw/Desktop/42/setup/hook-market-hours-doctrine-guard.ps1"
           }
         ]
       }
@@ -109,7 +109,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/jackw/Desktop/42/setup/hook-pytest-on-engine-edit.ps1"
+            "command": "C:/Users/jackw/AppData/Local/Programs/Python/Python313/pythonw.exe C:/Users/jackw/Desktop/42/setup/scripts/run_hook_hidden.py C:/Users/jackw/Desktop/42/setup/hook-pytest-on-engine-edit.ps1"
           }
         ]
       },
@@ -118,7 +118,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/jackw/Desktop/42/cockpit/hook-emit.ps1 -HookType post"
+            "command": "C:/Users/jackw/AppData/Local/Programs/Python/Python313/pythonw.exe C:/Users/jackw/Desktop/42/setup/scripts/run_hook_hidden.py C:/Users/jackw/Desktop/42/cockpit/hook-emit.ps1 -HookType post"
           }
         ]
       }
@@ -129,7 +129,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/jackw/Desktop/42/cockpit/hook-emit.ps1 -HookType stop"
+            "command": "C:/Users/jackw/AppData/Local/Programs/Python/Python313/pythonw.exe C:/Users/jackw/Desktop/42/setup/scripts/run_hook_hidden.py C:/Users/jackw/Desktop/42/cockpit/hook-emit.ps1 -HookType stop"
           }
         ]
       }

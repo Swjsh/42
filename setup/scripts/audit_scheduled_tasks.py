@@ -142,6 +142,50 @@ def _is_long_running_python_with_console(execute: str, arguments: str) -> bool:
     return False
 
 
+HOOKS_SETTINGS_PATH = Path(".claude/settings.local.json")
+
+
+def _is_bare_hook_command(command: str) -> bool:
+    """Return True if a Claude Code hook `command` string is a bare console launcher.
+
+    Root-caused 2026-07-03 (J: "cmd popups every few minutes"): PreToolUse/PostToolUse
+    hooks fire on EVERY tool call across every session (interactive AND every scheduled
+    `claude --print` task) -- a far higher-frequency flash source than any Task Scheduler
+    action, and a surface this audit never covered before since hooks aren't Task
+    Scheduler entries. Same Win11 OpenConsole-before-WindowStyle-Hidden mechanism as
+    BARE_CMD_POWERSHELL applies here too. Fix: route through
+    setup/scripts/run_hook_hidden.py (pythonw.exe + CREATE_NO_WINDOW), the same pattern
+    _is_hidden() already approves for scheduled tasks.
+    """
+    first_tok = (command or "").strip().split(" ", 1)[0].strip('"')
+    basename = first_tok.rsplit("\\", 1)[-1].rsplit("/", 1)[-1].lower()
+    return basename in ("cmd.exe", "cmd", "powershell.exe", "powershell", "pwsh.exe", "pwsh")
+
+
+def _audit_hooks() -> list[dict]:
+    """Flag any .claude/settings.local.json hook `command` that isn't hidden-window-safe."""
+    flags: list[dict] = []
+    if not HOOKS_SETTINGS_PATH.exists():
+        return flags
+    try:
+        data = json.loads(HOOKS_SETTINGS_PATH.read_text(encoding="utf-8"))
+    except Exception as e:
+        flags.append({"flag": "HOOKS_UNPARSEABLE", "task": str(HOOKS_SETTINGS_PATH),
+                      "note": f"{type(e).__name__}: {e}"})
+        return flags
+    for phase, entries in (data.get("hooks") or {}).items():
+        for entry in entries:
+            for h in entry.get("hooks", []):
+                cmd = h.get("command", "")
+                if h.get("type") != "command" or not cmd:
+                    continue
+                if _is_bare_hook_command(cmd):
+                    flags.append({"flag": "BARE_HOOK_POWERSHELL", "task": f"hook:{phase}",
+                                  "note": f"HARD FAIL -- bare console launcher in hook command: "
+                                          f"{cmd[:100]!r}. Route through setup/scripts/run_hook_hidden.py."})
+    return flags
+
+
 def _parse_iso(ts: str) -> datetime | None:
     try:
         return datetime.fromisoformat(ts.replace("Z", "+00:00"))
@@ -170,6 +214,10 @@ def audit() -> dict:
     by_name = {t["name"]: t for t in tasks}
 
     flags: list[dict] = []
+
+    # Claude Code hook commands (.claude/settings.local.json) -- separate surface from
+    # Task Scheduler actions, same hidden-window requirement. See _audit_hooks docstring.
+    flags.extend(_audit_hooks())
 
     # Registered but not in registry
     for name in sorted(by_name):
