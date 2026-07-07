@@ -459,13 +459,13 @@ class TestVwapContinuationArmed:
         plan = hc._execute("safe", verdict, {"bar_ctx": {"timestamp_et": "2026-07-02 10:55:00", "bar": {"close": 620.4}}},
                            SAFE_PARAMS, dry=False)
         assert plan["status"] == "PLACED", plan
-        assert plan["stop"] == 0.92  # mid 1.00 * (1 - 0.08) — validated isolated stop
-        assert plan["tp"] == 1.30    # mid 1.00 * (1 + 0.30) — validated tp1
+        assert plan["stop"] == 0.94  # mid 1.00 * (1 - 0.06) — ratified cell (75f3a0c; vwapcont-exit-ab-ship-gate.json)
+        assert plan["tp"] == 1.40    # mid 1.00 * (1 + 0.40) — ratified tp1
         assert len(calls) == 1
         shape = calls[0]["exit_shape"]
-        assert shape["premium_stop_pct"] == -0.08, \
+        assert shape["premium_stop_pct"] == -0.06, \
             f"regressed to ribbon_ride/global shape: {shape}"
-        assert shape["tp1_premium_pct"] == 0.30
+        assert shape["tp1_premium_pct"] == 0.40
         assert (shape["premium_stop_pct"], shape["tp1_premium_pct"]) != (
             rr.exit.premium_stop_pct, rr.exit.tp1_premium_pct), \
             "registered shape must NOT be ribbon_ride's (-0.20 / +1.50)"
