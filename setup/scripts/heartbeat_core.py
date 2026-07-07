@@ -285,12 +285,34 @@ def _fetch_vix_intraday(cap_ts_et=None) -> list[float] | None:
         return None
 
 
+def _level_expired(lv: dict, today_et: str) -> bool:
+    """FIX2 (2026-07-07): a level whose expires_at is BEFORE today's ET date is stale and
+    must never reach the live active set / filter-10 (e.g. PML_2026-06-30 @741.61 kept
+    matching purely on distance because _read_levels never checked the date). Returns True
+    ONLY when expires_at parses to a date strictly before today. FAIL-OPEN: a missing,
+    null, or unparseable expires_at returns False (KEEP the level) and never raises — an
+    unreadable date must never silently drop a valid level or crash the read.
+    Guard: test_audit_fix_heartbeat.py::TestExpiredLevels."""
+    raw = lv.get("expires_at") if isinstance(lv, dict) else None
+    if not raw:
+        return False
+    exp = str(raw)[:10]  # tolerate 'YYYY-MM-DD' or a full 'YYYY-MM-DDTHH:MM:SS' timestamp
+    try:
+        datetime.strptime(exp, "%Y-%m-%d")
+    except (TypeError, ValueError):
+        return False  # unparseable -> fail open, keep the level
+    return exp < today_et
+
+
 def _read_levels(spy: float) -> tuple[list[float], list[float]]:
     try:
         kl = json.loads((STATE / "key-levels.json").read_text(encoding="utf-8"))
         levels = kl.get("levels") or kl.get("key_levels") or []
+        today_et = _et_now().strftime("%Y-%m-%d")
         active, multi = [], []
         for lv in levels:
+            if _level_expired(lv, today_et):
+                continue  # drop levels that expired on a prior ET day (fail-open on bad/absent date)
             p = lv.get("price") or lv.get("level") or lv.get("value")
             if isinstance(p, (int, float)) and abs(p - spy) <= 12:
                 active.append(round(float(p), 2))
@@ -614,10 +636,14 @@ def _ribbon_flip_fn(ribbon_stack: str):
     return fn
 
 
-def _manage_exits(account: str, ribbon_stack: str | None = None) -> list:
+def _manage_exits(account: str, ribbon_stack: str | None = None,
+                  time_stop_et=None) -> list:
     """Run the tick-managed scale-out over this account's open positions (flag-gated caller).
     Places only when ARMED (live); WATCH otherwise. Fail-safe: any error is captured, never
-    raised, so the exit pass can never abort the entry/verdict path of the armed brain."""
+    raised, so the exit pass can never abort the entry/verdict path of the armed brain.
+
+    `time_stop_et` is params.json's ``time_stop_et`` value, forwarded to the actuator so the
+    per-account hard time-stop knob is LIVE (FIX 2026-07-07: was ignored -> hard-coded 15:50)."""
     try:
         import fleet_broker as fb  # noqa: PLC0415
         import exit_actuator as ea  # noqa: PLC0415
@@ -626,9 +652,56 @@ def _manage_exits(account: str, ribbon_stack: str | None = None) -> list:
         if not creds:
             return [{"error": "no_creds", "arm": arm}]
         flip_fn = _ribbon_flip_fn(ribbon_stack) if ribbon_stack else None
-        return ea.manage_tick(arm, creds, live=ARMED, now_et=_et_now(), ribbon_flip_back_fn=flip_fn)
+        return ea.manage_tick(arm, creds, live=ARMED, now_et=_et_now(), ribbon_flip_back_fn=flip_fn,
+                              time_stop_et=time_stop_et)
     except Exception as e:  # noqa: BLE001
         return [{"error": f"manage_exits: {type(e).__name__}: {e}"}]
+
+
+def _adopt_untracked_positions(arm: str, creds: dict, positions: list) -> list:
+    """FIX1 (2026-07-07, J: "get rid of the lockout") — MANUAL/ENGINE COEXISTENCE.
+
+    When the engine sees an OPEN SPY-option position it did not itself place/track (e.g. a
+    manual 'gamma-manual-' trade), it ADOPTS that position into the exit_manager so the
+    engine MANAGES its exit instead of sitting frozen all day. This does NOT relax the
+    no-stack protection: the caller still refuses to open a 2nd position while any is open
+    (Rule-6 per-trade risk cap) — adoption only wires the manual trade's EXIT, it never
+    authorizes a stacked entry.
+
+    Idempotent: a symbol already carried in the exit-state ledger is left untouched (its
+    evolving tp1_filled / hwm / runner_stop state is preserved — re-registering would reset
+    it). Only genuinely-untracked open symbols are registered, with a catastrophe-floor
+    exit shape (the same -50% cap / +30% TP1 / fixed profit-lock the core places).
+    Fail-safe: any error is captured and returned, never raised — adoption must never abort
+    the FLAT-verify / no-stack guard. Returns a list of per-symbol adoption records.
+    Guard: test_audit_fix_heartbeat.py::TestManualCoexistence."""
+    out: list = []
+    try:
+        import exit_actuator as ea  # noqa: PLC0415
+        tracked = set(ea.load_states(arm).keys())
+        for p in positions or []:
+            sym = str(p.get("symbol", ""))
+            if not sym or sym in tracked:
+                continue  # idempotent: don't clobber an already-managed position's state
+            try:
+                entry_px = abs(float(p.get("avg_entry_price") or 0.0))
+                qty = abs(int(float(p.get("qty") or 0)))
+            except (TypeError, ValueError):
+                out.append({"symbol": sym, "adopted": False, "reason": "unparseable_position"})
+                continue
+            if qty < 1 or entry_px <= 0:
+                out.append({"symbol": sym, "adopted": False, "reason": "no_qty_or_premium"})
+                continue
+            opt_side = "P" if sym[-9:-8] == "P" else "C"  # OCC: SPY<yymmdd><C|P><strike*1000>
+            shape = {"premium_stop_pct": -0.50, "tp1_premium_pct": 0.30,
+                     "tp1_qty_fraction": 0.667, "profit_lock_mode": "fixed"}
+            ea.register_entry(arm, symbol=sym, side=opt_side, entry_premium=entry_px,
+                              qty=qty, exit_shape=shape, strategy="adopted_manual")
+            out.append({"symbol": sym, "adopted": True, "side": opt_side,
+                        "qty": qty, "entry_premium": entry_px})
+    except Exception as e:  # noqa: BLE001 — adoption must never abort the no-stack guard
+        out.append({"error": f"adopt: {type(e).__name__}: {e}"})
+    return out
 
 
 def run_account(account: str) -> dict:
@@ -656,7 +729,8 @@ def run_account(account: str) -> dict:
     # winner's TP1/runner or a stop is realized this tick. Places only when ARMED (live);
     # otherwise computes + logs (WATCH). OFF unless GAMMA_CORE_MANAGES_EXITS=1.
     if CORE_MANAGES_EXITS:
-        rec["exit_pass"] = _manage_exits(account, ribbon_stack=bc["ribbon_now"].get("stack"))
+        rec["exit_pass"] = _manage_exits(account, ribbon_stack=bc["ribbon_now"].get("stack"),
+                                         time_stop_et=params.get("time_stop_et"))
     # EXTRA-SETUP DISPATCH — evaluates 4 validated detectors that are individually
     # flag-gated in params.json. When ALL flags are OFF (current default) this is a
     # pure no-op: dispatch_extra_setups returns [] in O(1). When a flag is ON, the
@@ -700,7 +774,7 @@ def run_account(account: str) -> dict:
             # WHO places migrates. DEFAULT (CORE_PLACES_ORDERS=True) never reaches this branch.
             rec["action"] = "PERCEPTION_ONLY"
         else:
-            rec["exec"] = _execute(account, verdict, payload, params, dry=not ARMED)
+            rec["exec"] = _reconcile_exec(_execute(account, verdict, payload, params, dry=not ARMED))
             rec["action"] = rec["exec"].get("status")
             # BULL-WIRING REGRESSION GUARD (2026-06-28, swarm-recommended): an ENTER_BULL
             # verdict MUST reach _execute exactly like ENTER_BEAR. If a future change ever
@@ -718,10 +792,22 @@ def run_account(account: str) -> dict:
         # exec-armed -> every fired row logs WATCH_NOT_ARMED, _execute is never called). The
         # else-branch placement guarantees the ribbon path and an extra setup never double-
         # place on the same tick (and _execute's own is_flat check is the backstop).
-        if extra:
+        #
+        # FIX (2026-07-06, post-mortem on today's session): structure_veto is a purpose-built
+        # directional safety gate (engine_cli.py, added after the 2026-06-26 -$237 wrong-way
+        # entry) and was blind to this side-channel — 7 extra-setup entries fired today while
+        # the primary verdict was SKIP_STRUCTURE_VETO/HOLD, including one buying the EXACT
+        # direction structure_veto had just blocked on the same tick (net -$33 on that
+        # cluster). When the primary verdict IS a structure veto, no extra-setup entry fires
+        # this tick either — the gate's premise ("this tick's structure makes a new
+        # directional entry dangerous") applies account-wide, not just to the primary path.
+        # Guard: test_graduated_guards.py::test_structure_veto_blocks_extra_setup_route.
+        if extra and v != "SKIP_STRUCTURE_VETO":
             routed = _route_extra_setups(account, extra, payload, params)
             if routed:
                 rec["extra_exec"] = routed
+        elif extra:
+            rec["extra_exec_blocked_by"] = "structure_veto"
     _log(rec)
     return rec
 
@@ -754,6 +840,85 @@ def _place_simple_entry(creds: dict, *, symbol: str, qty: int, limit_price: floa
         res["_note"] = ("simple marketable limit placed directly (options: no broker bracket); "
                         "TP/stop engine-managed (exit_manager)")
     return res
+
+
+_TERMINAL_ORDER_STATES = frozenset({"filled", "partially_filled", "canceled",
+                                    "cancelled", "rejected", "expired", "done_for_day"})
+
+
+def _reconcile_fill(creds: dict, order: dict, *, max_polls: int = 4,
+                    sleep_s: float = 0.6, hard_cap_s: float = 3.0) -> dict:
+    """FIX3 (2026-07-07): poll the placed order to a TERMINAL state and return the reconciled
+    fill fields, so a filled order's ledger row records status=filled / filled_qty /
+    filled_avg_price instead of staying pending_new / filled_qty=0 forever (which logged the
+    trade UNKNOWN/ungraded in trades.csv). Reads the order back via fleet_broker._request
+    (GET orders/{id}) with BOUNDED retries + short sleeps, hard-capped at hard_cap_s so the
+    per-minute tick is never blocked. DEFENSIVE: on any poll failure it returns a
+    RECONCILE_PENDING marker (never crashes, never blocks past the cap). Returns a dict of
+    the reconciled fields to merge into the broker response
+    (status/filled_qty/filled_avg_price[/reconcile_*]). Reads the order back via the public
+    fleet_broker.get_order (GET orders/{id}) — the same primitive fleet_live uses.
+    Guard: test_audit_fix_heartbeat.py::TestFillReconciliation."""
+    import time as _time  # stdlib time module — NOT datetime.time (shadowed at module scope)
+    oid = order.get("id") if isinstance(order, dict) else None
+    if not oid or (isinstance(order, dict) and (order.get("_error") or order.get("_refused"))):
+        return {}  # nothing placed / no id -> nothing to reconcile
+    try:
+        import fleet_broker as fb  # noqa: PLC0415
+    except Exception as e:  # noqa: BLE001
+        return {"reconcile_status": "RECONCILE_PENDING", "reconcile_error": f"{type(e).__name__}: {e}"}
+    deadline = _time.monotonic() + float(hard_cap_s)
+    last = {"reconcile_status": "RECONCILE_PENDING", "reconcile_reason": "no_terminal_before_cap"}
+    for i in range(max(1, int(max_polls))):
+        try:
+            cur = fb.get_order(creds, oid)
+        except Exception as e:  # noqa: BLE001 — a poll failure must never crash the tick
+            last = {"reconcile_status": "RECONCILE_PENDING", "reconcile_error": f"{type(e).__name__}: {e}"}
+            cur = None
+        if isinstance(cur, dict) and not cur.get("_error"):
+            st = str(cur.get("status", "")).lower()
+            if st in _TERMINAL_ORDER_STATES:
+                out = {"status": cur.get("status"),
+                       "filled_qty": cur.get("filled_qty"),
+                       "filled_avg_price": cur.get("filled_avg_price"),
+                       "reconcile_status": "RECONCILED"}
+                return {k: v for k, v in out.items() if v is not None or k == "reconcile_status"}
+            last = {"status": cur.get("status"), "filled_qty": cur.get("filled_qty"),
+                    "reconcile_status": "RECONCILE_PENDING", "reconcile_reason": f"non_terminal:{st or '?'}"}
+        elif isinstance(cur, dict):
+            last = {"reconcile_status": "RECONCILE_PENDING", "reconcile_error": str(cur.get("_error"))[:120]}
+        if i < max_polls - 1 and _time.monotonic() + sleep_s < deadline:
+            _time.sleep(sleep_s)
+        elif _time.monotonic() >= deadline:
+            break
+    return last
+
+
+def _reconcile_exec(exec_row: "dict | None") -> "dict | None":
+    """FIX3 (2026-07-07): given an _execute result that placed an order, poll its fill to a
+    terminal state and reconcile the decision row IN PLACE: the broker sub-row gets
+    status=filled / filled_qty / filled_avg_price, and a top-level `fill` summary is added.
+    Reads the order back OUTSIDE _execute so the placement path stays a single broker POST.
+    The transient `_reconcile` marker (creds + order handle) is always stripped afterward so
+    the logged row carries only JSON-native fields. No-op (returns the row unchanged) when
+    there is nothing placed to reconcile. Never raises — a reconcile failure must never break
+    the tick's ledger write. Guard: test_audit_fix_heartbeat.py::TestFillReconciliation."""
+    if not isinstance(exec_row, dict):
+        return exec_row
+    handle = exec_row.pop("_reconcile", None)  # strip the transient marker either way
+    if not isinstance(handle, dict):
+        return exec_row
+    try:
+        recon = _reconcile_fill(handle.get("creds"), handle.get("order") or {})
+        if recon:
+            broker = exec_row.get("broker")
+            if isinstance(broker, dict):
+                broker.update(recon)
+            exec_row["fill"] = recon
+    except Exception as e:  # noqa: BLE001 — reconciliation must never break the ledger write
+        exec_row["fill"] = {"reconcile_status": "RECONCILE_PENDING",
+                            "reconcile_error": f"{type(e).__name__}: {e}"}
+    return exec_row
 
 
 # ----- re-entry lock: DELETED (J directive 2026-07-02) -----------------------
@@ -867,11 +1032,37 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     except Exception as e:  # noqa: BLE001
         return {"status": "EQUITY_FETCH_FAIL", "err": str(e)[:80]}
     sod = float(cb.get("equity_start_of_day") or cb.get("starting_equity_today") or equity)
-    day_trades = int(cb.get("day_trades_used_5d") or 0)
+    # FIX (2026-07-06): day_trades_used_5d was a hardcoded 0 that no component ever
+    # incremented (Rule 7 PDT was structurally unenforceable -- 0 >= 3 is never true).
+    # Compute it LIVE from Alpaca's own fill history (broker = source of truth, C11)
+    # right here, at the one place it's actually consumed, instead of trusting a
+    # stale circuit-breaker.json snapshot. Fail-open to 0 matches pre-fix behavior
+    # exactly on a fetch error (see pdt_tracker.py docstring for why that's safe).
+    # Guard: test_pdt_tracker_2026_07_06.py.
+    import pdt_tracker as _pdt  # noqa: PLC0415
+    day_trades = _pdt.fetch_day_trades_used_5d(creds)
+    if day_trades != int(cb.get("day_trades_used_5d") or 0):
+        try:
+            cb["day_trades_used_5d"] = day_trades
+            cb["day_trades_used_5d_computed_at"] = _et_now().strftime("%Y-%m-%dT%H:%M:%S")
+            cb_path.write_text(json.dumps(cb, indent=2), encoding="utf-8")
+        except Exception:  # noqa: BLE001 -- visibility write must never block the gate
+            pass
     killed = bool(cb.get("tripped")) or (STATE / "kill-switch").exists()
-    # FLAT-verify (broker = source of truth, L47/C11)
+    # FLAT-verify (broker = source of truth, L47/C11) + MANUAL/ENGINE COEXISTENCE (FIX1,
+    # 2026-07-07, J: "get rid of the lockout"). Any open SPY-option position still BLOCKS a
+    # 2nd (stacked) entry — that protects the Rule-6 per-trade risk cap. But instead of the
+    # engine sitting frozen all day (2026-07-06: a manual position froze every ENTER at
+    # NOT_FLAT), it now ADOPTS any UNTRACKED open position into the exit_manager so the
+    # engine MANAGES that trade's exit — it is never silently disabled. Adoption is
+    # idempotent (already-tracked symbols keep their evolving state) and fail-safe (never
+    # raises). We STILL return NOT_FLAT: no stacking. The flat check is the SAME
+    # is_flat_spy_options primitive as before (broker = source of truth); only when it is
+    # NOT flat do we fetch the position list to adopt the untracked (manual) position.
     if not fb.is_flat_spy_options(creds):
-        return {"status": "NOT_FLAT"}
+        _adopted = _adopt_untracked_positions(ACCOUNTS[account]["fleet_arm"], creds,
+                                              fb.open_spy_option_positions(creds))
+        return {"status": "NOT_FLAT", "adopted": _adopted}
     # RE-ENTRY LOCK DELETED (J directive 2026-07-02): the quality-lock that blocked a
     # same-or-lower-quality re-entry on the same setup today is GONE — flat-verify +
     # risk_gate is the gate. Guard: test_tz_quality_lock_2026_07_02.py (absence pin).
@@ -952,6 +1143,13 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     plan["status"] = "PLACED" if not res.get("_error") and not res.get("_refused") else "PLACE_FAIL"
     plan["broker"] = res
     plan["entry_px"] = entry_px
+    # FIX3 (2026-07-07): stash the arm creds so the CALLER (run_account / _route_extra_setups
+    # via reconcile_exec) can poll this accepted order to a TERMINAL fill and reconcile the
+    # decision row. Reconciliation is deliberately done a level UP (not here) so the order-
+    # PLACEMENT path stays a single broker POST — the fill-read GETs land outside _execute.
+    # This callable is stripped before the row is logged (JSON-only writer).
+    if plan["status"] == "PLACED":
+        plan["_reconcile"] = {"creds": creds, "order": res}
     # EXIT-ENGINE WIRING (flag-gated, default OFF): on a real fill, register the position
     # with the exit_manager so the validated scale-out (partial TP1 + runner + profit-lock)
     # is realized on later ticks. The bracket above stays the catastrophe-floor backstop;
@@ -1065,7 +1263,7 @@ def _route_extra_setups(account: str, extra: list, payload: dict, params: dict) 
             if not CORE_PLACES_ORDERS:
                 out.append({"setup": setup, "action": "PERCEPTION_ONLY"})
                 continue
-            ex = _execute(account, sv, payload, params, dry=not ARMED)
+            ex = _reconcile_exec(_execute(account, sv, payload, params, dry=not ARMED))
             out.append({"setup": setup, "action": ex.get("status"), "exec": ex})
             if ex.get("status") in _TAKEN:
                 placed_this_tick = True

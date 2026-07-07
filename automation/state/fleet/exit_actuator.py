@@ -101,7 +101,7 @@ def make_ribbon_flip_fn(ribbon_stack: Optional[str]):
 
 def manage_tick(arm_id: str, creds: dict, *, live: bool,
                 ribbon_flip_back_fn=None, now_et: Optional[datetime] = None,
-                broker=None) -> list[dict]:
+                broker=None, time_stop_et=None) -> list[dict]:
     """Run ONE exit-management tick over EVERY managed position on this arm.
 
     For each persisted ExitState: read live qty + quote, plan the action, and (when live)
@@ -111,9 +111,16 @@ def manage_tick(arm_id: str, creds: dict, *, live: bool,
     `broker` is injectable for tests (defaults to the real fleet_broker). `ribbon_flip_back_fn`
     is an optional callable(symbol, side) -> bool that lets the caller feed the live
     ribbon-flip-back signal (heartbeat_core / fleet already compute the ribbon); when None
-    the exit manager never force-exits on ribbon (premium/target/time stops still bind)."""
+    the exit manager never force-exits on ribbon (premium/target/time stops still bind).
+
+    `time_stop_et` is the params.json ``time_stop_et`` value (an "HH:MM" str / datetime.time /
+    None). FIX (2026-07-07): previously the call to plan_exit_actions passed NO time_stop_et
+    so the hard-coded 15:50 always won and the params key was DEAD. Now the caller's param is
+    parsed (fail-safe to 15:50 on missing/malformed -- never widens past close) and forwarded
+    to the pure core so the knob is live. Guard: test_audit_fix_exit.py."""
     if broker is None:
         import fleet_broker as broker  # lazy: keep the pure path broker-free
+    stop_t = em.parse_time_stop_et(time_stop_et)
     now_dt = (now_et or _now_et())
     now_t = now_dt.time()
     states = load_states(arm_id)
@@ -137,7 +144,8 @@ def manage_tick(arm_id: str, creds: dict, *, live: bool,
         best_premium, worst_premium = hilo
         flip = bool(ribbon_flip_back_fn(symbol, st.side)) if ribbon_flip_back_fn else False
         dec = em.plan_exit_actions(st, best_premium=best_premium, worst_premium=worst_premium,
-                                   open_qty=open_qty, now_et=now_t, ribbon_flip_back=flip)
+                                   open_qty=open_qty, now_et=now_t, ribbon_flip_back=flip,
+                                   time_stop_et=stop_t)
         states[symbol] = dec.state
         changed = True
         executed = []

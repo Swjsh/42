@@ -37,6 +37,34 @@ from typing import Optional, Sequence
 # Canonical exit constants (mirror simulator.py:71-74 / simulator_real defaults). The exit
 # shape carries the per-strategy overrides; these are the production-default fallbacks.
 TIME_STOP_ET = _time(15, 50)
+
+
+def parse_time_stop_et(value, default: _time = TIME_STOP_ET) -> _time:
+    """Parse a params.json ``time_stop_et`` value ("HH:MM"[:SS] str, a datetime.time, or a
+    {"hour","minute"} dict) into a datetime.time. FIX (2026-07-07): the live exit
+    (exit_actuator.manage_tick) called plan_exit_actions WITHOUT time_stop_et, so the
+    hard-coded 15:50 always won and the params key ``time_stop_et`` was a DEAD knob
+    (see l117_time_stop_artifact / B10-EXIT). Any missing/malformed value fails SAFE to the
+    doctrine default (15:50 -- the EOD-flatten backstop), never widening the stop past close.
+    Guard: test_audit_fix_exit.py."""
+    if value is None:
+        return default
+    if isinstance(value, _time):
+        return value
+    try:
+        if isinstance(value, dict):
+            return _time(int(value["hour"]), int(value.get("minute", 0)))
+        parts = str(value).strip().split(":")
+        hh = int(parts[0])
+        mm = int(parts[1]) if len(parts) > 1 else 0
+        ss = int(parts[2]) if len(parts) > 2 else 0
+        if not (0 <= hh <= 23 and 0 <= mm <= 59 and 0 <= ss <= 59):
+            return default
+        return _time(hh, mm, ss)
+    except (ValueError, TypeError, KeyError, IndexError):
+        return default
+
+
 DEFAULT_RUNNER_TARGET_PCT = 2.5     # CLAUDE.md: runner target 2.5x
 DEFAULT_TRAIL_PCT = 0.125           # WP-6 (chandelier trail 0.125; arms at +5% favor)
 DEFAULT_PROFIT_LOCK_ARM_PCT = 0.05  # CLAUDE.md: chandelier arms at +5% favor

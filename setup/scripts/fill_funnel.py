@@ -56,6 +56,39 @@ except Exception:  # noqa: BLE001
 ENTRY_CEILING_HHMM = "15:00"   # ENTER after this = DEGRADED (0DTE theta cliff)
 EOD_HHMM = "16:00"             # after this, a fill with no exit record = DEGRADED
 
+# FALSE-RED FIX (2026-07-07): a CORE ENTER row's exec dict is TRUTHY for every
+# outcome -- including pure-skip statuses that NEVER call the broker (NOT_FLAT,
+# SKIP_*). Counting those as `attempted` made a flat-veto day (already holding a
+# position -> NOT_FLAT) read as attempted>0 & accepted==0 -> a false "PLACEMENT
+# BROKEN" RED that reached gamma_glance + self_check while the broker was never
+# touched. `attempted` now requires a status that is a REAL placement OUTCOME:
+# the order was sent (PLACED / a broker reject in PLACE_FAIL) or it died at the
+# last pre-broker sizing/pricing/risk gate that is genuinely PART of the placement
+# attempt (NO_PREMIUM / RISK_DENY_*). A skip that bails BEFORE that (NOT_FLAT and
+# every SKIP_*) is NOT a placement attempt. Anything unrecognized fails OPEN to
+# "attempted" so a NEW real-fault status can never be silently swallowed.
+_CORE_ATTEMPT_STATUSES = frozenset({
+    "PLACED", "PLACE_FAIL", "PLACING", "NO_PREMIUM",
+})
+# statuses that are provably a skip BEFORE any broker interaction -> never attempted
+_CORE_SKIP_STATUSES = frozenset({
+    "NOT_FLAT", "NO_CREDS", "EQUITY_FETCH_FAIL", "WOULD_PLACE",
+})
+
+
+def _core_is_attempt(status: str) -> bool:
+    """True iff a CORE exec status represents a real placement OUTCOME (the broker
+    was called OR the attempt died at the last in-placement gate). NOT_FLAT and
+    every SKIP_* bail before the broker and are NOT attempts. Fail-OPEN: an
+    unrecognized status counts as an attempt so a genuinely-broken new status
+    still trips the RED (visibility > silence, OP-33)."""
+    s = (status or "").upper()
+    if s in _CORE_ATTEMPT_STATUSES or s.startswith("RISK_DENY"):
+        return True
+    if s in _CORE_SKIP_STATUSES or s.startswith("SKIP_"):
+        return False
+    return True  # unknown status -> fail open (never hide a possible real fault)
+
 
 # ---------------------------------------------------------------------------
 # ledger readers
@@ -141,8 +174,13 @@ def _acct_funnel(rows: list[dict], kind: str) -> dict:
         f["enter"] += 1
         ex = (r.get("exec") if kind == "core" else r.get("placement")) or {}
         broker = ex.get("broker") or {}
-        attempted = bool(ex) and (kind == "core"
-                                  or str(ex.get("mode", "LIVE")).upper() == "LIVE")
+        if kind == "core":
+            # only count a CORE ENTER as attempted when its exec status is a REAL
+            # placement outcome -- NOT_FLAT / SKIP_* bail before the broker (they
+            # were falsely counted, tripping a phantom PLACEMENT BROKEN RED).
+            attempted = bool(ex) and _core_is_attempt(str(ex.get("status", "")))
+        else:
+            attempted = bool(ex) and str(ex.get("mode", "LIVE")).upper() == "LIVE"
         accepted = bool(broker.get("id"))
         if attempted:
             f["attempted"] += 1
