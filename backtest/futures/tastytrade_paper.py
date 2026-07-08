@@ -271,7 +271,11 @@ class TastytradeBroker:
         from tastytrade.instruments import Future as TTFuture
 
         async def _get():
-            result    = await TTFuture.get(self._session, instrument)
+            # NOTE: TTFuture.get(session, symbols=...) expects a FULL contract symbol
+            # (e.g. "ESZ9"), not a root/product code -- passing "MNQ" 404s as
+            # record_not_found. product_codes=[...] is the correct lookup for a root.
+            # Confirmed 2026-07-06 via tastytrade_e2e_test.py (never exercised before).
+            result    = await TTFuture.get(self._session, product_codes=[instrument])
             contracts = result if isinstance(result, list) else [result]
             active    = [c for c in contracts if not getattr(c, "is_expired", False)]
             if not active:
@@ -332,6 +336,16 @@ class TastytradeBroker:
             open_act  = OrderAction.BUY  if side == "BUY" else OrderAction.SELL
             close_act = OrderAction.SELL if side == "BUY" else OrderAction.BUY
 
+            # Tastytrade order.price convention: negative = debit, positive = credit
+            # (NewOrder docstring in the SDK's order.py). BUY-to-open / BUY-to-close
+            # is always a debit (you pay) -> negative; SELL is always a credit -> positive.
+            # Passing an unsigned price here made every BUY-side leg fail live with
+            # "cant_buy_for_credit" — confirmed 2026-07-06 via tastytrade_e2e_test.py,
+            # never caught before because no order had ever actually been placed.
+            def _signed(action, magnitude) -> Decimal:
+                mag = Decimal(str(magnitude))
+                return -mag if action == OrderAction.BUY else mag
+
             async def _place():
                 ids = []
 
@@ -342,7 +356,7 @@ class TastytradeBroker:
                         time_in_force=OrderTimeInForce.DAY,
                         order_type=OrderType.LIMIT,
                         legs=[contract.build_leg(qty, open_act)],
-                        price=Decimal(str(entry_price)),
+                        price=_signed(open_act, entry_price),
                     ),
                     dry_run=False,
                 )
@@ -356,7 +370,7 @@ class TastytradeBroker:
                         time_in_force=OrderTimeInForce.GTC,
                         order_type=OrderType.LIMIT,
                         legs=[contract.build_leg(tp1_q, close_act)],
-                        price=Decimal(str(tp1_price)),
+                        price=_signed(close_act, tp1_price),
                     ),
                     dry_run=False,
                 )
@@ -385,7 +399,7 @@ class TastytradeBroker:
                             time_in_force=OrderTimeInForce.GTC,
                             order_type=OrderType.LIMIT,
                             legs=[contract.build_leg(run_q, close_act)],
-                            price=Decimal(str(runner_price)),
+                            price=_signed(close_act, runner_price),
                         ),
                         dry_run=False,
                     )
