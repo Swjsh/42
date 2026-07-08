@@ -1,3 +1,4 @@
+- 2026-07-08 00:45 ET [overnight-loop] G7 DONE (d553fe5): armability gate — promote scorecards now disclose min-lot affordability per account (Safe floor <=$2.00/contract, Bold <=$2.78). 9 red-proofed tests, gate PASS.
 - 2026-07-08 00:33 ET [overnight-loop] G16 DONE (54ce9b6): et_clock.py now runnable (`python et_clock.py` -> ET + market_hours) + is_market_hours() gate; 2 red-proofed guards, safety gate PASS. Queued G17 (autonomy_actuator ET dedup).
 ## [2026-07-07 ~22:45 ET] OPUS — Tier-1 gap-audit execution COMPLETE (before-open safety)
 
