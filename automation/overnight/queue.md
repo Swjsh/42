@@ -9,6 +9,15 @@
 
 ## Active backlog
 
+### Recovered audit-tail findings (G10, 2026-07-08 — not yet fixed)
+- [ ] F1-RIBBON-MOMENTUM-GATE-INVERTED-DISABLE (HIGH/CRITICAL, engine-edge, gate-provenance) :: `min_ribbon_momentum_cents=0` ARMS the gate on Safe (gates.py:322 `is not None`; 0 blocks when 3-bar ribbon spread contracts). Intended-off; code needs `null`. Recovered from wf_a6e5356c audit tail, re-verified live 2026-07-08. Fix 0->null (completes the intended revert) but ENTRY-PATH -> A/B via override harness or J nod first. Ref markdown/audits/RECOVERED-AUDIT-TAIL-2026-07-08.md F1. :: depends:none :: status:todo
+- [ ] F2-STRUCTURE-VETO-PROVENANCE (HIGH, gate-provenance) :: structure_veto armed live on Safe with thin non-OOS evidence (F2). Audit its provenance+evidence per J's gate doctrine; kill-candidate if unbacked. :: status:todo
+- [ ] F3-RED-BOOK-STILL-ARMED (HIGH, risk) :: Safe-2 combined ATM book RED (recent exp -$36.5/tr, n=14, 0 win-days) yet all 3 member setups stay armed (F3). Disarm review. :: status:todo
+- [ ] F7-EXIT-SELL-ALL-REFIRE (HIGH, exit-bug) :: exit engine re-fires a full-size SELL_ALL every tick while the prior exit order is pending_new (F7) -> duplicate sells risk. :: status:todo
+- [ ] F26-DISPATCH-191-FAILED-GREEN (HIGH, green-while-dead) :: v53_setup_dispatch.live failed 191 consecutive fires while the crypto-regression scheduler reports green 0x0 (F26). :: status:todo
+- [ ] F23-F27-JOURNAL-CALENDAR (MED) :: manual trades not journaled to trades.csv (F23); macro/news calendar stale 23 days (F27). :: status:todo
+
+
 
 
 > Ranked by leverage. Most of the deepest work is tracked in the live TaskList + `cook-queue.jsonl` (see `automation/state/cook-queue-summary.md`); items here are the conductor-visible ones that need a human-or-Claude decision or are not yet owned by another loop.
