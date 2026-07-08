@@ -37,8 +37,15 @@ ON produces the expected divergent bold entry. (L197 lesson.)
 ## Validation (required BEFORE ship)
 `backtest/.venv/Scripts/python.exe backtest/replay_fleet_arms.py` — per-arm entry-fidelity gate;
 PASS = MATCHED==ground-truth, EXTRA==0, MISSED==0 for each arm. It touches NO production file and
-places NO orders. **Overnight-loop run result: <PENDING — folded in on completion; first run
-produced no verifiable stdout (pipe/reaper), re-running clean>.**
+places NO orders.
+
+**Overnight-loop replay result (2026-07-08):** 3 of 4 arms entry-fidelity CLEAN, score parity **98.1% PASS**:
+- `safe-1` ARM-READY **YES** (matched 2/2, extra 0, missed 0)
+- `safe-3` ARM-READY **YES** (matched 0/0 — no ground-truth trades this window, vacuously clean)
+- `risky-3` ARM-READY **YES** (matched 13/13, extra 0, missed 0)
+- `risky-1` ARM-READY **NO** — matched 5/5 but **1 EXTRA trade at bar 1801** (a 'P' the ground-truth set lacks; the dedup/open-position lock let one through). ALL-ARMS-READY = NO solely because of this.
+
+So the divergence mechanism is validated for 3/4 arms; **the one open item before arming is risky-1's single extra entry (bar 1801)** — tighten its dedup/lock, re-run to 0-extra, then flip. This is now a well-scoped review, not an unknown.
 
 ## Why review, not auto-ship
 Entry-path change to 4 live-paper arms + frame-fixing a keystone guard + a producer wiring change.
