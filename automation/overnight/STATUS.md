@@ -1,3 +1,4 @@
+- 2026-07-08 09:22 ET [vision-loop] V2 DONE: gap_and_go un-dead (was 100% SKIP_NO_FEED) — prior RTH close 751.31 now derived from bars + gap-magnet level written. Engine can evaluate gap setups today. 3 red-proofed guards, fail-open.
 - 2026-07-08 09:12 ET [vision-loop] V1c DONE: engine now PINGS J on a memory-level rejection (verified on 747.41 — J's level). Auto-live via the 10-min task, 30-min dedup, notify-only. V1-entry (merge into live entries) -> NEEDS-REVIEW (=G11 A/B). Next V2 gap-fill.
 - 2026-07-08 09:01 ET [vision-loop] V1b DONE+VERIFIED: Gamma_LevelMemory scheduled (every 10min RTH) — triggered, shadow map refreshed (exit 0). Multi-day memory levels now auto-update live.
 - 2026-07-08 08:56 ET [vision-loop] V1 producer DONE: multi-day level-memory shadow producer built+guarded+committed — captures J's exact reads (747.41/746.7/745.88). Shadow-only (entry-wire A/B NEEDS-REVIEW). Follow-ups: schedule refresh + wire G5-alert/dashboard consumers.
@@ -1528,3 +1529,5 @@ Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=openro
 - [07-08 09:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 83840s - kill+relaunch
 - [07-08 09:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 84140s - kill+relaunch
 - [07-08 09:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 84439s - kill+relaunch
+- [07-08 09:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 84740s - kill+relaunch
+- [07-08 09:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 85039s - kill+relaunch
