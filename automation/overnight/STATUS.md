@@ -1,3 +1,4 @@
+- 2026-07-08 08:56 ET [vision-loop] V1 producer DONE: multi-day level-memory shadow producer built+guarded+committed — captures J's exact reads (747.41/746.7/745.88). Shadow-only (entry-wire A/B NEEDS-REVIEW). Follow-ups: schedule refresh + wire G5-alert/dashboard consumers.
 - 2026-07-08 08:44 ET [vision-loop] V0 DONE: F1 ribbon-momentum gate DISABLED (0->null) — A/B confirmed it was removing a +$585 cohort of big-down-day puts (J's edge). Engine unblocked for the 09:30 open. Guard red-proofed, REVOKE=positive threshold+OOS.
 - 2026-07-08 00:30 ET [overnight-loop] G6 DONE (KILL): weekly-put hold-to-Friday fails null (p>0.05 @ 3-4DTE) + gap-bleed -$4-6K + doesn't hold. GAP-AUDIT COMPLETE (10 shipped+guarded, G4/G11 review-blocked, G13/G6 analysis). Loop stopping.
 - 2026-07-08 00:27 ET [overnight-loop] G4 review packet COMPLETE (replay: 3/4 arms clean, risky-1 +1 extra @ bar 1801, parity 98.1% — one dedup fix from arm-ready). G6 weekly-put multi-day-hold sim RUNNING (_dte34_multiday_hold_sim.py, OPRA single-process). Last gap-audit item.
@@ -1515,3 +1516,6 @@ Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=openro
 - [07-08 08:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 82040s - kill+relaunch
 - [07-08 08:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 82340s - kill+relaunch
 - [07-08 08:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 82640s - kill+relaunch
+- [07-08 08:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 82940s - kill+relaunch
+- [07-08 08:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 83240s - kill+relaunch
+- [07-08 08:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 83540s - kill+relaunch
