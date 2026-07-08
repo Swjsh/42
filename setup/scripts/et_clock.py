@@ -134,3 +134,42 @@ def et_weekday(now_utc: Optional[datetime] = None) -> int:
     Use instead of datetime.now().weekday() when the local machine is NOT Eastern.
     """
     return et_now(now_utc=now_utc).weekday()
+
+
+def is_market_hours(now_utc: Optional[datetime] = None) -> bool:
+    """True during Gamma's live / read-only session window: Mon-Fri 09:30 <= ET < 15:55.
+
+    This is the window Rule 9 (no mid-session doctrine/param changes) and the overnight
+    build-loop both gate on -- deliberately the 15:55 cutoff, NOT the 16:00 exchange close,
+    so the final 5 minutes stay protected. Time-of-day + weekday ONLY; market HOLIDAYS are
+    calendar.json's domain (a holiday reads as after-hours here -- the safe direction for a
+    read-only gate). now_utc is injectable for deterministic tests.
+
+    Canonical home for this gate (autonomy_actuator._market_is_open predates it and hand-
+    rolls the same 09:30-15:55 window off its own inline ET copy -- flagged for dedup).
+    """
+    now = et_now(now_utc=now_utc)
+    if now.weekday() >= 5:  # Sat / Sun
+        return False
+    hhmm = now.hour * 100 + now.minute
+    return 930 <= hhmm < 1555
+
+
+def _cli() -> None:
+    """`python et_clock.py` -> authoritative ET + session gate (one-command clock check).
+
+    Added 2026-07-08 (G16): et_clock was a pure library with NO __main__, so running it
+    directly printed nothing -- the overnight loop's "check et_clock first" gate had no CLI
+    to call and silently fell back to PowerShell. This makes CLAUDE.md's "verify ET via
+    et_clock.py" literally runnable. Import behavior is unchanged (a __main__ block never
+    runs on import; every existing `from et_clock import ...` is untouched).
+    """
+    now = et_now()
+    off = et_offset_hours(datetime.now(timezone.utc))
+    name = "EDT" if off == -4 else "EST"
+    print(f"{now.strftime('%Y-%m-%d %H:%M:%S')} {now.strftime('%A')} {name}")
+    print(f"market_hours={is_market_hours()}")
+
+
+if __name__ == "__main__":
+    _cli()

@@ -250,3 +250,50 @@ def test_inline_dst_matches_et_clock():
         + "\n".join(mismatches)
         + "\nThe two implementations must stay in sync."
     )
+
+
+# ---------------------------------------------------------------------------
+# 4. Market-hours gate + runnable CLI (G16, 2026-07-08)
+# ---------------------------------------------------------------------------
+
+def test_is_market_hours_gate():
+    """is_market_hours pins the Mon-Fri 09:30 <= ET < 15:55 window the loop + Rule 9 gate on.
+
+    Injected UTC instants (2026-07-08 is a Wednesday, EDT/UTC-4) exercise both edges and the
+    weekend. Bite: if the window bounds regress (e.g. someone widens to 16:00 or drops the
+    weekday guard), the edge cases flip and this fails."""
+    ec = _import_et_clock()
+    cases = [
+        (datetime(2026, 7, 8, 13, 29, tzinfo=timezone.utc), False),  # 09:29 ET -> closed (pre-open edge)
+        (datetime(2026, 7, 8, 13, 30, tzinfo=timezone.utc), True),   # 09:30 ET -> open  (open edge)
+        (datetime(2026, 7, 8, 18, 0,  tzinfo=timezone.utc), True),   # 14:00 ET -> open  (midday)
+        (datetime(2026, 7, 8, 19, 54, tzinfo=timezone.utc), True),   # 15:54 ET -> open  (last minute)
+        (datetime(2026, 7, 8, 19, 55, tzinfo=timezone.utc), False),  # 15:55 ET -> closed (cutoff edge)
+        (datetime(2026, 7, 8, 20, 30, tzinfo=timezone.utc), False),  # 16:30 ET -> closed (post-close)
+        (datetime(2026, 7, 8, 4, 0,   tzinfo=timezone.utc), False),  # 00:00 ET -> closed (overnight)
+        (datetime(2026, 7, 11, 18, 0, tzinfo=timezone.utc), False),  # Sat 14:00 ET -> closed (weekend)
+        (datetime(2026, 7, 12, 18, 0, tzinfo=timezone.utc), False),  # Sun 14:00 ET -> closed (weekend)
+    ]
+    for utc, expected in cases:
+        got = ec.is_market_hours(utc)
+        assert got == expected, (
+            f"is_market_hours({utc.isoformat()}) = {got}, expected {expected} "
+            f"(ET wall = {ec.et_now(utc)})")
+
+
+def test_et_clock_cli_prints_authoritative_et():
+    """`python et_clock.py` must print a parseable ET timestamp + a market_hours line.
+
+    G16 regression: the module was a pure library with no __main__, so running it printed
+    NOTHING and the overnight loop's 'check et_clock first' gate had no CLI. Without the
+    __main__ block stdout is empty and this test fails (red-proofed)."""
+    import subprocess
+    out = subprocess.run([sys.executable, str(SCRIPTS / "et_clock.py")],
+                         capture_output=True, text=True, timeout=30)
+    assert out.returncode == 0, f"et_clock CLI exited {out.returncode}: {out.stderr}"
+    lines = [ln for ln in out.stdout.splitlines() if ln.strip()]
+    assert lines, "et_clock CLI printed NOTHING (the G16 regression: no __main__ block)"
+    assert re.match(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \w+ (EDT|EST)$', lines[0]), (
+        f"et_clock CLI line 1 is not a parseable ET stamp: {lines[0]!r}")
+    assert any(re.match(r'^market_hours=(True|False)$', ln) for ln in lines), (
+        f"et_clock CLI missing a market_hours=True|False line: {lines!r}")
