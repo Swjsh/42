@@ -31,6 +31,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 LOG = REPO / "analysis" / "trendlines" / "trendline-log.jsonl"
+LIVE_STATE = REPO / "automation" / "state" / "trendlines-live.json"  # V3 shadow state (engine-readable)
 TOL = 0.10          # $ tolerance for a "touch" and for break confirmation
 PIVOT_K = 1         # swing pivot = extreme of a +/-PIVOT_K window
 MIN_SPAN = 3        # anchors must be >= this many bars apart (a real trend, not 2 adjacent bars)
@@ -176,6 +177,28 @@ def log_lines(lines: list[Trendline], date_et: str) -> None:
             f.write(json.dumps({"date_et": date_et, **asdict(ln)}) + "\n")
 
 
+def write_live_state(lines: list[Trendline], date_et: str) -> None:
+    """V3 (2026-07-08): the CURRENT trendlines as a SHADOW state file the engine / dashboard /
+    self-check can read (overwritten each run, unlike the append-only LOG). SHADOW-only -- the
+    engine does NOT trade off these yet (the trendline-as-veto / BOS-break-trigger entry-wire is
+    A/B-gated NEEDS-REVIEW). Each line carries kind/current_value/break_level/status/respect so a
+    consumer can see 'ascending support now 746.8, INTACT, respected x11; BREAK = 5m close below'."""
+    import datetime as _dt
+    payload = {
+        "date_et": date_et,
+        "generated_at": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+        "count": len(lines),
+        "trendlines": [{"kind": ln.kind, "current_value": round(ln.current_value, 2),
+                        "break_level": round(ln.break_level, 2), "status": ln.status,
+                        "respect_count": ln.respect_count, "violations": ln.violations,
+                        "slope_per_bar": round(ln.slope_per_bar, 3),
+                        "last_close": round(ln.last_close, 2), "summary": ln.summary()}
+                       for ln in lines],
+        "note": "SHADOW trendlines (V3). NOT fed to entries -- entry-wire is A/B-gated NEEDS-REVIEW.",
+    }
+    LIVE_STATE.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
 def main() -> int:
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -192,6 +215,7 @@ def main() -> int:
         print("trendline_engine: no respected trendline yet")
         return 0
     log_lines(lines, day)
+    write_live_state(lines, day)   # V3: shadow state for the engine/dashboard/self-check
     print(f"trendline_engine {day} ({len(bars)} bars):")
     for ln in lines:
         print("  " + ln.summary())
