@@ -276,3 +276,99 @@ class TestFillReconciliation:
         assert broker.get("filled_avg_price") == "1.09"
         assert broker.get("filled_qty") == "3"
         assert plan["fill"]["reconcile_status"] == "RECONCILED"
+
+
+# =============================================================================
+# D2 (2026-07-07) — ADOPTED MANUAL POSITIONS ARE CAP-ONLY (engine never imposes its exit)
+# =============================================================================
+class TestAdoptedShapeCapOnly:
+    """The engine ADOPTS a manual position to prevent catastrophe, but must NOT impose its
+    own TP1 / chandelier / ribbon-flip on a trade J originated (today J scalped 80% and rode
+    runners toward 2.5x; a +30% TP1 would have cut his runner). RED-proofs:
+      - revert the adopted shape to tp1_qty_fraction>0 -> TP1 sells J's runner (test 1 RED)
+      - drop the -50% cap / 15:50 flatten -> unmanaged (test 2)
+      - drop the `strategy != adopted_manual` ribbon-flip guard -> flip sells J out (test 3 RED)
+    """
+
+    def _captured_adopted_shape(self, hc, monkeypatch):
+        """Run the REAL _adopt_untracked_positions with a fake untracked position; capture the
+        exit_shape production hands register_entry -> pins the ACTUAL shape, not a copy."""
+        captured: dict = {}
+        fake_ea = types.SimpleNamespace(
+            load_states=lambda arm: {},
+            register_entry=lambda arm, **k: captured.update(k) or k,
+        )
+        monkeypatch.setitem(sys.modules, "exit_actuator", fake_ea)
+        monkeypatch.setattr(hc, "_adoption_ping", lambda *a, **k: None)  # don't touch the real outbox
+        recs = hc._adopt_untracked_positions(
+            "safe", {}, [{"symbol": "SPY260707P00747000", "avg_entry_price": "1.00", "qty": "5"}])
+        assert any(r.get("adopted") for r in recs), recs
+        return captured["exit_shape"]
+
+    def test_adopted_shape_never_fires_tp1_or_profit_lock(self, hc, monkeypatch):
+        import exit_manager as em
+        shape = self._captured_adopted_shape(hc, monkeypatch)
+        st = em.ExitState.from_entry(symbol="SPY260707P00747000", side="P",
+                                     entry_premium=1.00, qty=5, exit_shape=shape,
+                                     strategy="adopted_manual")
+        assert st.tp1_qty == 0, f"adopted must carry NO TP1 units; shape={shape}"
+        # a +150% favorable move must NOT sell any of J's contracts, and profit-lock must not arm
+        dec = em.plan_exit_actions(st, best_premium=2.50, worst_premium=1.40, open_qty=5,
+                                   now_et=dt.time(11, 0))
+        assert not any(a.kind in ("SELL_PARTIAL", "SELL_ALL") for a in dec.actions), \
+            f"cap-only adopted position was sold on a +150% move: {dec.actions}"
+        assert not dec.state.profit_lock_armed, "profit-lock must never arm on an adopted position"
+
+    def test_adopted_cap_and_timestop_still_fire(self, hc, monkeypatch):
+        import exit_manager as em
+        shape = self._captured_adopted_shape(hc, monkeypatch)
+        st = em.ExitState.from_entry(symbol="SPY260707P00747000", side="P",
+                                     entry_premium=1.00, qty=5, exit_shape=shape,
+                                     strategy="adopted_manual")
+        cap = em.plan_exit_actions(st, best_premium=0.55, worst_premium=0.50, open_qty=5,
+                                   now_et=dt.time(11, 0))
+        assert any(a.kind == "SELL_ALL" and a.stage == "premium_stop" for a in cap.actions), \
+            f"-50% cap must still fire on an adopted position: {cap.actions}"
+        eod = em.plan_exit_actions(st, best_premium=1.20, worst_premium=1.10, open_qty=5,
+                                   now_et=dt.time(15, 51))
+        assert any(a.kind == "SELL_ALL" and a.stage == "time_stop" for a in eod.actions), \
+            f"15:50 time-stop must still flatten an adopted position: {eod.actions}"
+
+    def test_ribbon_flip_excluded_for_adopted_but_kept_for_engine(self, monkeypatch):
+        import exit_actuator as ea
+        import exit_manager as em
+        adopted = em.ExitState.from_entry(
+            symbol="SPY260707P00747000", side="P", entry_premium=1.00, qty=5,
+            exit_shape={"premium_stop_pct": -0.50, "tp1_premium_pct": 0.30,
+                        "tp1_qty_fraction": 0.0, "profit_lock_mode": "none"},
+            strategy="adopted_manual")
+        engine = em.ExitState.from_entry(
+            symbol="SPY260707P00750000", side="P", entry_premium=2.00, qty=3,
+            exit_shape={"premium_stop_pct": -0.50, "tp1_premium_pct": 0.30,
+                        "tp1_qty_fraction": 0.667, "profit_lock_mode": "fixed"},
+            strategy="vwap_continuation")
+        monkeypatch.setattr(ea, "load_states",
+                            lambda arm: {adopted.symbol: adopted, engine.symbol: engine})
+        monkeypatch.setattr(ea, "save_states", lambda *a, **k: None)
+
+        sells: list = []
+
+        class _Broker:  # quotes chosen so ONLY a ribbon-flip could exit either position
+            _hilo = {adopted.symbol: (1.10, 0.90), engine.symbol: (2.10, 1.90)}  # (best, worst)
+
+            def get_position_qty(self, creds, symbol):
+                return 5 if symbol == adopted.symbol else 3
+
+            def get_option_quote_hilo(self, creds, symbol):
+                return self._hilo[symbol]
+
+            def market_sell(self, creds, *, symbol, qty, live):
+                sells.append((symbol, qty)); return {"ok": True}
+
+        ea.manage_tick("safe", {}, live=True,
+                       ribbon_flip_back_fn=lambda symbol, side: True,  # flip EVERYTHING
+                       now_et=dt.datetime(2026, 7, 7, 11, 0), broker=_Broker(), time_stop_et="15:50")
+        sold = {s for s, _ in sells}
+        assert engine.symbol in sold, "ribbon-flip must STILL exit a normal engine position"
+        assert adopted.symbol not in sold, \
+            f"ribbon-flip must NOT exit an adopted manual position (J drives the exit): {sells}"

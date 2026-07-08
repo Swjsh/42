@@ -658,6 +658,24 @@ def _manage_exits(account: str, ribbon_stack: str | None = None,
         return [{"error": f"manage_exits: {type(e).__name__}: {e}"}]
 
 
+def _adoption_ping(arm: str, sym: str, qty: int, side: str) -> None:
+    """Discord ping when the engine ADOPTS a manual position (D2 2026-07-07) so J is never
+    surprised his trade is now engine-managed. Fires once per newly-adopted symbol (adoption
+    is idempotent — already-tracked symbols are skipped). Fail-safe: an outbox-write failure
+    never aborts adoption."""
+    try:
+        from datetime import datetime, timezone  # noqa: PLC0415
+        row = {"queued_at": datetime.now(timezone.utc).isoformat(),
+               "content": (f"Gamma adopted your manual {sym} x{qty} "
+                           f"({'PUT' if side == 'P' else 'CALL'}) on {arm} — managing "
+                           f"CAP-ONLY (-50% cat-cap + 15:50 flatten, no TP1/trail). "
+                           f"You drive the exit; reply to override.")}
+        with (STATE / "discord-outbox.jsonl").open("a", encoding="utf-8") as f:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+    except Exception as e:  # noqa: BLE001 — alerting must never abort adoption
+        print(f"[adopt] ping failed: {type(e).__name__}: {e}", file=sys.stderr)
+
+
 def _adopt_untracked_positions(arm: str, creds: dict, positions: list) -> list:
     """FIX1 (2026-07-07, J: "get rid of the lockout") — MANUAL/ENGINE COEXISTENCE.
 
@@ -670,11 +688,13 @@ def _adopt_untracked_positions(arm: str, creds: dict, positions: list) -> list:
 
     Idempotent: a symbol already carried in the exit-state ledger is left untouched (its
     evolving tp1_filled / hwm / runner_stop state is preserved — re-registering would reset
-    it). Only genuinely-untracked open symbols are registered, with a catastrophe-floor
-    exit shape (the same -50% cap / +30% TP1 / fixed profit-lock the core places).
+    it). Only genuinely-untracked open symbols are registered with a CAP-ONLY exit shape
+    (-50% catastrophe cap + 15:50 time-stop ONLY; NO TP1 / chandelier / ribbon-flip — D2
+    2026-07-07: the engine never imposes its own exit on a trade J originated). A Discord
+    ping fires once per newly-adopted symbol so J is never surprised it is engine-managed.
     Fail-safe: any error is captured and returned, never raised — adoption must never abort
     the FLAT-verify / no-stack guard. Returns a list of per-symbol adoption records.
-    Guard: test_audit_fix_heartbeat.py::TestManualCoexistence."""
+    Guard: test_audit_fix_heartbeat.py::TestManualCoexistence + TestAdoptedShapeCapOnly."""
     out: list = []
     try:
         import exit_actuator as ea  # noqa: PLC0415
@@ -693,12 +713,21 @@ def _adopt_untracked_positions(arm: str, creds: dict, positions: list) -> list:
                 out.append({"symbol": sym, "adopted": False, "reason": "no_qty_or_premium"})
                 continue
             opt_side = "P" if sym[-9:-8] == "P" else "C"  # OCC: SPY<yymmdd><C|P><strike*1000>
+            # D2 (2026-07-07): adopted MANUAL positions get CAP-ONLY management. The engine
+            # NEVER imposes its own TP/chandelier on a trade J originated (today J scalped
+            # 80% + rode runners to 2.5x; a +30% TP1 would have cut his runner). Setting
+            # tp1_qty_fraction=0.0 -> tp1_qty=int(qty*0)=0 -> TP1 never fires -> the post-TP1
+            # profit-lock never arms. What REMAINS: the -50% catastrophe cap + the 15:50
+            # time-stop/EOD-flatten. Ribbon-flip is separately excluded for strategy
+            # "adopted_manual" in exit_actuator.manage_tick. J drives the exit; the engine
+            # only prevents catastrophe and guarantees the 0DTE is flat by the close.
             shape = {"premium_stop_pct": -0.50, "tp1_premium_pct": 0.30,
-                     "tp1_qty_fraction": 0.667, "profit_lock_mode": "fixed"}
+                     "tp1_qty_fraction": 0.0, "profit_lock_mode": "none"}
             ea.register_entry(arm, symbol=sym, side=opt_side, entry_premium=entry_px,
                               qty=qty, exit_shape=shape, strategy="adopted_manual")
+            _adoption_ping(arm, sym, qty, opt_side)
             out.append({"symbol": sym, "adopted": True, "side": opt_side,
-                        "qty": qty, "entry_premium": entry_px})
+                        "qty": qty, "entry_premium": entry_px, "exit": "cap_only"})
     except Exception as e:  # noqa: BLE001 — adoption must never abort the no-stack guard
         out.append({"error": f"adopt: {type(e).__name__}: {e}"})
     return out

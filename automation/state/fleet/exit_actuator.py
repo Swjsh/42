@@ -142,7 +142,11 @@ def manage_tick(arm_id: str, creds: dict, *, live: bool,
                             "reason": "no_quote"})
             continue
         best_premium, worst_premium = hilo
-        flip = bool(ribbon_flip_back_fn(symbol, st.side)) if ribbon_flip_back_fn else False
+        # D2 (2026-07-07): adopted MANUAL positions are cap-only — the engine does NOT impose
+        # a ribbon-flip (strategy) exit on a trade J originated; only the -50% cap + 15:50
+        # flatten manage it. J drives the exit. Everything else keeps the v15.3 ribbon-flip.
+        flip = (bool(ribbon_flip_back_fn(symbol, st.side))
+                if (ribbon_flip_back_fn and st.strategy != "adopted_manual") else False)
         dec = em.plan_exit_actions(st, best_premium=best_premium, worst_premium=worst_premium,
                                    open_qty=open_qty, now_et=now_t, ribbon_flip_back=flip,
                                    time_stop_et=stop_t)
