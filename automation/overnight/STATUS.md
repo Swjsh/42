@@ -1,3 +1,4 @@
+- 2026-07-08 08:44 ET [vision-loop] V0 DONE: F1 ribbon-momentum gate DISABLED (0->null) — A/B confirmed it was removing a +$585 cohort of big-down-day puts (J's edge). Engine unblocked for the 09:30 open. Guard red-proofed, REVOKE=positive threshold+OOS.
 - 2026-07-08 00:30 ET [overnight-loop] G6 DONE (KILL): weekly-put hold-to-Friday fails null (p>0.05 @ 3-4DTE) + gap-bleed -$4-6K + doesn't hold. GAP-AUDIT COMPLETE (10 shipped+guarded, G4/G11 review-blocked, G13/G6 analysis). Loop stopping.
 - 2026-07-08 00:27 ET [overnight-loop] G4 review packet COMPLETE (replay: 3/4 arms clean, risky-1 +1 extra @ bar 1801, parity 98.1% — one dedup fix from arm-ready). G6 weekly-put multi-day-hold sim RUNNING (_dte34_multiday_hold_sim.py, OPRA single-process). Last gap-audit item.
 - 2026-07-08 00:16 ET [overnight-loop] G4 + G11 -> BLOCKED-NEEDS-REVIEW (both entry-path; specs in markdown/audits/G4-FLEET-DIVERGENCE-SPEC.md + G11-LEVEL-MEMORY-PRODUCER-SPEC.md — J nod + supervised A/B). G13 delegated to treasurer agent (real Alpaca equity + reconcile the 0-fills-vs-drawdown puzzle). G6 weekly battery pending (waits for OPRA). Ultracode ON -> G6 + capstone will be workflow-driven.
@@ -275,7 +276,7 @@
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=ollama::qwen3:14b
+Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -549,6 +550,8 @@ Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=ollama
 ---
 
 ## Known broken
+[2026-07-08T08:35:00-04:00] PREMARKET TV_NOT_RUNNING: CDP unreachable after launch_tv_debug.ps1 self-heal + 3 retries (10-15s gaps). bias=no-trade-tv-fail written to today-bias.json; both kill-switches re-armed on live equity (Safe $1512.83 / Bold $1963.04, both flat). Crypto harness DEGRADED (v53_setup_dispatch.live failing, 103/104 pass) -- yellow, not trading-blocking. Macro calendar STALE 24 days (last refresh 2026-06-14) -- Sunday weekly-review has silently failed for 4+ weeks running, needs a manual `run-weekly-review.ps1` fire. daytrade_count field absent from Alpaca account_info again -- wrote day_trades_used_5d=0 to both breakers (was 7/4 from manual tracking). Heartbeat must retry TV at first tick; if still down, no entries this session.
+
 [2026-07-07T18:30:26-04:00] MCP_AUDIT_RED: TradingView MCP bridge wedged (CDP listening but health_check failing after relaunch attempt). Alpaca accounts recovered (Safe+Bold healthy, auth errors from 07-06 cleared).
 
 [2026-07-06T13:45:15Z] MCP_AUDIT_RED: Alpaca API auth failing (401 Unauthorized) on both Safe and Bold accounts
@@ -1452,3 +1455,63 @@ Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=ollama
 - [2026-07-08 00:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T06:27:03.339609+00:00) | fail streak: 212 consecutive fires | stage v02_source_parity pass rate dropped to 75.0% in last 24h (30/40) -- but v15 (3-source) = 97.5% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/40) :: see crypto/data/scorecards/drift_report.json
 
 - [2026-07-08 00:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+- [2026-07-08 00:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T06:57:03.373884+00:00) | fail streak: 213 consecutive fires | stage v02_source_parity pass rate dropped to 75.61% in last 24h (31/41) -- but v15 (3-source) = 97.56% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/41) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 00:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+- [2026-07-08 01:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T07:27:03.329818+00:00) | fail streak: 214 consecutive fires | stage v02_source_parity pass rate dropped to 76.19% in last 24h (32/42) -- but v15 (3-source) = 97.62% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/42) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 01:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+- [2026-07-08 01:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T07:57:03.352471+00:00) | fail streak: 215 consecutive fires | stage v02_source_parity pass rate dropped to 76.74% in last 24h (33/43) -- but v15 (3-source) = 97.67% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/43) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 01:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+- [2026-07-08 02:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T08:27:03.341533+00:00) | fail streak: 216 consecutive fires | stage v02_source_parity pass rate dropped to 77.27% in last 24h (34/44) -- but v15 (3-source) = 97.73% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/44) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 02:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+- [2026-07-08 02:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T08:57:03.388108+00:00) | fail streak: 217 consecutive fires | stage v02_source_parity pass rate dropped to 75.56% in last 24h (34/45) -- but v15 (3-source) = 97.78% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/45) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 02:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+- [2026-07-08 03:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T09:27:03.343985+00:00) | fail streak: 218 consecutive fires | stage v02_source_parity pass rate dropped to 73.91% in last 24h (34/46) -- but v15 (3-source) = 97.83% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/46) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 03:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+- [2026-07-08 03:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T09:57:03.351970+00:00) | fail streak: 219 consecutive fires | stage v02_source_parity pass rate dropped to 72.34% in last 24h (34/47) -- but v15 (3-source) = 97.87% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/47) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 03:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+- [2026-07-08 04:00:02] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+[2026-07-08 04:00:02] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-08.md
+
+- [2026-07-08 04:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T10:27:03.332210+00:00) | fail streak: 220 consecutive fires | stage v02_source_parity pass rate dropped to 72.92% in last 24h (35/48) -- but v15 (3-source) = 97.92% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 04:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+- [2026-07-08 04:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T10:57:03.389766+00:00) | fail streak: 221 consecutive fires | stage v02_source_parity pass rate dropped to 73.47% in last 24h (36/49) -- but v15 (3-source) = 97.96% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/49) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 04:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+- [2026-07-08 05:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T11:27:03.826168+00:00) | fail streak: 222 consecutive fires | stage v02_source_parity pass rate dropped to 74.0% in last 24h (37/50) -- but v15 (3-source) = 98.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/50) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 05:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+- [2026-07-08 05:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T11:57:03.543342+00:00) | fail streak: 223 consecutive fires | stage v02_source_parity pass rate dropped to 74.51% in last 24h (38/51) -- but v15 (3-source) = 98.04% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/51) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 05:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+- [07-08 08:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 80539s - kill+relaunch
+- [07-08 08:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 80840s - kill+relaunch
+- [07-08 08:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 81140s - kill+relaunch
+- [07-08 08:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 81440s - kill+relaunch
+- [07-08 08:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 81740s - kill+relaunch
+
+- [2026-07-08 06:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T12:27:03.486288+00:00) | fail streak: 224 consecutive fires | stage v02_source_parity pass rate dropped to 75.0% in last 24h (39/52) -- but v15 (3-source) = 98.08% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/52) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 06:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+- [07-08 08:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 82040s - kill+relaunch
+- [07-08 08:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 82340s - kill+relaunch
+- [07-08 08:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 82640s - kill+relaunch
