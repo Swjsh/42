@@ -1,0 +1,58 @@
+{
+  "generated_at": "2026-07-08T14:54:58.466652+00:00",
+  "band": 0.85,
+  "min_sources": 2,
+  "input_points": 16,
+  "count": 3,
+  "zones": [
+    {
+      "center": 747.27,
+      "low": 746.69,
+      "high": 747.7,
+      "n_sources": 2,
+      "sources": [
+        "gap_magnet",
+        "memory"
+      ],
+      "score": 517.0,
+      "members": [
+        "memory@746.69",
+        "memory@747.41",
+        "gap_magnet@747.7"
+      ]
+    },
+    {
+      "center": 744.61,
+      "low": 744.23,
+      "high": 745.21,
+      "n_sources": 3,
+      "sources": [
+        "memory",
+        "trendline",
+        "wick_low"
+      ],
+      "score": 441.0,
+      "members": [
+        "trendline@744.23",
+        "memory@744.4",
+        "wick_low@745.21"
+      ]
+    },
+    {
+      "center": 740.69,
+      "low": 740.46,
+      "high": 740.93,
+      "n_sources": 2,
+      "sources": [
+        "memory",
+        "wick_low"
+      ],
+      "score": 286.0,
+      "members": [
+        "memory@740.46",
+        "wick_low@740.93"
+      ]
+    }
+  ],
+  "note": "CONFLUENCE zones = where >= 2 distinct structural sources (memory/trendline/wick_low/gap) converge. SHADOW-only (entry-use A/B-gated NEEDS-REVIEW). Higher score = more sources stacked = higher conviction (how J reads 745.39)."
+}
