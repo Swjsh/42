@@ -1,0 +1,20 @@
+{
+  "probe": "ribbon_momentum_gate_V0",
+  "window": [
+    "2026-05-21",
+    "2026-06-30"
+  ],
+  "gate_on_n": 18,
+  "gate_on_pnl": -59.00840913967988,
+  "gate_off_n": 31,
+  "gate_off_pnl": 584.94799012801,
+  "removed_n": 14,
+  "removed_pnl": 584.9163992676898,
+  "removed_wr": 0.35714285714285715,
+  "removed_exp": 41.77974280483499,
+  "sufficient": true,
+  "slippage": "SURVIVES_REALISTIC",
+  "top3_day_pct": 138.3,
+  "anchors_hit": 0,
+  "verdict": "GATE_HARMFUL_DISABLE"
+}
