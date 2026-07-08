@@ -29,14 +29,17 @@ This file is the DURABLE state: each loop wake reads it, does the top todo item,
 - [B] G4 fleet divergence PHASE 1 [NEEDS-REVIEW: entry-path fleet-producer keystone; spec markdown/audits/G4-FLEET-DIVERGENCE-SPEC.md; enable SCORING_PEAK_LIVE + core-decisions wiring + frame-fix keystone BITE; validate via replay_fleet_arms.py; J nod] — per-arm gate-strictness on the SHARED perception. **TRAP: `test_fleet_producer_keystone::test_scoring_peak_off_reverts_fleet_to_inert_BITE` PINS the inert design — frame-fix it in the SAME commit (L197).** Validate via `replay_fleet_arms.py` before ship. Uncertain → `[B]` BLOCKED-NEEDS-REVIEW.
 - [B] G11 level_memory -> key-levels producer [NEEDS-REVIEW: entry-path level-feed (filter-10); A/B first; spec G11-LEVEL-MEMORY-PRODUCER-SPEC.md; NOTE the DETECT/ALERT half already ships via G5]. Orig: **TRAP: entry-path blast radius (filter-10) — A/B via the feed harness FIRST.** Not cleanly validated → `[B]` BLOCKED-NEEDS-REVIEW.
 - [ ] G6 J-exact weekly-spec battery — OTM weekly put + UNDERLYING-level stop (e.g. "750.20") + hold-to-Friday, on the 3-4DTE cache. One PRE-REGISTERED battery. Honest prior: modest / gap-exposed. Report verdict either way.
-- [ ] G13 treasurer trajectory review (Safe-2 doom-loop, down ~32%/3wk) — analysis + options doc only; the equity reset itself is D4 `[B-J]`.
+- [x] G13 treasurer review (via treasurer agent) — VERIFIED: Safe-2 real equity $1,513 (trough $1,351 = -32.43%, now -24.35%). NOT the engine (G9 0-fills holds) -> drawdown is J's MANUAL trades: 11-fill same-contract averaging-down (07-06), qty=5 breaking qty=3 tier, + OUT-OF-SCOPE crypto (UNI/BTC) contradicting the gym-only lock. Floor disqualifies edges at trough, not at current. Strengthens D4 (account contaminated as a measurement instrument). Doc: markdown/audits/G13-TREASURER-SAFE2-2026-07-08.md.
 
 ## J-DECISIONS (loop does NOT execute — flag + wait)
-- [B-J] D4 Safe-2 paper-reset to $2K w/ epoch ledger (rec: yes)
+- [B-J] D4 Safe-2 paper-reset to $2K w/ epoch ledger (rec: **YES, strengthened by G13** — the account is contaminated by off-scope manual activity (crypto scalps + averaging-down + qty-5), so its equity no longer measures the ENGINE; reset restores it as a clean instrument, epoch ledger keeps the manual-P&L on record).
 - [B-J] D5 min-1 contract for single-exit shapes (his Rule 6)
 - [B-J] D6 activate G7-EOD-flatten backstop cd-2026-06-27-001 (rec: yes)
 - [B-J] Provision futures on Tastytrade 5WW73759 → MNQ live-paper
 - [B-J] Paid SIP data = **$99/mo CONFIRMED** (Alpaca Algo Trader Plus: real-time SIP, 100% volume, full options greeks/quotes; free Basic = IEX-only + options indicative). -> volume-shelf lens (D-SIP). J: yes/no.
+
+## FLAGS FOR J
+- **Crypto activity in Safe-2 paper (UNI/USD, BTC/USD scalps)** contradicts the CLAUDE.md scope lock (crypto = gym-only). If that's you manually scalping — fine, but it contaminates Safe-2 as an engine-measurement account (see D4). If it's NOT you, a rogue process is placing crypto orders — investigate. (G13, 2026-07-08)
 
 ## PROGRESS LOG (append one line per iteration)
 - 2026-07-07 ~22:45 ET: Tier 1 (G1/G2/G3) DONE + verified (129 graduated-guards passed). Loop armed for Tier 2–4.
@@ -53,3 +56,4 @@ This file is the DURABLE state: each loop wake reads it, does the top todo item,
 - 2026-07-08 01:50 ET (iter 11, G4 IN-PROGRESS): fleet-divergence investigated — keystone = build_shared_signal derives passed off Safe's verdict (arms only ever TIGHTER); the divergence lever exists (SCORING_PEAK_LIVE + _bold_passed_blocks, default OFF, pinned by test_scoring_peak_off...BITE). G4 replay validation kicked off (backtest/replay_fleet_arms.py, read-only). DECISION: entry-path fleet-keystone -> BLOCK-NEEDS-REVIEW regardless of replay (won't auto-ship a producer keystone unsupervised); capturing replay data for J's review packet.
 - 2026-07-08 00:14 ET (iter 11 cont, G4 -> BLOCKED-NEEDS-REVIEW): spec written (G4-FLEET-DIVERGENCE-SPEC.md). Entry-path fleet keystone -> J-supervised A/B + nod, not an autonomous ship. Replay re-running for the review packet. Moving to G11.
 - 2026-07-08 00:16 ET (iter 12, G11 -> BLOCKED-NEEDS-REVIEW): spec written. Entry-path level-feed (filter-10 blast radius) -> supervised A/B + J nod. The multi-day-level AWARENESS already ships safely via G5's reject-ping (notify-only); only feed-into-entries is gated. Next: G13 treasurer (no OPRA).
+- 2026-07-08 00:19 ET (G13 DONE via treasurer agent): Safe-2 $1,513 real, -24% (trough -32%); drawdown = J manual (averaging-down + qty-5 + off-scope crypto), NOT engine. Strengthens D4. Crypto-in-Safe-2 flagged for J. Remaining: G6 (weekly battery, waiting on OPRA/replay).
