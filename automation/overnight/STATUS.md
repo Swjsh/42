@@ -1,3 +1,4 @@
+- 2026-07-08 09:01 ET [vision-loop] V1b DONE+VERIFIED: Gamma_LevelMemory scheduled (every 10min RTH) — triggered, shadow map refreshed (exit 0). Multi-day memory levels now auto-update live.
 - 2026-07-08 08:56 ET [vision-loop] V1 producer DONE: multi-day level-memory shadow producer built+guarded+committed — captures J's exact reads (747.41/746.7/745.88). Shadow-only (entry-wire A/B NEEDS-REVIEW). Follow-ups: schedule refresh + wire G5-alert/dashboard consumers.
 - 2026-07-08 08:44 ET [vision-loop] V0 DONE: F1 ribbon-momentum gate DISABLED (0->null) — A/B confirmed it was removing a +$585 cohort of big-down-day puts (J's edge). Engine unblocked for the 09:30 open. Guard red-proofed, REVOKE=positive threshold+OOS.
 - 2026-07-08 00:30 ET [overnight-loop] G6 DONE (KILL): weekly-put hold-to-Friday fails null (p>0.05 @ 3-4DTE) + gap-bleed -$4-6K + doesn't hold. GAP-AUDIT COMPLETE (10 shipped+guarded, G4/G11 review-blocked, G13/G6 analysis). Loop stopping.
@@ -1519,3 +1520,8 @@ Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=openro
 - [07-08 08:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 82940s - kill+relaunch
 - [07-08 08:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 83240s - kill+relaunch
 - [07-08 08:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 83540s - kill+relaunch
+
+- [2026-07-08 06:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T12:57:03.612683+00:00) | fail streak: 225 consecutive fires | stage v02_source_parity pass rate dropped to 75.0% in last 24h (39/52) -- but v15 (3-source) = 98.08% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/52) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 06:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+- [07-08 09:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 83840s - kill+relaunch
