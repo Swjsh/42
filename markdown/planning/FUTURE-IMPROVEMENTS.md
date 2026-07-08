@@ -345,6 +345,11 @@ Current grinder varies 7 knobs. Unexplored (rough list):
 
 **Estimate:** 2h wiring (Phase 1) + 1 week shadow + 2h analysis + 4h Phase 2 promotion if warranted
 
+### 27. Brain-sovereignty rollout (BRAIN-SOVEREIGNTY.md G1–G6)
+**Context:** J directive 2026-07-08 — cost-proof + future-proof the brain stack. Doctrine + tier map: `markdown/planning/BRAIN-SOVEREIGNTY.md`. Local lane verified same night (qwen3.6:35b ~78 tok/s on the 5080, json_ok both directions through swarm_client) and rostered on R&D roles.
+**Queued tasks:** (a) **G4** add a `qwen-local` (ollama lane) entry to `shadow_model_eval.py MODELS` so Gamma_ShadowEval scores the local brain nightly → accumulates the ≥85%/15-day promotion case for free; (b) **G3** Tier-2 pilot: claude-code-router + DeepSeek pay-per-token or GLM Coding Plan — re-enable the 07-02-parked mechanical fires (doc-updater → queue-harvest → Conductor) on Tier 2 instead of re-arming them on Max — **needs J: wallet action**; (c) **G1** promote local from floor to primary lane per role, one role at a time, on passing scorecards only; (d) **G5** run the Anthropic-blackout drill (BRAIN-SOVEREIGNTY §7), then quarterly; (e) brain P&L line (per-tier tokens/$) in the EOD digest; (f) quarterly brain-market scan (scout, $0) to re-verify endpoints/prices/model classes.
+**Gate:** every promotion goes through a scorecard (no vibes-swaps); hardware spend only after a *failed* capability/throughput eval (§8 ladder).
+
 ---
 
 ## Tracking
