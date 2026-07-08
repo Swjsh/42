@@ -16,6 +16,7 @@ Run: python setup/scripts/level_memory_producer.py   (schedulable every N min).
 """
 from __future__ import annotations
 
+import datetime as dt
 import json
 import sys
 from pathlib import Path
@@ -32,6 +33,12 @@ STRONG_MEMORY = 60.0    # >= this => tier "Active" (else "Reference")
 LOOKBACK_DAYS = 10      # multi-day memory horizon
 DEDUP_EPS = 0.60        # collapse levels within $0.60 into ONE zone (J reads zones, not pivots)
 TOP_N = 12              # cap the map at the strongest N zones (readable; not a wall of levels)
+
+# V1c reject-alert: ping J when the latest bar REJECTS a strong memory level (like 746.7).
+OUTBOX = REPO / "automation" / "state" / "discord-outbox.jsonl"
+PING_STATE = REPO / "automation" / "state" / "level-memory-ping-state.json"
+PING_MIN_MEMORY = 40.0  # only ping STRONG levels (the 746.7 zone is 151) -- not every pivot
+PING_DEDUP_MIN = 30     # don't re-ping the same level within 30 min (no spam)
 
 
 def _load_spy() -> "pd.DataFrame | None":
@@ -92,12 +99,55 @@ def build_levels(df: pd.DataFrame) -> list[dict]:
     return select_levels(lm.levels_at(len(lm.df) - 1, lookback_days=LOOKBACK_DAYS))
 
 
+def dedup_ok(state: dict, key: str, now: dt.datetime, dedup_min: int = PING_DEDUP_MIN) -> bool:
+    """PURE: True if this level hasn't been pinged within dedup_min minutes. Testable."""
+    last = state.get(key)
+    if not last:
+        return True
+    try:
+        return (now - dt.datetime.fromisoformat(last)).total_seconds() >= dedup_min * 60
+    except (TypeError, ValueError):
+        return True
+
+
+def _ping_rejection(lm, last_idx: int) -> "str | None":
+    """If the latest bar REJECTED a strong memory level (>= PING_MIN_MEMORY) and it wasn't pinged
+    within PING_DEDUP_MIN, queue a Discord ping (delivered `content` schema). Notify-only,
+    fail-open -- never raises into the producer. Returns the pinged message or None."""
+    try:
+        snap = lm.snapshot(last_idx, lookback_days=LOOKBACK_DAYS)
+        msg = LM.format_reject_alert(snap, min_memory=PING_MIN_MEMORY)
+        if not msg:
+            return None
+        now = dt.datetime.now(dt.timezone.utc)
+        state = {}
+        if PING_STATE.exists():
+            try:
+                state = json.loads(PING_STATE.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                state = {}
+        key = f"{round(float(snap.interaction.level.price), 2)}"
+        if not dedup_ok(state, key, now):
+            return None  # pinged recently, skip (no spam)
+        row = {"content": f"[LEVEL-MEMORY] {msg}", "source": "level_memory_producer",
+               "queued_at": now.isoformat()}
+        with OUTBOX.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(row) + "\n")
+        state[key] = now.isoformat()
+        PING_STATE.write_text(json.dumps(state), encoding="utf-8")
+        return msg
+    except Exception:  # noqa: BLE001 -- the ping must never break the producer
+        return None
+
+
 def main() -> int:
     df = _load_spy()
     if df is None or len(df) < 50:
         print("[level_memory_producer] SPY load failed -> wrote nothing (fail-open)")
         return 0
-    levels = build_levels(df)
+    lm = LM.LevelMemory(df)
+    last = len(lm.df) - 1
+    levels = select_levels(lm.levels_at(last, lookback_days=LOOKBACK_DAYS))
     spot = round(float(df["close"].iloc[-1]), 2)
     payload = {"generated_at_et": str(pd.Timestamp.now(tz="America/New_York").replace(microsecond=0)),
                "spot": spot, "lookback_days": LOOKBACK_DAYS, "min_memory": MIN_MEMORY,
@@ -108,6 +158,9 @@ def main() -> int:
     for lv in levels:
         print(f"   {lv['price']:8.2f}  {lv['role']:10s}  mem {lv['memory_score']:5.1f}  "
               f"touches {lv['touches']}  flips {lv['role_flips']}  [{lv['tier']}]")
+    pinged = _ping_rejection(lm, last)   # V1c: ping J on a strong-memory-level rejection
+    if pinged:
+        print(f"[level_memory_producer] >>> PINGED J (memory-level rejection): {pinged}")
     return 0
 
 

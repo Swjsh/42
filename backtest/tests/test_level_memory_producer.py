@@ -60,3 +60,42 @@ def test_role_preserved_one_per_price():
     assert roles[747.4] == "support" and roles[748.8] == "resistance"
     prices = [o["price"] for o in out]
     assert len(prices) == len(set(prices))  # one role per price
+
+
+# --- V1c reject-ping (dedup + outbox) ---
+def test_dedup_ok():
+    prod = _prod()
+    import datetime as dt
+    now = dt.datetime(2026, 7, 8, 14, 0, tzinfo=dt.timezone.utc)
+    assert prod.dedup_ok({}, "747.41", now) is True                           # never pinged
+    recent = (now - dt.timedelta(minutes=5)).isoformat()
+    assert prod.dedup_ok({"747.41": recent}, "747.41", now) is False          # 5min < 30min
+    old = (now - dt.timedelta(minutes=45)).isoformat()
+    assert prod.dedup_ok({"747.41": old}, "747.41", now) is True              # 45min >= 30min
+
+
+def test_ping_rejection_writes_then_dedups(tmp_path):
+    prod = _prod()
+    import json as _json
+    import pandas as pd
+    from lib.watchers.level_memory import Interaction, Level, Snapshot
+    prod.OUTBOX = tmp_path / "outbox.jsonl"
+    prod.PING_STATE = tmp_path / "ping-state.json"
+    lvl = Level(price=747.41, role="support", memory_score=120.0, touches=63, wicks=10,
+                bars_consolidated=20, role_flips=17, first_seen_idx=0, last_touch_idx=5)
+    it = Interaction(kind="reject", level=lvl, distance=0.3, detail="wicked below S")
+    snap = Snapshot(idx=10, timestamp_et=pd.Timestamp("2026-07-08 10:00"), close=747.7,
+                    levels=(lvl,), nearest=lvl, interaction=it)
+
+    class FakeLM:
+        def snapshot(self, idx, lookback_days=5):
+            return snap
+
+    m1 = prod._ping_rejection(FakeLM(), 10)
+    assert m1 and "REJECT" in m1
+    rows = [_json.loads(x) for x in prod.OUTBOX.read_text(encoding="utf-8").splitlines() if x.strip()]
+    assert len(rows) == 1 and "content" in rows[0]
+    m2 = prod._ping_rejection(FakeLM(), 10)                                    # within dedup window
+    assert m2 is None
+    rows2 = [x for x in prod.OUTBOX.read_text(encoding="utf-8").splitlines() if x.strip()]
+    assert len(rows2) == 1                                                     # deduped, no 2nd row
