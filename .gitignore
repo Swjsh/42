@@ -111,3 +111,9 @@ cockpit/_devshot.png
 
 # engine-stress-swarm per-cell dumps (large; ledger+report are the tracked deliverables)
 analysis/stress-swarm/grid-*.json
+
+# Kokoro TTS weights + generated voice (340MB models / daily wavs - never in the public repo)
+setup/tts/*.onnx
+setup/tts/*.bin
+setup/.tts-venv/
+automation/state/gamma-voice-*.wav

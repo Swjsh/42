@@ -292,3 +292,52 @@ def test_render_markdown_carries_csv_pnl(tmp_path):
     assert "-215" in md and "RECONCILE_FILL" in md
     assert "PLACE_FAIL reasons" in md and "expires soon" in md
     assert "| **TOTAL** |" in md
+
+
+# ---------------------------------------------------------------------------
+# BUILD 3 guard (2026-07-08): RISK_DENY_* is RULE ENFORCEMENT, not a placement
+# fault. The disease: 13 real ENTER rows (PDT jail day) all exec.status=
+# RISK_DENY_PDT read as attempted>0 & accepted==0 -> "PLACEMENT BROKEN" spam
+# to Discord while Rule 7 was working exactly as designed. RISK_DENY_* now has
+# its own funnel stage `rule_blocked` + an informational RULE-BLOCKED flag.
+# ---------------------------------------------------------------------------
+
+def test_risk_deny_is_rule_block_not_broken(tmp_path):
+    core = tmp_path / "core-decisions.jsonl"
+    rows = []
+    for i in range(3):
+        rows.append(json.dumps({
+            "ts_et": f"2026-07-08T13:3{i}:02", "account": "safe", "armed": True,
+            "verdict": "ENTER_BULL", "side": "C", "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+            "triggers": ["level_reclaim"], "reason": "scored",
+            "exec": {"status": "RISK_DENY_PDT",
+                     "reason": "safe: 7 day-trades in 5d at equity $1,513 < $25,000",
+                     "symbol": "SPY260708C00749000", "qty": 5, "premium": 0.15},
+        }))
+    core.write_text("\n".join(rows) + "\n", encoding="utf-8")
+    f = ff.compute_funnel("2026-07-08", core_path=core, fleet_dir=_empty_fleet(tmp_path),
+                          now=dt.datetime(2026, 7, 8, 18, 0))
+    a = f["accounts"]["core:safe"]
+    assert a["enter"] == 3
+    assert a["rule_blocked"] == 3, "RISK_DENY rows must land in the rule_blocked stage"
+    assert a["attempted"] == 0, "a risk-gate refusal is NOT a placement attempt"
+    assert f["verdict"] != "RED", "rule enforcement must never read as PLACEMENT BROKEN"
+    assert not any("PLACEMENT BROKEN" in fl for fl in f["flags"])
+    assert any("RULE-BLOCKED[core:safe]" in fl for fl in f["flags"]), "must stay VISIBLE (OP-33)"
+
+
+def test_unknown_exec_status_still_fails_open_to_red(tmp_path):
+    """The fail-open invariant survives the rule-block split: a NEW unrecognized
+    status still counts as attempted and (with 0 accepted) still trips RED."""
+    core = tmp_path / "core-decisions.jsonl"
+    core.write_text(json.dumps({
+        "ts_et": "2026-07-08T10:00:02", "account": "safe", "armed": True,
+        "verdict": "ENTER_BEAR", "side": "P", "setup": "BEARISH_REJECTION",
+        "triggers": ["trendline_rejection"], "reason": "scored",
+        "exec": {"status": "SOME_NEW_FAULT", "symbol": "SPY260708P00745000", "qty": 3},
+    }) + "\n", encoding="utf-8")
+    f = ff.compute_funnel("2026-07-08", core_path=core, fleet_dir=_empty_fleet(tmp_path),
+                          now=dt.datetime(2026, 7, 8, 18, 0))
+    a = f["accounts"]["core:safe"]
+    assert a["attempted"] == 1 and a["rule_blocked"] == 0
+    assert f["verdict"] == "RED"

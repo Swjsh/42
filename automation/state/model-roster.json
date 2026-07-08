@@ -1,7 +1,7 @@
 {
   "_doc": "Role -> ordered lanes for the free swarm kitchen (Plan B). Each lane is (provider, model). Every role ends in the local Ollama floor so it can never run out of capacity. privacy=sensitive roles are restricted to no-train lanes (groq/cerebras/nvidia) or local; privacy=public_ok roles may use training-on-input lanes (gemini/mistral) because they only see public scraped pages. Provider API keys live in gitignored per-provider key files, NEVER here. Spec: markdown/planning/FREE-AGENT-PLAN-B-KITCHEN.md sec 7.",
   "updated_utc": "2026-07-08T23:15:00Z",
-  "_local_note": "qwen3.6:35b (MoE 3B-active) benched 2026-07-08 on the RTX 5080 box: json_ok TRUE both directions (correct ALLOW under-cap + correct VETO over-cap), ~78 tok/s, ~69s COLD load (23GB). Upgraded on heavyweight R&D roles only (strategist/coder/validator/chef). Hot-path veto roles (coordinator, critic — heartbeat_core.py entry sanity-check) STAY on qwen3:14b (2.6s load, fits 16GB VRAM) so a cold 35b load can never eat a market-tick veto timeout. local_floor also stays 14b for the same reason. Doctrine: markdown/planning/BRAIN-SOVEREIGNTY.md sec 6.",
+  "_local_note": "qwen3.6:35b (MoE 3B-active) benched 2026-07-08 on the RTX 5080 box: json_ok TRUE both directions, ~78 tok/s, ~69s COLD load (23GB). On SMALL-PROMPT R&D roles only (strategist/coder/validator). Chef REVERTED to qwen3:14b same night: a ~4K-token prompt crashed the 35b llama-server (0xc0000409 CUDA buffer overrun -- 23GB weights + KV cache too tight on 16GB VRAM / 32GB RAM), and chef prompts run ~31K tokens; the 14b floor holds big context reliably. Hot-path veto roles (coordinator, critic -- heartbeat_core entry sanity-check) also stay on qwen3:14b (2.6s load) so a cold 35b load can never eat a market-tick veto timeout. Doctrine: markdown/planning/BRAIN-SOVEREIGNTY.md sec 6 + G6 (RAM ceiling).",
   "local_floor": { "provider": "ollama", "base_url": "http://localhost:11434/v1/", "model": "qwen3:14b", "installed": true },
   "providers": {
     "openrouter": { "base_url": "https://openrouter.ai/api/v1", "key_file": "automation/state/.openrouter.key", "trains_on_input": false, "topped_up": false, "reset": "00:00 UTC" },
@@ -35,7 +35,7 @@
       { "provider": "ollama", "model": "qwen3:14b" } ] },
     "chef": { "privacy": "sensitive", "_note": "kitchen R&D cooks — needs big ctx (~31K-token prompts) + no-train; Cerebras 8K cap excludes it. Groq lanes REMOVED 2026-07-06 (Groq-bill audit) -- a single chef prompt (~31K tok) exceeds Groq's free-tier daily cap (100K tok/day on llama-3.3-70b-versatile) in 3 calls, so this role was never actually running free on Groq; see providers.groq._note", "lanes": [
       { "provider": "openrouter", "model": "nvidia/nemotron-3-super-120b-a12b:free" },
-      { "provider": "ollama", "model": "qwen3.6:35b" } ] }
+      { "provider": "ollama", "model": "qwen3:14b" } ] }
   },
   "dead": [
     { "id": "moonshotai/kimi-k2.6:free", "since": "2026-06-13", "reason": "404 no endpoints" },

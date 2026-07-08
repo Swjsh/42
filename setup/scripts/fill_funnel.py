@@ -64,9 +64,16 @@ EOD_HHMM = "16:00"             # after this, a fill with no exit record = DEGRAD
 # touched. `attempted` now requires a status that is a REAL placement OUTCOME:
 # the order was sent (PLACED / a broker reject in PLACE_FAIL) or it died at the
 # last pre-broker sizing/pricing/risk gate that is genuinely PART of the placement
-# attempt (NO_PREMIUM / RISK_DENY_*). A skip that bails BEFORE that (NOT_FLAT and
+# attempt (NO_PREMIUM). A skip that bails BEFORE that (NOT_FLAT and
 # every SKIP_*) is NOT a placement attempt. Anything unrecognized fails OPEN to
 # "attempted" so a NEW real-fault status can never be silently swallowed.
+#
+# SECOND FALSE-RED FIX (2026-07-08): RISK_DENY_* was counted as `attempted`,
+# so a PDT-jail day (13 ENTER, all correctly refused by the risk gate) read as
+# attempted>0 & accepted==0 -> "PLACEMENT BROKEN" spam to Discord while Rule 7
+# was doing its job. RISK_DENY_* is now its own funnel stage: `rule_blocked`,
+# with its own informational flag -- disclosed, never RED (guard:
+# test_fill_funnel_guard.py::test_risk_deny_is_rule_block_not_broken).
 _CORE_ATTEMPT_STATUSES = frozenset({
     "PLACED", "PLACE_FAIL", "PLACING", "NO_PREMIUM",
 })
@@ -76,16 +83,23 @@ _CORE_SKIP_STATUSES = frozenset({
 })
 
 
+def _core_is_rule_block(status: str) -> bool:
+    """True iff the exec status is the risk gate REFUSING the entry (RISK_DENY_*:
+    PDT, per-trade cap, kill switch...). That is rule ENFORCEMENT working, not a
+    placement fault -- counted in its own `rule_blocked` stage."""
+    return (status or "").upper().startswith("RISK_DENY")
+
+
 def _core_is_attempt(status: str) -> bool:
     """True iff a CORE exec status represents a real placement OUTCOME (the broker
     was called OR the attempt died at the last in-placement gate). NOT_FLAT and
-    every SKIP_* bail before the broker and are NOT attempts. Fail-OPEN: an
-    unrecognized status counts as an attempt so a genuinely-broken new status
-    still trips the RED (visibility > silence, OP-33)."""
+    every SKIP_* bail before the broker and are NOT attempts; RISK_DENY_* is a
+    rule-block, not an attempt. Fail-OPEN: an unrecognized status counts as an
+    attempt so a genuinely-broken new status still trips the RED (OP-33)."""
     s = (status or "").upper()
-    if s in _CORE_ATTEMPT_STATUSES or s.startswith("RISK_DENY"):
+    if s in _CORE_ATTEMPT_STATUSES:
         return True
-    if s in _CORE_SKIP_STATUSES or s.startswith("SKIP_"):
+    if s in _CORE_SKIP_STATUSES or s.startswith("SKIP_") or _core_is_rule_block(s):
         return False
     return True  # unknown status -> fail open (never hide a possible real fault)
 
@@ -144,9 +158,10 @@ def _fail_reason(broker: dict) -> str:
 def _acct_funnel(rows: list[dict], kind: str) -> dict:
     """Fold one account's day rows into funnel stages. kind: 'core' | 'fleet'."""
     f = {
-        "ticks": len(rows), "signals": 0, "enter": 0, "attempted": 0,
+        "ticks": len(rows), "signals": 0, "enter": 0, "rule_blocked": 0,
+        "attempted": 0,
         "accepted": 0, "filled": 0, "exited": 0, "retired_ladder_fails": 0,
-        "enter_events": [], "place_fail_reasons": [],
+        "enter_events": [], "place_fail_reasons": [], "rule_block_reasons": [],
         "enters_after_ceiling": [], "open_fills_no_exit": [],
     }
     filled_syms: set[str] = set()
@@ -174,14 +189,21 @@ def _acct_funnel(rows: list[dict], kind: str) -> dict:
         f["enter"] += 1
         ex = (r.get("exec") if kind == "core" else r.get("placement")) or {}
         broker = ex.get("broker") or {}
+        rule_blocked = False
         if kind == "core":
             # only count a CORE ENTER as attempted when its exec status is a REAL
             # placement outcome -- NOT_FLAT / SKIP_* bail before the broker (they
-            # were falsely counted, tripping a phantom PLACEMENT BROKEN RED).
-            attempted = bool(ex) and _core_is_attempt(str(ex.get("status", "")))
+            # were falsely counted, tripping a phantom PLACEMENT BROKEN RED);
+            # RISK_DENY_* is rule enforcement -> its own stage, never an attempt.
+            st = str(ex.get("status", ""))
+            rule_blocked = bool(ex) and _core_is_rule_block(st)
+            attempted = bool(ex) and _core_is_attempt(st)
         else:
             attempted = bool(ex) and str(ex.get("mode", "LIVE")).upper() == "LIVE"
         accepted = bool(broker.get("id"))
+        if rule_blocked:
+            f["rule_blocked"] += 1
+            f["rule_block_reasons"].append(str(ex.get("reason") or ex.get("status") or "risk gate deny"))
         if attempted:
             f["attempted"] += 1
         if accepted:
@@ -211,7 +233,8 @@ def _acct_funnel(rows: list[dict], kind: str) -> dict:
             "setup": r.get("setup") or r.get("setup_name"),
             "symbol": sym, "qty": ex.get("qty") or r.get("qty"),
             "status": ("ACCEPTED" if accepted
-                       else (str(ex.get("status") or "PLACE_FAIL") if attempted else "NOT_ATTEMPTED")),
+                       else (str(ex.get("status") or "PLACE_FAIL")
+                             if (attempted or rule_blocked) else "NOT_ATTEMPTED")),
             "order_id": broker.get("id"),
             "reason": r.get("reason"),
         }
@@ -228,7 +251,7 @@ def _acct_funnel(rows: list[dict], kind: str) -> dict:
 # whole-day funnel + evaluation
 # ---------------------------------------------------------------------------
 
-_STAGES = ("ticks", "signals", "enter", "attempted", "accepted", "filled", "exited")
+_STAGES = ("ticks", "signals", "enter", "rule_blocked", "attempted", "accepted", "filled", "exited")
 
 
 def compute_funnel(day: str | None = None, *, core_path: Path | None = None,
@@ -273,6 +296,11 @@ def _evaluate(funnel: dict, now: dt.datetime) -> tuple[list[str], str]:
     at_eod = (now.strftime("%Y-%m-%d") > day) or (
         now.strftime("%Y-%m-%d") == day and now.strftime("%H:%M") >= EOD_HHMM)
     for name, a in funnel["accounts"].items():
+        if a.get("rule_blocked", 0):
+            reasons = Counter(a.get("rule_block_reasons", []))
+            top = "; ".join(f"{n}x {r[:120]}" for r, n in reasons.most_common(2))
+            flags.append(f"RULE-BLOCKED[{name}]: {a['rule_blocked']} ENTER refused by the risk "
+                         f"gate (rule enforcement working, NOT a placement fault): {top}")
         if a["attempted"] > 0 and a["accepted"] == 0:
             reasons = Counter(a["place_fail_reasons"])
             top = "; ".join(f"{n}x {r[:120]}" for r, n in reasons.most_common(2))
@@ -336,10 +364,42 @@ _TRADES_HEADER = ["date", "time_entry", "time_exit", "setup", "contract", "dte",
                   "dollar_pnl"]
 
 
+def _pnl_statement_today(day: str, repo: Path) -> "dict | None":
+    """T1 broker-truth per-day P&L (setup/scripts/broker_fills.py's pnl-statement.json), or
+    None if that file doesn't exist yet or has no entry for this day."""
+    path = repo / "automation" / "state" / "pnl-statement.json"
+    if not path.exists():
+        return None
+    try:
+        stmt = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return stmt.get("per_day", {}).get(day) or None
+
+
 def trades_pnl_today(day: str, repo: Path | None = None) -> dict:
-    """P&L truth from journal/trades.csv + trades-aggressive.csv for the day."""
+    """P&L truth for the day. PRIMARY SOURCE (T2 rewire, HANDOFF-2026-07-09-TRUTH-AND-EXITS,
+    ground rule 2): setup/scripts/broker_fills.py's automation/state/pnl-statement.json --
+    Alpaca /account/activities/FILL, broker-truth. journal/trades.csv is used ONLY as a
+    fallback when T1 has no entry for this day (e.g. Gamma_BrokerFills hasn't fired yet for
+    a historical date) -- it is never the primary source, since it depends on a separate,
+    less-reliable EOD reconciliation workflow."""
     repo = repo or REPO
-    out = {"safe": [], "aggressive": [], "total_pnl": 0.0}
+    per_day = _pnl_statement_today(day, repo)
+    if per_day:
+        by_arm = []
+        total = 0.0
+        for arm, stats in sorted(per_day.items()):
+            total += stats.get("realized_pnl", 0.0)
+            by_arm.append({"arm": arm, "n_round_trips": stats.get("n_round_trips", 0),
+                           "realized_pnl": stats.get("realized_pnl", 0.0),
+                           "engine_pnl": stats.get("engine_pnl", 0.0),
+                           "manual_pnl": stats.get("manual_pnl", 0.0)})
+        return {"by_arm": by_arm, "total_pnl": round(total, 2),
+                "source": "pnl-statement.json (T1, broker-truth)"}
+
+    out = {"safe": [], "aggressive": [], "total_pnl": 0.0,
+           "source": "journal/trades.csv (T1 fallback -- no pnl-statement.json entry for this day)"}
     for label, fname in (("safe", "trades.csv"), ("aggressive", "trades-aggressive.csv")):
         for t in _trades_today(repo / "journal" / fname, day, default_header=_TRADES_HEADER):
             pnl = 0.0
@@ -367,12 +427,14 @@ def render_text(funnel: dict) -> str:
     """One glanceable block (gamma_glance / CLI)."""
     t = funnel["totals"]
     out = [f"FUNNEL {funnel['date']}  [{funnel['verdict']}]  "
-           f"ticks->sig->ENTER->attempt->accept->fill->exit"]
+           f"ticks->sig->ENTER->ruleblk->attempt->accept->fill->exit"]
     for name, a in funnel["accounts"].items():
         out.append(f"  {name:<14} {a['ticks']:>4} -> {a['signals']:>3} -> {a['enter']:>2} "
-                   f"-> {a['attempted']:>2} -> {a['accepted']:>2} -> {a['filled']:>2} -> {a['exited']:>2}")
+                   f"-> {a.get('rule_blocked', 0):>2} -> {a['attempted']:>2} -> {a['accepted']:>2} "
+                   f"-> {a['filled']:>2} -> {a['exited']:>2}")
     out.append(f"  {'TOTAL':<14} {t['ticks']:>4} -> {t['signals']:>3} -> {t['enter']:>2} "
-               f"-> {t['attempted']:>2} -> {t['accepted']:>2} -> {t['filled']:>2} -> {t['exited']:>2}")
+               f"-> {t.get('rule_blocked', 0):>2} -> {t['attempted']:>2} -> {t['accepted']:>2} "
+               f"-> {t['filled']:>2} -> {t['exited']:>2}")
     for fl in funnel["flags"]:
         out.append(f"  ! {fl}")
     return "\n".join(out)
@@ -390,13 +452,15 @@ def render_markdown(funnel: dict, repo: Path | None = None) -> str:
         f"Source ledgers: `core-decisions.jsonl` + `fleet/*/decisions.jsonl` + trades CSVs. "
         f"Generated {funnel['generated_at_et']} ET. Funnel verdict: **{funnel['verdict']}**.",
         "",
-        "| account | ticks | signals | ENTER | attempted | accepted | filled | exited |",
-        "|---|---|---|---|---|---|---|---|",
+        "| account | ticks | signals | ENTER | rule-blocked | attempted | accepted | filled | exited |",
+        "|---|---|---|---|---|---|---|---|---|",
     ]
     for name, a in funnel["accounts"].items():
         out.append(f"| {name} | {a['ticks']} | {a['signals']} | {a['enter']} | "
+                   f"{a.get('rule_blocked', 0)} | "
                    f"{a['attempted']} | {a['accepted']} | {a['filled']} | {a['exited']} |")
     out.append(f"| **TOTAL** | {t['ticks']} | {t['signals']} | {t['enter']} | "
+               f"{t.get('rule_blocked', 0)} | "
                f"{t['attempted']} | {t['accepted']} | {t['filled']} | {t['exited']} |")
     # ENTER events with times + verdicts
     events = [(name, ev) for name, a in funnel["accounts"].items() for ev in a["enter_events"]]
@@ -426,17 +490,24 @@ def render_markdown(funnel: dict, repo: Path | None = None) -> str:
     out.append("")
     out.append("**Funnel flags:**")
     out.extend([f"- {fl}" for fl in funnel["flags"]] or ["- none"])
-    # P&L from trades CSVs
+    # P&L -- broker-truth (T1) unless flagged as the CSV fallback
     out.append("")
-    out.append("**P&L (journal trades CSVs, broker-reconciled):**")
+    out.append(f"**P&L (source: {pnl.get('source', 'unknown')}):**")
     any_trade = False
-    for label in ("safe", "aggressive"):
-        for tr in pnl[label]:
+    if "by_arm" in pnl:
+        for r in pnl["by_arm"]:
             any_trade = True
-            out.append(f"- [{label}] {tr['setup']} {tr['contract']} x{tr['qty']} "
-                       f"{tr['time_entry']}->{tr['time_exit']} ET: {tr['pnl']:+.0f}")
+            out.append(f"- [{r['arm']}] {r['n_round_trips']} round trip(s): "
+                       f"{r['realized_pnl']:+.0f} (engine {r['engine_pnl']:+.0f} / "
+                       f"manual {r['manual_pnl']:+.0f})")
+    else:
+        for label in ("safe", "aggressive"):
+            for tr in pnl.get(label, []):
+                any_trade = True
+                out.append(f"- [{label}] {tr['setup']} {tr['contract']} x{tr['qty']} "
+                           f"{tr['time_entry']}->{tr['time_exit']} ET: {tr['pnl']:+.0f}")
     if not any_trade:
-        out.append("- no rows in trades CSVs for this day")
+        out.append("- no P&L rows for this day")
     out.append(f"- **Total recorded P&L: {pnl['total_pnl']:+.0f}**")
     out.append("")
     return "\n".join(out)

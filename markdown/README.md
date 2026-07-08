@@ -14,7 +14,7 @@ stay where the engine reads them.
 | `0dte/` | SPY 0DTE strategy, playbook, patterns, key levels, J-edge, risk rules | `playbook.md`, `risk-rules.md`, `J-EDGE-GROUND-TRUTH.md` |
 | `futures/` | MNQ/MES contract specs, margin, sessions, sources | `CONTRACT-SPECS.md`, `README.md` |
 | `research/` | Backtest findings, studies, swarm benchmarks, R&D writeups | `STRATEGY-BACKLOG.md`, `GRIND-RESULTS.md`, `SWARM-BENCHMARK.md`, `BACKTESTING-PLAYBOOK.md` |
-| `planning/` | Roadmaps, checklists, gameplans, daily-review process | `AUTONOMY-ROADMAP.md`, `LIVE-PATH-WORKPACKAGE.md`, `JARVIS-WATCH-DESIGN.md`, `GAMMA-COCKPIT-EXECUTION-LOG.md`, `FUTURE-IMPROVEMENTS.md`, `BRAIN-SOVEREIGNTY.md` |
+| `planning/` | Roadmaps, checklists, gameplans, daily-review process | `AUTONOMY-ROADMAP.md`, `LIVE-PATH-WORKPACKAGE.md`, `JARVIS-WATCH-DESIGN.md`, `GAMMA-COCKPIT-EXECUTION-LOG.md`, `FUTURE-IMPROVEMENTS.md`, `BRAIN-SOVEREIGNTY.md`, `GAMMA-WORKER.md` |
 | `doctrine/` | Lessons learned, doctrine archive, edge doctrine | `LESSONS-LEARNED.md`, `DOCTRINE-ARCHIVE.md` |
 | `specs/` | Engine design + wiring specs | `ARCHITECTURE.md` |
 | `audits/` | Point-in-time health checks, postmortems, status snapshots | `HEARTBEAT-TICK-AUDIT-LOG.md` (rolling, keep ~10), `HEALTH.md` |

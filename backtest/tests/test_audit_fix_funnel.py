@@ -191,8 +191,13 @@ def test_unknown_status_fails_open_to_attempted(tmp_path):
     ("SKIP_STALE_TRIGGER", False), ("NO_CREDS", False), ("EQUITY_FETCH_FAIL", False),
     ("WOULD_PLACE", False),
     ("PLACED", True), ("PLACE_FAIL", True), ("NO_PREMIUM", True),
-    ("RISK_DENY_MAXLOSS", True), ("RISK_DENY_ANYTHING", True),
+    # 2026-07-08: RISK_DENY_* reclassified as rule_block (own funnel stage), NOT an
+    # attempt -- a PDT-jail day spammed "PLACEMENT BROKEN" while Rule 7 worked.
+    # See test_fill_funnel_guard.py::test_risk_deny_is_rule_block_not_broken.
+    ("RISK_DENY_MAXLOSS", False), ("RISK_DENY_ANYTHING", False),
     ("SOME_UNKNOWN", True),  # fail open
 ])
 def test_core_is_attempt_classifier(status, expected):
     assert ff._core_is_attempt(status) is expected
+    if status.startswith("RISK_DENY"):
+        assert ff._core_is_rule_block(status) is True
