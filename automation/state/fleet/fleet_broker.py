@@ -114,6 +114,47 @@ def get_option_mid(creds: dict[str, str], symbol: str) -> float | None:
     return None
 
 
+def _parse_option_greeks(payload: dict, symbol: str) -> "dict | None":
+    """Pure: pull {delta,gamma,theta,vega,rho,iv} for `symbol` from an Alpaca options
+    snapshots payload -- {"snapshots": {SYM: {"greeks": {...}, "impliedVolatility": ...}}}.
+    Returns None when the symbol / greeks are absent or malformed (so the caller logs no
+    greeks rather than a partial). Broker-free + side-effect-free -> unit-tests w/o a network.
+    Shape verified against the existing gex_capture / gex_regime.from_alpaca_snapshot readers."""
+    if not isinstance(payload, dict):
+        return None
+    snap = (payload.get("snapshots") or {}).get(symbol)
+    if not isinstance(snap, dict):
+        return None
+    greeks = snap.get("greeks") or snap.get("latestGreeks")
+    if not isinstance(greeks, dict) or not greeks:
+        return None
+    out = {k: greeks[k] for k in ("delta", "gamma", "theta", "vega", "rho")
+           if isinstance(greeks.get(k), (int, float)) and not isinstance(greeks.get(k), bool)}
+    iv = snap.get("impliedVolatility")
+    if isinstance(iv, (int, float)) and not isinstance(iv, bool):
+        out["iv"] = iv
+    return out or None
+
+
+def get_option_greeks(creds: dict[str, str], symbol: str) -> "dict | None":
+    """Latest greeks + IV for ONE option contract from the Alpaca options snapshots feed.
+    None on ANY failure. LOG-ONLY (G8): the entry path calls this AFTER placement / in dry
+    mode purely to accumulate a per-entry greeks corpus -- it must NEVER affect an order.
+    Mirrors get_option_mid's fail-open urllib pattern with a short 6s timeout so a slow feed
+    cannot stall a tick. NOTE: the live snapshots-endpoint URL form is UNVERIFIED until a
+    real entry logs greeks (fail-open makes a wrong URL a no-op, not a breakage) -- G9/first
+    fill confirms it; the PARSE is proven against gex fixtures."""
+    url = f"{OPTIONS_DATA_HOST}/v1beta1/options/snapshots?symbols={symbol}"
+    req = urllib.request.Request(url, headers={
+        "APCA-API-KEY-ID": creds["key"], "APCA-API-SECRET-KEY": creds["secret"]})
+    try:
+        with urllib.request.urlopen(req, timeout=6) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, ConnectionError, ValueError):
+        return None
+    return _parse_option_greeks(payload, symbol)
+
+
 def place_bracket(creds: dict[str, str], *, symbol: str, qty: int,
                   limit_price: float, take_profit_price: float, stop_price: float,
                   live: bool, simple_fallback: bool = False) -> dict:

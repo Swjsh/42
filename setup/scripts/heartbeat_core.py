@@ -1021,6 +1021,24 @@ def _params_float(params: dict, key: str, default: float) -> float:
         return float(default)
 
 
+def _capture_greeks(creds: dict, symbol: str, *, fetch=None) -> dict:
+    """Fail-open per-contract greeks/IV snapshot for the entry log (G8, 2026-07-07).
+
+    LOG-ONLY: returns {} on ANY error and is invoked ONLY in the dry branch or AFTER the
+    order POST, so it can never delay or break a fill. Accumulates a per-entry greeks corpus
+    (delta/gamma/theta/vega/rho/iv) so the 'does a dynamic stop beat a static one' question
+    re-opens on REAL greeks instead of VIX-proxied IV + a fixed per-tier delta (the axis the
+    dynamic-stop test died on). `fetch` is injectable for tests (default fleet_broker).
+    Guard: test_greeks_capture.py."""
+    try:
+        if fetch is None:
+            import fleet_broker as fb  # noqa: PLC0415
+            fetch = fb.get_option_greeks
+        return fetch(creds, symbol) or {}
+    except Exception:  # noqa: BLE001 — greeks capture must never touch the fill path
+        return {}
+
+
 def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: bool) -> dict:
     """SIZE + PLACE a 0DTE entry via the TESTED fleet_broker + risk_gate primitives.
     dry=True computes everything and returns the plan WITHOUT placing (shadow / self-test)."""
@@ -1150,6 +1168,7 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
             "strike": strike, "qty": qty, "premium": mid, "tp": tp, "stop": stop, "equity": equity,
             "setup": setup_name}
     if dry:
+        plan["greeks"] = _capture_greeks(creds, symbol)  # G8 log-only (no fill in dry mode)
         return plan
     # CANCEL-REPLACE (#15): clear any stale never-crossed BUY limit on this symbol from a prior tick.
     for _o in fb.open_buy_orders(creds, symbol):
@@ -1172,6 +1191,7 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     plan["status"] = "PLACED" if not res.get("_error") and not res.get("_refused") else "PLACE_FAIL"
     plan["broker"] = res
     plan["entry_px"] = entry_px
+    plan["greeks"] = _capture_greeks(creds, symbol)  # G8 log-only, POST-placement (never slows the fill)
     # FIX3 (2026-07-07): stash the arm creds so the CALLER (run_account / _route_extra_setups
     # via reconcile_exec) can poll this accepted order to a TERMINAL fill and reconcile the
     # decision row. Reconciliation is deliberately done a level UP (not here) so the order-
