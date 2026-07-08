@@ -1,3 +1,6 @@
+- 2026-07-08 00:30 ET [overnight-loop] G6 DONE (KILL): weekly-put hold-to-Friday fails null (p>0.05 @ 3-4DTE) + gap-bleed -$4-6K + doesn't hold. GAP-AUDIT COMPLETE (10 shipped+guarded, G4/G11 review-blocked, G13/G6 analysis). Loop stopping.
+- 2026-07-08 00:27 ET [overnight-loop] G4 review packet COMPLETE (replay: 3/4 arms clean, risky-1 +1 extra @ bar 1801, parity 98.1% — one dedup fix from arm-ready). G6 weekly-put multi-day-hold sim RUNNING (_dte34_multiday_hold_sim.py, OPRA single-process). Last gap-audit item.
+- 2026-07-08 00:16 ET [overnight-loop] G4 + G11 -> BLOCKED-NEEDS-REVIEW (both entry-path; specs in markdown/audits/G4-FLEET-DIVERGENCE-SPEC.md + G11-LEVEL-MEMORY-PRODUCER-SPEC.md — J nod + supervised A/B). G13 delegated to treasurer agent (real Alpaca equity + reconcile the 0-fills-vs-drawdown puzzle). G6 weekly battery pending (waits for OPRA). Ultracode ON -> G6 + capstone will be workflow-driven.
 - 2026-07-08 01:44 ET [overnight-loop] G12 DONE: htf_15m morning suppression measured — contradicts realized trend 35%, ~16 near-threshold bear suppressions (marginal). Verdict real-but-not-costly, no fix (per measure-first). Confirmed SKIP_RIBBON_MOMENTUM_GATE (F1) fired 29x live.
 - 2026-07-08 01:38 ET [overnight-loop] G10 DONE (recovered): read the truncated audit tail off disk (27 findings, no re-run). NEW CRITICAL F1: min_ribbon_momentum_cents=0 silently ARMS a 'disabled' ribbon-momentum gate on Safe (0 != None) -> blocks entries on contracting ribbon. Queued for A/B (entry-path). 6 new backlog items.
 - 2026-07-08 01:30 ET [overnight-loop] G5 DONE (327479e): alert/capture flywheel. FIX: discord-bridge was dropping 113 `message`-schema alerts (spend WARN + self-check DEGRADED — J wasn't getting them); now delivers both schemas. + level_memory reject-ping + j-call anchor capture. 6 red-proofed tests.
@@ -1441,3 +1444,11 @@ Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=ollama
 - [2026-07-07 23:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T05:27:03.321197+00:00) | fail streak: 210 consecutive fires | stage v02_source_parity pass rate dropped to 73.68% in last 24h (28/38) -- but v15 (3-source) = 97.37% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/38) :: see crypto/data/scorecards/drift_report.json
 
 - [2026-07-07 23:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-07.log
+
+- [2026-07-07 23:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T05:57:03.353974+00:00) | fail streak: 211 consecutive fires | stage v02_source_parity pass rate dropped to 74.36% in last 24h (29/39) -- but v15 (3-source) = 97.44% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/39) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-07 23:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-07.log
+
+- [2026-07-08 00:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T06:27:03.339609+00:00) | fail streak: 212 consecutive fires | stage v02_source_parity pass rate dropped to 75.0% in last 24h (30/40) -- but v15 (3-source) = 97.5% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/40) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 00:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log

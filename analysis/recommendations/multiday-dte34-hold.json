@@ -1,0 +1,168 @@
+{
+  "generated": "chef 2026-07-07 offline",
+  "family": "vwap_continuation",
+  "fixed": {
+    "strike_offset": -2,
+    "qty": 3
+  },
+  "multiday_config": {
+    "strike_offset": -2,
+    "premium_stop_pct": -0.2,
+    "target_pct": 0.5,
+    "use_chart_stop": true
+  },
+  "window": "2025-01-02..2026-06-16",
+  "oos_year": 2026,
+  "n_null_iters": 200,
+  "ladder_0_to_4_dte": [
+    {
+      "dte": 0,
+      "hold_type": "intraday-resolved",
+      "n": 157,
+      "wr": 45.9,
+      "oos_exp": 36.34,
+      "oos_wr": 40.0,
+      "drop3_exp": 45.13,
+      "p_null": 0.005,
+      "held_overnight_pct": 0.0,
+      "gap_loss_dollar": 0.0
+    },
+    {
+      "dte": 1,
+      "hold_type": "intraday-resolved",
+      "n": 166,
+      "wr": 42.8,
+      "oos_exp": 59.02,
+      "oos_wr": 41.2,
+      "drop3_exp": 59.05,
+      "p_null": 0.01,
+      "held_overnight_pct": 0.0,
+      "gap_loss_dollar": 0.0
+    },
+    {
+      "dte": 2,
+      "hold_type": "intraday-resolved",
+      "n": 165,
+      "wr": 42.4,
+      "oos_exp": 66.13,
+      "oos_wr": 42.0,
+      "drop3_exp": 58.94,
+      "p_null": 0.0448,
+      "held_overnight_pct": 1.2,
+      "gap_loss_dollar": 0.0
+    },
+    {
+      "dte": 3,
+      "hold_type": "TRUE-multiday-hold",
+      "n": 165,
+      "wr": 44.8,
+      "oos_exp": 53.21,
+      "oos_wr": 46.0,
+      "drop3_exp": 62.65,
+      "p_null": 0.0746,
+      "held_overnight_pct": 17.6,
+      "gap_loss_dollar": -4050.0
+    },
+    {
+      "dte": 4,
+      "hold_type": "TRUE-multiday-hold",
+      "n": 163,
+      "wr": 46.0,
+      "oos_exp": 44.65,
+      "oos_wr": 44.9,
+      "drop3_exp": 66.63,
+      "p_null": 0.1045,
+      "held_overnight_pct": 26.4,
+      "gap_loss_dollar": -6413.4
+    }
+  ],
+  "multiday_buckets_detail": [
+    {
+      "label": "3DTE-multiday-hold",
+      "n": 165,
+      "wr": 44.8,
+      "exp": 88.76,
+      "oos_n": 50,
+      "oos_exp": 53.21,
+      "oos_wr": 46.0,
+      "drop3_exp": 62.65,
+      "held_overnight_pct": 17.6,
+      "total_pnl": 14645.0,
+      "gap": {
+        "held_overnight_n": 29,
+        "gap_stop_n": 7,
+        "total_gap_loss_dollar": -4050.0,
+        "mean_days_held": 1.17
+      },
+      "exit_hist": {
+        "GAP_STOP": 7,
+        "LEVEL_STOP": 31,
+        "PREMIUM_STOP": 69,
+        "TARGET": 58
+      },
+      "dte": 3,
+      "fill_rate": 0.994,
+      "coverage": {
+        "signals": 166,
+        "filled": 165,
+        "cache_miss": 0,
+        "no_expiry_listed": 1,
+        "sim_none": 0,
+        "fill_rate": 0.994
+      },
+      "null_exp": -17.72,
+      "p_null": 0.0746
+    },
+    {
+      "label": "4DTE-multiday-hold",
+      "n": 163,
+      "wr": 46.0,
+      "exp": 95.65,
+      "oos_n": 49,
+      "oos_exp": 44.65,
+      "oos_wr": 44.9,
+      "drop3_exp": 66.63,
+      "held_overnight_pct": 26.4,
+      "total_pnl": 15590.0,
+      "gap": {
+        "held_overnight_n": 43,
+        "gap_stop_n": 11,
+        "total_gap_loss_dollar": -6413.4,
+        "mean_days_held": 1.25
+      },
+      "exit_hist": {
+        "GAP_STOP": 11,
+        "LEVEL_STOP": 40,
+        "PREMIUM_STOP": 56,
+        "TARGET": 56
+      },
+      "dte": 4,
+      "fill_rate": 0.982,
+      "coverage": {
+        "signals": 166,
+        "filled": 163,
+        "cache_miss": 1,
+        "no_expiry_listed": 2,
+        "sim_none": 0,
+        "fill_rate": 0.982
+      },
+      "null_exp": -13.19,
+      "p_null": 0.1045
+    }
+  ],
+  "backfill_manifest": {
+    "generated": "chef 2026-07-07 offline",
+    "family": "vwap_continuation",
+    "dtes": [
+      3,
+      4
+    ],
+    "band": 4,
+    "ok": 2958,
+    "empty": 0,
+    "fail": 0,
+    "forbidden_403": 0,
+    "total_jobs": 2961,
+    "skip_no_expiry": 3
+  }
+}
