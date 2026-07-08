@@ -1,6 +1,6 @@
 """Guard: DST-aware ET clock (G2 / TZ-SYSTEMIC fix, 2026-06-26).
 
-THREE protection layers:
+Protection layers (5 as of 2026-07-08; 4=market-hours CLI gate G16, 5=autonomy_actuator dedup G17):
 
 1. test_et_clock_dst_transitions -- BEHAVIORAL: et_clock.et_now() returns the correct
    ET wall-clock for the two DST transition instants (spring-forward Mar 2026,
@@ -297,3 +297,19 @@ def test_et_clock_cli_prints_authoritative_et():
         f"et_clock CLI line 1 is not a parseable ET stamp: {lines[0]!r}")
     assert any(re.match(r'^market_hours=(True|False)$', ln) for ln in lines), (
         f"et_clock CLI missing a market_hours=True|False line: {lines!r}")
+
+
+# ---------------------------------------------------------------------------
+# 5. G17: autonomy_actuator deduped onto et_clock (no hand-rolled DST copy)
+# ---------------------------------------------------------------------------
+
+def test_autonomy_actuator_uses_et_clock():
+    """G17 (2026-07-08): autonomy_actuator._et_now/_market_is_open delegate to et_clock instead
+    of hand-rolling the DST offset + the 09:30-15:55 window (was a verbatim C14 duplicate).
+    Bite: reverting to the inline copy re-introduces 'dst_start'/'off = -4 if' and drops the
+    et_clock import -> this fails."""
+    src = (REPO / "setup" / "scripts" / "autonomy_actuator.py").read_text(encoding="utf-8")
+    assert "from et_clock import" in src, "autonomy_actuator must import et_clock (G17 dedup)"
+    assert "is_market_hours()" in src, "_market_is_open must delegate to et_clock.is_market_hours"
+    assert "dst_start" not in src and "off = -4 if" not in src, (
+        "autonomy_actuator still hand-rolls the DST offset (G17 dedup incomplete)")

@@ -44,6 +44,9 @@ import sys
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0  # no conhost flash on win32 (OP-27 L41)
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # sibling et_clock (G17 dedup)
+from et_clock import et_now, is_market_hours  # canonical ET + RTH gate (was hand-rolled here)
+
 REPO = Path(__file__).resolve().parents[2]
 STATE = REPO / "automation" / "state"
 PROPOSALS = STATE / "conductor-proposals.jsonl"
@@ -67,26 +70,15 @@ def _now() -> str:
 
 
 def _et_now() -> dt.datetime:
-    """Naive ET now (system Python here lacks tzdata; compute the US offset by hand)."""
-    u = dt.datetime.now(dt.timezone.utc)
-    y = u.year
-    march = dt.datetime(y, 3, 1, tzinfo=dt.timezone.utc)
-    dst_start = (march + dt.timedelta(days=((6 - march.weekday()) % 7) + 7)).replace(hour=7)
-    nov = dt.datetime(y, 11, 1, tzinfo=dt.timezone.utc)
-    dst_end = (nov + dt.timedelta(days=((6 - nov.weekday()) % 7))).replace(hour=6)
-    off = -4 if (dst_start <= u < dst_end) else -5
-    return (u + dt.timedelta(hours=off)).replace(tzinfo=None)
+    """Naive ET now -- delegates to the canonical et_clock (was a hand-rolled DST copy; G17)."""
+    return et_now()
 
 
 def _market_is_open() -> bool:
-    """RTH: Mon-Fri 09:30 <= ET < 15:55. Rule 9 forbids mid-session doctrine/params
-    changes, so the actuator REFUSES to apply during RTH (defense in depth -- the
-    scheduled task is also after-hours-only)."""
-    et = _et_now()
-    if et.weekday() >= 5:
-        return False
-    hhmm = et.hour * 100 + et.minute
-    return 930 <= hhmm < 1555
+    """RTH gate Mon-Fri 09:30 <= ET < 15:55 -- delegates to et_clock.is_market_hours (G17).
+    Rule 9 forbids mid-session doctrine/params changes, so the actuator REFUSES to apply
+    during RTH (defense in depth -- the scheduled task is also after-hours-only)."""
+    return is_market_hours()
 
 
 # --------------------------------------------------------------------------- io
