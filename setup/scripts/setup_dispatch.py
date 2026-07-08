@@ -480,35 +480,38 @@ class SetupDispatcher:
     # ------------------------------------------------------------------
 
     def _get_prior_rth_close(self) -> Optional[float]:
-        """Try to read the prior RTH close from today-bias.json (the pre-market file).
-
-        today-bias.json is written by the premarket session and contains the previous
-        day's close under keys like 'prior_close' or 'key_levels.prev_close'. Falls
-        back to None (and the gap_and_go watcher will emit SKIP_NO_FEED) when absent.
-        """
+        """Prior RTH close for gap_and_go. Source order:
+          1. today-bias.json keys (the historical premarket source), then
+          2. the dedicated prior-rth-close.json (V2 fix, 2026-07-08): level_memory_producer
+             derives it from TIMESTAMPED SPY bars and writes it every ~10min, because today-bias
+             stopped carrying prior_day_close -> gap_and_go was 100% SKIP_NO_FEED (F22/F25).
+        Returns None only when BOTH are absent. Fail-open per source."""
+        import json
+        state = _REPO / "automation" / "state"
         try:
-            import json
-            state = _REPO / "automation" / "state"
             bias_path = state / "today-bias.json"
-            if not bias_path.exists():
-                return None
-            bias = json.loads(bias_path.read_text(encoding="utf-8"))
-            # Try common keys written by premarket. NOTE: the premarket writer uses
-            # 'prior_day_close' (confirmed in today-bias.json 2026-06-28) — it MUST be in
-            # this list or gap_and_go silently SKIP_NO_FEEDs forever (root cause of G4c).
-            for key in ("prior_day_close", "prior_close", "prev_close", "prev_rth_close", "prior_rth_close"):
-                v = bias.get(key)
-                if v is not None:
-                    return float(v)
-            # Also try nested key_levels
-            kl = bias.get("key_levels") or {}
-            for key in ("prior_day_close", "prev_close", "prior_close", "pdc"):
-                v = kl.get(key)
-                if v is not None:
-                    return float(v)
-            return None
+            if bias_path.exists():
+                bias = json.loads(bias_path.read_text(encoding="utf-8"))
+                for key in ("prior_day_close", "prior_close", "prev_close", "prev_rth_close", "prior_rth_close"):
+                    v = bias.get(key)
+                    if v is not None:
+                        return float(v)
+                kl = bias.get("key_levels") or {}
+                for key in ("prior_day_close", "prev_close", "prior_close", "pdc"):
+                    v = kl.get(key)
+                    if v is not None:
+                        return float(v)
         except Exception:  # noqa: BLE001
-            return None
+            pass
+        try:
+            pc_path = state / "prior-rth-close.json"
+            if pc_path.exists():
+                v = json.loads(pc_path.read_text(encoding="utf-8")).get("prior_rth_close")
+                if v is not None:
+                    return float(v)
+        except Exception:  # noqa: BLE001
+            pass
+        return None
 
 
 # ---------------------------------------------------------------------------

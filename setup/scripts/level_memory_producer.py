@@ -99,6 +99,33 @@ def build_levels(df: pd.DataFrame) -> list[dict]:
     return select_levels(lm.levels_at(len(lm.df) - 1, lookback_days=LOOKBACK_DAYS))
 
 
+# --- V2 gap-fill: prior RTH close (the gap-fill magnet) + gap status ------------------------
+PRIOR_CLOSE_FILE = REPO / "automation" / "state" / "prior-rth-close.json"
+
+
+def prior_rth_close(df: pd.DataFrame) -> "float | None":
+    """PURE: the prior trading day's last RTH (<=16:00 ET) close from timestamped 5m bars.
+    This is the value gap_and_go needs (today-bias.json stopped carrying it -> gap_and_go was
+    100% SKIP_NO_FEED, F22/F25) AND the gap-fill magnet ('gaps always get filled'). None if the
+    frame lacks a prior day. Testable without a network."""
+    try:
+        d = df.copy()
+        d["timestamp_et"] = pd.to_datetime(d["timestamp_et"], utc=True).dt.tz_convert("America/New_York")
+        d["_date"] = d["timestamp_et"].dt.date
+        d["_t"] = d["timestamp_et"].dt.strftime("%H:%M")
+        today = d["_date"].iloc[-1]
+        prior_days = sorted(set(x for x in d["_date"] if x < today))
+        if not prior_days:
+            return None
+        pday = prior_days[-1]
+        rth = d[(d["_date"] == pday) & (d["_t"] <= "16:00")]
+        if rth.empty:
+            return None
+        return round(float(rth["close"].iloc[-1]), 2)
+    except Exception:
+        return None
+
+
 def dedup_ok(state: dict, key: str, now: dt.datetime, dedup_min: int = PING_DEDUP_MIN) -> bool:
     """PURE: True if this level hasn't been pinged within dedup_min minutes. Testable."""
     last = state.get(key)
@@ -149,6 +176,17 @@ def main() -> int:
     last = len(lm.df) - 1
     levels = select_levels(lm.levels_at(last, lookback_days=LOOKBACK_DAYS))
     spot = round(float(df["close"].iloc[-1]), 2)
+    # V2 gap-fill: write the prior RTH close (gap-fill magnet) so gap_and_go stops SKIP_NO_FEED.
+    pc = prior_rth_close(df)
+    if pc is not None:
+        gap = round(spot - pc, 2)
+        PRIOR_CLOSE_FILE.write_text(json.dumps({
+            "date": str(pd.Timestamp.now(tz="America/New_York").date()),
+            "prior_rth_close": pc, "spot": spot, "gap_pts": gap,
+            "gap_direction": ("up" if gap > 0 else "down" if gap < 0 else "flat"),
+            "note": ("prior RTH close = gap-fill magnet (gaps get filled). Consumed by "
+                     "setup_dispatch._get_prior_rth_close (V2 F22/F25 fix).")}, indent=2),
+            encoding="utf-8")
     payload = {"generated_at_et": str(pd.Timestamp.now(tz="America/New_York").replace(microsecond=0)),
                "spot": spot, "lookback_days": LOOKBACK_DAYS, "min_memory": MIN_MEMORY,
                "count": len(levels), "levels": levels,

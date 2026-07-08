@@ -1,0 +1,8 @@
+{
+  "date": "2026-07-08",
+  "prior_rth_close": 751.31,
+  "spot": 747.7,
+  "gap_pts": -3.61,
+  "gap_direction": "down",
+  "note": "prior RTH close = gap-fill magnet (gaps get filled). Consumed by setup_dispatch._get_prior_rth_close (V2 F22/F25 fix)."
+}

@@ -99,3 +99,18 @@ def test_ping_rejection_writes_then_dedups(tmp_path):
     assert m2 is None
     rows2 = [x for x in prod.OUTBOX.read_text(encoding="utf-8").splitlines() if x.strip()]
     assert len(rows2) == 1                                                     # deduped, no 2nd row
+
+
+# --- V2 gap-fill: prior RTH close ---
+def test_prior_rth_close_derives_prior_day():
+    prod = _prod()
+    import pandas as pd
+    ts = ["2026-07-07 09:30", "2026-07-07 15:55", "2026-07-07 16:30",   # 16:30 = after RTH, excluded
+          "2026-07-08 09:30", "2026-07-08 09:35"]
+    df = pd.DataFrame({"timestamp_et": pd.to_datetime(ts).tz_localize("America/New_York"),
+                       "open": [1] * 5, "high": [1] * 5, "low": [1] * 5,
+                       "close": [750.0, 751.31, 999.0, 748.0, 747.7], "volume": [1] * 5})
+    assert prod.prior_rth_close(df) == 751.31   # prior day's last <=16:00 close, not the AH bar
+    # single-day frame -> no prior day -> None
+    one = df[df["timestamp_et"].dt.date == df["timestamp_et"].dt.date.iloc[-1]]
+    assert prod.prior_rth_close(one) is None
