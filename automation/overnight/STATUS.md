@@ -1,3 +1,4 @@
+- 2026-07-08 00:58 ET [overnight-loop] G8 DONE (addb959): engine now logs per-entry greeks/IV (delta/gamma/theta/vega/rho+IV) to core-decisions.jsonl — log-only, fail-open (never slows a fill), 6 red-proofed tests. UNVERIFIED: live snapshot URL confirms on first real fill.
 - 2026-07-08 00:45 ET [overnight-loop] G7 DONE (d553fe5): armability gate — promote scorecards now disclose min-lot affordability per account (Safe floor <=$2.00/contract, Bold <=$2.78). 9 red-proofed tests, gate PASS.
 - 2026-07-08 00:33 ET [overnight-loop] G16 DONE (54ce9b6): et_clock.py now runnable (`python et_clock.py` -> ET + market_hours) + is_market_hours() gate; 2 red-proofed guards, safety gate PASS. Queued G17 (autonomy_actuator ET dedup).
 ## [2026-07-07 ~22:45 ET] OPUS — Tier-1 gap-audit execution COMPLETE (before-open safety)
@@ -1426,3 +1427,7 @@ Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=ollama
 - [2026-07-07 22:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T04:27:03.288932+00:00) | fail streak: 208 consecutive fires | stage v02_source_parity pass rate dropped to 72.22% in last 24h (26/36) -- but v15 (3-source) = 97.22% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/36) :: see crypto/data/scorecards/drift_report.json
 
 - [2026-07-07 22:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-07.log
+
+- [2026-07-07 22:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T04:57:03.344302+00:00) | fail streak: 209 consecutive fires | stage v02_source_parity pass rate dropped to 72.97% in last 24h (27/37) -- but v15 (3-source) = 97.3% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/37) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-07 22:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-07.log
