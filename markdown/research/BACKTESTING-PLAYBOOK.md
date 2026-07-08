@@ -354,6 +354,22 @@ The engine has **three independent exit mechanisms** that can fire in sequence o
 - Any "ready" claim without the 6 disclosures
 - "Fixed the exit" → "Patched mechanism X; mechanism Y and Z still active — verify which fires"
 
+### 5.8 Armability gate (G7 / min-lot affordability)
+
+Before a cell is promotable it must be **tradeable at the account's current equity** — chef
+kept surfacing edges the accounts can't afford (an ITM-2 "best cell" whose min-3-lot cost
+blows the risk budget; a 2DTE cell sizing to 1.6 lots < the 3-lot floor). The armability
+primitive (`backtest/lib/armability.py`) computes, for an entry premium P and a per-trade
+risk budget (equity × risk_frac), whether the floor fits: `min_contracts × P × 100 ≤ budget`,
+plus the **break-even premium** — the max $/contract at which the floor still fits (e.g.
+$2K × 30% = $600 → floor affordable only up to **$2.00/contract**, so an ITM-2 at ~$3 is
+structurally unaffordable regardless of aggregate). `pipeline_promoter._write_promote_scorecard`
+emits an `armability` block per promoted cell (per-account budget + break-even + a transparent
+premium **sweep** — it never fabricates a single price). It **discloses, never blocks**. Real
+per-cell premium capture is G8/G9; feed the captured average premium straight into
+`armability()` for an exact per-cell verdict. This is the automated, promote-time enforcement
+of §5.1's account-size scaling table.
+
 ---
 
 ## 6. Infrastructure Patterns

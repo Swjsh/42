@@ -51,6 +51,9 @@ AGG_PARAMS_PATH = STATE_DIR / "aggressive" / "params.json"
 PROPOSALS_PATH = STATE_DIR / "conductor-proposals.jsonl"
 DISPATCH_SOURCE = REPO / "setup" / "scripts" / "setup_dispatch.py"
 
+sys.path.insert(0, str(REPO / "backtest" / "lib"))
+from armability import account_armability_disclosure  # noqa: E402  shared armability primitive (G7)
+
 # OP-22 auto-ship gates
 WF_RATIO_GATE = 0.70          # per-quarter-normalized test/train ratio
 MIN_DIRECTIONAL_SCORE = 2     # J's anchor days: fire in the right direction
@@ -281,6 +284,44 @@ def _write_discord_ping(watcher_name: str, details: dict, scorecard: dict,
         pass
 
 
+# --- G7 armability disclosure -------------------------------------------------------------
+# Core account tiers for the per-cell armability disclosure. Equity is a DOCUMENTED tier
+# default (params.json carries no equity field -- wire live equity via accounts_status for
+# exactness); risk_frac is read live from params when present. Disclosure-only: it surfaces
+# whether a promoted cell is affordable at the floor, and NEVER blocks a promotion (a swept /
+# defaulted premium must not veto a real edge).
+_ACCT_EQUITY_DEFAULT = {"Gamma-Safe-2": 2000.0, "Gamma-Bold-2": 1670.0}
+_ACCT_RISK_DEFAULT = {"Gamma-Safe-2": 0.30, "Gamma-Bold-2": 0.50}
+_ACCT_PARAMS = {"Gamma-Safe-2": PARAMS_PATH, "Gamma-Bold-2": AGG_PARAMS_PATH}
+_RISK_KEYS = ("per_trade_risk_frac", "risk_frac", "per_trade_risk_pct", "risk_pct",
+              "per_trade_risk")
+
+
+def _read_risk_frac(params_path: Path, default: float) -> float:
+    """Best-effort read of the per-trade risk fraction from a params file. Accepts a fraction
+    (0.30) or a percent (30) -- normalizes >1 by /100. Falls back to the documented default;
+    the disclosure must never crash the promoter."""
+    try:
+        params = json.loads(params_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return default
+    for k in _RISK_KEYS:
+        v = params.get(k)
+        if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0:
+            return v / 100.0 if v > 1 else float(v)
+    return default
+
+
+def _promoter_accounts() -> dict:
+    """{alias: {equity, risk_frac}} for the armability disclosure -- documented equity tiers,
+    live risk_frac from params where available."""
+    return {
+        alias: {"equity": _ACCT_EQUITY_DEFAULT[alias],
+                "risk_frac": _read_risk_frac(_ACCT_PARAMS[alias], _ACCT_RISK_DEFAULT[alias])}
+        for alias in _ACCT_EQUITY_DEFAULT
+    }
+
+
 def _write_promote_scorecard(watcher_name: str, details: dict, scorecard: dict,
                              *, flag_key: Optional[str], recs_dir: Path) -> None:
     if flag_key:
@@ -303,6 +344,7 @@ def _write_promote_scorecard(watcher_name: str, details: dict, scorecard: dict,
         "watch_flag_key": flag_key,
         "exec_armed": False,
         "note": note,
+        "armability": account_armability_disclosure(_promoter_accounts()),  # G7 disclose-only
     }
     path = recs_dir / f"promote_{watcher_name}.json"
     recs_dir.mkdir(parents=True, exist_ok=True)
