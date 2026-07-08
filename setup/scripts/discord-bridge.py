@@ -217,7 +217,12 @@ def drain_outbox(config: dict, wm: dict) -> int:
             logger.warning("outbox line %d has no channel_id and no default; skipping", i)
             wm["last_outbox_line_no"] = i + 1
             continue
-        content = row.get("content", "").strip()
+        # G5 (2026-07-08): accept BOTH outbox schemas. Producers split into two camps --
+        # {content:...} (heartbeat/adoption/responder) and {ts,channel,source,message:...}
+        # (self_check, spend_summary). This consumer read only `content`, so 113 message-only
+        # rows -- including spend WARN + self-check DEGRADED alerts -- were silently skipped
+        # (watermark advanced past them). Fall back to `message` so every producer delivers.
+        content = (row.get("content") or row.get("message") or "").strip()
         if not content:
             wm["last_outbox_line_no"] = i + 1
             continue
