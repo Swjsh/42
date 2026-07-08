@@ -1,3 +1,13 @@
+- 2026-07-08 00:33 ET [overnight-loop] G16 DONE (54ce9b6): et_clock.py now runnable (`python et_clock.py` -> ET + market_hours) + is_market_hours() gate; 2 red-proofed guards, safety gate PASS. Queued G17 (autonomy_actuator ET dedup).
+## [2026-07-07 ~22:45 ET] OPUS — Tier-1 gap-audit execution COMPLETE (before-open safety)
+
+> **G1 DONE (commit 55fd164):** adopted manual positions are now CAP-ONLY per D2 -- shape tp1_qty_fraction 0.0 (no TP1 -> no chandelier) + ribbon-flip excluded for strategy 'adopted_manual' + Discord ping on adoption. So a J-manual put can NO LONGER be auto-sold at a TP1 he never chose; only the -50% cap + 15:50 flatten manage it. Guard TestAdoptedShapeCapOnly (3 tests, both directions red-proofed). Curated safety gate green.
+> **G2 DONE (verify-only):** the gap-audit assumed the live tick runs under backtest/.venv -- WRONG. run-heartbeat-core.ps1:24-36 launches SYSTEM pythonw with PYTHONPATH=backtest/.venv/Lib/site-packages (L41: venv pythonw re-execs a new console -> window flash). Verified heartbeat_core + exit_actuator + my edits import CLEAN under that faithful env (pandas 2.3.3). Import-dead-at-open retired. FUTURE VERIFICATION NOTE: test under system-python+venv-PYTHONPATH, not bare venv, to be production-faithful.
+> **G3 DONE (commit fc8ee27):** today's runners auto-liquidated 15:45 ET (Alpaca 0DTE auto_liquidate; both accounts confirmed FLAT). Safe 747P runner -$13, Bold 750P runner +$125. **DAY TOTAL = +$489 realized** (Safe +$162 / Bold +$327) -- corrects the +$377 (TP1-only) reported all evening. Journal EOD written. Minor flag: a $0.01 SPY 07-08 710P + a $10 BTC round-trip appear ~20:45 ET post-session (canceled/tiny, source unclear) -- flagged for provenance.
+> NEXT (Opus, per FABLE gap-audit order): G10 audit-tail recovery, then G5 alert/capture, G8 greeks-capture, G9 parity-ledger, G7 armability-gate.
+
+---
+
 ## [2026-07-07] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-05-27..2026-07-01), real OPRA fills, floor n>=10
 
 > **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-01). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
@@ -254,7 +264,7 @@
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 57 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=ollama::qwen3:14b
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -1386,3 +1396,32 @@ Kitchen: alive, queue 57 pending, last cook 0 min ago, today $0.00, model=openro
 
 ### DEGRADED: self-check 2026-07-07T22:39:57
 - FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BEAR ?', '15:47 ENTER_BEAR ?', '15:48 ENTER_BEAR ?']
+
+- [2026-07-07 20:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T02:57:03.713484+00:00) | fail streak: 205 consecutive fires | stage v02_source_parity pass rate dropped to 65.71% in last 24h (23/35) -- but v15 (3-source) = 97.14% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/35) | v02 source parity drift in 32.87% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-07 20:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-07.log
+
+### DEGRADED: self-check 2026-07-07T23:09:57
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BEAR ?', '15:47 ENTER_BEAR ?', '15:48 ENTER_BEAR ?']
+
+- [2026-07-07 21:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T03:27:03.617558+00:00) | fail streak: 206 consecutive fires | stage v02_source_parity pass rate dropped to 68.57% in last 24h (24/35) -- but v15 (3-source) = 97.14% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/35) | v02 source parity drift in 31.34% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-07 21:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-07.log
+
+### WARN: spend-summary threshold breach
+- ts: 2026-07-08T03:30:33+00:00
+- date_et: 2026-07-07
+- total: $780.71 (threshold $30.00)
+- claude: $780.67  minimax: $0.04
+- claude_sessions: 8
+
+### DEGRADED: self-check 2026-07-07T23:39:57
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BEAR ?', '15:47 ENTER_BEAR ?', '15:48 ENTER_BEAR ?']
+
+- [2026-07-07 21:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T03:57:03.671139+00:00) | fail streak: 207 consecutive fires | stage v02_source_parity pass rate dropped to 71.43% in last 24h (25/35) -- but v15 (3-source) = 97.14% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/35) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-07 21:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-07.log
+
+- [2026-07-07 22:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T04:27:03.288932+00:00) | fail streak: 208 consecutive fires | stage v02_source_parity pass rate dropped to 72.22% in last 24h (26/36) -- but v15 (3-source) = 97.22% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/36) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-07 22:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-07.log
