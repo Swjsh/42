@@ -1,3 +1,4 @@
+- 2026-07-08 09:31 ET [vision-loop] Vtrade DONE (OP-33e): Gamma_TradeToday auto-pings J on the first engine fill (Alpaca source-of-truth) + trade-today.json glanceable. Verified firing. Market open; engine live (F1 off, gap_and_go alive). Currently 0 fills / 2 placed-not-filled.
 - 2026-07-08 09:22 ET [vision-loop] V2 DONE: gap_and_go un-dead (was 100% SKIP_NO_FEED) — prior RTH close 751.31 now derived from bars + gap-magnet level written. Engine can evaluate gap setups today. 3 red-proofed guards, fail-open.
 - 2026-07-08 09:12 ET [vision-loop] V1c DONE: engine now PINGS J on a memory-level rejection (verified on 747.41 — J's level). Auto-live via the 10-min task, 30-min dedup, notify-only. V1-entry (merge into live entries) -> NEEDS-REVIEW (=G11 A/B). Next V2 gap-fill.
 - 2026-07-08 09:01 ET [vision-loop] V1b DONE+VERIFIED: Gamma_LevelMemory scheduled (every 10min RTH) — triggered, shadow map refreshed (exit 0). Multi-day memory levels now auto-update live.
@@ -1531,3 +1532,9 @@ Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=openro
 - [07-08 09:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 84439s - kill+relaunch
 - [07-08 09:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 84740s - kill+relaunch
 - [07-08 09:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 85039s - kill+relaunch
+- [07-08 09:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 85340s - kill+relaunch
+
+- [2026-07-08 07:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T13:27:03.551127+00:00) | fail streak: 226 consecutive fires | stage v02_source_parity pass rate dropped to 75.0% in last 24h (39/52) -- but v15 (3-source) = 98.08% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/52) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 07:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+- [07-08 09:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 85639s - kill+relaunch

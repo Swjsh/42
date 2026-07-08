@@ -32,6 +32,8 @@ FLAT (no NOT_FLAT block). So I build here while the engine runs its own session.
 - [ ] V3 LIVE TRENDLINE READS — wire `trendline_engine.py` (exists, NOT on the live path) into the tick so the engine sees drawn/auto trendlines (J's trendline) as levels + a rejection veto/trigger. A/B the trendline signal (it's a CALL-veto per the trendline memory; validate as trigger separately).
 - [ ] V4 LEVEL-REJECTION -> CONTINUATION — the "jacked off 746.10 and keeps dumping" read. `level_memory.emit_reject_alert` (built G5) fires the ping; add the rejection-continuation SETUP (reject a high-memory level -> enter continuation with the level as stop). A/B on real fills; honest prior: ribbon_rejection_wick was already killed (0/24 BH-FDR) — this is the LEVEL-memory variant, validate fresh, don't assume.
 
+- [x] Vtrade OP-33e INSTRUMENT (j-mind-check, 2026-07-08): `Gamma_TradeToday` (every 2min RTH) queries Alpaca get_orders (source of truth) -> LOUD-pings J on the first engine SPY-option fill (FIRST FILL EVER flagged) + writes glanceable trade-today.json. Verified firing (exit 0). Retires the recurring 'did it trade' question.
+
 ## TRADE-TODAY WATCH (engine's own session — visibility, not build)
 - Engine: armed + fires 09:30 ET + FLAT. fill_funnel + self_check emit status (alert delivery
   fixed last night G5). J gets a ping if it enters / if a real break occurs.
@@ -45,3 +47,4 @@ FLAT (no NOT_FLAT block). So I build here while the engine runs its own session.
 - 2026-07-08 09:01 ET (V1b DONE + VERIFIED FIRING): Gamma_LevelMemory registered (every 10min RTH, hidden pythonw); triggered it -> shadow refreshed 09:01 ET, 12 levels, exit 0. Memory map now auto-fresh. Next: V1c wire consumers.
 - 2026-07-08 09:12 ET (V1c DONE): reject-ping wired — producer pings J on a strong-memory-level rejection (verified: 747.41 reject). 30-min dedup, notify-only, auto-live via the 10-min task. 6 guards. V1-entry -> NEEDS-REVIEW (=G11). Next: V2 gap-fill.
 - 2026-07-08 09:22 ET (V2 DONE): gap_and_go un-dead — prior_rth_close derived from timestamped SPY bars (751.31) -> prior-rth-close.json -> dispatch fallback resolves it (was 100% SKIP_NO_FEED). Gap magnet = prior close; today -3.61 down-gap, fill target 751.31. Fail-open live-path, 3 guards. Next: V3 trendline.
+- 2026-07-08 09:31 ET (Vtrade DONE + market OPEN): built the OP-33e 'did it trade' instrument (Gamma_TradeToday, verified firing) — J auto-pinged on first fill. Engine now live: F1 off + gap_and_go alive + memory levels visible. Watching the funnel. Next: V3 trendline.
