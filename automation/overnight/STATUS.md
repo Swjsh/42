@@ -1,3 +1,4 @@
+- 2026-07-08 01:30 ET [overnight-loop] G5 DONE (327479e): alert/capture flywheel. FIX: discord-bridge was dropping 113 `message`-schema alerts (spend WARN + self-check DEGRADED — J wasn't getting them); now delivers both schemas. + level_memory reject-ping + j-call anchor capture. 6 red-proofed tests.
 - 2026-07-08 01:20 ET [overnight-loop] G17 DONE (8c672c0): autonomy_actuator ET/market-hours deduped onto et_clock (C14 verbatim-copy eliminated), parity verified, guard red-proofed.
 - 2026-07-08 01:15 ET [overnight-loop] G15 DONE (dd84573): stale vwap_cont docs fixed (were 'DORMANT' while LIVE-armed) + doc/flag drift guard; queue.md consolidated (25 done->Completed); SIP price = $99/mo (Algo Trader Plus) handed to J for D-SIP.
 - 2026-07-08 01:05 ET [overnight-loop] G9 DONE (412ec93): sim-live parity ledger shipped. FINDING: 0 reconciled fills across core + 6 fleet arms (filled_avg_price null everywhere) — rig places but has never filled. Now standing-monitored via analysis/parity/. 4 red-proofed tests.
@@ -1434,3 +1435,7 @@ Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=ollama
 - [2026-07-07 22:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T04:57:03.344302+00:00) | fail streak: 209 consecutive fires | stage v02_source_parity pass rate dropped to 72.97% in last 24h (27/37) -- but v15 (3-source) = 97.3% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/37) :: see crypto/data/scorecards/drift_report.json
 
 - [2026-07-07 22:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-07.log
+
+- [2026-07-07 23:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T05:27:03.321197+00:00) | fail streak: 210 consecutive fires | stage v02_source_parity pass rate dropped to 73.68% in last 24h (28/38) -- but v15 (3-source) = 97.37% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/38) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-07 23:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-07.log
