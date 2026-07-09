@@ -25,11 +25,34 @@ KNOWN_SURVIVOR_SIG = g.ShapeSig(-0.08, 1.5, 0.8, "fixed")  # OTM-1:...:stop-8:tp
 
 
 def test_survivors_actually_loaded():
-    """Guard is only meaningful if it reads real survivors. Assert the summary parses and the
-    known -8/+150/0.8/fixed survivor is present (so a pass is never vacuous)."""
+    """Guard is only meaningful if it reads real survivors. Assert the known -8/+150/0.8/fixed
+    survivor is present (so a pass is never vacuous)."""
     survivors = g.load_survivor_sigs()
-    assert survivors, "phase5 summary produced no survivor sigs -- gate would vacuously pass"
+    assert survivors, "phase5 outputs produced no survivor sigs -- gate would vacuously pass"
     assert any(g._sig_eq(s, KNOWN_SURVIVOR_SIG) for s in survivors)
+
+
+def test_survivors_read_full_set_not_truncated_summary():
+    """Fable review 2026-07-08: the gate originally read the summary's top_survivors (15 rows)
+    while the full phase5 JSONL holds 86 survivors -- 71 legitimate survivors were invisible
+    (wrongly-RED direction). Lock the fix: the gate must see WELL more than the 15-row summary."""
+    survivors = g.load_survivor_sigs()
+    assert len(survivors) >= 50, (
+        f"gate sees only {len(survivors)} survivor sigs -- it is reading the truncated summary, "
+        "not mass-grind-phase5.jsonl (regenerate via python -m autoresearch.mass_grind_phase5)")
+
+
+def test_scar_shape_absent_from_FULL_survivor_set():
+    """The T5-scar claim re-verified against the COMPLETE survivor set (not the top-15): the
+    shipped -20/+150/sell80 shape appears in NEITHER lock mode among all 86 survivors. NOTE the
+    old grind's lock axis was a dead knob (orchestrator never translated profit_lock_mode --
+    181/181 fixed-vs-trailing P4 pairs byte-identical), so fixed and trailing are the same claim."""
+    survivors = g.load_survivor_sigs()
+    for lock in ("fixed", "trailing"):
+        sig = g.ShapeSig(-0.20, 1.5, 0.8, lock)
+        assert not any(g._sig_eq(sig, s) for s in survivors), (
+            f"-20/+150/sell80/{lock} IS in the full survivor set -- the waiver justification "
+            "and the T5-scar narrative need rewriting")
 
 
 def test_redproof_shipped_shape_reds_without_waiver():

@@ -9,7 +9,7 @@
       "j_signed": false,
       "status": "PROVISIONAL_PENDING_STOP_A",
       "added": "2026-07-08",
-      "reason": "THE T5 SCAR. Live fleet_rest shape since 2026-06-25 but NOT a P5 survivor: at stop-20 the P5 survivors are all TP+100%, never +150% (verified: 0 survivors match stop-20/tp+150/sell80). This is exactly the shape the ENTRY-EXIT-MATRIX redesign (T4) is re-searching. Provisional pending STOP CHECKPOINT A.",
+      "reason": "THE T5 SCAR. Live fleet_rest shape since 2026-06-25 but NOT a P5 survivor: 0 of the FULL 86 survivors (mass-grind-phase5.jsonl, re-verified by Fable review 2026-07-08) match stop-20/tp+150/sell80 in EITHER lock mode. Caveat discovered in the same review: the old grind's lock/trail axis was a DEAD KNOB (orchestrator never translated profit_lock_mode; 181/181 fixed-vs-trailing pairs identical), so the P5 universe never actually tested trailing exits. This is exactly the shape the ENTRY-EXIT-MATRIX redesign (T4) is re-searching. Provisional pending STOP CHECKPOINT A.",
       "provenance": "analysis/recommendations/mass-grind-phase5-summary.json (survivors) ; strategies.py RIBBON_RIDE",
       "resolves_when": "T4 exit-matrix produces a P5-passing ribbon_ride shape, OR J signs this waiver, OR the shape is retired."
     },

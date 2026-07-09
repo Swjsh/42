@@ -74,6 +74,10 @@
   "anchor": {
     "status": "ok",
     "n_positions": 79,
+    "n_unique_signals": 17,
+    "n_trading_days": 7,
+    "date_span": "2026-06-29..2026-07-08",
+    "actual_realized_total": -893.0,
     "control_anchor_total": -757.1,
     "finalists": [
       {
@@ -46360,7 +46364,7 @@
           "exp": 54.19
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -46537,7 +46541,7 @@
           "exp": 54.19
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -49310,7 +49314,7 @@
           "exp": 54.12
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -49546,7 +49550,7 @@
           "exp": 54.12
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -66184,7 +66188,7 @@
           "exp": 46.47
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -66715,7 +66719,7 @@
           "exp": 46.47
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -70491,7 +70495,7 @@
           "exp": 44.98
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -71612,7 +71616,7 @@
           "exp": 44.98
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -71789,7 +71793,7 @@
           "exp": 40.64
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -71848,7 +71852,7 @@
           "exp": 40.64
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -74031,7 +74035,7 @@
           "exp": 45.56
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -74267,7 +74271,7 @@
           "exp": 42.26
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -74326,7 +74330,7 @@
           "exp": 42.26
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -75624,7 +75628,7 @@
           "exp": 46.57
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -75801,7 +75805,7 @@
           "exp": 46.57
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -75860,7 +75864,7 @@
           "exp": 45.56
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -80108,7 +80112,7 @@
           "exp": 42.39
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -82586,7 +82590,7 @@
           "exp": 42.39
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -87188,7 +87192,7 @@
           "exp": 42.81
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -89135,7 +89139,7 @@
           "exp": 36.04
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -89489,7 +89493,7 @@
           "exp": 42.81
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -89666,7 +89670,7 @@
           "exp": 36.04
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -89961,7 +89965,7 @@
           "exp": 31.15
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -90138,7 +90142,7 @@
           "exp": 37.99
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -90492,7 +90496,7 @@
           "exp": 37.99
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -91790,7 +91794,7 @@
           "exp": 31.14
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -93147,7 +93151,7 @@
           "exp": 35.93
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -95330,7 +95334,7 @@
           "exp": 30.78
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -96923,7 +96927,7 @@
           "exp": 36.07
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -97218,7 +97222,7 @@
           "exp": 29.12
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -114269,7 +114273,7 @@
           "exp": 28.58
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -116275,7 +116279,7 @@
           "exp": 33.86
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -117219,7 +117223,7 @@
           "exp": 30.81
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -117396,7 +117400,7 @@
           "exp": 24.0
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -118694,7 +118698,7 @@
           "exp": 26.75
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,
@@ -120169,7 +120173,7 @@
           "exp": 20.9
         }
       },
-      "p5_survivor": false
+      "p5_survivor": true
     },
     {
       "n": 250,

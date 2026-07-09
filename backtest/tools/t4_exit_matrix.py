@@ -253,8 +253,15 @@ def anchor_check(finalists: list[dict], control: dict) -> dict:
             tot = _total_on_anchor(_shape_from_result(r))
             rows.append({"label": r["label"], "anchor_total": tot,
                          "no_regression": (ctl_total is None or tot >= ctl_total)})
-        return {"status": "ok", "n_positions": len(positions), "control_anchor_total": ctl_total,
-                "finalists": rows}
+        # ground rule 8: any stat from fleet fills states the unique-signal count, not positions.
+        uniq = sorted(set((p["date_et"], p["symbol"]) for p in positions))
+        dates = sorted(set(p["date_et"] for p in positions))
+        actual_total = round(sum(p.get("actual_exit_pnl", 0.0) for p in positions), 2)
+        return {"status": "ok", "n_positions": len(positions),
+                "n_unique_signals": len(uniq), "n_trading_days": len(dates),
+                "date_span": f"{dates[0]}..{dates[-1]}" if dates else None,
+                "actual_realized_total": actual_total,
+                "control_anchor_total": ctl_total, "finalists": rows}
     except Exception as e:  # noqa: BLE001
         return {"status": "error", "reason": str(e)[:200]}
 
@@ -434,9 +441,14 @@ def render_md(results: list, control: dict, n: int, anchor: dict | None = None) 
         L.append(f"- Anchor status: **{(anchor or {}).get('status', 'n/a')}** ({why}). "
                  f"Owed before any finalist advances (an anchor FAIL = kill regardless of aggregate).")
     else:
-        L.append(f"Replayed on {anchor['n_positions']} real fleet positions. "
-                 f"Control anchor total: **${anchor['control_anchor_total']}**. "
-                 f"A finalist materially worse than control here = KILL (ground rule / T4).")
+        L.append(f"Replayed on {anchor['n_positions']} real fleet positions = "
+                 f"**{anchor.get('n_unique_signals', '?')} unique (date,symbol) signals** over "
+                 f"{anchor.get('n_trading_days', '?')} trading days "
+                 f"({anchor.get('date_span', '?')}) — ONE market regime; the anchor is a "
+                 f"KILL-check, not a ratifier (ground rule 8). "
+                 f"Actual realized on these positions: ${anchor.get('actual_realized_total', '?')} "
+                 f"(replayed control ${anchor['control_anchor_total']} — parity ✓). "
+                 f"A finalist materially worse than control here = KILL.")
         L.append("")
         L.append("| finalist | anchor total | no-regression vs control |")
         L.append("|---|--:|:--:|")

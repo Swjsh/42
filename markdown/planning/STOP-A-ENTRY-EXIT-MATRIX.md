@@ -45,18 +45,20 @@ This is the package the handoff routes here ("T2 report + T3/T4 exploratory resu
 
 Route: exit shapes + entry policy are STRATEGY properties → P1/backtest confirmatory (T5). The *frame* question ("is the whole 0DTE-single-leg premium-shape search the right game vs a DTE ladder / spreads") is an Opus/P2 call, not this file's.
 
-## PRE-REGISTERED T5 CANDIDATES (frozen BEFORE OOS — ground rule 12)
+## PRE-REGISTERED T5 CANDIDATES (v2 after Fable review — frozen BEFORE any confirmatory run)
 
-Written to [`entry-exit-matrix-stop-a-preregistration.json`](../../analysis/recommendations/entry-exit-matrix-stop-a-preregistration.json). T5 runs OOS on EXACTLY these; auto-ratify bar = OOS_positive AND WF ≥ 0.70 AND sub-window-stable AND anchor_no_regression AND **P5 pass**.
+Written to [`entry-exit-matrix-stop-a-preregistration.json`](../../analysis/recommendations/entry-exit-matrix-stop-a-preregistration.json) **(v2)**. T5 runs the confirmatory battery on EXACTLY these; auto-ratify bar = fresh-slice positive AND WF ≥ 0.70 AND sub-window-stable AND anchor_no_regression AND **P5 pass on a FRESH grind**.
 
-**Exit (ribbon_ride, both directions), ≤3:**
-1. `-30/+50/sell80/trail15/2.5x` — moderate stop (survives the cheap band), reachable TP, kill-switch-safe.
-2. `-50/+150/sell66/trail15/tgtnone` — wide-stop ride: winner-capture with a −50% catastrophe cap (the live cap), not no-stop.
-3. `perband: -25 (<$0.20) / -50 (≥$0.50), +75/sell66/trail15` — the per-band hybrid.
+**Exit (ribbon_ride, both directions), ≤3 — each with its own quoted full-population cell:**
+1. `exit-A` **−50/+150/sell66/trail15/tgt-none** — the strongest *wireable* cell: exp $42.99, drop-top-3 $17.88, qpf 0.833, WF 2.06, rank 65/2016. Zero new knobs (live −50 cap convention).
+2. `exit-B` **per-band stop (−25/−35/−50 by premium band) on exit-A's body** — tests T2/T4's band refinement; needs one new knob (entry-time band-resolved stop). Drop if no lift over exit-A.
+3. `exit-C` **−35/+50/sell80/trail15/2.5x — PAIR-ONLY with entry-2** — standalone it's weak (exp $13.19, rank 609/2016); T3 shows it wins only WITH the passive limit entry (+$25–65 net of misses).
 
-**Entry (paired), ≤2:**
-1. `market + premium_floor $0.30` — the floor alone (cheapest change, Finding 3).
-2. `limit-10%/patience-3/cancel + premium_floor $0.30` — passive headroom, paired with candidate exit #1 (Finding 2 says this is where passive pays).
+**Entry (≤2):**
+1. `entry-1` **market + premium_floor $0.30** — cheapest change (control exp $22.91 → $36.62 at the floor).
+2. `entry-2` **limit−10%/patience-3/cancel + floor $0.30** — passive headroom, paired with exit-C only.
+
+> **v1→v2 amendment (Fable review, 2026-07-08 late, BEFORE sign-off/OOS):** v1's exit-1 (−30/+50/sell80/trail15) was registered without quoting its own cell — which is exp **$7.42, drop-top-3 −$2.78 (negative), qpf 0.5, rank 830/2016**: already failing in exploratory. Replaced. Full rationale in the pre-registration's `amendment_log`.
 
 ---
 
@@ -83,3 +85,19 @@ Written to [`entry-exit-matrix-stop-a-preregistration.json`](../../analysis/reco
 5. ✅ Zero live/paper shape or entry-path changes. No grid knob tuned after seeing OOS (OOS not yet run). No position-count quoted as n.
 
 _Commits: T1 `c11aa1d` · P5-gate `d7d9ae2` · T2 `d8581a6` · T4 `df6ed7b` · T3 `7d81b22` · this package (below)._
+
+---
+
+## FABLE REVIEW ADDENDUM (2026-07-08 late — read before signing)
+
+The execution above was independently re-verified. **The core finding STANDS** — anchor parity confirmed (actual realized on the 79 positions **−$893** vs replayed control **−$757**: the replay measures the real book) and the ranking survives the entry-bar sensitivity probe (skipping bar 0 moves the leaders ≤$0.65 and actually *improves* control +$12.63 — the bias ran against the winners' favor, not for it). Corrections made in this review, all committed:
+
+1. **P5 gate read 15 of 86 survivors** (truncated summary instead of `mass-grind-phase5.jsonl`) — fixed; scar re-verified against the FULL 86 (still 0 hits — the waiver justifications stand, now stronger).
+2. **The old grind's lock/trail axis was a DEAD KNOB** — orchestrator never translated `profit_lock_mode`/`profit_lock_trail_pct` from overrides (L342-346 translate only tp1/frac/target); **181/181 fixed-vs-trailing P4 pairs are byte-identical**. The entire P5 universe never tested trailing. T4 (which drove exit_manager directly) is the FIRST genuine trailing sweep. Any fresh grind must pass lock/trail as **kwargs**.
+3. **The engine-contract card §3 was wrong-in-production**: with `GAMMA_CORE_MANAGES_EXITS=1` (run-heartbeat-core.ps1:12), control arms register the **strategies.py ribbon_ride shape** for generic ribbon entries — params tp/stop are plan-log values (options can't bracket). Card corrected + entry-policy section added (`ask + $0.03` marketable, no floor, no patience).
+4. **New two-lane discrepancy surfaced by the corrected card:** `vwap_continuation` trades **−8%/+30%** on fleet arms (strategies.py) but **−6%/+40%** on core arms (params keys `j_vwap_cont_*`). Same strategy, two shapes. Provenance owed — J decision or T5 scope.
+5. **Pre-registration amended to v2** (before sign-off/OOS — see amendment_log): v1's exit-1 was already dead in its own exploratory cell (drop-top-3 negative, rank 830/2016).
+6. **T5's holdout was undefined in v1** (the exploratory window incl. its internal "OOS" is burned — it was visible during ranking). v2 defines 4 confirmatory layers: fresh OPRA slice (≥2026-06-19), growing real-fills anchor, fresh P5 grind (trail wired), 2-week forward paper.
+7. T2's percentile column relabeled to the **worst-quartile** (deep tail: MAE-10m worst-q −43%/−35%/−32%/−27% by band); T4 anchor now states **17 unique signals / 7 days / one regime** (ground rule 8).
+
+**Execution grade: the work is sound and honest; every defect found was in instrument completeness or labeling, none in the direction of the finding.** Next executor's work order: [`HANDOFF-2026-07-11-CONFIRM-AND-WIRE.md`](HANDOFF-2026-07-11-CONFIRM-AND-WIRE.md).

@@ -35,6 +35,7 @@ REPO = Path(__file__).resolve().parents[2]
 FLEET = REPO / "automation" / "state" / "fleet"
 ACCOUNTS = FLEET / "accounts.json"
 STRATEGIES_PY = FLEET / "strategies.py"
+HEARTBEAT_CORE = REPO / "setup" / "scripts" / "heartbeat_core.py"
 SAFE_PARAMS = REPO / "automation" / "state" / "params.json"
 BOLD_PARAMS = REPO / "automation" / "state" / "aggressive" / "params.json"
 OUT = REPO / "automation" / "state" / "engine-contract.md"
@@ -57,6 +58,27 @@ def _import_module(name: str, path: Path):
 def _load_strategies():
     """Import automation/state/fleet/strategies.py (pure stdlib module)."""
     return _import_module("_ec_strategies", STRATEGIES_PY)
+
+
+def _load_setup_exit_overrides() -> dict:
+    """Extract heartbeat_core._SETUP_EXIT_OVERRIDES from SOURCE via ast (never import --
+    heartbeat_core has heavy/live-path imports; the card generator must stay side-effect-free).
+    Returns {} if the assignment can't be found/parsed (the card then omits that table, and
+    the drift guard still binds on everything else)."""
+    import ast
+    try:
+        tree = ast.parse(HEARTBEAT_CORE.read_text(encoding="utf-8-sig"))
+    except (OSError, SyntaxError):
+        return {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            for t in node.targets:
+                if isinstance(t, ast.Name) and t.id == "_SETUP_EXIT_OVERRIDES":
+                    try:
+                        return ast.literal_eval(node.value)
+                    except ValueError:
+                        return {}
+    return {}
 
 
 def _load_cap_tables() -> dict:
@@ -193,11 +215,35 @@ def render_contract() -> str:
              f"`enable_bullish={_g(safe, 'enable_bullish')}` (safe). No per-strategy direction lock.")
     L.append("")
 
-    # ── 3. CONTROL ARMS: what the two heartbeat controls trade (params.json shapes) ─────────
-    L.append("## 3. Control arms (mcp_heartbeat) — traded from params.json, NOT strategies.py")
+    # ── 3. CONTROL ARMS: what the two heartbeat controls ACTUALLY trade ─────────────────────
+    # Fable review 2026-07-08: options can't bracket (Alpaca 42210000), so the params tp/stop
+    # numbers are PLAN-LOG values, not broker legs. With GAMMA_CORE_MANAGES_EXITS=1 (set by
+    # run-heartbeat-core.ps1:12 = production), the exit_manager owns exits, and for generic
+    # ribbon setups it registers the strategies.py ribbon_ride shape (heartbeat_core ~L1230).
+    L.append("## 3. Control arms (mcp_heartbeat) — what they ACTUALLY trade")
     L.append("")
-    L.append("`safe-2` and `bold-2` are the production controls the grid is measured against. "
-             "They trade the params.json bracket directly (the fleet_rest shapes in §2 are the challengers).")
+    L.append("Options can't bracket at Alpaca → entries are SIMPLE limits with **no broker-side "
+             "TP/stop**; the `exit_manager` owns every exit (production sets "
+             "`GAMMA_CORE_MANAGES_EXITS=1` in `run-heartbeat-core.ps1`). Which shape it runs:")
+    L.append("")
+    L.append("- **Generic ribbon setups** (BEARISH_REJECTION / BULLISH_RECLAIM): the control arms "
+             "register **strategies.py `ribbon_ride`'s shape (§2)** with the exit_manager — the "
+             "SAME shape the fleet_rest arms trade, NOT the params tp/stop below.")
+    ovr = _load_setup_exit_overrides()
+    if ovr:
+        L.append("- **Per-setup isolated exits** (`_SETUP_EXIT_OVERRIDES`, heartbeat_core) — these "
+                 "armed extra setups trade their OWN validated cells from params keys:")
+        L.append("")
+        L.append("| setup | stop | TP1 | extra knobs |")
+        L.append("|---|--:|--:|---|")
+        for name, keys in ovr.items():
+            stop_v = safe.get(keys.get("stop", ""), "—")
+            tp_v = safe.get(keys.get("tp1", ""), "—")
+            extras = ", ".join(k for k in ("tq", "plmode", "trail", "runner") if keys.get(k))
+            L.append(f"| `{name}` | {_pct(stop_v) if stop_v != '—' else '—'} "
+                     f"| +{_pct(tp_v) if tp_v != '—' else '—'} | {extras or '—'} |")
+        L.append("")
+    L.append("- **params.json bracket values** (plan/log reference only — shown so drift is visible):")
     L.append("")
     L.append("| control | source | stop | TP1 | sell frac | runner | time-stop |")
     L.append("|---|---|---|---|---|---|---|")
@@ -207,6 +253,20 @@ def render_contract() -> str:
     L.append(f"| `bold-2` | aggressive/params.json | {_pct(_g(bold, 'premium_stop_pct'))} "
              f"| +{_pct(_g(bold, 'tp1_premium_pct'))} | {_pct(_g(bold, 'tp1_qty_fraction'))} "
              f"| {_g(bold, 'runner_max_premium_pct')}x | {_g(bold, 'time_stop_et')} ET |")
+    L.append("")
+
+    # ── 3b. ENTRY POLICY (the axis the ENTRY-EXIT-MATRIX studies; previously invisible) ─────
+    L.append("## 3b. Entry policy (all arms — the current order type)")
+    L.append("")
+    buf = safe.get("entry_cross_buffer", 0.03)
+    L.append(f"- **Marketable simple limit: `ask + entry_cross_buffer` (${float(buf):.2f})** — "
+             f"`fleet_broker.marketable_limit_price` / `heartbeat_core` #15 pricing. Crosses the "
+             f"spread to fill NOW (pays up into the signal bar).")
+    L.append("- **No premium floor** — sub-$0.20 contracts are admitted (T2 diagnostics: a −20% "
+             "stop there = ~2 ticks ≈ the spread).")
+    L.append("- **No passive/patience logic** — no limit-below-signal, no cancel/convert window. "
+             "(The T3 entry-matrix studies exactly this axis; nothing is wired yet.)")
+    L.append("- Stale un-crossed BUY limits from a prior tick are cancel-replaced each tick.")
     L.append("")
 
     # ── 4. SIZING MATH (cap_admission — the single authority) ───────────────────────────────

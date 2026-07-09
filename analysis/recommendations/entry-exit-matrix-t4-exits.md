@@ -56,7 +56,7 @@ Downside columns are load-bearing: a 'no-stop ride' buys winner-capture with tai
 
 ## Anchor — top-5 finalists on the 17 REAL fleet signals (mandated kill-check)
 
-Replayed on 79 real fleet positions. Control anchor total: **$-757.1**. A finalist materially worse than control here = KILL (ground rule / T4).
+Replayed on 79 real fleet positions = **17 unique (date,symbol) signals** over 7 trading days (2026-06-29..2026-07-08) — ONE market regime; the anchor is a KILL-check, not a ratifier (ground rule 8). Actual realized on these positions: $-893.0 (replayed control $-757.1 — parity ✓). A finalist materially worse than control here = KILL.
 
 | finalist | anchor total | no-regression vs control |
 |---|--:|:--:|

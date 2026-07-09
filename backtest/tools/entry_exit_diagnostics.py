@@ -212,6 +212,7 @@ def aggregate(rows: list[dict], n_signals: int) -> dict:
                           "p25": round(_pctile([r["mae_10min"] for r in rs], 0.25), 3),
                           "p75": round(_pctile([r["mae_10min"] for r in rs], 0.75), 3)},
             "mae_30min": {"median": round(st.median(r["mae_30min"] for r in rs), 3),
+                          "p25": round(_pctile([r["mae_30min"] for r in rs], 0.25), 3),
                           "p75": round(_pctile([r["mae_30min"] for r in rs], 0.75), 3)},
             "mfe_eod": {"median": round(st.median(r["mfe_eod"] for r in rs), 3),
                         "p75": round(_pctile([r["mfe_eod"] for r in rs], 0.75), 3)},
@@ -233,7 +234,7 @@ def render_md(agg: dict) -> str:
     L.append("")
     L.append("## Per-band noise floor (the priors that parameterize T3/T4)")
     L.append("")
-    L.append("| band | n | med entry | MAE 5m (med/p75) | MAE 10m (med/p75) | MFE EOD (med/p75) | −20% stop = ticks | spread proxy |")
+    L.append("| band | n | med entry | MAE 5m (med/worst-q) | MAE 10m (med/worst-q) | MFE EOD (med/p75) | −20% stop = ticks | spread proxy |")
     L.append("|---|--:|--:|--:|--:|--:|--:|--:|")
     for band, _lo, _hi in BANDS:
         b = agg["bands"].get(band, {})
@@ -241,14 +242,17 @@ def render_md(agg: dict) -> str:
             L.append(f"| {band} | 0 | — | — | — | — | — | — |")
             continue
         L.append(f"| {band} | {b['n']} | ${b['median_entry_premium']:.2f} "
-                 f"| {_fmt_pct(b['mae_5min']['median'])} / {_fmt_pct(b['mae_5min']['p75'])} "
-                 f"| {_fmt_pct(b['mae_10min']['median'])} / {_fmt_pct(b['mae_10min']['p75'])} "
+                 f"| {_fmt_pct(b['mae_5min']['median'])} / {_fmt_pct(b['mae_5min']['p25'])} "
+                 f"| {_fmt_pct(b['mae_10min']['median'])} / {_fmt_pct(b['mae_10min']['p25'])} "
                  f"| {_fmt_pct(b['mfe_eod']['median'])} / {_fmt_pct(b['mfe_eod']['p75'])} "
                  f"| {b['median_20pct_stop_in_ticks']:.1f} | {_fmt_pct(b['median_spread_proxy_pct'])} |")
     L.append("")
-    L.append("**Reading:** where `−20% stop = ticks` is ≲3 and the spread proxy is a large % of "
+    L.append("**Reading:** `worst-q` = the 25th percentile of the signed MAE distribution — the "
+             "DEEP tail (25% of signals draw down at least this much). This is the number that "
+             "parameterizes stops: a stop shallower than worst-q gets harvested on 1-in-4 signals "
+             "by noise alone. Where `−20% stop = ticks` is ≲3 and the spread proxy is a large % of "
              "premium, a −20% stop sits INSIDE the spread/noise (defect #1). Where MAE 10m median "
-             "is deeper than a candidate stop, that stop is inside the median noise floor (defect #3).")
+             "is deeper than a candidate stop, that stop is inside the MEDIAN noise floor (defect #3).")
     L.append("")
     L.append("## Stop-harvest matrix — P(touch −S before +T | reached +T)")
     L.append("")

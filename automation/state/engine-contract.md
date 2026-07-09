@@ -30,14 +30,34 @@ The exit shape is a property of the STRATEGY (the grind proved it), realized by 
 
 Direction: both — the side comes from which side-block (bull/bear) fired; `enable_bullish=True` (safe). No per-strategy direction lock.
 
-## 3. Control arms (mcp_heartbeat) — traded from params.json, NOT strategies.py
+## 3. Control arms (mcp_heartbeat) — what they ACTUALLY trade
 
-`safe-2` and `bold-2` are the production controls the grid is measured against. They trade the params.json bracket directly (the fleet_rest shapes in §2 are the challengers).
+Options can't bracket at Alpaca → entries are SIMPLE limits with **no broker-side TP/stop**; the `exit_manager` owns every exit (production sets `GAMMA_CORE_MANAGES_EXITS=1` in `run-heartbeat-core.ps1`). Which shape it runs:
+
+- **Generic ribbon setups** (BEARISH_REJECTION / BULLISH_RECLAIM): the control arms register **strategies.py `ribbon_ride`'s shape (§2)** with the exit_manager — the SAME shape the fleet_rest arms trade, NOT the params tp/stop below.
+- **Per-setup isolated exits** (`_SETUP_EXIT_OVERRIDES`, heartbeat_core) — these armed extra setups trade their OWN validated cells from params keys:
+
+| setup | stop | TP1 | extra knobs |
+|---|--:|--:|---|
+| `vwap_continuation` | -6% | +40% | — |
+| `vwap_reclaim_failed_break` | -8% | +30% | — |
+| `vix_regime_dayside` | -8% | +30% | — |
+| `double_bottom_base_quiet` | -99% | +30% | runner |
+| `bollinger_squeeze` | -8% | +30% | tq, plmode, trail |
+
+- **params.json bracket values** (plan/log reference only — shown so drift is visible):
 
 | control | source | stop | TP1 | sell frac | runner | time-stop |
 |---|---|---|---|---|---|---|
 | `safe-2` | params.json | -50% | +50% | 80% | 2.5x | 15:40 ET |
 | `bold-2` | aggressive/params.json | -7% | +75% | 67% | 5.0x | 15:40 ET |
+
+## 3b. Entry policy (all arms — the current order type)
+
+- **Marketable simple limit: `ask + entry_cross_buffer` ($0.03)** — `fleet_broker.marketable_limit_price` / `heartbeat_core` #15 pricing. Crosses the spread to fill NOW (pays up into the signal bar).
+- **No premium floor** — sub-$0.20 contracts are admitted (T2 diagnostics: a −20% stop there = ~2 ticks ≈ the spread).
+- **No passive/patience logic** — no limit-below-signal, no cancel/convert window. (The T3 entry-matrix studies exactly this axis; nothing is wired yet.)
+- Stale un-crossed BUY limits from a prior tick are cancel-replaced each tick.
 
 ## 4. Sizing math (risk_gate.check_order — the single order authority)
 

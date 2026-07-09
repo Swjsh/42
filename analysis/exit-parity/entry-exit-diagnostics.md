@@ -4,14 +4,14 @@
 
 ## Per-band noise floor (the priors that parameterize T3/T4)
 
-| band | n | med entry | MAE 5m (med/p75) | MAE 10m (med/p75) | MFE EOD (med/p75) | −20% stop = ticks | spread proxy |
+| band | n | med entry | MAE 5m (med/worst-q) | MAE 10m (med/worst-q) | MFE EOD (med/p75) | −20% stop = ticks | spread proxy |
 |---|--:|--:|--:|--:|--:|--:|--:|
-| <0.20 | 189 | $0.10 | -20% / -11% | -29% / -17% | 56% / 233% | 2.0 | 42% |
-| 0.20-0.50 | 247 | $0.33 | -17% / -8% | -24% / -10% | 100% / 284% | 6.6 | 34% |
-| 0.50-1.00 | 321 | $0.73 | -14% / -7% | -22% / -9% | 97% / 234% | 14.6 | 33% |
-| >1.00 | 694 | $1.75 | -10% / -5% | -15% / -7% | 71% / 141% | 35.0 | 25% |
+| <0.20 | 189 | $0.10 | -20% / -33% | -29% / -43% | 56% / 233% | 2.0 | 42% |
+| 0.20-0.50 | 247 | $0.33 | -17% / -26% | -24% / -35% | 100% / 284% | 6.6 | 34% |
+| 0.50-1.00 | 321 | $0.73 | -14% / -26% | -22% / -32% | 97% / 234% | 14.6 | 33% |
+| >1.00 | 694 | $1.75 | -10% / -20% | -15% / -27% | 71% / 141% | 35.0 | 25% |
 
-**Reading:** where `−20% stop = ticks` is ≲3 and the spread proxy is a large % of premium, a −20% stop sits INSIDE the spread/noise (defect #1). Where MAE 10m median is deeper than a candidate stop, that stop is inside the median noise floor (defect #3).
+**Reading:** `worst-q` = the 25th percentile of the signed MAE distribution — the DEEP tail (25% of signals draw down at least this much). This is the number that parameterizes stops: a stop shallower than worst-q gets harvested on 1-in-4 signals by noise alone. Where `−20% stop = ticks` is ≲3 and the spread proxy is a large % of premium, a −20% stop sits INSIDE the spread/noise (defect #1). Where MAE 10m median is deeper than a candidate stop, that stop is inside the MEDIAN noise floor (defect #3).
 
 ## Stop-harvest matrix — P(touch −S before +T | reached +T)
 

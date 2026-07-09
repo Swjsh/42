@@ -29,6 +29,11 @@ from typing import Any, NamedTuple
 REPO = Path(__file__).resolve().parents[2]
 STRATEGIES_PY = REPO / "automation" / "state" / "fleet" / "strategies.py"
 P5_SUMMARY = REPO / "analysis" / "recommendations" / "mass-grind-phase5-summary.json"
+# The FULL per-config phase-5 output (every P4 elite with its p5_pass flag). The summary
+# above truncates top_survivors to 15 of the 86 survivors -- reading only the summary made
+# the gate wrongly RED for 71 legitimate survivors (Fable review 2026-07-08). The JSONL is
+# the authority; the summary is the fallback when the JSONL is absent.
+P5_FULL = REPO / "analysis" / "recommendations" / "mass-grind-phase5.jsonl"
 WAIVERS = REPO / "automation" / "state" / "p5-shape-waivers.json"
 
 # Combo layout in the phase5 summary survivors:
@@ -64,16 +69,36 @@ def _sig_eq(a: ShapeSig, b: ShapeSig) -> bool:
             and abs(a.qty - b.qty) < _TOL and a.lock == b.lock)
 
 
-def load_survivor_sigs(summary_path: Path = P5_SUMMARY) -> list[ShapeSig]:
-    """The exit-shape signatures of the current P5 survivors. Reads the SAME persisted artifact
-    ground rule 10 names (the summary's `top_survivors`). Fail-closed: unreadable -> [] (so every
-    live shape is treated as un-survived and must be waived -- we never silently pass on a
-    missing gate)."""
+def load_survivor_sigs(summary_path: Path = P5_SUMMARY,
+                       full_path: Path = P5_FULL) -> list[ShapeSig]:
+    """The exit-shape signatures of the current P5 survivors.
+
+    AUTHORITY = the full per-config JSONL (`mass-grind-phase5.jsonl`, rows with p5_pass==true
+    -- all 86, regenerable via `python -m autoresearch.mass_grind_phase5`). The summary's
+    `top_survivors` is a 15-row TRUNCATION kept only as fallback. Fail-closed: neither
+    readable -> [] (every live shape treated as un-survived; never silently pass)."""
+    sigs: list[ShapeSig] = []
+    try:
+        for line in full_path.read_text(encoding="utf-8-sig").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                r = json.loads(line)
+            except ValueError:
+                continue
+            combo = r.get("combo")
+            if r.get("p5_pass") and isinstance(combo, list) and len(combo) > _COMBO_LOCK:
+                sigs.append(shape_sig_from_combo(combo))
+    except OSError:
+        pass
+    if sigs:
+        return sigs
+    # Fallback: the truncated summary (better than an empty gate when the JSONL is missing).
     try:
         data = json.loads(summary_path.read_text(encoding="utf-8-sig"))
     except (OSError, ValueError):
         return []
-    sigs = []
     for s in data.get("top_survivors", []):
         combo = s.get("combo")
         if isinstance(combo, list) and len(combo) > _COMBO_LOCK:

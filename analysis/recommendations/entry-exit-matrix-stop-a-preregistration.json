@@ -1,59 +1,92 @@
 {
-  "_doc": "PRE-REGISTERED T5 candidate list for the ENTRY-EXIT-MATRIX (ground rule 12: exploratory != confirmatory -- the K candidates are frozen HERE, BEFORE the OOS pass, so no one can re-pick after seeing OOS). T5 (post-STOP-A) runs OOS on EXACTLY these and writes results into a separate scorecard; this file is the immutable pre-registration. Do NOT add/edit candidates after OOS has been seen.",
-  "handoff": "markdown/planning/HANDOFF-2026-07-10-ENTRY-EXIT-MATRIX.md",
+  "_doc": "PRE-REGISTERED T5 candidate list for the ENTRY-EXIT-MATRIX (ground rule 12: exploratory != confirmatory -- the K candidates are frozen HERE, BEFORE the confirmatory pass, so no one can re-pick after seeing held-out results). T5 (post-STOP-A) runs the confirmatory battery on EXACTLY these and writes results into a separate scorecard; this file is the immutable pre-registration. Do NOT add/edit candidates after confirmatory data has been seen.",
+  "handoff": "markdown/planning/HANDOFF-2026-07-11-CONFIRM-AND-WIRE.md",
   "stop_a_package": "markdown/planning/STOP-A-ENTRY-EXIT-MATRIX.md",
+  "version": 2,
+  "amendment_log": [
+    {
+      "v": 2,
+      "at": "2026-07-08 late (Fable review, BEFORE STOP-A sign-off and BEFORE any confirmatory run -- legitimate correction window)",
+      "what": "REPLACED v1 exit-1 (-30/+50/sell80/trail15/2.5x) and re-based exit-2/exit-3 on quoted full-population cells.",
+      "why": "v1 exit-1's own T4 cell is already dead in the exploratory data: exp $7.42, drop-top-3 -$2.78 (NEGATIVE), qpf 0.5 (fails sub_window_stable), rank 830/2016. v1 registered it from band-level reasoning without quoting the cell -- registering a visibly-failing candidate wastes a confirmatory slot. The scalp family is weak STANDALONE on the full population (all +50/+75 TP cells rank 459-830) and only wins PAIRED with a passive limit entry (T3) -- so the scalp shape moves to a pair-only candidate.",
+      "guardrail": "No confirmatory/OOS data existed at amendment time (T5 has not run; its holdout is defined below). The T4/T3 exploratory window (2025-01-01..2026-06-18) is BURNED for confirmation either way."
+    }
+  ],
   "frozen_at": "2026-07-08",
   "status": "PENDING_STOP_A_SIGNOFF",
   "strategy": "ribbon_ride",
   "directions": ["bear", "bull"],
-  "auto_ratify_bar": {
-    "oos_positive": true,
-    "wf_min": 0.70,
-    "sub_window_stable": true,
-    "anchor_no_regression": true,
-    "p5_pass": true,
-    "note": "ALL must hold. A non-P5-survivor cannot auto-ratify even if the other 4 pass (P5-hard-gate, ground rule 10)."
+  "signal_set_integrity": {
+    "file": "analysis/exit-parity/signal-set.json",
+    "sha256_16": "b5e8931994b9d34b",
+    "n_signals": 250,
+    "note": "T5 must verify this hash before running -- a regenerated signal set (engine change, --force rebuild) invalidates the pre-registration and requires a v3 amendment BEFORE any confirmatory run."
+  },
+  "t5_holdout_definition": {
+    "burned": "2025-01-01..2026-06-18 full OPRA window INCLUDING its internal 2026 'OOS' split -- it was visible during exploratory ranking (T4 sorted by full-window expectancy), so it cannot confirm anything.",
+    "confirmatory_layers": [
+      "(a) FRESH OPRA slice: extend backtest/data/options cache from 2026-06-19 to the latest completed session (tools/fetch_option_data.py), regenerate signals on that slice only, replay the frozen candidates. This window was never seen by any grid.",
+      "(b) REAL-FILLS anchor: replay frozen candidates on ALL fleet round-trips (broker-truth, currently 2026-06-29..07-08, growing daily) -- KILL any candidate materially worse than replayed control. 17 unique signals / ONE regime => kill-check only, never a ratifier.",
+      "(c) FRESH P5 grind: re-run the mass-grind funnel with profit_lock_mode AND profit_lock_trail_pct passed as run_backtest KWARGS (the old grind's lock axis was a dead knob -- orchestrator never translated it; 181/181 fixed-vs-trailing pairs identical). P5 gate (qpf==1.0 + >=3 neighbors >=0.5) on the fresh grind is the P5-hard-gate requirement.",
+      "(d) 2 weeks forward paper A/B via the fleet grid (T6) before any live-money question."
+    ],
+    "auto_ratify_bar": {
+      "oos_positive": "on layer (a), the fresh slice",
+      "wf_min": 0.70,
+      "sub_window_stable": true,
+      "anchor_no_regression": "on layer (b)",
+      "p5_pass": "on layer (c) -- a non-survivor cannot auto-ratify even if (a)/(b) pass",
+      "note": "ALL must hold (OP-11 bar + P5-hard-gate)."
+    }
   },
   "exit_candidates": [
     {
-      "id": "exit-1-moderate-scalp",
-      "shape": {"premium_stop_pct": -0.30, "tp1_premium_pct": 0.5, "tp1_qty_fraction": 0.8, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 2.5},
-      "rationale": "Moderate stop survives the cheap <$0.20 band (T2: -20% = 2 ticks there); reachable +50% TP (58-82% reach rate); kill-switch-safe drawdown vs the no-stop rides.",
-      "t4_exploratory": {"note": "band-safe variant of the T4 leaders; see entry-exit-matrix-t4-exits.md"}
-    },
-    {
-      "id": "exit-2-wide-ride",
+      "id": "exit-A-wide-ride",
       "shape": {"premium_stop_pct": -0.50, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 9.9},
-      "rationale": "Winner-capture ride but with the live -50% catastrophe cap (NOT no-stop), partial-scalp at +150%, trailing runner, no target cap. Approximates the T4 leaders with a survivable stop.",
-      "t4_exploratory": {"leader_no_stop_expectancy_qty10": 92.57, "caveat": "no-stop maxDD -$5034 @ qty10 > $2K acct -> this candidate substitutes the -50% cap"}
+      "rationale": "The strongest WIREABLE cell (live -50% catastrophe-cap convention, no new knobs): winner-capture ride + partial scalp at +150% + 15% chandelier. T2 worst-q MAE-10m is -43% in the cheap band -- a -50% stop clears the 1-in-4 noise tail everywhere.",
+      "t4_exploratory_cell": {"label": "stop-50/tp+150/sell66/trail15/tgtnone/t15:40", "exp": 42.99, "drop_top3": 17.88, "wr": 0.288, "qpf": 0.833, "wf": 2.061, "maxDD_qty10": -5718.8, "rank": "65/2016"},
+      "anchor_note": "top-5 no-stop cousins made +$1053..1574 on the 79 real positions vs control -$757; this shape's own anchor replay is owed in T5 layer (b).",
+      "wiring": "strategies.py RIBBON_RIDE ExitShape edit (all 6 arms follow -- fleet lane directly, core lane via heartbeat_core L1230 registration)."
     },
     {
-      "id": "exit-3-perband-hybrid",
-      "shape": {"per_band": {"<0.20": -0.25, ">=0.50": -0.50, "default": -0.35}, "tp1_premium_pct": 0.75, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 2.5},
-      "rationale": "The T4 per-band refinement: cheap band gets a moderate -25% stop, rich band rides to -50%. Requires wiring a premium-band-conditional stop (per-band stop is a NEW knob -- flagged for T5 to implement or approximate).",
-      "t4_exploratory": {"per_band_leaders": "see entry-exit-matrix-t4-exits.md 'Per-band leaders'"}
+      "id": "exit-B-perband-hybrid",
+      "shape": {"per_band_stop": {"<0.20": -0.25, "0.20-0.50": -0.35, ">=0.50": -0.50}, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 9.9},
+      "rationale": "T4's per-band refinement (cheap band prefers a moderate stop: its per-band leader ran -25) grafted onto exit-A. Tests whether band-conditional stops beat one-size -50.",
+      "t4_exploratory_cell": {"note": "composite -- per-band leaders table in entry-exit-matrix-t4-exits.md; <0.20 leader was stop-25/tp+150/sell66/trail15 at band-exp $10.14 vs control $4.02"},
+      "wiring": "NEW KNOB: premium-band-conditional stop resolved at ENTRY (pure function of entry premium) before ExitState.from_entry -- spec in the handoff T-W2. If T5 shows no lift over exit-A, DROP (prefer zero new knobs)."
+    },
+    {
+      "id": "exit-C-paired-scalp",
+      "shape": {"premium_stop_pct": -0.35, "tp1_premium_pct": 0.5, "tp1_qty_fraction": 0.8, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 2.5},
+      "pair_only_with": "entry-2-limit-headroom",
+      "rationale": "PAIR-ONLY: standalone this cell is weak (quoted below) -- the scalp shape only wins when the passive limit entry supplies basis + headroom (T3: limit-20%/pat10/cancel under this exit nets +$25..+$65 vs market across floors; entry offset IS stop headroom). Never test or ship it with a market entry.",
+      "t4_exploratory_cell_STANDALONE": {"label": "stop-35/tp+50/sell80/trail15/tgt2.5x/t15:40", "exp": 13.19, "drop_top3": 3.06, "wr": 0.396, "qpf": 0.667, "wf": 1.44, "maxDD_qty10": -2991.2, "rank": "609/2016"},
+      "t3_exploratory_paired": {"exit": "scalp(-35/+50/sell80/trail15)", "market_exp_floor0": 13.19, "best_cancel_policy": "limit-20%/pat10/cancel", "exp_incl_misses_floor0": 38.57, "net_vs_market_floor0": 25.38, "fill_rate": 0.81, "at_floor_0.30": {"exp_incl_misses": 64.67, "net_vs_market": 36.85}},
+      "wiring": "needs the T6 entry_manager (limit/patience/cancel) -- exit side is a plain ExitShape."
     }
   ],
   "entry_candidates": [
     {
       "id": "entry-1-floor-only",
       "policy": {"type": "market", "premium_floor": 0.30},
-      "rationale": "Cheapest change: refuse sub-$0.30 entries (defect #1). Lifts market baseline with no miss cost. Test as a standalone lever.",
-      "t3_exploratory": {"control_market_floor0.30_exp": 36.62, "control_market_floor0.0_exp": 22.91}
+      "rationale": "Cheapest change: refuse sub-$0.30 entries (defect #1: 2-tick stops, 42% spread proxy). Lifts the market baseline standalone.",
+      "t3_exploratory": {"control_exit_market_exp_at_floor_0.30": 36.62, "at_floor_0": 22.91, "eligible_n_at_0.30": 157},
+      "wiring": "pre-order admission check on the signal premium (plan-time), both lanes -- spec in handoff T-W3. NOT a risk_gate rule (it is strategy admission, not order sizing)."
     },
     {
       "id": "entry-2-limit-headroom",
-      "policy": {"type": "limit", "delta": 0.10, "patience": 3, "miss": "cancel", "premium_floor": 0.30},
-      "pair_with_exit": "exit-1-moderate-scalp",
-      "rationale": "Passive headroom paired with a moderate-stop scalp -- the ONLY regime where T3 shows passive beating pay-up NET of misses (entry offset = stop headroom, needs a stop to protect). Honest cancel policy (real misses counted).",
-      "t3_exploratory": {"note": "scalp exit: limit cancel policies net +19..+90 vs market; see entry-exit-matrix-t3-entries.md HEADLINE"}
+      "policy": {"type": "limit", "delta": 0.10, "patience_bars_5min": 3, "miss": "cancel", "premium_floor": 0.30},
+      "pair_with_exit": "exit-C-paired-scalp",
+      "rationale": "Passive headroom paired with the scalp exit -- the regime where T3 shows passive beating pay-up NET of real misses. delta 10%/pat3 chosen as the conservative middle of the winning cancel cells (5-25% deltas all positive under scalp exits at floor >= 0.20).",
+      "t3_exploratory": {"note": "under scalp exit: cancel policies net +$19..+$65 vs market across floors; see entry-exit-matrix-t3-entries.md HEADLINE"},
+      "wiring": "needs the T6 entry_manager state machine (limit at signal*(1-delta), patience ticks, cancel) -- spec in handoff T-W4."
     }
   ],
   "owed_not_in_this_registration": [
-    "vwap_continuation entry/exit matrix (separate setup path; ground rule 11)",
-    "1m-close vs 5m-close vs touch stop timing (needs 1-min OPRA; owed on live sample)",
-    "ATR-scaled + delta-mapped chart stops (not expressible in real-fills mode)",
+    "vwap_continuation entry/exit matrix (separate setup path; ground rule 11) -- PLUS resolve the live two-lane shape discrepancy: strategies.py says -8%/+30% while core params keys resolve -6%/+40% (engine-contract card 3, Fable review find)",
+    "1m-close vs 5m-close vs touch stop timing (needs 1-min bars; owed on the live sample)",
+    "ATR-scaled + delta-mapped chart stops (not expressible in real-fills replay)",
     "joint entry x exit grid on the Pareto survivors (T6)",
-    "friction/slippage model + account-risk-limit (kill switch, per-trade cap) sizing"
+    "friction/slippage model + account-risk-limit sizing (kill switch, per-trade cap) on the finalists"
   ]
 }
