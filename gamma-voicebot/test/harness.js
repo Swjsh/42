@@ -79,9 +79,17 @@ async function main() {
     if (!cfg.openaiKey) {
       check("realtime_session", false, "no OpenAI key");
     } else {
+      // Space sessions out: 4 back-to-back realtime opens in ~15s gets the 4th
+      // throttled (0-token hang) -- a test artifact, not a bug (real use is one
+      // question at a time). A short gap lets the rate window breathe.
+      const gap = () => new Promise((r) => setTimeout(r, 4000));
       await realtimeSmoke(instructions, "Am I up or down today, and what's my equity? One sentence.", "account_pnl", "money");
+      await gap();
       await realtimeSmoke(instructions, "Where is SPY right now and what are the nearest levels? One sentence.", "market_now", "price");
+      await gap();
       await realtimeSmoke(instructions, "What's the kitchen cooking? One sentence.", "kitchen_status", "kitchen");
+      await gap();
+      await realtimeSmoke(instructions, "What does operating principle sixteen say in our doctrine?", "ask_gamma_brain", "deep");
     }
   }
 

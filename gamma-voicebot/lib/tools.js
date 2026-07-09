@@ -1,13 +1,16 @@
 "use strict";
 
-// The THREE read-only rig-state tools the Realtime model must use for any state
-// question (facts are TOOLS, never model memory -- OP-33). Every reader is
-// fail-open: on any error it returns an honest error string for the model to
-// SAY, never a throw that kills the session. Nothing here writes anything.
+// The read-only tools the Realtime model uses for any state question (facts are
+// TOOLS, never model memory -- OP-33). Every STATE reader is fail-open: on any
+// error it returns an honest error string for the model to SAY, never a throw
+// that kills the session. The one exception in spirit is ask_gamma_brain, the
+// deep catch-all -- it spawns a read-only Claude over the whole repo (lib/brain.js).
+// Nothing here writes anything.
 
 const fs = require("fs");
 const path = require("path");
 const { spawn } = require("child_process");
+const { askGammaBrain } = require("./brain");
 
 // Schemas in the exact shape the companion's /api/realtime-token uses.
 const toolSchemas = [
@@ -79,6 +82,27 @@ const toolSchemas = [
       "trade this week, show me the last fills. NOTE these are the last RECORDED fills, not " +
       "necessarily today.",
     parameters: { type: "object", properties: {}, required: [] },
+  },
+  {
+    type: "function",
+    name: "ask_gamma_brain",
+    description:
+      "Your DEEP brain -- a full Claude that can read the ENTIRE repo (all of Chief). Use this " +
+      "ONLY when NO other tool fits: questions about repo internals, code, doctrine, params values, " +
+      "strategy or lesson details, 'why/how does X work', or history/frequency the state tools " +
+      "don't carry (e.g. what the kitchen has done over several days). It takes ~30-40 seconds, so " +
+      "FIRST say out loud a short 'let me dig into that, give me a moment' BEFORE relying on it, " +
+      "then speak its answer. It is READ-ONLY -- it cannot change anything.",
+    parameters: {
+      type: "object",
+      properties: {
+        question: {
+          type: "string",
+          description: "The full, self-contained question to research, in plain words.",
+        },
+      },
+      required: ["question"],
+    },
   },
 ];
 
@@ -465,6 +489,7 @@ function recentTrades(root) {
 
 // ---------------------------------------------------------------------------
 
+// State handlers take (root); the brain takes (root, args, opts) for its question.
 const handlers = {
   engine_state: engineState,
   funnel_today: funnelToday,
@@ -473,13 +498,17 @@ const handlers = {
   account_pnl: accountPnl,
   market_now: marketNow,
   recent_trades: recentTrades,
+  ask_gamma_brain: (root, args, opts) => askGammaBrain(root, args && args.question, opts),
 };
 
-// Dispatch by name; ALWAYS resolves to a string the model can speak.
-function runTool(root, name) {
+// Dispatch by name; ALWAYS resolves to a string the model can speak. args carries
+// tool arguments (only ask_gamma_brain uses them); opts carries a { log } passthrough.
+function runTool(root, name, args, opts) {
   const h = handlers[name];
   if (!h) return Promise.resolve("unknown tool: " + name);
-  return h(root).catch((e) => name + " ERROR: " + ((e && e.message) || e));
+  return Promise.resolve(h(root, args || {}, opts || {})).catch(
+    (e) => name + " ERROR: " + ((e && e.message) || e)
+  );
 }
 
 module.exports = { toolSchemas, runTool };

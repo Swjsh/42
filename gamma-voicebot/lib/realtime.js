@@ -138,6 +138,13 @@ class RealtimeSession {
       return;
     }
     const t = msg.type || "";
+    if (process.env.VOICE_DEBUG) {
+      let extra = "";
+      if (t === "error") extra = " " + JSON.stringify(msg.error || msg).slice(0, 300);
+      if (/function_call/.test(t)) extra = " name=" + (msg.name || "?") + " args=" + String(msg.arguments || "").slice(0, 60);
+      if (t === "response.done" && msg.response) extra = " status=" + (msg.response.status || "?") + " " + JSON.stringify(msg.response.status_details || {}).slice(0, 200);
+      this.log("evt: " + t + extra);
+    }
 
     if (t === "session.created") {
       this.sessionId = (msg.session && msg.session.id) || null;
@@ -187,9 +194,15 @@ class RealtimeSession {
     }
     if (t === "response.function_call_arguments.done") {
       const name = msg.name || "";
-      this.log("tool call: " + name);
+      let args = {};
+      try {
+        if (msg.arguments) args = JSON.parse(msg.arguments);
+      } catch {
+        /* malformed args -> empty; the handler will say what it needs */
+      }
+      this.log("tool call: " + name + (args && args.question ? ' q="' + String(args.question).slice(0, 80) + '"' : ""));
       const started = Date.now();
-      const output = await runTool(this.o.root, name);
+      const output = await runTool(this.o.root, name, args, { log: this.log });
       this.log("tool " + name + " answered in " + (Date.now() - started) + "ms (" + output.length + " chars)");
       this.send({
         type: "conversation.item.create",
