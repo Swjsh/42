@@ -3,6 +3,11 @@
 Runnable with plain `python setup/scripts/test_daily_loss_guard.py` (no pytest dep)
 or under pytest. Verifies the trip math AND every fail-safe path, because this guard
 runs on the LIVE trading engine and a false trip would halt a good day.
+
+The suite redirects dlg.LOG_DIR to a tempdir and asserts the REAL automation/state/
+dir is untouched afterward -- test runs used to append fake TRIPPED/REARMED rows into
+the real daily-loss-guard-{date}.jsonl audit trail (caught 2026-07-09; one such file
+had even been committed to the repo).
 """
 from __future__ import annotations
 
@@ -115,7 +120,12 @@ def run_rearm_case(name, *, account, sod, date, equity, dry_run, tripped_in=Fals
         return res, after
 
 
-def main() -> int:
+def _log_snapshot(d: Path) -> dict:
+    """name -> size of every guard audit log under d (the pollution tripwire)."""
+    return {p.name: p.stat().st_size for p in d.glob("daily-loss-guard-*.jsonl")}
+
+
+def _suite() -> None:
     print("daily_loss_guard regression:")
     # 1. within limit -> no trip
     run_case("within_limit", sod=2000, date=TODAY, equity=1900, dry_run=False,
@@ -175,6 +185,34 @@ def main() -> int:
                     date=YESTERDAY, equity=1900.00, dry_run=False, tripped_in=False,
                     expect_action="REARMED", expect_date_is_today=True,
                     expect_tripped_after=False, expect_sod_after=1900.00)
+
+
+def main() -> int:
+    # WHY the wrapper: the audit-log path used to be inlined in run()/rearm(), so every
+    # live-write case in _suite() appended fake TRIPPED/REARMED rows into the REAL
+    # automation/state/daily-loss-guard-{date}.jsonl. dlg.LOG_DIR is redirected for the
+    # whole suite; the two guards below prove the redirect actually captured the writes
+    # AND the real state dir is unchanged after the run (catches any inlined-path revert).
+    real_log_dir = dlg.LOG_DIR
+    real_before = _log_snapshot(real_log_dir)
+    with tempfile.TemporaryDirectory() as log_tmp:
+        dlg.LOG_DIR = Path(log_tmp)
+        try:
+            _suite()
+            actions = [json.loads(ln)["action"]
+                       for p in Path(log_tmp).glob("daily-loss-guard-*.jsonl")
+                       for ln in p.read_text(encoding="utf-8").splitlines() if ln.strip()]
+            assert "TRIPPED" in actions and "REARMED" in actions, (
+                f"audit-log redirect captured no TRIPPED/REARMED rows (actions={actions})"
+                " -- run()/rearm() no longer write via dlg.LOG_DIR?")
+            print(f"  PASS audit_log_redirect_captures_writes: actions={sorted(set(actions))}")
+        finally:
+            dlg.LOG_DIR = real_log_dir
+    real_after = _log_snapshot(real_log_dir)
+    assert real_after == real_before, (
+        f"TEST POLLUTION: real state dir changed during the suite: "
+        f"{real_before} -> {real_after}")
+    print(f"  PASS no_pollution_of_real_state_dir: {real_log_dir}")
     print("ALL PASS")
     return 0
 

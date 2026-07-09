@@ -24,6 +24,7 @@ backtest/data/options/
 # Logs
 **/*.log
 automation/state/logs/
+automation/state/daily-loss-guard-*.jsonl
 
 # Process artifacts
 **/*.pid

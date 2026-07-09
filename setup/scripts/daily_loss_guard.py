@@ -45,6 +45,12 @@ from alpaca_keys import keys_for  # noqa: E402
 from et_clock import ET_TZ  # noqa: E402 — DST-aware ET (TZ-SYSTEMIC fix: was timezone(timedelta(hours=-4)))
 ALPACA_BASE = "https://paper-api.alpaca.markets/v2"
 
+# Audit-trail log directory. Module-level (not inlined at the write sites) so tests can
+# redirect it to a tempdir -- inlined paths once let every TRIPPED/REARMED test case
+# append fake rows into the REAL automation/state/daily-loss-guard-{date}.jsonl
+# (see test_daily_loss_guard.py's no-pollution guard, 2026-07-09).
+LOG_DIR = PROJECT_ROOT / "automation" / "state"
+
 # Per-account breaker schema mapping. The two breaker files use DIVERGENT field names
 # (the C9 symmetry trap, documented in each file's _schema_note) -- so we map explicitly.
 ACCOUNTS: dict[str, dict[str, Any]] = {
@@ -194,7 +200,7 @@ def rearm(account: str, dry_run: bool) -> dict:
         return result
 
     _write_atomic(breaker_path, breaker)
-    log = PROJECT_ROOT / "automation" / "state" / f"daily-loss-guard-{today}.jsonl"
+    log = LOG_DIR / f"daily-loss-guard-{today}.jsonl"
     try:
         with log.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps({"ts_et": now_et.isoformat(), **result}) + "\n")
@@ -280,7 +286,7 @@ def run(account: str, dry_run: bool) -> dict:
     if result["action"] == "TRIPPED":
         _write_atomic(breaker_path, breaker)
         # Audit trail (fail-loud signal flows via the breaker -> HealthBeacon -> Discord).
-        log = PROJECT_ROOT / "automation" / "state" / f"daily-loss-guard-{today}.jsonl"
+        log = LOG_DIR / f"daily-loss-guard-{today}.jsonl"
         try:
             with log.open("a", encoding="utf-8") as fh:
                 fh.write(json.dumps({"ts_et": now_et.isoformat(), **result}) + "\n")
