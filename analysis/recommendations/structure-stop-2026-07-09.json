@@ -1,0 +1,3789 @@
+{
+  "_doc": "STRUCTURE-STOP (chart-stop-primary) exit validation -- pre-registered, frozen before any candidate replay. ANALYSIS ONLY: no trading-path file touched. 2026-07-09 is EXHIBIT ONLY, excluded from every pass/fail layer.",
+  "generated_at": "2026-07-09T12:51:35.656003",
+  "preregistration_file": "analysis/recommendations/structure-stop-preregistration.json",
+  "preflight": {
+    "fresh_slice_sha256_16": "d10e1a3a51cbf155",
+    "fresh_slice_hash_ok": true,
+    "anchor_population_sha256_16": "4561797465ebf837",
+    "anchor_population_hash_ok": true,
+    "preregistration_version": 1,
+    "preregistration_version_ok": true
+  },
+  "layer_a_fresh_slice": {
+    "n_signals": 18,
+    "n_recoverable_trigger_level": 14,
+    "n_fallback": 4,
+    "candidates": {
+      "CONTROL": {
+        "n": 18,
+        "total": -1812.0,
+        "expectancy": -100.67,
+        "wr": 0.056,
+        "edge_capture_rel": 0.0,
+        "oos_total": -1812.0,
+        "oos_positive": false,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.0,
+        "exp_drop_top3": -138.8,
+        "worst_trade": -386.0,
+        "worst_decile_mean": -386.0,
+        "max_dd": -1812.0,
+        "n_stopped": 0,
+        "n_structure_fired": 0
+      },
+      "SS-A": {
+        "n": 18,
+        "total": -4240.8,
+        "expectancy": -235.6,
+        "wr": 0.056,
+        "edge_capture_rel": 0.0,
+        "oos_total": -4240.8,
+        "oos_positive": false,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.0,
+        "exp_drop_top3": -302.67,
+        "worst_trade": -965.0,
+        "worst_decile_mean": -965.0,
+        "max_dd": -4240.8,
+        "n_stopped": 0,
+        "n_structure_fired": 5
+      },
+      "SS-B": {
+        "n": 18,
+        "total": -852.2,
+        "expectancy": -47.34,
+        "wr": 0.222,
+        "edge_capture_rel": 0.0,
+        "oos_total": -852.2,
+        "oos_positive": false,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.5,
+        "exp_drop_top3": -211.79,
+        "worst_trade": -965.0,
+        "worst_decile_mean": -965.0,
+        "max_dd": -2178.0,
+        "n_stopped": 0,
+        "n_structure_fired": 5
+      },
+      "SS-C": {
+        "n": 18,
+        "total": -4250.8,
+        "expectancy": -236.16,
+        "wr": 0.056,
+        "edge_capture_rel": 0.0,
+        "oos_total": -4250.8,
+        "oos_positive": false,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.0,
+        "exp_drop_top3": -303.33,
+        "worst_trade": -965.0,
+        "worst_decile_mean": -965.0,
+        "max_dd": -4250.8,
+        "n_stopped": 0,
+        "n_structure_fired": 5
+      }
+    },
+    "n_missing_bars": 0
+  },
+  "layer_b_real_fills_anchor": {
+    "n_positions_total": 79,
+    "n_positions_with_bars": 79,
+    "n_no_option_bars": 0,
+    "n_recoverable_trigger_level": 48,
+    "n_fallback": 31,
+    "recovery_status_counts": {
+      "no_trigger_bar_in_lookback": 31,
+      "ok": 48
+    },
+    "n_unique_signals": 17,
+    "n_trading_days": 7,
+    "date_span": "2026-06-29..2026-07-08",
+    "actual_realized_total": -893.0,
+    "candidates": {
+      "CONTROL": {
+        "anchor_total": -757.1,
+        "n_valid": 79,
+        "n_structure_fired": 0
+      },
+      "SS-A": {
+        "anchor_total": -61.1,
+        "n_valid": 79,
+        "n_structure_fired": 22
+      },
+      "SS-B": {
+        "anchor_total": -604.7,
+        "n_valid": 79,
+        "n_structure_fired": 22
+      },
+      "SS-C": {
+        "anchor_total": 1799.9,
+        "n_valid": 79,
+        "n_structure_fired": 16
+      }
+    }
+  },
+  "layer_b_position_detail": {
+    "CONTROL": [
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "pnl": -22.4,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -32.00000000000001
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "pnl": -36.6,
+        "structure_fired": false,
+        "trigger_level": 742.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -36.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -7.2,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -4.8,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "pnl": -15.6,
+        "structure_fired": false,
+        "trigger_level": 747.7,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -12.000000000000004
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260702P00743000",
+        "date_et": "2026-07-02",
+        "pnl": -28.8,
+        "structure_fired": false,
+        "trigger_level": 747.4000244140625,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -44.99999999999999
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "pnl": -11.4,
+        "structure_fired": false,
+        "trigger_level": 749.54,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -14.999999999999996
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260702P00742000",
+        "date_et": "2026-07-02",
+        "pnl": 275.0,
+        "structure_fired": false,
+        "trigger_level": 745.6749877929688,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 306.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260702P00739000",
+        "date_et": "2026-07-02",
+        "pnl": -45.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -95.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -12.8,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -16.000000000000004
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -9.6,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -7.9999999999999964
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -16.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 7.9999999999999964
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -17.6,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -7.9999999999999964
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -8.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -16.000000000000004
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260707P00743000",
+        "date_et": "2026-07-07",
+        "pnl": -26.4,
+        "structure_fired": false,
+        "trigger_level": 747.4099731445312,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -39.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "pnl": -14.4,
+        "structure_fired": false,
+        "trigger_level": 749.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -14.999999999999996
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "pnl": -6.6,
+        "structure_fired": false,
+        "trigger_level": 749.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": -57.6,
+        "structure_fired": false,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -53.99999999999998
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": -15.0,
+        "structure_fired": false,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "pnl": -7.8,
+        "structure_fired": false,
+        "trigger_level": 745.2977294921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -12.000000000000002
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "pnl": -6.0,
+        "structure_fired": false,
+        "trigger_level": 745.2100219726562,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -12.000000000000004
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "pnl": -17.6,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -7.9999999999999964
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "pnl": -36.6,
+        "structure_fired": false,
+        "trigger_level": 742.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -32.99999999999999
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -6.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -3.0000000000000027
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -4.2,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -6.000000000000002
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -4.2,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -6.000000000000001
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -4.8,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "pnl": -1.8,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -5.999999999999999
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "pnl": -15.6,
+        "structure_fired": false,
+        "trigger_level": 747.7,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -12.000000000000002
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "pnl": -11.4,
+        "structure_fired": false,
+        "trigger_level": 749.54,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -14.999999999999996
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -2.4,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -1.8,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -2.9999999999999996
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -3.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -3.0000000000000004
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -2.4,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "pnl": -1.2,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": -60.0,
+        "structure_fired": false,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -69.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "pnl": -7.8,
+        "structure_fired": false,
+        "trigger_level": 745.2977294921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -6.000000000000001
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "pnl": -5.4,
+        "structure_fired": false,
+        "trigger_level": 745.2100219726562,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "pnl": -33.6,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -48.00000000000001
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "pnl": -58.0,
+        "structure_fired": false,
+        "trigger_level": 742.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -79.99999999999999
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -10.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -7.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -9.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -8.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -30.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "pnl": -3.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -9.999999999999998
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "pnl": -26.0,
+        "structure_fired": false,
+        "trigger_level": 747.7,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -20.000000000000004
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "pnl": -19.0,
+        "structure_fired": false,
+        "trigger_level": 749.54,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.999999999999993
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -4.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -3.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -4.999999999999999
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -5.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -5.000000000000001
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -4.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "pnl": -2.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": -94.0,
+        "structure_fired": false,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -79.99999999999996
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "pnl": -13.0,
+        "structure_fired": false,
+        "trigger_level": 745.2977294921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "pnl": -10.0,
+        "structure_fired": false,
+        "trigger_level": 745.2100219726562,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -20.000000000000004
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "pnl": -33.6,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -48.00000000000001
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "pnl": -60.0,
+        "structure_fired": false,
+        "trigger_level": 742.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -60.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -10.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -5.000000000000004
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -7.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -8.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -9.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -4.999999999999997
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "pnl": -5.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -15.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "pnl": -26.0,
+        "structure_fired": false,
+        "trigger_level": 747.7,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -20.000000000000004
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260702P00743000",
+        "date_et": "2026-07-02",
+        "pnl": -50.0,
+        "structure_fired": false,
+        "trigger_level": 747.4000244140625,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -79.99999999999999
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "pnl": -19.0,
+        "structure_fired": false,
+        "trigger_level": 749.54,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.999999999999993
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260702P00742000",
+        "date_et": "2026-07-02",
+        "pnl": 416.5,
+        "structure_fired": false,
+        "trigger_level": 745.6749877929688,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 491.00000000000006
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260702P00739000",
+        "date_et": "2026-07-02",
+        "pnl": -72.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -152.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -19.2,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -24.000000000000004
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -14.4,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -11.999999999999995
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -24.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.000000000000007
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -4.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "pnl": -2.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260707P00743000",
+        "date_et": "2026-07-07",
+        "pnl": -45.0,
+        "structure_fired": false,
+        "trigger_level": 747.4099731445312,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.999999999999993
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "pnl": -24.0,
+        "structure_fired": false,
+        "trigger_level": 749.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.999999999999993
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "pnl": -10.0,
+        "structure_fired": false,
+        "trigger_level": 749.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": -94.0,
+        "structure_fired": false,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -79.99999999999996
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": -25.0,
+        "structure_fired": false,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "pnl": -13.0,
+        "structure_fired": false,
+        "trigger_level": 745.2977294921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "pnl": -10.0,
+        "structure_fired": false,
+        "trigger_level": 745.2100219726562,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -20.000000000000004
+      }
+    ],
+    "SS-A": [
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "pnl": -56.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -32.00000000000001
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "pnl": 260.55,
+        "structure_fired": false,
+        "trigger_level": 742.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -36.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -18.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -12.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "pnl": -39.0,
+        "structure_fired": false,
+        "trigger_level": 747.7,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -12.000000000000004
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260702P00743000",
+        "date_et": "2026-07-02",
+        "pnl": -42.0,
+        "structure_fired": true,
+        "trigger_level": 747.4000244140625,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -44.99999999999999
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "pnl": -28.5,
+        "structure_fired": false,
+        "trigger_level": 749.54,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -14.999999999999996
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260702P00742000",
+        "date_et": "2026-07-02",
+        "pnl": 215.6,
+        "structure_fired": false,
+        "trigger_level": 745.6749877929688,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 306.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260702P00739000",
+        "date_et": "2026-07-02",
+        "pnl": -112.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -95.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -32.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -16.000000000000004
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": 65.25,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -7.9999999999999964
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -16.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 7.9999999999999964
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -40.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -7.9999999999999964
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -20.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -16.000000000000004
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260707P00743000",
+        "date_et": "2026-07-07",
+        "pnl": -66.0,
+        "structure_fired": false,
+        "trigger_level": 747.4099731445312,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -39.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "pnl": -24.0,
+        "structure_fired": true,
+        "trigger_level": 749.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -14.999999999999996
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "pnl": 48.35,
+        "structure_fired": false,
+        "trigger_level": 749.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": -69.0,
+        "structure_fired": true,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -53.99999999999998
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": 12.0,
+        "structure_fired": true,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "pnl": -12.0,
+        "structure_fired": true,
+        "trigger_level": 745.2977294921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -12.000000000000002
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "pnl": -15.0,
+        "structure_fired": false,
+        "trigger_level": 745.2100219726562,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -12.000000000000004
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "pnl": -44.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -7.9999999999999964
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "pnl": 260.55,
+        "structure_fired": false,
+        "trigger_level": 742.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -32.99999999999999
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -15.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -3.0000000000000027
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -10.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -6.000000000000002
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -10.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -6.000000000000001
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -12.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "pnl": -4.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -5.999999999999999
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "pnl": -39.0,
+        "structure_fired": false,
+        "trigger_level": 747.7,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -12.000000000000002
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "pnl": -28.5,
+        "structure_fired": false,
+        "trigger_level": 749.54,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -14.999999999999996
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -6.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -4.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -2.9999999999999996
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -6.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -3.0000000000000004
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -6.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "pnl": -3.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": -81.0,
+        "structure_fired": true,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -69.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "pnl": -12.0,
+        "structure_fired": true,
+        "trigger_level": 745.2977294921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -6.000000000000001
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "pnl": -13.5,
+        "structure_fired": false,
+        "trigger_level": 745.2100219726562,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "pnl": -84.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -48.00000000000001
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "pnl": 422.1,
+        "structure_fired": false,
+        "trigger_level": 742.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -79.99999999999999
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -25.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -17.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -22.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -20.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -30.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "pnl": -7.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -9.999999999999998
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "pnl": -65.0,
+        "structure_fired": false,
+        "trigger_level": 747.7,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -20.000000000000004
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "pnl": -47.5,
+        "structure_fired": false,
+        "trigger_level": 749.54,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.999999999999993
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -10.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -7.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -4.999999999999999
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -10.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -5.000000000000001
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -10.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "pnl": -5.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": -105.0,
+        "structure_fired": true,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -79.99999999999996
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "pnl": -20.0,
+        "structure_fired": true,
+        "trigger_level": 745.2977294921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "pnl": -25.0,
+        "structure_fired": false,
+        "trigger_level": 745.2100219726562,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -20.000000000000004
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "pnl": -84.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -48.00000000000001
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "pnl": 427.1,
+        "structure_fired": false,
+        "trigger_level": 742.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -60.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -25.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -5.000000000000004
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -17.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -20.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -22.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -4.999999999999997
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "pnl": -12.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -15.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "pnl": -65.0,
+        "structure_fired": false,
+        "trigger_level": 747.7,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -20.000000000000004
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260702P00743000",
+        "date_et": "2026-07-02",
+        "pnl": -80.0,
+        "structure_fired": true,
+        "trigger_level": 747.4000244140625,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -79.99999999999999
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "pnl": -47.5,
+        "structure_fired": false,
+        "trigger_level": 749.54,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.999999999999993
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260702P00742000",
+        "date_et": "2026-07-02",
+        "pnl": 353.7,
+        "structure_fired": false,
+        "trigger_level": 745.6749877929688,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 491.00000000000006
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260702P00739000",
+        "date_et": "2026-07-02",
+        "pnl": -180.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -152.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -48.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -24.000000000000004
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": 99.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -11.999999999999995
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -24.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.000000000000007
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -10.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "pnl": -5.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260707P00743000",
+        "date_et": "2026-07-07",
+        "pnl": -112.5,
+        "structure_fired": false,
+        "trigger_level": 747.4099731445312,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.999999999999993
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "pnl": -40.0,
+        "structure_fired": true,
+        "trigger_level": 749.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.999999999999993
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "pnl": 77.7,
+        "structure_fired": false,
+        "trigger_level": 749.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": -105.0,
+        "structure_fired": true,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -79.99999999999996
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": 20.0,
+        "structure_fired": true,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "pnl": -20.0,
+        "structure_fired": true,
+        "trigger_level": 745.2977294921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "pnl": -25.0,
+        "structure_fired": false,
+        "trigger_level": 745.2100219726562,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -20.000000000000004
+      }
+    ],
+    "SS-B": [
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "pnl": -56.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -32.00000000000001
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "pnl": 170.65,
+        "structure_fired": false,
+        "trigger_level": 742.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -36.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -18.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -12.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "pnl": -39.0,
+        "structure_fired": false,
+        "trigger_level": 747.7,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -12.000000000000004
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260702P00743000",
+        "date_et": "2026-07-02",
+        "pnl": -42.0,
+        "structure_fired": true,
+        "trigger_level": 747.4000244140625,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -44.99999999999999
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "pnl": -28.5,
+        "structure_fired": false,
+        "trigger_level": 749.54,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -14.999999999999996
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260702P00742000",
+        "date_et": "2026-07-02",
+        "pnl": 140.1,
+        "structure_fired": false,
+        "trigger_level": 745.6749877929688,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 306.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260702P00739000",
+        "date_et": "2026-07-02",
+        "pnl": -112.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -95.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -32.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -16.000000000000004
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": 50.25,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -7.9999999999999964
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -16.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 7.9999999999999964
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -40.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -7.9999999999999964
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -20.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -16.000000000000004
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260707P00743000",
+        "date_et": "2026-07-07",
+        "pnl": -66.0,
+        "structure_fired": false,
+        "trigger_level": 747.4099731445312,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -39.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "pnl": -24.0,
+        "structure_fired": true,
+        "trigger_level": 749.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -14.999999999999996
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "pnl": 37.35,
+        "structure_fired": false,
+        "trigger_level": 749.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": -69.0,
+        "structure_fired": true,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -53.99999999999998
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": 12.0,
+        "structure_fired": true,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "pnl": -12.0,
+        "structure_fired": true,
+        "trigger_level": 745.2977294921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -12.000000000000002
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "pnl": -15.0,
+        "structure_fired": false,
+        "trigger_level": 745.2100219726562,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -12.000000000000004
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "pnl": -44.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -7.9999999999999964
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "pnl": 170.65,
+        "structure_fired": false,
+        "trigger_level": 742.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -32.99999999999999
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -15.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -3.0000000000000027
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": 19.75,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -6.000000000000002
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": 19.75,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -6.000000000000001
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -12.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "pnl": -4.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -5.999999999999999
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "pnl": -39.0,
+        "structure_fired": false,
+        "trigger_level": 747.7,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -12.000000000000002
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "pnl": -28.5,
+        "structure_fired": false,
+        "trigger_level": 749.54,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -14.999999999999996
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -6.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": 8.1,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -2.9999999999999996
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -6.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -3.0000000000000004
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -6.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "pnl": -3.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": -81.0,
+        "structure_fired": true,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -69.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "pnl": -12.0,
+        "structure_fired": true,
+        "trigger_level": 745.2977294921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -6.000000000000001
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "pnl": -13.5,
+        "structure_fired": false,
+        "trigger_level": 745.2100219726562,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "pnl": -84.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -48.00000000000001
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "pnl": 277.3,
+        "structure_fired": false,
+        "trigger_level": 742.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -79.99999999999999
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -25.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": 32.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -22.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -20.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -30.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "pnl": -7.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -9.999999999999998
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "pnl": -65.0,
+        "structure_fired": false,
+        "trigger_level": 747.7,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -20.000000000000004
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "pnl": -47.5,
+        "structure_fired": false,
+        "trigger_level": 749.54,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.999999999999993
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -10.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": 13.2,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -4.999999999999999
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -10.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -5.000000000000001
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -10.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "pnl": -5.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": -105.0,
+        "structure_fired": true,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -79.99999999999996
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "pnl": -20.0,
+        "structure_fired": true,
+        "trigger_level": 745.2977294921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "pnl": -25.0,
+        "structure_fired": false,
+        "trigger_level": 745.2100219726562,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -20.000000000000004
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "pnl": -84.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -48.00000000000001
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "pnl": 279.3,
+        "structure_fired": false,
+        "trigger_level": 742.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -60.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -25.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -5.000000000000004
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": 32.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -20.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -22.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -4.999999999999997
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "pnl": -12.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -15.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "pnl": -65.0,
+        "structure_fired": false,
+        "trigger_level": 747.7,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -20.000000000000004
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260702P00743000",
+        "date_et": "2026-07-02",
+        "pnl": -80.0,
+        "structure_fired": true,
+        "trigger_level": 747.4000244140625,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -79.99999999999999
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "pnl": -47.5,
+        "structure_fired": false,
+        "trigger_level": 749.54,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.999999999999993
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260702P00742000",
+        "date_et": "2026-07-02",
+        "pnl": 229.2,
+        "structure_fired": false,
+        "trigger_level": 745.6749877929688,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 491.00000000000006
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260702P00739000",
+        "date_et": "2026-07-02",
+        "pnl": -180.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -152.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -48.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -24.000000000000004
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": 75.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -11.999999999999995
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -24.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.000000000000007
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -10.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "pnl": -5.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260707P00743000",
+        "date_et": "2026-07-07",
+        "pnl": -112.5,
+        "structure_fired": false,
+        "trigger_level": 747.4099731445312,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.999999999999993
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "pnl": -40.0,
+        "structure_fired": true,
+        "trigger_level": 749.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.999999999999993
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "pnl": 62.7,
+        "structure_fired": false,
+        "trigger_level": 749.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": -105.0,
+        "structure_fired": true,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -79.99999999999996
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": 20.0,
+        "structure_fired": true,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "pnl": -20.0,
+        "structure_fired": true,
+        "trigger_level": 745.2977294921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "pnl": -25.0,
+        "structure_fired": false,
+        "trigger_level": 745.2100219726562,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -20.000000000000004
+      }
+    ],
+    "SS-C": [
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "pnl": -56.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -32.00000000000001
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "pnl": 260.55,
+        "structure_fired": false,
+        "trigger_level": 742.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -36.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -18.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -12.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "pnl": -39.0,
+        "structure_fired": false,
+        "trigger_level": 747.7,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -12.000000000000004
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260702P00743000",
+        "date_et": "2026-07-02",
+        "pnl": -42.0,
+        "structure_fired": true,
+        "trigger_level": 747.4000244140625,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -44.99999999999999
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "pnl": -28.5,
+        "structure_fired": false,
+        "trigger_level": 749.54,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -14.999999999999996
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260702P00742000",
+        "date_et": "2026-07-02",
+        "pnl": 215.6,
+        "structure_fired": false,
+        "trigger_level": 745.6749877929688,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 306.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260702P00739000",
+        "date_et": "2026-07-02",
+        "pnl": -112.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -95.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -32.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -16.000000000000004
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": 65.25,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -7.9999999999999964
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -16.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 7.9999999999999964
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -40.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -7.9999999999999964
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -20.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -16.000000000000004
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260707P00743000",
+        "date_et": "2026-07-07",
+        "pnl": -66.0,
+        "structure_fired": false,
+        "trigger_level": 747.4099731445312,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -39.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "pnl": -36.0,
+        "structure_fired": false,
+        "trigger_level": 749.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -14.999999999999996
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "pnl": 48.35,
+        "structure_fired": false,
+        "trigger_level": 749.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": 399.4,
+        "structure_fired": false,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -53.99999999999998
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": 12.0,
+        "structure_fired": true,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "pnl": -15.0,
+        "structure_fired": true,
+        "trigger_level": 745.2977294921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -12.000000000000002
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "pnl": -15.0,
+        "structure_fired": false,
+        "trigger_level": 745.2100219726562,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -12.000000000000004
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "pnl": -44.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -7.9999999999999964
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "pnl": 260.55,
+        "structure_fired": false,
+        "trigger_level": 742.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -32.99999999999999
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -15.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -3.0000000000000027
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -10.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -6.000000000000002
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -10.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -6.000000000000001
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -12.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "pnl": -4.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -5.999999999999999
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "pnl": -39.0,
+        "structure_fired": false,
+        "trigger_level": 747.7,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -12.000000000000002
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "pnl": -28.5,
+        "structure_fired": false,
+        "trigger_level": 749.54,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -14.999999999999996
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -6.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -4.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -2.9999999999999996
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -6.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -3.0000000000000004
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -6.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "pnl": -3.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": -150.0,
+        "structure_fired": false,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -69.0
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "pnl": -15.0,
+        "structure_fired": true,
+        "trigger_level": 745.2977294921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -6.000000000000001
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "pnl": -13.5,
+        "structure_fired": false,
+        "trigger_level": 745.2100219726562,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "pnl": -84.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -48.00000000000001
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "pnl": 422.1,
+        "structure_fired": false,
+        "trigger_level": 742.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -79.99999999999999
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -25.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -17.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -22.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -20.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -30.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "pnl": -7.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -9.999999999999998
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "pnl": -65.0,
+        "structure_fired": false,
+        "trigger_level": 747.7,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -20.000000000000004
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "pnl": -47.5,
+        "structure_fired": false,
+        "trigger_level": 749.54,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.999999999999993
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -10.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -7.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -4.999999999999999
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -10.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -5.000000000000001
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -10.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "pnl": -5.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": 649.8,
+        "structure_fired": false,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -79.99999999999996
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "pnl": -25.0,
+        "structure_fired": true,
+        "trigger_level": 745.2977294921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "pnl": -25.0,
+        "structure_fired": false,
+        "trigger_level": 745.2100219726562,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -20.000000000000004
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "pnl": -84.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -48.00000000000001
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "pnl": 427.1,
+        "structure_fired": false,
+        "trigger_level": 742.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -60.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -25.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -5.000000000000004
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -17.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -20.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "pnl": -22.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -4.999999999999997
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "pnl": -12.5,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -15.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "pnl": -65.0,
+        "structure_fired": false,
+        "trigger_level": 747.7,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -20.000000000000004
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260702P00743000",
+        "date_et": "2026-07-02",
+        "pnl": -80.0,
+        "structure_fired": true,
+        "trigger_level": 747.4000244140625,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -79.99999999999999
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "pnl": -47.5,
+        "structure_fired": false,
+        "trigger_level": 749.54,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.999999999999993
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260702P00742000",
+        "date_et": "2026-07-02",
+        "pnl": 353.7,
+        "structure_fired": false,
+        "trigger_level": 745.6749877929688,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 491.00000000000006
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260702P00739000",
+        "date_et": "2026-07-02",
+        "pnl": -180.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -152.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -48.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -24.000000000000004
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": 99.0,
+        "structure_fired": false,
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "actual_exit_pnl": -11.999999999999995
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "pnl": -24.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.000000000000007
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "pnl": -10.0,
+        "structure_fired": true,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "pnl": -5.0,
+        "structure_fired": false,
+        "trigger_level": 751.3099975585938,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260707P00743000",
+        "date_et": "2026-07-07",
+        "pnl": -112.5,
+        "structure_fired": false,
+        "trigger_level": 747.4099731445312,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.999999999999993
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "pnl": -60.0,
+        "structure_fired": false,
+        "trigger_level": 749.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.999999999999993
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "pnl": 77.7,
+        "structure_fired": false,
+        "trigger_level": 749.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": 649.8,
+        "structure_fired": false,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -79.99999999999996
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "pnl": 20.0,
+        "structure_fired": true,
+        "trigger_level": 744.169921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "pnl": -25.0,
+        "structure_fired": true,
+        "trigger_level": 745.2977294921875,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -10.000000000000002
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "pnl": -25.0,
+        "structure_fired": false,
+        "trigger_level": 745.2100219726562,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -20.000000000000004
+      }
+    ]
+  },
+  "today_exhibit_2026_07_09": {
+    "n_positions_total": 10,
+    "n_positions_with_bars": 10,
+    "n_no_option_bars": 0,
+    "n_recoverable_trigger_level": 10,
+    "n_fallback": 0,
+    "recovery_status_counts": {
+      "ok": 10
+    },
+    "n_unique_symbols": 2,
+    "actual_realized_total": -381.0,
+    "recovered_trigger_levels": [
+      746.8,
+      747.55,
+      748.0
+    ],
+    "task_cited_trigger_level": 747.46,
+    "candidates": {
+      "CONTROL": {
+        "anchor_total": -400.2,
+        "n_valid": 10,
+        "n_structure_fired": 0,
+        "rows": [
+          {
+            "arm": "safe-1",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -30.0,
+            "structure_fired": false,
+            "trigger_level": 747.55,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -24.000000000000004
+          },
+          {
+            "arm": "safe-1",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -32.4,
+            "structure_fired": false,
+            "trigger_level": 748.0,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -57.000000000000014
+          },
+          {
+            "arm": "safe-3",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -30.6,
+            "structure_fired": false,
+            "trigger_level": 747.55,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -48.00000000000001
+          },
+          {
+            "arm": "risky-1",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -50.0,
+            "structure_fired": false,
+            "trigger_level": 747.55,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -75.00000000000001
+          },
+          {
+            "arm": "risky-3",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -49.0,
+            "structure_fired": false,
+            "trigger_level": 747.55,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -35.0
+          },
+          {
+            "arm": "risky-3",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -53.0,
+            "structure_fired": false,
+            "trigger_level": 748.0,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -30.000000000000025
+          },
+          {
+            "arm": "safe-1",
+            "symbol": "SPY260709C00750000",
+            "date_et": "2026-07-09",
+            "pnl": -29.4,
+            "structure_fired": false,
+            "trigger_level": 746.8,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -24.000000000000004
+          },
+          {
+            "arm": "safe-3",
+            "symbol": "SPY260709C00750000",
+            "date_et": "2026-07-09",
+            "pnl": -28.8,
+            "structure_fired": false,
+            "trigger_level": 746.8,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -18.0
+          },
+          {
+            "arm": "risky-1",
+            "symbol": "SPY260709C00750000",
+            "date_et": "2026-07-09",
+            "pnl": -49.0,
+            "structure_fired": false,
+            "trigger_level": 746.8,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -35.0
+          },
+          {
+            "arm": "risky-3",
+            "symbol": "SPY260709C00750000",
+            "date_et": "2026-07-09",
+            "pnl": -48.0,
+            "structure_fired": false,
+            "trigger_level": 746.8,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -35.0
+          }
+        ]
+      },
+      "SS-A": {
+        "anchor_total": 534.0,
+        "n_valid": 10,
+        "n_structure_fired": 3,
+        "rows": [
+          {
+            "arm": "safe-1",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -75.0,
+            "structure_fired": false,
+            "trigger_level": 747.55,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -24.000000000000004
+          },
+          {
+            "arm": "safe-1",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -69.0,
+            "structure_fired": true,
+            "trigger_level": 748.0,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -57.000000000000014
+          },
+          {
+            "arm": "safe-3",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -76.5,
+            "structure_fired": false,
+            "trigger_level": 747.55,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -48.00000000000001
+          },
+          {
+            "arm": "risky-1",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -125.0,
+            "structure_fired": false,
+            "trigger_level": 747.55,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -75.00000000000001
+          },
+          {
+            "arm": "risky-3",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -110.0,
+            "structure_fired": true,
+            "trigger_level": 747.55,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -35.0
+          },
+          {
+            "arm": "risky-3",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -110.0,
+            "structure_fired": true,
+            "trigger_level": 748.0,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -30.000000000000025
+          },
+          {
+            "arm": "safe-1",
+            "symbol": "SPY260709C00750000",
+            "date_et": "2026-07-09",
+            "pnl": 208.5,
+            "structure_fired": false,
+            "trigger_level": 746.8,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -24.000000000000004
+          },
+          {
+            "arm": "safe-3",
+            "symbol": "SPY260709C00750000",
+            "date_et": "2026-07-09",
+            "pnl": 206.5,
+            "structure_fired": false,
+            "trigger_level": 746.8,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -18.0
+          },
+          {
+            "arm": "risky-1",
+            "symbol": "SPY260709C00750000",
+            "date_et": "2026-07-09",
+            "pnl": 343.5,
+            "structure_fired": false,
+            "trigger_level": 746.8,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -35.0
+          },
+          {
+            "arm": "risky-3",
+            "symbol": "SPY260709C00750000",
+            "date_et": "2026-07-09",
+            "pnl": 341.0,
+            "structure_fired": false,
+            "trigger_level": 746.8,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -35.0
+          }
+        ]
+      },
+      "SS-B": {
+        "anchor_total": 138.5,
+        "n_valid": 10,
+        "n_structure_fired": 3,
+        "rows": [
+          {
+            "arm": "safe-1",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -75.0,
+            "structure_fired": false,
+            "trigger_level": 747.55,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -24.000000000000004
+          },
+          {
+            "arm": "safe-1",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -69.0,
+            "structure_fired": true,
+            "trigger_level": 748.0,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -57.000000000000014
+          },
+          {
+            "arm": "safe-3",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -76.5,
+            "structure_fired": false,
+            "trigger_level": 747.55,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -48.00000000000001
+          },
+          {
+            "arm": "risky-1",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -125.0,
+            "structure_fired": false,
+            "trigger_level": 747.55,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -75.00000000000001
+          },
+          {
+            "arm": "risky-3",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -110.0,
+            "structure_fired": true,
+            "trigger_level": 747.55,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -35.0
+          },
+          {
+            "arm": "risky-3",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -110.0,
+            "structure_fired": true,
+            "trigger_level": 748.0,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -30.000000000000025
+          },
+          {
+            "arm": "safe-1",
+            "symbol": "SPY260709C00750000",
+            "date_et": "2026-07-09",
+            "pnl": 134.0,
+            "structure_fired": false,
+            "trigger_level": 746.8,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -24.000000000000004
+          },
+          {
+            "arm": "safe-3",
+            "symbol": "SPY260709C00750000",
+            "date_et": "2026-07-09",
+            "pnl": 133.0,
+            "structure_fired": false,
+            "trigger_level": 746.8,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -18.0
+          },
+          {
+            "arm": "risky-1",
+            "symbol": "SPY260709C00750000",
+            "date_et": "2026-07-09",
+            "pnl": 219.0,
+            "structure_fired": false,
+            "trigger_level": 746.8,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -35.0
+          },
+          {
+            "arm": "risky-3",
+            "symbol": "SPY260709C00750000",
+            "date_et": "2026-07-09",
+            "pnl": 218.0,
+            "structure_fired": false,
+            "trigger_level": 746.8,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -35.0
+          }
+        ]
+      },
+      "SS-C": {
+        "anchor_total": 487.0,
+        "n_valid": 10,
+        "n_structure_fired": 0,
+        "rows": [
+          {
+            "arm": "safe-1",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -75.0,
+            "structure_fired": false,
+            "trigger_level": 747.55,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -24.000000000000004
+          },
+          {
+            "arm": "safe-1",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -81.0,
+            "structure_fired": false,
+            "trigger_level": 748.0,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -57.000000000000014
+          },
+          {
+            "arm": "safe-3",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -76.5,
+            "structure_fired": false,
+            "trigger_level": 747.55,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -48.00000000000001
+          },
+          {
+            "arm": "risky-1",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -125.0,
+            "structure_fired": false,
+            "trigger_level": 747.55,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -75.00000000000001
+          },
+          {
+            "arm": "risky-3",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -122.5,
+            "structure_fired": false,
+            "trigger_level": 747.55,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -35.0
+          },
+          {
+            "arm": "risky-3",
+            "symbol": "SPY260709C00751000",
+            "date_et": "2026-07-09",
+            "pnl": -132.5,
+            "structure_fired": false,
+            "trigger_level": 748.0,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -30.000000000000025
+          },
+          {
+            "arm": "safe-1",
+            "symbol": "SPY260709C00750000",
+            "date_et": "2026-07-09",
+            "pnl": 208.5,
+            "structure_fired": false,
+            "trigger_level": 746.8,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -24.000000000000004
+          },
+          {
+            "arm": "safe-3",
+            "symbol": "SPY260709C00750000",
+            "date_et": "2026-07-09",
+            "pnl": 206.5,
+            "structure_fired": false,
+            "trigger_level": 746.8,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -18.0
+          },
+          {
+            "arm": "risky-1",
+            "symbol": "SPY260709C00750000",
+            "date_et": "2026-07-09",
+            "pnl": 343.5,
+            "structure_fired": false,
+            "trigger_level": 746.8,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -35.0
+          },
+          {
+            "arm": "risky-3",
+            "symbol": "SPY260709C00750000",
+            "date_et": "2026-07-09",
+            "pnl": 341.0,
+            "structure_fired": false,
+            "trigger_level": 746.8,
+            "recovery_status": "ok",
+            "actual_exit_pnl": -35.0
+          }
+        ]
+      }
+    }
+  },
+  "verdicts": {
+    "SS-A": {
+      "condition_1_layer_b_beats_control": true,
+      "condition_2_layer_a_beats_control": false,
+      "condition_3_fallback_included_not_dropped": true,
+      "overall": "FAIL",
+      "reason": "layer(a) exp $-235.6 vs control $-100.67 (FAIL); layer(b) anchor $-61.1 vs control $-757.1 (PASS); fallback population layer(a)=4/18 layer(b)=31/79 included (not dropped) -> PASS"
+    },
+    "SS-B": {
+      "condition_1_layer_b_beats_control": true,
+      "condition_2_layer_a_beats_control": true,
+      "condition_3_fallback_included_not_dropped": true,
+      "overall": "PASS",
+      "reason": "layer(a) exp $-47.34 vs control $-100.67 (PASS); layer(b) anchor $-604.7 vs control $-757.1 (PASS); fallback population layer(a)=4/18 layer(b)=31/79 included (not dropped) -> PASS"
+    },
+    "SS-C": {
+      "condition_1_layer_b_beats_control": true,
+      "condition_2_layer_a_beats_control": false,
+      "condition_3_fallback_included_not_dropped": true,
+      "overall": "FAIL",
+      "reason": "layer(a) exp $-236.16 vs control $-100.67 (FAIL); layer(b) anchor $1799.9 vs control $-757.1 (PASS); fallback population layer(a)=4/18 layer(b)=31/79 included (not dropped) -> PASS"
+    }
+  },
+  "key_findings": [
+    "CONTROL: layer (a) fresh-slice expectancy $-100.67/tr (n=18), layer (b) anchor total $-757.1 (n=79 positions) -- the numbers every SS candidate is measured against.",
+    "SS-A: layer(a) exp $-235.6/tr (structure fired 5/18), layer(b) anchor $-61.1 (structure fired 22/79) -> FAIL.",
+    "SS-B: layer(a) exp $-47.34/tr (structure fired 5/18), layer(b) anchor $-604.7 (structure fired 22/79) -> PASS.",
+    "SS-C: layer(a) exp $-236.16/tr (structure fired 5/18), layer(b) anchor $1799.9 (structure fired 16/79) -> FAIL.",
+    "TODAY EXHIBIT (2026-07-09, EXCLUDED from all pass/fail): 10 positions, actual realized $-381.0, recovered trigger level(s) [746.8, 747.55, 748.0] vs. the task's cited 747.46 -- CONTROL replayed $-400.2, SS-A replayed $534.0 (structure fired 3/10), SS-B replayed $138.5 (structure fired 3/10), SS-C replayed $487.0 (structure fired 0/10)."
+  ],
+  "disclosures": [
+    "C6 fill-mark convention: the structure stop fires at the NEXT 5m bar's OPEN premium (not the close-bar's own closing premium) -- applied uniformly to SS-A/SS-B/SS-C, both layers, and the exhibit. See the pre-registration's c6_fill_mark_convention.",
+    "Trigger-level recovery: layer (a) uses tw8_level_context's EXACT entry_spot-matched trigger-bar method. Layer (b) and the exhibit use a backward-scan heuristic (lookback=8 bars / 40 min, closest-to-entry first) because real fills carry no entry_spot label -- this is a coarser, disclosed approximation, not an exact match.",
+    "Fallback population (no recoverable trigger_level): layer (a) 4/18, layer (b) 31/79. These positions are NEVER dropped -- SS-A/B/C fall back to premium-only -50% catastrophe-cap replay for them (pre-registration condition 3), identical in kind to how CONTROL always treats every position.",
+    "Time-stop asymmetry (pre-existing, not introduced here): layer (a) uses 15:40 ET (t4/t5 convention); layer (b) and the exhibit use 15:50 ET (exit_manager.TIME_STOP_ET, exit_shape_parity_study convention).",
+    "Option-bar granularity: layer (a) is 5-min cached OTM-2 OPRA bars; layer (b)/exhibit are REAL 1-min Alpaca OPRA bars, live-fetched. SPY bars are 5-min in both layers.",
+    "Today's exhibit trigger levels are recovered via the SAME lib/levels.py backtest-approximation detector used throughout this study (not automation/state/key-levels.json, the live engine's own richer level file, which additionally includes the level-memory system (G11 live-merge, wired 2026-07-09) that lib/levels.py does NOT model) -- a gap vs. the task's cited 747.46 is EXPECTED, not a bug; see key_findings for the actual recovered numbers.",
+    "Anchor population is CLOSED (date_et<=2026-07-08); today's session was still open (market_hours=True) when this study ran, so the exhibit's fill count reflects the state at run time, timestamped in generated_at.",
+    "Frictionless fills at trigger/stop/target levels (no spread/queue modelled) for the non-structure exit components, matching every prior anchor/fresh-slice study in this codebase (T3/T4/T5/T-W8).",
+    "ribbon_ride only (both directions); vwap_continuation is out of scope (ground rule 11, carried from T3/T4/T5)."
+  ]
+}

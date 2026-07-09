@@ -1,0 +1,127 @@
+{
+  "_doc": "PRE-REGISTERED candidate list for the STRUCTURE-STOP (chart-stop-primary) exit validation study. Frozen BEFORE any candidate replay is run (ground rule: exploratory != confirmatory -- no re-picks after seeing results; FAIL is publishable). Motivated by 2026-07-09: three fleet round-trips premium-stopped on the 747.46-reclaim signal while SPY never printed a 5m CLOSE below 747.46 -- a close-below-trigger structure stop would have held all three. Today is EXHIBIT-ONLY and is excluded from every population used for pass/fail (it generated the hypothesis; testing on it would be circular).",
+  "version": 1,
+  "status": "FROZEN_PENDING_RUN",
+  "frozen_at": "2026-07-09",
+  "runner": "backtest/tools/structure_stop_study.py",
+  "strategy": "ribbon_ride",
+  "directions": ["bear", "bull"],
+
+  "hypothesis_provenance": {
+    "generated_by": "2026-07-09 fleet round-trips on the 747.46 BULLISH_RECLAIM signal (safe-1/safe-3/risky-1/risky-3), all premium-stopped while SPY never closed a 5m bar below 747.46",
+    "excluded_from_all_pass_fail_layers": true,
+    "today_date": "2026-07-09",
+    "today_role": "EXHIBIT ONLY -- shown in a separate table, never counted toward any verdict"
+  },
+
+  "signal_set_integrity": {
+    "layer_a_fresh_slice": {
+      "file": "analysis/exit-parity/signal-set-fresh-20260619-20260708.json",
+      "n": 18,
+      "window": "2026-06-19..2026-07-08",
+      "sha256_16": "d10e1a3a51cbf155",
+      "sha256_note": "sha256 of json.dumps(sort_keys=True) of the KEPT signals list only (t5_confirmatory_matrix.py convention). Re-verified by hand before freezing this file: MATCH.",
+      "excludes_today": true
+    },
+    "layer_b_real_fills_anchor": {
+      "source": "automation/state/fills-ledger.jsonl via exit_shape_parity_study.load_fleet_engine_fills() + reconstruct_positions() (engine-attributed, options only, fleet_rest arms safe-1/safe-3/risky-1/risky-3)",
+      "anchor_end_date": "2026-07-08",
+      "anchor_end_date_note": "Positions with date_et > 2026-07-08 (i.e. today, 2026-07-09) are EXCLUDED from the anchor population by construction -- they are the today-exhibit, reported separately, never pass/fail data.",
+      "n_positions": 79,
+      "n_unique_signals": 17,
+      "n_trading_days": 7,
+      "date_span": "2026-06-29..2026-07-08",
+      "population_sha256_16": "4561797465ebf837",
+      "population_sha256_note": "sha256 of json.dumps(sort_keys=True) of the sorted [{date_et,symbol,arm,entry_ts_utc,entry_qty}] list for the anchor population as reconstructed at freeze time (2026-07-09 pre-market analysis). Since fills-ledger.jsonl is a live, growing, append-only file and the market is open while this study runs, this hash pins the CLOSED historical window (<=2026-07-08, no further fills will ever land on those dates) so a re-run today or tomorrow reproduces the identical anchor population. It does NOT pin today's exhibit population (which is expected to still be growing as the session continues).",
+      "control_parity_check": {
+        "note": "CONTROL (-20/+150/sell80/fixed) replayed on this exact 79-position population via exit_shape_parity_study.replay_position must reproduce analysis/recommendations/entry-exit-matrix-2026-07-09.json's control_anchor_total exactly -- verified BEFORE this file was frozen.",
+        "expected_control_anchor_total": -757.1,
+        "verified_at_freeze": true
+      }
+    },
+    "today_exhibit_population": {
+      "date_et": "2026-07-09",
+      "source": "same loader as layer (b), filtered to date_et == 2026-07-09 (cross-checked against automation/state/trade-today.json, read-only)",
+      "n_positions_at_freeze_time": 10,
+      "n_unique_symbols_at_freeze_time": 2,
+      "note": "Not hashed/pinned -- today's session is still open at freeze time (market_hours=True per et_clock.py), so this population may still grow. The exhibit report states the exact population it actually replayed, timestamped."
+    }
+  },
+
+  "candidates": {
+    "CONTROL": {
+      "id": "CONTROL",
+      "label": "shipped -20%/+150%/sell80/fixed premium-only shape (no structure stop, ever)",
+      "shape": {"premium_stop_pct": -0.20, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.8, "profit_lock_mode": "fixed", "trail_pct": 0.0, "runner_target_pct": 2.5},
+      "structure_stop": null
+    },
+    "SS-A": {
+      "id": "SS-A",
+      "label": "structure stop primary + -50% catastrophe cap + TP1 +150% sell66 + runner trail 15%",
+      "shape": {"premium_stop_pct": -0.50, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 9.9},
+      "structure_stop": {"buffer_usd": 0.0, "rule": "calls: exit ALL on first 5m SPY CLOSE strictly below trigger_level; puts: first 5m CLOSE strictly above trigger_level"}
+    },
+    "SS-B": {
+      "id": "SS-B",
+      "label": "SS-A but TP1 +100% sell66",
+      "shape": {"premium_stop_pct": -0.50, "tp1_premium_pct": 1.0, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 9.9},
+      "structure_stop": {"buffer_usd": 0.0, "rule": "same as SS-A"}
+    },
+    "SS-C": {
+      "id": "SS-C",
+      "label": "SS-A with a $0.10 buffer on the structure-stop trigger",
+      "shape": {"premium_stop_pct": -0.50, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 9.9},
+      "structure_stop": {"buffer_usd": 0.10, "rule": "calls: exit ALL on first 5m CLOSE strictly below (trigger_level - 0.10); puts: first 5m CLOSE strictly above (trigger_level + 0.10)"}
+    }
+  },
+  "structure_candidate_ids": ["SS-A", "SS-B", "SS-C"],
+
+  "c6_fill_mark_convention": {
+    "choice": "next_bar_open",
+    "statement": "The structure stop evaluates only CLOSED 5m SPY bars -- a bar's close is knowable only once the bar ends. This study fires the structure-stop exit at the NEXT bar's OPEN premium (not the close-bar's own closing premium), applied uniformly to SS-A/SS-B/SS-C, both layers, and the exhibit. Rationale: the breach is only knowable at the close-bar's end (== the next bar's start), so a same-bar-close fill would assume execution at a price that was not yet actionable; the next bar's open is the first tradeable premium after the signal is knowable. Within any single bar, the structure-stop-due check is evaluated BEFORE the ordinary touch-based checks (catastrophe stop / TP1 / trail / time stop) for that same bar, because a due structure-stop exit is decided at the bar's open, logically before any of that bar's intrabar movement can be realized.",
+    "applies_uniformly": true
+  },
+
+  "trigger_level_recovery": {
+    "layer_a_fresh_slice": {
+      "method": "tw8_level_context.enrich_signals() -- EXACT trigger-bar identification via a tight-tolerance close-price match against the signal's own entry_spot field (both values originate from the same source CSV), then detect_level_reclaim/detect_level_rejection against the per-day-frozen level set (lib/levels.py._detect_from_history, orchestrator's exact convention).",
+      "precision": "exact (entry_spot-matched trigger bar)"
+    },
+    "layer_b_anchor_and_exhibit": {
+      "method": "Real fleet fills carry no entry_spot label (unlike the simulator signal schema), so the exact-match method above is not available. Instead: derive side from the option symbol (OCC format SPY{YYMMDD}{C|P}{strike}), convert entry_ts_utc to ET, compute the date's frozen level set (same lib/levels.py convention), then scan SPY 5m bars with timestamp_et <= entry_ts_et backward from the CLOSEST bar to entry (most recent first) for the first bar where detect_level_reclaim (calls) / detect_level_rejection (puts) fires against the frozen level set. Returns the first (closest-to-entry) hit.",
+      "lookback_bars": 8,
+      "lookback_minutes": 40,
+      "lookback_rationale": "Generous ceiling for order-placement + confirmation-bar lag between the true trigger bar and the fill timestamp (disclosed heuristic, not exact -- real fills do not carry the simulator's entry_spot label needed for exact-match recovery).",
+      "precision": "approximate (backward-scan heuristic within a bounded lookback window)",
+      "expected_gap_vs_live_engine": "lib/levels.py._detect_from_history is a DISCLOSED APPROXIMATION of the production level-writing process (its own module docstring: 'In production, levels are written by premarket from chart structure + protocol audit. For backtest, we approximate from price history alone.'). It also does NOT model the level-memory system (G11 level-memory-live-merge, wired 2026-07-09, automation/state/key-levels.json 'level_memory' source) -- so a recovered level near-but-not-identical to a live-engine-reported level (e.g. the task's cited 747.46) is EXPECTED, not a bug. This gap is pre-existing and disclosed, not introduced by this study."
+    },
+    "fallback_rule": {
+      "statement": "A position/signal whose trigger_level cannot be recovered (no_level_set / no_bars_before_entry / no_trigger_bar_in_lookback / trigger_bar_unmatched) is NEVER dropped. It is replayed under the SAME candidate shape with the structure-stop check disabled (ss_time forced to None) -- i.e. it falls back to the -50% premium catastrophe cap + TP1 + runner trail only, exactly as CONTROL and any other premium-only replay would treat it. This satisfies the pre-registered pass-bar condition 3 by construction.",
+      "applies_to": ["SS-A", "SS-B", "SS-C"],
+      "does_not_apply_to": ["CONTROL (never has a structure-stop layer, trigger_level or not)"]
+    }
+  },
+
+  "time_stops": {
+    "layer_a_fresh_slice": "15:40 ET (t4_exit_matrix.py / t5_confirmatory_matrix.py TIME_STOP convention)",
+    "layer_b_anchor_and_exhibit": "15:50 ET (exit_manager.TIME_STOP_ET, exit_shape_parity_study.py convention)",
+    "disclosure": "This 10-minute asymmetry between layers is PRE-EXISTING in the codebase (T5/T-W8 already carry it) and is preserved here for consistency with prior work, not introduced by this study."
+  },
+
+  "option_bar_granularity": {
+    "layer_a_fresh_slice": "5-minute cached OTM-2 OPRA bars (t4_exit_matrix._load_bars, lib/option_pricing_real.load_contract_bars)",
+    "layer_b_anchor_and_exhibit": "1-minute REAL Alpaca OPRA bars, live-fetched (exit_shape_parity_study.fetch_option_bars)",
+    "spy_bars_both_layers": "5-minute SPY bars, ET, via tw8_level_context.load_spy_full (cached CSV through 2026-07-08) + a live yfinance fetch appended for 2026-07-09 (read-only; not written to backtest/data/ or any production cache)."
+  },
+
+  "pass_bar": {
+    "statement": "ALL three conditions must hold for a candidate (SS-A/SS-B/SS-C) to PASS:",
+    "condition_1_layer_b": "beats CONTROL total on layer (b) real-fills anchor -- interpreted as STRICTLY GREATER THAN (a tie is not a beat).",
+    "condition_2_layer_a": "beats CONTROL expectancy on layer (a) fresh slice -- interpreted as STRICTLY GREATER THAN.",
+    "condition_3_fallback": "positions/signals without a recoverable trigger_level are included under the disclosed fallback (premium-only -50% cap), never dropped -- a structural/methodology invariant, verified true by construction and by test, not a per-candidate numeric outcome.",
+    "aggregation": "AND of all three -- ANY failing condition fails the candidate. No partial credit.",
+    "today_exhibit_excluded": "The 2026-07-09 exhibit table plays NO role in any pass/fail verdict -- it is shown for narrative context only, clearly labeled EXHIBIT ONLY."
+  },
+
+  "no_repick_clause": "Once this file is frozen, no candidate shape, buffer, lookback window, time-stop, or fill-mark convention may be edited in light of results. A FAIL is a publishable, informative outcome, not a reason to adjust the pre-registration and re-run."
+}
