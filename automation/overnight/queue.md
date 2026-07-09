@@ -532,3 +532,18 @@ CAVEATS: best-fixed is IN-SAMPLE (needs OOS confirm), grid coarse 3x3, this is t
 **Action (post-sign-off only):** run T5 confirmatory OOS on the pre-registered list -> A/B scorecards -> STOP CHECKPOINT B. :: depends:J-signoff :: status:blocked-on-J
 
 **UPDATE (Fable review 2026-07-08 late):** STOP-A execution independently verified — finding STANDS (anchor parity: actual −$893 vs replayed control −$757). 7 corrections shipped incl. P5-gate full-set fix (was reading 15/86 survivors), dead trail-knob discovery (old grind never tested trailing — 181/181 pairs identical), engine-contract card §3 correction (core arms trade the strategies.py ribbon_ride shape in production, NOT params tp/stop), pre-registration v2. **[J: new two-lane discrepancy — vwap_continuation trades −8%/+30% on fleet arms but −6%/+40% on core arms (j_vwap_cont_* params keys). Which is the validated cell?]** Next executor: markdown/planning/HANDOFF-2026-07-11-CONFIRM-AND-WIRE.md
+
+### T-AUTOPSY-H-2026-07-08-stop-noise MED — autopsy hypothesis: stop_inside_noise_floor
+
+**Claim:** the live stop exits losers that then pay the thesis -- the stop is harvesting winners, not cutting losers. **Evidence:** `{"losers_in_window": 12, "stopped_then_paid": 8, "fraction": 0.667, "window_n": 14}` (analysis/autopsies/2026-07-08.md).
+**Action:** replay exit-A (-50/+150/sell66/trail15) on these exact fills via exit_shape_parity_study (kill-check) · confirm on the fresh OPRA slice per the STOP-A pre-registration (T-W7) :: depends:none :: status:proposed
+
+### T-AUTOPSY-H-2026-07-08-entry-spike MED — autopsy hypothesis: paying_the_signal_spike
+
+**Claim:** entries fill materially above the signal-minute low -- the marketable ask+buffer buys the local premium spike (defect #2). **Evidence:** `{"median_paid_above_min_low": 0.3, "n": 14}` (analysis/autopsies/2026-07-08.md).
+**Action:** entry_manager shadow (T-W5): log limit-below/patience counterfactual fills next to real entries for 3+ sessions :: depends:none :: status:proposed
+
+### T-AUTOPSY-H-2026-07-08-left-on-table MED — autopsy hypothesis: exit_shape_dominated
+
+**Claim:** a fixed counterfactual shape beats the shipped exits by more than 2x the window's net P&L -- the exit shape, not the signal, is the bottleneck. **Evidence:** `{"sum_stop_cost": 1913.0, "window_net_pnl": -382.0, "n_dominated": 3, "window_n": 14}` (analysis/autopsies/2026-07-08.md).
+**Action:** STOP-A sign-off -> T-W7 confirmatory on the frozen v2 candidates · enumerate levers beyond exit shape per markdown/trading-knowledge/GENERATIVE-LENS.md (DTE / spread / strike / sizing) :: depends:none :: status:proposed

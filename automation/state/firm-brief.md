@@ -1,4 +1,4 @@
-# Firm Brief -- 2026-07-08 (generated 2026-07-08 22:46 ET)
+# Firm Brief -- 2026-07-08 (generated 2026-07-08 23:09 ET)
 
 ## Engine P&L (broker-truth, T1 pnl-statement.json)
 - 2026-07-07: -$123.00 across 3 trade(s) (0W / 3L)
@@ -14,10 +14,13 @@
 1. Account split -- J's manual safe-2 trading burns the core's PDT budget (blocked its only valid 07-08 entry) + contaminates engine-vs-manual measurement. [J: yes/no + which account]
 2. D-SIP $99/mo Algo Trader Plus -- unlocks REAL volume (free IEX undercounts ~28x; J's volume-shelf reads need this). [J: yes/no]
 3. D4 Safe-2 paper-reset to $2K w/ epoch ledger (rec: yes, strengthened).
-- queue.md J-flagged: **[J: STOP-A ENTRY-EXIT-MATRIX awaiting your (or Fable/Opus) sign-off before T5/T6.** Read `markdown/planning/STOP-A-ENTRY-EXIT-MATRIX.md`.** Headline: the ship; **[J: two live exit shapes (ribbon_ride -20/+150, vwap_continuation -8/+30) are on PROVISIONAL P5 waivers (`automation/state/p5-shape-waivers.json`) -- sign, re
+- queue.md J-flagged: **[J: STOP-A ENTRY-EXIT-MATRIX awaiting your (or Fable/Opus) sign-off before T5/T6.** Read `markdown/planning/STOP-A-ENTRY-EXIT-MATRIX.md`.** Headline: the ship; **[J: two live exit shapes (ribbon_ride -20/+150, vwap_continuation -8/+30) are on PROVISIONAL P5 waivers (`automation/state/p5-shape-waivers.json`) -- sign, re; **UPDATE (Fable review 2026-07-08 late):** STOP-A execution independently verified — finding STANDS (anchor parity: actual −$893 vs replayed control −$757). 7 c
 
 ## System health: YELLOW
-- self-check DEGRADED @ 2026-07-08T22:39:56 -- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x bold: 4 day-trades in 5d at equit... (+1 more)
+- self-check DEGRADED @ 2026-07-08T23:09:56 -- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x bold: 4 day-trades in 5d at equit... (+1 more)
+
+## Gamma's read (trade autopsy)
+- 2026-07-08: 14 engine positions, net -$382.00, 8 stopped-then-paid; NEW hypotheses: H-2026-07-08-stop-noise, H-2026-07-08-entry-spike, H-2026-07-08-left-on-table (analysis/autopsies/2026-07-08.md)
 
 ---
 Sources: pnl-statement.json (T1 broker-truth) | self-check-last.json | markdown/planning/HANDOFF-2026-07-09-TRUTH-AND-EXITS.md

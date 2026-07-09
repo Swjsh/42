@@ -1,0 +1,13 @@
+{
+  "date": "2026-07-08",
+  "n_positions": 14,
+  "net_pnl": -382.0,
+  "n_stopped_then_paid": 8,
+  "new_hypotheses": [
+    "H-2026-07-08-stop-noise",
+    "H-2026-07-08-entry-spike",
+    "H-2026-07-08-left-on-table"
+  ],
+  "md": "analysis/autopsies/2026-07-08.md",
+  "generated_at": "2026-07-08T23:08:01.445721"
+}

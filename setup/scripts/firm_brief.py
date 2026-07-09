@@ -268,6 +268,24 @@ def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) 
     lines.append(f"- {health_detail}")
     lines.append("")
 
+    # Gamma's own read of its trades (trade_autopsy.py, Gamma_TradeAutopsy 16:15 ET) -- the
+    # hypothesis organ J asked for 2026-07-08 ("why doesn't Gamma think 'maybe we're stopping
+    # out too early'"). One line; full report in analysis/autopsies/. Fail-open.
+    autopsy = load_json(STATE / "trade-autopsy-last.json")
+    lines.append("## Gamma's read (trade autopsy)")
+    if not autopsy:
+        lines.append("- no autopsy yet (Gamma_TradeAutopsy fires 16:15 ET).")
+    elif autopsy.get("error"):
+        lines.append(f"- {autopsy.get('date', '?')}: autopsy FAILED ({autopsy['error'][:100]}) -- fix me.")
+    else:
+        hyp = autopsy.get("new_hypotheses") or []
+        hyp_s = f"; NEW hypotheses: {', '.join(hyp)}" if hyp else "; no new hypotheses"
+        lines.append(f"- {autopsy.get('date', '?')}: {autopsy.get('n_positions', 0)} engine positions, "
+                     f"net {_fmt_money(float(autopsy.get('net_pnl', 0)))}, "
+                     f"{autopsy.get('n_stopped_then_paid', 0)} stopped-then-paid{hyp_s} "
+                     f"({autopsy.get('md', 'analysis/autopsies/')})")
+    lines.append("")
+
     lines.append("---")
     lines.append(f"Sources: pnl-statement.json (T1 broker-truth) | self-check-last.json | {HANDOFF_NAME}")
     return "\n".join(lines) + "\n"
