@@ -77,7 +77,9 @@ def test_decide_arm_returns_selected_exit_shape():
 
 
 def test_decide_arm_vwap_exit_when_only_vwap_fires():
-    """Only VWAP fires -> decide_arm selects it and returns the -8% tight-stop exit shape."""
+    """Only VWAP fires -> decide_arm selects it and returns its registry exit shape.
+    Pins updated 2026-07-09 (T-W6 option a port, STOP-B): -0.06/+0.40/fixed = the FULL
+    validated core cell (vwapcont-exit-ab-ship-gate.json, all 5 OP-22 gates PASS)."""
     sig = {"spot": 600.0, "strategies": [
         _strat_entry("vwap_continuation", "C", "VWAP_CONTINUATION",
                      triggers=["VWAP_TREND_ESTABLISHED", "VWAP_CONTINUATION_BREAKOUT"])]}
@@ -85,9 +87,9 @@ def test_decide_arm_vwap_exit_when_only_vwap_fires():
         ARM, sig, equity=2000.0, flat=True, day_trades=0, killed=False,
         sod_equity=2000.0, prior_stops=[], params=PARAMS, premium_override=0.40)
     assert decision.action == "ENTER_BULL"
-    assert exit_shape["premium_stop_pct"] == -0.08
-    assert exit_shape["tp1_premium_pct"] == 0.3
-    assert exit_shape["profit_lock_mode"] == "trailing"
+    assert exit_shape["premium_stop_pct"] == -0.06
+    assert exit_shape["tp1_premium_pct"] == 0.40
+    assert exit_shape["profit_lock_mode"] == "fixed"
 
 
 def test_decide_arm_no_signal_returns_tuple():
@@ -164,13 +166,15 @@ def test_place_live_bracket_matches_ribbon_exit_shape(monkeypatch):
 
 
 def test_place_live_bracket_matches_vwap_exit_shape(monkeypatch):
-    """VWAP's -8% tight stop / +30% TP1 flows through distinctly from ribbon's."""
-    vwap_exit = {"premium_stop_pct": -0.08, "tp1_premium_pct": 0.3,
-                 "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing"}
+    """VWAP's -6% stop / +40% TP1 flows through distinctly from ribbon's.
+    Pins updated 2026-07-09 (T-W6 option a port, STOP-B): the FULL validated core cell
+    -0.06/+0.40/0.8/fixed (vwapcont-exit-ab-ship-gate.json, all 5 OP-22 gates PASS)."""
+    vwap_exit = {"premium_stop_pct": -0.06, "tp1_premium_pct": 0.40,
+                 "tp1_qty_fraction": 0.8, "profit_lock_mode": "fixed"}
     res, fake = _place_with(monkeypatch, vwap_exit, mid=1.00)
-    assert res["stop"] == 0.92   # 1.00 * (1 - 0.08)
-    assert res["tp"] == 1.30     # 1.00 * (1 + 0.30)
-    assert res["profit_lock_mode"] == "trailing"
+    assert res["stop"] == 0.94   # 1.00 * (1 - 0.06)
+    assert res["tp"] == 1.40     # 1.00 * (1 + 0.40)
+    assert res["profit_lock_mode"] == "fixed"
 
 
 def test_place_live_invalid_stop_falls_back_to_catastrophe_cap(monkeypatch):

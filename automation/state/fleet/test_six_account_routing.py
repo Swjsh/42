@@ -75,10 +75,13 @@ def test_exit_shape_differs_by_strategy_not_account():
     loose = next(a for a in ACCOUNTS["arms"] if a["id"] == "risky-3")
     plans = {p.strategy: p for p in fx.plan_all(loose, _both_strategies_signal(), 2000.0, PARAMS)
              if p.action == "ENTER"}
+    # vwap pins updated 2026-07-09 (T-W6 option a port, STOP-B): full validated core cell
+    # -0.06/+0.40/0.8/fixed (vwapcont-exit-ab-ship-gate.json, all 5 OP-22 gates PASS).
+    # Distinctness now lives on the stop/TP1 axis (both strategies use fixed lock).
     assert plans["ribbon_ride"].exit_shape["premium_stop_pct"] == -0.20
-    assert plans["vwap_continuation"].exit_shape["premium_stop_pct"] == -0.08
-    assert plans["ribbon_ride"].exit_shape["profit_lock_mode"] == "fixed"
-    assert plans["vwap_continuation"].exit_shape["profit_lock_mode"] == "trailing"
+    assert plans["vwap_continuation"].exit_shape["premium_stop_pct"] == -0.06
+    assert plans["ribbon_ride"].exit_shape["tp1_premium_pct"] == 1.5
+    assert plans["vwap_continuation"].exit_shape["tp1_premium_pct"] == 0.40
 
 
 # --- the FLEET_OWNS_ALL_6 unification lever (no double-fill invariant) ---------

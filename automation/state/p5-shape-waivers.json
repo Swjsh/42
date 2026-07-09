@@ -1,7 +1,7 @@
 {
   "_doc": "P5-HARD-GATE waiver registry (ground rule 10, HANDOFF-2026-07-10-ENTRY-EXIT-MATRIX). A shape listed here satisfies the P5 gate (setup/scripts/p5_shape_gate.py + test_p5_shape_gate.py) WITHOUT being a mass-grind-phase5-summary.json survivor. j_signed=false => PROVISIONAL: the shape was ALREADY live before the gate existed; the waiver keeps the guard green (no hard-RED on a pre-existing shape) while surfacing it LOUDLY for J to sign, replace, or retire. j_signed=true requires an explicit J decision (OP-0). NEVER hand-add a signed waiver on J's behalf.",
   "schema": "p5-waivers-v1",
-  "updated": "2026-07-08",
+  "updated": "2026-07-09",
   "waivers": [
     {
       "strategy": "ribbon_ride",
@@ -15,13 +15,14 @@
     },
     {
       "strategy": "vwap_continuation",
-      "shape": {"premium_stop_pct": -0.08, "tp1_premium_pct": 0.3, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing"},
-      "j_signed": false,
-      "status": "PROVISIONAL_PENDING_STOP_A",
-      "added": "2026-07-08",
-      "reason": "Prior live edge (ITM-2/-8% tight stop, OOS +$105/tr per strategies.py note). Its TP+30% scalp shape is not represented in the current P5 survivor set (survivors are TP+100/+150). Kept provisional; the T4 exit-matrix searches vwap_continuation per-strategy per ground rule 11.",
-      "provenance": "analysis/recommendations/mass-grind-phase5-summary.json (survivors) ; strategies.py VWAP_CONTINUATION",
-      "resolves_when": "T4 exit-matrix produces a P5-passing vwap_continuation shape, OR J signs this waiver, OR the shape is retired."
+      "shape": {"premium_stop_pct": -0.06, "tp1_premium_pct": 0.40, "tp1_qty_fraction": 0.8, "profit_lock_mode": "fixed"},
+      "j_signed": true,
+      "status": "SIGNED",
+      "added": "2026-07-09",
+      "reason": "T-W6 option (a) port, STOP-B disposition 2026-07-09: the FULL validated core cell (-6% stop / +40% TP1 / sell 80% / fixed lock) replaces the stale, never-validated fleet ExitShape (-0.08/+0.30/0.667/trailing -- the 2026-07-02 copy that the 2026-07-07 core-lane refinement superseded but nobody propagated). Not a P5 (ribbon-grind) survivor by construction -- vwap_continuation's shape was validated by its OWN dedicated walk-forward A/B (2026-07-07, ALL 5 OP-22 gates PASS on n=149 real OPRA fills: OOS $75.47 vs $66.83/tr, WF 1.62, drop-top3 +$45.86, anchor edge_capture 82.04 vs 44.52, quarters 5/6 win / 0 much-worse, fill-coverage exact parity 149/149). ATM-strike caveat (C29) recorded and accepted by STOP-B: validated at ATM (core Safe-2 cell); fleet arms size strikes per account, so fleet-strike cells remain unvalidated -- the ported shape at least carries the validated exit body and eliminates the two-lane drift.",
+      "justification_j_signed": "J directive 2026-07-09 ~00:30 ET ('I'm not the gatekeeper. If it improves the engine it ships. That's an OP.') + the 2026-07-07 all-5-gates-PASS scorecard (analysis/recommendations/vwapcont-exit-ab-ship-gate.json) + T-W6 provenance investigation (markdown/audits/T-W6-VWAP-TWO-LANE-PROVENANCE-2026-07-08.md). STOP-B disposition: analysis/recommendations/entry-exit-matrix-2026-07-09.md (SHIPS item 2). REVOKE-able by J.",
+      "provenance": "analysis/recommendations/vwapcont-exit-ab-ship-gate.json (2026-07-07 walk-forward A/B) ; markdown/audits/T-W6-VWAP-TWO-LANE-PROVENANCE-2026-07-08.md ; strategies.py VWAP_CONTINUATION",
+      "resolves_when": "Standing (signed). Superseded only by a future validated vwap_continuation cell or J revoke."
     }
   ]
 }

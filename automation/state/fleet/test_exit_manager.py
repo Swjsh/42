@@ -15,8 +15,13 @@ import exit_manager as em
 
 RIBBON_SHAPE = {"premium_stop_pct": -0.20, "tp1_premium_pct": 1.5,
                 "tp1_qty_fraction": 0.8, "profit_lock_mode": "fixed"}
-VWAP_SHAPE = {"premium_stop_pct": -0.08, "tp1_premium_pct": 0.3,
-              "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing"}
+# TRAIL_SHAPE (renamed from VWAP_SHAPE 2026-07-09): a GENERIC trailing-mode mechanics fixture,
+# NOT a registry pin. vwap_continuation's live shape moved to -0.06/+0.40/0.8/fixed (T-W6
+# option a port, STOP-B; see strategies.py + vwapcont-exit-ab-ship-gate.json), so no live
+# strategy currently trades this exact shape -- the trailing-chandelier state machine it
+# exercises is still live machinery (any future trailing shape) and stays covered here.
+TRAIL_SHAPE = {"premium_stop_pct": -0.08, "tp1_premium_pct": 0.3,
+               "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing"}
 MORNING = time(11, 0)
 AFTER_STOP = time(15, 51)
 
@@ -36,9 +41,9 @@ def test_entry_split_ribbon_80pct():
     assert s.profit_lock_mode == "fixed"
 
 
-def test_entry_split_vwap_667pct():
-    """vwap 0.667 on qty3 -> tp1=2, runner=1; -8% stop."""
-    s = _state(VWAP_SHAPE, qty=3)
+def test_entry_split_trailing_667pct():
+    """trailing fixture 0.667 on qty3 -> tp1=2, runner=1; -8% stop."""
+    s = _state(TRAIL_SHAPE, qty=3)
     assert s.tp1_qty == 2 and s.runner_qty == 1
     assert s.runner_stop_premium == 0.92   # 1.00 * (1 - 0.08)
 
@@ -96,8 +101,8 @@ def test_tp1_partial_sells_tp1_qty_and_ratchets_to_be():
     assert ratchets and ratchets[0].new_stop_premium == 1.00
 
 
-def test_tp1_partial_vwap_qty3_sells_2():
-    s = _state(VWAP_SHAPE, qty=3, entry=1.00)  # TP1 at +30% = 1.30, tp1_qty=2
+def test_tp1_partial_trailing_qty3_sells_2():
+    s = _state(TRAIL_SHAPE, qty=3, entry=1.00)  # TP1 at +30% = 1.30, tp1_qty=2
     dec = em.plan_exit_actions(s, best_premium=1.35, worst_premium=1.25,
                                open_qty=3, now_et=MORNING)
     sells = [a for a in dec.actions if a.kind == "SELL_PARTIAL"]
@@ -140,10 +145,10 @@ def test_runner_fixed_does_not_trail_up():
     assert dec.state.runner_stop_premium == 1.00  # still BE, no trail (fixed mode)
 
 
-# --- runner ride: trailing chandelier (stage 4, vwap = trailing) --------------
+# --- runner ride: trailing chandelier (stage 4, TRAIL_SHAPE fixture) -----------
 def test_runner_trailing_ratchets_with_hwm():
-    """vwap (trailing) runner: stop trails to HWM*(1-trail_pct) once armed."""
-    s = _state(VWAP_SHAPE, qty=3, entry=1.00)  # trail_pct default 0.125
+    """trailing runner: stop trails to HWM*(1-trail_pct) once armed."""
+    s = _state(TRAIL_SHAPE, qty=3, entry=1.00)  # trail_pct default 0.125
     after_tp1 = em.plan_exit_actions(s, best_premium=1.35, worst_premium=1.25,
                                      open_qty=3, now_et=MORNING).state
     # runner alone, premium runs to 2.00 -> trail floor 2.00*0.875 = 1.75
@@ -156,7 +161,7 @@ def test_runner_trailing_ratchets_with_hwm():
 
 
 def test_runner_trailing_exits_on_retrace():
-    s = _state(VWAP_SHAPE, qty=3, entry=1.00)
+    s = _state(TRAIL_SHAPE, qty=3, entry=1.00)
     st = em.plan_exit_actions(s, best_premium=1.35, worst_premium=1.25,
                               open_qty=3, now_et=MORNING).state
     st = em.plan_exit_actions(st, best_premium=2.00, worst_premium=1.90,
@@ -197,7 +202,7 @@ def test_flat_position_is_noop():
 
 
 def test_state_roundtrips_through_dict():
-    s = _state(VWAP_SHAPE, qty=3, entry=1.23, strategy="vwap_continuation")
+    s = _state(TRAIL_SHAPE, qty=3, entry=1.23, strategy="roundtrip_test")
     s2 = em.ExitState.from_dict(s.to_dict())
     assert s2 == s
 

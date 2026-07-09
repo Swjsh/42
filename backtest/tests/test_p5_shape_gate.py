@@ -88,14 +88,31 @@ def test_live_shapes_all_gated_green():
         assert r["ok"] is True, f"live shape {r['strategy']} is neither survivor nor waived: {r}"
 
 
-def test_current_live_shapes_are_provisional_not_signed():
-    """Honesty lock: the two pre-existing live shapes are waived PROVISIONALLY (j_signed=false),
-    never silently signed on J's behalf. If someone flips j_signed=true it must be a real J call."""
+def test_waiver_signature_state_matches_ratification_record():
+    """Honesty lock, updated DELIBERATELY 2026-07-09 (this test IS the ratification record):
+
+    * ribbon_ride must REMAIN provisional/unsigned -- its -20/+150 shape is still the T5 scar,
+      never validated, kept only because every tested replacement was worse in the current
+      regime (STOP-B 2026-07-09). Anyone flipping it to j_signed=true without a real J call
+      is repeating the scar.
+    * vwap_continuation must be j_signed=true -- the T-W6 option (a) port of the FULL
+      validated core cell (-0.06/+0.40/0.8/fixed), signed under J's 2026-07-09 directive
+      ('if it improves the engine it ships') + the 2026-07-07 all-5-OP-22-gates-PASS scorecard
+      (analysis/recommendations/vwapcont-exit-ab-ship-gate.json) + T-W6 provenance
+      (markdown/audits/T-W6-VWAP-TWO-LANE-PROVENANCE-2026-07-08.md). A regression to
+      j_signed=false (or to the stale -0.08/+0.30/0.667/trailing shape) reopens two-lane drift."""
     rows = {r["strategy"]: r for r in g.audit_live_shapes()}
-    for name in ("ribbon_ride", "vwap_continuation"):
-        w = rows[name]["waiver"]
-        assert w is not None and w.get("j_signed") is False, (
-            f"{name} must remain a PROVISIONAL (unsigned) waiver until J signs or T4 replaces it")
+    rr = rows["ribbon_ride"]["waiver"]
+    assert rr is not None and rr.get("j_signed") is False, (
+        "ribbon_ride must remain a PROVISIONAL (unsigned) waiver until a validated shape "
+        "replaces it or J signs it for real")
+    vw = rows["vwap_continuation"]["waiver"]
+    assert vw is not None and vw.get("j_signed") is True, (
+        "vwap_continuation's waiver must stay SIGNED (J directive 2026-07-09 + "
+        "vwapcont-exit-ab-ship-gate.json all-gates-PASS + T-W6 provenance)")
+    sig = rows["vwap_continuation"]["sig"]
+    assert (sig["stop"], sig["tp1"], sig["qty"], sig["lock"]) == (-0.06, 0.40, 0.8, "fixed"), (
+        f"vwap_continuation live shape drifted from the ratified full core cell: {sig}")
 
 
 def test_check_cli_returns_zero_when_gated():

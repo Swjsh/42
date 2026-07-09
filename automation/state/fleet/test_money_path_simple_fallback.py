@@ -54,8 +54,10 @@ def test_place_live_simple_first_single_plain_limit(monkeypatch):
 
     decision = SimpleNamespace(side="P", strike=600, qty=3, setup_name="VWAP_CONTINUATION")
     arm = {"id": "risky-test"}
-    exit_shape = {"tp1_premium_pct": 0.30, "premium_stop_pct": -0.08,
-                  "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing"}
+    # 2026-07-09: kept in sync with the ported vwap registry shape (T-W6 option a; values are
+    # incidental here -- this test pins the ONE-plain-limit POST mechanics, not the shape).
+    exit_shape = {"tp1_premium_pct": 0.40, "premium_stop_pct": -0.06,
+                  "tp1_qty_fraction": 0.8, "profit_lock_mode": "fixed"}
     now = _dt.datetime(2026, 6, 29, 10, 0)
 
     res = fl._place_live(_CREDS, arm, decision, exit_shape, {"tick_id": 1}, {}, now)

@@ -71,12 +71,21 @@ RIBBON_RIDE = Strategy(
     note="mass-grind funnel P4 elite; WF 1.80, qpf 1.0, beats random-entry null by +$167/tr.",
 )
 
-# vwap_continuation: the previously-live edge. Its proven exit is the tight -8% stop.
+# vwap_continuation: ported 2026-07-09 to the FULL validated core cell (T-W6 option a) --
+# the old -0.08/+0.30/0.667/trailing literal was the STALE 2026-07-02 copy; the 2026-07-07
+# walk-forward A/B superseded it in the core lane and nobody propagated to this file.
 VWAP_CONTINUATION = Strategy(
     name="vwap_continuation",
     entry_setups=("VWAP_CONTINUATION", "vwap_continuation"),
-    exit=ExitShape(premium_stop_pct=-0.08, tp1_premium_pct=0.3, tp1_qty_fraction=0.667, profit_lock_mode="trailing"),
-    note="prior live edge; ITM-2/-8% tight stop, OOS +$105/tr.",
+    exit=ExitShape(premium_stop_pct=-0.06, tp1_premium_pct=0.40, tp1_qty_fraction=0.8, profit_lock_mode="fixed"),
+    note="full validated core cell ported 2026-07-09 (T-W6 option a, STOP-B): -6% stop / +40% "
+         "TP1 / sell 80% / fixed lock. Validated 2026-07-07, ALL 5 OP-22 gates PASS on n=149 "
+         "real OPRA fills (analysis/recommendations/vwapcont-exit-ab-ship-gate.json: OOS "
+         "$75.47 vs $66.83/tr, WF 1.62, anchor 82.04 vs 44.52). Provenance + two-lane drift "
+         "history: markdown/audits/T-W6-VWAP-TWO-LANE-PROVENANCE-2026-07-08.md. CAVEAT (C29, "
+         "recorded + accepted by STOP-B): validated at ATM (core Safe-2 cell); fleet arms size "
+         "strikes per account, so fleet-strike cells are unvalidated -- but this shape carries "
+         "the validated exit body and now matches the core lane exactly (no two-lane drift).",
 )
 
 REGISTRY: tuple[Strategy, ...] = (RIBBON_RIDE, VWAP_CONTINUATION)

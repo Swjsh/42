@@ -50,8 +50,10 @@ def test_strategies_path_attaches_correct_exit_shapes():
     plans = {p.strategy: p for p in fx.plan_all(ARM, sig, 2000.0, PARAMS) if p.action == "ENTER"}
     assert plans["ribbon_ride"].exit_shape["premium_stop_pct"] == -0.20
     assert plans["ribbon_ride"].exit_shape["tp1_premium_pct"] == 1.5
-    assert plans["vwap_continuation"].exit_shape["premium_stop_pct"] == -0.08
-    assert plans["vwap_continuation"].exit_shape["tp1_premium_pct"] == 0.3
+    # vwap pins updated 2026-07-09 (T-W6 option a port, STOP-B): full validated core cell
+    # -0.06/+0.40 (vwapcont-exit-ab-ship-gate.json, all 5 OP-22 gates PASS).
+    assert plans["vwap_continuation"].exit_shape["premium_stop_pct"] == -0.06
+    assert plans["vwap_continuation"].exit_shape["tp1_premium_pct"] == 0.40
 
 
 def test_strategies_path_applies_arm_gate():
