@@ -46,6 +46,26 @@ async function main() {
     out("");
   }
 
+  // 1b) kitchen liveness GUARD (regression: a TZ bug made kitchen_status report
+  // "DOWN" while the daemon was provably alive). If the daemon pid is actually
+  // running, the tool must NOT say the kitchen is down.
+  try {
+    const kf = require("path").join(cfg.root, "automation", "state", "kitchen-status.json");
+    const kdata = JSON.parse(require("fs").readFileSync(kf, "utf8"));
+    let pidRunning = false;
+    try { process.kill(Number(kdata.daemon_pid), 0); pidRunning = true; } catch (e) { pidRunning = e.code === "EPERM"; }
+    if (pidRunning) {
+      const res = await runTool(cfg.root, "kitchen_status");
+      check("kitchen_liveness_guard", !/DOWN/.test(res), "daemon pid " + kdata.daemon_pid + " alive -> must not report DOWN");
+    } else {
+      out("  (kitchen daemon not running -- liveness guard skipped)");
+    }
+    out("");
+  } catch (e) {
+    out("  (kitchen liveness guard skipped: " + e.message + ")");
+    out("");
+  }
+
   // 2) persona
   const instructions = buildInstructions(cfg.root);
   check("persona_build", instructions.length > 400 && /Gamma/.test(instructions), instructions.length + " chars");

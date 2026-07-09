@@ -41,11 +41,11 @@ class RealtimeSession {
         type: "realtime",
         model: this.o.model,
         instructions: this.o.instructions,
-        // Hard brevity backstop: the model rambled in paragraphs on v1. The
-        // instructions do the real work; this cap makes a runaway answer
-        // physically impossible (~2-3 spoken sentences). Not so tight it clips
-        // a normal reply mid-word.
-        max_output_tokens: this.o.maxOutputTokens || 220,
+        // Runaway backstop only -- the INSTRUCTIONS enforce the 1-2 sentence
+        // brevity. This counts AUDIO tokens (~10x text), so 220 clipped real
+        // answers mid-word ("...followed by a parameter|"). 1024 leaves a clean
+        // 2-3 sentence answer intact but still caps a 30-second monologue.
+        max_output_tokens: this.o.maxOutputTokens || 1024,
         audio: {
           input: {
             format: { type: "audio/pcm", rate: 24000 },

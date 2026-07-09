@@ -216,33 +216,56 @@ function eveningDebrief(root) {
 // kitchen_status -- the R&D loop (NOT the trader). Reads kitchen-status.json.
 // ---------------------------------------------------------------------------
 
+// Signal-0 existence probe -- authoritative liveness, timezone-proof.
+// true = running, false = gone, null = unknown pid. EPERM means it exists but
+// we can't signal it (still alive).
+function pidAlive(pid) {
+  if (!pid || !Number.isFinite(pid)) return null;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (e) {
+    return e.code === "EPERM";
+  }
+}
+
 function kitchenStatus(root) {
   try {
-    const k = JSON.parse(
-      fs.readFileSync(path.join(root, "automation", "state", "kitchen-status.json"), "utf8")
-    );
+    const file = path.join(root, "automation", "state", "kitchen-status.json");
+    const k = JSON.parse(fs.readFileSync(file, "utf8"));
     const q = k.queue_summary || {};
     const by = q.by_status || {};
-    // Staleness: the daemon rewrites this every loop; a stale file means the
-    // daemon stopped, so daemon_alive alone can lie -- disclose the age.
-    const upd = String(k.updated_at_et || "");
-    let ageMin = null;
-    if (upd) {
-      const ages = ["-04:00", "-05:00"]
-        .map((off) => Math.round((Date.now() - new Date(upd + off).getTime()) / 60000))
-        .filter((m) => Number.isFinite(m) && m >= -5);
-      if (ages.length) ageMin = Math.min(...ages);
+    // Liveness the RELIABLE way (a false "kitchen is down" burned J once): the
+    // daemon's own updated_at_et string LAGS real ET -- it tracks the last
+    // COMPLETED task, so a long grinder job makes it look hours stale while the
+    // daemon is fine. Trust instead (a) is the pid actually running, and (b) the
+    // file's own mtime (rewritten every loop). Both are timezone-proof.
+    const running = pidAlive(Number(k.daemon_pid));
+    let fileAgeMin = null;
+    try {
+      fileAgeMin = Math.round((Date.now() - fs.statSync(file).mtimeMs) / 60000);
+    } catch {
+      /* ignore */
     }
+    const fresh = fileAgeMin !== null && fileAgeMin <= 15;
+    const alive = running === true || (k.daemon_alive === true && fresh);
     const cooked = (k.recent_completed_top_10 || [])
       .slice(0, 3)
       .map((t) => String(t.task || "").split(/[:.]/)[0].slice(0, 90))
       .filter(Boolean);
-    const alive = k.daemon_alive && (ageMin === null || ageMin <= 15);
+    let note;
+    if (!alive) {
+      note =
+        "kitchen daemon looks DOWN (pid not running" +
+        (fileAgeMin !== null ? ", status file " + fileAgeMin + " min stale" : "") + ")";
+    } else if (k.idle) {
+      note = "kitchen daemon alive, idle right now";
+    } else {
+      note = "kitchen daemon alive and working a task (a grinder backtest can run a while)";
+    }
     return Promise.resolve(
       JSON.stringify({
-        note: alive
-          ? (k.idle ? "kitchen daemon alive, idle right now" : "kitchen daemon alive and working a task")
-          : "kitchen daemon looks DOWN (status file " + (ageMin === null ? "unreadable age" : ageMin + " min stale") + ")",
+        note,
         it_does_not_trade: "the kitchen is R&D -- it cooks strategy candidates; the engine/fleet place trades",
         queue: { pending: by.pending || 0, completed: by.completed || 0, failed: by.failed_permanent || 0 },
         today_cost_usd: k.today_cost_usd_paid_tier != null ? k.today_cost_usd_paid_tier : null,
