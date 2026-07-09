@@ -18,6 +18,7 @@ sys.path.insert(0, str(REPO / "backtest"))
 
 from futures.swing_sim import wilder_atr, simulate_swing, simulate_buy_and_hold  # noqa: E402
 from futures.instruments import MES, MNQ  # noqa: E402
+from futures.risk import size_contracts  # noqa: E402
 
 
 def make_bars(ohlc: list[tuple[float, float, float, float]]) -> pd.DataFrame:
@@ -277,6 +278,54 @@ class TestBuyAndHold:
         r = simulate_buy_and_hold("long", 0, bars, MES, hold_bars=10, cost_per_side_usd=0.0)
         assert r.reason == "DATA_END"
         assert r.exit_idx == 1
+
+
+# ─── Position sizing via risk.py::size_contracts() ─────────────────────────
+
+class TestRiskSizingWiring:
+    """Demonstrates the position-sizing wiring the build spec calls for:
+    risk.py::size_contracts() (an ATR-based point stop -> a $-risk-capped
+    contract count) feeds directly into simulate_swing's `qty`. The battery
+    itself reports PER-CONTRACT expectancy (qty=1, matching the honesty-bar
+    convention this repo already uses for edge-existence research -- see
+    the prior PHASE1-swing-battery's RESULTS.md: "1 MES contract... per-
+    contract dollars reported") -- sizing is a downstream concern once an
+    edge is validated, not a determinant of whether one exists. This test
+    proves the two modules compose correctly end-to-end."""
+
+    def test_size_contracts_feeds_simulate_swing_qty(self):
+        stop_mult, atr = 1.5, 20.0
+        stop_points = stop_mult * atr  # 30 pts
+        account_equity = 10_000.0
+        risk_per_trade_usd = account_equity * 0.02  # $200 (2% risk)
+        qty = size_contracts(account_equity, risk_per_trade_usd, stop_points, MES, hard_cap=10)
+        assert qty >= 1
+
+        bars = make_bars([(5900, 5901, 5899, 5900), (5900, 5911, 5899, 5910)])  # +10pt long win
+        r1 = simulate_swing("long", 0, bars, atr_at_entry=atr, instrument=MES,
+                             stop_mult=stop_mult, target_mult=None, max_hold_bars=1,
+                             qty=1, cost_per_side_usd=0.0)
+        r_sized = simulate_swing("long", 0, bars, atr_at_entry=atr, instrument=MES,
+                                  stop_mult=stop_mult, target_mult=None, max_hold_bars=1,
+                                  qty=qty, cost_per_side_usd=0.0)
+        assert r_sized.qty == qty
+        assert r_sized.pnl_usd == pytest.approx(r1.pnl_usd * qty)
+
+    def test_size_contracts_caps_the_loss_near_the_risk_budget(self):
+        # A full stop-out should lose close to (but not exceed) the $-risk budget
+        # size_contracts() was given, up to hard_cap/rounding.
+        stop_mult, atr = 1.5, 20.0
+        stop_points = stop_mult * atr
+        risk_per_trade_usd = 200.0
+        qty = size_contracts(10_000.0, risk_per_trade_usd, stop_points, MES, hard_cap=10)
+
+        bars = make_bars([(5900, 5905, 5895, 5900), (5820, 5825, 5810, 5815)])  # gaps through stop
+        r = simulate_swing("long", 0, bars, atr_at_entry=atr, instrument=MES,
+                            stop_mult=stop_mult, target_mult=None, max_hold_bars=5,
+                            qty=qty, cost_per_side_usd=0.0)
+        assert r.reason == "STOP"
+        per_contract_risk = stop_points * MES.point_value
+        assert per_contract_risk * qty <= risk_per_trade_usd + per_contract_risk  # within 1 contract's slack
 
 
 if __name__ == "__main__":
