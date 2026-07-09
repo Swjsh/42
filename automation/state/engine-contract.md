@@ -26,7 +26,7 @@ The exit shape is a property of the STRATEGY (the grind proved it), realized by 
 | strategy | entry setups | exit shape |
 |---|---|---|
 | `ribbon_ride` | BEARISH_REJECTION_RIDE_THE_RIBBON<br>BULLISH_RECLAIM_RIDE_THE_RIBBON | stop -20% · TP1 +150% · sell 80% · fixed · runner 2.5x · trail 12% · arm +5% |
-| `vwap_continuation` | VWAP_CONTINUATION<br>vwap_continuation | stop -8% · TP1 +30% · sell 67% · trailing · runner 2.5x · trail 12% · arm +5% |
+| `vwap_continuation` | VWAP_CONTINUATION<br>vwap_continuation | stop -6% · TP1 +40% · sell 80% · fixed · runner 2.5x · trail 12% · arm +5% |
 
 Direction: both — the side comes from which side-block (bull/bear) fired; `enable_bullish=True` (safe). No per-strategy direction lock.
 
@@ -55,9 +55,21 @@ Options can't bracket at Alpaca → entries are SIMPLE limits with **no broker-s
 ## 3b. Entry policy (all arms — the current order type)
 
 - **Marketable simple limit: `ask + entry_cross_buffer` ($0.03)** — `fleet_broker.marketable_limit_price` / `heartbeat_core` #15 pricing. Crosses the spread to fill NOW (pays up into the signal bar).
-- **No premium floor** — sub-$0.20 contracts are admitted (T2 diagnostics: a −20% stop there = ~2 ticks ≈ the spread).
+- **Premium floor `min_entry_premium`: safe $0.30 · bold $0.30** — plan-time strategy admission in BOTH lanes (`heartbeat_core._execute` post-NO_PREMIUM; `fleet_executor.finalize` pre-check_order, shared by fleet_live decide_arm + run_dry). A sub-floor premium is a logged `SKIP_MIN_PREMIUM_FLOOR` row, never an order. Evidence: entry-exit-matrix-2026-07-09.md (T3 n=157; anchor −$72.50 vs −$757.10). 0/absent = OFF.
 - **No passive/patience logic** — no limit-below-signal, no cancel/convert window. (The T3 entry-matrix studies exactly this axis; nothing is wired yet.)
 - Stale un-crossed BUY limits from a prior tick are cancel-replaced each tick.
+
+## 3c. Shadow machinery — built, NOT armed (T-W4/T-W5)
+
+Zero arms consume either module below. Both ship freely as observability per HANDOFF-2026-07-11-CONFIRM-AND-WIRE (shadow/paper work needs no STOP sign-off; ARMING either needs its own P5-survivor pass + STOP-B).
+
+- **exit-B per-band stop resolver** (`automation/state/fleet/per_band_stop.py`, `resolve_stop_pct`) — NOT ARMED. Pre-registered `EXIT_B_BAND_TABLE`:
+  - premium <$0.20 → stop -25%
+  - premium <$0.50 → stop -35%
+  - premium >=$0.50 → stop -50%
+
+- **entry-2 passive-limit state machine** (`automation/state/fleet/entry_manager.py`, `plan_entry_action`) — NOT ARMED. Pre-registered spec: limit @ signal×(1−10%), patience 3 bars, miss=cancel.
+  - Shadow ledger: `automation/state/entry-shadow.jsonl` (runtime state, regenerate via `backtest/tools/shadow_entry_backfill.py`; stats reported in the firm brief, not on this drift-guarded card).
 
 ## 4. Sizing math (risk_gate.check_order — the single order authority)
 

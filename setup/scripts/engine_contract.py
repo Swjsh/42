@@ -81,6 +81,12 @@ def _load_setup_exit_overrides() -> dict:
     return {}
 
 
+def _load_per_band_stop():
+    """Import automation/state/fleet/per_band_stop.py (T-W4, exit-B's machinery -- SHADOW
+    ONLY, pure stdlib module, no arm consumes it)."""
+    return _import_module("_ec_per_band_stop", FLEET / "per_band_stop.py")
+
+
 def _load_cap_tables() -> dict:
     """Import backtest/lib/cap_admission -- the SINGLE source of the sizing tables. We import
     the module (never re-type the literals) so a table edit shows up in the card and the
@@ -262,11 +268,62 @@ def render_contract() -> str:
     L.append(f"- **Marketable simple limit: `ask + entry_cross_buffer` (${float(buf):.2f})** — "
              f"`fleet_broker.marketable_limit_price` / `heartbeat_core` #15 pricing. Crosses the "
              f"spread to fill NOW (pays up into the signal bar).")
-    L.append("- **No premium floor** — sub-$0.20 contracts are admitted (T2 diagnostics: a −20% "
-             "stop there = ~2 ticks ≈ the spread).")
+    # ENTRY-1 floor (2026-07-09, STOP-B ship 1) — rendered FROM params (never re-typed) so a
+    # params edit without a card regen trips the drift guard. 0/absent renders as OFF.
+    _mep_safe, _mep_bold = safe.get("min_entry_premium"), bold.get("min_entry_premium")
+
+    def _floor_str(v) -> str:
+        try:
+            return f"${float(v):.2f}" if v is not None and float(v) > 0 else "OFF"
+        except (TypeError, ValueError):
+            return "OFF"
+    if _floor_str(_mep_safe) == "OFF" and _floor_str(_mep_bold) == "OFF":
+        L.append("- **No premium floor** — sub-$0.20 contracts are admitted (T2 diagnostics: "
+                 "a −20% stop there = ~2 ticks ≈ the spread).")
+    else:
+        L.append(f"- **Premium floor `min_entry_premium`: safe {_floor_str(_mep_safe)} · "
+                 f"bold {_floor_str(_mep_bold)}** — plan-time strategy admission in BOTH lanes "
+                 f"(`heartbeat_core._execute` post-NO_PREMIUM; `fleet_executor.finalize` "
+                 f"pre-check_order, shared by fleet_live decide_arm + run_dry). A sub-floor "
+                 f"premium is a logged `SKIP_MIN_PREMIUM_FLOOR` row, never an order. Evidence: "
+                 f"entry-exit-matrix-2026-07-09.md (T3 n=157; anchor −$72.50 vs −$757.10). "
+                 f"0/absent = OFF.")
     L.append("- **No passive/patience logic** — no limit-below-signal, no cancel/convert window. "
              "(The T3 entry-matrix studies exactly this axis; nothing is wired yet.)")
     L.append("- Stale un-crossed BUY limits from a prior tick are cancel-replaced each tick.")
+    L.append("")
+
+    # ── 3c. SHADOW MACHINERY (built, NOT armed — rule 17: a knob that isn't on this card
+    # doesn't exist, so both land here the moment they exist, before any arm consumes them) ──
+    L.append("## 3c. Shadow machinery — built, NOT armed (T-W4/T-W5)")
+    L.append("")
+    L.append("Zero arms consume either module below. Both ship freely as observability per "
+             "HANDOFF-2026-07-11-CONFIRM-AND-WIRE (shadow/paper work needs no STOP sign-off; "
+             "ARMING either needs its own P5-survivor pass + STOP-B).")
+    L.append("")
+    pbs = _load_per_band_stop()
+    L.append("- **exit-B per-band stop resolver** (`automation/state/fleet/per_band_stop.py`, "
+             "`resolve_stop_pct`) — NOT ARMED. Pre-registered `EXIT_B_BAND_TABLE`:")
+    _prev_ceiling = None
+    for band in pbs.EXIT_B_BAND_TABLE:
+        if band.ceiling is not None:
+            label = f"<${band.ceiling:.2f}"
+        else:
+            label = f">=${_prev_ceiling:.2f}" if _prev_ceiling is not None else "any"
+        L.append(f"  - premium {label} → stop {_pct(band.stop_pct)}")
+        _prev_ceiling = band.ceiling
+    L.append("")
+    L.append("- **entry-2 passive-limit state machine** (`automation/state/fleet/"
+             "entry_manager.py`, `plan_entry_action`) — NOT ARMED. Pre-registered spec: "
+             "limit @ signal×(1−10%), patience 3 bars, miss=cancel.")
+    # Fable review 2026-07-08: the shadow ledger's live STATS must NOT render here --
+    # entry-shadow.jsonl is untracked runtime state, so embedding its numbers makes the
+    # committed card differ from a fresh-clone render (CI drift-guard RED) and drift on
+    # every backfill re-run. The card carries only committed-source facts; stats live in
+    # the firm brief / the T-W5 report.
+    L.append("  - Shadow ledger: `automation/state/entry-shadow.jsonl` (runtime state, "
+             "regenerate via `backtest/tools/shadow_entry_backfill.py`; stats reported in "
+             "the firm brief, not on this drift-guarded card).")
     L.append("")
 
     # ── 4. SIZING MATH (cap_admission — the single authority) ───────────────────────────────
