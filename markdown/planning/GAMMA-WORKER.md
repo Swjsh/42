@@ -34,7 +34,59 @@ a **person telling you about their day**, and frames into **new ideas J didn't s
 button reading `gamma-narrative.json` / the wav), voice file attached to the Discord message,
 morning variant (premarket brief in the same voice).
 
-## Layer 2 — Narrative self-awareness (the causal chain, told, not logged)
+## Layer 1b — Real-time voice presence: "talk to Gamma in the HQ Discord" (PLAN, J 2026-07-08)
+
+**What J already tasted (recon 2026-07-08):** `gamma-companion/public/realtime.js` — mic ↔
+**OpenAI Realtime API over WebRTC** (speech-native model: ~sub-second turns, barge-in, natural
+prosody), ephemeral tokens minted by `/api/realtime-token` (real key never in browser), with a
+`/api/chat → Claude SDK` bridge. That "alive" feel is a property of speech-to-speech models —
+an STT→LLM→TTS chain (whisper→qwen→kokoro) runs 2–5s/turn with no barge-in and feels like a
+walkie-talkie. The PWA route's blocker was HTTPS-on-LAN (Tailscale); **Discord as transport
+deletes that problem** — J's phone Discord app carries the audio from anywhere.
+
+**Recommended architecture (hybrid — the mouth is rented, the facts are owned):**
+1. **Mouth/ears:** Discord voice bot in the HQ server; joins on J's join/command; pipes audio
+   Discord ↔ OpenAI Realtime (reuse the companion's key + token-minting pattern).
+2. **Facts are TOOLS, never model memory (OP-33):** Realtime function-calls into deterministic
+   readers — `engine_state` (last core-decisions row + positions + armed/kill-switch),
+   `account_pnl` (trades CSVs), `funnel_today` (fill_funnel), `whats_cooking` (cook-queue tail),
+   `evening_debrief` (gamma-narrative.json spoken text). The voice model may narrate ONLY tool
+   output for state questions — it never invents rig state.
+3. **Deep asks queue honestly:** `ask_gamma_deep` tool → writes to a queue consumed by a Claude
+   fire (`claude -p --agent gamma`) → answer posted to the channel (and spoken if J still
+   connected). The bot SAYS "digging in, give me a few minutes" instead of hallucinating depth.
+4. **Sovereign fallback lane (BRAIN-SOVEREIGNTY tie-in):** same tool interface behind a local
+   chain (faster-whisper on the 5080 → qwen3.6 persona → Kokoro). Slower but $0 and offline —
+   the blackout-drill voice. Built LAST, kept warm.
+
+**Guardrails:** J's user-ID allowlist only; voice tools are READ-ONLY v1 (no flatten/arm/param
+changes by voice until an explicit confirm protocol exists — rules 9/10); per-minute cost meter
+into the spend ledger (Groq scar: meter before trusting "cheap"); barge-in on, sessions
+time-boxed (auto-leave after idle) so an open mic never runs a meter overnight.
+
+**Cost honesty (as-of 2026-07, verify current):** Realtime-mini-class ≈ cents/minute of
+conversation; casual daily use = single-digit $/month; the meter line makes it visible. Local
+lane is $0 forever.
+
+**Build order:** (P1) narrative spoken-register v1.1 (below) → (P2) Discord voice MVP: join +
+Realtime bridge + 3 read-only tools → (P3) `ask_gamma_deep` + evening debrief on join →
+(P4) local fallback lane. Sonnet-army work against this spec; Fable reviews the seams
+(token minting, tool contracts, allowlist) and runs first end-to-end contact.
+
+## Narrative register v1.1 — "sounds like a mind, not a stat dump" (J feedback on first wav)
+
+First wav verdict from J: "sounds like he's just reading the messages I get sent in Discord...
+hard to follow, all numbers and commands." Root cause: one text serves two channels — the
+WRITTEN narrative optimizes for factual density; SPOKEN Gamma needs a different register.
+
+Spec (small change to `gamma_narrative.py` + `gamma_speak.py`):
+- Generate a second field `spoken`: same facts, radio-debrief register — story first ("the
+  thing that mattered today..."), **≤3 numbers total, all rounded**, no ticker symbols / order
+  IDs / stage names, 45–75 seconds (~120–170 words), reflective first person, ends with the
+  question for J. `gamma_speak.py` prefers `spoken` over `text`.
+- **Interpret, don't re-read:** the facts block gains today's outbox history with the
+  instruction "J already received these pings — reference and EXPLAIN them, never repeat them."
+- Written `text` + deterministic digest stay exactly as-is (the auditable channel).
 
 The narrative's fixed spine IS the causal chain J asked for: what I saw → what I did → what I
 learned → what I'm changing. Two design rules keep it honest (OP-33):
