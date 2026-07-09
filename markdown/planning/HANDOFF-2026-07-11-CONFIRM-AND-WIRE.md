@@ -194,3 +194,50 @@ field is `setup_name`, not `setup`.
 **Tells you're failing:** you ran a grind without a vary-and-assert probe; you quoted an anchor
 without unique-n; you tested a candidate not in the v2 file; you touched strategies.py before
 STOP-B; the card and the code disagree at your final commit.
+
+---
+
+## APPENDED 2026-07-09 late (Fable) — REVIEW DISCOVERY 5: profit-lock SCOPE mismatch, sim vs live (RESOLVED; binds T-W2/T-W3/T-W7)
+
+**Inherit as fact (verified in code + quantified by the matrix's own parity_check):**
+`simulate_trade_real`'s profit-lock block (sim:540-584) arms on ANY favorable touch —
+**pre-TP1 included**, where the ratcheted `runner_stop_premium` IS the exit-ALL stop (sim:644)
+— while the live `exit_manager.plan_exit_actions` only armed the lock at/after TP1 (and the
+TP1 fill itself sets `profit_lock_armed`, so `profit_lock_arm_pct` was a DEAD knob live).
+Same shape dict, two interpreters, different trades. Every sim study passing
+`profit_lock_threshold_pct>0` (vwapcont-exit-parity 07-02, vwapcont-exit-ab-ship-gate 07-07 —
+both now carry a `sim_semantics_caveat` block) credited pre-TP1 breakeven scratches live could
+not take. Magnitude on the vwap control cell (matrix parity_check isolation): **≈ -$0.72/tr
+aggregate** ($54.73→$55.45 at thr=0) — real per-trade, roughly EV-neutral aggregate; the
+-$39.71/tr cross-engine delta is mostly ribbon-flip modeling + fill conventions
+(EXIT-ENGINE-PARITY-RESIDUAL in queue.md tracks the residual).
+
+**Resolution shipped (expressible, NOT armed):** `ExitShape`/`ExitState` gained
+`profit_lock_arm_scope` — `"post_tp1"` default = byte-identical legacy live behavior
+(red-proof-verified: regressing the arm REDs 4 new guards, 40 legacy tests stay green);
+`"full"` = simulator-parity pre-TP1 whole-position arming. NO live shape declares it; arming
+any cell with `"full"` requires a live-machine (exit_manager-replay) scorecard + STOP-B.
+Cross-machine pins RED on silent convergence from either side:
+`backtest/tests/test_profit_lock_scope_pin.py` (sim side) +
+`automation/state/fleet/test_exit_manager.py::test_pre_tp1_lock_*` (live side). The
+engine-contract card now renders the scope on every shape (`arm +5% (post-TP1)`).
+
+**How this binds the tasks above:**
+- **T-W2/T-W3 (orchestrator lock translation + fresh grind):** translating
+  `profit_lock_mode`/trail into `simulate_trade_real` kwargs sweeps the SIM's semantics —
+  pre-TP1 whole-position lock — which no live arm runs. The fresh P5 universe is therefore
+  RANKING-ONLY on the lock/trail axis; any lock/trail candidate that reaches T5 confirms via
+  the exit_manager replay (which now expresses scope) — state the scope explicitly in the
+  candidate's shape. Do NOT quote grind absolute dollars as live-expected P&L.
+- **T-W7 (T5 confirmatory):** unchanged in procedure — layer (a) already replays through the
+  live exit_manager. Candidates whose sim provenance had thr>0 are now comparable: replay
+  them BOTH scopes if the lock is part of the cell's identity, else default scope.
+- **T-W6 (vwap two-lane):** note the referenced provenance doc
+  `markdown/audits/T-W6-VWAP-TWO-LANE-PROVENANCE-2026-07-08.md` was never committed (strategies.py
+  cites it; only the scorecards + this handoff exist in-tree). The two-lane port itself stands;
+  its evidence base carries the `sim_semantics_caveat` and was independently re-affirmed
+  CONTROL-STANDS by the 2026-07-09 matrix (exit_manager engine, fresh tail, 0/23 challengers).
+- **Repo hygiene inherited:** `automation/state/fleet/per_band_stop.py` (T-W4) was untracked
+  while the committed `engine_contract.py` hard-imports it — card regen crashed on any fresh
+  checkout. Now tracked (this branch), same commit as the matrix artifacts
+  (`vwapcont-matrix-preregistration.json` + `vwapcont-entry-exit-matrix.json`).

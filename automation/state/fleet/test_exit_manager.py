@@ -15,6 +15,12 @@ import exit_manager as em
 
 RIBBON_SHAPE = {"premium_stop_pct": -0.20, "tp1_premium_pct": 1.5,
                 "tp1_qty_fraction": 0.8, "profit_lock_mode": "fixed"}
+# The live vwap_continuation body (-6%/+40%/sell80/fixed) in both arm scopes. "full" is the
+# simulator_real-parity scope (pre-TP1 whole-position lock) -- EXPRESSIBLE but armed by NO
+# live shape (2026-07-09 scope-mismatch fix; see test_pre_tp1_lock_* below).
+VWAP_BODY = {"premium_stop_pct": -0.06, "tp1_premium_pct": 0.40,
+             "tp1_qty_fraction": 0.8, "profit_lock_mode": "fixed"}
+VWAP_FULL_SCOPE = dict(VWAP_BODY, profit_lock_arm_scope="full")
 # TRAIL_SHAPE (renamed from VWAP_SHAPE 2026-07-09): a GENERIC trailing-mode mechanics fixture,
 # NOT a registry pin. vwap_continuation's live shape moved to -0.06/+0.40/0.8/fixed (T-W6
 # option a port, STOP-B; see strategies.py + vwapcont-exit-ab-ship-gate.json), so no live
@@ -433,6 +439,127 @@ def test_state_roundtrips_through_dict_with_structure_fields():
     s2 = em.ExitState.from_dict(s.to_dict())
     assert s2 == s
     assert s2.stop_mode == "structure" and s2.trigger_level == 745.25
+
+
+# --- PRE-TP1 PROFIT-LOCK ARM SCOPE (2026-07-09 sim-vs-live scope-mismatch fix) -----------
+# simulator_real:540-584 arms the profit-lock on ANY favorable touch (pre-TP1 included) and
+# ratchets the SAME stop the pre-TP1 exit-ALL check reads; this core only armed at/after
+# TP1. Every sim study passing profit_lock_threshold_pct>0 therefore credited pre-TP1
+# breakeven scratches live could not take. Resolution: scope is now EXPRESSIBLE
+# ("post_tp1" default = legacy live behavior; "full" = simulator parity) and armed by NO
+# live shape. Twin pin on the simulator side: backtest/tests/test_profit_lock_scope_pin.py.
+# If either side's semantics silently changes, one of these REDs and forces a conscious
+# cross-machine decision (C14-class guard).
+
+def _walk(shape, ticks, qty=5, entry=1.00):
+    """Run a (best, worst) tick list through plan_exit_actions; returns (decisions, books).
+    books = per-tick tuples of (action kinds, runner_stop, armed) for comparison."""
+    s = _state(shape, qty=qty, entry=entry)
+    open_qty = qty
+    decs, books = [], []
+    for best, worst in ticks:
+        dec = em.plan_exit_actions(s, best_premium=best, worst_premium=worst,
+                                   open_qty=open_qty, now_et=MORNING)
+        decs.append(dec)
+        books.append((tuple((a.kind, a.stage, a.qty) for a in dec.actions),
+                      dec.state.runner_stop_premium, dec.state.profit_lock_armed))
+        for a in dec.actions:
+            if a.kind in ("SELL_PARTIAL", "SELL_ALL"):
+                open_qty -= a.qty
+        s = dec.state
+        if open_qty <= 0:
+            break
+    return decs, books
+
+
+def test_pre_tp1_lock_full_arms_then_scratches_at_floor():
+    """scope='full': +6% touch arms the whole-position BE floor pre-TP1; the pullback
+    through entry exits ALL at the floor (the sim's breakeven scratch), NOT at -6%."""
+    decs, _ = _walk(VWAP_FULL_SCOPE, [(1.06, 1.01), (1.01, 0.99)])
+    # tick 1: armed, no exit, stop ratcheted to BE and RECORDED
+    d1 = decs[0]
+    assert d1.state.profit_lock_armed is True
+    assert d1.state.runner_stop_premium == 1.00
+    assert any(a.kind == "RATCHET_STOP" and a.new_stop_premium == 1.00 for a in d1.actions)
+    assert not d1.closes_position
+    # tick 2: worst 0.99 <= BE floor -> exit ALL, reason discloses the lock floor
+    d2 = decs[1]
+    assert d2.closes_position
+    a = d2.actions[0]
+    assert a.kind == "SELL_ALL" and a.stage == "premium_stop"
+    assert "profit_lock_floor" in a.reason
+
+
+def test_pre_tp1_lock_default_scope_rides_the_same_ticks_to_the_stop():
+    """Default scope on the SAME ticks: no pre-TP1 arming -- the pullback is a HOLD and
+    only the original -6% stop can exit. Vary-and-assert twin of the test above: the two
+    configs MUST produce different books or the knob is dead (C14)."""
+    decs_default, books_default = _walk(VWAP_BODY, [(1.06, 1.01), (1.01, 0.99), (0.95, 0.93)])
+    _, books_full = _walk(VWAP_FULL_SCOPE, [(1.06, 1.01), (1.01, 0.99), (0.95, 0.93)])
+    # default: ticks 1-2 do nothing (no arm, no ratchet, stop stays -6% = 0.94)
+    assert decs_default[0].state.profit_lock_armed is False
+    assert decs_default[0].state.runner_stop_premium == 0.94
+    assert not decs_default[0].actions and not decs_default[1].actions
+    # default: only tick 3 (worst 0.93 <= 0.94) exits, at the ORIGINAL stop
+    assert decs_default[2].closes_position
+    assert "premium_stop" in decs_default[2].actions[0].reason
+    # the books DIFFER (full scratched at tick 2; default rode to the -6% stop at tick 3)
+    assert books_default != books_full
+
+
+def test_pre_tp1_lock_full_same_tick_arm_and_floor_exit():
+    """Simulator intra-bar ordering parity: a single tick that BOTH touches the arm level
+    and trades back through the floor arms FIRST, then exits at the floor (sim:546-552
+    runs before the stop check at sim:644)."""
+    decs, _ = _walk(VWAP_FULL_SCOPE, [(1.06, 0.99)])
+    d = decs[0]
+    assert d.closes_position
+    assert d.state.profit_lock_armed is True
+    assert "profit_lock_floor" in d.actions[0].reason
+
+
+def test_pre_tp1_lock_full_trailing_trails_hwm_before_tp1():
+    """scope='full' + trailing: pre-TP1 the floor ratchets to HWM*(1-trail) once armed."""
+    shape = {"premium_stop_pct": -0.20, "tp1_premium_pct": 9.9, "tp1_qty_fraction": 0.8,
+             "profit_lock_mode": "trailing", "trail_pct": 0.125,
+             "profit_lock_arm_scope": "full"}
+    decs, _ = _walk(shape, [(2.00, 1.80), (1.80, 1.74)])
+    # tick 1: armed at +100%, trail floor = 2.00 * 0.875 = 1.75 (> BE)
+    assert decs[0].state.runner_stop_premium == 1.75
+    assert not decs[0].closes_position
+    # tick 2: worst 1.74 <= 1.75 -> whole position exits at the trailed floor pre-TP1
+    assert decs[1].closes_position
+    assert "profit_lock_floor" in decs[1].actions[0].reason
+
+
+def test_pre_tp1_lock_absent_key_walk_is_byte_identical_to_explicit_post_tp1():
+    """Inertness contract: a shape WITHOUT the new key and one with explicit 'post_tp1'
+    must produce IDENTICAL decisions/states across a walk that exercises pre-TP1 dips,
+    TP1 fill, and the post-TP1 BE stop."""
+    ticks = [(1.02, 1.00), (1.06, 1.01), (1.01, 0.99), (1.45, 1.30), (1.20, 0.99)]
+    decs_a, books_a = _walk(VWAP_BODY, ticks)
+    decs_b, books_b = _walk(dict(VWAP_BODY, profit_lock_arm_scope="post_tp1"), ticks)
+    assert books_a == books_b
+    assert [d.state for d in decs_a] == [d.state for d in decs_b]
+    # the walk really exercised TP1 (tick 4) then the BE stop (tick 5)
+    assert decs_a[3].actions and decs_a[3].actions[0].stage == "tp1"
+    assert decs_a[4].closes_position
+
+
+def test_pre_tp1_lock_scope_survives_dict_roundtrip_and_legacy_defaults():
+    s_full = _state(VWAP_FULL_SCOPE)
+    assert s_full.profit_lock_arm_scope == "full"
+    s2 = em.ExitState.from_dict(s_full.to_dict())
+    assert s2 == s_full and s2.profit_lock_arm_scope == "full"
+    # legacy persisted record (key absent) -> post_tp1, the exact pre-existing behavior
+    d = s_full.to_dict()
+    del d["profit_lock_arm_scope"]
+    assert em.ExitState.from_dict(d).profit_lock_arm_scope == "post_tp1"
+    # garbage normalizes to legacy, never crashes
+    assert em.ExitState.from_entry(
+        symbol="x", side="P", entry_premium=1.0, qty=3,
+        exit_shape=dict(VWAP_BODY, profit_lock_arm_scope="banana"),
+    ).profit_lock_arm_scope == "post_tp1"
 
 
 if __name__ == "__main__":

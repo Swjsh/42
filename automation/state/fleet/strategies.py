@@ -43,6 +43,12 @@ class ExitShape:
     profit_lock_arm_pct: float = 0.05    # arm the profit-lock at +5% favorable (CLAUDE.md)
     stop_mode: str = "premium"           # "premium" (today) | "structure" (v15.3 chart-stop)
     catastrophe_stop_pct: "float | None" = None  # override for the structure-mode cap; None = global -50%
+    # PROFIT-LOCK ARM SCOPE (2026-07-09 sim-vs-live scope-mismatch fix): "post_tp1" (default,
+    # today's exact live behavior -- the lock arms at/after TP1 only) | "full" (simulator_real
+    # parity -- the WHOLE position gets the BE floor / trail from the first +arm_pct touch,
+    # pre-TP1 included). Every sim study that passed profit_lock_threshold_pct>0 assumed
+    # "full"; NO live shape declares it until a live-machine scorecard + STOP-B arms it.
+    profit_lock_arm_scope: str = "post_tp1"
 
     def to_dict(self) -> dict:
         """The exit-shape dict the executor/live paths thread through (kept in sync with
@@ -57,6 +63,7 @@ class ExitShape:
             "profit_lock_arm_pct": self.profit_lock_arm_pct,
             "stop_mode": self.stop_mode,
             "catastrophe_stop_pct": self.catastrophe_stop_pct,
+            "profit_lock_arm_scope": self.profit_lock_arm_scope,
         }
 
 

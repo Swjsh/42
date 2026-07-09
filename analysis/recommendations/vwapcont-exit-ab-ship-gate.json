@@ -300,5 +300,12 @@
     "e_drop_top3_positive": true,
     "ALL_PASS": true
   },
-  "verdict": "SHIP: candidate -0.06/0.40 clears ALL OP-22 gates on the live ATM Safe-2 cell. OOS $75.47 vs current $66.83 (+$8.64/tr), WF=1.62, 0 much-worse quarters, anchor 82.04 vs 44.52, drop3 $45.86. ATM only; ITM-2 unverified (C29)."
+  "verdict": "SHIP: candidate -0.06/0.40 clears ALL OP-22 gates on the live ATM Safe-2 cell. OOS $75.47 vs current $66.83 (+$8.64/tr), WF=1.62, 0 much-worse quarters, anchor 82.04 vs 44.52, drop3 $45.86. ATM only; ITM-2 unverified (C29).",
+  "sim_semantics_caveat": {
+    "added": "2026-07-09",
+    "finding": "BASE_SHAPE passed profit_lock_threshold_pct=0.05 to simulate_trade_real, whose profit-lock arms PRE-TP1 on the WHOLE position (simulator_real.py ~540-584) -- semantics the live exit_manager did NOT have at ship time (it arms the lock at/after TP1 only). Absolute dollars here therefore credit pre-TP1 breakeven scratches the live machine could not take.",
+    "quantified": "Isolation test (vwapcont-entry-exit-matrix.json parity_check, 2026-07-09): control cell with thr=0 moves 4.73 -> 5.45/tr -- the lock component is ~-/usr/bin/bash.72/tr (aggregate-neutral-to-slightly-negative; real per-trade divergences confirmed, e.g. sim scratch-at-BE vs live -6% full stop). The much larger cross-engine delta vs the exit_manager bar-replay (-9.71/tr) is dominated by OTHER engine differences (ribbon-flip modeling, fill conventions) -- see that parity_check note.",
+    "verdict_impact": "Both A/B cells shared the same lock kwargs, so the RELATIVE ship verdict is not invalidated by the scope alone; the shipped -6/+40 cell was independently re-affirmed CONTROL-STANDS by the 2026-07-09 entry/exit matrix, which replays through the LIVE exit_manager core (fresh tail + real-fills anchor).",
+    "resolution": "exit_manager gained an expressible profit_lock_arm_scope field (post_tp1 default = live legacy; full = sim parity), armed by NO live shape; cross-machine pins: backtest/tests/test_profit_lock_scope_pin.py + fleet test_exit_manager.py test_pre_tp1_lock_*. Exit-shape ratification numbers come from exit_manager replay."
+  }
 }

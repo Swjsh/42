@@ -1,0 +1,4739 @@
+{
+  "_doc": "vwap_continuation ENTRY/EXIT MATRIX -- STOP-A ground rule 11 (owed debt). ANALYSIS ONLY: no trading-path file touched. Pre-registered before any ranking.",
+  "generated_at": "2026-07-09T16:37:29.342561",
+  "preregistration_file": "analysis/recommendations/vwapcont-matrix-preregistration.json",
+  "preflight": {
+    "signal_set_sha256_16": "1e7c84bda5f91727",
+    "signal_set_hash_ok": true,
+    "preregistration_version": 1,
+    "preregistration_version_ok": true,
+    "n_old_window_signals": 158,
+    "n_old_window_expected": 158,
+    "old_window_parity_ok": true
+  },
+  "population": {
+    "n_signals_total": 172,
+    "n_prepared": 162,
+    "miss_counts": {
+      "cache_miss_strike": 10
+    },
+    "window": "2025-01-01..2026-07-08",
+    "old_window_end_burned": "2026-05-15",
+    "fresh_tail_start": "2026-05-16"
+  },
+  "exit_grid_results": [
+    {
+      "n": 162,
+      "wr_pct": 21.0,
+      "exp_dollar": 11.33,
+      "total_dollar": 1835.32,
+      "is_n": 107,
+      "is_exp": 19.5,
+      "is_total": 2086.8,
+      "oos_old_n": 42,
+      "oos_old_exp": 3.62,
+      "oos_old_total": 151.9,
+      "fresh_n": 13,
+      "fresh_exp": -31.03,
+      "fresh_total": -403.38,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 37.84,
+          "total": 946.1
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 8.3,
+          "total": 190.94
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 10.27,
+          "total": 266.92
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 20.69,
+          "total": 682.84
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 6.4,
+          "total": 166.48
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -13.1,
+          "total": -353.7
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -32.13,
+          "total": -64.26
+        }
+      },
+      "positive_quarters": "5/7",
+      "qpf": 0.714,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 4.31,
+          "wr": 18.9,
+          "total": 388.14
+        },
+        "P": {
+          "n": 72,
+          "exp": 20.1,
+          "wr": 23.6,
+          "total": 1447.18
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 59.4
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 88.7
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 32.37
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 5.28
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 647.62,
+        "exp_ex_topk": 4.07,
+        "positive": true
+      },
+      "worst_trade": -158.4,
+      "worst_decile_mean": -66.57,
+      "max_dd": -719.28,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": -51.3,
+        "loser_day_pnl": 54.1,
+        "edge_capture": -104.4
+      },
+      "n_structure_fired": 0,
+      "id": "P1T1F1L1",
+      "group": "control",
+      "shape": {
+        "premium_stop_pct": -0.06,
+        "tp1_premium_pct": 0.4,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": true,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": null,
+        "fails": [
+          "is_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": null,
+        "fails": [
+          "is_control"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 13.6,
+      "exp_dollar": 15.1,
+      "total_dollar": 2446.7,
+      "is_n": 107,
+      "is_exp": 24.19,
+      "is_total": 2587.8,
+      "oos_old_n": 42,
+      "oos_old_exp": 6.24,
+      "oos_old_total": 262.28,
+      "fresh_n": 13,
+      "fresh_exp": -31.03,
+      "fresh_total": -403.38,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 20.98,
+          "total": 524.58
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 23.81,
+          "total": 547.54
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 6.68,
+          "total": 173.74
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 40.66,
+          "total": 1341.94
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 8.18,
+          "total": 212.58
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -10.72,
+          "total": -289.42
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -32.13,
+          "total": -64.26
+        }
+      },
+      "positive_quarters": "5/7",
+      "qpf": 0.714,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 14.82,
+          "wr": 13.3,
+          "total": 1333.62
+        },
+        "P": {
+          "n": 72,
+          "exp": 15.46,
+          "wr": 13.9,
+          "total": 1113.08
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 81.0
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 135.5
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 56.26
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 3.97
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 903.2,
+        "exp_ex_topk": 5.68,
+        "positive": true
+      },
+      "worst_trade": -158.4,
+      "worst_decile_mean": -69.94,
+      "max_dd": -755.44,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": -51.3,
+        "loser_day_pnl": -77.22,
+        "edge_capture": -128.52
+      },
+      "n_structure_fired": 0,
+      "id": "P1T2F1L1",
+      "group": "A_stop_x_tp1",
+      "shape": {
+        "premium_stop_pct": -0.06,
+        "tp1_premium_pct": 1.0,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 21.0,
+      "exp_dollar": 12.54,
+      "total_dollar": 2031.52,
+      "is_n": 107,
+      "is_exp": 24.8,
+      "is_total": 2654.05,
+      "oos_old_n": 42,
+      "oos_old_exp": -5.22,
+      "oos_old_total": -219.15,
+      "fresh_n": 13,
+      "fresh_exp": -31.03,
+      "fresh_total": -403.38,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 62.14,
+          "total": 1553.45
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 18.43,
+          "total": 423.94
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 9.22,
+          "total": 239.77
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 13.24,
+          "total": 436.89
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": -6.02,
+          "total": -156.62
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -14.88,
+          "total": -401.65
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -32.13,
+          "total": -64.26
+        }
+      },
+      "positive_quarters": "4/7",
+      "qpf": 0.571,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 8.54,
+          "wr": 18.9,
+          "total": 769.04
+        },
+        "P": {
+          "n": 72,
+          "exp": 17.53,
+          "wr": 23.6,
+          "total": 1262.48
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 27.85
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 73.38
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 28.09
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 8.17
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 911.57,
+        "exp_ex_topk": 5.73,
+        "positive": true
+      },
+      "worst_trade": -158.4,
+      "worst_decile_mean": -66.57,
+      "max_dd": -767.23,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": -51.3,
+        "loser_day_pnl": 93.5,
+        "edge_capture": -104.4
+      },
+      "n_structure_fired": 0,
+      "id": "P1T1F1L2",
+      "group": "B_stop_x_lock",
+      "shape": {
+        "premium_stop_pct": -0.06,
+        "tp1_premium_pct": 0.4,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.15,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 21.0,
+      "exp_dollar": 11.33,
+      "total_dollar": 1835.32,
+      "is_n": 107,
+      "is_exp": 19.5,
+      "is_total": 2086.8,
+      "oos_old_n": 42,
+      "oos_old_exp": 3.62,
+      "oos_old_total": 151.9,
+      "fresh_n": 13,
+      "fresh_exp": -31.03,
+      "fresh_total": -403.38,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 37.84,
+          "total": 946.1
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 8.3,
+          "total": 190.94
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 10.27,
+          "total": 266.92
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 20.69,
+          "total": 682.84
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 6.4,
+          "total": 166.48
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -13.1,
+          "total": -353.7
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -32.13,
+          "total": -64.26
+        }
+      },
+      "positive_quarters": "5/7",
+      "qpf": 0.714,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 4.31,
+          "wr": 18.9,
+          "total": 388.14
+        },
+        "P": {
+          "n": 72,
+          "exp": 20.1,
+          "wr": 23.6,
+          "total": 1447.18
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 59.4
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 88.7
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 32.37
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 5.28
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 647.62,
+        "exp_ex_topk": 4.07,
+        "positive": true
+      },
+      "worst_trade": -158.4,
+      "worst_decile_mean": -66.57,
+      "max_dd": -719.28,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": -51.3,
+        "loser_day_pnl": 54.1,
+        "edge_capture": -104.4
+      },
+      "n_structure_fired": 0,
+      "id": "P1T1F2L1",
+      "group": "C_stop_x_frac",
+      "shape": {
+        "premium_stop_pct": -0.06,
+        "tp1_premium_pct": 0.4,
+        "tp1_qty_fraction": 0.667,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "IS_not_beat_control",
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "IS_not_beat_control",
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 13.6,
+      "exp_dollar": 15.1,
+      "total_dollar": 2446.7,
+      "is_n": 107,
+      "is_exp": 24.19,
+      "is_total": 2587.8,
+      "oos_old_n": 42,
+      "oos_old_exp": 6.24,
+      "oos_old_total": 262.28,
+      "fresh_n": 13,
+      "fresh_exp": -31.03,
+      "fresh_total": -403.38,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 20.98,
+          "total": 524.58
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 23.81,
+          "total": 547.54
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 6.68,
+          "total": 173.74
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 40.66,
+          "total": 1341.94
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 8.18,
+          "total": 212.58
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -10.72,
+          "total": -289.42
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -32.13,
+          "total": -64.26
+        }
+      },
+      "positive_quarters": "5/7",
+      "qpf": 0.714,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 14.82,
+          "wr": 13.3,
+          "total": 1333.62
+        },
+        "P": {
+          "n": 72,
+          "exp": 15.46,
+          "wr": 13.9,
+          "total": 1113.08
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 81.0
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 135.5
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 56.26
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 3.97
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 903.2,
+        "exp_ex_topk": 5.68,
+        "positive": true
+      },
+      "worst_trade": -158.4,
+      "worst_decile_mean": -69.94,
+      "max_dd": -755.44,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": -51.3,
+        "loser_day_pnl": -77.22,
+        "edge_capture": -128.52
+      },
+      "n_structure_fired": 0,
+      "id": "P1T2F2L1",
+      "group": "D_control_stop_pairs",
+      "shape": {
+        "premium_stop_pct": -0.06,
+        "tp1_premium_pct": 1.0,
+        "tp1_qty_fraction": 0.667,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 13.6,
+      "exp_dollar": 14.89,
+      "total_dollar": 2412.1,
+      "is_n": 107,
+      "is_exp": 26.71,
+      "is_total": 2858.3,
+      "oos_old_n": 42,
+      "oos_old_exp": -1.02,
+      "oos_old_total": -42.82,
+      "fresh_n": 13,
+      "fresh_exp": -31.03,
+      "fresh_total": -403.38,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 38.59,
+          "total": 964.73
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 27.03,
+          "total": 621.69
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 2.86,
+          "total": 74.29
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 36.29,
+          "total": 1197.59
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": -3.53,
+          "total": -91.87
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -10.74,
+          "total": -290.07
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -32.13,
+          "total": -64.26
+        }
+      },
+      "positive_quarters": "4/7",
+      "qpf": 0.571,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 18.26,
+          "wr": 13.3,
+          "total": 1643.42
+        },
+        "P": {
+          "n": 72,
+          "exp": 10.68,
+          "wr": 13.9,
+          "total": 768.68
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 49.45
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 126.98
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 55.63
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 4.21
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 798.5,
+        "exp_ex_topk": 5.02,
+        "positive": true
+      },
+      "worst_trade": -158.4,
+      "worst_decile_mean": -69.94,
+      "max_dd": -756.09,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": -51.3,
+        "loser_day_pnl": -77.22,
+        "edge_capture": -128.52
+      },
+      "n_structure_fired": 0,
+      "id": "P1T2F1L2",
+      "group": "D_control_stop_pairs",
+      "shape": {
+        "premium_stop_pct": -0.06,
+        "tp1_premium_pct": 1.0,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.15,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 21.0,
+      "exp_dollar": 12.54,
+      "total_dollar": 2031.52,
+      "is_n": 107,
+      "is_exp": 24.8,
+      "is_total": 2654.05,
+      "oos_old_n": 42,
+      "oos_old_exp": -5.22,
+      "oos_old_total": -219.15,
+      "fresh_n": 13,
+      "fresh_exp": -31.03,
+      "fresh_total": -403.38,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 62.14,
+          "total": 1553.45
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 18.43,
+          "total": 423.94
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 9.22,
+          "total": 239.77
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 13.24,
+          "total": 436.89
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": -6.02,
+          "total": -156.62
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -14.88,
+          "total": -401.65
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -32.13,
+          "total": -64.26
+        }
+      },
+      "positive_quarters": "4/7",
+      "qpf": 0.571,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 8.54,
+          "wr": 18.9,
+          "total": 769.04
+        },
+        "P": {
+          "n": 72,
+          "exp": 17.53,
+          "wr": 23.6,
+          "total": 1262.48
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 27.85
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 73.38
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 28.09
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 8.17
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 911.57,
+        "exp_ex_topk": 5.73,
+        "positive": true
+      },
+      "worst_trade": -158.4,
+      "worst_decile_mean": -66.57,
+      "max_dd": -767.23,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": -51.3,
+        "loser_day_pnl": 93.5,
+        "edge_capture": -104.4
+      },
+      "n_structure_fired": 0,
+      "id": "P1T1F2L2",
+      "group": "D_control_stop_pairs",
+      "shape": {
+        "premium_stop_pct": -0.06,
+        "tp1_premium_pct": 0.4,
+        "tp1_qty_fraction": 0.667,
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.15,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 44.4,
+      "exp_dollar": 18.79,
+      "total_dollar": 3043.65,
+      "is_n": 107,
+      "is_exp": 29.46,
+      "is_total": 3151.95,
+      "oos_old_n": 42,
+      "oos_old_exp": 7.28,
+      "oos_old_total": 305.85,
+      "fresh_n": 13,
+      "fresh_exp": -31.86,
+      "fresh_total": -414.15,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 85.51,
+          "total": 2137.8
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": -13.14,
+          "total": -302.2
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 16.98,
+          "total": 441.5
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 26.51,
+          "total": 874.85
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 17.2,
+          "total": 447.25
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -12.64,
+          "total": -341.35
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -107.1,
+          "total": -214.2
+        }
+      },
+      "positive_quarters": "4/7",
+      "qpf": 0.571,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 13.2,
+          "wr": 44.4,
+          "total": 1188.15
+        },
+        "P": {
+          "n": 72,
+          "exp": 25.77,
+          "wr": 44.4,
+          "total": 1855.5
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 27.85
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 73.38
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 56.58
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 9.81
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 1751.55,
+        "exp_ex_topk": 11.02,
+        "positive": true
+      },
+      "worst_trade": -528.0,
+      "worst_decile_mean": -219.11,
+      "max_dd": -1870.6,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 141.35,
+        "loser_day_pnl": -30.4,
+        "edge_capture": -35.65
+      },
+      "n_structure_fired": 0,
+      "id": "P3T1F1L2",
+      "group": "B_stop_x_lock",
+      "shape": {
+        "premium_stop_pct": -0.2,
+        "tp1_premium_pct": 0.4,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.15,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 29.6,
+      "exp_dollar": 10.7,
+      "total_dollar": 1733.24,
+      "is_n": 107,
+      "is_exp": 23.98,
+      "is_total": 2566.23,
+      "oos_old_n": 42,
+      "oos_old_exp": -9.03,
+      "oos_old_total": -379.19,
+      "fresh_n": 13,
+      "fresh_exp": -34.91,
+      "fresh_total": -453.8,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 46.41,
+          "total": 1160.15
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 29.13,
+          "total": 670.04
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 15.5,
+          "total": 402.97
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 10.09,
+          "total": 333.07
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": -8.71,
+          "total": -226.54
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -17.7,
+          "total": -477.93
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -64.26,
+          "total": -128.52
+        }
+      },
+      "positive_quarters": "4/7",
+      "qpf": 0.571,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 5.82,
+          "wr": 27.8,
+          "total": 523.57
+        },
+        "P": {
+          "n": 72,
+          "exp": 16.8,
+          "wr": 31.9,
+          "total": 1209.67
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 27.85
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 73.38
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 22.2
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 7.15
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 569.69,
+        "exp_ex_topk": 3.58,
+        "positive": true
+      },
+      "worst_trade": -316.8,
+      "worst_decile_mean": -132.79,
+      "max_dd": -1209.09,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": -102.6,
+        "loser_day_pnl": 40.4,
+        "edge_capture": -208.8
+      },
+      "n_structure_fired": 0,
+      "id": "P2T1F1L2",
+      "group": "B_stop_x_lock",
+      "shape": {
+        "premium_stop_pct": -0.12,
+        "tp1_premium_pct": 0.4,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.15,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 29.6,
+      "exp_dollar": 13.88,
+      "total_dollar": 2249.14,
+      "is_n": 107,
+      "is_exp": 23.87,
+      "is_total": 2554.48,
+      "oos_old_n": 42,
+      "oos_old_exp": 5.01,
+      "oos_old_total": 210.26,
+      "fresh_n": 13,
+      "fresh_exp": -39.66,
+      "fresh_total": -515.6,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 22.11,
+          "total": 552.8
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 41.11,
+          "total": 945.64
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 14.11,
+          "total": 366.82
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 20.89,
+          "total": 689.22
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 14.59,
+          "total": 379.46
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -20.6,
+          "total": -556.28
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -64.26,
+          "total": -128.52
+        }
+      },
+      "positive_quarters": "5/7",
+      "qpf": 0.714,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 5.12,
+          "wr": 27.8,
+          "total": 461.22
+        },
+        "P": {
+          "n": 72,
+          "exp": 24.83,
+          "wr": 31.9,
+          "total": 1787.92
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 59.4
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 88.7
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 27.5
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 9.48
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 441.04,
+        "exp_ex_topk": 2.77,
+        "positive": true
+      },
+      "worst_trade": -316.8,
+      "worst_decile_mean": -132.79,
+      "max_dd": -1287.44,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": -102.6,
+        "loser_day_pnl": 1.0,
+        "edge_capture": -208.8
+      },
+      "n_structure_fired": 0,
+      "id": "P2T1F1L1",
+      "group": "A_stop_x_tp1",
+      "shape": {
+        "premium_stop_pct": -0.12,
+        "tp1_premium_pct": 0.4,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 29.6,
+      "exp_dollar": 13.88,
+      "total_dollar": 2249.14,
+      "is_n": 107,
+      "is_exp": 23.87,
+      "is_total": 2554.48,
+      "oos_old_n": 42,
+      "oos_old_exp": 5.01,
+      "oos_old_total": 210.26,
+      "fresh_n": 13,
+      "fresh_exp": -39.66,
+      "fresh_total": -515.6,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 22.11,
+          "total": 552.8
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 41.11,
+          "total": 945.64
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 14.11,
+          "total": 366.82
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 20.89,
+          "total": 689.22
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 14.59,
+          "total": 379.46
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -20.6,
+          "total": -556.28
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -64.26,
+          "total": -128.52
+        }
+      },
+      "positive_quarters": "5/7",
+      "qpf": 0.714,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 5.12,
+          "wr": 27.8,
+          "total": 461.22
+        },
+        "P": {
+          "n": 72,
+          "exp": 24.83,
+          "wr": 31.9,
+          "total": 1787.92
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 59.4
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 88.7
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 27.5
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 9.48
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 441.04,
+        "exp_ex_topk": 2.77,
+        "positive": true
+      },
+      "worst_trade": -316.8,
+      "worst_decile_mean": -132.79,
+      "max_dd": -1287.44,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": -102.6,
+        "loser_day_pnl": 1.0,
+        "edge_capture": -208.8
+      },
+      "n_structure_fired": 0,
+      "id": "P2T1F2L1",
+      "group": "C_stop_x_frac",
+      "shape": {
+        "premium_stop_pct": -0.12,
+        "tp1_premium_pct": 0.4,
+        "tp1_qty_fraction": 0.667,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 44.4,
+      "exp_dollar": 19.24,
+      "total_dollar": 3117.6,
+      "is_n": 107,
+      "is_exp": 25.39,
+      "is_total": 2716.5,
+      "oos_old_n": 42,
+      "oos_old_exp": 24.16,
+      "oos_old_total": 1014.9,
+      "fresh_n": 13,
+      "fresh_exp": -47.22,
+      "fresh_total": -613.8,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 52.53,
+          "total": 1313.2
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": -1.16,
+          "total": -26.6
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 11.67,
+          "total": 303.5
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 34.13,
+          "total": 1126.4
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 40.9,
+          "total": 1063.4
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -16.6,
+          "total": -448.1
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -107.1,
+          "total": -214.2
+        }
+      },
+      "positive_quarters": "4/7",
+      "qpf": 0.571,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 15.36,
+          "wr": 44.4,
+          "total": 1382.2
+        },
+        "P": {
+          "n": 72,
+          "exp": 24.1,
+          "wr": 44.4,
+          "total": 1735.4
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 59.4
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 88.7
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 73.8
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 6.22
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 1309.5,
+        "exp_ex_topk": 8.24,
+        "positive": true
+      },
+      "worst_trade": -528.0,
+      "worst_decile_mean": -219.11,
+      "max_dd": -1777.7,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 20.8,
+        "loser_day_pnl": -69.8,
+        "edge_capture": -156.2
+      },
+      "n_structure_fired": 0,
+      "id": "P3T1F1L1",
+      "group": "A_stop_x_tp1",
+      "shape": {
+        "premium_stop_pct": -0.2,
+        "tp1_premium_pct": 0.4,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 44.4,
+      "exp_dollar": 19.24,
+      "total_dollar": 3117.6,
+      "is_n": 107,
+      "is_exp": 25.39,
+      "is_total": 2716.5,
+      "oos_old_n": 42,
+      "oos_old_exp": 24.16,
+      "oos_old_total": 1014.9,
+      "fresh_n": 13,
+      "fresh_exp": -47.22,
+      "fresh_total": -613.8,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 52.53,
+          "total": 1313.2
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": -1.16,
+          "total": -26.6
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 11.67,
+          "total": 303.5
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 34.13,
+          "total": 1126.4
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 40.9,
+          "total": 1063.4
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -16.6,
+          "total": -448.1
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -107.1,
+          "total": -214.2
+        }
+      },
+      "positive_quarters": "4/7",
+      "qpf": 0.571,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 15.36,
+          "wr": 44.4,
+          "total": 1382.2
+        },
+        "P": {
+          "n": 72,
+          "exp": 24.1,
+          "wr": 44.4,
+          "total": 1735.4
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 59.4
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 88.7
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 73.8
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 6.22
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 1309.5,
+        "exp_ex_topk": 8.24,
+        "positive": true
+      },
+      "worst_trade": -528.0,
+      "worst_decile_mean": -219.11,
+      "max_dd": -1777.7,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 20.8,
+        "loser_day_pnl": -69.8,
+        "edge_capture": -156.2
+      },
+      "n_structure_fired": 0,
+      "id": "P3T1F2L1",
+      "group": "C_stop_x_frac",
+      "shape": {
+        "premium_stop_pct": -0.2,
+        "tp1_premium_pct": 0.4,
+        "tp1_qty_fraction": 0.667,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 19.1,
+      "exp_dollar": 15.52,
+      "total_dollar": 2514.56,
+      "is_n": 107,
+      "is_exp": 33.43,
+      "is_total": 3576.76,
+      "oos_old_n": 42,
+      "oos_old_exp": -6.08,
+      "oos_old_total": -255.44,
+      "fresh_n": 13,
+      "fresh_exp": -62.06,
+      "fresh_total": -806.76,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": -2.55,
+          "total": -63.84
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 71.68,
+          "total": 1648.68
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 18.77,
+          "total": 488.06
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 45.57,
+          "total": 1503.86
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 4.78,
+          "total": 124.16
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -39.18,
+          "total": -1057.84
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -64.26,
+          "total": -128.52
+        }
+      },
+      "positive_quarters": "4/7",
+      "qpf": 0.571,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 16.73,
+          "wr": 20.0,
+          "total": 1505.56
+        },
+        "P": {
+          "n": 72,
+          "exp": 14.01,
+          "wr": 18.1,
+          "total": 1009.0
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 81.0
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 135.5
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 54.38
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 4.89
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 300.06,
+        "exp_ex_topk": 1.89,
+        "positive": true
+      },
+      "worst_trade": -316.8,
+      "worst_decile_mean": -139.88,
+      "max_dd": -1989.88,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": -102.6,
+        "loser_day_pnl": -154.44,
+        "edge_capture": -257.04
+      },
+      "n_structure_fired": 0,
+      "id": "P2T2F1L1",
+      "group": "A_stop_x_tp1",
+      "shape": {
+        "premium_stop_pct": -0.12,
+        "tp1_premium_pct": 1.0,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 59.3,
+      "exp_dollar": 40.53,
+      "total_dollar": 6565.3,
+      "is_n": 107,
+      "is_exp": 51.22,
+      "is_total": 5480.5,
+      "oos_old_n": 42,
+      "oos_old_exp": 50.85,
+      "oos_old_total": 2135.55,
+      "fresh_n": 13,
+      "fresh_exp": -80.83,
+      "fresh_total": -1050.75,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 48.37,
+          "total": 1209.15
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 78.8,
+          "total": 1812.4
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 32.22,
+          "total": 837.7
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 49.13,
+          "total": 1621.25
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 41.19,
+          "total": 1070.9
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": 15.13,
+          "total": 408.4
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -197.25,
+          "total": -394.5
+        }
+      },
+      "positive_quarters": "6/7",
+      "qpf": 0.857,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 29.45,
+          "wr": 58.9,
+          "total": 2650.2
+        },
+        "P": {
+          "n": 72,
+          "exp": 54.38,
+          "wr": 59.7,
+          "total": 3915.1
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 27.85
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 73.38
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 78.94
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 31.91
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 4460.2,
+        "exp_ex_topk": 28.05,
+        "positive": true
+      },
+      "worst_trade": -582.0,
+      "worst_decile_mean": -270.47,
+      "max_dd": -1581.85,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 385.0,
+        "loser_day_pnl": 105.75,
+        "edge_capture": 202.0
+      },
+      "n_structure_fired": 80,
+      "id": "STRUCT_TRAIL",
+      "group": "F_structure",
+      "shape": {
+        "premium_stop_pct": -0.5,
+        "tp1_premium_pct": 0.4,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.15,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": true,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 59.9,
+      "exp_dollar": 23.87,
+      "total_dollar": 3866.7,
+      "is_n": 107,
+      "is_exp": 40.53,
+      "is_total": 4336.85,
+      "oos_old_n": 42,
+      "oos_old_exp": 17.08,
+      "oos_old_total": 717.55,
+      "fresh_n": 13,
+      "fresh_exp": -91.36,
+      "fresh_total": -1187.7,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 89.56,
+          "total": 2239.05
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": -8.1,
+          "total": -186.3
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 24.92,
+          "total": 647.85
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 49.58,
+          "total": 1636.25
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 20.39,
+          "total": 530.15
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -23.16,
+          "total": -625.45
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -187.43,
+          "total": -374.85
+        }
+      },
+      "positive_quarters": "4/7",
+      "qpf": 0.571,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 11.44,
+          "wr": 57.8,
+          "total": 1029.3
+        },
+        "P": {
+          "n": 72,
+          "exp": 39.41,
+          "wr": 62.5,
+          "total": 2837.4
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 27.85
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 73.38
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 76.46
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 11.84
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 2511.3,
+        "exp_ex_topk": 15.79,
+        "positive": true
+      },
+      "worst_trade": -924.0,
+      "worst_decile_mean": -368.88,
+      "max_dd": -2838.7,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 385.0,
+        "loser_day_pnl": 120.75,
+        "edge_capture": 217.0
+      },
+      "n_structure_fired": 0,
+      "id": "P4T1F1L2",
+      "group": "B_stop_x_lock",
+      "shape": {
+        "premium_stop_pct": -0.35,
+        "tp1_premium_pct": 0.4,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.15,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 59.3,
+      "exp_dollar": 44.92,
+      "total_dollar": 7276.7,
+      "is_n": 107,
+      "is_exp": 51.28,
+      "is_total": 5487.0,
+      "oos_old_n": 42,
+      "oos_old_exp": 72.38,
+      "oos_old_total": 3040.1,
+      "fresh_n": 13,
+      "fresh_exp": -96.18,
+      "fresh_total": -1250.4,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 41.88,
+          "total": 1046.9
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 70.42,
+          "total": 1619.6
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 24.2,
+          "total": 629.1
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 66.41,
+          "total": 2191.4
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 69.59,
+          "total": 1809.3
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": 13.89,
+          "total": 374.9
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -197.25,
+          "total": -394.5
+        }
+      },
+      "positive_quarters": "6/7",
+      "qpf": 0.857,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 37.19,
+          "wr": 58.9,
+          "total": 3347.4
+        },
+        "P": {
+          "n": 72,
+          "exp": 54.57,
+          "wr": 59.7,
+          "total": 3929.3
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 59.4
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 88.7
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 85.9
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 35.38
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 5196.6,
+        "exp_ex_topk": 32.68,
+        "positive": true
+      },
+      "worst_trade": -582.0,
+      "worst_decile_mean": -270.47,
+      "max_dd": -1760.4,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 266.0,
+        "loser_day_pnl": 369.7,
+        "edge_capture": 83.0
+      },
+      "n_structure_fired": 100,
+      "id": "STRUCT_BASE",
+      "group": "F_structure",
+      "shape": {
+        "premium_stop_pct": -0.5,
+        "tp1_premium_pct": 0.4,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": true,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 28.4,
+      "exp_dollar": 23.82,
+      "total_dollar": 3859.2,
+      "is_n": 107,
+      "is_exp": 32.11,
+      "is_total": 3435.7,
+      "oos_old_n": 42,
+      "oos_old_exp": 42.1,
+      "oos_old_total": 1768.1,
+      "fresh_n": 13,
+      "fresh_exp": -103.43,
+      "fresh_total": -1344.6,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 21.28,
+          "total": 532.0
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 21.99,
+          "total": 505.8
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 13.1,
+          "total": 340.7
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 62.34,
+          "total": 2057.2
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 54.99,
+          "total": 1429.8
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -29.34,
+          "total": -792.1
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -107.1,
+          "total": -214.2
+        }
+      },
+      "positive_quarters": "5/7",
+      "qpf": 0.714,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 34.33,
+          "wr": 31.1,
+          "total": 3089.5
+        },
+        "P": {
+          "n": 72,
+          "exp": 10.69,
+          "wr": 25.0,
+          "total": 769.7
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 81.0
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 135.5
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 97.68
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 5.89
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 1581.7,
+        "exp_ex_topk": 9.95,
+        "positive": true
+      },
+      "worst_trade": -528.0,
+      "worst_decile_mean": -233.14,
+      "max_dd": -2286.7,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 185.2,
+        "loser_day_pnl": 131.0,
+        "edge_capture": 8.2
+      },
+      "n_structure_fired": 0,
+      "id": "P3T2F1L1",
+      "group": "A_stop_x_tp1",
+      "shape": {
+        "premium_stop_pct": -0.2,
+        "tp1_premium_pct": 1.0,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 59.9,
+      "exp_dollar": 24.51,
+      "total_dollar": 3971.25,
+      "is_n": 107,
+      "is_exp": 34.61,
+      "is_total": 3703.2,
+      "oos_old_n": 42,
+      "oos_old_exp": 39.41,
+      "oos_old_total": 1655.4,
+      "fresh_n": 13,
+      "fresh_exp": -106.72,
+      "fresh_total": -1387.35,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 54.97,
+          "total": 1374.2
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 8.91,
+          "total": 204.95
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 16.72,
+          "total": 434.7
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 51.19,
+          "total": 1689.35
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 46.91,
+          "total": 1219.6
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -21.36,
+          "total": -576.7
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -187.43,
+          "total": -374.85
+        }
+      },
+      "positive_quarters": "5/7",
+      "qpf": 0.714,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 19.46,
+          "wr": 57.8,
+          "total": 1751.1
+        },
+        "P": {
+          "n": 72,
+          "exp": 30.84,
+          "wr": 62.5,
+          "total": 2220.15
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 59.4
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 88.7
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 95.12
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 8.18
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 2028.55,
+        "exp_ex_topk": 12.76,
+        "positive": true
+      },
+      "worst_trade": -924.0,
+      "worst_decile_mean": -368.88,
+      "max_dd": -2709.25,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 228.0,
+        "loser_day_pnl": 384.7,
+        "edge_capture": 60.0
+      },
+      "n_structure_fired": 0,
+      "id": "P4T1F1L1",
+      "group": "A_stop_x_tp1",
+      "shape": {
+        "premium_stop_pct": -0.35,
+        "tp1_premium_pct": 0.4,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 59.9,
+      "exp_dollar": 24.51,
+      "total_dollar": 3971.25,
+      "is_n": 107,
+      "is_exp": 34.61,
+      "is_total": 3703.2,
+      "oos_old_n": 42,
+      "oos_old_exp": 39.41,
+      "oos_old_total": 1655.4,
+      "fresh_n": 13,
+      "fresh_exp": -106.72,
+      "fresh_total": -1387.35,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 54.97,
+          "total": 1374.2
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 8.91,
+          "total": 204.95
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 16.72,
+          "total": 434.7
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 51.19,
+          "total": 1689.35
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 46.91,
+          "total": 1219.6
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -21.36,
+          "total": -576.7
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -187.43,
+          "total": -374.85
+        }
+      },
+      "positive_quarters": "5/7",
+      "qpf": 0.714,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 19.46,
+          "wr": 57.8,
+          "total": 1751.1
+        },
+        "P": {
+          "n": 72,
+          "exp": 30.84,
+          "wr": 62.5,
+          "total": 2220.15
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 59.4
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 88.7
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 95.12
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 8.18
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 2028.55,
+        "exp_ex_topk": 12.76,
+        "positive": true
+      },
+      "worst_trade": -924.0,
+      "worst_decile_mean": -368.88,
+      "max_dd": -2709.25,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 228.0,
+        "loser_day_pnl": 384.7,
+        "edge_capture": 60.0
+      },
+      "n_structure_fired": 0,
+      "id": "P4T1F2L1",
+      "group": "C_stop_x_frac",
+      "shape": {
+        "premium_stop_pct": -0.35,
+        "tp1_premium_pct": 0.4,
+        "tp1_qty_fraction": 0.667,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 46.3,
+      "exp_dollar": 48.7,
+      "total_dollar": 7889.0,
+      "is_n": 107,
+      "is_exp": 60.89,
+      "is_total": 6515.0,
+      "oos_old_n": 42,
+      "oos_old_exp": 84.79,
+      "oos_old_total": 3561.0,
+      "fresh_n": 13,
+      "fresh_exp": -168.23,
+      "fresh_total": -2187.0,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 83.18,
+          "total": 2079.5
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 16.13,
+          "total": 371.0
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 30.02,
+          "total": 780.5
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 99.52,
+          "total": 3284.0
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 122.94,
+          "total": 3196.5
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -52.89,
+          "total": -1428.0
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -197.25,
+          "total": -394.5
+        }
+      },
+      "positive_quarters": "5/7",
+      "qpf": 0.714,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 71.94,
+          "wr": 47.8,
+          "total": 6474.5
+        },
+        "P": {
+          "n": 72,
+          "exp": 19.65,
+          "wr": 44.4,
+          "total": 1414.5
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 81.0
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 135.5
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 142.18
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 27.15
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 5292.0,
+        "exp_ex_topk": 33.28,
+        "positive": true
+      },
+      "worst_trade": -1320.0,
+      "worst_decile_mean": -357.75,
+      "max_dd": -2980.5,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 255.0,
+        "loser_day_pnl": 427.5,
+        "edge_capture": 72.0
+      },
+      "n_structure_fired": 123,
+      "id": "STRUCT_TP100",
+      "group": "F_structure",
+      "shape": {
+        "premium_stop_pct": -0.5,
+        "tp1_premium_pct": 1.0,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": true,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 46.3,
+      "exp_dollar": 43.34,
+      "total_dollar": 7020.8,
+      "is_n": 107,
+      "is_exp": 60.96,
+      "is_total": 6522.45,
+      "oos_old_n": 42,
+      "oos_old_exp": 63.94,
+      "oos_old_total": 2685.35,
+      "fresh_n": 13,
+      "fresh_exp": -168.23,
+      "fresh_total": -2187.0,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 88.38,
+          "total": 2209.5
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 18.0,
+          "total": 413.9
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 36.22,
+          "total": 941.8
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 89.61,
+          "total": 2957.25
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 97.62,
+          "total": 2538.25
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -60.94,
+          "total": -1645.4
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -197.25,
+          "total": -394.5
+        }
+      },
+      "positive_quarters": "5/7",
+      "qpf": 0.714,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 73.66,
+          "wr": 47.8,
+          "total": 6629.25
+        },
+        "P": {
+          "n": 72,
+          "exp": 5.44,
+          "wr": 44.4,
+          "total": 391.55
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 49.45
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 126.98
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 145.92
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 20.09
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 4521.75,
+        "exp_ex_topk": 28.44,
+        "positive": true
+      },
+      "worst_trade": -1320.0,
+      "worst_decile_mean": -357.75,
+      "max_dd": -3197.9,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 337.55,
+        "loser_day_pnl": 271.2,
+        "edge_capture": 154.55
+      },
+      "n_structure_fired": 105,
+      "id": "STRUCT_SINK",
+      "group": "F_structure",
+      "shape": {
+        "premium_stop_pct": -0.5,
+        "tp1_premium_pct": 1.0,
+        "tp1_qty_fraction": 0.667,
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.15,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": true,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 38.3,
+      "exp_dollar": 30.72,
+      "total_dollar": 4977.0,
+      "is_n": 107,
+      "is_exp": 46.93,
+      "is_total": 5021.7,
+      "oos_old_n": 42,
+      "oos_old_exp": 54.96,
+      "oos_old_total": 2308.35,
+      "fresh_n": 13,
+      "fresh_exp": -181.0,
+      "fresh_total": -2353.05,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": -1.72,
+          "total": -42.95
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 135.35,
+          "total": 3112.95
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 15.79,
+          "total": 410.45
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 46.7,
+          "total": 1541.25
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 81.69,
+          "total": 2123.95
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -66.44,
+          "total": -1793.8
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -187.43,
+          "total": -374.85
+        }
+      },
+      "positive_quarters": "4/7",
+      "qpf": 0.571,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 43.46,
+          "wr": 42.2,
+          "total": 3911.1
+        },
+        "P": {
+          "n": 72,
+          "exp": 14.8,
+          "wr": 33.3,
+          "total": 1065.9
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 81.0
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 135.5
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 137.12
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 6.0
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 487.0,
+        "exp_ex_topk": 3.06,
+        "positive": true
+      },
+      "worst_trade": -924.0,
+      "worst_decile_mean": -382.4,
+      "max_dd": -4409.35,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 118.6,
+        "loser_day_pnl": 747.5,
+        "edge_capture": -49.4
+      },
+      "n_structure_fired": 0,
+      "id": "P4T2F1L1",
+      "group": "A_stop_x_tp1",
+      "shape": {
+        "premium_stop_pct": -0.35,
+        "tp1_premium_pct": 1.0,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    },
+    {
+      "n": 162,
+      "wr_pct": 38.3,
+      "exp_dollar": 27.19,
+      "total_dollar": 4405.1,
+      "is_n": 107,
+      "is_exp": 50.55,
+      "is_total": 5408.65,
+      "oos_old_n": 42,
+      "oos_old_exp": 32.13,
+      "oos_old_total": 1349.5,
+      "fresh_n": 13,
+      "fresh_exp": -181.0,
+      "fresh_total": -2353.05,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 32.13,
+          "total": 803.2
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 100.08,
+          "total": 2301.8
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 24.85,
+          "total": 646.05
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 50.23,
+          "total": 1657.6
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 49.39,
+          "total": 1284.2
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -70.85,
+          "total": -1912.9
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -187.43,
+          "total": -374.85
+        }
+      },
+      "positive_quarters": "5/7",
+      "qpf": 0.714,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 48.2,
+          "wr": 42.2,
+          "total": 4337.8
+        },
+        "P": {
+          "n": 72,
+          "exp": 0.93,
+          "wr": 33.3,
+          "total": 67.3
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 49.45
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 126.98
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 125.55
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 4.48
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 856.65,
+        "exp_ex_topk": 5.39,
+        "positive": true
+      },
+      "worst_trade": -924.0,
+      "worst_decile_mean": -382.4,
+      "max_dd": -4528.45,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": 239.15,
+        "loser_day_pnl": 653.5,
+        "edge_capture": 71.15
+      },
+      "n_structure_fired": 0,
+      "id": "P4T2F2L2",
+      "group": "E_kitchen_sink",
+      "shape": {
+        "premium_stop_pct": -0.35,
+        "tp1_premium_pct": 1.0,
+        "tp1_qty_fraction": 0.667,
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.15,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_pct": 0.05
+      },
+      "is_control": false,
+      "is_structure": false,
+      "pass_bar_ex_anchor": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control"
+        ]
+      },
+      "pass_bar_full": {
+        "passes": false,
+        "fails": [
+          "fresh_tail_not_beat_control",
+          "anchor_inconclusive_treated_as_unmet"
+        ]
+      }
+    }
+  ],
+  "control_id": "P1T1F1L1",
+  "parity_check": {
+    "window": "2025-01-01..2026-05-15",
+    "bar_replay_exp_dollar": 15.02,
+    "bar_replay_n": 149,
+    "simulate_trade_real_exp_dollar": 54.73,
+    "simulate_trade_real_n": 149,
+    "simulate_trade_real_coverage": {
+      "signals": 158,
+      "filled": 149,
+      "cache_miss": 9,
+      "sim_none_or_cap_blocked": 0,
+      "fill_rate": 0.943,
+      "median_entry_premium": 1.35
+    },
+    "known_scorecard_target_exp_dollar": 54.73,
+    "delta_bar_replay_minus_simulate_trade_real": -39.71,
+    "note": "Two independently-implemented replay engines on the SAME control shape/window -- a LARGE delta (bar-replay $15.02 vs simulate_trade_real $54.73/54.73 known scorecard, n=149 both), investigated (not hand-waved) before trusting the grid: TWO real, confirmed, quantified mechanism differences, NEITHER of which alone (nor together) closes the whole gap -- disclosed honestly, not oversold. (1) PRE-TP1 PROFIT-LOCK SCOPE: simulate_trade_real's profit-lock block (lines ~546-567) arms UNCONDITIONALLY on any bar touching +5% favorable, before TP1 has filled; exit_manager.plan_exit_actions (this bar-replay's decision core, and the SAME core the LIVE actuator runs) only arms profit-lock POST-TP1. Tested in isolation (profit_lock_threshold_pct=0 in simulate_trade_real): exp barely moves, $54.73 -> $55.45 -- confirmed REAL (found concrete trades where it changes the outcome) but NOT the dominant aggregate driver. (2) RIBBON-FLIP-BACK: simulate_trade_real exits ~26% of trades (39/149) via EXIT_ALL_RIBBON_FLIP_BACK, a mechanism this bar-replay never fires (ribbon_flip_back=False always, matching the t4_exit_matrix/structure_stop_study convention). Passing ribbon_df=None does NOT cleanly disable it (still 33 ribbon exits fire, exp shifts to $49.83) -- inconclusive in isolation, still real and present. Neither test closes the ~$40/tr gap; a further undiagnosed factor (most likely fill-order/tie-break nuances across many bars, or another exit-priority difference between the two independent bar-walk implementations of nominally the same rules) remains unexplained. VERDICT IMPACT: this study's pass/fail conclusions do NOT rely on this bar-replay engine matching simulate_trade_real in absolute dollars -- the exit grid is used for RELATIVE comparisons within one consistent engine (mirrors T4's own precedent, which never claimed parity with simulate_trade_real either), and the decisive evidence (fresh-tail + real-fills anchor) is corroborated independently: the anchor replays REAL Alpaca 1-min OPRA bars through the SAME plan_exit_actions core the live actuator runs, with no simulate_trade_real dependency at all. This is a DISCLOSURE, not something this analysis-only study fixes -- flagged separately for engine-owner follow-up."
+  },
+  "entry_probes": {
+    "control_exit__market": {
+      "n": 162,
+      "wr_pct": 21.0,
+      "exp_dollar": 11.33,
+      "total_dollar": 1835.32,
+      "is_n": 107,
+      "is_exp": 19.5,
+      "is_total": 2086.8,
+      "oos_old_n": 42,
+      "oos_old_exp": 3.62,
+      "oos_old_total": 151.9,
+      "fresh_n": 13,
+      "fresh_exp": -31.03,
+      "fresh_total": -403.38,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 37.84,
+          "total": 946.1
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 8.3,
+          "total": 190.94
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 10.27,
+          "total": 266.92
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 20.69,
+          "total": 682.84
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 6.4,
+          "total": 166.48
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -13.1,
+          "total": -353.7
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -32.13,
+          "total": -64.26
+        }
+      },
+      "positive_quarters": "5/7",
+      "qpf": 0.714,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 4.31,
+          "wr": 18.9,
+          "total": 388.14
+        },
+        "P": {
+          "n": 72,
+          "exp": 20.1,
+          "wr": 23.6,
+          "total": 1447.18
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 59.4
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 88.7
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 32.37
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 5.28
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 647.62,
+        "exp_ex_topk": 4.07,
+        "positive": true
+      },
+      "worst_trade": -158.4,
+      "worst_decile_mean": -66.57,
+      "max_dd": -719.28,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": -51.3,
+        "loser_day_pnl": 54.1,
+        "edge_capture": -104.4
+      },
+      "n_structure_fired": 0,
+      "n_missed": 0,
+      "fill_rate": 1.0
+    },
+    "control_exit__limit5pat2": {
+      "n": 162,
+      "wr_pct": 9.3,
+      "exp_dollar": 0.84,
+      "total_dollar": 136.43,
+      "is_n": 107,
+      "is_exp": 0.37,
+      "is_total": 39.32,
+      "oos_old_n": 42,
+      "oos_old_exp": 5.87,
+      "oos_old_total": 246.64,
+      "fresh_n": 13,
+      "fresh_exp": -11.5,
+      "fresh_total": -149.53,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 12.74,
+          "total": 318.55
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 6.34,
+          "total": 145.78
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": -12.1,
+          "total": -314.48
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": -3.35,
+          "total": -110.53
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 16.56,
+          "total": 430.48
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -10.09,
+          "total": -272.32
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -30.52,
+          "total": -61.05
+        }
+      },
+      "positive_quarters": "3/7",
+      "qpf": 0.429,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": -5.9,
+          "wr": 6.7,
+          "total": -530.97
+        },
+        "P": {
+          "n": 72,
+          "exp": 9.27,
+          "wr": 12.5,
+          "total": 667.4
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 0.0
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 0.0
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": -4.9
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 2.09
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": -1493.76,
+        "exp_ex_topk": -9.39,
+        "positive": false
+      },
+      "worst_trade": -150.48,
+      "worst_decile_mean": -63.08,
+      "max_dd": -883.9,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": -48.74,
+        "loser_day_pnl": -50.45,
+        "edge_capture": -99.19
+      },
+      "n_structure_fired": 0,
+      "n_missed": 34,
+      "fill_rate": 0.79
+    },
+    "best_grid_exit__market": {
+      "n": 162,
+      "wr_pct": 13.6,
+      "exp_dollar": 14.89,
+      "total_dollar": 2412.1,
+      "is_n": 107,
+      "is_exp": 26.71,
+      "is_total": 2858.3,
+      "oos_old_n": 42,
+      "oos_old_exp": -1.02,
+      "oos_old_total": -42.82,
+      "fresh_n": 13,
+      "fresh_exp": -31.03,
+      "fresh_total": -403.38,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": 38.59,
+          "total": 964.73
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": 27.03,
+          "total": 621.69
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": 2.86,
+          "total": 74.29
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 36.29,
+          "total": 1197.59
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": -3.53,
+          "total": -91.87
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -10.74,
+          "total": -290.07
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -32.13,
+          "total": -64.26
+        }
+      },
+      "positive_quarters": "4/7",
+      "qpf": 0.571,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": 18.26,
+          "wr": 13.3,
+          "total": 1643.42
+        },
+        "P": {
+          "n": 72,
+          "exp": 10.68,
+          "wr": 13.9,
+          "total": 768.68
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 49.45
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 126.98
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": 55.63
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": 4.21
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": 798.5,
+        "exp_ex_topk": 5.02,
+        "positive": true
+      },
+      "worst_trade": -158.4,
+      "worst_decile_mean": -69.94,
+      "max_dd": -756.09,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": -51.3,
+        "loser_day_pnl": -77.22,
+        "edge_capture": -128.52
+      },
+      "n_structure_fired": 0,
+      "n_missed": 0,
+      "fill_rate": 1.0
+    },
+    "best_grid_exit__limit5pat2": {
+      "n": 162,
+      "wr_pct": 3.1,
+      "exp_dollar": -7.4,
+      "total_dollar": -1198.1,
+      "is_n": 107,
+      "is_exp": -5.19,
+      "is_total": -555.34,
+      "oos_old_n": 42,
+      "oos_old_exp": -6.18,
+      "oos_old_total": -259.55,
+      "fresh_n": 13,
+      "fresh_exp": -29.48,
+      "fresh_total": -383.21,
+      "quarters": {
+        "2025Q1": {
+          "n": 25,
+          "exp": -17.83,
+          "total": -445.8
+        },
+        "2025Q2": {
+          "n": 23,
+          "exp": -5.1,
+          "total": -117.19
+        },
+        "2025Q3": {
+          "n": 26,
+          "exp": -7.27,
+          "total": -189.12
+        },
+        "2025Q4": {
+          "n": 33,
+          "exp": 5.96,
+          "total": 196.77
+        },
+        "2026Q1": {
+          "n": 26,
+          "exp": 4.82,
+          "total": 125.39
+        },
+        "2026Q2": {
+          "n": 27,
+          "exp": -26.19,
+          "total": -707.1
+        },
+        "2026Q3": {
+          "n": 2,
+          "exp": -30.52,
+          "total": -61.05
+        }
+      },
+      "positive_quarters": "2/7",
+      "qpf": 0.286,
+      "by_side": {
+        "C": {
+          "n": 90,
+          "exp": -4.75,
+          "wr": 3.3,
+          "total": -427.8
+        },
+        "P": {
+          "n": 72,
+          "exp": -10.7,
+          "wr": 2.8,
+          "total": -770.3
+        }
+      },
+      "by_band": {
+        "<0.20": {
+          "n": 1,
+          "exp": 0.0
+        },
+        "0.20-0.50": {
+          "n": 2,
+          "exp": 0.0
+        },
+        "0.50-1.00": {
+          "n": 28,
+          "exp": -0.42
+        },
+        ">1.00": {
+          "n": 131,
+          "exp": -9.06
+        }
+      },
+      "drop_top3": {
+        "n_dropped": 3,
+        "total_ex_topk": -3067.7,
+        "exp_ex_topk": -19.29,
+        "positive": false
+      },
+      "worst_trade": -150.48,
+      "worst_decile_mean": -63.24,
+      "max_dd": -1198.1,
+      "edge_capture": {
+        "anchor_signals": 5,
+        "winner_day_pnl": -48.74,
+        "loser_day_pnl": -50.45,
+        "edge_capture": -99.19
+      },
+      "n_structure_fired": 0,
+      "n_missed": 34,
+      "fill_rate": 0.79
+    }
+  },
+  "entry_probe_exit_pairing": {
+    "control_exit": "P1T1F1L1",
+    "best_grid_exit": "P1T2F1L2",
+    "rule": "pre-registered: rank by fresh-tail expectancy, tie-break IS expectancy"
+  },
+  "real_fills_anchor": {
+    "status": "OK_BUT_THIN",
+    "n_positions": 6,
+    "n_distinct_days": 1,
+    "date_span": "2026-07-02",
+    "arms": [
+      "safe-2"
+    ],
+    "actual_realized_total": -196.0,
+    "control_replayed_total": -131.82,
+    "per_cell": {
+      "P1T1F1L1": {
+        "anchor_total": -131.82,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P1T2F1L1": {
+        "anchor_total": -131.82,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P2T1F1L1": {
+        "anchor_total": -263.64,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P2T2F1L1": {
+        "anchor_total": -263.64,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P3T1F1L1": {
+        "anchor_total": -439.4,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P3T2F1L1": {
+        "anchor_total": -439.4,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P4T1F1L1": {
+        "anchor_total": -768.95,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P4T2F1L1": {
+        "anchor_total": -768.95,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P1T1F1L2": {
+        "anchor_total": -131.82,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P2T1F1L2": {
+        "anchor_total": -263.64,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P3T1F1L2": {
+        "anchor_total": -439.4,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P4T1F1L2": {
+        "anchor_total": -768.95,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P1T1F2L1": {
+        "anchor_total": -131.82,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P2T1F2L1": {
+        "anchor_total": -263.64,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P3T1F2L1": {
+        "anchor_total": -439.4,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P4T1F2L1": {
+        "anchor_total": -768.95,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P1T2F2L1": {
+        "anchor_total": -131.82,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P1T2F1L2": {
+        "anchor_total": -131.82,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P1T1F2L2": {
+        "anchor_total": -131.82,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "P4T2F2L2": {
+        "anchor_total": -768.95,
+        "n_valid": 6,
+        "n_structure_fired": 0
+      },
+      "STRUCT_BASE": {
+        "anchor_total": -1059.5,
+        "n_valid": 6,
+        "n_structure_fired": 6
+      },
+      "STRUCT_TP100": {
+        "anchor_total": -1059.5,
+        "n_valid": 6,
+        "n_structure_fired": 6
+      },
+      "STRUCT_TRAIL": {
+        "anchor_total": -1059.5,
+        "n_valid": 6,
+        "n_structure_fired": 6
+      },
+      "STRUCT_SINK": {
+        "anchor_total": -1059.5,
+        "n_valid": 6,
+        "n_structure_fired": 6
+      }
+    },
+    "rows_by_cell": {
+      "P1T1F1L1": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -29.34,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -29.94,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -26.82,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -16.92,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -15.12,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -13.68,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P1T2F1L1": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -29.34,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -29.94,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -26.82,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -16.92,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -15.12,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -13.68,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P2T1F1L1": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -58.68,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -59.88,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -53.64,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -33.84,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -30.24,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -27.36,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P2T2F1L1": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -58.68,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -59.88,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -53.64,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -33.84,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -30.24,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -27.36,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P3T1F1L1": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -97.8,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -99.8,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -89.4,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -56.4,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -50.4,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -45.6,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P3T2F1L1": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -97.8,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -99.8,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -89.4,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -56.4,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -50.4,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -45.6,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P4T1F1L1": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -171.15,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -174.65,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -156.45,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -98.7,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -88.2,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -79.8,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P4T2F1L1": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -171.15,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -174.65,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -156.45,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -98.7,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -88.2,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -79.8,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P1T1F1L2": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -29.34,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -29.94,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -26.82,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -16.92,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -15.12,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -13.68,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P2T1F1L2": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -58.68,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -59.88,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -53.64,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -33.84,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -30.24,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -27.36,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P3T1F1L2": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -97.8,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -99.8,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -89.4,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -56.4,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -50.4,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -45.6,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P4T1F1L2": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -171.15,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -174.65,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -156.45,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -98.7,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -88.2,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -79.8,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P1T1F2L1": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -29.34,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -29.94,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -26.82,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -16.92,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -15.12,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -13.68,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P2T1F2L1": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -58.68,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -59.88,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -53.64,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -33.84,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -30.24,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -27.36,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P3T1F2L1": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -97.8,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -99.8,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -89.4,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -56.4,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -50.4,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -45.6,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P4T1F2L1": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -171.15,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -174.65,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -156.45,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -98.7,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -88.2,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -79.8,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P1T2F2L1": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -29.34,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -29.94,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -26.82,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -16.92,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -15.12,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -13.68,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P1T2F1L2": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -29.34,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -29.94,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -26.82,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -16.92,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -15.12,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -13.68,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P1T1F2L2": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -29.34,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -29.94,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -26.82,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -16.92,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -15.12,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -13.68,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "P4T2F2L2": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -171.15,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -174.65,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -156.45,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -98.7,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -88.2,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -79.8,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "STRUCT_BASE": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -244.5,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -249.5,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -223.5,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -141.0,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -126.0,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -75.0,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "STRUCT_TP100": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -244.5,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -249.5,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -223.5,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -141.0,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -126.0,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -75.0,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "STRUCT_TRAIL": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -244.5,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -249.5,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -223.5,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -141.0,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -126.0,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -75.0,
+          "actual_exit_pnl": -21.0
+        }
+      ],
+      "STRUCT_SINK": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -244.5,
+          "actual_exit_pnl": -30.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -249.5,
+          "actual_exit_pnl": -76.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00750000",
+          "date_et": "2026-07-02",
+          "pnl": -223.5,
+          "actual_exit_pnl": -27.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -141.0,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -126.0,
+          "actual_exit_pnl": -21.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260702C00751000",
+          "date_et": "2026-07-02",
+          "pnl": -75.0,
+          "actual_exit_pnl": -21.0
+        }
+      ]
+    },
+    "anchor_verdict": "INCONCLUSIVE-ANCHOR",
+    "note": "n=6 positions over 1 distinct trading day(s) (2026-07-02), arms ['safe-2']. Below the thin-anchor bar (n>=15 AND days>=3, itself already a SCALED-DOWN version of ribbon_ride's own anchor, which STOP-A called '17 unique signals / 7 trading days -- ONE regime' thin) -> marked INCONCLUSIVE-ANCHOR. Per the pre-registered fallback_rule this means the anchor pass-bar condition is UNMET for every candidate (conservative default), NOT vacuously satisfied. The replayed numbers are still reported below as an EXHIBIT -- real data, just too thin to arbitrate a cell swap on its own."
+  },
+  "passing_ex_anchor": [],
+  "passing_full_pass_bar": [],
+  "verdict": "CONTROL-STANDS",
+  "verdict_detail": "0 of 23 non-control cells clear ALL FOUR pre-registered conditions (IS + fresh-tail + drop-top3 + anchor-no-regression). 0 clear the first three (ex-anchor) -- anchor status: INCONCLUSIVE-ANCHOR.",
+  "elapsed_sec": 4.3
+}

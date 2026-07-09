@@ -70,6 +70,22 @@ DEFAULT_TRAIL_PCT = 0.125           # WP-6 (chandelier trail 0.125; arms at +5% 
 DEFAULT_PROFIT_LOCK_ARM_PCT = 0.05  # CLAUDE.md: chandelier arms at +5% favor
 CATASTROPHE_STOP_PCT = -0.50        # -50% catastrophe cap both sides (chart-stop-primary)
 
+# PROFIT-LOCK ARM SCOPE (2026-07-09 scope-mismatch finding). simulator_real:540-584 arms
+# the profit-lock on ANY favorable touch -- including BEFORE TP1, where the ratcheted stop
+# IS the exit-ALL stop -- so every sim study passing profit_lock_threshold_pct>0 credited
+# pre-TP1 breakeven scratches. This core only armed the lock at/after TP1, so those
+# scorecards overstate live's downside protection. "post_tp1" (default) = the exact
+# pre-existing live behavior; "full" = simulator-parity pre-TP1 arming (whole position gets
+# the BE floor / trail from the first +arm_pct touch). NOTHING declares "full" until a
+# live-machine scorecard + STOP-B arms it -- expressible, not armed.
+ARM_SCOPE_POST_TP1 = "post_tp1"
+ARM_SCOPE_FULL = "full"
+
+
+def _norm_arm_scope(value) -> str:
+    """Normalize a shape/persisted arm-scope value; anything not 'full' fails to legacy."""
+    return ARM_SCOPE_FULL if str(value).strip().lower() == ARM_SCOPE_FULL else ARM_SCOPE_POST_TP1
+
 
 # --- STRUCTURE-STOP (v15.3 chart-stop-primary, flag-gated OFF by default) ----------------
 # The doctrine (CLAUDE.md "chart-stop-primary", 2026-06-18) names chart-level / ribbon-
@@ -162,6 +178,8 @@ class ExitState:
     stop_mode: str = "premium"              # "premium" (today) | "structure" (v15.3 chart-stop)
     trigger_level: Optional[float] = None   # the chart level structure-mode exits against
     catastrophe_stop_pct: float = CATASTROPHE_STOP_PCT  # the cap structure mode falls back to
+    # PROFIT-LOCK ARM SCOPE (2026-07-09, appended last for positional compatibility):
+    profit_lock_arm_scope: str = ARM_SCOPE_POST_TP1  # "post_tp1" (today) | "full" (sim parity)
 
     @staticmethod
     def from_entry(*, symbol: str, side: str, entry_premium: float, qty: int,
@@ -220,6 +238,8 @@ class ExitState:
             stop_mode=mode,
             trigger_level=(float(trigger_level) if trigger_level is not None else None),
             catastrophe_stop_pct=cat_pct,
+            profit_lock_arm_scope=_norm_arm_scope(
+                exit_shape.get("profit_lock_arm_scope", ARM_SCOPE_POST_TP1)),
         )
 
     def to_dict(self) -> dict:
@@ -234,6 +254,7 @@ class ExitState:
             "strategy": self.strategy,
             "stop_mode": self.stop_mode, "trigger_level": self.trigger_level,
             "catastrophe_stop_pct": self.catastrophe_stop_pct,
+            "profit_lock_arm_scope": self.profit_lock_arm_scope,
         }
 
     @staticmethod
@@ -258,6 +279,9 @@ class ExitState:
             stop_mode=str(d.get("stop_mode", "premium")),
             trigger_level=(None if d.get("trigger_level") is None else float(d["trigger_level"])),
             catastrophe_stop_pct=float(d.get("catastrophe_stop_pct", CATASTROPHE_STOP_PCT)),
+            # absent on any pre-2026-07-09 record -> "post_tp1", the exact legacy behavior
+            profit_lock_arm_scope=_norm_arm_scope(d.get("profit_lock_arm_scope",
+                                                        ARM_SCOPE_POST_TP1)),
         )
 
 
@@ -333,14 +357,39 @@ def plan_exit_actions(
 
     # ── PRE-TP1: hard exits apply to ALL open units (simulator_real:642-708) ──────────
     if not state.tp1_filled:
+        # (a0) PRE-TP1 PROFIT-LOCK -- scope=="full" ONLY (default "post_tp1" leaves this
+        # tick byte-identical to the pre-2026-07-09 walk). Mirrors simulator_real:540-584:
+        # arm on THIS tick's best (before the stop check, the simulator's intra-bar
+        # ordering), BE floor at arm (offset 0), trailing mode ratchets off the HWM. The
+        # ratcheted stop feeds the SAME (a) exit-ALL check the simulator's does.
+        orig_stop = runner_stop
+        if state.profit_lock_arm_scope == ARM_SCOPE_FULL:
+            if (not profit_lock_armed
+                    and best_premium >= entry * (1.0 + state.profit_lock_arm_pct)):
+                profit_lock_armed = True
+                runner_stop = max(runner_stop, entry)  # BE floor (simulator parity)
+            if profit_lock_armed and state.profit_lock_mode == "trailing":
+                runner_stop = max(runner_stop, hwm * (1.0 - state.trail_pct))
+        lock_ratcheted = round(runner_stop, 4) > round(orig_stop, 4)
+        if state.profit_lock_arm_scope == ARM_SCOPE_FULL:
+            pre_state = replace(state, hwm_premium=hwm, profit_lock_armed=profit_lock_armed,
+                                runner_stop_premium=round(runner_stop, 4))
+        else:
+            pre_state = replace(state, hwm_premium=hwm)
         # (a) premium stop -> exit ALL (structure mode: this IS the -50% catastrophe cap;
         # premium mode: the strategy's unchanged tight stop -- from_entry already baked the
-        # right stop_pct into runner_stop, so this ONE check serves both modes verbatim).
+        # right stop_pct into runner_stop, so this ONE check serves both modes verbatim.
+        # scope=="full" + armed: runner_stop may now BE the profit-lock floor -- the reason
+        # string discloses which stop actually fired).
         if worst_premium <= runner_stop:
-            actions.append(ExitAction("SELL_ALL", qty=open_qty,
-                                      reason=f"premium_stop @ {round(runner_stop,2)}",
+            floor_active = (profit_lock_armed
+                            and state.profit_lock_arm_scope == ARM_SCOPE_FULL
+                            and runner_stop > entry * (1.0 + state.premium_stop_pct) + 1e-9)
+            reason = (f"profit_lock_floor @ {round(runner_stop,2)}" if floor_active
+                      else f"premium_stop @ {round(runner_stop,2)}")
+            actions.append(ExitAction("SELL_ALL", qty=open_qty, reason=reason,
                                       stage="premium_stop"))
-            return ExitDecision(replace(state, hwm_premium=hwm), tuple(actions))
+            return ExitDecision(pre_state, tuple(actions))
         # (a2) STRUCTURE STOP (v15.3 chart-stop-primary) -- only active when from_entry
         # resolved this position to stop_mode=="structure" (flag-gated, see module
         # docstring). last_closed_5m_close is None whenever the caller's feed is missing/
@@ -351,17 +400,17 @@ def plan_exit_actions(
             actions.append(ExitAction("SELL_ALL", qty=open_qty,
                                       reason=f"structure_stop @ {state.trigger_level}",
                                       stage="structure_stop"))
-            return ExitDecision(replace(state, hwm_premium=hwm), tuple(actions))
+            return ExitDecision(pre_state, tuple(actions))
         # (b) time stop pre-TP1 -> exit ALL at market
         if time_stop_now:
             actions.append(ExitAction("SELL_ALL", qty=open_qty,
                                       reason="time_stop_15:50", stage="time_stop"))
-            return ExitDecision(replace(state, hwm_premium=hwm), tuple(actions))
+            return ExitDecision(pre_state, tuple(actions))
         # (c) ribbon-flip-back -> exit ALL at market (caller already applied spread+buffer rule)
         if ribbon_flip_back:
             actions.append(ExitAction("SELL_ALL", qty=open_qty,
                                       reason="ribbon_flip_back", stage="ribbon_flip"))
-            return ExitDecision(replace(state, hwm_premium=hwm), tuple(actions))
+            return ExitDecision(pre_state, tuple(actions))
         # (d) TP1 partial: best >= entry*(1+tp1_premium_pct) -> SELL tp1_qty, runner stop -> BE
         tp1_level = entry * (1.0 + state.tp1_premium_pct)
         if best_premium >= tp1_level and state.tp1_qty > 0:
@@ -376,8 +425,14 @@ def plan_exit_actions(
             actions.append(ExitAction("RATCHET_STOP", reason="runner_stop->BE",
                                       new_stop_premium=round(be, 4), stage="tp1"))
             return ExitDecision(new_state, tuple(actions))
-        # no exit, no TP1 -> just update the HWM
-        return ExitDecision(replace(state, hwm_premium=hwm), tuple(actions))
+        # no exit, no TP1 -> update the HWM (+ persist/record the pre-TP1 lock ratchet,
+        # scope=="full" only; tick-managed like the post-TP1 ratchet, see exit_actuator)
+        if lock_ratcheted:
+            actions.append(ExitAction("RATCHET_STOP", reason="pre_tp1 profit_lock arm/trail",
+                                      new_stop_premium=round(runner_stop, 4),
+                                      stage="trail" if state.profit_lock_mode == "trailing"
+                                      else "arm"))
+        return ExitDecision(pre_state, tuple(actions))
 
     # ── POST-TP1: runner ride with profit-lock (simulator_real:540-839) ──────────────
     # profit-lock: arm at +arm_pct favorable, then fixed (BE floor) or trailing (chandelier).

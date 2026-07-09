@@ -143,13 +143,18 @@ def _shape_str(shape: dict) -> str:
     arm / mode. `stop` is always the strategy's premium_stop_pct field (the flag-OFF/no-
     trigger-level fallback value for a structure-mode strategy, e.g. ribbon_ride's -20% --
     see §2b for what a structure-resolved position ACTUALLY runs under)."""
+    # arm scope (2026-07-09): "post-TP1" = default/legacy (lock arms at/after TP1 only);
+    # "FULL pre-TP1" = simulator-parity whole-position arming -- a shape declaring the
+    # non-default MUST be visible on the card (a knob that isn't on the card doesn't exist).
+    scope = str(shape.get("profit_lock_arm_scope", "post_tp1"))
+    scope_s = "FULL pre-TP1" if scope == "full" else "post-TP1"
     return (f"stop {_pct(shape['premium_stop_pct'])} · "
             f"TP1 +{_pct(shape['tp1_premium_pct'])} · "
             f"sell {_pct(shape['tp1_qty_fraction'])} · "
             f"{shape['profit_lock_mode']} · "
             f"runner {shape.get('runner_target_pct', '—')}x · "
             f"trail {_pct(shape.get('trail_pct', 0))} · "
-            f"arm +{_pct(shape.get('profit_lock_arm_pct', 0))} · "
+            f"arm +{_pct(shape.get('profit_lock_arm_pct', 0))} ({scope_s}) · "
             f"mode {_mode_str(shape)}")
 
 

@@ -5,9 +5,21 @@
   "waivers": [
     {
       "strategy": "ribbon_ride",
+      "shape": {"premium_stop_pct": -0.20, "tp1_premium_pct": 1.0, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing"},
+      "j_signed": false,
+      "status": "PROVISIONAL_SSB_KILLCHECK_WINDOW",
+      "added": "2026-07-09",
+      "reason": "SS-B structure-stop cell (the LIVE ribbon_ride shape since the 2026-07-09 STOP-B ship): structure stop primary + -50% intrabar catastrophe cap + TP1 +100% sell 66% + trailing runner 15% off HWM + runner_target 99.0 (tgt-none). Not a P5 (premium-grind) survivor BY CONSTRUCTION -- structure stops sit outside the premium-grind P5 universe entirely (the grind never modeled level-based exits), exactly the waiver rationale recorded in the shipped strategies.py note. Validated by its OWN pre-registered two-layer study: fresh-slice -47.34/tr vs control -100.67, anchor -604.70 vs -757.10 (structure-stop-2026-07-09.json -- the only candidate passing BOTH layers). GATE-COMPLETION NOTE 2026-07-09 late: this row was owed since the SS-B ship (the ship note recorded the waiver rationale but the row was never written; the P5 gate + test_p5_shape_gate.py were RED on the live shape in main until this row landed).",
+      "justification_unsigned": "PROVISIONAL by design (registry rule: never hand-add a SIGNED waiver on J's behalf from a follow-up session). The SS-B ship itself was STOP-B-sanctioned (strategies.py RIBBON_RIDE note + structure-stop-2026-07-09.json two-layer validation); this row completes the registry entry that ship owed. J: sign, replace via the T-W3 fresh grind, or revoke (instant de-arm = params.structure_stop_enabled=false).",
+      "provenance": "analysis/recommendations/structure-stop-2026-07-09.json ; strategies.py RIBBON_RIDE (SS-B note) ; analysis/recommendations/entry-exit-matrix-2026-07-09.md (STOP-B session)",
+      "resolves_when": "Forward kill-check per the ship note: fresh P5 grind (T-W3) + 2-week paper champion/challenger. Superseded by a future validated ribbon cell or J revoke."
+    },
+    {
+      "strategy": "ribbon_ride",
       "shape": {"premium_stop_pct": -0.20, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.8, "profit_lock_mode": "fixed"},
       "j_signed": false,
-      "status": "PROVISIONAL_PENDING_STOP_A",
+      "status": "SUPERSEDED_NO_LONGER_LIVE",
+      "superseded_note": "2026-07-09: SS-B STOP-B ship replaced this live shape with -20/+100/0.667/trailing (structure cell, row above). Kept for history; matches no live shape.",
       "added": "2026-07-08",
       "reason": "THE T5 SCAR. Live fleet_rest shape since 2026-06-25 but NOT a P5 survivor: 0 of the FULL 86 survivors (mass-grind-phase5.jsonl, re-verified by Fable review 2026-07-08) match stop-20/tp+150/sell80 in EITHER lock mode. Caveat discovered in the same review: the old grind's lock/trail axis was a DEAD KNOB (orchestrator never translated profit_lock_mode; 181/181 fixed-vs-trailing pairs identical), so the P5 universe never actually tested trailing exits. This is exactly the shape the ENTRY-EXIT-MATRIX redesign (T4) is re-searching. Provisional pending STOP CHECKPOINT A.",
       "provenance": "analysis/recommendations/mass-grind-phase5-summary.json (survivors) ; strategies.py RIBBON_RIDE",

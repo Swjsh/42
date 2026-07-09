@@ -25,8 +25,8 @@ The exit shape is a property of the STRATEGY (the grind proved it), realized by 
 
 | strategy | entry setups | exit shape |
 |---|---|---|
-| `ribbon_ride` | BEARISH_REJECTION_RIDE_THE_RIBBON<br>BULLISH_RECLAIM_RIDE_THE_RIBBON | stop -20% · TP1 +100% · sell 67% · trailing · runner 99.0x · trail 15% · arm +5% · mode STRUCTURE (cat -50%) |
-| `vwap_continuation` | VWAP_CONTINUATION<br>vwap_continuation | stop -6% · TP1 +40% · sell 80% · fixed · runner 2.5x · trail 12% · arm +5% · mode premium |
+| `ribbon_ride` | BEARISH_REJECTION_RIDE_THE_RIBBON<br>BULLISH_RECLAIM_RIDE_THE_RIBBON | stop -20% · TP1 +100% · sell 67% · trailing · runner 99.0x · trail 15% · arm +5% (post-TP1) · mode STRUCTURE (cat -50%) |
+| `vwap_continuation` | VWAP_CONTINUATION<br>vwap_continuation | stop -6% · TP1 +40% · sell 80% · fixed · runner 2.5x · trail 12% · arm +5% (post-TP1) · mode premium |
 
 Direction: both — the side comes from which side-block (bull/bear) fired; `enable_bullish=True` (safe). No per-strategy direction lock.
 
