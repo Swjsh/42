@@ -40,6 +40,7 @@ const { makeLogger } = require("./lib/log");
 const { buildInstructions } = require("./lib/persona");
 const { toolSchemas } = require("./lib/tools");
 const { RealtimeSession } = require("./lib/realtime");
+const { Transcript } = require("./lib/transcript");
 const { stereo48ToMono24, mono24ToStereo48, PcmSpeakerStream } = require("./lib/audio");
 
 const SELFTEST_JOIN = process.argv.includes("--selftest-join");
@@ -144,6 +145,7 @@ async function startRig(voiceChannel, origin) {
 
   let lastActivity = Date.now();
   let lastRealAudioToOpenAI = 0;
+  let transcript = null; // created once the session id lands
 
   const session = new RealtimeSession({
     root: cfg.root,
@@ -153,9 +155,12 @@ async function startRig(voiceChannel, origin) {
     tools: toolSchemas,
     origin,
     log,
-    onReady: () => {
+    onReady: (id) => {
       lastActivity = Date.now();
-      session.say("You just joined the voice channel where J is. Greet him in ONE short sentence.");
+      transcript = new Transcript(cfg.root, id); // the two-sided audit file for this session
+      session.say(
+        "Greet J in ONE short, warm sentence -- like a partner picking up the phone. No status dump, no menu."
+      );
     },
     onAudio: (pcm24) => {
       lastActivity = Date.now();
@@ -167,7 +172,14 @@ async function startRig(voiceChannel, origin) {
     onActivity: () => {
       lastActivity = Date.now();
     },
-    onEnd: () => {
+    onUserTranscript: (jText) => {
+      if (transcript) transcript.line("J", jText);
+    },
+    onTranscript: (gammaText) => {
+      if (transcript) transcript.line("Gamma", gammaText);
+    },
+    onEnd: (reason, row) => {
+      if (transcript) transcript.close(reason, (row && row.seconds) || 0, row && row.usage);
       // Session died underneath us (WS drop / error): fold the rig too.
       if (rig && rig.session === session) teardownRig("session_ended");
     },

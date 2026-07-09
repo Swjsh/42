@@ -21,8 +21,9 @@ const MINT_URL = "https://api.openai.com/v1/realtime/client_secrets";
 const WS_URL = "wss://api.openai.com/v1/realtime";
 
 class RealtimeSession {
-  // opts: { root, key, model, instructions, voice, log, origin,
-  //         onAudio(pcm24kMonoBuffer), onBargeIn(), onActivity(), onEnd(reason) }
+  // opts: { root, key, model, instructions, voice, maxOutputTokens, log, origin,
+  //         onReady(id), onAudio(pcm24kMonoBuffer), onBargeIn(), onActivity(),
+  //         onTranscript(gammaText), onUserTranscript(jText), onEnd(reason, row) }
   constructor(opts) {
     this.o = opts;
     this.ws = null;
@@ -40,9 +41,17 @@ class RealtimeSession {
         type: "realtime",
         model: this.o.model,
         instructions: this.o.instructions,
+        // Hard brevity backstop: the model rambled in paragraphs on v1. The
+        // instructions do the real work; this cap makes a runaway answer
+        // physically impossible (~2-3 spoken sentences). Not so tight it clips
+        // a normal reply mid-word.
+        max_output_tokens: this.o.maxOutputTokens || 220,
         audio: {
           input: {
             format: { type: "audio/pcm", rate: 24000 },
+            // Transcribe J's side too, so the audit transcript is TWO-sided
+            // (v1 only captured Gamma). Cheap transcription model.
+            transcription: { model: "gpt-4o-mini-transcribe" },
             turn_detection: { type: "semantic_vad" },
           },
           output: {
@@ -143,6 +152,16 @@ class RealtimeSession {
       if (this.o.onActivity) this.o.onActivity();
       return;
     }
+    // J's transcribed speech (input transcription) -- the OTHER half of the audit
+    // trail. Fires when the transcription model finishes a user turn.
+    if (t === "conversation.item.input_audio_transcription.completed") {
+      const said = String(msg.transcript || "").trim();
+      if (said) {
+        this.log('J said: "' + said.slice(0, 300) + '"');
+        if (this.o.onUserTranscript) this.o.onUserTranscript(said);
+      }
+      return;
+    }
     if (t === "response.created") {
       this.activeResponse = true;
       return;
@@ -214,7 +233,7 @@ class RealtimeSession {
       /* noop */
     }
     this.ws = null;
-    if (this.o.onEnd) this.o.onEnd(reason);
+    if (this.o.onEnd) this.o.onEnd(reason, row);
   }
 }
 
