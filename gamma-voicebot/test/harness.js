@@ -73,12 +73,15 @@ async function main() {
   out("  persona head: " + instructions.slice(0, 200).replace(/\n/g, " / "));
   out("");
 
-  // 3) full realtime session (text-driven; costs ~a cent, metered like any session)
+  // 3) realtime ROUTING: the model must pick the RIGHT tool per question type
+  //    (the kitchen->engine miss was a routing bug). Each is one ~1-cent session.
   if (REALTIME) {
     if (!cfg.openaiKey) {
       check("realtime_session", false, "no OpenAI key");
     } else {
-      await realtimeSmoke(instructions);
+      await realtimeSmoke(instructions, "Am I up or down today, and what's my equity? One sentence.", "account_pnl", "money");
+      await realtimeSmoke(instructions, "Where is SPY right now and what are the nearest levels? One sentence.", "market_now", "price");
+      await realtimeSmoke(instructions, "What's the kitchen cooking? One sentence.", "kitchen_status", "kitchen");
     }
   }
 
@@ -91,13 +94,14 @@ function usageFile() {
   return path.join(cfg.root, "automation", "state", "voice-bot-usage.jsonl");
 }
 
-async function realtimeSmoke(instructions) {
+async function realtimeSmoke(instructions, question, expectTool, label) {
   const usageLinesBefore = fs.existsSync(usageFile())
     ? fs.readFileSync(usageFile(), "utf8").split(/\r?\n/).filter(Boolean).length
     : 0;
 
   let sessionId = null;
   let toolCalled = false;
+  let toolName = null;
   let transcript = "";
   let settled = false;
 
@@ -117,13 +121,15 @@ async function realtimeSmoke(instructions) {
       origin: "harness",
       log: (m) => {
         out("  [session] " + m);
-        if (/^tool call:/.test(m)) toolCalled = true;
+        const tc = /^tool call: (\w+)/.exec(m);
+        if (tc) {
+          toolCalled = true;
+          if (!toolName) toolName = tc[1];
+        }
       },
       onReady: (id) => {
         sessionId = id;
-        session.sendUserText(
-          "What is the engine state right now? Answer in one or two spoken sentences."
-        );
+        session.sendUserText(question + " Answer in one or two spoken sentences.");
       },
       onTranscript: (t) => {
         // The persona says "one sec" BEFORE a tool call -- so the first
@@ -144,9 +150,13 @@ async function realtimeSmoke(instructions) {
     }, 90000);
   });
 
-  check("realtime_session_opened", !!sessionId, "session_id=" + sessionId);
-  check("realtime_tool_called", toolCalled, "model invoked a tool for a state question");
-  check("realtime_answer_spoken", transcript.length > 0, JSON.stringify(transcript.slice(0, 220)));
+  check("realtime[" + label + "]_opened", !!sessionId, "session_id=" + sessionId);
+  check(
+    "realtime[" + label + "]_routed->" + expectTool,
+    toolName === expectTool,
+    "called " + (toolName || "NO tool") + " (expected " + expectTool + ")"
+  );
+  check("realtime[" + label + "]_answer_spoken", transcript.length > 0, JSON.stringify(transcript.slice(0, 200)));
 
   const usageLinesAfter = fs.existsSync(usageFile())
     ? fs.readFileSync(usageFile(), "utf8").split(/\r?\n/).filter(Boolean).length
