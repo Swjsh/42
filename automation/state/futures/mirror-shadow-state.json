@@ -1,0 +1,12 @@
+{
+  "_doc": "Watermark + cross-arm dedup state for futures_mirror_shadow.py. arm_line_watermarks = how many lines of each fleet arm's decisions.jsonl have been scanned (append-only file, so a line count is a safe progress marker). seen_signal_keys = {direction|minute -> first_seen_et} keys already turned into ONE mirror signal (pruned after 5d). pending_signals = deduped signals not yet successfully opened (retried every poll; a transient yfinance failure must never silently drop a signal seen once). See futures_mirror_shadow.py module docstring for the frozen spec.",
+  "arm_line_watermarks": {
+    "risky-1": 1564,
+    "risky-3": 1564,
+    "safe-1": 1303,
+    "safe-3": 1564
+  },
+  "seen_signal_keys": {},
+  "pending_signals": [],
+  "last_run_et": "2026-07-09T16:05:01"
+}

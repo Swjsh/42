@@ -1,0 +1,4 @@
+{
+  "_doc": "Open + recently-closed MES mirror-shadow positions, keyed by signal_ref (direction|YYYY-MM-DDTHH:MM). MULTIPLE CONCURRENT positions are expected by design -- every distinct fleet signal gets its own shadow trade. See futures_mirror_shadow.py module docstring (REUSE DECISION) for why this diverges from FillSimBroker's one-position-per-instrument convention.",
+  "positions": {}
+}

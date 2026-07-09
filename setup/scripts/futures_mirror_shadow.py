@@ -1,0 +1,712 @@
+"""futures_mirror_shadow.py -- forward MES shadow-mirror of the LIVE 0DTE SPY fleet signals.
+
+WHY THIS EXISTS: the futures 7th-arm (mes-linear-sim, automation/state/fleet/accounts.json)
+has no armable edge from HISTORICAL replay -- Phase-1 swing batteries killed the seed pile
+twice (backtest/futures/analysis/PHASE1-swing-battery/RESULTS.md: DOES_NOT_TRANSFER, 0/12
+BH-FDR survivors). The one path left is FORWARD evidence: mirror the CURRENT live 0DTE
+signals (the SAME setups the SPY fleet already trades, per accounts.json's "every validated
+strategy runs on every account" grid model) expressed on the linear MES instrument, and let
+evidence accumulate going forward. This script is that mirror. It places NOTHING real --
+own synthetic fill-sim only, no broker, no creds.
+
+FROZEN SPEC (task requirement -- do not drift without updating this docstring):
+  PROXY: entry price = latest ES=F 1-minute close (yfinance). ES and MES quote the SAME
+    index level (both are E-mini S&P 500 products; MES is 1/10th NOTIONAL size of ES, not
+    1/10th PRICE -- see backtest/futures/instruments.py), so no price scaling is needed --
+    only the $-per-point conversion differs (MES.point_value = $5/pt).
+  DIRECTION: ENTER_BULL -> long, ENTER_BEAR -> short (fleet decisions.jsonl `action` field).
+  STOP: entry -/+ 1.5 x ATR14, where ATR14 = Wilder ATR (backtest/futures/swing_sim.wilder_atr,
+    imported not reimplemented) on ES=F 5-MINUTE bars. R := that stop distance (1.5xATR14),
+    frozen at entry -- "1R" everywhere below means this same point distance.
+  TP1: 1R favorable from entry. Sized 2 contracts in, 1 off at TP1 ("sell half"), stop moves
+    to breakeven (entry) on the remaining runner.
+  RUNNER: the other 1 contract trails a stop 1R off its own high-water-mark (best price seen
+    since TP1 filled), ratcheted every poll. No fixed runner target.
+  HORIZON: max-hold = flat by 15:55 ET on the NEXT trading day if neither stop nor TP1/trail
+    has closed the position first (a "2-session" horizon -- today's session + one more --
+    distinct from the killed multiday 1-5 TRADING-DAY swing shapes in PHASE1-swing-battery;
+    this mirrors "the signal would have paid within a day or two", not a multiday swing).
+    Next-trading-day = the next weekday that is not a US market holiday per
+    automation/state/calendar.json (fail-open: an unreadable calendar degrades to
+    weekend-only skipping).
+  COSTS: MES.round_turn_usd ($1.24/contract, backtest/futures/instruments.py) charged on
+    every CLOSING fill (tp1/stopped/time_flat), consistent with how every other battery in
+    this repo discloses commission. No separate slippage line -- the stop leg is already
+    gap/poll-realistic (see FILL CONVENTIONS below); the target/TP1 leg uses the standard
+    touch-at-level convention used throughout this repo's sims (no slippage modeled there).
+  FILL CONVENTIONS: TP1 and time-flat fill at the observed level/quote directly (touch
+    convention -- matches fill_sim_broker.py's documented "TP1/runner target: touch-at-level,
+    no slippage"). STOP legs (both the fixed pre-TP1 stop and the post-TP1 trailing stop) use
+    `fill_sim_broker.gap_aware_stop_fill` (imported, not reimplemented) -- fills AT the stop
+    on a normal touch, WORSE (at the observed quote) when the poll already shows price beyond
+    it. Because this is a 5-MINUTE POLL system (not a continuous bar walk), every fill is, by
+    construction, only ever as precise as "the price we happened to observe this poll" -- a
+    level that is touched and reverses entirely between two 5-min polls is invisible here.
+    This is a disclosed limitation of forward SHADOW evidence, not a backtest, and is the
+    reason gap-aware (worst-observed-price) fills are used for the stop leg specifically.
+
+REUSE DECISION (task explicitly invites this call -- documented per instruction):
+  FillSimBroker (backtest/futures/fill_sim_broker.py) was read first and NOT reused as the
+  position engine, for two concrete interface mismatches:
+    1. `process_quote()` deliberately never threads `now_et` into `decide_exit()`, so its
+       TIME_STOP branch (futures_exit_manager.DEFAULT_TIME_STOP_ET, an INTRADAY 15:50 ET
+       wall-clock check) can never fire -- by design, because FillSimBroker targets true
+       multiday swing holds. This mirror's 2-SESSION horizon is exactly the piece
+       FillSimBroker punts on; forcing it through would silently never flatten on schedule.
+    2. `place_bracket()` REFUSES a new entry while any pending/open position already exists
+       for that instrument (one position per instrument, no-stacking). This mirror's whole
+       purpose is to log EVERY distinct qualifying signal as its OWN shadow trade for
+       forward evidence -- refusing overlapping signals would silently throw away exactly
+       the data this script exists to collect.
+  What IS reused (both pure, stateless, no coupling to FillSimBroker's own file layout):
+    - `futures.swing_sim.wilder_atr` -- the canonical ATR14 implementation (not reimplemented).
+    - `futures.fill_sim_broker.gap_aware_stop_fill` -- the canonical gap-aware stop-fill rule.
+    - `futures.instruments.MES` -- point_value / round_turn_usd (not re-typed constants).
+    - The atomic-write-JSON + append-JSONL + fail-open `_log()` PATTERNS (not the functions
+      themselves -- each script in this repo owns its own copies; see fill_sim_broker.py and
+      setup/scripts/swing_core_runner.py for the precedent this follows) and the resilient
+      yfinance-fetch SHAPE (try/except/never-raise, MultiIndex-column flatten) established by
+      swing_core_runner.py's `fetch_live_bar()`.
+  Consequence: mirror state is SELF-CONTAINED in automation/state/futures/mirror-*  (distinct
+  filenames from FillSimBroker's fillsim-*.json / would-be-trades.jsonl and from the REAL
+  swing engine's position.json/decisions.jsonl in the same directory -- no collision), and
+  `mirror-positions.json` supports MULTIPLE CONCURRENT open positions keyed by `signal_ref`
+  (a deliberate divergence from FillSimBroker's one-position-per-instrument rule).
+
+WATCH / DEDUPE: tails automation/state/fleet/*/decisions.jsonl (today: safe-3, safe-1,
+  risky-1, risky-3 -- the 4 `execution: fleet_rest` arms; resolved by glob, not hardcoded, so
+  a future roster change is picked up automatically) for NEW rows (tracked via a per-arm LINE
+  COUNT watermark -- decisions.jsonl is append-only, so a line count is a safe, simple
+  progress marker) with action ENTER_BULL/ENTER_BEAR. Because every validated strategy runs
+  on every fleet arm (accounts.json's grid model -- arms differ ONLY by gate strictness and
+  sizing, never by strategy), the SAME underlying signal routinely fires on multiple arms
+  within the same processing tick. Deduped to ONE mirror signal per (direction, ts_et
+  truncated to the minute) -- see `dedupe_signals()`. A signal that dedupes cleanly but whose
+  yfinance fetch fails this poll is retried on the NEXT poll (`pending_signals`, persisted) --
+  a transient network hiccup must never silently drop real evidence. COLD START: the first
+  time a given arm's decisions.jsonl is ever scanned (no prior watermark for it), the
+  watermark jumps straight to end-of-file with ZERO candidates emitted -- historical backlog
+  is never mirrored, only signals that fire AFTER a poll first watches an arm. Mirroring an
+  old signal with TODAY's quote/ATR would be a real price/time mismatch, not forward evidence
+  (verified live: an early unguarded run against the real fleet logs opened 7 positions off
+  signals up to 18 days stale before this guard existed).
+
+RUNNER MODE: `python futures_mirror_shadow.py --once` runs exactly one poll pass (the only
+  mode this script has -- flag kept for literal spec compliance / explicit caller intent).
+  Fail-open: every internal step is try/except-guarded, `main()` always returns 0, every
+  exception is logged to automation/state/logs/futures-mirror-YYYY-MM-DD.log, never raised.
+
+ARMING BAR (evaluated by a LATER session, not this one -- also written into
+  mirror-would-be.jsonl's own `_doc` header line so the bar travels with the data): >=20
+  CLOSED mirror round-trips, positive expectancy in pnl_usd_mes, AND beats a same-horizon
+  ES=F buy-and-hold null (same signal timestamps/directions, held flat-to-deadline, no
+  stop/target). This script does not compute or check that bar -- it only accumulates rows.
+"""
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import os
+import sys
+import traceback
+from pathlib import Path
+from typing import Optional
+
+REPO = Path(__file__).resolve().parents[2]
+for _p in ("backtest", "setup/scripts"):
+    _pp = str(REPO / _p)
+    if _pp not in sys.path:
+        sys.path.insert(0, _pp)
+
+
+def _et_now() -> dt.datetime:
+    """ET wall-clock via the repo's DST-aware clock. Lazily re-imports et_clock on every call
+    (mirrors fill_sim_broker.py / swing_core_runner.py exactly) so tests that monkeypatch
+    `et_clock.et_now` are honored -- a top-level `from et_clock import et_now` would bind a
+    stale local name at import time a later monkeypatch could never reach. NEVER a naive
+    local-clock read (this box runs Mountain time, ET = local + 2h -- CLAUDE.md TZ scar)."""
+    import et_clock  # noqa: PLC0415
+    return et_clock.et_now()
+
+
+# ── paths / constants ──────────────────────────────────────────────────────────
+FLEET_DIR = REPO / "automation" / "state" / "fleet"
+STATE_DIR = REPO / "automation" / "state" / "futures"
+LOG_DIR = REPO / "automation" / "state" / "logs"
+CALENDAR_FILE = REPO / "automation" / "state" / "calendar.json"
+
+WATERMARK_FILE = STATE_DIR / "mirror-shadow-state.json"
+POSITIONS_FILE = STATE_DIR / "mirror-positions.json"
+WOULD_BE_FILE = STATE_DIR / "mirror-would-be.jsonl"
+
+YF_SYMBOL = "ES=F"                # MES front-quote proxy (see module docstring)
+ATR_PERIOD = 14
+STOP_ATR_MULT = 1.5               # R := STOP_ATR_MULT * ATR14(ES=F 5m)
+TP1_R_MULT = 1.0                  # TP1 = 1R
+TRAIL_R_MULT = 1.0                # runner trail distance = 1R off HWM
+ENTRY_QTY = 2
+TP1_QTY = 1
+DEADLINE_TIME_ET = dt.time(15, 55)
+SIGNAL_KEY_RETENTION_DAYS = 5     # prune horizon for the cross-arm dedup key store
+PENDING_MAX_AGE_DAYS = 2          # drop a still-unopened signal after a sustained outage
+CLOSED_POSITION_RETENTION_DAYS = 10
+
+EV_PLACED = "placed"
+EV_FILLED = "filled"
+EV_TP1 = "tp1"
+EV_STOPPED = "stopped"
+EV_TIME_FLAT = "time_flat"
+
+DIRECTION_BY_ACTION = {"ENTER_BULL": "long", "ENTER_BEAR": "short"}
+
+WATERMARK_DOC = (
+    "Watermark + cross-arm dedup state for futures_mirror_shadow.py. arm_line_watermarks = "
+    "how many lines of each fleet arm's decisions.jsonl have been scanned (append-only file, "
+    "so a line count is a safe progress marker). seen_signal_keys = {direction|minute -> "
+    "first_seen_et} keys already turned into ONE mirror signal (pruned after "
+    f"{SIGNAL_KEY_RETENTION_DAYS}d). pending_signals = deduped signals not yet successfully "
+    "opened (retried every poll; a transient yfinance failure must never silently drop a "
+    "signal seen once). See futures_mirror_shadow.py module docstring for the frozen spec."
+)
+POSITIONS_DOC = (
+    "Open + recently-closed MES mirror-shadow positions, keyed by signal_ref "
+    "(direction|YYYY-MM-DDTHH:MM). MULTIPLE CONCURRENT positions are expected by design -- "
+    "every distinct fleet signal gets its own shadow trade. See futures_mirror_shadow.py "
+    "module docstring (REUSE DECISION) for why this diverges from FillSimBroker's "
+    "one-position-per-instrument convention."
+)
+ARMING_BAR_DOC = (
+    "ARMING BAR (evaluated by a LATER session, not this one): >=20 CLOSED mirror round-trips "
+    "(tp1/stopped/time_flat rows that bring a signal_ref's qty_open_after to 0, counted per "
+    "signal_ref not per row), positive expectancy summed in pnl_usd_mes, AND beats a "
+    "same-horizon ES=F buy-and-hold null (enter at the same signal timestamps/directions, "
+    "hold flat to the same 2-session 15:55 ET deadline, no stop/target). Event vocabulary: "
+    "placed|filled|tp1|stopped|time_flat. Proxy: MES tracks ES=F 1:1 in index points "
+    "(instruments.py); $ conversion uses MES point_value=$5/pt, round_turn_usd=$1.24/contract "
+    "charged on every CLOSING fill. Stop spec: entry -/+ 1.5xATR14(ES=F 5m Wilder), frozen at "
+    "entry as 1R. TP1 = 1R (half qty off). Runner = other half, trails 1R off its HWM, "
+    "ratcheted once per 5-min POLL (not continuous -- a disclosed limitation vs a true "
+    "bar-by-bar backtest). Max-hold = flat by 15:55 ET the NEXT trading day."
+)
+
+
+# ── fail-open IO helpers (patterns matched to fill_sim_broker.py / swing_core_runner.py) ──
+def _log(msg: str) -> None:
+    """Fail-open logger -- never raises, even if the log dir/file itself is unwritable."""
+    try:
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
+        day = _et_now().strftime("%Y-%m-%d")
+        ts = _et_now().strftime("%Y-%m-%dT%H:%M:%S")
+        with open(LOG_DIR / f"futures-mirror-{day}.log", "a", encoding="utf-8") as f:
+            f.write(f"[{ts}] {msg}\n")
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def _atomic_write_json(path: Path, data: dict) -> None:
+    """Temp file + os.replace -- atomic on both Windows and POSIX."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + f".tmp{os.getpid()}")
+    tmp.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
+    os.replace(tmp, path)
+
+
+def _append_jsonl(path: Path, record: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(record, default=str) + "\n")
+
+
+def _load_json(path: Path, default: dict) -> dict:
+    """Fail-open: a missing file, an unreadable file, or corrupt JSON all degrade to a fresh
+    copy of `default` -- never raises."""
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return json.loads(json.dumps(default))
+
+
+def _ensure_would_be_doc_header() -> None:
+    """Writes the arming-bar `_doc` line as the FIRST line of mirror-would-be.jsonl, once.
+    Consumers must skip any row carrying a `_doc` key when parsing lifecycle events."""
+    if WOULD_BE_FILE.exists():
+        return
+    try:
+        WOULD_BE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(WOULD_BE_FILE, "a", encoding="utf-8") as f:
+            f.write(json.dumps({"_doc": ARMING_BAR_DOC}) + "\n")
+    except Exception:  # noqa: BLE001
+        pass
+
+
+# ── calendar / 2-session horizon ────────────────────────────────────────────────
+def _load_holidays() -> set:
+    try:
+        doc = json.loads(CALENDAR_FILE.read_text(encoding="utf-8"))
+        return set(doc.get("holidays", []))
+    except Exception:  # noqa: BLE001
+        return set()
+
+
+def next_trading_day(d: dt.date, holidays: Optional[set] = None) -> dt.date:
+    """PURE when `holidays` is supplied. Next weekday that is not a US market holiday.
+    Fail-open: an unreadable calendar.json (holidays=None -> loaded fresh, empty on error)
+    degrades to weekend-only skipping, never raises."""
+    if holidays is None:
+        holidays = _load_holidays()
+    nd = d + dt.timedelta(days=1)
+    while nd.weekday() >= 5 or nd.strftime("%Y-%m-%d") in holidays:
+        nd += dt.timedelta(days=1)
+    return nd
+
+
+# ── fleet scan + cross-arm dedupe ───────────────────────────────────────────────
+def signal_key(direction: str, ts_et: dt.datetime) -> str:
+    return f"{direction}|{ts_et.strftime('%Y-%m-%dT%H:%M')}"
+
+
+def _parse_ts_et(s: Optional[str]) -> Optional[dt.datetime]:
+    """decisions.jsonl's ts_et carries a real UTC offset (e.g. '...-04:00') but the wall-clock
+    hour IS already ET (the fleet writer stamps ET-local wall time with its true DST offset) --
+    stripping tzinfo yields the naive-ET value used everywhere else in this repo."""
+    if not s:
+        return None
+    try:
+        return dt.datetime.fromisoformat(s).replace(tzinfo=None)
+    except (ValueError, TypeError):
+        return None
+
+
+def scan_arm_lines(lines: list[str], start_line: int) -> tuple[list[dict], int]:
+    """PURE. Scans lines[start_line:] for ENTER_BULL/ENTER_BEAR rows. Returns
+    (candidate_dicts, new_line_count). Malformed JSON / non-ENTER / unparseable ts_et lines
+    are silently skipped (a fleet decisions.jsonl is mostly HOLD rows by volume)."""
+    candidates = []
+    for raw in lines[start_line:]:
+        raw = raw.strip()
+        if not raw:
+            continue
+        try:
+            row = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        direction = DIRECTION_BY_ACTION.get(row.get("action"))
+        if direction is None:
+            continue
+        ts = _parse_ts_et(row.get("ts_et"))
+        if ts is None:
+            continue
+        candidates.append({
+            "direction": direction, "ts_et": ts,
+            "setup_name": row.get("setup_name"), "side": row.get("side"),
+        })
+    return candidates, len(lines)
+
+
+def dedupe_signals(candidates: list[dict], seen_keys: dict, now_et: dt.datetime) -> tuple[list[dict], dict]:
+    """PURE. Groups candidates (each carrying an `arm_id`) by (direction, ts_et-minute); a key
+    already in `seen_keys` is skipped (already turned into a mirror signal on a prior poll or
+    earlier in THIS batch); a new key becomes exactly ONE signal dict (ts_et re-encoded as a
+    JSON-safe string) recording every arm_id that fired it. Returns (new_unique_signals,
+    updated_and_pruned seen_keys)."""
+    groups: dict[str, list[dict]] = {}
+    order: list[str] = []
+    for c in sorted(candidates, key=lambda c: c["ts_et"]):
+        key = signal_key(c["direction"], c["ts_et"])
+        if key not in groups:
+            groups[key] = []
+            order.append(key)
+        groups[key].append(c)
+
+    updated = dict(seen_keys)
+    unique = []
+    for key in order:
+        if key in updated:
+            continue
+        group = groups[key]
+        rep = group[0]
+        arms = sorted({c["arm_id"] for c in group if c.get("arm_id")})
+        unique.append({
+            "signal_ref": key, "direction": rep["direction"],
+            "ts_et": rep["ts_et"].strftime("%Y-%m-%dT%H:%M:%S"),
+            "setup_name": rep.get("setup_name"), "side": rep.get("side"),
+            "source_arms": arms,
+        })
+        updated[key] = now_et.strftime("%Y-%m-%dT%H:%M:%S")
+
+    cutoff = now_et - dt.timedelta(days=SIGNAL_KEY_RETENTION_DAYS)
+    pruned = {}
+    for k, v in updated.items():
+        seen_at = _parse_ts_et(v)
+        if seen_at is not None and seen_at >= cutoff:
+            pruned[k] = v
+    return unique, pruned
+
+
+def _prune_stale_pending(pending: list[dict], now_et: dt.datetime,
+                         max_age_days: int = PENDING_MAX_AGE_DAYS) -> list[dict]:
+    """PURE. Drops a pending (deduped-but-not-yet-opened) signal once it is older than
+    max_age_days -- protects against unbounded growth during a sustained yfinance outage."""
+    out = []
+    for sig in pending:
+        ts = _parse_ts_et(sig.get("ts_et"))
+        if ts is None or (now_et - ts) <= dt.timedelta(days=max_age_days):
+            out.append(sig)
+    return out
+
+
+# ── live quote / ATR fetch (yfinance; shape matches swing_core_runner.fetch_live_bar) ──
+def fetch_es_quote_1m() -> Optional[float]:
+    """Latest ES=F 1-minute close -- the MES front-quote proxy. Fail-open -> None, never
+    raises."""
+    try:
+        import yfinance as yf  # noqa: PLC0415
+        df = yf.download(YF_SYMBOL, period="1d", interval="1m", auto_adjust=False,
+                         progress=False, prepost=True)
+        if df is None or df.empty:
+            return None
+        if hasattr(df.columns, "nlevels") and df.columns.nlevels > 1:
+            df.columns = df.columns.get_level_values(0)
+        last_close = df["Close"].iloc[-1]
+        if last_close is None or (hasattr(last_close, "__len__") is False and last_close != last_close):
+            return None  # NaN check without importing pandas just for isna()
+        return float(last_close)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def fetch_es_atr14() -> Optional[float]:
+    """ATR14 on ES=F 5-minute bars (frozen spec: R = 1.5 x this). Reuses
+    futures.swing_sim.wilder_atr -- not reimplemented. Fail-open -> None, never raises."""
+    try:
+        import pandas as pd  # noqa: PLC0415
+        import yfinance as yf  # noqa: PLC0415
+        from futures.swing_sim import wilder_atr  # noqa: PLC0415
+
+        df = yf.download(YF_SYMBOL, period="10d", interval="5m", auto_adjust=False,
+                         progress=False, prepost=True)
+        if df is None or df.empty:
+            return None
+        if hasattr(df.columns, "nlevels") and df.columns.nlevels > 1:
+            df.columns = df.columns.get_level_values(0)
+        bars = pd.DataFrame({
+            "open": df["Open"].astype(float), "high": df["High"].astype(float),
+            "low": df["Low"].astype(float), "close": df["Close"].astype(float),
+        }).reset_index(drop=True)
+        atr = wilder_atr(bars, period=ATR_PERIOD)
+        if len(atr) == 0:
+            return None
+        val = atr.iloc[-1]
+        if val != val or val <= 0:  # NaN-safe without a pandas.isna import
+            return None
+        return float(val)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+# ── entry math ───────────────────────────────────────────────────────────────
+def compute_entry_levels(direction: str, entry_price: float, atr: float) -> dict:
+    """PURE. R := STOP_ATR_MULT * ATR14. stop = entry -/+ R. tp1 = entry +/- TP1_R_MULT*R."""
+    r_points = STOP_ATR_MULT * atr
+    sign = 1.0 if direction == "long" else -1.0
+    return {
+        "r_points": r_points,
+        "stop": entry_price - sign * r_points,
+        "tp1": entry_price + sign * (TP1_R_MULT * r_points),
+    }
+
+
+def open_mirror_position(signal: dict, entry_price: float, atr: float, now_et: dt.datetime) -> dict:
+    """PURE. Builds a brand-new position dict (never mutates `signal`)."""
+    levels = compute_entry_levels(signal["direction"], entry_price, atr)
+    deadline = dt.datetime.combine(next_trading_day(now_et.date()), DEADLINE_TIME_ET)
+    return {
+        "signal_ref": signal["signal_ref"], "direction": signal["direction"], "status": "open",
+        "qty_open": ENTRY_QTY, "entry": round(entry_price, 4), "stop": round(levels["stop"], 4),
+        "tp1": round(levels["tp1"], 4), "r_points": round(levels["r_points"], 4),
+        "tp1_filled": False, "hwm": None,
+        "entry_time_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"),
+        "deadline_et": deadline.strftime("%Y-%m-%dT%H:%M:%S"), "closed_at_et": None,
+        "source_arms": signal.get("source_arms", []), "setup_name": signal.get("setup_name"),
+        "atr_at_entry": round(atr, 4),
+    }
+
+
+def _placed_row(signal: dict, position: dict) -> dict:
+    ts = _parse_ts_et(signal.get("ts_et")) or dt.datetime.fromisoformat(position["entry_time_et"])
+    return {
+        "ts_et": ts.strftime("%Y-%m-%dT%H:%M:%S"), "signal_ref": position["signal_ref"],
+        "direction": position["direction"], "entry": position["entry"], "stop": position["stop"],
+        "tp1": position["tp1"], "event": EV_PLACED, "pnl_pts": 0.0, "pnl_usd_mes": 0.0,
+        "exit_qty": 0, "fill_price": None, "qty_open_after": position["qty_open"],
+        "reason": f"signal_fired arms={position.get('source_arms')} setup={position.get('setup_name')}",
+        "setup_name": position.get("setup_name"), "source_arms": position.get("source_arms"),
+    }
+
+
+def _filled_row(position: dict, now_et: dt.datetime) -> dict:
+    return {
+        "ts_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"), "signal_ref": position["signal_ref"],
+        "direction": position["direction"], "entry": position["entry"], "stop": position["stop"],
+        "tp1": position["tp1"], "event": EV_FILLED, "pnl_pts": 0.0, "pnl_usd_mes": 0.0,
+        "exit_qty": position["qty_open"], "fill_price": position["entry"],
+        "qty_open_after": position["qty_open"], "reason": "market_fill_at_poll_quote",
+        "setup_name": position.get("setup_name"), "source_arms": position.get("source_arms"),
+    }
+
+
+# ── exit decision (the fill engine) ─────────────────────────────────────────────
+def _trail_stop(hwm: float, direction: str, r_points: float) -> float:
+    return hwm - r_points if direction == "long" else hwm + r_points
+
+
+def _close_all(position: dict, price: float, now_et: dt.datetime, event: str, reason: str,
+              *, gap_aware: bool) -> tuple[dict, dict]:
+    from futures.instruments import MES  # noqa: PLC0415
+    from futures.fill_sim_broker import gap_aware_stop_fill  # noqa: PLC0415
+
+    direction = position["direction"]
+    long = direction == "long"
+    fill = (gap_aware_stop_fill(direction, position["stop"], price, None)
+            if gap_aware else price)
+    qty = position["qty_open"]
+    pts = (fill - position["entry"]) if long else (position["entry"] - fill)
+    pnl_usd = round(pts * MES.point_value * qty - MES.round_turn_usd * qty, 2)
+    new_pos = {**position, "status": "closed", "qty_open": 0,
+              "closed_at_et": now_et.strftime("%Y-%m-%dT%H:%M:%S")}
+    row = {
+        "ts_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"), "signal_ref": position["signal_ref"],
+        "direction": direction, "entry": position["entry"], "stop": position["stop"],
+        "tp1": position["tp1"], "event": event, "pnl_pts": round(pts, 4),
+        "pnl_usd_mes": pnl_usd, "exit_qty": qty, "fill_price": round(fill, 4),
+        "qty_open_after": 0, "reason": reason, "setup_name": position.get("setup_name"),
+        "source_arms": position.get("source_arms"),
+    }
+    return row, new_pos
+
+
+def _partial_tp1(position: dict, now_et: dt.datetime) -> tuple[dict, dict]:
+    from futures.instruments import MES  # noqa: PLC0415
+
+    direction = position["direction"]
+    long = direction == "long"
+    fill = position["tp1"]
+    qty = TP1_QTY
+    pts = (fill - position["entry"]) if long else (position["entry"] - fill)
+    pnl_usd = round(pts * MES.point_value * qty - MES.round_turn_usd * qty, 2)
+    remaining = position["qty_open"] - qty
+    new_pos = {**position, "qty_open": remaining, "tp1_filled": True,
+              "stop": position["entry"], "hwm": fill}
+    row = {
+        "ts_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"), "signal_ref": position["signal_ref"],
+        "direction": direction, "entry": position["entry"], "stop": position["stop"],
+        "tp1": position["tp1"], "event": EV_TP1, "pnl_pts": round(pts, 4),
+        "pnl_usd_mes": pnl_usd, "exit_qty": qty, "fill_price": round(fill, 4),
+        "qty_open_after": remaining, "reason": "tp1_touch_1R",
+        "setup_name": position.get("setup_name"), "source_arms": position.get("source_arms"),
+    }
+    return row, new_pos
+
+
+def decide_mirror_exit(position: dict, price: float, now_et: dt.datetime) -> tuple[Optional[dict], dict]:
+    """PURE (never mutates `position` -- always returns NEW dicts). Returns (row_or_None,
+    new_position). `row` is a ready-to-append mirror-would-be.jsonl record, or None for a
+    silent HOLD/HWM-ratchet (new_position may still differ from `position` in that case).
+
+    Priority per poll (matches futures_exit_manager.decide_exit's documented order, and the
+    "stop-first" convention used throughout this repo's sims -- swing_sim.py, the original
+    PHASE1 ExitEngine): 1) 2-session deadline (unconditional flatten) 2) stop leg (adverse
+    first: fixed pre-TP1 stop, or the ratcheted post-TP1 trailing stop) 3) target leg (TP1
+    touch pre-fill; a silent HWM/trailing-stop ratchet post-fill, no fixed runner target)."""
+    if position.get("status") != "open" or position.get("qty_open", 0) <= 0:
+        return None, position
+
+    direction = position["direction"]
+    long = direction == "long"
+
+    deadline = dt.datetime.strptime(position["deadline_et"], "%Y-%m-%dT%H:%M:%S")
+    if now_et >= deadline:
+        return _close_all(position, price, now_et, EV_TIME_FLAT, "2_session_deadline",
+                          gap_aware=False)
+
+    working = position
+    if position["tp1_filled"]:
+        prior_hwm = working["hwm"]
+        new_hwm = price if prior_hwm is None else (max(prior_hwm, price) if long else min(prior_hwm, price))
+        new_stop = _trail_stop(new_hwm, direction, position["r_points"])
+        if new_hwm != prior_hwm or new_stop != working["stop"]:
+            working = {**working, "hwm": new_hwm, "stop": new_stop}
+
+    stop_hit = (price <= working["stop"]) if long else (price >= working["stop"])
+    if stop_hit:
+        reason = "trail_stop_off_hwm" if working["tp1_filled"] else "full_stop_pre_tp1"
+        return _close_all(working, price, now_et, EV_STOPPED, reason, gap_aware=True)
+
+    if not working["tp1_filled"]:
+        tp1_hit = (price >= working["tp1"]) if long else (price <= working["tp1"])
+        if tp1_hit:
+            return _partial_tp1(working, now_et)
+
+    if working is not position:
+        return None, working
+    return None, position
+
+
+def _prune_closed_positions(positions: dict, now_et: dt.datetime,
+                            retention_days: int = CLOSED_POSITION_RETENTION_DAYS) -> dict:
+    """PURE. Drops CLOSED positions older than retention_days from the live JSON (the full
+    permanent record lives in mirror-would-be.jsonl regardless) -- OP-22 retention cap."""
+    out = {}
+    cutoff = now_et - dt.timedelta(days=retention_days)
+    for key, pos in positions.items():
+        if pos.get("status") != "closed":
+            out[key] = pos
+            continue
+        ts = _parse_ts_et(pos.get("closed_at_et"))
+        if ts is None or ts >= cutoff:
+            out[key] = pos
+    return out
+
+
+# ── state load ───────────────────────────────────────────────────────────────
+def load_watermark_state() -> dict:
+    return _load_json(WATERMARK_FILE, {
+        "arm_line_watermarks": {}, "seen_signal_keys": {}, "pending_signals": [],
+        "last_run_et": None,
+    })
+
+
+def load_positions_state() -> dict:
+    return _load_json(POSITIONS_FILE, {"positions": {}})
+
+
+# ── orchestration ────────────────────────────────────────────────────────────
+def run_once(*, now_et: Optional[dt.datetime] = None, quote_fetcher=None, atr_fetcher=None,
+            fleet_files: Optional[list] = None) -> dict:
+    """ONE poll pass. Never raises internally (every step is try/except-guarded and any
+    failure is recorded in the returned summary's `errors` list, not propagated) -- callers
+    that need a hard signal should inspect `summary["errors"]`."""
+    if now_et is None:
+        now_et = _et_now()
+    quote_fetcher = quote_fetcher or fetch_es_quote_1m
+    atr_fetcher = atr_fetcher or fetch_es_atr14
+    if fleet_files is None:
+        fleet_files = sorted(FLEET_DIR.glob("*/decisions.jsonl"))
+
+    _ensure_would_be_doc_header()
+    errors: list = []
+    wm_state = load_watermark_state()
+    positions = dict(load_positions_state().get("positions", {}))
+
+    # 1) scan every fleet arm's decisions.jsonl past its watermark, dedupe cross-arm.
+    #    COLD START (an arm never watermarked before): jump straight to end-of-file with
+    #    zero candidates instead of treating the whole historical backlog as "new". This
+    #    script mirrors FORWARD signals only -- opening a position for a signal that fired
+    #    days ago, priced with TODAY's quote/ATR, would be a real entry-price mismatch, not
+    #    honest shadow evidence. Only signals that fire AFTER a given arm is first watched
+    #    are ever mirrored (verified live 2026-07-09: an unguarded first run against the
+    #    real fleet logs opened 7 positions off signals up to 18 days stale before this
+    #    guard was added).
+    all_candidates = []
+    line_wm = dict(wm_state.get("arm_line_watermarks", {}))
+    for path in fleet_files:
+        arm_id = path.parent.name
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines() if path.exists() else []
+        except OSError as e:  # noqa: BLE001
+            errors.append(f"read_failed:{arm_id}:{type(e).__name__}:{e}")
+            lines = []
+        cold_start = arm_id not in line_wm
+        start = len(lines) if cold_start else int(line_wm[arm_id])
+        candidates, new_count = scan_arm_lines(lines, start)
+        for c in candidates:
+            c["arm_id"] = arm_id
+        all_candidates.extend(candidates)
+        line_wm[arm_id] = new_count
+
+    new_signals, seen_keys = dedupe_signals(
+        all_candidates, wm_state.get("seen_signal_keys", {}), now_et)
+    pending = _prune_stale_pending(
+        list(wm_state.get("pending_signals", [])) + new_signals, now_et)
+
+    # 2) one shared quote fetch this poll, only if there's anything to do with it.
+    open_keys = [k for k, p in positions.items() if p.get("status") == "open"]
+    quote = None
+    if pending or open_keys:
+        try:
+            quote = quote_fetcher()
+        except Exception as e:  # noqa: BLE001
+            errors.append(f"quote_fetch_failed:{type(e).__name__}:{e}")
+
+    # 3) open every pending signal this poll's quote+ATR can support; retry the rest.
+    opened, still_pending = 0, []
+    if pending:
+        atr = None
+        if quote is not None:
+            try:
+                atr = atr_fetcher()
+            except Exception as e:  # noqa: BLE001
+                errors.append(f"atr_fetch_failed:{type(e).__name__}:{e}")
+        for sig in pending:
+            if quote is None or atr is None:
+                still_pending.append(sig)
+                continue
+            pos = open_mirror_position(sig, quote, atr, now_et)
+            positions[pos["signal_ref"]] = pos
+            _append_jsonl(WOULD_BE_FILE, _placed_row(sig, pos))
+            _append_jsonl(WOULD_BE_FILE, _filled_row(pos, now_et))
+            opened += 1
+
+    # 4) manage every open position (including any just opened this poll).
+    events = 0
+    if quote is not None:
+        for key in [k for k, p in positions.items() if p.get("status") == "open"]:
+            try:
+                row, new_pos = decide_mirror_exit(positions[key], quote, now_et)
+                positions[key] = new_pos
+                if row is not None:
+                    _append_jsonl(WOULD_BE_FILE, row)
+                    events += 1
+            except Exception as e:  # noqa: BLE001
+                errors.append(f"manage_failed:{key}:{type(e).__name__}:{e}")
+
+    positions = _prune_closed_positions(positions, now_et)
+
+    _atomic_write_json(WATERMARK_FILE, {
+        "_doc": WATERMARK_DOC, "arm_line_watermarks": line_wm, "seen_signal_keys": seen_keys,
+        "pending_signals": still_pending, "last_run_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"),
+    })
+    _atomic_write_json(POSITIONS_FILE, {"_doc": POSITIONS_DOC, "positions": positions})
+
+    return {
+        "new_signals": len(new_signals), "opened": opened, "pending_retry": len(still_pending),
+        "events": events,
+        "positions_open": sum(1 for p in positions.values() if p.get("status") == "open"),
+        "errors": errors,
+    }
+
+
+def main() -> int:
+    """CLI entry point. ALWAYS returns 0 (fail-open) -- every exception is caught + logged,
+    never re-raised (task requirement: a scheduled fire must never break the chain)."""
+    try:
+        ap = argparse.ArgumentParser()
+        ap.add_argument("--once", action="store_true",
+                        help="run exactly one poll pass (the only mode this script has; "
+                             "kept for explicit/literal CLI compliance)")
+        ap.parse_args()
+        summary = run_once()
+        _log(f"pass complete: {json.dumps(summary, default=str)[:2000]}")
+        return 0
+    except Exception as e:  # noqa: BLE001 -- fail-open is the task's explicit requirement
+        try:
+            _log(f"main() FAILED (fail-open, exit 0 anyway): {type(e).__name__}: {e}\n"
+                f"{traceback.format_exc()}")
+        except Exception:  # noqa: BLE001 -- even logging must not break the fail-open contract
+            pass
+        return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
