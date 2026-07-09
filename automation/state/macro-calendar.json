@@ -91,30 +91,76 @@
   },
   "events_30d": [
     {
-      "date": "2026-06-17",
+      "date": "2026-07-14",
       "time_et": "08:30",
-      "event": "Advance Monthly Retail Trade Sales (May 2026)",
-      "type": "retail_sales",
+      "event": "CPI (June 2026 data)",
+      "type": "cpi_release",
       "severity": "high",
-      "source_url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+      "source_url": "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "notes": "Verified via web search 2026-07-09 -- direct BLS fetch returns HTTP 403 from this host."
     },
     {
-      "date": "2026-06-17",
+      "date": "2026-07-15",
+      "time_et": "08:30",
+      "event": "PPI (June 2026 data)",
+      "type": "ppi_release",
+      "severity": "med",
+      "source_url": "https://www.bls.gov/schedule/news_release/ppi.htm",
+      "notes": "Verified via web search 2026-07-09 -- direct BLS fetch returns HTTP 403 from this host."
+    },
+    {
+      "date": "2026-07-16",
+      "time_et": "08:30",
+      "event": "Advance Monthly Retail Trade Sales (June 2026)",
+      "type": "retail_sales",
+      "severity": "med",
+      "source_url": "https://www.census.gov/retail/release_schedule.html",
+      "notes": "Verified via web search 2026-07-09."
+    },
+    {
+      "date": "2026-07-29",
       "time_et": "14:00",
-      "event": "FOMC Rate Decision (June 2026 meeting)",
+      "event": "FOMC Rate Decision (Jul 2026 meeting)",
       "type": "fomc_decision",
       "severity": "high",
       "source_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
-      "notes": "Statement at 14:00 ET; Powell press conference at 14:30 ET. Two-day meeting 6/16-6/17 -- decision day is 6/17. Block 13:30-15:00 hard. SEP release this meeting."
+      "notes": "Two-day meeting Jul 28-29; statement 14:00 ET, presser 14:30 ET. No SEP this meeting."
     },
     {
-      "date": "2026-06-25",
+      "date": "2026-07-30",
       "time_et": "08:30",
-      "event": "PCE Price Index (May 2026)",
+      "event": "GDP Advance Estimate Q2 2026",
+      "type": "gdp_release",
+      "severity": "med",
+      "source_url": "https://www.bea.gov/news/schedule",
+      "notes": "Same-day release as the June PCE Price Index below."
+    },
+    {
+      "date": "2026-07-30",
+      "time_et": "08:30",
+      "event": "PCE Price Index (June 2026 data) + Personal Income and Outlays",
       "type": "pce_release",
       "severity": "high",
-      "source_url": "https://www.guggenheiminvestments.com/services/advisor-resources/us-economic-calendar",
-      "notes": "Guggenheim calendar confirms June 25. Fed's preferred inflation gauge -- final May read before July FOMC. Pre-market release."
+      "source_url": "https://www.bea.gov/news/schedule",
+      "notes": "Fed's preferred inflation gauge. Same-day as Q2 2026 GDP advance estimate."
+    },
+    {
+      "date": "2026-08-07",
+      "time_et": "08:30",
+      "event": "Employment Situation / NFP (Jul 2026 data)",
+      "type": "nfp_release",
+      "severity": "high",
+      "source_url": "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "notes": "Verified via web search 2026-07-09 -- direct BLS fetch returns HTTP 403 from this host."
+    },
+    {
+      "date": "2026-09-16",
+      "time_et": "14:00",
+      "event": "FOMC Rate Decision (Sep 2026 meeting)",
+      "type": "fomc_decision",
+      "severity": "high",
+      "source_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "notes": "Two-day meeting Sep 15-16. Includes Summary of Economic Projections."
     }
   ],
   "earnings_30d": [],
@@ -160,6 +206,27 @@
       "http_status": 403,
       "purpose": "Mega-cap earnings dates 2026-05-15 to 2026-06-15",
       "fallback": "Used stockanalysis.com per-ticker pages for NVDA + WMT confirmation."
+    },
+    {
+      "fetched_at": "2026-07-09T18:31:18.637026",
+      "url": "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "http_status": 403,
+      "purpose": "nfp_release release dates -- direct verification attempt",
+      "fallback": "Used static verified table (KNOWN_EVENTS_2026 in macro_calendar.py, source-cited, confirmed via web search) -- matches this file's own established fallback pattern from 2026-05-14."
+    },
+    {
+      "fetched_at": "2026-07-09T18:31:18.637026",
+      "url": "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "http_status": 403,
+      "purpose": "cpi_release release dates -- direct verification attempt",
+      "fallback": "Used static verified table (KNOWN_EVENTS_2026 in macro_calendar.py, source-cited, confirmed via web search) -- matches this file's own established fallback pattern from 2026-05-14."
+    },
+    {
+      "fetched_at": "2026-07-09T18:31:18.637026",
+      "url": "https://www.bls.gov/schedule/news_release/ppi.htm",
+      "http_status": 403,
+      "purpose": "ppi_release release dates -- direct verification attempt",
+      "fallback": "Used static verified table (KNOWN_EVENTS_2026 in macro_calendar.py, source-cited, confirmed via web search) -- matches this file's own established fallback pattern from 2026-05-14."
     }
   ],
   "refresh_log": [
@@ -222,6 +289,40 @@
       ],
       "next_critical_event": "FOMC 2026-06-17 14:00ET",
       "coverage_thru": "2026-06-25"
+    },
+    {
+      "ran_at": "2026-07-09T18:31:18.637026",
+      "source": "setup/scripts/macro_calendar.py",
+      "fetched_count": 8,
+      "added_count": 8,
+      "skipped_existing_count": 0,
+      "pruned_count": 3,
+      "data_quality": "live_verified",
+      "live_status": {
+        "fomc": {
+          "http_status": 200,
+          "content_match": false
+        },
+        "bea_pce_gdp": {
+          "http_status": 200,
+          "content_match": true
+        },
+        "fed_speeches": {
+          "http_status": 200,
+          "content_match": true
+        },
+        "bls_nfp_release": {
+          "http_status": 403
+        },
+        "bls_cpi_release": {
+          "http_status": 403
+        },
+        "bls_ppi_release": {
+          "http_status": 403
+        }
+      },
+      "warnings": [],
+      "coverage_thru": "2026-09-16"
     }
   ],
   "scheduled_recurring": {

@@ -1,88 +1,69 @@
 {
-  "as_of": "2026-06-15T23:00:00-04:00",
-  "for_session": "2026-06-16",
-  "regime": "low_vix_bull_drift_pre_fomc",
-  "refresh_source": "Interactive session 2026-06-15 ~23:00 ET — refreshed from stale NVDA 5/20 file. Next auto-refresh: premarket 08:30 ET 2026-06-16.",
-
-  "catalyst_summary": "SPY BULL SESSION 2026-06-15: SPY closed 754.37 (high 756.68 +0.6% from prior close). VIX 16.11 and FALLING — fear unwind continues. No macro catalysts today. **FOMC Wednesday 2026-06-17**: Rate decision at 14:00 ET — 13:30-15:00 ET hard no-trade window on BOTH accounts. Retail Sales 08:30 ET Wed (medium, premarket). Pre-FOMC drift typically bullish into the decision. Bold account closed a SPY752C runner at +$552 today after 10:27 ET entry — first confirmed live BULL win on the account.",
-
+  "as_of": "2026-07-09T18:31:19.707570",
+  "for_session": "2026-07-09",
+  "regime": "not_computed -- mechanical generator has no VIX/chart access; see today-bias.json#iv_regime",
+  "generator": "setup/scripts/macro_calendar.py",
+  "mechanical": true,
+  "freshness_stamp": "2026-07-09T18:31:19.707570",
+  "catalyst_summary": "MECHANICAL MACRO DIGEST (setup/scripts/macro_calendar.py -- no chart/VIX read). Session 2026-07-09 has no scheduled high/med-severity macro event. Next up: CPI (June 2026 data) on 2026-07-14 at 08:30 ET (severity=high). VIX/chart/level context is out of this script's scope -- see today-bias.json (premarket's live TradingView read) for that.",
   "primary_catalyst": {
     "type": "macro_calendar",
-    "name": "FOMC Rate Decision — 2026-06-17",
-    "timing_et": "14:00 ET Wednesday 2026-06-17",
-    "description": "Federal Reserve rate decision Wednesday 2026-06-17 at 14:00 ET. Market expectation: hold at current rate. Pre-FOMC sessions (Mon-Tue) tend to trade with reduced volatility and slight bull drift as uncertainty is priced out. Immediate impact on Monday 2026-06-16: NONE directly — but position traders may keep size small going into Wednesday. The 13:30-15:00 ET no-trade window is MANDATORY on Wednesday, not Monday.",
-    "direction": "neutral_pre_event",
-    "confidence": "high",
-    "spy_impact": "Monday clean — no direct FOMC impact. Wednesday block 13:30-15:00 ET. Bull bias intact as long as VIX stays below 17.20.",
-    "fragility": "Any Fed speaker surprise Monday or Tuesday could spike VIX. Watch for headlines 09:00-16:00 ET."
+    "name": "CPI (June 2026 data)",
+    "timing_et": "08:30 ET 2026-07-14",
+    "description": "CPI (June 2026 data) -- severity=high. Source: https://www.bls.gov/schedule/news_release/cpi.htm Notes: Verified via web search 2026-07-09 -- direct BLS fetch returns HTTP 403 from this host.",
+    "direction": "unknown_mechanical -- no chart/VIX read performed by this generator",
+    "confidence": "high (date/time sourced + cited)",
+    "spy_impact": "not computed by mechanical generator; requires live chart read (see today-bias.json)",
+    "fragility": "not computed by mechanical generator; requires live chart read (see today-bias.json)"
   },
-
   "secondary_catalysts": [
     {
-      "type": "macro_data",
-      "name": "Retail Sales",
-      "timing_et": "08:30 ET Wednesday 2026-06-17",
-      "description": "Medium-impact economic data. Hot (strong consumer) = bullish in isolation, but FOMC same day means market may read it as hawkish (Fed holds longer). Cool = Fed has cover to cut later = risk-on. Both prints could be reversed by FOMC reaction.",
-      "direction": "ambiguous",
-      "confidence": "low",
-      "fragility": "Retail Sales volatility typically contained vs FOMC. 30-60 min price reaction max."
+      "type": "macro_calendar",
+      "name": "PPI (June 2026 data)",
+      "timing_et": "08:30 ET 2026-07-15",
+      "description": "PPI (June 2026 data) -- severity=med. Source: https://www.bls.gov/schedule/news_release/ppi.htm Notes: Verified via web search 2026-07-09 -- direct BLS fetch returns HTTP 403 from this host.",
+      "direction": "unknown_mechanical -- no chart/VIX read performed by this generator",
+      "confidence": "high (date/time sourced + cited)",
+      "spy_impact": "not computed by mechanical generator; requires live chart read (see today-bias.json)",
+      "fragility": "not computed by mechanical generator; requires live chart read (see today-bias.json)"
     },
     {
-      "type": "macro_data",
-      "name": "PCE",
-      "timing_et": "08:30 ET Thursday 2026-06-25",
-      "description": "High-impact Fed's preferred inflation gauge. Not this week — flagged for awareness only.",
-      "direction": "unknown",
-      "confidence": "low"
+      "type": "macro_calendar",
+      "name": "Advance Monthly Retail Trade Sales (June 2026)",
+      "timing_et": "08:30 ET 2026-07-16",
+      "description": "Advance Monthly Retail Trade Sales (June 2026) -- severity=med. Source: https://www.census.gov/retail/release_schedule.html Notes: Verified via web search 2026-07-09.",
+      "direction": "unknown_mechanical -- no chart/VIX read performed by this generator",
+      "confidence": "high (date/time sourced + cited)",
+      "spy_impact": "not computed by mechanical generator; requires live chart read (see today-bias.json)",
+      "fragility": "not computed by mechanical generator; requires live chart read (see today-bias.json)"
     },
     {
-      "type": "market_context",
-      "name": "SPY new intraday high 756.68",
-      "description": "SPY reached 756.68 today — multi-month high. Tomorrow's PMH = 756.68, PML = 751.65, prior close 754.37. Bull continuation above 756.68 = fresh breakout, aggressive trail mode. Bear only if 751.65 breaks with BEAR ribbon.",
-      "direction": "bullish",
-      "confidence": "high"
+      "type": "macro_calendar",
+      "name": "FOMC Rate Decision (Jul 2026 meeting)",
+      "timing_et": "14:00 ET 2026-07-29",
+      "description": "FOMC Rate Decision (Jul 2026 meeting) -- severity=high. Source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm Notes: Two-day meeting Jul 28-29; statement 14:00 ET, presser 14:30 ET. No SEP this meeting.",
+      "direction": "unknown_mechanical -- no chart/VIX read performed by this generator",
+      "confidence": "high (date/time sourced + cited)",
+      "spy_impact": "not computed by mechanical generator; requires live chart read (see today-bias.json)",
+      "fragility": "not computed by mechanical generator; requires live chart read (see today-bias.json)"
     }
   ],
-
-  "vix_expectation": "VIX 16.11 falling. LOW regime (below 17). Pre-FOMC Monday: expect VIX to stay 15-17 range unless news shock. BEAR gate tightens when VIX > 17.20. Current tape strongly favors BULL setups on any trigger confirmation.",
-
+  "vix_expectation": "VIX not read by this script (no live market data access) -- see today-bias.json#vix_at_open / vix_bias from premarket's TradingView read for the current VIX level and regime.",
   "key_levels_for_session": {
-    "critical_level": "756.68 (today's PMH = tomorrow's breakout level)",
-    "critical_level_note": "First test of 756.68 tomorrow = the key decision bar. Break + hold above = fresh highs, trail mode. Rejection = midday stall/fade candidate. Bold already has a win at 752C today — accounts are clean for full participation.",
-    "bear_scenario": "SPY fails at 756.68 PMH and fades back through 754 then 751.65 PML with ribbon flip to BEAR → BEARISH_REJECTION entry candidate. Low probability without a news catalyst.",
-    "bull_scenario": "SPY opens above 754, confirms PMH 756.68 hold or breakout on morning bar with BULL ribbon → BULL entry. ORB watcher should fire if opening range < $2.00 and price breaks the range.",
-    "no_trade_scenario": "SPY oscillates 753-756 range in choppy pre-FOMC consolidation → watcher signals = developing, no clean trigger → wait, do not force."
+    "note": "Not computed by this script -- see today-bias.json#key_levels (premarket's live chart read)."
   },
-
+  "no_trade_windows_added_for_today": [],
   "implication_for_setups": {
-    "bearish_setup": "LOW PROBABILITY. Only if PMH 756.68 shows clear rejection pattern with BEAR ribbon and VIX ticking up above 17.",
-    "bullish_setup": "PRIMARY. Gap-up continuation OR PMH breakout OR ORB_RETEST_LONG (OR range < $2.00). Look for level_reclaim + second trigger (ribbon_flip or confluence) for 10/11 Safe entry. Bold enters at 9/11 with positive ribbon.",
-    "watcher_observation": "CRITICAL NOTE: watcher_live.py staleness fix (L90) deployed tonight — tomorrow is the FIRST session where all 6 watchers fire real intraday observations. Watch watcher-live-diag.jsonl for entries after 09:30. ORB watcher should fire if OR < $2.00 (common on trend days)."
+    "note": "Not computed by this script -- see today-bias.json#news_calendar / bias_note (premarket combines this calendar with a live chart read)."
   },
-
-  "no_trade_windows_added_for_today": [
-    {"start_et": "13:30", "end_et": "15:00", "date": "2026-06-17", "reason": "FOMC Rate Decision 14:00 ET — hard no-trade window WEDNESDAY ONLY, not Monday or Tuesday"}
-  ],
-
   "accounts_context": {
-    "bold_equity": 1673.46,
-    "bold_today_pnl": 551.80,
-    "safe_equity": 713.50,
-    "safe_today_pnl": 0.0,
-    "note": "Bold SPY752C win today: entered 10:27 ET, runner +404% at 12:57 ET, exited by chandelier trail. Safe sidelined all day: 9/11 bull near-miss at 09:39 (single trigger only), score dropped to 8/11 mid-session. Tomorrow: Safe needs 2 confirmed triggers (≥10/11) to enter. Bold enters at 9/11 with confirmed ribbon."
+    "note": "Not computed by this script -- see automation/state/circuit-breaker.json / aggressive/circuit-breaker.json for live account equity."
   },
-
-  "watch_for_reversal": [
-    "VIX spikes above 17.50 premarket or on 09:35 bar → tighten bull entry threshold, bear becomes viable",
-    "ES futures down >0.5% premarket → gap-down open, check PML 751.65 as support; bear if breaks",
-    "Fed speaker surprise before 14:00 ET Monday → could move VIX ±1-2 points; read news.json update at premarket",
-    "SPY breaks above 758 with strong volume → trend-day-up mode; trail hard, no TP1 exit",
-    "SPY opens below 751 → bear setup possible; check if 751.65 PML reclaim fails"
-  ],
-
+  "watch_for_reversal": [],
   "sources": [
-    {"note": "Updated by interactive session 2026-06-15 23:00 ET from today's session data and FOMC calendar. No external web scrape — based on observed market data (SPY close 754.37, VIX 16.11, Bold +$552 today). Premarket 08:30 ET should verify ES futures + SPY premarket before confirming bias."}
+    {
+      "note": "Machine-generated by setup/scripts/macro_calendar.py from automation/state/macro-calendar.json#events_30d (see that file's own refresh_log[] for per-source fetch provenance)."
+    }
   ],
-
-  "next_scheduled_news_check": "premarket fire 08:30 ET 2026-06-16 — check ES futures, SPY premarket, any overnight headlines"
+  "next_scheduled_news_check": "proposed daily premarket fire ~07:45 ET (see report for schedule row)"
 }
