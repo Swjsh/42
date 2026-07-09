@@ -23,7 +23,9 @@ from futures.risk import PropAccount, TOPSTEP_50K, APEX_50K, size_contracts
 from futures.strategy_config        import should_take as should_take_v2b
 from futures.strategy_config_v3     import should_take as should_take_v3
 from futures.strategy_config_v3_mes import should_take_v3_mes
-from futures.data import load_continuous_csv, rth_only, resample_5m
+from futures.data import (
+    load_continuous_csv, rth_only, resample_5m, resample_daily, resample_4h_rth,
+)
 
 
 # ─── Instrument specs ──────────────────────────────────────────────────────────
@@ -324,6 +326,32 @@ class TestDataLoading:
         assert df["close"].min() > 3000, "MES close too low"
         assert df["close"].max() < 10000, "MES close too high"
 
+    def test_load_continuous_csv_handles_mixed_dst_offsets(self):
+        """Regression (found 2026-07-09): a continuous CSV spanning a DST
+        transition has rows like "...-05:00" then "...-04:00" -- current
+        pandas parses that mixed-offset column to object dtype, and the old
+        code's `.dt` accessor raised AttributeError. Real repro: the MES 1m
+        cache spans 2025-01-01..2026-06-12 (crosses 2 DST boundaries)."""
+        import tempfile
+        rows = (
+            "timestamp_et,open,high,low,close,volume\n"
+            "2025-01-01 18:00:00-05:00,5947.00,5950.75,5943.50,5945.75,1398\n"
+            "2025-06-15 09:30:00-04:00,5980.00,5985.00,5978.00,5982.00,2000\n"
+        )
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False,
+                                          newline="") as f:
+            f.write(rows)
+            tmp = Path(f.name)
+        try:
+            df = load_continuous_csv(str(tmp))
+            assert len(df) == 2
+            assert str(df["timestamp_et"].dt.tz) == "America/New_York"
+            # DST-aware: both rows are 18:00/09:30 ET wall-clock in their own offset.
+            assert df["timestamp_et"].iloc[0].hour == 18
+            assert df["timestamp_et"].iloc[1].hour == 9
+        finally:
+            tmp.unlink(missing_ok=True)
+
     def test_rth_filter(self):
         df = pd.read_csv(self.DATA_DIR / "MNQ_5m_continuous.csv")
         # Build a clean DataFrame with tz-aware timestamp_et
@@ -338,6 +366,49 @@ class TestDataLoading:
         times = rth["timestamp_et"].dt.time
         assert (times >= dt.time(9, 30)).all()
         assert (times < dt.time(16, 0)).all()
+
+    def _clean_mes_frame(self) -> pd.DataFrame:
+        df = pd.read_csv(self.DATA_DIR / "MES_1m_continuous.csv")
+        ts = pd.to_datetime(df["timestamp_et"], utc=True).dt.tz_convert("America/New_York")
+        return pd.DataFrame({"timestamp_et": ts, "open": df["open"], "high": df["high"],
+                              "low": df["low"], "close": df["close"], "volume": df["volume"]})
+
+    def test_resample_daily_one_bar_per_session(self):
+        daily = resample_daily(self._clean_mes_frame())
+        assert len(daily) > 300  # ~367 trading days over the 18mo window
+        assert daily["date"].is_unique
+        assert (daily["timestamp_et"].dt.time == dt.time(9, 30)).all()
+        assert (daily["high"] >= daily["low"]).all()
+
+    def test_resample_daily_ohlc_matches_manual_groupby(self):
+        clean = self._clean_mes_frame()
+        rth = rth_only(clean)
+        daily = resample_daily(clean)
+        first_date = rth["timestamp_et"].dt.date.iloc[0]
+        day_rows = rth[rth["timestamp_et"].dt.date == first_date]
+        row = daily[daily["date"] == first_date].iloc[0]
+        assert row["open"] == pytest.approx(day_rows["open"].iloc[0])
+        assert row["close"] == pytest.approx(day_rows["close"].iloc[-1])
+        assert row["high"] == pytest.approx(day_rows["high"].max())
+        assert row["low"] == pytest.approx(day_rows["low"].min())
+
+    def test_resample_4h_rth_two_buckets_per_day(self):
+        h4 = resample_4h_rth(self._clean_mes_frame())
+        counts = h4.groupby("date").size()
+        # Every session should have exactly 2 buckets: [09:30,13:30) and [13:30,16:00).
+        assert (counts <= 2).all()
+        assert (counts.mode()[0]) == 2
+        times = h4["timestamp_et"].dt.time
+        assert set(times.unique()) <= {dt.time(9, 30), dt.time(13, 30)}
+
+    def test_resample_4h_rth_no_lookahead_within_bucket(self):
+        h4 = resample_4h_rth(self._clean_mes_frame())
+        # Second bucket (13:30 start) must never contain data before 13:30 and
+        # the first bucket must never contain data at/after 13:30 (bucket
+        # boundaries are exclusive on the right, matching RTH_4H_BOUNDARIES).
+        first = h4[h4["timestamp_et"].dt.time == dt.time(9, 30)]
+        second = h4[h4["timestamp_et"].dt.time == dt.time(13, 30)]
+        assert len(first) > 0 and len(second) > 0
 
 
 # ─── End-to-end signal smoke test ──────────────────────────────────────────────
