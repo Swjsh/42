@@ -1,0 +1,2007 @@
+{
+  "window": "2025-01-01..2026-06-18",
+  "n": 250,
+  "signal_strike_offset": 2,
+  "signals": [
+    {
+      "date": "2025-01-06",
+      "entry_ts": "2025-01-06T14:45:00",
+      "side": "P",
+      "entry_spot": 596.45,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-01-07",
+      "entry_ts": "2025-01-07T13:50:00",
+      "side": "P",
+      "entry_spot": 590.01,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-01-07",
+      "entry_ts": "2025-01-07T15:40:00",
+      "side": "P",
+      "entry_spot": 590.1,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-01-08",
+      "entry_ts": "2025-01-08T12:50:00",
+      "side": "P",
+      "entry_spot": 589.53,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-01-10",
+      "entry_ts": "2025-01-10T10:35:00",
+      "side": "P",
+      "entry_spot": 585.03,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-01-13",
+      "entry_ts": "2025-01-13T12:00:00",
+      "side": "P",
+      "entry_spot": 577.915,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-01-16",
+      "entry_ts": "2025-01-16T12:05:00",
+      "side": "C",
+      "entry_spot": 593.88,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-01-16",
+      "entry_ts": "2025-01-16T15:15:00",
+      "side": "P",
+      "entry_spot": 592.045,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-01-24",
+      "entry_ts": "2025-01-24T13:50:00",
+      "side": "P",
+      "entry_spot": 609.365,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-01-29",
+      "entry_ts": "2025-01-29T12:20:00",
+      "side": "P",
+      "entry_spot": 602.455,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-01-30",
+      "entry_ts": "2025-01-30T10:40:00",
+      "side": "C",
+      "entry_spot": 604.49,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-02-03",
+      "entry_ts": "2025-02-03T12:25:00",
+      "side": "P",
+      "entry_spot": 598.66,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-02-05",
+      "entry_ts": "2025-02-05T12:45:00",
+      "side": "C",
+      "entry_spot": 601.805,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-02-06",
+      "entry_ts": "2025-02-06T12:40:00",
+      "side": "P",
+      "entry_spot": 605.19,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-02-07",
+      "entry_ts": "2025-02-07T12:50:00",
+      "side": "P",
+      "entry_spot": 601.75,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-02-12",
+      "entry_ts": "2025-02-12T14:40:00",
+      "side": "C",
+      "entry_spot": 603.695,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-02-12",
+      "entry_ts": "2025-02-12T15:50:00",
+      "side": "C",
+      "entry_spot": 604.195,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-02-14",
+      "entry_ts": "2025-02-14T13:25:00",
+      "side": "P",
+      "entry_spot": 609.49,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-02-14",
+      "entry_ts": "2025-02-14T14:55:00",
+      "side": "P",
+      "entry_spot": 610.655,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-02-18",
+      "entry_ts": "2025-02-18T15:40:00",
+      "side": "P",
+      "entry_spot": 609.29,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-02-20",
+      "entry_ts": "2025-02-20T12:40:00",
+      "side": "P",
+      "entry_spot": 607.67,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-02-20",
+      "entry_ts": "2025-02-20T14:00:00",
+      "side": "P",
+      "entry_spot": 608.04,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-02-21",
+      "entry_ts": "2025-02-21T12:50:00",
+      "side": "P",
+      "entry_spot": 606.77,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-02-21",
+      "entry_ts": "2025-02-21T14:05:00",
+      "side": "P",
+      "entry_spot": 603.18,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-02-24",
+      "entry_ts": "2025-02-24T11:05:00",
+      "side": "P",
+      "entry_spot": 597.32,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-02-24",
+      "entry_ts": "2025-02-24T13:30:00",
+      "side": "P",
+      "entry_spot": 601.12,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-02-25",
+      "entry_ts": "2025-02-25T14:15:00",
+      "side": "P",
+      "entry_spot": 594.96,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-03-18",
+      "entry_ts": "2025-03-18T11:00:00",
+      "side": "P",
+      "entry_spot": 560.895,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-03-20",
+      "entry_ts": "2025-03-20T12:00:00",
+      "side": "P",
+      "entry_spot": 568.155,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-03-25",
+      "entry_ts": "2025-03-25T12:40:00",
+      "side": "P",
+      "entry_spot": 574.415,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-03-26",
+      "entry_ts": "2025-03-26T12:05:00",
+      "side": "P",
+      "entry_spot": 570.47,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-04-02",
+      "entry_ts": "2025-04-02T15:00:00",
+      "side": "P",
+      "entry_spot": 561.23,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-05-09",
+      "entry_ts": "2025-05-09T12:05:00",
+      "side": "P",
+      "entry_spot": 564.18,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-05-14",
+      "entry_ts": "2025-05-14T14:05:00",
+      "side": "P",
+      "entry_spot": 587.34,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-05-20",
+      "entry_ts": "2025-05-20T12:15:00",
+      "side": "P",
+      "entry_spot": 592.59,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-05-28",
+      "entry_ts": "2025-05-28T11:30:00",
+      "side": "P",
+      "entry_spot": 589.435,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-05-29",
+      "entry_ts": "2025-05-29T14:00:00",
+      "side": "P",
+      "entry_spot": 588.55,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-05-30",
+      "entry_ts": "2025-05-30T12:05:00",
+      "side": "P",
+      "entry_spot": 587.7,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-06-04",
+      "entry_ts": "2025-06-04T13:40:00",
+      "side": "P",
+      "entry_spot": 597.3,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-06-05",
+      "entry_ts": "2025-06-05T14:05:00",
+      "side": "P",
+      "entry_spot": 595.25,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-06-05",
+      "entry_ts": "2025-06-05T15:05:00",
+      "side": "P",
+      "entry_spot": 594.93,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-06-06",
+      "entry_ts": "2025-06-06T12:05:00",
+      "side": "P",
+      "entry_spot": 598.75,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-06-06",
+      "entry_ts": "2025-06-06T14:00:00",
+      "side": "C",
+      "entry_spot": 598.95,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-06-10",
+      "entry_ts": "2025-06-10T10:25:00",
+      "side": "C",
+      "entry_spot": 601.19,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-06-11",
+      "entry_ts": "2025-06-11T13:25:00",
+      "side": "C",
+      "entry_spot": 604.185,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-06-11",
+      "entry_ts": "2025-06-11T14:05:00",
+      "side": "P",
+      "entry_spot": 600.92,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-06-12",
+      "entry_ts": "2025-06-12T12:05:00",
+      "side": "P",
+      "entry_spot": 602.08,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-06-13",
+      "entry_ts": "2025-06-13T14:05:00",
+      "side": "P",
+      "entry_spot": 599.11,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-06-16",
+      "entry_ts": "2025-06-16T12:25:00",
+      "side": "P",
+      "entry_spot": 603.315,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-06-17",
+      "entry_ts": "2025-06-17T10:05:00",
+      "side": "P",
+      "entry_spot": 600.485,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-06-18",
+      "entry_ts": "2025-06-18T14:05:00",
+      "side": "P",
+      "entry_spot": 598.67,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-06-20",
+      "entry_ts": "2025-06-20T12:15:00",
+      "side": "P",
+      "entry_spot": 594.48,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-06-20",
+      "entry_ts": "2025-06-20T13:05:00",
+      "side": "P",
+      "entry_spot": 595.1,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-06-25",
+      "entry_ts": "2025-06-25T13:10:00",
+      "side": "P",
+      "entry_spot": 606.305,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-06-25",
+      "entry_ts": "2025-06-25T14:35:00",
+      "side": "P",
+      "entry_spot": 606.24,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-06-26",
+      "entry_ts": "2025-06-26T09:45:00",
+      "side": "C",
+      "entry_spot": 609.25,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-07-01",
+      "entry_ts": "2025-07-01T15:30:00",
+      "side": "C",
+      "entry_spot": 618.365,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-07-02",
+      "entry_ts": "2025-07-02T10:40:00",
+      "side": "C",
+      "entry_spot": 618.895,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-07-07",
+      "entry_ts": "2025-07-07T11:00:00",
+      "side": "P",
+      "entry_spot": 622.18,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-07-09",
+      "entry_ts": "2025-07-09T09:45:00",
+      "side": "C",
+      "entry_spot": 624.06,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-07-10",
+      "entry_ts": "2025-07-10T15:10:00",
+      "side": "C",
+      "entry_spot": 626.475,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-07-11",
+      "entry_ts": "2025-07-11T10:30:00",
+      "side": "P",
+      "entry_spot": 624.01,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-07-15",
+      "entry_ts": "2025-07-15T12:30:00",
+      "side": "P",
+      "entry_spot": 624.27,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-07-16",
+      "entry_ts": "2025-07-16T13:20:00",
+      "side": "P",
+      "entry_spot": 623.515,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-07-17",
+      "entry_ts": "2025-07-17T09:40:00",
+      "side": "C",
+      "entry_spot": 624.795,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-07-18",
+      "entry_ts": "2025-07-18T12:50:00",
+      "side": "P",
+      "entry_spot": 627.1,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-07-21",
+      "entry_ts": "2025-07-21T09:45:00",
+      "side": "C",
+      "entry_spot": 629.42,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-07-21",
+      "entry_ts": "2025-07-21T15:30:00",
+      "side": "P",
+      "entry_spot": 629.45,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-07-28",
+      "entry_ts": "2025-07-28T09:55:00",
+      "side": "C",
+      "entry_spot": 637.295,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-07-28",
+      "entry_ts": "2025-07-28T13:25:00",
+      "side": "P",
+      "entry_spot": 636.33,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-07-28",
+      "entry_ts": "2025-07-28T14:45:00",
+      "side": "P",
+      "entry_spot": 635.98,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-07-29",
+      "entry_ts": "2025-07-29T14:45:00",
+      "side": "P",
+      "entry_spot": 635.695,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-07-30",
+      "entry_ts": "2025-07-30T13:20:00",
+      "side": "P",
+      "entry_spot": 636.26,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-07-31",
+      "entry_ts": "2025-07-31T12:55:00",
+      "side": "P",
+      "entry_spot": 637.835,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-08-01",
+      "entry_ts": "2025-08-01T14:00:00",
+      "side": "P",
+      "entry_spot": 620.63,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-08-05",
+      "entry_ts": "2025-08-05T11:40:00",
+      "side": "P",
+      "entry_spot": 627.53,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-08-05",
+      "entry_ts": "2025-08-05T15:10:00",
+      "side": "P",
+      "entry_spot": 628.735,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-08-07",
+      "entry_ts": "2025-08-07T10:40:00",
+      "side": "C",
+      "entry_spot": 633.885,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-08-07",
+      "entry_ts": "2025-08-07T11:50:00",
+      "side": "P",
+      "entry_spot": 631.405,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-08-07",
+      "entry_ts": "2025-08-07T13:05:00",
+      "side": "P",
+      "entry_spot": 630.83,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-08-08",
+      "entry_ts": "2025-08-08T09:40:00",
+      "side": "C",
+      "entry_spot": 634.32,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-08-11",
+      "entry_ts": "2025-08-11T09:40:00",
+      "side": "C",
+      "entry_spot": 637.5,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-08-11",
+      "entry_ts": "2025-08-11T12:05:00",
+      "side": "C",
+      "entry_spot": 637.89,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-08-11",
+      "entry_ts": "2025-08-11T14:05:00",
+      "side": "P",
+      "entry_spot": 636.59,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-08-12",
+      "entry_ts": "2025-08-12T09:55:00",
+      "side": "C",
+      "entry_spot": 638.265,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-08-13",
+      "entry_ts": "2025-08-13T11:40:00",
+      "side": "P",
+      "entry_spot": 643.685,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-08-14",
+      "entry_ts": "2025-08-14T13:30:00",
+      "side": "C",
+      "entry_spot": 645.01,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-08-15",
+      "entry_ts": "2025-08-15T11:25:00",
+      "side": "P",
+      "entry_spot": 643.47,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-08-18",
+      "entry_ts": "2025-08-18T09:45:00",
+      "side": "P",
+      "entry_spot": 643.22,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-08-18",
+      "entry_ts": "2025-08-18T11:20:00",
+      "side": "P",
+      "entry_spot": 642.9,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-08-19",
+      "entry_ts": "2025-08-19T11:55:00",
+      "side": "P",
+      "entry_spot": 640.8,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-08-20",
+      "entry_ts": "2025-08-20T09:55:00",
+      "side": "P",
+      "entry_spot": 635.53,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-08-20",
+      "entry_ts": "2025-08-20T15:15:00",
+      "side": "C",
+      "entry_spot": 638.21,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-08-22",
+      "entry_ts": "2025-08-22T09:40:00",
+      "side": "C",
+      "entry_spot": 638.51,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-08-22",
+      "entry_ts": "2025-08-22T14:45:00",
+      "side": "P",
+      "entry_spot": 645.42,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-08-25",
+      "entry_ts": "2025-08-25T10:35:00",
+      "side": "P",
+      "entry_spot": 644.12,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-08-25",
+      "entry_ts": "2025-08-25T14:55:00",
+      "side": "P",
+      "entry_spot": 644.135,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-08-29",
+      "entry_ts": "2025-08-29T13:20:00",
+      "side": "P",
+      "entry_spot": 643.735,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-09-03",
+      "entry_ts": "2025-09-03T13:30:00",
+      "side": "P",
+      "entry_spot": 642.22,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-09-08",
+      "entry_ts": "2025-09-08T14:05:00",
+      "side": "P",
+      "entry_spot": 647.475,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-09-10",
+      "entry_ts": "2025-09-10T13:10:00",
+      "side": "P",
+      "entry_spot": 653.275,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-09-11",
+      "entry_ts": "2025-09-11T09:50:00",
+      "side": "C",
+      "entry_spot": 654.44,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-09-11",
+      "entry_ts": "2025-09-11T13:20:00",
+      "side": "P",
+      "entry_spot": 657.16,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-09-15",
+      "entry_ts": "2025-09-15T09:40:00",
+      "side": "C",
+      "entry_spot": 660.1,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-09-17",
+      "entry_ts": "2025-09-17T11:55:00",
+      "side": "P",
+      "entry_spot": 658.965,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-09-18",
+      "entry_ts": "2025-09-18T14:15:00",
+      "side": "P",
+      "entry_spot": 662.805,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-09-19",
+      "entry_ts": "2025-09-19T13:00:00",
+      "side": "C",
+      "entry_spot": 662.535,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-09-23",
+      "entry_ts": "2025-09-23T11:55:00",
+      "side": "P",
+      "entry_spot": 665.71,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-09-24",
+      "entry_ts": "2025-09-24T12:30:00",
+      "side": "P",
+      "entry_spot": 660.91,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-09-24",
+      "entry_ts": "2025-09-24T14:50:00",
+      "side": "P",
+      "entry_spot": 660.61,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-09-25",
+      "entry_ts": "2025-09-25T10:30:00",
+      "side": "P",
+      "entry_spot": 658.53,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-09-25",
+      "entry_ts": "2025-09-25T12:40:00",
+      "side": "P",
+      "entry_spot": 658.505,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-09-26",
+      "entry_ts": "2025-09-26T09:40:00",
+      "side": "C",
+      "entry_spot": 661.02,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-09-29",
+      "entry_ts": "2025-09-29T13:35:00",
+      "side": "P",
+      "entry_spot": 662.495,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-10-02",
+      "entry_ts": "2025-10-02T10:05:00",
+      "side": "C",
+      "entry_spot": 669.395,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-10-02",
+      "entry_ts": "2025-10-02T11:30:00",
+      "side": "P",
+      "entry_spot": 667.69,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-10-06",
+      "entry_ts": "2025-10-06T11:40:00",
+      "side": "P",
+      "entry_spot": 671.23,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-10-07",
+      "entry_ts": "2025-10-07T11:40:00",
+      "side": "P",
+      "entry_spot": 668.51,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-10-08",
+      "entry_ts": "2025-10-08T09:50:00",
+      "side": "C",
+      "entry_spot": 670.38,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-10-09",
+      "entry_ts": "2025-10-09T12:15:00",
+      "side": "P",
+      "entry_spot": 671.15,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-10-15",
+      "entry_ts": "2025-10-15T13:05:00",
+      "side": "P",
+      "entry_spot": 663.04,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-10-22",
+      "entry_ts": "2025-10-22T15:45:00",
+      "side": "P",
+      "entry_spot": 667.63,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-10-24",
+      "entry_ts": "2025-10-24T09:40:00",
+      "side": "C",
+      "entry_spot": 677.15,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-10-24",
+      "entry_ts": "2025-10-24T14:45:00",
+      "side": "P",
+      "entry_spot": 678.09,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-10-27",
+      "entry_ts": "2025-10-27T09:40:00",
+      "side": "C",
+      "entry_spot": 682.825,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-10-28",
+      "entry_ts": "2025-10-28T12:10:00",
+      "side": "C",
+      "entry_spot": 685.985,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-10-29",
+      "entry_ts": "2025-10-29T09:40:00",
+      "side": "C",
+      "entry_spot": 688.89,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-10-29",
+      "entry_ts": "2025-10-29T15:15:00",
+      "side": "P",
+      "entry_spot": 686.12,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-10-30",
+      "entry_ts": "2025-10-30T11:10:00",
+      "side": "P",
+      "entry_spot": 685.0,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-10-30",
+      "entry_ts": "2025-10-30T15:05:00",
+      "side": "P",
+      "entry_spot": 682.0,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-10-31",
+      "entry_ts": "2025-10-31T14:35:00",
+      "side": "P",
+      "entry_spot": 682.29,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-11-04",
+      "entry_ts": "2025-11-04T11:10:00",
+      "side": "P",
+      "entry_spot": 678.755,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-11-04",
+      "entry_ts": "2025-11-04T12:35:00",
+      "side": "P",
+      "entry_spot": 678.07,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-11-05",
+      "entry_ts": "2025-11-05T11:05:00",
+      "side": "P",
+      "entry_spot": 676.94,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-11-06",
+      "entry_ts": "2025-11-06T14:05:00",
+      "side": "P",
+      "entry_spot": 670.4,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-11-10",
+      "entry_ts": "2025-11-10T13:05:00",
+      "side": "C",
+      "entry_spot": 677.48,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-11-12",
+      "entry_ts": "2025-11-12T12:15:00",
+      "side": "P",
+      "entry_spot": 681.4,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-11-12",
+      "entry_ts": "2025-11-12T14:25:00",
+      "side": "P",
+      "entry_spot": 683.53,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-11-13",
+      "entry_ts": "2025-11-13T11:05:00",
+      "side": "P",
+      "entry_spot": 678.06,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-11-17",
+      "entry_ts": "2025-11-17T11:05:00",
+      "side": "P",
+      "entry_spot": 671.61,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-12-01",
+      "entry_ts": "2025-12-01T13:45:00",
+      "side": "C",
+      "entry_spot": 682.55,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-12-02",
+      "entry_ts": "2025-12-02T15:00:00",
+      "side": "P",
+      "entry_spot": 681.11,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-12-03",
+      "entry_ts": "2025-12-03T12:20:00",
+      "side": "C",
+      "entry_spot": 682.72,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-12-04",
+      "entry_ts": "2025-12-04T12:40:00",
+      "side": "P",
+      "entry_spot": 683.14,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-12-04",
+      "entry_ts": "2025-12-04T14:55:00",
+      "side": "C",
+      "entry_spot": 684.25,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-12-08",
+      "entry_ts": "2025-12-08T12:05:00",
+      "side": "P",
+      "entry_spot": 683.24,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-12-09",
+      "entry_ts": "2025-12-09T10:30:00",
+      "side": "P",
+      "entry_spot": 683.2,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-12-09",
+      "entry_ts": "2025-12-09T15:35:00",
+      "side": "P",
+      "entry_spot": 683.665,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-12-11",
+      "entry_ts": "2025-12-11T12:40:00",
+      "side": "C",
+      "entry_spot": 685.64,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2025-12-12",
+      "entry_ts": "2025-12-12T12:25:00",
+      "side": "P",
+      "entry_spot": 680.28,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-12-12",
+      "entry_ts": "2025-12-12T14:25:00",
+      "side": "P",
+      "entry_spot": 683.33,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-12-15",
+      "entry_ts": "2025-12-15T13:35:00",
+      "side": "P",
+      "entry_spot": 680.29,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-12-15",
+      "entry_ts": "2025-12-15T15:10:00",
+      "side": "P",
+      "entry_spot": 681.04,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-12-16",
+      "entry_ts": "2025-12-16T12:10:00",
+      "side": "P",
+      "entry_spot": 678.25,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-12-17",
+      "entry_ts": "2025-12-17T12:35:00",
+      "side": "P",
+      "entry_spot": 673.825,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-12-19",
+      "entry_ts": "2025-12-19T10:40:00",
+      "side": "P",
+      "entry_spot": 678.085,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-12-26",
+      "entry_ts": "2025-12-26T12:35:00",
+      "side": "P",
+      "entry_spot": 690.19,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-12-29",
+      "entry_ts": "2025-12-29T11:55:00",
+      "side": "P",
+      "entry_spot": 687.3,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-12-29",
+      "entry_ts": "2025-12-29T13:40:00",
+      "side": "P",
+      "entry_spot": 686.285,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2025-12-29",
+      "entry_ts": "2025-12-29T15:00:00",
+      "side": "P",
+      "entry_spot": 687.225,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-01-02",
+      "entry_ts": "2026-01-02T12:50:00",
+      "side": "P",
+      "entry_spot": 681.2,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-01-05",
+      "entry_ts": "2026-01-05T15:45:00",
+      "side": "P",
+      "entry_spot": 687.67,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-01-06",
+      "entry_ts": "2026-01-06T10:50:00",
+      "side": "C",
+      "entry_spot": 689.27,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-01-06",
+      "entry_ts": "2026-01-06T13:10:00",
+      "side": "C",
+      "entry_spot": 689.83,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-01-08",
+      "entry_ts": "2026-01-08T13:15:00",
+      "side": "P",
+      "entry_spot": 689.44,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-01-08",
+      "entry_ts": "2026-01-08T15:45:00",
+      "side": "P",
+      "entry_spot": 688.72,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-01-12",
+      "entry_ts": "2026-01-12T13:30:00",
+      "side": "C",
+      "entry_spot": 694.55,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-01-13",
+      "entry_ts": "2026-01-13T12:05:00",
+      "side": "P",
+      "entry_spot": 693.7,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-01-14",
+      "entry_ts": "2026-01-14T13:55:00",
+      "side": "P",
+      "entry_spot": 686.495,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-01-21",
+      "entry_ts": "2026-01-21T15:35:00",
+      "side": "C",
+      "entry_spot": 685.415,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-01-23",
+      "entry_ts": "2026-01-23T11:10:00",
+      "side": "P",
+      "entry_spot": 689.145,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-01-26",
+      "entry_ts": "2026-01-26T10:35:00",
+      "side": "C",
+      "entry_spot": 691.26,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-01-27",
+      "entry_ts": "2026-01-27T10:50:00",
+      "side": "C",
+      "entry_spot": 694.475,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-01-27",
+      "entry_ts": "2026-01-27T14:30:00",
+      "side": "P",
+      "entry_spot": 695.79,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-01-28",
+      "entry_ts": "2026-01-28T12:40:00",
+      "side": "P",
+      "entry_spot": 695.4,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-01-30",
+      "entry_ts": "2026-01-30T15:25:00",
+      "side": "C",
+      "entry_spot": 692.12,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-02-03",
+      "entry_ts": "2026-02-03T11:45:00",
+      "side": "P",
+      "entry_spot": 691.4,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-02-03",
+      "entry_ts": "2026-02-03T13:05:00",
+      "side": "P",
+      "entry_spot": 690.49,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-02-04",
+      "entry_ts": "2026-02-04T10:30:00",
+      "side": "P",
+      "entry_spot": 689.71,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-02-05",
+      "entry_ts": "2026-02-05T11:50:00",
+      "side": "P",
+      "entry_spot": 676.29,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-02-05",
+      "entry_ts": "2026-02-05T13:10:00",
+      "side": "P",
+      "entry_spot": 680.01,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-02-05",
+      "entry_ts": "2026-02-05T15:30:00",
+      "side": "P",
+      "entry_spot": 680.24,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-02-12",
+      "entry_ts": "2026-02-12T12:45:00",
+      "side": "P",
+      "entry_spot": 684.955,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-02-13",
+      "entry_ts": "2026-02-13T13:05:00",
+      "side": "C",
+      "entry_spot": 685.32,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-02-17",
+      "entry_ts": "2026-02-17T13:10:00",
+      "side": "P",
+      "entry_spot": 681.67,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-02-19",
+      "entry_ts": "2026-02-19T12:05:00",
+      "side": "P",
+      "entry_spot": 684.72,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-02-19",
+      "entry_ts": "2026-02-19T13:05:00",
+      "side": "P",
+      "entry_spot": 683.01,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-02-20",
+      "entry_ts": "2026-02-20T13:00:00",
+      "side": "P",
+      "entry_spot": 688.57,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-02-23",
+      "entry_ts": "2026-02-23T13:35:00",
+      "side": "P",
+      "entry_spot": 681.32,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-02-23",
+      "entry_ts": "2026-02-23T14:45:00",
+      "side": "P",
+      "entry_spot": 682.95,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-02-24",
+      "entry_ts": "2026-02-24T15:50:00",
+      "side": "P",
+      "entry_spot": 687.15,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-02-26",
+      "entry_ts": "2026-02-26T11:05:00",
+      "side": "P",
+      "entry_spot": 690.35,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-02-27",
+      "entry_ts": "2026-02-27T14:05:00",
+      "side": "P",
+      "entry_spot": 684.18,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-03-02",
+      "entry_ts": "2026-03-02T10:55:00",
+      "side": "P",
+      "entry_spot": 682.67,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-03-02",
+      "entry_ts": "2026-03-02T12:05:00",
+      "side": "C",
+      "entry_spot": 684.67,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-03-05",
+      "entry_ts": "2026-03-05T12:00:00",
+      "side": "P",
+      "entry_spot": 681.99,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-03-17",
+      "entry_ts": "2026-03-17T11:50:00",
+      "side": "P",
+      "entry_spot": 670.9400024414062,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-04-08",
+      "entry_ts": "2026-04-08T11:30:00",
+      "side": "P",
+      "entry_spot": 673.030029296875,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-04-09",
+      "entry_ts": "2026-04-09T11:00:00",
+      "side": "C",
+      "entry_spot": 675.3099975585938,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-04-10",
+      "entry_ts": "2026-04-10T12:35:00",
+      "side": "P",
+      "entry_spot": 679.380126953125,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-04-16",
+      "entry_ts": "2026-04-16T10:50:00",
+      "side": "C",
+      "entry_spot": 699.9500122070312,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-04-17",
+      "entry_ts": "2026-04-17T14:50:00",
+      "side": "P",
+      "entry_spot": 709.9249877929688,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-04-20",
+      "entry_ts": "2026-04-20T09:50:00",
+      "side": "P",
+      "entry_spot": 708.6300048828125,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-04-20",
+      "entry_ts": "2026-04-20T10:30:00",
+      "side": "P",
+      "entry_spot": 708.9500122070312,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-04-21",
+      "entry_ts": "2026-04-21T12:15:00",
+      "side": "P",
+      "entry_spot": 706.9000244140625,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-04-21",
+      "entry_ts": "2026-04-21T12:45:00",
+      "side": "P",
+      "entry_spot": 705.8499755859375,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-04-22",
+      "entry_ts": "2026-04-22T13:25:00",
+      "side": "C",
+      "entry_spot": 710.1356811523438,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-04-22",
+      "entry_ts": "2026-04-22T14:25:00",
+      "side": "P",
+      "entry_spot": 709.510009765625,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-04-22",
+      "entry_ts": "2026-04-22T15:20:00",
+      "side": "C",
+      "entry_spot": 710.3599853515625,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-04-23",
+      "entry_ts": "2026-04-23T13:10:00",
+      "side": "P",
+      "entry_spot": 707.9299926757812,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-04-23",
+      "entry_ts": "2026-04-23T14:45:00",
+      "side": "P",
+      "entry_spot": 708.6699829101562,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-04-27",
+      "entry_ts": "2026-04-27T12:45:00",
+      "side": "P",
+      "entry_spot": 714.1199951171875,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-04-28",
+      "entry_ts": "2026-04-28T09:50:00",
+      "side": "P",
+      "entry_spot": 712.239990234375,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-04-29",
+      "entry_ts": "2026-04-29T11:55:00",
+      "side": "P",
+      "entry_spot": 709.5501098632812,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-01",
+      "entry_ts": "2026-05-01T13:40:00",
+      "side": "P",
+      "entry_spot": 722.8099975585938,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-04",
+      "entry_ts": "2026-05-04T10:10:00",
+      "side": "P",
+      "entry_spot": 720.0599975585938,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-04",
+      "entry_ts": "2026-05-04T11:15:00",
+      "side": "P",
+      "entry_spot": 720.25,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-07",
+      "entry_ts": "2026-05-07T12:40:00",
+      "side": "P",
+      "entry_spot": 732.79,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-08",
+      "entry_ts": "2026-05-08T09:50:00",
+      "side": "C",
+      "entry_spot": 736.04,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-05-11",
+      "entry_ts": "2026-05-11T15:45:00",
+      "side": "P",
+      "entry_spot": 738.21,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-14",
+      "entry_ts": "2026-05-14T14:00:00",
+      "side": "P",
+      "entry_spot": 747.739990234375,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-15",
+      "entry_ts": "2026-05-15T10:00:00",
+      "side": "P",
+      "entry_spot": 739.1699829101562,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-15",
+      "entry_ts": "2026-05-15T11:50:00",
+      "side": "P",
+      "entry_spot": 739.9099731445312,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-15",
+      "entry_ts": "2026-05-15T15:45:00",
+      "side": "P",
+      "entry_spot": 740.0399780273438,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-18",
+      "entry_ts": "2026-05-18T10:00:00",
+      "side": "P",
+      "entry_spot": 740.5700073242188,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-18",
+      "entry_ts": "2026-05-18T10:35:00",
+      "side": "P",
+      "entry_spot": 737.4299926757812,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-18",
+      "entry_ts": "2026-05-18T14:05:00",
+      "side": "P",
+      "entry_spot": 735.8599853515625,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-19",
+      "entry_ts": "2026-05-19T10:10:00",
+      "side": "P",
+      "entry_spot": 733.34,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-19",
+      "entry_ts": "2026-05-19T12:10:00",
+      "side": "P",
+      "entry_spot": 732.63,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-20",
+      "entry_ts": "2026-05-20T10:30:00",
+      "side": "C",
+      "entry_spot": 737.89,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-05-21",
+      "entry_ts": "2026-05-21T10:25:00",
+      "side": "P",
+      "entry_spot": 737.88,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-21",
+      "entry_ts": "2026-05-21T11:35:00",
+      "side": "P",
+      "entry_spot": 738.0,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-21",
+      "entry_ts": "2026-05-21T13:20:00",
+      "side": "C",
+      "entry_spot": 741.76,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-05-22",
+      "entry_ts": "2026-05-22T13:00:00",
+      "side": "P",
+      "entry_spot": 747.28,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-05-26",
+      "entry_ts": "2026-05-26T09:45:00",
+      "side": "C",
+      "entry_spot": 750.63,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-05-28",
+      "entry_ts": "2026-05-28T10:15:00",
+      "side": "C",
+      "entry_spot": 753.06,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-06-01",
+      "entry_ts": "2026-06-01T15:45:00",
+      "side": "P",
+      "entry_spot": 759.02001953125,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-06-02",
+      "entry_ts": "2026-06-02T11:05:00",
+      "side": "P",
+      "entry_spot": 759.4500122070312,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-06-03",
+      "entry_ts": "2026-06-03T12:25:00",
+      "side": "P",
+      "entry_spot": 754.1300048828125,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-06-03",
+      "entry_ts": "2026-06-03T15:25:00",
+      "side": "P",
+      "entry_spot": 754.6900024414062,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-06-04",
+      "entry_ts": "2026-06-04T10:35:00",
+      "side": "P",
+      "entry_spot": 754.0,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-06-08",
+      "entry_ts": "2026-06-08T13:00:00",
+      "side": "P",
+      "entry_spot": 741.9099731445312,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-06-09",
+      "entry_ts": "2026-06-09T10:50:00",
+      "side": "P",
+      "entry_spot": 735.260009765625,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-06-10",
+      "entry_ts": "2026-06-10T11:15:00",
+      "side": "P",
+      "entry_spot": 730.6799926757812,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-06-10",
+      "entry_ts": "2026-06-10T12:45:00",
+      "side": "P",
+      "entry_spot": 730.8720092773438,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-06-11",
+      "entry_ts": "2026-06-11T13:35:00",
+      "side": "C",
+      "entry_spot": 734.22998046875,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-06-12",
+      "entry_ts": "2026-06-12T14:50:00",
+      "side": "P",
+      "entry_spot": 741.969970703125,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-06-15",
+      "entry_ts": "2026-06-15T09:40:00",
+      "side": "C",
+      "entry_spot": 753.0712890625,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "direction": "bull"
+    },
+    {
+      "date": "2026-06-16",
+      "entry_ts": "2026-06-16T11:40:00",
+      "side": "P",
+      "entry_spot": 752.8200073242188,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    },
+    {
+      "date": "2026-06-17",
+      "entry_ts": "2026-06-17T14:05:00",
+      "side": "P",
+      "entry_spot": 745.1500244140625,
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "direction": "bear"
+    }
+  ]
+}
