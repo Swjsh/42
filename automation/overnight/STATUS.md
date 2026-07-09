@@ -1,3 +1,16 @@
+## [2026-07-08] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-05-27..2026-07-01), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-01). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-510.96); Bold_ATM_1+2=YELLOW ($-481.2)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
+- 2026-07-09 01:32 ET [overnight-drive W1b] SHIPPED EOD-flatten non-LLM backstop (Gamma_EodFlattenCore 15:52 ET) + preopen gate now reads REAL exit codes — root cause: LLM flatten died on $1 budget cap + Task Scheduler masked it. Evidence: both `Gamma_EodFlatten`/`_Aggressive` real logs showed `=== END tick exit=1 ===` 2026-07-08 while `Get-ScheduledTaskInfo` reported `LastTaskResult: 0` (wscript fire-and-forget masking). Registered `Gamma_EodFlattenCore` (pure-Python `eod_flatten.py`, safe-2+bold-2, one fire, no LLM); smoke-fired via `Start-ScheduledTask`, real log confirmed `EOD_FLATTEN_COMPLETE outcomes=['NOOP', 'NOOP']`. LLM tasks left registered untouched (defense-in-depth). `preopen_readiness.py` no longer trusts `LastTaskResult` for any of the 3 flatten tasks — new `assess_eod_flatten_reality()` reads each one's real log/jsonl tail (42/42 preopen_readiness + 12/12 eod_flatten guards green; safety gate green). REVERT: `Unregister-ScheduledTask -TaskName "Gamma_EodFlattenCore" -Confirm:$false`; `git revert` the preopen_readiness.py + SCHEDULED-TASKS.md commit; the LLM tasks were never touched so nothing else to restore.
+- 2026-07-09 00:20 ET [FABLE REVIEW of CONFIRM-AND-WIRE] Execution CONFIRMED sound; 4 corrections shipped: (1) engine-contract card §3c read UNTRACKED entry-shadow.jsonl -> fresh-clone CI drift RED — card now renders committed-source facts only (drift guard 5/5); (2) grid lacked stop -35 = exit-C's exact stop — added to STOPS + phase5 STOP_VALS, grind restarted on 7560 combos (resume kept all 324 done, probe PASS); (3) funnel/phase5 no-shard glob hole fixed; (4) T-W6 rec sharpened (C29: validated cell = the FULL core shape −0.06/+0.40/0.8/fixed/ATM; naive 2-field sync to the fleet's 0.667/trailing shape = untested 3rd combo). GUIDANCE findings: grind "trailing" ≠ exit_manager "trailing" (simulator profit-lock is whole-position, arms at first uptick w/ BE anchor at threshold=0 — verified simulator_real.py L540-584/L644) so T-W7 layer-(c) judges FULL combos not ShapeSig and treats trailing P5-membership as approximate; T-W5 parity is sim-vs-sim on real timestamps (forward live shadow not scheduled). WATCH: grind ETA lands ~09:00-11:00 ET INTO RTH — if ticks slow, Stop-Process the mass_grind pythons (resume-safe) + relaunch after 16:00. Addendum: markdown/planning/CONFIRM-AND-WIRE-REPORT-2026-07-08.md
+- 2026-07-08 23:50 ET [CONFIRM-AND-WIRE] T-W1..T-W6 DONE, T-W7/STOP-B correctly NOT started (STOP-A unsigned). T-W2: fixed the profit_lock_mode/trail_pct dead knob at strategy_space_grind.run_cell (explicit kwargs) instead of _params_to_kwargs — the literal handoff text would have violated the L156 guard (test_profit_lock_not_in_baseline.py), the SAME misdiagnosis class STATUS already killed once (2026-07-02 ~03:55 entry below). Red-proofed. T-W3: v2 grind (6720 combos, real trail_pct{0.15,0.22}+time-exit axes) code-verified + LAUNCHED in background (12 workers + funnel), running for hours — not claimed complete. T-W4 per_band_stop.py + T-W5 entry_manager.py + shadow ledger (98 real entries/8 sessions, fill-rate 85.9% vs T3 backtest 77.6% — sim-live parity PASS) shipped shadow-only, red-proofed. T-W6: vwap two-lane answered (-0.06/+0.40 is validated; -0.08/+0.30 in strategies.py is stale — git-confirmed single-commit provenance), J-decision queued. Engine-contract card §3c extended (drift guard green). Full report: markdown/planning/CONFIRM-AND-WIRE-REPORT-2026-07-08.md
 - 2026-07-08 09:44 ET [vision-loop] V4 DONE (KILL): rejection->continuation ENTRY killed by measurement (all 4 rejection variants incl. selective FAILED; nail=premium bleed C3). DETECT ships via V1c. **ENGINE-VISION BUILD COMPLETE (V0-V4+Vtrade).** HONEST: engine HOLDing 28 ticks on a real -3.8pt dump — F1-off wasn't sufficient, entry frontier remains.
 - 2026-07-08 09:40 ET [vision-loop] V3 DONE (shadow): trendlines-live.json + Gamma_Trendlines (5min RTH) — engine can SEE J's trendlines. Entry-wire NEEDS-REVIEW. Engine live: 12+ ticks all HOLD (bearish-aligned), 0 fills.
 - 2026-07-08 09:31 ET [vision-loop] Vtrade DONE (OP-33e): Gamma_TradeToday auto-pings J on the first engine fill (Alpaca source-of-truth) + trade-today.json glanceable. Verified firing. Market open; engine live (F1 off, gap_and_go alive). Currently 0 fills / 2 placed-not-filled.
@@ -24,16 +37,6 @@
 > **G2 DONE (verify-only):** the gap-audit assumed the live tick runs under backtest/.venv -- WRONG. run-heartbeat-core.ps1:24-36 launches SYSTEM pythonw with PYTHONPATH=backtest/.venv/Lib/site-packages (L41: venv pythonw re-execs a new console -> window flash). Verified heartbeat_core + exit_actuator + my edits import CLEAN under that faithful env (pandas 2.3.3). Import-dead-at-open retired. FUTURE VERIFICATION NOTE: test under system-python+venv-PYTHONPATH, not bare venv, to be production-faithful.
 > **G3 DONE (commit fc8ee27):** today's runners auto-liquidated 15:45 ET (Alpaca 0DTE auto_liquidate; both accounts confirmed FLAT). Safe 747P runner -$13, Bold 750P runner +$125. **DAY TOTAL = +$489 realized** (Safe +$162 / Bold +$327) -- corrects the +$377 (TP1-only) reported all evening. Journal EOD written. Minor flag: a $0.01 SPY 07-08 710P + a $10 BTC round-trip appear ~20:45 ET post-session (canceled/tiny, source unclear) -- flagged for provenance.
 > NEXT (Opus, per FABLE gap-audit order): G10 audit-tail recovery, then G5 alert/capture, G8 greeks-capture, G9 parity-ledger, G7 armability-gate.
-
----
-
-## [2026-07-07] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-05-27..2026-07-01), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-01). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-510.96); Bold_ATM_1+2=YELLOW ($-481.2)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
 
 ---
 
@@ -283,7 +286,7 @@
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 41 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -557,6 +560,7 @@ Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=openro
 ---
 
 ## Known broken
+[2026-07-08T18:30:33Z] MCP_AUDIT_RED: TradingView unresponsive after relaunch; Alpaca Safe+Bold healthy
 [2026-07-08T08:35:00-04:00] PREMARKET TV_NOT_RUNNING: CDP unreachable after launch_tv_debug.ps1 self-heal + 3 retries (10-15s gaps). bias=no-trade-tv-fail written to today-bias.json; both kill-switches re-armed on live equity (Safe $1512.83 / Bold $1963.04, both flat). Crypto harness DEGRADED (v53_setup_dispatch.live failing, 103/104 pass) -- yellow, not trading-blocking. Macro calendar STALE 24 days (last refresh 2026-06-14) -- Sunday weekly-review has silently failed for 4+ weeks running, needs a manual `run-weekly-review.ps1` fire. daytrade_count field absent from Alpaca account_info again -- wrote day_trades_used_5d=0 to both breakers (was 7/4 from manual tracking). Heartbeat must retry TV at first tick; if still down, no entries this session.
 
 [2026-07-07T18:30:26-04:00] MCP_AUDIT_RED: TradingView MCP bridge wedged (CDP listening but health_check failing after relaunch attempt). Alpaca accounts recovered (Safe+Bold healthy, auth errors from 07-06 cleared).
@@ -1543,3 +1547,333 @@ Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=openro
 - [07-08 09:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 85940s - kill+relaunch
 - [07-08 09:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 86239s - kill+relaunch
 - [07-08 09:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 86539s - kill+relaunch
+- [07-08 09:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 86839s - kill+relaunch
+- [07-08 09:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 87139s - kill+relaunch
+
+- [2026-07-08 07:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T13:57:02.625825+00:00) | fail streak: 227 consecutive fires | stage v02_source_parity pass rate dropped to 73.08% in last 24h (38/52) -- but v15 (3-source) = 98.08% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/52) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 07:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+- [07-08 10:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 87439s - kill+relaunch
+- [07-08 10:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 87739s - kill+relaunch
+
+### BROKEN: self-check 2026-07-08T10:09:57
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- [07-08 10:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 88039s - kill+relaunch
+- [07-08 10:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 88339s - kill+relaunch
+- [07-08 10:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 88639s - kill+relaunch
+- [07-08 10:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 88939s - kill+relaunch
+
+- [2026-07-08 08:27:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T14:27:02.621665+00:00) | fail streak: 228 consecutive fires | stage v02_source_parity pass rate dropped to 73.08% in last 24h (38/52) -- but v15 (3-source) = 98.08% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/52) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 08:27:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+- [07-08 10:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 89239s - kill+relaunch
+- [07-08 10:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 89539s - kill+relaunch
+
+### BROKEN: self-check 2026-07-08T10:39:57
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- [07-08 10:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 89839s - kill+relaunch
+- [07-08 10:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 90139s - kill+relaunch
+- [07-08 10:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 90439s - kill+relaunch
+- [07-08 10:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 90739s - kill+relaunch
+
+- [2026-07-08 08:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T14:57:02.845870+00:00) | fail streak: 229 consecutive fires | stage v02_source_parity pass rate dropped to 73.08% in last 24h (38/52) -- but v15 (3-source) = 98.08% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/52) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 08:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+- [07-08 11:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 91039s - kill+relaunch
+- [07-08 11:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 91339s - kill+relaunch
+
+### BROKEN: self-check 2026-07-08T11:09:57
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- [07-08 11:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 91639s - kill+relaunch
+- [07-08 11:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 91939s - kill+relaunch
+- [07-08 11:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 92239s - kill+relaunch
+- [07-08 11:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 92539s - kill+relaunch
+
+- [2026-07-08 09:27:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T15:27:02.721710+00:00) | fail streak: 230 consecutive fires | stage v02_source_parity pass rate dropped to 73.08% in last 24h (38/52) -- but v15 (3-source) = 98.08% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/52) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 09:27:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+- [07-08 11:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 92839s - kill+relaunch
+- [07-08 11:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 93139s - kill+relaunch
+
+### BROKEN: self-check 2026-07-08T11:39:57
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- [07-08 11:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 93439s - kill+relaunch
+- [07-08 11:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 93739s - kill+relaunch
+- [07-08 11:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 94039s - kill+relaunch
+- [07-08 11:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 94339s - kill+relaunch
+
+- [2026-07-08 09:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T15:57:02.629699+00:00) | fail streak: 231 consecutive fires | stage v02_source_parity pass rate dropped to 73.08% in last 24h (38/52) -- but v15 (3-source) = 98.08% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/52) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 09:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+- [07-08 12:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 94639s - kill+relaunch
+- [07-08 12:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 94939s - kill+relaunch
+
+### BROKEN: self-check 2026-07-08T12:09:57
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- [07-08 12:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 95239s - kill+relaunch
+- [07-08 12:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 95539s - kill+relaunch
+- [07-08 12:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 95839s - kill+relaunch
+- [07-08 12:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 96139s - kill+relaunch
+
+- [2026-07-08 10:27:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T16:27:02.570841+00:00) | fail streak: 232 consecutive fires | stage v02_source_parity pass rate dropped to 73.08% in last 24h (38/52) -- but v15 (3-source) = 98.08% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/52) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 10:27:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+- [07-08 12:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 96439s - kill+relaunch
+- [07-08 12:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 96739s - kill+relaunch
+
+### BROKEN: self-check 2026-07-08T12:39:57
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- [07-08 12:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 97039s - kill+relaunch
+- [07-08 12:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 97339s - kill+relaunch
+- [07-08 12:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 97639s - kill+relaunch
+- [07-08 12:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 97939s - kill+relaunch
+
+- [2026-07-08 10:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T16:57:03.054473+00:00) | fail streak: 233 consecutive fires | stage v02_source_parity pass rate dropped to 76.47% in last 24h (39/51) -- but v15 (3-source) = 98.04% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/51) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 10:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+- [07-08 13:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 98239s - kill+relaunch
+- [07-08 13:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 98539s - kill+relaunch
+
+### BROKEN: self-check 2026-07-08T13:09:57
+- FILL-FUNNEL PLACEMENT BROKEN[core:bold]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 5 ENTER, 5 attempted, 0 broker-accepted. Reasons: 5x no broker response recorded
+- [07-08 13:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 98839s - kill+relaunch
+- [07-08 13:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 99139s - kill+relaunch
+- [07-08 13:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 99439s - kill+relaunch
+- [07-08 13:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 99739s - kill+relaunch
+
+- [2026-07-08 11:27:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T17:27:02.662551+00:00) | fail streak: 234 consecutive fires | stage v02_source_parity pass rate dropped to 76.47% in last 24h (39/51) -- but v15 (3-source) = 98.04% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/51) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 11:27:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+- [07-08 13:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 100039s - kill+relaunch
+- [07-08 13:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 100339s - kill+relaunch
+
+### BROKEN: self-check 2026-07-08T13:39:57
+- FILL-FUNNEL PLACEMENT BROKEN[core:bold]: 4 ENTER, 4 attempted, 0 broker-accepted. Reasons: 4x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 9 ENTER, 9 attempted, 0 broker-accepted. Reasons: 9x no broker response recorded
+- [07-08 13:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 100639s - kill+relaunch
+- [07-08 13:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 100939s - kill+relaunch
+- [07-08 13:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 101239s - kill+relaunch
+- [07-08 13:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 101539s - kill+relaunch
+
+- [2026-07-08 11:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T17:57:02.646041+00:00) | fail streak: 235 consecutive fires | stage v02_source_parity pass rate dropped to 76.47% in last 24h (39/51) -- but v15 (3-source) = 98.04% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/51) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 11:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+- [07-08 14:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 101839s - kill+relaunch
+- [07-08 14:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 102139s - kill+relaunch
+
+### BROKEN: self-check 2026-07-08T14:09:57
+- FILL-FUNNEL PLACEMENT BROKEN[core:bold]: 4 ENTER, 4 attempted, 0 broker-accepted. Reasons: 4x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 9 ENTER, 9 attempted, 0 broker-accepted. Reasons: 9x no broker response recorded
+- [07-08 14:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 102439s - kill+relaunch
+- [07-08 14:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 102739s - kill+relaunch
+- [07-08 14:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 103039s - kill+relaunch
+- [07-08 14:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 103339s - kill+relaunch
+
+- [2026-07-08 12:27:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T18:27:02.724611+00:00) | fail streak: 236 consecutive fires | stage v02_source_parity pass rate dropped to 76.47% in last 24h (39/51) -- but v15 (3-source) = 98.04% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/51) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 12:27:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+- [07-08 14:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 103639s - kill+relaunch
+- [07-08 14:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 103939s - kill+relaunch
+
+### BROKEN: self-check 2026-07-08T14:39:57
+- FILL-FUNNEL PLACEMENT BROKEN[core:bold]: 4 ENTER, 4 attempted, 0 broker-accepted. Reasons: 4x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 9 ENTER, 9 attempted, 0 broker-accepted. Reasons: 9x no broker response recorded
+- [07-08 14:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 104239s - kill+relaunch
+- [07-08 14:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 104539s - kill+relaunch
+- [07-08 14:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 104839s - kill+relaunch
+- [07-08 14:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 105139s - kill+relaunch
+
+- [2026-07-08 12:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T18:57:02.610480+00:00) | fail streak: 237 consecutive fires | stage v02_source_parity pass rate dropped to 76.47% in last 24h (39/51) -- but v15 (3-source) = 98.04% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/51) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 12:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+- [07-08 15:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 105439s - kill+relaunch
+- [07-08 15:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 105739s - kill+relaunch
+
+### BROKEN: self-check 2026-07-08T15:09:56
+- FILL-FUNNEL PLACEMENT BROKEN[core:bold]: 4 ENTER, 4 attempted, 0 broker-accepted. Reasons: 4x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 9 ENTER, 9 attempted, 0 broker-accepted. Reasons: 9x no broker response recorded
+- [07-08 15:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 106039s - kill+relaunch
+- [07-08 15:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 106339s - kill+relaunch
+- [07-08 15:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 106639s - kill+relaunch
+- [07-08 15:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 106939s - kill+relaunch
+
+- [2026-07-08 13:27:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T19:27:02.692254+00:00) | fail streak: 238 consecutive fires | stage v02_source_parity pass rate dropped to 78.43% in last 24h (40/51) -- but v15 (3-source) = 98.04% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/51) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 13:27:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+- [07-08 15:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 107239s - kill+relaunch
+- [07-08 15:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 107539s - kill+relaunch
+
+### BROKEN: self-check 2026-07-08T15:39:56
+- FILL-FUNNEL PLACEMENT BROKEN[core:bold]: 4 ENTER, 4 attempted, 0 broker-accepted. Reasons: 4x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 9 ENTER, 9 attempted, 0 broker-accepted. Reasons: 9x no broker response recorded
+- [07-08 15:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 107839s - kill+relaunch
+- [07-08 15:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 108139s - kill+relaunch
+- [07-08 15:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 108439s - kill+relaunch
+- [07-08 15:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 108739s - kill+relaunch
+
+- [2026-07-08 13:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T19:57:02.495689+00:00) | fail streak: 239 consecutive fires | stage v02_source_parity pass rate dropped to 80.39% in last 24h (41/51) -- but v15 (3-source) = 98.04% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/51) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 13:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+- [07-08 16:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 109039s - kill+relaunch
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-08T20:00:16+00:00
+- task: eod-summary
+- date_et: 2026-07-08
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### BROKEN: self-check 2026-07-08T16:09:56
+- FILL-FUNNEL PLACEMENT BROKEN[core:bold]: 4 ENTER, 4 attempted, 0 broker-accepted. Reasons: 4x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 9 ENTER, 9 attempted, 0 broker-accepted. Reasons: 9x no broker response recorded
+
+- [2026-07-08 14:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T20:27:03.599887+00:00) | fail streak: 240 consecutive fires | stage v02_source_parity pass rate dropped to 82.35% in last 24h (42/51) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/51) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 14:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+### BROKEN: self-check 2026-07-08T16:39:56
+- FILL-FUNNEL PLACEMENT BROKEN[core:bold]: 4 ENTER, 4 attempted, 0 broker-accepted. Reasons: 4x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 9 ENTER, 9 attempted, 0 broker-accepted. Reasons: 9x no broker response recorded
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-08T20:45:14+00:00
+- task: analyst
+- date_et: 2026-07-08
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-07-08 14:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T20:57:03.625372+00:00) | fail streak: 241 consecutive fires | stage v02_source_parity pass rate dropped to 82.35% in last 24h (42/51) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/51) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 14:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+- [2026-07-08 21:00:02] gym-session (2026-07-08) → **RED** :: see `automation\state\gym-scorecard-2026-07-08.json`
+### BROKEN: self-check 2026-07-08T17:09:56
+- FILL-FUNNEL PLACEMENT BROKEN[core:bold]: 4 ENTER, 4 attempted, 0 broker-accepted. Reasons: 4x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 9 ENTER, 9 attempted, 0 broker-accepted. Reasons: 9x no broker response recorded
+
+- [2026-07-08 15:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T21:27:03.581572+00:00) | fail streak: 242 consecutive fires | stage v02_source_parity pass rate dropped to 82.35% in last 24h (42/51) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/51) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 15:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-07-08T21:30:20+00:00
+- task: manager
+- date_et: 2026-07-08
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### BROKEN: self-check 2026-07-08T17:39:56
+- FILL-FUNNEL PLACEMENT BROKEN[core:bold]: 4 ENTER, 4 attempted, 0 broker-accepted. Reasons: 4x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 9 ENTER, 9 attempted, 0 broker-accepted. Reasons: 9x no broker response recorded
+
+- [2026-07-08 15:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T21:57:03.553460+00:00) | fail streak: 243 consecutive fires | stage v02_source_parity pass rate dropped to 82.35% in last 24h (42/51) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/51) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 15:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+### BROKEN: self-check 2026-07-08T18:09:56
+- FILL-FUNNEL PLACEMENT BROKEN[core:bold]: 4 ENTER, 4 attempted, 0 broker-accepted. Reasons: 4x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 9 ENTER, 9 attempted, 0 broker-accepted. Reasons: 9x no broker response recorded
+
+- [2026-07-08 16:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T22:27:03.482709+00:00) | fail streak: 244 consecutive fires | stage v02_source_parity pass rate dropped to 82.35% in last 24h (42/51) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/51) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 16:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+
+### BROKEN: self-check 2026-07-08T18:39:56
+- FILL-FUNNEL PLACEMENT BROKEN[core:bold]: 4 ENTER, 4 attempted, 0 broker-accepted. Reasons: 4x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 9 ENTER, 9 attempted, 0 broker-accepted. Reasons: 9x no broker response recorded
+
+- [2026-07-08 16:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T22:57:03.995903+00:00) | fail streak: 245 consecutive fires | stage v02_source_parity pass rate dropped to 82.35% in last 24h (42/51) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/51) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 16:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+### BROKEN: self-check 2026-07-08T19:09:56
+- FILL-FUNNEL PLACEMENT BROKEN[core:bold]: 4 ENTER, 4 attempted, 0 broker-accepted. Reasons: 4x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[core:safe]: 9 ENTER, 9 attempted, 0 broker-accepted. Reasons: 9x no broker response recorded
+
+- [2026-07-08 17:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T23:27:04.125981+00:00) | fail streak: 246 consecutive fires | stage v02_source_parity pass rate dropped to 82.35% in last 24h (42/51) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/51) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 17:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+### DEGRADED: self-check 2026-07-08T19:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x bold: 4 day-trades in 5d at equity $1,963 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 9x safe: 7 day-trades in 5d at equity $1,513 < $25,000 — PDT rule blocks a 4th day-trade
+
+- [2026-07-08 17:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-08T23:57:05.103363+00:00) | fail streak: 247 consecutive fires | stage v02_source_parity pass rate dropped to 82.0% in last 24h (41/50) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/50) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 17:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+### DEGRADED: self-check 2026-07-08T20:09:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x bold: 4 day-trades in 5d at equity $1,963 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 9x safe: 7 day-trades in 5d at equity $1,513 < $25,000 — PDT rule blocks a 4th day-trade
+
+- [2026-07-08 18:27:12] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T00:27:14.501010+00:00) | fail streak: 248 consecutive fires | stage v02_source_parity pass rate dropped to 82.0% in last 24h (41/50) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/50) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 18:27:12] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+### DEGRADED: self-check 2026-07-08T20:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x bold: 4 day-trades in 5d at equity $1,963 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 9x safe: 7 day-trades in 5d at equity $1,513 < $25,000 — PDT rule blocks a 4th day-trade
+
+- [2026-07-08 18:57:03] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T00:57:16.245566+00:00) | fail streak: 249 consecutive fires | stage v02_source_parity pass rate dropped to 81.25% in last 24h (39/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 18:57:03] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+### DEGRADED: self-check 2026-07-08T21:09:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x bold: 4 day-trades in 5d at equity $1,963 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 9x safe: 7 day-trades in 5d at equity $1,513 < $25,000 — PDT rule blocks a 4th day-trade
+
+- [2026-07-08 19:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T01:27:05.099182+00:00) | fail streak: 250 consecutive fires | stage v02_source_parity pass rate dropped to 81.25% in last 24h (39/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 19:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+### DEGRADED: self-check 2026-07-08T21:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x bold: 4 day-trades in 5d at equity $1,963 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 9x safe: 7 day-trades in 5d at equity $1,513 < $25,000 — PDT rule blocks a 4th day-trade
+
+- [2026-07-08 19:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T01:57:03.849182+00:00) | fail streak: 251 consecutive fires | stage v02_source_parity pass rate dropped to 81.25% in last 24h (39/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 19:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+### DEGRADED: self-check 2026-07-08T22:09:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x bold: 4 day-trades in 5d at equity $1,963 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 9x safe: 7 day-trades in 5d at equity $1,513 < $25,000 — PDT rule blocks a 4th day-trade
+
+- [2026-07-08 20:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T02:27:03.875455+00:00) | fail streak: 252 consecutive fires | stage v02_source_parity pass rate dropped to 81.25% in last 24h (39/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 20:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+### DEGRADED: self-check 2026-07-08T22:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x bold: 4 day-trades in 5d at equity $1,963 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 9x safe: 7 day-trades in 5d at equity $1,513 < $25,000 — PDT rule blocks a 4th day-trade
+
+- [2026-07-08 20:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T02:57:03.476093+00:00) | fail streak: 253 consecutive fires | stage v02_source_parity pass rate dropped to 81.25% in last 24h (39/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 20:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+### DEGRADED: self-check 2026-07-08T23:09:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x bold: 4 day-trades in 5d at equity $1,963 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 9x safe: 7 day-trades in 5d at equity $1,513 < $25,000 — PDT rule blocks a 4th day-trade
+
+- [2026-07-08 21:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T03:27:03.666356+00:00) | fail streak: 254 consecutive fires | stage v02_source_parity pass rate dropped to 81.25% in last 24h (39/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 21:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+### WARN: spend-summary threshold breach
+- ts: 2026-07-09T03:30:29+00:00
+- date_et: 2026-07-08
+- total: $1452.15 (threshold $30.00)
+- claude: $1452.07  minimax: $0.04
+- claude_sessions: 27
+
+### DEGRADED: self-check 2026-07-08T23:40:05
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x bold: 4 day-trades in 5d at equity $1,963 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 9x safe: 7 day-trades in 5d at equity $1,513 < $25,000 — PDT rule blocks a 4th day-trade
+
+- [2026-07-08 22:27:22] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T04:28:34.046264+00:00) | fail streak: 256 consecutive fires | stage v02_source_parity pass rate dropped to 81.25% in last 24h (39/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-08 22:27:22] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
