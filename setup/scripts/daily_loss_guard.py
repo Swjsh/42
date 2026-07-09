@@ -56,6 +56,7 @@ ACCOUNTS: dict[str, dict[str, Any]] = {
         "limit_default": 0.30,
         "loss_pct_field": "max_drawdown_today_pct",
         "loss_dollars_field": "max_drawdown_today_dollars",
+        "limit_dollars_field": "daily_loss_limit_dollars",  # display-only $ threshold, kept in sync on rearm
         "tripped_at_field": "tripped_at",
         "tripped_reason_field": "tripped_reason",
         "date_field": "last_reset",  # ISO datetime
@@ -68,6 +69,7 @@ ACCOUNTS: dict[str, dict[str, Any]] = {
         "limit_default": 0.50,
         "loss_pct_field": "loss_pct",
         "loss_dollars_field": None,
+        "limit_dollars_field": None,  # bold schema has no equivalent display field
         "tripped_at_field": "tripped_at_et",
         "tripped_reason_field": "trip_reason",
         "date_field": "session_id",  # date string
@@ -99,6 +101,106 @@ def _write_atomic(path: Path, obj: dict) -> None:
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(json.dumps(obj, indent=2), encoding="utf-8")
     tmp.replace(path)
+
+
+def rearm(account: str, dry_run: bool) -> dict:
+    """Deterministic, LLM-independent premarket re-arm (2026-07-09 root-cause fix).
+
+    WHY THIS EXISTS: the ONLY writer of a fresh starting_equity_today/equity_start_of_day
+    used to be the premarket LLM persona (automation/prompts/premarket.md, invoked via
+    claude --print). 2026-07-09: both premarket attempts failed instantly with "API Error:
+    Unable to connect to API (ConnectionRefused)" because ~/.claude/settings.json now routes
+    EVERY claude session through a local claude-code-router gateway (127.0.0.1:3456,
+    apiKeyHelper) that had died overnight with no auto-restart (confirmed: no listener on
+    3456-3459, PID from its own service.json long dead). The LLM never ran a single step, so
+    both breaker files kept 2026-07-08's start-of-day equity while the engine traded
+    2026-07-09 -- the daily-loss kill switch was silently anchored to the WRONG baseline.
+    engine_health.py's killswitch_* check only asks "tripped?", not "armed on TODAY's
+    equity?", so nothing surfaced it (see check_breaker_rearm in engine_health.py).
+
+    This function decouples the SAFETY-CRITICAL re-arm from that fragile, optional,
+    multi-tool-call LLM dependency: it fetches live equity via the same direct Alpaca REST
+    path `run()` already uses (un-blockable by claude/CCR outages -- the "never-blind"
+    pattern already used by sight_beacon.py), and idempotently resets the breaker to a fresh
+    session ONLY when its stamped date != today ET. Wired into run-premarket.ps1 as an
+    early, LLM-independent step so a dead CCR gateway (or a claude budget/timeout/rate-limit
+    failure, or any other reason the LLM step doesn't complete) can no longer leave the kill
+    switch anchored to a stale day. The LLM's own premarket step still runs afterward and
+    will simply see an already-armed-today breaker (idempotent, no conflict).
+
+    FAIL-SAFE BY DESIGN (mirrors run()'s contract):
+      * Already armed today (date_field == today ET) -> no-op, never re-fetch/re-write.
+        Never touches an in-progress trading day's current_equity/loss tracking.
+      * Alpaca equity fetch fails -> do NOTHING (never invent/guess a value).
+      * Missing breaker file -> do NOTHING (report, let a human create it from scratch --
+        this function only RE-arms an existing file, never originates one).
+      * Never mutates day_trades_used_5d / PDT fields -- out of scope for this guard;
+        touching them without a reliable source would be a new, unrelated risk.
+    """
+    cfg = ACCOUNTS[account]
+    breaker_path: Path = cfg["breaker"]
+    now_et = datetime.now(timezone.utc).astimezone(ET_TZ)
+    today = now_et.strftime("%Y-%m-%d")
+
+    if not breaker_path.exists():
+        return {"account": account, "ok": False, "action": "skip", "reason": "no_breaker_file"}
+
+    breaker = json.loads(breaker_path.read_text(encoding="utf-8"))
+    bdate = _date_str(breaker.get(cfg["date_field"]))
+
+    if bdate == today:
+        return {"account": account, "ok": True, "action": "already_armed_today", "date": today}
+
+    try:
+        equity = _fetch_equity(account)
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError,
+            ConnectionError, KeyError, ValueError, FileNotFoundError) as e:
+        return {"account": account, "ok": False, "action": "skip",
+                "reason": f"equity_fetch_failed: {e}", "warn": True}
+
+    limit_pct = float(breaker.get(cfg["limit_field"], cfg["limit_default"]))
+    prior_date = bdate  # for the audit trail / result payload
+
+    breaker[cfg["sod_field"]] = round(equity, 2)
+    breaker[cfg["cur_field"]] = round(equity, 2)
+    breaker["tripped"] = False
+    breaker[cfg["tripped_at_field"]] = None
+    breaker[cfg["tripped_reason_field"]] = None
+    if cfg.get("loss_pct_field"):
+        breaker[cfg["loss_pct_field"]] = 0.0
+    if cfg.get("loss_dollars_field"):
+        breaker[cfg["loss_dollars_field"]] = 0.0
+    if cfg.get("limit_dollars_field"):
+        breaker[cfg["limit_dollars_field"]] = round(equity * limit_pct, 2)
+    if account == "safe":
+        breaker[cfg["date_field"]] = now_et.isoformat(timespec="seconds")
+    else:
+        breaker[cfg["date_field"]] = today
+    breaker["_note"] = (
+        f"Re-armed {today} premarket (DETERMINISTIC fallback -- daily_loss_guard.rearm; "
+        f"prior stamped date was {prior_date}). equity=${equity:.2f} confirmed live "
+        f"(Alpaca REST, un-blockable by claude/CCR outages). Kill switch: "
+        f"-{limit_pct:.0%} = -${round(equity * limit_pct, 2)}/day. day_trades_used_5d "
+        f"left untouched (out of this guard's scope)."
+    )
+
+    result: dict[str, Any] = {
+        "account": account, "ok": True, "action": "REARMED",
+        "date": today, "prior_date": prior_date, "equity": round(equity, 2),
+        "limit_pct": limit_pct,
+    }
+    if dry_run:
+        result["action"] = "WOULD_REARM"
+        return result
+
+    _write_atomic(breaker_path, breaker)
+    log = PROJECT_ROOT / "automation" / "state" / f"daily-loss-guard-{today}.jsonl"
+    try:
+        with log.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps({"ts_et": now_et.isoformat(), **result}) + "\n")
+    except OSError:
+        pass
+    return result
 
 
 def run(account: str, dry_run: bool) -> dict:
@@ -191,12 +293,18 @@ def run(account: str, dry_run: bool) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser(description="Mechanical Rule-5 daily-loss kill switch.")
     ap.add_argument("--account", choices=["safe", "bold"], required=True)
-    ap.add_argument("--dry-run", action="store_true", help="report only, never write tripped")
+    ap.add_argument("--dry-run", action="store_true", help="report only, never write tripped/rearm")
     ap.add_argument("--silent", action="store_true", help="JSON only")
+    ap.add_argument("--rearm", action="store_true",
+                     help="deterministic premarket re-arm (idempotent; no-ops if already "
+                          "armed today) instead of the intraday trip check")
     args = ap.parse_args()
     try:
-        result = run(args.account, args.dry_run)
-    except Exception as e:  # never crash the parent heartbeat wrapper
+        if args.rearm:
+            result = rearm(args.account, args.dry_run)
+        else:
+            result = run(args.account, args.dry_run)
+    except Exception as e:  # never crash the parent heartbeat/premarket wrapper
         result = {"account": args.account, "ok": False, "action": "error", "reason": str(e)}
     print(json.dumps(result))
     return 0

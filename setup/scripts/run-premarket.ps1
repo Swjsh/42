@@ -21,6 +21,34 @@ if ($reaped.Count -gt 0) {
     Write-TaskLog -TaskName $task -Message "REAPED stale: $($reaped -join ',')"
 }
 
+# DETERMINISTIC breaker re-arm (2026-07-09 root-cause fix) -- runs BEFORE the LLM attempt
+# and does NOT depend on it. Root cause of the 2026-07-09 incident: both circuit-breaker
+# files stayed dated 2026-07-08 while the engine traded 2026-07-09 because the ONLY prior
+# writer of a fresh starting_equity_today/equity_start_of_day was this script's LLM step
+# (automation/prompts/premarket.md) -- and both claude attempts that morning failed
+# instantly with "API Error: Unable to connect to API (ConnectionRefused)" because
+# ~/.claude/settings.json now routes every claude session through a local
+# claude-code-router gateway (127.0.0.1:3456, apiKeyHelper) that had died overnight with
+# no auto-restart/keepalive (confirmed: no listener on 3456-3459, its own service.json PID
+# long dead). daily_loss_guard.rearm() fetches live equity directly via Alpaca REST (same
+# un-blockable path sight_beacon.py already uses) and idempotently re-arms ONLY when the
+# breaker's stamped date != today ET -- so the kill-switch anchor can no longer silently go
+# stale just because claude/CCR/the LLM step had a bad morning. Fail-open: any error here
+# is logged and premarket continues exactly as before (this is a pure ADDITION, never a
+# gate). The LLM step below still runs afterward and will simply see an already-armed-today
+# breaker.
+foreach ($acct in @("safe", "bold")) {
+    try {
+        $rearm = Invoke-PythonHidden -ScriptPath "setup\scripts\daily_loss_guard.py" `
+            -ArgList @("--account", $acct, "--rearm", "--silent") `
+            -TaskName "daily-loss-guard-rearm-$acct" `
+            -TimeoutSec 15
+        Write-TaskLog -TaskName $task -Message "REARM $acct exit=$($rearm.ExitCode) $($rearm.Stdout.Trim())"
+    } catch {
+        Write-TaskLog -TaskName $task -Message "REARM $acct failed (fail-open, premarket continues): $_"
+    }
+}
+
 function Invoke-PremarketAttempt {
     param([int]$AttemptNum)
     Write-TaskLog -TaskName $task -Message "FIRE attempt=$AttemptNum et=$((Get-EtNow).ToString('HH:mm:ss'))"

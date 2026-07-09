@@ -550,6 +550,61 @@ def check_killswitch(name: str, path: Path) -> dict:
     return _chk(name, "GREEN", "armed, not tripped", critical=True)
 
 
+# Per-account breaker date-field (mirrors daily_loss_guard.py ACCOUNTS -- see that file's
+# docstring for the C9 symmetry trap: the two breakers use fully divergent field names).
+BREAKER_DATE_FIELD = {
+    "breaker_rearm_safe": "last_reset",   # ISO datetime, e.g. "2026-07-08T08:31:00-04:00"
+    "breaker_rearm_bold": "session_id",   # bare date, e.g. "2026-07-08"
+}
+
+
+def check_breaker_rearm(name: str, path: Path, date_field: str, market_open: bool, et: datetime) -> dict:
+    """Re-armed-TODAY canary (2026-07-09 incident). check_killswitch only ever asks
+    "tripped?" -- it says nothing about whether today's start-of-day equity baseline is
+    even fresh. Root cause 2026-07-09: the premarket LLM run (historically the only writer
+    of starting_equity_today/equity_start_of_day) failed both attempts because its
+    claude-code-router dependency (~/.claude/settings.json env/apiKeyHelper ->
+    127.0.0.1:3456) was down (ConnectionRefused; confirmed dead PID + no listener on
+    3456-3459) -- so both breakers kept 2026-07-08's SoD equity while the engine traded
+    2026-07-09 against a stale baseline, and killswitch_safe/killswitch_bold read GREEN
+    throughout ("armed, not tripped" is silent on staleness). daily_loss_guard.rearm() now
+    closes the write-side gap deterministically (LLM/CCR-independent); THIS check is the
+    read-side defense-in-depth net in case that rearm doesn't run either (task
+    unregistered, Alpaca REST down, reverted, etc.) -- never rely on a single layer.
+
+    NON-CRITICAL by design (mirrors level_feed/gex_archive/dispatch_health): a stale re-arm
+    degrades the kill-switch's accuracy but must never itself trade-halt -- only a genuine
+    .tripped=True (check_killswitch) does that. A genuine staleness still returns RED
+    *status* so the transition-only alerter (maybe_alert) pings J once. Market-closed ->
+    GREEN (quiet OK; nothing has re-armed yet outside RTH by design). Fail-open: any
+    read/parse error, or a non-dict payload, is a benign YELLOW -- never crashes the beacon
+    or flips the overall verdict."""
+    try:
+        data, err = _read_json(path)
+        if data is None:
+            return _chk(name, "YELLOW", f"circuit-breaker {err}", critical=False)
+        if not isinstance(data, dict):
+            return _chk(name, "YELLOW", "circuit-breaker payload is not an object", critical=False)
+        raw_date = data.get(date_field)
+        bdate = str(raw_date)[:10] if raw_date else None
+        today = et.strftime("%Y-%m-%d")
+        if not market_open:
+            return _chk(name, "GREEN", f"{date_field}={bdate} (market closed -- quiet OK)", critical=False)
+        if bdate is None:
+            return _chk(name, "RED", f"NOT RE-ARMED: {date_field} missing from breaker", critical=False)
+        if bdate != today:
+            return _chk(
+                name, "RED",
+                f"STALE RE-ARM: {date_field}={bdate} != today {today} -- kill-switch anchored "
+                f"to a stale start-of-day equity (premarket did not re-arm today; check "
+                f"daily_loss_guard.rearm + claude-code-router :3456)",
+                critical=False,
+            )
+        return _chk(name, "GREEN", f"{date_field}={bdate} (re-armed today)", critical=False)
+    except Exception as e:  # noqa: BLE001 -- never let this check break the beacon
+        return _chk(name, "YELLOW", f"breaker-rearm check failed ({type(e).__name__})", critical=False)
+
+
 def check_gex_archive(et: datetime) -> dict:
     """Continuity of the GEX OI accrual (the 'class'-rung data engine). NON-CRITICAL:
     a stalled research accrual must never trade-halt nor RED the critical verdict -- it
@@ -780,6 +835,14 @@ def build_report() -> dict:
         check_watcher_feed(mkt, et),
         check_killswitch("killswitch_safe", STATE / "circuit-breaker.json"),
         check_killswitch("killswitch_bold", AGG / "circuit-breaker.json"),
+        # NON-CRITICAL breaker re-arm freshness (2026-07-09 incident): killswitch_* above
+        # only proves "not tripped", not "armed on TODAY's equity" -- surfaces a silent
+        # premarket/CCR-gateway death that leaves the daily-loss anchor stale. Never
+        # trade-halts; RED status pings J once on a genuine staleness transition.
+        check_breaker_rearm("breaker_rearm_safe", STATE / "circuit-breaker.json",
+                             BREAKER_DATE_FIELD["breaker_rearm_safe"], mkt, et),
+        check_breaker_rearm("breaker_rearm_bold", AGG / "circuit-breaker.json",
+                             BREAKER_DATE_FIELD["breaker_rearm_bold"], mkt, et),
         check_position("position_safe", STATE / "current-position.json"),
         check_position("position_bold", STATE / "current-position-bold.json"),
         # NON-CRITICAL research-data continuity watcher (2026-06-29): surfaces a silent
