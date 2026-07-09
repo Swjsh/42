@@ -395,9 +395,16 @@ def run(signal_path: Path, master_live: bool) -> list[dict]:
             # invalidation as the core accounts. Stale/absent signal -> None (fail-open;
             # catastrophe cap / targets / time stops still run inside manage_tick).
             _flip = ea.make_ribbon_flip_fn((usable_signal or {}).get("ribbon_stack"))
+            # D2 #5 (2026-07-09): thread the arm's params time_stop_et ("15:40") through --
+            # previously ABSENT, so exit_manager's hard-coded 15:50 default always won and
+            # fleet arms carried runners 10 min longer than the core accounts (heartbeat_core
+            # threads the same key at its _manage_exits call). Fail-safe inside manage_tick:
+            # missing/malformed parses to 15:50, never widens past close. Guard:
+            # test_fleet_time_stop_threaded.py. Revert: drop this kwarg.
             exit_pass = ea.manage_tick(arm_id, creds, live=bool(master_live) and bool(arm.get("live"))
                                        and not bool(breaker.get("tripped")), now_et=now,
-                                       ribbon_flip_back_fn=_flip)
+                                       ribbon_flip_back_fn=_flip,
+                                       time_stop_et=params.get("time_stop_et"))
         except Exception as e:  # noqa: BLE001
             exit_pass = [{"error": f"exit_manage: {type(e).__name__}: {e}"}]
 
