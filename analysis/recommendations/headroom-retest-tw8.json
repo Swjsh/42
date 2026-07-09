@@ -1,0 +1,994 @@
+{
+  "_doc": "T-W8 HEADROOM + RETEST pre-registered entry-candidate study. Confirmatory read = fresh window (2026-06-19..2026-07-08); exploratory window (2025-01-01..2026-06-18) is BURNED, directional-consistency check only. 2026-07-09 excluded from both (generated the hypothesis). ANALYSIS ONLY -- no trading-path file touched.",
+  "generated_at": "2026-07-09T11:28:14.183439",
+  "preregistration_file": "analysis/recommendations/headroom-retest-preregistration.json",
+  "preflight": {
+    "exploratory_sha256_16": "b5e8931994b9d34b",
+    "exploratory_hash_ok": true,
+    "fresh_sha256_16": "d10e1a3a51cbf155",
+    "fresh_hash_ok": true,
+    "preregistration_version": 1,
+    "preregistration_version_ok": true
+  },
+  "windows": {
+    "exploratory": {
+      "window_name": "exploratory",
+      "n_signals_input": 250,
+      "n_enriched": 250,
+      "n_prepared": 250,
+      "n_missing_bars": 0,
+      "n_eligible_for_r": 98,
+      "n_no_level_context": 152,
+      "control_all": {
+        "n": 250,
+        "total": 5728.0,
+        "expectancy": 22.91,
+        "wr": 0.148,
+        "edge_capture_rel": 281.0,
+        "oos_total": 5926.0,
+        "oos_positive": true,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.667,
+        "exp_drop_top3": 0.68,
+        "worst_trade": -458.0,
+        "worst_decile_mean": -264.8,
+        "max_dd": -3982.0,
+        "n_stopped": 213
+      },
+      "exit_all": {
+        "CONTROL": {
+          "n": 250,
+          "total": 5728.0,
+          "expectancy": 22.91,
+          "wr": 0.148,
+          "edge_capture_rel": 281.0,
+          "oos_total": 5926.0,
+          "oos_positive": true,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.667,
+          "exp_drop_top3": 0.68,
+          "worst_trade": -458.0,
+          "worst_decile_mean": -264.8,
+          "max_dd": -3982.0,
+          "n_stopped": 213
+        },
+        "exit-A": {
+          "n": 250,
+          "total": 10748.6,
+          "expectancy": 42.99,
+          "wr": 0.288,
+          "edge_capture_rel": 184.4,
+          "oos_total": 5770.8,
+          "oos_positive": true,
+          "wf": 2.061,
+          "wf_ge_070": true,
+          "qpf": 0.833,
+          "exp_drop_top3": 17.88,
+          "worst_trade": -1145.0,
+          "worst_decile_mean": -653.6,
+          "max_dd": -5718.8,
+          "n_stopped": 168
+        }
+      },
+      "control_same_eligible_subset_for_r": {
+        "n": 98,
+        "total": 9385.0,
+        "expectancy": 95.77,
+        "wr": 0.224,
+        "edge_capture_rel": -546.0,
+        "oos_total": 5030.0,
+        "oos_positive": true,
+        "wf": 1.417,
+        "wf_ge_070": true,
+        "qpf": 0.833,
+        "exp_drop_top3": 40.65,
+        "worst_trade": -458.0,
+        "worst_decile_mean": -306.22,
+        "max_dd": -2564.0,
+        "n_stopped": 76
+      },
+      "candidate_H": {
+        "0.5": {
+          "CONTROL": {
+            "threshold_usd": 0.5,
+            "exit": "CONTROL",
+            "n_total": 250,
+            "n_kept": 130,
+            "n_skipped": 120,
+            "expectancy": -13.18,
+            "total": -1714.0,
+            "wr": 0.085,
+            "control_all_population_expectancy": 22.91,
+            "control_same_kept_subset_expectancy": -13.18,
+            "delta_vs_control_full_population": -36.09,
+            "delta_vs_control_same_subset": 0.0,
+            "skipped_cohort_expectancy_under_control": 62.02,
+            "skipped_cohort_total_under_control": 7442.0,
+            "skipped_cohort_net_negative": false,
+            "null_random_skip": {
+              "n_trials": 1000,
+              "k": 130,
+              "mean_of_means": 23.1099,
+              "stdev": 21.9378,
+              "min": -51.58,
+              "max": 94.28
+            },
+            "beats_random_skip_null": false,
+            "small_n": false
+          },
+          "exit-A": {
+            "threshold_usd": 0.5,
+            "exit": "exit-A",
+            "n_total": 250,
+            "n_kept": 130,
+            "n_skipped": 120,
+            "expectancy": 21.92,
+            "total": 2849.6,
+            "wr": 0.262,
+            "control_all_population_expectancy": 22.91,
+            "control_same_kept_subset_expectancy": -13.18,
+            "delta_vs_control_full_population": -0.99,
+            "delta_vs_control_same_subset": 35.1,
+            "skipped_cohort_expectancy_under_control": 62.02,
+            "skipped_cohort_total_under_control": 7442.0,
+            "skipped_cohort_net_negative": false,
+            "null_random_skip": {
+              "n_trials": 1000,
+              "k": 130,
+              "mean_of_means": 42.5683,
+              "stdev": 33.2446,
+              "min": -69.77,
+              "max": 144.91
+            },
+            "beats_random_skip_null": false,
+            "small_n": false
+          }
+        },
+        "0.75": {
+          "CONTROL": {
+            "threshold_usd": 0.75,
+            "exit": "CONTROL",
+            "n_total": 250,
+            "n_kept": 119,
+            "n_skipped": 131,
+            "expectancy": -23.78,
+            "total": -2830.0,
+            "wr": 0.076,
+            "control_all_population_expectancy": 22.91,
+            "control_same_kept_subset_expectancy": -23.78,
+            "delta_vs_control_full_population": -46.69,
+            "delta_vs_control_same_subset": 0.0,
+            "skipped_cohort_expectancy_under_control": 65.33,
+            "skipped_cohort_total_under_control": 8558.0,
+            "skipped_cohort_net_negative": false,
+            "null_random_skip": {
+              "n_trials": 1000,
+              "k": 119,
+              "mean_of_means": 24.0652,
+              "stdev": 24.6648,
+              "min": -59.87,
+              "max": 96.5
+            },
+            "beats_random_skip_null": false,
+            "small_n": false
+          },
+          "exit-A": {
+            "threshold_usd": 0.75,
+            "exit": "exit-A",
+            "n_total": 250,
+            "n_kept": 119,
+            "n_skipped": 131,
+            "expectancy": -7.92,
+            "total": -942.4,
+            "wr": 0.227,
+            "control_all_population_expectancy": 22.91,
+            "control_same_kept_subset_expectancy": -23.78,
+            "delta_vs_control_full_population": -30.83,
+            "delta_vs_control_same_subset": 15.86,
+            "skipped_cohort_expectancy_under_control": 65.33,
+            "skipped_cohort_total_under_control": 8558.0,
+            "skipped_cohort_net_negative": false,
+            "null_random_skip": {
+              "n_trials": 1000,
+              "k": 119,
+              "mean_of_means": 44.8692,
+              "stdev": 37.6693,
+              "min": -64.76,
+              "max": 181.85
+            },
+            "beats_random_skip_null": false,
+            "small_n": false
+          }
+        },
+        "1.0": {
+          "CONTROL": {
+            "threshold_usd": 1.0,
+            "exit": "CONTROL",
+            "n_total": 250,
+            "n_kept": 99,
+            "n_skipped": 151,
+            "expectancy": -42.3,
+            "total": -4188.0,
+            "wr": 0.071,
+            "control_all_population_expectancy": 22.91,
+            "control_same_kept_subset_expectancy": -42.3,
+            "delta_vs_control_full_population": -65.21,
+            "delta_vs_control_same_subset": 0.0,
+            "skipped_cohort_expectancy_under_control": 65.67,
+            "skipped_cohort_total_under_control": 9916.0,
+            "skipped_cohort_net_negative": false,
+            "null_random_skip": {
+              "n_trials": 1000,
+              "k": 99,
+              "mean_of_means": 23.0938,
+              "stdev": 29.4563,
+              "min": -55.17,
+              "max": 135.31
+            },
+            "beats_random_skip_null": false,
+            "small_n": false
+          },
+          "exit-A": {
+            "threshold_usd": 1.0,
+            "exit": "exit-A",
+            "n_total": 250,
+            "n_kept": 99,
+            "n_skipped": 151,
+            "expectancy": -27.69,
+            "total": -2741.4,
+            "wr": 0.232,
+            "control_all_population_expectancy": 22.91,
+            "control_same_kept_subset_expectancy": -42.3,
+            "delta_vs_control_full_population": -50.6,
+            "delta_vs_control_same_subset": 14.61,
+            "skipped_cohort_expectancy_under_control": 65.67,
+            "skipped_cohort_total_under_control": 9916.0,
+            "skipped_cohort_net_negative": false,
+            "null_random_skip": {
+              "n_trials": 1000,
+              "k": 99,
+              "mean_of_means": 42.7012,
+              "stdev": 44.7799,
+              "min": -81.14,
+              "max": 194.35
+            },
+            "beats_random_skip_null": false,
+            "small_n": false
+          }
+        },
+        "1.5": {
+          "CONTROL": {
+            "threshold_usd": 1.5,
+            "exit": "CONTROL",
+            "n_total": 250,
+            "n_kept": 82,
+            "n_skipped": 168,
+            "expectancy": -65.16,
+            "total": -5343.0,
+            "wr": 0.061,
+            "control_all_population_expectancy": 22.91,
+            "control_same_kept_subset_expectancy": -65.16,
+            "delta_vs_control_full_population": -88.07,
+            "delta_vs_control_same_subset": 0.0,
+            "skipped_cohort_expectancy_under_control": 65.9,
+            "skipped_cohort_total_under_control": 11071.0,
+            "skipped_cohort_net_negative": false,
+            "null_random_skip": {
+              "n_trials": 1000,
+              "k": 82,
+              "mean_of_means": 23.2767,
+              "stdev": 33.1289,
+              "min": -65.91,
+              "max": 122.6
+            },
+            "beats_random_skip_null": false,
+            "small_n": false
+          },
+          "exit-A": {
+            "threshold_usd": 1.5,
+            "exit": "exit-A",
+            "n_total": 250,
+            "n_kept": 82,
+            "n_skipped": 168,
+            "expectancy": -83.87,
+            "total": -6877.0,
+            "wr": 0.22,
+            "control_all_population_expectancy": 22.91,
+            "control_same_kept_subset_expectancy": -65.16,
+            "delta_vs_control_full_population": -106.78,
+            "delta_vs_control_same_subset": -18.71,
+            "skipped_cohort_expectancy_under_control": 65.9,
+            "skipped_cohort_total_under_control": 11071.0,
+            "skipped_cohort_net_negative": false,
+            "null_random_skip": {
+              "n_trials": 1000,
+              "k": 82,
+              "mean_of_means": 42.0222,
+              "stdev": 50.2227,
+              "min": -125.59,
+              "max": 232.07
+            },
+            "beats_random_skip_null": false,
+            "small_n": false
+          }
+        }
+      },
+      "candidate_R": {
+        "3": {
+          "CONTROL": {
+            "patience_bars": 3,
+            "exit": "CONTROL",
+            "n_total_window": 250,
+            "n_eligible": 98,
+            "n_no_level_context": 152,
+            "n_filled": 52,
+            "n_missed": 46,
+            "fill_rate": 0.531,
+            "n_spy_bar_lookup_miss": 0,
+            "expectancy_incl_misses": 10.33,
+            "total_incl_misses": 1012.0,
+            "wr_incl_misses": 0.051,
+            "expectancy_filled_only": 19.46,
+            "n_filled_only": 52,
+            "control_all_population_expectancy": 22.91,
+            "control_same_eligible_subset_expectancy": 95.77,
+            "delta_vs_control_full_population": -12.58,
+            "delta_vs_control_same_subset": -85.44,
+            "small_n": false
+          },
+          "exit-A": {
+            "patience_bars": 3,
+            "exit": "exit-A",
+            "n_total_window": 250,
+            "n_eligible": 98,
+            "n_no_level_context": 152,
+            "n_filled": 52,
+            "n_missed": 46,
+            "fill_rate": 0.531,
+            "n_spy_bar_lookup_miss": 0,
+            "expectancy_incl_misses": 43.53,
+            "total_incl_misses": 4265.8,
+            "wr_incl_misses": 0.153,
+            "expectancy_filled_only": 82.03,
+            "n_filled_only": 52,
+            "control_all_population_expectancy": 22.91,
+            "control_same_eligible_subset_expectancy": 95.77,
+            "delta_vs_control_full_population": 20.62,
+            "delta_vs_control_same_subset": -52.24,
+            "small_n": false
+          }
+        },
+        "6": {
+          "CONTROL": {
+            "patience_bars": 6,
+            "exit": "CONTROL",
+            "n_total_window": 250,
+            "n_eligible": 98,
+            "n_no_level_context": 152,
+            "n_filled": 60,
+            "n_missed": 38,
+            "fill_rate": 0.612,
+            "n_spy_bar_lookup_miss": 0,
+            "expectancy_incl_misses": 13.94,
+            "total_incl_misses": 1366.0,
+            "wr_incl_misses": 0.061,
+            "expectancy_filled_only": 22.77,
+            "n_filled_only": 60,
+            "control_all_population_expectancy": 22.91,
+            "control_same_eligible_subset_expectancy": 95.77,
+            "delta_vs_control_full_population": -8.97,
+            "delta_vs_control_same_subset": -81.83,
+            "small_n": false
+          },
+          "exit-A": {
+            "patience_bars": 6,
+            "exit": "exit-A",
+            "n_total_window": 250,
+            "n_eligible": 98,
+            "n_no_level_context": 152,
+            "n_filled": 60,
+            "n_missed": 38,
+            "fill_rate": 0.612,
+            "n_spy_bar_lookup_miss": 0,
+            "expectancy_incl_misses": 51.34,
+            "total_incl_misses": 5031.4,
+            "wr_incl_misses": 0.173,
+            "expectancy_filled_only": 83.86,
+            "n_filled_only": 60,
+            "control_all_population_expectancy": 22.91,
+            "control_same_eligible_subset_expectancy": 95.77,
+            "delta_vs_control_full_population": 28.43,
+            "delta_vs_control_same_subset": -44.43,
+            "small_n": false
+          }
+        }
+      }
+    },
+    "fresh": {
+      "window_name": "fresh",
+      "n_signals_input": 18,
+      "n_enriched": 18,
+      "n_prepared": 18,
+      "n_missing_bars": 0,
+      "n_eligible_for_r": 14,
+      "n_no_level_context": 4,
+      "control_all": {
+        "n": 18,
+        "total": -1812.0,
+        "expectancy": -100.67,
+        "wr": 0.056,
+        "edge_capture_rel": 0.0,
+        "oos_total": -1812.0,
+        "oos_positive": false,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.0,
+        "exp_drop_top3": -138.8,
+        "worst_trade": -386.0,
+        "worst_decile_mean": -386.0,
+        "max_dd": -1812.0,
+        "n_stopped": 17
+      },
+      "exit_all": {
+        "CONTROL": {
+          "n": 18,
+          "total": -1812.0,
+          "expectancy": -100.67,
+          "wr": 0.056,
+          "edge_capture_rel": 0.0,
+          "oos_total": -1812.0,
+          "oos_positive": false,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.0,
+          "exp_drop_top3": -138.8,
+          "worst_trade": -386.0,
+          "worst_decile_mean": -386.0,
+          "max_dd": -1812.0,
+          "n_stopped": 17
+        },
+        "exit-A": {
+          "n": 18,
+          "total": -4905.8,
+          "expectancy": -272.54,
+          "wr": 0.056,
+          "edge_capture_rel": 0.0,
+          "oos_total": -4905.8,
+          "oos_positive": false,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.0,
+          "exp_drop_top3": -347.0,
+          "worst_trade": -965.0,
+          "worst_decile_mean": -965.0,
+          "max_dd": -4905.8,
+          "n_stopped": 17
+        }
+      },
+      "control_same_eligible_subset_for_r": {
+        "n": 14,
+        "total": -1416.0,
+        "expectancy": -101.14,
+        "wr": 0.071,
+        "edge_capture_rel": 0.0,
+        "oos_total": -1416.0,
+        "oos_positive": false,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.0,
+        "exp_drop_top3": -152.18,
+        "worst_trade": -386.0,
+        "worst_decile_mean": -386.0,
+        "max_dd": -1476.0,
+        "n_stopped": 13
+      },
+      "candidate_H": {
+        "0.5": {
+          "CONTROL": {
+            "threshold_usd": 0.5,
+            "exit": "CONTROL",
+            "n_total": 18,
+            "n_kept": 9,
+            "n_skipped": 9,
+            "expectancy": -145.56,
+            "total": -1310.0,
+            "wr": 0.0,
+            "control_all_population_expectancy": -100.67,
+            "control_same_kept_subset_expectancy": -145.56,
+            "delta_vs_control_full_population": -44.89,
+            "delta_vs_control_same_subset": 0.0,
+            "skipped_cohort_expectancy_under_control": -55.78,
+            "skipped_cohort_total_under_control": -502.0,
+            "skipped_cohort_net_negative": true,
+            "null_random_skip": {
+              "n_trials": 1000,
+              "k": 9,
+              "mean_of_means": -100.0222,
+              "stdev": 32.6405,
+              "min": -173.11,
+              "max": -18.67
+            },
+            "beats_random_skip_null": false,
+            "small_n": false
+          },
+          "exit-A": {
+            "threshold_usd": 0.5,
+            "exit": "exit-A",
+            "n_total": 18,
+            "n_kept": 9,
+            "n_skipped": 9,
+            "expectancy": -363.89,
+            "total": -3275.0,
+            "wr": 0.0,
+            "control_all_population_expectancy": -100.67,
+            "control_same_kept_subset_expectancy": -145.56,
+            "delta_vs_control_full_population": -263.22,
+            "delta_vs_control_same_subset": -218.33,
+            "skipped_cohort_expectancy_under_control": -55.78,
+            "skipped_cohort_total_under_control": -502.0,
+            "skipped_cohort_net_negative": true,
+            "null_random_skip": {
+              "n_trials": 1000,
+              "k": 9,
+              "mean_of_means": -271.4762,
+              "stdev": 67.6107,
+              "min": -432.78,
+              "max": -88.42
+            },
+            "beats_random_skip_null": false,
+            "small_n": false
+          }
+        },
+        "0.75": {
+          "CONTROL": {
+            "threshold_usd": 0.75,
+            "exit": "CONTROL",
+            "n_total": 18,
+            "n_kept": 8,
+            "n_skipped": 10,
+            "expectancy": -145.25,
+            "total": -1162.0,
+            "wr": 0.0,
+            "control_all_population_expectancy": -100.67,
+            "control_same_kept_subset_expectancy": -145.25,
+            "delta_vs_control_full_population": -44.58,
+            "delta_vs_control_same_subset": 0.0,
+            "skipped_cohort_expectancy_under_control": -65.0,
+            "skipped_cohort_total_under_control": -650.0,
+            "skipped_cohort_net_negative": true,
+            "null_random_skip": {
+              "n_trials": 1000,
+              "k": 8,
+              "mean_of_means": -100.136,
+              "stdev": 37.6048,
+              "min": -182.25,
+              "max": -10.75
+            },
+            "beats_random_skip_null": false,
+            "small_n": false
+          },
+          "exit-A": {
+            "threshold_usd": 0.75,
+            "exit": "exit-A",
+            "n_total": 18,
+            "n_kept": 8,
+            "n_skipped": 10,
+            "expectancy": -363.12,
+            "total": -2905.0,
+            "wr": 0.0,
+            "control_all_population_expectancy": -100.67,
+            "control_same_kept_subset_expectancy": -145.25,
+            "delta_vs_control_full_population": -262.45,
+            "delta_vs_control_same_subset": -217.87,
+            "skipped_cohort_expectancy_under_control": -65.0,
+            "skipped_cohort_total_under_control": -650.0,
+            "skipped_cohort_net_negative": true,
+            "null_random_skip": {
+              "n_trials": 1000,
+              "k": 8,
+              "mean_of_means": -272.2303,
+              "stdev": 77.916,
+              "min": -455.62,
+              "max": -73.85
+            },
+            "beats_random_skip_null": false,
+            "small_n": false
+          }
+        },
+        "1.0": {
+          "CONTROL": {
+            "threshold_usd": 1.0,
+            "exit": "CONTROL",
+            "n_total": 18,
+            "n_kept": 8,
+            "n_skipped": 10,
+            "expectancy": -145.25,
+            "total": -1162.0,
+            "wr": 0.0,
+            "control_all_population_expectancy": -100.67,
+            "control_same_kept_subset_expectancy": -145.25,
+            "delta_vs_control_full_population": -44.58,
+            "delta_vs_control_same_subset": 0.0,
+            "skipped_cohort_expectancy_under_control": -65.0,
+            "skipped_cohort_total_under_control": -650.0,
+            "skipped_cohort_net_negative": true,
+            "null_random_skip": {
+              "n_trials": 1000,
+              "k": 8,
+              "mean_of_means": -100.136,
+              "stdev": 37.6048,
+              "min": -182.25,
+              "max": -10.75
+            },
+            "beats_random_skip_null": false,
+            "small_n": false
+          },
+          "exit-A": {
+            "threshold_usd": 1.0,
+            "exit": "exit-A",
+            "n_total": 18,
+            "n_kept": 8,
+            "n_skipped": 10,
+            "expectancy": -363.12,
+            "total": -2905.0,
+            "wr": 0.0,
+            "control_all_population_expectancy": -100.67,
+            "control_same_kept_subset_expectancy": -145.25,
+            "delta_vs_control_full_population": -262.45,
+            "delta_vs_control_same_subset": -217.87,
+            "skipped_cohort_expectancy_under_control": -65.0,
+            "skipped_cohort_total_under_control": -650.0,
+            "skipped_cohort_net_negative": true,
+            "null_random_skip": {
+              "n_trials": 1000,
+              "k": 8,
+              "mean_of_means": -272.2303,
+              "stdev": 77.916,
+              "min": -455.62,
+              "max": -73.85
+            },
+            "beats_random_skip_null": false,
+            "small_n": false
+          }
+        },
+        "1.5": {
+          "CONTROL": {
+            "threshold_usd": 1.5,
+            "exit": "CONTROL",
+            "n_total": 18,
+            "n_kept": 4,
+            "n_skipped": 14,
+            "expectancy": -201.5,
+            "total": -806.0,
+            "wr": 0.0,
+            "control_all_population_expectancy": -100.67,
+            "control_same_kept_subset_expectancy": -201.5,
+            "delta_vs_control_full_population": -100.83,
+            "delta_vs_control_same_subset": 0.0,
+            "skipped_cohort_expectancy_under_control": -71.86,
+            "skipped_cohort_total_under_control": -1006.0,
+            "skipped_cohort_net_negative": true,
+            "null_random_skip": {
+              "n_trials": 1000,
+              "k": 4,
+              "mean_of_means": -102.6055,
+              "stdev": 61.7947,
+              "min": -247.5,
+              "max": 54.5
+            },
+            "beats_random_skip_null": false,
+            "small_n": true
+          },
+          "exit-A": {
+            "threshold_usd": 1.5,
+            "exit": "exit-A",
+            "n_total": 18,
+            "n_kept": 4,
+            "n_skipped": 14,
+            "expectancy": -503.75,
+            "total": -2015.0,
+            "wr": 0.0,
+            "control_all_population_expectancy": -100.67,
+            "control_same_kept_subset_expectancy": -201.5,
+            "delta_vs_control_full_population": -403.08,
+            "delta_vs_control_same_subset": -302.25,
+            "skipped_cohort_expectancy_under_control": -71.86,
+            "skipped_cohort_total_under_control": -1006.0,
+            "skipped_cohort_net_negative": true,
+            "null_random_skip": {
+              "n_trials": 1000,
+              "k": 4,
+              "mean_of_means": -277.6525,
+              "stdev": 127.3594,
+              "min": -618.75,
+              "max": 42.3
+            },
+            "beats_random_skip_null": false,
+            "small_n": true
+          }
+        }
+      },
+      "candidate_R": {
+        "3": {
+          "CONTROL": {
+            "patience_bars": 3,
+            "exit": "CONTROL",
+            "n_total_window": 18,
+            "n_eligible": 14,
+            "n_no_level_context": 4,
+            "n_filled": 9,
+            "n_missed": 5,
+            "fill_rate": 0.643,
+            "n_spy_bar_lookup_miss": 0,
+            "expectancy_incl_misses": -59.43,
+            "total_incl_misses": -832.0,
+            "wr_incl_misses": 0.071,
+            "expectancy_filled_only": -92.44,
+            "n_filled_only": 9,
+            "control_all_population_expectancy": -100.67,
+            "control_same_eligible_subset_expectancy": -101.14,
+            "delta_vs_control_full_population": 41.24,
+            "delta_vs_control_same_subset": 41.71,
+            "small_n": false
+          },
+          "exit-A": {
+            "patience_bars": 3,
+            "exit": "exit-A",
+            "n_total_window": 18,
+            "n_eligible": 14,
+            "n_no_level_context": 4,
+            "n_filled": 9,
+            "n_missed": 5,
+            "fill_rate": 0.643,
+            "n_spy_bar_lookup_miss": 0,
+            "expectancy_incl_misses": -175.41,
+            "total_incl_misses": -2455.8,
+            "wr_incl_misses": 0.071,
+            "expectancy_filled_only": -272.87,
+            "n_filled_only": 9,
+            "control_all_population_expectancy": -100.67,
+            "control_same_eligible_subset_expectancy": -101.14,
+            "delta_vs_control_full_population": -74.74,
+            "delta_vs_control_same_subset": -74.27,
+            "small_n": false
+          }
+        },
+        "6": {
+          "CONTROL": {
+            "patience_bars": 6,
+            "exit": "CONTROL",
+            "n_total_window": 18,
+            "n_eligible": 14,
+            "n_no_level_context": 4,
+            "n_filled": 11,
+            "n_missed": 3,
+            "fill_rate": 0.786,
+            "n_spy_bar_lookup_miss": 0,
+            "expectancy_incl_misses": -67.86,
+            "total_incl_misses": -950.0,
+            "wr_incl_misses": 0.071,
+            "expectancy_filled_only": -86.36,
+            "n_filled_only": 11,
+            "control_all_population_expectancy": -100.67,
+            "control_same_eligible_subset_expectancy": -101.14,
+            "delta_vs_control_full_population": 32.81,
+            "delta_vs_control_same_subset": 33.28,
+            "small_n": false
+          },
+          "exit-A": {
+            "patience_bars": 6,
+            "exit": "exit-A",
+            "n_total_window": 18,
+            "n_eligible": 14,
+            "n_no_level_context": 4,
+            "n_filled": 11,
+            "n_missed": 3,
+            "fill_rate": 0.786,
+            "n_spy_bar_lookup_miss": 0,
+            "expectancy_incl_misses": -196.49,
+            "total_incl_misses": -2750.8,
+            "wr_incl_misses": 0.071,
+            "expectancy_filled_only": -250.07,
+            "n_filled_only": 11,
+            "control_all_population_expectancy": -100.67,
+            "control_same_eligible_subset_expectancy": -101.14,
+            "delta_vs_control_full_population": -95.82,
+            "delta_vs_control_same_subset": -95.35,
+            "small_n": false
+          }
+        }
+      }
+    }
+  },
+  "verdicts": {
+    "H": {
+      "0.5": {
+        "CONTROL": {
+          "threshold_usd": 0.5,
+          "exit": "CONTROL",
+          "components": {
+            "fresh_delta_positive": false,
+            "exploratory_delta_positive": false,
+            "beats_random_skip_null": false,
+            "skipped_cohort_net_negative": true
+          },
+          "small_n": false,
+          "overall": "FAIL",
+          "reason": "fresh: exp=$-145.56 n_kept=9 delta=-44.89 | exploratory: exp=$-13.18 delta=-36.09 | null_mean=-100.0222 beats_null=False | skipped_net_negative=True"
+        },
+        "exit-A": {
+          "threshold_usd": 0.5,
+          "exit": "exit-A",
+          "components": {
+            "fresh_delta_positive": false,
+            "exploratory_delta_positive": false,
+            "beats_random_skip_null": false,
+            "skipped_cohort_net_negative": true
+          },
+          "small_n": false,
+          "overall": "FAIL",
+          "reason": "fresh: exp=$-363.89 n_kept=9 delta=-263.22 | exploratory: exp=$21.92 delta=-0.99 | null_mean=-271.4762 beats_null=False | skipped_net_negative=True"
+        }
+      },
+      "0.75": {
+        "CONTROL": {
+          "threshold_usd": 0.75,
+          "exit": "CONTROL",
+          "components": {
+            "fresh_delta_positive": false,
+            "exploratory_delta_positive": false,
+            "beats_random_skip_null": false,
+            "skipped_cohort_net_negative": true
+          },
+          "small_n": false,
+          "overall": "FAIL",
+          "reason": "fresh: exp=$-145.25 n_kept=8 delta=-44.58 | exploratory: exp=$-23.78 delta=-46.69 | null_mean=-100.136 beats_null=False | skipped_net_negative=True"
+        },
+        "exit-A": {
+          "threshold_usd": 0.75,
+          "exit": "exit-A",
+          "components": {
+            "fresh_delta_positive": false,
+            "exploratory_delta_positive": false,
+            "beats_random_skip_null": false,
+            "skipped_cohort_net_negative": true
+          },
+          "small_n": false,
+          "overall": "FAIL",
+          "reason": "fresh: exp=$-363.12 n_kept=8 delta=-262.45 | exploratory: exp=$-7.92 delta=-30.83 | null_mean=-272.2303 beats_null=False | skipped_net_negative=True"
+        }
+      },
+      "1.0": {
+        "CONTROL": {
+          "threshold_usd": 1.0,
+          "exit": "CONTROL",
+          "components": {
+            "fresh_delta_positive": false,
+            "exploratory_delta_positive": false,
+            "beats_random_skip_null": false,
+            "skipped_cohort_net_negative": true
+          },
+          "small_n": false,
+          "overall": "FAIL",
+          "reason": "fresh: exp=$-145.25 n_kept=8 delta=-44.58 | exploratory: exp=$-42.3 delta=-65.21 | null_mean=-100.136 beats_null=False | skipped_net_negative=True"
+        },
+        "exit-A": {
+          "threshold_usd": 1.0,
+          "exit": "exit-A",
+          "components": {
+            "fresh_delta_positive": false,
+            "exploratory_delta_positive": false,
+            "beats_random_skip_null": false,
+            "skipped_cohort_net_negative": true
+          },
+          "small_n": false,
+          "overall": "FAIL",
+          "reason": "fresh: exp=$-363.12 n_kept=8 delta=-262.45 | exploratory: exp=$-27.69 delta=-50.6 | null_mean=-272.2303 beats_null=False | skipped_net_negative=True"
+        }
+      },
+      "1.5": {
+        "CONTROL": {
+          "threshold_usd": 1.5,
+          "exit": "CONTROL",
+          "components": {
+            "fresh_delta_positive": false,
+            "exploratory_delta_positive": false,
+            "beats_random_skip_null": false,
+            "skipped_cohort_net_negative": true
+          },
+          "small_n": true,
+          "overall": "INCONCLUSIVE_SMALL_N",
+          "reason": "fresh: exp=$-201.5 n_kept=4 delta=-100.83 | exploratory: exp=$-65.16 delta=-88.07 | null_mean=-102.6055 beats_null=False | skipped_net_negative=True"
+        },
+        "exit-A": {
+          "threshold_usd": 1.5,
+          "exit": "exit-A",
+          "components": {
+            "fresh_delta_positive": false,
+            "exploratory_delta_positive": false,
+            "beats_random_skip_null": false,
+            "skipped_cohort_net_negative": true
+          },
+          "small_n": true,
+          "overall": "INCONCLUSIVE_SMALL_N",
+          "reason": "fresh: exp=$-503.75 n_kept=4 delta=-403.08 | exploratory: exp=$-83.87 delta=-106.78 | null_mean=-277.6525 beats_null=False | skipped_net_negative=True"
+        }
+      }
+    },
+    "R": {
+      "3": {
+        "CONTROL": {
+          "patience_bars": 3,
+          "exit": "CONTROL",
+          "components": {
+            "fresh_delta_positive": true,
+            "exploratory_delta_positive": false,
+            "misses_priced_in": true
+          },
+          "small_n": false,
+          "overall": "FAIL",
+          "reason": "fresh: exp_incl_misses=$-59.43 n_eligible=14 n_missed=5 fill_rate=0.643 delta=41.24 | exploratory: exp_incl_misses=$10.33 delta=-12.58"
+        },
+        "exit-A": {
+          "patience_bars": 3,
+          "exit": "exit-A",
+          "components": {
+            "fresh_delta_positive": false,
+            "exploratory_delta_positive": true,
+            "misses_priced_in": true
+          },
+          "small_n": false,
+          "overall": "FAIL",
+          "reason": "fresh: exp_incl_misses=$-175.41 n_eligible=14 n_missed=5 fill_rate=0.643 delta=-74.74 | exploratory: exp_incl_misses=$43.53 delta=20.62"
+        }
+      },
+      "6": {
+        "CONTROL": {
+          "patience_bars": 6,
+          "exit": "CONTROL",
+          "components": {
+            "fresh_delta_positive": true,
+            "exploratory_delta_positive": false,
+            "misses_priced_in": true
+          },
+          "small_n": false,
+          "overall": "FAIL",
+          "reason": "fresh: exp_incl_misses=$-67.86 n_eligible=14 n_missed=3 fill_rate=0.786 delta=32.81 | exploratory: exp_incl_misses=$13.94 delta=-8.97"
+        },
+        "exit-A": {
+          "patience_bars": 6,
+          "exit": "exit-A",
+          "components": {
+            "fresh_delta_positive": false,
+            "exploratory_delta_positive": true,
+            "misses_priced_in": true
+          },
+          "small_n": false,
+          "overall": "FAIL",
+          "reason": "fresh: exp_incl_misses=$-196.49 n_eligible=14 n_missed=3 fill_rate=0.786 delta=-95.82 | exploratory: exp_incl_misses=$51.34 delta=28.43"
+        }
+      }
+    }
+  },
+  "key_findings": [
+    "Fresh-slice CONTROL baseline (n=18, fresh): expectancy $-100.67, WR 0.056, total $-1812.0 -- the number every H/R cell in the fresh window is measured against.",
+    "Verdict tally across all (candidate, parameter, exit) cells: 0 PASS, 10 FAIL, 2 INCONCLUSIVE_SMALL_N (fresh window n=18 is SMALL BY CONSTRUCTION -- most cells are expected to land here per the pre-registration's own disclosure).",
+    "R eligibility (a detectable trigger_level on the recovered trigger bar): 14/18 fresh signals, 98/250 exploratory signals -- the majority of ribbon_ride signals are admitted via ribbon_flip/sequence/confluence-only triggers with no literal level cross on the trigger bar, and R has no defined action for those.",
+    "H@$0.5 (CONTROL exit, fresh): kept 9/18, skipped 9 with expectancy $-55.78 under CONTROL (net_negative=True); kept-cohort delta vs control $-44.89; beats random-skip null: False (null mean $-100.0222).",
+    "H@$0.75 (CONTROL exit, fresh): kept 8/18, skipped 10 with expectancy $-65.0 under CONTROL (net_negative=True); kept-cohort delta vs control $-44.58; beats random-skip null: False (null mean $-100.136).",
+    "H@$1.0 (CONTROL exit, fresh): kept 8/18, skipped 10 with expectancy $-65.0 under CONTROL (net_negative=True); kept-cohort delta vs control $-44.58; beats random-skip null: False (null mean $-100.136).",
+    "H@$1.5 (CONTROL exit, fresh): kept 4/18, skipped 14 with expectancy $-71.86 under CONTROL (net_negative=True); kept-cohort delta vs control $-100.83; beats random-skip null: False (null mean $-102.6055)."
+  ],
+  "disclosures": [
+    "Fresh window n=18 signals (~13 trading days) -- SMALL BY CONSTRUCTION, disclosed not padded (same convention as T5's fresh slice, which T-W8 reuses verbatim).",
+    "qty 10 fixed; expectancy is relative-to-control, not an OP-16 account-scaled absolute.",
+    "Frictionless fills; 5-min OPRA bars (touch semantics; 1-min close timing not modelled).",
+    "Premium-only replay: ribbon/level/chart exits OFF -- only the two named exit shapes.",
+    "ribbon_ride only (both directions); vwap_continuation not in scope.",
+    "No real-fills anchor (layer b) in this study -- owed separately if any candidate PASSes.",
+    "R's eligible population (signals with a detectable trigger_level) is a real subset of each window, disclosed per-window as n_eligible_for_r / n_no_level_context.",
+    "H's null_random_skip samples WITHOUT replacement from the exit-shape-specific pnl pool of the FULL window population, k=n_kept, 1000 trials, seed 20260709 (frozen pre-reg)."
+  ]
+}
