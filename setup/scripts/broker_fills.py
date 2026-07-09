@@ -12,13 +12,17 @@ writes the two files every downstream consumer (T2) must read instead of a decis
     engine-vs-manual attribution, round trips, open lots)
 
 ATTRIBUTION RULE (pre-decided, HANDOFF T1): fleet_rest arms (safe-1, safe-3, risky-1, risky-3)
-= 100% engine. safe-2/bold-2 = manual UNLESS the fill's order_id matches a PLACED entry row or
-an exit_pass action row for that account in core-decisions.jsonl (then engine). Crypto (symbol
-contains "/") = always manual, excluded from engine P&L.
+= 100% engine. safe-2/bold-2 = manual UNLESS the fill's order_id matches a PLACED entry row
+(`exec`), an exit action (`exit_pass`), or a G4 extra-setup placement (`extra_exec`) for that
+account in core-decisions.jsonl (then engine). Crypto (symbol contains "/") = always manual,
+excluded from engine P&L.
 
 Idempotent: re-running only appends fills whose activity id isn't already in the ledger, then
 recomputes the full statement (round trips + open lots) from the complete ledger every time --
 so a partial-history run followed by a full backfill run converges to the same statement.
+Attribution self-heals PROMOTE-ONLY on every run: a core-arm row written "manual" whose
+order_id has since become a known engine order id flips to "engine" (atomic full rewrite);
+"engine" is never demoted, so a pruned/rotated core-decisions.jsonl can't corrupt history.
 """
 from __future__ import annotations
 
@@ -93,11 +97,15 @@ def fetch_fill_activities(creds: dict, after_iso: str, timeout: float = 15.0) ->
 
 
 def engine_order_ids(account_field_value: str, core_decisions_path: Path = CORE_DECISIONS) -> set:
-    """Order ids that appear as a PLACED entry (`exec.broker.id`) or an exit action
-    (`exit_pass[].actions[].broker.id`) for this core account (`account_field_value` =
-    "safe"/"bold") in core-decisions.jsonl. safe-2/bold-2 route through the MCP heartbeat
-    path, not fleet_rest -- these ARE the engine's own orders even though they're a
-    different execution path, and must attribute as engine, not manual."""
+    """Order ids that appear as a PLACED entry (`exec.broker.id`), an exit action
+    (`exit_pass[].actions[].broker.id`), or a G4 extra-setup placement
+    (`extra_exec[].exec.broker.id` -- heartbeat_core._route_extra_setups: vwap_continuation,
+    bollinger_squeeze, ...) for this core account (`account_field_value` = "safe"/"bold")
+    in core-decisions.jsonl. safe-2/bold-2 route through the MCP heartbeat path, not
+    fleet_rest -- these ARE the engine's own orders even though they're a different
+    execution path, and must attribute as engine, not manual. (2026-07-09 fix: extra_exec
+    was not scanned -- every extra-setup ENTRY fill mis-attributed manual while its exit
+    attributed engine, orphaning the position for attribution-filtering consumers.)"""
     ids: set = set()
     if not core_decisions_path.exists():
         return ids
@@ -124,6 +132,14 @@ def engine_order_ids(account_field_value: str, core_decisions_path: Path = CORE_
                     if not isinstance(act, dict):
                         continue
                     b = act.get("broker")
+                    if isinstance(b, dict) and b.get("id"):
+                        ids.add(b["id"])
+            for ee in (row.get("extra_exec") or []):
+                if not isinstance(ee, dict):
+                    continue
+                ee_exec = ee.get("exec")
+                if isinstance(ee_exec, dict):
+                    b = ee_exec.get("broker")
                     if isinstance(b, dict) and b.get("id"):
                         ids.add(b["id"])
     return ids
@@ -208,6 +224,37 @@ def append_new_fills(new_fills: list, ledger_path: Path = LEDGER) -> int:
         for f in new_fills:
             fh.write(json.dumps(f) + "\n")
     return len(new_fills)
+
+
+def promote_ledger_attribution(rows: list, engine_ids_by_account: dict) -> "tuple[list, int]":
+    """PURE, promote-only attribution self-heal for already-written ledger rows: a core-arm
+    (safe-2/bold-2) non-crypto row still tagged "manual" whose order_id is NOW a known engine
+    order id flips to "engine". Returns (new row list, n promoted) -- input rows are never
+    mutated; changed rows are copies. NEVER demotes engine->manual: engine attribution, once
+    earned by an id match, is durable even if core-decisions.jsonl is later pruned/rotated.
+    Heals both the pre-2026-07-09 extra_exec blind spot and any row appended by an intraday
+    fire before its decision row (e.g. a later exit_pass append) reached core-decisions."""
+    out: list = []
+    promoted = 0
+    for r in rows:
+        acct = CORE_ARMS.get(r.get("arm"))
+        if (acct is not None and r.get("attribution") == "manual" and not r.get("is_crypto")
+                and r.get("order_id") in engine_ids_by_account.get(acct, set())):
+            out.append({**r, "attribution": "engine"})
+            promoted += 1
+        else:
+            out.append(r)
+    return out, promoted
+
+
+def rewrite_ledger(rows: list, ledger_path: Path = LEDGER) -> None:
+    """Atomic full rewrite (tmp + os.replace) -- used only on a run where the promote pass
+    changed rows, so a concurrent reader never sees a half-written ledger."""
+    tmp = ledger_path.with_name(ledger_path.name + ".tmp")
+    with tmp.open("w", encoding="utf-8") as fh:
+        for r in rows:
+            fh.write(json.dumps(r) + "\n")
+    tmp.replace(ledger_path)
 
 
 def fifo_round_trips(fills: list) -> "tuple[list[dict], list[dict]]":
@@ -332,6 +379,7 @@ def main() -> int:
     existing_rows, existing_ids = load_existing_ledger()
 
     engine_ids_by_account = {acct: engine_order_ids(acct) for acct in CORE_ARMS.values()}
+    existing_rows, n_promoted = promote_ledger_attribution(existing_rows, engine_ids_by_account)
 
     new_fills = []
     for arm, creds in creds_all.items():
@@ -348,8 +396,14 @@ def main() -> int:
             new_fills.append(norm)
             existing_ids.add(norm["activity_id"])
 
-    appended = append_new_fills(new_fills)
     all_fills = existing_rows + new_fills
+    if n_promoted:
+        rewrite_ledger(all_fills)  # promoted rows exist only in memory -> full atomic rewrite
+        appended = len(new_fills)
+        print(f"[broker_fills] re-attributed {n_promoted} ledger rows manual->engine "
+              f"(promote-only self-heal: extra_exec / late decision rows)")
+    else:
+        appended = append_new_fills(new_fills)
     round_trips, open_lots = fifo_round_trips(all_fills)
     statement = build_statement(round_trips, open_lots)
     statement["round_trips"] = round_trips

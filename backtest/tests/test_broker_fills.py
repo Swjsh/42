@@ -8,6 +8,7 @@ statement aggregation.
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 from pathlib import Path
 
@@ -140,3 +141,68 @@ def test_ledger_dedup_by_activity_id(tmp_path):
     bf.append_new_fills(new_fills, ledger_path=ledger)
     rows2, _ = bf.load_existing_ledger(ledger_path=ledger)
     assert len(rows2) == 1  # still just one row -- no duplicate appended
+
+
+# --- engine_order_ids: all three placement routes --------------------------------------------
+
+def _write_decisions(path: Path, rows: list) -> None:
+    with path.open("w", encoding="utf-8") as fh:
+        for r in rows:
+            fh.write(json.dumps(r) + "\n")
+
+
+def test_engine_order_ids_picks_up_extra_exec(tmp_path):
+    """G4 extra-setup placements (vwap_continuation / bollinger_squeeze / ...) log their
+    broker id ONLY under extra_exec[].exec.broker.id (heartbeat_core._route_extra_setups).
+    Regression for 2026-07-09: 13 such entry orders (07-02 vwap_continuation, 07-06
+    bollinger_squeeze) were mis-attributed manual because engine_order_ids never scanned
+    extra_exec, while their exits (exit_pass) attributed engine."""
+    dec = tmp_path / "core-decisions.jsonl"
+    _write_decisions(dec, [
+        {"account": "safe", "extra_exec": [
+            {"setup": "vwap_continuation", "action": "PLACED",
+             "exec": {"broker": {"id": "extra-oid-1"}}},
+            {"setup": "bollinger_squeeze", "action": "WATCH_NOT_ARMED"},  # no exec -> skipped
+        ]},
+    ])
+    assert "extra-oid-1" in bf.engine_order_ids("safe", core_decisions_path=dec)
+
+
+def test_engine_order_ids_all_routes_and_account_filter(tmp_path):
+    dec = tmp_path / "core-decisions.jsonl"
+    _write_decisions(dec, [
+        {"account": "safe",
+         "exec": {"broker": {"id": "top-oid"}},
+         "exit_pass": [{"actions": [{"broker": {"id": "exit-oid"}}]}],
+         "extra_exec": [{"setup": "vwap_continuation", "exec": {"broker": {"id": "extra-oid"}}}]},
+        {"account": "bold",
+         "extra_exec": [{"setup": "gap_and_go", "exec": {"broker": {"id": "bold-extra-oid"}}}]},
+        {"account": "safe",  # malformed variants must be tolerated, never raise
+         "extra_exec": [None, "junk", {"exec": "not-a-dict"}, {"exec": {"broker": {}}}]},
+    ])
+    assert bf.engine_order_ids("safe", core_decisions_path=dec) == {
+        "top-oid", "exit-oid", "extra-oid"}
+    assert bf.engine_order_ids("bold", core_decisions_path=dec) == {"bold-extra-oid"}
+
+
+# --- promote_ledger_attribution: promote-only self-heal --------------------------------------
+
+def test_promote_ledger_attribution_flips_only_matched_manual_core_rows():
+    rows = [
+        {"activity_id": "a1", "arm": "safe-2", "order_id": "extra-oid",
+         "is_crypto": False, "attribution": "manual"},   # -> promoted
+        {"activity_id": "a2", "arm": "safe-2", "order_id": "unmatched-oid",
+         "is_crypto": False, "attribution": "manual"},   # stays manual
+        {"activity_id": "a3", "arm": "safe-2", "order_id": "extra-oid",
+         "is_crypto": True, "attribution": "manual"},    # crypto never promoted
+        {"activity_id": "a4", "arm": "safe-1", "order_id": "extra-oid",
+         "is_crypto": False, "attribution": "engine"},   # fleet_rest arm untouched
+        {"activity_id": "a5", "arm": "bold-2", "order_id": "gone-from-decisions",
+         "is_crypto": False, "attribution": "engine"},   # NEVER demoted engine->manual
+    ]
+    engine_ids = {"safe": {"extra-oid"}, "bold": set()}
+    healed, n = bf.promote_ledger_attribution(rows, engine_ids)
+    assert n == 1
+    assert [r["attribution"] for r in healed] == [
+        "engine", "manual", "manual", "engine", "engine"]
+    assert rows[0]["attribution"] == "manual"  # input rows not mutated (promote returns copies)
