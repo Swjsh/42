@@ -36,6 +36,50 @@ def _j(p: Path):
         return None
 
 
+def _structure_stop_glance(fa: dict | None) -> str:
+    """VISIBILITY (2026-07-09, OP-33c/STOP-B first-live-day): 'EXIT MODE: structure (SS-B)
+    since 2026-07-09; positions open under structure: N; last structure exit: <ts or none>'.
+    Reads ONLY persisted state (exit-state.json per arm + the decision ledgers) -- same
+    VERIFIED-not-CLAIMED discipline as every other line in this script. 0 open + 'none' is
+    the HONEST, EXPECTED reading before the first real structure-mode fill ever lands."""
+    arms = [a["id"] for a in (fa or {}).get("arms", [])
+           if a.get("instrument") == "SPY_0DTE_OPTION"]
+    n_structure = 0
+    for arm_id in arms:
+        est = _j(STATE / "fleet" / arm_id / "exit-state.json") or {}
+        for pos in est.values():
+            if isinstance(pos, dict) and pos.get("stop_mode") == "structure":
+                n_structure += 1
+    last_ts, last_sym = None, None
+    paths = [STATE / "core-decisions.jsonl"] + [STATE / "fleet" / a / "decisions.jsonl" for a in arms]
+    for p in paths:
+        if not p.exists():
+            continue
+        try:
+            lines = p.read_text(encoding="utf-8", errors="replace").strip().splitlines()
+        except OSError:
+            continue
+        for ln in lines[-3000:]:
+            try:
+                row = json.loads(ln)
+            except (json.JSONDecodeError, ValueError):
+                continue
+            ts = row.get("ts_et")
+            for ep in (row.get("exit_pass") or []):
+                if not isinstance(ep, dict):
+                    continue
+                for act in (ep.get("actions") or []):
+                    if isinstance(act, dict) and act.get("stage") == "structure_stop" \
+                            and ts and (last_ts is None or ts > last_ts):
+                        last_ts, last_sym = ts, ep.get("symbol")
+    safe_flag = (_j(STATE / "params.json") or {}).get("structure_stop_enabled")
+    bold_flag = (_j(STATE / "aggressive" / "params.json") or {}).get("structure_stop_enabled")
+    flag_s = f"safe={'ON' if safe_flag else 'OFF'} bold={'ON' if bold_flag else 'OFF'}"
+    last_s = f"{last_ts} {last_sym}" if last_ts else "none"
+    return (f"  EXIT MODE: structure (SS-B) since 2026-07-09 [{flag_s}]; "
+            f"positions open under structure: {n_structure}; last structure exit: {last_s}")
+
+
 def main() -> int:
     now = et_now()
     hm = now.strftime("%H:%M")
@@ -81,6 +125,9 @@ def main() -> int:
         live = sum(1 for a in fa["arms"] if a.get("live") is True)
         out.append(f"  arms: {len(fa['arms'])} configured, {live} live=true. TRADING TODAY: check fleet decisions / fills.")
     out.append("  HONEST: arms place only when a signal fires; engine has been HOLDing (no armable edge this regime).")
+
+    # --- EXIT MODE (SS-B structure-stop, first live day 2026-07-09) ---
+    out.append(_structure_stop_glance(fa))
 
     # --- AUTONOMY TASKS (verified by WORK, not exit code) ---
     out.append("\n-- AUTONOMY (verified by actual output, NOT lastResult=0) --")

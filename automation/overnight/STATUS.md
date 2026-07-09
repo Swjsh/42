@@ -8,6 +8,19 @@
 
 ---
 
+- 2026-07-09 ~18:50 ET [visibility build, render-only] **SHIPPED structure-stop truth on every surface J looks at** — closes the STOP-B ship-1 known-cosmetic-gap ("plan-log 'stop' shows the −20% fallback even in structure mode") the night before SS-B's first live day. Zero decision-logic touched (`exit_manager.py` untouched, frozen); every edit is additive reporting or a corrected LOG-ONLY number (never sent to the broker). 5 surfaces:
+  1. **Fleet exit_pass rows** (`exit_actuator.manage_tick`) now carry `stop_mode`/`trigger_level` on EVERY row (managed tick, FLAT_PRUNED, no-quote HOLD) + `last_closed_5m_close` on the managed row — additive keys only, `actions` computed before the new dict fields exist. New `exit_actuator.describe_stop()` pure formatter (`STRUCTURE@<level> (cat -50%)` / `<price> (<pct>)`).
+  2. **Plan/placement log fix** (`fleet_live._place_live` + `heartbeat_core._execute`): when `register_entry` resolves STRUCTURE mode, `stop`/`premium_stop_pct` are corrected to the REAL catastrophe floor (entry_px-anchored, not the stale mid-anchored −20%/−50% fallback text) and new `stop_mode`/`trigger_level`/`stop_display` fields are added. Premium-mode positions are byte-identical to before. Known gap: the DRY/`WOULD_PLACE` shadow-preview branch in `_execute` (unarmed-mode only) still shows the old text — fixing it needs hoisting the trigger-level/shape resolution earlier in the function, deliberately not attempted tonight to keep the diff minimal on a frozen-adjacent surface; the REAL `dry=False` placed path (what fires tomorrow, `GAMMA_CORE_ARMED=1`) is fully fixed.
+  3. **`automation/state/engine-contract.md`** — new `## 2b. Structure-stop (SS-B, v15.3 chart-stop-primary)` section (flag state per account, which strategies declare `stop_mode="structure"`, the catastrophe cap vs flag-off fallback, the resolution rule, instant de-arm). `_shape_str` now appends `mode STRUCTURE (cat -50%)` / `mode premium` to §2's table too. Regenerated via `engine_contract.py`; drift guard green (§ below).
+  4. **Glance surfaces** (`gamma_status.py` + `gamma_glance.py`) — new line: `EXIT MODE: structure (SS-B) since 2026-07-09 [safe=ON bold=ON]; positions open under structure: N; last structure exit: <ts or none>` (currently 0/none — honest, expected before the first real fill under the flag).
+  5. **Discord fill-ping** (`trade_today_watcher.py`) — `_structure_exit_label` extends the EXISTING composer (no new Discord path): an ENTRY fill reads the live exit-state ledger (`structure@<level> (armed)`); an EXIT fill falls back to the decision log's `exit_pass` history (exit-state.json is pruned the SAME tick a structure-stop closes a position, so the ledger alone would miss it).
+  - **Opportunistic fix (in-scope file, zero logic risk):** `exit_actuator.py`'s own `sys.path.insert` used `parents[2]` instead of `parents[3]` (an off-by-one predating tonight — `et_clock` importable only by import-order luck from another file inserting the path first). Fixed so `test_exit_actuator.py` runs standalone; root-caused before fixing (diagnosed via reproduction: file failed alone, passed combined with `test_structure_stop_wiring.py`).
+  - **TESTS (all quoted, all green):** `automation/state/fleet/` full dir 161/161 (was 157; +4 new `test_place_live_stop_display.py`, exit_actuator.py gained 6 new visibility tests in `test_exit_actuator.py`). `backtest/tests/test_execute_stop_display.py` 3/3 (new — proves the structure-mode correction + the isolated-setup/flag-off no-ops, using the REAL production `strategies.py` + a `register_entry` fake that resolves through the REAL frozen `exit_manager.ExitState.from_entry`). `backtest/tests/test_engine_contract_drift.py` 5/5 (regenerated card matches; red-proof anchor still discriminates). `backtest/tests/test_exit_mode_glance.py` 5/5 (new). `backtest/tests/test_gamma_glance_guard.py` 3/3 (ASCII-safety intact). `backtest/tests/test_trade_today_watcher.py` 10/10 (was 4; +6 new). Regression sweep of every file with a `register_entry` mock that could plausibly reach the edited registration blocks — `test_trade_to_learn_2026_07_01.py`, `test_money_path_2026_07_01.py`, `test_audit_fix_heartbeat.py`, `test_min_entry_premium_floor.py`, `test_tz_quality_lock_2026_07_02.py`, `test_wire_bollinger_squeeze.py`, `test_trigger_level_exact_provenance.py` — 121/121 (every existing `res["stop"]==0.80/0.94/0.50`-style pin untouched, traced field-by-field before editing). Curated safety gate: **PASS** (31 + 5 suites green). VARY-AND-ASSERT (render-only proof, the mission's explicit ask): `test_exit_actuator.py::test_visibility_fields_are_additive_actions_unchanged` cross-checks the actuator's emitted actions against an INDEPENDENT direct call to the untouched `exit_manager.plan_exit_actions` on the same inputs — identical. `test_place_live_stop_display.py`/`test_execute_stop_display.py` assert the ONE broker POST carries no stop/tp key either way.
+  - **UNVERIFIED, disclosed not hidden (OP-33):** a full non-slow sweep of all 2628 `backtest/tests` (not the curated gate) showed exactly one `F` around the 40-50% mark before I killed the run (2+ hrs wall-clock on this heavily-loaded always-on box — a full sweep is NOT how this project verifies itself, per `run_safety_gate.py`'s own curated-vs-full split). Bisected the likely zone (`test_graduated_guards.py` — the doc-flagged "validates mutable LIVE runtime state" file — 71/71 clean; all 16 `test_g*.py` files — 272/272 clean) without reproducing it; did not find it. Flagging as an open, UNCONFIRMED item rather than claiming the full suite is green — nothing in the bisected zone touches a file this build edited.
+  - **REVERT:** each of the 5 surfaces is independently revertible (git revert the touched file); nothing here is load-bearing for tomorrow's SS-B first live day — reverting removes VISIBILITY, not the SS-B exit behavior itself (that stays governed by `structure_stop_enabled` per the ship-1 entry above).
+
+---
+
 - 2026-07-09 ~16:20 ET [STOP-B ship 1, Fable] **SHIPPED SS-B STRUCTURE-STOP for ribbon_ride, BOTH exit lanes, flag-ON** (`structure_stop_enabled=true`, Safe + aggressive params) — v15.3 chart-stop-primary finally implemented: exit on first 5m SPY CLOSE through the entry trigger level (side-aware), −50% intrabar catastrophe cap, TP1 +100% sell 66%, trailing 15% runner, tgt-none. EVIDENCE: `analysis/recommendations/structure-stop-2026-07-09.json` — SS-B = the ONLY candidate this week passing BOTH pre-registered layers (fresh-slice −$47.34/tr vs control −$100.67; 79-real-fills anchor −$604.70 vs −$757.10; today's 07-09 exhibit +$138.50 vs actual −$381, exhibit-only). Wire built in an isolated worktree, applied post-close, end-to-end verified on LIVE files (flag ON → stop_mode=structure/trigger threaded/cat −0.5/tp1 1.0; flag OFF → premium). Fleet suite 136/136 (6 old-cell pins re-pinned to SS-B), reconciliation+time-stop guards 7/7, safety gate PASS. WAIVER: structure stops sit OUTSIDE the premium-grind P5 universe → J-directive waiver (J 07-09: "1 call hold... get this all built"). FORWARD KILL-CHECKS: (a) fresh P5 grind (running, ~5.9k/7,560) → too-good audit on its 216 P4 survivors, (b) 2-week paper watch, (c) trigger-level recovery is a proximity heuristic — no-nearby-level positions fail OPEN to premium mode (61-78% recovery in study, disclosed). HONEST: SS-B = "bleed less + hold through noise," both layers still net-negative — ribbon_ride recency COLD (1/18 fresh winners), sizing/recency question OPEN. REVERT: instant de-arm = `structure_stop_enabled:false` both params (new entries → −20% premium + quick TP1 fallback); full = git revert the STOP-B commit. Known cosmetic: plan-log "stop" shows the −20% fallback even in structure mode (display only).
 - 2026-07-09 01:52 ET [overnight-drive W1 wire] SHIPPED entry-1 premium floor $0.30 engine-wide BOTH lanes (commit f8978fb) — evidence: T3 n=157 + real-fills anchor −$72.50 vs −$757.10 (floor refused the toxic sub-$0.20 cohort); guard 11-passed + red-proofed (3 rejection tests RED with enforcement stashed) — REVERT: set min_entry_premium: 0 in params.json + aggressive/params.json (or delete key); optionally git revert f8978fb; rejection tests REDing confirms off.
 - 2026-07-09 01:52 ET [overnight-drive W1 wire] SHIPPED vwap_continuation fleet-shape port to the FULL validated core cell −0.06/+0.40/0.8/fixed (commit b125055) — evidence: 07-07 all-5-OP-22-gates-PASS scorecard + T-W6 provenance, waiver j_signed per J directive, two-lane drift closed, fleet 101-passed + p5 gate red-proofed, stale trade_to_learn pins fixed (clears 2 of known-15) — REVERT: restore old ExitShape literal (−0.08/0.3/0.667/trailing) + prior waiver block (parent of b125055) + revert test pins.
@@ -291,7 +304,7 @@
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 39 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 39 pending, last cook 0 min ago, today $0.00, model=grinder-python
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -2049,3 +2062,64 @@ Kitchen: alive, queue 39 pending, last cook 0 min ago, today $0.00, model=openro
 - route: free-tier-primary
 - ok: True
 - cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-07-09T16:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BULL ?', '15:47 ENTER_BULL ?', '15:48 ENTER_BULL ?']
+
+- [2026-07-09 14:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T20:27:04.536862+00:00) | fail streak: 288 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 14:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T16:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BULL ?', '15:47 ENTER_BULL ?', '15:48 ENTER_BULL ?']
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-09T20:45:33+00:00
+- task: analyst
+- date_et: 2026-07-09
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-07-09 14:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T20:57:04.428442+00:00) | fail streak: 289 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 14:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+- [2026-07-09 21:00:02] gym-session (2026-07-09) → **RED** :: see `automation\state\gym-scorecard-2026-07-09.json`
+### DEGRADED: self-check 2026-07-09T17:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BULL ?', '15:47 ENTER_BULL ?', '15:48 ENTER_BULL ?']
+
+- [2026-07-09 15:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T21:27:04.185769+00:00) | fail streak: 290 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 15:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-07-09T21:30:59+00:00
+- task: manager
+- date_et: 2026-07-09
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-07-09T17:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BULL ?', '15:47 ENTER_BULL ?', '15:48 ENTER_BULL ?']
+
+- [2026-07-09 15:57:03] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T21:57:08.521619+00:00) | fail streak: 291 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 15:57:03] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T18:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BULL ?', '15:47 ENTER_BULL ?', '15:48 ENTER_BULL ?']
+
+- [2026-07-09 16:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T22:27:04.919484+00:00) | fail streak: 292 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 16:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T18:39:57
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BULL ?', '15:47 ENTER_BULL ?', '15:48 ENTER_BULL ?']

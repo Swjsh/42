@@ -189,6 +189,54 @@ def _premarket(now: dt.datetime) -> tuple[str, list[str]]:
     return tag, lines
 
 
+def _structure_stop() -> list[str]:
+    """EXIT MODE block (2026-07-09, OP-33c/STOP-B first-live-day): 'EXIT MODE: structure
+    (SS-B) since 2026-07-09; positions open under structure: N; last structure exit:
+    <ts or none>'. Pure disclosure, not a pass/fail check -- 0 open + 'none' is the HONEST,
+    EXPECTED reading before the first real structure-mode fill ever lands, so this NEVER
+    tags RED on its own. ASCII-only (no unicode dashes/arrows) -- this string round-trips
+    through a Windows PS 5.1 console (see test_gamma_glance_guard.py's ascii guard)."""
+    fa = _j(STATE / "fleet" / "accounts.json") or {}
+    arms = [a["id"] for a in (fa.get("arms") or [])
+           if a.get("instrument") == "SPY_0DTE_OPTION"]
+    n_structure = 0
+    for arm_id in arms:
+        est = _j(STATE / "fleet" / arm_id / "exit-state.json") or {}
+        for pos in est.values():
+            if isinstance(pos, dict) and pos.get("stop_mode") == "structure":
+                n_structure += 1
+    last_ts, last_sym = None, None
+    paths = [STATE / "core-decisions.jsonl"] + [STATE / "fleet" / a / "decisions.jsonl" for a in arms]
+    for p in paths:
+        if not p.exists():
+            continue
+        try:
+            lines = p.read_text(encoding="utf-8", errors="replace").strip().splitlines()
+        except OSError:
+            continue
+        for ln in lines[-3000:]:
+            try:
+                row = json.loads(ln)
+            except (json.JSONDecodeError, ValueError):
+                continue
+            ts = row.get("ts_et")
+            for ep in (row.get("exit_pass") or []):
+                if not isinstance(ep, dict):
+                    continue
+                for act in (ep.get("actions") or []):
+                    if isinstance(act, dict) and act.get("stage") == "structure_stop" \
+                            and ts and (last_ts is None or ts > last_ts):
+                        last_ts, last_sym = ts, ep.get("symbol")
+    safe_flag = (_j(STATE / "params.json") or {}).get("structure_stop_enabled")
+    bold_flag = (_j(STATE / "aggressive" / "params.json") or {}).get("structure_stop_enabled")
+    flag_s = f"safe={'ON' if safe_flag else 'OFF'} bold={'ON' if bold_flag else 'OFF'}"
+    last_s = f"{last_ts} {last_sym}" if last_ts else "none"
+    return [
+        f"  EXIT MODE: structure (SS-B) since 2026-07-09 [{flag_s}]; "
+        f"positions open under structure: {n_structure}; last structure exit: {last_s}",
+    ]
+
+
 def _arms() -> list[str]:
     """ARMS block: which arms are live=true + flat."""
     fa = _j(STATE / "fleet" / "accounts.json") or {}
@@ -239,6 +287,9 @@ def build() -> str:
 
     out.append("\nARMS")
     out.extend(_arms())
+
+    out.append("\nEXIT MODE")
+    out.extend(_structure_stop())
 
     # one-line bottom verdict: RED if any RED block
     any_red = RED in (sc_tag, eng_tag, fill_tag, lvl_tag, pm_tag)

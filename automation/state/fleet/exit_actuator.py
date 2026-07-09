@@ -28,7 +28,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "setup" / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "setup" / "scripts"))
 from et_clock import ET_TZ as ET  # DST-aware ET (TZ-SYSTEMIC fix: was timezone(timedelta(hours=-4)))
 import exit_manager as em
 
@@ -90,6 +90,42 @@ def _now_et() -> datetime:
     return datetime.now(timezone.utc).astimezone(ET)
 
 
+def describe_stop(state: Optional[em.ExitState], *,
+                  fallback_price: Optional[float] = None,
+                  fallback_pct: Optional[float] = None) -> str:
+    """RENDER-ONLY (2026-07-09 visibility build, OP-33c): the plan/placement log's human-
+    readable stop TRUTH -- fixes the known cosmetic bug (STATUS.md 2026-07-09 ~16:20 ET:
+    "plan-log 'stop' shows the -20% fallback even in structure mode"). Reads the ALREADY-
+    RESOLVED ExitState (stop_mode/trigger_level/catastrophe_stop_pct are resolved ONCE, at
+    entry, by the FROZEN exit_manager.ExitState.from_entry) -- this function never re-derives
+    the structure/premium resolution itself, so the rendered text can never drift from the
+    real decision; it only formats what from_entry already decided.
+
+    Structure mode -> 'STRUCTURE@<level> (cat <pct>)', read straight off the resolved state
+    (the ONLY case this function needs the state for). Premium mode -- including state=None,
+    i.e. registration was skipped/failed (a broker error before any fill) or a caller
+    previewing before a real entry exists -- ALWAYS renders the CALLER's own pre-resolution
+    price/pct, never state.runner_stop_premium: the caller's numeric "stop"/"premium_stop_pct"
+    fields are mid-based (the pre-fill estimate logged alongside this string), while
+    ExitState.runner_stop_premium is entry_px-based (the real fill price) -- deliberately
+    DIFFERENT numbers for a different purpose (C11's broker-is-truth reconciliation happens
+    tick-to-tick, not at this log line). Using the caller's own number keeps this string
+    internally consistent with the "stop"/"premium_stop_pct" fields returned alongside it
+    (never two different numbers claiming to be the same stop), and is byte-identical to
+    every caller's pre-visibility-build rendering. Pure formatting; never read by any
+    decision path."""
+    if state is not None and state.stop_mode == "structure":
+        lvl = state.trigger_level
+        lvl_s = f"{float(lvl):.2f}" if lvl is not None else "?"
+        return f"STRUCTURE@{lvl_s} (cat {state.catastrophe_stop_pct:+.0%})"
+    if fallback_price is not None and fallback_pct is not None:
+        try:
+            return f"{float(fallback_price):.2f} ({float(fallback_pct):+.0%})"
+        except (TypeError, ValueError):
+            return str(fallback_price)
+    return "n/a"
+
+
 def make_ribbon_flip_fn(ribbon_stack: Optional[str]):
     """Single source for the v15.3 chart-stop-PRIMARY ribbon-flip-back invalidation (G14).
 
@@ -149,12 +185,18 @@ def manage_tick(arm_id: str, creds: dict, *, live: bool,
             # broker shows flat -> lifecycle complete, prune the record
             del states[symbol]
             changed = True
-            results.append({"symbol": symbol, "open_qty": 0, "action": "FLAT_PRUNED"})
+            # VISIBILITY (2026-07-09, additive/render-only, OP-33c): carry the pruned
+            # position's resolved stop_mode/trigger_level into the log row even though the
+            # ledger entry is gone -- a reader scanning decisions.jsonl for "how was this
+            # position managed" must not lose that fact the tick it closes.
+            results.append({"symbol": symbol, "open_qty": 0, "action": "FLAT_PRUNED",
+                            "stop_mode": st.stop_mode, "trigger_level": st.trigger_level})
             continue
         hilo = broker.get_option_quote_hilo(creds, symbol)
         if hilo is None:
             results.append({"symbol": symbol, "open_qty": open_qty, "action": "HOLD",
-                            "reason": "no_quote"})
+                            "reason": "no_quote",
+                            "stop_mode": st.stop_mode, "trigger_level": st.trigger_level})
             continue
         best_premium, worst_premium = hilo
         # D2 (2026-07-07): adopted MANUAL positions are cap-only — the engine does NOT impose
@@ -192,7 +234,21 @@ def manage_tick(arm_id: str, creds: dict, *, live: bool,
                         "tp1_filled": dec.state.tp1_filled,
                         "runner_stop": dec.state.runner_stop_premium,
                         "actions": executed,
-                        "mode": "LIVE" if live else "WATCH"})
+                        "mode": "LIVE" if live else "WATCH",
+                        # VISIBILITY (2026-07-09, additive/render-only, OP-33c): the TRUTH
+                        # this position is actually managed under. stop_mode/trigger_level
+                        # are frozen at entry (exit_manager.ExitState.from_entry resolves
+                        # them ONCE, never re-derived here) so they cannot drift from the
+                        # real decision; last_closed_5m_close is the tick-level feed value
+                        # THIS call received (None whenever the caller's own feed was
+                        # stale/absent -- see exit_manager._structure_stop_hit's fail-open).
+                        # Purely additive reporting -- `actions` above is computed from
+                        # `dec` BEFORE this dict exists, so these keys can never change
+                        # which actions fire (vary-and-assert: test_exit_actuator.py
+                        # test_visibility_fields_are_additive_actions_unchanged).
+                        "stop_mode": dec.state.stop_mode,
+                        "trigger_level": dec.state.trigger_level,
+                        "last_closed_5m_close": last_closed_5m_close})
     if changed:
         save_states(arm_id, states)
     return results

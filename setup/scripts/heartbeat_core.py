@@ -1292,10 +1292,29 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
                 _shape = {"premium_stop_pct": -0.50, "tp1_premium_pct": float(params.get("tp1_premium_pct", 0.30)),
                           "tp1_qty_fraction": float(params.get("tp1_qty_fraction", 0.667)),
                           "profit_lock_mode": str(params.get("profit_lock_mode", "fixed"))}
-            _ea.register_entry(ACCOUNTS[account]["fleet_arm"], symbol=symbol, side=side,
-                               entry_premium=entry_px, qty=qty, exit_shape=_shape, strategy=setup_name,
-                               trigger_level=_trigger_level, structure_stop_enabled=_structure_enabled)
+            _exit_state = _ea.register_entry(
+                ACCOUNTS[account]["fleet_arm"], symbol=symbol, side=side,
+                entry_premium=entry_px, qty=qty, exit_shape=_shape, strategy=setup_name,
+                trigger_level=_trigger_level, structure_stop_enabled=_structure_enabled)
             plan["exit_managed"] = True
+            # VISIBILITY (2026-07-09, render-only; OP-33c/STOP-B known-cosmetic-bug fix): the
+            # plan-log "stop" field must show the TRUTH this position is actually managed
+            # under. When register_entry just above resolved STRUCTURE mode, the `stop` value
+            # computed at line ~1199 (from the flag-OFF premium fallback -- -50% for every
+            # non-isolated setup, i.e. ribbon_ride today) is NOT what protects this trade --
+            # exit_manager enforces the chart-level + catastrophe cap instead. Both fields are
+            # log-only (never sent to the broker -- _place_simple_entry above took only
+            # symbol/qty/limit_price), so correcting them here changes nothing about what was
+            # placed. Isolated (_xov) setups never declare stop_mode="structure" in `_shape`
+            # above, so this is a no-op for every setup except ribbon_ride today.
+            if _exit_state is not None and _exit_state.stop_mode == "structure":
+                plan["stop"] = _exit_state.runner_stop_premium
+                plan["premium_stop_pct"] = _exit_state.catastrophe_stop_pct
+            else:
+                plan["premium_stop_pct"] = _stop_pct
+            plan["stop_display"] = _ea.describe_stop(_exit_state, fallback_price=stop, fallback_pct=_stop_pct)
+            plan["stop_mode"] = _exit_state.stop_mode if _exit_state is not None else "premium"
+            plan["trigger_level"] = _exit_state.trigger_level if _exit_state is not None else None
         except Exception:  # bookkeeping must never fail an accepted entry
             plan["exit_managed"] = False
     return plan

@@ -129,6 +129,96 @@ def test_ribbon_flip_fn_forces_exit(tmp_path, monkeypatch):
     assert SYM not in ea.load_states(arm)
 
 
+# =============================================================================
+# VISIBILITY (2026-07-09, OP-33c): stop_mode/trigger_level/last_closed_5m_close on every
+# exit_pass row + describe_stop() -- the render-only fix for the known cosmetic bug
+# (STATUS.md 2026-07-09 ~16:20 ET: "plan-log 'stop' shows the -20% fallback even in
+# structure mode").
+# =============================================================================
+STRUCTURE_SHAPE = {"premium_stop_pct": -0.20, "tp1_premium_pct": 1.0, "tp1_qty_fraction": 0.667,
+                   "profit_lock_mode": "trailing", "runner_target_pct": 99.0, "trail_pct": 0.15,
+                   "stop_mode": "structure", "catastrophe_stop_pct": -0.50}
+
+
+def test_visibility_fields_are_additive_actions_unchanged(tmp_path, monkeypatch):
+    """RENDER-ONLY PROOF (vary-and-assert): manage_tick's new stop_mode / trigger_level /
+    last_closed_5m_close reporting fields can never change WHICH actions fire. Cross-checks
+    the actuator's emitted actions against an INDEPENDENT direct call to the untouched pure
+    core (exit_manager.plan_exit_actions, same inputs) -- if the reporting addition had
+    leaked into the decision path, this diff would catch it. Also proves the fields
+    themselves appear correctly on a fixture tick's row."""
+    arm = _arm(tmp_path, monkeypatch)
+    ea.register_entry(arm, symbol=SYM, side="P", entry_premium=1.00, qty=5,
+                      exit_shape=STRUCTURE_SHAPE, strategy="ribbon_ride",
+                      trigger_level=745.0, structure_stop_enabled=True)
+    pre_state = ea.load_states(arm)[SYM]
+
+    fb = FakeBroker(qty_seq=[5], hilo_seq=[(1.05, 1.00)])
+    now = _dt(11, 0)
+    res = ea.manage_tick(arm, {}, live=False, broker=fb, now_et=now, last_closed_5m_close=745.6)
+    row = res[0]
+    actuator_actions = [(a["kind"], a.get("qty"), a["stage"]) for a in row["actions"]]
+
+    direct = em.plan_exit_actions(pre_state, best_premium=1.05, worst_premium=1.00,
+                                  open_qty=5, now_et=now.time(), last_closed_5m_close=745.6)
+    direct_actions = [(a.kind, a.qty, a.stage) for a in direct.actions]
+    assert actuator_actions == direct_actions, \
+        "visibility fields must never change WHICH actions fire"
+
+    assert row["stop_mode"] == "structure"
+    assert row["trigger_level"] == 745.0
+    assert row["last_closed_5m_close"] == 745.6
+
+
+def test_visibility_fields_survive_flat_pruned_and_hold_rows(tmp_path, monkeypatch):
+    """The truth must not vanish on the tick a position closes (FLAT_PRUNED) or stalls
+    (no-quote HOLD) -- both branches carry stop_mode/trigger_level too, not just the
+    normal managed branch."""
+    arm = _arm(tmp_path, monkeypatch)
+    ea.register_entry(arm, symbol=SYM, side="P", entry_premium=1.00, qty=5,
+                      exit_shape=STRUCTURE_SHAPE, trigger_level=600.0,
+                      structure_stop_enabled=True)
+    fb_flat = FakeBroker(qty_seq=[0], hilo_seq=[])
+    res = ea.manage_tick(arm, {}, live=True, broker=fb_flat, now_et=_dt(11, 0))
+    assert res[0]["action"] == "FLAT_PRUNED"
+    assert res[0]["stop_mode"] == "structure" and res[0]["trigger_level"] == 600.0
+
+    ea.register_entry(arm, symbol=SYM, side="P", entry_premium=1.00, qty=5,
+                      exit_shape=STRUCTURE_SHAPE, trigger_level=600.0,
+                      structure_stop_enabled=True)
+    fb_noquote = FakeBroker(qty_seq=[5], hilo_seq=[None])
+    res2 = ea.manage_tick(arm, {}, live=True, broker=fb_noquote, now_et=_dt(11, 0))
+    assert res2[0]["action"] == "HOLD"
+    assert res2[0]["stop_mode"] == "structure" and res2[0]["trigger_level"] == 600.0
+
+
+def test_describe_stop_structure_mode():
+    st = em.ExitState.from_entry(
+        symbol=SYM, side="P", entry_premium=1.00, qty=5, exit_shape=STRUCTURE_SHAPE,
+        trigger_level=745.41, structure_stop_enabled=True)
+    assert ea.describe_stop(st) == "STRUCTURE@745.41 (cat -50%)"
+
+
+def test_describe_stop_premium_mode():
+    """Premium mode ALWAYS renders the CALLER's own fallback text, never state.
+    runner_stop_premium: the caller's numeric stop is mid-based (the pre-fill estimate),
+    while ExitState.runner_stop_premium is entry_px-based (the real fill price) -- reading
+    the state here would print a DIFFERENT number than the "stop" field returned alongside
+    it. No fallback supplied -> honest 'n/a', never guesses."""
+    st = em.ExitState.from_entry(symbol=SYM, side="P", entry_premium=1.00, qty=5,
+                                 exit_shape=RIBBON_SHAPE)  # no stop_mode key -> "premium"
+    assert st.stop_mode == "premium"
+    assert ea.describe_stop(st, fallback_price=0.80, fallback_pct=-0.20) == "0.80 (-20%)"
+    assert ea.describe_stop(st) == "n/a"
+
+
+def test_describe_stop_none_state_falls_back_to_caller_text():
+    """state=None (registration skipped/failed) -> the caller's own pre-resolution
+    price/pct, byte-identical to every caller's text before this build; no info -> 'n/a'."""
+    assert ea.describe_stop(None) == "n/a"
+    assert ea.describe_stop(None, fallback_price=0.80, fallback_pct=-0.20) == "0.80 (-20%)"
+
+
 def _dt(h, m):
     from datetime import datetime, timedelta, timezone
     return datetime(2026, 6, 25, h, m, tzinfo=timezone(timedelta(hours=-4)))

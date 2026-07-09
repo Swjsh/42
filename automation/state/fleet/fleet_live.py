@@ -256,6 +256,14 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
     single TP1+stop bracket; scale-out/trail is a flagged FIX1 follow-up, NOT redesigned here).
     A malformed/zero/None premium_stop_pct (or a computed stop >= mid / <= 0) falls back to
     the -50% catastrophe cap rather than placing a too-tight/invalid stop (C2 null-stop guard).
+
+    VISIBILITY (2026-07-09, STOP-B): "stop"/"premium_stop_pct" on the returned dict reflect
+    the position's ACTUALLY-RESOLVED mode -- corrected to the catastrophe floor when
+    exit_manager resolved STRUCTURE mode, unchanged (premium/mid-based) otherwise. New keys
+    "stop_mode" ("structure"|"premium"), "trigger_level", and "stop_display" (the human-
+    readable 'STRUCTURE@<level> (cat -50%)' / '<price> (<pct>)' text) make the truth
+    glanceable in decisions.jsonl without decoding the pct fields. See exit_actuator.
+    describe_stop for the render-only formatting contract.
     """
     if arm.get("structure_override"):
         return {"mode": "LIVE", "placed": False,
@@ -329,20 +337,39 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
     # profit_lock_mode) is realized on subsequent ticks via exit_actuator.manage_tick. This
     # is the validated 5-stage exit shape the single full-qty bracket cannot express. Only
     # registered on a real fill (placed) so a rejected order leaves no orphan exit state.
+    _exit_state = None
     if placed:
         try:
             # STRUCTURE-STOP (2026-07-09): trigger_level rides on `decision` (threaded from
             # the selected EntryPlan by fleet_executor.finalize); structure_stop_enabled is
             # read straight from this arm's params (default False/absent -> "premium" mode,
             # byte-identical -- see exit_manager.ExitState.from_entry for the resolution).
-            ea.register_entry(arm["id"], symbol=symbol, side=side, entry_premium=entry_px,
-                              qty=qty, exit_shape=ex, strategy=str(decision.setup_name or ""),
-                              trigger_level=getattr(decision, "trigger_level", None),
-                              structure_stop_enabled=bool(params.get("structure_stop_enabled", False)))
+            _exit_state = ea.register_entry(
+                arm["id"], symbol=symbol, side=side, entry_premium=entry_px,
+                qty=qty, exit_shape=ex, strategy=str(decision.setup_name or ""),
+                trigger_level=getattr(decision, "trigger_level", None),
+                structure_stop_enabled=bool(params.get("structure_stop_enabled", False)))
         except Exception:  # never let exit-state bookkeeping fail an accepted entry
-            pass
+            _exit_state = None
+    # VISIBILITY (2026-07-09, render-only; OP-33c/STOP-B ship-1 known-cosmetic-bug fix): the
+    # plan-log "stop" text must show the TRUTH this position is actually managed under. When
+    # register_entry above resolved STRUCTURE mode, the premium-mode stop_price/stop_pct
+    # computed at line ~299 (from the strategy's flag-OFF-fallback premium_stop_pct, e.g.
+    # ribbon_ride's -20%) is NOT what protects this trade -- exit_manager enforces the chart-
+    # level + the catastrophe cap instead, and BOTH numeric fields are corrected here to match
+    # (they were already log-only -- see the _order dict above, which carries no stop/tp key
+    # at all; neither field is ever sent to the broker, so this cannot change what gets
+    # placed). Premium-mode positions are byte-identical to before this change (untouched).
+    # stop_display always carries the human-readable form either way.
+    if _exit_state is not None and _exit_state.stop_mode == "structure":
+        stop_pct = _exit_state.catastrophe_stop_pct
+        stop_price = _exit_state.runner_stop_premium
+    stop_display = ea.describe_stop(_exit_state, fallback_price=stop_price, fallback_pct=stop_pct)
     return {"mode": "LIVE", "symbol": symbol, "mid": mid, "tp": tp_price,
             "tp1_premium_pct": tp_pct, "stop": stop_price, "premium_stop_pct": stop_pct,
+            "stop_display": stop_display,
+            "stop_mode": (_exit_state.stop_mode if _exit_state is not None else "premium"),
+            "trigger_level": (_exit_state.trigger_level if _exit_state is not None else None),
             "strategy": decision.setup_name,
             # the FULL exit shape, now ENFORCED by the exit_manager (registered above):
             "tp1_qty_fraction": ex.get("tp1_qty_fraction"),

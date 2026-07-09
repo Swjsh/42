@@ -25,10 +25,22 @@ The exit shape is a property of the STRATEGY (the grind proved it), realized by 
 
 | strategy | entry setups | exit shape |
 |---|---|---|
-| `ribbon_ride` | BEARISH_REJECTION_RIDE_THE_RIBBON<br>BULLISH_RECLAIM_RIDE_THE_RIBBON | stop -20% · TP1 +150% · sell 80% · fixed · runner 2.5x · trail 12% · arm +5% |
-| `vwap_continuation` | VWAP_CONTINUATION<br>vwap_continuation | stop -6% · TP1 +40% · sell 80% · fixed · runner 2.5x · trail 12% · arm +5% |
+| `ribbon_ride` | BEARISH_REJECTION_RIDE_THE_RIBBON<br>BULLISH_RECLAIM_RIDE_THE_RIBBON | stop -20% · TP1 +100% · sell 67% · trailing · runner 99.0x · trail 15% · arm +5% · mode STRUCTURE (cat -50%) |
+| `vwap_continuation` | VWAP_CONTINUATION<br>vwap_continuation | stop -6% · TP1 +40% · sell 80% · fixed · runner 2.5x · trail 12% · arm +5% · mode premium |
 
 Direction: both — the side comes from which side-block (bull/bear) fired; `enable_bullish=True` (safe). No per-strategy direction lock.
+
+## 2b. Structure-stop (SS-B, v15.3 chart-stop-primary)
+
+STOP-B (2026-07-09): for a strategy whose exit shape declares `stop_mode="structure"`, the chart level is the PRIMARY invalidation — exit on the first CLOSED 5m SPY bar beyond the entry's trigger level (side-aware: puts exit above, calls exit below), with the premium stop DEMOTED to a `catastrophe_stop_pct` intrabar floor. Resolved ONCE at entry (`exit_manager.ExitState.from_entry`) and never re-evaluated mid-trade — an open position keeps whatever mode it entered under even if the flag below flips intraday.
+
+A position resolves to STRUCTURE mode only when ALL THREE hold at entry: the strategy declares `stop_mode="structure"` (§2 above) AND the flag below is ON AND a real `trigger_level` was available (the exact filter-matched level, or `exit_manager.nearest_active_level`'s proximity guess as fallback). Missing ANY of the three → that position opens in PREMIUM mode instead (the strategy's own `premium_stop_pct`), byte-identical to pre-STOP-B behavior.
+
+- **Flag `structure_stop_enabled`:** safe `True` · bold `True` — params.json / aggressive/params.json (doc key `_structure_stop_enabled_doc` on both).
+- **Strategies declaring `stop_mode="structure"`:** `ribbon_ride`.
+  - `ribbon_ride`: catastrophe cap **-50%** (structure mode, live) · flag-off/no-level fallback stop **-20%** (premium mode).
+- **Consumers:** fleet exit lane (`fleet_live._place_live` → `exit_actuator.register_entry` → `exit_manager.ExitState.from_entry`) + core lane (`heartbeat_core._execute`, same `register_entry` call). Both lanes now also render `stop_mode`/`trigger_level`/`stop_display` on the plan-log row so a structure-managed position never looks like a premium one in the logs.
+- **Instant de-arm:** flip `structure_stop_enabled` to `false` (either/both params files) — new entries fall back to premium mode; in-flight positions are unaffected either way (resolved once, at entry).
 
 ## 3. Control arms (mcp_heartbeat) — what they ACTUALLY trade
 

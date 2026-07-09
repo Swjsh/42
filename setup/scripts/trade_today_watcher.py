@@ -28,10 +28,28 @@ OUTBOX = STATE / "discord-outbox.jsonl"
 TRADE_TODAY = STATE / "trade-today.json"
 PINGED = STATE / "trade-today-pinged.json"
 LIFETIME = STATE / "engine-lifetime-fills.json"
+DISCORD_CFG = STATE / ".discord-config.json"
 
 
 def _now() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
+
+
+def _load_user_mention() -> str:
+    """T3 fix (HANDOFF-2026-07-09-TRUTH-AND-EXITS): every fill ping this module ever queued
+    (28/28 as of 2026-07-08, including the FIRST ENGINE FILL EVER message) lacked the
+    <@user_id> mention token that other 'LOUD ping' producers (discord-watcher.py) already
+    use. Discord's own delivery pipeline confirmed a clean 200/201 send for that message
+    (discord-bridge.stderr.log:6489) -- it posted to the channel successfully but, without a
+    mention, likely never triggered a phone push if J's notification setting on that channel
+    is anything but 'All Messages'. Same fail-open pattern as discord-watcher.py's
+    _load_user_mention(). Fail-open -> "" (never blocks the ping itself on a config miss)."""
+    try:
+        cfg = json.loads(DISCORD_CFG.read_text(encoding="utf-8-sig"))
+        uid = cfg.get("user_id")
+        return f"<@{uid}> " if uid else ""
+    except Exception:  # noqa: BLE001
+        return ""
 
 
 def _is_spy_option(sym) -> bool:
@@ -65,6 +83,77 @@ def _fetch_orders(creds: dict) -> list:
         return res if isinstance(res, list) else []
     except Exception:
         return []
+
+
+# VISIBILITY (2026-07-09, OP-33c/STOP-B first-live-day): mcp_heartbeat arms (safe-2/bold-2)
+# log their exit_pass rows into the SHARED core-decisions.jsonl under the SHORT account
+# label heartbeat_core.ACCOUNTS uses ("safe"/"bold"), not the arm id -- see heartbeat_core.py
+# ACCOUNTS dict. fleet_rest arms (safe-1/safe-3/risky-1/risky-3) log to their OWN
+# automation/state/fleet/{arm}/decisions.jsonl. This is the SAME split fleet_live.py and
+# heartbeat_core.py already encode; duplicated here (read-only) rather than importing either
+# module (this watcher stays a thin, dependency-light poller).
+_CORE_ACCOUNT_FOR_ARM = {"safe-2": "safe", "bold-2": "bold"}
+
+
+def _decision_rows_for_arm(arm: str, tail_lines: int = 2000) -> list:
+    """Bounded-tail decision rows relevant to this arm, oldest-first (on-disk order).
+    Fail-open -> [] on any missing/corrupt source (never blocks the fill ping)."""
+    core_account = _CORE_ACCOUNT_FOR_ARM.get(arm)
+    path = (STATE / "core-decisions.jsonl") if core_account else (STATE / "fleet" / arm / "decisions.jsonl")
+    if not path.exists():
+        return []
+    try:
+        lines = path.read_text(encoding="utf-8", errors="replace").strip().splitlines()
+    except OSError:
+        return []
+    out = []
+    for ln in lines[-tail_lines:]:
+        try:
+            row = json.loads(ln)
+        except (json.JSONDecodeError, ValueError):
+            continue
+        if core_account and row.get("account") != core_account:
+            continue
+        out.append(row)
+    return out
+
+
+def _structure_exit_label(arm: str, symbol: str) -> str:
+    """RENDER-ONLY (2026-07-09 visibility build, OP-33c): '' or a ' | exit: structure@<level>'
+    suffix for a fill whose position is/was managed under SS-B structure-stop -- fixes the
+    known cosmetic gap (STATUS.md 2026-07-09 ~16:20 ET) reaching Discord too, per the mission
+    "make the TRUTH glanceable everywhere J looks." Two sources, in priority order:
+
+    1. The LIVE exit-state ledger (automation/state/fleet/{arm}/exit-state.json) -- correct
+       for an ENTRY fill, since the position was JUST registered and is still open.
+    2. The decision log's exit_pass history (fallback) -- an EXIT fill's symbol is ALREADY
+       pruned from exit-state.json by the SAME tick that closed it (exit_actuator.manage_tick
+       deletes on SELL_ALL), so source 1 always misses on an exit; this scans backward for the
+       structure_stop action that closed it.
+
+    Reuses the EXISTING composer's data (no new Discord path, no new state file). Never
+    raises, never returns anything for a premium-mode or undiscoverable position (silently
+    '' -- must never block or alter the ping itself)."""
+    try:
+        est_path = STATE / "fleet" / arm / "exit-state.json"
+        if est_path.exists():
+            est = json.loads(est_path.read_text(encoding="utf-8"))
+            pos = est.get(symbol)
+            if isinstance(pos, dict) and pos.get("stop_mode") == "structure":
+                return f" | exit: structure@{pos.get('trigger_level')} (armed)"
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        for row in reversed(_decision_rows_for_arm(arm)):
+            for ep in (row.get("exit_pass") or []):
+                if not isinstance(ep, dict) or ep.get("symbol") != symbol:
+                    continue
+                for act in (ep.get("actions") or []):
+                    if isinstance(act, dict) and act.get("stage") == "structure_stop":
+                        return f" | exit: structure@{ep.get('trigger_level')}"
+    except Exception:  # noqa: BLE001
+        pass
+    return ""
 
 
 def main() -> int:
@@ -102,13 +191,15 @@ def main() -> int:
         "ever_filled": ever_filled or bool(new),
         "fills": all_filled, "unfilled": all_unfilled}, indent=2), encoding="utf-8")
 
+    mention = _load_user_mention()
     for x in new:
         first = "  <<< FIRST ENGINE FILL EVER!" if not ever_filled else ""
+        struct = _structure_exit_label(x["arm"], x["symbol"])
         msg = (f"ENGINE TRADE [{x['arm']}]: {x['symbol']} x{int(x['qty'])} @ ${x['price']:.2f} "
-               f"{x.get('side')} ({x.get('filled_at', '')}){first}")
+               f"{x.get('side')} ({x.get('filled_at', '')}){struct}{first}")
         with OUTBOX.open("a", encoding="utf-8") as fh:
-            fh.write(json.dumps({"content": "[TRADE] " + msg, "source": "trade_today_watcher",
-                                 "queued_at": _now()}) + "\n")
+            fh.write(json.dumps({"content": mention + "[TRADE] " + msg,
+                                 "source": "trade_today_watcher", "queued_at": _now()}) + "\n")
         print("PINGED J:", msg)
         ever_filled = True
 

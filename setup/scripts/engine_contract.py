@@ -124,15 +124,33 @@ def _pct(x: Any) -> str:
         return str(x)
 
 
+def _mode_str(shape: dict) -> str:
+    """VISIBILITY (2026-07-09, STOP-B): the stop_mode a strategy DECLARES (stop_mode is
+    resolved to structure ONLY when this AND params.structure_stop_enabled AND a real
+    trigger_level are all true at entry -- see exit_manager.ExitState.from_entry; see also
+    section 2b below for the flag state). 'premium' is the default/absent value -- every
+    pre-STOP-B ExitShape (4/7-arg literal) renders identically to before this field existed."""
+    mode = str(shape.get("stop_mode", "premium"))
+    if mode == "structure":
+        cat = shape.get("catastrophe_stop_pct")
+        cat_s = _pct(cat) if cat is not None else _pct(-0.50)
+        return f"STRUCTURE (cat {cat_s})"
+    return "premium"
+
+
 def _shape_str(shape: dict) -> str:
-    """Compact one-line exit-shape signature: stop / tp1 / sell-frac / lock / runner / trail / arm."""
+    """Compact one-line exit-shape signature: stop / tp1 / sell-frac / lock / runner / trail /
+    arm / mode. `stop` is always the strategy's premium_stop_pct field (the flag-OFF/no-
+    trigger-level fallback value for a structure-mode strategy, e.g. ribbon_ride's -20% --
+    see §2b for what a structure-resolved position ACTUALLY runs under)."""
     return (f"stop {_pct(shape['premium_stop_pct'])} · "
             f"TP1 +{_pct(shape['tp1_premium_pct'])} · "
             f"sell {_pct(shape['tp1_qty_fraction'])} · "
             f"{shape['profit_lock_mode']} · "
             f"runner {shape.get('runner_target_pct', '—')}x · "
             f"trail {_pct(shape.get('trail_pct', 0))} · "
-            f"arm +{_pct(shape.get('profit_lock_arm_pct', 0))}")
+            f"arm +{_pct(shape.get('profit_lock_arm_pct', 0))} · "
+            f"mode {_mode_str(shape)}")
 
 
 def _gate_str(arm: dict) -> str:
@@ -219,6 +237,52 @@ def render_contract() -> str:
     L.append("")
     L.append("Direction: both — the side comes from which side-block (bull/bear) fired; "
              f"`enable_bullish={_g(safe, 'enable_bullish')}` (safe). No per-strategy direction lock.")
+    L.append("")
+
+    # ── 2b. STRUCTURE-STOP (SS-B, v15.3 chart-stop-primary) — VISIBILITY BUILD 2026-07-09 ───
+    # Renders FROM strategies.py's ExitShape + params.json's flag (never re-typed) so a
+    # source edit without a card regen trips the drift guard, same discipline as every other
+    # section on this card.
+    L.append("## 2b. Structure-stop (SS-B, v15.3 chart-stop-primary)")
+    L.append("")
+    L.append("STOP-B (2026-07-09): for a strategy whose exit shape declares "
+             "`stop_mode=\"structure\"`, the chart level is the PRIMARY invalidation — exit "
+             "on the first CLOSED 5m SPY bar beyond the entry's trigger level (side-aware: "
+             "puts exit above, calls exit below), with the premium stop DEMOTED to a "
+             "`catastrophe_stop_pct` intrabar floor. Resolved ONCE at entry "
+             "(`exit_manager.ExitState.from_entry`) and never re-evaluated mid-trade — an "
+             "open position keeps whatever mode it entered under even if the flag below "
+             "flips intraday.")
+    L.append("")
+    L.append("A position resolves to STRUCTURE mode only when ALL THREE hold at entry: the "
+             "strategy declares `stop_mode=\"structure\"` (§2 above) AND the flag below is ON "
+             "AND a real `trigger_level` was available (the exact filter-matched level, or "
+             "`exit_manager.nearest_active_level`'s proximity guess as fallback). Missing ANY "
+             "of the three → that position opens in PREMIUM mode instead (the strategy's own "
+             "`premium_stop_pct`), byte-identical to pre-STOP-B behavior.")
+    L.append("")
+    L.append(f"- **Flag `structure_stop_enabled`:** safe `{_g(safe, 'structure_stop_enabled')}` "
+             f"· bold `{_g(bold, 'structure_stop_enabled')}` — params.json / "
+             "aggressive/params.json (doc key `_structure_stop_enabled_doc` on both).")
+    structure_strats = [s for s in strat.REGISTRY if s.exit.to_dict().get("stop_mode") == "structure"]
+    if structure_strats:
+        names = ", ".join(f"`{s.name}`" for s in structure_strats)
+        L.append(f"- **Strategies declaring `stop_mode=\"structure\"`:** {names}.")
+        for s in structure_strats:
+            sd = s.exit.to_dict()
+            L.append(f"  - `{s.name}`: catastrophe cap **{_pct(sd.get('catastrophe_stop_pct', -0.50))}** "
+                     f"(structure mode, live) · flag-off/no-level fallback stop "
+                     f"**{_pct(sd['premium_stop_pct'])}** (premium mode).")
+    else:
+        L.append("- **Strategies declaring `stop_mode=\"structure\"`:** none currently.")
+    L.append("- **Consumers:** fleet exit lane (`fleet_live._place_live` → "
+             "`exit_actuator.register_entry` → `exit_manager.ExitState.from_entry`) + core "
+             "lane (`heartbeat_core._execute`, same `register_entry` call). Both lanes now "
+             "also render `stop_mode`/`trigger_level`/`stop_display` on the plan-log row so a "
+             "structure-managed position never looks like a premium one in the logs.")
+    L.append("- **Instant de-arm:** flip `structure_stop_enabled` to `false` (either/both "
+             "params files) — new entries fall back to premium mode; in-flight positions are "
+             "unaffected either way (resolved once, at entry).")
     L.append("")
 
     # ── 3. CONTROL ARMS: what the two heartbeat controls ACTUALLY trade ─────────────────────
