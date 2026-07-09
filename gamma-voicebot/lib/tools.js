@@ -39,6 +39,17 @@ const toolSchemas = [
       "the debrief said.",
     parameters: { type: "object", properties: {}, required: [] },
   },
+  {
+    type: "function",
+    name: "kitchen_status",
+    description:
+      "The Kitchen: the 24/7 free-tier R&D loop that COOKS strategy candidates and analysis " +
+      "(it does NOT place trades -- the engine/fleet do that). Returns whether the daemon is " +
+      "alive/working, the queue counts (pending/completed/failed), today's spend, and the last " +
+      "few things it cooked. Use for: what's the kitchen doing, what are we cooking, what's the " +
+      "swarm/R&D loop up to.",
+    parameters: { type: "object", properties: {}, required: [] },
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -202,8 +213,55 @@ function eveningDebrief(root) {
 }
 
 // ---------------------------------------------------------------------------
+// kitchen_status -- the R&D loop (NOT the trader). Reads kitchen-status.json.
+// ---------------------------------------------------------------------------
 
-const handlers = { engine_state: engineState, funnel_today: funnelToday, evening_debrief: eveningDebrief };
+function kitchenStatus(root) {
+  try {
+    const k = JSON.parse(
+      fs.readFileSync(path.join(root, "automation", "state", "kitchen-status.json"), "utf8")
+    );
+    const q = k.queue_summary || {};
+    const by = q.by_status || {};
+    // Staleness: the daemon rewrites this every loop; a stale file means the
+    // daemon stopped, so daemon_alive alone can lie -- disclose the age.
+    const upd = String(k.updated_at_et || "");
+    let ageMin = null;
+    if (upd) {
+      const ages = ["-04:00", "-05:00"]
+        .map((off) => Math.round((Date.now() - new Date(upd + off).getTime()) / 60000))
+        .filter((m) => Number.isFinite(m) && m >= -5);
+      if (ages.length) ageMin = Math.min(...ages);
+    }
+    const cooked = (k.recent_completed_top_10 || [])
+      .slice(0, 3)
+      .map((t) => String(t.task || "").split(/[:.]/)[0].slice(0, 90))
+      .filter(Boolean);
+    const alive = k.daemon_alive && (ageMin === null || ageMin <= 15);
+    return Promise.resolve(
+      JSON.stringify({
+        note: alive
+          ? (k.idle ? "kitchen daemon alive, idle right now" : "kitchen daemon alive and working a task")
+          : "kitchen daemon looks DOWN (status file " + (ageMin === null ? "unreadable age" : ageMin + " min stale") + ")",
+        it_does_not_trade: "the kitchen is R&D -- it cooks strategy candidates; the engine/fleet place trades",
+        queue: { pending: by.pending || 0, completed: by.completed || 0, failed: by.failed_permanent || 0 },
+        today_cost_usd: k.today_cost_usd_paid_tier != null ? k.today_cost_usd_paid_tier : null,
+        recently_cooked: cooked,
+      })
+    );
+  } catch (e) {
+    return Promise.resolve("kitchen_status ERROR: " + e.message);
+  }
+}
+
+// ---------------------------------------------------------------------------
+
+const handlers = {
+  engine_state: engineState,
+  funnel_today: funnelToday,
+  evening_debrief: eveningDebrief,
+  kitchen_status: kitchenStatus,
+};
 
 // Dispatch by name; ALWAYS resolves to a string the model can speak.
 function runTool(root, name) {

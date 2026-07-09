@@ -36,11 +36,11 @@ async function main() {
   out("tools=" + toolSchemas.map((t) => t.name).join(","));
   out("");
 
-  // 1) the three tools, straight against real state
+  // 1) every read-only tool, straight against real state
   for (const t of toolSchemas) {
     const started = Date.now();
     const res = await runTool(cfg.root, t.name);
-    const ok = typeof res === "string" && res.length > 0 && !/^(engine_state|funnel_today|evening_debrief) ERROR/.test(res);
+    const ok = typeof res === "string" && res.length > 0 && !new RegExp("^" + t.name + " ERROR").test(res);
     check("tool:" + t.name, ok, (Date.now() - started) + "ms");
     out("  " + String(res).slice(0, 700).replace(/\n/g, "\n  "));
     out("");
@@ -49,6 +49,7 @@ async function main() {
   // 2) persona
   const instructions = buildInstructions(cfg.root);
   check("persona_build", instructions.length > 400 && /Gamma/.test(instructions), instructions.length + " chars");
+  check("persona_knows_kitchen", /kitchen_status/.test(instructions) && /NOT the engine/i.test(instructions), "kitchen!=engine pinned");
   out("  persona head: " + instructions.slice(0, 200).replace(/\n/g, " / "));
   out("");
 
