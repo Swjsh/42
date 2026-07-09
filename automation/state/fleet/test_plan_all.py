@@ -33,9 +33,10 @@ def test_strategy_carries_its_own_exit():
     sig = _signal(bear=_block("BEARISH_REJECTION_RIDE_THE_RIBBON"))
     plans = fe.plan_all(_arm(), sig, 2000.0, {"position_sizing_tiers": SIZING})
     p = next(p for p in plans if p.action == "ENTER" and p.strategy == "ribbon_ride")
-    assert p.exit_shape["premium_stop_pct"] == -0.20
-    assert p.exit_shape["tp1_premium_pct"] == 1.5
-    assert p.exit_shape["tp1_qty_fraction"] == 0.8
+    # SS-B cell pins (STOP-B 2026-07-09):
+    assert p.exit_shape["premium_stop_pct"] == -0.20  # flag-OFF fallback field
+    assert p.exit_shape["tp1_premium_pct"] == 1.0
+    assert p.exit_shape["tp1_qty_fraction"] == 0.667
 
 
 def test_tight_gate_holds_when_too_few_triggers():

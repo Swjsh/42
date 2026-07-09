@@ -637,13 +637,17 @@ def _ribbon_flip_fn(ribbon_stack: str):
 
 
 def _manage_exits(account: str, ribbon_stack: str | None = None,
-                  time_stop_et=None) -> list:
+                  time_stop_et=None, last_closed_5m_close: float | None = None) -> list:
     """Run the tick-managed scale-out over this account's open positions (flag-gated caller).
     Places only when ARMED (live); WATCH otherwise. Fail-safe: any error is captured, never
     raised, so the exit pass can never abort the entry/verdict path of the armed brain.
 
     `time_stop_et` is params.json's ``time_stop_et`` value, forwarded to the actuator so the
-    per-account hard time-stop knob is LIVE (FIX 2026-07-07: was ignored -> hard-coded 15:50)."""
+    per-account hard time-stop knob is LIVE (FIX 2026-07-07: was ignored -> hard-coded 15:50).
+
+    `last_closed_5m_close` (2026-07-09, STRUCTURE-STOP) is the trigger bar's close (or None
+    when the caller judged it stale/cross-session) -- forwarded to the shared exit_actuator,
+    which only consults it for a position whose stop_mode resolved to "structure" at entry."""
     try:
         import fleet_broker as fb  # noqa: PLC0415
         import exit_actuator as ea  # noqa: PLC0415
@@ -653,7 +657,7 @@ def _manage_exits(account: str, ribbon_stack: str | None = None,
             return [{"error": "no_creds", "arm": arm}]
         flip_fn = _ribbon_flip_fn(ribbon_stack) if ribbon_stack else None
         return ea.manage_tick(arm, creds, live=ARMED, now_et=_et_now(), ribbon_flip_back_fn=flip_fn,
-                              time_stop_et=time_stop_et)
+                              time_stop_et=time_stop_et, last_closed_5m_close=last_closed_5m_close)
     except Exception as e:  # noqa: BLE001
         return [{"error": f"manage_exits: {type(e).__name__}: {e}"}]
 
@@ -758,8 +762,15 @@ def run_account(account: str) -> dict:
     # winner's TP1/runner or a stop is realized this tick. Places only when ARMED (live);
     # otherwise computes + logs (WATCH). OFF unless GAMMA_CORE_MANAGES_EXITS=1.
     if CORE_MANAGES_EXITS:
+        # STRUCTURE-STOP (2026-07-09): bc["bar"]["close"] IS a closed 5m bar (trig_idx = n-2
+        # in _build_payload -- there is always a more-recent confirmation bar past it), and
+        # _stale_trigger_bar (the SAME guard the entry path already uses) catches the one
+        # cross-session edge case (a stale bar carried at the open before enough bars have
+        # accumulated today). Fail-open: None -> the structure check simply skips this tick.
+        _closed_5m_close = None if _stale_trigger_bar(payload, et) else bc["bar"]["close"]
         rec["exit_pass"] = _manage_exits(account, ribbon_stack=bc["ribbon_now"].get("stack"),
-                                         time_stop_et=params.get("time_stop_et"))
+                                         time_stop_et=params.get("time_stop_et"),
+                                         last_closed_5m_close=_closed_5m_close)
     # EXTRA-SETUP DISPATCH — evaluates 4 validated detectors that are individually
     # flag-gated in params.json. When ALL flags are OFF (current default) this is a
     # pure no-op: dispatch_extra_setups returns [] in O(1). When a flag is ON, the
@@ -1218,6 +1229,14 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     if CORE_MANAGES_EXITS and plan["status"] == "PLACED":
         try:
             import exit_actuator as _ea  # noqa: PLC0415
+            import exit_manager as _em  # noqa: PLC0415
+            # STRUCTURE-STOP (2026-07-09): best-effort trigger_level from the levels ALREADY
+            # loaded into bar_ctx this tick (_build_payload's levels_active -- no new I/O).
+            # structure_stop_enabled reads params.json directly (default False/absent ->
+            # "premium" mode, byte-identical -- see exit_manager.ExitState.from_entry).
+            _trigger_level = _em.nearest_active_level(
+                payload["bar_ctx"].get("levels_active") or [], spy, side)
+            _structure_enabled = bool(params.get("structure_stop_enabled", False))
             if _xov is not None:
                 # TRADE-TO-LEARN (2026-07-01): the exit_manager runs the setup's ISOLATED
                 # validated shape (same _stop_pct/_tp1_pct as the plan above), never the
@@ -1248,7 +1267,8 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
                           "tp1_qty_fraction": float(params.get("tp1_qty_fraction", 0.667)),
                           "profit_lock_mode": str(params.get("profit_lock_mode", "fixed"))}
             _ea.register_entry(ACCOUNTS[account]["fleet_arm"], symbol=symbol, side=side,
-                               entry_premium=entry_px, qty=qty, exit_shape=_shape, strategy=setup_name)
+                               entry_premium=entry_px, qty=qty, exit_shape=_shape, strategy=setup_name,
+                               trigger_level=_trigger_level, structure_stop_enabled=_structure_enabled)
             plan["exit_managed"] = True
         except Exception:  # bookkeeping must never fail an accepted entry
             plan["exit_managed"] = False

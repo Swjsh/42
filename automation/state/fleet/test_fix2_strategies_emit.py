@@ -48,8 +48,10 @@ def test_strategies_path_attaches_correct_exit_shapes():
         _entry("vwap_continuation", "C", "VWAP_CONTINUATION", triggers=["VWAP_TREND_ESTABLISHED"]),
     ]}
     plans = {p.strategy: p for p in fx.plan_all(ARM, sig, 2000.0, PARAMS) if p.action == "ENTER"}
-    assert plans["ribbon_ride"].exit_shape["premium_stop_pct"] == -0.20
-    assert plans["ribbon_ride"].exit_shape["tp1_premium_pct"] == 1.5
+    # ribbon pins updated 2026-07-09 (SS-B structure-stop cell, STOP-B):
+    assert plans["ribbon_ride"].exit_shape["premium_stop_pct"] == -0.20  # fallback field
+    assert plans["ribbon_ride"].exit_shape["tp1_premium_pct"] == 1.0
+    assert plans["ribbon_ride"].exit_shape["stop_mode"] == "structure"
     # vwap pins updated 2026-07-09 (T-W6 option a port, STOP-B): full validated core cell
     # -0.06/+0.40 (vwapcont-exit-ab-ship-gate.json, all 5 OP-22 gates PASS).
     assert plans["vwap_continuation"].exit_shape["premium_stop_pct"] == -0.06

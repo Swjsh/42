@@ -331,8 +331,14 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
     # registered on a real fill (placed) so a rejected order leaves no orphan exit state.
     if placed:
         try:
+            # STRUCTURE-STOP (2026-07-09): trigger_level rides on `decision` (threaded from
+            # the selected EntryPlan by fleet_executor.finalize); structure_stop_enabled is
+            # read straight from this arm's params (default False/absent -> "premium" mode,
+            # byte-identical -- see exit_manager.ExitState.from_entry for the resolution).
             ea.register_entry(arm["id"], symbol=symbol, side=side, entry_premium=entry_px,
-                              qty=qty, exit_shape=ex, strategy=str(decision.setup_name or ""))
+                              qty=qty, exit_shape=ex, strategy=str(decision.setup_name or ""),
+                              trigger_level=getattr(decision, "trigger_level", None),
+                              structure_stop_enabled=bool(params.get("structure_stop_enabled", False)))
         except Exception:  # never let exit-state bookkeeping fail an accepted entry
             pass
     return {"mode": "LIVE", "symbol": symbol, "mid": mid, "tp": tp_price,
@@ -401,10 +407,21 @@ def run(signal_path: Path, master_live: bool) -> list[dict]:
             # threads the same key at its _manage_exits call). Fail-safe inside manage_tick:
             # missing/malformed parses to 15:50, never widens past close. Guard:
             # test_fleet_time_stop_threaded.py. Revert: drop this kwarg.
+            # STRUCTURE-STOP (2026-07-09): shared-signal.json's 'spot' is the closed 5m SPY
+            # bar's close (heartbeat_core._build_payload's trig_idx = n-2 -- there is always
+            # a MORE RECENT confirmation bar past it, so it is never the forming bar) and
+            # `usable_signal` is already None whenever _load_signal found the file missing OR
+            # older than SIGNAL_MAX_AGE_SEC (420s = 7min) -- reusing that existing staleness
+            # gate (the same one _flip's ribbon_stack read already relies on) gives the
+            # structure-stop check a fail-open closed-bar feed for free, no new plumbing.
+            # Only consulted by a position whose stop_mode resolved to "structure" at entry
+            # (exit_manager.plan_exit_actions); every other position ignores it.
+            _closed_5m_close = (usable_signal or {}).get("spot")
             exit_pass = ea.manage_tick(arm_id, creds, live=bool(master_live) and bool(arm.get("live"))
                                        and not bool(breaker.get("tripped")), now_et=now,
                                        ribbon_flip_back_fn=_flip,
-                                       time_stop_et=params.get("time_stop_et"))
+                                       time_stop_et=params.get("time_stop_et"),
+                                       last_closed_5m_close=_closed_5m_close)
         except Exception as e:  # noqa: BLE001
             exit_pass = [{"error": f"exit_manage: {type(e).__name__}: {e}"}]
 

@@ -77,10 +77,12 @@ def test_exit_shape_differs_by_strategy_not_account():
              if p.action == "ENTER"}
     # vwap pins updated 2026-07-09 (T-W6 option a port, STOP-B): full validated core cell
     # -0.06/+0.40/0.8/fixed (vwapcont-exit-ab-ship-gate.json, all 5 OP-22 gates PASS).
-    # Distinctness now lives on the stop/TP1 axis (both strategies use fixed lock).
-    assert plans["ribbon_ride"].exit_shape["premium_stop_pct"] == -0.20
+    # ribbon pins updated 2026-07-09 (SS-B structure-stop cell, STOP-B second ship):
+    # distinctness now lives on stop_mode + TP1 (structure/+100% vs premium/+40%).
+    assert plans["ribbon_ride"].exit_shape["premium_stop_pct"] == -0.20  # fallback field
     assert plans["vwap_continuation"].exit_shape["premium_stop_pct"] == -0.06
-    assert plans["ribbon_ride"].exit_shape["tp1_premium_pct"] == 1.5
+    assert plans["ribbon_ride"].exit_shape["tp1_premium_pct"] == 1.0
+    assert plans["ribbon_ride"].exit_shape["stop_mode"] == "structure"
     assert plans["vwap_continuation"].exit_shape["tp1_premium_pct"] == 0.40
 
 

@@ -87,22 +87,28 @@ def test_exit_shape_is_full_5stage_contract():
 
 def test_ribbon_and_vwap_shapes_are_distinct_per_strategy():
     """The two strategies carry DISTINCT validated shapes on the SAME arm (exit = strategy's
-    property): ribbon -0.20/+1.5/0.8/fixed vs vwap -0.06/+0.40/0.8/fixed.
+    property): ribbon SS-B structure cell vs vwap -0.06/+0.40/0.8/fixed premium cell.
 
     vwap pins updated 2026-07-09 (T-W6 option a port, STOP-B): the FULL validated core cell
     (vwapcont-exit-ab-ship-gate.json 2026-07-07, all 5 OP-22 gates PASS; provenance
     markdown/audits/T-W6-VWAP-TWO-LANE-PROVENANCE-2026-07-08.md) replaced the stale
-    -0.08/+0.30/0.667/trailing fleet copy. Distinctness now lives on the stop/TP1 axis."""
+    -0.08/+0.30/0.667/trailing fleet copy.
+    ribbon pins updated 2026-07-09 (SS-B structure-stop cell, STOP-B second ship:
+    structure-stop-2026-07-09.json): stop_mode=structure + cat -50%, TP1 +100% sell66,
+    trailing 15% runner. Distinctness now lives on the stop_mode axis too."""
     for arm_id in SIX_SPY_ARMS:
         s = _planned_exit_shapes(arm_id)
-        assert s["ribbon_ride"]["premium_stop_pct"] == -0.20
-        assert s["ribbon_ride"]["tp1_premium_pct"] == 1.5
-        assert s["ribbon_ride"]["tp1_qty_fraction"] == 0.8
-        assert s["ribbon_ride"]["profit_lock_mode"] == "fixed"
+        assert s["ribbon_ride"]["premium_stop_pct"] == -0.20  # flag-OFF fallback field
+        assert s["ribbon_ride"]["tp1_premium_pct"] == 1.0
+        assert s["ribbon_ride"]["tp1_qty_fraction"] == 0.667
+        assert s["ribbon_ride"]["profit_lock_mode"] == "trailing"
+        assert s["ribbon_ride"]["stop_mode"] == "structure"
+        assert s["ribbon_ride"]["catastrophe_stop_pct"] == -0.50
         assert s["vwap_continuation"]["premium_stop_pct"] == -0.06
         assert s["vwap_continuation"]["tp1_premium_pct"] == 0.40
         assert s["vwap_continuation"]["tp1_qty_fraction"] == 0.8
         assert s["vwap_continuation"]["profit_lock_mode"] == "fixed"
+        assert s["vwap_continuation"].get("stop_mode", "premium") == "premium"
 
 
 if __name__ == "__main__":

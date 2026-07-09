@@ -32,6 +32,7 @@ REPO_ROOT = FLEET_DIR.parents[2]
 sys.path.insert(0, str(REPO_ROOT / "setup" / "scripts"))
 from et_clock import ET_TZ as ET  # DST-aware ET (TZ-SYSTEMIC fix: was timezone(timedelta(hours=-4)))
 DECISIONS = REPO_ROOT / "automation" / "state" / "decisions.jsonl"
+KEY_LEVELS = REPO_ROOT / "automation" / "state" / "key-levels.json"
 # CORE ledger (the deterministic heartbeat_core brain): one row per account per tick
 # (account in {"safe","bold"}). This is the LIVE producer source as of the 2026-06-25
 # fleet-wiring redirect; the old DECISIONS LLM ledger is DEAD and kept only behind
@@ -217,9 +218,71 @@ EMIT_STRATEGIES = True
 RUN_VWAP = True  # network VWAP detector pass; tests disable to stay offline
 
 
-def _ribbon_strategy_entries(bear: dict, bull: dict, spot) -> list[dict]:
+# --- STRUCTURE-STOP trigger_level derivation (2026-07-09, flag-gated feature; this part is
+# pure data plumbing and always runs -- emitting an extra JSON field is harmless whether or
+# not params.structure_stop_enabled is set, since only exit_manager.ExitState.from_entry
+# ACTS on stop_mode=="structure", never build_shared_signal). Mirrors heartbeat_core.py's
+# own _read_levels/_level_expired (independent copy deliberately: build_shared_signal.py and
+# heartbeat_core.py are separate entry-point scripts, not a shared library, so duplicating
+# ~15 lines here is safer than adding a cross-directory import dependency to a live per-tick
+# producer). None on ANY failure -- callers must treat a missing trigger_level as 'stay in
+# premium-stop mode', never guess or block on it.
+def _active_level_prices(now: datetime) -> list[float]:
+    """Unexpired key-levels.json prices as of `now`'s ET date. [] on any read/parse failure."""
+    try:
+        kl = json.loads(KEY_LEVELS.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    levels = kl.get("levels") or kl.get("key_levels") or []
+    today = now.strftime("%Y-%m-%d")
+    out: list[float] = []
+    for lv in levels:
+        if not isinstance(lv, dict):
+            continue
+        exp = str(lv.get("expires_at") or "")[:10]
+        if exp and exp < today:
+            continue  # expired -- fail-open (skip, never guess a stale level is still active)
+        p = lv.get("price")
+        if isinstance(p, (int, float)) and not isinstance(p, bool):
+            out.append(float(p))
+    return out
+
+
+def _nearest_level(prices: list[float], spot, side: str, max_distance: float = 2.0):
+    """Nearest of `prices` to `spot`, DIRECTIONALLY filtered by `side`, within max_distance.
+
+    side="P" (bear/rejection) only considers levels AT/ABOVE spot (the resistance a
+    rejection setup just bounced off); side="C" (bull/reclaim) only considers levels
+    AT/BELOW spot (the support a reclaim setup just broke above) -- a correctness guard
+    against picking a level on the WRONG side of spot (which would make the structure-stop
+    check true at/near entry, a same-tick false exit). Mirrors
+    exit_manager.nearest_active_level (kept independent -- see module note above)."""
+    if spot is None or not prices or side not in ("P", "C"):
+        return None
+    try:
+        spot_f = float(spot)
+    except (TypeError, ValueError):
+        return None
+    best, best_dist = None, None
+    for p in prices:
+        if side == "P" and p < spot_f:
+            continue
+        if side == "C" and p > spot_f:
+            continue
+        dist = abs(p - spot_f)
+        if dist <= max_distance and (best_dist is None or dist < best_dist):
+            best, best_dist = round(p, 2), dist
+    return best
+
+
+def _ribbon_strategy_entries(bear: dict, bull: dict, spot, now: datetime | None = None) -> list[dict]:
     """ribbon_ride strategy-set entries re-keyed from the core row's passed side-blocks.
-    One entry per passed side. No I/O — pure restructuring of data build() already mapped."""
+    One entry per passed side. Pure restructuring of data build() already mapped, PLUS a
+    best-effort trigger_level (STRUCTURE-STOP, 2026-07-09) read from key-levels.json --
+    the ONE per-tick file read this function performs; `now` defaults to the current ET
+    time when omitted (existing callers that don't pass it keep working)."""
+    now = now or datetime.now(timezone.utc).astimezone(ET)
+    levels = _active_level_prices(now)
     out: list[dict] = []
     for side, blk in (("P", bear), ("C", bull)):
         if blk.get("passed") is not True:
@@ -236,6 +299,7 @@ def _ribbon_strategy_entries(bear: dict, bull: dict, spot) -> list[dict]:
             "quality": "ELITE" if elite else "BASE",
             "est_premium": None,
             "spot": spot,
+            "trigger_level": _nearest_level(levels, spot, side),
         })
     return out
 
@@ -248,7 +312,7 @@ def _strategies_block(bear: dict, bull: dict, spot, now: datetime,
     detector pass (fleet_market). vwap is fail-safe: any import/fetch/detector miss simply
     omits it (never blocks the ribbon entries). run_vwap=False skips the network pass entirely
     (tests / offline) -- the ribbon entries still emit."""
-    entries = _ribbon_strategy_entries(bear, bull, spot)
+    entries = _ribbon_strategy_entries(bear, bull, spot, now)
     if run_vwap:
         try:
             import fleet_market  # local; lazy heavy deps inside

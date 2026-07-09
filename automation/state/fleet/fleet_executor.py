@@ -72,6 +72,10 @@ class EntryPlan:
     # Multi-strategy fields (default None → existing 8-positional construction unchanged):
     strategy: Optional[str] = None        # which shared-set strategy this plan trades
     exit_shape: Optional[dict] = None     # the strategy's proven bracket (stop/tp1/lock)
+    # STRUCTURE-STOP (2026-07-09, additive/default-None): the chart level this ENTRY's
+    # signal reacted to (build_shared_signal.py's nearest_active_level derivation), threaded
+    # end-to-end into ExitState so a flag-gated structure-mode position knows its level.
+    trigger_level: Optional[float] = None
 
 
 @dataclass(frozen=True)
@@ -88,6 +92,9 @@ class ArmDecision:
     quality: Optional[str]
     risk_code: Optional[str]
     reason: str
+    # STRUCTURE-STOP (2026-07-09, additive/default-None): carries the ENTER plan's
+    # trigger_level through to the placement layer (_place_live reads decision.trigger_level).
+    trigger_level: Optional[float] = None
 
 
 # --- pure helpers ------------------------------------------------------------
@@ -317,9 +324,11 @@ def _plan_from_strategies(arm, signal, equity, params, arm_id, tiers, spot) -> l
             plans.append(EntryPlan(arm_id, "HOLD", side, setup, strike, None, quality,
                                    "no sizing tier covers equity", strategy=strat.name))
             continue
+        _tl = entry.get("trigger_level")
         plans.append(EntryPlan(arm_id, "ENTER", side, setup, strike, qty, quality,
                                f"{strat.name} {side} ({quality})",
-                               strategy=strat.name, exit_shape=_exit_shape_dict(strat)))
+                               strategy=strat.name, exit_shape=_exit_shape_dict(strat),
+                               trigger_level=(float(_tl) if _tl is not None else None)))
     return plans
 
 
@@ -369,9 +378,11 @@ def plan_all(
                 plans.append(EntryPlan(arm_id, "HOLD", side, setup, strike, None, quality,
                                        "no sizing tier covers equity", strategy=strat.name))
                 continue
+            _tl = blk.get("trigger_level")
             plans.append(EntryPlan(arm_id, "ENTER", side, setup, strike, qty, quality,
                                    f"{strat.name} {side} ({quality})",
-                                   strategy=strat.name, exit_shape=_exit_shape_dict(strat)))
+                                   strategy=strat.name, exit_shape=_exit_shape_dict(strat),
+                                   trigger_level=(float(_tl) if _tl is not None else None)))
     return plans
 
 
@@ -435,7 +446,8 @@ def finalize(
                            f"risk_gate denied: {decision.reason}")
     action = "ENTER_BEAR" if plan.side == "P" else "ENTER_BULL"
     return ArmDecision(plan.arm_id, action, plan.side, plan.setup_name, plan.strike,
-                       plan.qty, premium, plan.quality, "ALLOW", plan.reason)
+                       plan.qty, premium, plan.quality, "ALLOW", plan.reason,
+                       trigger_level=plan.trigger_level)
 
 
 # --- runner (DRY-RUN by default) ---------------------------------------------

@@ -66,13 +66,21 @@ def save_states(arm_id: str, states: dict) -> None:
 
 
 def register_entry(arm_id: str, *, symbol: str, side: str, entry_premium: float,
-                   qty: int, exit_shape: dict, strategy: str = "") -> em.ExitState:
+                   qty: int, exit_shape: dict, strategy: str = "",
+                   trigger_level: Optional[float] = None,
+                   structure_stop_enabled: bool = False) -> em.ExitState:
     """Persist a freshly-filled position's ExitState so the next tick can manage its
     scale-out. Called by the live actuator immediately after a bracket fill (the entry leg).
-    Returns the new state (also written to the ledger)."""
+    Returns the new state (also written to the ledger).
+
+    trigger_level / structure_stop_enabled (2026-07-09, additive, both default to today's
+    exact behavior): forwarded straight to ExitState.from_entry, which resolves stop_mode
+    ONCE here at registration -- see exit_manager.py for the flag-gated resolution rule."""
     states = load_states(arm_id)
     st = em.ExitState.from_entry(symbol=symbol, side=side, entry_premium=entry_premium,
-                                 qty=qty, exit_shape=exit_shape, strategy=strategy)
+                                 qty=qty, exit_shape=exit_shape, strategy=strategy,
+                                 trigger_level=trigger_level,
+                                 structure_stop_enabled=structure_stop_enabled)
     states[symbol] = st
     save_states(arm_id, states)
     return st
@@ -101,7 +109,8 @@ def make_ribbon_flip_fn(ribbon_stack: Optional[str]):
 
 def manage_tick(arm_id: str, creds: dict, *, live: bool,
                 ribbon_flip_back_fn=None, now_et: Optional[datetime] = None,
-                broker=None, time_stop_et=None) -> list[dict]:
+                broker=None, time_stop_et=None,
+                last_closed_5m_close: Optional[float] = None) -> list[dict]:
     """Run ONE exit-management tick over EVERY managed position on this arm.
 
     For each persisted ExitState: read live qty + quote, plan the action, and (when live)
@@ -117,7 +126,13 @@ def manage_tick(arm_id: str, creds: dict, *, live: bool,
     None). FIX (2026-07-07): previously the call to plan_exit_actions passed NO time_stop_et
     so the hard-coded 15:50 always won and the params key was DEAD. Now the caller's param is
     parsed (fail-safe to 15:50 on missing/malformed -- never widens past close) and forwarded
-    to the pure core so the knob is live. Guard: test_audit_fix_exit.py."""
+    to the pure core so the knob is live. Guard: test_audit_fix_exit.py.
+
+    `last_closed_5m_close` (2026-07-09, STRUCTURE-STOP) is the latest CLOSED 5m SPY bar's
+    close, or None when the caller's own feed is missing/stale -- forwarded verbatim to
+    plan_exit_actions, which only consults it for a position whose stop_mode resolved to
+    "structure" at entry (every other position ignores it, so omitting this kwarg is a
+    no-op -- existing callers are unaffected)."""
     if broker is None:
         import fleet_broker as broker  # lazy: keep the pure path broker-free
     stop_t = em.parse_time_stop_et(time_stop_et)
@@ -149,7 +164,7 @@ def manage_tick(arm_id: str, creds: dict, *, live: bool,
                 if (ribbon_flip_back_fn and st.strategy != "adopted_manual") else False)
         dec = em.plan_exit_actions(st, best_premium=best_premium, worst_premium=worst_premium,
                                    open_qty=open_qty, now_et=now_t, ribbon_flip_back=flip,
-                                   time_stop_et=stop_t)
+                                   time_stop_et=stop_t, last_closed_5m_close=last_closed_5m_close)
         states[symbol] = dec.state
         changed = True
         executed = []

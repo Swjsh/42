@@ -52,9 +52,14 @@ def test_manage_tick_receives_params_time_stop(fl, monkeypatch, tmp_path):
     hard-coded 15:50 default win."""
     captured: list[dict] = []
 
+    # STRUCTURE-STOP (2026-07-09) added a keyword-only last_closed_5m_close kwarg to the
+    # REAL manage_tick -- this fake must accept it (a mock with a stale signature makes
+    # fleet_live.run()'s try/except SILENTLY swallow the TypeError, which is exactly the
+    # kind of false-green this guard exists to prevent; see run()'s exit-pass except block).
     def fake_manage_tick(arm_id, creds, *, live, ribbon_flip_back_fn=None, now_et=None,
-                         broker=None, time_stop_et=None):
-        captured.append({"arm_id": arm_id, "live": live, "time_stop_et": time_stop_et})
+                         broker=None, time_stop_et=None, last_closed_5m_close=None):
+        captured.append({"arm_id": arm_id, "live": live, "time_stop_et": time_stop_et,
+                         "last_closed_5m_close": last_closed_5m_close})
         return []
 
     # Broker: every processable arm gets creds + a clean flat account; nothing real is hit.
@@ -76,6 +81,10 @@ def test_manage_tick_receives_params_time_stop(fl, monkeypatch, tmp_path):
         assert call["time_stop_et"] == "15:40", (
             f"{call['arm_id']}: manage_tick got time_stop_et={call['time_stop_et']!r} -- "
             "params time_stop_et is not threaded (fleet reverts to the hard-coded 15:50)")
+        # STRUCTURE-STOP wiring (2026-07-09): this harness's signal path does not exist, so
+        # usable_signal is None throughout -- last_closed_5m_close must be the fail-open
+        # None (never a guess), proving the kwarg reaches manage_tick without crashing.
+        assert call["last_closed_5m_close"] is None
 
 
 def test_no_arm_is_live_in_this_harness(fl, monkeypatch, tmp_path):
@@ -84,7 +93,7 @@ def test_no_arm_is_live_in_this_harness(fl, monkeypatch, tmp_path):
     captured: list[dict] = []
 
     def fake_manage_tick(arm_id, creds, *, live, ribbon_flip_back_fn=None, now_et=None,
-                         broker=None, time_stop_et=None):
+                         broker=None, time_stop_et=None, last_closed_5m_close=None):
         captured.append({"live": live})
         return []
 

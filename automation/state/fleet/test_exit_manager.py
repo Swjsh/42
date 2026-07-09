@@ -222,6 +222,219 @@ def test_full_scaleout_geometry_matches_exit_shape():
     assert s.tp1_qty == 4 and s.runner_qty == 1
 
 
+# =============================================================================================
+# STRUCTURE-STOP (v15.3 chart-stop-primary, 2026-07-09) -- flag-gated, both lanes.
+# See exit_manager.py's module note above ExitState/plan_exit_actions for the full spec.
+# =============================================================================================
+STRUCTURE_SHAPE = {"premium_stop_pct": -0.20, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.8,
+                   "profit_lock_mode": "fixed", "stop_mode": "structure"}
+
+
+def _st(shape, *, side="P", qty=5, entry=1.00, strategy="x",
+       trigger_level=None, structure_stop_enabled=False):
+    """Structure-stop test helper (kept separate from `_state` above -- never mutates the
+    existing fixture helper other tests depend on)."""
+    return em.ExitState.from_entry(symbol="SPY260625P00600000", side=side, entry_premium=entry,
+                                   qty=qty, exit_shape=shape, strategy=strategy,
+                                   trigger_level=trigger_level,
+                                   structure_stop_enabled=structure_stop_enabled)
+
+
+# --- nearest_active_level (pure helper) ----------------------------------------
+def test_nearest_active_level_bear_picks_above_spot():
+    """side=P (bear/rejection): only levels AT/ABOVE spot qualify."""
+    assert em.nearest_active_level([598.0, 600.5, 601.8, 605.0], 600.0, "P") == 600.5
+
+
+def test_nearest_active_level_bull_picks_below_spot():
+    """side=C (bull/reclaim): only levels AT/BELOW spot qualify."""
+    assert em.nearest_active_level([598.5, 599.9, 600.5, 602.0], 600.0, "C") == 599.9
+
+
+def test_nearest_active_level_excludes_wrong_side():
+    """A bear entry ignores a level BELOW spot even if it's the closest raw distance,
+    picking the farther (but correctly-sided) level within range instead."""
+    assert em.nearest_active_level([599.99, 601.5], 600.0, "P") == 601.5
+
+
+def test_nearest_active_level_respects_max_distance():
+    assert em.nearest_active_level([610.0], 600.0, "P", max_distance=2.0) is None
+    assert em.nearest_active_level([601.5], 600.0, "P", max_distance=2.0) == 601.5
+
+
+def test_nearest_active_level_none_on_empty_or_bad_input():
+    assert em.nearest_active_level([], 600.0, "P") is None
+    assert em.nearest_active_level([601.0], None, "P") is None
+    assert em.nearest_active_level([601.0], 600.0, "X") is None  # invalid side
+
+
+# --- flag-off inertness (THE hard requirement: vary-and-assert) ----------------
+def test_structure_shape_inert_when_flag_off():
+    """A shape declaring stop_mode='structure' with structure_stop_enabled=False (the
+    params-absent default) resolves to EXACTLY the same ExitState as the plain premium
+    shape -- proves the params flag, not the shape literal, is what gates the behavior."""
+    s_structure = _st(STRUCTURE_SHAPE, trigger_level=745.0, structure_stop_enabled=False)
+    s_premium = _st(RIBBON_SHAPE)  # RIBBON_SHAPE carries no stop_mode key at all
+    assert s_structure.stop_mode == "premium" == s_premium.stop_mode
+    assert s_structure.premium_stop_pct == s_premium.premium_stop_pct == -0.20
+    assert s_structure.runner_stop_premium == s_premium.runner_stop_premium == 0.80
+
+
+def test_structure_shape_inert_when_trigger_level_missing():
+    """flag ON but no trigger_level (e.g. no nearby chart level found) -> still 'premium'."""
+    s = _st(STRUCTURE_SHAPE, trigger_level=None, structure_stop_enabled=True)
+    assert s.stop_mode == "premium"
+    assert s.premium_stop_pct == -0.20  # the strategy's own stop, unchanged
+
+
+def test_plain_shape_inert_even_with_flag_on():
+    """A shape with NO stop_mode key (e.g. vwap_continuation, untouched by this build) never
+    enters structure mode regardless of the params flag or an available trigger_level."""
+    s = _st(RIBBON_SHAPE, trigger_level=745.0, structure_stop_enabled=True)
+    assert s.stop_mode == "premium"
+
+
+def test_vary_and_assert_full_tick_byte_identical_flag_off():
+    """THE inertness proof: replay an identical fixture tape (entry -> hold -> TP1 -> runner
+    hold) through a stop_mode='structure' shape with the flag OFF vs the plain premium shape
+    with the SAME numeric knobs, and assert every ExitDecision.actions + resulting state
+    field is byte-identical tick-by-tick (only the cosmetic stop_mode/trigger_level bookkeeping
+    fields are allowed to differ)."""
+    tape = [
+        dict(best_premium=1.40, worst_premium=1.20, open_qty=5, now_et=MORNING),
+        dict(best_premium=2.55, worst_premium=2.40, open_qty=5, now_et=MORNING),   # TP1
+        dict(best_premium=2.60, worst_premium=2.50, open_qty=1, now_et=MORNING),   # runner hold
+    ]
+    s_structure = _st(STRUCTURE_SHAPE, trigger_level=745.0, structure_stop_enabled=False)
+    s_premium = _st(RIBBON_SHAPE)
+    for tick in tape:
+        d_structure = em.plan_exit_actions(s_structure, last_closed_5m_close=700.0, **tick)
+        d_premium = em.plan_exit_actions(s_premium, **tick)
+        assert len(d_structure.actions) == len(d_premium.actions)
+        for a1, a2 in zip(d_structure.actions, d_premium.actions):
+            assert (a1.kind, a1.qty, a1.stage, a1.new_stop_premium) == \
+                   (a2.kind, a2.qty, a2.stage, a2.new_stop_premium)
+        # state parity on every field EXCEPT the structure-stop bookkeeping fields themselves
+        st1, st2 = d_structure.state, d_premium.state
+        assert (st1.tp1_filled, st1.runner_stop_premium, st1.hwm_premium,
+               st1.profit_lock_armed, st1.tp1_qty, st1.runner_qty) == \
+               (st2.tp1_filled, st2.runner_stop_premium, st2.hwm_premium,
+               st2.profit_lock_armed, st2.tp1_qty, st2.runner_qty)
+        s_structure, s_premium = d_structure.state, d_premium.state
+
+
+# --- structure mode resolution + exit firing ------------------------------------
+def test_structure_mode_resolves_when_all_three_present():
+    """shape='structure' + flag True + trigger_level set -> resolves 'structure' and the
+    premium stop is DEMOTED to the -50% catastrophe cap (TP1 pct is untouched)."""
+    s = _st(STRUCTURE_SHAPE, trigger_level=745.0, structure_stop_enabled=True, entry=1.00)
+    assert s.stop_mode == "structure"
+    assert s.trigger_level == 745.0
+    assert s.premium_stop_pct == -0.50 and s.runner_stop_premium == 0.50
+    assert s.tp1_premium_pct == 1.5  # TP1/runner/trail untouched by structure mode
+
+
+def test_structure_exit_fires_put_close_above_level():
+    """PUT (bear): close > trigger_level invalidates the thesis -> exit ALL, pre-TP1."""
+    s = _st(STRUCTURE_SHAPE, side="P", trigger_level=745.0, structure_stop_enabled=True, entry=1.00)
+    dec = em.plan_exit_actions(s, best_premium=1.05, worst_premium=1.00, open_qty=5,
+                               now_et=MORNING, last_closed_5m_close=745.5)
+    assert dec.closes_position
+    assert dec.actions[0].kind == "SELL_ALL" and dec.actions[0].stage == "structure_stop"
+
+
+def test_structure_exit_fires_call_close_below_level():
+    """CALL (bull): close < trigger_level invalidates the thesis -> exit ALL, pre-TP1."""
+    s = _st(STRUCTURE_SHAPE, side="C", trigger_level=745.0, structure_stop_enabled=True, entry=1.00)
+    dec = em.plan_exit_actions(s, best_premium=1.05, worst_premium=1.00, open_qty=5,
+                               now_et=MORNING, last_closed_5m_close=744.5)
+    assert dec.closes_position
+    assert dec.actions[0].kind == "SELL_ALL" and dec.actions[0].stage == "structure_stop"
+
+
+def test_structure_no_exit_when_close_still_on_thesis_side():
+    """PUT: close still BELOW the level (thesis intact) -> no structure exit; position holds."""
+    s = _st(STRUCTURE_SHAPE, side="P", trigger_level=745.0, structure_stop_enabled=True, entry=1.00)
+    dec = em.plan_exit_actions(s, best_premium=1.05, worst_premium=1.00, open_qty=5,
+                               now_et=MORNING, last_closed_5m_close=744.0)
+    assert not dec.actions  # no exit at all this tick (premium/time/TP1 also not hit)
+
+
+def test_structure_mode_runner_also_protected():
+    """Post-TP1 runner: a structure break force-exits the runner too (TP1/runner UNCHANGED
+    means the runner's OWN math is untouched, not that structure stops applying to it --
+    'chart-level is the primary invalidation' applies for the life of the trade, exactly
+    like the existing ribbon-flip-back which ALSO checks both pre- and post-TP1)."""
+    s = _st(STRUCTURE_SHAPE, side="P", trigger_level=745.0, structure_stop_enabled=True, entry=1.00)
+    after_tp1 = em.plan_exit_actions(s, best_premium=2.55, worst_premium=2.40, open_qty=5,
+                                     now_et=MORNING, last_closed_5m_close=744.0).state
+    assert after_tp1.tp1_filled
+    dec = em.plan_exit_actions(after_tp1, best_premium=2.60, worst_premium=2.50, open_qty=1,
+                               now_et=MORNING, last_closed_5m_close=745.2)
+    assert dec.closes_position and dec.actions[0].stage == "structure_stop"
+
+
+def test_structure_catastrophe_cap_still_fires_intrabar():
+    """Even in structure mode the -50% catastrophe cap protects intrabar: a worst_premium
+    crash past the (demoted) stop fires BEFORE the structure check is even reached."""
+    s = _st(STRUCTURE_SHAPE, side="P", trigger_level=745.0, structure_stop_enabled=True, entry=1.00)
+    assert s.runner_stop_premium == 0.50  # -50% cap
+    dec = em.plan_exit_actions(s, best_premium=0.55, worst_premium=0.48, open_qty=5,
+                               now_et=MORNING, last_closed_5m_close=744.0)  # close still "safe"
+    assert dec.closes_position and dec.actions[0].stage == "premium_stop"
+
+
+def test_structure_stale_feed_skips_silently():
+    """last_closed_5m_close=None (the caller's fail-open value on a missing/stale feed) ->
+    the structure check is simply SKIPPED this tick; no exit, no crash. The -50% cap and
+    time stop remain the live protections that tick."""
+    s = _st(STRUCTURE_SHAPE, side="P", trigger_level=745.0, structure_stop_enabled=True, entry=1.00)
+    dec = em.plan_exit_actions(s, best_premium=1.05, worst_premium=1.00, open_qty=5,
+                               now_et=MORNING, last_closed_5m_close=None)
+    assert not dec.actions  # would have fired structure_stop had a fresh close been supplied
+    # catastrophe cap unaffected by the missing feed:
+    dec2 = em.plan_exit_actions(s, best_premium=0.55, worst_premium=0.48, open_qty=5,
+                                now_et=MORNING, last_closed_5m_close=None)
+    assert dec2.closes_position and dec2.actions[0].stage == "premium_stop"
+
+
+def test_structure_default_omitted_kwarg_is_noop_for_legacy_callers():
+    """Every EXISTING caller of plan_exit_actions omits last_closed_5m_close entirely --
+    confirms the default (None) never fires a structure exit even on a structure-mode state
+    whose close condition would otherwise be met (defense-in-depth beyond the flag itself)."""
+    s = _st(STRUCTURE_SHAPE, side="P", trigger_level=745.0, structure_stop_enabled=True, entry=1.00)
+    dec = em.plan_exit_actions(s, best_premium=1.05, worst_premium=1.00, open_qty=5, now_et=MORNING)
+    assert not dec.actions
+
+
+# --- legacy-state compatibility --------------------------------------------------
+def test_legacy_exit_state_dict_without_structure_fields_loads_clean():
+    """An exit-state.json record written BEFORE this build (no stop_mode/trigger_level/
+    catastrophe_stop_pct keys) must deserialize to the exact legacy defaults, never crash."""
+    legacy = {
+        "symbol": "SPY260625P00600000", "side": "P", "entry_premium": 1.00,
+        "total_qty": 5, "tp1_qty": 4, "runner_qty": 1,
+        "premium_stop_pct": -0.20, "tp1_premium_pct": 1.5, "profit_lock_mode": "fixed",
+        "tp1_filled": False, "runner_stop_premium": 0.80, "hwm_premium": 1.00,
+        "profit_lock_armed": False, "strategy": "ribbon_ride",
+    }
+    s = em.ExitState.from_dict(legacy)
+    assert s.stop_mode == "premium"
+    assert s.trigger_level is None
+    assert s.catastrophe_stop_pct == em.CATASTROPHE_STOP_PCT
+    # and it manages a full tick with no crash / no accidental structure behavior:
+    dec = em.plan_exit_actions(s, best_premium=1.05, worst_premium=1.00, open_qty=5,
+                               now_et=MORNING, last_closed_5m_close=9999.0)
+    assert not dec.actions  # a huge "close" never triggers anything in premium mode
+
+
+def test_state_roundtrips_through_dict_with_structure_fields():
+    s = _st(STRUCTURE_SHAPE, side="C", trigger_level=745.25, structure_stop_enabled=True, entry=1.23)
+    s2 = em.ExitState.from_dict(s.to_dict())
+    assert s2 == s
+    assert s2.stop_mode == "structure" and s2.trigger_level == 745.25
+
+
 if __name__ == "__main__":
     import sys
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]

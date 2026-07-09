@@ -71,6 +71,68 @@ DEFAULT_PROFIT_LOCK_ARM_PCT = 0.05  # CLAUDE.md: chandelier arms at +5% favor
 CATASTROPHE_STOP_PCT = -0.50        # -50% catastrophe cap both sides (chart-stop-primary)
 
 
+# --- STRUCTURE-STOP (v15.3 chart-stop-primary, flag-gated OFF by default) ----------------
+# The doctrine (CLAUDE.md "chart-stop-primary", 2026-06-18) names chart-level / ribbon-
+# flip-back / chandelier profit-lock as the PRIMARY invalidation, with the premium stop
+# demoted to a -50% catastrophe cap. Ribbon-flip-back has been live since G14; THIS is the
+# missing "chart-level" leg -- exit on the first CLOSED 5m SPY bar beyond the level the
+# setup's trigger reacted to. Fully additive + flag-gated: a position's stop_mode is
+# resolved ONCE at from_entry (never flaps mid-trade) and every new field defaults to the
+# exact today-behavior value, so this is inert until BOTH (a) a strategy's ExitShape
+# declares stop_mode="structure" AND (b) the caller's structure_stop_enabled (sourced from
+# params.json's structure_stop_enabled, default False/absent) is True at entry time.
+def nearest_active_level(prices: Sequence[float], spot: Optional[float], side: str,
+                         max_distance: float = 2.0) -> Optional[float]:
+    """Best-effort trigger_level: the price in `prices` nearest to `spot`, DIRECTIONALLY
+    filtered by `side` and within `max_distance`.
+
+    side="P" (bear/rejection) only considers levels AT/ABOVE spot (the resistance a
+    rejection setup just bounced off); side="C" (bull/reclaim) only considers levels
+    AT/BELOW spot (the support a reclaim setup just broke above). This directional filter
+    is a correctness guard, not a nicety: an unfiltered nearest-by-raw-distance could
+    return a level on the WRONG side of spot (e.g. a support below a bear's entry), which
+    would make the structure-stop's close-vs-level comparison true at/near entry -- a
+    same-tick false exit. key-levels.json does not (yet) retain WHICH specific level a
+    trigger matched (role/provenance tracking is unbuilt), so this is a proximity proxy for
+    "the level this setup reacted to", not a lookup. None on empty/absent/malformed input;
+    callers must treat a missing trigger_level as 'stay in premium-stop mode', never guess
+    or block on it. Pure -- no I/O (callers supply the already-loaded price list).
+    """
+    if spot is None or not prices or side not in ("P", "C"):
+        return None
+    try:
+        spot_f = float(spot)
+    except (TypeError, ValueError):
+        return None
+    best: Optional[float] = None
+    best_dist: Optional[float] = None
+    for raw in prices:
+        try:
+            p = float(raw)
+        except (TypeError, ValueError):
+            continue
+        if side == "P" and p < spot_f:
+            continue   # bear needs the level AT/ABOVE spot (the rejected resistance)
+        if side == "C" and p > spot_f:
+            continue   # bull needs the level AT/BELOW spot (the reclaimed support)
+        dist = abs(p - spot_f)
+        if dist <= max_distance and (best_dist is None or dist < best_dist):
+            best, best_dist = round(p, 2), dist
+    return best
+
+
+def _structure_stop_hit(side: str, trigger_level: Optional[float],
+                        last_closed_5m_close: Optional[float]) -> bool:
+    """v15.3 chart-stop-primary exit test: the first CLOSED 5m SPY bar beyond the trigger
+    level -- calls (side C) exit when close < trigger_level, puts (side P) exit when
+    close > trigger_level. False whenever either input is missing (fail-open: the caller's
+    staleness guard already turns a stale/absent closed-bar feed into None for this tick;
+    the catastrophe cap + time stop still protect the position on a skipped tick)."""
+    if trigger_level is None or last_closed_5m_close is None:
+        return False
+    return (last_closed_5m_close < trigger_level) if side == "C" else (last_closed_5m_close > trigger_level)
+
+
 # --- the per-position persisted record (broker is the source of truth for qty/flat) ----
 @dataclass(frozen=True)
 class ExitState:
@@ -96,23 +158,51 @@ class ExitState:
     hwm_premium: Optional[float] = None          # high-water mark of best premium seen
     profit_lock_armed: bool = False
     strategy: str = ""
+    # STRUCTURE-STOP (flag-gated, resolved ONCE at from_entry -- never flaps mid-trade):
+    stop_mode: str = "premium"              # "premium" (today) | "structure" (v15.3 chart-stop)
+    trigger_level: Optional[float] = None   # the chart level structure-mode exits against
+    catastrophe_stop_pct: float = CATASTROPHE_STOP_PCT  # the cap structure mode falls back to
 
     @staticmethod
     def from_entry(*, symbol: str, side: str, entry_premium: float, qty: int,
-                   exit_shape: dict, strategy: str = "") -> "ExitState":
+                   exit_shape: dict, strategy: str = "",
+                   trigger_level: Optional[float] = None,
+                   structure_stop_enabled: bool = False) -> "ExitState":
         """Build the entry-time record from the placed order + the strategy's ExitShape.
 
         Splits qty exactly like simulator_real:465-466 (int floor on tp1) and seeds the
         runner stop at the catastrophe-guarded premium stop. Used by the live actuator
-        right after place_bracket fills."""
+        right after place_bracket fills.
+
+        STRUCTURE-STOP resolution (v15.3 chart-stop-primary, flag-gated): stop_mode is
+        resolved HERE, ONCE, and never re-evaluated mid-trade (a position's exit contract
+        must not shift shape because someone edits params.json while it is open). Entering
+        "structure" mode requires ALL THREE: the shape declares stop_mode=="structure", the
+        caller's structure_stop_enabled is True (params.json structure_stop_enabled, default
+        False/absent), AND a trigger_level is available. Missing ANY of the three resolves
+        to "premium" mode via the EXACT pre-existing math (byte-identical -- this is the
+        inertness contract). In structure mode the premium stop is DEMOTED to the
+        catastrophe cap (exit_shape's own catastrophe_stop_pct override, else the global
+        CATASTROPHE_STOP_PCT); TP1/runner/trail math is untouched either way.
+        """
         frac = float(exit_shape.get("tp1_qty_fraction", 0.667))
         tp1_qty = int(qty * frac)
         runner_qty = qty - tp1_qty
-        stop_pct = exit_shape.get("premium_stop_pct")
-        stop_pct = float(stop_pct) if stop_pct not in (None, 0) else CATASTROPHE_STOP_PCT
-        # guard: a too-tight/invalid stop -> catastrophe cap (mirrors _place_live's guard)
-        if stop_pct >= 0:
-            stop_pct = CATASTROPHE_STOP_PCT
+        cat_pct = exit_shape.get("catastrophe_stop_pct")
+        cat_pct = float(cat_pct) if cat_pct not in (None,) else CATASTROPHE_STOP_PCT
+        shape_mode = str(exit_shape.get("stop_mode", "premium")).lower()
+        resolved_structure = (shape_mode == "structure" and bool(structure_stop_enabled)
+                              and trigger_level is not None)
+        if resolved_structure:
+            stop_pct = cat_pct
+            mode = "structure"
+        else:
+            stop_pct = exit_shape.get("premium_stop_pct")
+            stop_pct = float(stop_pct) if stop_pct not in (None, 0) else CATASTROPHE_STOP_PCT
+            # guard: a too-tight/invalid stop -> catastrophe cap (mirrors _place_live's guard)
+            if stop_pct >= 0:
+                stop_pct = CATASTROPHE_STOP_PCT
+            mode = "premium"
         return ExitState(
             symbol=symbol, side=side, entry_premium=float(entry_premium),
             total_qty=int(qty), tp1_qty=int(tp1_qty), runner_qty=int(runner_qty),
@@ -127,6 +217,9 @@ class ExitState:
             hwm_premium=float(entry_premium),
             profit_lock_armed=False,
             strategy=strategy,
+            stop_mode=mode,
+            trigger_level=(float(trigger_level) if trigger_level is not None else None),
+            catastrophe_stop_pct=cat_pct,
         )
 
     def to_dict(self) -> dict:
@@ -139,6 +232,8 @@ class ExitState:
             "tp1_filled": self.tp1_filled, "runner_stop_premium": self.runner_stop_premium,
             "hwm_premium": self.hwm_premium, "profit_lock_armed": self.profit_lock_armed,
             "strategy": self.strategy,
+            "stop_mode": self.stop_mode, "trigger_level": self.trigger_level,
+            "catastrophe_stop_pct": self.catastrophe_stop_pct,
         }
 
     @staticmethod
@@ -157,6 +252,12 @@ class ExitState:
             hwm_premium=(None if d.get("hwm_premium") is None else float(d["hwm_premium"])),
             profit_lock_armed=bool(d.get("profit_lock_armed", False)),
             strategy=str(d.get("strategy", "")),
+            # STRUCTURE-STOP fields (2026-07-09): absent on any pre-existing exit-state.json
+            # record -> "premium"/None/global-cap, i.e. the exact legacy behavior (C14/L149
+            # tolerance -- old persisted state must never crash or silently reinterpret).
+            stop_mode=str(d.get("stop_mode", "premium")),
+            trigger_level=(None if d.get("trigger_level") is None else float(d["trigger_level"])),
+            catastrophe_stop_pct=float(d.get("catastrophe_stop_pct", CATASTROPHE_STOP_PCT)),
         )
 
 
@@ -192,6 +293,7 @@ def plan_exit_actions(
     now_et: _time,
     ribbon_flip_back: bool = False,
     time_stop_et: _time = TIME_STOP_ET,
+    last_closed_5m_close: Optional[float] = None,
 ) -> ExitDecision:
     """ONE tick of the live exit walk -- a faithful per-tick port of simulator_real's bar
     loop, evaluated against the live position instead of looping cached bars.
@@ -202,6 +304,13 @@ def plan_exit_actions(
       now_et                       : current ET wall-clock time (for the 15:50 time stop).
       ribbon_flip_back             : True if the opposite ribbon stack invalidated the trade
                                      (caller computes from the live ribbon, same rule as sim).
+      last_closed_5m_close         : the latest CLOSED 5m SPY bar's close, or None when the
+                                     caller's feed is missing/stale (structure-stop's fail-
+                                     open input -- see _structure_stop_hit). Only consulted
+                                     when this position's stop_mode == "structure"; every
+                                     existing caller omits it (None), so this is a no-op
+                                     unless the position was ALSO seeded with stop_mode
+                                     "structure" at from_entry.
 
     Returns an ExitDecision: the new ExitState to persist + the actions to place. Pure --
     no I/O, no placement. Idempotent on a missed tick: state is reconstructed each call so a
@@ -224,11 +333,24 @@ def plan_exit_actions(
 
     # ── PRE-TP1: hard exits apply to ALL open units (simulator_real:642-708) ──────────
     if not state.tp1_filled:
-        # (a) premium stop -> exit ALL
+        # (a) premium stop -> exit ALL (structure mode: this IS the -50% catastrophe cap;
+        # premium mode: the strategy's unchanged tight stop -- from_entry already baked the
+        # right stop_pct into runner_stop, so this ONE check serves both modes verbatim).
         if worst_premium <= runner_stop:
             actions.append(ExitAction("SELL_ALL", qty=open_qty,
                                       reason=f"premium_stop @ {round(runner_stop,2)}",
                                       stage="premium_stop"))
+            return ExitDecision(replace(state, hwm_premium=hwm), tuple(actions))
+        # (a2) STRUCTURE STOP (v15.3 chart-stop-primary) -- only active when from_entry
+        # resolved this position to stop_mode=="structure" (flag-gated, see module
+        # docstring). last_closed_5m_close is None whenever the caller's feed is missing/
+        # stale -> fail-open, this tick's structure check is simply skipped (the
+        # catastrophe cap above and the time stop below still protect the position).
+        if state.stop_mode == "structure" and _structure_stop_hit(
+                state.side, state.trigger_level, last_closed_5m_close):
+            actions.append(ExitAction("SELL_ALL", qty=open_qty,
+                                      reason=f"structure_stop @ {state.trigger_level}",
+                                      stage="structure_stop"))
             return ExitDecision(replace(state, hwm_premium=hwm), tuple(actions))
         # (b) time stop pre-TP1 -> exit ALL at market
         if time_stop_now:
@@ -272,7 +394,14 @@ def plan_exit_actions(
 
     ratcheted = round(new_runner_stop, 4) > round(runner_stop, 4)
 
-    # runner exits (priority: ribbon-flip / runner-target / BE-or-trail stop / time stop)
+    # runner exits (priority: structure / ribbon-flip / runner-target / BE-or-trail stop / time stop)
+    if state.stop_mode == "structure" and _structure_stop_hit(
+            state.side, state.trigger_level, last_closed_5m_close):
+        actions.append(ExitAction("SELL_ALL", qty=open_qty,
+                                  reason=f"structure_stop @ {state.trigger_level} (runner)",
+                                  stage="structure_stop"))
+        return ExitDecision(replace(state, hwm_premium=hwm, profit_lock_armed=profit_lock_armed,
+                                    runner_stop_premium=round(new_runner_stop, 4)), tuple(actions))
     if ribbon_flip_back:
         actions.append(ExitAction("SELL_ALL", qty=open_qty,
                                   reason="ribbon_flip_back (runner)", stage="ribbon_flip"))

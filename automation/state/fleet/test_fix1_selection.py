@@ -69,11 +69,12 @@ def test_decide_arm_returns_selected_exit_shape():
         ARM, _multi_signal(), equity=2000.0, flat=True, day_trades=0, killed=False,
         sod_equity=2000.0, prior_stops=[], params=PARAMS, premium_override=0.40)
     assert decision.action == "ENTER_BULL"  # ribbon_ride C selected
-    # ribbon_ride's grind-winner exit shape flows through:
-    assert exit_shape["premium_stop_pct"] == -0.20
-    assert exit_shape["tp1_premium_pct"] == 1.5
-    assert exit_shape["tp1_qty_fraction"] == 0.8
-    assert exit_shape["profit_lock_mode"] == "fixed"
+    # ribbon_ride's SS-B validated cell flows through (STOP-B 2026-07-09):
+    assert exit_shape["premium_stop_pct"] == -0.20  # flag-OFF fallback field
+    assert exit_shape["tp1_premium_pct"] == 1.0
+    assert exit_shape["tp1_qty_fraction"] == 0.667
+    assert exit_shape["profit_lock_mode"] == "trailing"
+    assert exit_shape["stop_mode"] == "structure"
 
 
 def test_decide_arm_vwap_exit_when_only_vwap_fires():

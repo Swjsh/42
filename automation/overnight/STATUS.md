@@ -8,6 +8,7 @@
 
 ---
 
+- 2026-07-09 ~16:20 ET [STOP-B ship 1, Fable] **SHIPPED SS-B STRUCTURE-STOP for ribbon_ride, BOTH exit lanes, flag-ON** (`structure_stop_enabled=true`, Safe + aggressive params) — v15.3 chart-stop-primary finally implemented: exit on first 5m SPY CLOSE through the entry trigger level (side-aware), −50% intrabar catastrophe cap, TP1 +100% sell 66%, trailing 15% runner, tgt-none. EVIDENCE: `analysis/recommendations/structure-stop-2026-07-09.json` — SS-B = the ONLY candidate this week passing BOTH pre-registered layers (fresh-slice −$47.34/tr vs control −$100.67; 79-real-fills anchor −$604.70 vs −$757.10; today's 07-09 exhibit +$138.50 vs actual −$381, exhibit-only). Wire built in an isolated worktree, applied post-close, end-to-end verified on LIVE files (flag ON → stop_mode=structure/trigger threaded/cat −0.5/tp1 1.0; flag OFF → premium). Fleet suite 136/136 (6 old-cell pins re-pinned to SS-B), reconciliation+time-stop guards 7/7, safety gate PASS. WAIVER: structure stops sit OUTSIDE the premium-grind P5 universe → J-directive waiver (J 07-09: "1 call hold... get this all built"). FORWARD KILL-CHECKS: (a) fresh P5 grind (running, ~5.9k/7,560) → too-good audit on its 216 P4 survivors, (b) 2-week paper watch, (c) trigger-level recovery is a proximity heuristic — no-nearby-level positions fail OPEN to premium mode (61-78% recovery in study, disclosed). HONEST: SS-B = "bleed less + hold through noise," both layers still net-negative — ribbon_ride recency COLD (1/18 fresh winners), sizing/recency question OPEN. REVERT: instant de-arm = `structure_stop_enabled:false` both params (new entries → −20% premium + quick TP1 fallback); full = git revert the STOP-B commit. Known cosmetic: plan-log "stop" shows the −20% fallback even in structure mode (display only).
 - 2026-07-09 01:52 ET [overnight-drive W1 wire] SHIPPED entry-1 premium floor $0.30 engine-wide BOTH lanes (commit f8978fb) — evidence: T3 n=157 + real-fills anchor −$72.50 vs −$757.10 (floor refused the toxic sub-$0.20 cohort); guard 11-passed + red-proofed (3 rejection tests RED with enforcement stashed) — REVERT: set min_entry_premium: 0 in params.json + aggressive/params.json (or delete key); optionally git revert f8978fb; rejection tests REDing confirms off.
 - 2026-07-09 01:52 ET [overnight-drive W1 wire] SHIPPED vwap_continuation fleet-shape port to the FULL validated core cell −0.06/+0.40/0.8/fixed (commit b125055) — evidence: 07-07 all-5-OP-22-gates-PASS scorecard + T-W6 provenance, waiver j_signed per J directive, two-lane drift closed, fleet 101-passed + p5 gate red-proofed, stale trade_to_learn pins fixed (clears 2 of known-15) — REVERT: restore old ExitShape literal (−0.08/0.3/0.667/trailing) + prior waiver block (parent of b125055) + revert test pins.
 - 2026-07-09 01:52 ET [overnight-drive W1 wire] SHIPPED fleet time_stop_et threading (D2 #5, commit 1f3629d) — evidence: fleet arms time-stopped at hardcoded 15:50 vs params 15:40 (dead knob, C14 class); guard red-proofed (kwarg dropped → time_stop_et=None FAIL) — REVERT: drop the time_stop_et kwarg from fleet_live.run()'s ea.manage_tick call + delete test_fleet_time_stop_threaded.py.
@@ -290,7 +291,7 @@
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 40 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 39 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -1921,3 +1922,130 @@ Kitchen: alive, queue 40 pending, last cook 0 min ago, today $0.00, model=openro
 - [2026-07-09 05:27:29] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T11:27:49.120719+00:00) | fail streak: 270 consecutive fires | stage v02_source_parity pass rate dropped to 79.17% in last 24h (38/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
 
 - [2026-07-09 05:27:29] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+- [2026-07-09 05:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T11:57:04.114370+00:00) | fail streak: 271 consecutive fires | stage v02_source_parity pass rate dropped to 79.17% in last 24h (38/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 05:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+- [2026-07-09 06:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T12:27:03.840726+00:00) | fail streak: 272 consecutive fires | stage v02_source_parity pass rate dropped to 79.17% in last 24h (38/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 06:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### BROKEN: premarket 2026-07-09
+- PREMARKET SILENT FAILURE: claude exit=1 but today-bias.date=2026-07-08 != today 2026-07-09 (no fresh bias written). Engine would open on a STALE bias.
+
+
+### DEGRADED: self-check 2026-07-09T08:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-09 06:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T12:57:03.787447+00:00) | fail streak: 273 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 06:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+- [2026-07-09 09:05 ET] SHIPPED G11 level-memory wire -- refresh_levels_intraday now UNIONs the shadow multi-day memory map into key-levels.json so heartbeat_core sees J-called flip levels. VERIFIED: 747.13 + 747.93 in the live consumer active+multi as resistance (memory_merged=6); persisted across the 08:58 refresher write. Flag: params.level_memory_live_merge=true. Guard: test_refresh_levels_intraday.py G11 24/24 + curated safety-gate PASS + KeyLevelsModel + check_level_integrity GREEN. Revert: set level_memory_live_merge=false (merge no-ops). commit 0aa4ef9.
+
+### DEGRADED: self-check 2026-07-09T09:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-09 07:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T13:27:03.778152+00:00) | fail streak: 274 consecutive fires | stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 07:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T09:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-09 07:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T13:57:02.553608+00:00) | fail streak: 275 consecutive fires | stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 07:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T10:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-09 08:27:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T14:27:02.509379+00:00) | fail streak: 276 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 08:27:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T10:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-09 08:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T14:57:02.467670+00:00) | fail streak: 277 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 08:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T11:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-09 09:27:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T15:27:02.486823+00:00) | fail streak: 278 consecutive fires | stage v02_source_parity pass rate dropped to 79.17% in last 24h (38/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 09:27:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T11:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-09 09:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T15:57:02.706240+00:00) | fail streak: 279 consecutive fires | stage v02_source_parity pass rate dropped to 81.25% in last 24h (39/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 09:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T12:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-09 10:27:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T16:27:02.486772+00:00) | fail streak: 280 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 10:27:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T12:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-09 10:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T16:57:02.910738+00:00) | fail streak: 281 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 10:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T13:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-09 11:27:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T17:27:03.728454+00:00) | fail streak: 282 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 11:27:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T13:39:59
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-09 11:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T17:57:03.142662+00:00) | fail streak: 283 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 11:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T14:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-09 12:27:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T18:27:06.509676+00:00) | fail streak: 284 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 12:27:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T14:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-09 12:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T18:57:04.030084+00:00) | fail streak: 285 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 12:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T15:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-09 13:27:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T19:27:03.148638+00:00) | fail streak: 286 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 13:27:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T15:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-09 13:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T19:57:03.350050+00:00) | fail streak: 287 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 13:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-09T20:01:30+00:00
+- task: eod-summary
+- date_et: 2026-07-09
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
