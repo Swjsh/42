@@ -116,6 +116,19 @@ Spec (small change to `gamma_narrative.py` + `gamma_speak.py`):
   instruction "J already received these pings — reference and EXPLAIN them, never repeat them."
 - Written `text` + deterministic digest stay exactly as-is (the auditable channel).
 
+**Shipped & verified 2026-07-08 evening.** One two-channel model call
+(`===WRITTEN===`/`===SPOKEN===`, drift-tolerant splitter — qwen renders the markers as
+markdown headings), `already_pinged` = last 15 outbox rows (both row shapes), `gamma_speak.py`
+prefers `spoken`. Hardening from live probes, all deterministic guards:
+(1) the openrouter-free nemotron lane returns REASONING-AS-CONTENT (21K chars rehearsing the
+markers; `max_tokens` 8000 is an instant-empty poison value there) → `_channel_sane()`
+marker-echo/size guard, budget stays 4000; (2) a small-lane register rewrite flipped the day's
+$382 LOSS into "a total profit" → repair pass is now P&L-truth-anchored + sign-guarded and
+keeps the original on any miss. Verified fire: exit 0, spoken = 156 words, zero digits, zero
+stage-name jargon, ends with the question; 52s wav synthesized from `spoken` (865-char speech
+text matched exactly). Residual, accepted: floor lanes can fuzz a rounded count ("two dozen"
+vs a dozen fills) — the written channel remains the exact auditable record.
+
 The narrative's fixed spine IS the causal chain J asked for: what I saw → what I did → what I
 learned → what I'm changing. Two design rules keep it honest (OP-33):
 1. **The model may only narrate the facts block.** Every number is ledger-derived; the

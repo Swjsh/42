@@ -25,9 +25,13 @@ if hasattr(sys.stdout, "reconfigure"):
 
 
 def speech_text(narrative: dict) -> str:
-    """Make the written narrative pleasant to LISTEN to: strip label prefixes,
-    normalize unicode punctuation the TTS chokes on."""
-    text = str(narrative.get("text") or "")
+    """Pick what Gamma SAYS: prefer the `spoken` radio-debrief register (v1.1),
+    fall back to the written `text` for pre-v1.1 files or a muffed spoken
+    channel. Either way strip label prefixes and normalize unicode punctuation
+    the TTS chokes on."""
+    spoken = str(narrative.get("spoken") or "").strip()
+    text = spoken or str(narrative.get("text") or "")
+    text = re.sub(r"^\s*DEBRIEF\s*:\s*", "", text, flags=re.I)  # repair-prompt label echo
     text = re.sub(r"^\(deterministic fallback.*?\)\s*", "", text, flags=re.S)
     text = re.sub(r"^(WHAT I SAW|WHAT I DID|WHAT I LEARNED|WHAT I'M CHANGING)\s*:\s*",
                   "", text, flags=re.M | re.I)
@@ -36,6 +40,8 @@ def speech_text(narrative: dict) -> str:
                 .replace("“", '"').replace("”", '"'))
     text = re.sub(r"[#*_`|>]", "", text)          # markdown remnants
     text = re.sub(r"\s+", " ", text).strip()
+    if spoken:
+        return f"Gamma here. {text}"
     day = narrative.get("date", "")
     return f"Gamma here. My day, {day}. {text}"
 

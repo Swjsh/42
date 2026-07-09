@@ -7,10 +7,13 @@ here's how we're changing the engine."
 Every evening this fire:
   1. gathers DETERMINISTIC facts from the ledgers (fill funnel incl. rule_blocked,
      trades P&L, kitchen R&D events, repo commits today, known-broken flags);
-  2. asks the swarm 'strategist' role (local qwen3.6:35b floor -- $0) to write a
-     <=280-word FIRST-PERSON narrative: SAW / DID / LEARNED / CHANGING, plus
-     "One lever I want to test" (picked from the UNTESTED axis list -- the
-     generative half, OP-33e) and "One question for J" (colleagues ask questions);
+  2. asks the swarm 'strategist' role (local qwen3.6:35b floor -- $0) to write,
+     in ONE call, TWO registers of the same debrief: the <=280-word FIRST-PERSON
+     written narrative -- SAW / DID / LEARNED / CHANGING, plus "One lever I want
+     to test" (picked from the UNTESTED axis list -- the generative half, OP-33e)
+     and "One question for J" (colleagues ask questions) -- and a `spoken`
+     radio-debrief version (story-first, <=3 rounded numbers, no tickers/IDs/
+     stage names, 120-170 words) that gamma_speak.py voices (v1.1, J feedback);
   3. writes automation/state/gamma-narrative.json (dashboard surface),
      appends '## Gamma evening narrative' to journal/YYYY-MM-DD.md,
      appends to the Discord outbox (the bridge daemon delivers it);
@@ -26,6 +29,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -132,6 +136,17 @@ def gather_facts(day: str) -> dict:
     except (OSError, ValueError):
         pass
 
+    # What J was ALREADY pinged about today. Two row shapes coexist in the
+    # outbox ({ts, message} and {queued_at, content}); take whichever carries
+    # the text. Last key on purpose: the prompt caps the facts JSON, and a
+    # truncation must eat ping history before funnel/axes.
+    already_pinged: list[dict] = []
+    for r in _tail_jsonl(OUTBOX, day)[-15:]:
+        msg = str(r.get("message") or r.get("content") or "").strip()
+        if msg:
+            already_pinged.append({"source": str(r.get("source", ""))[:40],
+                                   "message": msg[:200]})
+
     return {
         "date": day,
         "funnel_text": ff.render_text(funnel),
@@ -143,6 +158,7 @@ def gather_facts(day: str) -> dict:
         "known_broken": known_broken,
         "prior_narrative": prior,
         "untested_axes": AXES,
+        "already_pinged": already_pinged,
     }
 
 
@@ -150,8 +166,24 @@ PROMPT_TEMPLATE = """You are Gamma -- J's autonomous 0DTE SPY trading partner. E
 about YOUR day, first person, like a colleague at the next desk. J is a trader; be
 direct, concrete, zero corporate filler.
 
-STRICT RULES:
+You deliver the SAME debrief through two channels. Output format, exactly:
+
+===WRITTEN===
+(the written debrief)
+===SPOKEN===
+(the spoken debrief)
+
+Nothing before ===WRITTEN===, no other markers, no code fences. Your reply MUST
+contain both marker lines EXACTLY as shown -- ===WRITTEN=== then ===SPOKEN=== --
+each alone on its own line.
+
+STRICT RULES (both channels):
 - Use ONLY the facts in the FACTS block. Never invent a number, trade, or event.
+- already_pinged lists the alerts J ALREADY received on his phone today.
+  Reference and EXPLAIN them -- what each meant, whether it resolved -- never
+  repeat them.
+
+WRITTEN channel (the auditable record):
 - <=280 words total. Plain text, no markdown headers.
 - Structure, in order:
   1. WHAT I SAW -- the market/day in 1-2 sentences from the funnel/decisions facts.
@@ -163,28 +195,168 @@ STRICT RULES:
      the prior narrative's lever if one is listed.
   6. "One question for J:" -- one genuine, specific question a colleague would ask.
 
+SPOKEN channel (J LISTENS to this on headphones -- a radio debrief, not a report
+read aloud):
+- Story first: open with the one thing that mattered today, then unfold it the
+  way you'd tell a colleague what happened -- cause to effect, not a list.
+- AT MOST 3 numbers in the entire piece, all rounded, all written as WORDS:
+  "about four hundred bucks", "a dozen entries", "day three". Digits are BANNED
+  in this channel -- if a number can't be said in words, leave it out.
+- NO ticker symbols, NO order IDs, NO funnel stage or verdict names (never say
+  ENTER, HOLD, DEGRADED, GREEN, RED, funnel, ticks), NO file paths, NO command
+  names, NO acronym soup. Say what things MEAN in plain trader English: "the
+  day-trade limit rule kept refusing our entries", not "PDT blocked 13 ENTERs".
+- 8 to 12 full sentences, 120-170 words (about 45-75 seconds aloud). Reflective,
+  first person. If it reads like a report, rewrite it as the story of the day.
+- End with the same question for J, asked naturally in speech.
+
 FACTS:
 {facts}
 """
 
 
+WRITTEN_MARK = "===WRITTEN==="
+SPOKEN_MARK = "===SPOKEN==="
+
+# Heading matchers, drift-tolerant by observation: qwen3:14b rendered the
+# requested ===SPOKEN=== as "**SPOKEN DEBRIEF (story format):**" (2026-07-08).
+# A heading line = optional non-lowercase decoration, the channel word, up to
+# 60 trailing chars; or title-case with an explicit marker prefix. Prose-safe:
+# a mid-text sentence has lowercase before/at the keyword and never matches.
+_SPOKEN_HEAD = re.compile(
+    r"^(?:[^a-z\n]{0,24}SPOKEN|[=#*>\-\s]{1,24}Spoken\b)[^\n]{0,60}$", re.M)
+_WRITTEN_HEAD = re.compile(
+    r"^(?:[^a-z\n]{0,24}WRITTEN|[=#*>\-\s]{1,24}Written\b)[^\n]{0,60}$", re.M)
+
+
+def _split_channels(raw: str) -> tuple[str, str]:
+    """Split one model response into (written, spoken) on the channel headings.
+
+    Tolerates a <think> reasoning preamble, heading drift (markdown bold,
+    "SPOKEN DEBRIEF:", a missing WRITTEN heading) and preamble chatter. A
+    missing SPOKEN section returns spoken="" -- the caller decides whether
+    that is acceptable."""
+    s = raw or ""
+    end = s.rfind("</think>")
+    if end != -1:
+        s = s[end + len("</think>"):]
+    spoken = ""
+    m = _SPOKEN_HEAD.search(s)
+    if m:
+        spoken = s[m.end():]
+        s = s[:m.start()]
+        m2 = _WRITTEN_HEAD.search(spoken)  # echoed heading after spoken: cut it
+        if m2:
+            spoken = spoken[:m2.start()]
+        spoken = spoken.lstrip(": \n").strip()
+    m0 = _WRITTEN_HEAD.search(s)
+    written = (s[m0.end():] if m0 else s).lstrip(": \n").strip()
+    return written, spoken
+
+
+_DIGIT_RX = re.compile(r"\d")
+
+REGISTER_REPAIR_PROMPT = """Rewrite this end-of-day spoken debrief so it obeys ALL of these rules, changing
+nothing else about its meaning:
+- Digits are BANNED: every number written as words, AT MOST 3 numbers total, all
+  rounded ("about two grand", "a dozen entries").
+- NO ticker symbols, order IDs, or system jargon -- never say ENTER, HOLD,
+  DEGRADED, GREEN, RED, funnel, ticks, or PDT (say "the day-trade limit rule").
+- 120-170 words, first person, radio-debrief tone, story order kept.
+- Do NOT add any event, number, or claim that is not already in the debrief.
+- Keep the closing question for J.{truth}
+Return ONLY the rewritten debrief text.
+
+DEBRIEF:
+{spoken}
+"""
+
+
+def _channel_sane(txt: str, lo: int, hi: int) -> bool:
+    """Bounded AND free of marker echoes. The nemotron free route returns its
+    reasoning stream as message.content (observed 2026-07-08): 21K chars that
+    rehearse the ===MARKERS=== over and over. Text still carrying a marker, or
+    grossly oversized, is think-soup -- never ship it as a channel."""
+    return lo < len(txt) <= hi and WRITTEN_MARK not in txt and SPOKEN_MARK not in txt
+
+
+def _spoken_register_pass(role: str, spoken: str, facts: dict) -> str:
+    """One bounded repair for the observed small-model failures: the spoken
+    channel leaking digits ("-$382" straight past the digit ban) and -- worse --
+    a rewrite flipping the day's SIGN (llama-8b turned a $382 loss into "a
+    total profit of about four hundred bucks", 2026-07-08). Deterministic
+    trigger (any digit), ONE rewrite on the same lane anchored to the ledger
+    P&L, sign-checked on the way out. Every guard failure keeps the original --
+    a jargon-y debrief beats a wrong one."""
+    if not _DIGIT_RX.search(spoken):
+        return spoken
+    try:
+        pnl_total = float((facts.get("pnl") or {}).get("total_pnl") or 0.0)
+    except (TypeError, ValueError):
+        pnl_total = 0.0
+    truth = ""
+    if pnl_total:
+        word = "LOSS" if pnl_total < 0 else "GAIN"
+        truth = (f"\n- Ground truth you MUST keep: the day's P&L was a {word} of "
+                 f"about ${round(abs(pnl_total), -1):.0f} -- spell it as words, "
+                 f"and never flip a loss into a profit or vice versa.")
+    # max_tokens matches the main call: a qwen think-phase alone ate a 1200
+    # budget and returned empty content (observed 2026-07-08).
+    env = sc.call_role(role, REGISTER_REPAIR_PROMPT.format(spoken=spoken, truth=truth),
+                       max_tokens=4000, temperature=0.3, timeout=180,
+                       task_id="gamma.narrative.register")
+    if not env.get("ok"):
+        return spoken
+    w2, s2 = _split_channels(env.get("content") or "")  # strips <think>/headings
+    fixed = (s2 or w2).strip()
+    fixed = re.sub(r"^\s*DEBRIEF\s*:\s*", "", fixed, flags=re.I)  # prompt-label echo
+    low = fixed.lower()
+    sign_flip = ((pnl_total < 0 and ("profit" in low or "gained" in low or "we're up" in low))
+                 or (pnl_total > 0 and ("loss" in low or "lost" in low or "we're down" in low)))
+    if (_channel_sane(fixed, 200, 2500) and not _DIGIT_RX.search(fixed)
+            and not sign_flip and "?" in fixed[-120:]):
+        return fixed
+    return spoken
+
+
 def compose(facts: dict) -> dict:
     """LLM narrative via roster roles: strategist (35b-class), then coordinator
     (14b floor -- fits fully in VRAM, survives big prompts; the 35b crashed on a
-    4K-token prompt 2026-07-08, 0xc0000409). Deterministic digest on total failure
-    -- never silent."""
+    4K-token prompt 2026-07-08, 0xc0000409). ONE call per role asks for BOTH
+    channels: the auditable WRITTEN text (rules unchanged) and the SPOKEN
+    radio-debrief register (v1.1 -- J's first-wav feedback: "sounds like a stat
+    dump"). A digit-leaking spoken gets one register-repair pass; a role that
+    nails written but muffs spoken is kept as a partial and only used if no
+    later role does better -- spoken then stays "" and the voice falls back to
+    the written text. Deterministic digest on total failure -- never silent."""
     prompt = PROMPT_TEMPLATE.format(facts=json.dumps(facts, indent=1)[:9000])
     env: dict = {}
+    written = spoken = ""
+    partial = None  # (env, written, spoken) with good written but weak spoken
     for role in ("strategist", "coordinator"):
+        # max_tokens stays 4000: the openrouter-free nemotron lane returns an
+        # instant EMPTY response at 8000 (poison value) and at 6000 it spends
+        # the whole budget on reasoning-as-content anyway (finish=length,
+        # 2026-07-08 probes). 4000 keeps a think-overrun lane bounded; the
+        # ladder + sanity guards do the rest.
         env = sc.call_role(role, prompt, max_tokens=4000, temperature=0.4,
                            timeout=240, task_id="gamma.narrative")
-        if env.get("ok") and len((env.get("content") or "").strip()) > 100:
+        if not (env.get("ok") and (env.get("content") or "").strip()):
+            continue
+        w, s = _split_channels(env["content"])
+        if _channel_sane(w, 100, 4000) and _channel_sane(s, 200, 2500):
+            written, spoken = w, _spoken_register_pass(role, s, facts)
             break
-    text = (env.get("content") or "").strip()
-    ok = bool(env.get("ok")) and len(text) > 100
+        if _channel_sane(w, 100, 4000) and partial is None:
+            partial = (env, w, s if _channel_sane(s, 200, 2500) else "")
+    if not written and partial is not None:
+        env, written, spoken = partial
+    ok = len(written) > 100
+    text = written
     if not ok:
         text = ("(deterministic fallback -- narrative model unavailable: "
                 f"{env.get('error')})\n" + facts["funnel_text"])
+        spoken = ""
     lever = ""
     question = ""
     for ln in text.splitlines():
@@ -193,7 +365,7 @@ def compose(facts: dict) -> dict:
             lever = ln.split(":", 1)[-1].strip()
         elif low.startswith("one question"):
             question = ln.split(":", 1)[-1].strip()
-    return {"ok": ok, "text": text, "lane": env.get("lane"),
+    return {"ok": ok, "text": text, "spoken": spoken, "lane": env.get("lane"),
             "elapsed_s": env.get("elapsed_s"), "lever": lever, "question": question}
 
 
@@ -204,6 +376,7 @@ def publish(day: str, facts: dict, narrative: dict, *, discord: bool = True) -> 
         "ok": narrative["ok"], "lane": narrative["lane"],
         "elapsed_s": narrative["elapsed_s"],
         "text": narrative["text"],
+        "spoken": narrative["spoken"],
         "lever": narrative["lever"], "question": narrative["question"],
         "facts_digest": facts["funnel_text"],
         "funnel_verdict": facts["funnel_verdict"],
