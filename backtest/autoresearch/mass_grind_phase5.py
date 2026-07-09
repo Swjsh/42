@@ -35,7 +35,9 @@ SUMMARY = RECO / "mass-grind-phase5-summary.json"
 
 # Ordered parameter axes (must match mass_grind.py). Neighbor = +-1 index on a continuous axis.
 STRIKE_OFFSETS = [6, 5, 4, 3, 2, 1, 0, -1, -2]                  # OTM-6 .. ITM-2 (so the grid grows OK)
-STOP_VALS      = [-0.08, -0.12, -0.15, -0.20, -0.25, -0.30, -0.40, -0.50]
+# -0.35 added 2026-07-08 with the mass_grind grid (Fable review: exit-C's stop) -- the two
+# axis lists MUST stay identical or neighbor math silently misidentifies plateaus.
+STOP_VALS      = [-0.08, -0.12, -0.15, -0.20, -0.25, -0.30, -0.35, -0.40, -0.50]
 TP1_LEVELS     = [0.3, 0.5, 0.75, 1.0, 1.5]
 TP1_QTY        = [0.5, 0.667, 0.8, 1.0]
 
@@ -45,16 +47,24 @@ QPF_REQUIRED  = 1.0      # every quarter positive
 
 
 def _key(combo) -> tuple:
-    """Canonical combo identity (the 9-tuple as a hashable key)."""
-    sk, so, blr, mt, stp, sv, tp, tq, lk = combo
+    """Canonical combo identity (the 11-tuple as a hashable key). T-W3: trail_pct (tr) +
+    time_stop_minutes_before_close (ts) added -- held FIXED like blr/mt/lk (not swept as
+    continuous neighbor axes; see _neighbors)."""
+    sk, so, blr, mt, stp, sv, tp, tq, lk, tr, ts = combo
     return (int(so), bool(blr), int(mt), round(float(sv), 4), round(float(tp), 4),
-            round(float(tq), 4), str(lk))
+            round(float(tq), 4), str(lk), round(float(tr), 4), int(ts))
 
 
 def _load_p4_elites() -> dict:
-    """label -> record, for every phase-4 elite across the funnel shard outputs."""
+    """label -> record, for every phase-4 elite across the funnel shard outputs.
+
+    v2 (T-W3): reads ONLY the fresh grind's funnel files (mass-grind-funnel-v2-*.jsonl) --
+    the legacy dead-knob grind's funnel data is a DIFFERENT (9-element) combo shape and is
+    deliberately excluded, not merged (its "trailing" rows are mislabeled fixed-equivalent
+    data, per the T5 scar)."""
     elites = {}
-    for f in glob.glob(str(RECO / "mass-grind-funnel-*.jsonl")):
+    # No dash before the * (matches the funnel's no-shard output file too -- see FUNNEL_GLOB).
+    for f in glob.glob(str(RECO / "mass-grind-funnel-v2*.jsonl")):
         for line in Path(f).read_text(encoding="utf-8").splitlines():
             line = line.strip()
             if not line:
@@ -69,8 +79,10 @@ def _load_p4_elites() -> dict:
 
 
 def _neighbors(combo) -> list[tuple]:
-    """The +-1 neighbors on each continuous axis (strike, stop, TP1, sell-qty); blr/mt/lock fixed."""
-    sk, so, blr, mt, stp, sv, tp, tq, lk = combo
+    """The +-1 neighbors on each continuous axis (strike, stop, TP1, sell-qty); blr/mt/lock/
+    trail/time-exit fixed (T-W3: tr/ts are NOT swept as continuous neighbor axes, same
+    treatment as blr/mt/lk before them)."""
+    sk, so, blr, mt, stp, sv, tp, tq, lk, tr, ts = combo
     out = []
     for axis, vals, cur in (
         ("so", STRIKE_OFFSETS, int(so)),
@@ -86,11 +98,37 @@ def _neighbors(combo) -> list[tuple]:
             if 0 <= j < len(vals):
                 nb = {"so": int(so), "sv": round(float(sv), 4), "tp": round(float(tp), 4), "tq": round(float(tq), 4)}
                 nb[axis] = vals[j]
-                out.append((nb["so"], bool(blr), int(mt), nb["sv"], nb["tp"], nb["tq"], str(lk)))
+                out.append((nb["so"], bool(blr), int(mt), nb["sv"], nb["tp"], nb["tq"], str(lk),
+                            round(float(tr), 4), int(ts)))
     return out
 
 
+def _grind_completeness() -> dict:
+    """Progress-vs-total completeness, mirroring mass_grind_funnel._grind_complete() --
+    threaded into the summary so a mid-grind snapshot can never masquerade as a final
+    P5 verdict (funnel-v2-pretrust-audit.md CHECK 5; the 2026-07-09 68% silent death
+    was the live example). Reads via module-level RECO so tests can monkeypatch."""
+    total = None
+    try:
+        total = int(json.loads((RECO / "mass-grind-total.json").read_text(encoding="utf-8"))["total"])
+    except Exception:
+        total = None
+    done = 0
+    for f in glob.glob(str(RECO / "mass-grind-v2-progress*.jsonl")):
+        try:
+            done += sum(1 for ln in Path(f).read_text(encoding="utf-8").splitlines() if ln.strip())
+        except Exception:
+            continue
+    complete = bool(total) and done >= total
+    return {"grind_complete": complete, "progress_rows": done, "grid_total": total}
+
+
 def main() -> int:
+    completeness = _grind_completeness()
+    if not completeness["grind_complete"]:
+        print(f"[phase5] WARNING grind_complete=False -- {completeness['progress_rows']}/"
+              f"{completeness['grid_total']} progress rows; summary will be stamped PARTIAL "
+              f"(mass-grind-total.json is the authority). Do NOT treat as a final P5 verdict.")
     elites = _load_p4_elites()
     if not elites:
         print("[phase5] no P4 elites found yet")
@@ -129,6 +167,7 @@ def main() -> int:
     OUT.write_text("\n".join(json.dumps(r) for r in results) + "\n", encoding="utf-8")
     SUMMARY.write_text(json.dumps({
         "generated": dt.datetime.now().isoformat(timespec="seconds"),
+        **completeness,
         "p4_elites": len(elites),
         "p5_survivors": len(survivors),
         "rule": f"P4 AND qpf=={QPF_REQUIRED} AND >={MIN_NEIGHBORS} neighbors with >={NEIGHBOR_PASS} elite-rate",

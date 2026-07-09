@@ -353,6 +353,14 @@ def regenerate_engine_contract() -> None:
 def main() -> int:
     now_et = et_now()
     regenerate_engine_contract()
+    # Rule 8: catch trades.csv up from broker-truth BEFORE rendering the brief, so the
+    # journal J reads is never behind the cockpit (fleet_journal_bridge is idempotent;
+    # fail-open -- a journaling error must never block the brief).
+    try:
+        from fleet_journal_bridge import run_bridge
+        run_bridge()
+    except Exception as e:  # noqa: BLE001
+        print(f"[firm_brief] WARN: fleet journal bridge failed: {e}", file=sys.stderr)
     statement = load_json(STATEMENT)
     self_check = load_json(SELF_CHECK_LAST)
     queue_j_items = find_queue_j_markers(QUEUE_MD)
