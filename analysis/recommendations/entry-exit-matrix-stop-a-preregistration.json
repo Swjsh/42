@@ -1,0 +1,59 @@
+{
+  "_doc": "PRE-REGISTERED T5 candidate list for the ENTRY-EXIT-MATRIX (ground rule 12: exploratory != confirmatory -- the K candidates are frozen HERE, BEFORE the OOS pass, so no one can re-pick after seeing OOS). T5 (post-STOP-A) runs OOS on EXACTLY these and writes results into a separate scorecard; this file is the immutable pre-registration. Do NOT add/edit candidates after OOS has been seen.",
+  "handoff": "markdown/planning/HANDOFF-2026-07-10-ENTRY-EXIT-MATRIX.md",
+  "stop_a_package": "markdown/planning/STOP-A-ENTRY-EXIT-MATRIX.md",
+  "frozen_at": "2026-07-08",
+  "status": "PENDING_STOP_A_SIGNOFF",
+  "strategy": "ribbon_ride",
+  "directions": ["bear", "bull"],
+  "auto_ratify_bar": {
+    "oos_positive": true,
+    "wf_min": 0.70,
+    "sub_window_stable": true,
+    "anchor_no_regression": true,
+    "p5_pass": true,
+    "note": "ALL must hold. A non-P5-survivor cannot auto-ratify even if the other 4 pass (P5-hard-gate, ground rule 10)."
+  },
+  "exit_candidates": [
+    {
+      "id": "exit-1-moderate-scalp",
+      "shape": {"premium_stop_pct": -0.30, "tp1_premium_pct": 0.5, "tp1_qty_fraction": 0.8, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 2.5},
+      "rationale": "Moderate stop survives the cheap <$0.20 band (T2: -20% = 2 ticks there); reachable +50% TP (58-82% reach rate); kill-switch-safe drawdown vs the no-stop rides.",
+      "t4_exploratory": {"note": "band-safe variant of the T4 leaders; see entry-exit-matrix-t4-exits.md"}
+    },
+    {
+      "id": "exit-2-wide-ride",
+      "shape": {"premium_stop_pct": -0.50, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 9.9},
+      "rationale": "Winner-capture ride but with the live -50% catastrophe cap (NOT no-stop), partial-scalp at +150%, trailing runner, no target cap. Approximates the T4 leaders with a survivable stop.",
+      "t4_exploratory": {"leader_no_stop_expectancy_qty10": 92.57, "caveat": "no-stop maxDD -$5034 @ qty10 > $2K acct -> this candidate substitutes the -50% cap"}
+    },
+    {
+      "id": "exit-3-perband-hybrid",
+      "shape": {"per_band": {"<0.20": -0.25, ">=0.50": -0.50, "default": -0.35}, "tp1_premium_pct": 0.75, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 2.5},
+      "rationale": "The T4 per-band refinement: cheap band gets a moderate -25% stop, rich band rides to -50%. Requires wiring a premium-band-conditional stop (per-band stop is a NEW knob -- flagged for T5 to implement or approximate).",
+      "t4_exploratory": {"per_band_leaders": "see entry-exit-matrix-t4-exits.md 'Per-band leaders'"}
+    }
+  ],
+  "entry_candidates": [
+    {
+      "id": "entry-1-floor-only",
+      "policy": {"type": "market", "premium_floor": 0.30},
+      "rationale": "Cheapest change: refuse sub-$0.30 entries (defect #1). Lifts market baseline with no miss cost. Test as a standalone lever.",
+      "t3_exploratory": {"control_market_floor0.30_exp": 36.62, "control_market_floor0.0_exp": 22.91}
+    },
+    {
+      "id": "entry-2-limit-headroom",
+      "policy": {"type": "limit", "delta": 0.10, "patience": 3, "miss": "cancel", "premium_floor": 0.30},
+      "pair_with_exit": "exit-1-moderate-scalp",
+      "rationale": "Passive headroom paired with a moderate-stop scalp -- the ONLY regime where T3 shows passive beating pay-up NET of misses (entry offset = stop headroom, needs a stop to protect). Honest cancel policy (real misses counted).",
+      "t3_exploratory": {"note": "scalp exit: limit cancel policies net +19..+90 vs market; see entry-exit-matrix-t3-entries.md HEADLINE"}
+    }
+  ],
+  "owed_not_in_this_registration": [
+    "vwap_continuation entry/exit matrix (separate setup path; ground rule 11)",
+    "1m-close vs 5m-close vs touch stop timing (needs 1-min OPRA; owed on live sample)",
+    "ATR-scaled + delta-mapped chart stops (not expressible in real-fills mode)",
+    "joint entry x exit grid on the Pareto survivors (T6)",
+    "friction/slippage model + account-risk-limit (kill switch, per-trade cap) sizing"
+  ]
+}
