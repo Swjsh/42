@@ -1,0 +1,1113 @@
+{
+  "generated_at": "2026-07-09T23:45:53.252511+00:00",
+  "elapsed_seconds": 101.7,
+  "data_source": "backtest\\data\\spy_5m_2025-01-01_2026-07-08.csv",
+  "date_range": {
+    "start": "2025-01-02",
+    "end": "2026-07-08"
+  },
+  "recent_window_days": 90,
+  "recent_window_start": "2026-04-09",
+  "timeframes": [
+    "5m",
+    "15m",
+    "30m"
+  ],
+  "n_rules": 11,
+  "verdict_thresholds": {
+    "noise_kill_pct_days_gt": 80.0,
+    "too_rare_fires_per_month_lt": 2.0
+  },
+  "verdict_counts_full_history": {
+    "TESTABLE": 18,
+    "NOISE-KILL": 3,
+    "TOO-RARE": 12
+  },
+  "results": [
+    {
+      "rule": "failed_break_spring",
+      "tier": 1,
+      "timeframe": "5m",
+      "direction": "bullish",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TESTABLE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 1544,
+        "days_with_fire": 212,
+        "pct_days_fired": 56.23,
+        "fires_per_day": 4.095,
+        "fires_per_month": 86.005,
+        "top5_day_concentration_pct": 6.9,
+        "max_fires_single_day": 23
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 254,
+        "days_with_fire": 33,
+        "pct_days_fired": 53.23,
+        "fires_per_day": 4.097,
+        "fires_per_month": 86.032,
+        "top5_day_concentration_pct": 36.2,
+        "max_fires_single_day": 21
+      }
+    },
+    {
+      "rule": "double_top_bottom_at_level",
+      "tier": 2,
+      "timeframe": "5m",
+      "direction": "bidirectional",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TESTABLE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 343,
+        "days_with_fire": 182,
+        "pct_days_fired": 48.28,
+        "fires_per_day": 0.91,
+        "fires_per_month": 19.106,
+        "top5_day_concentration_pct": 9.0,
+        "max_fires_single_day": 7
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 28,
+        "days_with_fire": 21,
+        "pct_days_fired": 33.87,
+        "fires_per_day": 0.452,
+        "fires_per_month": 9.484,
+        "top5_day_concentration_pct": 39.3,
+        "max_fires_single_day": 3
+      }
+    },
+    {
+      "rule": "neckline_base_break",
+      "tier": 1,
+      "timeframe": "5m",
+      "direction": "bullish",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TOO-RARE",
+      "drift_flag": true,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 42,
+        "days_with_fire": 27,
+        "pct_days_fired": 7.16,
+        "fires_per_day": 0.111,
+        "fires_per_month": 2.34,
+        "top5_day_concentration_pct": 33.3,
+        "max_fires_single_day": 5
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 4,
+        "days_with_fire": 4,
+        "pct_days_fired": 6.45,
+        "fires_per_day": 0.065,
+        "fires_per_month": 1.355,
+        "top5_day_concentration_pct": 100.0,
+        "max_fires_single_day": 1
+      }
+    },
+    {
+      "rule": "triangle_ascending",
+      "tier": 1,
+      "timeframe": "5m",
+      "direction": "bullish",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TESTABLE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 136,
+        "days_with_fire": 110,
+        "pct_days_fired": 29.18,
+        "fires_per_day": 0.361,
+        "fires_per_month": 7.576,
+        "top5_day_concentration_pct": 8.8,
+        "max_fires_single_day": 3
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 15,
+        "days_with_fire": 12,
+        "pct_days_fired": 19.35,
+        "fires_per_day": 0.242,
+        "fires_per_month": 5.081,
+        "top5_day_concentration_pct": 53.3,
+        "max_fires_single_day": 2
+      }
+    },
+    {
+      "rule": "triangle_descending",
+      "tier": 1,
+      "timeframe": "5m",
+      "direction": "bearish",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TESTABLE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 93,
+        "days_with_fire": 81,
+        "pct_days_fired": 21.49,
+        "fires_per_day": 0.247,
+        "fires_per_month": 5.18,
+        "top5_day_concentration_pct": 11.8,
+        "max_fires_single_day": 3
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 10,
+        "days_with_fire": 9,
+        "pct_days_fired": 14.52,
+        "fires_per_day": 0.161,
+        "fires_per_month": 3.387,
+        "top5_day_concentration_pct": 60.0,
+        "max_fires_single_day": 2
+      }
+    },
+    {
+      "rule": "flag_pullback_continuation",
+      "tier": 1,
+      "timeframe": "5m",
+      "direction": "bidirectional",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TESTABLE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 367,
+        "days_with_fire": 196,
+        "pct_days_fired": 51.99,
+        "fires_per_day": 0.973,
+        "fires_per_month": 20.443,
+        "top5_day_concentration_pct": 7.1,
+        "max_fires_single_day": 6
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 63,
+        "days_with_fire": 30,
+        "pct_days_fired": 48.39,
+        "fires_per_day": 1.016,
+        "fires_per_month": 21.339,
+        "top5_day_concentration_pct": 31.7,
+        "max_fires_single_day": 5
+      }
+    },
+    {
+      "rule": "rectangle_range_break",
+      "tier": 1,
+      "timeframe": "5m",
+      "direction": "bidirectional",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TESTABLE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 317,
+        "days_with_fire": 184,
+        "pct_days_fired": 48.81,
+        "fires_per_day": 0.841,
+        "fires_per_month": 17.658,
+        "top5_day_concentration_pct": 8.2,
+        "max_fires_single_day": 6
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 39,
+        "days_with_fire": 30,
+        "pct_days_fired": 48.39,
+        "fires_per_day": 0.629,
+        "fires_per_month": 13.21,
+        "top5_day_concentration_pct": 28.2,
+        "max_fires_single_day": 3
+      }
+    },
+    {
+      "rule": "inside_day_nr7_break",
+      "tier": 2,
+      "timeframe": "5m",
+      "direction": "bidirectional",
+      "verdict": "NOISE-KILL",
+      "verdict_recent_90d": "NOISE-KILL",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 16410,
+        "days_with_fire": 376,
+        "pct_days_fired": 99.73,
+        "fires_per_day": 43.528,
+        "fires_per_month": 914.085,
+        "top5_day_concentration_pct": 1.8,
+        "max_fires_single_day": 61
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 2627,
+        "days_with_fire": 61,
+        "pct_days_fired": 98.39,
+        "fires_per_day": 42.371,
+        "fires_per_month": 889.79,
+        "top5_day_concentration_pct": 10.6,
+        "max_fires_single_day": 61
+      }
+    },
+    {
+      "rule": "wedge_rising_into_resistance",
+      "tier": 2,
+      "timeframe": "5m",
+      "direction": "bearish",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TESTABLE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 250,
+        "days_with_fire": 195,
+        "pct_days_fired": 51.72,
+        "fires_per_day": 0.663,
+        "fires_per_month": 13.926,
+        "top5_day_concentration_pct": 5.6,
+        "max_fires_single_day": 3
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 39,
+        "days_with_fire": 30,
+        "pct_days_fired": 48.39,
+        "fires_per_day": 0.629,
+        "fires_per_month": 13.21,
+        "top5_day_concentration_pct": 25.6,
+        "max_fires_single_day": 2
+      }
+    },
+    {
+      "rule": "engulfing_at_level",
+      "tier": 1,
+      "timeframe": "5m",
+      "direction": "bidirectional",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TESTABLE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 941,
+        "days_with_fire": 287,
+        "pct_days_fired": 76.13,
+        "fires_per_day": 2.496,
+        "fires_per_month": 52.416,
+        "top5_day_concentration_pct": 4.7,
+        "max_fires_single_day": 12
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 156,
+        "days_with_fire": 46,
+        "pct_days_fired": 74.19,
+        "fires_per_day": 2.516,
+        "fires_per_month": 52.839,
+        "top5_day_concentration_pct": 23.1,
+        "max_fires_single_day": 8
+      }
+    },
+    {
+      "rule": "island_reversal",
+      "tier": 2,
+      "timeframe": "5m",
+      "direction": "bidirectional",
+      "verdict": "TOO-RARE",
+      "verdict_recent_90d": "TOO-RARE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 0,
+        "days_with_fire": 0,
+        "pct_days_fired": 0.0,
+        "fires_per_day": 0.0,
+        "fires_per_month": 0.0,
+        "top5_day_concentration_pct": 0.0,
+        "max_fires_single_day": 0
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 0,
+        "days_with_fire": 0,
+        "pct_days_fired": 0.0,
+        "fires_per_day": 0.0,
+        "fires_per_month": 0.0,
+        "top5_day_concentration_pct": 0.0,
+        "max_fires_single_day": 0
+      }
+    },
+    {
+      "rule": "failed_break_spring",
+      "tier": 1,
+      "timeframe": "15m",
+      "direction": "bullish",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TESTABLE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 612,
+        "days_with_fire": 188,
+        "pct_days_fired": 49.87,
+        "fires_per_day": 1.623,
+        "fires_per_month": 34.09,
+        "top5_day_concentration_pct": 8.0,
+        "max_fires_single_day": 12
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 107,
+        "days_with_fire": 30,
+        "pct_days_fired": 48.39,
+        "fires_per_day": 1.726,
+        "fires_per_month": 36.242,
+        "top5_day_concentration_pct": 36.4,
+        "max_fires_single_day": 12
+      }
+    },
+    {
+      "rule": "double_top_bottom_at_level",
+      "tier": 2,
+      "timeframe": "15m",
+      "direction": "bidirectional",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TESTABLE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 79,
+        "days_with_fire": 63,
+        "pct_days_fired": 16.71,
+        "fires_per_day": 0.21,
+        "fires_per_month": 4.401,
+        "top5_day_concentration_pct": 13.9,
+        "max_fires_single_day": 3
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 12,
+        "days_with_fire": 9,
+        "pct_days_fired": 14.52,
+        "fires_per_day": 0.194,
+        "fires_per_month": 4.065,
+        "top5_day_concentration_pct": 66.7,
+        "max_fires_single_day": 3
+      }
+    },
+    {
+      "rule": "neckline_base_break",
+      "tier": 1,
+      "timeframe": "15m",
+      "direction": "bullish",
+      "verdict": "TOO-RARE",
+      "verdict_recent_90d": "TOO-RARE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 7,
+        "days_with_fire": 5,
+        "pct_days_fired": 1.33,
+        "fires_per_day": 0.019,
+        "fires_per_month": 0.39,
+        "top5_day_concentration_pct": 100.0,
+        "max_fires_single_day": 3
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 1,
+        "days_with_fire": 1,
+        "pct_days_fired": 1.61,
+        "fires_per_day": 0.016,
+        "fires_per_month": 0.339,
+        "top5_day_concentration_pct": 100.0,
+        "max_fires_single_day": 1
+      }
+    },
+    {
+      "rule": "triangle_ascending",
+      "tier": 1,
+      "timeframe": "15m",
+      "direction": "bullish",
+      "verdict": "TOO-RARE",
+      "verdict_recent_90d": "TOO-RARE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 20,
+        "days_with_fire": 19,
+        "pct_days_fired": 5.04,
+        "fires_per_day": 0.053,
+        "fires_per_month": 1.114,
+        "top5_day_concentration_pct": 30.0,
+        "max_fires_single_day": 2
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 2,
+        "days_with_fire": 2,
+        "pct_days_fired": 3.23,
+        "fires_per_day": 0.032,
+        "fires_per_month": 0.677,
+        "top5_day_concentration_pct": 100.0,
+        "max_fires_single_day": 1
+      }
+    },
+    {
+      "rule": "triangle_descending",
+      "tier": 1,
+      "timeframe": "15m",
+      "direction": "bearish",
+      "verdict": "TOO-RARE",
+      "verdict_recent_90d": "TESTABLE",
+      "drift_flag": true,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 17,
+        "days_with_fire": 17,
+        "pct_days_fired": 4.51,
+        "fires_per_day": 0.045,
+        "fires_per_month": 0.947,
+        "top5_day_concentration_pct": 29.4,
+        "max_fires_single_day": 1
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 6,
+        "days_with_fire": 6,
+        "pct_days_fired": 9.68,
+        "fires_per_day": 0.097,
+        "fires_per_month": 2.032,
+        "top5_day_concentration_pct": 83.3,
+        "max_fires_single_day": 1
+      }
+    },
+    {
+      "rule": "flag_pullback_continuation",
+      "tier": 1,
+      "timeframe": "15m",
+      "direction": "bidirectional",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TESTABLE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 203,
+        "days_with_fire": 146,
+        "pct_days_fired": 38.73,
+        "fires_per_day": 0.538,
+        "fires_per_month": 11.308,
+        "top5_day_concentration_pct": 8.4,
+        "max_fires_single_day": 4
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 27,
+        "days_with_fire": 21,
+        "pct_days_fired": 33.87,
+        "fires_per_day": 0.435,
+        "fires_per_month": 9.145,
+        "top5_day_concentration_pct": 37.0,
+        "max_fires_single_day": 2
+      }
+    },
+    {
+      "rule": "rectangle_range_break",
+      "tier": 1,
+      "timeframe": "15m",
+      "direction": "bidirectional",
+      "verdict": "TOO-RARE",
+      "verdict_recent_90d": "TOO-RARE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 19,
+        "days_with_fire": 19,
+        "pct_days_fired": 5.04,
+        "fires_per_day": 0.05,
+        "fires_per_month": 1.058,
+        "top5_day_concentration_pct": 26.3,
+        "max_fires_single_day": 1
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 2,
+        "days_with_fire": 2,
+        "pct_days_fired": 3.23,
+        "fires_per_day": 0.032,
+        "fires_per_month": 0.677,
+        "top5_day_concentration_pct": 100.0,
+        "max_fires_single_day": 1
+      }
+    },
+    {
+      "rule": "inside_day_nr7_break",
+      "tier": 2,
+      "timeframe": "15m",
+      "direction": "bidirectional",
+      "verdict": "NOISE-KILL",
+      "verdict_recent_90d": "NOISE-KILL",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 5482,
+        "days_with_fire": 376,
+        "pct_days_fired": 99.73,
+        "fires_per_day": 14.541,
+        "fires_per_month": 305.363,
+        "top5_day_concentration_pct": 2.2,
+        "max_fires_single_day": 25
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 901,
+        "days_with_fire": 61,
+        "pct_days_fired": 98.39,
+        "fires_per_day": 14.532,
+        "fires_per_month": 305.177,
+        "top5_day_concentration_pct": 11.8,
+        "max_fires_single_day": 24
+      }
+    },
+    {
+      "rule": "wedge_rising_into_resistance",
+      "tier": 2,
+      "timeframe": "15m",
+      "direction": "bearish",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TESTABLE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 95,
+        "days_with_fire": 89,
+        "pct_days_fired": 23.61,
+        "fires_per_day": 0.252,
+        "fires_per_month": 5.292,
+        "top5_day_concentration_pct": 10.5,
+        "max_fires_single_day": 2
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 14,
+        "days_with_fire": 12,
+        "pct_days_fired": 19.35,
+        "fires_per_day": 0.226,
+        "fires_per_month": 4.742,
+        "top5_day_concentration_pct": 50.0,
+        "max_fires_single_day": 2
+      }
+    },
+    {
+      "rule": "engulfing_at_level",
+      "tier": 1,
+      "timeframe": "15m",
+      "direction": "bidirectional",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TESTABLE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 312,
+        "days_with_fire": 190,
+        "pct_days_fired": 50.4,
+        "fires_per_day": 0.828,
+        "fires_per_month": 17.379,
+        "top5_day_concentration_pct": 7.4,
+        "max_fires_single_day": 6
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 42,
+        "days_with_fire": 26,
+        "pct_days_fired": 41.94,
+        "fires_per_day": 0.677,
+        "fires_per_month": 14.226,
+        "top5_day_concentration_pct": 33.3,
+        "max_fires_single_day": 3
+      }
+    },
+    {
+      "rule": "island_reversal",
+      "tier": 2,
+      "timeframe": "15m",
+      "direction": "bidirectional",
+      "verdict": "TOO-RARE",
+      "verdict_recent_90d": "TOO-RARE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 0,
+        "days_with_fire": 0,
+        "pct_days_fired": 0.0,
+        "fires_per_day": 0.0,
+        "fires_per_month": 0.0,
+        "top5_day_concentration_pct": 0.0,
+        "max_fires_single_day": 0
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 0,
+        "days_with_fire": 0,
+        "pct_days_fired": 0.0,
+        "fires_per_day": 0.0,
+        "fires_per_month": 0.0,
+        "top5_day_concentration_pct": 0.0,
+        "max_fires_single_day": 0
+      }
+    },
+    {
+      "rule": "failed_break_spring",
+      "tier": 1,
+      "timeframe": "30m",
+      "direction": "bullish",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TESTABLE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 341,
+        "days_with_fire": 153,
+        "pct_days_fired": 40.58,
+        "fires_per_day": 0.905,
+        "fires_per_month": 18.995,
+        "top5_day_concentration_pct": 10.0,
+        "max_fires_single_day": 8
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 53,
+        "days_with_fire": 23,
+        "pct_days_fired": 37.1,
+        "fires_per_day": 0.855,
+        "fires_per_month": 17.952,
+        "top5_day_concentration_pct": 43.4,
+        "max_fires_single_day": 6
+      }
+    },
+    {
+      "rule": "double_top_bottom_at_level",
+      "tier": 2,
+      "timeframe": "30m",
+      "direction": "bidirectional",
+      "verdict": "TOO-RARE",
+      "verdict_recent_90d": "TOO-RARE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 31,
+        "days_with_fire": 27,
+        "pct_days_fired": 7.16,
+        "fires_per_day": 0.082,
+        "fires_per_month": 1.727,
+        "top5_day_concentration_pct": 29.0,
+        "max_fires_single_day": 2
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 5,
+        "days_with_fire": 4,
+        "pct_days_fired": 6.45,
+        "fires_per_day": 0.081,
+        "fires_per_month": 1.694,
+        "top5_day_concentration_pct": 100.0,
+        "max_fires_single_day": 2
+      }
+    },
+    {
+      "rule": "neckline_base_break",
+      "tier": 1,
+      "timeframe": "30m",
+      "direction": "bullish",
+      "verdict": "TOO-RARE",
+      "verdict_recent_90d": "TOO-RARE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 0,
+        "days_with_fire": 0,
+        "pct_days_fired": 0.0,
+        "fires_per_day": 0.0,
+        "fires_per_month": 0.0,
+        "top5_day_concentration_pct": 0.0,
+        "max_fires_single_day": 0
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 0,
+        "days_with_fire": 0,
+        "pct_days_fired": 0.0,
+        "fires_per_day": 0.0,
+        "fires_per_month": 0.0,
+        "top5_day_concentration_pct": 0.0,
+        "max_fires_single_day": 0
+      }
+    },
+    {
+      "rule": "triangle_ascending",
+      "tier": 1,
+      "timeframe": "30m",
+      "direction": "bullish",
+      "verdict": "TOO-RARE",
+      "verdict_recent_90d": "TOO-RARE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 5,
+        "days_with_fire": 5,
+        "pct_days_fired": 1.33,
+        "fires_per_day": 0.013,
+        "fires_per_month": 0.279,
+        "top5_day_concentration_pct": 100.0,
+        "max_fires_single_day": 1
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 0,
+        "days_with_fire": 0,
+        "pct_days_fired": 0.0,
+        "fires_per_day": 0.0,
+        "fires_per_month": 0.0,
+        "top5_day_concentration_pct": 0.0,
+        "max_fires_single_day": 0
+      }
+    },
+    {
+      "rule": "triangle_descending",
+      "tier": 1,
+      "timeframe": "30m",
+      "direction": "bearish",
+      "verdict": "TOO-RARE",
+      "verdict_recent_90d": "TOO-RARE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 3,
+        "days_with_fire": 2,
+        "pct_days_fired": 0.53,
+        "fires_per_day": 0.008,
+        "fires_per_month": 0.167,
+        "top5_day_concentration_pct": 100.0,
+        "max_fires_single_day": 2
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 2,
+        "days_with_fire": 1,
+        "pct_days_fired": 1.61,
+        "fires_per_day": 0.032,
+        "fires_per_month": 0.677,
+        "top5_day_concentration_pct": 100.0,
+        "max_fires_single_day": 2
+      }
+    },
+    {
+      "rule": "flag_pullback_continuation",
+      "tier": 1,
+      "timeframe": "30m",
+      "direction": "bidirectional",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TESTABLE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 156,
+        "days_with_fire": 118,
+        "pct_days_fired": 31.3,
+        "fires_per_day": 0.414,
+        "fires_per_month": 8.69,
+        "top5_day_concentration_pct": 10.3,
+        "max_fires_single_day": 4
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 26,
+        "days_with_fire": 17,
+        "pct_days_fired": 27.42,
+        "fires_per_day": 0.419,
+        "fires_per_month": 8.806,
+        "top5_day_concentration_pct": 50.0,
+        "max_fires_single_day": 4
+      }
+    },
+    {
+      "rule": "rectangle_range_break",
+      "tier": 1,
+      "timeframe": "30m",
+      "direction": "bidirectional",
+      "verdict": "TOO-RARE",
+      "verdict_recent_90d": "TOO-RARE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 5,
+        "days_with_fire": 5,
+        "pct_days_fired": 1.33,
+        "fires_per_day": 0.013,
+        "fires_per_month": 0.279,
+        "top5_day_concentration_pct": 100.0,
+        "max_fires_single_day": 1
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 1,
+        "days_with_fire": 1,
+        "pct_days_fired": 1.61,
+        "fires_per_day": 0.016,
+        "fires_per_month": 0.339,
+        "top5_day_concentration_pct": 100.0,
+        "max_fires_single_day": 1
+      }
+    },
+    {
+      "rule": "inside_day_nr7_break",
+      "tier": 2,
+      "timeframe": "30m",
+      "direction": "bidirectional",
+      "verdict": "NOISE-KILL",
+      "verdict_recent_90d": "NOISE-KILL",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 2780,
+        "days_with_fire": 374,
+        "pct_days_fired": 99.2,
+        "fires_per_day": 7.374,
+        "fires_per_month": 154.854,
+        "top5_day_concentration_pct": 2.3,
+        "max_fires_single_day": 13
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 448,
+        "days_with_fire": 60,
+        "pct_days_fired": 96.77,
+        "fires_per_day": 7.226,
+        "fires_per_month": 151.742,
+        "top5_day_concentration_pct": 12.9,
+        "max_fires_single_day": 13
+      }
+    },
+    {
+      "rule": "wedge_rising_into_resistance",
+      "tier": 2,
+      "timeframe": "30m",
+      "direction": "bearish",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TOO-RARE",
+      "drift_flag": true,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 41,
+        "days_with_fire": 39,
+        "pct_days_fired": 10.34,
+        "fires_per_day": 0.109,
+        "fires_per_month": 2.284,
+        "top5_day_concentration_pct": 17.1,
+        "max_fires_single_day": 2
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 5,
+        "days_with_fire": 5,
+        "pct_days_fired": 8.06,
+        "fires_per_day": 0.081,
+        "fires_per_month": 1.694,
+        "top5_day_concentration_pct": 100.0,
+        "max_fires_single_day": 1
+      }
+    },
+    {
+      "rule": "engulfing_at_level",
+      "tier": 1,
+      "timeframe": "30m",
+      "direction": "bidirectional",
+      "verdict": "TESTABLE",
+      "verdict_recent_90d": "TESTABLE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 158,
+        "days_with_fire": 129,
+        "pct_days_fired": 34.22,
+        "fires_per_day": 0.419,
+        "fires_per_month": 8.801,
+        "top5_day_concentration_pct": 7.6,
+        "max_fires_single_day": 3
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 21,
+        "days_with_fire": 18,
+        "pct_days_fired": 29.03,
+        "fires_per_day": 0.339,
+        "fires_per_month": 7.113,
+        "top5_day_concentration_pct": 38.1,
+        "max_fires_single_day": 2
+      }
+    },
+    {
+      "rule": "island_reversal",
+      "tier": 2,
+      "timeframe": "30m",
+      "direction": "bidirectional",
+      "verdict": "TOO-RARE",
+      "verdict_recent_90d": "TOO-RARE",
+      "drift_flag": false,
+      "full_history": {
+        "n_trading_days": 377,
+        "total_fires": 0,
+        "days_with_fire": 0,
+        "pct_days_fired": 0.0,
+        "fires_per_day": 0.0,
+        "fires_per_month": 0.0,
+        "top5_day_concentration_pct": 0.0,
+        "max_fires_single_day": 0
+      },
+      "recent_90d": {
+        "n_trading_days": 62,
+        "total_fires": 0,
+        "days_with_fire": 0,
+        "pct_days_fired": 0.0,
+        "fires_per_day": 0.0,
+        "fires_per_month": 0.0,
+        "top5_day_concentration_pct": 0.0,
+        "max_fires_single_day": 0
+      }
+    }
+  ],
+  "ranked_testable": [
+    {
+      "rule": "failed_break_spring",
+      "timeframe": "5m",
+      "tier": 1,
+      "fires_per_day": 4.095,
+      "pct_days_fired": 56.23
+    },
+    {
+      "rule": "engulfing_at_level",
+      "timeframe": "5m",
+      "tier": 1,
+      "fires_per_day": 2.496,
+      "pct_days_fired": 76.13
+    },
+    {
+      "rule": "failed_break_spring",
+      "timeframe": "15m",
+      "tier": 1,
+      "fires_per_day": 1.623,
+      "pct_days_fired": 49.87
+    },
+    {
+      "rule": "flag_pullback_continuation",
+      "timeframe": "5m",
+      "tier": 1,
+      "fires_per_day": 0.973,
+      "pct_days_fired": 51.99
+    },
+    {
+      "rule": "double_top_bottom_at_level",
+      "timeframe": "5m",
+      "tier": 2,
+      "fires_per_day": 0.91,
+      "pct_days_fired": 48.28
+    },
+    {
+      "rule": "failed_break_spring",
+      "timeframe": "30m",
+      "tier": 1,
+      "fires_per_day": 0.905,
+      "pct_days_fired": 40.58
+    },
+    {
+      "rule": "rectangle_range_break",
+      "timeframe": "5m",
+      "tier": 1,
+      "fires_per_day": 0.841,
+      "pct_days_fired": 48.81
+    },
+    {
+      "rule": "engulfing_at_level",
+      "timeframe": "15m",
+      "tier": 1,
+      "fires_per_day": 0.828,
+      "pct_days_fired": 50.4
+    },
+    {
+      "rule": "wedge_rising_into_resistance",
+      "timeframe": "5m",
+      "tier": 2,
+      "fires_per_day": 0.663,
+      "pct_days_fired": 51.72
+    },
+    {
+      "rule": "flag_pullback_continuation",
+      "timeframe": "15m",
+      "tier": 1,
+      "fires_per_day": 0.538,
+      "pct_days_fired": 38.73
+    },
+    {
+      "rule": "engulfing_at_level",
+      "timeframe": "30m",
+      "tier": 1,
+      "fires_per_day": 0.419,
+      "pct_days_fired": 34.22
+    },
+    {
+      "rule": "flag_pullback_continuation",
+      "timeframe": "30m",
+      "tier": 1,
+      "fires_per_day": 0.414,
+      "pct_days_fired": 31.3
+    },
+    {
+      "rule": "triangle_ascending",
+      "timeframe": "5m",
+      "tier": 1,
+      "fires_per_day": 0.361,
+      "pct_days_fired": 29.18
+    },
+    {
+      "rule": "wedge_rising_into_resistance",
+      "timeframe": "15m",
+      "tier": 2,
+      "fires_per_day": 0.252,
+      "pct_days_fired": 23.61
+    },
+    {
+      "rule": "triangle_descending",
+      "timeframe": "5m",
+      "tier": 1,
+      "fires_per_day": 0.247,
+      "pct_days_fired": 21.49
+    },
+    {
+      "rule": "double_top_bottom_at_level",
+      "timeframe": "15m",
+      "tier": 2,
+      "fires_per_day": 0.21,
+      "pct_days_fired": 16.71
+    },
+    {
+      "rule": "neckline_base_break",
+      "timeframe": "5m",
+      "tier": 1,
+      "fires_per_day": 0.111,
+      "pct_days_fired": 7.16
+    },
+    {
+      "rule": "wedge_rising_into_resistance",
+      "timeframe": "30m",
+      "tier": 2,
+      "fires_per_day": 0.109,
+      "pct_days_fired": 10.34
+    }
+  ]
+}
