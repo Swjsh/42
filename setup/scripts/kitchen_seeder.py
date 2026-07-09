@@ -47,6 +47,47 @@ TARGET_NEW_TASKS_PER_FIRE = 5  # ask the model for this many
 DEDUP_WINDOW_RECENT = 80       # check this many recent tasks for dedup
 DEDUP_SIMILARITY_THRESHOLD = 0.7  # ratio (Jaccard on token set) above which we skip
 
+# ────────────────────────────────────────────────────────────────────────────
+# STRATEGY-IDEATION mode (J directive 2026-07-09: "the kitchen should have an
+# organ that is free agents introducing strats for us to cook up and backtest").
+#
+# Part-1 audit (2026-07-09) found the pre-existing meta-task brainstorm lane
+# (below) had gone SILENT for 17 days -- last source=seeder create event was
+# 2026-06-22T14:23:43. Root cause: SEEDER_SYSTEM_PROMPT's own PRIORITY GUIDANCE
+# marks "speculative exploration / brainstorm" tasks priority=low, and
+# kitchen_daemon._pick_next_task always runs highest-priority-then-oldest first
+# -- a continuous stream of medium/high tasks from reviewer/grinder-auto/
+# analyst-eod-auto starves every low-priority task forever. This new organ is
+# a DELIBERATELY separate lane: hardcoded priority=high (never model-chosen)
+# and an INDEPENDENT small backlog cap that never shares the starved queue
+# segment, so it cannot inherit that failure mode.
+# ────────────────────────────────────────────────────────────────────────────
+
+IDEATION_EVERY_N_FIRES = 3       # every 3rd hourly fire -> STRATEGY-IDEATION mode
+                                  # instead of the meta-task brainstorm (persisted counter)
+IDEATION_TARGET_CANDIDATES = 5   # ask the model for up to this many structured candidates
+IDEATION_MAX_PENDING = 8         # independent cap -- see note above
+IDEATION_SOURCE = "seeder-ideation"
+SEEDER_STATE_FILE = STATE_DIR / "kitchen-seeder-state.json"
+MAX_KILLED_SLUGS = 80
+MAX_REGISTRY_NAMES = 80
+
+REQUIRED_CANDIDATE_FIELDS = (
+    "name", "thesis_1line", "entry_rule", "exit_shape_suggestion",
+    "regime_hint", "novelty_claim",
+)
+
+# Primitives the engine actually computes today. An entry_rule that references
+# NONE of these is almost certainly unimplementable (a hallucinated indicator
+# or an external feed the engine has no access to) -- see
+# _entry_rule_has_known_primitive.
+KNOWN_PRIMITIVES = (
+    "level", "vwap", "ribbon", "structure", "gap", "compression", "trendline",
+    "wick", "volume", "bos", "choch", "ema", "sma", "rsi", "atr", "orb",
+    "opening range", "premarket", "vix", "candle", "reject", "reclaim", "break",
+    "higher high", "higher low", "lower high", "lower low", "hh", "hl", "lh", "ll",
+)
+
 
 # ────────────────────────────────────────────────────────────────────────────
 # DST-aware ET
@@ -335,6 +376,15 @@ FORBIDDEN_PATTERNS = [
     r"place.*(order|trade)",
     r"modif(y|ies).*production",
     r"deploy.*(live|prod)",
+    # EXTENDED 2026-07-09 for the STRATEGY-IDEATION lane (never weaken existing
+    # patterns -- only add). A free model inventing "exit_shape_suggestion" or
+    # "regime_hint" text has more creative surface to accidentally (or
+    # adversarially) phrase a live-arming / order-placing instruction than the
+    # terse meta-task lane did.
+    r"gamma_core_armed",
+    r"\blive\s*[:=]\s*true\b",
+    r"\barm(ing)?\b.*\blive\b",
+    r"\bexecute\b.*\b(order|trade)\b",
 ]
 
 
@@ -467,6 +517,420 @@ def _seed_grinder_tasks(queue: dict, pending: list) -> int:
 
 
 # ────────────────────────────────────────────────────────────────────────────
+# STRATEGY-IDEATION: registry / killed-list / exogenous-ideas context gathering
+# ────────────────────────────────────────────────────────────────────────────
+
+
+_PLAYBOOK_HEADING_RE = re.compile(
+    r"^###\s+(?:Setup name|CANDIDATE|RETIRED)\b(.*)$", re.MULTILINE
+)
+_SHOUTY_TOKEN_RE = re.compile(r"[A-Z][A-Z0-9_]{3,}")
+_LEADERBOARD_NAME_RE = re.compile(r"\[([A-Z][A-Z0-9_ ]{2,60}?)\]\(")
+_LEADERBOARD_BARE_NAME_RE = re.compile(r"^\|\s*[^|]*\|\s*([A-Z][A-Z0-9_]{3,})\s*\|")
+
+# Broad on purpose: this is a soft "don't re-pitch" context block, not a hard
+# safety gate, so false positives (a PROMISING candidate that happens to
+# mention "fail" in prose) are harmless -- a missed KILL is not.
+_KILL_KEYWORDS = (
+    "reject", "kill", "dead", "fail", "do-not-promote", "anti-edge",
+    "artifact-invalidated",
+)
+# Explicitly named in the J directive / task spec -- always surfaced even if
+# they'd otherwise fall outside the recency cap.
+_ALWAYS_INCLUDE_KILL_PATTERNS = (
+    "ribbon-rejection", "ribbon_rejection", "futures-swing", "futures_swing",
+    "orb15", "orb-15",
+)
+
+
+def _gather_registry_names(max_n: int = MAX_REGISTRY_NAMES) -> list[str]:
+    """Known strategy/setup names: playbook.md CONFIRMED+CANDIDATE+RETIRED
+    setups, plus every named candidate on the leaderboard. Used so the
+    ideation model doesn't re-propose something that already exists in code.
+
+    References the bare `REPO` global at call time (not a precomputed
+    derived constant) so tests can `monkeypatch.setattr(module, "REPO", ...)`.
+    """
+    names: list[str] = []
+
+    playbook_text = _read_safe(REPO / "markdown" / "0dte" / "playbook.md", 60_000)
+    for m in _PLAYBOOK_HEADING_RE.finditer(playbook_text):
+        tm = _SHOUTY_TOKEN_RE.search(m.group(1))
+        if tm:
+            names.append(tm.group(0))
+
+    board_text = _read_safe(REPO / "strategy" / "candidates" / "_LEADERBOARD.md", 60_000)
+    for m in _LEADERBOARD_NAME_RE.finditer(board_text):
+        names.append(m.group(1).strip())
+    for line in board_text.splitlines():
+        m = _LEADERBOARD_BARE_NAME_RE.match(line)
+        if m:
+            names.append(m.group(1))
+
+    seen: set[str] = set()
+    out: list[str] = []
+    for n in names:
+        key = n.upper()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(n)
+        if len(out) >= max_n:
+            break
+    return out
+
+
+def _gather_killed_slugs(max_n: int = MAX_KILLED_SLUGS) -> list[str]:
+    """Grep analysis/recommendations/*.json for reject/kill/dead/fail verdicts
+    (raw-text keyword scan -- robust to the many different JSON shapes verdicts
+    are stored in, including nested per-setup dicts). Most-recent-first, with
+    the families the J directive explicitly named always force-included.
+    """
+    recs_dir = REPO / "analysis" / "recommendations"
+    if not recs_dir.exists():
+        return []
+    hits: list[Path] = []
+    try:
+        for p in recs_dir.glob("*.json"):
+            try:
+                raw = p.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            low = raw.lower()
+            if any(kw in low for kw in _KILL_KEYWORDS):
+                hits.append(p)
+    except OSError:
+        return []
+    hits.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    slugs = [p.stem for p in hits]
+
+    head = slugs[:max_n]
+    forced = [s for s in slugs if any(pat in s.lower() for pat in _ALWAYS_INCLUDE_KILL_PATTERNS)]
+    for s in forced:
+        if s not in head:
+            head.append(s)
+    return head
+
+
+def _gather_ideas_ledger(max_n: int = 10) -> str:
+    """Read analysis/prospector/ideas-ledger.jsonl if present -- the exogenous
+    (outside-the-kitchen) ideation organ's output. Absent today; this wires the
+    outside->kitchen flow for whenever that organ starts writing to it.
+    """
+    ledger_path = REPO / "analysis" / "prospector" / "ideas-ledger.jsonl"
+    if not ledger_path.exists():
+        return (
+            "(not present -- no exogenous ideas yet; this block will populate once "
+            "an outside ideation organ starts writing analysis/prospector/ideas-ledger.jsonl)"
+        )
+    try:
+        rows: list[str] = []
+        with open(ledger_path, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    rows.append(line)
+        tail = rows[-max_n:]
+        out: list[str] = []
+        for line in tail:
+            try:
+                d = json.loads(line)
+                out.append(f"  - {json.dumps(d, separators=(',', ':'))[:300]}")
+            except json.JSONDecodeError:
+                out.append(f"  - {line[:300]}")
+        return "\n".join(out) if out else "(file present but empty)"
+    except OSError as exc:
+        return f"[read error: {exc}]"
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# STRATEGY-IDEATION: prompt + parsing + filters
+# ────────────────────────────────────────────────────────────────────────────
+
+
+IDEATION_SYSTEM_PROMPT = """You are the Kitchen STRATEGY-IDEATION organ for Project Gamma
+0DTE SPY trading R&D -- a free-tier autonomous model whose SOLE job right now is to INVENT
+novel, tradeable strategy CANDIDATES, not to propose tasks about strategies.
+
+You are NOT writing a full DRAFT candidate doc yet (Chef does that downstream, from your
+proposal). You are proposing the RAW IDEA in structured form so it can be routed to a
+Stage-1 backtest.
+
+OUTPUT FORMAT (strict): respond with ONLY a JSON array. No preamble, no markdown, no
+explanation. Each element is an object with EXACTLY these fields (all required, all strings):
+  {
+    "name": "<SHORT_SHOUTY_SETUP_NAME, e.g. OPENING_RANGE_IMBALANCE_LONG>",
+    "thesis_1line": "<one sentence: why this edge should exist>",
+    "entry_rule": "<OBJECTIVE, mechanical rule referencing primitives the engine actually
+                    computes today: named levels, VWAP, the ribbon (EMA stack), market
+                    structure (HH/HL/LH/LL, BOS/CHoCH), opening range, gaps, volatility
+                    compression, candle wicks/bodies, volume, RSI/ATR, VIX. Do NOT invent
+                    data sources the engine cannot see (no sentiment, no news feed, no
+                    order-book/dark-pool data, no options-flow) unless the inputs below
+                    explicitly say that primitive exists.>",
+    "exit_shape_suggestion": "<stop + target shape, e.g. 'chart-stop at structure
+                    invalidation, TP1 at 1.5R, runner trail 15% off HWM' -- reference
+                    existing exit primitives (chart-stop, premium-stop %, chandelier
+                    trail, TP1/runner split) where possible>",
+    "regime_hint": "<when this should and should NOT fire -- VIX band, time-of-day,
+                    trend vs chop, etc.>",
+    "novelty_claim": "<1-2 sentences: why this is NOT already covered by the KNOWN
+                    REGISTRY NAMES or KILLED LIST provided below -- name the closest
+                    existing setup and say what's structurally different>"
+  }
+
+HARD RULES:
+1. NEVER re-propose (even lightly reworded) anything in the KNOWN REGISTRY NAMES block
+   below -- those setups already exist in code.
+2. NEVER re-propose (even lightly reworded) anything in the KILLED LIST block below --
+   those were tested and DIED. A cosmetic rename of a killed idea is still the killed idea.
+3. NEVER propose changes to automation/prompts/heartbeat*.md, automation/state/params*.json,
+   CLAUDE.md, or placing any live/paper order directly -- you propose RESEARCH candidates only.
+4. Be CONCRETE and OBJECTIVE in entry_rule -- a human or another model must be able to code
+   it from your sentence alone, with no further clarification.
+5. Diversify across DIFFERENT primitive families across your N candidates -- don't propose
+   N variations of the same idea.
+6. If you genuinely cannot think of anything novel, it is FINE to propose fewer than N
+   (down to 1) rather than pad with disguised re-pitches of the registry/killed list.
+
+Quality > volume. One genuinely novel, objectively-codeable candidate beats five vague ones.
+"""
+
+
+def _build_ideation_prompt(n_candidates: int) -> str:
+    registry_names = _gather_registry_names()
+    killed_slugs = _gather_killed_slugs()
+    ideas_block = _gather_ideas_ledger()
+
+    sections = (
+        "### KNOWN REGISTRY NAMES (already exist in code -- do NOT re-propose)\n```\n"
+        + ("\n".join(registry_names) if registry_names else "(none found)") + "\n```\n\n"
+        "### KILLED LIST (tested and DIED -- do NOT re-propose, even reworded)\n```\n"
+        + ("\n".join(killed_slugs) if killed_slugs else "(none found)") + "\n```\n\n"
+        "### EXOGENOUS IDEAS LEDGER (analysis/prospector/ideas-ledger.jsonl -- outside-sourced\n"
+        "raw leads, if any; you may build on these but must still pass the novelty + primitive\n"
+        "rules)\n```\n" + ideas_block + "\n```\n"
+    )
+    return (
+        f"# Propose up to {n_candidates} NOVEL strategy candidates (STRATEGY-IDEATION mode)\n\n"
+        f"{sections}\n"
+        f"Propose up to {n_candidates} candidates (fewer is fine, see HARD RULE 6) as a JSON "
+        "array per the system prompt's OUTPUT FORMAT. JSON ARRAY only."
+    )
+
+
+def _parse_strategy_candidate(item) -> Optional[dict]:
+    """Validate one structured candidate dict from the ideation model.
+
+    Returns a normalized dict (stripped strings) if every REQUIRED_CANDIDATE_FIELDS
+    is present as a non-empty string, else None (malformed -- caller drops it).
+    """
+    if not isinstance(item, dict):
+        return None
+    out: dict = {}
+    for field in REQUIRED_CANDIDATE_FIELDS:
+        val = item.get(field)
+        if not isinstance(val, str) or not val.strip():
+            return None
+        out[field] = val.strip()
+    return out
+
+
+def _entry_rule_has_known_primitive(entry_rule: str) -> bool:
+    low = entry_rule.lower()
+    return any(kw in low for kw in KNOWN_PRIMITIVES)
+
+
+NAME_REPITCH_THRESHOLD = 0.5  # looser than DEDUP_SIMILARITY_THRESHOLD -- names are
+                               # short (3-5 tokens), so even half overlapping is a
+                               # real signal, not noise.
+
+
+def _is_registry_repitch(candidate: dict, known_names: list[str]) -> bool:
+    """Novelty check vs the registry + killed list.
+
+    Checks the candidate's NAME on its own against each known name first: an
+    exact (or near-exact) name repitch is the dangerous case, and diluting it
+    with the full (freshly-written) thesis sentence via _is_duplicate lets a
+    single original-sounding sentence mask an exact-name repitch (caught by
+    the guard tests below -- 'V14E_BEAR_ONLY_GATE' plus a two-clause thesis
+    dropped straight name-repitch Jaccard from 1.0 to 0.667, under the 0.7
+    dedup threshold). Falls back to the existing _is_duplicate Jaccard on
+    name+thesis for a looser "conceptually the same idea" catch.
+    """
+    name_tokens = _tokenize(candidate["name"])
+    for known in known_names:
+        if _jaccard(name_tokens, _tokenize(known)) >= NAME_REPITCH_THRESHOLD:
+            return True
+    probe = f"{candidate['name']} {candidate['thesis_1line']}"
+    return _is_duplicate(probe, known_names)
+
+
+def _candidate_to_task_desc(candidate: dict) -> str:
+    """Pack a structured candidate into the imperative task string the daemon's
+    llm_cook lane executes (the only lane that can currently turn free text into
+    a written DRAFT candidate -- see Part-1 audit: GRINDER_REGISTRY only runs
+    parameter sweeps of strategies that are ALREADY hand-coded, there is no
+    generic "backtest an arbitrary new detector" harness today). Explicitly
+    routes to a Stage-1 backtest as the next step per chef conventions.
+    """
+    return (
+        f"STRATEGY-IDEATION PROPOSAL '{candidate['name']}' (free-agent ideation organ, "
+        f"NOVEL-STRATEGY-CANDIDATE lane, J directive 2026-07-09). "
+        f"Thesis: {candidate['thesis_1line']} "
+        f"Entry rule: {candidate['entry_rule']} "
+        f"Exit shape: {candidate['exit_shape_suggestion']} "
+        f"Regime hint: {candidate['regime_hint']} "
+        f"Novelty claim (why not already in the registry): {candidate['novelty_claim']} "
+        f"Write this up as a DRAFT CANDIDATE per the CANDIDATE TEMPLATE (type=new_trigger). "
+        f"Do NOT fabricate OP-16/backtest numbers -- honestly state 'unknown -- requires "
+        f"Stage-1 backtest' for every anchor-day cell per the system prompt's own instruction. "
+        f"Set Pre-merge gate to: needs a Stage-1 backtest via the autoresearch grinder harness "
+        f"before any further ratification."
+    )
+
+
+def run_ideation_cycle(n_candidates: int = IDEATION_TARGET_CANDIDATES, *, force: bool = False) -> dict:
+    """Run one STRATEGY-IDEATION cycle end-to-end: call the free model, validate
+    + filter the structured candidates it returns, enqueue the survivors as
+    high-priority llm_cook tasks under source=IDEATION_SOURCE.
+
+    Used by both the scheduled Nth-fire path (main()) and manual verification
+    (`python kitchen_seeder.py --ideate-now`, which passes force=True to bypass
+    the independent backlog cap for a one-off check).
+
+    Returns a result dict (ok, proposed candidates, enqueued task ids, per-filter
+    counts, model/cost) suitable for logging and for the caller to print/verify.
+    """
+    queue = _load_queue()
+    pending = [s for s in queue.values() if s.get("status") == "pending"]
+    ideation_pending = [s for s in pending if s.get("source") == IDEATION_SOURCE]
+    if not force and len(ideation_pending) >= IDEATION_MAX_PENDING:
+        _log(f"IDEATION_SKIP: {len(ideation_pending)} ideation tasks already pending "
+             f">= independent cap {IDEATION_MAX_PENDING}")
+        return {"ok": True, "skipped": True, "reason": "backlog_cap", "enqueued_task_ids": []}
+
+    prompt = _build_ideation_prompt(n_candidates)
+
+    # FREE POOL FIRST (same pattern as the meta-task lane above): lazy-imported
+    # so a missing/stubbed swarm_client never breaks module import.
+    result = None
+    try:
+        import swarm_client as _swarm  # noqa: E402
+        result = _swarm.call_role("chef", prompt, system=IDEATION_SYSTEM_PROMPT,
+                                  max_tokens=4000, temperature=0.8,
+                                  timeout=120, remote_timeout=90,
+                                  task_id="kitchen.seeder.ideation")
+        if result.get("ok") and (result.get("content") or "").strip():
+            _log(f"IDEATION via pool lane={result.get('lane')}")
+    except Exception as exc:  # noqa: BLE001
+        _log(f"IDEATION swarm path failed: {type(exc).__name__}: {exc}; trying ladder")
+        result = None
+    if not (result and result.get("ok") and (result.get("content") or "").strip()):
+        for tier_idx, model in enumerate(MODEL_LADDER):
+            _log(f"IDEATION ladder attempt tier={tier_idx} model={model}")
+            result = call_minimax(prompt, system=IDEATION_SYSTEM_PROMPT, model=model,
+                                  max_tokens=4000, temperature=0.8, timeout=240,
+                                  task_id=f"kitchen.seeder.ideation.tier{tier_idx}")
+            if result.get("ok") and (result.get("content") or "").strip():
+                result["ladder_used"] = tier_idx
+                break
+            _log(f"  tier {tier_idx} failed: {result.get('error', 'unknown')}")
+
+    if not result or not result.get("ok") or not (result.get("content") or "").strip():
+        err = result.get("error") if result else "no_result"
+        _log(f"IDEATION all paths failed; error={err}")
+        return {"ok": False, "enqueued_task_ids": [], "error": err}
+
+    content = result.get("content", "")
+    raw_candidates = _extract_json_array(content)
+    if not raw_candidates:
+        _log("IDEATION could not extract JSON array from response; raw saved")
+        raw_path = STATE_DIR / "logs" / f"seeder-ideation-bad-response-{_et_now().strftime('%Y%m%dT%H%M%S')}.txt"
+        try:
+            raw_path.parent.mkdir(parents=True, exist_ok=True)
+            raw_path.write_text(content, encoding="utf-8")
+        except OSError:
+            pass
+        return {"ok": False, "enqueued_task_ids": [], "error": "no_json_array",
+                "raw_saved": str(raw_path)}
+
+    registry_names = _gather_registry_names()
+    killed_slugs = _gather_killed_slugs()
+    known_names = registry_names + killed_slugs
+    existing_descs = [s.get("task", "") for s in list(queue.values())[-DEDUP_WINDOW_RECENT:]]
+
+    proposed: list[dict] = []
+    enqueued_ids: list[str] = []
+    counts = {"malformed": 0, "no_primitive": 0, "repitch": 0, "forbidden": 0, "dup": 0}
+
+    for raw in raw_candidates:
+        candidate = _parse_strategy_candidate(raw)
+        if candidate is None:
+            counts["malformed"] += 1
+            _log(f"  IDEATION_SKIP_MALFORMED: {str(raw)[:150]}")
+            continue
+        proposed.append(candidate)
+
+        if not _entry_rule_has_known_primitive(candidate["entry_rule"]):
+            counts["no_primitive"] += 1
+            _log(f"  IDEATION_SKIP_NO_PRIMITIVE: {candidate['name']}")
+            continue
+        if _is_registry_repitch(candidate, known_names):
+            counts["repitch"] += 1
+            _log(f"  IDEATION_SKIP_REPITCH: {candidate['name']}")
+            continue
+
+        task_desc = _candidate_to_task_desc(candidate)
+        if _is_forbidden(task_desc):
+            counts["forbidden"] += 1
+            _log(f"  IDEATION_SKIP_FORBIDDEN: {candidate['name']}")
+            continue
+        if _is_duplicate(task_desc, existing_descs):
+            counts["dup"] += 1
+            _log(f"  IDEATION_SKIP_DUPLICATE: {candidate['name']}")
+            continue
+
+        tid = enqueue_task(task_desc, priority="high", source=IDEATION_SOURCE)
+        _log(f"  IDEATION_ENQ id={tid[:8]} name={candidate['name']}")
+        existing_descs.append(task_desc)
+        enqueued_ids.append(tid)
+
+    _log(f"IDEATION DONE proposed={len(proposed)} enqueued={len(enqueued_ids)} "
+         f"malformed={counts['malformed']} no_primitive={counts['no_primitive']} "
+         f"repitch={counts['repitch']} forbidden={counts['forbidden']} dup={counts['dup']} "
+         f"model={result.get('model') or result.get('lane')} cost=${result.get('cost_usd', 0.0):.4f}")
+
+    return {
+        "ok": True,
+        "proposed": proposed,
+        "enqueued_task_ids": enqueued_ids,
+        "counts": {**counts, "proposed": len(proposed), "enqueued": len(enqueued_ids)},
+        "model": result.get("model") or result.get("lane"),
+        "cost_usd": result.get("cost_usd", 0.0),
+    }
+
+
+def _load_seeder_state() -> dict:
+    try:
+        if SEEDER_STATE_FILE.exists():
+            return json.loads(SEEDER_STATE_FILE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        _log(f"WARN seeder-state read failed: {exc}")
+    return {"fire_count": 0, "last_ideation_at": None, "last_ideation_result": None}
+
+
+def _save_seeder_state(state: dict) -> None:
+    try:
+        STATE_DIR.mkdir(parents=True, exist_ok=True)
+        tmp = SEEDER_STATE_FILE.with_suffix(".tmp")
+        tmp.write_text(json.dumps(state, indent=2, default=str), encoding="utf-8")
+        tmp.replace(SEEDER_STATE_FILE)
+    except OSError as exc:
+        _log(f"WARN seeder-state write failed: {exc}")
+
+
+# ────────────────────────────────────────────────────────────────────────────
 # Main
 # ────────────────────────────────────────────────────────────────────────────
 
@@ -483,6 +947,24 @@ def main() -> int:
         # Reload so the LLM dedup check sees the new entries
         queue = _load_queue()
         pending = [s for s in queue.values() if s.get("status") == "pending"]
+
+    # Step 1.5: STRATEGY-IDEATION -- every Nth fire, INSTEAD of the meta-task
+    # brainstorm (Step 2). Persisted counter survives across fires/restarts.
+    seeder_state = _load_seeder_state()
+    seeder_state["fire_count"] = int(seeder_state.get("fire_count", 0)) + 1
+    do_ideation = (seeder_state["fire_count"] % IDEATION_EVERY_N_FIRES == 0)
+    _save_seeder_state(seeder_state)  # persist the counter even before the cycle runs
+
+    if do_ideation:
+        _log(f"IDEATION fire (fire_count={seeder_state['fire_count']}, "
+             f"every {IDEATION_EVERY_N_FIRES})")
+        ideation_result = run_ideation_cycle()
+        seeder_state["last_ideation_at"] = _et_now().isoformat()
+        seeder_state["last_ideation_result"] = ideation_result.get(
+            "counts", {"skipped": ideation_result.get("skipped", False),
+                       "reason": ideation_result.get("reason", ideation_result.get("error"))})
+        _save_seeder_state(seeder_state)
+        return 0 if ideation_result.get("ok") else 1
 
     # Step 2: Seed LLM cook tasks — respect backlog cap (grinder tasks count toward it)
     llm_pending = [s for s in pending if s.get("task_type", "llm_cook") != "grinder_sweep"]
@@ -567,4 +1049,23 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    import argparse
+
+    _p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    _p.add_argument(
+        "--ideate-now", action="store_true",
+        help=(
+            "Force one STRATEGY-IDEATION cycle immediately (bypasses the Nth-fire "
+            "counter AND the independent pending-backlog cap) and exit. For manual "
+            "verification -- does not touch the persisted fire_count counter or run "
+            "the grinder-seed / meta-task steps."
+        ),
+    )
+    _args = _p.parse_args()
+
+    if _args.ideate_now:
+        _res = run_ideation_cycle(force=True)
+        print(json.dumps(_res, indent=2, default=str))
+        sys.exit(0 if _res.get("ok") else 1)
+
     sys.exit(main())
