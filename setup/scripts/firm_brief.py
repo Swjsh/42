@@ -244,6 +244,28 @@ def find_queue_j_markers(path: Path) -> list:
     return out
 
 
+def render_prospector_lines(data: dict) -> list[str]:
+    """PURE: render the Prospector (exogenous-idea organ, J 2026-07-09: "gamma
+    hasn't introduced a single new idea like this at all yet") section body
+    from its last-run snapshot (automation/state/prospector-last.json). Mirrors
+    the trade-autopsy section's fail-open shape immediately below it in
+    build_brief() -- a missing/errored/never-run source degrades this section's
+    text only, never the rest of the brief. Guard: test_firm_brief_prospector_section.py."""
+    if not data:
+        return ["- no scan yet (Gamma_Prospector fires 21:30 ET nightly)."]
+    if data.get("error"):
+        return [f"- {data.get('date', '?')}: scan FAILED ({str(data['error'])[:100]}) -- fix me."]
+    beat = data.get("beat", "?")
+    n_new = data.get("n_new_ideas", 0)
+    n_total = data.get("n_total_ideas", 0)
+    promo = data.get("promoted_idea")
+    promo_s = f"; promoted `{promo}` -> _chef-inbox" if promo else ""
+    lane_s = "" if data.get("scan_ok", True) else " (no free lane up that night -- skip-with-log)"
+    return [f"- {data.get('date', '?')} (beat `{beat}`): {n_new} new idea(s), "
+            f"{n_total} total in ledger{promo_s}{lane_s} "
+            f"(analysis/prospector/ideas-ledger.jsonl)."]
+
+
 def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) -> str:
     per_day = statement.get("per_day") or {}
     round_trips = statement.get("round_trips") or []
@@ -320,8 +342,18 @@ def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) 
                      f"({autopsy.get('md', 'analysis/autopsies/')})")
     lines.append("")
 
+    # Prospector -- the exogenous-idea organ (J 2026-07-09: "gamma hasn't introduced a single
+    # new idea like this at all yet"). One line; full ledger in
+    # analysis/prospector/ideas-ledger.jsonl, promotions land in strategy/candidates/_chef-inbox/.
+    # Fail-open, same shape as the trade-autopsy section above.
+    prospector = load_json(STATE / "prospector-last.json")
+    lines.append("## Prospector (exogenous ideas)")
+    lines.extend(render_prospector_lines(prospector))
+    lines.append("")
+
     lines.append("---")
-    lines.append(f"Sources: pnl-statement.json (T1 broker-truth) | self-check-last.json | {HANDOFF_NAME}")
+    lines.append(f"Sources: pnl-statement.json (T1 broker-truth) | self-check-last.json | "
+                 f"prospector-last.json | {HANDOFF_NAME}")
     return "\n".join(lines) + "\n"
 
 

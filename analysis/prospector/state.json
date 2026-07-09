@@ -1,0 +1,11 @@
+{
+  "beat_index": 0,
+  "last_beat": null,
+  "last_run_et": null,
+  "fires_total": 0,
+  "ideas_total": 0,
+  "promoted_total": 1,
+  "promoted_dedupe_keys": [
+    "gex_flip_from_banked_cboe"
+  ]
+}
