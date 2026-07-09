@@ -8,6 +8,10 @@
 
 ---
 
+- 2026-07-09 01:52 ET [overnight-drive W1 wire] SHIPPED entry-1 premium floor $0.30 engine-wide BOTH lanes (commit f8978fb) — evidence: T3 n=157 + real-fills anchor −$72.50 vs −$757.10 (floor refused the toxic sub-$0.20 cohort); guard 11-passed + red-proofed (3 rejection tests RED with enforcement stashed) — REVERT: set min_entry_premium: 0 in params.json + aggressive/params.json (or delete key); optionally git revert f8978fb; rejection tests REDing confirms off.
+- 2026-07-09 01:52 ET [overnight-drive W1 wire] SHIPPED vwap_continuation fleet-shape port to the FULL validated core cell −0.06/+0.40/0.8/fixed (commit b125055) — evidence: 07-07 all-5-OP-22-gates-PASS scorecard + T-W6 provenance, waiver j_signed per J directive, two-lane drift closed, fleet 101-passed + p5 gate red-proofed, stale trade_to_learn pins fixed (clears 2 of known-15) — REVERT: restore old ExitShape literal (−0.08/0.3/0.667/trailing) + prior waiver block (parent of b125055) + revert test pins.
+- 2026-07-09 01:52 ET [overnight-drive W1 wire] SHIPPED fleet time_stop_et threading (D2 #5, commit 1f3629d) — evidence: fleet arms time-stopped at hardcoded 15:50 vs params 15:40 (dead knob, C14 class); guard red-proofed (kwarg dropped → time_stop_et=None FAIL) — REVERT: drop the time_stop_et kwarg from fleet_live.run()'s ea.manage_tick call + delete test_fleet_time_stop_threaded.py.
+- 2026-07-09 01:52 ET [overnight-drive W1 wire] SHIPPED engine-contract card regen: min_entry_premium on §3b + vwap two-lane parity visible (commit 7adebaf) — evidence: drift guard 5-passed; card renders the floor FROM params (params edit w/o regen trips the guard) — REVERT: git revert 7adebaf (generator+card together) + regen + drift guard.
 - 2026-07-09 01:32 ET [overnight-drive W1b] SHIPPED EOD-flatten non-LLM backstop (Gamma_EodFlattenCore 15:52 ET) + preopen gate now reads REAL exit codes — root cause: LLM flatten died on $1 budget cap + Task Scheduler masked it. Evidence: both `Gamma_EodFlatten`/`_Aggressive` real logs showed `=== END tick exit=1 ===` 2026-07-08 while `Get-ScheduledTaskInfo` reported `LastTaskResult: 0` (wscript fire-and-forget masking). Registered `Gamma_EodFlattenCore` (pure-Python `eod_flatten.py`, safe-2+bold-2, one fire, no LLM); smoke-fired via `Start-ScheduledTask`, real log confirmed `EOD_FLATTEN_COMPLETE outcomes=['NOOP', 'NOOP']`. LLM tasks left registered untouched (defense-in-depth). `preopen_readiness.py` no longer trusts `LastTaskResult` for any of the 3 flatten tasks — new `assess_eod_flatten_reality()` reads each one's real log/jsonl tail (42/42 preopen_readiness + 12/12 eod_flatten guards green; safety gate green). REVERT: `Unregister-ScheduledTask -TaskName "Gamma_EodFlattenCore" -Confirm:$false`; `git revert` the preopen_readiness.py + SCHEDULED-TASKS.md commit; the LLM tasks were never touched so nothing else to restore.
 - 2026-07-09 00:20 ET [FABLE REVIEW of CONFIRM-AND-WIRE] Execution CONFIRMED sound; 4 corrections shipped: (1) engine-contract card §3c read UNTRACKED entry-shadow.jsonl -> fresh-clone CI drift RED — card now renders committed-source facts only (drift guard 5/5); (2) grid lacked stop -35 = exit-C's exact stop — added to STOPS + phase5 STOP_VALS, grind restarted on 7560 combos (resume kept all 324 done, probe PASS); (3) funnel/phase5 no-shard glob hole fixed; (4) T-W6 rec sharpened (C29: validated cell = the FULL core shape −0.06/+0.40/0.8/fixed/ATM; naive 2-field sync to the fleet's 0.667/trailing shape = untested 3rd combo). GUIDANCE findings: grind "trailing" ≠ exit_manager "trailing" (simulator profit-lock is whole-position, arms at first uptick w/ BE anchor at threshold=0 — verified simulator_real.py L540-584/L644) so T-W7 layer-(c) judges FULL combos not ShapeSig and treats trailing P5-membership as approximate; T-W5 parity is sim-vs-sim on real timestamps (forward live shadow not scheduled). WATCH: grind ETA lands ~09:00-11:00 ET INTO RTH — if ticks slow, Stop-Process the mass_grind pythons (resume-safe) + relaunch after 16:00. Addendum: markdown/planning/CONFIRM-AND-WIRE-REPORT-2026-07-08.md
 - 2026-07-08 23:50 ET [CONFIRM-AND-WIRE] T-W1..T-W6 DONE, T-W7/STOP-B correctly NOT started (STOP-A unsigned). T-W2: fixed the profit_lock_mode/trail_pct dead knob at strategy_space_grind.run_cell (explicit kwargs) instead of _params_to_kwargs — the literal handoff text would have violated the L156 guard (test_profit_lock_not_in_baseline.py), the SAME misdiagnosis class STATUS already killed once (2026-07-02 ~03:55 entry below). Red-proofed. T-W3: v2 grind (6720 combos, real trail_pct{0.15,0.22}+time-exit axes) code-verified + LAUNCHED in background (12 workers + funnel), running for hours — not claimed complete. T-W4 per_band_stop.py + T-W5 entry_manager.py + shadow ledger (98 real entries/8 sessions, fill-rate 85.9% vs T3 backtest 77.6% — sim-live parity PASS) shipped shadow-only, red-proofed. T-W6: vwap two-lane answered (-0.06/+0.40 is validated; -0.08/+0.30 in strategies.py is stale — git-confirmed single-commit provenance), J-decision queued. Engine-contract card §3c extended (drift guard green). Full report: markdown/planning/CONFIRM-AND-WIRE-REPORT-2026-07-08.md
@@ -286,7 +290,7 @@
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 41 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 40 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -1877,3 +1881,43 @@ Kitchen: alive, queue 41 pending, last cook 0 min ago, today $0.00, model=openro
 - [2026-07-08 22:27:22] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T04:28:34.046264+00:00) | fail streak: 256 consecutive fires | stage v02_source_parity pass rate dropped to 81.25% in last 24h (39/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
 
 - [2026-07-08 22:27:22] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-08.log
+
+- [2026-07-09 01:27:13] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T07:27:21.808666+00:00) | fail streak: 262 consecutive fires | stage v02_source_parity pass rate dropped to 79.17% in last 24h (38/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 01:27:13] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+- [2026-07-09 01:57:18] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T07:58:01.644339+00:00) | fail streak: 263 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 01:57:18] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+- [2026-07-09 02:27:13] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T08:27:20.019284+00:00) | fail streak: 264 consecutive fires | stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 02:27:13] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+- [2026-07-09 02:57:07] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T08:57:16.901636+00:00) | fail streak: 265 consecutive fires | stage v02_source_parity pass rate dropped to 75.0% in last 24h (36/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 02:57:07] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+- [2026-07-09 03:27:15] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T09:27:33.604242+00:00) | fail streak: 266 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 03:27:15] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+- [2026-07-09 03:57:10] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T09:57:49.330323+00:00) | fail streak: 267 consecutive fires | stage v02_source_parity pass rate dropped to 79.17% in last 24h (38/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 03:57:10] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+- [2026-07-09 04:00:24] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-07-09 04:00:24] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-09.md
+
+- [2026-07-09 04:27:10] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T10:27:50.710286+00:00) | fail streak: 268 consecutive fires | stage v02_source_parity pass rate dropped to 79.17% in last 24h (38/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 04:27:10] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+- [2026-07-09 04:57:06] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T10:57:32.979595+00:00) | fail streak: 269 consecutive fires | stage v02_source_parity pass rate dropped to 79.17% in last 24h (38/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 04:57:06] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+- [2026-07-09 05:27:29] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T11:27:49.120719+00:00) | fail streak: 270 consecutive fires | stage v02_source_parity pass rate dropped to 79.17% in last 24h (38/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 05:27:29] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log

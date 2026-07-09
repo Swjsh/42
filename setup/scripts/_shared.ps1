@@ -775,3 +775,47 @@ function Test-HolidayFromAlpaca {
     $today = (Get-EtNow).ToString("yyyy-MM-dd")
     return ($cal.holidays -contains $today)
 }
+
+function Invoke-TvLaunchSafe {
+    # FIX (2026-07-06): serialized, crash-safe wrapper around launch_tv_debug.ps1.
+    #
+    # (1) run-launch-tv.ps1 got a 2026-06-15 fix (ErrorActionPreference='Continue' around
+    #     the child-process call) because PS 5.1 wraps a native command's stderr as a
+    #     TERMINATING NativeCommandError under the inherited 'Stop' preference from this
+    #     file -- that's the original "TV came up but CDP was never verified -> heartbeat
+    #     ran all morning on ERROR_TV" bug. run-tv-watchdog.ps1 grew THREE separate call
+    #     sites invoking the identical pattern and never got that fix -- confirmed via
+    #     direct diff of both scripts, 2026-07-06.
+    # (2) Gamma_LaunchTV and Gamma_TvWatchdog can both decide to kill+relaunch in the same
+    #     tick (confirmed 2026-07-06: both fired the identical -Kill command at the
+    #     identical second, 09:43:32 ET, after an overnight PC-off gap). A short lock file
+    #     serializes them so only one kill+relaunch runs at a time.
+    #
+    # Guard OWED (executor died pre-guard, 2026-07-09): text-assertion test over this .ps1 (no
+    # Pester harness, so the guard checks the shipped .ps1 text for the fixed pattern).
+    param(
+        [Parameter(Mandatory)][string]$LaunchScript,
+        [Parameter(Mandatory)][string]$LogFile,
+        [switch]$Kill
+    )
+    $lockFile = Join-Path $WorkDir "automation\state\tv-launch.lock"
+    if (Test-Path $lockFile) {
+        $ageSec = ((Get-Date) - (Get-Item $lockFile).LastWriteTime).TotalSeconds
+        if ($ageSec -lt 30) {
+            return @{ skipped = $true; reason = "lock_held age=$([int]$ageSec)s" }
+        }
+        Remove-Item $lockFile -Force -ErrorAction SilentlyContinue
+    }
+    New-Item -ItemType File -Path $lockFile -Force -ErrorAction SilentlyContinue | Out-Null
+    $prevEAP = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        $killArg = if ($Kill) { @('-Kill') } else { @() }
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -NonInteractive -File $LaunchScript @killArg 2>&1 |
+            Out-File -Append -Encoding utf8 -FilePath $LogFile
+    } finally {
+        $ErrorActionPreference = $prevEAP
+        Remove-Item $lockFile -Force -ErrorAction SilentlyContinue
+    }
+    return @{ skipped = $false }
+}
