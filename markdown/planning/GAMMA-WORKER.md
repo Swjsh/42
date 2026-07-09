@@ -73,6 +73,34 @@ Realtime bridge + 3 read-only tools → (P3) `ask_gamma_deep` + evening debrief 
 (P4) local fallback lane. Sonnet-army work against this spec; Fable reviews the seams
 (token minting, tool contracts, allowlist) and runs first end-to-end contact.
 
+### P2 SHIPPED 2026-07-08 — `gamma-voicebot/` (awaiting J's first live voice test)
+
+Node app (`bot.js` + `lib/`), sibling of the companion. **Start:** `setup/scripts/run-voice-bot.ps1`
+(or `node gamma-voicebot/bot.js`). **Stop by voice/text:** "gamma leave".
+
+- **Join/leave:** joins HQ voice "General" when J joins it or on "gamma join" in any HQ text
+  channel; leaves on "gamma leave", when J leaves, or after **5 idle minutes** (mandatory —
+  an open Realtime session runs a paid meter). Pin/retune via
+  `automation/state/voice-bot-config.json` (voice_channel_id, model, idle_timeout_ms).
+- **Mouth:** OpenAI Realtime over WS, model **`gpt-realtime-2.1-mini`** (probed live from the
+  key's /v1/models 2026-07-08 — current mini-class slug). Same ephemeral-token mint as the
+  companion (`/v1/realtime/client_secrets`; key via `gamma-companion/lib/openai_key.js`, never
+  in code). `semantic_vad` + local playback flush + `response.cancel` = barge-in.
+- **Facts are tools (OP-33):** `engine_state` (last core-decisions row per account + open
+  positions + staleness note) · `funnel_today` (runs `fill_funnel.py`, render_text) ·
+  `evening_debrief` (`spoken`→`text` of gamma-narrative.json). Persona = CLAUDE.md "Who I am"
+  extracted at session start + spoken-register v1.1 rules; state answers ONLY from tool output.
+- **Security:** J's user_id only (from `.discord-config.json` — never hardcoded); bot
+  subscribes ONLY to J's audio; tools read-only; no order path; writes = usage meter + log.
+- **Meter:** one row per session → `automation/state/voice-bot-usage.jsonl`
+  (start/end/seconds/model/session_id/token totals) for spend_summary pricing.
+- **Verified 2026-07-08 (harness `gamma-voicebot/test/harness.js`):** 3 tools PASS on real
+  ledgers; Realtime session opened (id logged), model called `engine_state` and spoke the real
+  state back, usage row written with token counts; gateway login as Chief#2680 (Message
+  Content intent already enabled — zero portal clicks needed); `--selftest-join` reached voice
+  Ready in "General" and left cleanly. **UNVERIFIED (needs J):** live mic round-trip — J's
+  speech → tool answer in Gamma's voice, barge-in feel, idle auto-leave in situ.
+
 ## Narrative register v1.1 — "sounds like a mind, not a stat dump" (J feedback on first wav)
 
 First wav verdict from J: "sounds like he's just reading the messages I get sent in Discord...
@@ -129,6 +157,7 @@ encodes?) feeding `_lesson-inbox/` and the kitchen.
 | Evening narrative | LIVE (task registered) | exit 0 under task interpreter; json + journal + outbox artifacts verified |
 | Voice | LIVE (chained) | `gamma-voice-2026-07-08.wav`, 83–93s, Kokoro local |
 | Generative lever + question | LIVE (v1) | picked verticals / overnight-hold from today's PDT evidence, asked J a real PDT question |
+| Voice bot MVP (P2) | BUILT + harness-verified | session sess_DzWwBZGJ5tSeKEDRPl8cy tool round-trip on real state; voice join Ready; **J live-mic test pending** |
 | Dashboard panel | QUEUED | #28 + task chip |
 
 **The test that matters:** J wakes up tomorrow, Discord has Gamma's account of the day in
