@@ -183,6 +183,35 @@ def format_trade_line(t: dict) -> str:
             f"{_fmt_money(t['pnl'])}  {verdict_label(t)}")
 
 
+def autopsy_staleness_note(autopsy_date: "str | None", now_et) -> "str | None":
+    """PURE: a loud one-liner when the last autopsy is OLDER than the most recent weekday
+    session that should have one (fire time 16:15 ET, checked with a 16:30 grace). None when
+    fresh / before the first expected fire. This is the standing instrument that catches a
+    dark Gamma_TradeAutopsy clock-trigger without anyone remembering to check (OP-33b/e)."""
+    import datetime as _dt
+    if autopsy_date is None:
+        return None  # the "no autopsy yet" line below covers the never-ran case
+    d = now_et.date()
+    # most recent weekday whose 16:30 ET has passed
+    if d.weekday() >= 5:                      # Sat/Sun -> Friday
+        expected = d - _dt.timedelta(days=d.weekday() - 4)
+    elif now_et.time() >= _dt.time(16, 30):
+        expected = d
+    else:                                     # before today's fire -> previous weekday
+        expected = d - _dt.timedelta(days=1)
+        while expected.weekday() >= 5:
+            expected -= _dt.timedelta(days=1)
+    try:
+        have = _dt.date.fromisoformat(str(autopsy_date))
+    except ValueError:
+        return f"- ⚠ STALE: unparseable autopsy date {autopsy_date!r} -- check Gamma_TradeAutopsy."
+    if have < expected:
+        return (f"- ⚠ STALE: last autopsy is {have} but {expected} should exist by now -- "
+                f"Gamma_TradeAutopsy (16:15 ET) may not be firing; check "
+                f"Get-ScheduledTaskInfo Gamma_TradeAutopsy.")
+    return None
+
+
 def render_health(self_check: dict) -> "tuple[str, str]":
     """(one-word verdict, one-line detail). Missing/unreadable cache -> YELLOW (never GREEN
     on unknown state)."""
@@ -270,9 +299,14 @@ def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) 
 
     # Gamma's own read of its trades (trade_autopsy.py, Gamma_TradeAutopsy 16:15 ET) -- the
     # hypothesis organ J asked for 2026-07-08 ("why doesn't Gamma think 'maybe we're stopping
-    # out too early'"). One line; full report in analysis/autopsies/. Fail-open.
+    # out too early'"). One line; full report in analysis/autopsies/. Fail-open. A MISSED FIRE
+    # is rendered LOUDLY (OP-33b: registered != firing; the clock trigger is only provable by
+    # its own fires, so the brief -- not anyone's memory -- carries the staleness tell).
     autopsy = load_json(STATE / "trade-autopsy-last.json")
     lines.append("## Gamma's read (trade autopsy)")
+    stale_note = autopsy_staleness_note(autopsy.get("date"), now_et)
+    if stale_note:
+        lines.append(stale_note)
     if not autopsy:
         lines.append("- no autopsy yet (Gamma_TradeAutopsy fires 16:15 ET).")
     elif autopsy.get("error"):
