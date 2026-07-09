@@ -1141,6 +1141,17 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
                                          buffer=float(params.get("entry_cross_buffer", 0.03)))
     if not mid or mid <= 0 or not entry_px or entry_px <= 0:
         return {"status": "NO_PREMIUM", "symbol": symbol}
+    # ENTRY-1 PREMIUM FLOOR (2026-07-09 ship, STOP-B disposition, entry-exit-matrix-2026-07-09.md
+    # scorecard): sub-$0.20 fills are a toxic cohort (T2: ~2-tick stops, ~42% spread proxy -- the
+    # stop reads spread noise, not price) that cost ~$685 of the real week's losses (entry-1+
+    # control -$72.50 vs control -$757.10, 79 real positions/17 signals). PLAN-TIME strategy
+    # admission, NOT a risk_gate rule -- refuses BEFORE sizing/check_order ever runs. params key
+    # min_entry_premium (0/absent = OFF, byte-identical). Guard: test_min_entry_premium_floor.py.
+    # Revert: set min_entry_premium to 0 or delete the key.
+    _min_prem = _params_float(params, "min_entry_premium", 0.0)
+    if _min_prem > 0 and mid < _min_prem:
+        return {"status": "SKIP_MIN_PREMIUM_FLOOR", "symbol": symbol, "premium": mid,
+                "min_entry_premium": _min_prem}
     # sizing: tier base qty, then cap-aware clamp (L180/C11)
     qty = int(params.get("min_contracts", 3))
     afford = rg.max_affordable_qty(equity=equity, premium=mid, params=params)

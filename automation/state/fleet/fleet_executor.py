@@ -393,6 +393,29 @@ def finalize(
     if plan.action == "HOLD":
         return ArmDecision(plan.arm_id, "HOLD", plan.side, plan.setup_name, plan.strike,
                            plan.qty, None, plan.quality, None, plan.reason)
+    # ENTRY-1 PREMIUM FLOOR (2026-07-09 ship, STOP-B disposition) -- the SAME plan-time
+    # admission as heartbeat_core._execute (setup/scripts/heartbeat_core.py, post-NO_PREMIUM),
+    # applied HERE (not in plan_all/_plan_from_strategies, which build EntryPlans before any
+    # live premium is resolved -- see D2 audit finding #3) so it fires at the exact point the
+    # plan finally carries a resolved premium, for EVERY caller of finalize() -- fleet_live.py's
+    # decide_arm() (the live path) and run_dry() (the dry-run/CLI/replay path) alike -- with no
+    # duplicated logic in a second file. Every arm inherits the floor via its base SAFE/BOLD
+    # params.json (params_patch never overrides it unless an arm explicitly sets its own).
+    # NOT a risk_gate rule -- runs BEFORE check_order. 0/absent = OFF (byte-identical).
+    # Guard: backtest/tests/test_min_entry_premium_floor.py. Revert: delete/zero the params key.
+    try:
+        _min_prem = float(params.get("min_entry_premium") or 0.0)
+    except (TypeError, ValueError):
+        _min_prem = 0.0
+    if _min_prem > 0 and premium is not None:
+        try:
+            _prem_val = float(premium)
+        except (TypeError, ValueError):
+            _prem_val = None
+        if _prem_val is not None and _prem_val < _min_prem:
+            return ArmDecision(plan.arm_id, "HOLD", plan.side, plan.setup_name, plan.strike,
+                               plan.qty, premium, plan.quality, "SKIP_MIN_PREMIUM_FLOOR",
+                               f"premium {premium} < min_entry_premium floor {_min_prem}")
     decision = risk_gate.check_order(
         account_label,
         equity=equity,
