@@ -1,0 +1,591 @@
+{
+ "processed": {
+  "risky-1::20260629144906991::1b4df27d-eb03-4ff9-a8cb-4ff8027944e3::20260629145205782::fae433a4-3efc-4f4d-a64b-6a99f7c60528": {
+   "date_et": "2026-06-29",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260630095817194::6930a4b9-e721-4e05-9296-532d91f1b628::20260630105505468::30352945-0f53-42fe-b6ce-48fb151f3329": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260630095817306::a123bcea-53c2-4e70-aa1a-fc341d9a550d::20260630105505468::30352945-0f53-42fe-b6ce-48fb151f3329": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260630125206598::2b665626-6ff3-4542-ad8a-6b4b1dd18b4c::20260630130704662::b650273e-2f79-4d85-b7c8-8e705f1cf019": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260630142206272::b985d207-dc76-4d8f-a446-4e294361a781::20260630142804708::7c16719e-a583-4617-b0ba-8953ee4b9e5d": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260630145205881::4d0f70bf-7d9d-47b9-b433-9061dce4832c::20260630145505763::eadf87fd-f974-49d8-82c0-1e16d1047c8c": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260630145205881::4d0f70bf-7d9d-47b9-b433-9061dce4832c::20260630145505891::30ac79ab-5103-4f8f-90dd-b9e919fbf99e": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260630145205991::8b9eb35a-7437-46ec-89b1-46954fec27d9::20260630145505891::30ac79ab-5103-4f8f-90dd-b9e919fbf99e": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260630152157832::391efa0a-223f-4c01-a4aa-358f9e3587a8::20260630154506009::56addd13-b059-4cc4-8fff-a32c88562415": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260630152157832::391efa0a-223f-4c01-a4aa-358f9e3587a8::20260630154506306::d7dab57e-8028-4a07-9b15-efdc5549b091": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260630152211699::c1322aa5-d1f1-4732-8683-c6fc76abf38a::20260630155205860::ab393693-6575-4b88-92da-94fc72c819fe": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260701112205483::0d4c5d4e-42da-4f73-9f96-484dd0db255b::20260701113404274::6bcebfac-45ec-4e68-a653-37f7afbbe290": {
+   "date_et": "2026-07-01",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260701112205483::0d4c5d4e-42da-4f73-9f96-484dd0db255b::20260701113404382::39870204-df4c-43b8-b0fb-d1de3709f757": {
+   "date_et": "2026-07-01",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260702101905975::a6564875-0f47-4eb0-9fbc-7f25f8787d8e::20260702102205284::adbe53fc-21a7-405a-a4f9-7d6f79b5c9f5": {
+   "date_et": "2026-07-02",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260706113429774::a374f96b-7af2-465a-ad32-60e911a6e0b8::20260706113729018::3ac07158-b23b-46e5-b510-5c87cd3bb21e": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260706124030149::f3d8dbe7-f67a-4fc1-9b16-af521a432edf::20260706124329202::da6837f4-b6bb-434b-8680-10473d49d6a9": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260706131329903::34a1b168-bbe5-4179-bfa1-9d5d61c906d8::20260706131628861::8e9fb83b-5ca3-4641-bebe-d00b3f71f89b": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260706131330022::a7323165-14f5-43da-99e3-537d6a1629c0::20260706131628861::8e9fb83b-5ca3-4641-bebe-d00b3f71f89b": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260706142229636::5982f919-c050-4dc5-ba39-5b455b8d8ff3::20260706142528781::65ca4d60-59af-4613-bae3-feb9c3f0be2e": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260706145829649::c96d1ca9-3bf1-4c15-a1cc-08e779297ba0::20260706150129292::c6b0dec2-f283-4bed-9ad9-c145aeaa5105": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260708095206691::f230def6-a579-40e5-b038-52ec42a0ad25::20260708100105641::9020e25c-3fda-4f01-939b-3353fc641e93": {
+   "date_et": "2026-07-08",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260708133406477::a91676b1-a39e-479f-b2a1-c2f72d401eba::20260708133705290::9c7a1a6f-e78d-450a-ad4b-7839f7fb959e": {
+   "date_et": "2026-07-08",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260708145206494::0e6132ab-baf4-478d-b9a3-dc418f29d811::20260708145505787::921facc4-c1a0-4a9b-a165-1c27b9d72952": {
+   "date_et": "2026-07-08",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260709094305598::bbaf1f1d-b396-49df-9b5c-c597b335dc79::20260709100705483::b3f0f9e8-6b0d-4b7a-a10a-64f06ce82a76": {
+   "date_et": "2026-07-09",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260709102806504::0be34448-4652-40bc-b769-0862da99b42e::20260709103405952::c1a19a9b-e7c6-49da-9172-5c2fe2159000": {
+   "date_et": "2026-07-09",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260629144908008::34993122-396a-4d95-9633-a2c1ee5d8e89::20260629145206515::6964a13d-942f-4c8f-a319-c3ccf01d9e13": {
+   "date_et": "2026-06-29",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260630095815265::6fe1bd34-0e33-44c5-b1bd-192f50a77a52::20260630100107326::090a4a37-4975-4f1e-b8b3-705d78303fcf": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260630125207590::a1281675-e41a-4065-b399-69fd3e9a28f3::20260630131305131::0a56518f-a35d-45ac-8283-39da17fa2dcf": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260630125207590::a1281675-e41a-4065-b399-69fd3e9a28f3::20260630131305259::4cc4a3f8-d51c-4b19-bd6a-7c72d971635c": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260630142207250::7c895c0e-f78d-47cc-90ad-ae77607254b5::20260630142805536::1d499940-a725-4678-8d1e-30032259f2b7": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260630145403050::9ee04e24-730a-42ff-a299-73b980982568::20260630145506989::f5d982be-92fe-42ca-81e4-93d3f8299b1d": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260630151307204::378fa98d-c6d0-4468-859e-1c78553822f9::20260630151607216::d63d7a27-2a74-457e-8962-2689b77e657e": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260630151907389::561d90dd-6e0b-4c75-838d-d33a8fa6ec86::20260630152505474::f4ecbb6d-83b5-4112-83b8-d25bdbd0b815": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260701112206936::dfb0e694-5bc6-417e-92d7-17337e3ca577::20260701113405149::440b4c49-81ae-45bc-b9ae-71dcb3659dfa": {
+   "date_et": "2026-07-01",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260702093105049::7a01314c-5b61-4993-b3e8-0836ff53ab12::20260702093405127::b8951168-a970-45b1-b47c-04e40c2894cf": {
+   "date_et": "2026-07-02",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260702101907588::809da3fe-3532-4783-869a-b13c62eea8de::20260702102206395::dd1a2ecd-c4f5-405b-a774-2aab5b04944c": {
+   "date_et": "2026-07-02",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260702114905646::7e206c44-bd2e-4eb7-94b4-fca4ac2a7bfc::20260702125805112::319793c4-0dc5-48d2-a734-49af3bbd1cb3": {
+   "date_et": "2026-07-02",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260702114905646::7e206c44-bd2e-4eb7-94b4-fca4ac2a7bfc::20260702134904201::5d221d6e-ded8-42bd-9184-909732e80d65": {
+   "date_et": "2026-07-02",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260702135506443::f9738114-1884-47f5-8f05-e5dd90fc2187::20260702140704702::929f8ba6-95c4-4ed6-bbd6-688f215752ed": {
+   "date_et": "2026-07-02",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260706113430880::a0198eb8-51ef-4979-8fd5-c47846e36cf6::20260706113729825::a8ddccc7-b6c7-4308-b0c7-237ddc782dba": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260706124031080::e98e6ac8-88dc-4843-86db-bed49f84d2b2::20260706124330006::7bf64718-29d6-422e-9add-61c9eae622b7": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260706131330867::c15de26d-c207-4499-b6ba-2b6663bc9a66::20260706131928405::e1e465a8-d41f-436c-a982-43c74857f162": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260706131330867::c15de26d-c207-4499-b6ba-2b6663bc9a66::20260706131928521::fd8e3b46-602d-4e7c-8782-890439383d53": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260706142230497::516e2e77-e23a-43f5-b4c9-807cf99a1999::20260706142529642::0dd38c8a-c0dd-4b1f-992a-8eb6b21f6952": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260706142230642::33ed99d8-19d3-41b2-a6cd-2f358e684b84::20260706142529642::0dd38c8a-c0dd-4b1f-992a-8eb6b21f6952": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260706142230783::e0c27b2f-246e-41b9-8b90-4c46f6485cd8::20260706142529642::0dd38c8a-c0dd-4b1f-992a-8eb6b21f6952": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260706145830745::1b50035c-3585-4265-b294-112e940851a1::20260706150130170::13cff1e9-ea52-4507-9609-ae33a8fb55a9": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260706145830745::1b50035c-3585-4265-b294-112e940851a1::20260706150130309::11429cf2-c5f8-4cba-ab7e-8ee6cf5364b9": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260707104905110::0332721d-ef71-42c9-a295-a3cd3848ac56::20260707105204472::daa09548-e5b5-45b9-9b93-fce424656e27": {
+   "date_et": "2026-07-07",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260707123705150::8bfbba38-a8ea-49b6-a501-eec22903afe9::20260707124005232::68133f52-fc9b-419f-bb24-de6888274d4d": {
+   "date_et": "2026-07-07",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260707143405090::fb213e9d-b449-44de-b2fe-ce35a37f6d99::20260707143704515::11d91edb-2289-4e19-8a95-d236bc693147": {
+   "date_et": "2026-07-07",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260707143405206::d2cd3fc2-893d-4a29-b617-6ba696683c93::20260707143704515::11d91edb-2289-4e19-8a95-d236bc693147": {
+   "date_et": "2026-07-07",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260708095207774::b1855243-12fb-41d0-918f-2d30db161ed2::20260708100106431::f75fbbe3-9eaf-42b7-bb20-11cf5d2a35af": {
+   "date_et": "2026-07-08",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260708130705702::d47199bc-34c6-4727-aec2-ad98ba468537::20260708131605219::cfa2df48-50b2-4903-ba01-615307b19b4f": {
+   "date_et": "2026-07-08",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260708130705826::2a1a4bd9-82b5-42b1-bacd-a0fda3e6eab3::20260708131605219::cfa2df48-50b2-4903-ba01-615307b19b4f": {
+   "date_et": "2026-07-08",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260708133407620::772e007b-9186-4464-866c-ba110ea22c98::20260708133706186::2481c6e5-3772-420b-85d0-50fa95f0570a": {
+   "date_et": "2026-07-08",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260708145207876::a94bbe8b-686b-4122-8171-5a1dcc8fd958::20260708145506751::5a7edad4-7ac3-4d3d-802d-d1db39ecabe6": {
+   "date_et": "2026-07-08",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260709094306710::b1ba6fc3-7959-4b5e-a571-e2c99deda584::20260709094906523::5f048961-d128-4c9a-94b5-c10e9123a555": {
+   "date_et": "2026-07-09",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260709095207025::217744ef-400f-4844-9206-05c2ee198a31::20260709100405884::eed0a7cd-4f54-44fd-bec0-7c5e9df6d47f": {
+   "date_et": "2026-07-09",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260709095207025::217744ef-400f-4844-9206-05c2ee198a31::20260709100406078::0670cd54-f128-428c-876e-c4da96d73f11": {
+   "date_et": "2026-07-09",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260709095207025::217744ef-400f-4844-9206-05c2ee198a31::20260709100406208::834a1c5f-85f5-4412-a8d0-cbc99914c48a": {
+   "date_et": "2026-07-09",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-3::20260709102807608::9b29b6e4-b21c-4d61-823b-c2a2378f4b8e::20260709103406862::354159ab-e743-4aff-af97-856d1e2e1812": {
+   "date_et": "2026-07-09",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260629144906000::9c1027b1-7b7d-4336-a613-2341becc10b6::20260629145204827::64886fd8-3588-490a-82b8-3cf7304a5e53": {
+   "date_et": "2026-06-29",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260630095805828::766752c2-ec13-4ecb-a57d-a1249963aa52::20260630100105438::a1a0918e-e668-4d44-9632-ec23db5ffcba": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260630125505444::feeb8655-e080-4011-819f-7d2a2d97917c::20260630130104562::71f6150b-a19e-4fc0-b3f6-a5a0d4ad1c8e": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260630125505562::6ce7d58d-d522-4e88-b432-4b4d6b3a1bb3::20260630130104562::71f6150b-a19e-4fc0-b3f6-a5a0d4ad1c8e": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260630131402276::86116225-46d7-4b8e-9cb5-351d433c74cf::20260630154505430::4c02bc5d-1ece-4585-9957-87440059b865": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260701112203856::e56ee3a2-4af3-4d8b-83c7-eb0e2a0fb515::20260701113403153::28074825-6ed1-456e-bf71-7424c7eb8025": {
+   "date_et": "2026-07-01",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260701112203856::e56ee3a2-4af3-4d8b-83c7-eb0e2a0fb515::20260701113403276::1f0bae03-3909-41e6-ad79-d0134b14687b": {
+   "date_et": "2026-07-01",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260702093103443::143d8fca-6775-4b7f-b010-557bb4439cbf::20260702093404158::18fcc521-1420-4f3c-a4e8-dbe3b5679eb9": {
+   "date_et": "2026-07-02",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260702101904822::256a56f9-67cd-4baa-80b6-78c05658f779::20260702102204222::7813b7f6-f48b-47d6-b897-f25e17cc1bd5": {
+   "date_et": "2026-07-02",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260702114904311::0c079ef9-abeb-43b5-98cc-4140c5a4b9c8::20260702125803650::dc828af6-d2a8-4c3e-830d-540bfeb308c2": {
+   "date_et": "2026-07-02",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260702114904311::0c079ef9-abeb-43b5-98cc-4140c5a4b9c8::20260702130403748::72013003-b5d4-418e-8d2d-68a9789cffce": {
+   "date_et": "2026-07-02",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260702135504707::473b4265-0d0e-4b64-af61-0ba902acd115::20260702140703576::ecdab5ed-95a7-487b-b88f-34da75230d11": {
+   "date_et": "2026-07-02",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260706113428712::7e0b7962-4909-416d-87e1-2ba09077c8b8::20260706113728257::9f3bf30b-7bf8-4b3c-9655-3a4374836265": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260706124028999::c9421140-15d5-4474-926f-a902856b2d76::20260706124627728::6bac2f08-5f9e-4a7c-ac3b-bcaa199c96ce": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260706131328880::3b9e7076-5c1f-4c3f-827d-6f72261e1560::20260706131628163::badf08ea-0121-4557-923b-04b0a28ff1eb": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260706131329063::434ccaf2-9cc3-4a43-92ee-531befa9bdc6::20260706131628163::badf08ea-0121-4557-923b-04b0a28ff1eb": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260706142228476::75810db7-a8f8-4902-a378-36d98f10d451::20260706142527937::379a59b8-31c2-4d79-a5bd-21118df16ca6": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260706142228622::3f8eb1af-c72a-4ef8-b6d0-c571b8666fb4::20260706142527937::379a59b8-31c2-4d79-a5bd-21118df16ca6": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260706145828571::0341dcca-4276-427b-8269-d8a64a8cbe23::20260706150128421::ae528718-1e79-4743-acd8-b41893d3ba2c": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260707104903926::5436485c-45ba-4786-9ae5-d6f85836e02c::20260707105503833::28d668aa-f881-4cb8-9b44-72bfb4f0fe1c": {
+   "date_et": "2026-07-07",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260707123703757::ac7eae85-4319-407b-b63b-ba1c9854a020::20260707124004004::17484b42-3405-404e-81e7-c28cae599759": {
+   "date_et": "2026-07-07",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260707143403614::f38bad3a-8008-449c-91c5-87c459807a51::20260707143703370::d2666ab9-835f-40e4-b77d-1db2881c6799": {
+   "date_et": "2026-07-07",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260708095205488::d89a49d0-d459-4e54-b6af-63f3aef8b964::20260708100104772::338510d3-c0ed-440b-aa1b-11c0977892e6": {
+   "date_et": "2026-07-08",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260708130704313::9fc499df-dd87-4bc3-9a8c-fb7397eef5f9::20260708131904134::b96260ce-40d1-4751-9bf6-5b16b4f963e9": {
+   "date_et": "2026-07-08",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260708130704313::9fc499df-dd87-4bc3-9a8c-fb7397eef5f9::20260708131904266::f901301d-38e6-4080-8dce-ee59f286c8c2": {
+   "date_et": "2026-07-08",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260708133405565::8d8a75f1-fd0a-4745-bd89-bd71990dfb45::20260708134004557::5da53d5c-b550-4777-862e-a2750708ae66": {
+   "date_et": "2026-07-08",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260708145205238::0c2784e0-4241-4287-a820-db7c4a0495d2::20260708145504792::486201e1-241c-4d03-abf3-998165663102": {
+   "date_et": "2026-07-08",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260708145205238::0c2784e0-4241-4287-a820-db7c4a0495d2::20260708145504951::6ee4eea8-4cd5-44a0-b415-ad26904df655": {
+   "date_et": "2026-07-08",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260709094304421::8e793f6f-58e2-4c74-afef-3564c10513e5::20260709094904785::c66308e7-6fca-42d3-847e-f959452e75e5": {
+   "date_et": "2026-07-09",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260709095205215::b5b59e14-93c7-4639-98be-616e1e1bfe78::20260709100704824::2175ef23-2082-44be-a2b7-c0a5a6fdb881": {
+   "date_et": "2026-07-09",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-1::20260709102805476::06e60a0b-9a3a-449a-bbcb-4fe296a4a25d::20260709103404973::eeeae5bc-e4ea-4797-901c-9f1accd3009c": {
+   "date_et": "2026-07-09",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260629145115096::bdc7477f-d96d-4c2f-b7f8-91ecc7b4b13c::20260629145204136::cd5b4d86-b09b-4322-9faa-2c945772a092": {
+   "date_et": "2026-06-29",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260630095804727::0bcfd5df-6c98-49ef-954d-4aebaccefe07::20260630100104543::4fe5909f-ad51-4f80-92c7-7cd9556d39e5": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260630125204511::ae6472d9-55a2-4b81-b2fe-634e8870f3d7::20260630125804217::b314c897-73ae-4f11-8d27-62513f2c5df0": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260630142204634::5fb66616-ab8a-4b7d-9c30-962161221a07::20260630142504490::5ee2c58e-930a-46b6-9599-b1875decced6": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260630142204634::5fb66616-ab8a-4b7d-9c30-962161221a07::20260630142504622::99823f8a-de37-43bf-a07f-b2a6b7951a72": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260630145409283::00545ab9-6ffd-470a-9f3e-77d0e7208442::20260630145504232::3986fd76-cf23-4e2e-af9c-b6c34aaec4cf": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260630152157842::6daac992-d923-4cfb-8d16-a582ec678d57::20260630154505092::768692ec-f960-4db7-8463-d7730c089fcb": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260630152211692::ca22d336-f131-4dab-af91-341ffd988259::20260630155205067::9c7db165-eb77-46f9-afcb-ab7f6304a20b": {
+   "date_et": "2026-06-30",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260701112202455::969cc7f3-d225-40bd-90dc-cb6bacd39c09::20260701113402091::c7b37b38-4c5d-4681-9943-fceef29222fa": {
+   "date_et": "2026-07-01",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260702101903715::4ab8fbf5-05f8-419e-8d47-0a52a4ed0dcb::20260702102203427::5be8f002-4e35-4344-909f-b458f8771ae2": {
+   "date_et": "2026-07-02",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260706113427569::db51b530-ed22-4545-a5c6-5c24eae6760c::20260706113727519::c52eb2f6-97d1-4f1d-af80-db12fbf56c20": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260706124027731::efaffa7f-6c42-4716-9e89-ca35de7823b2::20260706124327697::58aef03c-8c49-4b84-a476-eb862a11572a": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260706124027731::efaffa7f-6c42-4716-9e89-ca35de7823b2::20260706124327811::9a04e88e-33b5-451e-aff0-75cf174425f9": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260706131327860::68e57209-cf09-4cb0-a108-fac8ac8b11fa::20260706131627340::7924553a-bc59-4205-94a2-aee3c83d04be": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260706131327978::457f6900-aa77-43cf-9a54-8d02aa1fdd44::20260706131627340::7924553a-bc59-4205-94a2-aee3c83d04be": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260706142227590::b244ca32-44cb-49e9-85b0-5df4a408af35::20260706142827550::8f4e7203-667c-4954-be9e-7493d66b6b75": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260706145827669::e90013e7-7800-4747-9cb3-52d9b4564765::20260706150127255::bed86b00-a402-45ad-b687-a6c9769cb57d": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260706145827669::e90013e7-7800-4747-9cb3-52d9b4564765::20260706150127416::5d4095c2-ce39-45d8-8aa5-b30d7e1efd36": {
+   "date_et": "2026-07-06",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260708095204175::6a8267ca-6f27-4808-b50a-f761b9aeb8b1::20260708100103638::8b84f8f9-b1f1-4e74-a633-567c17b92447": {
+   "date_et": "2026-07-08",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260708133404321::23cd36a2-dd55-4a5b-ac60-c8ed8cc75ade::20260708133703814::af9fb0d7-4437-486b-94c2-23bc5679ec29": {
+   "date_et": "2026-07-08",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260708145204148::d71651ed-a189-4b69-bd29-eda7736c2290::20260708145503932::54324ef3-5f7c-48b7-96c7-cc7437440804": {
+   "date_et": "2026-07-08",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260709094303250::ba88e5cc-84f1-4b74-aad4-ffae3b8e1a5a::20260709100703815::f2d1f40f-86f6-4c9b-8716-75327f0e1740": {
+   "date_et": "2026-07-09",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260709102804326::63843e21-eb91-4322-8304-daab27620110::20260709103403958::da389575-df3f-4fb9-b275-93160026bdd8": {
+   "date_et": "2026-07-09",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260709102804326::63843e21-eb91-4322-8304-daab27620110::20260709103404084::66fe59ec-c6ee-4054-ae2c-6ebdbeebfea4": {
+   "date_et": "2026-07-09",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  }
+ },
+ "schema": "fleet-journal-watermark-v1",
+ "updated_at_utc": "2026-07-09T22:23:05.197581+00:00"
+}
