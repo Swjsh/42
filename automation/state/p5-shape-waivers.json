@@ -1,0 +1,27 @@
+{
+  "_doc": "P5-HARD-GATE waiver registry (ground rule 10, HANDOFF-2026-07-10-ENTRY-EXIT-MATRIX). A shape listed here satisfies the P5 gate (setup/scripts/p5_shape_gate.py + test_p5_shape_gate.py) WITHOUT being a mass-grind-phase5-summary.json survivor. j_signed=false => PROVISIONAL: the shape was ALREADY live before the gate existed; the waiver keeps the guard green (no hard-RED on a pre-existing shape) while surfacing it LOUDLY for J to sign, replace, or retire. j_signed=true requires an explicit J decision (OP-0). NEVER hand-add a signed waiver on J's behalf.",
+  "schema": "p5-waivers-v1",
+  "updated": "2026-07-08",
+  "waivers": [
+    {
+      "strategy": "ribbon_ride",
+      "shape": {"premium_stop_pct": -0.20, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.8, "profit_lock_mode": "fixed"},
+      "j_signed": false,
+      "status": "PROVISIONAL_PENDING_STOP_A",
+      "added": "2026-07-08",
+      "reason": "THE T5 SCAR. Live fleet_rest shape since 2026-06-25 but NOT a P5 survivor: at stop-20 the P5 survivors are all TP+100%, never +150% (verified: 0 survivors match stop-20/tp+150/sell80). This is exactly the shape the ENTRY-EXIT-MATRIX redesign (T4) is re-searching. Provisional pending STOP CHECKPOINT A.",
+      "provenance": "analysis/recommendations/mass-grind-phase5-summary.json (survivors) ; strategies.py RIBBON_RIDE",
+      "resolves_when": "T4 exit-matrix produces a P5-passing ribbon_ride shape, OR J signs this waiver, OR the shape is retired."
+    },
+    {
+      "strategy": "vwap_continuation",
+      "shape": {"premium_stop_pct": -0.08, "tp1_premium_pct": 0.3, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing"},
+      "j_signed": false,
+      "status": "PROVISIONAL_PENDING_STOP_A",
+      "added": "2026-07-08",
+      "reason": "Prior live edge (ITM-2/-8% tight stop, OOS +$105/tr per strategies.py note). Its TP+30% scalp shape is not represented in the current P5 survivor set (survivors are TP+100/+150). Kept provisional; the T4 exit-matrix searches vwap_continuation per-strategy per ground rule 11.",
+      "provenance": "analysis/recommendations/mass-grind-phase5-summary.json (survivors) ; strategies.py VWAP_CONTINUATION",
+      "resolves_when": "T4 exit-matrix produces a P5-passing vwap_continuation shape, OR J signs this waiver, OR the shape is retired."
+    }
+  ]
+}
