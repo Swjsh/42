@@ -218,3 +218,180 @@ def test_bite_pre_normalize_contradiction_is_real(tmp_path):
     f.write_text(json.dumps({"levels": fixed}), encoding="utf-8")
     assert sc.check_level_integrity(path=f) == []        # normalized clears it
     assert len(fixed) == 1
+
+
+# =====================================================================================
+# G11 LEVEL-MEMORY MERGE WIRE (2026-07-09) — HANDOFF-2026-07-09-G11-LEVEL-MEMORY-WIRE.md
+# The shadow multi-day memory map (key-levels-memory.json) had ZERO live consumers (D1 audit
+# Finding #4). This wire UNIONS its high-conviction near-price levels into key-levels.json so
+# heartbeat_core._read_levels finally sees J's multi-day flip levels. Additive, fail-open,
+# flag-gated (params.level_memory_live_merge). These guards pin: flag on injects near-price +
+# role-stable; flag off byte-identical; missing map no-op; cap/score/window respected;
+# premarket levels never dropped.
+# =====================================================================================
+
+# 8 in-window (score>=60, within +/-1.5% of spot 747.5) + 3 that MUST be excluded.
+_MEM_LEVELS = [
+    {"price": 747.93, "role": "resistance", "type": "resistance", "label": "MEMORY_RES_76",
+     "memory_score": 76.0, "touches": 42, "role_flips": 10, "tier": "Active",
+     "flipped_at": "2026-07-07T14:55:00-04:00", "source": "level_memory"},
+    {"price": 747.13, "role": "resistance", "type": "resistance", "label": "MEMORY_RES_132",
+     "memory_score": 132.0, "touches": 76, "role_flips": 18, "tier": "Active",
+     "flipped_at": "2026-07-08T09:30:00-04:00", "source": "level_memory"},
+    {"price": 746.49, "role": "resistance", "type": "resistance", "label": "MEMORY_RES_142",
+     "memory_score": 142.0, "tier": "Active", "source": "level_memory"},
+    {"price": 748.78, "role": "resistance", "type": "resistance", "label": "MEMORY_RES_111",
+     "memory_score": 111.0, "tier": "Active", "source": "level_memory"},
+    {"price": 745.34, "role": "resistance", "type": "resistance", "label": "MEMORY_RES_96",
+     "memory_score": 96.0, "tier": "Active", "source": "level_memory"},
+    {"price": 744.38, "role": "support", "type": "support", "label": "MEMORY_SUP_98",
+     "memory_score": 98.0, "tier": "Active", "source": "level_memory"},
+    {"price": 742.89, "role": "support", "type": "support", "label": "MEMORY_SUP_75",
+     "memory_score": 75.0, "tier": "Active", "source": "level_memory"},
+    {"price": 740.46, "role": "support", "type": "support", "label": "MEMORY_SUP_79",
+     "memory_score": 79.0, "tier": "Active", "source": "level_memory"},
+    # --- must be EXCLUDED ---
+    {"price": 732.84, "role": "support", "type": "support", "label": "MEMORY_SUP_149",
+     "memory_score": 149.0, "tier": "Active", "source": "level_memory"},     # out of +/-1.5%
+    {"price": 747.40, "role": "resistance", "type": "resistance", "label": "MEMORY_LOWSCORE",
+     "memory_score": 40.0, "tier": "Active", "source": "level_memory"},      # score < 60
+    {"price": 747.20, "role": "resistance", "type": "resistance", "label": "MEMORY_REFTIER",
+     "memory_score": 200.0, "tier": "Reference", "source": "level_memory"},  # tier != Active
+]
+_NOW = "2026-07-09T09:05:00-04:00"
+
+
+def _write_mem(tmp_path, monkeypatch, levels=None):
+    p = tmp_path / "key-levels-memory.json"
+    p.write_text(json.dumps({"levels": _MEM_LEVELS if levels is None else levels}), encoding="utf-8")
+    monkeypatch.setattr(rli, "MEMORY_MAP", p)
+    return p
+
+
+def _set_flag(tmp_path, monkeypatch, value):
+    p = tmp_path / "params.json"
+    if value is not None:
+        p.write_text(json.dumps({"level_memory_live_merge": value}), encoding="utf-8")
+    monkeypatch.setattr(rli, "PARAMS", p)   # value None -> non-existent path
+    return p
+
+
+# --- flag reader ----------------------------------------------------------------
+def test_memory_merge_enabled_true(tmp_path, monkeypatch):
+    _set_flag(tmp_path, monkeypatch, True)
+    assert rli._memory_merge_enabled() is True
+
+
+def test_memory_merge_enabled_false_and_absent(tmp_path, monkeypatch):
+    _set_flag(tmp_path, monkeypatch, False)
+    assert rli._memory_merge_enabled() is False
+    _set_flag(tmp_path, monkeypatch, None)   # missing params file -> fail-off
+    assert rli._memory_merge_enabled() is False
+
+
+# --- _merge_memory_levels selection ---------------------------------------------
+def test_merge_selects_nearest_six_incl_both_j_levels(tmp_path, monkeypatch):
+    _write_mem(tmp_path, monkeypatch)
+    out = rli._merge_memory_levels([], spot=747.5, now_iso=_NOW)
+    mem = [lv for lv in out if lv["source"] == "level_memory"]
+    prices = sorted(lv["price"] for lv in mem)
+    assert len(mem) == 6                                   # cap respected
+    assert 747.13 in prices and 747.93 in prices           # BOTH J-called levels kept (ACCEPTANCE)
+    assert 746.49 in prices and 748.78 in prices
+    assert 742.89 not in prices and 740.46 not in prices   # 2 furthest in-window dropped by the cap
+    assert 732.84 not in prices                            # out of +/-1.5% window
+    assert 747.40 not in prices                            # score < 60
+    assert 747.20 not in prices                            # tier != Active
+    j = next(lv for lv in mem if lv["price"] == 747.93)    # provenance + EOD expiry carried
+    assert j["role"] == "resistance" and j["source"] == "level_memory"
+    assert j["expires_at"] == "2026-07-09T16:00:00-04:00"
+    assert j["memory_score"] == 76.0 and j["flipped_at"] == "2026-07-07T14:55:00-04:00"
+
+
+def test_merge_missing_map_is_noop(tmp_path, monkeypatch):
+    monkeypatch.setattr(rli, "MEMORY_MAP", tmp_path / "does-not-exist.json")
+    seed = [{"price": 741.61, "role": "support", "label": "PML", "tier": "Active", "source": "premarket_low"}]
+    out = rli._merge_memory_levels(list(seed), spot=747.5, now_iso=_NOW)
+    assert out == seed                                     # untouched, no crash (fail-open)
+
+
+def test_merge_strips_prior_memory_then_reinjects(tmp_path, monkeypatch):
+    _write_mem(tmp_path, monkeypatch)
+    stale = [{"price": 999.0, "role": "resistance", "label": "MEMORY_STALE",
+              "tier": "Active", "source": "level_memory"}]
+    out = rli._merge_memory_levels(list(stale), spot=747.5, now_iso=_NOW)
+    assert not any(lv["price"] == 999.0 for lv in out)     # prior memory stripped (idempotent)
+    assert any(lv["price"] == 747.13 for lv in out)        # fresh re-injected
+
+
+def test_merge_preserves_premarket_levels(tmp_path, monkeypatch):
+    _write_mem(tmp_path, monkeypatch)
+    pm = [{"price": 741.61, "role": "support", "label": "PML_2026-06-30",
+           "tier": "Active", "source": "premarket_low"},
+          {"price": 747.5, "role": "resistance", "label": "INTRADAY_PMH_2026-07-09",
+           "tier": "Active", "source": "premarket_high"}]
+    out = rli._merge_memory_levels(list(pm), spot=747.5, now_iso=_NOW)
+    labels = {lv["label"] for lv in out}
+    assert "PML_2026-06-30" in labels and "INTRADAY_PMH_2026-07-09" in labels  # never dropped
+
+
+# --- role stability through the normalizer --------------------------------------
+def test_normalize_keeps_level_memory_resistance_below_spot():
+    """The bite: a memory RESISTANCE below spot must NOT flip to support (the price-relative
+    fallback would). Only the level_memory branch preserves the stored structural role."""
+    mem = [{"price": 747.13, "role": "resistance", "type": "resistance",
+            "label": "MEMORY_RES_132", "tier": "Active", "source": "level_memory"}]
+    out = rli._normalize_levels(mem, spot=747.5)           # spot ABOVE the level
+    assert len(out) == 1 and out[0]["role"] == out[0]["type"] == "resistance"
+
+
+def test_normalize_non_memory_still_price_relative():
+    """Byte-identical for non-memory sources: a generic level below spot is still support."""
+    lv = [{"price": 747.13, "role": "resistance", "type": "resistance",
+           "label": "GENERIC", "tier": "Active", "source": "structural"}]
+    out = rli._normalize_levels(lv, spot=747.5)
+    assert out[0]["role"] == "support"                     # unchanged pre-G11 behavior
+
+
+# --- refresh() end-to-end: flag on vs off ---------------------------------------
+def _mixed_df():
+    # premarket + 4 RTH bars; extremes chosen NOT within 0.10 of any memory pick; last close = spot 747.5.
+    pre = [("09:00", 749.5, 743.5, 748.0, 500)]
+    rth = [("09:35", 748.0, 747.0, 747.6, 1000),
+           ("09:40", 748.5, 747.2, 747.8, 1000),
+           ("09:45", 747.9, 743.9, 744.5, 1000),
+           ("09:50", 747.8, 747.1, 747.5, 1000)]   # last close == spot 747.5
+    return _make_df(rth, pre)
+
+
+def test_refresh_flag_on_injects_memory(tmp_path, monkeypatch, _state):
+    kl, _ = _state
+    _write_mem(tmp_path, monkeypatch)
+    _set_flag(tmp_path, monkeypatch, True)
+    out = rli.refresh(df=_mixed_df())
+    assert out["ok"] and out["memory_merged"] == 6
+    data = json.loads(kl.read_text())
+    prices = {lv["price"] for lv in data["levels"] if lv.get("source") == "level_memory"}
+    assert 747.13 in prices and 747.93 in prices           # ACCEPTANCE: both J levels in the live file
+    # premarket-derived INTRADAY levels survive alongside (additive)
+    labels = {lv["label"].split("_2026")[0] for lv in data["levels"]}
+    assert "INTRADAY_PMH" in labels
+
+
+def test_refresh_flag_off_byte_identical(tmp_path, monkeypatch, _state):
+    """Flag off: memory map present but NEVER merged -> zero level_memory entries -> byte-identical."""
+    kl, _ = _state
+    _write_mem(tmp_path, monkeypatch)
+    _set_flag(tmp_path, monkeypatch, False)
+    out = rli.refresh(df=_mixed_df())
+    assert out["memory_merged"] == 0
+    data = json.loads(kl.read_text())
+    assert not any(lv.get("source") == "level_memory" for lv in data["levels"])
+
+
+def test_refresh_flag_on_missing_map_no_crash(tmp_path, monkeypatch, _state):
+    kl, _ = _state
+    monkeypatch.setattr(rli, "MEMORY_MAP", tmp_path / "nope.json")
+    _set_flag(tmp_path, monkeypatch, True)
+    out = rli.refresh(df=_mixed_df())
+    assert out["ok"] and out["memory_merged"] == 0         # fail-open no-op, feed intact

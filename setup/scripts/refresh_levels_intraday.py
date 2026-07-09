@@ -33,11 +33,18 @@ REPO = Path(__file__).resolve().parents[1].parent
 STATE = REPO / "automation" / "state"
 KEY_LEVELS = STATE / "key-levels.json"
 TODAY_BIAS = STATE / "today-bias.json"
+PARAMS = STATE / "params.json"
+MEMORY_MAP = STATE / "key-levels-memory.json"
 sys.path.insert(0, str(REPO / "setup" / "scripts"))
 from et_clock import et_now  # noqa: E402
 
 ACTIVE_BAND = 12.0   # the engine only considers levels within $12 of spot (heartbeat_core._read_levels)
 ROLE_EPSILON = 0.10  # active levels within this $ collapse to ONE entry with ONE role
+# G11 level-memory merge wire (2026-07-09): union the shadow multi-day memory map's
+# high-conviction near-price levels into the live feed. Gated by params.level_memory_live_merge.
+MEMORY_MERGE_SPOT_PCT = 0.015   # only memory levels within +/-1.5% of spot (subset of ACTIVE_BAND)
+MEMORY_MERGE_MIN_SCORE = 60.0   # memory_score floor
+MEMORY_MERGE_CAP = 6            # at most N memory levels, the NEAREST-to-spot (not score rank)
 
 # SEMANTIC role map (2026-06-30 contradictory-role fix). A level's role is a STRUCTURAL property
 # of WHERE IT CAME FROM, not of transient price-vs-spot at compute time. A premarket HIGH is a
@@ -170,8 +177,16 @@ def _normalize_levels(levels: list[dict], spot: float) -> list[dict]:
         # role by SEMANTIC source/label (stable) for any directional level; only a NON-directional
         # ref (no high/low semantics in source or label) falls back to price-side. Either way each
         # PRICE maps to exactly ONE role here, so a price can never end up as both ceiling and floor.
-        role = _semantic_role(lv.get("source"), lv.get("label"),
-                              fallback=("resistance" if price >= spot else "support"))
+        # G11 (2026-07-09): a level_memory level carries its OWN structural role (multi-day
+        # sustained role-flip tagging); keep it STABLE instead of the price-relative flip-flop (else
+        # a 747.13 resistance re-roles to support the moment spot ticks above it). ADDITIVE: no other
+        # source is 'level_memory', so with no memory levels present this is byte-identical.
+        if str(lv.get("source", "")).lower() == "level_memory":
+            _stored = str(lv.get("role") or lv.get("type") or "").lower()
+            fb = _stored if _stored in ("resistance", "support") else ("resistance" if price >= spot else "support")
+        else:
+            fb = "resistance" if price >= spot else "support"
+        role = _semantic_role(lv.get("source"), lv.get("label"), fallback=fb)
         canon = {**lv, "price": price, "type": role, "role": role}
         key = _dedup_key(lv.get("label"))
         # collapse by EITHER near-equal price (cluster) OR shared prefix-stripped label key, so
@@ -181,6 +196,69 @@ def _normalize_levels(levels: list[dict], spot: float) -> list[dict]:
         seen_keys.add(key)
         out.append(canon)
     return out + expired
+
+
+def _memory_merge_enabled() -> bool:
+    """G11 feature flag: params.level_memory_live_merge (absent/false = wire OFF, exact
+    pre-change behavior). FAIL-OFF: a missing/unreadable params never turns the wire on."""
+    try:
+        p = json.loads(PARAMS.read_text(encoding="utf-8"))
+        return bool(p.get("level_memory_live_merge"))
+    except (OSError, json.JSONDecodeError):
+        return False
+
+
+def _merge_memory_levels(levels: list[dict], spot: float, now_iso: str) -> list[dict]:
+    """UNION the shadow multi-day memory map (key-levels-memory.json) into the live feed
+    (G11 wire, HANDOFF-2026-07-09). PURELY ADDITIVE: strips only prior source=='level_memory'
+    entries (idempotent re-inject), NEVER touches premarket/curated/INTRADAY levels. FAIL-OPEN:
+    a missing or unparseable memory map returns `levels` UNTOUCHED (no-op) so the wire can never
+    empty or corrupt the feed. Selection = tier=='Active' AND memory_score>=MIN_SCORE AND within
+    +/-1.5% of spot, capped at the CAP NEAREST-to-spot (nearest matters most for a 0DTE rejection;
+    a memory_score rank would drop J's 747.93). Each merged level carries source/role/flipped_at
+    + an EOD expiry so heartbeat_core._level_expired keeps it TODAY and drops it tomorrow (fresh
+    levels re-derive every session)."""
+    try:
+        mem = json.loads(MEMORY_MAP.read_text(encoding="utf-8"))
+        cand = mem.get("levels") or []
+    except (OSError, json.JSONDecodeError):
+        return levels  # fail-open no-op — a bad/missing memory map must never wipe the feed
+    kept = [lv for lv in levels if str(lv.get("source", "")).lower() != "level_memory"]
+    today = now_iso[:10]
+    band = spot * MEMORY_MERGE_SPOT_PCT
+    picks = []
+    for m in cand:
+        try:
+            price = round(float(m["price"]), 2)
+        except (KeyError, TypeError, ValueError):
+            continue
+        if str(m.get("tier", "")).lower() != "active":
+            continue
+        try:
+            score = float(m.get("memory_score") or 0)
+        except (TypeError, ValueError):
+            score = 0.0
+        if score < MEMORY_MERGE_MIN_SCORE or abs(price - spot) > band:
+            continue
+        picks.append((abs(price - spot), price, score, m))
+    picks.sort(key=lambda t: (t[0], -t[2]))   # nearest-to-spot first; higher score breaks ties
+    merged = []
+    for _dist, price, _score, m in picks[:MEMORY_MERGE_CAP]:
+        role = str(m.get("role") or m.get("type") or ("resistance" if price >= spot else "support"))
+        merged.append({
+            "price": price, "type": role, "role": role,
+            "label": str(m.get("label") or f"MEMORY_{role.upper()}_{price:.2f}"),
+            "tier": "Active", "source": "level_memory",
+            "verified_at": now_iso, "expires_at": today + "T16:00:00-04:00",
+            "memory_score": m.get("memory_score"), "touches": m.get("touches"),
+            "role_flips": m.get("role_flips"), "flipped_at": m.get("flipped_at"),
+            "reasoning": (f"Multi-day memory {role} (score {m.get('memory_score')}, flipped_at "
+                          f"{m.get('flipped_at')}) merged live via G11 wire (level_memory_live_merge): "
+                          f"nearest-{MEMORY_MERGE_CAP} to spot, score>={int(MEMORY_MERGE_MIN_SCORE)}, "
+                          f"within +/-1.5%."),
+            "entity_id": None, "draw_needed": False,
+        })
+    return kept + merged
 
 
 def refresh(df: pd.DataFrame | None = None) -> dict:
@@ -225,6 +303,15 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
         levels.append(lvl)
         added.append((lvl["label"], lvl["price"], lvl["role"]))
 
+    # G11 (2026-07-09): union the shadow multi-day memory map's near-price high-conviction
+    # levels when the wire flag is on. Fail-open + additive + idempotent; flag OFF (default)
+    # leaves this a no-op => byte-identical to pre-change behavior. Prior level_memory entries
+    # (e.g. a Layer-1 hand-insert) are re-derived fresh from the map here when the flag is on.
+    memory_merged = 0
+    if _memory_merge_enabled():
+        levels = _merge_memory_levels(levels, spot, now_iso)
+        memory_merged = sum(1 for lv in levels if str(lv.get("source", "")).lower() == "level_memory")
+
     # Normalize the FULL written set: one polarity role per price + collapse near-equal
     # duplicates, so the engine never reads a price as both resistance and support and the
     # 6-9x curated PMH/PML pile-up self-heals every run (2026-06-30 contradictory-role fix).
@@ -268,7 +355,7 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
 
     active = sorted({lv["price"] for lv in levels if abs(lv["price"] - spot) <= ACTIVE_BAND})
     return {"ok": True, "ts_et": now_iso, "spot": round(spot, 2), "added": added,
-            "engine_active_levels": active, "ema": ema_patch}
+            "memory_merged": memory_merged, "engine_active_levels": active, "ema": ema_patch}
 
 
 if __name__ == "__main__":
