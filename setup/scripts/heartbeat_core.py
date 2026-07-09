@@ -756,7 +756,18 @@ def run_account(account: str) -> dict:
            "htf_15m": bc["htf_15m_stack"], "verdict": verdict.get("verdict"),
            "side": verdict.get("side"), "setup": verdict.get("setup_name"),
            "bear_score": verdict.get("bear_score"), "bull_score": verdict.get("bull_score"),
-           "triggers": verdict.get("triggers_fired"), "reason": verdict.get("reason")}
+           "triggers": verdict.get("triggers_fired"), "reason": verdict.get("reason"),
+           # LEVEL PROVENANCE (G12, 2026-07-09 night): the EXACT level the winning side's
+           # entry trigger fired against -- ground truth from filters.detect_level_rejection/
+           # detect_level_reclaim (backtest/lib/filters.py), threaded verbatim through
+           # score_bar -> engine_cli._derive_routing -> decide_payload's "rejection_level"
+           # (the SAME key names both bear-rejection and bull-reclaim; see engine_cli.py
+           # docstring/_derive_routing). None whenever the winning side had no level-tied
+           # trigger (e.g. a TRENDLINE-tier entry) or on a HOLD/SKIP tick -- consumers must
+           # treat that as "no exact level available" and fall back to the proximity
+           # heuristic (exit_manager.nearest_active_level), never guess. DATA-ADDITIVE: a
+           # new key: every existing core-decisions.jsonl reader ignores unknown keys.
+           "trigger_level_exact": verdict.get("rejection_level")}
     # EXIT-MANAGEMENT PASS (flag-gated, default OFF -> byte-identical armed behavior).
     # Manage every open position's scale-out FIRST (before evaluating a new entry), so a
     # winner's TP1/runner or a stop is realized this tick. Places only when ARMED (live);
@@ -1230,12 +1241,27 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
         try:
             import exit_actuator as _ea  # noqa: PLC0415
             import exit_manager as _em  # noqa: PLC0415
-            # STRUCTURE-STOP (2026-07-09): best-effort trigger_level from the levels ALREADY
-            # loaded into bar_ctx this tick (_build_payload's levels_active -- no new I/O).
+            # STRUCTURE-STOP (2026-07-09): trigger_level for register_entry, PROVENANCE-
+            # PREFERRED (G12, 2026-07-09 night). Two sources, in priority order:
+            #   1. EXACT -- verdict["rejection_level"], the actual level filters.
+            #      detect_level_rejection/detect_level_reclaim matched when the entry
+            #      trigger fired (threaded verbatim through score_bar/engine_cli -- see the
+            #      core-decisions.jsonl "trigger_level_exact" comment above for the full
+            #      chain). This is ground truth, not a guess.
+            #   2. HEURISTIC fallback -- exit_manager.nearest_active_level's proximity guess
+            #      (nearest same-side key-level within $2 of spot), used ONLY when the exact
+            #      level is unavailable (e.g. a TRENDLINE-tier entry with no level-tied
+            #      trigger, or a synthetic verdict from the extra-setup route that never
+            #      carries rejection_level -- see _synthetic_verdict_from_extra).
             # structure_stop_enabled reads params.json directly (default False/absent ->
             # "premium" mode, byte-identical -- see exit_manager.ExitState.from_entry).
-            _trigger_level = _em.nearest_active_level(
+            _trigger_level_exact = verdict.get("rejection_level")
+            _trigger_level_exact = (float(_trigger_level_exact)
+                                    if _trigger_level_exact is not None else None)
+            _trigger_level_heuristic = _em.nearest_active_level(
                 payload["bar_ctx"].get("levels_active") or [], spy, side)
+            _trigger_level = (_trigger_level_exact if _trigger_level_exact is not None
+                              else _trigger_level_heuristic)
             _structure_enabled = bool(params.get("structure_stop_enabled", False))
             if _xov is not None:
                 # TRADE-TO-LEARN (2026-07-01): the exit_manager runs the setup's ISOLATED

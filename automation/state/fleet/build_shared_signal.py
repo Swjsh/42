@@ -133,6 +133,11 @@ def _map_core_row(row: dict) -> dict:
         "tick_id": None,                                    # core ledger has no tick_id
         "date": ts[:10] if len(ts) >= 10 else None,
         "_core": True,
+        # LEVEL PROVENANCE (G12, 2026-07-09 night): passthrough of heartbeat_core's
+        # core-decisions.jsonl "trigger_level_exact" (ground truth from the winning side's
+        # fired level-tied trigger). Absent on any row written before this build -> None,
+        # the exact same "no exact level available" contract as a TRENDLINE-tier entry.
+        "trigger_level_exact": row.get("trigger_level_exact"),
     }
 
 
@@ -289,6 +294,11 @@ def _ribbon_strategy_entries(bear: dict, bull: dict, spot, now: datetime | None 
             continue
         trigs = list(blk.get("triggers_fired") or [])
         elite = bool(blk.get("confluence")) or any("sequence" in str(t).lower() for t in trigs)
+        # LEVEL PROVENANCE (G12, 2026-07-09 night): trigger_level_exact rides the side-block
+        # (bear/bull dict already carries it, see build()/comment above) -- pure passthrough,
+        # None-safe. trigger_level (the _nearest_level proximity heuristic) is UNCHANGED and
+        # stays the fallback source; fleet_executor.py prefers _exact when present.
+        _tl_exact = blk.get("trigger_level_exact")
         out.append({
             "name": "ribbon_ride",
             "side": side,
@@ -300,6 +310,7 @@ def _ribbon_strategy_entries(bear: dict, bull: dict, spot, now: datetime | None 
             "est_premium": None,
             "spot": spot,
             "trigger_level": _nearest_level(levels, spot, side),
+            "trigger_level_exact": (float(_tl_exact) if _tl_exact is not None else None),
         })
     return out
 
@@ -374,15 +385,21 @@ def _bold_passed_blocks(today: str, now: datetime) -> dict:
     bull_p = passed_scoring_peak("bull", action, row.get("bull_score", 0), trig0, fired)
     bear_p = passed_scoring_peak("bear", action, row.get("bear_score", 0), trig0, fired)
     setup = row.get("setup_name")
+    # LEVEL PROVENANCE (G12, 2026-07-09 night): same win-gated passthrough as build()'s
+    # top-level bear/bull blocks (see comment there) -- sourced from the BOLD row itself,
+    # since _latest_today_decision(..., account="bold") already routed _map_core_row here.
+    _tl_exact = row.get("trigger_level_exact")
     return {
         "bull": {"passed": bull_p, "score": row.get("bull_score", 0),
                  "triggers_fired": trigs if bull_p else [],
                  "setup_name": setup if bull_p else None,
-                 "confluence": bool(bull_p and has_conf)},
+                 "confluence": bool(bull_p and has_conf),
+                 "trigger_level_exact": (_tl_exact if bull_p else None)},
         "bear": {"passed": bear_p, "score": row.get("bear_score", 0),
                  "triggers_fired": trigs if bear_p else [],
                  "setup_name": setup if bear_p else None,
-                 "confluence": bool(bear_p and has_conf)},
+                 "confluence": bool(bear_p and has_conf),
+                 "trigger_level_exact": (_tl_exact if bear_p else None)},
     }
 
 
@@ -460,6 +477,10 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
 
     bear_pass = action == "ENTER_BEAR"
     bull_pass = action == "ENTER_BULL"
+    # LEVEL PROVENANCE (G12, 2026-07-09 night): row.get("trigger_level_exact") is a single
+    # value keyed to whichever side WON the tick (mirrors triggers_fired/setup_name's own
+    # win-gated emission below) -- None on the losing side or a HOLD/SKIP tick.
+    _tl_exact = row.get("trigger_level_exact")
     bear = {"passed": bear_pass, "score": row.get("bear_score", 0),
             "triggers_fired": triggers if bear_pass else [],
             "setup_name": setup if bear_pass else None,
@@ -467,11 +488,13 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
             # only if block['confluence'] is True OR a sequence_* trigger is present — it does
             # NOT read "confluence" as a trigger NAME. So emit the boolean here whenever a
             # confluence/multi_day_confluence trigger fired for this side.
-            "confluence": bool(bear_pass and has_conf)}
+            "confluence": bool(bear_pass and has_conf),
+            "trigger_level_exact": (_tl_exact if bear_pass else None)}
     bull = {"passed": bull_pass, "score": row.get("bull_score", 0),
             "triggers_fired": triggers if bull_pass else [],
             "setup_name": setup if bull_pass else None,
-            "confluence": bool(bull_pass and has_conf)}
+            "confluence": bool(bull_pass and has_conf),
+            "trigger_level_exact": (_tl_exact if bull_pass else None)}
 
     _ledger = "core-decisions.jsonl" if USE_CORE_LEDGER else "decisions.jsonl"
     sig = {

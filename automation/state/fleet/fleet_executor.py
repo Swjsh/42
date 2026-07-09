@@ -324,7 +324,15 @@ def _plan_from_strategies(arm, signal, equity, params, arm_id, tiers, spot) -> l
             plans.append(EntryPlan(arm_id, "HOLD", side, setup, strike, None, quality,
                                    "no sizing tier covers equity", strategy=strat.name))
             continue
-        _tl = entry.get("trigger_level")
+        # LEVEL PROVENANCE (G12, 2026-07-09 night): prefer the EXACT trigger level the entry
+        # signal fired against (build_shared_signal's trigger_level_exact -- ground truth,
+        # sourced verbatim from filters.detect_level_rejection/detect_level_reclaim via
+        # core-decisions.jsonl) over the proximity-guess trigger_level (nearest_active_level
+        # heuristic). Falls back to the heuristic only when the exact value is absent (e.g.
+        # a TRENDLINE-tier entry with no level-tied trigger, or an older shared-signal.json
+        # pre-dating this field) -- never guesses when BOTH are absent (stays None).
+        _tl_exact = entry.get("trigger_level_exact")
+        _tl = _tl_exact if _tl_exact is not None else entry.get("trigger_level")
         plans.append(EntryPlan(arm_id, "ENTER", side, setup, strike, qty, quality,
                                f"{strat.name} {side} ({quality})",
                                strategy=strat.name, exit_shape=_exit_shape_dict(strat),
@@ -378,7 +386,10 @@ def plan_all(
                 plans.append(EntryPlan(arm_id, "HOLD", side, setup, strike, None, quality,
                                        "no sizing tier covers equity", strategy=strat.name))
                 continue
-            _tl = blk.get("trigger_level")
+            # LEVEL PROVENANCE: same exact-over-heuristic preference as _plan_from_strategies
+            # (see comment there) -- the side-block fallback path mirrors it for parity.
+            _tl_exact = blk.get("trigger_level_exact")
+            _tl = _tl_exact if _tl_exact is not None else blk.get("trigger_level")
             plans.append(EntryPlan(arm_id, "ENTER", side, setup, strike, qty, quality,
                                    f"{strat.name} {side} ({quality})",
                                    strategy=strat.name, exit_shape=_exit_shape_dict(strat),

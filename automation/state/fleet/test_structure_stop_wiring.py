@@ -119,6 +119,71 @@ def test_arm_decision_trigger_level_none_on_hold():
     assert d.trigger_level is None
 
 
+# === LEVEL PROVENANCE (G12, 2026-07-09 night): trigger_level_exact preferred over the
+# nearest_active_level heuristic, in BOTH fleet_executor lanes (FIX2 strategies[] path +
+# the side-block fallback path) ============================================================
+def test_entry_plan_prefers_trigger_level_exact_fix2_path():
+    """Non-vacuous (guard ii): trigger_level (heuristic, 601.4) and trigger_level_exact
+    (ground truth, 602.75) are DELIBERATELY different -- a regression back to heuristic-
+    only REDs here."""
+    sig = {"spot": 600.0, "strategies": [
+        {"name": "ribbon_ride", "side": "P", "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+         "triggers": ["t1", "t2"], "quality": "BASE", "est_premium": None, "spot": 600.0,
+         "trigger_level": 601.4, "trigger_level_exact": 602.75},
+    ]}
+    plans = fx.plan_all(ARM, sig, 2000.0, PARAMS)
+    enter = [p for p in plans if p.action == "ENTER"]
+    assert len(enter) == 1 and enter[0].trigger_level == 602.75
+
+
+def test_entry_plan_prefers_trigger_level_exact_side_block_fallback_path():
+    """Same preference on the non-FIX2 fallback path (side-block carries both fields)."""
+    sig = {"spot": 600.0,
+           "bear": {"passed": True, "triggers_fired": ["t1"],
+                    "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+                    "trigger_level": 601.4, "trigger_level_exact": 602.75},
+           "bull": {"passed": False}}
+    plans = fx.plan_all(ARM, sig, 2000.0, PARAMS)
+    enter = [p for p in plans if p.action == "ENTER"]
+    assert len(enter) == 1 and enter[0].trigger_level == 602.75
+
+
+def test_entry_plan_trigger_level_exact_falls_back_to_heuristic_when_absent():
+    """guard iii: trigger_level_exact ABSENT (older shared-signal.json / a TRENDLINE-tier
+    entry with no level-tied trigger) -> falls back to trigger_level (heuristic), never
+    None just because the exact key is missing while the heuristic value IS present."""
+    sig = {"spot": 600.0, "strategies": [
+        {"name": "ribbon_ride", "side": "P", "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+         "triggers": ["t1", "t2"], "quality": "BASE", "est_premium": None, "spot": 600.0,
+         "trigger_level": 601.4},   # trigger_level_exact absent
+    ]}
+    plans = fx.plan_all(ARM, sig, 2000.0, PARAMS)
+    enter = [p for p in plans if p.action == "ENTER"]
+    assert len(enter) == 1 and enter[0].trigger_level == 601.4
+
+
+def test_entry_plan_trigger_level_exact_is_emission_only():
+    """guard iv, vary-and-assert: EVERY other EntryPlan field (action/side/setup_name/
+    strike/qty/quality/reason/strategy/exit_shape) is byte-identical whether or not
+    trigger_level_exact is present on the strategies[] entry -- only .trigger_level itself
+    (an emission-only field the gate/sizing logic never reads) differs. Proves this is a
+    pure data addition, not a gating/sizing change."""
+    base_entry = {"name": "ribbon_ride", "side": "P", "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+                  "triggers": ["t1", "t2"], "quality": "BASE", "est_premium": None, "spot": 600.0,
+                  "trigger_level": 601.4}
+    sig_without = {"spot": 600.0, "strategies": [dict(base_entry)]}
+    sig_with = {"spot": 600.0, "strategies": [{**base_entry, "trigger_level_exact": 602.75}]}
+    p_without = [p for p in fx.plan_all(ARM, sig_without, 2000.0, PARAMS) if p.action == "ENTER"][0]
+    p_with = [p for p in fx.plan_all(ARM, sig_with, 2000.0, PARAMS) if p.action == "ENTER"][0]
+    for field in ("arm_id", "action", "side", "setup_name", "strike", "qty", "quality",
+                  "reason", "strategy", "exit_shape"):
+        assert getattr(p_without, field) == getattr(p_with, field), (
+            f"{field} must be byte-identical: {getattr(p_without, field)!r} vs "
+            f"{getattr(p_with, field)!r}")
+    assert p_without.trigger_level == 601.4
+    assert p_with.trigger_level == 602.75
+
+
 # === end-to-end: entry plan -> exit state -> structure exit fires on a fixture =============
 def test_register_entry_then_manage_tick_structure_fires_end_to_end(tmp_path, monkeypatch):
     """The FULL threading chain through the ACTUATOR layer (not just the pure core):
@@ -266,6 +331,89 @@ def test_build_emits_trigger_level_for_ribbon_entry(tmp_path, monkeypatch):
     ribbon = [s for s in sig["strategies"] if s["name"] == "ribbon_ride"]
     assert len(ribbon) == 1
     assert ribbon[0]["trigger_level"] == 600.9
+
+
+# === LEVEL PROVENANCE (G12, 2026-07-09 night): trigger_level_exact passthrough,
+# core-decisions.jsonl -> _map_core_row -> build()'s side blocks + strategies[] entries ====
+def test_map_core_row_passes_through_trigger_level_exact():
+    row = {"ts_et": "2026-07-09T11:00:00-04:00", "account": "safe", "spy": 600.0,
+           "ribbon": "BEAR_STACK", "spread_cents": 12, "vix": 15.0, "htf_15m": "BEAR",
+           "verdict": "ENTER_BEAR", "side": "P", "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+           "bear_score": 9, "bull_score": 2, "triggers": ["level_rejection"],
+           "action": "ENTER_BEAR", "trigger_level_exact": 622.5}
+    mapped = bss._map_core_row(row)
+    assert mapped["trigger_level_exact"] == 622.5
+
+
+def test_map_core_row_trigger_level_exact_none_when_absent():
+    """guard iii: an OLDER core-decisions.jsonl row (written before this build, no
+    trigger_level_exact key at all) maps to None, never a crash, never a guess."""
+    row = {"ts_et": "2026-07-09T11:00:00-04:00", "account": "safe", "spy": 600.0,
+           "ribbon": "BEAR_STACK", "spread_cents": 12, "vix": 15.0, "htf_15m": "BEAR",
+           "verdict": "ENTER_BEAR", "side": "P", "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+           "bear_score": 9, "bull_score": 2, "triggers": ["level_rejection"], "action": "ENTER_BEAR"}
+    mapped = bss._map_core_row(row)
+    assert mapped["trigger_level_exact"] is None
+
+
+def _core_row(tmp_path, *, trigger_level_exact=None, today="2026-06-26"):
+    import json
+    core = tmp_path / "core-decisions.jsonl"
+    row = {"ts_et": f"{today}T11:00:00-04:00", "account": "safe", "spy": 600.0,
+           "ribbon": "BEAR_STACK", "spread_cents": 12, "vix": 15.0, "htf_15m": "BEAR",
+           "verdict": "ENTER_BEAR", "side": "P", "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+           "bear_score": 9, "bull_score": 2, "triggers": ["level_rejection"], "action": "ENTER_BEAR"}
+    if trigger_level_exact is not None:
+        row["trigger_level_exact"] = trigger_level_exact
+    core.write_text(json.dumps(row) + "\n", encoding="utf-8")
+    return core
+
+
+def test_build_emits_trigger_level_exact_on_side_block_and_strategies_entry(tmp_path, monkeypatch):
+    """End-to-end: build()'s WINNING side (bear, since verdict=ENTER_BEAR) carries
+    trigger_level_exact on BOTH the top-level bear block and the strategies[] ribbon_ride
+    entry; the LOSING side (bull) stays None (mirrors triggers_fired/setup_name's existing
+    win-gated convention)."""
+    from datetime import datetime, timedelta, timezone
+    ET = timezone(timedelta(hours=-4))
+    now = datetime(2026, 6, 26, 11, 5, tzinfo=ET)
+    monkeypatch.setattr(bss, "CORE_DECISIONS", _core_row(tmp_path, trigger_level_exact=622.5))
+    monkeypatch.setattr(bss, "OUT", tmp_path / "shared-signal.json")
+    monkeypatch.setattr(bss, "BEACON", tmp_path / "no-beacon.json")
+    monkeypatch.setattr(bss, "KEY_LEVELS", _write_levels(tmp_path, [{"price": 600.9}]))
+    sig = bss.build(now=now, emit_strategies=True, run_vwap=False)
+    assert sig["bear"]["trigger_level_exact"] == 622.5
+    assert sig["bull"]["trigger_level_exact"] is None
+    ribbon = [s for s in sig["strategies"] if s["name"] == "ribbon_ride"]
+    assert len(ribbon) == 1
+    assert ribbon[0]["trigger_level_exact"] == 622.5
+    assert ribbon[0]["trigger_level"] == 600.9, "the heuristic field stays UNCHANGED alongside it"
+
+
+def test_build_trigger_level_exact_is_emission_only(tmp_path, monkeypatch):
+    """guard iv, vary-and-assert: production_action + bear/bull passed/score/triggers_fired/
+    setup_name/confluence are byte-identical whether or not the core row carries
+    trigger_level_exact -- only the new field differs."""
+    from datetime import datetime, timedelta, timezone
+    ET = timezone(timedelta(hours=-4))
+    now = datetime(2026, 6, 26, 11, 5, tzinfo=ET)
+    monkeypatch.setattr(bss, "OUT", tmp_path / "shared-signal.json")
+    monkeypatch.setattr(bss, "BEACON", tmp_path / "no-beacon.json")
+    monkeypatch.setattr(bss, "KEY_LEVELS", _write_levels(tmp_path, [{"price": 600.9}]))
+
+    monkeypatch.setattr(bss, "CORE_DECISIONS", _core_row(tmp_path, trigger_level_exact=None))
+    sig_without = bss.build(now=now, emit_strategies=True, run_vwap=False)
+
+    monkeypatch.setattr(bss, "CORE_DECISIONS", _core_row(tmp_path, trigger_level_exact=622.5))
+    sig_with = bss.build(now=now, emit_strategies=True, run_vwap=False)
+
+    assert sig_without["production_action"] == sig_with["production_action"]
+    for side in ("bear", "bull"):
+        for key in ("passed", "score", "triggers_fired", "setup_name", "confluence"):
+            assert sig_without[side][key] == sig_with[side][key], (
+                f"{side}.{key} must be byte-identical")
+    assert sig_without["bear"]["trigger_level_exact"] is None
+    assert sig_with["bear"]["trigger_level_exact"] == 622.5
 
 
 if __name__ == "__main__":
