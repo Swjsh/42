@@ -547,6 +547,37 @@ def _engine_verdict(payload: dict) -> dict:
 
 
 # ----- 2 free models: veto-only sanity layer ---------------------------------
+def _veto_snapshot(bc: dict, verdict: dict) -> str:
+    """Render the free-model veto sanity-check snapshot string from bar_ctx + a verdict dict.
+
+    Extracted from _free_model_eval (2026-07-09 fix, GATE-PROVENANCE-CENSUS-2026-07-09.md #2)
+    so it's independently testable without mocking swarm_client. `bear_score`/`bull_score`
+    exist ONLY on core-ribbon verdicts (engine_cli's 0-10/0-11 rules-engine score) --
+    extra-setup verdicts (_synthetic_verdict_from_extra) never carry them, because those
+    are watcher-pattern detectors, not scored the same way. Render "bear=N/10"/"bull=N/11"
+    ONLY when the value is real; OMIT rather than print the fabricated-looking "bear=None/10"
+    that made 7/14 extra-setup vetoes on 2026-07-09 cite a malformed prompt as their stated
+    reason. `side` is unaffected by this omission logic -- as of the same fix, both lanes
+    always populate a real side, so it renders identically to before on the core path and
+    now renders a real value (not None) on the extra-setup path.
+
+    Byte-identical to the pre-fix inline string whenever bear_score AND bull_score are both
+    present (the core-ribbon path, always true today) -- this is a pure extraction there."""
+    bear, bull = verdict.get("bear_score"), verdict.get("bull_score")
+    scores = " ".join(s for s in (
+        f"bear={bear}/10" if bear is not None else None,
+        f"bull={bull}/11" if bull is not None else None,
+    ) if s)
+    setup_seg = f"setup={verdict.get('setup_name')}"
+    if scores:
+        setup_seg += f" {scores}"
+    return (f"SPY={bc['bar']['close']} ribbon={bc['ribbon_now']['stack']} "
+            f"spread={bc['ribbon_now']['spread_cents']}c VIX={bc['vix_now']:.2f}(prior {bc['vix_prior']:.2f}) "
+            f"HTF15m={bc['htf_15m_stack']} levels_near={bc['levels_active']} "
+            f"rules_engine_says={verdict.get('verdict')} side={verdict.get('side')} "
+            f"{setup_seg} triggers={verdict.get('triggers_fired')}")
+
+
 def _free_model_eval(account: str, payload: dict, verdict: dict) -> dict:
     """2 FREE models each give GO/NO-GO on the rules-engine's ENTER. Veto only — they can
     block a marginal entry, never manufacture one. $0 (groq/cerebras/gemini free pool)."""
@@ -555,12 +586,7 @@ def _free_model_eval(account: str, payload: dict, verdict: dict) -> dict:
     except Exception:
         return {"evaluated": False, "votes": [], "veto": False, "note": "swarm_client unavailable"}
     bc = payload["bar_ctx"]
-    snap = (f"SPY={bc['bar']['close']} ribbon={bc['ribbon_now']['stack']} "
-            f"spread={bc['ribbon_now']['spread_cents']}c VIX={bc['vix_now']:.2f}(prior {bc['vix_prior']:.2f}) "
-            f"HTF15m={bc['htf_15m_stack']} levels_near={bc['levels_active']} "
-            f"rules_engine_says={verdict.get('verdict')} side={verdict.get('side')} "
-            f"setup={verdict.get('setup_name')} bear={verdict.get('bear_score')}/10 "
-            f"bull={verdict.get('bull_score')}/11 triggers={verdict.get('triggers_fired')}")
+    snap = _veto_snapshot(bc, verdict)
     # Only `go` is required — the aggregation below consumes go (bool) and never gates on
     # reason. Requiring reason discarded otherwise-valid votes as no_valid_json, because
     # reasoning lanes (nemotron/qwen3) routinely emit a bare {"go": true}. reason stays an
@@ -1336,13 +1362,29 @@ _EXTRA_DIR_TO_VERDICT = {"long": "ENTER_BULL", "short": "ENTER_BEAR"}
 
 def _synthetic_verdict_from_extra(row: dict) -> "dict | None":
     """Map a FIRED dispatch_extra_setups row to a verdict dict _execute understands.
-    Returns None for non-fired / neutral / malformed rows (fail-closed -> no trade)."""
+    Returns None for non-fired / neutral / malformed rows (fail-closed -> no trade).
+
+    FIX (2026-07-09, GATE-PROVENANCE-CENSUS-2026-07-09.md #2 / BUG-CONFIRMED): `side` is
+    now populated using the IDENTICAL derivation _execute uses for the core-ribbon path
+    (`side = "P" if verdict == ENTER_BEAR else "C"`, see _execute ~L1091) so the free-model
+    veto snapshot (_veto_snapshot / _free_model_eval) never renders "side=None" for an
+    extra-setup entry. Before this fix, this dict carried ONLY verdict/setup_name/
+    triggers_fired -- _free_model_eval's snapshot builder then rendered "side=None
+    bear=None/10 bull=None/11" on every extra-setup veto call, and at least 7 of 14
+    extra-setup veto events on 2026-07-09 cited that exact malformed prompt as their
+    stated reasoning (e.g. 10:31:03 vwap_reclaim_failed_break: "rules_engine_says=
+    ENTER_BULL but side=None"), suppressing 5 already-validated setups for a non-reason.
+    bear_score/bull_score are deliberately still NOT set here -- extra setups are watcher-
+    pattern detectors, not scored on the core engine's 0-10/0-11 scale, so there is no real
+    value to report. _veto_snapshot omits those fields when absent rather than fabricate
+    a fake "None/10" reading (never fabricate)."""
     if not isinstance(row, dict) or not row.get("fired"):
         return None
     v = _EXTRA_DIR_TO_VERDICT.get(str(row.get("direction", "")).lower())
     if v is None:  # neutral / unknown direction -> no trade
         return None
-    return {"verdict": v, "setup_name": row.get("setup_name"),
+    return {"verdict": v, "side": "P" if v == "ENTER_BEAR" else "C",
+            "setup_name": row.get("setup_name"),
             "triggers_fired": list(row.get("triggers") or [])}
 
 
