@@ -1,0 +1,1458 @@
+{
+  "generated_at": "2026-07-10T16:03:45.352740",
+  "mission": "Quantify the class of days where NO armed setup fires a signal, using 2026-07-10 (SPY +$7 off the low, zero armed setup firing after 11:33 ET, 734 HOLDs) as the exhibit.",
+  "methodology": {
+    "day_shape_taxonomy": {
+      "source": "backtest/data/spy_5m_2026-05-19_2026-07-10.csv (RTH 09:30-15:59 ET, 5m bars)",
+      "window": "last 30 RTH sessions ending 2026-07-10 (2026-05-28 .. 2026-07-10)",
+      "frozen_rules_applied_in_priority_order": [
+        "1. FLUSH_RECOVER / SPIKE_FADE -- an early (first 25% of bars) >=0.6% move from the open that reclaims/fades 61.8%-138.2% of itself by the close (round-trips, does not extend into a fresh trend).",
+        "2. FLUSH_TREND_DOWN / FLUSH_TREND_UP -- a FAST early break (extreme within the first 25% of bars, >=0.6% from open) that reclaims <61.8% and the day still closes >=0.3% net in the break's direction (never meaningfully recovers).",
+        "3. TREND_UP / TREND_DOWN -- an 'anchored' move >=0.6% with <35% max giveback of the move-so-far at any point after the anchor. The anchor is the OPEN, unless the session low (for up) / high (for down) was set in the first 25% of bars AND is beyond the open -- then the anchor is that early extreme, so a day that flushes early and then grinds the rest of the way (07-10's shape) is correctly read as a trend 'off the low', not a flush.",
+        "4. GAP_GO / GAP_FADE -- |opening gap vs prior RTH close| >=0.3%, resolved (net move same-sign = GO, opposite-sign = FADE) with |net move| >=0.3%.",
+        "5. RANGE -- (session high - session low)/open < 0.5%.",
+        "6. CHOP -- catch-all: directional but with >=35% retrace, or a wider range that never cleanly resolves into trend/flush/gap/range."
+      ],
+      "note": "Every session gets exactly ONE label (first matching rule wins). Thresholds were calibrated once against known days (2026-07-10, 2026-06-30) then frozen before running the full 30-day pass -- not re-tuned after seeing the answer."
+    },
+    "setup_firing_map": {
+      "source": "automation/state/core-decisions.jsonl",
+      "CRITICAL_LIMITATION": "This file has NO archive or rotation anywhere in the repo (verified: git log --follow shows exactly ONE commit ever touched it, 2026-06-26; no rotated/archived copy exists under automation/state or elsewhere). Its actual live retention is 2026-06-25 (partial, engine started 13:48 ET) through 2026-07-10 -- 11 real trading sessions, not 30. The 19 earlier sessions in the day-shape taxonomy (2026-05-28 .. 2026-06-24) have ZERO setup-firing data available from this source -- not backfilled, not extrapolated, not estimated in this audit.",
+      "second_finding": "2026-07-03 shows 756 logged engine ticks in core-decisions.jsonl but ZERO bars exist in the SPY 5m cache for that date -- confirmed market-CLOSED (July 4 2026 falls on a Saturday; NYSE observes the preceding Friday, July 3). The heartbeat ticked and logged decisions against a fully closed market. Excluded from every statistic in this report as a non-session data artifact; flagged separately for follow-up (not fixed here -- read-only audit).",
+      "definitions": {
+        "fired": "core setups (ribbon_ride): the 'setup' field is non-null on a tick (scoring passed), independent of what verdict/gate follows. extra setups: extra_signals[i].fired == true.",
+        "entered": "core setups: verdict in {ENTER_BEAR, ENTER_BULL}. extra setups: extra_exec[i].action == 'PLACED'.",
+        "orders/placed": "exec.status == 'PLACED' (core) or extra_exec[i].action == 'PLACED' (extra). NOTE: verdict ENTER_* does NOT guarantee a real order attempt -- see the 'action' field, which can downgrade an ENTER_BULL verdict to a no-op (e.g. SKIP_STALE_TRIGGER) with no exec dispatch at all. This audit reports verdict-level and action-level counts SEPARATELY rather than conflating them.",
+        "fills": "NOT reliably reconstructable from core-decisions.jsonl alone (exec.status 'PLACED' means order-submitted, not fill-confirmed, and is frequently absent even on real ENTER_* rows). journal/trades.csv is the fill-of-record for the two core accounts AND the separate fleet-arm accounts, cross-checked selectively below where it changes the conclusion."
+      }
+    }
+  },
+  "day_shape_distribution_30d": {
+    "CHOP": {
+      "n_days": 11,
+      "pct_of_30": 36.7
+    },
+    "GAP_GO": {
+      "n_days": 4,
+      "pct_of_30": 13.3
+    },
+    "GAP_FADE": {
+      "n_days": 4,
+      "pct_of_30": 13.3
+    },
+    "RANGE": {
+      "n_days": 3,
+      "pct_of_30": 10.0
+    },
+    "TREND_UP": {
+      "n_days": 3,
+      "pct_of_30": 10.0
+    },
+    "FLUSH_TREND_DOWN": {
+      "n_days": 2,
+      "pct_of_30": 6.7
+    },
+    "FLUSH_RECOVER": {
+      "n_days": 1,
+      "pct_of_30": 3.3
+    },
+    "TREND_DOWN": {
+      "n_days": 1,
+      "pct_of_30": 3.3
+    },
+    "SPIKE_FADE": {
+      "n_days": 1,
+      "pct_of_30": 3.3
+    }
+  },
+  "decision_data_coverage": {
+    "n_sessions_with_data": 11,
+    "dates_with_data": [
+      "2026-06-25",
+      "2026-06-26",
+      "2026-06-29",
+      "2026-06-30",
+      "2026-07-01",
+      "2026-07-02",
+      "2026-07-06",
+      "2026-07-07",
+      "2026-07-08",
+      "2026-07-09",
+      "2026-07-10"
+    ],
+    "dates_without_data": [
+      "2026-05-28",
+      "2026-05-29",
+      "2026-06-01",
+      "2026-06-02",
+      "2026-06-03",
+      "2026-06-04",
+      "2026-06-05",
+      "2026-06-08",
+      "2026-06-09",
+      "2026-06-10",
+      "2026-06-11",
+      "2026-06-12",
+      "2026-06-15",
+      "2026-06-16",
+      "2026-06-17",
+      "2026-06-18",
+      "2026-06-22",
+      "2026-06-23",
+      "2026-06-24"
+    ],
+    "excluded_non_sessions_market_closed": [
+      "2026-07-03"
+    ]
+  },
+  "shape_x_setup_matrix": [
+    {
+      "shape": "GAP_FADE",
+      "n_days_in_30": 4,
+      "n_days_with_decision_data": 2,
+      "dates_all": [
+        "2026-06-08",
+        "2026-06-09",
+        "2026-06-26",
+        "2026-07-08"
+      ],
+      "dates_with_data": [
+        "2026-06-26",
+        "2026-07-08"
+      ],
+      "total_range_dollars_all_30": 47.76,
+      "avg_range_dollars": 11.94,
+      "setup_days_fired": {
+        "BEARISH_REJECTION_RIDE_THE_RIBBON": 2,
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 1,
+        "vwap_continuation": 1,
+        "vwap_reclaim_failed_break": 1,
+        "bollinger_squeeze": 1
+      },
+      "setup_entered_total": {
+        "BEARISH_REJECTION_RIDE_THE_RIBBON": 18,
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 6,
+        "vwap_continuation": 0,
+        "vwap_reclaim_failed_break": 0,
+        "bollinger_squeeze": 1
+      },
+      "setup_fired_ticks_total": {
+        "BEARISH_REJECTION_RIDE_THE_RIBBON": 33,
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 16,
+        "vwap_continuation": 10,
+        "vwap_reclaim_failed_break": 5,
+        "bollinger_squeeze": 2
+      },
+      "uncaptured_continuation_dollars": 6.98,
+      "never_fired_days": [
+        "2026-06-26"
+      ],
+      "per_day_uncaptured_dollars": 3.49,
+      "extrapolated_30d_opportunity_dollars": 13.96
+    },
+    {
+      "shape": "TREND_UP",
+      "n_days_in_30": 3,
+      "n_days_with_decision_data": 3,
+      "dates_all": [
+        "2026-06-29",
+        "2026-07-09",
+        "2026-07-10"
+      ],
+      "dates_with_data": [
+        "2026-06-29",
+        "2026-07-09",
+        "2026-07-10"
+      ],
+      "total_range_dollars_all_30": 22.8,
+      "avg_range_dollars": 7.6,
+      "setup_days_fired": {
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 3,
+        "vwap_continuation": 2,
+        "gap_and_go": 3,
+        "vwap_reclaim_failed_break": 1,
+        "vix_regime_dayside": 1,
+        "bollinger_squeeze": 2
+      },
+      "setup_entered_total": {
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 16,
+        "vwap_continuation": 0,
+        "gap_and_go": 0,
+        "vwap_reclaim_failed_break": 0,
+        "vix_regime_dayside": 0,
+        "bollinger_squeeze": 12
+      },
+      "setup_fired_ticks_total": {
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 160,
+        "vwap_continuation": 45,
+        "gap_and_go": 14,
+        "vwap_reclaim_failed_break": 5,
+        "vix_regime_dayside": 5,
+        "bollinger_squeeze": 39
+      },
+      "uncaptured_continuation_dollars": 1.29,
+      "never_fired_days": [],
+      "per_day_uncaptured_dollars": 0.43,
+      "extrapolated_30d_opportunity_dollars": 1.29
+    },
+    {
+      "shape": "FLUSH_TREND_DOWN",
+      "n_days_in_30": 2,
+      "n_days_with_decision_data": 2,
+      "dates_all": [
+        "2026-06-25",
+        "2026-07-07"
+      ],
+      "dates_with_data": [
+        "2026-06-25",
+        "2026-07-07"
+      ],
+      "total_range_dollars_all_30": 15.52,
+      "avg_range_dollars": 7.76,
+      "setup_days_fired": {
+        "BEARISH_REJECTION_RIDE_THE_RIBBON": 2,
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 1,
+        "double_bottom_base_quiet": 1,
+        "bollinger_squeeze": 1
+      },
+      "setup_entered_total": {
+        "BEARISH_REJECTION_RIDE_THE_RIBBON": 19,
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 0,
+        "double_bottom_base_quiet": 0,
+        "bollinger_squeeze": 0
+      },
+      "setup_fired_ticks_total": {
+        "BEARISH_REJECTION_RIDE_THE_RIBBON": 68,
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 4,
+        "double_bottom_base_quiet": 5,
+        "bollinger_squeeze": 5
+      },
+      "uncaptured_continuation_dollars": 1.27,
+      "never_fired_days": [],
+      "per_day_uncaptured_dollars": 0.64,
+      "extrapolated_30d_opportunity_dollars": 1.27
+    },
+    {
+      "shape": "CHOP",
+      "n_days_in_30": 11,
+      "n_days_with_decision_data": 3,
+      "dates_all": [
+        "2026-05-28",
+        "2026-06-01",
+        "2026-06-03",
+        "2026-06-04",
+        "2026-06-16",
+        "2026-06-17",
+        "2026-06-18",
+        "2026-06-24",
+        "2026-06-30",
+        "2026-07-01",
+        "2026-07-02"
+      ],
+      "dates_with_data": [
+        "2026-06-30",
+        "2026-07-01",
+        "2026-07-02"
+      ],
+      "total_range_dollars_all_30": 80.76,
+      "avg_range_dollars": 7.34,
+      "setup_days_fired": {
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 3,
+        "BEARISH_REJECTION_RIDE_THE_RIBBON": 2,
+        "vwap_continuation": 1,
+        "vix_regime_dayside": 1
+      },
+      "setup_entered_total": {
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 0,
+        "BEARISH_REJECTION_RIDE_THE_RIBBON": 44,
+        "vwap_continuation": 6,
+        "vix_regime_dayside": 0
+      },
+      "setup_fired_ticks_total": {
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 86,
+        "BEARISH_REJECTION_RIDE_THE_RIBBON": 64,
+        "vwap_continuation": 30,
+        "vix_regime_dayside": 4
+      },
+      "uncaptured_continuation_dollars": 0.0,
+      "never_fired_days": [],
+      "per_day_uncaptured_dollars": 0.0,
+      "extrapolated_30d_opportunity_dollars": 0.0
+    },
+    {
+      "shape": "GAP_GO",
+      "n_days_in_30": 4,
+      "n_days_with_decision_data": 1,
+      "dates_all": [
+        "2026-06-05",
+        "2026-06-10",
+        "2026-06-11",
+        "2026-07-06"
+      ],
+      "dates_with_data": [
+        "2026-07-06"
+      ],
+      "total_range_dollars_all_30": 50.93,
+      "avg_range_dollars": 12.73,
+      "setup_days_fired": {
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 1,
+        "bollinger_squeeze": 1
+      },
+      "setup_entered_total": {
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 3,
+        "bollinger_squeeze": 11
+      },
+      "setup_fired_ticks_total": {
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": 48,
+        "bollinger_squeeze": 16
+      },
+      "uncaptured_continuation_dollars": 0.0,
+      "never_fired_days": [],
+      "per_day_uncaptured_dollars": 0.0,
+      "extrapolated_30d_opportunity_dollars": 0.0
+    },
+    {
+      "shape": "RANGE",
+      "n_days_in_30": 3,
+      "n_days_with_decision_data": 0,
+      "dates_all": [
+        "2026-05-29",
+        "2026-06-02",
+        "2026-06-15"
+      ],
+      "dates_with_data": [],
+      "total_range_dollars_all_30": 9.37,
+      "avg_range_dollars": 3.12,
+      "setup_days_fired": {},
+      "setup_entered_total": {},
+      "setup_fired_ticks_total": {},
+      "uncaptured_continuation_dollars": 0.0,
+      "never_fired_days": [],
+      "per_day_uncaptured_dollars": null,
+      "extrapolated_30d_opportunity_dollars": null
+    },
+    {
+      "shape": "FLUSH_RECOVER",
+      "n_days_in_30": 1,
+      "n_days_with_decision_data": 0,
+      "dates_all": [
+        "2026-06-12"
+      ],
+      "dates_with_data": [],
+      "total_range_dollars_all_30": 9.41,
+      "avg_range_dollars": 9.41,
+      "setup_days_fired": {},
+      "setup_entered_total": {},
+      "setup_fired_ticks_total": {},
+      "uncaptured_continuation_dollars": 0.0,
+      "never_fired_days": [],
+      "per_day_uncaptured_dollars": null,
+      "extrapolated_30d_opportunity_dollars": null
+    },
+    {
+      "shape": "TREND_DOWN",
+      "n_days_in_30": 1,
+      "n_days_with_decision_data": 0,
+      "dates_all": [
+        "2026-06-22"
+      ],
+      "dates_with_data": [],
+      "total_range_dollars_all_30": 7.05,
+      "avg_range_dollars": 7.05,
+      "setup_days_fired": {},
+      "setup_entered_total": {},
+      "setup_fired_ticks_total": {},
+      "uncaptured_continuation_dollars": 0.0,
+      "never_fired_days": [],
+      "per_day_uncaptured_dollars": null,
+      "extrapolated_30d_opportunity_dollars": null
+    },
+    {
+      "shape": "SPIKE_FADE",
+      "n_days_in_30": 1,
+      "n_days_with_decision_data": 0,
+      "dates_all": [
+        "2026-06-23"
+      ],
+      "dates_with_data": [],
+      "total_range_dollars_all_30": 7.33,
+      "avg_range_dollars": 7.33,
+      "setup_days_fired": {},
+      "setup_entered_total": {},
+      "setup_fired_ticks_total": {},
+      "uncaptured_continuation_dollars": 0.0,
+      "never_fired_days": [],
+      "per_day_uncaptured_dollars": null,
+      "extrapolated_30d_opportunity_dollars": null
+    }
+  ],
+  "dead_zone_continuation_rows": [
+    {
+      "date": "2026-06-25",
+      "shape": "FLUSH_TREND_DOWN",
+      "direction": "bear",
+      "matching_setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "setup_fired_ticks": 12,
+      "setup_entered_ticks": 1,
+      "last_fire_ts": "2026-06-25T14:20:06",
+      "session_close": 731.9400024414062,
+      "continuation_dollars_after_last_fire": 1.27,
+      "status": "FIRED_THEN_WENT_DARK"
+    },
+    {
+      "date": "2026-06-26",
+      "shape": "GAP_FADE",
+      "direction": "bull",
+      "matching_setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "setup_fired_ticks": 0,
+      "setup_entered_ticks": 0,
+      "last_fire_ts": null,
+      "session_close": 733.14501953125,
+      "continuation_dollars_after_last_fire": 6.31,
+      "status": "NEVER_FIRED"
+    },
+    {
+      "date": "2026-06-29",
+      "shape": "TREND_UP",
+      "direction": "bull",
+      "matching_setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "setup_fired_ticks": 4,
+      "setup_entered_ticks": 0,
+      "last_fire_ts": "2026-06-29T14:49:05",
+      "session_close": 740.52001953125,
+      "continuation_dollars_after_last_fire": -0.45,
+      "status": "FIRED_AND_TRACKED_TO_CLOSE"
+    },
+    {
+      "date": "2026-07-06",
+      "shape": "GAP_GO",
+      "direction": "bull",
+      "matching_setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "setup_fired_ticks": 48,
+      "setup_entered_ticks": 3,
+      "last_fire_ts": "2026-07-06T15:28:28",
+      "session_close": 751.219970703125,
+      "continuation_dollars_after_last_fire": -1.09,
+      "status": "FIRED_AND_TRACKED_TO_CLOSE"
+    },
+    {
+      "date": "2026-07-07",
+      "shape": "FLUSH_TREND_DOWN",
+      "direction": "bear",
+      "matching_setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "setup_fired_ticks": 56,
+      "setup_entered_ticks": 18,
+      "last_fire_ts": "2026-07-07T15:50:04",
+      "session_close": 747.75,
+      "continuation_dollars_after_last_fire": -1.22,
+      "status": "FIRED_AND_TRACKED_TO_CLOSE"
+    },
+    {
+      "date": "2026-07-08",
+      "shape": "GAP_FADE",
+      "direction": "bull",
+      "matching_setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "setup_fired_ticks": 16,
+      "setup_entered_ticks": 6,
+      "last_fire_ts": "2026-07-08T14:55:04",
+      "session_close": 745.9600219726562,
+      "continuation_dollars_after_last_fire": 0.67,
+      "status": "FIRED_THEN_WENT_DARK"
+    },
+    {
+      "date": "2026-07-09",
+      "shape": "TREND_UP",
+      "direction": "bull",
+      "matching_setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "setup_fired_ticks": 114,
+      "setup_entered_ticks": 5,
+      "last_fire_ts": "2026-07-09T15:50:06",
+      "session_close": 751.6599731445312,
+      "continuation_dollars_after_last_fire": 0.24,
+      "status": "FIRED_AND_TRACKED_TO_CLOSE"
+    },
+    {
+      "date": "2026-07-10",
+      "shape": "TREND_UP",
+      "direction": "bull",
+      "matching_setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "setup_fired_ticks": 42,
+      "setup_entered_ticks": 11,
+      "last_fire_ts": "2026-07-10T12:55:04",
+      "session_close": 754.8599853515625,
+      "continuation_dollars_after_last_fire": 1.05,
+      "status": "FIRED_THEN_WENT_DARK"
+    }
+  ],
+  "per_day_detail": {
+    "2026-05-28": {
+      "shape": "CHOP",
+      "shape_reason": "net +0.59%, range 0.79%, no clean trend/flush/gap/range resolution",
+      "net_move_pct": 0.585,
+      "range_dollars": 5.92,
+      "range_pct": 0.789,
+      "open": 750.25,
+      "close": 754.64,
+      "up_move_pct": 0.722,
+      "down_move_pct": -0.585,
+      "has_decision_data": false
+    },
+    "2026-05-29": {
+      "shape": "RANGE",
+      "shape_reason": "day range 0.45% < 0.5%",
+      "net_move_pct": 0.066,
+      "range_dollars": 3.39,
+      "range_pct": 0.448,
+      "open": 755.9,
+      "close": 756.4,
+      "up_move_pct": 0.227,
+      "down_move_pct": 0.222,
+      "has_decision_data": false
+    },
+    "2026-06-01": {
+      "shape": "CHOP",
+      "shape_reason": "net +0.41%, range 0.74%, no clean trend/flush/gap/range resolution",
+      "net_move_pct": 0.408,
+      "range_dollars": 5.58,
+      "range_pct": 0.739,
+      "open": 755.3599853515625,
+      "close": 758.4400024414062,
+      "up_move_pct": 0.497,
+      "down_move_pct": -0.408,
+      "has_decision_data": false
+    },
+    "2026-06-02": {
+      "shape": "RANGE",
+      "shape_reason": "day range 0.48% < 0.5%",
+      "net_move_pct": 0.321,
+      "range_dollars": 3.65,
+      "range_pct": 0.482,
+      "open": 757.030029296875,
+      "close": 759.4600219726562,
+      "up_move_pct": 0.358,
+      "down_move_pct": -0.321,
+      "has_decision_data": false
+    },
+    "2026-06-03": {
+      "shape": "CHOP",
+      "shape_reason": "net -0.52%, range 0.69%, no clean trend/flush/gap/range resolution",
+      "net_move_pct": -0.522,
+      "range_dollars": 5.23,
+      "range_pct": 0.69,
+      "open": 758.1500244140625,
+      "close": 754.1900024414062,
+      "up_move_pct": -0.522,
+      "down_move_pct": 0.608,
+      "has_decision_data": false
+    },
+    "2026-06-04": {
+      "shape": "CHOP",
+      "shape_reason": "net +0.66%, range 0.91%, no clean trend/flush/gap/range resolution",
+      "net_move_pct": 0.658,
+      "range_dollars": 6.84,
+      "range_pct": 0.909,
+      "open": 752.0999755859375,
+      "close": 757.0499877929688,
+      "up_move_pct": 0.743,
+      "down_move_pct": -0.658,
+      "has_decision_data": false
+    },
+    "2026-06-05": {
+      "shape": "GAP_GO",
+      "shape_reason": "gap -0.63%, extended -1.98% net",
+      "net_move_pct": -1.982,
+      "range_dollars": 17.29,
+      "range_pct": 2.299,
+      "open": 752.3099975585938,
+      "close": 737.4000244140625,
+      "up_move_pct": -1.982,
+      "down_move_pct": 2.048,
+      "has_decision_data": false
+    },
+    "2026-06-08": {
+      "shape": "GAP_FADE",
+      "shape_reason": "gap +0.81%, reversed to -0.54% net",
+      "net_move_pct": -0.545,
+      "range_dollars": 7.15,
+      "range_pct": 0.962,
+      "open": 743.3599853515625,
+      "close": 739.3099975585938,
+      "up_move_pct": -0.545,
+      "down_move_pct": 0.809,
+      "has_decision_data": false
+    },
+    "2026-06-09": {
+      "shape": "GAP_FADE",
+      "shape_reason": "gap +0.58%, reversed to -0.88% net",
+      "net_move_pct": -0.884,
+      "range_dollars": 24.31,
+      "range_pct": 3.269,
+      "open": 743.6300048828125,
+      "close": 737.0599975585938,
+      "up_move_pct": -0.884,
+      "down_move_pct": 1.317,
+      "has_decision_data": false
+    },
+    "2026-06-10": {
+      "shape": "GAP_GO",
+      "shape_reason": "gap -0.50%, extended -1.09% net",
+      "net_move_pct": -1.085,
+      "range_dollars": 13.05,
+      "range_pct": 1.779,
+      "open": 733.3900146484375,
+      "close": 725.4299926757812,
+      "up_move_pct": -1.085,
+      "down_move_pct": 1.754,
+      "has_decision_data": false
+    },
+    "2026-06-11": {
+      "shape": "GAP_GO",
+      "shape_reason": "gap +0.46%, extended +1.22% net",
+      "net_move_pct": 1.219,
+      "range_dollars": 15.59,
+      "range_pct": 2.14,
+      "open": 728.760009765625,
+      "close": 737.6400146484375,
+      "up_move_pct": 1.827,
+      "down_move_pct": -1.219,
+      "has_decision_data": false
+    },
+    "2026-06-12": {
+      "shape": "FLUSH_RECOVER",
+      "shape_reason": "early low -0.77% from open, reclaimed 117% of the drop by close",
+      "net_move_pct": 0.128,
+      "range_dollars": 9.41,
+      "range_pct": 1.27,
+      "open": 740.7100219726562,
+      "close": 741.6599731445312,
+      "up_move_pct": 0.902,
+      "down_move_pct": -0.128,
+      "has_decision_data": false
+    },
+    "2026-06-15": {
+      "shape": "RANGE",
+      "shape_reason": "day range 0.31% < 0.5%",
+      "net_move_pct": 0.225,
+      "range_dollars": 2.33,
+      "range_pct": 0.31,
+      "open": 751.8499755859375,
+      "close": 753.5399780273438,
+      "up_move_pct": 0.237,
+      "down_move_pct": -0.225,
+      "has_decision_data": false
+    },
+    "2026-06-16": {
+      "shape": "CHOP",
+      "shape_reason": "net -0.52%, range 0.71%, no clean trend/flush/gap/range resolution",
+      "net_move_pct": -0.521,
+      "range_dollars": 5.36,
+      "range_pct": 0.71,
+      "open": 754.5499877929688,
+      "close": 750.6199951171875,
+      "up_move_pct": -0.521,
+      "down_move_pct": 0.638,
+      "has_decision_data": false
+    },
+    "2026-06-17": {
+      "shape": "CHOP",
+      "shape_reason": "net -1.37%, range 1.72%, no clean trend/flush/gap/range resolution",
+      "net_move_pct": -1.368,
+      "range_dollars": 12.92,
+      "range_pct": 1.72,
+      "open": 751.2899780273438,
+      "close": 741.010009765625,
+      "up_move_pct": -1.368,
+      "down_move_pct": 1.481,
+      "has_decision_data": false
+    },
+    "2026-06-18": {
+      "shape": "CHOP",
+      "shape_reason": "net +0.02%, range 0.58%, no clean trend/flush/gap/range resolution",
+      "net_move_pct": 0.021,
+      "range_dollars": 4.34,
+      "range_pct": 0.58,
+      "open": 747.760009765625,
+      "close": 747.9199829101562,
+      "up_move_pct": 0.546,
+      "down_move_pct": 0.037,
+      "has_decision_data": false
+    },
+    "2026-06-22": {
+      "shape": "TREND_DOWN",
+      "shape_reason": "-0.78% off the day's early high, max giveback 32% of the move",
+      "net_move_pct": -0.452,
+      "range_dollars": 7.05,
+      "range_pct": 0.943,
+      "open": 747.7000122070312,
+      "close": 744.3200073242188,
+      "up_move_pct": -0.452,
+      "down_move_pct": 0.781,
+      "has_decision_data": false
+    },
+    "2026-06-23": {
+      "shape": "SPIKE_FADE",
+      "shape_reason": "early spike +0.79% from open, faded 102% of the spike by close",
+      "net_move_pct": -0.019,
+      "range_dollars": 7.33,
+      "range_pct": 0.999,
+      "open": 733.8099975585938,
+      "close": 733.6699829101562,
+      "up_move_pct": 0.187,
+      "down_move_pct": 0.806,
+      "has_decision_data": false
+    },
+    "2026-06-24": {
+      "shape": "CHOP",
+      "shape_reason": "net -0.38%, range 1.24%, no clean trend/flush/gap/range resolution",
+      "net_move_pct": -0.382,
+      "range_dollars": 9.1,
+      "range_pct": 1.238,
+      "open": 735.1699829101562,
+      "close": 732.3599853515625,
+      "up_move_pct": -0.382,
+      "down_move_pct": 1.025,
+      "has_decision_data": false
+    },
+    "2026-06-25": {
+      "shape": "FLUSH_TREND_DOWN",
+      "shape_reason": "fast early break -1.26% (bar 5/78), only reclaimed 25%, closed -0.94%",
+      "net_move_pct": -0.943,
+      "range_dollars": 9.77,
+      "range_pct": 1.322,
+      "open": 738.9099731445312,
+      "close": 731.9400024414062,
+      "up_move_pct": 0.321,
+      "down_move_pct": 1.005,
+      "has_decision_data": true,
+      "n_ticks": 240,
+      "verdict_counts": {
+        "HOLD": 212,
+        "SKIP_BAD_INPUT": 16,
+        "SKIP_RIBBON_MOMENTUM_GATE": 6,
+        "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": 5,
+        "ENTER_BEAR": 1
+      },
+      "setups": {
+        "BEARISH_REJECTION_RIDE_THE_RIBBON": {
+          "fired_ticks": 12,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-06-25T14:10:26",
+          "last_fire_ts": "2026-06-25T14:20:06",
+          "spy_at_first_fire": 731.94,
+          "spy_at_last_fire": 733.21,
+          "entered_ticks": 1,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "SKIP_RIBBON_MOMENTUM_GATE": 6,
+            "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": 5
+          }
+        }
+      }
+    },
+    "2026-06-26": {
+      "shape": "GAP_FADE",
+      "shape_reason": "gap -0.41%, reversed to +0.58% net",
+      "net_move_pct": 0.576,
+      "range_dollars": 9.67,
+      "range_pct": 1.327,
+      "open": 728.9450073242188,
+      "close": 733.14501953125,
+      "up_move_pct": 0.865,
+      "down_move_pct": -0.576,
+      "has_decision_data": true,
+      "n_ticks": 760,
+      "verdict_counts": {
+        "HOLD": 738,
+        "SKIP_RIBBON_MOMENTUM_GATE": 10,
+        "ENTER_BEAR": 11,
+        "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": 1
+      },
+      "setups": {
+        "BEARISH_REJECTION_RIDE_THE_RIBBON": {
+          "fired_ticks": 22,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-06-26T10:36:02",
+          "last_fire_ts": "2026-06-26T15:55:04",
+          "spy_at_first_fire": 733.34,
+          "spy_at_last_fire": 733.04,
+          "entered_ticks": 11,
+          "placed_ticks": 2,
+          "blocked_reasons": {
+            "SKIP_RIBBON_MOMENTUM_GATE": 10,
+            "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": 1
+          }
+        }
+      }
+    },
+    "2026-06-29": {
+      "shape": "TREND_UP",
+      "shape_reason": "+1.15% off the day's early low, max giveback 21% of the move",
+      "net_move_pct": 0.542,
+      "range_dollars": 9.1,
+      "range_pct": 1.236,
+      "open": 736.5250244140625,
+      "close": 740.52001953125,
+      "up_move_pct": 1.151,
+      "down_move_pct": -0.542,
+      "has_decision_data": true,
+      "n_ticks": 772,
+      "verdict_counts": {
+        "HOLD": 768,
+        "SKIP_ELITE_BULL_LEVEL_RECLAIM": 4
+      },
+      "setups": {
+        "gap_and_go": {
+          "fired_ticks": 5,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-06-29T09:36:04",
+          "last_fire_ts": "2026-06-29T09:40:03",
+          "spy_at_first_fire": 738.68,
+          "spy_at_last_fire": 738.68,
+          "entered_ticks": 0,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "WATCH_NOT_ARMED": 5
+          }
+        },
+        "vwap_continuation": {
+          "fired_ticks": 15,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-06-29T09:51:03",
+          "last_fire_ts": "2026-06-29T10:40:04",
+          "spy_at_first_fire": 738.84,
+          "spy_at_last_fire": 737.41,
+          "entered_ticks": 0,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "WATCH_NOT_ARMED": 15
+          }
+        },
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+          "fired_ticks": 4,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-06-29T14:48:03",
+          "last_fire_ts": "2026-06-29T14:49:05",
+          "spy_at_first_fire": 740.97,
+          "spy_at_last_fire": 740.97,
+          "entered_ticks": 0,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM": 4
+          }
+        }
+      }
+    },
+    "2026-06-30": {
+      "shape": "CHOP",
+      "shape_reason": "net +0.87%, range 0.96%, no clean trend/flush/gap/range resolution",
+      "net_move_pct": 0.871,
+      "range_dollars": 7.13,
+      "range_pct": 0.962,
+      "open": 741.2899780273438,
+      "close": 747.75,
+      "up_move_pct": 0.926,
+      "down_move_pct": -0.871,
+      "has_decision_data": true,
+      "n_ticks": 772,
+      "verdict_counts": {
+        "HOLD": 708,
+        "SKIP_ELITE_BULL_LEVEL_RECLAIM": 64
+      },
+      "setups": {
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+          "fired_ticks": 64,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-06-30T09:47:04",
+          "last_fire_ts": "2026-06-30T15:20:05",
+          "spy_at_first_fire": 741.91,
+          "spy_at_last_fire": 747.74,
+          "entered_ticks": 0,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM": 64
+          }
+        }
+      }
+    },
+    "2026-07-01": {
+      "shape": "CHOP",
+      "shape_reason": "net +0.09%, range 0.95%, no clean trend/flush/gap/range resolution",
+      "net_move_pct": 0.091,
+      "range_dollars": 7.06,
+      "range_pct": 0.948,
+      "open": 745.0,
+      "close": 745.6749877929688,
+      "up_move_pct": 0.445,
+      "down_move_pct": -0.091,
+      "has_decision_data": true,
+      "n_ticks": 766,
+      "verdict_counts": {
+        "HOLD": 744,
+        "SKIP_ELITE_BULL_LEVEL_RECLAIM": 12,
+        "ENTER_BEAR": 10
+      },
+      "setups": {
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+          "fired_ticks": 12,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-01T11:21:02",
+          "last_fire_ts": "2026-07-01T11:33:04",
+          "spy_at_first_fire": 748.47,
+          "spy_at_last_fire": 749.29,
+          "entered_ticks": 0,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM": 12
+          }
+        },
+        "BEARISH_REJECTION_RIDE_THE_RIBBON": {
+          "fired_ticks": 10,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-01T15:51:02",
+          "last_fire_ts": "2026-07-01T15:55:14",
+          "spy_at_first_fire": 746.52,
+          "spy_at_last_fire": 746.52,
+          "entered_ticks": 10,
+          "placed_ticks": 0,
+          "blocked_reasons": {}
+        }
+      }
+    },
+    "2026-07-02": {
+      "shape": "CHOP",
+      "shape_reason": "net -0.28%, range 1.51%, no clean trend/flush/gap/range resolution",
+      "net_move_pct": -0.281,
+      "range_dollars": 11.28,
+      "range_pct": 1.509,
+      "open": 747.4000244140625,
+      "close": 745.2977294921875,
+      "up_move_pct": -0.281,
+      "down_move_pct": 0.8,
+      "has_decision_data": true,
+      "n_ticks": 772,
+      "verdict_counts": {
+        "ENTER_BEAR": 34,
+        "HOLD": 701,
+        "SKIP_ELITE_BULL_LEVEL_RECLAIM": 10,
+        "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": 15,
+        "ERROR": 7,
+        "SKIP_DOJI_ENTRY_BAR": 5
+      },
+      "setups": {
+        "BEARISH_REJECTION_RIDE_THE_RIBBON": {
+          "fired_ticks": 54,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-02T09:30:03",
+          "last_fire_ts": "2026-07-02T14:05:10",
+          "spy_at_first_fire": 746.26,
+          "spy_at_last_fire": 740.23,
+          "entered_ticks": 34,
+          "placed_ticks": 4,
+          "blocked_reasons": {
+            "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": 15,
+            "SKIP_DOJI_ENTRY_BAR": 5
+          }
+        },
+        "vwap_continuation": {
+          "fired_ticks": 30,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-02T09:51:03",
+          "last_fire_ts": "2026-07-02T10:25:03",
+          "spy_at_first_fire": 750.49,
+          "spy_at_last_fire": 750.67,
+          "entered_ticks": 6,
+          "placed_ticks": 6,
+          "blocked_reasons": {
+            "RISK_DENY_RISK_CAP": 3,
+            "NOT_FLAT": 21
+          }
+        },
+        "vix_regime_dayside": {
+          "fired_ticks": 4,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-02T09:51:03",
+          "last_fire_ts": "2026-07-02T09:55:03",
+          "spy_at_first_fire": 750.49,
+          "spy_at_last_fire": 750.49,
+          "entered_ticks": 0,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "RISK_DENY_RISK_CAP": 3,
+            "SKIP_TICK_ENTRY_TAKEN": 1
+          }
+        },
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+          "fired_ticks": 10,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-02T10:16:03",
+          "last_fire_ts": "2026-07-02T10:20:11",
+          "spy_at_first_fire": 750.98,
+          "spy_at_last_fire": 750.98,
+          "entered_ticks": 0,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM": 10
+          }
+        }
+      }
+    },
+    "2026-07-06": {
+      "shape": "GAP_GO",
+      "shape_reason": "gap +0.46%, extended +0.33% net",
+      "net_move_pct": 0.331,
+      "range_dollars": 5.0,
+      "range_pct": 0.668,
+      "open": 748.739990234375,
+      "close": 751.219970703125,
+      "up_move_pct": 0.51,
+      "down_move_pct": -0.331,
+      "has_decision_data": true,
+      "n_ticks": 764,
+      "verdict_counts": {
+        "HOLD": 710,
+        "SKIP_ELITE_BULL_LEVEL_RECLAIM": 42,
+        "SKIP_STRUCTURE_VETO": 6,
+        "ENTER_BULL": 3,
+        "SKIP_CONF_LVL_REC_AFTERNOON": 3
+      },
+      "setups": {
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+          "fired_ticks": 48,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-06T11:31:27",
+          "last_fire_ts": "2026-07-06T15:28:28",
+          "spy_at_first_fire": 750.75,
+          "spy_at_last_fire": 752.305,
+          "entered_ticks": 3,
+          "placed_ticks": 1,
+          "blocked_reasons": {
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM": 42,
+            "SKIP_CONF_LVL_REC_AFTERNOON": 3
+          }
+        },
+        "bollinger_squeeze": {
+          "fired_ticks": 16,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-06T13:11:27",
+          "last_fire_ts": "2026-07-06T17:07:34",
+          "spy_at_first_fire": 751.39,
+          "spy_at_last_fire": 751.0,
+          "entered_ticks": 11,
+          "placed_ticks": 11,
+          "blocked_reasons": {
+            "NOT_FLAT": 3
+          }
+        }
+      }
+    },
+    "2026-07-07": {
+      "shape": "FLUSH_TREND_DOWN",
+      "shape_reason": "fast early break -0.67% (bar 14/78), only reclaimed 51%, closed -0.33%",
+      "net_move_pct": -0.329,
+      "range_dollars": 5.75,
+      "range_pct": 0.766,
+      "open": 750.219970703125,
+      "close": 747.75,
+      "up_move_pct": 0.341,
+      "down_move_pct": 0.427,
+      "has_decision_data": true,
+      "n_ticks": 772,
+      "verdict_counts": {
+        "HOLD": 702,
+        "SKIP_ELITE_BULL_LEVEL_RECLAIM": 4,
+        "ENTER_BEAR": 18,
+        "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": 25,
+        "SKIP_RIBBON_MOMENTUM_GATE": 13,
+        "SKIP_STRUCTURE_VETO": 10
+      },
+      "setups": {
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+          "fired_ticks": 4,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-07T09:34:03",
+          "last_fire_ts": "2026-07-07T09:35:04",
+          "spy_at_first_fire": 751.27,
+          "spy_at_last_fire": 751.27,
+          "entered_ticks": 0,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM": 4
+          }
+        },
+        "BEARISH_REJECTION_RIDE_THE_RIBBON": {
+          "fired_ticks": 56,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-07T10:46:03",
+          "last_fire_ts": "2026-07-07T15:50:04",
+          "spy_at_first_fire": 745.69,
+          "spy_at_last_fire": 746.53,
+          "entered_ticks": 18,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": 25,
+            "SKIP_RIBBON_MOMENTUM_GATE": 13
+          }
+        },
+        "double_bottom_base_quiet": {
+          "fired_ticks": 5,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-07T12:51:03",
+          "last_fire_ts": "2026-07-07T12:55:03",
+          "spy_at_first_fire": 749.04,
+          "spy_at_last_fire": 749.04,
+          "entered_ticks": 0,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "NOT_FLAT": 5
+          }
+        },
+        "bollinger_squeeze": {
+          "fired_ticks": 5,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-07T14:51:03",
+          "last_fire_ts": "2026-07-07T14:55:03",
+          "spy_at_first_fire": 748.155,
+          "spy_at_last_fire": 748.155,
+          "entered_ticks": 0,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "NOT_FLAT": 5
+          }
+        }
+      }
+    },
+    "2026-07-08": {
+      "shape": "GAP_FADE",
+      "shape_reason": "gap -0.61%, reversed to +0.38% net",
+      "net_move_pct": 0.377,
+      "range_dollars": 6.63,
+      "range_pct": 0.892,
+      "open": 743.1599731445312,
+      "close": 745.9600219726562,
+      "up_move_pct": 0.377,
+      "down_move_pct": -0.377,
+      "has_decision_data": true,
+      "n_ticks": 774,
+      "verdict_counts": {
+        "HOLD": 746,
+        "ENTER_BEAR": 7,
+        "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": 4,
+        "ENTER_BULL": 6,
+        "SKIP_ELITE_BULL_LEVEL_RECLAIM": 10,
+        "SKIP_STRUCTURE_VETO": 1
+      },
+      "setups": {
+        "BEARISH_REJECTION_RIDE_THE_RIBBON": {
+          "fired_ticks": 11,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-08T09:51:02",
+          "last_fire_ts": "2026-07-08T13:10:12",
+          "spy_at_first_fire": 743.72,
+          "spy_at_last_fire": 744.31,
+          "entered_ticks": 7,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": 4
+          }
+        },
+        "vwap_continuation": {
+          "fired_ticks": 10,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-08T10:01:02",
+          "last_fire_ts": "2026-07-08T10:15:03",
+          "spy_at_first_fire": 744.09,
+          "spy_at_last_fire": 744.32,
+          "entered_ticks": 0,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "RISK_DENY_PDT": 10
+          }
+        },
+        "vwap_reclaim_failed_break": {
+          "fired_ticks": 5,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-08T10:01:02",
+          "last_fire_ts": "2026-07-08T10:05:03",
+          "spy_at_first_fire": 744.09,
+          "spy_at_last_fire": 744.09,
+          "entered_ticks": 0,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "RISK_DENY_PDT": 4,
+            "VETOED_BY_MODELS": 1
+          }
+        },
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+          "fired_ticks": 16,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-08T13:31:02",
+          "last_fire_ts": "2026-07-08T14:55:04",
+          "spy_at_first_fire": 745.7,
+          "spy_at_last_fire": 745.29,
+          "entered_ticks": 6,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM": 10
+          }
+        },
+        "bollinger_squeeze": {
+          "fired_ticks": 2,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-08T20:16:59",
+          "last_fire_ts": "2026-07-08T20:16:59",
+          "spy_at_first_fire": 751.0,
+          "spy_at_last_fire": 751.0,
+          "entered_ticks": 1,
+          "placed_ticks": 1,
+          "blocked_reasons": {}
+        }
+      }
+    },
+    "2026-07-09": {
+      "shape": "TREND_UP",
+      "shape_reason": "+0.81% off the day's early low, max giveback 19% of the move",
+      "net_move_pct": 0.577,
+      "range_dollars": 6.38,
+      "range_pct": 0.854,
+      "open": 747.3499755859375,
+      "close": 751.6599731445312,
+      "up_move_pct": 0.814,
+      "down_move_pct": -0.577,
+      "has_decision_data": true,
+      "n_ticks": 788,
+      "verdict_counts": {
+        "SKIP_STRUCTURE_VETO": 8,
+        "HOLD": 666,
+        "SKIP_ELITE_BULL_LEVEL_RECLAIM": 104,
+        "ENTER_BULL": 5,
+        "SKIP_CONF_LVL_REC_AFTERNOON": 5
+      },
+      "setups": {
+        "bollinger_squeeze": {
+          "fired_ticks": 26,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-09T01:44:54",
+          "last_fire_ts": "2026-07-09T19:49:29",
+          "spy_at_first_fire": 751.0,
+          "spy_at_last_fire": 751.0,
+          "entered_ticks": 8,
+          "placed_ticks": 8,
+          "blocked_reasons": {
+            "RISK_DENY_PDT": 5,
+            "VETOED_BY_MODELS": 5
+          }
+        },
+        "gap_and_go": {
+          "fired_ticks": 5,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-09T09:36:04",
+          "last_fire_ts": "2026-07-09T09:40:03",
+          "spy_at_first_fire": 747.33,
+          "spy_at_last_fire": 747.33,
+          "entered_ticks": 0,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "WATCH_NOT_ARMED": 5
+          }
+        },
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+          "fired_ticks": 114,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-09T09:41:02",
+          "last_fire_ts": "2026-07-09T15:50:06",
+          "spy_at_first_fire": 748.075,
+          "spy_at_last_fire": 751.42,
+          "entered_ticks": 5,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM": 104,
+            "SKIP_CONF_LVL_REC_AFTERNOON": 5
+          }
+        },
+        "vwap_continuation": {
+          "fired_ticks": 30,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-09T09:51:03",
+          "last_fire_ts": "2026-07-09T10:35:04",
+          "spy_at_first_fire": 748.11,
+          "spy_at_last_fire": 747.86,
+          "entered_ticks": 0,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "VETOED_BY_MODELS": 8,
+            "RISK_DENY_PDT": 22
+          }
+        },
+        "vix_regime_dayside": {
+          "fired_ticks": 5,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-09T09:51:03",
+          "last_fire_ts": "2026-07-09T09:55:04",
+          "spy_at_first_fire": 748.11,
+          "spy_at_last_fire": 748.11,
+          "entered_ticks": 0,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "RISK_DENY_PDT": 5
+          }
+        },
+        "vwap_reclaim_failed_break": {
+          "fired_ticks": 5,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-09T10:31:03",
+          "last_fire_ts": "2026-07-09T10:35:04",
+          "spy_at_first_fire": 747.86,
+          "spy_at_last_fire": 747.86,
+          "entered_ticks": 0,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "VETOED_BY_MODELS": 1,
+            "RISK_DENY_PDT": 4
+          }
+        }
+      }
+    },
+    "2026-07-10": {
+      "shape": "TREND_UP",
+      "shape_reason": "+0.90% off the day's early low, max giveback 33% of the move",
+      "net_move_pct": 0.374,
+      "range_dollars": 7.32,
+      "range_pct": 0.973,
+      "open": 752.0499877929688,
+      "close": 754.8599853515625,
+      "up_move_pct": 0.904,
+      "down_move_pct": -0.374,
+      "has_decision_data": true,
+      "n_ticks": 780,
+      "verdict_counts": {
+        "SKIP_STRUCTURE_VETO": 4,
+        "HOLD": 734,
+        "ENTER_BULL": 11,
+        "SKIP_CONF_LVL_REC_AFTERNOON": 5,
+        "SKIP_BULL_1100_1200": 6,
+        "SKIP_ELITE_BULL_LEVEL_RECLAIM": 20
+      },
+      "setups": {
+        "bollinger_squeeze": {
+          "fired_ticks": 13,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-10T00:54:59",
+          "last_fire_ts": "2026-07-10T15:10:03",
+          "spy_at_first_fire": 751.0,
+          "spy_at_last_fire": 754.975,
+          "entered_ticks": 4,
+          "placed_ticks": 4,
+          "blocked_reasons": {
+            "SKIP_LATE_ENTRY": 5
+          }
+        },
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+          "fired_ticks": 42,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-10T09:31:03",
+          "last_fire_ts": "2026-07-10T12:55:04",
+          "spy_at_first_fire": 751.55,
+          "spy_at_last_fire": 753.81,
+          "entered_ticks": 11,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "SKIP_CONF_LVL_REC_AFTERNOON": 5,
+            "SKIP_BULL_1100_1200": 6,
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM": 20
+          }
+        },
+        "gap_and_go": {
+          "fired_ticks": 4,
+          "fired_this_day": true,
+          "first_fire_ts": "2026-07-10T09:36:03",
+          "last_fire_ts": "2026-07-10T09:39:03",
+          "spy_at_first_fire": 752.6,
+          "spy_at_last_fire": 752.6,
+          "entered_ticks": 0,
+          "placed_ticks": 0,
+          "blocked_reasons": {
+            "WATCH_NOT_ARMED": 4
+          }
+        }
+      }
+    }
+  },
+  "exhibits": {
+    "2026-07-10": {
+      "shape": "TREND_UP",
+      "spy_open": 752.05,
+      "spy_low": 748.1,
+      "spy_high": 755.42,
+      "spy_close": 754.86,
+      "range_dollars": 7.32,
+      "narrative": "Open 752.05 -> early low 748.10 -> ground up to a 755.42 high, closed 754.86 (+0.37% net from open, but +0.90% off the early low with only 33% max giveback -- TREND_UP by the frozen rule). BULLISH_RECLAIM_RIDE_THE_RIBBON (Safe account) scored SUPER-tier ENTER_BULL five times at the open (09:31-09:35 ET, spy=751.55) -- but the action taken was SKIP_STALE_TRIGGER every time: the trigger bar was 2026-07-09T15:55 (the PRIOR session's last bar), so the engine correctly refused to act on a carried-over trigger. Bold account then scored the same SUPER-tier setup six more times (11:21-11:33 ET) but all six hit SKIP_MIN_PREMIUM_FLOOR. From 11:21-12:55 ET the setup kept re-scoring (bull_score=11 throughout) but every tick was blocked: SKIP_BULL_1100_1200 (a deliberate lunch-hour block, 11:21-11:33) then SKIP_ELITE_BULL_LEVEL_RECLAIM (11:51-12:55, 20 occurrences that day) -- a gate that requires a FRESH named level to re-enter on. After 12:55:04 ET the setup field went null for the rest of the session: the tape never offered another trendline_rejection/level_reclaim trigger, so ribbon_ride had NOTHING left to score against through the 12:55->15:55 close, during which SPY still ran from 753.81 to a 755.42 high / 754.86 close (further $1.05-$1.61 of continuation with zero engine engagement). bollinger_squeeze also fired 13 ticks that day (last at 15:10:03 ET, genuinely mid-afternoon) but its 4 'PLACED' extra_exec actions all timestamp to 00:54-01:01 ET (before the open, not RTH) -- a separate logging anomaly, not confirmed afternoon coverage (flagged, not relied on). VERIFIED: zero rows on 2026-07-10 (780 ticks, both accounts) show a non-empty exit_pass -- no position was EVER open that day. Net result: 42 fired ticks, 11 scored ENTER_BULL verdicts, ZERO real order attempts converted, ZERO fills, entire $7.32-range session.",
+      "correction_to_mission_framing": "'Not one armed setup even fired a signal after 11:33' is not quite accurate -- BULLISH_RECLAIM_RIDE_THE_RIBBON fired/scored through 12:55 ET (42 ticks, 11 ENTER_BULL verdicts), and bollinger_squeeze fired through 15:10 ET. The real, verified failure is sharper: EVERY scored ENTER_BULL was blocked before a real order (stale-trigger + premium-floor), and after 12:55 the setup stopped scoring ANYTHING for the rest of the day because the tape stopped offering a fresh level-retest -- the 734 HOLD figure is confirmed correct (734 of 780 ticks), and 504 of those 734 HOLDs landed after 11:33 ET."
+    },
+    "2026-06-30_corroborating_incident": {
+      "shape": "CHOP (by this audit's strict retrace rule -- 45.1% max giveback vs the 35% cutoff; self_check.py's own comment calls it 'a clean bull trend' from an indicator-state lens, since the ribbon/HTF stack stayed BULL all day even though price gave back 45%+ of its up-move at one point before closing near highs -- two valid, different definitions of 'trend', flagged for transparency not resolved).",
+      "spy_open": 741.29,
+      "spy_close": 747.75,
+      "spy_high": 748.02,
+      "spy_low": 740.89,
+      "range_dollars": 7.13,
+      "narrative": "772 ticks that day, BULLISH_RECLAIM_RIDE_THE_RIBBON fired 64 ticks -- ALL 64 blocked by SKIP_ELITE_BULL_LEVEL_RECLAIM, ZERO ENTER_BULL verdicts. This is a PRE-EXISTING, already-investigated incident (self_check.py L139 comment; markdown lesson L197; agent memory project_bull_unblock_elite_lever_retired.md), independently re-derived here from raw core-decisions.jsonl and it matches exactly (772 ticks / 64x SKIP_ELITE_BULL / 0 ENTER, byte-for-byte). This is the SAME mechanism as 2026-07-10, two weeks apart, on a day with almost identical $ range ($7.13 vs $7.32)."
+    }
+  },
+  "coverage_candidates": {
+    "flag_pullback_continuation": {
+      "status": "PRESCREENED TESTABLE, UNBUILT DETECTOR -- the battery-ready recommendation.",
+      "what_it_is": "A volume-backed (>=2x) impulse bar, followed within 8 bars by a <=38% pullback that lands within $0.15 of session VWAP (backtest/lib/patterns/registry.py). Explicitly cited in-code as 'the primary Section-C candidate for a 0DTE detector' (TA-PATTERN-REFERENCE.md sec C.1). Bidirectional, tier 1.",
+      "prescreen_numbers": {
+        "source": "analysis/recommendations/pattern-prescreen.json (generated 2026-07-09, 377 trading days full history 2025-01-02..2026-07-08 + a 90d recent window)",
+        "full_history": {
+          "pct_days_fired": 51.99,
+          "fires_per_day": 0.973,
+          "fires_per_month": 20.44,
+          "top5_day_concentration_pct": 7.1,
+          "verdict": "TESTABLE"
+        },
+        "recent_90d": {
+          "pct_days_fired": 48.39,
+          "fires_per_day": 1.016,
+          "fires_per_month": 21.34,
+          "top5_day_concentration_pct": 31.7,
+          "verdict": "TESTABLE"
+        }
+      },
+      "why_this_is_the_hole_fix": "Its trigger grammar (volume impulse + shallow VWAP-proximity pullback) is STRUCTURALLY DIFFERENT from ribbon_ride's grammar (trendline_rejection / level_reclaim / confluence, all keyed off DRAWN chart levels). On 2026-07-10 and 2026-06-30, ribbon_ride's bull side scored repeatedly but had no fresh drawn level to trigger a re-entry on -- a pattern that needs no named level at all (just impulse + VWAP-relative pullback) is the natural complement, not a retuned copy of the same idea.",
+      "what_stands_between_it_and_the_battery": "UNBUILT DETECTOR. No backtest/lib/watchers/flag_pullback_continuation_watcher.py exists (confirmed absent, unlike double_top/hs_bear/double_bottom_base_quiet/momentum_accel, which each have both a _watcher.py AND a ..._real_fills_validate.py). No real-fills validation script exists for it either (confirmed: zero hits for 'flag_pullback' anywhere in backtest/autoresearch/). It has cleared ONLY the first prescreen gate (fires often enough / not noise, both directions, low concentration). Next step: port it to a watcher + run it through the SAME real-fills OP-22 battery every other extra setup here went through (double_bottom_base_quiet, vix_regime_dayside, vwap_reclaim_failed_break all have this exact validate-script pattern to copy) -- pure Python, $0, one weekend run."
+    },
+    "vwap_continuation": {
+      "status": "ARMED live (Safe account only), validated real-fills edge -- but structurally CANNOT be the fix for an afternoon hole.",
+      "structural_limit": "backtest/lib/watchers/vwap_continuation_watcher.py hard-codes ENTRY_CUTOFF = 09:30 ET's first ~60 minutes (bar_time > dt.time(10, 30) -> return None, checked every tick). It fires AT MOST ONCE PER DAY and only inside that morning window by design (J's mined 313-Webull-winner pattern is a MORNING continuation shape). It is not a threshold-tuning problem -- the cutoff is the point of the detector, not a miscalibration.",
+      "in_window_stats": "fired 4/11 real sessions, 6 entered ticks, 6 placed ticks (2026-06-29, 07-02, 07-08, 07-09)."
+    },
+    "vwap_reclaim_failed_break": {
+      "status": "ARMED (Safe paper), same morning-window shape (<=10:30 ET) as vwap_continuation.",
+      "in_window_stats": "fired 2/11 real sessions (07-08, 07-09), 0 entered, 0 placed -- blocked entirely by RISK_DENY_PDT / VETOED_BY_MODELS in this window."
+    },
+    "bollinger_squeeze": {
+      "status": "ARMED (Safe paper), the most active extra setup by raw tick count in this window -- but with an unresolved timestamp anomaly that blocks a clean 'it covers the afternoon' claim.",
+      "in_window_stats": "fired 5/11 real sessions, 24 entered/24 placed ticks aggregate -- but the 4 'PLACED' actions traced on 2026-07-10 specifically all timestamp to 00:54-01:01 ET (pre-market, not RTH), disconnected from the day's real 15:10:03 ET fire. Needs verification before being counted as afternoon coverage."
+    },
+    "vix_regime_dayside": {
+      "status": "ARMED but effectively inert in this window.",
+      "in_window_stats": "fired 2/11 real sessions, 0 entered, 0 placed -- 100% blocked (RISK_DENY_RISK_CAP / RISK_DENY_PDT / SKIP_TICK_ENTRY_TAKEN)."
+    },
+    "double_bottom_base_quiet": {
+      "status": "ARMED but effectively inert in this window.",
+      "in_window_stats": "fired 1/11 real sessions, 0 entered, 0 placed -- blocked by NOT_FLAT every time it fired (a position was already open each time)."
+    },
+    "gap_and_go": {
+      "status": "Deliberately WATCH_NOT_ARMED (2026-06-28 re-validation found 0 robust cells on fresh OPRA + the prior-close feed was broken) -- correctly excluded from execution, not a coverage candidate despite firing 3/11 real sessions."
+    }
+  },
+  "corrections_to_the_original_framing": [
+    "'SPY trended $7 off the low' is precisely confirmed: low $748.10 -> close $754.86 = $6.76, high $755.42 -> $7.32 range. Matches to the dollar.",
+    "'734 HOLDs' is precisely confirmed (734 of 780 ticks on 2026-07-10 were HOLD).",
+    "'Not one armed setup even fired a signal after 11:33' is NOT precisely accurate -- BULLISH_RECLAIM_RIDE_THE_RIBBON scored through 12:55 ET (11 ENTER_BULL verdicts total that day) and bollinger_squeeze fired through 15:10 ET. The verified, sharper failure: every scored ENTER_BULL was blocked before a real order attempt, and after 12:55 ET literally nothing scored for the rest of the session.",
+    "The hypothesis 'sustained TREND days = biggest hole' is DIRECTIONALLY supported but the dollar-opportunity ranking (frequency x uncaptured-$) does NOT put TREND_UP/DOWN in first place over the 30-day window -- GAP days are both MORE frequent (8/30 vs 4/30) and carry more aggregate $ range ($98.69 vs $29.85) in this sample. TREND_UP's real distinguishing signature is not raw frequency or $ range, it's a CONSISTENT, VERIFIED mechanism (see below), not primarily a size argument.",
+    "The hypothesis 'FLUSH days without prior levels = second hole (the C21 class)' is NOT supported by the 2 FLUSH_TREND_DOWN days with data in this window (2026-06-25, 2026-07-07) -- BOTH show real BEARISH_REJECTION_RIDE_THE_RIBBON participation, and 2026-07-07 has 7 real fills in journal/trades.csv. Sample is thin (n=2) so this is a correction of degree, not a full kill -- but the data does not back the hypothesis as stated.",
+    "The real, best-evidenced headline is narrower and better-corroborated than either original hypothesis: on EVERY session in this window where BULLISH_RECLAIM_RIDE_THE_RIBBON sustained high scoring against a persistently-bullish tape (2026-06-29, 06-30, 07-09, 07-10 -- 4 of 4), SKIP_ELITE_BULL_LEVEL_RECLAIM was the dominant or exclusive blocker (4, 64, 104, and 20 occurrences respectively; 270 total across the 11-session window, the single largest non-HOLD verdict in the whole dataset). This is a KNOWN, ALREADY-AUDITED gate (2026-06-30 bull-unblock thread, commit 79f842c): unblocking it was tested and found NET NEGATIVE (-$241, cohort WR 14.3%) -- so this hole is not fixable by loosening the EXISTING setup's gates. The one lever that COULD catch a smooth grind independently (sequence_reclaim) is confirmed STRUCTURALLY COUPLED OFF in filters.py (can only fire as a redundant co-trigger, never standalone) per the same audit thread -- filed, not fixed, low priority per that thread's own verdict. The fix has to be a structurally different detector, not a gate tweak: flag_pullback_continuation."
+  ]
+}
