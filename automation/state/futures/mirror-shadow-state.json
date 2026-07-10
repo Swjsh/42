@@ -1,5 +1,6 @@
 {
-  "_doc": "Watermark + cross-arm dedup state for futures_mirror_shadow.py. arm_line_watermarks = how many lines of each fleet arm's decisions.jsonl have been scanned (append-only file, so a line count is a safe progress marker). seen_signal_keys = {direction|minute -> first_seen_et} keys already turned into ONE mirror signal (pruned after 5d). pending_signals = deduped signals not yet successfully opened (retried every poll; a transient yfinance failure must never silently drop a signal seen once). See futures_mirror_shadow.py module docstring for the frozen spec.",
+  "_doc": "Watermark + cross-arm dedup state for futures_mirror_shadow.py. spec_version = the FROZEN SPEC version (module docstring) this state was last migrated to -- a mismatch (including total absence, the shape every mirror-shadow-state.json written before 2026-07-09 carries) triggers a one-time ledger migration on the next run_once() poll (see _migrate_spec_version_if_needed). arm_line_watermarks = how many lines of each fleet arm's decisions.jsonl have been scanned (append-only file, so a line count is a safe progress marker). seen_signal_keys = {direction|minute -> first_seen_et} keys already turned into ONE mirror signal (pruned after 5d). pending_signals = deduped signals not yet successfully opened (retried every poll; a transient yfinance failure must never silently drop a signal seen once). See futures_mirror_shadow.py module docstring for the frozen spec.",
+  "spec_version": "v2",
   "arm_line_watermarks": {
     "risky-1": 1564,
     "risky-3": 1564,

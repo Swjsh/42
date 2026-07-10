@@ -10,16 +10,26 @@ evidence accumulate going forward. This script is that mirror. It places NOTHING
 own synthetic fill-sim only, no broker, no creds.
 
 FROZEN SPEC (task requirement -- do not drift without updating this docstring):
+  SPEC VERSION: v2 (2026-07-09). v1 (STOP_ATR_MULT=1.5) is RETIRED -- see "SPEC v1 -> v2"
+    below for the full rationale + citation. Bump SPEC_VERSION (and this note) on any future
+    change to the STOP/TP1/TRAIL constants; futures_mirror_shadow self-migrates on the next
+    `run_once()` poll after a bump (see `_migrate_spec_version_if_needed`): archives any
+    PRIOR spec's ledger rows to `mirror-would-be.{old_version}-archive.jsonl` (only if that
+    ledger actually holds real rows -- a doc-header-only file is not evidence worth
+    archiving) and starts mirror-would-be.jsonl fresh, so old-spec round-trips never
+    silently count toward the NEW spec's arming bar.
   PROXY: entry price = latest ES=F 1-minute close (yfinance). ES and MES quote the SAME
     index level (both are E-mini S&P 500 products; MES is 1/10th NOTIONAL size of ES, not
     1/10th PRICE -- see backtest/futures/instruments.py), so no price scaling is needed --
     only the $-per-point conversion differs (MES.point_value = $5/pt).
   DIRECTION: ENTER_BULL -> long, ENTER_BEAR -> short (fleet decisions.jsonl `action` field).
-  STOP: entry -/+ 1.5 x ATR14, where ATR14 = Wilder ATR (backtest/futures/swing_sim.wilder_atr,
-    imported not reimplemented) on ES=F 5-MINUTE bars. R := that stop distance (1.5xATR14),
-    frozen at entry -- "1R" everywhere below means this same point distance.
-  TP1: 1R favorable from entry. Sized 2 contracts in, 1 off at TP1 ("sell half"), stop moves
-    to breakeven (entry) on the remaining runner.
+  STOP: entry -/+ 2.0 x ATR14 (v2; v1 was 1.5x -- see "SPEC v1 -> v2" below), where ATR14 =
+    Wilder ATR (backtest/futures/swing_sim.wilder_atr, imported not reimplemented) on ES=F
+    5-MINUTE bars. R := that stop distance (2.0xATR14), frozen at entry -- "1R" everywhere
+    below means this same point distance.
+  TP1: 1R favorable from entry (tp1_r_mult UNCHANGED from v1 -- only the stop multiple moved).
+    Sized 2 contracts in, 1 off at TP1 ("sell half"), stop moves to breakeven (entry) on the
+    remaining runner.
   RUNNER: the other 1 contract trails a stop 1R off its own high-water-mark (best price seen
     since TP1 filled), ratcheted every poll. No fixed runner target.
   HORIZON: max-hold = flat by 15:55 ET on the NEXT trading day if neither stop nor TP1/trail
@@ -44,6 +54,30 @@ FROZEN SPEC (task requirement -- do not drift without updating this docstring):
     level that is touched and reverses entirely between two 5-min polls is invisible here.
     This is a disclosed limitation of forward SHADOW evidence, not a backtest, and is the
     reason gap-aware (worst-observed-price) fills are used for the stop leg specifically.
+
+SPEC v1 -> v2 (2026-07-09, BEFORE any forward evidence existed -- the v1 ledger held ZERO
+  closed round-trips at the time of this bump: registered 15:00 ET the day before, market
+  closed 16:00, so the reset cost nothing real): a pre-forward backtest-grade sanity check
+  (analysis/recommendations/mirror-spec-backfill-sanity.json -- explicitly NOT forward
+  evidence, does NOT count toward the arming bar) replayed 38 deduped real fleet signals (13
+  unique day+direction pairs -- NOT independent draws, treat n as an upper bound on effective
+  sample size) through a declared 6-cell grid (atr_mult x tp1_r_mult in {1.0,1.5,2.0} x
+  {1.0,1.5}) and found v1's stop (1.5xATR14) sat at a single-bar-range/stop-distance ratio of
+  0.659 (1h bars) / 0.66 (1m bars) -- a single bar's ORDINARY range can cover roughly
+  two-thirds of the stop distance on its own, the same class of defect that killed the 0DTE
+  -20% premium stop (markdown/doctrine/LESSONS-LEARNED.md). NO cell in the grid had positive
+  expectancy in this small/correlated backfill, and expectancy WORSENED monotonically as
+  atr_mult widened (1.0x: -$88.74/trade, the best of the six cells; 2.0x: -$172.22/trade, the
+  worst) while the noise ratio only IMPROVED with a wider stop (1.0x: ~0.99 -- the stop sits
+  barely wider than one bar's ordinary noise; 2.0x: ~0.494 (1h) / ~0.495 (1m)). The two
+  objectives point in OPPOSITE directions across the grid and no cell wins on both, so per
+  this task's explicit fallback clause: SPEC V2 = atr_mult 2.0 / tp1_r_mult 1.0, chosen on
+  the noise-ratio argument ALONE -- it is the best available stop-vs-bar-noise ratio in the
+  declared grid (roughly halving v1's ~0.66 toward, but not quite under, the ~0.45
+  aspirational bar named in the task) and dominates its sibling atr_mult=2.0/tp1_r_mult=1.5
+  cell on every metric (WR 28.9% vs 21.1%, expectancy -$172.22 vs -$172.69/trade, avg hold
+  8.86h vs 9.34h, tied max_consecutive_losers=8). It ALSO happens to leave tp1_r_mult
+  untouched from v1, so this bump moves exactly one knob.
 
 REUSE DECISION (task explicitly invites this call -- documented per instruction):
   FillSimBroker (backtest/futures/fill_sim_broker.py) was read first and NOT reused as the
@@ -98,9 +132,11 @@ RUNNER MODE: `python futures_mirror_shadow.py --once` runs exactly one poll pass
 
 ARMING BAR (evaluated by a LATER session, not this one -- also written into
   mirror-would-be.jsonl's own `_doc` header line so the bar travels with the data): >=20
-  CLOSED mirror round-trips, positive expectancy in pnl_usd_mes, AND beats a same-horizon
-  ES=F buy-and-hold null (same signal timestamps/directions, held flat-to-deadline, no
-  stop/target). This script does not compute or check that bar -- it only accumulates rows.
+  CLOSED v2 mirror round-trips (a spec bump migrates any prior-spec rows out to their own
+  archive file first -- see SPEC VERSION above -- so they can never silently count toward
+  this), positive expectancy in pnl_usd_mes, AND beats a same-horizon ES=F buy-and-hold null
+  (same signal timestamps/directions, held flat-to-deadline, no stop/target). This script
+  does not compute or check that bar -- it only accumulates rows.
 """
 from __future__ import annotations
 
@@ -140,11 +176,15 @@ WATERMARK_FILE = STATE_DIR / "mirror-shadow-state.json"
 POSITIONS_FILE = STATE_DIR / "mirror-positions.json"
 WOULD_BE_FILE = STATE_DIR / "mirror-would-be.jsonl"
 
+SPEC_VERSION = "v2"               # bump on ANY change to the constants below -- see module
+                                   # docstring "SPEC VERSION" + "SPEC v1 -> v2" for the
+                                   # migration this triggers and the 2026-07-09 rationale.
 YF_SYMBOL = "ES=F"                # MES front-quote proxy (see module docstring)
 ATR_PERIOD = 14
-STOP_ATR_MULT = 1.5               # R := STOP_ATR_MULT * ATR14(ES=F 5m)
-TP1_R_MULT = 1.0                  # TP1 = 1R
-TRAIL_R_MULT = 1.0                # runner trail distance = 1R off HWM
+STOP_ATR_MULT = 2.0               # R := STOP_ATR_MULT * ATR14(ES=F 5m). v2 (was 1.5 in v1 --
+                                   # see module docstring SPEC v1 -> v2 rationale + citation).
+TP1_R_MULT = 1.0                  # TP1 = 1R (unchanged from v1)
+TRAIL_R_MULT = 1.0                # runner trail distance = 1R off HWM (unchanged from v1)
 ENTRY_QTY = 2
 TP1_QTY = 1
 DEADLINE_TIME_ET = dt.time(15, 55)
@@ -161,10 +201,14 @@ EV_TIME_FLAT = "time_flat"
 DIRECTION_BY_ACTION = {"ENTER_BULL": "long", "ENTER_BEAR": "short"}
 
 WATERMARK_DOC = (
-    "Watermark + cross-arm dedup state for futures_mirror_shadow.py. arm_line_watermarks = "
-    "how many lines of each fleet arm's decisions.jsonl have been scanned (append-only file, "
-    "so a line count is a safe progress marker). seen_signal_keys = {direction|minute -> "
-    "first_seen_et} keys already turned into ONE mirror signal (pruned after "
+    "Watermark + cross-arm dedup state for futures_mirror_shadow.py. spec_version = the "
+    "FROZEN SPEC version (module docstring) this state was last migrated to -- a mismatch "
+    "(including total absence, the shape every mirror-shadow-state.json written before "
+    "2026-07-09 carries) triggers a one-time ledger migration on the next run_once() poll "
+    "(see _migrate_spec_version_if_needed). arm_line_watermarks = how many lines of each "
+    "fleet arm's decisions.jsonl have been scanned (append-only file, so a line count is a "
+    "safe progress marker). seen_signal_keys = {direction|minute -> first_seen_et} keys "
+    "already turned into ONE mirror signal (pruned after "
     f"{SIGNAL_KEY_RETENTION_DAYS}d). pending_signals = deduped signals not yet successfully "
     "opened (retried every poll; a transient yfinance failure must never silently drop a "
     "signal seen once). See futures_mirror_shadow.py module docstring for the frozen spec."
@@ -177,17 +221,20 @@ POSITIONS_DOC = (
     "one-position-per-instrument convention."
 )
 ARMING_BAR_DOC = (
-    "ARMING BAR (evaluated by a LATER session, not this one): >=20 CLOSED mirror round-trips "
-    "(tp1/stopped/time_flat rows that bring a signal_ref's qty_open_after to 0, counted per "
-    "signal_ref not per row), positive expectancy summed in pnl_usd_mes, AND beats a "
-    "same-horizon ES=F buy-and-hold null (enter at the same signal timestamps/directions, "
-    "hold flat to the same 2-session 15:55 ET deadline, no stop/target). Event vocabulary: "
+    f"ARMING BAR (evaluated by a LATER session, not this one): >=20 CLOSED {SPEC_VERSION} "
+    "mirror round-trips (tp1/stopped/time_flat rows that bring a signal_ref's qty_open_after "
+    "to 0, counted per signal_ref not per row), positive expectancy summed in pnl_usd_mes, "
+    "AND beats a same-horizon ES=F buy-and-hold null (enter at the same signal "
+    "timestamps/directions, hold flat to the same 2-session 15:55 ET deadline, no "
+    "stop/target). Any PRIOR spec's rows (archived to mirror-would-be.{old_version}-archive."
+    "jsonl on a spec bump -- see module docstring SPEC VERSION) do NOT count toward this "
+    "bar; only rows in the CURRENT mirror-would-be.jsonl do. Event vocabulary: "
     "placed|filled|tp1|stopped|time_flat. Proxy: MES tracks ES=F 1:1 in index points "
     "(instruments.py); $ conversion uses MES point_value=$5/pt, round_turn_usd=$1.24/contract "
-    "charged on every CLOSING fill. Stop spec: entry -/+ 1.5xATR14(ES=F 5m Wilder), frozen at "
-    "entry as 1R. TP1 = 1R (half qty off). Runner = other half, trails 1R off its HWM, "
-    "ratcheted once per 5-min POLL (not continuous -- a disclosed limitation vs a true "
-    "bar-by-bar backtest). Max-hold = flat by 15:55 ET the NEXT trading day."
+    f"charged on every CLOSING fill. Stop spec: entry -/+ {STOP_ATR_MULT}xATR14(ES=F 5m "
+    "Wilder), frozen at entry as 1R. TP1 = 1R (half qty off). Runner = other half, trails 1R "
+    "off its HWM, ratcheted once per 5-min POLL (not continuous -- a disclosed limitation vs "
+    "a true bar-by-bar backtest). Max-hold = flat by 15:55 ET the NEXT trading day."
 )
 
 
@@ -238,6 +285,74 @@ def _ensure_would_be_doc_header() -> None:
             f.write(json.dumps({"_doc": ARMING_BAR_DOC}) + "\n")
     except Exception:  # noqa: BLE001
         pass
+
+
+# ── spec-version migration (module docstring SPEC VERSION / SPEC v1 -> v2) ─────────────
+def _ledger_has_real_rows(path: Path) -> bool:
+    """True iff `path` exists and holds at least one JSON line that is NOT the `_doc` header
+    -- i.e. at least one real placed/filled/tp1/stopped/time_flat lifecycle row. Fail-open:
+    an unreadable file or a missing file reads as False (nothing worth archiving), never
+    raises."""
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return False
+    for raw in lines:
+        raw = raw.strip()
+        if not raw:
+            continue
+        try:
+            row = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        if "_doc" not in row:
+            return True
+    return False
+
+
+def _archive_or_reset_ledger_for_migration(old_version_label: str) -> bool:
+    """Called once, the first run_once() poll after SPEC_VERSION changes (see
+    _migrate_spec_version_if_needed). If WOULD_BE_FILE holds at least one REAL (non-`_doc`)
+    lifecycle row, renames it to a `mirror-would-be.{old_version_label}-archive.jsonl` sibling
+    so old-spec round-trips never silently count toward the NEW spec's arming bar. Either
+    way, removes any stale WOULD_BE_FILE so the caller's next `_ensure_would_be_doc_header()`
+    call regenerates it with the CURRENT spec's ARMING_BAR_DOC text -- a doc-header-only file
+    is not evidence worth archiving, but leaving its now-stale header text in place would be
+    misleading. Returns True iff an archive rename happened. Fail-open: any OSError is logged
+    + swallowed -- a migration hiccup must never break a scheduled poll."""
+    try:
+        if not WOULD_BE_FILE.exists():
+            return False
+        has_rows = _ledger_has_real_rows(WOULD_BE_FILE)
+        if has_rows:
+            archive_path = WOULD_BE_FILE.with_name(
+                f"{WOULD_BE_FILE.stem}.{old_version_label}-archive{WOULD_BE_FILE.suffix}")
+            os.replace(WOULD_BE_FILE, archive_path)
+            _log(f"spec_version migration: archived {old_version_label} ledger -> "
+                f"{archive_path.name}")
+        else:
+            WOULD_BE_FILE.unlink()
+            _log(f"spec_version migration: prior ({old_version_label}) ledger had zero real "
+                "rows -- reset in place, no archive file created")
+        return has_rows
+    except OSError as e:  # noqa: BLE001
+        _log(f"spec_version migration FAILED (fail-open): {type(e).__name__}: {e}")
+        return False
+
+
+def _migrate_spec_version_if_needed(wm_state: dict) -> dict:
+    """PURE-ish (may archive/reset the WOULD_BE_FILE ledger as a disk side effect via
+    _archive_or_reset_ledger_for_migration). Returns a NEW wm_state dict (never mutates the
+    input) stamped with the module's current SPEC_VERSION. Any persisted spec_version that
+    does not match SPEC_VERSION -- including total absence, the shape every
+    mirror-shadow-state.json written before 2026-07-09 carries -- is treated as a PRIOR spec
+    needing migration, defaulting its archive label to "v1" (this repo's only spec before
+    this change). See module docstring SPEC VERSION / SPEC v1 -> v2 for the full rationale."""
+    persisted = wm_state.get("spec_version")
+    if persisted == SPEC_VERSION:
+        return wm_state
+    _archive_or_reset_ledger_for_migration(persisted or "v1")
+    return {**wm_state, "spec_version": SPEC_VERSION}
 
 
 # ── calendar / 2-session horizon ────────────────────────────────────────────────
@@ -377,7 +492,7 @@ def fetch_es_quote_1m() -> Optional[float]:
 
 
 def fetch_es_atr14() -> Optional[float]:
-    """ATR14 on ES=F 5-minute bars (frozen spec: R = 1.5 x this). Reuses
+    """ATR14 on ES=F 5-minute bars (frozen spec: R = STOP_ATR_MULT x this, v2 = 2.0x). Reuses
     futures.swing_sim.wilder_atr -- not reimplemented. Fail-open -> None, never raises."""
     try:
         import pandas as pd  # noqa: PLC0415
@@ -573,7 +688,7 @@ def _prune_closed_positions(positions: dict, now_et: dt.datetime,
 def load_watermark_state() -> dict:
     return _load_json(WATERMARK_FILE, {
         "arm_line_watermarks": {}, "seen_signal_keys": {}, "pending_signals": [],
-        "last_run_et": None,
+        "last_run_et": None, "spec_version": SPEC_VERSION,
     })
 
 
@@ -594,9 +709,14 @@ def run_once(*, now_et: Optional[dt.datetime] = None, quote_fetcher=None, atr_fe
     if fleet_files is None:
         fleet_files = sorted(FLEET_DIR.glob("*/decisions.jsonl"))
 
-    _ensure_would_be_doc_header()
     errors: list = []
     wm_state = load_watermark_state()
+    try:
+        wm_state = _migrate_spec_version_if_needed(wm_state)
+    except Exception as e:  # noqa: BLE001 -- migration must never break a scheduled poll
+        errors.append(f"spec_migration_failed:{type(e).__name__}:{e}")
+        wm_state = {**wm_state, "spec_version": SPEC_VERSION}
+    _ensure_would_be_doc_header()
     positions = dict(load_positions_state().get("positions", {}))
 
     # 1) scan every fleet arm's decisions.jsonl past its watermark, dedupe cross-arm.
@@ -673,9 +793,11 @@ def run_once(*, now_et: Optional[dt.datetime] = None, quote_fetcher=None, atr_fe
 
     positions = _prune_closed_positions(positions, now_et)
 
+    spec_version = wm_state.get("spec_version", SPEC_VERSION)
     _atomic_write_json(WATERMARK_FILE, {
-        "_doc": WATERMARK_DOC, "arm_line_watermarks": line_wm, "seen_signal_keys": seen_keys,
-        "pending_signals": still_pending, "last_run_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"),
+        "_doc": WATERMARK_DOC, "spec_version": spec_version, "arm_line_watermarks": line_wm,
+        "seen_signal_keys": seen_keys, "pending_signals": still_pending,
+        "last_run_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"),
     })
     _atomic_write_json(POSITIONS_FILE, {"_doc": POSITIONS_DOC, "positions": positions})
 
@@ -683,7 +805,7 @@ def run_once(*, now_et: Optional[dt.datetime] = None, quote_fetcher=None, atr_fe
         "new_signals": len(new_signals), "opened": opened, "pending_retry": len(still_pending),
         "events": events,
         "positions_open": sum(1 for p in positions.values() if p.get("status") == "open"),
-        "errors": errors,
+        "errors": errors, "spec_version": spec_version,
     }
 
 

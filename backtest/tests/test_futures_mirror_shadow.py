@@ -181,17 +181,24 @@ class TestNextTradingDay:
 
 # ═══════════════════════ entry math (frozen ATR-stop spec) ═════════════════════
 class TestEntryLevels:
+    """Formula-correctness tests -- derive the expected R off the LIVE STOP_ATR_MULT constant
+    (not a pinned literal) so a deliberate future spec bump doesn't require editing these; the
+    constant's actual VALUE is pinned separately in TestSpecConstantsPinned (drift REDs
+    there)."""
+
     def test_long_stop_below_tp1_above(self):
         levels = fms.compute_entry_levels("long", entry_price=6000.0, atr=10.0)
-        assert levels["r_points"] == pytest.approx(15.0)          # 1.5 * ATR
-        assert levels["stop"] == pytest.approx(5985.0)
-        assert levels["tp1"] == pytest.approx(6015.0)             # 1R favorable
+        expected_r = fms.STOP_ATR_MULT * 10.0                      # v2: 2.0 * ATR
+        assert levels["r_points"] == pytest.approx(expected_r)
+        assert levels["stop"] == pytest.approx(6000.0 - expected_r)
+        assert levels["tp1"] == pytest.approx(6000.0 + expected_r)  # 1R favorable (TP1_R_MULT=1.0)
 
     def test_short_stop_above_tp1_below(self):
         levels = fms.compute_entry_levels("short", entry_price=6000.0, atr=10.0)
-        assert levels["r_points"] == pytest.approx(15.0)
-        assert levels["stop"] == pytest.approx(6015.0)
-        assert levels["tp1"] == pytest.approx(5985.0)
+        expected_r = fms.STOP_ATR_MULT * 10.0
+        assert levels["r_points"] == pytest.approx(expected_r)
+        assert levels["stop"] == pytest.approx(6000.0 + expected_r)
+        assert levels["tp1"] == pytest.approx(6000.0 - expected_r)
 
     def test_open_mirror_position_deadline_is_next_trading_day_1555(self):
         signal = {"signal_ref": "short|2026-07-09T10:05", "direction": "short",
@@ -355,6 +362,7 @@ class TestFailOpen:
         state = fms.load_watermark_state()
         assert state["arm_line_watermarks"] == {}
         assert state["pending_signals"] == []
+        assert state["spec_version"] == fms.SPEC_VERSION  # fresh install starts on CURRENT spec
 
     def test_run_once_survives_raising_quote_fetcher(self, tmp_path):
         def _boom():
@@ -485,6 +493,190 @@ class TestColdStart:
         assert summary["new_signals"] == 0   # risky-1 cold-starts too, safe-1 has nothing new
         state = fms.load_watermark_state()
         assert state["arm_line_watermarks"] == {"safe-1": 1, "risky-1": 1}
+
+
+# ═══════════════════════ SPEC v2 constants pinned (drift REDs) ══════════════════
+class TestSpecConstantsPinned:
+    """SPEC v2 (2026-07-09) -- see module docstring "SPEC v1 -> v2" for the backfill citation
+    (analysis/recommendations/mirror-spec-backfill-sanity.json) and full rationale: NO cell in
+    the declared 6-cell grid had positive expectancy in that pre-forward sanity check, so v2
+    was chosen on the noise-ratio argument alone (atr_mult=2.0 nearly halves v1's
+    single-bar-range/stop-distance ratio, from ~0.66 to ~0.494/0.495). A silent drift on any
+    of these constants must RED this test, not slip through unnoticed."""
+
+    def test_spec_version_is_v2(self):
+        assert fms.SPEC_VERSION == "v2"
+
+    def test_stop_atr_mult_is_2_0(self):
+        assert fms.STOP_ATR_MULT == 2.0
+
+    def test_tp1_r_mult_unchanged_from_v1(self):
+        assert fms.TP1_R_MULT == 1.0
+
+    def test_trail_r_mult_unchanged_from_v1(self):
+        assert fms.TRAIL_R_MULT == 1.0
+
+    def test_r_points_reflects_the_v2_multiple(self):
+        levels = fms.compute_entry_levels("long", entry_price=6000.0, atr=10.0)
+        assert levels["r_points"] == pytest.approx(20.0)     # 2.0 * ATR, not v1's 1.5 * ATR
+
+    def test_arming_bar_doc_reflects_current_stop_mult_not_v1(self):
+        assert "2.0xATR14" in fms.ARMING_BAR_DOC
+        assert "1.5xATR14" not in fms.ARMING_BAR_DOC
+        assert "v2" in fms.ARMING_BAR_DOC
+
+
+# ═══════════════════════ spec-version ledger migration ══════════════════════════
+class TestSpecVersionMigration:
+    """Covers the v1 -> v2 (and any future spec bump) ledger-reset path: an old-spec
+    mirror-would-be.jsonl holding REAL round-trips must be archived, never silently deleted
+    or merged into the new spec's arming-bar count; a ledger holding only the `_doc` header
+    (today's real-world state -- the v1 forward ledger never accumulated a single closed
+    round-trip) is not evidence worth archiving."""
+
+    def _write_ledger(self, rows: list[dict]) -> None:
+        fms.WOULD_BE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(fms.WOULD_BE_FILE, "w", encoding="utf-8") as f:
+            for row in rows:
+                f.write(json.dumps(row) + "\n")
+
+    # ── _ledger_has_real_rows ──
+    def test_ledger_has_real_rows_true_for_lifecycle_row(self):
+        self._write_ledger([{"_doc": "x"}, {"event": "placed", "signal_ref": "a"}])
+        assert fms._ledger_has_real_rows(fms.WOULD_BE_FILE) is True
+
+    def test_ledger_has_real_rows_false_for_doc_only(self):
+        self._write_ledger([{"_doc": "x"}])
+        assert fms._ledger_has_real_rows(fms.WOULD_BE_FILE) is False
+
+    def test_ledger_has_real_rows_false_for_missing_file(self, tmp_path):
+        assert fms._ledger_has_real_rows(tmp_path / "nope.jsonl") is False
+
+    # ── _migrate_spec_version_if_needed / _archive_or_reset_ledger_for_migration ──
+    def test_migration_archives_ledger_with_real_rows(self):
+        """THE load-bearing path: a prior-spec ledger holding real round-trips gets renamed
+        to mirror-would-be.v1-archive.jsonl, never silently deleted or merged into v2."""
+        self._write_ledger([
+            {"_doc": "old v1 arming bar text"},
+            {"event": "placed", "signal_ref": "short|2026-07-08T10:05"},
+            {"event": "filled", "signal_ref": "short|2026-07-08T10:05"},
+        ])
+        wm_state = {"arm_line_watermarks": {"safe-1": 10}, "seen_signal_keys": {},
+                   "pending_signals": [], "last_run_et": "2026-07-08T10:00:00"}
+
+        new_state = fms._migrate_spec_version_if_needed(wm_state)
+
+        assert new_state["spec_version"] == fms.SPEC_VERSION
+        assert new_state["arm_line_watermarks"] == {"safe-1": 10}      # untouched by migration
+        assert new_state is not wm_state                                # never mutates input
+        assert "spec_version" not in wm_state
+
+        archive_path = fms.STATE_DIR / "mirror-would-be.v1-archive.jsonl"
+        assert archive_path.exists()
+        archived = [json.loads(l) for l in archive_path.read_text(encoding="utf-8").splitlines()]
+        assert len(archived) == 3
+        assert archived[1]["signal_ref"] == "short|2026-07-08T10:05"
+        assert not fms.WOULD_BE_FILE.exists()            # renamed away, not copied
+
+    def test_migration_with_doc_only_ledger_creates_no_archive(self):
+        """Real-world case as of 2026-07-09: the v1 forward ledger held ZERO closed
+        round-trips (only the arming-bar _doc header) -- nothing worth archiving."""
+        self._write_ledger([{"_doc": "old v1 arming bar text"}])
+        wm_state = {"arm_line_watermarks": {}, "seen_signal_keys": {}, "pending_signals": []}
+
+        new_state = fms._migrate_spec_version_if_needed(wm_state)
+
+        assert new_state["spec_version"] == fms.SPEC_VERSION
+        archive_path = fms.STATE_DIR / "mirror-would-be.v1-archive.jsonl"
+        assert not archive_path.exists()
+        assert not fms.WOULD_BE_FILE.exists()    # stale header removed; caller regenerates it
+
+    def test_migration_absent_spec_version_defaults_archive_label_to_v1(self):
+        self._write_ledger([{"_doc": "x"}, {"event": "placed", "signal_ref": "a"}])
+        new_state = fms._migrate_spec_version_if_needed({})
+        assert (fms.STATE_DIR / "mirror-would-be.v1-archive.jsonl").exists()
+        assert new_state["spec_version"] == fms.SPEC_VERSION
+
+    def test_migration_labels_archive_after_the_actual_prior_version(self):
+        self._write_ledger([{"_doc": "x"}, {"event": "placed", "signal_ref": "a"}])
+        fms._migrate_spec_version_if_needed({"spec_version": "v2-preview"})
+        assert (fms.STATE_DIR / "mirror-would-be.v2-preview-archive.jsonl").exists()
+
+    def test_migration_is_a_noop_when_already_current(self):
+        self._write_ledger([{"_doc": "x"}, {"event": "placed", "signal_ref": "a"}])
+        wm_state = {"spec_version": fms.SPEC_VERSION, "arm_line_watermarks": {}}
+
+        new_state = fms._migrate_spec_version_if_needed(wm_state)
+
+        assert new_state is wm_state                      # same object, zero side effect
+        assert fms.WOULD_BE_FILE.exists()                  # untouched
+        rows = [json.loads(l) for l in fms.WOULD_BE_FILE.read_text(encoding="utf-8").splitlines()]
+        assert len(rows) == 2
+        assert not (fms.STATE_DIR / "mirror-would-be.v1-archive.jsonl").exists()
+
+    def test_archive_helper_fail_open_on_unreadable_ledger(self, monkeypatch):
+        """A migration hiccup (e.g. a permissions error mid-rename) must never raise -- it is
+        logged and swallowed, matching every other IO helper in this module."""
+        self._write_ledger([{"_doc": "x"}, {"event": "placed", "signal_ref": "a"}])
+
+        def _boom(*_a, **_kw):
+            raise OSError("simulated permission error")
+
+        monkeypatch.setattr(fms.os, "replace", _boom)
+        result = fms._archive_or_reset_ledger_for_migration("v1")
+        assert result is False   # fail-open: reports "no archive happened", never raises
+
+    # ── end-to-end through run_once() ──
+    def test_run_once_migrates_and_regenerates_doc_header_end_to_end(self):
+        """Drives the migration through run_once() itself (not just the helpers in
+        isolation) -- proves the wiring order (migrate BEFORE _ensure_would_be_doc_header)
+        is correct: the ledger ends up with exactly ONE line, the CURRENT (v2) doc header."""
+        self._write_ledger([{"_doc": "old v1 arming bar text -- 1.5xATR14"}])
+        fms._atomic_write_json(fms.WATERMARK_FILE, {
+            "arm_line_watermarks": {}, "seen_signal_keys": {}, "pending_signals": [],
+            "last_run_et": "2026-07-08T16:00:00",
+        })
+
+        summary = fms.run_once(now_et=dt.datetime(2026, 7, 9, 10, 0, 0),
+                               quote_fetcher=lambda: 6000.0, atr_fetcher=lambda: 10.0,
+                               fleet_files=[])
+
+        assert summary["spec_version"] == fms.SPEC_VERSION
+        assert summary["errors"] == []
+        lines = fms.WOULD_BE_FILE.read_text(encoding="utf-8").splitlines()
+        assert len(lines) == 1
+        assert json.loads(lines[0])["_doc"] == fms.ARMING_BAR_DOC
+
+
+# ═══════════════════════ state spec_version round-trip ══════════════════════════
+class TestSpecVersionStateRoundTrip:
+    def test_run_once_persists_spec_version_on_fresh_install(self):
+        """No prior state file at all -- load_watermark_state()'s default already stamps the
+        CURRENT SPEC_VERSION (no prior spec to migrate away from)."""
+        summary = fms.run_once(now_et=dt.datetime(2026, 7, 9, 10, 0, 0),
+                               quote_fetcher=lambda: 6000.0, atr_fetcher=lambda: 10.0,
+                               fleet_files=[])
+        assert summary["spec_version"] == fms.SPEC_VERSION
+
+        state = fms.load_watermark_state()
+        assert state["spec_version"] == fms.SPEC_VERSION
+
+    def test_spec_version_survives_a_second_poll(self):
+        fms.run_once(now_et=dt.datetime(2026, 7, 9, 10, 0, 0),
+                    quote_fetcher=lambda: 6000.0, atr_fetcher=lambda: 10.0, fleet_files=[])
+        fms.run_once(now_et=dt.datetime(2026, 7, 9, 10, 5, 0),
+                    quote_fetcher=lambda: 6000.0, atr_fetcher=lambda: 10.0, fleet_files=[])
+
+        state = fms.load_watermark_state()
+        assert state["spec_version"] == fms.SPEC_VERSION
+
+    def test_watermark_file_on_disk_carries_spec_version_key(self):
+        """Round-trip through the ACTUAL JSON file, not just the in-memory dict returned by
+        load_watermark_state()."""
+        fms.run_once(now_et=dt.datetime(2026, 7, 9, 10, 0, 0),
+                    quote_fetcher=lambda: 6000.0, atr_fetcher=lambda: 10.0, fleet_files=[])
+        raw = json.loads(fms.WATERMARK_FILE.read_text(encoding="utf-8"))
+        assert raw["spec_version"] == fms.SPEC_VERSION
 
 
 # ═══════════════════════ no-naive-datetime discipline ═══════════════════════════
