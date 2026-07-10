@@ -20,7 +20,8 @@
     - `setup/scripts/kitchen_reviewer.py` -- the output triager
     - `setup/scripts/run-kitchen-{daemon-keepalive,seeder,reviewer}.ps1` -- wrappers
     - `setup/install-kitchen.ps1` -- one-shot installer
-    - `automation/state/cook-queue.jsonl` -- append-only event log (create / claim / complete / fail / requeue)
+    - `automation/state/cook-queue.jsonl` -- append-only event log (create / claim / complete / fail / requeue / close; a requeue whose reason has prefix `archived` collapses to terminal status `archived`, a close event to terminal `closed` -- honored in code since 2026-07-09)
+    - `setup/scripts/kitchen_queue_gc.py` -- repeatable prune tool for step 6 below (dry-run by default, `--apply` to write)
     - `automation/state/kitchen-status.json` -- snapshot of current state (read this when you wake)
     - `strategy/candidates/_chef-log.jsonl` -- per-cook telemetry
     - `strategy/candidates/_review-log.jsonl` -- per-review-decision log
@@ -37,7 +38,9 @@
        python setup/scripts/kitchen_daemon.py enqueue --task "<imperative>" --priority high --source claude
        ```
     5. **Promote** -- when a cook output is genuinely PROMOTE-worthy per reviewer triage, Claude appends a row to `strategy/candidates/_LEADERBOARD.md` (Claude is the only writer to the leaderboard markdown -- daemon and reviewer only WRITE to candidates dir + review log).
-    6. **Prune** -- if pending backlog has stale tasks (`source=manual-seed` > 48h, priority=low, not picked yet), Claude may emit a `requeue` event with reason=archived to clear them (rare).
+    6. **Prune** -- if pending backlog has stale tasks (> 48h, priority=low, not picked yet), Claude may emit a `requeue` event with reason=archived to clear them (rare). Run `python setup/scripts/kitchen_queue_gc.py` (dry-run; add `--apply` to write) rather than hand-crafting events. NOTE (2026-07-09): until the prune-protocol fix, `_load_queue` collapsed EVERY requeue back to `pending` -- archive events emitted before that date silently resurrected their targets instead of clearing them.
+
+    **Scheduler starvation + priority aging (STARVATION FIX 2026-07-09):** `_pick_next_task` ranks by *effective* priority: the base label is promoted one tier per 24h pending (`PRIORITY_AGE_PROMOTE_HOURS`), capped at `high` (`PRIORITY_AGE_CEILING`); within a tier the oldest task wins. This guarantees every pending task is eventually served -- before the fix, strict label-then-age ordering let the continuous medium/high inflow (reviewer / grinder-auto / analyst-eod-auto) starve priority=low tasks FOREVER: the seeder meta-task lane went silent for 17 days (~20 brainstorm tasks pending 37-49 days, which also kept the seeder's MAX_PENDING_BACKLOG=25 skip-gate permanently tripped). `critical` is unreachable by aging and remains a strict preemption lane. The grinder-deferral predicate (LIVELOCK FIX 2026-06-21) intentionally still counts RAW high/critical labels. Guard tests: `backtest/tests/test_kitchen_daemon_starvation.py`.
 
     **HARD GUARDRAILS (enforced in code, not just convention):**
     - Daemon NEVER modifies `automation/prompts/heartbeat*.md`, `automation/state/params*.json`, `CLAUDE.md` -- Rule 9.

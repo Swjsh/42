@@ -14,6 +14,11 @@ ARCHITECTURE:
       {"event": "claim",   "task_id": ..., "ts": ..., "by_pid": ...}
       {"event": "complete","task_id": ..., "ts": ..., "output_path": ..., "cost_usd": ..., "model": ..., "tier": ...}
       {"event": "fail",    "task_id": ..., "ts": ..., "error": ..., "retry_count": ...}
+      {"event": "requeue", "task_id": ..., "ts": ..., "reason": ...}
+          reason prefix "archived" => terminal status archived (KITCHEN-SPEC
+          prune step; kitchen_queue_gc.py); anything else => back to pending
+      {"event": "close",   "task_id": ..., "ts": ..., "reason": ...}
+          terminal status closed (kitchen_failure_cleanup purge/quarantine)
 
   cook-status.json  : snapshot of current state per task_id (rewritten atomically)
   kitchen-daemon.pid: own PID + start time
@@ -96,6 +101,20 @@ HEARTBEAT_STATUS_INTERVAL_S = 60     # rewrite kitchen-status.json this often ev
 TIER_429_COOLDOWN_S = 300.0          # D4: per-tier 429 cooldown (5 min)
 
 PRIORITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3}
+
+# STARVATION FIX (2026-07-09): strict highest-priority-first selection starved
+# low-priority tasks FOREVER under the continuous medium/high inflow from
+# reviewer / grinder-auto / analyst-eod-auto -- the seeder's meta-task
+# brainstorm lane (whose SEEDER_SYSTEM_PROMPT marks speculative tasks
+# priority=low) went silent for 17 days (last source=seeder create event
+# 2026-06-22) while ~20 of its tasks sat pending for 37-49 days. Pending tasks
+# now age one priority tier per PRIORITY_AGE_PROMOTE_HOURS, capped at
+# PRIORITY_AGE_CEILING: within a tier the oldest task wins the tie-break, so an
+# aged task eventually beats even a continuous stream of fresh high tasks.
+# "critical" is never reachable by aging -- it stays a strict preemption lane
+# for production foot-guns.
+PRIORITY_AGE_PROMOTE_HOURS = 24.0
+PRIORITY_AGE_CEILING = "high"
 
 # ────────────────────────────────────────────────────────────────────────────
 # D4: Per-tier 429 cooldowns — routes tasks to available tiers without
@@ -341,34 +360,58 @@ def _log(msg: str) -> None:
 # ────────────────────────────────────────────────────────────────────────────
 
 
-def _append_event(event: dict) -> None:
-    """Append a single event row to the queue JSONL. Best-effort."""
+def _append_event(event: dict, *, queue_file: Optional[Path] = None) -> None:
+    """Append a single event row to the queue JSONL. Best-effort.
+
+    queue_file overrides the default QUEUE_FILE (used by kitchen_queue_gc +
+    tests to act on an explicit file instead of the module-global path).
+    """
+    qf = queue_file or QUEUE_FILE
     event = dict(event)  # don't mutate caller's dict
     event.setdefault("ts", datetime.now(timezone.utc).isoformat(timespec="seconds"))
     try:
-        QUEUE_FILE.parent.mkdir(parents=True, exist_ok=True)
-        with open(QUEUE_FILE, "a", encoding="utf-8") as f:
+        qf.parent.mkdir(parents=True, exist_ok=True)
+        with open(qf, "a", encoding="utf-8") as f:
             f.write(json.dumps(event, separators=(",", ":")) + "\n")
     except OSError as exc:
         _log(f"WARN append_event failed: {exc}")
 
 
-def _load_queue() -> dict[str, dict]:
+def _parse_event_ts(ts: Optional[str]) -> Optional[datetime]:
+    """Parse a queue-event timestamp; naive values are assumed UTC (the queue
+    holds both naive and +00:00-aware create ts). None if malformed/missing."""
+    if not ts:
+        return None
+    try:
+        dt = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+    except (ValueError, TypeError):
+        return None
+    return dt.replace(tzinfo=timezone.utc) if dt.tzinfo is None else dt
+
+
+def _load_queue(queue_file: Optional[Path] = None) -> dict[str, dict]:
     """Return {task_id: collapsed_state} from all queue events.
 
     Collapsed state fields:
       task_id, task, priority, status, created_at, claimed_at, completed_at,
-      output_path, cost_usd, model, tier, retry_count, last_error
+      output_path, cost_usd, model, tier, retry_count, last_error,
+      requeued_reason / archived_reason / closed_reason
+
+    Statuses: pending, in_progress, completed, failed_permanent, plus the
+    terminal prune states archived (requeue event with reason prefix
+    "archived" -- KITCHEN-SPEC step 6) and closed (close event --
+    kitchen_failure_cleanup purge/quarantine).
     """
+    qf = queue_file or QUEUE_FILE
     out: dict[str, dict] = {}
-    if not QUEUE_FILE.exists():
+    if not qf.exists():
         return out
     bad_lines = 0
     try:
         # errors="replace": a single stray non-UTF-8 byte (e.g. a cp1252 0x97
         # em-dash) degrades to one replacement char instead of raising
         # UnicodeDecodeError mid-file and truncating the whole queue read.
-        with open(QUEUE_FILE, encoding="utf-8", errors="replace") as f:
+        with open(qf, encoding="utf-8", errors="replace") as f:
             for lineno, line in enumerate(f, 1):
                 line = line.strip()
                 if not line:
@@ -429,10 +472,30 @@ def _load_queue() -> dict[str, dict]:
                     else:
                         state["status"] = "pending"  # requeue
                 elif kind == "requeue":
-                    state["status"] = "pending"
-                    state["requeued_reason"] = ev.get("reason", "")
-                    if ev.get("reset_retries"):
-                        state["retry_count"] = 0
+                    reason = str(ev.get("reason", "") or "")
+                    # PRUNE PROTOCOL FIX (2026-07-09): KITCHEN-SPEC step 6 has
+                    # always granted "emit a requeue event with reason=archived
+                    # to clear stale tasks", but this branch used to force
+                    # status=pending for EVERY requeue -- the 13 archive events
+                    # emitted by earlier sessions were silently RESURRECTING
+                    # their targets instead of clearing them. A reason with
+                    # prefix "archived" now really archives (terminal, skipped
+                    # by selection and by pending-backlog counts); a later
+                    # requeue with any other reason revives the task.
+                    if reason.strip().lower().startswith("archived"):
+                        state["status"] = "archived"
+                        state["archived_reason"] = reason
+                    else:
+                        state["status"] = "pending"
+                        state["requeued_reason"] = reason
+                        if ev.get("reset_retries"):
+                            state["retry_count"] = 0
+                elif kind == "close":
+                    # kitchen_failure_cleanup.py emits close events (reason
+                    # prefix purge:/quarantine:) that were also silently
+                    # ignored until 2026-07-09. Terminal, same as archived.
+                    state["status"] = "closed"
+                    state["closed_reason"] = str(ev.get("reason", "") or "")
                 out[tid] = state
     except OSError as exc:
         _log(f"WARN load_queue: {exc}")
@@ -583,8 +646,31 @@ def _today_paid_spend(queue: dict[str, dict]) -> float:
 # ────────────────────────────────────────────────────────────────────────────
 
 
+def _effective_priority(state: dict, now_utc: Optional[datetime] = None) -> int:
+    """Age-adjusted PRIORITY_ORDER rank for a pending task (see STARVATION FIX
+    note on PRIORITY_AGE_PROMOTE_HOURS).
+
+    One tier of promotion per PRIORITY_AGE_PROMOTE_HOURS of queue age, never
+    past PRIORITY_AGE_CEILING. A malformed or missing created_at gets no
+    promotion (base rank), so a bad timestamp can't hijack the queue.
+    """
+    base = PRIORITY_ORDER.get(state.get("priority", "medium"), 99)
+    ceiling = PRIORITY_ORDER[PRIORITY_AGE_CEILING]
+    if base <= ceiling:
+        return base
+    created = _parse_event_ts(state.get("created_at"))
+    if created is None:
+        return base
+    if now_utc is None:
+        now_utc = datetime.now(timezone.utc)
+    age_h = (now_utc - created).total_seconds() / 3600.0
+    if age_h <= 0:
+        return base
+    return max(ceiling, base - int(age_h // PRIORITY_AGE_PROMOTE_HOURS))
+
+
 def _pick_next_task(queue: dict[str, dict]) -> Optional[dict]:
-    """Pick the next pending task: highest priority, then oldest.
+    """Pick the next pending task: highest effective priority, then oldest.
 
     LIVELOCK FIX (2026-06-21): a grinder_sweep is SKIPPED for selection while
     GRINDER_MIN_FREE_BEFORE_SKIP or more high/critical LLM tasks are pending.
@@ -595,6 +681,15 @@ def _pick_next_task(queue: dict[str, dict]) -> Optional[dict]:
     over 17h, blocking 11 LLM tasks). Deciding the deferral HERE, before the claim,
     removes the thrash entirely. No starvation: when the LLM backlog clears the grinder
     is picked normally, and a queue of ONLY grinders still falls through to run them.
+
+    STARVATION FIX (2026-07-09): ranking uses _effective_priority (base label
+    promoted one tier per PRIORITY_AGE_PROMOTE_HOURS pending, capped at
+    PRIORITY_AGE_CEILING) instead of the raw label, so low-priority tasks can
+    no longer be starved forever by continuous medium/high inflow. The
+    grinder-deferral count below intentionally stays on RAW priority: an
+    aged-low is not genuinely urgent LLM work, and pick-time and dispatch-time
+    deferral must keep using the same predicate (a mismatch would reintroduce
+    the claim->defer->requeue thrash the LIVELOCK FIX removed).
     """
     pendings = [s for s in queue.values() if s.get("status") == "pending"]
     if not pendings:
@@ -611,8 +706,9 @@ def _pick_next_task(queue: dict[str, dict]) -> Optional[dict]:
                        if s.get("task_type", "llm_cook") != "grinder_sweep"]
         if non_grinder:  # only suppress grinders if something else can run
             eligible = non_grinder
+    now_utc = datetime.now(timezone.utc)
     eligible.sort(key=lambda s: (
-        PRIORITY_ORDER.get(s.get("priority", "medium"), 99),
+        _effective_priority(s, now_utc),
         s.get("created_at") or "",
     ))
     return eligible[0]
