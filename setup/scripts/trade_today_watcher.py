@@ -8,6 +8,11 @@ J's manual crypto), splits them into FILLED vs PLACED-NOT-FILLED (the placement-
 a glanceable automation/state/trade-today.json, and LOUD-pings J once per new fill (flagged
 FIRST ENGINE FILL EVER if it's the first). Dedup by order id. Notify-only, fail-open, $0.
 
+Nightly Gamma_DressRehearsal broker-path probes (dress_rehearsal.py check 1) are real Alpaca
+orders and land inside this watcher's after=<ET-date>T00:00:00Z window (midnight UTC = 20:00 ET
+the PRIOR evening, so the ~20:45 ET probes read as "today"). They are plumbing checks, not
+trading activity -- excluded from both counts by signature and disclosed under rehearsal_probes.
+
 Scheduled every ~2 min during RTH -> J is TOLD the moment the engine fills, without asking.
 """
 from __future__ import annotations
@@ -32,6 +37,7 @@ if _os.path.basename(_sys.executable).lower().startswith("pythonw"):
 
 import datetime as dt
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -39,7 +45,7 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "automation" / "state" / "fleet"))
 sys.path.insert(0, str(REPO / "setup" / "scripts"))
 import fleet_broker as fb  # noqa: E402
-from et_clock import et_today_str  # noqa: E402
+from et_clock import et_offset_hours, et_today_str  # noqa: E402
 
 STATE = REPO / "automation" / "state"
 OUTBOX = STATE / "discord-outbox.jsonl"
@@ -72,6 +78,73 @@ def _load_user_mention() -> str:
 
 def _is_spy_option(sym) -> bool:
     return isinstance(sym, str) and sym.startswith("SPY") and len(sym) >= 15
+
+
+REHEARSAL_MAX_LIMIT = 0.02    # rehearsal PROBE_LIMIT is $0.01, never-marketable
+REHEARSAL_MAX_CANCEL_S = 2.0  # rehearsal cancels ~0.16s after submit; the engine never does
+
+_FRAC_RE = re.compile(r"\.(\d{6})\d+")
+
+
+def _parse_utc(ts) -> "dt.datetime | None":
+    """RFC3339 -> aware-UTC datetime. Alpaca emits nanosecond precision; fromisoformat
+    accepts at most 6 fractional digits (and no 'Z' before 3.11). None on anything
+    unparseable -- callers treat that as NOT-a-probe (fail toward J seeing the order)."""
+    if not isinstance(ts, str) or not ts:
+        return None
+    t = _FRAC_RE.sub(r".\1", ts.strip().replace("Z", "+00:00"), count=1)
+    try:
+        d = dt.datetime.fromisoformat(t)
+    except ValueError:
+        return None
+    if d.tzinfo is None:
+        d = d.replace(tzinfo=dt.timezone.utc)
+    return d.astimezone(dt.timezone.utc)
+
+
+def _is_rehearsal_probe(o) -> bool:
+    """PURE: True iff the order matches the nightly Gamma_DressRehearsal broker-path probe
+    (dress_rehearsal.py check 1). The rehearsal sets no client_order_id (it POSTs through the
+    engine's own _place_simple_entry: symbol/qty/side/type/limit_price/tif only), so the match
+    is by signature. EVERY leg must hold; anything ambiguous stays a REAL order:
+      1-lot, limit <= $0.02 (PROBE_LIMIT $0.01, never-marketable),
+      canceled < 2s after submit (probe is canceled immediately after acceptance),
+      submitted outside RTH (probes fire ~20:45 ET; engine entries exist only 09:35-15:50 ET).
+    """
+    try:
+        qty = float(o.get("qty") or 0)
+        lp = float(o.get("limit_price") or 0)
+    except (TypeError, ValueError):
+        return False
+    if not (0 < qty <= 1 and 0 < lp <= REHEARSAL_MAX_LIMIT):
+        return False
+    sub = _parse_utc(o.get("submitted_at"))
+    can = _parse_utc(o.get("canceled_at"))
+    if sub is None or can is None:
+        return False
+    if not (0 <= (can - sub).total_seconds() < REHEARSAL_MAX_CANCEL_S):
+        return False
+    sub_et = sub + dt.timedelta(hours=et_offset_hours(sub))
+    hhmm = sub_et.hour * 100 + sub_et.minute
+    return not (930 <= hhmm < 1600)
+
+
+def split_rehearsal_probes(orders) -> "tuple[list, list[dict]]":
+    """PURE: (real_orders, probe_records). SPY-option orders matching the rehearsal
+    signature are pulled out as lean records for the trade-today.json transparency key;
+    everything else passes through untouched. Testable (no network)."""
+    real: list = []
+    probes: list[dict] = []
+    for o in orders or []:
+        if _is_spy_option(o.get("symbol", "")) and _is_rehearsal_probe(o):
+            probes.append({"id": o.get("id"), "symbol": o.get("symbol"),
+                           "qty": o.get("qty"), "limit_price": o.get("limit_price"),
+                           "side": o.get("side"), "status": o.get("status"),
+                           "submitted_at": o.get("submitted_at"),
+                           "canceled_at": o.get("canceled_at")})
+        else:
+            real.append(o)
+    return real, probes
 
 
 def classify_orders(orders) -> "tuple[list[dict], list[dict]]":
@@ -191,13 +264,16 @@ def main() -> int:
 
     all_filled: list[dict] = []
     all_unfilled: list[dict] = []
+    all_probes: list[dict] = []
     new: list[dict] = []
     for arm, creds in creds_all.items():
-        f, u = classify_orders(_fetch_orders(creds))
-        for x in f + u:
+        real, probes = split_rehearsal_probes(_fetch_orders(creds))
+        f, u = classify_orders(real)
+        for x in f + u + probes:
             x["arm"] = arm
         all_filled += f
         all_unfilled += u
+        all_probes += probes
         for x in f:
             if x["id"] and x["id"] not in pinged:
                 new.append(x)
@@ -206,8 +282,10 @@ def main() -> int:
     TRADE_TODAY.write_text(json.dumps({
         "date": et_today_str(), "checked_at": _now(),
         "spy_fills_today": len(all_filled), "placed_not_filled_today": len(all_unfilled),
+        "rehearsal_probes_today": len(all_probes),
         "ever_filled": ever_filled or bool(new),
-        "fills": all_filled, "unfilled": all_unfilled}, indent=2), encoding="utf-8")
+        "fills": all_filled, "unfilled": all_unfilled,
+        "rehearsal_probes": all_probes}, indent=2), encoding="utf-8")
 
     mention = _load_user_mention()
     for x in new:
@@ -225,7 +303,8 @@ def main() -> int:
         LIFETIME.write_text(json.dumps({"ever_filled": True, "first_fill_at": _now()}), encoding="utf-8")
     PINGED.write_text(json.dumps(pinged), encoding="utf-8")
     print(f"[trade_today_watcher] SPY today: {len(all_filled)} FILLED, "
-          f"{len(all_unfilled)} placed-not-filled; {len(new)} new ping(s)")
+          f"{len(all_unfilled)} placed-not-filled; {len(all_probes)} rehearsal probe(s) "
+          f"excluded; {len(new)} new ping(s)")
     return 0
 
 
