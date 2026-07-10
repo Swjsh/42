@@ -1,0 +1,225 @@
+{
+ "date": "2026-07-10",
+ "per_arm_funnel": {
+  "bold-2": {
+   "events": 11,
+   "passed_scoring": 5,
+   "by_stage": {
+    "NO_SIGNAL": 6,
+    "GATE_BLOCK": 2,
+    "WINDOW_BLOCK": 1,
+    "RISK_GATE_DENY": 2
+   },
+   "orders": 0
+  },
+  "risky-1": {
+   "events": 13,
+   "passed_scoring": 5,
+   "by_stage": {
+    "NO_DATA": 1,
+    "NO_SIGNAL": 7,
+    "WINDOW_BLOCK": 1,
+    "RISK_GATE_DENY": 4
+   },
+   "orders": 0
+  },
+  "risky-3": {
+   "events": 13,
+   "passed_scoring": 5,
+   "by_stage": {
+    "NO_DATA": 1,
+    "NO_SIGNAL": 7,
+    "WINDOW_BLOCK": 1,
+    "RISK_GATE_DENY": 4
+   },
+   "orders": 0
+  },
+  "safe-1": {
+   "events": 13,
+   "passed_scoring": 5,
+   "by_stage": {
+    "NO_DATA": 1,
+    "NO_SIGNAL": 7,
+    "WINDOW_BLOCK": 1,
+    "RISK_GATE_DENY": 4
+   },
+   "orders": 0
+  },
+  "safe-2": {
+   "events": 12,
+   "passed_scoring": 6,
+   "by_stage": {
+    "NO_SIGNAL": 6,
+    "STRUCTURE_VETO": 1,
+    "GATE_BLOCK": 2,
+    "WINDOW_BLOCK": 2,
+    "STALE_TRIGGER": 1
+   },
+   "orders": 0
+  },
+  "safe-3": {
+   "events": 13,
+   "passed_scoring": 5,
+   "by_stage": {
+    "NO_DATA": 1,
+    "NO_SIGNAL": 7,
+    "WINDOW_BLOCK": 1,
+    "RISK_GATE_DENY": 4
+   },
+   "orders": 0
+  }
+ },
+ "n_passed_scoring_events": 31,
+ "n_orders": 0,
+ "joint_participation_pct": 0.0,
+ "spy_range_pct": 0.973,
+ "top_blockers": [
+  {
+   "blocker": "min_premium_floor",
+   "category": "risk_gate",
+   "n_arm_events": 18,
+   "tier_cohort_gate": false,
+   "tiers": [
+    "ELITE",
+    "SUPER"
+   ]
+  },
+  {
+   "blocker": "block_elite_bull",
+   "category": "gate",
+   "n_arm_events": 4,
+   "tier_cohort_gate": true,
+   "tiers": []
+  },
+  {
+   "blocker": "entry_floor_09:35",
+   "category": "window",
+   "n_arm_events": 4,
+   "tier_cohort_gate": false,
+   "tiers": [
+    "ELITE"
+   ]
+  },
+  {
+   "blocker": "block_bull_1100_1200",
+   "category": "window",
+   "n_arm_events": 2,
+   "tier_cohort_gate": false,
+   "tiers": []
+  },
+  {
+   "blocker": "structure_veto",
+   "category": "veto",
+   "n_arm_events": 1,
+   "tier_cohort_gate": false,
+   "tiers": []
+  },
+  {
+   "blocker": "stale_trigger_bar",
+   "category": "execution",
+   "n_arm_events": 1,
+   "tier_cohort_gate": false,
+   "tiers": [
+    "SUPER"
+   ]
+  },
+  {
+   "blocker": "block_conf_lvl_rec_afternoon",
+   "category": "window",
+   "n_arm_events": 1,
+   "tier_cohort_gate": false,
+   "tiers": []
+  }
+ ],
+ "verdict": "PARTICIPATION_HOLE",
+ "flags": [
+  "31 passed_scoring events, 0 orders, SPY range 0.973% >= 0.8% floor -- a tradeable day, nobody traded."
+ ],
+ "generated_at_et": "2026-07-10T18:02:52",
+ "sessions": [
+  {
+   "date": "2026-06-29",
+   "n_passed_scoring_events": 6,
+   "n_orders": 4,
+   "joint_participation_pct": 66.7,
+   "spy_range_pct": 1.236,
+   "verdict": "OK"
+  },
+  {
+   "date": "2026-06-30",
+   "n_passed_scoring_events": 46,
+   "n_orders": 20,
+   "joint_participation_pct": 43.5,
+   "spy_range_pct": 0.962,
+   "verdict": "OK"
+  },
+  {
+   "date": "2026-07-01",
+   "n_passed_scoring_events": 18,
+   "n_orders": 4,
+   "joint_participation_pct": 22.2,
+   "spy_range_pct": 0.948,
+   "verdict": "OK"
+  },
+  {
+   "date": "2026-07-02",
+   "n_passed_scoring_events": 44,
+   "n_orders": 14,
+   "joint_participation_pct": 31.8,
+   "spy_range_pct": 1.509,
+   "verdict": "OK"
+  },
+  {
+   "date": "2026-07-03",
+   "n_passed_scoring_events": 0,
+   "n_orders": 0,
+   "joint_participation_pct": null,
+   "spy_range_pct": null,
+   "verdict": "IDLE"
+  },
+  {
+   "date": "2026-07-06",
+   "n_passed_scoring_events": 42,
+   "n_orders": 21,
+   "joint_participation_pct": 50.0,
+   "spy_range_pct": 0.668,
+   "verdict": "OK"
+  },
+  {
+   "date": "2026-07-07",
+   "n_passed_scoring_events": 30,
+   "n_orders": 6,
+   "joint_participation_pct": 20.0,
+   "spy_range_pct": 0.766,
+   "verdict": "OK"
+  },
+  {
+   "date": "2026-07-08",
+   "n_passed_scoring_events": 31,
+   "n_orders": 14,
+   "joint_participation_pct": 45.2,
+   "spy_range_pct": 0.892,
+   "verdict": "OK"
+  },
+  {
+   "date": "2026-07-09",
+   "n_passed_scoring_events": 82,
+   "n_orders": 10,
+   "joint_participation_pct": 12.2,
+   "spy_range_pct": 0.854,
+   "verdict": "OK"
+  },
+  {
+   "date": "2026-07-10",
+   "n_passed_scoring_events": 31,
+   "n_orders": 0,
+   "joint_participation_pct": 0.0,
+   "spy_range_pct": 0.973,
+   "verdict": "PARTICIPATION_HOLE"
+  }
+ ],
+ "sources": {
+  "core": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\core-decisions.jsonl",
+  "fleet": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\fleet"
+ }
+}
