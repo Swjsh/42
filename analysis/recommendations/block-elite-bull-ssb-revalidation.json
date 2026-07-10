@@ -1,0 +1,823 @@
+{
+  "_doc": "block_elite_bull SS-B revalidation -- RELAUNCH of the 2026-07-09 PC-reboot-killed study, executed against the frozen block-elite-bull-ssb-preregistration.json. ANALYSIS ONLY.",
+  "generated_at": "2026-07-10T16:10:35.014800",
+  "preregistration_file": "analysis/recommendations/block-elite-bull-ssb-preregistration.json",
+  "preflight": {
+    "prereg_version": 1,
+    "prereg_version_ok": true,
+    "prereg_sha256_16_recomputed": "e9933be0e0ed453e",
+    "prereg_sha256_16_stored": "e9933be0e0ed453e",
+    "prereg_hash_ok": true
+  },
+  "part_a_original_rerun": {
+    "n_added_bulls": 7,
+    "n_prepared_for_ssb": 7,
+    "n_missing_bars": 0,
+    "reproduced_net_pnl_old_exit": -241.26,
+    "parity_ok": true
+  },
+  "elite_extension_mining": {
+    "n_events_total": 21,
+    "n_excluded_stale_echo": 0,
+    "n_flagged_open_adjacent": 0,
+    "n_kept": 21,
+    "excluded_detail": [],
+    "flagged_detail": [],
+    "n_raw_ticks": 100,
+    "n_events_at_2min": 21,
+    "n_events_at_15min": 17
+  },
+  "super_comparison_mining": {
+    "n_events_total": 6,
+    "n_excluded_stale_echo": 0,
+    "n_flagged_open_adjacent": 0,
+    "n_kept": 4,
+    "excluded_detail": [],
+    "flagged_detail": [],
+    "n_raw_ticks": 22,
+    "n_further_excluded_mechanical": 2,
+    "further_excluded_detail": [
+      {
+        "first_ts": "2026-07-09T15:46:04",
+        "reason": "past 15:00 entry ceiling -- untradeable regardless of block_elite_bull"
+      },
+      {
+        "first_ts": "2026-07-10T09:31:03",
+        "reason": "own-account SKIP_STALE_TRIGGER"
+      }
+    ]
+  },
+  "elite_cohort": {
+    "n_events_total": 28,
+    "OLD": {
+      "n": 28,
+      "wr": 0.25,
+      "total_pnl": -560.0,
+      "expectancy_per_trade": -20.0,
+      "n_structure_fired": 0,
+      "drop_top1_remainder": -3960.0,
+      "drop_top1_positive": false,
+      "by_day_pnl": {
+        "2026-05-27": -632.0,
+        "2026-05-29": -518.0,
+        "2026-06-01": -344.0,
+        "2026-06-04": -384.0,
+        "2026-06-12": -764.0,
+        "2026-06-16": -520.0,
+        "2026-06-22": -532.0,
+        "2026-07-01": -1058.0,
+        "2026-07-02": -480.0,
+        "2026-07-06": -1596.0,
+        "2026-07-07": -372.0,
+        "2026-07-08": -458.0,
+        "2026-07-09": 3208.0,
+        "2026-07-10": 3890.0
+      },
+      "trades": [
+        {
+          "date": "2026-05-27",
+          "entry_ts_et": "2026-05-27T10:00:00",
+          "strike": 748,
+          "pnl": -632.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-05-29",
+          "entry_ts_et": "2026-05-29T10:55:00",
+          "strike": 754,
+          "pnl": -518.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-06-01",
+          "entry_ts_et": "2026-06-01T13:30:00",
+          "strike": 757,
+          "pnl": -344.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-06-04",
+          "entry_ts_et": "2026-06-04T12:25:00",
+          "strike": 755,
+          "pnl": -384.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-06-12",
+          "entry_ts_et": "2026-06-12T10:55:00",
+          "strike": 740,
+          "pnl": -764.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-06-16",
+          "entry_ts_et": "2026-06-16T10:10:00",
+          "strike": 753,
+          "pnl": -520.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-06-22",
+          "entry_ts_et": "2026-06-22T09:40:00",
+          "strike": 748,
+          "pnl": -532.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-01",
+          "entry_ts_et": "2026-07-01T11:21:02",
+          "strike": 746,
+          "pnl": -634.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-01",
+          "entry_ts_et": "2026-07-01T11:31:03",
+          "strike": 747,
+          "pnl": -424.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-02",
+          "entry_ts_et": "2026-07-02T10:16:03",
+          "strike": 749,
+          "pnl": -480.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-06",
+          "entry_ts_et": "2026-07-06T11:31:27",
+          "strike": 749,
+          "pnl": -378.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-06",
+          "entry_ts_et": "2026-07-06T12:39:27",
+          "strike": 749,
+          "pnl": -370.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-06",
+          "entry_ts_et": "2026-07-06T14:56:27",
+          "strike": 750,
+          "pnl": -396.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-06",
+          "entry_ts_et": "2026-07-06T15:21:27",
+          "strike": 750,
+          "pnl": -452.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-07",
+          "entry_ts_et": "2026-07-07T09:34:03",
+          "strike": 749,
+          "pnl": -372.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-08",
+          "entry_ts_et": "2026-07-08T14:51:02",
+          "strike": 743,
+          "pnl": -458.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T09:41:02",
+          "strike": 746,
+          "pnl": -584.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T09:56:04",
+          "strike": 747,
+          "pnl": -548.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T10:26:03",
+          "strike": 745,
+          "pnl": 3400.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T11:06:03",
+          "strike": 747,
+          "pnl": 1310.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T12:06:04",
+          "strike": 748,
+          "pnl": 530.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T12:26:03",
+          "strike": 749,
+          "pnl": 290.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T13:01:03",
+          "strike": 748,
+          "pnl": 270.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T13:11:03",
+          "strike": 749,
+          "pnl": -490.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T14:31:04",
+          "strike": 749,
+          "pnl": -514.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T14:46:04",
+          "strike": 749,
+          "pnl": -456.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-10",
+          "entry_ts_et": "2026-07-10T11:51:03",
+          "strike": 750,
+          "pnl": 2650.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-10",
+          "entry_ts_et": "2026-07-10T12:51:03",
+          "strike": 752,
+          "pnl": 1240.0,
+          "structure_fired": false
+        }
+      ]
+    },
+    "SS_B": {
+      "n": 28,
+      "wr": 0.2857,
+      "total_pnl": -3873.6,
+      "expectancy_per_trade": -138.34,
+      "n_structure_fired": 10,
+      "drop_top1_remainder": -6810.0,
+      "drop_top1_positive": false,
+      "by_day_pnl": {
+        "2026-05-27": -770.0,
+        "2026-05-29": -140.0,
+        "2026-06-01": -520.0,
+        "2026-06-04": -230.0,
+        "2026-06-12": -1910.0,
+        "2026-06-16": -780.0,
+        "2026-06-22": -1330.0,
+        "2026-07-01": -2100.0,
+        "2026-07-02": -1200.0,
+        "2026-07-06": -800.0,
+        "2026-07-07": -40.0,
+        "2026-07-08": -240.0,
+        "2026-07-09": 3756.4,
+        "2026-07-10": 2430.0
+      },
+      "trades": [
+        {
+          "date": "2026-05-27",
+          "entry_ts_et": "2026-05-27T10:00:00",
+          "strike": 748,
+          "pnl": -770.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-05-29",
+          "entry_ts_et": "2026-05-29T10:55:00",
+          "strike": 754,
+          "pnl": -140.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-06-01",
+          "entry_ts_et": "2026-06-01T13:30:00",
+          "strike": 757,
+          "pnl": -520.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-06-04",
+          "entry_ts_et": "2026-06-04T12:25:00",
+          "strike": 755,
+          "pnl": -230.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-06-12",
+          "entry_ts_et": "2026-06-12T10:55:00",
+          "strike": 740,
+          "pnl": -1910.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-06-16",
+          "entry_ts_et": "2026-06-16T10:10:00",
+          "strike": 753,
+          "pnl": -780.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-06-22",
+          "entry_ts_et": "2026-06-22T09:40:00",
+          "strike": 748,
+          "pnl": -1330.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-01",
+          "entry_ts_et": "2026-07-01T11:21:02",
+          "strike": 746,
+          "pnl": -1040.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-07-01",
+          "entry_ts_et": "2026-07-01T11:31:03",
+          "strike": 747,
+          "pnl": -1060.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-02",
+          "entry_ts_et": "2026-07-02T10:16:03",
+          "strike": 749,
+          "pnl": -1200.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-06",
+          "entry_ts_et": "2026-07-06T11:31:27",
+          "strike": 749,
+          "pnl": 390.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-06",
+          "entry_ts_et": "2026-07-06T12:39:27",
+          "strike": 749,
+          "pnl": 430.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-06",
+          "entry_ts_et": "2026-07-06T14:56:27",
+          "strike": 750,
+          "pnl": -670.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-06",
+          "entry_ts_et": "2026-07-06T15:21:27",
+          "strike": 750,
+          "pnl": -950.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-07",
+          "entry_ts_et": "2026-07-07T09:34:03",
+          "strike": 749,
+          "pnl": -40.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-07-08",
+          "entry_ts_et": "2026-07-08T14:51:02",
+          "strike": 743,
+          "pnl": -240.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T09:41:02",
+          "strike": 746,
+          "pnl": -400.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T09:56:04",
+          "strike": 747,
+          "pnl": -660.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T10:26:03",
+          "strike": 745,
+          "pnl": 2936.4,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T11:06:03",
+          "strike": 747,
+          "pnl": 1310.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T12:06:04",
+          "strike": 748,
+          "pnl": 530.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T12:26:03",
+          "strike": 749,
+          "pnl": 290.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T13:01:03",
+          "strike": 748,
+          "pnl": 270.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T13:11:03",
+          "strike": 749,
+          "pnl": -190.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T14:31:04",
+          "strike": 749,
+          "pnl": -310.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T14:46:04",
+          "strike": 749,
+          "pnl": -20.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-10",
+          "entry_ts_et": "2026-07-10T11:51:03",
+          "strike": 750,
+          "pnl": 2650.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-10",
+          "entry_ts_et": "2026-07-10T12:51:03",
+          "strike": 752,
+          "pnl": -220.0,
+          "structure_fired": true
+        }
+      ]
+    },
+    "SS_B_excluding_open_adjacent_flagged": {
+      "n": 28,
+      "wr": 0.2857,
+      "total_pnl": -3873.6,
+      "expectancy_per_trade": -138.34,
+      "n_structure_fired": 10,
+      "drop_top1_remainder": -6810.0,
+      "drop_top1_positive": false,
+      "by_day_pnl": {
+        "2026-05-27": -770.0,
+        "2026-05-29": -140.0,
+        "2026-06-01": -520.0,
+        "2026-06-04": -230.0,
+        "2026-06-12": -1910.0,
+        "2026-06-16": -780.0,
+        "2026-06-22": -1330.0,
+        "2026-07-01": -2100.0,
+        "2026-07-02": -1200.0,
+        "2026-07-06": -800.0,
+        "2026-07-07": -40.0,
+        "2026-07-08": -240.0,
+        "2026-07-09": 3756.4,
+        "2026-07-10": 2430.0
+      },
+      "trades": [
+        {
+          "date": "2026-05-27",
+          "entry_ts_et": "2026-05-27T10:00:00",
+          "strike": 748,
+          "pnl": -770.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-05-29",
+          "entry_ts_et": "2026-05-29T10:55:00",
+          "strike": 754,
+          "pnl": -140.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-06-01",
+          "entry_ts_et": "2026-06-01T13:30:00",
+          "strike": 757,
+          "pnl": -520.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-06-04",
+          "entry_ts_et": "2026-06-04T12:25:00",
+          "strike": 755,
+          "pnl": -230.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-06-12",
+          "entry_ts_et": "2026-06-12T10:55:00",
+          "strike": 740,
+          "pnl": -1910.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-06-16",
+          "entry_ts_et": "2026-06-16T10:10:00",
+          "strike": 753,
+          "pnl": -780.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-06-22",
+          "entry_ts_et": "2026-06-22T09:40:00",
+          "strike": 748,
+          "pnl": -1330.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-01",
+          "entry_ts_et": "2026-07-01T11:21:02",
+          "strike": 746,
+          "pnl": -1040.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-07-01",
+          "entry_ts_et": "2026-07-01T11:31:03",
+          "strike": 747,
+          "pnl": -1060.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-02",
+          "entry_ts_et": "2026-07-02T10:16:03",
+          "strike": 749,
+          "pnl": -1200.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-06",
+          "entry_ts_et": "2026-07-06T11:31:27",
+          "strike": 749,
+          "pnl": 390.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-06",
+          "entry_ts_et": "2026-07-06T12:39:27",
+          "strike": 749,
+          "pnl": 430.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-06",
+          "entry_ts_et": "2026-07-06T14:56:27",
+          "strike": 750,
+          "pnl": -670.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-06",
+          "entry_ts_et": "2026-07-06T15:21:27",
+          "strike": 750,
+          "pnl": -950.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-07",
+          "entry_ts_et": "2026-07-07T09:34:03",
+          "strike": 749,
+          "pnl": -40.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-07-08",
+          "entry_ts_et": "2026-07-08T14:51:02",
+          "strike": 743,
+          "pnl": -240.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T09:41:02",
+          "strike": 746,
+          "pnl": -400.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T09:56:04",
+          "strike": 747,
+          "pnl": -660.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T10:26:03",
+          "strike": 745,
+          "pnl": 2936.4,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T11:06:03",
+          "strike": 747,
+          "pnl": 1310.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T12:06:04",
+          "strike": 748,
+          "pnl": 530.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T12:26:03",
+          "strike": 749,
+          "pnl": 290.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T13:01:03",
+          "strike": 748,
+          "pnl": 270.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T13:11:03",
+          "strike": 749,
+          "pnl": -190.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T14:31:04",
+          "strike": 749,
+          "pnl": -310.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T14:46:04",
+          "strike": 749,
+          "pnl": -20.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-10",
+          "entry_ts_et": "2026-07-10T11:51:03",
+          "strike": 750,
+          "pnl": 2650.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-10",
+          "entry_ts_et": "2026-07-10T12:51:03",
+          "strike": 752,
+          "pnl": -220.0,
+          "structure_fired": true
+        }
+      ]
+    }
+  },
+  "super_comparison_cohort_DISCLOSURE_ONLY": {
+    "n_events_total": 4,
+    "OLD": {
+      "n": 4,
+      "wr": 0.0,
+      "total_pnl": -2349.0,
+      "expectancy_per_trade": -587.25,
+      "n_structure_fired": 0,
+      "drop_top1_remainder": -2349.0,
+      "drop_top1_positive": false,
+      "by_day_pnl": {
+        "2026-07-06": -330.0,
+        "2026-07-08": -627.0,
+        "2026-07-10": -1392.0
+      },
+      "trades": [
+        {
+          "date": "2026-07-06",
+          "entry_ts_et": "2026-07-06T14:21:27",
+          "strike": 749,
+          "pnl": -330.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-08",
+          "entry_ts_et": "2026-07-08T13:31:02",
+          "strike": 744,
+          "pnl": -627.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-10",
+          "entry_ts_et": "2026-07-10T11:21:03",
+          "strike": 751,
+          "pnl": -657.0,
+          "structure_fired": false
+        },
+        {
+          "date": "2026-07-10",
+          "entry_ts_et": "2026-07-10T11:31:04",
+          "strike": 751,
+          "pnl": -735.0,
+          "structure_fired": false
+        }
+      ]
+    },
+    "SS_B": {
+      "n": 4,
+      "wr": 0.0,
+      "total_pnl": -1920.0,
+      "expectancy_per_trade": -480.0,
+      "n_structure_fired": 4,
+      "drop_top1_remainder": -1920.0,
+      "drop_top1_positive": false,
+      "by_day_pnl": {
+        "2026-07-06": -405.0,
+        "2026-07-08": -345.0,
+        "2026-07-10": -1170.0
+      },
+      "trades": [
+        {
+          "date": "2026-07-06",
+          "entry_ts_et": "2026-07-06T14:21:27",
+          "strike": 749,
+          "pnl": -405.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-07-08",
+          "entry_ts_et": "2026-07-08T13:31:02",
+          "strike": 744,
+          "pnl": -345.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-07-10",
+          "entry_ts_et": "2026-07-10T11:21:03",
+          "strike": 751,
+          "pnl": -390.0,
+          "structure_fired": true
+        },
+        {
+          "date": "2026-07-10",
+          "entry_ts_et": "2026-07-10T11:31:04",
+          "strike": 751,
+          "pnl": -780.0,
+          "structure_fired": true
+        }
+      ]
+    },
+    "note": "NOT gated by its own pass bar (preregistration.cohort_definition.super_comparison_cohort.role). Known-thin by design."
+  },
+  "pass_bar": {
+    "condition_1_ssb_total_positive": false,
+    "condition_2_ssb_drop_top1_positive": false,
+    "condition_3_old_exit_parity": true,
+    "condition_4_n_events_floor_12": true,
+    "all_pass": false,
+    "verdict": "KEEP"
+  },
+  "too_good_discipline": null
+}
