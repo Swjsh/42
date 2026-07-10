@@ -380,9 +380,123 @@ def test_structure_mode_runner_also_protected():
     assert dec.closes_position and dec.actions[0].stage == "structure_stop"
 
 
+# --- SAME-TICK ORDERING: structure-before-catastrophe (2026-07-09 ssb-certification fix) -----
+# ssb-certification-2026-07-09.json (Task 1 parity vs backtest/tools/structure_stop_study.py's
+# validated SS-B cell) found production's plan_exit_actions checking the premium/catastrophe
+# stop BEFORE the structure stop, so a same-tick both-conditions position exited at the WORSE
+# catastrophe fill instead of the structure fill the study (and the armed cell) uses --
+# REAL-DIVERGENCE on 2/10 real positions that day (-$24.50). Fix: structure is now checked
+# FIRST in the pre-TP1 branch (post-TP1 was already correctly ordered -- these tests lock that
+# in as a regression guard alongside the pre-TP1 fix). See exit_manager.py's inline comments at
+# both call sites for the full rationale.
+def test_structure_wins_over_catastrophe_same_tick_pre_tp1_put():
+    """PUT, pre-TP1: worst_premium breaches the -50% catastrophe cap AND the closed-5m close
+    breaches the structure level on the SAME tick -> structure wins, not premium_stop. Before
+    the 2026-07-09 fix this fired premium_stop instead (compare
+    test_structure_catastrophe_cap_still_fires_intrabar below, the twin fixture where only
+    catastrophe breaches)."""
+    s = _st(STRUCTURE_SHAPE, side="P", trigger_level=745.0, structure_stop_enabled=True, entry=1.00)
+    assert s.runner_stop_premium == 0.50  # -50% cap
+    dec = em.plan_exit_actions(s, best_premium=0.55, worst_premium=0.48, open_qty=5,
+                               now_et=MORNING, last_closed_5m_close=745.5)  # BOTH breach
+    assert dec.closes_position
+    assert dec.actions[0].stage == "structure_stop"
+    assert dec.actions[0].reason == "structure_stop @ 745.0"
+
+
+def test_structure_wins_over_catastrophe_same_tick_pre_tp1_call():
+    """CALL twin of the PUT test above: close < trigger_level breaches structure while
+    worst_premium simultaneously breaches the catastrophe cap -> structure wins."""
+    s = _st(STRUCTURE_SHAPE, side="C", trigger_level=745.0, structure_stop_enabled=True, entry=1.00)
+    assert s.runner_stop_premium == 0.50
+    dec = em.plan_exit_actions(s, best_premium=0.55, worst_premium=0.48, open_qty=5,
+                               now_et=MORNING, last_closed_5m_close=744.5)  # BOTH breach
+    assert dec.closes_position
+    assert dec.actions[0].stage == "structure_stop"
+    assert dec.actions[0].reason == "structure_stop @ 745.0"
+
+
+def test_catastrophe_fires_alone_pre_tp1_call_no_structure_breach():
+    """CALL symmetry check for test_structure_catastrophe_cap_still_fires_intrabar (PUT-side):
+    catastrophe fires alone when the structure condition is NOT met on this tick (close stays
+    on the thesis-intact side) -- catastrophe's whole job is intrabar protection BETWEEN closed
+    bars, and it must keep doing that job when structure hasn't actually broken."""
+    s = _st(STRUCTURE_SHAPE, side="C", trigger_level=745.0, structure_stop_enabled=True, entry=1.00)
+    dec = em.plan_exit_actions(s, best_premium=0.55, worst_premium=0.48, open_qty=5,
+                               now_et=MORNING, last_closed_5m_close=746.0)  # still "safe" for a CALL
+    assert dec.closes_position and dec.actions[0].stage == "premium_stop"
+
+
+def test_structure_wins_over_stop_same_tick_post_tp1_put():
+    """PUT, post-TP1 runner: worst_premium breaches the BE-floor runner stop AND the closed-5m
+    close breaches structure on the SAME tick -> structure wins (already the correct order in
+    the post-TP1 branch; this pins it as a regression guard alongside the pre-TP1 fix)."""
+    s = _st(STRUCTURE_SHAPE, side="P", trigger_level=745.0, structure_stop_enabled=True, entry=1.00)
+    after_tp1 = em.plan_exit_actions(s, best_premium=2.55, worst_premium=2.40, open_qty=5,
+                                     now_et=MORNING, last_closed_5m_close=744.0).state
+    assert after_tp1.tp1_filled and after_tp1.runner_stop_premium == 1.00  # BE floor
+    dec = em.plan_exit_actions(after_tp1, best_premium=1.05, worst_premium=0.99, open_qty=1,
+                               now_et=MORNING, last_closed_5m_close=745.3)  # BOTH breach
+    assert dec.closes_position
+    assert dec.actions[0].stage == "structure_stop"
+    assert dec.actions[0].reason == "structure_stop @ 745.0 (runner)"
+
+
+def test_structure_wins_over_stop_same_tick_post_tp1_call():
+    """CALL twin of the post-TP1 test above."""
+    s = _st(STRUCTURE_SHAPE, side="C", trigger_level=745.0, structure_stop_enabled=True, entry=1.00)
+    after_tp1 = em.plan_exit_actions(s, best_premium=2.55, worst_premium=2.40, open_qty=5,
+                                     now_et=MORNING, last_closed_5m_close=746.0).state
+    assert after_tp1.tp1_filled and after_tp1.runner_stop_premium == 1.00
+    dec = em.plan_exit_actions(after_tp1, best_premium=1.05, worst_premium=0.99, open_qty=1,
+                               now_et=MORNING, last_closed_5m_close=744.5)  # BOTH breach
+    assert dec.closes_position
+    assert dec.actions[0].stage == "structure_stop"
+    assert dec.actions[0].reason == "structure_stop @ 745.0 (runner)"
+
+
+def test_post_tp1_stop_fires_alone_when_structure_intact():
+    """Post-TP1 priority-order completeness: when structure is NOT breached this tick, the
+    ordinary BE-floor runner stop still fires exactly as before (structure checked, doesn't
+    fire, falls through) -- the post-TP1 twin of
+    test_catastrophe_fires_alone_pre_tp1_call_no_structure_breach."""
+    s = _st(STRUCTURE_SHAPE, side="P", trigger_level=745.0, structure_stop_enabled=True, entry=1.00)
+    after_tp1 = em.plan_exit_actions(s, best_premium=2.55, worst_premium=2.40, open_qty=5,
+                                     now_et=MORNING, last_closed_5m_close=744.0).state
+    dec = em.plan_exit_actions(after_tp1, best_premium=1.05, worst_premium=0.99, open_qty=1,
+                               now_et=MORNING, last_closed_5m_close=744.0)  # stays "safe"
+    assert dec.closes_position and dec.actions[0].stage == "be_stop"
+
+
+def test_premium_mode_byte_identical_regardless_of_closed_5m_close():
+    """THE premium-mode inertness proof for the ordering fix (vary-and-assert): a stop_mode==
+    'premium' position (structure_stop_enabled=False at entry, even though it carries a real
+    trigger_level=745.0 -- proves the guard, not the absence of a level, is what gates this)
+    produces a BYTE-IDENTICAL decision whether last_closed_5m_close is omitted or set to a
+    value that WOULD breach structure (745.5 for this PUT) -- proving the (a)/(a2) reorder
+    cannot leak into premium mode, because the branch is gated on state.stop_mode=='structure',
+    not on check ordering. Non-vacuous: 745.5 > 745.0 really is the PUT breach condition, so
+    this is a genuine adversarial input, not a fixture that happens to never matter."""
+    s = _st(STRUCTURE_SHAPE, side="P", trigger_level=745.0, structure_stop_enabled=False, entry=1.00)
+    assert s.stop_mode == "premium" and s.trigger_level == 745.0 and s.premium_stop_pct == -0.20
+    dec_without = em.plan_exit_actions(s, best_premium=0.85, worst_premium=0.79, open_qty=5,
+                                       now_et=MORNING)
+    dec_with = em.plan_exit_actions(s, best_premium=0.85, worst_premium=0.79, open_qty=5,
+                                    now_et=MORNING, last_closed_5m_close=745.5)
+    assert len(dec_without.actions) == len(dec_with.actions) == 1
+    a0, a1 = dec_without.actions[0], dec_with.actions[0]
+    assert (a0.kind, a0.qty, a0.stage, a0.reason, a0.new_stop_premium) == \
+           (a1.kind, a1.qty, a1.stage, a1.reason, a1.new_stop_premium) == \
+           ("SELL_ALL", 5, "premium_stop", "premium_stop @ 0.8", None)
+    assert dec_without.state == dec_with.state
+
+
 def test_structure_catastrophe_cap_still_fires_intrabar():
-    """Even in structure mode the -50% catastrophe cap protects intrabar: a worst_premium
-    crash past the (demoted) stop fires BEFORE the structure check is even reached."""
+    """Even in structure mode the -50% catastrophe cap protects intrabar: the structure check
+    now runs FIRST (2026-07-09 ordering fix) but does not fire because the closed-5m bar stays
+    on the thesis-intact side (744.0, not > the 745.0 trigger for this PUT) -- the catastrophe
+    cap is what actually exits. See test_structure_wins_over_catastrophe_same_tick_pre_tp1_put
+    above for the case where BOTH conditions are true on the same tick."""
     s = _st(STRUCTURE_SHAPE, side="P", trigger_level=745.0, structure_stop_enabled=True, entry=1.00)
     assert s.runner_stop_premium == 0.50  # -50% cap
     dec = em.plan_exit_actions(s, best_premium=0.55, worst_premium=0.48, open_qty=5,

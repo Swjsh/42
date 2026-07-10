@@ -376,9 +376,32 @@ def plan_exit_actions(
                                 runner_stop_premium=round(runner_stop, 4))
         else:
             pre_state = replace(state, hwm_premium=hwm)
-        # (a) premium stop -> exit ALL (structure mode: this IS the -50% catastrophe cap;
-        # premium mode: the strategy's unchanged tight stop -- from_entry already baked the
-        # right stop_pct into runner_stop, so this ONE check serves both modes verbatim.
+        # (a) STRUCTURE STOP (v15.3 chart-stop-primary) -- checked BEFORE the premium/
+        # catastrophe stop so that when BOTH conditions land on the SAME tick (a closed-5m
+        # structure break AND a catastrophe premium touch), the STRUCTURE exit fires. This is
+        # the VALIDATED ordering: structure_stop_study.replay_structure_aware checks its
+        # ss_time FIRST, every bar, before any intrabar plan_exit_actions branch can run (see
+        # that module's docstring: "nothing else in this bar could have fired first, because
+        # the exit was already decided at the bar's open"). ssb-certification-2026-07-09.json
+        # found this production branch ordered the OTHER way (catastrophe checked before
+        # structure), producing REAL-DIVERGENCE on 2/10 same-tick positions that day (-$24.50
+        # vs the certified SS-B cell). This swap conforms production to the certified cell --
+        # not a new shape. Only active when from_entry resolved this position to stop_mode==
+        # "structure" (flag-gated, see module docstring). last_closed_5m_close is None
+        # whenever the caller's feed is missing/stale -> fail-open, this tick's structure
+        # check is simply skipped (the catastrophe cap below and the time stop still protect
+        # the position).
+        if state.stop_mode == "structure" and _structure_stop_hit(
+                state.side, state.trigger_level, last_closed_5m_close):
+            actions.append(ExitAction("SELL_ALL", qty=open_qty,
+                                      reason=f"structure_stop @ {state.trigger_level}",
+                                      stage="structure_stop"))
+            return ExitDecision(pre_state, tuple(actions))
+        # (a2) premium/catastrophe stop -> exit ALL (structure mode: this IS the -50%
+        # catastrophe cap, firing alone whenever NO structure break exists on this tick --
+        # its whole job is protecting intrabar disasters BETWEEN closed 5m bars; premium
+        # mode: the strategy's unchanged tight stop -- from_entry already baked the right
+        # stop_pct into runner_stop, so this ONE check serves both modes verbatim.
         # scope=="full" + armed: runner_stop may now BE the profit-lock floor -- the reason
         # string discloses which stop actually fired).
         if worst_premium <= runner_stop:
@@ -389,17 +412,6 @@ def plan_exit_actions(
                       else f"premium_stop @ {round(runner_stop,2)}")
             actions.append(ExitAction("SELL_ALL", qty=open_qty, reason=reason,
                                       stage="premium_stop"))
-            return ExitDecision(pre_state, tuple(actions))
-        # (a2) STRUCTURE STOP (v15.3 chart-stop-primary) -- only active when from_entry
-        # resolved this position to stop_mode=="structure" (flag-gated, see module
-        # docstring). last_closed_5m_close is None whenever the caller's feed is missing/
-        # stale -> fail-open, this tick's structure check is simply skipped (the
-        # catastrophe cap above and the time stop below still protect the position).
-        if state.stop_mode == "structure" and _structure_stop_hit(
-                state.side, state.trigger_level, last_closed_5m_close):
-            actions.append(ExitAction("SELL_ALL", qty=open_qty,
-                                      reason=f"structure_stop @ {state.trigger_level}",
-                                      stage="structure_stop"))
             return ExitDecision(pre_state, tuple(actions))
         # (b) time stop pre-TP1 -> exit ALL at market
         if time_stop_now:
@@ -449,7 +461,10 @@ def plan_exit_actions(
 
     ratcheted = round(new_runner_stop, 4) > round(runner_stop, 4)
 
-    # runner exits (priority: structure / ribbon-flip / runner-target / BE-or-trail stop / time stop)
+    # runner exits (priority: structure / ribbon-flip / runner-target / BE-or-trail stop / time
+    # stop). Structure is checked FIRST -- same same-tick-priority invariant as the pre-TP1
+    # branch above (ssb-certification-2026-07-09.json / 2026-07-09 ordering fix): on a tick
+    # where BOTH a structure break and the BE-or-trail stop would fire, structure wins.
     if state.stop_mode == "structure" and _structure_stop_hit(
             state.side, state.trigger_level, last_closed_5m_close):
         actions.append(ExitAction("SELL_ALL", qty=open_qty,
