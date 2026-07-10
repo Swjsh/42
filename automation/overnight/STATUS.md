@@ -1,8 +1,8 @@
-## [2026-07-08] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-05-27..2026-07-01), real OPRA fills, floor n>=10
+## [2026-07-09] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-02..2026-07-08), real OPRA fills, floor n>=10
 
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-01). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-08). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
 > - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-510.96); Bold_ATM_1+2=YELLOW ($-481.2)
+> - **Books:** Safe2_ATM_1+2+4=RED ($-564.0); Bold_ATM_1+2=YELLOW ($-262.0)
 > - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
 > - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
 
@@ -19,6 +19,8 @@
 3. **STOP-B final write-up still owed** (this block's author): fold grind (7,560/7,560 DONE, 1,081 bangers) + final phase5 + whatever crews landed. SS-B is LIVE for tomorrow regardless (STATUS entry ~16:20 ET below); certification is its first kill-check.
 4. **J-owed brainstorm (queued, do NOT drop):** J-BRAINSTORM-CROSS-TICKER in queue.md — dedicated Fable session.
 5. Morning sanity after boot: `engine-health.json` verdict + `Get-ScheduledTask Gamma_HeartbeatCore,Gamma_SightBeacon,Gamma_CcrKeepalive,Gamma_FuturesMirror | Select TaskName,State` — all Ready.
+
+- 2026-07-10 ~01:03 ET [paper-autonomy ship, market CLOSED] **SHIPPED recency-conditioned min-sizing for ribbon_ride (A/B: -1274->-793 on 8 real days) flag-gated, flag-ON both accounts** (`recency_min_size_enabled=true`, Safe + aggressive params.json) — at entry-sizing time (`automation/state/fleet/fleet_executor.py#_apply_recency_min_sizing`, wrapping all 3 `_qty_for` call sites: `plan_entry` L~322, `_plan_from_strategies` L~422, `plan_all`'s side-block fallback L~488), when ribbon_ride's CURRENT recency verdict (new `_recency_verdict` helper, reading `automation/state/recency-confirmation.json` `headline.any_red`/`edges_confirmed_on_recent` — the SAME field `contender_oos_check.assess_recency_gate`/`autonomy_actuator._recency_gate_clears`/`task_scorer._recency_explicitly_red` already gate capital on) is RED, qty is clamped DOWN to the account's `min_contracts` floor (Safe 3 / Bold 5) via `min()` (a ceiling, never a floor-raise); YELLOW/GREEN pass through unchanged; missing/unreadable recency file fails OPEN (normal sizing, never blocks a trade). Scope: ribbon_ride ONLY (the A/B's population, C29) — vwap_continuation untouched even with the flag on. EVIDENCE: `analysis/recommendations/recency-sizing-ab.json` (`policy_dominates=true`, 8 REAL fleet-fill trading days 2026-06-29..2026-07-09, point-in-time verdicts / no look-ahead leak, its own leak-bite test) — total -$1,274 -> -$793, worst day -$388 -> -$297 (54/89 real positions were sized above the floor and get capped). Staged mechanism the A/B crew handed off: `analysis/recommendations/recency-sizing-proposal.json`. CAVEAT (disclosed in the A/B, honored here): every one of the 8 sampled days verdicted RED, so ONLY the RED->floor branch is evidence-backed — the staged proposal's YELLOW->0.5x tier is UNPROVEN on real data (no YELLOW/GREEN day in the sample) and deliberately NOT implemented; ships RED-floor-only, not the full 3-tier shape. Glance surface (OP-33): a placement-log line fires when the clamp actually engages (`"qty clamped 5->3: recency RED"`, printed to stdout + folded into the plan's `.reason`, so it lands in `decisions/*.jsonl`). TESTS (quoted, all green): new `automation/state/fleet/test_recency_min_sizing.py` 25/25 (RED->clamped-to-floor, GREEN/YELLOW->unchanged, missing-file->fail-open-unchanged, malformed-JSON->fail-open, flag-off->byte-identical vary-and-assert, vwap_continuation->unaffected even RED+flag-on, already-at-floor->no spurious note, wired end-to-end through all 3 real call sites not just the helper, live-params-shape pin); full fleet suite `automation/state/fleet/` 199/199 (3 pre-existing tests fixed: `test_params_patch_qty_drives_plan_qty`/`test_bold_loose_places_at_equity_within_cap`/`test_safe_loose_places_at_equity_within_cap` read the LIVE params.json via `_params_for` for an unrelated tier-patch/risk-cap axis and were incidentally exposed to the live recency-confirmation.json's real RED state once the flag shipped true; now explicitly neutralize `recency_min_size_enabled` inline since that axis has its own dedicated test file — root cause was accidental coupling to global mutable state, not a logic bug); curated safety gate PASS (31 + 5 suites green, `test_params_filters_drift.py` confirmed the new key does not match v25's gate-key patterns so no heartbeat.md presence assertion was needed); broader `backtest/tests -k recency` sweep 54/54 green (untouched). REVERT: instant de-arm = set `recency_min_size_enabled:false` in `automation/state/params.json` + `automation/state/aggressive/params.json` (byte-identical to pre-ship sizing, proven by the flag-off vary-and-assert test); full revert = git revert this commit.
 
 - 2026-07-09 ~18:50 ET [visibility build, render-only] **SHIPPED structure-stop truth on every surface J looks at** — closes the STOP-B ship-1 known-cosmetic-gap ("plan-log 'stop' shows the −20% fallback even in structure mode") the night before SS-B's first live day. Zero decision-logic touched (`exit_manager.py` untouched, frozen); every edit is additive reporting or a corrected LOG-ONLY number (never sent to the broker). 5 surfaces:
   1. **Fleet exit_pass rows** (`exit_actuator.manage_tick`) now carry `stop_mode`/`trigger_level` on EVERY row (managed tick, FLAT_PRUNED, no-quote HOLD) + `last_closed_5m_close` on the managed row — additive keys only, `actions` computed before the new dict fields exist. New `exit_actuator.describe_stop()` pure formatter (`STRUCTURE@<level> (cat -50%)` / `<price> (<pct>)`).
@@ -316,7 +318,7 @@
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 45 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 46 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -2187,3 +2189,48 @@ Kitchen: alive, queue 45 pending, last cook 0 min ago, today $0.00, model=grinde
 - [2026-07-09 19:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-10T01:57:05.499925+00:00) | fail streak: 299 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
 
 - [2026-07-09 19:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T22:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BULL ?', '15:47 ENTER_BULL ?', '15:48 ENTER_BULL ?']
+
+- [2026-07-09 20:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-10T02:27:04.058739+00:00) | fail streak: 300 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-09T22:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BULL ?', '15:47 ENTER_BULL ?', '15:48 ENTER_BULL ?']
+
+- [2026-07-09 20:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-10T02:57:03.329181+00:00) | fail streak: 301 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 20:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T23:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BULL ?', '15:47 ENTER_BULL ?', '15:48 ENTER_BULL ?']
+
+- [2026-07-09 21:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-10T03:27:04.228075+00:00) | fail streak: 302 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 21:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### WARN: spend-summary threshold breach
+- ts: 2026-07-10T03:30:08+00:00
+- date_et: 2026-07-09
+- total: $281.77 (threshold $30.00)
+- claude: $281.77  minimax: $0.00
+- claude_sessions: 14
+
+### DEGRADED: self-check 2026-07-09T23:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BULL ?', '15:47 ENTER_BULL ?', '15:48 ENTER_BULL ?']
+
+- [2026-07-09 21:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-10T03:57:03.334797+00:00) | fail streak: 303 consecutive fires | stage v02_source_parity pass rate dropped to 83.67% in last 24h (41/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/49) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 21:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+- [2026-07-09 22:27:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-10T04:27:02.529448+00:00) | fail streak: 304 consecutive fires | stage v02_source_parity pass rate dropped to 83.67% in last 24h (41/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/49) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 22:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+- [2026-07-09 22:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-10T04:57:02.292995+00:00) | fail streak: 305 consecutive fires | stage v02_source_parity pass rate dropped to 83.67% in last 24h (41/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/49) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 22:57:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log

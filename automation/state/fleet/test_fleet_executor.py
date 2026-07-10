@@ -190,6 +190,12 @@ def test_params_patch_qty_drives_plan_qty():
     assert base_plan.qty == 8
     # safe-loose patched tiers: [2000,10000) base 6 / elite 8 -> ELITE bear -> 8; change base via a BASE signal
     patched = fx._params_for(SAFE_LOOSE)
+    # This test targets the tier-PATCH axis only -- _params_for reads the LIVE params.json
+    # (now shipping recency_min_size_enabled=true, 2026-07-10), so neutralize that axis here
+    # so this assertion never rides the live recency-confirmation.json's real-world state
+    # (which is expected to keep changing weekly). Recency-clamp coverage lives in its own
+    # dedicated automation/state/fleet/test_recency_min_sizing.py.
+    patched = {**patched, "recency_min_size_enabled": False}
     base_signal = {"spot": 735.0, "production_action": "ENTER_BEAR",
                    "bear": {"passed": True, "score": 8, "triggers_fired": ["level_rejection"],
                             "confluence": False, "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON"},
@@ -248,7 +254,9 @@ def test_bold_loose_takes_one_trigger_both_directions():
 # --- the loose arm PLACES at its equity (qty within the risk cap) -------------
 def test_bold_loose_places_at_equity_within_cap():
     """bold-loose at $2K: SAFE/ATM table, patched qty8, ATM put ~$0.70 -> $560 < $1000 cap -> ALLOW."""
-    patched = fx._params_for(BOLD_LOOSE)
+    # neutralize the recency-clamp axis (see test_params_patch_qty_drives_plan_qty comment) --
+    # this test targets the risk-cap admission path, not recency sizing.
+    patched = {**fx._params_for(BOLD_LOOSE), "recency_min_size_enabled": False}
     plan = fx.plan_entry(BOLD_LOOSE, BEAR_ONE_TRIGGER, 2000.0, patched)
     assert plan.action == "ENTER" and plan.qty == 8  # patched [2000,10000) base 8 (BASE setup)
     d = _final(plan, 0.70, 2000.0, patched)  # 0.70*8*100 = $560 < $1000 (bold) cap
@@ -257,7 +265,9 @@ def test_bold_loose_places_at_equity_within_cap():
 
 def test_safe_loose_places_at_equity_within_cap():
     """safe-loose at $2K: BOLD/OTM table, patched qty6, OTM-2 put ~$0.30 -> $180 < $600 cap -> ALLOW."""
-    patched = fx._params_for(SAFE_LOOSE)
+    # neutralize the recency-clamp axis (see test_params_patch_qty_drives_plan_qty comment) --
+    # this test targets the risk-cap admission path, not recency sizing.
+    patched = {**fx._params_for(SAFE_LOOSE), "recency_min_size_enabled": False}
     plan = fx.plan_entry(SAFE_LOOSE, BEAR_ONE_TRIGGER, 2000.0, patched)
     assert plan.action == "ENTER" and plan.qty == 6
     d = _final(plan, 0.30, 2000.0, patched)  # 0.30*6*100 = $180 < $600 (safe) cap

@@ -170,6 +170,90 @@ def _qty_for(tiers: Any, equity: float, elite: bool) -> Optional[int]:
     return None
 
 
+# --- recency-conditioned min-sizing (2026-07-10 ship, A/B: analysis/recommendations/ -------
+# recency-sizing-ab.json -- policy_dominates=true on 8 real fleet-fill days, -$1,274 ->
+# -$793, worst day -$388 -> -$297. Staged mechanism: analysis/recommendations/
+# recency-sizing-proposal.json. Flag-gated (recency_min_size_enabled, default False ->
+# byte-identical). Scope: ribbon_ride ONLY (the A/B's population, C29) -- every other
+# strategy (vwap_continuation included) is untouched even when the flag is on.
+RECENCY_CONFIRMATION_PATH = REPO_ROOT / "automation" / "state" / "recency-confirmation.json"
+RECENCY_MIN_SIZE_STRATEGY = strategies.RIBBON_RIDE.name  # "ribbon_ride"
+
+
+def _recency_verdict(path: Optional[Path] = None) -> str:
+    """Tri-state RED/YELLOW/GREEN read of recency-confirmation.json's `headline` block --
+    the SAME field the capital gates already read (contender_oos_check.assess_recency_gate
+    / autonomy_actuator._recency_gate_clears / task_scorer._recency_explicitly_red all key
+    off headline.edges_confirmed_on_recent / headline.any_red; test_task_scorer_recency.py
+    pins the two-reader field-parity contract). Mirrors recency_check.append_status's own
+    STATUS.md state derivation (RED-BLOCKED / CONFIRMED / YELLOW):
+        RED    = headline.any_red is True
+        GREEN  = headline.edges_confirmed_on_recent is True (and not RED)
+        YELLOW = everything else (not-yet-confirmed / small-n / no fills)
+    DISCLOSURE: this headline is produced by recency_check.py, which scores THREE edges
+    (vwap_continuation / vwap_reclaim_failed_break / vix_regime_dayside) -- NOT ribbon_ride
+    (recency-sizing-ab.json's own disclosure). It is reused here as the standing, already-
+    wired "is the shop in a confirmed cold stretch" signal (the identical field 3 existing
+    capital gates already key off) rather than standing up a second per-strategy verdict
+    producer -- ribbon_ride's OWN point-in-time A/B (recency_sizing_ab.py) independently
+    verdicted RED on all 8 real fleet-fill days in the same window, so the two signals agree
+    on the evidence in hand.
+    FAIL-OPEN: missing/unreadable/malformed file or headline -> "YELLOW". This gate only
+    ever NARROWS an already risk_gate-allowed qty, never blocks a trade outright, so
+    uncertainty must default to normal sizing, not a clamp -- the opposite fail-direction
+    from the ship-path gates (which fail CLOSED because they block capital moves, not just
+    shrink one).
+    """
+    p = path or RECENCY_CONFIRMATION_PATH
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return "YELLOW"
+    if not isinstance(data, dict):
+        return "YELLOW"
+    headline = data.get("headline")
+    if not isinstance(headline, dict):
+        return "YELLOW"
+    if headline.get("any_red") is True:
+        return "RED"
+    if headline.get("edges_confirmed_on_recent") is True:
+        return "GREEN"
+    return "YELLOW"
+
+
+def _apply_recency_min_sizing(
+    qty: Optional[int], strategy_name: Optional[str], params: Mapping[str, Any],
+) -> "tuple[Optional[int], Optional[str]]":
+    """Clamp qty DOWN to the account's min_contracts floor (Rule 6) when ribbon_ride's
+    CURRENT recency verdict is RED. YELLOW/GREEN/unreadable-state/flag-off/wrong-strategy
+    all pass qty through byte-identical (vary-and-assert, C14). ONLY the RED branch ships:
+    the A/B's own ALL_RED_CAVEAT discloses every one of its 8 real-fill days verdicted RED,
+    so the staged proposal's YELLOW->0.5x tier is UNPROVEN on real data and deliberately
+    NOT implemented here -- RED-floor only, the one mechanism the evidence actually covers.
+    Uses min() (a ceiling, never a floor-raise): a qty already at/below min_contracts is
+    left alone -- this only stops an elite/tier UPSIZE above the floor, matching the
+    proposal's own min_contracts_consistency note (red_qty already equals min_contracts).
+    Returns (qty, clamp_note) -- clamp_note is the placement-log line when the clamp
+    actually fired (qty strictly decreased), else None.
+    """
+    if qty is None or not bool(params.get("recency_min_size_enabled", False)):
+        return qty, None
+    if strategy_name != RECENCY_MIN_SIZE_STRATEGY:
+        return qty, None
+    if _recency_verdict() != "RED":
+        return qty, None
+    try:
+        min_qty = int(params.get("min_contracts", 3))
+    except (TypeError, ValueError):
+        min_qty = 3
+    clamped = min(int(qty), min_qty)
+    if clamped == qty:
+        return qty, None
+    note = f"qty clamped {qty}->{clamped}: recency RED"
+    print(f"[fleet_executor] {note} (strategy={strategy_name})", flush=True)
+    return clamped, note
+
+
 def _hold(arm_id, side, setup, reason, strike=None, qty=None, quality=None) -> EntryPlan:
     return EntryPlan(arm_id, "HOLD", side, setup, strike, qty, quality, reason)
 
@@ -237,7 +321,18 @@ def plan_entry(
     qty = _qty_for(params.get("position_sizing_tiers"), float(equity), elite)
     if qty is None:
         return _hold(arm_id, side, setup, "no sizing tier covers equity", strike=strike, quality=quality)
-    return EntryPlan(arm_id, "ENTER", side, setup, strike, qty, quality, f"clean {side} entry ({quality})")
+    # plan_entry is the pre-FIX2 single-strategy path: `setup` only ever carries a ribbon
+    # setup name here (_chosen_side's only defaults), so scope by entry_setups membership
+    # rather than assuming -- this stays correct even if a caller injects a non-ribbon
+    # setup_name into the v1 bear/bull block.
+    _strat_for_sizing = (RECENCY_MIN_SIZE_STRATEGY
+                         if str(setup or "").upper() in {s.upper() for s in strategies.RIBBON_RIDE.entry_setups}
+                         else None)
+    qty, _clamp_note = _apply_recency_min_sizing(qty, _strat_for_sizing, params)
+    reason = f"clean {side} entry ({quality})"
+    if _clamp_note:
+        reason += f"; {_clamp_note}"
+    return EntryPlan(arm_id, "ENTER", side, setup, strike, qty, quality, reason)
 
 
 def _gate_check(arm: Mapping[str, Any], blk: Mapping[str, Any], signal: Mapping[str, Any]) -> Optional[str]:
@@ -324,6 +419,7 @@ def _plan_from_strategies(arm, signal, equity, params, arm_id, tiers, spot) -> l
             plans.append(EntryPlan(arm_id, "HOLD", side, setup, strike, None, quality,
                                    "no sizing tier covers equity", strategy=strat.name))
             continue
+        qty, _clamp_note = _apply_recency_min_sizing(qty, strat.name, params)
         # LEVEL PROVENANCE (G12, 2026-07-09 night): prefer the EXACT trigger level the entry
         # signal fired against (build_shared_signal's trigger_level_exact -- ground truth,
         # sourced verbatim from filters.detect_level_rejection/detect_level_reclaim via
@@ -333,8 +429,11 @@ def _plan_from_strategies(arm, signal, equity, params, arm_id, tiers, spot) -> l
         # pre-dating this field) -- never guesses when BOTH are absent (stays None).
         _tl_exact = entry.get("trigger_level_exact")
         _tl = _tl_exact if _tl_exact is not None else entry.get("trigger_level")
+        _reason = f"{strat.name} {side} ({quality})"
+        if _clamp_note:
+            _reason += f"; {_clamp_note}"
         plans.append(EntryPlan(arm_id, "ENTER", side, setup, strike, qty, quality,
-                               f"{strat.name} {side} ({quality})",
+                               _reason,
                                strategy=strat.name, exit_shape=_exit_shape_dict(strat),
                                trigger_level=(float(_tl) if _tl is not None else None)))
     return plans
@@ -386,12 +485,16 @@ def plan_all(
                 plans.append(EntryPlan(arm_id, "HOLD", side, setup, strike, None, quality,
                                        "no sizing tier covers equity", strategy=strat.name))
                 continue
+            qty, _clamp_note = _apply_recency_min_sizing(qty, strat.name, params)
             # LEVEL PROVENANCE: same exact-over-heuristic preference as _plan_from_strategies
             # (see comment there) -- the side-block fallback path mirrors it for parity.
             _tl_exact = blk.get("trigger_level_exact")
             _tl = _tl_exact if _tl_exact is not None else blk.get("trigger_level")
+            _reason = f"{strat.name} {side} ({quality})"
+            if _clamp_note:
+                _reason += f"; {_clamp_note}"
             plans.append(EntryPlan(arm_id, "ENTER", side, setup, strike, qty, quality,
-                                   f"{strat.name} {side} ({quality})",
+                                   _reason,
                                    strategy=strat.name, exit_shape=_exit_shape_dict(strat),
                                    trigger_level=(float(_tl) if _tl is not None else None)))
     return plans
