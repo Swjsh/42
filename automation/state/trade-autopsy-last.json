@@ -1,9 +1,11 @@
 {
-  "date": "2026-07-08",
-  "n_positions": 14,
-  "net_pnl": -382.0,
-  "n_stopped_then_paid": 8,
+  "date": "2026-07-09",
+  "n_positions": 10,
+  "n_positions_found": 10,
+  "n_no_bars": 0,
+  "net_pnl": -381.0,
+  "n_stopped_then_paid": 10,
   "new_hypotheses": [],
-  "md": "analysis/autopsies/2026-07-08.md",
-  "generated_at": "2026-07-09T00:00:04.517975"
+  "md": "analysis/autopsies/2026-07-09.md",
+  "generated_at": "2026-07-10T01:02:35.502233"
 }

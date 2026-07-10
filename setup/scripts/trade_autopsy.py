@@ -21,6 +21,36 @@ Notify-only, $0 beyond the bar fetches, exits 0 always (a broken autopsy must ne
 anything). Counterfactual shapes reference the STOP-A study; nothing here changes any live
 shape (STOP-A/B governance untouched). Guard: backtest/tests/test_trade_autopsy.py.
 
+FLEET-BLINDNESS FIX (2026-07-09 evening, HANDOFF-2026-07-09-TRUTH-AND-EXITS): the first live
+fire (16:15 ET) wrote "No closed engine positions today" despite 10 real fleet round trips
+sitting in the ledger. Root cause was NOT a core-only arm filter -- load_engine_positions()
+already scoped to ANY arm (fleet_rest AND core, see its docstring), so `positions` was
+non-empty at that fire. Every position was silently dropped one level down: autopsy_position()
+called esp.fetch_option_bars() per symbol and got zero bars back for BOTH of today's 0DTE
+contracts at T+15min from the 16:00 ET close (OPRA options-bar indexing lag for a
+just-expired series) -- confirmed by re-running the identical pure logic against the
+byte-unchanged ledger hours later and getting all 10 positions with 396 real bars each.
+`if not bars: return None` collapsed that into the EXACT same "0 positions" render path as a
+genuinely flat day (OP-33/C7 silent-success-is-failure). Fix, in order:
+  (a) fetch_bars_cached() retries empty bars with backoff before giving up, and caches per
+      symbol (several fleet arms routinely fill the SAME signal within the same second, so
+      this also cuts redundant API calls, e.g. today's 10 positions -> 2 unique symbols).
+  (b) main()/render_md()/queue_ping() now distinguish "0 positions in the ledger" (silent,
+      still a real flat day -- unchanged message) from "N positions found but 0 replayable"
+      (NEVER silent -- a distinct message + Discord ping; the autopsy is marked INCOMPLETE,
+      not flat, so it can never again look like nothing happened).
+  (c) every autopsied row is now tagged with `strategy` (joined from the arm's PERMANENT
+      decision log -- decisions.jsonl / core-decisions.jsonl are never cleaned up -- by
+      matching the entry order's broker-reported UTC created_at to the fill's entry_ts_utc)
+      and `stop_mode` (best-effort from the arm's exit-state.json when the position is still
+      resolvable there; exit_actuator clears a symbol's entry once flat, so this is usually
+      None for a same-day-closed position by 16:15 ET -- expected, not a bug) so future
+      autopsies can compare structure-stop (v15.3 chart-stop-primary, still flag-gated off
+      per the STOP checkpoint) exits against premium-stop history once structure mode ships
+      live. Read-only: no fleet_broker order-placement/cancel method is called anywhere in
+      this module or its new helpers (guard: test_autopsy_never_calls_broker_mutators).
+Guard: backtest/tests/test_trade_autopsy.py.
+
 Usage:
     backtest/.venv/Scripts/python.exe setup/scripts/trade_autopsy.py [--date YYYY-MM-DD]
 """
@@ -49,6 +79,19 @@ HYP_QUEUE = STATE / "hypothesis-queue.jsonl"
 QUEUE_MD = REPO / "automation" / "overnight" / "queue.md"
 OUTBOX = STATE / "discord-outbox.jsonl"
 LENS = "markdown/trading-knowledge/GENERATIVE-LENS.md"
+
+# Arm/account taxonomy -- mirrors broker_fills.py's FLEET_REST_ARMS / CORE_ARMS EXACTLY (the
+# ledger's own attribution rule already encodes this split; duplicated here only as small
+# stable literals -- same pattern exit_shape_parity_study.py already uses -- so this module
+# stays importable/testable without pulling broker_fills' heavier network-adjacent surface
+# into scope at import time). Source of truth: setup/scripts/broker_fills.py.
+FLEET_REST_ARMS = ("safe-1", "safe-3", "risky-1", "risky-3")
+CORE_ARM_ACCOUNT = {"safe-2": "safe", "bold-2": "bold"}  # arm -> core-decisions.jsonl `account`
+CORE_DECISIONS = STATE / "core-decisions.jsonl"
+
+# Bars-availability retry (the fix for the 2026-07-09 miss): bounded, only costs anything on
+# the failure path (a normal day's first fetch succeeds and no retry ever sleeps).
+BARS_RETRY_BACKOFF_SEC = (15.0, 30.0, 60.0)  # ~105s worst case per unique symbol
 
 # Counterfactual menu -- the mechanism probes (NOT candidates; candidates live in the STOP-A
 # pre-registration). Each answers ONE question about a dead trade.
@@ -163,16 +206,51 @@ def dedupe_hypotheses(new: list[dict], existing_rows: list[dict], today: str) ->
     return [h for h in new if h["mechanism"] not in recent]
 
 
+def _closest_broker_created_row(rows: list[dict], symbol: str, entry_ts_utc: str,
+                                block_key: str, max_delta_sec: float = 120.0) -> dict | None:
+    """PURE: the decision row whose `<block_key>.broker.created_at` (Alpaca's own UTC order
+    timestamp) is closest to `entry_ts_utc` (the fill's UTC timestamp), among rows whose
+    `<block_key>.symbol == symbol`, within max_delta_sec. Both timestamps are broker-issued
+    UTC ISO-8601 ("...Z"), so this needs no ET/offset reasoning at all -- deliberately
+    avoids matching on the ET-naive `ts_et` fields, which differ in shape between fleet
+    decisions.jsonl (offset-qualified) and core-decisions.jsonl (naive). `block_key` is
+    "placement" for fleet rows, "exec" for core rows. None when no row's symbol matches, or
+    none has a parseable created_at within the window (never raises)."""
+    try:
+        target = datetime.fromisoformat(str(entry_ts_utc).replace("Z", "+00:00"))
+    except (ValueError, TypeError, AttributeError):
+        return None
+    best_row, best_delta = None, None
+    for r in rows:
+        blk = r.get(block_key)
+        if not isinstance(blk, dict) or blk.get("symbol") != symbol:
+            continue
+        broker = blk.get("broker")
+        created = broker.get("created_at") if isinstance(broker, dict) else None
+        if not created:
+            continue
+        try:
+            row_dt = datetime.fromisoformat(str(created).replace("Z", "+00:00"))
+        except (ValueError, TypeError):
+            continue
+        delta = abs((row_dt - target).total_seconds())
+        if delta <= max_delta_sec and (best_delta is None or delta < best_delta):
+            best_row, best_delta = r, delta
+    return best_row
+
+
 # ---------- I/O layer ----------------------------------------------------------------------
 
-def load_engine_positions(date_et: str) -> list[dict]:
+def load_engine_positions(date_et: str, ledger_path: Path = LEDGER) -> list[dict]:
     """Closed engine option positions for date_et from the broker-truth ledger -- ANY arm
-    (fleet_rest AND core), attribution=='engine' (broker_fills' pre-decided rule)."""
+    (fleet_rest AND core), attribution=='engine' (broker_fills' pre-decided rule).
+
+    `ledger_path` is injectable for tests; production always uses the module-level LEDGER."""
     import exit_shape_parity_study as esp
-    if not LEDGER.exists():
+    if not ledger_path.exists():
         return []
     fills = []
-    for line in LEDGER.read_text(encoding="utf-8").splitlines():
+    for line in ledger_path.read_text(encoding="utf-8").splitlines():
         line = line.strip()
         if not line:
             continue
@@ -187,9 +265,96 @@ def load_engine_positions(date_et: str) -> list[dict]:
     return [p for p in positions if p["date_et"] == date_et and p["exit_fills"]]
 
 
-def autopsy_position(pos: dict, esp) -> dict | None:
-    """Replay one position's counterfactual menu on real 1-min bars. None if bars missing."""
-    bars = esp.fetch_option_bars(pos["symbol"], pos["date_et"])
+def load_decision_rows(path: Path) -> list[dict]:
+    """Generic jsonl loader for a decision ledger (fleet per-arm or core). [] on a missing
+    file; malformed lines are skipped. This ledger is append-only and NEVER pruned (unlike
+    exit-state.json), so it is the durable source for retrospective attribution."""
+    if not path.exists():
+        return []
+    out = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            out.append(json.loads(line))
+        except ValueError:
+            continue
+    return out
+
+
+def lookup_strategy(arm: str, symbol: str, entry_ts_utc: str) -> str | None:
+    """Best-effort strategy/setup name for one closed position, joined from the arm's
+    PERMANENT decision log (never cleaned up, unlike exit-state.json) by matching the entry
+    order's broker-reported created_at (UTC) to the fill's entry_ts_utc. None on any miss --
+    attribution is best-effort and must never distort or block an autopsy row."""
+    try:
+        if arm in FLEET_REST_ARMS:
+            rows = load_decision_rows(STATE / "fleet" / arm / "decisions.jsonl")
+            row = _closest_broker_created_row(rows, symbol, entry_ts_utc, "placement")
+            return row.get("setup_name") if row else None
+        account = CORE_ARM_ACCOUNT.get(arm)
+        if account is None:
+            return None
+        rows = [r for r in load_decision_rows(CORE_DECISIONS) if r.get("account") == account]
+        row = _closest_broker_created_row(rows, symbol, entry_ts_utc, "exec")
+        return row.get("setup") if row else None
+    except Exception:  # noqa: BLE001 -- attribution is best-effort, never fatal
+        return None
+
+
+def lookup_stop_mode(arm: str, symbol: str) -> str | None:
+    """Best-effort stop_mode ('premium' | 'structure', see exit_manager.ExitState) for one
+    position, read from the arm's LIVE exit-state.json IF the position is still tracked
+    there. exit_actuator removes a symbol's entry once the position is fully flat, so this is
+    routinely None for a same-day-closed position by the time the 16:15 ET autopsy runs --
+    that is EXPECTED, not a bug (the task's own "if present" scoping). Fleet arms only:
+    core arms (mcp_heartbeat execution) persist exit state via a different mechanism
+    (current-position.json) that this module does not read -- returning None there is
+    honest absence, not a guess. Never raises."""
+    if arm not in FLEET_REST_ARMS:
+        return None
+    path = STATE / "fleet" / arm / "exit-state.json"
+    try:
+        if not path.exists():
+            return None
+        data = json.loads(path.read_text(encoding="utf-8"))
+        rec = data.get(symbol) if isinstance(data, dict) else None
+        return rec.get("stop_mode") if isinstance(rec, dict) else None
+    except (OSError, ValueError):
+        return None
+
+
+def fetch_bars_cached(esp, symbol: str, date_et: str, cache: dict,
+                      sleep_fn=_time_mod.sleep) -> list[dict]:
+    """Bars for (symbol, date_et), retried with backoff on empty before giving up (the
+    2026-07-09 fix -- 0DTE OPRA options bars can still be indexing at T+15min from the 16:00
+    ET close, which is exactly when Gamma_TradeAutopsy fires). Cached per (symbol, date_et)
+    so multiple positions sharing a symbol -- the common case, several fleet arms routinely
+    fill the SAME signal within the same second -- only fetch/retry once. A normal day (bars
+    already available) never sleeps at all; the backoff only costs time on the failure path.
+    `sleep_fn` is injectable for tests. Never raises -- worst case returns []."""
+    key = (symbol, date_et)
+    if key in cache:
+        return cache[key]
+    bars = esp.fetch_option_bars(symbol, date_et)
+    for attempt, wait_s in enumerate(BARS_RETRY_BACKOFF_SEC, start=1):
+        if bars:
+            break
+        print(f"[autopsy] {symbol} {date_et}: 0 bars (attempt {attempt}), "
+              f"retrying in {wait_s:.0f}s", file=sys.stderr)
+        sleep_fn(wait_s)
+        bars = esp.fetch_option_bars(symbol, date_et)
+    if not bars:
+        print(f"[autopsy] {symbol} {date_et}: still 0 bars after "
+              f"{len(BARS_RETRY_BACKOFF_SEC)} retries -- giving up for this run", file=sys.stderr)
+    cache[key] = bars
+    return bars
+
+
+def autopsy_position(pos: dict, esp, bars: list[dict]) -> dict | None:
+    """Replay one position's counterfactual menu on real 1-min bars. None if bars missing
+    (the caller is responsible for fetching/retrying `bars` -- see fetch_bars_cached)."""
     if not bars:
         return None
     entry_ts = pos["entry_ts_utc"]
@@ -210,7 +375,10 @@ def autopsy_position(pos: dict, esp) -> dict | None:
     cls = classify_position(pos["actual_exit_pnl"], entry_price, entry_bar_low,
                             post_exit_high, cf_pnls)
     return {
-        "date": pos["date_et"], "arm": pos["arm"], "symbol": pos["symbol"],
+        "date": pos["date_et"], "arm": pos["arm"],
+        "strategy": lookup_strategy(pos["arm"], pos["symbol"], entry_ts),
+        "stop_mode": lookup_stop_mode(pos["arm"], pos["symbol"]),
+        "symbol": pos["symbol"],
         "entry_ts_utc": entry_ts, "entry_price": entry_price, "qty": pos["entry_qty"],
         "actual_pnl": round(pos["actual_exit_pnl"], 2),
         "mfe_pct": round(mfe, 3), "mae_pct": round(mae, 3),
@@ -246,9 +414,21 @@ def load_hypothesis_rows() -> list[dict]:
     return out
 
 
-def render_md(date_et: str, rows: list[dict], hyps: list[dict]) -> str:
+def render_md(date_et: str, rows: list[dict], hyps: list[dict], *,
+             n_positions_found: int = 0, n_no_bars: int = 0) -> str:
     L = [f"# Trade autopsy — {date_et}", ""]
     if not rows:
+        if n_positions_found > 0:
+            # Positions existed in the broker-truth ledger but couldn't be replayed -- this
+            # is NOT a flat day, and must never render/read like one (OP-33/C7).
+            L.append(f"**INCOMPLETE — {n_positions_found} closed engine position(s) found in "
+                     f"the broker-truth ledger, but bars data was unavailable for all "
+                     f"{n_no_bars} of them after {len(BARS_RETRY_BACKOFF_SEC)} retries "
+                     f"(likely OPRA options-bar indexing lag right after the 16:00 ET "
+                     f"close). This is NOT a flat day. Re-run "
+                     f"`backtest\\.venv\\Scripts\\python.exe setup\\scripts\\trade_autopsy.py "
+                     f"--date {date_et}` once bars have landed.**")
+            return "\n".join(L) + "\n"
         L.append("No closed engine positions today (broker-truth ledger). Nothing to autopsy.")
         return "\n".join(L) + "\n"
     total = sum(r["actual_pnl"] for r in rows)
@@ -257,12 +437,14 @@ def render_md(date_et: str, rows: list[dict], hyps: list[dict]) -> str:
              f"{'+' if total >= 0 else ''}${total:.2f}.** Counterfactuals replayed through the "
              f"live exit_manager on real 1-min bars (frictionless fills at trigger levels).")
     L.append("")
-    L.append("| symbol | arm | actual | MFE | MAE | best counterfactual | Δ vs best | tags |")
-    L.append("|---|---|--:|--:|--:|---|--:|---|")
+    L.append("| symbol | arm | strategy | stop_mode | actual | MFE | MAE | best counterfactual | Δ vs best | tags |")
+    L.append("|---|---|---|---|--:|--:|--:|---|--:|---|")
     for r in rows:
         bc = r.get("best_counterfactual") or "—"
         bc_pnl = r["counterfactuals"].get(bc) if bc != "—" else None
-        L.append(f"| {r['symbol'][-9:]} | {r['arm']} | ${r['actual_pnl']} "
+        L.append(f"| {r['symbol'][-9:]} | {r['arm']} | {r.get('strategy') or '—'} "
+                 f"| {r.get('stop_mode') or '—'} "
+                 f"| ${r['actual_pnl']} "
                  f"| {r['mfe_pct']*100:+.0f}% | {r['mae_pct']*100:+.0f}% "
                  f"| {bc} (${bc_pnl}) | ${r.get('stop_cost_vs_best', '—')} "
                  f"| {', '.join(r['tags']) or '—'} |")
@@ -295,21 +477,31 @@ def append_queue_md(hyps: list[dict], date_et: str) -> None:
         print(f"[autopsy] WARN queue.md append failed: {e}", file=sys.stderr)
 
 
-def queue_ping(date_et: str, rows: list[dict], hyps: list[dict]) -> None:
+def queue_ping(date_et: str, rows: list[dict], hyps: list[dict], *,
+              n_positions_found: int = 0, n_no_bars: int = 0,
+              outbox_path: Path = OUTBOX) -> None:
     try:
         from trade_today_watcher import _load_user_mention
         mention = _load_user_mention()
     except Exception:  # noqa: BLE001
         mention = ""
+    if not rows and n_positions_found == 0:
+        return  # silent on genuinely no-trade days (don't spam)
     if not rows:
-        return  # silent on no-trade days (don't spam)
-    total = sum(r["actual_pnl"] for r in rows)
-    stp = sum(1 for r in rows if "stopped_then_paid" in r["tags"])
-    hyp_s = f" · {len(hyps)} new hypothesis(es): {', '.join(h['mechanism'] for h in hyps)}" if hyps else ""
-    msg = (f"{mention}[AUTOPSY] {date_et}: {len(rows)} engine positions net ${total:.0f}; "
-           f"{stp} stopped-then-paid{hyp_s}. analysis/autopsies/{date_et}.md")
+        # Positions existed but nothing could be replayed -- never silent (OP-33/C7): this
+        # is a degraded/incomplete run, not a quiet flat day.
+        msg = (f"{mention}[AUTOPSY] {date_et}: INCOMPLETE — {n_positions_found} closed engine "
+               f"position(s) found but bars data was unavailable for all {n_no_bars} "
+               f"(not a flat day). analysis/autopsies/{date_et}.md")
+    else:
+        total = sum(r["actual_pnl"] for r in rows)
+        stp = sum(1 for r in rows if "stopped_then_paid" in r["tags"])
+        hyp_s = (f" · {len(hyps)} new hypothesis(es): "
+                 f"{', '.join(h['mechanism'] for h in hyps)}" if hyps else "")
+        msg = (f"{mention}[AUTOPSY] {date_et}: {len(rows)} engine positions net ${total:.0f}; "
+               f"{stp} stopped-then-paid{hyp_s}. analysis/autopsies/{date_et}.md")
     try:
-        with OUTBOX.open("a", encoding="utf-8") as fh:
+        with outbox_path.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps({"content": msg, "source": "trade_autopsy",
                                  "queued_at": et_now().isoformat()}) + "\n")
     except OSError as e:
@@ -325,9 +517,16 @@ def main() -> int:
     try:
         import exit_shape_parity_study as esp
         positions = load_engine_positions(date_et)
+        bar_cache: dict = {}
         rows = []
+        n_no_bars = 0
         for p in positions:
-            r = autopsy_position(p, esp)
+            bars = fetch_bars_cached(esp, p["symbol"], p["date_et"], bar_cache)
+            if not bars:
+                n_no_bars += 1
+                _time_mod.sleep(0.1)
+                continue
+            r = autopsy_position(p, esp, bars)
             if r is not None:
                 rows.append(r)
             _time_mod.sleep(0.1)
@@ -349,19 +548,21 @@ def main() -> int:
                                          "ts": et_now().isoformat()}) + "\n")
             append_queue_md(new_hyps, date_et)
 
-        md = render_md(date_et, rows, new_hyps)
+        md = render_md(date_et, rows, new_hyps,
+                       n_positions_found=len(positions), n_no_bars=n_no_bars)
         (OUT_DIR / f"{date_et}.md").write_text(md, encoding="utf-8")
         LAST_JSON.write_text(json.dumps({
             "date": date_et, "n_positions": len(rows),
+            "n_positions_found": len(positions), "n_no_bars": n_no_bars,
             "net_pnl": round(sum(r["actual_pnl"] for r in rows), 2) if rows else 0.0,
             "n_stopped_then_paid": sum(1 for r in rows if "stopped_then_paid" in r["tags"]),
             "new_hypotheses": [h["id"] for h in new_hyps],
             "md": f"analysis/autopsies/{date_et}.md",
             "generated_at": et_now().isoformat(),
         }, indent=2), encoding="utf-8")
-        queue_ping(date_et, rows, new_hyps)
-        print(f"[autopsy] {date_et}: {len(rows)} positions autopsied, "
-              f"{len(new_hyps)} new hypotheses -> {day_file.name}")
+        queue_ping(date_et, rows, new_hyps, n_positions_found=len(positions), n_no_bars=n_no_bars)
+        print(f"[autopsy] {date_et}: {len(positions)} positions found, {len(rows)} autopsied, "
+              f"{n_no_bars} skipped (no bars), {len(new_hyps)} new hypotheses -> {day_file.name}")
     except Exception as e:  # noqa: BLE001 -- notify-only: never propagate a failure
         print(f"[autopsy] ERROR (fail-open): {e}", file=sys.stderr)
         try:
