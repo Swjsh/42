@@ -120,15 +120,37 @@ def _grind_completeness() -> dict:
         except Exception:
             continue
     complete = bool(total) and done >= total
-    return {"grind_complete": complete, "progress_rows": done, "grid_total": total}
+    # FUNNEL layer (added after the 2026-07-09 63%-funnel premature run — the grind can be
+    # 100% while the funnel is still evaluating bangers, which makes the elite universe
+    # partial even though grind_complete=True): bangers_total from the grind's completion
+    # marker; funnel_rows = evaluations written so far. input_complete is the ONLY field a
+    # consumer may treat as "this P5 verdict is final".
+    bangers_total = None
+    try:
+        bangers_total = int(json.loads(
+            (RECO / "mass-grind-v2.json").read_text(encoding="utf-8"))["bangers"])
+    except Exception:
+        bangers_total = None
+    funnel_rows = 0
+    for f in glob.glob(str(RECO / "mass-grind-funnel-v2*.jsonl")):
+        try:
+            funnel_rows += sum(1 for ln in Path(f).read_text(encoding="utf-8").splitlines() if ln.strip())
+        except Exception:
+            continue
+    funnel_complete = bool(bangers_total) and funnel_rows >= bangers_total
+    return {"grind_complete": complete, "progress_rows": done, "grid_total": total,
+            "funnel_rows": funnel_rows, "bangers_total": bangers_total,
+            "funnel_complete": funnel_complete,
+            "input_complete": complete and funnel_complete}
 
 
 def main() -> int:
     completeness = _grind_completeness()
-    if not completeness["grind_complete"]:
-        print(f"[phase5] WARNING grind_complete=False -- {completeness['progress_rows']}/"
-              f"{completeness['grid_total']} progress rows; summary will be stamped PARTIAL "
-              f"(mass-grind-total.json is the authority). Do NOT treat as a final P5 verdict.")
+    if not completeness["input_complete"]:
+        print(f"[phase5] WARNING input_complete=False -- grind {completeness['progress_rows']}/"
+              f"{completeness['grid_total']}, funnel {completeness['funnel_rows']}/"
+              f"{completeness['bangers_total']}; summary stamped PARTIAL. Do NOT treat as a "
+              f"final P5 verdict.")
     elites = _load_p4_elites()
     if not elites:
         print("[phase5] no P4 elites found yet")

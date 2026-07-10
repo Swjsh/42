@@ -85,14 +85,14 @@ $action = New-ScheduledTaskAction `
     -Argument $wscriptArgs `
     -WorkingDirectory $root
 
-# 19:30 local (Mountain) = 21:30 ET daily. Force the FIRST occurrence to TOMORROW's
-# date explicitly -- New-ScheduledTaskTrigger -Daily -At <time-only> would otherwise
-# resolve to TODAY's 19:30 if that instant hasn't passed yet when this installer
-# runs, which would violate "never fires tonight." Using a full DateTime (not just
-# a time-of-day) for -At pins the boundary; the Daily recurrence then repeats every
-# 1 day from that instant forever after.
-$firstRun = (Get-Date).Date.AddDays(1).AddHours(19).AddMinutes(30)
-$trigger = New-ScheduledTaskTrigger -Daily -DaysInterval 1 -At $firstRun
+# EVERY 4 HOURS, 24/7 (J directive 2026-07-09: "prospector runs on a 4hr cadence, not
+# nightly. we're months in i need results, asap"). Originally nightly 21:30 ET; re-registered
+# same night. Free-swarm scans are $0 so the cadence cost is zero; the 7-beat rotation
+# completes a full cycle every ~28h at this rate.
+$firstRun = (Get-Date).AddMinutes(5)
+$trigger = New-ScheduledTaskTrigger -Once -At $firstRun `
+    -RepetitionInterval (New-TimeSpan -Hours 4) `
+    -RepetitionDuration (New-TimeSpan -Days 3650)
 
 $settings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `

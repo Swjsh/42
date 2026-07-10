@@ -8,6 +8,18 @@
 
 ---
 
+## ⏸️ PC-RESTART CHECKPOINT 2026-07-09 ~21:20 ET — RESUME RUNBOOK (delete this block once resumed)
+
+**J restarted the box mid-night-session. Everything shipped is committed + boot-proof (breakers 08:30, open-bell 09:36, SS-B armed, CCR keepalive revives the gateway, prospector 4h cadence). What DIED with the restart + exact resume steps:**
+
+1. **Funnel process (was ~700/1,081 bangers, resume-safe).** Relaunch (ONE process, backtest venv):
+   `cd C:\Users\jackw\Desktop\42\backtest; $env:GAMMA_FUNNEL_SHARD="0"; $env:GAMMA_FUNNEL_NSHARDS="1"; Start-Process -FilePath ".\.venv\Scripts\python.exe" -ArgumentList "-m","autoresearch.mass_grind_funnel" -WindowStyle Hidden -RedirectStandardOutput "..\automation\state\logs\mass-grind-funnel-postreboot.out.log" -RedirectStandardError "..\automation\state\logs\mass-grind-funnel-postreboot.err.log"`
+   Then WHEN funnel rows >= 1081 (`mass-grind-funnel-v2-0.jsonl` line count): run `.\.venv\Scripts\python.exe -m autoresearch.mass_grind_phase5` and check the summary's **`input_complete: true`** (new field; a PARTIAL run tonight was quarantined as `*.premature-partial-2026-07-09`).
+2. **~12 in-flight Sonnet crews died** (launched from the interactive session). Their landed artifacts persist; UNFINISHED ones to relaunch-or-skip by value: (a) **SS-B certification** (engine-vs-study parity + OP-16 J-anchor edge_capture — HIGHEST value, relaunch; if J-anchors fail badly → de-arm `structure_stop_enabled` before open), (b) **exit-path adversarial review + F7 fix** (worktree `.claude/worktrees/agent-a2e4146c…` variants — check `git worktree list` for its sibling; HIGH), (c) cold-signal diagnosis + recency sizing, (d) level-provenance stamping, (e) mirror-spec backfill, (f) autopsy fleet-blindness fix, (g) veto payload fix, (h) block_elite_bull SS-B revalidation, (i) auditors: open-readiness / state truth table / silent-failure sweep / research-loop. Check `markdown/audits/` + `analysis/recommendations/` for any that landed files before dying.
+3. **STOP-B final write-up still owed** (this block's author): fold grind (7,560/7,560 DONE, 1,081 bangers) + final phase5 + whatever crews landed. SS-B is LIVE for tomorrow regardless (STATUS entry ~16:20 ET below); certification is its first kill-check.
+4. **J-owed brainstorm (queued, do NOT drop):** J-BRAINSTORM-CROSS-TICKER in queue.md — dedicated Fable session.
+5. Morning sanity after boot: `engine-health.json` verdict + `Get-ScheduledTask Gamma_HeartbeatCore,Gamma_SightBeacon,Gamma_CcrKeepalive,Gamma_FuturesMirror | Select TaskName,State` — all Ready.
+
 - 2026-07-09 ~18:50 ET [visibility build, render-only] **SHIPPED structure-stop truth on every surface J looks at** — closes the STOP-B ship-1 known-cosmetic-gap ("plan-log 'stop' shows the −20% fallback even in structure mode") the night before SS-B's first live day. Zero decision-logic touched (`exit_manager.py` untouched, frozen); every edit is additive reporting or a corrected LOG-ONLY number (never sent to the broker). 5 surfaces:
   1. **Fleet exit_pass rows** (`exit_actuator.manage_tick`) now carry `stop_mode`/`trigger_level` on EVERY row (managed tick, FLAT_PRUNED, no-quote HOLD) + `last_closed_5m_close` on the managed row — additive keys only, `actions` computed before the new dict fields exist. New `exit_actuator.describe_stop()` pure formatter (`STRUCTURE@<level> (cat -50%)` / `<price> (<pct>)`).
   2. **Plan/placement log fix** (`fleet_live._place_live` + `heartbeat_core._execute`): when `register_entry` resolves STRUCTURE mode, `stop`/`premium_stop_pct` are corrected to the REAL catastrophe floor (entry_px-anchored, not the stale mid-anchored −20%/−50% fallback text) and new `stop_mode`/`trigger_level`/`stop_display` fields are added. Premium-mode positions are byte-identical to before. Known gap: the DRY/`WOULD_PLACE` shadow-preview branch in `_execute` (unarmed-mode only) still shows the old text — fixing it needs hoisting the trigger-level/shape resolution earlier in the function, deliberately not attempted tonight to keep the diff minimal on a frozen-adjacent surface; the REAL `dry=False` placed path (what fires tomorrow, `GAMMA_CORE_ARMED=1`) is fully fixed.
@@ -304,7 +316,7 @@
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 39 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 45 pending, last cook 0 min ago, today $0.00, model=grinder-python
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -2123,3 +2135,55 @@ Kitchen: alive, queue 39 pending, last cook 0 min ago, today $0.00, model=grinde
 ### DEGRADED: self-check 2026-07-09T18:39:57
 - PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
 - FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BULL ?', '15:47 ENTER_BULL ?', '15:48 ENTER_BULL ?']
+
+- [2026-07-09 16:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T22:57:04.382937+00:00) | fail streak: 293 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 16:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T19:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BULL ?', '15:47 ENTER_BULL ?', '15:48 ENTER_BULL ?']
+
+- [2026-07-09 17:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T23:27:04.947589+00:00) | fail streak: 294 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 17:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T19:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BULL ?', '15:47 ENTER_BULL ?', '15:48 ENTER_BULL ?']
+
+- [2026-07-09 17:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-09T23:57:04.641362+00:00) | fail streak: 295 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 17:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T20:09:57
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BULL ?', '15:47 ENTER_BULL ?', '15:48 ENTER_BULL ?']
+
+- [2026-07-09 18:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-10T00:27:04.001431+00:00) | fail streak: 296 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 18:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T20:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BULL ?', '15:47 ENTER_BULL ?', '15:48 ENTER_BULL ?']
+
+- [2026-07-09 18:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-10T00:57:03.862279+00:00) | fail streak: 297 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 18:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T21:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BULL ?', '15:47 ENTER_BULL ?', '15:48 ENTER_BULL ?']
+
+- [2026-07-09 19:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-10T01:27:03.860251+00:00) | fail streak: 298 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 19:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
+
+### DEGRADED: self-check 2026-07-09T21:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-08 != today 2026-07-09 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:46 ENTER_BULL ?', '15:47 ENTER_BULL ?', '15:48 ENTER_BULL ?']
+
+- [2026-07-09 19:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-10T01:57:05.499925+00:00) | fail streak: 299 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-09 19:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-09.log
