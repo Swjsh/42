@@ -1,0 +1,1062 @@
+{
+  "meta": {
+    "generated": "2026-07-10T16:15:10.319249",
+    "mission": "2026-07-10 734 HOLDs: near-miss (calibration) vs no-signal (coverage) classification",
+    "primary_source": "automation/state/core-decisions.jsonl (production ledger, heartbeat_core.py, both accounts)",
+    "secondary_source": "bar-by-bar replay of backtest/lib/filters.py evaluate_bearish_setup/evaluate_bullish_setup over backtest/data/spy_5m_2026-05-19_2026-07-10.csv + vix_5m same range, reusing setup/scripts/heartbeat_core._build_payload and lib.engine.engine_cli.build_bar_context (byte-identical scoring code to production)",
+    "replay_caveat": "The replay's level set is auto-derived via lib.levels._detect_from_history (the backtest approximation), NOT J's live-curated automation/state/key-levels.json that production actually reads. Cross-checked against the ledger's real ENTER/SKIP_ELITE_BULL trigger clusters: the replay UNDER-counts level_reclaim/confluence events (misses several real level touches the live engine saw) and is therefore NOT used for exact trigger-timing counts -- those come from the ledger directly, which is exact/zero-reconstruction-risk. The replay IS used for: (a) filter-number attribution of single-blocker bars, since filters 1/5/6/7/8/9/10(bull-buyer-pressure) do not depend on the level set at all, and (b) confirming the ribbon_flip structural argument, which is pure ribbon-history logic."
+  },
+  "scoring_and_threshold_logic": {
+    "source_files": [
+      "backtest/lib/filters.py (evaluate_bearish_setup, evaluate_bullish_setup -- the actual filter checklist)",
+      "backtest/lib/engine/score.py (score_bar -- thin wrapper, both sides)",
+      "backtest/lib/engine/engine_cli.py (decide_payload -- HOLD/ENTER/SKIP_<gate> routing)",
+      "setup/scripts/heartbeat_core.py (_build_payload, _engine_verdict -- live wiring, per-account kwargs)"
+    ],
+    "mechanism": "Each side (BEAR=10 filters, BULL=11 filters) runs a checklist; every failed filter appends its number to a `blockers` list. `passed = len(blockers) == 0` -- NOT a separate score cutoff. `bear_score = 10 - len(blockers) - htf_disagree_demerit`; `bull_score = 11 - len(blockers) - htf_disagree_demerit`. The trigger-count check is ITSELF one of the filters (bear filter 10, bull filter 11): `if len(triggers) < min_triggers: blockers.append(<10|11>)`, ELSE (elif) `if no trigger is level-tied: blockers.append(<10|11>)`. So passing requires BOTH the trigger-count threshold AND at least one level-tied trigger -- exactly the doctrine fact the mission named. A HOLD verdict from engine_cli.decide_payload means BOTH sides had >=1 blocker (`neither side passed scoring`); routing/gate logic (SKIP_<GATE>) only runs for a side that already passed scoring, so HOLD rows never reach the 15 entry gates at all.",
+    "score_deficit_is_exact": "PROOF: on a HOLD tick both sides have blockers>=1 by definition. In live production only the htf-disagree demerit is ever active (vix_soft_mode/allow_one_blocker/bearish_reversal_bypass are never forwarded by heartbeat_core.py._build_payload, so those demerits are structurally 0 live). score_deficit = blockers + demerit >= 1. Therefore deficit==1 ALWAYS means exactly ONE blocking filter and ZERO demerit -- there is no ambiguity in the '1 point from passing' population.",
+    "min_triggers_thresholds_live": {
+      "safe_account": {
+        "filter_10_min_triggers_bear": 1,
+        "filter_10_min_triggers_bull": 2,
+        "source": "automation/state/params.json"
+      },
+      "bold_account": {
+        "filter_10_min_triggers_bear": 1,
+        "filter_10_min_triggers_bull": 1,
+        "source": "automation/state/aggressive/params.json"
+      }
+    },
+    "trigger_vocabulary": {
+      "bear_side_10_filters": {
+        "all_triggers": [
+          "level_rejection",
+          "fhh_level_rejection",
+          "ribbon_flip",
+          "confluence",
+          "sequence_rejection",
+          "trendline_rejection"
+        ],
+        "level_tied_required_set": [
+          "level_rejection",
+          "fhh_level_rejection",
+          "confluence",
+          "sequence_rejection",
+          "trendline_rejection"
+        ],
+        "ribbon_flip_alone_insufficient": true
+      },
+      "bull_side_11_filters": {
+        "all_triggers": [
+          "level_reclaim",
+          "ribbon_flip",
+          "confluence",
+          "sequence_reclaim"
+        ],
+        "level_tied_required_set": [
+          "level_reclaim",
+          "confluence",
+          "sequence_reclaim"
+        ],
+        "ribbon_flip_alone_insufficient": true
+      }
+    }
+  },
+  "day_2026_07_10": {
+    "hold_ticks_total_both_accounts": 734,
+    "reconciliation_note": "734 = 369 safe + 365 bold, ALL ticks logged under date=2026-07-10 (matches the mission's headline figure exactly). The by_account/windows breakdowns below restrict to RTH (09:30-16:00 ET) ticks only (365 safe + 365 bold = 730), excluding 4 off-hours safe HOLD ticks at 00:54-01:01 ET (a pre-open monitoring fire, not part of the trading session the mission is about).",
+    "ribbon_regime": "Ribbon flips BULL at 09:31, brief MIXED 11:06-11:21, then BULL continuously 11:21 through the 15:55 close (~4.5h, no further flip -- ribbon_flip is structurally dead for that entire stretch since detect_ribbon_flip_bullish requires a NON-BULL bar within the prior 3 bars).",
+    "spy_path": "751.0 open -> 755.12 close, net grind higher with no large pullback (smooth breakaway, not chop).",
+    "by_account": {
+      "safe": {
+        "n_hold_ticks": 365,
+        "bull_score_histogram": {
+          "7": 1,
+          "8": 101,
+          "9": 118,
+          "10": 145
+        },
+        "bear_score_histogram": {
+          "4": 64,
+          "5": 151,
+          "6": 119,
+          "7": 31
+        },
+        "bull_deficit_histogram": {
+          "1": 145,
+          "2": 118,
+          "3": 101,
+          "4": 1
+        },
+        "bear_deficit_histogram": {
+          "3": 31,
+          "4": 119,
+          "5": 151,
+          "6": 64
+        },
+        "min_deficit_histogram": {
+          "1": 145,
+          "2": 118,
+          "3": 102
+        },
+        "pct_within_1_point": 0.3973,
+        "pct_within_2_points": 0.7205,
+        "min_bear_deficit_ever": 3
+      },
+      "bold": {
+        "n_hold_ticks": 365,
+        "bull_score_histogram": {
+          "7": 1,
+          "8": 101,
+          "9": 118,
+          "10": 145
+        },
+        "bear_score_histogram": {
+          "4": 64,
+          "5": 152,
+          "6": 118,
+          "7": 31
+        },
+        "bull_deficit_histogram": {
+          "1": 145,
+          "2": 118,
+          "3": 101,
+          "4": 1
+        },
+        "bear_deficit_histogram": {
+          "3": 31,
+          "4": 118,
+          "5": 152,
+          "6": 64
+        },
+        "min_deficit_histogram": {
+          "1": 145,
+          "2": 118,
+          "3": 102
+        },
+        "pct_within_1_point": 0.3973,
+        "pct_within_2_points": 0.7205,
+        "min_bear_deficit_ever": 3
+      }
+    },
+    "signal_cluster_timeline_rth": {
+      "safe": [
+        {
+          "start_et": "09:31",
+          "end_et": "09:35",
+          "n_ticks": 5,
+          "verdicts": [
+            "ENTER_BULL"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": 751.19
+        },
+        {
+          "start_et": "11:21",
+          "end_et": "11:23",
+          "n_ticks": 3,
+          "verdicts": [
+            "SKIP_BULL_1100_1200"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": 752.49
+        },
+        {
+          "start_et": "11:31",
+          "end_et": "11:33",
+          "n_ticks": 3,
+          "verdicts": [
+            "SKIP_BULL_1100_1200"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": 753.1
+        },
+        {
+          "start_et": "11:51",
+          "end_et": "11:55",
+          "n_ticks": 5,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": 751.89
+        },
+        {
+          "start_et": "12:51",
+          "end_et": "12:55",
+          "n_ticks": 5,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": 753.68
+        }
+      ],
+      "bold": [
+        {
+          "start_et": "09:31",
+          "end_et": "09:35",
+          "n_ticks": 5,
+          "verdicts": [
+            "SKIP_CONF_LVL_REC_AFTERNOON"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": 751.19
+        },
+        {
+          "start_et": "11:21",
+          "end_et": "11:23",
+          "n_ticks": 3,
+          "verdicts": [
+            "ENTER_BULL"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": 752.49
+        },
+        {
+          "start_et": "11:31",
+          "end_et": "11:33",
+          "n_ticks": 3,
+          "verdicts": [
+            "ENTER_BULL"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": 753.1
+        },
+        {
+          "start_et": "11:51",
+          "end_et": "11:55",
+          "n_ticks": 5,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": 751.89
+        },
+        {
+          "start_et": "12:51",
+          "end_et": "12:55",
+          "n_ticks": 5,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": 753.68
+        }
+      ]
+    },
+    "windows": {
+      "safe": {
+        "active_09:30-12:55": {
+          "n_hold_ticks": 185,
+          "bull_score_histogram": {
+            "7": 1,
+            "8": 59,
+            "9": 76,
+            "10": 49
+          },
+          "bear_score_histogram": {
+            "4": 26,
+            "5": 78,
+            "6": 67,
+            "7": 14
+          },
+          "bull_deficit_histogram": {
+            "1": 49,
+            "2": 76,
+            "3": 59,
+            "4": 1
+          },
+          "bear_deficit_histogram": {
+            "3": 14,
+            "4": 67,
+            "5": 78,
+            "6": 26
+          },
+          "min_deficit_histogram": {
+            "1": 49,
+            "2": 76,
+            "3": 60
+          },
+          "pct_within_1_point": 0.2649,
+          "pct_within_2_points": 0.6757,
+          "min_bear_deficit_ever": 3
+        },
+        "dead_12:56-15:55": {
+          "n_hold_ticks": 180,
+          "bull_score_histogram": {
+            "8": 42,
+            "9": 42,
+            "10": 96
+          },
+          "bear_score_histogram": {
+            "4": 38,
+            "5": 73,
+            "6": 52,
+            "7": 17
+          },
+          "bull_deficit_histogram": {
+            "1": 96,
+            "2": 42,
+            "3": 42
+          },
+          "bear_deficit_histogram": {
+            "3": 17,
+            "4": 52,
+            "5": 73,
+            "6": 38
+          },
+          "min_deficit_histogram": {
+            "1": 96,
+            "2": 42,
+            "3": 42
+          },
+          "pct_within_1_point": 0.5333,
+          "pct_within_2_points": 0.7667,
+          "min_bear_deficit_ever": 3
+        },
+        "mission_window_11:35-15:30": {
+          "n_hold_ticks": 226,
+          "bull_score_histogram": {
+            "8": 64,
+            "9": 60,
+            "10": 102
+          },
+          "bear_score_histogram": {
+            "4": 43,
+            "5": 100,
+            "6": 61,
+            "7": 22
+          },
+          "bull_deficit_histogram": {
+            "1": 102,
+            "2": 60,
+            "3": 64
+          },
+          "bear_deficit_histogram": {
+            "3": 22,
+            "4": 61,
+            "5": 100,
+            "6": 43
+          },
+          "min_deficit_histogram": {
+            "1": 102,
+            "2": 60,
+            "3": 64
+          },
+          "pct_within_1_point": 0.4513,
+          "pct_within_2_points": 0.7168,
+          "min_bear_deficit_ever": 3
+        }
+      },
+      "bold": {
+        "active_09:30-12:55": {
+          "n_hold_ticks": 185,
+          "bull_score_histogram": {
+            "7": 1,
+            "8": 59,
+            "9": 76,
+            "10": 49
+          },
+          "bear_score_histogram": {
+            "4": 26,
+            "5": 79,
+            "6": 66,
+            "7": 14
+          },
+          "bull_deficit_histogram": {
+            "1": 49,
+            "2": 76,
+            "3": 59,
+            "4": 1
+          },
+          "bear_deficit_histogram": {
+            "3": 14,
+            "4": 66,
+            "5": 79,
+            "6": 26
+          },
+          "min_deficit_histogram": {
+            "1": 49,
+            "2": 76,
+            "3": 60
+          },
+          "pct_within_1_point": 0.2649,
+          "pct_within_2_points": 0.6757,
+          "min_bear_deficit_ever": 3
+        },
+        "dead_12:56-15:55": {
+          "n_hold_ticks": 180,
+          "bull_score_histogram": {
+            "8": 42,
+            "9": 42,
+            "10": 96
+          },
+          "bear_score_histogram": {
+            "4": 38,
+            "5": 73,
+            "6": 52,
+            "7": 17
+          },
+          "bull_deficit_histogram": {
+            "1": 96,
+            "2": 42,
+            "3": 42
+          },
+          "bear_deficit_histogram": {
+            "3": 17,
+            "4": 52,
+            "5": 73,
+            "6": 38
+          },
+          "min_deficit_histogram": {
+            "1": 96,
+            "2": 42,
+            "3": 42
+          },
+          "pct_within_1_point": 0.5333,
+          "pct_within_2_points": 0.7667,
+          "min_bear_deficit_ever": 3
+        },
+        "mission_window_11:35-15:30": {
+          "n_hold_ticks": 226,
+          "bull_score_histogram": {
+            "8": 64,
+            "9": 60,
+            "10": 102
+          },
+          "bear_score_histogram": {
+            "4": 43,
+            "5": 100,
+            "6": 61,
+            "7": 22
+          },
+          "bull_deficit_histogram": {
+            "1": 102,
+            "2": 60,
+            "3": 64
+          },
+          "bear_deficit_histogram": {
+            "3": 22,
+            "4": 61,
+            "5": 100,
+            "6": 43
+          },
+          "min_deficit_histogram": {
+            "1": 102,
+            "2": 60,
+            "3": 64
+          },
+          "pct_within_1_point": 0.4513,
+          "pct_within_2_points": 0.7168,
+          "min_bear_deficit_ever": 3
+        }
+      }
+    }
+  },
+  "day_2026_07_09_contrast": {
+    "ribbon_regime": "Ribbon ALSO BULL for nearly the entire session (from prior close through 15:11 ET, brief MIXED, BULL again 15:46) -- i.e. the SAME structural 'no ribbon flip available' condition as 07-10. The contrast is NOT about ribbon_flip availability; it is about level-touch frequency (level_reclaim/confluence).",
+    "by_account": {
+      "safe": {
+        "n_hold_ticks": 329,
+        "bull_score_histogram": {
+          "8": 63,
+          "9": 159,
+          "10": 107
+        },
+        "bear_score_histogram": {
+          "4": 73,
+          "5": 94,
+          "6": 79,
+          "7": 71,
+          "8": 12
+        },
+        "bull_deficit_histogram": {
+          "1": 107,
+          "2": 159,
+          "3": 63
+        },
+        "bear_deficit_histogram": {
+          "2": 12,
+          "3": 71,
+          "4": 79,
+          "5": 94,
+          "6": 73
+        },
+        "min_deficit_histogram": {
+          "1": 107,
+          "2": 163,
+          "3": 59
+        },
+        "pct_within_1_point": 0.3252,
+        "pct_within_2_points": 0.8207,
+        "min_bear_deficit_ever": 2
+      },
+      "bold": {
+        "n_hold_ticks": 329,
+        "bull_score_histogram": {
+          "8": 63,
+          "9": 159,
+          "10": 107
+        },
+        "bear_score_histogram": {
+          "4": 73,
+          "5": 94,
+          "6": 80,
+          "7": 71,
+          "8": 11
+        },
+        "bull_deficit_histogram": {
+          "1": 107,
+          "2": 159,
+          "3": 63
+        },
+        "bear_deficit_histogram": {
+          "2": 11,
+          "3": 71,
+          "4": 80,
+          "5": 94,
+          "6": 73
+        },
+        "min_deficit_histogram": {
+          "1": 107,
+          "2": 163,
+          "3": 59
+        },
+        "pct_within_1_point": 0.3252,
+        "pct_within_2_points": 0.8207,
+        "min_bear_deficit_ever": 2
+      }
+    },
+    "signal_cluster_timeline_rth": {
+      "safe": [
+        {
+          "start_et": "09:41",
+          "end_et": "09:50",
+          "n_ticks": 10,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "09:56",
+          "end_et": "10:00",
+          "n_ticks": 5,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "10:26",
+          "end_et": "10:35",
+          "n_ticks": 10,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "11:06",
+          "end_et": "11:10",
+          "n_ticks": 5,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "12:06",
+          "end_et": "12:10",
+          "n_ticks": 5,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "12:26",
+          "end_et": "12:28",
+          "n_ticks": 3,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "13:01",
+          "end_et": "13:03",
+          "n_ticks": 3,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "13:11",
+          "end_et": "13:15",
+          "n_ticks": 5,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "14:31",
+          "end_et": "14:33",
+          "n_ticks": 3,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "14:46",
+          "end_et": "14:48",
+          "n_ticks": 3,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "15:46",
+          "end_et": "15:50",
+          "n_ticks": 5,
+          "verdicts": [
+            "ENTER_BULL"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        }
+      ],
+      "bold": [
+        {
+          "start_et": "09:41",
+          "end_et": "09:50",
+          "n_ticks": 10,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "09:56",
+          "end_et": "10:01",
+          "n_ticks": 6,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "10:26",
+          "end_et": "10:34",
+          "n_ticks": 9,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "11:06",
+          "end_et": "11:10",
+          "n_ticks": 5,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "12:06",
+          "end_et": "12:10",
+          "n_ticks": 5,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "12:26",
+          "end_et": "12:28",
+          "n_ticks": 3,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "13:01",
+          "end_et": "13:03",
+          "n_ticks": 3,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "13:11",
+          "end_et": "13:15",
+          "n_ticks": 5,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "14:31",
+          "end_et": "14:33",
+          "n_ticks": 3,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "14:46",
+          "end_et": "14:48",
+          "n_ticks": 3,
+          "verdicts": [
+            "SKIP_ELITE_BULL_LEVEL_RECLAIM"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        },
+        {
+          "start_et": "15:46",
+          "end_et": "15:50",
+          "n_ticks": 5,
+          "verdicts": [
+            "SKIP_CONF_LVL_REC_AFTERNOON"
+          ],
+          "triggers": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "bull_score": 11,
+          "trigger_level_exact": null
+        }
+      ]
+    },
+    "windows": {
+      "safe": {
+        "mission_window_11:35-15:30": {
+          "n_hold_ticks": 214,
+          "bull_score_histogram": {
+            "8": 45,
+            "9": 100,
+            "10": 69
+          },
+          "bear_score_histogram": {
+            "4": 53,
+            "5": 72,
+            "6": 49,
+            "7": 40
+          },
+          "bull_deficit_histogram": {
+            "1": 69,
+            "2": 100,
+            "3": 45
+          },
+          "bear_deficit_histogram": {
+            "3": 40,
+            "4": 49,
+            "5": 72,
+            "6": 53
+          },
+          "min_deficit_histogram": {
+            "1": 69,
+            "2": 100,
+            "3": 45
+          },
+          "pct_within_1_point": 0.3224,
+          "pct_within_2_points": 0.7897,
+          "min_bear_deficit_ever": 3
+        }
+      },
+      "bold": {
+        "mission_window_11:35-15:30": {
+          "n_hold_ticks": 214,
+          "bull_score_histogram": {
+            "8": 45,
+            "9": 100,
+            "10": 69
+          },
+          "bear_score_histogram": {
+            "4": 53,
+            "5": 72,
+            "6": 49,
+            "7": 40
+          },
+          "bull_deficit_histogram": {
+            "1": 69,
+            "2": 100,
+            "3": 45
+          },
+          "bear_deficit_histogram": {
+            "3": 40,
+            "4": 49,
+            "5": 72,
+            "6": 53
+          },
+          "min_deficit_histogram": {
+            "1": 69,
+            "2": 100,
+            "3": 45
+          },
+          "pct_within_1_point": 0.3224,
+          "pct_within_2_points": 0.7897,
+          "min_bear_deficit_ever": 3
+        }
+      }
+    }
+  },
+  "cross_day_comparison": {
+    "distinct_signal_clusters_rth_safe": {
+      "2026-07-10": 5,
+      "2026-07-09": 11
+    },
+    "distinct_signal_clusters_rth_bold": {
+      "2026-07-10": 5,
+      "2026-07-09": 11
+    },
+    "signal_clusters_within_mission_window_11_35_15_30": {
+      "2026-07-10": 2,
+      "2026-07-09": 6
+    },
+    "note": "2026-07-10's LAST non-HOLD verdict (either account) is 12:55 ET; from 12:56 to the 15:55 close (3 hours, 180 ticks/account, ~49% of the day's HOLDs) there is ZERO non-HOLD verdict for EITHER account -- including 'bold', whose filter_10_min_triggers_bull=1 is already the loosest non-zero threshold available. Bold's looser threshold made no difference in that window because the trigger COUNT itself was 0, not merely below a soft cutoff -- direct evidence the gap is coverage, not calibration. 2026-07-09 by contrast produced a fresh signal cluster every ~20-90 minutes for the entire session including 6 clusters inside the mission's own 11:35-15:30 window."
+  },
+  "bar_level_replay_corroboration": {
+    "caveat": "The replay's level set is auto-derived via lib.levels._detect_from_history (the backtest approximation), NOT J's live-curated automation/state/key-levels.json that production actually reads. Cross-checked against the ledger's real ENTER/SKIP_ELITE_BULL trigger clusters: the replay UNDER-counts level_reclaim/confluence events (misses several real level touches the live engine saw) and is therefore NOT used for exact trigger-timing counts -- those come from the ledger directly, which is exact/zero-reconstruction-risk. The replay IS used for: (a) filter-number attribution of single-blocker bars, since filters 1/5/6/7/8/9/10(bull-buyer-pressure) do not depend on the level set at all, and (b) confirming the ribbon_flip structural argument, which is pure ribbon-history logic.",
+    "afternoon_window_11_35_15_30": {
+      "2026-07-10": {
+        "safe": {
+          "n_bars_5min": 48,
+          "bars_with_zero_bull_triggers": 39,
+          "pct_zero_bull_triggers": 0.8125,
+          "bars_with_exactly_1_blocker": 16,
+          "exactly_1_blocker_filter_breakdown": {
+            "buyer_pressure_bar_fail": 2,
+            "trigger_count_or_not_level_tied": 14
+          },
+          "bars_where_ribbon_flip_fired": 0
+        },
+        "bold": {
+          "n_bars_5min": 48,
+          "bars_with_zero_bull_triggers": 39,
+          "pct_zero_bull_triggers": 0.8125,
+          "bars_with_exactly_1_blocker": 17,
+          "exactly_1_blocker_filter_breakdown": {
+            "buyer_pressure_bar_fail": 4,
+            "trigger_count_or_not_level_tied": 13
+          },
+          "bars_where_ribbon_flip_fired": 0
+        }
+      },
+      "2026-07-09": {
+        "safe": {
+          "n_bars_5min": 48,
+          "bars_with_zero_bull_triggers": 48,
+          "pct_zero_bull_triggers": 1.0,
+          "bars_with_exactly_1_blocker": 14,
+          "exactly_1_blocker_filter_breakdown": {
+            "trigger_count_or_not_level_tied": 14
+          },
+          "bars_where_ribbon_flip_fired": 0
+        },
+        "bold": {
+          "n_bars_5min": 48,
+          "bars_with_zero_bull_triggers": 48,
+          "pct_zero_bull_triggers": 1.0,
+          "bars_with_exactly_1_blocker": 14,
+          "exactly_1_blocker_filter_breakdown": {
+            "trigger_count_or_not_level_tied": 14
+          },
+          "bars_where_ribbon_flip_fired": 0
+        }
+      }
+    },
+    "interpretation": "Within the 07-10 AFTERNOON single-blocker ('1 point from passing') bar population specifically, filter 11 (trigger_count_or_not_level_tied -- the coverage-hole signature) dominates: 14/16 (safe, 87.5%) and 13/17 (bold, 76.5%) of single-blocker bars. The remainder is filter 10 (buyer_pressure_bar_fail -- that specific 5m candle wasn't green/heavy-volume enough -- an ordinary bar-quality miss, NOT a trigger-vocabulary gap). Full-day (not just afternoon) the split is closer to even (56% filter11 / 36% filter10 of the 25 single-blocker bars, safe) -- the coverage-hole signature specifically concentrates in the afternoon, consistent with 'price left the level cluster behind and never returned'. ribbon_flip fired 0 times in the 07-10 afternoon window (structurally impossible -- ribbon had been BULL since 11:21, >3 bars before window start). CAVEAT ON THE 07-09 AFTERNOON ROW ABOVE: it shows 100% zero-bull-trigger bars, which is a KNOWN ARTIFACT of this replay's auto-derived (non-J-curated) level set -- the ledger PROVES 6 real signal clusters fired inside that exact 07-09 window (12:06, 12:26, 13:01, 13:11, 14:31, 14:46), so the true zero-trigger rate that day is well below 100%. This is exactly why trigger-TIMING claims in this report come from the ledger, not this replay; the replay is used only for the level-independent filter-10-vs-11 attribution and the ribbon_flip structural check."
+  },
+  "trigger_autopsy_structural_impossibility": {
+    "claim": "On a sustained, no-retest trend, the ENTIRE bull trigger vocabulary is structurally untriggerable by construction, once >3 bars have elapsed since the last ribbon flip and price has moved away from every known level.",
+    "per_trigger_mechanism": {
+      "ribbon_flip": "detect_ribbon_flip_bullish (backtest/lib/filters.py:775) requires the CURRENT bar's stack == BULL AND at least one of the prior RIBBON_FLIP_LOOKBACK_BARS=3 bars != BULL. Once the ribbon has been BULL for >3 consecutive bars (15+ minutes), this is mathematically False for every subsequent bar until the NEXT flip event -- it is a one-shot transition signal, not a state.",
+      "level_reclaim": "detect_level_reclaim (filters.py:758) requires bar.low < level < bar.close for some pre-identified level in levels_active -- i.e. price must physically dip back down and touch a known S/R level THIS bar. A trend that has moved away from all known levels and keeps making new highs without pulling back never satisfies this.",
+      "confluence": "detect_confluence (filters.py:741) is a pure function of reclaim_level -- if level_reclaim is None, confluence is unconditionally None. It has no independent firing path.",
+      "sequence_reclaim": "detect_sequence_reclaim (filters.py:487) requires a level_state with role== 'broken_to_support' AND >=3 bounce_history entries of progressively higher lows -- i.e. price must have OSCILLATED around one specific broken level at least 3 times. A smooth away-trending move produces no such history."
+    },
+    "conclusion": "There is no trigger in the vocabulary for 'sustained directional continuation without a pullback' (no VWAP-hold, no N-consecutive-same-side-bars, no momentum/ADX-persistence trigger). This is a genuine coverage hole in the trigger CATEGORY, not a mis-set threshold on an existing one.",
+    "existing_but_unwired_continuation_detector": {
+      "file": "backtest/lib/watchers/vwap_trend_pullback_watcher.py",
+      "setup_name": "H4 vwap_trend_pullback",
+      "status": "Built, ratified per its own docstring (real-OPRA-fills exp +$45.88/trade, WR 42.4%, n=92, OOS+, both sides positive, clears the OP-16/OP-22 SHIP bar) but ABSENT from setup/scripts/setup_dispatch.py's `dispatchers` list (only vwap_continuation, gap_and_go, vwap_reclaim_failed_break, vix_regime_dayside, double_bottom_base_quiet, bollinger_squeeze are actually dispatched). It never got a chance to evaluate the 2026-07-10 afternoon at all.",
+      "note_vwap_continuation_is_not_a_substitute": "The one continuation-flavored detector that IS dispatched, j_vwap_cont (vwap_continuation), is explicitly MORNING-ONLY (entry cutoff 10:30 ET per its own docstring) -- structurally could not have fired in the 12:56-15:55 window regardless of enable flags. Ledger confirms: 'vwap_continuation' extra_signal reports skip_reason=SKIP_NO_SIGNAL on every afternoon tick sampled."
+    }
+  },
+  "classification_verdict": {
+    "one_sentence": "MIXED but coverage-dominant: 09:30-12:55 ET on 2026-07-10 was healthy (5 real SUPER/ELITE trigger clusters, 11 real ENTER_BULLs across both accounts, remainder correctly gate-blocked) -- but 12:56-15:55 ET (the final 3 hours, ~49% of the day's 734 HOLDs) is a pure COVERAGE hole: zero triggers fired for EITHER account including 'bold' whose min_triggers_bull=1 is already the loosest live threshold, proving looser calibration would not have helped -- the trigger vocabulary (ribbon_flip/level_reclaim/confluence/sequence_reclaim) is structurally tied to discrete flip/level-touch events that a smooth no-retest trend does not supply, and 2026-07-09's contrast (11 signal clusters spread across the whole session despite the SAME 'ribbon stuck BULL' condition) shows the difference is level-touch frequency, not ribbon availability.",
+    "calibration_component": "A real but SECONDARY component exists: of the bar-level single-blocker population in the dead window, roughly a third is filter 10 (buyer_pressure_bar_fail -- ordinary red/low-volume candle at that exact bar), which IS a garden-variety near-miss unrelated to trigger coverage.",
+    "coverage_component": "The DOMINANT component: roughly half the single-blocker population, and ALL of the 12:56-15:55 zero-trigger stretch, is filter 11 with 0 triggers present -- not '1 short of 2', literally zero events for the detector vocabulary to see."
+  },
+  "what_would_justify_a_threshold_change": {
+    "explicitly_not_recommended": "Lowering filter_10_min_triggers_bear/bull or relaxing the level-tied requirement. Direct evidence against: Bold's min_triggers_bull is ALREADY 1 (the loosest non-zero value) and still saw zero signals for 3 hours on 2026-07-10 -- the trigger count was 0, not 1-short-of-a-higher-bar, so a lower bar would not have fired anything. Tuning a threshold to make one specific day pass is the banned overfit-to-yesterday move this mission was explicitly scoped to avoid.",
+    "would_justify_action": [
+      "Wiring the ALREADY-RATIFIED backtest/lib/watchers/vwap_trend_pullback_watcher.py (H4) into setup/scripts/setup_dispatch.py's dispatcher list, gated the same way every other extra-setup is (enable flag default False, WATCH-only per OP-21 until 3 live J confirmations, extra_setup_exec_armed for order placement). This is not a threshold change -- it activates existing, previously-validated (real-fills, OOS+) capacity that a fresh derivation from one day would not be.",
+      "Spec'ing a NEW continuation-class trigger (e.g. N consecutive same-side ribbon bars + fresh session high/low without a VWAP close-back) as a Chef R&D candidate, run through the FULL OP-16/OP-22 stack (multi-day backtest, OOS split, anchor no-regression, real-fills A/B) BEFORE any live wiring -- seeded by this finding, not shipped from it.",
+      "Evidence bar for either: an A/B scorecard at analysis/recommendations/<rule_id>.json showing the candidate fires (and is profitable) specifically inside multi-hour zero-trigger stretches like 2026-07-10 12:56-15:55, OOS positive, walk-forward >=0.70, sub-window stable, anchor no-regression -- the same bar every other engine change here clears, per CLAUDE.md OP-11/16."
+    ]
+  }
+}
