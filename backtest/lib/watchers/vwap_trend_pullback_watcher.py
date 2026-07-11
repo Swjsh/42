@@ -1,23 +1,34 @@
 """VWAP_TREND_PULLBACK watcher (H4) — trend-day pullback to session VWAP.
 
-The LIVE detector for the data-discovered survivor ``H4_vwap_pullback`` (the
-diversifying, non-J-anchored edge from ``backtest/autoresearch/infinite_ammo_discovery.py``).
-Ratified by ``backtest/autoresearch/vwap_pullback_ratify.py`` ->
-``analysis/recommendations/vwap-trend-pullback-LIVE.json``:
+UNVALIDATED — claims removed 2026-07-10 (no backing artifact for the exit config
+this watcher actually trades; see
+markdown/audits/VWAP-TREND-PULLBACK-VERIFY-FAILED-2026-07-10.md). The previous
+docstring quoted ``analysis/recommendations/vwap-trend-pullback-LIVE.json``'s
+headline cell (ATM, +$45.88/trade, WR 42.4%, n=92, WF median 1.679) as clearing
+the OP-16/OP-22 SHIP bar. That headline was computed with ``premium_stop=-0.08``;
+this watcher trades CHART-STOP-ONLY (``DEFAULT_PREMIUM_STOP_PCT=-0.99`` below,
+L51/L55/C2). On the config actually traded, the SAME scorecard's own disclosure
+block reports only +$14.03/trade, WR 70.7%, and walk-forward median 0.239 — FAILS
+the >=0.70 gate. A separate 2026-06-21 study
+(``analysis/recommendations/VWAP-PULLBACK-EDGE-VERIFY.json``) additionally found
+this detector's signal-days are a 100% same-side subset of the already-live
+``vwap_continuation`` edge's fire-days (verdict ``RESKIN_OF_1``), independent of
+exit config. Real study pre-spec'd (not yet run):
+``analysis/recommendations/vwap-trend-pullback-study-spec.json``. **DO NOT WIRE**
+this detector into the live/paper order path until that study ships a scorecard
+that clears its pre-registered gates, including the independence re-check.
 
-    ATM real-OPRA fills: exp +$45.88/trade, WR 42.4%, n=92, total +$4,221
-    OOS +$69.22/trade, OOS sign-stable, DSR PASS, drop-top5 +$25.43 (broad-based),
-    both sides positive (C 46.3% / P 36.8%). Causality: future-poison PASS (no
-    look-ahead). Walk-forward median 1.679 (OOS per-trade > IS), 64% OOS months
-    positive. Sub-window: 1/4 hurt. Honest caveat: regime-sensitive — bled
-    2025-Q2/Q3, then 7 consecutive positive OOS months 2025-11..2026-05; proxy
-    strikes (L58), not real ★★★ levels; n modest.
+Detector logic below is UNCHANGED — this is a documentation-only correction; the
+live streaming detector still fires the exact same signals it always has, still
+WATCH_ONLY, still absent from setup/scripts/setup_dispatch.py's dispatcher list
+(observation-only; zero orders ever placed).
 
 THIS DETECTOR IS THE EXACT ENTRY LOGIC of ``detect_vwap_pullback`` (the discovery
-detector that produced the validated numbers), re-expressed in the streaming
-``BarContext`` form the live watcher fleet uses. Parity is asserted in
+detector referenced above), re-expressed in the streaming ``BarContext`` form the
+live watcher fleet uses. Parity is asserted in
 ``backtest/tests/test_vwap_trend_pullback_watcher.py`` (same signals on the same
-historical day as the batch detector).
+historical day as the batch detector) — that parity claim is unaffected by the
+correction above, since it is about signal identity, not P&L.
 
 PATTERN (one entry per day):
   1. TREND ESTABLISHED: the first TREND_BARS (6) RTH bars all CLOSE on the same side
@@ -40,11 +51,14 @@ the future-poison test in the ratify harness.
 WARMUP-SAFE: needs >= TREND_BARS+1 RTH bars in the session before it can fire; before
 that it returns None. Per-day state (trend side, fired flag) resets on date change.
 
-WATCH_ONLY by default per OP-21 (3 live J wins before any live order path). The
-scorecard clears the OP-16/OP-22 SHIP bar (OOS+ AND WF>=0.70 AND sub-window stable
-AND A/B scorecard filed) for an after-hours propose-and-ship of the heartbeat wiring;
-J holds REVOKE. This module itself NEVER places an order — order placement is the
-heartbeat's job once wired.
+WATCH_ONLY by default per OP-21 (3 live J wins before any live order path). UNVALIDATED
+per the correction at the top of this docstring — the OP-16/OP-22 SHIP bar (OOS+ AND
+WF>=0.70 AND sub-window stable AND A/B scorecard filed) is NOT cleared on the exit
+config this watcher trades; no propose-and-ship of the heartbeat wiring should happen
+until the pre-spec'd study (analysis/recommendations/vwap-trend-pullback-study-spec.json)
+runs and passes. This module itself NEVER places an order — order placement is the
+heartbeat's job, and this detector is not wired into it (setup/scripts/setup_dispatch.py
+has no entry for it).
 
 Reuse / template: backtest/lib/watchers/floor_hold_bounce_watcher.py (ctx-only
 watcher shape); the discovery detector backtest/autoresearch/infinite_ammo_discovery.py

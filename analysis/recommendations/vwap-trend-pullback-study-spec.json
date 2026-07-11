@@ -1,0 +1,159 @@
+{
+  "study": "VWAP_TREND_PULLBACK (H4) -- honest real-fills study on the LIVE (chart-stop-only) exit config",
+  "status": "PRE-REGISTERED -- NOT RUN",
+  "frozen_at": "2026-07-10T00:00:00-06:00",
+  "frozen_by": "docs-only audit crew, reproducing a dead crew's VERIFY-FAILED finding",
+  "related_audit": "markdown/audits/VWAP-TREND-PULLBACK-VERIFY-FAILED-2026-07-10.md",
+  "purpose": "Freeze every analysis decision BEFORE any code runs, so the result can't be shaped by having seen it first (the exact overfit-to-outcome trap vwap_pullback_gate_own_oos.json and this codebase's other own-OOS checks exist to prevent). This spec supersedes nothing about the detector's LOGIC -- it only asks the honest question the original 2026-06-19 ratify (analysis/recommendations/vwap-trend-pullback-LIVE.json) never fully answered: does H4, evaluated on the exit config it ACTUALLY trades, clear OP-16/22, and is it additive to the book or a reskin of the already-live vwap_continuation edge.",
+
+  "claim_under_test": "The current docstring (pre-correction) claimed: 'ATM real-OPRA fills: exp +$45.88/trade, WR 42.4%, n=92... clears the OP-16/OP-22 SHIP bar.' Verified FALSE for the live chart-stop-only config -- see related_audit. This study exists to produce the number that SHOULD have been in that docstring, honestly, with pre-committed gates including the ones the prior chain skipped.",
+
+  "why_this_study_now_coverage_hole_context": {
+    "source_1": {
+      "file": "analysis/recommendations/near-miss-analysis-2026-07-10.json",
+      "field": "trigger_autopsy_structural_impossibility",
+      "finding": "On 2026-07-10, 12:56-15:55 ET (the final 3 hours, ~49% of the day's 734 HOLD ticks), the ENTIRE bull trigger vocabulary (ribbon_flip, level_reclaim, confluence, sequence_reclaim) was structurally untriggerable -- a sustained no-retest trend supplies none of the discrete flip/level-touch events the vocabulary requires. Bold's min_triggers_bull=1 (already the loosest live threshold) still saw zero signals for 3 hours, proving looser calibration would not have helped -- this is a coverage hole in the trigger CATEGORY, not a mis-set threshold.",
+      "cited_recommendation": "\"Wiring the ALREADY-RATIFIED backtest/lib/watchers/vwap_trend_pullback_watcher.py (H4) into setup/scripts/setup_dispatch.py's dispatcher list... activates existing, previously-validated (real-fills, OOS+) capacity.\" This study exists BECAUSE that premise (already-ratified) failed verification -- see related_audit -- but the underlying coverage-hole diagnosis is independently sound and still open."
+    },
+    "source_2": {
+      "file": "markdown/audits/SIGNAL-SHAPE-COVERAGE-2026-07-10.md",
+      "finding": "TREND_UP days (3/30 in the last 30 RTH sessions: 06-29, 07-09, 07-10) hit the SAME validated-KEEP gate (SKIP_ELITE_BULL_LEVEL_RECLAIM, 270 occurrences total, the single largest non-HOLD verdict in the whole 11-session dataset) in 4/4 sessions with data. Its own Section 9 recommendation names a DIFFERENT, not-yet-built candidate (flag_pullback_continuation) as 'the single battery run to fire this weekend' and does not repeat the H4-wiring recommendation anywhere in the document.",
+      "implication_for_this_study": "H4 is a PLAUSIBLE shape for the coverage hole (no 10:30 ET cutoff, unlike vwap_continuation) but is NOT the consensus top candidate across both coverage docs. This study treats it as ONE candidate worth honestly testing, not a pre-decided winner. gate_10_new_entry_time_distribution below is the specific test that decides whether H4 is genuinely additive to the coverage hole or just a reskin that happens to also fire in the afternoon on days #1 already traded."
+    }
+  },
+
+  "prior_findings_summary": [
+    "Artifact 1 (vwap-trend-pullback-LIVE.json, 2026-06-19): headline +$45.88/tr uses premium_stop=-0.08, NOT the live chart-stop-only config. On chart-stop-only the SAME script found +$14.03/tr, WF median 0.239 (FAILS >=0.70).",
+    "Artifact 2 (vwap-trend-pullback-regime-gate.json, 2026-06-19): no causal regime gate rescues the chart-stop-only config. 'Edge #2 is not shippable from this research.'",
+    "Artifact 3 (vwap-trend-pullback-gate-own-oos.json, 2026-06-19): the one gate that looked like a winner (vix_lt_18) is an own-OOS overfit artifact, not a generalizing separator.",
+    "Artifact 4 (VWAP-PULLBACK-EDGE-VERIFY.json/.md, 2026-06-21): H4's 98 signal-days are a 100%-overlap same-side SUBSET of the already-LIVE vwap_continuation (#1) edge's fire-days. Verdict RESKIN_OF_1 -- exit-config-independent, since it's about which calendar days the detector triggers, not P&L.",
+    "regime_book.py (same-day, 2026-06-19): independently reached the honest verdict ('Keep dormant; fix the exit config before a 2nd-edge claim') that the watcher docstring never inherited."
+  ],
+
+  "detector": {
+    "module": "backtest/lib/watchers/vwap_trend_pullback_watcher.py",
+    "function": "detect_vwap_trend_pullback_setup (live ctx-only form)",
+    "batch_equivalent": "backtest.autoresearch.infinite_ammo_discovery.detect_vwap_pullback (byte-for-byte parity, pinned by backtest/tests/test_vwap_trend_pullback_watcher.py::test_parity_with_batch_detector)",
+    "logic_unchanged": true,
+    "params": {"TREND_BARS": 6, "TOUCH_TOL": 0.0008, "RTH_OPEN": "09:30", "RTH_CLOSE": "16:00", "no_time_cutoff": true},
+    "note": "No detector/logic changes proposed anywhere in this spec. Only the EVALUATION changes: correct exit config, extended data, and the two new gates (independence re-check + entry-time-distribution)."
+  },
+
+  "data": {
+    "spy_5m": "backtest/data/spy_5m_2025-01-01_<freshest available>.csv -- as of this freeze, spy_5m_2025-01-01_2026-07-08.csv (36,299 rows) is freshest. USE THE FRESHEST FILE MATCHING glob 'spy_5m_2025-01-01_*.csv' AT RUN TIME, not a hardcoded date -- do not let this spec go stale by pinning a filename that will be superseded by the next data pull.",
+    "vix_5m": "backtest/data/vix_5m_2025-01-01_<freshest available>.csv (same freshest-glob rule, matching date range to the SPY file used).",
+    "extension_over_prior_study": "~3.5 weeks beyond the original ratify's 2026-06-16 cutoff (through 2026-07-08+), including the 2026-06-19..07-10 window this exact coverage-hole thesis was built from -- the freshest data should include several of the TREND_UP days (06-29, 07-09, 07-10) that motivated this study, giving an honest read on whether H4 would have fired on them.",
+    "oos_split_rule": "Chronological, PROPORTION-based (not a hardcoded date, so this spec does not go stale): IS = first 70% of trading days with data, OOS = last 30%. Freeze this rule now; do not adjust the split fraction after seeing results."
+  },
+
+  "method": {
+    "fills": "lib.simulator_real.simulate_trade_real -- real OPRA, causal next-bar-open entry (identical harness to the original ratify and to VWAP-PULLBACK-EDGE-VERIFY).",
+    "exit_config_PRIMARY": "CHART-STOP-ONLY (premium_stop_pct override = -0.99, matching vwap_trend_pullback_watcher.DEFAULT_PREMIUM_STOP_PCT exactly -- the config that would actually trade). This is the ONLY config the pass/fail gates below apply to.",
+    "exit_config_SECONDARY_disclosure_only": "premium_stop_pct=-0.08 (the original ratify's default/headline config) -- report for continuity and comparison ONLY. Not gated. Must be visually distinguished from the primary result in every output table so nobody re-cherry-picks it as the headline again.",
+    "qty": 3,
+    "strike_tiers_SIMULATOR_CONVENTION": {
+      "CONVENTION_WARNING": "simulate_trade_real / infinite_ammo_discovery use NEGATIVE=ITM / POSITIVE=OTM (e.g. offset -2 = ITM-2). automation/state/params.json and aggressive/params.json use the INVERTED convention NEGATIVE=OTM / POSITIVE=ITM (risk_gate.select_strike_offset negates when translating sim->live). All offsets below are stated in SIMULATOR convention, matching vwap_pullback_ratify.py's own tiers dict. CONVERT before writing any live-params proposal.",
+      "ATM": 0,
+      "ITM1": -1,
+      "ITM2": -2,
+      "OTM2": 2,
+      "note": "ATM/ITM1 were the original ratify's only tiers. ITM2 and OTM2 are ADDED here because they are what the two live accounts actually trade for the sibling vwap_continuation edge as of this freeze (Safe-2 = ATM offset 0 live-convention == ATM here; Bold = ITM-2 offset +2 live-convention == ITM2 offset -2 here). Re-verify each account's ACTUAL per-setup strike override in params.json at run time -- these flags have changed multiple times in the last month and this spec should not assume they're still current."
+    },
+    "n_trials_dsr": "count of DISTINCT (tier x side x exit_config_PRIMARY) cells actually scored in this study (expected ~4 tiers x 2 sides = 8, but score whatever was actually run, do not hardcode 30 from the old study without recomputing)."
+  },
+
+  "battery": {
+    "gate_1_expectancy": {
+      "method": "n, wins, win_rate_pct, exp_dollar_per_trade, total_dollar_pnl, by tier and by side (C/P), on exit_config_PRIMARY.",
+      "threshold": "informational -- no pass bar alone, feeds gates below."
+    },
+    "gate_2_oos_split": {
+      "method": "IS/OOS per data.oos_split_rule. Report is_exp_dollar, oos_exp_dollar, oos_sign_stable (bool).",
+      "threshold": "oos_exp_dollar > 0 AND oos_sign_stable == true."
+    },
+    "gate_3_walk_forward": {
+      "method": "Expanding-IS / rolling-1-month-OOS, per-trade normalized wf_norm = (oos$/n_oos)/(is$/n_is) -- reuse backtest/autoresearch/rolling_walk_forward.py's _wf_norm convention verbatim (no reimplementation, C14 no-drift).",
+      "threshold": "median_wf_norm >= 0.70 (the exact number that FAILED at 0.239 on chart-stop-only in the original study -- this is the single most important gate to re-run honestly on fresh data)."
+    },
+    "gate_4_sub_window_stability": {
+      "method": "4 contiguous chronological sub-windows on the extended dataset; hurt = mean P&L < 0.",
+      "threshold": "n_hurt <= 1 (project-standard, matches agg_day_of_week_sweep convention)."
+    },
+    "gate_5_random_entry_null": {
+      "method": "backtest.autoresearch.null_baseline.random_entry_null / null_gate (L172) -- reuse verbatim, do not reimplement. Same-day, same-side-count random entries as the null population.",
+      "threshold": "H4's exp_dollar_per_trade and drop_top5 both beat the null's max and mean respectively (matching the convention in _vwap_pullback_edge_verify.py's gate7)."
+    },
+    "gate_6_drop_top3_and_top5": {
+      "method": "Remove top-3 / top-5 winning trades by $, recompute mean P&L.",
+      "threshold": "drop_top3_mean_dollar > 0 AND drop_top5_mean_dollar > 0 (both-based robustness, not just top5 as the original study did)."
+    },
+    "gate_7_dsr": {
+      "method": "Deflated Sharpe Ratio using method.n_trials_dsr (the ACTUAL number of cells scored this run, not copied from the old study).",
+      "threshold": "dsr_verdict == PASS (PSR>=0.95, DSR>0)."
+    },
+    "gate_8_causality": {
+      "method": "Re-run the future-poison test verbatim from backtest/autoresearch/vwap_pullback_ratify.py::causality_future_poison (detector logic is unchanged, so this is a regression check, not new research -- expected PASS, but must be re-verified against the CURRENT code, not assumed from 2026-06-19).",
+      "threshold": "signals_identical == true."
+    },
+    "gate_9_regime_split": {
+      "method": "By quarter AND by VIX tercile, using the SAME at-entry features the 2026-06-19 regime-gate research used (VIX level, intraday ADX-like trend strength, realized vol bps/bar) -- re-derive on the extended dataset to check whether the prior INVERTED bimodality (bled on calm low-VIX high-ADX days, worked in higher-vol) still holds or was itself a small-n artifact of the 17-month window.",
+      "threshold": "q_positive_frac >= 0.60 (project-standard sub-window-adjacent bar); report the regime breakdown regardless of pass/fail -- this gate is diagnostic, feeds gate_11 below, not a hard kill on its own."
+    },
+    "gate_10_entry_time_distribution": {
+      "NEW_this_study": true,
+      "rationale": "The near-miss coverage hole is specifically the 12:56-15:55 ET afternoon dead zone, where vwap_continuation structurally cannot fire (hard 10:30 ET cutoff). If H4's signals mostly land BEFORE 10:30 too, it is redundant with #1 even at the hour level (not just the day level per gate_11) and the coverage-hole thesis is falsified. If a meaningful share land AFTER 10:30, that specific after-10:30 subset is the real candidate.",
+      "method": "For every H4 signal in the extended dataset, record entry bar time-of-day. Report the full distribution AND compute (a) pct_signals_after_1030, (b) an independent expectancy/OOS/WF read on the after-10:30-only subset as its own standalone candidate (n permitting).",
+      "threshold": "Informational for the base pattern. HARD REQUIREMENT for the 'fills the coverage hole' claim specifically: if pct_signals_after_1030 < 0.30, the coverage-hole framing is FALSIFIED regardless of the base pattern's other gates (must be stated as such in the study's output, not soft-pedaled). If >= 0.30 AND n_after_1030 >= 20, the after-10:30 subset must ALSO independently clear gate_2/gate_3 (OOS+, WF>=0.70) to be proposed as a coverage-hole candidate."
+    },
+    "gate_11_independence_reskin_recheck": {
+      "NEW_this_study": true,
+      "HARD_GATE": true,
+      "rationale": "Artifact 4 (VWAP-PULLBACK-EDGE-VERIFY.json, 2026-06-21) found H4's signal-days were a 100% same-side SUBSET of already-live vwap_continuation's fire-days on the 2025-01..2026-06-16 window. This is the single finding most likely to be silently skipped by a future re-run that only checks the standard 7 gates and declares victory -- exactly the mistake this whole audit exists to prevent from repeating. This gate is MANDATORY and BLOCKING regardless of gates 1-10.",
+      "method": "Re-derive day-overlap and same-side day-overlap vs vwap_continuation (backtest/autoresearch/j_daily_pattern_ratify.py#detect_j_vwap_continuation) on the EXTENDED dataset, using the identical _b8_anchored_vwap overlap convention (OVERLAP_MAX=0.80, L174) that Artifact 4 used. Also compute overlap vs vwap_reclaim_failed_break and vix_regime_dayside (the other live/near-live book members) for completeness.",
+      "threshold": "same_side_day_overlap vs vwap_continuation < 0.80 (i.e., NOT a reskin by the project's own established convention) OR the gate_10 after-10:30-only subset independently clears its own bar as a narrower, genuinely-incremental candidate. If same_side_day_overlap remains ~1.00 AND gate_10's after-10:30 subset does not independently clear -- H4 is a confirmed reskin, full stop, regardless of how gates 1-9 score, and must be reported as KEEP-DORMANT / NOT-A-NEW-EDGE even if every other gate is green."
+    }
+  },
+
+  "pass_bar": {
+    "convention": "OP-16/22 SHIP bar, project convention (the same 'gates' dict shape used by vwap-trend-pullback-LIVE.json, gap-and-go-LIVE.json, family-grind-bollinger_squeeze.json, etc.) PLUS the two new hard gates this study adds.",
+    "required_for_SHIP_LIVE_verdict": [
+      "gate_2 OOS positive AND sign-stable",
+      "gate_3 walk_forward median >= 0.70 ON THE PRIMARY (chart-stop-only) CONFIG -- the exact number that failed at 0.239 last time",
+      "gate_4 sub-window n_hurt <= 1",
+      "gate_5 beats random-entry null",
+      "gate_6 drop-top-3 AND drop-top-5 both positive",
+      "gate_7 DSR not FAIL",
+      "gate_8 causality PASS (regression check)",
+      "gate_11 (HARD, BLOCKING): not a reskin per the independence re-check, or a narrower after-10:30 candidate that independently clears its own OOS+/WF>=0.70 bar"
+    ],
+    "if_it_ships": "Per Rule 9 / OP-25: WATCH_ONLY -> heartbeat wiring proposal is propose-only. J holds REVOKE. Wiring itself is explicitly OUT OF SCOPE for this spec and for the study run -- this document specs the STUDY, not the ship. A passing study result authorizes writing a NEW proposal doc + scorecard, not silently flipping a flag.",
+    "if_it_fails_gate_11_only": "Report as: base H4 pattern is a confirmed reskin of vwap_continuation, KEEP-DORMANT. If the after-10:30-only subset independently passes gates 2/3 with n>=20, spec THAT narrower variant as a distinct follow-up candidate (new setup name, e.g. VWAP_TREND_PULLBACK_PM) rather than shipping the full-day pattern under the old name.",
+    "if_it_fails_gate_3_again": "Report as: chart-stop-only still fails walk-forward on fresh data. Do not re-litigate the -0.08 exit adoption question in this study -- that is a SEPARATE decision (adopting a different premium stop for one setup, C29/L149) requiring its own explicit proposal, not a side effect of this evaluation."
+  },
+
+  "runtime_estimate": {
+    "estimate": "10-25 minutes single-threaded on backtest/.venv, pure Python, $0",
+    "basis": "Comparable single-detector real-fills studies in this repo: the original vwap_pullback_ratify.py run (92-93 signals, 2 tiers, full causality+WF+DSR+sub-window battery) and VWAP-PULLBACK-EDGE-VERIFY's independence re-derivation (98 signals, 3-edge overlap check) are both described in-repo as same-session, single-run, $0 turnarounds. This study adds 2 more strike tiers (4 vs 2) and 2 new gates (entry-time-distribution is a cheap groupby; the independence re-check reuses the exact L174 machinery already proven fast), so the upper end of the estimate is padded accordingly. No network calls, no LLM calls -- OPRA fills come from the existing local cache used by simulator_real.",
+    "schedule_fit": "Fits comfortably inside a single weekend-grind slot (CLAUDE.md work-cadence table); does not need the 24+ hour multi-day pipeline tier."
+  },
+
+  "script_to_write": {
+    "path": "backtest/autoresearch/vwap_trend_pullback_honest_study.py",
+    "status": "NOT YET WRITTEN -- this JSON is the pre-registration only, per task scope (analysis/docs only, no wiring, no new research code tonight).",
+    "should_reuse_verbatim": [
+      "backtest.autoresearch.infinite_ammo_discovery (detect_vwap_pullback, load_spy, align_vix, build_day_contexts, simulate_signals, summarize)",
+      "backtest.autoresearch.vwap_pullback_ratify (causality_future_poison, walk_forward/_wf_norm, sub-window logic -- copy the pattern, don't hand-roll a second implementation, C14)",
+      "backtest.autoresearch.null_baseline (random_entry_null, null_gate)",
+      "backtest.autoresearch._vwap_pullback_edge_verify (the _b8_anchored_vwap overlap/independence convention, OVERLAP_MAX=0.80)",
+      "backtest.autoresearch.j_daily_pattern_ratify (detect_j_vwap_continuation, for the gate_11/gate_10 comparison population)"
+    ],
+    "output_path": "analysis/recommendations/vwap-trend-pullback-honest-study.json (scorecard) + a paired .md summary matching the VWAP-PULLBACK-EDGE-VERIFY.md style (verdict-first, gate table, honest caveats section)."
+  },
+
+  "explicit_non_goals": [
+    "Does NOT wire vwap_trend_pullback_watcher.py into setup_dispatch.py regardless of this study's eventual result -- that is a separate, later decision gated on Rule 9 / J REVOKE, not an automatic consequence of a passing scorecard.",
+    "Does NOT modify the detector's entry/exit logic -- evaluation-only. Any narrower variant (e.g. after-10:30-only) that gate_10 surfaces must ship as a NEW setup name/module, never a silent parameter change to the existing byte-for-byte-parity-pinned detector.",
+    "Does NOT re-litigate whether to adopt premium_stop=-0.08 for this setup specifically -- exit_config_SECONDARY is disclosure-only in this spec by design (see pass_bar.if_it_fails_gate_3_again).",
+    "Does NOT touch backtest/lib/engine/regime_book.py, backtest/lib/watchers/runner.py's registry comment, or the watcher's reason=/metadata strings -- those carry the same stale framing this audit found and are flagged as a separate, already-identified follow-up in the related audit, not folded into this study."
+  ]
+}
