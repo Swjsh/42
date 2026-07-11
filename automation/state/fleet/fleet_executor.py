@@ -439,11 +439,123 @@ def _plan_from_strategies(arm, signal, equity, params, arm_id, tiers, spot) -> l
     return plans
 
 
+# --- PROBE ARM (2026-07-10 ship, amended same-session per participation-cascade evidence) --
+# J directive 2026-07-10: "6 arms and nothing took a trade... why isn't 1 arm set to take
+# riskier trades? we have 3 risky and 3 bold." DIAGNOSIS: every arm's ONLY job is _gate_check
+# (selectivity) + sizing -- it can only ADD restriction on top of an already passed=True
+# tick; nothing here can ever RESCUE a passed=False tick, however loose gate_override is. So
+# the cohort/tier gates baked into the shared signal's passed-derivation (build_shared_signal
+# mirrors heartbeat_core.py's GATE_KEYS: block_elite_bull, block_bull_1100_1200, block_conf_
+# lvl_rec_afternoon, block_level_rejection, ...) apply UNIFORMLY to every arm. Fix: ONE
+# designated arm (accounts.json top-level "probe_arm": risky-3 by default -- already the
+# fleet's loosest-gate + riskiest-sizing fleet_rest cell) trades the cohorts those gates
+# blocked, at min_contracts, via the separate signal['probe'] block build_shared_signal.py
+# emits (_probe_passed_blocks -- see there for the full bypass rationale). Scope: ribbon_ride
+# ONLY (the family the diagnosis covers) and ONLY when this arm's NORMAL pass (above) produced
+# no ENTER this tick -- never a second, redundant entry alongside a normal one.
+#
+# AMENDMENT (same session, automation/state/participation-cascade.json evidence): the
+# cohort/tier gates are real but are NOT the #1 blocker in practice -- min_entry_premium is
+# (18 arm-events on 07-10 alone, ~2x every other blocker combined), because the fleet's own
+# far-OTM/bold sizing tiers price their natural 0DTE contracts under the $0.30 floor. The
+# floor's anti-spread-noise evidence is real and STAYS FULLY INTACT -- it is never bypassed,
+# weakened, or special-cased for probe. Instead PROBE_STRIKE_TIERS gives probe's OWN contracts
+# a NEARER (ATM-class) strike than the arm's normal bold/OTM table, so they clear the SAME
+# floor on their own merits. block_bull_ribbon_flip (a GATE_KEYS name that looked plausible as
+# another cohort gate) was checked and confirmed ABSENT from both params.json files -- no
+# bypass needed for a gate that isn't armed.
+#
+# Every other gate (kill-switch/PDT/min_entry_premium floor/entry-time floor-ceiling/
+# one-position/per-trade risk cap) still runs downstream in finalize()/risk_gate.check_order/
+# fleet_live._place_live, completely untouched. Instant de-arm: accounts.json
+# probe_arm.enabled=false. Guard: test_probe_arm.py.
+PROBE_RIBBON_SETUPS = {s.upper() for s in strategies.RIBBON_RIDE.entry_setups}
+
+# PROBE ARM STRIKE OVERRIDE: probe entries price a NEARER strike than the arm's own (bold/
+# OTM) sizing table -- see the module comment above. A STANDALONE table (values happen to
+# match strike_selection.V15_SAFE_TIERS today, but this is deliberately NOT a reference to
+# it) so a future SAFE-arm-specific tier retune can never silently also change probe's
+# strike selection -- low coupling over a few duplicated lines.
+PROBE_STRIKE_TIERS: tuple = (
+    strike_selection.StrikeTier(0.0, 2_000.0, 0, "ATM"),
+    strike_selection.StrikeTier(2_000.0, 10_000.0, 0, "ATM"),
+    strike_selection.StrikeTier(10_000.0, 25_000.0, 1, "Slight ITM"),
+    strike_selection.StrikeTier(25_000.0, 999_999_999.0, 2, "ITM-2"),
+)
+
+
+def _is_probe_active(arm: Mapping[str, Any], probe_cfg: Optional[Mapping[str, Any]]) -> bool:
+    """True iff probe_cfg (accounts.json's top-level "probe_arm" block) is enabled AND names
+    THIS arm. probe_cfg=None (the default on every existing call site) or enabled=False is a
+    byte-identical no-op -- this is the ONE gate the whole mechanism hangs off."""
+    if not isinstance(probe_cfg, Mapping) or not probe_cfg.get("enabled"):
+        return False
+    return str(arm.get("id", "")) == str(probe_cfg.get("arm_id", ""))
+
+
+def _cohort_tag(blocked_verdict: Any) -> str:
+    """'SKIP_ELITE_BULL_LEVEL_RECLAIM' -> 'elite_bull_level_reclaim' (mechanical, always
+    derivable -- the original verdict is one grep away from the tag)."""
+    v = str(blocked_verdict or "UNKNOWN")
+    v = v[5:] if v.startswith("SKIP_") else v
+    return v.lower()
+
+
+def _probe_plan(
+    arm: Mapping[str, Any], signal: Mapping[str, Any], equity: float, params: Mapping[str, Any],
+    arm_id: str, spot: Any, daily_cap: int, probe_entries_today: int,
+) -> Optional[EntryPlan]:
+    """Synthesize a min-size ribbon_ride EntryPlan from signal['probe'] (the cohort-bypass
+    block) when THIS tick's cohort was blocked. Returns None when signal['probe'] carries no
+    passed side at all (nothing to probe -- caller's normal HOLD reasoning stands unmodified).
+    qty is HARD-CLAMPED to params.min_contracts -- never calls _qty_for or
+    _apply_recency_min_sizing (already at floor, C29 N/A). Strike uses PROBE_STRIKE_TIERS
+    (nearer than the arm's own bold/OTM table -- see module comment) NOT the arm's normal
+    _tiers_for_arm result, so the probe's own contract naturally prices to clear the
+    UNTOUCHED min_entry_premium floor instead of colliding with it like the arm's usual
+    far-OTM strikes do."""
+    probe = signal.get("probe")
+    if not isinstance(probe, Mapping):
+        return None
+    for side, key in (("P", "bear"), ("C", "bull")):
+        blk = probe.get(key)
+        if not isinstance(blk, Mapping) or blk.get("passed") is not True:
+            continue
+        setup = str(blk.get("setup_name") or "")
+        if setup.upper() not in PROBE_RIBBON_SETUPS:
+            continue  # scope = ribbon_ride only (see module comment)
+        cohort = _cohort_tag(blk.get("blocked_verdict"))
+        if probe_entries_today >= daily_cap:
+            return _hold(arm_id, side, setup,
+                        f"PROBE_ARM cohort={cohort} blocked: daily cap reached "
+                        f"({probe_entries_today}/{daily_cap})")
+        if spot is None:
+            return _hold(arm_id, side, setup, f"PROBE_ARM cohort={cohort} blocked: no spot in signal")
+        strike = strike_selection.pick_strike(float(spot), float(equity), side, PROBE_STRIKE_TIERS)
+        try:
+            qty = int(params.get("min_contracts", 3))
+        except (TypeError, ValueError):
+            qty = 3
+        trigs = list(blk.get("triggers_fired") or [])
+        elite = _is_elite({"confluence": any("confluence" in str(t).lower() for t in trigs),
+                           "triggers_fired": trigs})
+        quality = "ELITE" if elite else "BASE"
+        _tl = blk.get("trigger_level_exact")
+        return EntryPlan(arm_id, "ENTER", side, setup, strike, qty, quality,
+                         f"PROBE_ARM cohort={cohort}",
+                         strategy=strategies.RIBBON_RIDE.name,
+                         exit_shape=_exit_shape_dict(strategies.RIBBON_RIDE),
+                         trigger_level=(float(_tl) if _tl is not None else None))
+    return None
+
+
 def plan_all(
     arm: Mapping[str, Any],
     signal: Mapping[str, Any],
     equity: float,
     params: Mapping[str, Any],
+    probe_cfg: Optional[Mapping[str, Any]] = None,
+    probe_entries_today: int = 0,
 ) -> list[EntryPlan]:
     """Multi-strategy successor to plan_entry: EVERY validated strategy that fired this tick,
     gated + sized by THIS arm. The account contributes ONLY selectivity (_gate_check) and
@@ -453,50 +565,61 @@ def plan_all(
     FIX2: when the signal carries the producer's `strategies[]` set (every registered edge
     evaluated independently), plan it directly so VWAP_CONTINUATION (and any future strategy)
     fires as its own plan, not just the ribbon read. When `strategies[]` is ABSENT, fall back
-    to the side-block setup-name match (backward-compat with the v1 signal + all existing tests)."""
+    to the side-block setup-name match (backward-compat with the v1 signal + all existing tests).
+
+    PROBE ARM: probe_cfg/probe_entries_today default to an inert no-op (every existing call
+    site is byte-identical). When probe_cfg names THIS arm and enabled=True, AND the pass
+    above produced no ENTER, a min-size cohort-bypass plan is appended (see _probe_plan)."""
     arm_id = str(arm["id"])
     spot = signal.get("spot")
     tiers = _tiers_for_arm(arm)
     if signal.get("strategies") is not None:
-        return _plan_from_strategies(arm, signal, equity, params, arm_id, tiers, spot)
+        plans = _plan_from_strategies(arm, signal, equity, params, arm_id, tiers, spot)
+    else:
+        src = _perception_for_arm(signal, arm)
+        plans = []
+        for side, blk in (("P", src.get("bear") or {}), ("C", src.get("bull") or {})):
+            fired = strategies.fired(blk)
+            if not fired:
+                continue
+            elite = _is_elite(blk)
+            quality = "ELITE" if elite else "BASE"
+            gate_reason = _gate_check(arm, blk, signal)
+            for strat in fired:
+                setup = str(blk.get("setup_name") or strat.name)
+                if gate_reason is not None:
+                    plans.append(EntryPlan(arm_id, "HOLD", side, setup, None, None, quality,
+                                           f"gate: {gate_reason}", strategy=strat.name))
+                    continue
+                if spot is None:
+                    plans.append(EntryPlan(arm_id, "HOLD", side, setup, None, None, quality,
+                                           "no spot in signal", strategy=strat.name))
+                    continue
+                strike = strike_selection.pick_strike(float(spot), float(equity), side, tiers)
+                qty = _qty_for(params.get("position_sizing_tiers"), float(equity), elite)
+                if qty is None:
+                    plans.append(EntryPlan(arm_id, "HOLD", side, setup, strike, None, quality,
+                                           "no sizing tier covers equity", strategy=strat.name))
+                    continue
+                qty, _clamp_note = _apply_recency_min_sizing(qty, strat.name, params)
+                # LEVEL PROVENANCE: same exact-over-heuristic preference as _plan_from_strategies
+                # (see comment there) -- the side-block fallback path mirrors it for parity.
+                _tl_exact = blk.get("trigger_level_exact")
+                _tl = _tl_exact if _tl_exact is not None else blk.get("trigger_level")
+                _reason = f"{strat.name} {side} ({quality})"
+                if _clamp_note:
+                    _reason += f"; {_clamp_note}"
+                plans.append(EntryPlan(arm_id, "ENTER", side, setup, strike, qty, quality,
+                                       _reason,
+                                       strategy=strat.name, exit_shape=_exit_shape_dict(strat),
+                                       trigger_level=(float(_tl) if _tl is not None else None)))
 
-    src = _perception_for_arm(signal, arm)
-    plans: list[EntryPlan] = []
-    for side, blk in (("P", src.get("bear") or {}), ("C", src.get("bull") or {})):
-        fired = strategies.fired(blk)
-        if not fired:
-            continue
-        elite = _is_elite(blk)
-        quality = "ELITE" if elite else "BASE"
-        gate_reason = _gate_check(arm, blk, signal)
-        for strat in fired:
-            setup = str(blk.get("setup_name") or strat.name)
-            if gate_reason is not None:
-                plans.append(EntryPlan(arm_id, "HOLD", side, setup, None, None, quality,
-                                       f"gate: {gate_reason}", strategy=strat.name))
-                continue
-            if spot is None:
-                plans.append(EntryPlan(arm_id, "HOLD", side, setup, None, None, quality,
-                                       "no spot in signal", strategy=strat.name))
-                continue
-            strike = strike_selection.pick_strike(float(spot), float(equity), side, tiers)
-            qty = _qty_for(params.get("position_sizing_tiers"), float(equity), elite)
-            if qty is None:
-                plans.append(EntryPlan(arm_id, "HOLD", side, setup, strike, None, quality,
-                                       "no sizing tier covers equity", strategy=strat.name))
-                continue
-            qty, _clamp_note = _apply_recency_min_sizing(qty, strat.name, params)
-            # LEVEL PROVENANCE: same exact-over-heuristic preference as _plan_from_strategies
-            # (see comment there) -- the side-block fallback path mirrors it for parity.
-            _tl_exact = blk.get("trigger_level_exact")
-            _tl = _tl_exact if _tl_exact is not None else blk.get("trigger_level")
-            _reason = f"{strat.name} {side} ({quality})"
-            if _clamp_note:
-                _reason += f"; {_clamp_note}"
-            plans.append(EntryPlan(arm_id, "ENTER", side, setup, strike, qty, quality,
-                                   _reason,
-                                   strategy=strat.name, exit_shape=_exit_shape_dict(strat),
-                                   trigger_level=(float(_tl) if _tl is not None else None)))
+    if _is_probe_active(arm, probe_cfg) and not any(p.action == "ENTER" for p in plans):
+        cap = int((probe_cfg or {}).get("daily_cap", 3))
+        probe_plan = _probe_plan(arm, signal, equity, params, arm_id, spot,
+                                 cap, probe_entries_today)
+        if probe_plan is not None:
+            plans.append(probe_plan)
     return plans
 
 
@@ -608,7 +731,10 @@ def run_dry(signal: Mapping[str, Any], accounts: Mapping[str, Any]) -> list[tupl
         equity = float(arm.get("starting_equity") or 0.0)
         # MULTI-STRATEGY: every fired strategy gated+sized by this arm, ONE selected by
         # REGISTRY priority (one-position rule). Each plan carries its strategy's exit shape.
-        plan = select_plan(plan_all(arm, signal, equity, params))
+        # PROBE ARM: run_dry is a one-shot CLI/demo evaluation (no cross-tick state), so the
+        # daily counter always reads 0 here -- the live per-tick count lives in fleet_live.py.
+        plan = select_plan(plan_all(arm, signal, equity, params,
+                                    probe_cfg=accounts.get("probe_arm")))
         if plan is None:
             out.append((ArmDecision(str(arm["id"]), "HOLD", None, None, None, None, None,
                                     None, None, "no qualifying setup (no strategy fired)"), None))

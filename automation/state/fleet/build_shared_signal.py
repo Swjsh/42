@@ -404,7 +404,8 @@ def _bold_passed_blocks(today: str, now: datetime) -> dict:
 
 
 def build(now: datetime | None = None, scoring_peak: bool | None = None,
-          emit_strategies: bool | None = None, run_vwap: bool | None = None) -> dict:
+          emit_strategies: bool | None = None, run_vwap: bool | None = None,
+          probe_cohort: bool | None = None) -> dict:
     """Write shared-signal.json. DEFAULT (scoring_peak False/None and SCORING_PEAK_LIVE
     False) is byte-identical to v1. When scoring_peak is True (or the module flag is set)
     the signal ALSO carries dual-perception 'safe'/'bold' blocks for the loose arms.
@@ -412,12 +413,18 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
     FIX2: when emit_strategies (or EMIT_STRATEGIES) is set, the signal ALSO carries a
     `strategies[]` set -- every registered strategy evaluated independently this tick (so
     plan_all sees the full set, not just the ribbon verdict). run_vwap gates JUST the
-    network VWAP detector pass (tests pass run_vwap=False to stay offline)."""
+    network VWAP detector pass (tests pass run_vwap=False to stay offline).
+
+    PROBE ARM (2026-07-10): when probe_cohort (or module flag PROBE_COHORT_LIVE) is set,
+    the signal ALSO carries a 'probe' block (_probe_passed_blocks) -- the maximally-
+    permissive cohort-block-bypass perception consumed ONLY by fleet_executor.py's
+    probe-arm path. Pure additive data; inert for every other reader/arm."""
     now = now or datetime.now(timezone.utc).astimezone(ET)
     today = now.strftime("%Y-%m-%d")
     use_peak = SCORING_PEAK_LIVE if scoring_peak is None else bool(scoring_peak)
     do_strats = EMIT_STRATEGIES if emit_strategies is None else bool(emit_strategies)
     do_vwap = RUN_VWAP if run_vwap is None else bool(run_vwap)
+    do_probe = PROBE_COHORT_LIVE if probe_cohort is None else bool(probe_cohort)
     row = _latest_today_decision(today)
 
     # NEVER-BLIND fallback (2026-06-25): if the heartbeat ledger is missing/stale/blind,
@@ -448,6 +455,8 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
                 sig["scoring_peak_live"] = True
             if do_strats:
                 sig["strategies"] = []  # blind/beacon fallback: no scored setup -> empty set
+            if do_probe:
+                sig["probe"] = {"bull": dict(_PROBE_EMPTY), "bear": dict(_PROBE_EMPTY)}
             OUT.write_text(json.dumps(sig, indent=2), encoding="utf-8")
             return sig
         # beacon also unavailable -> fall through to the original no-decision / stale-row path
@@ -467,6 +476,8 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
             sig["scoring_peak_live"] = True
         if do_strats:
             sig["strategies"] = []  # no today row -> no scored setup -> empty set
+        if do_probe:
+            sig["probe"] = {"bull": dict(_PROBE_EMPTY), "bear": dict(_PROBE_EMPTY)}
         OUT.write_text(json.dumps(sig, indent=2), encoding="utf-8")
         return sig
 
@@ -535,6 +546,8 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
             if (bold.get("bear") or {}).get("passed") or (bold.get("bull") or {}).get("passed"):
                 s_bear, s_bull = bold.get("bear") or bear, bold.get("bull") or bull
         sig["strategies"] = _strategies_block(s_bear, s_bull, row.get("spy"), now, do_vwap)
+    if do_probe:
+        sig["probe"] = _probe_passed_blocks(today, now)
     OUT.write_text(json.dumps(sig, indent=2), encoding="utf-8")
     return sig
 
@@ -575,6 +588,114 @@ def passed_scoring_peak(side: str, action, score, trigger, fired) -> bool:
     peak = BULL_PEAK_THRESHOLD if side == "bull" else BEAR_PEAK_THRESHOLD
     trig_ok = bool(fired) and (trigger in ENTRY_TRIGGERS)
     return (action == enter) or (int(score or 0) >= peak and trig_ok)
+
+
+# --- PROBE ARM cohort-bypass block (2026-07-10 ship, NARROWED same session) ---------------
+# J directive 2026-07-10: "6 arms and nothing took a trade... why isn't 1 arm set to take
+# riskier trades?" First cut of this mechanism was a broad "bypass any cohort/tier gate
+# except a hard-safety exclude-list" blocklist. SAME SESSION, `markdown/audits/GATE-
+# PROVENANCE-SWEEP-2026-07-10.md` (commit 54d5840) landed a rigorous, pre-registered,
+# hash-pinned, 19/19-test-covered per-gate audit that changed the answer for the two gates
+# that actually blocked bull setups on 07-10:
+#   - block_elite_bull: RELAUNCHED its SS-B revalidation (a study a PC reboot killed
+#     2026-07-09) under the FROZEN pre-registration `block-elite-bull-ssb-preregistration.
+#     json`. VERDICT: KEEP. n=28, OLD(CONTROL) total -$560.00 -> SS-B total -$3,873.60 --
+#     the SAME structure-stop exit shape this probe arm's own ribbon_ride entries use makes
+#     an already-negative cohort ~6.9x WORSE (`analysis/recommendations/block-elite-bull-
+#     ssb-revalidation.json`). Probing a cohort JUST hash-pin-proven to be a loser under the
+#     EXACT exit shape probe would trade it with is not "gathering evidence" -- it is
+#     re-spending real paper capital on a question that already has a rigorous answer.
+#     NOT bypassed.
+#   - block_bull_1100_1200: VERDICT REVALIDATE. Provenance is thin (IS n=11 WR=9.1%, OOS
+#     n=1) and pre-dates SS-B (ratified the same day chart-stop-primary shipped, so its own
+#     evidence likely straddles the exit-shape transition) -- and 07-10 was the first
+#     genuinely-live block of a SUPER-tier (not just ELITE) signal since ratification. This
+#     is exactly the shape of gate a min-size forward probe SHOULD revalidate: real signal,
+#     thin/stale evidence, no fresh answer yet. Bypassed.
+#   - block_bull_ribbon_flip: independently reconfirmed (3rd time across 3 separate audits
+#     this repo has now run) ABSENT from both params.json files. Never armed, no bypass
+#     needed or built for it.
+# So the bypass set is NARROW and EXPLICIT (an allowlist, not a blocklist): ONLY
+# SKIP_BULL_1100_1200, PLUS the always-required "a real named ENTRY_TRIGGERS-member trigger
+# fired" floor (never trades on triggers=[], regardless of verdict). Every other SKIP_*
+# verdict -- block_elite_bull's SKIP_ELITE_BULL_LEVEL_RECLAIM/SKIP_ELITE_BEAR_*, the time-
+# gate skips, structure-veto, data-integrity, one-position, and anything not explicitly
+# named -- is NOT bypassed. min_entry_premium / kill-switch / PDT / entry-time floor-ceiling
+# are enforced DOWNSTREAM (fleet_executor.finalize / fleet_live._place_live, untouched by
+# this block) so they apply to a probe-sourced plan exactly like any other.
+# Consumed ONLY by fleet_executor.py's probe-arm path (accounts.json top-level "probe_arm"
+# block); every other reader ignores the new 'probe' signal key, so this addition is inert
+# for every other arm regardless of PROBE_COHORT_LIVE. Mirrors _bold_passed_blocks' shape +
+# the SAME BOLD-ledger source (risky-3, the probe arm, already reads bold-perception).
+PROBE_ALLOWED_VERDICTS = frozenset({"SKIP_BULL_1100_1200"})
+
+# DEFAULT ON (2026-07-10 ship): build()'s emitted 'probe' block is pure additive data --
+# harmless whether or not any arm's accounts.json probe_arm.enabled reads it (same "extra
+# JSON field, only a flagged consumer ACTS on it" philosophy as the trigger_level plumbing
+# above). Set PROBE_COHORT_LIVE=False (or build(probe_cohort=False)) for a byte-identical
+# producer-side revert -- belt-and-suspenders alongside accounts.json's probe_arm.enabled
+# (the primary, consumer-side kill switch fleet_executor.py actually checks).
+PROBE_COHORT_LIVE = True
+
+_PROBE_EMPTY = {"passed": False, "score": 0, "triggers_fired": [], "setup_name": None,
+                "blocked_verdict": None, "trigger_level_exact": None}
+
+
+def passed_probe_cohort(action, trigger, fired) -> bool:
+    """NARROW ALLOWLIST (see module comment): True only when `action` is one of the
+    explicitly gate-provenance-reviewed, REVALIDATE-verdicted verdicts in
+    PROBE_ALLOWED_VERDICTS (today: SKIP_BULL_1100_1200 only) AND a real named
+    ENTRY_TRIGGERS-member trigger actually fired. Everything else -- including a bare
+    "HOLD" (which action collapses to even for the excluded _TIME_GATE_SKIPS verdicts, see
+    _map_core_row) and every cohort/tier gate NOT on the allowlist (block_elite_bull
+    included) -- returns False. The allowlist model makes this automatic: there is no
+    exclude-list to keep in sync as new gates are added or re-verdicted, only an explicit
+    list of what's IN."""
+    if action not in PROBE_ALLOWED_VERDICTS:
+        return False
+    return bool(fired) and (trigger in ENTRY_TRIGGERS)
+
+
+def _probe_passed_blocks(today: str, now: datetime) -> dict:
+    """Raw cohort-block-bypass blocks off the BOLD ledger (same source _bold_passed_blocks
+    already reads). blocked_verdict carries the ORIGINAL core verdict for THIS tick so the
+    probe arm can tag its entry reason with exactly which gate it bypassed (e.g.
+    SKIP_ELITE_BULL_LEVEL_RECLAIM -> reason 'PROBE_ARM cohort=elite_bull_level_reclaim').
+    Side discrimination uses the ledger's OWN `side` field (row['side'], 'C'|'P') rather than
+    a score-based inference (passed_scoring_peak's implicit protection: the LOSING side's raw
+    score is usually too low to matter) -- explicit is correct here since this function does
+    not consult score at all."""
+    if USE_CORE_LEDGER:
+        row = _latest_today_decision(today, account="bold")
+    else:
+        global DECISIONS
+        _safe_decisions, DECISIONS = DECISIONS, BOLD_DECISIONS
+        try:
+            row = _latest_today_decision(today)
+        finally:
+            DECISIONS = _safe_decisions
+    if row is None:
+        return {"bull": dict(_PROBE_EMPTY), "bear": dict(_PROBE_EMPTY)}
+    action = row.get("action")
+    trigs, trig0, fired = _row_trigger_args(row)
+    setup = row.get("setup_name")
+    row_side = row.get("side")
+    ok = passed_probe_cohort(action, trig0, fired)
+    bull_p = bool(ok and row_side == "C")
+    bear_p = bool(ok and row_side == "P")
+    _tl_exact = row.get("trigger_level_exact")
+    return {
+        "bull": {"passed": bull_p, "score": row.get("bull_score", 0),
+                 "triggers_fired": trigs if bull_p else [],
+                 "setup_name": setup if bull_p else None,
+                 "blocked_verdict": (action if bull_p else None),
+                 "trigger_level_exact": (_tl_exact if bull_p else None)},
+        "bear": {"passed": bear_p, "score": row.get("bear_score", 0),
+                 "triggers_fired": trigs if bear_p else [],
+                 "setup_name": setup if bear_p else None,
+                 "blocked_verdict": (action if bear_p else None),
+                 "trigger_level_exact": (_tl_exact if bear_p else None)},
+    }
 
 
 def build_shadow(now: datetime | None = None) -> dict:
