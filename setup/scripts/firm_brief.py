@@ -244,6 +244,34 @@ def find_queue_j_markers(path: Path) -> list:
     return out
 
 
+def render_twin_lines(data: dict) -> list[str]:
+    """PURE: render the Crypto Twin (24/7 mechanism-validation training ground, J
+    requirement 2026-07-10) section body from its last-tick snapshot
+    (automation/state/twin-health.json, written every ~5 min by Gamma_CryptoTwin /
+    crypto_twin_health.py). Mirrors render_prospector_lines' fail-open shape
+    immediately below it in build_brief() -- a missing/never-fired source degrades
+    this section's text only, never the rest of the brief. Deliberately does NOT
+    report the twin's P&L (markdown/planning/CRYPTO-TWIN-TRAINING-GROUND.md's kill
+    criteria: "never appears in any edge scorecard" -- this is a MECHANISM-HEALTH
+    glance, not a trading result). Guard: test_firm_brief_twin_section.py."""
+    if not data:
+        return ["- no tick yet (Gamma_CryptoTwin fires every 5 min, 24/7)."]
+    last_tick = data.get("last_tick_et", "?")
+    ticks_today = data.get("ticks_today", 0)
+    last_action = data.get("last_action") or "?"
+    breaker = data.get("breaker_tripped")
+    breaker_s = "TRIPPED" if breaker else ("OK" if breaker is not None else "?")
+    account = data.get("account_status", "?")
+    n_orders = data.get("n_orders_lifetime", 0)
+    line = (f"- TWIN: last tick {last_tick} ({ticks_today} today), "
+           f"last_action={last_action}, breaker={breaker_s}, account={account}, "
+           f"orders={n_orders} lifetime.")
+    err = data.get("last_error")
+    if err:
+        line += f" ⚠ LAST ERROR: {str(err)[:160]}"
+    return [line]
+
+
 def render_prospector_lines(data: dict) -> list[str]:
     """PURE: render the Prospector (exogenous-idea organ, J 2026-07-09: "gamma
     hasn't introduced a single new idea like this at all yet") section body
@@ -351,9 +379,18 @@ def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) 
     lines.extend(render_prospector_lines(prospector))
     lines.append("")
 
+    # Crypto Twin -- the 24/7 mechanism-validation training ground (J requirement
+    # 2026-07-10, markdown/planning/CRYPTO-TWIN-TRAINING-GROUND.md). One line; full
+    # ledger in automation/state/crypto-twin/decisions.jsonl. Fail-open, same shape
+    # as the trade-autopsy/prospector sections above.
+    twin_health = load_json(STATE / "twin-health.json")
+    lines.append("## Crypto Twin (24/7 mechanism validation)")
+    lines.extend(render_twin_lines(twin_health))
+    lines.append("")
+
     lines.append("---")
     lines.append(f"Sources: pnl-statement.json (T1 broker-truth) | self-check-last.json | "
-                 f"prospector-last.json | {HANDOFF_NAME}")
+                 f"prospector-last.json | twin-health.json | {HANDOFF_NAME}")
     return "\n".join(lines) + "\n"
 
 
