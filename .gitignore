@@ -42,6 +42,7 @@ Thumbs.db
 .mcp.json
 **/.mcp.json
 **/*.key
+**/*.key.disabled
 *.pem
 
 # Dependency / build trees
@@ -71,6 +72,12 @@ _local_backups_*/
 # Champion/challenger fleet per-account API secrets — NEVER tracked
 automation/state/fleet/secrets.json
 **/fleet-secrets.json
+
+# === Added 2026-07-10: crypto twin (T1+T2) dedicated-account secrets — NEVER tracked ===
+# Mirrors the fleet secrets.json pattern exactly; automation/state/crypto-twin/secrets.json.example
+# is the tracked template. crypto_twin_broker.load_creds() reads this the same way
+# fleet_broker.load_creds() reads fleet's — never the same account as fleet/core.
+automation/state/crypto-twin/secrets.json
 # Fleet runtime decision logs (ephemeral)
 automation/state/fleet/decisions/
 # Backup copies of mcp config carry plaintext secrets — never track them

@@ -1,0 +1,561 @@
+"""crypto_twin_core.py -- the CRYPTO TWIN: 24/7 mechanism-validation training ground.
+
+J requirement 2026-07-10 (see markdown/planning/CRYPTO-TWIN-TRAINING-GROUND.md, the spec
+this file follows exactly). Runs the SAME shape of pipeline the SPY engine runs -- SEE
+(bars) -> DECIDE (ribbon+level trigger) -> gate (risk_gate) -> ACT (place) -> manage
+(exit_manager) -> journal -- against BTC/USD on Alpaca crypto PAPER, 24/7, in a fully
+separate state namespace (automation/state/crypto-twin/). This validates the MECHANISM
+(does the pipeline plumbing work, end to end, on live-moving data, at any hour) and
+NEVER the edge (whether any setup is profitable) -- the twin's P&L is a health metric
+only and must never enter any edge scorecard (see the spec doc's "Kill criteria").
+
+REUSE, never fork (HARD RAILS):
+  * exit_manager.ExitState / plan_exit_actions -- imported verbatim from
+    automation/state/fleet/exit_manager.py. % exits map 1:1 onto a spot price (structure
+    stop = close through the twin's own level, catastrophe cap = % adverse move, TP1 =
+    partial sell + ratchet-to-BE, trailing runner = chandelier off HWM) -- exactly the
+    SS-B shape, just percentages recalibrated for spot-BTC volatility instead of options
+    premium (see TwinConfig.exit_shape's docstring for the specific numbers + why).
+  * risk_gate.check_order -- imported from backtest/lib/risk_gate.py. Crypto qty is
+    fractional (BTC), but check_order's qty/premium math assumes whole option contracts
+    (qty must be a positive integer; notional = premium*qty*100). Rather than fork the
+    function to accept fractional qty, this module presents it with a WHOLE-NUMBER PROXY
+    UNIT (qty=cfg.min_contracts, premium=notional_usd/min_contracts/100) so check_order's
+    REAL branches (kill-switch / PDT / NOT_FLAT / MIN_CONTRACTS / RISK_CAP) genuinely
+    execute against the twin's real numbers -- "min-qty analog preserved so risk_gate
+    paths execute" per the spec doc's mapping table. The ACTUAL broker order uses the
+    real notional_usd via crypto_twin_broker.place_crypto_order's `notional` kwarg, which
+    lets Alpaca compute the fractional BTC qty -- the proxy unit never reaches the broker.
+  * crypto.lib.{bar,bar_reader,ribbon,levels,kill_switch} -- the ribbon/level/structure
+    detectors ("bars are bars"). See crypto_twin_signal.py / crypto_twin_levels.py for
+    which pieces plug in where.
+  * heartbeat_core.py is NOT imported and NOT edited this session (another crew owns its
+    stale-trigger ordering fix tonight) -- its SEE/DECIDE stages are SPY-RTH-options-
+    entangled (pandas RTH filtering, engine_cli's 15 SPY-specific gates, PDT, option
+    premium economics) and do not cleanly generalize to a 24/7 spot instrument; forcing a
+    fake bar_ctx through engine_cli would either no-op every gate or require faking
+    option fields that don't exist for a spot position. What deserves LATER extraction
+    (T3/T4, not this session): heartbeat_core's `_log`/ledger-write pattern and its
+    veto-snapshot rendering are generic enough to share -- flagged here, not touched.
+
+Config: entry-window gates are OFF (24/7, no RTH concept). max_hold_hours=6 is the
+flatten backstop (mirrors EOD-flatten's role, fires several times/day on a 5-min cadence
+instead of once/day). Kill-switch is UTC-day anchored via crypto.lib.kill_switch (already
+a pure, tested, latching daily-loss primitive -- reused, not reimplemented).
+"""
+from __future__ import annotations
+
+import json
+import sys
+from dataclasses import dataclass, field, replace
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from typing import Optional
+
+REPO = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO))  # so `crypto.lib.*` (namespace package, no crypto/__init__.py) resolves
+for _p in ("automation/state/fleet", "backtest/lib", "setup/scripts"):
+    sys.path.insert(0, str(REPO / _p))
+
+from et_clock import et_now  # noqa: E402
+import exit_manager as em  # noqa: E402
+import risk_gate as rg  # noqa: E402
+
+from crypto.lib.bar import Bar  # noqa: E402
+from crypto.lib.bar_reader import closed_bars_only, last_closed_bar  # noqa: E402
+from crypto.lib.kill_switch import KillSwitchState, initial_state as ks_initial, tick as ks_tick  # noqa: E402
+
+import crypto_twin_broker as broker  # noqa: E402
+import crypto_twin_levels as tl  # noqa: E402
+import crypto_twin_signal as sig  # noqa: E402
+
+TWIN_DIR = REPO / "automation" / "state" / "crypto-twin"
+DECISIONS_PATH = TWIN_DIR / "decisions.jsonl"
+JOURNAL_PATH = TWIN_DIR / "journal.jsonl"
+EXIT_STATE_PATH = TWIN_DIR / "exit-state.json"
+BREAKER_PATH = TWIN_DIR / "breaker.json"
+
+EXIT_UNITS = 1000  # exit_manager's integer qty granularity; see TwinConfig docstring
+CRYPTO_SYMBOL = "BTC/USD"
+
+
+# --- config ---------------------------------------------------------------------------
+@dataclass(frozen=True)
+class TwinConfig:
+    """The twin's full runtime config. Every field has a doctrine-traceable default so a
+    bare `TwinConfig()` is a safe, complete, production-shaped twin -- no caller needs to
+    know the internals to run one correctly.
+    """
+    symbol: str = CRYPTO_SYMBOL
+    granularity_seconds: int = 300               # 5m, matches SPY's primary cadence
+    bar_limit: int = 400                          # enough for ribbon_slow=48 warmup + 2 UTC days
+    notional_usd: float = 200.0                   # HARD RAILS: "~$200/entry"
+    max_hold_hours: float = 6.0                   # flatten backstop (EOD-flatten analog)
+    account_label: str = "twin"
+    state_dir: Path = TWIN_DIR                    # injectable for tests; PRODUCTION DEFAULT below
+
+    # risk_gate proxy (see module docstring: "min-qty analog preserved so risk_gate paths execute")
+    min_contracts: int = 1
+    per_trade_risk_cap_pct: float = 0.30           # mirrors Rule 6 Safe cap
+    daily_loss_kill_switch_pct: float = 0.30       # mirrors Rule 5 Safe cap, UTC-day anchored
+    starting_equity: float = 2000.0                # synthetic/local seed; broker equity preferred once configured (C11)
+
+    # exit_shape (passed to exit_manager.ExitState.from_entry) -- percentages recalibrated
+    # from options-premium scale to spot-BTC scale so EVERY exit stage (structure stop,
+    # catastrophe cap, TP1, trail, runner-target) has a REALISTIC chance to fire within a
+    # max_hold_hours window during a live soak -- production's option-premium percentages
+    # (tp1=+30-40%, trail=12.5%, runner_target=250%) would make TP1/trail/runner
+    # essentially unreachable on spot BTC's actual volatility and the twin would just ride
+    # to max-hold every single time, defeating "exit engine behavior on REAL paper fills"
+    # mechanism validation. These are MECHANISM-CALIBRATION numbers, not an edge claim --
+    # never cited as a BTC trading parameter, only as "wide enough to prove the code path
+    # fires." stop_mode="structure": the twin's own nearest level is the primary
+    # invalidation (chart-stop-primary doctrine), catastrophe_stop_pct left at
+    # exit_manager's own -0.50 default (omitted here so it's read from the module, not
+    # re-typed) covers the structure-mode fallback + the true tail-risk cap.
+    exit_shape: dict = field(default_factory=lambda: {
+        "stop_mode": "structure",
+        "premium_stop_pct": -0.03,       # -3%: the PREMIUM-mode fallback when no level is in range
+        "tp1_premium_pct": 0.015,        # +1.5%
+        "tp1_qty_fraction": 0.667,       # reuses the live vwap_continuation fraction (an already-
+                                          # validated, real production value, not invented)
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.01,               # 1%
+        "profit_lock_arm_pct": 0.005,    # +0.5%
+        "runner_target_pct": 0.03,       # +3%
+    })
+
+
+def _assert_twin_namespace(cfg: TwinConfig) -> None:
+    """Runtime backstop for the namespace-isolation guarantee (the static AST test in
+    backtest/tests/test_crypto_twin_core.py checks the SOURCE; this checks a live cfg).
+    Refuses to proceed if a caller ever constructs a TwinConfig pointed outside this
+    namespace -- the --force-entry test flag's only real safety rail (besides being
+    unreachable from anything but this module's own CLI)."""
+    norm = str(cfg.state_dir).replace("\\", "/")
+    if not norm.endswith("automation/state/crypto-twin"):
+        raise ValueError(f"crypto_twin_core: refusing non-twin state_dir {cfg.state_dir!r}")
+
+
+# --- bar plumbing -----------------------------------------------------------------------
+def _to_bar(raw: dict, granularity_seconds: int) -> Bar:
+    ts = datetime.fromisoformat(str(raw["t"]).replace("Z", "+00:00"))
+    return Bar(open_time=ts, open=float(raw["o"]), high=float(raw["h"]), low=float(raw["l"]),
+              close=float(raw["c"]), volume=float(raw.get("v", 0.0)),
+              granularity_seconds=granularity_seconds, source="alpaca")
+
+
+def fetch_closed_bars(cfg: TwinConfig, *, now_utc: Optional[datetime] = None,
+                      raw_bars: Optional[list[dict]] = None) -> tuple[list[Bar], dict]:
+    """SEE stage: fetch + convert + closed-bar-filter (C6). `raw_bars` is injectable for
+    tests/replay (skips the network call); production callers omit it.
+
+    Returns (closed_bars, meta) where meta carries the bar_reader.ClosedBarResult verdict
+    for the decision row (never silently swallows a stale/no-data tick)."""
+    now = now_utc or datetime.now(timezone.utc)
+    if raw_bars is None:
+        raw_bars = broker.fetch_crypto_bars(cfg.symbol, granularity_seconds=cfg.granularity_seconds,
+                                            limit=cfg.bar_limit)
+    all_bars = tuple(_to_bar(r, cfg.granularity_seconds) for r in raw_bars)
+    from crypto.lib.bar import BarSeries
+    series = BarSeries(symbol=cfg.symbol, granularity_seconds=cfg.granularity_seconds,
+                       source="alpaca", bars=all_bars)
+    result = last_closed_bar(series, now)
+    closed = closed_bars_only(series, now)
+    meta = {"verdict": result.verdict, "bars_rejected_as_in_progress": result.bars_rejected_as_in_progress,
+           "last_closed_ts": result.last_closed.open_time.isoformat() if result.last_closed else None}
+    return list(closed.bars), meta
+
+
+# --- breaker (UTC-day kill-switch) -------------------------------------------------------
+def _breaker_path(cfg: TwinConfig) -> Path:
+    return cfg.state_dir / "breaker.json"
+
+
+def load_breaker(cfg: TwinConfig, *, now_utc: datetime, current_equity: float) -> KillSwitchState:
+    """Load-or-roll today's UTC-day breaker. Equity CARRIES FORWARD day to day (like a
+    real account compounds); a new UTC day starts a fresh (untripped) latch seeded at the
+    prior day's ending equity, or cfg.starting_equity on first-ever run."""
+    p = _breaker_path(cfg)
+    today = now_utc.strftime("%Y-%m-%d")
+    if p.exists():
+        try:
+            raw = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            raw = {}
+        if raw.get("utc_date") == today:
+            return KillSwitchState(account_id=cfg.account_label,
+                                   start_of_day_equity=float(raw["start_of_day_equity"]),
+                                   threshold_pct=cfg.daily_loss_kill_switch_pct,
+                                   tripped=bool(raw.get("tripped", False)),
+                                   tripped_at_equity=raw.get("tripped_at_equity"),
+                                   min_equity_seen=float(raw.get("min_equity_seen", current_equity)))
+        sod = float(raw.get("current_equity", raw.get("start_of_day_equity", cfg.starting_equity)))
+    else:
+        sod = cfg.starting_equity
+    return ks_initial(cfg.account_label, sod, cfg.daily_loss_kill_switch_pct)
+
+
+def save_breaker(cfg: TwinConfig, state: KillSwitchState, *, now_utc: datetime, current_equity: float) -> None:
+    p = _breaker_path(cfg)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({
+        "utc_date": now_utc.strftime("%Y-%m-%d"), "account_id": state.account_id,
+        "start_of_day_equity": state.start_of_day_equity, "current_equity": current_equity,
+        "threshold_pct": state.threshold_pct, "tripped": state.tripped,
+        "tripped_at_equity": state.tripped_at_equity, "min_equity_seen": state.min_equity_seen,
+    }, indent=2), encoding="utf-8")
+
+
+# --- exit-state persistence (mirrors fleet's exit_actuator.py load/save shape) -----------
+def _load_positions(cfg: TwinConfig) -> dict[str, dict]:
+    p = cfg.state_dir / "exit-state.json"
+    if not p.exists():
+        return {}
+    try:
+        return json.loads(p.read_text(encoding="utf-8")) or {}
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def _save_positions(cfg: TwinConfig, positions: dict[str, dict]) -> None:
+    p = cfg.state_dir / "exit-state.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(positions, indent=2), encoding="utf-8")
+
+
+# --- journal --------------------------------------------------------------------------
+def _journal(cfg: TwinConfig, event: str, **fields) -> None:
+    p = cfg.state_dir / "journal.jsonl"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    row = {"ts_utc": datetime.now(timezone.utc).isoformat(), "event": event, "twin": True, **fields}
+    with open(p, "a", encoding="utf-8") as f:
+        f.write(json.dumps(row) + "\n")
+
+
+# --- decisions.jsonl (T1) ---------------------------------------------------------------
+def _decision_row(cfg: TwinConfig, *, now_utc: datetime, armed: bool, price: Optional[float],
+                  verdict: sig.TwinVerdict, levels: Optional[tl.TwinLevelSet],
+                  risk_decision: Optional[rg.RiskDecision], breaker_state: Optional[KillSwitchState],
+                  position_status: str, exit_pass: list, action: str) -> dict:
+    """SAME KEY SET as automation/state/core-decisions.jsonl (ts_et, account, armed, spy,
+    ribbon, spread_cents, vix, htf_15m, verdict, side, setup, triggers, reason,
+    trigger_level_exact, exit_pass, action) + "twin": true per the task spec, PLUS
+    additive twin-only fields (ts_utc, symbol, price, levels, risk_gate, breaker,
+    session_date_utc, position_status) carrying the honest crypto-native values.
+
+    Deliberate DEVIATIONS from a byte-literal copy (documented, not accidental):
+      * "spy" holds the BTC/USD price (legacy key name kept for schema/structural
+        compat with any future generic decisions.jsonl reader); "price" is the same
+        value under an honest name -- both present, never conflated with real SPY data
+        (the "symbol"/"twin" fields make the row unambiguous to any consumer).
+      * "spread_cents" holds the ribbon spread in DOLLARS (BTC has no cents-scale
+        meaning) -- key name kept for schema compat, unit documented here.
+      * "vix" is always null (no crypto analog) and "htf_15m" is always null (no
+        higher-timeframe confirmation stage in this v1 -- flagged as a natural T3/T4
+        addition, not silently faked).
+      * "side" is "bull"/"bear"/null (not "C"/"P" -- those literally mean call/put
+        options, which don't exist for a spot position; a generic `side is not None`
+        check behaves identically either way).
+      * bear_score/bull_score are OMITTED (not scored 0-10/0-11 the way engine_cli's
+        rules-engine setups are) -- mirrors the codebase's OWN existing precedent for
+        extra-setup/watcher-pattern verdicts, which already omit these two keys rather
+        than print a fabricated score (see heartbeat_core._veto_snapshot's 2026-07-09 fix).
+    """
+    lvl_dict = None
+    if levels is not None:
+        lvl_dict = {
+            "prior_day_high": levels.prior_day_high.price if levels.prior_day_high else None,
+            "prior_day_low": levels.prior_day_low.price if levels.prior_day_low else None,
+            "prior_day_close": levels.prior_day_close.price if levels.prior_day_close else None,
+            "intraday_high": levels.intraday_high.price if levels.intraday_high else None,
+            "intraday_low": levels.intraday_low.price if levels.intraday_low else None,
+        }
+    return {
+        "ts_et": et_now().isoformat(),
+        "ts_utc": now_utc.isoformat(),
+        "account": cfg.account_label,
+        "twin": True,
+        "symbol": cfg.symbol,
+        "armed": armed,
+        "spy": price,
+        "price": price,
+        "ribbon": verdict.ribbon_stack,
+        "spread_cents": verdict.ribbon_spread,
+        "vix": None,
+        "htf_15m": None,
+        "verdict": verdict.verdict,
+        "side": verdict.side,
+        "setup": verdict.setup,
+        "triggers": verdict.triggers,
+        "reason": verdict.reason,
+        "trigger_level_exact": verdict.trigger_level_exact,
+        "exit_pass": exit_pass,
+        "action": action,
+        "session_date_utc": levels.session_date_utc if levels is not None else None,
+        "levels": lvl_dict,
+        "risk_gate": ({"code": risk_decision.code, "reason": risk_decision.reason}
+                     if risk_decision is not None else None),
+        "breaker": ({"tripped": breaker_state.tripped,
+                    "start_of_day_equity": breaker_state.start_of_day_equity,
+                    "min_equity_seen": breaker_state.min_equity_seen}
+                   if breaker_state is not None else None),
+        "position_status": position_status,
+    }
+
+
+def log_decision(cfg: TwinConfig, row: dict) -> None:
+    p = cfg.state_dir / "decisions.jsonl"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with open(p, "a", encoding="utf-8") as f:
+        f.write(json.dumps(row) + "\n")
+
+
+# --- risk_gate wiring ---------------------------------------------------------------------
+def _risk_gate_check(cfg: TwinConfig, *, equity: float, sod_equity: float,
+                     kill_switch_tripped: bool, position_status: str, setup_name: str) -> rg.RiskDecision:
+    """Presents risk_gate.check_order with the whole-number proxy unit described in the
+    module docstring: qty=min_contracts, premium=notional_usd/min_contracts/100 so that
+    premium*qty*100 == notional_usd exactly -- check_order's REAL branch logic executes
+    (kill-switch / NOT_FLAT / MIN_CONTRACTS / RISK_CAP), it just never sees a fractional
+    BTC qty (which it would reject outright as UNREADABLE_INPUT -- options-contract-count
+    convention, not a crypto convention)."""
+    premium_proxy = cfg.notional_usd / cfg.min_contracts / 100.0
+    return rg.check_order(
+        account=cfg.account_label, equity=equity, start_of_day_equity=sod_equity,
+        proposed_qty=cfg.min_contracts, premium=premium_proxy, setup_name=setup_name,
+        current_position_status=position_status, day_trades_used_5d=0,  # PDT: N/A, crypto is not a security
+        kill_switch_tripped=kill_switch_tripped, prior_stops_today=[],
+        params={"per_trade_risk_cap_pct": cfg.per_trade_risk_cap_pct,
+               "daily_loss_kill_switch_pct": cfg.daily_loss_kill_switch_pct,
+               "min_contracts": cfg.min_contracts})
+
+
+# --- exit management (T2) -- mirrors fleet's exit_actuator.manage_tick shape -------------
+def _make_ribbon_flip_fn(ribbon_stack: Optional[str]):
+    if not ribbon_stack:
+        return None
+
+    def fn(symbol: str, side: str) -> bool:
+        return ribbon_stack == ("BULL" if side == "P" else "BEAR")
+    return fn
+
+
+def manage_positions(cfg: TwinConfig, *, creds: Optional[dict], now_utc: datetime, live: bool,
+                     ribbon_stack: Optional[str] = None,
+                     last_closed_close: Optional[float] = None) -> list[dict]:
+    """ONE exit-management tick over every twin position. MAX-HOLD is checked FIRST (a
+    duration guard exit_manager has no concept of -- its time_stop_et is a wall-clock
+    time-of-day, not an elapsed-hours check, so this is deliberately a separate guard
+    layered in front, mirroring how EOD-flatten is its own backstop task in production
+    rather than part of exit_manager itself). Everything else is exit_manager's real walk.
+
+    Returns [] with no broker calls when `creds` is None (T2 blocked -- see run_tick)."""
+    positions = _load_positions(cfg)
+    if not positions:
+        return []
+    results: list[dict] = []
+    changed = False
+    flip_fn = _make_ribbon_flip_fn(ribbon_stack)
+    for symbol, rec in list(positions.items()):
+        st = em.ExitState.from_dict(rec["exit_state"])
+        entered_at = datetime.fromisoformat(rec["entered_at_utc"])
+        elapsed_h = (now_utc - entered_at).total_seconds() / 3600.0
+        if creds is None:
+            results.append({"symbol": symbol, "action": "BLOCKED_NO_ACCOUNT",
+                            "reason": "no dedicated twin account configured -- see secrets.json.example"})
+            continue
+        open_qty = broker.get_crypto_position_qty(creds, symbol)
+        if open_qty <= 0:
+            del positions[symbol]
+            changed = True
+            results.append({"symbol": symbol, "open_qty": 0, "action": "FLAT_PRUNED"})
+            _journal(cfg, "CLOSED", symbol=symbol, reason="broker shows flat")
+            continue
+        if elapsed_h >= cfg.max_hold_hours:
+            res = broker.close_all_crypto(creds, symbol=symbol, live=live)
+            del positions[symbol]
+            changed = True
+            results.append({"symbol": symbol, "open_qty": open_qty, "action": "MAX_HOLD_FLATTEN",
+                            "elapsed_hours": round(elapsed_h, 2), "broker": res})
+            _journal(cfg, "CLOSED", symbol=symbol, reason="max_hold_flatten",
+                    elapsed_hours=round(elapsed_h, 2), broker=res)
+            continue
+        hilo = broker.get_crypto_quote_hilo(cfg.symbol, creds=creds)
+        if hilo is None:
+            results.append({"symbol": symbol, "open_qty": open_qty, "action": "HOLD", "reason": "no_quote"})
+            continue
+        best, worst = hilo
+        flip = bool(flip_fn(symbol, st.side)) if flip_fn else False
+        dec = em.plan_exit_actions(st, best_premium=best, worst_premium=worst, open_qty=EXIT_UNITS,
+                                   now_et=now_utc.time(), ribbon_flip_back=flip,
+                                   last_closed_5m_close=last_closed_close)
+        rec["exit_state"] = dec.state.to_dict()
+        changed = True
+        executed = []
+        for a in dec.actions:
+            if a.kind in ("SELL_PARTIAL", "SELL_ALL"):
+                frac = a.qty / EXIT_UNITS
+                btc_qty = round(open_qty * frac, 8) if a.kind == "SELL_PARTIAL" else open_qty
+                res = broker.market_sell_crypto(creds, symbol=symbol, qty=btc_qty, live=live) if live \
+                    else {"_skipped": "WATCH"}
+                executed.append({"kind": a.kind, "units": a.qty, "btc_qty": btc_qty, "stage": a.stage,
+                                 "reason": a.reason, "broker": res})
+                # SELL_ALL genuinely ends this position's lifecycle -> "CLOSED" (not lumped
+                # under "MANAGED"), so a reader scanning journal.jsonl for the full
+                # placed->filled->managed->closed trail finds a real CLOSED row for every
+                # exit path (structure stop / catastrophe cap / runner target / time stop),
+                # not just the max-hold backstop.
+                _journal(cfg, "CLOSED" if a.kind == "SELL_ALL" else "MANAGED", symbol=symbol,
+                        kind=a.kind, btc_qty=btc_qty, stage=a.stage, reason=a.reason, broker=res)
+            elif a.kind == "RATCHET_STOP":
+                executed.append({"kind": "RATCHET_STOP", "stage": a.stage,
+                                 "new_stop_premium": a.new_stop_premium, "reason": a.reason})
+        if dec.closes_position:
+            del positions[symbol]
+        results.append({"symbol": symbol, "open_qty": open_qty, "best": best, "worst": worst,
+                        "tp1_filled": dec.state.tp1_filled, "runner_stop": dec.state.runner_stop_premium,
+                        "actions": executed, "mode": "LIVE" if live else "WATCH"})
+    if changed:
+        _save_positions(cfg, positions)
+    return results
+
+
+# --- placement (T2) ----------------------------------------------------------------------
+def place_entry(cfg: TwinConfig, *, creds: dict, side: str, price: float,
+                trigger_level: Optional[float], live: bool,
+                now_utc: Optional[datetime] = None) -> dict:
+    """BUY-only (Alpaca crypto is cash/long-only -- no short leg exists to express a
+    "bear" verdict as a position; see run_tick for how ENTER_BEAR is logged-but-skipped).
+    Places a market order sized by NOTIONAL (Alpaca computes the fractional BTC qty --
+    the risk_gate proxy unit never reaches the broker), then registers the position with
+    the REAL exit_manager.ExitState.from_entry (structure mode when trigger_level is
+    available, matching production's chart-stop-primary doctrine).
+
+    `now_utc` is injectable (defaults to real wall-clock) so tests can pin entered_at_utc
+    and deterministically fast-forward past max_hold_hours -- mirrors run_tick/
+    fetch_closed_bars's same injectable-clock pattern."""
+    now = now_utc or datetime.now(timezone.utc)
+    order = broker.place_crypto_order(creds, symbol=cfg.symbol, side="buy",
+                                      notional=cfg.notional_usd, order_type="market", live=live)
+    _journal(cfg, "PLACED", symbol=cfg.symbol, side=side, notional_usd=cfg.notional_usd,
+            price=price, trigger_level=trigger_level, order=order, live=live)
+    if not live or order.get("_error") or order.get("_refused") or order.get("_skipped"):
+        return {"placed": False, "order": order}
+    order_id = order.get("id")
+    fill = broker.poll_fill(creds, order_id, attempts=4, sleep_sec=1.5) if order_id else \
+        {"filled": False, "status": "unknown"}
+    _journal(cfg, "FILLED", symbol=cfg.symbol, order_id=order_id, fill=fill)
+    entry_price = fill.get("filled_avg_price") or price
+    st = em.ExitState.from_entry(symbol=cfg.symbol, side="C", entry_premium=float(entry_price),
+                                 qty=EXIT_UNITS, exit_shape=cfg.exit_shape, strategy="crypto_twin",
+                                 trigger_level=trigger_level, structure_stop_enabled=True)
+    positions = _load_positions(cfg)
+    positions[cfg.symbol] = {"exit_state": st.to_dict(), "entered_at_utc": now.isoformat(),
+                             "side": side, "order_id": order_id}
+    _save_positions(cfg, positions)
+    return {"placed": True, "order": order, "fill": fill, "exit_state": st.to_dict()}
+
+
+# --- the tick (T1 + T2) -------------------------------------------------------------------
+def run_tick(cfg: TwinConfig = TwinConfig(), *, live: bool = False,
+            force_entry: Optional[str] = None, now_utc: Optional[datetime] = None,
+            raw_bars: Optional[list[dict]] = None) -> dict:
+    """ONE full twin tick: SEE -> DECIDE -> gate -> ACT -> manage -> journal -> log.
+    Always writes a decisions.jsonl row (mirrors "persist EVERY tick", never conditional
+    on ENTER). `force_entry` ("bull"/"bear") is TEST-ONLY: bypasses scoring to exercise
+    the placement path on demand -- refuses outside a twin-namespaced cfg (see
+    _assert_twin_namespace) and is never reachable except via this function's own
+    `--force-entry` CLI flag."""
+    _assert_twin_namespace(cfg)
+    now = now_utc or datetime.now(timezone.utc)
+
+    bars, bar_meta = fetch_closed_bars(cfg, now_utc=now, raw_bars=raw_bars)
+    if not bars or bar_meta["verdict"] != "ok":
+        verdict = sig.TwinVerdict("HOLD", None, None,
+                                  reason=f"bar feed not ok: {bar_meta.get('verdict')}")
+        row = _decision_row(cfg, now_utc=now, armed=live, price=None, verdict=verdict, levels=None,
+                            risk_decision=None, breaker_state=None, position_status="unknown",
+                            exit_pass=[], action="HOLD_BAD_BARS")
+        log_decision(cfg, row)
+        return row
+
+    levels = tl.build_level_set(bars, now)
+    price = bars[-1].close
+
+    if force_entry in ("bull", "bear"):
+        lvl = tl.nearest_directional_level(levels.all_levels, price, side=force_entry)
+        verdict = sig.TwinVerdict(f"ENTER_{force_entry.upper()}", force_entry, "FORCE_ENTRY_TEST_FLAG",
+                                  triggers=["force_entry_cli_flag"],
+                                  reason="--force-entry test flag (bypasses scoring; T2 verification only)",
+                                  trigger_level_exact=lvl.price if lvl else None,
+                                  ribbon_stack="N/A", ribbon_spread=0.0, stack_bars=0)
+    else:
+        verdict = sig.evaluate(bars, levels)
+
+    try:
+        creds = broker.get_twin_creds()
+    except (FileNotFoundError, KeyError):
+        creds = None
+
+    equity = cfg.starting_equity
+    if creds is not None:
+        acct = broker.get_account(creds)
+        if not acct.get("_error"):
+            equity = float(acct.get("equity", equity) or equity)
+
+    breaker_state = load_breaker(cfg, now_utc=now, current_equity=equity)
+    breaker_state = ks_tick(breaker_state, equity)
+    save_breaker(cfg, breaker_state, now_utc=now, current_equity=equity)
+
+    ribbon_stack = verdict.ribbon_stack if verdict.ribbon_stack != "N/A" else None
+    exit_pass = manage_positions(cfg, creds=creds, now_utc=now, live=live, ribbon_stack=ribbon_stack)
+
+    positions = _load_positions(cfg)
+    position_status = "open" if cfg.symbol in positions else "flat"
+    risk_decision = None
+    action = verdict.verdict if verdict.verdict != "HOLD" else "HOLD"
+
+    if verdict.verdict.startswith("ENTER") and position_status == "flat":
+        risk_decision = _risk_gate_check(cfg, equity=equity, sod_equity=breaker_state.start_of_day_equity,
+                                         kill_switch_tripped=breaker_state.tripped,
+                                         position_status=position_status,
+                                         setup_name=verdict.setup or "CRYPTO_TWIN")
+        if verdict.side == "bear":
+            action = "SKIP_NO_SHORT_CRYPTO"  # Alpaca crypto is cash/long-only -- see place_entry docstring
+        elif not risk_decision.allowed:
+            action = f"BLOCKED_{risk_decision.code}"
+        elif creds is None:
+            action = "BLOCKED_NO_ACCOUNT"
+        else:
+            result = place_entry(cfg, creds=creds, side=verdict.side, price=price,
+                                 trigger_level=verdict.trigger_level_exact, live=live, now_utc=now)
+            action = "ENTERED" if result.get("placed") else "ENTRY_ATTEMPT_FAILED"
+    elif position_status == "open":
+        action = "MANAGED"
+
+    row = _decision_row(cfg, now_utc=now, armed=live, price=price, verdict=verdict, levels=levels,
+                        risk_decision=risk_decision, breaker_state=breaker_state,
+                        position_status=position_status, exit_pass=exit_pass, action=action)
+    log_decision(cfg, row)
+    return row
+
+
+# --- CLI ------------------------------------------------------------------------------
+def main(argv: Optional[list[str]] = None) -> int:
+    import argparse
+    parser = argparse.ArgumentParser(description="Crypto Twin -- 24/7 mechanism-validation tick")
+    parser.add_argument("--live", action="store_true", help="place real paper orders (default WATCH)")
+    parser.add_argument("--force-entry", choices=["bull", "bear"], default=None,
+                        help="TEST ONLY: bypass scoring and force an entry verdict")
+    parser.add_argument("--ticks", type=int, default=1, help="number of ticks to run")
+    args = parser.parse_args(argv)
+
+    for i in range(max(1, args.ticks)):
+        row = run_tick(live=args.live, force_entry=args.force_entry)
+        print(json.dumps(row, indent=2 if args.ticks == 1 else None))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
