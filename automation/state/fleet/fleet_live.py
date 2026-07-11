@@ -133,6 +133,35 @@ def _load_or_arm_breaker(arm_id: str, equity: float, now: datetime, limit_pct: f
     return b
 
 
+# --- PROBE ARM daily-cap counter (2026-07-10 ship) ----------------------------------------
+# Per-day count of ALLOWED probe entries (risk_gate-cleared, PROBE_ARM-tagged), persisted the
+# SAME way as _load_or_arm_breaker's daily kill-switch (last_reset date match -> fresh 0 on
+# rollover). fleet_executor.plan_all/_probe_plan are pure (no I/O) -- the count is read here,
+# passed in as probe_entries_today, and incremented here (via _record_probe_entry) ONLY after
+# finalize() actually ALLOWs a PROBE_ARM-tagged ENTER, never on a HOLD/deny.
+def _load_probe_count(arm_id: str, now: datetime) -> dict:
+    d = FLEET_DIR / arm_id
+    d.mkdir(exist_ok=True)
+    path = d / "probe-count.json"
+    today = now.strftime("%Y-%m-%d")
+    if path.exists():
+        try:
+            c = json.loads(path.read_text(encoding="utf-8"))
+            if str(c.get("date", "")) == today:
+                return c
+        except (json.JSONDecodeError, OSError):
+            pass
+    return {"date": today, "count": 0}
+
+
+def _record_probe_entry(arm_id: str, now: datetime) -> None:
+    c = _load_probe_count(arm_id, now)
+    c["count"] = int(c.get("count", 0)) + 1
+    c["last_entry_et"] = now.isoformat()
+    path = FLEET_DIR / arm_id / "probe-count.json"
+    path.write_text(json.dumps(c, indent=2), encoding="utf-8")
+
+
 def _load_prior_stops(arm_id: str, now: datetime) -> list[str]:
     path = FLEET_DIR / arm_id / "first-entry-lock.json"
     if not path.exists():
@@ -152,7 +181,8 @@ _select_plan = fx.select_plan  # canonical one-position selection (REGISTRY-prio
 
 def decide_arm(arm: dict, signal: dict | None, *, equity: float, flat: bool,
                day_trades: int, killed: bool, sod_equity: float,
-               prior_stops: list[str], params: dict, premium_override: float | None = None):
+               prior_stops: list[str], params: dict, premium_override: float | None = None,
+               probe_cfg: dict | None = None, probe_entries_today: int = 0):
     """Multi-strategy decision: every fired strategy is gated+sized by plan_all, ONE is
     selected (REGISTRY priority, one-position rule), then the shared risk gate runs. No
     I/O, no placement. Returns (ArmDecision, exit_shape) so the caller can build the
@@ -161,11 +191,17 @@ def decide_arm(arm: dict, signal: dict | None, *, equity: float, flat: bool,
     premium_override (when set) is the REAL option mid for the planned strike (fetched
     by the caller via the broker), so the WATCH risk-gate decision is faithful, not a
     signal estimate. Falls back to the side-block / signal est_premium when not supplied.
+
+    probe_cfg/probe_entries_today (2026-07-10, PROBE ARM): pass-through to fx.plan_all --
+    default None/0 is an inert no-op for every arm except the one probe_cfg names (see
+    fleet_executor._is_probe_active). This function stays I/O-free; the caller (run()) owns
+    reading accounts.json's probe_arm block and the persisted daily counter.
     """
     if signal is None:
         return (fx.ArmDecision(arm["id"], "HOLD", None, None, None, None, None, None,
                                None, "no live signal"), None)
-    plans = fx.plan_all(arm, signal, equity, params)
+    plans = fx.plan_all(arm, signal, equity, params,
+                        probe_cfg=probe_cfg, probe_entries_today=probe_entries_today)
     plan = _select_plan(plans)
     if plan is None:
         return (fx.ArmDecision(arm["id"], "HOLD", None, None, None, None, None, None,
@@ -385,6 +421,9 @@ def run(signal_path: Path, master_live: bool) -> list[dict]:
     signal, sig_err = _load_signal(signal_path, now)
     usable_signal = signal if (signal is not None and sig_err is None) else None
     results: list[dict] = []
+    # PROBE ARM (2026-07-10): single top-level accounts.json read; None/enabled=False is a
+    # byte-identical no-op for every arm (fx._is_probe_active short-circuits False).
+    probe_cfg = accounts.get("probe_arm")
 
     for arm in accounts.get("arms", []):
         # Process the 4 fleet_rest arms always; ALSO the 2 mcp_heartbeat controls when the
@@ -416,6 +455,10 @@ def run(signal_path: Path, master_live: bool) -> list[dict]:
         killed = bool(breaker.get("tripped"))
         sod = float(breaker.get("starting_equity_today", equity))
         prior_stops = _load_prior_stops(arm_id, now)
+        # PROBE ARM: only the named arm reads/writes probe-count.json (no stray per-arm
+        # files for the other 3 -- guard on _is_probe_active, not just "does probe_cfg exist").
+        probe_entries_today = (_load_probe_count(arm_id, now).get("count", 0)
+                               if fx._is_probe_active(arm, probe_cfg) else 0)
 
         # EXIT-MANAGEMENT PASS (runs FIRST each tick, before any new entry): manage every
         # open position's scale-out per its registered exit shape (partial TP1 + runner +
@@ -458,7 +501,9 @@ def run(signal_path: Path, master_live: bool) -> list[dict]:
         # that will actually be traded (deterministic -> identical (side, strategy, strike)).
         premium_override = None
         if usable_signal is not None:
-            pre_plan = _select_plan(fx.plan_all(arm, usable_signal, equity, params))
+            pre_plan = _select_plan(fx.plan_all(arm, usable_signal, equity, params,
+                                                probe_cfg=probe_cfg,
+                                                probe_entries_today=probe_entries_today))
             if pre_plan is not None and pre_plan.action == "ENTER" and pre_plan.strike \
                     and pre_plan.side and not arm.get("structure_override"):
                 premium_override = fb.get_option_mid(creds, _occ_symbol(pre_plan.side, pre_plan.strike, now))
@@ -466,7 +511,18 @@ def run(signal_path: Path, master_live: bool) -> list[dict]:
         decision, exit_shape = decide_arm(arm, usable_signal, equity=equity, flat=flat,
                                           day_trades=day_trades, killed=killed, sod_equity=sod,
                                           prior_stops=prior_stops, params=params,
-                                          premium_override=premium_override)
+                                          premium_override=premium_override,
+                                          probe_cfg=probe_cfg,
+                                          probe_entries_today=probe_entries_today)
+
+        # PROBE ARM: the cap counts DECIDED (risk_gate-ALLOWED) probe entries, not merely
+        # attempted plans -- increments regardless of WATCH/LIVE mode (a WATCH-mode "would
+        # have entered" still consumes a slot; today's accounts.json already has this arm
+        # live=true + the scheduled task passes --live, so WATCH-only is not the operative
+        # case, but the counter must not depend on that to stay correct if it ever changes).
+        if (decision.risk_code == "ALLOW" and decision.action in ("ENTER_BEAR", "ENTER_BULL")
+                and str(decision.reason or "").startswith("PROBE_ARM")):
+            _record_probe_entry(arm_id, now)
 
         arm_live = bool(master_live) and bool(arm.get("live")) and not killed
         if arm_live and decision.action in ("ENTER_BEAR", "ENTER_BULL") and flat and usable_signal:
