@@ -825,17 +825,48 @@ def run_account(account: str) -> dict:
         logger.warning("[DISPATCH] setup_dispatch import/run failed: %s", _disp_err)
 
     v = verdict.get("verdict", "")
-    if v in ("ENTER_BEAR", "ENTER_BULL") and _past_entry_ceiling(params, et):
+    # FIX (2026-07-10, GATE-PROVENANCE-SWEEP): staleness must be resolved BEFORE any
+    # verdict/gate name can claim this tick's logged action. evaluate_gates() (the 15
+    # GATE_ORDER gates, run inside _engine_verdict's engine_cli subprocess call above)
+    # scores + gates the payload's trigger bar regardless of whether that bar is from
+    # TODAY's session -- at the open, a carried-over prior-session bar can satisfy a
+    # GATE_ORDER time-window gate's own predicate (e.g. block_conf_lvl_rec_afternoon's
+    # `bt.time() >= 14:00`, true for a bar legitimately timestamped 15:55 ET *yesterday*)
+    # and return a named SKIP_* verdict that reads as a live block. The OLD ladder only
+    # ever re-checked staleness when `v` was ALREADY ENTER_BEAR/ENTER_BULL, so a
+    # gate-produced SKIP_* (or even HOLD) fell straight through to the `else: rec["action"]
+    # = v` branch at the bottom of this ladder and was logged under the gate's own name
+    # instead of SKIP_STALE_TRIGGER (proven 2026-07-10: SKIP_CONF_LVL_REC_AFTERNOON fired
+    # bold 09:31-09:35 ET on a bar timestamped 2026-07-09T15:55 -- SAFE's independent
+    # SKIP_STALE_TRIGGER row on the SAME bar at the SAME instants is the smoking gun).
+    # Checking staleness FIRST -- unconditional on `v`, ahead of every branch below --
+    # guarantees a stale trigger bar is ALWAYS logged as SKIP_STALE_TRIGGER, whatever
+    # verdict/gate name evaluate_gates produced for it.
+    #
+    # gates.py / engine_cli.py are deliberately UNTOUCHED: decide_payload/evaluate_gates
+    # are PURE and SHARED with the backtest orchestrator (reused there as the parity-
+    # oracle assert-agree check) -- "staleness relative to the live wall clock" has no
+    # backtest equivalent (a backtest bar legitimately IS "now" for that simulated tick),
+    # so threading it into the shared engine would risk backtest determinism for zero
+    # benefit. heartbeat_core.py's post-verdict ladder is LIVE-only (already keyed off
+    # _et_now(), a live wall-clock read) -- the correct and smallest seam.
+    #
+    # Row shape for this branch is byte-for-byte the same 2 lines as the pre-fix
+    # ENTER_*-gated branch it replaces -- only WHEN it fires changed, never the shape.
+    # Fresh (today's) bars are a complete no-op here (_stale_trigger_bar is False), so the
+    # rest of this ladder is untouched for every tick that isn't stale.
+    # See markdown/audits/GATE-PROVENANCE-SWEEP-2026-07-10.md.
+    # Guard: test_gate_provenance_ordering_2026_07_10.py.
+    if _stale_trigger_bar(payload, et):
+        rec["action"] = "SKIP_STALE_TRIGGER"
+        rec["trigger_bar_et"] = str(payload["bar_ctx"].get("timestamp_et"))
+    elif v in ("ENTER_BEAR", "ENTER_BULL") and _past_entry_ceiling(params, et):
         # FIX1 (2026-07-01): entry-time ceiling — a late ENTER is a logged SKIP, never an
         # order attempt (2026-06-30: all 10 ENTER verdicts fired 15:51-15:55, all rejected
         # by Alpaca 'expires soon'). Checked BEFORE the free-model eval so a late tick spends
         # nothing. _execute has the same check (belt-and-suspenders for the extra-setup route).
         rec["action"] = "SKIP_LATE_ENTRY"
         rec["entry_ceiling_et"] = str(params.get("entry_no_trade_after_et") or "15:00")
-    elif v in ("ENTER_BEAR", "ENTER_BULL") and _stale_trigger_bar(payload, et):
-        # FIX (2026-07-02): prior-day trigger bar — yesterday's signal, not today's.
-        rec["action"] = "SKIP_STALE_TRIGGER"
-        rec["trigger_bar_et"] = str(payload["bar_ctx"].get("timestamp_et"))
     elif v in ("ENTER_BEAR", "ENTER_BULL") and _before_entry_floor(params, et):
         # FIX (2026-07-02): wall-clock floor — [09:35, 15:00) now enforced on BOTH ends.
         rec["action"] = "SKIP_EARLY_ENTRY"
@@ -864,21 +895,38 @@ def run_account(account: str) -> dict:
                 )
     else:
         rec["action"] = v
-        # G4: on a non-ENTER ribbon verdict (HOLD/SKIP), route any fired + exec-armed extra
-        # setup through the SAME _execute path. Default = byte-identical no-op (no setup is
-        # exec-armed -> every fired row logs WATCH_NOT_ARMED, _execute is never called). The
-        # else-branch placement guarantees the ribbon path and an extra setup never double-
-        # place on the same tick (and _execute's own is_flat check is the backstop).
-        #
-        # FIX (2026-07-06, post-mortem on today's session): structure_veto is a purpose-built
-        # directional safety gate (engine_cli.py, added after the 2026-06-26 -$237 wrong-way
-        # entry) and was blind to this side-channel — 7 extra-setup entries fired today while
-        # the primary verdict was SKIP_STRUCTURE_VETO/HOLD, including one buying the EXACT
-        # direction structure_veto had just blocked on the same tick (net -$33 on that
-        # cluster). When the primary verdict IS a structure veto, no extra-setup entry fires
-        # this tick either — the gate's premise ("this tick's structure makes a new
-        # directional entry dangerous") applies account-wide, not just to the primary path.
-        # Guard: test_graduated_guards.py::test_structure_veto_blocks_extra_setup_route.
+    # G4: on a non-ENTER ribbon verdict (HOLD/SKIP, INCLUDING a bar the staleness check
+    # above just relabeled SKIP_STALE_TRIGGER), route any fired + exec-armed extra setup
+    # through the SAME _execute path. Default = byte-identical no-op (no setup is
+    # exec-armed -> every fired row logs WATCH_NOT_ARMED, _execute is never called). Gated
+    # on the RAW verdict `v` (not rec["action"]) so this reproduces the pre-existing
+    # `else`-branch semantics exactly: G4 dispatch depends on WHETHER the primary ribbon
+    # path itself attempted an entry (v in ENTER_BEAR/ENTER_BULL already claimed _execute
+    # above -- G4 must never double-place on the same tick; _execute's own is_flat check is
+    # the backstop), never on what the primary verdict got RELABELED to for logging.
+    #
+    # FIX (2026-07-10, GATE-PROVENANCE-SWEEP): hoisted out of the `else:` clause above so
+    # the staleness short-circuit (which can now claim the tick's `rec["action"]` even when
+    # `v` itself is HOLD/a gate-SKIP) does not also silently suppress this independent
+    # side-channel. Extra-setup detectors (dispatch_extra_setups, called earlier this tick)
+    # read their OWN same-day-bars slice, not the CORE ribbon path's (possibly stale)
+    # trigger bar -- their fire/no-fire decision is unaffected by _stale_trigger_bar, so
+    # their routing must be too. Byte-identical to the pre-fix behavior for every v that
+    # isn't ENTER_BEAR/ENTER_BULL (that was the `else`-branch's exact gating condition).
+    #
+    # FIX (2026-07-06, post-mortem on that session): structure_veto is a purpose-built
+    # directional safety gate (engine_cli.py, added after the 2026-06-26 -$237 wrong-way
+    # entry) and was blind to this side-channel — 7 extra-setup entries fired that day while
+    # the primary verdict was SKIP_STRUCTURE_VETO/HOLD, including one buying the EXACT
+    # direction structure_veto had just blocked on the same tick (net -$33 on that
+    # cluster). When the primary verdict IS a structure veto, no extra-setup entry fires
+    # this tick either — the gate's premise ("this tick's structure makes a new
+    # directional entry dangerous") applies account-wide, not just to the primary path.
+    # Guard: test_g4_extra_setup_routing.py::test_structure_veto_blocks_extra_setup_route
+    # (corrected 2026-07-10: this test lives here, not in test_graduated_guards.py -- the
+    # old comment predates the test's move/split into its own dedicated file) +
+    # test_gate_provenance_ordering_2026_07_10.py.
+    if v not in ("ENTER_BEAR", "ENTER_BULL"):
         if extra and v != "SKIP_STRUCTURE_VETO":
             routed = _route_extra_setups(account, extra, payload, params)
             if routed:
