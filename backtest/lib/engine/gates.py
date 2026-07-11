@@ -319,8 +319,17 @@ def evaluate_gates(ctx: GateContext, params: Mapping[str, Any]) -> Optional[Gate
 
     # ── 8. RIBBON_MOMENTUM_GATE (orch. 1380) ─────────────────────────────────
     # Require ribbon spread widening >= threshold over the last 3 bars.
+    # MIN-RIBBON-SEMI-ARMED-FIX (2026-07-11): 0 and None BOTH mean "off". The old
+    # `is not None` check treated 0 as a LIVE threshold (blocks any bar where the
+    # ribbon spread didn't strictly widen), silently re-arming a gate J reverted
+    # (L107: WF=-1.308, gate removed profitable trades) -- 16 blocked rows / 3
+    # should-be-0 episodes in the 30d window audited by GATE-PROVENANCE-AUDIT-
+    # 2026-07-02 (finding G8/F1). params.json now stores null (not 0) for this key,
+    # but the CODE must be inert-at-0 on its own merits so a future "0 means off"
+    # config write can't re-trigger this. Guard: test_gate_min_ribbon_momentum_
+    # cents_zero_is_off (backtest/tests/test_engine_gates_parity.py).
     _rmom_thresh = params.get("min_ribbon_momentum_cents", None)
-    if _rmom_thresh is not None and ctx.bar_idx >= 3:
+    if _rmom_thresh and ctx.bar_idx >= 3:
         _prev_st = ribbon_at(ctx.ribbon_df, ctx.bar_idx - 3)
         if _prev_st is not None:
             _rmom = ctx.ribbon_spread_cents - _prev_st.spread_cents

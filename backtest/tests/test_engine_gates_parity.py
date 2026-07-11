@@ -260,6 +260,41 @@ def test_gate_min_ribbon_momentum_cents() -> None:
     assert evaluate_gates(_ctx(side="P", bar_idx=29, spread_cents=55.0, ribbon_df=rdf), p) is None
 
 
+def test_gate_min_ribbon_momentum_cents_zero_is_off() -> None:
+    """MIN-RIBBON-SEMI-ARMED-FIX (GATE-PROVENANCE-AUDIT-2026-07-02 G8/F1, L107):
+    0 must be INERT, same as None/absent -- it must NOT silently re-arm the gate J
+    reverted. Vary-and-assert: threshold=0 with sharply CONTRACTING ribbon (momentum
+    deeply negative, the exact shape that used to false-block) must still allow;
+    threshold=None (absent) must also allow (control); and a real positive threshold
+    must still correctly block -- proving the fix didn't just always-allow."""
+    rdf = _ribbon_df_widening(spread_now=41.0, spread_3ago=40.0)
+    # momentum here is deeply negative (spread CONTRACTED 40 -> 10, i.e. -30) -- under
+    # the old `is not None` check this would have blocked at threshold=0 (-30 < 0).
+    ctx_contracting = _ctx(side="P", bar_idx=29, spread_cents=10.0, ribbon_df=rdf)
+    assert evaluate_gates(ctx_contracting, {"min_ribbon_momentum_cents": 0}) is None, (
+        "REGRESSION: min_ribbon_momentum_cents=0 blocked an entry -- 0 must mean OFF"
+    )
+    assert evaluate_gates(ctx_contracting, {"min_ribbon_momentum_cents": 0.0}) is None, (
+        "REGRESSION: min_ribbon_momentum_cents=0.0 (float) blocked an entry"
+    )
+    # control: explicitly absent (None) -- must also allow, same as 0.
+    assert evaluate_gates(ctx_contracting, {"min_ribbon_momentum_cents": None}) is None
+    assert evaluate_gates(ctx_contracting, {}) is None
+    # a REAL (nonzero) threshold on the SAME contracting context must still block --
+    # proves the fix narrowly targets zero/None, not the whole gate mechanism.
+    blk = evaluate_gates(ctx_contracting, {"min_ribbon_momentum_cents": 5.0})
+    assert blk and blk.action == "SKIP_RIBBON_MOMENTUM_GATE", (
+        "min_ribbon_momentum_cents=5.0 should still block a contracting ribbon"
+    )
+    # a real threshold must also still block on the ORIGINAL mildly-widening fixture
+    # (momentum 1 < 10), unaffected by the zero-is-off change.
+    blk2 = evaluate_gates(
+        _ctx(side="P", bar_idx=29, spread_cents=41.0, ribbon_df=rdf),
+        {"min_ribbon_momentum_cents": 10.0},
+    )
+    assert blk2 and blk2.action == "SKIP_RIBBON_MOMENTUM_GATE"
+
+
 def test_gate_max_ribbon_duration_bars() -> None:
     p = {"max_ribbon_duration_bars": 5}
     # All-BEAR ribbon for 40 bars -> stack age > 5 -> block.
