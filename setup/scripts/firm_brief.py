@@ -244,7 +244,33 @@ def find_queue_j_markers(path: Path) -> list:
     return out
 
 
-def render_twin_lines(data: dict) -> list[str]:
+def _format_coverage_suffix(coverage_data: dict, gauntlet_data: Optional[dict]) -> str:
+    """PURE: renders the path-coverage scoreboard + last gauntlet result as a
+    suffix for the TWIN line -- e.g. "coverage: 5/6 branches green today, 1
+    incident(s), gauntlet: PASS 20:41." Fail-open: missing/empty coverage_data
+    renders an honest "no path-coverage data yet" note rather than fabricating
+    numbers (a scenario scheduler that hasn't shipped yet must never LOOK green).
+    Schema source: setup/scripts/twin_gauntlet.py's module docstring (B2a) --
+    automation/state/crypto-twin/path-coverage.json + gauntlet-last.json."""
+    paths = (coverage_data or {}).get("paths") or {}
+    if not paths:
+        cov_s = "coverage: no path-coverage data yet"
+    else:
+        total = len(paths)
+        green = sum(1 for p in paths.values() if isinstance(p, dict) and p.get("status") == "green")
+        incidents = sum(1 for p in paths.values() if isinstance(p, dict) and p.get("last_incident"))
+        cov_s = f"coverage: {green}/{total} branches green today, {incidents} incident(s)"
+    gauntlet_s = ""
+    if gauntlet_data:
+        overall = gauntlet_data.get("overall", "?")
+        ts = str(gauntlet_data.get("ts_et", "?"))
+        time_s = ts[11:16] if len(ts) >= 16 else ts   # HH:MM out of an ISO timestamp
+        gauntlet_s = f", gauntlet: {overall} {time_s}"
+    return f"| {cov_s}{gauntlet_s}."
+
+
+def render_twin_lines(health_data: dict, coverage_data: Optional[dict] = None,
+                      gauntlet_data: Optional[dict] = None) -> list[str]:
     """PURE: render the Crypto Twin (24/7 mechanism-validation training ground, J
     requirement 2026-07-10) section body from its last-tick snapshot
     (automation/state/twin-health.json, written every ~5 min by Gamma_CryptoTwin /
@@ -253,20 +279,31 @@ def render_twin_lines(data: dict) -> list[str]:
     this section's text only, never the rest of the brief. Deliberately does NOT
     report the twin's P&L (markdown/planning/CRYPTO-TWIN-TRAINING-GROUND.md's kill
     criteria: "never appears in any edge scorecard" -- this is a MECHANISM-HEALTH
-    glance, not a trading result). Guard: test_firm_brief_twin_section.py."""
-    if not data:
+    glance, not a trading result). Guard: test_firm_brief_twin_section.py.
+
+    B2c EXTENSION: `coverage_data` (path-coverage.json) and `gauntlet_data`
+    (gauntlet-last.json) are OPTIONAL, additive, and both default to None so
+    every pre-existing single-argument call site/test is byte-for-byte
+    unaffected (None means "don't touch the line" -- build_brief() always
+    passes an actual dict, possibly {} on a missing file, once wired below).
+    When provided, they extend the SAME "- TWIN: ..." line with a path-coverage
+    scoreboard, e.g. "...orders=3 lifetime. | coverage: 5/6 branches green
+    today, 1 incident(s), gauntlet: PASS 20:41." -- fail-open per field."""
+    if not health_data:
         return ["- no tick yet (Gamma_CryptoTwin fires every 5 min, 24/7)."]
-    last_tick = data.get("last_tick_et", "?")
-    ticks_today = data.get("ticks_today", 0)
-    last_action = data.get("last_action") or "?"
-    breaker = data.get("breaker_tripped")
+    last_tick = health_data.get("last_tick_et", "?")
+    ticks_today = health_data.get("ticks_today", 0)
+    last_action = health_data.get("last_action") or "?"
+    breaker = health_data.get("breaker_tripped")
     breaker_s = "TRIPPED" if breaker else ("OK" if breaker is not None else "?")
-    account = data.get("account_status", "?")
-    n_orders = data.get("n_orders_lifetime", 0)
+    account = health_data.get("account_status", "?")
+    n_orders = health_data.get("n_orders_lifetime", 0)
     line = (f"- TWIN: last tick {last_tick} ({ticks_today} today), "
            f"last_action={last_action}, breaker={breaker_s}, account={account}, "
            f"orders={n_orders} lifetime.")
-    err = data.get("last_error")
+    if coverage_data is not None:
+        line += " " + _format_coverage_suffix(coverage_data, gauntlet_data)
+    err = health_data.get("last_error")
     if err:
         line += f" ⚠ LAST ERROR: {str(err)[:160]}"
     return [line]
@@ -382,15 +419,20 @@ def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) 
     # Crypto Twin -- the 24/7 mechanism-validation training ground (J requirement
     # 2026-07-10, markdown/planning/CRYPTO-TWIN-TRAINING-GROUND.md). One line; full
     # ledger in automation/state/crypto-twin/decisions.jsonl. Fail-open, same shape
-    # as the trade-autopsy/prospector sections above.
+    # as the trade-autopsy/prospector sections above. B2c: the line is extended with
+    # the twin_gauntlet.py path-coverage scoreboard (path-coverage.json) + the last
+    # gauntlet run's result (gauntlet-last.json) -- both fail-open ({} on missing file).
     twin_health = load_json(STATE / "twin-health.json")
+    twin_coverage = load_json(STATE / "crypto-twin" / "path-coverage.json")
+    twin_gauntlet = load_json(STATE / "crypto-twin" / "gauntlet-last.json")
     lines.append("## Crypto Twin (24/7 mechanism validation)")
-    lines.extend(render_twin_lines(twin_health))
+    lines.extend(render_twin_lines(twin_health, twin_coverage, twin_gauntlet))
     lines.append("")
 
     lines.append("---")
     lines.append(f"Sources: pnl-statement.json (T1 broker-truth) | self-check-last.json | "
-                 f"prospector-last.json | twin-health.json | {HANDOFF_NAME}")
+                 f"prospector-last.json | twin-health.json | crypto-twin/path-coverage.json | "
+                 f"crypto-twin/gauntlet-last.json | {HANDOFF_NAME}")
     return "\n".join(lines) + "\n"
 
 

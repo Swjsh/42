@@ -77,6 +77,26 @@ def _flag_status_md(status: str, summary: str) -> None:
     STATUS.write_text(f"{head}{marker}\n\n{line}\n{tail.lstrip(chr(10))}", encoding="utf-8")
 
 
+def _run_twin_gauntlet_conductor_hook() -> None:
+    """B2b SECONDARY hook -- the GUARANTEED-nightly fallback for the "trading-path
+    commit without a twin-gauntlet pass" advisory flag (markdown/planning/
+    TWIN-PROGRAM.md value stream #2). PRIMARY hook lives in run-conductor.ps1
+    (fires more often, but only when the conductor wakes); Gamma_GuardsNightly
+    fires once/night UNCONDITIONALLY, closing the gap a quiet conductor night
+    would otherwise leave. Both call-sites share ONE watermark file
+    (automation/state/crypto-twin/gauntlet-conductor-watermark.json) so calling
+    from both is idempotent. Fail-open: must never affect THIS script's own
+    slow-guard verdict or WATCH_SLOW payload."""
+    try:
+        scripts_dir = str(ROOT / "setup" / "scripts")
+        if scripts_dir not in sys.path:
+            sys.path.insert(0, scripts_dir)
+        import twin_gauntlet_conductor_hook as tgch
+        tgch.run_check()
+    except Exception:  # noqa: BLE001 -- advisory only, never let this affect the real guard
+        pass
+
+
 def main() -> int:
     started = _now()
     prior = _prior_status()
@@ -114,6 +134,10 @@ def main() -> int:
     # Loud on transition INTO broken; don't re-spam a persisting failure.
     if status != "pass" and prior in ("pass", None):
         _flag_status_md(status, summary)
+
+    # B2b secondary hook -- see _run_twin_gauntlet_conductor_hook's docstring.
+    # Independent of this run's pass/fail/timeout outcome above.
+    _run_twin_gauntlet_conductor_hook()
     return 0
 
 

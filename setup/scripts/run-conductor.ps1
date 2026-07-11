@@ -56,6 +56,20 @@ try {
         -ArgList @() -TaskName "status-retention" -TimeoutSec 30
 } catch { }
 
+# --- B2b TWIN-GAUNTLET-GAP CHECK (self-executing, after-hours only) -------------
+# markdown/planning/TWIN-PROGRAM.md value stream #2: "Conductor hook: trading-path
+# commits without a gauntlet pass get flagged." twin_gauntlet_conductor_hook.py is
+# pure stdlib (system-python safe, no pandas/pytest needed), fail-open (catches
+# every exception internally, ALWAYS exits 0), and ADVISORY ONLY -- it can only
+# APPEND one line to STATUS.md "## Known broken" + queue.md's Active backlog on a
+# genuinely new trading-path-without-coverage gap; it never blocks this wrapper or
+# the claude launch below. Shares a watermark file with setup/guard_runner_slow.py's
+# equivalent call (idempotent -- whichever fires first flags, the other no-ops).
+try {
+    $null = Invoke-PythonHidden -ScriptPath "setup\scripts\twin_gauntlet_conductor_hook.py" `
+        -ArgList @() -TaskName "twin-gauntlet-conductor-hook" -TimeoutSec 30
+} catch { }
+
 $promptFile = Join-Path $projectRoot "automation\prompts\conductor.md"
 if (-not (Test-Path $promptFile)) {
     Write-TaskLog -TaskName $task -Message "conductor: ERROR conductor.md missing at $promptFile"

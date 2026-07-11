@@ -53,3 +53,87 @@ the next SPY session). If not accumulating within ~2 weeks, re-examine the progr
 - **B5 (queued):** pattern-grammar shadow telemetry on twin.
 - **Doctrine:** CLAUDE.md one-liner proposal (propose-only) folding the amended crypto
   boundary + this program's existence; memory entry.
+
+## B2 interfaces (gauntlet <-> scenario scheduler) -- shared doc comment, 2026-07-11
+
+B2 shipped `setup/scripts/twin_gauntlet.py` (the requester/poller/reporter) +
+`setup/scripts/twin_gauntlet_conductor_hook.py` (the advisory conductor/nightly-guard
+flag) + the autopsy/firm-brief twin integrations. This section is the CURRENT, single
+copy of the queue contract both crews' code should agree on (mirrored in
+twin_gauntlet.py's own module docstring -- if the two ever drift, THIS file + a fresh
+read of both modules' docstrings is the tie-break, not either crew's memory).
+
+**gauntlet-queue.jsonl** (`automation/state/crypto-twin/gauntlet-queue.jsonl`, WE write,
+the scenario scheduler READS, APPEND-ONLY): one REQUEST row per requested path --
+`{request_id, path, n, requested_at_utc, requested_at_et, timeout_min, status:
+"REQUESTED", source: "twin_gauntlet"}`. Rows are never rewritten in place -- a
+consumer's claim/progress state belongs in path-coverage.json, never a mutated queue row.
+
+**path-coverage.json PROPOSED schema** (what twin_gauntlet.py's poller + firm_brief.py's
+scoreboard suffix read): `{"paths": {"<path_id>": {"status": "green"|"red", "last_request_id",
+"last_updated_utc", "n_green_today", "n_total_today", "last_incident", "evidence": [...]}}}`.
+`record_path_result()` in twin_gauntlet.py is a ready-made writer matching this shape.
+
+**KNOWN SCHEMA MISMATCH (found 2026-07-11, verified live against B1's actual in-flight
+file, NOT a guess):** B1's real `path-coverage.json` (as of this commit) uses a
+DIFFERENT shape -- top-level `{"date_utc", "branches": {"<BRANCH_NAME>": {"tier":
+"LIVE"|"SIM", "status": "PENDING"|"IN_PROGRESS"|"NOT_YET_COVERED"|..., "count_today",
+"last_exercised_utc", "last_result"}}}`. B1's branch names map 1:1 onto twin_gauntlet's
+`PATH_REGISTRY` path ids by a simple prefix/case transform:
+
+| B1 branch name (LIVE tier) | twin_gauntlet path id |
+|---|---|
+| `ENTRY_TP1_TRAIL` | `tp1_trail` |
+| `ENTRY_STRUCTURE_STOP` | `structure_stop` |
+| `ENTRY_CAT_CAP` | `catastrophe_cap` |
+| `ENTRY_MAX_HOLD` | `max_hold` |
+| `RESTART_OPEN_POSITION` | `restart_open_position` |
+| `ORGANIC_SIGNAL` | `entry` |
+| `ENTRY_TP1_TRAIL_BEAR` / `_STRUCTURE_STOP_BEAR` / `_CAT_CAP_BEAR` (SIM tier) | no twin_gauntlet equivalent yet -- bear-side lifecycles are fixture-only per this doc's "Long-only limitation" |
+
+Both crews independently converged on the SAME conceptual 6-branch (now 9, +3 bear/SIM)
+coverage battery -- good design-coherence signal, just a naming/schema reconciliation
+left undone. At B2's commit time, B1's `status` vocabulary had not yet reached a
+terminal/"passed" value in the live file (every branch was PENDING/IN_PROGRESS/
+NOT_YET_COVERED, `last_result` null everywhere) -- there was nothing yet to verify a
+"success" literal against, so B2 deliberately did NOT guess-adapt its reader to an
+unobserved, still-settling status value (a wrong guess would silently show "0 green"
+even after B1's scheduler starts succeeding, which is worse than an honest "no
+path-coverage data yet"). CORROBORATED same session (STATUS.md, "Gamma_TwinSentinel"
+entry, a THIRD concurrent crew): the real enum is `status ∈ {PENDING, IN_PROGRESS,
+NOT_YET_COVERED, GREEN, INCIDENT}` and a tested parser already exists --
+`crypto_twin_health.summarize_path_coverage()` (per that entry) / twin_sentinel.py's
+`parse_path_coverage()`. Whoever reconciles B2's `paths`/green-red reader against B1's
+real `branches`/status shape should crib from THAT parser (already fighting this exact
+battle, already tested against the real producer) rather than writing a third one.
+
+**Reconciliation options for B1/the reviewer (either is fine, pick one):**
+1. B1's scenario scheduler calls `twin_gauntlet.record_path_result(path_id, status="green"/"red",
+   ...)` directly once a branch resolves (translating BRANCH_NAME -> path_id per the table
+   above) -- zero new code on B1's side beyond the translation, reuses B2's already-tested
+   writer/atomic-write.
+2. OR a small adapter (either module) translates B1's `branches`/status vocabulary into
+   the `paths`/green-red shape once B1's terminal "success" status literal is known.
+
+**gauntlet-last.json** (`automation/state/crypto-twin/gauntlet-last.json`, twin_gauntlet.py
+writes after every `twin_gauntlet` CLI run, DRY or LIVE): `{"ts_et", "mode": "DRY"|"LIVE",
+"overall": "PASS"|"FAIL", "paths": {"<path_id>": "PASS"|"FAIL"}}`. firm_brief.py's TWIN
+line reads this fail-open for the "gauntlet: PASS 20:41" clause.
+
+**THE ONE-LINE HOOK** (not yet called by anything -- B1's crypto_twin_scenarios.py exists
+on disk as of this commit but does not yet import twin_gauntlet):
+```python
+import twin_gauntlet as tg
+for req in tg.pending_requests():   # every REQUESTED row not yet reflected in path-coverage.json
+    ...  # force req["path"]'s lifecycle req["n"] times via the twin's real exit path
+    tg.record_path_result(req["path"], status="green"/"red", request_id=req["request_id"], evidence=[...])
+```
+
+**Conductor hook file->path mapping** (`setup/scripts/twin_gauntlet_conductor_hook.py`'s
+`TRADING_PATH_FILES`): `exit_manager.py`/`exit_actuator.py` -> all 5 exit-lifecycle paths;
+`fleet_executor.py`/`fleet_live.py`/`heartbeat_core.py` -> all 6 paths (orchestration
+layer, mapped broadly/conservatively); `strategies.py`/`build_shared_signal.py`/
+`risk_gate.py` -> `entry` only. Watermark:
+`automation/state/crypto-twin/gauntlet-conductor-watermark.json` (shared by both call
+sites: `run-conductor.ps1` primary, `setup/guard_runner_slow.py` nightly fallback --
+idempotent, dedup by newest implicated commit sha).

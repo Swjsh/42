@@ -51,6 +51,19 @@ genuinely flat day (OP-33/C7 silent-success-is-failure). Fix, in order:
       this module or its new helpers (guard: test_autopsy_never_calls_broker_mutators).
 Guard: backtest/tests/test_trade_autopsy.py.
 
+TWIN (mechanism) SECTION (B2c, 2026-07-11, markdown/planning/TWIN-PROGRAM.md): a
+SEPARATE, clearly-labeled "## TWIN (mechanism)" section appended to the SAME daily
+.md, sourcing the crypto twin's OWN journal.jsonl (automation/state/crypto-twin/) --
+NEVER the SPY fills-ledger. Doctrine rail (non-negotiable, enforced by
+test_trade_autopsy_twin_section.py's static + behavioral bite tests): the twin
+validates MECHANISM, never edge -- no $ P&L counterfactual replay runs here, only
+whether each close's `stage`/`reason` matches the coded exit_manager vocabulary.
+Twin-derived hypotheses land in automation/state/crypto-twin/twin-hypotheses.jsonl
+(a CODE-fix-only lane) and are NEVER written to hypothesis-queue.jsonl -- the main
+SPY hypothesis queue chef/conductor treat as edge-adjacent intake. A twin failure
+must never block the SPY autopsy above it, and vice versa (separate try/except in
+main()). Guard: backtest/tests/test_trade_autopsy_twin_section.py.
+
 Usage:
     backtest/.venv/Scripts/python.exe setup/scripts/trade_autopsy.py [--date YYYY-MM-DD]
 """
@@ -114,6 +127,60 @@ STOP_NOISE_FRAC = 0.60     # >=60% of losers stopped-then-paid => hypothesis
 ENTRY_SPIKE_MED = 0.08     # median paid-above-minute-low >= 8% => hypothesis
 LEFT_TABLE_MIN = 300.0     # $ left on table (best-counterfactual delta) to matter
 HYP_DEDUPE_DAYS = 7        # one emission per mechanism per week
+
+# --- TWIN (mechanism) autopsy -- separate namespace, CODE-fix-only lane ------------------
+# See module docstring's "TWIN (mechanism) SECTION". Doctrine: automation/state/crypto-twin/
+# is B1's namespace (crypto_twin_core.py) -- this module only READS its journal.jsonl, never
+# writes into it.
+TWIN_STATE = STATE / "crypto-twin"
+TWIN_JOURNAL = TWIN_STATE / "journal.jsonl"
+TWIN_HYP_QUEUE = TWIN_STATE / "twin-hypotheses.jsonl"
+# Deliberately a SUBDIRECTORY of OUT_DIR, not a `twin-` prefixed file directly inside it --
+# load_recent_rows() globs OUT_DIR / "*.jsonl" for the SPY rolling window; a twin day-file
+# living alongside the SPY ones would silently mix twin rows (no `actual_pnl` key, alien
+# shape) into the SPY hypothesis detectors. A subdirectory is invisible to that non-recursive
+# glob by construction, not by a "please remember" convention.
+TWIN_OUT_DIR = OUT_DIR / "twin"
+
+# exit_manager.ExitAction.stage literals (automation/state/fleet/exit_manager.py) + the two
+# twin-native non-exit_manager close reasons (max-hold flatten guard, already-flat prune).
+KNOWN_EXIT_STAGES = {"structure_stop", "premium_stop", "time_stop", "ribbon_flip",
+                     "tp1", "trail", "runner_target", "be_stop", "arm"}
+KNOWN_CLOSE_REASONS = {"max_hold_flatten", "broker shows flat"}
+
+TWIN_ROLL_N = 20           # twin closes in the rolling window (twin ticks 24/7 -> denser than SPY)
+TWIN_MIN_ANOMALIES = 3     # need at least this many same-tag anomalies before claiming a pattern
+TWIN_HYP_DEDUPE_DAYS = 7   # one emission per mechanism per week (reuses dedupe_hypotheses)
+
+# mechanism -> (claim prose, proposed CODE-only tests). CODE fixes only -- never a parameter
+# or edge claim (TWIN-PROGRAM.md doctrine rail).
+_TWIN_MECHANISM_COPY = {
+    "broker_call_failed_on_close": (
+        "the broker close call returned an error/refused/skipped marker on a CLOSED journal "
+        "event -- the position may be marked closed locally while the broker never actually "
+        "confirmed it (a CODE bug in the close-confirmation path, not a BTC market condition).",
+        ["add a poll_fill-style confirmation after market_sell_crypto/close_all_crypto before "
+         "writing a CLOSED journal row",
+         "add a regression guard rejecting a CLOSED row whose broker dict carries _error/_refused"]),
+    "external_flat_detected": (
+        "the twin found itself flat on the broker without its own exit logic having closed the "
+        "position (FLAT_PRUNED) -- something OTHER than exit_manager closed it (a missed tick, "
+        "a manual intervention, or a race) -- a CODE gap worth tracing.",
+        ["add a journal marker distinguishing 'we closed it' from 'we discovered it already "
+         "closed' so this is visible without cross-referencing reason strings",
+         "audit tick cadence around the affected timestamps for a gap"]),
+    "unknown_exit_stage": (
+        "a CLOSED/MANAGED row carries a `stage` string outside exit_manager's known vocabulary "
+        "-- either a new/uncovered exit_manager branch or a typo'd stage literal (a CODE fix, "
+        "not an edge finding).",
+        ["diff the offending stage string against automation/state/fleet/exit_manager.py's "
+         "ExitAction.stage literals",
+         "add the new stage to trade_autopsy.py's KNOWN_EXIT_STAGES once confirmed intentional"]),
+    "unlabeled_close": (
+        "a CLOSED row carries neither a known exit_manager stage nor a known twin-native close "
+        "reason -- an unlabeled/undocumented close path exists.",
+        ["trace the offending journal row's code path and add an explicit stage/reason label"]),
+}
 
 
 # ---------- pure helpers (unit-tested; no I/O) ---------------------------------------------
@@ -199,11 +266,67 @@ def detect_hypotheses(rows: list[dict], today: str) -> list[dict]:
 
 
 def dedupe_hypotheses(new: list[dict], existing_rows: list[dict], today: str) -> list[dict]:
-    """One emission per mechanism per HYP_DEDUPE_DAYS. Pure."""
+    """One emission per mechanism per HYP_DEDUPE_DAYS. Pure. Generic over the
+    `mechanism`/`date` keys only -- reused verbatim for TWIN hypotheses below
+    (no SPY-specific coupling)."""
     cutoff = (datetime.fromisoformat(today) - timedelta(days=HYP_DEDUPE_DAYS)).date().isoformat()
     recent = {r.get("mechanism") for r in existing_rows
               if str(r.get("date", "")) >= cutoff}
     return [h for h in new if h["mechanism"] not in recent]
+
+
+# ---------- TWIN (mechanism) pure helpers -- CODE-fix-only lane (B2c) ----------------------
+
+def classify_twin_close(row: dict) -> dict:
+    """PURE mechanism classifier for ONE twin CLOSED journal event
+    (automation/state/crypto-twin/journal.jsonl). Doctrine rail
+    (markdown/planning/TWIN-PROGRAM.md): twin findings are CODE-mechanism only --
+    this NEVER touches $ P&L, only whether the close mechanism behaved as coded
+    (its `stage`/`reason` is a member of the KNOWN vocabulary, and the broker
+    call it carries didn't itself fail)."""
+    tags: list[str] = []
+    stage = row.get("stage")
+    reason = str(row.get("reason") or "")
+    broker = row.get("broker") if isinstance(row.get("broker"), dict) else None
+    if broker and (broker.get("_error") or broker.get("_refused")):
+        tags.append("broker_call_failed_on_close")
+    if reason == "broker shows flat":
+        tags.append("external_flat_detected")
+    elif stage is not None and stage not in KNOWN_EXIT_STAGES:
+        tags.append("unknown_exit_stage")
+    elif stage is None and reason not in KNOWN_CLOSE_REASONS:
+        tags.append("unlabeled_close")
+    return {"tags": tags, "mechanism_ok": len(tags) == 0, "stage": stage, "reason": reason}
+
+
+def detect_twin_hypotheses(rows: list[dict], today: str) -> list[dict]:
+    """Rolling-window CODE-MECHANISM detectors over twin CLOSED events (each row
+    must already carry a "tags" list from classify_twin_close -- newest last).
+    Pure. Every hypothesis proposes a CODE fix only -- never a parameter/edge
+    claim, never references $ P&L (doctrine rail, TWIN-PROGRAM.md)."""
+    window = rows[-TWIN_ROLL_N:]
+    if not window:
+        return []
+    tag_hits: dict[str, list[dict]] = {}
+    for r in window:
+        for t in r.get("tags", []):
+            tag_hits.setdefault(t, []).append(r)
+    hyps = []
+    for tag, hits in tag_hits.items():
+        if len(hits) < TWIN_MIN_ANOMALIES:
+            continue
+        claim, tests = _TWIN_MECHANISM_COPY.get(tag, (
+            f"{len(hits)} twin closes tagged '{tag}' in the last {len(window)} -- an exit-"
+            f"mechanism anomaly worth a CODE fix, not a parameter change.",
+            [f"add a regression guard asserting no twin CLOSED row tags '{tag}'"]))
+        hyps.append({
+            "id": f"H-TWIN-{today}-{tag}", "mechanism": tag, "claim": claim,
+            "evidence": {"n_hits": len(hits), "window_n": len(window),
+                        "examples": [{"ts_utc": h.get("ts_utc"), "reason": h.get("reason"),
+                                     "stage": h.get("stage")} for h in hits[:3]]},
+            "proposed_tests": tests,
+        })
+    return hyps
 
 
 def _closest_broker_created_row(rows: list[dict], symbol: str, entry_ts_utc: str,
@@ -414,6 +537,145 @@ def load_hypothesis_rows() -> list[dict]:
     return out
 
 
+# ---------- TWIN (mechanism) I/O -- reads B1's journal, writes ONLY the twin-only lane -----
+
+def load_twin_closed_events(date_et: str, journal_path: Path = TWIN_JOURNAL) -> list[dict]:
+    """CLOSED events from the twin's OWN journal.jsonl whose ts_utc calendar date
+    matches `date_et`. Deliberately matched against the UTC calendar date portion
+    of ts_utc, NOT an ET conversion -- the twin is UTC-day anchored (TWIN-PROGRAM.md:
+    "session = UTC day" -- same anchor crypto_twin_core.py's breaker uses), unlike
+    the SPY autopsy's date_et, which IS an ET trading day. [] on a missing/empty
+    journal -- a quiet day (this module never writes to journal.jsonl -- read-only)."""
+    if not journal_path.exists():
+        return []
+    out = []
+    for line in journal_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            row = json.loads(line)
+        except ValueError:
+            continue
+        if row.get("event") != "CLOSED":
+            continue
+        if str(row.get("ts_utc", ""))[:10] == date_et:
+            out.append(row)
+    return out
+
+
+def load_recent_twin_rows(days: int = 21) -> list[dict]:
+    """Mirrors load_recent_rows() but reads TWIN_OUT_DIR (analysis/autopsies/twin/)
+    -- a SEPARATE directory so this never mixes with load_recent_rows()'s SPY glob
+    (see TWIN_OUT_DIR's module-level comment)."""
+    rows = []
+    if TWIN_OUT_DIR.exists():
+        for f in sorted(TWIN_OUT_DIR.glob("*.jsonl"))[-days:]:
+            for line in f.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if line:
+                    try:
+                        rows.append(json.loads(line))
+                    except ValueError:
+                        pass
+    return rows
+
+
+def load_twin_hypothesis_rows() -> list[dict]:
+    if not TWIN_HYP_QUEUE.exists():
+        return []
+    out = []
+    for line in TWIN_HYP_QUEUE.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if line:
+            try:
+                out.append(json.loads(line))
+            except ValueError:
+                pass
+    return out
+
+
+def append_twin_queue_md(hyps: list[dict], date_et: str, *, queue_md: Path = QUEUE_MD) -> None:
+    """Distinctly-tagged queue.md entries (T-TWIN-AUTOPSY- prefix, [TWIN/CODE-ONLY]
+    label) so a human/conductor scanning queue.md can never mistake these for SPY
+    hypotheses -- queue.md is the general work-backlog file (not the doctrine-
+    restricted hypothesis-queue.jsonl), so surfacing twin CODE-fix items here is
+    fine; landing them in hypothesis-queue.jsonl itself is NOT (see
+    write_twin_hypotheses)."""
+    if not hyps:
+        return
+    try:
+        with queue_md.open("a", encoding="utf-8") as fh:
+            for h in hyps:
+                fh.write(f"\n### T-TWIN-AUTOPSY-{h['id']} MED — [TWIN/CODE-ONLY] mechanism "
+                         f"hypothesis: {h['mechanism']}\n\n"
+                         f"**Claim:** {h['claim']} **Evidence:** `{json.dumps(h['evidence'])}` "
+                         f"(analysis/autopsies/{date_et}.md).\n"
+                         f"**Action:** {' · '.join(h['proposed_tests'])} "
+                         f":: depends:none :: status:proposed\n")
+    except OSError as e:
+        print(f"[autopsy] WARN twin queue.md append failed: {e}", file=sys.stderr)
+
+
+def write_twin_hypotheses(hyps: list[dict], date_et: str, *,
+                          twin_hyp_queue: Path = TWIN_HYP_QUEUE, queue_md: Path = QUEUE_MD) -> None:
+    """Writes NEW twin hypotheses to the TWIN-ONLY lane. DOCTRINE RAIL (non-
+    negotiable, enforced by test_trade_autopsy_twin_section.py's static AST guard
+    + a behavioral bite test): this function NEVER writes to HYP_QUEUE (the main
+    hypothesis-queue.jsonl) -- twin-derived hypotheses may only propose CODE fixes
+    and must stay structurally separate from SPY's hypothesis lane, which
+    chef/conductor intake treats as edge-adjacent. `queue_md` is explicitly
+    forwarded to append_twin_queue_md (not read off its own default) so an
+    injected test path actually takes effect -- a bare default-parameter forward
+    would silently keep pointing at the def-time-bound original (Python evaluates
+    defaults once at def time, not per call)."""
+    if not hyps:
+        return
+    with twin_hyp_queue.open("a", encoding="utf-8") as fh:
+        for h in hyps:
+            fh.write(json.dumps({**h, "date": date_et, "status": "proposed",
+                                 "ts": et_now().isoformat(), "twin": True}) + "\n")
+    append_twin_queue_md(hyps, date_et, queue_md=queue_md)
+
+
+def render_twin_section_md(date_et: str, twin_rows: list[dict], twin_hyps: list[dict]) -> str:
+    """Separate, clearly-labeled section for the twin's mechanism-only autopsy --
+    NEVER mixed into the SPY engine table above it in the rendered .md. No $ P&L is
+    computed or shown here (TWIN-PROGRAM.md kill criteria: twin P&L is a health
+    gauge only, never an edge input) -- this section is exit-MECHANISM correctness
+    only. `twin_rows` entries must each carry a "classification" key (see main()'s
+    twin block, which attaches classify_twin_close's output before calling this)."""
+    L = ["", "---", "", "## TWIN (mechanism) — BTC/USD crypto twin, CODE-fix-only lane", ""]
+    L.append("_Mechanism-only per markdown/planning/TWIN-PROGRAM.md: never SPY P&L, never an "
+             "edge claim, never a parameter proposal. Hypotheses here go to "
+             "automation/state/crypto-twin/twin-hypotheses.jsonl, NEVER the main "
+             "hypothesis-queue.jsonl._")
+    L.append("")
+    if not twin_rows:
+        L.append(f"No twin CLOSED events on {date_et} (UTC-day). Nothing to autopsy.")
+        return "\n".join(L) + "\n"
+    n_ok = sum(1 for r in twin_rows if r["classification"]["mechanism_ok"])
+    n_anom = len(twin_rows) - n_ok
+    L.append(f"**{len(twin_rows)} twin close(s), {n_ok} clean / {n_anom} mechanism anomaly(ies).**")
+    L.append("")
+    L.append("| ts_utc | stage | reason | mechanism_ok | tags |")
+    L.append("|---|---|---|---|---|")
+    for r in twin_rows:
+        c = r["classification"]
+        L.append(f"| {r.get('ts_utc', '—')} | {c['stage'] or '—'} | {c['reason'] or '—'} "
+                 f"| {'yes' if c['mechanism_ok'] else 'NO'} | {', '.join(c['tags']) or '—'} |")
+    L.append("")
+    if twin_hyps:
+        L.append("### Twin hypotheses emitted (→ twin-hypotheses.jsonl, CODE-fix-only)")
+        L.append("")
+        for h in twin_hyps:
+            L.append(f"- **{h['id']}** ({h['mechanism']}): {h['claim']} "
+                     f"Evidence: `{json.dumps(h['evidence'])}`")
+    else:
+        L.append("_No new twin hypotheses this run._")
+    return "\n".join(L) + "\n"
+
+
 def render_md(date_et: str, rows: list[dict], hyps: list[dict], *,
              n_positions_found: int = 0, n_no_bars: int = 0) -> str:
     L = [f"# Trade autopsy — {date_et}", ""]
@@ -570,6 +832,50 @@ def main() -> int:
                                              "generated_at": et_now().isoformat()}), encoding="utf-8")
         except OSError:
             pass
+
+    # --- TWIN (mechanism) autopsy -- SEPARATE try/except: a twin failure must never
+    # block the SPY autopsy above (already complete by this point either way), and a
+    # SPY failure above must never skip the twin section. CODE-fix-only lane throughout
+    # (see module docstring's "TWIN (mechanism) SECTION").
+    twin_rows: list[dict] = []
+    new_twin_hyps: list[dict] = []
+    try:
+        twin_closed = load_twin_closed_events(date_et)
+        twin_rows = [{**r, "classification": classify_twin_close(r)} for r in twin_closed]
+
+        TWIN_OUT_DIR.mkdir(parents=True, exist_ok=True)
+        twin_day_file = TWIN_OUT_DIR / f"{date_et}.jsonl"
+        twin_day_file.write_text(
+            "\n".join(json.dumps(r) for r in twin_rows) + ("\n" if twin_rows else ""),
+            encoding="utf-8")
+
+        twin_history = load_recent_twin_rows()
+        new_twin_hyps = detect_twin_hypotheses(twin_history, date_et)
+        new_twin_hyps = dedupe_hypotheses(new_twin_hyps, load_twin_hypothesis_rows(), date_et)
+        write_twin_hypotheses(new_twin_hyps, date_et)  # twin-only lane -- NEVER hypothesis-queue.jsonl
+
+        n_anom = sum(1 for r in twin_rows if not r["classification"]["mechanism_ok"])
+        print(f"[autopsy] TWIN {date_et}: {len(twin_rows)} closed events, {n_anom} mechanism "
+             f"anomaly(ies), {len(new_twin_hyps)} new twin hypotheses -> {twin_day_file.name}")
+    except Exception as e:  # noqa: BLE001 -- twin autopsy must never block the SPY autopsy
+        print(f"[autopsy] TWIN ERROR (fail-open): {e}", file=sys.stderr)
+
+    try:
+        twin_md = render_twin_section_md(date_et, twin_rows, new_twin_hyps)
+        main_md_path = OUT_DIR / f"{date_et}.md"
+        if main_md_path.exists():
+            with main_md_path.open("a", encoding="utf-8") as fh:
+                fh.write(twin_md)
+        else:
+            # The SPY block above failed before writing its own .md -- still surface the
+            # twin section rather than silently dropping it (OP-33/C7: never let one
+            # lane's failure hide the other's data).
+            main_md_path.write_text(f"# Trade autopsy — {date_et}\n\n"
+                                    f"_(SPY section unavailable this run -- see stderr)_\n" + twin_md,
+                                    encoding="utf-8")
+    except Exception as e:  # noqa: BLE001
+        print(f"[autopsy] TWIN section append ERROR (fail-open): {e}", file=sys.stderr)
+
     return 0
 
 
