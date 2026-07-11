@@ -294,14 +294,24 @@ def plan_entry(
         return _hold(arm_id, side, setup, "direction_lock=CALL_ONLY skips a PUT signal")
 
     # A+ gate override (e.g. safe-3)
+    # SAFE3-CONFIDENCE-ALWAYS-BLOCK-FIX (2026-07-11): a `min_confidence` check used to
+    # live here (see git history / accounts.json.bak-2026-06-25-pre-grid) comparing
+    # against blk.get("confidence", signal.get("confidence")) -- but build_shared_signal.py
+    # has NEVER populated a "confidence" field on any signal it emits (see its own
+    # "FAITHFULNESS NOTE (v1)" docstring: "confidence/confluence/est_premium" are
+    # explicitly omitted pending "the pre-LIVE step" that was never built). Any arm
+    # with min_confidence set would therefore ALWAYS read conf=None and ALWAYS HOLD --
+    # a permanent, silent always-block, not real selectivity. GATE-PROVENANCE-AUDIT-
+    # 2026-07-02 finding E5/F6: 4 rows in that window, safe-3 down to 1 trade/30d.
+    # DELETED rather than "fixed forward" because populating a genuine confidence
+    # score would mean inventing/validating a new scoring model tonight (out of scope
+    # for a surgical bug fix) -- and the 2026-06-25 grid rebuild had ALREADY dropped
+    # min_confidence from every live accounts.json arm (confirmed: replay_fleet_arms.py
+    # independently notes this is "moot now"), so removing the dead code changes NO
+    # current trading behavior. Guard: test_min_confidence_gate_removed_and_inert
+    # (test_fleet_executor.py) -- proves even a stale/reintroduced min_confidence key
+    # in gate_override can never again silently starve an arm.
     g = arm.get("gate_override") or {}
-    conf = blk.get("confidence", signal.get("confidence"))
-    min_conf = g.get("min_confidence")
-    if min_conf is not None:
-        if conf is None:
-            return _hold(arm_id, side, setup, f"A+ gate: confidence missing, need >= {min_conf}")
-        if float(conf) < float(min_conf):
-            return _hold(arm_id, side, setup, f"A+ gate: confidence {conf} < {min_conf}")
     triggers = blk.get("triggers_fired", []) or []
     min_trig = g.get("min_triggers")
     if min_trig is not None and len(triggers) < int(min_trig):
@@ -336,17 +346,18 @@ def plan_entry(
 
 
 def _gate_check(arm: Mapping[str, Any], blk: Mapping[str, Any], signal: Mapping[str, Any]) -> Optional[str]:
-    """The arm's SELECTIVITY gate (confidence / triggers / quality). Returns None to pass,
+    """The arm's SELECTIVITY gate (triggers / quality). Returns None to pass,
     else a short reason. This is the account's ONLY job besides sizing — it adds strictness,
-    never a direction lock or a strategy choice."""
+    never a direction lock or a strategy choice.
+
+    SAFE3-CONFIDENCE-ALWAYS-BLOCK-FIX (2026-07-11): a `min_confidence` check used to
+    live here too -- removed for the same reason as plan_entry's (see the comment
+    there): build_shared_signal.py never populates "confidence" on any signal, so the
+    check could only ever always-HOLD, never genuinely gate. `signal` is kept as a
+    parameter (now otherwise unused) to avoid touching its two call sites for a
+    behavior-preserving cleanup that isn't part of this bug fix.
+    """
     g = arm.get("gate_override") or {}
-    conf = blk.get("confidence", signal.get("confidence"))
-    min_conf = g.get("min_confidence")
-    if min_conf is not None:
-        if conf is None:
-            return f"confidence missing, need >= {min_conf}"
-        if float(conf) < float(min_conf):
-            return f"confidence {conf} < {min_conf}"
     min_trig = g.get("min_triggers")
     triggers = blk.get("triggers_fired", []) or []
     if min_trig is not None and len(triggers) < int(min_trig):

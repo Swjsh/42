@@ -18,7 +18,12 @@ import fleet_executor as fx
 SAFE_CONTROL = {"id": "safe-1", "status": "active", "strike_tier_table": "safe"}
 APLUS = {
     "id": "safe-3", "status": "active", "strike_tier_table": "safe",
-    "gate_override": {"min_confidence": 0.65, "min_setup_quality": "EXCELLENT",
+    # SAFE3-CONFIDENCE-ALWAYS-BLOCK-FIX (2026-07-11): min_confidence:0.65 REMOVED from
+    # this fixture -- fleet_executor.py's confidence check was deleted (build_shared_
+    # signal.py never populated "confidence", so it could only ever always-HOLD; see
+    # the fix comment in plan_entry/_gate_check). min_triggers + require_confluence_
+    # or_sequence + min_setup_quality still make this arm the tight/selective one.
+    "gate_override": {"min_setup_quality": "EXCELLENT",
                       "min_triggers": 2, "require_confluence_or_sequence": True},
 }
 PUTS_ONLY = {"id": "risky-1", "status": "active", "strike_tier_table": "bold",
@@ -104,8 +109,11 @@ def test_control_takes_clean_bear():
 
 
 def test_aplus_holds_marginal():
+    # SAFE3-CONFIDENCE-ALWAYS-BLOCK-FIX: BEAR_MARGINAL is marginal on triggers (1) AND
+    # confluence (False) AND the now-unused confidence field (0.55) -- the arm still
+    # correctly HOLDs, now via the triggers criterion (was via confidence pre-fix).
     plan = fx.plan_entry(APLUS, BEAR_MARGINAL, 2000.0, SAFE_PARAMS)
-    assert plan.action == "HOLD" and "confidence" in plan.reason
+    assert plan.action == "HOLD" and "triggers" in plan.reason
 
 
 def test_aplus_takes_excellent():
@@ -221,7 +229,7 @@ def test_safe_loose_takes_one_trigger():
 
 
 def test_safe3_tight_holds_one_trigger():
-    """safe-3 needs >=2 triggers AND EXCELLENT AND confidence -> holds the 1-trigger setup."""
+    """safe-3 needs >=2 triggers AND EXCELLENT -> holds the 1-trigger setup."""
     plan = fx.plan_entry(APLUS, BEAR_ONE_TRIGGER, 2000.0, SAFE_PARAMS)
     assert plan.action == "HOLD"
 
@@ -319,6 +327,45 @@ def test_chosen_side_no_arm_is_v1_top_level():
     """_chosen_side(signal) with no arm reads top-level bear/bull (v1 byte-identical)."""
     assert fx._chosen_side(BEAR_APLUS)[0] == "P"
     assert fx._chosen_side(NO_SETUP)[0] is None
+
+
+# --- SAFE3-CONFIDENCE-ALWAYS-BLOCK-FIX guard (GATE-PROVENANCE-AUDIT-2026-07-02 E5/F6) ---
+def test_min_confidence_gate_removed_and_inert():
+    """build_shared_signal.py has NEVER populated a "confidence" field on any signal it
+    emits (its own FAITHFULNESS NOTE docstring says so explicitly). A min_confidence
+    gate could therefore only ever read conf=None and always-HOLD -- not real
+    selectivity, a silent permanent starve (safe-3 was down to 1 trade/30d). The check
+    was DELETED from plan_entry and _gate_check rather than "fixed forward" (populating
+    a genuine confidence score needs a validated model, out of scope for a surgical
+    fix). This guard proves a stale/reintroduced min_confidence key (e.g. restored from
+    accounts.json.bak-2026-06-25-pre-grid, which DOES still carry it) can never again
+    silently starve an arm, AND that the mechanism is structurally gone, not just
+    coincidentally unreachable."""
+    stale_gate_arm = {
+        "id": "safe-3", "status": "active", "strike_tier_table": "safe",
+        "gate_override": {"min_confidence": 0.65, "min_triggers": 2,
+                          "require_confluence_or_sequence": True},
+    }
+    # A signal shaped exactly like build_shared_signal.py's real output: every OTHER
+    # A+ criterion (triggers, confluence) satisfied, but NO "confidence" key anywhere
+    # (top-level or side-block) -- the true production shape, not a hostile fixture.
+    confidence_free_signal = json.loads(json.dumps(BEAR_APLUS))  # deep copy
+    del confidence_free_signal["bear"]["confidence"]
+    assert "confidence" not in confidence_free_signal["bear"]
+    assert "confidence" not in confidence_free_signal
+    plan = fx.plan_entry(stale_gate_arm, confidence_free_signal, 2000.0, SAFE_PARAMS)
+    assert plan.action == "ENTER", (
+        f"REGRESSION: a stale min_confidence key starved the arm again (reason: {plan.reason!r})"
+    )
+    # same proof against the multi-strategy gate path (_gate_check, feeds plan_all)
+    reason = fx._gate_check(stale_gate_arm, confidence_free_signal["bear"], confidence_free_signal)
+    assert reason is None, f"REGRESSION: _gate_check still blocks on confidence (reason: {reason!r})"
+    # structural belt-and-suspenders: the read is gone from the source, not merely
+    # unreachable today -- a future edit can't quietly resurrect it in a form this
+    # black-box behavioral check wouldn't happen to exercise.
+    import inspect
+    assert 'g.get("min_confidence")' not in inspect.getsource(fx.plan_entry)
+    assert 'g.get("min_confidence")' not in inspect.getsource(fx._gate_check)
 
 
 if __name__ == "__main__":
