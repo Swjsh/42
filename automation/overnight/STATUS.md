@@ -1,4 +1,4 @@
-## [2026-07-09] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-02..2026-07-08), real OPRA fills, floor n>=10
+## [2026-07-10] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-02..2026-07-08), real OPRA fills, floor n>=10
 
 > **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-08). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
 > - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
@@ -29,6 +29,8 @@
 **Night-watch honesty ledger (mine):** wrong autopsy diagnosis (crew corrected with evidence), buggy first funnel watcher (fired instantly, premature phase5 → quarantined), completeness stamp measured one layer of two (hardened to `input_complete`). All three caught same-session because outputs were checked, not trusted.
 
 **J-owed:** cross-ticker brainstorm → `markdown/planning/CROSS-TICKER-BRAINSTORM-2026-07-10.md` (written tonight, verdict inside).
+
+- 2026-07-11 ~09:47 ET [build, market CLOSED Saturday] **SHIPPED the BROKER CANARY — the 24/7 crypto twin's own Alpaca API calls now feed the 08:25 ET pre-open readiness gate** (`markdown/planning/TWIN-PROGRAM.md`). NEW files only — `crypto_twin_core.py`/`crypto_twin_health.py` untouched (another crew owns those this session, confirmed via `git diff --stat` showing 195 uncommitted insertions already in `crypto_twin_core.py` before this build touched anything). `setup/scripts/broker_canary.py` (library + tiny CLI, $0, piggybacks ONE unauthenticated crypto-bars request (limit=1, `creds={}` forces no auth header) + ONE authenticated `GET /v2/account` when the twin's dedicated account is configured — reuses `crypto_twin_broker`'s own already-tested HTTP client, adds zero new client code): `record_observation()` appends to a size-capped rolling `automation/state/broker-canary.jsonl` (~2000 rows, trimmed on exceed); `assess()` computes `{verdict,p50_latency_ms,error_rate_1h,auth_ok,last_ok_et,detail}` (YELLOW: p50 > 2x trailing-24h median OR any auth failure in the last hour; RED: >=3 consecutive failures OR auth dead > 15m) and writes the glance `automation/state/broker-canary.json`; `probe()` IS the one-line hookup — calling it alone runs both legs AND refreshes the glance file, nothing else to wire. `setup/scripts/preopen_readiness.py` gained a new `broker_canary` check (`assess_broker_canary`/`fetch_broker_canary`, wired into `build_report`/`main`): a RED canary REDs the fused pre-open verdict (the actual payoff — an Alpaca outage surfaces hours before the 09:30 open instead of at it); a missing/stale (>60min) canary file degrades to non-critical INFO, never RED — deliberately the OPPOSITE fail-direction from the other preopen checks (which fail TOWARD red), because the canary is a piggybacked enhancer riding on the twin, never a new single point of failure for the live chain. **LIVE-VERIFIED for real, not simulated:** bars leg 160.2ms ok (BTC $64,196.5575), account leg 128.6ms ok (twin's dedicated paper account, `status=ACTIVE`), `assess()` → GREEN, `n_observations=2` — both real rows + the glance json are committed state (`automation/state/broker-canary.jsonl`/`.json`). **NO scheduled task registered** (checked for `Gamma_TwinSentinel` first — zero hits repo-wide via grep, so per the build's HARD RULES this ships as a library, not a new task/sprawl) — the one-line hookup (`broker_canary.probe()`) is queued in `queue.md` → `BROKER-CANARY-SENTINEL-HOOKUP` for whichever tick already owns the twin's 24/7 cadence (`Gamma_CryptoTwin` today). **TESTS (all quoted, all green):** new `backtest/tests/test_broker_canary.py` **38/38** (rolling-cap trim + exact-boundary-no-trim; probe() forces `creds={}` + `limit=1`, skips the auth leg with zero phantom rows when no twin account is configured, fail-open on EITHER leg's exception, exactly ONE authenticated call per probe — not two via `get_twin_creds(verify_crypto_status=False)`; assess() verdict rules bite-tested per rule: latency-spike YELLOW + no-baseline-skips-the-rule, auth-failure-in-1h YELLOW, 3-consecutive RED + 2-consecutive-boundary stays GREEN + streak-resets-on-recovery, auth-dead>15m RED + <15m stays YELLOW (the escalation ladder) + never-configured stays GREEN, RED-overrides-YELLOW-both-reasons-disclosed, error_rate_1h/last_ok_et/auth_ok field bites, never-raises-on-malformed-rows (a real latent `auth_rows[-1]["ok"]` KeyError bug caught + fixed to `.get("ok")` before shipping), CLI `--assess-only` never calls `probe()`). `backtest/tests/test_preopen_readiness.py` **59/59** (was 42 — +17 new: INFO-not-RED on missing/empty/unrecognized canary verdict with a non-vacuous `fuse()` check, RED/YELLOW/GREEN verdict mapping, fetch fail-open on missing/malformed/no-timestamp file, staleness-window boundary bites just-inside/just-outside `CANARY_MAX_AGE_MIN`, `build_report` end-to-end: RED canary REDs the fused verdict, absent/`None` canary never REDs alone, a healthy canary never masks an unrelated real RED elsewhere). Zero regressions on the other crew's own suite (`test_crypto_twin_broker.py`/`test_crypto_twin_health.py`/`test_crypto_twin_reaper_exemption.py`/`test_crypto_twin_soak_report.py`/`test_firm_brief_twin_section.py`, 106/106 combined incl. their 2 pre-existing in-flight FAILs in `test_crypto_twin_core.py`, confirmed not caused by this build and left untouched per the hard rule not to edit that file). Curated safety gate: **PASS** (31 + 5 suites green). REVERT: delete `setup/scripts/broker_canary.py` + the additive-only `broker_canary` block in `preopen_readiness.py` (new constants + 2 new functions + one extra `build_report`/`main` arg — `git revert` restores byte-identical) + the 2 new `automation/state/broker-canary.*` files; the queue.md hookup note is inert until someone adds the one line.
 
 - 2026-07-10 ~21:44 ET [J requirement, crypto twin T3] **SHIPPED T3 — Gamma_CryptoTwin REGISTERED (every 5 min, 24/7, reaper-exempt) + full OP-33c visibility stack; soak data now accruing tonight even though T2's order path is still the disclosed `BLOCKED_NO_ACCOUNT` no-op.** New: `setup/scripts/crypto_twin_health.py` (thin wrapper AROUND `crypto_twin_core.run_tick()` — T1/T2's tested 40/40 surface is imported, never edited — catches ANY exception so a genuine network/HTTP failure, which `crypto_twin_broker` deliberately fail-louds on, can never silently vanish under pythonw's discarded stderr; logs a `TICK_ERROR` decision row + always writes the health/soak snapshots regardless of tick outcome) + `setup/scripts/crypto_twin_soak_report.py` (T4's Sunday reader: tick count, uptime estimate, action distribution, recent errors, from `soak-log.jsonl` + `decisions.jsonl`) + `setup/scripts/install-crypto-twin.ps1`. **REAPER EXEMPTION VERIFIED, not assumed** (this class of bug has silently killed grinds here before): launched via `backtest\.venv\Scripts\pythonw.exe`, not system python — `pythonw.exe` sits outside `Stop-StaleClaudeProcesses`'s `Win32_Process` Name filter entirely (`Name='claude.exe' OR 'node.exe' OR 'python.exe' OR 'uv.exe' OR 'uvx.exe'`, confirmed by reading the live source), so the twin's process is never even fetched by the reaper's query — PLUS the `backtest\.venv` path substring independently matches an existing `$EXEMPT_DAEMONS` entry as defense in depth. **REGISTERED + VERIFIED LIVE THIS SESSION:** `Get-ScheduledTask` → `State=Ready`, real command line confirmed (`wscript.exe //nologo run_exe_hidden.vbs backtest\.venv\Scripts\pythonw.exe crypto_twin_health.py --live`), trigger `PT5M` / `P3650D` (5 min, 10-year repetition — not the one-time-trigger foot-gun). `Start-ScheduledTask` fired manually: `decisions.jsonl` went 6→7 real rows (new row `ts_et 2026-07-10T21:43:18`, real BTC $64,017.995, `armed:true`), `automation/state/twin-health.json` created for the first time (`ticks_today:7, last_action:HOLD, breaker_tripped:false, account_status:BLOCKED_NO_ACCOUNT, n_orders_lifetime:0, last_error:null`), `soak-log.jsonl` + `soak-watermark.json` created with a correct first hourly rollup. `NextRunTime` recalculated to +5 min post-fire (not dark). Visibility: ONE `TWIN:` line folded into the existing `firm_brief.py` generator (fail-open, reads `twin-health.json`, zero new report surface) — `render_twin_lines()`. **TESTS (quoted, all green):** `test_crypto_twin_health.py` 25/25 (ticks/orders counters, account_status, health-json schema + fail-open, soak-row watermarking incl. restart-survival + multi-hour-gap-is-one-row-not-a-backfill-loop, the error-capture wrapper never raising) + `test_crypto_twin_reaper_exemption.py` 14/14 (static, parses the REAL `_shared.ps1`/`install-crypto-twin.ps1` source — no live Windows calls) + `test_crypto_twin_soak_report.py` 15/15 + `test_firm_brief_twin_section.py` 9/9 = **63/63 new**, zero regressions on `test_crypto_twin_core.py`+`test_crypto_twin_broker.py` (40/40 unchanged) or the 20 other `firm_brief`-keyword tests. Curated safety gate: PASS (31 + 5 suites). **J-OWED (unchanged blocker, not new):** T2 still needs ONE more dedicated Alpaca paper account — drop `key`/`secret` into `automation/state/crypto-twin/secrets.json` (gitignored; template = `secrets.json.example` in the same dir) — zero code changes needed, the very next 5-min tick starts placing real crypto paper orders. REVERT: `Unregister-ScheduledTask Gamma_CryptoTwin` (or `install-crypto-twin.ps1 -Uninstall`) + delete the 3 new files; `firm_brief.py`/`SCHEDULED-TASKS.md` edits are additive-only (git revert restores byte-identical).
 - 2026-07-10 ~21:10 ET [J requirement, crypto twin T1+T2] **SHIPPED the CRYPTO TWIN — 24/7 mechanism-validation training ground for BTC/USD on Alpaca crypto paper** (`markdown/planning/CRYPTO-TWIN-TRAINING-GROUND.md`, J verbatim: "get an MCP that trades crypto and just replicate the engine there... I can't keep fixing four things and waiting for the next day"). NEW namespace only: `setup/scripts/crypto_twin_{core,broker,levels,signal}.py` (~1,230 lines) + `automation/state/crypto-twin/` — zero writes outside it (static AST guard + runtime `_assert_twin_namespace`), zero edits to `heartbeat_core.py` (another crew owns its stale-trigger fix tonight) or any SPY/fleet state.
@@ -352,7 +354,7 @@ MECHANISM (flag-gated, default = exactly what ships): (1) `build_shared_signal.p
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 42 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 44 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -2607,3 +2609,141 @@ Kitchen: alive, queue 42 pending, last cook 0 min ago, today $0.00, model=openro
 - FILL-FUNNEL PLACEMENT BROKEN[fleet:risky-3]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
 - FILL-FUNNEL PLACEMENT BROKEN[fleet:safe-1]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
 - FILL-FUNNEL PLACEMENT BROKEN[fleet:safe-3]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+
+- [2026-07-10 19:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T01:57:03.738200+00:00) | fail streak: 347 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-10 19:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-10.log
+
+### BROKEN: self-check 2026-07-10T22:09:56
+- FILL-FUNNEL PLACEMENT BROKEN[fleet:risky-1]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[fleet:risky-3]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[fleet:safe-1]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[fleet:safe-3]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+
+- [2026-07-10 20:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T02:27:03.571919+00:00) | fail streak: 348 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-10 20:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-10.log
+
+### BROKEN: self-check 2026-07-10T22:39:56
+- FILL-FUNNEL PLACEMENT BROKEN[fleet:risky-1]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[fleet:risky-3]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[fleet:safe-1]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[fleet:safe-3]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+
+- [2026-07-10 20:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T02:57:03.155037+00:00) | fail streak: 349 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-10 20:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-10.log
+
+### BROKEN: self-check 2026-07-10T23:09:56
+- FILL-FUNNEL PLACEMENT BROKEN[fleet:risky-1]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[fleet:risky-3]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[fleet:safe-1]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[fleet:safe-3]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+
+- [2026-07-10 21:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T03:27:03.329155+00:00) | fail streak: 350 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-10 21:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-10.log
+
+### WARN: spend-summary threshold breach
+- ts: 2026-07-11T03:30:37+00:00
+- date_et: 2026-07-10
+- total: $117.90 (threshold $30.00)
+- claude: $117.86  minimax: $0.04
+- claude_sessions: 8
+
+### BROKEN: self-check 2026-07-10T23:39:56
+- FILL-FUNNEL PLACEMENT BROKEN[fleet:risky-1]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[fleet:risky-3]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[fleet:safe-1]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+- FILL-FUNNEL PLACEMENT BROKEN[fleet:safe-3]: 1 ENTER, 1 attempted, 0 broker-accepted. Reasons: 1x no broker response recorded
+
+- [2026-07-10 21:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T03:57:03.038984+00:00) | fail streak: 351 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-10 21:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-10.log
+
+- [2026-07-10 22:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T04:27:03.638534+00:00) | fail streak: 352 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-10 22:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-10.log
+
+- [2026-07-10 22:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T04:57:03.283154+00:00) | fail streak: 353 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-10 22:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-10.log
+
+- [2026-07-10 23:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T05:27:03.644799+00:00) | fail streak: 354 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-10 23:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-10.log
+
+- [2026-07-10 23:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T05:57:03.043894+00:00) | fail streak: 355 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-10 23:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-10.log
+
+- [2026-07-11 00:27:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T06:27:03.336045+00:00) | fail streak: 356 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-11 00:27:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-11.log
+
+- [2026-07-11 00:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T06:57:03.391017+00:00) | fail streak: 357 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-11 00:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-11.log
+
+- [2026-07-11 01:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T07:27:03.351756+00:00) | fail streak: 358 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-11 01:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-11.log
+
+- [2026-07-11 01:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T07:57:03.043187+00:00) | fail streak: 359 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-11 01:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-11.log
+
+- [2026-07-11 02:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T08:27:03.498470+00:00) | fail streak: 360 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-11 02:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-11.log
+
+- [2026-07-11 02:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T08:57:03.399852+00:00) | fail streak: 361 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-11 02:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-11.log
+
+- [2026-07-11 03:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T09:27:03.407304+00:00) | fail streak: 362 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 93.75% in last 24h (45/48) | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-11 03:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-11.log
+
+- [2026-07-11 03:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T09:57:03.217464+00:00) | fail streak: 363 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 91.67% in last 24h (44/48) | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-11 03:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-11.log
+
+- [2026-07-11 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-07-11 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-11.md
+
+- [2026-07-11 04:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T10:27:03.490218+00:00) | fail streak: 364 consecutive fires | stage v02_source_parity pass rate dropped to 77.08% in last 24h (37/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 89.58% in last 24h (43/48) | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-11 04:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-11.log
+
+- [2026-07-11 04:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T10:57:03.107665+00:00) | fail streak: 365 consecutive fires | stage v02_source_parity pass rate dropped to 79.17% in last 24h (38/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.5% in last 24h (42/48) | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-11 04:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-11.log
+
+- [2026-07-11 05:27:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T11:27:03.428733+00:00) | fail streak: 366 consecutive fires | stage v02_source_parity pass rate dropped to 81.25% in last 24h (39/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.5% in last 24h (42/48) | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-11 05:27:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-11.log
+
+- [2026-07-11 05:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T11:57:03.074257+00:00) | fail streak: 367 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.5% in last 24h (42/48) | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-11 05:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-11.log
+
+- [2026-07-11 06:27:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T12:27:03.341118+00:00) | fail streak: 368 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.5% in last 24h (42/48) | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-11 06:27:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-11.log
+
+- [2026-07-11 06:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T12:57:03.501059+00:00) | fail streak: 369 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.5% in last 24h (42/48) | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-11 06:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-11.log
+
+### DEGRADED: self-check 2026-07-11T09:09:56
+- BROKER account safe-2 status=ACCOUNT_CLOSED (not ACTIVE) -- trades may be blocked.
+
+- [2026-07-11 07:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-11T13:27:03.634071+00:00) | fail streak: 370 consecutive fires | stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.5% in last 24h (42/48) | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+- [2026-07-11 09:47 ET] coach: RED→GREEN — root cause: v53_setup_dispatch.live's `_KNOWN_SETUP_NAMES` allowlist (crypto/validators/v53_setup_dispatch.py) never updated when `double_bottom_base_quiet` (07-01) and `bollinger_squeeze` (07-02) setups were wired into setup_dispatch.py — deterministic `names_ok=False` on every live fire since 2026-07-02 (confirmed via `python crypto/validators/v53_setup_dispatch.py`: `names_ok: false`, both unrecognized names present in results). NOT caused by tonight's Safe-2-deletion/crypto-account churn — STATUS.md shows v53 already at 0.0%/48 as of 2026-07-02 15:xx, 9 days before tonight's account work; no shared credential/account-status path touched. Fix: added both names to the allowlist. Verified fresh: `python crypto/validators/runner.py` → `SUMMARY: passed=104/104 overall_pass=True`; `python crypto/benchmarks/track_drift.py` → `CONSECUTIVE FAIL STREAK: 0`. v02_source_parity (83.33%, self-diagnosed single-provider artifact, v15 3-source=100%) and v12_multi_timeframe.live (87.5%) are separate pre-existing rolling-window degradations, NOT explained by this fix — logged as CRYPTO-GYM-V02-V12-FOLLOWUP (MED) in queue.md, not chased tonight. 24h drift-window numbers will self-heal as pre-fix history ages out over the next 24h even though the fix is already live.
+
+- [2026-07-11 07:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-11.log
+
+### BROKEN: self-check 2026-07-11T09:39:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).

@@ -20,6 +20,9 @@ por = importlib.util.module_from_spec(_spec)
 sys.modules["preopen_readiness"] = por  # needed for @dataclass(frozen=True) resolution
 _spec.loader.exec_module(por)  # type: ignore
 
+sys.path.insert(0, str(_SCRIPT.parent))
+from et_clock import et_now as _et_now  # noqa: E402 -- real ET clock, for fresh/stale canary fixtures
+
 
 # ---- the load-bearing anti-staleness ratchet ----
 
@@ -159,8 +162,9 @@ def test_build_report_shape_green():
     assert rep["verdict"] == "GREEN"
     assert rep["reds"] == []
     assert rep["checked_at_et"] == "2026-06-29 05:48:00"
-    # + broker + tv_cdp + one eod_reality check per EOD_FLATTEN_REALITY_TASKS
-    assert len(rep["checks"]) == len(por.LIVE_CHAIN) + 2 + len(por.EOD_FLATTEN_REALITY_TASKS)
+    # + broker + tv_cdp + one eod_reality check per EOD_FLATTEN_REALITY_TASKS + broker_canary
+    # (broker_canary defaults to INFO with no 6th arg -- see test_build_report_defaults_canary_to_info_not_red)
+    assert len(rep["checks"]) == len(por.LIVE_CHAIN) + 2 + len(por.EOD_FLATTEN_REALITY_TASKS) + 1
 
 
 def test_build_report_reds_listed():
@@ -452,3 +456,152 @@ def test_fetch_eod_flatten_reality_drops_stale_entries(tmp_path, monkeypatch):
     )
     out = por.fetch_eod_flatten_reality()
     assert "Gamma_EodFlatten" not in out
+
+
+# ---- assess_broker_canary / fetch_broker_canary (2026-07-11, the broker-canary check) ----
+# Payoff bite: the 24/7 crypto twin's canary observations must be able to RED the
+# pre-open verdict when Alpaca is genuinely degraded, but a missing/stale canary file
+# (not yet wired, or quiet) must NEVER be able to gate the live chain on its own -- the
+# opposite fail-direction from assess_tv_cdp/assess_eod_flatten_reality, deliberately.
+
+def test_canary_missing_is_info_not_red():
+    checks = por.assess_broker_canary(None)
+    assert len(checks) == 1
+    assert checks[0].name == "broker_canary"
+    assert checks[0].status == "INFO"
+    assert checks[0].critical is False
+    # non-vacuous: INFO must not be RED/YELLOW, or fuse() would wrongly degrade a
+    # perfectly healthy pre-open just because the canary hasn't been wired up yet.
+    assert por.fuse(checks) == "GREEN"
+
+
+def test_canary_empty_dict_is_also_info_not_red():
+    # {} is falsy too (e.g. a canary file that parsed but carried no fields) -- must
+    # hit the same fail-open branch as None, not crash on a missing .get() key.
+    checks = por.assess_broker_canary({})
+    assert checks[0].status == "INFO" and checks[0].critical is False
+
+
+def test_canary_red_verdict_is_critical_red():
+    info = {"verdict": "RED", "detail": "3 consecutive probe failures", "last_ok_et": "2026-07-11T05:00:00"}
+    checks = por.assess_broker_canary(info)
+    assert checks[0].status == "RED" and checks[0].critical is True
+    assert "3 consecutive probe failures" in checks[0].detail
+    assert "2026-07-11T05:00:00" in checks[0].detail
+    assert por.fuse(checks) == "RED"
+
+
+def test_canary_yellow_verdict_is_noncritical_yellow():
+    info = {"verdict": "YELLOW", "detail": "auth failure within last hour", "last_ok_et": "2026-07-11T07:00:00"}
+    checks = por.assess_broker_canary(info)
+    assert checks[0].status == "YELLOW" and checks[0].critical is False
+    assert por.fuse(checks) == "YELLOW"
+
+
+def test_canary_green_verdict_is_green():
+    info = {"verdict": "GREEN", "detail": "nominal", "last_ok_et": "2026-07-11T08:00:00"}
+    checks = por.assess_broker_canary(info)
+    assert checks[0].status == "GREEN"
+    assert por.fuse(checks) == "GREEN"
+
+
+def test_canary_unrecognized_verdict_fails_open_to_info():
+    # A malformed/future/typo'd verdict string must never accidentally read as RED/YELLOW.
+    checks = por.assess_broker_canary({"verdict": "WAT", "detail": "??"})
+    assert checks[0].status == "INFO" and checks[0].critical is False
+    assert por.fuse(checks) == "GREEN"
+
+
+def test_fetch_broker_canary_missing_file_returns_none(tmp_path, monkeypatch):
+    monkeypatch.setattr(por, "CANARY_PATH", tmp_path / "does-not-exist.json")
+    assert por.fetch_broker_canary() is None
+
+
+def test_fetch_broker_canary_malformed_json_fail_open(tmp_path, monkeypatch):
+    p = tmp_path / "broker-canary.json"
+    p.write_text("{not valid json", encoding="utf-8")
+    monkeypatch.setattr(por, "CANARY_PATH", p)
+    assert por.fetch_broker_canary() is None
+
+
+def test_fetch_broker_canary_missing_timestamp_fail_open(tmp_path, monkeypatch):
+    p = tmp_path / "broker-canary.json"
+    p.write_text(json.dumps({"verdict": "GREEN"}), encoding="utf-8")  # no assessed_at_et
+    monkeypatch.setattr(por, "CANARY_PATH", p)
+    assert por.fetch_broker_canary() is None
+
+
+def test_fetch_broker_canary_fresh_file_returns_data(tmp_path, monkeypatch):
+    p = tmp_path / "broker-canary.json"
+    fresh = _et_now().isoformat()  # real ET clock -- mirrors production, not raw local time (TZ-systemic)
+    p.write_text(json.dumps({"verdict": "GREEN", "detail": "nominal", "assessed_at_et": fresh}), encoding="utf-8")
+    monkeypatch.setattr(por, "CANARY_PATH", p)
+    data = por.fetch_broker_canary()
+    assert data is not None
+    assert data["verdict"] == "GREEN"
+
+
+def test_fetch_broker_canary_stale_file_returns_none(tmp_path, monkeypatch):
+    # Bite: prove CANARY_MAX_AGE_MIN actually bites -- a timestamp far older than the
+    # window must be dropped, not credited as fresh.
+    p = tmp_path / "broker-canary.json"
+    p.write_text(
+        json.dumps({"verdict": "RED", "detail": "old outage", "assessed_at_et": "2020-01-01T00:00:00"}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(por, "CANARY_PATH", p)
+    assert por.fetch_broker_canary() is None
+
+
+def test_fetch_broker_canary_just_inside_window_is_fresh(tmp_path, monkeypatch):
+    from datetime import timedelta
+    p = tmp_path / "broker-canary.json"
+    ts = (_et_now() - timedelta(minutes=por.CANARY_MAX_AGE_MIN - 5)).isoformat()
+    p.write_text(json.dumps({"verdict": "YELLOW", "detail": "x", "assessed_at_et": ts}), encoding="utf-8")
+    monkeypatch.setattr(por, "CANARY_PATH", p)
+    assert por.fetch_broker_canary() is not None
+
+
+def test_fetch_broker_canary_just_outside_window_is_stale(tmp_path, monkeypatch):
+    from datetime import timedelta
+    p = tmp_path / "broker-canary.json"
+    ts = (_et_now() - timedelta(minutes=por.CANARY_MAX_AGE_MIN + 5)).isoformat()
+    p.write_text(json.dumps({"verdict": "YELLOW", "detail": "x", "assessed_at_et": ts}), encoding="utf-8")
+    monkeypatch.setattr(por, "CANARY_PATH", p)
+    assert por.fetch_broker_canary() is None
+
+
+# ---- build_report integration: the actual payoff (RED canary -> preopen RED) ----
+
+def test_build_report_red_canary_reds_the_verdict_end_to_end():
+    """The payoff: everything else is perfectly healthy, ONLY the canary is RED -- the
+    fused pre-open verdict must still go RED and name broker_canary in reds[]."""
+    canary = {"verdict": "RED", "detail": "auth dead 22m (> 15m)", "last_ok_et": "2026-07-11T04:00:00"}
+    rep = por.build_report("t", _all_ready(), _good_acct(), _cdp_up(), _good_eod_sources(), canary)
+    assert rep["verdict"] == "RED"
+    assert "broker_canary" in rep["reds"]
+
+
+def test_build_report_absent_canary_never_reds_alone():
+    """Bite for the exact HARD RULE: 'missing/stale canary file = INFO not RED'. No 6th
+    arg at all (the real main() shape before a canary file ever exists) -- verdict must
+    stay GREEN, not RED, when every other check is healthy."""
+    rep = por.build_report("t", _all_ready(), _good_acct(), _cdp_up(), _good_eod_sources())
+    assert rep["verdict"] == "GREEN"
+    assert "broker_canary" not in rep["reds"]
+
+
+def test_build_report_none_canary_explicit_never_reds_alone():
+    rep = por.build_report("t", _all_ready(), _good_acct(), _cdp_up(), _good_eod_sources(), None)
+    assert rep["verdict"] == "GREEN"
+    assert "broker_canary" not in rep["reds"]
+
+
+def test_build_report_canary_never_masks_a_real_unrelated_red():
+    """A healthy canary must not somehow paper over a genuine engine RED elsewhere."""
+    states = _all_ready()
+    del states["Gamma_HeartbeatCore"]
+    canary = {"verdict": "GREEN", "detail": "nominal"}
+    rep = por.build_report("t", states, _good_acct(), _cdp_up(), _good_eod_sources(), canary)
+    assert rep["verdict"] == "RED"
+    assert "Gamma_HeartbeatCore" in rep["reds"]

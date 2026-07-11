@@ -1,0 +1,10 @@
+{
+  "verdict": "GREEN",
+  "p50_latency_ms": 144.4,
+  "error_rate_1h": 0.0,
+  "auth_ok": true,
+  "last_ok_et": "2026-07-11T09:46:08.345811",
+  "detail": "nominal",
+  "assessed_at_et": "2026-07-11T09:46:08.345811",
+  "n_observations": 2
+}

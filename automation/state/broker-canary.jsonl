@@ -1,0 +1,2 @@
+{"ts_et": "2026-07-11T09:46:08.345811", "ts_utc": "2026-07-11T13:46:08.345828+00:00", "kind": "crypto_bars_unauth", "latency_ms": 160.2, "ok": true, "detail": "1 bar(s), last close=64196.5575"}
+{"ts_et": "2026-07-11T09:46:08.345811", "ts_utc": "2026-07-11T13:46:08.345828+00:00", "kind": "account_auth", "latency_ms": 128.6, "ok": true, "detail": "status=ACTIVE"}

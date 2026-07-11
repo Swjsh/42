@@ -76,6 +76,17 @@ EOD_FLATTEN_REALITY_TASKS = ("Gamma_EodFlatten", "Gamma_EodFlatten_Aggressive", 
 EOD_FLATTEN_MAX_AGE_DAYS = 6  # tolerate a long weekend/holiday gap before flagging "no fire"
 GOOD_EOD_OUTCOMES = {"NOOP", "SUCCESS", "DRY_RUN"}  # eod_flatten.py's per-arm outcome vocabulary
 
+# --- broker canary (2026-07-11, markdown/planning/TWIN-PROGRAM.md) -----------------------
+# The 24/7 crypto twin observes Alpaca API health (latency/auth/error-rate) hours before
+# the SPY 09:30 open would discover a problem -- see setup/scripts/broker_canary.py. This
+# is the ONE genuinely NEW piece of information the pre-open gate gains from it: a broker
+# outage surfaces at 08:25 ET instead of at the open. CANARY_MAX_AGE_MIN is generous
+# relative to the canary's ~5min piggyback cadence (once wired into a scheduled tick --
+# see queue.md) so a single missed fire, or the hookup simply not being wired yet, never
+# produces a false alarm -- see assess_broker_canary()'s fail-open design below.
+CANARY_PATH = REPO_ROOT / "automation" / "state" / "broker-canary.json"
+CANARY_MAX_AGE_MIN = 60
+
 
 @dataclass(frozen=True)
 class Check:
@@ -184,6 +195,43 @@ def assess_eod_flatten_reality(sources: dict) -> list[Check]:
                     True,
                 ))
     return checks
+
+
+def assess_broker_canary(canary_info: Optional[dict]) -> list[Check]:
+    """PURE. canary_info = the parsed broker-canary.json dict (broker_canary.assess()'s
+    output), or None when missing/stale -- fetch_broker_canary() already applies the
+    staleness gate, so by the time this function sees None it genuinely means "no fresh
+    canary data" (not yet wired, or the twin/canary machinery has stopped firing).
+
+    DELIBERATELY FAIL-OPEN on absence -- the opposite convention from assess_tv_cdp /
+    assess_eod_flatten_reality (which fail TOWARD red on missing evidence, because those
+    ARE the live trading chain). The canary is a piggybacked ENHANCER riding on the 24/7
+    crypto twin (TWIN-PROGRAM.md) -- an optional, additive signal -- so a missing/stale
+    canary must NEVER be able to gate the live chain on its own: it degrades to
+    non-critical "INFO", which fuse() treats as neutral (matches neither its RED nor
+    YELLOW branch, so it can never move the fused verdict). A canary-reported RED (the
+    twin's own overnight observations show the broker/API genuinely degraded) DOES
+    propagate as a critical RED -- that IS the entire point of building this: surface an
+    Alpaca outage hours before the 09:30 open would otherwise discover it.
+    """
+    if not canary_info:
+        return [Check("broker_canary", "INFO",
+                      "no fresh canary data (not yet wired into a scheduled tick, or quiet) "
+                      "-- fail-open, never blocks pre-open", False)]
+    verdict = str(canary_info.get("verdict", "")).upper()
+    detail = canary_info.get("detail", "")
+    last_ok = canary_info.get("last_ok_et") or "unknown"
+    if verdict == "RED":
+        return [Check("broker_canary", "RED",
+                      f"Alpaca API degraded overnight per twin canary: {detail} (last_ok_et={last_ok})",
+                      True)]
+    if verdict == "YELLOW":
+        return [Check("broker_canary", "YELLOW",
+                      f"twin canary degraded: {detail} (last_ok_et={last_ok})", False)]
+    if verdict == "GREEN":
+        return [Check("broker_canary", "GREEN", f"twin canary nominal: {detail}", False)]
+    return [Check("broker_canary", "INFO",
+                  f"unrecognized canary verdict {verdict!r} -- fail-open, never blocks pre-open", False)]
 
 
 def assess_broker(snapshots: dict) -> list[Check]:
@@ -379,14 +427,44 @@ def fetch_eod_flatten_reality() -> dict:
     return out
 
 
+def fetch_broker_canary() -> Optional[dict]:
+    """Read automation/state/broker-canary.json (broker_canary.assess()'s glance output).
+    Fail-open -> None on ANY error (missing file, malformed JSON) AND when the file is
+    older than CANARY_MAX_AGE_MIN (assessed_at_et too stale -> treated the same as
+    "never written" so assess_broker_canary() degrades to non-critical INFO, never RED --
+    see that function's docstring for why absence must never gate the live chain). Never
+    raises (rail-2)."""
+    try:
+        if not CANARY_PATH.exists():
+            return None
+        data = json.loads(CANARY_PATH.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001 -- fail-open, this is a notify-only observer
+        return None
+    assessed_at = data.get("assessed_at_et")
+    if not assessed_at:
+        return None
+    try:
+        sys.path.insert(0, str(REPO_ROOT / "setup" / "scripts"))
+        from et_clock import et_now  # type: ignore
+
+        age_min = (et_now() - datetime.fromisoformat(str(assessed_at))).total_seconds() / 60.0
+        if age_min > CANARY_MAX_AGE_MIN:
+            return None
+    except Exception:  # noqa: BLE001 -- an unparsable timestamp is treated as stale, not fatal
+        return None
+    return data
+
+
 def build_report(et_iso: str, task_states: dict, snapshots: dict,
                   cdp_info: Optional[dict] = None,
-                  eod_flatten_sources: Optional[dict] = None) -> dict:
+                  eod_flatten_sources: Optional[dict] = None,
+                  canary_info: Optional[dict] = None) -> dict:
     checks = (
         assess_task_chain(task_states)
         + assess_broker(snapshots)
         + assess_tv_cdp(cdp_info or {})
         + assess_eod_flatten_reality(eod_flatten_sources or {})
+        + assess_broker_canary(canary_info)
     )
     verdict = fuse(checks)
     return {
@@ -403,8 +481,9 @@ def build_report(et_iso: str, task_states: dict, snapshots: dict,
         "red_checks": [c.name for c in checks if c.status == "RED"],
         "note": "read-only/notify-only; verifies the LIVE chain (HeartbeatCore + SightBeacon"
                 " + EodFlatten) + broker auth + TV/CDP liveness + EOD-flatten REAL log-tail"
-                " outcome (not Task Scheduler exit code, which wscript-launch tasks mask)."
-                " NEVER trade-halts.",
+                " outcome (not Task Scheduler exit code, which wscript-launch tasks mask)"
+                " + the 24/7 twin's broker-canary signal (fail-open enhancer, never a new"
+                " single point of failure). NEVER trade-halts.",
     }
 
 
@@ -468,7 +547,7 @@ def main() -> int:
         prior_reds = _prior_reds()  # read BEFORE we overwrite OUT_PATH
         report = build_report(
             et_iso, fetch_task_states(), fetch_broker_snapshots(), fetch_tv_cdp(),
-            fetch_eod_flatten_reality(),
+            fetch_eod_flatten_reality(), fetch_broker_canary(),
         )
         report["alerted"] = maybe_alert(report, prior_reds, utc_iso)
         OUT_PATH.write_text(json.dumps(report, indent=2), encoding="utf-8")
