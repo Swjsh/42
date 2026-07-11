@@ -37,6 +37,17 @@ Every function here reads either T1/T2's own append-only ledgers (decisions.json
 journal.jsonl, breaker.json) or crypto_twin_broker's creds loader -- never a second
 source of truth for the same fact (ticks_today and n_orders_lifetime are RE-DERIVED
 from the ledgers on every call, not a separately persisted counter that could drift).
+
+B1c ADDITION (2026-07-11, markdown/planning/TWIN-PROGRAM.md): twin-health.json now also
+carries {path_coverage, branches_green_today, incidents_today}, RE-DERIVED every call
+from crypto_twin_scenarios.py's path-coverage.json (same "never a second source of
+truth" discipline as the rest of this file -- no separately persisted green/incident
+counter that could drift from the scoreboard itself). B1b ADDITION: the wrapped tick now
+calls crypto_twin_scenarios.run_scenario_tick() instead of crypto_twin_core.run_tick()
+directly -- the scenario scheduler's own network-free scheduling step degrades to
+"run organically" on any internal error (see that module's run_scenario_tick
+docstring), so this file's own outermost catch-all is still the true last line of
+defense for a genuine crypto_twin_core.run_tick() failure (network/HTTP/broker).
 """
 from __future__ import annotations
 
@@ -55,6 +66,7 @@ from et_clock import et_now  # noqa: E402
 
 import crypto_twin_core as ctc  # noqa: E402
 import crypto_twin_broker as broker  # noqa: E402
+import crypto_twin_scenarios as cts  # noqa: E402
 
 STATE = REPO / "automation" / "state"
 # TOP-LEVEL glance file -- deliberately a sibling of engine-health.json/
@@ -143,6 +155,48 @@ def _read_breaker_tripped(cfg: ctc.TwinConfig) -> Optional[bool]:
         return None
 
 
+# --- B1c: path-coverage scoreboard summary (fail-open, RE-DERIVED every call) -----------
+def _read_path_coverage_doc(cfg: ctc.TwinConfig) -> dict:
+    p = cfg.state_dir / "path-coverage.json"
+    if not p.exists():
+        return {}
+    try:
+        doc = json.loads(p.read_text(encoding="utf-8"))
+        return doc if isinstance(doc, dict) else {}
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def summarize_path_coverage(coverage_doc: dict) -> dict:
+    """{path_coverage, branches_green_today, incidents_today} from a path-coverage.json
+    doc (crypto_twin_scenarios._load_coverage's on-disk shape). Fail-open on a
+    missing/malformed doc (empty branches dict, zero counts) -- never raises, mirrors
+    every other fact in this file. `path_coverage` carries EACH branch's tier alongside
+    its status so a downstream reader (the firm-brief line, B2) can render e.g. "5/6 LIVE
+    branches green, bear-sim lane pending" without re-deriving tier from BRANCH_REGISTRY
+    itself."""
+    branches = coverage_doc.get("branches", {}) if isinstance(coverage_doc, dict) else {}
+    rendered: dict = {}
+    green = 0
+    incidents = 0
+    for name, rec in branches.items():
+        if not isinstance(rec, dict):
+            continue
+        status = rec.get("status", "PENDING")
+        rendered[name] = {
+            "tier": rec.get("tier", "LIVE"),
+            "status": status,
+            "count_today": rec.get("count_today", 0),
+            "last_exercised_utc": rec.get("last_exercised_utc"),
+            "last_result": rec.get("last_result"),
+        }
+        if status == "GREEN":
+            green += 1
+        elif status == "INCIDENT":
+            incidents += 1
+    return {"path_coverage": rendered, "branches_green_today": green, "incidents_today": incidents}
+
+
 # --- twin-health.json --------------------------------------------------------------------
 def write_twin_health(cfg: ctc.TwinConfig, *, row: Optional[dict], error: Optional[str],
                       now_et: datetime, health_path: Path = HEALTH_PATH) -> dict:
@@ -154,6 +208,7 @@ def write_twin_health(cfg: ctc.TwinConfig, *, row: Optional[dict], error: Option
     prior tick errored (history lives in decisions.jsonl's TICK_ERROR rows + the
     soak-log's per-hour n_errors, not here; this file is a "right now" glance)."""
     today_et = now_et.strftime("%Y-%m-%d")
+    coverage_summary = summarize_path_coverage(_read_path_coverage_doc(cfg))
     health = {
         "last_tick_et": now_et.isoformat(),
         "ticks_today": count_ticks_today(cfg.state_dir / "decisions.jsonl", today_et),
@@ -162,6 +217,7 @@ def write_twin_health(cfg: ctc.TwinConfig, *, row: Optional[dict], error: Option
         "account_status": account_status(),
         "n_orders_lifetime": count_orders_lifetime(cfg.state_dir / "journal.jsonl"),
         "last_error": error,
+        **coverage_summary,  # B1c: path_coverage, branches_green_today, incidents_today
     }
     health_path.parent.mkdir(parents=True, exist_ok=True)
     health_path.write_text(json.dumps(health, indent=2), encoding="utf-8")
@@ -258,12 +314,14 @@ def run_tick_with_health(cfg: ctc.TwinConfig = ctc.TwinConfig(), *, live: bool =
                          now_utc: Optional[datetime] = None, now_et: Optional[datetime] = None,
                          raw_bars: Optional[list[dict]] = None,
                          health_path: Path = HEALTH_PATH) -> dict:
-    """The T3 scheduled-task entrypoint: crypto_twin_core.run_tick() wrapped in a
-    catch-all so a genuine exception is captured (never silently lost under pythonw's
-    discarded stderr), logged as a TICK_ERROR decision row, and reflected in
-    twin-health.json's last_error -- then ALWAYS writes the health snapshot and the
-    hourly soak rollup, whether the tick succeeded or not. This function itself never
-    raises; the only way to know it is unhealthy is to read what it wrote down.
+    """The T3 scheduled-task entrypoint: crypto_twin_scenarios.run_scenario_tick()
+    (B1b: the scenario-scheduler-wrapped tick -- itself a thin layer over
+    crypto_twin_core.run_tick(), see that module's docstring) wrapped in a catch-all so a
+    genuine exception is captured (never silently lost under pythonw's discarded
+    stderr), logged as a TICK_ERROR decision row, and reflected in twin-health.json's
+    last_error -- then ALWAYS writes the health snapshot and the hourly soak rollup,
+    whether the tick succeeded or not. This function itself never raises; the only way
+    to know it is unhealthy is to read what it wrote down.
 
     `now_utc`/`now_et`/`raw_bars` are all injectable (default to real network/wall-
     clock) -- mirrors run_tick's own injectable-clock pattern, so this wrapper is
@@ -275,7 +333,7 @@ def run_tick_with_health(cfg: ctc.TwinConfig = ctc.TwinConfig(), *, live: bool =
     error_str: Optional[str] = None
     row: Optional[dict] = None
     try:
-        row = ctc.run_tick(cfg, live=live, now_utc=now_utc, raw_bars=raw_bars)
+        row = cts.run_scenario_tick(cfg, live=live, now_utc=now_utc, raw_bars=raw_bars)["row"]
     except Exception as e:  # noqa: BLE001 -- deliberate outermost catch-all; see module docstring.
         error_str = f"{type(e).__name__}: {e}"
         row = _tick_error_row(cfg, now_et=now_et, now_utc=now_utc, live=live, error_str=error_str)

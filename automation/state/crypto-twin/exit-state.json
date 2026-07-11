@@ -1,0 +1,31 @@
+{
+  "BTC/USD": {
+    "exit_state": {
+      "symbol": "BTC/USD",
+      "side": "C",
+      "entry_premium": 64245.9,
+      "total_qty": 3,
+      "tp1_qty": 2,
+      "runner_qty": 1,
+      "premium_stop_pct": -0.02,
+      "tp1_premium_pct": 0.0015,
+      "profit_lock_mode": "trailing",
+      "runner_target_pct": 0.2,
+      "trail_pct": 0.0015,
+      "profit_lock_arm_pct": 0.0005,
+      "tp1_filled": false,
+      "runner_stop_premium": 62960.982,
+      "hwm_premium": 64287.6,
+      "profit_lock_armed": false,
+      "strategy": "crypto_twin",
+      "stop_mode": "premium",
+      "trigger_level": 64124.21,
+      "catastrophe_stop_pct": -0.5,
+      "profit_lock_arm_scope": "post_tp1"
+    },
+    "entered_at_utc": "2026-07-11T13:48:50.084022+00:00",
+    "side": "bull",
+    "order_id": "8086a471-febc-4f86-9493-44ef7b38b439",
+    "scenario": "ENTRY_TP1_TRAIL"
+  }
+}

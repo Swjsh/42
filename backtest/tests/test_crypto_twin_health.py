@@ -155,12 +155,18 @@ def test_write_twin_health_schema_keys(tmp_path, monkeypatch):
     health = cth.write_twin_health(cfg, row=row, error=None, now_et=now_et, health_path=health_path)
 
     expected_keys = {"last_tick_et", "ticks_today", "last_action", "breaker_tripped",
-                     "account_status", "n_orders_lifetime", "last_error"}
+                     "account_status", "n_orders_lifetime", "last_error",
+                     "path_coverage", "branches_green_today", "incidents_today"}
     assert set(health.keys()) == expected_keys
     assert health["last_action"] == "HOLD"
     assert health["last_error"] is None
     assert health["account_status"] == "BLOCKED_NO_ACCOUNT"
     assert health["last_tick_et"] == now_et.isoformat()
+    # B1c fail-open: no path-coverage.json anywhere yet -> empty scoreboard, zero counts,
+    # never a crash (same discipline as every other fact in this file).
+    assert health["path_coverage"] == {}
+    assert health["branches_green_today"] == 0
+    assert health["incidents_today"] == 0
 
 
 def test_write_twin_health_writes_real_file_and_round_trips(tmp_path, monkeypatch):
@@ -212,6 +218,85 @@ def test_write_twin_health_reads_breaker_tripped(tmp_path, monkeypatch):
     health = cth.write_twin_health(cfg, row=None, error=None,
                                    now_et=datetime(2026, 7, 10, 21, 0, 0), health_path=health_path)
     assert health["breaker_tripped"] is True
+
+
+# ============================================================================
+# B1c: path-coverage scoreboard summary (RE-DERIVED every call, never a second
+# source of truth) -- summarize_path_coverage() + write_twin_health()'s wiring of it
+# ============================================================================
+def test_summarize_path_coverage_empty_doc_is_fail_open():
+    summary = cth.summarize_path_coverage({})
+    assert summary == {"path_coverage": {}, "branches_green_today": 0, "incidents_today": 0}
+
+
+def test_summarize_path_coverage_malformed_doc_is_fail_open():
+    assert cth.summarize_path_coverage("not a dict") == \
+        {"path_coverage": {}, "branches_green_today": 0, "incidents_today": 0}
+    assert cth.summarize_path_coverage(None) == \
+        {"path_coverage": {}, "branches_green_today": 0, "incidents_today": 0}
+
+
+def test_summarize_path_coverage_counts_green_and_incident_and_carries_tier():
+    doc = {
+        "date_utc": "2026-07-11",
+        "branches": {
+            "ENTRY_TP1_TRAIL": {"tier": "LIVE", "status": "GREEN", "count_today": 1,
+                                "last_exercised_utc": "t1", "last_result": "GREEN"},
+            "ENTRY_STRUCTURE_STOP": {"tier": "LIVE", "status": "GREEN", "count_today": 1,
+                                     "last_exercised_utc": "t2", "last_result": "GREEN"},
+            "ENTRY_CAT_CAP": {"tier": "LIVE", "status": "INCIDENT", "count_today": 1,
+                              "last_exercised_utc": "t3", "last_result": "expected mismatch"},
+            "ENTRY_MAX_HOLD": {"tier": "LIVE", "status": "PENDING", "count_today": 0,
+                               "last_exercised_utc": None, "last_result": None},
+            "RESTART_OPEN_POSITION": {"tier": "LIVE", "status": "PENDING", "count_today": 0,
+                                      "last_exercised_utc": None, "last_result": None},
+            "ORGANIC_SIGNAL": {"tier": "LIVE", "status": "PENDING", "count_today": 0,
+                               "last_exercised_utc": None, "last_result": None},
+            "ENTRY_TP1_TRAIL_BEAR": {"tier": "SIM", "status": "NOT_YET_COVERED", "count_today": 0,
+                                     "last_exercised_utc": None, "last_result": None},
+        },
+    }
+    summary = cth.summarize_path_coverage(doc)
+    assert summary["branches_green_today"] == 2
+    assert summary["incidents_today"] == 1
+    assert summary["path_coverage"]["ENTRY_TP1_TRAIL"]["tier"] == "LIVE"
+    assert summary["path_coverage"]["ENTRY_TP1_TRAIL_BEAR"]["tier"] == "SIM"
+    assert summary["path_coverage"]["ENTRY_TP1_TRAIL_BEAR"]["status"] == "NOT_YET_COVERED"
+    assert len(summary["path_coverage"]) == 7
+
+
+def test_write_twin_health_reflects_real_path_coverage_file(tmp_path, monkeypatch):
+    monkeypatch.setattr(cth.broker, "TWIN_SECRETS_PATH", tmp_path / "no-secrets.json")
+    cfg = _twin_cfg(tmp_path)
+    cfg.state_dir.mkdir(parents=True, exist_ok=True)
+    coverage_doc = {
+        "date_utc": "2026-07-10",
+        "branches": {
+            "ENTRY_MAX_HOLD": {"tier": "LIVE", "status": "GREEN", "count_today": 1,
+                               "last_exercised_utc": "2026-07-10T21:00:00", "last_result": "GREEN"},
+        },
+    }
+    (cfg.state_dir / "path-coverage.json").write_text(json.dumps(coverage_doc), encoding="utf-8")
+    health_path = tmp_path / "twin-health.json"
+    health = cth.write_twin_health(cfg, row=None, error=None,
+                                   now_et=datetime(2026, 7, 10, 21, 0, 0), health_path=health_path)
+    assert health["branches_green_today"] == 1
+    assert health["incidents_today"] == 0
+    assert health["path_coverage"]["ENTRY_MAX_HOLD"]["status"] == "GREEN"
+    on_disk = json.loads(health_path.read_text(encoding="utf-8"))
+    assert on_disk["path_coverage"]["ENTRY_MAX_HOLD"]["tier"] == "LIVE"
+
+
+def test_write_twin_health_fail_open_on_malformed_path_coverage_file(tmp_path, monkeypatch):
+    monkeypatch.setattr(cth.broker, "TWIN_SECRETS_PATH", tmp_path / "no-secrets.json")
+    cfg = _twin_cfg(tmp_path)
+    cfg.state_dir.mkdir(parents=True, exist_ok=True)
+    (cfg.state_dir / "path-coverage.json").write_text("not valid json{{{", encoding="utf-8")
+    health_path = tmp_path / "twin-health.json"
+    health = cth.write_twin_health(cfg, row=None, error=None,
+                                   now_et=datetime(2026, 7, 10, 21, 0, 0), health_path=health_path)
+    assert health["path_coverage"] == {}
+    assert health["branches_green_today"] == 0
 
 
 # ============================================================================
@@ -311,6 +396,58 @@ def test_run_tick_with_health_success_path_writes_health(tmp_path, monkeypatch):
     assert result["row"]["action"] == "HOLD_BAD_BARS"  # empty raw_bars -> bad-bars path, still a clean tick
     assert health_path.exists()
     assert result["health"]["last_error"] is None
+
+
+# --- B1b wiring: run_tick_with_health now drives crypto_twin_scenarios.run_scenario_tick,
+# not crypto_twin_core.run_tick directly -- prove a forced branch surfaces end-to-end in
+# the health snapshot's path_coverage (not just via the lower-level unit tests in
+# test_crypto_twin_scenarios.py). Local minimal broker stub -- this file otherwise never
+# needs one (every other test here stays at BLOCKED_NO_ACCOUNT).
+class _StubBroker:
+    def __init__(self):
+        self.orders = []
+
+    def place_crypto_order(self, creds, *, symbol, side, notional=None, qty=None,
+                           order_type="market", limit_price=None, live):
+        self.orders.append({"symbol": symbol, "qty": qty})
+        return {"id": "stub-order-1", "status": "accepted"}
+
+    def poll_fill(self, creds, order_id, attempts=4, sleep_sec=1.5):
+        return {"filled": True, "status": "filled", "filled_avg_price": 64000.0, "order": {}}
+
+    def get_crypto_position_qty(self, creds, symbol="BTC/USD"):
+        return 0.0024
+
+    def get_crypto_quote_hilo(self, symbol="BTC/USD", creds=None):
+        return (64010.0, 64000.0)  # inert
+
+
+def test_run_tick_with_health_surfaces_a_forced_scenario_branch_in_path_coverage(tmp_path, monkeypatch):
+    stub = _StubBroker()
+    monkeypatch.setattr(cth.ctc.broker, "get_twin_creds", lambda verify_crypto_status=True:
+                        {"key": "k", "secret": "s", "base_url": "https://paper-api.alpaca.markets"})
+    monkeypatch.setattr(cth.ctc.broker, "get_account", lambda creds: {"equity": 10000.0})
+    monkeypatch.setattr(cth.ctc.broker, "place_crypto_order", stub.place_crypto_order)
+    monkeypatch.setattr(cth.ctc.broker, "poll_fill", stub.poll_fill)
+    monkeypatch.setattr(cth.ctc.broker, "get_crypto_position_qty", stub.get_crypto_position_qty)
+    monkeypatch.setattr(cth.ctc.broker, "get_crypto_quote_hilo", stub.get_crypto_quote_hilo)
+    monkeypatch.setattr(cth.cts, "_pick_next_branch", lambda coverage, *, today: "ENTRY_MAX_HOLD")
+
+    cfg = _twin_cfg(tmp_path)
+    health_path = tmp_path / "twin-health.json"
+    now = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
+    bars = [{"t": (now - timedelta(minutes=5 * i)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "o": 64000, "h": 64001, "l": 63999, "c": 64000, "v": 1.0} for i in range(80, 0, -1)]
+    result = cth.run_tick_with_health(cfg, live=True, now_utc=now,
+                                      now_et=datetime(2026, 7, 10, 8, 0, 0),
+                                      raw_bars=bars, health_path=health_path)
+    assert result["error"] is None
+    assert result["row"]["action"] == "ENTERED"
+    assert result["row"]["scenario"] == "ENTRY_MAX_HOLD"
+    assert result["health"]["path_coverage"]["ENTRY_MAX_HOLD"]["status"] == "IN_PROGRESS"
+    on_disk = json.loads(health_path.read_text(encoding="utf-8"))
+    assert on_disk["path_coverage"]["ENTRY_MAX_HOLD"]["status"] == "IN_PROGRESS"
+    assert stub.orders  # a REAL order was placed via the health-wrapper's own entrypoint
 
 
 def test_run_tick_with_health_exception_path_never_raises(tmp_path, monkeypatch):

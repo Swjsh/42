@@ -2,7 +2,7 @@
   "utc_date": "2026-07-11",
   "account_id": "twin",
   "start_of_day_equity": 2000.0,
-  "current_equity": 2000.0,
+  "current_equity": 9999.51,
   "threshold_pct": 0.3,
   "tripped": false,
   "tripped_at_equity": null,

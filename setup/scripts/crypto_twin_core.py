@@ -23,9 +23,10 @@ REUSE, never fork (HARD RAILS):
     UNIT (qty=cfg.min_contracts, premium=notional_usd/min_contracts/100) so check_order's
     REAL branches (kill-switch / PDT / NOT_FLAT / MIN_CONTRACTS / RISK_CAP) genuinely
     execute against the twin's real numbers -- "min-qty analog preserved so risk_gate
-    paths execute" per the spec doc's mapping table. The ACTUAL broker order uses the
-    real notional_usd via crypto_twin_broker.place_crypto_order's `notional` kwarg, which
-    lets Alpaca compute the fractional BTC qty -- the proxy unit never reaches the broker.
+    paths execute" per the spec doc's mapping table. This proxy is INDEPENDENT of the
+    actual broker order (see B1a note below): the real order uses entry_qty_btc(cfg) --
+    a fixed BTC qty, not a notional/premium-derived amount -- so the risk_gate proxy
+    unit never reaches the broker either way.
   * crypto.lib.{bar,bar_reader,ribbon,levels,kill_switch} -- the ribbon/level/structure
     detectors ("bars are bars"). See crypto_twin_signal.py / crypto_twin_levels.py for
     which pieces plug in where.
@@ -42,6 +43,40 @@ Config: entry-window gates are OFF (24/7, no RTH concept). max_hold_hours=6 is t
 flatten backstop (mirrors EOD-flatten's role, fires several times/day on a 5-min cadence
 instead of once/day). Kill-switch is UTC-day anchored via crypto.lib.kill_switch (already
 a pure, tested, latching daily-loss primitive -- reused, not reimplemented).
+
+B1a UNIT-LOT MODE (2026-07-11, markdown/planning/TWIN-PROGRAM.md): entries now buy a FIXED
+INTEGER count of BTC "units" (TwinConfig.units_per_entry, default 3 -- see its docstring)
+instead of a notional dollar amount, so ExitState.from_entry sees a REAL integer qty and
+runs the EXACT production int-floor tp1/runner split (2 TP + 1 runner, CLAUDE.md Rule 6),
+not an approximation. The old EXIT_UNITS=1000 wide-granularity proxy is retired -- it never
+actually exercised the int-floor arithmetic (1000*0.667 floors with negligible rounding
+loss vs the real 3-contract edge production runs on).
+
+B1b SCENARIO SCHEDULER additions (same date): run_tick gained two additive, backward-
+compatible kwargs -- `trigger_level_offset_pct` (a RELATIVE override so a forced structure-
+stop scenario can plant its trigger_level just above the tick's own just-fetched price
+without a second bars/price fetch) and `scenario_tag` (threaded into place_entry's journal
+rows + the persisted position record + this tick's decision row, so a scenario position's
+WHOLE lifecycle stays taggable). Both default None -- every pre-B1b caller is byte-identical.
+The scheduler itself lives in the sibling module crypto_twin_scenarios.py, which is the
+ONLY intended caller of these two kwargs; crypto_twin_health.py's wrapper now calls THAT
+module instead of this one directly (see crypto_twin_scenarios.run_scenario_tick).
+
+BUGFIXES caught while wiring B1b (both were LATENT -- no position had ever lived long
+enough to trip them, since n_orders_lifetime was 0 before this session):
+  * manage_positions passed `now_et=now_utc.time()` to exit_manager.plan_exit_actions --
+    the RAW UTC clock's time-of-day, compared against the ET-labeled TIME_STOP_ET (15:50)
+    constant. Any position open when UTC's wall-clock (not ET) crossed 15:50 would have
+    been spuriously force-closed once per UTC day, unrelated to any real ET boundary. Fixed
+    to `et_clock.et_now(now_utc=now_utc).time()` (the already-imported, DST-aware converter
+    this file just wasn't using for this one call site).
+  * run_tick never threaded its own just-computed `price` (== the latest CLOSED 5m bar's
+    close) into manage_positions' `last_closed_close` -- meaning stop_mode="structure"
+    positions could NEVER exit via the dedicated chart-level branch in production; they
+    silently fell through to the catastrophe-cap-in-structure-mode branch, time-stop, or
+    max-hold instead. Fixed by passing `last_closed_close=price` (mirrors
+    automation/state/fleet/exit_actuator.manage_tick's own real wiring of the same
+    parameter -- the twin had simply never adopted it).
 """
 from __future__ import annotations
 
@@ -75,7 +110,6 @@ JOURNAL_PATH = TWIN_DIR / "journal.jsonl"
 EXIT_STATE_PATH = TWIN_DIR / "exit-state.json"
 BREAKER_PATH = TWIN_DIR / "breaker.json"
 
-EXIT_UNITS = 1000  # exit_manager's integer qty granularity; see TwinConfig docstring
 CRYPTO_SYMBOL = "BTC/USD"
 
 
@@ -89,7 +123,15 @@ class TwinConfig:
     symbol: str = CRYPTO_SYMBOL
     granularity_seconds: int = 300               # 5m, matches SPY's primary cadence
     bar_limit: int = 400                          # enough for ribbon_slow=48 warmup + 2 UTC days
-    notional_usd: float = 200.0                   # HARD RAILS: "~$200/entry"
+    notional_usd: float = 200.0                   # HARD RAILS: "~$200/entry" -- B1a NOTE
+                                                    # (2026-07-11): this is now ONLY the risk_gate
+                                                    # PROXY notional (see _risk_gate_check's
+                                                    # whole-number-proxy docstring) -- the REAL
+                                                    # broker order size is units_per_entry *
+                                                    # unit_qty_btc (entry_qty_btc()) below. The two
+                                                    # are intentionally independent: risk_gate's
+                                                    # mechanism-fidelity doesn't need to track the
+                                                    # unit-lot's exact dollar size.
     max_hold_hours: float = 6.0                   # flatten backstop (EOD-flatten analog)
     account_label: str = "twin"
     state_dir: Path = TWIN_DIR                    # injectable for tests; PRODUCTION DEFAULT below
@@ -99,6 +141,24 @@ class TwinConfig:
     per_trade_risk_cap_pct: float = 0.30           # mirrors Rule 6 Safe cap
     daily_loss_kill_switch_pct: float = 0.30       # mirrors Rule 5 Safe cap, UTC-day anchored
     starting_equity: float = 2000.0                # synthetic/local seed; broker equity preferred once configured (C11)
+
+    # UNIT-LOT MODE (B1a, 2026-07-11, markdown/planning/TWIN-PROGRAM.md): every entry buys a
+    # FIXED INTEGER count of BTC "units" -- never a notional/price-dependent amount -- so
+    # exit_manager.from_entry sees a real integer qty=units_per_entry and runs the EXACT
+    # production int-floor split: int(3 * tp1_qty_fraction=0.667) = 2 tp1 units, 1 runner unit
+    # (CLAUDE.md Rule 6's "min 3 contracts: 2 TP + 1 runner"), verified empirically this
+    # session (3*0.667 = 2.0010000000000003 in IEEE754 -- comfortably above the 2.0 floor
+    # boundary, no rounding-to-1 risk). unit_qty_btc is the BTC size of ONE unit -- picked
+    # 2026-07-11 from the live BTC/USD close read this session ($64,178.06, via
+    # `python -m crypto_twin_broker`) so that units_per_entry units cost roughly $150-250:
+    # 3 * 0.0008 BTC = 0.0024 BTC ~= $154.03 at that price. STATED, not silently derived.
+    # The broker layer (crypto_twin_broker.place_crypto_order / market_sell_crypto) is the
+    # ONLY place units get translated to a real BTC qty (see entry_qty_btc() and
+    # manage_positions' SELL_PARTIAL conversion) -- everything above that boundary
+    # (exit_manager, the B1b scenario scoreboard) works in whole units, exactly mirroring how
+    # production works in whole option contracts.
+    units_per_entry: int = 3
+    unit_qty_btc: float = 0.0008
 
     # exit_shape (passed to exit_manager.ExitState.from_entry) -- percentages recalibrated
     # from options-premium scale to spot-BTC scale so EVERY exit stage (structure stop,
@@ -135,6 +195,39 @@ def _assert_twin_namespace(cfg: TwinConfig) -> None:
     norm = str(cfg.state_dir).replace("\\", "/")
     if not norm.endswith("automation/state/crypto-twin"):
         raise ValueError(f"crypto_twin_core: refusing non-twin state_dir {cfg.state_dir!r}")
+
+
+def entry_qty_btc(cfg: TwinConfig) -> float:
+    """The EXACT BTC amount ONE entry buys: units_per_entry fixed integer UNITS *
+    unit_qty_btc (a small fixed BTC quantum) -- see TwinConfig's docstring (B1a,
+    2026-07-11) for how the quantum was picked. Buying this PRECISE qty (never a
+    notional/price-dependent amount) guarantees the held position is exactly
+    units_per_entry units, so ExitState.from_entry's int-floor split runs against the
+    REAL held size, not an approximation."""
+    return round(cfg.units_per_entry * cfg.unit_qty_btc, 8)
+
+
+def get_open_position(cfg: TwinConfig) -> Optional[dict]:
+    """PUBLIC accessor: the persisted position record for cfg.symbol (None if flat).
+    Lets a sibling module (crypto_twin_scenarios.py) inspect position/scenario state
+    without reaching into the private _load_positions()."""
+    return _load_positions(cfg).get(cfg.symbol)
+
+
+def read_breaker_tripped(cfg: TwinConfig) -> Optional[bool]:
+    """Best-effort READ of the last-persisted breaker.json's `tripped` flag, without
+    recomputing/ticking the breaker (that needs live equity/creds -- see load_breaker).
+    None when no breaker.json exists yet (fresh account, never ticked). Used by
+    crypto_twin_scenarios.py's scheduling gate ("skip when the breaker is tripped") --
+    at most one 5-min tick stale, the same tolerance crypto_twin_health.py's own glance
+    reads already accept for the identical fact."""
+    p = _breaker_path(cfg)
+    if not p.exists():
+        return None
+    try:
+        return bool(json.loads(p.read_text(encoding="utf-8")).get("tripped", False))
+    except (OSError, json.JSONDecodeError):
+        return None
 
 
 # --- bar plumbing -----------------------------------------------------------------------
@@ -237,7 +330,8 @@ def _journal(cfg: TwinConfig, event: str, **fields) -> None:
 def _decision_row(cfg: TwinConfig, *, now_utc: datetime, armed: bool, price: Optional[float],
                   verdict: sig.TwinVerdict, levels: Optional[tl.TwinLevelSet],
                   risk_decision: Optional[rg.RiskDecision], breaker_state: Optional[KillSwitchState],
-                  position_status: str, exit_pass: list, action: str) -> dict:
+                  position_status: str, exit_pass: list, action: str,
+                  scenario: Optional[str] = None) -> dict:
     """SAME KEY SET as automation/state/core-decisions.jsonl (ts_et, account, armed, spy,
     ribbon, spread_cents, vix, htf_15m, verdict, side, setup, triggers, reason,
     trigger_level_exact, exit_pass, action) + "twin": true per the task spec, PLUS
@@ -261,6 +355,11 @@ def _decision_row(cfg: TwinConfig, *, now_utc: datetime, armed: bool, price: Opt
         rules-engine setups are) -- mirrors the codebase's OWN existing precedent for
         extra-setup/watcher-pattern verdicts, which already omit these two keys rather
         than print a fabricated score (see heartbeat_core._veto_snapshot's 2026-07-09 fix).
+
+    B1b ADDITIVE field: "scenario" (2026-07-11) -- the scenario branch name (e.g.
+    "ENTRY_TP1_TRAIL") tagging this row, or None for an organic tick. `scenario` param
+    default None so every pre-B1b caller (i.e. every call site except
+    crypto_twin_scenarios.run_scenario_tick) is unaffected.
     """
     lvl_dict = None
     if levels is not None:
@@ -301,6 +400,7 @@ def _decision_row(cfg: TwinConfig, *, now_utc: datetime, armed: bool, price: Opt
                     "min_equity_seen": breaker_state.min_equity_seen}
                    if breaker_state is not None else None),
         "position_status": position_status,
+        "scenario": scenario,
     }
 
 
@@ -350,17 +450,38 @@ def manage_positions(cfg: TwinConfig, *, creds: Optional[dict], now_utc: datetim
     layered in front, mirroring how EOD-flatten is its own backstop task in production
     rather than part of exit_manager itself). Everything else is exit_manager's real walk.
 
-    Returns [] with no broker calls when `creds` is None (T2 blocked -- see run_tick)."""
+    Returns [] with no broker calls when `creds` is None (T2 blocked -- see run_tick).
+
+    UNIT-LOT MODE (B1a): `open_qty` passed to plan_exit_actions is cfg.units_per_entry
+    (the FULL integer unit count, e.g. 3) -- same pattern the retired EXIT_UNITS proxy
+    used: exit_manager's internal accounting always thinks in the ORIGINAL full-size
+    unit count, while the REAL broker-reported open_qty (read fresh from get_crypto_
+    position_qty every iteration) is what actually gets sold. A SELL_PARTIAL's units
+    (a.qty, e.g. 2) convert to BTC via a straight multiply against the fixed quantum
+    (units * unit_qty_btc) -- deterministic, not a fraction of whatever the broker
+    happens to currently report -- while a SELL_ALL always sweeps the REAL current
+    open_qty (never a computed unit count), so no fractional BTC dust is ever stranded
+    even if the entry fill differed by a satoshi from the nominal entry_qty_btc().
+
+    ET BUGFIX (2026-07-11): now_et is derived via et_clock.et_now(now_utc=now_utc),
+    NOT a raw now_utc.time() -- see module docstring's "BUGFIXES" note. Passing the
+    UTC clock's own time-of-day into a parameter exit_manager compares against the
+    ET-labeled TIME_STOP_ET (15:50) constant would spuriously force-close any position
+    still open when UTC (not ET) crossed 15:50, once per day, with no relation to any
+    real ET boundary.
+    """
     positions = _load_positions(cfg)
     if not positions:
         return []
     results: list[dict] = []
     changed = False
     flip_fn = _make_ribbon_flip_fn(ribbon_stack)
+    now_et_time = et_now(now_utc=now_utc).time()
     for symbol, rec in list(positions.items()):
         st = em.ExitState.from_dict(rec["exit_state"])
         entered_at = datetime.fromisoformat(rec["entered_at_utc"])
         elapsed_h = (now_utc - entered_at).total_seconds() / 3600.0
+        scenario = rec.get("scenario")
         if creds is None:
             results.append({"symbol": symbol, "action": "BLOCKED_NO_ACCOUNT",
                             "reason": "no dedicated twin account configured -- see secrets.json.example"})
@@ -370,7 +491,7 @@ def manage_positions(cfg: TwinConfig, *, creds: Optional[dict], now_utc: datetim
             del positions[symbol]
             changed = True
             results.append({"symbol": symbol, "open_qty": 0, "action": "FLAT_PRUNED"})
-            _journal(cfg, "CLOSED", symbol=symbol, reason="broker shows flat")
+            _journal(cfg, "CLOSED", symbol=symbol, reason="broker shows flat", scenario=scenario)
             continue
         if elapsed_h >= cfg.max_hold_hours:
             res = broker.close_all_crypto(creds, symbol=symbol, live=live)
@@ -379,7 +500,7 @@ def manage_positions(cfg: TwinConfig, *, creds: Optional[dict], now_utc: datetim
             results.append({"symbol": symbol, "open_qty": open_qty, "action": "MAX_HOLD_FLATTEN",
                             "elapsed_hours": round(elapsed_h, 2), "broker": res})
             _journal(cfg, "CLOSED", symbol=symbol, reason="max_hold_flatten",
-                    elapsed_hours=round(elapsed_h, 2), broker=res)
+                    elapsed_hours=round(elapsed_h, 2), broker=res, scenario=scenario)
             continue
         hilo = broker.get_crypto_quote_hilo(cfg.symbol, creds=creds)
         if hilo is None:
@@ -387,19 +508,32 @@ def manage_positions(cfg: TwinConfig, *, creds: Optional[dict], now_utc: datetim
             continue
         best, worst = hilo
         flip = bool(flip_fn(symbol, st.side)) if flip_fn else False
-        dec = em.plan_exit_actions(st, best_premium=best, worst_premium=worst, open_qty=EXIT_UNITS,
-                                   now_et=now_utc.time(), ribbon_flip_back=flip,
+        dec = em.plan_exit_actions(st, best_premium=best, worst_premium=worst, open_qty=cfg.units_per_entry,
+                                   now_et=now_et_time, ribbon_flip_back=flip,
                                    last_closed_5m_close=last_closed_close)
         rec["exit_state"] = dec.state.to_dict()
         changed = True
         executed = []
         for a in dec.actions:
             if a.kind in ("SELL_PARTIAL", "SELL_ALL"):
-                frac = a.qty / EXIT_UNITS
-                btc_qty = round(open_qty * frac, 8) if a.kind == "SELL_PARTIAL" else open_qty
+                if a.kind == "SELL_PARTIAL":
+                    units_sold = a.qty
+                    btc_qty = round(units_sold * cfg.unit_qty_btc, 8)  # deterministic unit->BTC
+                else:
+                    # SELL_ALL: exit_manager's own a.qty always echoes the open_qty
+                    # PARAMETER this tick was called with (cfg.units_per_entry, the
+                    # ORIGINAL full unit count) -- it has no notion of "TP1 already sold
+                    # part of this position". The TRUE remaining unit count is derivable
+                    # from `st` (the PRE-tick state, read before dec was computed, still
+                    # in scope): runner_qty if TP1 had already filled by the START of this
+                    # tick, else the full total_qty. LABEL-ONLY correction -- btc_qty
+                    # (what actually gets sold) is still sourced from the REAL broker
+                    # open_qty below (C11), unaffected either way.
+                    units_sold = st.runner_qty if st.tp1_filled else st.total_qty
+                    btc_qty = open_qty  # SELL_ALL always sweeps the REAL remaining broker qty
                 res = broker.market_sell_crypto(creds, symbol=symbol, qty=btc_qty, live=live) if live \
                     else {"_skipped": "WATCH"}
-                executed.append({"kind": a.kind, "units": a.qty, "btc_qty": btc_qty, "stage": a.stage,
+                executed.append({"kind": a.kind, "units": units_sold, "btc_qty": btc_qty, "stage": a.stage,
                                  "reason": a.reason, "broker": res})
                 # SELL_ALL genuinely ends this position's lifecycle -> "CLOSED" (not lumped
                 # under "MANAGED"), so a reader scanning journal.jsonl for the full
@@ -407,7 +541,8 @@ def manage_positions(cfg: TwinConfig, *, creds: Optional[dict], now_utc: datetim
                 # exit path (structure stop / catastrophe cap / runner target / time stop),
                 # not just the max-hold backstop.
                 _journal(cfg, "CLOSED" if a.kind == "SELL_ALL" else "MANAGED", symbol=symbol,
-                        kind=a.kind, btc_qty=btc_qty, stage=a.stage, reason=a.reason, broker=res)
+                        kind=a.kind, units=units_sold, btc_qty=btc_qty, stage=a.stage, reason=a.reason,
+                        broker=res, scenario=scenario)
             elif a.kind == "RATCHET_STOP":
                 executed.append({"kind": "RATCHET_STOP", "stage": a.stage,
                                  "new_stop_premium": a.new_stop_premium, "reason": a.reason})
@@ -424,35 +559,47 @@ def manage_positions(cfg: TwinConfig, *, creds: Optional[dict], now_utc: datetim
 # --- placement (T2) ----------------------------------------------------------------------
 def place_entry(cfg: TwinConfig, *, creds: dict, side: str, price: float,
                 trigger_level: Optional[float], live: bool,
-                now_utc: Optional[datetime] = None) -> dict:
+                now_utc: Optional[datetime] = None,
+                scenario_tag: Optional[str] = None) -> dict:
     """BUY-only (Alpaca crypto is cash/long-only -- no short leg exists to express a
     "bear" verdict as a position; see run_tick for how ENTER_BEAR is logged-but-skipped).
-    Places a market order sized by NOTIONAL (Alpaca computes the fractional BTC qty --
-    the risk_gate proxy unit never reaches the broker), then registers the position with
-    the REAL exit_manager.ExitState.from_entry (structure mode when trigger_level is
-    available, matching production's chart-stop-primary doctrine).
+
+    UNIT-LOT MODE (B1a): places a market order sized by the EXACT qty entry_qty_btc(cfg)
+    returns (units_per_entry * unit_qty_btc BTC) -- NOT notional -- so the held position
+    is precisely units_per_entry units, never a price-dependent approximation. Then
+    registers the position with the REAL exit_manager.ExitState.from_entry(qty=
+    cfg.units_per_entry, ...) (structure mode when trigger_level is available, matching
+    production's chart-stop-primary doctrine) -- so from_entry's int-floor split runs
+    against the real held size.
 
     `now_utc` is injectable (defaults to real wall-clock) so tests can pin entered_at_utc
     and deterministically fast-forward past max_hold_hours -- mirrors run_tick/
-    fetch_closed_bars's same injectable-clock pattern."""
+    fetch_closed_bars's same injectable-clock pattern.
+
+    `scenario_tag` (B1b, None for every organic entry) is threaded into the PLACED/FILLED
+    journal rows and the persisted position record (position["scenario"]) so the whole
+    lifecycle stays taggable -- see crypto_twin_scenarios.py."""
     now = now_utc or datetime.now(timezone.utc)
+    qty_btc = entry_qty_btc(cfg)
     order = broker.place_crypto_order(creds, symbol=cfg.symbol, side="buy",
-                                      notional=cfg.notional_usd, order_type="market", live=live)
-    _journal(cfg, "PLACED", symbol=cfg.symbol, side=side, notional_usd=cfg.notional_usd,
-            price=price, trigger_level=trigger_level, order=order, live=live)
+                                      qty=qty_btc, order_type="market", live=live)
+    _journal(cfg, "PLACED", symbol=cfg.symbol, side=side, units=cfg.units_per_entry,
+            unit_qty_btc=cfg.unit_qty_btc, qty_btc=qty_btc, price=price,
+            trigger_level=trigger_level, scenario=scenario_tag, order=order, live=live)
     if not live or order.get("_error") or order.get("_refused") or order.get("_skipped"):
         return {"placed": False, "order": order}
     order_id = order.get("id")
     fill = broker.poll_fill(creds, order_id, attempts=4, sleep_sec=1.5) if order_id else \
         {"filled": False, "status": "unknown"}
-    _journal(cfg, "FILLED", symbol=cfg.symbol, order_id=order_id, fill=fill)
+    _journal(cfg, "FILLED", symbol=cfg.symbol, order_id=order_id, units=cfg.units_per_entry,
+            scenario=scenario_tag, fill=fill)
     entry_price = fill.get("filled_avg_price") or price
     st = em.ExitState.from_entry(symbol=cfg.symbol, side="C", entry_premium=float(entry_price),
-                                 qty=EXIT_UNITS, exit_shape=cfg.exit_shape, strategy="crypto_twin",
+                                 qty=cfg.units_per_entry, exit_shape=cfg.exit_shape, strategy="crypto_twin",
                                  trigger_level=trigger_level, structure_stop_enabled=True)
     positions = _load_positions(cfg)
     positions[cfg.symbol] = {"exit_state": st.to_dict(), "entered_at_utc": now.isoformat(),
-                             "side": side, "order_id": order_id}
+                             "side": side, "order_id": order_id, "scenario": scenario_tag}
     _save_positions(cfg, positions)
     return {"placed": True, "order": order, "fill": fill, "exit_state": st.to_dict()}
 
@@ -460,15 +607,34 @@ def place_entry(cfg: TwinConfig, *, creds: dict, side: str, price: float,
 # --- the tick (T1 + T2) -------------------------------------------------------------------
 def run_tick(cfg: TwinConfig = TwinConfig(), *, live: bool = False,
             force_entry: Optional[str] = None, now_utc: Optional[datetime] = None,
-            raw_bars: Optional[list[dict]] = None) -> dict:
+            raw_bars: Optional[list[dict]] = None,
+            trigger_level_offset_pct: Optional[float] = None,
+            scenario_tag: Optional[str] = None) -> dict:
     """ONE full twin tick: SEE -> DECIDE -> gate -> ACT -> manage -> journal -> log.
     Always writes a decisions.jsonl row (mirrors "persist EVERY tick", never conditional
     on ENTER). `force_entry` ("bull"/"bear") is TEST-ONLY: bypasses scoring to exercise
     the placement path on demand -- refuses outside a twin-namespaced cfg (see
     _assert_twin_namespace) and is never reachable except via this function's own
-    `--force-entry` CLI flag."""
+    `--force-entry` CLI flag.
+
+    B1b additions (2026-07-11) -- both default None, so every pre-B1b caller (every call
+    site except crypto_twin_scenarios.run_scenario_tick) is byte-identical to before:
+      trigger_level_offset_pct: when set (only meaningful together with force_entry),
+        OVERRIDES the normal nearest-real-level trigger_level lookup with
+        `price * (1 + offset)`, computed HERE from the price this tick already fetched --
+        no second bars/price fetch needed. Lets a scenario plant a synthetic trigger_level
+        just above/below spot (e.g. ENTRY_STRUCTURE_STOP) without inventing a fake level.
+      scenario_tag: threaded into place_entry's journal rows, the persisted position
+        record, and this tick's own decision row (see `row_scenario` below) so a scenario
+        position's WHOLE lifecycle stays taggable in decisions.jsonl/journal.jsonl.
+    """
     _assert_twin_namespace(cfg)
     now = now_utc or datetime.now(timezone.utc)
+
+    # Captured BEFORE manage_positions runs (which may delete the position record this
+    # very tick) -- the fallback so a CLOSING tick's decision row still reports which
+    # scenario branch it just closed (see row_scenario below).
+    scenario_before = _load_positions(cfg).get(cfg.symbol, {}).get("scenario")
 
     bars, bar_meta = fetch_closed_bars(cfg, now_utc=now, raw_bars=raw_bars)
     if not bars or bar_meta["verdict"] != "ok":
@@ -476,7 +642,7 @@ def run_tick(cfg: TwinConfig = TwinConfig(), *, live: bool = False,
                                   reason=f"bar feed not ok: {bar_meta.get('verdict')}")
         row = _decision_row(cfg, now_utc=now, armed=live, price=None, verdict=verdict, levels=None,
                             risk_decision=None, breaker_state=None, position_status="unknown",
-                            exit_pass=[], action="HOLD_BAD_BARS")
+                            exit_pass=[], action="HOLD_BAD_BARS", scenario=None)
         log_decision(cfg, row)
         return row
 
@@ -485,10 +651,14 @@ def run_tick(cfg: TwinConfig = TwinConfig(), *, live: bool = False,
 
     if force_entry in ("bull", "bear"):
         lvl = tl.nearest_directional_level(levels.all_levels, price, side=force_entry)
+        if trigger_level_offset_pct is not None:
+            resolved_trigger = round(price * (1.0 + trigger_level_offset_pct), 2)
+        else:
+            resolved_trigger = lvl.price if lvl else None
         verdict = sig.TwinVerdict(f"ENTER_{force_entry.upper()}", force_entry, "FORCE_ENTRY_TEST_FLAG",
                                   triggers=["force_entry_cli_flag"],
                                   reason="--force-entry test flag (bypasses scoring; T2 verification only)",
-                                  trigger_level_exact=lvl.price if lvl else None,
+                                  trigger_level_exact=resolved_trigger,
                                   ribbon_stack="N/A", ribbon_spread=0.0, stack_bars=0)
     else:
         verdict = sig.evaluate(bars, levels)
@@ -514,7 +684,8 @@ def run_tick(cfg: TwinConfig = TwinConfig(), *, live: bool = False,
     save_breaker(cfg, breaker_state, now_utc=now, current_equity=equity)
 
     ribbon_stack = verdict.ribbon_stack if verdict.ribbon_stack != "N/A" else None
-    exit_pass = manage_positions(cfg, creds=creds, now_utc=now, live=live, ribbon_stack=ribbon_stack)
+    exit_pass = manage_positions(cfg, creds=creds, now_utc=now, live=live, ribbon_stack=ribbon_stack,
+                                 last_closed_close=price)
 
     positions = _load_positions(cfg)
     position_status = "open" if cfg.symbol in positions else "flat"
@@ -534,14 +705,20 @@ def run_tick(cfg: TwinConfig = TwinConfig(), *, live: bool = False,
             action = account_block_reason or "BLOCKED_NO_ACCOUNT"
         else:
             result = place_entry(cfg, creds=creds, side=verdict.side, price=price,
-                                 trigger_level=verdict.trigger_level_exact, live=live, now_utc=now)
+                                 trigger_level=verdict.trigger_level_exact, live=live, now_utc=now,
+                                 scenario_tag=scenario_tag)
             action = "ENTERED" if result.get("placed") else "ENTRY_ATTEMPT_FAILED"
     elif position_status == "open":
         action = "MANAGED"
 
+    # scenario tag for the row: the tag we were just handed IF an entry genuinely placed
+    # this tick, else whatever was captured before management ran (covers HOLD/MANAGED
+    # ticks on an already-open scenario position, and the tick that just closed one).
+    row_scenario = scenario_tag if (scenario_tag is not None and action == "ENTERED") else scenario_before
     row = _decision_row(cfg, now_utc=now, armed=live, price=price, verdict=verdict, levels=levels,
                         risk_decision=risk_decision, breaker_state=breaker_state,
-                        position_status=position_status, exit_pass=exit_pass, action=action)
+                        position_status=position_status, exit_pass=exit_pass, action=action,
+                        scenario=row_scenario)
     log_decision(cfg, row)
     return row
 

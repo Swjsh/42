@@ -237,27 +237,37 @@ _CREDS = {"key": "k", "secret": "s", "base_url": "https://paper-api.alpaca.marke
 
 def test_place_entry_registers_structure_mode_exit_state(tmp_path, fake_broker):
     cfg = _twin_cfg(tmp_path, notional_usd=200.0)
-    fake_broker.position_qty = 200.0 / 64000.0
+    fake_broker.position_qty = ctc.entry_qty_btc(cfg)
     entry_time = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
     result = ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0,
                              trigger_level=63500.0, live=True)
     assert result["placed"] is True
-    assert fake_broker.orders[0]["notional"] == 200.0
+    # UNIT-LOT MODE (B1a): a QTY-based buy (never notional) -- exactly
+    # units_per_entry * unit_qty_btc, the caller never sees a notional kwarg.
+    assert fake_broker.orders[0]["qty"] == ctc.entry_qty_btc(cfg)
+    assert fake_broker.orders[0]["notional"] is None
     positions = ctc._load_positions(cfg)
     assert "BTC/USD" in positions
     st = em.ExitState.from_dict(positions["BTC/USD"]["exit_state"])
     assert st.stop_mode == "structure"
     assert st.trigger_level == 63500.0
-    assert st.total_qty == ctc.EXIT_UNITS
-    assert st.tp1_qty == int(ctc.EXIT_UNITS * cfg.exit_shape["tp1_qty_fraction"])
-    # journal has PLACED + FILLED rows
+    # THE 2/1 SPLIT (B1a): qty=3 fixed units through the REAL exit_manager int-floor,
+    # not an approximation at wide proxy granularity.
+    assert st.total_qty == cfg.units_per_entry == 3
+    assert st.tp1_qty == 2
+    assert st.runner_qty == 1
+    # journal has PLACED + FILLED rows, both carrying the unit-lot fields
     journal = [json.loads(l) for l in (cfg.state_dir / "journal.jsonl").read_text().splitlines()]
     assert [r["event"] for r in journal] == ["PLACED", "FILLED"]
+    assert journal[0]["units"] == 3
+    assert journal[0]["qty_btc"] == ctc.entry_qty_btc(cfg)
+    assert journal[0]["scenario"] is None  # organic entry, no scenario tag
+    assert journal[1]["units"] == 3
 
 
 def test_manage_positions_tp1_fires_and_sells_partial(tmp_path, fake_broker):
     cfg = _twin_cfg(tmp_path, notional_usd=200.0)
-    fake_broker.position_qty = 200.0 / 64000.0
+    fake_broker.position_qty = ctc.entry_qty_btc(cfg)
     entered = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
     ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0, trigger_level=63500.0, live=True,
                     now_utc=entered)
@@ -266,16 +276,23 @@ def test_manage_positions_tp1_fires_and_sells_partial(tmp_path, fake_broker):
     now = entered + timedelta(minutes=10)
     results = ctc.manage_positions(cfg, creds=_CREDS, now_utc=now, live=True)
     assert len(fake_broker.sells) == 1
-    expected_frac = cfg.exit_shape["tp1_qty_fraction"]
-    # tolerance covers the deliberate round(...,8) at the broker boundary (see manage_positions)
-    assert fake_broker.sells[0]["qty"] == pytest.approx(fake_broker.position_qty * expected_frac, abs=1e-6)
+    # UNIT-LOT MODE (B1a): TP1 sells EXACTLY 2 whole units -- a deterministic
+    # units * unit_qty_btc multiply, not a fraction of whatever the broker happens to
+    # currently report (see manage_positions' SELL_PARTIAL conversion).
+    assert fake_broker.sells[0]["qty"] == pytest.approx(2 * cfg.unit_qty_btc, abs=1e-9)
     positions = ctc._load_positions(cfg)
     st = em.ExitState.from_dict(positions["BTC/USD"]["exit_state"])
     assert st.tp1_filled is True
     assert st.runner_stop_premium == 64000.0  # ratcheted to break-even
+    assert st.runner_qty == 1
     journal = [json.loads(l) for l in (cfg.state_dir / "journal.jsonl").read_text().splitlines()]
     managed = [r for r in journal if r["event"] == "MANAGED"]
     assert managed and managed[0]["kind"] == "SELL_PARTIAL"
+    # THE task-required literal proof: "a full lifecycle fixture must show tp1 qty 2 --
+    # not fractional sells" -- the journal's own "units" field is a plain int, 2.
+    assert managed[0]["units"] == 2
+    assert isinstance(managed[0]["units"], int)
+    assert results[0]["actions"][0]["units"] == 2
 
 
 def test_manage_positions_trailing_runner_ratchets_then_stops(tmp_path, fake_broker):
@@ -283,7 +300,7 @@ def test_manage_positions_trailing_runner_ratchets_then_stops(tmp_path, fake_bro
     no sell), then a pullback through the new trailing floor exits the remainder
     (SELL_ALL, stage="trail") -- the one exit stage the other fixtures don't reach."""
     cfg = _twin_cfg(tmp_path, notional_usd=200.0)
-    fake_broker.position_qty = 200.0 / 64000.0
+    fake_broker.position_qty = ctc.entry_qty_btc(cfg)
     entered = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
     ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0, trigger_level=63500.0, live=True,
                     now_utc=entered)
@@ -317,7 +334,7 @@ def test_manage_positions_trailing_runner_ratchets_then_stops(tmp_path, fake_bro
 
 def test_manage_positions_structure_stop_closes_all(tmp_path, fake_broker):
     cfg = _twin_cfg(tmp_path, notional_usd=200.0)
-    fake_broker.position_qty = 200.0 / 64000.0
+    fake_broker.position_qty = ctc.entry_qty_btc(cfg)
     entered = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
     ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0, trigger_level=63500.0, live=True,
                     now_utc=entered)
@@ -337,7 +354,7 @@ def test_manage_positions_structure_stop_closes_all(tmp_path, fake_broker):
 
 def test_manage_positions_max_hold_flattens(tmp_path, fake_broker):
     cfg = _twin_cfg(tmp_path, notional_usd=200.0, max_hold_hours=6.0)
-    fake_broker.position_qty = 200.0 / 64000.0
+    fake_broker.position_qty = ctc.entry_qty_btc(cfg)
     entered = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
     ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0, trigger_level=None, live=True,
                     now_utc=entered)
@@ -361,7 +378,7 @@ def test_manage_positions_catastrophe_cap_when_no_trigger_level(tmp_path, fake_b
     through from_entry correctly, and that it is still bounded by exit_manager's own
     catastrophe_stop_pct field (unchanged at -0.50) as the true tail-risk cap."""
     cfg = _twin_cfg(tmp_path, notional_usd=200.0)
-    fake_broker.position_qty = 200.0 / 64000.0
+    fake_broker.position_qty = ctc.entry_qty_btc(cfg)
     entered = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
     ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0, trigger_level=None, live=True,
                     now_utc=entered)
@@ -380,7 +397,7 @@ def test_manage_positions_blocked_no_account_when_creds_none(tmp_path, fake_brok
     """T2 fails CLOSED (never crashes, never fakes a fill) when no dedicated twin
     account is configured -- the honest 'do not fake it' path."""
     cfg = _twin_cfg(tmp_path, notional_usd=200.0)
-    fake_broker.position_qty = 200.0 / 64000.0
+    fake_broker.position_qty = ctc.entry_qty_btc(cfg)
     ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0, trigger_level=None, live=True)
     now = datetime(2026, 7, 10, 12, 10, tzinfo=timezone.utc)
     results = ctc.manage_positions(cfg, creds=None, now_utc=now, live=True)
@@ -403,6 +420,191 @@ def test_run_tick_bear_verdict_never_places_short(tmp_path, fake_broker):
 
 
 # ============================================================================
+# B1a: entry_qty_btc / unit-lot quantum
+# ============================================================================
+def test_entry_qty_btc_is_units_times_quantum(tmp_path):
+    cfg = _twin_cfg(tmp_path, units_per_entry=3, unit_qty_btc=0.0008)
+    assert ctc.entry_qty_btc(cfg) == pytest.approx(0.0024, abs=1e-9)
+
+
+def test_entry_qty_btc_production_default_is_150_to_250_dollars_at_recent_btc_price():
+    """The quantum picked 2026-07-11 from the live BTC/USD close ($64,178.06) must still
+    land units_per_entry units in the ~$150-250 band this session's build note claims --
+    a coarse sanity check against BTC drifting wildly, not a live price fetch."""
+    cfg = ctc.TwinConfig()
+    approx_recent_price = 64178.06
+    dollar_size = ctc.entry_qty_btc(cfg) * approx_recent_price
+    assert 150.0 <= dollar_size <= 250.0
+
+
+# ============================================================================
+# B1a bugfix: ET (not UTC) drives exit_manager's time_stop
+# ============================================================================
+def test_manage_positions_time_stop_uses_et_not_raw_utc_clock(tmp_path, fake_broker):
+    """2026-07-11 bugfix: manage_positions used to pass now_utc.time() (the RAW UTC
+    clock) as exit_manager's `now_et` -- comparing it against the ET-labeled
+    TIME_STOP_ET=15:50 constant. UTC 15:55 during EDT is ET 11:55 -- nowhere near
+    15:50 ET -- so a position must NOT be force-closed at that instant. With the
+    pre-fix bug, this exact now_utc would have wrongly tripped time_stop."""
+    cfg = _twin_cfg(tmp_path, notional_usd=200.0)
+    fake_broker.position_qty = ctc.entry_qty_btc(cfg)
+    entered = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
+    ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0, trigger_level=None, live=True,
+                    now_utc=entered)
+    fake_broker.quote = (64100.0, 64050.0)  # inert -- doesn't cross tp1/premium_stop
+    now_utc = datetime(2026, 7, 10, 15, 55, tzinfo=timezone.utc)  # UTC 15:55 == ET 11:55 (EDT)
+    results = ctc.manage_positions(cfg, creds=_CREDS, now_utc=now_utc, live=True)
+    assert results[0]["actions"] == []  # no exit fired -- neither a stray time_stop nor anything else
+    assert not fake_broker.sells and not fake_broker.closes
+    positions = ctc._load_positions(cfg)
+    assert "BTC/USD" in positions  # still open -- NOT spuriously time-stopped
+
+
+def test_manage_positions_time_stop_fires_at_real_et_1550(tmp_path, fake_broker):
+    """The inverse of the bugfix guard above: a GENUINE ET 15:50+ crossing must still
+    force-close pre-TP1 (proves the fix converts correctly, doesn't just disable
+    time_stop outright). UTC 19:55 during EDT == ET 15:55. max_hold_hours is widened
+    so the (unrelated) duration guard can't preempt the specific stage under test."""
+    cfg = _twin_cfg(tmp_path, notional_usd=200.0, max_hold_hours=24.0)
+    fake_broker.position_qty = ctc.entry_qty_btc(cfg)
+    entered = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
+    ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0, trigger_level=None, live=True,
+                    now_utc=entered)
+    fake_broker.quote = (64100.0, 64050.0)  # inert -- the ONLY thing that should fire is time_stop
+    now_utc = datetime(2026, 7, 10, 19, 55, tzinfo=timezone.utc)  # UTC 19:55 == ET 15:55 (EDT)
+    results = ctc.manage_positions(cfg, creds=_CREDS, now_utc=now_utc, live=True)
+    assert results[0]["actions"][0]["stage"] == "time_stop"
+    assert len(fake_broker.sells) == 1
+
+
+# ============================================================================
+# B1a bugfix: run_tick threads last_closed_close so structure_stop is reachable
+# ============================================================================
+def test_run_tick_wires_last_closed_close_into_structure_stop(tmp_path, fake_broker):
+    """2026-07-11 bugfix: run_tick never forwarded its own just-computed `price` (the
+    latest CLOSED 5m bar's close) into manage_positions' last_closed_close -- meaning a
+    stop_mode='structure' position could NEVER exit via the dedicated chart-level branch
+    through the real run_tick() entrypoint (only when a caller invoked manage_positions
+    directly with an explicit override, as the older structure-stop fixture test does).
+    This drives the WHOLE tick through run_tick (not manage_positions directly) with a
+    trigger_level already breached by the current closed bar's price, and asserts the
+    structure stop actually fires -- proving the wiring, not just the exit_manager math
+    (which test_manage_positions_structure_stop_closes_all already covers)."""
+    cfg = _twin_cfg(tmp_path, notional_usd=200.0)
+    fake_broker.position_qty = ctc.entry_qty_btc(cfg)
+    entered = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
+    ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0, trigger_level=63900.0, live=True,
+                    now_utc=entered)
+    positions = ctc._load_positions(cfg)
+    assert em.ExitState.from_dict(positions["BTC/USD"]["exit_state"]).stop_mode == "structure"
+
+    now = entered + timedelta(minutes=5)
+    bars = [ctc._to_bar(_raw_bar(now - timedelta(minutes=5 * i), 63800, 63850, 63750, 63800), 300)
+           for i in range(60, 0, -1)]
+    raw = [{"t": b.open_time.strftime("%Y-%m-%dT%H:%M:%SZ"), "o": b.open, "h": b.high,
+           "l": b.low, "c": b.close, "v": b.volume} for b in bars]  # last closed bar's close=63800 < trigger 63900
+    fake_broker.quote = (63900.0, 63850.0)  # not a premium-stop touch on its own
+    row = ctc.run_tick(cfg, live=True, now_utc=now, raw_bars=raw)
+    assert row["exit_pass"][0]["actions"][0]["stage"] == "structure_stop"
+    assert "BTC/USD" not in ctc._load_positions(cfg)
+
+
+# ============================================================================
+# B1b plumbing: trigger_level_offset_pct / scenario_tag (crypto_twin_scenarios.py's
+# only intended caller-facing surface on run_tick/place_entry)
+# ============================================================================
+def test_run_tick_trigger_level_offset_pct_overrides_real_level_lookup(tmp_path, fake_broker):
+    cfg = _twin_cfg(tmp_path)
+    now = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
+    bars = [ctc._to_bar(_raw_bar(now - timedelta(minutes=5 * i), 100, 101, 99, 100), 300)
+           for i in range(60, 0, -1)]
+    raw = [{"t": b.open_time.strftime("%Y-%m-%dT%H:%M:%SZ"), "o": b.open, "h": b.high,
+           "l": b.low, "c": b.close, "v": b.volume} for b in bars]
+    row = ctc.run_tick(cfg, live=False, force_entry="bull", now_utc=now, raw_bars=raw,
+                       trigger_level_offset_pct=0.0004)
+    assert row["trigger_level_exact"] == pytest.approx(round(100 * 1.0004, 2))
+
+
+def test_run_tick_scenario_tag_flows_through_placed_journal_and_decision_row(tmp_path, fake_broker):
+    cfg = _twin_cfg(tmp_path)
+    now = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
+    bars = [ctc._to_bar(_raw_bar(now - timedelta(minutes=5 * i), 100, 101, 99, 100), 300)
+           for i in range(60, 0, -1)]
+    raw = [{"t": b.open_time.strftime("%Y-%m-%dT%H:%M:%SZ"), "o": b.open, "h": b.high,
+           "l": b.low, "c": b.close, "v": b.volume} for b in bars]
+    row = ctc.run_tick(cfg, live=True, force_entry="bull", now_utc=now, raw_bars=raw,
+                       scenario_tag="ENTRY_TP1_TRAIL")
+    assert row["action"] == "ENTERED"
+    assert row["scenario"] == "ENTRY_TP1_TRAIL"
+    positions = ctc._load_positions(cfg)
+    assert positions["BTC/USD"]["scenario"] == "ENTRY_TP1_TRAIL"
+    journal = [json.loads(l) for l in (cfg.state_dir / "journal.jsonl").read_text().splitlines()]
+    assert journal[0]["scenario"] == "ENTRY_TP1_TRAIL"
+    assert journal[1]["scenario"] == "ENTRY_TP1_TRAIL"
+
+    # a follow-up MANAGING tick (unforced -- exactly how the scheduler drives an
+    # already-open scenario) must still carry the tag through decisions + journal.
+    fake_broker.quote = (100.5, 100.4)  # inert
+    now2 = now + timedelta(minutes=5)
+    bars2 = bars + [ctc._to_bar(_raw_bar(now2 - timedelta(minutes=5), 100, 101, 99, 100.2), 300)]
+    raw2 = [{"t": b.open_time.strftime("%Y-%m-%dT%H:%M:%SZ"), "o": b.open, "h": b.high,
+            "l": b.low, "c": b.close, "v": b.volume} for b in bars2]
+    row2 = ctc.run_tick(cfg, live=True, now_utc=now2, raw_bars=raw2)
+    assert row2["scenario"] == "ENTRY_TP1_TRAIL"  # carried via scenario_before, no forcing needed
+
+
+def test_run_tick_failed_entry_does_not_falsely_tag_scenario(tmp_path, fake_broker, monkeypatch):
+    """A forced tick where the entry attempt FAILS (e.g. risk_gate denies it) must not
+    report a scenario tag on a decision row where nothing was actually opened."""
+    cfg = _twin_cfg(tmp_path)
+    monkeypatch.setattr(ctc, "_risk_gate_check",
+                        lambda *a, **k: ctc.rg.Deny("RISK_CAP", "denied for test"))
+    now = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
+    bars = [ctc._to_bar(_raw_bar(now - timedelta(minutes=5 * i), 100, 101, 99, 100), 300)
+           for i in range(60, 0, -1)]
+    raw = [{"t": b.open_time.strftime("%Y-%m-%dT%H:%M:%SZ"), "o": b.open, "h": b.high,
+           "l": b.low, "c": b.close, "v": b.volume} for b in bars]
+    row = ctc.run_tick(cfg, live=True, force_entry="bull", now_utc=now, raw_bars=raw,
+                       scenario_tag="ENTRY_TP1_TRAIL")
+    assert row["action"] == "BLOCKED_RISK_CAP"
+    assert row["scenario"] is None
+    assert not fake_broker.orders
+
+
+# ============================================================================
+# B1a: get_open_position / read_breaker_tripped (public accessors for
+# crypto_twin_scenarios.py's scheduling gate)
+# ============================================================================
+def test_get_open_position_none_when_flat(tmp_path):
+    cfg = _twin_cfg(tmp_path)
+    assert ctc.get_open_position(cfg) is None
+
+
+def test_get_open_position_returns_the_record_when_open(tmp_path, fake_broker):
+    cfg = _twin_cfg(tmp_path, notional_usd=200.0)
+    fake_broker.position_qty = ctc.entry_qty_btc(cfg)
+    ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0, trigger_level=None, live=True,
+                    scenario_tag="ENTRY_MAX_HOLD")
+    rec = ctc.get_open_position(cfg)
+    assert rec is not None
+    assert rec["scenario"] == "ENTRY_MAX_HOLD"
+
+
+def test_read_breaker_tripped_none_when_no_breaker_file(tmp_path):
+    cfg = _twin_cfg(tmp_path)
+    assert ctc.read_breaker_tripped(cfg) is None
+
+
+def test_read_breaker_tripped_reads_persisted_flag(tmp_path):
+    cfg = _twin_cfg(tmp_path, starting_equity=2000.0, daily_loss_kill_switch_pct=0.30)
+    now = datetime(2026, 7, 10, 5, 0, tzinfo=timezone.utc)
+    state = ctc.load_breaker(cfg, now_utc=now, current_equity=2000.0)
+    state = ctc.ks_tick(state, 1300.0)  # -35% -- trips
+    ctc.save_breaker(cfg, state, now_utc=now, current_equity=1300.0)
+    assert ctc.read_breaker_tripped(cfg) is True
+
+
+# ============================================================================
 # Namespace isolation -- static guard (mirrors test_fleet_journal_bridge.py's AST guard)
 # ============================================================================
 _TWIN_MODULE_FILES = [
@@ -410,6 +612,10 @@ _TWIN_MODULE_FILES = [
     REPO / "setup" / "scripts" / "crypto_twin_broker.py",
     REPO / "setup" / "scripts" / "crypto_twin_levels.py",
     REPO / "setup" / "scripts" / "crypto_twin_signal.py",
+    REPO / "setup" / "scripts" / "crypto_twin_scenarios.py",  # B1b -- everything it writes
+                                                               # (path-coverage.json, scenario-
+                                                               # state.json, incidents.jsonl) is
+                                                               # under cfg.state_dir, same as core.
 ]
 
 _WRITE_ATTR_NAMES = {"write_text", "write_bytes", "mkdir"}

@@ -1,12 +1,6 @@
 {
-  "last_tick_et": "2026-07-11T10:18:50.143670",
-  "ticks_today": 125,
-  "last_action": "MANAGED",
-  "breaker_tripped": false,
-  "account_status": "LIVE",
-  "n_orders_lifetime": 1,
-  "last_error": null,
-  "path_coverage": {
+  "date_utc": "2026-07-11",
+  "branches": {
     "ENTRY_TP1_TRAIL": {
       "tier": "LIVE",
       "status": "IN_PROGRESS",
@@ -70,7 +64,5 @@
       "last_exercised_utc": null,
       "last_result": null
     }
-  },
-  "branches_green_today": 0,
-  "incidents_today": 0
+  }
 }
