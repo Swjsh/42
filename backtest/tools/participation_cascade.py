@@ -59,7 +59,10 @@ Named CORE gates are classified GATE vs WINDOW using heartbeat_core.py's own
 GATE_KEYS list (setup/scripts/heartbeat_core.py) -- window-shaped names
 (morning/afternoon/midday/an explicit hour range) go in _CORE_WINDOW_GATES;
 everything else (including block_elite_bull and block_bull_ribbon_flip -- the
-tier/cohort gates) is a plain GATE_BLOCK.
+tier/cohort gates) is a plain GATE_BLOCK. A row heartbeat_core's staleness-first
+ladder relabeled action=SKIP_STALE_TRIGGER (or that carries its trigger_bar_et
+provenance key) is STALE_TRIGGER regardless of the gate name still sitting in
+`reason` -- see markdown/audits/GATE-PROVENANCE-SWEEP-2026-07-10.md.
 
 OUTPUT: automation/state/participation-cascade.json -- the standing glanceable
 state file: {date, events, joint_participation_pct, top_blockers, verdict,
@@ -275,6 +278,32 @@ def classify_core_row(row: dict) -> dict:
     if not reason or reason == "no setup passed scoring (neither bear nor bull)":
         return _stage(None, None, None, "NO_SIGNAL", CAT_NONE, None, reason or "HOLD")
 
+    tier = None
+    m = re.search(r"\(tier (\w+)\)", reason)
+    if m:
+        tier = m.group(1)
+
+    # GATE-PROVENANCE-SWEEP mirror (2026-07-10): heartbeat_core.run_account now resolves
+    # staleness FIRST, so a prior-session trigger bar ALWAYS logs
+    # action=SKIP_STALE_TRIGGER (+ a top-level trigger_bar_et) -- but `reason` is never
+    # rewritten there, so it still carries whatever engine_cli said about the phantom bar
+    # ("blocked by entry gate block_conf_lvl_rec_afternoon" when yesterday's 15:55 bar
+    # satisfied a GATE_ORDER time-window predicate). The reason-prefix branches below
+    # would re-commit exactly the misattribution that fix removed, so staleness outranks
+    # every NAMED-blocker branch here too. It sits BELOW NO_DATA/NO_SIGNAL deliberately
+    # (heartbeat_core relabels stale HOLDs as well): those buckets mean "nothing fired,
+    # nothing to attribute", and promoting phantom HOLD ticks into STALE_TRIGGER would
+    # inflate passed_scoring -- enough to flip a day's PARTICIPATION_HOLE verdict on a
+    # stale-heavy open. Same "stale_trigger_bar" blocker key as _classify_action_code's
+    # SKIP_STALE_TRIGGER arm (still reachable via exec.status on ENTER rows), so both
+    # row shapes aggregate under one leaderboard line and one dedup identity.
+    # Guard: test_participation_cascade.py::TestStaleTriggerOutranksGateAttribution.
+    if str(row.get("action") or "") == "SKIP_STALE_TRIGGER" or row.get("trigger_bar_et"):
+        detail = str(row.get("action") or "SKIP_STALE_TRIGGER")
+        if row.get("trigger_bar_et"):
+            detail += f" trigger_bar_et={row['trigger_bar_et']}"
+        return _stage(side, setup, tier, "STALE_TRIGGER", CAT_EXEC, "stale_trigger_bar", detail)
+
     if reason.startswith("structure-veto:"):
         return _stage(side, setup, None, "STRUCTURE_VETO", CAT_VETO, "structure_veto", reason)
 
@@ -283,11 +312,6 @@ def classify_core_row(row: dict) -> dict:
         cat = CAT_WINDOW if name in _CORE_WINDOW_GATES else CAT_GATE
         stage_name = "WINDOW_BLOCK" if cat == CAT_WINDOW else "GATE_BLOCK"
         return _stage(side, setup, None, stage_name, cat, name, reason)
-
-    tier = None
-    m = re.search(r"\(tier (\w+)\)", reason)
-    if m:
-        tier = m.group(1)
 
     if not verdict.startswith("ENTER"):
         # a named SKIP_*/other verdict not covered by the two branches above --

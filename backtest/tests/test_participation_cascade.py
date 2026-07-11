@@ -176,6 +176,112 @@ class TestClassifyCoreRow:
 
 
 # ---------------------------------------------------------------------------
+# staleness outranks gate attribution -- the GATE-PROVENANCE-SWEEP mirror
+# ---------------------------------------------------------------------------
+
+class TestStaleTriggerOutranksGateAttribution:
+    """Mirror of the heartbeat_core.py staleness-first fix (2026-07-10, see
+    markdown/audits/GATE-PROVENANCE-SWEEP-2026-07-10.md + the engine-side guard
+    test_gate_provenance_ordering_2026_07_10.py): run_account relabels
+    rec["action"] to SKIP_STALE_TRIGGER but NEVER rewrites rec["reason"], so a
+    post-fix stale-bar tick reads action=SKIP_STALE_TRIGGER + trigger_bar_et
+    while `reason` still says "blocked by entry gate <id>". Pre-fix,
+    classify_core_row's reason-prefix branch re-committed the exact
+    misattribution the heartbeat fix removed -- a phantom prior-session bar
+    counted under a live gate's name, contaminating the gate census this
+    instrument exists to keep honest."""
+
+    _STALE_BAR = "2026-07-09T15:55:00-04:00"  # the real 07-10 phantom (audit SS1.1)
+
+    def test_stale_action_outranks_window_gate_reason(self):
+        """THE incident shape, as heartbeat_core logs it post-fix: bold's
+        09:31-09:35 stale echo now carries action=SKIP_STALE_TRIGGER while the
+        gate text stays in verdict/reason. Must count as STALE_TRIGGER, never
+        as a WINDOW_BLOCK under the gate's name."""
+        r = {"verdict": "SKIP_CONF_LVL_REC_AFTERNOON", "action": "SKIP_STALE_TRIGGER",
+             "side": "C", "setup": None,
+             "reason": "blocked by entry gate block_conf_lvl_rec_afternoon",
+             "trigger_bar_et": self._STALE_BAR}
+        c = pc.classify_core_row(r)
+        assert c["stage"] == "STALE_TRIGGER", (
+            f"phantom stale-bar tick attributed to {c['blocker']!r} ({c['stage']}) "
+            "-- GATE-PROVENANCE-SWEEP-2026-07-10 regression, consumer side")
+        assert c["category"] == pc.CAT_EXEC
+        assert c["blocker"] == "stale_trigger_bar"
+
+    def test_stale_action_outranks_plain_gate_reason(self):
+        r = {"verdict": "SKIP_ELITE_BULL_LEVEL_RECLAIM", "action": "SKIP_STALE_TRIGGER",
+             "side": "C", "setup": None,
+             "reason": "blocked by entry gate block_elite_bull",
+             "trigger_bar_et": self._STALE_BAR}
+        c = pc.classify_core_row(r)
+        assert c["stage"] == "STALE_TRIGGER"
+        assert c["blocker"] == "stale_trigger_bar"
+
+    def test_stale_action_outranks_structure_veto_reason(self):
+        """The veto read the same phantom bar context -- staleness precedes the
+        structure-veto branch too, matching heartbeat_core's unconditional relabel."""
+        r = {"verdict": "SKIP_STRUCTURE_VETO", "action": "SKIP_STALE_TRIGGER",
+             "side": "C", "setup": None,
+             "reason": "structure-veto: C entry blocked -- price structure is 'downtrend' (wrong-way entry)",
+             "trigger_bar_et": self._STALE_BAR}
+        c = pc.classify_core_row(r)
+        assert c["stage"] == "STALE_TRIGGER"
+
+    def test_trigger_bar_et_alone_marks_staleness(self):
+        """Fallback detector: top-level trigger_bar_et has exactly ONE writer in
+        heartbeat_core.py (the staleness branch) -- its presence marks the row
+        stale even if a future edit ever changes the action label."""
+        r = {"verdict": "SKIP_BULL_1100_1200", "action": "SKIP_BULL_1100_1200",
+             "side": "C", "setup": None,
+             "reason": "blocked by entry gate block_bull_1100_1200",
+             "trigger_bar_et": self._STALE_BAR}
+        c = pc.classify_core_row(r)
+        assert c["stage"] == "STALE_TRIGGER"
+
+    def test_stale_hold_stays_no_signal(self):
+        """Deliberate ordering: NO_DATA/NO_SIGNAL stay ABOVE staleness.
+        heartbeat_core relabels stale HOLDs too, but a tick where nothing fired
+        has nothing to attribute -- promoting phantom HOLDs into STALE_TRIGGER
+        (a passed-scoring stage) would inflate passed_scoring and could flip a
+        day's PARTICIPATION_HOLE verdict on a stale-heavy open."""
+        r = {"verdict": "HOLD", "action": "SKIP_STALE_TRIGGER",
+             "reason": "no setup passed scoring (neither bear nor bull)",
+             "trigger_bar_et": self._STALE_BAR}
+        c = pc.classify_core_row(r)
+        assert c["stage"] == "NO_SIGNAL"
+        assert c["category"] == pc.CAT_NONE
+
+    def test_stale_enter_keeps_tier_and_blocker_key(self):
+        """The already-correct ENTER shape (SAFE's real 07-10 rows) must classify
+        identically through the hoisted branch: same stage/category/blocker AND
+        the tier still parsed from the reason, so the leaderboard tiers field and
+        the dedup identity are unchanged."""
+        r = {"verdict": "ENTER_BULL", "action": "SKIP_STALE_TRIGGER", "side": "C",
+             "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+             "reason": "BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier SUPER)",
+             "trigger_bar_et": self._STALE_BAR}
+        c = pc.classify_core_row(r)
+        assert c["stage"] == "STALE_TRIGGER"
+        assert c["category"] == pc.CAT_EXEC
+        assert c["blocker"] == "stale_trigger_bar"
+        assert c["tier"] == "SUPER"
+
+    def test_fresh_gate_block_unaffected(self):
+        """Non-regression: a live gate row (no stale markers -- every pre-fix row
+        and every fresh-bar row) still attributes to the gate. The pinned
+        07-09/07-10 real-tape fixtures are entirely pre-fix rows, so
+        TestParticipationHoleOnRealTape doubles as the bulk non-regression
+        check for this change."""
+        r = {"verdict": "SKIP_CONF_LVL_REC_AFTERNOON", "action": "SKIP_CONF_LVL_REC_AFTERNOON",
+             "side": "C", "setup": None,
+             "reason": "blocked by entry gate block_conf_lvl_rec_afternoon"}
+        c = pc.classify_core_row(r)
+        assert c["stage"] == "WINDOW_BLOCK"
+        assert c["blocker"] == "block_conf_lvl_rec_afternoon"
+
+
+# ---------------------------------------------------------------------------
 # FLEET row classification -- one case per real skip/reason/risk_code string
 # catalogued from automation/state/fleet/<arm>/decisions.jsonl
 # ---------------------------------------------------------------------------
