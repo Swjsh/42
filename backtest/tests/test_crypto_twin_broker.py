@@ -49,6 +49,53 @@ def test_get_twin_creds_raises_keyerror_when_no_twin_entry(tmp_path, monkeypatch
         ctb.get_twin_creds()
 
 
+# --- crypto-approval check (2026-07-11, added after confirming via Alpaca's docs +live ----
+# account reads that crypto shares an account's EXISTING approval state -- see
+# https://docs.alpaca.markets/us/docs/crypto-trading-1 -- rather than requiring a dedicated
+# account type. A configured-but-unapproved account must fail LOUD and distinctly from a
+# missing-account error, or J ends up debugging the wrong problem after creating the account.
+def _twin_secrets(tmp_path, monkeypatch):
+    p = tmp_path / "secrets.json"
+    p.write_text(json.dumps({"accounts": {"twin": {"key": "K", "secret": "S",
+                                                    "base_url": "https://paper-api.alpaca.markets"}}}))
+    monkeypatch.setattr(ctb, "TWIN_SECRETS_PATH", p)
+    return p
+
+
+def test_get_twin_creds_raises_when_crypto_not_active(tmp_path, monkeypatch):
+    _twin_secrets(tmp_path, monkeypatch)
+    monkeypatch.setattr(ctb, "get_account", lambda creds: {"crypto_status": "INACTIVE"})
+    with pytest.raises(ctb.CryptoNotApprovedError, match="INACTIVE"):
+        ctb.get_twin_creds()
+
+
+def test_get_twin_creds_raises_when_crypto_status_missing(tmp_path, monkeypatch):
+    """A malformed/unexpected account payload (no crypto_status key at all) must fail
+    the SAME way as an explicit INACTIVE -- never silently treated as approved."""
+    _twin_secrets(tmp_path, monkeypatch)
+    monkeypatch.setattr(ctb, "get_account", lambda creds: {})
+    with pytest.raises(ctb.CryptoNotApprovedError):
+        ctb.get_twin_creds()
+
+
+def test_get_twin_creds_succeeds_when_crypto_active(tmp_path, monkeypatch):
+    _twin_secrets(tmp_path, monkeypatch)
+    monkeypatch.setattr(ctb, "get_account", lambda creds: {"crypto_status": "ACTIVE"})
+    creds = ctb.get_twin_creds()
+    assert creds["key"] == "K"
+
+
+def test_get_twin_creds_skips_network_call_when_verify_disabled(tmp_path, monkeypatch):
+    """verify_crypto_status=False must never call get_account -- the escape hatch for
+    contexts that cannot make a network call (e.g. a pure unit test elsewhere)."""
+    _twin_secrets(tmp_path, monkeypatch)
+    def _boom(creds):
+        raise AssertionError("get_account must not be called when verify_crypto_status=False")
+    monkeypatch.setattr(ctb, "get_account", _boom)
+    creds = ctb.get_twin_creds(verify_crypto_status=False)
+    assert creds["key"] == "K"
+
+
 def test_best_effort_market_data_creds_falls_back_to_mcp_json(tmp_path, monkeypatch):
     missing = tmp_path / "secrets.json"
     monkeypatch.setattr(ctb, "TWIN_SECRETS_PATH", missing)

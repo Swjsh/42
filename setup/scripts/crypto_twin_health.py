@@ -114,18 +114,23 @@ def count_orders_lifetime(journal_path: Path) -> int:
 
 
 def account_status() -> str:
-    """'LIVE' when a dedicated twin account is configured (secrets.json has a 'twin'
-    entry) else 'BLOCKED_NO_ACCOUNT' -- mirrors run_tick's own creds try/except
-    exactly (FileNotFoundError = secrets.json not created yet, KeyError = file exists
-    but has no 'twin' account entry). NOTE: 'LIVE' describes ACCOUNT CONFIGURATION,
-    not order placement -- whether orders actually fire additionally depends on the
-    task's own --live flag, which is separate (and already on, safely no-op'ing,
-    per the T3 build note)."""
+    """'LIVE' when a dedicated twin account is configured AND Alpaca has activated crypto
+    on it; 'BLOCKED_NO_ACCOUNT' when secrets.json has no 'twin' entry yet (FileNotFoundError
+    = not created, KeyError = file exists but missing the entry); 'BLOCKED_CRYPTO_NOT_APPROVED'
+    when the account exists/authenticates but crypto_status != 'ACTIVE' (mirrors run_tick's
+    own creds try/except exactly, including the crypto-approval check added 2026-07-11 after
+    confirming via Alpaca's docs + live account reads that crypto shares an account's existing
+    approval state, not a separate account type -- see crypto_twin_broker.CryptoNotApprovedError).
+    NOTE: 'LIVE' describes ACCOUNT CONFIGURATION, not order placement -- whether orders
+    actually fire additionally depends on the task's own --live flag, which is separate (and
+    already on, safely no-op'ing, per the T3 build note)."""
     try:
         broker.get_twin_creds()
         return "LIVE"
     except (FileNotFoundError, KeyError):
         return "BLOCKED_NO_ACCOUNT"
+    except broker.CryptoNotApprovedError:
+        return "BLOCKED_CRYPTO_NOT_APPROVED"
 
 
 def _read_breaker_tripped(cfg: ctc.TwinConfig) -> Optional[bool]:

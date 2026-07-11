@@ -97,7 +97,18 @@ def load_creds() -> dict[str, dict[str, str]]:
     return out
 
 
-def get_twin_creds() -> dict[str, str]:
+class CryptoNotApprovedError(RuntimeError):
+    """The configured twin account exists and authenticates, but Alpaca has not activated
+    crypto trading on it (crypto_status != "ACTIVE"). Distinct from the missing-account case
+    (FileNotFoundError/KeyError) so a caller can't confuse "no creds yet" with "creds exist
+    but crypto isn't enabled" -- the fix is different (submit the crypto_agreement via the
+    Accounts API; see https://docs.alpaca.markets/us/docs/crypto-trading-1) and a silent
+    misclassification would have J hunting the wrong problem after he's already done the
+    account-creation step. Never raised for a market-data-only caller (crypto bars/quotes
+    are account-agnostic public feeds -- see _best_effort_market_data_creds)."""
+
+
+def get_twin_creds(*, verify_crypto_status: bool = True) -> dict[str, str]:
     """The twin's own dedicated account creds ({"key","secret","base_url"}).
 
     Raises the same FileNotFoundError as load_creds() when unconfigured, or KeyError if
@@ -105,6 +116,14 @@ def get_twin_creds() -> dict[str, str]:
     (bars/quotes) should prefer _best_effort_market_data_creds() instead, which degrades
     gracefully when no account is configured yet -- this function is for ORDER/POSITION/
     ACCOUNT calls, which have no safe fallback (T2 is genuinely blocked without it).
+
+    verify_crypto_status=True (default) additionally confirms the account's crypto_status
+    is "ACTIVE" via GET /v2/account -- raises CryptoNotApprovedError otherwise. Every one of
+    this project's existing paper accounts already shows crypto_status=ACTIVE (verified live
+    2026-07-10 via the core Safe-2/Bold-2 accounts), so a genuinely fresh account is EXPECTED
+    to inherit the same default; this check exists purely so a rarer INACTIVE account fails
+    LOUD with the exact remediation instead of silently misbehaving on order placement.
+    Pass False only from a context that cannot make a network call (e.g. a pure unit test).
     """
     creds = load_creds()
     if "twin" not in creds:
@@ -112,7 +131,17 @@ def get_twin_creds() -> dict[str, str]:
             f"crypto_twin_broker: {TWIN_SECRETS_PATH} has no 'twin' account entry "
             f"(have {list(creds)}). See {TWIN_SECRETS_EXAMPLE.name}."
         )
-    return creds["twin"]
+    twin_creds = creds["twin"]
+    if verify_crypto_status:
+        acct = get_account(twin_creds)
+        status = (acct or {}).get("crypto_status")
+        if status != "ACTIVE":
+            raise CryptoNotApprovedError(
+                f"crypto_twin_broker: twin account crypto_status={status!r} (need 'ACTIVE'). "
+                "Submit the crypto_agreement via Alpaca's Accounts API for this account, then "
+                "retry -- see https://docs.alpaca.markets/us/docs/crypto-trading-1"
+            )
+    return twin_creds
 
 
 def _best_effort_market_data_creds() -> Optional[dict[str, str]]:

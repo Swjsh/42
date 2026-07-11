@@ -493,10 +493,15 @@ def run_tick(cfg: TwinConfig = TwinConfig(), *, live: bool = False,
     else:
         verdict = sig.evaluate(bars, levels)
 
+    account_block_reason: Optional[str] = None
     try:
         creds = broker.get_twin_creds()
     except (FileNotFoundError, KeyError):
         creds = None
+        account_block_reason = "BLOCKED_NO_ACCOUNT"
+    except broker.CryptoNotApprovedError as e:
+        creds = None
+        account_block_reason = f"BLOCKED_CRYPTO_NOT_APPROVED: {e}"
 
     equity = cfg.starting_equity
     if creds is not None:
@@ -526,7 +531,7 @@ def run_tick(cfg: TwinConfig = TwinConfig(), *, live: bool = False,
         elif not risk_decision.allowed:
             action = f"BLOCKED_{risk_decision.code}"
         elif creds is None:
-            action = "BLOCKED_NO_ACCOUNT"
+            action = account_block_reason or "BLOCKED_NO_ACCOUNT"
         else:
             result = place_entry(cfg, creds=creds, side=verdict.side, price=price,
                                  trigger_level=verdict.trigger_level_exact, live=live, now_utc=now)

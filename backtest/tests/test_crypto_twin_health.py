@@ -120,7 +120,20 @@ def test_account_status_live_when_twin_creds_present(monkeypatch, tmp_path):
     p = tmp_path / "secrets.json"
     p.write_text(json.dumps({"accounts": {"twin": {"key": "K", "secret": "S"}}}))
     monkeypatch.setattr(cth.broker, "TWIN_SECRETS_PATH", p)
+    monkeypatch.setattr(cth.broker, "get_account", lambda creds: {"crypto_status": "ACTIVE"})
     assert cth.account_status() == "LIVE"
+
+
+def test_account_status_blocked_when_crypto_not_approved(monkeypatch, tmp_path):
+    """2026-07-11: crypto shares an account's EXISTING approval state (confirmed via Alpaca's
+    docs + live account reads) rather than needing a dedicated account type -- so a configured
+    account can still be blocked if Alpaca hasn't activated crypto_status on it. Must surface
+    as its OWN distinct status, not get conflated with 'no account configured yet'."""
+    p = tmp_path / "secrets.json"
+    p.write_text(json.dumps({"accounts": {"twin": {"key": "K", "secret": "S"}}}))
+    monkeypatch.setattr(cth.broker, "TWIN_SECRETS_PATH", p)
+    monkeypatch.setattr(cth.broker, "get_account", lambda creds: {"crypto_status": "INACTIVE"})
+    assert cth.account_status() == "BLOCKED_CRYPTO_NOT_APPROVED"
 
 
 def test_account_status_blocked_when_secrets_exist_but_no_twin_entry(monkeypatch, tmp_path):
