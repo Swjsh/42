@@ -549,15 +549,24 @@ def run_subject(subject: str, *, force: bool = False, allow_llm_fallback: bool =
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--subject", default="heartbeat_veto",
-                    help=f"one of {sorted(AUDIT_SUBJECTS)} (default: heartbeat_veto)")
+    ap.add_argument("--subject", default="all",
+                    help=f"one of {sorted(AUDIT_SUBJECTS)}, or 'all' to run every registered "
+                         "subject in sequence (default: all -- each subject still self-gates "
+                         "its OWN cadence independently, so 'all' is safe to fire daily)")
     ap.add_argument("--force", action="store_true", help="ignore the cadence gate")
     ap.add_argument("--no-llm-fallback", action="store_true",
                     help="counterfactual-only; ungrade rather than call Sonnet")
     args = ap.parse_args()
-    result = run_subject(args.subject, force=args.force,
-                         allow_llm_fallback=not args.no_llm_fallback)
-    return 0 if result.get("status") in ("RAN", "SKIPPED_NOT_DUE", "SKIPPED_UNWIRED") else 1
+    ok_statuses = ("RAN", "SKIPPED_NOT_DUE", "SKIPPED_UNWIRED")
+    subjects = sorted(AUDIT_SUBJECTS) if args.subject == "all" else [args.subject]
+    exit_code = 0
+    for subject in subjects:
+        result = run_subject(subject, force=args.force,
+                             allow_llm_fallback=not args.no_llm_fallback)
+        if result.get("status") not in ok_statuses:
+            print(f"[free_model_audit] {subject}: FAILED status={result.get('status')}", file=sys.stderr)
+            exit_code = 1
+    return exit_code
 
 
 if __name__ == "__main__":

@@ -2,8 +2,11 @@
 <#
 .SYNOPSIS
   Register Gamma_FreeModelAudit -- daily 21:00 ET (19:00 MT) fire of
-  setup/scripts/free_model_audit.py --subject heartbeat_veto (J directive 2026-07-11:
+  setup/scripts/free_model_audit.py --subject all (J directive 2026-07-11:
   "audit it every other day until we're confident in it... reusable harness framework").
+  "all" grades every registered AUDIT_SUBJECTS entry each fire (heartbeat_veto, twin_review,
+  future subjects) -- each self-gates its own cadence independently, so adding a new subject
+  never requires re-touching this installer again.
 
   Grades heartbeat_core.py's `_free_model_eval` 2-lane free-model veto gate against ground
   truth: real fill P&L for GO decisions, counterfactual replay (real OPRA option bars through
@@ -67,9 +70,14 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-# wscript -> run_exe_hidden.vbs -> backtest-venv pythonw -> free_model_audit.py --subject heartbeat_veto
-# (flash-free chain; reaper-exempt by construction -- see docstring above).
-$wscriptArgs = "//nologo `"$vbs`" `"$pythonwVenv`" `"$script`" `"--subject`" `"heartbeat_veto`""
+# wscript -> run_exe_hidden.vbs -> backtest-venv pythonw -> free_model_audit.py --subject all
+# (flash-free chain; reaper-exempt by construction -- see docstring above). "all" runs every
+# registered AUDIT_SUBJECTS entry (heartbeat_veto, twin_review, ...future subjects) in one
+# fire -- each subject self-gates its OWN cadence independently, so this stays safe to call
+# daily even as more subjects get wired (fixed 2026-07-11: this task originally hardcoded
+# --subject heartbeat_veto, so twin_review's B2 wiring was never actually graded on a
+# schedule despite being registered in the harness).
+$wscriptArgs = "//nologo `"$vbs`" `"$pythonwVenv`" `"$script`" `"--subject`" `"all`""
 $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs -WorkingDirectory $root
 
 # 21:00 ET weekday-and-weekend daily fire (the SCRIPT decides every-other-day internally --
