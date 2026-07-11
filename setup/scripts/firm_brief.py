@@ -250,15 +250,23 @@ def _format_coverage_suffix(coverage_data: dict, gauntlet_data: Optional[dict]) 
     incident(s), gauntlet: PASS 20:41." Fail-open: missing/empty coverage_data
     renders an honest "no path-coverage data yet" note rather than fabricating
     numbers (a scenario scheduler that hasn't shipped yet must never LOOK green).
-    Schema source: setup/scripts/twin_gauntlet.py's module docstring (B2a) --
-    automation/state/crypto-twin/path-coverage.json + gauntlet-last.json."""
-    paths = (coverage_data or {}).get("paths") or {}
-    if not paths:
+    Schema (fixed 2026-07-11, three independent crews converged on the same
+    finding): automation/state/crypto-twin/path-coverage.json's REAL producer
+    (crypto_twin_scenarios.py's BRANCH_REGISTRY + crypto_twin_health.py's
+    summarize_path_coverage(), confirmed by twin_sentinel.py's
+    parse_path_coverage()) writes {"branches": {NAME: {"status":
+    "PENDING"|"IN_PROGRESS"|"NOT_YET_COVERED"|"GREEN"|"INCIDENT", ...}}} --
+    NOT the {"paths": {...: {"status": "green"}}} shape this function was
+    originally built against (a guess made before the real producer shipped),
+    which meant `paths` was always empty and coverage silently never rendered
+    even once real data existed."""
+    branches = (coverage_data or {}).get("branches") or {}
+    if not branches:
         cov_s = "coverage: no path-coverage data yet"
     else:
-        total = len(paths)
-        green = sum(1 for p in paths.values() if isinstance(p, dict) and p.get("status") == "green")
-        incidents = sum(1 for p in paths.values() if isinstance(p, dict) and p.get("last_incident"))
+        total = len(branches)
+        green = sum(1 for b in branches.values() if isinstance(b, dict) and b.get("status") == "GREEN")
+        incidents = sum(1 for b in branches.values() if isinstance(b, dict) and b.get("status") == "INCIDENT")
         cov_s = f"coverage: {green}/{total} branches green today, {incidents} incident(s)"
     gauntlet_s = ""
     if gauntlet_data:

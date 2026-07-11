@@ -134,20 +134,20 @@ def test_single_arg_call_is_byte_for_byte_unaffected_by_the_extension():
 
 
 def test_coverage_extends_the_same_line_not_a_new_bullet():
-    lines = fb.render_twin_lines(_HEALTHY_DATA, {"paths": {"tp1_trail": {"status": "green"}}})
+    lines = fb.render_twin_lines(_HEALTHY_DATA, {"branches": {"tp1_trail": {"status": "GREEN"}}})
     assert len(lines) == 1                      # still ONE line -- extended, not appended-as-new
     assert lines[0].startswith("- TWIN:")
     assert "coverage:" in lines[0]
 
 
 def test_coverage_renders_green_fraction_and_incident_count():
-    coverage = {"paths": {
-        "tp1_trail": {"status": "green", "last_incident": None},
-        "structure_stop": {"status": "green", "last_incident": None},
-        "catastrophe_cap": {"status": "green", "last_incident": None},
-        "max_hold": {"status": "green", "last_incident": None},
-        "restart_open_position": {"status": "green", "last_incident": None},
-        "entry": {"status": "red", "last_incident": "wrong stage observed"},
+    coverage = {"branches": {
+        "tp1_trail": {"status": "GREEN"},
+        "structure_stop": {"status": "GREEN"},
+        "catastrophe_cap": {"status": "GREEN"},
+        "max_hold": {"status": "GREEN"},
+        "restart_open_position": {"status": "GREEN"},
+        "entry": {"status": "INCIDENT"},
     }}
     line = fb.render_twin_lines(_HEALTHY_DATA, coverage)[0]
     assert "coverage: 5/6 branches green today, 1 incident(s)" in line
@@ -162,28 +162,28 @@ def test_coverage_missing_data_renders_honest_no_data_yet():
 
 
 def test_coverage_with_gauntlet_result_appends_pass_and_time():
-    coverage = {"paths": {"tp1_trail": {"status": "green"}}}
+    coverage = {"branches": {"tp1_trail": {"status": "GREEN"}}}
     gauntlet = {"overall": "PASS", "ts_et": "2026-07-11T20:41:07"}
     line = fb.render_twin_lines(_HEALTHY_DATA, coverage, gauntlet)[0]
     assert "gauntlet: PASS 20:41" in line
 
 
 def test_coverage_with_gauntlet_fail_surfaces_fail_not_silently_pass():
-    coverage = {"paths": {"structure_stop": {"status": "red", "last_incident": "timeout"}}}
+    coverage = {"branches": {"structure_stop": {"status": "INCIDENT"}}}
     gauntlet = {"overall": "FAIL", "ts_et": "2026-07-11T20:41:07"}
     line = fb.render_twin_lines(_HEALTHY_DATA, coverage, gauntlet)[0]
     assert "gauntlet: FAIL 20:41" in line
 
 
 def test_coverage_present_but_no_gauntlet_data_omits_gauntlet_clause():
-    line = fb.render_twin_lines(_HEALTHY_DATA, {"paths": {"tp1_trail": {"status": "green"}}}, None)[0]
+    line = fb.render_twin_lines(_HEALTHY_DATA, {"branches": {"tp1_trail": {"status": "GREEN"}}}, None)[0]
     assert "coverage:" in line
     assert "gauntlet:" not in line
 
 
 def test_coverage_suffix_placed_before_last_error_which_still_appears_last():
     data = dict(_HEALTHY_DATA, last_error="ConnectionError: simulated")
-    line = fb.render_twin_lines(data, {"paths": {"tp1_trail": {"status": "green"}}})[0]
+    line = fb.render_twin_lines(data, {"branches": {"tp1_trail": {"status": "GREEN"}}})[0]
     assert line.index("coverage:") < line.index("LAST ERROR")
 
 
@@ -195,7 +195,7 @@ def test_build_brief_wires_coverage_and_gauntlet_into_footer(tmp_path, monkeypat
     twin_dir.mkdir(parents=True)
     (tmp_path / "twin-health.json").write_text(json.dumps(_HEALTHY_DATA), encoding="utf-8")
     (twin_dir / "path-coverage.json").write_text(
-        json.dumps({"paths": {"tp1_trail": {"status": "green"}, "structure_stop": {"status": "green"}}}),
+        json.dumps({"branches": {"tp1_trail": {"status": "GREEN"}, "structure_stop": {"status": "GREEN"}}}),
         encoding="utf-8")
     (twin_dir / "gauntlet-last.json").write_text(
         json.dumps({"overall": "PASS", "ts_et": "2026-07-11T20:41:07"}), encoding="utf-8")
