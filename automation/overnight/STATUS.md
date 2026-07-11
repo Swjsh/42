@@ -2760,3 +2760,6 @@ Kitchen: alive, queue 44 pending, last cook 0 min ago, today $0.00, model=openro
 - BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
 
 - [2026-07-11 07:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 85.71% in last 24h (42/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 4.08% in last 24h (2/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T10:10:02
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).

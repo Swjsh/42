@@ -1,0 +1,37 @@
+{
+  "verdict": "GREEN",
+  "reasons": [],
+  "notes": [
+    "incidents.jsonl not present -- incident count treated as 0 (fail-open)"
+  ],
+  "facts": {
+    "last_tick_utc": "2026-07-11T13:58:50.136088+00:00",
+    "tick_age_minutes": 1.15,
+    "ticks_today_utc": 156,
+    "expected_ticks_utc": 167,
+    "uptime_pct": 93.4,
+    "incidents_today": 0,
+    "incidents_from_jsonl": 0,
+    "incidents_from_coverage": 0,
+    "incidents_undated": 0,
+    "coverage": {
+      "total": 9,
+      "green": 0,
+      "incidents": 0,
+      "date_utc": "2026-07-11"
+    },
+    "breaker_tripped": false,
+    "account_status": "LIVE",
+    "last_action": "MANAGED",
+    "last_error": null
+  },
+  "checked_at_et": "2026-07-11T09:59:59.196149",
+  "checked_at_utc": "2026-07-11T13:59:59.196145+00:00",
+  "escalation": {
+    "episode_active": false,
+    "queue_row_written_this_episode": false,
+    "ping_sent_this_episode": false
+  },
+  "last_review_note": null,
+  "review_ran_this_fire": false
+}
