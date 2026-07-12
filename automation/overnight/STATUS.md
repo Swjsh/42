@@ -1,3 +1,31 @@
+## [2026-07-11] PROBE ARM WAS DEAD ON ARRIVAL SINCE SHIP — ledger-source fix (closed, 1 commit)
+
+> Bug confirmed in code review before dispatch (not a hunch, not inferred). `_probe_passed_blocks()` (`automation/state/fleet/build_shared_signal.py`) read `account="bold"` -- a copy-paste of `_bold_passed_blocks`' own read; the docstring even said "off the BOLD ledger (same source `_bold_passed_blocks` already reads)". But the probe arm's ONLY allowlisted cohort (`PROBE_ALLOWED_VERDICTS = {"SKIP_BULL_1100_1200"}`, narrowed same-session by the gate-provenance sweep, commit `54d5840`) maps to `block_bull_1100_1200`, a gate that lives ONLY in Safe's `automation/state/params.json` (confirmed absent from `aggressive/params.json`). Each account's `heartbeat_core.GATE_KEYS`-driven engine (`setup/scripts/heartbeat_core.py:125-133`) reads gate knobs from ITS OWN params file, so Bold's engine has no such key and can never emit `action=="SKIP_BULL_1100_1200"` -- corroborated against 4,342 real bold `core-decisions.jsonl` rows: 0 BULL_1100_1200 hits, ever. The arm built specifically to convert this ONE blocked cohort into forward evidence was reading a ledger where that cohort structurally can never appear. Dead on arrival, silently, from ship (2026-07-10) through this fix.
+>
+> **Full cohort x account-scope table** (every `block_*` cohort gate in `heartbeat_core.GATE_KEYS`, cross-checked live against both real params files; verdict names confirmed from `backtest/lib/engine/gates.py`, not inferred):
+>
+> | gate key | verdict | Safe `params.json` | Bold `aggressive/params.json` | on probe allowlist? |
+> |---|---|---|---|---|
+> | `block_bull_1100_1200` | `SKIP_BULL_1100_1200` | **true** | absent | **YES — the only bypassed cohort** |
+> | `block_elite_bull` (+vix band) | `SKIP_ELITE_BULL_LEVEL_RECLAIM` | true (VIX 0-25) | true (VIX 15-18) | no — KEEP, SS-B revalidation ~6.9x worse |
+> | `block_bull_ribbon_flip` | `SKIP_BULL_RIBBON_FLIP` | absent | absent | n/a — never armed either side (3rd independent audit) |
+> | `block_bull_morning_agg` | `SKIP_BULL_MORNING_AGG` | absent | false (armed off) | no — excluded |
+> | `block_level_rejection` | `SKIP_LEVEL_REJECTION_GATE` | true | false | no — excluded (bear-side; allowlist is bull-only anyway) |
+> | `block_conf_lvl_rej_midday_afternoon` | `SKIP_CONF_LVL_REJ_MIDDAY_AFTERNOON` | absent | false | no — excluded |
+> | `block_conf_lvl_rec_afternoon` | `SKIP_CONF_LVL_REC_AFTERNOON` | absent | true | no — excluded (proven stale-bar-echo artifact) |
+>
+> 100% of today's allowlist is Safe-side, so the fix reads Safe. Note the wider table is genuinely mixed (some gates Bold-only-armed) -- confirms this needed checking per-cohort, not assuming one side.
+>
+> **Fix (surgical, `build_shared_signal.py` only):** new module constants `PROBE_LEDGER_ACCOUNT = "safe"` + `PROBE_COHORT_GATE_KEYS = {"SKIP_BULL_1100_1200": "block_bull_1100_1200"}`; `_probe_passed_blocks()` now reads `account=PROBE_LEDGER_ACCOUNT` instead of hardcoded `"bold"`. Corrected the stale "off the BOLD ledger" claims in both `build_shared_signal.py`'s comments/docstrings AND `accounts.json`'s `probe_arm._doc`. `_bold_passed_blocks`/`build_shadow`/`SCORING_PEAK_LIVE` (the separate dual-perception scoring-peak paths) untouched -- surgical, not a refactor.
+>
+> **Guards (`test_probe_arm.py`):** (1) `test_probe_passed_blocks_dead_on_bold_ledger_reads_safe_instead` -- non-vacuity: seeds ONLY a safe-account row with the cohort verdict, asserts `passed=True`. **Verified by ACTUAL execution against the pre-fix code** (git-stashed just the production fix, kept the test, ran it): **FAILED** (`assert False is True`) -- proves the fix changed real behavior, not just a docstring. (2) `test_probe_allowlist_gates_present_on_read_account_params` -- drift guard: for every verdict in `PROBE_ALLOWED_VERDICTS`, asserts its mapped gate key is present in the REAL params file of whichever account the probe reads; **also FAILED pre-fix** (`AttributeError: no attribute 'PROBE_LEDGER_ACCOUNT'`). 3 pre-existing tests had gone silently vacuous (seeded `account="bold"` for a Safe-only cohort, coincidentally passing via a not-found-row empty stub rather than exercising the real block) -- corrected to `account="safe"`: `test_probe_passed_blocks_tags_the_bull_side_with_blocked_verdict`, `test_probe_passed_blocks_elite_verdict_never_passes`, `test_probe_passed_blocks_side_discrimination_bear` (this last one would have started genuinely FAILING post-fix if left unfixed, not just gone vacuous).
+>
+> **Tests (quoted):** `automation/state/fleet/` full suite -- before **239 passed** (baseline, commit `f799298`), after **241 passed** (+2 net-new guards, zero regressions). `test_probe_arm.py` alone: **41/41** (was 39/39). Daily-cap plumbing (`fleet_live._load_probe_count`/`_record_probe_entry`, the "probe-arm daily-cap counter" fix) re-verified green and unaffected -- `signal['probe']`'s shape is byte-identical, only its source ledger changed, and the daily-cap counter has no coupling to which ledger produced the signal.
+>
+> De-arm unaffected: `accounts.json`'s `probe_arm.enabled=false` still instantly kills the arm regardless of this fix.
+
+---
+
 ## [2026-07-11] GATE-PROVENANCE FOLLOW-UP FIXES — MIN-RIBBON-SEMI-ARMED-FIX + SAFE3-CONFIDENCE-ALWAYS-BLOCK-FIX (both closed, 2 independent commits)
 
 > From `markdown/audits/GATE-PROVENANCE-AUDIT-2026-07-02.md` findings G8/F1 (ribbon-momentum) and E5/F6 (safe-3 confidence gate), tracked in `automation/overnight/queue.md`. Same investigation also touches the "6 fleet arms, 700+ signals, zero trades" participation-cascade thread from earlier tonight — these two bugs are part of why some of those arms couldn't fire.

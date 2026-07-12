@@ -625,9 +625,26 @@ def passed_scoring_peak(side: str, action, score, trigger, fired) -> bool:
 # this block) so they apply to a probe-sourced plan exactly like any other.
 # Consumed ONLY by fleet_executor.py's probe-arm path (accounts.json top-level "probe_arm"
 # block); every other reader ignores the new 'probe' signal key, so this addition is inert
-# for every other arm regardless of PROBE_COHORT_LIVE. Mirrors _bold_passed_blocks' shape +
-# the SAME BOLD-ledger source (risky-3, the probe arm, already reads bold-perception).
+# for every other arm regardless of PROBE_COHORT_LIVE.
 PROBE_ALLOWED_VERDICTS = frozenset({"SKIP_BULL_1100_1200"})
+
+# LEDGER-SOURCE FIX (2026-07-11, found in code review before dispatch, confirmed here):
+# every verdict on PROBE_ALLOWED_VERDICTS maps (via PROBE_COHORT_GATE_KEYS below) to a
+# params.json gate key. block_bull_1100_1200 is a SAFE-ONLY gate -- confirmed absent from
+# automation/state/aggressive/params.json (grep, both files) and present in heartbeat_core.
+# GATE_KEYS (setup/scripts/heartbeat_core.py:125-133), which each account's engine reads
+# from ITS OWN params file. Bold's engine has no such key to read, so it can never emit
+# action=="SKIP_BULL_1100_1200" -- confirmed against 4,342 real bold core-decisions.jsonl
+# rows: 0 BULL_1100_1200 hits, ever. _probe_passed_blocks() below read account="bold" at
+# ship (a copy-paste of _bold_passed_blocks' read, never re-derived for the probe's actual
+# allowlist scope) -- so the ONE cohort this arm exists to probe could structurally never be
+# read off the ledger it consulted. Dead on arrival, silently, from ship (2026-07-10) until
+# this fix. Reads PROBE_LEDGER_ACCOUNT instead now. If the allowlist ever grows a bold-side
+# (or mixed) cohort, PROBE_LEDGER_ACCOUNT/the read logic must be revisited by hand -- the
+# drift guard (test_probe_arm.py::test_probe_allowlist_gates_present_on_read_account_params)
+# fails loudly if a future addition's gate isn't a key in the read account's params file.
+PROBE_LEDGER_ACCOUNT = "safe"
+PROBE_COHORT_GATE_KEYS = {"SKIP_BULL_1100_1200": "block_bull_1100_1200"}
 
 # DEFAULT ON (2026-07-10 ship): build()'s emitted 'probe' block is pure additive data --
 # harmless whether or not any arm's accounts.json probe_arm.enabled reads it (same "extra
@@ -657,23 +674,28 @@ def passed_probe_cohort(action, trigger, fired) -> bool:
 
 
 def _probe_passed_blocks(today: str, now: datetime) -> dict:
-    """Raw cohort-block-bypass blocks off the BOLD ledger (same source _bold_passed_blocks
-    already reads). blocked_verdict carries the ORIGINAL core verdict for THIS tick so the
-    probe arm can tag its entry reason with exactly which gate it bypassed (e.g.
-    SKIP_ELITE_BULL_LEVEL_RECLAIM -> reason 'PROBE_ARM cohort=elite_bull_level_reclaim').
-    Side discrimination uses the ledger's OWN `side` field (row['side'], 'C'|'P') rather than
-    a score-based inference (passed_scoring_peak's implicit protection: the LOSING side's raw
-    score is usually too low to matter) -- explicit is correct here since this function does
-    not consult score at all."""
+    """Raw cohort-block-bypass blocks off the PROBE_LEDGER_ACCOUNT ledger ("safe" -- FIXED
+    2026-07-11, was hardcoded "bold" at ship. Every verdict on PROBE_ALLOWED_VERDICTS maps to
+    a SAFE-only params.json gate (see the PROBE_COHORT_GATE_KEYS module comment above); the
+    bold ledger this function used to read structurally has zero rows carrying any of those
+    verdicts, so the probe arm could never fire. Full evidence in the module comment above
+    PROBE_ALLOWED_VERDICTS). blocked_verdict carries the ORIGINAL core verdict for THIS tick
+    so the probe arm can tag its entry reason with exactly which gate it bypassed (e.g.
+    SKIP_BULL_1100_1200 -> reason 'PROBE_ARM cohort=bull_1100_1200'). Side discrimination uses
+    the ledger's OWN `side` field (row['side'], 'C'|'P') rather than a score-based inference
+    (passed_scoring_peak's implicit protection: the LOSING side's raw score is usually too low
+    to matter) -- explicit is correct here since this function does not consult score at all."""
     if USE_CORE_LEDGER:
-        row = _latest_today_decision(today, account="bold")
-    else:
+        row = _latest_today_decision(today, account=PROBE_LEDGER_ACCOUNT)
+    elif PROBE_LEDGER_ACCOUNT == "bold":
         global DECISIONS
         _safe_decisions, DECISIONS = DECISIONS, BOLD_DECISIONS
         try:
             row = _latest_today_decision(today)
         finally:
             DECISIONS = _safe_decisions
+    else:
+        row = _latest_today_decision(today)
     if row is None:
         return {"bull": dict(_PROBE_EMPTY), "bear": dict(_PROBE_EMPTY)}
     action = row.get("action")

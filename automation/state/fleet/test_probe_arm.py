@@ -171,9 +171,13 @@ def _seed_core(tmp_path, monkeypatch, *, account, verdict, action, setup, side, 
 
 
 def test_probe_passed_blocks_tags_the_bull_side_with_blocked_verdict(tmp_path, monkeypatch):
+    # account="safe": block_bull_1100_1200 is a SAFE-ONLY gate (2026-07-11 fix -- was seeded
+    # "bold" pre-fix, which coincidentally still "passed" this specific assertion only because
+    # _probe_passed_blocks READ "bold" too; see test_probe_passed_blocks_dead_on_bold_ledger_
+    # reads_safe_instead for the fixture that actually discriminates pre-fix from post-fix).
     now = datetime(2026, 7, 10, 11, 21, tzinfo=ET)
     today = now.strftime("%Y-%m-%d")
-    _seed_core(tmp_path, monkeypatch, account="bold", verdict="SKIP_BULL_1100_1200",
+    _seed_core(tmp_path, monkeypatch, account="safe", verdict="SKIP_BULL_1100_1200",
               action="SKIP_BULL_1100_1200", setup="BULLISH_RECLAIM_RIDE_THE_RIBBON",
               side="C", triggers=["level_reclaim", "ribbon_flip", "confluence"], today=today)
     blocks = bss._probe_passed_blocks(today, now)
@@ -186,10 +190,14 @@ def test_probe_passed_blocks_tags_the_bull_side_with_blocked_verdict(tmp_path, m
 
 
 def test_probe_passed_blocks_elite_verdict_never_passes(tmp_path, monkeypatch):
-    """block_elite_bull's verdict on the BOLD ledger -- KEEP, must never surface as passed."""
+    """block_elite_bull's verdict on the SAFE ledger (probe's read account, PROBE_LEDGER_
+    ACCOUNT) -- KEEP, must never surface as passed. account="safe" (2026-07-11: was "bold"
+    pre-fix -- with the pre-fix bold-reading code that seed would have made this assertion
+    pass VACUOUSLY, via a not-found-row empty stub rather than an actual ELITE-verdict block;
+    seeding the account the function now really reads keeps this test meaningful)."""
     now = datetime(2026, 7, 10, 11, 51, tzinfo=ET)
     today = now.strftime("%Y-%m-%d")
-    _seed_core(tmp_path, monkeypatch, account="bold", verdict="SKIP_ELITE_BULL_LEVEL_RECLAIM",
+    _seed_core(tmp_path, monkeypatch, account="safe", verdict="SKIP_ELITE_BULL_LEVEL_RECLAIM",
               action="SKIP_ELITE_BULL_LEVEL_RECLAIM", setup="BULLISH_RECLAIM_RIDE_THE_RIBBON",
               side="C", triggers=["level_reclaim", "confluence"], today=today, ts="11:51:04")
     blocks = bss._probe_passed_blocks(today, now)
@@ -201,8 +209,10 @@ def test_probe_passed_blocks_side_discrimination_bear(tmp_path, monkeypatch):
     now = datetime(2026, 7, 10, 11, 21, tzinfo=ET)
     today = now.strftime("%Y-%m-%d")
     # SKIP_BULL_1100_1200 is bull-only in production, but the pure function only cares about
-    # the allowlist + row['side'] -- prove bear-side discrimination generically.
-    _seed_core(tmp_path, monkeypatch, account="bold", verdict="SKIP_BULL_1100_1200",
+    # the allowlist + row['side'] -- prove bear-side discrimination generically. account="safe"
+    # (2026-07-11: block_bull_1100_1200 is Safe-only -- MUST be "safe" post-fix or this fixture
+    # is never found by _probe_passed_blocks and the True assertion below fails).
+    _seed_core(tmp_path, monkeypatch, account="safe", verdict="SKIP_BULL_1100_1200",
               action="SKIP_BULL_1100_1200", setup="BULLISH_RECLAIM_RIDE_THE_RIBBON",
               side="P", triggers=["level_reclaim", "ribbon_flip", "confluence"], today=today,
               bull_score=3, bear_score=9)
@@ -217,7 +227,7 @@ def test_probe_passed_blocks_stale_trigger_never_passes(tmp_path, monkeypatch):
     and _map_core_row collapses it to a bare "HOLD" which is never in the allowlist either)."""
     now = datetime(2026, 7, 10, 9, 31, tzinfo=ET)
     today = now.strftime("%Y-%m-%d")
-    _seed_core(tmp_path, monkeypatch, account="bold", verdict="ENTER_BULL",
+    _seed_core(tmp_path, monkeypatch, account="safe", verdict="ENTER_BULL",
               action="SKIP_STALE_TRIGGER", setup="BULLISH_RECLAIM_RIDE_THE_RIBBON",
               side="C", triggers=["level_reclaim", "ribbon_flip", "confluence"], today=today,
               ts="09:31:04")
@@ -232,6 +242,70 @@ def test_probe_passed_blocks_no_row_is_empty(tmp_path, monkeypatch):
     monkeypatch.setattr(bss, "CORE_DECISIONS", tmp_path / "does-not-exist.jsonl")
     blocks = bss._probe_passed_blocks(today, now)
     assert blocks["bull"]["passed"] is False and blocks["bear"]["passed"] is False
+
+
+# === LEDGER-SOURCE FIX GUARDS (2026-07-11) ====================================================
+# The probe arm shipped 2026-07-10 and was DEAD ON ARRIVAL: _probe_passed_blocks() read
+# account="bold" (copy-pasted from _bold_passed_blocks), but PROBE_ALLOWED_VERDICTS' only
+# cohort (SKIP_BULL_1100_1200) maps to block_bull_1100_1200, a SAFE-ONLY params.json gate
+# (confirmed absent from aggressive/params.json). Bold's engine structurally can never emit
+# that verdict, so the ledger this function read had zero matching rows, ever (4,342 real bold
+# core-decisions.jsonl rows checked, 0 BULL_1100_1200 hits). These two tests guard against the
+# bug reappearing: a non-vacuity test that FAILS on the pre-fix (account="bold") code, and a
+# drift guard that fails loudly if a future allowlist addition's gate lives in the wrong
+# account's params file.
+def test_probe_passed_blocks_dead_on_bold_ledger_reads_safe_instead(tmp_path, monkeypatch):
+    """THE bug this test guards against reappearing. Seeds ONLY a "safe"-account row (the
+    realistic shape -- bold's engine never writes SKIP_BULL_1100_1200, it has no such gate)
+    carrying the cohort-bypass verdict, and asserts probe.bull.passed comes out True.
+
+    Pre-fix trace (account="bold" hardcoded, verified by inspection of the reverted code
+    rather than assumed): _latest_today_core(today, "bold") filters row.get("account") !=
+    "bold" -- the safe-labeled row this fixture writes never matches -- so the ledger read
+    returns None, _probe_passed_blocks returns the empty stub (_PROBE_EMPTY, passed=False),
+    and the assertion below FAILS. Post-fix (reads PROBE_LEDGER_ACCOUNT=="safe"): the same row
+    resolves and passed=True. A regression back to account="bold" (or any read account that
+    doesn't match this cohort's actual gate scope) reproduces the pre-fix failure here
+    immediately -- this is the non-vacuity proof the fix actually changed behavior, not just
+    the docstring."""
+    now = datetime(2026, 7, 10, 11, 21, tzinfo=ET)
+    today = now.strftime("%Y-%m-%d")
+    _seed_core(tmp_path, monkeypatch, account="safe", verdict="SKIP_BULL_1100_1200",
+              action="SKIP_BULL_1100_1200", setup="BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              side="C", triggers=["level_reclaim", "ribbon_flip", "confluence"], today=today)
+    blocks = bss._probe_passed_blocks(today, now)
+    assert blocks["bull"]["passed"] is True
+    assert blocks["bull"]["blocked_verdict"] == "SKIP_BULL_1100_1200"
+    assert blocks["bull"]["setup_name"] == "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+    assert blocks["bear"]["passed"] is False
+
+
+def test_probe_allowlist_gates_present_on_read_account_params():
+    """DRIFT GUARD: every verdict passed_probe_cohort() allows must map (via
+    bss.PROBE_COHORT_GATE_KEYS) to a params.json gate key that is actually present in
+    whichever account's REAL params file _probe_passed_blocks reads (bss.PROBE_LEDGER_
+    ACCOUNT) -- reads the real automation/state/params.json / aggressive/params.json off
+    disk, not a fixture, since the whole point is catching real-world drift. Fails loudly --
+    KeyError on a missing verdict->gate mapping, AssertionError on an account/gate mismatch --
+    if a future PROBE_ALLOWED_VERDICTS addition's gate lives in the OTHER account's params
+    file (or PROBE_LEDGER_ACCOUNT changes without the allowlist being re-scoped), instead of
+    silently reproducing the exact 2026-07-10 dead-on-arrival bug for the new cohort.
+
+    Non-vacuity: flipping bss.PROBE_LEDGER_ACCOUNT to "bold" (the pre-fix value) makes
+    block_bull_1100_1200 absent from aggressive/params.json, so this assertion would fail --
+    confirmed by inspection of the real file (grep), not assumed."""
+    params_path = {
+        "safe": bss.REPO_ROOT / "automation" / "state" / "params.json",
+        "bold": bss.REPO_ROOT / "automation" / "state" / "aggressive" / "params.json",
+    }[bss.PROBE_LEDGER_ACCOUNT]
+    params = json.loads(params_path.read_text(encoding="utf-8"))
+    assert bss.PROBE_ALLOWED_VERDICTS, "allowlist must not be silently emptied"
+    for verdict in bss.PROBE_ALLOWED_VERDICTS:
+        gate_key = bss.PROBE_COHORT_GATE_KEYS[verdict]  # KeyError = missing mapping entry
+        assert gate_key in params, (
+            f"{verdict} -> {gate_key} not present in {params_path.name} "
+            f"(probe reads account={bss.PROBE_LEDGER_ACCOUNT!r}) -- gate moved accounts or "
+            f"the read account is wrong; fix PROBE_LEDGER_ACCOUNT or PROBE_COHORT_GATE_KEYS")
 
 
 def _seed_core_both(tmp_path, monkeypatch, today, *, safe_verdict, safe_action,
@@ -264,9 +338,12 @@ def _seed_core_both(tmp_path, monkeypatch, today, *, safe_verdict, safe_action,
 
 def test_build_emits_probe_block_end_to_end(tmp_path, monkeypatch):
     """build(probe_cohort=True) on a tick where SAFE got SKIP_BULL_1100_1200 (the real 07-10
-    11:21 shape -- Safe-only gate) ALSO carries signal['probe'] (BOLD-sourced, same ledger
-    _bold_passed_blocks already uses) with the bypass, even though the top-level/production-
-    mirror block (SAFE-sourced) stays passed=False."""
+    11:21 shape -- Safe-only gate) ALSO carries signal['probe'] (SAFE-sourced --
+    PROBE_LEDGER_ACCOUNT, fixed 2026-07-11; was BOLD-sourced at ship) with the bypass, even
+    though the top-level/production-mirror block (also SAFE-sourced) stays passed=False. This
+    fixture seeds BOTH accounts identically so it stays green regardless of which side the
+    read targets -- test_probe_passed_blocks_dead_on_bold_ledger_reads_safe_instead is the one
+    that actually discriminates pre-fix (bold) from post-fix (safe) reads."""
     now = datetime(2026, 7, 10, 11, 21, tzinfo=ET)
     today = now.strftime("%Y-%m-%d")
     _seed_core_both(tmp_path, monkeypatch, today,
