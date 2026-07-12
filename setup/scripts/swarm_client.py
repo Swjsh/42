@@ -10,8 +10,9 @@ Why this exists (markdown/planning/FREE-AGENT-PLAN-B-KITCHEN.md sec 7):
     (Gemini/Mistral free train on inputs); they fall back to no-train lanes or local.
   * Quota-aware — per-lane 429 cooldown (in-memory) skips cooling lanes, like
     kitchen_daemon's per-tier cooldowns; cross-provider failover on error.
-  * JSON mode — call_role_json validates against a schema, one repair-retry then
-    failover to the next lane.
+  * JSON mode — call_role_json requires SCHEMA-VALID output per lane: validate,
+    one same-lane repair-retry, then failover to the NEXT lane. A transport-ok
+    response full of reasoning prose is a FAILED lane there — it cannot win.
   * Telemetry — every call appended to automation/state/swarm-calls.jsonl.
 
 HARD CONSTRAINTS (Plan B): never places orders, never touches heartbeat*.md /
@@ -344,32 +345,75 @@ def call_role_json(
     temperature: float = 0.2,
     timeout: int = DEFAULT_TIMEOUT_S,
     task_id: str = "swarm.json",
+    remote_timeout: float = REMOTE_TIMEOUT_S,
 ) -> tuple[dict, Optional[Any]]:
-    """call_role + JSON extraction + schema validation, with one repair-retry.
+    """JSON-mode call: schema-valid output from the FIRST lane that can produce it.
 
-    Returns (envelope, parsed_obj_or_None). On a parse/validation miss, retries
-    the SAME lane once with a terse repair instruction; still failing, the outer
-    call_role loop would already have moved on. Caller checks parsed is not None.
+    Unlike call_role (any non-empty text wins), a lane here only wins by returning
+    schema-valid JSON — a transport-ok response full of reasoning prose is a FAILED
+    lane and falls through to the next one. Before 2026-07-11 non-empty prose was
+    accepted as final and the repair-retry re-entered call_role at lane 0, so a
+    chronically drifting primary (nemotron emitting CoT in content) starved the
+    schema-compliant cerebras/local-floor lanes; the local floor passed the same
+    prompts first-try.
+
+    Repair policy — ONE repair-retry total, pinned to the lane it repairs:
+      * parseable-but-schema-invalid JSON earns it (close = worth one nudge);
+      * no JSON at all forfeits it (failover beats re-rolling the same dice),
+        EXCEPT on the final lane, where it is the last chance either way.
+    Worst case = len(lanes) + 1 model calls.
+
+    Returns (envelope, parsed_or_None); parsed is None only if EVERY lane failed.
+    The envelope also carries json_attempts (total model calls) and
+    json_lanes_rejected (lanes that answered but produced no schema-valid JSON),
+    so caller ledgers accumulate per-lane compliance evidence for the free-model
+    audit harness (OP-32 trust gate).
     """
     sys_json = (system or "") + (
         "\n\nOUTPUT: a single valid JSON value matching the requested schema. "
         "No prose, no markdown fences, no reasoning outside the JSON."
     )
-    env = call_role(role, prompt, system=sys_json, max_tokens=max_tokens,
-                    temperature=temperature, timeout=timeout, task_id=task_id)
-    parsed = extract_json(env.get("content", "")) if env.get("ok") else None
-    ok, errs = validate_json(parsed, schema) if parsed is not None else (False, ["no JSON"])
-    if not ok:
-        repair = (
-            f"{prompt}\n\nYour previous output did not satisfy the schema "
-            f"({'; '.join(errs)[:200]}). Return ONLY corrected JSON."
-        )
-        env = call_role(role, repair, system=sys_json, max_tokens=max_tokens,
-                        temperature=temperature, timeout=timeout,
-                        task_id=f"{task_id}.repair")
-        parsed = extract_json(env.get("content", "")) if env.get("ok") else None
-        ok, _ = validate_json(parsed, schema) if parsed is not None else (False, [])
-    return env, (parsed if ok else None)
+    roster = load_roster()
+    lanes = effective_lanes(role, roster)
+
+    def _attempt(lane: dict, text: str, tid: str) -> tuple[dict, Optional[Any], bool, list[str]]:
+        env = _call_lane(lane, text, system=sys_json, max_tokens=max_tokens,
+                         temperature=temperature, timeout=timeout, task_id=tid,
+                         roster=roster, remote_timeout=remote_timeout)
+        if not (env.get("ok") and (env.get("content") or "").strip()):
+            return env, None, False, ["transport_or_empty"]
+        parsed = extract_json(env.get("content", ""))
+        if parsed is None:
+            return env, None, False, ["no JSON found in response"]
+        ok, errs = validate_json(parsed, schema)
+        return env, parsed, ok, errs
+
+    attempts = 0
+    rejected: list[str] = []
+    last_env: dict = {"ok": False, "error": "no_lanes_resolved", "lane": None, "content": ""}
+    repair_left = 1
+    for i, lane in enumerate(lanes):
+        env, parsed, ok, errs = _attempt(lane, prompt, f"{task_id}.{role}")
+        attempts += 1
+        last_env = env
+        if ok:
+            return {**env, "json_attempts": attempts, "json_lanes_rejected": rejected}, parsed
+        answered = env.get("ok") and (env.get("content") or "").strip()
+        if not answered:
+            continue  # transport failure / empty — plain fallthrough, same as call_role
+        if repair_left and (parsed is not None or i == len(lanes) - 1):
+            repair_left -= 1
+            repair = (
+                f"{prompt}\n\nYour previous output did not satisfy the schema "
+                f"({'; '.join(errs)[:200]}). Return ONLY corrected JSON."
+            )
+            renv, rparsed, rok, _ = _attempt(lane, repair, f"{task_id}.{role}.repair")
+            attempts += 1
+            last_env = renv
+            if rok:
+                return {**renv, "json_attempts": attempts, "json_lanes_rejected": rejected}, rparsed
+        rejected.append(env.get("lane") or _lane_key(lane))
+    return {**last_env, "json_attempts": attempts, "json_lanes_rejected": rejected}, None
 
 
 # ────────────────────────────────────────────────────────────────────────────

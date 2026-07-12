@@ -225,9 +225,11 @@ def _build_review_prompt(ctx: dict) -> str:
 def _call_free_model_json(prompt: str) -> "tuple[dict, Optional[dict]]":
     """Returns (envelope, parsed_or_None). Never raises. `envelope["ok"]` reflects
     whether the CALL succeeded; `parsed` additionally reflects whether the response
-    validated against REVIEW_JSON_SCHEMA (swarm_client.call_role_json's own repair-
-    retry already tried once) -- callers must check BOTH plus the stricter enum/range
-    validation in _validate_parsed() below before trusting the model's judgment."""
+    validated against REVIEW_JSON_SCHEMA (swarm_client.call_role_json already tried
+    every lane with per-lane validity failover + one repair-retry, so parsed=None
+    means the WHOLE ladder failed) -- callers must check BOTH plus the stricter
+    enum/range validation in _validate_parsed() below before trusting the model's
+    judgment."""
     try:
         import swarm_client as _swarm
     except Exception as exc:  # noqa: BLE001
