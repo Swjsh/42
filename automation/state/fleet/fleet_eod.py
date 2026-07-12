@@ -28,8 +28,9 @@ def main() -> int:
         return 0
     accounts = json.loads((FLEET_DIR / "accounts.json").read_text(encoding="utf-8"))
     for arm in accounts.get("arms", []):
-        # Same unification gate as fleet_live: the 4 fleet_rest arms always; the 2
-        # mcp_heartbeat controls only when FLEET_OWNS_ALL_6 (else Gamma_EodFlatten owns them).
+        # Same unification gate as fleet_live: the 3 fleet_rest arms always (was 4 before
+        # safe-1's 2026-07-11 retirement); the 2 mcp_heartbeat controls only when
+        # FLEET_OWNS_ALL_6 (else Gamma_EodFlatten owns them).
         if not fl._arm_is_processable(arm):
             continue
         arm_id = arm["id"]

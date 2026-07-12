@@ -98,6 +98,18 @@ LENS = "markdown/trading-knowledge/GENERATIVE-LENS.md"
 # stable literals -- same pattern exit_shape_parity_study.py already uses -- so this module
 # stays importable/testable without pulling broker_fills' heavier network-adjacent surface
 # into scope at import time). Source of truth: setup/scripts/broker_fills.py.
+# DELIBERATELY KEEPS "safe-1" even though broker_fills.py's OWN FLEET_REST_ARMS dropped it
+# 2026-07-11 (safe-1 retired, account reassigned to core Safe/safe-2) -- the two constants
+# serve DIFFERENT purposes and must NOT mirror on this one point. broker_fills.py's tuple
+# decides attribution for a fill it just saw (must exclude safe-1 so a future core-Safe fill
+# routes through CORE_ARM_ACCOUNT, not fleet_rest -- see that file's comment). THIS tuple only
+# decides which FILE FORMAT to look up EXISTING ledger rows against (fleet/{arm}/decisions.jsonl
+# vs core-decisions.jsonl-by-account) -- historical safe-1 fills are real and still need this
+# path to resolve their setup_name/stop_mode. Dropping safe-1 here was tried and reverted after
+# it broke test_lookup_strategy_fleet_arm_matches_by_broker_created_at +
+# test_lookup_stop_mode_reads_exit_state_when_present (safe-1's real historical data went
+# unreadable). Future safe-2-labeled fills are unaffected either way (arm=="safe-2" was never
+# in this tuple, so its CORE_ARM_ACCOUNT routing is unchanged by safe-1's presence/absence here).
 FLEET_REST_ARMS = ("safe-1", "safe-3", "risky-1", "risky-3")
 CORE_ARM_ACCOUNT = {"safe-2": "safe", "bold-2": "bold"}  # arm -> core-decisions.jsonl `account`
 CORE_DECISIONS = STATE / "core-decisions.jsonl"

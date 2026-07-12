@@ -198,9 +198,9 @@ Personas: `gamma` (conductor), `pilot` (live trader), `scout`, `analyst`, `chef`
 ## 10. Project Identification
 - **Project:** Project Gamma (call sign "Gamma"). **Operator:** J (jack.watergun@gmail.com), single user.
 - **Instruments:** 0DTE SPY options (primary) + futures MNQ/MES (TT sandbox, heartbeat disabled for cost). Crypto = gym-only, never traded.
-- **Accounts (paper):** Gamma-Safe-2 `PA3S2PYAS2WQ` (~$2K, conservative) · Gamma-Risky-2 `PA33W2KUAT40` (~$1.67K, aggressive).
+- **Accounts (paper):** Gamma-Safe-2 `PA3DHPT7KIQE` (~$1.75K, conservative; repointed 2026-07-11 from deleted `PA3S2PYAS2WQ`, reused the former fleet safe-1 account) · Gamma-Risky-2 `PA33W2KUAT40` (~$1.67K, aggressive).
 - **Strategy:** rule version **v15** (live 2026-05-13); chart-stops-primary on Safe (2026-06-18); per-tier strikes (OTM-3 $1K / OTM-2 $2-10K / OTM-1 $10-25K / ITM-2 $25K+); chandelier trailing; 09:35 ET entry gate.
-- **Date of Last Update:** 2026-06-20.
+- **Date of Last Update:** 2026-07-11.
 
 ## 11. Glossary
 - **0DTE** — zero days to expiration. **ET / RTH** — Eastern time / regular hours (09:30–16:00).

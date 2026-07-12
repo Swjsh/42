@@ -50,18 +50,18 @@ J's rules — Gamma enforces them, doesn't write them.
 
 ## Account context
 
-**As of 2026-06-15: Account 1 = Gamma-Safe-2 ($2K fresh); old Safe-1 retired.** Full design: [`dual-account-design.md`](markdown/0dte/dual-account-design.md)
+**As of 2026-06-15: Account 1 = Gamma-Safe-2 ($2K fresh); old Safe-1 retired.** **REPOINTED 2026-07-11:** Safe-2's account `PA3S2PYAS2WQ` was accidentally deleted 2026-07-10 evening (J, making room for the crypto twin); repointed the SAME "Gamma-Safe-2" alias at `PA3DHPT7KIQE` — the *fleet* champion/challenger arm's "safe-1" account (unrelated naming collision: that's `automation/state/fleet/accounts.json`'s grid-cell arm id, not this section's original Safe-1/Safe-2 account-tier history) — and retired the fleet arm to free it for reuse. One account, one execution path. Full design: [`dual-account-design.md`](markdown/0dte/dual-account-design.md)
 
 | Account | Alias | Account # | Equity | Style | Config |
 |---|---|---|---|---|---|
-| **Account 1** | Gamma-Safe-2 | `PA3S2PYAS2WQ` | $1,763 (2026-06-26) | Conservative — OTM-2, 30% risk, +30% TP1, CONFIRMED setups | `params.json` |
+| **Account 1** | Gamma-Safe-2 | `PA3DHPT7KIQE` | $1,746.75 (2026-07-11, live-verified; was $1,763 on the old deleted account) | Conservative — OTM-2, 30% risk, +30% TP1, CONFIRMED setups | `params.json` |
 | **Account 2** | Gamma-Risky-2 | `PA33W2KUAT40` | $1,633 (2026-06-26) | Aggressive — ITM-2, 50% risk, +75% TP1, ALL setups | `aggressive/params.json` |
 
 - **Goal:** Both accounts grow → $5K → $10K → $25K+. Dual-account experiment answers which risk profile compounds better at each tier.
 - **Live threshold (per account independently):** ≥ 20 trades, WR ≥ 45%, positive expectancy, ≤ 2 rule breaks.
 - **Daily P&L target:** Safe 10–15% ($200–$300 at $2K). Bold 15–20% ($250–$335 at $1.67K). (Sizing/strike tiers: see "The strategy".)
 - **Kill switches** (Rule 5): per-account + isolated — Safe-2 −30%/day (−$600 at $2K) does NOT halt Risky-2, and vice-versa. **Instrument:** SPY 0DTE, US retail.
-- **MCP wiring:** `alpaca` → Safe-2 (key `PK65KLS3...`); `alpaca_aggressive` → Risky-2 (key `PKQMQD2N...`). Both in project-root `.mcp.json` — the ONLY credential store (global-config mirrors removed 2026-07-09; never re-mirror into `~/.claude.json`/`settings.json`).
+- **MCP wiring:** `alpaca` → Safe-2 (key `PKZFN5G3...`, repointed 2026-07-11); `alpaca_aggressive` → Risky-2 (key `PKQMQD2N...`). Both in project-root `.mcp.json` — the ONLY credential store (global-config mirrors removed 2026-07-09; never re-mirror into `~/.claude.json`/`settings.json`).
 
 ---
 

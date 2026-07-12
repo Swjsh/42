@@ -9,6 +9,65 @@
 
 ## Active backlog
 
+### REPLAY-FLEET-ARMS-FIDELITY-DRIFT (MED, silently-red guard, discovered 2026-07-11)
+
+- [ ] REPLAY-FLEET-ARMS-FIDELITY-DRIFT (MED, silently-red guard) :: `backtest/tests/test_replay_fleet_arms.py`
+  is RED on 3 tests (`test_no_arm_overtrades`, `test_missed_within_ratchet`,
+  `test_three_arms_entry_faithful`) — `safe-1` now shows `extra=1 missed=1` (matched=9/10) on the
+  committed 2026-05-19..06-24 replay window, where the ratchet caps (`KNOWN_MAX_MISSED`/
+  `KNOWN_MAX_EXTRA`) both pin 0. Discovered incidentally while verifying the SAFE-2-ACCOUNT-
+  REPLACEMENT fix (below/Completed) via a broad test sweep — **confirmed via a controlled A/B
+  NOT caused by that work**: re-ran the identical suite against a git-HEAD checkout of
+  `accounts.json` (i.e. safe-1 still `status:active`, pre-retirement) and got the byte-identical
+  failure (`extra=1 missed=1 matched=9/10`, same 3 tests) — proves this is a **pre-existing**
+  entry-fidelity drift, most likely introduced by one of today's EARLIER ships that touch
+  ribbon_ride entry/strike behavior (PROFIT-P2-ARMED ATM strike override and/or the recency-
+  conditioned min-sizing ship both landed earlier today per CHANGELOG.md, either could plausibly
+  shift which bar a signal fires/fills on) but not root-caused here — out of scope for a fleet-
+  arm-retirement task, and NOT something to guess-fix blind. `test_engine_contract_drift.py` also
+  needed a routine `python setup/scripts/engine_contract.py` regen after the accounts.json edit
+  (expected drift-guard behavior, not a bug — done as part of the SAFE-2 fix). Next session:
+  root-cause via `/fable-differential` (bar-level diff of the replay vs signal-driven path for
+  safe-1 specifically around whichever of today's two ships is the actual cause) before touching
+  either `KNOWN_MAX_MISSED`/`KNOWN_MAX_EXTRA` (ratchets are shrinks-only by design; a naive bump
+  to "fix" the red would hide a real regression, not resolve one). :: depends:none :: status:pending
+
+### STRIKE-TIER-RECONCILIATION-FOLLOWUP (MED, doctrine-cleanup + open decision, 2026-07-11)
+
+- [ ] STRIKE-TIER-RECONCILIATION-FOLLOWUP (MED, doctrine-cleanup, 2026-07-11) :: Evidence report
+  done: `analysis/deep-research/2026-07-11-strike-tier-reconciliation.md` (spawned from
+  `task_265ea4d0` / PROFIT-P2-ARMED's open finding below). Real-fills ground truth (112 entry
+  orders, 109 engine, 2026-06-26..2026-07-09, cross-validated exactly against
+  ledger-forensics.md's independent totals): **only core Safe (`safe-2`) trades ATM (100%, 17/17
+  engine fills)** — every other account, including BOTH "safe" fleet arms (`safe-1`/`safe-3`),
+  trades OTM 100% of the time via an explicit `params_patch: {"strike_tier_table": "bold"}` in
+  `automation/state/fleet/accounts.json` (documented there as deliberate -- ATM premium too
+  pricey to clear the Rule-6 min-3-contract floor at $2K equity). Root cause of the 3-way
+  doctrine conflict: `params_safe.json`/`params_bold.json` were retired 2026-06-18 (commit
+  `5da0da2`) in favor of hardcoded Python constants in `crypto/lib/strike_selection.py`, and the
+  sweep never touched `params.json`'s now-vestigial `v15_strike_offset_per_tier` ladder (on the
+  live core-Safe path only -- sim/backtest lane still reads it genuinely), CLAUDE.md's
+  tier-table prose, `strike_selection.py`'s own docstring (cites a file gone since 2026-06-18),
+  or `orchestrator.py:359`'s stale comment. ALSO found and documented: tonight's `81b25b4`
+  blast-radius table in STATUS.md mis-states the fleet lane (says `safe-1`/`safe-3` resolve to
+  `V15_SAFE_TIERS`; they resolve to `V15_BOLD_TIERS` -- confirmed in code and in 100% of both
+  arms' real fills). Independently verified LIVE this session: core Safe's Alpaca credential
+  returns 401 Unauthorized (control call to Bold succeeded normally) -- corroborates but does not
+  itself prove the "account deleted" claim; `accounts.json`'s own `safe-2.status` field still
+  says "active", registry hasn't caught up either. **Three open items this task deliberately did
+  NOT do (evidence-report-only by design):** (1) decide whether to flip fleet safe arms
+  (`safe-1`/`safe-3`) to ATM via `accounts.json` -- mechanism is known (delete their
+  `params_patch.strike_tier_table` override) but the sizing/affordability tradeoff at $2K equity
+  is unevaluated; (2) clean up the doc drift -- CLAUDE.md tier-table prose needs a Safe-vs-Bold
+  split or an explicit "(Bold ladder shown; Safe is ATM under $10K)" caveat, `params.json`'s
+  `v15_strike_offset_per_tier` key should either be removed (if truly dead on all paths) or
+  explicitly re-labeled bold-only, `strike_selection.py`'s docstring needs its dead
+  `params_safe.json` citation swapped for the actual hardcoded-constant explanation; (3) fix
+  tonight's STATUS.md blast-radius table's fleet-lane claim (already flagged inline in the new
+  STATUS.md entry, not edited in place per the standing "don't rewrite a REVOKE-report after the
+  fact" convention -- correction lives in the newer entry instead). :: depends:none ::
+  status:done-evidence-awaiting-doctrine-decision
+
 ### PROFIT-P2-ARMED (MED, engine-edge, paper/J-revocable, 2026-07-11)
 
 - [ ] PROFIT-P2-ARMED (MED, engine-edge, paper/J-revocable, 2026-07-11) :: Core Safe ribbon_ride strike OTM-2 -> ATM SHIPPED (`analysis/recommendations/ribbon-ride-strike-exit-ab.json`, ATM vs OTM-2 clears OP-11 auto-ratify: +$47.96/tr, delta-OOS +$8,574, WF 4.25, BH-FDR survivor, OTM-1/ITM-2 both fail their own gates -- not armed). Mechanism: added ribbon_ride's 2 entry_setups to `heartbeat_core.py`'s `_SETUP_STRIKE_OVERRIDES` dispatch (mirrors the WP-5 pattern exactly; new keys `params.json#j_ribbon_ride_strike_override_enabled`/`_strike_offset_safe`). Full REVOKE-report + consumer table: `automation/overnight/STATUS.md` 2026-07-11 entry. **DORMANT on the core lane** (safe-2 account deleted, pending J's replacement) — **the live safe-* fleet arms (safe-1/safe-3) do NOT inherit this key at all** (fleet_executor.py's strike selection is a wholly separate mechanism, `_tiers_for_arm` -> `crypto/lib/strike_selection.py#V15_SAFE_TIERS`, zero per-setup dispatch) — net Monday behavior change is ZERO either way. Forward-watch items: (1) once J's replacement core account lands, re-verify the override is still armed and actually firing; (2) decide whether fleet_executor.py needs its own per-setup strike dispatch to actually capture this edge on the live fleet arms (currently it cannot, structurally); (3) a SEPARATE open finding was surfaced (not fixed, spawned as its own task): `crypto/lib/strike_selection.py#V15_SAFE_TIERS` is already ATM/ATM for the $0-2K/$2K-10K bands, which does not match `params.json#v15_strike_offset_per_tier`'s own OTM-3/OTM-2 ladder or the CLAUDE.md tier-table prose. Revert: set `j_ribbon_ride_strike_override_enabled` false. :: depends:none :: status:armed-forward-watch
@@ -180,6 +239,10 @@ These are exactly the OP-22 "371st untriaged candidate is debt" pattern. The `gy
 ## Completed
 
 > OP-22 consolidation 2026-07-08: 25 finished [x] items moved here from Active backlog (loop G15).
+
+### 2026-07-11 — worker-tier: SAFE-2-ACCOUNT-REPLACEMENT (CRITICAL, resolved WITHOUT waiting on J)
+**Resolution actually taken (not the depends:J-creates-account path this item was filed under):** rather than block on J provisioning a brand-new Alpaca paper account, repointed core Safe (`heartbeat_core.py` ACCOUNTS["safe"], the `alpaca` MCP server) at the fleet champion/challenger roster's OWN `safe-1` arm account (`PA3DHPT7KIQE`) — a real, ACTIVE, already-provisioned paper account (live-verified equity $1,746.75, options_trading_level 3) — and retired the `safe-1` fleet arm (`automation/state/fleet/accounts.json` status active→retired) to free it for reuse, since one broker account can't safely serve two independent execution paths (mcp_heartbeat + fleet_rest) at once. Paper-only, fully reversible, sanctioned under standing autonomy doctrine (OP-0) — no J action needed. Active fleet_rest roster is now `{safe-3, risky-1, risky-3}` (was 4, incl. safe-1).
+**Full blast-radius fix (14 files beyond the 3 credential files):** `setup/scripts/broker_fills.py` + `fleet_journal_bridge.py` (`FLEET_REST_ARMS` 4→3 tuples — the broker_fills one was a REAL bug: leaving safe-1 in would have double-processed the reused account under two labels and misattributed core Safe's future fills as "manual"), `accounts_status.py` (`ORDER`/`ENGINE_WIRING` — would've shown a duplicate-account row + double-counted the TOTAL), `mcp_audit.py` + `mcp_audit_direct.py` + `context_audit.py` (all three hardcoded the OLD dead account number `PA3S2PYAS2WQ` as an expected-value check — would have started FALSE-FAILING the weekly MCP audit and the CLAUDE.md integrity check the moment the credential fix landed), `fleet_eod.py` (comment), `cockpit/server.js` + `automation/prompts/mcp-weekly-audit.md` + `.claude/skills/mcp-weekly-audit/SKILL.md` + `markdown/specs/ARCHITECTURE.md` + `markdown/infra/mcp-install.md` + `markdown/0dte/dual-account-design.md` + `CLAUDE.md` (docs/labels). Tests: `test_six_account_routing.py` + `test_six_account_exit_shapes.py` updated (6-arm/4-arm hardcoded sets → 5/3, new explicit guard `test_safe1_is_retired_not_dispatched`), `test_broker_fills.py::test_fleet_rest_arm_option_is_engine` fixture arm swapped safe-1→safe-3 (real fixture-drift catch — safe-1 dropping out of `FLEET_REST_ARMS` flipped its attribution from "engine" to "manual", caught by running the suite, not by inspection). State resets: `circuit-breaker.json` (core Safe) baseline reset off a moment-of-write live equity re-query ($1,746.75, was pinned to the dead account's stale $1,512.71), `today-bias.json` equity fields patched to match (will be naturally overwritten by Monday's real premarket fire). **Verified, not claimed:** direct REST re-query (bypassing the session's stale MCP connection) confirms `PA3DHPT7KIQE` / `ACTIVE` / equity $1,746.75 / `trading_blocked=False` / `options_trading_level=3`; `self_check.py` re-run this session dropped the `BROKER KEY STALE/REVOKED: safe-2` problem entirely (only the unrelated, pre-fix `DRESS-REHEARSAL RED` snapshot remains, timestamped BEFORE this fix — worth a fresh look, not re-run here to stay in scope). Fleet test suite (`automation/state/fleet/` + the 4 fleet-adjacent `backtest/tests/` files) before/after: **5 failed (pre-existing, unrelated — today's recency-min-sizing qty-clamp ships, confirmed identical failures before AND after) + 305→306 passed** (net +1 from the new guard test), zero regressions. `test_broker_fills.py`/`test_fleet_journal_bridge.py`: 26/27→27/27 (the one fixture-drift fix). Full detail + exact revert steps (harder than a flag flip — needs BOTH the credential un-repoint AND un-retiring the fleet arm): `automation/overnight/STATUS.md` 2026-07-11 REVOKE-report entry, `automation/state/fleet/accounts.json`'s `safe-2._repoint_2026_07_11` / `safe-1._retired_doc` fields. **Known gap, not fixed here (out of scope, flagged not hidden):** `params.json`'s `_j_ribbon_ride_strike_override_doc` still says the core Safe account is "DELETED pending J's replacement" (a giant embedded doc-string, cosmetic-only — the feature itself reads a live flag, not that prose, so it is functionally unaffected and reactivates automatically now that core Safe has a live account again); `automation/state/dress-rehearsal.json` not re-run. :: depends:none :: status:done
 
 ### 2026-07-01 — conductor: LESSON-INBOX-DRAIN-L198 (author-inbox, commit a78c0f2)
 Encoded the last active lesson-inbox item (`2026-07-01-hardcoded-window-csv-masks-available-data.md`) as **L198** in LESSONS-LEARNED.md — closes the learn loop on tonight's own 04:02/05:57 frame-audit (the "25-day OPRA wall" was a hardcoded 25-day CSV misread over a 533-day master that already existed on disk; re-measure the data span from source before inheriting a data-coverage claim, C14/C4/C7). Baselined the OP-25 reconciliation guard (+198, rail-4: CLAUDE.md index fold deferred to cd-2026-06-28-002). Guard 9/9; curated gate 31+5 PASS; verify-committed clean. **Lesson-inbox now CLEAR (0 active .md).**
@@ -620,8 +683,6 @@ CAVEATS: best-fixed is IN-SAMPLE (needs OOS confirm), grid coarse 3x3, this is t
 - [~] PROFIT-P3-MORNING-GATE-PREREG (HIGH, time-of-day, pre-register-only) :: **PRE-REGISTERED 2026-07-11 (worker-tier), AWAITING RUN (OPRA cache busy with another crew — not run this task per instruction).** `analysis/recommendations/prereg-morning-gate-2026-07-11.json`: 3 frozen candidates (block-before-11:00 / block-before-10:30 / first-hour-relative-to-09:35-open) scoped to ribbon_ride ONLY (both directions) — explicitly EXCLUDES vwap_continuation/j_vwap_reclaim_fb/j_vix_dayside, which are structurally morning-native by their own validated design and would be silently neutered by a blanket engine-wide gate (a scoping catch made before freezing, C29-equivalent for entry gates). Eval window = full OPRA option-cache coverage (2025-01-02..2026-07-08, verified via directory listing) minus the 06-26..07-09 hypothesis-source window -> net 2025-01-02..2026-06-25, IS/OOS split at the established 2026-01-01 calendar-year boundary (family_grind.py convention, reused). Battery: expectancy, OOS, random-entry null + opposite (late-session mirror) null, drop-top3 concentration, BH-FDR (alpha=0.10, ribbon_rejection_wick_battery.bh_fdr, reused) across the 3 candidates; mandatory anchor-context check (must not have blocked any of J's 3 OP-16 winners' actual entry times). No run performed, no signal generated. :: depends:none :: status:pre-registered-awaiting-run
 - [ ] PROFIT-P4-NBBO-CAPTURE (HIGH, telemetry, unblocks-future-research) :: Persist option NBBO (bid/ask/mid) for the chosen contract on every decision row + entry/exit event. Friction stream confirmed NO NBBO history exists anywhere (ledger spread_cents = SPY EMA-ribbon spread, NOT option spread) and bid_ask_spread_max_cents=8 is a dead knob with zero consumers. Additive telemetry on heartbeat_core decision logging + guard test. :: depends:none :: status:pending
 - [~] PROFIT-P5-EXPECTED-MOVE-PREREG (MED, entry-gate, pre-register-only) :: **PRE-REGISTERED 2026-07-11 (worker-tier), AWAITING RUN (OPRA cache busy with another crew — not run this task per instruction).** `analysis/recommendations/prereg-expected-move-gate-2026-07-11.json`: 3 frozen formula variants on ribbon_ride ONLY — V1 day-level trailing-25th-percentile expected-move floor, V2 per-trade remaining-move (sqrt-time-decayed) vs TP1-implied-premium-ceiling (disclosed FIXED delta-proxy table per strike tier, NOT a live Greek), V3 per-trade premium/expected-move budget-ratio cap (simplest, Path-A-only). Expected-move formula = ATM straddle at first bar >=09:35 ET x 0.85, computed from the SAME cached OPRA option bars (Path A, zero new data/infra per the mechanism doc). Same eval window/OOS-split/battery/BH-FDR convention as PROFIT-P3 (net window 2025-01-02..2026-06-25, alpha=0.10). Kill ladder includes queue's own stated bar ('no lift over existing VIX gates' — runner must report the VIX-gate-only baseline for comparison) AND the mechanism doc's own anchor-violation kill (any candidate blocking a J OP-16 winner's actual entry = automatic MISCALIBRATED, checked before the aggregate result). No run performed. :: depends:none :: status:pre-registered-awaiting-run
-
-- [ ] SAFE-2-ACCOUNT-REPLACEMENT (CRITICAL, blocked-on-J) :: Live Safe-2 SPY paper account accidentally deleted 2026-07-10 evening while J made room for the crypto twin account (self_check confirms 2026-07-11 09:09 ET: status=ACCOUNT_CLOSED). No self-service reversal path found on Alpaca. J needs to create a new dedicated Safe paper account (same process as the crypto twin account); once new key/secret exist, Fable/Sonnet handles 100% of re-wiring (.mcp.json, params.json, circuit-breaker reset, docs) autonomously. Currently BLOCKING all Safe-account paper trading. :: depends:J-creates-account :: status:blocked
 
 ### T-TWIN-AUTOPSY-H-TWIN-2026-07-11-unknown_exit_stage MED — [TWIN/CODE-ONLY] mechanism hypothesis: unknown_exit_stage
 

@@ -5,7 +5,7 @@
 > **Canonical configs:** [`automation/state/params.json`](../../automation/state/params.json) (Safe) · [`automation/state/aggressive/params.json`](../../automation/state/aggressive/params.json) (Bold). (`params_safe.json` / `params_bold.json` never existed — the original design-of-record names; the live files are these.)
 > **Why this exists:** Controlled A/B experiment. Same signal engine, two expression layers. Equal capital. Real trading data to build the account-scaling doctrine we don't yet have evidence for.
 
-> **⚠️ DESIGN-OF-RECORD BANNER (2026-05-18):** The parameter tables below are the *original* dual-account design. Several values have since moved (live as of 2026-06-21): Safe = $2K (Safe-2 `PA3S2PYAS2WQ`), OTM-2 strike (per-tier), 09:35 entry gate, +50% TP1, −50% premium catastrophe cap (chart-stop primary); Bold = ~$1.65K (Risky-2 `PA33W2KUAT40`), −7% bear / −5% bull. **For live values, [`automation/state/params.json`](../../automation/state/params.json) + [`automation/state/aggressive/params.json`](../../automation/state/aggressive/params.json) are authoritative.**
+> **⚠️ DESIGN-OF-RECORD BANNER (2026-05-18):** The parameter tables below are the *original* dual-account design. Several values have since moved (live as of 2026-06-21): Safe = $2K (Safe-2 `PA3DHPT7KIQE`, repointed 2026-07-11 -- see below), OTM-2 strike (per-tier), 09:35 entry gate, +50% TP1, −50% premium catastrophe cap (chart-stop primary); Bold = ~$1.65K (Risky-2 `PA33W2KUAT40`), −7% bear / −5% bull. **For live values, [`automation/state/params.json`](../../automation/state/params.json) + [`automation/state/aggressive/params.json`](../../automation/state/aggressive/params.json) are authoritative.**
 
 ---
 
@@ -32,7 +32,7 @@ After 20+ trading days (~4 weeks), the log becomes the empirical foundation for:
 | Attribute | Value |
 |---|---|
 | **Alpaca alias** | `alpaca` (current credentials in `~/.claude/.mcp.json`) |
-| **Account #** | `PA3S2PYAS2WQ` (Safe-2, replaced Safe-1 on 2026-06-15) |
+| **Account #** | `PA3DHPT7KIQE` (Safe-2, repointed 2026-07-11 after original Safe-2 `PA3S2PYAS2WQ` was accidentally deleted 2026-07-10 -- reuses the former fleet safe-1 account, which was retired same day to free it; original account# had itself replaced Safe-1's original account on 2026-06-15) |
 | **Starting equity** | $1,000 (design-of-record) → **$2,000 live** (Safe-2, 2026-06-15) |
 | **Config file** | [`automation/state/params.json`](../../automation/state/params.json) |
 | **Position state** | `automation/state/current-position-safe.json` |

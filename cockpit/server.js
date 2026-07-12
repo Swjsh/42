@@ -189,7 +189,7 @@ function getAccountsStatus() {
   const beacon = readJSON(path.join(STATE, 'sight-beacon.json'));
   const spy = beacon?.spy ? `SPY $${beacon.spy}` : '';
 
-  const mcp = ['safe-2 (PA3S2PYAS2WQ)', 'bold-2 (PA33W2KUAT40)'];
+  const mcp = ['safe-2 (PA3DHPT7KIQE)', 'bold-2 (PA33W2KUAT40)'];
   const posText = `Safe: ${safePosStatus} | Bold: ${boldPosStatus}`;
   const ksText = ksChecks.map(c => `${c.name.replace('killswitch_', '')}=${c.status}`).join(' ');
 

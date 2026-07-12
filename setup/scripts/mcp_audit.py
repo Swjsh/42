@@ -68,7 +68,7 @@ def audit():
         account_blocked = data.get("account_blocked", None)
         print(f"  OK: acct={account_num}, status={status}")
 
-        if (account_num == "PA3S2PYAS2WQ" and
+        if (account_num == "PA3DHPT7KIQE" and
             status == "ACTIVE" and
             not trading_blocked and
             not account_blocked):
@@ -130,18 +130,18 @@ def audit():
         "skill": "mcp-weekly-audit",
         "run_at": ts_iso,
         "verdict": verdict,
-        "alpaca_safe": {"ok": safe_ok, "account": "PA3S2PYAS2WQ", "note": "Clock + Account probed"},
+        "alpaca_safe": {"ok": safe_ok, "account": "PA3DHPT7KIQE", "note": "Clock + Account probed"},
         "alpaca_bold": {"ok": bold_ok, "account": "PA33W2KUAT40", "note": "Account probed"},
         "tradingview": {"ok": tv_ok, "cdp_connected": tv_ok, "relaunched": tv_relaunched, "chart_symbol": chart_symbol, "note": "Health check"},
         "reason": reason
     }
 
-    output_path = Path("C:\Users\jackw\Desktop\42\automation\state\mcp-weekly-audit-latest.json")
+    output_path = Path(r"C:\Users\jackw\Desktop\42\automation\state\mcp-weekly-audit-latest.json")
     output_path.write_text(json.dumps(output_json, indent=2))
     print(f"  Wrote: {output_path}")
 
     # Append log
-    log_path = Path("C:\Users\jackw\Desktop\42\automation\state\mcp-weekly-audit-log.jsonl")
+    log_path = Path(r"C:\Users\jackw\Desktop\42\automation\state\mcp-weekly-audit-log.jsonl")
     log_entry = {"run_at": ts_iso, "verdict": verdict, "reason": reason}
     with open(log_path, "a") as f:
         f.write(json.dumps(log_entry) + "\n")

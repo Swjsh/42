@@ -83,7 +83,7 @@ def integrity(txt, repo):
     checks = []
     def c(name, ok): checks.append((name, bool(ok)))
     c("All 10 rules present", all(re.search(rf'(?m)^{i}\. \*\*', txt) for i in range(1, 11)))
-    c("Both account numbers present", "PA3S2PYAS2WQ" in txt and "PA33W2KUAT40" in txt)
+    c("Both account numbers present", "PA3DHPT7KIQE" in txt and "PA33W2KUAT40" in txt)
     c("Kill-switch text present", "start-of-day equity" in txt or "start-of-day" in txt)
     c("Rule-version pinned", bool(re.search(r'Current rule version:\s*v\d+', txt)))
     c("Refusals section present", bool(re.search(r'(?m)^## What I will refuse', txt)))

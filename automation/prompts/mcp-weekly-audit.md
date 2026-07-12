@@ -4,7 +4,7 @@ You are Gamma running the WEEKLY MCP CONNECTION AUDIT. Headless, one-shot. Round
 
 ## Step 1 -- Alpaca Safe (mcp__alpaca__*)
 - Call `mcp__alpaca__get_clock` -> expect JSON with `is_open` + `next_open`.
-- Call `mcp__alpaca__get_account_info` -> expect `account_number` == `PA3S2PYAS2WQ`, `status` == `ACTIVE`, `trading_blocked` == false, `account_blocked` == false.
+- Call `mcp__alpaca__get_account_info` -> expect `account_number` == `PA3DHPT7KIQE`, `status` == `ACTIVE`, `trading_blocked` == false, `account_blocked` == false. (Repointed 2026-07-11 -- was `PA3S2PYAS2WQ`, deleted 2026-07-10; now reuses the former fleet safe-1 account.)
 - safe_ok = both calls returned valid JSON AND account matches AND not blocked.
 
 ## Step 2 -- Alpaca Bold (mcp__alpaca_aggressive__*)

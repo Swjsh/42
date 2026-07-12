@@ -19,7 +19,7 @@ Or, interactively, round-trip the tools yourself per `automation/prompts/mcp-wee
 ## What it round-trips
 | Subsystem | Tools | PASS condition |
 |---|---|---|
-| Alpaca Safe | `get_clock`, `get_account_info` | account `PA3S2PYAS2WQ`, ACTIVE, not blocked |
+| Alpaca Safe | `get_clock`, `get_account_info` | account `PA3DHPT7KIQE` (repointed 2026-07-11, was `PA3S2PYAS2WQ`), ACTIVE, not blocked |
 | Alpaca Bold | `get_account_info` | account `PA33W2KUAT40`, ACTIVE, not blocked |
 | TradingView | `tv_health_check` (+ self-heal `launch_tv_debug.ps1` if down) | success && cdp_connected && api_available |
 

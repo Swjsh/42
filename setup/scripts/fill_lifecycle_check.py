@@ -61,7 +61,17 @@ def _btc_pos(c):
 
 def run(notional: float = 20.0) -> dict:
     creds = fb.load_creds()
-    arm = "safe-1" if "safe-1" in creds else next(iter(creds))
+    # Prefer safe-3 (an isolated fleet_rest arm, its own dedicated account) over safe-1.
+    # safe-1 was RETIRED 2026-07-11 -- its credentials now equal core Safe's ("safe-2"), the
+    # actual production paper account. Placing these test BTC/USD round-trips there would
+    # pollute core Safe's real activity/equity with test-order noise instead of an isolated
+    # fleet arm, which is exactly what this preference existed to avoid in the first place.
+    for preferred in ("safe-3", "safe-1"):
+        if preferred in creds:
+            arm = preferred
+            break
+    else:
+        arm = next(iter(creds))
     c = creds[arm]
     results: dict = {}
     q = json.loads(urllib.request.urlopen(urllib.request.Request(

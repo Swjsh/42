@@ -65,10 +65,14 @@ ACCOUNTS_JSON = FLEET_DIR / "accounts.json"
 TRADES_CSV = REPO / "journal" / "trades.csv"
 WATERMARK = STATE / ".fleet-journal-watermark.json"
 
-# The 4 fleet_rest arms (execution=fleet_rest -> 100% engine per broker_fills.py's
+# The 3 fleet_rest arms (execution=fleet_rest -> 100% engine per broker_fills.py's
 # attribution rule). Intentionally re-declared here (not imported from broker_fills)
 # to keep this module dependency-free -- see module docstring.
-FLEET_REST_ARMS: tuple[str, ...] = ("safe-1", "safe-3", "risky-1", "risky-3")
+# safe-1 RETIRED 2026-07-11 (accounts.json status=retired, account reassigned to core Safe
+# "safe-2" -- see broker_fills.py's FLEET_REST_ARMS comment for the full mechanism). Its
+# historical automation/state/fleet/safe-1/decisions.jsonl is untouched and still readable
+# directly by id if ever needed; it just stops being indexed by this default going forward.
+FLEET_REST_ARMS: tuple[str, ...] = ("safe-3", "risky-1", "risky-3")
 
 # Canonical trades.csv schema (43 columns). Source of truth: journal/trades.csv header.
 # Identical to backtest/autoresearch/webull_winner_journal.py's SCHEMA (the codebase's

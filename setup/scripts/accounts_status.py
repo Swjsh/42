@@ -29,11 +29,18 @@ MCP_JSON = REPO / ".mcp.json"
 BASELINE = 2000.0  # every equity account is meant to start here
 
 # Display order + which arms the live engine actually trades through.
-ORDER = ["safe-1", "safe-2", "safe-3", "bold-2", "risky-1", "risky-3"]
+# safe-1 RETIRED 2026-07-11 (accounts.json status=retired): its account (PA3DHPT7KIQE) was
+# reassigned to core Safe ("safe-2" below, after the original safe-2 account PA3S2PYAS2WQ was
+# deleted 2026-07-10). Deliberately dropped from ORDER -- fleet/secrets.json still carries a
+# "safe-1" entry (same creds as safe-2, kept only so id-keyed lookups don't KeyError), and
+# querying it here would show the SAME account twice under two labels and double-count it in
+# TOTAL. Query fleet/secrets.json directly (accounts["safe-1"]) if you need to confirm the
+# retired entry still resolves.
+ORDER = ["safe-2", "safe-3", "bold-2", "risky-1", "risky-3"]
 ENGINE_WIRING = {
     "safe-2": "heartbeat (mcp `alpaca`)",
     "bold-2": "heartbeat (mcp `alpaca_aggressive`)",
-    "safe-1": "fleet REST", "safe-3": "fleet REST",
+    "safe-3": "fleet REST",
     "risky-1": "fleet REST", "risky-3": "fleet REST",
 }
 
@@ -79,13 +86,13 @@ def main() -> int:
         if abs(delta) >= 0.005:
             flagged.append(f"{arm} ({r['acct']}) = ${r['equity']:,.2f} (not $2,000 — last_equity ${r['last_equity']:,.2f})")
     print("-" * 78)
-    print(f"{'TOTAL':<9} {'6 equity accts':<15} {'':<7} ${total:>9,.2f}")
+    print(f"{'TOTAL':<9} {'5 equity accts':<15} {'':<7} ${total:>9,.2f}")
     if flagged:
         print("\nFLAGS:")
         for f in flagged:
             print(f"  - {f}")
     else:
-        print("\nAll 6 equity accounts == $2,000.")
+        print("\nAll 5 equity accounts == $2,000.")
     print("\n(source: fleet/secrets.json + live Alpaca REST — NOT .mcp.json, which only wires 2.)")
     return 0
 

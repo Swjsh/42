@@ -29,8 +29,10 @@ def _activity(activity_id, symbol, side, qty, price, ts, order_id=None) -> dict:
 # --- normalize_fill: attribution rule -----------------------------------------------------
 
 def test_fleet_rest_arm_option_is_engine():
+    # safe-1 was retired 2026-07-11 (accounts.json status, account reassigned to core Safe) and
+    # dropped from FLEET_REST_ARMS -- use safe-3 (still a live fleet_rest arm) as the example.
     a = _activity("1", "SPY260708P00741000", "buy", 3, 0.96, "2026-07-08T13:52:05Z")
-    norm = bf.normalize_fill(a, "safe-1")
+    norm = bf.normalize_fill(a, "safe-3")
     assert norm["attribution"] == "engine"
     assert norm["multiplier"] == 100
     assert norm["is_option"] is True

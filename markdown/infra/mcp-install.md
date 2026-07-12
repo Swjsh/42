@@ -29,7 +29,7 @@ Binary: `uvx alpaca-mcp-server` (uv fetches/pins it; no clone, no `pip install -
 ```jsonc
 {
   "mcpServers": {
-    "alpaca": {                         // → Gamma-Safe-2  (PA3S2PYAS2WQ)
+    "alpaca": {                         // → Gamma-Safe-2  (PA3DHPT7KIQE, repointed 2026-07-11)
       "command": "C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe",
       "args": [
         "C:\\Users\\jackw\\Desktop\\42\\setup\\mcp\\mcp_stdio_hidden.py",

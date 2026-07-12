@@ -12,7 +12,7 @@ Every validated strategy in §2 runs on EVERY active arm via `fleet_executor.pla
 |---|---|---|---|---|---|---|
 | `safe-3` | safe x tight | fleet_rest | ✅ | min_triggers=2, confluence/sequence | bold tier table (patch) | active |
 | `safe-2` **(CONTROL)** | safe x base (CONTROL) | mcp_heartbeat | ✅ | base (production default) | safe params.json v15 tier | active |
-| `safe-1` | safe x loose | fleet_rest | ✅ | min_triggers=1 | bold tier table (patch) | active |
+| `safe-1` | safe x loose | fleet_rest | — | min_triggers=1 | bold tier table (patch) | retired |
 | `risky-1` | risky x tight | fleet_rest | ✅ | min_triggers=2, confluence/sequence | inherit bold | active |
 | `bold-2` **(CONTROL)** | risky x base (CONTROL) | mcp_heartbeat | ✅ | base (production default) | bold params.json | active |
 | `risky-3` | risky x loose | fleet_rest | ✅ | min_triggers=1 | inherit bold | active |

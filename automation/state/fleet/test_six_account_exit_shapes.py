@@ -1,7 +1,9 @@
-"""Per-account EXIT-shape correctness guard for all 6 SPY grid arms (J hard requirement 2).
+"""Per-account EXIT-shape correctness guard for all active SPY grid arms (J hard requirement 2).
 
-Fast, deterministic, no orchestrator/pandas: for EVERY one of the 6 SPY grid arms (safe-1/2/3,
-risky-1, bold-2, risky-3) the live executor (plan_all) must thread each fired strategy's
+Fast, deterministic, no orchestrator/pandas: for EVERY one of the 5 active SPY grid arms
+(safe-2/3, risky-1, bold-2, risky-3 -- was 6 incl. safe-1 before its 2026-07-11 retirement;
+its account PA3DHPT7KIQE was reassigned to core Safe/safe-2) the live executor (plan_all) must
+thread each fired strategy's
 REGISTRY ExitShape through to the EntryPlan VERBATIM -- because that exit_shape dict is the
 exact input the live exit_manager/exit_actuator scale-out consumes (partial TP1 + runner +
 profit-lock). A drift between the placed exit_shape and the registry would silently change the
@@ -26,7 +28,8 @@ import strategies as strat_mod
 
 FLEET_DIR = Path(__file__).resolve().parent
 ACCOUNTS = json.loads((FLEET_DIR / "accounts.json").read_text(encoding="utf-8"))
-SIX_SPY_ARMS = ("safe-1", "safe-2", "safe-3", "risky-1", "bold-2", "risky-3")
+# ACTIVE_SPY_ARMS was SIX_SPY_ARMS (6-tuple, incl. safe-1) before its 2026-07-11 retirement.
+ACTIVE_SPY_ARMS = ("safe-2", "safe-3", "risky-1", "bold-2", "risky-3")
 
 # A signal where BOTH registered strategies fire, ELITE-classified so no arm's selectivity
 # gate benches the plan (the exit shape is gate-independent; entry selectivity is tested
@@ -59,7 +62,7 @@ def _planned_exit_shapes(arm_id):
 
 def test_every_arm_plans_both_strategies():
     """All 6 arms run the FULL strategy set (gate x sizing on the shared set, no silo)."""
-    for arm_id in SIX_SPY_ARMS:
+    for arm_id in ACTIVE_SPY_ARMS:
         shapes = _planned_exit_shapes(arm_id)
         assert set(shapes) == {"ribbon_ride", "vwap_continuation"}, \
             f"{arm_id} planned {sorted(shapes)}"
@@ -68,7 +71,7 @@ def test_every_arm_plans_both_strategies():
 def test_every_arm_exit_shape_matches_registry():
     """The placed exit_shape per strategy == the REGISTRY ExitShape VERBATIM, on every arm
     (the exit_manager's input contract -- no per-account exit drift)."""
-    for arm_id in SIX_SPY_ARMS:
+    for arm_id in ACTIVE_SPY_ARMS:
         shapes = _planned_exit_shapes(arm_id)
         for name, placed in shapes.items():
             expected = strat_mod.by_name(name).exit.to_dict()
@@ -80,7 +83,7 @@ def test_exit_shape_is_full_5stage_contract():
     stop / TP1 partial fraction / runner profit-lock mode / runner target / chandelier trail."""
     required = {"premium_stop_pct", "tp1_premium_pct", "tp1_qty_fraction", "profit_lock_mode",
                 "runner_target_pct", "trail_pct", "profit_lock_arm_pct"}
-    for arm_id in SIX_SPY_ARMS:
+    for arm_id in ACTIVE_SPY_ARMS:
         for placed in _planned_exit_shapes(arm_id).values():
             assert required <= set(placed), f"{arm_id} exit shape missing {required - set(placed)}"
 
@@ -96,7 +99,7 @@ def test_ribbon_and_vwap_shapes_are_distinct_per_strategy():
     ribbon pins updated 2026-07-09 (SS-B structure-stop cell, STOP-B second ship:
     structure-stop-2026-07-09.json): stop_mode=structure + cat -50%, TP1 +100% sell66,
     trailing 15% runner. Distinctness now lives on the stop_mode axis too."""
-    for arm_id in SIX_SPY_ARMS:
+    for arm_id in ACTIVE_SPY_ARMS:
         s = _planned_exit_shapes(arm_id)
         assert s["ribbon_ride"]["premium_stop_pct"] == -0.20  # flag-OFF fallback field
         assert s["ribbon_ride"]["tp1_premium_pct"] == 1.0

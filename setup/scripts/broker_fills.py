@@ -49,7 +49,16 @@ CORE_DECISIONS = STATE / "core-decisions.jsonl"
 ACCOUNTS_JSON = STATE / "fleet" / "accounts.json"
 
 BACKFILL_SINCE = "2026-06-25T00:00:00Z"  # per HANDOFF T1 -- fleet went live around this date
-FLEET_REST_ARMS = ("safe-1", "safe-3", "risky-1", "risky-3")  # execution=fleet_rest -> 100% engine
+# safe-1 RETIRED 2026-07-11 (accounts.json status=retired): its account (PA3DHPT7KIQE) was
+# reassigned to core Safe (CORE_ARMS["safe-2"] below). Leaving "safe-1" in this tuple after the
+# repoint would make main()'s `for arm, creds in creds_all.items(): if arm not in FLEET_REST_ARMS
+# and arm not in CORE_ARMS: continue` loop process the SAME broker account under TWO labels
+# (creds_all iterates fleet/secrets.json, where safe-1 and safe-2 now share identical creds) --
+# since dict order puts "safe-1" before "safe-2", its fills would get attributed engine_ids=None
+# (arm not in CORE_ARMS) and misclassified as "manual" instead of "engine", corrupting
+# total_engine_pnl/total_manual_pnl. Dropping safe-1 here routes those fills through CORE_ARMS
+# ("safe-2" -> "safe") with correct engine-order attribution instead.
+FLEET_REST_ARMS = ("safe-3", "risky-1", "risky-3")  # execution=fleet_rest -> 100% engine
 CORE_ARMS = {"safe-2": "safe", "bold-2": "bold"}  # arm -> core-decisions.jsonl `account` field
 
 

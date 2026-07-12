@@ -1,14 +1,23 @@
 """6-account routing tests -- the ONE-brain-all-6 unification (J hard requirement 1).
 
 Proves:
-  * the fleet executor (run_dry) addresses ALL 6 SPY arms (safe-1/2/3, risky-1/3, bold-2)
-    off one shared signal -- every arm is a grid cell (gate x sizing) on the SAME strategy set.
-  * the FLEET_OWNS_ALL_6 lever toggles fleet_live's processable set: DEFAULT = 4 fleet_rest
-    arms only (split execution, no double-fill); ON = all 6 (the Path-B migration).
+  * the fleet executor (run_dry) addresses every ACTIVE SPY arm (safe-2/3, risky-1/3, bold-2 --
+    5 as of 2026-07-11, was 6 incl. safe-1) off one shared signal -- every arm is a grid cell
+    (gate x sizing) on the SAME strategy set.
+  * the FLEET_OWNS_ALL_6 lever toggles fleet_live's processable set: DEFAULT = the fleet_rest
+    arms only (3 as of 2026-07-11, was 4 -- split execution, no double-fill); ON = all active
+    arms (the Path-B migration). Name kept as FLEET_OWNS_ALL_6 (byte-identical flag/behavior);
+    only the roster it toggles over shrank.
   * the no-double-fill invariant: safe-2/bold-2 are mcp_heartbeat by default, so fleet_live
     skips them unless the lever is explicitly set (paired with GAMMA_CORE_PLACES=0 upstream).
   * every SPY arm runs the FULL strategy set with its own exit shape (gate x sizing, not a
     per-account strategy silo).
+
+SAFE-1 RETIRED 2026-07-11: accounts.json status flipped active->retired (account PA3DHPT7KIQE
+reassigned to core Safe / "safe-2", after the original safe-2 account PA3S2PYAS2WQ was deleted
+2026-07-10). This file's active-roster constants and assertions were updated 6->5 / 4->3 to
+match; a new explicit guard (test_safe1_is_retired_not_dispatched) pins the exclusion so a
+future edit can't silently resurrect safe-1 into the live roster.
 """
 from __future__ import annotations
 
@@ -21,7 +30,8 @@ import fleet_live as fl
 FLEET_DIR = Path(__file__).resolve().parent
 ACCOUNTS = json.loads((FLEET_DIR / "accounts.json").read_text(encoding="utf-8"))
 
-SIX_SPY_ARMS = {"safe-1", "safe-2", "safe-3", "risky-1", "risky-3", "bold-2"}
+# ACTIVE_SPY_ARMS was SIX_SPY_ARMS (6, incl. safe-1) before 2026-07-11's retirement.
+ACTIVE_SPY_ARMS = {"safe-2", "safe-3", "risky-1", "risky-3", "bold-2"}
 SIZING = [{"equity_min": 0, "equity_max": 1e9, "base_qty": 5, "elite_qty": 8}]
 PARAMS = {"position_sizing_tiers": SIZING, "per_trade_risk_cap_pct": 0.5,
           "daily_loss_kill_switch_pct": 0.5, "min_contracts": 3,
@@ -40,18 +50,23 @@ def _both_strategies_signal():
     ]}
 
 
-# --- the 6 arms exist as a clean grid -----------------------------------------
+# --- the active arms exist as a clean grid --------------------------------------
 def test_all_six_spy_arms_present_and_active():
+    """Name kept for history (was a literal 6 pre-2026-07-11); now asserts the 5 currently-
+    active SPY arms are present, AND that retired safe-1 is correctly excluded from 'active'."""
     active = {a["id"] for a in ACCOUNTS["arms"]
               if a.get("status") == "active" and a.get("instrument") == "SPY_0DTE_OPTION"}
-    assert SIX_SPY_ARMS <= active, f"missing arms: {SIX_SPY_ARMS - active}"
+    assert ACTIVE_SPY_ARMS <= active, f"missing arms: {ACTIVE_SPY_ARMS - active}"
+    assert "safe-1" not in active, "safe-1 is retired (2026-07-11) -- must not read status=='active'"
 
 
 def test_run_dry_addresses_all_six_arms():
-    """The brain's perception fans out to all 6 SPY arms via run_dry (one signal -> 6 cells)."""
+    """The brain's perception fans out to every active SPY arm via run_dry (one signal -> 5
+    cells as of 2026-07-11's safe-1 retirement, was 6)."""
     rows = fx.run_dry(_both_strategies_signal(), ACCOUNTS)
     addressed = {d.arm_id for d, _ in rows}
-    assert SIX_SPY_ARMS <= addressed, f"run_dry skipped: {SIX_SPY_ARMS - addressed}"
+    assert ACTIVE_SPY_ARMS <= addressed, f"run_dry skipped: {ACTIVE_SPY_ARMS - addressed}"
+    assert "safe-1" not in addressed, "run_dry must skip retired safe-1 (status filter)"
 
 
 def test_every_arm_runs_full_strategy_set():
@@ -88,29 +103,64 @@ def test_exit_shape_differs_by_strategy_not_account():
 
 # --- the FLEET_OWNS_ALL_6 unification lever (no double-fill invariant) ---------
 def test_default_fleet_processes_only_fleet_rest_arms():
-    """DEFAULT (lever off): fleet_live processes ONLY the 4 fleet_rest arms; the 2
-    mcp_heartbeat controls (safe-2/bold-2) are skipped (they're placed by the brain ->
-    no double-fill)."""
+    """DEFAULT (lever off): fleet_live processes ONLY the fleet_rest arms (3 as of
+    2026-07-11's safe-1 retirement, was 4); the 2 mcp_heartbeat controls (safe-2/bold-2)
+    are skipped (they're placed by the brain -> no double-fill)."""
     orig = fl.FLEET_OWNS_ALL_6
     try:
         fl.FLEET_OWNS_ALL_6 = False
         processable = {a["id"] for a in ACCOUNTS["arms"] if fl._arm_is_processable(a)}
-        assert processable == {"safe-1", "safe-3", "risky-1", "risky-3"}
+        assert processable == {"safe-3", "risky-1", "risky-3"}
+        assert "safe-1" not in processable, "safe-1 retired -- must never be processable again"
         assert "safe-2" not in processable and "bold-2" not in processable
     finally:
         fl.FLEET_OWNS_ALL_6 = orig
 
 
 def test_lever_on_fleet_processes_all_six_arms():
-    """Lever ON (the Path-B migration): fleet_live processes all 6 SPY arms -> the fleet is
-    the ONE executor for every grid cell off the ONE brain."""
+    """Lever ON (the Path-B migration): fleet_live processes every active SPY arm (5 as of
+    2026-07-11, was 6) -> the fleet is the ONE executor for every grid cell off the ONE brain."""
     orig = fl.FLEET_OWNS_ALL_6
     try:
         fl.FLEET_OWNS_ALL_6 = True
         processable = {a["id"] for a in ACCOUNTS["arms"] if fl._arm_is_processable(a)}
-        assert SIX_SPY_ARMS <= processable
+        assert ACTIVE_SPY_ARMS <= processable
+        assert "safe-1" not in processable, "retired safe-1 must stay excluded even with the lever ON"
     finally:
         fl.FLEET_OWNS_ALL_6 = orig
+
+
+# --- explicit safe-1-retirement guard (2026-07-11) ------------------------------
+def test_safe1_is_retired_not_dispatched():
+    """EXPLICIT GUARD for the 2026-07-11 safe-1 retirement (its account PA3DHPT7KIQE was
+    reassigned to core Safe / safe-2). Pins THREE things so a future edit can't silently
+    resurrect dispatch to safe-1:
+      1. the roster still HAS a safe-1 entry (historical record preserved, not deleted)
+         but its status is 'retired', not 'active'.
+      2. the active fleet_rest roster is EXACTLY {safe-3, risky-1, risky-3} -- not safe-1.
+      3. nothing in the executor's live dispatch paths (run_dry / fleet_live processability)
+         ever addresses "safe-1", under either FLEET_OWNS_ALL_6 setting.
+    """
+    safe1 = next(a for a in ACCOUNTS["arms"] if a["id"] == "safe-1")
+    assert safe1["status"] == "retired", "safe-1 must be present but retired, not deleted"
+    assert safe1["account_number"] == "PA3DHPT7KIQE"
+
+    fleet_rest_active = {a["id"] for a in ACCOUNTS["arms"]
+                          if a.get("status") == "active" and a.get("execution") == "fleet_rest"}
+    assert fleet_rest_active == {"safe-3", "risky-1", "risky-3"}
+
+    orig = fl.FLEET_OWNS_ALL_6
+    try:
+        for lever in (False, True):
+            fl.FLEET_OWNS_ALL_6 = lever
+            processable = {a["id"] for a in ACCOUNTS["arms"] if fl._arm_is_processable(a)}
+            assert "safe-1" not in processable, f"safe-1 dispatched with FLEET_OWNS_ALL_6={lever}"
+    finally:
+        fl.FLEET_OWNS_ALL_6 = orig
+
+    rows = fx.run_dry(_both_strategies_signal(), ACCOUNTS)
+    addressed = {d.arm_id for d, _ in rows}
+    assert "safe-1" not in addressed, "run_dry must never address retired safe-1"
 
 
 def test_lever_defaults_off_no_double_fill():
