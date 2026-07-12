@@ -22,6 +22,17 @@ DISCLOSED GAPS (ground rule 9 -- stated, not faked):
     OP-16 absolute (which needs J's real per-trade qty). Primary metric = per-trade expectancy
     (OP-32: expectancy, not WR); OOS/WF/quarter-stability/drop-top-3 are gates.
   * ribbon_ride ONLY (ground rule 11); vwap_continuation is a separate setup path (owed).
+  * FILL-BAR CONVENTION: _load_bars includes the fill bar (mask >= entry_ts) and replay()
+    checks bar-0's own H/L -- entry fills at bar-0 OPEN, so bar-0 prints are post-entry and
+    the live 1-min actuator can indeed act inside the first 5 minutes. simulator_real (the
+    P5/mass-grind fills authority) instead walks exits from entry_idx+1 (one-full-bar min
+    hold), so cross-tool numbers (e.g. the P5 gate below) mix conventions. Audited
+    2026-07-11: NO T4/T5 verdict or STOP-B decision changes across conventions; the most
+    sensitive number is control's expectancy ($22.91 incl. bar 0 -> $35.54 excl., the
+    +$12.63 the STOP-A probe reported). The ONE unsafe combination is a LIMIT fill replayed
+    against its own fill bar (same-bar TP1 look-behind -- see t5_confirmatory_matrix.
+    replay_entry2_pair). Evidence: analysis/recommendations/entry-exit-matrix-fillbar-
+    audit-2026-07-11.md. Guard: backtest/tests/test_fill_bar_convention.py.
 
 Writes analysis/recommendations/entry-exit-matrix-t4-exits.json + .md. Exploratory -- NOTHING
 ships (STOP CHECKPOINT A). $0, local cache, no network.
@@ -75,7 +86,13 @@ def band_of(p: float) -> str:
 
 
 def _load_bars(sig: dict) -> list | None:
-    """OTM-2 option bars for a signal, from entry to EOD, as (time, o,h,l,c) tuples."""
+    """OTM-2 option bars for a signal, from entry to EOD, as (time, o,h,l,c) tuples.
+
+    INCLUDES the fill bar itself (>= entry_ts): bars[0] is the bar whose OPEN is the entry
+    fill, and replay() checks its H/L -- unlike simulator_real, which starts one bar later.
+    Deliberate (live 1-min-actuator parity) and pinned by test_fill_bar_convention.py; see
+    the module docstring's FILL-BAR CONVENTION disclosure before comparing numbers from this
+    loader against simulator_real-graded populations (P5 cells, ship-gates)."""
     spot = sig["entry_spot"]
     side = sig["side"]
     strike = int(round(spot)) - 2 if side == "P" else int(round(spot)) + 2
@@ -344,7 +361,10 @@ def main() -> int:
         "disclosures": ["frictionless fills", "5-min OPRA (touch stops; 1m-close owed)",
                         "premium-only replay (ribbon/level/chart exits off)",
                         "edge_capture relative @ qty10", "ribbon_ride only (vwap owed)",
-                        "ATR/delta-mapped stops omitted (not expressible in real-fills)"],
+                        "ATR/delta-mapped stops omitted (not expressible in real-fills)",
+                        "fill bar INCLUDED in exit replay (bar-0 H/L can stop/TP1; "
+                        "simulator_real excludes it -- fillbar audit 2026-07-11: no verdict "
+                        "deltas, but control exp is +$12.63 higher excl. bar 0)"],
         "control": control, "anchor": anchor, "top40_by_expectancy": results[:40],
         "all_results": results,
     }, indent=2, default=str), encoding="utf-8")

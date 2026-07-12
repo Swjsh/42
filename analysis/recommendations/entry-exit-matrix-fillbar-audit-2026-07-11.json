@@ -1,0 +1,1444 @@
+{
+  "_doc": "Fill-bar-inclusion sensitivity audit for T4/T5 (see script docstring). as-run = fill bar included in exit replay (t4._load_bars >= mask); fixed = fill bar excluded (simulator_real parity), entry price unchanged.",
+  "generated_at_et_note": "run 2026-07-11 evening (see session log)",
+  "preflight": {
+    "fresh_sha16": "d10e1a3a51cbf155",
+    "burned_file_sha16": "b5e8931994b9d34b",
+    "reproduction_ok": true
+  },
+  "t5_layer_a": {
+    "asrun": {
+      "control_all": {
+        "n": 18,
+        "expectancy": -100.67,
+        "total": -1812.0,
+        "wr": 0.056,
+        "n_stopped": 17,
+        "trades": [
+          {
+            "date": "2026-06-22",
+            "pnl": -214.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-22",
+            "pnl": -50.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-23",
+            "pnl": -192.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-23",
+            "pnl": 324.0,
+            "stopped": false
+          },
+          {
+            "date": "2026-06-24",
+            "pnl": -176.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-25",
+            "pnl": -386.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-25",
+            "pnl": -164.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-25",
+            "pnl": -128.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-25",
+            "pnl": -38.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-26",
+            "pnl": -66.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-29",
+            "pnl": -156.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-07-01",
+            "pnl": -30.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-07-06",
+            "pnl": -84.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-07-07",
+            "pnl": -148.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-07-07",
+            "pnl": -28.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-07-07",
+            "pnl": -26.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-07-08",
+            "pnl": -198.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-07-08",
+            "pnl": -52.0,
+            "stopped": true
+          }
+        ]
+      },
+      "candidates": {
+        "exit-A-wide-ride": {
+          "n": 18,
+          "expectancy": -272.54,
+          "total": -4905.8,
+          "wr": 0.056,
+          "n_stopped": 17,
+          "id": "exit-A-wide-ride",
+          "n_missed": 0,
+          "delta_vs_control_full_population": -171.87,
+          "delta_vs_control_same_subset": -171.87,
+          "small_n": false,
+          "trades": [
+            {
+              "date": "2026-06-22",
+              "pnl": -535.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-22",
+              "pnl": -125.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-23",
+              "pnl": -480.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-23",
+              "pnl": 434.2,
+              "stopped": false,
+              "missed": false
+            },
+            {
+              "date": "2026-06-24",
+              "pnl": -440.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -965.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -410.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -320.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -95.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-26",
+              "pnl": -165.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-29",
+              "pnl": -390.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-01",
+              "pnl": -75.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-06",
+              "pnl": -210.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -370.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -70.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -65.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-08",
+              "pnl": -495.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-08",
+              "pnl": -130.0,
+              "stopped": true,
+              "missed": false
+            }
+          ]
+        },
+        "exit-B-perband-hybrid": {
+          "n": 18,
+          "expectancy": -253.57,
+          "total": -4564.3,
+          "wr": 0.056,
+          "n_stopped": 17,
+          "id": "exit-B-perband-hybrid",
+          "n_missed": 0,
+          "delta_vs_control_full_population": -152.9,
+          "delta_vs_control_same_subset": -152.9,
+          "small_n": false,
+          "trades": [
+            {
+              "date": "2026-06-22",
+              "pnl": -535.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-22",
+              "pnl": -87.5,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-23",
+              "pnl": -480.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-23",
+              "pnl": 434.2,
+              "stopped": false,
+              "missed": false
+            },
+            {
+              "date": "2026-06-24",
+              "pnl": -440.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -965.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -410.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -320.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -47.5,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-26",
+              "pnl": -115.5,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-29",
+              "pnl": -390.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-01",
+              "pnl": -37.5,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-06",
+              "pnl": -147.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -370.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -35.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -32.5,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-08",
+              "pnl": -495.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-08",
+              "pnl": -91.0,
+              "stopped": true,
+              "missed": false
+            }
+          ]
+        },
+        "exit-C-paired-scalp": {
+          "n": 11,
+          "expectancy": -14.73,
+          "total": -162.05,
+          "wr": 0.364,
+          "n_stopped": 5,
+          "id": "exit-C-paired-scalp",
+          "n_missed": 2,
+          "delta_vs_control_full_population": 85.94,
+          "delta_vs_control_same_subset": 159.09,
+          "small_n": false,
+          "trades": [
+            {
+              "date": "2026-06-22",
+              "pnl": 439.1,
+              "stopped": false,
+              "missed": false
+            },
+            {
+              "date": "2026-06-23",
+              "pnl": -302.4,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-24",
+              "pnl": 0.0,
+              "stopped": false,
+              "missed": true
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -607.95,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": 341.4,
+              "stopped": false,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -201.6,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-26",
+              "pnl": 0.0,
+              "stopped": false,
+              "missed": true
+            },
+            {
+              "date": "2026-06-29",
+              "pnl": -245.7,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-06",
+              "pnl": 174.2,
+              "stopped": false,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -233.1,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-08",
+              "pnl": 474.0,
+              "stopped": false,
+              "missed": false
+            }
+          ]
+        },
+        "entry-1+control": {
+          "n": 11,
+          "expectancy": -173.82,
+          "total": -1912.0,
+          "wr": 0.0,
+          "n_stopped": 11,
+          "id": "entry-1+control",
+          "n_missed": 0,
+          "delta_vs_control_full_population": -73.15,
+          "delta_vs_control_same_subset": 0.0,
+          "small_n": false,
+          "trades": [
+            {
+              "date": "2026-06-22",
+              "pnl": -214.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-23",
+              "pnl": -192.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-24",
+              "pnl": -176.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -386.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -164.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -128.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-26",
+              "pnl": -66.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-29",
+              "pnl": -156.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-06",
+              "pnl": -84.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -148.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-08",
+              "pnl": -198.0,
+              "stopped": true,
+              "missed": false
+            }
+          ]
+        },
+        "entry-1+exitA": {
+          "n": 11,
+          "expectancy": -434.55,
+          "total": -4780.0,
+          "wr": 0.0,
+          "n_stopped": 11,
+          "id": "entry-1+exitA",
+          "n_missed": 0,
+          "delta_vs_control_full_population": -333.88,
+          "delta_vs_control_same_subset": -260.73,
+          "small_n": false,
+          "trades": [
+            {
+              "date": "2026-06-22",
+              "pnl": -535.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-23",
+              "pnl": -480.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-24",
+              "pnl": -440.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -965.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -410.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -320.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-26",
+              "pnl": -165.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-29",
+              "pnl": -390.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-06",
+              "pnl": -210.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -370.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-08",
+              "pnl": -495.0,
+              "stopped": true,
+              "missed": false
+            }
+          ]
+        }
+      }
+    },
+    "fixed": {
+      "control_all": {
+        "n": 18,
+        "expectancy": -100.67,
+        "total": -1812.0,
+        "wr": 0.056,
+        "n_stopped": 17,
+        "trades": [
+          {
+            "date": "2026-06-22",
+            "pnl": -214.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-22",
+            "pnl": -50.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-23",
+            "pnl": -192.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-23",
+            "pnl": 324.0,
+            "stopped": false
+          },
+          {
+            "date": "2026-06-24",
+            "pnl": -176.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-25",
+            "pnl": -386.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-25",
+            "pnl": -164.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-25",
+            "pnl": -128.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-25",
+            "pnl": -38.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-26",
+            "pnl": -66.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-06-29",
+            "pnl": -156.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-07-01",
+            "pnl": -30.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-07-06",
+            "pnl": -84.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-07-07",
+            "pnl": -148.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-07-07",
+            "pnl": -28.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-07-07",
+            "pnl": -26.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-07-08",
+            "pnl": -198.0,
+            "stopped": true
+          },
+          {
+            "date": "2026-07-08",
+            "pnl": -52.0,
+            "stopped": true
+          }
+        ]
+      },
+      "candidates": {
+        "exit-A-wide-ride": {
+          "n": 18,
+          "expectancy": -272.54,
+          "total": -4905.8,
+          "wr": 0.056,
+          "n_stopped": 17,
+          "id": "exit-A-wide-ride",
+          "n_missed": 0,
+          "delta_vs_control_full_population": -171.87,
+          "delta_vs_control_same_subset": -171.87,
+          "small_n": false,
+          "trades": [
+            {
+              "date": "2026-06-22",
+              "pnl": -535.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-22",
+              "pnl": -125.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-23",
+              "pnl": -480.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-23",
+              "pnl": 434.2,
+              "stopped": false,
+              "missed": false
+            },
+            {
+              "date": "2026-06-24",
+              "pnl": -440.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -965.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -410.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -320.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -95.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-26",
+              "pnl": -165.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-29",
+              "pnl": -390.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-01",
+              "pnl": -75.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-06",
+              "pnl": -210.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -370.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -70.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -65.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-08",
+              "pnl": -495.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-08",
+              "pnl": -130.0,
+              "stopped": true,
+              "missed": false
+            }
+          ]
+        },
+        "exit-B-perband-hybrid": {
+          "n": 18,
+          "expectancy": -253.57,
+          "total": -4564.3,
+          "wr": 0.056,
+          "n_stopped": 17,
+          "id": "exit-B-perband-hybrid",
+          "n_missed": 0,
+          "delta_vs_control_full_population": -152.9,
+          "delta_vs_control_same_subset": -152.9,
+          "small_n": false,
+          "trades": [
+            {
+              "date": "2026-06-22",
+              "pnl": -535.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-22",
+              "pnl": -87.5,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-23",
+              "pnl": -480.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-23",
+              "pnl": 434.2,
+              "stopped": false,
+              "missed": false
+            },
+            {
+              "date": "2026-06-24",
+              "pnl": -440.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -965.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -410.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -320.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -47.5,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-26",
+              "pnl": -115.5,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-29",
+              "pnl": -390.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-01",
+              "pnl": -37.5,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-06",
+              "pnl": -147.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -370.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -35.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -32.5,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-08",
+              "pnl": -495.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-08",
+              "pnl": -91.0,
+              "stopped": true,
+              "missed": false
+            }
+          ]
+        },
+        "exit-C-paired-scalp": {
+          "n": 11,
+          "expectancy": -138.26,
+          "total": -1520.9,
+          "wr": 0.182,
+          "n_stopped": 7,
+          "id": "exit-C-paired-scalp",
+          "n_missed": 2,
+          "delta_vs_control_full_population": -37.59,
+          "delta_vs_control_same_subset": 35.56,
+          "small_n": false,
+          "trades": [
+            {
+              "date": "2026-06-22",
+              "pnl": -337.05,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-23",
+              "pnl": -302.4,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-24",
+              "pnl": 0.0,
+              "stopped": false,
+              "missed": true
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -607.95,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -258.3,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -201.6,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-26",
+              "pnl": 0.0,
+              "stopped": false,
+              "missed": true
+            },
+            {
+              "date": "2026-06-29",
+              "pnl": -245.7,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-06",
+              "pnl": 191.2,
+              "stopped": false,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -233.1,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-08",
+              "pnl": 474.0,
+              "stopped": false,
+              "missed": false
+            }
+          ]
+        },
+        "entry-1+control": {
+          "n": 11,
+          "expectancy": -173.82,
+          "total": -1912.0,
+          "wr": 0.0,
+          "n_stopped": 11,
+          "id": "entry-1+control",
+          "n_missed": 0,
+          "delta_vs_control_full_population": -73.15,
+          "delta_vs_control_same_subset": 0.0,
+          "small_n": false,
+          "trades": [
+            {
+              "date": "2026-06-22",
+              "pnl": -214.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-23",
+              "pnl": -192.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-24",
+              "pnl": -176.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -386.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -164.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -128.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-26",
+              "pnl": -66.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-29",
+              "pnl": -156.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-06",
+              "pnl": -84.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -148.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-08",
+              "pnl": -198.0,
+              "stopped": true,
+              "missed": false
+            }
+          ]
+        },
+        "entry-1+exitA": {
+          "n": 11,
+          "expectancy": -434.55,
+          "total": -4780.0,
+          "wr": 0.0,
+          "n_stopped": 11,
+          "id": "entry-1+exitA",
+          "n_missed": 0,
+          "delta_vs_control_full_population": -333.88,
+          "delta_vs_control_same_subset": -260.73,
+          "small_n": false,
+          "trades": [
+            {
+              "date": "2026-06-22",
+              "pnl": -535.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-23",
+              "pnl": -480.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-24",
+              "pnl": -440.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -965.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -410.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-25",
+              "pnl": -320.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-26",
+              "pnl": -165.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-06-29",
+              "pnl": -390.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-06",
+              "pnl": -210.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-07",
+              "pnl": -370.0,
+              "stopped": true,
+              "missed": false
+            },
+            {
+              "date": "2026-07-08",
+              "pnl": -495.0,
+              "stopped": true,
+              "missed": false
+            }
+          ]
+        }
+      }
+    }
+  },
+  "t5_verdicts": {
+    "asrun": {
+      "exit-A-wide-ride": {
+        "layer_a_pass": false,
+        "layer_b_pass": true,
+        "overall": "FAIL",
+        "layer_a_exp": -272.54,
+        "layer_a_delta": -171.87,
+        "control_exp": -100.67
+      },
+      "exit-B-perband-hybrid": {
+        "layer_a_pass": false,
+        "layer_b_pass": true,
+        "overall": "FAIL",
+        "layer_a_exp": -253.57,
+        "layer_a_delta": -152.9,
+        "control_exp": -100.67
+      },
+      "exit-C-paired-scalp": {
+        "layer_a_pass": false,
+        "layer_b_pass": null,
+        "overall": "INCONCLUSIVE_NO_ANCHOR",
+        "layer_a_exp": -14.73,
+        "layer_a_delta": 85.94,
+        "control_exp": -100.67
+      },
+      "entry-1+control": {
+        "layer_a_pass": false,
+        "layer_b_pass": true,
+        "overall": "FAIL",
+        "layer_a_exp": -173.82,
+        "layer_a_delta": -73.15,
+        "control_exp": -100.67
+      },
+      "entry-1+exitA": {
+        "layer_a_pass": false,
+        "layer_b_pass": true,
+        "overall": "FAIL",
+        "layer_a_exp": -434.55,
+        "layer_a_delta": -333.88,
+        "control_exp": -100.67
+      }
+    },
+    "fixed": {
+      "exit-A-wide-ride": {
+        "layer_a_pass": false,
+        "layer_b_pass": true,
+        "overall": "FAIL",
+        "layer_a_exp": -272.54,
+        "layer_a_delta": -171.87,
+        "control_exp": -100.67
+      },
+      "exit-B-perband-hybrid": {
+        "layer_a_pass": false,
+        "layer_b_pass": true,
+        "overall": "FAIL",
+        "layer_a_exp": -253.57,
+        "layer_a_delta": -152.9,
+        "control_exp": -100.67
+      },
+      "exit-C-paired-scalp": {
+        "layer_a_pass": false,
+        "layer_b_pass": null,
+        "overall": "INCONCLUSIVE_NO_ANCHOR",
+        "layer_a_exp": -138.26,
+        "layer_a_delta": -37.59,
+        "control_exp": -100.67
+      },
+      "entry-1+control": {
+        "layer_a_pass": false,
+        "layer_b_pass": true,
+        "overall": "FAIL",
+        "layer_a_exp": -173.82,
+        "layer_a_delta": -73.15,
+        "control_exp": -100.67
+      },
+      "entry-1+exitA": {
+        "layer_a_pass": false,
+        "layer_b_pass": true,
+        "overall": "FAIL",
+        "layer_a_exp": -434.55,
+        "layer_a_delta": -333.88,
+        "control_exp": -100.67
+      }
+    },
+    "any_flip": false
+  },
+  "per_trade_diffs": {
+    "control_all": [],
+    "exit-A-wide-ride": [],
+    "exit-B-perband-hybrid": [],
+    "exit-C-paired-scalp": [
+      {
+        "date": "2026-06-22",
+        "asrun": 439.1,
+        "fixed": -337.05
+      },
+      {
+        "date": "2026-06-25",
+        "asrun": 341.4,
+        "fixed": -258.3
+      },
+      {
+        "date": "2026-07-06",
+        "asrun": 174.2,
+        "fixed": 191.2
+      }
+    ],
+    "entry-1+control": [],
+    "entry-1+exitA": []
+  },
+  "bar0_reachability_fresh": {
+    "control(-20%)": {
+      "n": 18,
+      "bar0_stop_touch": 9,
+      "bar0_tp1_touch": 0
+    },
+    "exit-A(-50%)": {
+      "n": 18,
+      "bar0_stop_touch": 4,
+      "bar0_tp1_touch": 0
+    },
+    "exit-B(per-band)": {
+      "n": 18,
+      "bar0_stop_touch": 6,
+      "bar0_tp1_touch": 0
+    },
+    "exit-C(-35%,+50%)": {
+      "n": 18,
+      "bar0_stop_touch": 5,
+      "bar0_tp1_touch": 1
+    }
+  },
+  "bar0_reachability_burned": {
+    "control(-20%)": {
+      "n": 250,
+      "bar0_stop_touch": 113,
+      "bar0_tp1_touch": 2
+    },
+    "exit-A(-50%)": {
+      "n": 250,
+      "bar0_stop_touch": 11,
+      "bar0_tp1_touch": 2
+    }
+  },
+  "burned_population": {
+    "asrun": {
+      "control_full": {
+        "n": 250,
+        "expectancy": 22.91,
+        "total": 5728.0,
+        "wr": 0.148,
+        "n_stopped": 213
+      },
+      "control_floor030": {
+        "n": 157,
+        "expectancy": 36.62,
+        "total": 5750.0,
+        "wr": 0.159,
+        "n_stopped": 132,
+        "n_floor": 157
+      },
+      "floor_lift": 13.71,
+      "exit-A_full": {
+        "n": 250,
+        "expectancy": 42.99,
+        "total": 10748.6,
+        "wr": 0.288,
+        "n_stopped": 168
+      },
+      "exit-B_full": {
+        "n": 250,
+        "expectancy": 42.32,
+        "total": 10579.1,
+        "wr": 0.256,
+        "n_stopped": 182
+      },
+      "entry1+exitA_floor030": {
+        "n": 157,
+        "expectancy": 60.05,
+        "total": 9428.0,
+        "wr": 0.312,
+        "n_stopped": 104
+      }
+    },
+    "fixed": {
+      "control_full": {
+        "n": 250,
+        "expectancy": 35.54,
+        "total": 8885.0,
+        "wr": 0.164,
+        "n_stopped": 208
+      },
+      "control_floor030": {
+        "n": 157,
+        "expectancy": 54.41,
+        "total": 8543.0,
+        "wr": 0.178,
+        "n_stopped": 129,
+        "n_floor": 157
+      },
+      "floor_lift": 18.87,
+      "exit-A_full": {
+        "n": 250,
+        "expectancy": 43.03,
+        "total": 10756.8,
+        "wr": 0.288,
+        "n_stopped": 169
+      },
+      "exit-B_full": {
+        "n": 250,
+        "expectancy": 42.34,
+        "total": 10584.8,
+        "wr": 0.256,
+        "n_stopped": 182
+      },
+      "entry1+exitA_floor030": {
+        "n": 157,
+        "expectancy": 60.05,
+        "total": 9428.0,
+        "wr": 0.312,
+        "n_stopped": 104
+      }
+    }
+  },
+  "layer_b_published_reused": {
+    "status": "ok",
+    "control_anchor_total": -757.1,
+    "candidates": {
+      "exit-A-wide-ride": {
+        "anchor_total": 1500.9,
+        "control_anchor_total": -757.1,
+        "no_regression": true,
+        "n_unique_signals": 17
+      },
+      "exit-B-perband-hybrid": {
+        "anchor_total": 2046.95,
+        "control_anchor_total": -757.1,
+        "no_regression": true,
+        "n_unique_signals": 17
+      },
+      "exit-C-paired-scalp": {
+        "status": "not_available",
+        "reason": "entry-2 shadow-only, zero real limit-headroom fills"
+      },
+      "entry-1+control": {
+        "anchor_total": -72.5,
+        "control_anchor_total_full_population": -757.1,
+        "no_regression": true,
+        "n_unique_signals": 6
+      },
+      "entry-1+exitA": {
+        "anchor_total": 2820.6,
+        "control_anchor_total_full_population": -757.1,
+        "no_regression": true,
+        "n_unique_signals": 6
+      }
+    }
+  }
+}

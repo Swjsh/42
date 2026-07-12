@@ -182,6 +182,18 @@ def replay_market(prepared_subset: list[dict], shape_or_fn) -> list[dict]:
 
 
 def replay_entry2_pair(prepared_subset: list[dict], exit_shape: dict) -> list[dict]:
+    """KNOWN HAZARD (fillbar audit 2026-07-11): `sub` starts AT the limit-fill bar, so a fill
+    that happens MID-bar is replayed against that bar's FULL high/low -- including prints
+    that may predate the fill (5-min bars can't order them). On the fresh slice this credited
+    two same-bar TP1s (+50%) that post-fill-bar prices never approached (2026-06-22 P: bar-0
+    high +50.6% vs fill, every later bar <= -5.5%; 2026-06-25 P 12:45: +54.5% vs +22.0%),
+    moving exit-C's expectancy -$14.73 -> -$138.26 (delta vs control +85.94 -> -37.59) when
+    the fill bar is excluded. VERDICT unchanged (INCONCLUSIVE_NO_ANCHOR; entry-2 stayed
+    shadow) but do NOT read pair numbers from this path without the bar-0-excluded
+    sensitivity: market-entry candidates fill at bar-0 OPEN (all bar-0 prints post-entry,
+    audit found zero deltas there) -- the limit pair is the one shape this bias can flip.
+    Forward truth = entry-2 shadow-ledger real fills, per STOP-A condition 3. Evidence:
+    analysis/recommendations/entry-exit-matrix-fillbar-audit-2026-07-11.md."""
     trades = []
     for p in prepared_subset:
         f = t3.entry_fill(p["bars"], p["entry_premium"], ENTRY2_POLICY)
