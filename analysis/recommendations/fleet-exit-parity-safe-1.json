@@ -1,0 +1,839 @@
+{
+  "_doc": "PROFIT-P1-FLEET-EXIT-PARITY -- safe-1 exit_manager replay, SS-B vs the CURRENT observed exit shape, on safe-1's OWN real fills only (C29: no cross-arm transfer assumed). Read-only research artifact -- migrates nothing, places no orders.",
+  "generated_at": "2026-07-11T18:34:52.166564",
+  "arm": "safe-1",
+  "n_episodes": 24,
+  "n_positions_total_ledger": 24,
+  "n_positions_with_bars": 24,
+  "n_no_option_bars": 0,
+  "n_recoverable_trigger_level": 18,
+  "n_fallback_trigger_level": 6,
+  "recovery_status_counts": {
+    "no_trigger_bar_in_lookback": 6,
+    "ok": 18
+  },
+  "n_structure_fired_ssb": 8,
+  "aggregate": {
+    "actual_total_pnl": -242.0,
+    "control_total_pnl": -186.4,
+    "control_win_rate": 0.042,
+    "ssb_total_pnl": -201.65,
+    "ssb_win_rate": 0.25,
+    "ssb_minus_control": -15.25
+  },
+  "robustness": {
+    "drop_top3": {
+      "control": {
+        "n_kept": 21,
+        "total_after_drop": -450.6,
+        "mean_after_drop": -21.46
+      },
+      "ssb": {
+        "n_kept": 21,
+        "total_after_drop": -646.4,
+        "mean_after_drop": -30.78
+      }
+    },
+    "both_halves": {
+      "control": {
+        "first_half": {
+          "n": 12,
+          "total": 64.8
+        },
+        "second_half": {
+          "n": 12,
+          "total": -251.2
+        }
+      },
+      "ssb": {
+        "first_half": {
+          "n": 12,
+          "total": 5.0
+        },
+        "second_half": {
+          "n": 12,
+          "total": -206.65
+        }
+      }
+    }
+  },
+  "verdict": "KEEP_CURRENT_SHAPE",
+  "verdict_reason": "ssb_total $-201.65 vs control_total $-186.4 (does NOT beat control); drop-top3 does not hold; both-halves SS-B wins 1/2.",
+  "shapes_used": {
+    "control": {
+      "premium_stop_pct": -0.2,
+      "tp1_premium_pct": 1.5,
+      "tp1_qty_fraction": 0.8,
+      "profit_lock_mode": "fixed",
+      "trail_pct": 0.0,
+      "runner_target_pct": 2.5
+    },
+    "ss_b": {
+      "premium_stop_pct": -0.5,
+      "tp1_premium_pct": 1.0,
+      "tp1_qty_fraction": 0.667,
+      "profit_lock_mode": "trailing",
+      "trail_pct": 0.15,
+      "runner_target_pct": 9.9
+    },
+    "ss_b_structure_buffer_usd": 0.0
+  },
+  "episodes": [
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260629C00743000",
+      "date_et": "2026-06-29",
+      "side": "C",
+      "entry_premium": 0.14,
+      "qty": 8,
+      "trigger_level": null,
+      "recovery_status": "no_trigger_bar_in_lookback",
+      "actual_pnl": -32.00000000000001,
+      "control_pnl": -22.4,
+      "ssb_pnl": -56.0,
+      "ssb_structure_fired": false,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 8,
+          "fill_price": 0.112,
+          "dt": "2026-06-29T14:50:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 8,
+          "fill_price": 0.07,
+          "dt": "2026-06-29T14:58:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260630C00746000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "entry_premium": 0.61,
+      "qty": 3,
+      "trigger_level": 742.0,
+      "recovery_status": "ok",
+      "actual_pnl": -36.0,
+      "control_pnl": -36.6,
+      "ssb_pnl": 170.65,
+      "ssb_structure_fired": false,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.488,
+          "dt": "2026-06-30T10:01:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "tp1",
+          "qty": 2,
+          "fill_price": 1.22,
+          "dt": "2026-06-30T12:06:00"
+        },
+        {
+          "stage": "trail",
+          "qty": 1,
+          "fill_price": 1.0965,
+          "dt": "2026-06-30T12:08:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260630C00750000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "entry_premium": 0.12,
+      "qty": 3,
+      "trigger_level": null,
+      "recovery_status": "no_trigger_bar_in_lookback",
+      "actual_pnl": -9.0,
+      "control_pnl": -7.2,
+      "ssb_pnl": -18.0,
+      "ssb_structure_fired": false,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.096,
+          "dt": "2026-06-30T12:58:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.06,
+          "dt": "2026-06-30T13:15:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260630C00750000",
+      "date_et": "2026-06-30",
+      "side": "C",
+      "entry_premium": 0.08,
+      "qty": 3,
+      "trigger_level": null,
+      "recovery_status": "no_trigger_bar_in_lookback",
+      "actual_pnl": -18.0,
+      "control_pnl": -4.8,
+      "ssb_pnl": -12.0,
+      "ssb_structure_fired": false,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.064,
+          "dt": "2026-06-30T13:15:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.04,
+          "dt": "2026-06-30T13:33:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260701C00751000",
+      "date_et": "2026-07-01",
+      "side": "C",
+      "entry_premium": 0.26,
+      "qty": 3,
+      "trigger_level": 747.7,
+      "recovery_status": "ok",
+      "actual_pnl": -12.000000000000004,
+      "control_pnl": -15.6,
+      "ssb_pnl": -39.0,
+      "ssb_structure_fired": false,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.208,
+          "dt": "2026-07-01T11:34:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.13,
+          "dt": "2026-07-01T12:39:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260702P00743000",
+      "date_et": "2026-07-02",
+      "side": "P",
+      "entry_premium": 0.48,
+      "qty": 3,
+      "trigger_level": 747.4000244140625,
+      "recovery_status": "ok",
+      "actual_pnl": -44.99999999999999,
+      "control_pnl": -28.8,
+      "ssb_pnl": -42.0,
+      "ssb_structure_fired": true,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.384,
+          "dt": "2026-07-02T09:32:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "structure_stop",
+          "qty": 3,
+          "fill_price": 0.34,
+          "dt": "2026-07-02T09:40:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260702C00754000",
+      "date_et": "2026-07-02",
+      "side": "C",
+      "entry_premium": 0.19,
+      "qty": 3,
+      "trigger_level": 749.54,
+      "recovery_status": "ok",
+      "actual_pnl": -14.999999999999996,
+      "control_pnl": -11.4,
+      "ssb_pnl": -28.5,
+      "ssb_structure_fired": false,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.152,
+          "dt": "2026-07-02T10:21:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.095,
+          "dt": "2026-07-02T10:27:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260702P00742000",
+      "date_et": "2026-07-02",
+      "side": "P",
+      "entry_premium": 0.5,
+      "qty": 3,
+      "trigger_level": 745.6749877929688,
+      "recovery_status": "ok",
+      "actual_pnl": 306.0,
+      "control_pnl": 275.0,
+      "ssb_pnl": 140.1,
+      "ssb_structure_fired": false,
+      "control_exits": [
+        {
+          "stage": "tp1",
+          "qty": 2,
+          "fill_price": 1.25,
+          "dt": "2026-07-02T12:37:00"
+        },
+        {
+          "stage": "runner_target",
+          "qty": 1,
+          "fill_price": 1.75,
+          "dt": "2026-07-02T13:03:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "tp1",
+          "qty": 2,
+          "fill_price": 1.0,
+          "dt": "2026-07-02T12:35:00"
+        },
+        {
+          "stage": "trail",
+          "qty": 1,
+          "fill_price": 0.901,
+          "dt": "2026-07-02T12:36:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260702P00739000",
+      "date_et": "2026-07-02",
+      "side": "P",
+      "entry_premium": 0.45,
+      "qty": 5,
+      "trigger_level": null,
+      "recovery_status": "no_trigger_bar_in_lookback",
+      "actual_pnl": -95.0,
+      "control_pnl": -45.0,
+      "ssb_pnl": -112.5,
+      "ssb_structure_fired": false,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 5,
+          "fill_price": 0.36,
+          "dt": "2026-07-02T14:05:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 5,
+          "fill_price": 0.225,
+          "dt": "2026-07-02T14:06:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260706C00753000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "entry_premium": 0.08,
+      "qty": 8,
+      "trigger_level": null,
+      "recovery_status": "no_trigger_bar_in_lookback",
+      "actual_pnl": -16.000000000000004,
+      "control_pnl": -12.8,
+      "ssb_pnl": -32.0,
+      "ssb_structure_fired": false,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 8,
+          "fill_price": 0.064,
+          "dt": "2026-07-06T11:35:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 8,
+          "fill_price": 0.04,
+          "dt": "2026-07-06T12:59:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260706C00753000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "entry_premium": 0.06,
+      "qty": 8,
+      "trigger_level": null,
+      "recovery_status": "no_trigger_bar_in_lookback",
+      "actual_pnl": -7.9999999999999964,
+      "control_pnl": -9.6,
+      "ssb_pnl": 50.25,
+      "ssb_structure_fired": false,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 8,
+          "fill_price": 0.048,
+          "dt": "2026-07-06T12:59:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "tp1",
+          "qty": 5,
+          "fill_price": 0.12,
+          "dt": "2026-07-06T13:06:00"
+        },
+        {
+          "stage": "trail",
+          "qty": 3,
+          "fill_price": 0.1275,
+          "dt": "2026-07-06T13:07:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260706C00753000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "entry_premium": 0.1,
+      "qty": 8,
+      "trigger_level": 751.3099975585938,
+      "recovery_status": "ok",
+      "actual_pnl": 7.9999999999999964,
+      "control_pnl": -16.0,
+      "ssb_pnl": -16.0,
+      "ssb_structure_fired": true,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 8,
+          "fill_price": 0.08,
+          "dt": "2026-07-06T13:18:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "structure_stop",
+          "qty": 8,
+          "fill_price": 0.08,
+          "dt": "2026-07-06T13:20:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260706C00753000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "entry_premium": 0.11,
+      "qty": 8,
+      "trigger_level": 751.3099975585938,
+      "recovery_status": "ok",
+      "actual_pnl": -7.9999999999999964,
+      "control_pnl": -17.6,
+      "ssb_pnl": -40.0,
+      "ssb_structure_fired": true,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 8,
+          "fill_price": 0.088,
+          "dt": "2026-07-06T14:28:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "structure_stop",
+          "qty": 8,
+          "fill_price": 0.06,
+          "dt": "2026-07-06T14:35:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260706C00754000",
+      "date_et": "2026-07-06",
+      "side": "C",
+      "entry_premium": 0.05,
+      "qty": 8,
+      "trigger_level": 751.3099975585938,
+      "recovery_status": "ok",
+      "actual_pnl": -16.000000000000004,
+      "control_pnl": -8.0,
+      "ssb_pnl": -20.0,
+      "ssb_structure_fired": false,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 8,
+          "fill_price": 0.04,
+          "dt": "2026-07-06T14:59:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 8,
+          "fill_price": 0.025,
+          "dt": "2026-07-06T15:34:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260707P00743000",
+      "date_et": "2026-07-07",
+      "side": "P",
+      "entry_premium": 0.44,
+      "qty": 3,
+      "trigger_level": 747.4099731445312,
+      "recovery_status": "ok",
+      "actual_pnl": -39.0,
+      "control_pnl": -26.4,
+      "ssb_pnl": -66.0,
+      "ssb_structure_fired": false,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.352,
+          "dt": "2026-07-07T10:52:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.22,
+          "dt": "2026-07-07T11:44:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260707P00746000",
+      "date_et": "2026-07-07",
+      "side": "P",
+      "entry_premium": 0.24,
+      "qty": 3,
+      "trigger_level": 749.0,
+      "recovery_status": "ok",
+      "actual_pnl": -14.999999999999996,
+      "control_pnl": -14.4,
+      "ssb_pnl": -24.0,
+      "ssb_structure_fired": true,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.192,
+          "dt": "2026-07-07T12:38:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "structure_stop",
+          "qty": 3,
+          "fill_price": 0.16,
+          "dt": "2026-07-07T12:50:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260707P00746000",
+      "date_et": "2026-07-07",
+      "side": "P",
+      "entry_premium": 0.11,
+      "qty": 3,
+      "trigger_level": 749.0,
+      "recovery_status": "ok",
+      "actual_pnl": -9.0,
+      "control_pnl": -6.6,
+      "ssb_pnl": 37.35,
+      "ssb_structure_fired": false,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.088,
+          "dt": "2026-07-07T14:35:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "tp1",
+          "qty": 2,
+          "fill_price": 0.22,
+          "dt": "2026-07-07T14:49:00"
+        },
+        {
+          "stage": "trail",
+          "qty": 1,
+          "fill_price": 0.2635,
+          "dt": "2026-07-07T14:50:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260708P00741000",
+      "date_et": "2026-07-08",
+      "side": "P",
+      "entry_premium": 0.96,
+      "qty": 3,
+      "trigger_level": 744.169921875,
+      "recovery_status": "ok",
+      "actual_pnl": -53.99999999999998,
+      "control_pnl": -57.6,
+      "ssb_pnl": -69.0,
+      "ssb_structure_fired": true,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.768,
+          "dt": "2026-07-08T09:58:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "structure_stop",
+          "qty": 3,
+          "fill_price": 0.73,
+          "dt": "2026-07-08T10:10:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260708P00741000",
+      "date_et": "2026-07-08",
+      "side": "P",
+      "entry_premium": 0.25,
+      "qty": 3,
+      "trigger_level": 744.169921875,
+      "recovery_status": "ok",
+      "actual_pnl": 0.0,
+      "control_pnl": -15.0,
+      "ssb_pnl": 12.0,
+      "ssb_structure_fired": true,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.2,
+          "dt": "2026-07-08T13:19:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "structure_stop",
+          "qty": 3,
+          "fill_price": 0.29,
+          "dt": "2026-07-08T13:15:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260708C00749000",
+      "date_et": "2026-07-08",
+      "side": "C",
+      "entry_premium": 0.13,
+      "qty": 3,
+      "trigger_level": 745.2977294921875,
+      "recovery_status": "ok",
+      "actual_pnl": -12.000000000000002,
+      "control_pnl": -7.8,
+      "ssb_pnl": -12.0,
+      "ssb_structure_fired": true,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.104,
+          "dt": "2026-07-08T13:35:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "structure_stop",
+          "qty": 3,
+          "fill_price": 0.09,
+          "dt": "2026-07-08T13:40:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260708C00748000",
+      "date_et": "2026-07-08",
+      "side": "C",
+      "entry_premium": 0.1,
+      "qty": 3,
+      "trigger_level": 745.2100219726562,
+      "recovery_status": "ok",
+      "actual_pnl": -12.000000000000004,
+      "control_pnl": -6.0,
+      "ssb_pnl": -15.0,
+      "ssb_structure_fired": false,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.08,
+          "dt": "2026-07-08T14:53:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.05,
+          "dt": "2026-07-08T14:55:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260709C00751000",
+      "date_et": "2026-07-09",
+      "side": "C",
+      "entry_premium": 0.5,
+      "qty": 3,
+      "trigger_level": 747.55,
+      "recovery_status": "ok",
+      "actual_pnl": -24.000000000000004,
+      "control_pnl": -30.0,
+      "ssb_pnl": -75.0,
+      "ssb_structure_fired": false,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.4,
+          "dt": "2026-07-09T09:48:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.25,
+          "dt": "2026-07-09T10:11:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260709C00751000",
+      "date_et": "2026-07-09",
+      "side": "C",
+      "entry_premium": 0.54,
+      "qty": 3,
+      "trigger_level": 748.0,
+      "recovery_status": "ok",
+      "actual_pnl": -57.000000000000014,
+      "control_pnl": -32.4,
+      "ssb_pnl": -69.0,
+      "ssb_structure_fired": true,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.432,
+          "dt": "2026-07-09T09:59:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "structure_stop",
+          "qty": 3,
+          "fill_price": 0.31,
+          "dt": "2026-07-09T10:10:00"
+        }
+      ]
+    },
+    {
+      "arm": "safe-1",
+      "symbol": "SPY260709C00750000",
+      "date_et": "2026-07-09",
+      "side": "C",
+      "entry_premium": 0.49,
+      "qty": 3,
+      "trigger_level": 746.8,
+      "recovery_status": "ok",
+      "actual_pnl": -24.000000000000004,
+      "control_pnl": -29.4,
+      "ssb_pnl": 134.0,
+      "ssb_structure_fired": false,
+      "control_exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 3,
+          "fill_price": 0.392,
+          "dt": "2026-07-09T10:31:00"
+        }
+      ],
+      "ssb_exits": [
+        {
+          "stage": "tp1",
+          "qty": 2,
+          "fill_price": 0.98,
+          "dt": "2026-07-09T11:24:00"
+        },
+        {
+          "stage": "trail",
+          "qty": 1,
+          "fill_price": 0.85,
+          "dt": "2026-07-09T11:28:00"
+        }
+      ]
+    }
+  ]
+}

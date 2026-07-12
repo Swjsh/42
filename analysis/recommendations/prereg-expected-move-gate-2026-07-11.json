@@ -1,0 +1,156 @@
+{
+  "_doc": "PRE-REGISTERED candidate list + evaluation contract for the EXPECTED-MOVE / VIX1D entry gate test (PROFIT-P5-EXPECTED-MOVE-PREREG). Frozen BEFORE any candidate is run (exploratory != confirmatory -- no re-picks after seeing results; FAIL is publishable). REGISTRATION ONLY: this file specifies the exact hypothesis, gate formula variants, population, window, battery, and kill bar. The run is dispatched separately once the OPRA option-bar cache is free. No test was executed to produce this file.",
+  "study": "expected_move_gate_study",
+  "version": 1,
+  "status": "FROZEN_PENDING_RUN",
+  "frozen_at": "2026-07-11",
+  "runner": "NOT YET BUILT -- proposed path backtest/tools/expected_move_gate_study.py. This file is the exact contract that runner must satisfy: same population/window/battery/pass-bar as specified here, no substitutions without a new frozen version.",
+  "scheduling_note": "Same OPRA option-bar cache dependency and queue position as prereg-morning-gate-2026-07-11.json (analysis/recommendations/) -- both P3 and P5 need backtest/data/options/ for option-premium math and are queued sequentially behind the crew currently using it (FDR-16 real-fills confirmation + P5-cohort top-cell confirm, per queue.md).",
+
+  "mechanism_source": {
+    "doc": "markdown/research/EXTERNAL-0DTE-MECHANISMS-2026-07-11.md, mechanism #1 (Expected-move / IV-based entry gate)",
+    "core_claim": "The at-the-money straddle price x ~0.85 gives the market's own 1-standard-deviation expected range for the session (standard practitioner formula, cited sources MenthorQ/Skavinski). When that range is too narrow to plausibly clear a trade's premium/spread cost, the day structurally can't pay and the signal should be skipped or downsized.",
+    "evidence_quality_tag": "[PRACTITIONER] formula, cross-checked against [EXCHANGE] primary data (CBOE VIX1D methodology, purpose-built for 0DTE, launched April 2023) and one [ACADEMIC] paper on VIX1D's documented overnight-bias/decay shape.",
+    "portability": "Path A (used here): compute directly from the SAME Alpaca option-chain data this project's own OPRA cache already holds -- zero new data source, zero new infra. Path B (VIX1D as a cross-check label) is NOT in scope for this pre-registration (would require a new external feed) -- noted as a possible future disclosure-only addition, never load-bearing for this study's pass/fail."
+  },
+
+  "hypothesis": "0DTE ribbon_ride entries taken on session-days (or at intraday moments) where the market's own expected range is unusually compressed relative to what the trade needs to clear (premium cost + spread, or the distance to TP1) have structurally worse expectancy than entries taken when the expected range is ample -- because a trigger can fire correctly but the day simply lacks the realized movement to pay for it, independent of trigger quality.",
+
+  "hypothesis_provenance": {
+    "generated_by": "markdown/research/EXTERNAL-0DTE-MECHANISMS-2026-07-11.md mechanism #1 (external practitioner/exchange literature, NOT this repo's own 9-day sample -- disclosed distinction from the P3 morning-gate study, whose hypothesis DID come from the 9-day window).",
+    "corroborating_context": "analysis/deep-research/2026-07-11-ledger-forensics.md section 4 notes VIX was pinned 15.19-20.64 for the entire 9-day live sample -- i.e. the live window cannot itself distinguish a genuine expected-move effect from noise (no regime variation to correlate against). This is the reason the full-history evaluation window below matters: the 9-day window structurally cannot test this hypothesis on its own.",
+    "hypothesis_source_window": "2026-06-26..2026-07-09",
+    "excluded_from_all_pass_fail_layers": true,
+    "exclusion_rationale": "Matches the project's own no-peeking discipline (same exclusion as PROFIT-P3): this window is reserved as a future confirmatory check, not blended into the frozen evaluation below."
+  },
+
+  "population_scope": {
+    "primary": {
+      "strategy": "ribbon_ride",
+      "directions": ["bull", "bear"],
+      "setups": ["BULLISH_RECLAIM_RIDE_THE_RIBBON", "BEARISH_REJECTION_RIDE_THE_RIBBON"],
+      "rationale": "Same scoping logic as PROFIT-P3 (C29: gate effects don't transfer across setups without independent verification) -- ribbon_ride is this project's highest-volume live setup and the one the deep-research synthesis is built around."
+    },
+    "explicit_note": "unlike PROFIT-P3, this mechanism has no a priori conflict with the OTHER live setups' own time-of-day design (vwap_continuation etc. are about WHEN in the morning, not about the SESSION'S total expected range) -- so a future wider-scope run is plausible, but this registration freezes ribbon_ride ONLY to keep the first confirmatory test scoped and interpretable. Widening scope requires a NEW frozen version, not an amendment."
+  },
+
+  "core_formula": {
+    "session_expected_move": {
+      "definition": "expected_move_dollars = ATM_straddle_price_at_open x 0.85",
+      "atm_straddle_price_at_open": "sum of the day's ATM (nearest-strike-to-spot) 0DTE call bar close + put bar close, sampled at the FIRST option bar at/after 09:35 ET (matches the existing v15.3 entry-gate floor -- no pre-floor data used, consistent with every other gate in this engine).",
+      "data_source": "backtest/data/options/*.csv (the SAME cached OPRA contract bars used by exit_shape_parity_study.py / structure_stop_study.py / t4_exit_matrix.py -- Path A, zero new data)."
+    },
+    "remaining_expected_move": {
+      "definition": "remaining_expected_move_dollars(t) = expected_move_dollars x sqrt(minutes_remaining(t) / 375)",
+      "rationale": "standard sqrt-time scaling of expected range (consistent with Black-Scholes-style time-decay of variance) -- 375 = total RTH minutes 09:30-16:00. Disclosed as a modeling choice, not an empirically-fit parameter, per this repo's no-repick discipline.",
+      "minutes_remaining_def": "minutes from the signal's ET timestamp to 16:00 ET (session close), floored at 0."
+    }
+  },
+
+  "candidates": {
+    "V1_SESSION_FLOOR_TRAILING_PCTILE": {
+      "id": "V1_SESSION_FLOOR_TRAILING_PCTILE",
+      "label": "day-level regime filter -- skip ALL entries on a day whose expected-move-as-%-of-spot is unusually compressed vs recent history",
+      "formula": "expected_move_pct = expected_move_dollars / SPY_price_at_open. Trailing window = expected_move_pct on the prior 20 TRADING days (shift-1, strictly causal -- never includes today's own value, C6 no-look-ahead).",
+      "gate_rule": "SKIP every entry that day if today's expected_move_pct < the 25th percentile of the trailing-20-day window.",
+      "granularity": "day-level (evaluated once, at the first entry-eligible bar of the day; applies uniformly to every signal that day).",
+      "rationale": "the closest match to the mechanism doc's own 'smallest testable step' (skip when the ratio sits below a trailing percentile). Cheapest variant: one number per day, no per-trade delta/moneyness modeling."
+    },
+    "V2_REMAINING_MOVE_VS_TP1_DISTANCE": {
+      "id": "V2_REMAINING_MOVE_VS_TP1_DISTANCE",
+      "label": "per-trade gate -- skip a signal if the day's remaining expected move, translated into an implied option-premium ceiling, can't plausibly clear this trade's TP1 distance",
+      "formula": "implied_premium_ceiling = remaining_expected_move_dollars(t) x delta_proxy_for_tier. entry_premium_needed_for_tp1 = entry_premium x tp1_premium_pct (SS-B: 1.0, i.e. +100%; CONTROL/current: 1.5, i.e. +150% -- the runner must state which exit shape's tp1_premium_pct it used, since PROFIT-P1 may change this value before this study runs).",
+      "delta_proxy_table": {
+        "source": "matches this project's own per-tier strike-selection language (CLAUDE.md 'The strategy' section: OTM-3 at $1K / OTM-2 at $2-10K / OTM-1 at $10-25K / ITM-2 at $25K+), NOT a live per-trade Greek (Alpaca option snapshot Greeks were not verified available for this registration -- disclosed approximation, not a live feed).",
+        "OTM-3": 0.20, "OTM-2": 0.30, "OTM-1": 0.40, "ITM-2": 0.65,
+        "disclosure": "a FIXED table, not fit to this study's own data -- if the runner finds live Greeks are in fact available cheaply from the Alpaca option snapshot already used elsewhere in this repo (mcp__alpaca__get_option_snapshot), it MAY substitute real per-trade delta and must disclose the substitution explicitly (does not require a new frozen version since it strictly improves precision on the SAME formula, not a new formula)."
+      },
+      "gate_rule": "SKIP this entry if implied_premium_ceiling < entry_premium_needed_for_tp1.",
+      "granularity": "per-trade (evaluated at each individual signal's timestamp).",
+      "rationale": "the most literal match to the task's 'skip signals whose distance-to-target exceeds remaining expected move' framing -- most mechanistically complete, at the cost of the disclosed delta-proxy approximation."
+    },
+    "V3_PREMIUM_BUDGET_RATIO": {
+      "id": "V3_PREMIUM_BUDGET_RATIO",
+      "label": "per-trade gate -- skip a signal if its premium cost is too large a share of the WHOLE day's expected-move budget",
+      "formula": "budget_ratio = entry_premium / expected_move_dollars (using the SESSION-level expected_move_dollars, not the time-decayed remaining figure -- deliberately simpler than V2, no sqrt-time scaling, no delta proxy).",
+      "gate_rule": "SKIP this entry if budget_ratio > 0.35 (candidate threshold: don't pay more than 35% of the day's total expected-move budget for one contract).",
+      "granularity": "per-trade, but uses only the session-open expected move (no intraday time-decay modeling).",
+      "rationale": "the most literal match to the task's 'premium cost can't clear the expected-range math' framing -- simplest variant, Path-A-only, easiest to reason about and audit; a useful robustness contrast to V2's more elaborate time-decay + delta model."
+    }
+  },
+  "candidate_ids_in_multiplicity_correction": ["V1_SESSION_FLOOR_TRAILING_PCTILE", "V2_REMAINING_MOVE_VS_TP1_DISTANCE", "V3_PREMIUM_BUDGET_RATIO"],
+
+  "evaluation_window": {
+    "opra_option_cache_coverage_at_freeze": {
+      "verified_by": "directory listing of backtest/data/options/*.csv at freeze time -- 8,669 contract files, earliest SPY250102*, latest SPY260708*",
+      "range": "2025-01-02..2026-07-08"
+    },
+    "hypothesis_source_window_excluded": "2026-06-26..2026-07-09",
+    "net_evaluation_window": "2025-01-02..2026-06-25",
+    "is_oos_split": {
+      "convention_source": "same calendar-year OOS_BOUNDARY convention as PROFIT-P3 (backtest/autoresearch/family_grind.py etc.) -- reused for consistency.",
+      "oos_boundary": "2026-01-01",
+      "in_sample": "2025-01-02..2025-12-31",
+      "out_of_sample": "2026-01-01..2026-06-25"
+    },
+    "signal_population_source": "the SAME full-history ribbon_ride signal-generation path as PROFIT-P3 (family_grind.py / the mass-grind funnel) -- population consistency between the two P3/P5 studies is itself a cheap cross-check the runner should perform (the two studies' gate-OFF baselines must match exactly if both ran on the same generator; a mismatch means one of them drifted)."
+  },
+
+  "battery_stages": {
+    "1_expectancy": {
+      "metric": "per-trade dollar expectancy AND total pnl, gate-ON (candidate applied) vs gate-OFF (baseline, no expected-move gate) on the primary population/window.",
+      "pass_condition": "gate-ON per-trade expectancy > gate-OFF per-trade expectancy (STRICTLY greater), via lib.simulator_real.simulate_trade_real, same signal population for both arms."
+    },
+    "2_oos": {
+      "metric": "condition 1 evaluated separately on IS (2025) and OOS (2026, post-exclusion).",
+      "pass_condition": "gate-ON beats gate-OFF in BOTH slices."
+    },
+    "3_random_entry_null": {
+      "purpose": "isolates whether the BLOCKED (compressed-expected-move) cohort's poor performance is specific to ribbon_ride's signal quality on those days, or a generic 'nothing works when the day is dead' property any random entry would also show.",
+      "method": "autoresearch.null_baseline.random_entry_null over the SAME blocked-day/blocked-signal set (V1: the blocked DAYS' full RTH window; V2/V3: the blocked SIGNALS' own timestamps), matched n/side-mix/strike/stop to the removed cohort's realized values, 10 deterministic seeds.",
+      "pass_condition": "the blocked cohort's own realized per-trade expectancy is <= the random-entry null's per_trade_mean for the same days/signals."
+    },
+    "4_opposite_null": {
+      "purpose": "negative control -- rules out 'skip an arbitrary similarly-sized subset and it looks like an improvement' rather than a genuine expected-move mechanism.",
+      "method": "mirror-image gate: apply the SAME threshold logic to the HIGH end instead of the low end (V1: skip days ABOVE the 75th percentile instead of below the 25th; V2/V3: skip trades with the LARGEST implied_premium_ceiling / smallest budget_ratio instead of the opposite), sized to block a comparable trade-count to the real candidate.",
+      "pass_condition": "the high-end mirror gate does NOT produce a comparable-or-larger expectancy improvement than the real (low-end) candidate. If it does, 'skip on the extreme value of this metric, either direction' is doing the work, not the expected-move mechanism specifically."
+    },
+    "5_concentration": {
+      "metric": "drop-top-3 (t4_exit_matrix.py battery() convention) applied independently to KEPT and REMOVED cohorts.",
+      "pass_condition": "gate-ON's drop-top-3 expectancy still beats gate-OFF's drop-top-3 expectancy."
+    },
+    "6_bh_fdr": {
+      "method": "backtest/autoresearch/ribbon_rejection_wick_battery.py's bh_fdr() at FDR_ALPHA=0.10, applied across the 3 candidate_ids_in_multiplicity_correction.",
+      "pass_condition": "candidate's stage-1 effect survives BH-FDR correction at alpha=0.10 across the 3-way comparison."
+    }
+  },
+
+  "kill_criteria": {
+    "statement": "ANY of the following kills the candidate outright, regardless of other stages (mirrors PROFIT-P3's kill ladder):",
+    "k1": "stage 1 (expectancy) fails on the full net window.",
+    "k2": "stage 2 (OOS) fails on either the IS or OOS slice alone.",
+    "k3": "stage 4 (opposite_null) shows the high-end mirror gate produces a comparable-or-larger improvement -- the effect is not specifically about LOW expected move.",
+    "k4": "stage 6 (BH-FDR) rejects the candidate at alpha=0.10 after multiplicity correction.",
+    "k5_no_lift_over_vix_gate": "queue.md's own stated kill for this item: 'no lift over existing VIX gates' -- if gate-ON's improvement over gate-OFF is not meaningfully larger than what the SAME population already gets from the existing VIX-level gates on BULLISH_RECLAIM/BEARISH_REJECTION (puts want VIX rising/>20, calls want VIX falling/<17.2, per playbook.md), the candidate is redundant with a gate already live, not a new lever. The runner must report the VIX-gate-only baseline alongside gate-OFF for this comparison.",
+    "k6_anchor_violation": "the candidate would have blocked any of J's 3 source-of-truth anchor winners (see anchor_context_check below) -- an automatic MISCALIBRATED flag, mirroring the exact instruction in EXTERNAL-0DTE-MECHANISMS-2026-07-11.md mechanism #1's own kill condition ('if the anchor winners cluster on LOW expected-move days... a blanket expected-move gate would be actively anti-edge -- same failure mode as the retired STAIRSTEP_CONTINUATION setup')."
+  },
+
+  "pass_bar": {
+    "aggregation": "AND of stages 1, 2, 3, 4, 5, 6 AND k5/k6 clear -- no partial credit.",
+    "min_n_disclosure": "kept AND removed cohort n must each be reported; n<20 on either side is INSUFFICIENT_N, reported as inconclusive, not passed or failed."
+  },
+
+  "anchor_context_check": {
+    "purpose": "MANDATORY disclosure -- this is the exact check EXTERNAL-0DTE-MECHANISMS-2026-07-11.md mechanism #1 names as the make-or-break test for this mechanism specifically ('cross-checked against the 3 real-money anchor winners... the gate must not have blocked any anchor winner, or it's miscalibrated').",
+    "anchors_in_scope": {
+      "winners_claude_md_op16": ["2026-04-29 SPY 710P x6 -> +$342", "2026-05-01 SPY 721P x20 -> +$470", "2026-05-04 SPY 721P x10 -> +$730"],
+      "losers_claude_md_op16": ["2026-05-05 SPY 722P x20 -> -$260", "2026-05-06 SPY 730P x10 -> -$300", "2026-05-07 SPY 734C x3 -> -$45", "2026-05-07 SPY 737C x10 -> -$120"]
+    },
+    "reporting_requirement": {
+      "winners": "for EACH candidate, compute expected_move_dollars / remaining_expected_move / budget_ratio (as applicable) for each winner's actual entry (time pulled from journal/YYYY-MM-DD.md, not assumed). If any candidate's gate_rule would have produced SKIP on a winner's actual entry, the candidate is MISCALIBRATED regardless of aggregate battery result -- report this BEFORE the aggregate result, not buried after it.",
+      "losers": "same computation for the 4 losers, disclosure only (context on whether the mechanism would have caught real losses too, not itself pass/fail-determinative -- a gate is not required to catch every loser to be useful, but IS required to never block a winner)."
+    }
+  },
+
+  "no_repick_clause": "Once this file is frozen, no formula, delta-proxy table, threshold, population scope, window, or battery definition may be edited in light of results. A FAIL (or an INSUFFICIENT_N on all 3 candidates, or a k6 anchor violation) is a publishable, informative outcome, not a reason to adjust the pre-registration and re-run."
+}

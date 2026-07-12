@@ -92,6 +92,26 @@ cheap-to-verify, and the verification machinery (replay, scorecards, probe arm, 
 built. Monday's tape starts producing forward evidence on SS-B core; the plan above converts
 the rest from "shipped/plausible" to "measured" or kills it.
 
+## P1 addendum (same day, post-replay — verified in source)
+
+The fleet exit-parity replay ran (scorecards: `analysis/recommendations/fleet-exit-parity-*.json`).
+Two findings that change P1's framing:
+
+1. **The migration already happened by construction.** Fleet arms read the SAME shared
+   params files as core (`fleet_executor.py:55-56`), `structure_stop_enabled=true` in BOTH
+   (verified live), and `strategies.py` declares `stop_mode="structure"` + `-50%` cat-cap for
+   the ribbon_ride shape all arms trade. The measured -20% stop deaths were the OLD config;
+   every fleet fill from Monday forward runs SS-B. P1 is therefore **forward-watch, not a
+   pending decision** — 0 fleet fills exist since the 07-09 flip, so the fix is armed but
+   live-unproven.
+2. **The replay agrees directionally, with honest fragility.** SS-B beats the old shape on
+   raw total for 3 of 4 arms (safe-3 +$250, risky-1 +$368, risky-3 +$88 on their own real
+   episodes; safe-1 -$15 ≈ flat), but drop-top-3 flips all three — the improvement rides the
+   right tail. Note the structural caveat: drop-top-3 was designed to catch entry-signal
+   concentration; a TP1+trailing-runner exit EXISTS to create a right tail, so this check
+   mechanically penalizes exactly what the shape is for. n=19-27 per arm is too small to
+   settle it — the forward fill funnel decides, not another replay.
+
 ## Instruments that auto-report progress (no memory dependence)
 
 - Fill funnel + firm brief (daily) — SS-B live behavior, probe-arm entries
