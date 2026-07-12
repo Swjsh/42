@@ -1,3 +1,131 @@
+## [2026-07-11] PROFIT-P2-ARMED — core Safe ribbon_ride strike OTM-2 → ATM (paper, OP-11 auto-ratify, J-revocable) [REVOKE-report]
+
+> **SHIPPED:** core Safe `ribbon_ride` now trades **ATM** (offset 0) instead of the generic v15 OTM-2/equity-banded strike. Mirrors the WP-5 per-setup-override pattern byte-for-byte — no new mechanism invented.
+>
+> **Evidence** (re-verified directly from the JSON before this ship, not taken on faith): `analysis/recommendations/ribbon-ride-strike-exit-ab.json`, `axis1_strike.comparisons.ATM` — delta_expectancy **+$47.96/tr**, delta_oos_total **+$8,573.6** (IS-2025 +$4,727.6 / OOS-2026 +$11,333.4, both positive), WF **4.25**, both chronological halves positive, drop-top-3 **+$36.64** (the OTM-2 control's OWN drop-top-3 is **NEGATIVE -$2.13/tr** — its live-tier edge rides its 3 best trades), beats its 20-seed random-entry null (p=0.0476), BH-FDR survivor (rank 1/6), STABLE on the fill-bar sensitivity toggle (+$52.32 old convention, same sign). `clears_auto_ratify_bar=true`, `anchor_no_regression_op16=true`, `unstable_on_open_audit=false`, `smoke_mode=false`. OTM-1 (+$19.12/tr) clears the arithmetic too but FAILS its own random-entry null (non-BH-survivor, dominated by ATM) — **not armed**. ITM-2 fails WF/sub_window_stable (C22 regime-concentration, IS-2025 -$17.0K) — **not armed**.
+>
+> **Mechanism:** added `ribbon_ride`'s 2 entry_setups (`bearish_rejection_ride_the_ribbon` / `bullish_reclaim_ride_the_ribbon`, lowercased) to `setup/scripts/heartbeat_core.py`'s existing `_SETUP_STRIKE_OVERRIDES` dispatch table — same 3-key params shape (`j_ribbon_ride_strike_override_enabled` / `_strike_offset_safe` / `_strike_offset_bold`) the 5 WP-5/trade-to-learn extra-setup overrides already use (vwap_continuation, vwap_reclaim_failed_break, vix_regime_dayside, double_bottom_base_quiet, bollinger_squeeze).
+>
+> **Consumer table** (blast-radius mapped before editing anything):
+>
+> | Consumer | Reads the new key? | Effect |
+> |---|---|---|
+> | `heartbeat_core.py#_execute`, `ACCOUNTS["safe"]` (core lane) | YES — `_SETUP_STRIKE_OVERRIDES` | ATM, once re-wired (account currently deleted) |
+> | `heartbeat_core.py#_execute`, `ACCOUNTS["bold"]` (core lane) | NO — reads `automation/state/aggressive/params.json`, a wholly separate file, never touched | structurally unaffected (enable flag absent) |
+> | `fleet_executor.py` (`safe-1`/`safe-3` fleet arms) | NO — strike comes from `_tiers_for_arm` → `crypto/lib/strike_selection.py#V15_SAFE_TIERS`, zero per-setup dispatch exists in the fleet lane | unaffected by this key either way |
+> | `fleet_executor.py` (`risky-1`/`risky-3`/`bold-2`) | NO — same separate mechanism, Bold-sizing table | unaffected |
+> | `backtest/lib/risk_gate.py#select_strike_offset` (sim/replay lane — `orchestrator.py`, `live_order_resolver.py`) | NO — its own separate `_PER_SETUP_STRIKE_OVERRIDES` dict has ONLY `VWAP_CONTINUATION` (pre-existing gap shared by the other 4 WP-5 setups too, not introduced here) | replay/backtest tools still simulate the OLD generic tier for ribbon_ride — disclosed, not fixed (would need its own evidence/scope) |
+> | Guard tests pinning the old tier | 2 found + updated (not deleted) | now pin the NEW correct behavior |
+> | Dashboard (`dashboard/`) | reads `journal`/`decisions.jsonl`, not params.json strike keys directly | no change needed |
+>
+> **DORMANCY:** core Safe account (`safe-2`, `PA3S2PYAS2WQ`) is DELETED pending J's replacement — this override is INERT on the core lane until re-wired. **The safe-* FLEET arms (safe-1, safe-3) are the live surface Monday, and they do NOT inherit this change** (fleet_executor.py never consults `_SETUP_STRIKE_OVERRIDES`). **Net live behavior change Monday = ZERO** either way; this ship prepares the core lane for when J's replacement account lands.
+>
+> **Open finding, NOT fixed here (out of scope, flagged separately):** `crypto/lib/strike_selection.py#V15_SAFE_TIERS` — the table BOTH the core lane's generic pre-override fallback AND every fleet arm's strike selection ultimately resolve to — is ALREADY `ATM`/`ATM` for the $0-2K/$2K-10K equity bands. This does **not** match this same file's own `v15_strike_offset_per_tier` (OTM-3/OTM-2) or the CLAUDE.md tier-table prose. Possible pre-existing silent doctrine/code drift, unrelated to this ship — flagged via a spawned task, not fixed here (touching it would affect every setup on every safe-sizing fleet arm, well beyond ribbon_ride).
+>
+> **Guards:** 2 pre-existing pins broke as EXPECTED — they asserted "no per-setup override ever touches ribbon_ride," which stopped being true. Both updated to pin the new correct behavior (never deleted-to-pass): `test_trade_to_learn_2026_07_01.py::TestStrikeOverride::test_ribbon_setup_now_uses_its_own_atm_override`, `test_money_path_2026_07_01.py::TestVwapContinuationArmed::test_ribbon_setup_now_uses_its_own_atm_override`. New dedicated file `backtest/tests/test_ribbon_ride_strike_override_2026_07_11.py` (11 tests: bear+bull vary-and-assert at $25K equity where the generic ITM-2 tier is distinguishable from ATM, bold structural+behavioral non-leak, `setup_name`-fallback path, offset-math sanity, cross-setup non-leak).
+>
+> **Test counts (quoted, this session):** strike/trade-to-learn/money-path/new-guard suites — baseline **128 passed** → after fix **139 passed** (128 + 11 new), **0 failed**. Fleet lane (`test_six_account_routing/exit_shapes`, `test_fleet_arm_parity`, `test_strategies`, `test_fleet_executor`, `test_recency_min_sizing`, `test_probe_arm`) — **124 passed / 4 failed BOTH before and after** (byte-identical pre-existing failures: `_apply_recency_min_sizing` clamping qty on live `recency-confirmation.json` RED state, unrelated to strike selection, confirmed NOT introduced by this ship).
+>
+> **Revert (single value):** set `j_ribbon_ride_strike_override_enabled` to `false` in `automation/state/params.json` (byte-identical to pre-ship: core ribbon_ride falls back to the generic v15 Safe tier). J-revocable.
+
+---
+
+## [2026-07-11] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-02..2026-07-08), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-08). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-564.0); Bold_ATM_1+2=YELLOW ($-262.0)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
+## [2026-07-11] PROFIT-P2-RIBBON-RIDE-STRIKE-AB (extended) — strike axis: ATM wins (+$47.96/tr, MAY SHIP per OP-11); exit axis: SS-B stays (challenger unstable on the open-audit toggle)
+
+> Queue P2, unblocked tonight (OPRA cache freed by the FDR-16/P5 crew), EXTENDED per task brief with a same-run SS-B-vs-P5-topcell exit head-to-head. Built `backtest/tools/ribbon_ride_strike_exit_ab.py`: ONE sequential process (`backtest/.venv`), TWO axes, LIVE-scope (`post_tp1`) exit_manager replay on the canonical `_signal_cache` ribbon_ride cohort — n=250 signals both directions (2025-01-06..2026-06-17), real local OPRA 5-min bars, zero network. Machinery reused unchanged: `structure_stop_study` SS_B_SHAPE/replay_structure_aware (the PROFIT-P1-certified engine — BOTH exit shapes replay through this same code path, apples-to-apples), `tw8_level_context` DIRECT trigger-level recovery (39.2% recoverable; rest premium-only cat-cap fallback, never dropped), `t4_exit_matrix.battery`, `null_baseline.random_entry_null` (20 seeds, injected through the same replay engine via `sim_fn`), `ribbon_rejection_wick_battery.bh_fdr` (alpha=0.10 across all 6 cells: 3 survivors). Every cell also replayed under the OLD `>=` fill-bar convention as a sensitivity column (the two open audit chips task_4935ea80/task_86001855 cover exactly this) — a sign-flip on the toggle = UNSTABLE_ON_OPEN_AUDIT, pre-declared, cannot ship.
+>
+> **AXIS 1 — strike (SS-B held fixed). VERDICT: ATM.** The only cell clearing OP-11 auto-ratify AND the full battery:
+>
+> | strike | n | exp $/tr | IS-2025 | OOS-2026 | WF | drop3 exp | null | BH | toggle |
+> |---|--:|--:|--:|--:|--:|--:|:--:|:--:|:--:|
+> | OTM-2 (control, live tier) | 250 | +$17.86 | +$1,706 | +$2,760 | 2.88 | **-$2.13** | FAIL | — | stable |
+> | OTM-1 | 249 | +$36.98 | +$2,456 | +$6,753 | 4.86 | +$12.72 | FAIL | — | stable |
+> | **ATM** | 244 | **+$65.82** | **+$4,728** | **+$11,333** | **4.25** | **+$36.64** | **PASS** | **survivor** | **stable (+$52.32)** |
+> | ITM-2 | 231 | +$11.08 | **-$16,994** | +$19,554 | None (IS<0) | -$30.19 | PASS | survivor | stable |
+>
+> ATM − OTM-2 = **+$47.96/tr** (delta-OOS +$8,574), anchor no-regression (edge_capture_rel 361.4 vs -24.4), both halves positive → **MAY SHIP per OP-11 (OOS+ / WF≥0.70 / sub-window stable / anchor no-regression, toggle-stable) as the v15.4 weekend rule update — scorecard only, params NOT touched, arming is the separate step.** OTM-1 clears the OP-11 arithmetic (+$19.12/tr) but FAILS its own random-entry null → don't arm the dominated cell. **ITM-2 is killed as a gradient endpoint on this cohort** — its OOS total is the biggest but it rides a -$17.0K IS-2025 with negative drop-top-3 and top3-day share 5.5x (C22 regime-concentration profile; the ranked plan's kill criterion "gradient doesn't reproduce" PARTIALLY triggered: WP5's ITM>ATM>OTM reproduces through ATM, breaks at ITM-2). Corroborating detail: the OTM-2 control's own drop-top-3 expectancy is NEGATIVE — the live tier's entire full-sample edge rides its 3 best trades, independently confirming the friction-stream/WP5 "fragile at OTM-2" read on core ribbon_ride itself.
+>
+> **AXIS 2 — exit (P5-topcell challenger stop-8%/tp+30%/sell50%/trail15/ts10 vs SS-B, identical episodes per strike). VERDICT: SS-B stays; nothing ships tonight.** At OTM-2 the challenger wins +$19.04/tr on the corrected convention but the delta **sign-flips to -$9.45/tr** under the old fill-bar convention → **UNSTABLE_ON_OPEN_AUDIT — blocked until chips task_4935ea80/task_86001855 land** (mechanism: a -8% stop is same-bar-reachable from the fill price, so this shape family is maximally toggle-sensitive; SS-B's -50% cat cap is not, which is why axis 1 is stable). At ITM-2 the challenger is toggle-stable (+$58.34/tr) but **regresses the OP-16 J-anchor** (edge_capture_rel 576 vs SS-B's 1149 — tp+30% banks early and caps exactly J's big winner days) → WAIT_EVIDENCE. Honest flag for the rematch after the chips land: the challenger's risk profile is dramatically smoother (OTM-2 maxdd -$687 vs SS-B's -$4,798; top3-day share 0.30 vs 1.19) — real signal, just not shippable on an unstable toggle / an anchor regression.
+>
+> Files: `analysis/recommendations/ribbon-ride-strike-exit-ab.{json,md}` (per-cell battery + sensitivity column + explicit ship-vs-wait split), `backtest/tools/ribbon_ride_strike_exit_ab.py`. queue.md `PROFIT-P2-RIBBON-RIDE-STRIKE-AB` → done-with-verdict. No params/config touched, no orders placed.
+
+---
+
+## [2026-07-11] P5-TOPCELL-REAL-FILLS-CONFIRM — mass-grind P5 survivors on real OPRA fills via exit_manager: 5/6 PASS, 1/6 MIXED
+
+> Second half of the dormant-asset audit's top-2 (`analysis/deep-research/2026-07-11-dormant-assets.md` §1, run sequentially AFTER FDR-16-OPRA-CONFIRM per the hard OPRA-cache constraint — one process at a time). Built `backtest/tools/p5_topcell_real_fills_confirm.py`. Per standing doctrine ("exit-shape RATIFICATION evidence = exit_manager replay on real fills, never sim absolute dollars") this does NOT trust `mass-grind-phase5-summary.json`'s backtest numbers directly — it replays the SAME entry population through the ACTUAL LIVE `exit_manager.plan_exit_actions` decision core, both on local 5-min bars and on real fleet fills.
+>
+> **SCOPE FINDING (before running anything):** the literal "top 5 by the summary's own ranking" turned out to be ONE distinct shape wearing 5 cosmetic labels — verified directly against the raw funnel data: `tp+30%/sell50%` and `tp+100%/sell100%` variants of the same core combo (OTM-1, stop-8%, trailing15%) show **byte-identical** n=399, expectancy=$34.32, WR=0.3584, max_dd=-$386.89. Mechanism: `simulate_trade_real`'s zero-arm-threshold trailing branch (mass_grind never sets `profit_lock_threshold_pct`) resolves every trade via the lock or the -8% stop before ANY tested TP1 level (30%-150%) is ever reached — `tp1_premium_pct`/`tp1_qty_fraction` are dead axes within the P5-survivor population. Ran all **6 genuinely distinct** (strike, stop, lock, trail, time-stop) shapes among the 106 survivors instead — same "handful, not a grind" compute budget the ticket specified, materially more informative.
+>
+> **Verdict: 5/6 PASS, 1/6 MIXED — the edge is real but smaller live than the backtest number, not a KILL.** Top-ranked cell (OTM-1/stop-8%/trailing15%, the one the task's own framing centered on): LIVE `post_tp1` (production) scope expectancy **+$25.62/tr** (n=381) vs the sim-reported +$34.32/tr — the scope-mismatch's real cost is **-$8.70/tr**, present but not catastrophic. Real-fleet anchor (18 real PUT positions, same shape replayed via the identical `exit_manager` call as the control) shows `no_regression=True`: $68.33 candidate vs $23.70 control. Other 4 shapes similarly PASS with LIVE deltas from -$25/tr to +$7.79/tr vs their sim numbers, all still net positive. Only `OTM-1/stop-12%/trailing15%` is MIXED: LIVE positive (+$18.98/tr) but the real-fleet anchor shows regression (-$33.83 vs $23.70 control).
+>
+> **2 methodological findings surfaced while validating this, both disclosed in the artifact and flagged for follow-up (not silently fixed, not silently ignored):**
+> 1. **`t4_exit_matrix.py`/`t5_confirmatory_matrix.py`'s shared `_load_bars` includes the fill bar itself** in the exit-management replay loop (`>=` on entry timestamp) — but `simulate_trade_real`'s own bar-walk starts ONE BAR LATER (`simulator_real.py:492`, `opt_idx = entry_idx_opt + 1`) and never checks the fill bar's own high/low against any stop. Confirmed this materially matters: fixing it in this script's own bar-loader moved the top P5 cell's LIVE expectancy from **-$20.23/tr to +$25.62/tr** — a sign flip. T4/T5's own prior conclusions (already used for the STOP-A/STOP-B sign-offs) used the un-fixed `>=` convention and were NOT re-audited here (out of this task's scope) — they may carry a mild pessimism bias on any candidate whose stop/arm condition is reachable from the fill price itself.
+> 2. **`exit_manager.py`'s `ARM_SCOPE_FULL` ("full = simulator parity" per its own docstring) does not actually reconcile with `simulate_trade_real`'s real recorded number** on a bar-level trace — verified on a specific trade where `simulate_trade_real` rode a 45%-adverse excursion ($0.49 low against a $0.89 entry, deep past both the raw -8% stop and the ratcheted profit-lock floor) to a later profitable exit at $1.003, while the `ARM_SCOPE_FULL` replica stopped the same trade out immediately. Root cause NOT isolated within this session's time budget (traced through simulate_trade_real's bar-walk sequencing without finding the exact divergence point). Consequence: the "sim full-scope" comparison column in the artifact is reported as **exploratory/unreconciled**, explicitly NOT used for any verdict (LIVE `post_tp1` is the ratification number throughout, consistent with standing doctrine that simulate_trade_real was never supposed to be the ratification authority anyway).
+>
+> **Anchor sample-size caveat:** the real-fleet anchor uses only 18 PUT-only positions from the CURRENT ledger (`exit_shape_parity_study.replay_position` hardcodes `side="P"`, a pre-existing limitation not touched here; 71 CALL positions counted and excluded, not silently dropped) — NOT the ~79-position full set that produced the commonly-cited -$757/-$893 `actual_ribbon_ride` figures. This run's control total ($23.70) is a different, smaller, more recent sample — not comparable to those headline numbers; the candidate-vs-control DELTA on the identical 18-position pool is still a valid relative read.
+>
+> **Downstream unblock:** `queue.md`'s `PROFIT-P2-RIBBON-RIDE-STRIKE-AB` was explicitly waiting on `depends:FDR16-P5-crew-done` — both legs are now done, P2 is unblocked (not run this session, out of assigned scope).
+>
+> Files: `analysis/recommendations/p5-topcell-real-fills-confirm.{json,md}`, `backtest/tools/p5_topcell_real_fills_confirm.py`. Ticket added done in `queue.md` (`P5-TOPCELL-REAL-FILLS-CONFIRM`).
+
+---
+
+## [2026-07-11] PROFIT-P1/P3/P5 — fleet exit-parity scorecards (4 arms) + 2 frozen pre-registrations
+
+> Deep-research ranked plan (`markdown/research/PROFITABILITY-DEEP-RESEARCH-2026-07-11.md`) items P1/P3/P5, worker-tier (Sonnet), read-only/no-orders/no-config-flip per task constraint.
+>
+> **P1 — FLEET-EXIT-PARITY (scorecards done, migration NOT done — separate reviewed step):** built `backtest/tools/fleet_exit_parity_per_arm.py`, reusing `structure_stop_study.py`'s certified CONTROL_SHAPE (-20%/+150%/sell80/fixed, the shape that actually produced these fills) + SS_B_SHAPE (-50% cat cap/+100% TP1 sell66/trailing-15%/structure-primary) + `replay_structure_aware`/`recover_trigger_level_real_position` verbatim, and `exit_shape_parity_study.py`'s fill-ledger episode reconstruction verbatim. One disclosed non-reuse: `structure_stop_study`'s bar-fetcher hardcodes `TODAY=2026-07-09` for its own one-off run day — reusing it blindly today would silently truncate 07-09's option bars to whatever wall-clock hour this script runs at, so a small adapted `prepare_positions_historical` always uses the plain historical fetcher instead.
+>
+> Ran for real (`backtest/.venv`, live Alpaca OPRA option-bar fetches — bounded, ~1 call per unique symbol/date; SPY 5m data 100% local cache, zero network calls there). **VERIFIED** (OP-33): reconstructed n + actual P&L per arm matches `analysis/deep-research/2026-07-11-ledger-forensics.md`'s independently-computed per-account table EXACTLY — safe-1 n=24/-$242.00, safe-3 n=19/-$272.00, risky-1 n=19/-$486.00, risky-3 n=27/-$274.00 (cross-check via a second, independently-authored method).
+>
+> | Arm | n | CONTROL replay | SS-B replay | SS-B − CONTROL | Verdict |
+> |---|--:|--:|--:|--:|---|
+> | safe-1 | 24 | -$186.40 | -$201.65 | -$15.25 | **KEEP_CURRENT_SHAPE** |
+> | safe-3 | 19 | -$245.60 | +$4.25 | +$249.85 | SS_B_BETTER_BUT_FRAGILE |
+> | risky-1 | 19 | -$407.60 | -$39.50 | +$368.10 | SS_B_BETTER_BUT_FRAGILE |
+> | risky-3 | 27 | -$317.70 | -$229.30 | +$88.40 | SS_B_BETTER_BUT_FRAGILE |
+>
+> "FRAGILE" = SS-B beats CONTROL on raw total but the drop-top-3 concentration check (t4_exit_matrix.battery convention) flips the comparison in all 3 cases — the improvement rides on a handful of big trades, not a broad shift. None of the 4 arms clears all 3 robustness checks (raw total + drop-top3 + both-halves) needed for a clean migrate call; no arm was worse across the board except safe-1. **No config flipped — per C29 each arm gets its own verdict, and none of these clear cleanly enough to ratify on n=19-27.**
+>
+> **CAVEAT surfaced, not acted on:** `structure_stop_enabled=true` is ALREADY live in both `automation/state/params.json` and `aggressive/params.json`, and `strategies.py`'s ribbon_ride registry already declares `stop_mode="structure"` for all 6 SPY arms including the 4 fleet_rest arms (`test_six_account_exit_shapes.py`) — because `fleet_executor._params_for` reads the SAME 2 params files core uses (no per-arm override exists today except via `accounts.json` `params_patch`, which COULD carry a per-arm `structure_stop_enabled:false` override if J wants safe-1 opted out specifically). Confirmed via `decisions.jsonl`/`exit-state.json`: all 4 arms flat, 0 fleet fills since 07-09, so this is unobserved forward, not contradicted by anything above — but the "migration" this ticket frames as a future decision may already be config-armed fleet-wide today.
+>
+> Scorecards: `analysis/recommendations/fleet-exit-parity-{safe-1,safe-3,risky-1,risky-3}.json` (per-episode detail + aggregate + drop-top3 + both-halves).
+>
+> **P3 — MORNING-GATE (pre-registered, NOT run — OPRA cache busy with another crew):** `analysis/recommendations/prereg-morning-gate-2026-07-11.json`. 3 frozen candidates (block-before-11:00 / block-before-10:30 / first-hour-relative-to-09:35-open), scoped to ribbon_ride ONLY both directions — explicitly excludes vwap_continuation/j_vwap_reclaim_fb/j_vix_dayside (structurally morning-native by their own validated design; a blanket gate would silently neuter them — a scoping catch made before freezing). Eval window = full OPRA cache (2025-01-02..2026-07-08, verified via directory listing) minus the 06-26..07-09 hypothesis-source window (no peeking) → net 2025-01-02..2026-06-25, IS/OOS at the established 2026-01-01 boundary. Battery: expectancy + OOS + random-entry null + opposite (late-session mirror) null + drop-top3 concentration + BH-FDR (alpha=0.10, reusing `ribbon_rejection_wick_battery.bh_fdr`) across the 3 candidates, plus a mandatory anchor-context check against J's 3 OP-16 winners.
+>
+> **P5 — EXPECTED-MOVE GATE (pre-registered, NOT run — same cache dependency):** `analysis/recommendations/prereg-expected-move-gate-2026-07-11.json`. 3 frozen formula variants on ribbon_ride ONLY — V1 day-level trailing-25th-percentile expected-move floor, V2 per-trade remaining-move (sqrt-time-decayed) vs TP1-implied-premium-ceiling (disclosed FIXED delta-proxy table per strike tier, not a live Greek), V3 per-trade premium/expected-move budget-ratio (simplest, Path-A-only, zero timing model). Expected move = ATM straddle at first bar ≥09:35 ET × 0.85, computed from the same cached OPRA bars (zero new data/infra). Same window/OOS/battery/BH-FDR convention as P3. Kill ladder includes the queue's own stated bar ("no lift over existing VIX gates" — runner must report the VIX-gate-only baseline) plus the mechanism doc's own anchor-violation kill (blocking any OP-16 winner = automatic MISCALIBRATED).
+>
+> `queue.md` PROFIT-P1/P3/P5 updated: P1 → `scorecards-done-migration-pending`, P3/P5 → `pre-registered-awaiting-run`. No test suite written for the new per-arm replay script (research artifact, not a trading-path file; correctness leans on reusing already-tested `exit_manager`/`structure_stop_study` machinery verbatim plus the independent ledger-forensics cross-check above) — flagged here rather than silently skipped.
+
+---
+
+## [2026-07-11] FDR-16-OPRA-CONFIRM — both top-2 non-redundant FDR survivors KILLED on real OPRA fills
+
+> Dormant-asset audit (`analysis/deep-research/2026-07-11-dormant-assets.md` §8) ranked this #1 by effort/leverage — 9-day-idle ticket (`queue.md` `FDR-16-OPRA-CONFIRM`), tool already existed (`lib.simulator_real`), fully specified. Ran it. New tool: `backtest/tools/fdr16_opra_confirm.py`. Full battery: signal replay + opposite-direction null + 20-seed random-entry null (`autoresearch.null_baseline`, the standing repo gate) + n-honesty + IS/OOS split + top-3-day concentration.
+>
+> **Verdict: KILL both.** Neither of the FDR screen's top-2 non-redundant survivors (by p-value, deduped across setup/direction/regime) converts to a real edge:
+> - **Group A `level_rejection`/long/vix_lo** (the single strongest statistical prior in the whole sweep — reported n=1318, p≈1e-7): real-fills signal expectancy IS positive (n=619, $39.12/tr) and edges the null MAX ($33.36) — but **fails the concentration-robust half of the standard gate**: drop-top5 expectancy ($5.72/tr) does NOT beat the null MEAN ($9.87/tr). Top-3 days alone are 56% of total P&L. Classic "a few great days, not a durable edge" — exactly the null_gate this repo's real-fills validators standardize on (`autoresearch/null_baseline.py`) exists to catch. Opposite-direction (short) loses (-$22.94/tr), so directionality itself isn't the problem — the edge just isn't real once big days are removed.
+> - **Group B `trendline_rejection`/long/vix_hi** (n=338, p≈7.7e-5): real-fills expectancy is outright negative (n=160, **-$20.32/tr**), fails the null gate on both legs. Clean kill, no ambiguity.
+>
+> **N-HONESTY finding (applies to the ORIGINAL FDR screen, found while building the confirm tool):** `shadow-ledger.jsonl` logs duplicate decision rows per bar (an unfiltered raw-trigger record + a separate gate-audit record both get written) that `discovery_shadow_ledger.py` never dedupes before the FDR screen consumes it. Verified directly: Group A's reported n=1318 is actually **840 true distinct bars** (1.57x inflation); Group B's reported n=338 is **180 true** (1.88x inflation). Doesn't change the sample mean (duplicates carry identical values) but inflates the screen's own t-stat/p-value optimism. Not fixed here (read-only mandate) — worth a follow-up on `discovery_shadow_ledger.generate()`'s dedupe.
+>
+> **Spec-vs-reality:** this run regenerated decisions with CURRENT params (`automation/state/params.json`, 2026-07-09) vs the params in effect when the ledger was built (2026-06-29, 10 days earlier) — the likely reason true-bar counts don't exactly match a naive re-derivation from the frozen ledger. Arguably the more relevant test (does the edge exist under what we'd deploy today); disclosed in the artifact, doesn't change either verdict.
+>
+> Files: `analysis/recommendations/fdr16-opra-confirm.json` + `.md`. Ticket `FDR-16-OPRA-CONFIRM` closed done-KILLED in `queue.md`. 16 FDR survivors out of 162 comparisons being mostly multiplicity noise on real fills is a fully valid outcome (same failure mode as NLWB) — not a tool or methodology failure.
+
+---
+
 ## [2026-07-11] PROBE ARM WAS DEAD ON ARRIVAL SINCE SHIP — ledger-source fix (closed, 1 commit)
 
 > Bug confirmed in code review before dispatch (not a hunch, not inferred). `_probe_passed_blocks()` (`automation/state/fleet/build_shared_signal.py`) read `account="bold"` -- a copy-paste of `_bold_passed_blocks`' own read; the docstring even said "off the BOLD ledger (same source `_bold_passed_blocks` already reads)". But the probe arm's ONLY allowlisted cohort (`PROBE_ALLOWED_VERDICTS = {"SKIP_BULL_1100_1200"}`, narrowed same-session by the gate-provenance sweep, commit `54d5840`) maps to `block_bull_1100_1200`, a gate that lives ONLY in Safe's `automation/state/params.json` (confirmed absent from `aggressive/params.json`). Each account's `heartbeat_core.GATE_KEYS`-driven engine (`setup/scripts/heartbeat_core.py:125-133`) reads gate knobs from ITS OWN params file, so Bold's engine has no such key and can never emit `action=="SKIP_BULL_1100_1200"` -- corroborated against 4,342 real bold `core-decisions.jsonl` rows: 0 BULL_1100_1200 hits, ever. The arm built specifically to convert this ONE blocked cohort into forward evidence was reading a ledger where that cohort structurally can never appear. Dead on arrival, silently, from ship (2026-07-10) through this fix.
@@ -37,16 +165,6 @@
 
 ---
 
-## [2026-07-10] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-02..2026-07-08), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-08). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-564.0); Bold_ATM_1+2=YELLOW ($-262.0)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
 ## 🌅 MORNING BRIEF — Friday 2026-07-10 (Fable night watch, ~01:45 ET) — READ THIS FIRST
 
 **Thursday's truth: fleet −$381, core $0, account curve DOWN. Everything below is process until today's P&L says otherwise.**
@@ -75,7 +193,8 @@
 
 - 2026-07-11 ~10:04 ET [weekend grind, twin OVERSIGHT PYRAMID, B2] **SHIPPED B2 — the TWIN GAUNTLET + conductor hook + autopsy/firm-brief integration (`markdown/planning/TWIN-PROGRAM.md` value stream #2, the "fix -> live-verified in minutes" GATE).** CODE-fix-only lane throughout (doctrine rail: twin validates mechanism, never edge; twin findings never propose SPY parameters). NEW files only in B2's surface (twin_gauntlet.py / twin_gauntlet_conductor_hook.py / 3 test files); `crypto_twin_core.py`/`crypto_twin_health.py`/`crypto_twin_scenarios.py` untouched (B1's concurrent surface, confirmed via zero diffs from this session on any of the three).
   **B2a `setup/scripts/twin_gauntlet.py`:** CLI `twin_gauntlet --paths <ids> [--n N] [--timeout-min 45] [--dry]` over 6 paths (`tp1_trail, structure_stop, catastrophe_cap, max_hold, restart_open_position, entry`). LIVE mode writes APPEND-ONLY REQUEST rows to `automation/state/crypto-twin/gauntlet-queue.jsonl` and polls TWO independent evidence sources (path-coverage.json + the twin's own journal.jsonl directly) up to an honest `--timeout-min` (real BTC lifecycles take minutes — never silently treated as a pass on timeout). `--dry` drives the REAL `crypto_twin_core.place_entry`/`manage_positions` (imported read-only) against an in-process mocked broker for instant, $0, CI-grade feedback — verified live against the actual current `crypto_twin_core.py`: **all 6 paths PASS by default, all 6 correctly FAIL under a deliberately wrong-stage fixture** (the bite VERIFY called for — a --dry mode that always says PASS would be worse than no gate). Ready-made writer (`record_path_result`) + reader (`pending_requests`) for whoever wires B1's scenario scheduler to it — "the one-line hook," documented in the module docstring + `TWIN-PROGRAM.md`'s new "B2 interfaces" section.
-  **B2b `setup/scripts/twin_gauntlet_conductor_hook.py`:** advisory, fail-open (every exception caught internally, ALWAYS returns cleanly), NEVER a commit-blocker. Detects trading-path commits (`exit_manager.py`/`exit_actuator.py` -> all 5 exit branches; `fleet_executor.py`/`fleet_live.py`/`heartbeat_core.py` -> all 6 paths; `strategies.py`/`build_shared_signal.py`/`risk_gate.py` -> `entry`) since the last check with no fresh gauntlet-green for their mapped path(s), and emits ONE loud, deduplicated (by newest implicated commit sha — no re-spam of a persisting gap) flag to STATUS.md `## Known broken` + a pickable `queue.md` backlog item. Wired into TWO call-sites sharing one watermark (idempotent): `run-conductor.ps1` (primary, same `Invoke-PythonHidden` pattern as the existing L181 status_retention autowire) + `setup/guard_runner_slow.py` (guaranteed-nightly fallback, a plain try/except'd import — a quiet conductor night no longer leaves this uncovered). **NOT fired live against production STATUS.md/queue.md this session** (deliberate — B1's scenario scheduler is actively mid-flight per its own `scenario-state.json`; firing now would flag a gap that's actively closing rather than prove anything new beyond what the fixture/integration tests already proved cold; UNVERIFIED in production until the next natural conductor/guard fire, labeled honestly rather than implied).
+  **B2b `setup/scripts/twin_gauntlet_conductor_hook.py`:** advisory, fail-open (every exception caught internally, ALWAYS returns cleanly), NEVER a commit-blocker. Detects trading-path commits (`exit_manager.py`/`exit_actuator.py` -> all 5 exit branches; `fleet_executor.py`/`fleet_live.py`/`heartbeat_core.py` -> all 6 paths; `strategies.py`/`build_shared_signal.py`/`risk_gate.py` -> `entry`) since the last check with no fresh gauntlet-green for their mapped path(s), and emits ONE loud, deduplicated (by newest implicated commit sha — no re-spam of a persisting gap) flag to STATUS.md `## Known broken
+[2026-07-11T18:30:04] MCP_AUDIT_RED: Alpaca Safe MCP unreachable (401 auth failure). Bold & TradingView healthy.` + a pickable `queue.md` backlog item. Wired into TWO call-sites sharing one watermark (idempotent): `run-conductor.ps1` (primary, same `Invoke-PythonHidden` pattern as the existing L181 status_retention autowire) + `setup/guard_runner_slow.py` (guaranteed-nightly fallback, a plain try/except'd import — a quiet conductor night no longer leaves this uncovered). **NOT fired live against production STATUS.md/queue.md this session** (deliberate — B1's scenario scheduler is actively mid-flight per its own `scenario-state.json`; firing now would flag a gap that's actively closing rather than prove anything new beyond what the fixture/integration tests already proved cold; UNVERIFIED in production until the next natural conductor/guard fire, labeled honestly rather than implied).
   **B2c** `trade_autopsy.py`: separate `## TWIN (mechanism)` section appended to the SAME daily `.md` (never mixed into the SPY table), sourcing the twin's own `journal.jsonl` — classifies each CLOSED event's `stage`/`reason` against the known `exit_manager` vocabulary (never a $ counterfactual, never P&L — mechanism-only per doctrine). Twin hypotheses land in `automation/state/crypto-twin/twin-hypotheses.jsonl` — a DOCTRINE-RAIL bite test (behavioral + AST-static) proves they can never reach the main `hypothesis-queue.jsonl`. `firm_brief.py`: `render_twin_lines()` extended (backward-compatible — every old single-argument call site renders byte-identical) with a path-coverage scoreboard clause, e.g. `"...orders=3 lifetime. | coverage: 5/6 branches green today, 1 incident(s), gauntlet: PASS 20:41."`, fail-open on missing sources.
   **REAL SCHEMA MISMATCH FOUND + DOCUMENTED, not silently worked around:** B1's live `path-coverage.json` (verified by reading the actual file, not guessing) uses a different shape (`branches`/`ENTRY_TP1_TRAIL`-style names/`PENDING`|`IN_PROGRESS`|... status, corroborated further by the Twin-Sentinel entry directly below showing the confirmed real enum incl. `GREEN`/`INCIDENT`) than the `paths`/green-red schema B2 designed against (per this task's own instruction: "coordinate with B1's schema by reading the doc, not their code" — the doc didn't pin one, so B2 proposed + documented one). Both crews independently converged on the SAME conceptual 6(+3 bear/SIM)-branch battery — a 1:1 name-mapping table + two concrete reconciliation options are in `TWIN-PROGRAM.md`'s new section. B2's readers stay fail-open/honest against the mismatch (render "no path-coverage data yet" rather than fabricate a number) rather than guess-adapting to a still-settling external schema mid-flight.
   **A REAL BUG FOUND AND FIXED IN MY OWN CODE, not just SPY autopsies:** `twin_gauntlet.py`'s `_write_last_result` had a Python def-time-default-binding gotcha — `monkeypatch.setattr(tg, "LAST_RESULT_PATH", tmp)` silently did NOT redirect `main()`'s no-arg call, so my OWN first CLI smoke test wrote a real (if honest) result into the actual production `gauntlet-last.json` before the fix landed; caught by inspecting `git status` for unexpected new files (not by the test suite, which had "passed"), fixed (None-sentinel resolved inside the function body, not a bound default), the stray pre-fix artifact deleted, re-verified the fix actually stops the write. Same bug class, same fix pattern, independently also caught and fixed in `trade_autopsy.py`'s `write_twin_hypotheses`/`append_twin_queue_md` before it ever shipped.
@@ -408,7 +527,7 @@ MECHANISM (flag-gated, default = exactly what ships): (1) `build_shared_signal.p
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 43 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 38 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -2819,3 +2938,121 @@ Kitchen: alive, queue 43 pending, last cook 0 min ago, today $0.00, model=openro
 Inbox item `strategy/candidates/_lesson-inbox/2026-07-10-joint-cascade-blindness.md` processed: L199 appended to `markdown/doctrine/LESSONS-LEARNED.md` (6 fleet arms, 0 orders across 700+ signals on a trending day — components verified in isolation, no joint-cascade instrument existed). C15 row in CLAUDE.md OP-25 Lessons index updated (L07,08,09,66,95,163,180,199) + index marker bumped to "through L199 as of 2026-07-10". No matching `journal/mistakes.md` 2026-07-10 entry existed, so no cross-ref added. Inbox item deleted.
 
 - [2026-07-11 08:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 89.8% in last 24h (44/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 8.16% in last 24h (4/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T11:09:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 09:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 91.84% in last 24h (45/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 10.2% in last 24h (5/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T11:39:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 09:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 91.84% in last 24h (45/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 12.24% in last 24h (6/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T12:09:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 10:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 89.8% in last 24h (44/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 14.29% in last 24h (7/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T12:39:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 10:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.76% in last 24h (43/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 16.33% in last 24h (8/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T13:09:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 11:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.76% in last 24h (43/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 18.37% in last 24h (9/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T13:39:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 11:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.76% in last 24h (43/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 20.41% in last 24h (10/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T14:09:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 12:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.76% in last 24h (43/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 22.45% in last 24h (11/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T14:39:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 12:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.76% in last 24h (43/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 24.49% in last 24h (12/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T15:09:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 13:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.76% in last 24h (43/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 26.53% in last 24h (13/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T15:39:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 13:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 89.8% in last 24h (44/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 28.57% in last 24h (14/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T16:09:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 14:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 91.84% in last 24h (45/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 30.61% in last 24h (15/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T16:39:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 14:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 32.65% in last 24h (16/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T17:09:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 15:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 34.69% in last 24h (17/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T17:39:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 15:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 36.73% in last 24h (18/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T18:09:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 16:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 38.78% in last 24h (19/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T18:39:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 16:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 40.82% in last 24h (20/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T19:09:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 17:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 42.86% in last 24h (21/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T19:39:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 17:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 44.9% in last 24h (22/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T20:09:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 18:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 46.94% in last 24h (23/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T20:39:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+
+- [2026-07-11 18:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 48.98% in last 24h (24/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T21:09:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-11 19:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 51.02% in last 24h (25/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T21:39:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-11 19:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 53.06% in last 24h (26/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-11T22:09:57
+- BROKER KEY STALE/REVOKED: safe-2 account-ping HTTP 401 -- NO trades can place. RUNBOOK: markdown/infra/MCP-401-RESTART-RUNBOOK.md (rotate w/ J -> update .mcp.json -> RELOAD the MCP server -> re-verify).
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-11 20:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 55.1% in last 24h (27/49) :: see crypto/data/scorecards/drift_report.json

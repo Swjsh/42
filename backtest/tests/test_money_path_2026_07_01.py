@@ -430,14 +430,34 @@ class TestVwapContinuationArmed:
         plan_off = hc._execute("safe", verdict, payload, off, dry=True)
         assert plan_off["strike"] == 622, "override flag must be load-bearing (C14 vary-and-assert)"
 
-    def test_generic_ribbon_setup_unaffected_by_override(self, hc, monkeypatch, tmp_path):
-        """C29: the per-setup override must NOT leak to other setups."""
+    def test_ribbon_setup_now_uses_its_own_atm_override(self, hc, monkeypatch, tmp_path):
+        """UPDATED 2026-07-11 (PROFIT-P2-ARMED). Originally named
+        test_generic_ribbon_setup_unaffected_by_override and pinned 'the per-setup
+        override must NOT leak to other setups' (C29) back when ribbon_ride carried NO
+        override of its own — vwap_continuation's WP-5 override was the only entry in
+        heartbeat_core._SETUP_STRIKE_OVERRIDES at ship time. ribbon_ride now has ITS OWN
+        validated override (evidence: analysis/recommendations/ribbon-ride-strike-exit-ab.
+        json, ATM beats the OTM-2 control by +$47.96/tr, clears OP-11 auto-ratify; full
+        provenance: params.json#_j_ribbon_ride_strike_override_doc), so the old assertion
+        (strike stays at the generic ITM-2 tier) is now FALSE. Full vary-and-assert +
+        bold-safety + bull-side suite lives in
+        test_ribbon_ride_strike_override_2026_07_11.py; this pin stays here (rather than
+        being deleted) because it is this file's own C29 cross-contamination check —
+        vwap_continuation's override must still not be what's driving ribbon_ride's
+        strike, which the flag-off branch below proves by reverting to the UNRELATED
+        generic tier, not to vwap_continuation's ATM cell coincidentally matching."""
         _wire_execute(hc, monkeypatch, tmp_path, equity="25000.0")
         verdict = {"verdict": "ENTER_BEAR", "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON",
                    "triggers_fired": ["level_rejection"]}
-        plan = hc._execute("safe", verdict, {"bar_ctx": {"timestamp_et": "2026-07-02 10:55:00", "bar": {"close": 620.4}}},
-                           SAFE_PARAMS, dry=True)
-        assert plan["strike"] == 622  # generic Safe ITM-2 tier at $25K, unchanged
+        payload = {"bar_ctx": {"timestamp_et": "2026-07-02 10:55:00", "bar": {"close": 620.4}}}
+        plan = hc._execute("safe", verdict, payload, SAFE_PARAMS, dry=True)
+        assert plan["strike"] == 620, \
+            "ribbon_ride now trades ATM via its own validated override (2026-07-11 ship)"
+        off = dict(SAFE_PARAMS)
+        off["j_ribbon_ride_strike_override_enabled"] = False
+        plan_off = hc._execute("safe", verdict, payload, off, dry=True)
+        assert plan_off["strike"] == 622, \
+            "ribbon's OWN flag off must revert to the generic tier, not vwap_cont's ATM cell"
 
     def test_vwap_exit_shape_is_validated_cell_not_ribbon_ride(self, hc, monkeypatch,
                                                                tmp_path):

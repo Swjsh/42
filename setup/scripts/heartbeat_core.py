@@ -1065,6 +1065,14 @@ def _reconcile_exec(exec_row: "dict | None") -> "dict | None":
 # POSITIVE=ITM, NEGATIVE=OTM; puts strike=ATM+off, calls strike=ATM-off (heartbeat.md:254).
 # A setup absent here (or its enable flag off) keeps today's generic behavior byte-identical.
 # Guards: test_money_path_2026_07_01.py (vwap_continuation) + test_trade_to_learn_2026_07_01.py.
+#
+# PROFIT-P2-ARMED (2026-07-11): the two CORE ribbon_ride entry_setups (not an "extra
+# setup" — always-on, never gated by extra_setup_exec_armed) were ADDED to this same
+# dispatch table, same 3-key shape, same mirror-of-WP5 pattern. Evidence + full provenance:
+# params.json#_j_ribbon_ride_strike_override_doc (analysis/recommendations/
+# ribbon-ride-strike-exit-ab.json: ATM beats OTM-2 by +$47.96/tr, clears OP-11 auto-ratify).
+# Guard: test_ribbon_ride_strike_override_2026_07_11.py + test_trade_to_learn_2026_07_01.py
+# (updated TestStrikeOverride.test_ribbon_setup_now_uses_its_own_atm_override pin).
 _SETUP_STRIKE_OVERRIDES = {
     # dispatcher setup_name (lower): (enable_flag_key, safe_offset_key, bold_offset_key)
     "vwap_continuation": ("j_vwap_cont_strike_override_enabled",
@@ -1082,6 +1090,12 @@ _SETUP_STRIKE_OVERRIDES = {
     "bollinger_squeeze": ("j_bollinger_squeeze_strike_override_enabled",
                           "j_bollinger_squeeze_strike_offset_safe",
                           "j_bollinger_squeeze_strike_offset_bold"),
+    "bearish_rejection_ride_the_ribbon": ("j_ribbon_ride_strike_override_enabled",
+                                          "j_ribbon_ride_strike_offset_safe",
+                                          "j_ribbon_ride_strike_offset_bold"),
+    "bullish_reclaim_ride_the_ribbon": ("j_ribbon_ride_strike_override_enabled",
+                                        "j_ribbon_ride_strike_offset_safe",
+                                        "j_ribbon_ride_strike_offset_bold"),
 }
 # ISOLATED per-setup exit knobs (params _j_*_isolated_exit_doc): the validated cells for
 # these setups carry their OWN stop/TP1 — silently sourcing the global -50% catastrophe
