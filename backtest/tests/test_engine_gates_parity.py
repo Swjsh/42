@@ -308,6 +308,35 @@ def test_gate_max_ribbon_duration_bars() -> None:
     assert evaluate_gates(_ctx(side="P", bar_idx=29, stack="BEAR", ribbon_df=rdf2), p) is None
 
 
+def test_gate_max_ribbon_duration_bars_zero_is_off() -> None:
+    """MAX-RIBBON-DURATION-ZERO-FIX (same shape as MIN-RIBBON-SEMI-ARMED-FIX / L107;
+    GATE-PROVENANCE-AUDIT-2026-07-02 finding G9): 0 must be INERT, same as None/absent.
+    A literal threshold of 0 is a degenerate always-block condition -- ribbon "duration"
+    starts counting at 1 the instant the stack is checked, so `_rdur > 0` is true on
+    almost every armed bar. No one intends 0 to mean "block everything"; it means "off",
+    matching the 0-reads-as-no-minimum convention this key's sibling
+    (min_ribbon_momentum_cents) already uses. Vary-and-assert: threshold=0 on a STALE
+    40-bar-old stack (the exact shape that would trip an armed gate) must still allow;
+    threshold=None (absent) must also allow (control); a real positive threshold on the
+    SAME stale context must still correctly block -- proving the fix didn't just
+    always-allow."""
+    rdf = pd.DataFrame([{"fast": 100.0, "pivot": 100.3, "slow": 100.6, "spread_cents": 40.0,
+                         "stack": "BEAR"} for _ in range(40)])
+    ctx_stale = _ctx(side="P", bar_idx=29, stack="BEAR", ribbon_df=rdf)
+    assert evaluate_gates(ctx_stale, {"max_ribbon_duration_bars": 0}) is None, (
+        "REGRESSION: max_ribbon_duration_bars=0 blocked an entry -- 0 must mean OFF"
+    )
+    # control: explicitly absent (None) -- must also allow, same as 0.
+    assert evaluate_gates(ctx_stale, {"max_ribbon_duration_bars": None}) is None
+    assert evaluate_gates(ctx_stale, {}) is None
+    # a REAL (positive) threshold on the SAME stale context must still block -- proves
+    # the fix narrowly targets zero/None, not the whole gate mechanism.
+    blk = evaluate_gates(ctx_stale, {"max_ribbon_duration_bars": 5})
+    assert blk and blk.action == "SKIP_RIBBON_DURATION_GATE", (
+        "max_ribbon_duration_bars=5 should still block a 40-bar-stale ribbon"
+    )
+
+
 def test_gate_midday_trendline_gate() -> None:
     p = {"midday_trendline_gate": True, "midday_trendline_gate_start_minutes": 690}  # 11:30
     blk = evaluate_gates(
@@ -446,4 +475,80 @@ def test_oracle_agrees_on_anchor_day(day, overrides, expected_action) -> None:
     assert expected_action in actions, (
         f"{day}: expected {expected_action} not produced — anchor scenario invalid "
         f"or gate inert (got actions: {sorted(set(actions))})"
+    )
+
+
+# =========================================================================== #
+# 4. ORCHESTRATOR-LEVEL zero-is-off — the unit tests in section 1 only exercise
+#    gates.py's evaluate_gates() in isolation. Bugs A/B (2026-07-11) live in
+#    orchestrator.py's SEPARATE inline gate cascade, which evaluate_gates() never
+#    touches -- so a clean run of section 1 proves nothing about orchestrator.py.
+#    This anchor day is a REAL production disagreement the assert-agree oracle
+#    caught live: with both ribbon knobs at 0, the (pre-fix) orchestrator inline
+#    cascade fired SKIP_RIBBON_MOMENTUM_GATE while (post-49e3c40) gates.py fell
+#    through to its own still-unfixed SKIP_RIBBON_DURATION_GATE -- both wrong, for
+#    different reasons, on the same bar. Not a hand fixture: bar 7451, 2025-06-03
+#    10:00 ET, is the day's only entry (bull C) and gets silently eaten by both bugs.
+# =========================================================================== #
+
+
+@_needs_data
+def test_oracle_agrees_zero_ribbon_knobs_on_2025_06_03() -> None:
+    """MIN-RIBBON-SEMI-ARMED-FIX + MAX-RIBBON-DURATION-ZERO-FIX, orchestrator-level
+    proof. 2025-06-03 baseline ({} params) takes exactly 1 trade (bull C, bar 7451,
+    10:00 ET). Setting BOTH min_ribbon_momentum_cents=0 and max_ribbon_duration_bars=0
+    (a very plausible "I want these off" config write, since 0 reads as no-minimum
+    almost everywhere else in this codebase) must be a true no-op: same 1 trade, same
+    decision trace, AND the gates.py/orchestrator.py assert-agree oracle must not raise
+    (proving the two independent implementations still agree at threshold=0). A real
+    threshold on the SAME day still blocks (SKIP_RIBBON_MOMENTUM_GATE, 0 trades) --
+    proving the fix narrowly targets zero/None, not the whole gate mechanism."""
+    spy = pd.read_csv(MASTER_SPY)
+    vix = pd.read_csv(MASTER_VIX)
+    day = dt.date(2025, 6, 3)
+    prev = os.environ.get("GAMMA_ENGINE_GATES_ASSERT")
+    os.environ["GAMMA_ENGINE_GATES_ASSERT"] = "1"  # force oracle ON
+    try:
+        r_base = run_backtest(spy, vix, start_date=day, end_date=day, use_real_fills=False,
+                               params_overrides={**_RISK})
+        r_zero = run_backtest(spy, vix, start_date=day, end_date=day, use_real_fills=False,
+                               params_overrides={**_RISK, "min_ribbon_momentum_cents": 0,
+                                                 "max_ribbon_duration_bars": 0})
+        r_real = run_backtest(spy, vix, start_date=day, end_date=day, use_real_fills=False,
+                               params_overrides={**_RISK, "min_ribbon_momentum_cents": 50.0,
+                                                 "max_ribbon_duration_bars": 3})
+    finally:
+        if prev is None:
+            os.environ.pop("GAMMA_ENGINE_GATES_ASSERT", None)
+        else:
+            os.environ["GAMMA_ENGINE_GATES_ASSERT"] = prev
+
+    base_actions = [d.get("action") for d in r_base.decisions if d.get("action")]
+    zero_actions = [d.get("action") for d in r_zero.decisions if d.get("action")]
+    real_actions = [d.get("action") for d in r_real.decisions if d.get("action")]
+
+    assert len(r_base.trades) == 1, (
+        f"anchor invalid: 2025-06-03 baseline should take exactly 1 trade "
+        f"(got {len(r_base.trades)}, actions={base_actions})"
+    )
+    assert "SKIP_RIBBON_MOMENTUM_GATE" not in zero_actions, (
+        "REGRESSION: min_ribbon_momentum_cents=0 blocked an entry in the orchestrator "
+        "inline cascade -- 0 must mean OFF (matches gates.py's zero-is-off fix)"
+    )
+    assert "SKIP_RIBBON_DURATION_GATE" not in zero_actions, (
+        "REGRESSION: max_ribbon_duration_bars=0 blocked an entry in the orchestrator "
+        "inline cascade -- 0 must mean OFF (matches gates.py's zero-is-off fix)"
+    )
+    assert zero_actions == base_actions, (
+        f"zero-knobs decision trace must be byte-identical to baseline (true no-op): "
+        f"base={base_actions} zero={zero_actions}"
+    )
+    assert len(r_zero.trades) == 1, (
+        f"2025-06-03 zero-knobs run should reproduce the baseline's 1 trade untouched "
+        f"(got {len(r_zero.trades)}, actions={zero_actions})"
+    )
+    # non-vacuity: a real threshold on the identical day still blocks.
+    assert "SKIP_RIBBON_MOMENTUM_GATE" in real_actions and len(r_real.trades) == 0, (
+        f"min_ribbon_momentum_cents=50.0 should still block 2025-06-03's entry -- "
+        f"got trades={len(r_real.trades)} actions={real_actions}"
     )

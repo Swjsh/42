@@ -1487,7 +1487,12 @@ def run_backtest(
 
             # RIBBON_MOMENTUM_GATE: spread widening >= threshold over 3 bars.
             # "Ribbon spreading apart = trend accelerating" — what J sees on the chart.
-            if min_ribbon_momentum_cents is not None and idx >= 3:
+            # MIN-RIBBON-SEMI-ARMED-FIX (2026-07-11, same shape as gates.py 49e3c40):
+            # 0 and None BOTH mean "off". Truthy check, not `is not None`, so a
+            # params_overrides={"min_ribbon_momentum_cents": 0} backtest run can't
+            # silently re-arm the gate J reverted (L107). Guard:
+            # test_oracle_agrees_zero_ribbon_knobs_on_2025_06_03 (test_engine_gates_parity.py).
+            if min_ribbon_momentum_cents and idx >= 3:
                 _prev_st = ribbon_at(ribbon_df, idx - 3)
                 if _prev_st is not None:
                     _rmom = ribbon_state.spread_cents - _prev_st.spread_cents
@@ -1508,7 +1513,13 @@ def run_backtest(
 
             # RIBBON_DURATION_GATE: ribbon stack age <= max bars.
             # "Fresh flip = edge, stale 2-hour trend = near exhaustion" — what J sees.
-            if max_ribbon_duration_bars is not None:
+            # MAX-RIBBON-DURATION-ZERO-FIX (2026-07-11, same shape as min_ribbon_momentum_
+            # cents above / gates.py 49e3c40, GATE-PROVENANCE-AUDIT-2026-07-02 G9): 0 and
+            # None BOTH mean "off" -- a literal 0 threshold is a degenerate always-block
+            # (duration age starts counting at 1). Truthy check so a future config write
+            # of 0 can't silently arm an always-block gate. Guard:
+            # test_oracle_agrees_zero_ribbon_knobs_on_2025_06_03 (test_engine_gates_parity.py).
+            if max_ribbon_duration_bars:
                 _rdur = 0
                 for _j in range(idx, max(0, idx - max_ribbon_duration_bars - 2), -1):
                     _st2 = ribbon_at(ribbon_df, _j)

@@ -338,8 +338,17 @@ def evaluate_gates(ctx: GateContext, params: Mapping[str, Any]) -> Optional[Gate
 
     # ── 9. RIBBON_DURATION_GATE (orch. 1400) ─────────────────────────────────
     # Require the ribbon stack age <= max bars (fresh flip > stale trend).
+    # MAX-RIBBON-DURATION-ZERO-FIX (2026-07-11, same shape as gate 8 above / 49e3c40;
+    # GATE-PROVENANCE-AUDIT-2026-07-02 G9): 0 and None BOTH mean "off". The old
+    # `is not None` check treated 0 as a LIVE threshold -- and since ribbon "duration"
+    # starts counting at 1 the instant the stack is checked, threshold=0 is a
+    # degenerate always-block condition nobody would deliberately want. Safe's
+    # params.json currently pins 999 (inert workaround, not this bug); the CODE must
+    # be inert-at-0 on its own merits so a future "0 means off" config write can't
+    # arm an always-block gate. Guard: test_gate_max_ribbon_duration_bars_zero_is_off
+    # + test_oracle_agrees_zero_ribbon_knobs_on_2025_06_03 (test_engine_gates_parity.py).
     _rdur_max = params.get("max_ribbon_duration_bars", None)
-    if _rdur_max is not None:
+    if _rdur_max:
         _rdur = 0
         for _j in range(ctx.bar_idx, max(0, ctx.bar_idx - _rdur_max - 2), -1):
             _st2 = ribbon_at(ctx.ribbon_df, _j)
