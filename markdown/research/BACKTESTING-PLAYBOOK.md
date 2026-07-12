@@ -143,6 +143,34 @@ Each entry has: **what we did wrong, what it cost, the fix.**
 **Cost:** user thought paper account would 19x in 16mo. Actually requires $25K+ to fit per-trade risk cap.
 **Fix:** OP 20 — every numeric claim requires account-size scaling table, sample bias note, OOS evidence, failure modes, concentration disclosure, and regime sensitivity.
 
+### 2.12 Same-bar trailing-stop ratchet = intrabar look-ahead (found 2026-07-11)
+
+**What:** `simulate_trade_real`'s profit-lock block updates the trailing floor from the CURRENT
+bar's high, then checks the SAME bar's low against the just-ratcheted stop and fills the exit AT
+the ratcheted level — under a module header that says "NO LOOK-AHEAD". Worked example (P5 top
+cell, 2025-01-06 10:35 598C, entry $0.89, stop −8% = $0.8188): first evaluated bar is
+O 0.75 / H 1.18 / L 0.49 / C 0.94 — the bar OPENS through the pre-bar stop, yet the sim arms the
+trail off the 1.18 high (floor 0.85×1.18 = $1.003), "stops out" on the 0.49 low at $1.003, and
+books **+$67.80** on a trade any causal executor exits at ~0.75/0.8188 for **−$43 to −$84**.
+**Cost:** the mass-grind P5 top cell recorded n=399 / **+$34.32/tr** / WR 35.8%. Re-run through
+the identical engine with only the ratchet lagged one bar (stop checks use the bar-START stop;
+this bar's high still trails FUTURE bars): **+$23.11/tr, WR 23.8%** — 134 of 385 stop-exits had
+been booked ABOVE entry, carrying +$18,755, more than the cell's whole +$13,695 total. Adding
+gap-aware stop fills (fill at min(stop, bar.open) when the bar opens through the stop — the
+disclosed "touch fill at stop level" convention is the other optimism): **−$11.34/tr**. The
+"edge" was the accounting. Per-trade join (396 shared trades): A−B = $12.86/tr (50 WIN→LOSS
+flips), A−C = $46.32/tr — bigger than the recorded expectancy itself. Same pattern exists in the
+threshold>0 arm branch (T50b-era chandelier studies) and in `simulator_real_trailing.py` (a copy).
+A −8% premium stop on 0DTE OTM-1 is INSIDE 5-min bar noise (385/399 trades stop-touched), so the
+fill convention dominates the P&L — tight-stop cells measure the fill model, not the market.
+**Fix:** in any OHLC-bar replay, a trailing ratchet computed from bar N's extreme may only bind
+from bar N+1; check exits against the stop as of bar-open, and model gap-through opens at the
+open, not the stop level. Sequencing INSIDE a bar is unknowable from OHLC — any rule that lets
+the same bar's favorable extreme rescue its adverse extreme is heads-you-win accounting. Guard
+precedent: `backtest/tests/test_profit_lock_scope_pin.py` pins the current sim semantics so any
+convergence must be a conscious, scorecard-backed re-baselining — never a silent fix. Full
+forensics: `automation/overnight/_lesson-inbox/2026-07-11-sim-intrabar-ratchet-lookahead.md`.
+
 ---
 
 ## 3. The 5-Stage Grinder Pipeline
