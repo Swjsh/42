@@ -1,0 +1,2 @@
+{'window_instances': 20996, 'spy_flat_tight': 6348, 'spy_flat_loose_only': 7252, 'spy_too_noisy': 7396, 'option_hit': 146599, 'option_miss': 16601}
+results_n=146599

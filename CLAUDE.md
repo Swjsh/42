@@ -1,5 +1,7 @@
 # CLAUDE.md — Project Gamma
 
+> ⏰ **CHECK THE REAL TIME, IMPOSE NO FAKE ONE (J 2026-07-07).** Read ET from `et_clock.py`/PowerShell before any time-gated action — never guess it. Then work with ZERO self-imposed time pressure: BANNED framing = "it's late / get some rest / ship it next session / don't rush at midnight / running low on time." Off-hours is MAXIMUM build time — ship the FULL work this session, don't defer. The ONLY real clock constraint is the market-hours heartbeat rule immediately below.
+
 > The soul file. Read first, every session. Lean by design — only what's load-bearing for active work.
 >
 > **Audit history & doctrine evolution:** [CHANGELOG.md](CHANGELOG.md). Don't touch CLAUDE.md when fixing a typo'd update entry — touch the changelog.
@@ -59,7 +61,7 @@ J's rules — Gamma enforces them, doesn't write them.
 - **Live threshold (per account independently):** ≥ 20 trades, WR ≥ 45%, positive expectancy, ≤ 2 rule breaks.
 - **Daily P&L target:** Safe 10–15% ($200–$300 at $2K). Bold 15–20% ($250–$335 at $1.67K). (Sizing/strike tiers: see "The strategy".)
 - **Kill switches** (Rule 5): per-account + isolated — Safe-2 −30%/day (−$600 at $2K) does NOT halt Risky-2, and vice-versa. **Instrument:** SPY 0DTE, US retail.
-- **MCP wiring:** `alpaca` → Safe-2 (key `PK7WRO5T...`); `alpaca_aggressive` → Risky-2 (key `PKQMQD2N...`). Both in project-root `.mcp.json`.
+- **MCP wiring:** `alpaca` → Safe-2 (key `PK65KLS3...`); `alpaca_aggressive` → Risky-2 (key `PKQMQD2N...`). Both in project-root `.mcp.json` — the ONLY credential store (global-config mirrors removed 2026-07-09; never re-mirror into `~/.claude.json`/`settings.json`).
 
 ---
 
@@ -68,7 +70,7 @@ J's rules — Gamma enforces them, doesn't write them.
 | Layer | Tool | Status |
 |---|---|---|
 | Chart/levels/indicators | TradingView MCP (`tradesdontlie/tradingview-mcp`) | CDP on port 9222. Launch via `setup\launch_tv_debug.ps1` |
-| Account/chain/fills/orders (Gamma-Safe) | Alpaca MCP — `alpaca` server | `uvx alpaca-mcp-server` via pythonw hidden-shim, key `PK7WRO5T…` (Safe-2) in project-root `.mcp.json` (mirrored in `~/.claude.json`). Tools: `mcp__alpaca__*` |
+| Account/chain/fills/orders (Gamma-Safe) | Alpaca MCP — `alpaca` server | `uvx alpaca-mcp-server` via pythonw hidden-shim, key `PK65KLS3…` (Safe-2) in project-root `.mcp.json` (sole source; mirrors removed 2026-07-09). Tools: `mcp__alpaca__*` |
 | Account/chain/fills/orders (Gamma-Bold) | Alpaca MCP — `alpaca_aggressive` server | Same binary, key `PKQMQD2N…` (Risky-2) in project-root `.mcp.json`. Tools: `mcp__alpaca_aggressive__*`. REST fallback if MCP not connected. |
 | Trade engine | `Gamma_SightBeacon` + `Gamma_HeartbeatCore` (Python) | Never-blind beacon (direct REST) + deterministic `heartbeat_core.py` (engine_cli + structure-veto + 2 free-model veto + risk_gate); LLM heartbeats retired. Arch: [`ARCHITECTURE.md`](markdown/specs/ARCHITECTURE.md) §3.2. |
 | Heartbeat scheduler | Windows Task Scheduler (Python) | ~60 registered (counts drift -- registry is truth). Registry: [`SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md) |
@@ -208,7 +210,7 @@ These are non-negotiable, second only to the 10 rules above.
 
     **Sim accuracy gate:** verify sim's strike picker matches production (OTM/ITM via `strike_offset`) before any ratification — BS-sim-ignored-strike-offset incident invalidated an entire weekend of research.
 
-    **Setup scope = BOTH directions (UNLOCKED 2026-06-28).** Direction is NOT a scope — *validation* is. BEARISH_REJECTION + BULLISH_RECLAIM_RIDE_THE_RIBBON both ACTIVE; `enable_bullish=True`, ENTER_BULL executes via the identical path as ENTER_BEAR. Bull is net-positive on real OPRA fills (+$5,586 / 56% WR, chef-bull-scope-ab 2026-06-26). Per-direction block-filters stay ON — each A/B-validated to remove a *losing* cohort, not the direction (validated winner = the NON-ribbon_flip BULLISH_RECLAIM cohort; cohort/VIX-block detail → C22 + the A/B scorecard). Guards: `test_enable_bullish_live_true` + `test_enter_bull_in_placement_path`. **Live-money arming of EITHER direction needs J (OP-0 #1); paper/shadow does not.**
+    **Setup scope = BOTH directions (UNLOCKED 2026-06-28).** Direction is NOT a scope — *validation* is. BEARISH_REJECTION + BULLISH_RECLAIM_RIDE_THE_RIBBON both ACTIVE; `enable_bullish=True`, ENTER_BULL executes via the identical path as ENTER_BEAR. Bull evidence corrected 2026-07-11: the +$5,586/56% WR (chef-bull-scope-ab) is a real-OPRA-priced SIM, not broker fills; live paper fills to date are bull n=80 WR 1.2% -$1,573 (9-day window, VIX pinned — small-n). Direction stays enabled; honest re-eval at n≥20 bull episodes under SS-B + corrected strike tier (PROFITABILITY-DEEP-RESEARCH-2026-07-11.md). Per-direction block-filters stay ON — each A/B-validated to remove a *losing* cohort, not the direction (validated winner = the NON-ribbon_flip BULLISH_RECLAIM cohort; cohort/VIX-block detail → C22 + the A/B scorecard). Guards: `test_enable_bullish_live_true` + `test_enter_bull_in_placement_path`. **Live-money arming of EITHER direction needs J (OP-0 #1); paper/shadow does not.**
 
 22. **Compound, don't accumulate.** "Always-on" = always-IMPROVING. Session measured by net improvement (shipped fix, promotion, closed loop) — not artifacts. "Good enough" is a valid terminal state. BANNED: SILENT stopping (no logged outcome) and blocked-on-J-with-no-stated-reason. Every append-only producer has a retention cap; hitting it triggers CONSOLIDATION (prune/dedupe/archive). **BOUNDED-task priority:** perfect current work → known TODOs → `markdown/planning/FUTURE-IMPROVEMENTS.md` → audit staleness → replays/validations → improve playbook/lessons → investigate underperformers.
 
@@ -231,7 +233,7 @@ These are non-negotiable, second only to the 10 rules above.
 
     **Silent failure is the only true failure.** Every fire ships work OR a flagged failure to `STATUS.md ## Known broken`. J always wakes up to a SIGNAL.
 
-    **Lessons index** (full prose + symptom/root-cause/fix in [markdown/doctrine/LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md) — through L192 as of 2026-06-28). Themed canonical set; when you hit a NEW anti-pattern, add prose to LESSONS-LEARNED.md and fold the L# into a row here. A lesson that gets re-violated is a missing guardrail — graduate it to a code assertion (see `backtest/tests/test_graduated_guards.py`).
+    **Lessons index** (full prose + symptom/root-cause/fix in [markdown/doctrine/LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md) — through L199 as of 2026-07-10). Themed canonical set; when you hit a NEW anti-pattern, add prose to LESSONS-LEARNED.md and fold the L# into a row here. A lesson that gets re-violated is a missing guardrail — graduate it to a code assertion (see `backtest/tests/test_graduated_guards.py`).
 
     | # | Theme | Lessons |
     |---|---|---|
@@ -249,7 +251,7 @@ These are non-negotiable, second only to the 10 rules above.
     | C12 | Stateful detectors need warmup / persisted state | L30,35 |
     | C13 | Confidence tiers must be reachable AND diverse over N>=20 | L63,65 |
     | C14 | Dead/translated-but-unapplied knobs: vary-and-assert | L38,70,72,77,88,89,96,99,106,108,109,110,111,113,114,115,116,117,123,127,130,131,147,152,155,176,180 |
-    | C15 | Gates interact multiplicatively — trace session cascades | L07,08,09,66,95,163,180 |
+    | C15 | Gates interact multiplicatively — trace session cascades | L07,08,09,66,95,163,180,199 |
     | C16 | Multi-bar reversal vs single-bar continuation discriminator | L52,59,75 |
     | C17 | Build reusable skills + crypto validation, not one-shots | L36,37 |
     | C18 | Status-format discipline | L06,15,17,18 |
@@ -269,7 +271,7 @@ These are non-negotiable, second only to the 10 rules above.
 
 31. **The Kitchen — 24/7 autonomous free-tier R&D loop** (keepalive + seeder + reviewer; schedule in SCHEDULED-TASKS). Claude-when-awake = the driver: steer/promote/prune via `kitchen-status.json`. Daemon NEVER touches `heartbeat*`/`params*`/`CLAUDE.md`, NEVER places orders. Spec: [`KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md).
 
-32. **Two-pipeline research + Reframe Engine (2026-06-29).** **P1 strategy-discovery (free swarm):** never hand-pick the metric (measuring WR called a +EV setup a "coin flip") — validate via `backtest_design_swarm.py` (canonical battery: expectancy+OOS+regime, not just WR; smart-review shadow-scored vs Gamma, <85%=Gamma-in-loop) + `discovery_shadow_ledger.py` (both-directions FDR → real-fills → arm). **P2 meta-ideation (Opus, rare):** the **Constraint Provenance Audit** — stalled in the SAME shape → audit the constraint's *provenance* before optimizing under it. `friction_distiller.py` → `Gamma_StepBack` (weekly). ROUTING: strategies→P1, frames→Opus/P2; P2 never writes `analysis/recommendations/`. Full spec: [`markdown/meta/REFRAME-ENGINE.md`](markdown/meta/REFRAME-ENGINE.md) · [swarm-arch](markdown/research/BACKTEST-DESIGN-SWARM-ARCHITECTURE.md).
+32. **Two-pipeline research + Reframe Engine (2026-06-29).** **P1 strategy-discovery (free swarm):** never hand-pick the metric (measuring WR called a +EV setup a "coin flip") — validate via `backtest_design_swarm.py` (canonical battery: expectancy+OOS+regime, not just WR; smart-review shadow-scored vs Gamma, <85%=Gamma-in-loop) + `discovery_shadow_ledger.py` (both-directions FDR → real-fills → arm). **P2 meta-ideation (Opus, rare):** the **Constraint Provenance Audit** — stalled in the SAME shape → audit the constraint's *provenance* before optimizing under it. `friction_distiller.py` → `Gamma_StepBack` (weekly). ROUTING: strategies→P1, frames→Opus/P2; P2 never writes `analysis/recommendations/`. Full spec: [`markdown/meta/REFRAME-ENGINE.md`](markdown/meta/REFRAME-ENGINE.md) · [swarm-arch](markdown/research/BACKTEST-DESIGN-SWARM-ARCHITECTURE.md). **Free-model trust gate (2026-07-11):** the same Claude-grades-free-models pattern now applies to EVERY free-model decision touchpoint (heartbeat's 2-model veto, twin review, prospector, swarm consults), not just P1 — via `free_model_audit.py`, every-other-day cadence until ≥85%/≥15-evidence confidence; new free-model builds wire into it from day one, never retrofitted. Spec: [`markdown/infra/FREE-MODEL-AUDIT-HARNESS.md`](markdown/infra/FREE-MODEL-AUDIT-HARNESS.md).
 
 > ## ⛔ OP-33 — VERIFY, DON'T CLAIM. VISIBILITY IS THE PRODUCT. (J 2026-06-29 — OP-0's missing other half.)
 >
