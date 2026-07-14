@@ -1,6 +1,6 @@
 # Trend-Alignment Correlation Study -- Phase 1 Results
 
-Scored: 2026-07-14T19:32:49 ET. Frozen pre-reg: `analysis/recommendations/prereg-trend-alignment-correlation-2026-07-14.json` (no re-picks after freeze).
+Scored: 2026-07-14T19:48:08 ET. Frozen pre-reg: `analysis/recommendations/prereg-trend-alignment-correlation-2026-07-14.json` (no re-picks after freeze).
 
 ## VERDICT: KILL
 
@@ -20,43 +20,43 @@ n_total_signals=250, OOS (date>=2026-01-01) n=90, no-OPRA-coverage skips=0. Self
 
 | bucket | n | mean pnl | total pnl |
 |---|---|---|---|
-| -3 | 6 | $-60.30 | $-361.80 |
+| -3 | 9 | $200.40 | $1803.60 |
 | -2 | 0 | - | $0.00 |
-| -1 | 20 | $-21.49 | $-429.80 |
+| -1 | 24 | $42.23 | $1013.40 |
 | +0 | 0 | - | $0.00 |
-| +1 | 41 | $123.28 | $5054.40 |
+| +1 | 41 | $56.53 | $2317.60 |
 | +2 | 0 | - | $0.00 |
-| +3 | 23 | $-65.35 | $-1503.00 |
+| +3 | 16 | $-148.43 | $-2374.80 |
 
-Spearman (bucket vs mean-pnl): rho=-0.054, p=0.613. Shuffle-null 90% interval (seed=1407, n=1000 draws, alpha=0.1): [-0.1697443174643978, 0.17646677768546604]. Beats null: **False**.
+Spearman (bucket vs mean-pnl): rho=-0.150, p=0.157. Shuffle-null 90% interval (seed=1407, n=1000 draws, alpha=0.1): [-0.1627574785768802, 0.17177445262792726]. Beats null: **False**.
 
-Monotonic-ish (<=1 adjacent-bucket inversion): **PASS** (1 inversions across 4 present buckets).
+Monotonic-ish (<=1 adjacent-bucket inversion): **FAIL** (2 inversions across 4 present buckets).
 
-Aligned-vs-fighting t-test (secondary, disclosed only): {'n_aligned': 64, 'n_fighting': 26, 'mean_aligned': 55.49, 'mean_fighting': -30.45, 't_stat': 0.8856056744867767, 'p_value': 0.37836975570294085}
+Aligned-vs-fighting t-test (secondary, disclosed only): {'n_aligned': 57, 'n_fighting': 33, 'mean_aligned': -1.0, 'mean_fighting': 85.36, 't_stat': -0.736895564936749, 'p_value': 0.4637074677083082}
 
 Top-3-episode concentration: 1.582 of total P&L (OP-20 disclosure).
 
-Win/loss x aligned/fighting contingency: {'aligned_win': 25, 'aligned_loss': 39, 'neutral_win': 0, 'neutral_loss': 0, 'fighting_win': 7, 'fighting_loss': 19}. % losers fighting trend: 32.8. % winners aligned with trend: 78.1.
+Win/loss x aligned/fighting contingency: {'aligned_win': 20, 'aligned_loss': 37, 'neutral_win': 0, 'neutral_loss': 0, 'fighting_win': 12, 'fighting_loss': 21}. % losers fighting trend: 36.2. % winners aligned with trend: 62.5.
 
 ### P1 full-window (IS+OOS combined, for reference -- IS/OOS split is the primary read)
 
 | bucket | n | mean pnl | total pnl |
 |---|---|---|---|
-| -3 | 20 | $-79.84 | $-1596.80 |
+| -3 | 27 | $59.11 | $1596.00 |
 | -2 | 0 | - | $0.00 |
-| -1 | 75 | $-18.53 | $-1390.00 |
+| -1 | 80 | $-5.56 | $-444.80 |
 | +0 | 0 | - | $0.00 |
-| +1 | 100 | $42.24 | $4223.80 |
+| +1 | 107 | $27.98 | $2994.00 |
 | +2 | 0 | - | $0.00 |
-| +3 | 55 | $58.70 | $3228.60 |
+| +3 | 36 | $8.90 | $320.40 |
 
 ## Kill-criteria ladder (P1's own SUPPORTED/KILL verdict)
 
 1. OOS positive + beats shuffle-null: **False**
-2. Monotonic-ish: **True**
-3. Survives drop-top-3-per-bucket: **True** (post-drop n=78, rho=-0.075, p=0.515)
-4. Both chronological halves same sign: **False** (first half n=45 rho=0.008, p=0.958, second half n=45 rho=-0.146, p=0.338)
-5. P2 (real fills) corroborates sign: **False** (P2 engine n=110, evidence floor met=True)
+2. Monotonic-ish: **False**
+3. Survives drop-top-3-per-bucket: **True** (post-drop n=78, rho=-0.146, p=0.204)
+4. Both chronological halves same sign: **True** (first half n=45 rho=-0.129, p=0.399, second half n=45 rho=-0.251, p=0.097)
+5. P2 (real fills) corroborates sign: **True** (P2 engine n=110, evidence floor met=True)
 
 ## P2 -- real engine fills (MEASURED)
 
@@ -66,17 +66,17 @@ n=110 engine-attributed closed episodes ({'engine': 110, 'manual': 3, 'unknown_a
 
 | bucket | n | mean pnl | total pnl |
 |---|---|---|---|
-| -3 | 0 | - | $0.00 |
+| -3 | 9 | $-8.44 | $-76.00 |
 | -2 | 0 | - | $0.00 |
-| -1 | 42 | $-22.76 | $-956.00 |
+| -1 | 37 | $-24.57 | $-909.00 |
 | +0 | 0 | - | $0.00 |
-| +1 | 49 | $-20.73 | $-1015.99 |
+| +1 | 54 | $-7.96 | $-429.99 |
 | +2 | 0 | - | $0.00 |
-| +3 | 19 | $13.05 | $248.00 |
+| +3 | 10 | $-30.90 | $-309.00 |
 
-Spearman: rho=0.041, p=0.674. Beats null: False (n=110, evidence floor n>=15 met: True -- P2's job is DIRECTIONAL corroboration, not an independent statistical pass/fail).
+Spearman: rho=-0.143, p=0.137. Beats null: False (n=110, evidence floor n>=15 met: True -- P2's job is DIRECTIONAL corroboration, not an independent statistical pass/fail).
 
-Win/loss contingency: {'aligned_win': 6, 'aligned_loss': 62, 'neutral_win': 0, 'neutral_loss': 0, 'fighting_win': 1, 'fighting_loss': 41}. % losers fighting trend: 39.8. % winners aligned: 85.7.
+Win/loss contingency: {'aligned_win': 6, 'aligned_loss': 58, 'neutral_win': 0, 'neutral_loss': 0, 'fighting_win': 1, 'fighting_loss': 45}. % losers fighting trend: 43.7. % winners aligned: 85.7.
 
 ### P2 manual (n=3, reported separately, NEVER pooled into engine expectancy)
 
@@ -99,14 +99,14 @@ Win/loss contingency: {'aligned_win': 6, 'aligned_loss': 62, 'neutral_win': 0, '
 | 2026-05-04 | winner | P | $730.00 | -3 | False | True |
 | 2026-05-05 | loser | P | $-260.00 | -3 | False | True |
 | 2026-05-06 | loser | P | $-300.00 | -3 | False | True |
-| 2026-05-07 | loser | C | $-45.00 | -1 | False | False |
+| 2026-05-07 | loser | C | $-45.00 | +1 | False | False |
 | 2026-05-07 | loser | C | $-120.00 | +3 | True | False |
 
-Spearman (n=7, always INCONCLUSIVE per evidence floor): rho=0.150, p=0.749.
+Spearman (n=7, always INCONCLUSIVE per evidence floor): rho=0.094, p=0.842.
 
 ## Pooled cross-population sign check (informational only -- see pre-reg primary_metric)
 
-{'p1_oos_sign': False, 'p2_engine_sign': True, 'p3_sign': True, 'all_agree': False}
+{'p1_oos_sign': False, 'p2_engine_sign': False, 'p3_sign': True, 'all_agree': False}
 
 ## Honesty notes
 

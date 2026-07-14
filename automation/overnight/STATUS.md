@@ -1,3 +1,31 @@
+## [2026-07-14 ~19:49 ET] C — TREND-ALIGNMENT PHASE 1: KILL confirmed, look-ahead leak found+fixed, corrected re-run REINFORCES the kill [REVOKE-report]
+
+> **Context (`et_clock.py`: `2026-07-14 19:49:38 Tuesday EDT market_hours=False`):** worker-tier synthesis of the trend-alignment-correlation study (context-enrichment Phase 1, following Phase 0's shadow-only `context-bundle.json` tag, commit `b1597a6`). Question: does multi-timeframe (daily/hourly/15m) trend alignment predict trade outcome? Frozen pre-reg: `analysis/recommendations/prereg-trend-alignment-correlation-2026-07-14.json`.
+>
+> **Original scored run (commit `6400a61`):** P1 (MODELED, SS-B replay @ OTM-2, n=250 canonical `ribbon_ride` cohort, real OPRA bars) OOS n=90 rho=-0.054 (null); P2 (MEASURED, real broker fills, n=110 engine episodes) rho=+0.041 (opposite sign — condition_5 corroboration FAILED); P3 (J's OP-16 anchor, n=7, context-only) rho=+0.150. Kill ladder 3/4 conditions failed (condition_1 OOS-positive-beats-null FALSE, condition_4 both-halves-same-sign FALSE: first half +0.008, second half -0.146). **P1 verdict = KILL, overall verdict = KILL.**
+>
+> **Adversarial verify pass (too-good + look-ahead hunts) found a REAL bug, but it didn't overturn the verdict.** `alignment_for_decision`'s `_slice()` in `backtest/tools/trend_alignment_correlation_study.py:191` sliced on bar-OPEN (`timestamp <= ts`) instead of bar-CLOSE (`timestamp + granularity <= ts`) — every entry_ts is intraday, so the still-forming daily/hourly/15m bar's already-realized future close leaked into every single historical reconstruction (systematic C6 violation, hand-verified on 2 real P1 signals). Direction of the bias: TOWARD manufacturing a spurious POSITIVE correlation (a leaked same-day move tends to agree with a winning trade's own direction) — yet P1 still scored null/negative *despite* that pro-hypothesis bias, so the pre-fix KILL was not overturned by the leak, if anything it was conservative.
+>
+> **Fixed the leak and RE-RAN the frozen scoring pass** (not just reasoned about it): `_BAR_GRANULARITY` map (daily=1day / hourly=1h / m15=15min) applied per-timeframe in `_slice`, +2 regression guard tests (`test_alignment_for_decision_excludes_still_forming_bar_mid_span` — a decision_ts strictly mid-bar, the exact shape every prior guard test missed since they only ever used exact fixture-row timestamps). 31/31 tests green (Phase 0 + Phase 1 suites). Self-check re-verified: P1 replay still reproduces `ribbon_ride_strike_exit_ab.py`'s certified `replay_cell()` output byte-for-byte (`ref_total=4465.6`, `my_total=4465.6`).
+>
+> **Corrected numbers — the kill got MORE decisive, not less:**
+>
+> | Metric | Pre-fix (leaky) | Post-fix (bar-close correct) |
+> |---|---|---|
+> | P1_OOS spearman rho | -0.054 (p=0.61) | **-0.150 (p=0.16)** |
+> | P2_engine spearman rho | +0.041 (p=0.67) | **-0.143 (p=0.14)** |
+> | condition_5 (P2 corroborates P1's sign) | FAIL (opposite signs) | **PASS (both negative)** |
+> | condition_2 (monotonic-ish, ≤1 inversion) | PASS | **FAIL** (bucket means -3:$200.40, -1:$42.23, +1:$56.53, +3:-$148.43 — not monotone) |
+> | Full-alignment bucket (+3), the strongest form of the hypothesis | worst-performing (found in adversarial pass, didn't move the mechanical verdict) | **still the worst bucket, now visible directly in the frozen scoring output** ($-148.43 mean, n=16) |
+>
+> Post-fix, P1 and P2 now AGREE in sign (both mildly negative, neither statistically significant, p>0.10 both — don't over-read a real effect here) instead of disagreeing as they did pre-fix. That's a materially CLEANER, more internally-consistent kill than the one that shipped in `6400a61`.
+>
+> **Verdict: KILL. No orders placed, no live params/config touched.** Phase 0's `context_bundle`/`alignment_score` tag on the decision row stays LOGGED-ONLY per the original Phase 0 design — it was never wired to any gate/veto/sizing input, and this result gives no reason to wire it. A kill here is a valuable, honest result: it says the mechanical entry logic (trigger + structure_veto) already prices in what multi-TF alignment would add: the SAME structure primitive (`market_structure.analyze_structure`) already runs inside `structure_veto` on the live 5m bars at entry time, so a slower-cadence daily/hourly/15m read on top of it appears to be redundant information, not incremental edge — bolting a slower-cadence read of the same primitive on top adds noise, not signal, on this engine's current entries.
+>
+> **Shipped:** `backtest/tools/trend_alignment_correlation_study.py` (fix), `backtest/tests/test_trend_alignment_correlation_study.py` (+2 guards, 9→11 tests, all pass), `analysis/recommendations/trend-alignment-correlation.{json,md}` (re-scored), `automation/overnight/queue.md` (TREND-ALIGNMENT-PHASE1-CORRELATION moved to Completed, done-killed). Not yet committed to git as of this entry — see next action.
+>
+> **No Phase 2 spec written.** Per the branching instructions this session ran under: Phase 2 (conviction-modulation spec) only gets written on a CLEAN look-ahead pass with surviving separation. This result is neither — the leak was real (now fixed) and the separation, even corrected, is null/mildly negative. Phase 2 does not ship. Any future phase that reuses `alignment_for_decision`'s bar-close slicing pattern gets the FIXED version for free (single source of truth, same file) — no separate follow-up item needed.
+
 ## [2026-07-14 ~17:15 ET] B — SHIP GATE: closed TRENDLINE-CONVICTION-OVERRIDE (KILL), re-verified A5-PREMARKET (ship candidate, already committed, test-count claim corrected), re-confirmed the 5 evening scorecards' verdicts against their own artifacts, ran github-audit, pushed to origin/main [REVOKE-report]
 
 > **Ship gate ran at 17:08 ET** (`et_clock.py`: `2026-07-14 17:08:53 Tuesday EDT market_hours=False` — quoted, not assumed). Re-verified all 6 evening scorecards against their actual artifact files rather than trusting the handoff summary. Only one artifact had unclosed loose ends (TRENDLINE-CONVICTION-OVERRIDE, below) and one had a claim discrepancy worth flagging (A5-PREMARKET, below); the other 4 (deadzone/bearFloor/fade/veto) were already correctly closed in `queue.md`/`STATUS.md` by earlier same-day sessions with verdicts matching their artifacts — re-read, not re-run, nothing to add.
@@ -4014,3 +4042,17 @@ Inbox item `strategy/candidates/_lesson-inbox/2026-07-10-joint-cascade-blindness
 > **Revert (one line + one task):** remove the two tag lines in `setup/scripts/heartbeat_core.py` (`bar_ctx["context_bundle"] = _read_context_bundle()` in `_build_payload`, and `"context_bundle": bc.get("context_bundle")` in `run_account`'s `rec` dict — the `_read_context_bundle`/`CONTEXT_BUNDLE_STALE_MIN` helper can stay, it's inert without a caller) + `Unregister-ScheduledTask -TaskName "Gamma_ContextBundle" -Confirm:$false`. No params/doctrine/order-path changes to revert — this phase never touched any of those.
 >
 > Zero orders placed. Zero live params/doctrine edits. Ships without a trading scorecard per the mission brief (logged-only = no trades change = nothing to A/B).
+
+### DEGRADED: self-check 2026-07-14T19:09:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:02 ENTER_BEAR ?', '15:03 ENTER_BEAR ?', '15:04 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:07 ENTER_BEAR ?', '15:08 ENTER_BEAR ?']
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+- [2026-07-14 17:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 76.47% in last 24h (26/34) -- but v15 (3-source) = 97.06% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 61.76% in last 24h (21/34) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-14T19:39:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:02 ENTER_BEAR ?', '15:03 ENTER_BEAR ?', '15:04 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:07 ENTER_BEAR ?', '15:08 ENTER_BEAR ?']
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.

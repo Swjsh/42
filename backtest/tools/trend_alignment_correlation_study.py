@@ -171,26 +171,47 @@ def build_all_caches(*, refresh: bool = False) -> dict[str, pd.DataFrame]:
 # re-derive the math. Guarded by test_alignment_for_decision_matches_cutoff_only (this module's
 # guard test) which proves the property one level up from Phase 0's own pure-function guard.
 # ===============================================================================================
+# Per-timeframe bar GRANULARITY -- a bar's timestamp is its OPEN, not its close. A bar is only
+# "seen" as of decision_ts once it has actually CLOSED (timestamp + granularity <= ts); every
+# real entry_ts in this study is intraday, so a naive `timestamp <= ts` slice (the pre-fix
+# behavior) always included the still-forming daily/hourly/15m bar with its already-realized
+# FUTURE close -- a systematic look-ahead leak (found + root-caused 2026-07-14 adversarial
+# verify pass). Daily uses a full calendar day (conservative: the real close is ~4h earlier
+# intraday, but that only makes the exclusion MORE conservative, never leaky) since Alpaca's
+# daily bar timestamp is the session OPEN, not midnight.
+_BAR_GRANULARITY = {
+    "daily": pd.Timedelta(days=1),
+    "hourly": pd.Timedelta(hours=1),
+    "m15": pd.Timedelta(minutes=15),
+}
+
+
 def alignment_for_decision(daily_df: "pd.DataFrame | None", hourly_df: "pd.DataFrame | None",
                             m15_df: "pd.DataFrame | None", decision_ts) -> dict:
-    """Slice each of the 3 timeframe DataFrames to rows with timestamp <= decision_ts, then call
-    context_bundle_producer.compute_trend_alignment (UNMODIFIED) on the slices. decision_ts may
-    be a naive or tz-aware datetime/Timestamp/ISO string -- normalized to UTC for comparison
-    against the tz-aware cached bars (naive inputs are ASSUMED ET per this repo's convention
-    and localized accordingly, since every signal source in this study records entry times in
-    ET, not UTC)."""
+    """Slice each of the 3 timeframe DataFrames to rows whose bar has already CLOSED as of
+    decision_ts (timestamp + that timeframe's granularity <= decision_ts -- NOT a naive
+    `timestamp <= decision_ts`, which would include the still-forming bar with its
+    already-realized future OHLC), then call context_bundle_producer.compute_trend_alignment
+    (UNMODIFIED) on the slices. decision_ts may be a naive or tz-aware datetime/Timestamp/ISO
+    string -- normalized to UTC for comparison against the tz-aware cached bars (naive inputs
+    are ASSUMED ET per this repo's convention and localized accordingly, since every signal
+    source in this study records entry times in ET, not UTC)."""
     ts = pd.Timestamp(decision_ts)
     if ts.tzinfo is None:
         ts = ts.tz_localize("America/New_York").tz_convert("UTC")
     else:
         ts = ts.tz_convert("UTC")
 
-    def _slice(df):
+    def _slice(df, granularity):
         if df is None or len(df) == 0:
             return df
-        return df[df["timestamp"] <= ts].reset_index(drop=True)
+        return df[df["timestamp"] + granularity <= ts].reset_index(drop=True)
 
-    return compute_trend_alignment(_slice(daily_df), _slice(hourly_df), _slice(m15_df))
+    return compute_trend_alignment(
+        _slice(daily_df, _BAR_GRANULARITY["daily"]),
+        _slice(hourly_df, _BAR_GRANULARITY["hourly"]),
+        _slice(m15_df, _BAR_GRANULARITY["m15"]),
+    )
 
 
 def alignment_vs_side(alignment: dict, side: str) -> dict:

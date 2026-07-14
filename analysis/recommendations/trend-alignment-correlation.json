@@ -1,6 +1,6 @@
 {
   "_doc": "Phase 1 SCORING RUN output. Frozen pre-reg: prereg-trend-alignment-correlation-2026-07-14.json. MEASURED = real broker fills. MODELED = SS-B replay on real OPRA bars (P1) or alignment reconstructed for a real J fill whose j_pnl is MEASURED (P3). No-repick clause applies -- this run reflects the FROZEN spec exactly.",
-  "scored_at_et": "2026-07-14T19:32:49",
+  "scored_at_et": "2026-07-14T19:48:08",
   "hypothesis": "Signals ALIGNED with the multi-timeframe (daily+hourly+15m) trend at entry have higher expectancy than signals FIGHTING it. Operationalized as: per-trade P&L, grouped by an AGREEMENT bucket in [-3..+3] (positive = trend agrees with the trade's own side, negative = trend fights it, computed via alignment_vs_side()'s signed_score -- NOT the raw market-direction alignment_score, so bull and bear populations pool onto the same agreement axis), should show monotonic-ish increasing expectancy from bucket -3 to +3, and losing episodes should skew toward negative buckets while winners skew toward positive buckets.",
   "populations": {
     "P1_full": {
@@ -12,9 +12,9 @@
         "bucket_table": [
           {
             "bucket": -3,
-            "n": 20,
-            "mean_pnl": -79.84,
-            "total_pnl": -1596.8
+            "n": 27,
+            "mean_pnl": 59.11,
+            "total_pnl": 1596.0
           },
           {
             "bucket": -2,
@@ -24,9 +24,9 @@
           },
           {
             "bucket": -1,
-            "n": 75,
-            "mean_pnl": -18.53,
-            "total_pnl": -1390.0
+            "n": 80,
+            "mean_pnl": -5.56,
+            "total_pnl": -444.8
           },
           {
             "bucket": 0,
@@ -36,9 +36,9 @@
           },
           {
             "bucket": 1,
-            "n": 100,
-            "mean_pnl": 42.24,
-            "total_pnl": 4223.8
+            "n": 107,
+            "mean_pnl": 27.98,
+            "total_pnl": 2994.0
           },
           {
             "bucket": 2,
@@ -48,56 +48,56 @@
           },
           {
             "bucket": 3,
-            "n": 55,
-            "mean_pnl": 58.7,
-            "total_pnl": 3228.6
+            "n": 36,
+            "mean_pnl": 8.9,
+            "total_pnl": 320.4
           }
         ],
         "spearman": {
-          "rho": 0.048386887732141066,
-          "pvalue": 0.4462534041183556
+          "rho": -0.025220802418433826,
+          "pvalue": 0.6914850422713656
         },
         "shuffle_null": {
           "n_valid_draws": 1000,
           "interval_90pct": [
-            -0.10197368139751108,
-            0.1019503770646069
+            -0.10497496765382397,
+            0.10457297825841459
           ]
         },
         "beats_null": false,
         "monotonic_ish": {
-          "verdict": "PASS",
+          "verdict": "FAIL",
           "n_present_buckets": 4,
-          "n_inversions": 0,
+          "n_inversions": 2,
           "bucket_means_in_order": [
-            -79.84,
-            -18.53,
-            42.24,
-            58.7
+            59.11,
+            -5.56,
+            27.98,
+            8.9
           ]
         },
         "aligned_vs_fighting_ttest": {
-          "n_aligned": 155,
-          "n_fighting": 95,
-          "mean_aligned": 48.08,
-          "mean_fighting": -31.44,
-          "t_stat": 1.4909820752658012,
-          "p_value": 0.13723808330702117
+          "n_aligned": 143,
+          "n_fighting": 107,
+          "mean_aligned": 23.18,
+          "mean_fighting": 10.76,
+          "t_stat": 0.21909896140453883,
+          "p_value": 0.826754841241978
         },
         "concentration_top3_pct_of_total": 1.118,
         "win_loss_contingency": {
           "contingency": {
-            "aligned_win": 55,
-            "aligned_loss": 100,
+            "aligned_win": 47,
+            "aligned_loss": 96,
             "neutral_win": 0,
             "neutral_loss": 0,
-            "fighting_win": 22,
-            "fighting_loss": 73
+            "fighting_win": 30,
+            "fighting_loss": 77
           },
           "n_win": 77,
           "n_loss": 173,
-          "pct_losers_fighting_trend": 42.2,
-          "pct_winners_aligned_with_trend": 71.4
+          "pct_losers_fighting_trend": 44.5,
+          "pct_winners_aligned_with_trend": 61.0
         },
         "evidence_floor_met": true
       }
@@ -111,9 +111,9 @@
         "bucket_table": [
           {
             "bucket": -3,
-            "n": 14,
-            "mean_pnl": -88.21,
-            "total_pnl": -1235.0
+            "n": 18,
+            "mean_pnl": -11.53,
+            "total_pnl": -207.6
           },
           {
             "bucket": -2,
@@ -123,9 +123,9 @@
           },
           {
             "bucket": -1,
-            "n": 55,
-            "mean_pnl": -17.46,
-            "total_pnl": -960.2
+            "n": 56,
+            "mean_pnl": -26.04,
+            "total_pnl": -1458.2
           },
           {
             "bucket": 0,
@@ -135,9 +135,9 @@
           },
           {
             "bucket": 1,
-            "n": 59,
-            "mean_pnl": -14.08,
-            "total_pnl": -830.6
+            "n": 66,
+            "mean_pnl": 10.25,
+            "total_pnl": 676.4
           },
           {
             "bucket": 2,
@@ -147,56 +147,56 @@
           },
           {
             "bucket": 3,
-            "n": 32,
-            "mean_pnl": 147.86,
-            "total_pnl": 4731.6
+            "n": 20,
+            "mean_pnl": 134.76,
+            "total_pnl": 2695.2
           }
         ],
         "spearman": {
-          "rho": 0.10990696764791384,
-          "pvalue": 0.16650545537529574
+          "rho": 0.0538905789725766,
+          "pvalue": 0.49852322537909993
         },
         "shuffle_null": {
           "n_valid_draws": 1000,
           "interval_90pct": [
-            -0.12569717385375112,
-            0.13963633809236123
+            -0.1262023967488576,
+            0.13469215796078565
           ]
         },
         "beats_null": false,
         "monotonic_ish": {
           "verdict": "PASS",
           "n_present_buckets": 4,
-          "n_inversions": 0,
+          "n_inversions": 1,
           "bucket_means_in_order": [
-            -88.21,
-            -17.46,
-            -14.08,
-            147.86
+            -11.53,
+            -26.04,
+            10.25,
+            134.76
           ]
         },
         "aligned_vs_fighting_ttest": {
-          "n_aligned": 91,
-          "n_fighting": 69,
-          "mean_aligned": 42.87,
-          "mean_fighting": -31.81,
-          "t_stat": 1.209373374460116,
-          "p_value": 0.2283261026759449
+          "n_aligned": 86,
+          "n_fighting": 74,
+          "mean_aligned": 39.2,
+          "mean_fighting": -22.51,
+          "t_stat": 0.9891053557640993,
+          "p_value": 0.32416297168043096
         },
         "concentration_top3_pct_of_total": 2.779,
         "win_loss_contingency": {
           "contingency": {
-            "aligned_win": 30,
-            "aligned_loss": 61,
+            "aligned_win": 27,
+            "aligned_loss": 59,
             "neutral_win": 0,
             "neutral_loss": 0,
-            "fighting_win": 15,
-            "fighting_loss": 54
+            "fighting_win": 18,
+            "fighting_loss": 56
           },
           "n_win": 45,
           "n_loss": 115,
-          "pct_losers_fighting_trend": 47.0,
-          "pct_winners_aligned_with_trend": 66.7
+          "pct_losers_fighting_trend": 48.7,
+          "pct_winners_aligned_with_trend": 60.0
         },
         "evidence_floor_met": true
       }
@@ -210,9 +210,9 @@
         "bucket_table": [
           {
             "bucket": -3,
-            "n": 6,
-            "mean_pnl": -60.3,
-            "total_pnl": -361.8
+            "n": 9,
+            "mean_pnl": 200.4,
+            "total_pnl": 1803.6
           },
           {
             "bucket": -2,
@@ -222,9 +222,9 @@
           },
           {
             "bucket": -1,
-            "n": 20,
-            "mean_pnl": -21.49,
-            "total_pnl": -429.8
+            "n": 24,
+            "mean_pnl": 42.23,
+            "total_pnl": 1013.4
           },
           {
             "bucket": 0,
@@ -235,8 +235,8 @@
           {
             "bucket": 1,
             "n": 41,
-            "mean_pnl": 123.28,
-            "total_pnl": 5054.4
+            "mean_pnl": 56.53,
+            "total_pnl": 2317.6
           },
           {
             "bucket": 2,
@@ -246,56 +246,56 @@
           },
           {
             "bucket": 3,
-            "n": 23,
-            "mean_pnl": -65.35,
-            "total_pnl": -1503.0
+            "n": 16,
+            "mean_pnl": -148.43,
+            "total_pnl": -2374.8
           }
         ],
         "spearman": {
-          "rho": -0.05399937001106435,
-          "pvalue": 0.6132139220816811
+          "rho": -0.15025218609732588,
+          "pvalue": 0.1574997524903515
         },
         "shuffle_null": {
           "n_valid_draws": 1000,
           "interval_90pct": [
-            -0.1697443174643978,
-            0.17646677768546604
+            -0.1627574785768802,
+            0.17177445262792726
           ]
         },
         "beats_null": false,
         "monotonic_ish": {
-          "verdict": "PASS",
+          "verdict": "FAIL",
           "n_present_buckets": 4,
-          "n_inversions": 1,
+          "n_inversions": 2,
           "bucket_means_in_order": [
-            -60.3,
-            -21.49,
-            123.28,
-            -65.35
+            200.4,
+            42.23,
+            56.53,
+            -148.43
           ]
         },
         "aligned_vs_fighting_ttest": {
-          "n_aligned": 64,
-          "n_fighting": 26,
-          "mean_aligned": 55.49,
-          "mean_fighting": -30.45,
-          "t_stat": 0.8856056744867767,
-          "p_value": 0.37836975570294085
+          "n_aligned": 57,
+          "n_fighting": 33,
+          "mean_aligned": -1.0,
+          "mean_fighting": 85.36,
+          "t_stat": -0.736895564936749,
+          "p_value": 0.4637074677083082
         },
         "concentration_top3_pct_of_total": 1.582,
         "win_loss_contingency": {
           "contingency": {
-            "aligned_win": 25,
-            "aligned_loss": 39,
+            "aligned_win": 20,
+            "aligned_loss": 37,
             "neutral_win": 0,
             "neutral_loss": 0,
-            "fighting_win": 7,
-            "fighting_loss": 19
+            "fighting_win": 12,
+            "fighting_loss": 21
           },
           "n_win": 32,
           "n_loss": 58,
-          "pct_losers_fighting_trend": 32.8,
-          "pct_winners_aligned_with_trend": 78.1
+          "pct_losers_fighting_trend": 36.2,
+          "pct_winners_aligned_with_trend": 62.5
         },
         "evidence_floor_met": true
       },
@@ -314,9 +314,9 @@
         "bucket_table": [
           {
             "bucket": -3,
-            "n": 0,
-            "mean_pnl": null,
-            "total_pnl": 0.0
+            "n": 9,
+            "mean_pnl": -8.44,
+            "total_pnl": -76.0
           },
           {
             "bucket": -2,
@@ -326,9 +326,9 @@
           },
           {
             "bucket": -1,
-            "n": 42,
-            "mean_pnl": -22.76,
-            "total_pnl": -956.0
+            "n": 37,
+            "mean_pnl": -24.57,
+            "total_pnl": -909.0
           },
           {
             "bucket": 0,
@@ -338,9 +338,9 @@
           },
           {
             "bucket": 1,
-            "n": 49,
-            "mean_pnl": -20.73,
-            "total_pnl": -1015.99
+            "n": 54,
+            "mean_pnl": -7.96,
+            "total_pnl": -429.99
           },
           {
             "bucket": 2,
@@ -350,54 +350,55 @@
           },
           {
             "bucket": 3,
-            "n": 19,
-            "mean_pnl": 13.05,
-            "total_pnl": 248.0
+            "n": 10,
+            "mean_pnl": -30.9,
+            "total_pnl": -309.0
           }
         ],
         "spearman": {
-          "rho": 0.04053539639624374,
-          "pvalue": 0.674152994823888
+          "rho": -0.14279775621963556,
+          "pvalue": 0.13669690322522007
         },
         "shuffle_null": {
           "n_valid_draws": 1000,
           "interval_90pct": [
-            -0.16022903098247332,
-            0.15559194207410612
+            -0.16846379468089684,
+            0.15759468703143337
           ]
         },
         "beats_null": false,
         "monotonic_ish": {
-          "verdict": "PASS",
-          "n_present_buckets": 3,
-          "n_inversions": 0,
+          "verdict": "FAIL",
+          "n_present_buckets": 4,
+          "n_inversions": 2,
           "bucket_means_in_order": [
-            -22.76,
-            -20.73,
-            13.05
+            -8.44,
+            -24.57,
+            -7.96,
+            -30.9
           ]
         },
         "aligned_vs_fighting_ttest": {
-          "n_aligned": 68,
-          "n_fighting": 42,
-          "mean_aligned": -11.29,
-          "mean_fighting": -22.76,
-          "t_stat": 0.9921701376929869,
-          "p_value": 0.3241759220646746
+          "n_aligned": 64,
+          "n_fighting": 46,
+          "mean_aligned": -11.55,
+          "mean_fighting": -21.41,
+          "t_stat": 0.8104249213654934,
+          "p_value": 0.42039224253726504
         },
         "concentration_top3_pct_of_total": -0.631,
         "win_loss_contingency": {
           "contingency": {
             "aligned_win": 6,
-            "aligned_loss": 62,
+            "aligned_loss": 58,
             "neutral_win": 0,
             "neutral_loss": 0,
             "fighting_win": 1,
-            "fighting_loss": 41
+            "fighting_loss": 45
           },
           "n_win": 7,
           "n_loss": 103,
-          "pct_losers_fighting_trend": 39.8,
+          "pct_losers_fighting_trend": 43.7,
           "pct_winners_aligned_with_trend": 85.7
         },
         "evidence_floor_met": true
@@ -514,9 +515,9 @@
           },
           {
             "bucket": -1,
-            "n": 2,
-            "mean_pnl": 212.5,
-            "total_pnl": 425.0
+            "n": 1,
+            "mean_pnl": 470.0,
+            "total_pnl": 470.0
           },
           {
             "bucket": 0,
@@ -526,9 +527,9 @@
           },
           {
             "bucket": 1,
-            "n": 1,
-            "mean_pnl": 342.0,
-            "total_pnl": 342.0
+            "n": 2,
+            "mean_pnl": 148.5,
+            "total_pnl": 297.0
           },
           {
             "bucket": 2,
@@ -544,14 +545,14 @@
           }
         ],
         "spearman": {
-          "rho": 0.14969623771302396,
-          "pvalue": 0.7487055969665105
+          "rho": 0.09356014857063998,
+          "pvalue": 0.8418616158482588
         },
         "shuffle_null": {
           "n_valid_draws": 1000,
           "interval_90pct": [
-            -0.6736330697086078,
-            0.6736330697086078
+            -0.6923450994227357,
+            0.6923450994227357
           ]
         },
         "beats_null": false,
@@ -561,32 +562,32 @@
           "n_inversions": 1,
           "bucket_means_in_order": [
             56.67,
-            212.5,
-            342.0,
+            470.0,
+            148.5,
             -120.0
           ]
         },
         "aligned_vs_fighting_ttest": {
-          "n_aligned": 2,
-          "n_fighting": 5,
-          "mean_aligned": 111.0,
-          "mean_fighting": 119.0,
-          "t_stat": -0.025888476424423535,
-          "p_value": 0.9810964017911878
+          "n_aligned": 3,
+          "n_fighting": 4,
+          "mean_aligned": 59.0,
+          "mean_fighting": 160.0,
+          "t_stat": -0.3406496894996276,
+          "p_value": 0.7487518544561033
         },
         "concentration_top3_pct_of_total": 1.887,
         "win_loss_contingency": {
           "contingency": {
             "aligned_win": 1,
-            "aligned_loss": 1,
+            "aligned_loss": 2,
             "neutral_win": 0,
             "neutral_loss": 0,
             "fighting_win": 2,
-            "fighting_loss": 3
+            "fighting_loss": 2
           },
           "n_win": 3,
           "n_loss": 4,
-          "pct_losers_fighting_trend": 75.0,
+          "pct_losers_fighting_trend": 50.0,
           "pct_winners_aligned_with_trend": 33.3
         },
         "evidence_floor_met": false
@@ -676,8 +677,8 @@
           "direction": "bull",
           "role": "loser",
           "pnl": -45.0,
-          "signed_score": -1,
-          "raw_score": -1,
+          "signed_score": 1,
+          "raw_score": 1,
           "aligned": false,
           "fighting": false,
           "degraded": false
@@ -703,31 +704,31 @@
   },
   "kill_criteria": {
     "condition_1_p1_oos_positive_correlation": false,
-    "condition_2_monotonic_ish": true,
+    "condition_2_monotonic_ish": false,
     "condition_3_survives_drop_top_3": {
       "passed": true,
       "dropped_n": 78,
       "dropped_spearman": {
-        "rho": -0.07477420617193938,
-        "pvalue": 0.5152804172311796
+        "rho": -0.1455587605284938,
+        "pvalue": 0.20352611177461766
       },
       "dropped_beats_null": false
     },
     "condition_4_both_halves_same_sign": {
-      "passed": false,
+      "passed": true,
       "first_half_n": 45,
       "second_half_n": 45,
       "first_half_spearman": {
-        "rho": 0.0080471523571222,
-        "pvalue": 0.9581592340722151
+        "rho": -0.12885145646242732,
+        "pvalue": 0.398913570853522
       },
       "second_half_spearman": {
-        "rho": -0.1461907598685845,
-        "pvalue": 0.33794058164454516
+        "rho": -0.2505990845769365,
+        "pvalue": 0.09683869622596225
       }
     },
     "condition_5_p2_corroborates": {
-      "passed": false,
+      "passed": true,
       "p2_engine_n": 110,
       "p2_engine_evidence_floor_met": true
     }
@@ -736,7 +737,7 @@
   "overall_verdict": "KILL",
   "pooled_cross_population_sign_check": {
     "p1_oos_sign": false,
-    "p2_engine_sign": true,
+    "p2_engine_sign": false,
     "p3_sign": true,
     "all_agree": false
   },

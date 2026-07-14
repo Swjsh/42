@@ -59,17 +59,77 @@ def _up_df(n: int, *, step) -> pd.DataFrame:
 # 1/2. No-look-ahead reconstruction at THIS module's slicing boundary
 # ------------------------------------------------------------------------------------------- #
 def test_alignment_for_decision_matches_cutoff_only_series():
+    """T sits exactly ON a bar's OPEN timestamp -- with the bar-CLOSE boundary fix (2026-07-14),
+    a manual slice must require timestamp + granularity <= T (that bar has not yet closed at its
+    own open), not a naive timestamp <= T. Each of the 3 args gets its OWN timeframe's
+    granularity (daily=1day/hourly=1h/m15=15min) applied by alignment_for_decision regardless of
+    the fixture's own bar spacing -- so the manual slice below must apply that same per-arg
+    granularity, not the fixture's step, to reproduce the real boundary."""
     import datetime as dt
-    long_series = _up_df(80, step=dt.timedelta(hours=1))
+    step = dt.timedelta(hours=1)
+    long_series = _up_df(80, step=step)
     T = long_series.iloc[49]["timestamp"]
 
-    manually_sliced = long_series[long_series["timestamp"] <= T].reset_index(drop=True)
-    expected = cbp.compute_trend_alignment(manually_sliced, manually_sliced, manually_sliced)
+    def _manual(df, granularity):
+        return df[df["timestamp"] + granularity <= T].reset_index(drop=True)
+
+    manually_sliced_daily = _manual(long_series, tas._BAR_GRANULARITY["daily"])
+    manually_sliced_hourly = _manual(long_series, tas._BAR_GRANULARITY["hourly"])
+    manually_sliced_m15 = _manual(long_series, tas._BAR_GRANULARITY["m15"])
+    expected = cbp.compute_trend_alignment(
+        manually_sliced_daily, manually_sliced_hourly, manually_sliced_m15)
 
     actual = tas.alignment_for_decision(long_series, long_series, long_series, T)
     assert actual == expected, (
-        "alignment_for_decision must reproduce a manually <=T-sliced compute_trend_alignment "
-        "call byte-for-byte -- this is the property Phase 1's historical replay depends on")
+        "alignment_for_decision must reproduce a manually bar-CLOSE-sliced "
+        "compute_trend_alignment call byte-for-byte -- this is the property Phase 1's "
+        "historical replay depends on")
+    # sanity: the hourly-granularity manual slice is strictly shorter than a naive <=T slice
+    # would be (bar 49 itself excluded because it has not closed as of its own open)
+    naive_sliced = long_series[long_series["timestamp"] <= T]
+    assert len(manually_sliced_hourly) == len(naive_sliced) - 1
+
+
+def test_alignment_for_decision_excludes_still_forming_bar_mid_span():
+    """THE look-ahead-leak regression test (root-caused 2026-07-14 adversarial verify pass):
+    decision_ts strictly INSIDE a bar's span (not on a fixture row boundary) must NOT see that
+    bar's already-realized close -- only bars that have fully closed by decision_ts. Pre-fix,
+    `timestamp <= ts` included the still-forming bar with its future OHLC; every prior guard
+    test only ever set T to an exact fixture-row timestamp, so this leak went uncaught. Uses
+    the m15 arg (15min granularity) so a 5-minute mid-bar offset is unambiguously "still
+    forming" regardless of the fixture's own 1h row spacing."""
+    import datetime as dt
+    step = dt.timedelta(hours=1)
+    series = _up_df(60, step=step)
+    bar_open = series.iloc[40]["timestamp"]
+    mid_bar_T = bar_open + dt.timedelta(minutes=5)  # inside bar 40's 15min m15-granularity window
+
+    alignment_mid_bar = tas.alignment_for_decision(None, None, series, mid_bar_T)
+    alignment_at_open = tas.alignment_for_decision(None, None, series, bar_open)
+    assert alignment_mid_bar == alignment_at_open, (
+        "a decision 5 minutes into a still-forming m15 bar must read the SAME alignment as a "
+        "decision made the instant that bar opened -- the forming bar's future close must "
+        "never leak in just because decision_ts has ticked past its open timestamp")
+
+    # and it must differ from a decision made AFTER bar 40 has fully closed (its close is now
+    # legitimately visible) -- proves the boundary is load-bearing, not a no-op
+    after_close_T = bar_open + tas._BAR_GRANULARITY["m15"]
+    n_visible_mid = _n_visible_m15_bars(series, mid_bar_T)
+    n_visible_after = _n_visible_m15_bars(series, after_close_T)
+    assert n_visible_after == n_visible_mid + 1, (
+        "exactly one additional bar (bar 40) must become visible once its m15 close has "
+        "passed, not before")
+
+
+def _n_visible_m15_bars(series: pd.DataFrame, ts) -> int:
+    """Test helper: how many rows of `series` alignment_for_decision would treat as closed at
+    ts, using the module's own 'm15' granularity constant."""
+    t = pd.Timestamp(ts)
+    if t.tzinfo is None:
+        t = t.tz_localize("America/New_York").tz_convert("UTC")
+    else:
+        t = t.tz_convert("UTC")
+    return int((series["timestamp"] + tas._BAR_GRANULARITY["m15"] <= t).sum())
 
 
 def test_alignment_for_decision_ignores_future_rows():
