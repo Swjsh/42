@@ -1,0 +1,80 @@
+{
+  "_doc": "PRE-REGISTERED spec for the trendline FADE entry battery (TREND-FADE-PREREG, A4/S1-follow-up, 2026-07-14 after-4pm work block). FROZEN BEFORE any replay is run -- exploratory != confirmatory, no re-picks after seeing results, a FAIL/KILL is a publishable outcome. Motivation: analysis/recommendations/trendline-break-battery.json killed break-CONTINUATION entries 12/12, but its own null_opposite_direction disclosure (not tested as a first-class hypothesis, no re-pick) showed the opposite-direction null beating the real (continuation) trade's OOS expectancy in 10/12 cells, and was OOS-positive in its own right in 4/12 (all four were kind=resistance/direction=bullish -- i.e. fading an UPSIDE break beat the continuation trade; the six kind=support/direction=bearish cells never showed an OOS-positive fade in that disclosure). This study promotes that mechanism to a real pre-registered hypothesis with its own nulls, its own pass bar, and two NEW variants the S1 disclosure never tested.",
+  "version": 1,
+  "status": "FROZEN_PENDING_RUN",
+  "frozen_at": "2026-07-14T16:57 ET (et_clock.py verified)",
+  "runner": "backtest/tools/trendline_fade_battery.py",
+  "signal_source": "analysis/trendlines/break-dataset.jsonl (G1, 380-day walk-forward, 78191 qualifying lines / 52833 breaks, committed; regenerable via backtest/autoresearch/trendline_break_replay.py if absent). Dataset date_range is 2025-01-02..2026-07-13 -- TODAY (2026-07-14, the hypothesis-source day for this whole trendline program) is EXCLUDED FROM ALL EVALUATION WINDOWS BY CONSTRUCTION (the dataset does not contain it), not by a post-hoc filter. Same dataset S1 used -- no new data pull, no cherry-picked date range.",
+
+  "line_families": ["wick", "body"],
+  "families_never_blended": "Every cell reported separately per anchor_family (wick vs body) AND per kind/direction (support/bearish-break vs resistance/bullish-break) -- never pooled. 2x2 = 4 populations x 3 fade variants = 12 candidate cells (identical shape to S1's break-battery for direct comparability).",
+
+  "fade_definition": "A FADE trade takes the OPPOSITE side of the break's own continuation trade: break_direction=bearish (support broken down through) fades to CALL (betting the breakdown fails / price reclaims); break_direction=bullish (resistance broken up through) fades to PUT (betting the breakout fails / price falls back). Strike/entry-timing conventions below are inherited unmodified from S1's V1/V2/V3 so any performance delta is attributable to the SIDE flip and the (F2/F3) population filters, not to a different measurement methodology.",
+
+  "entry_variants": {
+    "F1_fade_immediate": {
+      "population_filter": "break.break_type == 'close_through' (IDENTICAL population to S1's V1 -- this is S1's own null_opposite_direction promoted to a primary hypothesis, now run with its own dedicated nulls/pass-bar/BH-FDR instead of being a side-comparison inside the continuation study). wick_through_only breaks excluded (same rationale as S1: a wick poke that closes back inside is not a confirmed break, so there is nothing here yet to fade).",
+      "entry_rule": "Enter at the OPEN of the bar immediately after the break bar (break_unix + 300s) -- same next-bar-open-after-confirmed-close convention as S1 V1 (C6: decision uses only bars <= break bar).",
+      "side": "CALL for bearish (kind=support) breaks [fading the breakdown], PUT for bullish (kind=resistance) breaks [fading the breakout]",
+      "strike": "ATM = round(entry_spot), same as S1"
+    },
+    "F2_fade_reclaim_confirmed": {
+      "population_filter": "break.break_type == 'close_through', AND price actually reclaims the ORIGINAL (pre-break) side of the line within the RETEST_HORIZON_BARS=10-bar window following the break bar -- reconstructed causally by walking forward break_bar_idx+1..+10 (using the SAME _line_value/TOL geometry imported from trendline_break_replay.py, never forked) and taking the FIRST bar whose CLOSE re-crosses the line back to the pre-break side by >= dynamic tolerance (support break: close > line_value + tol; resistance break: close < line_value - tol). This is the genuinely NEW variant S1 never tested -- S1's V2 walked the identical window looking for touch-then-CONTINUATION-confirmation; F2 walks it looking for an outright reclaim, i.e. evidence the break has already started failing. If no bar in the 10-bar window ever reclaims, no F2 trade fires for that line -- necessarily fewer, later-entered trades than F1 (same asymmetry S1 disclosed for V2 vs V1).",
+      "entry_rule": "Enter at the OPEN of the bar immediately after the reclaim-confirmation bar's close (same next-bar-open convention).",
+      "side": "same as F1",
+      "strike": "ATM = round(entry_spot) at the reclaim bar"
+    },
+    "F3_fade_low_volume": {
+      "population_filter": "break.break_type == 'close_through' AND break.volume_ratio < 1.0 (break-bar volume BELOW its own trailing 20-bar average -- the mirror-image threshold of S1's V3 continuation filter, which required volume_ratio >= 1.5 as evidence of conviction. A sub-average-volume break is, by the same logic in reverse, a LOW-conviction break and an a priori reasonable fade candidate. Threshold fixed at the natural 1.0 boundary (average) before running, never tuned against results -- deliberately the mirror of S1's already-committed 1.5 cutoff, not a fresh number chosen after seeing data.",
+      "entry_rule": "same next-bar-open-after-break convention as F1",
+      "side": "same as F1",
+      "strike": "ATM = round(entry_spot)"
+    }
+  },
+
+  "exit_shape": {
+    "label": "SS-B (current shipped ribbon_ride live exit shape, chart-stop-primary v15.3, read from automation/state/params.json at freeze time -- identical shape S1 used)",
+    "premium_stop_pct": -0.5,
+    "tp1_premium_pct": 0.5,
+    "tp1_qty_fraction": 0.8,
+    "profit_lock_mode": "fixed",
+    "profit_lock_arm_pct": 0.05,
+    "trail_pct": 0.125,
+    "runner_target_pct": 2.5,
+    "profit_lock_arm_scope": "post_tp1",
+    "replay_mechanism": "backtest/tools/t4_exit_matrix.py's replay()/ExitState/plan_exit_actions -- the SAME live exit_manager decision core (LIVE scope, per task instruction). Local 5-min OPRA option bars via lib.option_pricing_real.load_contract_bars, zero network, zero synthetic pricing. qty fixed at 10 (T4/T5/S1 convention) for comparable per-trade expectancy across cells -- research-scale, not a live sizing recommendation.",
+    "no_lookahead_note": "Entry premium = the first available OPTION bar's OPEN at/after the entry timestamp (never a bar before decision time); exit replay walks strictly forward bar-by-bar from that fill."
+  },
+
+  "nulls": {
+    "random_entry_null": "For every REAL fade episode, one matched null: SAME date, SAME (fade) side, entered at a bar time drawn uniformly at random from that day's RTH session (09:35-15:30 ET, deterministic seed=1407 -- IDENTICAL seed to S1 for direct comparability). Tests whether the fade TRIGGER adds anything beyond being long/short SPY options on a day that happened to move.",
+    "break_direction_null": "For every REAL fade episode, a second null: SAME entry timestamp/spot/strike-basis, OPPOSITE side -- i.e. the ORIGINAL break-continuation trade S1 already tested and killed. This is the load-bearing comparison for the entire fade hypothesis ('does fading actually beat just taking the break') and is expected to mechanically reproduce S1's own V1-cell continuation numbers for F1 (same population, same timestamps, opposite side is just S1's real trade) -- that reproduction is a consistency check on this script, not new evidence by itself. F2 and F3 populations are novel subsets (reclaim-confirmed / low-volume), so their break_direction_null numbers are new."
+  },
+
+  "windows": {
+    "is_oos_split": "IS = date < 2026-01-01, OOS = date >= 2026-01-01 (OOS_BOUNDARY, imported verbatim from backtest/autoresearch/strategy_space_grind.py -- same convention as S1 and every other T4/T5/P5 study in this repo).",
+    "today_2026_07_14_excluded": "By dataset construction (date_range ends 2026-07-13) -- confirmed, not assumed. 2026-07-14 is the hypothesis-source day for the whole trendline program and is excluded as a matter of design, not filtered post-hoc."
+  },
+
+  "statistics": {
+    "test": "one-sample two-sided t-test of per-trade pnl vs 0, per candidate cell (12 cells: 3 variants x 2 families x 2 directions).",
+    "multiple_comparison_correction": "Benjamini-Hochberg FDR across the 12 candidate-cell p-values, alpha=0.10 -- same alpha as S1. Null-comparison cells (random-entry, break-direction) are NOT part of the FDR family -- they are baselines a PASSING candidate must beat, not additional hypotheses under test.",
+    "evidence_floor": "n >= 20 per cell (OP-16 doctrine floor) for a verdict to be FAIL rather than INCONCLUSIVE-underpowered.",
+    "concentration_disclosure": "top-5-trade % of total cell pnl, reported for every cell regardless of verdict (OP-20)."
+  },
+
+  "pass_bar": {
+    "statement": "ALL of the following for a cell to PASS (anything else = FAIL, downgraded to INCONCLUSIVE only if n<20):",
+    "condition_1_full_population_positive": "full-sample expectancy per trade > $0",
+    "condition_2_oos_positive": "OOS-only expectancy per trade > $0",
+    "condition_3_walk_forward": "WF = OOS_mean/IS_mean >= 0.70 (only defined/checked when IS_mean > 0; IS_mean <= 0 is an automatic FAIL, not an undefined pass)",
+    "condition_4_bh_fdr_significant": "BH-adjusted p < 0.10",
+    "condition_5_beats_both_nulls": "cell's OOS expectancy > random_entry_null's OOS expectancy AND > break_direction_null's OOS expectancy (same fade-side pairing)",
+    "condition_6_anchor_no_regression": "informational only (trendline fade entry is not currently armed on any live account -- no existing live rule to regress). Reported as: does this cell fire on any of the 7 OP-16 anchor days (4/29,5/01,5/04 winners; 5/05,5/06,5/07x2 losers), and if so what does it do there. A PASS never requires anchor-day participation; catastrophic anchor-day losses are flagged even on an otherwise-PASSing cell.",
+    "aggregation": "1+2+3+4+5 are AND (any failing = FAIL, or INCONCLUSIVE if n<20)."
+  },
+
+  "ship_gate_if_pass": "A PASS cell does NOT auto-arm live money (OP-0 #1). It qualifies for a new params.json shadow-to-live flip behind the standard OP-16 eval-first + A/B scorecard gate, paper-only, ships and reports for REVOKE per OP-0 -- no menu of options presented to J. A KILL/FAIL across the board is itself a valid, publishable, ship-worthy outcome for this study (closes the TREND-FADE-PREREG queue item either way).",
+
+  "no_repick_clause": "Once frozen, no variant definition, threshold (1.0 volume ratio, 10-bar reclaim window, ATM strike, SS-B shape params, seed=1407), null design, or FDR alpha may be edited in light of results. FAIL/INCONCLUSIVE is a publishable, informative outcome for as many of the 12 cells as it applies to -- not a reason to adjust and re-run."
+}
