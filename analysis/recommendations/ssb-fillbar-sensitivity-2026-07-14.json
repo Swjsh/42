@@ -1,0 +1,335 @@
+{
+  "_doc": "SS-A/SS-B/SS-C fill-bar-convention sensitivity -- extends the 2026-07-11 fillbar audit (T4/T5-scoped) to structure_stop_study.py. ANALYSIS ONLY.",
+  "generated_at": "2026-07-14T08:35:33.461639",
+  "source_study": "backtest/tools/structure_stop_study.py",
+  "related_audit": "analysis/recommendations/entry-exit-matrix-fillbar-audit-2026-07-11.json",
+  "certified_shipped_candidate": "SS-B",
+  "certification_reference": "backtest/tools/ssb_certification_study.py",
+  "preflight": {
+    "fresh_slice_sha256_16": "d10e1a3a51cbf155",
+    "fresh_slice_hash_ok": true,
+    "anchor_population_sha256_16": "4561797465ebf837",
+    "anchor_population_hash_ok": true,
+    "preregistration_version": 1,
+    "preregistration_version_ok": true
+  },
+  "layer_a": {
+    "as_run_fill_bar_included": {
+      "n_signals": 18,
+      "n_recoverable_trigger_level": 14,
+      "n_fallback": 4,
+      "candidates": {
+        "CONTROL": {
+          "n": 18,
+          "total": -1812.0,
+          "expectancy": -100.67,
+          "wr": 0.056,
+          "edge_capture_rel": 0.0,
+          "oos_total": -1812.0,
+          "oos_positive": false,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.0,
+          "exp_drop_top3": -138.8,
+          "worst_trade": -386.0,
+          "worst_decile_mean": -386.0,
+          "max_dd": -1812.0,
+          "n_stopped": 0,
+          "n_structure_fired": 0
+        },
+        "SS-A": {
+          "n": 18,
+          "total": -4240.8,
+          "expectancy": -235.6,
+          "wr": 0.056,
+          "edge_capture_rel": 0.0,
+          "oos_total": -4240.8,
+          "oos_positive": false,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.0,
+          "exp_drop_top3": -302.67,
+          "worst_trade": -965.0,
+          "worst_decile_mean": -965.0,
+          "max_dd": -4240.8,
+          "n_stopped": 0,
+          "n_structure_fired": 5
+        },
+        "SS-B": {
+          "n": 18,
+          "total": -852.2,
+          "expectancy": -47.34,
+          "wr": 0.222,
+          "edge_capture_rel": 0.0,
+          "oos_total": -852.2,
+          "oos_positive": false,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.5,
+          "exp_drop_top3": -211.79,
+          "worst_trade": -965.0,
+          "worst_decile_mean": -965.0,
+          "max_dd": -2178.0,
+          "n_stopped": 0,
+          "n_structure_fired": 5
+        },
+        "SS-C": {
+          "n": 18,
+          "total": -4250.8,
+          "expectancy": -236.16,
+          "wr": 0.056,
+          "edge_capture_rel": 0.0,
+          "oos_total": -4250.8,
+          "oos_positive": false,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.0,
+          "exp_drop_top3": -303.33,
+          "worst_trade": -965.0,
+          "worst_decile_mean": -965.0,
+          "max_dd": -4250.8,
+          "n_stopped": 0,
+          "n_structure_fired": 5
+        }
+      },
+      "n_missing_bars": 0
+    },
+    "excluded_fill_bar": {
+      "n_signals": 18,
+      "n_recoverable_trigger_level": 14,
+      "n_fallback": 4,
+      "candidates": {
+        "CONTROL": {
+          "n": 18,
+          "total": -1812.0,
+          "expectancy": -100.67,
+          "wr": 0.056,
+          "edge_capture_rel": 0.0,
+          "oos_total": -1812.0,
+          "oos_positive": false,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.0,
+          "exp_drop_top3": -138.8,
+          "worst_trade": -386.0,
+          "worst_decile_mean": -386.0,
+          "max_dd": -1812.0,
+          "n_stopped": 0,
+          "n_structure_fired": 0
+        },
+        "SS-A": {
+          "n": 18,
+          "total": -4240.8,
+          "expectancy": -235.6,
+          "wr": 0.056,
+          "edge_capture_rel": 0.0,
+          "oos_total": -4240.8,
+          "oos_positive": false,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.0,
+          "exp_drop_top3": -302.67,
+          "worst_trade": -980.0,
+          "worst_decile_mean": -980.0,
+          "max_dd": -4240.8,
+          "n_stopped": 0,
+          "n_structure_fired": 7
+        },
+        "SS-B": {
+          "n": 18,
+          "total": -852.2,
+          "expectancy": -47.34,
+          "wr": 0.222,
+          "edge_capture_rel": 0.0,
+          "oos_total": -852.2,
+          "oos_positive": false,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.5,
+          "exp_drop_top3": -211.79,
+          "worst_trade": -980.0,
+          "worst_decile_mean": -980.0,
+          "max_dd": -2193.0,
+          "n_stopped": 0,
+          "n_structure_fired": 7
+        },
+        "SS-C": {
+          "n": 18,
+          "total": -4250.8,
+          "expectancy": -236.16,
+          "wr": 0.056,
+          "edge_capture_rel": 0.0,
+          "oos_total": -4250.8,
+          "oos_positive": false,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.0,
+          "exp_drop_top3": -303.33,
+          "worst_trade": -980.0,
+          "worst_decile_mean": -980.0,
+          "max_dd": -4250.8,
+          "n_stopped": 0,
+          "n_structure_fired": 7
+        }
+      },
+      "n_missing_bars": 0,
+      "n_positions_lost_to_empty_walk": 0
+    }
+  },
+  "layer_b": {
+    "as_run_fill_bar_included": {
+      "n_positions_total": 79,
+      "n_positions_with_bars": 79,
+      "n_no_option_bars": 0,
+      "n_recoverable_trigger_level": 48,
+      "n_fallback": 31,
+      "recovery_status_counts": {
+        "no_trigger_bar_in_lookback": 31,
+        "ok": 48
+      },
+      "n_unique_signals": 17,
+      "n_trading_days": 7,
+      "date_span": "2026-06-29..2026-07-08",
+      "actual_realized_total": -893.0,
+      "candidates": {
+        "CONTROL": {
+          "anchor_total": -757.1,
+          "n_valid": 79,
+          "n_structure_fired": 0
+        },
+        "SS-A": {
+          "anchor_total": -61.1,
+          "n_valid": 79,
+          "n_structure_fired": 22
+        },
+        "SS-B": {
+          "anchor_total": -604.7,
+          "n_valid": 79,
+          "n_structure_fired": 22
+        },
+        "SS-C": {
+          "anchor_total": 1799.9,
+          "n_valid": 79,
+          "n_structure_fired": 16
+        }
+      }
+    },
+    "excluded_fill_bar": {
+      "n_positions_total": 79,
+      "n_positions_with_bars": 79,
+      "n_no_option_bars": 0,
+      "n_recoverable_trigger_level": 48,
+      "n_fallback": 31,
+      "recovery_status_counts": {
+        "no_trigger_bar_in_lookback": 31,
+        "ok": 48
+      },
+      "n_positions_lost_to_empty_walk": 0,
+      "n_unique_signals": 17,
+      "n_trading_days": 7,
+      "date_span": "2026-06-29..2026-07-08",
+      "actual_realized_total": -893.0,
+      "candidates": {
+        "CONTROL": {
+          "anchor_total": -757.1,
+          "n_valid": 79,
+          "n_structure_fired": 0
+        },
+        "SS-A": {
+          "anchor_total": -61.1,
+          "n_valid": 79,
+          "n_structure_fired": 22
+        },
+        "SS-B": {
+          "anchor_total": -604.7,
+          "n_valid": 79,
+          "n_structure_fired": 22
+        },
+        "SS-C": {
+          "anchor_total": 1799.9,
+          "n_valid": 79,
+          "n_structure_fired": 16
+        }
+      }
+    }
+  },
+  "stability": {
+    "SS-A": {
+      "layer_a_beats_control": {
+        "as_run": false,
+        "excluded_fill_bar": false,
+        "stable": true
+      },
+      "layer_b_beats_control": {
+        "as_run": true,
+        "excluded_fill_bar": true,
+        "stable": true
+      },
+      "layer_a_expectancy": {
+        "as_run": -235.6,
+        "excluded_fill_bar": -235.6
+      },
+      "layer_b_anchor_total": {
+        "as_run": -61.1,
+        "excluded_fill_bar": -61.1
+      },
+      "toggle_stable": true,
+      "is_certified_shipped_candidate": false,
+      "severity": "OK"
+    },
+    "SS-B": {
+      "layer_a_beats_control": {
+        "as_run": true,
+        "excluded_fill_bar": true,
+        "stable": true
+      },
+      "layer_b_beats_control": {
+        "as_run": true,
+        "excluded_fill_bar": true,
+        "stable": true
+      },
+      "layer_a_expectancy": {
+        "as_run": -47.34,
+        "excluded_fill_bar": -47.34
+      },
+      "layer_b_anchor_total": {
+        "as_run": -604.7,
+        "excluded_fill_bar": -604.7
+      },
+      "toggle_stable": true,
+      "is_certified_shipped_candidate": true,
+      "severity": "OK"
+    },
+    "SS-C": {
+      "layer_a_beats_control": {
+        "as_run": false,
+        "excluded_fill_bar": false,
+        "stable": true
+      },
+      "layer_b_beats_control": {
+        "as_run": true,
+        "excluded_fill_bar": true,
+        "stable": true
+      },
+      "layer_a_expectancy": {
+        "as_run": -236.16,
+        "excluded_fill_bar": -236.16
+      },
+      "layer_b_anchor_total": {
+        "as_run": 1799.9,
+        "excluded_fill_bar": 1799.9
+      },
+      "toggle_stable": true,
+      "is_certified_shipped_candidate": false,
+      "severity": "OK"
+    }
+  },
+  "disclosures": [
+    "Scope: extends the 2026-07-11 fillbar audit (entry-exit-matrix-fillbar-audit-2026-07-11.md, T4/T5 only) to structure_stop_study.py's SS-A/SS-B/SS-C, which reuses t4._load_bars (layer a) and norm_bars_from_esp (layer b) unchanged and was never covered by that audit.",
+    "Convention toggle: EXCLUDED = drop element 0 (the fill bar) from each position's already-prepared norm_bars list, identical technique to test_fill_bar_convention.py::test_t4_replay_bar0_stop_semantics_vs_fill_bar_excluded's bars[1:] probe. entry_premium is unchanged in both conventions (matches the 2026-07-11 audit's own method).",
+    "The SPY-close-based structure-stop trigger (structure_stop_signal_time / spy_lifetime) is NOT toggled -- it is a separate SPY-bar data stream, not an option-bar walk, and was outside the audit's flagged scope.",
+    "structure_stop_study.py itself is UNCHANGED -- this module imports it and calls its existing prepare/run/replay functions unchanged; the excluded-convention variant is built by post-processing already-prepared positions, not by editing the frozen pre-registration or its replay engine.",
+    "Layer (b) makes exactly ONE pass of live Alpaca OPRA option-bar fetches (shared by both conventions via the already-prepared position list) -- not doubled.",
+    "No trading-path file touched (strategies.py / params.json / exit_manager.py / structure_stop_study.py all read-only). No orders placed. No config changed regardless of verdict, per JOB 2 instructions."
+  ]
+}
