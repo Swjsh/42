@@ -1,4 +1,4 @@
-# Gamma evening narrative — the colleague voice (J directive 2026-07-08).
+﻿# Gamma evening narrative — the colleague voice (J directive 2026-07-08).
 # Fires 16:20 ET weekdays: gamma_narrative.py gathers the day's deterministic
 # facts (fill funnel, P&L, kitchen R&D, commits), writes Gamma's first-person
 # SAW/DID/LEARNED/CHANGING narrative (+ one untested lever + one question for J)

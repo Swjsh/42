@@ -141,6 +141,20 @@ def _classify_tick_audit(data: Optional[dict]) -> AuditResult:
     critical = by_class.get("MISALIGNED-CRITICAL", 0)
     live = by_class.get("ALIGNED", 0) + by_class.get("MISALIGNED-BENIGN", 0) + critical
     total = sum(by_class.values()) if by_class else 0
+
+    # OP-33 non-vacuity guard (2026-07-14, see
+    # strategy/candidates/_validator-inbox/2026-07-14-tick-audit-zero-count-bug.md):
+    # a day with 0 total ticks (source missing/empty/misrouted) is NOT the same thing as
+    # a day with N ticks and 0 CRITICAL among them -- the old `if critical == 0: GREEN`
+    # check below can't tell the two apart and laundered a dead source into a clean-day
+    # GREEN. This check is INDEPENDENT of whatever heartbeat_tick_audit.py itself thinks
+    # (its own "status" field, if present) -- the aggregator must not assume its inputs
+    # are honest; it re-derives from the raw counts every time.
+    if total == 0 or live == 0:
+        return AuditResult(name, src, "MISSING",
+                           "0 ticks captured -- audit found no source data (log missing/empty); NOT a clean day",
+                           {"by_classification": by_class})
+
     pct = round(100.0 * critical / live, 1) if live > 0 else 0.0
 
     # Distinguish genuine trading errors (ENTER/EXIT on in-progress bar) from passive

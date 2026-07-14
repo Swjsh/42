@@ -9,6 +9,19 @@ trail"). The R1 closed-bar fix shipped in heartbeat.md v15.1 removes the
 in-progress bar at the source; this audit verifies the fix held overnight by
 classifying every tick on a given day.
 
+LIVE SOURCE (fixed 2026-07-14, see
+strategy/candidates/_validator-inbox/2026-07-14-tick-audit-zero-count-bug.md):
+ticks are read from `automation/state/core-decisions.jsonl` (account == "safe" — the
+canonical live-trading decision stream, same convention as gamma_glance.py) plus every
+`automation/state/fleet/*/decisions.jsonl` arm. The old `automation/state/logs/
+heartbeat-{date}.log` FIRE_RX/HB_RX text-log format is a RETIRED relic of the
+pre-v15 LLM-heartbeat era (its only writer, heartbeat_persist_writer.py, is
+unscheduled and last wrote 2026-06-25) — parsing it always silently returned 0
+ticks and this tool printed a false "R1 fix held" banner on every populated day.
+Fleet-arm rows carry no claimed-SPY (`spy`) field, so they can never be classified
+ALIGNED/MISALIGNED and correctly fall into NO_DATA — they still count toward
+`total_ticks` so a day the engine actually ran is never reported as empty.
+
 USAGE:
     python -m autoresearch.heartbeat_tick_audit --date 2026-05-14
     python -m autoresearch.heartbeat_tick_audit --date 2026-05-15 --output-dir analysis/
@@ -23,7 +36,8 @@ CLASSIFICATIONS:
     MISALIGNED-BENIGN    — read in-progress but action unchanged
     MISALIGNED-CRITICAL  — read in-progress AND decision-changing
     STALE_PAUSED         — kill-switch tick with stale cached SPY (can't matter)
-    NO_DATA / NO_BAR     — TIMEOUT/ERROR with no chart read
+    NO_DATA / NO_BAR     — TIMEOUT/ERROR with no chart read (or a source row with
+                           no claimed SPY price, e.g. fleet-arm decisions)
 """
 from __future__ import annotations
 
@@ -35,6 +49,7 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Iterator
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 
@@ -47,14 +62,6 @@ NON_BEHAVIORAL_ACTIONS = {
     "PAUSED", "ERROR_TV", "ERROR_ALPACA", "SKIP_NEWS", "SKIP_STALE",
     "SKIP_THROTTLE",
 }
-
-FIRE_RX = re.compile(r"^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}) ET FIRE mode=\S+ idx=(\d+) model=\S+ pos_open=(\S+) htf=\S+ score=\S+")
-HB_RX = re.compile(r"^HB#\S*\s+(\d{2}:\d{2})\s+(\S+)\s*\|(.+)$")
-SPY_RX = re.compile(r"spy=([0-9.]+)")
-RIBBON_RX_ALT = re.compile(r"ribbon=([0-9]+)c\((BULL|BEAR|MIXED|NEUTRAL)\)")
-RIBBON_RX = re.compile(r"ribbon=(?:BULL|BEAR|MIXED|NEUTRAL)?\(?([0-9]+)c\)?(?:\(([A-Z]+)\))?")
-BEAR_SCORE_RX = re.compile(r"bear=(\d+)/\d+")
-BULL_SCORE_RX = re.compile(r"bull=(\d+)/\d+")
 
 
 @dataclass
@@ -70,6 +77,7 @@ class Tick:
     bear_score: int | None = None
     bull_score: int | None = None
     reason: str = ""
+    source: str = "core"
 
 
 def find_spy_csv_for_date(date_str: str) -> Path | None:
@@ -117,53 +125,106 @@ def parse_csv_bars(csv_path: Path, date_str: str) -> list[dict]:
     return bars
 
 
-def parse_log(log_path: Path) -> list[Tick]:
-    if not log_path.exists():
-        return []
-    ticks: list[Tick] = []
-    pending: Tick | None = None
-    with open(log_path, "r", encoding="utf-8", errors="replace") as f:
+def _iter_jsonl(path: Path) -> Iterator[dict]:
+    """Yield parsed JSON objects from a JSONL file. Fail-open on bad lines/missing file."""
+    if not path.exists():
+        return
+    with open(path, "r", encoding="utf-8", errors="replace") as f:
         for raw in f:
-            line = raw.rstrip("\n")
-            m = FIRE_RX.match(line)
-            if m:
-                if pending is not None:
-                    ticks.append(pending)
-                fire_dt = datetime.strptime(f"{m.group(1)} {m.group(2)}", "%Y-%m-%d %H:%M:%S")
-                pending = Tick(
-                    idx=int(m.group(3)),
-                    fire_at=fire_dt,
-                    pos_open=(m.group(4) == "True"),
-                )
+            line = raw.strip()
+            if not line:
                 continue
-            if pending is None:
+            try:
+                obj = json.loads(line)
+            except json.JSONDecodeError:
                 continue
-            hb = HB_RX.match(line)
-            if hb:
-                pending.decision_bar_label = hb.group(1)
-                pending.decision = hb.group(2)
-                tail = hb.group(3)
-                pending.reason = tail.strip()
-                spy_m = SPY_RX.search(tail)
-                if spy_m:
-                    pending.spy_claim = float(spy_m.group(1))
-                rib = RIBBON_RX_ALT.search(tail) or RIBBON_RX.search(tail)
-                if rib:
-                    try:
-                        pending.ribbon_claim_cents = int(rib.group(1))
-                    except (TypeError, ValueError):
-                        pass
-                    if rib.lastindex and rib.lastindex >= 2:
-                        pending.ribbon_stack_claim = rib.group(2)
-                bs = BEAR_SCORE_RX.search(tail)
-                if bs:
-                    pending.bear_score = int(bs.group(1))
-                bl = BULL_SCORE_RX.search(tail)
-                if bl:
-                    pending.bull_score = int(bl.group(1))
-        if pending is not None:
-            ticks.append(pending)
-    return ticks
+            if isinstance(obj, dict):
+                yield obj
+
+
+def _parse_ts_et(ts: str) -> datetime | None:
+    """Parse a decision-ledger `ts_et` string to a naive ET datetime.
+
+    core-decisions.jsonl rows are naive ISO strings already in ET
+    ("2026-07-13T15:55:05"). fleet/*/decisions.jsonl rows carry an explicit
+    -04:00/-05:00 offset that is ALSO already ET (not a real UTC offset conversion
+    target here) — strip tzinfo rather than convert, matching parse_csv_bars'
+    existing "-04:00"/"-05:00" stripping for the CSV bar timestamps.
+    """
+    if not ts:
+        return None
+    try:
+        dt_obj = datetime.fromisoformat(ts)
+    except ValueError:
+        return None
+    if dt_obj.tzinfo is not None:
+        dt_obj = dt_obj.replace(tzinfo=None)
+    return dt_obj
+
+
+def load_ticks(date_str: str, state_dir: Path) -> tuple[list[Tick], dict[str, str]]:
+    """Load ticks for `date_str` from the live decision ledgers (see module docstring).
+
+    Returns (ticks sorted by fire_at, sources) where `sources` maps a short label
+    ("core", "fleet:<arm>") to the absolute path actually read — only for files that
+    contributed at least one in-range row, so the summary's provenance trail is honest
+    about what backed the count.
+    """
+    core_path = state_dir / "core-decisions.jsonl"
+    fleet_dir = state_dir / "fleet"
+
+    sources: dict[str, str] = {}
+    dated: list[tuple[datetime, str, dict]] = []
+
+    core_rows = 0
+    for o in _iter_jsonl(core_path):
+        ts = str(o.get("ts_et") or "")
+        if not ts.startswith(date_str) or o.get("account") != "safe":
+            continue
+        fire_at = _parse_ts_et(ts)
+        if fire_at is None:
+            continue
+        dated.append((fire_at, "core", o))
+        core_rows += 1
+    if core_rows:
+        sources["core"] = str(core_path)
+
+    if fleet_dir.is_dir():
+        for arm_dir in sorted(p for p in fleet_dir.iterdir() if p.is_dir()):
+            fp = arm_dir / "decisions.jsonl"
+            label = f"fleet:{arm_dir.name}"
+            arm_rows = 0
+            for o in _iter_jsonl(fp):
+                ts = str(o.get("ts_et") or "")
+                if not ts.startswith(date_str):
+                    continue
+                fire_at = _parse_ts_et(ts)
+                if fire_at is None:
+                    continue
+                dated.append((fire_at, label, o))
+                arm_rows += 1
+            if arm_rows:
+                sources[label] = str(fp)
+
+    dated.sort(key=lambda r: r[0])
+
+    ticks: list[Tick] = []
+    for idx, (fire_at, label, o) in enumerate(dated):
+        ticks.append(Tick(
+            idx=idx,
+            fire_at=fire_at,
+            pos_open=(o.get("flat") is False),
+            decision=o.get("action"),
+            decision_bar_label=None,
+            spy_claim=o.get("spy"),
+            ribbon_claim_cents=None,
+            ribbon_stack_claim=o.get("ribbon"),
+            bear_score=o.get("bear_score"),
+            bull_score=o.get("bull_score"),
+            reason=str(o.get("reason") or ""),
+            source=label,
+        ))
+    return ticks, sources
 
 
 def find_last_closed_bar(fire_at: datetime, bars: list[dict]) -> dict | None:
@@ -198,6 +259,7 @@ def classify_tick(tick: Tick, rth_bars: list[dict]) -> dict:
 
     row = {
         "tick_id": tick.idx,
+        "source": tick.source,
         "fire_at": tick.fire_at.strftime("%H:%M:%S"),
         "decision": tick.decision or "(no_decision)",
         "claimed_spy": tick.spy_claim,
@@ -274,9 +336,14 @@ def classify_tick(tick: Tick, rth_bars: list[dict]) -> dict:
     return row
 
 
-def run_audit(date_str: str, output_dir: Path | None = None) -> dict:
-    """Audit heartbeat ticks for the given date. Returns summary dict."""
-    log_path = ROOT / "automation" / "state" / "logs" / f"heartbeat-{date_str}.log"
+def run_audit(date_str: str, output_dir: Path | None = None, state_dir: Path | None = None) -> dict:
+    """Audit heartbeat ticks for the given date. Returns summary dict.
+
+    `state_dir` overrides where core-decisions.jsonl / fleet/*/decisions.jsonl are
+    read from (default automation/state/) — exists purely so tests can point at a
+    fixture directory instead of the live state tree.
+    """
+    state_root = state_dir or (ROOT / "automation" / "state")
     csv_path = find_spy_csv_for_date(date_str)
     if csv_path is None:
         return {
@@ -286,7 +353,7 @@ def run_audit(date_str: str, output_dir: Path | None = None) -> dict:
             "rows": [],
         }
 
-    out_dir = output_dir or (ROOT / "automation" / "state")
+    out_dir = output_dir or state_root
     out_dir.mkdir(parents=True, exist_ok=True)
     out_csv = out_dir / f"heartbeat-tick-audit-{date_str}.csv"
     out_json = out_dir / f"heartbeat-tick-audit-{date_str}.json"
@@ -297,7 +364,7 @@ def run_audit(date_str: str, output_dir: Path | None = None) -> dict:
         b for b in bars
         if datetime.strptime("09:30", "%H:%M").time() <= b["open_dt"].time() <= datetime.strptime("16:00", "%H:%M").time()
     ]
-    ticks = parse_log(log_path)
+    ticks, sources = load_ticks(date_str, state_root)
 
     rows: list[dict] = []
     counts = {
@@ -314,6 +381,7 @@ def run_audit(date_str: str, output_dir: Path | None = None) -> dict:
         if cls == "MISALIGNED-CRITICAL":
             critical_ticks.append({
                 "tick_id": t.idx,
+                "source": t.source,
                 "fire_at": t.fire_at.isoformat(),
                 "decision": t.decision,
                 "claimed_spy": t.spy_claim,
@@ -327,19 +395,35 @@ def run_audit(date_str: str, output_dir: Path | None = None) -> dict:
     denom_live = counts["ALIGNED"] + counts["MISALIGNED-BENIGN"] + counts["MISALIGNED-CRITICAL"]
     headline_pct = (100.0 * counts["MISALIGNED-CRITICAL"] / denom_live) if denom_live > 0 else 0.0
 
+    # OP-33 non-vacuity guard: a day with zero source rows must NEVER render identically
+    # to a genuinely clean 0-critical-of-N day. Distinguish "no problems found" from
+    # "no data to check" explicitly via `status`, independent of any downstream consumer
+    # remembering to re-derive it from `counts` itself (gym_session._classify_tick_audit
+    # does its OWN independent total==0/live==0 check — this field is belt, that's braces).
+    status = "OK" if total > 0 else "NO_SOURCE_DATA"
+    if status == "NO_SOURCE_DATA":
+        headline = (
+            f"NO SOURCE DATA — 0 decision rows found for {date_str} in "
+            f"core-decisions.jsonl or any fleet/*/decisions.jsonl arm under {state_root}. "
+            f"This audit DID NOT RUN — it is NOT evidence of a clean day."
+        )
+    else:
+        headline = (
+            f"{counts['MISALIGNED-CRITICAL']} of {denom_live} live-trading ticks "
+            f"({headline_pct:.0f}%) were MISALIGNED-CRITICAL on {date_str}"
+        )
+
     summary = {
         "date": date_str,
+        "status": status,
         "total_ticks": total,
         "live_trading_ticks": denom_live,
         "counts": counts,
         "misaligned_critical_count": counts["MISALIGNED-CRITICAL"],
         "misaligned_critical_pct_of_live": round(headline_pct, 2),
-        "headline": (
-            f"{counts['MISALIGNED-CRITICAL']} of {denom_live} live-trading ticks "
-            f"({headline_pct:.0f}%) were MISALIGNED-CRITICAL on {date_str}"
-        ),
+        "headline": headline,
         "critical_ticks": critical_ticks,
-        "log_path": str(log_path) if log_path.exists() else None,
+        "sources": sources,
         "csv_path": str(csv_path),
         "audit_files": {
             "per_tick_csv": str(out_csv),
@@ -350,7 +434,7 @@ def run_audit(date_str: str, output_dir: Path | None = None) -> dict:
 
     # Per-tick CSV
     field_order = [
-        "tick_id", "fire_at", "decision", "claimed_spy", "claimed_bar_label",
+        "tick_id", "source", "fire_at", "decision", "claimed_spy", "claimed_bar_label",
         "last_closed_bar_open", "last_closed_close",
         "in_progress_bar_open", "in_progress_close_so_far", "in_progress_high", "in_progress_low",
         "divergence_vs_closed", "divergence_dollars", "csv_lag_minutes",
@@ -371,6 +455,15 @@ def run_audit(date_str: str, output_dir: Path | None = None) -> dict:
     with open(out_md, "w", encoding="utf-8") as f:
         f.write(f"# Heartbeat Tick Audit — {date_str}\n\n")
         f.write(f"_Auto-generated by `backtest/autoresearch/heartbeat_tick_audit.py`._\n\n")
+        if status == "NO_SOURCE_DATA":
+            f.write(f"## 🔴 NO SOURCE DATA\n\n")
+            f.write(
+                f"**0 decision rows found for {date_str}** across `core-decisions.jsonl` "
+                f"and every `fleet/*/decisions.jsonl` arm under `{state_root}`. This audit "
+                f"DID NOT RUN — treat it as unknown, not as a clean 0-critical day. Verify "
+                f"the source files are actually being written for this date before trusting "
+                f"anything else below.\n\n"
+            )
         f.write(f"## Headline\n\n")
         f.write(f"**{summary['headline']}**\n\n")
         f.write(f"## Counts\n\n")
@@ -381,22 +474,29 @@ def run_audit(date_str: str, output_dir: Path | None = None) -> dict:
         f.write(f"| **TOTAL** | **{total}** | 100% |\n\n")
         f.write(f"## Critical ticks ({len(critical_ticks)})\n\n")
         if critical_ticks:
-            f.write(f"| tick_id | fire_at | decision | claimed_spy | closed_close | divergence | reason |\n")
-            f.write(f"|---:|---|---|---:|---:|---:|---|\n")
+            f.write(f"| tick_id | source | fire_at | decision | claimed_spy | closed_close | divergence | reason |\n")
+            f.write(f"|---:|---|---|---|---:|---:|---:|---|\n")
             for ct in critical_ticks:
                 fire_at_str = ct["fire_at"][-8:] if ct["fire_at"] else "?"
                 cc_str = f"{ct['closed_close']:.3f}" if ct['closed_close'] is not None else "?"
                 div_str = f"{ct['divergence']:+.4f}" if ct['divergence'] is not None else "?"
-                f.write(f"| {ct['tick_id']} | {fire_at_str} | {ct['decision']} | {ct['claimed_spy']} | {cc_str} | {div_str} | {ct['reason'][:80]} |\n")
+                f.write(f"| {ct['tick_id']} | {ct.get('source', '?')} | {fire_at_str} | {ct['decision']} | {ct['claimed_spy']} | {cc_str} | {div_str} | {ct['reason'][:80]} |\n")
         else:
             f.write("_None._\n")
         f.write(f"\n## Files\n\n")
         f.write(f"- Per-tick CSV: `{out_csv.relative_to(ROOT)}`\n")
         f.write(f"- Summary JSON: `{out_json.relative_to(ROOT)}`\n")
-        f.write(f"- Source log: `{log_path.relative_to(ROOT) if log_path.exists() else '(missing)'}`\n")
+        if sources:
+            f.write(f"- Source ledgers:\n")
+            for label, path in sorted(sources.items()):
+                f.write(f"  - `{label}`: `{path}`\n")
+        else:
+            f.write(f"- Source ledgers: (none found — see NO SOURCE DATA above)\n")
         f.write(f"- Source CSV: `{csv_path.relative_to(ROOT)}`\n\n")
         f.write(f"## R1 verification (heartbeat closed-bar fix shipped 2026-05-14 v15.1)\n\n")
-        if counts["MISALIGNED-CRITICAL"] == 0:
+        if status == "NO_SOURCE_DATA":
+            f.write(f"🔴 **NO SOURCE DATA.** Audit could not run for {date_str} — do NOT read this as R1 verification.\n")
+        elif counts["MISALIGNED-CRITICAL"] == 0:
             f.write(f"✅ **R1 fix held.** Zero MISALIGNED-CRITICAL ticks on {date_str}.\n")
         elif headline_pct < 5:
             f.write(f"🟡 **R1 fix partial.** {counts['MISALIGNED-CRITICAL']} CRITICAL ticks ({headline_pct:.1f}% of live) — investigate via per-tick CSV.\n")
@@ -421,6 +521,12 @@ def main():
         sys.exit(1)
     print(f"Headline: {summary['headline']}")
     print(f"Counts: {summary['counts']}")
+    if summary.get("status") == "NO_SOURCE_DATA":
+        print("STATUS: NO_SOURCE_DATA -- 0 decision rows found, audit did not run")
+        print(f"Files written:")
+        for k, v in summary["audit_files"].items():
+            print(f"  {k}: {v}")
+        sys.exit(1)
     print(f"Files written:")
     for k, v in summary["audit_files"].items():
         print(f"  {k}: {v}")

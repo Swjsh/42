@@ -4,11 +4,17 @@ Aggregates every append-only ledger into a single EOD audit so nothing is invisi
 (OP-25: silent success = silent failure). READ-ONLY. Writes
 analysis/daily-brief/{date}-FULL-AUDIT.md. Run at EOD (after flatten).
 
-Sources: decisions.jsonl (engine), fleet/decisions/*.jsonl (each fleet arm),
-manager-log.jsonl (the free Manager), swarm-calls.jsonl + minimax-calls.jsonl (free
-models), live-shadow-scorecard.json (sight validation), contender-rank-*.json (ranker),
-manager-feedback.md (Sonnet overseer), journal/{date}.md + trades.csv (trades),
-discord-outbox.jsonl (what J was pinged), spend-{date}.json (cost), STATUS.md (broken).
+Sources: core-decisions.jsonl (the live deterministic engine, account-labeled safe/bold —
+fixed 2026-07-14, see strategy/candidates/_validator-inbox/2026-07-14-tick-audit-zero-
+count-bug.md; the old root decisions.jsonl was a dead pre-v15 LLM-heartbeat relic, last
+written 2026-06-25 by the unscheduled heartbeat_persist_writer.py, and always silently
+undercounted to 0), fleet/<arm>/decisions.jsonl (each active fleet arm — same fix, the old
+fleet/decisions/*.jsonl mirror dir was a frozen WATCH-DEMO fixture snapshot, see
+gamma_glance.py's identical prior fix), manager-log.jsonl (the free Manager),
+swarm-calls.jsonl + minimax-calls.jsonl (free models), live-shadow-scorecard.json (sight
+validation), contender-rank-*.json (ranker), manager-feedback.md (Sonnet overseer),
+journal/{date}.md + trades.csv (trades), discord-outbox.jsonl (what J was pinged),
+spend-{date}.json (cost), STATUS.md (broken).
 """
 from __future__ import annotations
 
@@ -23,6 +29,7 @@ REPO = Path(__file__).resolve().parents[1].parent
 STATE = REPO / "automation" / "state"
 sys.path.insert(0, str(REPO / "setup" / "scripts"))
 from et_clock import et_now as _et_clock_now  # DST-aware ET (TZ-SYSTEMIC fix)
+from et_clock import ET_TZ as _ET_TZ
 
 
 def _et_now() -> datetime:
@@ -45,7 +52,43 @@ def _jsonl(p: Path) -> list[dict]:
 
 
 def _today(rows: list[dict], key="date") -> list[dict]:
-    return [r for r in rows if (r.get(key) or r.get("date_et") or (r.get("ts", "")[:10])) == TODAY]
+    """Rows dated TODAY, trying `key`, then `date_et`, then `ts`-prefix, then `ts_et`-prefix.
+
+    core-decisions.jsonl / fleet/*/decisions.jsonl rows carry no 'date'/'date_et'/'ts'
+    field at all -- only 'ts_et' (a full ISO timestamp, not a bare date) -- so a path-only
+    source swap silently returns 0 rows without this fallback (2026-07-14 fix, see
+    strategy/candidates/_validator-inbox/2026-07-14-tick-audit-zero-count-bug.md).
+    """
+    out = []
+    for r in rows:
+        val = r.get(key) or r.get("date_et") or (r.get("ts", "")[:10]) or (r.get("ts_et", "")[:10])
+        if val == TODAY:
+            out.append(r)
+    return out
+
+
+def _is_weekend(date_str: str) -> bool:
+    return datetime.strptime(date_str, "%Y-%m-%d").weekday() >= 5
+
+
+def _stale_source_note(path: Path, now: datetime) -> str | None:
+    """Flag a source file whose mtime predates TODAY once market hours have started.
+
+    A 0-row count is normal before 09:30 ET (engine hasn't ticked yet) or on a weekend
+    (no fires expected) -- only flag once there's actually been an opportunity to write.
+    Non-vacuity guard per the 2026-07-14 zero-count-bug fix: a 0 from a genuinely stale/
+    dead path must never render identically to a genuinely quiet engine.
+    """
+    if _is_weekend(TODAY) or now.strftime("%H:%M") < "09:30":
+        return None
+    if not path.exists():
+        return f"STALE SOURCE -- {path.name} does not exist"
+    mtime_et = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc).astimezone(_ET_TZ)
+    mtime_day = mtime_et.strftime("%Y-%m-%d")
+    if mtime_day != TODAY:
+        return (f"STALE SOURCE -- {path.name} last modified {mtime_day}, not {TODAY}; "
+                f"a 0 count here may reflect a dead/misrouted path, not a quiet engine")
+    return None
 
 
 def _today_ts(rows: list[dict]) -> list[dict]:
@@ -72,19 +115,27 @@ def build() -> str:
     L = [f"# FULL AUDIT — {TODAY} (everything Gamma did / thought / logged)",
          f"_generated {_et_now():%H:%M} ET — read-only aggregate of every ledger_"]
 
-    # ENGINE
-    dec = _today(_jsonl(STATE / "decisions.jsonl"))
-    acts = Counter(r.get("action") for r in dec)
-    L.append(section("ENGINE (heartbeat) — every tick"))
-    L.append(f"- ticks today: **{len(dec)}** | actions: {dict(acts)}")
-    if dec:
-        last = dec[-1]
-        L.append(f"- last tick {last.get('time_et')}: action={last.get('action')} "
-                 f"spy={last.get('spy')} vix={last.get('vix')} ribbon={last.get('ribbon_stack')} "
-                 f"setup={last.get('setup_name')}")
+    # ENGINE — core-decisions.jsonl carries one row per ACCOUNT per tick (safe + bold),
+    # unlike the old dead single-stream decisions.jsonl, so report both accounts.
+    now = _et_now()
+    core_path = STATE / "core-decisions.jsonl"
+    dec = _today(_jsonl(core_path))
+    stale = _stale_source_note(core_path, now)
+    L.append(section("ENGINE (heartbeat_core) — every tick, per account"))
+    if stale:
+        L.append(f"- ⚠️ {stale}")
+    for acct in ("safe", "bold"):
+        acct_rows = [r for r in dec if r.get("account") == acct]
+        acts = Counter(r.get("action") for r in acct_rows)
+        L.append(f"- {acct} ticks today: **{len(acct_rows)}** | actions: {dict(acts)}")
+        if acct_rows:
+            last = acct_rows[-1]
+            L.append(f"  - last {acct} tick {last.get('ts_et')}: action={last.get('action')} "
+                     f"spy={last.get('spy')} vix={last.get('vix')} ribbon={last.get('ribbon')} "
+                     f"setup={last.get('setup')}")
     enters = [r for r in dec if "ENTER" in (r.get("action") or "")]
     exits = [r for r in dec if "EXIT" in (r.get("action") or "") or "FILL" in (r.get("action") or "")]
-    L.append(f"- ENTER ticks: {len(enters)} | EXIT/FILL ticks: {len(exits)}")
+    L.append(f"- ENTER ticks: {len(enters)} | EXIT/FILL ticks: {len(exits)} (both accounts combined)")
 
     # TRADES
     tcsv = REPO / "journal" / "trades.csv"
@@ -97,14 +148,22 @@ def build() -> str:
     L.append(f"- trades.csv rows tagged today: **{n_trades_today}** "
              f"(see journal/{TODAY}.md for the full per-trade log)")
 
-    # FLEET (the other accounts)
+    # FLEET (the other accounts) — glob the real per-arm dirs, NOT the frozen
+    # fleet/decisions/*.jsonl mirror (WATCH-DEMO fixture snapshot, 0 real rows; same fix
+    # gamma_glance.py already made — see module docstring).
     L.append(section("FLEET ARMS — per-account decisions"))
-    for fp in sorted(glob.glob(str(STATE / "fleet" / "decisions" / "*.jsonl"))):
-        arm = Path(fp).stem
-        rows = _today(_jsonl(Path(fp)))
+    fleet_paths = sorted(glob.glob(str(STATE / "fleet" / "*" / "decisions.jsonl")))
+    if not fleet_paths:
+        L.append("- ⚠️ no fleet/<arm>/decisions.jsonl files found")
+    for fp in fleet_paths:
+        arm = Path(fp).parent.name
+        fp_path = Path(fp)
+        rows = _today(_jsonl(fp_path))
+        stale = _stale_source_note(fp_path, now)
         a = Counter(r.get("action") or r.get("decision") for r in rows)
         placed = sum(1 for r in rows if "ENTER" in str(r.get("action") or r.get("decision") or "").upper())
-        L.append(f"- **{arm}**: {len(rows)} decisions | placed/ENTER: {placed} | {dict(a)}")
+        stale_tag = f" ⚠️ {stale}" if stale else ""
+        L.append(f"- **{arm}**: {len(rows)} decisions | placed/ENTER: {placed} | {dict(a)}{stale_tag}")
 
     # FREE WORKFORCE
     L.append(section("FREE WORKFORCE"))

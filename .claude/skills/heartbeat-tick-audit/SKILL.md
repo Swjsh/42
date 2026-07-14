@@ -25,7 +25,13 @@ cd C:\Users\jackw\Desktop\42\backtest
 python -m autoresearch.heartbeat_tick_audit --date YYYY-MM-DD
 ```
 
-Replace `YYYY-MM-DD` with the date to audit (must have heartbeat-{date}.log + spy_5m_*.csv covering it).
+Replace `YYYY-MM-DD` with the date to audit. Needs `spy_5m_*.csv` covering the date, plus
+`automation/state/core-decisions.jsonl` and/or `automation/state/fleet/*/decisions.jsonl`
+rows for that date (fixed 2026-07-14 — the tool used to read a retired text-log format,
+`automation/state/logs/heartbeat-{date}.log`, that no longer gets written and always
+silently returned 0 ticks; see strategy/candidates/_validator-inbox/2026-07-14-tick-audit-
+zero-count-bug.md). A day with zero source rows now reports `status: NO_SOURCE_DATA`
+(RED in the human report) instead of a false "R1 fix held" — never trust a "0 of 0" result.
 
 2. **Read the headline output:**
 
@@ -37,13 +43,14 @@ Counts: {'ALIGNED': 9, 'MISALIGNED-BENIGN': 32, 'MISALIGNED-CRITICAL': 5, 'STALE
 
 3. **Interpret the verdict:**
 
-| MISALIGNED-CRITICAL count | Verdict |
+| Result | Verdict |
 |---------------------------|---------|
-| **0** | ✅ R1 closed-bar fix HELD — heartbeat correctly reads closed bars |
-| **1-2** | 🟡 Partial — open the per-tick CSV at `automation/state/heartbeat-tick-audit-{date}.csv`, find the critical tick(s), check if the action was a real entry or a transient HOLD |
-| **3+** | 🔴 R1 may not be working — heartbeat may still read in-progress bars. Investigate immediately + check `automation/prompts/heartbeat.md` lines 200 + 214 still have `count=3 + bar_close_et <= now_et` filter |
+| `status: NO_SOURCE_DATA` (0 total ticks) | 🔴 Audit DID NOT RUN — no core-decisions.jsonl / fleet decisions rows found for the date. NOT evidence of a clean day; check the source files exist and are being written. |
+| MISALIGNED-CRITICAL = **0** (total ticks > 0) | ✅ R1 closed-bar fix HELD — heartbeat correctly reads closed bars |
+| MISALIGNED-CRITICAL = **1-2** | 🟡 Partial — open the per-tick CSV at `automation/state/heartbeat-tick-audit-{date}.csv`, find the critical tick(s), check if the action was a real entry or a transient HOLD |
+| MISALIGNED-CRITICAL = **3+** | 🔴 R1 may not be working — heartbeat may still read in-progress bars. Investigate immediately + check `automation/prompts/heartbeat.md` lines 200 + 214 still have `count=3 + bar_close_et <= now_et` filter |
 
-4. **Read the human-readable report:** `docs/HEARTBEAT-TICK-AUDIT-{date}.md` — has the per-tick CSV preview + critical ticks table + R1 verification verdict.
+4. **Read the human-readable report:** `markdown/audits/HEARTBEAT-TICK-AUDIT-{date}.md` — has the per-tick CSV preview + critical ticks table + R1 verification verdict.
 
 5. **If CRITICAL count > 0 and you want to know which ticks:**
 
@@ -60,7 +67,7 @@ Import-Csv "automation\state\heartbeat-tick-audit-YYYY-MM-DD.csv" | Where-Object
 |------|------|
 | `automation/state/heartbeat-tick-audit-{date}.csv` | Per-tick row with classification + divergence + bar values |
 | `automation/state/heartbeat-tick-audit-{date}.json` | Summary dict with counts + headline + first 3 critical ticks (machine-readable) |
-| `docs/HEARTBEAT-TICK-AUDIT-{date}.md` | Human-readable report with R1 verdict |
+| `markdown/audits/HEARTBEAT-TICK-AUDIT-{date}.md` | Human-readable report with R1 verdict |
 
 ---
 
