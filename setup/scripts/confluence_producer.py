@@ -14,6 +14,24 @@ vision wires. Designed via the confluence-layer-design workflow (validated vs J'
 """
 from __future__ import annotations
 
+# === HEADLESS STDIO REDIRECT (OP-27 L41 layer 3, 2026-07-14 popup-storm fix) =====
+# When launched via pythonw.exe (no console), Windows 11's default-terminal setting
+# can allocate a visible WindowsTerminal -Embedding window on the FIRST stderr/stdout
+# write. Redirect stdio to log files BEFORE any other import gets a chance to write.
+# Root-caused live 2026-07-14 (J: "stop the fkin popus on my screen") via the
+# re-armed window-leak-detector.py: this exact script, launched wscript->
+# run_exe_hidden.vbs->backtest-venv-pythonw with NO relay layer, was caught flashing
+# a WindowsTerminal window on a real Start-ScheduledTask fire within 45s.
+import os as _os
+import sys as _sys
+from pathlib import Path as _Path
+if _os.path.basename(_sys.executable).lower().startswith("pythonw"):
+    _log_dir = _Path(__file__).resolve().parents[2] / "automation" / "state" / "logs"
+    _log_dir.mkdir(parents=True, exist_ok=True)
+    _sys.stdout = open(_log_dir / "confluence-producer.stdout.log", "a", buffering=1, encoding="utf-8")
+    _sys.stderr = open(_log_dir / "confluence-producer.stderr.log", "a", buffering=1, encoding="utf-8")
+# ==================================================================================
+
 import datetime as dt
 import json
 import sys

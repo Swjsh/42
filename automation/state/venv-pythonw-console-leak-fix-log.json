@@ -1,0 +1,110 @@
+﻿[
+    {
+        "Task":  "Gamma_BrokerFills",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\broker_fills.py\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\broker_fills.py\"\u0027"
+    },
+    {
+        "Task":  "Gamma_CboeOiBank",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\tools\\cboe_oi_bank.py\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\tools\\cboe_oi_bank.py\"\u0027"
+    },
+    {
+        "Task":  "Gamma_Confluence",
+        "Status":  "ALREADY_FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\confluence_producer.py\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\confluence_producer.py\"\u0027"
+    },
+    {
+        "Task":  "Gamma_CryptoTwin",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\crypto_twin_health.py\" \"--live\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\crypto_twin_health.py\" \"--live\"\u0027"
+    },
+    {
+        "Task":  "Gamma_DressRehearsal",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\dress_rehearsal.py\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\dress_rehearsal.py\"\u0027"
+    },
+    {
+        "Task":  "Gamma_EmaSnapshot",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\automation\\scripts\\compute_ema_snapshot.py\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\automation\\scripts\\compute_ema_snapshot.py\"\u0027"
+    },
+    {
+        "Task":  "Gamma_FirmBrief",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\firm_brief.py\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\firm_brief.py\"\u0027"
+    },
+    {
+        "Task":  "Gamma_FreeModelAudit",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\free_model_audit.py\" \"--subject\" \"all\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\free_model_audit.py\" \"--subject\" \"all\"\u0027"
+    },
+    {
+        "Task":  "Gamma_FuturesMirror",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\futures_mirror_shadow.py\" --once\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\futures_mirror_shadow.py\" \"--once\"\u0027"
+    },
+    {
+        "Task":  "Gamma_GuardsNightly",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\guard_runner_slow.py\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\guard_runner_slow.py\"\u0027"
+    },
+    {
+        "Task":  "Gamma_LevelMemory",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\level_memory_producer.py\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\level_memory_producer.py\"\u0027"
+    },
+    {
+        "Task":  "Gamma_OosCheck",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\oos_check_runner.py\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\oos_check_runner.py\"\u0027"
+    },
+    {
+        "Task":  "Gamma_Prospector",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\prospector.py\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\prospector.py\"\u0027"
+    },
+    {
+        "Task":  "Gamma_SelfAudit",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\self_audit.py\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\self_audit.py\"\u0027"
+    },
+    {
+        "Task":  "Gamma_TradeAutopsy",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\trade_autopsy.py\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\trade_autopsy.py\"\u0027"
+    },
+    {
+        "Task":  "Gamma_TradeToday",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\trade_today_watcher.py\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\trade_today_watcher.py\"\u0027"
+    },
+    {
+        "Task":  "Gamma_Trendlines",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\autoresearch\\trendline_engine.py\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\autoresearch\\trendline_engine.py\"\u0027"
+    },
+    {
+        "Task":  "Gamma_TwinSentinel",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\twin_sentinel.py\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_cmd_hidden.py\" --cwd \"C:\\Users\\jackw\\Desktop\\42\" -- \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\twin_sentinel.py\"\u0027"
+    }
+]

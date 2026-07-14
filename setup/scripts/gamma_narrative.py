@@ -35,6 +35,11 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+# OP-27 L41 window-leak discipline: every subprocess spawn from a headless (pythonw)
+# scheduled task must carry CREATE_NO_WINDOW, or a console-subsystem child (git.exe,
+# a console python.exe) allocates a fresh conhost/WT window on win32.
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
+
 # Windows console is cp1252; model text carries unicode (e.g. ‑). Without
 # this, the final echo dies AFTER publish() succeeded and the exit code lies (C7).
 if hasattr(sys.stdout, "reconfigure"):
@@ -73,7 +78,8 @@ AXES = [
 
 def _run(cmd: list[str], cwd: Path = REPO, timeout: int = 30) -> str:
     try:
-        r = subprocess.run(cmd, cwd=str(cwd), capture_output=True, text=True, timeout=timeout)
+        r = subprocess.run(cmd, cwd=str(cwd), capture_output=True, text=True, timeout=timeout,
+                            creationflags=_CREATE_NO_WINDOW)
         return (r.stdout or "").strip()
     except Exception as exc:  # noqa: BLE001
         return f"(unavailable: {exc})"
@@ -427,7 +433,7 @@ def main() -> int:
     if tts_py.exists() and speak.exists():
         try:
             r = subprocess.run([str(tts_py), str(speak)], capture_output=True,
-                               text=True, timeout=300)
+                               text=True, timeout=300, creationflags=_CREATE_NO_WINDOW)
             print((r.stdout or r.stderr or "").strip())
         except Exception as exc:  # noqa: BLE001
             print(f"voice step failed (narrative still shipped): {exc}", file=sys.stderr)

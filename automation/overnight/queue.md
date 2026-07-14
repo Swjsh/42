@@ -9,6 +9,65 @@
 
 ## Active backlog
 
+### PANDAS-CONSOLE-LEAK-ROOT-CAUSE (LOW, cosmetic-but-unresolved, discovered 2026-07-14)
+
+- [ ] PANDAS-CONSOLE-LEAK-ROOT-CAUSE (LOW, mitigated not fixed) :: `import pandas` (pulls in
+  numpy) under `backtest\.venv\Scripts\pythonw.exe` triggers a `WindowsTerminal -Embedding`
+  console-host window on Win11, reproduced live via clean isolated `Start-ScheduledTask` fires.
+  Ruled out as the trigger (all tested live, all failed to prevent it): launcher mechanism
+  (`Shell.Run` vs `WshShell.Exec` vs Python `subprocess.Popen(creationflags=CREATE_NO_WINDOW)`),
+  Python-level `sys.stdout`/`stderr` redirection, OS-level `os.dup2` fd redirection,
+  `warnings.filterwarnings("ignore")`. A minimal stdlib-only script under the same interpreter
+  is clean. Currently MITIGATED (not fixed) via `window-leak-detector.py` auto-hiding any
+  service-rooted console-host window within its 0.5s poll — see STATUS.md 2026-07-14 entry for
+  full investigation trail. If picked up again: try isolating numpy alone vs pandas-minus-numpy
+  (not yet split), check for an explicit `ctypes.windll.kernel32.AllocConsole()` call anywhere
+  in the installed numpy/pandas wheel's `.pyd`/`.dll` set, try `MKL_NUM_THREADS=1`/disabling
+  MKL threading-layer auto-detection if this numpy build is MKL-linked (unconfirmed — check
+  `numpy.show_config()`), or try a different numpy/pandas version pin as an A/B. :: depends:none
+  :: status:pending
+
+### MCP-DAILY-AUDIT-CLAUDE-AUTH-FAILING (LOW, pre-existing, discovered 2026-07-14)
+
+- [ ] MCP-DAILY-AUDIT-CLAUDE-AUTH-FAILING (LOW, pre-existing 2+ days) :: `Gamma_McpDailyAudit`
+  (`run-mcp-daily-audit.ps1` -> `Invoke-Claude` haiku call) has failed `exit=1` for at least
+  2026-07-13 (`API Error: 400 All target providers failed`) and 2026-07-14 (`Not logged in —
+  Please run /login`) — different error each day, both pointing at the `claude` CLI / CCR
+  routing layer, not this task's own logic. Confirmed NOT a regression from the same-day
+  popup-storm fix (the task's launcher chain was rewrapped this session but the failure
+  predates that edit by a day, same error family). Likely related to the CCR interactive-path
+  hijack saga documented in this same file's `Gamma_CcrKeepalive` row (2026-07-14 lockout root
+  cause) — worth checking whether the interactive-settings guard fully covers this task's own
+  `claude --print` invocation path too. :: depends:none :: status:pending
+
+### SWJSHAK-RUN-KEY-BARE-POWERSHELL (LOW, cross-project, discovered 2026-07-14)
+
+- [ ] SWJSHAK-RUN-KEY-BARE-POWERSHELL (LOW, cross-project, ask before touching) :: Two
+  SwjshAlgoKnife-owned HKCU `...\Run` entries (`SwjshAK-SystemStart`, `SwjshAK-HALOWatchdog`)
+  use bare `powershell -WindowStyle Hidden -Command "..."` — same Win11 OpenConsole-before-
+  hidden flash class fixed for Gamma's own tasks this session, but only fires once per boot
+  (not a repeating-popup pattern) and SwjshAlgoKnife is scope-frozen (ask before expanding) so
+  left untouched pending J's go-ahead. Fix (if wanted): repoint the Run-key command string at
+  `wscript.exe //nologo "C:\Users\jackw\Desktop\42\setup\scripts\run_exe_hidden_exec.vbs"
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "..."` (or an equivalent .vbs
+  living in SwjshAlgoKnife's own tree, if J prefers not to cross-reference the 42 repo from a
+  registry key in another project). Separately, `OpenClaw Gateway.cmd`
+  (`%APPDATA%\...\Startup\`, `start "" /min cmd.exe ...`) is a genuinely unrelated third-party
+  tool outside both projects — flagged only, no fix proposed. :: depends:J-go-ahead
+  :: status:pending
+
+### SHADOWEVAL-WEEKLY-TRIGGER-VS-DAILY-DOCS (LOW, doc/reality mismatch, discovered 2026-07-14)
+
+- [ ] SHADOWEVAL-WEEKLY-TRIGGER-VS-DAILY-DOCS (LOW) :: `Gamma_ShadowEval`'s LIVE registered
+  trigger is `MSFT_TaskWeeklyTrigger`, but `run-shadow-eval.ps1`'s own header comment
+  ("fires after market close on weekdays") and `SCHEDULED-TASKS.md`'s doc row ("daily Nemotron
+  ... shadow DT-agreement scorer... daily 16:05 ET weekdays") both describe a DAILY cadence.
+  Discovered incidentally while auditing this task's launcher for the popup-storm fix (its
+  window-leak issue was fixed and verified separately). If the trigger is really weekly, the
+  shadow-model promotion scorecard has been accruing far less evidence than the doctrine
+  believes; if it's meant to be daily, the registered trigger needs correcting.
+  :: depends:none :: status:pending
+
 ### REPLAY-FLEET-ARMS-FIDELITY-DRIFT (MED, silently-red guard, discovered 2026-07-11)
 
 - [ ] REPLAY-FLEET-ARMS-FIDELITY-DRIFT (MED, silently-red guard) :: `backtest/tests/test_replay_fleet_arms.py`

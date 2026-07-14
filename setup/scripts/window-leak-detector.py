@@ -119,6 +119,24 @@ GetWindowTextW = user32.GetWindowTextW
 GetWindowTextW.argtypes = [wt.HWND, wt.LPWSTR, ctypes.c_int]
 GetWindowTextW.restype = ctypes.c_int
 
+ShowWindow = user32.ShowWindow
+ShowWindow.argtypes = [wt.HWND, ctypes.c_int]
+ShowWindow.restype = wt.BOOL
+SW_HIDE = 0
+
+# 2026-07-14 AUTO-MITIGATION (J: "stop the fkin popus on my screen"): root-caused down to
+# `import pandas`/numpy triggering a WindowsTerminal -Embedding console-host window on
+# headless (pythonw.exe) launches of backtest-venv scripts -- confirmed this is NOT an
+# stdio-write trigger (survived Python-level sys.stdout/stderr redirect, OS-level os.dup2
+# fd redirect, AND warnings.filterwarnings("ignore") -- all three tested live, all three
+# still leaked), so no script-level or launcher-level fix (Shell.Run vs WshExec vs Python
+# subprocess.Popen+CREATE_NO_WINDOW -- all three tested live, all three still leaked) could
+# close it in the time available this session. This is a pure console-HOST window
+# (WindowsTerminal.exe/OpenConsole.exe/conhost.exe): hiding it does not touch, kill, or
+# interrupt the underlying pythonw.exe process actually doing the work -- ShowWindow(SW_HIDE)
+# only affects the window's on-screen visibility, so this is safe even mid-leak.
+CONSOLE_HOST_IMAGES = {"WindowsTerminal.exe", "OpenConsole.exe", "conhost.exe"}
+
 
 def _enum_visible_top_windows() -> list[tuple[int, int, str]]:
     """Return [(hwnd, pid, title), ...] for every visible top-level window with title."""
@@ -196,6 +214,18 @@ def _load_allowlist() -> dict:
         return DEFAULT_ALLOWLIST
 
 
+def _is_service_rooted(ancestry: list[dict]) -> bool:
+    """True if the ancestry chain looks Task-Scheduler/service-originated (svchost/services/
+    wininit within the first few hops) rather than something J opened by hand (which would
+    descend from explorer.exe -- Start Menu, taskbar, a shortcut). This is the safety gate
+    for auto-hiding a console-host window: only ever touch windows that could not plausibly
+    be a real terminal J is using himself."""
+    names = [a.get("image_name", "") for a in ancestry[:4]]
+    if "explorer.exe" in names:
+        return False
+    return any(n in ("svchost.exe", "services.exe", "wininit.exe") for n in names)
+
+
 def _is_allowed(image_name: str, title: str, pid: int, allow: dict) -> bool:
     if image_name in allow.get("image_names", []):
         return True
@@ -267,6 +297,18 @@ def main() -> int:
                     continue
                 if _is_allowed(image, title, pid, allow):
                     continue
+                ancestry = _ancestry(pid)
+                mitigated = False
+                if image in CONSOLE_HOST_IMAGES and _is_service_rooted(ancestry):
+                    # Hide, never kill: this only changes on-screen visibility -- the
+                    # underlying pythonw.exe process (the actual scheduled-task work) is
+                    # completely untouched and keeps running/writing its real output
+                    # normally. Safe even if the root-cause script is mid-execution.
+                    try:
+                        ShowWindow(hwnd, SW_HIDE)
+                        mitigated = True
+                    except Exception:
+                        mitigated = False
                 row = {
                     "ts": dt.datetime.utcnow().isoformat() + "Z",
                     "hwnd": hwnd,
@@ -275,12 +317,14 @@ def main() -> int:
                     "image_name": image,
                     "title": title[:200],
                     "command_line": meta["command_line"],
-                    "ancestry": _ancestry(pid),
+                    "ancestry": ancestry,
+                    "mitigated": mitigated,
                 }
                 with LEAK_LOG.open("a", encoding="utf-8") as f:
                     f.write(json.dumps(row) + "\n")
                 leak_counter += 1
-                print(f"[detector] LEAK #{leak_counter} pid={pid} image={image} title={title[:80]}", flush=True)
+                print(f"[detector] LEAK #{leak_counter} pid={pid} image={image} "
+                      f"title={title[:80]} mitigated={mitigated}", flush=True)
 
             prev_keys = cur_keys
             poll_count += 1

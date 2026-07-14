@@ -3,18 +3,34 @@
 Runs daily via Gamma_CryptoDaily. Flags:
   - ORPHAN_TASK            : registered but not in registry
   - STALE_REGISTRY_ENTRY   : in registry but not registered
-  - BARE_CMD_POWERSHELL    : HARD FAIL -- bare cmd.exe/powershell.exe action (always flashes
-                             OpenConsole on Win11; convert to wscript->run_exe_hidden.vbs chain)
-  - VISIBLE_WINDOW         : action not on the wscript->pythonw hidden chain (subtler patterns)
+  - BARE_CMD_POWERSHELL    : HARD FAIL -- bare cmd.exe/powershell.exe/.bat action (always
+                             flashes OpenConsole on Win11; convert to
+                             wscript->run_exe_hidden.vbs chain)
+  - VISIBLE_WINDOW         : action not on the wscript->pythonw hidden chain (subtler patterns,
+                             including the retired wscript->run_hidden.vbs ShellExecute path)
   - SILENT_TASK            : active task hasn't fired in (cadence x 3) window
   - PYTHON_NOT_PYTHONW     : long-running python.exe launch (should use pythonw.exe)
   - CANDIDATE_FOR_REMOVAL  : disabled > 30 days
+
+Enumeration: `setup/scripts/_list-gamma-tasks-json.ps1` returns every `Gamma_*` task PLUS
+a small explicit `$ExtraTaskNames` allowlist of other repo-managed automation registered
+under a different name (e.g. SwjshAK-BrainSync). Those extra tasks are exempt from
+ORPHAN_TASK/STALE_REGISTRY_ENTRY (SCHEDULED-TASKS.md is Gamma's own registry, not theirs)
+but ARE fully subject to every window-leak safety check below -- see KNOWN_EXTERNAL_TASKS.
 
 Writes:
   automation/state/scheduled-tasks-audit.json
   Console summary suitable for the daily digest.
 
 Exit code 0 if no flags, 1 if any. Daily routine reads the JSON and surfaces RED to STATUS.md.
+
+STRUCTURAL GUARD (2026-07-14, J: "stop the fkin popups on my screen"): a 0-task scan
+(PowerShell helper failure, task-scheduler service down, etc.) must NEVER read as a clean
+GREEN -- see the `total_registered == 0` hard-fail in `audit()`. A previous sibling
+auditor (audit_window_leak_compliance.py) silently reported near-zero violations for
+weeks not because there were none, but because it never looked at the live task registry
+at all -- only at source-file text patterns. Silent-pass-on-empty-scan is the same failure
+mode one layer up; guarded here explicitly so it can't recur.
 """
 from __future__ import annotations
 
@@ -38,6 +54,13 @@ AUDIT_OUT = Path("automation/state/scheduled-tasks-audit.json")
 # CREATE_NO_WINDOW = 0x08000000 — suppress conhost allocation when spawning console
 # binaries (powershell.exe, tasklist.exe, git.exe). See CLAUDE.md OP-27 L41.
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
+
+# Repo-managed automation registered under a non-Gamma_ name (see the matching
+# $ExtraTaskNames array in _list-gamma-tasks-json.ps1, which is what actually pulls
+# these into `tasks` below). SCHEDULED-TASKS.md is Gamma's OWN registry -- these
+# will never appear in it, so they're exempt from ORPHAN_TASK/STALE_REGISTRY_ENTRY,
+# but every window-leak safety check still runs against them normally.
+KNOWN_EXTERNAL_TASKS = {"SwjshAK-BrainSync"}
 
 
 def _powershell_file(path: Path) -> str:
@@ -84,16 +107,41 @@ def _registered_tasks() -> list[dict]:
 def _is_hidden(execute: str, arguments: str) -> bool:
     """Approved hidden-window patterns per OP-27.
 
-    Per OP-27 L42 escalation (2026-05-17 evening), canonical patterns:
+    2026-07-14 CORRECTION (J: "stop the fkin popups on my screen" -- root cause was
+    this exact function silently approving a proven-leaky pattern): `run_hidden.vbs`
+    was DEMOTED from approved to NOT-hidden. It was carried as "older pattern, still
+    approved" ever since the 2026-05-17 escalation, but `run_ps1_hidden.py`'s own
+    docstring (written that SAME evening) documents the actual finding: `run_hidden.vbs`
+    uses `WScript.Shell.Run` (ShellExecute), which "still leaks WindowsTerminal
+    -Embedding windows on Windows 11 default-terminal configs" -- the fix that evening
+    was to STOP using it, not to keep approving it. Whoever wrote this function's
+    docstring transcribed the old pattern as still-good instead of retired. Live proof
+    2026-07-14: Gamma_DiscordBridge fires every 5 min via this exact chain, 24/7 --
+    the highest-frequency violator on the box, invisible to this audit until now
+    because this function said it was fine.
 
-    1. `wscript.exe //nologo run_hidden.vbs <ps1>` -- older pattern, still approved.
+    Canonical patterns, current:
 
-    2. `wscript.exe //nologo run_exe_hidden.vbs <pythonw> <run_ps1_hidden.py> <ps1>`
-       -- canonical L42 zero-leak pattern for PowerShell-wrapped tasks.
+    1. `wscript.exe //nologo run_exe_hidden.vbs <pythonw> <run_ps1_hidden.py> <ps1>`
+       -- canonical L42 zero-leak pattern for PowerShell-wrapped tasks. Uses Python
+       `subprocess.Popen(..., creationflags=CREATE_NO_WINDOW)` -- CreateProcess
+       directly, which Windows is REQUIRED to honor.
 
-    3. `wscript.exe //nologo run_exe_hidden.vbs <pythonw> <run_cmd_hidden.py> [args]`
+    2. `wscript.exe //nologo run_exe_hidden.vbs <pythonw> <run_cmd_hidden.py> [args]`
        -- canonical WS6 zero-leak pattern for cmd-style grind tasks (2026-06-26).
        run_cmd_hidden.py accepts --env KEY=VAL + -- <python-exe> -m <module>.
+
+    3. `wscript.exe //nologo run_hidden_exec.vbs <ps1> [args]` -- WshShell.Exec
+       (CreateProcess) instead of Shell.Run (ShellExecute); also bypasses the WT
+       DefaultTerminal handler. Approved alternative when no Python hop is wanted.
+
+    4. A direct GUI-subsystem `pythonw.exe` action -- no console ever allocated,
+       regardless of launcher (Task Scheduler included).
+
+    NOT hidden: `wscript.exe //nologo run_hidden.vbs <ps1>` -- Shell.Run/ShellExecute,
+    routes through the Win11 DefaultTerminal handler, leaks a `WindowsTerminal
+    -Embedding` window on EVERY fire. Retired 2026-07-14; any task still on this
+    pattern must be converted to #1 above.
 
     NOT hidden: a DIRECT `powershell.exe -WindowStyle Hidden` action. Task Scheduler
     allocates the console (OpenConsole.exe -Embedding on Win11) and SHOWS it before
@@ -101,13 +149,12 @@ def _is_hidden(execute: str, arguments: str) -> bool:
     fire (root-caused 2026-06-20 via Gamma_CryptoGrinderKeepalive, every 5 min = ~288
     flashes/day).
 
-    NOT hidden: a DIRECT `cmd.exe /c ...` action. Same allocation problem.
-
-    A direct GUI-subsystem `pythonw.exe` action is fine (no console ever allocated).
+    NOT hidden: a DIRECT `cmd.exe /c ...` action, or a bare `.bat` action (Task
+    Scheduler spawns cmd.exe to interpret it). Same allocation problem.
     """
     e = (execute or "").lower()
     a = (arguments or "").lower()
-    if "wscript" in e and ("run_hidden.vbs" in a or "run_exe_hidden.vbs" in a):
+    if "wscript" in e and ("run_exe_hidden.vbs" in a or "run_hidden_exec.vbs" in a):
         return True
     if e.endswith("pythonw.exe"):
         return True
@@ -117,20 +164,23 @@ def _is_hidden(execute: str, arguments: str) -> bool:
 def _is_bare_console_launcher(execute: str) -> bool:
     """Return True if the task action is a bare console-subsystem launcher.
 
-    Bare cmd.exe or powershell.exe actions ALWAYS flash a console window on
+    Bare cmd.exe, powershell.exe, or a direct .bat/.cmd action (Task Scheduler
+    spawns cmd.exe to interpret those) ALWAYS flash a console window on
     Windows 11 (OpenConsole -Embedding) before any -WindowStyle Hidden takes
     effect.  These MUST be converted to the wscript -> run_exe_hidden.vbs ->
     pythonw -> run_cmd_hidden.py / run_ps1_hidden.py chain.
 
     This check is a HARD FAIL in the audit (exit 1) -- not a warn -- because
     a regressed task will flash on every fire (up to 288 times/day for 5-min
-    cadence tasks).  There is no acceptable reason to have a bare cmd.exe or
-    bare powershell.exe Gamma task action.
+    cadence tasks).  There is no acceptable reason to have a bare cmd.exe,
+    bare powershell.exe, or bare .bat/.cmd Gamma task action.
     """
     e = (execute or "").strip().lower()
     # Match basename only so full paths like C:\Windows\System32\cmd.exe also match
     basename = e.rsplit("\\", 1)[-1].rsplit("/", 1)[-1]
-    return basename in ("cmd.exe", "powershell.exe")
+    if basename in ("cmd.exe", "powershell.exe", "pwsh.exe"):
+        return True
+    return basename.endswith(".bat") or basename.endswith(".cmd")
 
 
 def _is_long_running_python_with_console(execute: str, arguments: str) -> bool:
@@ -207,10 +257,20 @@ def _last_run_age_hours(last_run: str | None) -> float | None:
 
 def audit() -> dict:
     if not REGISTRY_PATH.exists():
-        return {"error": f"registry missing: {REGISTRY_PATH}"}
+        return {"error": f"registry missing: {REGISTRY_PATH}", "health": "RED"}
     registry_text = REGISTRY_PATH.read_text(encoding="utf-8")
     active_registry, disabled_registry = _parse_registry(registry_text)
     tasks = _registered_tasks()
+
+    # STRUCTURAL GUARD (2026-07-14): a scan that returns zero tasks (PowerShell helper
+    # crashed, Task Scheduler service unreachable, malformed JSON silently swallowed)
+    # must never be indistinguishable from "all clear". `_registered_tasks()` already
+    # returns [] on that failure mode -- treat it as a hard error, not a clean report.
+    if not tasks:
+        return {"error": "0 tasks returned by _registered_tasks() -- PowerShell helper "
+                          "failure or empty Task Scheduler query; NOT a clean scan",
+                "health": "RED"}
+
     by_name = {t["name"]: t for t in tasks}
 
     flags: list[dict] = []
@@ -219,8 +279,11 @@ def audit() -> dict:
     # Task Scheduler actions, same hidden-window requirement. See _audit_hooks docstring.
     flags.extend(_audit_hooks())
 
-    # Registered but not in registry
+    # Registered but not in registry (external repo-managed tasks are known-external
+    # by design -- see KNOWN_EXTERNAL_TASKS -- not an accidental orphan).
     for name in sorted(by_name):
+        if name in KNOWN_EXTERNAL_TASKS:
+            continue
         if name not in active_registry and name not in disabled_registry:
             flags.append({"flag": "ORPHAN_TASK", "task": name,
                           "note": f"task registered but not in {REGISTRY_PATH}"})

@@ -3,18 +3,32 @@
 Replaces cmd.exe /c "set ENV=VAL&& python.exe -m module > log 2>&1" task
 actions with a windowless equivalent that never flashes OpenConsole.
 
-Task action (using backtest venv pythonw — GUI subsystem, never allocates a console):
+Task action (SYSTEM pythonw as the outer wscript target -- see 2026-07-14 correction below):
     wscript.exe //nologo run_exe_hidden.vbs
-        <backtest-pythonw>
+        <system-pythonw>
         run_cmd_hidden.py
         --env KEY=VAL [--env KEY2=VAL2 ...]
         --log <log-file>
         --cwd <working-dir>
-        -- <python-exe> -m <module> [args...]
+        -- <backtest-venv-pythonw> -m <module> [args...]
 
-Why pythonw from the BACKTEST venv?  The grind modules (autoresearch.*) live
-in the backtest venv, so we need that interpreter.  pythonw.exe is the
-GUI-subsystem twin of python.exe — same stdlib, no console window.
+2026-07-14 CORRECTION (J: "stop the fkin popus on my screen"): this docstring used to
+claim "using backtest venv pythonw — GUI subsystem, never allocates a console" as the
+OUTER wscript target. That claim is FALSE for any target that imports pandas/numpy --
+live-fire investigation this session (window-leak-detector.py, re-armed) proved a
+MINIMAL stdlib-only script under backtest-venv-pythonw is clean, but a script that does
+`import pandas` leaks a WindowsTerminal -Embedding console-host window regardless of
+launcher mechanism (Shell.Run, WshShell.Exec, AND Python subprocess.Popen with
+creationflags=CREATE_NO_WINDOW were all tested live and all three still leaked -- root
+cause is below the level any of those can intercept). Since run_cmd_hidden.py itself is
+stdlib-only, it is safe as either an outer OR inner hop; the actual heavy-import module
+it launches (the real risk) still goes through the SAME creationflags=CREATE_NO_WINDOW
+subprocess call either way, so putting run_cmd_hidden.py under system-pythonw instead of
+venv-pythonw changes nothing about that inner risk -- it's a consistency choice (matches
+every other pythonw-direct wscript target in this repo), not a fix by itself. The actual
+popup suppression for the still-unresolved inner leak is window-leak-detector.py's
+auto-hide mitigation (ShowWindow SW_HIDE on any service-rooted console-host window),
+not anything in this file.
 
 Why not run_ps1_hidden.py?  That script wraps a PowerShell .ps1 file.  The
 grind tasks have no .ps1 wrapper — they run python directly.  A separate

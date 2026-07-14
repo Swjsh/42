@@ -1,91 +1,16 @@
 {
-  "audited_at": "2026-06-26T21:09:25.000741+00:00",
-  "total_registered": 61,
-  "active_registered": 53,
-  "disabled_registered": 8,
-  "registry_active": 46,
-  "registry_disabled": 0,
-  "flags_count": 16,
+  "audited_at": "2026-07-14T12:56:47.967986+00:00",
+  "total_registered": 88,
+  "active_registered": 70,
+  "disabled_registered": 18,
+  "registry_active": 78,
+  "registry_disabled": 9,
+  "flags_count": 1,
   "flags": [
-    {
-      "flag": "ORPHAN_TASK",
-      "task": "Gamma_ContenderRank",
-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
-    },
-    {
-      "flag": "ORPHAN_TASK",
-      "task": "Gamma_EodFullAudit",
-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
-    },
-    {
-      "flag": "ORPHAN_TASK",
-      "task": "Gamma_FreeManager",
-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
-    },
-    {
-      "flag": "ORPHAN_TASK",
-      "task": "Gamma_Funnel_0",
-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
-    },
-    {
-      "flag": "ORPHAN_TASK",
-      "task": "Gamma_Funnel_1",
-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
-    },
-    {
-      "flag": "ORPHAN_TASK",
-      "task": "Gamma_Funnel_2",
-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
-    },
-    {
-      "flag": "ORPHAN_TASK",
-      "task": "Gamma_Funnel_3",
-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
-    },
-    {
-      "flag": "ORPHAN_TASK",
-      "task": "Gamma_Funnel_4",
-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
-    },
-    {
-      "flag": "ORPHAN_TASK",
-      "task": "Gamma_Funnel_5",
-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
-    },
-    {
-      "flag": "ORPHAN_TASK",
-      "task": "Gamma_Grind_Watchdog",
-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
-    },
-    {
-      "flag": "ORPHAN_TASK",
-      "task": "Gamma_Grind_all",
-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
-    },
-    {
-      "flag": "ORPHAN_TASK",
-      "task": "Gamma_HeartbeatCore",
-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
-    },
-    {
-      "flag": "ORPHAN_TASK",
-      "task": "Gamma_LiveShadowValidator",
-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
-    },
-    {
-      "flag": "ORPHAN_TASK",
-      "task": "Gamma_ManagerOverseer",
-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
-    },
-    {
-      "flag": "ORPHAN_TASK",
-      "task": "Gamma_SightBeacon",
-      "note": "task registered but not in automation\\state\\SCHEDULED-TASKS.md"
-    },
     {
       "flag": "SILENT_TASK",
       "task": "Gamma_GitHubAudit",
-      "note": "last ran 42.2h ago \u2014 expected within 26h"
+      "note": "last ran 33.9h ago \u2014 expected within 26h"
     }
   ],
   "health": "RED"

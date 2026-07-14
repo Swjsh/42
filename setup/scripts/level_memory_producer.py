@@ -16,6 +16,24 @@ Run: python setup/scripts/level_memory_producer.py   (schedulable every N min).
 """
 from __future__ import annotations
 
+# === HEADLESS STDIO REDIRECT (OP-27 L41 layer 3, 2026-07-14 popup-storm fix) =====
+# When launched via pythonw.exe (no console), Windows 11's default-terminal setting
+# can allocate a visible WindowsTerminal -Embedding window on the FIRST stderr/stdout
+# write. Redirect stdio to log files BEFORE any other import gets a chance to write.
+# Root-caused live 2026-07-14 (J: "stop the fkin popus on my screen") via the
+# re-armed window-leak-detector.py: this exact script, launched wscript->
+# run_exe_hidden.vbs->backtest-venv-pythonw with NO relay layer, was caught flashing
+# a WindowsTerminal window on a real Start-ScheduledTask fire within 45s.
+import os as _os
+import sys as _sys
+from pathlib import Path as _Path
+if _os.path.basename(_sys.executable).lower().startswith("pythonw"):
+    _log_dir = _Path(__file__).resolve().parents[2] / "automation" / "state" / "logs"
+    _log_dir.mkdir(parents=True, exist_ok=True)
+    _sys.stdout = open(_log_dir / "level-memory-producer.stdout.log", "a", buffering=1, encoding="utf-8")
+    _sys.stderr = open(_log_dir / "level-memory-producer.stderr.log", "a", buffering=1, encoding="utf-8")
+# ==================================================================================
+
 import datetime as dt
 import json
 import sys
@@ -93,10 +111,49 @@ def select_levels(raw) -> list[dict]:
     return out
 
 
+def apply_role_flip(
+    levels: list[dict],
+    raw,
+    df: pd.DataFrame,
+    up_to_idx: int,
+    *,
+    sustain_bars: int = LM.ROLE_FLIP_SUSTAIN_BARS,
+    memory_threshold: float = LM.ROLE_FLIP_MEMORY_THRESHOLD,
+) -> list[dict]:
+    """PURE (T7, 2026-07-09): tag each selected level with sustained-role-flip confirmation
+    (see backtest/lib/watchers/level_memory.py::detect_role_flip for the gate + why). Adds
+    `flipped_at` (ISO ET string, or None) + `provenance` (str, or None) to every dict; overrides
+    `role`/`type` to the level's PRIOR role if its most recent causal flip hasn't sustained for
+    `sustain_bars` bars yet (so a single-bar whipsaw never reaches the shadow file as a "flip").
+    Matches raw Level objects to selected dicts by rounded price (same key select_levels uses).
+    SHADOW-ONLY -- this list feeds key-levels-memory.json ONLY, never key-levels.json."""
+    by_price = {round(float(lv.price), 2): lv for lv in raw}
+    out: list[dict] = []
+    for d in levels:
+        lv = by_price.get(d["price"])
+        if lv is None:  # shouldn't happen (dict prices come from raw) but fail safe, not blind
+            out.append({**d, "flipped_at": None, "provenance": None})
+            continue
+        role, flipped_at, provenance = LM.detect_role_flip(
+            lv, df, up_to_idx, sustain_bars=sustain_bars, memory_threshold=memory_threshold,
+        )
+        nd = dict(d)
+        nd["role"] = role
+        nd["type"] = role
+        if role != d["role"]:  # keep the human-readable label in sync with the corrected role
+            nd["label"] = f"MEMORY_{role[:3].upper()}_{d['memory_score']:.0f}"
+        nd["flipped_at"] = flipped_at
+        nd["provenance"] = provenance
+        out.append(nd)
+    return out
+
+
 def build_levels(df: pd.DataFrame) -> list[dict]:
-    """Memory levels at the latest bar (causal), selected/deduped/capped via select_levels()."""
+    """Memory levels at the latest bar (causal): select_levels() then apply_role_flip() (T7)."""
     lm = LM.LevelMemory(df)
-    return select_levels(lm.levels_at(len(lm.df) - 1, lookback_days=LOOKBACK_DAYS))
+    up_to = len(lm.df) - 1
+    raw = lm.levels_at(up_to, lookback_days=LOOKBACK_DAYS)
+    return apply_role_flip(select_levels(raw), raw, lm.df, up_to)
 
 
 # --- V2 gap-fill: prior RTH close (the gap-fill magnet) + gap status ------------------------
@@ -174,7 +231,8 @@ def main() -> int:
         return 0
     lm = LM.LevelMemory(df)
     last = len(lm.df) - 1
-    levels = select_levels(lm.levels_at(last, lookback_days=LOOKBACK_DAYS))
+    raw_levels = lm.levels_at(last, lookback_days=LOOKBACK_DAYS)
+    levels = apply_role_flip(select_levels(raw_levels), raw_levels, lm.df, last)  # T7
     spot = round(float(df["close"].iloc[-1]), 2)
     # V2 gap-fill: write the prior RTH close (gap-fill magnet) so gap_and_go stops SKIP_NO_FEED.
     pc = prior_rth_close(df)
@@ -190,12 +248,14 @@ def main() -> int:
     payload = {"generated_at_et": str(pd.Timestamp.now(tz="America/New_York").replace(microsecond=0)),
                "spot": spot, "lookback_days": LOOKBACK_DAYS, "min_memory": MIN_MEMORY,
                "count": len(levels), "levels": levels,
-               "note": "SHADOW multi-day memory levels (V1). NOT yet fed to entries (A/B/NEEDS-REVIEW)."}
+               "note": ("SHADOW multi-day memory levels (V1 + T7 sustained-role-flip tagging "
+                        "2026-07-09). NOT yet fed to entries (A/B/NEEDS-REVIEW).")}
     SHADOW.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     print(f"[level_memory_producer] spot {spot} -> {len(levels)} memory levels (>= {MIN_MEMORY}):")
     for lv in levels:
+        flip_tag = f"  FLIPPED@{lv['flipped_at']}" if lv.get("flipped_at") else ""
         print(f"   {lv['price']:8.2f}  {lv['role']:10s}  mem {lv['memory_score']:5.1f}  "
-              f"touches {lv['touches']}  flips {lv['role_flips']}  [{lv['tier']}]")
+              f"touches {lv['touches']}  flips {lv['role_flips']}  [{lv['tier']}]{flip_tag}")
     pinged = _ping_rejection(lm, last)   # V1c: ping J on a strong-memory-level rejection
     if pinged:
         print(f"[level_memory_producer] >>> PINGED J (memory-level rejection): {pinged}")

@@ -1,7 +1,7 @@
 """Window-leak compliance audit.
 
 Enforces CLAUDE.md OP-27 L41 (5-layer subprocess-spawn discipline). Scans
-project code for the two patterns that historically leaked visible cmd/conhost/
+project code for the patterns that historically leaked visible cmd/conhost/
 PowerShell/python windows:
 
   1. Bare `python ` invocations in run-*.ps1 scheduled-task scripts
@@ -17,6 +17,28 @@ PowerShell/python windows:
      spawns MCP servers headless; a console-subsystem launcher then gets a fresh
      conhost window on EVERY tick (heartbeat x2 every 3 min, EOD, premarket).
      Fix: run setup/mcp/patch_mcp_hidden.py. (2026-06-20 window-leak root cause.)
+
+  4. LIVE Windows Task Scheduler registrations whose action is a bare console
+     launcher or an unapproved hidden-window chain (added 2026-07-14).
+
+BLIND SPOT THAT SHIPPED THIS CHECK (J: "stop the fkin popups on my screen",
+2026-07-14): checks 1-3 above are ALL static source-text scans over repo files
+(.ps1 / .py / .mcp.json). None of them ever looked at what Windows Task
+Scheduler actually has REGISTERED. A task's live action can be a bare
+`powershell.exe -WindowStyle Hidden` or the retired `run_hidden.vbs`
+ShellExecute chain (leaks a WindowsTerminal -Embedding window on every Win11
+fire) and this audit reported GREEN regardless, because neither string lives
+inside any `.ps1`/`.py`/`.json` file this script reads -- one lives in Task
+Scheduler's own XML action, the other inside a `.vbs` file this script never
+scanned at all. Root cause, concretely: Gamma_DiscordBridge fired every 5 min,
+24/7, via wscript->run_hidden.vbs, invisible to this audit for weeks. Check 4
+closes that gap by delegating to `audit_scheduled_tasks.py`, which already does
+correct live-registry enumeration + classification (single source of truth --
+not reimplemented here).
+
+STRUCTURAL GUARD: an audit that scans zero files/tasks must never report GREEN
+-- see `_scan_coverage()` / EMPTY_SCAN below. C7 doctrine: silent success is
+failure; audit outputs, not exit codes.
 
 Outputs:
   automation/state/window-leak-compliance-audit.json
@@ -229,17 +251,128 @@ def _audit_mcp_configs() -> list[dict]:
     return flags
 
 
+def _audit_live_task_registry() -> list[dict]:
+    """Check (4): what Windows Task Scheduler ACTUALLY has registered, live.
+
+    Delegates to audit_scheduled_tasks.py rather than re-implementing task
+    enumeration + hidden-chain classification here -- that module already does
+    it correctly (live PowerShell enumeration + _is_hidden()/_is_bare_console_launcher()
+    classifiers), and duplicating the logic would just create a second place for
+    the classification to go stale (exactly how run_hidden.vbs's approval rotted
+    in the first place). One source of truth.
+
+    A 0-task result is NOT a clean scan -- it means the PowerShell helper failed
+    or Task Scheduler was unreachable. Reported as a hard flag, never silently
+    swallowed into an empty (GREEN-looking) list.
+    """
+    try:
+        sys.path.insert(0, str(SCRIPTS_DIR))
+        import audit_scheduled_tasks as ast  # noqa: E402  (local import, sys.path just set)
+    except Exception as e:
+        return [{
+            "file": "setup/scripts/audit_scheduled_tasks.py", "line": 0,
+            "flag": "LIVE_TASK_AUDIT_IMPORT_FAILED",
+            "detail": f"{type(e).__name__}: {e}",
+            "fix": "audit_scheduled_tasks.py must import cleanly for live-registry coverage "
+                   "to run at all -- this audit cannot see Task Scheduler without it.",
+        }]
+
+    try:
+        tasks = ast._registered_tasks()
+    except Exception as e:
+        return [{
+            "file": "setup/scripts/_list-gamma-tasks-json.ps1", "line": 0,
+            "flag": "LIVE_TASK_SCAN_FAILED",
+            "detail": f"{type(e).__name__}: {e}",
+            "fix": "PowerShell task enumeration raised -- investigate Task Scheduler "
+                   "service / the helper script directly.",
+        }]
+
+    if not tasks:
+        # STRUCTURAL GUARD (2026-07-14): this is the exact failure class that let the
+        # OLD version of this file report near-zero violations while a live 5-min
+        # popup storm ran -- except inverted (there, the scan silently never looked;
+        # here, guard against the scan silently finding nothing). Both must be loud.
+        return [{
+            "file": "setup/scripts/_list-gamma-tasks-json.ps1", "line": 0,
+            "flag": "LIVE_TASK_SCAN_EMPTY",
+            "detail": "0 scheduled tasks returned from a live enumeration that should "
+                      "always see 80+ Gamma_* tasks on this box. Treating as a scan "
+                      "FAILURE, not a clean box.",
+            "fix": "Run `Get-ScheduledTask -TaskName Gamma_*` by hand and compare.",
+        }]
+
+    flags: list[dict] = []
+    for t in tasks:
+        name = t.get("name", "?")
+        execute = t.get("execute", "")
+        arguments = t.get("arguments", "")
+        if t.get("state") == "Disabled":
+            continue
+        if ast._is_bare_console_launcher(execute):
+            flags.append({
+                "file": f"scheduled-task:{name}", "line": 0,
+                "flag": "TASK_BARE_CONSOLE_LAUNCHER",
+                "detail": f"execute={execute!r} args={arguments[:100]!r}",
+                "fix": "Convert to wscript->run_exe_hidden.vbs->pythonw->"
+                       "run_ps1_hidden.py (or run_cmd_hidden.py) chain.",
+            })
+        elif not ast._is_hidden(execute, arguments):
+            flags.append({
+                "file": f"scheduled-task:{name}", "line": 0,
+                "flag": "TASK_VISIBLE_WINDOW",
+                "detail": f"execute={execute!r} args={arguments[:100]!r}",
+                "fix": "Not on an approved hidden-window chain -- see "
+                       "audit_scheduled_tasks._is_hidden() for the current approved list.",
+            })
+    return flags
+
+
+def _scan_coverage() -> dict:
+    """Independent counts of what the static scans actually touched, so `main()` can
+    tell 'scanned everything, found nothing' apart from 'scanned nothing' -- the two
+    look identical in the flags list alone (both empty) but mean opposite things."""
+    ps1_count = len(list(SCRIPTS_DIR.glob("*.ps1"))) if SCRIPTS_DIR.exists() else 0
+    py_count = sum(1 for _ in _iter_audit_py_files())
+    return {"ps1_files_scanned": ps1_count, "py_files_scanned": py_count}
+
+
 def main() -> int:
     ps1_flags = _audit_ps1_bare_python()
     py_flags = _audit_py_missing_creationflags()
     mcp_flags = _audit_mcp_configs()
-    all_flags = ps1_flags + py_flags + mcp_flags
+    task_flags = _audit_live_task_registry()
+    coverage = _scan_coverage()
+
+    empty_scan_flags: list[dict] = []
+    # STRUCTURAL GUARD: these directories/the task registry are NEVER legitimately
+    # empty on this box. A 0-count here means the scan itself broke, and that must
+    # read as RED, not as "0 violations found" (indistinguishable from clean
+    # otherwise -- this is precisely the blind spot that let the old 3-check version
+    # of this audit miss a live popup storm for weeks: it isn't enough for a check to
+    # exist, it has to be provable that it actually looked at something).
+    if coverage["ps1_files_scanned"] == 0:
+        empty_scan_flags.append({
+            "file": str(SCRIPTS_DIR.relative_to(REPO)), "line": 0, "flag": "EMPTY_SCAN_PS1",
+            "detail": "0 .ps1 files found under setup/scripts -- scan did not run for real.",
+            "fix": "Verify SCRIPTS_DIR path and that setup/scripts/*.ps1 exist.",
+        })
+    if coverage["py_files_scanned"] == 0:
+        empty_scan_flags.append({
+            "file": "PY_AUDIT_ROOTS", "line": 0, "flag": "EMPTY_SCAN_PY",
+            "detail": "0 .py files found under any PY_AUDIT_ROOTS -- scan did not run for real.",
+            "fix": "Verify PY_AUDIT_ROOTS paths resolve under this REPO checkout.",
+        })
+
+    all_flags = ps1_flags + py_flags + mcp_flags + task_flags + empty_scan_flags
     report = {
         "audited_at": datetime.now(timezone.utc).isoformat(),
         "health": "RED" if all_flags else "GREEN",
         "ps1_bare_python_count": len(ps1_flags),
         "py_subprocess_no_creationflags_count": len(py_flags),
         "mcp_unwrapped_launcher_count": len(mcp_flags),
+        "live_task_registry_count": len(task_flags),
+        "scan_coverage": coverage,
         "flags": all_flags,
     }
     AUDIT_OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -249,9 +382,12 @@ def main() -> int:
     print("=" * 70)
     print(f"  audited_at:    {report['audited_at']}")
     print(f"  HEALTH:        {report['health']}")
+    print(f"  scan coverage: {coverage['ps1_files_scanned']} .ps1 files, "
+          f"{coverage['py_files_scanned']} .py files")
     print(f"  PS1 bare `python`:                {report['ps1_bare_python_count']}")
     print(f"  Py subprocess w/o creationflags:  {report['py_subprocess_no_creationflags_count']}")
     print(f"  MCP servers w/o pythonw shim:     {report['mcp_unwrapped_launcher_count']}")
+    print(f"  LIVE task registry violations:    {report['live_task_registry_count']}")
     if all_flags:
         print(f"\n  FLAGS ({len(all_flags)}):")
         for f in all_flags[:25]:

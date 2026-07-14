@@ -1,0 +1,32 @@
+﻿[
+    {
+        "Task":  "Gamma_DiscordBridge",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\ensure-discord-bridge-alive.ps1\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_ps1_hidden.py\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\ensure-discord-bridge-alive.ps1\"\u0027"
+    },
+    {
+        "Task":  "Gamma_EveningNarrative",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run-evening-narrative.ps1\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_ps1_hidden.py\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run-evening-narrative.ps1\"\u0027"
+    },
+    {
+        "Task":  "Gamma_McpDailyAudit",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run-mcp-daily-audit.ps1\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_ps1_hidden.py\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run-mcp-daily-audit.ps1\"\u0027"
+    },
+    {
+        "Task":  "Gamma_ShadowEval",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_hidden.vbs\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run-shadow-eval.ps1\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_ps1_hidden.py\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run-shadow-eval.ps1\"\u0027"
+    },
+    {
+        "Task":  "SwjshAK-BrainSync",
+        "Status":  "FIXED",
+        "Before":  "EXEC=\u0027powershell.exe\u0027 ARGS=\u0027-ExecutionPolicy Bypass -NoProfile -WindowStyle Hidden -File \"C:\\Users\\jackw\\Desktop\\SwjshAlgoKnife\\scripts\\sync-brain-to-git.ps1\"\u0027",
+        "After":  "EXEC=\u0027wscript.exe\u0027 ARGS=\u0027//nologo \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_exe_hidden.vbs\" \"C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\pythonw.exe\" \"C:\\Users\\jackw\\Desktop\\42\\setup\\scripts\\run_ps1_hidden.py\" \"C:\\Users\\jackw\\Desktop\\SwjshAlgoKnife\\scripts\\sync-brain-to-git.ps1\"\u0027"
+    }
+]

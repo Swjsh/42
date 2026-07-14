@@ -55,6 +55,11 @@ SCRIPTS = REPO / "setup" / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
+# OP-27 L41 window-leak discipline: this hook can run inside a headless (pythonw)
+# scheduled fire (guard_runner_slow.py / run-conductor.ps1) -- a bare `git` child
+# spawn without CREATE_NO_WINDOW allocates a fresh conhost window on win32.
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
+
 from et_clock import et_now  # noqa: E402
 import twin_gauntlet as tg  # noqa: E402  (same crew's own module -- no B1-coupling concern)
 
@@ -103,7 +108,8 @@ def _default_git_log(repo_root: Path, since_sha: Optional[str], max_commits: int
         args += ["-n", str(max_commits)]
     try:
         proc = subprocess.run(args, cwd=str(repo_root), capture_output=True, text=True,
-                              timeout=30, encoding="utf-8", errors="replace")
+                              timeout=30, encoding="utf-8", errors="replace",
+                              creationflags=_CREATE_NO_WINDOW)
         if proc.returncode != 0:
             return []
         out = proc.stdout
