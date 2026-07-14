@@ -1,0 +1,19 @@
+{
+  "_doc": "One-time LIVE verification (2026-07-14, ultracode-review Job 3a) that every fleet arm's secrets.json credentials resolve to the account_number accounts.json declares for that arm -- read-only GET /v2/account per creds, zero orders, zero state mutation. Committed as a PINNED fixture so the standing duplicate-account guard (test_duplicate_account_guard.py) never needs live network calls; it only re-verifies this snapshot stays consistent with the two live source files. Re-run the same probe (fleet_broker.load_creds() + GET {base_url}/v2/account per arm) and refresh this file whenever a credential is rotated or an arm's account is repointed -- the safe-1/safe-2 repoint (2026-07-11, both resolve to PA3DHPT7KIQE by design, safe-1 retired) is exactly the scenario this guard exists to catch if it ever regresses.",
+  "verified_at": "2026-07-14T08:47:00-06:00",
+  "method": "fleet_broker.load_creds() -> per-arm GET {base_url}/v2/account (read-only, APCA-API-KEY-ID/APCA-API-SECRET-KEY headers) -> response.account_number",
+  "arms": {
+    "safe-1": {"live_account_number": "PA3DHPT7KIQE", "declared_account_number": "PA3DHPT7KIQE", "broker_status": "ACTIVE", "arm_status_in_accounts_json": "retired"},
+    "safe-2": {"live_account_number": "PA3DHPT7KIQE", "declared_account_number": "PA3DHPT7KIQE", "broker_status": "ACTIVE", "arm_status_in_accounts_json": "active"},
+    "safe-3": {"live_account_number": "PA32RD49OB0Q", "declared_account_number": "PA32RD49OB0Q", "broker_status": "ACTIVE", "arm_status_in_accounts_json": "active"},
+    "bold-2": {"live_account_number": "PA33W2KUAT40", "declared_account_number": "PA33W2KUAT40", "broker_status": "ACTIVE", "arm_status_in_accounts_json": "active"},
+    "risky-1": {"live_account_number": "PA3W17FD8G19", "declared_account_number": "PA3W17FD8G19", "broker_status": "ACTIVE", "arm_status_in_accounts_json": "active"},
+    "risky-3": {"live_account_number": "PA31WIU8X15Q", "declared_account_number": "PA31WIU8X15Q", "broker_status": "ACTIVE", "arm_status_in_accounts_json": "active"}
+  },
+  "known_shared_account_by_design": {
+    "account_number": "PA3DHPT7KIQE",
+    "arms": ["safe-1", "safe-2"],
+    "safe_because": "safe-1's arm_status_in_accounts_json is 'retired', not 'active' -- fleet_live._arm_is_processable / fleet_executor.run_dry gate dispatch on status=='active', so only safe-2 can place orders on this account. If safe-1 is ever flipped back to 'active' while safe-2 also is, this is a live double-fill/misattribution risk -- exactly what test_duplicate_account_guard.py's live-status check exists to catch.",
+    "reference": "automation/state/fleet/accounts.json safe-1._retired_doc / safe-2._repoint_2026_07_11"
+  }
+}
