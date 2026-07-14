@@ -33,13 +33,23 @@ reproduction of both, not a hypothetical):
 Fail-open (rail-2): any fetch error returns 0, matching today's pre-fix
 behavior exactly -- a failed live count can only let a trade through that a
 working count would have blocked, never invent a NEW block on real money.
+
+VISIBILITY EXTENSION (2026-07-14): compute_day_trades_detail / next_rolloff_date
+/ fetch_day_trades_detail add "which dates qualified" + "when does the count
+next drop" for the PDT VISIBILITY instrument (self_check.py + firm_brief.py) --
+the 2026-07-13 scar where core Safe was silently PDT-blocked all day on a
+day-trade count it INHERITED from an account repoint (commit 61cfca0), and
+nobody knew until a manual review found it (analysis/daily-brief/
+2026-07-13-FULL-AUDIT.md #2). fetch_day_trades_detail deliberately does NOT
+fail-open to 0 like the trading path above -- a monitoring surface showing a
+fake "0 used" on a fetch error is worse than an honest UNKNOWN.
 """
 from __future__ import annotations
 
 import json
 import sys
 import urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -71,13 +81,22 @@ def trailing_business_days(as_of_et: datetime, n: int = 5) -> set:
     return days
 
 
-def compute_day_trades_used_5d(activities: list, as_of_et: datetime) -> int:
-    """PURE. activities = Alpaca FILL-activity rows (dicts with at least
-    "symbol", "side", "transaction_time" -- transaction_time is UTC, converted
-    to ET internally). as_of_et is an ET-calendar reference point (naive).
-    Returns the count of (symbol, ET-date) pairs with BOTH a buy and a sell
-    fill on the same ET calendar date, within the trailing 5 business days
-    INCLUDING today -- crypto symbols excluded (PDT doesn't apply to them)."""
+def compute_day_trades_detail(activities: list, as_of_et: datetime) -> dict:
+    """PURE. Same inputs/window as compute_day_trades_used_5d (below, now a thin
+    wrapper around this) but ALSO returns WHICH ET-calendar dates qualified --
+    the count alone can't answer "when does this roll off", which the PDT
+    VISIBILITY instrument (self_check.py/firm_brief.py, 2026-07-14) needs (the
+    2026-07-13 scar: core Safe was silently PDT-blocked all day on an inherited
+    count and nobody knew until a manual review found it -- see
+    analysis/daily-brief/2026-07-13-FULL-AUDIT.md #2). Returns
+    {"count": int, "dates": sorted list of UNIQUE ISO date strings that had at
+    least one qualifying (symbol, date) pair}. count matches
+    compute_day_trades_used_5d's original semantics EXACTLY -- it counts
+    (symbol, date) PAIRS, not distinct dates (2 different symbols day-traded
+    on the SAME date is 2 day trades, per FINRA counting the same security
+    rule per-security, not per-day) -- dates is a SEPARATE, deduped view used
+    only to find the earliest date for next_rolloff_date, never used for the
+    count itself."""
     window = trailing_business_days(as_of_et, 5)
     window.add(as_of_et.date())
 
@@ -100,12 +119,62 @@ def compute_day_trades_used_5d(activities: list, as_of_et: datetime) -> int:
         sides = by_symbol_date.setdefault((symbol, d), set())
         sides.add(side)
 
-    return sum(1 for sides in by_symbol_date.values() if {"buy", "sell"} <= sides)
+    qualifying_pairs = [(sym, d) for (sym, d), sides in by_symbol_date.items()
+                        if {"buy", "sell"} <= sides]
+    dates = sorted({d.isoformat() for _sym, d in qualifying_pairs})
+    return {"count": len(qualifying_pairs), "dates": dates}
 
 
-def _fetch_fill_activities(creds: dict, after_iso: str, timeout: float = 10.0) -> list:
+def compute_day_trades_used_5d(activities: list, as_of_et: datetime) -> int:
+    """PURE. activities = Alpaca FILL-activity rows (dicts with at least
+    "symbol", "side", "transaction_time" -- transaction_time is UTC, converted
+    to ET internally). as_of_et is an ET-calendar reference point (naive).
+    Returns the count of (symbol, ET-date) pairs with BOTH a buy and a sell
+    fill on the same ET calendar date, within the trailing 5 business days
+    INCLUDING today -- crypto symbols excluded (PDT doesn't apply to them).
+    Thin wrapper over compute_day_trades_detail -- byte-identical behavior,
+    unchanged since 2026-07-06 (test_pdt_tracker_2026_07_06.py pins it)."""
+    return compute_day_trades_detail(activities, as_of_et)["count"]
+
+
+def next_rolloff_date(qualifying_dates: list, as_of_et: datetime) -> Optional[str]:
+    """PURE. Given compute_day_trades_detail()'s sorted ISO date list, returns
+    the ISO date on which the EARLIEST qualifying date exits the trailing
+    window -- i.e. the next date the day-trade count will DECREASE, assuming
+    no new day trades happen meanwhile. None when there are no qualifying
+    dates (nothing to roll off).
+
+    The window (see trailing_business_days + compute_day_trades_detail) is 6
+    business days wide (today + 5 preceding business days): a date D stays in
+    window(X) for every X in {D, D+1bd, ..., D+5bd} and drops out at X=D+6bd
+    -- so the rolloff date is exactly the earliest qualifying date plus 6
+    business days. as_of_et is accepted for signature symmetry with the rest
+    of this module but the result does not depend on it (business-day
+    arithmetic is date-relative, not "as of now" relative)."""
+    if not qualifying_dates:
+        return None
+    d = date.fromisoformat(min(qualifying_dates))
+    added = 0
+    while added < 6:
+        d = d + timedelta(days=1)
+        if d.weekday() < 5:
+            added += 1
+    return d.isoformat()
+
+
+def _fetch_fill_activities(creds: dict, after_iso: str, timeout: float = 10.0,
+                            *, strict: bool = False) -> list:
     """Isolated I/O: pull ALL FILL activities since after_iso, paginating via
-    Alpaca's page_token cursor. Fail-open -> [] on any error."""
+    Alpaca's page_token cursor. Fail-open -> [] on any error by default
+    (strict=False, unchanged since 2026-07-06 -- the TRADING gate's contract:
+    a failed live count can only let a trade through that a working count
+    would have blocked, never invent a new block on real money).
+
+    strict=True (additive, 2026-07-14): RE-RAISES instead of swallowing --
+    for the VISIBILITY-only fetch_day_trades_detail below, where a silent []
+    on a fetch error would masquerade as "0 day trades used", which is worse
+    for a monitoring surface than an honest UNKNOWN (OP-33: never imply it
+    works). Never used by the trading-critical fetch_day_trades_used_5d path."""
     out: list = []
     page_token: Optional[str] = None
     base = creds["base_url"].rstrip("/") + "/v2/account/activities/FILL"
@@ -118,6 +187,8 @@ def _fetch_fill_activities(creds: dict, after_iso: str, timeout: float = 10.0) -
             req = urllib.request.Request(url, headers=headers)
             data = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
         except Exception:
+            if strict:
+                raise
             break
         if not isinstance(data, list) or not data:
             break
@@ -146,3 +217,42 @@ def fetch_day_trades_used_5d(creds: dict, as_of_utc: Optional[datetime] = None) 
         return compute_day_trades_used_5d(activities, et_now(now_utc))
     except Exception:
         return 0
+
+
+def fetch_day_trades_detail(creds: dict, as_of_utc: Optional[datetime] = None) -> dict:
+    """VISIBILITY-ONLY variant of fetch_day_trades_used_5d (2026-07-14, PDT
+    visibility instrument -- the 2026-07-13 scar: core Safe was silently
+    PDT-blocked ALL DAY on a day-trade count it INHERITED from the account's
+    prior life as fleet arm safe-1 [account repoint, commit 61cfca0], and
+    nobody knew until a manual review found it, not an instrument --
+    analysis/daily-brief/2026-07-13-FULL-AUDIT.md #2).
+
+    Unlike fetch_day_trades_used_5d, this does NOT fail-open to a fake 0 on a
+    fetch error -- for a monitoring/glance surface, a silent 0 that actually
+    means "couldn't check" is worse than an honest "unknown" (OP-33: never
+    imply it works). The TRADING gate (fetch_day_trades_used_5d, above) is
+    UNCHANGED and keeps its fail-open-to-0 contract; this is a separate,
+    additive function for glance surfaces only (self_check.py / firm_brief.py)
+    -- never consumed by risk_gate.check_order.
+
+    Returns on success:
+        {"ok": True, "count": int, "dates": [...], "rolloff_date": iso|None,
+         "as_of_et": iso}
+    Returns on any fetch/parse error:
+        {"ok": False, "error": "<ExceptionType>: <short message>"}
+    """
+    now_utc = as_of_utc or datetime.now(timezone.utc)
+    try:
+        after = (now_utc - timedelta(days=10)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        activities = _fetch_fill_activities(creds, after, strict=True)
+        as_of_et = et_now(now_utc)
+        detail = compute_day_trades_detail(activities, as_of_et)
+        return {
+            "ok": True,
+            "count": detail["count"],
+            "dates": detail["dates"],
+            "rolloff_date": next_rolloff_date(detail["dates"], as_of_et),
+            "as_of_et": as_of_et.isoformat(),
+        }
+    except Exception as e:  # noqa: BLE001 -- caller needs the message, not a raise
+        return {"ok": False, "error": f"{type(e).__name__}: {e}"[:200]}
