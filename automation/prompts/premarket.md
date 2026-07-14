@@ -276,6 +276,28 @@ Two outputs written before journal seeding:
 
 If the ui_evaluate call fails: log a warning to journal under `## Setups skipped`, write `chart_drawings.json` with `{success: false, error: <msg>}`, and skip the compute step. The system continues to function on level-based triggers — trendlines are additive context, not load-bearing.
 
+## Step 5c — draw the LIVE engine's trendlines on the chart (NEW 2026-07-14, T14)
+
+Reason this exists: `trendline_engine.py` (`Gamma_Trendlines`, every 5 min RTH) DETECTS and LOGS
+respected multi-day trendlines into `trendlines-live.json` / `trendline-log.jsonl`, but nothing
+ever DREW them — J spotted a real ascending-support line by eye (premarket low through the 10:15
+low) that the engine had also detected (first logged the 10:15 pivot at 10:20 ET, 5 min after it
+printed) but J never saw it on his chart. Headless `pythonw` scheduled tasks cannot call
+TradingView MCP draw tools (no CDP session) — this ONE daily premarket fire is where that gap
+gets closed automatically; J or a live session can also refresh it any time via the
+`trendline-draw` skill.
+
+Invoke the **`trendline-draw` skill** (`.claude/skills/trendline-draw/SKILL.md`) end to end:
+scoped-clear the engine's own prior lines (via `remove_drawing.js`, never `draw_clear` — that
+would wipe J's manual lines too), detect via
+`.venv/Scripts/python.exe -m autoresearch.trendline_engine --no-log --json` (up to 4 lines: WICK
+and BODY families × support/resistance, never mixed within one line per J's rule), draw each with
+family-labeled color + text, and persist the new entity_ids to
+`automation/state/trendline-draw-state.json` via `setup/scripts/trendline_draw_state.py`.
+
+If TV is down or the skill fails: log a warning under `## Setups skipped` and continue — this
+step is additive visibility, never load-bearing for the trading day.
+
 ## Step 6 — seed today's journal
 
 Create `journal/{today}.md` with header section: bias, falsifiable hypothesis, key levels table (chart-structural + IV regime + VIX), daily loss budget, day-trades remaining. Then `## Trades`, `## Setups skipped`, `## End-of-day reflection`, `## Daily Review` placeholder sections.

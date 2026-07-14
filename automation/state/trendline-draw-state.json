@@ -1,0 +1,28 @@
+{
+  "drawn": [
+    {
+      "entity_id": "4cjdSo",
+      "kind": "support",
+      "family": "wick",
+      "label": "respect x63 INTACT break~749.04"
+    },
+    {
+      "entity_id": "uPvOmC",
+      "kind": "resistance",
+      "family": "wick",
+      "label": "respect x27 INTACT break~752.75"
+    },
+    {
+      "entity_id": "e4GDfC",
+      "kind": "support",
+      "family": "body",
+      "label": "respect x44 INTACT break~748.74"
+    },
+    {
+      "entity_id": "cAuM3P",
+      "kind": "resistance",
+      "family": "body",
+      "label": "respect x32 INTACT break~752.64"
+    }
+  ]
+}

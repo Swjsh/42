@@ -1,0 +1,88 @@
+{
+  "_doc": "PRE-REGISTERED candidate spec for wiring trendline_engine.py structure context into a LIVE decision as a CONVICTION OVERRIDE on top of the existing block_elite_bull VIX-band gate. Frozen BEFORE any replay is run (ground rule: exploratory != confirmatory -- no re-picks after seeing results; FAIL is publishable). Per J directive 2026-07-14 (TRENDLINE-SUBSYSTEM-AUDIT): SPEC ONLY -- do NOT run yet, the OPRA cache/backtest venv lane may be busy with other work. This is the decisive test for the trendline-as-veto/BOS-break-trigger 'entry-wire A/B-gated NEEDS-REVIEW' status trendline_engine.py's own docstrings have carried since T3 (2026-06-26).",
+  "version": 1,
+  "status": "FROZEN_PENDING_RUN",
+  "frozen_at": "2026-07-14",
+  "runner": "TBD -- new script, e.g. backtest/tools/trendline_conviction_override_study.py (does not exist yet)",
+  "strategy": "ribbon_ride / BULLISH_RECLAIM_RIDE_THE_RIBBON (ELITE tier, level_reclaim trigger)",
+  "direction": "bull only (mirrors block_elite_bull's own scope -- see gate_under_test)",
+
+  "hypothesis_provenance": {
+    "generated_by": "2026-07-14 T14 trendline-subsystem audit, motivated by J's live catch of a real ascending-support structure (premarket low ~747.9 through the 10:15 ET low 748.69, up to spot 752+) that nothing surfaced to him, PLUS the same-day miss trace: at 11:06:03 ET a real BULLISH_RECLAIM_RIDE_THE_RIBBON signal fired (triggers=[level_reclaim, confluence], bull_score=11, SPY 752.34, VIX 16.56) and was blocked by block_elite_bull (VIX in its ratified [15, 17.5) block band -- see analysis/recommendations/elite-bull-block-vix-01.json). The ascending-support structure J was reading was INTACT underneath that exact signal (trendline_engine.py's own wick-family support line: current_value ~748.9-749.0, respect_count 63, status INTACT, at 11:06 ET) -- but NOTHING in the gate stack consumes trendline/structure state, so we cannot know from today's data alone whether 'support intact' would have changed the ratified VIX-band EV math. This study is the honest, decisive test of that specific question -- NOT a claim that today's block was wrong (VIX 16.56 falls squarely in the ratified band; the block applied exactly as designed and its own provenance file is sound).",
+    "excluded_from_all_pass_fail_layers": true,
+    "today_exhibit": {
+      "date_et": "2026-07-14",
+      "signal_ts_et": "2026-07-14T11:06:03",
+      "role": "EXHIBIT ONLY -- motivates the hypothesis, never counted toward any verdict (today is still open at freeze time; also this is n=1, nowhere near evidence_n>=15)"
+    }
+  },
+
+  "gate_under_test": {
+    "name": "block_elite_bull",
+    "current_shipped_behavior": "backtest/lib/engine/gates.py ~line 266: if params.block_elite_bull AND tier=='ELITE' AND 'level_reclaim' in triggers AND block_elite_bull_vix_low <= vix_now < block_elite_bull_vix_high: SKIP_ELITE_BULL_LEVEL_RECLAIM. Ratified VIX band (elite-bull-block-vix-01.json, 2026-06-17): [15.0, 17.5).",
+    "provenance_already_sound": "The VIX-banded block is itself a RATIFIED, evidence-based gate (IS: n=73 in the worst VIX bucket, WR=9.6%, avg=-$100; superseded the unconditional block after OOS-negative WF=-4.943 FAIL). This study does NOT re-litigate that finding -- it asks a NARROWER, additive question: within the blocked population, does a structure-confirmed subset behave differently enough to carve out?"
+  },
+
+  "hypothesis": "Among historical ELITE bull level_reclaim signals that block_elite_bull's VIX band would block, the subset where a WICK-family (T14 anchor-family, trendline_engine.py) ascending-support line is simultaneously respect_count>=10, status=INTACT, and within $1.00 of spot at signal time has positive incremental expectancy vs. the blocked-population baseline -- enough to justify a conviction OVERRIDE (let the trade through) without eroding the original block's benefit on the REST of the blocked population.",
+
+  "null_hypothesis": "The structure-confirmed subset's expectancy is indistinguishable from (or worse than) the rest of the blocked population -- i.e. trendline/structure state carries no incremental information over VIX regime alone for this gate, and the current shadow-only status is correct.",
+
+  "data_plan": {
+    "signal_reconstruction": "Re-run engine_cli/gates.py in REPLAY mode (same convention as elite_bull_block_ab.py / _revalidate_block_elite_bull.py) across the full IS+OOS window already used by elite-bull-block-vix-01.json, capturing every signal where tier=='ELITE', 'level_reclaim' in triggers, side=='C', and block_elite_bull WOULD fire (VIX in [15,17.5)) -- this IS the study's population, no new signal detection needed.",
+    "structure_state_reconstruction": "For each signal's timestamp, truncate the trailing N_DAYS=5 trading days of SPY 5m bars to that exact bar (no look-ahead -- reuse trendline_engine.fetch_spy_5m_lookback + a bars[:idx+1] truncation, same pattern as test_trendline_multiday.py's _truncate_to), call trendline_engine.detect(bars, families=('wick',)) and record whether a support line with respect_count>=threshold, status=='INTACT', and abs(current_value - spot) <= 1.00 exists. This is deterministic and CPU-only (no OPRA needed for the structure-state layer) -- only the P&L outcome layer needs cached/live option bars.",
+    "pnl_outcome_source": "Reuse the SAME real-fills-anchored / fresh-slice-signal two-layer approach as structure-stop-preregistration.json (layer (b): fills-ledger.jsonl reconstructed positions where available; layer (a): fresh signal-set replay with cached OTM-2/ATM OPRA bars per V15_SAFE_TIERS for signals with no real fill, since block_elite_bull historically prevented these from ever getting real fills at all -- this population is almost entirely counterfactual by construction, so layer (a) fresh-slice replay is the PRIMARY evidence layer here, not secondary as in the structure-stop study).",
+    "counterfactual_caveat": "Nearly the entire population under test never received a real fill (that is the point of the gate under test) -- this study is necessarily counterfactual-replay-heavy, unlike the structure-stop study's real-fills-anchored design. Flag every result honestly as SIMULATED, not broker-verified, per OP-16/C1 (real-fills is the only WR authority) -- this study can inform a SHIP/HOLD decision but any resulting override must accrue its own real-fills track record (evidence_n>=15) before being trusted the way block_elite_bull itself now is."
+  },
+
+  "candidates": {
+    "CONTROL": {
+      "id": "CONTROL",
+      "label": "shipped behavior -- block_elite_bull VIX-banded, no structure override",
+      "override_rule": null
+    },
+    "TL-A": {
+      "id": "TL-A",
+      "label": "override block_elite_bull IF a WICK-family support line has respect_count>=10, status=INTACT, within $1.00 of spot",
+      "anchor_family": "wick",
+      "min_respect_count": 10,
+      "required_status": "INTACT",
+      "max_distance_dollars": 1.00
+    },
+    "TL-B": {
+      "id": "TL-B",
+      "label": "TL-A with a tighter respect bar (>=20) -- tests whether the override should require MORE conviction than TL-A",
+      "anchor_family": "wick",
+      "min_respect_count": 20,
+      "required_status": "INTACT",
+      "max_distance_dollars": 1.00
+    },
+    "TL-C": {
+      "id": "TL-C",
+      "label": "TL-A but EITHER wick OR body family qualifies -- tests whether J's bodies-XOR-wicks distinction (2026-07-14 amendment) actually matters for THIS gate's predictive value, i.e. does restricting to wick-only cost real signal",
+      "anchor_family": "wick_or_body",
+      "min_respect_count": 10,
+      "required_status": "INTACT",
+      "max_distance_dollars": 1.00
+    }
+  },
+  "override_candidate_ids": ["TL-A", "TL-B", "TL-C"],
+
+  "no_look_ahead_guard": {
+    "statement": "The structure-state check at each signal's timestamp MUST use ONLY bars with timestamp_et <= signal_ts_et (C6 invariant). trendline_engine.detect() is index-based and lookback-agnostic (verified T8), so truncating the bar list before calling detect() is sufficient and matches the exact production code path -- no separate implementation to keep in sync.",
+    "test_required": "A new guard test (e.g. test_trendline_conviction_override_no_lookahead.py) must assert the reconstructed structure-state at signal time T does NOT change when bars AFTER T are appended to the truncated list -- mirrors test_break_only_fires_on_closed_bar's pattern in test_trendline_engine.py."
+  },
+
+  "pass_bar": {
+    "statement": "ALL conditions must hold for a candidate (TL-A/TL-B/TL-C) to PASS:",
+    "condition_1_rescued_subset_positive": "The RESCUED subset (signals CONTROL blocks but the candidate would let through) shows positive expectancy on layer (a) fresh-slice replay -- interpreted as strictly greater than $0 avg P&L per trade.",
+    "condition_2_no_regression_on_remainder": "The signals STILL blocked by the candidate (structure condition not met) must show expectancy no better than the original blocked-population baseline that justified block_elite_bull in the first place (i.e. the override must not accidentally also rescue the bad cohort by loosening something unintended) -- interpreted as no statistically-suggestive improvement (informal: not >1 std-err better) on the still-blocked remainder vs. elite-bull-block-vix-01.json's own IS blocked-population baseline (avg ~-$100/trade, n=73 worst bucket).",
+    "condition_3_evidence_floor": "The rescued subset must have n>=15 (evidence_n floor per doctrine) across IS+OOS combined -- if the structure condition rarely co-occurs with a VIX-banded ELITE bull signal, the candidate is UNDERPOWERED, not proven wrong; report as INCONCLUSIVE, not FAIL, in that case.",
+    "condition_4_no_lookahead": "The no_look_ahead_guard test above passes.",
+    "aggregation": "Conditions 1+2+4 are AND (any failing = FAIL). Condition 3 gates whether a FAIL is a real FAIL or INCONCLUSIVE.",
+    "today_exhibit_excluded": "The 2026-07-14 11:06 ET exhibit signal plays NO role in any pass/fail verdict."
+  },
+
+  "ship_gate_if_pass": "A PASS candidate does NOT auto-arm live money (OP-0 #1 still requires J for that). A PASS candidate DOES qualify to flip trendline_requires_ribbon_flip-style shadow status to a live params.json override key (new key, e.g. block_elite_bull_structure_override) behind the existing OP-16 eval-first + A/B scorecard gate, paper-only, exactly like any other validated engine win -- ships and reports for REVOKE per OP-0/OP-16, no menu of options.",
+
+  "no_repick_clause": "Once this file is frozen, no candidate rule, threshold, distance band, or data-layer convention may be edited in light of results. A FAIL or INCONCLUSIVE is a publishable, informative outcome, not a reason to adjust the pre-registration and re-run."
+}
