@@ -356,10 +356,18 @@ def _params_to_kwargs(overrides: dict, account_equity: Optional[float] = None) -
     if "min_triggers_bull" in overrides:  # L116: raw snake_case alias
         kwargs["min_triggers_bull"] = overrides["min_triggers_bull"]
     # --- T-09 (2026-05-18): per-tier equity-based strike selection ---
-    # params_safe.json / params_bold.json carry v15_strike_offset_per_tier with the
+    # automation/state/params.json carries v15_strike_offset_per_tier with the
     # per-equity-tier OTM/ITM ladder.  When account_equity is supplied, use that table
     # so backtests model the CORRECT strike for the account size being simulated.
     # Falls back to static strike_offset_itm when the table is absent or equity unknown.
+    # NOTE (2026-07-14, strike-tier reconciliation follow-up): params_safe.json /
+    # params_bold.json (the account-specific ladder files this comment used to cite)
+    # were RETIRED 2026-06-18 (commit 5da0da2) in favor of hardcoded Python constants
+    # (crypto/lib/strike_selection.py#V15_SAFE_TIERS / V15_BOLD_TIERS). This table
+    # remains the SIM-LANE's own source of truth (genuinely read here, real consumer —
+    # do not delete); the LIVE core-Safe path no longer reads params.json for strike
+    # tiers at all, it calls strike_selection.pick_strike() directly. See
+    # analysis/deep-research/2026-07-11-strike-tier-reconciliation.md.
     if "v15_strike_offset_per_tier" in overrides and account_equity is not None:
         from crypto.lib.strike_selection import StrikeTier, pick_tier  # noqa: PLC0415
         tiers = tuple(

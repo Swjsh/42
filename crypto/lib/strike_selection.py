@@ -1,15 +1,28 @@
 """strike_selection — per-tier OTM/ITM strike math (v15 doctrine).
 
-Production source-of-truth (`automation/state/params.json`):
+Live source-of-truth (THIS file, `V15_SAFE_TIERS` / `V15_BOLD_TIERS` below):
+  `setup/scripts/heartbeat_core.py` (the live core-Safe/Bold engine) calls
+  `pick_strike()` against these hardcoded tables directly — it does NOT read
+  `automation/state/params.json` for strike tiers. This has been true since
+  2026-06-18 (commit 5da0da2), when the old account-specific `params_safe.json`
+  / `params_bold.json` ladder files were retired in favor of these constants.
 
-  v15_strike_offset_per_tier (Bold/base config):
+  V15_BOLD_TIERS (mirrors params.json#v15_strike_offset_per_tier, Bold/base):
     $0-$2K   : strike_offset = -3   (OTM-3)
     $2K-$10K : strike_offset = -2   (OTM-2)
     $10K-$25K: strike_offset = -1   (OTM-1)
     $25K+    : strike_offset = +2   (ITM-2)
 
-  Account-specific overrides (params_safe.json):
-    Safe is uniform ATM (0) under $10K, then slight ITM.
+  V15_SAFE_TIERS: ATM (0) under $10K, then slight ITM, then ITM-2 at $25K+.
+
+Sim-lane source-of-truth (`automation/state/params.json#v15_strike_offset_per_tier`):
+  `backtest/lib/orchestrator.py`'s `_apply_param_overrides` genuinely reads this
+  key (T-09 per-tier equity-based strike selection) when a backtest supplies
+  `account_equity` — it is a REAL, live consumer on the sim/backtest lane, not
+  a dead knob, even though the live core path above no longer reads it. The two
+  tables can drift; reconcile per Operating Principle 4 if they do. See
+  analysis/deep-research/2026-07-11-strike-tier-reconciliation.md for the full
+  three-way doc-drift writeup this docstring was corrected from.
 
 Canonical formula (per `automation/prompts/heartbeat.md` line 254):
   BEAR puts:  strike = round(spot) + strike_offset   (positive = ITM, negative = OTM)
@@ -20,8 +33,7 @@ Sanity invariants any strike-selection must hold:
   For puts:  ITM iff strike > spot; OTM iff strike < spot.
 
 Validator confirms both the tier lookup AND the sign convention via these
-invariants. Drift between this file's table and params.json is a sync event
-per Operating Principle 4.
+invariants.
 """
 from __future__ import annotations
 
