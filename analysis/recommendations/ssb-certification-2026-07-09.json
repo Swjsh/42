@@ -1,0 +1,807 @@
+{
+  "_doc": "SS-B production-code certification -- parity vs structure_stop_study.py's published numbers (Task 1) + OP-16 J-anchor edge_capture under SS-B vs CONTROL (Task 2, closes the study's disclosed gap). ANALYSIS ONLY.",
+  "generated_at": "2026-07-09T15:56:15.908387",
+  "commit_certified": "933bd6513de3c30046d09a6014a20518edcea5f3",
+  "parity": {
+    "n_positions": 10,
+    "positions": [
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260709C00751000",
+        "date_et": "2026-07-09",
+        "side": "C",
+        "qty": 3,
+        "entry_premium": 0.5,
+        "trigger_level": 747.55,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.0,
+        "study_ss_b": {
+          "pnl": -75.0,
+          "structure_fired": false,
+          "exits": [
+            {
+              "stage": "premium_stop",
+              "qty": 3,
+              "fill_price": 0.25,
+              "dt": "2026-07-09T10:11:00"
+            }
+          ]
+        },
+        "production_path": {
+          "pnl": -75.0,
+          "structure_fired": false,
+          "exits": [
+            {
+              "stage": "premium_stop",
+              "qty": 3,
+              "fill_price": 0.25,
+              "dt": "2026-07-09T10:11:00",
+              "reason": "premium_stop @ 0.25"
+            }
+          ],
+          "structure_stop_enabled": true,
+          "time_stop_et": "15:40:00"
+        },
+        "diff_dollars": 0.0,
+        "divergence_class": "MATCH",
+        "divergence_note": "production and study SS-B agree to the cent"
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260709C00751000",
+        "date_et": "2026-07-09",
+        "side": "C",
+        "qty": 3,
+        "entry_premium": 0.54,
+        "trigger_level": 748.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -57.0,
+        "study_ss_b": {
+          "pnl": -69.0,
+          "structure_fired": true,
+          "exits": [
+            {
+              "stage": "structure_stop",
+              "qty": 3,
+              "fill_price": 0.31,
+              "dt": "2026-07-09T10:10:00"
+            }
+          ]
+        },
+        "production_path": {
+          "pnl": -81.0,
+          "structure_fired": false,
+          "exits": [
+            {
+              "stage": "premium_stop",
+              "qty": 3,
+              "fill_price": 0.27,
+              "dt": "2026-07-09T10:10:00",
+              "reason": "premium_stop @ 0.27"
+            }
+          ],
+          "structure_stop_enabled": true,
+          "time_stop_et": "15:40:00"
+        },
+        "diff_dollars": -12.0,
+        "divergence_class": "REAL-DIVERGENCE",
+        "divergence_note": "stage sequence differs: production=['premium_stop'] (structure_fired=False) vs study=['structure_stop'] (structure_fired=True) -- likely the documented pre-TP1 catastrophe-before-structure ordering gap; inspect exits[] both sides"
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260709C00751000",
+        "date_et": "2026-07-09",
+        "side": "C",
+        "qty": 3,
+        "entry_premium": 0.51,
+        "trigger_level": 747.55,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -48.0,
+        "study_ss_b": {
+          "pnl": -76.5,
+          "structure_fired": false,
+          "exits": [
+            {
+              "stage": "premium_stop",
+              "qty": 3,
+              "fill_price": 0.255,
+              "dt": "2026-07-09T10:11:00"
+            }
+          ]
+        },
+        "production_path": {
+          "pnl": -76.5,
+          "structure_fired": false,
+          "exits": [
+            {
+              "stage": "premium_stop",
+              "qty": 3,
+              "fill_price": 0.255,
+              "dt": "2026-07-09T10:11:00",
+              "reason": "premium_stop @ 0.26"
+            }
+          ],
+          "structure_stop_enabled": true,
+          "time_stop_et": "15:40:00"
+        },
+        "diff_dollars": 0.0,
+        "divergence_class": "MATCH",
+        "divergence_note": "production and study SS-B agree to the cent"
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260709C00751000",
+        "date_et": "2026-07-09",
+        "side": "C",
+        "qty": 5,
+        "entry_premium": 0.5,
+        "trigger_level": 747.55,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -75.0,
+        "study_ss_b": {
+          "pnl": -125.0,
+          "structure_fired": false,
+          "exits": [
+            {
+              "stage": "premium_stop",
+              "qty": 5,
+              "fill_price": 0.25,
+              "dt": "2026-07-09T10:11:00"
+            }
+          ]
+        },
+        "production_path": {
+          "pnl": -125.0,
+          "structure_fired": false,
+          "exits": [
+            {
+              "stage": "premium_stop",
+              "qty": 5,
+              "fill_price": 0.25,
+              "dt": "2026-07-09T10:11:00",
+              "reason": "premium_stop @ 0.25"
+            }
+          ],
+          "structure_stop_enabled": true,
+          "time_stop_et": "15:40:00"
+        },
+        "diff_dollars": 0.0,
+        "divergence_class": "MATCH",
+        "divergence_note": "production and study SS-B agree to the cent"
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260709C00751000",
+        "date_et": "2026-07-09",
+        "side": "C",
+        "qty": 5,
+        "entry_premium": 0.49,
+        "trigger_level": 747.55,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -35.0,
+        "study_ss_b": {
+          "pnl": -110.0,
+          "structure_fired": true,
+          "exits": [
+            {
+              "stage": "structure_stop",
+              "qty": 5,
+              "fill_price": 0.27,
+              "dt": "2026-07-09T10:15:00"
+            }
+          ]
+        },
+        "production_path": {
+          "pnl": -122.5,
+          "structure_fired": false,
+          "exits": [
+            {
+              "stage": "premium_stop",
+              "qty": 5,
+              "fill_price": 0.245,
+              "dt": "2026-07-09T10:15:00",
+              "reason": "premium_stop @ 0.24"
+            }
+          ],
+          "structure_stop_enabled": true,
+          "time_stop_et": "15:40:00"
+        },
+        "diff_dollars": -12.5,
+        "divergence_class": "REAL-DIVERGENCE",
+        "divergence_note": "stage sequence differs: production=['premium_stop'] (structure_fired=False) vs study=['structure_stop'] (structure_fired=True) -- likely the documented pre-TP1 catastrophe-before-structure ordering gap; inspect exits[] both sides"
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260709C00751000",
+        "date_et": "2026-07-09",
+        "side": "C",
+        "qty": 5,
+        "entry_premium": 0.53,
+        "trigger_level": 748.0,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -30.0,
+        "study_ss_b": {
+          "pnl": -110.0,
+          "structure_fired": true,
+          "exits": [
+            {
+              "stage": "structure_stop",
+              "qty": 5,
+              "fill_price": 0.31,
+              "dt": "2026-07-09T10:10:00"
+            }
+          ]
+        },
+        "production_path": {
+          "pnl": -110.0,
+          "structure_fired": true,
+          "exits": [
+            {
+              "stage": "structure_stop",
+              "qty": 5,
+              "fill_price": 0.31,
+              "dt": "2026-07-09T10:10:00",
+              "reason": "structure_stop @ 748.0"
+            }
+          ],
+          "structure_stop_enabled": true,
+          "time_stop_et": "15:40:00"
+        },
+        "diff_dollars": 0.0,
+        "divergence_class": "MATCH",
+        "divergence_note": "production and study SS-B agree to the cent"
+      },
+      {
+        "arm": "safe-1",
+        "symbol": "SPY260709C00750000",
+        "date_et": "2026-07-09",
+        "side": "C",
+        "qty": 3,
+        "entry_premium": 0.49,
+        "trigger_level": 746.8,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -24.0,
+        "study_ss_b": {
+          "pnl": 134.0,
+          "structure_fired": false,
+          "exits": [
+            {
+              "stage": "tp1",
+              "qty": 2,
+              "fill_price": 0.98,
+              "dt": "2026-07-09T11:24:00"
+            },
+            {
+              "stage": "trail",
+              "qty": 1,
+              "fill_price": 0.85,
+              "dt": "2026-07-09T11:28:00"
+            }
+          ]
+        },
+        "production_path": {
+          "pnl": 134.0,
+          "structure_fired": false,
+          "exits": [
+            {
+              "stage": "tp1",
+              "qty": 2,
+              "fill_price": 0.98,
+              "dt": "2026-07-09T11:24:00",
+              "reason": "tp1 @ +100%"
+            },
+            {
+              "stage": "trail",
+              "qty": 1,
+              "fill_price": 0.85,
+              "dt": "2026-07-09T11:28:00",
+              "reason": "runner_stop @ 0.85"
+            }
+          ],
+          "structure_stop_enabled": true,
+          "time_stop_et": "15:40:00"
+        },
+        "diff_dollars": 0.0,
+        "divergence_class": "MATCH",
+        "divergence_note": "production and study SS-B agree to the cent"
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260709C00750000",
+        "date_et": "2026-07-09",
+        "side": "C",
+        "qty": 3,
+        "entry_premium": 0.48,
+        "trigger_level": 746.8,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -18.0,
+        "study_ss_b": {
+          "pnl": 133.0,
+          "structure_fired": false,
+          "exits": [
+            {
+              "stage": "tp1",
+              "qty": 2,
+              "fill_price": 0.96,
+              "dt": "2026-07-09T11:22:00"
+            },
+            {
+              "stage": "trail",
+              "qty": 1,
+              "fill_price": 0.85,
+              "dt": "2026-07-09T11:28:00"
+            }
+          ]
+        },
+        "production_path": {
+          "pnl": 133.0,
+          "structure_fired": false,
+          "exits": [
+            {
+              "stage": "tp1",
+              "qty": 2,
+              "fill_price": 0.96,
+              "dt": "2026-07-09T11:22:00",
+              "reason": "tp1 @ +100%"
+            },
+            {
+              "stage": "trail",
+              "qty": 1,
+              "fill_price": 0.85,
+              "dt": "2026-07-09T11:28:00",
+              "reason": "runner_stop @ 0.85"
+            }
+          ],
+          "structure_stop_enabled": true,
+          "time_stop_et": "15:40:00"
+        },
+        "diff_dollars": 0.0,
+        "divergence_class": "MATCH",
+        "divergence_note": "production and study SS-B agree to the cent"
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260709C00750000",
+        "date_et": "2026-07-09",
+        "side": "C",
+        "qty": 5,
+        "entry_premium": 0.49,
+        "trigger_level": 746.8,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -35.0,
+        "study_ss_b": {
+          "pnl": 219.0,
+          "structure_fired": false,
+          "exits": [
+            {
+              "stage": "tp1",
+              "qty": 3,
+              "fill_price": 0.98,
+              "dt": "2026-07-09T11:24:00"
+            },
+            {
+              "stage": "trail",
+              "qty": 2,
+              "fill_price": 0.85,
+              "dt": "2026-07-09T11:28:00"
+            }
+          ]
+        },
+        "production_path": {
+          "pnl": 219.0,
+          "structure_fired": false,
+          "exits": [
+            {
+              "stage": "tp1",
+              "qty": 3,
+              "fill_price": 0.98,
+              "dt": "2026-07-09T11:24:00",
+              "reason": "tp1 @ +100%"
+            },
+            {
+              "stage": "trail",
+              "qty": 2,
+              "fill_price": 0.85,
+              "dt": "2026-07-09T11:28:00",
+              "reason": "runner_stop @ 0.85"
+            }
+          ],
+          "structure_stop_enabled": true,
+          "time_stop_et": "15:40:00"
+        },
+        "diff_dollars": 0.0,
+        "divergence_class": "MATCH",
+        "divergence_note": "production and study SS-B agree to the cent"
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260709C00750000",
+        "date_et": "2026-07-09",
+        "side": "C",
+        "qty": 5,
+        "entry_premium": 0.48,
+        "trigger_level": 746.8,
+        "recovery_status": "ok",
+        "actual_exit_pnl": -35.0,
+        "study_ss_b": {
+          "pnl": 218.0,
+          "structure_fired": false,
+          "exits": [
+            {
+              "stage": "tp1",
+              "qty": 3,
+              "fill_price": 0.96,
+              "dt": "2026-07-09T11:22:00"
+            },
+            {
+              "stage": "trail",
+              "qty": 2,
+              "fill_price": 0.85,
+              "dt": "2026-07-09T11:28:00"
+            }
+          ]
+        },
+        "production_path": {
+          "pnl": 218.0,
+          "structure_fired": false,
+          "exits": [
+            {
+              "stage": "tp1",
+              "qty": 3,
+              "fill_price": 0.96,
+              "dt": "2026-07-09T11:22:00",
+              "reason": "tp1 @ +100%"
+            },
+            {
+              "stage": "trail",
+              "qty": 2,
+              "fill_price": 0.85,
+              "dt": "2026-07-09T11:28:00",
+              "reason": "runner_stop @ 0.85"
+            }
+          ],
+          "structure_stop_enabled": true,
+          "time_stop_et": "15:40:00"
+        },
+        "diff_dollars": 0.0,
+        "divergence_class": "MATCH",
+        "divergence_note": "production and study SS-B agree to the cent"
+      }
+    ],
+    "study_ss_b_published_total": 138.5,
+    "study_ss_b_rederived_total": 138.5,
+    "study_rederivation_matches_published": true,
+    "production_path_total": 114.0,
+    "total_diff_dollars": -24.5,
+    "n_match": 8,
+    "n_benign_divergence": 0,
+    "n_real_divergence": 2,
+    "verdict": "REAL-DIVERGENCE",
+    "control_self_check": {
+      "production_harness_control_total": -400.2,
+      "study_published_control_total": -400.2,
+      "matches": true
+    },
+    "production_config_used": {
+      "structure_stop_enabled_safe": true,
+      "structure_stop_enabled_aggressive": true,
+      "time_stop_et_safe": "15:40",
+      "time_stop_et_aggressive": "15:40"
+    }
+  },
+  "j_anchor": {
+    "trades": [
+      {
+        "date": "2026-04-29",
+        "role": "winner",
+        "side": "P",
+        "strike": 710,
+        "qty": 6,
+        "entry_time_et": "10:25:51",
+        "entry_premium": 1.67,
+        "j_actual_pnl": 342.0,
+        "symbol": "SPY260429P00710000",
+        "trigger_level": 711.1900024414062,
+        "recovery_status": "ok",
+        "fallback_note": null,
+        "source_note": "trades.csv row 2 verbatim.",
+        "n_option_bars_available": 396,
+        "n_option_bars_replayed": 340,
+        "ss_b_pnl": -114.0,
+        "ss_b_structure_fired": true,
+        "ss_b_classification": "MISSED",
+        "ss_b_exits": [
+          {
+            "stage": "structure_stop",
+            "qty": 6,
+            "fill_price": 1.48,
+            "dt": "2026-04-29T10:35:00",
+            "reason": "structure_stop @ 711.1900024414062"
+          }
+        ],
+        "control_pnl": -200.4,
+        "control_classification": "MISSED",
+        "control_exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 6,
+            "fill_price": 1.336,
+            "dt": "2026-04-29T15:11:00",
+            "reason": "premium_stop @ 1.34"
+          }
+        ]
+      },
+      {
+        "date": "2026-05-01",
+        "role": "winner",
+        "side": "P",
+        "strike": 721,
+        "qty": 20,
+        "entry_time_et": "13:09:14",
+        "entry_premium": 0.325,
+        "j_actual_pnl": 470.0,
+        "symbol": "SPY260501P00721000",
+        "trigger_level": 721.99,
+        "recovery_status": "ok",
+        "fallback_note": null,
+        "source_note": "trades.csv row 3: entry_px 0.325 is a QTY-weighted AVERAGE of two legs (13:09 anticipation entry + 13:36 real trendline-rejection trigger, per notes_short). Replayed here as ONE position at the averaged premium and the FIRST leg's timestamp -- no per-leg qty split is recorded in the ledger, so this is the best-available faithful reconstruction, not a re-derivation.",
+        "n_option_bars_available": 396,
+        "n_option_bars_replayed": 176,
+        "ss_b_pnl": -50.0,
+        "ss_b_structure_fired": true,
+        "ss_b_classification": "MISSED",
+        "ss_b_exits": [
+          {
+            "stage": "structure_stop",
+            "qty": 20,
+            "fill_price": 0.3,
+            "dt": "2026-05-01T13:15:00",
+            "reason": "structure_stop @ 721.99"
+          }
+        ],
+        "control_pnl": -130.0,
+        "control_classification": "MISSED",
+        "control_exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 20,
+            "fill_price": 0.26,
+            "dt": "2026-05-01T13:19:00",
+            "reason": "premium_stop @ 0.26"
+          }
+        ]
+      },
+      {
+        "date": "2026-05-04",
+        "role": "winner",
+        "side": "P",
+        "strike": 721,
+        "qty": 10,
+        "entry_time_et": "10:27:50",
+        "entry_premium": 0.85,
+        "j_actual_pnl": 730.0,
+        "symbol": "SPY260504P00721000",
+        "trigger_level": 721.5,
+        "recovery_status": "ok",
+        "fallback_note": null,
+        "source_note": "trades.csv row 5 verbatim.",
+        "n_option_bars_available": 392,
+        "n_option_bars_replayed": 334,
+        "ss_b_pnl": -70.0,
+        "ss_b_structure_fired": true,
+        "ss_b_classification": "MISSED",
+        "ss_b_exits": [
+          {
+            "stage": "structure_stop",
+            "qty": 10,
+            "fill_price": 0.78,
+            "dt": "2026-05-04T10:35:00",
+            "reason": "structure_stop @ 721.5"
+          }
+        ],
+        "control_pnl": -170.0,
+        "control_classification": "MISSED",
+        "control_exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 10,
+            "fill_price": 0.68,
+            "dt": "2026-05-04T10:33:00",
+            "reason": "premium_stop @ 0.68"
+          }
+        ]
+      },
+      {
+        "date": "2026-05-05",
+        "role": "loser",
+        "side": "P",
+        "strike": 722,
+        "qty": 20,
+        "entry_time_et": "13:00:33",
+        "entry_premium": 0.3,
+        "j_actual_pnl": -260.0,
+        "symbol": "SPY260505P00722000",
+        "trigger_level": null,
+        "recovery_status": "no_trigger_bar_in_lookback",
+        "fallback_note": "trigger_level unrecoverable (recovery_status=no_trigger_bar_in_lookback); ExitState.from_entry resolves stop_mode='premium' using RIBBON_RIDE.exit's OWN premium_stop_pct=-0.20 (the documented 'flag-OFF emergency fallback', NOT the -50% catastrophe cap -- automation/state/fleet/strategies.py RIBBON_RIDE.note). This is production's real, verified fallback behavior, not a convention chosen for this study.",
+        "source_note": "trades.csv row 8 verbatim (manual J trade, UNCATEGORIZED_PROBE -- no playbook trigger fired in the system either, per notes_short).",
+        "n_option_bars_available": 396,
+        "n_option_bars_replayed": 185,
+        "ss_b_pnl": -120.0,
+        "ss_b_structure_fired": false,
+        "ss_b_classification": "OVERTRADED",
+        "ss_b_exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 20,
+            "fill_price": 0.24,
+            "dt": "2026-05-05T13:18:00",
+            "reason": "premium_stop @ 0.24"
+          }
+        ],
+        "control_pnl": -120.0,
+        "control_classification": "OVERTRADED",
+        "control_exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 20,
+            "fill_price": 0.24,
+            "dt": "2026-05-05T13:18:00",
+            "reason": "premium_stop @ 0.24"
+          }
+        ]
+      },
+      {
+        "date": "2026-05-06",
+        "role": "loser",
+        "side": "P",
+        "strike": 730,
+        "qty": 10,
+        "entry_time_et": "13:09:37",
+        "entry_premium": 0.32,
+        "j_actual_pnl": -300.0,
+        "symbol": "SPY260506P00730000",
+        "trigger_level": 731.7,
+        "recovery_status": "ok",
+        "fallback_note": null,
+        "source_note": "trades.csv row 9 verbatim (manual J trade, held to expiry with NO stop -- worst-case outcome of Rule 3/8 violations; replay applies the SS-B/CONTROL stop discipline J did not).",
+        "n_option_bars_available": 396,
+        "n_option_bars_replayed": 176,
+        "ss_b_pnl": -140.0,
+        "ss_b_structure_fired": true,
+        "ss_b_classification": "OVERTRADED",
+        "ss_b_exits": [
+          {
+            "stage": "structure_stop",
+            "qty": 10,
+            "fill_price": 0.18,
+            "dt": "2026-05-06T13:35:00",
+            "reason": "structure_stop @ 731.7"
+          }
+        ],
+        "control_pnl": -64.0,
+        "control_classification": "OVERTRADED",
+        "control_exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 10,
+            "fill_price": 0.256,
+            "dt": "2026-05-06T13:10:00",
+            "reason": "premium_stop @ 0.26"
+          }
+        ]
+      },
+      {
+        "date": "2026-05-07",
+        "role": "loser",
+        "side": "C",
+        "strike": 734,
+        "qty": 3,
+        "entry_time_et": "12:30:00",
+        "entry_premium": 0.73,
+        "j_actual_pnl": -45.0,
+        "symbol": "SPY260507C00734000",
+        "trigger_level": 733.1934780212316,
+        "recovery_status": "ok",
+        "fallback_note": null,
+        "source_note": "trades.csv row 7 verbatim (BULLISH_RECLAIM_RIDE_THE_RIBBON -- the system's FIRST autonomous trade; time_entry recorded to the minute only, seconds assumed :00).",
+        "n_option_bars_available": 396,
+        "n_option_bars_replayed": 216,
+        "ss_b_pnl": -54.0,
+        "ss_b_structure_fired": true,
+        "ss_b_classification": "OVERTRADED",
+        "ss_b_exits": [
+          {
+            "stage": "structure_stop",
+            "qty": 3,
+            "fill_price": 0.55,
+            "dt": "2026-05-07T12:40:00",
+            "reason": "structure_stop @ 733.1934780212316"
+          }
+        ],
+        "control_pnl": -43.8,
+        "control_classification": "OVERTRADED",
+        "control_exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.584,
+            "dt": "2026-05-07T12:38:00",
+            "reason": "premium_stop @ 0.58"
+          }
+        ]
+      },
+      {
+        "date": "2026-05-07",
+        "role": "loser",
+        "side": "C",
+        "strike": 737,
+        "qty": 10,
+        "entry_time_et": "11:14:15",
+        "entry_premium": 0.38,
+        "j_actual_pnl": -120.0,
+        "symbol": "SPY260507C00737000",
+        "trigger_level": 735.065,
+        "recovery_status": "ok",
+        "fallback_note": null,
+        "source_note": "trades.csv row 10 verbatim (manual J trade, UNCATEGORIZED_PROBE_MANUAL -- separate from the same-day 734C system trade).",
+        "n_option_bars_available": 386,
+        "n_option_bars_replayed": 281,
+        "ss_b_pnl": -70.0,
+        "ss_b_structure_fired": true,
+        "ss_b_classification": "OVERTRADED",
+        "ss_b_exits": [
+          {
+            "stage": "structure_stop",
+            "qty": 10,
+            "fill_price": 0.31,
+            "dt": "2026-05-07T11:25:00",
+            "reason": "structure_stop @ 735.065"
+          }
+        ],
+        "control_pnl": -76.0,
+        "control_classification": "OVERTRADED",
+        "control_exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 10,
+            "fill_price": 0.304,
+            "dt": "2026-05-07T11:24:00",
+            "reason": "premium_stop @ 0.3"
+          }
+        ]
+      }
+    ],
+    "edge_capture_ss_b": -618.0,
+    "winner_total_ss_b": -234.0,
+    "loser_exposure_ss_b": 384.0,
+    "edge_capture_control": -804.2,
+    "winner_total_control": -500.4,
+    "loser_exposure_control": 303.8,
+    "op16_max": 1542.0,
+    "op16_floor": 771.0,
+    "edge_capture_pct_of_max_ss_b": -40.1,
+    "any_winner_flipped_negative_ss_b": true,
+    "winners_flipped_negative_dates": [
+      "2026-04-29",
+      "2026-05-01",
+      "2026-05-04"
+    ],
+    "verdict": "FAIL",
+    "time_stop_et_used": "15:40:00"
+  },
+  "key_findings": [
+    "PARITY VERDICT: REAL-DIVERGENCE -- production-path total $114.0 vs study SS-B total $138.5 (published $138.5), diff $-24.5 across 10 positions (8 MATCH, 0 BENIGN, 2 REAL).",
+    "Harness self-check: replaying today's positions under CONTROL through THIS module's OWN production-faithful function reproduces the study's published CONTROL total ($-400.2 vs $-400.2, matches=True) -- validates the non-structure branches independently of the structure-stop question.",
+    "OP-16 J-ANCHOR: edge_capture SS-B=$-618.0 vs floor $771.0 (-40.1% of $1542.0 max) -> FAIL. CONTROL edge_capture=$-804.2 for comparison. Winners flipped negative under SS-B: ['2026-04-29', '2026-05-01', '2026-05-04']."
+  ],
+  "disclosures": [
+    "Task 1's 'production path' feeds plan_exit_actions a last_closed_5m_close derived from REAL, historical, verified-CLOSED SPY 5m bars (matching exit_manager.py's own doctrine docstring). fleet_live.py's ACTUAL live wiring instead forwards `usable_signal.get('spot')` -- the shared-signal's current spot sample at that tick, NOT explicitly re-derived from a closed-bar close. No historical per-minute `spot` log was mined for this certification (out of scope); this is a disclosed, not silently assumed, gap between 'what the parameter is named' and 'what fleet_live.py actually threads into it'. It does not affect today's 10 positions either way since all 10 closed by 10:34 ET on fast TP1/premium exits, well before any structure/time-stop path could diverge on this specific point -- see each position's exits[] trace.",
+    "Both params.json and aggressive/params.json currently set time_stop_et='15:40' (NOT the exit_manager.TIME_STOP_ET default of 15:50 the study's own layer(b)/exhibit used). This certification uses the REAL 15:40 value throughout (Task 1 per-arm, Task 2 uniformly, both confirmed identical across the two params files). Inert for today's 10 positions (all closed by 10:34 ET) and for 6 of 7 J-anchor trades; material only for 2026-05-06 (SPY 730P), where it forces JJ's manually-held-to-expiry position flat well before J's actual 18:17 ET exit -- see that trade's exits[] trace.",
+    "Task 1's structure-stop fill price (when plan_exit_actions' OWN branch fires, unlike the study's external override) uses the SAME bar's OPEN as the study's convention (next-bar-open, C6) -- a deliberate choice to keep the comparison apples-to-apples, not an independently re-derived convention.",
+    "Task 2 trigger_level recovery uses structure_stop_study.recover_trigger_level_real_position (the backward-scan heuristic, lookback=8 bars/40min) -- the SAME method the study's own layer (b) real-fills anchor used, because J's manual/system trades in journal/trades.csv carry no entry_spot label (the exact-match tw8_level_context method needs one). This is a coarser, disclosed approximation, not an exact match -- see recovery_status per trade.",
+    "The 2026-05-01 721P winner's entry_premium (0.325) is a qty-weighted average of two legs at different times (13:09 + 13:36); replayed as one position at the averaged premium and the first leg's timestamp (no per-leg qty split is recorded).",
+    "5-min OPRA-derived SPY structure bars + REAL 1-min Alpaca OPRA option bars throughout (both tasks) -- no synthetic/BS pricing (C1).",
+    "Frictionless fills at trigger/stop/target levels (no spread/queue modelled), matching every prior anchor study in this codebase (T3/T4/T5/T-W8/structure_stop_study)."
+  ]
+}
