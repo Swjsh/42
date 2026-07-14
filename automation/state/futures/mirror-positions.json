@@ -1,4 +1,48 @@
 {
   "_doc": "Open + recently-closed MES mirror-shadow positions, keyed by signal_ref (direction|YYYY-MM-DDTHH:MM). MULTIPLE CONCURRENT positions are expected by design -- every distinct fleet signal gets its own shadow trade. See futures_mirror_shadow.py module docstring (REUSE DECISION) for why this diverges from FillSimBroker's one-position-per-instrument convention.",
-  "positions": {}
+  "positions": {
+    "long|2026-07-10T09:34": {
+      "signal_ref": "long|2026-07-10T09:34",
+      "direction": "long",
+      "status": "closed",
+      "qty_open": 0,
+      "entry": 7592.0,
+      "stop": 7596.8892,
+      "tp1": 7598.6108,
+      "r_points": 6.6108,
+      "tp1_filled": true,
+      "hwm": 7603.5,
+      "entry_time_et": "2026-07-10T09:35:00",
+      "deadline_et": "2026-07-13T15:55:00",
+      "closed_at_et": "2026-07-10T10:45:00",
+      "source_arms": [
+        "risky-1",
+        "risky-3",
+        "safe-1",
+        "safe-3"
+      ],
+      "setup_name": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "atr_at_entry": 3.3054
+    },
+    "short|2026-07-13T12:40": {
+      "signal_ref": "short|2026-07-13T12:40",
+      "direction": "short",
+      "status": "open",
+      "qty_open": 2,
+      "entry": 7595.0,
+      "stop": 7603.4052,
+      "tp1": 7586.5948,
+      "r_points": 8.4052,
+      "tp1_filled": false,
+      "hwm": null,
+      "entry_time_et": "2026-07-14T16:00:01",
+      "deadline_et": "2026-07-15T15:55:00",
+      "closed_at_et": null,
+      "source_arms": [
+        "risky-3"
+      ],
+      "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "atr_at_entry": 4.2026
+    }
+  }
 }

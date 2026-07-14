@@ -1,23 +1,32 @@
 {
   "agent": "catalyst_analyst",
-  "generated_at": "2026-06-26T10:17:56Z",
-  "bias": "neutral",
-  "confidence": 0.35,
-  "reasoning": "No macro events scheduled for 2026-06-26 in events_30d. Calendar last refreshed 12 days ago (2026-06-14) — stale but not critical (threshold is 14 days). No FOMC, CPI, NFP, PCE, or earnings events detected for today. However, today is Friday June 26 which is monthly options expiry — elevated pin risk applies to SPY levels. Net catalyst bias: neutral with no macro-driven no-trade windows, but structural expiry context warrants awareness.",
-  "events_today": [],
-  "event_risk_level": "none",
-  "usable_window_start": "09:30",
+  "generated_at": "2026-07-14T08:15:04.000000Z",
+  "bias": "no_trade",
+  "confidence": 0.85,
+  "reasoning": "CPI (June 2026 data) at 08:30 ET is IMMINENT — only 15 minutes away. Per no_trade_window_rules for cpi_release: block starts 5 min before (08:25) and ends 30 min after (09:00). With HIGH severity event within 60 minutes, this creates a hard no-trade window. No other events today until FOMC on 2026-07-29. Today's date is Tuesday, July 14, 2026 — not a Friday, so no options expiry pin risk. Net catalyst bias: NO_TRADE due to imminent high-severity binary risk.",
+  "events_today": [
+    {
+      "time_et": "08:30",
+      "name": "CPI (June 2026 data)",
+      "severity": "high",
+      "status": "upcoming",
+      "no_trade_window": true,
+      "window_start_et": "08:25",
+      "window_end_et": "09:00"
+    }
+  ],
+  "event_risk_level": "extreme",
+  "usable_window_start": "09:00",
   "usable_window_end": "16:00",
   "expiry_context": {
-    "is_friday": true,
-    "is_monthly_expiry": true,
-    "pin_risk": "high"
+    "is_friday": false,
+    "is_monthly_expiry": false,
+    "pin_risk": "none"
   },
   "key_observations": [
-    "No high-impact macro events scheduled for today in calendar (last refresh 12 days ago)",
-    "Today is Friday June 26 — monthly options expiry creates elevated pinning risk to SPY levels",
-    "Calendar coverage ends at 2026-06-25; no visibility into next week's events",
-    "No earnings catalysts from mega-caps today"
+    "CPI at 08:30 ET is IMMINENT (15 min away) — HIGH severity creates hard no-trade window 08:25-09:00 ET",
+    "No other events today; next HIGH is FOMC on 2026-07-29",
+    "Tuesday (not Friday) — no options expiry pin risk"
   ],
-  "data_quality": "partial"
+  "data_quality": "full"
 }

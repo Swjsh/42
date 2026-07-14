@@ -138,7 +138,11 @@ def main() -> int:
         pass
     from datetime import datetime, timezone
     now = datetime.now(timezone.utc)
-    day = now.strftime("%Y-%m-%d")
+    # ET calendar date, NOT a raw UTC-date string (found live 2026-07-08 while verifying T8:
+    # after ~20:00 ET the UTC date has already rolled to tomorrow, so a raw UTC day made
+    # `start` land in the future relative to `end=now` -> Alpaca 400 "end should not be before
+    # start" every evening. Same ground-rule fix as trendline_engine.main()'s `day`.)
+    day = te.et_today_str(now)
     bars = te.fetch_spy_5m(f"{day}T13:30:00Z", now.strftime("%Y-%m-%dT%H:%M:%SZ"))
     if len(bars) < te.MIN_SPAN + 2:
         print("trendline_outcomes: too few bars")

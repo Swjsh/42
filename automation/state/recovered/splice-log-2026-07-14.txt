@@ -1,0 +1,54 @@
+# splice run 2026-07-14 13:57:23 local
+MANUAL_FLAG automation/state/core-decisions.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG automation/state/fleet/risky-1/decisions.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG automation/state/fleet/risky-3/decisions.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG automation/state/fleet/safe-3/decisions.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG journal/trades.csv (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG journal/trades-aggressive.csv (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG analysis/backtests/data-versions.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG analysis/prospector/ideas-ledger.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG analysis/trendlines/trendline-log.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG automation/state/conductor-proposals.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG automation/state/cook-queue.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG automation/state/crypto-twin/decisions.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG automation/state/crypto-twin/journal.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG automation/state/crypto-twin/soak-log.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG automation/state/discord-outbox.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG automation/state/manager-log.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG automation/state/minimax-calls.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG automation/state/swarm-calls.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG automation/state/watcher-live-diag.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG automation/state/watcher-observations.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG backtest/autoresearch/_state/overnight_grinder/keepers.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG backtest/autoresearch/_state/overnight_grinder/results.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG backtest/autoresearch/_state/shotgun_scalper_stage3/rejections.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG backtest/autoresearch/_state/shotgun_scalper_stage4/rejections.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG strategy/candidates/_review-log.jsonl (current is not a clean append of pre-stash HEAD)
+MANUAL_FLAG strategy/candidates/_skill-inbox/_correction-queue.jsonl (current is not a clean append of pre-stash HEAD)
+# splice run 2026-07-14 13:59:23 local
+MERGED automation/state/core-decisions.jsonl base=371864b stash=5653221b tail=546230b(lf) -> 6209727b
+MERGED automation/state/fleet/risky-1/decisions.jsonl base=228081b stash=875266b tail=60945b(lf) -> 938159b
+MERGED automation/state/fleet/risky-3/decisions.jsonl base=228900b stash=908462b tail=61325b(lf) -> 971735b
+MERGED automation/state/fleet/safe-3/decisions.jsonl base=226128b stash=868653b tail=59252b(lf) -> 929853b
+MERGED journal/trades.csv base=103321b stash=104892b tail=0b(lf) -> 105045b
+MERGED journal/trades-aggressive.csv base=1855b stash=2094b tail=0b(lf) -> 2104b
+MANUAL_FLAG analysis/backtests/data-versions.jsonl (current is not a clean append of pre-stash HEAD, even LF-normalized)
+MERGED analysis/prospector/ideas-ledger.jsonl base=20511b stash=96572b tail=3535b(lf) -> 100237b
+MERGED analysis/trendlines/trendline-log.jsonl base=1539b stash=238867b tail=113478b(lf) -> 353198b
+MERGED automation/state/conductor-proposals.jsonl base=56584b stash=58211b tail=1627b(lf) -> 59873b
+MERGED automation/state/cook-queue.jsonl base=1628132b stash=2166380b tail=27541b(lf) -> 2204094b
+MERGED automation/state/crypto-twin/decisions.jsonl base=131826b stash=780025b tail=82796b(lf) -> 863823b
+MERGED automation/state/crypto-twin/journal.jsonl base=2479b stash=87971b tail=12151b(lf) -> 100204b
+MERGED automation/state/crypto-twin/soak-log.jsonl base=3024b stash=16071b tail=1446b(lf) -> 17602b
+MERGED automation/state/discord-outbox.jsonl base=346769b stash=679391b tail=35373b(lf) -> 716937b
+MERGED automation/state/manager-log.jsonl base=25489b stash=208842b tail=1874b(lf) -> 211944b
+MERGED automation/state/minimax-calls.jsonl base=1031712b stash=1481533b tail=2154b(lf) -> 1488948b
+MERGED automation/state/swarm-calls.jsonl base=85438b stash=969381b tail=54026b(lf) -> 1027756b
+MERGED automation/state/watcher-live-diag.jsonl base=413987b stash=993253b tail=55424b(lf) -> 1051703b
+MERGED automation/state/watcher-observations.jsonl base=389648b stash=660777b tail=155306b(lf) -> 816709b
+MERGED backtest/autoresearch/_state/overnight_grinder/keepers.jsonl base=68968b stash=118638b tail=2260b(lf) -> 121059b
+MERGED backtest/autoresearch/_state/overnight_grinder/results.jsonl base=5194870b stash=10110183b tail=325536b(lf) -> 10449635b
+MERGED backtest/autoresearch/_state/shotgun_scalper_stage3/rejections.jsonl base=296264b stash=7615973b tail=201819b(lf) -> 7824044b
+MERGED backtest/autoresearch/_state/shotgun_scalper_stage4/rejections.jsonl base=8172b stash=8359476b tail=355530b(lf) -> 8722064b
+MERGED strategy/candidates/_review-log.jsonl base=251452b stash=515552b tail=6556b(lf) -> 523200b
+MERGED strategy/candidates/_skill-inbox/_correction-queue.jsonl base=2123b stash=6692b tail=255b(lf) -> 6956b

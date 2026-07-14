@@ -130,3 +130,1100 @@
 {"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-26-1813-python-rank_contenders.md", "ts_et": "2026-06-26T18:13:16"}
 {"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-26-1833-python-rank_contenders.md", "ts_et": "2026-06-26T18:33:16"}
 {"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-26-1853-python-rank_contenders.md", "ts_et": "2026-06-26T18:53:16"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "ollama::qwen3:14b", "action": "Given WR=12% on 0DTE OTM-2 bearish_rejec", "out": "analysis\\manager\\2026-06-27-0113-critic-given-wr-12--on-0dte-otm-2-bearish_rejec.md", "elapsed_s": 48.414, "ts_et": "2026-06-27T01:13:59"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Given WR=12% on 0DTE OTM-2 bearish_rejec", "out": "analysis\\manager\\2026-06-27-0133-critic-given-wr-12--on-0dte-otm-2-bearish_rejec.md", "elapsed_s": 18.405, "ts_et": "2026-06-27T01:33:25"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Given WR=12% on 0DTE OTM-2 bearish_rejec", "out": "analysis\\manager\\2026-06-27-0153-critic-given-wr-12--on-0dte-otm-2-bearish_rejec.md", "elapsed_s": 16.767, "ts_et": "2026-06-27T01:53:20"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Validate the decision-agreement on the c", "out": "analysis\\manager\\2026-06-27-0214-validator-validate-the-decision-agreement-on-the-c.md", "elapsed_s": 74.072, "ts_et": "2026-06-27T02:14:17"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Validate the decision-agreement on the c", "out": "analysis\\manager\\2026-06-27-0233-validator-validate-the-decision-agreement-on-the-c.md", "elapsed_s": 4.898, "ts_et": "2026-06-27T02:33:07"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Validate the decision-agreement on the c", "out": "analysis\\manager\\2026-06-27-0253-validator-validate-the-decision-agreement-on-the-c.md", "elapsed_s": 13.924, "ts_et": "2026-06-27T02:53:17"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-0313-python-rank_contenders.md", "ts_et": "2026-06-27T03:13:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-0333-python-rank_contenders.md", "ts_et": "2026-06-27T03:33:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-0353-python-rank_contenders.md", "ts_et": "2026-06-27T03:53:07"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-27-0413-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 2.475, "ts_et": "2026-06-27T04:13:06"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-27-0433-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 1.239, "ts_et": "2026-06-27T04:33:03"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-27-0453-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 2.937, "ts_et": "2026-06-27T04:53:11"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-27-0513-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 1.016, "ts_et": "2026-06-27T05:13:04"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critique the single biggest failure mode", "out": "analysis\\manager\\2026-06-27-0533-critic-critique-the-single-biggest-failure-mode.md", "elapsed_s": 23.404, "ts_et": "2026-06-27T05:33:26"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-27-0553-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 2.188, "ts_et": "2026-06-27T05:53:05"}
+{"phase": "dispatch", "ok": true, "role": "forager", "lane": "google_aistudio::gemini-flash-lite-latest", "action": "Write a one-paragraph hypothesis for how", "out": "analysis\\manager\\2026-06-27-0613-forager-write-a-one-paragraph-hypothesis-for-how.md", "elapsed_s": 1.579, "ts_et": "2026-06-27T06:13:05"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-0633-python-rank_contenders.md", "ts_et": "2026-06-27T06:33:02"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-27T06:53:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-0713-python-rank_contenders.md", "ts_et": "2026-06-27T07:13:03"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate the decision-agreement on the c", "out": "analysis\\manager\\2026-06-27-0733-validator-validate-the-decision-agreement-on-the-c.md", "elapsed_s": 2.31, "ts_et": "2026-06-27T07:33:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-0753-python-rank_contenders.md", "ts_et": "2026-06-27T07:53:03"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the top survivor OTM-2:LR0:mt1:", "out": "analysis\\manager\\2026-06-27-0813-critic-critique-the-top-survivor-otm-2-lr0-mt1-.md", "elapsed_s": 9.169, "ts_et": "2026-06-27T08:13:12"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the top survivor OTM-2:LR0:mt1:", "out": "analysis\\manager\\2026-06-27-0833-critic-critique-the-top-survivor-otm-2-lr0-mt1-.md", "elapsed_s": 6.743, "ts_et": "2026-06-27T08:33:15"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the top survivor OTM-2:LR0:mt1:", "out": "analysis\\manager\\2026-06-27-0913-critic-critique-the-top-survivor-otm-2-lr0-mt1-.md", "elapsed_s": 8.096, "ts_et": "2026-06-27T09:13:15"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "ollama::qwen3:14b", "action": "Critique the top survivor OTM-2:LR0:mt1:", "out": "analysis\\manager\\2026-06-27-0934-critic-critique-the-top-survivor-otm-2-lr0-mt1-.md", "elapsed_s": 71.044, "ts_et": "2026-06-27T09:34:19"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the top survivor OTM-2:LR0:mt1:", "out": "analysis\\manager\\2026-06-27-0953-critic-critique-the-top-survivor-otm-2-lr0-mt1-.md", "elapsed_s": 20.886, "ts_et": "2026-06-27T09:53:25"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-27T10:13:02"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Rank the current contender sweep top-5 b", "out": "analysis\\manager\\2026-06-27-1033-coder-rank-the-current-contender-sweep-top-5-b.md", "elapsed_s": 0.822, "ts_et": "2026-06-27T10:33:03"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "python_tool=rank_contenders", "out": "analysis\\manager\\2026-06-27-1053-coder-python_tool-rank_contenders.md", "elapsed_s": 1.521, "ts_et": "2026-06-27T10:53:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-1113-python-rank_contenders.md", "ts_et": "2026-06-27T11:13:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-1133-python-rank_contenders.md", "ts_et": "2026-06-27T11:33:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-1153-python-rank_contenders.md", "ts_et": "2026-06-27T11:53:02"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Write a concrete variant of the known ed", "out": "analysis\\manager\\2026-06-27-1213-strategist-write-a-concrete-variant-of-the-known-ed.md", "elapsed_s": 55.449, "ts_et": "2026-06-27T12:13:58"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-27T12:33:02"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate the top contender in the curren", "out": "analysis\\manager\\2026-06-27-1253-validator-validate-the-top-contender-in-the-curren.md", "elapsed_s": 19.641, "ts_et": "2026-06-27T12:53:22"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "ollama::qwen3:14b", "action": "validate whether real-fills expectancy i", "out": "analysis\\manager\\2026-06-27-1313-validator-validate-whether-real-fills-expectancy-i.md", "elapsed_s": 26.268, "ts_et": "2026-06-27T13:13:30"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Write a concrete variant of the known ed", "out": "analysis\\manager\\2026-06-27-1333-strategist-write-a-concrete-variant-of-the-known-ed.md", "elapsed_s": 20.19, "ts_et": "2026-06-27T13:33:22"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Write a concrete variant of the known ed", "out": "analysis\\manager\\2026-06-27-1353-strategist-write-a-concrete-variant-of-the-known-ed.md", "elapsed_s": 5.647, "ts_et": "2026-06-27T13:53:08"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-27T14:13:02"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-27T14:33:03"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique shotgun_scalper_stage1 against", "out": "analysis\\manager\\2026-06-27-1453-critic-critique-shotgun_scalper_stage1-against.md", "elapsed_s": 3.242, "ts_et": "2026-06-27T14:53:05"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Pull analysis/recommendations/contender-", "out": "analysis\\manager\\2026-06-27-1513-coder-pull-analysis-recommendations-contender-.md", "elapsed_s": 2.36, "ts_et": "2026-06-27T15:13:05"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-1533-python-rank_contenders.md", "ts_et": "2026-06-27T15:33:02"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-27T15:53:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-1613-python-rank_contenders.md", "ts_et": "2026-06-27T16:13:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-1633-python-rank_contenders.md", "ts_et": "2026-06-27T16:33:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-1653-python-rank_contenders.md", "ts_et": "2026-06-27T16:53:08"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-27T17:13:09"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-1733-python-rank_contenders.md", "ts_et": "2026-06-27T17:33:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-1753-python-rank_contenders.md", "ts_et": "2026-06-27T17:53:03"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate a rvol-filter variant of the top", "out": "analysis\\manager\\2026-06-27-1813-strategist-ideate-a-rvol-filter-variant-of-the-top.md", "elapsed_s": 14.929, "ts_et": "2026-06-27T18:13:18"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the WR=12% anomaly in the top c", "out": "analysis\\manager\\2026-06-27-1833-critic-critique-the-wr-12--anomaly-in-the-top-c.md", "elapsed_s": 11.558, "ts_et": "2026-06-27T18:33:14"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the WR=12% anomaly in the top c", "out": "analysis\\manager\\2026-06-27-1853-critic-critique-the-wr-12--anomaly-in-the-top-c.md", "elapsed_s": 17.821, "ts_et": "2026-06-27T18:53:20"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the WR=12% anomaly in the top c", "out": "analysis\\manager\\2026-06-27-1913-critic-critique-the-wr-12--anomaly-in-the-top-c.md", "elapsed_s": 12.965, "ts_et": "2026-06-27T19:13:15"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the `IT", "out": "analysis\\manager\\2026-06-27-1933-coder-write-a-backtest-config-json-for-the--it.md", "elapsed_s": 2.272, "ts_et": "2026-06-27T19:33:05"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the WR=12% anomaly in the top c", "out": "analysis\\manager\\2026-06-27-1953-critic-critique-the-wr-12--anomaly-in-the-top-c.md", "elapsed_s": 16.482, "ts_et": "2026-06-27T19:53:18"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-2013-python-rank_contenders.md", "ts_et": "2026-06-27T20:13:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-2033-python-rank_contenders.md", "ts_et": "2026-06-27T20:33:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-2053-python-rank_contenders.md", "ts_et": "2026-06-27T20:53:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-2113-python-rank_contenders.md", "ts_et": "2026-06-27T21:13:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-2133-python-rank_contenders.md", "ts_et": "2026-06-27T21:33:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-27-2153-python-rank_contenders.md", "ts_et": "2026-06-27T21:53:02"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Is a 12% WR + $23.78 expectancy sustaina", "out": "analysis\\manager\\2026-06-27-2213-strategist-is-a-12--wr----23-78-expectancy-sustaina.md", "elapsed_s": 6.084, "ts_et": "2026-06-27T22:13:09"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Propose one concrete parameter change to", "out": "analysis\\manager\\2026-06-27-2233-strategist-propose-one-concrete-parameter-change-to.md", "elapsed_s": 3.728, "ts_et": "2026-06-27T22:33:06"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Is a 12% WR + $23.78 expectancy sustaina", "out": "analysis\\manager\\2026-06-27-2253-strategist-is-a-12--wr----23-78-expectancy-sustaina.md", "elapsed_s": 19.26, "ts_et": "2026-06-27T22:53:22"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Propose one concrete parameter change to", "out": "analysis\\manager\\2026-06-27-2313-strategist-propose-one-concrete-parameter-change-to.md", "elapsed_s": 2.607, "ts_et": "2026-06-27T23:13:05"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Why does OTM-1 have 2× the per-trade exp", "out": "analysis\\manager\\2026-06-27-2333-critic-why-does-otm-1-have-2--the-per-trade-exp.md", "elapsed_s": 29.219, "ts_et": "2026-06-27T23:33:31"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Is a 12% WR + $23.78 expectancy sustaina", "out": "analysis\\manager\\2026-06-27-2353-strategist-is-a-12--wr----23-78-expectancy-sustaina.md", "elapsed_s": 3.992, "ts_et": "2026-06-27T23:53:07"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-28-0013-python-rank_contenders.md", "ts_et": "2026-06-28T00:13:03"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-28T00:33:03"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-28T00:53:03"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-28T01:13:04"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-28T01:33:05"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-28T01:53:05"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Does OTM-2:LR0:mt1:stop-8:tp+150%:sell80", "out": "analysis\\manager\\2026-06-28-0213-critic-does-otm-2-lr0-mt1-stop-8-tp-150--sell80.md", "elapsed_s": 5.157, "ts_et": "2026-06-28T02:13:09"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Does OTM-2:LR0:mt1:stop-8:tp+150%:sell80", "out": "analysis\\manager\\2026-06-28-0233-critic-does-otm-2-lr0-mt1-stop-8-tp-150--sell80.md", "elapsed_s": 2.323, "ts_et": "2026-06-28T02:33:06"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Does OTM-2:LR0:mt1:stop-8:tp+150%:sell80", "out": "analysis\\manager\\2026-06-28-0253-critic-does-otm-2-lr0-mt1-stop-8-tp-150--sell80.md", "elapsed_s": 2.11, "ts_et": "2026-06-28T02:53:06"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Does OTM-2:LR0:mt1:stop-8:tp+150%:sell80", "out": "analysis\\manager\\2026-06-28-0313-critic-does-otm-2-lr0-mt1-stop-8-tp-150--sell80.md", "elapsed_s": 9.431, "ts_et": "2026-06-28T03:13:13"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "does its edge concentrate in ≤3 calendar", "out": "analysis\\manager\\2026-06-28-0333-critic-does-its-edge-concentrate-in--3-calendar.md", "elapsed_s": 2.063, "ts_et": "2026-06-28T03:33:06"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "does its edge concentrate in ≤3 calendar", "out": "analysis\\manager\\2026-06-28-0353-critic-does-its-edge-concentrate-in--3-calendar.md", "elapsed_s": 3.007, "ts_et": "2026-06-28T03:53:06"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-28-0413-python-rank_contenders.md", "ts_et": "2026-06-28T04:13:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-28-0433-python-rank_contenders.md", "ts_et": "2026-06-28T04:33:05"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-28T04:53:04"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-28T05:13:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-28-0533-python-rank_contenders.md", "ts_et": "2026-06-28T05:33:04"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Rank the current contender sweep top-5 b", "out": "analysis\\manager\\2026-06-28-0553-strategist-rank-the-current-contender-sweep-top-5-b.md", "elapsed_s": 4.406, "ts_et": "2026-06-28T05:53:14"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "ollama::qwen3:14b", "action": "validate the top contender in the curren", "out": "analysis\\manager\\2026-06-28-0613-validator-validate-the-top-contender-in-the-curren.md", "elapsed_s": 29.068, "ts_et": "2026-06-28T06:13:34"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-28-0633-python-rank_contenders.md", "ts_et": "2026-06-28T06:33:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-28-0653-python-rank_contenders.md", "ts_et": "2026-06-28T06:53:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-28-0713-python-rank_contenders.md", "ts_et": "2026-06-28T07:13:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-28-0733-python-rank_contenders.md", "ts_et": "2026-06-28T07:33:05"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate the top contender in the curren", "out": "analysis\\manager\\2026-06-28-0753-validator-validate-the-top-contender-in-the-curren.md", "elapsed_s": 10.64, "ts_et": "2026-06-28T07:53:15"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critic the WR=12% anomaly on the OTM-2:L", "out": "analysis\\manager\\2026-06-28-0813-critic-critic-the-wr-12--anomaly-on-the-otm-2-l.md", "elapsed_s": 18.949, "ts_et": "2026-06-28T08:13:24"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Propose a single variant of vwap_continu", "out": "analysis\\manager\\2026-06-28-0833-strategist-propose-a-single-variant-of-vwap_continu.md", "elapsed_s": 6.073, "ts_et": "2026-06-28T08:33:10"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate one rvol-floor variant on `vwap_c", "out": "analysis\\manager\\2026-06-28-0853-strategist-ideate-one-rvol-floor-variant-on--vwap_c.md", "elapsed_s": 4.306, "ts_et": "2026-06-28T08:53:09"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-28T09:13:11"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Ideate one rvol-floor variant on `vwap_c", "out": "analysis\\manager\\2026-06-28-0933-strategist-ideate-one-rvol-floor-variant-on--vwap_c.md", "elapsed_s": 15.704, "ts_et": "2026-06-28T09:33:23"}
+{"phase": "dispatch", "ok": true, "role": "chef", "lane": "groq::llama-3.3-70b-versatile", "action": "cook the strategy candidate OTM-2:LR0:mt", "out": "analysis\\manager\\2026-06-28-0953-chef-cook-the-strategy-candidate-otm-2-lr0-mt.md", "elapsed_s": 3.29, "ts_et": "2026-06-28T09:53:08"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-28-1013-python-rank_contenders.md", "ts_et": "2026-06-28T10:13:05"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-28-1033-python-rank_contenders.md", "ts_et": "2026-06-28T10:33:05"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "create a backtest config/JSON for the IT", "out": "analysis\\manager\\2026-06-28-1053-coder-create-a-backtest-config-json-for-the-it.md", "elapsed_s": 2.002, "ts_et": "2026-06-28T10:53:07"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "create a backtest config/JSON for the IT", "out": "analysis\\manager\\2026-06-28-1113-coder-create-a-backtest-config-json-for-the-it.md", "elapsed_s": 2.42, "ts_et": "2026-06-28T11:13:07"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "create a backtest config/JSON for the IT", "out": "analysis\\manager\\2026-06-28-1133-coder-create-a-backtest-config-json-for-the-it.md", "elapsed_s": 3.153, "ts_et": "2026-06-28T11:33:08"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Rank top-5 contenders by J-edge floor, o", "out": "analysis\\manager\\2026-06-28-1153-strategist-rank-top-5-contenders-by-j-edge-floor--o.md", "elapsed_s": 7.156, "ts_et": "2026-06-28T11:53:13"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Audit vwap_continuation's most recent OO", "out": "analysis\\manager\\2026-06-28-1213-critic-audit-vwap_continuation-s-most-recent-oo.md", "elapsed_s": 6.712, "ts_et": "2026-06-28T12:13:12"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Audit vwap_continuation's most recent OO", "out": "analysis\\manager\\2026-06-28-1233-critic-audit-vwap_continuation-s-most-recent-oo.md", "elapsed_s": 4.531, "ts_et": "2026-06-28T12:33:09"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate the top contender in the CONTEN", "out": "analysis\\manager\\2026-06-28-1253-validator-validate-the-top-contender-in-the-conten.md", "elapsed_s": 23.556, "ts_et": "2026-06-28T12:53:28"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Score the existing contender sweep (back", "out": "analysis\\manager\\2026-06-28-1313-critic-score-the-existing-contender-sweep--back.md", "elapsed_s": 4.738, "ts_et": "2026-06-28T13:13:09"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate the top contender in the CONTEN", "out": "analysis\\manager\\2026-06-28-1334-validator-validate-the-top-contender-in-the-conten.md", "elapsed_s": 68.584, "ts_et": "2026-06-28T13:34:13"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Audit ITM-2:LR0:mt2:stop-40:tp+150%:sell", "out": "analysis\\manager\\2026-06-28-1353-critic-audit-itm-2-lr0-mt2-stop-40-tp-150--sell.md", "elapsed_s": 7.589, "ts_et": "2026-06-28T13:53:11"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-28-1413-python-rank_contenders.md", "ts_et": "2026-06-28T14:13:05"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Ideate one rvol-floor variant that adds", "out": "analysis\\manager\\2026-06-28-1433-strategist-ideate-one-rvol-floor-variant-that-adds.md", "elapsed_s": 6.069, "ts_et": "2026-06-28T14:33:11"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Ideate one rvol-floor variant that adds", "out": "analysis\\manager\\2026-06-28-1453-strategist-ideate-one-rvol-floor-variant-that-adds.md", "elapsed_s": 2.869, "ts_et": "2026-06-28T14:53:08"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Load analysis/recommendations/contender-", "out": "analysis\\manager\\2026-06-28-1513-critic-load-analysis-recommendations-contender-.md", "elapsed_s": 4.421, "ts_et": "2026-06-28T15:13:09"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-28-1533-python-rank_contenders.md", "ts_et": "2026-06-28T15:33:05"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Forage one external macro series that co", "out": "analysis\\manager\\2026-06-28-1553-strategist-forage-one-external-macro-series-that-co.md", "elapsed_s": 3.284, "ts_et": "2026-06-28T15:53:08"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-28T16:13:05"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-28T16:33:04"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the top survivor inline. The ra", "out": "analysis\\manager\\2026-06-28-1653-critic-critique-the-top-survivor-inline--the-ra.md", "elapsed_s": 15.073, "ts_et": "2026-06-28T16:53:19"}
+{"phase": "dispatch", "ok": true, "role": "chef", "lane": "groq::llama-3.3-70b-versatile", "action": "Cook the top OTM-1 config for real-fills", "out": "analysis\\manager\\2026-06-28-1713-chef-cook-the-top-otm-1-config-for-real-fills.md", "elapsed_s": 3.324, "ts_et": "2026-06-28T17:13:12"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the top survivor inline. The ra", "out": "analysis\\manager\\2026-06-28-1733-critic-critique-the-top-survivor-inline--the-ra.md", "elapsed_s": 15.368, "ts_et": "2026-06-28T17:33:19"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-28T17:53:10"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Ideate ONE vwap_continuation variant tha", "out": "analysis\\manager\\2026-06-28-1813-strategist-ideate-one-vwap_continuation-variant-tha.md", "elapsed_s": 4.738, "ts_et": "2026-06-28T18:13:09"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Ideate ONE vwap_continuation variant tha", "out": "analysis\\manager\\2026-06-28-1833-strategist-ideate-one-vwap_continuation-variant-tha.md", "elapsed_s": 2.715, "ts_et": "2026-06-28T18:33:07"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Ideate ONE vwap_continuation variant tha", "out": "analysis\\manager\\2026-06-28-1853-strategist-ideate-one-vwap_continuation-variant-tha.md", "elapsed_s": 1.943, "ts_et": "2026-06-28T18:53:06"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Ideate ONE vwap_continuation variant tha", "out": "analysis\\manager\\2026-06-28-1913-strategist-ideate-one-vwap_continuation-variant-tha.md", "elapsed_s": 6.553, "ts_et": "2026-06-28T19:13:39"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Load analysis/recommendations/contender-", "out": "analysis\\manager\\2026-06-28-1933-coder-load-analysis-recommendations-contender-.md", "elapsed_s": 2.199, "ts_et": "2026-06-28T19:33:07"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Ideate ONE vwap_continuation variant tha", "out": "analysis\\manager\\2026-06-28-1953-strategist-ideate-one-vwap_continuation-variant-tha.md", "elapsed_s": 1.837, "ts_et": "2026-06-28T19:53:06"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Execute the rank — read `analysis/recomm", "out": "analysis\\manager\\2026-06-28-2013-coder-execute-the-rank---read--analysis-recomm.md", "elapsed_s": 2.011, "ts_et": "2026-06-28T20:13:07"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Execute the rank — read `analysis/recomm", "out": "analysis\\manager\\2026-06-28-2033-coder-execute-the-rank---read--analysis-recomm.md", "elapsed_s": 2.055, "ts_et": "2026-06-28T20:33:07"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-28-2053-python-rank_contenders.md", "ts_et": "2026-06-28T20:53:05"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-28T21:13:05"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-28-2133-python-rank_contenders.md", "ts_et": "2026-06-28T21:33:04"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-28T21:53:05"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the contender `OTM-2:LR0:mt1:st", "out": "analysis\\manager\\2026-06-28-2213-critic-critique-the-contender--otm-2-lr0-mt1-st.md", "elapsed_s": 13.824, "ts_et": "2026-06-28T22:13:19"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the contender `OTM-2:LR0:mt1:st", "out": "analysis\\manager\\2026-06-28-2233-critic-critique-the-contender--otm-2-lr0-mt1-st.md", "elapsed_s": 21.94, "ts_et": "2026-06-28T22:33:27"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the contender 'OTM-2:LR0:mt1:st", "out": "analysis\\manager\\2026-06-28-2253-critic-critique-the-contender--otm-2-lr0-mt1-st.md", "elapsed_s": 17.721, "ts_et": "2026-06-28T22:53:23"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-28T23:13:05"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique `OTM-2:LR0:mt1:stop-8:tp+150%:s", "out": "analysis\\manager\\2026-06-28-2333-critic-critique--otm-2-lr0-mt1-stop-8-tp-150--s.md", "elapsed_s": 23.235, "ts_et": "2026-06-28T23:33:27"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique 'OTM-2:LR0:mt1:stop-8:tp+150%:s", "out": "analysis\\manager\\2026-06-28-2353-critic-critique--otm-2-lr0-mt1-stop-8-tp-150--s.md", "elapsed_s": 29.105, "ts_et": "2026-06-28T23:53:33"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "check decision-agreement on the contende", "out": "analysis\\manager\\2026-06-29-0013-validator-check-decision-agreement-on-the-contende.md", "elapsed_s": 3.793, "ts_et": "2026-06-29T00:13:09"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "generate ONE `vwap_continuation` variant", "out": "analysis\\manager\\2026-06-29-0033-strategist-generate-one--vwap_continuation--variant.md", "elapsed_s": 7.431, "ts_et": "2026-06-29T00:33:11"}
+{"phase": "dispatch", "ok": true, "role": "forager", "lane": "google_aistudio::gemini-flash-lite-latest", "action": "pull one free FRED series (e.g. `VIXCLS`", "out": "analysis\\manager\\2026-06-29-0053-forager-pull-one-free-fred-series--e-g---vixcls-.md", "elapsed_s": 3.021, "ts_et": "2026-06-29T00:53:07"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "generate ONE vwap_continuation variant t", "out": "analysis\\manager\\2026-06-29-0113-strategist-generate-one-vwap_continuation-variant-t.md", "elapsed_s": 5.165, "ts_et": "2026-06-29T01:13:09"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-29T01:33:04"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "check decision-agreement on the contende", "out": "analysis\\manager\\2026-06-29-0153-validator-check-decision-agreement-on-the-contende.md", "elapsed_s": 29.634, "ts_et": "2026-06-29T01:53:34"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "check decision-agreement on the contende", "out": "analysis\\manager\\2026-06-29-0213-validator-check-decision-agreement-on-the-contende.md", "elapsed_s": 7.222, "ts_et": "2026-06-29T02:13:11"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-29-0233-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 2.157, "ts_et": "2026-06-29T02:33:07"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-29-0253-python-rank_contenders.md", "ts_et": "2026-06-29T02:53:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-29-0313-python-rank_contenders.md", "ts_et": "2026-06-29T03:13:05"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-29-0333-python-rank_contenders.md", "ts_et": "2026-06-29T03:33:05"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-29-0353-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 2.063, "ts_et": "2026-06-29T03:53:11"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critique the top contender's WR=12.15% —", "out": "analysis\\manager\\2026-06-29-0413-critic-critique-the-top-contender-s-wr-12-15---.md", "elapsed_s": 5.484, "ts_et": "2026-06-29T04:13:10"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critique the top contender's WR=12.15% —", "out": "analysis\\manager\\2026-06-29-0433-critic-critique-the-top-contender-s-wr-12-15---.md", "elapsed_s": 8.452, "ts_et": "2026-06-29T04:33:13"}
+{"phase": "dispatch", "ok": true, "role": "forager", "lane": "google_aistudio::gemini-flash-lite-latest", "action": "Pull FRED series `T10Y2Y` (yield-curve s", "out": "analysis\\manager\\2026-06-29-0453-forager-pull-fred-series--t10y2y---yield-curve-s.md", "elapsed_s": 2.006, "ts_et": "2026-06-29T04:53:06"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critique the top contender's WR=12.15% —", "out": "analysis\\manager\\2026-06-29-0513-critic-critique-the-top-contender-s-wr-12-15---.md", "elapsed_s": 7.789, "ts_et": "2026-06-29T05:13:12"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critique the top contender's WR=12.15% —", "out": "analysis\\manager\\2026-06-29-0533-critic-critique-the-top-contender-s-wr-12-15---.md", "elapsed_s": 5.622, "ts_et": "2026-06-29T05:33:10"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critique the top contender's WR=12.15% —", "out": "analysis\\manager\\2026-06-29-0553-critic-critique-the-top-contender-s-wr-12-15---.md", "elapsed_s": 3.604, "ts_et": "2026-06-29T05:53:08"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-29-0613-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 2.184, "ts_et": "2026-06-29T06:13:06"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-29-0633-python-rank_contenders.md", "ts_et": "2026-06-29T06:33:10"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-29-0653-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 1.584, "ts_et": "2026-06-29T06:53:06"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Rank every candidate in analysis/recomme", "out": "analysis\\manager\\2026-06-29-0713-critic-rank-every-candidate-in-analysis-recomme.md", "elapsed_s": 5.208, "ts_et": "2026-06-29T07:13:09"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Rank every candidate in analysis/recomme", "out": "analysis\\manager\\2026-06-29-0733-critic-rank-every-candidate-in-analysis-recomme.md", "elapsed_s": 9.344, "ts_et": "2026-06-29T07:33:14"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-29-0753-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 1.994, "ts_et": "2026-06-29T07:53:07"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Read analysis/recommendations/contender-", "out": "analysis\\manager\\2026-06-29-0813-validator-read-analysis-recommendations-contender-.md", "elapsed_s": 2.971, "ts_et": "2026-06-29T08:13:08"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-29-0833-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 1.551, "ts_et": "2026-06-29T08:33:06"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-29-0853-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 1.82, "ts_et": "2026-06-29T08:53:06"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Read analysis/recommendations/contender-", "out": "analysis\\manager\\2026-06-29-0913-validator-read-analysis-recommendations-contender-.md", "elapsed_s": 3.27, "ts_et": "2026-06-29T09:13:14"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:33", "ts_et": "2026-06-29T09:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:53", "ts_et": "2026-06-29T09:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:13", "ts_et": "2026-06-29T10:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:33", "ts_et": "2026-06-29T10:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:53", "ts_et": "2026-06-29T10:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:13", "ts_et": "2026-06-29T11:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:33", "ts_et": "2026-06-29T11:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:53", "ts_et": "2026-06-29T11:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:13", "ts_et": "2026-06-29T12:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:33", "ts_et": "2026-06-29T12:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:53", "ts_et": "2026-06-29T12:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:13", "ts_et": "2026-06-29T13:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:33", "ts_et": "2026-06-29T13:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:53", "ts_et": "2026-06-29T13:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:13", "ts_et": "2026-06-29T14:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:33", "ts_et": "2026-06-29T14:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:53", "ts_et": "2026-06-29T14:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:13", "ts_et": "2026-06-29T15:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:33", "ts_et": "2026-06-29T15:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:53", "ts_et": "2026-06-29T15:53:02"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Read analysis/recommendations/contender-", "out": "analysis\\manager\\2026-06-29-1613-critic-read-analysis-recommendations-contender-.md", "elapsed_s": 2.916, "ts_et": "2026-06-29T16:13:13"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Given J's 7 source-of-truth trades and t", "out": "analysis\\manager\\2026-06-29-1633-critic-given-j-s-7-source-of-truth-trades-and-t.md", "elapsed_s": 36.643, "ts_et": "2026-06-29T16:33:40"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Propose ONE variant of `vwap_continuatio", "out": "analysis\\manager\\2026-06-29-1653-strategist-propose-one-variant-of--vwap_continuatio.md", "elapsed_s": 3.145, "ts_et": "2026-06-29T16:53:11"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Given J's 7 source-of-truth trades and t", "out": "analysis\\manager\\2026-06-29-1713-critic-given-j-s-7-source-of-truth-trades-and-t.md", "elapsed_s": 14.604, "ts_et": "2026-06-29T17:13:18"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Given J's 7 source-of-truth trades and t", "out": "analysis\\manager\\2026-06-29-1733-critic-given-j-s-7-source-of-truth-trades-and-t.md", "elapsed_s": 26.388, "ts_et": "2026-06-29T17:33:31"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config JSON for the con", "out": "analysis\\manager\\2026-06-29-1753-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 1.101, "ts_et": "2026-06-29T17:53:06"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-29-1813-python-rank_contenders.md", "ts_et": "2026-06-29T18:13:05"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-29T18:33:05"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-29-1853-python-rank_contenders.md", "ts_et": "2026-06-29T18:53:10"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-29-1913-python-rank_contenders.md", "ts_et": "2026-06-29T19:13:05"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-29T19:33:06"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-29-1953-python-rank_contenders.md", "ts_et": "2026-06-29T19:53:24"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique config OTM-2:LR0:mt1:stop-8:tp+", "out": "analysis\\manager\\2026-06-29-2013-critic-critique-config-otm-2-lr0-mt1-stop-8-tp-.md", "elapsed_s": 39.374, "ts_et": "2026-06-29T20:13:51"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique config OTM-2:LR0:mt1:stop-8:tp+", "out": "analysis\\manager\\2026-06-29-2034-critic-critique-config-otm-2-lr0-mt1-stop-8-tp-.md", "elapsed_s": 80.562, "ts_et": "2026-06-29T20:34:26"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique config ITM-2:LR0:mt2:stop-40:tp", "out": "analysis\\manager\\2026-06-29-2053-critic-critique-config-itm-2-lr0-mt2-stop-40-tp.md", "elapsed_s": 15.658, "ts_et": "2026-06-29T20:53:20"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique config ITM-2:LR0:mt2:stop-40:tp", "out": "analysis\\manager\\2026-06-29-2113-critic-critique-config-itm-2-lr0-mt2-stop-40-tp.md", "elapsed_s": 17.7, "ts_et": "2026-06-29T21:13:23"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Check decision-agreement on contender OT", "out": "analysis\\manager\\2026-06-29-2133-validator-check-decision-agreement-on-contender-ot.md", "elapsed_s": 7.266, "ts_et": "2026-06-29T21:33:12"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique config ITM-2:LR0:mt2:stop-40:tp", "out": "analysis\\manager\\2026-06-29-2153-critic-critique-config-itm-2-lr0-mt2-stop-40-tp.md", "elapsed_s": 16.659, "ts_et": "2026-06-29T21:53:22"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-29-2213-python-rank_contenders.md", "ts_et": "2026-06-29T22:13:05"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Write a walk-forward partition plan for", "out": "analysis\\manager\\2026-06-29-2233-validator-write-a-walk-forward-partition-plan-for.md", "elapsed_s": 15.778, "ts_et": "2026-06-29T22:33:20"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-29-2253-python-rank_contenders.md", "ts_et": "2026-06-29T22:53:04"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Ideate ONE vwap_continuation rvol-floor", "out": "analysis\\manager\\2026-06-29-2313-strategist-ideate-one-vwap_continuation-rvol-floor.md", "elapsed_s": 4.803, "ts_et": "2026-06-29T23:13:09"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Write a walk-forward partition plan for", "out": "analysis\\manager\\2026-06-29-2333-validator-write-a-walk-forward-partition-plan-for.md", "elapsed_s": 15.756, "ts_et": "2026-06-29T23:33:19"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a walk-forward partition plan for", "out": "analysis\\manager\\2026-06-29-2353-coder-write-a-walk-forward-partition-plan-for.md", "elapsed_s": 2.482, "ts_et": "2026-06-29T23:53:07"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-30T00:13:05"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the OTM-1 family (edge=1563, ex", "out": "analysis\\manager\\2026-06-30-0033-critic-critique-the-otm-1-family--edge-1563--ex.md", "elapsed_s": 11.144, "ts_et": "2026-06-30T00:33:16"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the OTM-1 family (edge=1563, ex", "out": "analysis\\manager\\2026-06-30-0053-critic-critique-the-otm-1-family--edge-1563--ex.md", "elapsed_s": 21.899, "ts_et": "2026-06-30T00:53:26"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the OTM-2:LR0:mt1:stop-8:tp+150", "out": "analysis\\manager\\2026-06-30-0113-critic-critique-the-otm-2-lr0-mt1-stop-8-tp-150.md", "elapsed_s": 26.422, "ts_et": "2026-06-30T01:13:30"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the OTM-1 family (edge=1563, ex", "out": "analysis\\manager\\2026-06-30-0133-critic-critique-the-otm-1-family--edge-1563--ex.md", "elapsed_s": 18.028, "ts_et": "2026-06-30T01:33:22"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Ideate ONE bearish variant of vwap_conti", "out": "analysis\\manager\\2026-06-30-0153-strategist-ideate-one-bearish-variant-of-vwap_conti.md", "elapsed_s": 4.099, "ts_et": "2026-06-30T01:53:08"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-30-0213-python-rank_contenders.md", "ts_et": "2026-06-30T02:13:05"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-30T02:33:04"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-30-0253-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 0.756, "ts_et": "2026-06-30T02:53:05"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-30T03:13:04"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-30T03:33:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-30-0353-python-rank_contenders.md", "ts_et": "2026-06-30T03:53:04"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Stress-test the top survivor. Run `engin", "out": "analysis\\manager\\2026-06-30-0413-coder-stress-test-the-top-survivor--run--engin.md", "elapsed_s": 2.438, "ts_et": "2026-06-30T04:13:07"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate decision-agreement on the OTM-2", "out": "analysis\\manager\\2026-06-30-0433-validator-validate-decision-agreement-on-the-otm-2.md", "elapsed_s": 25.174, "ts_et": "2026-06-30T04:33:29"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for OTM-2:L", "out": "analysis\\manager\\2026-06-30-0453-coder-write-a-backtest-config-json-for-otm-2-l.md", "elapsed_s": 2.182, "ts_et": "2026-06-30T04:53:06"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-30-0513-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 1.773, "ts_et": "2026-06-30T05:13:06"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for OTM-2:L", "out": "analysis\\manager\\2026-06-30-0533-coder-write-a-backtest-config-json-for-otm-2-l.md", "elapsed_s": 1.539, "ts_et": "2026-06-30T05:33:05"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critique the contender ITM-2:LR0:mt2:sto", "out": "analysis\\manager\\2026-06-30-0553-critic-critique-the-contender-itm-2-lr0-mt2-sto.md", "elapsed_s": 20.086, "ts_et": "2026-06-30T05:53:25"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critic → rank contender sweep by edge_ca", "out": "analysis\\manager\\2026-06-30-0613-critic-critic---rank-contender-sweep-by-edge_ca.md", "elapsed_s": 3.957, "ts_et": "2026-06-30T06:13:09"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-30-0633-python-rank_contenders.md", "ts_et": "2026-06-30T06:33:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-30-0653-python-rank_contenders.md", "ts_et": "2026-06-30T06:53:04"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critic → rank contender sweep by edge_ca", "out": "analysis\\manager\\2026-06-30-0713-critic-critic---rank-contender-sweep-by-edge_ca.md", "elapsed_s": 3.856, "ts_et": "2026-06-30T07:13:08"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critic → rank contender sweep by edge_ca", "out": "analysis\\manager\\2026-06-30-0734-critic-critic---rank-contender-sweep-by-edge_ca.md", "elapsed_s": 70.911, "ts_et": "2026-06-30T07:34:15"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critic → rank contender sweep by edge_ca", "out": "analysis\\manager\\2026-06-30-0753-critic-critic---rank-contender-sweep-by-edge_ca.md", "elapsed_s": 8.299, "ts_et": "2026-06-30T07:53:17"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a diagnostic script that prints pe", "out": "analysis\\manager\\2026-06-30-0813-coder-write-a-diagnostic-script-that-prints-pe.md", "elapsed_s": 1.824, "ts_et": "2026-06-30T08:13:05"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a diagnostic script that prints pe", "out": "analysis\\manager\\2026-06-30-0833-coder-write-a-diagnostic-script-that-prints-pe.md", "elapsed_s": 1.957, "ts_et": "2026-06-30T08:33:06"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a diagnostic script that prints pe", "out": "analysis\\manager\\2026-06-30-0853-coder-write-a-diagnostic-script-that-prints-pe.md", "elapsed_s": 2.046, "ts_et": "2026-06-30T08:53:06"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a diagnostic script that prints pe", "out": "analysis\\manager\\2026-06-30-0913-coder-write-a-diagnostic-script-that-prints-pe.md", "elapsed_s": 2.029, "ts_et": "2026-06-30T09:13:06"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:33", "ts_et": "2026-06-30T09:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:53", "ts_et": "2026-06-30T09:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:13", "ts_et": "2026-06-30T10:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:33", "ts_et": "2026-06-30T10:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:53", "ts_et": "2026-06-30T10:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:13", "ts_et": "2026-06-30T11:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:33", "ts_et": "2026-06-30T11:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:53", "ts_et": "2026-06-30T11:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:13", "ts_et": "2026-06-30T12:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:33", "ts_et": "2026-06-30T12:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:53", "ts_et": "2026-06-30T12:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:13", "ts_et": "2026-06-30T13:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:33", "ts_et": "2026-06-30T13:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:53", "ts_et": "2026-06-30T13:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:13", "ts_et": "2026-06-30T14:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:33", "ts_et": "2026-06-30T14:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:53", "ts_et": "2026-06-30T14:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:13", "ts_et": "2026-06-30T15:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:33", "ts_et": "2026-06-30T15:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:53", "ts_et": "2026-06-30T15:53:01"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-30-1613-python-rank_contenders.md", "ts_et": "2026-06-30T16:13:04"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate the top contenders in the CONTE", "out": "analysis\\manager\\2026-06-30-1633-validator-validate-the-top-contenders-in-the-conte.md", "elapsed_s": 14.38, "ts_et": "2026-06-30T16:33:19"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-30-1653-python-rank_contenders.md", "ts_et": "2026-06-30T16:53:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-30-1713-python-rank_contenders.md", "ts_et": "2026-06-30T17:13:08"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-30-1733-python-rank_contenders.md", "ts_et": "2026-06-30T17:33:02"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the contender 'ITM-2:LR0:mt2:st", "out": "analysis\\manager\\2026-06-30-1753-critic-critique-the-contender--itm-2-lr0-mt2-st.md", "elapsed_s": 11.445, "ts_et": "2026-06-30T17:53:13"}
+{"phase": "dispatch", "ok": true, "role": "chef", "lane": "groq::llama-3.3-70b-versatile", "action": "Write the candidate spec to `strategy/ca", "out": "analysis\\manager\\2026-06-30-1813-chef-write-the-candidate-spec-to--strategy-ca.md", "elapsed_s": 1.454, "ts_et": "2026-06-30T18:13:04"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the contender 'OTM-1:LR1:mt1:st", "out": "analysis\\manager\\2026-06-30-1833-critic-critique-the-contender--otm-1-lr1-mt1-st.md", "elapsed_s": 21.158, "ts_et": "2026-06-30T18:33:23"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the contender 'OTM-1:LR1:mt1:st", "out": "analysis\\manager\\2026-06-30-1853-critic-critique-the-contender--otm-1-lr1-mt1-st.md", "elapsed_s": 20.689, "ts_et": "2026-06-30T18:53:23"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-30T19:13:02"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the contender 'OTM-1:LR1:mt1:st", "out": "analysis\\manager\\2026-06-30-1933-critic-critique-the-contender--otm-1-lr1-mt1-st.md", "elapsed_s": 56.773, "ts_et": "2026-06-30T19:33:59"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "split OTM-2:LR0:mt1:stop-8:tp+150%:sell8", "out": "analysis\\manager\\2026-06-30-1953-validator-split-otm-2-lr0-mt1-stop-8-tp-150--sell8.md", "elapsed_s": 4.587, "ts_et": "2026-06-30T19:53:06"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-30-2013-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 2.402, "ts_et": "2026-06-30T20:13:09"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Propose ONE vwap_continuation variant wi", "out": "analysis\\manager\\2026-06-30-2033-strategist-propose-one-vwap_continuation-variant-wi.md", "elapsed_s": 37.43, "ts_et": "2026-06-30T20:33:39"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-30-2053-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 1.459, "ts_et": "2026-06-30T20:53:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-30-2113-python-rank_contenders.md", "ts_et": "2026-06-30T21:13:02"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-30-2133-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 2.352, "ts_et": "2026-06-30T21:33:23"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the con", "out": "analysis\\manager\\2026-06-30-2153-coder-write-a-backtest-config-json-for-the-con.md", "elapsed_s": 1.815, "ts_et": "2026-06-30T21:53:17"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-30T22:13:30"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Ideate ONE vwap_continuation variant tha", "out": "analysis\\manager\\2026-06-30-2233-strategist-ideate-one-vwap_continuation-variant-tha.md", "elapsed_s": 9.047, "ts_et": "2026-06-30T22:33:12"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-30-2253-python-rank_contenders.md", "ts_et": "2026-06-30T22:53:02"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-30T23:13:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-06-30-2333-python-rank_contenders.md", "ts_et": "2026-06-30T23:33:03"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-06-30T23:53:03"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Does stop-8 hold in high-VIX (>25) regim", "out": "analysis\\manager\\2026-07-01-0013-critic-does-stop-8-hold-in-high-vix---25--regim.md", "elapsed_s": 21.424, "ts_et": "2026-07-01T00:13:24"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Does stop-8 hold in high-VIX (>25) regim", "out": "analysis\\manager\\2026-07-01-0033-critic-does-stop-8-hold-in-high-vix---25--regim.md", "elapsed_s": 47.794, "ts_et": "2026-07-01T00:33:51"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Does stop-8 hold in high-VIX (>25) regim", "out": "analysis\\manager\\2026-07-01-0053-critic-does-stop-8-hold-in-high-vix---25--regim.md", "elapsed_s": 17.56, "ts_et": "2026-07-01T00:53:21"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Does stop-8 hold in high-VIX (>25) regim", "out": "analysis\\manager\\2026-07-01-0113-critic-does-stop-8-hold-in-high-vix---25--regim.md", "elapsed_s": 34.055, "ts_et": "2026-07-01T01:13:37"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Does stop-8 hold in high-VIX (>25) regim", "out": "analysis\\manager\\2026-07-01-0133-critic-does-stop-8-hold-in-high-vix---25--regim.md", "elapsed_s": 28.036, "ts_et": "2026-07-01T01:33:31"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critic → OTM-2:LR0:mt1:stop-8:tp+150%:se", "out": "analysis\\manager\\2026-07-01-0153-critic-critic---otm-2-lr0-mt1-stop-8-tp-150--se.md", "elapsed_s": 29.021, "ts_et": "2026-07-01T01:53:32"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-01-0213-python-rank_contenders.md", "ts_et": "2026-07-01T02:13:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-01-0233-python-rank_contenders.md", "ts_et": "2026-07-01T02:33:03"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Ideate ONE `vwap_continuation` rvol-floo", "out": "analysis\\manager\\2026-07-01-0253-strategist-ideate-one--vwap_continuation--rvol-floo.md", "elapsed_s": 11.29, "ts_et": "2026-07-01T02:53:15"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-01T03:13:03"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate the CONTENDER SWEEP top-5 by ed", "out": "analysis\\manager\\2026-07-01-0333-validator-validate-the-contender-sweep-top-5-by-ed.md", "elapsed_s": 16.628, "ts_et": "2026-07-01T03:33:20"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-01-0353-python-rank_contenders.md", "ts_et": "2026-07-01T03:53:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-01-0413-python-rank_contenders.md", "ts_et": "2026-07-01T04:13:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-01-0433-python-rank_contenders.md", "ts_et": "2026-07-01T04:33:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-01-0453-python-rank_contenders.md", "ts_et": "2026-07-01T04:53:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-01-0513-python-rank_contenders.md", "ts_et": "2026-07-01T05:13:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-01-0533-python-rank_contenders.md", "ts_et": "2026-07-01T05:33:04"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the reg", "out": "analysis\\manager\\2026-07-01-0553-coder-write-a-backtest-config-json-for-the-reg.md", "elapsed_s": 1.814, "ts_et": "2026-07-01T05:53:05"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "does OTM-2:LR0:mt1:stop-8:tp+150%:sell80", "out": "analysis\\manager\\2026-07-01-0613-critic-does-otm-2-lr0-mt1-stop-8-tp-150--sell80.md", "elapsed_s": 16.459, "ts_et": "2026-07-01T06:13:19"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "does OTM-2:LR0:mt1:stop-8:tp+150%:sell80", "out": "analysis\\manager\\2026-07-01-0633-critic-does-otm-2-lr0-mt1-stop-8-tp-150--sell80.md", "elapsed_s": 26.087, "ts_et": "2026-07-01T06:33:29"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "does OTM-2:LR0:mt1:stop-8:tp+150%:sell80", "out": "analysis\\manager\\2026-07-01-0653-critic-does-otm-2-lr0-mt1-stop-8-tp-150--sell80.md", "elapsed_s": 35.894, "ts_et": "2026-07-01T06:53:39"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "does OTM-2:LR0:mt1:stop-8:tp+150%:sell80", "out": "analysis\\manager\\2026-07-01-0713-critic-does-otm-2-lr0-mt1-stop-8-tp-150--sell80.md", "elapsed_s": 25.162, "ts_et": "2026-07-01T07:13:28"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "validate the CONTENDER SWEEP top-5 by ed", "out": "analysis\\manager\\2026-07-01-0734-validator-validate-the-contender-sweep-top-5-by-ed.md", "elapsed_s": 68.488, "ts_et": "2026-07-01T07:34:12"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "what minimum RVOL threshold (0.8 / 1.0 /", "out": "analysis\\manager\\2026-07-01-0753-strategist-what-minimum-rvol-threshold--0-8---1-0--.md", "elapsed_s": 9.127, "ts_et": "2026-07-01T07:53:12"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-01T08:13:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-01-0833-python-rank_contenders.md", "ts_et": "2026-07-01T08:33:09"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-01T08:53:04"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-01T09:13:04"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:33", "ts_et": "2026-07-01T09:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:53", "ts_et": "2026-07-01T09:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:13", "ts_et": "2026-07-01T10:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:33", "ts_et": "2026-07-01T10:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:53", "ts_et": "2026-07-01T10:53:00"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:13", "ts_et": "2026-07-01T11:13:00"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:33", "ts_et": "2026-07-01T11:33:00"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:53", "ts_et": "2026-07-01T11:53:00"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:13", "ts_et": "2026-07-01T12:13:00"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:33", "ts_et": "2026-07-01T12:33:00"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:53", "ts_et": "2026-07-01T12:53:00"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:13", "ts_et": "2026-07-01T13:13:00"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:33", "ts_et": "2026-07-01T13:33:00"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:53", "ts_et": "2026-07-01T13:53:00"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:13", "ts_et": "2026-07-01T14:13:00"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:33", "ts_et": "2026-07-01T14:33:00"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:53", "ts_et": "2026-07-01T14:53:00"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:13", "ts_et": "2026-07-01T15:13:00"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:33", "ts_et": "2026-07-01T15:33:00"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:53", "ts_et": "2026-07-01T15:53:00"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critique the contender OTM-2:LR0:mt1:sto", "out": "analysis\\manager\\2026-07-01-1613-critic-critique-the-contender-otm-2-lr0-mt1-sto.md", "elapsed_s": 17.652, "ts_et": "2026-07-01T16:13:26"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the WR=", "out": "analysis\\manager\\2026-07-01-1633-coder-write-a-backtest-config-json-for-the-wr-.md", "elapsed_s": 1.518, "ts_et": "2026-07-01T16:33:04"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-01T16:53:03"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the WR=", "out": "analysis\\manager\\2026-07-01-1713-coder-write-a-backtest-config-json-for-the-wr-.md", "elapsed_s": 1.231, "ts_et": "2026-07-01T17:13:04"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate one vwap_continuation RVOL-floor", "out": "analysis\\manager\\2026-07-01-1733-strategist-ideate-one-vwap_continuation-rvol-floor.md", "elapsed_s": 11.357, "ts_et": "2026-07-01T17:33:26"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the WR=", "out": "analysis\\manager\\2026-07-01-1753-coder-write-a-backtest-config-json-for-the-wr-.md", "elapsed_s": 1.509, "ts_et": "2026-07-01T17:53:04"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "ollama::qwen3:14b", "action": "Score the RVOL-floor ideation output aga", "out": "analysis\\manager\\2026-07-01-1813-critic-score-the-rvol-floor-ideation-output-aga.md", "elapsed_s": 43.864, "ts_et": "2026-07-01T18:13:53"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Score the RVOL-floor ideation output aga", "out": "analysis\\manager\\2026-07-01-1833-critic-score-the-rvol-floor-ideation-output-aga.md", "elapsed_s": 2.544, "ts_et": "2026-07-01T18:33:07"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Score the RVOL-floor ideation output aga", "out": "analysis\\manager\\2026-07-01-1853-critic-score-the-rvol-floor-ideation-output-aga.md", "elapsed_s": 2.14, "ts_et": "2026-07-01T18:53:05"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Score the RVOL-floor ideation output aga", "out": "analysis\\manager\\2026-07-01-1913-critic-score-the-rvol-floor-ideation-output-aga.md", "elapsed_s": 2.902, "ts_et": "2026-07-01T19:13:13"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Score the RVOL-floor ideation output aga", "out": "analysis\\manager\\2026-07-01-1934-critic-score-the-rvol-floor-ideation-output-aga.md", "elapsed_s": 65.561, "ts_et": "2026-07-01T19:34:10"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Score the RVOL-floor ideation output aga", "out": "analysis\\manager\\2026-07-01-1953-critic-score-the-rvol-floor-ideation-output-aga.md", "elapsed_s": 2.531, "ts_et": "2026-07-01T19:53:07"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-01-2013-python-rank_contenders.md", "ts_et": "2026-07-01T20:13:15"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE named-level wick-bounce (NLWB", "out": "analysis\\manager\\2026-07-01-2033-strategist-ideate-one-named-level-wick-bounce--nlwb.md", "elapsed_s": 21.503, "ts_et": "2026-07-01T20:33:24"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE named-level wick-bounce (NLWB", "out": "analysis\\manager\\2026-07-01-2053-strategist-ideate-one-named-level-wick-bounce--nlwb.md", "elapsed_s": 28.908, "ts_et": "2026-07-01T20:53:36"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the OTM-2 LR0 contender with a", "out": "analysis\\manager\\2026-07-01-2113-critic-critique-the-otm-2-lr0-contender-with-a.md", "elapsed_s": 5.447, "ts_et": "2026-07-01T21:13:07"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "ollama::qwen3:14b", "action": "validate the top contender in the CONTEN", "out": "analysis\\manager\\2026-07-01-2133-validator-validate-the-top-contender-in-the-conten.md", "elapsed_s": 35.025, "ts_et": "2026-07-01T21:33:37"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE vwap_continuation time-of-day", "out": "analysis\\manager\\2026-07-01-2153-strategist-ideate-one-vwap_continuation-time-of-day.md", "elapsed_s": 3.216, "ts_et": "2026-07-01T21:53:05"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the CONTENDER SWEEP (mass-grind", "out": "analysis\\manager\\2026-07-01-2213-critic-critique-the-contender-sweep--mass-grind.md", "elapsed_s": 24.703, "ts_et": "2026-07-01T22:13:26"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the CONTENDER SWEEP (mass-grind", "out": "analysis\\manager\\2026-07-01-2233-critic-critique-the-contender-sweep--mass-grind.md", "elapsed_s": 26.646, "ts_et": "2026-07-01T22:33:29"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the CONTENDER SWEEP (mass-grind", "out": "analysis\\manager\\2026-07-01-2253-critic-critique-the-contender-sweep--mass-grind.md", "elapsed_s": 20.923, "ts_et": "2026-07-01T22:53:22"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the CONTENDER SWEEP (mass-grind", "out": "analysis\\manager\\2026-07-01-2313-critic-critique-the-contender-sweep--mass-grind.md", "elapsed_s": 34.875, "ts_et": "2026-07-01T23:13:37"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the CONTENDER SWEEP (mass-grind", "out": "analysis\\manager\\2026-07-01-2333-critic-critique-the-contender-sweep--mass-grind.md", "elapsed_s": 24.844, "ts_et": "2026-07-01T23:33:26"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique the CONTENDER SWEEP (mass-grind", "out": "analysis\\manager\\2026-07-01-2353-critic-critique-the-contender-sweep--mass-grind.md", "elapsed_s": 24.935, "ts_et": "2026-07-01T23:53:27"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Read `analysis/recommendations/` and ran", "out": "analysis\\manager\\2026-07-02-0013-critic-read--analysis-recommendations---and-ran.md", "elapsed_s": 9.592, "ts_et": "2026-07-02T00:13:12"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE vwap_continuation RVOL-floor", "out": "analysis\\manager\\2026-07-02-0033-strategist-ideate-one-vwap_continuation-rvol-floor.md", "elapsed_s": 8.267, "ts_et": "2026-07-02T00:33:10"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-02T00:53:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-0113-python-rank_contenders.md", "ts_et": "2026-07-02T01:13:03"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Read `analysis/recommendations/` and ran", "out": "analysis\\manager\\2026-07-02-0133-critic-read--analysis-recommendations---and-ran.md", "elapsed_s": 2.016, "ts_et": "2026-07-02T01:33:05"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Ideate ONE vwap_continuation RVOL-floor", "out": "analysis\\manager\\2026-07-02-0153-strategist-ideate-one-vwap_continuation-rvol-floor.md", "elapsed_s": 16.107, "ts_et": "2026-07-02T01:53:20"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-02T02:13:03"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-02T02:33:03"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-02T02:53:03"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "execute `backtest/run_grind.py --family", "out": "analysis\\manager\\2026-07-02-0313-strategist-execute--backtest-run_grind-py---family.md", "elapsed_s": 1.074, "ts_et": "2026-07-02T03:13:04"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "execute `backtest/run_grind.py --family", "out": "analysis\\manager\\2026-07-02-0333-strategist-execute--backtest-run_grind-py---family.md", "elapsed_s": 13.623, "ts_et": "2026-07-02T03:33:17"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-02T03:53:03"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the ITM", "out": "analysis\\manager\\2026-07-02-0413-coder-write-a-backtest-config-json-for-the-itm.md", "elapsed_s": 2.022, "ts_et": "2026-07-02T04:13:06"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Load `analysis/recommendations/edgehunt-", "out": "analysis\\manager\\2026-07-02-0433-critic-load--analysis-recommendations-edgehunt-.md", "elapsed_s": 23.86, "ts_et": "2026-07-02T04:33:27"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-0453-python-rank_contenders.md", "ts_et": "2026-07-02T04:53:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-0513-python-rank_contenders.md", "ts_et": "2026-07-02T05:13:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-0533-python-rank_contenders.md", "ts_et": "2026-07-02T05:33:03"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Load `analysis/recommendations/edgehunt-", "out": "analysis\\manager\\2026-07-02-0554-critic-load--analysis-recommendations-edgehunt-.md", "elapsed_s": 103.509, "ts_et": "2026-07-02T05:54:47"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Ideate one vwap_continuation RVOL-floor", "out": "analysis\\manager\\2026-07-02-0613-strategist-ideate-one-vwap_continuation-rvol-floor.md", "elapsed_s": 22.183, "ts_et": "2026-07-02T06:13:26"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique analysis/recommendations/shotgu", "out": "analysis\\manager\\2026-07-02-0633-critic-critique-analysis-recommendations-shotgu.md", "elapsed_s": 3.896, "ts_et": "2026-07-02T06:33:07"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Critique analysis/recommendations/shotgu", "out": "analysis\\manager\\2026-07-02-0653-critic-critique-analysis-recommendations-shotgu.md", "elapsed_s": 8.633, "ts_et": "2026-07-02T06:53:12"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Ideate one vwap_continuation RVOL-floor", "out": "analysis\\manager\\2026-07-02-0713-strategist-ideate-one-vwap_continuation-rvol-floor.md", "elapsed_s": 11.79, "ts_et": "2026-07-02T07:13:15"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Ideate one vwap_continuation RVOL-floor", "out": "analysis\\manager\\2026-07-02-0733-strategist-ideate-one-vwap_continuation-rvol-floor.md", "elapsed_s": 13.861, "ts_et": "2026-07-02T07:33:17"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "check decision-agreement on the top cont", "out": "analysis\\manager\\2026-07-02-0753-validator-check-decision-agreement-on-the-top-cont.md", "elapsed_s": 30.88, "ts_et": "2026-07-02T07:53:34"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the `IT", "out": "analysis\\manager\\2026-07-02-0813-coder-write-a-backtest-config-json-for-the--it.md", "elapsed_s": 1.578, "ts_et": "2026-07-02T08:13:05"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-02T08:33:04"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-02T08:53:03"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "Write a backtest config/JSON for the `IT", "out": "analysis\\manager\\2026-07-02-0913-coder-write-a-backtest-config-json-for-the--it.md", "elapsed_s": 1.925, "ts_et": "2026-07-02T09:13:06"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:33", "ts_et": "2026-07-02T09:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:53", "ts_et": "2026-07-02T09:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:13", "ts_et": "2026-07-02T10:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:33", "ts_et": "2026-07-02T10:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:53", "ts_et": "2026-07-02T10:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:13", "ts_et": "2026-07-02T11:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:33", "ts_et": "2026-07-02T11:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:53", "ts_et": "2026-07-02T11:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:13", "ts_et": "2026-07-02T12:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:33", "ts_et": "2026-07-02T12:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:53", "ts_et": "2026-07-02T12:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:13", "ts_et": "2026-07-02T13:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:33", "ts_et": "2026-07-02T13:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:53", "ts_et": "2026-07-02T13:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:13", "ts_et": "2026-07-02T14:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:33", "ts_et": "2026-07-02T14:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:53", "ts_et": "2026-07-02T14:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:13", "ts_et": "2026-07-02T15:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:33", "ts_et": "2026-07-02T15:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:53", "ts_et": "2026-07-02T15:53:01"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-1613-python-rank_contenders.md", "ts_et": "2026-07-02T16:13:10"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE new family — level-rejection", "out": "analysis\\manager\\2026-07-02-1633-strategist-ideate-one-new-family---level-rejection.md", "elapsed_s": 29.598, "ts_et": "2026-07-02T16:33:34"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-1653-python-rank_contenders.md", "ts_et": "2026-07-02T16:53:04"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "send the gap_and_go scorecard (analysis/", "out": "analysis\\manager\\2026-07-02-1713-strategist-send-the-gap_and_go-scorecard--analysis-.md", "elapsed_s": 7.619, "ts_et": "2026-07-02T17:13:11"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-1733-python-rank_contenders.md", "ts_et": "2026-07-02T17:33:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-1753-python-rank_contenders.md", "ts_et": "2026-07-02T17:53:10"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "load analysis/recommendations/contender-", "out": "analysis\\manager\\2026-07-02-1813-coder-load-analysis-recommendations-contender-.md", "elapsed_s": 2.607, "ts_et": "2026-07-02T18:13:07"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-1833-python-rank_contenders.md", "ts_et": "2026-07-02T18:33:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-1853-python-rank_contenders.md", "ts_et": "2026-07-02T18:53:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-1913-python-rank_contenders.md", "ts_et": "2026-07-02T19:13:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-1933-python-rank_contenders.md", "ts_et": "2026-07-02T19:33:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-1953-python-rank_contenders.md", "ts_et": "2026-07-02T19:53:03"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE new family — level-rejection", "out": "analysis\\manager\\2026-07-02-2013-strategist-ideate-one-new-family---level-rejection.md", "elapsed_s": 9.919, "ts_et": "2026-07-02T20:13:13"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-2033-python-rank_contenders.md", "ts_et": "2026-07-02T20:33:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-2053-python-rank_contenders.md", "ts_et": "2026-07-02T20:53:09"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-2113-python-rank_contenders.md", "ts_et": "2026-07-02T21:13:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-2133-python-rank_contenders.md", "ts_et": "2026-07-02T21:33:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-2153-python-rank_contenders.md", "ts_et": "2026-07-02T21:53:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-2213-python-rank_contenders.md", "ts_et": "2026-07-02T22:13:04"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE new family — level-rejection", "out": "analysis\\manager\\2026-07-02-2233-strategist-ideate-one-new-family---level-rejection.md", "elapsed_s": 30.142, "ts_et": "2026-07-02T22:33:34"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-2253-python-rank_contenders.md", "ts_et": "2026-07-02T22:53:03"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "load analysis/recommendations/contender-", "out": "analysis\\manager\\2026-07-02-2313-coder-load-analysis-recommendations-contender-.md", "elapsed_s": 1.83, "ts_et": "2026-07-02T23:13:05"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-2333-python-rank_contenders.md", "ts_et": "2026-07-02T23:33:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-02-2353-python-rank_contenders.md", "ts_et": "2026-07-02T23:53:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0013-python-rank_contenders.md", "ts_et": "2026-07-03T00:13:07"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0033-python-rank_contenders.md", "ts_et": "2026-07-03T00:33:08"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0053-python-rank_contenders.md", "ts_et": "2026-07-03T00:53:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0113-python-rank_contenders.md", "ts_et": "2026-07-03T01:13:04"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critique the edge claim in analysis/reco", "out": "analysis\\manager\\2026-07-03-0133-strategist-critique-the-edge-claim-in-analysis-reco.md", "elapsed_s": 3.036, "ts_et": "2026-07-03T01:33:07"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-03-0153-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 3.888, "ts_et": "2026-07-03T01:53:08"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0213-python-rank_contenders.md", "ts_et": "2026-07-03T02:13:04"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-03T02:33:04"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-03-0253-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 4.211, "ts_et": "2026-07-03T02:53:08"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0313-python-rank_contenders.md", "ts_et": "2026-07-03T03:13:04"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-03-0333-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 35.588, "ts_et": "2026-07-03T03:33:40"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE new family — level-rejection", "out": "analysis\\manager\\2026-07-03-0353-strategist-ideate-one-new-family---level-rejection.md", "elapsed_s": 11.103, "ts_et": "2026-07-03T03:53:20"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0413-python-rank_contenders.md", "ts_et": "2026-07-03T04:13:04"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-03T04:33:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0453-python-rank_contenders.md", "ts_et": "2026-07-03T04:53:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0513-python-rank_contenders.md", "ts_et": "2026-07-03T05:13:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0533-python-rank_contenders.md", "ts_et": "2026-07-03T05:33:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0553-python-rank_contenders.md", "ts_et": "2026-07-03T05:53:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0613-python-rank_contenders.md", "ts_et": "2026-07-03T06:13:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0633-python-rank_contenders.md", "ts_et": "2026-07-03T06:33:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0653-python-rank_contenders.md", "ts_et": "2026-07-03T06:53:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0713-python-rank_contenders.md", "ts_et": "2026-07-03T07:13:04"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "load analysis/recommendations/contender-", "out": "analysis\\manager\\2026-07-03-0733-coder-load-analysis-recommendations-contender-.md", "elapsed_s": 2.185, "ts_et": "2026-07-03T07:33:06"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE new family — level-rejection", "out": "analysis\\manager\\2026-07-03-0753-strategist-ideate-one-new-family---level-rejection.md", "elapsed_s": 7.556, "ts_et": "2026-07-03T07:53:11"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0813-python-rank_contenders.md", "ts_et": "2026-07-03T08:13:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0833-python-rank_contenders.md", "ts_et": "2026-07-03T08:33:05"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0853-python-rank_contenders.md", "ts_et": "2026-07-03T08:53:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-03-0913-python-rank_contenders.md", "ts_et": "2026-07-03T09:13:03"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:33", "ts_et": "2026-07-03T09:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:53", "ts_et": "2026-07-03T09:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:13", "ts_et": "2026-07-03T10:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:33", "ts_et": "2026-07-03T10:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:53", "ts_et": "2026-07-03T10:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:13", "ts_et": "2026-07-03T11:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:33", "ts_et": "2026-07-03T11:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:53", "ts_et": "2026-07-03T11:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:13", "ts_et": "2026-07-03T12:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:33", "ts_et": "2026-07-03T12:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:53", "ts_et": "2026-07-03T12:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:13", "ts_et": "2026-07-03T13:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:33", "ts_et": "2026-07-03T13:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:53", "ts_et": "2026-07-03T13:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:13", "ts_et": "2026-07-03T14:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:33", "ts_et": "2026-07-03T14:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:53", "ts_et": "2026-07-03T14:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:13", "ts_et": "2026-07-03T15:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:33", "ts_et": "2026-07-03T15:33:02"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-03T23:13:09"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE new family — level-rejection", "out": "analysis\\manager\\2026-07-03-2333-strategist-ideate-one-new-family---level-rejection.md", "elapsed_s": 22.3, "ts_et": "2026-07-03T23:33:30"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "send the gap_and_go scorecard (analysis/", "out": "analysis\\manager\\2026-07-03-2353-strategist-send-the-gap_and_go-scorecard--analysis-.md", "elapsed_s": 6.619, "ts_et": "2026-07-03T23:53:10"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-0013-python-rank_contenders.md", "ts_et": "2026-07-04T00:13:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-0033-python-rank_contenders.md", "ts_et": "2026-07-04T00:33:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-0053-python-rank_contenders.md", "ts_et": "2026-07-04T00:53:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-0113-python-rank_contenders.md", "ts_et": "2026-07-04T01:13:04"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "produce parameter dict only — no JSON bo", "out": "analysis\\manager\\2026-07-04-0133-strategist-produce-parameter-dict-only---no-json-bo.md", "elapsed_s": 7.083, "ts_et": "2026-07-04T01:33:10"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-04T10:53:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-1113-python-rank_contenders.md", "ts_et": "2026-07-04T11:13:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-1133-python-rank_contenders.md", "ts_et": "2026-07-04T11:33:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-1153-python-rank_contenders.md", "ts_et": "2026-07-04T11:53:09"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-1213-python-rank_contenders.md", "ts_et": "2026-07-04T12:13:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-1233-python-rank_contenders.md", "ts_et": "2026-07-04T12:33:08"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE new family — level-rejection", "out": "analysis\\manager\\2026-07-04-1253-strategist-ideate-one-new-family---level-rejection.md", "elapsed_s": 5.799, "ts_et": "2026-07-04T12:53:08"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-04T13:13:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-1333-python-rank_contenders.md", "ts_et": "2026-07-04T13:33:03"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-04T13:53:03"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-04T14:13:03"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-04T14:33:03"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE new family — level-rejection", "out": "analysis\\manager\\2026-07-04-1453-strategist-ideate-one-new-family---level-rejection.md", "elapsed_s": 7.664, "ts_et": "2026-07-04T14:53:09"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-04T15:13:04"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE new family — level-rejection", "out": "analysis\\manager\\2026-07-04-1533-strategist-ideate-one-new-family---level-rejection.md", "elapsed_s": 19.483, "ts_et": "2026-07-04T15:33:22"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-04T15:53:02"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-04T16:13:03"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-04T16:33:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-1653-python-rank_contenders.md", "ts_et": "2026-07-04T16:53:03"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "groq::llama-3.3-70b-versatile", "action": "backtest the vwap_continuation_rvol_vix_", "out": "analysis\\manager\\2026-07-04-1713-coder-backtest-the-vwap_continuation_rvol_vix_.md", "elapsed_s": 3.461, "ts_et": "2026-07-04T17:13:06"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-1733-python-rank_contenders.md", "ts_et": "2026-07-04T17:33:03"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-04T17:53:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-1813-python-rank_contenders.md", "ts_et": "2026-07-04T18:13:02"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-04T18:33:02"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-04T18:53:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-1913-python-rank_contenders.md", "ts_et": "2026-07-04T19:13:02"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE new family — level-rejection", "out": "analysis\\manager\\2026-07-04-1933-strategist-ideate-one-new-family---level-rejection.md", "elapsed_s": 12.221, "ts_et": "2026-07-04T19:33:14"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "produce parameter dict only — no JSON bo", "out": "analysis\\manager\\2026-07-04-1953-strategist-produce-parameter-dict-only---no-json-bo.md", "elapsed_s": 3.541, "ts_et": "2026-07-04T19:53:05"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-2013-python-rank_contenders.md", "ts_et": "2026-07-04T20:13:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-2033-python-rank_contenders.md", "ts_et": "2026-07-04T20:33:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-2053-python-rank_contenders.md", "ts_et": "2026-07-04T20:53:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-2113-python-rank_contenders.md", "ts_et": "2026-07-04T21:13:04"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-2133-python-rank_contenders.md", "ts_et": "2026-07-04T21:33:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-2153-python-rank_contenders.md", "ts_et": "2026-07-04T21:53:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-2213-python-rank_contenders.md", "ts_et": "2026-07-04T22:13:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-2233-python-rank_contenders.md", "ts_et": "2026-07-04T22:33:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-2253-python-rank_contenders.md", "ts_et": "2026-07-04T22:53:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-2313-python-rank_contenders.md", "ts_et": "2026-07-04T23:13:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-2333-python-rank_contenders.md", "ts_et": "2026-07-04T23:33:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-04-2353-python-rank_contenders.md", "ts_et": "2026-07-04T23:53:02"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-05-0013-python-rank_contenders.md", "ts_et": "2026-07-05T00:13:02"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-05T00:33:07"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:43", "ts_et": "2026-07-06T09:43:25"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:03", "ts_et": "2026-07-06T10:03:26"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:23", "ts_et": "2026-07-06T10:23:26"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:43", "ts_et": "2026-07-06T10:43:26"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:03", "ts_et": "2026-07-06T11:03:26"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:23", "ts_et": "2026-07-06T11:23:26"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:43", "ts_et": "2026-07-06T11:43:26"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:03", "ts_et": "2026-07-06T12:03:26"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:23", "ts_et": "2026-07-06T12:23:26"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:43", "ts_et": "2026-07-06T12:43:26"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:03", "ts_et": "2026-07-06T13:03:26"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:23", "ts_et": "2026-07-06T13:23:26"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:43", "ts_et": "2026-07-06T13:43:26"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:03", "ts_et": "2026-07-06T14:03:26"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:23", "ts_et": "2026-07-06T14:23:26"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:43", "ts_et": "2026-07-06T14:43:26"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:03", "ts_et": "2026-07-06T15:03:26"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:23", "ts_et": "2026-07-06T15:23:26"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:43", "ts_et": "2026-07-06T15:43:26"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-06T16:03:33"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-06-1623-python-rank_contenders.md", "ts_et": "2026-07-06T16:23:28"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-06-1643-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 4.197, "ts_et": "2026-07-06T16:43:33"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-06-1703-python-rank_contenders.md", "ts_et": "2026-07-06T17:03:29"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-06T17:23:28"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-06-1743-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 2.478, "ts_et": "2026-07-06T17:43:30"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-06-1803-python-rank_contenders.md", "ts_et": "2026-07-06T18:03:27"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-06-1823-python-rank_contenders.md", "ts_et": "2026-07-06T18:23:28"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-06-1843-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 21.186, "ts_et": "2026-07-06T18:43:49"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-06-1903-python-rank_contenders.md", "ts_et": "2026-07-06T19:03:27"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-06-1923-python-rank_contenders.md", "ts_et": "2026-07-06T19:23:27"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-06-1943-python-rank_contenders.md", "ts_et": "2026-07-06T19:43:28"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-06-2003-python-rank_contenders.md", "ts_et": "2026-07-06T20:03:28"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-06-2023-python-rank_contenders.md", "ts_et": "2026-07-06T20:23:28"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-06-2043-python-rank_contenders.md", "ts_et": "2026-07-06T20:43:28"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-06-2103-python-rank_contenders.md", "ts_et": "2026-07-06T21:03:28"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-06-2123-python-rank_contenders.md", "ts_et": "2026-07-06T21:23:28"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-06-2143-python-rank_contenders.md", "ts_et": "2026-07-06T21:43:33"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-06-2203-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 7.18, "ts_et": "2026-07-06T22:03:35"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-06-2233-python-rank_contenders.md", "ts_et": "2026-07-06T22:33:08"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-06-2253-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 10.619, "ts_et": "2026-07-06T22:53:12"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-06-2313-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 4.998, "ts_et": "2026-07-06T23:13:06"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-06T23:33:02"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-06-2353-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 15.519, "ts_et": "2026-07-06T23:53:17"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE new family — level-rejection", "out": "analysis\\manager\\2026-07-07-0859-strategist-ideate-one-new-family---level-rejection.md", "elapsed_s": 10.864, "ts_et": "2026-07-07T08:59:15"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE new family — level-rejection", "out": "analysis\\manager\\2026-07-07-0919-strategist-ideate-one-new-family---level-rejection.md", "elapsed_s": 24.425, "ts_et": "2026-07-07T09:19:19"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:38", "ts_et": "2026-07-07T09:38:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:58", "ts_et": "2026-07-07T09:58:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:18", "ts_et": "2026-07-07T10:18:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:38", "ts_et": "2026-07-07T10:38:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:58", "ts_et": "2026-07-07T10:58:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:18", "ts_et": "2026-07-07T11:18:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:38", "ts_et": "2026-07-07T11:38:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:58", "ts_et": "2026-07-07T11:58:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:18", "ts_et": "2026-07-07T12:18:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:38", "ts_et": "2026-07-07T12:38:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:58", "ts_et": "2026-07-07T12:58:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:18", "ts_et": "2026-07-07T13:18:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:38", "ts_et": "2026-07-07T13:38:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:58", "ts_et": "2026-07-07T13:58:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:18", "ts_et": "2026-07-07T14:18:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:38", "ts_et": "2026-07-07T14:38:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:58", "ts_et": "2026-07-07T14:58:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:18", "ts_et": "2026-07-07T15:18:54"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:38", "ts_et": "2026-07-07T15:38:54"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-07-1559-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 6.233, "ts_et": "2026-07-07T15:59:06"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-07-1618-python-rank_contenders.md", "ts_et": "2026-07-07T16:18:56"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-07-1639-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 6.244, "ts_et": "2026-07-07T16:39:01"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-07T16:58:56"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "ollama::qwen3:14b", "action": "Score the 07:33 ideation — the vwap_cont", "out": "analysis\\manager\\2026-07-07-1719-coder-score-the-07-33-ideation---the-vwap_cont.md", "elapsed_s": 44.963, "ts_et": "2026-07-07T17:19:42"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-07T17:38:56"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-07-1759-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 8.035, "ts_et": "2026-07-07T17:59:02"}
+{"phase": "dispatch", "ok": false, "role": "strategist", "action": "level-rejection pullback variant using N", "error": "garbage_retry", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "ts_et": "2026-07-07T18:19:26"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-07-1819-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 18.549, "ts_et": "2026-07-07T18:19:44"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-07-1838-python-rank_contenders.md", "ts_et": "2026-07-07T18:38:57"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-07-1858-python-rank_contenders.md", "ts_et": "2026-07-07T18:58:57"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "send the gap_and_go scorecard (`analysis", "out": "analysis\\manager\\2026-07-07-1919-critic-send-the-gap_and_go-scorecard---analysis.md", "elapsed_s": 12.345, "ts_et": "2026-07-07T19:19:09"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-07-1939-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 4.001, "ts_et": "2026-07-07T19:39:00"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-07-1958-python-rank_contenders.md", "ts_et": "2026-07-07T19:58:56"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-07-2018-python-rank_contenders.md", "ts_et": "2026-07-07T20:18:55"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-07-2039-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 7.655, "ts_et": "2026-07-07T20:39:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-07-2058-python-rank_contenders.md", "ts_et": "2026-07-07T20:58:56"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE new family", "out": "analysis\\manager\\2026-07-07-2119-strategist-ideate-one-new-family.md", "elapsed_s": 61.687, "ts_et": "2026-07-07T21:19:57"}
+{"phase": "dispatch", "ok": false, "role": "strategist", "action": "level-rejection pullback variant using N", "error": "garbage_retry", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "ts_et": "2026-07-07T21:40:32"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-07-2140-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 12.783, "ts_et": "2026-07-07T21:40:44"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-07-2159-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 5.934, "ts_et": "2026-07-07T21:59:01"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-07-2218-python-rank_contenders.md", "ts_et": "2026-07-07T22:18:56"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "ollama::qwen3:14b", "action": "run the vwap_continuation_rvol_vix_gate", "out": "analysis\\manager\\2026-07-07-2239-coder-run-the-vwap_continuation_rvol_vix_gate.md", "elapsed_s": 41.262, "ts_et": "2026-07-07T22:39:44"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "ollama::qwen3:14b", "action": "run the vwap_continuation_rvol_vix_gate", "out": "analysis\\manager\\2026-07-07-2259-coder-run-the-vwap_continuation_rvol_vix_gate.md", "elapsed_s": 23.074, "ts_et": "2026-07-07T22:59:29"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-07-2318-python-rank_contenders.md", "ts_et": "2026-07-07T23:18:56"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "send the gap_and_go scorecard (analysis/", "out": "analysis\\manager\\2026-07-07-2339-critic-send-the-gap_and_go-scorecard--analysis-.md", "elapsed_s": 7.328, "ts_et": "2026-07-07T23:39:03"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE new family — level-rejection", "out": "analysis\\manager\\2026-07-07-2359-strategist-ideate-one-new-family---level-rejection.md", "elapsed_s": 7.562, "ts_et": "2026-07-07T23:59:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-0018-python-rank_contenders.md", "ts_et": "2026-07-08T00:18:56"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-0038-python-rank_contenders.md", "ts_et": "2026-07-08T00:38:56"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-0058-python-rank_contenders.md", "ts_et": "2026-07-08T00:58:55"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-0113-python-rank_contenders.md", "ts_et": "2026-07-08T01:13:03"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-0118-python-rank_contenders.md", "ts_et": "2026-07-08T01:18:56"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-08-0133-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 13.218, "ts_et": "2026-07-08T01:33:18"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T01:38:56"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "ollama::qwen3:14b", "action": "load analysis/recommendations/contender-", "out": "analysis\\manager\\2026-07-08-0153-coder-load-analysis-recommendations-contender-.md", "elapsed_s": 16.907, "ts_et": "2026-07-08T01:53:22"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-08-0159-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 10.212, "ts_et": "2026-07-08T01:59:06"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE new family", "out": "analysis\\manager\\2026-07-08-0213-strategist-ideate-one-new-family.md", "elapsed_s": 12.046, "ts_et": "2026-07-08T02:13:17"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "ideate ONE new family — level-rejection", "out": "analysis\\manager\\2026-07-08-0219-strategist-ideate-one-new-family---level-rejection.md", "elapsed_s": 6.121, "ts_et": "2026-07-08T02:19:02"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critique the edgehunt-gap_and_go scoreca", "out": "analysis\\manager\\2026-07-08-0234-strategist-critique-the-edgehunt-gap_and_go-scoreca.md", "elapsed_s": 64.665, "ts_et": "2026-07-08T02:34:09"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-08-0239-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 43.429, "ts_et": "2026-07-08T02:39:39"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-08-0253-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 41.193, "ts_et": "2026-07-08T02:53:45"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "send the gap_and_go scorecard (`analysis", "out": "analysis\\manager\\2026-07-08-0259-strategist-send-the-gap_and_go-scorecard---analysis.md", "elapsed_s": 20.828, "ts_et": "2026-07-08T02:59:16"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "ollama::qwen3:14b", "action": "load analysis/recommendations/contender-", "out": "analysis\\manager\\2026-07-08-0313-coder-load-analysis-recommendations-contender-.md", "elapsed_s": 19.233, "ts_et": "2026-07-08T03:13:24"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-0318-python-rank_contenders.md", "ts_et": "2026-07-08T03:18:55"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-0333-python-rank_contenders.md", "ts_et": "2026-07-08T03:33:05"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-0338-python-rank_contenders.md", "ts_et": "2026-07-08T03:38:56"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-0353-python-rank_contenders.md", "ts_et": "2026-07-08T03:53:03"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critique the edgehunt-gap_and_go scoreca", "out": "analysis\\manager\\2026-07-08-0359-critic-critique-the-edgehunt-gap_and_go-scoreca.md", "elapsed_s": 9.614, "ts_et": "2026-07-08T03:59:06"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-0413-python-rank_contenders.md", "ts_et": "2026-07-08T04:13:05"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "ollama::qwen3:14b", "action": "load analysis/recommendations/contender-", "out": "analysis\\manager\\2026-07-08-0419-coder-load-analysis-recommendations-contender-.md", "elapsed_s": 14.39, "ts_et": "2026-07-08T04:19:11"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-08-0433-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 19.132, "ts_et": "2026-07-08T04:33:23"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-08-0439-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 6.905, "ts_et": "2026-07-08T04:39:02"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-08-0453-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 5.643, "ts_et": "2026-07-08T04:53:09"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-08-0459-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 6.537, "ts_et": "2026-07-08T04:59:02"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "ollama::qwen3:14b", "action": "load analysis/recommendations/contender-", "out": "analysis\\manager\\2026-07-08-0513-coder-load-analysis-recommendations-contender-.md", "elapsed_s": 25.269, "ts_et": "2026-07-08T05:13:30"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-08-0519-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 20.228, "ts_et": "2026-07-08T05:19:15"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-08-0533-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 9.232, "ts_et": "2026-07-08T05:33:13"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-0538-python-rank_contenders.md", "ts_et": "2026-07-08T05:38:56"}
+{"phase": "dispatch", "ok": false, "role": "coder", "action": "load analysis/recommendations/contender-", "lane": "ollama::qwen3:14b", "error": "garbage_output", "ts_et": "2026-07-08T05:53:31"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T05:58:56"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "send the gap_and_go scorecard (analysis/", "out": "analysis\\manager\\2026-07-08-0613-strategist-send-the-gap_and_go-scorecard--analysis-.md", "elapsed_s": 7.183, "ts_et": "2026-07-08T06:13:12"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "send the gap_and_go scorecard (analysis/", "out": "analysis\\manager\\2026-07-08-0619-strategist-send-the-gap_and_go-scorecard--analysis-.md", "elapsed_s": 9.884, "ts_et": "2026-07-08T06:19:05"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T06:33:04"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T06:38:56"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T06:53:04"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T06:58:56"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-08-0713-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 27.741, "ts_et": "2026-07-08T07:13:31"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "send the gap_and_go scorecard (analysis/", "out": "analysis\\manager\\2026-07-08-0719-strategist-send-the-gap_and_go-scorecard--analysis-.md", "elapsed_s": 8.792, "ts_et": "2026-07-08T07:19:04"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "send the gap_and_go scorecard (analysis/", "out": "analysis\\manager\\2026-07-08-0733-strategist-send-the-gap_and_go-scorecard--analysis-.md", "elapsed_s": 7.609, "ts_et": "2026-07-08T07:33:17"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-0739-python-rank_contenders.md", "ts_et": "2026-07-08T07:39:01"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-0753-python-rank_contenders.md", "ts_et": "2026-07-08T07:53:05"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T07:58:57"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T08:13:06"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "send the gap_and_go scorecard (analysis/", "out": "analysis\\manager\\2026-07-08-0819-strategist-send-the-gap_and_go-scorecard--analysis-.md", "elapsed_s": 9.388, "ts_et": "2026-07-08T08:19:05"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "ollama::qwen3:14b", "action": "load analysis/recommendations/contender-", "out": "analysis\\manager\\2026-07-08-0833-coder-load-analysis-recommendations-contender-.md", "elapsed_s": 44.142, "ts_et": "2026-07-08T08:33:49"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T08:38:57"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-0853-python-rank_contenders.md", "ts_et": "2026-07-08T08:53:05"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-08-0913-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 3.879, "ts_et": "2026-07-08T09:13:09"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:33", "ts_et": "2026-07-08T09:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:53", "ts_et": "2026-07-08T09:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:13", "ts_et": "2026-07-08T10:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:33", "ts_et": "2026-07-08T10:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:53", "ts_et": "2026-07-08T10:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:13", "ts_et": "2026-07-08T11:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:33", "ts_et": "2026-07-08T11:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:53", "ts_et": "2026-07-08T11:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:13", "ts_et": "2026-07-08T12:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:33", "ts_et": "2026-07-08T12:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:53", "ts_et": "2026-07-08T12:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:13", "ts_et": "2026-07-08T13:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:33", "ts_et": "2026-07-08T13:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:53", "ts_et": "2026-07-08T13:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:13", "ts_et": "2026-07-08T14:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:33", "ts_et": "2026-07-08T14:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:53", "ts_et": "2026-07-08T14:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:13", "ts_et": "2026-07-08T15:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:33", "ts_et": "2026-07-08T15:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:53", "ts_et": "2026-07-08T15:53:01"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T16:13:09"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T16:33:05"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T16:53:04"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T17:13:04"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "produce parameter dict only — no JSON bo", "out": "analysis\\manager\\2026-07-08-1733-strategist-produce-parameter-dict-only---no-json-bo.md", "elapsed_s": 4.088, "ts_et": "2026-07-08T17:33:08"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "ollama::qwen3:14b", "action": "backtest/edgehunt-gap_and_go.json via ki", "out": "analysis\\manager\\2026-07-08-1753-coder-backtest-edgehunt-gap_and_go-json-via-ki.md", "elapsed_s": 43.498, "ts_et": "2026-07-08T17:53:48"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T18:13:05"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "send the gap_and_go scorecard (analysis/", "out": "analysis\\manager\\2026-07-08-1833-critic-send-the-gap_and_go-scorecard--analysis-.md", "elapsed_s": 46.198, "ts_et": "2026-07-08T18:33:52"}
+{"phase": "dispatch", "ok": true, "role": "strategist", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "level-rejection pullback variant using N", "out": "analysis\\manager\\2026-07-08-1853-strategist-level-rejection-pullback-variant-using-n.md", "elapsed_s": 9.14, "ts_et": "2026-07-08T18:53:14"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "ollama::qwen3.6:35b", "action": "backtest/edgehunt-vwap_continuation_rvol", "out": "analysis\\manager\\2026-07-08-1914-coder-backtest-edgehunt-vwap_continuation_rvol.md", "elapsed_s": 92.9, "ts_et": "2026-07-08T19:14:39"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T19:33:05"}
+{"phase": "dispatch", "ok": true, "role": "coder", "lane": "ollama::qwen3.6:35b", "action": "backtest/edgehunt-vwap_continuation_rvol", "out": "analysis\\manager\\2026-07-08-1954-coder-backtest-edgehunt-vwap_continuation_rvol.md", "elapsed_s": 86.719, "ts_et": "2026-07-08T19:54:51"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T20:13:10"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T20:33:14"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-2053-python-rank_contenders.md", "ts_et": "2026-07-08T20:53:10"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-2113-python-rank_contenders.md", "ts_et": "2026-07-08T21:13:09"}
+{"phase": "pick", "ok": false, "lane": "groq::llama-3.1-8b-instant", "error": null, "ts_et": "2026-07-08T21:33:08"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-08T21:53:49"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-08T22:13:31"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-2233-python-rank_contenders.md", "ts_et": "2026-07-08T22:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-08T22:53:40"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-08-2313-python-rank_contenders.md", "ts_et": "2026-07-08T23:13:43"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-08T23:33:31"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-08T23:54:42"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T00:14:58"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T00:33:59"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T00:54:45"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T01:15:55"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T01:34:12"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T01:56:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T02:15:16"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T02:34:27"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-09-0255-python-rank_contenders.md", "ts_et": "2026-07-09T02:55:07"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-09-0314-python-rank_contenders.md", "ts_et": "2026-07-09T03:14:00"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T03:34:58"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T03:53:45"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T04:13:55"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-09-0433-python-rank_contenders.md", "ts_et": "2026-07-09T04:33:39"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T04:53:55"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T05:14:01"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-09-0533-python-rank_contenders.md", "ts_et": "2026-07-09T05:33:53"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T05:53:51"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T06:14:01"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-09-0633-python-rank_contenders.md", "ts_et": "2026-07-09T06:33:48"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T06:53:36"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T07:13:58"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-09-0733-python-rank_contenders.md", "ts_et": "2026-07-09T07:33:37"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T07:53:52"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T08:13:31"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-09-0833-python-rank_contenders.md", "ts_et": "2026-07-09T08:33:30"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T08:53:31"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T09:13:28"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:33", "ts_et": "2026-07-09T09:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:53", "ts_et": "2026-07-09T09:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:13", "ts_et": "2026-07-09T10:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:33", "ts_et": "2026-07-09T10:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:53", "ts_et": "2026-07-09T10:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:13", "ts_et": "2026-07-09T11:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:33", "ts_et": "2026-07-09T11:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:53", "ts_et": "2026-07-09T11:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:13", "ts_et": "2026-07-09T12:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:33", "ts_et": "2026-07-09T12:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:53", "ts_et": "2026-07-09T12:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:13", "ts_et": "2026-07-09T13:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:33", "ts_et": "2026-07-09T13:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:53", "ts_et": "2026-07-09T13:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:13", "ts_et": "2026-07-09T14:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:33", "ts_et": "2026-07-09T14:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:53", "ts_et": "2026-07-09T14:53:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:13", "ts_et": "2026-07-09T15:13:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:33", "ts_et": "2026-07-09T15:33:02"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:53", "ts_et": "2026-07-09T15:53:02"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T16:13:58"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T16:33:37"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T16:53:31"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T17:13:32"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T17:33:32"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T17:53:35"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T18:13:33"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T18:33:36"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T18:53:32"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T19:13:33"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T19:33:33"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T19:54:16"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T20:13:36"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T20:33:50"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T20:53:32"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T21:13:31"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T21:33:32"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T21:54:01"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T22:13:56"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T22:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T22:53:30"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T23:13:50"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T23:33:53"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-09T23:53:29"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T00:14:50"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T00:33:32"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T00:53:33"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T01:13:36"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T01:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T01:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T02:13:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T02:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T02:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T03:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T03:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T03:53:53"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T04:13:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T04:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T04:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T05:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T05:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T05:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T06:13:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T06:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T06:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T07:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T07:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T07:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T08:13:25"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T08:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T08:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T09:13:31"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:33", "ts_et": "2026-07-10T09:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:53", "ts_et": "2026-07-10T09:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:13", "ts_et": "2026-07-10T10:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:33", "ts_et": "2026-07-10T10:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:53", "ts_et": "2026-07-10T10:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:13", "ts_et": "2026-07-10T11:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:33", "ts_et": "2026-07-10T11:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:53", "ts_et": "2026-07-10T11:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:13", "ts_et": "2026-07-10T12:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:33", "ts_et": "2026-07-10T12:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:53", "ts_et": "2026-07-10T12:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:13", "ts_et": "2026-07-10T13:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:33", "ts_et": "2026-07-10T13:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:53", "ts_et": "2026-07-10T13:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:13", "ts_et": "2026-07-10T14:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:33", "ts_et": "2026-07-10T14:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:53", "ts_et": "2026-07-10T14:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:13", "ts_et": "2026-07-10T15:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:33", "ts_et": "2026-07-10T15:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:53", "ts_et": "2026-07-10T15:53:01"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T16:13:54"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T16:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T16:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T17:13:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T17:33:35"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-10-1753-python-rank_contenders.md", "ts_et": "2026-07-10T17:53:49"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T18:13:58"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T18:33:54"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T18:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T19:13:29"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T19:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T19:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T20:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T20:33:32"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T20:53:50"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-10-2113-python-rank_contenders.md", "ts_et": "2026-07-10T21:13:36"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T21:33:39"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T21:53:50"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T22:13:39"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T22:33:32"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T22:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T23:13:30"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-10-2333-python-rank_contenders.md", "ts_et": "2026-07-10T23:33:25"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-10T23:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T00:13:29"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T00:33:52"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T00:53:30"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T01:13:32"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T01:33:30"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T01:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T02:13:30"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T02:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T02:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T03:13:29"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T03:33:29"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T03:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T04:13:30"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-11-0433-python-rank_contenders.md", "ts_et": "2026-07-11T04:33:52"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T04:53:28"}
+{"phase": "python", "ok": true, "tool": "rank_contenders", "out": "analysis\\manager\\2026-07-11-0513-python-rank_contenders.md", "ts_et": "2026-07-11T05:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T05:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T05:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T06:13:30"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T06:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T06:53:31"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T07:13:30"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T07:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T07:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T08:13:30"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T08:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T08:53:35"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T09:13:35"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T09:33:51"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T09:53:50"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T10:13:35"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T10:33:45"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T10:53:30"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T11:13:35"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T11:33:32"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T11:53:55"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T12:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T12:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T12:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T13:13:24"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T13:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T13:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T14:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T14:33:24"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T14:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T15:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T15:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T15:53:23"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T16:13:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T16:33:50"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T16:54:11"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T17:13:49"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T17:33:49"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T17:53:49"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T18:13:40"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T18:33:50"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T18:53:41"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T19:13:50"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T19:33:25"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T19:53:30"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T20:13:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T20:33:38"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T20:53:50"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T21:13:34"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T21:34:13"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T21:54:22"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T22:13:51"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T22:33:38"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T22:53:32"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T23:13:44"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T23:33:31"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-11T23:53:50"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T00:13:44"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T00:33:51"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T00:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T01:13:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T01:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T01:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T02:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T02:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T02:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T03:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T03:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T03:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T04:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T04:33:25"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T04:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T05:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T05:33:55"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T05:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T06:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T06:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T06:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T07:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T07:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T07:53:27"}
+{"phase": "dispatch", "ok": true, "role": "validator", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "Validate the top contenders from the CON", "out": "analysis\\manager\\2026-07-12-0813-validator-validate-the-top-contenders-from-the-con.md", "elapsed_s": 17.408, "ts_et": "2026-07-12T08:13:43"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T08:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T08:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T09:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T09:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T09:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T10:13:30"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T10:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T10:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T11:13:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T11:33:32"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T11:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T12:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T12:33:54"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T12:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T13:13:29"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T13:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T13:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T14:13:39"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T14:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T14:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T15:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T15:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T15:54:13"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T16:13:33"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T16:33:29"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T16:53:25"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T17:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T17:33:31"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T17:53:31"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T18:13:31"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T18:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T18:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T19:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T19:33:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T19:53:28"}
+{"phase": "dispatch", "ok": true, "role": "critic", "lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "action": "critique", "out": "analysis\\manager\\2026-07-12-2013-critic-critique.md", "elapsed_s": 15.735, "ts_et": "2026-07-12T20:13:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T20:34:21"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T20:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T21:13:30"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T21:33:29"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T21:53:28"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T22:13:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T22:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T22:53:50"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T23:13:48"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T23:33:25"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-12T23:53:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T00:13:25"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T00:33:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T00:53:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T01:13:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T01:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T01:53:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T02:13:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T02:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T02:53:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T03:13:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T03:33:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T03:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T04:13:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T04:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T04:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T05:13:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T05:33:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T05:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T06:13:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T06:33:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T06:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T07:13:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T07:33:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T07:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T08:13:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T08:33:52"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T08:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T09:13:27"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:33", "ts_et": "2026-07-13T09:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:53", "ts_et": "2026-07-13T09:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:13", "ts_et": "2026-07-13T10:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:33", "ts_et": "2026-07-13T10:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:53", "ts_et": "2026-07-13T10:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:13", "ts_et": "2026-07-13T11:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:33", "ts_et": "2026-07-13T11:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:53", "ts_et": "2026-07-13T11:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:13", "ts_et": "2026-07-13T12:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:33", "ts_et": "2026-07-13T12:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:53", "ts_et": "2026-07-13T12:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:13", "ts_et": "2026-07-13T13:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:33", "ts_et": "2026-07-13T13:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:53", "ts_et": "2026-07-13T13:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:13", "ts_et": "2026-07-13T14:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:33", "ts_et": "2026-07-13T14:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:53", "ts_et": "2026-07-13T14:53:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:13", "ts_et": "2026-07-13T15:13:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:33", "ts_et": "2026-07-13T15:33:01"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:53", "ts_et": "2026-07-13T15:53:01"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T16:13:37"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T16:33:36"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T16:53:30"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T17:13:37"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T17:33:30"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T17:53:30"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T18:13:30"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T18:33:29"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T18:53:50"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T19:13:25"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T19:33:25"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T19:53:25"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T20:13:25"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T20:33:25"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T20:53:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T21:13:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T21:33:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T21:53:25"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T22:13:29"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T22:33:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T22:53:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T23:13:26"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T23:33:46"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-13T23:53:27"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-14T07:42:34"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-14T08:01:54"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-14T08:21:53"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-14T08:41:52"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-14T09:01:54"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-14T09:22:20"}
+{"ok": true, "stage": "skipped_market_hours", "et": "09:41", "ts_et": "2026-07-14T09:41:24"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:01", "ts_et": "2026-07-14T10:01:25"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:21", "ts_et": "2026-07-14T10:21:25"}
+{"ok": true, "stage": "skipped_market_hours", "et": "10:41", "ts_et": "2026-07-14T10:41:24"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:01", "ts_et": "2026-07-14T11:01:25"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:21", "ts_et": "2026-07-14T11:21:25"}
+{"ok": true, "stage": "skipped_market_hours", "et": "11:41", "ts_et": "2026-07-14T11:41:24"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:01", "ts_et": "2026-07-14T12:01:25"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:21", "ts_et": "2026-07-14T12:21:25"}
+{"ok": true, "stage": "skipped_market_hours", "et": "12:41", "ts_et": "2026-07-14T12:41:24"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:01", "ts_et": "2026-07-14T13:01:25"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:21", "ts_et": "2026-07-14T13:21:25"}
+{"ok": true, "stage": "skipped_market_hours", "et": "13:41", "ts_et": "2026-07-14T13:41:24"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:01", "ts_et": "2026-07-14T14:01:25"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:21", "ts_et": "2026-07-14T14:21:25"}
+{"ok": true, "stage": "skipped_market_hours", "et": "14:41", "ts_et": "2026-07-14T14:41:24"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:01", "ts_et": "2026-07-14T15:01:25"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:21", "ts_et": "2026-07-14T15:21:25"}
+{"ok": true, "stage": "skipped_market_hours", "et": "15:41", "ts_et": "2026-07-14T15:41:24"}
+{"phase": "pick", "ok": false, "lane": "ollama::qwen3:14b", "error": null, "ts_et": "2026-07-14T16:01:47"}

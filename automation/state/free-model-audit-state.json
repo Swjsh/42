@@ -1,18 +1,18 @@
 {
   "heartbeat_veto": {
-    "evidence_n": 106,
-    "correct_n": 75,
+    "evidence_n": 108,
+    "correct_n": 76,
     "consecutive_runs_above_bar": 0,
-    "last_run_date": "2026-07-11",
+    "last_run_date": "2026-07-13",
     "confident": false,
     "cadence_days": 2,
     "confident_since": null
   },
   "twin_review": {
-    "evidence_n": 1,
-    "correct_n": 1,
+    "evidence_n": 3,
+    "correct_n": 3,
     "consecutive_runs_above_bar": 0,
-    "last_run_date": "2026-07-11",
+    "last_run_date": "2026-07-13",
     "confident": false,
     "cadence_days": 2,
     "confident_since": null

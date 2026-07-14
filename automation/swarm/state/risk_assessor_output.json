@@ -1,77 +1,88 @@
 {
   "agent": "risk_assessor",
-  "generated_at": "2026-06-26T14:18:42Z",
-  "consensus_direction": "bearish",
+  "generated_at": "2026-07-14T08:15:55Z",
+  "consensus_direction": "no_trade",
   "vote_breakdown": {
     "bullish": 1,
-    "bearish": 5,
-    "no_trade": 4,
-    "neutral": 2
+    "bearish": 2,
+    "no_trade": 9
   },
-  "risk_level": "medium",
-  "recommendation": "REDUCE_SIZE",
-  "reasoning": "5/12 bearish consensus (technical bullish outlier). Top risks: (1) CLOSE_CEILING distribution at 732.62 PMH — 5 bars failed to close above, fake breakout risk HIGH if price pushes through; (2) Volume 0.27x avg with 7% contraction — low volume moves don't sustain, reversal likely on any spike; (3) Momentum decelerating with 76% body contraction — conviction fading fast. Asymmetry unfavorable: if bearish holds, target 728.50 ($4.71 risk); if wrong and PMH breaks, target 743.35 ($10.14 reward) but fake breakout makes this likely trap. REDUCE_SIZE to half normal.",
+  "risk_level": "extreme",
+  "recommendation": "SKIP",
+  "reasoning": "9/12 specialists vote no_trade. Top risks: (1) CPI at 08:30 ET is IMMINENT — high-severity event creates hard no-trade window 08:25-09:00 ET per catalyst_analyst; (2) Data staleness affects 5+ specialists — chart data from 2026-07-06 vs current 2026-07-14 makes technical/pattern analysis unreliable. Additional concerns: volume contracting sharply (0.36x prior avg), price 13.4 points below VWAP, close-ceiling pattern at multiple resistance levels. Asymmetry: waiting costs nothing vs entering ahead of CPI with stale data. SKIP entirely — no viable setup with imminent binary event and compromised data quality.",
   "risk_factors": [
     {
-      "type": "DISTRIBUTION_BEAR",
-      "description": "CLOSE_CEILING at PMH 732.62: 5 consecutive bars with high >= 732.62 but close < 732.62. Fake breakout risk HIGH if price breaks above.",
+      "type": "CATALYST",
+      "description": "CPI (June 2026 data) at 08:30 ET — HIGH severity event with no-trade window 08:25-09:00 ET. Only 15 minutes away. Binary risk makes any pre-window entry extremely dangerous.",
+      "severity": "high"
+    },
+    {
+      "type": "DATA_STALENESS",
+      "description": "Chart data from 2026-07-06 is 8 days stale vs current 2026-07-14. Affects technical, pattern_scout, premarket_analyst outputs — cannot trust any pattern or level analysis.",
       "severity": "high"
     },
     {
       "type": "VOLUME",
-      "description": "Relative volume 0.27x average. Recent 5 bars avg 9,871 vs prior 5 bars avg 137,809 — only 7% of prior. Low volume makes price movements unreliable.",
-      "severity": "high"
+      "description": "Volume contracting sharply — recent 5-bar avg 1,784 vs prior 5-bar avg 5,016 = 0.36x ratio. Low volume moves don't hold.",
+      "severity": "medium"
+    },
+    {
+      "type": "DISTRIBUTION_BEAR",
+      "description": "Close-ceiling pattern at 750.29 (5 bars), 751.15 (4 bars), 749.53 (4 bars), 748.87 (4 bars) — multiple resistance levels capping upside with distribution confirmed.",
+      "severity": "medium"
+    },
+    {
+      "type": "VOLATILITY",
+      "description": "VIX at 16.34 in MID regime with flat direction — low volatility but no directional expansion signal. Range-bound day limits directional moves.",
+      "severity": "low"
     },
     {
       "type": "MOMENTUM",
-      "description": "ROC 5-bar +0.54%, 15-bar +0.44% — weak positive. Body contraction 76% from prior 3 bars to recent 2 bars indicating strong deceleration.",
+      "description": "ROC essentially flat at 0.045% (5-bar) and 0.023% (15-bar). No directional momentum — price consolidating in tight range.",
       "severity": "medium"
     },
     {
       "type": "REGIME",
-      "description": "RANGE_DAY: directional_efficiency=0.16 (well below 0.3 threshold). No net directional trend confirmed.",
-      "severity": "medium"
-    },
-    {
-      "type": "CATALYST",
-      "description": "Monthly options expiry Friday June 26 — elevated pin risk to SPY levels. Could force price to specific strikes.",
+      "description": "RANGE_DAY with directional efficiency 0.023 — price went essentially nowhere from open to close. No trend to trade.",
       "severity": "medium"
     },
     {
       "type": "TIME",
-      "description": "Morning session (10:17 ET) with 282 min to entry cutoff. Theta decay slow before 12:00 ET but expiry context adds time pressure.",
+      "description": "Current time 08:15 ET — pre-market with 75 minutes to market open. Historical patterns don't apply until after open.",
       "severity": "low"
     }
   ],
   "tail_risk_scenarios": [
     {
-      "scenario": "Price breaks above 732.62 PMH and fills gap to 734.97 prior close — bull trap triggers, price reverses to 728.50",
+      "scenario": "CPI print surprises to upside (hotter than expected) — SPY gaps down 1%+ and breaks below 747.96 support level",
       "probability": "medium",
-      "consequence": "Bearish position takes full loss if caught in fake breakout above PMH resistance"
+      "consequence": "Any bullish positions entered before CPI would face immediate 1%+ gap down loss plus breakout failure — stop would be triggered at 747.15 or worse"
     },
     {
-      "scenario": "Volume spikes and price gaps down through 728.50 PML support to 725.0 target",
-      "probability": "low",
-      "consequence": "Bearish position wins but low volume makes this scenario unlikely to sustain"
+      "scenario": "CPI print surprises to downside (cooler than expected) — SPY gaps up but immediately reverses as close-ceiling at 748.87/749.53 caps rally",
+      "probability": "medium",
+      "consequence": "Gap-up fade trade — buyers at open get trapped, price rejects at resistance levels, position goes underwater within 30 min"
     },
     {
-      "scenario": "VIX spikes back above 20 (fear returns) while price holds 732.62 — range compression traps both sides",
+      "scenario": "Data refreshes and reveals actual current structure is BEARISH — stale bullish ribbon (10c spread) was false signal, real momentum is down",
       "probability": "low",
-      "consequence": "Time decay erodes premium with no directional move; theta loss on options position"
+      "consequence": "Bullish thesis completely invalidates — level_thesis bullish bias was based on stale data; real losses could be 2-3% if momentum truly bearish"
     }
   ],
   "asymmetry": {
-    "reward_scenario": "Bearish thesis correct: price holds below 732.62 PMH, pulls back to 728.50 PML ($4.71 gain per share)",
-    "risk_scenario": "Bull trap: price breaks above 732.62, reclaims 734.97 prior close, rallies to 743.35 carry level ($10.14 loss per share from entry at 733.21)",
+    "reward_scenario": "Waiting out CPI window yields no loss; after 09:00 ET with fresh data, a cleaner directional setup may emerge",
+    "risk_scenario": "Entering before CPI with stale data: CPI surprise could cause 1%+ gap against position; stale technicals mean stop placement unreliable; volume contraction means any move lacks conviction",
     "ratio": "unfavorable"
   },
-  "size_recommendation": "half",
+  "size_recommendation": "skip",
   "key_observations": [
-    "CLOSE_CEILING distribution at 732.62 PMH is the dominant risk — 5 bars rejected at resistance signals distribution, not accumulation",
-    "Volume collapse (0.27x, 7% of prior) means any move is fragile — could snap either direction on volume return",
-    "Momentum clearly decelerating (76% body contraction) — the bounce off overnight lows is fading, supports bearish continuation",
-    "Technical agent bullish with ribbon but price below pivot creates mixed signal — ribbon may be lagging indicator in this range day",
-    "Pattern scout flags fake_breakout_risk: HIGH if next bar closes above 732.62 — bull trap likely"
+    "9/12 specialists vote no_trade — overwhelming consensus to avoid",
+    "CPI imminent at 08:30 ET is the dominant risk factor — no-trade window active until 09:00 ET",
+    "Data staleness (8 days old) invalidates technical, pattern, and premarket analysis",
+    "Volume contracting 64% vs prior average — low-conviction environment",
+    "Close-ceiling distribution at multiple resistance levels (750.29, 749.53, 748.87) — bearish for any bullish entry",
+    "Price 13.4 points below VWAP — bearish positioning confirmed by volume_analyst",
+    "No viable setup exists with compromised data + imminent binary event — SKIP entirely"
   ],
-  "data_quality": "full"
+  "data_quality": "partial"
 }

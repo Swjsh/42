@@ -1,23 +1,32 @@
 {
   "agent": "macro",
-  "generated_at": "2026-06-26T14:17:56.000000+00:00",
-  "bias": "neutral",
-  "confidence": 0.55,
-  "reasoning": "VIX at 19.17 falling from recent levels (MID regime) suggests fear is receding, which is normally bullish for SPY calls. However, overnight gap is down $1.09 (significant bearish sentiment). Calendar is 12 days stale (last refresh 2026-06-14) - no events listed for today in events_30d, but this creates uncertainty. The gap down combined with falling VIX creates mixed signals: VIX compression typically favors calls but the overnight sell-off suggests risk-off. No high-impact events in the calendar for today, but calendar staleness reduces confidence in this assessment.",
+  "generated_at": "2026-07-14T08:15:04Z",
+  "bias": "no_trade",
+  "confidence": 0.45,
+  "reasoning": "VIX at 16.34 flat in MID regime (15-22) gives no directional signal — neither bullish tailwind nor bearish pressure. CPI release at 08:30 ET today is a HIGH severity event with a defined no-trade window 08:25-09:00 ET (5 min before to 30 min after). Current time 08:15 ET means we are 10 minutes from the no-trade window start — too close to establish new directional positions. Overnight gap is effectively flat at ~$0.09 (current 748.38 vs premarket high 748.29). Calendar data is fresh (last refresh 2026-07-14 07:45 ET). Given the high-severity CPI event within 15 minutes and the no-trade rule for cpi_release (block starts 5 min before), the appropriate bias is no_trade until the window clears at 09:00 ET.",
   "vix_regime": "MID",
-  "vix_direction": "falling",
-  "vix_current": 19.17,
-  "event_risk": "none",
-  "events_today": [],
-  "overnight_gap_dir": "down",
-  "overnight_gap_dollars": -1.09,
+  "vix_direction": "flat",
+  "vix_current": 16.34,
+  "event_risk": "high",
+  "events_today": [
+    {
+      "time_et": "08:30",
+      "name": "CPI (June 2026 data)",
+      "severity": "high",
+      "no_trade_window": true,
+      "window_start_et": "08:25",
+      "window_end_et": "09:00"
+    }
+  ],
+  "overnight_gap_dir": "flat",
+  "overnight_gap_dollars": 0.09,
   "macro_backdrop": "neutral",
   "key_observations": [
-    "VIX at 19.17 falling = MID regime, fear receding (bullish for calls normally)",
-    "Overnight gap down $1.09 from prior close 734.30 to premarket low 727.40 = significant bearish overnight sentiment",
-    "Calendar is 12 days stale (last refresh 2026-06-14) - no events listed for today, confidence reduced by 0.10",
-    "SPY current price 733.21 vs prior close 734.30 = trading below prior session close despite VIX falling",
-    "Sector rotation mixed: XLK down 1.0%, SPY flat at -0.15%, suggesting tech weakness but broad market stable"
+    "VIX 16.34 flat in MID regime (15-22) — no directional bias from volatility",
+    "CPI high-severity event at 08:30 ET triggers no-trade window 08:25-09:00 ET per macro-calendar rules",
+    "Current time 08:15 ET is 10 minutes before no-trade window begins — too close to enter directional trades",
+    "Overnight gap effectively flat at ~$0.09 (748.38 current vs 748.29 premarket high) — no overnight sentiment signal",
+    "Calendar data quality is full (last refresh 2026-07-14 07:45 ET, within 1 hour)"
   ],
-  "data_quality": "partial"
+  "data_quality": "full"
 }

@@ -6,3 +6,5 @@
 2026-06-01,14:46:52,15:37:22,SPY260601C00758000,758,bull,1.80,1.22,5,1.80,1.22,-290.0,BULLISH_RECLAIM_RIDE_THE_RIBBON,level_reclaim,15.77,aggressive,v15.2
 
 2026-06-18,10:53:13,11:04:56,SPY260618C00746000,746,bull,1.83,1.77,4,1.83,1.77,-24.0,BULLISH_RECLAIM_RIDE_THE_RIBBON,EXIT_STOP,,aggressive,v15.3,RECONCILE_FILL: heartbeat blinded (rate limits) - EOD-flatten bold account reconcile2026-06-26,14:53,14:56,RECONCILE_FILL,SPY260626P00729000,0,729,P,5,0.21,0.18,105,90,-15,N/A,0,0,0,,,,,,,,,,,,,,,,,,,,,,,RECONCILE_FILL: EOD-flatten bold account heartbeat blinded. Buy@0.21x5 14:53ET Sell@0.18x5 14:56ET
+
+2026-07-01,09:45:21,09:51:35,RECONCILE_FILL,SPY260701P00742000,0,742,P,5,1.22,0.79,610,395,-215,N/A,0,0,0,,,,,,,,,,,,,,,,,,,,,,,RECONCILE_FILL: EOD-flatten bold account heartbeat blinded. Buy@1.22x5 09:45ET Sell@0.79x5 09:51ET,aggressive

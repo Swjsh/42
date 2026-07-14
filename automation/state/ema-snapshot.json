@@ -1,11 +1,11 @@
 {
-  "computed_at": "2026-06-26T06:20:05",
-  "last_bar_timestamp": "2026-06-18 15:55:00",
-  "last_close": 747.92,
-  "ema_fast": 746.83,
-  "ema_pivot": 746.73,
-  "ema_slow": 746.57,
-  "sma_50": 746.73,
+  "computed_at": "2026-07-14T06:20:02",
+  "last_bar_timestamp": "2026-07-13 15:55:00",
+  "last_close": 749.1,
+  "ema_fast": 749.04,
+  "ema_pivot": 749.18,
+  "ema_slow": 749.82,
+  "sma_50": 749.78,
   "periods": {
     "fast_ema": 13,
     "pivot_ema": 20,
@@ -13,5 +13,5 @@
     "sma_50": 50
   },
   "source": "computed-from-csv",
-  "csv_bars": 34606
+  "csv_bars": 5510
 }

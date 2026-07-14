@@ -1,15 +1,15 @@
 {
   "skill": "mcp-weekly-audit",
-  "run_at": "2026-06-26T22:30:31Z",
+  "run_at": "2026-07-12T18:30:32Z",
   "verdict": "GREEN",
   "alpaca_safe": {
     "ok": true,
-    "account": "PA3S2PYAS2WQ",
+    "account": "PA3DHPT7KIQE",
     "status": "ACTIVE",
     "trading_blocked": false,
     "account_blocked": false,
-    "equity": 1762.88,
-    "note": "healthy"
+    "buying_power": "1746.75",
+    "note": "Account verified, repointed 2026-07-11, all gates clear"
   },
   "alpaca_bold": {
     "ok": true,
@@ -17,8 +17,8 @@
     "status": "ACTIVE",
     "trading_blocked": false,
     "account_blocked": false,
-    "equity": 1633.55,
-    "note": "healthy"
+    "buying_power": "1963.04",
+    "note": "Account verified, all gates clear"
   },
   "tradingview": {
     "ok": true,
@@ -27,7 +27,7 @@
     "relaunched": false,
     "chart_symbol": "BATS:SPY",
     "chart_resolution": "5",
-    "note": "responsive, no relaunch needed"
+    "note": "CDP healthy, chart on SPY 5min"
   },
-  "reason": "all MCP servers answered sub-1s; both Alpaca accounts ACTIVE and unblocked; TradingView CDP connected with API live"
+  "reason": "all mcp servers responsive and healthy on first try"
 }

@@ -1,1 +1,39 @@
-{"last_update_et":"2026-06-26T15:55:08","status_detail":"EOD flatten complete. Both accounts flat into close. Safe: -$237 (SPY260626P00732000 3x 0.98\u00e2\u2020\u20190.19). Aggressive: -$15 (SPY260626P00729000 5x 0.21\u00e2\u2020\u20190.18). RECONCILE rows appended to trades.csv.","claude_status":"FLAT","claude_reasoning":"EOD flatten complete \u00e2\u20ac\u201d flat into close","updated_at":"2026-06-26T15:55:08-04:00","ticker_speech":"EOD FLATTEN COMPLETE","agents":{"premarket":{"active":false,"speech":"BEARISH | SPY 729.51 | PMH 732.62 / PML 728.50 | VIX 20.02 MID | Calls blocked","last_active_at":"2026-06-26T08:40:00-04:00"},"eod":{"active":true,"speech":"EOD NOOP \u00e2\u20ac\u201d flat into close. 2 fills reconciled (safe -$237, agg -$15).","last_active_at":"2026-06-26T15:55:08-04:00"},"eod_aggressive":{"active":true,"speech":"AGG EOD: NOOP \u2014 flat, reconciled 1 fill SPY260626P00729000 5x P&L=-$15","last_active_at":"2026-06-26T15:55:08-04:00"},"heartbeat":{"active":false,"speech":null},"day_trader":{"active":false,"speech":null}}}
+{
+  "last_update_et": "2026-07-10T08:30:00",
+  "updated_at": "2026-07-10T08:30:00-04:00",
+  "claude_status": "FLAT",
+  "claude_reasoning": "Premarket: no-trade-neutral-range -- spot 751.89 sitting on own PMH, VIX 15.83 LOW, ribbon not yet confirmed",
+  "agents": {
+    "premarket": {
+      "active": true,
+      "speech": "Bias neutral, watching 751.89 -- reject = calls no / puts eligible, break = bull eligible",
+      "last_active_at": "2026-07-10T08:30:00-04:00"
+    },
+    "heartbeat": {
+      "active": false,
+      "speech": null,
+      "last_active_at": "2026-07-06T15:55:05-04:00"
+    },
+    "review": {
+      "active": true,
+      "speech": "W28: BEARISH demoted (WR 24%, n29); BULLISH crit WR 6% n101 needs J revoke; recency RED; decision ledger dead since 6/25 (R-0016).",
+      "last_active_at": "2026-07-12T18:00:00-06:00"
+    },
+    "eod": {
+      "active": false,
+      "speech": "EOD action: NOOP",
+      "last_active_at": "2026-07-06T15:55:05-04:00"
+    },
+    "eod_aggressive": {
+      "active": true,
+      "speech": "AGG EOD: NOOP",
+      "last_active_at": "2026-07-14T15:55:29-04:00"
+    },
+    "day_trader": {
+      "active": false,
+      "speech": null,
+      "last_active_at": "2026-07-06T15:55:05-04:00"
+    }
+  },
+  "ticker_speech": "W28: BEARISH demoted (WR 24%, n29); BULLISH crit WR 6% n101 needs J revoke; recency RED; decision ledger dead since 6/25 (R-0016)."
+}

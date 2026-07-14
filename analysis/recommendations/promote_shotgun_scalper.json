@@ -1,5 +1,5 @@
 {
-  "promoted_at_et": "2026-07-01T19:56:00.032346",
+  "promoted_at_et": "2026-07-14T13:01:29.848609",
   "watcher_name": "shotgun_scalper",
   "gates": {
     "wf_ratio_normalization": "per-quarter (train=4Q test=2Q)",
@@ -93,5 +93,81 @@
   "dispatcher_wired": false,
   "watch_flag_key": null,
   "exec_armed": false,
-  "note": "Gates passed but the watcher has NO dispatcher entry in setup_dispatch.py. WIRE-DETECTOR-shotgun_scalper proposal filed in conductor-proposals.jsonl; no params key written (a key nothing reads is not a promotion)."
+  "note": "Gates passed but the watcher has NO dispatcher entry in setup_dispatch.py. WIRE-DETECTOR-shotgun_scalper proposal filed in conductor-proposals.jsonl; no params key written (a key nothing reads is not a promotion).",
+  "armability": {
+    "min_contracts": 3,
+    "premium_sweep": [
+      0.3,
+      0.75,
+      1.5,
+      3.0
+    ],
+    "note": "premium is a TRANSPARENT sweep, not a per-cell price; the break-even premium is the real gate -- a cell whose contract exceeds it is unaffordable at the floor. Real per-cell capture = G8/G9.",
+    "accounts": {
+      "Gamma-Safe-2": {
+        "equity": 2000.0,
+        "risk_frac": 0.3,
+        "budget": 600.0,
+        "max_affordable_premium_for_floor": 2.0,
+        "sweep": [
+          {
+            "premium": 0.3,
+            "min_lot_cost": 90.0,
+            "armable": true,
+            "max_lots": 20
+          },
+          {
+            "premium": 0.75,
+            "min_lot_cost": 225.0,
+            "armable": true,
+            "max_lots": 8
+          },
+          {
+            "premium": 1.5,
+            "min_lot_cost": 450.0,
+            "armable": true,
+            "max_lots": 4
+          },
+          {
+            "premium": 3.0,
+            "min_lot_cost": 900.0,
+            "armable": false,
+            "max_lots": 2
+          }
+        ]
+      },
+      "Gamma-Bold-2": {
+        "equity": 1670.0,
+        "risk_frac": 0.5,
+        "budget": 835.0,
+        "max_affordable_premium_for_floor": 2.78,
+        "sweep": [
+          {
+            "premium": 0.3,
+            "min_lot_cost": 90.0,
+            "armable": true,
+            "max_lots": 27
+          },
+          {
+            "premium": 0.75,
+            "min_lot_cost": 225.0,
+            "armable": true,
+            "max_lots": 11
+          },
+          {
+            "premium": 1.5,
+            "min_lot_cost": 450.0,
+            "armable": true,
+            "max_lots": 5
+          },
+          {
+            "premium": 3.0,
+            "min_lot_cost": 900.0,
+            "armable": false,
+            "max_lots": 2
+          }
+        ]
+      }
+    }
+  }
 }

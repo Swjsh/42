@@ -171,3 +171,79 @@ def test_route_never_raises(hc, monkeypatch):
 def test_empty_extra_is_noop(hc):
     assert hc._route_extra_setups("safe", [], {}, {}) == []
     assert hc._route_extra_setups("safe", None, {}, {}) == []
+
+
+# --------------------------------------------------------------------------- #
+# 6. structure_veto blocks the extra-setup route too (FIX 2026-07-06)
+# --------------------------------------------------------------------------- #
+# Regression: 2026-07-06 live session had 7 extra-setup (bollinger_squeeze) fires
+# route to _execute while the PRIMARY verdict was SKIP_STRUCTURE_VETO or HOLD,
+# including one that bought the EXACT direction structure_veto had just blocked on
+# the same tick (structure_veto exists specifically to prevent this class of loss --
+# built after the 2026-06-26 -$237 wrong-way entry). Net -$33 on that cluster.
+# structure_veto's premise ("this tick's structure makes a directional entry
+# dangerous") must block every execution path on the account, not just the primary
+# ribbon path.
+def _payload_stub():
+    return {"bar_ctx": {"bar": {"close": 751.0},
+                        "ribbon_now": {"stack": "BULL", "spread_cents": 10},
+                        "htf_15m_stack": "BULL", "vix_now": 16.0}}
+
+
+def test_structure_veto_blocks_extra_setup_route(hc, monkeypatch):
+    monkeypatch.setattr(hc, "_fetch_spy_5m", lambda: object())
+    monkeypatch.setattr(hc, "_build_payload", lambda df, params: _payload_stub())
+    monkeypatch.setattr(hc, "_engine_verdict", lambda payload: {
+        "verdict": "SKIP_STRUCTURE_VETO",
+        "reason": "structure-veto: C entry blocked -- price structure is 'downtrend' (wrong-way entry)",
+        "side": None, "setup_name": None, "bear_score": 5, "bull_score": 11, "triggers_fired": [],
+    })
+    monkeypatch.setattr(hc, "CORE_MANAGES_EXITS", False)
+    monkeypatch.setattr(
+        "setup_dispatch.dispatch_extra_setups",
+        lambda *a, **k: [{"setup_name": "bollinger_squeeze", "fired": True,
+                           "direction": "long", "triggers": ["squeeze_break"]}],
+    )
+    routed = {"n": 0}
+    monkeypatch.setattr(
+        hc, "_route_extra_setups",
+        lambda *a, **k: (routed.__setitem__("n", routed["n"] + 1),
+                          [{"setup": "bollinger_squeeze", "action": "PLACED"}])[1],
+    )
+
+    rec = hc.run_account("safe")
+
+    assert rec["verdict"] == "SKIP_STRUCTURE_VETO"
+    assert routed["n"] == 0, "_route_extra_setups must NOT be called on SKIP_STRUCTURE_VETO"
+    assert "extra_exec" not in rec
+    assert rec.get("extra_exec_blocked_by") == "structure_veto"
+
+
+def test_non_veto_hold_still_routes_extra_setup(hc, monkeypatch):
+    """Sibling case: an ordinary HOLD (no setup, NOT a structure veto) must still
+    route a fired+armed extra-setup exactly as before -- this fix narrows ONLY the
+    SKIP_STRUCTURE_VETO case; it must not silently defeat the G4 route on plain HOLDs."""
+    monkeypatch.setattr(hc, "_fetch_spy_5m", lambda: object())
+    monkeypatch.setattr(hc, "_build_payload", lambda df, params: _payload_stub())
+    monkeypatch.setattr(hc, "_engine_verdict", lambda payload: {
+        "verdict": "HOLD", "reason": "no setup passed scoring (neither bear nor bull)",
+        "side": None, "setup_name": None, "bear_score": 5, "bull_score": 5, "triggers_fired": [],
+    })
+    monkeypatch.setattr(hc, "CORE_MANAGES_EXITS", False)
+    monkeypatch.setattr(
+        "setup_dispatch.dispatch_extra_setups",
+        lambda *a, **k: [{"setup_name": "bollinger_squeeze", "fired": True,
+                           "direction": "long", "triggers": ["squeeze_break"]}],
+    )
+    routed = {"n": 0}
+    monkeypatch.setattr(
+        hc, "_route_extra_setups",
+        lambda *a, **k: (routed.__setitem__("n", routed["n"] + 1),
+                          [{"setup": "bollinger_squeeze", "action": "PLACED"}])[1],
+    )
+
+    rec = hc.run_account("safe")
+
+    assert rec["verdict"] == "HOLD"
+    assert routed["n"] == 1, "_route_extra_setups must still fire on a plain HOLD"
+    assert rec.get("extra_exec") == [{"setup": "bollinger_squeeze", "action": "PLACED"}]

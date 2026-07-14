@@ -1,15 +1,15 @@
 {
-  "start": "2025-01-01",
-  "end": "2026-05-12",
-  "total_contracts_needed": 7458,
-  "cached_before_run": 100,
-  "to_fetch": 7358,
-  "fetched_this_run": 7358,
+  "start": "2026-07-02",
+  "end": "2026-07-08",
+  "total_contracts_needed": 88,
+  "cached_before_run": 0,
+  "to_fetch": 88,
+  "fetched_this_run": 88,
   "errors_count": 0,
   "errors_sample": [],
-  "last_update": "2026-05-13T13:08:41.735990+00:00",
+  "last_update": "2026-07-09T03:06:04.503359+00:00",
   "current_date": null,
-  "elapsed_seconds": 2841,
+  "elapsed_seconds": 39,
   "eta_seconds_remaining": 0,
   "status": "completed"
 }

@@ -1,29 +1,44 @@
 {
-  "date": "2026-07-08",
-  "checked_at": "2026-07-08T13:32:02.234505+00:00",
+  "date": "2026-07-14",
+  "checked_at": "2026-07-14T20:00:02.085982+00:00",
   "spy_fills_today": 0,
-  "placed_not_filled_today": 2,
-  "ever_filled": false,
+  "placed_not_filled_today": 0,
+  "rehearsal_probes_today": 3,
+  "ever_filled": true,
   "fills": [],
-  "unfilled": [
+  "unfilled": [],
+  "rehearsal_probes": [
     {
-      "id": "5d989c9b-c326-4fcb-9be1-a830922dab2f",
-      "symbol": "SPY260708P00710000",
-      "qty": 0.0,
-      "price": 0.0,
+      "id": "84273253-741b-4948-b42e-c606bcaa42ba",
+      "symbol": "SPY260714P00711000",
+      "qty": "1",
+      "limit_price": "0.01",
       "side": "buy",
       "status": "canceled",
-      "filled_at": null,
+      "submitted_at": "2026-07-14T00:45:02.18336Z",
+      "canceled_at": "2026-07-14T00:45:02.327738Z",
+      "arm": "safe-1"
+    },
+    {
+      "id": "b989e1d5-3658-40bd-b3fb-0e419274248e",
+      "symbol": "SPY260714P00711000",
+      "qty": "1",
+      "limit_price": "0.01",
+      "side": "buy",
+      "status": "canceled",
+      "submitted_at": "2026-07-14T00:45:02.993675Z",
+      "canceled_at": "2026-07-14T00:45:03.148681Z",
       "arm": "bold-2"
     },
     {
-      "id": "47c6ef45-6c2b-470f-8ce4-7f48adebee92",
-      "symbol": "SPY260708P00710000",
-      "qty": 0.0,
-      "price": 0.0,
+      "id": "84273253-741b-4948-b42e-c606bcaa42ba",
+      "symbol": "SPY260714P00711000",
+      "qty": "1",
+      "limit_price": "0.01",
       "side": "buy",
       "status": "canceled",
-      "filled_at": null,
+      "submitted_at": "2026-07-14T00:45:02.18336Z",
+      "canceled_at": "2026-07-14T00:45:02.327738Z",
       "arm": "safe-2"
     }
   ]

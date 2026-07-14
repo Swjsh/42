@@ -1,12 +1,12 @@
 {
   "schema_version": 3,
-  "session_id": "2026-07-01",
-  "last_change_at": "2026-07-01T08:40:17-04:00",
-  "last_change_reason": "premarket_routine_ribbon_update",
+  "session_id": "2026-07-14",
+  "last_change_at": "2026-07-14T09:15:44-04:00",
+  "last_change_reason": "session_init",
   "last_bar_timestamp": 1782909600,
   "current_mode": "BASE",
   "writes_today": 2,
-  "ticks_today": 383,
+  "ticks_today": 370,
   "spy": {
     "last": 744.51,
     "session_high": 746.66,
@@ -36,6 +36,6 @@
   "first_entry_lock": [],
   "next_tick_model": "haiku",
   "ticks_today_source": "core-decisions.jsonl",
-  "ticks_refreshed_at_et": "2026-07-01T18:10:35",
-  "last_decision_ts_et": "2026-07-01T15:55:14"
+  "ticks_refreshed_at_et": "2026-07-14T15:39:56",
+  "last_decision_ts_et": "2026-07-14T15:39:04"
 }

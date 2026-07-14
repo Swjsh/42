@@ -1,21 +1,22 @@
 {
   "agent": "sentiment_analyst",
-  "generated_at": "2026-06-26T14:17:56Z",
+  "generated_at": "2026-07-14T08:15:04Z",
   "bias": "no_trade",
-  "confidence": 0.5,
-  "reasoning": "VIX at 19.17 sits in FEAR zone (16-20) but direction is falling — fear receding toward neutral. Mixed sector rotation: XLK down -1.0% (risk-off) while XLF flat, XLE flat. Overnight gap down -$1.09 with premarket high 731.2 below prior close 734.3 confirms bearish overnight sentiment. Contrasting signals: falling VIX suggests improving sentiment but gap down and tech weakness suggest participants de-risking. No clear directional conviction — mixed signals warrant neutrality.",
-  "fear_greed_label": "FEAR",
-  "vix_current": 19.17,
-  "vix_sentiment_direction": "improving",
+  "confidence": 0.3,
+  "reasoning": "VIX at 16.34 sits in GREED zone (13-16) indicating bullish sentiment and low fear among participants. VIX direction is 'flat' showing stable sentiment. However, sector rotation data is null and overnight gap data is unavailable (prior_session_close null), preventing confirmation of risk-on/off positioning. The ribbon shows 'BULL' stack but this is a technical signal not sentiment. Without confirming rotation or gap data, sentiment reading is incomplete. No clear directional bias warranted.",
+  "fear_greed_label": "GREED",
+  "vix_current": 16.34,
+  "vix_sentiment_direction": "stable",
   "rotation_sentiment": "mixed",
   "sentiment_extreme": false,
   "contrarian_signal": "none",
-  "overnight_sentiment": "bearish",
+  "overnight_sentiment": "neutral",
   "key_observations": [
-    "VIX 19.17 in FEAR zone (16-20) but falling = fear receding toward neutral",
-    "Sector rotation mixed: XLK -1.0% (tech weakness), XLF flat, XLE flat — no clear risk-on conviction",
-    "Overnight gap down -$1.09 with premarket high below prior close = bearish overnight positioning",
-    "Conflicting signals: improving VIX but risk-off rotation and gap down = no_trade bias"
+    "VIX 16.34 in GREED zone (13-16) — low fear, bullish participant sentiment",
+    "VIX direction 'flat' — no fear momentum either direction",
+    "Sector rotation data unavailable — cannot confirm risk-on/off positioning",
+    "Overnight gap data unavailable (prior_session_close null) — cannot assess overnight sentiment",
+    "Ribbon shows 'BULL' stack but this is technical not sentiment data"
   ],
-  "data_quality": "full"
+  "data_quality": "partial"
 }

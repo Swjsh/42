@@ -1,11 +1,11 @@
 {
-  "date": "2026-07-09",
-  "beat": "seed",
+  "date": "2026-07-14",
+  "beat": "data_feeds_free",
   "scan_ok": true,
-  "n_new_ideas": 12,
-  "n_total_ideas": 12,
-  "promoted_idea": "gex_flip_from_banked_cboe",
-  "promoted_file": "2026-07-09-prospector-gex_flip_from_banked_cboe.md",
+  "n_new_ideas": 5,
+  "n_total_ideas": 31,
+  "promoted_idea": "vix1d_gate",
+  "promoted_file": "2026-07-14-prospector-vix1d_gate.md",
   "error": null,
-  "generated_at": "2026-07-09T19:47:08.706743"
+  "generated_at": "2026-07-14T12:44:32.499381"
 }

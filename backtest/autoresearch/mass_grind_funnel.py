@@ -55,15 +55,20 @@ from autoresearch.mass_grind import qty_realizability  # noqa: E402 — reuse th
 from autoresearch.null_baseline import random_entry_null, null_gate  # noqa: E402 — P4 beat-the-null
 
 _RECO = _ROOT / "analysis" / "recommendations"
-PROGRESS_GLOB = "mass-grind-progress*.jsonl"
+# v2 (T-W3, 2026-07-08): points at the fresh grind's namespace (11-element combo tuple,
+# real trail_pct/time-exit axes) -- disjoint from the legacy dead-knob grind's files.
+PROGRESS_GLOB = "mass-grind-v2-progress*.jsonl"
 REG = _ROOT / "analysis" / "backtests" / "STRATEGY-SPACE-REGISTRY.jsonl"
 POLL_SEC = 30
 
 # Sharding so N workers split the backlog with no shared-file writes.
 SHARD = os.environ.get("GAMMA_FUNNEL_SHARD", "").strip()
 NSHARDS = int(os.environ.get("GAMMA_FUNNEL_NSHARDS", "1"))
-OUT = _RECO / (f"mass-grind-funnel-{SHARD}.jsonl" if SHARD else "mass-grind-funnel.jsonl")
-FUNNEL_GLOB = "mass-grind-funnel-*.jsonl"
+OUT = _RECO / (f"mass-grind-funnel-v2-{SHARD}.jsonl" if SHARD else "mass-grind-funnel-v2.jsonl")
+# Glob has NO dash before the * (Fable review): the no-shard OUT ("...-v2.jsonl") must match
+# its own resume/phase5 glob. v1 had this exact hole ("mass-grind-funnel.jsonl" invisible to
+# "mass-grind-funnel-*.jsonl") -- it never bit only because every launch used a shard env.
+FUNNEL_GLOB = "mass-grind-funnel-v2*.jsonl"
 
 # Phase-1 banger floor (identical to mass_grind._is_banger)
 EC_FLOOR = 771.0
@@ -162,7 +167,7 @@ def _evaluate(banger: dict, spy, vix, params: dict, rth) -> dict:
     """One re-run feeds P2 (qpf) + P3 (realizability). Only P3 survivors pay for the
     P4 beat-the-null test (K random-entry runs) — the expensive tip of the funnel."""
     combo = banger["combo"]
-    sk, so, blr, mt, stp, sv, tp, tq, lk = combo
+    sk, so, blr, mt, stp, sv, tp, tq, lk, tr, ts = combo
 
     patch = dict(L2_PATCH)
     patch["block_level_rejection"] = bool(blr)
@@ -170,9 +175,12 @@ def _evaluate(banger: dict, spy, vix, params: dict, rth) -> dict:
     patch["min_triggers_bull"] = int(mt)
     patch["tp1_premium_pct"] = float(tp)
     patch["tp1_qty_fraction"] = float(tq)
-    patch["profit_lock_mode"] = lk
+    # T-W2 fix: profit_lock_mode/trail_pct/time-exit go ONLY as explicit run_cell kwargs
+    # (never into patch/params_overrides -- _params_to_kwargs drops them by design, L156).
 
-    trades = run_cell(spy, vix, params, strike_offset=int(so), gate_patch=patch, stop_pct=float(sv))
+    trades = run_cell(spy, vix, params, strike_offset=int(so), gate_patch=patch, stop_pct=float(sv),
+                      profit_lock_mode=lk, profit_lock_trail_pct=float(tr),
+                      time_stop_minutes_before_close=int(ts))
     m = metrics_for(trades)
     val = m["_validation"]
     qpf = float(val.get("quarter_positive_fraction", 0.0))
@@ -247,14 +255,16 @@ def _evaluate(banger: dict, spy, vix, params: dict, rth) -> dict:
 def _register(r: dict) -> None:
     """Register P3+ survivors to the strategy-space registry with their funnel tier."""
     combo = r["combo"]
-    sk, so, blr, mt, stp, sv, tp, tq, lk = combo
+    sk, so, blr, mt, stp, sv, tp, tq, lk, tr, ts = combo
+    lock_desc = lk if lk == "fixed" else f"{lk}{tr}"
     tier = {3: "P3-STRONG", 4: "P4-ELITE"}.get(r["phase_reached"], "P2")
     row = {
-        "combo_id": "funnel_" + r["label"].replace(":", "_").replace("%", "").replace("+", "").replace("-", "neg"),
+        "combo_id": "funnelv2_" + r["label"].replace(":", "_").replace("%", "").replace("+", "").replace("-", "neg"),
         "dims": {
             "structure": "0DTE-single", "strike": sk, "sizing": "v15_tier", "direction": "both",
-            "gates": f"LR{int(blr)}_mt{mt}", "exit": f"sell{int(tq*100)}%@+{int(tp*100)}% {lk}",
-            "conditions": f"funnel-{tier}",
+            "gates": f"LR{int(blr)}_mt{mt}",
+            "exit": f"sell{int(tq*100)}%@+{int(tp*100)}% {lock_desc} ts{ts}",
+            "conditions": f"funnelv2-{tier}",
         },
         "result": {
             "edge_capture": r["edge_capture"], "expectancy": r["expectancy"], "wr": r["wr"],
@@ -262,8 +272,8 @@ def _register(r: dict) -> None:
             "live_real_exp": r["live_real_exp"], "live_admit_pct": r["live_admit_pct"],
         },
         "verdict": "PROMOTE",
-        "account": None, "tested_at": r["evaluated_at"][:10], "source": "mass-grind-funnel",
-        "notes": f"Funnel {tier}: {r['label']} | qpf={r['qpf']} live_exp=${r['live_real_exp']}",
+        "account": None, "tested_at": r["evaluated_at"][:10], "source": "mass-grind-funnel-v2",
+        "notes": f"T-W3 funnel {tier} (fresh trail axis): {r['label']} | qpf={r['qpf']} live_exp=${r['live_real_exp']}",
     }
     with open(REG, "a", encoding="utf-8") as f:
         f.write(json.dumps(row) + "\n")

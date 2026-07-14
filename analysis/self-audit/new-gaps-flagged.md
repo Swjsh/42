@@ -92,3 +92,81 @@
 
 
 <!-- DONE 2026-07-01T17:50 conductor :: 5 of these 9 are SCAFFOLD the 06-29 _is_real_gap filter did not anticipate -- "Question for reviewer" (a template section-name; 3 words so it passed the <3-word gate) + the four "Perspective N flags/zeroes/warns/enumerates ..." cross-reference lead-ins (the SYNTHESIS describing what each perspective said, not stating a gap). The EXACT 06-29 crowding-out L-lesson recurring = a missing guardrail -> graduated. ROOT-CAUSE FIXED (commit below): added "question for reviewer"/"question for the reviewer" to _SCAFFOLD_PREFIXES + a _PERSPECTIVE_REF_RE (^perspective\s*\d) to self_audit._is_real_gap; guard test_self_audit_extract.py 41->47 (5 new scaffold cases + 1 non-over-rejection survivor). The 4 SUBSTANTIVE items are NOT new actionable gaps -- all overlap tracked/just-fixed work: slippage-aware exec = range-scalp DIES_ON_SLIPPAGE (closed) + live SKIP_LIQUIDITY; data-feed health = the every-minute engine-health beacon (sight_beacon/watcher_feed/dispatch_health/level_feed); lesson-inbox quarantine risks-Rule-9 = a MISCONCEPTION (conductor never applies lessons to params, rail-4; lessons->LESSONS-LEARNED only); volatility-adaptive sizing = SAFE-VIX-CONDITIONAL-SIZING (tracked MED queue item). Batch resolved (scaffold-hole fixed + substantive already-tracked) so the next fire doesn't re-triage. -->
+
+## 2026-07-02T17:31:15 -- 12 new gap(s) Gamma self-identified
+- Automated lesson application
+- Real-time risk management beyond GEX-calendar-gating
+- Automated backup and state recovery
+- Real-time model drift detection
+- Execution quality monitoring
+- Integration of the promoter
+- Mid‑day Discord pings
+- Lock‑out of the nightly‑fire
+- The current dead‑knob/reconciliation guard is insufficient: it runs only in CI/test, uses static allow‑lists, and cannot
+- Research‑to‑live integration (the “PROMOTER‑WRITES‑LIVE‑KEY” bridge) is not automated, forcing manual J intervention to 
+- Lessons learned are not self‑applied; they sit in the lesson‑inbox awaiting manual follow‑up, violating the “self‑healin
+- The system lacks real‑time behavioral validation of parameters (string presence ≠ actual influence on trading logic) and
+
+## 2026-07-08T17:32:15 -- 12 new gap(s) Gamma self-identified
+- #1: The "Zero Fill" Execution Black Hole (G9).
+- #2: Vision-Wire Decoupling (V1/V3/V4).
+- #3: Recency Blindness (OP-25).
+- #4: The "Ping J" Crutch.
+- #5: Flailing Gate Logic (F1).
+- #6: Overnight Risk Vacuum (G6).
+- #7: Environment/Config Drift (G2/G15).
+- OP‑12 (Data Integrity)
+- Orders are being placed but not reliably filled or verified (G9 shows 0 reconciled fills; adaptive pricing/fill‑engine m
+- The system lacks real‑time market‑data latency/staleness handling, leading to entries on outdated prices or missed windo
+- Excessive reliance on manual operator intervention (ping‑J on routine signals) undermines autonomy.
+- Critical risk monitors (Greeks/vega exposure, capital‑scaling limits, overnight gap bleed) are not automated or enforced
+
+## 2026-07-09T17:33:57 -- 10 new gap(s) Gamma self-identified
+- Future fleet‑wide stop‑mode experiments
+- Discord‑bridge schema upgrade
+- All perspectives agree that Gamma lacks continuous, autonomous validation/reconciliation mechanisms to ensure internal c
+- All agree that missing real‑time risk guards (hard stop, position‑size limits, gate compliance) can lead to Rule 9/10 vi
+- All concur that the system should be self‑healing: detecting data‑feed staleness, order‑fill discrepancies, or strategy 
+- Queries Alpaca for current SPY 0DTE positions and open orders.
+- Compares them to the engine’s internal state (from `core‑decisions.jsonl` and live position tracker).
+- If any mismatch is found, issues a market‑order to flatten all positions, writes a timestamped flag to `automation/state
+- Run this script via Windows Task Scheduler every 30 seconds during market hours (09:30‑16:00 ET).
+- Test today by manually creating a mismatch (e.g., cancel an order via Alpaca) and verify the script flattens and halts w
+
+## 2026-07-10T17:31:54 -- 11 new gap(s) Gamma self-identified
+- Real‑time OPRA data‑health gate
+- Cross‑asset regime detector
+- Online hyper‑parameter tuner
+- Centralized model‑health observability
+- Pre‑market stress‑test harness
+- Self‑healing data‑pipeline watchdog
+- Automated, real‑time checks for data freshness/integrity (OPRA cache, recency‑confirmation.json) are missing; the system
+- When the primary edge is RED‑blocked, Gamma should autonomously hunt for a replacement edge (continuous promotion/pipeli
+- Silent‑failure detection is needed: a reconciliation loop that compares broker fills to autopsy/decision logs (or a stat
+- The Prospector/idea‑generation organ must be wired into an automated backtest → certification → promotion pipeline so th
+- Position‑sizing / min‑size logic must be isolated from shared mutable config (params.json) and guarded against corrupt o
+
+## 2026-07-11T17:31:55 -- 11 new gap(s) Gamma self-identified
+- The `orchestrator.py` `is not None` Time Bomb.
+- Automated Gate-Signal Schema Validation.
+- EOD State Consistency Checker.
+- Twin-Master Correlation Monitoring.
+- LLM Output Sanitization Layer.
+- Auto-Execution of Overnight Queue.
+- Regime-Shift Anchor Invalidation.
+- All perspectives agree that Project Gamma must eliminate silent gate bugs caused by `is not None` checks, duplicated log
+- All agree that Gamma needs automated validation and testing of gate logic and parameters before they go live, ensuring p
+- All agree that Gamma requires a mechanism to detect silent failures or starvation (zero trades despite signals) in real 
+- A majority (4/5) agree that Gamma should automatically validate that every gate‑read field is actually populated by the 
+
+## 2026-07-12T17:31:50 -- 2 new gap(s) Gamma self-identified
+- Replay and back‑testing pipelines
+- Ribbon‑ride ATM override
+
+## 2026-07-13T17:34:22 -- 6 new gap(s) Gamma self-identified
+- All perspectives agree that Project Gamma’s reliance on hard‑coded account IDs and scattered configuration creates britt
+- All agree that automated validation/drift detection is missing: configuration drift, fill attribution/P&L reconciliation
+- All agree that the recency‑confirmation gate is too infrequent (weekly) to catch intra‑week edge degradation, and that m
+- All agree that the system lacks a single source of truth for account/credential mapping, leading to coordination overhea
+- All agree that better monitoring/alerting (real‑time market data, PnL anomalies, API health) is needed to prevent silent
+- **Edge generation vs. operational hygiene**: Perspective 1 and 3 stress autonomous edge creation/backtesting as a core g

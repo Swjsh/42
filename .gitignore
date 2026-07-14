@@ -130,3 +130,15 @@ setup/tts/*.onnx
 setup/tts/*.bin
 setup/.tts-venv/
 automation/state/gamma-voice-*.wav
+
+# === Added 2026-07-14: data-loss incident fix (tree-wide git stash/drop wiped these) ===
+# Continuously-written live decision ledgers were tracked-but-rarely-committed -- a
+# routine `git stash drop` in the shared checkout destroyed ~3 weeks of uncommitted
+# history (recovered from the dropped stash; see STATUS.md + _lesson-inbox/2026-07-14-
+# git-stash-drop-wipes-shared-checkout.md). Untracking them means no git operation can
+# ever touch them again. setup/scripts/ledger_archive.py is the daily local backstop.
+automation/state/core-decisions.jsonl
+automation/state/fleet/risky-1/decisions.jsonl
+automation/state/fleet/risky-3/decisions.jsonl
+automation/state/fleet/safe-3/decisions.jsonl
+automation/archive/

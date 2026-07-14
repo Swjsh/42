@@ -1,5 +1,5 @@
 {
-  "run_date": "2026-06-20",
+  "run_date": "2026-06-28",
   "family": "gap_and_go",
   "detector": "infinite_ammo_discovery.detect_gap_and_go (the VALIDATED detector behind gap-and-go-LIVE.json; prior_close=prior-day FULL-session last close)",
   "fills": "lib.simulator_real.simulate_trade_real on the FULL frame with nearest-cached-strike snapping (strike_override) + entry_vix \u2014 identical harness to discovery_chart_stop_reeval._sim (the gap-and-go-LIVE.json generator). v15 exit stack.",

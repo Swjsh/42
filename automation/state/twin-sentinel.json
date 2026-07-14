@@ -1,32 +1,33 @@
 {
-  "verdict": "GREEN",
-  "reasons": [],
-  "notes": [
-    "incidents.jsonl not present -- incident count treated as 0 (fail-open)"
+  "verdict": "YELLOW",
+  "reasons": [
+    "LOW_UPTIME: 151/239 ticks today (63.2%, threshold 70%)",
+    "COVERAGE_LAG: 4/9 branches green (44%, threshold 50% by 18:00 UTC)"
   ],
+  "notes": [],
   "facts": {
-    "last_tick_utc": "2026-07-11T13:58:50.136088+00:00",
-    "tick_age_minutes": 1.15,
-    "ticks_today_utc": 156,
-    "expected_ticks_utc": 167,
-    "uptime_pct": 93.4,
-    "incidents_today": 0,
-    "incidents_from_jsonl": 0,
+    "last_tick_utc": "2026-07-14T19:58:49.352952+00:00",
+    "tick_age_minutes": 1.17,
+    "ticks_today_utc": 151,
+    "expected_ticks_utc": 239,
+    "uptime_pct": 63.2,
+    "incidents_today": 2,
+    "incidents_from_jsonl": 2,
     "incidents_from_coverage": 0,
     "incidents_undated": 0,
     "coverage": {
       "total": 9,
-      "green": 0,
+      "green": 4,
       "incidents": 0,
-      "date_utc": "2026-07-11"
+      "date_utc": "2026-07-14"
     },
     "breaker_tripped": false,
     "account_status": "LIVE",
-    "last_action": "MANAGED",
+    "last_action": "ENTERED",
     "last_error": null
   },
-  "checked_at_et": "2026-07-11T09:59:59.196149",
-  "checked_at_utc": "2026-07-11T13:59:59.196145+00:00",
+  "checked_at_et": "2026-07-14T15:59:59.522361",
+  "checked_at_utc": "2026-07-14T19:59:59.522357+00:00",
   "escalation": {
     "episode_active": false,
     "queue_row_written_this_episode": false,

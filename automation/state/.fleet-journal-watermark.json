@@ -310,6 +310,16 @@
    "source": "pnl-statement.json (T1 broker-truth round_trips)",
    "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
   },
+  "risky-3::20260713124005968::aa2150c8-1ee8-4e92-b94c-0c92cdacbcf1::20260713124903901::886ecf4e-9a84-4b16-9548-0909267a27ff": {
+   "date_et": "2026-07-13",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-13T20:10:00.464618+00:00"
+  },
+  "risky-3::20260713124005968::aa2150c8-1ee8-4e92-b94c-0c92cdacbcf1::20260713124904024::d4ed3568-cc76-4365-abb4-dbc030ca6f70": {
+   "date_et": "2026-07-13",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-13T20:10:00.464618+00:00"
+  },
   "safe-1::20260629144906000::9c1027b1-7b7d-4336-a613-2341becc10b6::20260629145204827::64886fd8-3588-490a-82b8-3cf7304a5e53": {
    "date_et": "2026-06-29",
    "source": "pnl-statement.json (T1 broker-truth round_trips)",
@@ -587,5 +597,5 @@
   }
  },
  "schema": "fleet-journal-watermark-v1",
- "updated_at_utc": "2026-07-09T22:23:05.197581+00:00"
+ "updated_at_utc": "2026-07-13T20:10:00.464618+00:00"
 }

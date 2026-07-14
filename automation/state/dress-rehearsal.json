@@ -1,17 +1,17 @@
 {
-  "ran_at_et": "2026-07-01T22:15:45",
-  "next_trading_day": "2026-07-02",
+  "ran_at_et": "2026-07-13T20:45:01",
+  "next_trading_day": "2026-07-14",
   "placement_source": "heartbeat_core (engine's own functions)",
   "overall": "GREEN",
   "checks": {
     "check1_options_safe": {
       "verdict": "GREEN",
       "evidence": [
-        "picked SPY260702P00707000 strike=707 close_price='0.05' (target ~708, spot 745.66)",
-        "engine _occ('P', 707.0, 2026-07-02) == broker symbol SPY260702P00707000 (parity OK)",
-        "POST /v2/orders (engine _place_simple_entry) response: {\"id\": \"767960a4-81ca-45bc-9ca6-c80f4e566988\", \"client_order_id\": \"d6eb346f-ba50-47c7-979f-06650c1e26af\", \"created_at\": \"2026-07-02T02:15:46.455943618Z\", \"updated_at\": \"2026-07-02T02:15:46.455943618Z\", \"submitted_at\": \"2026-07-02T02:15:46.454744508Z\", \"filled_at\": null, \"expired_at\": null, \"canceled_at\": null, \"failed_at\": null, \"replaced_at\": null, \"replaced_by\": null, \"replaces\": null, \"asset_id\": \"174d7035-1fe8-45a9-bbe6-f7241fca96e3\", \"symbol\": \"SPY260702P00707000\", \"asset_class\": \"us_option\", \"notional\": null, \"qty\": \"1\", \"filled_qty\": \"0\", \"filled_avg_price\": null, \"order_class\": \"simple\", \"order_type\": \"limit\", \"type\": \"limit\", \"side\": \"buy\", \"position_intent\": \"buy_to_open\", \"time_in_force\": \"day\", \"limit_price\": \"0.01\", \"stop_price\": null, \"status\": \"accepted\", \"extended_hours\": false, \"legs\": null, \"trail_percent\": null, \"trail_price\": null, \"hwm\": null, \"subtag\": null, \"source\": null, \"expires_at\": \"2026-07-02T20:15:00Z\", \"_simple_first\": true, \"_note\": \"simple marketable limit placed directly (options: no broker bracket); TP/stop engine-managed (exit_manager)\"}",
-        "ACCEPTED: order id=767960a4-81ca-45bc-9ca6-c80f4e566988 status=accepted",
-        "DELETE /v2/orders/767960a4-81ca-45bc-9ca6-c80f4e566988 response: {}",
+        "picked SPY260714P00711000 strike=711 close_price='0.03' (target ~712, spot 749.13)",
+        "engine _occ('P', 711.0, 2026-07-14) == broker symbol SPY260714P00711000 (parity OK)",
+        "POST /v2/orders (engine _place_simple_entry) response: {\"id\": \"84273253-741b-4948-b42e-c606bcaa42ba\", \"client_order_id\": \"4db828a3-6d1c-4b00-9204-ae3120a9dacf\", \"created_at\": \"2026-07-14T00:45:02.184496182Z\", \"updated_at\": \"2026-07-14T00:45:02.184496182Z\", \"submitted_at\": \"2026-07-14T00:45:02.183359712Z\", \"filled_at\": null, \"expired_at\": null, \"canceled_at\": null, \"failed_at\": null, \"replaced_at\": null, \"replaced_by\": null, \"replaces\": null, \"asset_id\": \"7eef903f-3fb7-446d-b750-77317f7a8e33\", \"symbol\": \"SPY260714P00711000\", \"asset_class\": \"us_option\", \"notional\": null, \"qty\": \"1\", \"filled_qty\": \"0\", \"filled_avg_price\": null, \"order_class\": \"simple\", \"order_type\": \"limit\", \"type\": \"limit\", \"side\": \"buy\", \"position_intent\": \"buy_to_open\", \"time_in_force\": \"day\", \"limit_price\": \"0.01\", \"stop_price\": null, \"status\": \"accepted\", \"extended_hours\": false, \"legs\": null, \"trail_percent\": null, \"trail_price\": null, \"hwm\": null, \"subtag\": null, \"source\": null, \"expires_at\": \"2026-07-14T20:15:00Z\", \"_simple_first\": true, \"_note\": \"simple marketable limit placed directly (options: no broker bracket); TP/stop engine-managed (exit_manager)\"}",
+        "ACCEPTED: order id=84273253-741b-4948-b42e-c606bcaa42ba status=accepted",
+        "DELETE /v2/orders/84273253-741b-4948-b42e-c606bcaa42ba response: {}",
         "post-cancel poll: status='canceled'",
         "end-state: open_orders=0 positions=0"
       ]
@@ -19,11 +19,11 @@
     "check1_options_bold": {
       "verdict": "GREEN",
       "evidence": [
-        "picked SPY260702P00707000 strike=707 close_price='0.05' (target ~708, spot 745.66)",
-        "engine _occ('P', 707.0, 2026-07-02) == broker symbol SPY260702P00707000 (parity OK)",
-        "POST /v2/orders (engine _place_simple_entry) response: {\"id\": \"df131b7d-a263-4f34-a8ee-d1a7894f9ee4\", \"client_order_id\": \"7b8fd345-2242-4e2a-bca7-6cb7156612e9\", \"created_at\": \"2026-07-02T02:15:47.33940062Z\", \"updated_at\": \"2026-07-02T02:15:47.33940062Z\", \"submitted_at\": \"2026-07-02T02:15:47.33796018Z\", \"filled_at\": null, \"expired_at\": null, \"canceled_at\": null, \"failed_at\": null, \"replaced_at\": null, \"replaced_by\": null, \"replaces\": null, \"asset_id\": \"174d7035-1fe8-45a9-bbe6-f7241fca96e3\", \"symbol\": \"SPY260702P00707000\", \"asset_class\": \"us_option\", \"notional\": null, \"qty\": \"1\", \"filled_qty\": \"0\", \"filled_avg_price\": null, \"order_class\": \"simple\", \"order_type\": \"limit\", \"type\": \"limit\", \"side\": \"buy\", \"position_intent\": \"buy_to_open\", \"time_in_force\": \"day\", \"limit_price\": \"0.01\", \"stop_price\": null, \"status\": \"accepted\", \"extended_hours\": false, \"legs\": null, \"trail_percent\": null, \"trail_price\": null, \"hwm\": null, \"subtag\": null, \"source\": null, \"expires_at\": \"2026-07-02T20:15:00Z\", \"_simple_first\": true, \"_note\": \"simple marketable limit placed directly (options: no broker bracket); TP/stop engine-managed (exit_manager)\"}",
-        "ACCEPTED: order id=df131b7d-a263-4f34-a8ee-d1a7894f9ee4 status=accepted",
-        "DELETE /v2/orders/df131b7d-a263-4f34-a8ee-d1a7894f9ee4 response: {}",
+        "picked SPY260714P00711000 strike=711 close_price='0.03' (target ~712, spot 749.13)",
+        "engine _occ('P', 711.0, 2026-07-14) == broker symbol SPY260714P00711000 (parity OK)",
+        "POST /v2/orders (engine _place_simple_entry) response: {\"id\": \"b989e1d5-3658-40bd-b3fb-0e419274248e\", \"client_order_id\": \"accefd40-7c64-4657-bd79-419f4e79ee44\", \"created_at\": \"2026-07-14T00:45:02.995026985Z\", \"updated_at\": \"2026-07-14T00:45:02.995026985Z\", \"submitted_at\": \"2026-07-14T00:45:02.993674955Z\", \"filled_at\": null, \"expired_at\": null, \"canceled_at\": null, \"failed_at\": null, \"replaced_at\": null, \"replaced_by\": null, \"replaces\": null, \"asset_id\": \"7eef903f-3fb7-446d-b750-77317f7a8e33\", \"symbol\": \"SPY260714P00711000\", \"asset_class\": \"us_option\", \"notional\": null, \"qty\": \"1\", \"filled_qty\": \"0\", \"filled_avg_price\": null, \"order_class\": \"simple\", \"order_type\": \"limit\", \"type\": \"limit\", \"side\": \"buy\", \"position_intent\": \"buy_to_open\", \"time_in_force\": \"day\", \"limit_price\": \"0.01\", \"stop_price\": null, \"status\": \"accepted\", \"extended_hours\": false, \"legs\": null, \"trail_percent\": null, \"trail_price\": null, \"hwm\": null, \"subtag\": null, \"source\": null, \"expires_at\": \"2026-07-14T20:15:00Z\", \"_simple_first\": true, \"_note\": \"simple marketable limit placed directly (options: no broker bracket); TP/stop engine-managed (exit_manager)\"}",
+        "ACCEPTED: order id=b989e1d5-3658-40bd-b3fb-0e419274248e status=accepted",
+        "DELETE /v2/orders/b989e1d5-3658-40bd-b3fb-0e419274248e response: {}",
         "post-cancel poll: status='canceled'",
         "end-state: open_orders=0 positions=0"
       ]
@@ -31,22 +31,22 @@
     "check2_crypto_safe": {
       "verdict": "GREEN",
       "evidence": [
-        "BUY POST (BTC/USD $10.00 notional market): {\"id\": \"8f79a783-f1fb-462f-a4c5-d5f1d5a1bacf\", \"client_order_id\": \"e6dc6074-6f61-4b06-a4ca-e5fa90373011\", \"created_at\": \"2026-07-02T02:15:48.069491873Z\", \"updated_at\": \"2026-07-02T02:15:48.070074223Z\", \"submitted_at\": \"2026-07-02T02:15:48.069491873Z\", \"filled_at\": null, \"expired_at\": null, \"canceled_at\": null, \"failed_at\": null, \"replaced_at\": null, \"replaced_by\": null, \"replaces\": null, \"asset_id\": \"276e2673-764b-4ab6-a611-caf665ca6340\", \"symbol\": \"BTC/USD\", \"asset_class\": \"crypto\", \"notional\": \"10\", \"qty\": null, \"filled_qty\": \"0\", \"filled_avg_price\": null, \"order_class\": \"\", \"order_type\": \"market\", \"type\": \"market\", \"side\": \"buy\", \"position_intent\": \"buy_to_open\", \"time_in_force\": \"gtc\", \"limit_price\": null, \"stop_price\": null, \"status\": \"pending_new\", \"extended_hours\": false, \"legs\": null, \"trail_percent\": null, \"trail_price\": null, \"hwm\": null, \"subtag\": null, \"source\": null, \"expires_at\": \"2026-09-29T20:00:00Z\"}",
-        "BUY fill poll: status=filled filled_qty=0.000162979 filled_avg_price=60167.323",
-        "position after buy: qty='0.000162571' qty_available='0.000162571' market_value='9.77938'",
-        "SELL POST (qty=0.000162571): {\"id\": \"978515d9-0416-4f6c-876a-25850f0a5769\", \"client_order_id\": \"957511de-285a-4e29-8e98-0e86a13330fb\", \"created_at\": \"2026-07-02T02:15:48.47705676Z\", \"updated_at\": \"2026-07-02T02:15:48.47798857Z\", \"submitted_at\": \"2026-07-02T02:15:48.47705676Z\", \"filled_at\": null, \"expired_at\": null, \"canceled_at\": null, \"failed_at\": null, \"replaced_at\": null, \"replaced_by\": null, \"replaces\": null, \"asset_id\": \"276e2673-764b-4ab6-a611-caf665ca6340\", \"symbol\": \"BTC/USD\", \"asset_class\": \"crypto\", \"notional\": null, \"qty\": \"0.000162571\", \"filled_qty\": \"0\", \"filled_avg_price\": null, \"order_class\": \"\", \"order_type\": \"market\", \"type\": \"market\", \"side\": \"sell\", \"position_intent\": \"sell_to_close\", \"time_in_force\": \"gtc\", \"limit_price\": null, \"stop_price\": null, \"status\": \"pending_new\", \"extended_hours\": false, \"legs\": null, \"trail_percent\": null, \"trail_price\": null, \"hwm\": null, \"subtag\": null, \"source\": null, \"expires_at\": \"2026-09-29T20:00:00Z\"}",
-        "SELL fill poll: status=filled filled_qty=0.000162571 filled_avg_price=60109.89",
+        "BUY POST (BTC/USD $10.00 notional market): {\"id\": \"c623a2cc-ce43-4f0b-8036-53fbc47a1852\", \"client_order_id\": \"74a93dbc-cb31-4716-8fae-71f318bf2f28\", \"created_at\": \"2026-07-14T00:45:03.665029729Z\", \"updated_at\": \"2026-07-14T00:45:03.665721789Z\", \"submitted_at\": \"2026-07-14T00:45:03.665029729Z\", \"filled_at\": null, \"expired_at\": null, \"canceled_at\": null, \"failed_at\": null, \"replaced_at\": null, \"replaced_by\": null, \"replaces\": null, \"asset_id\": \"276e2673-764b-4ab6-a611-caf665ca6340\", \"symbol\": \"BTC/USD\", \"asset_class\": \"crypto\", \"notional\": \"10\", \"qty\": null, \"filled_qty\": \"0\", \"filled_avg_price\": null, \"order_class\": \"\", \"order_type\": \"market\", \"type\": \"market\", \"side\": \"buy\", \"position_intent\": \"buy_to_open\", \"time_in_force\": \"gtc\", \"limit_price\": null, \"stop_price\": null, \"status\": \"pending_new\", \"extended_hours\": false, \"legs\": null, \"trail_percent\": null, \"trail_price\": null, \"hwm\": null, \"subtag\": null, \"source\": null, \"expires_at\": \"2026-10-11T20:00:00Z\"}",
+        "BUY fill poll: status=filled filled_qty=0.000157372 filled_avg_price=62297.688",
+        "position after buy: qty='0.000156978' qty_available='0.000156978' market_value='9.794148'",
+        "SELL POST (qty=0.000156978): {\"id\": \"a953a916-8a61-4e0f-b21c-bc8aca3117b4\", \"client_order_id\": \"7193c96b-af44-4409-a031-6568baf05cdd\", \"created_at\": \"2026-07-14T00:45:04.04930285Z\", \"updated_at\": \"2026-07-14T00:45:04.05046055Z\", \"submitted_at\": \"2026-07-14T00:45:04.04930285Z\", \"filled_at\": null, \"expired_at\": null, \"canceled_at\": null, \"failed_at\": null, \"replaced_at\": null, \"replaced_by\": null, \"replaces\": null, \"asset_id\": \"276e2673-764b-4ab6-a611-caf665ca6340\", \"symbol\": \"BTC/USD\", \"asset_class\": \"crypto\", \"notional\": null, \"qty\": \"0.000156978\", \"filled_qty\": \"0\", \"filled_avg_price\": null, \"order_class\": \"\", \"order_type\": \"market\", \"type\": \"market\", \"side\": \"sell\", \"position_intent\": \"sell_to_close\", \"time_in_force\": \"gtc\", \"limit_price\": null, \"stop_price\": null, \"status\": \"pending_new\", \"extended_hours\": false, \"legs\": null, \"trail_percent\": null, \"trail_price\": null, \"hwm\": null, \"subtag\": null, \"source\": null, \"expires_at\": \"2026-10-11T20:00:00Z\"}",
+        "SELL fill poll: status=filled filled_qty=0.000156978 filled_avg_price=62232.28",
         "flatten: broker-flat confirmed (positions/BTCUSD -> 404, try 0)"
       ]
     },
     "check3_sanity": {
       "verdict": "GREEN",
       "evidence": [
-        "safe /v2/clock: {\"is_open\": false, \"next_close\": \"2026-07-02T16:00:00-04:00\", \"next_open\": \"2026-07-02T09:30:00-04:00\", \"timestamp\": \"2026-07-01T22:15:48.932933425-04:00\"}",
+        "safe /v2/clock: {\"is_open\": false, \"next_close\": \"2026-07-14T16:00:00-04:00\", \"next_open\": \"2026-07-14T09:30:00-04:00\", \"timestamp\": \"2026-07-13T20:45:04.421575672-04:00\"}",
         "safe account: status=ACTIVE options_approved_level=3 options_trading_level=3",
-        "bold /v2/clock: {\"is_open\": false, \"next_close\": \"2026-07-02T16:00:00-04:00\", \"next_open\": \"2026-07-02T09:30:00-04:00\", \"timestamp\": \"2026-07-01T22:15:49.23291633-04:00\"}",
+        "bold /v2/clock: {\"is_open\": false, \"next_close\": \"2026-07-14T16:00:00-04:00\", \"next_open\": \"2026-07-14T09:30:00-04:00\", \"timestamp\": \"2026-07-13T20:45:04.664333941-04:00\"}",
         "bold account: status=ACTIVE options_approved_level=3 options_trading_level=3",
-        "sight-beacon.json age 5.8h (must be <24h \u2014 beacon ran today)"
+        "sight-beacon.json age 4.3h (must be <24h \u2014 beacon ran today)"
       ]
     }
   }

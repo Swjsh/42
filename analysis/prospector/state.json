@@ -1,11 +1,12 @@
 {
-  "beat_index": 0,
-  "last_beat": null,
-  "last_run_et": null,
-  "fires_total": 0,
-  "ideas_total": 0,
-  "promoted_total": 1,
+  "beat_index": 1,
+  "last_beat": "data_feeds_free",
+  "last_run_et": "2026-07-14T12:44:32.498559",
+  "fires_total": 1,
+  "ideas_total": 5,
+  "promoted_total": 2,
   "promoted_dedupe_keys": [
-    "gex_flip_from_banked_cboe"
+    "gex_flip_from_banked_cboe",
+    "vix1d_gate"
   ]
 }

@@ -1,24 +1,27 @@
 {
   "agent": "pattern_scout",
-  "generated_at": "2026-06-26T14:17:56.000000+00:00",
+  "generated_at": "2026-07-14T08:15:04Z",
   "bias": "bearish",
   "confidence": 0.65,
-  "reasoning": "Close-ceiling pattern detected at PMH_2026-06-26 (732.62): 5 consecutive bars with high >= 732.62 but close < 732.62. Bars at 14:00-14:15 all tested the PMH level but failed to close above it. This is distribution (bear absorption). Volume dropped sharply on last bar (12,405 vs 116,081 prior), suggesting exhaustion of buying pressure. If next bar closes above 732.62, fake_breakout_risk becomes HIGH (bull trap likely).",
+  "reasoning": "Close-ceiling pattern detected at 750.29 MEMORY_RES_78 resistance level: 5 consecutive bars (10:30-10:55) with high >= 750.29 and close < 750.29. Also confirmed at 751.15 (4 bars), 749.53 (4 bars), and 748.87 (4 bars). Multiple resistance levels being tested and rejected. The 11:10 bar shows slight recovery but still well below 750.29. Candlestick analysis shows 2 consecutive shooting stars (10:15, 10:20) indicating upward exhaustion. Data is from 2026-07-06 while key-levels are from 2026-07-14 - temporal mismatch limits confidence.",
   "close_ceiling_detected": true,
-  "close_ceiling_level": 732.62,
+  "close_ceiling_level": 750.29,
   "close_ceiling_run": 5,
   "floor_hold_detected": false,
   "floor_hold_level": null,
   "floor_hold_run": 0,
-  "fake_breakout_risk": "HIGH",
-  "candlestick_pattern": "none",
-  "last_bar_vs_level": "above_key_level",
-  "nearest_level_price": 732.62,
+  "fake_breakout_risk": "LOW",
+  "candlestick_pattern": "exhaustion",
+  "last_bar_vs_level": "below_key_level",
+  "nearest_level_price": 748.87,
   "nearest_level_type": "resistance",
   "key_observations": [
-    "Close-ceiling at PMH_732.62: 5 bars (14:00-14:15) with high >= 732.62 but close < 732.62 — distribution confirmed",
-    "Last bar (14:15): close 733.21 is above key level 732.62 but high 733.27 failed to hold — rejection at resistance",
-    "Candlesticks show small bodies with minimal wicks — no clear exhaustion signals, consolidation pattern instead"
+    "Close-ceiling at 750.29: 5 bars with high >= 750.29 and close < 750.29 (10:30-10:55). Distribution confirmed - bears absorbing every push",
+    "Additional close-ceiling at 751.15 (4 bars), 749.53 (4 bars), 748.87 (4 bars) - multiple resistance levels capping price",
+    "Last bar (11:10) closed at 748.34, below nearest resistance 748.87, showing continued rejection",
+    "Shooting star pattern in bars 10:15 and 10:20 after upward move - exhaustion signal",
+    "No floor-hold detected at support levels 747.15 or 747.96 - no bull accumulation evidence",
+    "DATA TEMPORAL MISMATCH: bars from 2026-07-06, levels from 2026-07-14 - pattern may not reflect current session"
   ],
-  "data_quality": "full"
+  "data_quality": "partial"
 }

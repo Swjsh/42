@@ -101,3 +101,32 @@ The execution above was independently re-verified. **The core finding STANDS** �
 7. T2's percentile column relabeled to the **worst-quartile** (deep tail: MAE-10m worst-q −43%/−35%/−32%/−27% by band); T4 anchor now states **17 unique signals / 7 days / one regime** (ground rule 8).
 
 **Execution grade: the work is sound and honest; every defect found was in instrument completeness or labeling, none in the direction of the finding.** Next executor's work order: [`HANDOFF-2026-07-11-CONFIRM-AND-WIRE.md`](HANDOFF-2026-07-11-CONFIRM-AND-WIRE.md).
+
+---
+
+## ✅ STOP-A SIGN-OFF — Fable, 2026-07-09 ~00:35 ET
+
+**SIGNED.** Authority: J's directive 2026-07-09 (~00:30 ET, verbatim intent): *"I'm not the
+gatekeeper. If it improves the engine it ships. That's an OP."* — J re-affirmed the OP-0/OP-11
+doctrine applies to these checkpoints: J is REVOKE, not a ratification gate; the sign-off
+judgment belongs to Fable. I reviewed T1–T4 independently (the review addendum above) and the
+CONFIRM-AND-WIRE execution independently (its own Fable addendum, 4 corrections shipped). The
+finding is real, anchor-parity-verified, and honestly disclosed. Signed with CONDITIONS:
+
+1. **T-W7 layers (a)+(b) run BEFORE any wire** — fresh-slice (2026-06-19..07-08, never seen
+   by any grid) + real-fills anchor on EXACTLY the frozen v2 candidates (hash re-verified
+   2026-07-09 00:34: signal-set `b5e8931994b9d34b` ✓, pre-registration v2 ✓). A candidate that
+   fails either layer is DEAD regardless of this sign-off.
+2. **Layer (c) converts from precondition to KILL-CHECK** (the fresh P5 grind — 7560 combos,
+   running, finishes ~09:00–11:00 ET — cannot complete before open; waiting for it means
+   trading the proven-loser shape another full day). A shape that ships tonight on layers
+   (a)+(b) carries a **J-directive-signed waiver**; when the grind + funnel + phase5 complete,
+   layer (c) runs as the standing kill-check — a dead neighborhood = REVERT, not a debate.
+   This is the same waiver mechanism the two CURRENT live shapes already ride, with one
+   difference: the incumbent `-20/+150` is a P5 NON-survivor that provably LOST −$893 on our
+   own fills. Keeping it is not the conservative choice.
+3. **Entry-2 (passive limit) stays SHADOW** — its live-parity evidence is sim-vs-sim
+   (review finding 6); it does not arm tonight. Entry-1 (premium floor) may ship: plan-time
+   admission, vary-and-assert guarded, trivially revertible.
+4. **Every ship: red-proofed guard + revert note + REVOKE line in STATUS/firm-brief** (J's
+   standing paper-autonomy bar, ratified 2026-07-01).

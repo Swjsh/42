@@ -1,4 +1,4 @@
-"""Daily spend summary -- aggregates Claude Code + MiniMax token costs per day.
+"""Daily spend summary -- aggregates Claude Code + MiniMax + Groq token costs per day.
 
 Closes the OP-3 cost-effectiveness loop: see actual burn velocity instead of
 inferring spend only when rate-limits fire.
@@ -8,11 +8,24 @@ Reads:
       - Each `message.usage` block is summed by model.
   * automation/state/minimax-calls.jsonl (MiniMax-via-OpenRouter telemetry)
       - Each call's cost_usd is summed by task_id.
+  * automation/state/swarm-calls.jsonl (swarm_client.py lane telemetry)
+      - Groq lanes priced from raw input_tokens/output_tokens (2026-07-06 Groq-bill
+        audit: swarm_client.py logs tokens but NEVER computed cost -- the roster
+        treated Groq as a $0 free-tier lane while the account was actually on
+        Groq's paid on-demand tier, so ~$9.50 of real usage went unmetered for
+        12 days until an external invoice surfaced it. Priced here instead of at
+        the source so this stays a zero-risk, offline-only reporting change).
+        Cerebras/OpenRouter lanes in this file are left at $0 (Cerebras's free
+        tier is unverified-paid; OpenRouter lanes are tracked via minimax-calls
+        already) -- only re-price a provider here once there's the same kind of
+        hard evidence (sustained volume with zero rate-limit errors) as Groq had.
 
 Writes:
   * automation/state/spend-{YYYY-MM-DD}.json  -- snapshot for today
   * automation/state/spend-daily.jsonl         -- one row per day (history)
   * STATUS.md WARN if today's total > --warn-threshold (default $50)
+  * automation/state/discord-outbox.jsonl      -- one terse ping on breach (same
+    GREEN-silent/RED-pings pattern as self_check.py + github_audit.py)
 
 CLI:
   python spend_summary.py                    -- today's summary, write files
@@ -49,7 +62,9 @@ STATE_DIR = REPO / "automation" / "state"
 STATUS_FILE = REPO / "automation" / "overnight" / "STATUS.md"
 CC_PROJECT_DIR = Path.home() / ".claude" / "projects" / "C--Users-jackw-Desktop-42"
 MINIMAX_TELEMETRY = STATE_DIR / "minimax-calls.jsonl"
+SWARM_CALLS_TELEMETRY = STATE_DIR / "swarm-calls.jsonl"
 SPEND_DAILY_HISTORY = STATE_DIR / "spend-daily.jsonl"
+DISCORD_OUTBOX = STATE_DIR / "discord-outbox.jsonl"
 
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
@@ -118,6 +133,25 @@ def _model_tier(model: str) -> str:
     return "sonnet"
 
 
+# Groq on-demand per-token rates ($/M from groq.com/pricing, confirmed 2026-07-06).
+# Only priced for models actually seen in the roster -- an unrecognized Groq model
+# returns None (see _groq_cost) rather than silently reporting $0, so a NEW model
+# showing up here can't repeat the "assumed free" mistake unnoticed.
+GROQ_PRICING: dict[str, dict[str, float]] = {
+    "llama-3.1-8b-instant": {"input": 0.05 / 1_000_000, "output": 0.08 / 1_000_000},
+    "llama-3.3-70b-versatile": {"input": 0.59 / 1_000_000, "output": 0.79 / 1_000_000},
+    "openai/gpt-oss-120b": {"input": 0.15 / 1_000_000, "output": 0.60 / 1_000_000},
+}
+
+
+def _groq_cost(model: str, in_tok: int, out_tok: int) -> Optional[float]:
+    """Real on-demand cost for a Groq call, or None if the model has no known rate."""
+    rates = GROQ_PRICING.get(model)
+    if not rates:
+        return None
+    return in_tok * rates["input"] + out_tok * rates["output"]
+
+
 @dataclass
 class TokenAgg:
     input_tokens: int = 0
@@ -163,6 +197,10 @@ class DayReport:
     minimax_cost: float = 0.0
     minimax_calls: int = 0
     minimax_by_task: dict[str, float] = field(default_factory=lambda: defaultdict(float))
+    groq_cost: float = 0.0
+    groq_calls: int = 0
+    groq_by_model: dict[str, float] = field(default_factory=lambda: defaultdict(float))
+    groq_unpriced_models: set = field(default_factory=set)
 
     @property
     def claude_total_cost(self) -> float:
@@ -170,7 +208,7 @@ class DayReport:
 
     @property
     def total_cost(self) -> float:
-        return round(self.claude_total_cost + self.minimax_cost, 4)
+        return round(self.claude_total_cost + self.minimax_cost + self.groq_cost, 4)
 
     def to_dict(self) -> dict:
         return {
@@ -178,10 +216,14 @@ class DayReport:
             "total_cost_usd": self.total_cost,
             "claude_cost_usd": self.claude_total_cost,
             "minimax_cost_usd": round(self.minimax_cost, 4),
+            "groq_cost_usd": round(self.groq_cost, 4),
             "claude_sessions": self.claude_sessions,
             "claude_by_tier": {tier: agg.to_dict(tier) for tier, agg in self.claude_by_tier.items()},
             "minimax_calls": self.minimax_calls,
             "minimax_by_task": dict(sorted(self.minimax_by_task.items(), key=lambda kv: -kv[1])),
+            "groq_calls": self.groq_calls,
+            "groq_by_model": dict(sorted(self.groq_by_model.items(), key=lambda kv: -kv[1])),
+            "groq_unpriced_models": sorted(self.groq_unpriced_models),
         }
 
 
@@ -263,6 +305,45 @@ def _scan_minimax(reports: dict[str, DayReport]) -> None:
         return
 
 
+def _scan_swarm_calls(reports: dict[str, DayReport]) -> None:
+    """Walk swarm-calls.jsonl (swarm_client.py telemetry), price Groq lanes for
+    real, add to the matching ET-date report. Cerebras/local/OpenRouter lanes
+    stay at $0 here (unverified-paid / tracked elsewhere -- see module docstring)."""
+    if not SWARM_CALLS_TELEMETRY.exists():
+        return
+    target = set(reports.keys())
+    try:
+        with open(SWARM_CALLS_TELEMETRY, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entry = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                lane = entry.get("lane") or ""
+                if not lane.startswith("groq::"):
+                    continue
+                ts = entry.get("ts") or ""
+                et_date = _et_date(ts) if ts else ""
+                if et_date not in target:
+                    continue
+                model = lane.split("::", 1)[1]
+                in_tok = int(entry.get("input_tokens") or 0)
+                out_tok = int(entry.get("output_tokens") or 0)
+                cost = _groq_cost(model, in_tok, out_tok)
+                report = reports[et_date]
+                report.groq_calls += 1
+                if cost is None:
+                    report.groq_unpriced_models.add(model)
+                    continue
+                report.groq_cost += cost
+                report.groq_by_model[model] += cost
+    except OSError:
+        return
+
+
 def _format_summary(report: DayReport) -> str:
     """Human-readable one-screen summary."""
     lines = [
@@ -282,6 +363,12 @@ def _format_summary(report: DayReport) -> str:
         top5 = list(report.minimax_by_task.items())[:5]
         for task, cost in top5:
             lines.append(f"    {task:30s}  ${cost:>7.4f}")
+    lines.append(f"  Groq:         ${report.groq_cost:>8.2f}  (calls={report.groq_calls})")
+    for model, cost in report.groq_by_model.items():
+        lines.append(f"    {model:30s}  ${cost:>7.4f}")
+    if report.groq_unpriced_models:
+        lines.append(f"    UNPRICED MODEL(S) SEEN: {sorted(report.groq_unpriced_models)} "
+                      f"-- add rates to GROQ_PRICING, cost NOT included above")
     return "\n".join(lines)
 
 
@@ -310,8 +397,10 @@ def _append_jsonl_history(report: DayReport) -> None:
         "total_cost_usd": report.total_cost,
         "claude_cost_usd": report.claude_total_cost,
         "minimax_cost_usd": round(report.minimax_cost, 4),
+        "groq_cost_usd": round(report.groq_cost, 4),
         "claude_sessions": report.claude_sessions,
         "minimax_calls": report.minimax_calls,
+        "groq_calls": report.groq_calls,
     })
     existing.sort(key=lambda r: r.get("date_et", ""))
     try:
@@ -344,6 +433,28 @@ def _append_status_warn(report: DayReport, threshold: float) -> None:
         print(f"[spend-summary] WARN status_md write failed: {exc}", file=sys.stderr)
 
 
+def _alert_discord(report: DayReport, threshold: float) -> None:
+    """Terse Discord ping on threshold breach only -- GREEN=silent, matches
+    self_check.py / github_audit.py so J sees a burn spike the same day it
+    happens instead of finding it later in STATUS.md (turns the reactive
+    '$52 planning burn' incidents into caught-before-they-compound ones)."""
+    if report.total_cost < threshold:
+        return
+    if not DISCORD_OUTBOX.parent.exists():
+        return
+    try:
+        ts = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        msg = (f"SPEND WARN {report.date_et}: ${report.total_cost:.2f} "
+               f"(threshold ${threshold:.2f}) — claude ${report.claude_total_cost:.2f} "
+               f"across {report.claude_sessions} session(s), minimax ${report.minimax_cost:.2f}, "
+               f"groq ${report.groq_cost:.2f}")
+        with DISCORD_OUTBOX.open("a", encoding="utf-8") as f:
+            f.write(json.dumps({"ts": ts, "channel": "gamma-ops",
+                                "source": "spend_summary", "message": msg[:500]}) + "\n")
+    except OSError as exc:
+        print(f"[spend-summary] WARN discord_outbox write failed: {exc}", file=sys.stderr)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--date", help="Specific ET date YYYY-MM-DD (default: today)")
@@ -372,6 +483,7 @@ def main() -> int:
     # Scan
     reports = _scan_claude_sessions(target_dates)
     _scan_minimax(reports)
+    _scan_swarm_calls(reports)
 
     # Print each day
     for d in sorted(target_dates):
@@ -394,6 +506,7 @@ def main() -> int:
             today_et = _et_now().strftime("%Y-%m-%d")
             if d == today_et:
                 _append_status_warn(report, args.warn_threshold)
+                _alert_discord(report, args.warn_threshold)
 
     return 0
 

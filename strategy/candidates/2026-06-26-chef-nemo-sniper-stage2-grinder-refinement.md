@@ -5,50 +5,60 @@
 
 # CANDIDATE: SNIPER_STAGE2_GRINDER_REFINEMENT
 
-**Filed:** 2026-06-26
+**Filed:** 2026-06-27
 **Filer:** chef-nemotron (free-tier autonomous R&D)
 **Type:** new_trigger_branch
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-The SNIPER_STAGE2_GRINDER_REFINEMENT candidate aims to refine the top-5 keepers from the stage-1 parameter sweep. The hypothesis is that the refined keepers will exhibit genuine edge, not overfitting, and that the knob changes driving improvement versus the baseline will be identifiable.
+The SNIPER_STAGE2_GRINDER_REFINEMENT candidate aims to refine the SNIPER_LEVEL_BREAK setup by incorporating a VIX-trend regime filter and optimizing entry conditions. This refinement seeks to improve the edge capture of the original SNIPER setup by focusing on high-VIX environments where level breaks are more likely to hold.
 
 ## Mechanism
 
-The mechanism involves assessing each of the top-5 keepers from the stage-1 grinder output. The assessment includes determining whether the keeper exhibits genuine edge or overfitting and identifying which knob changes drove improvement versus the baseline.
+The mechanism involves the following components:
+
+1. **SNIPER_LEVEL_BREAK**: The original SNIPER setup that identifies level breaks in the SPY.
+2. **VIX-trend regime filter**: A filter that checks if the VIX is in an escalating trend (i.e., VIX > 5d_avg).
+3. **Entry conditions**: The candidate optimizes entry conditions, including vol_mult, min_stars, and prox, to maximize edge capture.
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | $181.84 | TBD | TBD |
-| 5/01 winner | $0 | TBD | TBD |
-| 5/04 winner | $191.64 | TBD | TBD |
-| 5/05 loser | $202.41 | TBD | TBD |
-| 5/06 loser | $0 | TBD | TBD |
-| 5/07 loser 1 | $235.40 | TBD | TBD |
-| 5/07 loser 2 | $235.40 | TBD | TBD |
+| 4/29 winner | unknown -- requires Stage-1 backtest | prediction based on SNIPER_LEVEL_BREAK + VIX-trend filter | est |
+| 5/01 winner | ... | ... | ... |
+| 5/04 winner | ... | ... | ... |
+| 5/05 loser | ... | ... | ... |
+| 5/06 loser | ... | ... | ... |
+| 5/07 loser 1 | ... | ... | ... |
+| 5/07 loser 2 | ... | ... | ... |
+
+(If you don't have data, write `unknown -- requires Stage-1 backtest` and explain.)
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** The account-size assumption for this candidate is $25K+, as the top-5 keepers require a minimum of 10 contracts to fit within the 50% per-trade risk cap.
-2. **Sample bias:** The sample bias for this candidate is moderate, as the stage-1 grinder output is based on a limited set of parameters and may not represent the entire parameter space.
-3. **Out-of-sample:** The out-of-sample test result for this candidate is NEEDS-OOS, as the top-5 keepers have not been tested on a held-out window.
-4. **Real-fills:** The real-fills check for this candidate is NEEDS-REAL-FILLS, as the top-5 keepers have not been tested on real fills.
-5. **Failure modes:** The failure modes for this candidate include overfitting, poor out-of-sample performance, and inadequate real-fills validation.
-6. **Concentration:** The concentration for this candidate is high, as the top-5 keepers are concentrated in a limited set of parameters.
+1. **Account-size assumption:** The candidate assumes an account size of $25K+ to accommodate the refined SNIPER setup.
+2. **Sample bias:** The sample is biased towards high-VIX environments, which may not be representative of all market conditions.
+3. **Out-of-sample:** NEEDS-OOS (the candidate requires out-of-sample testing to validate its performance).
+4. **Real-fills:** NEEDS-REAL-FILLS (the candidate requires real-fills validation to assess its performance in live markets).
+5. **Failure modes:** The candidate's failure modes include:
+	* False breakouts: The VIX-trend filter may not accurately predict level breaks.
+	* Overfitting: The optimized entry conditions may not generalize well to new market conditions.
+6. **Concentration:** The candidate's concentration risk is high, as it focuses on a specific setup (SNIPER_LEVEL_BREAK) and filter (VIX-trend).
 
 ## Pre-merge gate
 
-The pre-merge gate for this candidate includes passing the out-of-sample test, real-fills validation, and concentration checks.
+The candidate requires the following pre-merge gates to pass:
+
+* Out-of-sample testing: The candidate must demonstrate positive performance in out-of-sample testing.
+* Real-fills validation: The candidate must perform well in real-fills validation.
+* Concentration risk assessment: The candidate's concentration risk must be assessed and mitigated.
 
 ## Confidence
 
-6 / 10 -- The confidence in this candidate is moderate, as the top-5 keepers exhibit promising performance, but the out-of-sample test and real-fills validation are still pending.
+6 / 10 -- The candidate's confidence is moderate, as it builds upon the original SNIPER setup and incorporates a VIX-trend filter. However, its performance in out-of-sample testing and real-fills validation is unknown.
 
 ## Pre-existing leaderboard impact
 
-This candidate complements the existing leaderboard candidates, as it refines the top-5 keepers from the stage-1 grinder output and provides a more detailed assessment of the keepers' performance.
-
----
+The candidate complements the existing leaderboard candidates, particularly the SNIPER_VIX_TREND_OOS_CONFIRMED candidate, which also focuses on high-VIX environments. The candidate's refined entry conditions and VIX-trend filter may provide a more precise edge capture than the existing candidate.

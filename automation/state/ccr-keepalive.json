@@ -1,7 +1,9 @@
 {
-  "ts_et": "2026-07-09 16:07:35",
+  "ts_et": "2026-07-14 16:02:34",
   "port_up": true,
   "consecutive_failures": 0,
   "last_restart_et": null,
-  "ping_sent_this_episode": false
+  "ping_sent_this_episode": false,
+  "interactive_settings_clean": true,
+  "interactive_settings_last_fixed_et": null
 }

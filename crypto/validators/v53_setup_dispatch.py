@@ -60,6 +60,8 @@ _KNOWN_SETUP_NAMES = {
     "gap_and_go",
     "vwap_reclaim_failed_break",
     "vix_regime_dayside",
+    "double_bottom_base_quiet",  # wired 2026-07-01 (commit 4e71618)
+    "bollinger_squeeze",  # wired 2026-07-02 (commit 004e7ea, WIRE-BOLLINGER)
 }
 
 

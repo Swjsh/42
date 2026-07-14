@@ -1,6 +1,6 @@
 {
-  "checked_at_et": "2026-06-29 07:53:13",
-  "verdict": "GREEN",
+  "checked_at_et": "2026-07-14 08:25:00",
+  "verdict": "RED",
   "checks": [
     {
       "name": "Gamma_HeartbeatCore",
@@ -17,13 +17,19 @@
     {
       "name": "Gamma_EodFlatten",
       "status": "GREEN",
-      "detail": "Ready (EOD flatten (Safe), fires ~15:55 ET, last_result=0)",
+      "detail": "Ready (EOD flatten (Safe, LLM defense-in-depth), fires ~15:55 ET, last_result=0)",
       "critical": true
     },
     {
       "name": "Gamma_EodFlatten_Aggressive",
       "status": "GREEN",
-      "detail": "Ready (EOD flatten (Bold), fires ~15:55 ET, last_result=0)",
+      "detail": "Ready (EOD flatten (Bold, LLM defense-in-depth), fires ~15:55 ET, last_result=0)",
+      "critical": true
+    },
+    {
+      "name": "Gamma_EodFlattenCore",
+      "status": "GREEN",
+      "detail": "Ready (EOD flatten backstop (pure-Python, safe-2+bold-2, no LLM), fires ~15:52 ET, last_result=0)",
       "critical": true
     },
     {
@@ -47,42 +53,78 @@
     {
       "name": "broker:safe-1",
       "status": "GREEN",
-      "detail": "ACTIVE, optsL3, equity=$2000, dtc=0, pdt=False",
+      "detail": "ACTIVE, optsL3, equity=$1747, dtc=0, pdt=False",
       "critical": true
     },
     {
       "name": "broker:bold-2",
       "status": "GREEN",
-      "detail": "ACTIVE, optsL3, equity=$1633, dtc=0, pdt=False",
+      "detail": "ACTIVE, optsL3, equity=$1963, dtc=0, pdt=False",
       "critical": true
     },
     {
       "name": "broker:safe-3",
       "status": "GREEN",
-      "detail": "ACTIVE, optsL3, equity=$2000, dtc=0, pdt=False",
+      "detail": "ACTIVE, optsL3, equity=$1720, dtc=0, pdt=False",
       "critical": true
     },
     {
       "name": "broker:risky-1",
       "status": "GREEN",
-      "detail": "ACTIVE, optsL3, equity=$2000, dtc=0, pdt=False",
+      "detail": "ACTIVE, optsL3, equity=$1501, dtc=0, pdt=False",
       "critical": true
     },
     {
       "name": "broker:risky-3",
       "status": "GREEN",
-      "detail": "ACTIVE, optsL3, equity=$2000, dtc=0, pdt=False",
+      "detail": "ACTIVE, optsL3, equity=$1680, dtc=0, pdt=False",
       "critical": true
     },
     {
       "name": "broker:safe-2",
       "status": "GREEN",
-      "detail": "ACTIVE, optsL3, equity=$1763, dtc=0, pdt=False",
+      "detail": "ACTIVE, optsL3, equity=$1747, dtc=0, pdt=False",
       "critical": true
+    },
+    {
+      "name": "tv_cdp",
+      "status": "GREEN",
+      "detail": "CDP responding on :9222",
+      "critical": true
+    },
+    {
+      "name": "eod_reality:Gamma_EodFlatten",
+      "status": "RED",
+      "detail": "2026-07-13: REAL exit=1 (Task Scheduler LastTaskResult does NOT reflect this for wscript-launched tasks -- read from the log tail)",
+      "critical": true
+    },
+    {
+      "name": "eod_reality:Gamma_EodFlatten_Aggressive",
+      "status": "RED",
+      "detail": "2026-07-13: REAL exit=1 (Task Scheduler LastTaskResult does NOT reflect this for wscript-launched tasks -- read from the log tail)",
+      "critical": true
+    },
+    {
+      "name": "eod_reality:Gamma_EodFlattenCore",
+      "status": "GREEN",
+      "detail": "2026-07-13: {'safe-2': 'NOOP', 'bold-2': 'NOOP'}",
+      "critical": true
+    },
+    {
+      "name": "broker_canary",
+      "status": "INFO",
+      "detail": "no fresh canary data (not yet wired into a scheduled tick, or quiet) -- fail-open, never blocks pre-open",
+      "critical": false
     }
   ],
-  "reds": [],
-  "red_checks": [],
-  "note": "read-only/notify-only; verifies the LIVE chain (HeartbeatCore + SightBeacon + EodFlatten) + broker auth. NEVER trade-halts.",
+  "reds": [
+    "eod_reality:Gamma_EodFlatten",
+    "eod_reality:Gamma_EodFlatten_Aggressive"
+  ],
+  "red_checks": [
+    "eod_reality:Gamma_EodFlatten",
+    "eod_reality:Gamma_EodFlatten_Aggressive"
+  ],
+  "note": "read-only/notify-only; verifies the LIVE chain (HeartbeatCore + SightBeacon + EodFlatten) + broker auth + TV/CDP liveness + EOD-flatten REAL log-tail outcome (not Task Scheduler exit code, which wscript-launch tasks mask) + the 24/7 twin's broker-canary signal (fail-open enhancer, never a new single point of failure). NEVER trade-halts.",
   "alerted": false
 }

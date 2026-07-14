@@ -272,12 +272,25 @@ def _strip_strike_keys(params: dict) -> dict:
 
 
 def run_cell(spy, vix, base_params: dict, strike_offset: int, gate_patch: dict,
-             stop_pct: float, equity: float = SAFE_EQUITY):
+             stop_pct: float, equity: float = SAFE_EQUITY,
+             profit_lock_mode: str = "fixed", profit_lock_trail_pct: float = 0.0,
+             time_stop_minutes_before_close: int = 10):
     """Run the real-fills backtest for ONE (strike, gate, stop) cell.
 
     Returns the trade list. strike_offset is SIMULATOR convention
     (negative=ITM, 0=ATM, positive=OTM). The premium stop is applied to BOTH
     bear and bull so the params.json per-side caps cannot override it.
+
+    profit_lock_mode / profit_lock_trail_pct / time_stop_minutes_before_close
+    (T-W2, HANDOFF-2026-07-11 ground rule 13): these are passed ONLY as explicit
+    run_backtest kwargs below, never through gate_patch/params_overrides. L156
+    (test_profit_lock_not_in_baseline.py) forbids _params_to_kwargs from ever
+    translating profit_lock_* -- that guard stays untouched and green. The T5
+    scar (181/181 fixed-vs-trailing P4 pairs byte-identical) happened because
+    the old grind set profit_lock_mode inside gate_patch, which _params_to_kwargs
+    silently drops by design. The fix mirrors how premium_stop_pct already
+    reaches the simulator: an explicit kwarg, belt-and-suspenders alongside the
+    (here: absent) params_overrides entry.
     """
     p = _strip_strike_keys(base_params)
     p.update(copy.deepcopy(gate_patch))
@@ -298,6 +311,11 @@ def run_cell(spy, vix, base_params: dict, strike_offset: int, gate_patch: dict,
         premium_stop_pct=float(stop_pct),
         premium_stop_pct_bear=float(stop_pct),
         premium_stop_pct_bull=float(stop_pct),
+        # T-W2 dead-knob fix: explicit kwargs ONLY (never via params_overrides/gate_patch --
+        # _params_to_kwargs deliberately drops profit_lock_* per L156).
+        profit_lock_mode=str(profit_lock_mode),
+        profit_lock_trail_pct=float(profit_lock_trail_pct),
+        time_stop_minutes_before_close=int(time_stop_minutes_before_close),
     )
     return res.trades
 

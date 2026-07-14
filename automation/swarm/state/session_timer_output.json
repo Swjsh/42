@@ -1,21 +1,21 @@
 {
   "agent": "session_timer",
-  "generated_at": "2026-06-26T14:17:56Z",
-  "bias": "bullish",
-  "confidence": 0.8,
-  "reasoning": "Current time 10:17 ET = MORNING session (optimal window per J's doctrine). 282 minutes until 15:00 ET entry cutoff. 0DTE theta decay is SLOW (before 12:00 ET). Historical pattern for 10:15-11:30 ET shows best setup quality with first real trend established after open noise clears. Session timing is ADDITIVE to confidence — morning window supports entries in either direction; direction comes from other agents.",
-  "current_et_time": "10:17",
-  "session_phase": "MORNING",
-  "minutes_to_entry_cutoff": 282,
+  "generated_at": "2026-07-14T08:15:04Z",
+  "bias": "no_trade",
+  "confidence": 0.1,
+  "reasoning": "Current time 08:15 ET = pre-market (before 09:30 open). Session phase not yet active. Market opens in 75 minutes. No 0DTE positions can be entered until 09:30. Historical patterns don't apply until after open. Session timing: NEUTRAL/NO_TRADE.",
+  "current_et_time": "08:15",
+  "session_phase": "PRE_MARKET",
+  "minutes_to_entry_cutoff": 75,
   "theta_urgency": "slow",
-  "session_quality": "optimal",
-  "historical_bias": "trending",
-  "time_context_adds_to": "confidence",
+  "session_quality": "avoid",
+  "historical_bias": "reversal_risk",
+  "time_context_adds_to": "uncertainty",
   "key_observations": [
-    "MORNING session (10:00-11:30 ET) — highest quality window for 0DTE entries",
-    "282 minutes remaining until 15:00 ET entry cutoff — ample time for position management",
-    "Theta decay SLOW before 12:00 ET — premium retention favorable",
-    "Historical pattern: 10:15-11:30 ET trending after morning noise settles"
+    "Pre-market: 08:15 ET, market opens at 09:30 ET (75 minutes to open)",
+    "No active session phase - waiting for market open",
+    "Historical patterns (09:30-10:15 reversal risk) don't apply until after open",
+    "0DTE theta irrelevant until positions can be entered post-open"
   ],
-  "data_quality": "full"
+  "data_quality": "partial"
 }

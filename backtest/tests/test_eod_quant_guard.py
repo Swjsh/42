@@ -68,12 +68,22 @@ def test_manager_prompt_carries_quant_not_legacy_ledger():
 
 def test_quant_section_carries_real_ledger_truth():
     """Against the REAL repo ledgers: 2026-07-01 must show the 10 core ENTERs and
-    the fleet acceptance -- the exact numbers the old path reported as zero."""
+    the fleet acceptance -- the exact numbers the old path reported as zero.
+
+    NOTE (2026-07-08, pre-existing drift found + fixed while rewiring T2): this
+    assertion had gone stale vs. two UNRELATED prior fixes -- the `rule-blocked`
+    funnel column (added after this test was written) and the PLACEMENT BROKEN ->
+    PLACEMENT PRE-FIX ARTIFACT reclassification for retired-ladder-only rejection
+    days -- so it was failing before any T2 edit touched this file. Values below
+    are the current, real, code-computed output (verified by running _quant_section
+    directly against the real ledgers)."""
     q = ef._quant_section(DAY)
     assert ef.QUANT_BEGIN in q and ef.QUANT_END in q
-    assert "| **TOTAL** | 1278 | 28 | 16 | 16 | 4 | 4 | 4 |" in q
-    assert "PLACEMENT BROKEN[core:safe]" in q
+    assert "| **TOTAL** | 1278 | 28 | 16 | 0 | 16 | 4 | 4 | 4 |" in q
+    assert "PLACEMENT PRE-FIX ARTIFACT[core:safe]" in q
     assert "expires soon" in q  # verbatim broker rejection
+    # T2 rewire (HANDOFF-2026-07-09): P&L must now be broker-truth (T1), not the CSV fallback.
+    assert "P&L (source: pnl-statement.json (T1, broker-truth))" in q
 
 
 # ---------------------------------------------------------------------------

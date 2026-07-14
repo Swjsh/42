@@ -1,10 +1,10 @@
 {
-  "utc_date": "2026-07-11",
+  "utc_date": "2026-07-14",
   "account_id": "twin",
-  "start_of_day_equity": 2000.0,
-  "current_equity": 9999.51,
+  "start_of_day_equity": 9999.51,
+  "current_equity": 9978.73,
   "threshold_pct": 0.3,
   "tripped": false,
   "tripped_at_equity": null,
-  "min_equity_seen": 2000.0
+  "min_equity_seen": 9977.88
 }

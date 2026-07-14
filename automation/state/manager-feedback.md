@@ -1,14 +1,20 @@
-<!-- Sonnet overseer 2026-06-26 20:03 ET -->
-- **STOP** calling `rank_contenders` — you have run it three consecutive cycles (1813, 1833, 1853) and the output is byte-identical each time. The top survivor is known: `OTM-2:LR0:mt1:stop-8:tp+150%:sell80%:fixed` (edge=1692, WF=1.98). Do not call `rank_contenders` again until the backtest data changes.
+<!-- Sonnet overseer 2026-07-02 16:03 ET -->
+- **STOP: "write a backtest config JSON"** — free models hallucinate generic EURUSD placeholders with no SPY context. This action has fired at least twice in one morning and produced zero usable output. Retire it permanently.
+- **STOP: "check decision-agreement on top contender"** — validator models have no access to `decisions.jsonl` or any live state; they answer "I don't know" every time. Pass raw CSV rows in the prompt or drop the action.
+- **STOP: repeating any action whose last output was a hallucination or off-instrument JSON.** Before picking an action, check the last 3 output filenames — if the same verb appears ≥2×, pick a different verb.
 
-- **STOP** accepting chef outputs that misread the config (the 1753 draft described LR0 as "implying a short strategy" — that is wrong; LR0 is a long-ratio knob). Reject and re-prompt when the output contradicts the actual parameter definitions.
+---
 
-- **Action 1 — Adversarial critique:** Prompt critic: "The top contender `OTM-2:LR0:mt1:stop-8:tp+150%:sell80%` has WR=12.15%. At 0DTE OTM-2, does tp+150% ever realize before expiry worthless? Estimate how many of the 1880 survivors share this TP target and whether the edge is a stop-asymmetry artifact, not a true signal. Answer ≤200 words, structured."
+**Next 4 actions (varied, concrete):**
 
-- **Action 2 — Sub-window stability check:** Run or prompt chef to check whether the top-2 contenders (edge=1692 and edge=1563) hold positive OOS expectancy across each of the 4 calendar quarters in the backtest data. Report pass/fail per quarter.
+1. **Rank** — load `analysis/recommendations/contender-rank-2026-06-29.json`, compute `edge_capture` for the top 5 entries, print a table, flag any below the 771 J-edge floor as REJECT. Assign to `analyst` role.
 
-- **Action 3 — Ideate one variant:** Chef proposes ONE `vwap_continuation` variant that adds an RVOL floor (e.g. rvol ≥ 1.2 at entry bar) to the existing live edge. State the hypothesis, expected filter rate, and what metric to check — no backtest needed yet.
+2. **Score the 07:33 ideation** — the `vwap_continuation_rvol_vix_gate` variant from this morning has concrete parameters; run it through `backtest/` via `kitchen_daemon`-style invocation and report expectancy + OOS delta vs baseline `vwap_continuation`. Assign to `coder` lane only if prompt includes the actual parameter dict.
 
-- **Action 4 — Forage:** Pull one free FRED series not yet in the system (e.g. `T10YIE` breakeven inflation) and write one sentence on whether it correlates with SPY 0DTE realized vol direction.
+3. **Ideate ONE new family** — level-rejection pullback variant using `NLWB` structure (PDL wick-bounce, N=157, WR=71% in gym). Produce parameter dict only — no JSON boilerplate, no placeholders.
 
-- **Rule:** Every output ≤400 words, structured headers, no filler prose. If a free-model response exceeds 400 words or misreads a parameter, log `REJECTED: token-salad` and re-dispatch with a tighter prompt — do not accept and move on.
+4. **Critique** — send the `gap_and_go` scorecard (`analysis/recommendations/edgehunt-gap_and_go.json`) verbatim to a strategist and ask: "what is the single weakest assumption in this edge claim and how would you stress-test it?"
+
+---
+
+**Rule:** Every output ≤400 words, structured (header + bullets or table), no repeated paragraphs. If a model returns a hallucination ("I don't have information about…"), log it as `SKIP` and do not retry the same action this cycle.

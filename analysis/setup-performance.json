@@ -1,13 +1,13 @@
 {
   "BEARISH_REJECTION_RIDE_THE_RIBBON": {
-    "n_trades": 6,
-    "n_wins": 3,
-    "hit_rate": 0.5,
-    "avg_return_pct": 12.15,
-    "stdev_return_pct": 63.54,
-    "max_win_pct": 85.88,
+    "n_trades": 31,
+    "n_wins": 7,
+    "hit_rate": 0.2258,
+    "avg_return_pct": 18.72,
+    "stdev_return_pct": 90.48,
+    "max_win_pct": 291.84,
     "max_loss_pct": -80.61,
-    "avg_hold_minutes": 70.8,
+    "avg_hold_minutes": 26.4,
     "n_correct_setups": 4,
     "n_excellent_grades": 1,
     "by_iv_regime": {
@@ -30,16 +30,16 @@
         "wr": null
       },
       "MORNING": {
-        "n": 3,
-        "wr": 0.6667
+        "n": 11,
+        "wr": 0.1818
       },
       "MIDDAY": {
-        "n": 1,
-        "wr": 1.0
+        "n": 15,
+        "wr": 0.3333
       },
       "AFTERNOON": {
-        "n": 0,
-        "wr": null
+        "n": 3,
+        "wr": 0.0
       },
       "POWER_HOUR": {
         "n": 0,
@@ -105,7 +105,7 @@
       }
     },
     "avg_hold_quality_pct": 0.0,
-    "last_updated": "2026-06-26T14:00:30-06:00"
+    "last_updated": "2026-07-14T14:00:34-06:00"
   },
   "BULLISH_RECLAIM": {
     "n_trades": 1,
@@ -204,17 +204,17 @@
       }
     },
     "avg_hold_quality_pct": null,
-    "last_updated": "2026-06-26T14:00:30-06:00"
+    "last_updated": "2026-07-14T14:00:34-06:00"
   },
   "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
-    "n_trades": 7,
-    "n_wins": 4,
-    "hit_rate": 0.5714,
-    "avg_return_pct": 25.57,
-    "stdev_return_pct": 44.22,
+    "n_trades": 101,
+    "n_wins": 6,
+    "hit_rate": 0.0594,
+    "avg_return_pct": -22.6,
+    "stdev_return_pct": 24.66,
     "max_win_pct": 89.82,
-    "max_loss_pct": -20.55,
-    "avg_hold_minutes": 83.1,
+    "max_loss_pct": -75.0,
+    "avg_hold_minutes": 14.5,
     "n_correct_setups": 5,
     "n_excellent_grades": 1,
     "by_iv_regime": {
@@ -237,16 +237,16 @@
         "wr": null
       },
       "MORNING": {
-        "n": 2,
-        "wr": 1.0
+        "n": 24,
+        "wr": 0.0833
       },
       "MIDDAY": {
-        "n": 2,
-        "wr": 0.0
+        "n": 36,
+        "wr": 0.0556
       },
       "AFTERNOON": {
-        "n": 0,
-        "wr": null
+        "n": 38,
+        "wr": 0.0
       },
       "POWER_HOUR": {
         "n": 0,
@@ -312,7 +312,7 @@
       }
     },
     "avg_hold_quality_pct": 48.5,
-    "last_updated": "2026-06-26T14:00:30-06:00"
+    "last_updated": "2026-07-14T14:00:34-06:00"
   },
   "UNCATEGORIZED_HOLD_TO_EXPIRY": {
     "n_trades": 1,
@@ -416,7 +416,7 @@
       }
     },
     "avg_hold_quality_pct": 0.0,
-    "last_updated": "2026-06-26T14:00:30-06:00"
+    "last_updated": "2026-07-14T14:00:34-06:00"
   },
   "UNCATEGORIZED_PROBE": {
     "n_trades": 1,
@@ -520,7 +520,7 @@
       }
     },
     "avg_hold_quality_pct": 0.0,
-    "last_updated": "2026-06-26T14:00:30-06:00"
+    "last_updated": "2026-07-14T14:00:34-06:00"
   },
   "UNCATEGORIZED_PROBE_MANUAL": {
     "n_trades": 1,
@@ -624,14 +624,113 @@
       }
     },
     "avg_hold_quality_pct": 0.0,
-    "last_updated": "2026-06-26T14:00:30-06:00"
+    "last_updated": "2026-07-14T14:00:34-06:00"
+  },
+  "UNKNOWN": {
+    "n_trades": 16,
+    "n_wins": 3,
+    "hit_rate": 0.1875,
+    "avg_return_pct": -7.07,
+    "stdev_return_pct": 7.61,
+    "max_win_pct": 6.0,
+    "max_loss_pct": -17.32,
+    "avg_hold_minutes": null,
+    "n_correct_setups": 0,
+    "n_excellent_grades": 0,
+    "by_iv_regime": {
+      "LOW": {
+        "n": 0,
+        "wr": null
+      },
+      "MID": {
+        "n": 0,
+        "wr": null
+      },
+      "HIGH": {
+        "n": 0,
+        "wr": null
+      }
+    },
+    "by_tod_bucket": {
+      "OPEN_DRIVE": {
+        "n": 0,
+        "wr": null
+      },
+      "MORNING": {
+        "n": 0,
+        "wr": null
+      },
+      "MIDDAY": {
+        "n": 0,
+        "wr": null
+      },
+      "AFTERNOON": {
+        "n": 0,
+        "wr": null
+      },
+      "POWER_HOUR": {
+        "n": 0,
+        "wr": null
+      }
+    },
+    "by_tape_assistance": {
+      "dry": {
+        "n": 0,
+        "wr": null
+      },
+      "normal": {
+        "n": 0,
+        "wr": null
+      },
+      "favorable": {
+        "n": 0,
+        "wr": null
+      },
+      "exceptional": {
+        "n": 0,
+        "wr": null
+      },
+      "unfavorable": {
+        "n": 0,
+        "wr": null
+      }
+    },
+    "by_archetype": {},
+    "by_grade_score": {
+      "5": {
+        "n": 0,
+        "avg_pnl": null
+      },
+      "4": {
+        "n": 0,
+        "avg_pnl": null
+      },
+      "3": {
+        "n": 0,
+        "avg_pnl": null
+      },
+      "2": {
+        "n": 0,
+        "avg_pnl": null
+      },
+      "1": {
+        "n": 0,
+        "avg_pnl": null
+      },
+      "0": {
+        "n": 0,
+        "avg_pnl": null
+      }
+    },
+    "avg_hold_quality_pct": null,
+    "last_updated": "2026-07-14T14:00:34-06:00"
   },
   "_meta": {
     "generator": "backtest/scripts/update_setup_performance.py",
     "source": "journal/trades.csv",
-    "total_trades": 17,
-    "n_setups": 6,
-    "generated_at": "2026-06-26T14:00:30-06:00",
+    "total_trades": 152,
+    "n_setups": 7,
+    "generated_at": "2026-07-14T14:00:34-06:00",
     "note": "R-0007 fix: deterministic recompute replaces the dropped EOD-summary Step-8 LLM prose. Deployment gate (>=20 trades, hit_rate>=0.45) reads this; full-overwrite, never appends."
   }
 }

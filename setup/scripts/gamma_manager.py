@@ -2,7 +2,8 @@
 
 Replaces the opus Gamma_Conductor's recon+dispatch on $0 free models. ONE bounded
 cycle per fire:
-  gather context -> the COORDINATOR (fast free lane: Groq, falls to local) picks the
+  gather context -> the COORDINATOR (fast free lane: OpenRouter, falls to local; Groq
+  REMOVED 2026-07-08, it was never actually $0) picks the
   single highest-value ready R&D action + the Employee role to do it -> dispatch via
   swarm_client.call_role -> write the output -> log. On a guard/blocker it ESCALATES
   (enqueue a signal, NEVER halt).

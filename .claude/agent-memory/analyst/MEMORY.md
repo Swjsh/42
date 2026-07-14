@@ -4,3 +4,4 @@
 - [Ghost entry cross-check](project_ghost_entry_pattern.md) — After any session: cross-check decisions.jsonl ENTER_* against Alpaca orders. Any ENTER without Alpaca order_id = ghost entry.
 - [Gym verdict baseline](project_gym_verdicts.md) — 5/19 gym: RED. Heartbeat tick audit: 6/16 MISALIGNED-CRITICAL. These are the new baseline to track improvement against.
 - [VIX declining bear filter](project_vix_filter_f8.md) — F8 blocks bear on VIX "declining" even when VIX is only 22bps lower than open. Possible over-sensitivity. Chef item queued 5/19.
+- [2026-07-13 full audit](project_2026_07_13_full_audit.md) — first day post weekend-ships: -$25 net, 1 fill/6 accts, core Safe PDT-blocked (inherited count), premarket died all day, 2 auditors undercounted to 0.

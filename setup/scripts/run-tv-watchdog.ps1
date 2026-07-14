@@ -49,13 +49,17 @@ if ($cdpReady) {
             $tvAction = "relaunch_kill"
             $tvDetail = "TV up but CDP dead for $([int]$ageSec)s - kill+relaunch"
             Write-TaskLog -TaskName $task -Message "RELAUNCH_KILL $tvDetail"
-            & powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -NonInteractive -File $launchScript -Kill *>&1 | Out-File -Append -Encoding utf8 -FilePath $logFile
+            # FIX 2026-07-06: was missing the 2026-06-15 ErrorActionPreference='Continue'
+            # fix (this exact call site is one of 3 -- see Invoke-TvLaunchSafe in _shared.ps1).
+            $r = Invoke-TvLaunchSafe -LaunchScript $launchScript -LogFile $logFile -Kill
+            if ($r.skipped) { Write-TaskLog -TaskName $task -Message "SKIP_LOCK_HELD $($r.reason)"; $tvAction = "lock_held" }
         }
     } else {
         $tvAction = "relaunch_fresh"
         $tvDetail = "no TV process and CDP dead - launching"
         Write-TaskLog -TaskName $task -Message "RELAUNCH_FRESH $tvDetail"
-        & powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -NonInteractive -File $launchScript *>&1 | Out-File -Append -Encoding utf8 -FilePath $logFile
+        $r = Invoke-TvLaunchSafe -LaunchScript $launchScript -LogFile $logFile
+        if ($r.skipped) { Write-TaskLog -TaskName $task -Message "SKIP_LOCK_HELD $($r.reason)"; $tvAction = "lock_held" }
     }
 }
 
@@ -83,7 +87,8 @@ if ($mins -ge 575 -and $mins -le 955) {
             $lsScript = Join-Path $WorkDir "setup\launch_tv_debug.ps1"
             $lLogFile = Join-Path $LogDir "tv-watchdog-$($et.ToString('yyyy-MM-dd')).log"
             Write-TaskLog -TaskName $task -Message "RELAUNCH_HUNG_BRIDGE $tvDetail"
-            & powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -NonInteractive -File $lsScript -Kill *>&1 | Out-File -Append -Encoding utf8 -FilePath $lLogFile
+            $r = Invoke-TvLaunchSafe -LaunchScript $lsScript -LogFile $lLogFile -Kill
+            if ($r.skipped) { Write-TaskLog -TaskName $task -Message "SKIP_LOCK_HELD $($r.reason)"; $tvAction = "lock_held" }
         }
     } catch { $hbFlag = "unknown" }
 }

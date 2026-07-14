@@ -1,22 +1,21 @@
 {
   "agent": "volume_analyst",
-  "generated_at": "2026-06-26T14:17:56Z",
-  "bias": "no_trade",
-  "confidence": 0.2,
-  "reasoning": "Relative volume 0.27x average (very low volume). Last 10 bars show balanced pressure at 59.8% up-volume (borderline bullish). Price 3.42 above VWAP approx 729.79. However, volume trend contracting sharply (recent 5 bars avg 9,871 vs prior 5 bars avg 137,809 = 7% of prior), and latest bar volume is extremely low at 12,405. Low volume makes price movements unreliable and fakeouts likely.",
-  "relative_volume": 0.27,
-  "volume_regime": "LOW",
-  "pressure_ratio": 0.598,
-  "pressure_signal": "balanced",
+  "generated_at": "2026-07-14T08:15:04Z",
+  "bias": "bearish",
+  "confidence": 0.6,
+  "reasoning": "Relative volume 1.53x average indicates HIGH volume activity. Buying pressure dominates at 81.8% of last-10-bar volume (up bars: 25,932 vs down bars: 5,762). However, volume trend is CONTRACTING sharply (recent 5-bar avg 1,784 vs prior 5-bar avg 5,016 = 0.36x). Current price 748.38 is significantly below VWAP approx 761.79, indicating bearish positioning. The combination of price below VWAP and contracting volume outweighs the buying pressure signal.",
+  "relative_volume": 1.53,
+  "volume_regime": "HIGH",
+  "pressure_ratio": 0.818,
+  "pressure_signal": "buying",
   "volume_trend": "CONTRACTING",
-  "vwap_approx": 729.79,
-  "price_vs_vwap": "above",
-  "avg_volume_20bar": 46461,
+  "vwap_approx": 761.79,
+  "price_vs_vwap": "below",
+  "avg_volume_20bar": 2908,
   "key_observations": [
-    "Relative volume 0.27x average — latest bar only 12,405 shares vs 20-bar avg 46,461",
-    "Pressure ratio 59.8% (buying) from last 10 bars — borderline bullish but within balanced range",
-    "Volume contracting sharply: recent 5 bars avg 9,871 vs prior 5 bars avg 137,809 — only 7% of prior",
-    "Price 3.42 above VWAP approx 729.79 but extremely low volume undermines signal reliability"
+    "Relative volume 1.53x average (HIGH volume regime)",
+    "Buying pressure 81.8% but volume contracting to 36% of prior 5-bar average",
+    "Price 13.41 points below VWAP approx 761.79 — bearish positioning"
   ],
   "data_quality": "full"
 }

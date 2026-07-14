@@ -22,3 +22,112 @@
 {"ts_et": "2026-06-26T20:42:25", "key": "a5761053148d", "gap": "No disagreements can be identified because Perspectives\u202f2 and\u202f3 failed to load (model\u2011unavailable errors). Consequently,", "new": true}
 {"ts_et": "2026-06-26T20:42:25", "key": "7f17a36c4aed", "gap": "**Confidence: 6/10** \u2013 The recommendation is grounded in a detailed, concrete failure mode identified by the sole succes", "new": true}
 {"ts_et": "2026-06-26T20:42:25", "key": "11c17873d87c", "gap": "**Today, before market open, add a pre\u2011commit hook to the strategy\u2011enablement pipeline** that, upon setting `enabled=tru", "new": true}
+{"ts_et": "2026-06-27T17:31:04", "key": "fb551af32b45", "gap": "Face UI approval button not wired to actuator", "new": true}
+{"ts_et": "2026-06-27T17:31:04", "key": "e1b2953ff64a", "gap": "Live per-account equity not displayed on face", "new": true}
+{"ts_et": "2026-06-27T17:31:04", "key": "ec05e96266c0", "gap": "Companion voice/Electron not merged into face shell", "new": true}
+{"ts_et": "2026-06-27T17:31:04", "key": "e5a760d53552", "gap": "Automated naive timestamp hardening for structure veto (G13b) not yet implemented", "new": true}
+{"ts_et": "2026-06-27T17:31:04", "key": "dec11562e98d", "gap": "Self-audit orphan tasks not autonomously resolved", "new": true}
+{"ts_et": "2026-06-27T17:31:04", "key": "8b8b2623c049", "gap": "Claude doc-folds unindexed (27)", "new": true}
+{"ts_et": "2026-06-27T17:31:04", "key": "fd2965312da0", "gap": "No automated performance drift detection and kill-switch based on P&L drawdown", "new": true}
+{"ts_et": "2026-06-27T17:31:04", "key": "c75ba817ef97", "gap": "No automated dependency updates or vulnerability scanning beyond secret-scan", "new": true}
+{"ts_et": "2026-06-27T17:31:04", "key": "45d11da7c01c", "gap": "First, a ranked list of 6-8 gaps (each with a brief description).", "new": true}
+{"ts_et": "2026-06-27T17:31:04", "key": "5aef88c63eb4", "gap": "Then, for the top gap (or maybe overall), produce the seven sections as requested.", "new": true}
+{"ts_et": "2026-06-27T17:31:04", "key": "900055aabb61", "gap": "Gamma has a face (UI) but the Approve button is display-only (G8 bus not wired). Actually G8 was shipped: companion appr", "new": true}
+{"ts_et": "2026-06-27T17:31:04", "key": "fd24c4e17e72", "gap": "There is a self-audit mechanism but there are orphan tasks (G9-SELF-AUDIT PART-2 low). So self-audit not fully autonomou", "new": true}
+{"ts_et": "2026-06-28T17:30:40", "key": "b91021c0a01e", "gap": "Most likely failure mode", "new": true}
+{"ts_et": "2026-06-28T17:30:40", "key": "1fbcb431b13b", "gap": "Worst-case impact on J's environment", "new": true}
+{"ts_et": "2026-06-28T17:30:40", "key": "95a15ea31ff2", "gap": "Worst-case impact on Pilot/Heartbeat", "new": true}
+{"ts_et": "2026-06-28T17:30:40", "key": "2a312a0bd3fa", "gap": "Rule 9 / Rule 10 / OP violations", "new": true}
+{"ts_et": "2026-06-28T17:30:40", "key": "9959743bc274", "gap": "Hidden second-order effects", "new": true}
+{"ts_et": "2026-06-28T17:30:40", "key": "b90c8d8e5709", "gap": "Risk score", "new": true}
+{"ts_et": "2026-06-28T17:30:40", "key": "c1b7adf86d7e", "gap": "Single most-important question the human reviewer should ask before shipping", "new": true}
+{"ts_et": "2026-06-28T17:30:40", "key": "278b2d399b91", "gap": "Gamma lacks automated statistical significance checking for new probes (e.g., flagging n<10 as inconclusive).", "new": true}
+{"ts_et": "2026-06-28T17:30:40", "key": "745e99f55a35", "gap": "Gamma does not continuously compute concentration metrics (top\u20113\u2011day % of net) and alert when concentration exceeds a sa", "new": true}
+{"ts_et": "2026-06-28T17:30:40", "key": "51f0647acead", "gap": "Slippage analysis is limited to two fixed haircuts; no automated sweep across a range of slippage assumptions.", "new": true}
+{"ts_et": "2026-06-28T17:30:40", "key": "e9216805f133", "gap": "Regime\u2011gate thresholds (flat\u2011ribbon spread <30c, VIX [14,20]) are hard\u2011coded and not dynamically re\u2011estimated from recen", "new": true}
+{"ts_et": "2026-06-28T17:30:40", "key": "b4cdfbe24bfe", "gap": "Lessons learned (e.g., directional\u2011anchor lesson) are not automatically ingested to veto proposals that gate on J\u2019s edge", "new": true}
+{"ts_et": "2026-06-29T17:34:46", "key": "05c23e2769a7", "gap": "Analyze the Request:", "new": true}
+{"ts_et": "2026-06-29T17:34:46", "key": "18c19c3856d1", "gap": "Analyze the Context (Recent Commits):", "new": true}
+{"ts_et": "2026-06-29T17:34:46", "key": "e94bd33e8a18", "gap": "Identify Gaps (Brainstorming based on Principles & Context):", "new": true}
+{"ts_et": "2026-06-29T17:34:46", "key": "5d975c4059ee", "gap": "Refine and Rank the Gaps:", "new": true}
+{"ts_et": "2026-06-29T17:34:46", "key": "3a5f0ae270ac", "gap": "Drafting the Response (Iterative refinement for tone):", "new": true}
+{"ts_et": "2026-06-29T17:34:46", "key": "ed6babe87d22", "gap": "Final Polish:", "new": true}
+{"ts_et": "2026-06-29T17:34:46", "key": "5b4cda6058ea", "gap": "Formatting:", "new": true}
+{"ts_et": "2026-06-29T17:34:46", "key": "8dca46428d00", "gap": "Role:", "new": true}
+{"ts_et": "2026-06-29T17:34:46", "key": "7fbb727db4b2", "gap": "Task:", "new": true}
+{"ts_et": "2026-06-29T17:34:46", "key": "ec2727b3b71f", "gap": "Context:", "new": true}
+{"ts_et": "2026-06-29T17:34:46", "key": "b93db90c74e5", "gap": "Constraints:", "new": true}
+{"ts_et": "2026-06-29T17:34:46", "key": "7751ba76d8ee", "gap": "Specific Output Format:", "new": true}
+{"ts_et": "2026-07-01T17:33:35", "key": "3ac7990a8000", "gap": "Question for reviewer", "new": true}
+{"ts_et": "2026-07-01T17:33:35", "key": "06922f4a4da0", "gap": "**Slippage\u2011aware execution** \u2013 All perspectives note that the system \u201cdies on slippage\u201d or suffers execution\u2011quality los", "new": true}
+{"ts_et": "2026-07-01T17:33:35", "key": "ae1d59ee1fd9", "gap": "**Data\u2011feed health monitoring** \u2013 Multiple logs cite \u201cproducer presence\u2011not\u2011consistency\u201d or jitter; a continuous confide", "new": true}
+{"ts_et": "2026-07-01T17:33:35", "key": "e253675ff1db", "gap": "**Lesson\u2011inbox quarantine** \u2013 The drain\u2011and\u2011apply pattern risks mid\u2011session rule changes (Rule\u202f9) and applies untested i", "new": true}
+{"ts_et": "2026-07-01T17:33:35", "key": "881cdc872eb8", "gap": "**Volatility\u2011adaptive sizing/framing** \u2013 Fixed windows or position sizes fail when volatility spikes; an ATR/VIX\u2011scaled ", "new": true}
+{"ts_et": "2026-07-01T17:33:35", "key": "dc3ce976964a", "gap": "**Perspective\u202f2** flags the perpetual\u2011RED state and lack of an automatic circuit\u2011breaker/auto\u2011reset as the most dangerou", "new": true}
+{"ts_et": "2026-07-01T17:33:35", "key": "71c855dba2ce", "gap": "**Perspective\u202f3** zeroes in on an operational oversight: unbounded lesson\u2011inbox CSV growth causing silent crashes, empha", "new": true}
+{"ts_et": "2026-07-01T17:33:35", "key": "9293ae8c07f2", "gap": "**Perspective\u202f4** warns that widening history probes creates a \u201chistory\u2011slippage feedback loop\u201d that overfits and misatt", "new": true}
+{"ts_et": "2026-07-01T17:33:35", "key": "98528d436c54", "gap": "**Perspective\u202f5** enumerates a broad checklist (latency failover, liquidity checks, ML retraining, retry logic, etc.) bu", "new": true}
+{"ts_et": "2026-07-02T17:31:15", "key": "979115db2100", "gap": "Automated lesson application", "new": true}
+{"ts_et": "2026-07-02T17:31:15", "key": "c85b3b43d21e", "gap": "Real-time risk management beyond GEX-calendar-gating", "new": true}
+{"ts_et": "2026-07-02T17:31:15", "key": "e32e5c3669c2", "gap": "Automated backup and state recovery", "new": true}
+{"ts_et": "2026-07-02T17:31:15", "key": "c02831c0f5dc", "gap": "Real-time model drift detection", "new": true}
+{"ts_et": "2026-07-02T17:31:15", "key": "28a967437ed6", "gap": "Execution quality monitoring", "new": true}
+{"ts_et": "2026-07-02T17:31:15", "key": "cd66676b8b55", "gap": "Integration of the promoter", "new": true}
+{"ts_et": "2026-07-02T17:31:15", "key": "bba877ba71d4", "gap": "Mid\u2011day Discord pings", "new": true}
+{"ts_et": "2026-07-02T17:31:15", "key": "1c696731a3fa", "gap": "Lock\u2011out of the nightly\u2011fire", "new": true}
+{"ts_et": "2026-07-02T17:31:15", "key": "416077b97cd6", "gap": "The current dead\u2011knob/reconciliation guard is insufficient: it runs only in CI/test, uses static allow\u2011lists, and cannot", "new": true}
+{"ts_et": "2026-07-02T17:31:15", "key": "e52f02ad4c43", "gap": "Research\u2011to\u2011live integration (the \u201cPROMOTER\u2011WRITES\u2011LIVE\u2011KEY\u201d bridge) is not automated, forcing manual J intervention to ", "new": true}
+{"ts_et": "2026-07-02T17:31:15", "key": "a1d269284a5c", "gap": "Lessons learned are not self\u2011applied; they sit in the lesson\u2011inbox awaiting manual follow\u2011up, violating the \u201cself\u2011healin", "new": true}
+{"ts_et": "2026-07-02T17:31:15", "key": "3a338346bff6", "gap": "The system lacks real\u2011time behavioral validation of parameters (string presence \u2260 actual influence on trading logic) and", "new": true}
+{"ts_et": "2026-07-08T17:32:15", "key": "73d623ca5892", "gap": "#1: The \"Zero Fill\" Execution Black Hole (G9).", "new": true}
+{"ts_et": "2026-07-08T17:32:15", "key": "a629e54e0168", "gap": "#2: Vision-Wire Decoupling (V1/V3/V4).", "new": true}
+{"ts_et": "2026-07-08T17:32:15", "key": "ed8f1761376b", "gap": "#3: Recency Blindness (OP-25).", "new": true}
+{"ts_et": "2026-07-08T17:32:15", "key": "708e70d7f6e7", "gap": "#4: The \"Ping J\" Crutch.", "new": true}
+{"ts_et": "2026-07-08T17:32:15", "key": "714af078a7fa", "gap": "#5: Flailing Gate Logic (F1).", "new": true}
+{"ts_et": "2026-07-08T17:32:15", "key": "2e7df4b6ec24", "gap": "#6: Overnight Risk Vacuum (G6).", "new": true}
+{"ts_et": "2026-07-08T17:32:15", "key": "72242fc6797d", "gap": "#7: Environment/Config Drift (G2/G15).", "new": true}
+{"ts_et": "2026-07-08T17:32:15", "key": "4a705db9712b", "gap": "OP\u201112 (Data Integrity)", "new": true}
+{"ts_et": "2026-07-08T17:32:15", "key": "8f1c29f43084", "gap": "Orders are being placed but not reliably filled or verified (G9 shows 0 reconciled fills; adaptive pricing/fill\u2011engine m", "new": true}
+{"ts_et": "2026-07-08T17:32:15", "key": "162827e5f6a6", "gap": "The system lacks real\u2011time market\u2011data latency/staleness handling, leading to entries on outdated prices or missed windo", "new": true}
+{"ts_et": "2026-07-08T17:32:15", "key": "e9e9d8498d08", "gap": "Excessive reliance on manual operator intervention (ping\u2011J on routine signals) undermines autonomy.", "new": true}
+{"ts_et": "2026-07-08T17:32:15", "key": "9f43972cbb9e", "gap": "Critical risk monitors (Greeks/vega exposure, capital\u2011scaling limits, overnight gap bleed) are not automated or enforced", "new": true}
+{"ts_et": "2026-07-09T17:33:57", "key": "f56a984c9ddb", "gap": "Future fleet\u2011wide stop\u2011mode experiments", "new": true}
+{"ts_et": "2026-07-09T17:33:57", "key": "2e366f5f5d79", "gap": "Discord\u2011bridge schema upgrade", "new": true}
+{"ts_et": "2026-07-09T17:33:57", "key": "238a7f5498a0", "gap": "All perspectives agree that Gamma lacks continuous, autonomous validation/reconciliation mechanisms to ensure internal c", "new": true}
+{"ts_et": "2026-07-09T17:33:57", "key": "b5b5959a314d", "gap": "All agree that missing real\u2011time risk guards (hard stop, position\u2011size limits, gate compliance) can lead to Rule\u202f9/10 vi", "new": true}
+{"ts_et": "2026-07-09T17:33:57", "key": "75eff1e12f68", "gap": "All concur that the system should be self\u2011healing: detecting data\u2011feed staleness, order\u2011fill discrepancies, or strategy ", "new": true}
+{"ts_et": "2026-07-09T17:33:57", "key": "591a633c1abd", "gap": "Queries Alpaca for current SPY 0DTE positions and open orders.", "new": true}
+{"ts_et": "2026-07-09T17:33:57", "key": "7e48cbee3741", "gap": "Compares them to the engine\u2019s internal state (from `core\u2011decisions.jsonl` and live position tracker).", "new": true}
+{"ts_et": "2026-07-09T17:33:57", "key": "45d2297c44fc", "gap": "If any mismatch is found, issues a market\u2011order to flatten all positions, writes a timestamped flag to `automation/state", "new": true}
+{"ts_et": "2026-07-09T17:33:57", "key": "0a36112d2599", "gap": "Run this script via Windows Task Scheduler every\u202f30\u202fseconds during market hours (09:30\u201116:00\u202fET).", "new": true}
+{"ts_et": "2026-07-09T17:33:57", "key": "ea7d13db0d10", "gap": "Test today by manually creating a mismatch (e.g., cancel an order via Alpaca) and verify the script flattens and halts w", "new": true}
+{"ts_et": "2026-07-10T17:31:54", "key": "0dcc274af795", "gap": "Real\u2011time OPRA data\u2011health gate", "new": true}
+{"ts_et": "2026-07-10T17:31:54", "key": "a7fbe52a578b", "gap": "Cross\u2011asset regime detector", "new": true}
+{"ts_et": "2026-07-10T17:31:54", "key": "d3e923c629ac", "gap": "Online hyper\u2011parameter tuner", "new": true}
+{"ts_et": "2026-07-10T17:31:54", "key": "f5a3015031e9", "gap": "Centralized model\u2011health observability", "new": true}
+{"ts_et": "2026-07-10T17:31:54", "key": "03893d6c5df2", "gap": "Pre\u2011market stress\u2011test harness", "new": true}
+{"ts_et": "2026-07-10T17:31:54", "key": "933de658b8a1", "gap": "Self\u2011healing data\u2011pipeline watchdog", "new": true}
+{"ts_et": "2026-07-10T17:31:54", "key": "5608e9f7b991", "gap": "Automated, real\u2011time checks for data freshness/integrity (OPRA cache, recency\u2011confirmation.json) are missing; the system", "new": true}
+{"ts_et": "2026-07-10T17:31:54", "key": "8ca0a23ec4b9", "gap": "When the primary edge is RED\u2011blocked, Gamma should autonomously hunt for a replacement edge (continuous promotion/pipeli", "new": true}
+{"ts_et": "2026-07-10T17:31:54", "key": "f3334a16559d", "gap": "Silent\u2011failure detection is needed: a reconciliation loop that compares broker fills to autopsy/decision logs (or a stat", "new": true}
+{"ts_et": "2026-07-10T17:31:54", "key": "082f2b5c9dd5", "gap": "The Prospector/idea\u2011generation organ must be wired into an automated backtest \u2192 certification \u2192 promotion pipeline so th", "new": true}
+{"ts_et": "2026-07-10T17:31:54", "key": "80bcd3fb234b", "gap": "Position\u2011sizing / min\u2011size logic must be isolated from shared mutable config (params.json) and guarded against corrupt o", "new": true}
+{"ts_et": "2026-07-11T17:31:55", "key": "52b2ccacc304", "gap": "The `orchestrator.py` `is not None` Time Bomb.", "new": true}
+{"ts_et": "2026-07-11T17:31:55", "key": "7419f68591ee", "gap": "Automated Gate-Signal Schema Validation.", "new": true}
+{"ts_et": "2026-07-11T17:31:55", "key": "c742b9139297", "gap": "EOD State Consistency Checker.", "new": true}
+{"ts_et": "2026-07-11T17:31:55", "key": "89e2d8446f6e", "gap": "Twin-Master Correlation Monitoring.", "new": true}
+{"ts_et": "2026-07-11T17:31:55", "key": "2acff6b2f9b5", "gap": "LLM Output Sanitization Layer.", "new": true}
+{"ts_et": "2026-07-11T17:31:55", "key": "40081920dd81", "gap": "Auto-Execution of Overnight Queue.", "new": true}
+{"ts_et": "2026-07-11T17:31:55", "key": "3872d6ea3827", "gap": "Regime-Shift Anchor Invalidation.", "new": true}
+{"ts_et": "2026-07-11T17:31:55", "key": "f44d851e205c", "gap": "All perspectives agree that Project Gamma must eliminate silent gate bugs caused by `is not None` checks, duplicated log", "new": true}
+{"ts_et": "2026-07-11T17:31:55", "key": "83693f39834c", "gap": "All agree that Gamma needs automated validation and testing of gate logic and parameters before they go live, ensuring p", "new": true}
+{"ts_et": "2026-07-11T17:31:55", "key": "6695647ee105", "gap": "All agree that Gamma requires a mechanism to detect silent failures or starvation (zero trades despite signals) in real ", "new": true}
+{"ts_et": "2026-07-11T17:31:55", "key": "c2502f01cc8e", "gap": "A majority (4/5) agree that Gamma should automatically validate that every gate\u2011read field is actually populated by the ", "new": true}
+{"ts_et": "2026-07-12T17:31:50", "key": "f8ae0bd35132", "gap": "Replay and back\u2011testing pipelines", "new": true}
+{"ts_et": "2026-07-12T17:31:50", "key": "90961ae307b0", "gap": "Ribbon\u2011ride ATM override", "new": true}
+{"ts_et": "2026-07-13T17:34:22", "key": "e8080a6f6308", "gap": "All perspectives agree that Project Gamma\u2019s reliance on hard\u2011coded account IDs and scattered configuration creates britt", "new": true}
+{"ts_et": "2026-07-13T17:34:22", "key": "cd8e08cbd620", "gap": "All agree that automated validation/drift detection is missing: configuration drift, fill attribution/P&L reconciliation", "new": true}
+{"ts_et": "2026-07-13T17:34:22", "key": "e27bacaf374e", "gap": "All agree that the recency\u2011confirmation gate is too infrequent (weekly) to catch intra\u2011week edge degradation, and that m", "new": true}
+{"ts_et": "2026-07-13T17:34:22", "key": "d4ffb0d8eb15", "gap": "All agree that the system lacks a single source of truth for account/credential mapping, leading to coordination overhea", "new": true}
+{"ts_et": "2026-07-13T17:34:22", "key": "e1b4777ffc56", "gap": "All agree that better monitoring/alerting (real\u2011time market data, PnL anomalies, API health) is needed to prevent silent", "new": true}
+{"ts_et": "2026-07-13T17:34:22", "key": "495c0aa5ec9f", "gap": "**Edge generation vs. operational hygiene**: Perspective\u202f1 and\u202f3 stress autonomous edge creation/backtesting as a core g", "new": true}

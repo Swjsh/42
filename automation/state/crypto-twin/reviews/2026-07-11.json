@@ -1,10 +1,10 @@
 {
   "date": "2026-07-11",
-  "model_used": "nvidia/nemotron-3-super-120b-a12b:free",
+  "model_used": null,
   "assessment": "HEALTHY",
-  "confidence": 0.95,
+  "confidence": 0.4,
   "flags_raised": [
-    "LOW_PATH_COVERAGE"
+    "NO-LLM fallback: mechanical stats classification, not a qualitative model read"
   ],
-  "summary": "No tick errors and zero incidents today. Action distribution: 116 HOLD, 25 BLOCKED_NO_ACCOUNT, 12 SKIP_NO_SHORT_CRYPTO, 1 ENTERED (forced\u2011entry test flag), 4 MANAGED. Hourly rollups show similar patterns with no errors. Path coverage is 0/9 branches green, indicating limited exercise of decision logic. Human should review test scenarios to increase branch coverage, confirm that BLOCKED_NO_ACCOUNT and SKIP_NO_SHORT_CRYPTO are expected, and ensure any forced\u2011entry test flags are disabled for normal operation."
+  "summary": "NO-LLM stats-only: 273 ticks, 0 tick-errors, 0 incidents, coverage 5/9. (LLM unavailable/invalid: model call succeeded but response did not validate against the required JSON schema)"
 }

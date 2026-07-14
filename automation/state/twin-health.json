@@ -1,25 +1,25 @@
 {
-  "last_tick_et": "2026-07-11T10:18:50.143670",
-  "ticks_today": 125,
-  "last_action": "MANAGED",
+  "last_tick_et": "2026-07-14T15:58:49.352956",
+  "ticks_today": 81,
+  "last_action": "ENTERED",
   "breaker_tripped": false,
   "account_status": "LIVE",
-  "n_orders_lifetime": 1,
+  "n_orders_lifetime": 4,
   "last_error": null,
   "path_coverage": {
     "ENTRY_TP1_TRAIL": {
       "tier": "LIVE",
-      "status": "IN_PROGRESS",
-      "count_today": 0,
-      "last_exercised_utc": "2026-07-11T13:48:50.084022+00:00",
-      "last_result": null
+      "status": "GREEN",
+      "count_today": 2,
+      "last_exercised_utc": "2026-07-14T15:13:49.898126+00:00",
+      "last_result": "GREEN"
     },
     "ENTRY_STRUCTURE_STOP": {
       "tier": "LIVE",
-      "status": "PENDING",
-      "count_today": 0,
-      "last_exercised_utc": null,
-      "last_result": null
+      "status": "IN_PROGRESS",
+      "count_today": 1,
+      "last_exercised_utc": "2026-07-14T19:58:49.352952+00:00",
+      "last_result": "ENTRY_STRUCTURE_STOP: scenario timed out without closing (started 2026-07-14T15:18:49.892019+00:00)"
     },
     "ENTRY_CAT_CAP": {
       "tier": "LIVE",
@@ -51,26 +51,26 @@
     },
     "ENTRY_TP1_TRAIL_BEAR": {
       "tier": "SIM",
-      "status": "NOT_YET_COVERED",
-      "count_today": 0,
-      "last_exercised_utc": null,
-      "last_result": null
+      "status": "GREEN",
+      "count_today": 1,
+      "last_exercised_utc": "2026-07-14T13:25:19.465250+00:00",
+      "last_result": "GREEN"
     },
     "ENTRY_STRUCTURE_STOP_BEAR": {
       "tier": "SIM",
-      "status": "NOT_YET_COVERED",
-      "count_today": 0,
-      "last_exercised_utc": null,
-      "last_result": null
+      "status": "GREEN",
+      "count_today": 1,
+      "last_exercised_utc": "2026-07-14T13:24:21.284014+00:00",
+      "last_result": "GREEN"
     },
     "ENTRY_CAT_CAP_BEAR": {
       "tier": "SIM",
-      "status": "NOT_YET_COVERED",
-      "count_today": 0,
-      "last_exercised_utc": null,
-      "last_result": null
+      "status": "GREEN",
+      "count_today": 1,
+      "last_exercised_utc": "2026-07-14T13:25:38.017154+00:00",
+      "last_result": "GREEN"
     }
   },
-  "branches_green_today": 0,
+  "branches_green_today": 4,
   "incidents_today": 0
 }

@@ -237,6 +237,34 @@ def _structure_stop() -> list[str]:
     ]
 
 
+def _probe_arm(now: dt.datetime) -> list[str]:
+    """PROBE ARM block (2026-07-10, OP-33c): 'PROBE: n entries today, cohorts x/y' -- pure
+    disclosure like _structure_stop(), never tags RED on its own (0 entries is the honest,
+    expected reading on a day with no blocked-cohort ticks). Reads the SAME per-arm
+    decisions.jsonl + probe-count.json every other glance block reads (no new state
+    producer)."""
+    fa = _j(STATE / "fleet" / "accounts.json") or {}
+    probe_cfg = fa.get("probe_arm") or {}
+    if not probe_cfg.get("enabled"):
+        return ["  PROBE: disabled (accounts.json probe_arm.enabled=false)"]
+    arm_id = str(probe_cfg.get("arm_id") or "?")
+    cap = probe_cfg.get("daily_cap", "?")
+    day = now.strftime("%Y-%m-%d")
+    cnt = _j(STATE / "fleet" / arm_id / "probe-count.json") or {}
+    n = cnt.get("count", 0) if str(cnt.get("date")) == day else 0
+
+    cohorts: list[str] = []
+    dec = STATE / "fleet" / arm_id / "decisions.jsonl"
+    for row in _today_rows(dec, day):
+        reason = str(row.get("reason") or "")
+        if reason.startswith("PROBE_ARM cohort=") and row.get("action") in ("ENTER_BEAR", "ENTER_BULL"):
+            tag = reason.split("cohort=", 1)[1].split(" ", 1)[0]
+            if tag not in cohorts:
+                cohorts.append(tag)
+    cohort_str = "/".join(cohorts) if cohorts else "(none)"
+    return [f"  PROBE: {arm_id} {n}/{cap} entries today, cohorts {cohort_str}"]
+
+
 def _arms() -> list[str]:
     """ARMS block: which arms are live=true + flat."""
     fa = _j(STATE / "fleet" / "accounts.json") or {}
@@ -290,6 +318,9 @@ def build() -> str:
 
     out.append("\nEXIT MODE")
     out.extend(_structure_stop())
+
+    out.append("\nPROBE ARM")
+    out.extend(_probe_arm(now))
 
     # one-line bottom verdict: RED if any RED block
     any_red = RED in (sc_tag, eng_tag, fill_tag, lvl_tag, pm_tag)

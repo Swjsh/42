@@ -1,13 +1,13 @@
 {
   "_doc": "Derived from sight-beacon.json (NEVER-BLIND fallback) \u2014 the heartbeat decisions.jsonl was stale/blind. ribbon/price are live via direct REST; no scored setup so production_action=HOLD.",
   "tick_id": null,
-  "date": "2026-06-26",
-  "time_et": "16:15",
-  "spot": 730.75,
+  "date": "2026-07-14",
+  "time_et": "16:02",
+  "spot": 751.94,
   "vix": null,
   "vix_dir": null,
-  "ribbon_stack": "BEAR",
-  "ribbon_spread_cents": 96.6,
+  "ribbon_stack": "BULL",
+  "ribbon_spread_cents": 22.4,
   "htf_15m_stack": null,
   "production_action": "HOLD",
   "bear": {
@@ -22,8 +22,8 @@
     "triggers_fired": [],
     "setup_name": null
   },
-  "written_at": "2026-06-26T16:15:01-0400",
-  "beacon_ts_et": "2026-06-26T16:15:01-04:00",
+  "written_at": "2026-07-14T16:02:02-0400",
+  "beacon_ts_et": "2026-07-14T16:02:02-04:00",
   "data_source": "alpaca_rest_iex",
   "source": "derived-from-beacon-NEVER-BLIND",
   "safe": {
@@ -47,5 +47,23 @@
     }
   },
   "scoring_peak_live": true,
-  "strategies": []
+  "strategies": [],
+  "probe": {
+    "bull": {
+      "passed": false,
+      "score": 0,
+      "triggers_fired": [],
+      "setup_name": null,
+      "blocked_verdict": null,
+      "trigger_level_exact": null
+    },
+    "bear": {
+      "passed": false,
+      "score": 0,
+      "triggers_fired": [],
+      "setup_name": null,
+      "blocked_verdict": null,
+      "trigger_level_exact": null
+    }
+  }
 }

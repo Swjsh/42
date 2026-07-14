@@ -1,56 +1,78 @@
 {
-  "generated_at": "2026-07-08T14:54:58.466652+00:00",
+  "generated_at": "2026-07-14T20:02:01.535168+00:00",
   "band": 0.85,
   "min_sources": 2,
-  "input_points": 16,
-  "count": 3,
+  "input_points": 19,
+  "count": 4,
   "zones": [
     {
-      "center": 747.27,
-      "low": 746.69,
-      "high": 747.7,
+      "center": 750.95,
+      "low": 750.3,
+      "high": 751.4,
       "n_sources": 2,
       "sources": [
-        "gap_magnet",
-        "memory"
+        "memory",
+        "trendline"
       ],
-      "score": 517.0,
+      "score": 728.0,
       "members": [
-        "memory@746.69",
-        "memory@747.41",
-        "gap_magnet@747.7"
+        "memory@750.3",
+        "trendline@750.94",
+        "memory@751.15",
+        "trendline@751.4"
       ]
     },
     {
-      "center": 744.61,
-      "low": 744.23,
-      "high": 745.21,
+      "center": 748.82,
+      "low": 748.0,
+      "high": 749.53,
       "n_sources": 3,
       "sources": [
+        "gap_magnet",
         "memory",
-        "trendline",
         "wick_low"
       ],
-      "score": 441.0,
+      "score": 658.0,
       "members": [
-        "trendline@744.23",
-        "memory@744.4",
-        "wick_low@745.21"
+        "wick_low@748.0",
+        "wick_low@748.66",
+        "memory@748.82",
+        "gap_magnet@749.1",
+        "memory@749.53"
       ]
     },
     {
-      "center": 740.69,
-      "low": 740.46,
-      "high": 740.93,
+      "center": 752.56,
+      "low": 752.32,
+      "high": 753.09,
+      "n_sources": 2,
+      "sources": [
+        "memory",
+        "trendline"
+      ],
+      "score": 632.0,
+      "members": [
+        "memory@752.32",
+        "trendline@752.39",
+        "trendline@752.42",
+        "memory@753.09"
+      ]
+    },
+    {
+      "center": 747.94,
+      "low": 747.15,
+      "high": 748.66,
       "n_sources": 2,
       "sources": [
         "memory",
         "wick_low"
       ],
-      "score": 286.0,
+      "score": 499.0,
       "members": [
-        "memory@740.46",
-        "wick_low@740.93"
+        "memory@747.15",
+        "memory@747.96",
+        "wick_low@748.0",
+        "wick_low@748.66"
       ]
     }
   ],

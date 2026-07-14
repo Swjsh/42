@@ -1,20 +1,20 @@
 {
   "agent": "technical",
-  "generated_at": "2026-06-26T14:17:56Z",
-  "bias": "bullish",
-  "confidence": 0.85,
-  "reasoning": "CLEAN_BULL ribbon with 129c spread (fast 731.2, slow 729.91, stack BULL). Last 3 closed bars (14:00, 14:05, 14:10) all green with full bodies — strong_bull bar structure. Price at 733.21 is 310c above pivot 730.11, confirming bullish momentum above the EMA equilibrium. Overnight gap was down -$1.09 from prior close 734.30, but price has recovered and is now trading well above both pivot and prior close. The ribbon is clean with strong spread, bars are aligned, and price is decisively above pivot — high conviction bullish bias.",
-  "ribbon_verdict": "CLEAN_BULL",
-  "ribbon_spread_cents": 129,
-  "bar_structure": "strong_bull",
+  "generated_at": "2026-07-14T08:15:04Z",
+  "bias": "no_trade",
+  "confidence": 0.25,
+  "reasoning": "WEAK_BULL ribbon (10c spread below 20c threshold), mixed bar structure (2 green/1 red last 3 bars), price 19c above pivot but data is stale (from 2026-07-06 vs current 2026-07-14). Cannot establish reliable bias with stale chart data and weak ribbon structure.",
+  "ribbon_verdict": "WEAK_BULL",
+  "ribbon_spread_cents": 10,
+  "bar_structure": "mixed",
   "price_vs_pivot": "above",
-  "overnight_gap_dir": "down",
+  "overnight_gap_dir": "unknown",
   "key_observations": [
-    "CLEAN_BULL ribbon: stack=BULL, spread=129c (fast 731.2 > slow 729.91)",
-    "Last 3 closed bars (14:00-14:10): all green, full bodies, consecutive higher closes",
-    "Price 733.21 is 310c above pivot 730.11 — strong bullish momentum",
-    "Overnight gap: down -$1.09 from prior close 734.30, but price recovered through premarket low 727.4",
-    "VIX falling to 19.17 (MID regime) supports risk-on environment"
+    "Ribbon stack=BULL but spread only 10c (below 20c clean threshold)",
+    "Last 3 bars: 11:10 green (748.34), 11:05 green (748.17), 11:00 red (748.11) — mixed structure",
+    "Current price 748.38 is 19c above pivot 748.19 — bullish momentum but weak ribbon",
+    "Data fetched_at 2026-07-06T13:43:30Z is 8 days stale vs current 2026-07-14",
+    "spy_context shows prior_session_close=null, overnight gap direction unknown"
   ],
-  "data_quality": "full"
+  "data_quality": "minimal"
 }

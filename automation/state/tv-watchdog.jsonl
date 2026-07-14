@@ -1,1 +1,229 @@
 ﻿{"ts":"2026-06-24T02:27:17Z","et":"2026-06-23 22:26","cdp_up":false,"tv_action":"relaunch_fresh","tv_detail":"no TV process and CDP dead - launching","heartbeat":"na"}
+{"ts":"2026-06-29T13:40:04Z","et":"2026-06-29 09:40","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5524min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T13:50:04Z","et":"2026-06-29 09:50","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5534min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T14:00:04Z","et":"2026-06-29 10:00","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5544min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T14:10:04Z","et":"2026-06-29 10:10","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5554min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T14:20:04Z","et":"2026-06-29 10:20","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5564min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T14:30:04Z","et":"2026-06-29 10:30","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5574min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T14:40:04Z","et":"2026-06-29 10:40","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5584min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T14:50:04Z","et":"2026-06-29 10:50","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5594min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T15:00:04Z","et":"2026-06-29 11:00","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5604min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T15:10:04Z","et":"2026-06-29 11:10","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5614min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T15:20:04Z","et":"2026-06-29 11:20","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5624min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T15:30:04Z","et":"2026-06-29 11:30","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5634min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T15:40:04Z","et":"2026-06-29 11:40","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5644min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T15:50:04Z","et":"2026-06-29 11:50","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5654min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T16:00:04Z","et":"2026-06-29 12:00","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5664min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T16:10:04Z","et":"2026-06-29 12:10","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5674min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T16:20:04Z","et":"2026-06-29 12:20","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5684min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T16:30:04Z","et":"2026-06-29 12:30","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5694min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T16:40:04Z","et":"2026-06-29 12:40","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5704min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T16:50:04Z","et":"2026-06-29 12:50","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5714min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T17:00:04Z","et":"2026-06-29 13:00","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5724min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T17:10:04Z","et":"2026-06-29 13:10","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5734min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T17:20:04Z","et":"2026-06-29 13:20","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5744min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T17:30:04Z","et":"2026-06-29 13:30","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5754min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T17:40:04Z","et":"2026-06-29 13:40","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5764min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T17:50:04Z","et":"2026-06-29 13:50","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5774min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T18:00:04Z","et":"2026-06-29 14:00","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5784min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T18:10:04Z","et":"2026-06-29 14:10","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5794min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T18:20:04Z","et":"2026-06-29 14:20","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5804min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T18:30:04Z","et":"2026-06-29 14:30","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5814min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T18:40:04Z","et":"2026-06-29 14:40","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5824min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T18:50:04Z","et":"2026-06-29 14:50","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5834min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T19:00:04Z","et":"2026-06-29 15:00","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5844min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T19:10:04Z","et":"2026-06-29 15:10","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5854min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T19:20:04Z","et":"2026-06-29 15:20","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5864min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T19:30:04Z","et":"2026-06-29 15:30","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5874min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T19:40:04Z","et":"2026-06-29 15:40","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5884min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-06-29T19:50:04Z","et":"2026-06-29 15:50","cdp_up":true,"tv_action":"relaunch_hung_bridge","tv_detail":"CDP alive but heartbeat stale 5894min — hung bridge, force-restarting TV","heartbeat":"unknown"}
+{"ts":"2026-07-01T14:43:38Z","et":"2026-07-01 10:40","cdp_up":false,"tv_action":"relaunch_fresh","tv_detail":"no TV process and CDP dead - launching","heartbeat":"fresh"}
+{"ts":"2026-07-06T20:55:12Z","et":"2026-07-06 09:58","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 833s - kill+relaunch","heartbeat":"STALE_47min"}
+{"ts":"2026-07-07T13:13:57Z","et":"2026-07-07 09:13","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 827s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-07T13:18:57Z","et":"2026-07-07 09:18","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 1127s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-07T13:23:57Z","et":"2026-07-07 09:23","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 1427s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-07T13:28:57Z","et":"2026-07-07 09:28","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 1727s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-07T13:33:57Z","et":"2026-07-07 09:33","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 2027s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-07T13:38:57Z","et":"2026-07-07 09:38","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 2327s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T13:48:57Z","et":"2026-07-07 09:48","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 372s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T13:53:57Z","et":"2026-07-07 09:53","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 672s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T13:58:57Z","et":"2026-07-07 09:58","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 973s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T14:03:57Z","et":"2026-07-07 10:03","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 1273s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T14:08:57Z","et":"2026-07-07 10:08","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 1572s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T14:13:57Z","et":"2026-07-07 10:13","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 1872s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T14:18:57Z","et":"2026-07-07 10:18","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 2172s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T14:23:57Z","et":"2026-07-07 10:23","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 2472s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T14:28:57Z","et":"2026-07-07 10:28","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 2772s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T14:33:57Z","et":"2026-07-07 10:33","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 3072s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T14:38:57Z","et":"2026-07-07 10:38","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 3372s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T14:43:57Z","et":"2026-07-07 10:43","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 3672s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T14:48:57Z","et":"2026-07-07 10:48","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 3972s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T14:53:57Z","et":"2026-07-07 10:53","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 4272s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T14:58:57Z","et":"2026-07-07 10:58","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 4572s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T15:03:57Z","et":"2026-07-07 11:03","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 4872s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T15:08:57Z","et":"2026-07-07 11:08","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 5172s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T15:13:57Z","et":"2026-07-07 11:13","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 5472s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T15:18:57Z","et":"2026-07-07 11:18","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 5772s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T15:23:57Z","et":"2026-07-07 11:23","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 6072s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T15:28:57Z","et":"2026-07-07 11:28","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 6372s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T15:33:57Z","et":"2026-07-07 11:33","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 6672s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T15:38:57Z","et":"2026-07-07 11:38","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 6972s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T15:43:57Z","et":"2026-07-07 11:43","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 7272s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T15:48:57Z","et":"2026-07-07 11:48","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 7572s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T15:53:57Z","et":"2026-07-07 11:53","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 7872s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T15:58:57Z","et":"2026-07-07 11:58","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 8172s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T16:03:57Z","et":"2026-07-07 12:03","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 8472s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T16:08:57Z","et":"2026-07-07 12:08","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 8772s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T16:13:57Z","et":"2026-07-07 12:13","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 9072s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T16:18:57Z","et":"2026-07-07 12:18","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 9372s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T16:23:57Z","et":"2026-07-07 12:23","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 9672s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T16:28:57Z","et":"2026-07-07 12:28","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 9972s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T16:33:57Z","et":"2026-07-07 12:33","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 10272s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T16:38:57Z","et":"2026-07-07 12:38","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 10572s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T16:43:57Z","et":"2026-07-07 12:43","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 10872s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T16:48:57Z","et":"2026-07-07 12:48","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 11172s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T16:53:57Z","et":"2026-07-07 12:53","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 11472s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T16:58:57Z","et":"2026-07-07 12:58","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 11772s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T17:03:57Z","et":"2026-07-07 13:03","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 12072s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T17:08:57Z","et":"2026-07-07 13:08","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 12372s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T17:13:57Z","et":"2026-07-07 13:13","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 12672s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T17:18:57Z","et":"2026-07-07 13:18","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 12972s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T17:23:57Z","et":"2026-07-07 13:23","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 13272s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T17:28:57Z","et":"2026-07-07 13:28","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 13572s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T17:33:57Z","et":"2026-07-07 13:33","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 13872s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T17:38:57Z","et":"2026-07-07 13:38","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 14172s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T17:43:57Z","et":"2026-07-07 13:43","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 14472s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T17:48:57Z","et":"2026-07-07 13:48","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 14772s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T17:53:57Z","et":"2026-07-07 13:53","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 15072s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T17:58:57Z","et":"2026-07-07 13:58","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 15372s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T18:03:57Z","et":"2026-07-07 14:03","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 15672s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T18:08:57Z","et":"2026-07-07 14:08","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 15972s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T18:13:57Z","et":"2026-07-07 14:13","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 16272s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T18:18:57Z","et":"2026-07-07 14:18","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 16572s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T18:23:57Z","et":"2026-07-07 14:23","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 16872s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T18:28:57Z","et":"2026-07-07 14:28","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 17172s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T18:33:57Z","et":"2026-07-07 14:33","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 17472s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T18:38:57Z","et":"2026-07-07 14:38","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 17772s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T18:43:57Z","et":"2026-07-07 14:43","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 18072s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T18:48:57Z","et":"2026-07-07 14:48","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 18372s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T18:53:57Z","et":"2026-07-07 14:53","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 18672s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T18:58:57Z","et":"2026-07-07 14:58","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 18973s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T19:03:57Z","et":"2026-07-07 15:03","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 19272s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T19:08:57Z","et":"2026-07-07 15:08","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 19572s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T19:13:57Z","et":"2026-07-07 15:13","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 19872s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T19:18:57Z","et":"2026-07-07 15:18","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 20172s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T19:23:57Z","et":"2026-07-07 15:23","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 20472s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T19:28:57Z","et":"2026-07-07 15:28","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 20772s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T19:33:57Z","et":"2026-07-07 15:33","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 21072s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T19:38:57Z","et":"2026-07-07 15:38","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 21372s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T19:43:57Z","et":"2026-07-07 15:43","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 21672s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T19:48:57Z","et":"2026-07-07 15:48","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 21972s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T19:53:57Z","et":"2026-07-07 15:53","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 22272s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-07T19:58:57Z","et":"2026-07-07 15:58","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 22572s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-07T20:03:57Z","et":"2026-07-07 16:03","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 22872s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-07T20:08:57Z","et":"2026-07-07 16:08","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 23172s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-07T20:13:57Z","et":"2026-07-07 16:13","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 23472s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-07T20:18:57Z","et":"2026-07-07 16:18","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 23772s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-07T20:23:57Z","et":"2026-07-07 16:23","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 24072s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-07T20:28:57Z","et":"2026-07-07 16:28","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 24372s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-07T20:33:57Z","et":"2026-07-07 16:33","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 24672s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-07T20:38:57Z","et":"2026-07-07 16:38","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 24972s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-07T20:43:57Z","et":"2026-07-07 16:43","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 25272s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-07T20:48:57Z","et":"2026-07-07 16:48","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 25572s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-07T20:53:57Z","et":"2026-07-07 16:53","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 25872s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T12:05:04Z","et":"2026-07-08 08:05","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 80539s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T12:10:04Z","et":"2026-07-08 08:10","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 80840s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T12:15:04Z","et":"2026-07-08 08:15","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 81140s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T12:20:04Z","et":"2026-07-08 08:20","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 81440s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T12:25:04Z","et":"2026-07-08 08:25","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 81740s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T12:30:04Z","et":"2026-07-08 08:30","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 82040s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T12:35:04Z","et":"2026-07-08 08:35","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 82340s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T12:40:04Z","et":"2026-07-08 08:40","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 82640s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T12:45:04Z","et":"2026-07-08 08:45","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 82940s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T12:50:04Z","et":"2026-07-08 08:50","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 83240s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T12:55:04Z","et":"2026-07-08 08:55","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 83540s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T13:00:04Z","et":"2026-07-08 09:00","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 83840s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T13:05:04Z","et":"2026-07-08 09:05","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 84140s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T13:10:04Z","et":"2026-07-08 09:10","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 84439s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T13:15:04Z","et":"2026-07-08 09:15","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 84740s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T13:20:04Z","et":"2026-07-08 09:20","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 85039s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T13:25:04Z","et":"2026-07-08 09:25","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 85340s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T13:30:04Z","et":"2026-07-08 09:30","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 85639s - kill+relaunch","heartbeat":"na"}
+{"ts":"2026-07-08T13:35:05Z","et":"2026-07-08 09:35","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 85940s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T13:40:04Z","et":"2026-07-08 09:40","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 86239s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T13:45:04Z","et":"2026-07-08 09:45","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 86539s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T13:50:04Z","et":"2026-07-08 09:50","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 86839s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T13:55:04Z","et":"2026-07-08 09:55","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 87139s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T14:00:04Z","et":"2026-07-08 10:00","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 87439s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T14:05:04Z","et":"2026-07-08 10:05","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 87739s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T14:10:04Z","et":"2026-07-08 10:10","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 88039s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T14:15:04Z","et":"2026-07-08 10:15","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 88339s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T14:20:04Z","et":"2026-07-08 10:20","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 88639s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T14:25:04Z","et":"2026-07-08 10:25","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 88939s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T14:30:04Z","et":"2026-07-08 10:30","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 89239s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T14:35:04Z","et":"2026-07-08 10:35","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 89539s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T14:40:04Z","et":"2026-07-08 10:40","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 89839s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T14:45:04Z","et":"2026-07-08 10:45","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 90139s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T14:50:04Z","et":"2026-07-08 10:50","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 90439s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T14:55:04Z","et":"2026-07-08 10:55","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 90739s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T15:00:04Z","et":"2026-07-08 11:00","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 91039s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T15:05:04Z","et":"2026-07-08 11:05","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 91339s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T15:10:04Z","et":"2026-07-08 11:10","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 91639s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T15:15:04Z","et":"2026-07-08 11:15","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 91939s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T15:20:04Z","et":"2026-07-08 11:20","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 92239s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T15:25:04Z","et":"2026-07-08 11:25","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 92539s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T15:30:04Z","et":"2026-07-08 11:30","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 92839s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T15:35:04Z","et":"2026-07-08 11:35","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 93139s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T15:40:04Z","et":"2026-07-08 11:40","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 93439s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T15:45:04Z","et":"2026-07-08 11:45","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 93739s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T15:50:04Z","et":"2026-07-08 11:50","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 94039s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T15:55:04Z","et":"2026-07-08 11:55","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 94339s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T16:00:04Z","et":"2026-07-08 12:00","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 94639s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T16:05:04Z","et":"2026-07-08 12:05","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 94939s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T16:10:04Z","et":"2026-07-08 12:10","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 95239s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T16:15:04Z","et":"2026-07-08 12:15","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 95539s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T16:20:04Z","et":"2026-07-08 12:20","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 95839s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T16:25:04Z","et":"2026-07-08 12:25","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 96139s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T16:30:04Z","et":"2026-07-08 12:30","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 96439s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T16:35:04Z","et":"2026-07-08 12:35","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 96739s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T16:40:04Z","et":"2026-07-08 12:40","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 97039s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T16:45:04Z","et":"2026-07-08 12:45","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 97339s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T16:50:04Z","et":"2026-07-08 12:50","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 97639s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T16:55:04Z","et":"2026-07-08 12:55","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 97939s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T17:00:04Z","et":"2026-07-08 13:00","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 98239s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T17:05:04Z","et":"2026-07-08 13:05","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 98539s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T17:10:04Z","et":"2026-07-08 13:10","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 98839s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T17:15:04Z","et":"2026-07-08 13:15","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 99139s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T17:20:04Z","et":"2026-07-08 13:20","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 99439s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T17:25:04Z","et":"2026-07-08 13:25","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 99739s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T17:30:04Z","et":"2026-07-08 13:30","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 100039s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T17:35:04Z","et":"2026-07-08 13:35","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 100339s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T17:40:04Z","et":"2026-07-08 13:40","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 100639s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T17:45:04Z","et":"2026-07-08 13:45","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 100939s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T17:50:04Z","et":"2026-07-08 13:50","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 101239s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T17:55:04Z","et":"2026-07-08 13:55","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 101539s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T18:00:04Z","et":"2026-07-08 14:00","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 101839s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T18:05:04Z","et":"2026-07-08 14:05","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 102139s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T18:10:04Z","et":"2026-07-08 14:10","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 102439s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T18:15:05Z","et":"2026-07-08 14:15","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 102739s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T18:20:04Z","et":"2026-07-08 14:20","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 103039s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T18:25:04Z","et":"2026-07-08 14:25","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 103339s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T18:30:04Z","et":"2026-07-08 14:30","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 103639s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T18:35:04Z","et":"2026-07-08 14:35","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 103939s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T18:40:04Z","et":"2026-07-08 14:40","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 104239s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T18:45:04Z","et":"2026-07-08 14:45","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 104539s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T18:50:04Z","et":"2026-07-08 14:50","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 104839s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T18:55:04Z","et":"2026-07-08 14:55","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 105139s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T19:00:04Z","et":"2026-07-08 15:00","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 105439s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T19:05:04Z","et":"2026-07-08 15:05","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 105739s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T19:10:04Z","et":"2026-07-08 15:10","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 106039s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T19:15:04Z","et":"2026-07-08 15:15","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 106339s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T19:20:04Z","et":"2026-07-08 15:20","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 106639s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T19:25:04Z","et":"2026-07-08 15:25","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 106939s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T19:30:04Z","et":"2026-07-08 15:30","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 107239s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T19:35:04Z","et":"2026-07-08 15:35","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 107539s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T19:40:04Z","et":"2026-07-08 15:40","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 107839s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T19:45:04Z","et":"2026-07-08 15:45","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 108139s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T19:50:04Z","et":"2026-07-08 15:50","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 108439s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T19:55:04Z","et":"2026-07-08 15:55","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 108739s - kill+relaunch","heartbeat":"fresh"}
+{"ts":"2026-07-08T20:00:04Z","et":"2026-07-08 16:00","cdp_up":false,"tv_action":"relaunch_kill","tv_detail":"TV up but CDP dead for 109039s - kill+relaunch","heartbeat":"na"}

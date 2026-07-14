@@ -1,6 +1,6 @@
 {
   "skill": "pin-chain-verify",
-  "run_at": "2026-06-25T14:30:34",
+  "run_at": "2026-07-13T14:30:18",
   "verdict": "YELLOW",
   "reason": "aggressive-variant-intentionally-divergent-1-warning(s)",
   "canonical_rule_version": "v15.3",

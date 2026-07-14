@@ -88,6 +88,11 @@ class Level:
     role_flips: int
     first_seen_idx: int
     last_touch_idx: int
+    # Bar index of the MOST RECENT causal role flip (see _score_and_role), or -1 if the
+    # level has never flipped. Feeds detect_role_flip's sustain-confirmation gate (T7,
+    # 2026-07-09). Defaulted so existing keyword-only Level(...) call sites (tests, the
+    # producer's _lvl() helper) keep working unchanged.
+    last_flip_idx: int = -1
 
 
 @dataclass(frozen=True)
@@ -182,6 +187,7 @@ def _score_and_role(
     bars_consol = 0
     role_flips = 0
     last_touch_idx = first_idx
+    last_flip_idx = -1  # -1 = never flipped (see Level.last_flip_idx)
 
     # Initialize role from the FIRST decisive close relative to the level.
     # Until a decisive close occurs, infer role from where price mostly sits.
@@ -215,9 +221,11 @@ def _score_and_role(
         if role == "resistance" and cl >= level_price + BREAK_MARGIN:
             role = "support"
             role_flips += 1
+            last_flip_idx = i
         elif role == "support" and cl <= level_price - BREAK_MARGIN:
             role = "resistance"
             role_flips += 1
+            last_flip_idx = i
 
     memory_score = float(touches + wicks + bars_consol + 2.0 * role_flips)
 
@@ -231,6 +239,7 @@ def _score_and_role(
         role_flips=role_flips,
         first_seen_idx=first_idx,
         last_touch_idx=last_touch_idx,
+        last_flip_idx=last_flip_idx,
     )
 
 
@@ -284,11 +293,13 @@ class LevelMemory:
             lvl = _score_and_role(window, lvl_price, member_idxs, win_up_to)
             if lvl is None:
                 continue
-            # translate window-relative indices back to absolute
+            # translate window-relative indices back to absolute (last_flip_idx stays -1
+            # -- "never flipped" -- if it was never set; only shift a real index)
             lvl = replace(
                 lvl,
                 first_seen_idx=lvl.first_seen_idx + start,
                 last_touch_idx=lvl.last_touch_idx + start,
+                last_flip_idx=(lvl.last_flip_idx + start if lvl.last_flip_idx >= 0 else -1),
             )
             levels.append(lvl)
 
@@ -382,6 +393,89 @@ class LevelMemory:
             nearest=nearest,
             interaction=interaction,
         )
+
+
+# ── Sustained role-flip confirmation (T7, 2026-07-09, SHADOW-ONLY) ───────────
+# J's real edge (verified 2026-07-07 -> 2026-07-08): the 745.40 shelf was support on 07-07,
+# broke overnight, and was THEREFORE resistance on 07-08 -- confirmed live by the 13:30 ET
+# tag-746.09 / close-744.39 rejection. `_score_and_role` above already flips `role` causally
+# on the FIRST decisive close (BREAK_MARGIN) -- correct for SCORING memory (a level that keeps
+# getting re-tested is more battle-tested, hence `role_flips`), but too eager to REPORT as a
+# confirmed regime change: a single 15c close through a level that reverts next bar is noise,
+# not "745.40 is resistance now." That single-bar eagerness is exactly what produces the
+# whipsaw `role_flips` counts already seen in production (10-25 flips per level over 10 days).
+#
+# detect_role_flip() adds a SECOND, stricter, opt-in confirmation gate for EXTERNAL reporting
+# (key-levels-memory.json's flipped_at/provenance) -- it never touches `Level.role` itself,
+# which stays the fast/causal signal role_flips already scores against. It works off
+# `last_flip_idx` (the bar index of the level's most-recent causal flip, threaded through
+# _score_and_role above): if no bar since last_flip_idx caused ANOTHER flip (by construction,
+# since role_flips would have advanced last_flip_idx again), the role has HELD since then --
+# "sustained" == up_to_idx - last_flip_idx + 1 >= sustain_bars.
+#
+#   ROLE_FLIP_SUSTAIN_BARS = 3   -- 3 consecutive 5m bars (15 min) with the role unchanged
+#     since the flip. Long enough to reject a single wick-and-revert (the exact failure mode
+#     BREAK_MARGIN alone allows through) but short enough to confirm INTRADAY, not EOD: the
+#     real 745.40 flip held from the 07-08 premarket break all the way through the 13:30
+#     rejection it explains -- thousands of times longer than 3 bars, but 3 is the minimum
+#     that would have called it BEFORE the 09:30 open.
+#   ROLE_FLIP_MEMORY_THRESHOLD = 50.0 -- only confirmed-flip-tag well-tested levels, between
+#     the producer's MIN_MEMORY=20 selection floor and its STRONG_MEMORY=60 "Active" tier cut.
+#     Untested levels flip too often (low memory_score correlates with few touches/wicks, i.e.
+#     an unproven price) to be worth alerting J on. 50 is also literally the number in J's own
+#     worked 07-08 read: the 745-area level cluster scores in the 120-160 range, comfortably
+#     above 50, while noise-tier levels sit under 20 and never reach this gate at all.
+ROLE_FLIP_SUSTAIN_BARS: int = 3
+ROLE_FLIP_MEMORY_THRESHOLD: float = 50.0
+
+
+def detect_role_flip(
+    level: "Level",
+    df: pd.DataFrame,
+    up_to_idx: int,
+    *,
+    sustain_bars: int = ROLE_FLIP_SUSTAIN_BARS,
+    memory_threshold: float = ROLE_FLIP_MEMORY_THRESHOLD,
+) -> tuple[str, "str | None", "str | None"]:
+    """PURE, no I/O. Returns (role, flipped_at_iso_et, provenance) for `level` as of up_to_idx.
+
+    `df` must be the SAME frame `level`'s indices were computed against (i.e. `LevelMemory.df`,
+    already tz-converted to America/New_York -- pass ET timestamps in, get an ET ISO string out;
+    never hand-roll a UTC offset here).
+
+    Semantics:
+      - memory_score < memory_threshold, or the level has never flipped (role_flips == 0 /
+        last_flip_idx < 0): the confirmation gate does not apply. Returns (level.role, None, None)
+        unchanged -- there is nothing to confirm or deny.
+      - The most recent flip has NOT held for `sustain_bars` bars yet (up_to_idx too close to
+        last_flip_idx): NOT confirmed. Returns the level's PRIOR role (support<->resistance is
+        binary, so "not this" == "the other one") with no flipped_at/provenance -- i.e. treat a
+        too-fresh flip as still-the-old-regime rather than propagate single-bar noise outward.
+      - The flip HAS held >= sustain_bars: CONFIRMED. Returns (level.role, <ISO ET timestamp of
+        the flip bar>, <provenance string>).
+
+    Look-ahead-safe: only ever reads df rows at indices <= up_to_idx.
+    """
+    if level.memory_score < memory_threshold or level.role_flips <= 0 or level.last_flip_idx < 0:
+        return level.role, None, None
+
+    bars_since_flip = up_to_idx - level.last_flip_idx + 1
+    if bars_since_flip < sustain_bars:
+        prior_role = "support" if level.role == "resistance" else "resistance"
+        return prior_role, None, None
+
+    ts = df["timestamp_et"].iloc[level.last_flip_idx]
+    flipped_at = ts.isoformat() if hasattr(ts, "isoformat") else str(ts)
+    # role == "resistance" means the flip that put it there was a decisive close BELOW the
+    # level (support broke down -> resistance); role == "support" means a decisive close ABOVE
+    # (resistance broke up -> support). See the _score_and_role flip branches above.
+    side = "below" if level.role == "resistance" else "above"
+    provenance = (
+        f"closed {side} {level.price:.2f} for {bars_since_flip} consecutive 5m bars "
+        f"starting {flipped_at}, memory_score={level.memory_score:.0f} >= "
+        f"threshold {memory_threshold:.0f}"
+    )
+    return level.role, flipped_at, provenance
 
 
 # ── G5 alert leg (2026-07-08): notify J on a high-memory-level REJECTION ──────────────────

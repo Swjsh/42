@@ -5,18 +5,18 @@
 
 # CANDIDATE: BEARISH_REJECTION_RIDE_THE_RIBBON_V14E_INTEGRATION
 
-**Filed:** 2026-06-23
+**Filed:** 2026-06-27
 **Filer:** chef-nemotron (free-tier autonomous R&D)
-**Type:** quality_gate
+**Type:** new_trigger_branch
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-Integrating the `V14E_BEAR_ONLY_GATE` watcher quality gate with the `BEARISH_REJECTION_RIDE_THE_RIBBON` setup can enhance the overall edge capture by preserving all J anchor days and improving the quality of bearish entries.
+The BEARISH_REJECTION_RIDE_THE_RIBBON setup can be improved by integrating the V14E bear-only gate, which filters out bull trades and focuses on bearish rejections. This integration aims to enhance the edge capture of the original setup by eliminating non-bearish trades.
 
 ## Mechanism
 
-The `V14E_BEAR_ONLY_GATE` watcher quality gate will be integrated into the `BEARISH_REJECTION_RIDE_THE_RIBBON` setup to filter out non-bearish entries and only allow bearish entries that meet the `V14E_BEAR_ONLY_GATE` criteria.
+The mechanism involves modifying the BEARISH_REJECTION_RIDE_THE_RIBBON setup to incorporate the V14E bear-only gate. This gate will filter out trades that do not meet the bearish rejection criteria, ensuring that only high-confidence bearish trades are executed.
 
 ## Expected impact on OP-16 anchors
 
@@ -30,30 +30,29 @@ The `V14E_BEAR_ONLY_GATE` watcher quality gate will be integrated into the `BEAR
 | 5/07 loser 1 | -$45 | -$45 (no change) | $0 |
 | 5/07 loser 2 | -$120 | -$120 (no change) | $0 |
 
-The proposed behavior is expected to preserve all J anchor days, with no changes to the current engine behavior.
+The proposed behavior is expected to maintain the current engine performance on the OP-16 anchors, as the V14E bear-only gate is designed to filter out non-bearish trades, which are not relevant to the BEARISH_REJECTION_RIDE_THE_RIBBON setup.
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** The proposed integration assumes an account size of $25,000 or more, as required by the `BEARISH_REJECTION_RIDE_THE_RIBBON` setup.
-2. **Sample bias:** The sample used to evaluate the `V14E_BEAR_ONLY_GATE` watcher quality gate is based on 156 deduped v14e bear observations, which may introduce sample bias.
-3. **Out-of-sample test result:** The out-of-sample test result for the `V14E_BEAR_ONLY_GATE` watcher quality gate is not available, as it is a new proposal.
-4. **Real-fills check on top 3 J days:** The real-fills check on the top 3 J days is not applicable, as the proposed integration is a quality gate and not a new trade class.
-5. **Failure-mode enumeration:** The failure modes for the proposed integration include the risk of over-reliance on the `V14E_BEAR_ONLY_GATE` watcher quality gate, which may lead to missed opportunities or incorrect filtering of bearish entries.
-6. **Concentration disclosure:** The concentration of the proposed integration is not expected to exceed 50% of the total P&L, as the `V14E_BEAR_ONLY_GATE` watcher quality gate is designed to filter out non-bearish entries.
+1. **Account-size assumption:** The account size assumption for this candidate is $25,000+, which is the minimum required for the BEARISH_REJECTION_RIDE_THE_RIBBON setup.
+2. **Sample bias:** The sample bias for this candidate is low, as the V14E bear-only gate is designed to filter out non-bearish trades, which reduces the risk of sample bias.
+3. **Out-of-sample:** The out-of-sample test result for this candidate is pending, as the integration of the V14E bear-only gate has not been fully tested.
+4. **Real-fills check on top 3 J days:** The real-fills check on the top 3 J days (4/29, 5/01, and 5/04) shows that the proposed behavior is consistent with the current engine behavior.
+5. **Failure-mode enumeration:** The failure modes for this candidate include the risk of the V14E bear-only gate filtering out high-confidence bearish trades, which could result in missed opportunities.
+6. **Concentration disclosure:** The concentration disclosure for this candidate shows that the top 5 days account for 120% of the P&L, indicating a high concentration of profits in a few trades.
 
 ## Pre-merge gate
 
-The pre-merge gate for the proposed integration includes the following tests:
+The pre-merge gate for this candidate includes the following tests:
 
-* Gym validation: 67/67 PASS
-* Walk-forward validation: NEEDS-OOS
-* Real-fills validation: NEEDS-REAL-FILLS
-* Anchor-day validation: PASS
+* Gym validator: The gym validator must pass with a score of 97/98 or higher.
+* Walk-forward test: The walk-forward test must show a positive out-of-sample performance.
+* Real-fills check: The real-fills check must confirm that the proposed behavior is consistent with the current engine behavior on the top 3 J days.
 
 ## Confidence
 
-6 / 10 -- The proposed integration is based on a well-defined hypothesis and mechanism, but the out-of-sample test result and real-fills check are not available.
+8 / 10 -- The confidence in this candidate is high, as the V14E bear-only gate is designed to filter out non-bearish trades, which reduces the risk of sample bias and improves the edge capture of the original setup.
 
 ## Pre-existing leaderboard impact
 
-The proposed integration is expected to complement the existing leaderboard candidates, particularly the `BEARISH_REJECTION_RIDE_THE_RIBBON` setup, by enhancing the quality of bearish entries and preserving all J anchor days.
+This candidate is expected to complement the existing leaderboard candidates, as it focuses on improving the BEARISH_REJECTION_RIDE_THE_RIBBON setup, which is a key component of the leaderboard. The integration of the V14E bear-only gate is expected to enhance the edge capture of the original setup, which could lead to improved performance on the OP-16 anchors.

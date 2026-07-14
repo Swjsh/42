@@ -42,12 +42,12 @@ $launchScript = Join-Path $WorkDir "setup\launch_tv_debug.ps1"
 # aborted the launch BEFORE confirming CDP (this morning TV came up but CDP was never
 # verified -> heartbeat ran all morning on ERROR_TV). Run with Continue so native
 # stderr is captured, not fatal; then VERIFY CDP actually came up.
-$prevEAP = $ErrorActionPreference
-$ErrorActionPreference = 'Continue'
-$killArg = if ($tvRunning) { @('-Kill') } else { @() }
-& powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -NonInteractive -File $launchScript @killArg 2>&1 |
-    Out-File -Append -Encoding utf8 -FilePath $logFile
-$ErrorActionPreference = $prevEAP
+# 2026-07-06: moved into the shared Invoke-TvLaunchSafe (also serializes against
+# TvWatchdog via a lock file -- both scripts can decide to kill+relaunch on the same tick).
+$launchResult = Invoke-TvLaunchSafe -LaunchScript $launchScript -LogFile $logFile -Kill:([bool]$tvRunning)
+if ($launchResult.skipped) {
+    Write-TaskLog -TaskName $task -Message "SKIP_LOCK_HELD $($launchResult.reason)"
+}
 
 # Verify CDP confirmed (old script never did -> silent "no TV = no trades").
 $cdpUp = $false

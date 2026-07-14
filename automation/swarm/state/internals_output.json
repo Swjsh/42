@@ -1,23 +1,21 @@
 {
   "agent": "internals",
-  "generated_at": "2026-06-26T14:17:56Z",
-  "bias": "bearish",
-  "confidence": 0.6,
-  "reasoning": "XLK down -1.0% while XLF flat (+0.06%) and XLE flat (0.0%) = tech leading SPY lower. XLK underperforming SPY by 85 bps (-1.0% vs -0.15%), indicating narrow tech-driven weakness rather than broad-based selling. Tech is the largest SPY weighting (~30%), so XLK weakness drags the index. Bearish bias with medium confidence — sector internals confirm downside pressure from tech leadership.",
-  "rotation_signal": "mixed",
+  "generated_at": "2026-07-14T12:15:04Z",
+  "bias": "no_trade",
+  "confidence": 0.15,
+  "reasoning": "Sector data unavailable — Alpaca MCP did not return bars. Cannot assess internals.",
+  "rotation_signal": "flat",
   "sector_alignment": {
-    "xlk_change_pct": -1.0,
-    "xlf_change_pct": 0.06,
+    "xlk_change_pct": 0.0,
+    "xlf_change_pct": 0.0,
     "xle_change_pct": 0.0,
-    "spy_change_pct": -0.15,
-    "xlk_vs_spy": "underperform",
-    "breadth": "narrow"
+    "spy_change_pct": 0.0,
+    "xlk_vs_spy": "inline",
+    "breadth": "flat"
   },
   "key_observations": [
-    "XLK: -1.0% (tech down significantly, dragging SPY lower as largest weight)",
-    "XLF: +0.06% (flat, financials not confirming weakness)",
-    "XLE: 0.0% (flat, energy neutral)",
-    "Rotation: Tech weakness driving SPY lower but breadth narrow — only XLK moving meaningfully"
+    "Sector data unavailable - cannot assess rotation",
+    "Alpaca data not available"
   ],
-  "data_quality": "full"
+  "data_quality": "minimal"
 }

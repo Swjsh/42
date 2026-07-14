@@ -1,3 +1,18 @@
 {"run_at":"2026-06-17T21:04:40-04:00","verdict":"GREEN","reason":"All MCP servers healthy on first check. Alpaca Safe+Bold accounts active and unblocked. TradingView CDP connected."}
 {"run_at":"2026-06-25T18:30:39-04:00","verdict":"GREEN","reason":"all servers responsive, accounts active and not blocked, TV CDP connected"}
 {"run_at":"2026-06-26T22:30:31Z","verdict":"GREEN","reason":"all MCP servers answered sub-1s; both Alpaca accounts ACTIVE and unblocked; TradingView CDP connected with API live"}
+{"run_at":"2026-06-27T18:30:47-04:00","verdict":"YELLOW","reason":"All servers healthy; TradingView required relaunch (CDP reconnect)"}
+{"run_at": "2026-06-28T18:31:25.546012-04:00", "verdict": "RED", "reason": "tv:CDP unreachable: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"}
+{"run_at": "2026-06-28T18:33:04.784148-04:00", "verdict": "GREEN", "reason": "all systems healthy"}
+{"run_at":"2026-06-30T18:30:34-04:00","verdict":"YELLOW","reason":"TradingView CDP needed relaunch; both Alpaca accounts healthy"}
+{"run_at": "2026-07-01T22:32:03.365983+00:00", "verdict": "RED", "reason": "safe=FAIL bold=FAIL tv=FAIL"}
+{"run_at": "2026-07-01T22:32:34.006520+00:00", "verdict": "RED", "reason": "safe=FAIL bold=FAIL tv=FAIL"}
+{"run_at": "2026-07-01T22:32:55.824374+00:00", "verdict": "RED", "reason": "safe=FAIL bold=FAIL tv=FAIL"}
+{"run_at": "2026-07-01T22:33:21.083892+00:00", "verdict": "RED", "reason": "safe=ok bold=ok tv=FAIL"}
+{"run_at":"2026-07-03T23:06:30-04:00","verdict":"YELLOW","reason":"All systems healthy; TradingView CDP required relaunch"}
+{"run_at":"2026-07-04T18:31:20-04:00","verdict":"YELLOW","reason":"Alpaca Safe/Bold ok, TradingView relaunch required after weekend idle, all operational"}
+{"run_at":"2026-07-06T13:45:15Z","verdict":"RED","reason":"Alpaca auth failing (401) on both accounts — keys may need rotation"}
+{"run_at":"2026-07-07T18:30:26-04:00","verdict":"RED","reason":"TradingView MCP bridge wedged (CDP listening but health_check failing after relaunch). Alpaca both accounts recovered (was 401 auth error yesterday now healthy)."}
+{"run_at":"2026-07-08T18:30:33Z","verdict":"RED","reason":"TradingView unresponsive after relaunch attempt (after-hours); safe=ok bold=ok tv=FAIL"}
+{"run_at":"2026-07-11T18:30:04","verdict":"RED","reason":"Alpaca Safe MCP unreachable (401 auth failure). Bold and TradingView healthy."}
+{"run_at":"2026-07-12T18:30:32Z","verdict":"GREEN","reason":"Safe account repointed to PA3DHPT7KIQE, all MCP servers healthy, both accounts ACTIVE and unblocked, TradingView on SPY 5min"}

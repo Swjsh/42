@@ -763,7 +763,7 @@ MECHANISM (flag-gated, default = exactly what ships): (1) `build_shared_signal.p
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 65 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 56 pending, last cook 0 min ago, today $0.00, model=grinder-python
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -1037,6 +1037,8 @@ Kitchen: alive, queue 65 pending, last cook 0 min ago, today $0.00, model=openro
 ---
 
 ## Known broken
+[2026-07-14T15:15:00-04:00] 🚨 DATA-LOSS INCIDENT — RECOVERED (root-caused + spliced back, permanent fix pending tonight's commit). At 09:15:00 ET a workflow subagent (strike-tier doc task, session 21375492/wf_45432f88) ran `git stash && pytest && git stash pop` in the SHARED main checkout; the pop never landed, the agent recovered only its own 3 files from the stash, then ran `git stash drop` at 09:16:36 ET — wiping ~3 weeks (2026-06-27→07-13) of uncommitted tracked state across 211 files, incl. core-decisions.jsonl (9,504 lines), all 3 fleet arms' decisions.jsonl, trades.csv (+2 rows), and ~21 append-only jsonl logs. RECOVERY: dropped stash found via `git fsck --unreachable` = commit `232a161`, pinned gc-proof as branch `recovery/stash-data-loss-2026-07-14`. 140 dormant-writer files restored intraday (verified idempotent); ledgers + live-writer logs splice-merged at 15:57 ET by `setup/scripts/recovery_splice_2026_07_14.py` (log: automation/state/recovered/splice-log-2026-07-14.txt). Today's live rows were never lost (continuous from 09:30:06). ROOT-CAUSE FIX (tonight): gitignore + untrack the 4 decision ledgers (verified: nothing reads their git history); lesson filed (_lesson-inbox/2026-07-14-git-stash-drop-wipes-shared-checkout.md) — tree-wide `git stash`/`reset --hard` in the shared checkout is BANNED for agents; use worktrees or pathspec-scoped ops.
+
 [2026-07-08T18:30:33Z] MCP_AUDIT_RED: TradingView unresponsive after relaunch; Alpaca Safe+Bold healthy
 [2026-07-08T08:35:00-04:00] PREMARKET TV_NOT_RUNNING: CDP unreachable after launch_tv_debug.ps1 self-heal + 3 retries (10-15s gaps). bias=no-trade-tv-fail written to today-bias.json; both kill-switches re-armed on live equity (Safe $1512.83 / Bold $1963.04, both flat). Crypto harness DEGRADED (v53_setup_dispatch.live failing, 103/104 pass) -- yellow, not trading-blocking. Macro calendar STALE 24 days (last refresh 2026-06-14) -- Sunday weekly-review has silently failed for 4+ weeks running, needs a manual `run-weekly-review.ps1` fire. daytrade_count field absent from Alpaca account_info again -- wrote day_trades_used_5d=0 to both breakers (was 7/4 from manual tracking). Heartbeat must retry TV at first tick; if still down, no entries this session.
 
@@ -3797,3 +3799,59 @@ Inbox item `strategy/candidates/_lesson-inbox/2026-07-10-joint-cascade-blindness
 ### DEGRADED: self-check 2026-07-14T12:39:56
 - FILL-FUNNEL RULE-BLOCKED[core:safe]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
 - PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+- [2026-07-14 10:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-14T16:57:02.670576+00:00) | fail streak: 9 consecutive fires | stage v02_source_parity pass rate dropped to 82.35% in last 24h (28/34) | stage v15_three_source_parity.live pass rate dropped to 94.12% in last 24h (32/34) | stage v53_setup_dispatch.live pass rate dropped to 73.53% in last 24h (25/34) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-14T13:09:56
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+- [2026-07-14 11:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-14T17:27:03.255239+00:00) | fail streak: 10 consecutive fires | stage v02_source_parity pass rate dropped to 82.35% in last 24h (28/34) | stage v15_three_source_parity.live pass rate dropped to 94.12% in last 24h (32/34) | stage v53_setup_dispatch.live pass rate dropped to 70.59% in last 24h (24/34) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-14 11:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-14.log
+
+### DEGRADED: self-check 2026-07-14T13:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+- [2026-07-14 11:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-14T17:57:03.255285+00:00) | fail streak: 11 consecutive fires | stage v02_source_parity pass rate dropped to 82.35% in last 24h (28/34) | stage v15_three_source_parity.live pass rate dropped to 94.12% in last 24h (32/34) | stage v53_setup_dispatch.live pass rate dropped to 67.65% in last 24h (23/34) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-14 11:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-14.log
+
+### DEGRADED: self-check 2026-07-14T14:09:56
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+- [2026-07-14 12:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-14T18:27:03.210451+00:00) | fail streak: 12 consecutive fires | stage v02_source_parity pass rate dropped to 85.29% in last 24h (29/34) | stage v15_three_source_parity.live pass rate dropped to 94.12% in last 24h (32/34) | stage v53_setup_dispatch.live pass rate dropped to 64.71% in last 24h (22/34) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-14 12:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-14.log
+
+### DEGRADED: self-check 2026-07-14T14:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+- [2026-07-14 12:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-14T18:57:03.781026+00:00) | fail streak: 13 consecutive fires | stage v02_source_parity pass rate dropped to 85.29% in last 24h (29/34) -- but v15 (3-source) = 97.06% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 61.76% in last 24h (21/34) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-14 12:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-14.log
+
+### DEGRADED: self-check 2026-07-14T15:09:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 5 ENTER after 15:00 ET: ['15:02 ENTER_BEAR ?', '15:03 ENTER_BEAR ?', '15:04 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 4 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:07 ENTER_BEAR ?', '15:08 ENTER_BEAR ?']
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+- [2026-07-14 13:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 85.29% in last 24h (29/34) -- but v15 (3-source) = 97.06% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 61.76% in last 24h (21/34) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-14T15:39:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:02 ENTER_BEAR ?', '15:03 ENTER_BEAR ?', '15:04 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:07 ENTER_BEAR ?', '15:08 ENTER_BEAR ?']
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-14T20:00:32+00:00
+- task: eod-summary
+- date_et: 2026-07-14
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000

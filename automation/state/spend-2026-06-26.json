@@ -1,29 +1,55 @@
 {
   "date_et": "2026-06-26",
-  "total_cost_usd": 207.2119,
-  "claude_cost_usd": 207.2119,
-  "minimax_cost_usd": 0.0,
-  "claude_sessions": 4,
+  "total_cost_usd": 1090.5001,
+  "claude_cost_usd": 1090.4589,
+  "minimax_cost_usd": 0.0412,
+  "claude_sessions": 26,
   "claude_by_tier": {
-    "opus": {
-      "tier": "opus",
-      "messages": 175,
-      "input_tokens": 36164,
-      "output_tokens": 354884,
-      "cache_creation_input_tokens": 4160837,
-      "cache_read_input_tokens": 67820760,
-      "estimated_cost_usd": 206.9056
-    },
     "sonnet": {
       "tier": "sonnet",
-      "messages": 3,
-      "input_tokens": 4,
-      "output_tokens": 1370,
-      "cache_creation_input_tokens": 72872,
-      "cache_read_input_tokens": 41626,
-      "estimated_cost_usd": 0.3063
+      "messages": 270,
+      "input_tokens": 5151,
+      "output_tokens": 436157,
+      "cache_creation_input_tokens": 2988509,
+      "cache_read_input_tokens": 21260763,
+      "estimated_cost_usd": 24.1429
+    },
+    "opus": {
+      "tier": "opus",
+      "messages": 981,
+      "input_tokens": 580222,
+      "output_tokens": 2613027,
+      "cache_creation_input_tokens": 17225789,
+      "cache_read_input_tokens": 358284028,
+      "estimated_cost_usd": 1065.0899
+    },
+    "haiku": {
+      "tier": "haiku",
+      "messages": 93,
+      "input_tokens": 711,
+      "output_tokens": 41997,
+      "cache_creation_input_tokens": 319793,
+      "cache_read_input_tokens": 6156978,
+      "estimated_cost_usd": 1.2261
     }
   },
-  "minimax_calls": 0,
-  "minimax_by_task": {}
+  "minimax_calls": 16,
+  "minimax_by_task": {
+    "swarm.synthesis": 0.006912,
+    "swarm.pattern_scout": 0.00411,
+    "swarm.level_thesis": 0.003433,
+    "swarm.risk_assessor": 0.002793,
+    "swarm.technical": 0.00273,
+    "swarm.premarket_analyst": 0.00269,
+    "swarm.validator": 0.002578,
+    "swarm.momentum_analyst": 0.002548,
+    "swarm.volume_analyst": 0.002214,
+    "swarm.macro": 0.0021,
+    "swarm.regime_classifier": 0.001785,
+    "swarm.catalyst_analyst": 0.001633,
+    "swarm.sentiment_analyst": 0.00152,
+    "swarm.correlation_analyst": 0.001456,
+    "swarm.session_timer": 0.001402,
+    "swarm.internals": 0.001314
+  }
 }

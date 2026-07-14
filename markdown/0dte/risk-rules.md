@@ -206,6 +206,18 @@ Every row in `trades.csv` must include `account_id` field (`safe` or `bold`). De
 
 ---
 
+## Rule 7 (PDT) — fleet vs. core enforcement asymmetry (documented 2026-07-08, HANDOFF-2026-07-09-TRUTH-AND-EXITS T4)
+
+**Pre-made call: do NOT wire PDT into the fleet arms yet — document the gap, don't silence the only trading arms while the exit-shape study (WS2) runs.**
+
+- **Core (Safe/Bold, the `mcp_heartbeat` execution path)** enforces Rule 7 for real: `pdt_tracker.fetch_day_trades_used_5d()` pulls the account's own FILL activity history from Alpaca and feeds a real trailing-5-business-day count into `risk_gate.check_order`. Verified 2026-07-08: this is what produced the `RISK_DENY_PDT` refusals on core:safe/core:bold that day (9 and 4 ENTER attempts respectively, correctly blocked) — the count was real, not a stub.
+- **Fleet arms (safe-1, safe-3, risky-1, risky-3, the `fleet_rest` execution path)** do **not** check PDT at all. Their decision rows log a hardcoded `day_trades: 0` and never call `pdt_tracker`. On 2026-07-08, safe-1 had already accrued a real day-trade count that would have tripped PDT under the core's own logic, yet it kept entering with `ALLOW`.
+- **Why this hasn't caused a live problem: these are Alpaca PAPER accounts, and paper does not enforce PDT.** This is a doctrine/live-readiness gap, not a live-money bug — it only matters the day any fleet arm is armed for real money (OP-0 #1 gate).
+- **Action taken:** documented here; wiring task filed in `automation/overnight/queue.md` (`PDT-WIRE-FLEET-ARMS`). **Not implemented now** — the exit-parity study (T6) needs all four fleet arms trading freely to build a large-enough real-fill sample; PDT-gating them mid-study would silence the only arms currently producing fills.
+- **Before any fleet arm is armed live:** this gap MUST close first (OP-0 #1 — arming live money needs J anyway, and this is now a documented pre-condition, not a silent hole).
+
+---
+
 ## Audit cadence
 
 - **End of session:** journal + trades.csv updated.

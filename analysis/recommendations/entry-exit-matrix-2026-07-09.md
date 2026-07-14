@@ -129,3 +129,28 @@ Path: forward shadow accrual → T6 paper A/B.
 proven loser) but because every tested replacement is WORSE in the current regime per the
 confirmatory layer, and the floor removes the cohort where it lost most. Layer (c) + the
 band-stratified read decide the next candidate. This disposition is REVOKE-able by J.
+
+---
+
+## 🔍 FILL-BAR AUDIT ADDENDUM — 2026-07-11 (post-disposition sensitivity check)
+
+A P5-topcell confirm (separate session) found `t4._load_bars` INCLUDES the fill bar
+(`>= entry_ts`) while `simulator_real` excludes it — enough to sign-flip a trailing/zero-arm
+P5 cell. This scorecard was re-run with the fill bar excluded (entry price unchanged), layer
+(b) pinned: **ZERO verdict flips; every number above reproduced to the penny first.**
+
+- **Kills stand byte-identically** (exit-A/exit-B/entry-1+control/entry-1+exitA: 0 trades
+  changed — in this zero-recovery window every bar-0 stop touch was re-touched later at the
+  same fill level). **Floor ship REINFORCED** (burned-pop floor lift +$13.71 → +$18.87
+  excluding bar 0). **vwap port never exposed** (its gate ran on simulate_trade_real).
+- **⚠️ ONE CORRECTION — exit-C/entry-2's upgrade is evidence-revoked.** The "ONLY candidate
+  that beat control" line above rests on two same-bar TP1 credits after limit fills
+  (2026-06-22 P: fill-bar high +50.6% vs fill, post-fill-bar MFE −5.5%; 2026-06-25 P:
+  +54.5% vs +22.0%). Fill-bar-excluded: exp **−$14.73 → −$138.26** (Δ vs control +85.94 →
+  **−37.59** — WORSE than control). STAYS-SHADOW is unchanged, but T6 must inherit a
+  NEUTRAL prior on the pair, not "strongest forward candidate"; its truth source is the
+  forward shadow ledger (real fills).
+
+Full audit + per-trade mechanism + guard: `entry-exit-matrix-fillbar-audit-2026-07-11.md`
+(+ `.json`) and `backtest/tests/test_fill_bar_convention.py` (4/4 green; pins both
+conventions + the disclosure blocks now on t4/t5 themselves).
