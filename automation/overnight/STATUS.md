@@ -1,3 +1,19 @@
+## [2026-07-14] PC SLEPT 7.5h OVERNIGHT, KILLING THE CRYPTO TWIN'S 24/7 PREMISE -- root cause found, ONE-LINE FIX FOR J TO RUN (not applied -- system/power settings are J's click, not mine)
+
+> **JOB 4 (ultracode-review), report only, zero system changes.** `Get-WinEvent` (System log, Event IDs 42/1) confirms the box slept from **2026-07-13 22:01:46 PM local (Mountain) time** to **2026-07-14 05:35:27 AM local** -- **7h 33m** (matches the reported ~7.5h). **Correcting the task's own "22:01->05:35 ET" framing**: those are LOCAL (Mountain) clock times, not ET -- this is the exact "local time mistaken for ET" pattern CLAUDE.md's TZ doctrine already warns about (`project_tz_systemic_fix`). Converted properly via the event's own embedded UTC timestamps: **sleep = 2026-07-14T00:01:45 ET (12:01 AM), wake = 2026-07-14T07:35:26 ET (7:35 AM)** -- the twin was down through the entire pre-market/early-session window in real ET terms.
+>
+> **ROOT CAUSE (verified, not guessed): a MANUAL Start-Menu "Sleep" click, not an idle timeout.** Event ID 1074 (User32) at 22:01:43 local: *"The process ...StartMenuExperienceHost.exe (DABOX) has initiated the power off of computer DABOX on behalf of user DaBox\jackw ... Reason: Other (Unplanned)."* Immediately followed by Event 187 (Kernel-Power): *"User-mode process attempted to change the system state by calling SetSuspendState or SetSystemPowerState APIs,"* then Event 42: *"The system is entering sleep. Sleep Reason: Application API."* This is the Start Menu's own power-button Sleep tile being clicked by the logged-in user -- **not** a policy, **not** an unattended idle timeout, **not** the power button hardware switch.
+>
+> **Idle-timeout hypothesis DISPROVEN by direct evidence** -- `powercfg /query SCHEME_CURRENT SUB_SLEEP` shows `STANDBYIDLE` (Sleep after) = `0x00000000` (Never) on **both AC and DC**, and `HIBERNATEIDLE` (Hibernate after) = `0x00000000` (Never) on both too. Nothing was configured to sleep this box on its own -- there is no idle-timeout misconfiguration to fix. A `powercfg /change standby-timeout-ac 0` style command would be a no-op; already correctly set.
+>
+> **Wake source: genuinely unattributed.** `powercfg /lastwake` and the Power-Troubleshooter event both report `Wake Source: Unknown`. Checked the obvious candidate (a Task-Scheduler wake timer) and ruled it out: `Gamma_CryptoDaily`/`Gamma_GuardsNightly`/`Gamma_ScoutPremarket` all show `WakeToRun: False` and none of their trigger times align with 05:35 -- their 05:41 `LastRunTime` cluster is Task Scheduler's normal catch-up behavior for tasks that were missed *during* the sleep window, not the cause of the wake. Left unattributed rather than guessed.
+>
+> **THE FIX J CAN RUN HIMSELF (not applied -- system/power settings are prohibited for me to change per the standing safety rule):** since this was a deliberate Start-Menu click and idle timeouts are already correctly Never/Never, there is no idle-timeout `powercfg` command to give -- that hypothesis is closed. The one-line lever that actually prevents a repeat is a **registry policy that hides the Sleep option from the Start Menu power button** (the standard, long-documented Microsoft mechanism for exactly this -- I have NOT verified this specific value against a live registry read on this box beyond confirming the parent key path exists, so treat as high-confidence-but-J-should-confirm-it-worked after running it, not a guaranteed one-shot):
+> ```
+> reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v NoStartMenuSleepOption /t REG_DWORD /d 1 /f
+> ```
+> This does not touch any power SCHEME (nothing above needs fixing there) -- it removes the accidental-click surface. A sign-out/sign-in (or `gpupdate /force`) may be needed for it to take effect. If J would rather keep manual sleep available but just recover faster from an accidental one, the belt-and-suspenders alternative is a scheduled task with **"Wake the computer to run this task"** checked on a task that already runs pre-market (e.g. `Gamma_LaunchTV`) -- `RTCWAKE` (Allow wake timers) is already `Enable` on AC power, so this lever is available without any other change; not applied here since it treats the symptom, not the cause.
+
 ## [2026-07-14] FUTURES-MIRROR-SHADOW extended (core-decisions.jsonl + arming-bar tracker) + CORE/FLEET DECISION LEDGERS FOUND STALE (unrelated pre-existing finding) [REVOKE-report]
 
 > **J directive: "make sure you trade futures today too."** The honest, doctrine-compliant form is the FUTURES-MIRROR-SHADOW lane (queue.md) — Phase-1 backtests KILLED every futures setup (0/96 cells), so no futures setup may be armed; the only path to the 7th arm is FORWARD evidence, mirroring the LIVE 0DTE engine's signals as would-be MES trades. **Discovered before building anything: this was already shipped 2026-07-09** (`setup/scripts/futures_mirror_shadow.py`, `Gamma_FuturesMirror` registered every 5 min RTH + 16:05 sweep, `test_futures_mirror_shadow.py` 43/43) — not a from-scratch build. Verified registered + healthy first (`Get-ScheduledTaskInfo`: `LastTaskResult=0` through 2026-07-13, `NextRunTime` today), then extended it rather than duplicating it.
@@ -737,7 +753,7 @@ MECHANISM (flag-gated, default = exactly what ships): (1) `build_shared_signal.p
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 45 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 65 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -3723,4 +3739,19 @@ Inbox item `strategy/candidates/_lesson-inbox/2026-07-10-joint-cascade-blindness
 - [2026-07-14 07:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-14.log
 
 ### DEGRADED: self-check 2026-07-14T09:39:56
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+- [2026-07-14 07:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-14T13:57:01.903426+00:00) | fail streak: 2 consecutive fires | stage v02_source_parity pass rate dropped to 81.82% in last 24h (27/33) | stage v15_three_source_parity.live pass rate dropped to 90.91% in last 24h (30/33) | stage v53_setup_dispatch.live pass rate dropped to 93.94% in last 24h (31/33) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-14 07:57:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-14.log
+
+### DEGRADED: self-check 2026-07-14T10:09:56
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+- [2026-07-14 08:27:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-14T14:27:01.975266+00:00) | fail streak: 3 consecutive fires | stage v02_source_parity pass rate dropped to 81.82% in last 24h (27/33) | stage v15_three_source_parity.live pass rate dropped to 90.91% in last 24h (30/33) | stage v53_setup_dispatch.live pass rate dropped to 90.91% in last 24h (30/33) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-14 08:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-14.log
+
+### DEGRADED: self-check 2026-07-14T10:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
 - PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
