@@ -1,0 +1,112 @@
+{
+  "generated_at_utc": "2026-07-14T13:19:50.905991+00:00",
+  "exit_shape_used": {
+    "premium_stop_pct": -0.2,
+    "tp1_premium_pct": 1.0,
+    "tp1_qty_fraction": 0.667,
+    "profit_lock_mode": "trailing",
+    "runner_target_pct": 99.0,
+    "trail_pct": 0.15,
+    "profit_lock_arm_pct": 0.05,
+    "stop_mode": "structure",
+    "catastrophe_stop_pct": -0.5,
+    "profit_lock_arm_scope": "post_tp1"
+  },
+  "time_stop_et": "15:50:00",
+  "cases": [
+    {
+      "pnl": 132.15,
+      "exits": [
+        {
+          "stage": "tp1",
+          "qty": 2,
+          "fill_price": 0.96,
+          "dt": "2026-07-13T15:28:00",
+          "reason": "tp1 @ +100%"
+        },
+        {
+          "stage": "trail",
+          "qty": 1,
+          "fill_price": 0.8415,
+          "dt": "2026-07-13T15:29:00",
+          "reason": "runner_stop @ 0.84"
+        }
+      ],
+      "structure_fired": false,
+      "final_stop_mode": "structure",
+      "label": "2026-07-13_core_safe_749P_entry1516",
+      "entry_premium": 0.48,
+      "qty": 3,
+      "side": "P",
+      "trigger_level": 750.3,
+      "n_bars": 55
+    },
+    {
+      "pnl": 13.2,
+      "exits": [
+        {
+          "stage": "tp1",
+          "qty": 3,
+          "fill_price": 0.06,
+          "dt": "2026-07-13T15:23:00",
+          "reason": "tp1 @ +100%"
+        },
+        {
+          "stage": "trail",
+          "qty": 2,
+          "fill_price": 0.051,
+          "dt": "2026-07-13T15:24:00",
+          "reason": "runner_stop @ 0.05"
+        }
+      ],
+      "structure_fired": false,
+      "final_stop_mode": "structure",
+      "label": "2026-07-13_core_bold_746P_entry1516",
+      "entry_premium": 0.03,
+      "qty": 5,
+      "side": "P",
+      "trigger_level": 750.3,
+      "n_bars": 53
+    },
+    {
+      "pnl": -2.0,
+      "exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 5,
+          "fill_price": 0.016,
+          "dt": "2026-07-06T15:22:00",
+          "reason": "premium_stop @ 0.02"
+        }
+      ],
+      "structure_fired": false,
+      "final_stop_mode": "premium",
+      "label": "2026-07-06_fleet_755C_entry1522_no_level_failclosed",
+      "entry_premium": 0.02,
+      "qty": 5,
+      "side": "C",
+      "trigger_level": null,
+      "n_bars": 40
+    },
+    {
+      "pnl": -5.0,
+      "exits": [
+        {
+          "stage": "premium_stop",
+          "qty": 5,
+          "fill_price": 0.01,
+          "dt": "2026-07-06T15:22:00",
+          "reason": "premium_stop @ 0.01"
+        }
+      ],
+      "structure_fired": false,
+      "final_stop_mode": "structure",
+      "label": "2026-07-06_fleet_755C_entry1522_level751_sensitivity",
+      "entry_premium": 0.02,
+      "qty": 5,
+      "side": "C",
+      "trigger_level": 751.0,
+      "n_bars": 40
+    }
+  ]
+}

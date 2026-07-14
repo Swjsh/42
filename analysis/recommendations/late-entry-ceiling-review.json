@@ -1,0 +1,138 @@
+{
+  "_doc": "Chef research item strategy/candidates/_chef-inbox/2026-07-14-late-entry-ceiling-review.md: does the entry_no_trade_after_et=15:00 ceiling wrongly discard tradeable 15:00-15:35 ET setups, distinct from the 15:45+ band the ceiling was actually built to stop? EVIDENCE ONLY -- no config touched (entry_no_trade_after_et unchanged in automation/state/params.json and automation/state/aggressive/params.json).",
+  "study": "late_entry_ceiling_review",
+  "version": 1,
+  "generated_at_et": "2026-07-14",
+  "verdict": "INSUFFICIENT_N",
+  "verdict_one_line": "n=3 event-days across all ledger history for the 15:00-15:35 band, split across two exit-shape eras and mixed sign (+$140 counterfactual SS-B vs -$84 real pre-SS-B fills) -- the standard battery cannot run on this sample. No config change. The 15:45+ band stays hard-blocked on strong, separately-verified provenance (this was never in question).",
+
+  "gate_under_review": {
+    "param_key": "entry_no_trade_after_et",
+    "current_value_both_accounts": "15:00",
+    "verified_current_value": "grep 'entry_no_trade_after_et' automation/state/params.json automation/state/aggressive/params.json -> both '15:00' (read live, 2026-07-14)",
+    "code_path": "setup/scripts/heartbeat_core.py _past_entry_ceiling() (line ~149) + automation/state/fleet/fleet_live.py mirror (line ~254); action logged = SKIP_LATE_ENTRY"
+  },
+
+  "gate_provenance": {
+    "documented_root_cause": "2026-06-30 scar: entry_no_trade_after_et was ratified in params.json but NEVER forwarded into engine_cli (only no_trade_before + no_trade_window were read) -- so the engine's only 10 ENTER verdicts that day fired 15:51-15:55 ET and Alpaca rejected every one of them with the broker error 'contract expires soon, unable to open new positions'. FIX1 (2026-07-01, commit burst same day) added the hard wall-clock ceiling check BEFORE any order attempt, both core (heartbeat_core.py) and fleet (fleet_live.py) lanes, guarded by test_money_path_2026_07_01.py::TestEntryCeiling.",
+    "citations": [
+      "setup/scripts/heartbeat_core.py:150-156 (docstring, verbatim quotes the 15:51-15:55 all-rejected incident)",
+      "automation/state/fleet/fleet_live.py:254,308 (mirror docstring + inline comment, 'safe-1/risky-3 fired 15:52, Alpaca rejected expires soon')",
+      "markdown/audits/PIPELINE-AUDIT-2026-07-01.md row 7 ('today's 10 ENTER_BEAR at 15:51-15:55, all PLACE_FAIL expires soon')",
+      "CHANGELOG.md 2026-07-01 entry",
+      "journal/2026-07-01.md:171-172 (raw broker rejection text for a SEPARATE incident, same failure mode, contracts P744000/P747000)"
+    ],
+    "provenance_strength": "STRONG for the exact failure mode observed (order rejected at/after ~15:51-15:55 ET) -- every single documented 'expires soon' broker rejection in this codebase's history occurred at 15:51 ET or later (06-30 scar + 07-01 recurrence). ZERO documented broker rejections exist anywhere in the 15:00-15:35 window -- the ceiling was set to a round 15:00 as a conservative blanket fix covering the whole post-15:00 afternoon, not because 15:00-15:35 orders were independently shown to fail. Per OP-16 gate-provenance rule ('burden on the gate only if provenance is weak'): provenance is STRONG for blocking 15:45+ (do not touch), and UNTESTED (neither strong nor weak -- simply never exercised) for blocking 15:00-15:35 specifically."
+  },
+
+  "band_definitions": {
+    "band_A_reviewed": "15:00-15:35 ET -- Monday 2026-07-13's blocked band, the hypothesis under test.",
+    "band_B_scar": "15:45+ ET (documented broker-rejection failures cluster at 15:51-15:55 ET specifically) -- the ORIGINAL 2026-06-30 incident this gate exists to prevent."
+  },
+
+  "evidence_population": {
+    "method": "Exhaustive grep of the ONLY two producers of SKIP_LATE_ENTRY across the engine's entire operating history: automation/state/core-decisions.jsonl (core Safe + core Bold, 2026-06-25 onward) and automation/state/fleet/{risky-1,risky-3,safe-1,safe-3}/decisions.jsonl (2026-06-21 onward). Total raw SKIP_LATE_ENTRY rows found: 33 core + 12 fleet (3 timestamps x 4 arms, one shared signal). These collapse to exactly 4 distinct block EVENTS (a re-confirming signal firing every ~60-180s on an unchanged level is one trading opportunity, not N independent ones -- Rule 4, no adding without a NEW confirmed trigger):",
+    "events": [
+      {
+        "date": "2026-07-06", "time_et": "15:22-15:28", "band": "band_A", "account": "fleet (risky-1, risky-3, safe-1, safe-3 -- shared_signal fan-out, 1 underlying instance)",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON", "verdict_blocked": "ENTER_BULL", "note": "Arms were FLAT at signal time (their earlier 14:58 ET position in the same 755C contract had already exited -50% at 15:01 ET) -- this was a fresh opportunity, not an add."
+      },
+      {
+        "date": "2026-07-07", "time_et": "15:46-15:50", "band": "band_B", "account": "core safe",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON", "verdict_blocked": "ENTER_BEAR", "note": "Inside the documented scar window."
+      },
+      {
+        "date": "2026-07-09", "time_et": "15:46-15:50", "band": "band_B", "account": "core safe",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON", "verdict_blocked": "ENTER_BULL", "note": "Inside the documented scar window."
+      },
+      {
+        "date": "2026-07-13", "time_et": "15:16-15:25", "band": "band_A", "account": "core safe + core bold",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON", "verdict_blocked": "ENTER_BEAR", "note": "The event that generated this Chef item. Same trigger_level as the morning's real risky-3 fill (structure_stop @ 750.30, analysis/daily-brief/2026-07-13-FULL-AUDIT.md line 32) -- SPY pinned 748.06-749.61 the whole window, never reclaimed 750.30."
+      }
+    ],
+    "excluded": "2026-07-10 15:06-15:10 ET core safe: the ceiling check fired but the tick's own verdict was HOLD (no setup scored) -- not a blocked trading opportunity, excluded from n."
+  },
+
+  "band_B_scar_disposition": {
+    "verdict_component": "KEEP -- not seriously in question",
+    "reasoning": "Zero fills exist in trades.csv/trades-aggressive.csv with an entry time >=15:45 ET across the ENGINE'S ENTIRE HISTORY. Every attempt in this window that has a recorded outcome was a broker-level 'expires soon' rejection (06-30, 07-01, 07-07, 07-09). Relaxing this band would reproduce the exact original scar regardless of any P&L argument -- this is an EXCHANGE constraint (contract too close to expiry for the broker to open a new position), not a strategy-quality question, so no amount of favorable exit-shape replay evidence is relevant here."
+  },
+
+  "band_A_review": {
+    "verdict_component": "INSUFFICIENT_N",
+    "real_fills_pre_ceiling": {
+      "source": "journal/trades.csv, exhaustive scan of ALL 150 rows for time_entry in [15:00,15:35] across the account's entire recorded history -- the ceiling did not exist before 2026-07-01, so any earlier real entry in this window is a genuine, un-gated fill, not a counterfactual.",
+      "date": "2026-06-30 (pre-fix, same day as the scar itself -- BEFORE FIX1 shipped that evening)",
+      "n_legs": 7, "n_distinct_signal_instances": 1,
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON", "strikes": ["750C", "751C"],
+      "entry_times_et": ["15:13:07", "15:19:07", "15:21:57", "15:22:11"],
+      "total_dollar_pnl": -84.0,
+      "exit_shape": "PRE-SS-B (old premium-based exit shape live on 06-30, not the current structure-stop-primary doctrine)",
+      "note": "All 7 legs were losers or breakeven-adjacent (entry premiums 0.03-0.09, exits 0.01-0.08) -- a thin, decaying 0DTE tail on a signal that had already chopped through several failed attempts earlier that same session. Confounded: this tests the OLD exit shape, not SS-B, and is a single signal instance replicated across sub-accounts."
+    },
+    "counterfactual_replay_ssb": {
+      "method": "Production-faithful replay: the ACTUAL exit_manager.ExitState.from_entry + plan_exit_actions decision core (automation/state/fleet/exit_manager.py), fed the LIVE strategies.RIBBON_RIDE.exit shape (structure_stop_enabled=True, stop_mode=structure, catastrophe -50%, TP1 +100%/sell 66.7%, trailing runner 15% off HWM, profit_lock_arm_scope=post_tp1) and a hard 15:50 ET time stop (exit_manager.TIME_STOP_ET) -- identical methodology to backtest/tools/ssb_certification_study.py's replay_production_path. Driven by REAL Alpaca OPRA 1-min option bars and REAL SPY 5-min bars (fetched live this session, not synthetic). Entry premium = the option bar's OPEN at the first block-fire minute (only the FIRST re-confirmation of a repeating signal is a genuinely new trigger per Rule 4).",
+      "results": [
+        {
+          "case": "2026-07-13 15:16 ET, core Safe, 749P (ATM, V15_SAFE_TIERS)", "trigger_level": 750.30,
+          "entry_premium": 0.48, "qty": 3,
+          "exits": [{"stage": "tp1", "at": "15:28 ET", "fill": 0.96}, {"stage": "trail", "at": "15:29 ET", "fill": 0.8415}],
+          "pnl": 132.15
+        },
+        {
+          "case": "2026-07-13 15:16 ET, core Bold, 746P (OTM-3, V15_BOLD_TIERS)", "trigger_level": 750.30,
+          "entry_premium": 0.03, "qty": 5,
+          "exits": [{"stage": "tp1", "at": "15:23 ET", "fill": 0.06}, {"stage": "trail", "at": "15:24 ET", "fill": 0.051}],
+          "pnl": 13.2
+        },
+        {
+          "case": "2026-07-06 15:22 ET, fleet (755C, shared signal)", "trigger_level": null,
+          "entry_premium": 0.02, "qty": 5,
+          "exits": [{"stage": "premium_stop (structure resolution failed CLOSED to premium mode -- no trigger_level was captured for this pre-SS-B-era event)", "at": "15:22 ET (same minute as entry)", "fill": 0.016}],
+          "pnl": -2.0,
+          "sensitivity_check_trigger_level_751": {"pnl": -5.0, "note": "751.0 is a disclosed ROUND-NUMBER GUESS from the SPY tape (751.0-752.4 range that session), not a recovered fact -- structure stop never actually fires either way since price never dropped back through it; result is dominated by the -50% intrabar catastrophe cap on an illiquid $0.01-0.02 contract."}
+        }
+      ],
+      "net_pnl_2026_07_13": 145.35,
+      "net_pnl_2026_07_06": -2.0,
+      "combined_net_across_both_days": 143.35
+    },
+    "combined_all_evidence_band_A": {
+      "n_distinct_days": 3,
+      "net_dollar_total": 59.35,
+      "note": "-84.0 (06-30 real, pre-SS-B) + 132.15 + 13.2 (07-13 counterfactual, SS-B) + -2.0 (07-06 counterfactual, SS-B, no captured level) = 59.35. Directionally positive only because the two SS-B-era days outweigh the one pre-SS-B loser -- exit-shape era is an uncontrolled confound across this sample, not something the sample can isolate."
+    }
+  },
+
+  "standard_battery": {
+    "evidence_n_advisory_floor": 15,
+    "evidence_n_actual": 3,
+    "OOS_positive": "NOT COMPUTABLE (no in-sample/out-of-sample split is meaningful on n=3)",
+    "WF_ratio": "NOT COMPUTABLE",
+    "sub_window_stable": "NOT COMPUTABLE (each of the 3 days is a single sub-window; 1 of 3 is a loser under a different, no-longer-live exit shape)",
+    "anchor_no_regression": "N/A -- no OP-16 J-anchor trade sits in the 15:00-15:35 band",
+    "battery_verdict": "FAIL_ON_N -- none of the four pass criteria can be evaluated on 3 event-days; auto-ratify path (OP-16) does not apply"
+  },
+
+  "recommendation": {
+    "action": "NO CHANGE to entry_no_trade_after_et. Keep 15:00 on both accounts.",
+    "why_not_relax_now": "The available P&L evidence is thin (n=3 days) AND mixed in sign AND confounded by exit-shape era (pre- vs post-SS-B) -- ratifying a permanent doctrine change on this would be exactly the kind of premature-victory-declaration OP-33/fable-too-good exists to catch. The directionally-positive counterfactual result (both 07-13 legs won) is real but is two data points on one trading day.",
+    "why_not_leave_silently": "The provenance split matters and should not get flattened back into 'the ceiling is validated': band_B (15:45+) has strong, direct provenance (documented broker rejections) and should stay exactly where it is. band_A (15:00-15:35) was swept into the same fix as a conservative default with NO band-specific evidence either way -- that is a real gap, just not one 3 data points can close.",
+    "next_step": "Passive accumulation, not a new grind: every future SKIP_LATE_ENTRY event in the 15:00-15:35 band is already fully reconstructable from core-decisions.jsonl / fleet decisions.jsonl + real OPRA bars via the exact method this scorecard used (analysis/recommendations/_late_entry_replay.py, kept in-repo). Re-run this same review once evidence_n (distinct event-days) reaches the OP-16 advisory floor of 15 -- at the observed base rate of roughly 1 qualifying event every 1-2 weeks, that is a multi-month horizon, not something to force.",
+    "if_evidence_someday_supports_relax": "No broker 'expires soon' rejection has ever been observed earlier than 15:51 ET in this codebase's history -- if band_A evidence eventually clears the bar, the natural target is a ceiling in the 15:35-15:40 range (leaves >=10 min before the 15:50 flatten, stays well clear of the documented 15:51+ rejection zone), not a blanket removal of the ceiling."
+  },
+
+  "disclosures": {
+    "same_bar_high_low_ordering": "The production-faithful replay feeds plan_exit_actions one bar at a time using that bar's OWN high as best_premium and low as worst_premium -- it cannot know whether the high or the low came first within a 1-minute bar. This is the SAME convention ssb_certification_study.replay_production_path and exit_shape_parity_study.replay_position use (not a new artifact introduced here), but it means the 15:29 ET trail-stop fill on the core-Safe leg (HWM set from that bar's high, floor hit from the SAME bar's low) carries the ordinary intrabar-sequencing uncertainty any 1-min-bar replay has.",
+    "illiquid_tape_divergence": "For the 2026-07-06 case, the engine's internally-logged 'premium: 0.04' quote at decision time diverged materially from the REAL traded OPRA 1-min bar at that exact minute (0.01-0.02, n=15 trades) -- a thinly-traded far-OTM 0DTE contract. The real traded bar was used per this study's real-data discipline; the divergence itself is a data-quality flag worth a separate look, not something this review corrects further.",
+    "trigger_level_recovery": "07-13's trigger_level (750.30) is directly evidenced (risky-3's real fill that same morning structure-stopped at that exact price, analysis/daily-brief/2026-07-13-FULL-AUDIT.md). 07-06's trigger_level could not be recovered from any logged source (pre-dates SS-B, no structure-stop concept existed yet) -- the primary result fails closed to premium-mode (disclosed, not hidden); a sensitivity check at a guessed round-number level is reported alongside it, clearly labeled as a guess.",
+    "live_file_rotation_during_session": "automation/state/core-decisions.jsonl and the four automation/state/fleet/*/decisions.jsonl files rotated/truncated during this research session (observed directly: core-decisions.jsonl was 9,504 rows covering 2026-06-25..07-13 at the start of this session, and 1,000 rows covering only 2026-06-25..06-26 by the end -- consistent with the engine's normal OP-22 retention/consolidation behavior on a live, actively-written file during market hours, not anything this review wrote). Every fact this scorecard depends on from those files was captured via direct reads EARLIER in this same research session (raw JSON quoted at capture time) and is independently cross-checked against still-stable sources that do not rotate: journal/2026-07-06.md, journal/2026-07-13.md, journal/trades.csv, analysis/daily-brief/2026-07-13-FULL-AUDIT.md, and automation/state/fills-ledger.jsonl."
+  },
+
+  "artifacts": {
+    "raw_bars": "analysis/recommendations/_late_entry_raw_bars.json (real Alpaca OPRA option 1-min + SPY 1-min/5-min bars fetched this session)",
+    "replay_script": "analysis/recommendations/_late_entry_replay.py",
+    "fetch_script": "analysis/recommendations/_late_entry_fetch.py",
+    "replay_output": "analysis/recommendations/_late_entry_replay_output.json"
+  }
+}
