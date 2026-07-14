@@ -72,24 +72,84 @@
 
 - [ ] REPLAY-FLEET-ARMS-FIDELITY-DRIFT (MED, silently-red guard) :: `backtest/tests/test_replay_fleet_arms.py`
   is RED on 3 tests (`test_no_arm_overtrades`, `test_missed_within_ratchet`,
-  `test_three_arms_entry_faithful`) — `safe-1` now shows `extra=1 missed=1` (matched=9/10) on the
-  committed 2026-05-19..06-24 replay window, where the ratchet caps (`KNOWN_MAX_MISSED`/
-  `KNOWN_MAX_EXTRA`) both pin 0. Discovered incidentally while verifying the SAFE-2-ACCOUNT-
-  REPLACEMENT fix (below/Completed) via a broad test sweep — **confirmed via a controlled A/B
-  NOT caused by that work**: re-ran the identical suite against a git-HEAD checkout of
-  `accounts.json` (i.e. safe-1 still `status:active`, pre-retirement) and got the byte-identical
-  failure (`extra=1 missed=1 matched=9/10`, same 3 tests) — proves this is a **pre-existing**
-  entry-fidelity drift, most likely introduced by one of today's EARLIER ships that touch
-  ribbon_ride entry/strike behavior (PROFIT-P2-ARMED ATM strike override and/or the recency-
-  conditioned min-sizing ship both landed earlier today per CHANGELOG.md, either could plausibly
-  shift which bar a signal fires/fills on) but not root-caused here — out of scope for a fleet-
-  arm-retirement task, and NOT something to guess-fix blind. `test_engine_contract_drift.py` also
-  needed a routine `python setup/scripts/engine_contract.py` regen after the accounts.json edit
-  (expected drift-guard behavior, not a bug — done as part of the SAFE-2 fix). Next session:
-  root-cause via `/fable-differential` (bar-level diff of the replay vs signal-driven path for
-  safe-1 specifically around whichever of today's two ships is the actual cause) before touching
-  either `KNOWN_MAX_MISSED`/`KNOWN_MAX_EXTRA` (ratchets are shrinks-only by design; a naive bump
-  to "fix" the red would hide a real regression, not resolve one). :: depends:none :: status:pending
+  `test_three_arms_entry_faithful`) — `safe-1` now shows `extra=1 missed=1` (matched=9/10, `gt_n=10`)
+  on the committed 2026-05-19..06-24 replay window (re-confirmed live 2026-07-14 via a fresh
+  `pytest backtest/tests/test_replay_fleet_arms.py -q`: `3 failed, 3 passed in 298.91s`, identical
+  signature), where the ratchet caps (`KNOWN_MAX_MISSED`/`KNOWN_MAX_EXTRA`) both pin 0.
+  **2026-07-14 TRIAGE PASS (worker-tier, `/fable-differential` discipline — hold multiple
+  hypotheses, kill with evidence, don't lock onto the first plausible story):** both of the
+  prior session's named suspects are RULED OUT with direct evidence, not assumption:
+  - **PROFIT-P2-ARMED (81b25b4)** — `git show --stat` confirms it touches ONLY
+    `heartbeat_core.py`'s `_execute`/`_SETUP_STRIKE_OVERRIDES` (strike selection for an
+    ALREADY-decided entry, i.e. order-placement time). `replay_fleet_arms.py` never calls
+    `_execute` — it calls `hc._build_payload` + `engine_cli.decide_payload` directly, which
+    generate the ENTRY verdict, not the strike. Structurally cannot shift which bar fires.
+  - **Recency-conditioned min-sizing (fd08059)** — read `fleet_executor._apply_recency_min_sizing`
+    verbatim: it only clamps `qty` (a `min(...)` ceiling), never touches `plan.action`/`side`.
+    Cannot turn an ENTER into a HOLD or vice versa; `_entry_fidelity` only compares action+side,
+    never qty.
+  Nine more candidates were checked and also ruled out: the `min_ribbon_momentum_cents` gate fix
+  (49e3c40, params.json value is `null` both before/after -> byte-identical; also one of the 15
+  gates orchestrator.py's `_ENGINE_GATES_ASSERT` oracle cross-checks every bar by default, so a
+  real divergence there would crash `run_backtest`, not silently drift — it didn't crash);
+  safe-1's `status:active->retired` flip (`plan_entry`/`fx._params_for` never read `arm.status`/
+  `arm.live` — only `run_dry`/`fleet_live` do, neither called by this replay; independently
+  reconfirmed via the prior session's own accounts.json A/B); the stale-trigger-bar / entry-floor
+  fixes (873281a, 95f763f — both live inside `heartbeat_core.run_account`'s POST-verdict ladder,
+  never exercised since the replay calls `_build_payload`/`decide_payload` directly, bypassing
+  `run_account` entirely); `structure_stop_enabled`/SS-B (933bd65 — grepped `backtest/lib/
+  orchestrator.py`, zero hits for `structure_stop`; it's a fleet-only exit-shape concern
+  `run_backtest`'s GT never sees); newer extra-setup types (vwap_continuation/bollinger_squeeze/
+  gap_and_go/double_bottom_base_quiet — grepped orchestrator.py, zero hits; GT never simulates
+  them, only core ribbon_ride/level_reject); the safe-3 min_confidence gate deletion (f799298 —
+  safe-1's `gate_override` has no `min_confidence` key, byte-identical no-op for this arm); and
+  `require_bearish_fill_bar` (the C14 mechanism that fixed the analogous risky-3 bug on this SAME
+  window/bars, closed 2026-06-28) — confirmed via direct read of BOTH params files this key exists
+  ONLY in `aggressive/params.json` (Bold), is absent from `automation/state/params.json` (Safe)
+  entirely, so it structurally cannot be safe-1's mechanism despite the coincidental bar-1394
+  overlap with risky-3's old bug. `git log --since=2026-06-28` on every file in the verdict path
+  (`_build_payload`, `decide_payload`, `backtest/lib/{filters,orchestrator,ribbon,levels}.py`,
+  `backtest/lib/engine/{gates,engine_cli,score}.py`, `fleet_executor._chosen_side`/`_is_elite`)
+  returns ZERO commits changing their logic since the 2026-06-28 C14 fix that last verified this
+  test fully green — confirming the drift is NOT a code regression in the change window.
+  **Remaining live hypothesis (not ruled out, not confirmed):** `heartbeat_core._build_payload`'s
+  own code comment self-documents a "WINDOW-TRUNCATION CAVEAT" — the live/replay verdict path
+  reconstructs `level_states` (sequence_rejection/bounce_history, feeds `level_reclaim`/
+  `sequence_rejection` triggers) over only the last **150 bars** (`W = 150` at
+  `setup/scripts/heartbeat_core.py:437`), while `run_backtest`'s GT path accumulates
+  `_update_level_states` from the FIRST bar of the whole multi-day run (never reset). This is the
+  SAME already-accepted mechanism this test file cites for risky-1's documented `KNOWN_MAX_EXTRA=1`
+  (bar 1801, "engine's 150-bar `_rebuild_level_states` sees sequence_rejection fresh... orchestrator's
+  full-history `_update_level_states` had a prior reset"). Of safe-1's 10 GT trades (bars 1380,
+  1394, 1405, 1441, 1464, 1488, 1693, 1703, 1781, 1878 — all pulled live via a scratch GT-only
+  script this session, `run_backtest` completed cleanly, no assertion errors), exactly ONE
+  (bar=1405, side=C, `triggers=['level_reclaim','ribbon_flip']`, 2026-06-15 09:35 ET) is
+  level-state-dependent and therefore structurally exposed to this mechanism; the other 9 are
+  `trendline_rejection`/`ribbon_flip` (not level-state-derived, not exposed). **NOT empirically
+  bar-confirmed this session** — a targeted diagnostic (bar-windowed re-replay, ±20 bars around
+  each of the 10 GT bars, to avoid the full ~534-bar replay cost) was built and run twice
+  (default + `MKL_NUM_THREADS=1`/`OMP_NUM_THREADS=1` to rule out thread-oversubscription) but
+  could not finish in this session's time budget: `Get-Process`/`Get-CimInstance` confirmed the
+  real cause was NOT this box generally being under load (`\Processor(_Total)\% Processor Time`
+  read 33-37%) but 4 concurrent `pythonw.exe` children of `Gamma_ShotgunScalperStage3`
+  (`autoresearch.shotgun_scalper_stage3 --hours 3.0 --workers 4`) each showing **8,174-8,187
+  accumulated CPU-SECONDS** (~2.3h each) at the moment of inspection — a legitimate concurrent
+  crew's multi-hour grind saturating the box's cores, not a bug in this diagnostic or the replay
+  tool. Killed the scratch diagnostic rather than let it starve indefinitely; did NOT touch the
+  shotgun_scalper processes (not this task's to kill, per the standing "never clobber another
+  session's work" rule). **Disposition: KNOWN_MAX_MISSED/KNOWN_MAX_EXTRA deliberately left
+  UNTOUCHED** — per the test's own docstring warning ("a naive bump to 'fix' the red would hide a
+  real regression, not resolve one") and this session's inability to empirically confirm bar 1405
+  (or any other bar) as the actual mismatch, bumping the ratchet without that confirmation would be
+  exactly the guess-fix the prior session correctly refused. **Next session, when the box is
+  quieter:** re-run the bar-windowed diagnostic (reusable pattern: filter `run_backtest`'s
+  `res.decisions` to `bar_idx` near the known GT bars before the `_build_payload`/`decide_payload`
+  loop, cuts iteration count ~2x vs the full replay) OR simply retry the standalone
+  `python backtest/replay_fleet_arms.py` when `Gamma_ShotgunScalperStage3` isn't mid-grind (check
+  via `Get-CimInstance Win32_Process -Filter "Name='pythonw.exe'"` first) — confirm/deny bar 1405
+  as the mismatch, then either fix the level-state windowing gap (if it's genuinely wrong) or
+  document it in `KNOWN_MAX_EXTRA`/`KNOWN_MAX_MISSED` with the same rigor as risky-1's entry.
+  :: depends:none :: status:pending-narrowed-not-root-caused
 
 ### STRIKE-TIER-RECONCILIATION-FOLLOWUP (MED, doctrine-cleanup + open decision, 2026-07-11)
 
