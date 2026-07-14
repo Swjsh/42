@@ -1,9 +1,13 @@
 {
   "_doc": "PRE-REGISTERED candidate spec for wiring trendline_engine.py structure context into a LIVE decision as a CONVICTION OVERRIDE on top of the existing block_elite_bull VIX-band gate. Frozen BEFORE any replay is run (ground rule: exploratory != confirmatory -- no re-picks after seeing results; FAIL is publishable). Per J directive 2026-07-14 (TRENDLINE-SUBSYSTEM-AUDIT): SPEC ONLY -- do NOT run yet, the OPRA cache/backtest venv lane may be busy with other work. This is the decisive test for the trendline-as-veto/BOS-break-trigger 'entry-wire A/B-gated NEEDS-REVIEW' status trendline_engine.py's own docstrings have carried since T3 (2026-06-26).",
   "version": 1,
-  "status": "FROZEN_PENDING_RUN",
+  "status": "RUN_COMPLETE",
   "frozen_at": "2026-07-14",
-  "runner": "TBD -- new script, e.g. backtest/tools/trendline_conviction_override_study.py (does not exist yet)",
+  "run_at": "2026-07-14",
+  "result_file": "analysis/recommendations/trendline-conviction-override-result.json",
+  "result_summary_md": "analysis/recommendations/trendline-conviction-override-result.md",
+  "result_verdict": "KILL -- TL-A/TL-B (pure wick family) breakeven at -$0.28/tr (n=18), FAIL condition_1. TL-C (wick-or-body) mechanically PASSes condition_1 (+$23.57/tr, n=26) but is a single-trade artifact (one +$1,949.80 signal = 318% of net P&L; excluding it flips the mean to -$53.48/tr) -- disclosed via a robustness diagnostic, no candidate/threshold was re-picked. No candidate clears the evidence bar. block_elite_bull's VIX[15,17.5) band stands.",
+  "runner": "backtest/tools/trendline_conviction_override_study.py",
   "strategy": "ribbon_ride / BULLISH_RECLAIM_RIDE_THE_RIBBON (ELITE tier, level_reclaim trigger)",
   "direction": "bull only (mirrors block_elite_bull's own scope -- see gate_under_test)",
 

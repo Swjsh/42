@@ -1,0 +1,2074 @@
+{
+  "_doc": "TRENDLINE-STRUCTURE CONVICTION-OVERRIDE study -- pre-registered, frozen before any candidate replay. ANALYSIS ONLY: no trading-path file touched.",
+  "generated_at": "2026-07-14T14:40:50.909895",
+  "preregistration_file": "analysis/recommendations/trendline-structure-conviction-preregistration.json",
+  "preflight": {
+    "preregistration_version": 1,
+    "preregistration_version_ok": true,
+    "preregistration_status_at_run": "FROZEN_PENDING_RUN"
+  },
+  "no_lookahead_guard": {
+    "passed": true,
+    "returncode": 0,
+    "tail": "============================= test session starts =============================\nplatform win32 -- Python 3.13.0, pytest-8.4.2, pluggy-1.6.0 -- C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Scripts\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\jackw\\Desktop\\42\\backtest\nconfigfile: pytest.ini\nplugins: anyio-4.14.0, cov-6.3.0\ncollecting ... collected 2 items\n\ntests/test_trendline_conviction_override_no_lookahead.py::test_truncated_detect_matches_regardless_of_store_size PASSED [ 50%]\ntests/test_trendline_conviction_override_no_lookahead.py::test_appending_future_bars_without_retruncating_does_change_current_value PASSED [100%]\n\n============================== 2 passed in 0.23s =============================="
+  },
+  "population_counts": {
+    "n_is": 85,
+    "n_oos": 8,
+    "n_total": 93,
+    "n_is_base_trades": 211,
+    "n_oos_base_trades": 33
+  },
+  "baseline": {
+    "source": "analysis/recommendations/elite-bull-block-vix-01.json",
+    "avg_per_trade": -100.0,
+    "n": 73
+  },
+  "candidates": {
+    "TL-A": {
+      "spec": {
+        "families": [
+          "wick"
+        ],
+        "min_respect_count": 10,
+        "max_distance_dollars": 1.0
+      },
+      "rescued_n": 18,
+      "rescued_mean_pnl": -0.28,
+      "rescued_wr": 0.222,
+      "rescued_n_is": 16,
+      "rescued_n_oos": 2,
+      "remainder_n": 75,
+      "remainder_mean_pnl": -87.67,
+      "remainder_stderr": 42.21,
+      "robustness_leave_largest_winner_out": {
+        "largest_single_trade_pnl": 1028.6,
+        "largest_trade_share_of_rescued_total": null,
+        "mean_excluding_largest_winner": -60.8,
+        "condition_1_depends_on_this_single_trade": false
+      },
+      "rescued_rows": [
+        {
+          "is_is": true,
+          "date": "2025-06-09",
+          "entry_time_et": "2025-06-09 14:10:00",
+          "entry_spot": 600.86,
+          "entry_vix": 16.84,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -165.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 78,
+              "status": "INTACT",
+              "current_value": 599.99,
+              "distance_from_spot": 0.87
+            },
+            "body_support": {
+              "respect_count": 75,
+              "status": "INTACT",
+              "current_value": 600.4,
+              "distance_from_spot": 0.46
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-06-25",
+          "entry_time_et": "2025-06-25 10:00:00",
+          "entry_spot": 608.17,
+          "entry_vix": 17.16,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -214.4,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 64,
+              "status": "INTACT",
+              "current_value": 607.55,
+              "distance_from_spot": 0.62
+            },
+            "body_support": {
+              "respect_count": 68,
+              "status": "TESTING",
+              "current_value": 607.82,
+              "distance_from_spot": 0.35
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-07-16",
+          "entry_time_et": "2025-07-16 15:00:00",
+          "entry_spot": 624.35,
+          "entry_vix": 16.9,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -192.0,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 31,
+              "status": "INTACT",
+              "current_value": 623.67,
+              "distance_from_spot": 0.675
+            },
+            "body_support": {
+              "respect_count": 29,
+              "status": "INTACT",
+              "current_value": 623.33,
+              "distance_from_spot": 1.015
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-07-18",
+          "entry_time_et": "2025-07-18 09:50:00",
+          "entry_spot": 629.06,
+          "entry_vix": 16.38,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -197.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 92,
+              "status": "INTACT",
+              "current_value": 628.08,
+              "distance_from_spot": 0.98
+            },
+            "body_support": {
+              "respect_count": 99,
+              "status": "TESTING",
+              "current_value": 628.43,
+              "distance_from_spot": 0.63
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-07-25",
+          "entry_time_et": "2025-07-25 12:15:00",
+          "entry_spot": 636.37,
+          "entry_vix": 15.05,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": 772.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 134,
+              "status": "INTACT",
+              "current_value": 635.86,
+              "distance_from_spot": 0.51
+            },
+            "body_support": {
+              "respect_count": 123,
+              "status": "INTACT",
+              "current_value": 635.44,
+              "distance_from_spot": 0.93
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-08-07",
+          "entry_time_et": "2025-08-07 10:30:00",
+          "entry_spot": 633.71,
+          "entry_vix": 16.98,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -201.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 46,
+              "status": "INTACT",
+              "current_value": 633.02,
+              "distance_from_spot": 0.69
+            },
+            "body_support": {
+              "respect_count": 55,
+              "status": "INTACT",
+              "current_value": 632.58,
+              "distance_from_spot": 1.13
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-09-09",
+          "entry_time_et": "2025-09-09 15:05:00",
+          "entry_spot": 649.88,
+          "entry_vix": 15.08,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -155.2,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 120,
+              "status": "INTACT",
+              "current_value": 649.15,
+              "distance_from_spot": 0.73
+            },
+            "body_support": {
+              "respect_count": 87,
+              "status": "INTACT",
+              "current_value": 649.08,
+              "distance_from_spot": 0.8
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-09-22",
+          "entry_time_et": "2025-09-22 12:10:00",
+          "entry_spot": 665.11,
+          "entry_vix": 15.85,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": 1028.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 67,
+              "status": "INTACT",
+              "current_value": 664.63,
+              "distance_from_spot": 0.48
+            },
+            "body_support": {
+              "respect_count": 93,
+              "status": "INTACT",
+              "current_value": 664.36,
+              "distance_from_spot": 0.75
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-10-07",
+          "entry_time_et": "2025-10-07 09:55:00",
+          "entry_spot": 672.47,
+          "entry_vix": 16.31,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -221.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 148,
+              "status": "INTACT",
+              "current_value": 671.6,
+              "distance_from_spot": 0.87
+            },
+            "body_support": {
+              "respect_count": 142,
+              "status": "INTACT",
+              "current_value": 671.58,
+              "distance_from_spot": 0.89
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-10-23",
+          "entry_time_et": "2025-10-23 13:40:00",
+          "entry_spot": 672.18,
+          "entry_vix": 17.18,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -186.4,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 52,
+              "status": "INTACT",
+              "current_value": 671.33,
+              "distance_from_spot": 0.85
+            },
+            "body_support": {
+              "respect_count": 17,
+              "status": "INTACT",
+              "current_value": 664.7,
+              "distance_from_spot": 7.48
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-10-28",
+          "entry_time_et": "2025-10-28 10:00:00",
+          "entry_spot": 685.63,
+          "entry_vix": 16.21,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -184.0,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 83,
+              "status": "INTACT",
+              "current_value": 684.7,
+              "distance_from_spot": 0.93
+            },
+            "body_support": {
+              "respect_count": 69,
+              "status": "INTACT",
+              "current_value": 683.81,
+              "distance_from_spot": 1.82
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-11-28",
+          "entry_time_et": "2025-11-28 11:35:00",
+          "entry_spot": 682.08,
+          "entry_vix": 16.98,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -197.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 30,
+              "status": "INTACT",
+              "current_value": 681.66,
+              "distance_from_spot": 0.42
+            },
+            "body_support": {
+              "respect_count": 27,
+              "status": "INTACT",
+              "current_value": 681.24,
+              "distance_from_spot": 0.84
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2026-01-07",
+          "entry_time_et": "2026-01-07 10:40:00",
+          "entry_spot": 692.38,
+          "entry_vix": 15.07,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -227.2,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 71,
+              "status": "INTACT",
+              "current_value": 691.83,
+              "distance_from_spot": 0.55
+            },
+            "body_support": {
+              "respect_count": 75,
+              "status": "INTACT",
+              "current_value": 687.62,
+              "distance_from_spot": 4.76
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2026-01-23",
+          "entry_time_et": "2026-01-23 13:05:00",
+          "entry_spot": 690.09,
+          "entry_vix": 15.96,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -189.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 46,
+              "status": "INTACT",
+              "current_value": 689.44,
+              "distance_from_spot": 0.65
+            },
+            "body_support": {
+              "respect_count": 47,
+              "status": "INTACT",
+              "current_value": 689.01,
+              "distance_from_spot": 1.08
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2026-01-28",
+          "entry_time_et": "2026-01-28 11:20:00",
+          "entry_spot": 696.45,
+          "entry_vix": 16.9,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -276.8,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 132,
+              "status": "INTACT",
+              "current_value": 695.81,
+              "distance_from_spot": 0.64
+            },
+            "body_support": {
+              "respect_count": 112,
+              "status": "INTACT",
+              "current_value": 695.81,
+              "distance_from_spot": 0.64
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2026-01-30",
+          "entry_time_et": "2026-01-30 11:05:00",
+          "entry_spot": 691.9,
+          "entry_vix": 17.01,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": 543.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 41,
+              "status": "INTACT",
+              "current_value": 691.5,
+              "distance_from_spot": 0.405
+            },
+            "body_support": {
+              "respect_count": 35,
+              "status": "INTACT",
+              "current_value": 690.92,
+              "distance_from_spot": 0.985
+            }
+          }
+        },
+        {
+          "is_is": false,
+          "date": "2026-05-29",
+          "entry_time_et": "2026-05-29 10:55:00",
+          "entry_spot": 755.83,
+          "entry_vix": 15.19,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": 466.2,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 172,
+              "status": "INTACT",
+              "current_value": 755.69,
+              "distance_from_spot": 0.139
+            },
+            "body_support": {
+              "respect_count": 179,
+              "status": "TESTING",
+              "current_value": 755.91,
+              "distance_from_spot": 0.081
+            }
+          }
+        },
+        {
+          "is_is": false,
+          "date": "2026-06-16",
+          "entry_time_et": "2026-06-16 11:55:00",
+          "entry_spot": 753.19,
+          "entry_vix": 15.94,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -206.4,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 62,
+              "status": "INTACT",
+              "current_value": 752.38,
+              "distance_from_spot": 0.81
+            },
+            "body_support": {
+              "respect_count": 61,
+              "status": "INTACT",
+              "current_value": 752.23,
+              "distance_from_spot": 0.96
+            }
+          }
+        }
+      ]
+    },
+    "TL-B": {
+      "spec": {
+        "families": [
+          "wick"
+        ],
+        "min_respect_count": 20,
+        "max_distance_dollars": 1.0
+      },
+      "rescued_n": 18,
+      "rescued_mean_pnl": -0.28,
+      "rescued_wr": 0.222,
+      "rescued_n_is": 16,
+      "rescued_n_oos": 2,
+      "remainder_n": 75,
+      "remainder_mean_pnl": -87.67,
+      "remainder_stderr": 42.21,
+      "robustness_leave_largest_winner_out": {
+        "largest_single_trade_pnl": 1028.6,
+        "largest_trade_share_of_rescued_total": null,
+        "mean_excluding_largest_winner": -60.8,
+        "condition_1_depends_on_this_single_trade": false
+      },
+      "rescued_rows": [
+        {
+          "is_is": true,
+          "date": "2025-06-09",
+          "entry_time_et": "2025-06-09 14:10:00",
+          "entry_spot": 600.86,
+          "entry_vix": 16.84,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -165.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 78,
+              "status": "INTACT",
+              "current_value": 599.99,
+              "distance_from_spot": 0.87
+            },
+            "body_support": {
+              "respect_count": 75,
+              "status": "INTACT",
+              "current_value": 600.4,
+              "distance_from_spot": 0.46
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-06-25",
+          "entry_time_et": "2025-06-25 10:00:00",
+          "entry_spot": 608.17,
+          "entry_vix": 17.16,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -214.4,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 64,
+              "status": "INTACT",
+              "current_value": 607.55,
+              "distance_from_spot": 0.62
+            },
+            "body_support": {
+              "respect_count": 68,
+              "status": "TESTING",
+              "current_value": 607.82,
+              "distance_from_spot": 0.35
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-07-16",
+          "entry_time_et": "2025-07-16 15:00:00",
+          "entry_spot": 624.35,
+          "entry_vix": 16.9,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -192.0,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 31,
+              "status": "INTACT",
+              "current_value": 623.67,
+              "distance_from_spot": 0.675
+            },
+            "body_support": {
+              "respect_count": 29,
+              "status": "INTACT",
+              "current_value": 623.33,
+              "distance_from_spot": 1.015
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-07-18",
+          "entry_time_et": "2025-07-18 09:50:00",
+          "entry_spot": 629.06,
+          "entry_vix": 16.38,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -197.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 92,
+              "status": "INTACT",
+              "current_value": 628.08,
+              "distance_from_spot": 0.98
+            },
+            "body_support": {
+              "respect_count": 99,
+              "status": "TESTING",
+              "current_value": 628.43,
+              "distance_from_spot": 0.63
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-07-25",
+          "entry_time_et": "2025-07-25 12:15:00",
+          "entry_spot": 636.37,
+          "entry_vix": 15.05,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": 772.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 134,
+              "status": "INTACT",
+              "current_value": 635.86,
+              "distance_from_spot": 0.51
+            },
+            "body_support": {
+              "respect_count": 123,
+              "status": "INTACT",
+              "current_value": 635.44,
+              "distance_from_spot": 0.93
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-08-07",
+          "entry_time_et": "2025-08-07 10:30:00",
+          "entry_spot": 633.71,
+          "entry_vix": 16.98,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -201.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 46,
+              "status": "INTACT",
+              "current_value": 633.02,
+              "distance_from_spot": 0.69
+            },
+            "body_support": {
+              "respect_count": 55,
+              "status": "INTACT",
+              "current_value": 632.58,
+              "distance_from_spot": 1.13
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-09-09",
+          "entry_time_et": "2025-09-09 15:05:00",
+          "entry_spot": 649.88,
+          "entry_vix": 15.08,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -155.2,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 120,
+              "status": "INTACT",
+              "current_value": 649.15,
+              "distance_from_spot": 0.73
+            },
+            "body_support": {
+              "respect_count": 87,
+              "status": "INTACT",
+              "current_value": 649.08,
+              "distance_from_spot": 0.8
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-09-22",
+          "entry_time_et": "2025-09-22 12:10:00",
+          "entry_spot": 665.11,
+          "entry_vix": 15.85,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": 1028.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 67,
+              "status": "INTACT",
+              "current_value": 664.63,
+              "distance_from_spot": 0.48
+            },
+            "body_support": {
+              "respect_count": 93,
+              "status": "INTACT",
+              "current_value": 664.36,
+              "distance_from_spot": 0.75
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-10-07",
+          "entry_time_et": "2025-10-07 09:55:00",
+          "entry_spot": 672.47,
+          "entry_vix": 16.31,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -221.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 148,
+              "status": "INTACT",
+              "current_value": 671.6,
+              "distance_from_spot": 0.87
+            },
+            "body_support": {
+              "respect_count": 142,
+              "status": "INTACT",
+              "current_value": 671.58,
+              "distance_from_spot": 0.89
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-10-23",
+          "entry_time_et": "2025-10-23 13:40:00",
+          "entry_spot": 672.18,
+          "entry_vix": 17.18,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -186.4,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 52,
+              "status": "INTACT",
+              "current_value": 671.33,
+              "distance_from_spot": 0.85
+            },
+            "body_support": {
+              "respect_count": 17,
+              "status": "INTACT",
+              "current_value": 664.7,
+              "distance_from_spot": 7.48
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-10-28",
+          "entry_time_et": "2025-10-28 10:00:00",
+          "entry_spot": 685.63,
+          "entry_vix": 16.21,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -184.0,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 83,
+              "status": "INTACT",
+              "current_value": 684.7,
+              "distance_from_spot": 0.93
+            },
+            "body_support": {
+              "respect_count": 69,
+              "status": "INTACT",
+              "current_value": 683.81,
+              "distance_from_spot": 1.82
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-11-28",
+          "entry_time_et": "2025-11-28 11:35:00",
+          "entry_spot": 682.08,
+          "entry_vix": 16.98,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -197.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 30,
+              "status": "INTACT",
+              "current_value": 681.66,
+              "distance_from_spot": 0.42
+            },
+            "body_support": {
+              "respect_count": 27,
+              "status": "INTACT",
+              "current_value": 681.24,
+              "distance_from_spot": 0.84
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2026-01-07",
+          "entry_time_et": "2026-01-07 10:40:00",
+          "entry_spot": 692.38,
+          "entry_vix": 15.07,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -227.2,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 71,
+              "status": "INTACT",
+              "current_value": 691.83,
+              "distance_from_spot": 0.55
+            },
+            "body_support": {
+              "respect_count": 75,
+              "status": "INTACT",
+              "current_value": 687.62,
+              "distance_from_spot": 4.76
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2026-01-23",
+          "entry_time_et": "2026-01-23 13:05:00",
+          "entry_spot": 690.09,
+          "entry_vix": 15.96,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -189.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 46,
+              "status": "INTACT",
+              "current_value": 689.44,
+              "distance_from_spot": 0.65
+            },
+            "body_support": {
+              "respect_count": 47,
+              "status": "INTACT",
+              "current_value": 689.01,
+              "distance_from_spot": 1.08
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2026-01-28",
+          "entry_time_et": "2026-01-28 11:20:00",
+          "entry_spot": 696.45,
+          "entry_vix": 16.9,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -276.8,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 132,
+              "status": "INTACT",
+              "current_value": 695.81,
+              "distance_from_spot": 0.64
+            },
+            "body_support": {
+              "respect_count": 112,
+              "status": "INTACT",
+              "current_value": 695.81,
+              "distance_from_spot": 0.64
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2026-01-30",
+          "entry_time_et": "2026-01-30 11:05:00",
+          "entry_spot": 691.9,
+          "entry_vix": 17.01,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": 543.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 41,
+              "status": "INTACT",
+              "current_value": 691.5,
+              "distance_from_spot": 0.405
+            },
+            "body_support": {
+              "respect_count": 35,
+              "status": "INTACT",
+              "current_value": 690.92,
+              "distance_from_spot": 0.985
+            }
+          }
+        },
+        {
+          "is_is": false,
+          "date": "2026-05-29",
+          "entry_time_et": "2026-05-29 10:55:00",
+          "entry_spot": 755.83,
+          "entry_vix": 15.19,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": 466.2,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 172,
+              "status": "INTACT",
+              "current_value": 755.69,
+              "distance_from_spot": 0.139
+            },
+            "body_support": {
+              "respect_count": 179,
+              "status": "TESTING",
+              "current_value": 755.91,
+              "distance_from_spot": 0.081
+            }
+          }
+        },
+        {
+          "is_is": false,
+          "date": "2026-06-16",
+          "entry_time_et": "2026-06-16 11:55:00",
+          "entry_spot": 753.19,
+          "entry_vix": 15.94,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -206.4,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 62,
+              "status": "INTACT",
+              "current_value": 752.38,
+              "distance_from_spot": 0.81
+            },
+            "body_support": {
+              "respect_count": 61,
+              "status": "INTACT",
+              "current_value": 752.23,
+              "distance_from_spot": 0.96
+            }
+          }
+        }
+      ]
+    },
+    "TL-C": {
+      "spec": {
+        "families": [
+          "wick",
+          "body"
+        ],
+        "min_respect_count": 10,
+        "max_distance_dollars": 1.0
+      },
+      "rescued_n": 26,
+      "rescued_mean_pnl": 23.57,
+      "rescued_wr": 0.192,
+      "rescued_n_is": 22,
+      "rescued_n_oos": 4,
+      "remainder_n": 67,
+      "remainder_mean_pnl": -107.36,
+      "remainder_stderr": 35.68,
+      "robustness_leave_largest_winner_out": {
+        "largest_single_trade_pnl": 1949.8,
+        "largest_trade_share_of_rescued_total": 3.182,
+        "mean_excluding_largest_winner": -53.48,
+        "condition_1_depends_on_this_single_trade": true
+      },
+      "rescued_rows": [
+        {
+          "is_is": true,
+          "date": "2025-06-09",
+          "entry_time_et": "2025-06-09 14:10:00",
+          "entry_spot": 600.86,
+          "entry_vix": 16.84,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -165.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 78,
+              "status": "INTACT",
+              "current_value": 599.99,
+              "distance_from_spot": 0.87
+            },
+            "body_support": {
+              "respect_count": 75,
+              "status": "INTACT",
+              "current_value": 600.4,
+              "distance_from_spot": 0.46
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-06-25",
+          "entry_time_et": "2025-06-25 10:00:00",
+          "entry_spot": 608.17,
+          "entry_vix": 17.16,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -214.4,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 64,
+              "status": "INTACT",
+              "current_value": 607.55,
+              "distance_from_spot": 0.62
+            },
+            "body_support": {
+              "respect_count": 68,
+              "status": "TESTING",
+              "current_value": 607.82,
+              "distance_from_spot": 0.35
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-07-10",
+          "entry_time_et": "2025-07-10 15:05:00",
+          "entry_spot": 626.36,
+          "entry_vix": 15.73,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -190.4,
+          "qualifies": {
+            "TL-A": false,
+            "TL-B": false,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 124,
+              "status": "TESTING",
+              "current_value": 626.17,
+              "distance_from_spot": 0.185
+            },
+            "body_support": {
+              "respect_count": 103,
+              "status": "INTACT",
+              "current_value": 625.78,
+              "distance_from_spot": 0.575
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-07-16",
+          "entry_time_et": "2025-07-16 15:00:00",
+          "entry_spot": 624.35,
+          "entry_vix": 16.9,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -192.0,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 31,
+              "status": "INTACT",
+              "current_value": 623.67,
+              "distance_from_spot": 0.675
+            },
+            "body_support": {
+              "respect_count": 29,
+              "status": "INTACT",
+              "current_value": 623.33,
+              "distance_from_spot": 1.015
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-07-18",
+          "entry_time_et": "2025-07-18 09:50:00",
+          "entry_spot": 629.06,
+          "entry_vix": 16.38,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -197.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 92,
+              "status": "INTACT",
+              "current_value": 628.08,
+              "distance_from_spot": 0.98
+            },
+            "body_support": {
+              "respect_count": 99,
+              "status": "TESTING",
+              "current_value": 628.43,
+              "distance_from_spot": 0.63
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-07-25",
+          "entry_time_et": "2025-07-25 12:15:00",
+          "entry_spot": 636.37,
+          "entry_vix": 15.05,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": 772.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 134,
+              "status": "INTACT",
+              "current_value": 635.86,
+              "distance_from_spot": 0.51
+            },
+            "body_support": {
+              "respect_count": 123,
+              "status": "INTACT",
+              "current_value": 635.44,
+              "distance_from_spot": 0.93
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-08-07",
+          "entry_time_et": "2025-08-07 10:30:00",
+          "entry_spot": 633.71,
+          "entry_vix": 16.98,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -201.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 46,
+              "status": "INTACT",
+              "current_value": 633.02,
+              "distance_from_spot": 0.69
+            },
+            "body_support": {
+              "respect_count": 55,
+              "status": "INTACT",
+              "current_value": 632.58,
+              "distance_from_spot": 1.13
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-09-09",
+          "entry_time_et": "2025-09-09 15:05:00",
+          "entry_spot": 649.88,
+          "entry_vix": 15.08,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -155.2,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 120,
+              "status": "INTACT",
+              "current_value": 649.15,
+              "distance_from_spot": 0.73
+            },
+            "body_support": {
+              "respect_count": 87,
+              "status": "INTACT",
+              "current_value": 649.08,
+              "distance_from_spot": 0.8
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-09-22",
+          "entry_time_et": "2025-09-22 12:10:00",
+          "entry_spot": 665.11,
+          "entry_vix": 15.85,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": 1028.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 67,
+              "status": "INTACT",
+              "current_value": 664.63,
+              "distance_from_spot": 0.48
+            },
+            "body_support": {
+              "respect_count": 93,
+              "status": "INTACT",
+              "current_value": 664.36,
+              "distance_from_spot": 0.75
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-09-23",
+          "entry_time_et": "2025-09-23 09:40:00",
+          "entry_spot": 667.11,
+          "entry_vix": 16.16,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -196.8,
+          "qualifies": {
+            "TL-A": false,
+            "TL-B": false,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 104,
+              "status": "TESTING",
+              "current_value": 666.7,
+              "distance_from_spot": 0.41
+            },
+            "body_support": {
+              "respect_count": 111,
+              "status": "INTACT",
+              "current_value": 666.4,
+              "distance_from_spot": 0.71
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-10-07",
+          "entry_time_et": "2025-10-07 09:55:00",
+          "entry_spot": 672.47,
+          "entry_vix": 16.31,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -221.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 148,
+              "status": "INTACT",
+              "current_value": 671.6,
+              "distance_from_spot": 0.87
+            },
+            "body_support": {
+              "respect_count": 142,
+              "status": "INTACT",
+              "current_value": 671.58,
+              "distance_from_spot": 0.89
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-10-23",
+          "entry_time_et": "2025-10-23 13:40:00",
+          "entry_spot": 672.18,
+          "entry_vix": 17.18,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -186.4,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 52,
+              "status": "INTACT",
+              "current_value": 671.33,
+              "distance_from_spot": 0.85
+            },
+            "body_support": {
+              "respect_count": 17,
+              "status": "INTACT",
+              "current_value": 664.7,
+              "distance_from_spot": 7.48
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-10-28",
+          "entry_time_et": "2025-10-28 10:00:00",
+          "entry_spot": 685.63,
+          "entry_vix": 16.21,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -184.0,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 83,
+              "status": "INTACT",
+              "current_value": 684.7,
+              "distance_from_spot": 0.93
+            },
+            "body_support": {
+              "respect_count": 69,
+              "status": "INTACT",
+              "current_value": 683.81,
+              "distance_from_spot": 1.82
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-11-28",
+          "entry_time_et": "2025-11-28 11:35:00",
+          "entry_spot": 682.08,
+          "entry_vix": 16.98,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -197.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 30,
+              "status": "INTACT",
+              "current_value": 681.66,
+              "distance_from_spot": 0.42
+            },
+            "body_support": {
+              "respect_count": 27,
+              "status": "INTACT",
+              "current_value": 681.24,
+              "distance_from_spot": 0.84
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-12-01",
+          "entry_time_et": "2025-12-01 14:45:00",
+          "entry_spot": 682.79,
+          "entry_vix": 16.6,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -156.0,
+          "qualifies": {
+            "TL-A": false,
+            "TL-B": false,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 58,
+              "status": "INTACT",
+              "current_value": 681.78,
+              "distance_from_spot": 1.01
+            },
+            "body_support": {
+              "respect_count": 57,
+              "status": "INTACT",
+              "current_value": 682.37,
+              "distance_from_spot": 0.42
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2025-12-19",
+          "entry_time_et": "2025-12-19 15:25:00",
+          "entry_spot": 680.75,
+          "entry_vix": 15.15,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -150.4,
+          "qualifies": {
+            "TL-A": false,
+            "TL-B": false,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 45,
+              "status": "TESTING",
+              "current_value": 680.53,
+              "distance_from_spot": 0.215
+            },
+            "body_support": {
+              "respect_count": 46,
+              "status": "INTACT",
+              "current_value": 680.41,
+              "distance_from_spot": 0.335
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2026-01-07",
+          "entry_time_et": "2026-01-07 10:40:00",
+          "entry_spot": 692.38,
+          "entry_vix": 15.07,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -227.2,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 71,
+              "status": "INTACT",
+              "current_value": 691.83,
+              "distance_from_spot": 0.55
+            },
+            "body_support": {
+              "respect_count": 75,
+              "status": "INTACT",
+              "current_value": 687.62,
+              "distance_from_spot": 4.76
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2026-01-15",
+          "entry_time_et": "2026-01-15 14:35:00",
+          "entry_spot": 695.05,
+          "entry_vix": 15.41,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -177.6,
+          "qualifies": {
+            "TL-A": false,
+            "TL-B": false,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 44,
+              "status": "TESTING",
+              "current_value": 694.74,
+              "distance_from_spot": 0.315
+            },
+            "body_support": {
+              "respect_count": 43,
+              "status": "INTACT",
+              "current_value": 694.52,
+              "distance_from_spot": 0.535
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2026-01-23",
+          "entry_time_et": "2026-01-23 13:05:00",
+          "entry_spot": 690.09,
+          "entry_vix": 15.96,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -189.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 46,
+              "status": "INTACT",
+              "current_value": 689.44,
+              "distance_from_spot": 0.65
+            },
+            "body_support": {
+              "respect_count": 47,
+              "status": "INTACT",
+              "current_value": 689.01,
+              "distance_from_spot": 1.08
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2026-01-28",
+          "entry_time_et": "2026-01-28 11:20:00",
+          "entry_spot": 696.45,
+          "entry_vix": 16.9,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -276.8,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 132,
+              "status": "INTACT",
+              "current_value": 695.81,
+              "distance_from_spot": 0.64
+            },
+            "body_support": {
+              "respect_count": 112,
+              "status": "INTACT",
+              "current_value": 695.81,
+              "distance_from_spot": 0.64
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2026-01-30",
+          "entry_time_et": "2026-01-30 11:05:00",
+          "entry_spot": 691.9,
+          "entry_vix": 17.01,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": 543.6,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 41,
+              "status": "INTACT",
+              "current_value": 691.5,
+              "distance_from_spot": 0.405
+            },
+            "body_support": {
+              "respect_count": 35,
+              "status": "INTACT",
+              "current_value": 690.92,
+              "distance_from_spot": 0.985
+            }
+          }
+        },
+        {
+          "is_is": true,
+          "date": "2026-02-09",
+          "entry_time_et": "2026-02-09 11:05:00",
+          "entry_spot": 691.24,
+          "entry_vix": 17.28,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": 1949.8,
+          "qualifies": {
+            "TL-A": false,
+            "TL-B": false,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 58,
+              "status": "INTACT",
+              "current_value": 689.91,
+              "distance_from_spot": 1.325
+            },
+            "body_support": {
+              "respect_count": 66,
+              "status": "INTACT",
+              "current_value": 690.57,
+              "distance_from_spot": 0.665
+            }
+          }
+        },
+        {
+          "is_is": false,
+          "date": "2026-05-27",
+          "entry_time_et": "2026-05-27 10:00:00",
+          "entry_spot": 750.49,
+          "entry_vix": 15.87,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -252.8,
+          "qualifies": {
+            "TL-A": false,
+            "TL-B": false,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 72,
+              "status": "INTACT",
+              "current_value": 749.31,
+              "distance_from_spot": 1.18
+            },
+            "body_support": {
+              "respect_count": 55,
+              "status": "INTACT",
+              "current_value": 749.52,
+              "distance_from_spot": 0.97
+            }
+          }
+        },
+        {
+          "is_is": false,
+          "date": "2026-05-29",
+          "entry_time_et": "2026-05-29 10:55:00",
+          "entry_spot": 755.83,
+          "entry_vix": 15.19,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": 466.2,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 172,
+              "status": "INTACT",
+              "current_value": 755.69,
+              "distance_from_spot": 0.139
+            },
+            "body_support": {
+              "respect_count": 179,
+              "status": "TESTING",
+              "current_value": 755.91,
+              "distance_from_spot": 0.081
+            }
+          }
+        },
+        {
+          "is_is": false,
+          "date": "2026-06-16",
+          "entry_time_et": "2026-06-16 10:10:00",
+          "entry_spot": 755.07,
+          "entry_vix": 15.8,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -208.0,
+          "qualifies": {
+            "TL-A": false,
+            "TL-B": false,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 64,
+              "status": "INTACT",
+              "current_value": 754.07,
+              "distance_from_spot": 1.0
+            },
+            "body_support": {
+              "respect_count": 64,
+              "status": "INTACT",
+              "current_value": 754.1,
+              "distance_from_spot": 0.97
+            }
+          }
+        },
+        {
+          "is_is": false,
+          "date": "2026-06-16",
+          "entry_time_et": "2026-06-16 11:55:00",
+          "entry_spot": 753.19,
+          "entry_vix": 15.94,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "dollar_pnl": -206.4,
+          "qualifies": {
+            "TL-A": true,
+            "TL-B": true,
+            "TL-C": true
+          },
+          "structure_detail": {
+            "wick_support": {
+              "respect_count": 62,
+              "status": "INTACT",
+              "current_value": 752.38,
+              "distance_from_spot": 0.81
+            },
+            "body_support": {
+              "respect_count": 61,
+              "status": "INTACT",
+              "current_value": 752.23,
+              "distance_from_spot": 0.96
+            }
+          }
+        }
+      ]
+    }
+  },
+  "verdicts": {
+    "TL-A": {
+      "condition_1_rescued_subset_positive": false,
+      "condition_2_no_regression_on_remainder": true,
+      "condition_2_detail": "remainder mean $-87.67/tr (n=75) vs baseline $-100.0/tr (n=73) + 1 SE ($42.21) = threshold $-57.79 -> no suggestive improvement",
+      "condition_3_evidence_floor": true,
+      "condition_4_no_lookahead": true,
+      "overall": "FAIL",
+      "reason": "rescued n=18 mean=$-0.28 (FAIL cond1); remainder mean $-87.67/tr (n=75) vs baseline $-100.0/tr (n=73) + 1 SE ($42.21) = threshold $-57.79 -> no suggestive improvement (PASS cond2); evidence floor n>=15: rescued n=18 (met); no-lookahead guard: PASS"
+    },
+    "TL-B": {
+      "condition_1_rescued_subset_positive": false,
+      "condition_2_no_regression_on_remainder": true,
+      "condition_2_detail": "remainder mean $-87.67/tr (n=75) vs baseline $-100.0/tr (n=73) + 1 SE ($42.21) = threshold $-57.79 -> no suggestive improvement",
+      "condition_3_evidence_floor": true,
+      "condition_4_no_lookahead": true,
+      "overall": "FAIL",
+      "reason": "rescued n=18 mean=$-0.28 (FAIL cond1); remainder mean $-87.67/tr (n=75) vs baseline $-100.0/tr (n=73) + 1 SE ($42.21) = threshold $-57.79 -> no suggestive improvement (PASS cond2); evidence floor n>=15: rescued n=18 (met); no-lookahead guard: PASS"
+    },
+    "TL-C": {
+      "condition_1_rescued_subset_positive": true,
+      "condition_2_no_regression_on_remainder": true,
+      "condition_2_detail": "remainder mean $-107.36/tr (n=67) vs baseline $-100.0/tr (n=73) + 1 SE ($35.68) = threshold $-64.32 -> no suggestive improvement",
+      "condition_3_evidence_floor": true,
+      "condition_4_no_lookahead": true,
+      "overall": "PASS",
+      "reason": "rescued n=26 mean=$23.57 (PASS cond1); remainder mean $-107.36/tr (n=67) vs baseline $-100.0/tr (n=73) + 1 SE ($35.68) = threshold $-64.32 -> no suggestive improvement (PASS cond2); evidence floor n>=15: rescued n=26 (met); no-lookahead guard: PASS"
+    }
+  },
+  "overall_study_verdict": "KILL",
+  "overall_study_reason": "TL-C mechanically clears the frozen pass_bar's condition_1 threshold ($23.57/tr > $0) but the robustness diagnostic shows this is a single-trade artifact (one $1949.8 signal is 318.2% of the rescued population's net P&L; excluding it alone flips the mean to $-53.48/tr). TL-A breakeven at $-0.28/tr (n=18); TL-B breakeven at $-0.28/tr (n=18) cleanly FAIL condition_1. No candidate clears the evidence bar the mission requires ('ship nothing that fails the evidence bar no matter the pressure') -- block_elite_bull's VIX[15,17.5) band stands as correctly calibrated for ELITE bull level_reclaim signals; the trendline-as-veto/entry-wire remains correctly shadow-only/NEEDS-REVIEW. Today's (2026-07-14) VIX-deadzone block was NOT a mistake this study can overturn.",
+  "key_findings": [
+    "Population: n=93 (IS n=85, OOS n=8) ELITE bull level_reclaim signals in VIX [15.0,17.5) reconstructed from the BASE (unblocked) run -- for comparison, elite-bull-block-vix-01.json's own ratification reported n_is_blocked=79, n_oos_blocked=4 (79+4=83) for the SAME predicate; this study finds n=93.",
+    "Baseline (what the override is measured against): elite-bull-block-vix-01.json IS VIX-15-17 bucket avg=$-100.0/tr, n=73.",
+    "TL-A: rescued n=18 (IS=16/OOS=2) mean=$-0.28 WR=0.222, remainder n=75 mean=$-87.67 -> FAIL.",
+    "TL-B: rescued n=18 (IS=16/OOS=2) mean=$-0.28 WR=0.222, remainder n=75 mean=$-87.67 -> FAIL.",
+    "TL-C: rescued n=26 (IS=22/OOS=4) mean=$23.57 WR=0.192, remainder n=67 mean=$-107.36 -> PASS.",
+    "  ROBUSTNESS FLAG on TL-C: condition_1 (rescued subset positive) is NOT robust -- the single largest rescued trade ($1949.8, 318.2% of the rescued population's total P&L) is doing all the work. Excluding it alone, mean drops to $-53.48/tr (would FAIL condition_1). This is a disclosure-only diagnostic (no candidate/threshold/population was touched or re-picked) -- TL-C's mechanical PASS above should be read as OUTLIER-DEPENDENT, not a robust edge, until it accrues more evidence."
+  ],
+  "disclosures": [
+    "COUNTERFACTUAL BY CONSTRUCTION: nearly the entire population never received a real fill (that is what block_elite_bull prevents) -- every dollar_pnl in this study is a BS/cached-OPRA SIMULATED replay via orchestrator.run_backtest(use_real_fills=True), NOT a broker-verified fill. Per OP-16/C1, this can inform a SHIP/HOLD decision on the override but any resulting override must accrue its own real-fills track record (evidence_n>=15) before being trusted the way block_elite_bull itself now is.",
+    "PNL engine convention: reused BYTE-IDENTICAL to elite_bull_vix_range_ab.py's own BASE dict (same strike_offset/account_equity defaults that produced elite-bull-block-vix-01.json's ratified avg=-$100/n=73 number) -- NOT necessarily the current live V15_SAFE_TIERS ATM strike convention (see CLAUDE.md C29 + analysis/deep-research/2026-07-11-strike-tier-reconciliation.md). This is a pre-existing, disclosed gap in the gate's OWN evidence base, not something this study introduces -- reusing it keeps the override measured on an apples-to-apples footing against the gate it modifies.",
+    "Structure-state reconstruction is CPU-only and deterministic: trendline_engine.detect() on a trailing N_DAYS=5 trading-day window of the SAME cached spy_5m_2025-01-01_2026-06-16.csv used for signal reconstruction, truncated to timestamp_et <= signal's entry_time_et (C6). No OPRA or live network calls in this layer.",
+    "Timestamp frame: wall-v1 (default et_frame.py convention, matches orchestrator.py's own pd.to_datetime(timestamp_et) parse with no utc=True normalization) -- consistent with the population reconstruction's own frame, not independently re-derived.",
+    "Early-dataset signals (near 2025-01-02) may see a SHORTER-than-5-day lookback window (cold start, clamped to whatever trading days exist before them) -- matches production behavior for a real cold start, not a bug.",
+    "The 2026-07-14 11:06 ET exhibit signal plays NO role in any pass/fail verdict above (excluded by the pre-registration's own ground rule) -- see hypothesis_provenance.today_exhibit in the pre-registration file for the narrative context that motivated this study."
+  ]
+}
