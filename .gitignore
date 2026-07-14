@@ -120,6 +120,11 @@ cockpit/_devshot.png
 # engine-stress-swarm per-cell dumps (large; ledger+report are the tracked deliverables)
 analysis/stress-swarm/grid-*.json
 
+# G1 trendline-break historical replay dataset (78K+ rows / 67MB, fully regenerable via
+# backtest/autoresearch/trendline_break_replay.py; break-dataset-summary.json is the tracked
+# deliverable). 2026-07-14.
+analysis/trendlines/break-dataset.jsonl
+
 # Kokoro TTS weights + generated voice (340MB models / daily wavs - never in the public repo)
 setup/tts/*.onnx
 setup/tts/*.bin
