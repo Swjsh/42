@@ -323,6 +323,41 @@ def _read_levels(spy: float) -> tuple[list[float], list[float]]:
         return [], []
 
 
+CONTEXT_BUNDLE_STALE_MIN = 20  # older than this -> treat as absent (a stale trend read is
+                                # worse than none; matches the 5-min Gamma_ContextBundle cadence
+                                # with generous slack for a missed/late fire).
+
+
+def _read_context_bundle() -> "dict | None":
+    """Fail-open read of automation/state/context-bundle.json — the multi-timeframe
+    TREND-ALIGNMENT context bundle (Phase 0, context-enrichment plan 2026-07-14). Mirrors
+    _read_levels's disk-read pattern. Cloned, not shared, deliberately: _read_levels feeds
+    the LIVE decision (levels_active/multi_day_levels -> filters.py triggers); this bundle
+    is LOGGED ONLY this phase — see the two call sites below (_build_payload's bar_ctx,
+    run_account's rec) — nothing on the score/gates/_derive_tier path reads it.
+
+    Returns None when the file is missing/unreadable/malformed, OR when computed_at_et is
+    older than CONTEXT_BUNDLE_STALE_MIN minutes (a stale multi-day trend read is treated as
+    absent, not as ground truth) — either way LOGGED as an absent bundle rather than crashing
+    or fabricating a read. NEVER raises.
+    """
+    try:
+        raw = json.loads((STATE / "context-bundle.json").read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    computed_at = raw.get("computed_at_et") if isinstance(raw, dict) else None
+    if not computed_at:
+        return None
+    try:
+        computed_dt = datetime.strptime(str(computed_at), "%Y-%m-%dT%H:%M:%S")
+    except (TypeError, ValueError):
+        return None
+    age_min = (_et_now() - computed_dt).total_seconds() / 60.0
+    if age_min > CONTEXT_BUNDLE_STALE_MIN:
+        return None
+    return raw
+
+
 def _ribbon_df(closes: list[float]) -> pd.DataFrame:
     """lib.ribbon over a close series -> per-bar DataFrame (fast,pivot,slow,spread_cents,stack).
     EXACT backtest ribbon (spread = max-min across the 3 EMAs)."""
@@ -491,6 +526,15 @@ def _build_payload(df: pd.DataFrame, account_params: dict, *,
         # ported 2026-06-25 to close replay parity; level_states + vix-MA now wired (no-op under
         # current params: VIX_DECLINING_REQUIRED_BEAR off, but faithful for when J flips the flag)
         "level_states": level_states, "fhh_level": fhh, "vix_5d_ma": vix_5d_ma, "vix_20d_ma": vix_20d_ma,
+        # CONTEXT BUNDLE (Phase 0, 2026-07-14, LOGGED ONLY): pre-computed multi-timeframe
+        # trend-alignment read (setup/scripts/context_bundle_producer.py, off the hot path,
+        # 5-min RTH cadence). None when the producer file is missing/stale (see
+        # _read_context_bundle's CONTEXT_BUNDLE_STALE_MIN). PURITY: build_bar_context
+        # (backtest/lib/engine/engine_cli.py) reads ONLY its own named fields off bar_ctx —
+        # this key is never one of them, so score_bar/evaluate_gates/_derive_tier never see
+        # it. Zero-behavior-change by construction; tagged again onto `rec` in run_account
+        # for the decision-row ledger. Guard: test_context_bundle_tag_no_behavior_change.py.
+        "context_bundle": _read_context_bundle(),
     }
     gate_params = {k: account_params[k] for k in GATE_KEYS if k in account_params}
     # SCORE kwargs from params.json (filter_10 min_triggers, filter_9 vol_mult, time gates).
@@ -793,7 +837,12 @@ def run_account(account: str) -> dict:
            # treat that as "no exact level available" and fall back to the proximity
            # heuristic (exit_manager.nearest_active_level), never guess. DATA-ADDITIVE: a
            # new key: every existing core-decisions.jsonl reader ignores unknown keys.
-           "trigger_level_exact": verdict.get("rejection_level")}
+           "trigger_level_exact": verdict.get("rejection_level"),
+           # CONTEXT BUNDLE (Phase 0, 2026-07-14, LOGGED ONLY -- see the matching bar_ctx
+           # comment above and context_bundle_producer.py). Tagged straight off the payload
+           # so the decision-row ledger carries the SAME bundle (or None) the engine payload
+           # did this tick -- never recomputed, never re-read, so the two can't drift.
+           "context_bundle": bc.get("context_bundle")}
     # EXIT-MANAGEMENT PASS (flag-gated, default OFF -> byte-identical armed behavior).
     # Manage every open position's scale-out FIRST (before evaluating a new entry), so a
     # winner's TP1/runner or a stop is realized this tick. Places only when ARMED (live);

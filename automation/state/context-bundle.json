@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "computed_at_et": "2026-07-14T18:39:24",
+  "per_tf": {
+    "daily": {
+      "trend": "uptrend",
+      "confidence": 0.733,
+      "trend_basis": "structure_breaks",
+      "available": true,
+      "n_bars": 130,
+      "reason": null
+    },
+    "hourly": {
+      "trend": "uptrend",
+      "confidence": 0.8,
+      "trend_basis": "structure_breaks",
+      "available": true,
+      "n_bars": 134,
+      "reason": null
+    },
+    "m15": {
+      "trend": "uptrend",
+      "confidence": 0.867,
+      "trend_basis": "structure_breaks",
+      "available": true,
+      "n_bars": 144,
+      "reason": null
+    }
+  },
+  "trend_alignment": {
+    "bull": {
+      "agreeing_timeframes": [
+        "daily",
+        "hourly",
+        "m15"
+      ],
+      "agree_count": 3,
+      "available_count": 3,
+      "aligned": true
+    },
+    "bear": {
+      "agreeing_timeframes": [],
+      "agree_count": 0,
+      "available_count": 3,
+      "aligned": false
+    }
+  },
+  "alignment_score": 3,
+  "degraded": false,
+  "degraded_reason": null,
+  "note": "TREND ALIGNMENT ONLY (v1 scope, J 2026-07-14 -- macro/confluence deferred). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']."
+}
