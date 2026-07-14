@@ -23,6 +23,14 @@ J's hard requirement: *"connectivity checks built in, so we're not writing to th
 
 ---
 
+## Visual verification FIRST — screenshot before any line touches J's chart (2026-07-14)
+
+**Data-only reads are not enough when a read is about to become a drawn line.** `data_get_ohlcv` numbers tell you a bar's O/H/L/C; they don't tell you whether the low "looks like" a rejection wick to the eye or is really a body point with a hair of slack below it. Two bad trendlines got drawn on J's chart the same session (2026-07-14) precisely because the anchors were picked from OHLC numbers alone — one mixed a 2-cent/2.3%-range "wick" (really a body point) with a genuine 67.8%-range wick into one line; the other ran a 2-point line through two extremes that nothing else respected. Neither mistake survives an actual look at the candles.
+
+**The rule:** before this skill's read is used to draw *anything* on J's chart (a trendline, a level, a rejection marker), call `mcp__tradingview__capture_screenshot` (region `"chart"`) and visually confirm the anchor candle(s) actually show what the OHLC numbers claim — a protruding wick looks like a protruding wick, not a near-flush open/close at the extreme. This skill itself is READ-ONLY and never draws (see Guardrails below); the visual-verification step is what a caller (e.g. `trendline-draw`, or a live session drawing ad-hoc from this read) must do between "chart-read produced a structural read" and "a line goes on the chart." Full pre-draw checklist (anchor family, wick-depth verification, respect-count reporting): `tradingview-ops` skill §2a.
+
+---
+
 ## Procedure
 
 ### Mode: `intraday` ("what is the chart doing right now") and `morning` (premarket bias)
@@ -75,6 +83,10 @@ SPY-history audit (offline coverage): `python backtest/autoresearch/chart_read.p
 | nearest_level nonsensical | stale/empty key-levels.json | refresh levels (premarket); harmless in backtest (skipped) |
 
 ## Guardrails
-- **READ-ONLY.** Never places orders, never edits params.json / heartbeat.md, **never a trigger.** It is telemetry + situational awareness, exactly like the WATCH_ONLY watcher fleet.
+- **READ-ONLY.** Never places orders, never edits params.json / heartbeat.md, **never a trigger.** It is telemetry + situational awareness, exactly like the WATCH_ONLY watcher fleet. It also never calls `draw_shape` — any drawing that follows a chart-read happens in a separate step (see "Visual verification FIRST" above), through `tradingview-ops`'s pre-draw checklist.
 - Pure Python after the MCP pull — `$0` recurring, no LLM in the detection loop.
 - Detector correctness is proven by the gym validator **`crypto/validators/v46_market_structure.py`** (13/13 offline + live). Re-run via `python -m crypto.validators.runner`.
+
+## Cross-references
+- **Pre-draw checklist (anchor family, wick-depth check, respect count):** `tradingview-ops` skill §2a — mandatory before any `draw_shape` call for a trendline/support/resistance line.
+- **Trendline detection + drawing:** `trendline-draw` skill (`backtest/autoresearch/trendline_engine.py`) — the automated detector that structurally enforces the wick/body anchor rules; prefer it over hand-picked anchors from a chart-read.

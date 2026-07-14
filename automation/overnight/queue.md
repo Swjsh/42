@@ -9,6 +9,39 @@
 
 ## Active backlog
 
+### TV-MCP-GETCHARTAPI-FIX-VERIFY (MED, fix landed, verify pending restart, 2026-07-14)
+
+- [ ] TV-MCP-GETCHARTAPI-FIX-VERIFY (MED) :: G3 root-caused + fixed the `draw_list`/
+  `draw_remove_one`/`draw_get_properties`/`draw_clear` "`getChartApi is not defined`" bug (the
+  same one trendline-draw's Step 1 works around via `ui_evaluate` JS-injection). ROOT CAUSE:
+  `src/core/drawing.js` in the reservoir repo
+  (`C:/Users/jackw/Desktop/SwjshAlgoKnife/mcp-servers/tradingview-mcp`) — `listDrawings`,
+  `getProperties`, `removeOne`, `clearAll` referenced the bare `getChartApi`/`evaluate`
+  identifiers, which are only module-imported under the aliases `_getChartApi`/`_evaluate`;
+  `getChartApi`/`evaluate` were never bound in those 4 functions' scope (only `drawShape` called
+  `_resolve(_deps)` to bind them locally) → ReferenceError before ever reaching CDP. FIX: all 4
+  now call `_resolve(_deps)` first, matching `drawShape`'s existing pattern. Verified via a new
+  mocked-`_deps` regression suite (`tests/drawing_getchartapi.test.js`, 5/5 pass, incl. a static
+  source-audit guard that fails CI if a future function calls `getChartApi()`/`evaluate()`
+  without resolving `_deps` first) — see that repo's `git diff src/core/drawing.js`.
+  **NOT YET LIVE-VERIFIED end-to-end** — the running `tradingview` MCP server process
+  (`src/server.js`, spawned per-Claude-session via `.mcp.json` → `launcher.cjs`) has the OLD
+  code cached in its already-running Node process; it re-reads from disk only on next spawn. No
+  destructive action needed and no restart script to run by hand — the fix auto-applies the
+  moment the NEXT fresh Claude Code session connects to the `tradingview` MCP server (new
+  process = fresh `require`/`import`). **Do NOT force-kill/restart THIS session's live MCP
+  process during market hours (09:30-15:55 ET) — that's the live CDP session J may be charting
+  on.** Action for the next after-close (16:05+) or next-morning session: call
+  `draw_list` / `draw_get_properties` / `draw_remove_one` for real against the live chart and
+  confirm no `getChartApi is not defined`; if clean, trendline-draw's `ui_evaluate` JS-injection
+  workaround (Step 1) can be retired in favor of the native tools — that's the OTHER audit
+  crew's file (`trendline-draw/SKILL.md`), flag it to them / do it next session, don't edit it
+  from this queue item. Also note: that reservoir repo currently has OTHER uncommitted changes
+  (`src/connection.js` disconnect/error-handler additions, `src/server.js`
+  unhandledRejection/uncaughtException handlers, `package-lock.json`) not made by this session —
+  unrelated to the getChartApi fix, left as-is (not mine to commit/revert). :: depends:none ::
+  status:pending
+
 ### PANDAS-CONSOLE-LEAK-ROOT-CAUSE (LOW, cosmetic-but-unresolved, discovered 2026-07-14)
 
 - [ ] PANDAS-CONSOLE-LEAK-ROOT-CAUSE (LOW, mitigated not fixed) :: `import pandas` (pulls in
