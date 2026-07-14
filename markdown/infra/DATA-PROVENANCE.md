@@ -58,6 +58,23 @@ across these feeds; **volume is not**.
 - **Side effect fixed:** a midday manual append used to write a partial day the next-day
   window would never re-fetch; the age gate now NOOPs those runs.
 
+## Consumer audit (2026-07-14) — was anything downstream poisoned?
+
+Swept every volume-feature consumer (orchestrator.py, heartbeat_core.py, watcher_live.py,
+gate_sweep_volume_morning.py, trendline_break_battery, all crypto validators/benchmarks).
+**Verdict: clean.** Every real volume-gated path (`f9_vol_mult`, TBR_HIGH_VOL,
+BEARISH_REJECTION_MORNING, ORB-RVOL, breakout volume-confirm) slices to RTH ≥09:30 *before*
+computing any volume feature — independent of this defect, predates it. No scorecard,
+validator verdict, or research JSON from 2026-06-01..07-14 is volume-contaminated.
+
+Residual (price, not volume, and NOT chased further): the missing 09:15-09:25 bars also
+carried price data. `refresh_levels_intraday.py` — the LIVE production PMH/PML path — reads
+no cache CSV (live-fetch only), so production trading levels were never exposed. Only
+backtest-time PMH/PML re-derivation (`backtest/lib/levels.py`, `pml_scan.py`) could
+theoretically miss a premarket extreme that fell inside that exact 3-bar window — narrow,
+research-only, and moot now the cache is repaired. Not investigated further; flag here if a
+specific day's PMH/PML research result ever looks suspicious.
+
 ## Rules
 
 1. **Canonical chain appends = Alpaca SIP only.** Never IEX for anything volume-bearing;
