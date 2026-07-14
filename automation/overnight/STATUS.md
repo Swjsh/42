@@ -1,3 +1,13 @@
+## [2026-07-14] TRENDLINE BREAK BATTERY (S1) + CALL-VETO SS-B RE-VAL (S2) RUN -- S1: 12/12 cells KILLED (real, decisive), S2: premise false (nothing to re-validate) [REVOKE-report]
+
+> **Full trendline review per J's "this needs a proper review" directive** (follow-on to today's TRENDLINE-SUBSYSTEM-AUDIT-2026-07-14, which stayed read-only and froze a DIFFERENT spec of its own -- `trendline-structure-conviction-preregistration.json`, a conviction-override study, still `FROZEN_PENDING_RUN`, not run here, not this crew's artifact). Checked first whether that spec covered the break-entry battery the task asked for -- it doesn't (different mechanism: rescues blocked ELITE-bull signals, not an enter-on-break study) -- so froze a fresh one: `analysis/recommendations/prereg-trendline-break-battery-2026-07-14.json`, run VERBATIM after freezing (one mid-freeze fix to the V2 retest-confirmation window, made BEFORE any cell pnl was computed, disclosed in the prereg text itself, not a post-hoc re-pick).
+>
+> **S1 result: ALL 12 candidate cells FAIL.** 3 entry variants (V1 close-through-immediate, V2 break+retest, V3 break+volume-expansion>=1.5x) x 2 line families (wick/body, per J's anchor-family rule, never blended) x 2 directions (bearish/PUT from support breaks, bullish/CALL from resistance breaks), replayed on the FULL 380-day walk-forward population (`analysis/trendlines/break-dataset.jsonl`, G1) through the LIVE exit_manager core (SS-B shape, current shipped ribbon_ride params) on real local OPRA option bars -- 48,336 real episodes total (33,950 V1 + 3,179 V2 + 11,207 V3), zero subsampling needed (replay throughput ~1.3ms/episode, full run 187s). Every cell's expectancy is negative (-$41 to -$252/trade at qty=10), BH-FDR-significant (p approx 0 in 11/12 cells), OOS-negative, and none clears the null bar. **Informative sub-pattern (disclosed, NOT shipped or re-tested per the frozen no-repick clause):** the opposite-direction null (same timestamp/spot, flipped side) outperforms the real same-direction trade in 10/12 cells -- suggestive that trendline-break direction has near-zero or even adverse predictive value under this exit shape, but this was a NULL comparison, not a pre-registered candidate; a genuine "fade the break" study would need its own fresh pre-registration, not a re-pick on this one. Zero anchor-day (J's 7 OP-16 winner/loser days) participation in any cell. Runner: `backtest/tools/trendline_break_battery.py` (new, imports `trendline_break_replay.py`'s pure line-geometry helpers read-only, never touches `trendline_engine.py`/the drawing bridge/the audit doc). Full verdict table + per-cell nulls/WF/concentration: `analysis/recommendations/trendline-break-battery.{json,md}`.
+>
+> **S2 result: task premise was FALSE, not re-run as a re-validation.** The instruction asked to "find the original scorecard [for trendline-as-CALL-veto] and rerun under SS-B" -- searched `analysis/recommendations/` (grep for veto+trendline, zero hits across the 5 existing trendline recommendation files) and `strategy/candidates/` (10 dated Chef DRAFT attempts, 2026-06-26 through 2026-07-12, every one still `NEEDS-OOS`/`NEEDS-REAL-FILLS`/"unknown -- requires Stage-1 backtest," self-rated confidence 4/10). **No scorecard ever existed to go stale.** This independently reproduces today's own audit doc's Q2 finding (same conclusion, found separately). Fabricating a stand-in "original" would have been an OP-33 overclaim (misrepresenting an untested hypothesis as a previously-validated one), so S2 is delivered as: premise-false verdict + the search trail + a pointer to S1's bearish/support-break cells as the nearest real (but not equivalent) evidence + a correctly-scoped follow-up recommendation (a real CALL-veto A/B needs actual ribbon_ride CALL signal timestamps conditioned on trendline state, not built here -- out of today's scope). Full disclosure: `analysis/recommendations/trendline-call-veto-ssb-reval.json`.
+>
+> **No params/config/trading-path file touched. No orders placed. Audit-owned files (`trendline_engine.py`, drawing bridge, `TRENDLINE-SUBSYSTEM-AUDIT-2026-07-14.md`, the audit's own conviction-override prereg) untouched, import-only.** Both scorecards are publishable KILLs per their own no-repick clauses -- a KILL is a first-class outcome, not a reason to adjust and re-run.
+
 ## [2026-07-14] PC SLEPT 7.5h OVERNIGHT, KILLING THE CRYPTO TWIN'S 24/7 PREMISE -- root cause found, ONE-LINE FIX FOR J TO RUN (not applied -- system/power settings are J's click, not mine)
 
 > **JOB 4 (ultracode-review), report only, zero system changes.** `Get-WinEvent` (System log, Event IDs 42/1) confirms the box slept from **2026-07-13 22:01:46 PM local (Mountain) time** to **2026-07-14 05:35:27 AM local** -- **7h 33m** (matches the reported ~7.5h). **Correcting the task's own "22:01->05:35 ET" framing**: those are LOCAL (Mountain) clock times, not ET -- this is the exact "local time mistaken for ET" pattern CLAUDE.md's TZ doctrine already warns about (`project_tz_systemic_fix`). Converted properly via the event's own embedded UTC timestamps: **sleep = 2026-07-14T00:01:45 ET (12:01 AM), wake = 2026-07-14T07:35:26 ET (7:35 AM)** -- the twin was down through the entire pre-market/early-session window in real ET terms.
@@ -3753,5 +3763,37 @@ Inbox item `strategy/candidates/_lesson-inbox/2026-07-10-joint-cascade-blindness
 - [2026-07-14 08:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-14.log
 
 ### DEGRADED: self-check 2026-07-14T10:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+- [2026-07-14 08:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-14T14:57:01.846243+00:00) | fail streak: 4 consecutive fires | stage v02_source_parity pass rate dropped to 81.82% in last 24h (27/33) | stage v15_three_source_parity.live pass rate dropped to 90.91% in last 24h (30/33) | stage v53_setup_dispatch.live pass rate dropped to 87.88% in last 24h (29/33) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-14 08:57:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-14.log
+
+### DEGRADED: self-check 2026-07-14T11:09:56
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+- [2026-07-14 09:27:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-14T15:27:01.652510+00:00) | fail streak: 5 consecutive fires | stage v02_source_parity pass rate dropped to 81.82% in last 24h (27/33) | stage v15_three_source_parity.live pass rate dropped to 90.91% in last 24h (30/33) | stage v53_setup_dispatch.live pass rate dropped to 84.85% in last 24h (28/33) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-14 09:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-14.log
+
+### DEGRADED: self-check 2026-07-14T11:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+- [2026-07-14 09:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-14T15:57:01.941128+00:00) | fail streak: 6 consecutive fires | stage v02_source_parity pass rate dropped to 81.82% in last 24h (27/33) | stage v15_three_source_parity.live pass rate dropped to 90.91% in last 24h (30/33) | stage v53_setup_dispatch.live pass rate dropped to 81.82% in last 24h (27/33) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-14 09:57:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-14.log
+
+### DEGRADED: self-check 2026-07-14T12:09:56
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+- [2026-07-14 10:27:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-14T16:27:01.927812+00:00) | fail streak: 7 consecutive fires | stage v02_source_parity pass rate dropped to 81.82% in last 24h (27/33) | stage v15_three_source_parity.live pass rate dropped to 90.91% in last 24h (30/33) | stage v53_setup_dispatch.live pass rate dropped to 78.79% in last 24h (26/33) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-14 10:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-14.log
+
+### DEGRADED: self-check 2026-07-14T12:39:56
 - FILL-FUNNEL RULE-BLOCKED[core:safe]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
 - PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
