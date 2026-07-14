@@ -7,6 +7,25 @@ failed with ConnectionRefused until a manual restart the next day. This gives it
 the same treatment as the Discord bridge (`Gamma_DiscordBridge` / OP-27): a 5-min
 TCP-probe + auto-restart + episode-deduped Discord ping if restart can't recover it.
 
+INTERACTIVE-PATH GUARD (added 2026-07-14, J's #1 directive that morning): the
+07-08 wiring made CCR the DEFAULT for every claude fire globally via
+~/.claude/settings.json's `env`/`apiKeyHelper` keys -- which ALSO silently
+captured J's Desktop app and bare terminal `claude` CLI, not just automation.
+Root cause of the 2026-07-14 lockout: `~/.claude-code-router/config.json`'s
+`Router.default` is hardcoded `"ollama,qwen3.6:35b"` with ZERO Anthropic provider
+entry, so any cold boot where CCR's fuller gateway/profile stack isn't yet live
+still leaves port 3456 LISTENING (this keepalive's TCP probe sees "up") while
+every default-routed request -- including J's interactive session -- silently
+gets served local Ollama with no error. J lost a full workday because "port up"
+!= "serving real Claude". Fix: J's interactive surfaces now hit Anthropic
+DIRECTLY (settings.json's router override removed); CCR stays available only for
+automation lanes that opt in per-fire in their OWN launch chain (doctrine:
+markdown/planning/BRAIN-SOVEREIGNTY.md sec 4, pattern: launch_claude_local.ps1).
+This script now ALSO asserts every fire that settings.json stays clean of the
+router override -- if anything (a CCR reinstall/update, `ccr code` re-sync, a
+future session) re-writes the hijack back in, this self-heals within 5 min and
+pings J. See `_check_and_fix_interactive_settings`.
+
 Task action (flash-free, matches window_leak_detector_keepalive.py /
 crypto_grinder_keepalive.py / preopen_readiness.py):
     wscript -> run_exe_hidden.vbs -> pythonw.exe -> this file
@@ -83,6 +102,13 @@ PROBE_TIMEOUT_SEC = 3.0
 RESTART_WAIT_SEC = 8.0
 PING_THRESHOLD = 3  # consecutive failed-restart cycles (~15 min at the 5-min cadence)
 
+# --- interactive-path guard (2026-07-14) ------------------------------------------------
+# J's Desktop app + bare terminal `claude` CLI read THIS file by default (no per-project
+# override). It must never point them at the CCR gateway -- see module docstring.
+INTERACTIVE_SETTINGS_FILE = Path.home() / ".claude" / "settings.json"
+_ROUTER_URL_MARKERS = ("127.0.0.1:3456", "localhost:3456")
+_ROUTER_ENV_KEYS = ("ANTHROPIC_BASE_URL", "ANTHROPIC_API_BASE_URL", "CLAUDE_AGENT_API_BASE_URL")
+
 # Primary restart path: direct node invocation (see module docstring for why).
 NODE_EXE = Path(r"C:\Program Files\nodejs\node.exe")
 CCR_CLI = Path(r"C:\Users\jackw\AppData\Roaming\npm\node_modules\@musistudio\claude-code-router\dist\main\cli.js")
@@ -125,7 +151,8 @@ def _load_state() -> dict:
         except (OSError, ValueError):
             pass
     return {"ts_et": None, "port_up": None, "consecutive_failures": 0,
-             "last_restart_et": None, "ping_sent_this_episode": False}
+             "last_restart_et": None, "ping_sent_this_episode": False,
+             "interactive_settings_clean": None, "interactive_settings_last_fixed_et": None}
 
 
 def _write_state(state: dict) -> None:
@@ -156,6 +183,80 @@ def _send_ping(msg: str) -> None:
         }) + "\n")
 
 
+def _scan_settings_for_router_leak(data: dict) -> list[str]:
+    """Pure function (no I/O) -- unit-testable against synthetic fixtures as well as the
+    real file. Returns a human-readable violation string per offending key found in a
+    parsed ~/.claude/settings.json, or [] if the file is clean.
+
+    2026-07-14 root cause: `~/.claude-code-router/config.json`'s Router.default is
+    hardcoded to ollama with NO Anthropic provider entry, so ANY cold boot where CCR's
+    fuller gateway/profile stack isn't yet live still leaves port 3456 listening (probe
+    sees "up") while default-routed traffic -- including J's interactive session --
+    silently resolves to local Ollama. The only durable fix is: J's interactive surfaces
+    never carry the override in the first place.
+    """
+    violations: list[str] = []
+    env = data.get("env") or {}
+    for key in _ROUTER_ENV_KEYS:
+        val = str(env.get(key, ""))
+        if any(marker in val for marker in _ROUTER_URL_MARKERS):
+            violations.append(f"env.{key}={val!r} points at the CCR gateway")
+    helper = str(data.get("apiKeyHelper", ""))
+    if "claude-code-router" in helper:
+        violations.append(f"apiKeyHelper={helper!r} routes auth through CCR")
+    return violations
+
+
+def _strip_router_leak(data: dict) -> dict:
+    """Immutable update (coding-style.md): returns a NEW dict with only the router-only
+    top-level keys removed. Every other user setting (hooks, plugins, theme, model,
+    autoCompact, ...) passes through untouched."""
+    return {k: v for k, v in data.items() if k not in ("apiKeyHelper", "env")}
+
+
+def _check_and_fix_interactive_settings() -> dict:
+    """Guard: J's Desktop app + bare `claude` CLI (via ~/.claude/settings.json, the
+    global default both entrypoints read) must NEVER depend on CCR being alive. Runs
+    every keepalive fire, independent of the TCP probe above -- 2026-07-14 proved
+    "port 3456 is listening" and "the gateway is serving real Claude" are NOT the same
+    fact, so this checks the ACTUAL consumer-facing config, not a proxy for it.
+
+    Returns {"checked": bool, "violations": [str, ...], "fixed": bool}. Fails open: any
+    exception here is logged and swallowed -- this guard must never break the CCR-restart
+    half of this script (OP-33e).
+    """
+    result = {"checked": False, "violations": [], "fixed": False}
+    try:
+        if not INTERACTIVE_SETTINGS_FILE.exists():
+            return result
+        raw = INTERACTIVE_SETTINGS_FILE.read_text(encoding="utf-8")
+        data = json.loads(raw)
+        result["checked"] = True
+        violations = _scan_settings_for_router_leak(data)
+        result["violations"] = violations
+        if violations:
+            # One dated backup per day, not one per 5-min fire.
+            backup = INTERACTIVE_SETTINGS_FILE.with_name(
+                f"settings.json.router-leak-{dt.date.today().isoformat()}.bak"
+            )
+            if not backup.exists():
+                backup.write_text(raw, encoding="utf-8")
+            cleaned = _strip_router_leak(data)
+            INTERACTIVE_SETTINGS_FILE.write_text(json.dumps(cleaned, indent=2), encoding="utf-8")
+            result["fixed"] = True
+            _log(f"INTERACTIVE SETTINGS LEAK FIXED: {violations}")
+            _send_ping(
+                "CCR LEAK: ~/.claude/settings.json was re-pointing your Desktop app / "
+                "claude CLI at the CCR gateway again (" + "; ".join(violations) + "). "
+                "Auto-fixed just now -- removed the router override, your NEXT launch "
+                "hits Anthropic directly (already-open sessions are unaffected either way). "
+                "2026-07-14 lockout class -- see LESSONS-LEARNED."
+            )
+    except Exception as e:  # noqa: BLE001 -- must never break the restart loop
+        _log(f"interactive-settings check FAILED (non-fatal): {e}")
+    return result
+
+
 def _restart_ccr() -> None:
     """Fire-and-forget launch. Never call .wait()/.communicate() on this -- ccr start's
     own child is detached+unref'd on its end; we must not risk blocking on ours."""
@@ -183,6 +284,14 @@ def main() -> int:
     last_restart_et = state.get("last_restart_et")
     ping_sent = bool(state.get("ping_sent_this_episode", False))
 
+    # Interactive-path guard runs every fire, independent of the probe below (2026-07-14:
+    # "port up" and "serving real Claude" are not the same fact -- see module docstring).
+    interactive_check = _check_and_fix_interactive_settings()
+    interactive_clean = not interactive_check["violations"]
+    interactive_last_fixed_et = (
+        _now_et_str() if interactive_check["fixed"] else state.get("interactive_settings_last_fixed_et")
+    )
+
     if _probe_ccr():
         _log(f"CCR up ({CCR_HOST}:{CCR_PORT}) -- no action")
         _write_state({
@@ -191,6 +300,8 @@ def main() -> int:
             "consecutive_failures": 0,
             "last_restart_et": last_restart_et,
             "ping_sent_this_episode": False,
+            "interactive_settings_clean": interactive_clean,
+            "interactive_settings_last_fixed_et": interactive_last_fixed_et,
         })
         return 0
 
@@ -211,6 +322,8 @@ def main() -> int:
             "consecutive_failures": 0,
             "last_restart_et": now_et,
             "ping_sent_this_episode": False,
+            "interactive_settings_clean": interactive_clean,
+            "interactive_settings_last_fixed_et": interactive_last_fixed_et,
         })
         return 0
 
@@ -233,6 +346,8 @@ def main() -> int:
         "consecutive_failures": consecutive_failures,
         "last_restart_et": now_et,
         "ping_sent_this_episode": ping_sent,
+        "interactive_settings_clean": interactive_clean,
+        "interactive_settings_last_fixed_et": interactive_last_fixed_et,
     })
     return 0
 

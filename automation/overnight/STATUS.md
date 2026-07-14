@@ -1,3 +1,13 @@
+## [2026-07-13] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-02..2026-07-08), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-08). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-564.0); Bold_ATM_1+2=YELLOW ($-262.0)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-07-11] SAFE-2-ACCOUNT-REPLACEMENT resolved — retired fleet arm safe-1, repointed core Safe at its account (paper, fully reversible, no J action needed) [REVOKE-report]
 
 > **SHIPPED:** core Safe (`heartbeat_core.py` `ACCOUNTS["safe"]`, the `alpaca` MCP server) is trading again. Its account `PA3S2PYAS2WQ` was accidentally deleted 2026-07-10 evening (J, making room for the crypto twin account) — confirmed dead via live probe (`status=ACCOUNT_CLOSED` / HTTP 401), corroborating `self_check.py`'s standing `BROKER KEY STALE/REVOKED` flag and the independent `analysis/deep-research/2026-07-11-strike-tier-reconciliation.md` finding from earlier today. queue.md filed this as `SAFE-2-ACCOUNT-REPLACEMENT`, `depends:J-creates-account`, `status:blocked`. **Resolved WITHOUT waiting on J:** repointed core Safe at the fleet champion/challenger roster's OWN `safe-1` arm — a real, ACTIVE, already-provisioned paper account (`PA3DHPT7KIQE`) — and retired the `safe-1` fleet arm to free it for reuse, since one broker account can't safely serve two independent execution paths (`mcp_heartbeat` + `fleet_rest`) at once without fills getting double-processed/misattributed. Paper-only, fully reversible, sanctioned under standing autonomy doctrine (OP-0: reversible + paper + sanctioned = act, report for REVOKE).
@@ -154,16 +164,6 @@
 > **Test counts (quoted, this session):** strike/trade-to-learn/money-path/new-guard suites — baseline **128 passed** → after fix **139 passed** (128 + 11 new), **0 failed**. Fleet lane (`test_six_account_routing/exit_shapes`, `test_fleet_arm_parity`, `test_strategies`, `test_fleet_executor`, `test_recency_min_sizing`, `test_probe_arm`) — **124 passed / 4 failed BOTH before and after** (byte-identical pre-existing failures: `_apply_recency_min_sizing` clamping qty on live `recency-confirmation.json` RED state, unrelated to strike selection, confirmed NOT introduced by this ship).
 >
 > **Revert (single value):** set `j_ribbon_ride_strike_override_enabled` to `false` in `automation/state/params.json` (byte-identical to pre-ship: core ribbon_ride falls back to the generic v15 Safe tier). J-revocable.
-
----
-
-## [2026-07-11] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-02..2026-07-08), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-08). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-564.0); Bold_ATM_1+2=YELLOW ($-262.0)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
 
 ---
 
@@ -654,7 +654,7 @@ MECHANISM (flag-gated, default = exactly what ships): (1) `build_shared_signal.p
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 38 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 45 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -3210,3 +3210,414 @@ Inbox item `strategy/candidates/_lesson-inbox/2026-07-10-joint-cascade-blindness
 - DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
 
 - [2026-07-11 21:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 61.22% in last 24h (30/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T00:09:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T00:10:24
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-11 22:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 63.27% in last 24h (31/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T00:39:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-11 22:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 65.31% in last 24h (32/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T01:09:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-11 23:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 67.35% in last 24h (33/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T01:39:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-11 23:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 69.39% in last 24h (34/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T02:09:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 00:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 71.43% in last 24h (35/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T02:39:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 00:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 73.47% in last 24h (36/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T03:09:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 01:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 75.51% in last 24h (37/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T03:39:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 01:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 87.76% in last 24h (43/49) | stage v53_setup_dispatch.live pass rate dropped to 77.55% in last 24h (38/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T04:09:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 02:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 89.8% in last 24h (44/49) | stage v53_setup_dispatch.live pass rate dropped to 79.59% in last 24h (39/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T04:39:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 02:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 91.84% in last 24h (45/49) | stage v53_setup_dispatch.live pass rate dropped to 81.63% in last 24h (40/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T05:09:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 03:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v12_multi_timeframe.live pass rate dropped to 93.88% in last 24h (46/49) | stage v53_setup_dispatch.live pass rate dropped to 83.67% in last 24h (41/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T05:39:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 03:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 85.71% in last 24h (42/49) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-12 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-07-12 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-12.md
+
+### BROKEN: self-check 2026-07-12T06:09:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 04:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 87.76% in last 24h (43/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T06:39:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 04:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 89.8% in last 24h (44/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T07:09:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 05:27:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 91.84% in last 24h (45/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T07:39:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 05:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 93.88% in last 24h (46/49) :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T08:09:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 06:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.88% in last 24h (46/49) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T08:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T09:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T09:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 07:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.75% in last 24h (45/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T10:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T10:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T11:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 09:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 91.67% in last 24h (44/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T11:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T12:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T12:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 10:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.75% in last 24h (45/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T13:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T13:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T14:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T14:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T15:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T15:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T16:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T16:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T17:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T17:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T18:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 16:27:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 91.67% in last 24h (44/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T18:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 16:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 89.58% in last 24h (43/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T19:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 17:27:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.5% in last 24h (42/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T19:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-12T20:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 18:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 85.42% in last 24h (41/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: self-check 2026-07-12T20:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-11T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+- [2026-07-12 18:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-12 19:27:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 81.25% in last 24h (39/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-12 22:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 81.25% in last 24h (39/48) -- but v15 (3-source) = 97.92% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-13 01:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 81.25% in last 24h (39/48) -- but v15 (3-source) = 95.83% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-13 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-07-13 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-07-13 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-13.md
+
+- [2026-07-13 05:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 79.17% in last 24h (38/48) -- but v15 (3-source) = 95.83% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### BROKEN: premarket 2026-07-13
+- PREMARKET SILENT FAILURE: claude exit=1 but today-bias.date=2026-07-10 != today 2026-07-13 (no fresh bias written). Engine would open on a STALE bias.
+
+
+### DEGRADED: self-check 2026-07-13T08:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+### DEGRADED: self-check 2026-07-13T09:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+### DEGRADED: self-check 2026-07-13T09:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+### DEGRADED: self-check 2026-07-13T10:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+### DEGRADED: self-check 2026-07-13T10:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+### DEGRADED: self-check 2026-07-13T11:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-13 09:27:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 81.25% in last 24h (39/48) -- but v15 (3-source) = 95.83% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-13T11:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-13 09:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) -- but v15 (3-source) = 95.83% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-13T12:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+
+- [2026-07-13 10:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 85.42% in last 24h (41/48) -- but v15 (3-source) = 95.83% in same window, likely single-provider artifact :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-13T12:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+
+- [2026-07-13 10:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 85.42% in last 24h (41/48) | stage v15_three_source_parity.live pass rate dropped to 93.75% in last 24h (45/48) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-13T13:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+
+### DEGRADED: self-check 2026-07-13T13:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+
+### DEGRADED: self-check 2026-07-13T14:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+
+- [2026-07-13 12:27:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) | stage v15_three_source_parity.live pass rate dropped to 93.75% in last 24h (45/48) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-13T14:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+
+- [2026-07-13 12:57:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 83.33% in last 24h (40/48) | stage v15_three_source_parity.live pass rate dropped to 91.67% in last 24h (44/48) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-13T15:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+
+### DEGRADED: self-check 2026-07-13T15:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 8 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:20 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:18 ENTER_BEAR ?']
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-13T20:01:14+00:00
+- task: eod-summary
+- date_et: 2026-07-13
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-07-13T16:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 8 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:20 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:18 ENTER_BEAR ?']
+
+### DEGRADED: self-check 2026-07-13T16:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 8 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:20 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:18 ENTER_BEAR ?']
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-13T20:45:21+00:00
+- task: analyst
+- date_et: 2026-07-13
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-07-13 21:00:02] gym-session (2026-07-13) → **YELLOW** :: see `automation\state\gym-scorecard-2026-07-13.json`
+### DEGRADED: self-check 2026-07-13T17:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 8 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:20 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:18 ENTER_BEAR ?']
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-07-13T21:30:27+00:00
+- task: manager
+- date_et: 2026-07-13
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-07-13T17:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 8 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:20 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:18 ENTER_BEAR ?']
+
+### DEGRADED: self-check 2026-07-13T18:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 8 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:20 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:18 ENTER_BEAR ?']
+
+- [2026-07-13 16:27:01] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 85.42% in last 24h (41/48) | stage v15_three_source_parity.live pass rate dropped to 91.67% in last 24h (44/48) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-13T18:39:57
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 8 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:20 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:18 ENTER_BEAR ?']
+
+- [2026-07-13 16:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 87.5% in last 24h (42/48) | stage v15_three_source_parity.live pass rate dropped to 91.67% in last 24h (44/48) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-13T19:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 8 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:20 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:18 ENTER_BEAR ?']
+
+- [2026-07-13 17:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 89.58% in last 24h (43/48) | stage v15_three_source_parity.live pass rate dropped to 91.67% in last 24h (44/48) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-13T19:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 8 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:20 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:18 ENTER_BEAR ?']
+
+### DEGRADED: self-check 2026-07-13T20:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 8 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:20 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:18 ENTER_BEAR ?']
+
+- [2026-07-13 18:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 91.67% in last 24h (44/48) | stage v15_three_source_parity.live pass rate dropped to 91.67% in last 24h (44/48) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-13T20:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 8 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:20 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:18 ENTER_BEAR ?']
+
+### DEGRADED: self-check 2026-07-13T21:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 8 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:20 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:18 ENTER_BEAR ?']
+
+- [2026-07-13 19:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 93.75% in last 24h (45/48) | stage v15_three_source_parity.live pass rate dropped to 89.58% in last 24h (43/48) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-13T21:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 8 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:20 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:18 ENTER_BEAR ?']
+
+### DEGRADED: self-check 2026-07-13T22:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 8 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:20 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:18 ENTER_BEAR ?']
+
+- [2026-07-13 20:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 91.67% in last 24h (44/48) | stage v15_three_source_parity.live pass rate dropped to 89.58% in last 24h (43/48) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-13T22:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 8 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:20 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:18 ENTER_BEAR ?']
+
+### DEGRADED: self-check 2026-07-13T23:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 8 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:20 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:18 ENTER_BEAR ?']
+
+### DEGRADED: self-check 2026-07-13T23:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-10 != today 2026-07-13 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 8 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:20 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x safe: 9 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:16 ENTER_BEAR ?', '15:17 ENTER_BEAR ?', '15:18 ENTER_BEAR ?']
+
+- [2026-07-14 05:41:25] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-07-14 05:41:25] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-07-14 05:41:25] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-14.md
+[2026-07-14 05:54:31] analyst: 1 trade audited (6 accts, 1 fill), 0 rule breaks, 3 inbox items queued (1 chef/1 lesson/1 validator) � full zero-supervision review of 07-13, see analysis/daily-brief/2026-07-13-FULL-AUDIT.md
+
+- [2026-07-14 05:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 90.91% in last 24h (30/33) | stage v15_three_source_parity.live pass rate dropped to 90.91% in last 24h (30/33) :: see crypto/data/scorecards/drift_report.json
+
+[2026-07-14 08:11:40] CCR DESKTOP-APP LOCKOUT root-caused + FIXED (J's #1 directive this morning) -- J's Claude Desktop app got silently served local Ollama for a full workday after Monday's PC restart. Root cause (one sentence): `~/.claude/settings.json`'s global `env`/`apiKeyHelper` keys (wired 2026-07-08 "brain sovereignty," meant for automation) pointed EVERY claude entrypoint -- including J's interactive Desktop app -- at the CCR gateway, whose static fallback router (`~/.claude-code-router/config.json` Router.default) is hardcoded to ollama with ZERO Anthropic provider entry, so any cold boot leaving CCR's fuller profile stack not-yet-live still answers on port 3456 (keepalive's TCP probe reports "up") while silently serving Ollama instead of Claude. FIX: removed the global override from `~/.claude/settings.json` (Desktop app + bare `claude` CLI now hit Anthropic directly, unconditionally -- backup at `~/.claude/settings.json.pre-ccr-fix-2026-07-14.bak`); audited every claude-CLI-invoking automation script in the repo and confirmed NONE currently depends on CCR (kitchen routes direct REST to Ollama :11434 via model-roster.json, conductor/overnight-grinder explicitly request real Sonnet) so nothing broke; extended `ccr_keepalive.py` with `_check_and_fix_interactive_settings()` -- runs every 5-min fire independent of the TCP probe, auto-heals + same-day forensic backup + Discord ping if the interactive override ever comes back. LIVE-VERIFIED (not just unit-tested): killed CCR (pids 17416/14680), restarted via the exact keepalive restart command, and CCR's OWN `start` sequence re-injected the identical hijack into settings.json -- confirming this is CCR's NORMAL restart behavior, not a rare fluke, so the guard is load-bearing, not defense-in-depth theater. The very next unattended scheduled fire (5 min later, zero human input) detected the re-injected hijack, fixed it, wrote `~/.claude/settings.json.router-leak-2026-07-14.bak`, and sent a real Discord ping -- logged verbatim in `automation/state/logs/ccr-keepalive-2026-07-14.log`. New guard suite `backtest/tests/test_ccr_interactive_isolation.py` (14/14: RED-proofed detector, live acceptance check against the real settings.json, repo-wide allowlist scan proving the CCR port string appears nowhere else). heartbeat_core.py confirmed UNAFFECTED throughout (pure Python REST, no LLM/claude-CLI on the hot path). J's 10-second Monday-morning self-check: Settings -> Developer (or `cat ~/.claude/settings.json`) should show NO `apiKeyHelper` key and NO `env` key at all -- if either is back, the keepalive will self-heal within 5 min and ping automatically, but that absence is the thing to eyeball. Lesson: `strategy/candidates/_lesson-inbox/2026-07-14-ccr-boot-lockout.md`. Queue item CCR-GATEWAY-KEEPALIVE closed (was marked pending since 07-09; the 07-09 build only ever covered the automation half).
