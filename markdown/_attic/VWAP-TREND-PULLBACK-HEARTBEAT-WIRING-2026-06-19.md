@@ -1,10 +1,37 @@
-# VWAP_TREND_PULLBACK — heartbeat wiring proposal (PROPOSE-ONLY, Rule 9)
+# VWAP_TREND_PULLBACK — heartbeat wiring proposal (ARCHIVED — KILLED, never applied)
 
-**Status: PROPOSE-AND-PING-J.** This is the EXACT heartbeat.md addition that makes the
-live engine TRADE the H4 VWAP trend-day pullback. It is **not applied** — it touches live
-prose (Rule 9). Per OP-16/OP-22 it is *ready to ship after-hours* because the ship bar is met:
-OOS positive AND walk-forward ≥ 0.70 AND sub-window stable AND A/B scorecard filed. **J's role
-= REVOKE**, not approve.
+> ## ⛔ SUPERSEDED / KILLED — DO NOT APPLY (archived to `_attic` 2026-07-10)
+>
+> This wiring never shipped and **must not ship as written**. The "ship bar is met" framing
+> below was wrong: every headline number (+$45.88/tr, WR 42.4%, WF 1.679) was computed with
+> `premium_stop=-0.08` — **not** the chart-stop-only config the live watcher actually trades
+> (`DEFAULT_PREMIUM_STOP_PCT=-0.99`, L51/L55/C2). Two findings closed the thread:
+>
+> 1. **Exit-config mismatch + WF fail (C29/L149):** on the as-traded chart-stop-only config
+>    the edge is only **+$14.03/tr**, rolling-month **WF median 0.239 (FAILS ≥0.70)**, 2/4
+>    sub-windows negative, drop-top5 negative — see
+>    [`analysis/recommendations/vwap-trend-pullback-LIVE.json`](../../analysis/recommendations/vwap-trend-pullback-LIVE.json)
+>    → `disclosure_OP20.EXIT_CONFIG_CAVEAT`. The same-day regime-gate sweep
+>    ([`analysis/recommendations/vwap-trend-pullback-regime-gate.json`](../../analysis/recommendations/vwap-trend-pullback-regime-gate.json);
+>    writeup [`VWAP-TREND-PULLBACK-REGIME-GATE-2026-06-19.md`](VWAP-TREND-PULLBACK-REGIME-GATE-2026-06-19.md)
+>    in this folder; also the scorecard's `disclosure_OP20.REGIME_GATE_VERDICT`) found **no
+>    causal gate that fixes it** — verdict: stays WATCH_ONLY/dormant.
+> 2. **RESKIN_OF_1 (L174, 2026-06-21):** all 98 signal days are same-side signal days of the
+>    already-armed `vwap_continuation` — a strict subset, zero days of its own
+>    ([`VWAP-PULLBACK-EDGE-VERIFY.json`](../../analysis/recommendations/VWAP-PULLBACK-EDGE-VERIFY.json)
+>    / [`.md`](../../analysis/recommendations/VWAP-PULLBACK-EDGE-VERIFY.md)). Wiring adds
+>    correlated duplicate exposure, not coverage.
+>
+> Authoritative current status lives in the watcher module docstring:
+> `backtest/lib/watchers/vwap_trend_pullback_watcher.py`. The body below is kept as the
+> historical record of the proposal shape (status line corrected, rest verbatim).
+
+**Status: SUPERSEDED/KILLED — see banner above (was "PROPOSE-AND-PING-J").** This is the EXACT
+heartbeat.md addition that would have made the live engine TRADE the H4 VWAP trend-day pullback.
+It was **never applied** — it touches live prose (Rule 9). ~~Per OP-16/OP-22 it is *ready to ship
+after-hours* because the ship bar is met: OOS positive AND walk-forward ≥ 0.70 AND sub-window
+stable AND A/B scorecard filed.~~ (That bar was cleared only under the −0.08 exit config the
+watcher does not trade — see banner.) **J's role = REVOKE**, not approve.
 
 - **Scorecard (filed):** [`analysis/recommendations/vwap-trend-pullback-LIVE.json`](../../analysis/recommendations/vwap-trend-pullback-LIVE.json)
 - **Live detector (BUILT, parity-verified, gym-green):** [`backtest/lib/watchers/vwap_trend_pullback_watcher.py`](../../backtest/lib/watchers/vwap_trend_pullback_watcher.py)

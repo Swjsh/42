@@ -412,9 +412,15 @@ def main() -> None:
                           "the detector layer; heartbeat wiring is the propose-only step "
                           "below (touches live prose -> J REVOKE gate).",
         },
-        "heartbeat_wiring_proposal": "See report / docs — exact heartbeat.md addition is "
-                                     "propose-only (Rule 9), ready to ship after-hours per "
-                                     "OP-16/OP-22 (all gates PASS + scorecard filed).",
+        "heartbeat_wiring_proposal": "KILLED 2026-06-19/21 — do NOT ship. The proposed "
+                                     "heartbeat.md addition was propose-only (Rule 9) and its "
+                                     "'ship bar met' framing held only under premium_stop=-0.08, "
+                                     "which the live watcher does not trade (see disclosure_OP20."
+                                     "EXIT_CONFIG_CAVEAT + REGIME_GATE_VERDICT below); the setup "
+                                     "is also RESKIN_OF_1 of vwap_continuation "
+                                     "(VWAP-PULLBACK-EDGE-VERIFY, 2026-06-21). Proposal archived: "
+                                     "markdown/_attic/VWAP-TREND-PULLBACK-HEARTBEAT-WIRING"
+                                     "-2026-06-19.md.",
         "go_live_params": go_live_params,
         "disclosure_OP20": {
             "real_fills": True,
