@@ -42,10 +42,11 @@ MODES:
   `python trend_alignment_correlation_study.py --build-cache` -- fetch+cache daily/hourly/15m
       SPY history ONCE (paginated Alpaca REST), covering the full span the 3 populations need.
       No scoring, no signal replay -- pure infra build/verify step.
-  `python trend_alignment_correlation_study.py --score` -- NOT YET ENABLED this phase (raises).
-      Scoring is gated behind the frozen pre-registration being committed first (anti-p-hacking
-      barrier, task hard rule: "must fully complete + COMMIT the pre-registration BEFORE any
-      scoring runs"). Flip the guard in a LATER commit, once the pre-reg is in git history.
+  `python trend_alignment_correlation_study.py --score` -- runs the frozen scoring pass, delegated
+      to trend_alignment_scoring.py::run_score() (kept in a separate module -- coding-style: many
+      small files -- so this module stays the fetch/cache/population-loader/no-look-ahead-boundary
+      layer only). Was gated behind the pre-registration being committed first (anti-p-hacking
+      barrier); the guard is flipped now that PREREG_F is in git history (commit 2cc9b86).
 """
 from __future__ import annotations
 
@@ -323,11 +324,9 @@ def main() -> int:
                 "REFUSED: --score requires the frozen pre-registration to exist at "
                 f"{PREREG_F} first (anti-p-hacking barrier -- commit the pre-reg before any "
                 "scoring run, per task hard rule).")
-        raise SystemExit(
-            "--score is NOT YET ENABLED this phase. Phase 1's BUILD step (this commit) freezes "
-            "the pre-registration and the fetch/cache/population-loader infrastructure only. "
-            "The actual correlation scoring run is a SEPARATE, later commit -- see "
-            f"{PREREG_F.name} status field.")
+        import trend_alignment_scoring as scoring
+        scoring.run_score()
+        return 0
 
     if args.build_cache:
         build_all_caches(refresh=args.refresh)
