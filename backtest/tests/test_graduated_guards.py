@@ -3740,3 +3740,66 @@ def test_setups_allowed_present_in_live_params() -> None:
             f"{rel} setups_allowed has unknown archetype(s) {unknown} — must be drawn from "
             f"{sorted(valid)} (fast_path_executor pattern_to_setup vocab)"
         )
+
+
+def test_premarket_volume_alive_in_latest_chain() -> None:
+    """G-PREMARKET-VOL (2026-07-14 premarket-volume incident): every session that
+    append_today.py adds to the canonical spy_5m chain must carry a live premarket
+    tape. The yfinance-era appender wrote volume=0 for ALL premarket (04:00-09:25 ET)
+    bars on every appended session 2026-05-13..2026-07-14 (Yahoo's extended-hours
+    intraday feed has no volume, and drops the 09:15-09:25 bars) — masked because the
+    05-19..05-29 seed rows came from Alpaca SIP. RVOL/premarket work silently read a
+    dead tape for 6 weeks. RED if any session in the latest chain file has premarket
+    bars present, all-zero premarket volume, and a live RTH (holidays skip naturally).
+    """
+    import re as _re
+    import datetime as _dt
+    import pandas as _pd
+
+    file_re = _re.compile(r"^spy_5m_(\d{4}-\d{2}-\d{2})_(\d{4}-\d{2}-\d{2})\.csv$")
+    candidates = []
+    for p in DATA.glob("spy_5m_*.csv"):
+        m = file_re.match(p.name)
+        if m:
+            candidates.append((_dt.date.fromisoformat(m.group(2)), p))
+    if not candidates:
+        pytest.skip("no spy_5m chain CSVs present (worktree / fresh checkout)")
+    latest = max(candidates)[1]
+
+    df = _pd.read_csv(latest)
+    ts = _pd.to_datetime(df["timestamp_et"], utc=True).dt.tz_convert("America/New_York")
+    df["_date"] = ts.dt.date
+    df["_time"] = ts.dt.time
+    pre = df[df["_time"] < _dt.time(9, 30)]
+    rth = df[df["_time"] >= _dt.time(9, 30)]
+    pre_vol = pre.groupby("_date")["volume"].sum()
+    pre_n = pre.groupby("_date")["volume"].size()
+    rth_vol = rth.groupby("_date")["volume"].sum()
+    dead = [d for d, v in pre_vol.items()
+            if v == 0 and pre_n.get(d, 0) > 0 and rth_vol.get(d, 0) > 0]
+    assert not dead, (
+        f"{latest.name}: {len(dead)} session(s) with a DEAD premarket tape "
+        f"(bars present, volume all zero, RTH live): {dead[:5]}... — the appender has "
+        f"regressed to a volume-less premarket source (yfinance fallback?). Repair via "
+        f"tools/repair_premarket_volume.py and check append_today's `source` in "
+        f"analysis/backtests/data-versions.jsonl"
+    )
+
+
+def test_append_today_spy_uses_alpaca_sip() -> None:
+    """G-PREMARKET-VOL wiring guard (C14 dead-knob class): append_today's SPY branch
+    must fetch via alpaca_bars.fetch_spy_5m_sip — reverting to a bare yfinance fetch
+    reintroduces the zero-volume premarket tape on every future appended session."""
+    import importlib
+    import inspect
+    import sys as _sys
+
+    tools_dir = str(BACKTEST / "tools")
+    if tools_dir not in _sys.path:
+        _sys.path.insert(0, tools_dir)
+    append_today = importlib.import_module("append_today")
+    src = inspect.getsource(append_today.append_symbol)
+    assert "fetch_spy_5m_sip" in src, (
+        "append_today.append_symbol no longer calls fetch_spy_5m_sip — SPY appends "
+        "would regress to yfinance's volume-less premarket bars"
+    )
