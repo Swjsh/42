@@ -1,0 +1,44 @@
+{
+  "_doc": "A3 task (OPRA-sequential lane, job 2 of 3, 2026-07-14 16:41-17:00 ET): pre-register + SS-B-revalidate the 'bear-entry VIX floor ~17.30' under the corrected exit shape. VERDICT BEFORE ANY BACKTEST RAN: the gate does not exist on the live order-placing path. No pre-registration was frozen and no OPRA grind was run -- burning the exclusive sequential-OPRA slot on a dead knob would itself be an evidence-optional move under this week's P&L pressure, which is exactly what the T2 burden-on-the-gate discipline exists to prevent. This is a VOID verdict, not a KEEP/KILL sweep result -- there was no live behavior to sweep.",
+  "study": "bear_vix_floor_ssb",
+  "status": "VOID_NO_LIVE_GATE",
+  "generated_at": "2026-07-14T16:50:00-04:00",
+  "et_clock_verification": "2026-07-14 16:41:59 Tuesday EDT, market_hours=False (setup/scripts/et_clock.py, run live this session -- not guessed)",
+  "task_as_briefed": "Freeze a pre-registration (max 3 variants: current 17.30 control vs 16.0 vs no-floor-with-structure-context; both accounts' cohorts), then run under SS-B exits at live scope on real OPRA fills, because 'the bear-entry VIX threshold (~17.30) ... was ratified under the OLD exit shape' and today's VIX 16.80 floored bear entries.",
+  "premise_check_result": "FAILED -- the premise (\"VIX 16.80 floored bear entries today\") was already investigated and corrected by a sibling same-day analysis (queue.md VIX-DEADZONE-MAP, status:done, analysis/deep-research/2026-07-14-vix-deadzone-map.md, completed ~16:20 ET -- before this task started). That report found there is no live 'bear-entry VIX floor' gate at all. This scorecard independently re-verified that finding from source before accepting it (do not chain an unverified claim into a KILL decision).",
+  "independent_verification_performed_this_session": [
+    {
+      "check": "grep backtest/lib/engine/gates.py for VIX-related gates in the canonical 15-gate list consumed by heartbeat_core.py via engine_cli (the ONLY live order-placing decision path)",
+      "result": "Exactly 2 VIX gates exist: gate #3 block_elite_bull (VIX BAND, bull-only, ELITE+level_reclaim/confluence tier only) and gate #15 vix_bear_hard_cap (VIX CEILING >=23, bear-only -- blocks bears when VIX is TOO HIGH, the opposite direction of a 'floor'). There is no gate reading vix_entry_thresholds.bear_min_exclusive_and_rising or requiring VIX > any floor + rising for bear entries.",
+      "file": "backtest/lib/engine/gates.py lines 25, 37, 142, 415-419"
+    },
+    {
+      "check": "grep params.json + aggressive/params.json for consumers of vix_entry_thresholds (the key holding the '17.30' bear-floor value)",
+      "result": "3 repo-wide hits: a Pydantic schema field with no gating logic, setup/scripts/fast_path_executor.py (a dormant SHADOW/observer lane, mode='observer', never places orders, last wrote fast-path-decisions.jsonl 2026-05-20 -- 55+ days stale), and crypto/lib/vix_filter.py (crypto gym, explicitly non-edge scope per CLAUDE.md 'What I will refuse'). Zero live-engine consumers.",
+      "file": "automation/state/params.json:68-72, automation/state/aggressive/params.json:58-62"
+    },
+    {
+      "check": "git blame + git log -S on VIX_BEAR_THRESHOLD (the backtest/lib/filters.py constant carrying the same 17.30 value, used by the OLDER 10-filter BEARISH_REJECTION checklist)",
+      "result": "Introduced in commit d0c8ac0 'evening snapshot 2026-06-15' -- a bulk snapshot commit, not a ratification commit with an evidence trail. No scorecard file anywhere in analysis/recommendations/ validates 17.30 specifically for the SAFE/core account (only aggressive_vix_bear_threshold_sweep.py + agg_vix_bear_threshold_sweep*.json exist, all AGG-scoped, and even that sweep's own results.txt shows 16.0 outperforming 15.0-current-AGG on IS_delta, i.e. inconclusive at best for AGG, let alone SAFE). markdown/planning/FUTURE-IMPROVEMENTS.md's own closure note says plainly: '15.0 confirmed optimal for AGG ... Safe default 17.30 in production' -- 'default', not 'validated'. This backtest-only filters.py constant is a T2 Claude/researcher-invented default with zero SAFE-specific evidence backing it, but it ALSO never gates any live order (filters.py's checklist feeds backtest/lib/orchestrator.py's run_backtest simulation path, not heartbeat_core.py's live engine_cli/gates.py path).",
+      "file": "backtest/lib/filters.py:36; markdown/planning/FUTURE-IMPROVEMENTS.md:102"
+    },
+    {
+      "check": "grep core-decisions.jsonl (2026-07-14, both core accounts, 1,156 ticks) for any VIX-bear-floor SKIP action",
+      "result": "Zero. Every VIX-attributed block today (28 of 146 total blocks) was SKIP_ELITE_BULL_LEVEL_RECLAIM (block_elite_bull, a BULL gate). The two named 'full-quality signals that got zero attempts' (10:36 SUPER-tier bull, 13:16 TRENDLINE-tier bear) were killed by the free-model veto layer + SKIP_MIN_PREMIUM_FLOOR/PDT, not by any VIX mechanism -- confirmed independently by the sibling A6-VETO-GRADE-2026-07-14 item (net veto value today +$565.50, i.e. the veto layer that actually blocked these signals is already evidence-graded POSITIVE today, not a bug to chase either).",
+      "file": "analysis/deep-research/2026-07-14-vix-deadzone-map.md section 4 (cross-checked, not merely cited)"
+    }
+  ],
+  "why_no_preregistration_was_frozen": "Pre-registration exists to bind a researcher's hands BEFORE seeing results, on a question worth answering. Freezing 3 variants (17.30 / 16.0 / no-floor) and running them through SS-B on real OPRA fills would produce a scorecard whose result -- KEEP, or 'lowering the floor helps' -- changes ZERO live behavior in either direction, because heartbeat_core.py's order-placing path (engine_cli -> gates.py) never reads this key. That would be OPRA-lane compute + wall-clock spent producing a number nobody can act on. Per OP-0/OP-33 and the explicit instruction 'if it's Claude-invented without evidence, say so -- T2 burden-on-the-gate': the correct move when the gate under test turns out not to exist live is to say so plainly, not manufacture a sweep to look busy under 'make money this week' pressure.",
+  "verdict": "VOID -- NO LIVE GATE TO TEST. Not KEEP, not KILL: there is nothing in the live order-placing path for either outcome to change. The bear-VIX-floor concept the task named a) is not consumed by heartbeat_core.py/gates.py for either Safe or Bold, b) has a stale/dormant-only consumer (fast_path_executor.py, 55+ days since last write), and c) even in its ONLY still-alive form (backtest/lib/filters.py's research-only 10-filter checklist) has zero SAFE-specific ratification evidence -- only an AGG sweep exists, and that AGG sweep itself does not clearly favor 17.30 over 16.0.",
+  "opra_lane_consumed": false,
+  "opra_lane_released_at": "2026-07-14T16:50:00-04:00",
+  "live_params_touched": false,
+  "action_taken_instead": "Applied the queue.md VIX-VESTIGIAL-KNOB-CLEANUP doc-hygiene fix (adds a non-executable _vix_entry_thresholds_doc marker comment key to both params.json files, zero behavior change) since this task was itself a live demonstration of the exact 3rd-misread risk that cleanup item was filed to prevent. See automation/overnight/queue.md.",
+  "recommendation": "Retire 'bear VIX floor 17.30' from any future task briefing as a live lever. If bear-entry VIX-regime filtering is wanted, the only two real levers are: (1) block_elite_bull's VIX band (bull-only, already SS-B-KEEP-validated 2026-07-10) has no bear analogue and would need its own from-scratch design+evidence pass, not a threshold tweak; (2) vix_bear_hard_cap (Safe=23.0 ceiling, OP-22 auto-ratified 2026-06-18, Bold=absent -- flagged separately as queue.md BOLD-VIX-BEAR-CEILING-GAP, out of this task's scope). Neither is a 'floor'.",
+  "related": {
+    "queue_item": "VIX-DEADZONE-MAP (status:done)",
+    "deep_research": "analysis/deep-research/2026-07-14-vix-deadzone-map.md",
+    "sibling_veto_grade": "analysis/free-model-audit/heartbeat-veto/2026-07-14-scorecard.md (A6-VETO-GRADE-2026-07-14, status:done)",
+    "block_elite_bull_precedent": "analysis/recommendations/block-elite-bull-ssb-revalidation.json (verdict KEEP, the one VIX gate that IS live and IS SS-B-validated)"
+  }
+}

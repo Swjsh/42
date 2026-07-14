@@ -60,6 +60,7 @@
   "bear_min_exclusive_and_rising": 15.0,
   "bull_hard_cap": 30.0
  },
+ "_vix_entry_thresholds_doc": "VESTIGIAL -- NOT read by the live order-placing path (verified 2026-07-14: VIX-DEADZONE-MAP deep-research + independently re-derived by the A3 bear-vix-floor-ssb task from source). backtest/lib/engine/gates.py's canonical 15-gate list (the only thing heartbeat_core.py's engine_cli consults) has no gate reading these 3 keys. Only consumers repo-wide: a Pydantic schema field with no logic, setup/scripts/fast_path_executor.py (dormant shadow 'observer' lane, never places orders, last wrote a row 2026-05-20), and crypto/lib/vix_filter.py (crypto gym, non-edge). The REAL live VIX gate for Bold is block_elite_bull_vix_{low,high} (bull-only band [15,18), gate #3) -- Bold has NO vix_bear_hard_cap key at all (gate #15 never fires for Bold bear entries; separately flagged as queue.md BOLD-VIX-BEAR-CEILING-GAP). Evidence: analysis/deep-research/2026-07-14-vix-deadzone-map.md, analysis/recommendations/bear-vix-floor-ssb.md.",
  "vix_dir_deadband": 0.05,
  "_sizing_section": "Larger base sizing across all tiers. No quality scaling distinction - every setup gets full size.",
  "min_contracts": 5,
