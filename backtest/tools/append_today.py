@@ -22,6 +22,7 @@ import hashlib
 import json
 import re
 import sys
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -29,7 +30,14 @@ import pytz
 
 # Local imports
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from tools.fetch_data import fetch  # noqa: E402
+from alpaca_bars import fetch_spy_5m_sip, sip_aged_at  # noqa: E402
+
+# Longest we'll block waiting for today's SIP data to age (EOD task fires at
+# ~16:00:33 ET; full session ages at 16:16 ET, so the real wait is ~15.5 min).
+# The backtest .venv interpreter is reaper-exempt, so this sleep is safe.
+MAX_SIP_WAIT_SEC = 25 * 60
 
 REPO = Path(__file__).resolve().parents[2]
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
@@ -111,12 +119,45 @@ def append_symbol(
     fetch_start = (file_end + dt.timedelta(days=1)).isoformat()
     fetch_end = (today + dt.timedelta(days=1)).isoformat()
 
-    new_bars = fetch(yf_symbol, fetch_start, fetch_end, include_premarket=True)
+    # SPY comes from Alpaca SIP: yfinance extended-hours bars carry volume=0 and
+    # drop the 09:15-09:25 ET bars (premarket-volume incident 2026-07-14 — every
+    # yfinance-appended session 2026-05-13..2026-07-14 had a dead premarket
+    # tape). SIP matches the 05-19..05-29 seed's provenance exactly. yfinance
+    # stays as a never-blind fallback, flagged via `source` in the result/ledger.
+    source = "yfinance"
+    if symbol == "spy":
+        # Wait out Alpaca's 15-min SIP delay so today's session is complete.
+        # Way-too-early runs (market still open) NOOP instead of appending a
+        # partial day the next-day window would never re-fetch.
+        wait_sec = (sip_aged_at(today) - dt.datetime.now(dt.timezone.utc)).total_seconds()
+        if wait_sec > MAX_SIP_WAIT_SEC:
+            return {
+                "status": "ok",
+                "action": "noop",
+                "reason": f"too early: {today} session not complete/aged for "
+                          f"another {wait_sec/60:.0f} min — rerun after 16:16 ET",
+                "latest_path": str(latest),
+                "hash_old": _sha256(latest),
+            }
+        if wait_sec > 0 and not dry_run:
+            print(f"  waiting {wait_sec:.0f}s for SIP 15-min delay to age past today's close ...")
+            time.sleep(wait_sec)
+        new_bars = fetch_spy_5m_sip(file_end + dt.timedelta(days=1), today)
+        if not new_bars.empty:
+            source = "alpaca_sip"
+        else:
+            print("  WARN: Alpaca SIP returned nothing — falling back to yfinance "
+                  "(premarket volume WILL be zero for these rows)")
+            new_bars = fetch(yf_symbol, fetch_start, fetch_end, include_premarket=True)
+            source = "yfinance_fallback_premarket_volume_zero"
+    else:
+        new_bars = fetch(yf_symbol, fetch_start, fetch_end, include_premarket=True)
+
     if new_bars.empty:
         return {
             "status": "ok",
             "action": "noop",
-            "reason": f"yfinance returned 0 bars for {fetch_start}..{fetch_end} (likely all weekend/holiday)",
+            "reason": f"no bars returned for {fetch_start}..{fetch_end} (likely all weekend/holiday)",
             "latest_path": str(latest),
             "hash_old": _sha256(latest),
         }
@@ -142,6 +183,7 @@ def append_symbol(
         return {
             "status": "ok",
             "action": "would_write",
+            "source": source,
             "latest_path": str(latest),
             "new_path": str(new_path),
             "bars_existing": len(existing),
@@ -154,6 +196,7 @@ def append_symbol(
     return {
         "status": "ok",
         "action": "appended",
+        "source": source,
         "latest_path": str(latest),
         "new_path": str(new_path),
         "bars_existing": len(existing),
