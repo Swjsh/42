@@ -51,6 +51,52 @@ def test_exit_beat_theta_honesty_tag():
     assert "exit_beat_theta" in c["tags"]
 
 
+# ---------- compute_pnl_status: THE 2026-07-14 honesty fix ---------------------------------
+# Monday 07-13 root cause: risky-3's real -$25 position was found in the ledger but its bars
+# never arrived (OPRA indexing lag), and the OLD code wrote net_pnl=0.0 regardless -- the
+# exact same number a genuinely flat day gets. These guard the tri-state classifier that
+# makes that collapse impossible again.
+
+def test_pnl_status_flat_when_no_positions_found():
+    assert ta.compute_pnl_status(n_positions_found=0, n_no_bars=0) == "flat"
+
+
+def test_pnl_status_verified_when_all_positions_replayed():
+    assert ta.compute_pnl_status(n_positions_found=3, n_no_bars=0) == "verified"
+
+
+def test_pnl_status_unverified_when_any_position_missing_bars():
+    """THE regression guard: a position found but not replayed must NEVER classify as
+    'flat' or 'verified' -- both would let a caller print a bare $0.00 net_pnl."""
+    assert ta.compute_pnl_status(n_positions_found=1, n_no_bars=1) == "unverified_no_bars"
+
+
+def test_pnl_status_unverified_even_when_partially_replayed():
+    """Mixed day: 3 found, 1 missing bars -- still unverified, not 'verified with a caveat'.
+    The whole day's net_pnl must not be trusted if ANY position is unreplayed."""
+    assert ta.compute_pnl_status(n_positions_found=3, n_no_bars=1) == "unverified_no_bars"
+
+
+# ---------- resolve_net_pnl: the single source of truth for the reported dollar figure -----
+
+def test_resolve_net_pnl_flat_is_a_real_zero():
+    assert ta.resolve_net_pnl("flat", None) == 0.0
+
+
+def test_resolve_net_pnl_verified_returns_the_known_sum():
+    assert ta.resolve_net_pnl("verified", -381.5) == -381.5
+
+
+def test_resolve_net_pnl_unverified_is_never_zero_or_a_number():
+    """THE Monday 07-13 bug, pinned: risky-3 lost real money (-$25) but 0 rows replayed, so
+    the naive `sum(rows) if rows else 0.0` produced net_pnl_known=None-ish-0.0. Even if a
+    caller mistakenly passes a nonzero net_pnl_known alongside 'unverified_no_bars' (e.g. a
+    stale/partial value), the day's headline net_pnl must still refuse to report anything
+    but None -- the caller is responsible for surfacing net_pnl_known_partial separately."""
+    assert ta.resolve_net_pnl("unverified_no_bars", None) is None
+    assert ta.resolve_net_pnl("unverified_no_bars", -25.0) is None
+
+
 # ---------- detectors ----------
 
 def _row(pnl, tags=(), spike=None, cost=None):

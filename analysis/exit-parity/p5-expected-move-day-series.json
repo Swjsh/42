@@ -1,0 +1,2752 @@
+{
+  "n_days": 365,
+  "generated_at": "2026-07-14T07:22:08.209880",
+  "n_no_coverage": 60,
+  "series": {
+    "2025-01-02": {
+      "atm_strike": 588,
+      "sample_ts": "2025-01-02 10:30:00",
+      "call_close": 1.86,
+      "put_close": 2.03,
+      "expected_move_dollars": 3.3065,
+      "spy_price_at_open": 589.39,
+      "expected_move_pct": 0.00561
+    },
+    "2025-01-03": {
+      "atm_strike": 588,
+      "sample_ts": "2025-01-03 10:30:00",
+      "call_close": 1.77,
+      "put_close": 1.73,
+      "expected_move_dollars": 2.975,
+      "spy_price_at_open": 587.54,
+      "expected_move_pct": 0.005063
+    },
+    "2025-01-06": {
+      "atm_strike": 597,
+      "sample_ts": "2025-01-06 10:30:00",
+      "call_close": 1.32,
+      "put_close": 1.55,
+      "expected_move_dollars": 2.4395,
+      "spy_price_at_open": 595.955,
+      "expected_move_pct": 0.004093
+    },
+    "2025-01-08": {
+      "atm_strike": 588,
+      "sample_ts": "2025-01-08 10:30:00",
+      "call_close": 2.14,
+      "put_close": 1.95,
+      "expected_move_dollars": 3.4765,
+      "spy_price_at_open": 588.68,
+      "expected_move_pct": 0.005906
+    },
+    "2025-01-10": {
+      "atm_strike": 585,
+      "sample_ts": "2025-01-10 09:35:00",
+      "call_close": 2.24,
+      "put_close": 2.07,
+      "expected_move_dollars": 3.6635,
+      "spy_price_at_open": 584.15,
+      "expected_move_pct": 0.006272
+    },
+    "2025-01-13": {
+      "atm_strike": 576,
+      "sample_ts": "2025-01-13 10:00:00",
+      "call_close": 2.28,
+      "put_close": 1.8,
+      "expected_move_dollars": 3.468,
+      "spy_price_at_open": 576.26,
+      "expected_move_pct": 0.006018
+    },
+    "2025-01-14": {
+      "atm_strike": 584,
+      "sample_ts": "2025-01-14 10:30:00",
+      "call_close": 1.94,
+      "put_close": 1.96,
+      "expected_move_dollars": 3.315,
+      "spy_price_at_open": 584.34,
+      "expected_move_pct": 0.005673
+    },
+    "2025-01-15": {
+      "atm_strike": 591,
+      "sample_ts": "2025-01-15 09:45:00",
+      "call_close": 1.67,
+      "put_close": 2.05,
+      "expected_move_dollars": 3.162,
+      "spy_price_at_open": 591.31,
+      "expected_move_pct": 0.005347
+    },
+    "2025-01-16": {
+      "atm_strike": 594,
+      "sample_ts": "2025-01-16 10:30:00",
+      "call_close": 1.42,
+      "put_close": 1.78,
+      "expected_move_dollars": 2.72,
+      "spy_price_at_open": 594.06,
+      "expected_move_pct": 0.004579
+    },
+    "2025-01-17": {
+      "atm_strike": 596,
+      "sample_ts": "2025-01-17 10:30:00",
+      "call_close": 1.75,
+      "put_close": 1.49,
+      "expected_move_dollars": 2.754,
+      "spy_price_at_open": 596.95,
+      "expected_move_pct": 0.004613
+    },
+    "2025-01-21": {
+      "atm_strike": 600,
+      "sample_ts": "2025-01-21 10:20:00",
+      "call_close": 2.0,
+      "put_close": 1.24,
+      "expected_move_dollars": 2.754,
+      "spy_price_at_open": 600.15,
+      "expected_move_pct": 0.004589
+    },
+    "2025-01-22": {
+      "atm_strike": 606,
+      "sample_ts": "2025-01-22 10:30:00",
+      "call_close": 0.92,
+      "put_close": 1.17,
+      "expected_move_dollars": 1.7765,
+      "spy_price_at_open": 605.93,
+      "expected_move_pct": 0.002932
+    },
+    "2025-01-23": {
+      "atm_strike": 606,
+      "sample_ts": "2025-01-23 10:30:00",
+      "call_close": 0.97,
+      "put_close": 1.08,
+      "expected_move_dollars": 1.7425,
+      "spy_price_at_open": 605.79,
+      "expected_move_pct": 0.002876
+    },
+    "2025-01-24": {
+      "atm_strike": 610,
+      "sample_ts": "2025-01-24 10:30:00",
+      "call_close": 1.0,
+      "put_close": 1.13,
+      "expected_move_dollars": 1.8105,
+      "spy_price_at_open": 609.795,
+      "expected_move_pct": 0.002969
+    },
+    "2025-01-27": {
+      "atm_strike": 597,
+      "sample_ts": "2025-01-27 10:30:00",
+      "call_close": 2.25,
+      "put_close": 1.77,
+      "expected_move_dollars": 3.417,
+      "spy_price_at_open": 594.7,
+      "expected_move_pct": 0.005746
+    },
+    "2025-01-28": {
+      "atm_strike": 600,
+      "sample_ts": "2025-01-28 10:30:00",
+      "call_close": 1.5,
+      "put_close": 1.89,
+      "expected_move_dollars": 2.8815,
+      "spy_price_at_open": 600.71,
+      "expected_move_pct": 0.004797
+    },
+    "2025-01-29": {
+      "atm_strike": 604,
+      "sample_ts": "2025-01-29 10:30:00",
+      "call_close": 1.69,
+      "put_close": 2.44,
+      "expected_move_dollars": 3.5105,
+      "spy_price_at_open": 603.715,
+      "expected_move_pct": 0.005815
+    },
+    "2025-01-30": {
+      "atm_strike": 604,
+      "sample_ts": "2025-01-30 10:00:00",
+      "call_close": 1.48,
+      "put_close": 1.76,
+      "expected_move_dollars": 2.754,
+      "spy_price_at_open": 603.71,
+      "expected_move_pct": 0.004562
+    },
+    "2025-01-31": {
+      "atm_strike": 607,
+      "sample_ts": "2025-01-31 10:30:00",
+      "call_close": 1.73,
+      "put_close": 1.35,
+      "expected_move_dollars": 2.618,
+      "spy_price_at_open": 607.5,
+      "expected_move_pct": 0.004309
+    },
+    "2025-02-04": {
+      "atm_strike": 598,
+      "sample_ts": "2025-02-04 10:30:00",
+      "call_close": 2.12,
+      "put_close": 2.09,
+      "expected_move_dollars": 3.5785,
+      "spy_price_at_open": 597.635,
+      "expected_move_pct": 0.005988
+    },
+    "2025-02-05": {
+      "atm_strike": 600,
+      "sample_ts": "2025-02-05 10:30:00",
+      "call_close": 1.8,
+      "put_close": 1.35,
+      "expected_move_dollars": 2.6775,
+      "spy_price_at_open": 600.625,
+      "expected_move_pct": 0.004458
+    },
+    "2025-02-06": {
+      "atm_strike": 606,
+      "sample_ts": "2025-02-06 10:30:00",
+      "call_close": 1.24,
+      "put_close": 1.65,
+      "expected_move_dollars": 2.4565,
+      "spy_price_at_open": 605.99,
+      "expected_move_pct": 0.004054
+    },
+    "2025-02-10": {
+      "atm_strike": 604,
+      "sample_ts": "2025-02-10 09:35:00",
+      "call_close": 1.11,
+      "put_close": 1.61,
+      "expected_move_dollars": 2.312,
+      "spy_price_at_open": 603.73,
+      "expected_move_pct": 0.00383
+    },
+    "2025-02-11": {
+      "atm_strike": 603,
+      "sample_ts": "2025-02-11 10:30:00",
+      "call_close": 1.63,
+      "put_close": 1.34,
+      "expected_move_dollars": 2.5245,
+      "spy_price_at_open": 602.71,
+      "expected_move_pct": 0.004189
+    },
+    "2025-02-12": {
+      "atm_strike": 599,
+      "sample_ts": "2025-02-12 09:35:00",
+      "call_close": 2.13,
+      "put_close": 1.47,
+      "expected_move_dollars": 3.06,
+      "spy_price_at_open": 605.43,
+      "expected_move_pct": 0.005054
+    },
+    "2025-02-13": {
+      "atm_strike": 605,
+      "sample_ts": "2025-02-13 10:30:00",
+      "call_close": 1.22,
+      "put_close": 1.65,
+      "expected_move_dollars": 2.4395,
+      "spy_price_at_open": 604.49,
+      "expected_move_pct": 0.004036
+    },
+    "2025-02-14": {
+      "atm_strike": 610,
+      "sample_ts": "2025-02-14 10:30:00",
+      "call_close": 1.35,
+      "put_close": 1.28,
+      "expected_move_dollars": 2.2355,
+      "spy_price_at_open": 609.94,
+      "expected_move_pct": 0.003665
+    },
+    "2025-02-18": {
+      "atm_strike": 611,
+      "sample_ts": "2025-02-18 10:30:00",
+      "call_close": 1.0,
+      "put_close": 1.32,
+      "expected_move_dollars": 1.972,
+      "spy_price_at_open": 610.885,
+      "expected_move_pct": 0.003228
+    },
+    "2025-02-19": {
+      "atm_strike": 610,
+      "sample_ts": "2025-02-19 10:30:00",
+      "call_close": 1.13,
+      "put_close": 0.98,
+      "expected_move_dollars": 1.7935,
+      "spy_price_at_open": 610.055,
+      "expected_move_pct": 0.00294
+    },
+    "2025-02-20": {
+      "atm_strike": 611,
+      "sample_ts": "2025-02-20 10:30:00",
+      "call_close": 1.16,
+      "put_close": 0.87,
+      "expected_move_dollars": 1.7255,
+      "spy_price_at_open": 611.54,
+      "expected_move_pct": 0.002822
+    },
+    "2025-02-24": {
+      "atm_strike": 602,
+      "sample_ts": "2025-02-24 10:30:00",
+      "call_close": 1.62,
+      "put_close": 1.47,
+      "expected_move_dollars": 2.6265,
+      "spy_price_at_open": 602.015,
+      "expected_move_pct": 0.004363
+    },
+    "2025-02-25": {
+      "atm_strike": 598,
+      "sample_ts": "2025-02-25 10:30:00",
+      "call_close": 1.58,
+      "put_close": 2.09,
+      "expected_move_dollars": 3.1195,
+      "spy_price_at_open": 597.13,
+      "expected_move_pct": 0.005224
+    },
+    "2025-02-26": {
+      "atm_strike": 595,
+      "sample_ts": "2025-02-26 10:30:00",
+      "call_close": 2.63,
+      "put_close": 2.4,
+      "expected_move_dollars": 4.2755,
+      "spy_price_at_open": 596.02,
+      "expected_move_pct": 0.007173
+    },
+    "2025-03-03": {
+      "atm_strike": 597,
+      "sample_ts": "2025-03-03 10:30:00",
+      "call_close": 1.92,
+      "put_close": 2.07,
+      "expected_move_dollars": 3.3915,
+      "spy_price_at_open": 596.18,
+      "expected_move_pct": 0.005689
+    },
+    "2025-03-04": {
+      "atm_strike": 581,
+      "sample_ts": "2025-03-04 10:05:00",
+      "call_close": 1.95,
+      "put_close": 4.3,
+      "expected_move_dollars": 5.3125,
+      "spy_price_at_open": 579.49,
+      "expected_move_pct": 0.009168
+    },
+    "2025-03-05": {
+      "atm_strike": 578,
+      "sample_ts": "2025-03-05 10:30:00",
+      "call_close": 3.02,
+      "put_close": 3.5,
+      "expected_move_dollars": 5.542,
+      "spy_price_at_open": 576.65,
+      "expected_move_pct": 0.009611
+    },
+    "2025-03-06": {
+      "atm_strike": 575,
+      "sample_ts": "2025-03-06 10:30:00",
+      "call_close": 3.1,
+      "put_close": 3.02,
+      "expected_move_dollars": 5.202,
+      "spy_price_at_open": 575.485,
+      "expected_move_pct": 0.009039
+    },
+    "2025-03-07": {
+      "atm_strike": 573,
+      "sample_ts": "2025-03-07 10:30:00",
+      "call_close": 3.45,
+      "put_close": 3.71,
+      "expected_move_dollars": 6.086,
+      "spy_price_at_open": 570.905,
+      "expected_move_pct": 0.01066
+    },
+    "2025-03-11": {
+      "atm_strike": 561,
+      "sample_ts": "2025-03-11 09:35:00",
+      "call_close": 3.21,
+      "put_close": 3.49,
+      "expected_move_dollars": 5.695,
+      "spy_price_at_open": 561.22,
+      "expected_move_pct": 0.010148
+    },
+    "2025-03-12": {
+      "atm_strike": 562,
+      "sample_ts": "2025-03-12 09:35:00",
+      "call_close": 3.16,
+      "put_close": 2.86,
+      "expected_move_dollars": 5.117,
+      "spy_price_at_open": 562.19,
+      "expected_move_pct": 0.009102
+    },
+    "2025-03-13": {
+      "atm_strike": 558,
+      "sample_ts": "2025-03-13 09:35:00",
+      "call_close": 2.68,
+      "put_close": 2.67,
+      "expected_move_dollars": 4.5475,
+      "spy_price_at_open": 558.395,
+      "expected_move_pct": 0.008144
+    },
+    "2025-03-14": {
+      "atm_strike": 558,
+      "sample_ts": "2025-03-14 09:35:00",
+      "call_close": 2.39,
+      "put_close": 2.65,
+      "expected_move_dollars": 4.284,
+      "spy_price_at_open": 556.13,
+      "expected_move_pct": 0.007703
+    },
+    "2025-03-17": {
+      "atm_strike": 566,
+      "sample_ts": "2025-03-17 09:35:00",
+      "call_close": 1.77,
+      "put_close": 2.23,
+      "expected_move_dollars": 3.4,
+      "spy_price_at_open": 562.815,
+      "expected_move_pct": 0.006041
+    },
+    "2025-03-18": {
+      "atm_strike": 563,
+      "sample_ts": "2025-03-18 09:35:00",
+      "call_close": 2.09,
+      "put_close": 2.26,
+      "expected_move_dollars": 3.6975,
+      "spy_price_at_open": 564.68,
+      "expected_move_pct": 0.006548
+    },
+    "2025-03-19": {
+      "atm_strike": 563,
+      "sample_ts": "2025-03-19 09:35:00",
+      "call_close": 2.56,
+      "put_close": 2.84,
+      "expected_move_dollars": 4.59,
+      "spy_price_at_open": 562.83,
+      "expected_move_pct": 0.008155
+    },
+    "2025-03-20": {
+      "atm_strike": 565,
+      "sample_ts": "2025-03-20 09:35:00",
+      "call_close": 2.15,
+      "put_close": 2.44,
+      "expected_move_dollars": 3.9015,
+      "spy_price_at_open": 563.135,
+      "expected_move_pct": 0.006928
+    },
+    "2025-03-21": {
+      "atm_strike": 559,
+      "sample_ts": "2025-03-21 09:35:00",
+      "call_close": 2.54,
+      "put_close": 2.6,
+      "expected_move_dollars": 4.369,
+      "spy_price_at_open": 559.21,
+      "expected_move_pct": 0.007813
+    },
+    "2025-03-24": {
+      "atm_strike": 572,
+      "sample_ts": "2025-03-24 09:35:00",
+      "call_close": 1.5,
+      "put_close": 1.71,
+      "expected_move_dollars": 2.7285,
+      "spy_price_at_open": 570.76,
+      "expected_move_pct": 0.00478
+    },
+    "2025-03-25": {
+      "atm_strike": 575,
+      "sample_ts": "2025-03-25 09:35:00",
+      "call_close": 1.4,
+      "put_close": 1.49,
+      "expected_move_dollars": 2.4565,
+      "spy_price_at_open": 575.4,
+      "expected_move_pct": 0.004269
+    },
+    "2025-03-27": {
+      "atm_strike": 565,
+      "sample_ts": "2025-03-27 09:35:00",
+      "call_close": 2.32,
+      "put_close": 1.93,
+      "expected_move_dollars": 3.6125,
+      "spy_price_at_open": 567.185,
+      "expected_move_pct": 0.006369
+    },
+    "2025-04-01": {
+      "atm_strike": 557,
+      "sample_ts": "2025-04-01 09:35:00",
+      "call_close": 2.34,
+      "put_close": 2.31,
+      "expected_move_dollars": 3.9525,
+      "spy_price_at_open": 556.68,
+      "expected_move_pct": 0.0071
+    },
+    "2025-04-02": {
+      "atm_strike": 559,
+      "sample_ts": "2025-04-02 09:35:00",
+      "call_close": 2.92,
+      "put_close": 3.49,
+      "expected_move_dollars": 5.4485,
+      "spy_price_at_open": 555.53,
+      "expected_move_pct": 0.009808
+    },
+    "2025-04-10": {
+      "atm_strike": 531,
+      "sample_ts": "2025-04-10 09:35:00",
+      "call_close": 5.56,
+      "put_close": 5.4,
+      "expected_move_dollars": 9.316,
+      "spy_price_at_open": 535.88,
+      "expected_move_pct": 0.017384
+    },
+    "2025-04-14": {
+      "atm_strike": 541,
+      "sample_ts": "2025-04-14 09:35:00",
+      "call_close": 3.6,
+      "put_close": 3.6,
+      "expected_move_dollars": 6.12,
+      "spy_price_at_open": 542.35,
+      "expected_move_pct": 0.011284
+    },
+    "2025-04-15": {
+      "atm_strike": 542,
+      "sample_ts": "2025-04-15 09:35:00",
+      "call_close": 2.24,
+      "put_close": 2.77,
+      "expected_move_dollars": 4.2585,
+      "spy_price_at_open": 539.67,
+      "expected_move_pct": 0.007891
+    },
+    "2025-04-17": {
+      "atm_strike": 527,
+      "sample_ts": "2025-04-17 09:35:00",
+      "call_close": 2.93,
+      "put_close": 3.03,
+      "expected_move_dollars": 5.066,
+      "spy_price_at_open": 527.53,
+      "expected_move_pct": 0.009603
+    },
+    "2025-04-25": {
+      "atm_strike": 548,
+      "sample_ts": "2025-04-25 09:35:00",
+      "call_close": 2.65,
+      "put_close": 3.07,
+      "expected_move_dollars": 4.862,
+      "spy_price_at_open": 546.34,
+      "expected_move_pct": 0.008899
+    },
+    "2025-04-28": {
+      "atm_strike": 552,
+      "sample_ts": "2025-04-28 09:35:00",
+      "call_close": 1.88,
+      "put_close": 2.59,
+      "expected_move_dollars": 3.7995,
+      "spy_price_at_open": 551.26,
+      "expected_move_pct": 0.006892
+    },
+    "2025-04-29": {
+      "atm_strike": 549,
+      "sample_ts": "2025-04-29 09:35:00",
+      "call_close": 2.53,
+      "put_close": 2.12,
+      "expected_move_dollars": 3.9525,
+      "spy_price_at_open": 550.87,
+      "expected_move_pct": 0.007175
+    },
+    "2025-05-01": {
+      "atm_strike": 560,
+      "sample_ts": "2025-05-01 09:35:00",
+      "call_close": 2.49,
+      "put_close": 2.89,
+      "expected_move_dollars": 4.573,
+      "spy_price_at_open": 560.42,
+      "expected_move_pct": 0.00816
+    },
+    "2025-05-02": {
+      "atm_strike": 565,
+      "sample_ts": "2025-05-02 09:35:00",
+      "call_close": 2.11,
+      "put_close": 2.21,
+      "expected_move_dollars": 3.672,
+      "spy_price_at_open": 560.58,
+      "expected_move_pct": 0.00655
+    },
+    "2025-05-05": {
+      "atm_strike": 563,
+      "sample_ts": "2025-05-05 09:35:00",
+      "call_close": 1.7,
+      "put_close": 2.16,
+      "expected_move_dollars": 3.281,
+      "spy_price_at_open": 562.6,
+      "expected_move_pct": 0.005832
+    },
+    "2025-05-06": {
+      "atm_strike": 560,
+      "sample_ts": "2025-05-06 09:35:00",
+      "call_close": 1.63,
+      "put_close": 2.07,
+      "expected_move_dollars": 3.145,
+      "spy_price_at_open": 559.15,
+      "expected_move_pct": 0.005625
+    },
+    "2025-05-07": {
+      "atm_strike": 560,
+      "sample_ts": "2025-05-07 09:35:00",
+      "call_close": 2.67,
+      "put_close": 2.62,
+      "expected_move_dollars": 4.4965,
+      "spy_price_at_open": 560.2,
+      "expected_move_pct": 0.008027
+    },
+    "2025-05-08": {
+      "atm_strike": 564,
+      "sample_ts": "2025-05-08 09:35:00",
+      "call_close": 2.47,
+      "put_close": 2.26,
+      "expected_move_dollars": 4.0205,
+      "spy_price_at_open": 565.03,
+      "expected_move_pct": 0.007116
+    },
+    "2025-05-09": {
+      "atm_strike": 567,
+      "sample_ts": "2025-05-09 09:35:00",
+      "call_close": 1.76,
+      "put_close": 1.77,
+      "expected_move_dollars": 3.0005,
+      "spy_price_at_open": 567.12,
+      "expected_move_pct": 0.005291
+    },
+    "2025-05-12": {
+      "atm_strike": 579,
+      "sample_ts": "2025-05-12 09:35:00",
+      "call_close": 2.26,
+      "put_close": 2.03,
+      "expected_move_dollars": 3.6465,
+      "spy_price_at_open": 581.02,
+      "expected_move_pct": 0.006276
+    },
+    "2025-05-13": {
+      "atm_strike": 584,
+      "sample_ts": "2025-05-13 09:35:00",
+      "call_close": 1.74,
+      "put_close": 1.55,
+      "expected_move_dollars": 2.7965,
+      "spy_price_at_open": 584.05,
+      "expected_move_pct": 0.004788
+    },
+    "2025-05-14": {
+      "atm_strike": 588,
+      "sample_ts": "2025-05-14 09:35:00",
+      "call_close": 1.74,
+      "put_close": 1.44,
+      "expected_move_dollars": 2.703,
+      "spy_price_at_open": 588.49,
+      "expected_move_pct": 0.004593
+    },
+    "2025-05-15": {
+      "atm_strike": 586,
+      "sample_ts": "2025-05-15 09:35:00",
+      "call_close": 1.47,
+      "put_close": 1.69,
+      "expected_move_dollars": 2.686,
+      "spy_price_at_open": 585.03,
+      "expected_move_pct": 0.004591
+    },
+    "2025-05-16": {
+      "atm_strike": 591,
+      "sample_ts": "2025-05-16 09:35:00",
+      "call_close": 1.45,
+      "put_close": 1.68,
+      "expected_move_dollars": 2.6605,
+      "spy_price_at_open": 592.43,
+      "expected_move_pct": 0.004491
+    },
+    "2025-05-19": {
+      "atm_strike": 590,
+      "sample_ts": "2025-05-19 09:35:00",
+      "call_close": 1.68,
+      "put_close": 1.73,
+      "expected_move_dollars": 2.8985,
+      "spy_price_at_open": 588.68,
+      "expected_move_pct": 0.004924
+    },
+    "2025-05-20": {
+      "atm_strike": 593,
+      "sample_ts": "2025-05-20 09:35:00",
+      "call_close": 1.73,
+      "put_close": 1.3,
+      "expected_move_dollars": 2.5755,
+      "spy_price_at_open": 593.105,
+      "expected_move_pct": 0.004342
+    },
+    "2025-05-22": {
+      "atm_strike": 582,
+      "sample_ts": "2025-05-22 09:35:00",
+      "call_close": 2.27,
+      "put_close": 1.95,
+      "expected_move_dollars": 3.587,
+      "spy_price_at_open": 581.38,
+      "expected_move_pct": 0.00617
+    },
+    "2025-05-23": {
+      "atm_strike": 577,
+      "sample_ts": "2025-05-23 09:35:00",
+      "call_close": 2.61,
+      "put_close": 2.42,
+      "expected_move_dollars": 4.2755,
+      "spy_price_at_open": 574.01,
+      "expected_move_pct": 0.007448
+    },
+    "2025-05-28": {
+      "atm_strike": 593,
+      "sample_ts": "2025-05-28 09:35:00",
+      "call_close": 1.69,
+      "put_close": 2.08,
+      "expected_move_dollars": 3.2045,
+      "spy_price_at_open": 591.67,
+      "expected_move_pct": 0.005416
+    },
+    "2025-05-29": {
+      "atm_strike": 592,
+      "sample_ts": "2025-05-29 09:35:00",
+      "call_close": 1.86,
+      "put_close": 2.24,
+      "expected_move_dollars": 3.485,
+      "spy_price_at_open": 592.39,
+      "expected_move_pct": 0.005883
+    },
+    "2025-05-30": {
+      "atm_strike": 588,
+      "sample_ts": "2025-05-30 09:35:00",
+      "call_close": 1.8,
+      "put_close": 2.14,
+      "expected_move_dollars": 3.349,
+      "spy_price_at_open": 587.35,
+      "expected_move_pct": 0.005702
+    },
+    "2025-06-02": {
+      "atm_strike": 590,
+      "sample_ts": "2025-06-02 09:35:00",
+      "call_close": 1.42,
+      "put_close": 1.7,
+      "expected_move_dollars": 2.652,
+      "spy_price_at_open": 587.58,
+      "expected_move_pct": 0.004513
+    },
+    "2025-06-03": {
+      "atm_strike": 592,
+      "sample_ts": "2025-06-03 09:35:00",
+      "call_close": 1.61,
+      "put_close": 1.3,
+      "expected_move_dollars": 2.4735,
+      "spy_price_at_open": 591.73,
+      "expected_move_pct": 0.00418
+    },
+    "2025-06-04": {
+      "atm_strike": 598,
+      "sample_ts": "2025-06-04 09:35:00",
+      "call_close": 1.22,
+      "put_close": 1.47,
+      "expected_move_dollars": 2.2865,
+      "spy_price_at_open": 596.62,
+      "expected_move_pct": 0.003832
+    },
+    "2025-06-05": {
+      "atm_strike": 596,
+      "sample_ts": "2025-06-05 09:35:00",
+      "call_close": 1.7,
+      "put_close": 2.11,
+      "expected_move_dollars": 3.2385,
+      "spy_price_at_open": 596.53,
+      "expected_move_pct": 0.005429
+    },
+    "2025-06-06": {
+      "atm_strike": 600,
+      "sample_ts": "2025-06-06 09:35:00",
+      "call_close": 1.36,
+      "put_close": 1.65,
+      "expected_move_dollars": 2.5585,
+      "spy_price_at_open": 595.63,
+      "expected_move_pct": 0.004295
+    },
+    "2025-06-09": {
+      "atm_strike": 599,
+      "sample_ts": "2025-06-09 09:35:00",
+      "call_close": 1.32,
+      "put_close": 1.5,
+      "expected_move_dollars": 2.397,
+      "spy_price_at_open": 599.78,
+      "expected_move_pct": 0.003996
+    },
+    "2025-06-10": {
+      "atm_strike": 601,
+      "sample_ts": "2025-06-10 09:35:00",
+      "call_close": 1.22,
+      "put_close": 1.4,
+      "expected_move_dollars": 2.227,
+      "spy_price_at_open": 600.55,
+      "expected_move_pct": 0.003708
+    },
+    "2025-06-11": {
+      "atm_strike": 603,
+      "sample_ts": "2025-06-11 09:35:00",
+      "call_close": 1.65,
+      "put_close": 1.22,
+      "expected_move_dollars": 2.4395,
+      "spy_price_at_open": 604.84,
+      "expected_move_pct": 0.004033
+    },
+    "2025-06-12": {
+      "atm_strike": 600,
+      "sample_ts": "2025-06-12 09:35:00",
+      "call_close": 1.64,
+      "put_close": 1.32,
+      "expected_move_dollars": 2.516,
+      "spy_price_at_open": 600.02,
+      "expected_move_pct": 0.004193
+    },
+    "2025-06-13": {
+      "atm_strike": 600,
+      "sample_ts": "2025-06-13 09:35:00",
+      "call_close": 1.75,
+      "put_close": 1.72,
+      "expected_move_dollars": 2.9495,
+      "spy_price_at_open": 598.78,
+      "expected_move_pct": 0.004926
+    },
+    "2025-06-16": {
+      "atm_strike": 602,
+      "sample_ts": "2025-06-16 09:35:00",
+      "call_close": 1.01,
+      "put_close": 1.53,
+      "expected_move_dollars": 2.159,
+      "spy_price_at_open": 600.64,
+      "expected_move_pct": 0.003594
+    },
+    "2025-06-17": {
+      "atm_strike": 601,
+      "sample_ts": "2025-06-17 09:35:00",
+      "call_close": 1.07,
+      "put_close": 1.55,
+      "expected_move_dollars": 2.227,
+      "spy_price_at_open": 600.22,
+      "expected_move_pct": 0.00371
+    },
+    "2025-06-18": {
+      "atm_strike": 598,
+      "sample_ts": "2025-06-18 09:35:00",
+      "call_close": 1.98,
+      "put_close": 1.87,
+      "expected_move_dollars": 3.2725,
+      "spy_price_at_open": 598.09,
+      "expected_move_pct": 0.005472
+    },
+    "2025-06-20": {
+      "atm_strike": 599,
+      "sample_ts": "2025-06-20 09:35:00",
+      "call_close": 1.54,
+      "put_close": 1.41,
+      "expected_move_dollars": 2.5075,
+      "spy_price_at_open": 596.56,
+      "expected_move_pct": 0.004203
+    },
+    "2025-06-23": {
+      "atm_strike": 596,
+      "sample_ts": "2025-06-23 09:35:00",
+      "call_close": 1.26,
+      "put_close": 1.68,
+      "expected_move_dollars": 2.499,
+      "spy_price_at_open": 594.9,
+      "expected_move_pct": 0.004201
+    },
+    "2025-06-24": {
+      "atm_strike": 605,
+      "sample_ts": "2025-06-24 09:35:00",
+      "call_close": 1.21,
+      "put_close": 1.31,
+      "expected_move_dollars": 2.142,
+      "spy_price_at_open": 604.3,
+      "expected_move_pct": 0.003545
+    },
+    "2025-06-25": {
+      "atm_strike": 608,
+      "sample_ts": "2025-06-25 09:35:00",
+      "call_close": 1.28,
+      "put_close": 1.01,
+      "expected_move_dollars": 1.9465,
+      "spy_price_at_open": 607.95,
+      "expected_move_pct": 0.003202
+    },
+    "2025-06-26": {
+      "atm_strike": 609,
+      "sample_ts": "2025-06-26 09:35:00",
+      "call_close": 1.1,
+      "put_close": 1.01,
+      "expected_move_dollars": 1.7935,
+      "spy_price_at_open": 609.07,
+      "expected_move_pct": 0.002945
+    },
+    "2025-06-27": {
+      "atm_strike": 614,
+      "sample_ts": "2025-06-27 09:35:00",
+      "call_close": 0.87,
+      "put_close": 1.27,
+      "expected_move_dollars": 1.819,
+      "spy_price_at_open": 613.31,
+      "expected_move_pct": 0.002966
+    },
+    "2025-06-30": {
+      "atm_strike": 617,
+      "sample_ts": "2025-06-30 09:35:00",
+      "call_close": 1.24,
+      "put_close": 1.48,
+      "expected_move_dollars": 2.312,
+      "spy_price_at_open": 617.46,
+      "expected_move_pct": 0.003744
+    },
+    "2025-07-01": {
+      "atm_strike": 617,
+      "sample_ts": "2025-07-01 09:35:00",
+      "call_close": 1.06,
+      "put_close": 1.3,
+      "expected_move_dollars": 2.006,
+      "spy_price_at_open": 616.48,
+      "expected_move_pct": 0.003254
+    },
+    "2025-07-02": {
+      "atm_strike": 617,
+      "sample_ts": "2025-07-02 09:35:00",
+      "call_close": 1.23,
+      "put_close": 0.99,
+      "expected_move_dollars": 1.887,
+      "spy_price_at_open": 617.29,
+      "expected_move_pct": 0.003057
+    },
+    "2025-07-03": {
+      "atm_strike": 623,
+      "sample_ts": "2025-07-03 09:35:00",
+      "call_close": 1.27,
+      "put_close": 0.83,
+      "expected_move_dollars": 1.785,
+      "spy_price_at_open": 621.57,
+      "expected_move_pct": 0.002872
+    },
+    "2025-07-07": {
+      "atm_strike": 623,
+      "sample_ts": "2025-07-07 09:35:00",
+      "call_close": 1.38,
+      "put_close": 1.05,
+      "expected_move_dollars": 2.0655,
+      "spy_price_at_open": 624.17,
+      "expected_move_pct": 0.003309
+    },
+    "2025-07-08": {
+      "atm_strike": 621,
+      "sample_ts": "2025-07-08 09:35:00",
+      "call_close": 1.06,
+      "put_close": 1.38,
+      "expected_move_dollars": 2.074,
+      "spy_price_at_open": 621.16,
+      "expected_move_pct": 0.003339
+    },
+    "2025-07-09": {
+      "atm_strike": 624,
+      "sample_ts": "2025-07-09 09:35:00",
+      "call_close": 0.99,
+      "put_close": 1.16,
+      "expected_move_dollars": 1.8275,
+      "spy_price_at_open": 622.73,
+      "expected_move_pct": 0.002935
+    },
+    "2025-07-10": {
+      "atm_strike": 624,
+      "sample_ts": "2025-07-10 09:35:00",
+      "call_close": 0.96,
+      "put_close": 1.2,
+      "expected_move_dollars": 1.836,
+      "spy_price_at_open": 623.65,
+      "expected_move_pct": 0.002944
+    },
+    "2025-07-11": {
+      "atm_strike": 622,
+      "sample_ts": "2025-07-11 09:35:00",
+      "call_close": 1.51,
+      "put_close": 1.23,
+      "expected_move_dollars": 2.329,
+      "spy_price_at_open": 622.87,
+      "expected_move_pct": 0.003739
+    },
+    "2025-07-14": {
+      "atm_strike": 623,
+      "sample_ts": "2025-07-14 09:35:00",
+      "call_close": 1.08,
+      "put_close": 1.04,
+      "expected_move_dollars": 1.802,
+      "spy_price_at_open": 623.13,
+      "expected_move_pct": 0.002892
+    },
+    "2025-07-15": {
+      "atm_strike": 627,
+      "sample_ts": "2025-07-15 09:35:00",
+      "call_close": 0.94,
+      "put_close": 1.42,
+      "expected_move_dollars": 2.006,
+      "spy_price_at_open": 627.53,
+      "expected_move_pct": 0.003197
+    },
+    "2025-07-16": {
+      "atm_strike": 624,
+      "sample_ts": "2025-07-16 09:35:00",
+      "call_close": 0.99,
+      "put_close": 1.25,
+      "expected_move_dollars": 1.904,
+      "spy_price_at_open": 623.29,
+      "expected_move_pct": 0.003055
+    },
+    "2025-07-17": {
+      "atm_strike": 625,
+      "sample_ts": "2025-07-17 09:35:00",
+      "call_close": 0.97,
+      "put_close": 1.2,
+      "expected_move_dollars": 1.8445,
+      "spy_price_at_open": 624.32,
+      "expected_move_pct": 0.002954
+    },
+    "2025-07-18": {
+      "atm_strike": 629,
+      "sample_ts": "2025-07-18 09:35:00",
+      "call_close": 1.02,
+      "put_close": 1.15,
+      "expected_move_dollars": 1.8445,
+      "spy_price_at_open": 628.66,
+      "expected_move_pct": 0.002934
+    },
+    "2025-07-21": {
+      "atm_strike": 629,
+      "sample_ts": "2025-07-21 09:35:00",
+      "call_close": 1.05,
+      "put_close": 0.75,
+      "expected_move_dollars": 1.53,
+      "spy_price_at_open": 628.89,
+      "expected_move_pct": 0.002433
+    },
+    "2025-07-22": {
+      "atm_strike": 629,
+      "sample_ts": "2025-07-22 09:35:00",
+      "call_close": 1.06,
+      "put_close": 0.97,
+      "expected_move_dollars": 1.7255,
+      "spy_price_at_open": 628.975,
+      "expected_move_pct": 0.002743
+    },
+    "2025-07-23": {
+      "atm_strike": 631,
+      "sample_ts": "2025-07-23 09:35:00",
+      "call_close": 1.37,
+      "put_close": 1.04,
+      "expected_move_dollars": 2.0485,
+      "spy_price_at_open": 631.38,
+      "expected_move_pct": 0.003244
+    },
+    "2025-07-24": {
+      "atm_strike": 634,
+      "sample_ts": "2025-07-24 09:35:00",
+      "call_close": 1.18,
+      "put_close": 0.92,
+      "expected_move_dollars": 1.785,
+      "spy_price_at_open": 634.09,
+      "expected_move_pct": 0.002815
+    },
+    "2025-07-25": {
+      "atm_strike": 635,
+      "sample_ts": "2025-07-25 09:35:00",
+      "call_close": 1.12,
+      "put_close": 0.81,
+      "expected_move_dollars": 1.6405,
+      "spy_price_at_open": 635.0,
+      "expected_move_pct": 0.002583
+    },
+    "2025-07-28": {
+      "atm_strike": 637,
+      "sample_ts": "2025-07-28 09:35:00",
+      "call_close": 1.16,
+      "put_close": 0.75,
+      "expected_move_dollars": 1.6235,
+      "spy_price_at_open": 637.465,
+      "expected_move_pct": 0.002547
+    },
+    "2025-07-29": {
+      "atm_strike": 639,
+      "sample_ts": "2025-07-29 09:35:00",
+      "call_close": 0.65,
+      "put_close": 1.11,
+      "expected_move_dollars": 1.496,
+      "spy_price_at_open": 638.35,
+      "expected_move_pct": 0.002344
+    },
+    "2025-07-30": {
+      "atm_strike": 636,
+      "sample_ts": "2025-07-30 09:35:00",
+      "call_close": 1.48,
+      "put_close": 1.7,
+      "expected_move_dollars": 2.703,
+      "spy_price_at_open": 636.0,
+      "expected_move_pct": 0.00425
+    },
+    "2025-08-01": {
+      "atm_strike": 624,
+      "sample_ts": "2025-08-01 09:35:00",
+      "call_close": 2.17,
+      "put_close": 2.4,
+      "expected_move_dollars": 3.8845,
+      "spy_price_at_open": 626.89,
+      "expected_move_pct": 0.006196
+    },
+    "2025-08-04": {
+      "atm_strike": 627,
+      "sample_ts": "2025-08-04 09:35:00",
+      "call_close": 1.57,
+      "put_close": 1.25,
+      "expected_move_dollars": 2.397,
+      "spy_price_at_open": 625.72,
+      "expected_move_pct": 0.003831
+    },
+    "2025-08-05": {
+      "atm_strike": 632,
+      "sample_ts": "2025-08-05 09:35:00",
+      "call_close": 1.31,
+      "put_close": 1.24,
+      "expected_move_dollars": 2.1675,
+      "spy_price_at_open": 632.82,
+      "expected_move_pct": 0.003425
+    },
+    "2025-08-06": {
+      "atm_strike": 628,
+      "sample_ts": "2025-08-06 09:35:00",
+      "call_close": 1.67,
+      "put_close": 1.23,
+      "expected_move_dollars": 2.465,
+      "spy_price_at_open": 629.29,
+      "expected_move_pct": 0.003917
+    },
+    "2025-08-07": {
+      "atm_strike": 637,
+      "sample_ts": "2025-08-07 09:35:00",
+      "call_close": 1.12,
+      "put_close": 1.4,
+      "expected_move_dollars": 2.142,
+      "spy_price_at_open": 636.52,
+      "expected_move_pct": 0.003365
+    },
+    "2025-08-08": {
+      "atm_strike": 634,
+      "sample_ts": "2025-08-08 09:35:00",
+      "call_close": 1.44,
+      "put_close": 1.14,
+      "expected_move_dollars": 2.193,
+      "spy_price_at_open": 634.29,
+      "expected_move_pct": 0.003457
+    },
+    "2025-08-11": {
+      "atm_strike": 638,
+      "sample_ts": "2025-08-11 09:35:00",
+      "call_close": 0.84,
+      "put_close": 1.35,
+      "expected_move_dollars": 1.8615,
+      "spy_price_at_open": 637.85,
+      "expected_move_pct": 0.002918
+    },
+    "2025-08-12": {
+      "atm_strike": 640,
+      "sample_ts": "2025-08-12 09:35:00",
+      "call_close": 1.12,
+      "put_close": 1.36,
+      "expected_move_dollars": 2.108,
+      "spy_price_at_open": 635.85,
+      "expected_move_pct": 0.003315
+    },
+    "2025-08-13": {
+      "atm_strike": 645,
+      "sample_ts": "2025-08-13 09:35:00",
+      "call_close": 1.2,
+      "put_close": 0.87,
+      "expected_move_dollars": 1.7595,
+      "spy_price_at_open": 644.34,
+      "expected_move_pct": 0.002731
+    },
+    "2025-08-14": {
+      "atm_strike": 643,
+      "sample_ts": "2025-08-14 09:35:00",
+      "call_close": 1.46,
+      "put_close": 1.21,
+      "expected_move_dollars": 2.2695,
+      "spy_price_at_open": 642.78,
+      "expected_move_pct": 0.003531
+    },
+    "2025-08-15": {
+      "atm_strike": 645,
+      "sample_ts": "2025-08-15 09:35:00",
+      "call_close": 1.38,
+      "put_close": 1.14,
+      "expected_move_dollars": 2.142,
+      "spy_price_at_open": 646.09,
+      "expected_move_pct": 0.003315
+    },
+    "2025-08-18": {
+      "atm_strike": 643,
+      "sample_ts": "2025-08-18 09:35:00",
+      "call_close": 1.19,
+      "put_close": 0.87,
+      "expected_move_dollars": 1.751,
+      "spy_price_at_open": 642.69,
+      "expected_move_pct": 0.002724
+    },
+    "2025-08-19": {
+      "atm_strike": 643,
+      "sample_ts": "2025-08-19 09:35:00",
+      "call_close": 0.74,
+      "put_close": 1.13,
+      "expected_move_dollars": 1.5895,
+      "spy_price_at_open": 643.15,
+      "expected_move_pct": 0.002471
+    },
+    "2025-08-20": {
+      "atm_strike": 639,
+      "sample_ts": "2025-08-20 09:35:00",
+      "call_close": 0.98,
+      "put_close": 1.47,
+      "expected_move_dollars": 2.0825,
+      "spy_price_at_open": 639.28,
+      "expected_move_pct": 0.003258
+    },
+    "2025-08-21": {
+      "atm_strike": 636,
+      "sample_ts": "2025-08-21 09:35:00",
+      "call_close": 1.69,
+      "put_close": 1.33,
+      "expected_move_dollars": 2.567,
+      "spy_price_at_open": 635.84,
+      "expected_move_pct": 0.004037
+    },
+    "2025-08-22": {
+      "atm_strike": 639,
+      "sample_ts": "2025-08-22 09:35:00",
+      "call_close": 2.24,
+      "put_close": 2.71,
+      "expected_move_dollars": 4.2075,
+      "spy_price_at_open": 637.26,
+      "expected_move_pct": 0.006602
+    },
+    "2025-08-25": {
+      "atm_strike": 644,
+      "sample_ts": "2025-08-25 09:35:00",
+      "call_close": 1.04,
+      "put_close": 0.96,
+      "expected_move_dollars": 1.7,
+      "spy_price_at_open": 643.19,
+      "expected_move_pct": 0.002643
+    },
+    "2025-08-26": {
+      "atm_strike": 642,
+      "sample_ts": "2025-08-26 09:35:00",
+      "call_close": 1.18,
+      "put_close": 0.87,
+      "expected_move_dollars": 1.7425,
+      "spy_price_at_open": 642.1,
+      "expected_move_pct": 0.002714
+    },
+    "2025-08-27": {
+      "atm_strike": 645,
+      "sample_ts": "2025-08-27 09:35:00",
+      "call_close": 1.67,
+      "put_close": 1.35,
+      "expected_move_dollars": 2.567,
+      "spy_price_at_open": 644.555,
+      "expected_move_pct": 0.003983
+    },
+    "2025-08-28": {
+      "atm_strike": 647,
+      "sample_ts": "2025-08-28 09:35:00",
+      "call_close": 1.41,
+      "put_close": 0.93,
+      "expected_move_dollars": 1.989,
+      "spy_price_at_open": 646.63,
+      "expected_move_pct": 0.003076
+    },
+    "2025-08-29": {
+      "atm_strike": 647,
+      "sample_ts": "2025-08-29 09:35:00",
+      "call_close": 1.11,
+      "put_close": 1.23,
+      "expected_move_dollars": 1.989,
+      "spy_price_at_open": 646.86,
+      "expected_move_pct": 0.003075
+    },
+    "2025-09-02": {
+      "atm_strike": 637,
+      "sample_ts": "2025-09-02 09:35:00",
+      "call_close": 1.66,
+      "put_close": 1.78,
+      "expected_move_dollars": 2.924,
+      "spy_price_at_open": 637.51,
+      "expected_move_pct": 0.004587
+    },
+    "2025-09-03": {
+      "atm_strike": 643,
+      "sample_ts": "2025-09-03 09:35:00",
+      "call_close": 1.15,
+      "put_close": 1.25,
+      "expected_move_dollars": 2.04,
+      "spy_price_at_open": 643.21,
+      "expected_move_pct": 0.003172
+    },
+    "2025-09-04": {
+      "atm_strike": 645,
+      "sample_ts": "2025-09-04 09:35:00",
+      "call_close": 1.05,
+      "put_close": 1.31,
+      "expected_move_dollars": 2.006,
+      "spy_price_at_open": 644.15,
+      "expected_move_pct": 0.003114
+    },
+    "2025-09-05": {
+      "atm_strike": 652,
+      "sample_ts": "2025-09-05 09:35:00",
+      "call_close": 1.06,
+      "put_close": 1.39,
+      "expected_move_dollars": 2.0825,
+      "spy_price_at_open": 649.81,
+      "expected_move_pct": 0.003205
+    },
+    "2025-09-08": {
+      "atm_strike": 648,
+      "sample_ts": "2025-09-08 09:35:00",
+      "call_close": 1.07,
+      "put_close": 0.99,
+      "expected_move_dollars": 1.751,
+      "spy_price_at_open": 648.645,
+      "expected_move_pct": 0.002699
+    },
+    "2025-09-09": {
+      "atm_strike": 649,
+      "sample_ts": "2025-09-09 09:35:00",
+      "call_close": 1.2,
+      "put_close": 1.03,
+      "expected_move_dollars": 1.8955,
+      "spy_price_at_open": 649.07,
+      "expected_move_pct": 0.00292
+    },
+    "2025-09-10": {
+      "atm_strike": 653,
+      "sample_ts": "2025-09-10 09:35:00",
+      "call_close": 1.19,
+      "put_close": 0.95,
+      "expected_move_dollars": 1.819,
+      "spy_price_at_open": 653.49,
+      "expected_move_pct": 0.002784
+    },
+    "2025-09-11": {
+      "atm_strike": 654,
+      "sample_ts": "2025-09-11 09:35:00",
+      "call_close": 1.18,
+      "put_close": 1.22,
+      "expected_move_dollars": 2.04,
+      "spy_price_at_open": 654.18,
+      "expected_move_pct": 0.003118
+    },
+    "2025-09-12": {
+      "atm_strike": 657,
+      "sample_ts": "2025-09-12 09:35:00",
+      "call_close": 1.21,
+      "put_close": 0.77,
+      "expected_move_dollars": 1.683,
+      "spy_price_at_open": 657.51,
+      "expected_move_pct": 0.00256
+    },
+    "2025-09-15": {
+      "atm_strike": 660,
+      "sample_ts": "2025-09-15 09:35:00",
+      "call_close": 0.91,
+      "put_close": 0.82,
+      "expected_move_dollars": 1.4705,
+      "spy_price_at_open": 658.87,
+      "expected_move_pct": 0.002232
+    },
+    "2025-09-16": {
+      "atm_strike": 661,
+      "sample_ts": "2025-09-16 09:35:00",
+      "call_close": 0.9,
+      "put_close": 0.96,
+      "expected_move_dollars": 1.581,
+      "spy_price_at_open": 661.47,
+      "expected_move_pct": 0.00239
+    },
+    "2025-09-17": {
+      "atm_strike": 660,
+      "sample_ts": "2025-09-17 09:35:00",
+      "call_close": 2.17,
+      "put_close": 2.04,
+      "expected_move_dollars": 3.5785,
+      "spy_price_at_open": 660.04,
+      "expected_move_pct": 0.005422
+    },
+    "2025-09-18": {
+      "atm_strike": 662,
+      "sample_ts": "2025-09-18 09:35:00",
+      "call_close": 1.27,
+      "put_close": 1.57,
+      "expected_move_dollars": 2.414,
+      "spy_price_at_open": 661.9,
+      "expected_move_pct": 0.003647
+    },
+    "2025-09-19": {
+      "atm_strike": 662,
+      "sample_ts": "2025-09-19 09:35:00",
+      "call_close": 1.05,
+      "put_close": 1.42,
+      "expected_move_dollars": 2.0995,
+      "spy_price_at_open": 662.305,
+      "expected_move_pct": 0.00317
+    },
+    "2025-09-22": {
+      "atm_strike": 662,
+      "sample_ts": "2025-09-22 09:35:00",
+      "call_close": 1.17,
+      "put_close": 0.77,
+      "expected_move_dollars": 1.649,
+      "spy_price_at_open": 661.96,
+      "expected_move_pct": 0.002491
+    },
+    "2025-09-23": {
+      "atm_strike": 667,
+      "sample_ts": "2025-09-23 09:35:00",
+      "call_close": 1.0,
+      "put_close": 0.92,
+      "expected_move_dollars": 1.632,
+      "spy_price_at_open": 666.77,
+      "expected_move_pct": 0.002448
+    },
+    "2025-09-24": {
+      "atm_strike": 664,
+      "sample_ts": "2025-09-24 09:35:00",
+      "call_close": 0.91,
+      "put_close": 1.28,
+      "expected_move_dollars": 1.8615,
+      "spy_price_at_open": 664.19,
+      "expected_move_pct": 0.002803
+    },
+    "2025-09-25": {
+      "atm_strike": 656,
+      "sample_ts": "2025-09-25 09:35:00",
+      "call_close": 1.66,
+      "put_close": 1.54,
+      "expected_move_dollars": 2.72,
+      "spy_price_at_open": 657.72,
+      "expected_move_pct": 0.004135
+    },
+    "2025-09-26": {
+      "atm_strike": 661,
+      "sample_ts": "2025-09-26 09:35:00",
+      "call_close": 1.37,
+      "put_close": 1.47,
+      "expected_move_dollars": 2.414,
+      "spy_price_at_open": 660.72,
+      "expected_move_pct": 0.003654
+    },
+    "2025-09-29": {
+      "atm_strike": 664,
+      "sample_ts": "2025-09-29 09:35:00",
+      "call_close": 1.04,
+      "put_close": 1.07,
+      "expected_move_dollars": 1.7935,
+      "spy_price_at_open": 664.85,
+      "expected_move_pct": 0.002698
+    },
+    "2025-09-30": {
+      "atm_strike": 662,
+      "sample_ts": "2025-09-30 09:35:00",
+      "call_close": 1.54,
+      "put_close": 1.12,
+      "expected_move_dollars": 2.261,
+      "spy_price_at_open": 662.7,
+      "expected_move_pct": 0.003412
+    },
+    "2025-10-01": {
+      "atm_strike": 665,
+      "sample_ts": "2025-10-01 09:35:00",
+      "call_close": 1.4,
+      "put_close": 1.28,
+      "expected_move_dollars": 2.278,
+      "spy_price_at_open": 663.33,
+      "expected_move_pct": 0.003434
+    },
+    "2025-10-02": {
+      "atm_strike": 670,
+      "sample_ts": "2025-10-02 09:35:00",
+      "call_close": 0.93,
+      "put_close": 1.14,
+      "expected_move_dollars": 1.7595,
+      "spy_price_at_open": 670.34,
+      "expected_move_pct": 0.002625
+    },
+    "2025-10-03": {
+      "atm_strike": 671,
+      "sample_ts": "2025-10-03 09:35:00",
+      "call_close": 1.25,
+      "put_close": 1.1,
+      "expected_move_dollars": 1.9975,
+      "spy_price_at_open": 669.74,
+      "expected_move_pct": 0.002983
+    },
+    "2025-10-06": {
+      "atm_strike": 671,
+      "sample_ts": "2025-10-06 09:35:00",
+      "call_close": 0.84,
+      "put_close": 1.1,
+      "expected_move_dollars": 1.649,
+      "spy_price_at_open": 671.625,
+      "expected_move_pct": 0.002455
+    },
+    "2025-10-07": {
+      "atm_strike": 673,
+      "sample_ts": "2025-10-07 09:35:00",
+      "call_close": 0.84,
+      "put_close": 1.1,
+      "expected_move_dollars": 1.649,
+      "spy_price_at_open": 672.6,
+      "expected_move_pct": 0.002452
+    },
+    "2025-10-08": {
+      "atm_strike": 670,
+      "sample_ts": "2025-10-08 09:35:00",
+      "call_close": 1.16,
+      "put_close": 1.15,
+      "expected_move_dollars": 1.9635,
+      "spy_price_at_open": 669.59,
+      "expected_move_pct": 0.002932
+    },
+    "2025-10-09": {
+      "atm_strike": 673,
+      "sample_ts": "2025-10-09 09:35:00",
+      "call_close": 1.23,
+      "put_close": 0.73,
+      "expected_move_dollars": 1.666,
+      "spy_price_at_open": 673.52,
+      "expected_move_pct": 0.002474
+    },
+    "2025-10-13": {
+      "atm_strike": 661,
+      "sample_ts": "2025-10-13 09:35:00",
+      "call_close": 1.85,
+      "put_close": 2.25,
+      "expected_move_dollars": 3.485,
+      "spy_price_at_open": 660.87,
+      "expected_move_pct": 0.005273
+    },
+    "2025-10-15": {
+      "atm_strike": 667,
+      "sample_ts": "2025-10-15 09:35:00",
+      "call_close": 1.52,
+      "put_close": 1.9,
+      "expected_move_dollars": 2.907,
+      "spy_price_at_open": 666.77,
+      "expected_move_pct": 0.00436
+    },
+    "2025-10-17": {
+      "atm_strike": 660,
+      "sample_ts": "2025-10-17 09:35:00",
+      "call_close": 2.92,
+      "put_close": 3.08,
+      "expected_move_dollars": 5.1,
+      "spy_price_at_open": 660.45,
+      "expected_move_pct": 0.007722
+    },
+    "2025-10-20": {
+      "atm_strike": 669,
+      "sample_ts": "2025-10-20 09:35:00",
+      "call_close": 1.28,
+      "put_close": 1.63,
+      "expected_move_dollars": 2.4735,
+      "spy_price_at_open": 666.17,
+      "expected_move_pct": 0.003713
+    },
+    "2025-10-21": {
+      "atm_strike": 672,
+      "sample_ts": "2025-10-21 09:35:00",
+      "call_close": 1.12,
+      "put_close": 1.48,
+      "expected_move_dollars": 2.21,
+      "spy_price_at_open": 671.35,
+      "expected_move_pct": 0.003292
+    },
+    "2025-10-22": {
+      "atm_strike": 671,
+      "sample_ts": "2025-10-22 09:35:00",
+      "call_close": 1.69,
+      "put_close": 1.29,
+      "expected_move_dollars": 2.533,
+      "spy_price_at_open": 671.68,
+      "expected_move_pct": 0.003771
+    },
+    "2025-10-23": {
+      "atm_strike": 669,
+      "sample_ts": "2025-10-23 09:35:00",
+      "call_close": 1.5,
+      "put_close": 1.52,
+      "expected_move_dollars": 2.567,
+      "spy_price_at_open": 667.58,
+      "expected_move_pct": 0.003845
+    },
+    "2025-10-24": {
+      "atm_strike": 677,
+      "sample_ts": "2025-10-24 09:35:00",
+      "call_close": 1.48,
+      "put_close": 1.33,
+      "expected_move_dollars": 2.3885,
+      "spy_price_at_open": 676.01,
+      "expected_move_pct": 0.003533
+    },
+    "2025-10-27": {
+      "atm_strike": 683,
+      "sample_ts": "2025-10-27 09:35:00",
+      "call_close": 1.0,
+      "put_close": 1.2,
+      "expected_move_dollars": 1.87,
+      "spy_price_at_open": 682.85,
+      "expected_move_pct": 0.002739
+    },
+    "2025-10-28": {
+      "atm_strike": 686,
+      "sample_ts": "2025-10-28 09:35:00",
+      "call_close": 1.26,
+      "put_close": 1.07,
+      "expected_move_dollars": 1.9805,
+      "spy_price_at_open": 685.97,
+      "expected_move_pct": 0.002887
+    },
+    "2025-10-29": {
+      "atm_strike": 689,
+      "sample_ts": "2025-10-29 09:35:00",
+      "call_close": 2.08,
+      "put_close": 2.22,
+      "expected_move_dollars": 3.655,
+      "spy_price_at_open": 688.72,
+      "expected_move_pct": 0.005307
+    },
+    "2025-10-30": {
+      "atm_strike": 682,
+      "sample_ts": "2025-10-30 09:35:00",
+      "call_close": 2.46,
+      "put_close": 2.57,
+      "expected_move_dollars": 4.2755,
+      "spy_price_at_open": 685.71,
+      "expected_move_pct": 0.006235
+    },
+    "2025-10-31": {
+      "atm_strike": 684,
+      "sample_ts": "2025-10-31 09:35:00",
+      "call_close": 1.9,
+      "put_close": 1.64,
+      "expected_move_dollars": 3.009,
+      "spy_price_at_open": 686.0,
+      "expected_move_pct": 0.004386
+    },
+    "2025-11-03": {
+      "atm_strike": 684,
+      "sample_ts": "2025-11-03 09:50:00",
+      "call_close": 1.89,
+      "put_close": 1.19,
+      "expected_move_dollars": 2.618,
+      "spy_price_at_open": 683.71,
+      "expected_move_pct": 0.003829
+    },
+    "2025-11-04": {
+      "atm_strike": 675,
+      "sample_ts": "2025-11-04 09:35:00",
+      "call_close": 2.2,
+      "put_close": 2.21,
+      "expected_move_dollars": 3.7485,
+      "spy_price_at_open": 676.7,
+      "expected_move_pct": 0.005539
+    },
+    "2025-11-05": {
+      "atm_strike": 675,
+      "sample_ts": "2025-11-05 09:35:00",
+      "call_close": 1.64,
+      "put_close": 2.16,
+      "expected_move_dollars": 3.23,
+      "spy_price_at_open": 674.32,
+      "expected_move_pct": 0.00479
+    },
+    "2025-11-07": {
+      "atm_strike": 668,
+      "sample_ts": "2025-11-07 09:45:00",
+      "call_close": 1.54,
+      "put_close": 3.25,
+      "expected_move_dollars": 4.0715,
+      "spy_price_at_open": 667.0,
+      "expected_move_pct": 0.006104
+    },
+    "2025-11-10": {
+      "atm_strike": 677,
+      "sample_ts": "2025-11-10 09:50:00",
+      "call_close": 2.02,
+      "put_close": 1.24,
+      "expected_move_dollars": 2.771,
+      "spy_price_at_open": 677.21,
+      "expected_move_pct": 0.004092
+    },
+    "2025-11-11": {
+      "atm_strike": 680,
+      "sample_ts": "2025-11-11 09:35:00",
+      "call_close": 1.38,
+      "put_close": 1.29,
+      "expected_move_dollars": 2.2695,
+      "spy_price_at_open": 679.94,
+      "expected_move_pct": 0.003338
+    },
+    "2025-11-12": {
+      "atm_strike": 685,
+      "sample_ts": "2025-11-12 09:35:00",
+      "call_close": 0.95,
+      "put_close": 1.71,
+      "expected_move_dollars": 2.261,
+      "spy_price_at_open": 685.24,
+      "expected_move_pct": 0.0033
+    },
+    "2025-11-17": {
+      "atm_strike": 670,
+      "sample_ts": "2025-11-17 10:10:00",
+      "call_close": 2.95,
+      "put_close": 1.84,
+      "expected_move_dollars": 4.0715,
+      "spy_price_at_open": 672.22,
+      "expected_move_pct": 0.006057
+    },
+    "2025-11-18": {
+      "atm_strike": 663,
+      "sample_ts": "2025-11-18 10:00:00",
+      "call_close": 2.69,
+      "put_close": 2.77,
+      "expected_move_dollars": 4.641,
+      "spy_price_at_open": 661.45,
+      "expected_move_pct": 0.007016
+    },
+    "2025-11-19": {
+      "atm_strike": 662,
+      "sample_ts": "2025-11-19 09:40:00",
+      "call_close": 2.53,
+      "put_close": 3.15,
+      "expected_move_dollars": 4.828,
+      "spy_price_at_open": 662.69,
+      "expected_move_pct": 0.007285
+    },
+    "2025-11-21": {
+      "atm_strike": 656,
+      "sample_ts": "2025-11-21 09:35:00",
+      "call_close": 3.06,
+      "put_close": 3.67,
+      "expected_move_dollars": 5.7205,
+      "spy_price_at_open": 655.62,
+      "expected_move_pct": 0.008725
+    },
+    "2025-11-26": {
+      "atm_strike": 677,
+      "sample_ts": "2025-11-26 09:40:00",
+      "call_close": 2.26,
+      "put_close": 1.0,
+      "expected_move_dollars": 2.771,
+      "spy_price_at_open": 676.74,
+      "expected_move_pct": 0.004095
+    },
+    "2025-11-28": {
+      "atm_strike": 681,
+      "sample_ts": "2025-11-28 09:50:00",
+      "call_close": 1.91,
+      "put_close": 1.48,
+      "expected_move_dollars": 2.8815,
+      "spy_price_at_open": 681.3,
+      "expected_move_pct": 0.004229
+    },
+    "2025-12-01": {
+      "atm_strike": 679,
+      "sample_ts": "2025-12-01 09:35:00",
+      "call_close": 2.15,
+      "put_close": 1.48,
+      "expected_move_dollars": 3.0855,
+      "spy_price_at_open": 678.32,
+      "expected_move_pct": 0.004549
+    },
+    "2025-12-02": {
+      "atm_strike": 682,
+      "sample_ts": "2025-12-02 09:45:00",
+      "call_close": 1.32,
+      "put_close": 1.49,
+      "expected_move_dollars": 2.3885,
+      "spy_price_at_open": 681.86,
+      "expected_move_pct": 0.003503
+    },
+    "2025-12-03": {
+      "atm_strike": 684,
+      "sample_ts": "2025-12-03 09:35:00",
+      "call_close": 0.45,
+      "put_close": 3.9,
+      "expected_move_dollars": 3.6975,
+      "spy_price_at_open": 683.48,
+      "expected_move_pct": 0.00541
+    },
+    "2025-12-04": {
+      "atm_strike": 684,
+      "sample_ts": "2025-12-04 09:35:00",
+      "call_close": 1.51,
+      "put_close": 1.59,
+      "expected_move_dollars": 2.635,
+      "spy_price_at_open": 684.47,
+      "expected_move_pct": 0.00385
+    },
+    "2025-12-05": {
+      "atm_strike": 685,
+      "sample_ts": "2025-12-05 09:40:00",
+      "call_close": 2.12,
+      "put_close": 1.08,
+      "expected_move_dollars": 2.72,
+      "spy_price_at_open": 685.91,
+      "expected_move_pct": 0.003966
+    },
+    "2025-12-08": {
+      "atm_strike": 687,
+      "sample_ts": "2025-12-08 09:40:00",
+      "call_close": 0.8,
+      "put_close": 1.67,
+      "expected_move_dollars": 2.0995,
+      "spy_price_at_open": 686.77,
+      "expected_move_pct": 0.003057
+    },
+    "2025-12-09": {
+      "atm_strike": 683,
+      "sample_ts": "2025-12-09 09:35:00",
+      "call_close": 1.62,
+      "put_close": 1.21,
+      "expected_move_dollars": 2.4055,
+      "spy_price_at_open": 683.87,
+      "expected_move_pct": 0.003517
+    },
+    "2025-12-10": {
+      "atm_strike": 683,
+      "sample_ts": "2025-12-10 09:35:00",
+      "call_close": 1.86,
+      "put_close": 2.72,
+      "expected_move_dollars": 3.893,
+      "spy_price_at_open": 682.79,
+      "expected_move_pct": 0.005702
+    },
+    "2025-12-15": {
+      "atm_strike": 685,
+      "sample_ts": "2025-12-15 09:40:00",
+      "call_close": 0.97,
+      "put_close": 1.99,
+      "expected_move_dollars": 2.516,
+      "spy_price_at_open": 684.93,
+      "expected_move_pct": 0.003673
+    },
+    "2025-12-16": {
+      "atm_strike": 680,
+      "sample_ts": "2025-12-16 09:35:00",
+      "call_close": 1.66,
+      "put_close": 2.11,
+      "expected_move_dollars": 3.2045,
+      "spy_price_at_open": 680.49,
+      "expected_move_pct": 0.004709
+    },
+    "2025-12-18": {
+      "atm_strike": 676,
+      "sample_ts": "2025-12-18 09:35:00",
+      "call_close": 2.94,
+      "put_close": 1.19,
+      "expected_move_dollars": 3.5105,
+      "spy_price_at_open": 674.25,
+      "expected_move_pct": 0.005207
+    },
+    "2025-12-19": {
+      "atm_strike": 676,
+      "sample_ts": "2025-12-19 09:35:00",
+      "call_close": 3.28,
+      "put_close": 1.07,
+      "expected_move_dollars": 3.6975,
+      "spy_price_at_open": 675.24,
+      "expected_move_pct": 0.005476
+    },
+    "2025-12-22": {
+      "atm_strike": 683,
+      "sample_ts": "2025-12-22 09:35:00",
+      "call_close": 1.6,
+      "put_close": 0.96,
+      "expected_move_dollars": 2.176,
+      "spy_price_at_open": 683.29,
+      "expected_move_pct": 0.003185
+    },
+    "2025-12-23": {
+      "atm_strike": 684,
+      "sample_ts": "2025-12-23 09:35:00",
+      "call_close": 1.7,
+      "put_close": 0.69,
+      "expected_move_dollars": 2.0315,
+      "spy_price_at_open": 684.61,
+      "expected_move_pct": 0.002967
+    },
+    "2025-12-24": {
+      "atm_strike": 688,
+      "sample_ts": "2025-12-24 09:45:00",
+      "call_close": 0.77,
+      "put_close": 0.51,
+      "expected_move_dollars": 1.088,
+      "spy_price_at_open": 687.99,
+      "expected_move_pct": 0.001581
+    },
+    "2025-12-26": {
+      "atm_strike": 691,
+      "sample_ts": "2025-12-26 10:30:00",
+      "call_close": 0.83,
+      "put_close": 0.9,
+      "expected_move_dollars": 1.4705,
+      "spy_price_at_open": 690.555,
+      "expected_move_pct": 0.002129
+    },
+    "2025-12-29": {
+      "atm_strike": 688,
+      "sample_ts": "2025-12-29 09:40:00",
+      "call_close": 1.14,
+      "put_close": 1.09,
+      "expected_move_dollars": 1.8955,
+      "spy_price_at_open": 688.37,
+      "expected_move_pct": 0.002754
+    },
+    "2025-12-30": {
+      "atm_strike": 688,
+      "sample_ts": "2025-12-30 09:55:00",
+      "call_close": 0.75,
+      "put_close": 1.43,
+      "expected_move_dollars": 1.853,
+      "spy_price_at_open": 687.69,
+      "expected_move_pct": 0.002695
+    },
+    "2025-12-31": {
+      "atm_strike": 688,
+      "sample_ts": "2025-12-31 09:50:00",
+      "call_close": 0.59,
+      "put_close": 1.76,
+      "expected_move_dollars": 1.9975,
+      "spy_price_at_open": 687.54,
+      "expected_move_pct": 0.002905
+    },
+    "2026-01-02": {
+      "atm_strike": 686,
+      "sample_ts": "2026-01-02 09:55:00",
+      "call_close": 0.68,
+      "put_close": 1.89,
+      "expected_move_dollars": 2.1845,
+      "spy_price_at_open": 685.86,
+      "expected_move_pct": 0.003185
+    },
+    "2026-01-05": {
+      "atm_strike": 686,
+      "sample_ts": "2026-01-05 09:55:00",
+      "call_close": 1.88,
+      "put_close": 0.87,
+      "expected_move_dollars": 2.3375,
+      "spy_price_at_open": 685.14,
+      "expected_move_pct": 0.003412
+    },
+    "2026-01-06": {
+      "atm_strike": 688,
+      "sample_ts": "2026-01-06 09:50:00",
+      "call_close": 1.25,
+      "put_close": 0.9,
+      "expected_move_dollars": 1.8275,
+      "spy_price_at_open": 688.04,
+      "expected_move_pct": 0.002656
+    },
+    "2026-01-07": {
+      "atm_strike": 692,
+      "sample_ts": "2026-01-07 09:35:00",
+      "call_close": 1.01,
+      "put_close": 1.14,
+      "expected_move_dollars": 1.8275,
+      "spy_price_at_open": 691.59,
+      "expected_move_pct": 0.002642
+    },
+    "2026-01-08": {
+      "atm_strike": 689,
+      "sample_ts": "2026-01-08 10:00:00",
+      "call_close": 1.01,
+      "put_close": 1.57,
+      "expected_move_dollars": 2.193,
+      "spy_price_at_open": 688.25,
+      "expected_move_pct": 0.003186
+    },
+    "2026-01-09": {
+      "atm_strike": 692,
+      "sample_ts": "2026-01-09 09:35:00",
+      "call_close": 1.31,
+      "put_close": 2.39,
+      "expected_move_dollars": 3.145,
+      "spy_price_at_open": 690.75,
+      "expected_move_pct": 0.004553
+    },
+    "2026-01-12": {
+      "atm_strike": 690,
+      "sample_ts": "2026-01-12 09:50:00",
+      "call_close": 2.53,
+      "put_close": 0.63,
+      "expected_move_dollars": 2.686,
+      "spy_price_at_open": 690.55,
+      "expected_move_pct": 0.00389
+    },
+    "2026-01-13": {
+      "atm_strike": 696,
+      "sample_ts": "2026-01-13 09:35:00",
+      "call_close": 1.02,
+      "put_close": 1.17,
+      "expected_move_dollars": 1.8615,
+      "spy_price_at_open": 694.37,
+      "expected_move_pct": 0.002681
+    },
+    "2026-01-14": {
+      "atm_strike": 691,
+      "sample_ts": "2026-01-14 09:35:00",
+      "call_close": 2.13,
+      "put_close": 1.56,
+      "expected_move_dollars": 3.1365,
+      "spy_price_at_open": 691.35,
+      "expected_move_pct": 0.004537
+    },
+    "2026-01-15": {
+      "atm_strike": 694,
+      "sample_ts": "2026-01-15 09:45:00",
+      "call_close": 1.36,
+      "put_close": 1.12,
+      "expected_move_dollars": 2.108,
+      "spy_price_at_open": 692.8,
+      "expected_move_pct": 0.003043
+    },
+    "2026-01-16": {
+      "atm_strike": 693,
+      "sample_ts": "2026-01-16 09:35:00",
+      "call_close": 1.73,
+      "put_close": 0.81,
+      "expected_move_dollars": 2.159,
+      "spy_price_at_open": 693.21,
+      "expected_move_pct": 0.003114
+    },
+    "2026-01-20": {
+      "atm_strike": 681,
+      "sample_ts": "2026-01-20 09:35:00",
+      "call_close": 3.3,
+      "put_close": 1.63,
+      "expected_move_dollars": 4.1905,
+      "spy_price_at_open": 682.41,
+      "expected_move_pct": 0.006141
+    },
+    "2026-01-22": {
+      "atm_strike": 690,
+      "sample_ts": "2026-01-22 09:45:00",
+      "call_close": 1.33,
+      "put_close": 1.39,
+      "expected_move_dollars": 2.312,
+      "spy_price_at_open": 689.23,
+      "expected_move_pct": 0.003354
+    },
+    "2026-01-23": {
+      "atm_strike": 687,
+      "sample_ts": "2026-01-23 09:50:00",
+      "call_close": 1.9,
+      "put_close": 1.18,
+      "expected_move_dollars": 2.618,
+      "spy_price_at_open": 688.56,
+      "expected_move_pct": 0.003802
+    },
+    "2026-01-26": {
+      "atm_strike": 691,
+      "sample_ts": "2026-01-26 10:30:00",
+      "call_close": 1.41,
+      "put_close": 1.16,
+      "expected_move_dollars": 2.1845,
+      "spy_price_at_open": 689.1,
+      "expected_move_pct": 0.00317
+    },
+    "2026-01-27": {
+      "atm_strike": 694,
+      "sample_ts": "2026-01-27 10:15:00",
+      "call_close": 1.15,
+      "put_close": 0.95,
+      "expected_move_dollars": 1.785,
+      "spy_price_at_open": 694.58,
+      "expected_move_pct": 0.00257
+    },
+    "2026-01-28": {
+      "atm_strike": 697,
+      "sample_ts": "2026-01-28 09:50:00",
+      "call_close": 1.97,
+      "put_close": 1.63,
+      "expected_move_dollars": 3.06,
+      "spy_price_at_open": 696.74,
+      "expected_move_pct": 0.004392
+    },
+    "2026-01-29": {
+      "atm_strike": 696,
+      "sample_ts": "2026-01-29 10:10:00",
+      "call_close": 1.77,
+      "put_close": 1.88,
+      "expected_move_dollars": 3.1025,
+      "spy_price_at_open": 696.62,
+      "expected_move_pct": 0.004454
+    },
+    "2026-01-30": {
+      "atm_strike": 691,
+      "sample_ts": "2026-01-30 09:40:00",
+      "call_close": 3.44,
+      "put_close": 1.4,
+      "expected_move_dollars": 4.114,
+      "spy_price_at_open": 691.96,
+      "expected_move_pct": 0.005945
+    },
+    "2026-02-04": {
+      "atm_strike": 691,
+      "sample_ts": "2026-02-04 09:40:00",
+      "call_close": 1.6,
+      "put_close": 3.07,
+      "expected_move_dollars": 3.9695,
+      "spy_price_at_open": 690.12,
+      "expected_move_pct": 0.005752
+    },
+    "2026-02-09": {
+      "atm_strike": 690,
+      "sample_ts": "2026-02-09 09:50:00",
+      "call_close": 1.78,
+      "put_close": 1.92,
+      "expected_move_dollars": 3.145,
+      "spy_price_at_open": 690.76,
+      "expected_move_pct": 0.004553
+    },
+    "2026-02-10": {
+      "atm_strike": 694,
+      "sample_ts": "2026-02-10 09:35:00",
+      "call_close": 2.06,
+      "put_close": 1.07,
+      "expected_move_dollars": 2.6605,
+      "spy_price_at_open": 693.32,
+      "expected_move_pct": 0.003837
+    },
+    "2026-02-11": {
+      "atm_strike": 695,
+      "sample_ts": "2026-02-11 09:35:00",
+      "call_close": 2.17,
+      "put_close": 1.1,
+      "expected_move_dollars": 2.7795,
+      "spy_price_at_open": 692.94,
+      "expected_move_pct": 0.004011
+    },
+    "2026-02-13": {
+      "atm_strike": 681,
+      "sample_ts": "2026-02-13 09:35:00",
+      "call_close": 2.93,
+      "put_close": 2.72,
+      "expected_move_dollars": 4.8025,
+      "spy_price_at_open": 680.42,
+      "expected_move_pct": 0.007058
+    },
+    "2026-02-17": {
+      "atm_strike": 679,
+      "sample_ts": "2026-02-17 09:35:00",
+      "call_close": 4.1,
+      "put_close": 1.39,
+      "expected_move_dollars": 4.6665,
+      "spy_price_at_open": 678.34,
+      "expected_move_pct": 0.006879
+    },
+    "2026-02-18": {
+      "atm_strike": 684,
+      "sample_ts": "2026-02-18 09:55:00",
+      "call_close": 2.06,
+      "put_close": 2.57,
+      "expected_move_dollars": 3.9355,
+      "spy_price_at_open": 685.41,
+      "expected_move_pct": 0.005742
+    },
+    "2026-02-19": {
+      "atm_strike": 684,
+      "sample_ts": "2026-02-19 09:45:00",
+      "call_close": 2.22,
+      "put_close": 2.28,
+      "expected_move_dollars": 3.825,
+      "spy_price_at_open": 684.08,
+      "expected_move_pct": 0.005591
+    },
+    "2026-02-23": {
+      "atm_strike": 687,
+      "sample_ts": "2026-02-23 09:45:00",
+      "call_close": 3.36,
+      "put_close": 1.01,
+      "expected_move_dollars": 3.7145,
+      "spy_price_at_open": 686.43,
+      "expected_move_pct": 0.005411
+    },
+    "2026-02-24": {
+      "atm_strike": 683,
+      "sample_ts": "2026-02-24 09:35:00",
+      "call_close": 1.35,
+      "put_close": 3.6,
+      "expected_move_dollars": 4.2075,
+      "spy_price_at_open": 682.4,
+      "expected_move_pct": 0.006166
+    },
+    "2026-02-25": {
+      "atm_strike": 690,
+      "sample_ts": "2026-02-25 09:35:00",
+      "call_close": 2.36,
+      "put_close": 1.55,
+      "expected_move_dollars": 3.3235,
+      "spy_price_at_open": 689.74,
+      "expected_move_pct": 0.004818
+    },
+    "2026-02-26": {
+      "atm_strike": 694,
+      "sample_ts": "2026-02-26 09:35:00",
+      "call_close": 1.12,
+      "put_close": 2.87,
+      "expected_move_dollars": 3.3915,
+      "spy_price_at_open": 693.6,
+      "expected_move_pct": 0.00489
+    },
+    "2026-02-27": {
+      "atm_strike": 683,
+      "sample_ts": "2026-02-27 09:35:00",
+      "call_close": 2.87,
+      "put_close": 2.12,
+      "expected_move_dollars": 4.2415,
+      "spy_price_at_open": 685.42,
+      "expected_move_pct": 0.006188
+    },
+    "2026-03-03": {
+      "atm_strike": 675,
+      "sample_ts": "2026-03-03 09:35:00",
+      "call_close": 2.71,
+      "put_close": 3.12,
+      "expected_move_dollars": 4.9555,
+      "spy_price_at_open": 676.79,
+      "expected_move_pct": 0.007322
+    },
+    "2026-03-04": {
+      "atm_strike": 683,
+      "sample_ts": "2026-03-04 09:40:00",
+      "call_close": 2.33,
+      "put_close": 2.55,
+      "expected_move_dollars": 4.148,
+      "spy_price_at_open": 681.27,
+      "expected_move_pct": 0.006089
+    },
+    "2026-03-05": {
+      "atm_strike": 683,
+      "sample_ts": "2026-03-05 09:35:00",
+      "call_close": 2.94,
+      "put_close": 1.81,
+      "expected_move_dollars": 4.0375,
+      "spy_price_at_open": 683.68,
+      "expected_move_pct": 0.005906
+    },
+    "2026-03-06": {
+      "atm_strike": 676,
+      "sample_ts": "2026-03-06 09:35:00",
+      "call_close": 1.67,
+      "put_close": 5.27,
+      "expected_move_dollars": 5.899,
+      "spy_price_at_open": 677.28,
+      "expected_move_pct": 0.00871
+    },
+    "2026-03-10": {
+      "atm_strike": 678,
+      "sample_ts": "2026-03-10 09:35:00",
+      "call_close": 1.94,
+      "put_close": 2.67,
+      "expected_move_dollars": 3.9185,
+      "spy_price_at_open": 676.77,
+      "expected_move_pct": 0.00579
+    },
+    "2026-03-11": {
+      "atm_strike": 678,
+      "sample_ts": "2026-03-11 09:35:00",
+      "call_close": 2.41,
+      "put_close": 2.05,
+      "expected_move_dollars": 3.791,
+      "spy_price_at_open": 676.07,
+      "expected_move_pct": 0.005607
+    },
+    "2026-03-12": {
+      "atm_strike": 671,
+      "sample_ts": "2026-03-12 09:35:00",
+      "call_close": 2.6,
+      "put_close": 2.19,
+      "expected_move_dollars": 4.0715,
+      "spy_price_at_open": 672.25,
+      "expected_move_pct": 0.006057
+    },
+    "2026-03-16": {
+      "atm_strike": 669,
+      "sample_ts": "2026-03-16 09:35:00",
+      "call_close": 2.02,
+      "put_close": 2.02,
+      "expected_move_dollars": 3.434,
+      "spy_price_at_open": 663.05,
+      "expected_move_pct": 0.005179
+    },
+    "2026-03-17": {
+      "atm_strike": 674,
+      "sample_ts": "2026-03-17 09:35:00",
+      "call_close": 1.61,
+      "put_close": 1.72,
+      "expected_move_dollars": 2.8305,
+      "spy_price_at_open": 666.82,
+      "expected_move_pct": 0.004245
+    },
+    "2026-03-19": {
+      "atm_strike": 656,
+      "sample_ts": "2026-03-19 09:35:00",
+      "call_close": 2.88,
+      "put_close": 2.63,
+      "expected_move_dollars": 4.6835,
+      "spy_price_at_open": 660.45,
+      "expected_move_pct": 0.007091
+    },
+    "2026-03-23": {
+      "atm_strike": 658,
+      "sample_ts": "2026-03-23 09:35:00",
+      "call_close": 2.86,
+      "put_close": 2.56,
+      "expected_move_dollars": 4.607,
+      "spy_price_at_open": 642.84,
+      "expected_move_pct": 0.007167
+    },
+    "2026-03-24": {
+      "atm_strike": 651,
+      "sample_ts": "2026-03-24 09:35:00",
+      "call_close": 2.58,
+      "put_close": 2.23,
+      "expected_move_dollars": 4.0885,
+      "spy_price_at_open": 655.17,
+      "expected_move_pct": 0.00624
+    },
+    "2026-03-25": {
+      "atm_strike": 660,
+      "sample_ts": "2026-03-25 09:35:00",
+      "call_close": 2.0,
+      "put_close": 2.14,
+      "expected_move_dollars": 3.519,
+      "spy_price_at_open": 658.01,
+      "expected_move_pct": 0.005348
+    },
+    "2026-04-01": {
+      "atm_strike": 656,
+      "sample_ts": "2026-04-01 09:35:00",
+      "call_close": 1.92,
+      "put_close": 2.1,
+      "expected_move_dollars": 3.417,
+      "spy_price_at_open": 653.0,
+      "expected_move_pct": 0.005233
+    },
+    "2026-04-06": {
+      "atm_strike": 657,
+      "sample_ts": "2026-04-06 09:35:00",
+      "call_close": 2.08,
+      "put_close": 2.48,
+      "expected_move_dollars": 3.876,
+      "spy_price_at_open": 656.07,
+      "expected_move_pct": 0.005908
+    },
+    "2026-04-07": {
+      "atm_strike": 655,
+      "sample_ts": "2026-04-07 09:35:00",
+      "call_close": 2.4,
+      "put_close": 2.15,
+      "expected_move_dollars": 3.8675,
+      "spy_price_at_open": 657.0,
+      "expected_move_pct": 0.005887
+    },
+    "2026-04-08": {
+      "atm_strike": 675,
+      "sample_ts": "2026-04-08 09:35:00",
+      "call_close": 2.15,
+      "put_close": 1.8,
+      "expected_move_dollars": 3.3575,
+      "spy_price_at_open": 674.68,
+      "expected_move_pct": 0.004976
+    },
+    "2026-04-09": {
+      "atm_strike": 675,
+      "sample_ts": "2026-04-09 09:35:00",
+      "call_close": 1.54,
+      "put_close": 1.4,
+      "expected_move_dollars": 2.499,
+      "spy_price_at_open": 673.97,
+      "expected_move_pct": 0.003708
+    },
+    "2026-04-10": {
+      "atm_strike": 681,
+      "sample_ts": "2026-04-10 09:35:00",
+      "call_close": 1.22,
+      "put_close": 1.49,
+      "expected_move_dollars": 2.3035,
+      "spy_price_at_open": 679.47,
+      "expected_move_pct": 0.00339
+    },
+    "2026-04-14": {
+      "atm_strike": 689,
+      "sample_ts": "2026-04-14 09:35:00",
+      "call_close": 1.24,
+      "put_close": 1.24,
+      "expected_move_dollars": 2.108,
+      "spy_price_at_open": 670.0,
+      "expected_move_pct": 0.003146
+    },
+    "2026-04-15": {
+      "atm_strike": 696,
+      "sample_ts": "2026-04-15 09:35:00",
+      "call_close": 1.46,
+      "put_close": 1.19,
+      "expected_move_dollars": 2.2525,
+      "spy_price_at_open": 694.46,
+      "expected_move_pct": 0.003244
+    },
+    "2026-04-16": {
+      "atm_strike": 701,
+      "sample_ts": "2026-04-16 09:35:00",
+      "call_close": 1.24,
+      "put_close": 1.6,
+      "expected_move_dollars": 2.414,
+      "spy_price_at_open": 700.92,
+      "expected_move_pct": 0.003444
+    },
+    "2026-04-17": {
+      "atm_strike": 707,
+      "sample_ts": "2026-04-17 09:35:00",
+      "call_close": 1.65,
+      "put_close": 1.57,
+      "expected_move_dollars": 2.737,
+      "spy_price_at_open": 702.36,
+      "expected_move_pct": 0.003897
+    },
+    "2026-04-20": {
+      "atm_strike": 709,
+      "sample_ts": "2026-04-20 09:35:00",
+      "call_close": 1.48,
+      "put_close": 1.82,
+      "expected_move_dollars": 2.805,
+      "spy_price_at_open": 706.82,
+      "expected_move_pct": 0.003968
+    },
+    "2026-04-21": {
+      "atm_strike": 709,
+      "sample_ts": "2026-04-21 09:35:00",
+      "call_close": 1.52,
+      "put_close": 1.49,
+      "expected_move_dollars": 2.5585,
+      "spy_price_at_open": 710.12,
+      "expected_move_pct": 0.003603
+    },
+    "2026-04-22": {
+      "atm_strike": 709,
+      "sample_ts": "2026-04-22 09:35:00",
+      "call_close": 1.43,
+      "put_close": 1.56,
+      "expected_move_dollars": 2.5415,
+      "spy_price_at_open": 708.0,
+      "expected_move_pct": 0.00359
+    },
+    "2026-04-23": {
+      "atm_strike": 710,
+      "sample_ts": "2026-04-23 09:35:00",
+      "call_close": 1.62,
+      "put_close": 1.38,
+      "expected_move_dollars": 2.55,
+      "spy_price_at_open": 709.55,
+      "expected_move_pct": 0.003594
+    },
+    "2026-04-24": {
+      "atm_strike": 710,
+      "sample_ts": "2026-04-24 09:35:00",
+      "call_close": 1.81,
+      "put_close": 1.49,
+      "expected_move_dollars": 2.805,
+      "spy_price_at_open": 708.51,
+      "expected_move_pct": 0.003959
+    },
+    "2026-04-27": {
+      "atm_strike": 714,
+      "sample_ts": "2026-04-27 09:35:00",
+      "call_close": 1.52,
+      "put_close": 1.19,
+      "expected_move_dollars": 2.3035,
+      "spy_price_at_open": 713.87,
+      "expected_move_pct": 0.003227
+    },
+    "2026-04-28": {
+      "atm_strike": 712,
+      "sample_ts": "2026-04-28 09:35:00",
+      "call_close": 1.59,
+      "put_close": 1.51,
+      "expected_move_dollars": 2.635,
+      "spy_price_at_open": 714.85,
+      "expected_move_pct": 0.003686
+    },
+    "2026-04-29": {
+      "atm_strike": 711,
+      "sample_ts": "2026-04-29 09:35:00",
+      "call_close": 2.08,
+      "put_close": 2.52,
+      "expected_move_dollars": 3.91,
+      "spy_price_at_open": 712.84,
+      "expected_move_pct": 0.005485
+    },
+    "2026-05-01": {
+      "atm_strike": 722,
+      "sample_ts": "2026-05-01 09:35:00",
+      "call_close": 1.27,
+      "put_close": 1.18,
+      "expected_move_dollars": 2.0825,
+      "spy_price_at_open": 720.24,
+      "expected_move_pct": 0.002891
+    },
+    "2026-05-04": {
+      "atm_strike": 720,
+      "sample_ts": "2026-05-04 09:35:00",
+      "call_close": 1.29,
+      "put_close": 1.44,
+      "expected_move_dollars": 2.3205,
+      "spy_price_at_open": 721.08,
+      "expected_move_pct": 0.003218
+    },
+    "2026-05-05": {
+      "atm_strike": 722,
+      "sample_ts": "2026-05-05 09:35:00",
+      "call_close": 1.28,
+      "put_close": 1.26,
+      "expected_move_dollars": 2.159,
+      "spy_price_at_open": 719.4,
+      "expected_move_pct": 0.003001
+    },
+    "2026-05-06": {
+      "atm_strike": 729,
+      "sample_ts": "2026-05-06 09:35:00",
+      "call_close": 1.43,
+      "put_close": 1.36,
+      "expected_move_dollars": 2.3715,
+      "spy_price_at_open": 726.0,
+      "expected_move_pct": 0.003267
+    },
+    "2026-05-07": {
+      "atm_strike": 735,
+      "sample_ts": "2026-05-07 09:35:00",
+      "call_close": 1.12,
+      "put_close": 1.62,
+      "expected_move_dollars": 2.329,
+      "spy_price_at_open": 734.64,
+      "expected_move_pct": 0.00317
+    },
+    "2026-05-08": {
+      "atm_strike": 735,
+      "sample_ts": "2026-05-08 09:35:00",
+      "call_close": 1.36,
+      "put_close": 1.44,
+      "expected_move_dollars": 2.38,
+      "spy_price_at_open": 734.66,
+      "expected_move_pct": 0.00324
+    },
+    "2026-05-11": {
+      "atm_strike": 738,
+      "sample_ts": "2026-05-11 09:35:00",
+      "call_close": 1.03,
+      "put_close": 1.44,
+      "expected_move_dollars": 2.0995,
+      "spy_price_at_open": 736.49,
+      "expected_move_pct": 0.002851
+    },
+    "2026-05-12": {
+      "atm_strike": 736,
+      "sample_ts": "2026-05-12 09:35:00",
+      "call_close": 1.56,
+      "put_close": 1.46,
+      "expected_move_dollars": 2.567,
+      "spy_price_at_open": 736.32,
+      "expected_move_pct": 0.003486
+    },
+    "2026-05-13": {
+      "atm_strike": 737,
+      "sample_ts": "2026-05-13 09:35:00",
+      "call_close": 1.36,
+      "put_close": 1.55,
+      "expected_move_dollars": 2.4735,
+      "spy_price_at_open": 739.56,
+      "expected_move_pct": 0.003345
+    },
+    "2026-05-14": {
+      "atm_strike": 745,
+      "sample_ts": "2026-05-14 09:35:00",
+      "call_close": 1.74,
+      "put_close": 1.46,
+      "expected_move_dollars": 2.72,
+      "spy_price_at_open": 744.1922,
+      "expected_move_pct": 0.003655
+    },
+    "2026-05-15": {
+      "atm_strike": 739,
+      "sample_ts": "2026-05-15 09:35:00",
+      "call_close": 2.3,
+      "put_close": 2.09,
+      "expected_move_dollars": 3.7315,
+      "spy_price_at_open": 743.76,
+      "expected_move_pct": 0.005017
+    },
+    "2026-05-18": {
+      "atm_strike": 739,
+      "sample_ts": "2026-05-18 09:35:00",
+      "call_close": 1.64,
+      "put_close": 1.89,
+      "expected_move_dollars": 3.0005,
+      "spy_price_at_open": 736.35,
+      "expected_move_pct": 0.004075
+    },
+    "2026-05-19": {
+      "atm_strike": 735,
+      "sample_ts": "2026-05-19 09:35:00",
+      "call_close": 2.26,
+      "put_close": 1.83,
+      "expected_move_dollars": 3.4765,
+      "spy_price_at_open": 738.97,
+      "expected_move_pct": 0.004705
+    },
+    "2026-05-20": {
+      "atm_strike": 735,
+      "sample_ts": "2026-05-20 09:35:00",
+      "call_close": 2.21,
+      "put_close": 2.3,
+      "expected_move_dollars": 3.8335,
+      "spy_price_at_open": 734.3,
+      "expected_move_pct": 0.005221
+    },
+    "2026-05-21": {
+      "atm_strike": 738,
+      "sample_ts": "2026-05-21 09:35:00",
+      "call_close": 2.01,
+      "put_close": 2.29,
+      "expected_move_dollars": 3.655,
+      "spy_price_at_open": 739.2293,
+      "expected_move_pct": 0.004944
+    },
+    "2026-05-22": {
+      "atm_strike": 748,
+      "sample_ts": "2026-05-22 09:35:00",
+      "call_close": 1.68,
+      "put_close": 1.89,
+      "expected_move_dollars": 3.0345,
+      "spy_price_at_open": 745.45,
+      "expected_move_pct": 0.004071
+    },
+    "2026-05-26": {
+      "atm_strike": 750,
+      "sample_ts": "2026-05-26 09:35:00",
+      "call_close": 1.39,
+      "put_close": 1.64,
+      "expected_move_dollars": 2.5755,
+      "spy_price_at_open": 748.8,
+      "expected_move_pct": 0.00344
+    },
+    "2026-05-27": {
+      "atm_strike": 751,
+      "sample_ts": "2026-05-27 09:35:00",
+      "call_close": 1.3,
+      "put_close": 1.73,
+      "expected_move_dollars": 2.5755,
+      "spy_price_at_open": 753.56,
+      "expected_move_pct": 0.003418
+    },
+    "2026-05-28": {
+      "atm_strike": 749,
+      "sample_ts": "2026-05-28 09:35:00",
+      "call_close": 1.65,
+      "put_close": 1.21,
+      "expected_move_dollars": 2.431,
+      "spy_price_at_open": 748.67,
+      "expected_move_pct": 0.003247
+    },
+    "2026-05-29": {
+      "atm_strike": 757,
+      "sample_ts": "2026-05-29 09:35:00",
+      "call_close": 1.29,
+      "put_close": 1.61,
+      "expected_move_dollars": 2.465,
+      "spy_price_at_open": 755.49,
+      "expected_move_pct": 0.003263
+    },
+    "2026-06-01": {
+      "atm_strike": 756,
+      "sample_ts": "2026-06-01 09:35:00",
+      "call_close": 1.6,
+      "put_close": 1.36,
+      "expected_move_dollars": 2.516,
+      "spy_price_at_open": 757.17,
+      "expected_move_pct": 0.003323
+    },
+    "2026-06-02": {
+      "atm_strike": 757,
+      "sample_ts": "2026-06-02 09:35:00",
+      "call_close": 1.31,
+      "put_close": 1.31,
+      "expected_move_dollars": 2.227,
+      "spy_price_at_open": 756.72,
+      "expected_move_pct": 0.002943
+    },
+    "2026-06-03": {
+      "atm_strike": 758,
+      "sample_ts": "2026-06-03 09:35:00",
+      "call_close": 1.45,
+      "put_close": 1.53,
+      "expected_move_dollars": 2.533,
+      "spy_price_at_open": 759.63,
+      "expected_move_pct": 0.003335
+    },
+    "2026-06-04": {
+      "atm_strike": 753,
+      "sample_ts": "2026-06-04 09:35:00",
+      "call_close": 1.49,
+      "put_close": 1.56,
+      "expected_move_dollars": 2.5925,
+      "spy_price_at_open": 752.0,
+      "expected_move_pct": 0.003447
+    },
+    "2026-06-08": {
+      "atm_strike": 742,
+      "sample_ts": "2026-06-08 09:35:00",
+      "call_close": 2.3,
+      "put_close": 2.69,
+      "expected_move_dollars": 4.2415,
+      "spy_price_at_open": 739.17,
+      "expected_move_pct": 0.005738
+    },
+    "2026-06-12": {
+      "atm_strike": 739,
+      "sample_ts": "2026-06-12 09:35:00",
+      "call_close": 3.15,
+      "put_close": 2.88,
+      "expected_move_dollars": 5.1255,
+      "spy_price_at_open": 738.92,
+      "expected_move_pct": 0.006936
+    },
+    "2026-06-15": {
+      "atm_strike": 753,
+      "sample_ts": "2026-06-15 09:35:00",
+      "call_close": 1.63,
+      "put_close": 1.6,
+      "expected_move_dollars": 2.7455,
+      "spy_price_at_open": 750.12,
+      "expected_move_pct": 0.00366
+    },
+    "2026-06-16": {
+      "atm_strike": 755,
+      "sample_ts": "2026-06-16 09:35:00",
+      "call_close": 1.32,
+      "put_close": 1.52,
+      "expected_move_dollars": 2.414,
+      "spy_price_at_open": 753.63,
+      "expected_move_pct": 0.003203
+    },
+    "2026-06-18": {
+      "atm_strike": 745,
+      "sample_ts": "2026-06-18 09:35:00",
+      "call_close": 2.09,
+      "put_close": 2.48,
+      "expected_move_dollars": 3.8845,
+      "spy_price_at_open": 746.05,
+      "expected_move_pct": 0.005207
+    }
+  }
+}

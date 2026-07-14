@@ -99,6 +99,128 @@ def check_broker_keys() -> list[str]:
     return out
 
 
+# ---- PDT (Rule 7) VISIBILITY (2026-07-14) ---------------------------------------------
+# The 2026-07-13 scar: core Safe was silently PDT-blocked ALL DAY on a day-trade count it
+# INHERITED from an account repoint (commit 61cfca0, safe-2 repointed onto the former
+# safe-1 fleet arm's account PA3DHPT7KIQE) -- a real, valid, gate-passing signal denied by
+# risk_gate.check_order's PDT check, and nobody knew until a manual review found it
+# (analysis/daily-brief/2026-07-13-FULL-AUDIT.md #2). Rule 7 fired CORRECTLY; the miss was
+# that NOTHING surfaced the count until someone went looking. This closes that gap: a
+# live per-account read every ~30 min (Gamma_SelfCheck cadence), always recorded (even
+# when NOT blocked) for firm_brief.py's account section, and flagged DEGRADED/YELLOW
+# (never BROKEN/RED -- Rule 7 doing its job is not itself a fault) ONLY when an account
+# IS currently blocked.
+PDT_ACCOUNTS = ("safe-2", "bold-2")  # the two engine-wired (mcp_heartbeat) accounts
+PDT_LABEL = {"safe-2": "safe", "bold-2": "bold"}  # matches heartbeat_core.ACCOUNTS keys
+
+
+def _pdt_constants() -> "tuple[int, float]":
+    """Live-import PDT_DAY_TRADE_LIMIT / PDT_EQUITY_THRESHOLD from risk_gate.py (single
+    source of truth -- avoid a hand-copied constant drifting from the real gate). Fail-open
+    to the known-frozen values (unchanged since 2026-07-06) on any import error, so a
+    broken import degrades to a note, never crashes self_check."""
+    try:
+        rg_dir = str(REPO / "backtest" / "lib")
+        if rg_dir not in sys.path:
+            sys.path.insert(0, rg_dir)
+        import risk_gate as _rg  # noqa: PLC0415
+        return int(_rg.PDT_DAY_TRADE_LIMIT), float(_rg.PDT_EQUITY_THRESHOLD)
+    except Exception:  # noqa: BLE001
+        return 3, 25_000.0
+
+
+def _fetch_account_equity(base: str, key: str, sec: str, timeout: float = 8.0):
+    """Read-only GET /v2/account -> live equity (float) or None on any error (fail-open).
+    A None equity makes check_pdt_status CONSERVATIVELY assume PDT applies (never silently
+    assume an account cleared the $25K threshold just because the read failed)."""
+    import urllib.request
+    try:
+        req = urllib.request.Request(base.rstrip("/") + "/v2/account",
+                                     headers={"APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": sec})
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            d = json.loads(r.read())
+        return float(d.get("equity"))
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _default_fetch_pdt_detail(creds: dict) -> dict:
+    """Lazy import so a missing/broken pdt_tracker degrades this ONE check, not the module
+    import of self_check.py itself."""
+    import pdt_tracker as _pdt  # noqa: PLC0415
+    return _pdt.fetch_day_trades_detail(creds)
+
+
+def check_pdt_status(now, *, secrets_path=None, fetch_detail=None, fetch_equity=None) -> "tuple[list, dict]":
+    """VISIBILITY instrument for Rule 7 (PDT) -- see module-level comment above for the
+    2026-07-13 scar this closes. Live-fetches day_trades_used_5d + equity for BOTH
+    engine-wired accounts (safe-2 = core Safe, bold-2 = core Bold) via
+    pdt_tracker.fetch_day_trades_detail (the HONEST-UNKNOWN variant).
+
+    Returns (problems, pdt_summary):
+      problems    -- ONLY non-empty when an account IS currently PDT-blocked
+                     (day_trades_used_5d >= limit AND equity < the $25K threshold, or
+                     equity unreadable -- conservative). DEGRADED/YELLOW severity (Rule 7
+                     firing correctly is not itself a fault -- the message intentionally
+                     avoids every keyword _problem_is_broken matches on).
+      pdt_summary -- ALWAYS populated per account label ("safe"/"bold"), or an explicit
+                     {"status": "UNKNOWN", "reason": ...} entry on a fetch failure or
+                     missing key -- NEVER a fabricated 0. This is what firm_brief.py's
+                     account section reads (via self-check-last.json's "pdt" key) so the
+                     day-trades-used/remaining/rolloff-date line is populated even when
+                     nothing is wrong.
+    Fail-open: a missing/unreadable secrets file returns ([], {}) -- never raises into
+    the scheduler."""
+    out: list = []
+    summary: dict = {}
+    sec_file = secrets_path or (STATE / "fleet" / "secrets.json")
+    try:
+        accts = json.loads(sec_file.read_text(encoding="utf-8")).get("accounts", {})
+    except Exception:  # noqa: BLE001
+        return out, summary  # can't read secrets -> don't fabricate a problem (fail-open)
+
+    limit, threshold = _pdt_constants()
+    fetch_detail = fetch_detail or _default_fetch_pdt_detail
+    fetch_equity = fetch_equity or _fetch_account_equity
+
+    for arm in PDT_ACCOUNTS:
+        label = PDT_LABEL[arm]
+        a = accts.get(arm, {})
+        key = a.get("api_key") or a.get("ALPACA_API_KEY") or a.get("key", "")
+        sec = a.get("secret_key") or a.get("ALPACA_SECRET_KEY") or a.get("secret", "")
+        base = a.get("base_url", "https://paper-api.alpaca.markets")
+        if not key:
+            summary[label] = {"status": "UNKNOWN", "reason": "no key in fleet/secrets.json"}
+            continue
+
+        detail = fetch_detail({"key": key, "secret": sec, "base_url": base})
+        if not detail.get("ok"):
+            summary[label] = {"status": "UNKNOWN", "reason": detail.get("error", "fetch failed")}
+            continue
+
+        equity = fetch_equity(base, key, sec)
+        applies = (equity is None) or (equity < threshold)  # unknown equity -> conservative
+        count = int(detail.get("count") or 0)
+        rolloff = detail.get("rolloff_date")
+        blocked = applies and count >= limit
+        entry = {
+            "day_trades_used_5d": count,
+            "limit": limit,
+            "remaining": max(0, limit - count),
+            "rolloff_date": rolloff,
+            "equity": equity,
+            "pdt_applies": applies,
+            "status": "BLOCKED" if blocked else ("OK" if applies else "NOT_APPLICABLE"),
+        }
+        summary[label] = entry
+        if blocked:
+            eq_s = f"${equity:,.2f}" if equity is not None else "unknown (assumed < $25K, conservative)"
+            roll_s = rolloff or "unknown"
+            out.append(f"PDT-BLOCKED[{label}]: {count}/{limit} day-trades used (rolling 5bd) at "
+                       f"equity {eq_s} -- blocks a 4th day-trade until it rolls off {roll_s}.")
+    return out, summary
+
+
 ENTRY_MIN_TICKS = 30  # enough session elapsed that a tradeable engine should show entries-or-nothing-fired
 
 # Data-gated / validated-correct sit-out signatures — proven NOT a fault by the 2026-06-30
@@ -342,8 +464,16 @@ def run() -> dict:
     except Exception:  # noqa: BLE001
         pass
 
+    # 11. PDT (Rule 7) VISIBILITY -- the 2026-07-13 scar: core Safe was silently
+    # PDT-blocked all day on an INHERITED day-trade count and nobody knew until a manual
+    # review found it. pdt_summary is ALWAYS recorded (blocked or not) for firm_brief.py's
+    # account section; problems only grows on an ACTUAL block (DEGRADED, never BROKEN).
+    pdt_problems, pdt_summary = check_pdt_status(now)
+    problems.extend(pdt_problems)
+
     verdict = "GREEN" if not problems else ("BROKEN" if any(_problem_is_broken(p) for p in problems) else "DEGRADED")
-    result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth}
+    result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth,
+              "pdt": pdt_summary}
     LAST.write_text(json.dumps(result, indent=2), encoding="utf-8")
 
     if problems:

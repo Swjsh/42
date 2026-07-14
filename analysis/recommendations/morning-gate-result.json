@@ -1,0 +1,657 @@
+{
+  "_doc": "PROFIT-P3-MORNING-GATE result. Runs analysis/recommendations/prereg-morning-gate-2026-07-11.json EXACTLY as frozen (no_repick_clause honored -- thresholds/population/battery/kill-bar unchanged from the registration). MEASURED tier: real OPRA local 5-min option bars replayed through the live exit_manager decision core (structure_stop_study.replay_structure_aware), NOT live broker fills.",
+  "generated_at": "2026-07-14T07:23:17.739518",
+  "smoke_mode": false,
+  "registration": "analysis/recommendations/prereg-morning-gate-2026-07-11.json",
+  "baseline_meta": {
+    "strike_offset": 2,
+    "qty": 10,
+    "exit_shape": "SS-B",
+    "signal_source": "_signal_cache.load_or_build_signals()",
+    "n_raw_cohort": 250,
+    "n_excluded_hypothesis_source_window": 0,
+    "n_no_local_opra_bars": 0,
+    "n_final": 250,
+    "window_achieved": "2025-01-06..2026-06-17",
+    "oos_boundary": "2026-01-01",
+    "total_pnl": 4465.6,
+    "expectancy": 17.86
+  },
+  "scope_check_k5": {
+    "ok": true,
+    "directions_seen": [
+      "bear",
+      "bull"
+    ],
+    "note": "_signal_cache.build_signals() only emits ribbon_ride BULLISH_RECLAIM/BEARISH_REJECTION setups (source: strategy_space_grind run_backtest with BS_FALLBACK excluded) -- vwap_continuation/j_vwap_reclaim_fb/j_vix_dayside structurally cannot appear in this population."
+  },
+  "population_note": "Shared p3p5_baseline: ribbon_ride BULLISH_RECLAIM/BEARISH_REJECTION, both directions, OTM-2 strike, SS-B exit shape (fixed both arms), QTY=10. Window achieved: 2025-01-06..2026-06-17 (registration's stated net window 2025-01-02..2026-06-25 -- achieved window is the cached signal set's own span, ~1wk shorter at the tail, disclosed per the registration's own 'no silent substitution' clause; the hypothesis-source window 2026-06-26..2026-07-09 does not overlap the achieved window either way).",
+  "candidates": {
+    "V1_GATE_BEFORE_11": {
+      "candidate_id": "V1_GATE_BEFORE_11",
+      "cutoff_et": "11:00:00",
+      "n_kept": 198,
+      "n_removed": 52,
+      "insufficient_n": false,
+      "stage1_expectancy": {
+        "pass": false,
+        "kept": {
+          "n": 198,
+          "total": 193.8,
+          "expectancy": 0.98,
+          "wr": 0.288,
+          "edge_capture_rel": 205.6,
+          "oos_total": 999.4,
+          "oos_positive": true,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.5,
+          "exp_drop_top3": -21.06,
+          "worst_trade": -815.0,
+          "worst_decile_mean": -600.26,
+          "max_dd": -5370.2,
+          "n_stopped": 0
+        },
+        "removed": {
+          "n": 52,
+          "total": 4271.8,
+          "expectancy": 82.15,
+          "wr": 0.385,
+          "edge_capture_rel": -230.0,
+          "oos_total": 1760.4,
+          "oos_positive": true,
+          "wf": 0.956,
+          "wf_ge_070": true,
+          "qpf": 0.667,
+          "exp_drop_top3": -10.9,
+          "worst_trade": -905.0,
+          "worst_decile_mean": -680.0,
+          "max_dd": -2075.0,
+          "n_stopped": 0
+        },
+        "gate_off": {
+          "n": 250,
+          "total": 4465.6,
+          "expectancy": 17.86,
+          "wr": 0.308,
+          "edge_capture_rel": -24.4,
+          "oos_total": 2759.8,
+          "oos_positive": true,
+          "wf": 2.876,
+          "wf_ge_070": true,
+          "qpf": 0.5,
+          "exp_drop_top3": -2.13,
+          "worst_trade": -905.0,
+          "worst_decile_mean": -613.2,
+          "max_dd": -4797.6,
+          "n_stopped": 0
+        }
+      },
+      "stage2_oos": {
+        "kept_is": {
+          "n": 130,
+          "total": -805.6,
+          "expectancy": -6.2,
+          "wr": 0.269,
+          "edge_capture_rel": 0.0,
+          "oos_total": 0,
+          "oos_positive": false,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.5,
+          "exp_drop_top3": -35.08,
+          "worst_trade": -780.0,
+          "worst_decile_mean": -509.62,
+          "max_dd": -3060.2,
+          "n_stopped": 0
+        },
+        "kept_oos": {
+          "n": 68,
+          "total": 999.4,
+          "expectancy": 14.7,
+          "wr": 0.324,
+          "edge_capture_rel": 205.6,
+          "oos_total": 999.4,
+          "oos_positive": true,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.5,
+          "exp_drop_top3": -46.49,
+          "worst_trade": -815.0,
+          "worst_decile_mean": -733.33,
+          "max_dd": -3270.0,
+          "n_stopped": 0
+        },
+        "all_is": {
+          "n": 160,
+          "total": 1705.8,
+          "expectancy": 10.66,
+          "wr": 0.281,
+          "edge_capture_rel": 0.0,
+          "oos_total": 0,
+          "oos_positive": false,
+          "wf": 0.0,
+          "wf_ge_070": false,
+          "qpf": 0.5,
+          "exp_drop_top3": -19.33,
+          "worst_trade": -780.0,
+          "worst_decile_mean": -502.5,
+          "max_dd": -3618.8,
+          "n_stopped": 0
+        },
+        "all_oos": {
+          "n": 90,
+          "total": 2759.8,
+          "expectancy": 30.66,
+          "wr": 0.356,
+          "edge_capture_rel": -24.4,
+          "oos_total": 2759.8,
+          "oos_positive": true,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.5,
+          "exp_drop_top3": -18.46,
+          "worst_trade": -905.0,
+          "worst_decile_mean": -747.78,
+          "max_dd": -4797.6,
+          "n_stopped": 0
+        },
+        "is_pass": false,
+        "oos_pass": false,
+        "pass": false
+      },
+      "stage3_random_null": {
+        "null": {
+          "seeds": 10,
+          "n_eligible": 5558,
+          "n_drawn": 52,
+          "per_trade_mean": -13.87,
+          "per_trade_min": -198.93,
+          "per_trade_max": 156.43,
+          "per_trade_by_seed": [
+            -160.76,
+            -70.24,
+            -35.86,
+            41.64,
+            -198.93,
+            13.63,
+            156.43,
+            92.0,
+            140.43,
+            -117.0
+          ]
+        },
+        "removed_expectancy": 82.15,
+        "pass": false,
+        "note": "PASS = the blocked cohort's own realized per-trade is <= the random-entry null mean"
+      },
+      "stage4_opposite_null": {
+        "threshold_time_et": "14:05:00",
+        "n_mirror_blocked": 63,
+        "target_n": 52,
+        "pct_diff_from_target": 21.2,
+        "mirror_kept_expectancy": 14.06,
+        "candidate_kept_expectancy": 0.98,
+        "candidate_delta": -16.88,
+        "mirror_delta": -3.8,
+        "mirror_comparable_or_larger": false,
+        "pass": true,
+        "note": "PASS = the late-session mirror gate does NOT match/beat the candidate's own improvement (threshold: mirror_delta < 90% of candidate_delta)"
+      },
+      "stage5_concentration": {
+        "kept_drop_top3": -21.06,
+        "gate_off_drop_top3": -2.13,
+        "pass": false
+      },
+      "kill_flags": {
+        "k1_stage1_fail": true,
+        "k2_stage2_fail": true,
+        "k3_opposite_null_comparable": false,
+        "k4_bh_fdr_fail": true
+      },
+      "anchor_context_disclosure": {
+        "cutoff_et": "11:00:00",
+        "blocked_winners": [
+          "4/29 SPY 710P x6 -> +$342",
+          "5/04 SPY 721P x10 -> +$730"
+        ],
+        "any_blocked": true,
+        "miscalibrated": true
+      },
+      "p_null": 0.3636,
+      "bh_fdr_survivor": false,
+      "bh_rank": 3,
+      "verdict": "KILL (k1_stage1_fail, k2_stage2_fail, k4_bh_fdr_fail)"
+    },
+    "V2_GATE_BEFORE_1030": {
+      "candidate_id": "V2_GATE_BEFORE_1030",
+      "cutoff_et": "10:30:00",
+      "n_kept": 218,
+      "n_removed": 32,
+      "insufficient_n": false,
+      "stage1_expectancy": {
+        "pass": false,
+        "kept": {
+          "n": 218,
+          "total": 2829.2,
+          "expectancy": 12.98,
+          "wr": 0.303,
+          "edge_capture_rel": 205.6,
+          "oos_total": 3342.2,
+          "oos_positive": true,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.5,
+          "exp_drop_top3": -8.63,
+          "worst_trade": -905.0,
+          "worst_decile_mean": -629.29,
+          "max_dd": -3997.8,
+          "n_stopped": 0
+        },
+        "removed": {
+          "n": 32,
+          "total": 1636.4,
+          "expectancy": 51.14,
+          "wr": 0.344,
+          "edge_capture_rel": -230.0,
+          "oos_total": -582.4,
+          "oos_positive": false,
+          "wf": -0.501,
+          "wf_ge_070": false,
+          "qpf": 0.5,
+          "exp_drop_top3": -55.67,
+          "worst_trade": -610.0,
+          "worst_decile_mean": -553.33,
+          "max_dd": -1445.0,
+          "n_stopped": 0
+        },
+        "gate_off": {
+          "n": 250,
+          "total": 4465.6,
+          "expectancy": 17.86,
+          "wr": 0.308,
+          "edge_capture_rel": -24.4,
+          "oos_total": 2759.8,
+          "oos_positive": true,
+          "wf": 2.876,
+          "wf_ge_070": true,
+          "qpf": 0.5,
+          "exp_drop_top3": -2.13,
+          "worst_trade": -905.0,
+          "worst_decile_mean": -613.2,
+          "max_dd": -4797.6,
+          "n_stopped": 0
+        }
+      },
+      "stage2_oos": {
+        "kept_is": {
+          "n": 139,
+          "total": -513.0,
+          "expectancy": -3.69,
+          "wr": 0.266,
+          "edge_capture_rel": 0.0,
+          "oos_total": 0,
+          "oos_positive": false,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.25,
+          "exp_drop_top3": -35.72,
+          "worst_trade": -780.0,
+          "worst_decile_mean": -519.62,
+          "max_dd": -3618.8,
+          "n_stopped": 0
+        },
+        "kept_oos": {
+          "n": 79,
+          "total": 3342.2,
+          "expectancy": 42.31,
+          "wr": 0.367,
+          "edge_capture_rel": 205.6,
+          "oos_total": 3342.2,
+          "oos_positive": true,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 1.0,
+          "exp_drop_top3": -13.47,
+          "worst_trade": -905.0,
+          "worst_decile_mean": -784.29,
+          "max_dd": -3997.8,
+          "n_stopped": 0
+        },
+        "all_is": {
+          "n": 160,
+          "total": 1705.8,
+          "expectancy": 10.66,
+          "wr": 0.281,
+          "edge_capture_rel": 0.0,
+          "oos_total": 0,
+          "oos_positive": false,
+          "wf": 0.0,
+          "wf_ge_070": false,
+          "qpf": 0.5,
+          "exp_drop_top3": -19.33,
+          "worst_trade": -780.0,
+          "worst_decile_mean": -502.5,
+          "max_dd": -3618.8,
+          "n_stopped": 0
+        },
+        "all_oos": {
+          "n": 90,
+          "total": 2759.8,
+          "expectancy": 30.66,
+          "wr": 0.356,
+          "edge_capture_rel": -24.4,
+          "oos_total": 2759.8,
+          "oos_positive": true,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.5,
+          "exp_drop_top3": -18.46,
+          "worst_trade": -905.0,
+          "worst_decile_mean": -747.78,
+          "max_dd": -4797.6,
+          "n_stopped": 0
+        },
+        "is_pass": false,
+        "oos_pass": true,
+        "pass": false
+      },
+      "stage3_random_null": {
+        "null": {
+          "seeds": 10,
+          "n_eligible": 3374,
+          "n_drawn": 32,
+          "per_trade_mean": -32.7,
+          "per_trade_min": -220.37,
+          "per_trade_max": 301.28,
+          "per_trade_by_seed": [
+            -220.37,
+            301.28,
+            45.61,
+            -89.46,
+            -1.88,
+            37.41,
+            -72.44,
+            -55.54,
+            -97.23,
+            -174.43
+          ]
+        },
+        "removed_expectancy": 51.14,
+        "pass": false,
+        "note": "PASS = the blocked cohort's own realized per-trade is <= the random-entry null mean"
+      },
+      "stage4_opposite_null": {
+        "threshold_time_et": "14:55:00",
+        "n_mirror_blocked": 32,
+        "target_n": 32,
+        "pct_diff_from_target": 0.0,
+        "mirror_kept_expectancy": 19.04,
+        "candidate_kept_expectancy": 12.98,
+        "candidate_delta": -4.88,
+        "mirror_delta": 1.18,
+        "mirror_comparable_or_larger": false,
+        "pass": true,
+        "note": "PASS = the late-session mirror gate does NOT match/beat the candidate's own improvement (threshold: mirror_delta < 90% of candidate_delta)"
+      },
+      "stage5_concentration": {
+        "kept_drop_top3": -8.63,
+        "gate_off_drop_top3": -2.13,
+        "pass": false
+      },
+      "kill_flags": {
+        "k1_stage1_fail": true,
+        "k2_stage2_fail": true,
+        "k3_opposite_null_comparable": false,
+        "k4_bh_fdr_fail": true
+      },
+      "anchor_context_disclosure": {
+        "cutoff_et": "10:30:00",
+        "blocked_winners": [
+          "4/29 SPY 710P x6 -> +$342",
+          "5/04 SPY 721P x10 -> +$730"
+        ],
+        "any_blocked": true,
+        "miscalibrated": true
+      },
+      "p_null": 0.1818,
+      "bh_fdr_survivor": false,
+      "bh_rank": 2,
+      "verdict": "KILL (k1_stage1_fail, k2_stage2_fail, k4_bh_fdr_fail)"
+    },
+    "V3_GATE_FIRST_HOUR": {
+      "candidate_id": "V3_GATE_FIRST_HOUR",
+      "cutoff_et": "10:35:00",
+      "n_kept": 212,
+      "n_removed": 38,
+      "insufficient_n": false,
+      "stage1_expectancy": {
+        "pass": false,
+        "kept": {
+          "n": 212,
+          "total": -193.2,
+          "expectancy": -0.91,
+          "wr": 0.292,
+          "edge_capture_rel": 205.6,
+          "oos_total": -48.6,
+          "oos_positive": false,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.333,
+          "exp_drop_top3": -23.34,
+          "worst_trade": -905.0,
+          "worst_decile_mean": -629.29,
+          "max_dd": -4949.8,
+          "n_stopped": 0
+        },
+        "removed": {
+          "n": 38,
+          "total": 4658.8,
+          "expectancy": 122.6,
+          "wr": 0.395,
+          "edge_capture_rel": -230.0,
+          "oos_total": 2808.4,
+          "oos_positive": true,
+          "wf": 2.602,
+          "wf_ge_070": true,
+          "qpf": 0.6,
+          "exp_drop_top3": 9.43,
+          "worst_trade": -610.0,
+          "worst_decile_mean": -553.33,
+          "max_dd": -900.0,
+          "n_stopped": 0
+        },
+        "gate_off": {
+          "n": 250,
+          "total": 4465.6,
+          "expectancy": 17.86,
+          "wr": 0.308,
+          "edge_capture_rel": -24.4,
+          "oos_total": 2759.8,
+          "oos_positive": true,
+          "wf": 2.876,
+          "wf_ge_070": true,
+          "qpf": 0.5,
+          "exp_drop_top3": -2.13,
+          "worst_trade": -905.0,
+          "worst_decile_mean": -613.2,
+          "max_dd": -4797.6,
+          "n_stopped": 0
+        }
+      },
+      "stage2_oos": {
+        "kept_is": {
+          "n": 136,
+          "total": -144.6,
+          "expectancy": -1.06,
+          "wr": 0.265,
+          "edge_capture_rel": 0.0,
+          "oos_total": 0,
+          "oos_positive": false,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.25,
+          "exp_drop_top3": -33.76,
+          "worst_trade": -780.0,
+          "worst_decile_mean": -519.62,
+          "max_dd": -3320.2,
+          "n_stopped": 0
+        },
+        "kept_oos": {
+          "n": 76,
+          "total": -48.6,
+          "expectancy": -0.64,
+          "wr": 0.342,
+          "edge_capture_rel": 205.6,
+          "oos_total": -48.6,
+          "oos_positive": false,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.5,
+          "exp_drop_top3": -55.75,
+          "worst_trade": -905.0,
+          "worst_decile_mean": -784.29,
+          "max_dd": -4558.4,
+          "n_stopped": 0
+        },
+        "all_is": {
+          "n": 160,
+          "total": 1705.8,
+          "expectancy": 10.66,
+          "wr": 0.281,
+          "edge_capture_rel": 0.0,
+          "oos_total": 0,
+          "oos_positive": false,
+          "wf": 0.0,
+          "wf_ge_070": false,
+          "qpf": 0.5,
+          "exp_drop_top3": -19.33,
+          "worst_trade": -780.0,
+          "worst_decile_mean": -502.5,
+          "max_dd": -3618.8,
+          "n_stopped": 0
+        },
+        "all_oos": {
+          "n": 90,
+          "total": 2759.8,
+          "expectancy": 30.66,
+          "wr": 0.356,
+          "edge_capture_rel": -24.4,
+          "oos_total": 2759.8,
+          "oos_positive": true,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.5,
+          "exp_drop_top3": -18.46,
+          "worst_trade": -905.0,
+          "worst_decile_mean": -747.78,
+          "max_dd": -4797.6,
+          "n_stopped": 0
+        },
+        "is_pass": false,
+        "oos_pass": false,
+        "pass": false
+      },
+      "stage3_random_null": {
+        "null": {
+          "seeds": 10,
+          "n_eligible": 3738,
+          "n_drawn": 38,
+          "per_trade_mean": 3.02,
+          "per_trade_min": -113.86,
+          "per_trade_max": 77.44,
+          "per_trade_by_seed": [
+            -28.22,
+            14.3,
+            -21.38,
+            -65.65,
+            43.29,
+            -113.86,
+            61.53,
+            33.78,
+            77.44,
+            28.96
+          ]
+        },
+        "removed_expectancy": 122.6,
+        "pass": false,
+        "note": "PASS = the blocked cohort's own realized per-trade is <= the random-entry null mean"
+      },
+      "stage4_opposite_null": {
+        "threshold_time_et": "14:45:00",
+        "n_mirror_blocked": 42,
+        "target_n": 38,
+        "pct_diff_from_target": 10.5,
+        "mirror_kept_expectancy": 14.74,
+        "candidate_kept_expectancy": -0.91,
+        "candidate_delta": -18.77,
+        "mirror_delta": -3.12,
+        "mirror_comparable_or_larger": false,
+        "pass": true,
+        "note": "PASS = the late-session mirror gate does NOT match/beat the candidate's own improvement (threshold: mirror_delta < 90% of candidate_delta)"
+      },
+      "stage5_concentration": {
+        "kept_drop_top3": -23.34,
+        "gate_off_drop_top3": -2.13,
+        "pass": false
+      },
+      "kill_flags": {
+        "k1_stage1_fail": true,
+        "k2_stage2_fail": true,
+        "k3_opposite_null_comparable": false,
+        "k4_bh_fdr_fail": true
+      },
+      "anchor_context_disclosure": {
+        "cutoff_et": "10:35:00",
+        "blocked_winners": [
+          "4/29 SPY 710P x6 -> +$342",
+          "5/04 SPY 721P x10 -> +$730"
+        ],
+        "any_blocked": true,
+        "miscalibrated": true
+      },
+      "p_null": 0.0909,
+      "bh_fdr_survivor": false,
+      "bh_rank": 1,
+      "verdict": "KILL (k1_stage1_fail, k2_stage2_fail, k4_bh_fdr_fail)"
+    }
+  },
+  "candidate_order": [
+    "V1_GATE_BEFORE_11",
+    "V2_GATE_BEFORE_1030",
+    "V3_GATE_FIRST_HOUR"
+  ],
+  "min_n_floor": 20,
+  "anchor_winners_checked": [
+    {
+      "date": "2026-04-29",
+      "time": "10:25:51",
+      "label": "4/29 SPY 710P x6 -> +$342",
+      "source": "journal/2026-04-29.md line 29 (Entry: 10:25:51 EDT)"
+    },
+    {
+      "date": "2026-05-01",
+      "time": "13:09:14",
+      "label": "5/01 SPY 721P x20 -> +$470 (leg#1, PREMATURE/anticipation entry per journal)",
+      "source": "journal/2026-05-01.md line 16 (Filled 13:09:14 EDT)"
+    },
+    {
+      "date": "2026-05-01",
+      "time": "13:36:11",
+      "label": "5/01 SPY 721P x20 -> +$470 (leg#2, THE REAL TRIGGER per journal)",
+      "source": "journal/2026-05-01.md line 21 (Filled 13:36:11 EDT)"
+    },
+    {
+      "date": "2026-05-04",
+      "time": "10:27:50",
+      "label": "5/04 SPY 721P x10 -> +$730",
+      "source": "journal/2026-05-04.md line 39 (Entry: 10:27:50 EDT)"
+    }
+  ],
+  "disclosures": [
+    "Strike fixed at OTM-2, exit shape fixed at SS-B for BOTH gate-ON and gate-OFF arms (only entry inclusion differs) -- neither knob is named by the registration; this is a filled gap disclosed in p3p5_baseline.py's own module docstring, not a re-pick.",
+    "Stage 4 (opposite/late-session mirror null) 'comparable-or-larger' is operationalized as mirror_delta >= 90% of candidate_delta -- the registration names the concept without a numeric bar; this threshold is disclosed here, not silently chosen.",
+    "p_null (feeding stage 6 BH-FDR) is the add-one empirical p-value of the REMOVED cohort's own realized expectancy against the stage-3 random-entry-null's per-seed means (10 seeds, module default) -- same convention PROFIT-P2 used, distinct from ribbon_rejection_wick_battery.bootstrap_p's trade-level bootstrap (disclosed, not conflated).",
+    "anchor_context_check is DISCLOSURE-ONLY per the registration (not a pass/fail gate for P3, unlike P5's k6) -- reported prominently regardless of aggregate verdict."
+  ]
+}

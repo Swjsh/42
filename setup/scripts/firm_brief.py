@@ -250,6 +250,49 @@ def render_health(self_check: dict) -> "tuple[str, str]":
     return mapped, detail
 
 
+def render_pdt_lines(self_check: dict) -> list[str]:
+    """PURE: render the per-account PDT (Rule 7) day-trades-used/remaining/rolloff-date
+    line(s) from self_check's cached 'pdt' summary (self-check-last.json's "pdt" key,
+    written by self_check.check_pdt_status every ~30 min, 2026-07-14). The 2026-07-13
+    scar (core Safe silently PDT-blocked ALL DAY on a day-trade count it INHERITED from
+    an account repoint [commit 61cfca0], found by a manual review, not an instrument --
+    analysis/daily-brief/2026-07-13-FULL-AUDIT.md #2) is why this exists: a BLOCKED
+    account renders LOUD here, it never quietly blends into an otherwise-green brief.
+
+    Missing/empty data (self_check hasn't reported PDT status yet, or the fetch failed
+    for an account) renders an honest UNKNOWN line -- NEVER fabricates a count (OP-33).
+    Fixed account order (safe then bold), not dict-iteration-order-dependent. Guard:
+    test_firm_brief_pdt_section.py."""
+    pdt = (self_check or {}).get("pdt") or {}
+    if not pdt:
+        return ["- UNKNOWN (self-check has not reported PDT status yet -- Gamma_SelfCheck fires ~every 30 min)."]
+    lines: list[str] = []
+    for label, name in (("safe", "core Safe"), ("bold", "core Bold")):
+        a = pdt.get(label)
+        if not a:
+            lines.append(f"- {name}: UNKNOWN (no PDT reading this cycle).")
+            continue
+        status = a.get("status")
+        if status == "UNKNOWN":
+            lines.append(f"- {name}: UNKNOWN ({a.get('reason', 'fetch failed')}).")
+            continue
+        used = a.get("day_trades_used_5d")
+        limit = a.get("limit")
+        roll = a.get("rolloff_date") or "n/a"
+        if status == "NOT_APPLICABLE":
+            eq = a.get("equity")
+            eq_s = f"${eq:,.2f}" if eq is not None else "?"
+            lines.append(f"- {name}: PDT N/A (equity {eq_s} >= $25K threshold).")
+        elif status == "BLOCKED":
+            lines.append(f"- {name}: BLOCKED -- {used}/{limit} day-trades used (rolling 5bd), "
+                         f"0 remaining, rolls off {roll}.")
+        else:
+            remaining = a.get("remaining")
+            roll_s = f", next rolls off {roll}" if used else ""
+            lines.append(f"- {name}: {used}/{limit} day-trades used, {remaining} remaining{roll_s}.")
+    return lines
+
+
 def find_queue_j_markers(path: Path) -> list:
     """Live grep of queue.md for explicit 'J:' / '[J:' markers (fail-open -> [])."""
     out = []
@@ -335,6 +378,53 @@ def render_twin_lines(health_data: dict, coverage_data: Optional[dict] = None,
     return [line]
 
 
+def render_autopsy_lines(data: dict) -> list[str]:
+    """PURE: render the "Gamma's read (trade autopsy)" section body from its last-run
+    snapshot (automation/state/trade-autopsy-last.json). Mirrors render_prospector_lines'
+    fail-open shape.
+
+    THE 2026-07-14 HONESTY FIX: Monday 07-13 lost a real -$25 on risky-3, but bars were
+    unavailable for that position (OPRA indexing lag), so `trade-autopsy-last.json` had
+    0 replayed rows and this line used to print "0 engine positions, net +$0.00" --
+    indistinguishable from a genuinely flat day (C7 silent-wrong; the .md itself already
+    said INCOMPLETE, but nobody reads the .md from a one-line brief). Never again: this
+    renders `P&L_UNVERIFIED/NO_BARS` -- no dollar figure claimed as the day's true P&L --
+    whenever `pnl_status` says the data is incomplete. `pnl_status` is read defensively:
+    pre-2026-07-14 last.json files predate the key entirely, so it's inferred from the
+    same `n_no_bars`/`n_positions_found` fields that schema already had (never crashes on
+    an old file). Guard: test_firm_brief_autopsy_pnl_status.py."""
+    if not data:
+        return ["- no autopsy yet (Gamma_TradeAutopsy fires 16:15 ET)."]
+    if data.get("error"):
+        return [f"- {data.get('date', '?')}: autopsy FAILED ({str(data['error'])[:100]}) -- fix me."]
+    status = data.get("pnl_status")
+    if status is None:  # legacy file written before the pnl_status key existed
+        if data.get("n_no_bars", 0) > 0:
+            status = "unverified_no_bars"
+        elif not data.get("n_positions_found"):
+            status = "flat"
+        else:
+            status = "verified"
+    md_path = data.get("md", "analysis/autopsies/")
+    if status == "unverified_no_bars":
+        n_found = data.get("n_positions_found", 0)
+        n_no_bars = data.get("n_no_bars", 0)
+        partial = data.get("net_pnl_known_partial")
+        partial_s = (f"; {_fmt_money(float(partial))} known from {data.get('n_positions', 0)} "
+                     f"replayed" if partial is not None else "")
+        return [f"- {data.get('date', '?')}: P&L_UNVERIFIED/NO_BARS -- {n_found} closed engine "
+                f"position(s) found, bars unavailable for {n_no_bars}{partial_s} "
+                f"(NOT a flat day -- re-run trade_autopsy.py --date {data.get('date', '?')}) "
+                f"({md_path})"]
+    hyp = data.get("new_hypotheses") or []
+    hyp_s = f"; NEW hypotheses: {', '.join(hyp)}" if hyp else "; no new hypotheses"
+    net_pnl = data.get("net_pnl")
+    net_pnl = 0.0 if net_pnl is None else float(net_pnl)  # legacy-file belt-and-suspenders
+    return [f"- {data.get('date', '?')}: {data.get('n_positions', 0)} engine positions, "
+            f"net {_fmt_money(net_pnl)}, "
+            f"{data.get('n_stopped_then_paid', 0)} stopped-then-paid{hyp_s} ({md_path})"]
+
+
 def render_prospector_lines(data: dict) -> list[str]:
     """PURE: render the Prospector (exogenous-idea organ, J 2026-07-09: "gamma
     hasn't introduced a single new idea like this at all yet") section body
@@ -410,6 +500,15 @@ def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) 
     lines.append(f"- {health_detail}")
     lines.append("")
 
+    # PDT (Rule 7) per-account visibility -- the 2026-07-13 scar: core Safe was silently
+    # PDT-blocked all day on an INHERITED day-trade count from an account repoint, and
+    # nobody knew until a manual review found it. Sourced from self_check's cached
+    # 'pdt' summary (self-check-last.json, written by check_pdt_status ~every 30 min) --
+    # same no-live-network-call design as render_health above.
+    lines.append("## PDT status (Rule 7 -- per-account day-trades used)")
+    lines.extend(render_pdt_lines(self_check))
+    lines.append("")
+
     # Gamma's own read of its trades (trade_autopsy.py, Gamma_TradeAutopsy 16:15 ET) -- the
     # hypothesis organ J asked for 2026-07-08 ("why doesn't Gamma think 'maybe we're stopping
     # out too early'"). One line; full report in analysis/autopsies/. Fail-open. A MISSED FIRE
@@ -420,17 +519,7 @@ def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) 
     stale_note = autopsy_staleness_note(autopsy.get("date"), now_et)
     if stale_note:
         lines.append(stale_note)
-    if not autopsy:
-        lines.append("- no autopsy yet (Gamma_TradeAutopsy fires 16:15 ET).")
-    elif autopsy.get("error"):
-        lines.append(f"- {autopsy.get('date', '?')}: autopsy FAILED ({autopsy['error'][:100]}) -- fix me.")
-    else:
-        hyp = autopsy.get("new_hypotheses") or []
-        hyp_s = f"; NEW hypotheses: {', '.join(hyp)}" if hyp else "; no new hypotheses"
-        lines.append(f"- {autopsy.get('date', '?')}: {autopsy.get('n_positions', 0)} engine positions, "
-                     f"net {_fmt_money(float(autopsy.get('net_pnl', 0)))}, "
-                     f"{autopsy.get('n_stopped_then_paid', 0)} stopped-then-paid{hyp_s} "
-                     f"({autopsy.get('md', 'analysis/autopsies/')})")
+    lines.extend(render_autopsy_lines(autopsy))
     lines.append("")
 
     # Prospector -- the exogenous-idea organ (J 2026-07-09: "gamma hasn't introduced a single

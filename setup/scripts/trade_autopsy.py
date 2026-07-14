@@ -64,6 +64,42 @@ SPY hypothesis queue chef/conductor treat as edge-adjacent intake. A twin failur
 must never block the SPY autopsy above it, and vice versa (separate try/except in
 main()). Guard: backtest/tests/test_trade_autopsy_twin_section.py.
 
+MONDAY 07-13 BAR-FETCH FAILURE + THE $0-P&L HONESTY FIX (2026-07-14, this session): the 16:15
+ET fire found risky-3's real -$25 closed position (SPY260713P00747000, entry 12:40, exit 12:49
+ET) in the broker-truth ledger, exhausted the (at the time) ~105s retry budget with 0 bars
+back, and correctly rendered `analysis/autopsies/2026-07-13.md` as INCOMPLETE (that path was
+already right, from the 2026-07-09 fix). The bug was ONE LEVEL UP: `main()` still wrote
+`trade-autopsy-last.json`'s `net_pnl` as a bare `0.0` whenever `rows` was empty -- regardless
+of WHY it was empty (genuinely flat vs "found a position, couldn't verify its P&L"). firm_brief
+and a human daily-audit both render/read that field directly and reported "$0 net P&L" on a day
+that actually lost $25 (C7 silent-wrong).
+
+Root cause of the bar-fetch miss itself (differential, not guessed): re-ran
+`exit_shape_parity_study.fetch_option_bars('SPY260713P00747000', '2026-07-13')` cold on
+2026-07-14 and got 396 real bars back immediately, zero retries needed -- ruling out a
+fleet-arm/symbol-routing regression from the safe-1->safe-2 account repoint (commit 61cfca0):
+`fetch_option_bars()` reads `fb.load_creds()["safe-1"]` for market-data credentials regardless
+of which arm the position belongs to (any account's key works for market data -- see that
+function's own comment), and `automation/state/fleet/secrets.json` deliberately KEEPS the
+`safe-1` credential entry post-retirement for exactly this kind of lookup (its own label says
+so). Confirmed the symbol string, date, and creds path were all correct; the ONLY variable that
+changed between the failing 16:15 ET attempt and the succeeding next-day attempt was elapsed
+time since the 16:00 ET close. Verdict: a DATA-WINDOW issue (OPRA options-bar indexing lag for
+a just-expired 0DTE contract), not a routing/credentials issue -- consistent with the
+module's own 2026-07-09 incident notes above, which needed hours on their worst day.
+
+Fix, in order: (a) widened BARS_RETRY_BACKOFF_SEC (~105s -> ~300s worst case per symbol) as a
+bounded mitigation -- it will not close every gap (see the docstring note on that constant),
+so (b) is the real fix: `main()` now writes `pnl_status` ("flat" | "verified" |
+"unverified_no_bars") into trade-autopsy-last.json, and `net_pnl` is `None` -- NEVER `0.0` --
+whenever `pnl_status != "verified"/"flat"`. A `net_pnl_known_partial` field always carries the
+sum of whatever DID replay (useful for a mixed day: some positions verified, others not),
+clearly separate from the headline `net_pnl` so it can never be mistaken for the whole day's
+number. `firm_brief.py`'s `render_autopsy_lines()` renders `P&L_UNVERIFIED/NO_BARS` (never a
+dollar figure) whenever `pnl_status` says so, including for pre-2026-07-14 last.json files that
+predate the new key (inferred from the same `n_no_bars`/`n_positions_found` fields the old
+schema already had). Guard: test_trade_autopsy.py + test_firm_brief_autopsy_pnl_status.py.
+
 Usage:
     backtest/.venv/Scripts/python.exe setup/scripts/trade_autopsy.py [--date YYYY-MM-DD]
 """
@@ -134,7 +170,13 @@ CORE_DECISIONS = STATE / "core-decisions.jsonl"
 
 # Bars-availability retry (the fix for the 2026-07-09 miss): bounded, only costs anything on
 # the failure path (a normal day's first fetch succeeds and no retry ever sleeps).
-BARS_RETRY_BACKOFF_SEC = (15.0, 30.0, 60.0)  # ~105s worst case per unique symbol
+# WIDENED 2026-07-14 (Monday 07-13 root-cause, see MONDAY 07-13 BAR-FETCH FAILURE below):
+# the old ~105s budget was NOT enough for that day's just-expired 0DTE contract at T+15min
+# past the 16:00 ET close. This is a bounded mitigation, not a guarantee -- the module's own
+# 2026-07-09 incident needed HOURS to resolve on its worst day, which no single-fire retry
+# budget can cover. That residual case is why the honesty fix below (never render $0 on an
+# unverified day) exists as the real backstop, not a longer sleep.
+BARS_RETRY_BACKOFF_SEC = (20.0, 40.0, 80.0, 160.0)  # ~300s worst case per unique symbol
 
 # Counterfactual menu -- the mechanism probes (NOT candidates; candidates live in the STOP-A
 # pre-registration). Each answers ONE question about a dead trade.
@@ -242,6 +284,34 @@ def classify_position(actual_pnl: float, entry_price: float, entry_bar_low: floa
         tags.append("exit_beat_theta")             # our exit was RIGHT vs riding (honesty tag)
     return {"tags": tags, "stop_cost_vs_best": stop_cost, "best_counterfactual": best_cf_name,
             "entry_spike_pct": entry_spike}
+
+
+def compute_pnl_status(n_positions_found: int, n_no_bars: int) -> str:
+    """PURE: the tri-state honesty classifier for ONE day's autopsy run (THE 2026-07-14 FIX --
+    see module docstring's "MONDAY 07-13 BAR-FETCH FAILURE" section). Never conflate "nothing
+    happened" with "something happened but we couldn't verify it":
+      - "flat"              -- 0 positions in the broker-truth ledger (a genuinely quiet day).
+      - "verified"          -- >=1 position found AND every one of them replayed on real bars.
+      - "unverified_no_bars"-- >=1 position found but bars were unavailable for >=1 of them.
+    Callers MUST gate `net_pnl` on this (never report a bare 0.0 for "unverified_no_bars" --
+    that is indistinguishable from a real flat day to anyone reading the number alone)."""
+    if n_positions_found == 0:
+        return "flat"
+    if n_no_bars > 0:
+        return "unverified_no_bars"
+    return "verified"
+
+
+def resolve_net_pnl(pnl_status: str, net_pnl_known: float | None) -> float | None:
+    """PURE: the ONLY place net_pnl's final value is decided (THE 2026-07-14 fix). `flat` is
+    a real, known zero. `verified` is the real known sum. `unverified_no_bars` is ALWAYS
+    None -- never 0.0, never a guess -- regardless of what net_pnl_known happens to be (a
+    caller passing a stale/irrelevant net_pnl_known for that status is still refused)."""
+    if pnl_status == "flat":
+        return 0.0
+    if pnl_status == "verified":
+        return net_pnl_known
+    return None
 
 
 def detect_hypotheses(rows: list[dict], today: str) -> list[dict]:
@@ -843,10 +913,23 @@ def main() -> int:
         md = render_md(date_et, rows, new_hyps,
                        n_positions_found=len(positions), n_no_bars=n_no_bars)
         (OUT_DIR / f"{date_et}.md").write_text(md, encoding="utf-8")
+        # THE 2026-07-14 HONESTY FIX (see module docstring, "MONDAY 07-13 BAR-FETCH FAILURE"):
+        # net_pnl is a bare 0.0 ONLY for a genuinely flat/fully-verified day. Never for a day
+        # where a real position existed but its P&L couldn't be replayed -- that used to
+        # collapse to the SAME 0.0 a quiet flat day gets, which is exactly how Monday 07-13's
+        # real -$25 loss got reported as "$0 net P&L" downstream (firm_brief + a human audit
+        # both read this field). net_pnl_known_partial always carries whatever DID replay
+        # (independent of pnl_status) so a MIXED day (some verified, some not) never hides the
+        # partial evidence either.
+        pnl_status = compute_pnl_status(len(positions), n_no_bars)
+        net_pnl_known = round(sum(r["actual_pnl"] for r in rows), 2) if rows else None
+        net_pnl = resolve_net_pnl(pnl_status, net_pnl_known)
         LAST_JSON.write_text(json.dumps({
             "date": date_et, "n_positions": len(rows),
             "n_positions_found": len(positions), "n_no_bars": n_no_bars,
-            "net_pnl": round(sum(r["actual_pnl"] for r in rows), 2) if rows else 0.0,
+            "pnl_status": pnl_status,
+            "net_pnl": net_pnl,                       # None (never 0.0) when unverified
+            "net_pnl_known_partial": net_pnl_known,    # sum of whatever DID replay, always
             "n_stopped_then_paid": sum(1 for r in rows if "stopped_then_paid" in r["tags"]),
             "new_hypotheses": [h["id"] for h in new_hyps],
             "md": f"analysis/autopsies/{date_et}.md",
