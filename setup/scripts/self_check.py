@@ -441,6 +441,15 @@ def run() -> dict:
             tb = json.loads((STATE / "today-bias.json").read_text(encoding="utf-8"))
             if tb.get("date") != now.strftime("%Y-%m-%d"):
                 problems.append(f"PREMARKET STALE: today-bias.json date={tb.get('date')} != today {now.strftime('%Y-%m-%d')} -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.")
+            elif tb.get("degraded") is True and tb.get("source") == "deterministic_fallback":
+                # A5 (2026-07-14): date IS fresh, but the LLM step failed and
+                # premarket_deterministic_fallback.py covered for it -- distinct from
+                # both PREMARKET STALE (date not fresh at all) and a real VERIFIED LLM
+                # pass (per the reliability-audit spec's "distinguish stale from
+                # degraded-fresh" ask). Informational only -- date IS fresh, engine is
+                # NOT blind, so this must never classify as BROKEN (no BROKEN-keyword
+                # substring here; see _problem_is_broken).
+                problems.append(f"PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).")
         except Exception:  # noqa: BLE001
             pass
 

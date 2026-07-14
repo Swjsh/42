@@ -139,6 +139,41 @@ try {
         $statusMd = Join-Path $WorkDir "automation\overnight\STATUS.md"
         try { Add-Content -Path $statusMd -Value ("`n### BROKEN: premarket " + $todayEt + "`n- " + $msg + "`n") -Encoding utf8 } catch {}
         if ($exit -eq 0) { $exit = 3 }   # force a LOUD non-zero result so the scheduler + self_check see it
+
+        # A5 (2026-07-14, analysis/deep-research/2026-07-14-premarket-reliability.md):
+        # the LLM step just failed one of the 3 documented shapes (auth/routing outage,
+        # hollow-success, or reaped-silent) -- before giving up, run the pure-Python
+        # DETERMINISTIC fallback so the engine is not left on a fully stale bias. $0, no
+        # LLM/MCP, un-blockable by the same CCR/auth outages that just killed the attempts
+        # above (reuses sight_beacon/daily_loss_guard's direct Alpaca REST + yfinance
+        # paths). It marks its own output degraded=true/source=deterministic_fallback and
+        # writes ZERO falsifiable_predictions (never fabricates a qualitative call it can't
+        # back) -- so it must be verified and reported SEPARATELY from a real LLM pass,
+        # never silently reclassified as a full VERIFIED success.
+        try {
+            $fb = Invoke-PythonHidden -ScriptPath "setup\scripts\premarket_deterministic_fallback.py" `
+                -ArgList @() -TaskName "premarket-deterministic-fallback" -TimeoutSec 30
+            Write-TaskLog -TaskName $task -Message "FALLBACK exit=$($fb.ExitCode) $($fb.Stdout.Trim())"
+        } catch {
+            Write-TaskLog -TaskName $task -Message "FALLBACK invoke failed (fail-open, premarket stays BROKEN): $_"
+        }
+
+        try {
+            $fbBias = (Get-Content $biasFile -Raw -ErrorAction Stop | ConvertFrom-Json)
+            if ($fbBias.date -eq $todayEt -and $fbBias.degraded -eq $true -and $fbBias.source -eq "deterministic_fallback") {
+                $degMsg = "PREMARKET DEGRADED: deterministic fallback covered for the failed LLM step ($deliverableMsg)"
+                Write-TaskLog -TaskName $task -Message $degMsg
+                # Distinct heading from BROKEN above -- self_check.py / a human diffing
+                # STATUS.md must be able to tell "fallback covered it" (fresh, minimal,
+                # honestly-labeled bias) apart from "still fully stale" (see spec point 4).
+                try { Add-Content -Path $statusMd -Value ("`n### DEGRADED: premarket " + $todayEt + "`n- " + $degMsg + "`n") -Encoding utf8 } catch {}
+                $exit = 0   # covered, not silent -- a degraded-fresh bias is not a hard scheduler failure
+            } else {
+                Write-TaskLog -TaskName $task -Message "FALLBACK did not produce a fresh degraded bias -- premarket stays BROKEN (exit=$exit)."
+            }
+        } catch {
+            Write-TaskLog -TaskName $task -Message "FALLBACK verify errored (premarket stays BROKEN): $($_.Exception.Message)"
+        }
     } else {
         Write-TaskLog -TaskName $task -Message ("VERIFIED today-bias dated " + $todayEt + " - premarket LLM authored a fresh bias (predictions + note + non-hand author).")
     }
