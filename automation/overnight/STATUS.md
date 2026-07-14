@@ -6,9 +6,22 @@
 >
 > **A5-PREMARKET-DETERMINISTIC-FALLBACK — re-verified, ships as already committed (`79bac4d`), one claim corrected.** Re-ran both guard suites fresh this session: `test_premarket_deterministic_fallback.py` **23/23 passed**, `test_premarket_fallback_wiring_guard.py` **7/7 passed** (30/30 combined). **Correction to the commit message / queue.md / STATUS.md 16:40 ET entry's claim of "11/11" wiring tests and "34/34" total:** `grep -c "^def test_" backtest/tests/test_premarket_fallback_wiring_guard.py` and a fresh pytest collection both show **7 tests in that file, not 11** (30 total, not 34). This does not change the ship verdict — all 30 actual tests are green, the feature is correctly fail-safe/additive-only per its own code, and the discrepancy looks like a stale draft count left in the commit message rather than a missing/broken test — but OP-33 requires flagging a claim that doesn't match a fresh count rather than silently repeating it. Full `backtest/` collection re-run fresh this session: **3843 tests collected, 2 pre-existing collection errors** (`backtest/autoresearch/_archive/sniper/t48_sniper_watcher_test.py`, `backtest/futures/tastytrade_e2e_test.py` — both last touched in commit `5d84a5e`, unrelated to and pre-dating today's premarket work; the "3711 tests collects clean" claim in the same commit message is also stale, likely from a smaller collection scope, not a regression this session introduced or found). No further action needed — A5 stays shipped, no revert.
 >
-> **github-audit run before push** (see result below). **Push:** `git push origin main` after audit GREEN.
+> **github-audit run before push:** `python setup/scripts/github_audit.py` → `GREEN -- 6921 tracked files checked in 48.6s, 0 findings, safe to push`. **Pushed:** `git push origin main` — `8d19186..3a8cd62 main -> main` (2 commits, 89 ahead → synced; remote warned on a pre-existing 66.95MB `rejections.jsonl` LFS-recommendation, non-blocking, not a secrets finding).
 >
-> No orders placed. No live params/config edits (all 5 evening research artifacts were KILL/KEEP-CURRENT verdicts already correctly landing as no-ops; A5 was the only SHIP_CANDIDATE and it was already applied by an earlier session before this gate ran). Ship table below.
+> No orders placed. No live params/config edits (all 5 evening research artifacts were KILL/KEEP-CURRENT verdicts already correctly landing as no-ops; A5 was the only SHIP_CANDIDATE and it was already applied by an earlier session before this gate ran).
+
+**Ship table (2026-07-14 evening batch):**
+
+| Item | Verdict | Evidence (n, key numbers) | Action taken |
+|---|---|---|---|
+| A5-PREMARKET-DETERMINISTIC-FALLBACK | **SHIPPED** | 30/30 guard tests green (re-run fresh; commit claimed 34/34 — corrected, not a functional gap) | Already committed `79bac4d` by earlier session; re-verified this gate, test-count claim corrected in STATUS.md |
+| TRENDLINE-CONVICTION-OVERRIDE | **KILLED** | n=93; TL-A/B mean -$0.28/tr FAIL cond.1; TL-C +$23.57/tr mechanically PASSes but outlier-dependent (1 trade = 318% of P&L, ex-outlier -$53.48/tr) | Committed result + closed `queue.md` (commit `1908388`) |
+| VIX-DEADZONE-MAP | **KEPT (block_elite_bull)** | SS-B n=28 KEEP (-$3,873.60 vs old -$560.00); only 28/146 (19.2%) of today's blocks were VIX-attributable | Already closed by earlier session; re-read only |
+| A3-BEAR-VIX-FLOOR-SSB | **KILLED (voided pre-run)** | 0 live consumers in `gates.py`'s 15-gate list; `vix_entry_thresholds` vestigial | Already closed by earlier session; re-read only |
+| TREND-FADE-PREREG | **KILLED** | 12/12 cells FAIL; the 1 mechanical PASS downgraded on post-hoc stability audit (OOS positive total = 1 concentrated month) | Already closed by earlier session; re-read only |
+| A6-VETO-GRADE | **KEPT (veto layer)** | 29.73% false-veto rate today vs 6.67% historical — misses the pre-declared 30% trigger by 0.27pp; net dollar value +$565.50 today | Already closed by earlier session; re-read only |
+
+**Blocked on evidence (none this session):** every candidate that reached a KILL verdict did so on its own frozen pre-registration's pass_bar or a disclosed robustness diagnostic — no item was blocked short of a verdict for lack of time/resources.
 
 ## [2026-07-14 ~17:06 ET] A4 — TREND-FADE-PREREG (OPRA-sequential job 3/3) RUN — 12/12 cells FAIL, KILL [REVOKE-report]
 
