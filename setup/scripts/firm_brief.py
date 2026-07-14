@@ -447,6 +447,37 @@ def render_prospector_lines(data: dict) -> list[str]:
             f"(analysis/prospector/ideas-ledger.jsonl)."]
 
 
+def render_futures_shadow_lines(data: dict) -> list[str]:
+    """PURE: render the FUTURES-MIRROR-SHADOW (7th-arm forward-evidence lane, 2026-07-14 J
+    directive 'make sure you trade futures today too') section body from its last-computed
+    snapshot (automation/state/futures/shadow-progress.json, written by
+    setup/scripts/futures_shadow_progress.py -- piggybacks on Gamma_FuturesMirror's existing
+    5-min-RTH + 16:05-sweep poll, no new scheduled task). Mirrors render_prospector_lines'
+    fail-open shape immediately above it in build_brief() -- a missing/never-fired source
+    degrades this section's text only, never the rest of the brief. Places no order, arms
+    nothing -- this is a progress GLANCE, matching render_twin_lines' P&L-free posture for the
+    same reason (a shadow lane's job is mechanism/evidence, not a tradeable result yet).
+    Guard: test_firm_brief_futures_shadow_section.py."""
+    if not data:
+        return ["- no shadow-progress.json yet (Gamma_FuturesMirror fires every 5 min, "
+                "09:30-16:05 ET weekdays -- first poll of the day writes it)."]
+    n = data.get("n_round_trips", 0)
+    total = data.get("total_pnl_usd", 0.0)
+    bar = data.get("arming_bar") or {}
+    needed = bar.get("round_trips_needed", 20)
+    armable = bar.get("armable")
+    updated = data.get("updated_et", "?")
+    if n < needed:
+        bar_s = f"{n}/{needed} round trips toward the arming bar"
+    else:
+        exp_s = "positive" if bar.get("expectancy_positive") else "negative"
+        null_s = {True: "beats", False: "does NOT beat", None: "null unevaluated vs"}[bar.get("beats_null")]
+        bar_s = (f"{n}/{needed} round trips, expectancy {exp_s}, {null_s} buy-hold null "
+                f"-- armable={armable}")
+    return [f"- FUTURES SHADOW (MES mirror): {bar_s}, total {_fmt_money(float(total))} "
+           f"@ {updated}."]
+
+
 def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) -> str:
     per_day = statement.get("per_day") or {}
     round_trips = statement.get("round_trips") or []
@@ -544,10 +575,20 @@ def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) 
     lines.extend(render_twin_lines(twin_health, twin_coverage, twin_gauntlet))
     lines.append("")
 
+    # Futures Shadow -- the MES 7th-arm forward-evidence mirror (2026-07-14 J directive "make
+    # sure you trade futures today too"; queue.md FUTURES-MIRROR-SHADOW). One line; full
+    # ledger in automation/state/futures/mirror-would-be.jsonl. Fail-open, same shape as the
+    # prospector/twin sections above.
+    futures_shadow = load_json(STATE / "futures" / "shadow-progress.json")
+    lines.append("## Futures Shadow (MES mirror, 7th-arm forward evidence)")
+    lines.extend(render_futures_shadow_lines(futures_shadow))
+    lines.append("")
+
     lines.append("---")
     lines.append(f"Sources: pnl-statement.json (T1 broker-truth) | self-check-last.json | "
                  f"prospector-last.json | twin-health.json | crypto-twin/path-coverage.json | "
-                 f"crypto-twin/gauntlet-last.json | {HANDOFF_NAME}")
+                 f"crypto-twin/gauntlet-last.json | futures/shadow-progress.json | "
+                 f"{HANDOFF_NAME}")
     return "\n".join(lines) + "\n"
 
 

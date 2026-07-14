@@ -42,6 +42,10 @@ def _isolate_state(monkeypatch, tmp_path):
     monkeypatch.setattr(fms, "POSITIONS_FILE", state_dir / "mirror-positions.json")
     monkeypatch.setattr(fms, "WOULD_BE_FILE", state_dir / "mirror-would-be.jsonl")
     monkeypatch.setattr(fms, "CALENDAR_FILE", tmp_path / "does-not-exist-calendar.json")
+    # 2026-07-14 core-decisions.jsonl extension: point CORE_LEDGER at a nonexistent tmp path
+    # so every pre-existing test (none of which pass core_file= explicitly) stays hermetic --
+    # same pattern as the CALENDAR_FILE line above, not a new isolation mechanism.
+    monkeypatch.setattr(fms, "CORE_LEDGER", tmp_path / "does-not-exist-core-decisions.jsonl")
 
 
 def _write_decisions(path: Path, rows: list[dict]) -> None:
@@ -60,6 +64,18 @@ def _enter_row(ts_et: str, arm_id: str, action: str = "ENTER_BEAR", side: str = 
               setup_name: str = "BEARISH_REJECTION_RIDE_THE_RIBBON") -> dict:
     return {"tick_id": None, "ts_et": ts_et, "arm_id": arm_id, "action": action,
            "side": side, "setup_name": setup_name, "strike": 731, "qty": 4}
+
+
+def _core_enter_row(ts_et: str, account: str = "safe", action: str = "ENTER_BEAR",
+                    side: str = "P",
+                    setup: str = "BEARISH_REJECTION_RIDE_THE_RIBBON") -> dict:
+    """Matches core-decisions.jsonl's REAL schema verbatim (verified against the live ledger
+    2026-07-14) -- note the field is `setup`, not `setup_name` (fleet arms use `setup_name`;
+    `scan_arm_lines` falls back `setup_name or setup` to read either), no `arm_id` key (an
+    `account` key instead), and `ts_et` has no UTC-offset suffix (already-naive-ET, unlike a
+    fleet row's `...-04:00` suffix -- both parse fine through `_parse_ts_et`)."""
+    return {"ts_et": ts_et, "account": account, "armed": True, "spy": 733.04,
+           "verdict": action, "side": side, "setup": setup, "action": action}
 
 
 # ═══════════════════════ fleet scan + cross-arm dedupe ═════════════════════════
@@ -492,7 +508,10 @@ class TestColdStart:
                                fleet_files=[p1, p2])
         assert summary["new_signals"] == 0   # risky-1 cold-starts too, safe-1 has nothing new
         state = fms.load_watermark_state()
-        assert state["arm_line_watermarks"] == {"safe-1": 1, "risky-1": 1}
+        # "core" is always present (2026-07-14 extension -- core_file defaults to CORE_LEDGER,
+        # which this test's autouse fixture points at a nonexistent path, so it cold-starts to
+        # an empty-file watermark of 0 every run; unrelated to this test's fleet-arm assertion).
+        assert state["arm_line_watermarks"] == {"safe-1": 1, "risky-1": 1, "core": 0}
 
 
 # ═══════════════════════ SPEC v2 constants pinned (drift REDs) ══════════════════
@@ -677,6 +696,182 @@ class TestSpecVersionStateRoundTrip:
                     quote_fetcher=lambda: 6000.0, atr_fetcher=lambda: 10.0, fleet_files=[])
         raw = json.loads(fms.WATERMARK_FILE.read_text(encoding="utf-8"))
         assert raw["spec_version"] == fms.SPEC_VERSION
+
+
+# ═══════════════════ core-decisions.jsonl coverage (2026-07-14 extension) ═══════════
+class TestCoreLedger:
+    """Covers the 2026-07-14 extension (J directive 'make sure you trade futures today too'):
+    the mirror originally only watched the 4 fleet REST arms' decisions.jsonl, structurally
+    never the 2 PRIMARY accounts' own automation/state/core-decisions.jsonl. `core_file`
+    defaults to the module-level CORE_LEDGER (monkeypatched to a nonexistent tmp path by the
+    autouse fixture); tests pass an explicit `core_file=` fixture path, same override pattern
+    `fleet_files` already uses."""
+
+    def test_core_ledger_scanned_alongside_fleet(self, tmp_path):
+        core = tmp_path / "core-decisions.jsonl"
+        _write_decisions(core, [_core_enter_row("2026-07-09T09:25:00", account="safe")])  # cold
+        fms.run_once(now_et=dt.datetime(2026, 7, 9, 9, 20, 0), quote_fetcher=lambda: 6000.0,
+                    atr_fetcher=lambda: 10.0, fleet_files=[], core_file=core)  # prime cold start
+
+        _write_decisions(core, [_core_enter_row("2026-07-09T10:05:00", account="safe")])
+        summary = fms.run_once(now_et=dt.datetime(2026, 7, 9, 10, 6, 0),
+                               quote_fetcher=lambda: 6000.0, atr_fetcher=lambda: 10.0,
+                               fleet_files=[], core_file=core)
+        assert summary["new_signals"] == 1
+        assert summary["opened"] == 1
+        positions = fms.load_positions_state()["positions"]
+        pos = next(iter(positions.values()))
+        assert pos["source_arms"] == ["core-safe"]
+
+    def test_core_arm_id_tags_account_distinctly(self, tmp_path):
+        """safe and bold rows in the SAME core-decisions.jsonl file, at different minutes,
+        must NOT be conflated -- each gets its own `core-{account}` provenance tag."""
+        core = tmp_path / "core-decisions.jsonl"
+        core.touch()
+        fms.run_once(now_et=dt.datetime(2026, 7, 9, 9, 20, 0), quote_fetcher=lambda: 6000.0,
+                    atr_fetcher=lambda: 10.0, fleet_files=[], core_file=core)
+
+        _write_decisions(core, [
+            _core_enter_row("2026-07-09T10:05:00", account="safe", action="ENTER_BULL", side="C"),
+            _core_enter_row("2026-07-09T10:10:00", account="bold", action="ENTER_BEAR", side="P"),
+        ])
+        fms.run_once(now_et=dt.datetime(2026, 7, 9, 10, 11, 0), quote_fetcher=lambda: 6000.0,
+                    atr_fetcher=lambda: 10.0, fleet_files=[], core_file=core)
+        positions = fms.load_positions_state()["positions"]
+        tags = sorted(p["source_arms"][0] for p in positions.values())
+        assert tags == ["core-bold", "core-safe"]
+
+    def test_core_setup_field_name_fallback(self):
+        """core-decisions.jsonl names the field `setup`, not `setup_name` (fleet arms use
+        `setup_name`) -- verified against the real live ledger 2026-07-14. A regression here
+        would silently null out setup_name provenance for every core-derived mirror trade."""
+        lines = [json.dumps(_core_enter_row("2026-07-09T10:05:00", setup="VWAP_CONTINUATION"))]
+        candidates, _ = fms.scan_arm_lines(lines, 0)
+        assert candidates[0]["setup_name"] == "VWAP_CONTINUATION"
+
+    def test_core_and_fleet_same_signal_cross_source_dedupe(self, tmp_path):
+        """THE load-bearing cross-source behavior: core AND a fleet arm firing the identical
+        setup within the same minute must collapse to ONE mirror signal with both sources
+        recorded -- extends the existing 4-fleet-arm dedup test across the core/fleet
+        boundary, not just within the fleet."""
+        ts = "2026-07-09T10:05:00-04:00"
+        core_ts = "2026-07-09T10:05:00"
+        fleet_file = tmp_path / "safe-1" / "decisions.jsonl"
+        core_file = tmp_path / "core-decisions.jsonl"
+        fleet_file.parent.mkdir(parents=True, exist_ok=True)
+        fleet_file.touch()
+        core_file.touch()
+        fms.run_once(now_et=dt.datetime(2026, 7, 9, 9, 20, 0), quote_fetcher=lambda: 6000.0,
+                    atr_fetcher=lambda: 10.0, fleet_files=[fleet_file], core_file=core_file)
+
+        _write_decisions(fleet_file, [_enter_row(ts, "safe-1")])
+        _write_decisions(core_file, [_core_enter_row(core_ts, account="safe")])
+        summary = fms.run_once(now_et=dt.datetime(2026, 7, 9, 10, 6, 0),
+                               quote_fetcher=lambda: 6000.0, atr_fetcher=lambda: 10.0,
+                               fleet_files=[fleet_file], core_file=core_file)
+        assert summary["new_signals"] == 1
+        assert summary["opened"] == 1
+        positions = fms.load_positions_state()["positions"]
+        pos = next(iter(positions.values()))
+        assert sorted(pos["source_arms"]) == ["core-safe", "safe-1"]
+
+    def test_core_ledger_missing_file_not_fatal(self, tmp_path):
+        summary = fms.run_once(now_et=dt.datetime(2026, 7, 9, 10, 0, 0),
+                               quote_fetcher=lambda: 6000.0, atr_fetcher=lambda: 10.0,
+                               fleet_files=[], core_file=tmp_path / "ghost-core.jsonl")
+        assert summary["new_signals"] == 0
+        assert summary["errors"] == []
+
+    def test_core_ledger_cold_start_ignores_historical_backlog(self, tmp_path):
+        core = tmp_path / "core-decisions.jsonl"
+        _write_decisions(core, [_core_enter_row("2026-06-01T10:05:00")])  # 5+ weeks stale
+        summary = fms.run_once(now_et=dt.datetime(2026, 7, 9, 10, 0, 0),
+                               quote_fetcher=lambda: 6000.0, atr_fetcher=lambda: 10.0,
+                               fleet_files=[], core_file=core)
+        assert summary["new_signals"] == 0
+        state = fms.load_watermark_state()
+        assert state["arm_line_watermarks"]["core"] == 1
+
+
+# ═══════════════════ idempotent catch-up (2026-07-14, J directive item #2) ══════════
+class TestIdempotentCatchup:
+    """J's explicit requirement: 'running it at 16:00 must produce the same rows as running
+    it live all day — it derives from the ledger, so re-runs dedupe by source-signal id.'
+    Both scenarios below PRIME the watermark before any signal exists (matching how the real
+    system behaves -- Gamma_FuturesMirror has polled every 5 min since before market open on
+    every trading day it has run) -- this is deliberately NOT the cold-start-at-16:00 case
+    (TestColdStart already covers that, and a genuine first-ever scan at 16:00 correctly
+    mirrors NOTHING by design, which is the opposite property being tested here)."""
+
+    def test_catchup_poll_opens_every_backlog_signal_not_just_one(self, tmp_path):
+        """A cadence that stalls for hours (polls skipped) then recovers must open ALL
+        signals that accumulated in the gap, not just the first or the most recent --
+        proving the watermark-based scan (process every new line since last watermark, not
+        just the newest line) is what makes catch-up safe."""
+        p = tmp_path / "safe-1" / "decisions.jsonl"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.touch()
+        fms.run_once(now_et=dt.datetime(2026, 7, 9, 9, 25, 0), quote_fetcher=lambda: 6000.0,
+                    atr_fetcher=lambda: 10.0, fleet_files=[p])  # prime before any signal exists
+
+        _write_decisions(p, [
+            _enter_row("2026-07-09T10:05:00-04:00", "safe-1", action="ENTER_BULL", side="C"),
+            _enter_row("2026-07-09T11:00:00-04:00", "safe-1", action="ENTER_BEAR", side="P"),
+            _enter_row("2026-07-09T12:30:00-04:00", "safe-1", action="ENTER_BULL", side="C"),
+        ])
+        summary = fms.run_once(now_et=dt.datetime(2026, 7, 9, 16, 0, 0),
+                               quote_fetcher=lambda: 6000.0, atr_fetcher=lambda: 10.0,
+                               fleet_files=[p])
+        assert summary["new_signals"] == 3
+        assert summary["opened"] == 3
+        assert summary["positions_open"] == 3
+
+    def test_incremental_polling_and_single_catchup_agree_on_signal_identity(self, tmp_path, monkeypatch):
+        """Two independent state dirs, IDENTICAL final ledger content: scenario A polls after
+        each signal lands (live 5-min cadence); scenario B writes all 3 signals then polls
+        ONCE at day's end (a stalled-then-recovered cadence). Both must mirror the SAME 3
+        signal_refs. DISCLOSED, not hidden: entry PRICE can legitimately differ between the
+        two (every signal caught up in one sweep shares that sweep's single quote fetch --
+        an existing, already-documented property of a 5-min-poll design, not something this
+        test claims to unify) -- this test asserts identity of WHICH signals were mirrored,
+        not identical fill prices."""
+        signals = [
+            ("2026-07-09T10:05:00-04:00", dt.datetime(2026, 7, 9, 10, 6, 0)),
+            ("2026-07-09T11:00:00-04:00", dt.datetime(2026, 7, 9, 11, 1, 0)),
+            ("2026-07-09T12:30:00-04:00", dt.datetime(2026, 7, 9, 12, 31, 0)),
+        ]
+
+        def _prime(tag: str) -> Path:
+            state_dir = tmp_path / tag
+            monkeypatch.setattr(fms, "STATE_DIR", state_dir)
+            monkeypatch.setattr(fms, "WATERMARK_FILE", state_dir / "mirror-shadow-state.json")
+            monkeypatch.setattr(fms, "POSITIONS_FILE", state_dir / "mirror-positions.json")
+            monkeypatch.setattr(fms, "WOULD_BE_FILE", state_dir / "mirror-would-be.jsonl")
+            p = state_dir / "fleet" / "safe-1" / "decisions.jsonl"
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.touch()
+            fms.run_once(now_et=dt.datetime(2026, 7, 9, 9, 25, 0), quote_fetcher=lambda: 6000.0,
+                        atr_fetcher=lambda: 10.0, fleet_files=[p])  # prime, no signal yet
+            return p
+
+        # Scenario A: incremental (poll right after each signal lands)
+        p_a = _prime("a")
+        for ts, poll_time in signals:
+            _write_decisions(p_a, [_enter_row(ts, "safe-1")])
+            fms.run_once(now_et=poll_time, quote_fetcher=lambda: 6000.0, atr_fetcher=lambda: 10.0,
+                        fleet_files=[p_a])
+        refs_a = set(fms.load_positions_state()["positions"].keys())
+
+        # Scenario B: single end-of-day catch-up (all 3 written first, ONE poll at 16:00)
+        p_b = _prime("b")
+        for ts, _ in signals:
+            _write_decisions(p_b, [_enter_row(ts, "safe-1")])
+        fms.run_once(now_et=dt.datetime(2026, 7, 9, 16, 0, 0), quote_fetcher=lambda: 6000.0,
+                    atr_fetcher=lambda: 10.0, fleet_files=[p_b])
+        refs_b = set(fms.load_positions_state()["positions"].keys())
+
+        assert refs_a == refs_b
+        assert len(refs_a) == 3
 
 
 # ═══════════════════════ no-naive-datetime discipline ═══════════════════════════

@@ -109,21 +109,36 @@ REUSE DECISION (task explicitly invites this call -- documented per instruction)
 
 WATCH / DEDUPE: tails automation/state/fleet/*/decisions.jsonl (today: safe-3, safe-1,
   risky-1, risky-3 -- the 4 `execution: fleet_rest` arms; resolved by glob, not hardcoded, so
-  a future roster change is picked up automatically) for NEW rows (tracked via a per-arm LINE
-  COUNT watermark -- decisions.jsonl is append-only, so a line count is a safe, simple
-  progress marker) with action ENTER_BULL/ENTER_BEAR. Because every validated strategy runs
-  on every fleet arm (accounts.json's grid model -- arms differ ONLY by gate strictness and
-  sizing, never by strategy), the SAME underlying signal routinely fires on multiple arms
-  within the same processing tick. Deduped to ONE mirror signal per (direction, ts_et
-  truncated to the minute) -- see `dedupe_signals()`. A signal that dedupes cleanly but whose
-  yfinance fetch fails this poll is retried on the NEXT poll (`pending_signals`, persisted) --
-  a transient network hiccup must never silently drop real evidence. COLD START: the first
-  time a given arm's decisions.jsonl is ever scanned (no prior watermark for it), the
-  watermark jumps straight to end-of-file with ZERO candidates emitted -- historical backlog
-  is never mirrored, only signals that fire AFTER a poll first watches an arm. Mirroring an
-  old signal with TODAY's quote/ATR would be a real price/time mismatch, not forward evidence
-  (verified live: an early unguarded run against the real fleet logs opened 7 positions off
-  signals up to 18 days stale before this guard existed).
+  a future roster change is picked up automatically) PLUS automation/state/core-decisions.jsonl
+  (the CORE Gamma-Safe-2 / Gamma-Risky-2 accounts -- added 2026-07-14, J directive "make sure
+  you trade futures today too": the fleet-only glob structurally never watched the two
+  PRIMARY accounts' own signals, which is the actual live-money-adjacent lane CLAUDE.md
+  describes as the source of truth. core-decisions.jsonl interleaves both accounts' rows in
+  ONE file tagged by an `account` field ("safe"/"bold") rather than living in its own
+  per-account subfolder like the fleet arms -- so its candidates are tagged `core-{account}`
+  (e.g. "core-safe"/"core-bold") instead of a directory-derived arm_id; see `_scan_core_ledger`
+  and the `account` passthrough added to `scan_arm_lines`'s candidate dict, which is additive
+  and does not change fleet-row behavior) for NEW rows (tracked via a per-source LINE COUNT
+  watermark -- both ledger styles are append-only, so a line count is a safe, simple progress
+  marker) with action ENTER_BULL/ENTER_BEAR. Because every validated strategy runs on every
+  fleet arm (accounts.json's grid model -- arms differ ONLY by gate strictness and sizing,
+  never by strategy) AND the identical setup menu drives core Safe/Bold too, the SAME
+  underlying signal routinely fires across core AND fleet within the same processing tick.
+  Deduped to ONE mirror signal per (direction, ts_et truncated to the minute) -- see
+  `dedupe_signals()` -- across BOTH sources; a signal seen on core AND 2 fleet arms in the
+  same minute still yields exactly one mirror trade with all 3 in `source_arms`. A signal that
+  dedupes cleanly but whose yfinance fetch fails this poll is retried on the NEXT poll
+  (`pending_signals`, persisted) -- a transient network hiccup must never silently drop real
+  evidence. COLD START: the first time a given source (a fleet arm's file, or the core ledger)
+  is ever scanned (no prior watermark for it), the watermark jumps straight to end-of-file
+  with ZERO candidates emitted -- historical backlog is never mirrored, only signals that fire
+  AFTER a poll first watches a source. Mirroring an old signal with TODAY's quote/ATR would be
+  a real price/time mismatch, not forward evidence (verified live: an early unguarded run
+  against the real fleet logs opened 7 positions off signals up to 18 days stale before this
+  guard existed; the SAME guard is why adding core-decisions.jsonl today is safe even though
+  that file's on-disk content is 18 days stale as of this edit -- see STATUS.md 2026-07-14
+  entry "CORE/FLEET DECISION LEDGERS FOUND STALE" -- cold start ignores all of it and only
+  mirrors whatever core-decisions.jsonl grows by FROM THIS POLL FORWARD).
 
 RUNNER MODE: `python futures_mirror_shadow.py --once` runs exactly one poll pass (the only
   mode this script has -- flag kept for literal spec compliance / explicit caller intent).
@@ -193,6 +208,9 @@ CALENDAR_FILE = REPO / "automation" / "state" / "calendar.json"
 WATERMARK_FILE = STATE_DIR / "mirror-shadow-state.json"
 POSITIONS_FILE = STATE_DIR / "mirror-positions.json"
 WOULD_BE_FILE = STATE_DIR / "mirror-would-be.jsonl"
+CORE_LEDGER = STATE_DIR.parent / "core-decisions.jsonl"   # automation/state/core-decisions.jsonl
+                                                            # (heartbeat_core.py's LEDGER const)
+CORE_ARM_ID = "core"       # watermark key for CORE_LEDGER's single-file line count
 
 SPEC_VERSION = "v2"               # bump on ANY change to the constants below -- see module
                                    # docstring "SPEC VERSION" + "SPEC v1 -> v2" for the
@@ -414,7 +432,10 @@ def _parse_ts_et(s: Optional[str]) -> Optional[dt.datetime]:
 def scan_arm_lines(lines: list[str], start_line: int) -> tuple[list[dict], int]:
     """PURE. Scans lines[start_line:] for ENTER_BULL/ENTER_BEAR rows. Returns
     (candidate_dicts, new_line_count). Malformed JSON / non-ENTER / unparseable ts_et lines
-    are silently skipped (a fleet decisions.jsonl is mostly HOLD rows by volume)."""
+    are silently skipped (a fleet decisions.jsonl is mostly HOLD rows by volume). Also used
+    for core-decisions.jsonl (2026-07-14 extension) -- that ledger's rows carry an `account`
+    field ("safe"/"bold") a fleet arm's row never has; passed through here (None for fleet
+    rows) so the caller can derive a `core-{account}` arm_id without a second parser."""
     candidates = []
     for raw in lines[start_line:]:
         raw = raw.strip()
@@ -432,7 +453,14 @@ def scan_arm_lines(lines: list[str], start_line: int) -> tuple[list[dict], int]:
             continue
         candidates.append({
             "direction": direction, "ts_et": ts,
-            "setup_name": row.get("setup_name"), "side": row.get("side"),
+            # core-decisions.jsonl names this field "setup" (verified against the real live
+            # ledger 2026-07-14); every fleet arm's decisions.jsonl names it "setup_name" --
+            # this fallback reads either schema without needing to know which source a given
+            # line came from (a fleet row never has "setup", so the fallback is a safe no-op
+            # there; a core row never has "setup_name", so it falls through to "setup").
+            "setup_name": row.get("setup_name") or row.get("setup"),
+            "side": row.get("side"),
+            "account": row.get("account"),
         })
     return candidates, len(lines)
 
@@ -716,16 +744,27 @@ def load_positions_state() -> dict:
 
 # ── orchestration ────────────────────────────────────────────────────────────
 def run_once(*, now_et: Optional[dt.datetime] = None, quote_fetcher=None, atr_fetcher=None,
-            fleet_files: Optional[list] = None) -> dict:
+            fleet_files: Optional[list] = None, core_file: Optional[Path] = None) -> dict:
     """ONE poll pass. Never raises internally (every step is try/except-guarded and any
     failure is recorded in the returned summary's `errors` list, not propagated) -- callers
-    that need a hard signal should inspect `summary["errors"]`."""
+    that need a hard signal should inspect `summary["errors"]`.
+
+    `core_file` (2026-07-14 extension) resolves to the module-level CORE_LEDGER at CALL time
+    (never bound as a literal default -- the same lazy-resolution pattern `fleet_files` already
+    uses for FLEET_DIR, and the same reason `_et_now()`'s docstring gives for lazy et_clock
+    import: a test's `monkeypatch.setattr(fms, "CORE_LEDGER", tmp_path/...)` must be honored).
+    Pass `core_file=some_path` to point at a fixture; the isolation fixture in
+    test_futures_mirror_shadow.py points the module-level CORE_LEDGER at a nonexistent tmp
+    path so every pre-existing test (which never passes core_file explicitly) stays hermetic
+    without editing each test individually."""
     if now_et is None:
         now_et = _et_now()
     quote_fetcher = quote_fetcher or fetch_es_quote_1m
     atr_fetcher = atr_fetcher or fetch_es_atr14
     if fleet_files is None:
         fleet_files = sorted(FLEET_DIR.glob("*/decisions.jsonl"))
+    if core_file is None:
+        core_file = CORE_LEDGER
 
     errors: list = []
     wm_state = load_watermark_state()
@@ -762,6 +801,25 @@ def run_once(*, now_et: Optional[dt.datetime] = None, quote_fetcher=None, atr_fe
             c["arm_id"] = arm_id
         all_candidates.extend(candidates)
         line_wm[arm_id] = new_count
+
+    # 1b) core ledger (automation/state/core-decisions.jsonl -- the 2 PRIMARY accounts,
+    #     Gamma-Safe-2/Gamma-Risky-2). Same cold-start-safe, line-count-watermark treatment as
+    #     a fleet arm (see module docstring WATCH/DEDUPE for why this file needs its own
+    #     per-row arm_id derivation instead of a directory-derived one).
+    try:
+        core_lines = (core_file.read_text(encoding="utf-8").splitlines()
+                     if core_file and core_file.exists() else [])
+    except OSError as e:  # noqa: BLE001
+        errors.append(f"read_failed:{CORE_ARM_ID}:{type(e).__name__}:{e}")
+        core_lines = []
+    core_cold_start = CORE_ARM_ID not in line_wm
+    core_start = len(core_lines) if core_cold_start else int(line_wm[CORE_ARM_ID])
+    core_candidates, core_new_count = scan_arm_lines(core_lines, core_start)
+    for c in core_candidates:
+        acct = c.get("account")
+        c["arm_id"] = f"core-{acct}" if acct else CORE_ARM_ID
+    all_candidates.extend(core_candidates)
+    line_wm[CORE_ARM_ID] = core_new_count
 
     new_signals, seen_keys = dedupe_signals(
         all_candidates, wm_state.get("seen_signal_keys", {}), now_et)
@@ -818,6 +876,17 @@ def run_once(*, now_et: Optional[dt.datetime] = None, quote_fetcher=None, atr_fe
         "last_run_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"),
     })
     _atomic_write_json(POSITIONS_FILE, {"_doc": POSITIONS_DOC, "positions": positions})
+
+    # 5) recompute the arming-bar progress tracker (2026-07-14 extension, queue.md
+    #    FUTURES-MIRROR-SHADOW item #5) -- piggybacks on this same poll (every 5 min RTH +
+    #    16:05 sweep) so shadow-progress.json is always current without its own scheduled
+    #    task. Fail-open: a progress-computation hiccup is recorded in `errors` but never
+    #    blocks the watermark/positions writes above (already committed to disk by this point).
+    try:
+        import futures_shadow_progress  # noqa: PLC0415
+        futures_shadow_progress.main()
+    except Exception as e:  # noqa: BLE001
+        errors.append(f"shadow_progress_failed:{type(e).__name__}:{e}")
 
     return {
         "new_signals": len(new_signals), "opened": opened, "pending_retry": len(still_pending),
