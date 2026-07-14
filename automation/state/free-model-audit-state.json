@@ -1,9 +1,9 @@
 {
   "heartbeat_veto": {
-    "evidence_n": 108,
-    "correct_n": 76,
+    "evidence_n": 151,
+    "correct_n": 104,
     "consecutive_runs_above_bar": 0,
-    "last_run_date": "2026-07-13",
+    "last_run_date": "2026-07-14",
     "confident": false,
     "cadence_days": 2,
     "confident_since": null

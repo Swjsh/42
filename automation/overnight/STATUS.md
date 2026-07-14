@@ -1,3 +1,13 @@
+## [2026-07-14 ~16:20 ET] A6 — TODAY'S FREE-MODEL VETOES GRADED same-day: 29.73% false-veto rate, BELOW the 30% pre-reg trigger by 0.27pp -- no doctrine change shipped
+
+> **Ran `free_model_audit.py --subject heartbeat_veto --force` mid-day** (not waiting for tonight's scheduled cadence) per J's "make money this week" directive to check whether the 2 free-model veto lane's 22-vetoes-on-zero-trades day (queue.md VIX-DEADZONE-MAP) was itself a bad gate, before that pressure could turn into an evidence-optional rule change. Counterfactual-replayed all of today's veto/go decisions against real OPRA bars (`core-decisions.jsonl` `free_eval.veto`): **37 vetoes + 6 gos graded, not 22** (22 was VIX-DEADZONE-MAP's rough same-day headcount; 37 is the authoritative full-day count from the same log).
+>
+> **Result: today's veto-only false-veto rate = 11/37 = 29.73%**, vs the historical baseline **1/15 = 6.67%** (2026-07-11 scorecard, the largest prior veto sample) -- a 4.46x elevation. **Does NOT cross the pre-declared >30% pre-registration trigger** (misses by 0.27 percentage points, n=37 well over the n>=10 floor). Per the standing "never a vibe-flip" rule (queue.md's own VIX-DEADZONE-MAP language) and OP-33, did **NOT** write a veto-scope pre-registration today -- rounding 29.73% up to "basically 30%" under this week's P&L pressure would be exactly the evidence-optional move the bright line exists to prevent.
+>
+> **Net dollar framing (why this isn't a clean "gate failed" story either):** the 11 false vetoes cost $391.20 in foregone winners; the 26 true vetoes saved $956.70 in avoided losers -> **net veto value today is still +$565.50 positive**, despite the elevated false-veto rate. Cumulative (all-time, this subject) rate unchanged at 68.9%/151 evidence points, still not confident (bar 85%, streak 0/3).
+>
+> **Flagged forward, not force-shipped:** logged as `A6-VETO-GRADE-2026-07-14` in queue.md (status:done) with a note to watch the next 1-2 graded cycles -- if the elevated rate persists, cumulative evidence clears the bar honestly instead of needing today's number rounded up. No params/config/trading-path file touched. No orders placed. Scorecard: `analysis/free-model-audit/heartbeat-veto/2026-07-14-scorecard.md`.
+
 ## [2026-07-14] TRENDLINE BREAK BATTERY (S1) + CALL-VETO SS-B RE-VAL (S2) RUN -- S1: 12/12 cells KILLED (real, decisive), S2: premise false (nothing to re-validate) [REVOKE-report]
 
 > **Full trendline review per J's "this needs a proper review" directive** (follow-on to today's TRENDLINE-SUBSYSTEM-AUDIT-2026-07-14, which stayed read-only and froze a DIFFERENT spec of its own -- `trendline-structure-conviction-preregistration.json`, a conviction-override study, still `FROZEN_PENDING_RUN`, not run here, not this crew's artifact). Checked first whether that spec covered the break-entry battery the task asked for -- it doesn't (different mechanism: rescues blocked ELITE-bull signals, not an enter-on-break study) -- so froze a fresh one: `analysis/recommendations/prereg-trendline-break-battery-2026-07-14.json`, run VERBATIM after freezing (one mid-freeze fix to the V2 retest-confirmation window, made BEFORE any cell pnl was computed, disclosed in the prereg text itself, not a post-hoc re-pick).
@@ -763,7 +773,7 @@ MECHANISM (flag-gated, default = exactly what ships): (1) `build_shared_signal.p
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 56 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 55 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -3855,3 +3865,9 @@ Inbox item `strategy/candidates/_lesson-inbox/2026-07-10-joint-cascade-blindness
 - route: free-tier-primary
 - ok: True
 - cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-07-14T16:09:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:02 ENTER_BEAR ?', '15:03 ENTER_BEAR ?', '15:04 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:07 ENTER_BEAR ?', '15:08 ENTER_BEAR ?']
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
