@@ -113,6 +113,131 @@ def check_broker_keys() -> list[str]:
 PDT_ACCOUNTS = ("safe-2", "bold-2")  # the two engine-wired (mcp_heartbeat) accounts
 PDT_LABEL = {"safe-2": "safe", "bold-2": "bold"}  # matches heartbeat_core.ACCOUNTS keys
 
+# ---- 2026-07-15 FIX: margin-PDT alert was FICTIONAL for cash_settlement accounts ----
+# Both core accounts are CASH accounts pinned to params.pdt_gate_mode="cash_settlement"
+# (automation/state/params.json + aggressive/params.json, commit fd09a78, 2026-07-14) --
+# risk_gate.check_order NEVER reads day_trades_used_5d for them in that mode (it gates on
+# settled cash instead, see backtest/lib/risk_gate.py's cash_settlement branch). The margin
+# branch below (unchanged, still correct for pdt_gate_mode="margin_pdt" accounts -- the
+# fleet arms are pinned there, fleet_executor.py#finalize) fired
+#   "SELF-CHECK DEGRADED: PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd)..."
+# at 15:09 ET on 2026-07-15 (automation/state/discord-outbox.jsonl) describing a block that
+# never happened -- both of that day's trades filled AFTER the alert's implied block.
+# check_pdt_status now reads each account's OWN params.json#pdt_gate_mode FIRST
+# (_pdt_gate_mode / _default_account_params) and, for cash_settlement accounts, reports
+# settlement-ledger TRUTH instead (check_cash_settlement_status, below): entries used today +
+# settled cash remaining vs params.max_same_day_roundtrips -- mirroring EXACTLY the gate
+# risk_gate.check_order actually evaluates for these accounts, and alerting ONLY when that
+# gate would actually refuse the next entry. Guard: test_self_check_pdt_status.py
+# test_cash_settlement_account_ignores_margin_pdt_day_trade_count.
+
+
+def _default_account_params(label: str) -> dict:
+    """Live-read the account's params.json (STATE/params.json for safe,
+    STATE/aggressive/params.json for bold -- same per-account path convention as
+    heartbeat_core.ACCOUNTS). Fail-open to {} on any read error, which makes
+    _pdt_gate_mode fall back to "margin_pdt" -- i.e. an unreadable params file
+    degrades to the LEGACY (pre-2026-07-15) behavior, never a fabricated mode."""
+    path = (STATE / "aggressive" / "params.json") if label == "bold" else (STATE / "params.json")
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return {}
+
+
+def _pdt_gate_mode(account_params: dict) -> str:
+    """Single source of truth for the mode string -- byte-identical default
+    ("margin_pdt" when the key is absent) to risk_gate.check_order's own
+    `pdt_mode = str(params.get("pdt_gate_mode") or "margin_pdt").strip().lower()`."""
+    return str((account_params or {}).get("pdt_gate_mode") or "margin_pdt").strip().lower()
+
+
+def _default_max_same_day_roundtrips() -> int:
+    """Live-import risk_gate.DEFAULT_MAX_SAME_DAY_ROUNDTRIPS (single source of
+    truth for the sanity-cap default) -- mirrors _pdt_constants()'s import
+    pattern. Fail-open to the known-frozen value (5, unchanged since 2026-07-14)."""
+    try:
+        rg_dir = str(REPO / "backtest" / "lib")
+        if rg_dir not in sys.path:
+            sys.path.insert(0, rg_dir)
+        import risk_gate as _rg  # noqa: PLC0415
+        return int(_rg.DEFAULT_MAX_SAME_DAY_ROUNDTRIPS)
+    except Exception:  # noqa: BLE001
+        return 5
+
+
+def _default_settlement_status(label: str, now, account_params: dict) -> "dict | None":
+    """Live-read TODAY's settlement status for `label` via settlement_ledger.py --
+    pure file I/O (no broker network call, unlike the margin path). Start-of-day
+    settled cash is read from the account's own circuit-breaker.json (the SAME
+    field heartbeat_core._execute uses to seed the ledger: starting_equity_today
+    for safe, equity_start_of_day for bold -- see that file's #_schema_note for
+    the field-name divergence). Returns None when that value is unreadable -- the
+    caller renders this as an honest UNKNOWN, never a fabricated OK/BLOCKED."""
+    import settlement_ledger as _sl  # noqa: PLC0415
+    cb_path = (STATE / "aggressive" / "circuit-breaker.json") if label == "bold" else (STATE / "circuit-breaker.json")
+    try:
+        cb = json.loads(cb_path.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        cb = {}
+    sod = cb.get("equity_start_of_day") if label == "bold" else cb.get("starting_equity_today")
+    try:
+        sod = float(sod)
+    except (TypeError, ValueError):
+        return None
+    ledger_path = _sl.ledger_path(STATE, label)
+    today_et = now.strftime("%Y-%m-%d")
+    return _sl.get_settlement_status(ledger_path, today_et, sod)
+
+
+def check_cash_settlement_status(label: str, now, account_params: dict, *,
+                                  settlement_status=None) -> "tuple[list, dict]":
+    """VISIBILITY for pdt_gate_mode="cash_settlement" (2026-07-15 fix -- see the
+    comment block above PDT_ACCOUNTS for the scar this closes). Reports
+    settlement-ledger TRUTH: settled cash remaining + entries used today vs
+    params.max_same_day_roundtrips -- the SAME inputs risk_gate.check_order's
+    cash_settlement branch evaluates. Only alerts (DEGRADED, never BROKEN -- the
+    gate doing its job correctly is not itself a fault) when that gate would
+    ACTUALLY refuse the next entry:
+      - entries_used_today >= max_same_day_roundtrips (the sanity cap), OR
+      - settled_cash_remaining <= 0 (fully committed -- ANY positive-notional
+        order would exceed it, regardless of size).
+    Fail-open: an unreadable start-of-day settled cash renders UNKNOWN, never a
+    fabricated OK or a false BLOCKED (OP-33)."""
+    fetch = settlement_status or _default_settlement_status
+    status = fetch(label, now, account_params)
+    if status is None:
+        return [], {"status": "UNKNOWN", "gate_mode": "cash_settlement",
+                     "reason": "no readable start-of-day settled cash (circuit-breaker.json)"}
+    max_rt_raw = account_params.get("max_same_day_roundtrips")
+    try:
+        max_rt = int(max_rt_raw) if max_rt_raw is not None else _default_max_same_day_roundtrips()
+    except (TypeError, ValueError):
+        max_rt = _default_max_same_day_roundtrips()
+    entries_used = int(status.get("entries_used_today") or 0)
+    remaining = float(status.get("settled_cash_remaining") or 0.0)
+    sod = float(status.get("sod_settled_cash") or 0.0)
+    blocked = entries_used >= max_rt or remaining <= 0.0
+    entry = {
+        "status": "BLOCKED" if blocked else "OK",
+        "gate_mode": "cash_settlement",
+        "entries_used_today": entries_used,
+        "max_same_day_roundtrips": max_rt,
+        "settled_cash_remaining": round(remaining, 2),
+        "sod_settled_cash": round(sod, 2),
+    }
+    problems: list = []
+    if blocked:
+        cause = (f"{entries_used}/{max_rt} same-day entries used (sanity cap reached)"
+                 if entries_used >= max_rt else
+                 f"${remaining:,.2f} settled cash remaining (fully committed today)")
+        problems.append(
+            f"SETTLEMENT-BLOCKED[{label}]: {cause} -- pdt_gate_mode=cash_settlement would "
+            f"refuse the next entry (SOD settled ${sod:,.2f}, ${remaining:,.2f} remaining, "
+            f"{entries_used} entries placed today)."
+        )
+    return problems, entry
+
 
 def _pdt_constants() -> "tuple[int, float]":
     """Live-import PDT_DAY_TRADE_LIMIT / PDT_EQUITY_THRESHOLD from risk_gate.py (single
@@ -151,24 +276,32 @@ def _default_fetch_pdt_detail(creds: dict) -> dict:
     return _pdt.fetch_day_trades_detail(creds)
 
 
-def check_pdt_status(now, *, secrets_path=None, fetch_detail=None, fetch_equity=None) -> "tuple[list, dict]":
-    """VISIBILITY instrument for Rule 7 (PDT) -- see module-level comment above for the
-    2026-07-13 scar this closes. Live-fetches day_trades_used_5d + equity for BOTH
-    engine-wired accounts (safe-2 = core Safe, bold-2 = core Bold) via
-    pdt_tracker.fetch_day_trades_detail (the HONEST-UNKNOWN variant).
+def check_pdt_status(now, *, secrets_path=None, fetch_detail=None, fetch_equity=None,
+                      account_params=None, settlement_status=None) -> "tuple[list, dict]":
+    """VISIBILITY instrument for Rule 7 (PDT/settlement) -- see module-level comment above
+    for BOTH scars this closes (2026-07-13 margin-PDT block visibility; 2026-07-15 fix so
+    that visibility doesn't fabricate a margin-PDT block for cash_settlement accounts).
+
+    Per account, reads params.json#pdt_gate_mode FIRST (via `account_params`, default
+    _default_account_params) and branches:
+      "cash_settlement" -> check_cash_settlement_status: settlement-ledger truth (settled
+        cash remaining + entries used today vs max_same_day_roundtrips) -- the actual gate
+        risk_gate.check_order evaluates for these accounts. No broker network call.
+      "margin_pdt" (or absent -- byte-identical legacy default) -> the ORIGINAL live
+        day_trades_used_5d + equity fetch via pdt_tracker.fetch_day_trades_detail (the
+        HONEST-UNKNOWN variant), UNCHANGED. Still correct for any account pinned to
+        margin_pdt (the fleet arms -- fleet_executor.py#finalize).
 
     Returns (problems, pdt_summary):
-      problems    -- ONLY non-empty when an account IS currently PDT-blocked
-                     (day_trades_used_5d >= limit AND equity < the $25K threshold, or
-                     equity unreadable -- conservative). DEGRADED/YELLOW severity (Rule 7
-                     firing correctly is not itself a fault -- the message intentionally
-                     avoids every keyword _problem_is_broken matches on).
+      problems    -- ONLY non-empty when an account IS currently blocked by the mode-
+                     appropriate gate. DEGRADED/YELLOW severity in both modes (a gate
+                     firing correctly is not itself a fault -- neither message matches
+                     _problem_is_broken).
       pdt_summary -- ALWAYS populated per account label ("safe"/"bold"), or an explicit
-                     {"status": "UNKNOWN", "reason": ...} entry on a fetch failure or
-                     missing key -- NEVER a fabricated 0. This is what firm_brief.py's
-                     account section reads (via self-check-last.json's "pdt" key) so the
-                     day-trades-used/remaining/rolloff-date line is populated even when
-                     nothing is wrong.
+                     {"status": "UNKNOWN", ...} entry on a fetch failure or missing
+                     key/params -- NEVER a fabricated 0. Cash-settlement entries carry
+                     "gate_mode": "cash_settlement" so firm_brief.render_pdt_lines (and any
+                     future consumer) can render them distinctly from the margin-PDT shape.
     Fail-open: a missing/unreadable secrets file returns ([], {}) -- never raises into
     the scheduler."""
     out: list = []
@@ -182,9 +315,21 @@ def check_pdt_status(now, *, secrets_path=None, fetch_detail=None, fetch_equity=
     limit, threshold = _pdt_constants()
     fetch_detail = fetch_detail or _default_fetch_pdt_detail
     fetch_equity = fetch_equity or _fetch_account_equity
+    account_params = account_params or _default_account_params
 
     for arm in PDT_ACCOUNTS:
         label = PDT_LABEL[arm]
+        params_for_acct = account_params(label) or {}
+        gate_mode = _pdt_gate_mode(params_for_acct)
+
+        if gate_mode == "cash_settlement":
+            problems_i, entry = check_cash_settlement_status(
+                label, now, params_for_acct, settlement_status=settlement_status)
+            out.extend(problems_i)
+            summary[label] = entry
+            continue
+
+        # ---- legacy margin_pdt path (byte-identical to pre-2026-07-15) ----
         a = accts.get(arm, {})
         key = a.get("api_key") or a.get("ALPACA_API_KEY") or a.get("key", "")
         sec = a.get("secret_key") or a.get("ALPACA_SECRET_KEY") or a.get("secret", "")

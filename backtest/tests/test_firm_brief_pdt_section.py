@@ -113,6 +113,43 @@ def test_missing_account_entry_renders_unknown_not_crash():
 
 # ---- integration: build_brief includes the section ----
 
+# ---- 2026-07-15: cash_settlement entries (self_check.check_cash_settlement_status)
+#      render distinctly from the margin-PDT shape, never a fabricated "None/None" line ----
+
+def test_cash_settlement_ok_renders_entries_and_settled_cash():
+    self_check = {"pdt": {
+        "safe": {"status": "OK", "gate_mode": "cash_settlement", "entries_used_today": 1,
+                 "max_same_day_roundtrips": 5, "settled_cash_remaining": 1497.56,
+                 "sod_settled_cash": 1746.56},
+        "bold": {"status": "OK", "gate_mode": "cash_settlement", "entries_used_today": 0,
+                 "max_same_day_roundtrips": 5, "settled_cash_remaining": 1963.04,
+                 "sod_settled_cash": 1963.04},
+    }}
+    lines = fb.render_pdt_lines(self_check)
+    assert len(lines) == 2
+    safe_line = next(l for l in lines if "core Safe" in l)
+    assert "1/5" in safe_line and "$1,497.56" in safe_line and "$1,746.56" in safe_line
+    assert "cash_settlement" in safe_line
+    assert "None" not in safe_line, "must never print the fabricated None/None margin shape"
+
+
+def test_cash_settlement_blocked_renders_loud():
+    self_check = {"pdt": {
+        "safe": {"status": "BLOCKED", "gate_mode": "cash_settlement", "entries_used_today": 5,
+                 "max_same_day_roundtrips": 5, "settled_cash_remaining": 800.0,
+                 "sod_settled_cash": 1746.56},
+        "bold": {"status": "OK", "gate_mode": "cash_settlement", "entries_used_today": 0,
+                 "max_same_day_roundtrips": 5, "settled_cash_remaining": 1963.04,
+                 "sod_settled_cash": 1963.04},
+    }}
+    lines = fb.render_pdt_lines(self_check)
+    safe_line = next(l for l in lines if "core Safe" in l)
+    assert "SETTLEMENT-BLOCKED" in safe_line
+    assert "5/5" in safe_line
+    bold_line = next(l for l in lines if "core Bold" in l)
+    assert "BLOCKED" not in bold_line
+
+
 def test_build_brief_includes_pdt_section_header_and_lines():
     import datetime as dt
     self_check = {"verdict": "GREEN", "problems": [], "ts_et": "2026-07-14T11:00:00",

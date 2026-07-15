@@ -251,13 +251,22 @@ def render_health(self_check: dict) -> "tuple[str, str]":
 
 
 def render_pdt_lines(self_check: dict) -> list[str]:
-    """PURE: render the per-account PDT (Rule 7) day-trades-used/remaining/rolloff-date
-    line(s) from self_check's cached 'pdt' summary (self-check-last.json's "pdt" key,
-    written by self_check.check_pdt_status every ~30 min, 2026-07-14). The 2026-07-13
-    scar (core Safe silently PDT-blocked ALL DAY on a day-trade count it INHERITED from
-    an account repoint [commit 61cfca0], found by a manual review, not an instrument --
+    """PURE: render the per-account PDT/settlement (Rule 7) status line(s) from
+    self_check's cached 'pdt' summary (self-check-last.json's "pdt" key, written by
+    self_check.check_pdt_status every ~30 min, 2026-07-14). The 2026-07-13 scar (core
+    Safe silently PDT-blocked ALL DAY on a day-trade count it INHERITED from an account
+    repoint [commit 61cfca0], found by a manual review, not an instrument --
     analysis/daily-brief/2026-07-13-FULL-AUDIT.md #2) is why this exists: a BLOCKED
     account renders LOUD here, it never quietly blends into an otherwise-green brief.
+
+    2026-07-15: check_pdt_status now branches per account on params.pdt_gate_mode --
+    "cash_settlement" entries (both core accounts, params.json) carry
+    "gate_mode": "cash_settlement" and a settlement-ledger shape (entries_used_today /
+    max_same_day_roundtrips / settled_cash_remaining / sod_settled_cash) instead of the
+    margin-PDT shape (day_trades_used_5d / limit / remaining / rolloff_date) -- rendered
+    distinctly below so a cash account never prints a fabricated "None/None day-trades
+    used" line. margin_pdt entries (fleet arms, or a reverted account) render exactly as
+    before -- zero change to that branch.
 
     Missing/empty data (self_check hasn't reported PDT status yet, or the fetch failed
     for an account) renders an honest UNKNOWN line -- NEVER fabricates a count (OP-33).
@@ -275,6 +284,21 @@ def render_pdt_lines(self_check: dict) -> list[str]:
         status = a.get("status")
         if status == "UNKNOWN":
             lines.append(f"- {name}: UNKNOWN ({a.get('reason', 'fetch failed')}).")
+            continue
+        if a.get("gate_mode") == "cash_settlement":
+            entries = a.get("entries_used_today")
+            cap = a.get("max_same_day_roundtrips")
+            remaining = a.get("settled_cash_remaining")
+            sod = a.get("sod_settled_cash")
+            remaining_s = f"${remaining:,.2f}" if remaining is not None else "?"
+            sod_s = f"${sod:,.2f}" if sod is not None else "?"
+            if status == "BLOCKED":
+                lines.append(f"- {name}: SETTLEMENT-BLOCKED (cash_settlement) -- {entries}/{cap} "
+                             f"same-day entries used, {remaining_s} settled cash remaining of "
+                             f"{sod_s} SOD.")
+            else:
+                lines.append(f"- {name}: {entries}/{cap} same-day entries used (cash_settlement), "
+                             f"{remaining_s} settled cash remaining of {sod_s} SOD.")
             continue
         used = a.get("day_trades_used_5d")
         limit = a.get("limit")
