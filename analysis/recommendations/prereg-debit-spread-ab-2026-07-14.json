@@ -1,0 +1,139 @@
+{
+  "_doc": "PRE-REGISTERED cohort/method/pass-bar for EDGE-2-DEBIT-SPREAD-AB, the single highest-leverage experiment named in markdown/research/EDGE-DEEP-RESEARCH-SYNTHESIS-2026-07-14.md. FROZEN BEFORE any replay is run -- exploratory != confirmatory, no re-picks after seeing results, a KILL is a publishable, valid outcome. Runner: backtest/tools/debit_spread_ab_study.py. Read-only against production: no orders, no params/config changes.",
+  "study": "debit_spread_ab",
+  "version": 1,
+  "status": "FROZEN_PENDING_RUN",
+  "frozen_at": "2026-07-14",
+  "cost": "$0 -- all option bars read from the local OPRA cache (backtest/data/options/*.csv, no network), pure Python replay.",
+
+  "hypothesis": {
+    "under_test": "Selling back part of the overpriced 0DTE single-leg debit via a vertical DEBIT spread (long ATM + short 1 or 2 strikes further OTM, same side) improves per-episode expectancy and/or friction-adjusted outcomes vs the current naked single-leg, on the SAME validated ribbon_ride signal cohort and the SAME live exit-management posture.",
+    "competing_hypothesis_named_in_synthesis": "The short leg doubles the bid-ask spreads crossed (2 legs x open+close vs 1) and the commission legs, so friction may eat the VRP benefit the short leg is meant to capture. KILL is the explicitly anticipated valid outcome if friction dominates.",
+    "source": "markdown/research/EDGE-DEEP-RESEARCH-SYNTHESIS-2026-07-14.md, ranked item #2."
+  },
+
+  "population": {
+    "primary": {
+      "source": "backtest/tools/_signal_cache.py:load_or_build_signals()",
+      "cache_file": "analysis/exit-parity/signal-set.json",
+      "definition": "The canonical ribbon_ride signal set: ONE full-window run_backtest (L2 gate, both directions, real-fills mode, cap OFF) over 2025-01-01..2026-06-18. Strike-independent entry events (date, entry_ts, side, entry_spot, setup, direction). Reused unmodified from disk -- NOT rebuilt (force=False) so this study inherits the exact same 250-signal population every T3/T4/T5 study in this repo uses, avoiding population drift.",
+      "n_frozen": 250,
+      "by_direction_frozen": {"bear": 191, "bull": 59},
+      "window": "2025-01-01..2026-06-18",
+      "excludes": "BS_FALLBACK fills (C1: real OPRA only, already excluded at cache-build time)."
+    },
+    "corroboration": {
+      "source": "automation/state/fills-ledger.jsonl",
+      "filter": "attribution == 'engine' AND is_option == true AND is_crypto == false, ALL arms (no fleet-arm restriction -- broader than exit_shape_parity_study's FLEET_REST_ARMS scope, per this mission's 'our ~110 real-fill episodes' framing).",
+      "method": "backtest/tools/exit_shape_parity_study.py:reconstruct_positions() applied to the unfiltered-by-arm fill set.",
+      "n_frozen_at_freeze_time": 110,
+      "role": "SECONDARY / DISCLOSURE ONLY -- corroborates the primary cohort's verdict directionally (same sign?) but does NOT gate the pass/fail bar on its own (small-n, mixed strike tiers across arms, some pre-dating v15.3). Reported alongside, never silently dropped.",
+      "caveat": "These are REAL historical single-leg fills at whatever strike/qty each arm actually used -- this study does NOT re-execute them as spreads live; it replays the SAME (date, side) episodes' underlying OPRA bars through the identical ATM-long-leg convention as the primary cohort, for a like-for-like structural comparison, not a literal re-simulation of the historical fill."
+    }
+  },
+
+  "structure_definition": {
+    "long_leg": {
+      "rule": "ATM: strike = round(entry_spot), same side as the signal (C for bull, P for bear).",
+      "rationale": "CLAUDE.md 'live truth (fills-verified 2026-07-11): core Safe trades ATM' via crypto/lib/strike_selection.py#V15_SAFE_TIERS -- this is the CURRENT LIVE tier, not the vestigial params.json ladder. Both the naked control and every spread variant use the IDENTICAL long leg, so the arms differ ONLY in whether a short leg is added -- the structural change under test, isolated from any strike-selection confound."
+    },
+    "short_leg_variants": {
+      "OTM-1": {"width": 1, "rule": "1 whole-dollar strike further OTM than the long leg, same side."},
+      "OTM-2": {"width": 2, "rule": "2 whole-dollar strikes further OTM than the long leg, same side."},
+      "note": "ONLY these two variants -- no wider grid, per the mission scope. Both strikes are inside the verified ~$10-wide (+/-$5) cached OPRA band (backtest/lib/multileg_structures.py band_strikes/legs_in_band), so no new data fetch is required."
+    },
+    "leg_builder": "backtest/lib/simulator_debit.py:build_debit_vertical(spot, side, near_offset=0, width=W) -- reused unmodified. Returns [Leg(long,+1), Leg(short,-1)].",
+    "control": "naked single-leg = the long leg alone, no short leg. This is the current production structure."
+  },
+
+  "pricing_and_fills": {
+    "bars": "5-min OPRA bars via backtest/lib/option_pricing_real.py:load_contract_bars(option_symbol(date,strike,side)) -- local CSV cache only, $0, no synthesized/Black-Scholes prices (C1).",
+    "entry_bar_convention": "First bar with timestamp_et >= the signal's entry_ts (bar-0's own OPEN is the entry fill) -- the SAME fill-bar-INCLUDED convention backtest/tools/t4_exit_matrix.py uses and backtest/tests/test_fill_bar_convention.py guards. Disclosed, not silently different from the T4/T5 lineage this study extends.",
+    "haircut_convention": {
+      "source": "backtest/lib/simulator_credit.py DEFAULT_ENTRY_SLIPPAGE=0.02, DEFAULT_EXIT_SLIPPAGE=0.02, DEFAULT_COMMISSION=0.65/contract/side -- byte-for-byte the same defaults simulator_real.py uses. This IS 'the standard haircut convention' named in the mission.",
+      "long_leg_entry_fill": "bar0.open + ENTRY_SLIPPAGE (buy-to-open pays the ask).",
+      "short_leg_entry_fill": "bar0.open - ENTRY_SLIPPAGE (sell-to-open receives the bid).",
+      "naked_entry_premium": "long_entry_fill.",
+      "spread_net_entry_premium": "long_entry_fill - short_entry_fill (POSITIVE = debit paid).",
+      "intrabar_premium_path_fed_to_exit_manager": "RAW bar highs/lows, no per-bar slippage (matches every prior T3/T4/exit_shape_parity_study convention). naked: best=long.high, worst=long.low. spread (simulator_debit's own intrabar-worst/best convention): best_net = long.high - short.low (most favorable), worst_net = long.low - short.high (most adverse).",
+      "closing_fill_haircut": "At every SELL/CLOSE action returned by exit_manager.plan_exit_actions (tp1 / runner_target / premium(catastrophe) stop / trail-or-BE stop / time stop), the fill level = the exit_manager's own target level (entry_premium * (1 +/- pct), identical arithmetic to t4_exit_matrix.replay()) MINUS a closing haircut: naked = 1x EXIT_SLIPPAGE; spread = 2x EXIT_SLIPPAGE (crossing BOTH legs' spreads to close). This is the mechanism that lets the study measure 'friction eats the VRP benefit' directly, per the mission's own framing.",
+      "commission": "DEFAULT_COMMISSION x n_legs x 2 sides (open+close) x qty, FLAT per round-trip regardless of TP1/runner split (matches simulator_debit.py's own commission_total convention). naked = 0.65*1*2*qty; spread = 0.65*2*2*qty."
+    },
+    "qty": 10,
+    "qty_rationale": "Matches backtest/tools/t4_exit_matrix.py's QTY=10 convention for like-for-like expectancy comparison against every prior exit-shape study in this repo. Per-episode expectancy (not edge_capture) is the primary metric (OP-32), so the absolute qty does not bias the verdict."
+  },
+
+  "exit_management": {
+    "engine": "automation/state/fleet/exit_manager.py: ExitState.from_entry() + plan_exit_actions() -- the LITERAL live decision core, unmodified. Applied to naked premium (1 instrument) and to spread NET premium (2-leg combo treated as one synthetic instrument, per pricing_and_fills above) identically -- same shape, same code path, so any expectancy delta is attributable to the STRUCTURE, not the exit rule.",
+    "shape_at_live_scope": {
+      "source": "automation/state/params.json (CLAUDE.md-declared source of truth), read fresh at run time -- NOT a stale hardcoded copy.",
+      "premium_stop_pct": "params.premium_stop_pct (catastrophe cap; live=-0.50 at freeze time)",
+      "tp1_premium_pct": "params.tp1_premium_pct (live=0.50 at freeze time)",
+      "tp1_qty_fraction": "params.tp1_qty_fraction (live=0.8 at freeze time)",
+      "profit_lock_mode": "params.v15_profit_lock_mode (live='fixed' at freeze time -- the v15-prefixed key is the one actually consumed by the research/backtest lineage; the un-prefixed top-level 'profit_lock_mode' key is absent from params.json)",
+      "profit_lock_arm_pct": "params.v15_profit_lock_threshold_pct (live=0.05 at freeze time, matches CLAUDE.md 'arms at +5% favor')",
+      "trail_pct": "params.v15_profit_lock_trail_pct (live=0.125 at freeze time; inert under profit_lock_mode='fixed', carried for parity/disclosure)",
+      "runner_target_pct": "exit_manager.DEFAULT_RUNNER_TARGET_PCT=2.5 (no override key present in params.json; matches CLAUDE.md 'runner target 2.5x')",
+      "time_stop_et": "params.time_stop_et (live='15:40' at freeze time)"
+    },
+    "disclosed_gap": "structure_stop_enabled=True live (chart-stop-primary, v15.3 doctrine) is NOT modeled in this premium-only replay -- reconstructing the live 5m-SPY-ribbon/chart-level state is out of scope for a 2-leg premium walk, the SAME disclosed simplification every T3/T4/T5/exit_shape_parity_study in this repo makes. In this replay, a position with stop_mode='structure' at from_entry collapses to its catastrophe-cap fallback (-50%) because structure_stop_enabled is passed False to ExitState.from_entry -- i.e. this study exercises the PREMIUM/TIME components of the live shape only (TP1, runner profit-lock, catastrophe stop, time stop), never the chart-stop leg. Disclosed, not silently dropped."
+  },
+
+  "metrics": {
+    "per_episode": ["realized_pnl_usd (qty 10, net of the haircut convention above)", "win (pnl>0)",
+                    "friction_usd (entry+exit slippage $ + commission $)",
+                    "friction_pct_of_premium (friction_usd / (entry_premium_per_share*100*qty))",
+                    "theta_bleed_proxy (time-stop-exit episodes ONLY: (entry_premium - exit_net_mark)/entry_premium; None for episodes that exit via TP1/runner-target/stop)"],
+    "aggregate": ["n", "total_pnl", "expectancy ($/episode)", "win_rate",
+                  "IS/OOS split (OOS_BOUNDARY=2026-01-01, autoresearch.strategy_space_grind.OOS_BOUNDARY, reused unmodified)",
+                  "WF = oos_mean/is_mean (None + fails the gate when is_mean<=0, matches t4_exit_matrix convention)",
+                  "quarter-level positive-quarter-fraction (qpf, same definition as t4_exit_matrix.battery())",
+                  "drop-top-3 expectancy (outlier-concentration guard)",
+                  "mean friction_pct_of_premium", "mean theta_bleed_proxy (where defined)"]
+  },
+
+  "nulls": {
+    "baseline_null": "The naked control IS the baseline -- every variant is reported and gated as a PAIRED delta vs the naked control on the SAME signal (same date/entry_ts/side/long-leg), never in isolation.",
+    "shuffle_null": {
+      "method": "Sign-flip (Fisher) permutation test on the paired per-episode differences d_i = spread_pnl_i - naked_pnl_i. For each of N=5000 permutations, independently flip the sign of each d_i with p=0.5, recompute the mean; two-sided p_null = fraction of permuted means whose |mean| >= |observed mean(d_i)|.",
+      "n_permutations": 5000,
+      "seed": 1729,
+      "applies_to": "Each of the 2 variants (OTM-1, OTM-2) independently, on the primary cohort."
+    },
+    "multiple_comparisons": {
+      "method": "backtest/autoresearch/ribbon_rejection_wick_battery.py:bh_fdr() + FDR_ALPHA=0.10, reused unchanged (the canonical battery's own BH-FDR, per OP-32 'never hand-pick the metric').",
+      "n_comparisons": 2,
+      "note": "Applied to the 2 variants' p_null values from the shuffle null above."
+    }
+  },
+
+  "anchor_check_op16": {
+    "non_negotiable": true,
+    "statement": "Replay the OP-16 J-source-of-truth WINNER anchor days (autoresearch.strategy_space_grind.J_WINNERS: 2026-04-29 SPY 710P, 2026-05-01 SPY 721P, 2026-05-04 SPY 721P -- all ride-the-ribbon bear winners) as BOTH the naked ATM control AND each spread variant, same exit shape as the main study.",
+    "signal_match_method": "Match each J_WINNERS (date, side='P') to the primary cohort's ribbon_ride signal(s) on that exact date via analysis/exit-parity/signal-set.json (NOT J's literal historical strike/qty -- this study's ATM-long-leg convention is a consistent redefinition applied uniformly across the whole population, so the anchor check uses the SAME convention for an apples-to-apples test of 'does adding a short leg cap this ride'). All matching signals on a date are summed (2026-05-04 has 2 ribbon_ride signals in the cache; both included).",
+    "confirmed_at_freeze_time": "All 3 J_WINNERS dates have >=1 matching signal in the frozen 250-signal cohort (2026-04-29: 1, 2026-05-01: 1, 2026-05-04: 2).",
+    "materiality_threshold": "ANCHOR REGRESSION (= automatic FAIL for that variant, overriding aggregate results) iff: sum over the 3 anchor days of (naked_total_pnl - spread_variant_total_pnl) > 0 AND that shortfall exceeds 20% of the naked ATM convention's total pnl across the 3 anchor days. Stated in advance, not derived post-hoc.",
+    "rationale": "CLAUDE.md OP-16: 'the validated edge is J's edge' -- a structure change that caps the SAME winning days' payoff without evidence it pays elsewhere is a regression on the source of truth, full stop, regardless of what the broader population's expectancy says."
+  },
+
+  "pass_bar": {
+    "statement": "A variant (OTM-1 or OTM-2) is a candidate PASS (report as VALIDATED, still requires J-visible REVOKE window per standing doctrine -- this study does not auto-ship) only if ALL of the following hold. ANY failing = KILL for that variant; a KILL is a valid, publishable, fully-expected-per-hypothesis outcome.",
+    "conditions": [
+      "1. anchor_check_op16: NOT an anchor regression (see materiality_threshold above) -- checked FIRST, overrides everything else.",
+      "2. bh_fdr_survivor == true at alpha=0.10 (the variant's shuffle-null delta vs naked control is not attributable to chance after multiple-comparison correction).",
+      "3. Primary-cohort OOS expectancy > 0 AND WF >= 0.70 (mirrors the standing OP-11 auto-ratify bar).",
+      "4. Sub-window (quarter) stability: qpf >= 0.5 (at least half of calendar quarters in the window are net-positive for the variant).",
+      "5. Corroboration (110 real-fill episodes) does not flip sign vs the primary cohort's verdict (same direction of the naked-vs-spread delta) -- if it disagrees, DISCLOSE prominently but do not treat as an automatic kill given its small-n/mixed-tier caveat (see population.corroboration.role above)."
+    ],
+    "any_condition_1_or_2_or_3_failing": "verdict = KILL for that variant. Report friction_pct_of_premium and theta_bleed_proxy prominently in the KILL writeup -- these are the diagnostic metrics that tell us WHY (friction ate the VRP, or the short leg simply didn't help), per the mission's own framing ('that's exactly what the test decides')."
+  },
+
+  "outputs": {
+    "scorecard_json": "analysis/recommendations/debit-spread-ab.json",
+    "scorecard_md": "analysis/recommendations/debit-spread-ab.md"
+  },
+
+  "rail": "ANALYSIS ONLY. No orders, no params/config changes, read-only on production. Touches NO trading-path file (params.json, heartbeat_core.py, gates.py, strategies.py, exit_manager.py). $0 cost -- local cache only.",
+
+  "content_sha256_16": "a59c62d1860aada7"
+}
