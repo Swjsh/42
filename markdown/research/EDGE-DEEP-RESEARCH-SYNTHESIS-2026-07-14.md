@@ -86,11 +86,26 @@ executable in a cash account today. #1 runs in parallel because it's already bui
 - The falsification battery cited as external is partly OUR OWN repo's futures Phase-1 work —
   independent of tonight's web sweep, but not independent of us. Disclosed.
 
-## Queue (dispatch after usage reset ~23:00 ET / next evening)
+## Queue (dispatched — status as of 2026-07-14 hygiene pass)
 
 - EDGE-1-PASSIVE-LIMIT-GRADUATION (HIGH): TWIN-B3 execution → twin live measurement → SPY A/B.
+  **STATUS: queued** (`automation/overnight/queue.md`, pending).
 - EDGE-2-DEBIT-SPREAD-AB (HIGH): mleg execution lane + frozen pre-reg (spread vs naked on the
   same signal cohort, exit_manager replay + real fills, anchor-regression kill criterion).
+  **STATUS: queued** (pending).
 - EDGE-3-HOLD-POSTURE-PREREG (MED): hold-floor/trail-first posture study under SS-B.
+  **STATUS: queued** (pending).
 - EDGE-KILL-LEDGER: GEX-as-alpha, OFI-intraday, OHLCV-mining formally closed in the
   strategy-space registry (do not re-open without new non-OHLCV data).
+  **STATUS: DONE 2026-07-14** — 5 DEAD closure rows appended to
+  `analysis/backtests/STRATEGY-SPACE-REGISTRY.jsonl` (`gex_dealer_gamma_alpha_family`,
+  `orderflow_imbalance_intraday_family`, `ohlcv_bar_pattern_mining_family`,
+  `post_news_drift_family`, `volume_magnitude_signal_family`), each carrying
+  what / why-killed / evidence-artifact / reopen-condition ("new NON-OHLCV data only").
+  Queue fallout folded the same pass: FUTURES-PHASE1-BATTERY closed as done-kill (stale
+  checkbox — ran 2026-07-09, KILL all seeds), FUTURES-FILLSIM-ARM folded (dependency killed;
+  arming path = mirror-shadow forward evidence), BOLLINGER-MES-SWING-PORT-SPEC
+  closed-superseded (new OHLCV battery on futures = the closed class). FUTURES-MIRROR-SHADOW
+  verified NO-contradiction and stays: it is forward paper evidence of the real engine's
+  decisions (round-trips + expectancy + buy-hold null bar), not bar-pattern mining.
+  TWIN-B7-FREE-MODEL-BENCH untouched (stays).

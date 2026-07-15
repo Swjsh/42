@@ -1,3 +1,29 @@
+## [2026-07-14 ~23:50 ET] HYGIENE+RELEASE — EDGE-KILL-LEDGER closed in the strategy-space registry (5 DEAD family rows) + queue fold + audit-GREEN push [REVOKE-report]
+
+> **Context (`et_clock.py`: `2026-07-14 23:48:22 Tuesday EDT market_hours=False`).** Worker-tier hygiene+release lane (no OPRA, no builds). Three jobs, all done:
+>
+> **1. EDGE-KILL-LEDGER (registry closure):** 5 formal DEAD rows appended to `analysis/backtests/STRATEGY-SPACE-REGISTRY.jsonl` (6067→6072 lines, all 5 verified JSON-parse-clean post-append; schema matched to the `mechanical_external_timing_64families` family-closure precedent; each row carries what / why-killed / evidence-artifact / reopen-condition = "new NON-OHLCV data only"; cross-linked `markdown/research/EDGE-DEEP-RESEARCH-SYNTHESIS-2026-07-14.md`):
+> - `gex_dealer_gamma_alpha_family` — 1,972-day SPY study: no lift after VIX+ATM-IV controls; CBOE de-minimis 0DTE MM flow (~0.2% of liquidity); internal `b4-gamma-wall-interaction.json` INFEASIBLE_NO_HISTORICAL_DATA. gex_context stays calm-regime descriptor only.
+> - `orderflow_imbalance_intraday_family` — properly-lagged OFI OOS R²~3%, Sharpe ~0.12, decays away from HFT horizons.
+> - `ohlcv_bar_pattern_mining_family` — two independent internal batteries (futures Phase-1: 0/12 DOES_NOT_TRANSFER 07-02 + 0/96 KILL-all-seeds 07-09; trendline 12/12 break + 12/12 fade FAIL 07-14) converging with the external 14-family/947-day battery. Closes NEW mining only; validated setups stay live.
+> - `post_news_drift_family` + `volume_magnitude_signal_family` — precise nulls; news stays defense-only (blackout/veto), volume stays confluence-only.
+>
+> **2. Queue fold (`automation/overnight/queue.md`):** EDGE-KILL-LEDGER → done. FUTURES-PHASE1-BATTERY → done-kill (stale checkbox; battery ran 2026-07-09, KILL all 3 seeds, scorecards exist — artifact wins over checkbox). FUTURES-FILLSIM-ARM → done-folded-superseded (dependency KILLed; futures arming path = FUTURES-MIRROR-SHADOW forward evidence, currently 0/20 round trips). BOLLINGER-MES-SWING-PORT-SPEC → closed-superseded (a new OHLCV battery on futures = the registry-closed class; bollinger_squeeze's validated 0DTE lane untouched). **FUTURES-MIRROR-SHADOW verified no-contradiction and STAYS** (forward paper evidence, not OHLCV mining). **TWIN-B7-FREE-MODEL-BENCH untouched (stays).** Synthesis doc's queue section updated with statuses.
+>
+> **3. Release:** `python setup/scripts/github_audit.py` → **"VERDICT: GREEN -- safe to push"** (6936 tracked files, no findings). Push executed after-hours (23:4x ET), pathspec-committed hygiene files only; push confirmation quoted in the session report (HEAD == origin/main verified post-push).
+
+---
+
+## [2026-07-14] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-02..2026-07-08), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-08). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-526.56); Bold_ATM_1+2=YELLOW ($-262.0)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-07-14 ~20:42 ET] D — RULE 7 REWRITE: cash-account settlement gate REPLACES the fictional margin-PDT block that halted core Safe all day — shipped paper-side, proposed Rule 7 rewrite below for J ratification [REVOKE-report + doctrine proposal]
 
 > **Context (`et_clock.py`: `2026-07-14 20:42:18 Tuesday EDT market_hours=False`).** J flagged core Safe blocked all day on `RISK_DENY_PDT` (`circuit-breaker.json day_trades_used_5d: 7`). Verified LIVE (not from memory) before touching anything: both core accounts — Gamma-Safe-2 `PA3DHPT7KIQE` and Gamma-Risky-2 `PA33W2KUAT40` — return `multiplier: "1"`, and Alpaca reports `pattern_day_trader` / `daytrade_count` as **null** on both. That's not missing data — Alpaca returns null there BECAUSE PDT is structurally inapplicable to a cash account. Full research (`markdown/research/CASH-ACCOUNT-DAY-TRADING-REGULATIONS-2026-07-14.md`, all claims sourced live 2026-07-14): FINRA Rule 4210's day-trade-counting PDT framework is, and always was, **margin-account only** — a cash account was never subject to it — and FINRA retired even the margin-account version of it 2026-06-04, replacing it with real-time intraday-margin-deficit monitoring. The constraint that actually binds a CASH account is Good-Faith-Violations (GFV) / freeriding under Reg T: a cash account may re-trade freely on SETTLED funds; funding a new entry from TODAY's still-unsettled closing proceeds (options settle T+1) and closing that new entry the same day is a GFV. `setup/scripts/pdt_tracker.py` had zero representation of settlement at all — it counted trade PAIRS in a rolling window, a completely different mechanism.
@@ -217,16 +243,6 @@
 > **Files:** `setup/scripts/audit_scheduled_tasks.py`, `audit_window_leak_compliance.py`, `_list-gamma-tasks-json.ps1`, `window-leak-detector.py`, `run_cmd_hidden.py`, `gamma_narrative.py`, `twin_gauntlet_conductor_hook.py`, the 17 Class-3 target scripts, `fix-window-leak-task-actions.ps1` (new), `install-window-leak-detector-keepalive.ps1` (new), `fix-venv-pythonw-console-leak.ps1` (new), `run_exe_hidden_exec.vbs` (new, built + tested, not load-bearing for the shipped fix but a genuinely proven alternative launcher kept for future use). `automation/state/SCHEDULED-TASKS.md` (new task documented), `window-leak-compliance-audit.json` / `scheduled-tasks-audit.json` (GREEN / down-to-1-unrelated-flag proof).
 >
 > **Revert:** `git revert` this commit for the code; scheduled-task actions can be restored via `Set-ScheduledTask` back to each task's quoted BEFORE string above (all preserved verbatim in this entry and in `automation/state/window-leak-task-fix-log.json` / `venv-pythonw-console-leak-fix-log.json`).
-
----
-
-## [2026-07-13] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-02..2026-07-08), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-08). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-564.0); Bold_ATM_1+2=YELLOW ($-262.0)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
 
 ---
 
@@ -4100,3 +4116,52 @@ Inbox item `strategy/candidates/_lesson-inbox/2026-07-10-joint-cascade-blindness
 - FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
 - FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:07 ENTER_BEAR ?', '15:08 ENTER_BEAR ?']
 - PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.63 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+- [2026-07-14 18:57:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 79.41% in last 24h (27/34) -- but v15 (3-source) = 97.06% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 61.76% in last 24h (21/34) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-14T21:09:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:02 ENTER_BEAR ?', '15:03 ENTER_BEAR ?', '15:04 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:07 ENTER_BEAR ?', '15:08 ENTER_BEAR ?']
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+- [2026-07-14 19:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 79.41% in last 24h (27/34) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 61.76% in last 24h (21/34) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-14T21:39:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:02 ENTER_BEAR ?', '15:03 ENTER_BEAR ?', '15:04 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:07 ENTER_BEAR ?', '15:08 ENTER_BEAR ?']
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+### DEGRADED: self-check 2026-07-14T22:09:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:02 ENTER_BEAR ?', '15:03 ENTER_BEAR ?', '15:04 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:07 ENTER_BEAR ?', '15:08 ENTER_BEAR ?']
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+- [2026-07-14 20:27:02] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 82.35% in last 24h (28/34) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 61.76% in last 24h (21/34) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-14T22:39:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:02 ENTER_BEAR ?', '15:03 ENTER_BEAR ?', '15:04 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:07 ENTER_BEAR ?', '15:08 ENTER_BEAR ?']
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+### DEGRADED: self-check 2026-07-14T23:09:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:02 ENTER_BEAR ?', '15:03 ENTER_BEAR ?', '15:04 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:07 ENTER_BEAR ?', '15:08 ENTER_BEAR ?']
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+### WARN: spend-summary threshold breach
+- ts: 2026-07-15T03:30:33+00:00
+- date_et: 2026-07-14
+- total: $342.47 (threshold $30.00)
+- claude: $342.43  minimax: $0.04
+- claude_sessions: 17
+
+### DEGRADED: self-check 2026-07-14T23:39:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:02 ENTER_BEAR ?', '15:03 ENTER_BEAR ?', '15:04 ENTER_BEAR ?']
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:07 ENTER_BEAR ?', '15:08 ENTER_BEAR ?']
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-15.
