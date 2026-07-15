@@ -1,3 +1,26 @@
+## MORNING BRIEF 2026-07-15
+
+**Verdict: Safe ✅ trades today, Bold ✅ trades today — both unblocked by the cash-settlement gate. One thing to watch: key-levels.json is stale until 08:30 ET premarket refreshes it (see ⚠️ below).**
+
+| Lane | Verdict | Headline |
+|---|---|---|
+| Rule 7 (PDT→cash-settlement) | ✅ SHIPPED | Both `params.json` confirm `pdt_gate_mode: cash_settlement`; 109/109 pytest green; yesterday's 4 real blocked entries replay to Allow |
+| TWIN-B4 chaos drill | ✅ DONE | 4/4 failure injections recovered for real; `Gamma_TwinChaos` registered (weekly Sun 03:00 ET) |
+| AUDIT-HARNESS-B3 | ⚠️ DONE_WITH_CAVEATS | prospector 31/31 + swarm_consult 5/5 graded — both INSUFFICIENT EVIDENCE (n too small), honestly reported not oversold |
+| crypto-gym v02/v12 | ✅ FIXED | Both were monitoring-layer bugs, not engine bugs; 103/103 validators + 91/91 pytest green |
+| EDGE-2 debit-spread A/B | ❌ KILL | Both OTM-1/OTM-2 variants lose to naked ATM (friction eats the debit-spread edge) |
+| EDGE-3 hold-posture A/B | ❌ KILL | MIN_HOLD_30 clean kill; TRAIL_ONLY_60 near-breakeven but not significant (anchor-day lift real but small-n, flagged for follow-up) |
+| spread_executor.py | 🔧 BUILT, DISARMED | 37/37 tests pass; stays `spread_execution_enabled:false` — its own gating A/B just KILLed |
+| TWIN-B3 entry quality | ✅ LIVE | First real passive fill: +6.13bps vs marketable, 100% fill rate (n=1/20 to graduation); 2 real bugs caught+fixed |
+
+**Tradeability (Rule 7 detail):** Safe (`PA3DHPT7KIQE`) and Bold (`PA33W2KUAT40`) are CASH accounts — PDT never applied. The new `cash_settlement` gate (commit `fd09a78`) replaces the old margin-style day-trade counter that fictionally blocked 4 real Safe entries yesterday. Both accounts reset to full settled cash at ET day-start (both flat overnight) — expect ~2-3 funded round-trips today at current sizing, same as pre-incident normal. Old `day_trades_used_5d` counters (Safe=7) are now vestigial — the settlement ledger governs, not that count.
+
+**Systems:** twin-sentinel GREEN (100% uptime, 0 incidents today), Safe/Bold circuit breakers both untripped and flat, futures shadow n=2/20 round trips (not armable yet, expected), `Gamma_Premarket` NextRunTime 08:30 ET / `Gamma_HeartbeatCore` NextRunTime 09:30 ET (both confirmed via `Get-ScheduledTask`, both last-run exit 0), deterministic premarket fallback (`premarket_deterministic_fallback.py`, commit `79bac4d`) confirmed wired into `run-premarket.ps1`.
+
+**⚠️ key-levels.json is STALE right now** — its `levels` array still holds 3-week-old PMH/PML (06-26/06-29/06-30 dated), even though `as_of`/`for_session` metadata was bumped to 07-15 by an unrelated overnight process. Mechanism: yesterday 14:04 ET, the stash-drop data-loss incident recovery restored an old dormant-writer snapshot of this file, clobbering that same morning's fresh premarket rebuild (today-bias.json's own bias_note documents premarket already self-healing a 2-week-stale key-levels.json once today — same self-heal is expected again tomorrow). Not fixed live tonight (correct level data needs real 04:00+ ET premarket bars, can't be synthesized at 00:48 ET). **Action if it hasn't self-healed by ~08:40 ET:** run `python setup/scripts/premarket_deterministic_fallback.py` manually.
+
+---
+
 ## [2026-07-15 ~00:44 ET] BUILD+LIVE — TWIN-B4: weekly chaos drill + resilience ledger, all 4 injections run FOR REAL against the twin tonight, all recovered [REVOKE-report]
 
 > **Context (`et_clock.py`: `2026-07-15 00:44:09 Wednesday EDT market_hours=False`).** Lane A overnight task: build the weekly failure-injection drill for the CRYPTO TWIN ONLY per queue.md `TWIN-B4-CHAOS-DRILL` / `markdown/planning/TWIN-PROGRAM.md` value stream #4. Crypto twin paper only — zero SPY/fleet/core writes, zero params/config changes.
