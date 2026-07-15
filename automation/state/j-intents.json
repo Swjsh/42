@@ -1,0 +1,4 @@
+{
+  "_doc": "J-INTENT-EXECUTOR store (automation/overnight/queue.md ## J-INTENT-EXECUTOR, built 2026-07-15 after-hours). Claude's ONLY role at trade time: append one intent dict to the 'intents' list below with status='armed' (template: setup/scripts/j_intent_executor.py::arm_intent_example). The resident daemon (Gamma_JIntentExecutor, 09:25 ET weekdays) polls this file every 15s and does everything else deterministically -- zero LLM calls after arming. DEFAULT STATE = EMPTY = the daemon is a pure no-op loop (test_default_empty_intents_is_pure_noop). Schema + full design: automation/overnight/queue.md, setup/scripts/j_intent_logic.py, setup/scripts/j_intent_executor.py module docstrings.",
+  "intents": []
+}
