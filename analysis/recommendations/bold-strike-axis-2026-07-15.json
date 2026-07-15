@@ -1,0 +1,482 @@
+{
+  "_doc": "BOLD-STRIKE-X-FLOOR-COLLISION strike-axis A/B, Gamma-Risky-2's <$2K tier. ANALYSIS ONLY -- no params/config/trading-path file touched, no orders placed, no live tier flip regardless of verdict (see decision_rule.live_flip_deferred in the frozen pre-reg). Source: backtest/tools/bold_strike_axis_ab.py.",
+  "generated_at": "2026-07-15T17:16:03.363825",
+  "smoke_mode": false,
+  "preflight": {
+    "ok": true,
+    "recomputed_sha16": "770439aea2083210",
+    "stored_sha16": "770439aea2083210",
+    "expected_sha16": "770439aea2083210",
+    "version": 1,
+    "status": "FROZEN"
+  },
+  "prereg_path": "analysis/recommendations/prereg-bold-strike-axis-2026-07-15.json",
+  "signal_cohort": {
+    "n_raw": 250,
+    "n_call_bull": 59,
+    "n_put_bear": 191
+  },
+  "method_summary": {
+    "exit_shape": "SS_B_SHAPE (structure_stop_study.py), VERIFIED byte-identical to Bold's live-consumed ribbon_ride exit (strategies.py shared across accounts).",
+    "shape_literal": {
+      "premium_stop_pct": -0.5,
+      "tp1_premium_pct": 1.0,
+      "tp1_qty_fraction": 0.667,
+      "profit_lock_mode": "trailing",
+      "trail_pct": 0.15,
+      "runner_target_pct": 9.9
+    },
+    "structure_stop_chart_layer": true,
+    "time_stop_et": "15:40:00",
+    "min_entry_premium_floor": 0.3,
+    "afternoon_cutoff_et": "12:00:00",
+    "qty": 5,
+    "friction": "ON (lib.simulator_credit haircuts)",
+    "fill_bar_convention": ">  (corrected)",
+    "stage_label_fix": true,
+    "null_seeds": 20,
+    "null_entry_gate_et": [
+      "09:35:00",
+      "15:00:00"
+    ],
+    "bh_fdr_alpha": 0.1
+  },
+  "control": "OTM-3",
+  "cells": {
+    "OTM-3": {
+      "n_no_local_bars": 10,
+      "n_floor_skipped": 140,
+      "n_opportunities": 240,
+      "floor_clearance_rate": 0.4167,
+      "n_floor_skipped_afternoon": 104,
+      "n_afternoon_opportunities": 157,
+      "floor_clearance_rate_afternoon": 0.3376,
+      "n": 100,
+      "total": -1081.5,
+      "expectancy": -10.81,
+      "wr": 0.3,
+      "n_is": 52,
+      "n_oos": 48,
+      "oos_total": -689.8,
+      "oos_expectancy": -14.37,
+      "oos_positive": false,
+      "wf": null,
+      "wf_ge_070": false,
+      "qpf": 0.5,
+      "exp_drop_top3": -32.26,
+      "edge_capture_rel": -149.6,
+      "sub_window_stable": false,
+      "both_halves": {
+        "first": {
+          "n": 50,
+          "total": -86.2
+        },
+        "second": {
+          "n": 50,
+          "total": -995.3
+        }
+      },
+      "p_null": 0.2857,
+      "bh_fdr_survivor": false,
+      "bh_rank": 6
+    },
+    "OTM-2": {
+      "n_no_local_bars": 0,
+      "n_floor_skipped": 93,
+      "n_opportunities": 250,
+      "floor_clearance_rate": 0.628,
+      "n_floor_skipped_afternoon": 77,
+      "n_afternoon_opportunities": 163,
+      "floor_clearance_rate_afternoon": 0.5276,
+      "n": 157,
+      "total": -1376.8,
+      "expectancy": -8.77,
+      "wr": 0.325,
+      "n_is": 88,
+      "n_oos": 69,
+      "oos_total": -210.0,
+      "oos_expectancy": -3.04,
+      "oos_positive": false,
+      "wf": null,
+      "wf_ge_070": false,
+      "qpf": 0.5,
+      "exp_drop_top3": -24.86,
+      "edge_capture_rel": -178.0,
+      "sub_window_stable": false,
+      "both_halves": {
+        "first": {
+          "n": 78,
+          "total": -376.4
+        },
+        "second": {
+          "n": 79,
+          "total": -1000.4
+        }
+      },
+      "p_null": 0.1429,
+      "bh_fdr_survivor": false,
+      "bh_rank": 5
+    },
+    "OTM-1": {
+      "n_no_local_bars": 1,
+      "n_floor_skipped": 48,
+      "n_opportunities": 249,
+      "floor_clearance_rate": 0.8072,
+      "n_floor_skipped_afternoon": 47,
+      "n_afternoon_opportunities": 162,
+      "floor_clearance_rate_afternoon": 0.7099,
+      "n": 201,
+      "total": 80.8,
+      "expectancy": 0.4,
+      "wr": 0.313,
+      "n_is": 120,
+      "n_oos": 81,
+      "oos_total": 1548.4,
+      "oos_expectancy": 19.12,
+      "oos_positive": true,
+      "wf": null,
+      "wf_ge_070": false,
+      "qpf": 0.5,
+      "exp_drop_top3": -14.92,
+      "edge_capture_rel": -30.7,
+      "sub_window_stable": false,
+      "both_halves": {
+        "first": {
+          "n": 100,
+          "total": 882.4
+        },
+        "second": {
+          "n": 101,
+          "total": -801.6
+        }
+      },
+      "p_null": 0.0476,
+      "bh_fdr_survivor": true,
+      "bh_rank": 1
+    },
+    "ATM": {
+      "n_no_local_bars": 6,
+      "n_floor_skipped": 5,
+      "n_opportunities": 244,
+      "floor_clearance_rate": 0.9795,
+      "n_floor_skipped_afternoon": 5,
+      "n_afternoon_opportunities": 160,
+      "floor_clearance_rate_afternoon": 0.9688,
+      "n": 239,
+      "total": 1984.2,
+      "expectancy": 8.3,
+      "wr": 0.335,
+      "n_is": 153,
+      "n_oos": 86,
+      "oos_total": 2474.1,
+      "oos_expectancy": 28.77,
+      "oos_positive": true,
+      "wf": null,
+      "wf_ge_070": false,
+      "qpf": 0.667,
+      "exp_drop_top3": -6.73,
+      "edge_capture_rel": 103.7,
+      "sub_window_stable": true,
+      "both_halves": {
+        "first": {
+          "n": 119,
+          "total": 563.4
+        },
+        "second": {
+          "n": 120,
+          "total": 1420.8
+        }
+      },
+      "p_null": 0.0476,
+      "bh_fdr_survivor": true,
+      "bh_rank": 2
+    },
+    "ITM-1": {
+      "n_no_local_bars": 13,
+      "n_floor_skipped": 0,
+      "n_opportunities": 237,
+      "floor_clearance_rate": 1.0,
+      "n_floor_skipped_afternoon": 0,
+      "n_afternoon_opportunities": 156,
+      "floor_clearance_rate_afternoon": 1.0,
+      "n": 237,
+      "total": 1826.5,
+      "expectancy": 7.71,
+      "wr": 0.346,
+      "n_is": 151,
+      "n_oos": 86,
+      "oos_total": 8125.7,
+      "oos_expectancy": 94.48,
+      "oos_positive": true,
+      "wf": null,
+      "wf_ge_070": false,
+      "qpf": 0.333,
+      "exp_drop_top3": -10.06,
+      "edge_capture_rel": 396.5,
+      "sub_window_stable": false,
+      "both_halves": {
+        "first": {
+          "n": 118,
+          "total": -5066.8
+        },
+        "second": {
+          "n": 119,
+          "total": 6893.3
+        }
+      },
+      "p_null": 0.0952,
+      "bh_fdr_survivor": false,
+      "bh_rank": 4
+    },
+    "ITM-2": {
+      "n_no_local_bars": 19,
+      "n_floor_skipped": 0,
+      "n_opportunities": 231,
+      "floor_clearance_rate": 1.0,
+      "n_floor_skipped_afternoon": 0,
+      "n_afternoon_opportunities": 152,
+      "floor_clearance_rate_afternoon": 1.0,
+      "n": 231,
+      "total": -591.9,
+      "expectancy": -2.56,
+      "wr": 0.372,
+      "n_is": 148,
+      "n_oos": 83,
+      "oos_total": 7141.9,
+      "oos_expectancy": 86.05,
+      "oos_positive": true,
+      "wf": null,
+      "wf_ge_070": false,
+      "qpf": 0.5,
+      "exp_drop_top3": -23.12,
+      "edge_capture_rel": 115.5,
+      "sub_window_stable": false,
+      "both_halves": {
+        "first": {
+          "n": 115,
+          "total": -4621.0
+        },
+        "second": {
+          "n": 116,
+          "total": 4029.1
+        }
+      },
+      "p_null": 0.0476,
+      "bh_fdr_survivor": true,
+      "bh_rank": 3
+    }
+  },
+  "nulls": {
+    "OTM-3": {
+      "seeds": 20,
+      "n_eligible": 22987,
+      "n_drawn": 100,
+      "per_trade_mean": -43.87,
+      "per_trade_max": 52.7
+    },
+    "OTM-2": {
+      "seeds": 20,
+      "n_eligible": 22987,
+      "n_drawn": 157,
+      "per_trade_mean": -40.44,
+      "per_trade_max": 4.31
+    },
+    "OTM-1": {
+      "seeds": 20,
+      "n_eligible": 22987,
+      "n_drawn": 201,
+      "per_trade_mean": -52.35,
+      "per_trade_max": 0.39
+    },
+    "ATM": {
+      "seeds": 20,
+      "n_eligible": 22987,
+      "n_drawn": 239,
+      "per_trade_mean": -61.41,
+      "per_trade_max": -15.9
+    },
+    "ITM-1": {
+      "seeds": 20,
+      "n_eligible": 22987,
+      "n_drawn": 237,
+      "per_trade_mean": -66.46,
+      "per_trade_max": 18.76
+    },
+    "ITM-2": {
+      "seeds": 20,
+      "n_eligible": 22987,
+      "n_drawn": 231,
+      "per_trade_mean": -129.11,
+      "per_trade_max": -30.1
+    }
+  },
+  "gates": {
+    "OTM-3": {
+      "oos_positive": false,
+      "wf_ge_070": false,
+      "sub_window_stable": false,
+      "anchor_no_regression": true,
+      "bh_fdr_survivor": false,
+      "all_5_pass": false
+    },
+    "OTM-2": {
+      "oos_positive": false,
+      "wf_ge_070": false,
+      "sub_window_stable": false,
+      "anchor_no_regression": false,
+      "bh_fdr_survivor": false,
+      "all_5_pass": false
+    },
+    "OTM-1": {
+      "oos_positive": true,
+      "wf_ge_070": false,
+      "sub_window_stable": false,
+      "anchor_no_regression": true,
+      "bh_fdr_survivor": true,
+      "all_5_pass": false
+    },
+    "ATM": {
+      "oos_positive": true,
+      "wf_ge_070": false,
+      "sub_window_stable": true,
+      "anchor_no_regression": true,
+      "bh_fdr_survivor": true,
+      "all_5_pass": false
+    },
+    "ITM-1": {
+      "oos_positive": true,
+      "wf_ge_070": false,
+      "sub_window_stable": false,
+      "anchor_no_regression": true,
+      "bh_fdr_survivor": false,
+      "all_5_pass": false
+    },
+    "ITM-2": {
+      "oos_positive": true,
+      "wf_ge_070": false,
+      "sub_window_stable": false,
+      "anchor_no_regression": true,
+      "bh_fdr_survivor": true,
+      "all_5_pass": false
+    }
+  },
+  "decisions": {
+    "OTM-3": {
+      "label": "OTM-3",
+      "beats_control_oos": false,
+      "can_actually_trade": false,
+      "ship_ready": false,
+      "fails": [
+        "A_does_not_beat_control_oos",
+        "B_gate_fail_oos_positive",
+        "B_gate_fail_wf_ge_070",
+        "B_gate_fail_sub_window_stable",
+        "B_gate_fail_bh_fdr_survivor",
+        "C_floor_clearance_below_70pct_overall_or_afternoon"
+      ]
+    },
+    "OTM-2": {
+      "label": "OTM-2",
+      "beats_control_oos": true,
+      "can_actually_trade": false,
+      "ship_ready": false,
+      "fails": [
+        "B_gate_fail_oos_positive",
+        "B_gate_fail_wf_ge_070",
+        "B_gate_fail_sub_window_stable",
+        "B_gate_fail_anchor_no_regression",
+        "B_gate_fail_bh_fdr_survivor",
+        "C_floor_clearance_below_70pct_overall_or_afternoon"
+      ]
+    },
+    "OTM-1": {
+      "label": "OTM-1",
+      "beats_control_oos": true,
+      "can_actually_trade": true,
+      "ship_ready": false,
+      "fails": [
+        "B_gate_fail_wf_ge_070",
+        "B_gate_fail_sub_window_stable"
+      ]
+    },
+    "ATM": {
+      "label": "ATM",
+      "beats_control_oos": true,
+      "can_actually_trade": true,
+      "ship_ready": false,
+      "fails": [
+        "B_gate_fail_wf_ge_070"
+      ]
+    },
+    "ITM-1": {
+      "label": "ITM-1",
+      "beats_control_oos": true,
+      "can_actually_trade": true,
+      "ship_ready": false,
+      "fails": [
+        "B_gate_fail_wf_ge_070",
+        "B_gate_fail_sub_window_stable",
+        "B_gate_fail_bh_fdr_survivor"
+      ]
+    },
+    "ITM-2": {
+      "label": "ITM-2",
+      "beats_control_oos": true,
+      "can_actually_trade": true,
+      "ship_ready": false,
+      "fails": [
+        "B_gate_fail_wf_ge_070",
+        "B_gate_fail_sub_window_stable"
+      ]
+    }
+  },
+  "verdict": {
+    "any_ship_ready": false,
+    "ship_ready_cells": [],
+    "winner": null,
+    "null_result": true,
+    "control_floor_collision": {
+      "floor_clearance_rate": 0.4167,
+      "floor_clearance_rate_afternoon": 0.3376,
+      "note": "OTM-3's own floor-clearance rate -- the incident this study investigates."
+    }
+  },
+  "disclosures": [
+    "MEASURED (real OPRA local cache), not REALIZED -- scorecard/simulation-replay artifact, no broker fills exist for these strike/floor combinations.",
+    "Signals with no recoverable trigger_level fall back to SS-B's premium-only catastrophe-cap behavior (never dropped for that reason), per structure_stop_study's documented fallback contract -- same convention every study in this lineage uses.",
+    "min_entry_premium floor is checked against the RAW entry-bar OPEN premium (before entry slippage) -- the same fill-price proxy every study in this lineage treats as the plan-time premium; friction is applied only to trades that clear the floor.",
+    "edge_capture_rel (anchor gate) uses the account-agnostic J_WINNERS/J_LOSERS SPY-price-level pattern anchor (t4_exit_matrix.battery) at QTY=5 -- NOT directly comparable to OP-16's $1542 absolute or the Safe studies' QTY=10 figures (disclosed, not conflated); the gate itself (candidate_ecr >= control_ecr) is scale-invariant within this study.",
+    "Random-entry null is SEED-LEVEL (20 seeds, add-one empirical p_null over seed means), drawn from Bold's OWN (09:35,15:00) ET entry gate and routed through the identical shape/time-stop/floor gate as the real cells -- distinct from a generic coin-flip.",
+    "Risk-cap notional clamps (per_trade_risk_cap_pct, daily_loss_kill_switch_pct) are NOT modeled -- same disclosed gap every strike-AB study in this lineage carries.",
+    "ONE process, no multiprocessing.Pool (see prereg method.process_note) -- the in-memory per-symbol OPRA bar cache is process-local; concurrent workers would multiply cache misses, not parallelize usefully, on this data source."
+  ],
+  "runtime_seconds": 76.9,
+
+  "near_miss_diagnostic": {
+    "_doc": "Hand-authored interpretive layer appended AFTER the frozen-pre-reg run completed (same convention as strike-ab-convention-reconciliation.json's followup_2026_07_15 key) -- does NOT alter any gate/cell/decision value above; those are the script's own output, untouched.",
+    "wf_gate_structural_finding": {
+      "observation": "wf (walk-forward ratio) is null for ALL 6 cells, because wf is only defined when the IS-half (2025 calendar year) per-trade mean is POSITIVE (t4_exit_matrix.battery's own convention: `wf = oos_mean/is_mean if is_mean > 0 else None`), and EVERY cell's IS-half mean is negative under Bold's SS-B/honest-friction/floor convention while every cell's OOS-half (2026 YTD) is positive-or-near-zero. The gate is therefore UNREACHABLE by construction for this entire cohort+shape combination -- not a per-cell weakness.",
+      "cross_study_validation": "This is NOT unique to this Bold run: analysis/recommendations/strike-ab-convention-reconciliation.json's job1a_strike_axis_honest_ssb (the SAFE account, same signal cohort, same SS-B shape, same honest-friction convention) shows `\"wf\": null` for ALL 4 of its cells too (OTM-2, OTM-1, ATM, ITM-2). Same convention, same structural gap, independently confirmed on both accounts -- strong evidence this is a property of (this cohort x SS-B x honest friction), not a bug in this script.",
+      "disposition": "NOT patched here -- the frozen pre-reg named wf_ge_070 as gate 2 of 5 with zero post-hoc-adjustment language (kill_criteria discipline: no re-picks after seeing results). Flagging for a FUTURE queue item to reconsider whether wf_ge_070 needs a cohort-aware redefinition (e.g. a floor on n_is, or an alternate stability metric when is_mean<=0) BEFORE it gates any study again -- out of scope to fix retroactively tonight."
+    },
+    "watch_tier_candidate": {
+      "label": "ATM", "so": 0,
+      "why_flagged": "The ONLY cell that is sub_window_stable=true (both chronological halves net-positive: first +$563.4/119tr, second +$1420.8/120tr) AND clears BH-FDR AND clears the anchor AND clears floor >=70% both overall (0.9795) and afternoon (0.9688) AND beats OTM-3 control on OOS expectancy (+$28.77/tr vs -$14.37/tr). Fails ONLY gate 2 (wf_ge_070) -- the gate shown above to be structurally unreachable for this entire cohort, not a signal ATM specifically is unstable. exp_drop_top3=-$6.73/tr (still mildly concentration-dependent -- disclosed, not hidden) is the SMALLEST-magnitude negative among the 4 OOS-positive candidates (OTM-1 -$14.92, ITM-1 -$10.06, ITM-2 -$23.12), i.e. the least outlier-dependent of the group.",
+      "why_not_itm1_or_itm2_despite_higher_oos_expectancy": "ITM-1 (+$94.48/tr OOS) and ITM-2 (+$86.05/tr OOS) both fail sub_window_stable with LARGE swings (ITM-1: -$5066.8 first half / +$6893.3 second half; ITM-2: -$4621.0 / +$4029.1) and both have full-sample expectancy that is barely positive (ITM-1 +$7.71/tr) or negative (ITM-2 -$2.56/tr) -- the eye-catching OOS number in both cases is a small number of concentrated days carrying the whole result (fable-too-good pattern: exp_drop_top3 negative for both). ITM-1 additionally fails BH-FDR (does not survive at alpha=0.10, rank 4/6). Neither is a stronger candidate than ATM once concentration risk is weighed, despite the bigger headline OOS number.",
+      "verdict_label": "WATCH -- NOT ship-ready (fails the pre-registered 5-gate bar, specifically wf_ge_070). This is a near-miss worth a human/Fable look, not a same-night or same-morning auto-ship. Reported per the decision_rule's own null_result_is_valid clause."
+    },
+    "conditional_one_line_diff_if_a_future_decision_waives_or_redefines_the_wf_gate": {
+      "file": "crypto/lib/strike_selection.py",
+      "function": "V15_BOLD_TIERS tuple, first StrikeTier (the $0-$2K tier)",
+      "current_line": "    StrikeTier(0.0,        2_000.0,     -3, \"OTM-3\"),",
+      "proposed_line": "    StrikeTier(0.0,        2_000.0,     0, \"ATM\"),",
+      "effect": "Bold's <$2K tier resolves strike=round(spot) (ATM) instead of round(spot)-3/+3 (OTM-3) for puts/calls respectively -- directly fixes both the floor-collision (ATM floor_clearance_afternoon=0.97 vs OTM-3's 0.34) and the OOS economics (+$28.77/tr vs -$14.37/tr) this study set out to investigate.",
+      "not_applied": "NOT edited in this session -- see verdict_label above. This is the exact diff a future ship decision would apply, drafted now so it does not need to be re-derived."
+    },
+    "guard_test_spec_if_shipped": {
+      "existing_pin_to_update": "crypto/validators/v20_strike_selection.py -- T1_bold_1k_bull_OTM3 (expects strike=743) and T2_bold_1k_bear_OTM3 (expects strike=737) currently PIN the OTM-3 behavior this study is examining. A future ship MUST update these two assertions to strike=740 (ATM) for both sides at Bold $1,000 equity, and update T12's moneyness case list entries `(1_000, \"C\", \"OTM\")` / `(1_000, \"P\", \"OTM\")` to `(1_000, \"C\", \"ATM\")` / `(1_000, \"P\", \"ATM\")` -- otherwise T1/T2/T12 go RED on the flip (expected, vary-and-assert per C14: the pin must track the NEW live behavior, not silently stay green).",
+      "new_guard_recommended": "backtest/tests/test_bold_strike_axis_ab.py -- vary-and-assert: pick_tier(1_500, V15_BOLD_TIERS).strike_offset == 0 and .label == 'ATM' post-flip (currently -3/'OTM-3', RED-proof this test fails pre-flip and passes post-flip); a companion test pins min_entry_premium floor-clearance improves (rerun this script's build_trades() at so=0 vs so=3 on a small fixture slice, assert floor_clearance_rate_afternoon(ATM) > floor_clearance_rate_afternoon(OTM-3)) so a future silent revert of either knob is caught.",
+      "revert_line": "Set crypto/lib/strike_selection.py's V15_BOLD_TIERS first StrikeTier back to `(0.0, 2_000.0, -3, \"OTM-3\")` -- instant de-arm, byte-identical to tonight's live behavior."
+    }
+  }
+}

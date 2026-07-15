@@ -1,6 +1,6 @@
 ## MORNING BRIEF 2026-07-15
 
-**Verdict: Safe ✅ trades today, Bold ✅ trades today — both unblocked by the cash-settlement gate. One thing to watch: key-levels.json is stale until 08:30 ET premarket refreshes it (see ⚠️ below).**
+**Verdict: Safe ✅ trades today, Bold ✅ trades today — both unblocked by the cash-settlement gate. TWO things to know: 📰 PPI prints at 08:30 ET TODAY (the enriched context labels caught it — the engine opens event-aware for the first time), and ⚠️ key-levels.json is stale until the 08:30 premarket refresh (see below).**
 
 | Lane | Verdict | Headline |
 |---|---|---|
@@ -12,14 +12,57 @@
 | EDGE-3 hold-posture A/B | ❌ KILL | MIN_HOLD_30 clean kill; TRAIL_ONLY_60 near-breakeven but not significant (anchor-day lift real but small-n, flagged for follow-up) |
 | spread_executor.py | 🔧 BUILT, DISARMED | 37/37 tests pass; stays `spread_execution_enabled:false` — its own gating A/B just KILLed |
 | TWIN-B3 entry quality | ✅ LIVE | First real passive fill: +6.13bps vs marketable, 100% fill rate (n=1/20 to graduation); 2 real bugs caught+fixed |
-| Strike-AB reconciliation | ✅ ARMING STANDS | ATM is the ONLY strike cell positive under honest friction (+8.83/tr, both-halves stable); relative gap vs OTM-2 WIDENED to 0.52/tr. The -$5.24 "contradiction" was 5 convention differences (81% = an exit-shape swap — follow-up queued: LIVE-SHAPE-VS-CERTIFIED-SSB-DELTA) |
+| Strike-AB reconciliation | ✅ ARMING STANDS | ATM is the ONLY strike cell positive under honest friction (+8.83/tr, both-halves stable); relative gap vs OTM-2 WIDENED to 0.52/tr. The -$5.24 "contradiction" was 5 convention differences (81% = an exit-shape swap — resolved 08:25 ET below, NOTHING SHIPPED) |
+| LIVE-SHAPE-VS-CERTIFIED-SSB-DELTA | ✅ INVESTIGATED, NO CHANGE | Live `ribbon_ride` exit shape (`strategies.py`, commit `933bd65` — the SAME commit certified 2026-07-09) already matches SS_B_SHAPE on every consumed knob (tp1 +100%/sell66.7/trailing15/cat-cap-50/structure-stop/15:40 time-stop). The -$57.81/tr "LIVE" toggle in job1b was a study-constant error (an unrelated disarmed feature's params reader), not a live misconfig — `v15_profit_lock_*` keys have zero consumers on this path. 200/200 baseline tests green, unchanged. Details below. |
 | Day-type gate study | ❌ KILL (wrong direction) | All 3 ex-ante classifiers: TREND bucket WORSE than chop, 0/3 FDR, J-anchor catch below bar — day-type selectivity is not the lever as tested |
+| Bold strike-axis A/B | ⚠️ NULL @ full gate bar, WATCH: ATM | OTM-3 (current tier) floor-collision CONFIRMED at scale (41.7% overall / 33.8% afternoon clearance) + economic loser (-$10.81/tr, OOS -$14.37/tr). ATM near-miss: beats control (+$28.77/tr OOS), clears floor/anchor/BH-FDR/stability, fails only the WF gate — shown structurally unreachable for ALL 6 cells this cohort. One-line diff + guard spec drafted, NOT applied (see below) |
 
 **Tradeability (Rule 7 detail):** Safe (`PA3DHPT7KIQE`) and Bold (`PA33W2KUAT40`) are CASH accounts — PDT never applied. The new `cash_settlement` gate (commit `fd09a78`) replaces the old margin-style day-trade counter that fictionally blocked 4 real Safe entries yesterday. Both accounts reset to full settled cash at ET day-start (both flat overnight) — expect ~2-3 funded round-trips today at current sizing, same as pre-incident normal. Old `day_trades_used_5d` counters (Safe=7) are now vestigial — the settlement ledger governs, not that count.
 
 **Systems:** twin-sentinel GREEN (100% uptime, 0 incidents today), Safe/Bold circuit breakers both untripped and flat, futures shadow n=2/20 round trips (not armable yet, expected), `Gamma_Premarket` NextRunTime 08:30 ET / `Gamma_HeartbeatCore` NextRunTime 09:30 ET (both confirmed via `Get-ScheduledTask`, both last-run exit 0), deterministic premarket fallback (`premarket_deterministic_fallback.py`, commit `79bac4d`) confirmed wired into `run-premarket.ps1`.
 
 **⚠️ key-levels.json is STALE right now** — its `levels` array still holds 3-week-old PMH/PML (06-26/06-29/06-30 dated), even though `as_of`/`for_session` metadata was bumped to 07-15 by an unrelated overnight process. Mechanism: yesterday 14:04 ET, the stash-drop data-loss incident recovery restored an old dormant-writer snapshot of this file, clobbering that same morning's fresh premarket rebuild (today-bias.json's own bias_note documents premarket already self-healing a 2-week-stale key-levels.json once today — same self-heal is expected again tomorrow). Not fixed live tonight (correct level data needs real 04:00+ ET premarket bars, can't be synthesized at 00:48 ET). **Action if it hasn't self-healed by ~08:40 ET:** run `python setup/scripts/premarket_deterministic_fallback.py` manually.
+
+---
+
+## [2026-07-15 08:25 ET] INVESTIGATED, NO CHANGE — LIVE-SHAPE-VS-CERTIFIED-SSB-DELTA: live ribbon_ride shape already equals the certified SS-B constant; the -$57.81/tr "LIVE" cell was a study-constant error
+
+> **Context (`et_clock.py`: `2026-07-15 08:13 Wednesday EDT market_hours=False`).** Queue item (J's morning directive "fix everything you see and whatever will make us profitable today"): does live `params.json` match the SS-B shape certified in `ssb-certification-2026-07-09.json`? The strike-AB reconciliation's job1b gap-bridge attributed -$57.81/tr (81% of the +$66→-$5 cross-study gap) to swapping the study's `SS_B_SHAPE` constant for a "LIVE" params.json read. HARD DEADLINE 09:25 ET — investigation only, no rushed exit-shape edit.
+>
+> **Traced all three truths with file:line evidence** (full 3-way diff table: `analysis/recommendations/strike-ab-convention-reconciliation.md` FOLLOW-UP section + matching JSON key):
+> 1. **Study constant** `SS_B_SHAPE` = `backtest/tools/structure_stop_study.py:110-111` — `{premium_stop_pct:-0.50, tp1_premium_pct:1.0, tp1_qty_fraction:0.667, profit_lock_mode:"trailing", trail_pct:0.15, runner_target_pct:9.9}`.
+> 2. **Certification artifact** `analysis/recommendations/ssb-certification-2026-07-09.json` — certified commit `933bd65`, `structure_stop_enabled:true` both accounts, `time_stop_et:"15:40:00"` explicitly disclosed as the REAL value used (not the 15:50 module default), production `exits[]` reason strings literally read `"tp1 @ +100%"`.
+> 3. **Live-consumed shape** — traced `heartbeat_core.py`'s `_execute` all the way through: for the core `ribbon_ride` strategy (both `BEARISH_REJECTION_RIDE_THE_RIBBON` and `BULLISH_RECLAIM_RIDE_THE_RIBBON`, both accounts — `strategies.py` is explicitly SHARED architecture), the exit shape comes from `strategies.by_name("ribbon_ride").exit.to_dict()` (`heartbeat_core.py:1448-1451`) — a hardcoded literal in `automation/state/fleet/strategies.py:103-105`, shipped by commit `933bd65` — **the exact commit the certification certified, unchanged since** (`git log -p` confirms).
+>
+> **Verdict: every knob `exit_manager.ExitState.from_entry` actually consumes for ribbon_ride already equals the certified constant** — catastrophe cap -50%, TP1 +100%/sell 66.7%, trailing lock 15%, structure-stop primary, `structure_stop_enabled=true`, `time_stop_et=15:40` (matches certified exactly — the queue item's own suspicion that "doctrine says 15:50" was wrong; v15.3 CHART-STOP-PRIMARY intentionally set 15:40, CLAUDE.md says so, certification used exactly that). One literal mismatch found (`runner_target_pct` 99.0 live vs 9.9 study) — not P&L-relevant, both values are unreachable same-day 0DTE multiples (C30 dead-knob doctrine), flagged not fixed.
+>
+> **Root cause of the misleading "LIVE" cell:** `debit_spread_ab_study.py`'s `_live_shape()` (replicated in `strike_ab_convention_reconciliation.py:101-117`) reads top-level `params.json` keys (`v15_profit_lock_mode`, `v15_profit_lock_threshold_pct`, `v15_profit_lock_trail_pct`, `tp1_premium_pct`, `tp1_qty_fraction`) that were built for a DIFFERENT, disarmed feature (`spread_execution_enabled:false`). Grep-confirmed: the three `v15_profit_lock_*` keys have **zero consumers** anywhere on the live order path; `tp1_premium_pct`/`tp1_qty_fraction` are read once (`heartbeat_core.py:1350`) but feed only the **log-only** `plan["tp"]` display field (the pre-existing "OP-33c/STOP-B known-cosmetic-bug" comment already flags this). This is a study-constant error, not a live misconfiguration — the reconciliation's own convention_audit had already flagged the mechanical gap but hadn't traced consumption.
+>
+> **Bold checked separately** per task requirement: `automation/state/aggressive/params.json` — `structure_stop_enabled:true` (line 160), `time_stop_et:"15:40"` (line 32) both match; no `v15_profit_lock_*` keys present (irrelevant, dead everywhere). Same shared-strategies.py conclusion applies: no drift.
+>
+> **NOTHING SHIPPED** — no edits to `params.json`, `aggressive/params.json`, or `strategies.py`. Baseline suite confirmed green, unchanged: `pytest backtest/tests/test_p5_shape_gate.py backtest/tests/test_ssb_certification.py backtest/tests/test_structure_stop_study.py backtest/tests/test_risk_gate.py automation/state/fleet/test_exit_manager.py automation/state/fleet/test_strategies.py` → **200 passed**. Revert line: N/A, no change made. Queue item closed `investigated-no-change`.
+>
+> **Follow-up flagged (not built here, out of scope for a same-day investigation):** `strike_ab_convention_reconciliation.py`'s and `debit_spread_ab_study.py`'s `_live_shape()` readers should import `strategies.RIBBON_RIDE.exit.to_dict()` directly instead of guessing at raw `params.json` keys, so a future "shape_config: LIVE" label is actually true.
+>
+> **Files touched:** `analysis/recommendations/strike-ab-convention-reconciliation.{md,json}` (append-only conclusion), `automation/overnight/queue.md` (item closed), `automation/overnight/STATUS.md` (this entry + brief row).
+
+---
+
+## [2026-07-15 ~19:16 ET] RESEARCH — BOLD-STRIKE-X-FLOOR-COLLISION strike-axis A/B: NULL at full gate bar, ATM flagged WATCH, nothing shipped [REVOKE-report]
+
+> **Context (`et_clock.py`: `2026-07-15 19:04:54 Wednesday EDT market_hours=False`, after-hours block).** Queue item `automation/overnight/queue.md` EOD-2026-07-15 FIXES #1: Bold's <$2K tier (`V15_BOLD_TIERS`, `crypto/lib/strike_selection.py`, strike_offset=-3 "OTM-3") and `min_entry_premium=0.30` (`aggressive/params.json` ENTRY-1) collided at 13:56 ET today — `ENTER_BULL` resolved SPY 757C @ $0.08 → `SKIP_MIN_PREMIUM_FLOOR` x5 straight. Ran the pre-registered Bold-specific strike-axis A/B the queue item called for.
+>
+> **Pre-registered BEFORE any replay** (`analysis/recommendations/prereg-bold-strike-axis-2026-07-15.json`, `content_sha256_16` pinned, committed separately/first — commit `f8cf973`): 6 strike cells {OTM-3 control, OTM-2, OTM-1, ATM, ITM-1, ITM-2}, Bold's own live-consumed exit shape (SS_B_SHAPE, VERIFIED byte-identical to `strategies.py`'s `RIBBON_RIDE.exit` per this morning's 08:25 ET finding above — not re-derived), Bold's real 15:40 time stop (not the 15:50 module default job1a used), Bold's real qty=5 sizing, `min_entry_premium=0.30` applied IN-SIM (a signal whose raw entry premium can't clear 0.30 at that strike does not trade — the collision mechanism itself, modeled not assumed), honest friction, IS/OOS split, and 5 ratification gates (OOS+/WF>=0.70/sub-window-stable/anchor/BH-FDR) + a floor-clearance >=70% (overall AND afternoon) can-actually-trade condition. Runner: `backtest/tools/bold_strike_axis_ab.py` (reuses `strike_ab_convention_reconciliation.replay_generic()` + `ribbon_ride_strike_exit_ab.load_cohort()`/`fetch_entry_and_bars()` unchanged, per OP-22). n=250 signal cohort, one process, 76.9s runtime, $0.
+>
+> **Result: OTM-3's floor-collision is CONFIRMED at scale, not a one-off** — floor_clearance_rate=41.67% overall, **33.76% in the afternoon** (the incident window), and OTM-3 is ALSO an economic loser under Bold's own shape (expectancy -$10.81/tr, OOS -$14.37/tr) — a genuine double-fault exactly as hypothesized.
+>
+> **Verdict: NULL at the full pre-registered 5-gate bar — no cell is SHIP-READY.** Every one of the 6 cells (including the control) fails gate 2 (`wf_ge_070`) — traced this to a **structural, cohort-wide artifact, not a per-cell weakness**: `wf` is only defined when the 2025 IS-half per-trade mean is positive, and EVERY cell's 2025 half is net-negative under SS-B/honest-friction while every cell's 2026 OOS-half is positive-or-near-zero. **Cross-validated against this morning's Safe reconciliation study** — `strike-ab-convention-reconciliation.json`'s `job1a` shows the identical `"wf": null` on all 4 of ITS cells, same cohort, same shape convention, independently on the other account. Not patched retroactively (frozen pre-reg = no post-hoc gate changes); flagged as a future queue item.
+>
+> **ATM flagged WATCH (near-miss, not shipped):** the only cell that is `sub_window_stable=true` AND clears BH-FDR AND the anchor AND floor>=70% both overall (97.95%) and afternoon (96.88%) AND beats OTM-3 on OOS expectancy (+$28.77/tr vs -$14.37/tr) — fails ONLY the structurally-unreachable WF gate. ITM-1 (+$94.48/tr OOS) and ITM-2 (+$86.05/tr OOS) post bigger headline numbers but both fail sub-window-stability with huge swings (ITM-1 first/second half -$5,066.8 → +$6,893.3) and negative `exp_drop_top3` — a small run of concentrated days carrying the whole result, the exact pattern the gate battery exists to catch (ITM-1 also misses BH-FDR). One-line diff drafted in the scorecard's `near_miss_diagnostic` (`crypto/lib/strike_selection.py`'s `V15_BOLD_TIERS` first tier: `-3,"OTM-3"` → `0,"ATM"`) + guard-test spec (update `v20_strike_selection.py` T1/T2/T12) — **NOT applied**, per task instruction: same-night flip of a shared strike table after a -$369 Bold day warrants a J REVOKE window even though OP-11 auto-ratify would otherwise apply.
+>
+> **NOTHING SHIPPED.** No edits to `aggressive/params.json`, `crypto/lib/strike_selection.py`, `strategies.py`, or any trading-path file. Scorecard: `analysis/recommendations/bold-strike-axis-2026-07-15.{json,md}`. Pre-reg committed first (`f8cf973`), study+scorecard committed separately, both pathspec commits.
+>
+> **Files touched:** `analysis/recommendations/prereg-bold-strike-axis-2026-07-15.json` (new, frozen), `backtest/tools/bold_strike_axis_ab.py` (new), `analysis/recommendations/bold-strike-axis-2026-07-15.{json,md}` (new), `automation/overnight/STATUS.md` (this entry + brief row).
 
 ---
 
@@ -1057,7 +1100,7 @@ MECHANISM (flag-gated, default = exactly what ships): (1) `build_shared_signal.p
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 60 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 21 pending, last cook 0 min ago, today $0.00, model=ollama::qwen3:14b
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -4357,3 +4400,127 @@ Zero params/config/trading-path files touched by either job. No orders placed. Q
 
 ### DEGRADED: self-check 2026-07-15T01:09:56
 - PDT-BLOCKED[safe]: 5/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+- [2026-07-14 23:27:02] crypto-harness drift RED :: stage v53_setup_dispatch.live pass rate dropped to 67.5% in last 24h (27/40) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-15 05:57:01] crypto-harness drift RED :: stage v53_setup_dispatch.live pass rate dropped to 67.5% in last 24h (27/40) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-15T08:09:56
+- PDT-BLOCKED[safe]: 5/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+### DEGRADED: self-check 2026-07-15T08:39:56
+- PDT-BLOCKED[safe]: 5/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+### DEGRADED: self-check 2026-07-15T09:09:56
+- PDT-BLOCKED[safe]: 5/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+- [2026-07-15 07:27:01] crypto-harness drift RED :: stage v53_setup_dispatch.live pass rate dropped to 70.0% in last 24h (28/40) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-15T09:39:56
+- BROKER UNREACHABLE: safe-2 TimeoutError (network/timeout -- likely transient).
+- PDT-BLOCKED[safe]: 5/3 day-trades used (rolling 5bd) at equity unknown (assumed < $25K, conservative) -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+- [2026-07-15 07:57:01] crypto-harness drift RED :: stage v53_setup_dispatch.live pass rate dropped to 72.5% in last 24h (29/40) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-15T10:09:56
+- PDT-BLOCKED[safe]: 5/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+- [2026-07-15 08:27:01] crypto-harness drift RED :: stage v53_setup_dispatch.live pass rate dropped to 75.0% in last 24h (30/40) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-15T10:39:56
+- PDT-BLOCKED[safe]: 5/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+- [2026-07-15 08:57:01] crypto-harness drift RED :: stage v53_setup_dispatch.live pass rate dropped to 77.5% in last 24h (31/40) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-15T11:09:56
+- PDT-BLOCKED[safe]: 5/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+- [2026-07-15 09:27:01] crypto-harness drift RED :: stage v53_setup_dispatch.live pass rate dropped to 80.0% in last 24h (32/40) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-15T11:39:56
+- PDT-BLOCKED[safe]: 5/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+- [2026-07-15 09:57:01] crypto-harness drift RED :: stage v53_setup_dispatch.live pass rate dropped to 82.5% in last 24h (33/40) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-15T12:09:56
+- PDT-BLOCKED[safe]: 5/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+- [2026-07-15 10:27:01] crypto-harness drift RED :: stage v53_setup_dispatch.live pass rate dropped to 85.0% in last 24h (34/40) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-15T12:39:56
+- PDT-BLOCKED[safe]: 5/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+- [2026-07-15 10:57:02] crypto-harness drift RED :: stage v53_setup_dispatch.live pass rate dropped to 89.74% in last 24h (35/39) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-15T13:09:57
+- PDT-BLOCKED[safe]: 5/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+- [2026-07-15 11:27:03] crypto-harness drift RED :: stage v53_setup_dispatch.live pass rate dropped to 92.31% in last 24h (36/39) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-15T13:39:56
+- PDT-BLOCKED[safe]: 6/3 day-trades used (rolling 5bd) at equity $1,686.44 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+- [2026-07-15 11:57:03] crypto-harness drift RED :: stage v53_setup_dispatch.live pass rate dropped to 94.87% in last 24h (37/39) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-15T14:09:56
+- PDT-BLOCKED[safe]: 6/3 day-trades used (rolling 5bd) at equity $1,725.38 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+- [2026-07-15 12:27:03] crypto-harness drift GREEN (recovered) :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-15T14:39:56
+- PDT-BLOCKED[safe]: 6/3 day-trades used (rolling 5bd) at equity $1,689.38 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+### DEGRADED: self-check 2026-07-15T15:09:56
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,569.32 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+### DEGRADED: self-check 2026-07-15T15:39:56
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,569.32 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-15T20:00:28+00:00
+- task: eod-summary
+- date_et: 2026-07-15
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-07-15T16:09:56
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,569.32 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+### DEGRADED: self-check 2026-07-15T16:39:56
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,569.32 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-15T20:45:33+00:00
+- task: analyst
+- date_et: 2026-07-15
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-07-15 21:00:03] gym-session (2026-07-15) → **YELLOW** :: see `automation\state\gym-scorecard-2026-07-15.json`
+### DEGRADED: self-check 2026-07-15T17:09:56
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,569.32 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-07-15T21:30:31+00:00
+- task: manager
+- date_et: 2026-07-15
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-07-15T17:39:56
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,569.32 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+- [2026-07-15 15:57:03] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 66.67% in last 24h (26/39) | stage v15_three_source_parity.live pass rate dropped to 94.87% in last 24h (37/39) | v02 source parity drift in 35.19% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-15T18:09:57
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,569.32 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+- [2026-07-15 16:27:03] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 66.67% in last 24h (26/39) | stage v15_three_source_parity.live pass rate dropped to 92.31% in last 24h (36/39) | v02 source parity drift in 37.77% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
+
+### DEGRADED: self-check 2026-07-15T18:39:56
+- PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,569.32 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+- [2026-07-15 16:57:03] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 66.67% in last 24h (26/39) | stage v15_three_source_parity.live pass rate dropped to 89.74% in last 24h (35/39) | v02 source parity drift in 37.77% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
