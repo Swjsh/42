@@ -290,10 +290,15 @@ gets closed automatically; J or a live session can also refresh it any time via 
 Invoke the **`trendline-draw` skill** (`.claude/skills/trendline-draw/SKILL.md`) end to end:
 scoped-clear the engine's own prior lines (via `remove_drawing.js`, never `draw_clear` — that
 would wipe J's manual lines too), detect via
-`.venv/Scripts/python.exe -m autoresearch.trendline_engine --no-log --json` (up to 4 lines: WICK
-and BODY families × support/resistance, never mixed within one line per J's rule), draw each with
-family-labeled color + text, and persist the new entity_ids to
-`automation/state/trendline-draw-state.json` via `setup/scripts/trendline_draw_state.py`.
+`.venv/Scripts/python.exe -m autoresearch.trendline_engine --no-log --json`, then draw **AT MOST
+2 lines: the single best-respected line per SIDE (support + resistance), selected across BOTH
+families by respect_count** — the family (WICK or BODY) stated in the line's label, never mixed
+within one line per J's rule. (Cap added 2026-07-15 after J: "way too many trend lines on the
+screen" — the original 2-families × 2-sides = 4 engine lines plus his own lines plus Step 5's
+horizontal levels was unreadable. Visibility serves J's eye; a cluttered chart defeats the
+purpose. The full 4-line detection still LOGS to trendlines-live.json — only the DRAWING is
+capped.) Persist the new entity_ids to `automation/state/trendline-draw-state.json` via
+`setup/scripts/trendline_draw_state.py`.
 
 If TV is down or the skill fails: log a warning under `## Setups skipped` and continue — this
 step is additive visibility, never load-bearing for the trading day.

@@ -68,7 +68,13 @@ every 5 min); DRAWING is not continuously live without a session open to run it.
    (`a_unix`/`a_price`/`b_unix`/`b_price`), the forward projection (`proj_unix`/`proj_price`),
    `status` (INTACT/TESTING/BROKEN), `respect_count`, and `break_level`.
 
-3. **Assert before drawing -- never render a mixed-anchor line.** For each line, before calling
+3. **DRAW CAP — at most 2 lines on the chart: the single best-respected line per SIDE
+   (support + resistance), selected across BOTH families by `respect_count`.** (J, 2026-07-15:
+   "way too many trend lines on the screen" — the 4-line families×sides draw plus his own lines
+   was unreadable. All 4 detections still LOG; only the DRAW is capped. State the winning
+   line's family in its label.)
+
+4. **Assert before drawing -- never render a mixed-anchor line.** For each line, before calling
    `draw_shape`, sanity-check: `anchor_family` is exactly one of "wick"/"body" (the engine's own
    `_fit` already structurally guarantees this per-line -- see its assert -- this is a cheap
    second layer, not a re-derivation). Never combine two lines' anchors into one shape.
