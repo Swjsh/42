@@ -37,6 +37,7 @@ read-only self-check (mirrors fleet_broker's `python -m crypto_twin_broker`).
 from __future__ import annotations
 
 import json
+import math
 import sys
 import urllib.error
 import urllib.request
@@ -272,7 +273,19 @@ def place_crypto_order(creds: dict[str, str], *, symbol: str = CRYPTO_SYMBOL_DEF
     else:
         if float(qty) <= 0:
             return {"_refused": f"invalid qty {qty}"}
-        order["qty"] = str(round(float(qty), 8))
+        q = float(qty)
+        if side == "sell":
+            # FLOOR, never round(): fee-shaved crypto positions carry sub-8dp balances
+            # (e.g. 0.002396399 BTC after a 0.0024 buy) and round-half-up requests 1e-9
+            # MORE than the broker holds -> Alpaca 403 "insufficient balance" -> the exit
+            # silently fails. Caught LIVE 2026-07-15 03:58 UTC on the twin's first
+            # passive-entry time_stop close (TWIN-B3 ROI ledger: mechanism_bugs_caught).
+            q = math.floor(q * 1e8) / 1e8
+            if q <= 0:
+                return {"_refused": f"qty {qty} floors to 0 at 8dp"}
+        else:
+            q = round(q, 8)
+        order["qty"] = f"{q:.8f}".rstrip("0").rstrip(".")  # never scientific notation
     if order_type == "limit":
         if limit_price is None or float(limit_price) <= 0:
             return {"_refused": "limit order requires a positive limit_price"}

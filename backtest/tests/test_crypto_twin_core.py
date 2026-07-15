@@ -616,6 +616,9 @@ _TWIN_MODULE_FILES = [
                                                                # (path-coverage.json, scenario-
                                                                # state.json, incidents.jsonl) is
                                                                # under cfg.state_dir, same as core.
+    REPO / "setup" / "scripts" / "crypto_twin_entry_quality.py",  # B3 -- entry-quality.json is
+                                                                   # under the state_dir it is
+                                                                   # handed, same as core.
 ]
 
 _WRITE_ATTR_NAMES = {"write_text", "write_bytes", "mkdir"}
@@ -734,6 +737,55 @@ def test_decision_row_is_jsonl_appendable(tmp_path):
     lines = (cfg.state_dir / "decisions.jsonl").read_text(encoding="utf-8").splitlines()
     assert len(lines) == 1
     assert json.loads(lines[0]) == row
+
+
+# ============================================================================
+# Failed-close guards (2026-07-15, caught LIVE on the TWIN-B3 first passive rep:
+# a broker-rejected SELL_ALL -- 403 insufficient balance from the sell-qty
+# round-up bug -- still deleted the position record, orphaning REAL broker
+# holdings with no exit-managed record. C11: broker is the source of truth.)
+# ============================================================================
+def test_manage_positions_failed_sell_all_keeps_position_for_retry(tmp_path, fake_broker, monkeypatch):
+    cfg = _twin_cfg(tmp_path, notional_usd=200.0)
+    fake_broker.position_qty = ctc.entry_qty_btc(cfg)
+    entered = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
+    ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0, trigger_level=None, live=True,
+                    now_utc=entered)
+    pre_state = ctc._load_positions(cfg)["BTC/USD"]["exit_state"]
+    monkeypatch.setattr(ctc.broker, "market_sell_crypto",
+                        lambda creds, *, symbol, qty, live: {"_error": "HTTP Error 403: Forbidden",
+                                                             "_status": 403})
+    fake_broker.quote = (62000.0, 61900.0)  # crosses the -3% premium fallback -> SELL_ALL
+    now = entered + timedelta(minutes=10)
+    results = ctc.manage_positions(cfg, creds=_CREDS, now_utc=now, live=True)
+    assert results[0]["action"] == "CLOSE_FAILED_RETRY"
+    positions = ctc._load_positions(cfg)
+    assert "BTC/USD" in positions  # record KEPT -- broker still holds the position
+    assert positions["BTC/USD"]["exit_state"] == pre_state  # pre-tick state restored
+    journal = [json.loads(l) for l in
+               (cfg.state_dir / "journal.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert any(r["event"] == "CLOSE_FAILED" for r in journal)
+    assert not any(r["event"] == "CLOSED" for r in journal)  # never fakes a CLOSED
+
+    # broker heals -> the next tick re-runs the SAME exit decision and genuinely closes
+    monkeypatch.setattr(ctc.broker, "market_sell_crypto", fake_broker.market_sell_crypto)
+    results2 = ctc.manage_positions(cfg, creds=_CREDS, now_utc=now + timedelta(minutes=5), live=True)
+    assert results2[0]["actions"][0]["kind"] == "SELL_ALL"
+    assert "BTC/USD" not in ctc._load_positions(cfg)
+
+
+def test_manage_positions_failed_max_hold_close_keeps_position_for_retry(tmp_path, fake_broker, monkeypatch):
+    cfg = _twin_cfg(tmp_path, notional_usd=200.0)
+    fake_broker.position_qty = ctc.entry_qty_btc(cfg)
+    entered = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
+    ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0, trigger_level=None, live=True,
+                    now_utc=entered)
+    monkeypatch.setattr(ctc.broker, "close_all_crypto",
+                        lambda creds, *, symbol, live: {"_error": "boom", "_status": 500})
+    now = entered + timedelta(hours=cfg.max_hold_hours + 1)
+    results = ctc.manage_positions(cfg, creds=_CREDS, now_utc=now, live=True)
+    assert results[0]["action"] == "CLOSE_FAILED_RETRY"
+    assert "BTC/USD" in ctc._load_positions(cfg)
 
 
 if __name__ == "__main__":

@@ -48,11 +48,54 @@ the next SPY session). If not accumulating within ~2 weeks, re-examine the progr
 - **B1 (now, Sonnet):** unit-lot mode + scenario scheduler + path-coverage scoreboard state.
 - **B2 (now, Sonnet):** twin gauntlet + conductor hook; attribution + twin-autopsy lane +
   firm-brief scoreboard line.
-- **B3 (queued):** entry_manager live measurement on twin (graduate T-W5).
+- **B3 (SHIPPED 2026-07-15, Fable worker lane):** entry_manager live measurement on twin
+  (graduate T-W5). See "B3 shipped" section below.
 - **B4 (queued):** weekly chaos drill + resilience ledger.
 - **B5 (queued):** pattern-grammar shadow telemetry on twin.
 - **Doctrine:** CLAUDE.md one-liner proposal (propose-only) folding the amended crypto
   boundary + this program's existence; memory entry.
+
+## B3 shipped (2026-07-15) — passive-limit entry LIVE A/B (stream 3, EDGE-1 graduation)
+
+**What runs now:** every LIVE twin entry (organic or scenario-forced) routes through
+`crypto_twin_core.place_entry_ab`, which deterministically ALTERNATES cohorts off
+`automation/state/crypto-twin/entry-quality.json`'s persisted `ab_counter` (even →
+marketable = the pre-B3 market-order path byte-identical; odd → passive = entry_manager's
+T-W5 machinery run live). The passive actuator (`setup/scripts/crypto_twin_entry_quality.py`)
+rests a REAL limit at mid-spread (non-marketable by construction), drives
+`entry_manager.plan_entry_action` as the patience/cancel governor (patience=3 + policy=cancel
+= entry-2's frozen pre-registration, reused verbatim; delta is the one crypto-recalibrated
+knob, computed per-entry so the limit lands mid-spread), keeps the BROKER as fill authority
+(C11), handles the fill-during-cancel race, and flattens partial-fill crumbs (unit-lot
+integrity). Every attempt → entry-quality.json aggregates (fill rate / abandonment /
+time-to-fill / price improvement vs the ask-at-signal baseline, $/BTC + bps) + one
+tier-tagged mechanism-only `ENTRY_QUALITY` journal row. Passive misses surface as
+`PASSIVE_ENTRY_MISSED` (scheduler-compatible: branch simply retried later, never a false
+INCIDENT). Fail-open: any passive-path degradation falls back to the marketable path.
+
+**First live rep (2026-07-15 03:57 UTC, quoted in STATUS.md):** limit BUY 0.0024 BTC @
+$64,764.15 vs quote ask $64,803.88 / bid $64,724.41 — rested 60.7s, FILLED at the limit →
+real improvement **$39.73/BTC = 6.13 bps** vs the marketable baseline. Order id
+`6ca7aa4b-6f2f-4ba2-869d-41339774e471`.
+
+**ROI ledger (mechanism_bugs_caught): the FIRST rep caught 2 real pre-existing bugs:**
+1. **Sell-qty round-up** — `place_crypto_order` `round(qty,8)` requested 1e-9 more BTC than
+   the fee-shaved balance (0.0023964 vs 0.002396399 held) → Alpaca 403 on the SELL_ALL.
+   Fixed: sells FLOOR to 8dp. Guard: `test_sell_qty_floors_never_rounds_up`.
+2. **Failed close deleted the record** — `manage_positions` ran `del positions[symbol]`
+   despite the broker `_error`, orphaning real holdings with no exit-managed record. Fixed:
+   failed SELL_ALL/max-hold closes KEEP the record (pre-tick state restored) and journal
+   `CLOSE_FAILED`; retried next tick. Guards:
+   `test_manage_positions_failed_*_keeps_position_for_retry`.
+
+**GRADUATION BAR FOR SPY (documented, NOT implemented):** ≥ 20 twin passive FILLS accrued
+in entry-quality.json with fill-rate + improvement stats, THEN a frozen SPY A/B
+pre-registration (entry-2's frozen params: delta=0.10, patience=3, policy=cancel) before
+any SPY path change. Twin numbers inform MECHANISM only — never SPY evidence.
+
+**Known boundary (pre-existing, noted not changed):** exit_manager's `time_stop_15:50` means
+any twin position entered 15:50–23:59 ET closes on the next tick via time_stop (graded
+always-acceptable). Entry measurement is unaffected; lifecycle reps skew to 00:00–15:50 ET.
 
 ## B2 interfaces (gauntlet <-> scenario scheduler) -- shared doc comment, 2026-07-11
 

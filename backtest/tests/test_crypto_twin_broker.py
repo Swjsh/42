@@ -49,6 +49,43 @@ def test_get_twin_creds_raises_keyerror_when_no_twin_entry(tmp_path, monkeypatch
         ctb.get_twin_creds()
 
 
+# --- sell-qty FLOOR guard (2026-07-15, TWIN-B3 first passive rep) -------------------------
+# Caught LIVE: a fee-shaved position of 0.002396399 BTC round()ed UP to 0.0023964 on the
+# SELL_ALL -> Alpaca 403 "insufficient balance" -> the exit silently failed. Sells must
+# FLOOR to 8dp (never request more than the broker holds); buys keep plain rounding.
+def test_sell_qty_floors_never_rounds_up(monkeypatch):
+    captured = {}
+
+    def _fake_request(creds, endpoint, method="GET", data=None, timeout=15):
+        captured.update(data or {})
+        return {"id": "x", "status": "accepted"}
+    monkeypatch.setattr(ctb._fb, "_request", _fake_request)
+    res = ctb.place_crypto_order({"key": "K", "secret": "S", "base_url": "u"}, side="sell",
+                                 qty=0.002396399, live=True)
+    assert not res.get("_error")
+    assert captured["qty"] == "0.00239639"  # floored -- NOT "0.0023964"
+
+
+def test_buy_qty_keeps_plain_rounding(monkeypatch):
+    captured = {}
+
+    def _fake_request(creds, endpoint, method="GET", data=None, timeout=15):
+        captured.update(data or {})
+        return {"id": "x", "status": "accepted"}
+    monkeypatch.setattr(ctb._fb, "_request", _fake_request)
+    ctb.place_crypto_order({"key": "K", "secret": "S", "base_url": "u"}, side="buy",
+                           qty=0.0024, live=True)
+    assert captured["qty"] == "0.0024"
+
+
+def test_sell_qty_dust_that_floors_to_zero_is_refused(monkeypatch):
+    monkeypatch.setattr(ctb._fb, "_request",
+                        lambda *a, **k: pytest.fail("must refuse before any request"))
+    res = ctb.place_crypto_order({"key": "K", "secret": "S", "base_url": "u"}, side="sell",
+                                 qty=0.000000001, live=True)
+    assert res.get("_refused")
+
+
 # --- crypto-approval check (2026-07-11, added after confirming via Alpaca's docs +live ----
 # account reads that crypto shares an account's EXISTING approval state -- see
 # https://docs.alpaca.markets/us/docs/crypto-trading-1 -- rather than requiring a dedicated

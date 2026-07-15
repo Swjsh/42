@@ -52,6 +52,15 @@ not an approximation. The old EXIT_UNITS=1000 wide-granularity proxy is retired 
 actually exercised the int-floor arithmetic (1000*0.667 floors with negligible rounding
 loss vs the real 3-contract edge production runs on).
 
+B3 PASSIVE-LIMIT ENTRY A/B (2026-07-14, queue TWIN-B3-ENTRY-MANAGER-LIVE / EDGE-1):
+run_tick's entry placement now routes through place_entry_ab, which deterministically
+alternates LIVE entries between the legacy marketable path (place_entry, byte-identical)
+and entry_manager's (T-W5) passive-limit machinery run live -- real resting limits,
+real cancels, real fill-quality measurement to entry-quality.json. Mechanism-only
+measurement per twin doctrine; full design + graduation bar for SPY in
+crypto_twin_entry_quality.py's module docstring. WATCH mode and every direct
+place_entry caller (twin_gauntlet, tests) are unaffected.
+
 B1b SCENARIO SCHEDULER additions (same date): run_tick gained two additive, backward-
 compatible kwargs -- `trigger_level_offset_pct` (a RELATIVE override so a forced structure-
 stop scenario can plant its trigger_level just above the tick's own just-fetched price
@@ -82,6 +91,7 @@ from __future__ import annotations
 
 import json
 import sys
+import time
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -101,6 +111,7 @@ from crypto.lib.bar_reader import closed_bars_only, last_closed_bar  # noqa: E40
 from crypto.lib.kill_switch import KillSwitchState, initial_state as ks_initial, tick as ks_tick  # noqa: E402
 
 import crypto_twin_broker as broker  # noqa: E402
+import crypto_twin_entry_quality as eq  # noqa: E402  -- TWIN-B3: passive-limit A/B (see place_entry_ab)
 import crypto_twin_levels as tl  # noqa: E402
 import crypto_twin_signal as sig  # noqa: E402
 
@@ -184,6 +195,17 @@ class TwinConfig:
         "profit_lock_arm_pct": 0.005,    # +0.5%
         "runner_target_pct": 0.03,       # +3%
     })
+
+    # TWIN-B3 (2026-07-14, queue TWIN-B3-ENTRY-MANAGER-LIVE / EDGE-1): passive-limit entry
+    # A/B measurement knobs -- see crypto_twin_entry_quality.py's module docstring for the
+    # full mechanism + parameter provenance. patience=3 and policy="cancel" are entry-2's
+    # frozen pre-registration values (entry_manager.py, T-W5) reused verbatim;
+    # poll_seconds is the live poll cadence WITHIN one twin tick (3 polls x 20s ~= 60s
+    # resting window -- mechanism-calibration, injectable to 0 in tests);
+    # limit_fraction=0.5 rests the limit at mid-spread (non-marketable by construction).
+    passive_patience_polls: int = 3
+    passive_poll_seconds: float = 20.0
+    passive_limit_fraction: float = 0.5
 
 
 def _assert_twin_namespace(cfg: TwinConfig) -> None:
@@ -331,7 +353,8 @@ def _decision_row(cfg: TwinConfig, *, now_utc: datetime, armed: bool, price: Opt
                   verdict: sig.TwinVerdict, levels: Optional[tl.TwinLevelSet],
                   risk_decision: Optional[rg.RiskDecision], breaker_state: Optional[KillSwitchState],
                   position_status: str, exit_pass: list, action: str,
-                  scenario: Optional[str] = None) -> dict:
+                  scenario: Optional[str] = None,
+                  entry_mode: Optional[str] = None) -> dict:
     """SAME KEY SET as automation/state/core-decisions.jsonl (ts_et, account, armed, spy,
     ribbon, spread_cents, vix, htf_15m, verdict, side, setup, triggers, reason,
     trigger_level_exact, exit_pass, action) + "twin": true per the task spec, PLUS
@@ -360,6 +383,10 @@ def _decision_row(cfg: TwinConfig, *, now_utc: datetime, armed: bool, price: Opt
     "ENTRY_TP1_TRAIL") tagging this row, or None for an organic tick. `scenario` param
     default None so every pre-B1b caller (i.e. every call site except
     crypto_twin_scenarios.run_scenario_tick) is unaffected.
+
+    B3 ADDITIVE field: "entry_mode" (2026-07-14) -- "passive"/"marketable" when this tick
+    attempted an entry (the A/B cohort, see place_entry_ab), else None. Default None so
+    every pre-B3 caller is unaffected.
     """
     lvl_dict = None
     if levels is not None:
@@ -401,6 +428,7 @@ def _decision_row(cfg: TwinConfig, *, now_utc: datetime, armed: bool, price: Opt
                    if breaker_state is not None else None),
         "position_status": position_status,
         "scenario": scenario,
+        "entry_mode": entry_mode,
     }
 
 
@@ -495,6 +523,15 @@ def manage_positions(cfg: TwinConfig, *, creds: Optional[dict], now_utc: datetim
             continue
         if elapsed_h >= cfg.max_hold_hours:
             res = broker.close_all_crypto(creds, symbol=symbol, live=live)
+            if live and (res.get("_error") or res.get("_refused")):
+                # Same failed-close guard as the SELL_ALL path below: never delete the
+                # record while the broker still holds the position -- retry next tick.
+                results.append({"symbol": symbol, "open_qty": open_qty,
+                                "action": "CLOSE_FAILED_RETRY",
+                                "elapsed_hours": round(elapsed_h, 2), "broker": res})
+                _journal(cfg, "CLOSE_FAILED", symbol=symbol, reason="max_hold_flatten",
+                        elapsed_hours=round(elapsed_h, 2), broker=res, scenario=scenario)
+                continue
             del positions[symbol]
             changed = True
             results.append({"symbol": symbol, "open_qty": open_qty, "action": "MAX_HOLD_FLATTEN",
@@ -514,6 +551,7 @@ def manage_positions(cfg: TwinConfig, *, creds: Optional[dict], now_utc: datetim
         rec["exit_state"] = dec.state.to_dict()
         changed = True
         executed = []
+        close_failed = False
         for a in dec.actions:
             if a.kind in ("SELL_PARTIAL", "SELL_ALL"):
                 if a.kind == "SELL_PARTIAL":
@@ -533,20 +571,40 @@ def manage_positions(cfg: TwinConfig, *, creds: Optional[dict], now_utc: datetim
                     btc_qty = open_qty  # SELL_ALL always sweeps the REAL remaining broker qty
                 res = broker.market_sell_crypto(creds, symbol=symbol, qty=btc_qty, live=live) if live \
                     else {"_skipped": "WATCH"}
+                if a.kind == "SELL_ALL" and live and (res.get("_error") or res.get("_refused")):
+                    # The CLOSE itself failed at the broker. Caught LIVE 2026-07-15 03:58
+                    # UTC (TWIN-B3 first passive rep): the pre-fix code deleted the
+                    # position record anyway, orphaning REAL broker holdings with no
+                    # exit-managed record (C11 violation). Flag it; the record is KEPT
+                    # below (pre-tick state restored) so the next tick retries the exit.
+                    close_failed = True
                 executed.append({"kind": a.kind, "units": units_sold, "btc_qty": btc_qty, "stage": a.stage,
                                  "reason": a.reason, "broker": res})
                 # SELL_ALL genuinely ends this position's lifecycle -> "CLOSED" (not lumped
                 # under "MANAGED"), so a reader scanning journal.jsonl for the full
                 # placed->filled->managed->closed trail finds a real CLOSED row for every
                 # exit path (structure stop / catastrophe cap / runner target / time stop),
-                # not just the max-hold backstop.
-                _journal(cfg, "CLOSED" if a.kind == "SELL_ALL" else "MANAGED", symbol=symbol,
+                # not just the max-hold backstop. A broker-rejected SELL_ALL journals
+                # CLOSE_FAILED instead -- loud, and never fakes a CLOSED that didn't happen.
+                event = ("MANAGED" if a.kind == "SELL_PARTIAL"
+                         else ("CLOSE_FAILED" if close_failed else "CLOSED"))
+                _journal(cfg, event, symbol=symbol,
                         kind=a.kind, units=units_sold, btc_qty=btc_qty, stage=a.stage, reason=a.reason,
                         broker=res, scenario=scenario)
             elif a.kind == "RATCHET_STOP":
                 executed.append({"kind": "RATCHET_STOP", "stage": a.stage,
                                  "new_stop_premium": a.new_stop_premium, "reason": a.reason})
         if dec.closes_position:
+            if close_failed:
+                # Restore the PRE-tick exit state so the whole exit decision re-runs
+                # (and re-sells) cleanly on the next tick -- never delete the record
+                # while the broker still holds the position. (SELL_PARTIAL failure
+                # reconcile is the T-AUDIT-03/F7 class, tracked separately -- this
+                # guards the path that just orphaned real holdings.)
+                rec["exit_state"] = st.to_dict()
+                results.append({"symbol": symbol, "open_qty": open_qty, "action": "CLOSE_FAILED_RETRY",
+                                "actions": executed, "mode": "LIVE" if live else "WATCH"})
+                continue
             del positions[symbol]
         results.append({"symbol": symbol, "open_qty": open_qty, "best": best, "worst": worst,
                         "tp1_filled": dec.state.tp1_filled, "runner_stop": dec.state.runner_stop_premium,
@@ -604,12 +662,157 @@ def place_entry(cfg: TwinConfig, *, creds: dict, side: str, price: float,
     return {"placed": True, "order": order, "fill": fill, "exit_state": st.to_dict()}
 
 
+# --- TWIN-B3: A/B entry dispatcher (passive-limit graduation, EDGE-1) ---------------------
+def _register_passive_position(cfg: TwinConfig, *, res: dict, side: str,
+                               trigger_level: Optional[float], scenario_tag: Optional[str],
+                               ab_index: Optional[int], now: datetime) -> dict:
+    """Mirror of place_entry's post-fill tail for a PASSIVE fill: journal FILLED, build
+    the REAL exit_manager.ExitState off the actual fill price, persist the position."""
+    fill_price = float(res["fill_price"])
+    _journal(cfg, "FILLED", symbol=cfg.symbol, order_id=res.get("order_id"),
+            units=cfg.units_per_entry, scenario=scenario_tag, fill=res.get("fill"),
+            entry_mode="passive", ab_index=ab_index)
+    st = em.ExitState.from_entry(symbol=cfg.symbol, side="C", entry_premium=fill_price,
+                                 qty=cfg.units_per_entry, exit_shape=cfg.exit_shape,
+                                 strategy="crypto_twin", trigger_level=trigger_level,
+                                 structure_stop_enabled=True)
+    positions = _load_positions(cfg)
+    positions[cfg.symbol] = {"exit_state": st.to_dict(), "entered_at_utc": now.isoformat(),
+                             "side": side, "order_id": res.get("order_id"),
+                             "scenario": scenario_tag, "entry_mode": "passive"}
+    _save_positions(cfg, positions)
+    return {"placed": True, "order": res.get("order"), "fill": res.get("fill"),
+            "exit_state": st.to_dict(), "entry_mode": "passive", "ab_index": ab_index}
+
+
+def _journal_entry_quality(cfg: TwinConfig, attempt: Optional[dict]) -> None:
+    """ONE tier-tagged, mechanism-only journal line per completed A/B attempt (twin
+    doctrine: never an edge claim -- these are transaction-mechanics numbers)."""
+    if not attempt:
+        return
+    _journal(cfg, "ENTRY_QUALITY", tier="LIVE", mechanism="entry_quality",
+            **{k: attempt.get(k) for k in (
+                "cohort", "ab_index", "outcome", "scenario", "order_id",
+                "limit_price", "baseline_ask", "baseline_bid", "fill_price",
+                "time_to_fill_sec", "improvement_usd_per_btc", "improvement_bps",
+                "polls_used", "sim_fill_divergence", "race_fill", "fallback_reason")})
+
+
+def place_entry_ab(cfg: TwinConfig, *, creds: dict, side: str, price: float,
+                   trigger_level: Optional[float], live: bool,
+                   now_utc: Optional[datetime] = None,
+                   scenario_tag: Optional[str] = None,
+                   entry_mode_override: Optional[str] = None) -> dict:
+    """TWIN-B3 (EDGE-1 graduation): the A/B entry dispatcher. Alternates every LIVE entry
+    attempt between the legacy MARKETABLE path (place_entry, byte-identical) and the
+    PASSIVE-limit path (crypto_twin_entry_quality.place_passive_entry -- entry_manager's
+    T-W5 machinery run live), deterministically off entry-quality.json's persisted
+    ab_counter (even -> marketable, odd -> passive; tagged per order). Every completed
+    attempt is folded into entry-quality.json + one ENTRY_QUALITY journal row.
+
+    WATCH mode (live=False) routes straight to place_entry WITHOUT burning an A/B index
+    (no real order happens, so counting it would distort alternation).
+
+    `entry_mode_override` ("passive"|"marketable") is VERIFICATION-ONLY (mirrors
+    run_tick's own force_entry flag): forces the cohort without consuming an ab_index --
+    reachable only via run_tick's `--force-entry-mode` CLI flag.
+
+    FAIL-OPEN: any unexpected passive-path exception (or an expected fallback: no quote,
+    order rejected) falls through to the marketable path so the twin still enters; the
+    fallback is recorded under the passive cohort's `fallbacks` counter."""
+    now = now_utc or datetime.now(timezone.utc)
+    if not live:
+        result = place_entry(cfg, creds=creds, side=side, price=price, trigger_level=trigger_level,
+                             live=live, now_utc=now, scenario_tag=scenario_tag)
+        return {**result, "entry_mode": "marketable", "ab_index": None}
+
+    if entry_mode_override in ("passive", "marketable"):
+        cohort, ab_index = entry_mode_override, None
+    else:
+        cohort, ab_index = eq.allocate_cohort(cfg.state_dir)
+
+    fallback_reason: Optional[str] = None
+    if cohort == "passive":
+        try:
+            res = eq.place_passive_entry(
+                creds=creds, symbol=cfg.symbol, qty_btc=entry_qty_btc(cfg),
+                units=cfg.units_per_entry, unit_qty_btc=cfg.unit_qty_btc, side=side,
+                price=price, trigger_level=trigger_level, scenario_tag=scenario_tag,
+                ab_index=ab_index, live=live, patience_polls=cfg.passive_patience_polls,
+                poll_seconds=cfg.passive_poll_seconds, limit_fraction=cfg.passive_limit_fraction,
+                journal=lambda event, **f: _journal(cfg, event, **f))
+        except Exception as e:  # noqa: BLE001 -- fail-open: the twin must still enter
+            res = {"outcome": "fallback", "fallback_reason": f"passive_error:{type(e).__name__}: {e}"}
+        base_attempt = {"cohort": "passive", "ab_index": ab_index, "scenario": scenario_tag,
+                        "signal_price": price, "order_id": res.get("order_id"),
+                        "limit_price": res.get("limit_price"),
+                        "baseline_ask": res.get("baseline_ask"),
+                        "baseline_bid": res.get("baseline_bid"),
+                        "polls_used": res.get("polls_used"),
+                        "sim_fill_divergence": res.get("sim_fill_divergence")}
+        if res["outcome"] == "filled":
+            attempt = eq.record_attempt(cfg.state_dir, {
+                **base_attempt, "outcome": "filled", "fill_price": res["fill_price"],
+                "time_to_fill_sec": res.get("time_to_fill_sec"),
+                "race_fill": res.get("race_fill")},
+                journal=lambda event, **f: _journal(cfg, event, **f))
+            _journal_entry_quality(cfg, attempt)
+            return _register_passive_position(cfg, res=res, side=side, trigger_level=trigger_level,
+                                              scenario_tag=scenario_tag, ab_index=ab_index, now=now)
+        if res["outcome"] == "missed":
+            attempt = eq.record_attempt(cfg.state_dir, {
+                **base_attempt, "outcome": "missed",
+                "time_resting_sec": res.get("time_resting_sec"),
+                "partial_flattened": res.get("partial_flattened")},
+                journal=lambda event, **f: _journal(cfg, event, **f))
+            _journal_entry_quality(cfg, attempt)
+            _journal(cfg, "ENTRY_MISSED", symbol=cfg.symbol, order_id=res.get("order_id"),
+                    entry_mode="passive", ab_index=ab_index, scenario=scenario_tag,
+                    limit_price=res.get("limit_price"), baseline_ask=res.get("baseline_ask"))
+            return {"placed": False, "missed": True, "entry_mode": "passive",
+                    "ab_index": ab_index, "passive": res}
+        # outcome == "fallback" -- record it, then take the marketable path below
+        fallback_reason = res.get("fallback_reason")
+        attempt = eq.record_attempt(cfg.state_dir,
+                                    {**base_attempt, "outcome": "fallback",
+                                     "fallback_reason": fallback_reason},
+                                    journal=lambda event, **f: _journal(cfg, event, **f))
+        _journal_entry_quality(cfg, attempt)
+
+    # MARKETABLE cohort (or passive fallback): the pre-B3 path, plus measurement.
+    baseline_quote = broker.get_crypto_quote_hilo(cfg.symbol, creds=creds)
+    baseline_ask = baseline_quote[0] if baseline_quote else price
+    baseline_bid = baseline_quote[1] if baseline_quote else None
+    t0 = time.monotonic()
+    result = place_entry(cfg, creds=creds, side=side, price=price, trigger_level=trigger_level,
+                         live=live, now_utc=now, scenario_tag=scenario_tag)
+    fill_price = None
+    if result.get("placed"):
+        try:
+            fill_price = float(result.get("fill", {}).get("filled_avg_price") or 0) or None
+        except (TypeError, ValueError):
+            fill_price = None
+    attempt = eq.record_attempt(cfg.state_dir, {
+        "cohort": "marketable", "ab_index": ab_index, "scenario": scenario_tag,
+        "signal_price": price, "baseline_ask": baseline_ask, "baseline_bid": baseline_bid,
+        "outcome": "filled" if result.get("placed") else "failed",
+        "fill_price": fill_price,
+        "time_to_fill_sec": round(time.monotonic() - t0, 3) if result.get("placed") else None,
+        "fallback_from_passive": fallback_reason,
+        "order_id": (result.get("order") or {}).get("id")},
+        journal=lambda event, **f: _journal(cfg, event, **f))
+    _journal_entry_quality(cfg, attempt)
+    return {**result, "entry_mode": "marketable", "ab_index": ab_index,
+            **({"fallback_from_passive": fallback_reason} if fallback_reason else {})}
+
+
 # --- the tick (T1 + T2) -------------------------------------------------------------------
 def run_tick(cfg: TwinConfig = TwinConfig(), *, live: bool = False,
             force_entry: Optional[str] = None, now_utc: Optional[datetime] = None,
             raw_bars: Optional[list[dict]] = None,
             trigger_level_offset_pct: Optional[float] = None,
-            scenario_tag: Optional[str] = None) -> dict:
+            scenario_tag: Optional[str] = None,
+            entry_mode_override: Optional[str] = None) -> dict:
     """ONE full twin tick: SEE -> DECIDE -> gate -> ACT -> manage -> journal -> log.
     Always writes a decisions.jsonl row (mirrors "persist EVERY tick", never conditional
     on ENTER). `force_entry` ("bull"/"bear") is TEST-ONLY: bypasses scoring to exercise
@@ -627,6 +830,12 @@ def run_tick(cfg: TwinConfig = TwinConfig(), *, live: bool = False,
       scenario_tag: threaded into place_entry's journal rows, the persisted position
         record, and this tick's own decision row (see `row_scenario` below) so a scenario
         position's WHOLE lifecycle stays taggable in decisions.jsonl/journal.jsonl.
+
+    B3 addition (2026-07-14) -- defaults None, every pre-B3 caller byte-identical:
+      entry_mode_override: VERIFICATION-ONLY (mirrors force_entry) -- forces the A/B
+        cohort ("passive"|"marketable") without consuming an ab_index. Reachable only
+        via this function's own `--force-entry-mode` CLI flag; production alternation
+        comes from entry-quality.json's persisted counter (see place_entry_ab).
     """
     _assert_twin_namespace(cfg)
     now = now_utc or datetime.now(timezone.utc)
@@ -691,6 +900,7 @@ def run_tick(cfg: TwinConfig = TwinConfig(), *, live: bool = False,
     position_status = "open" if cfg.symbol in positions else "flat"
     risk_decision = None
     action = verdict.verdict if verdict.verdict != "HOLD" else "HOLD"
+    entry_mode: Optional[str] = None
 
     if verdict.verdict.startswith("ENTER") and position_status == "flat":
         risk_decision = _risk_gate_check(cfg, equity=equity, sod_equity=breaker_state.start_of_day_equity,
@@ -704,10 +914,19 @@ def run_tick(cfg: TwinConfig = TwinConfig(), *, live: bool = False,
         elif creds is None:
             action = account_block_reason or "BLOCKED_NO_ACCOUNT"
         else:
-            result = place_entry(cfg, creds=creds, side=verdict.side, price=price,
-                                 trigger_level=verdict.trigger_level_exact, live=live, now_utc=now,
-                                 scenario_tag=scenario_tag)
-            action = "ENTERED" if result.get("placed") else "ENTRY_ATTEMPT_FAILED"
+            result = place_entry_ab(cfg, creds=creds, side=verdict.side, price=price,
+                                    trigger_level=verdict.trigger_level_exact, live=live, now_utc=now,
+                                    scenario_tag=scenario_tag, entry_mode_override=entry_mode_override)
+            entry_mode = result.get("entry_mode")
+            if result.get("placed"):
+                action = "ENTERED"
+            elif result.get("missed"):
+                # TWIN-B3: a passive limit that rested its full patience window and was
+                # cancelled -- a MEASURED abandonment, not a failure. The scenario
+                # scheduler treats it like any non-ENTERED tick (branch retried later).
+                action = "PASSIVE_ENTRY_MISSED"
+            else:
+                action = "ENTRY_ATTEMPT_FAILED"
     elif position_status == "open":
         action = "MANAGED"
 
@@ -718,7 +937,7 @@ def run_tick(cfg: TwinConfig = TwinConfig(), *, live: bool = False,
     row = _decision_row(cfg, now_utc=now, armed=live, price=price, verdict=verdict, levels=levels,
                         risk_decision=risk_decision, breaker_state=breaker_state,
                         position_status=position_status, exit_pass=exit_pass, action=action,
-                        scenario=row_scenario)
+                        scenario=row_scenario, entry_mode=entry_mode)
     log_decision(cfg, row)
     return row
 
@@ -730,11 +949,16 @@ def main(argv: Optional[list[str]] = None) -> int:
     parser.add_argument("--live", action="store_true", help="place real paper orders (default WATCH)")
     parser.add_argument("--force-entry", choices=["bull", "bear"], default=None,
                         help="TEST ONLY: bypass scoring and force an entry verdict")
+    parser.add_argument("--force-entry-mode", choices=["passive", "marketable"], default=None,
+                        help="VERIFICATION ONLY (TWIN-B3): force the A/B entry cohort for this "
+                             "tick without consuming an ab_index (production alternation comes "
+                             "from entry-quality.json's counter)")
     parser.add_argument("--ticks", type=int, default=1, help="number of ticks to run")
     args = parser.parse_args(argv)
 
     for i in range(max(1, args.ticks)):
-        row = run_tick(live=args.live, force_entry=args.force_entry)
+        row = run_tick(live=args.live, force_entry=args.force_entry,
+                      entry_mode_override=args.force_entry_mode)
         print(json.dumps(row, indent=2 if args.ticks == 1 else None))
     return 0
 
