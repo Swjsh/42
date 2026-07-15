@@ -539,6 +539,105 @@ def check_dress_rehearsal(now, path=None) -> list:
     return out
 
 
+# ---- MACRO-CALENDAR FRESHNESS (2026-07-15) ---------------------------------------------
+# The 2026-07-15 scar: Gamma_MacroCalendar (07:45 ET weekdays, setup/scripts/macro_calendar.py)
+# missed its 07-15 fire -- root cause: an overnight Windows-Update reboot chain (3x
+# TrustedInstaller "Operating System: Upgrade (Planned)" restarts, System event log 109/1074,
+# ending 23:32:56 MT on 07-14) left no interactive logon session (this task, like every
+# scheduled task in this repo, runs LogonType=Interactive) through the 05:45 MT/07:45 ET
+# trigger window; corroborated by Gamma_ScoutPremarket (03:30 MT) ALSO showing
+# NumberOfMissedRuns=1 with LastRunTime stuck at 07-14, while every task from 06:00 MT onward
+# (LaunchTV, Premarket, HeartbeatCore) fired normally once the session resumed -- a clean
+# ~05:45-06:00 MT boundary. StartWhenAvailable=True did NOT retroactively catch either missed
+# task up even once the session returned, a known Task Scheduler limitation for
+# LogonType=Interactive tasks. This is UNRELATED to the older (already-fixed 2026-07-09)
+# weekly-review-producer staleness incident referenced in STATUS.md's 2026-07-06/07-08
+# entries (last_refresh frozen at 2026-06-14, 22-24 days stale then) -- that producer was
+# REPLACED by macro_calendar.py + Gamma_MacroCalendar on 2026-07-09, and the new producer's
+# own refresh_log (automation/state/macro-calendar.json) shows clean consecutive weekday
+# fires on 07-10/07-13/07-14 (all data_quality=live_verified) before this ONE isolated miss
+# -- i.e. hours of staleness, not weeks.
+#
+# context_bundle_producer.py already computes this exact staleness (calendar_stale, in its
+# events_context block) but that flag is LOGGED ONLY (bundle note: "not consumed by
+# score/gates") with no STATUS.md/Discord surface of its own -- so a miss like 07-15's could
+# recur silently. This wires the SAME detection into self_check's alert path so it can't rot
+# unnoticed again, regardless of cause (missed fire, dead producer, or a deleted task).
+#
+# _calendar_staleness below is a PURE reimplementation of
+# context_bundle_producer._calendar_staleness -- duplicated (not imported) because
+# context_bundle_producer.py imports pandas at module level for its unrelated trend-alignment
+# work, while self_check.py runs under the SYSTEM pythonw.exe (Gamma_SelfCheck's install
+# script), which has NO pandas (verified 2026-07-15: `pythonw.exe -c "import pandas"` ->
+# ModuleNotFoundError) -- importing context_bundle_producer here would make this check
+# permanently "UNAVAILABLE" in production, which is worse than not having it. The two copies
+# are cross-checked for behavioral parity by
+# test_self_check_macro_calendar_freshness.py::test_matches_context_bundle_producer_calendar_staleness
+# (runs under backtest/.venv, which DOES have pandas) -- any future change to the anchor logic
+# in EITHER file must be mirrored in the other or that test REDs.
+CALENDAR_STALE_SLACK_MIN = 30  # mirrors context_bundle_producer.CALENDAR_STALE_SLACK_MIN
+
+
+def _calendar_staleness(news: "dict | None", *, now_et) -> "tuple[bool, str | None]":
+    """True/reason iff news.json's freshness_stamp is older than the most recent expected
+    Gamma_MacroCalendar fire (weekdays 07:45 ET) minus a slack window. Honest-degraded: a
+    missing/malformed news.json is ALWAYS stale (never silently treated as fresh); a fresh
+    file dated before today's 07:45-ET fire simply hasn't happened yet is NOT flagged stale --
+    the most recent expected fire is the correct anchor, not "today" unconditionally. See the
+    module comment above for why this is a deliberate, tested duplicate of
+    context_bundle_producer._calendar_staleness rather than an import."""
+    if news is None:
+        return True, "news.json missing or malformed"
+    stamp = news.get("freshness_stamp") or news.get("as_of")
+    if not stamp:
+        return True, "news.json has no freshness_stamp/as_of field"
+    try:
+        stamp_dt = dt.datetime.fromisoformat(str(stamp))
+    except ValueError:
+        return True, f"unparseable freshness_stamp: {stamp!r}"
+    if stamp_dt.tzinfo is not None:
+        stamp_dt = stamp_dt.replace(tzinfo=None)  # news.json stamps are naive-ET (et_now().isoformat())
+
+    today_fire = now_et.replace(hour=7, minute=45, second=0, microsecond=0)
+    if now_et.weekday() >= 5:  # "now" itself falls on a weekend -- anchor to last Friday's fire
+        expected = today_fire - dt.timedelta(days=now_et.weekday() - 4)
+    elif now_et < today_fire:
+        # before today's fire -- anchor to the LAST prior weekday's fire (Monday -> Friday)
+        expected = today_fire - dt.timedelta(days=3 if now_et.weekday() == 0 else 1)
+    else:
+        expected = today_fire
+    threshold = expected - dt.timedelta(minutes=CALENDAR_STALE_SLACK_MIN)
+    if stamp_dt < threshold:
+        age_h = (now_et - stamp_dt).total_seconds() / 3600.0
+        return True, (f"freshness_stamp {stamp_dt.isoformat()} predates the expected "
+                       f"{expected.isoformat()} ET fire (~{age_h:.1f}h old)")
+    return False, None
+
+
+def check_macro_calendar_freshness(now, news_path=None) -> list:
+    """VISIBILITY instrument for the macro/event calendar (2026-07-15 fix -- see the module
+    comment above _calendar_staleness for the scar this closes). BROKEN/RED (not DEGRADED,
+    unlike most staleness checks in this file) -- a stale calendar means the engine's
+    no-trade-window coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales print may be silently
+    blind, which is a real trading-relevant gate, not a cosmetic staleness (mirrors
+    check_dress_rehearsal's "(RED)" idiom for the same reason: a premarket-prep gate that may
+    not have run is not provably safe). Fail-open in the sense that a read/parse failure is
+    itself treated as stale (never silently 'probably fine')."""
+    p = news_path or (STATE / "news.json")
+    try:
+        news = json.loads(p.read_text(encoding="utf-8-sig"))
+    except Exception:  # noqa: BLE001
+        news = None
+    stale, reason = _calendar_staleness(news, now_et=now)
+    if not stale:
+        return []
+    return [f"MACRO-CALENDAR STALE (RED): {reason} -- Gamma_MacroCalendar (07:45 ET weekdays) "
+            f"may have missed its fire or the producer is dead; the engine's no-trade-window "
+            f"coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales event may be blind. Re-run "
+            f"setup/scripts/macro_calendar.py by hand, or check "
+            f"`schtasks /query /tn Gamma_MacroCalendar /v`."]
+
+
 def _problem_is_broken(p: str) -> bool:
     """BROKEN (vs DEGRADED) classifier for a problem string. Module-level so the
     graduated guards can assert the mapping (e.g. PLACEMENT BROKEN -> BROKEN)."""
@@ -624,6 +723,12 @@ def run() -> dict:
     # account section; problems only grows on an ACTUAL block (DEGRADED, never BROKEN).
     pdt_problems, pdt_summary = check_pdt_status(now)
     problems.extend(pdt_problems)
+
+    # 12. MACRO-CALENDAR FRESHNESS -- the 2026-07-15 scar: Gamma_MacroCalendar missed its
+    # 07:45 ET fire (overnight reboot ate the interactive-logon session) and nothing surfaced
+    # it to STATUS.md/Discord (context_bundle_producer's calendar_stale flag is LOGGED ONLY).
+    # Standing instrument now, so a future miss (any cause) can't rot silently either.
+    problems.extend(check_macro_calendar_freshness(now))
 
     verdict = "GREEN" if not problems else ("BROKEN" if any(_problem_is_broken(p) for p in problems) else "DEGRADED")
     result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth,
