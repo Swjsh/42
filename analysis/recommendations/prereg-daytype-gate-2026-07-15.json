@@ -1,0 +1,101 @@
+{
+  "_doc": "PRE-REGISTERED classifier/population/method/kill-criteria for the EX-ANTE DAY-TYPE GATE study (JOB2 of the 2026-07-15 strike-AB convention reconciliation + reframe study). FROZEN BEFORE any classification or replay is run -- exploratory != confirmatory, no re-picks after seeing results, a KILL is a publishable, valid outcome. Runner: backtest/tools/daytype_gate_study.py. Read-only against production: no orders, no params/config changes.",
+  "study": "daytype_gate",
+  "version": 1,
+  "status": "FROZEN_PENDING_RUN",
+  "frozen_at": "2026-07-15",
+  "cost": "$0 -- all SPY bars read from the local cache via tw8_level_context.load_spy_full(), all option bars from backtest/data/options/*.csv (no network), pure Python replay.",
+  "hypothesis": {
+    "under_test": "The ribbon_ride cohort's positive expectancy (measured under JOB1's honest, friction-inclusive, SS-B-fixed conventions) concentrates in trading days that are classifiable as TREND days using ONLY information available by 10:30 ET (zero look-ahead into the rest of the session) -- and CHOP days, so classified, are unrescuable (flat-to-negative expectancy regardless of exit-shape or strike tuning).",
+    "why_this_matters": "If true, a day-type gate is a regime lever that sits UPSTREAM of every strike/exit-shape knob this repo has tuned so far (JOB1, the 2026-07-11 friction-budget line, WP5-STRIKE-AB, the P5 exit-shape grind) -- none of those studies conditioned on day type. If a variant clears the frozen pass bar below, the missing lever gets SPECIFIED (not built) for J; a KILL across all 3 variants is equally informative (ex-ante day-typing does not explain this cohort's edge distribution with the classifiers tested here).",
+    "competing_hypothesis": "The cohort's edge concentration (JOB1's top3_day_share / exp_drop_top3 metrics already show meaningful day-level concentration) is driven by unpredictable intraday catalysts (news, gamma unwinds, level breaks) that no 10:30-ET-observable opening-range/RVOL/compression signature can front-run -- in which case all 3 variants KILL and day-level concentration must be treated as CONDITIONAL ON THE TRADE (Rule 1-4 setup discipline), not pre-selectable by day.",
+    "source": "This study's own design, built directly on JOB1's corrected-convention control population per this session's brief."
+  },
+  "population": {
+    "base": {
+      "source": "JOB1's CONTROL_STRIKE (OTM-2) cell from backtest/tools/strike_ab_convention_reconciliation.py, at the SAME honest/corrected replay settings as job1a_strike_axis_honest_ssb: shape_config=SS-B (SS_B_SHAPE, structure-stop chart layer ON), fill-bar convention = corrected (`>`, fill bar excluded from the walk), friction ON (simulator_credit haircuts), stage-label fix ON (empirically a no-op under ARM_SCOPE_POST_TP1, applied for consistency). QTY=10, matching every study in this lineage.",
+      "n_before_time_filter": 250,
+      "n_after_opra_coverage": "== job1a OTM-2 cell's n (250/250 signals have local OTM-2 OPRA coverage per the JOB1 prefetch log)."
+    },
+    "information_time_filter": {
+      "rule": "entry_ts_et >= 10:30:00 -- a trade entering BEFORE the classifier's own information cutoff (10:30 ET) cannot legitimately be gated by a signal that isn't knowable yet at entry time. Every one of the 3 classifier variants below uses ONLY bars with time_et < 10:30:00 (the 09:30..10:25 bars) plus a trailing history of PRIOR days -- never same-day data at or after 10:30.",
+      "disclosure": "This filter excludes any ribbon_ride signal that fires in the first hour of the session -- expected to be a SUBSTANTIAL fraction given the setup's key-level-reaction character (level reclaims/rejections cluster near the open). The excluded count and the retained population's own JOB1-style battery (n/expectancy/wr) are reported in the result BEFORE any day-type split, so the day-type verdict is never confused with a same-day gate on the excluded population."
+    },
+    "day_classifiability_filter": {
+      "rule": "A calendar day is CLASSIFIABLE only if (a) it has full 09:30-10:25 ET bar coverage (all 12 five-minute bars present in the local SPY cache -- 236/365 trading days in the 2025-01-01..2026-06-18 window meet this, confirmed by direct count before this freeze) AND (b) it has >=20 PRIOR classifiable trading days available to compute the trailing-median baseline (excludes the earliest classifiable days of the window, since there is no cache data before 2025-01-01 to pad the baseline).",
+      "unclassifiable_day_treatment": "Episodes whose date is not classifiable are excluded from ALL 3 variants' TREND/CHOP split and reported as a separate 'unclassifiable' bucket with its own battery (disclosure only, not part of the pass/kill test)."
+    }
+  },
+  "classifiers": {
+    "computed_from": "tw8_level_context.load_spy_full() 5-min RTH SPY bars, the SAME source rrse.load_cohort()/JOB1 already loads (no new data source). All classifier logic operates on bars with time_et < 10:30:00 for the CURRENT day, plus trailing-median baselines built ONLY from classifiable PRIOR days (strictly earlier date, chronological order) -- zero look-ahead by construction.",
+    "shared_baseline": "median20_range = median(first_hour_range) and median20_vol = median(first_hour_volume) over the trailing 20 classifiable days strictly before the current day. first_hour_range = max(high) - min(low) over the day's 09:30-10:25 bars (12 bars). first_hour_volume = sum(volume) over the same window. or30_high/or30_low = max(high)/min(low) over ONLY the first 6 bars (09:30-09:55, the initial 30-min opening range). close_at_1030 = the close of the last (10:25) bar in the 60-min window -- the latest price knowable strictly before 10:30:00.",
+    "frozen_thresholds": "k_range=1.20, k_rvol=1.20, k_loc=0.30 -- round, un-tuned numbers chosen before any classification was run against outcomes; not adjusted after seeing results.",
+    "V1_opening_range_extension_and_hold": {
+      "rule": "TREND iff (first_hour_range >= 1.20 * median20_range) AND (close_at_1030 > or30_high OR close_at_1030 < or30_low). CHOP otherwise.",
+      "rationale": "Classic opening-range-breakout logic: the first 60 minutes must show an unusually wide range (expansion vs the trailing 20-day norm) AND price must still be outside the initial 30-min range by 10:30 (a breakout that held for the second half-hour, not one that reverted back inside)."
+    },
+    "V2_first_hour_rvol_and_close_location": {
+      "rule": "TREND iff (first_hour_volume / median20_vol >= 1.20) AND (abs(close_location - 0.5) >= 0.30), where close_location = (close_at_1030 - first_hour_low) / (first_hour_high - first_hour_low) [0.5 if the first-hour range is 0]. CHOP otherwise.",
+      "rationale": "Unusually high early-session participation (RVOL) combined with directional conviction (price pinned near the top or bottom of its own first-hour range rather than sitting mid-range) -- a volume+location signature independent of the pure range-size test in V1/V3."
+    },
+    "V3_compression_ratio_inverted": {
+      "rule": "TREND iff (first_hour_range >= 1.20 * median20_range). CHOP otherwise. (No opening-range-hold confirmation leg -- the pure range-expansion test.)",
+      "rationale": "crypto/lib/chart_patterns.py's inside_bar_consolidation pattern uses compression_ratio = latest_range/ref_range where a LOW ratio signals compression/chop (a coiled-spring precursor). V3 INVERTS that read for the ex-ante day-type question: a HIGH first-hour-range-vs-baseline ratio is treated as the trend signal, with no other condition. V1 is a strict SUPERSET of V3's condition (V1 requires everything V3 requires, plus the OR-hold confirmation) -- a deliberate nesting so V1-vs-V3 isolates whether the hold-confirmation leg adds value beyond pure range expansion, not an independent 3rd guess."
+    }
+  },
+  "replay": {
+    "engine": "backtest/tools/strike_ab_convention_reconciliation.py's replay_generic() / build_trades(), reused unmodified at the job1a_strike_axis_honest_ssb OTM-2 settings (see population.base above). Each retained episode's realized pnl is exactly its JOB1 honest-convention OTM-2 pnl -- this study adds ONLY a day-level TREND/CHOP label per classifier, it does not re-derive or re-tune the exit/strike convention."
+  },
+  "metrics": {
+    "per_bucket": [
+      "n",
+      "total_pnl",
+      "expectancy ($/episode)",
+      "win_rate",
+      "IS/OOS split (OOS_BOUNDARY=2026-01-01, autoresearch.strategy_space_grind.OOS_BOUNDARY, reused unmodified)",
+      "both_halves stability (chronological first/second half both positive)",
+      "exp_drop_top3 (outlier-concentration guard, t4_exit_matrix convention)"
+    ],
+    "buckets_per_variant": [
+      "TREND",
+      "CHOP",
+      "POOLED (both, informational)",
+      "unclassifiable (disclosure only, excluded from the test)"
+    ]
+  },
+  "nulls": {
+    "method": "Day-label shuffle: for each variant, the REAL classifiable-day universe has a fixed count of TREND-labeled days (n_trend_days) out of the total classifiable days with >=1 retained episode. For each of N=2000 permutations, draw a random subset of n_trend_days days (without replacement, uniform) from that same universe, relabel it 'TREND' and the rest 'CHOP', and recompute (shuffled_trend_expectancy - shuffled_chop_expectancy). p_null (one-sided, matching the hypothesis's stated direction) = fraction of the 2000 shuffles whose (trend-chop) delta is >= the REAL classifier's observed (trend-chop) delta, add-one smoothed.",
+    "n_permutations": 2000,
+    "seed": 4242,
+    "applies_to": "Each of the 3 variants (V1, V2, V3) independently."
+  },
+  "multiple_comparisons": {
+    "method": "backtest/autoresearch/ribbon_rejection_wick_battery.py:bh_fdr() + FDR_ALPHA=0.10, reused unchanged (the canonical battery's own BH-FDR, per OP-32 'never hand-pick the metric').",
+    "n_comparisons": 3,
+    "note": "Applied to the 3 variants' p_null values from the shuffle null above."
+  },
+  "j_anchor_cut": {
+    "non_negotiable": true,
+    "statement": "For each of the 3 J_WINNERS ride-the-ribbon days (autoresearch.strategy_space_grind.J_WINNERS: 2026-04-29, 2026-05-01, 2026-05-04), compute each variant's TREND/CHOP label using ONLY that date's own 09:30-10:25 bars plus its trailing-20-classifiable-day baseline (the exact same ex-ante computation as the main population) and report whether the classifier calls it TREND ('caught') or CHOP/unclassifiable ('missed').",
+    "catch_rate_reported": "per-variant fraction caught (0/3, 1/3, 2/3, 3/3) -- descriptive AND a pass-bar condition (see kill_criteria).",
+    "rationale": "CLAUDE.md OP-16: J's real trades are the source of truth. A day-type gate that would have SUPPRESSED or been unable to classify J's own real winner days is not a usable lever regardless of what it does to the aggregate population -- mirrors the OP-16 anchor-regression discipline JOB1/debit_spread_ab_study already apply to exit-shape studies, applied here to a pre-entry gate instead."
+  },
+  "kill_criteria": {
+    "statement": "A variant (V1, V2, or V3) is a CANDIDATE_PASS (report as a specifiable regime lever, still requires J-visible REVOKE window per standing doctrine -- this study does not build or arm anything) only if ALL of the following hold, evaluated on the frozen population/classifiers/thresholds above with ZERO post-hoc adjustment. ANY failing condition = KILL for that variant; a KILL is a valid, fully-anticipated, publishable outcome per the competing_hypothesis above.",
+    "conditions": [
+      "1. direction_correct: TREND-bucket expectancy > CHOP-bucket expectancy.",
+      "2. trend_bucket_positive: TREND-bucket expectancy > 0.",
+      "3. bh_fdr_survivor: the variant's shuffle-null p_null survives BH-FDR at alpha=0.10 across the 3 variants.",
+      "4. trend_bucket_robust: TREND-bucket is sub_window_stable (both chronological halves net-positive) AND exp_drop_top3 > 0 (not purely a top-3-day artifact).",
+      "5. j_anchor_catch: catch_rate >= 2/3 (this variant would have classified at least 2 of J's 3 real ride-the-ribbon winner days as TREND, ex-ante)."
+    ],
+    "chop_unrescuable_confirmation": "Descriptive, NOT a gating condition (does not affect PASS/KILL): CHOP-bucket expectancy <= 0 supports the 'chop days are unrescuable' framing; CHOP-bucket expectancy > 0 would contradict it even if a variant otherwise passes (report prominently either way).",
+    "any_condition_failing": "verdict = KILL for that variant. Report the TREND/CHOP expectancy split and catch_rate prominently in the KILL writeup regardless -- these are the diagnostic numbers that tell us WHY (no directional edge, no statistical significance vs random day-subsets of the same size, edge but unstable/concentrated, or edge but blind to J's actual winners)."
+  },
+  "outputs": {
+    "scorecard_json": "analysis/recommendations/daytype-gate-result.json",
+    "scorecard_md": "analysis/recommendations/daytype-gate-result.md"
+  },
+  "rail": "ANALYSIS ONLY. No orders, no params/config changes, read-only on production. Touches NO trading-path file (params.json, heartbeat_core.py, gates.py, strategies.py, exit_manager.py). $0 cost -- local cache only. A CANDIDATE_PASS is SPECIFIED for J, never auto-built or auto-wired (OP-32 P1/P2 routing: this is a frame/regime-lever finding, routes to P2-style spec-not-build discipline even though it is produced by a single-session Sonnet run, not the Opus P2 lane).",
+  "content_sha256_16": "1e8134795424be0d"
+}
