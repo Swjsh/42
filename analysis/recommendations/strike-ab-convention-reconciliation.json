@@ -1,0 +1,807 @@
+{
+  "_doc": "STRIKE-AB-CONVENTION-RECONCILIATION. ANALYSIS ONLY -- no params/config/trading-path file touched, no orders placed. JOB1(a) = literal instructed re-run (SS-B held fixed, honest friction added). JOB1(b) = full gap-bridge factorial explaining the +$65.82 -> -$5.24 ATM gap between the two source studies, whose conventions differ on 5 factors, not the 4 named in the task brief -- see convention_audit.",
+  "generated_at": "2026-07-14T22:52:19.520853",
+  "smoke_mode": false,
+  "sanity_check_reproduction": {
+    "n": 244,
+    "n_no_local_bars": 6,
+    "total": 16061.0,
+    "expectancy": 65.82,
+    "wr": 0.357,
+    "n_is": 156,
+    "n_oos": 88,
+    "oos_total": 11333.4,
+    "oos_expectancy": 128.79,
+    "oos_positive": true,
+    "wf": 4.25,
+    "wf_ge_070": true,
+    "qpf": 0.667,
+    "exp_drop_top3": 36.64,
+    "sub_window_stable": true,
+    "both_halves": {
+      "first": {
+        "n": 122,
+        "total": 6551.2
+      },
+      "second": {
+        "n": 122,
+        "total": 9509.8
+      }
+    }
+  },
+  "convention_audit": {
+    "fill_bar_convention_finding": "debit_spread_ab_study.py's docstring self-identifies its bar loader as 'Fill-bar-INCLUDED convention ... same as t4_exit_matrix._load_bars' -- this IS the OLD, PRE-p5_topcell-fix convention (`>=`), not the corrected one. ribbon_ride_strike_exit_ab.py's PRIMARY convention is `>` (fill bar excluded), found by p5_topcell_real_fills_confirm.py to be the one that reproduces the recorded funnel number. The task brief's framing that debit_spread_ab_study.py carries 'the corrected fill-bar convention' does not match the code -- it REGRESSED to the old one. This script uses the genuinely-corrected `>` convention as its baseline and treats debit_spread's `>=` as a toggled-away factor (old_fillbar), not a target to copy.",
+    "shape_and_structure_layer_finding": "debit_spread_ab_study.py does NOT run at 'SS-B live scope' -- its _live_shape() reads exit-shape knobs fresh from automation/state/params.json at run time ({'premium_stop_pct': -0.5, 'tp1_premium_pct': 0.5, 'tp1_qty_fraction': 0.8, 'profit_lock_mode': 'fixed', 'profit_lock_arm_pct': 0.05, 'trail_pct': 0.125, 'runner_target_pct': 2.5}) which differ from SS_B_SHAPE ({'premium_stop_pct': -0.5, 'tp1_premium_pct': 1.0, 'tp1_qty_fraction': 0.667, 'profit_lock_mode': 'trailing', 'trail_pct': 0.15, 'runner_target_pct': 9.9}) on every knob except premium_stop_pct, AND its replay has NO structure-stop chart layer (premium-only, per its own disclosure list). This is a materially larger mechanical difference than friction/fill-bar/stage-label and is decomposed here as its own 2 factors (use_structure, shape_config) even though the task brief named only friction/fill-bar/stage/qty.",
+    "qty_finding": "BOTH source studies use QTY=10 fixed -- confirmed NOT a source of the +$65.82 -> -$5.24 gap (byte-identical convention on both sides). Per-episode pnl here is linear in qty (every term is qty- or a.qty-scaled), so a per-contract figure = expectancy/10, and a production-qty view scales linearly: production_qty~3 (params.json min_contracts=3; recent journal/trades.csv qty column samples 1-5, mode ~3 -- QTY=10 in both studies is ~3x a typical live Safe-tier fill size, a 'relative dollars' convention per both scripts' own docstrings, not a production-scale estimate)."
+  },
+  "job1a_strike_axis_honest_ssb": {
+    "note": "SS-B exit shape + structure-stop chart layer HELD FIXED (as in the original strike A/B) -- friction ON (simulator_credit haircuts), fill-bar convention = the already-correct `>` (unchanged from the original study), stage-label fix ON (empirically confirmed no-op for SS-B under ARM_SCOPE_POST_TP1 -- see sanity check).",
+    "control": "OTM-2",
+    "cells": {
+      "OTM-2": {
+        "n": 250,
+        "n_no_local_bars": 0,
+        "total": -7922.0,
+        "expectancy": -31.69,
+        "wr": 0.276,
+        "n_is": 160,
+        "n_oos": 90,
+        "oos_total": -2049.6,
+        "oos_expectancy": -22.77,
+        "oos_positive": false,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.333,
+        "exp_drop_top3": -51.93,
+        "sub_window_stable": false,
+        "both_halves": {
+          "first": {
+            "n": 125,
+            "total": -1383.6
+          },
+          "second": {
+            "n": 125,
+            "total": -6538.4
+          }
+        }
+      },
+      "OTM-1": {
+        "n": 249,
+        "n_no_local_bars": 1,
+        "total": -3090.8,
+        "expectancy": -12.41,
+        "wr": 0.301,
+        "n_is": 159,
+        "n_oos": 90,
+        "oos_total": 2677.6,
+        "oos_expectancy": 29.75,
+        "oos_positive": true,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.667,
+        "exp_drop_top3": -37.23,
+        "sub_window_stable": false,
+        "both_halves": {
+          "first": {
+            "n": 124,
+            "total": -731.6
+          },
+          "second": {
+            "n": 125,
+            "total": -2359.2
+          }
+        }
+      },
+      "ATM": {
+        "n": 244,
+        "n_no_local_bars": 6,
+        "total": 4595.2,
+        "expectancy": 18.83,
+        "wr": 0.328,
+        "n_is": 156,
+        "n_oos": 88,
+        "oos_total": 5615.4,
+        "oos_expectancy": 63.81,
+        "oos_positive": true,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.667,
+        "exp_drop_top3": -10.58,
+        "sub_window_stable": true,
+        "both_halves": {
+          "first": {
+            "n": 122,
+            "total": 2301.4
+          },
+          "second": {
+            "n": 122,
+            "total": 2293.8
+          }
+        }
+      },
+      "ITM-2": {
+        "n": 231,
+        "n_no_local_bars": 19,
+        "total": -8800.0,
+        "expectancy": -38.1,
+        "wr": 0.333,
+        "n_is": 148,
+        "n_oos": 83,
+        "oos_total": 14967.6,
+        "oos_expectancy": 180.33,
+        "oos_positive": true,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.5,
+        "exp_drop_top3": -79.64,
+        "sub_window_stable": false,
+        "both_halves": {
+          "first": {
+            "n": 115,
+            "total": -14467.0
+          },
+          "second": {
+            "n": 116,
+            "total": 5667.0
+          }
+        }
+      }
+    },
+    "comparisons_vs_control": {
+      "OTM-1": {
+        "vs_control": "OTM-2",
+        "delta_expectancy_honest": 19.28,
+        "delta_oos_total_honest": 4727.2,
+        "beats_control_honest": true,
+        "orig_delta_expectancy": 19.12,
+        "relative_verdict_survives": true
+      },
+      "ATM": {
+        "vs_control": "OTM-2",
+        "delta_expectancy_honest": 50.52,
+        "delta_oos_total_honest": 7665.0,
+        "beats_control_honest": true,
+        "orig_delta_expectancy": 47.96,
+        "relative_verdict_survives": true
+      },
+      "ITM-2": {
+        "vs_control": "OTM-2",
+        "delta_expectancy_honest": -6.41,
+        "delta_oos_total_honest": 17017.2,
+        "beats_control_honest": false,
+        "orig_delta_expectancy": -6.78,
+        "relative_verdict_survives": true
+      }
+    },
+    "any_cell_clears_zero_expectancy_overall": {
+      "OTM-2": false,
+      "OTM-1": false,
+      "ATM": true,
+      "ITM-2": false
+    },
+    "any_cell_clears_zero_expectancy_oos_half": {
+      "OTM-2": false,
+      "OTM-1": true,
+      "ATM": true,
+      "ITM-2": true
+    }
+  },
+  "job1b_gap_bridge_atm": {
+    "ribbon_setting": {
+      "use_structure": true,
+      "shape_config": "SS-B",
+      "old_fillbar": false,
+      "friction": false,
+      "stage_fix": false
+    },
+    "debit_setting": {
+      "use_structure": false,
+      "shape_config": "LIVE",
+      "old_fillbar": true,
+      "friction": true,
+      "stage_fix": true
+    },
+    "ribbon_cell": {
+      "n": 244,
+      "n_no_local_bars": 6,
+      "total": 16061.0,
+      "expectancy": 65.82,
+      "wr": 0.357,
+      "n_is": 156,
+      "n_oos": 88,
+      "oos_total": 11333.4,
+      "oos_expectancy": 128.79,
+      "oos_positive": true,
+      "wf": 4.25,
+      "wf_ge_070": true,
+      "qpf": 0.667,
+      "exp_drop_top3": 36.64,
+      "sub_window_stable": true,
+      "both_halves": {
+        "first": {
+          "n": 122,
+          "total": 6551.2
+        },
+        "second": {
+          "n": 122,
+          "total": 9509.8
+        }
+      }
+    },
+    "debit_cell": {
+      "n": 244,
+      "n_no_local_bars": 6,
+      "total": -1279.0,
+      "expectancy": -5.24,
+      "wr": 0.516,
+      "n_is": 156,
+      "n_oos": 88,
+      "oos_total": 3157.0,
+      "oos_expectancy": 35.88,
+      "oos_positive": true,
+      "wf": null,
+      "wf_ge_070": false,
+      "qpf": 0.5,
+      "exp_drop_top3": -23.73,
+      "sub_window_stable": false,
+      "both_halves": {
+        "first": {
+          "n": 122,
+          "total": -3047.0
+        },
+        "second": {
+          "n": 122,
+          "total": 1768.0
+        }
+      }
+    },
+    "total_gap_expectancy": -71.06,
+    "forward_path_order": [
+      "use_structure",
+      "shape_config",
+      "old_fillbar",
+      "friction",
+      "stage_fix"
+    ],
+    "forward_path": [
+      {
+        "factor_toggled": "use_structure",
+        "from": true,
+        "to": false,
+        "expectancy_before": 65.82,
+        "expectancy_after": 98.37,
+        "delta": 32.55,
+        "n_before": 244,
+        "n_after": 244
+      },
+      {
+        "factor_toggled": "shape_config",
+        "from": "SS-B",
+        "to": "LIVE",
+        "expectancy_before": 98.37,
+        "expectancy_after": 40.56,
+        "delta": -57.81,
+        "n_before": 244,
+        "n_after": 244
+      },
+      {
+        "factor_toggled": "old_fillbar",
+        "from": false,
+        "to": true,
+        "expectancy_before": 40.56,
+        "expectancy_after": 42.62,
+        "delta": 2.06,
+        "n_before": 244,
+        "n_after": 244
+      },
+      {
+        "factor_toggled": "friction",
+        "from": false,
+        "to": true,
+        "expectancy_before": 42.62,
+        "expectancy_after": -5.24,
+        "delta": -47.86,
+        "n_before": 244,
+        "n_after": 244
+      },
+      {
+        "factor_toggled": "stage_fix",
+        "from": false,
+        "to": true,
+        "expectancy_before": -5.24,
+        "expectancy_after": -5.24,
+        "delta": 0.0,
+        "n_before": 244,
+        "n_after": 244
+      }
+    ],
+    "forward_path_sum_check": -71.06,
+    "reverse_path_order_display": [
+      "use_structure",
+      "shape_config",
+      "old_fillbar",
+      "friction",
+      "stage_fix"
+    ],
+    "reverse_path": [
+      {
+        "factor_toggled": "use_structure",
+        "from": false,
+        "to": true,
+        "expectancy_before": 65.82,
+        "expectancy_after": 98.37,
+        "delta": 32.55,
+        "n_before": 244,
+        "n_after": 244
+      },
+      {
+        "factor_toggled": "shape_config",
+        "from": "LIVE",
+        "to": "SS-B",
+        "expectancy_before": 98.37,
+        "expectancy_after": 40.56,
+        "delta": -57.81,
+        "n_before": 244,
+        "n_after": 244
+      },
+      {
+        "factor_toggled": "old_fillbar",
+        "from": true,
+        "to": false,
+        "expectancy_before": 40.56,
+        "expectancy_after": 42.62,
+        "delta": 2.06,
+        "n_before": 244,
+        "n_after": 244
+      },
+      {
+        "factor_toggled": "friction",
+        "from": true,
+        "to": false,
+        "expectancy_before": 42.62,
+        "expectancy_after": -5.24,
+        "delta": -47.86,
+        "n_before": 244,
+        "n_after": 244
+      },
+      {
+        "factor_toggled": "stage_fix",
+        "from": true,
+        "to": false,
+        "expectancy_before": -5.24,
+        "expectancy_after": -5.24,
+        "delta": -0.0,
+        "n_before": 244,
+        "n_after": 244
+      }
+    ],
+    "reverse_path_sum_check": -71.06,
+    "path_dependence_note": "forward and reverse path sums both equal total_gap by construction (telescoping); per-STEP deltas differ between orderings when factors interact -- compare forward_path vs reverse_path per-factor deltas, and see main_effects for the order-independent average.",
+    "main_effects_order_independent": {
+      "use_structure": {
+        "mean_delta_ribbon_to_debit_setting": 27.82,
+        "n_pairs_averaged": 16,
+        "min": 20.27,
+        "max": 35.46
+      },
+      "shape_config": {
+        "mean_delta_ribbon_to_debit_setting": -54.09,
+        "n_pairs_averaged": 16,
+        "min": -63.81,
+        "max": -45.53
+      },
+      "old_fillbar": {
+        "mean_delta_ribbon_to_debit_setting": 2.63,
+        "n_pairs_averaged": 16,
+        "min": 0.32,
+        "max": 4.28
+      },
+      "friction": {
+        "mean_delta_ribbon_to_debit_setting": -48.83,
+        "n_pairs_averaged": 16,
+        "min": -52.83,
+        "max": -44.08
+      },
+      "stage_fix": {
+        "mean_delta_ribbon_to_debit_setting": 0.0,
+        "n_pairs_averaged": 16,
+        "min": 0.0,
+        "max": 0.0
+      }
+    },
+    "full_32_cell_grid": [
+      {
+        "settings": {
+          "use_structure": true,
+          "shape_config": "SS-B",
+          "old_fillbar": true,
+          "friction": true,
+          "stage_fix": true
+        },
+        "n": 244,
+        "expectancy": 19.16,
+        "total": 4675.2
+      },
+      {
+        "settings": {
+          "use_structure": true,
+          "shape_config": "SS-B",
+          "old_fillbar": true,
+          "friction": true,
+          "stage_fix": false
+        },
+        "n": 244,
+        "expectancy": 19.16,
+        "total": 4675.2
+      },
+      {
+        "settings": {
+          "use_structure": true,
+          "shape_config": "SS-B",
+          "old_fillbar": true,
+          "friction": false,
+          "stage_fix": true
+        },
+        "n": 244,
+        "expectancy": 69.69,
+        "total": 17003.4
+      },
+      {
+        "settings": {
+          "use_structure": true,
+          "shape_config": "SS-B",
+          "old_fillbar": true,
+          "friction": false,
+          "stage_fix": false
+        },
+        "n": 244,
+        "expectancy": 69.69,
+        "total": 17003.4
+      },
+      {
+        "settings": {
+          "use_structure": true,
+          "shape_config": "SS-B",
+          "old_fillbar": false,
+          "friction": true,
+          "stage_fix": true
+        },
+        "n": 244,
+        "expectancy": 18.83,
+        "total": 4595.2
+      },
+      {
+        "settings": {
+          "use_structure": true,
+          "shape_config": "SS-B",
+          "old_fillbar": false,
+          "friction": true,
+          "stage_fix": false
+        },
+        "n": 244,
+        "expectancy": 18.83,
+        "total": 4595.2
+      },
+      {
+        "settings": {
+          "use_structure": true,
+          "shape_config": "SS-B",
+          "old_fillbar": false,
+          "friction": false,
+          "stage_fix": true
+        },
+        "n": 244,
+        "expectancy": 65.82,
+        "total": 16061.0
+      },
+      {
+        "settings": {
+          "use_structure": true,
+          "shape_config": "SS-B",
+          "old_fillbar": false,
+          "friction": false,
+          "stage_fix": false
+        },
+        "n": 244,
+        "expectancy": 65.82,
+        "total": 16061.0
+      },
+      {
+        "settings": {
+          "use_structure": true,
+          "shape_config": "LIVE",
+          "old_fillbar": true,
+          "friction": true,
+          "stage_fix": true
+        },
+        "n": 244,
+        "expectancy": -28.26,
+        "total": -6896.0
+      },
+      {
+        "settings": {
+          "use_structure": true,
+          "shape_config": "LIVE",
+          "old_fillbar": true,
+          "friction": true,
+          "stage_fix": false
+        },
+        "n": 244,
+        "expectancy": -28.26,
+        "total": -6896.0
+      },
+      {
+        "settings": {
+          "use_structure": true,
+          "shape_config": "LIVE",
+          "old_fillbar": true,
+          "friction": false,
+          "stage_fix": true
+        },
+        "n": 244,
+        "expectancy": 22.35,
+        "total": 5454.0
+      },
+      {
+        "settings": {
+          "use_structure": true,
+          "shape_config": "LIVE",
+          "old_fillbar": true,
+          "friction": false,
+          "stage_fix": false
+        },
+        "n": 244,
+        "expectancy": 22.35,
+        "total": 5454.0
+      },
+      {
+        "settings": {
+          "use_structure": true,
+          "shape_config": "LIVE",
+          "old_fillbar": false,
+          "friction": true,
+          "stage_fix": true
+        },
+        "n": 244,
+        "expectancy": -32.54,
+        "total": -7939.0
+      },
+      {
+        "settings": {
+          "use_structure": true,
+          "shape_config": "LIVE",
+          "old_fillbar": false,
+          "friction": true,
+          "stage_fix": false
+        },
+        "n": 244,
+        "expectancy": -32.54,
+        "total": -7939.0
+      },
+      {
+        "settings": {
+          "use_structure": true,
+          "shape_config": "LIVE",
+          "old_fillbar": false,
+          "friction": false,
+          "stage_fix": true
+        },
+        "n": 244,
+        "expectancy": 20.29,
+        "total": 4951.0
+      },
+      {
+        "settings": {
+          "use_structure": true,
+          "shape_config": "LIVE",
+          "old_fillbar": false,
+          "friction": false,
+          "stage_fix": false
+        },
+        "n": 244,
+        "expectancy": 20.29,
+        "total": 4951.0
+      },
+      {
+        "settings": {
+          "use_structure": false,
+          "shape_config": "SS-B",
+          "old_fillbar": true,
+          "friction": true,
+          "stage_fix": true
+        },
+        "n": 244,
+        "expectancy": 54.61,
+        "total": 13325.6
+      },
+      {
+        "settings": {
+          "use_structure": false,
+          "shape_config": "SS-B",
+          "old_fillbar": true,
+          "friction": true,
+          "stage_fix": false
+        },
+        "n": 244,
+        "expectancy": 54.61,
+        "total": 13325.6
+      },
+      {
+        "settings": {
+          "use_structure": false,
+          "shape_config": "SS-B",
+          "old_fillbar": true,
+          "friction": false,
+          "stage_fix": true
+        },
+        "n": 244,
+        "expectancy": 102.23,
+        "total": 24944.0
+      },
+      {
+        "settings": {
+          "use_structure": false,
+          "shape_config": "SS-B",
+          "old_fillbar": true,
+          "friction": false,
+          "stage_fix": false
+        },
+        "n": 244,
+        "expectancy": 102.23,
+        "total": 24944.0
+      },
+      {
+        "settings": {
+          "use_structure": false,
+          "shape_config": "SS-B",
+          "old_fillbar": false,
+          "friction": true,
+          "stage_fix": true
+        },
+        "n": 244,
+        "expectancy": 54.29,
+        "total": 13245.6
+      },
+      {
+        "settings": {
+          "use_structure": false,
+          "shape_config": "SS-B",
+          "old_fillbar": false,
+          "friction": true,
+          "stage_fix": false
+        },
+        "n": 244,
+        "expectancy": 54.29,
+        "total": 13245.6
+      },
+      {
+        "settings": {
+          "use_structure": false,
+          "shape_config": "SS-B",
+          "old_fillbar": false,
+          "friction": false,
+          "stage_fix": true
+        },
+        "n": 244,
+        "expectancy": 98.37,
+        "total": 24001.6
+      },
+      {
+        "settings": {
+          "use_structure": false,
+          "shape_config": "SS-B",
+          "old_fillbar": false,
+          "friction": false,
+          "stage_fix": false
+        },
+        "n": 244,
+        "expectancy": 98.37,
+        "total": 24001.6
+      },
+      {
+        "settings": {
+          "use_structure": false,
+          "shape_config": "LIVE",
+          "old_fillbar": true,
+          "friction": true,
+          "stage_fix": true
+        },
+        "n": 244,
+        "expectancy": -5.24,
+        "total": -1279.0
+      },
+      {
+        "settings": {
+          "use_structure": false,
+          "shape_config": "LIVE",
+          "old_fillbar": true,
+          "friction": true,
+          "stage_fix": false
+        },
+        "n": 244,
+        "expectancy": -5.24,
+        "total": -1279.0
+      },
+      {
+        "settings": {
+          "use_structure": false,
+          "shape_config": "LIVE",
+          "old_fillbar": true,
+          "friction": false,
+          "stage_fix": true
+        },
+        "n": 244,
+        "expectancy": 42.62,
+        "total": 10399.0
+      },
+      {
+        "settings": {
+          "use_structure": false,
+          "shape_config": "LIVE",
+          "old_fillbar": true,
+          "friction": false,
+          "stage_fix": false
+        },
+        "n": 244,
+        "expectancy": 42.62,
+        "total": 10399.0
+      },
+      {
+        "settings": {
+          "use_structure": false,
+          "shape_config": "LIVE",
+          "old_fillbar": false,
+          "friction": true,
+          "stage_fix": true
+        },
+        "n": 244,
+        "expectancy": -9.52,
+        "total": -2322.0
+      },
+      {
+        "settings": {
+          "use_structure": false,
+          "shape_config": "LIVE",
+          "old_fillbar": false,
+          "friction": true,
+          "stage_fix": false
+        },
+        "n": 244,
+        "expectancy": -9.52,
+        "total": -2322.0
+      },
+      {
+        "settings": {
+          "use_structure": false,
+          "shape_config": "LIVE",
+          "old_fillbar": false,
+          "friction": false,
+          "stage_fix": true
+        },
+        "n": 244,
+        "expectancy": 40.56,
+        "total": 9896.0
+      },
+      {
+        "settings": {
+          "use_structure": false,
+          "shape_config": "LIVE",
+          "old_fillbar": false,
+          "friction": false,
+          "stage_fix": false
+        },
+        "n": 244,
+        "expectancy": 40.56,
+        "total": 9896.0
+      }
+    ]
+  },
+  "disclosures": [
+    "MEASURED (real OPRA local cache), not REALIZED -- scorecard/simulation-replay artifact, no broker fills exist for these strike/shape/friction combinations.",
+    "replay_generic degenerates to sss.replay_structure_aware() byte-for-byte when friction=False, stage_fix=False, old_fillbar=False, use_structure=True, shape=SS-B -- verified against the cached ribbon-ride-strike-exit-ab.json ATM cell (see sanity_check_reproduction above).",
+    "premium_stop stage-label fix is empirically confirmed a NO-OP for SS-B specifically: SS_B_SHAPE carries no profit_lock_arm_scope override, so ExitState.from_entry defaults it to ARM_SCOPE_POST_TP1, under which runner_stop_premium is set once at entry and never ratcheted before TP1 -- byte-identical to the static entry*(1+premium_stop_pct) the old code used. The fix matters for ARM_SCOPE_FULL shapes (e.g. hold_posture_ab_study.py's reuse) -- not exercised here.",
+    "No random-entry-null / BH-FDR battery re-run here (out of scope for a convention decomposition -- the original strike A/B's null/FDR results are unaffected by these convention toggles' significance testing, only by point estimates).",
+    "job1a's fill-bar convention is NOT re-toggled (held at the corrected `>` throughout) -- per the finding above, `>` was already correct in the original study; there is no 'fill-bar fix' left to apply to job1a. The old `>=` convention only appears in job1b's gap-bridge as the factor explaining why debit_spread_ab_study.py's number differs."
+  ],
+  "runtime_seconds": 14.6
+}

@@ -1,0 +1,348 @@
+{
+  "_doc": "DAYTYPE-GATE-RESULT (JOB2). ANALYSIS ONLY -- no params/config/trading-path file touched, no orders placed. Population = JOB1's honest-convention OTM-2 control, entry_ts>=10:30 ET only. See prereg-daytype-gate-2026-07-15.json for the frozen classifier/threshold/kill-criteria spec.",
+  "generated_at": "2026-07-14T23:04:26.169791",
+  "smoke_mode": false,
+  "prereg": "analysis\\recommendations\\prereg-daytype-gate-2026-07-15.json",
+  "prereg_preflight": {
+    "ok": true,
+    "recomputed_sha16": "1e8134795424be0d",
+    "stored_sha16": "1e8134795424be0d",
+    "version": 1,
+    "status": "FROZEN_PENDING_RUN"
+  },
+  "day_coverage": {
+    "n_calendar_days_in_window": 365,
+    "n_days_full_first_hour_coverage": 236,
+    "n_days_classifiable_with_baseline": 216
+  },
+  "population": {
+    "counts": {
+      "raw_signals": 250,
+      "before_1030": 32,
+      "no_local_bars": 0,
+      "retained": 218
+    },
+    "pre_split_battery": {
+      "n": 218,
+      "total": -7645.2,
+      "expectancy": -35.07,
+      "wr": 0.271,
+      "oos_total": -347.4,
+      "oos_positive": false,
+      "exp_drop_top3": -56.95,
+      "sub_window_stable": false
+    }
+  },
+  "variants": {
+    "V1": {
+      "n_trend_days": 47,
+      "n_classifiable_days": 216,
+      "trend": {
+        "n": 29,
+        "total": -2820.4,
+        "expectancy": -97.26,
+        "wr": 0.241,
+        "oos_total": -1414.4,
+        "oos_positive": false,
+        "exp_drop_top3": -221.62,
+        "sub_window_stable": false
+      },
+      "chop": {
+        "n": 92,
+        "total": -2228.2,
+        "expectancy": -24.22,
+        "wr": 0.283,
+        "oos_total": -1165.6,
+        "oos_positive": false,
+        "exp_drop_top3": -60.13,
+        "sub_window_stable": false
+      },
+      "pooled": {
+        "n": 121,
+        "total": -5048.6,
+        "expectancy": -41.72,
+        "wr": 0.273,
+        "oos_total": -2580.0,
+        "oos_positive": false,
+        "exp_drop_top3": -75.43,
+        "sub_window_stable": false
+      },
+      "unclassifiable": {
+        "n": 97,
+        "total": -2596.6,
+        "expectancy": -26.77,
+        "wr": 0.268,
+        "oos_total": 2232.6,
+        "oos_positive": true,
+        "exp_drop_top3": -76.49,
+        "sub_window_stable": false
+      },
+      "null": {
+        "n_eligible_days": 98,
+        "n_trend_days": 47,
+        "observed_trend_minus_chop": -73.04,
+        "p_null": 0.8131,
+        "null_mean_delta": -1.71,
+        "n_permutations": 2000,
+        "seed": 4242
+      },
+      "j_anchor": {
+        "rows": [
+          {
+            "date": "2026-04-29",
+            "side": "P",
+            "j_actual_pnl": 342.0,
+            "classifiable": true,
+            "label": "CHOP",
+            "caught": false
+          },
+          {
+            "date": "2026-05-01",
+            "side": "P",
+            "j_actual_pnl": 470.0,
+            "classifiable": true,
+            "label": "TREND",
+            "caught": true
+          },
+          {
+            "date": "2026-05-04",
+            "side": "P",
+            "j_actual_pnl": 730.0,
+            "classifiable": true,
+            "label": "CHOP",
+            "caught": false
+          }
+        ],
+        "n_caught": 1,
+        "n_total": 3,
+        "catch_rate": 0.333
+      },
+      "bh_fdr_survivor": false,
+      "bh_rank": 2
+    },
+    "V2": {
+      "n_trend_days": 24,
+      "n_classifiable_days": 216,
+      "trend": {
+        "n": 12,
+        "total": -3010.4,
+        "expectancy": -250.87,
+        "wr": 0.083,
+        "oos_total": -1909.0,
+        "oos_positive": false,
+        "exp_drop_top3": -368.56,
+        "sub_window_stable": false
+      },
+      "chop": {
+        "n": 109,
+        "total": -2038.2,
+        "expectancy": -18.7,
+        "wr": 0.294,
+        "oos_total": -671.0,
+        "oos_positive": false,
+        "exp_drop_top3": -55.56,
+        "sub_window_stable": false
+      },
+      "pooled": {
+        "n": 121,
+        "total": -5048.6,
+        "expectancy": -41.72,
+        "wr": 0.273,
+        "oos_total": -2580.0,
+        "oos_positive": false,
+        "exp_drop_top3": -75.43,
+        "sub_window_stable": false
+      },
+      "unclassifiable": {
+        "n": 97,
+        "total": -2596.6,
+        "expectancy": -26.77,
+        "wr": 0.268,
+        "oos_total": 2232.6,
+        "oos_positive": true,
+        "exp_drop_top3": -76.49,
+        "sub_window_stable": false
+      },
+      "null": {
+        "n_eligible_days": 98,
+        "n_trend_days": 24,
+        "observed_trend_minus_chop": -232.17,
+        "p_null": 0.9935,
+        "null_mean_delta": -2.83,
+        "n_permutations": 2000,
+        "seed": 4242
+      },
+      "j_anchor": {
+        "rows": [
+          {
+            "date": "2026-04-29",
+            "side": "P",
+            "j_actual_pnl": 342.0,
+            "classifiable": true,
+            "label": "CHOP",
+            "caught": false
+          },
+          {
+            "date": "2026-05-01",
+            "side": "P",
+            "j_actual_pnl": 470.0,
+            "classifiable": true,
+            "label": "CHOP",
+            "caught": false
+          },
+          {
+            "date": "2026-05-04",
+            "side": "P",
+            "j_actual_pnl": 730.0,
+            "classifiable": true,
+            "label": "CHOP",
+            "caught": false
+          }
+        ],
+        "n_caught": 0,
+        "n_total": 3,
+        "catch_rate": 0.0
+      },
+      "bh_fdr_survivor": false,
+      "bh_rank": 3
+    },
+    "V3": {
+      "n_trend_days": 78,
+      "n_classifiable_days": 216,
+      "trend": {
+        "n": 48,
+        "total": -2582.2,
+        "expectancy": -53.8,
+        "wr": 0.292,
+        "oos_total": -2984.6,
+        "oos_positive": false,
+        "exp_drop_top3": -131.76,
+        "sub_window_stable": false
+      },
+      "chop": {
+        "n": 73,
+        "total": -2466.4,
+        "expectancy": -33.79,
+        "wr": 0.26,
+        "oos_total": 404.6,
+        "oos_positive": true,
+        "exp_drop_top3": -78.53,
+        "sub_window_stable": false
+      },
+      "pooled": {
+        "n": 121,
+        "total": -5048.6,
+        "expectancy": -41.72,
+        "wr": 0.273,
+        "oos_total": -2580.0,
+        "oos_positive": false,
+        "exp_drop_top3": -75.43,
+        "sub_window_stable": false
+      },
+      "unclassifiable": {
+        "n": 97,
+        "total": -2596.6,
+        "expectancy": -26.77,
+        "wr": 0.268,
+        "oos_total": 2232.6,
+        "oos_positive": true,
+        "exp_drop_top3": -76.49,
+        "sub_window_stable": false
+      },
+      "null": {
+        "n_eligible_days": 98,
+        "n_trend_days": 78,
+        "observed_trend_minus_chop": -20.01,
+        "p_null": 0.5812,
+        "null_mean_delta": -1.97,
+        "n_permutations": 2000,
+        "seed": 4242
+      },
+      "j_anchor": {
+        "rows": [
+          {
+            "date": "2026-04-29",
+            "side": "P",
+            "j_actual_pnl": 342.0,
+            "classifiable": true,
+            "label": "CHOP",
+            "caught": false
+          },
+          {
+            "date": "2026-05-01",
+            "side": "P",
+            "j_actual_pnl": 470.0,
+            "classifiable": true,
+            "label": "TREND",
+            "caught": true
+          },
+          {
+            "date": "2026-05-04",
+            "side": "P",
+            "j_actual_pnl": 730.0,
+            "classifiable": true,
+            "label": "CHOP",
+            "caught": false
+          }
+        ],
+        "n_caught": 1,
+        "n_total": 3,
+        "catch_rate": 0.333
+      },
+      "bh_fdr_survivor": false,
+      "bh_rank": 1
+    }
+  },
+  "verdicts": {
+    "V1": {
+      "conditions": {
+        "1_direction_correct": false,
+        "2_trend_bucket_positive": false,
+        "3_bh_fdr_survivor": false,
+        "4_trend_bucket_robust": false,
+        "5_j_anchor_catch": false
+      },
+      "verdict": "KILL",
+      "chop_unrescuable_confirmation": true
+    },
+    "V2": {
+      "conditions": {
+        "1_direction_correct": false,
+        "2_trend_bucket_positive": false,
+        "3_bh_fdr_survivor": false,
+        "4_trend_bucket_robust": false,
+        "5_j_anchor_catch": false
+      },
+      "verdict": "KILL",
+      "chop_unrescuable_confirmation": true
+    },
+    "V3": {
+      "conditions": {
+        "1_direction_correct": false,
+        "2_trend_bucket_positive": false,
+        "3_bh_fdr_survivor": false,
+        "4_trend_bucket_robust": false,
+        "5_j_anchor_catch": false
+      },
+      "verdict": "KILL",
+      "chop_unrescuable_confirmation": true
+    }
+  },
+  "fdr_alpha": 0.1,
+  "thresholds": {
+    "k_range": 1.2,
+    "k_rvol": 1.2,
+    "k_loc": 0.3,
+    "baseline_lookback_days": 20,
+    "info_cutoff_et": "10:30:00"
+  },
+  "disclosures": [
+    "MEASURED (real OPRA local cache), not REALIZED -- scorecard/simulation-replay artifact; episode pnl is exactly JOB1's honest OTM-2 control replay, unmodified.",
+    "entry_ts>=10:30 filter drops any signal firing in the first hour -- see population.counts.before_1030 for the exact count; this population is NOT the same as JOB1's full 250-signal OTM-2 cell and its own battery is reported (population.pre_split_battery) before any day-type split so the two are never conflated.",
+    "day_classifiability requires FULL 12-bar 09:30-10:25 coverage (strict, no partial-window imputation) AND >=20 prior classifiable days for the trailing baseline -- see day_coverage for the funnel from raw calendar days to classifiable days.",
+    "V1's condition is a strict superset of V3's (V1 = V3's range-expansion test AND the OR-hold confirmation) -- comparing V1 vs V3's pass/kill outcome directly answers whether the hold-confirmation leg adds anything beyond pure range expansion, not 3 independent guesses.",
+    "shuffle_null preserves the REAL classifier's TREND-day COUNT (draws n_trend_days random days from the same classifiable-day universe) -- it tests whether THIS classifier's specific day selection beats a random subset of the same size, not whether trend days in general differ from chop days by construction.",
+    "No re-tuning of K_RANGE/K_RVOL/K_LOC after seeing any result -- frozen in the pre-reg before this script was run; a KILL is not grounds to adjust and re-run under this study's own name (a materially different classifier design would be a new, separately pre-registered study)."
+  ],
+  "runtime_seconds": 12.6
+}
