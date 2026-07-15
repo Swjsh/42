@@ -1,0 +1,132 @@
+{
+  "_doc": "PRE-REGISTERED strike-axis A/B for Gamma-Risky-2 (BOLD)'s <$2K tier, frozen BEFORE any replay is run. Queue item: automation/overnight/queue.md ## EOD-2026-07-15 FIXES #1 BOLD-STRIKE-X-FLOOR-COLLISION. Runner: backtest/tools/bold_strike_axis_ab.py (content_sha256_16 pinned below; preflight() FAILS LOUD on any drift between what's frozen on disk and what the runner executes). ANALYSIS ONLY -- no orders, no params/config/trading-path file touched.",
+  "study": "bold_strike_axis_ab",
+  "version": 1,
+  "status": "FROZEN",
+  "frozen_at": "2026-07-15T19:10:00-06:00",
+  "cost": "$0 -- all SPY/option bars read from local cache (backtest/data/options/*.csv via lib.option_pricing_real, in-memory process cache), pure Python replay. One process, no worker pool (see method.process_note).",
+
+  "trigger_evidence": {
+    "incident": "2026-07-15 13:56 ET: Bold ENTER_BULL resolved SPY 757C @ $0.08 premium -> SKIP_MIN_PREMIUM_FLOOR, repeated x5 straight ticks through the afternoon.",
+    "mechanism": "Bold's <$2K equity tier (V15_BOLD_TIERS, crypto/lib/strike_selection.py: equity_min=0, equity_max=2000, strike_offset=-3, label='OTM-3') resolves strikes far enough OTM that afternoon theta decay routinely drops the premium below aggressive/params.json's min_entry_premium=0.30 floor (ENTRY-1, shipped 2026-07-09) -- the two knobs are mutually exclusive for a meaningful fraction of Bold's own trading window.",
+    "account_context": "Bold (Gamma-Risky-2, PA33W2KUAT40) equity ~$1,963 as of 2026-07-15 -- inside the $0-$2K tier, so OTM-3 is Bold's CURRENT live strike for every new entry.",
+    "prior_evidence_this_cohort_does_not_settle": [
+      "edge-hunt 2026-06-20: 'ITM+tight=edge, OTM+wide=bleed' (directional finding, not this account/tier's own A/B).",
+      "strike-ab-convention-reconciliation.json job1a (2026-07-14, SAFE account, SS-B fixed, honest friction): ATM was the only cell to clear zero expectancy overall (+$18.83/tr) and OOS (+$63.81/tr) vs OTM-2 control; OTM-1 cleared OOS only; ITM-2 cleared OOS only. This is the SAFE cohort's exit-shape/sizing context -- C29/L149 (strike verdicts do not transfer across accounts/exit shapes) is the explicit reason this study re-runs the axis under BOLD's own consumed shape/sizing/floor instead of copying the Safe verdict."
+    ]
+  },
+
+  "hypothesis": {
+    "under_test": "At least one nearer-to-ATM strike cell (OTM-2, OTM-1, ATM, ITM-1, or ITM-2) beats Bold's current OTM-3 tier on OOS expectancy under Bold's own live-consumed exit shape, sizing, and entry floor, AND can actually clear the min_entry_premium=0.30 floor often enough (including in the afternoon) to be a tradeable tier, not just a theoretically-better one.",
+    "why_this_matters": "If OTM-3 both bleeds on strike economics (prior evidence) AND cannot clear its own entry floor in the afternoon (this week's incident), the current Bold <$2K tier is a structural double-fault, not a tunable parameter. A cell that beats the control on realized economics while ALSO clearing the floor materially more often is the direct fix for both problems at once.",
+    "competing_hypothesis": "Nearer strikes clear the floor more easily (higher intrinsic/extrinsic premium) but do not economically beat OTM-3 once Bold's own -50% catastrophe cap / trailing-runner exit shape and real friction are applied -- in which case the floor collision is a real, separate problem that needs a floor-side or time-of-day fix (out of this study's scope), not a strike-tier fix.",
+    "source": "This session's task brief (J via automation/overnight/queue.md), built on the 2026-07-14 Safe strike-AB convention reconciliation's machinery."
+  },
+
+  "population": {
+    "signal_cohort": {
+      "source": "_signal_cache.load_or_build_signals() + tw8_level_context.enrich_signals(), loaded via ribbon_ride_strike_exit_ab.load_cohort() -- the SAME canonical, strike-independent ribbon_ride signal cohort (both directions, L2 gate, cap OFF) every strike-AB study in this lineage (WP5-STRIKE-AB, PROFIT-P2, the 2026-07-14 Safe reconciliation) reuses unchanged.",
+      "window": "2025-01-06 .. 2026-06-17 (sc.START=2025-01-01, sc.END=2026-06-18)",
+      "n_raw": 250,
+      "note": "This is the SHARED entry-signal stream per CLAUDE.md's validation-is-the-only-scope doctrine -- Bold trades every validated setup, direction is not a separate scope. Per-strike n differs slightly by local OPRA coverage (n_no_local_bars, disclosed per cell) -- same disclosed gap every prior study in this lineage carries."
+    },
+    "strike_cells": {
+      "convention": "SIMULATOR convention (ribbon_ride_strike_exit_ab.strike_for): so>0 = OTM, so<0 = ITM, so=0 = ATM, for BOTH sides (put: strike=round(spot)-so, call: strike=round(spot)+so). This is the negated mirror of crypto/lib/strike_selection.py's live `strike_offset` (so = -strike_offset) -- documented in that module's own docstring; Bold's live OTM-3 tier (strike_offset=-3) is so=+3 here.",
+      "cells": [
+        {"label": "OTM-3", "so": 3, "role": "control (Bold's CURRENT live <$2K tier)"},
+        {"label": "OTM-2", "so": 2, "role": "candidate"},
+        {"label": "OTM-1", "so": 1, "role": "candidate"},
+        {"label": "ATM",   "so": 0, "role": "candidate"},
+        {"label": "ITM-1", "so": -1, "role": "candidate"},
+        {"label": "ITM-2", "so": -2, "role": "candidate"}
+      ],
+      "control": "OTM-3"
+    }
+  },
+
+  "method": {
+    "process_note": "ONE process, no multiprocessing.Pool -- reuses the exact single-process convention of both source studies in this lineage (ribbon_ride_strike_exit_ab.py, strike_ab_convention_reconciliation.py), whose in-memory per-symbol contract-bar cache (lib.option_pricing_real._CONTRACT_BAR_CACHE) is process-local; a multi-worker pool would multiply cache misses across workers, not parallelize usefully, and CLAUDE.md's own debugging note ('3 concurrent deadlock on OPRA cache') is a caution against exactly that pattern for this data source. If wall-clock forces a split, workers must be strike-cell-sharded (one cell = one process, still one process reading a given contract's CSV at a time), never signal-sharded within a cell.",
+    "exit_shape": {
+      "source": "structure_stop_study.SS_B_SHAPE, reused UNCHANGED -- VERIFIED (not assumed) to be byte-identical to Bold's own live-consumed ribbon_ride exit: strike-ab-convention-reconciliation.md's 2026-07-15 08:23 ET follow-up traced automation/state/fleet/strategies.py's RIBBON_RIDE.exit.to_dict() (the literal every live order actually reads, both accounts, strategies.py is explicitly SHARED across accounts) against SS_B_SHAPE field-by-field: catastrophe/premium stop, tp1_premium_pct, tp1_qty_fraction, profit_lock_mode, trail_pct, profit_lock_arm_pct/scope all MATCH. This study does not re-derive that finding, it reuses it.",
+      "literal": {"premium_stop_pct": -0.50, "tp1_premium_pct": 1.0, "tp1_qty_fraction": 0.667,
+                  "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 9.9},
+      "structure_stop_chart_layer": "ON (use_structure=True) -- structure_stop_enabled=true for BOTH accounts (aggressive/params.json:160), matching Safe; ss_time computed identically via structure_stop_signal_time with STRUCTURE_BUFFER['SS-B']=0.0, strike-independent (computed once per signal, shared across all 6 cells, exactly as job1a did for Safe)."
+    },
+    "time_stop_et": {
+      "value": "15:40",
+      "source": "aggressive/params.json:32 (time_stop_et key), the REAL live-consumed value per heartbeat_core.py:858 -> exit_actuator.manage_tick -> exit_manager.parse_time_stop_et.",
+      "deviation_disclosed": "The 2026-07-14 Safe reconciliation study's job1a used sss.TIME_STOP_ET (15:50, the exit_manager MODULE DEFAULT) for its SS-B cells -- a known, disclosed gap between that study's constant and the real live value (both accounts actually consume 15:40, confirmed in the same follow-up cited above). This study corrects that gap for Bold since mirroring the live path is this task's explicit mandate -- 15:40, not 15:50."
+    },
+    "min_entry_premium_floor": {
+      "value": 0.30,
+      "source": "aggressive/params.json:38 (ENTRY-1, shipped 2026-07-09), enforced live at PLAN TIME as strategy admission BEFORE risk_gate.check_order.",
+      "applied_in_sim": "For each (signal, strike cell), if the raw entry-bar OPEN premium (the same 'entry_premium_raw' every study in this lineage uses as the fill-price proxy, BEFORE entry slippage) is < 0.30, that signal does NOT enter a trade at that cell -- excluded from the cell's trade population (SKIP_MIN_PREMIUM_FLOOR), not replayed. This is the floor-collision mechanism itself, modeled in-sim rather than assumed.",
+      "floor_clearance_rate_definition": "n_traded / (n_traded + n_floor_skipped) per cell, where the denominator EXCLUDES true no-local-OPRA-coverage signals (a data gap, not a floor decision). Reported overall AND restricted to 'afternoon' signals.",
+      "afternoon_definition": "entry_ts local ET time >= 12:00:00 -- matches the queue item's own framing ('mutually exclusive after ~noon'); the single frozen cutoff, not adjusted post-hoc."
+    },
+    "sizing": {
+      "qty": 5,
+      "source": "aggressive/params.json position_sizing_tiers[0] (equity_min=0, equity_max=2000): base_qty=5 == min_contracts=5 -- Bold's ACTUAL live contract count at the tier this study concerns, NOT the QTY=10 'relative dollars' convention the two prior source studies (ribbon_ride_strike_exit_ab.py, strike_ab_convention_reconciliation.py) used. This study's decision is Bold-<$2K-tier-specific, so headline dollar figures are reported at Bold's real live size. Per-episode pnl is linear in qty, so relative strike rankings are qty-invariant; only the absolute $ scale differs from the other two studies (disclosed, not conflated).",
+      "risk_cap_not_modeled": "per_trade_risk_cap_pct=0.50 / daily_loss_kill_switch_pct=0.50 notional clamps are NOT modeled in this replay (same disclosed gap every study in this lineage carries -- none model risk_gate's notional clamp, only the exit-shape/strike economics)."
+    },
+    "friction": "ON -- lib.simulator_credit haircuts (DEFAULT_ENTRY_SLIPPAGE=0.02, DEFAULT_EXIT_SLIPPAGE=0.02, DEFAULT_COMMISSION=0.65/contract/side), reused unchanged from strike_ab_convention_reconciliation.py's job1a (the 'honest friction' the task brief asks for).",
+    "fill_bar_convention": "`>` (fill bar EXCLUDED from the walk) -- the ALREADY-CORRECTED convention per the 2026-07-14 reconciliation's own finding (p5_topcell_real_fills_confirm.py). NOT re-toggled here; there is no 'old convention' to test since `>` was already correct.",
+    "stage_label_fix": "Applied (stage_fix=True) for consistency with job1a -- empirically a no-op under ARM_SCOPE_POST_TP1 (SS_B_SHAPE's default arm scope), per the same finding job1a already established for Safe; not re-derived, just carried forward.",
+    "replay_engine": "backtest/tools/strike_ab_convention_reconciliation.py's replay_generic() (imported, not re-derived) called at friction=True, stage_fix=True, use_structure=True for every cell -- the exact tested function, only the strike/shape/time-stop/qty/floor inputs vary. Degenerates to structure_stop_study.replay_structure_aware() plus friction/stage-fix, already cross-verified bit-for-bit against the cached ribbon-ride-strike-exit-ab.json ATM cell in the 2026-07-14 reconciliation's own sanity check."
+  },
+
+  "metrics": {
+    "per_cell": ["n", "n_no_local_bars", "n_floor_skipped", "floor_clearance_rate",
+                "floor_clearance_rate_afternoon", "n_afternoon_opportunities",
+                "total", "expectancy", "wr", "n_is", "n_oos", "oos_total", "oos_expectancy",
+                "oos_positive", "wf", "wf_ge_070", "qpf", "exp_drop_top3", "edge_capture_rel",
+                "sub_window_stable", "both_halves", "p_null", "bh_fdr_survivor"],
+    "is_oos_split": "OOS_BOUNDARY = 2026-01-01 (autoresearch.strategy_space_grind.OOS_BOUNDARY, reused unmodified -- 2025 IS / 2026 OOS calendar-year chronological split, same as every study in this lineage).",
+    "op16_anchor_caveat": "edge_capture_rel (t4_exit_matrix.battery, J_WINNERS/J_LOSERS day-level anchor) is computed at QTY=5 here (Bold's real size), not QTY=10 -- the anchor comparison used for gate 4 (anchor_no_regression) is candidate_ecr >= control_ecr, which is scale-invariant since every cell in this study shares the same QTY=5. The absolute figure is NOT directly comparable to OP-16's stated $1542 EDGE_CAPTURE_MAX (a mixed-qty absolute) or to the Safe reconciliation study's QTY=10 figures -- disclosed, not conflated. The anchor itself (J_WINNERS/J_LOSERS dates) is an account-agnostic SPY-price-level pattern anchor, not Bold-specific fills."
+  },
+
+  "nulls": {
+    "method": "autoresearch.null_baseline.random_entry_null, reused unchanged (20 deterministic seeds, same call/put mix and strike as the real cell, drawn at random RTH bars) via a custom sim_fn that routes each null draw through the IDENTICAL Bold exit shape/time-stop/friction/floor-gate machinery as the real cells (a null draw whose raw entry premium fails the 0.30 floor is excluded from that draw, same as a real signal would be) -- so the null is a fair 'coin-flip inside Bold's own tradeable footprint', not a generic coin-flip.",
+    "entry_gate_for_draws": "(09:35, 15:00) ET -- Bold's OWN live entry window (aggressive/params.json entry_no_trade_before_et/entry_no_trade_after_et), NOT the null_baseline module's generic default (09:35, 15:45) that ribbon_ride_strike_exit_ab.py uses for the account-agnostic cohort study. Deviation disclosed: mirroring Bold's live path is this task's explicit mandate.",
+    "seeds": 20,
+    "p_null_definition": "add-one empirical p-value (fraction of the 20 seed-level per-trade means >= the real cell's expectancy, +1/+1 smoothed) -- ribbon_ride_strike_exit_ab.py's exact empirical_p_null convention, reused unchanged."
+  },
+
+  "multiple_comparisons": {
+    "method": "backtest/autoresearch/ribbon_rejection_wick_battery.bh_fdr() + FDR_ALPHA=0.10, reused unchanged.",
+    "n_comparisons": 6,
+    "note": "Applied across all 6 strike cells' p_null values. bh_fdr_survivor is ratification gate 5 below."
+  },
+
+  "ratification_gates": {
+    "statement": "5 gates, per OP-11's auto-ratify bar (OOS_positive AND WF>=0.70 AND sub_window_stable AND anchor_no_regression), EXTENDED with BH-FDR survivorship as the 5th gate because this task explicitly requires BH-FDR across cells (the Safe reconciliation study's job1a explicitly skipped it as out of scope -- this study does not skip it).",
+    "gates": [
+      "1. oos_positive: OOS-half total pnl > 0.",
+      "2. wf_ge_070: walk-forward ratio (OOS per-trade mean / IS per-trade mean) >= 0.70, only defined when IS mean > 0.",
+      "3. sub_window_stable: both chronological halves (first/second) net-positive.",
+      "4. anchor_no_regression: candidate edge_capture_rel >= OTM-3 control's edge_capture_rel (QTY=5, see op16_anchor_caveat).",
+      "5. bh_fdr_survivor: the cell's p_null survives Benjamini-Hochberg at alpha=0.10 across all 6 cells."
+    ],
+    "evidence_n_advisory_only": "evidence_n >= 15 (CLAUDE.md OP-11) is advisory, not gating, per standing doctrine -- reported per cell, does not by itself block or clear a verdict."
+  },
+
+  "decision_rule": {
+    "statement": "A candidate cell (OTM-2, OTM-1, ATM, ITM-1, or ITM-2) is SHIP-READY (recommend re-tiering V15_BOLD_TIERS <$2K to it) only if ALL of the following hold, evaluated on the frozen population/method above with ZERO post-hoc adjustment:",
+    "conditions": [
+      "A. beats_control_oos: candidate OOS expectancy > OTM-3 control's OOS expectancy.",
+      "B. clears_all_5_ratification_gates: every gate in ratification_gates.gates is true for the candidate.",
+      "C. can_actually_trade: floor_clearance_rate >= 0.70 AND floor_clearance_rate_afternoon >= 0.70 -- a cell that beats OTM-3 on paper but still cannot clear the entry floor often enough (including afternoons) is not a structural fix, it just moves the collision.",
+      "D. If MULTIPLE cells clear A+B+C, the winner is the one with the highest OOS expectancy (tie-break: highest floor_clearance_rate_afternoon)."
+    ],
+    "null_result_is_valid": "If NO candidate clears A+B+C, the verdict is a valid, fully-anticipated NULL (report OTM-3's own floor-collision severity and every candidate's nearest-miss reason prominently -- a null result does not mean the study failed).",
+    "live_flip_deferred": "Per explicit task instruction: this study does NOT flip automation/state/aggressive/... or crypto/lib/strike_selection.py#V15_BOLD_TIERS tonight even if a cell clears every condition above. The scorecard records the recommendation, the exact one-line diff, and a guard-test spec, and is appended to automation/overnight/STATUS.md for a same-morning J REVOKE window -- justified because this is a same-night live-code change to a shared strike table on the heels of a -$369 Bold day (OP-11 auto-ratify would otherwise apply; this is the disclosed, reasoned exception)."
+  },
+
+  "outputs": {
+    "scorecard_json": "analysis/recommendations/bold-strike-axis-2026-07-15.json",
+    "scorecard_md": "analysis/recommendations/bold-strike-axis-2026-07-15.md"
+  },
+
+  "rail": "ANALYSIS ONLY. No orders, no params/config changes, read-only on production. Touches NO trading-path file (aggressive/params.json, heartbeat_core.py, strategies.py, exit_manager.py, crypto/lib/strike_selection.py). $0 cost -- local cache only, one process. A SHIP-READY verdict is a RECOMMENDATION for a same-morning J REVOKE window per decision_rule.live_flip_deferred, never auto-applied by this script.",
+  "content_sha256_16": "770439aea2083210"
+}
