@@ -3803,3 +3803,28 @@ def test_append_today_spy_uses_alpaca_sip() -> None:
         "append_today.append_symbol no longer calls fetch_spy_5m_sip — SPY appends "
         "would regress to yfinance's volume-less premarket bars"
     )
+
+
+def test_level_memory_live_merge_key_present_and_boolean() -> None:
+    """G11-C14-WIRING-GUARD (2026-07-15): live params.json must carry
+    'level_memory_live_merge' as a present boolean value. The G11 wire
+    (setup/scripts/refresh_levels_intraday.py#_memory_merge_enabled) is
+    FAIL-OFF on a missing/unreadable key -- a silently-dropped key would not
+    crash anything, it would just quietly turn the wire off with no signal,
+    exactly the C14 dead-knob class (a key present in prose/docs but not
+    actually reaching the consumer, or removed without anyone noticing).
+    Guards the flag itself, independent of which way it's currently set --
+    see analysis/recommendations/level-memory-wire.json for the A/B verdict
+    on whether it SHOULD be on."""
+    params = json.loads(PARAMS.read_text(encoding="utf-8"))
+    assert "level_memory_live_merge" in params, (
+        "params.json is missing 'level_memory_live_merge' -- the G11 wire "
+        "(refresh_levels_intraday.py#_memory_merge_enabled) would silently "
+        "read this as absent/false with zero signal that the key vanished."
+    )
+    assert isinstance(params["level_memory_live_merge"], bool), (
+        f"params.json's 'level_memory_live_merge' must be a boolean, got "
+        f"{type(params['level_memory_live_merge']).__name__!r} — "
+        f"_memory_merge_enabled() calls bool() on it, so a stray string/number "
+        f"would silently coerce rather than fail loudly."
+    )

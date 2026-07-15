@@ -998,7 +998,7 @@ MECHANISM (flag-gated, default = exactly what ships): (1) `build_shared_signal.p
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 60 pending, last cook 0 min ago, today $0.00, model=grinder-python
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -4266,3 +4266,15 @@ Inbox item `strategy/candidates/_lesson-inbox/2026-07-10-joint-cascade-blindness
 
 ### DEGRADED: self-check 2026-07-15T00:39:56
 - PDT-BLOCKED[safe]: 5/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-16.
+
+## [2026-07-15 ~00:47 ET] G11-LEVEL-MEMORY-AB-REPLAY closed — NEGATIVE_INSUFFICIENT_N, flag stays ON
+
+Ran the overdue A/B scorecard for the G11 level-memory wire (LIVE since 2026-07-09, never scored). Pre-registered spec first (`analysis/recommendations/prereg-level-memory-wire-2026-07-15.json`, frozen + committed before running). Built a real counterfactual: the backtest engine's own level detection has zero notion of level_memory, so CONTROL (vanilla) = wire-off proxy; TREATMENT unions the *same* memory-merge formula the live wire uses via a new additive `backtest/lib/levels.py#_detect_from_history(memory_levels_by_day=...)` hook (default None = zero behavior change for every existing caller) — real production trigger logic (`filters.py`), not a reimplementation. Backfilled the 4 OPRA cache days missing (07-09/07-10/07-13/07-14, 88 contracts, 0 errors) so the full 2026-06-05..07-14 window (26 sessions) replays on real fills.
+
+**Result:** CONTROL 28 trades / TREATMENT 26. Participation-added n=2 (−$489.50, both `confluence`-triggered losers) + shared-behavior-changed n=1 ($0 delta) = combined n=3 — below the pre-registered 15-evidence floor. **Verdict NEGATIVE_INSUFFICIENT_N** — trends negative but n is too thin to invoke the queue item's own revert clause. Flag `level_memory_live_merge` stays `true`.
+
+Live cross-check of the 3 real wire-live sessions: the wire touched exactly ONE real signal episode (07-14 10:36-10:38 ET, `BULLISH_RECLAIM_RIDE_THE_RIBBON`, SUPER tier — deduped from 3 identical consecutive ticks, not 3 separate decisions) — blocked by `VETOED_BY_MODELS` then `RISK_DENY_PDT`. Zero real fills, zero real P&L from the wire to date.
+
+Full scorecard: `analysis/recommendations/level-memory-wire.json` / `.md`. Closed the sibling queue item too: `test_level_memory_live_merge_key_present_and_boolean` added to `backtest/tests/test_graduated_guards.py` (C14 wiring guard — live params.json must carry the flag as a present boolean). Both queue rows flipped to `[x] status:done`.
+
+Aside (unrelated, noticed in passing, not actioned): the spend-summary WARN a few entries above this one shows **$342.47 for 2026-07-14 vs a $30 threshold** (17 Claude sessions) — worth a look next session, out of scope here.

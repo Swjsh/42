@@ -1,0 +1,205 @@
+{
+  "_doc": "G11-LEVEL-MEMORY-AB-REPLAY scorecard. Pre-reg: analysis/recommendations/prereg-level-memory-wire-2026-07-15.json (frozen before this run).",
+  "generated_at_et": "2026-07-14T22:43:33",
+  "window": {
+    "lookback_buffer": [
+      "2026-05-19",
+      "2026-06-05"
+    ],
+    "scored": [
+      "2026-06-05",
+      "2026-07-14"
+    ],
+    "n_scored_trading_days": 26,
+    "n_days_with_memory_candidates": 26,
+    "wire_live_since": "2026-07-09",
+    "real_wire_live_sessions_in_window": [
+      "2026-07-09",
+      "2026-07-10",
+      "2026-07-14"
+    ]
+  },
+  "config": {
+    "use_real_fills": true,
+    "initial_equity": 1746.75,
+    "strike_offset_atm_override": 0,
+    "memory_spot_pct": 0.015,
+    "memory_cap": 6,
+    "memory_min_score": 60.0
+  },
+  "trade_diff": {
+    "n_control_trades": 28,
+    "n_treatment_trades": 26,
+    "n_treatment_only_participation": 2,
+    "n_control_only_removed": 4,
+    "n_shared_behavior_changed": 1,
+    "n_shared_unchanged": 23,
+    "pnl_participation_added": -489.5,
+    "pnl_removed_trades": -289.64,
+    "pnl_shared_behavior_delta": 0.0,
+    "pnl_combined_a_plus_c": -489.5,
+    "treatment_only_trades": [
+      {
+        "entry_time_et": "2026-06-26T14:50:00",
+        "side": "P",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "strike": 732,
+        "qty": 5,
+        "rejection_level": 732.75,
+        "triggers_fired": [
+          "level_rejection",
+          "ribbon_flip",
+          "confluence"
+        ],
+        "dollar_pnl": -237.5,
+        "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "entry_time_et": "2026-07-13T15:30:00",
+        "side": "P",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "strike": 748,
+        "qty": 12,
+        "rejection_level": 748.42,
+        "triggers_fired": [
+          "level_rejection",
+          "confluence",
+          "trendline_rejection"
+        ],
+        "dollar_pnl": -252.0,
+        "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP"
+      }
+    ],
+    "control_only_trades": [
+      {
+        "entry_time_et": "2026-06-11T10:05:00-04:00",
+        "side": "P",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON::BS_FALLBACK",
+        "strike": 730,
+        "qty": 3,
+        "rejection_level": 0.0,
+        "triggers_fired": [
+          "trendline_rejection"
+        ],
+        "dollar_pnl": 407.86,
+        "exit_reason": "ExitReason.EXIT_ALL_RIBBON_FLIP_BACK"
+      },
+      {
+        "entry_time_et": "2026-06-26T14:55:00",
+        "side": "P",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "strike": 732,
+        "qty": 4,
+        "rejection_level": 732.0982057689337,
+        "triggers_fired": [
+          "level_rejection",
+          "ribbon_flip",
+          "confluence"
+        ],
+        "dollar_pnl": -218.0,
+        "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "entry_time_et": "2026-07-07T10:40:00",
+        "side": "P",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "strike": 746,
+        "qty": 3,
+        "rejection_level": null,
+        "triggers_fired": [
+          "trendline_rejection"
+        ],
+        "dollar_pnl": -220.5,
+        "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP"
+      },
+      {
+        "entry_time_et": "2026-07-07T15:30:00",
+        "side": "P",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "strike": 747,
+        "qty": 7,
+        "rejection_level": null,
+        "triggers_fired": [
+          "trendline_rejection"
+        ],
+        "dollar_pnl": -259.0,
+        "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP"
+      }
+    ],
+    "shared_behavior_changed_trades": [
+      {
+        "entry_time_et": "2026-06-22T11:50:00",
+        "side": "P",
+        "control": {
+          "rejection_level": 746.1,
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "dollar_pnl": -242.0
+        },
+        "treatment": {
+          "rejection_level": 746.09,
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "dollar_pnl": -242.0
+        }
+      }
+    ]
+  },
+  "concentration": {
+    "participation_added": {
+      "n": 2,
+      "top1_pct": 51.5,
+      "top3_pct": 100.0
+    },
+    "shared_behavior_changed": {
+      "n": 1,
+      "top1_pct": 0.0,
+      "top3_pct": 0.0
+    }
+  },
+  "live_cross_check_sub_cohort_A": {
+    "available": true,
+    "sessions": [
+      "2026-07-09",
+      "2026-07-10",
+      "2026-07-14"
+    ],
+    "n_enter_verdicts_safe": 36,
+    "n_matched_memory_sourced": 3,
+    "deduped_episodes": 1,
+    "real_outcome_note": "The 3 matched rows are the SAME persisting signal logged on 3 consecutive 1-min heartbeat ticks (10:36:03/10:37:03/10:38:03 ET, same trigger_level_exact=751.75, same setup) -- ONE real live episode, not 3 independent decisions (participation_cascade.py's own consecutive-identical-tick dedup convention applied here for an apples-to-apples read). Verified against core-decisions.jsonl: the signal (BULLISH_RECLAIM_RIDE_THE_RIBBON, quality tier SUPER, passed scoring + all 15 entry gates) was blocked at 10:36/10:37 by VETOED_BY_MODELS (the free-model veto gate) and at 10:38 by RISK_DENY_PDT ('safe: 7 day-trades in 5d at equity $1,747 < $25,000 -- PDT rule blocks a 4th day-trade'). NO ORDER WAS EVER PLACED. The wire's entire REAL live impact to date (its first 3 sessions of operation) is: contributed to ONE signal episode reaching SUPER tier, zero real fills, zero real P&L -- unrelated downstream gates (model veto, then PDT) are what actually decided the outcome.",
+    "matches": [
+      {
+        "date": "2026-07-14",
+        "ts_et": "2026-07-14T10:36:03",
+        "trigger_level_exact": 751.75,
+        "matched_memory_price": 751.81,
+        "verdict": "ENTER_BULL",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+      },
+      {
+        "date": "2026-07-14",
+        "ts_et": "2026-07-14T10:37:03",
+        "trigger_level_exact": 751.75,
+        "matched_memory_price": 751.81,
+        "verdict": "ENTER_BULL",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+      },
+      {
+        "date": "2026-07-14",
+        "ts_et": "2026-07-14T10:38:03",
+        "trigger_level_exact": 751.75,
+        "matched_memory_price": 751.81,
+        "verdict": "ENTER_BULL",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+      }
+    ]
+  },
+  "verdict": "NEGATIVE_INSUFFICIENT_N",
+  "verdict_basis": "n_effect (participation + shared-behavior-change) = 3, combined P&L delta = $-489.50, evidence floor = 15 (OP-16 advisory).",
+  "flag_recommendation": "leave level_memory_live_merge ON -- insufficient n for a kill verdict"
+}
