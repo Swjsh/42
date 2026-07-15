@@ -932,7 +932,7 @@ MECHANISM (flag-gated, default = exactly what ships): (1) `build_shared_signal.p
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 61 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 62 pending, last cook 0 min ago, today $0.00, model=grinder-python
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -4192,3 +4192,6 @@ Inbox item `strategy/candidates/_lesson-inbox/2026-07-10-joint-cascade-blindness
 - FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x safe: 7 day-trades in 5d at equity $1,747 < $25,000 — PDT rule blocks a 4th day-trade
 - FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:07 ENTER_BEAR ?', '15:08 ENTER_BEAR ?']
 - PDT-BLOCKED[safe]: 7/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-15.
+
+### DEGRADED: self-check 2026-07-15T00:09:56
+- PDT-BLOCKED[safe]: 5/3 day-trades used (rolling 5bd) at equity $1,746.56 -- blocks a 4th day-trade until it rolls off 2026-07-16.

@@ -3,6 +3,8 @@
  "pdt_gate_mode": "cash_settlement",
  "max_same_day_roundtrips": 5,
  "_pdt_gate_mode_doc": "RULE 7 REWRITE (2026-07-14) -- mirrors automation/state/params.json's key (see that file's _pdt_gate_mode_doc for the full rationale). Gamma-Risky-2 (PA33W2KUAT40) is also a CASH account (multiplier=1). Consumer: setup/scripts/heartbeat_core.py#_execute. Revert: set to 'margin_pdt'.",
+ "spread_execution_enabled": false,
+ "_spread_execution_enabled_doc": "DEBIT-SPREAD EXECUTION -- BUILT DISARMED 2026-07-14. Mirrors automation/state/params.json's key (see that file's _spread_execution_enabled_doc for full rationale). Consumer: setup/scripts/spread_executor.py#is_armed. Flips true ONLY per the debit-spread A/B scorecard (analysis/recommendations/debit-spread-ab.json) clearing OP-11; Bold arming is additionally a SEPARATE decision from Safe (C29: cells don't transfer across strike tiers/accounts). Guard: backtest/tests/test_spread_executor.py. Revert: set false.",
  "schema_version": 3,
  "rule_version": "v15.2",
  "rule_version_ratified_at": "2026-05-18",
