@@ -606,7 +606,25 @@ def _veto_snapshot(bc: dict, verdict: dict) -> str:
     now renders a real value (not None) on the extra-setup path.
 
     Byte-identical to the pre-fix inline string whenever bear_score AND bull_score are both
-    present (the core-ribbon path, always true today) -- this is a pure extraction there."""
+    present (the core-ribbon path, always true today) -- this is a pure extraction there.
+
+    UNITS FIX (2026-07-15, false-veto class -- #1 participation sink, 55 VETOED_BY_MODELS
+    blocks since 07-01, more than every directional gate combined; see
+    markdown/audits/DIRECTIONAL-GATE-DEEP-RESEARCH-2026-07-15.md section 3). The old
+    rendering (`spread={cents}c`) was misread by the free models as an OPTION BID-ASK
+    SPREAD IN DOLLARS -- it is actually the EMA-ribbon fast-vs-slow gap, in CENTS. Real
+    example: the 2026-07-15T14:16:27 ET bold ENTER_BEAR (SPY=754.545, spread_cents=75.14,
+    a directionally-correct call -- SPY closed 753.63) was vetoed with reason "spread value
+    of 75.14 is implausibly large for SPY options (typical spreads are ~$0.10-$0.50),
+    indicating a likely data entry error". The trailing "c" suffix alone was not enough
+    disambiguation -- the model still read the bare number as a dollar figure. Fix: rename
+    the label to `ribbon_width_cents=` and append an explicit, unmissable parenthetical
+    stating the unit AND that it is NOT an option spread (mirrored in the sysmsg below).
+    PRESENTATION-ONLY: `bc['ribbon_now']['spread_cents']` (the payload key) and the
+    `spread_cents` field logged to core-decisions.jsonl by run_account() are UNCHANGED --
+    every existing consumer of the logged decision row (including free_model_audit's
+    collect_items, which reads spread_cents straight from the ledger) stays compatible.
+    Guard: backtest/tests/test_veto_snapshot_units.py."""
     bear, bull = verdict.get("bear_score"), verdict.get("bull_score")
     scores = " ".join(s for s in (
         f"bear={bear}/10" if bear is not None else None,
@@ -615,8 +633,11 @@ def _veto_snapshot(bc: dict, verdict: dict) -> str:
     setup_seg = f"setup={verdict.get('setup_name')}"
     if scores:
         setup_seg += f" {scores}"
+    ribbon_width_cents = bc["ribbon_now"]["spread_cents"]
     return (f"SPY={bc['bar']['close']} ribbon={bc['ribbon_now']['stack']} "
-            f"spread={bc['ribbon_now']['spread_cents']}c VIX={bc['vix_now']:.2f}(prior {bc['vix_prior']:.2f}) "
+            f"ribbon_width_cents={ribbon_width_cents} (EMA-ribbon fast-vs-slow gap in CENTS, "
+            f"typical range 5-150c -- this is NOT an option bid-ask spread) "
+            f"VIX={bc['vix_now']:.2f}(prior {bc['vix_prior']:.2f}) "
             f"HTF15m={bc['htf_15m_stack']} levels_near={bc['levels_active']} "
             f"rules_engine_says={verdict.get('verdict')} side={verdict.get('side')} "
             f"{setup_seg} triggers={verdict.get('triggers_fired')}")
@@ -641,7 +662,10 @@ def _free_model_eval(account: str, payload: dict, verdict: dict) -> dict:
     sysmsg = ("You are a 0DTE SPY options risk checker. A deterministic rules engine wants to ENTER. "
               "Your ONLY job: is this a SANE entry given the tape, or is something clearly off "
               "(chop, conflicting HTF, VIX spike, no real level)? You can only VETO a bad entry; "
-              "you cannot create one. Default go=true unless something is clearly wrong. JSON only.")
+              "you cannot create one. Default go=true unless something is clearly wrong. "
+              "NOTE: ribbon_width_cents in the snapshot is the EMA ribbon's fast-vs-slow gap in "
+              "CENTS (typical range 5-150c) -- it is NOT an option bid-ask spread; never veto "
+              "just because that number looks like a large dollar spread. JSON only.")
     votes = []
     # Two distinct free lanes: coordinator (groq llama-3.1-8b) + critic (openrouter
     # nemotron-120b) — different provider AND model, so the veto stays independent even

@@ -194,24 +194,37 @@ _CORE_VERDICT = {
 }
 
 
-def test_core_path_prompt_byte_identical_to_pre_fix_format(hc):
+def test_core_path_prompt_pinned_post_2026_07_15_units_fix(hc):
     """vary-and-assert (C14): a fully-populated core-ribbon verdict (side + both scores
     real, as engine_cli always produces for ENTER_BEAR/ENTER_BULL -- the only verdicts
-    _free_model_eval is ever called with on this path) must render EXACTLY what the
-    original pre-refactor inline f-string produced -- this fix must not perturb the
-    already-correct core path."""
+    _free_model_eval is ever called with on this path) must render EXACTLY the pinned
+    format.
+
+    SUPERSEDES the old "byte-identical to pre-fix format" pin (2026-07-09 -> 2026-07-15):
+    the pre-2026-07-15 format rendered `spread={cents}c`, which the free-model veto layer
+    misread as an OPTION BID-ASK SPREAD IN DOLLARS instead of the EMA-ribbon width in
+    cents it actually is -- the root cause of the 2026-07-15 false-veto class (see
+    heartbeat_core._veto_snapshot's docstring + markdown/audits/DIRECTIONAL-GATE-DEEP-
+    RESEARCH-2026-07-15.md). This pin now locks the FIXED format (`ribbon_width_cents=`
+    with an explicit unit + NOT-an-option-spread annotation) so a future refactor can't
+    silently regress back to the ambiguous form."""
     bc = _bar_ctx()
     verdict = _CORE_VERDICT
-    # The ORIGINAL (pre-2026-07-09) inline expression from _free_model_eval, reconstructed
-    # verbatim as the pinned expectation -- NOT calling any production code.
+    # The FIXED (2026-07-15) inline expression, reconstructed verbatim as the pinned
+    # expectation -- NOT calling any production code, so a regression in production would
+    # actually diverge from this rather than the test trivially matching itself.
+    ribbon_width_cents = bc["ribbon_now"]["spread_cents"]
     expected = (f"SPY={bc['bar']['close']} ribbon={bc['ribbon_now']['stack']} "
-                f"spread={bc['ribbon_now']['spread_cents']}c VIX={bc['vix_now']:.2f}(prior {bc['vix_prior']:.2f}) "
+                f"ribbon_width_cents={ribbon_width_cents} (EMA-ribbon fast-vs-slow gap in CENTS, "
+                f"typical range 5-150c -- this is NOT an option bid-ask spread) "
+                f"VIX={bc['vix_now']:.2f}(prior {bc['vix_prior']:.2f}) "
                 f"HTF15m={bc['htf_15m_stack']} levels_near={bc['levels_active']} "
                 f"rules_engine_says={verdict.get('verdict')} side={verdict.get('side')} "
                 f"setup={verdict.get('setup_name')} bear={verdict.get('bear_score')}/10 "
                 f"bull={verdict.get('bull_score')}/11 triggers={verdict.get('triggers_fired')}")
     actual = hc._veto_snapshot(bc, verdict)
     assert actual == expected
+    assert "spread=" not in actual, "regressed to the ambiguous pre-2026-07-15 label"
 
 
 def test_core_path_bear_only_enable_bullish_false_omits_bull(hc):

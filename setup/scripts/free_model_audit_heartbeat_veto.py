@@ -94,7 +94,10 @@ MARGIN_DOLLARS = 15.0   # noise band (~half a 3-lot at a nickel-wide spread); se
 _SYSMSG = ("You are a 0DTE SPY options risk checker. A deterministic rules engine wants to ENTER. "
           "Your ONLY job: is this a SANE entry given the tape, or is something clearly off "
           "(chop, conflicting HTF, VIX spike, no real level)? You can only VETO a bad entry; "
-          "you cannot create one. Default go=true unless something is clearly wrong. JSON only.")
+          "you cannot create one. Default go=true unless something is clearly wrong. "
+          "NOTE: ribbon_width_cents in the snapshot is the EMA ribbon's fast-vs-slow gap in "
+          "CENTS (typical range 5-150c) -- it is NOT an option bid-ask spread; never veto "
+          "just because that number looks like a large dollar spread. JSON only.")
 
 _PROMPT_TEMPLATE = """{sysmsg}
 
@@ -389,8 +392,11 @@ def _build_snapshot(item) -> str:
         scores = " ".join(s for s in (f"bear={bear}/10" if bear is not None else None,
                                       f"bull={bull}/11" if bull is not None else None) if s)
         setup_seg = f"setup={ctx.get('setup_name')}" + (f" {scores}" if scores else "")
+        # 2026-07-15 units fix mirrored here too (see heartbeat_core._veto_snapshot docstring)
+        # so the degraded-render fallback never reintroduces the ambiguous "spread=Xc" form.
         return (f"[DEGRADED-RENDER, heartbeat_core import failed] SPY={ctx.get('spy')} "
-               f"ribbon={ctx.get('ribbon')} spread={ctx.get('spread_cents')}c VIX={ctx.get('vix')} "
+               f"ribbon={ctx.get('ribbon')} ribbon_width_cents={ctx.get('spread_cents')} "
+               f"(EMA-ribbon gap in CENTS, NOT an option spread) VIX={ctx.get('vix')} "
                f"HTF15m={ctx.get('htf_15m')} rules_engine_says={ctx.get('verdict_str')} "
                f"side={ctx.get('side')} {setup_seg} triggers={ctx.get('triggers')}")
 
