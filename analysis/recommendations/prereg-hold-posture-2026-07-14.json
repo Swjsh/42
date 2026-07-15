@@ -1,0 +1,116 @@
+{
+  "_doc": "PRE-REGISTERED cohort/method/pass-bar for EDGE-3-HOLD-POSTURE-PREREG. FROZEN BEFORE any replay is run -- exploratory != confirmatory, no re-picks after seeing results, a KILL is a publishable, valid outcome. Runner: backtest/tools/hold_posture_ab_study.py. Reuses backtest/tools/debit_spread_ab_study.py's population/battery/null/BH-FDR machinery as a LIBRARY IMPORT (not re-implemented) so both EDGE studies share byte-identical battery discipline, per the mission's own 'same battery discipline' instruction. Read-only against production: no orders, no params/config changes.",
+  "study": "hold_posture_ab",
+  "version": 1,
+  "status": "FROZEN_PENDING_RUN",
+  "frozen_at": "2026-07-14",
+  "cost": "$0 -- all option bars read from the local OPRA cache (backtest/data/options/*.csv, no network), pure Python replay.",
+
+  "hypothesis": {
+    "under_test": "The falsification literature's only positive-control signals (markdown/research/EDGE-DEEP-RESEARCH-SYNTHESIS-2026-07-14.md item #3) worked via regime classification + 60-75 minute holds, and J's own OP-16 anchor winners are all multi-hour rides -- suggesting a hold-time floor or a trail-first (defer TP1) posture on the SAME validated ribbon_ride signals should out-perform the current live posture, which takes profit early (TP1 at +50% today, tp1_qty_fraction 0.8).",
+    "competing_hypothesis_named_in_mission": "This is GENUINELY CONTESTED, not a foregone conclusion -- this repo's own P5/exit-shape studies (backtest/tools/t4_exit_matrix.py and its lineage) previously found TP1-early shapes winning on real fills. Both a PASS and a KILL are fully anticipated, valid outcomes; the data decides, nothing is tuned after seeing results.",
+    "source": "markdown/research/EDGE-DEEP-RESEARCH-SYNTHESIS-2026-07-14.md, ranked item #3."
+  },
+
+  "population": {
+    "primary": {
+      "source": "backtest/tools/_signal_cache.py:load_or_build_signals() -- IDENTICAL to EDGE-2 (same cache file, not rebuilt).",
+      "cache_file": "analysis/exit-parity/signal-set.json",
+      "n_frozen": 250, "by_direction_frozen": {"bear": 191, "bull": 59},
+      "window": "2025-01-01..2026-06-18"
+    },
+    "corroboration": {
+      "source": "automation/state/fills-ledger.jsonl, attribution=='engine' AND is_option AND !is_crypto, ALL arms.",
+      "method": "backtest/tools/debit_spread_ab_study.py:load_corroboration_signals() -- REUSED unchanged (same function EDGE-2 used) so the corroboration population is byte-identical across both EDGE studies.",
+      "n_frozen_at_freeze_time": 110,
+      "role": "SECONDARY / DISCLOSURE ONLY, same caveat as EDGE-2 (spot is a nearest-prior-5m-bar SPY close lookup, not the engine's own recorded spot)."
+    }
+  },
+
+  "structure": "SINGLE LEG ONLY (unlike EDGE-2). Long ATM (strike = round(entry_spot)), same side as the signal -- matches the live tier, and isolates the POSTURE change (hold-timing) from any structure change (EDGE-2 already covers structure; this study must not confound the two).",
+
+  "shapes": {
+    "control_SS_B": {
+      "id": "control",
+      "label": "current live posture (params.json-sourced, IDENTICAL construction to EDGE-2's live shape -- see debit_spread_ab_study.py:_live_shape()). Referred to as 'SS-B' in the mission's own shorthand for 'the current structure-stop-primary posture'; this is NOT a re-use of the older, now-superseded structure_stop_study.py SS_B_SHAPE constant (tp1=1.0/frac=0.667/trailing-15%), which no longer matches live params.json (tp1=0.50/frac=0.8/fixed-mode). Using two different things under the same 'SS-B' label would be a silent drift bug -- this study names its control explicitly as 'the live params.json-sourced posture' and disclaims the older constant.",
+      "premium_stop_pct": "params.premium_stop_pct (-0.50 at freeze time)",
+      "tp1_premium_pct": "params.tp1_premium_pct (0.50 at freeze time)",
+      "tp1_qty_fraction": "params.tp1_qty_fraction (0.8 at freeze time)",
+      "profit_lock_mode": "params.v15_profit_lock_mode ('fixed' at freeze time)",
+      "profit_lock_arm_pct": "params.v15_profit_lock_threshold_pct (0.05 at freeze time)",
+      "trail_pct": "params.v15_profit_lock_trail_pct (0.125 at freeze time, inert under fixed mode)",
+      "runner_target_pct": "exit_manager.DEFAULT_RUNNER_TARGET_PCT = 2.5",
+      "time_stop_et": "params.time_stop_et ('15:40' at freeze time)",
+      "hold_gate": "NONE -- every exit_manager stage (tp1, runner_target, premium_stop, trail/be_stop, time_stop) fires the instant its own condition is met, exactly as live does today."
+    },
+    "variant_MIN_HOLD_30": {
+      "id": "MIN_HOLD_30",
+      "label": "min-hold floor: 30 minutes before ANY non-catastrophe exit",
+      "base_shape": "IDENTICAL numeric params to control_SS_B -- ONLY the hold_gate differs.",
+      "hold_gate": "For the first 30 minutes after entry (by bar wall-clock time, ET), ONLY the premium_stop (catastrophe -50% cap) stage is allowed to fire. Every other stage exit_manager.plan_exit_actions would otherwise fire this tick (tp1, runner_target, trail, be_stop, time_stop) is SUPPRESSED: the tick is treated as a HOLD (no sell, no state advance -- ExitState is NOT updated to the decision's post-action state, so the SAME pre-decision branch re-evaluates fresh on the next bar). After 30 minutes elapse, ALL stages resume firing normally with no further gating.",
+      "mechanism_note": "Reuses automation/state/fleet/exit_manager.py's plan_exit_actions UNMODIFIED -- the floor is implemented as a thin per-tick actuator-side filter on which of the decision core's OWN actions get executed, exactly the pattern the module's own docstring describes ('a thin live actuator... this file places nothing'). No new exit logic is invented inside exit_manager.py."
+    },
+    "variant_TRAIL_ONLY_60": {
+      "id": "TRAIL_ONLY_60",
+      "label": "trail-only, no TP1 before 60 minutes",
+      "base_shape": "control_SS_B's numeric params EXCEPT: profit_lock_mode is overridden to 'trailing' (using the SAME live trail_pct=0.125 already in the shape, just switching WHICH mode consumes it) AND profit_lock_arm_scope is overridden to 'full' (exit_manager's own existing, already-implemented, already-tested pre-TP1 arming mode -- 'whole position gets the BE floor/trail from the first +arm_pct touch', per exit_manager.py's own docstring) so the trailing mechanism is the position's PRIMARY protection from minute 0, not gated behind a TP1 fill that this variant defers. Nothing new is added to exit_manager.py -- profit_lock_arm_scope='full' is a pre-existing flag.",
+      "hold_gate": "The 'tp1' stage specifically is SUPPRESSED (same rollback-state mechanism as MIN_HOLD_30) for the first 60 minutes after entry. All other stages (premium_stop, runner_target, trail, be_stop, time_stop) are UNGATED and fire normally throughout, including in minute 0-60. After 60 minutes, TP1 resumes firing normally."
+    },
+    "count_note": "3 shapes total (control + 2 treatment variants), matching the mission's 'variants MAX 3' cap."
+  },
+
+  "pricing_and_fills": {
+    "bars": "5-min OPRA bars, backtest/lib/option_pricing_real.py:load_contract_bars -- local cache, $0. Fill-bar-INCLUDED convention, identical to EDGE-2 and t4_exit_matrix.",
+    "haircut_convention": "IDENTICAL to EDGE-2's naked-control convention (this study is single-leg only): entry_fill = bar0.open + DEFAULT_ENTRY_SLIPPAGE(0.02); every closing transaction's fill = the exit_manager's own target level - DEFAULT_EXIT_SLIPPAGE(0.02); commission = DEFAULT_COMMISSION(0.65) x 1 leg x 2 sides x qty. Reused via backtest/tools/debit_spread_ab_study.py's DEFAULT_ENTRY_SLIPPAGE/DEFAULT_EXIT_SLIPPAGE/DEFAULT_COMMISSION imports (simulator_credit's constants, byte-for-byte simulator_real's own defaults).",
+    "qty": 10
+  },
+
+  "metrics": {
+    "per_episode": ["realized_pnl_usd (qty 10)", "win (pnl>0)", "exit_stage",
+                    "friction_usd / friction_pct_of_premium (carried for instrumentation parity with EDGE-2, not this study's primary lens)",
+                    "theta_bleed_proxy (time-stop-exit episodes only)"],
+    "aggregate": ["n", "total_pnl", "expectancy ($/episode)", "win_rate",
+                  "IS/OOS split (OOS_BOUNDARY=2026-01-01, reused unmodified from autoresearch.strategy_space_grind)",
+                  "WF = oos_mean/is_mean", "quarter-level positive-quarter-fraction (qpf)",
+                  "drop-top-3 expectancy"]
+  },
+
+  "nulls": {
+    "baseline_null": "control_SS_B IS the baseline -- every variant is a PAIRED delta vs control on the SAME signal.",
+    "shuffle_null": {
+      "method": "IDENTICAL to EDGE-2: sign-flip (Fisher) permutation test on paired per-episode differences d_i = variant_pnl_i - control_pnl_i. N=5000 permutations, seed=1729 (the SAME fixed seed EDGE-2 used -- fixed before either study saw results, not re-picked per study).",
+      "n_permutations": 5000, "seed": 1729
+    },
+    "multiple_comparisons": {
+      "method": "backtest/autoresearch/ribbon_rejection_wick_battery.py:bh_fdr() + FDR_ALPHA=0.10, reused unchanged.",
+      "n_comparisons": 2
+    }
+  },
+
+  "anchor_check_op16": {
+    "non_negotiable": true,
+    "statement": "Replay the 3 J_WINNERS ride-the-ribbon days (autoresearch.strategy_space_grind.J_WINNERS) under control_SS_B AND each posture variant, matched to the primary cohort's own signals on those dates -- IDENTICAL method to EDGE-2's anchor check (same signal-match rule, same caveat that this uses the ATM-convention replay, not J's literal historical strike).",
+    "materiality_threshold": "ANCHOR REGRESSION iff: sum over the 3 anchor days of (control_total_pnl - variant_total_pnl) > 0 AND that shortfall exceeds 20% of control's total pnl across the 3 anchor days -- the SAME formula EDGE-2 used, for cross-study consistency.",
+    "expected_direction_note": "Unlike EDGE-2 (where a structure change plausibly CAPS a runner's payoff), a hold-time floor or TP1-deferral plausibly HELPS J's real multi-hour anchor winners (they were never early-TP1 exits to begin with) -- so an anchor IMPROVEMENT here is a positive signal for the hypothesis, not just a non-regression bar to clear."
+  },
+
+  "pass_bar": {
+    "statement": "A variant (MIN_HOLD_30 or TRAIL_ONLY_60) is a candidate PASS (report as VALIDATED, still requires a J-visible REVOKE window per standing doctrine -- this study does not auto-ship) only if ALL hold. ANY failing = KILL for that variant; a KILL is fully anticipated and valid (the mission explicitly names this contested).",
+    "conditions": [
+      "1. anchor_check_op16: NOT an anchor regression -- checked FIRST, overrides everything else.",
+      "2. bh_fdr_survivor == true AND the delta is FAVORABLE (observed_mean_diff > 0) -- a statistically-significant WORSENING does not count as passing this gate (same clarification applied in EDGE-2 after that study's own gate-logic review).",
+      "3. Primary-cohort OOS expectancy > 0 AND WF >= 0.70.",
+      "4. Sub-window (quarter) stability: qpf >= 0.5.",
+      "5. Corroboration (110 real-fill episodes) agrees in sign; disclosed prominently either way, not a hard gate given its small-n/mixed-tier caveat."
+    ]
+  },
+
+  "outputs": {
+    "scorecard_json": "analysis/recommendations/hold-posture-ab.json",
+    "scorecard_md": "analysis/recommendations/hold-posture-ab.md"
+  },
+
+  "rail": "ANALYSIS ONLY. No orders, no params/config changes, read-only on production. Touches NO trading-path file. $0 cost -- local cache only.",
+
+  "content_sha256_16": "b999bf1439444ce8"
+}
