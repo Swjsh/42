@@ -1,9 +1,18 @@
 {
   "_doc": "PRE-REGISTERED cohort/method/pass-bar for EDGE-2-DEBIT-SPREAD-AB, the single highest-leverage experiment named in markdown/research/EDGE-DEEP-RESEARCH-SYNTHESIS-2026-07-14.md. FROZEN BEFORE any replay is run -- exploratory != confirmatory, no re-picks after seeing results, a KILL is a publishable, valid outcome. Runner: backtest/tools/debit_spread_ab_study.py. Read-only against production: no orders, no params/config changes.",
   "study": "debit_spread_ab",
-  "version": 1,
-  "status": "FROZEN_PENDING_RUN",
+  "version": 2,
+  "status": "RUN_COMPLETE",
+  "result_pointer": "analysis/recommendations/debit-spread-ab.json + .md -- verdict: KILL both variants (OTM-1, OTM-2). Neither cleared the pass bar (condition 3 OOS+/WF and condition 4 sub-window stability both fail decisively, qpf=0.0 for both). BH-FDR confirms a statistically significant DELTA vs naked control, but the sign is a WORSENING (observed_mean_diff -$57.82 OTM-1 / -$47.41 OTM-2), so condition 2 (which requires a significant IMPROVEMENT) also fails. Mechanism: friction_pct_of_premium is ~3-4x the naked control's (25.7%/17.0% vs 5.8%) because the same $0.02/leg entry+exit haircut and $0.65/leg/side commission apply to a net-debit base roughly 2.5-4x THINNER than the naked premium -- confirms the deep-research synthesis's named competing hypothesis (friction eats the VRP benefit). No OP-16 anchor regression, but heavily caveated (the naked ATM-convention baseline itself does not reproduce J's real winning P&L on those 3 days, so the check's real job could not be meaningfully exercised). 110-episode real-fill corroboration agrees in sign for both variants.",
   "frozen_at": "2026-07-14",
+
+  "post_freeze_correction_2026_07_14": {
+    "what_happened": "The FIRST run (v1 spec, intrabar-worst/best net-premium trigger) produced an implausibly extreme result: OTM-1 WR=3.7%, premium_stop fired on 233/244 episodes (95.5%), expectancy -$267/episode. Differential-diagnosis trace of episode 1 (2025-01-06 signal) found the mechanism BEFORE accepting the result: bar-0's own net_worst = long.low(0.51) - short.high(0.60) = -$0.09 -- BELOW the stop level -- on the VERY FIRST bar, because that formula assumes the long leg hits its own bar-low AT THE SAME INSTANT the short leg hits its own bar-high. Those are two INDEPENDENT extrema from two different (if correlated) contracts' own OHLC ranges; treating their simultaneous co-occurrence as a real tradeable touch is a much more pessimistic bound than either leg's own single-instrument touch-based stop (which IS realistic -- a single quote really printed there).",
+    "root_cause_one_sentence": "The v1 spec's own justification ('simulator_debit's own intrabar-best/worst convention') mischaracterized what that convention is USED FOR in backtest/lib/simulator_debit.py -- that module computes the SAME long.low-short.high combo (_open_pnl_intrabar_worst) but only sets a DISCLOSURE flag (intrabar_stop_would_hit) with it; the module's ACTUAL profit-target/stop TRIGGER test (simulate_debit_trade lines ~319-347) gates on `opnl` -- the bar-CLOSE-based net pnl, a real simultaneous joint observation of both legs at the identical timestamp -- never the intrabar combo. v1 fed the intrabar combo directly into exit_manager.plan_exit_actions' touch-based worst_premium/best_premium, which DOES trigger an exit on any breach -- so v1 was NOT faithful to its own cited precedent.",
+    "fix": "worst_premium/best_premium for the SPREAD walk are now BOTH the bar-CLOSE-based net premium (long.close - short.close) -- a real, simultaneously-observed joint state -- matching simulator_debit.py's own opnl-gated PT/STOP mechanism exactly. This removes intrabar touch-sensitivity for the 2-leg combo only; the NAKED control is untouched (a single leg's own bar high/low IS a real touch, unchanged from the original spec).",
+    "not_a_repick": "This is a mechanical implementation defect relative to the v1 spec's OWN stated intent (faithfully reuse simulator_debit's convention), found via evidence (an episode trace) BEFORE any pass/fail threshold was evaluated or reported -- not a threshold or population change made because an unfavorable result was seen. Repo precedent: commit bbcadc8 'fix(research): trend-alignment Phase 1 look-ahead leak found+fixed, KILL reinforced' follows the identical found-bug-fix-rerun pattern. The v1 numbers are superseded, not hidden -- disclosed here for audit trail.",
+    "version_bump": "1 -> 2. content_sha256_16 recomputed after this correction; the runner's EXPECTED_PREREG_SHA16 is updated to match in the SAME commit as the fix (never a silent drift)."
+  },
   "cost": "$0 -- all option bars read from the local OPRA cache (backtest/data/options/*.csv, no network), pure Python replay.",
 
   "hypothesis": {
@@ -55,7 +64,7 @@
       "short_leg_entry_fill": "bar0.open - ENTRY_SLIPPAGE (sell-to-open receives the bid).",
       "naked_entry_premium": "long_entry_fill.",
       "spread_net_entry_premium": "long_entry_fill - short_entry_fill (POSITIVE = debit paid).",
-      "intrabar_premium_path_fed_to_exit_manager": "RAW bar highs/lows, no per-bar slippage (matches every prior T3/T4/exit_shape_parity_study convention). naked: best=long.high, worst=long.low. spread (simulator_debit's own intrabar-worst/best convention): best_net = long.high - short.low (most favorable), worst_net = long.low - short.high (most adverse).",
+      "intrabar_premium_path_fed_to_exit_manager": "naked (unchanged, single leg): RAW bar high/low, no per-bar slippage (matches every prior T3/T4/exit_shape_parity_study convention) -- best=long.high, worst=long.low, a REAL single-instrument touch. spread (CORRECTED post-freeze, see post_freeze_correction_2026_07_14): best=worst=net_close = long.close - short.close, the bar-CLOSE-based joint net premium -- matching backtest/lib/simulator_debit.py's own opnl-gated PT/STOP trigger exactly (that module reserves the intrabar long.low-short.high combo for a DISCLOSURE flag only, never as the actual exit trigger). No intrabar touch-sensitivity for the 2-leg combo -- a real simultaneous joint quote, not a fabricated worst-of-both-independent-extrema.",
       "closing_fill_haircut": "At every SELL/CLOSE action returned by exit_manager.plan_exit_actions (tp1 / runner_target / premium(catastrophe) stop / trail-or-BE stop / time stop), the fill level = the exit_manager's own target level (entry_premium * (1 +/- pct), identical arithmetic to t4_exit_matrix.replay()) MINUS a closing haircut: naked = 1x EXIT_SLIPPAGE; spread = 2x EXIT_SLIPPAGE (crossing BOTH legs' spreads to close). This is the mechanism that lets the study measure 'friction eats the VRP benefit' directly, per the mission's own framing.",
       "commission": "DEFAULT_COMMISSION x n_legs x 2 sides (open+close) x qty, FLAT per round-trip regardless of TP1/runner split (matches simulator_debit.py's own commission_total convention). naked = 0.65*1*2*qty; spread = 0.65*2*2*qty."
     },
@@ -135,5 +144,5 @@
 
   "rail": "ANALYSIS ONLY. No orders, no params/config changes, read-only on production. Touches NO trading-path file (params.json, heartbeat_core.py, gates.py, strategies.py, exit_manager.py). $0 cost -- local cache only.",
 
-  "content_sha256_16": "a59c62d1860aada7"
+  "content_sha256_16": "7da146fba3898cba"
 }
