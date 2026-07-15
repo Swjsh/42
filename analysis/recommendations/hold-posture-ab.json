@@ -1,0 +1,282 @@
+{
+  "generated_at": "2026-07-14T22:12:15.323148",
+  "prereg": "analysis\\recommendations\\prereg-hold-posture-2026-07-14.json",
+  "prereg_preflight": {
+    "ok": true,
+    "recomputed_sha16": "b999bf1439444ce8",
+    "stored_sha16": "b999bf1439444ce8",
+    "version": 1,
+    "status": "FROZEN_PENDING_RUN"
+  },
+  "cost_usd": 0.0,
+  "shapes_used": {
+    "control": {
+      "shape": {
+        "premium_stop_pct": -0.5,
+        "tp1_premium_pct": 0.5,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "profit_lock_arm_pct": 0.05,
+        "trail_pct": 0.125,
+        "runner_target_pct": 2.5
+      },
+      "hold_gate": {}
+    },
+    "MIN_HOLD_30": {
+      "shape": {
+        "premium_stop_pct": -0.5,
+        "tp1_premium_pct": 0.5,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "profit_lock_arm_pct": 0.05,
+        "trail_pct": 0.125,
+        "runner_target_pct": 2.5
+      },
+      "hold_gate": {
+        "tp1": 30,
+        "runner_target": 30,
+        "trail": 30,
+        "be_stop": 30,
+        "time_stop": 30
+      }
+    },
+    "TRAIL_ONLY_60": {
+      "shape": {
+        "premium_stop_pct": -0.5,
+        "tp1_premium_pct": 0.5,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "trailing",
+        "profit_lock_arm_pct": 0.05,
+        "trail_pct": 0.125,
+        "runner_target_pct": 2.5,
+        "profit_lock_arm_scope": "full"
+      },
+      "hold_gate": {
+        "tp1": 60
+      }
+    }
+  },
+  "time_stop_et_used": "15:40:00",
+  "primary_cohort": {
+    "n_signals": 250,
+    "n_replayed": 244,
+    "misses": {
+      "long": 6
+    },
+    "window": "2025-01-01..2026-06-18"
+  },
+  "control": {
+    "n": 244,
+    "total": -1279.0,
+    "expectancy": -5.24,
+    "wr": 0.516,
+    "n_oos": 88,
+    "n_is": 156,
+    "oos_total": 3157.0,
+    "oos_positive": true,
+    "wf": null,
+    "wf_ge_070": false,
+    "qpf": 0.5,
+    "exp_drop_top3": -23.73,
+    "mean_friction_pct_of_premium": 0.0582
+  },
+  "variants": {
+    "MIN_HOLD_30": {
+      "n": 244,
+      "total": -14779.0,
+      "expectancy": -60.57,
+      "wr": 0.459,
+      "n_oos": 88,
+      "n_is": 156,
+      "oos_total": -1386.0,
+      "oos_positive": false,
+      "wf": null,
+      "wf_ge_070": false,
+      "qpf": 0.167,
+      "exp_drop_top3": -81.32,
+      "mean_friction_pct_of_premium": 0.0582,
+      "mean_theta_bleed_proxy": -0.8271
+    },
+    "TRAIL_ONLY_60": {
+      "n": 244,
+      "total": -333.5,
+      "expectancy": -1.37,
+      "wr": 0.41,
+      "n_oos": 88,
+      "n_is": 156,
+      "oos_total": 2686.1,
+      "oos_positive": true,
+      "wf": null,
+      "wf_ge_070": false,
+      "qpf": 0.667,
+      "exp_drop_top3": -10.97,
+      "mean_friction_pct_of_premium": 0.0582,
+      "mean_theta_bleed_proxy": 0.2122
+    }
+  },
+  "nulls": {
+    "MIN_HOLD_30": {
+      "n_pairs": 244,
+      "observed_mean_diff": -55.33,
+      "p_null": 0.01,
+      "bh_fdr_survivor": true,
+      "bh_rank": 1
+    },
+    "TRAIL_ONLY_60": {
+      "n_pairs": 244,
+      "observed_mean_diff": 3.88,
+      "p_null": 0.917,
+      "bh_fdr_survivor": false,
+      "bh_rank": 2
+    }
+  },
+  "fdr_alpha": 0.1,
+  "anchor_check_op16": {
+    "rows": [
+      {
+        "date": "2026-04-29",
+        "j_actual_real_fill_pnl": 342.0,
+        "n_matching_signals": 1,
+        "control_atm_convention_pnl": -1263.0,
+        "variant_pnl": {
+          "MIN_HOLD_30": -1263.0,
+          "TRAIL_ONLY_60": -33.0
+        }
+      },
+      {
+        "date": "2026-05-01",
+        "j_actual_real_fill_pnl": 470.0,
+        "n_matching_signals": 1,
+        "control_atm_convention_pnl": 267.0,
+        "variant_pnl": {
+          "MIN_HOLD_30": 267.0,
+          "TRAIL_ONLY_60": -4.2
+        }
+      },
+      {
+        "date": "2026-05-04",
+        "j_actual_real_fill_pnl": 730.0,
+        "n_matching_signals": 2,
+        "control_atm_convention_pnl": 322.0,
+        "variant_pnl": {
+          "MIN_HOLD_30": 322.0,
+          "TRAIL_ONLY_60": 179.0
+        }
+      }
+    ],
+    "control_total_3day": -674.0,
+    "variant_totals_3day": {
+      "MIN_HOLD_30": -674.0,
+      "TRAIL_ONLY_60": 141.8
+    },
+    "regressions": {
+      "MIN_HOLD_30": {
+        "control_total_3day": -674.0,
+        "variant_total_3day": -674.0,
+        "shortfall": 0.0,
+        "shortfall_pct_of_control": -0.0,
+        "anchor_regression": false
+      },
+      "TRAIL_ONLY_60": {
+        "control_total_3day": -674.0,
+        "variant_total_3day": 141.8,
+        "shortfall": -815.8,
+        "shortfall_pct_of_control": 1.2104,
+        "anchor_regression": false
+      }
+    }
+  },
+  "corroboration_110_real_fills": {
+    "n_positions": 110,
+    "n_replayed": 92,
+    "misses": {
+      "long": 18
+    },
+    "control": {
+      "n": 92,
+      "total": -7872.0,
+      "expectancy": -85.57,
+      "wr": 0.467,
+      "n_oos": 92,
+      "n_is": 0,
+      "oos_total": -7872.0,
+      "oos_positive": false,
+      "wf": null,
+      "wf_ge_070": false,
+      "qpf": 0.5,
+      "exp_drop_top3": -119.09
+    },
+    "variants": {
+      "MIN_HOLD_30": {
+        "n": 92,
+        "total": -12260.0,
+        "expectancy": -133.26,
+        "wr": 0.348,
+        "n_oos": 92,
+        "n_is": 0,
+        "oos_total": -12260.0,
+        "oos_positive": false,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.0,
+        "exp_drop_top3": -168.39
+      },
+      "TRAIL_ONLY_60": {
+        "n": 92,
+        "total": -2238.2,
+        "expectancy": -24.33,
+        "wr": 0.304,
+        "n_oos": 92,
+        "n_is": 0,
+        "oos_total": -2238.2,
+        "oos_positive": false,
+        "wf": null,
+        "wf_ge_070": false,
+        "qpf": 0.5,
+        "exp_drop_top3": -36.83
+      }
+    },
+    "agreement": {
+      "MIN_HOLD_30": {
+        "primary_delta": -55.33,
+        "corro_delta": -47.69,
+        "same_sign": true
+      },
+      "TRAIL_ONLY_60": {
+        "primary_delta": 3.87,
+        "corro_delta": 61.24,
+        "same_sign": true
+      }
+    }
+  },
+  "verdicts": {
+    "MIN_HOLD_30": {
+      "conditions": {
+        "1_no_anchor_regression": true,
+        "2_bh_fdr_survivor_favorable": false,
+        "3_oos_positive_and_wf": false,
+        "4_sub_window_stable": false,
+        "5_corroboration_same_sign": true
+      },
+      "verdict": "KILL"
+    },
+    "TRAIL_ONLY_60": {
+      "conditions": {
+        "1_no_anchor_regression": true,
+        "2_bh_fdr_survivor_favorable": false,
+        "3_oos_positive_and_wf": false,
+        "4_sub_window_stable": true,
+        "5_corroboration_same_sign": true
+      },
+      "verdict": "KILL"
+    }
+  },
+  "disclosures": [
+    "premium-only exit replay (structure_stop/ribbon-flip collapse to the -50% catastrophe cap)",
+    "fill-bar-INCLUDED convention (bar-0 open is the entry fill), same as t4_exit_matrix",
+    "qty=10 flat (per-episode expectancy is the primary metric, not edge_capture)",
+    "corroboration population's entry_spot is a nearest-prior-5m-bar SPY close lookup, not the engine's own recorded spot -- secondary/disclosure only",
+    "'control_SS_B' = the live params.json-sourced posture, NOT the older structure_stop_study.py SS_B_SHAPE constant (which no longer matches live params.json) -- see the pre-reg's shapes.control_SS_B.label for the full disambiguation",
+    "hold-gate mechanism suppresses a tick's action and rolls back ExitState (no adoption of dec.state) whenever the fired stage is gated and the floor hasn't elapsed -- exit_manager.py itself is unmodified"
+  ]
+}

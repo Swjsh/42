@@ -176,7 +176,15 @@ def replay_naked(long_bars: list, side: str, shape: dict, time_stop_et: dt.time,
             elif a.stage == "runner_target":
                 target = entry_premium * (1.0 + state.runner_target_pct)
             elif a.stage == "premium_stop":
-                target = entry_premium * (1.0 + state.premium_stop_pct)
+                # Always use the ACTUAL just-computed runner_stop_premium: under
+                # profit_lock_arm_scope="full" a "premium_stop"-labeled exit can be a pre-TP1
+                # profit-lock floor/trail ratchet, not the static catastrophe level (exit_manager
+                # doesn't distinguish them in its stage naming). No-op for this study's own
+                # shapes (arm_scope always defaults to "post_tp1", where runner_stop_premium is
+                # byte-identical to entry*(1+premium_stop_pct)) -- fixed for correctness since
+                # hold_posture_ab_study.py reuses this module and DOES use arm_scope="full".
+                target = (dec.state.runner_stop_premium if dec.state.runner_stop_premium is not None
+                          else entry_premium * (1.0 + state.premium_stop_pct))
             elif a.stage in ("trail", "be_stop"):
                 target = dec.state.runner_stop_premium
             else:  # time_stop
@@ -240,7 +248,15 @@ def replay_spread(aligned: list, side: str, shape: dict, time_stop_et: dt.time, 
             elif a.stage == "runner_target":
                 target = entry_premium * (1.0 + state.runner_target_pct)
             elif a.stage == "premium_stop":
-                target = entry_premium * (1.0 + state.premium_stop_pct)
+                # Always use the ACTUAL just-computed runner_stop_premium: under
+                # profit_lock_arm_scope="full" a "premium_stop"-labeled exit can be a pre-TP1
+                # profit-lock floor/trail ratchet, not the static catastrophe level (exit_manager
+                # doesn't distinguish them in its stage naming). No-op for this study's own
+                # shapes (arm_scope always defaults to "post_tp1", where runner_stop_premium is
+                # byte-identical to entry*(1+premium_stop_pct)) -- fixed for correctness since
+                # hold_posture_ab_study.py reuses this module and DOES use arm_scope="full".
+                target = (dec.state.runner_stop_premium if dec.state.runner_stop_premium is not None
+                          else entry_premium * (1.0 + state.premium_stop_pct))
             elif a.stage in ("trail", "be_stop"):
                 target = dec.state.runner_stop_premium
             else:  # time_stop
