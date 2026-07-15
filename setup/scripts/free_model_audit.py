@@ -15,14 +15,19 @@ ARCHITECTURE (subject-agnostic core + pluggable adapters):
   AUDIT_SUBJECTS registry maps subject_name -> SubjectAdapter(collect, grade, wired).
   `collect(since, until) -> list[AuditItem]` reads a subject's logs for a window and yields
   normalized items. `grade(item, opts) -> dict` returns {grading_method, correct, ...}.
-  TWO subjects are wired as of 2026-07-11: "heartbeat_veto" (setup/scripts/
+  FOUR subjects are wired as of 2026-07-14/15: "heartbeat_veto" (setup/scripts/
   free_model_audit_heartbeat_veto.py) — the production veto gate, highest stakes (blocks
-  real paper trades right now) — and "twin_review" (setup/scripts/
+  real paper trades right now) — "twin_review" (setup/scripts/
   free_model_audit_twin_review.py, AUDIT-HARNESS-B2) — the crypto twin's nightly free-LLM
   health review, graded by agreement with twin_sentinel.py's deterministic verdict rather
   than counterfactual replay (see that adapter's module docstring for why the ground-truth
-  shape differs per subject). prospector / swarm_consult remain clearly-marked TODO stubs
-  (AUDIT-HARNESS-B3 in automation/overnight/queue.md) — do not build them here.
+  shape differs per subject) — "prospector" (setup/scripts/free_model_audit_prospector.py,
+  AUDIT-HARNESS-B3) — idea-promotion quality, graded by deterministic cross-check against
+  ideas-ledger.jsonl kill rows + analysis/recommendations/ artifacts — and "swarm_consult"
+  (setup/scripts/free_model_audit_swarm_consult.py, AUDIT-HARNESS-B3) — 2nd-order-brainstorm
+  quality, graded by blind Sonnet re-judgment + agreement scoring (capped at 5 consults/run
+  to bound cost). Lower stakes than the veto gate (no live-order impact) — both AUDIT-
+  HARNESS-B3 subjects are expected to report INSUFFICIENT EVIDENCE on their first real runs.
 
 GRADING METHOD (per-subject adapters choose the ground-truth shape that fits their subject;
 NEVER fabricate a grade regardless of which method is used):
@@ -174,15 +179,6 @@ class SubjectAdapter:
     wired: bool = True
 
 
-def _stub_collect(_since: Optional[date], _until: date) -> list[AuditItem]:
-    return []
-
-
-def _stub_grade(_item: AuditItem, _opts: dict) -> dict:
-    return {"grading_method": "ungraded_insufficient_data", "correct": None,
-            "reason": "subject not wired yet"}
-
-
 def _build_registry() -> dict[str, SubjectAdapter]:
     """Built lazily (not at import time) so a missing/broken adapter module for an UNWIRED
     subject can never prevent importing this framework or grading the WIRED subject(s)."""
@@ -215,17 +211,36 @@ def _build_registry() -> dict[str, SubjectAdapter]:
         print(f"[free_model_audit] WARN twin_review adapter failed to load: "
               f"{type(e).__name__}: {e}", file=sys.stderr)
     # AUDIT-HARNESS-B3: idea quality (prospector) + brainstorm quality (swarm_consult) --
-    # lower stakes (no live-order impact), lower priority, not built tonight.
-    reg["prospector"] = SubjectAdapter(
-        name="prospector", collect=_stub_collect, grade=_stub_grade,
-        description="TODO (AUDIT-HARNESS-B3): grade prospector.py idea-ledger entries "
-                    "against eventual backtest performance.",
-        wired=False)
-    reg["swarm_consult"] = SubjectAdapter(
-        name="swarm_consult", collect=_stub_collect, grade=_stub_grade,
-        description="TODO (AUDIT-HARNESS-B3): grade swarm_consult.py 2nd-order-brainstorm "
-                    "quality.",
-        wired=False)
+    # lower stakes (no live-order impact) than the veto gate, lower priority, wired 2026-07-15.
+    try:
+        import free_model_audit_prospector as pa  # noqa: PLC0415
+        reg["prospector"] = SubjectAdapter(
+            name="prospector", collect=pa.collect_items, grade=pa.grade_item,
+            description="AUDIT-HARNESS-B3: prospector.py's idea-promotion judgment -- for "
+                        "every idea promoted to strategy/candidates/_chef-inbox/, did it "
+                        "survive its downstream battery, get killed, or is it still pending "
+                        "(grading_method='deterministic_cross_check' against ideas-ledger.jsonl "
+                        "kill rows + analysis/recommendations/ artifacts -- no LLM call, this "
+                        "is pure record-linkage). Lower stakes -- no live-order impact.",
+            wired=True)
+    except Exception as e:  # noqa: BLE001 -- a broken adapter must never break the framework
+        print(f"[free_model_audit] WARN prospector adapter failed to load: "
+              f"{type(e).__name__}: {e}", file=sys.stderr)
+    try:
+        import free_model_audit_swarm_consult as sca  # noqa: PLC0415
+        reg["swarm_consult"] = SubjectAdapter(
+            name="swarm_consult", collect=sca.collect_items, grade=sca.grade_item,
+            description="AUDIT-HARNESS-B3: swarm_consult.py's free-tier synthesized answers, "
+                        "graded by BLIND Sonnet re-judgment (answers the same question never "
+                        "having seen the swarm's answer) + a second Sonnet call scoring "
+                        "agreement (grading_method='llm_judgment' -- there is no $ "
+                        "counterfactual or second deterministic source for open-ended "
+                        "brainstorm/decide/critique/audit questions). Capped at 5 consults/run "
+                        "to bound cost. Lower stakes -- no live-order impact.",
+            wired=True)
+    except Exception as e:  # noqa: BLE001 -- a broken adapter must never break the framework
+        print(f"[free_model_audit] WARN swarm_consult adapter failed to load: "
+              f"{type(e).__name__}: {e}", file=sys.stderr)
     return reg
 
 

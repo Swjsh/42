@@ -46,12 +46,20 @@ grade regardless of which method is used:**
    model's verdict (no anchoring), then agreement is scored. Used by `heartbeat_veto` as its own
    fallback.
 3. **Deterministic cross-check (agreement with a SECOND, independently-computed deterministic
-   judge).** Some subjects have no "$ counterfactual" question at all — `twin_review`'s nightly
-   free-LLM HEALTHY/DEGRADED/CONCERNING read is graded by agreement with `twin_sentinel.py`'s
-   deterministic RED/YELLOW/GREEN verdict for the same day (recorded snapshot preferred,
-   `evaluate()`-reconstruction fallback since no sentinel-history file exists yet). Tagged
-   `grading_method: deterministic_cross_check`.
-4. Every method above is tagged (`counterfactual` / `llm_judgment` / `deterministic_cross_check` /
+   judge, or record-linkage against a downstream outcome — no LLM call).** Some subjects have no
+   "$ counterfactual" question at all — `twin_review`'s nightly free-LLM HEALTHY/DEGRADED/
+   CONCERNING read is graded by agreement with `twin_sentinel.py`'s deterministic RED/YELLOW/
+   GREEN verdict for the same day (recorded snapshot preferred, `evaluate()`-reconstruction
+   fallback since no sentinel-history file exists yet). `prospector`'s idea-promotion judgment is
+   graded by pure record-linkage: did the promoted idea later show up as a `kind:"kill"` row in
+   ideas-ledger.jsonl, or with a KILL/CLEAR verdict word in an `analysis/recommendations/`
+   artifact that mentions its dedupe_key? Both tagged `grading_method: deterministic_cross_check`.
+4. `swarm_consult`'s open-ended brainstorm/decide/critique/audit answers have neither a $
+   counterfactual nor a second deterministic source, so blind Claude re-judgment (method 2) is
+   PROMOTED to its primary (not fallback) method: Claude answers the same question blind, then a
+   SEPARATE call scores whether that blind answer and the swarm's synthesis reach the same
+   conclusion. Capped at 5 consults/run to bound cost (2 Claude calls per graded item).
+5. Every method above is tagged (`counterfactual` / `llm_judgment` / `deterministic_cross_check` /
    `ungraded_insufficient_data`) — never fabricate a grade. Grading calls are Sonnet-tier
    (mechanical bulk work), never Fable, per standing model-routing doctrine.
 
@@ -72,8 +80,8 @@ every skip is LOGGED (never a silent no-op).
 |---|---|---|---|
 | `heartbeat_veto` | **Highest** — blocks real paper trades right now | Counterfactual replay via trade_autopsy.py | B1, first wired |
 | `twin_review` | Medium — crypto twin is a $ investment in infra, not P&L | twin-sentinel.json's deterministic verdict (`deterministic_cross_check`) | **B2, WIRED 2026-07-11.** `setup/scripts/free_model_audit_twin_review.py`. Real dry-run: 1/1 evidence point, INSUFFICIENT EVIDENCE (correctly not oversold on day one). |
-| `prospector` | Low — idea generation, no order impact | Downstream backtest performance of promoted ideas (ideas-ledger.jsonl) | B3, queued |
-| `swarm_consult` | Low — brainstorm quality, advisory only | Hardest to grade objectively; likely blind-judgment only | B3, queued |
+| `prospector` | Low — idea generation, no order impact | Kill rows in ideas-ledger.jsonl + analysis/recommendations/ artifacts (`deterministic_cross_check`, no LLM call) | **B3, WIRED 2026-07-15.** `setup/scripts/free_model_audit_prospector.py`. Real run: 31/31 promoted ideas graded, INSUFFICIENT EVIDENCE — every promotion is still pending (no idea has cycled through a full battery to a recommendations scorecard yet); honestly reported, not guessed. |
+| `swarm_consult` | Low — brainstorm quality, advisory only | Blind Sonnet re-answer + a 2nd Sonnet call scoring agreement (`llm_judgment`), capped at 5 consults/run | **B3, WIRED 2026-07-15.** `setup/scripts/free_model_audit_swarm_consult.py`. Real run: 5/5 graded (the 5 most recent daily "audit" consults, 07-09..07-13), 1/5 agreed with Sonnet's blind re-answer (20%) — INSUFFICIENT EVIDENCE (5/15 floor), correctly not extrapolated from n=5. |
 
 ## What "trained with our smart claude llms" means here (stated plainly, not assumed)
 

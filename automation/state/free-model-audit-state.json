@@ -16,5 +16,23 @@
     "confident": false,
     "cadence_days": 2,
     "confident_since": null
+  },
+  "prospector": {
+    "evidence_n": 0,
+    "correct_n": 0,
+    "consecutive_runs_above_bar": 0,
+    "last_run_date": "2026-07-15",
+    "confident": false,
+    "cadence_days": 2,
+    "confident_since": null
+  },
+  "swarm_consult": {
+    "evidence_n": 5,
+    "correct_n": 1,
+    "consecutive_runs_above_bar": 0,
+    "last_run_date": "2026-07-15",
+    "confident": false,
+    "cadence_days": 2,
+    "confident_since": null
   }
 }

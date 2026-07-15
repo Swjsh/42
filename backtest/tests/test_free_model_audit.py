@@ -34,15 +34,31 @@ def test_registry_has_twin_review_wired():
     assert fma.AUDIT_SUBJECTS["twin_review"].wired is True
 
 
-def test_registry_has_stub_subjects_unwired():
-    for name in ("prospector", "swarm_consult"):
-        assert name in fma.AUDIT_SUBJECTS, f"{name} missing from registry"
-        assert fma.AUDIT_SUBJECTS[name].wired is False
-        # stubs must be SAFE to call (never raise) even though they do nothing yet
-        assert list(fma.AUDIT_SUBJECTS[name].collect(None, date(2026, 7, 11))) == []
-        r = fma.AUDIT_SUBJECTS[name].grade(None, {})
-        assert r["grading_method"] == "ungraded_insufficient_data"
-        assert r["correct"] is None
+def test_registry_has_prospector_wired():
+    """AUDIT-HARNESS-B3: prospector is wired -- deterministic cross-check against
+    ideas-ledger.jsonl kill rows + analysis/recommendations/ artifacts (see that adapter's
+    own module docstring; adapter-level parsing/grading tests live in
+    test_free_model_audit_prospector.py)."""
+    assert "prospector" in fma.AUDIT_SUBJECTS
+    assert fma.AUDIT_SUBJECTS["prospector"].wired is True
+
+
+def test_registry_has_swarm_consult_wired():
+    """AUDIT-HARNESS-B3: swarm_consult is wired -- blind Sonnet re-judgment + agreement scoring
+    (see that adapter's own module docstring; adapter-level parsing/grading tests live in
+    test_free_model_audit_swarm_consult.py)."""
+    assert "swarm_consult" in fma.AUDIT_SUBJECTS
+    assert fma.AUDIT_SUBJECTS["swarm_consult"].wired is True
+
+
+def test_registry_has_exactly_four_wired_subjects():
+    """Every registered subject as of AUDIT-HARNESS-B3 (2026-07-15) is wired -- no remaining
+    TODO stubs. If a future subject is added unwired, this guard must be relaxed deliberately,
+    not silently pass."""
+    assert set(fma.AUDIT_SUBJECTS) == {"heartbeat_veto", "twin_review", "prospector",
+                                       "swarm_consult"}
+    for name, adapter in fma.AUDIT_SUBJECTS.items():
+        assert adapter.wired is True, f"{name} unexpectedly unwired"
 
 
 def test_grading_methods_are_the_four_canonical_tags():
