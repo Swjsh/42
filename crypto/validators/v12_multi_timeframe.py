@@ -15,6 +15,36 @@ Tolerance:
   Aggregation comparison is EXACT for open/close (= first/last 1m bar's open/close).
   high/low: MAX/MIN of constituent 1m highs/lows. Coinbase 1m bar volumes sum to
   5m bar volume +/- $0.01 rounding. Volume tolerance 0.5%.
+
+Root cause of the 2026-07-11 rolling-window degradation (CRYPTO-GYM-V02-V12-FOLLOWUP,
+resolved 2026-07-14):
+  grinder.jsonl history (17,656 iterations, 2026-06-15 .. 2026-07-15) shows exactly
+  TWO distinct bar timestamps ever produced a volume disagreement:
+    2026-06-28T17:35:00Z  agg=79.53  native=47.86  (+66.2%)
+    2026-07-11T07:50:00Z  agg=2.972  native=1.874   (+58.6%)
+  Both are agg > native (never the reverse), both are ISOLATED single-bar events
+  (0 price disagreements in 17,656 iterations -- the offline aggregation math
+  (T1-T6 below) is exact), and both persisted UNCHANGED for ~91 consecutive grinder
+  fires (~3h, the width of the 200-bar 1m fetch window) before aging out -- i.e. the
+  underlying Coinbase 5m-native-candle value itself never reconciled toward the
+  1m-summed value over time. This is a same-provider, cross-granularity settlement
+  artifact (Coinbase's multi-minute candle endpoint occasionally freezes volume
+  before some late-reconciling trades are attributed, while the finer 1m endpoint
+  already reflects them) -- NOT a cross-provider disagreement (no 3rd venue reports
+  crypto volume comparably, per v02's own docstring, so this can't be quorum-voted
+  the way v02/v15 are) and NOT a bug in `_aggregate()` (proven exact by T1-T6, and
+  by 0/17,656 price disagreements ever).
+
+  Because each incident is a single isolated bar among 18-60 shared bars per run,
+  the old ZERO-tolerance pass criterion (`len(vol_disagreements) == 0`) let one rare,
+  confirmed-benign venue glitch flip `pass=False` for the ~91 fetches it stayed in
+  the live window, dragging the 24h rolling stage-pass-rate to ~87.5% and tripping
+  the drift-report !ALERT even though nothing was actually broken. Fix: bound the
+  failure criterion to `> MAX_VOL_OUTLIER_BARS` (default 1) isolated volume
+  disagreements per run -- a real aggregation bug would show up on most/every run
+  (systemic), not 2-in-17,656. Price tolerance stays at true zero-tolerance
+  (unchanged) since a real price-aggregation bug WOULD be systemic and price has
+  never legitimately disagreed.
 """
 from __future__ import annotations
 
@@ -29,6 +59,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from crypto.lib.bar import Bar, BarSeries
 from crypto.lib.bar_reader import closed_bars_only
 from crypto.lib.data_sources import fetch_bars, now_utc
+
+
+# Rare, confirmed-benign single-bar Coinbase cross-granularity volume settlement
+# artifact (see module docstring "Root cause..." above) -- 2 occurrences in 17,656
+# grinder iterations, both isolated single bars, both agg>native, never reconciling
+# over ~3h in-window. A genuine aggregation bug would fail most/every run, not one
+# bar in thousands. Bounding tolerance here (rather than raising VOL_TOLERANCE_PCT)
+# keeps per-bar sensitivity intact while not letting one rare venue glitch flip the
+# whole run's `pass` for the ~3h it stays inside the live fetch window.
+MAX_VOL_OUTLIER_BARS = 1
 
 
 def _aggregate(bars: list[Bar], factor: int, granularity_seconds: int) -> list[Bar]:
@@ -73,7 +113,8 @@ def _aggregate(bars: list[Bar], factor: int, granularity_seconds: int) -> list[B
     return out
 
 
-def _compare(agg: list[Bar], native: list[Bar], price_tolerance_pct: float = 0.10, vol_tolerance_pct: float = 50.0, skip_most_recent: int = 1) -> dict:
+def _compare(agg: list[Bar], native: list[Bar], price_tolerance_pct: float = 0.10, vol_tolerance_pct: float = 50.0,
+             skip_most_recent: int = 1, max_vol_outlier_bars: int = MAX_VOL_OUTLIER_BARS) -> dict:
     # Skip the most recent N bars (boundary bars where fetch timing can mismatch volume)
     if skip_most_recent > 0:
         agg = sorted(agg, key=lambda b: b.open_time)
@@ -111,7 +152,13 @@ def _compare(agg: list[Bar], native: list[Bar], price_tolerance_pct: float = 0.1
         "price_disagreements_count": len(price_disagreements),
         "vol_disagreements": vol_disagreements[:5],
         "vol_disagreements_count": len(vol_disagreements),
-        "pass": len(price_disagreements) == 0 and len(vol_disagreements) == 0,
+        "max_vol_outlier_bars": max_vol_outlier_bars,
+        # Price stays true zero-tolerance (never legitimately disagreed, 0/17,656).
+        # Volume tolerates up to `max_vol_outlier_bars` isolated bar(s) -- see
+        # module docstring "Root cause..." for the confirmed-rare Coinbase
+        # cross-granularity settlement artifact this absorbs without masking a
+        # real systemic aggregation break (which would exceed the bound).
+        "pass": len(price_disagreements) == 0 and len(vol_disagreements) <= max_vol_outlier_bars,
     }
 
 
@@ -151,6 +198,41 @@ def run_offline() -> dict:
             for a, b in zip(agg_5m_then_15m, agg_15m)
         )
         results.append(("T6_chained_agg_values_match", all_match, "OHLC matches"))
+
+    # T7-T9: outlier-tolerant volume comparison guard (CRYPTO-GYM-V02-V12-FOLLOWUP
+    # root-cause fix, 2026-07-14). Regression-proves the fix bounds the ONE
+    # confirmed-benign isolated-bar Coinbase settlement artifact class WITHOUT
+    # opening the door to masking a real systemic aggregation bug.
+    def _mkbar(t: datetime, close: float, volume: float) -> Bar:
+        return Bar(open_time=t, open=close, high=close, low=close, close=close,
+                   volume=volume, granularity_seconds=300, source="synthetic")
+
+    native_5bars = [_mkbar(base + timedelta(seconds=300 * i), 100.0, 10.0) for i in range(5)]
+
+    # One isolated volume outlier (matches the confirmed real-world incident shape:
+    # agg > native on exactly 1 bar out of several shared bars) -- must still PASS.
+    agg_one_outlier = [_mkbar(b.open_time, b.close, b.volume) for b in native_5bars]
+    agg_one_outlier[2] = _mkbar(native_5bars[2].open_time, 100.0, 20.0)  # +100% on 1 bar
+    cmp_one_outlier = _compare(agg_one_outlier, native_5bars, skip_most_recent=0)
+    results.append(("T7_single_vol_outlier_tolerated", cmp_one_outlier["pass"] is True,
+                     f"vol_disagreements={cmp_one_outlier['vol_disagreements_count']} pass={cmp_one_outlier['pass']}"))
+
+    # Two disagreeing bars = systemic, not isolated -- must FAIL (proves the bound
+    # is real, not a disabled check).
+    agg_two_outliers = [_mkbar(b.open_time, b.close, b.volume) for b in native_5bars]
+    agg_two_outliers[1] = _mkbar(native_5bars[1].open_time, 100.0, 20.0)
+    agg_two_outliers[2] = _mkbar(native_5bars[2].open_time, 100.0, 20.0)
+    cmp_two_outliers = _compare(agg_two_outliers, native_5bars, skip_most_recent=0)
+    results.append(("T8_two_vol_outliers_fail", cmp_two_outliers["pass"] is False,
+                     f"vol_disagreements={cmp_two_outliers['vol_disagreements_count']} pass={cmp_two_outliers['pass']}"))
+
+    # Price disagreement stays true zero-tolerance even with 0 volume issues --
+    # a real price-aggregation bug must never be absorbed by the volume outlier bound.
+    agg_price_bad = [_mkbar(b.open_time, b.close, b.volume) for b in native_5bars]
+    agg_price_bad[0] = _mkbar(native_5bars[0].open_time, 105.0, 10.0)  # +5% price drift
+    cmp_price_bad = _compare(agg_price_bad, native_5bars, skip_most_recent=0)
+    results.append(("T9_price_disagreement_still_fails", cmp_price_bad["pass"] is False,
+                     f"price_disagreements={cmp_price_bad['price_disagreements_count']} pass={cmp_price_bad['pass']}"))
 
     return {
         "mode": "offline",

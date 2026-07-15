@@ -44,12 +44,18 @@ Add-Content -Path $logFile -Value ("[$now] drift exit=" + $drift.ExitCode)
 #    Change-detection + 6h cooldown (2026-07-01 consolidate-hard): the same self-acknowledged
 #    v02 artifact was re-appended every 30 min, burying signal. Append ONLY when the
 #    health/alert text CHANGES or >= 6h since the last append; RED->GREEN appends one recovery line.
+#    2026-07-14 (CRYPTO-GYM-V02-V12-FOLLOWUP): track_drift.py now splits `alerts` (all,
+#    for visibility) from `blocking_alerts` (the subset that actually drives
+#    overall_health -- v15-quorum-ratified v02 dips are informational-only and excluded).
+#    Use blocking_alerts for the change-detection text too, so a stable real problem
+#    doesn't get re-flagged just because an informational alert's percentage ticked.
 $driftJson = Join-Path $projectRoot "crypto\data\scorecards\drift_report.json"
 if (Test-Path $driftJson) {
     try {
         $driftObj = Get-Content $driftJson -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
         $health = $driftObj.overall_health
-        $alertsText = ($driftObj.alerts -join ' | ')
+        $blockingAlerts = if ($driftObj.PSObject.Properties.Name -contains 'blocking_alerts') { $driftObj.blocking_alerts } else { $driftObj.alerts }
+        $alertsText = ($blockingAlerts -join ' | ')
         $statusPath = Join-Path $projectRoot "automation\overnight\STATUS.md"
         $lastAppendFile = Join-Path $projectRoot "crypto\data\scorecards\.drift-status-last-append.json"
         $last = $null
