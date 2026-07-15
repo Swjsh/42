@@ -29,10 +29,17 @@
   a pythonw launch never allocates a visible console window even without this wscript relay
   -- defense in depth, same pattern as every other 2026-07-14 popup-storm fix.
 
-  TZ RULE: this rig is Mountain Time (ET = local + 2h). 09:30 ET -> 07:30 MT. NEVER pass an
+  TZ RULE: this rig is Mountain Time (ET = local + 2h). 09:25 ET -> 07:25 MT. NEVER pass an
   ET literal to -At. A REPEATING trigger (Once + 5-min RepetitionInterval + RepetitionDuration
   spanning RTH), never a one-shot TimeTrigger (which would go dark the next day --
   project_scheduled_task_onetime_trigger_dark).
+
+  START-TIME NIT (2026-07-15 extension): shifted 09:30 -> 09:25 ET so the opening 09:30-09:31
+  tick already has a fresh bundle on disk instead of racing the producer's first fire (the old
+  09:30 start meant heartbeat's very first RTH tick could read a bundle from 15:xx ET the prior
+  session -- still caught by CONTEXT_BUNDLE_STALE_MIN=20min as "absent", just needlessly so for
+  ~5 min every morning). RepetitionDuration extended 6h30m -> 6h35m so the LAST fire still lands
+  at/near 16:00 ET (unchanged end-of-window behavior).
 
   REAPER EXEMPTION: setup/scripts/_shared.ps1's Stop-StaleClaudeProcesses reaps stale
   python.exe/claude.exe/etc referencing this repo every ~3-5 min via a Win32_Process -Filter
@@ -91,14 +98,16 @@ $action = New-ScheduledTaskAction `
     -Argument $wscriptArgs `
     -WorkingDirectory $root
 
-# 07:30 MT = 09:30 ET start; repeat every 5 min for 6h30m -> covers 09:30-16:00 ET.
+# 07:25 MT = 09:25 ET start; repeat every 5 min for 6h35m -> covers 09:25-16:00 ET.
+# Started 5 min early (2026-07-15) so the 09:30-09:31 opening tick already has a fresh
+# bundle instead of racing the producer's first fire.
 $trigger = New-ScheduledTaskTrigger `
     -Weekly `
     -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday `
-    -At "07:30"
-$rep = (New-ScheduledTaskTrigger -Once -At "07:30" `
+    -At "07:25"
+$rep = (New-ScheduledTaskTrigger -Once -At "07:25" `
         -RepetitionInterval (New-TimeSpan -Minutes 5) `
-        -RepetitionDuration (New-TimeSpan -Hours 6 -Minutes 30)).Repetition
+        -RepetitionDuration (New-TimeSpan -Hours 6 -Minutes 35)).Repetition
 $trigger.Repetition = $rep
 
 $settings = New-ScheduledTaskSettingsSet `
@@ -113,20 +122,21 @@ Register-ScheduledTask `
     -Action $action `
     -Trigger $trigger `
     -Settings $settings `
-    -Description ("Multi-timeframe TREND-ALIGNMENT context bundle producer (Phase 0, " + `
-    "context-enrichment plan, 2026-07-14). Every 5 min, 09:30-16:00 ET weekdays. " + `
-    "context_bundle_producer.py --once: pulls SPY daily/hourly/15m bars via direct Alpaca " + `
-    "REST, runs crypto/lib/market_structure.analyze_structure per timeframe (same primitive " + `
-    "the live structure_veto gate uses), writes automation/state/context-bundle.json " + `
-    "(per-TF trend + alignment_score [-3,+3] + trend_alignment). LOGGED ONLY -- " + `
-    "heartbeat_core.py tags it onto bar_ctx + the decision row for visibility; nothing on " + `
-    "score/gates/_derive_tier reads it this phase (zero-behavior-change, guard: " + `
-    "test_context_bundle_tag_no_behavior_change.py). Places NOTHING, no broker, no creds " + `
-    "beyond read-only market-data REST. Fail-open (exits 0 always, degraded:true + reason " + `
-    "on any timeframe fetch failure).") `
+    -Description ("Multi-timeframe TREND-ALIGNMENT + events/prior-day/levels context bundle " + `
+    "producer (Phase 0 2026-07-14 + 2026-07-15 extension). Every 5 min, 09:25-16:00 ET " + `
+    "weekdays. context_bundle_producer.py --once: pulls SPY daily/hourly/15m/5min bars via " + `
+    "direct Alpaca REST + macro-calendar.json/news.json/key-levels.json, runs " + `
+    "crypto/lib/market_structure.analyze_structure per timeframe (same primitive the live " + `
+    "structure_veto gate uses), writes automation/state/context-bundle.json (per-TF trend + " + `
+    "alignment_score [-3,+3] + trend_alignment + events + prior_day + today_context + " + `
+    "levels_context). LOGGED ONLY -- heartbeat_core.py tags it onto bar_ctx + the decision " + `
+    "row for visibility; nothing on score/gates/_derive_tier reads it this phase " + `
+    "(zero-behavior-change, guard: test_context_bundle_tag_no_behavior_change.py). Places " + `
+    "NOTHING, no broker, no creds beyond read-only market-data REST. Fail-open (exits 0 " + `
+    "always, degraded:true + reason on any timeframe/dimension failure).") `
     -Force | Out-Null
 
-Write-Host "Registered $taskName (07:30 MT = 09:30 ET start, every 5 min for 6h30m, Mon-Fri)"
+Write-Host "Registered $taskName (07:25 MT = 09:25 ET start, every 5 min for 6h35m, Mon-Fri)"
 Show-NextET $taskName
 Write-Host ""
 Write-Host "Context bundle producer wired. Verify with:"

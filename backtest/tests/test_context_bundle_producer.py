@@ -260,5 +260,249 @@ def test_df_to_bars_empty_and_none_return_empty_list():
     assert cbp._df_to_bars(pd.DataFrame(), 3600, "test") == []
 
 
+# =============================================================================
+# EXTENSION (2026-07-15): events / prior_day / today_context / levels_context
+# =============================================================================
+
+# ----- fixture helpers -------------------------------------------------------
+def _et_bars(day: str, times_et: list[str], *, base: float = 700.0, step: float = 0.1,
+             volume: float = 1000.0) -> list[dict]:
+    """[(HH:MM, ...)] on one ET calendar day -> raw UTC-timestamped OHLCV rows (matches
+    _fetch_bars's DataFrame shape: tz-aware UTC `timestamp` column)."""
+    rows = []
+    for i, hhmm in enumerate(times_et):
+        ts_et = pd.Timestamp(f"{day} {hhmm}:00", tz="America/New_York")
+        c = round(base + step * i, 2)
+        rows.append({"timestamp": ts_et.tz_convert("UTC"), "open": c, "high": c + 0.05,
+                     "low": c - 0.05, "close": c, "volume": volume})
+    return rows
+
+
+def _rth_day_bars(day: str, *, base: float = 700.0, n: int = 78, vol: float = 1000.0) -> list[dict]:
+    """A full synthetic RTH session (09:30-15:55, 5-min bars) for one ET calendar day."""
+    times = []
+    h, m = 9, 30
+    for _ in range(n):
+        times.append(f"{h:02d}:{m:02d}")
+        m += 5
+        if m >= 60:
+            m -= 60
+            h += 1
+    return _et_bars(day, times, base=base, volume=vol)
+
+
+def _daily_bars(dates: list[str], closes: list[float]) -> pd.DataFrame:
+    rows = []
+    for d, c in zip(dates, closes):
+        ts = pd.Timestamp(f"{d} 20:00:00", tz="UTC")  # daily bar timestamp -- arbitrary UTC hour
+        rows.append({"timestamp": ts, "open": c - 1.0, "high": c + 1.5, "low": c - 1.5,
+                     "close": c, "volume": 5_000_000.0})
+    return pd.DataFrame(rows)
+
+
+# ----- compute_prior_day -----------------------------------------------------
+def test_compute_prior_day_picks_the_row_strictly_before_today():
+    daily = _daily_bars(["2026-07-13", "2026-07-14", "2026-07-15"], [700.0, 705.0, 710.0])
+    result = cbp.compute_prior_day(daily, today_et_date="2026-07-15")
+    assert result["prior_date"] == "2026-07-14"
+    assert result["prior_close"] == 705.0
+    assert result["prior_high"] == 706.5
+    assert result["prior_low"] == 703.5
+    assert result["prior_range"] == 3.0
+    assert result["reason"] is None
+
+
+def test_compute_prior_day_null_with_reason_on_empty_or_no_prior_row():
+    empty_result = cbp.compute_prior_day(None, today_et_date="2026-07-15")
+    assert empty_result["prior_close"] is None
+    assert empty_result["reason"] == "no_daily_data"
+
+    only_today = _daily_bars(["2026-07-15"], [710.0])
+    no_prior_result = cbp.compute_prior_day(only_today, today_et_date="2026-07-15")
+    assert no_prior_result["prior_close"] is None
+    assert no_prior_result["reason"] == "no_prior_trading_day_in_window"
+
+
+# ----- compute_today_context: gap / position / opening-range -----------------
+def test_gap_pct_and_position_in_prior_range_computed_from_rth_bars():
+    prior_day = {"prior_close": 700.0, "prior_high": 705.0, "prior_low": 695.0}
+    today = pd.DataFrame(_rth_day_bars("2026-07-15", base=702.0))  # today opens +2 vs prior close
+    now_et = datetime(2026, 7, 15, 9, 35)  # just after RTH open -- before 10:30 (OR not formed)
+    ctx = cbp.compute_today_context(today, prior_day, now_et=now_et)
+    assert ctx["today_open"] == pytest.approx(702.0, abs=0.01)
+    assert ctx["gap_pct_at_open"] == pytest.approx((702.0 - 700.0) / 700.0 * 100, abs=0.01)
+    assert ctx["gap_reason"] is None
+    # position = (latest_close - prior_low) / (prior_high - prior_low); latest close is the
+    # most recent bar in the `today` df as of 09:35 (a handful of 5-min bars in).
+    assert 0.0 <= ctx["position_in_prior_range"] <= 1.5
+    assert ctx["or_high"] is None and ctx["or_low"] is None
+    assert ctx["or_reason"] == "before_10:30_et_opening_range_not_yet_formed"
+
+
+def test_opening_range_populates_only_after_1030_and_uses_only_the_0930_1030_window():
+    rows = _et_bars("2026-07-15", ["09:30", "09:45", "10:00", "10:15", "10:45", "11:00"],
+                     base=700.0, step=0.0)  # flat base, override highs/lows per-row below
+    rows[0]["high"], rows[0]["low"] = 701.0, 699.5   # inside OR window
+    rows[3]["high"], rows[3]["low"] = 703.0, 698.0   # inside OR window -- the true OR H/L
+    rows[4]["high"], rows[4]["low"] = 900.0, 1.0     # OUTSIDE the window (10:45) -- must be excluded
+    today = pd.DataFrame(rows)
+    now_et = datetime(2026, 7, 15, 10, 31)
+    ctx = cbp.compute_today_context(today, {"prior_close": 700.0}, now_et=now_et)
+    assert ctx["or_high"] == 703.0, "must ignore the 10:45 bar's 900.0 high (outside the 60-min OR window)"
+    assert ctx["or_low"] == 698.0
+    assert ctx["or_reason"] is None
+
+
+def test_today_context_null_with_reason_when_no_rth_bars_yet():
+    ctx = cbp.compute_today_context(None, {"prior_close": 700.0}, now_et=datetime(2026, 7, 15, 8, 0))
+    assert ctx["today_open"] is None
+    assert ctx["gap_reason"] == "no_rth_bars_for_today_yet"
+    assert ctx["or_reason"] == "before_10:30_et_opening_range_not_yet_formed"
+    assert ctx["rvol_reason"] == "no_intraday_data"
+
+
+# ----- compute_rvol_session_so_far -------------------------------------------
+def test_rvol_session_so_far_matches_hand_computed_ratio():
+    """3 historical days at a KNOWN cumulative volume through 09:40 ET (2 bars/day: 09:30+09:35,
+    100 each = 200 cum), median=200; today has 2 bars through 09:40 at 150 each = 300 cum.
+    rvol = 300 / 200 = 1.5."""
+    rows = []
+    for day in ("2026-07-08", "2026-07-09", "2026-07-10"):
+        rows += _et_bars(day, ["09:30", "09:35"], volume=100.0)
+    rows += _et_bars("2026-07-13", ["09:30", "09:35"], volume=100.0)  # 4th day, same 200 cum
+    rows += _et_bars("2026-07-14", ["09:30", "09:35"], volume=100.0)  # 5th day, same 200 cum
+    rows += _et_bars("2026-07-15", ["09:30", "09:35"], volume=150.0)  # TODAY -- 300 cum
+    df = pd.DataFrame(rows)
+    now_et = datetime(2026, 7, 15, 9, 40)  # just past the 09:35 bar's close
+    rvol, reason = cbp.compute_rvol_session_so_far(df, now_et=now_et, min_history_days=5)
+    assert reason is None
+    assert rvol == pytest.approx(1.5, abs=0.001)
+
+
+def test_rvol_null_with_reason_below_min_history_days():
+    rows = _et_bars("2026-07-14", ["09:30"], volume=100.0) + _et_bars("2026-07-15", ["09:30"], volume=100.0)
+    df = pd.DataFrame(rows)
+    rvol, reason = cbp.compute_rvol_session_so_far(df, now_et=datetime(2026, 7, 15, 9, 31),
+                                                     min_history_days=5)
+    assert rvol is None
+    assert "insufficient_history" in reason
+
+
+def test_rvol_only_sums_bars_up_to_the_cutoff_time_causal():
+    """A historical day with volume AFTER the cutoff time-of-day must not inflate the median --
+    the causal contract: only bars with et_time <= now's time-of-day count on any day."""
+    rows = []
+    for day in ("2026-07-08", "2026-07-09", "2026-07-10", "2026-07-13", "2026-07-14"):
+        rows += _et_bars(day, ["09:30"], volume=100.0)          # counts (<= cutoff)
+        rows += _et_bars(day, ["09:45"], volume=10_000.0)        # must NOT count (> cutoff)
+    rows += _et_bars("2026-07-15", ["09:30"], volume=100.0)     # today, matches historical median
+    df = pd.DataFrame(rows)
+    rvol, reason = cbp.compute_rvol_session_so_far(df, now_et=datetime(2026, 7, 15, 9, 31),
+                                                     min_history_days=5)
+    assert reason is None
+    assert rvol == pytest.approx(1.0, abs=0.001), "the 09:45 10,000-volume bars must be excluded (future of the 09:31 cutoff)"
+
+
+# ----- compute_events_context -------------------------------------------------
+_RULES = {
+    "cpi_release": {"block_starts_minutes_before": 5, "block_ends_minutes_after": 30},
+    "ppi_release": {"block_starts_minutes_before": 5, "block_ends_minutes_after": 20},
+}
+
+
+def test_events_context_next_and_last_event_with_minutes():
+    calendar = {
+        "events_30d": [
+            {"date": "2026-07-14", "time_et": "08:30", "event": "CPI", "type": "cpi_release", "severity": "high"},
+            {"date": "2026-07-15", "time_et": "08:30", "event": "PPI", "type": "ppi_release", "severity": "med"},
+        ],
+        "no_trade_window_rules": _RULES,
+    }
+    now_et = datetime(2026, 7, 15, 1, 0)
+    ctx = cbp.compute_events_context(calendar, {"freshness_stamp": "2026-07-14T07:45:00"}, now_et=now_et)
+    assert ctx["next_event_name"] == "PPI"
+    assert ctx["next_event_severity"] == "med"
+    assert ctx["minutes_to_next_event"] == pytest.approx(450.0, abs=0.1)
+    assert ctx["last_event_name"] == "CPI"
+    assert ctx["minutes_since_last_event"] == pytest.approx(990.0, abs=0.1)
+    assert ctx["no_trade_window_active"] is False
+    assert ctx["todays_windows"] == [{"start_et": "08:25", "end_et": "08:50", "event": "PPI",
+                                      "type": "ppi_release", "severity": "med"}]
+
+
+def test_events_context_no_trade_window_active_true_inside_the_window():
+    calendar = {"events_30d": [{"date": "2026-07-15", "time_et": "08:30", "event": "CPI",
+                                "type": "cpi_release", "severity": "high"}],
+                "no_trade_window_rules": _RULES}
+    now_et = datetime(2026, 7, 15, 8, 27)  # inside 08:25-09:00 CPI window
+    ctx = cbp.compute_events_context(calendar, {"freshness_stamp": now_et.isoformat()}, now_et=now_et)
+    assert ctx["no_trade_window_active"] is True
+    assert len(ctx["active_windows"]) == 1
+    assert ctx["active_windows"][0]["event"] == "CPI"
+
+
+def test_events_context_missing_calendar_is_null_with_reason():
+    ctx = cbp.compute_events_context(None, None, now_et=datetime(2026, 7, 15, 1, 0))
+    assert ctx["next_event_name"] is None
+    assert ctx["last_event_name"] is None
+    assert ctx["no_trade_window_active"] is False
+    assert ctx["calendar_stale"] is True
+
+
+# ----- _calendar_staleness ----------------------------------------------------
+def test_calendar_staleness_fresh_before_todays_fire_uses_yesterdays_fire_as_anchor():
+    # Wednesday 01:00 ET -- today's 07:45 fire hasn't happened; anchor = Tuesday 07:45.
+    now_et = datetime(2026, 7, 15, 1, 0)  # Wednesday
+    fresh_news = {"freshness_stamp": "2026-07-14T07:45:01"}  # Tuesday's fire
+    stale, reason = cbp._calendar_staleness(fresh_news, now_et=now_et)
+    assert stale is False
+    assert reason is None
+
+
+def test_calendar_staleness_true_when_stamp_predates_expected_fire():
+    now_et = datetime(2026, 7, 15, 9, 0)  # Wednesday, well past today's 07:45 fire
+    old_news = {"freshness_stamp": "2026-07-13T07:45:01"}  # 2 days stale
+    stale, reason = cbp._calendar_staleness(old_news, now_et=now_et)
+    assert stale is True
+    assert "predates" in reason
+
+
+def test_calendar_staleness_missing_news_is_always_stale():
+    stale, reason = cbp._calendar_staleness(None, now_et=datetime(2026, 7, 15, 1, 0))
+    assert stale is True
+    assert "missing" in reason
+
+
+# ----- compute_levels_context -------------------------------------------------
+def test_levels_context_nearest_above_below_and_proximity_count():
+    key_levels = {"levels": [
+        {"price": 748.82, "label": "SUP_A", "source": "level_memory", "expires_at": "2026-07-15T16:00:00-04:00"},
+        {"price": 753.09, "label": "RES_A", "source": "level_memory", "expires_at": "2026-07-15T16:00:00-04:00"},
+        {"price": 700.00, "label": "FAR_SUP", "source": "reference", "expires_at": "2026-08-01T16:00:00-04:00"},
+        {"price": 745.00, "label": "EXPIRED_SUP", "source": "level_memory", "expires_at": "2026-07-10T16:00:00-04:00"},
+    ]}
+    ctx = cbp.compute_levels_context(key_levels, latest_price=752.05, today_et_date="2026-07-15")
+    assert ctx["nearest_level_above"] == {"price": 753.09, "distance": pytest.approx(1.04, abs=0.01), "source": "level_memory"}
+    assert ctx["nearest_level_below"] == {"price": 748.82, "distance": pytest.approx(3.23, abs=0.01), "source": "level_memory"}
+    assert ctx["n_levels_within_1pct"] == 2  # 748.82 + 753.09 both within 1% of 752.05; 700/745(expired) excluded
+    assert ctx["reason"] is None
+
+
+def test_levels_context_null_with_reason_missing_inputs():
+    no_levels = cbp.compute_levels_context(None, latest_price=752.05, today_et_date="2026-07-15")
+    assert no_levels["reason"] == "key-levels.json missing/malformed"
+    no_price = cbp.compute_levels_context({"levels": []}, latest_price=None, today_et_date="2026-07-15")
+    assert no_price["reason"] == "no_current_price_available"
+
+
+# ----- _latest_close -----------------------------------------------------------
+def test_latest_close_picks_the_max_timestamp_across_all_dfs():
+    early = pd.DataFrame([{"timestamp": pd.Timestamp("2026-07-14 10:00", tz="UTC"), "close": 100.0}])
+    late = pd.DataFrame([{"timestamp": pd.Timestamp("2026-07-15 01:00", tz="UTC"), "close": 200.0}])
+    assert cbp._latest_close(early, late) == 200.0
+    assert cbp._latest_close(None, late, None) == 200.0
+    assert cbp._latest_close(None, None) is None
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-q"]))

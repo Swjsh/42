@@ -66,6 +66,30 @@ _BUNDLE = {
     "alignment_score": 3, "degraded": False, "degraded_reason": None,
 }
 
+# EXTENSION (2026-07-15): the ENRICHED schema (schema_version 2) -- events / prior_day /
+# today_context / levels_context added onto Phase 0's shape. Used by the re-RED-proof test
+# below to prove the SAME zero-behavior-change property holds for the enriched bundle, not
+# just the Phase 0 minimal one -- heartbeat_core tags the bundle dict verbatim regardless of
+# which keys it carries, so this is a genuinely independent proof, not a restatement.
+_BUNDLE_ENRICHED = dict(_BUNDLE, schema_version=2, events={
+    "next_event_name": "PPI", "next_event_et": "08:30 ET 2026-07-15", "minutes_to_next_event": 450.0,
+    "next_event_severity": "med", "last_event_name": "CPI", "minutes_since_last_event": 990.0,
+    "no_trade_window_active": False, "active_windows": [], "todays_windows": [],
+    "calendar_stale": False, "calendar_stale_reason": None,
+}, prior_day={
+    "prior_close": 751.94, "prior_high": 753.31, "prior_low": 748.71, "prior_range": 4.6,
+    "prior_date": "2026-07-14", "reason": None,
+}, today_context={
+    "today_open": None, "gap_pct_at_open": None, "gap_reason": "no_rth_bars_for_today_yet",
+    "position_in_prior_range": 0.7261, "position_reason": None, "or_high": None, "or_low": None,
+    "or_reason": "before_10:30_et_opening_range_not_yet_formed", "rvol_session_so_far": None,
+    "rvol_reason": "no_rth_bars_for_today_yet",
+}, levels_context={
+    "nearest_level_above": {"price": 752.32, "distance": 0.27, "source": "level_memory"},
+    "nearest_level_below": {"price": 751.15, "distance": 0.9, "source": "level_memory"},
+    "n_levels_within_1pct": 7, "reason": None,
+})
+
 
 # --------------------------------------------------------------------------- #
 # Fixture: ~4 days of gentle-uptrend RTH 5m bars (test_g6_vix_intraday_feed.py's
@@ -149,6 +173,61 @@ def test_stale_bundle_uses_the_documented_threshold_boundary(monkeypatch, tmp_pa
         json.dumps(dict(_BUNDLE, computed_at_et=just_stale.strftime("%Y-%m-%dT%H:%M:%S"))),
         encoding="utf-8")
     assert hc._read_context_bundle() is None
+
+
+def test_build_payload_tags_the_enriched_schema_v2_bundle_with_zero_behavior_change(monkeypatch, tmp_path):
+    """RE-RED-PROOF (2026-07-15 extension): the SAME zero-behavior-change property proven
+    above for the Phase 0 minimal bundle must ALSO hold for the enriched schema_version=2
+    bundle (events/prior_day/today_context/levels_context added). heartbeat_core.py was NOT
+    touched by the 2026-07-15 extension (it already tags the whole bundle dict verbatim,
+    whatever keys it carries) -- this test proves that claim rather than asserting it."""
+    monkeypatch.setattr(hc, "STATE", tmp_path)
+    df = _synth_rth_bars()
+
+    now = hc._et_now()
+    enriched = dict(_BUNDLE_ENRICHED, computed_at_et=now.strftime("%Y-%m-%dT%H:%M:%S"))
+    (tmp_path / "context-bundle.json").write_text(json.dumps(enriched), encoding="utf-8")
+    payload_enriched = hc._build_payload(df, SAFE_PARAMS, vix=(18.0, 17.9),
+                                         levels=([], []), vix_ma=(17.0, 16.5))
+    assert payload_enriched["bar_ctx"]["context_bundle"] == enriched, (
+        "the enriched schema_version=2 bundle must be tagged onto bar_ctx verbatim, same as "
+        "the minimal Phase 0 shape")
+
+    (tmp_path / "context-bundle.json").write_text("", encoding="utf-8")
+    if (tmp_path / "context-bundle.json").exists():
+        (tmp_path / "context-bundle.json").unlink()
+    payload_absent = hc._build_payload(df, SAFE_PARAMS, vix=(18.0, 17.9),
+                                       levels=([], []), vix_ma=(17.0, 16.5))
+
+    verdict_enriched = hc._engine_verdict(payload_enriched)
+    verdict_absent = hc._engine_verdict(payload_absent)
+    assert verdict_enriched == verdict_absent, (
+        "the ENRICHED (schema_version=2) bundle must change the engine verdict no more than "
+        "the absent case -- the new events/prior_day/today_context/levels_context keys are "
+        "just as LOGGED-ONLY as the Phase 0 trend_alignment keys were:\n"
+        f"enriched={verdict_enriched}\nabsent={verdict_absent}")
+
+
+def test_run_account_rec_carries_the_enriched_bundle_verbatim(monkeypatch):
+    """LEDGER TAG re-proof: rec['context_bundle'] must carry the FULL enriched dict (all 4
+    new dimensions) unchanged, and all non-context_bundle behavior keys must stay identical
+    to the bundle-absent case -- same property test #1 in PART 2 proves for Phase 0, repeated
+    here for the enriched schema so the ledger tag is proven end to end, not just the read."""
+    now = dt.datetime(2026, 7, 14, 11, 0)
+    enriched = dict(_BUNDLE_ENRICHED, computed_at_et="2026-07-14T10:55:00")
+
+    _wire_run_account(monkeypatch, now, _ENTER_VERDICT, context_bundle=None)
+    rec_absent = hc.run_account("safe")
+    _wire_run_account(monkeypatch, now, _ENTER_VERDICT, context_bundle=enriched)
+    rec_present = hc.run_account("safe")
+
+    for key in _BEHAVIOR_KEYS:
+        assert rec_absent[key] == rec_present[key], (
+            f"{key!r} must be byte-identical regardless of the ENRICHED context_bundle's "
+            f"presence: {rec_absent[key]!r} vs {rec_present[key]!r}")
+    assert rec_present["context_bundle"] == enriched
+    assert rec_present["context_bundle"]["events"]["next_event_name"] == "PPI"
+    assert rec_present["context_bundle"]["today_context"]["rvol_session_so_far"] is None
 
 
 def test_read_context_bundle_fail_open_on_missing_and_malformed(monkeypatch, tmp_path):
