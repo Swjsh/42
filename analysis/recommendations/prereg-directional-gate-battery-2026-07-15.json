@@ -1,0 +1,357 @@
+{
+  "_doc": "PRE-REGISTERED gate list / current-config definition / IS-OOS windows / ratification bar / decision rule for the directional-gate revalidation battery, per J's 2026-07-15 directive ('review EVERYTHING'). Frozen BEFORE the battery is run -- no re-picks after seeing results; a FAIL/UNTESTABLE verdict is publishable and expected for some gates. Source report: markdown/audits/DIRECTIONAL-GATE-DEEP-RESEARCH-2026-07-15.md section 4 ('One pre-registered battery'). Runner: backtest/tools/directional_gate_battery.py. Template this generalizes: backtest/tools/block_elite_bull_ssb_revalidation.py (one gate, same mining+replay pattern, done first for block_elite_bull/Safe on 2026-07-10 -- that prior run used the WRONG strike tier (OTM-2 via STRIKE_OFFSET_BULL=-2) and is SUPERSEDED here, not reused, per this report's own process-failure finding section 5).",
+  "study": "directional_gate_battery_2026_07_15",
+  "version": 1,
+  "status": "FROZEN_PENDING_RUN",
+  "frozen_at": "2026-07-15",
+  "standing_doctrine": "Burden of proof is on the GATE (CLAUDE.md task framing this session). A gate with real A/B provenance but validated under a dead engine config (pre-SS-B 2026-07-09, pre-premium-floor 2026-07-09, pre-ATM-strike-arming 2026-07-14) is REVALIDATE, not KEEP-by-default. A REVALIDATE gate that fails its OWN fresh A/B under the CURRENT config is disabled -- paper autonomy: ship with guard + revert, report for REVOKE (OP-0 / OP-16). A gate with NO fresh evidence this session (zero live blocks in the OOS window) is left UNCHANGED -- never disabled on absence of evidence.",
+  "gates_in_battery": {
+    "_doc": "The 12 REVALIDATE gates from the source report's section 1 verdict table. Two additional REVALIDATE-adjacent items from that table (trendline_requires_ribbon_flip, block_bull_morning_agg) are EXPLICITLY EXCLUDED from this battery's auto-ship scope (source report section 4: 'J-decision-gated, do NOT auto-ship even on a clean PASS') -- they are not re-run here at all; touching either needs J directly, not this battery.",
+    "testable_this_session": {
+      "_doc": "Gates with >=1 real core-decisions.jsonl SKIP-action row in the fresh OOS window (2026-07-09..2026-07-15), confirmed by direct grep/count of the live log THIS session (not assumed from the source report's 07-01-anchored tallies, which used a wider window). These get a real mined+replayed A/B leg.",
+      "block_elite_bull__safe": {
+        "params_file": "automation/state/params.json",
+        "params_key": "block_elite_bull",
+        "current_value": true,
+        "current_vix_band": [
+          0.0,
+          25.0
+        ],
+        "skip_action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+        "account": "safe",
+        "side": "C",
+        "fresh_oos_raw_ticks_confirmed": 101,
+        "downstream_double_block_check": "gate #5 block_bull_1100_1200 is ALSO armed True for Safe -- a mined row whose ts_et falls in [11:00,12:00) ET would be double-blocked regardless of block_elite_bull's setting, so such rows are EXCLUDED from this gate's recovered/replayed cohort (counted separately, not silently dropped).",
+        "prior_is_baseline": {
+          "source": "automation/state/params.json _block_elite_bull_doc (2026-06-18 all-VIX[0,25) extension, currently-live ratification)",
+          "is_delta": 113.0,
+          "n_is": 14
+        }
+      },
+      "block_elite_bull__bold": {
+        "params_file": "automation/state/aggressive/params.json",
+        "params_key": "block_elite_bull",
+        "current_value": true,
+        "current_vix_band": [
+          15.0,
+          18.0
+        ],
+        "skip_action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+        "account": "bold",
+        "side": "C",
+        "fresh_oos_raw_ticks_confirmed": 111,
+        "note": "FIRST-EVER test of this gate on Bold per the source report (never independently revalidated at Bold's own [15,18) band with real fills).",
+        "downstream_double_block_check": "gate #12 block_conf_lvl_rec_afternoon is ALSO armed True for Bold -- a mined row whose triggers contain BOTH 'confluence' AND 'level_reclaim' AND whose ts_et is >= 14:00 ET would be double-blocked regardless of block_elite_bull's setting; such rows are EXCLUDED from this gate's cohort.",
+        "prior_is_baseline": {
+          "source": "automation/state/aggressive/params.json _block_elite_bull_doc (2026-06-18 17.5->18.0 VIX extension only)",
+          "is_delta": 0.0,
+          "n_is": 0,
+          "wf_treatment": "STRUCTURAL N/A (n_is=0, division undefined) -- same precedent as analysis/recommendations/block_elite_bull_vix_high_18.json ('wf_norm: null, OOS positive = economic ratification criterion' when no IS baseline exists). Ratification for this specific gate/account falls back to OOS_positive AND sub_window_stable AND anchor_no_regression AND evidence_n, WF requirement waived-as-N/A rather than treated as a silent fail."
+        }
+      },
+      "require_bearish_fill_bar__bold": {
+        "params_file": "automation/state/aggressive/params.json",
+        "params_key": "require_bearish_fill_bar",
+        "current_value": true,
+        "skip_action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+        "account": "bold",
+        "side": "P",
+        "fresh_oos_raw_ticks_confirmed": 37,
+        "downstream_double_block_check": "Bold has NO other armed gate downstream of gate #7 in GATE_ORDER that could apply to a side=='P' row (gates 8/9/10/11 all OFF on Bold; gate 12 is level_reclaim/bull-only; gates 13/15 bear-only keys are absent/OFF on Bold). No exclusion needed.",
+        "prior_is_baseline": {
+          "source": "analysis/recommendations/fill-bar-gate-sweep.json (2026-06-17 J-approved ratification, Bold row)",
+          "is_delta": 363.16,
+          "n_is": 26
+        }
+      },
+      "entry_bar_body_pct_min__safe": {
+        "params_file": "automation/state/params.json",
+        "params_key": "entry_bar_body_pct_min",
+        "current_value": 0.2,
+        "skip_action": "SKIP_DOJI_ENTRY_BAR",
+        "account": "safe",
+        "side": "P",
+        "fresh_oos_raw_ticks_confirmed": 12,
+        "downstream_double_block_check": "gate #15 vix_bear_hard_cap is ALSO armed (23.0) for Safe -- a mined row with vix >= 23.0 would be double-blocked regardless of entry_bar_body_pct_min's setting; such rows are EXCLUDED from this gate's cohort (cheap check, vix is already a logged row field, no bar reconstruction needed).",
+        "prior_is_baseline": {
+          "source": "analysis/recommendations/safe_entry_body_gate.json (2026-06-18 ratification)",
+          "is_delta": 295.0,
+          "n_is": 15
+        },
+        "supersedes": "The 2026-06-26 15-agent audit's queued-but-never-shipped UNBLOCK recommendation (.claude/agent-memory/chef/project_direction_block_audit_synthesis.md:18) -- this battery's result is authoritative over that stale finding per the task's explicit instruction."
+      },
+      "block_conf_lvl_rec_afternoon__bold": {
+        "params_file": "automation/state/aggressive/params.json",
+        "params_key": "block_conf_lvl_rec_afternoon",
+        "current_value": true,
+        "skip_action": "SKIP_CONF_LVL_REC_AFTERNOON",
+        "account": "bold",
+        "side": "C",
+        "fresh_oos_raw_ticks_confirmed": 10,
+        "downstream_double_block_check": "No gate downstream of #12 in GATE_ORDER is armed on Bold for a bull row (13/15 bear-only; 14 absent). No exclusion needed.",
+        "prior_is_baseline": {
+          "source": "automation/state/aggressive/params.json _block_conf_lvl_rec_afternoon_doc ('Original ratification 2026-06-17')",
+          "is_delta": 468.0,
+          "n_is": null,
+          "n_is_caveat": "Exact removed-trade count not cleanly re-extractable from the cited doc this session (aggregate IS_delta only) -- WF for this gate is reported as an AGGREGATE ratio (OOS_delta/IS_delta), NOT the per-trade-normalized (OOS_delta/n_oos)/(IS_delta/n_is) form used for the other 5 gates. Disclosed, not silently treated as equivalent.",
+          "additional_prior_evidence": "analysis/recommendations/conf_lvl_rec_afternoon_revalidate.json already found verdict UNBLOCK_SUPPRESSES_WINNERS (removes a +$1,034 winner; $0 OOS due to a suspected bt-vs-entry_time_et timestamp-keying bug at gates.py:386, per source report row 12) -- cited as directional prior evidence, not re-derived here."
+        }
+      },
+      "block_bull_1100_1200__safe": {
+        "params_file": "automation/state/params.json",
+        "params_key": "block_bull_1100_1200",
+        "current_value": true,
+        "skip_action": "SKIP_BULL_1100_1200",
+        "account": "safe",
+        "side": "C",
+        "fresh_oos_raw_ticks_confirmed": 6,
+        "thin_n_caveat": "6 raw ticks is the thinnest testable cohort in this battery -- likely 1-2 deduped events. evidence_n floor (15, advisory) will almost certainly not clear; reported honestly as thin, per the source report's own n=2-episode finding for this gate.",
+        "downstream_double_block_check": "No gate downstream of #5 in GATE_ORDER is armed on Safe for a bull row (6 absent, 7 bear-only, 8/9 off, 10 bear-tied, 11 bear-only, 12 absent, 13 bear-only, 14 absent, 15 bear-only). No exclusion needed. Upstream (gates 1-4) proven clear by the log's own first-firing-gate construction.",
+        "prior_is_baseline": {
+          "source": "automation/state/params.json _block_bull_1100_1200_doc (2026-06-18 ratification)",
+          "is_delta": 89.0,
+          "n_is": 11,
+          "superseded_revalidation_note": "A 2026-06-26 revalidation (safe_bull_1100_1200_gate.json, cited 'G1 PASS +$1,299, anchor PASS' in the source report) used the OTM-2 strike tier, not the ATM tier live since 07-14 -- that number is NOT reused here (source report section 5 process-failure finding); only the original 06-18 IS baseline is carried forward for WF continuity."
+        }
+      }
+    },
+    "untestable_this_session": {
+      "_doc": "Zero core-decisions.jsonl rows with this gate's SKIP action in the fresh OOS window (2026-07-09..2026-07-15), confirmed by direct count this session. Per the honesty rail: leave UNCHANGED, never disable without its own passing A/B. Each entry's target population simply did not occur live this week -- this is itself information (matches the source report's own 'Blocks since 07-01: 0' finding for several of these), not a script failure.",
+      "block_level_rejection__safe": {
+        "skip_action": "SKIP_LEVEL_REJECTION_GATE",
+        "fresh_oos_raw_ticks_confirmed": 0,
+        "current_value": true
+      },
+      "midday_trendline_gate__both": {
+        "skip_action": "SKIP_MIDDAY_TRENDLINE_GATE",
+        "fresh_oos_raw_ticks_confirmed": 0,
+        "current_value": false,
+        "note": "Already OFF both accounts; 0 fresh evidence either way. The report's 3-way internally-contradictory provenance is NOT resolved by this battery (no data to resolve it with this week) -- stays OFF, flagged for a dedicated re-run once the target population (midday single-trigger trendline_rejection) actually occurs."
+      },
+      "block_conf_lvl_rej_midday_afternoon__both": {
+        "skip_action": "SKIP_CONF_LVL_REJ_MIDDAY_AFTERNOON",
+        "fresh_oos_raw_ticks_confirmed": 0,
+        "current_value": "absent(Safe)/False(Bold), both OFF",
+        "note": "0 fresh blocks is CONSISTENT with the prior evidence's own lean (both prior studies found this gate negative-toward-arming) -- stays OFF, no action needed either way."
+      },
+      "entry_bar_body_pct_min_bull__safe": {
+        "skip_action": "SKIP_DOJI_ENTRY_BAR_BULL",
+        "fresh_oos_raw_ticks_confirmed": 0,
+        "current_value": "absent, OFF",
+        "note": "Structurally cannot fire (key absent both accounts) -- 0 is expected, not informative either way. Stays OFF (matches the one thin prior study's WATCH, not-ratified verdict)."
+      },
+      "vix_bear_hard_cap__safe": {
+        "skip_action": "SKIP_VIX_BEAR_HIGH",
+        "fresh_oos_raw_ticks_confirmed": 0,
+        "current_value": 23.0,
+        "note": "VIX has not touched 23.0 in the fresh OOS window (observed range this session ~15.7-17.3) -- the gate's target population did not occur, not evidence either way. Stays armed at 23.0."
+      },
+      "min_ribbon_momentum_cents__both": {
+        "skip_action": "SKIP_RIBBON_MOMENTUM_GATE",
+        "fresh_oos_raw_ticks_confirmed": 0,
+        "current_value": "null(Safe)/absent(Bold), both OFF",
+        "note": "0 fires since the 2026-07-11 zero-vs-None code fix (source report's own finding); code-guaranteed off regardless of params value. Low urgency, harmless, left UNCHANGED."
+      },
+      "max_ribbon_duration_bars__both": {
+        "skip_action": "SKIP_RIBBON_DURATION_GATE",
+        "fresh_oos_raw_ticks_confirmed": 0,
+        "current_value": "999(Safe, arithmetically unreachable)/absent(Bold), both mechanically inert",
+        "note": "Mechanically inert at current values (Safe=999 effectively unreachable, Bold absent). Low urgency, harmless, left UNCHANGED. Also excluded on a second, independent ground: evaluating it would require reconstructing the historical ribbon_df (RibbonState per bar) for the OOS window, which is out of this session's compute budget (see current_config.known_simplifications) -- doubly untestable."
+      }
+    }
+  },
+  "current_config": {
+    "_doc": "The 'current live config' every A/B in this battery holds fixed except the ONE gate under test, per the decision rule below. Derived from LIVE files/MCP reads THIS session, never hand-copied from memory or an older doc.",
+    "exit_shape": {
+      "source": "automation/state/fleet/strategies.py RIBBON_RIDE.exit.to_dict() (imported live by the battery script, per task instruction -- NOT automation/state/params.json's tp1_premium_pct/tp1_qty_fraction keys, which are vestigial on the core ribbon_ride path; params.json's OWN _exits_section doc calls its exit knobs the pre-SS-B chart-stop-primary description, superseded by strategies.py's RIBBON_RIDE since 2026-07-09).",
+      "ribbon_ride_exit_to_dict_live_values": {
+        "premium_stop_pct": -0.2,
+        "tp1_premium_pct": 1.0,
+        "tp1_qty_fraction": 0.667,
+        "profit_lock_mode": "trailing",
+        "runner_target_pct": 99.0,
+        "trail_pct": 0.15,
+        "profit_lock_arm_pct": 0.05,
+        "stop_mode": "structure",
+        "catastrophe_stop_pct": -0.5,
+        "profit_lock_arm_scope": "post_tp1"
+      },
+      "replay_shape_derivation": "The replay engine reused from this battery (backtest/tools/structure_stop_study.py replay_structure_aware + structure_stop_signal_time) calls ExitState.from_entry(..., exit_shape=shape) WITHOUT passing structure_stop_enabled=True (verified this session: automation/state/fleet/exit_manager.py ExitState.from_entry:185-223 resolves stop_mode='structure' ONLY when structure_stop_enabled is explicitly passed True -- the replay harness's structure-stop enforcement is instead EXTERNAL, via the ss_time override computed by structure_stop_signal_time and checked BEFORE plan_exit_actions each bar). Passing RIBBON_RIDE.exit.to_dict() verbatim into this harness would therefore silently resolve the INTERNAL premium-stop branch to premium_stop_pct=-0.20 (RIBBON_RIDE's flag-off emergency-fallback value, per strategies.py's own comment: 'the flag-OFF emergency fallback only... NOT the validated cell') instead of the intended -0.50 catastrophe cap -- a silent, wrong, too-tight in-engine stop on every replayed trade. The battery script therefore builds its replay shape PROGRAMMATICALLY from RIBBON_RIDE.exit.to_dict(), remapping premium_stop_pct := catastrophe_stop_pct (-0.50) and carrying tp1_premium_pct/tp1_qty_fraction/profit_lock_mode/trail_pct/runner_target_pct/profit_lock_arm_pct through verbatim -- numerically IDENTICAL to structure_stop_study.SS_B_SHAPE (cross-checked this session) except runner_target_pct (99.0, the true shipped value, vs SS_B_SHAPE's rounded 9.9 -- functionally identical, 0DTE premium cannot 10x let alone 100x, C30).",
+      "known_divergence_disclosure": "analysis/recommendations/ssb-certification-2026-07-09.json found a REAL-DIVERGENCE (not merely benign) between this replay_structure_aware harness and the genuine live ExitState/plan_exit_actions production path on 2/10 real positions (-$24.50 total diff) -- a known, disclosed, small-magnitude gap in the machinery this battery reuses (per the task's explicit instruction to reuse the existing engine-level A/B machinery). Not re-litigated here; carried forward as a caveat on every dollar figure this battery produces.",
+      "time_stop": "exit_manager.TIME_STOP_ET (15:50 ET), imported live, matching the live-decision-log-sourced-signal convention (structure_stop_study.py's own 'layer b' choice, not layer a's 15:40 FRESH_SIGNAL_SET convention)."
+    },
+    "strike_tiers": {
+      "source": "crypto/lib/strike_selection.py pick_strike()/V15_SAFE_TIERS/V15_BOLD_TIERS -- the table setup/scripts/heartbeat_core.py (live core engine) actually calls, NOT automation/state/params.json#v15_strike_offset_per_tier (vestigial on the live core path since 2026-06-18, confirmed by that key's own doc string and by analysis/deep-research/2026-07-11-strike-tier-reconciliation.md).",
+      "safe_equity_live_verified_this_session": 1569.32,
+      "safe_equity_source": "mcp__alpaca__get_account_info, account PA3DHPT7KIQE, called 2026-07-15 this session",
+      "safe_tier": "V15_SAFE_TIERS band [0, 2000) -> strike_offset=0 (ATM)",
+      "bold_equity_live_verified_this_session": 1963.04,
+      "bold_equity_source": "mcp__alpaca_aggressive__get_account_info, account PA33W2KUAT40, called 2026-07-15 this session",
+      "bold_tier": "V15_BOLD_TIERS band [0, 2000) -> strike_offset=-3 (OTM-3)",
+      "note_bold_near_boundary": "Bold's live equity ($1,963.04) is within $37 of the $2,000 tier boundary -- if it crosses during this battery's run, the tier would flip to -2 (OTM-2). The battery script pins the tier ONCE at run start (does not re-check mid-run) and reports whichever tier it resolved, consistent with how a live entry resolves its own tier once per signal, not continuously.",
+      "formula": "BEAR puts: strike = round(spot) + strike_offset. BULL calls: strike = round(spot) - strike_offset. (crypto/lib/strike_selection.py pick_strike, verified this session against the sanity invariants in its own docstring.)"
+    },
+    "min_entry_premium_floor": {
+      "value": 0.3,
+      "source": "automation/state/params.json + automation/state/aggressive/params.json (both 0.30, verified live this session)",
+      "application": "Applied to the REPLAYED cohort's recovered entry_premium (real OPRA bar open at/after the signal tick) -- NOT available at mining time from the gate-skip row alone, since gates.py's evaluate_gates() is premium-blind (no option-chain read happens before a gate fires) and the live min_entry_premium check is a SEPARATE, later plan-time admission the engine never reached for a gate-blocked signal. A recovered event with entry_premium < 0.30 is DROPPED from the cohort (counted, not silently imputed), matching what live production would also refuse."
+    },
+    "qty_convention": {
+      "source": "automation/state/params.json / aggressive/params.json min_contracts (read live), which equals both base_qty AND elite_qty at the current $0-2K position_sizing_tiers band for BOTH accounts (no ELITE upsize at this equity tier) -- NOT the template's QTY_ELITE=10/QTY_SUPER=15 constants, which were sized for a higher, now-stale equity band.",
+      "safe_qty": 3,
+      "bold_qty": 5
+    },
+    "all_other_gates_held_at_current_live_config": {
+      "_doc": "Full current value of every GATE_ORDER key, both accounts, read live from automation/state/params.json + automation/state/aggressive/params.json this session -- this is what 'all else held at current live config' means operationally for the downstream-double-block checks above.",
+      "safe": {
+        "block_level_rejection": true,
+        "trendline_requires_ribbon_flip": "absent(off)",
+        "block_elite_bull": true,
+        "block_elite_bull_vix_low": 0.0,
+        "block_elite_bull_vix_high": 25.0,
+        "block_bull_ribbon_flip": "absent(off)",
+        "block_bull_1100_1200": true,
+        "block_bull_morning_agg": "absent(off)",
+        "require_bearish_fill_bar": "absent(off)",
+        "min_ribbon_momentum_cents": null,
+        "max_ribbon_duration_bars": 999,
+        "midday_trendline_gate": false,
+        "block_conf_lvl_rej_midday_afternoon": "absent(off)",
+        "block_conf_lvl_rec_afternoon": "absent(off)",
+        "entry_bar_body_pct_min": 0.2,
+        "entry_bar_body_pct_min_bull": "absent(off)",
+        "vix_bear_hard_cap": 23.0,
+        "structure_veto_enabled": true
+      },
+      "bold": {
+        "block_level_rejection": false,
+        "trendline_requires_ribbon_flip": "absent(off)",
+        "block_elite_bull": true,
+        "block_elite_bull_vix_low": 15.0,
+        "block_elite_bull_vix_high": 18.0,
+        "block_bull_ribbon_flip": "absent(off)",
+        "block_bull_1100_1200": "absent(off)",
+        "block_bull_morning_agg": false,
+        "require_bearish_fill_bar": true,
+        "min_ribbon_momentum_cents": "absent(off)",
+        "max_ribbon_duration_bars": "absent(off)",
+        "midday_trendline_gate": false,
+        "block_conf_lvl_rej_midday_afternoon": false,
+        "block_conf_lvl_rec_afternoon": true,
+        "entry_bar_body_pct_min": "absent(off)",
+        "entry_bar_body_pct_min_bull": "absent(off)",
+        "vix_bear_hard_cap": "absent(off)",
+        "structure_veto_enabled": "absent(off)"
+      }
+    },
+    "known_simplifications": [
+      "per_trade_risk_cap_pct qty-scale-down (orchestrator's notional-affordability clamp) is NOT modeled in the replay -- qty is fixed per account per known_simplifications.qty_convention, matching the block_elite_bull_ssb_revalidation.py template's own precedent (fixed QTY_ELITE/QTY_SUPER, no affordability clamp). Affects absolute $ magnitude, not sign/WR.",
+      "min_ribbon_momentum_cents and max_ribbon_duration_bars are excluded from THIS run not only for zero fresh evidence but also because a rigorous test would require reconstructing the historical ribbon_df (RibbonState per 5m bar) for the OOS window -- out of scope tonight, and moot given the 0-events finding."
+    ]
+  },
+  "windows": {
+    "is_window": {
+      "end": "2026-07-08",
+      "note": "Pre-SS-B cutoff for continuity. NOT re-run this session -- each testable gate's IS leg reuses its own cited prior scorecard's already-real IS_delta/n_is (see gates_in_battery.testable_this_session.*.prior_is_baseline), since those studies' entry-side conditions (VIX band / time window / trigger composition / entry-bar geometry) do not depend on exit shape or strike tier and so transfer across the SS-B/ATM engine change without needing a re-run. Only the OOS leg needed a fresh replay under the current engine."
+    },
+    "oos_window": {
+      "start": "2026-07-09",
+      "end": "2026-07-15",
+      "note": "Post-SS-B (07-09), post-premium-floor (07-09), post-ATM-strike-arming (07-14 for Safe). Real OPRA fills only (use_real_fills equivalent -- actual live signals mined from core-decisions.jsonl, replayed against real Alpaca OPRA 1-min option bars, never BS-synthetic). Trading days in window: 07-09 Wed, 07-10 Thu, 07-13 Mon, 07-14 Tue, 07-15 Wed (5 sessions; 07-11/07-12 weekend)."
+    },
+    "sub_windows": {
+      "sw1": [
+        "2026-07-09",
+        "2026-07-10"
+      ],
+      "sw2": [
+        "2026-07-13",
+        "2026-07-14",
+        "2026-07-15"
+      ],
+      "stable_rule": "sub_window_stable = at most 1 of {sw1, sw2} has negative total pnl for the recovered cohort ('<=1 hurt', per the task's ratification-bar spec)."
+    }
+  },
+  "mining_and_replay_method": {
+    "source_log": "automation/state/core-decisions.jsonl, filtered to the gate's own account + action == its GATE_ORDER skip_action + ts_et within the OOS window. Trusts the live engine's own evaluate_gates() call that produced each row (does NOT re-derive gate predicates independently) -- by GATE_ORDER's own contract (backtest/lib/engine/gates.py: 'return the FIRST entry gate that fired SKIP'), a row logged under gate X's skip_action proves every gate BEFORE X in GATE_ORDER already passed for that row under current live config -- the log itself is the upstream-clear proof, no separate check needed. Sanity assertion: row['reason'] == f'blocked by entry gate {params_key}' (verified present on all sampled rows this session).",
+    "dedupe_rule": {
+      "threshold_minutes": 5,
+      "statement": "Same as block_elite_bull_ssb_revalidation.py's dedupe_into_events: sort by ts_et; a row joins the current event if the gap since the previous row is <= 5 minutes; a larger gap starts a new event; an event's representative fields come from its first row."
+    },
+    "stale_echo_exclusion": "Same cross-account SKIP_STALE_TRIGGER corroboration (+/-90s) and 09:35:00-09:41:00 ET open-adjacent flag (not exclude) as the template, ported verbatim into the battery script.",
+    "downstream_double_block_exclusion": "Per-gate rules stated inline in gates_in_battery above -- a mined row is dropped from a gate's cohort if another CURRENTLY-ARMED gate later in GATE_ORDER would also independently fire for that row's own logged fields (time/triggers/vix), since 'all else held at current config' means that other gate keeps blocking regardless of what happens to the gate under test.",
+    "premium_floor_filter": "entry_premium (recovered, see below) must be >= 0.30 or the event is dropped (counted as n_dropped_sub_floor, never imputed).",
+    "entry_premium_and_bar_recovery": "Real Alpaca OPRA 1-min option bars via backtest/tools/exit_shape_parity_study.fetch_option_bars(symbol, date_et), tried against the local cache (backtest/lib/option_pricing_real.load_contract_bars) first. entry_premium = the OPEN of the first bar with timestamp_et >= the event's entry ts. A signal whose bars cannot be recovered is DROPPED and counted (n_missing_bars), never imputed (C7).",
+    "trigger_level_recovery": "row['trigger_level_exact'] when present; else backtest/tools/tw8_level_context.py frozen_level_set_for_date + lib.filters.detect_level_reclaim/detect_level_rejection (side-appropriate) against that day's SPY 5m bars, IDENTICAL detector to the one that fired the original signal. If still unrecoverable (expected for pure trendline_rejection-only bear signals, which carry no chart level at all -- confirmed this session: sampled SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY / SKIP_DOJI_ENTRY_BAR rows both show triggers=['trendline_rejection'] and trigger_level_exact=null), the event falls back to catastrophe-cap-only replay (no structure-stop layer) -- which is EXACTLY what live production would also do for a signal with no trigger_level (exit_manager.py ExitState.from_entry:212-213 requires trigger_level is not None to resolve structure mode), so this is a faithful fallback, not a methodology gap.",
+    "replay_engine": "backtest/tools/structure_stop_study.py replay_structure_aware() + structure_stop_signal_time(), reused unmodified, fed the current_config.exit_shape replay-derived shape above.",
+    "parallelism": "ONE process, serial bar-fetch loop with a 0.12s pause between LIVE (non-cached) OPRA fetches -- effectively 1 worker, well under the 6-8-worker ceiling / 3-concurrent-task OPRA-cache-deadlock lesson (L-series). No concurrent processes/tasks spawned against the OPRA cache."
+  },
+  "anchor_mechanism_precheck": {
+    "_doc": "Real, deterministic historical-fact checks against the 7 CLAUDE.md OP-16 J-anchor trades (journal/trades.csv, exact entry timestamps read this session), computed BEFORE the OOS mining/replay results below -- these facts (which SPY bar followed a given entry, what VIX printed at a given instant, what time an anchor trade entered) cannot be P-hacked by any gate parameter choice, so pre-registering them alongside the method (rather than treating them as a 'result') is methodologically sound. Anchor entry timestamps: 4/29 10:25:51 710P(win+342) | 5/01 13:09:14 721P(win+470) | 5/04 10:27:50 721P(win+730) | 5/05 13:00:33 722P(loss-260) | 5/06 13:09:37 730P(loss-300) | 5/07 11:14:15 737C(loss-120) | 5/07 12:30:00 734C(loss-45).",
+    "require_bearish_fill_bar__bold": {
+      "method": "For each of the 5 bear anchors, fetched the real SPY 5m bar at/after entry (the signal bar) and the bar immediately after it (N+1, the gate's own look-ahead check per gates.py:308-318); body = close-open >= 0 => would_block_if_armed.",
+      "result_this_session": {
+        "2026-04-29_710P_win342": "fill bar O=711.90 C=711.85, body=-0.050, would_block=False",
+        "2026-05-01_721P_win470": "fill bar O=722.50 C=722.68, body=+0.180, would_block=True",
+        "2026-05-04_721P_win730": "fill bar O=721.61 C=721.79, body=+0.180, would_block=True",
+        "2026-05-05_722P_loss260": "fill bar O=723.24 C=723.27, body=+0.030, would_block=True",
+        "2026-05-06_730P_loss300": "fill bar O=731.54 C=731.58, body=+0.040, would_block=True"
+      },
+      "reading": "If this gate had been armed on the anchor population, it would have BLOCKED 2 of 3 REAL WINNERS (5/01 +$470, 5/04 +$730) while only correctly filtering both real losers (5/05, 5/06) -- it does not separate winners from losers in J's own anchor trades; on this evidence the mechanism is anti-correlated with J's edge, not merely neutral. For a DISABLE proposal (this battery's direction of test, since the gate is currently ARMED on Bold), this is UNAMBIGUOUSLY SUPPORTIVE: disabling the currently-armed gate does not remove any protection the anchors need -- if anything it removes a mechanism that would have cost 2 of 3 real winning anchor trades. anchor_no_regression = PASS (strong)."
+    },
+    "block_elite_bull__bold": {
+      "method": "VIX-band leg only (structural necessary condition; tier/trigger-composition leg for these 2 anchors is NOT independently re-derived this session -- would require re-running the bull setup detector against 5/07 bars, out of scope tonight).",
+      "result_this_session": {
+        "2026-05-07_737C_loss120": "vix=17.22 at 11:15 ET -- IN Bold's [15,18) band",
+        "2026-05-07_734C_loss45": "vix=17.28 at 12:30 ET -- IN Bold's [15,18) band"
+      },
+      "reading": "VIX-band leg does NOT structurally clear the gate as irrelevant to these 2 anchors (both losers). Tier/trigger match is UNVERIFIED this session -- archetype tags for both (drift_chop_trap / manual_anticipation_at_resistance, journal/trades.csv archetype_match_json) suggest anticipation/chop entries rather than a clean confluence+level_reclaim ELITE pattern, but this is not a rigorous re-derivation. Because both anchors here are LOSERS (engine 'must skip or lose less'), the worst case if the gate DID match is NEUTRAL-TO-MILDLY-POSITIVE for the gate being armed (it would correctly filter losers) -- meaning DISABLING carries a real but bounded and non-catastrophic anchor risk (could re-admit 2 known losers, never loses a winner). anchor_no_regression = UNVERIFIED (bounded risk, conservative treatment in the ratification bar below: this leg does NOT count as a clean PASS)."
+    },
+    "block_conf_lvl_rec_afternoon__bold": {
+      "method": "Time-window leg only (the gate requires ts_et >= 14:00 ET; both bull anchors entered well before that, so the gate's condition structurally cannot match regardless of triggers/tier).",
+      "result_this_session": {
+        "2026-05-07_737C_loss120": "entry 11:14:15 ET < 14:00 ET -> gate condition cannot apply",
+        "2026-05-07_734C_loss45": "entry 12:30:00 ET < 14:00 ET -> gate condition cannot apply"
+      },
+      "reading": "Structurally clear -- neither anchor could ever have been touched by this gate regardless of any other field. anchor_no_regression = PASS (clean, structural)."
+    },
+    "block_elite_bull__safe": {
+      "method": "Reused prior citation (entry-side condition only, independent of exit shape/strike tier so it transfers across the SS-B/ATM change).",
+      "source": "analysis/recommendations/safe_block_elite_bull_all_vix.json op22_gates.G5_anchor_no_regression.pass = true",
+      "reading": "PASS (reused)."
+    },
+    "block_bull_1100_1200__safe": {
+      "method": "Reused prior citation (time-window condition only, independent of exit shape/strike tier).",
+      "source": "analysis/recommendations/safe_bull_1100_1200_gate.json op22_gates.G5_anchor_no_regression.pass = true",
+      "reading": "PASS (reused)."
+    },
+    "entry_bar_body_pct_min__safe": {
+      "method": "Reused prior citation (entry-bar-geometry condition only, independent of exit shape/strike tier).",
+      "source": "automation/state/params.json _entry_bar_body_pct_min_doc ('anchor unchanged (+$0)')",
+      "reading": "PASS (reused)."
+    }
+  },
+  "ratification_gates": {
+    "_doc": "Per CLAUDE.md OP-16 + the task's explicit spec. ALL FIVE required for an auto-ship DISABLE verdict on a currently-armed gate. evidence_n is advisory (a thin-n PASS is reported honestly, not silently upgraded).",
+    "1_oos_positive": "Recovered cohort's SS-B-replayed total pnl > 0 (this IS the 'value unblocking would have unlocked' since every testable gate in this battery is currently ARMED and every mined cohort is its own blocked-signal population).",
+    "2_wf_ge_070": "WF_per_trade = (oos_delta/n_oos) / (is_delta/n_is) >= 0.70, per backtest/safe_fill_bar_gate.py's canonical formula (G3). oos_delta/is_delta here = the recovered cohort's total pnl (the whole point of unblocking IS the delta, since these trades currently return exactly $0 by being skipped). n_is/is_delta per gate from prior_is_baseline above. WF is WAIVED-AS-N/A (not a silent fail) only where is_delta=0 with no IS trades in the population (block_elite_bull/bold, precedented by block_elite_bull_vix_high_18.json).",
+    "3_sub_window_stable": "<=1 of {sw1, sw2} negative, per windows.sub_windows above.",
+    "4_anchor_no_regression": "Per anchor_mechanism_precheck above -- PASS (reused or freshly verified) required; UNVERIFIED counts as NOT a clean pass (conservative treatment, OP-33 'verify don't claim').",
+    "5_evidence_n_advisory": "n (deduped events, post all exclusions) >= 15 is ADVISORY per OP-16 -- a thin-n PASS still ships if the other 4 gates clear, but is labeled thin in the scorecard, not hidden.",
+    "bh_fdr_correction": "Benjamini-Hochberg step-up across the set of gates that produce a real test statistic this run (up to 6), alpha=0.10, one-sided normal-approximation p-value for mean(trade_pnl) > 0 -- same algorithm as backtest/autoresearch/discovery_shadow_ledger.py#fdr_screen (sort by p ascending; largest i with p_i <= alpha*i/m is the significance cutoff; all i below it significant), reimplemented in the battery script rather than imported (that module's fdr_screen is coupled to its own ledger file format). A gate failing the BH-FDR cut does NOT auto-ship a DISABLE even if conditions 1-5 nominally clear (multiple-comparisons discipline, explicitly named in the task instructions)."
+  },
+  "decision_rule": {
+    "statement": "Gate ON-vs-OFF A/B per gate, all else held at current live config (per current_config.all_other_gates_held_at_current_live_config). Every gate in testable_this_session is CURRENTLY ARMED (True/non-zero) -- so 'OFF' is the recovered/replayed cohort (what would have happened had the gate not fired) and 'ON' is the status quo (those specific trades return $0, they were skipped). A clean PASS on all 5 ratification_gates + BH-FDR survival => DISABLE (flip the params key off), ship with a guard test + revert line, report for REVOKE (OP-0/OP-11 standing autonomy -- paper only, no J-gate needed). Any single ratification_gates condition failing, or BH-FDR non-survival => KEEP (no params change). untestable_this_session gates => UNCHANGED (no params change, no A/B was possible).",
+    "explicitly_out_of_scope": [
+      "trendline_requires_ribbon_flip (J-decision-gated per automation/overnight/queue.md and the source report's 'Do not touch without J' list)",
+      "block_bull_morning_agg (J explicitly killed it 2026-06-24, re-arming needs J directly)"
+    ]
+  },
+  "outputs": {
+    "battery_result": "analysis/recommendations/directional-gate-battery-2026-07-15.json",
+    "scorecard_md": "analysis/recommendations/directional-gate-battery-2026-07-15.md",
+    "guard_test": "backtest/tests/test_directional_gate_battery_ships.py"
+  },
+  "rail": "The PRE-REGISTRATION and the BATTERY RUN are analysis-only (read core-decisions.jsonl, read live params files, read live Alpaca account equity, read/fetch real OPRA option bars -- all read-only). Any params.json / aggressive/params.json edit for a gate that clears all 5 ratification_gates + BH-FDR happens in a SEPARATE, later, explicitly-flagged step (per the task's item 5), never inside the battery script itself.",
+  "content_sha256_16": "c0a96f51cc0af81d"
+}
