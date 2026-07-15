@@ -50,7 +50,8 @@ the next SPY session). If not accumulating within ~2 weeks, re-examine the progr
   firm-brief scoreboard line.
 - **B3 (SHIPPED 2026-07-15, Fable worker lane):** entry_manager live measurement on twin
   (graduate T-W5). See "B3 shipped" section below.
-- **B4 (queued):** weekly chaos drill + resilience ledger.
+- **B4 (SHIPPED 2026-07-15, Sonnet overnight lane):** weekly chaos drill + resilience
+  ledger. See "B4 shipped" section below.
 - **B5 (queued):** pattern-grammar shadow telemetry on twin.
 - **Doctrine:** CLAUDE.md one-liner proposal (propose-only) folding the amended crypto
   boundary + this program's existence; memory entry.
@@ -96,6 +97,63 @@ any SPY path change. Twin numbers inform MECHANISM only — never SPY evidence.
 **Known boundary (pre-existing, noted not changed):** exit_manager's `time_stop_15:50` means
 any twin position entered 15:50–23:59 ET closes on the next tick via time_stop (graded
 always-acceptable). Entry measurement is unaffected; lifecycle reps skew to 00:00–15:50 ET.
+
+## B4 shipped (2026-07-15, Sonnet overnight lane) — weekly chaos drill + resilience ledger
+
+**What runs now:** `setup/scripts/twin_chaos_drill.py` — four failure injections against the
+REAL twin, run one at a time, each restoring clean state before the next starts. Every drill
+drives REAL production functions (`crypto_twin_core.run_tick`/`place_entry`/`load_breaker`/
+`_risk_gate_check`, `crypto_twin_broker`'s REST calls, `crypto.lib.kill_switch.tick`) — the
+module invents zero new decision logic, it only injects, observes, restores, and journals.
+
+1. **process_kill_mid_position** — opens a real `CHAOS_DRILL_PROCESS_KILL`-tagged position,
+   launches a real managing tick as a subprocess (the exact `crypto_twin_health.py --live`
+   entrypoint), force-kills it mid-flight (`TerminateProcess`), then proves a fresh tick
+   recovers via `classify_recovery()`'s decision table. Force-flattens at the end regardless.
+2. **corrupt_state_file** — malforms `exit-state.json`'s bytes, proves `_load_positions`
+   fails OPEN (never raises), restores the exact original bytes.
+3. **stale_feed** — feeds `run_tick` a bar closed 3h stale via the real injectable
+   `raw_bars` param, proves `bar_reader`'s staleness verdict fires (`HOLD_BAD_BARS`, zero
+   order risk, WATCH-mode by construction).
+4. **breaker_mid_trip** — overwrites `breaker.json` with a LATCHED-tripped doc (healthy
+   current_equity, isolating the latch property), proves the real
+   `load_breaker -> kill_switch.tick -> risk_gate.check_order` chain halts (`code=KILL_SWITCH`),
+   restores the exact original bytes, proves the same chain re-arms.
+
+Each rep appends one row to `automation/state/crypto-twin/resilience-ledger.jsonl`:
+`{drill, injected_at, observed_at, recovered, recovery_path, notes, evidence}`. Registered
+weekly via `Gamma_TwinChaos` (Sunday 03:00 ET / 01:00 MT, `install-twin-chaos-drill.ps1`,
+same flash-free `wscript->run_exe_hidden.vbs->pythonw` chain + reaper-exemption pattern as
+`Gamma_CryptoTwin`/`Gamma_TwinSentinel`). Twin-only by construction
+(`crypto_twin_core._assert_twin_namespace` static+runtime guard) — never touches SPY/fleet/
+core state, params, or orders. Guards: `backtest/tests/test_twin_chaos_drill.py` (30/30) +
+`test_twin_chaos_drill_reaper_exemption.py` (13/13).
+
+**First live drill cycle (2026-07-15, build session):** all 4 drills `recovered: true`
+against the real twin. `stale_feed` — `HOLD_BAD_BARS`, staleness correctly detected, zero
+new orders. `breaker_mid_trip` — real HALT (`code=KILL_SWITCH`), real RE-ARM (`code=ALLOW`),
+`breaker.json` restored byte-identical. `corrupt_state_file` — fail-open confirmed,
+`exit-state.json` restored byte-identical. `process_kill_mid_position` — real BTC/USD entry
+at $64,697.78, the managing subprocess genuinely killed mid-flight
+(`killed_before_completion: true`), recovery classified `STATE_CONSISTENT_WITH_BROKER`,
+force-flattened clean. Twin verified flat post-drill (`exit-state.json: {}`,
+`scenario-state.json: {}`). A first process-kill rep at the 2.5s default timeout finished
+before the kill landed (honestly logged as a weaker rep, still recovered) — added a
+`--kill-after-sec` CLI knob after observing the twin's real managing tick completes faster
+than that on calm BTC; the retry at 0.3s produced a genuine mid-flight kill.
+
+**Bug caught + fixed same session (mechanism_bugs_caught):** the first two offline
+pytest runs silently wrote fake test rows into the REAL `resilience-ledger.jsonl` —
+`cfg`'s `state_dir` was tmp_path-isolated but `append_resilience_row`'s `ledger_path`
+defaulted to the real production path regardless of `cfg`. Caught by inspecting the ledger
+after the first live run and finding fake-broker-shaped rows (`"$65,000.00"`, `"no twin
+creds"`) interleaved with genuine ones. Fixed by threading `ledger_path` through every
+`drill_*()` function, resolved inside the function body rather than as a bound default —
+the identical bug class `force_flatten_position`'s `close_fn` default hit first (caught by
+its own offline test before this one landed, itself a repeat of the exact class
+`twin_gauntlet.py`'s `_write_last_result` docstring and `trade_autopsy.py` already
+document: "a default parameter is snapshotted ONCE when the function is defined"). 18
+polluted rows removed from the real ledger; 5 genuine rows kept.
 
 ## B2 interfaces (gauntlet <-> scenario scheduler) -- shared doc comment, 2026-07-11
 
