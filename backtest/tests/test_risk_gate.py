@@ -39,6 +39,7 @@ from lib.risk_gate import (  # noqa: E402
     CODE_MAX_PREMIUM_TIER,
     CODE_MIN_CONTRACTS,
     CODE_PDT,
+    CODE_SETTLEMENT,
     CODE_FIRST_ENTRY_LOCK,
     CODE_NOT_FLAT,
     CODE_UNREADABLE_INPUT,
@@ -620,3 +621,207 @@ def test_affordability_fails_closed_when_equity_outside_every_tier():
     assert not order_affordable(
         equity=2_000_000_000.0, premium=1.0, qty=3, params=SAFE_PARAMS
     )
+
+
+# =============================================================================
+# 8. Rule 7 REWRITE (2026-07-14) — pdt_gate_mode="cash_settlement"
+#
+# Both core accounts are CASH accounts (verified live: multiplier=1, Alpaca
+# pattern_day_trader/daytrade_count both null) — the margin-style PDT count
+# above never applied to them. This mode gates on SETTLED cash instead (GFV/
+# Reg-T aware). See backtest/lib/risk_gate.py CODE_SETTLEMENT docs +
+# markdown/research/CASH-ACCOUNT-DAY-TRADING-REGULATIONS-2026-07-14.md.
+#
+# CRITICAL regression guard: every test ABOVE this section passes day_trades_
+# used_5d=3+ with NO pdt_gate_mode key in params and must still hit CODE_PDT
+# or Allow exactly as before — the function-level default is "margin_pdt",
+# unchanged, so this whole file stays green untouched by the new mode.
+# =============================================================================
+
+SAFE_PARAMS_CASH = dict(SAFE_PARAMS, pdt_gate_mode="cash_settlement")
+BOLD_PARAMS_CASH = dict(BOLD_PARAMS, pdt_gate_mode="cash_settlement")
+
+
+def _cash_safe(**overrides) -> RiskDecision:
+    """Same baseline as _clean_safe (3 contracts @ $1.00 = $300 notional) but
+    under cash_settlement mode with a generous settled pool by default."""
+    kwargs = dict(
+        account="Gamma-Safe-2",
+        equity=2000.0,
+        start_of_day_equity=2000.0,
+        proposed_qty=3,
+        premium=1.00,
+        setup_name=SETUP,
+        current_position_status="flat",
+        day_trades_used_5d=0,
+        kill_switch_tripped=False,
+        prior_stops_today=[],
+        params=SAFE_PARAMS_CASH,
+        settled_cash_available=2000.0,
+        same_day_entries_used=0,
+    )
+    kwargs.update(overrides)
+    return check_order(kwargs.pop("account"), **kwargs)
+
+
+def test_default_mode_is_margin_pdt_when_key_absent():
+    """No pdt_gate_mode key anywhere in SAFE_PARAMS -> the OLD margin-PDT path,
+    byte-identical. This is the load-bearing backward-compat invariant: every
+    existing caller (backtest orchestrator/cap_admission/pre_order_gate/
+    fleet_executor) that never sets this key keeps its exact pre-2026-07-14
+    behavior."""
+    assert "pdt_gate_mode" not in SAFE_PARAMS
+    d = _clean_safe(day_trades_used_5d=3)
+    assert d.code == CODE_PDT
+
+
+def test_cash_settlement_allows_within_settled_pool():
+    d = _cash_safe()
+    assert isinstance(d, Allow), d.reason
+
+
+def test_cash_settlement_denies_notional_exceeding_settled_pool():
+    """$300 notional > $250 settled remaining -> SETTLEMENT deny (would draw on
+    today's unsettled closing proceeds — the GFV pattern)."""
+    d = _cash_safe(settled_cash_available=250.0)
+    assert d.code == CODE_SETTLEMENT
+    assert "settled cash" in d.reason.lower()
+
+
+def test_cash_settlement_allows_at_exact_settled_boundary():
+    d = _cash_safe(settled_cash_available=300.0)  # exactly == notional
+    assert isinstance(d, Allow), d.reason
+
+
+def test_cash_settlement_sanity_cap_denies_at_max_roundtrips():
+    """params.max_same_day_roundtrips=5 (default); the 5th entry already placed
+    (same_day_entries_used=5) denies the 6th regardless of settled cash."""
+    d = _cash_safe(same_day_entries_used=5, settled_cash_available=100_000.0)
+    assert d.code == CODE_SETTLEMENT
+    assert "sanity cap" in d.reason.lower()
+
+
+def test_cash_settlement_sanity_cap_respects_custom_param():
+    params = dict(SAFE_PARAMS_CASH, max_same_day_roundtrips=2)
+    d = _cash_safe(params=params, same_day_entries_used=2, settled_cash_available=100_000.0)
+    assert d.code == CODE_SETTLEMENT
+    d2 = _cash_safe(params=params, same_day_entries_used=1, settled_cash_available=100_000.0)
+    assert isinstance(d2, Allow), d2.reason
+
+
+def test_cash_settlement_requires_settled_cash_available():
+    """Missing settled_cash_available under cash_settlement mode is uncertainty
+    -> deny, never a silent Allow (fail-closed, same posture as every other
+    required numeric input)."""
+    d = _cash_safe(settled_cash_available=None)
+    assert d.code == CODE_UNREADABLE_INPUT
+
+
+def test_cash_settlement_requires_same_day_entries_used():
+    d = _cash_safe(same_day_entries_used=None)
+    assert d.code == CODE_UNREADABLE_INPUT
+
+
+@pytest.mark.parametrize("bad", [float("nan"), -1.0, "not-a-number"])
+def test_cash_settlement_settled_cash_fails_closed_on_bad_values(bad):
+    d = _cash_safe(settled_cash_available=bad)
+    assert d.code == CODE_UNREADABLE_INPUT
+
+
+@pytest.mark.parametrize("bad", [float("nan"), -1, 1.5, "not-a-number"])
+def test_cash_settlement_entries_used_fails_closed_on_bad_values(bad):
+    d = _cash_safe(same_day_entries_used=bad)
+    assert d.code == CODE_UNREADABLE_INPUT
+
+
+def test_cash_settlement_still_respects_kill_switch_and_not_flat_first():
+    """Mode switch only replaces gate #2 (PDT/settlement) — kill-switch (#1)
+    and NOT_FLAT (#3) still bind exactly as before, in the same order."""
+    d_kill = _cash_safe(kill_switch_tripped=True)
+    assert d_kill.code == CODE_KILL_SWITCH
+    d_flat = _cash_safe(current_position_status="open")
+    assert d_flat.code == CODE_NOT_FLAT
+
+
+def test_cash_settlement_still_respects_risk_cap_and_min_contracts():
+    """Sizing gates (#5/#6) still run AFTER the settlement gate, unchanged."""
+    d_min = _cash_safe(proposed_qty=1)  # below Safe's min_contracts=3
+    assert d_min.code == CODE_MIN_CONTRACTS
+    d_cap = _cash_safe(proposed_qty=3, premium=10.0, settled_cash_available=100_000.0)
+    assert d_cap.code in (CODE_RISK_CAP, CODE_MAX_PREMIUM_TIER)
+
+
+def test_cash_settlement_bold_account_symmetric():
+    d = check_order(
+        "Gamma-Risky-2",
+        equity=1673.0, start_of_day_equity=1673.0, proposed_qty=5, premium=1.00,
+        setup_name=SETUP, current_position_status="flat", day_trades_used_5d=0,
+        kill_switch_tripped=False, prior_stops_today=[], params=BOLD_PARAMS_CASH,
+        settled_cash_available=1673.0, same_day_entries_used=0,
+    )
+    assert isinstance(d, Allow), d.reason
+    d_deny = check_order(
+        "Gamma-Risky-2",
+        equity=1673.0, start_of_day_equity=1673.0, proposed_qty=5, premium=1.00,
+        setup_name=SETUP, current_position_status="flat", day_trades_used_5d=0,
+        kill_switch_tripped=False, prior_stops_today=[], params=BOLD_PARAMS_CASH,
+        settled_cash_available=100.0, same_day_entries_used=0,
+    )
+    assert d_deny.code == CODE_SETTLEMENT
+
+
+# --- Real 2026-07-14 replay: the 4 entries the OLD gate blocked TODAY ---------
+# Sourced verbatim from automation/state/core-decisions.jsonl RISK_DENY_PDT rows
+# @10:38/13:36/13:37/13:38 ET, core Safe, SOD equity $1,746.63 (circuit-breaker.
+# json). Every individual notional (and even the worst-case CUMULATIVE sum, as
+# if all 4 fired sequentially same-day with zero exits between them) stays
+# under the SOD settled pool — none would have been a GFV risk. This is the
+# evidence step (STEP 3) for the doctrine rewrite: the old gate blocked 4 real,
+# legal trades today on a rule that doesn't govern a cash account.
+_TODAY_BLOCKED_2026_07_14 = [
+    {"ts": "10:38", "symbol": "SPY260714C00752000", "qty": 3, "premium": 1.19},
+    {"ts": "13:36", "symbol": "SPY260714P00752000", "qty": 3, "premium": 0.74},
+    {"ts": "13:37", "symbol": "SPY260714P00752000", "qty": 3, "premium": 0.70},
+    {"ts": "13:38", "symbol": "SPY260714P00752000", "qty": 3, "premium": 0.69},
+]
+_SOD_EQUITY_2026_07_14 = 1746.63
+
+
+def test_2026_07_14_blocked_trades_replay_all_allowed_under_settlement_gate():
+    settled_remaining = _SOD_EQUITY_2026_07_14
+    entries_used = 0
+    for row in _TODAY_BLOCKED_2026_07_14:
+        d = check_order(
+            "Gamma-Safe-2",
+            equity=_SOD_EQUITY_2026_07_14, start_of_day_equity=_SOD_EQUITY_2026_07_14,
+            proposed_qty=row["qty"], premium=row["premium"], setup_name=SETUP,
+            current_position_status="flat", day_trades_used_5d=7,  # the real inherited count
+            kill_switch_tripped=False, prior_stops_today=[], params=SAFE_PARAMS_CASH,
+            settled_cash_available=settled_remaining, same_day_entries_used=entries_used,
+        )
+        assert isinstance(d, Allow), (
+            f"{row['ts']} {row['symbol']} qty={row['qty']} premium={row['premium']} "
+            f"denied under cash_settlement: {d.code} {d.reason}"
+        )
+        settled_remaining -= row["qty"] * row["premium"] * 100.0
+        entries_used += 1
+    # Even in this worst-case (all 4 sequential, no exits crediting anything
+    # back), the cumulative notional stayed well under the SOD settled pool.
+    total_notional = sum(r["qty"] * r["premium"] * 100.0 for r in _TODAY_BLOCKED_2026_07_14)
+    assert total_notional < _SOD_EQUITY_2026_07_14
+    assert settled_remaining == pytest.approx(_SOD_EQUITY_2026_07_14 - total_notional)
+
+
+def test_2026_07_14_same_trades_WERE_denied_under_the_old_margin_pdt_mode():
+    """Sanity anchor: confirms the OLD gate really did (and, unrevert, still
+    would) block these on the inherited day_trades_used_5d=7 count — proving
+    the replay above is a genuine unlock, not a vacuous comparison."""
+    row = _TODAY_BLOCKED_2026_07_14[0]
+    d = check_order(
+        "Gamma-Safe-2",
+        equity=_SOD_EQUITY_2026_07_14, start_of_day_equity=_SOD_EQUITY_2026_07_14,
+        proposed_qty=row["qty"], premium=row["premium"], setup_name=SETUP,
+        current_position_status="flat", day_trades_used_5d=7,
+        kill_switch_tripped=False, prior_stops_today=[], params=SAFE_PARAMS,  # legacy mode
+    )
+    assert d.code == CODE_PDT

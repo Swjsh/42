@@ -1,4 +1,24 @@
-"""pdt_tracker -- computes the REAL day-trade count from broker fill history (Rule 7).
+"""pdt_tracker -- computes the REAL margin-style day-trade count from broker
+fill history (Rule 7, LEGACY mode).
+
+STATUS UPDATE (2026-07-14): this module's count is now the TRADING gate feed
+ONLY under params.pdt_gate_mode == "margin_pdt" (the pre-2026-07-14 default,
+kept for one-line revert). Both core accounts (Gamma-Safe-2 PA3DHPT7KIQE,
+Gamma-Risky-2 PA33W2KUAT40) are CASH accounts (verified live: multiplier=1,
+Alpaca reports pattern_day_trader/daytrade_count as null) -- PDT never
+applied to them; the margin-style count this module computes was blocking
+real entries on a rule that doesn't govern these accounts (see
+markdown/research/CASH-ACCOUNT-DAY-TRADING-REGULATIONS-2026-07-14.md and
+backtest/lib/risk_gate.py's CODE_SETTLEMENT docs). Both accounts' params.json
+now default to pdt_gate_mode="cash_settlement", which gates on
+setup/scripts/settlement_ledger.py instead. This module is NOT deleted: (a)
+it remains the live gate for any future margin-account caller, and (b) its
+fetch_day_trades_used_5d / fetch_day_trades_detail outputs are still consumed
+as a VISIBILITY surface (self_check.py, firm_brief.py) and still written to
+circuit-breaker.json by heartbeat_core.py -- unrelated to which rule gates
+the order.
+
+ORIGINAL DOCSTRING (below) describes the margin-PDT count itself, unchanged:
 
 FIX (2026-07-06): circuit-breaker.json's day_trades_used_5d was a hardcoded 0,
 written once at premarket and never incremented afterward -- confirmed via the

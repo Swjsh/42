@@ -41,8 +41,29 @@ testable. The rules, with their doctrine source:
                      The tighter of (RISK_CAP, this tier %) is the effective cap.
   MIN_CONTRACTS      CLAUDE.md Rule 6 + params `min_contracts` (>=3: 2 TP + 1
                      runner). A proposal below the floor is denied.
-  PDT                CLAUDE.md Rule 7. >=3 day-trades in rolling 5 business days
-                     AND equity < $25,000 -> deny (pattern-day-trader rule).
+  PDT / SETTLEMENT   CLAUDE.md Rule 7. Two mutually-exclusive gate modes, selected
+                     by params.pdt_gate_mode (per-account, params.json):
+                       "margin_pdt" (LEGACY, function-level default when the key
+                         is absent -- preserves every pre-2026-07-14 caller byte-
+                         for-byte): >=3 day-trades in rolling 5 business days AND
+                         equity < $25,000 -> deny. Models FINRA's margin-account
+                         PDT rule. VERIFIED 2026-07-14 this rule never applied to
+                         either core account: both are CASH accounts (multiplier
+                         "1", Alpaca reports pattern_day_trader/daytrade_count as
+                         null -- PDT is structurally inapplicable) --
+                         markdown/research/CASH-ACCOUNT-DAY-TRADING-REGULATIONS-
+                         2026-07-14.md.
+                       "cash_settlement" (NEW, params.json-selected for both live
+                         cash accounts as of 2026-07-14): gates on SETTLED cash,
+                         not a trade count -- the constraint that actually binds a
+                         cash account (Good Faith Violation / freeriding, Reg T).
+                         Requires `settled_cash_available` (today's settled-cash
+                         pool remaining, see setup/scripts/settlement_ledger.py)
+                         to cover this order's notional, and `same_day_entries_
+                         used` to stay under params.max_same_day_roundtrips (a
+                         generous sanity cap, default 5). Both are REQUIRED
+                         (fail-closed) in this mode -- a missing value is
+                         uncertainty, not permission.
   FIRST_ENTRY_LOCK   DELETED (J directive 2026-07-02: "Gone. We no longer have
                      it in our codebase."). The 'no second entry on a setup that
                      stopped out today' deny was Claude-invented and never
@@ -56,9 +77,10 @@ testable. The rules, with their doctrine source:
                      None, NaN, or unparseable -> deny. Uncertainty == no trade.
 
 DECISION CODES (stable — callers + logs key off these strings)
-  KILL_SWITCH, RISK_CAP, MAX_PREMIUM_TIER, MIN_CONTRACTS, PDT,
+  KILL_SWITCH, RISK_CAP, MAX_PREMIUM_TIER, MIN_CONTRACTS, PDT, SETTLEMENT,
   NOT_FLAT, UNREADABLE_INPUT, ALLOW
-  (FIRST_ENTRY_LOCK retired 2026-07-02 — constant kept for old-log readers.)
+  (FIRST_ENTRY_LOCK retired 2026-07-02 — constant kept for old-log readers.
+   SETTLEMENT added 2026-07-14 — fires only under pdt_gate_mode="cash_settlement".)
 
 EVALUATION ORDER
   Safety/uncertainty first (UNREADABLE_INPUT), then the hard halts that mean "no
@@ -86,13 +108,21 @@ CODE_RISK_CAP = "RISK_CAP"
 CODE_MAX_PREMIUM_TIER = "MAX_PREMIUM_TIER"
 CODE_MIN_CONTRACTS = "MIN_CONTRACTS"
 CODE_PDT = "PDT"
+CODE_SETTLEMENT = "SETTLEMENT"  # NEW 2026-07-14 -- cash-settlement/GFV-aware Rule 7 gate
 CODE_FIRST_ENTRY_LOCK = "FIRST_ENTRY_LOCK"  # RETIRED 2026-07-02 (kept for old-log readers)
 CODE_NOT_FLAT = "NOT_FLAT"
 CODE_UNREADABLE_INPUT = "UNREADABLE_INPUT"
 
-# PDT applies only under the $25K margin-account threshold (CLAUDE.md Rule 7).
+# PDT (margin_pdt mode only) applies only under the $25K margin-account threshold
+# (CLAUDE.md Rule 7, legacy). Neither core account is a margin account (verified
+# 2026-07-14: multiplier=1, cash accounts) -- this constant is retained only for
+# the legacy pdt_gate_mode="margin_pdt" path (revert / non-cash-account callers).
 PDT_EQUITY_THRESHOLD = 25_000.0
 PDT_DAY_TRADE_LIMIT = 3
+
+# cash_settlement mode: generous belt-and-suspenders sanity cap on same-day
+# entries, used only when params.max_same_day_roundtrips is absent.
+DEFAULT_MAX_SAME_DAY_ROUNDTRIPS = 5
 
 
 @dataclass(frozen=True)
@@ -195,6 +225,8 @@ def check_order(
     kill_switch_tripped: Any,
     prior_stops_today: Any,
     params: Optional[Mapping[str, Any]],
+    settled_cash_available: Any = None,
+    same_day_entries_used: Any = None,
 ) -> RiskDecision:
     """Decide whether ONE proposed option order may be placed.
 
@@ -215,13 +247,24 @@ def check_order(
             live position -> NOT_FLAT. (Defensive: an unrecognised status is
             treated as "position open", the safe direction.)
         day_trades_used_5d: day-trades used in the rolling 5 business days.
+            Read ONLY when params.pdt_gate_mode == "margin_pdt" (legacy);
+            still validated as a well-formed number regardless of mode, so
+            every existing caller keeps passing it unchanged.
         kill_switch_tripped: bool latch — True if the account's daily kill
             switch has already fired today.
         prior_stops_today: collection of setup names that have ALREADY stopped
             out today (list/set/tuple). Membership of `setup_name` -> deny.
         params: the account's params.json mapping (per_trade_risk_cap_pct,
             daily_loss_kill_switch_pct, min_contracts,
-            v15_max_premium_pct_of_account, first_entry_after_stop_blocked).
+            v15_max_premium_pct_of_account, first_entry_after_stop_blocked,
+            pdt_gate_mode, max_same_day_roundtrips).
+        settled_cash_available: dollars of TODAY's settled-cash pool still
+            uncommitted (see setup/scripts/settlement_ledger.py). REQUIRED
+            (fail-closed) when params.pdt_gate_mode == "cash_settlement";
+            ignored in "margin_pdt" mode.
+        same_day_entries_used: count of entries already placed today.
+            REQUIRED (fail-closed) when params.pdt_gate_mode ==
+            "cash_settlement"; ignored in "margin_pdt" mode.
 
     Returns:
         RiskDecision — Allow on a clean order, else Deny with a stable code.
@@ -336,15 +379,81 @@ def check_order(
         )
 
     # ---------------------------------------------------------------------
-    # 2. PDT AWARENESS (CLAUDE.md Rule 7). >=3 day-trades in rolling 5d AND
-    #    equity < $25K -> deny. Both conditions required.
+    # 2. DAY-TRADE / SETTLEMENT AWARENESS (CLAUDE.md Rule 7). Mode selected by
+    #    params.pdt_gate_mode (see module docstring + check_order docstring).
     # ---------------------------------------------------------------------
-    if day_trades_i >= PDT_DAY_TRADE_LIMIT and equity_f < PDT_EQUITY_THRESHOLD:
-        return Deny(
-            CODE_PDT,
-            f"{account}: {day_trades_i} day-trades in 5d at equity ${equity_f:,.0f} "
-            f"< ${PDT_EQUITY_THRESHOLD:,.0f} — PDT rule blocks a 4th day-trade",
-        )
+    pdt_mode = str(params.get("pdt_gate_mode") or "margin_pdt").strip().lower()
+
+    if pdt_mode == "cash_settlement":
+        # NEW 2026-07-14: gates on SETTLED cash (GFV/Reg-T aware), not a trade
+        # count. Both inputs are REQUIRED in this mode — fail closed, matching
+        # every other hard-halt rule in this function; a caller that flips a
+        # cash account into this mode without wiring the ledger gets denies,
+        # never silent no-op allows.
+        if same_day_entries_used is None or _is_bad_number(same_day_entries_used):
+            return Deny(
+                CODE_UNREADABLE_INPUT,
+                f"same_day_entries_used is required under pdt_gate_mode=cash_settlement "
+                f"and must be a readable number (got {same_day_entries_used!r})",
+            )
+        if settled_cash_available is None or _is_bad_number(settled_cash_available):
+            return Deny(
+                CODE_UNREADABLE_INPUT,
+                f"settled_cash_available is required under pdt_gate_mode=cash_settlement "
+                f"and must be a readable number (got {settled_cash_available!r})",
+            )
+        entries_used_f = _as_float(same_day_entries_used)
+        if entries_used_f < 0 or entries_used_f != int(entries_used_f):
+            return Deny(
+                CODE_UNREADABLE_INPUT,
+                f"same_day_entries_used must be a non-negative whole number (got "
+                f"{same_day_entries_used!r})",
+            )
+        entries_used_i = int(entries_used_f)
+        settled_f = _as_float(settled_cash_available)
+        if settled_f < 0:
+            return Deny(
+                CODE_UNREADABLE_INPUT,
+                f"settled_cash_available must be >= 0 (got {settled_f})",
+            )
+
+        max_rt_raw = params.get("max_same_day_roundtrips", DEFAULT_MAX_SAME_DAY_ROUNDTRIPS)
+        if _is_bad_number(max_rt_raw):
+            return Deny(
+                CODE_UNREADABLE_INPUT,
+                "params.max_same_day_roundtrips present but unreadable",
+            )
+        max_rt = int(_as_float(max_rt_raw))
+
+        # Belt-and-suspenders sanity cap.
+        if entries_used_i >= max_rt:
+            return Deny(
+                CODE_SETTLEMENT,
+                f"{account}: {entries_used_i} same-day entries already placed >= sanity cap "
+                f"{max_rt} (params.max_same_day_roundtrips)",
+            )
+
+        # The real cash-account constraint: this order's notional must be
+        # covered by TODAY's still-settled pool, without reaching into today's
+        # (still-unsettled, T+1) closing proceeds — the GFV pattern.
+        notional_preview = premium_f * qty_i * 100.0
+        if notional_preview > settled_f:
+            return Deny(
+                CODE_SETTLEMENT,
+                f"{account}: notional ${notional_preview:,.0f} exceeds settled cash remaining "
+                f"${settled_f:,.0f} today — would fund from today's unsettled proceeds "
+                f"(Good Faith Violation risk)",
+            )
+    else:
+        # LEGACY margin_pdt (function-level default when params.pdt_gate_mode
+        # is absent — every pre-2026-07-14 caller/test is byte-identical).
+        # >=3 day-trades in rolling 5d AND equity < $25K -> deny.
+        if day_trades_i >= PDT_DAY_TRADE_LIMIT and equity_f < PDT_EQUITY_THRESHOLD:
+            return Deny(
+                CODE_PDT,
+                f"{account}: {day_trades_i} day-trades in 5d at equity ${equity_f:,.0f} "
+                f"< ${PDT_EQUITY_THRESHOLD:,.0f} — PDT rule blocks a 4th day-trade",
+            )
 
     # ---------------------------------------------------------------------
     # 3. FLAT BEFORE ENTRY (CLAUDE.md Rule 4 + broker-source-of-truth C11).

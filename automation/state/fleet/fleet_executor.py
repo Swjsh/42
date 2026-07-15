@@ -675,6 +675,19 @@ def finalize(
             return ArmDecision(plan.arm_id, "HOLD", plan.side, plan.setup_name, plan.strike,
                                plan.qty, premium, plan.quality, "SKIP_MIN_PREMIUM_FLOOR",
                                f"premium {premium} < min_entry_premium floor {_min_prem}")
+    # BLAST-RADIUS GUARD (2026-07-14): _base_params_for reads the SAME on-disk
+    # automation/state/params.json / aggressive/params.json that core Safe/Bold
+    # now opt into pdt_gate_mode="cash_settlement" (see those files + backtest/
+    # lib/risk_gate.py CODE_SETTLEMENT). fleet_executor never computes/passes
+    # settled_cash_available/same_day_entries_used -- if it inherited
+    # cash_settlement mode from the shared file, check_order would fail-closed
+    # to UNREADABLE_INPUT on EVERY fleet order (a strict regression from
+    # today's near-always-ALLOW margin_pdt behavior, for arms outside this
+    # task's scope). Force fleet arms onto the legacy path explicitly,
+    # independent of whatever the shared file says, until/unless fleet gets
+    # its own settlement-ledger wiring (queued, not part of this change).
+    _fleet_params = dict(params)
+    _fleet_params["pdt_gate_mode"] = "margin_pdt"
     decision = risk_gate.check_order(
         account_label,
         equity=equity,
@@ -686,7 +699,7 @@ def finalize(
         day_trades_used_5d=day_trades_used_5d,
         kill_switch_tripped=kill_switch_tripped,
         prior_stops_today=prior_stops_today,
-        params=params,
+        params=_fleet_params,
     )
     if not decision.allowed:
         return ArmDecision(plan.arm_id, "HOLD", plan.side, plan.setup_name, plan.strike,

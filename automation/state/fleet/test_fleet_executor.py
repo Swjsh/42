@@ -368,6 +368,30 @@ def test_min_confidence_gate_removed_and_inert():
     assert 'g.get("min_confidence")' not in inspect.getsource(fx._gate_check)
 
 
+# --- BLAST-RADIUS GUARD (2026-07-14): fleet arms pinned off the cash-settlement gate ---
+def test_finalize_pins_pdt_gate_mode_to_margin_pdt_regardless_of_params():
+    """automation/state/params.json / aggressive/params.json (the SAME files
+    _base_params_for reads) now default to pdt_gate_mode="cash_settlement" for
+    core Safe/Bold (backtest/lib/risk_gate.py CODE_SETTLEMENT). fleet_executor
+    never computes settled_cash_available/same_day_entries_used -- if finalize()
+    ever inherited cash_settlement mode from a params dict, check_order would
+    fail-closed to UNREADABLE_INPUT on EVERY fleet order (a real regression
+    for arms outside the Rule-7-rewrite's scope). This proves finalize()
+    overrides pdt_gate_mode back to "margin_pdt" even when the CALLER'S params
+    dict explicitly requests cash_settlement -- fleet arms cannot silently
+    inherit this mode from the shared config file."""
+    hostile_params = dict(SAFE_PARAMS, pdt_gate_mode="cash_settlement")
+    plan = fx.plan_entry(SAFE_CONTROL, BEAR_APLUS, 2000.0, hostile_params)
+    assert plan.action == "ENTER"
+    decision = _final(plan, 0.40, 2000.0, hostile_params)
+    assert decision.action == "ENTER_BEAR" and decision.risk_code == "ALLOW", (
+        f"REGRESSION: fleet arm denied under cash_settlement mode leaking from "
+        f"shared params (action={decision.action!r}, risk_code={decision.risk_code!r}, "
+        f"reason={decision.reason!r}) -- finalize() must pin pdt_gate_mode='margin_pdt' "
+        f"regardless of params."
+    )
+
+
 if __name__ == "__main__":
     import sys
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]

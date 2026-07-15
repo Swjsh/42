@@ -45,7 +45,12 @@ LESSONS_MD = ROOT / "markdown" / "doctrine" / "LESSONS-LEARNED.md"
 # pre-existing gaps the new reconciliation surfaced. TRIM as folds land; the
 # ratchet asserts this set only ever SHRINKS.
 KNOWN_UNINDEXED_BASELINE = frozenset(
-    {3, 13, 16, 24, 25, 29, 31, 43, 56, 126, 137, 146, 192, 193, 194, 195, 196, 197, 198}
+    {3, 13, 16, 24, 25, 29, 31, 43, 56, 126, 137, 146, 192, 193, 194, 195, 196, 197, 198, 200}
+    # 200 pending fold to C11/C9 (L200 verify the ACTUAL account type before modeling
+    #   a regulatory constraint -- margin-PDT was modeled on cash accounts for months;
+    #   Rule 7 rewrite, 2026-07-14 STATUS.md entry); lesson-author folds the OP-25
+    #   CLAUDE.md bullet next pass (rail-4: this session cannot edit CLAUDE.md's OP-25
+    #   index -- only lesson-author has that write access).
     # 193 pending fold to C7 (L193 a documented capital gate must be enforced at the
     #   autonomous apply chokepoint, not a sibling organ); proposal cd-2026-06-28-002
     # 194 pending fold to C14/C15 (L194 gate the SELECTOR too, not only the executor);

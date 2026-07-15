@@ -1254,6 +1254,21 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
             cb_path.write_text(json.dumps(cb, indent=2), encoding="utf-8")
         except Exception:  # noqa: BLE001 -- visibility write must never block the gate
             pass
+    # SETTLEMENT LEDGER (2026-07-14): both core accounts are CASH accounts
+    # (verified live -- multiplier=1, Alpaca pattern_day_trader/daytrade_count
+    # both null) -- PDT never applied to them. day_trades above stays wired for
+    # legacy params.pdt_gate_mode="margin_pdt" revert + the VISIBILITY surfaces
+    # (self_check.py/firm_brief.py) that still read it; the actual live gate
+    # feed is this settled-cash ledger (setup/scripts/settlement_ledger.py) --
+    # `sod` above is the account's start-of-day broker cash, which is genuinely
+    # SETTLED (both accounts are flat overnight, so nothing from a prior day is
+    # still unsettled by today). Fail-open by construction (see that module's
+    # docstring) -- a ledger I/O error can only widen availability, never
+    # invent a new block.
+    import settlement_ledger as _sl  # noqa: PLC0415
+    _ledger_path = _sl.ledger_path(STATE, account)
+    _today_et = _et_now().strftime("%Y-%m-%d")
+    _settlement = _sl.get_settlement_status(_ledger_path, _today_et, sod)
     killed = bool(cb.get("tripped")) or (STATE / "kill-switch").exists()
     # FLAT-verify (broker = source of truth, L47/C11) + MANUAL/ENGINE COEXISTENCE (FIX1,
     # 2026-07-07, J: "get rid of the lockout"). Any open SPY-option position still BLOCKS a
@@ -1321,7 +1336,9 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
         account, equity=equity, start_of_day_equity=sod, proposed_qty=qty, premium=mid,
         setup_name=verdict.get("setup_name") or "BEARISH_REJECTION_RIDE_THE_RIBBON",
         current_position_status=None, day_trades_used_5d=day_trades,
-        kill_switch_tripped=killed, prior_stops_today=[], params=params)
+        kill_switch_tripped=killed, prior_stops_today=[], params=params,
+        settled_cash_available=_settlement["settled_cash_remaining"],
+        same_day_entries_used=_settlement["entries_used_today"])
     if not getattr(decision, "allowed", False):
         return {"status": f"RISK_DENY_{getattr(decision,'code','?')}", "reason": getattr(decision, "reason", ""),
                 "symbol": symbol, "qty": qty, "premium": mid}
@@ -1362,6 +1379,15 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     plan["broker"] = res
     plan["entry_px"] = entry_px
     plan["greeks"] = _capture_greeks(creds, symbol)  # G8 log-only, POST-placement (never slows the fill)
+    # SETTLEMENT LEDGER DEBIT (2026-07-14): record ONLY on a real ACCEPTED
+    # placement (never on dry/shadow calls, which return before this line —
+    # see the `if dry: return plan` guard above — and never on a PLACE_FAIL,
+    # which committed no capital). notional uses the ACTUAL entry_px, not the
+    # mid used for the risk_gate preview, since that's what the account is
+    # really committing.
+    if plan["status"] == "PLACED":
+        _sl.record_entry(_ledger_path, _today_et, sod, entry_px * qty * 100.0,
+                          _et_now().strftime("%Y-%m-%dT%H:%M:%S"))
     # FIX3 (2026-07-07): stash the arm creds so the CALLER (run_account / _route_extra_setups
     # via reconcile_exec) can poll this accepted order to a TERMINAL fill and reconcile the
     # decision row. Reconciliation is deliberately done a level UP (not here) so the order-
