@@ -1,0 +1,41 @@
+{
+  "prereg_id": "prereg-vwapcont-htf-precheck-2026-07-16",
+  "frozen_at_et": "2026-07-16T18:10:00",
+  "status": "FROZEN_BEFORE_RESULTS",
+  "author": "Gamma (Claude session, delegated by J)",
+  "trigger": {
+    "date": "2026-07-16",
+    "description": "vwap_continuation fired SHORT (SPY 751P) twice this morning while htf_15m_stack was BULL. Both filled and both lost: -$54 (09:51:29-09:53:03) and -$14 (09:53:46-09:54:04) = -$68 total (journal/trades.csv, backfilled+corrected same day per Rule 8, attribution engine_vwap_continuation_extra_exec). The free-model veto layer (extra_exec action VETOED_BY_MODELS) only started engaging at 09:54:04 -- AFTER both losing fills -- and then correctly blocked 5 more re-fire attempts through 10:00:04, citing the same HTF conflict each time (automation/state/core-decisions.jsonl)."
+  },
+  "hypothesis": "vwap_continuation entries taken AGAINST the prevailing htf_15m_stack (SHORT while BULL, or LONG while BEAR) have materially worse expectancy than HTF-aligned or HTF-neutral (MIXED) entries. If true, a deterministic pre-check gating counter-HTF entries BEFORE the free-model veto call would (a) save the 2 real losses observed today, (b) save the cost/latency of the 5 downstream veto model calls that just re-derived the same conclusion, and (c) be strictly cheaper and more reliable than relying on the free-model veto to catch this pattern after the fact.",
+  "exact_rule_under_test": {
+    "description": "A deterministic pre-check evaluated BEFORE the free-model veto layer, using the same htf_15m field the engine already computes each tick (setup/scripts/heartbeat_core.py::_htf_15m_stack, sourced from the causal 15m-ribbon-stack read at-or-before the current bar -- no new data source required).",
+    "pseudocode": "if vwap_continuation signal.direction == 'short' and htf_15m_stack == 'BULL': SKIP (reason=SKIP_HTF_OPPOSED)\nif vwap_continuation signal.direction == 'long' and htf_15m_stack == 'BEAR': SKIP (reason=SKIP_HTF_OPPOSED)\nelse: unchanged (htf_15m_stack in ('MIXED', None) is NOT gated -- ambiguous/insufficient HTF state does not block the setup; only an outright CONFLICT does)"
+  },
+  "evaluation_method": {
+    "cohorts": [
+      "Backtest validation cohort: re-run the ALREADY-VALIDATED live detector (backtest/autoresearch/j_daily_pattern_ratify.py::detect_j_vwap_continuation, variant J_VWAP_CONT / breakout_only=False / put_needs_rising_vix=False -- the exact live config per markdown/specs/VWAP-CONTINUATION-WIRING.md#j_vwap_cont_side=both, put_vix_gate=false), ATM tier (live truth: core Safe strike-picks ATM), against the SAME real-OPRA-fills pipeline (simulate_trade_real, chart-stop-only) used for the shipped scorecard analysis/recommendations/j-daily-pattern-LIVE.json. Full sample: 2025-01-02 .. 2026-06-16 (363 trading days).",
+      "Live fills since armed: every vwap_continuation ENTER row in automation/state/core-decisions.jsonl (extra_signals[setup_name==vwap_continuation, fired==true]) joined by nearest-timestamp to journal/trades.csv realized dollar_pnl, since the extra-setup exec-armed flip (armed 2026-07-01)."
+    ],
+    "htf_tagging": "Backtest cohort: tag each signal's bar index via backtest/lib/orchestrator.py::_precompute_htf_15m_stacks -- the SAME ribbon-stack-of-15m-bars logic the live htf_15m field is sourced from (per-bar sibling _htf_15m_stack in heartbeat_core.py), evaluated strictly at-or-before the signal's entry bar (no look-ahead, mirrors heartbeat_core.py's df.iloc[:-1] causality). Live cohort: htf_15m is already recorded on the row at signal time (no re-derivation needed).",
+    "buckets": "aligned (side C & htf==BULL, or side P & htf==BEAR) / opposed (side C & htf==BEAR, or side P & htf==BULL) / neutral (htf in (MIXED, None))",
+    "metric": "per-trade expectancy (mean dollar_pnl), win rate, n, and total $ within each bucket, under the SAME friction/exit model the shipped scorecard already uses (v15 exit stack, chart-stop-only, real OPRA fills) -- no new friction assumptions introduced for this study."
+  },
+  "ratification_gates": {
+    "note": "This is a FILTER proposal on an already-validated setup, not a new signal being ratified from scratch -- the standard OP-16 auto-ratify stack (OOS positive AND WF>=0.70 AND sub-window stable AND anchor no-regression) does not map directly onto a binary skip-rule. The applicable bar is the kill criterion below: the pre-check only earns SHIP-RECOMMEND if it demonstrably removes a net-negative cohort without materially damaging the validated aligned/neutral edge.",
+    "minimum_n_for_ship": 10,
+    "minimum_n_note": "opposed bucket needs n>=10 (backtest) before a SHIP-RECOMMEND is issued; below that the honest verdict is INSUFFICIENT-N, not a guess dressed as a recommendation."
+  },
+  "kill_criterion": "If the HTF-opposed bucket (backtest cohort, n>=10) is net PROFITABLE (positive per-trade expectancy), the pre-check hypothesis is REJECTED regardless of today's 2 live losses -- a 2-trade live sample must NOT be assumed to generalize, and the pre-check would be actively harmful (forfeiting real edge) if shipped on that assumption alone.",
+  "verdict_taxonomy": {
+    "SHIP-RECOMMEND": "opposed bucket n>=10 AND net-negative expectancy on the backtest cohort (live evidence cited as corroborating, not load-bearing on its own).",
+    "KILL": "opposed bucket n>=10 AND net-positive expectancy on the backtest cohort.",
+    "INSUFFICIENT-N": "opposed bucket n<10 on the backtest cohort -- too thin to distinguish signal from noise; recommendation withheld, evidence reported as-is."
+  },
+  "explicit_non_goals": [
+    "This study does NOT arm, disable, or modify any live param (automation/state/params.json, automation/prompts/heartbeat.md, or any account config). No trading-path file is touched.",
+    "This study does NOT re-attribute or edit journal/trades.csv, even where a likely mis-attribution (2026-07-02 UNKNOWN rows matching vwap_continuation fills by timestamp+strike+side) is found during the live-fills join -- any such finding is reported as an inferred/unconfirmed match, flagged separately, never silently corrected inline.",
+    "This study does NOT evaluate or touch the free-model veto layer's own logic/prompt -- only whether a cheaper deterministic pre-check should sit in front of it."
+  ],
+  "commit_order": "This prereg file is committed BEFORE the study script is run or the results scorecard exists, per the pre-registration discipline (hypothesis frozen before results are seen)."
+}
