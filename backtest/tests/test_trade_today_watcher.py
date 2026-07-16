@@ -138,14 +138,40 @@ def test_engine_attributed_true_when_exec_symbol_matches(tmp_path, monkeypatch):
     assert w._is_engine_attributed("safe-2", SYM) is True
 
 
-def test_engine_attributed_false_red_proof_2026_07_16_incident():
-    """RED-PROOF: this is the exact real-world case that motivated the fix -- a real fill
-    (SPY260716P00751000) with NO matching exec row anywhere in the real core-decisions.jsonl
-    (a vwap_continuation watcher fired the same signal but never executed, exec=None). Runs
-    against the REAL on-disk state file, not a fixture -- pins that an unattributed fill
-    stays unattributed."""
+def test_engine_attributed_true_via_extra_exec_2026_07_16_incident():
+    """This is the exact real-world case that motivated the fix, corrected same-day: a real
+    fill (SPY260716P00751000) placed via the extra-setup G4 side-channel (vwap_continuation,
+    exec-armed) logs under row["extra_exec"][i]["exec"], NOT the primary row["exec"] dict.
+    The first version of this function only checked the primary path and wrongly returned
+    False here -- caught when J said "I did not do anything today," forcing re-investigation.
+    Runs against the REAL on-disk state file, not a fixture -- pins that an extra-setup fill
+    is correctly attributed to the engine."""
     w = _load()
-    assert w._is_engine_attributed("safe-2", "SPY260716P00751000") is False
+    assert w._is_engine_attributed("safe-2", "SPY260716P00751000") is True
+
+
+def test_engine_attributed_true_via_extra_exec_fixture(tmp_path, monkeypatch):
+    """Fixture-based companion to the real-incident pin above -- proves the extra_exec
+    branch itself, independent of the live state file's future contents."""
+    w = _load()
+    monkeypatch.setattr(w, "STATE", tmp_path)
+    row = {"ts_et": "2026-07-16T09:51:03", "account": "safe",
+           "extra_exec": [{"setup": "vwap_continuation", "action": "PLACED",
+                           "exec": {"status": "PLACED", "symbol": SYM}}]}
+    (tmp_path / "core-decisions.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    assert w._is_engine_attributed("safe-2", SYM) is True
+
+
+def test_engine_attributed_false_when_extra_exec_is_vetoed(tmp_path, monkeypatch):
+    """A VETOED_BY_MODELS extra_exec row has no nested "exec" dict (the free-model veto
+    blocked it before placement) -- must stay unattributed, not crash."""
+    w = _load()
+    monkeypatch.setattr(w, "STATE", tmp_path)
+    row = {"ts_et": "2026-07-16T09:54:04", "account": "safe",
+           "extra_exec": [{"setup": "vwap_continuation", "action": "VETOED_BY_MODELS",
+                           "free_eval": {"veto": True}}]}
+    (tmp_path / "core-decisions.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    assert w._is_engine_attributed("safe-2", SYM) is False
 
 
 def test_engine_attributed_false_on_missing_file(tmp_path, monkeypatch):
@@ -171,10 +197,38 @@ def test_unattributed_fill_label_wired_into_message(tmp_path, monkeypatch):
     monkeypatch.setattr(w, "split_rehearsal_probes", lambda orders: (orders, []))
     monkeypatch.setattr(w, "classify_orders", lambda orders: (orders, []))
     monkeypatch.setattr(w, "_load_user_mention", lambda: "")
+    (tmp_path / "core-decisions.jsonl").write_text("", encoding="utf-8")
     w.main()
     content = (tmp_path / "discord-outbox.jsonl").read_text(encoding="utf-8")
     assert "UNATTRIBUTED FILL" in content
     assert "ENGINE TRADE [" not in content
+
+
+def test_attributed_fill_label_wired_into_message(tmp_path, monkeypatch):
+    """Mirror of the unattributed test above, proving the ENGINE TRADE label still fires
+    correctly (via extra_exec) when the fill IS attributed -- guards against a fix that
+    makes everything say UNATTRIBUTED."""
+    w = _load()
+    monkeypatch.setattr(w, "STATE", tmp_path)
+    monkeypatch.setattr(w, "OUTBOX", tmp_path / "discord-outbox.jsonl")
+    monkeypatch.setattr(w, "PINGED", tmp_path / "pinged.json")
+    monkeypatch.setattr(w, "LIFETIME", tmp_path / "lifetime.json")
+    (tmp_path / "fleet" / "safe-2").mkdir(parents=True)
+    row = {"ts_et": "2026-07-16T09:51:03", "account": "safe",
+           "extra_exec": [{"setup": "vwap_continuation", "action": "PLACED",
+                           "exec": {"status": "PLACED", "symbol": SYM}}]}
+    (tmp_path / "core-decisions.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    monkeypatch.setattr(w.fb, "load_creds", lambda: {"safe-2": {}})
+    monkeypatch.setattr(w, "_fetch_orders", lambda creds: [
+        {"id": "ord2", "symbol": SYM, "qty": 3, "price": 1.22, "side": "buy",
+         "status": "filled", "filled_at": "2026-07-16T13:51:29Z"}])
+    monkeypatch.setattr(w, "split_rehearsal_probes", lambda orders: (orders, []))
+    monkeypatch.setattr(w, "classify_orders", lambda orders: (orders, []))
+    monkeypatch.setattr(w, "_load_user_mention", lambda: "")
+    w.main()
+    content = (tmp_path / "discord-outbox.jsonl").read_text(encoding="utf-8")
+    assert "ENGINE TRADE [" in content
+    assert "UNATTRIBUTED FILL" not in content
 
 
 def test_structure_exit_label_wired_into_fill_message(tmp_path, monkeypatch):

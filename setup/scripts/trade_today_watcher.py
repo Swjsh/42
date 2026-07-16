@@ -248,16 +248,25 @@ def _structure_exit_label(arm: str, symbol: str) -> str:
 
 
 def _is_engine_attributed(arm: str, symbol: str) -> bool:
-    """True if some decision row for this arm has an exec record naming this symbol
-    (2026-07-16 fix: this watcher previously labeled EVERY fill "ENGINE TRADE" regardless
-    of source -- a real fill with no matching core-decisions.jsonl/fleet decisions.jsonl
-    ENTER+exec row is NOT engine-attributed, e.g. a manual/interactive trade. Fail-open ->
-    False (unattributed) on any error; never blocks the ping itself."""
+    """True if some decision row for this arm has an exec record naming this symbol --
+    checks BOTH execution paths: the primary ENTER_BEAR/ENTER_BULL path (row["exec"], a
+    dict) AND the extra-setup G4 side-channel (row["extra_exec"], a LIST of dicts, each
+    with its own nested "exec" -- vwap_continuation/gap_and_go/etc when exec-armed via
+    params.extra_setup_exec_armed). CORRECTED 2026-07-16 same-day: the first version of
+    this function only checked the primary path and wrongly labeled a REAL vwap_continuation
+    engine trade "UNATTRIBUTED" -- caught when J said "I did not do anything today" forced
+    a re-investigation. Fail-open -> False on any error; never blocks the ping itself."""
     try:
         for row in _decision_rows_for_arm(arm):
             exec_rec = row.get("exec")
             if isinstance(exec_rec, dict) and exec_rec.get("symbol") == symbol:
                 return True
+            for extra in (row.get("extra_exec") or []):
+                if not isinstance(extra, dict):
+                    continue
+                nested = extra.get("exec")
+                if isinstance(nested, dict) and nested.get("symbol") == symbol:
+                    return True
     except Exception:  # noqa: BLE001
         pass
     return False
