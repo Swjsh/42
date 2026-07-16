@@ -69,13 +69,25 @@ def movable_candidates(txt):
         if t >= 200:
             head = re.search(r'<summary>(.*?)</summary>', m.group(0))
             cands.append((t, "details: " + (re.sub('<[^>]+>','',head.group(1))[:46] if head else "block")))
-    # numbered Operating-Principle blocks over threshold
+    # numbered Operating-Principle blocks over threshold.
+    # Two header forms appear in CLAUDE.md and BOTH must be section boundaries:
+    #   "3. **Cost-effectiveness gate.**"                 (plain numbered)
+    #   "> ## ⛔ OP-0 — DEFAULT = ACT, NEVER ASK. (...)"  (blockquote callout, e.g. OP-0/OP-33)
+    # Splitting on the numbered form alone let a blockquote OP's tokens bleed into
+    # whichever bucket preceded it (OP-33 -> mis-bucketed onto OP-32; OP-0 -> invisible).
     op = re.search(r'(?ms)^## Operating principles.*?(?=^## )', txt)
     if op:
-        for b in re.split(r'(?m)^(?=\d+\.\s+\*\*)', op.group(0)):
-            mm = re.match(r'(\d+)\.\s+\*\*(.+?)\*\*', b)
+        boundary = re.compile(r'(?m)^(?=\d+\.\s+\*\*|>\s*##\s*⛔\s*OP-\d+)')
+        numbered = re.compile(r'(\d+)\.\s+\*\*(.+?)\*\*')
+        blockquote = re.compile(r'>\s*##\s*⛔\s*OP-(\d+)\b[\s—-]*(.*)')
+        for b in boundary.split(op.group(0)):
+            mm = numbered.match(b)
             if mm and TOK(b) >= MOVABLE_MIN_TOKENS:
                 cands.append((TOK(b), f"OP-{mm.group(1)}: {mm.group(2)[:42]}"))
+                continue
+            bq = blockquote.match(b)
+            if bq and TOK(b) >= MOVABLE_MIN_TOKENS:
+                cands.append((TOK(b), f"OP-{bq.group(1)}: {bq.group(2)[:42]}"))
     return sorted(cands, reverse=True)
 
 # ---- INTEGRITY INVARIANTS (the safety net for autonomous edits) ------------
