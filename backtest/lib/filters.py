@@ -789,6 +789,185 @@ def detect_ribbon_flip_bullish(ribbon_history: list) -> bool:
     return False
 
 
+def detect_wick_reclaim_bullish(
+    bar: pd.Series,
+    levels_active: list[float],
+    min_wick_pct_of_range: float = 0.50,
+    min_wick_dollars: float = 0.15,
+    close_tolerance_below_level: float = 0.10,
+) -> Optional[float]:
+    """Detect a WICK reclaim of an underlying support level. Bull mirror of
+    detect_wick_rejection_bearish -- SHADOW-LOGGED only (see evaluate_bullish_setup's
+    `shadow_triggers_fired`; NOT wired into `triggers`/scoring, 2026-07-15 fix-ship task).
+
+    Engine's `detect_level_reclaim` requires close STRICTLY above level. This mirrors
+    J's 4/29 10:25 wick-rejection pattern (which a strict close-below-level check
+    missed) for the bull side: a bar that pierces BELOW a support level intrabar but
+    closes back up near/above it, even when close is technically still slightly below
+    the level, with a significant LOWER wick showing buyers defended the level in
+    real time.
+
+    Trigger fires when:
+      1. bar.low reaches the level (bar.low <= level)
+      2. lower wick is significant: (close - low) >= max(min_wick_dollars,
+         min_wick_pct_of_range * range)
+      3. close is within tolerance of the level (close >= level - tolerance)
+         -- prevents firing on bars that pushed THROUGH the level to the downside
+
+    Returns the reclaimed level price if all three conditions are met, else None.
+    """
+    if not levels_active:
+        return None
+    high = float(bar["high"])
+    low = float(bar["low"])
+    close = float(bar["close"])
+    bar_range = high - low
+    if bar_range <= 0:
+        return None
+    lower_wick = close - low
+
+    # Find the level being reclaimed: lowest level whose price is above the bar's
+    # low but within close-tolerance distance from the close. Mirror of the bear
+    # version's "highest reached + rejected level" (max) -- here the nearest support
+    # actually defended is the LOWEST reached candidate, not the highest.
+    candidates = []
+    for L in levels_active:
+        if low > L:
+            continue  # bar didn't reach the level
+        if close < L - close_tolerance_below_level:
+            continue  # bar pushed through, not reclaimed
+        candidates.append(L)
+    if not candidates:
+        return None
+    level = min(candidates)  # lowest reached + reclaimed level
+
+    # Confirm wick is significant
+    wick_threshold = max(min_wick_dollars, min_wick_pct_of_range * bar_range)
+    if lower_wick < wick_threshold:
+        return None
+
+    return float(round(level, 2))
+
+
+def detect_trendline_reclaim_bullish(
+    bar: pd.Series,
+    prior_bars: pd.DataFrame,
+    bar_idx: int,
+    lookback_bars: int = 60,
+    min_swings: int = 3,
+    proximity_pct: float = 0.0010,
+    require_decreasing: bool = True,
+) -> Optional[float]:
+    """Detect a bullish RECLAIM (breakout) of a descending trendline. Bull mirror of
+    detect_trendline_rejection_bearish -- SHADOW-LOGGED only (see evaluate_bullish_setup's
+    `shadow_triggers_fired`; NOT wired into `triggers`/scoring, 2026-07-15 fix-ship task).
+
+    GEOMETRY CHOICE (markdown/audits/DIRECTIONAL-GATE-DEEP-RESEARCH-2026-07-15.md §4
+    item 1 named two candidates and asked for an explicit pick): (a) the SAME
+    descending-high-pivot line the bear function fits, but price BREAKS ABOVE it
+    instead of getting rejected, vs. (b) an ascending-support line that was
+    previously violated and is now being re-crossed. CHOSE (a):
+      - Doctrine precedent: playbook.md's CANDIDATE `TRENDLINE_BREAK_VOLUME` pattern
+        (line ~449) names this EXACT geometry -- "PUTS on ascending break / CALLS on
+        descending break" -- J's own words (2026-05-11): "trend line break... volume
+        and trend line break, this is clean." A descending-line breakout is the
+        doctrine-recognized bullish trendline pattern, not the ascending-support-
+        reclaim alternative.
+      - (a) reuses the bear function's pivot-finding/line-fit UNCHANGED (same
+        descending, strictly-decreasing pivots, same least-squares fit, same
+        "reached the line" approach check) -- only the terminal outcome flips
+        (closes ABOVE + green, not below + red). (b) would need NEW ascending-pivot
+        fitting logic (zero existing test coverage in this file) PLUS cross-bar
+        violation STATE the bear function's pure single-bar contract doesn't carry
+        -- that is inventing new logic, not mirroring existing logic.
+    This detector does NOT implement TRENDLINE_BREAK_VOLUME itself (no volume gate,
+    no retest requirement -- that stays a separate, not-yet-built, NOT YET TRADABLE
+    n=2 candidate); it borrows only the geometry precedent.
+
+    Algorithm: identical pivot-finding to detect_trendline_rejection_bearish
+    (SEQUENTIAL DESCENDING PEAKS over `lookback_bars`, fit a line through
+    `min_swings` strictly-decreasing local-high pivots -- see that function's
+    docstring for the full pivot-search details). Fires when the current bar's high
+    reaches the projected line (within proximity_pct) AND closes ABOVE it AND is
+    green -- the direct complement of the bear function's reached+closed-below+red
+    rejection check.
+
+    Returns the trendline price at current bar if reclaim/breakout fires, else None.
+    """
+    if bar_idx < lookback_bars + 2:
+        return None
+    if prior_bars is None or len(prior_bars) < lookback_bars + 2:
+        return None
+
+    start = max(0, bar_idx - lookback_bars)
+    window = prior_bars.iloc[start:bar_idx]
+    if len(window) < min_swings * 5:
+        return None
+
+    # SEQUENTIAL DESCENDING PEAKS -- byte-identical search to
+    # detect_trendline_rejection_bearish (same overhead descending-resistance line;
+    # only the terminal outcome check differs, below).
+    MIN_BAR_SEPARATION = 10
+    highs = window["high"].values
+    recent_pivots: list[tuple[int, float]] = []
+    search_start = 0
+    for _ in range(min_swings):
+        if search_start >= len(highs):
+            break
+        sub_highs = highs[search_start:]
+        if len(sub_highs) == 0:
+            break
+        rel_pos = int(sub_highs.argmax())
+        pos = search_start + rel_pos
+        val = float(highs[pos])
+        if require_decreasing and recent_pivots and val >= recent_pivots[-1][1]:
+            return None  # next selected peak isn't lower -- no descending trendline
+        recent_pivots.append((pos, val))
+        search_start = pos + MIN_BAR_SEPARATION
+
+    if len(recent_pivots) < min_swings:
+        return None
+
+    n = len(recent_pivots)
+    sum_x = sum(p[0] for p in recent_pivots)
+    sum_y = sum(p[1] for p in recent_pivots)
+    sum_xx = sum(p[0] * p[0] for p in recent_pivots)
+    sum_xy = sum(p[0] * p[1] for p in recent_pivots)
+    denom = n * sum_xx - sum_x * sum_x
+    if denom == 0:
+        return None
+    slope = (n * sum_xy - sum_x * sum_y) / denom
+    intercept = (sum_y - slope * sum_x) / n
+
+    # For a descending trendline, slope must still be negative (decreasing highs)
+    if require_decreasing and slope >= 0:
+        return None
+
+    current_rel_idx = len(window)
+    trendline_price = slope * current_rel_idx + intercept
+
+    # Mirror of the bear function's early-exit ("trendline must still be above
+    # current spot"): here the trendline must still be below-or-at the close for a
+    # breakout above it to be meaningful. Same redundant-but-documented shape,
+    # consistent with (not contradicting) the closed_above check below.
+    if trendline_price >= float(bar["close"]):
+        return None
+
+    # Reclaim/breakout criteria (complement of the bear rejection criteria):
+    # 1. bar.high reached or exceeded the trendline (SAME "reached" check as bear --
+    #    the APPROACH to the line is identical regardless of the eventual outcome)
+    # 2. bar closes ABOVE the trendline (breaks through, vs. bear's closes below)
+    # 3. bar is GREEN, close > open (confirms the breakout, vs. bear's red)
+    proximity_dollars = trendline_price * proximity_pct
+    reached_line = float(bar["high"]) >= (trendline_price - proximity_dollars)
+    closed_above = float(bar["close"]) > trendline_price
+    is_green = float(bar["close"]) > float(bar["open"])
+
+    if reached_line and closed_above and is_green:
+        return float(round(trendline_price, 2))
+    return None
+
+
 @dataclass
 class BullishSetupResult:
     """Output of evaluate_bullish_setup."""
@@ -799,6 +978,16 @@ class BullishSetupResult:
     reclaim_level: Optional[float] = None
     ribbon_just_flipped_bullish: bool = False
     confluence_match: Optional[float] = None
+    shadow_triggers_fired: list[str] = field(default_factory=list)
+    # ^ SHADOW-LOGGED bull trigger mirrors (2026-07-15 fix-ship task): detected here,
+    # NEVER merged into `triggers_fired` -- so they cannot affect `passed`/`bull_score`
+    # (this dataclass), nor engine_cli.py's `_derive_routing` (trigger-COUNT tie-break
+    # between bear/bull) or `_derive_tier` (quality-tier classification), both of which
+    # read `triggers_fired` only. Visible on this object for any caller (analysis,
+    # future backtests, a later promotion step) that wants to inspect/log them; not yet
+    # threaded into core-decisions.jsonl (that requires touching engine_cli.py's
+    # `decide_payload` + heartbeat_core.py's `run_account`, out of scope for this
+    # additive change -- see test_bull_trendline_wick_reclaim_shadow_only.py).
 
 
 VIX_BULL_LOW_THRESHOLD = 17.20    # mirror of VIX_BEAR_THRESHOLD (17.30)
@@ -962,6 +1151,36 @@ def evaluate_bullish_setup(
     if htf_disagrees and 11 not in disable:
         bull_score = max(0, bull_score - 1)
 
+    # ── SHADOW-LOGGED bull trigger mirrors (2026-07-15 fix-ship-repeat root-cause task) ──
+    # markdown/audits/DIRECTIONAL-GATE-DEEP-RESEARCH-2026-07-15.md §4 "New-trigger work
+    # items" #1: bull had 4 trigger types vs bear's 6 -- trendline_rejection and
+    # wick_rejection(-promotion) had no bull mirror at all. Computed here for VISIBILITY
+    # and measurement, deliberately kept OUT of `triggers` (and therefore out of
+    # `blockers`/`bull_score`/`passed` above, and out of engine_cli.py's
+    # `_derive_routing`/`_derive_tier`, both of which read only `triggers_fired`).
+    # Zero real-fills evidence exists for either pattern yet; OP-16's eval-first gate
+    # requires an A/B scorecard before a new trigger may affect live scoring. This
+    # mirrors the context_bundle "logged-only, decision-path-blind" precedent
+    # (test_context_bundle_tag_no_behavior_change.py). Placed AFTER bull_score/blockers
+    # are finalized so it's textually obvious this cannot have influenced them --
+    # proven by test_bull_trendline_wick_reclaim_shadow_only.py.
+    shadow_triggers: list[str] = []
+    _shadow_trendline_reclaim = detect_trendline_reclaim_bullish(
+        ctx.bar, ctx.prior_bars, ctx.bar_idx,
+        lookback_bars=TRENDLINE_LOOKBACK_BARS,
+        min_swings=TRENDLINE_MIN_SWINGS,
+    )
+    if _shadow_trendline_reclaim is not None:
+        shadow_triggers.append("trendline_reclaim")
+    _shadow_wick_reclaim = detect_wick_reclaim_bullish(
+        ctx.bar, ctx.levels_active,
+        min_wick_pct_of_range=WICK_MIN_PCT_OF_RANGE,
+        min_wick_dollars=WICK_MIN_DOLLARS,
+        close_tolerance_below_level=WICK_CLOSE_TOLERANCE,
+    )
+    if _shadow_wick_reclaim is not None:
+        shadow_triggers.append("wick_reclaim")
+
     return BullishSetupResult(
         passed=(len(blockers) == 0),
         bull_score=bull_score,
@@ -970,6 +1189,7 @@ def evaluate_bullish_setup(
         reclaim_level=reclaim_level,
         ribbon_just_flipped_bullish=ribbon_flipped,
         confluence_match=confluence,
+        shadow_triggers_fired=shadow_triggers,
     )
 
 
