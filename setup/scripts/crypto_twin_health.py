@@ -48,6 +48,14 @@ directly -- the scenario scheduler's own network-free scheduling step degrades t
 "run organically" on any internal error (see that module's run_scenario_tick
 docstring), so this file's own outermost catch-all is still the true last line of
 defense for a genuine crypto_twin_core.run_tick() failure (network/HTTP/broker).
+
+TWIN-B1.5-WIRE (2026-07-16): run_scenario_tick() itself now ALSO ticks the SIM-tier bear
+lane (crypto_twin_scenarios.run_sim_bear_tick(), TWIN-B1.5) every call, wrapped in its own
+try/except inside that function so a SIM-lane bug can never turn this file's row into a
+TICK_ERROR. No edit was needed here -- run_tick_with_health's `row = cts.run_scenario_tick(
+...)["row"]` line is unchanged; the sim-bear result rides along in the same dict under
+`result["sim_bear"]` for any caller (this file's own CLI does not surface it -- see
+crypto_twin_scenarios.py's own `main()` / `--sim-bear` flag for a direct, visible run).
 """
 from __future__ import annotations
 

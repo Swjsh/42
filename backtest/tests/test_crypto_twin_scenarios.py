@@ -567,7 +567,14 @@ def test_run_scenario_tick_wrong_stage_is_incident_and_logged(tmp_path, fake_bro
 
     incidents_path = cfg.state_dir / "incidents.jsonl"
     assert incidents_path.exists()
-    rows = [json.loads(l) for l in incidents_path.read_text(encoding="utf-8").splitlines()]
+    all_rows = [json.loads(l) for l in incidents_path.read_text(encoding="utf-8").splitlines()]
+    # TWIN-B1.5-WIRE (2026-07-16): incidents.jsonl is a SHARED ledger by design (both LIVE
+    # and SIM-tier bear branches log to it via the same _log_incident) and the SIM bear lane
+    # now ticks every call too -- the SAME 6h+1min forward jump this test uses to force
+    # ENTRY_CAT_CAP into MAX_HOLD_FLATTEN also legitimately stales/max-holds whichever SIM
+    # branch got auto-picked on r1, appending its OWN incident row. Scope this test's
+    # assertions to the LIVE branch it actually exercises rather than the whole file.
+    rows = [r for r in all_rows if r["branch"] == "ENTRY_CAT_CAP"]
     assert len(rows) == 1
     assert rows[0]["branch"] == "ENTRY_CAT_CAP"
     assert "MAX_HOLD_FLATTEN" in rows[0]["detail"]
@@ -674,6 +681,61 @@ def test_run_scenario_tick_bookkeeping_error_does_not_break_the_row(tmp_path, fa
     assert "simulated coverage write failure" in result["bookkeeping_error"]
     assert result["row"] is not None
     assert result["row"]["action"] in ("ENTERED", "HOLD")  # the tick itself still completed
+
+
+# ============================================================================
+# TWIN-B1.5-WIRE (2026-07-16) -- the SIM-tier bear lane ticks every production cycle
+# ============================================================================
+def test_run_scenario_tick_sim_bear_lane_ticks_every_call(tmp_path, fake_broker):
+    """RED-PROOF: before the 2026-07-16 wiring, run_scenario_tick's return dict had no
+    "sim_bear" key at all (a bare `result["sim_bear"]` raised KeyError) -- the SIM-tier
+    bear lane (TWIN-B1.5, built + 3/3-GREEN-tested 2026-07-14) was reachable only via its
+    own standalone `python -m crypto_twin_scenarios --sim-bear` CLI, never from the
+    Gamma_CryptoTwin scheduled-task path. Post-wiring, every call to run_scenario_tick
+    (the function crypto_twin_health.run_tick_with_health calls each 5-min production
+    tick) ALSO ticks the SIM bear lane and returns its result. On a fresh account with
+    fresh path-coverage.json, the SIM scheduler's own branch picker (independent of
+    whatever the LIVE row's verdict was) forces the first of the 3 SIM branches --
+    exactly the same "coverage-forcing" property the 6 LIVE branches already have.
+    """
+    cfg = _twin_cfg(tmp_path)
+    now = datetime(2026, 7, 16, 12, 0, tzinfo=timezone.utc)
+    result = cts.run_scenario_tick(cfg, live=True, now_utc=now, raw_bars=_flat_bars(now),
+                                   **_paths(cfg))
+    assert "sim_bear" in result  # would KeyError pre-wiring
+    assert result["sim_bear_error"] is None
+    assert result["sim_bear"] is not None
+    assert result["sim_bear"]["action"] == "SIM_ENTERED"
+    assert result["sim_bear"]["scheduler_decision"]["forced_branch"] in cts.SIM_BEAR_BRANCHES
+
+    # own private ledger, never blended with the LIVE files
+    assert (cfg.state_dir / cts.SIM_BEAR_POSITIONS_FILENAME).exists()
+    assert (cfg.state_dir / cts.SIM_BEAR_JOURNAL_FILENAME).exists()
+
+
+def test_run_scenario_tick_enter_bear_skip_still_gets_a_sim_bear_row(tmp_path, fake_broker, monkeypatch):
+    """The exact scenario this wiring exists for: an organic ENTER_BEAR verdict that
+    crypto_twin_core.run_tick can only ever record as SKIP_NO_SHORT_CRYPTO (Alpaca crypto
+    is cash/long-only, crypto_twin_core.py:911) no longer means the tick produced NOTHING
+    else -- the SAME tick's result now also carries a real sim_bear row. Forces the LIVE
+    row's outcome directly (crypto_twin_core.run_tick is fully deterministic on force_entry/
+    real bars; monkeypatching it here isolates "does the wiring fire on a bear-skip tick"
+    from "does an organic verdict.evaluate() call correctly classify bear bars", which is
+    already covered by test_crypto_twin_core.py's own SKIP_NO_SHORT_CRYPTO test)."""
+    cfg = _twin_cfg(tmp_path)
+    now = datetime(2026, 7, 16, 12, 0, tzinfo=timezone.utc)
+
+    def _fake_bear_skip(*args, **kwargs):
+        return {"action": "SKIP_NO_SHORT_CRYPTO", "verdict": "ENTER_BEAR", "side": "bear",
+               "exit_pass": [], "position_status": "flat"}
+    monkeypatch.setattr(cts.ctc, "run_tick", _fake_bear_skip)
+
+    result = cts.run_scenario_tick(cfg, live=True, now_utc=now, raw_bars=_flat_bars(now),
+                                   **_paths(cfg))
+    assert result["row"]["action"] == "SKIP_NO_SHORT_CRYPTO"
+    assert result["sim_bear"] is not None
+    assert result["sim_bear_error"] is None
+    assert result["sim_bear"]["action"] == "SIM_ENTERED"
 
 
 if __name__ == "__main__":

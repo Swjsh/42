@@ -30,11 +30,13 @@ renders the full picture honestly from day one"):
     ORGANIC_SIGNAL          -- NEVER forced: counted passively the moment a natural
                               (unforced) ribbon+level verdict places a real entry.
 
-  SIM (queued, TWIN-B1.5, NOT exercised by this build -- Alpaca crypto cannot short, so
-       these can never be forced via a REAL fill; B1.5 will simulate fills against live
-       BTC quotes, mirroring backtest/futures/fill_sim_broker.py's own-fill-sim machinery
-       for the futures swing lane -- that module is referenced here BY NAME ONLY, never
-       imported, since building the SIM lane is explicitly out of THIS build's scope):
+  SIM (TWIN-B1.5, built 2026-07-14, WIRED into the production 5-min loop 2026-07-16 --
+       Alpaca crypto cannot short, so these can never be forced via a REAL fill; simulates
+       fills against the SAME live BTC quotes the LIVE lane reads, reusing
+       backtest/futures/fill_sim_broker.py's gap-aware stop-fill machinery verbatim
+       (imported, not forked) for the futures swing lane's own fill-sim approach.
+       run_scenario_tick() below now calls run_sim_bear_tick() on EVERY tick, immediately
+       after the LIVE row's own bookkeeping save -- see the "TWIN-B1.5-WIRE" comment there):
     ENTRY_TP1_TRAIL_BEAR, ENTRY_STRUCTURE_STOP_BEAR, ENTRY_CAT_CAP_BEAR
 
 MECHANISM-FORCING, not an edge claim (same standing doctrine as crypto_twin_core.py's own
@@ -500,7 +502,34 @@ def run_scenario_tick(cfg: ctc.TwinConfig = ctc.TwinConfig(), *, live: bool = Fa
     except Exception as e:  # noqa: BLE001 -- bookkeeping must never mask a successful tick.
         bookkeeping_error = f"{type(e).__name__}: {e}"
 
-    return {"row": row, "scheduler_decision": scheduler_decision, "bookkeeping_error": bookkeeping_error}
+    # TWIN-B1.5-WIRE (2026-07-16, SIX-ACCOUNT-DAILY-HYPOTHESIS-REDESIGN.md ship-list #4):
+    # every production tick ALSO ticks the SIM-tier bear lane, run strictly AFTER the LIVE
+    # coverage save above so the two never race on the shared path-coverage.json (sequential
+    # read-modify-write, single-threaded tick -- the SIM tick's own _load_coverage picks up
+    # whatever the LIVE bookkeeping block just wrote, then only mutates its own 3 SIM branch
+    # entries). This is the fix for the 43/43 ENTER_BEAR -> SKIP_NO_SHORT_CRYPTO waste (Alpaca
+    # crypto is cash/long-only -- see ctc.run_tick's `action = "SKIP_NO_SHORT_CRYPTO"` branch):
+    # instead of an organic bear verdict recording nothing but a skip, the SAME cadence now
+    # also exercises run_sim_bear_tick's own independent branch scheduler (its own one-at-a-
+    # time gate + daily cap, mirrors the LIVE bull branches being FORCED every tick regardless
+    # of an organic trigger) against the SAME real BTC quotes -- never a real broker order, own
+    # private ledger (sim-bear-positions.json / sim-bear-scenario-state.json / sim-bear-
+    # journal.jsonl, never exit-state.json/journal.jsonl). Wrapped in its own try/except so a
+    # bug in the SIM lane can NEVER turn an otherwise-successful LIVE row into a TICK_ERROR --
+    # same "a hiccup here must never mask a successful tick" discipline as bookkeeping_error
+    # above. Falsification rail (queue.md / the redesign doc's honesty rail): if the first 10
+    # bear-SIM fills show >55% loss rate, pull this call -- ENTER_BEAR falls straight back to
+    # SKIP_NO_SHORT_CRYPTO, current behavior, by deleting this block. Twin P&L (SIM or LIVE) is
+    # mechanism-validation only, never SPY evidence, per standing project doctrine.
+    sim_bear_result: Optional[dict] = None
+    sim_bear_error: Optional[str] = None
+    try:
+        sim_bear_result = run_sim_bear_tick(cfg, now_utc=now, raw_bars=raw_bars)
+    except Exception as e:  # noqa: BLE001 -- the SIM lane must never mask the LIVE row's own tick.
+        sim_bear_error = f"{type(e).__name__}: {e}"
+
+    return {"row": row, "scheduler_decision": scheduler_decision, "bookkeeping_error": bookkeeping_error,
+            "sim_bear": sim_bear_result, "sim_bear_error": sim_bear_error}
 
 
 # ==========================================================================================
@@ -555,13 +584,14 @@ def run_scenario_tick(cfg: ctc.TwinConfig = ctc.TwinConfig(), *, live: bool = Fa
 # TWIN-PROGRAM.md's schema), but every bear branch's `tier` field there already reads "SIM"
 # (see BRANCH_REGISTRY) and _mark_exercise_result never touches that field.
 #
-# NOT WIRED INTO THE 24/7 SCHEDULER YET: crypto_twin_health.py's run_tick_with_health (the
-# Gamma_CryptoTwin scheduled-task entrypoint) is UNTOUCHED by this build -- registering a
-# new scheduled task or editing that file is explicitly out of this crew's lane (another
-# crew owns scheduled-task registrations + launcher scripts today). This lane is reachable
-# right now via `python -m crypto_twin_scenarios --sim-bear [--force-sim-branch ...]`
-# (manual/cron-adjacent invocation) -- wiring it into the 5-min production loop is a
-# follow-up (tracked back in queue.md's TWIN-B1.5 row).
+# WIRED INTO THE 24/7 SCHEDULER 2026-07-16 (TWIN-B1.5-WIRE, SIX-ACCOUNT-DAILY-HYPOTHESIS-
+# REDESIGN.md ship-list #4): run_scenario_tick() above now calls run_sim_bear_tick() on
+# EVERY production tick (crypto_twin_health.py's run_tick_with_health -- the Gamma_CryptoTwin
+# scheduled-task entrypoint -- calls run_scenario_tick() unchanged; no edit to
+# crypto_twin_health.py or crypto_twin_core.py was needed, both remain untouched by this
+# wiring per their own "thin wrapper, never edited" conventions). This lane is ALSO still
+# directly reachable via `python -m crypto_twin_scenarios --sim-bear [--force-sim-branch ...]`
+# for manual/verification runs -- both paths call the exact same run_sim_bear_tick().
 # ==========================================================================================
 
 SIM_BEAR_STATE_FILENAME = "sim-bear-scenario-state.json"     # private one-at-a-time slot bookkeeping
@@ -937,6 +967,10 @@ def main(argv: Optional[list[str]] = None) -> int:
             "scenario": (result["row"] or {}).get("scenario"),
             "scheduler_decision": result["scheduler_decision"],
             "bookkeeping_error": result["bookkeeping_error"],
+            # TWIN-B1.5-WIRE (2026-07-16): the SIM-tier bear lane now ticks every production
+            # cycle alongside the LIVE row above -- surfaced here so a manual CLI run shows it.
+            "sim_bear_action": (result.get("sim_bear") or {}).get("action"),
+            "sim_bear_error": result.get("sim_bear_error"),
         }, indent=2))
     return 0
 
