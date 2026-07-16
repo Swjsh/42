@@ -1,0 +1,327 @@
+{
+  "generated_at": "2026-07-16T22:15:08.853442+00:00",
+  "study": "vwapcont-htf-precheck-2026-07-16",
+  "prereg": "analysis\\recommendations\\prereg-vwapcont-htf-precheck-2026-07-16.json",
+  "trigger": "2026-07-16 vwap_continuation fired SHORT (751P) x2 while htf_15m_stack==BULL, both losses (-$54, -$14 = -$68); free-model veto engaged only after those 2 losses, then correctly blocked 5 more re-fires citing the same HTF conflict.",
+  "rule_under_test": "skip vwap_continuation SHORT when htf_15m_stack==BULL; skip LONG when htf_15m_stack==BEAR; MIXED/None -> unchanged (no pre-check gate).",
+  "backtest_bucket": {
+    "source": "backtest/autoresearch/j_daily_pattern_ratify.py::detect_j_vwap_continuation (J_VWAP_CONT variant, ATM tier -- the LIVE config), htf-tagged via backtest/lib/orchestrator.py::_precompute_htf_15m_stacks",
+    "date_range": [
+      "2025-01-02",
+      "2026-06-16"
+    ],
+    "n_days": 363,
+    "coverage": {
+      "filled": 156,
+      "cache_miss": 10
+    },
+    "metrics": {
+      "aligned": {
+        "n": 73,
+        "exp_dollar": 8.87,
+        "wr_pct": 75.3,
+        "total_dollar": 647.8,
+        "by_side": {
+          "C": {
+            "n": 48,
+            "exp": -4.89
+          },
+          "P": {
+            "n": 25,
+            "exp": 35.3
+          }
+        },
+        "drop_top5_mean_dollar": -20.41,
+        "top5_winner_share_of_gross_wins": 0.274,
+        "quarters": {
+          "2025Q1": {
+            "n": 8,
+            "exp": 92.78,
+            "total": 742.2
+          },
+          "2025Q2": {
+            "n": 12,
+            "exp": -66.05,
+            "total": -792.6
+          },
+          "2025Q3": {
+            "n": 12,
+            "exp": 19.23,
+            "total": 230.8
+          },
+          "2025Q4": {
+            "n": 19,
+            "exp": 21.84,
+            "total": 415.0
+          },
+          "2026Q1": {
+            "n": 9,
+            "exp": 63.67,
+            "total": 573.0
+          },
+          "2026Q2": {
+            "n": 13,
+            "exp": -40.05,
+            "total": -520.6
+          }
+        },
+        "quarter_positive_fraction": 0.67,
+        "exit_reason_hist": {
+          "EXIT_ALL_RIBBON_FLIP_BACK": 7,
+          "EXIT_ALL_LEVEL_STOP": 13,
+          "TP1_THEN_RUNNER_RIBBON": 36,
+          "TP1_THEN_RUNNER_TIME": 13,
+          "EXIT_ALL_TIME_STOP": 4
+        }
+      },
+      "opposed": {
+        "n": 48,
+        "exp_dollar": 67.15,
+        "wr_pct": 72.9,
+        "total_dollar": 3223.0,
+        "by_side": {
+          "C": {
+            "n": 20,
+            "exp": 92.83
+          },
+          "P": {
+            "n": 28,
+            "exp": 48.8
+          }
+        },
+        "drop_top5_mean_dollar": 38.32,
+        "top5_winner_share_of_gross_wins": 0.34,
+        "quarters": {
+          "2025Q1": {
+            "n": 7,
+            "exp": 113.06,
+            "total": 791.4
+          },
+          "2025Q2": {
+            "n": 7,
+            "exp": 41.31,
+            "total": 289.2
+          },
+          "2025Q3": {
+            "n": 9,
+            "exp": 5.47,
+            "total": 49.2
+          },
+          "2025Q4": {
+            "n": 7,
+            "exp": 134.69,
+            "total": 942.8
+          },
+          "2026Q1": {
+            "n": 12,
+            "exp": 129.42,
+            "total": 1553.0
+          },
+          "2026Q2": {
+            "n": 6,
+            "exp": -67.1,
+            "total": -402.6
+          }
+        },
+        "quarter_positive_fraction": 0.83,
+        "exit_reason_hist": {
+          "EXIT_ALL_RIBBON_FLIP_BACK": 29,
+          "TP1_THEN_RUNNER_RIBBON": 14,
+          "TP1_THEN_RUNNER_TIME": 4,
+          "EXIT_ALL_LEVEL_STOP": 1
+        }
+      },
+      "neutral": {
+        "n": 35,
+        "exp_dollar": 42.94,
+        "wr_pct": 77.1,
+        "total_dollar": 1503.0,
+        "by_side": {
+          "C": {
+            "n": 18,
+            "exp": 16.68
+          },
+          "P": {
+            "n": 17,
+            "exp": 70.75
+          }
+        },
+        "drop_top5_mean_dollar": 1.26,
+        "top5_winner_share_of_gross_wins": 0.416,
+        "quarters": {
+          "2025Q1": {
+            "n": 10,
+            "exp": 99.64,
+            "total": 996.4
+          },
+          "2025Q2": {
+            "n": 4,
+            "exp": 65.4,
+            "total": 261.6
+          },
+          "2025Q3": {
+            "n": 5,
+            "exp": 8.64,
+            "total": 43.2
+          },
+          "2025Q4": {
+            "n": 7,
+            "exp": 110.31,
+            "total": 772.2
+          },
+          "2026Q1": {
+            "n": 5,
+            "exp": 58.12,
+            "total": 290.6
+          },
+          "2026Q2": {
+            "n": 4,
+            "exp": -215.25,
+            "total": -861.0
+          }
+        },
+        "quarter_positive_fraction": 0.83,
+        "exit_reason_hist": {
+          "TP1_THEN_RUNNER_RIBBON": 17,
+          "EXIT_ALL_LEVEL_STOP": 5,
+          "EXIT_ALL_RIBBON_FLIP_BACK": 10,
+          "TP1_THEN_RUNNER_TIME": 3
+        }
+      }
+    }
+  },
+  "live_bucket": {
+    "source": "automation/state/core-decisions.jsonl (extra_signals, htf_15m field) joined to journal/trades.csv realized P&L; armed 2026-07-01",
+    "n_placed_ticks_raw": 8,
+    "rows": [
+      {
+        "date": "2026-07-02",
+        "time_entry": "09:55:12",
+        "side": "C",
+        "pnl": -30.0,
+        "htf_15m": "BULL",
+        "bucket": "aligned",
+        "attribution": "inferred_ts_strike_match",
+        "contract": "SPY260702C00750000"
+      },
+      {
+        "date": "2026-07-02",
+        "time_entry": "09:57:15",
+        "side": "C",
+        "pnl": -74.0,
+        "htf_15m": "BULL",
+        "bucket": "aligned",
+        "attribution": "inferred_ts_strike_match",
+        "contract": "SPY260702C00750000"
+      },
+      {
+        "date": "2026-07-02",
+        "time_entry": "10:11:15",
+        "side": "C",
+        "pnl": -27.0,
+        "htf_15m": "BULL",
+        "bucket": "aligned",
+        "attribution": "inferred_ts_strike_match",
+        "contract": "SPY260702C00750000"
+      },
+      {
+        "date": "2026-07-02",
+        "time_entry": "10:21:12",
+        "side": "C",
+        "pnl": -21.0,
+        "htf_15m": "BULL",
+        "bucket": "aligned",
+        "attribution": "inferred_ts_strike_match",
+        "contract": "SPY260702C00751000"
+      },
+      {
+        "date": "2026-07-02",
+        "time_entry": "10:22:27",
+        "side": "C",
+        "pnl": -21.0,
+        "htf_15m": "BULL",
+        "bucket": "aligned",
+        "attribution": "inferred_ts_strike_match",
+        "contract": "SPY260702C00751000"
+      },
+      {
+        "date": "2026-07-02",
+        "time_entry": "10:25:15",
+        "side": "C",
+        "pnl": -21.0,
+        "htf_15m": "BULL",
+        "bucket": "aligned",
+        "attribution": "inferred_ts_strike_match",
+        "contract": "SPY260702C00751000"
+      },
+      {
+        "date": "2026-07-16",
+        "time_entry": "09:51:29",
+        "side": "P",
+        "pnl": -54.0,
+        "htf_15m": "BULL",
+        "bucket": "opposed",
+        "attribution": "confirmed",
+        "contract": "SPY 2026-07-16 751P"
+      },
+      {
+        "date": "2026-07-16",
+        "time_entry": "09:53:46",
+        "side": "P",
+        "pnl": -14.0,
+        "htf_15m": "BULL",
+        "bucket": "opposed",
+        "attribution": "confirmed",
+        "contract": "SPY 2026-07-16 751P"
+      }
+    ],
+    "metrics": {
+      "aligned": {
+        "n": 6,
+        "exp_dollar": -32.33,
+        "wr_pct": 0.0,
+        "total_dollar": -194.0,
+        "by_side": {
+          "C": {
+            "n": 6,
+            "exp": -32.33
+          },
+          "P": {
+            "n": 0,
+            "exp": null
+          }
+        }
+      },
+      "opposed": {
+        "n": 2,
+        "exp_dollar": -34.0,
+        "wr_pct": 0.0,
+        "total_dollar": -68.0,
+        "by_side": {
+          "C": {
+            "n": 0,
+            "exp": null
+          },
+          "P": {
+            "n": 2,
+            "exp": -34.0
+          }
+        }
+      },
+      "neutral": {
+        "n": 0,
+        "exp_dollar": null,
+        "wr_pct": null,
+        "total_dollar": 0.0
+      }
+    },
+    "caveat": "2026-07-02 fills are attribution='inferred_ts_strike_match' -- trades.csv labels them setup=UNKNOWN due to a known bug (fixed same-day only for 2026-07-16's rows per that day's journal note, never backfilled for 2026-07-02). Matched here by exact entry timestamp (+/-90s) + strike + side, NOT by editing the ledger. Treat as high-confidence but unconfirmed."
+  },
+  "kill_criterion": "if the HTF-opposed bucket (backtest, n>=10) is net PROFITABLE, the pre-check dies regardless of today's 2 live losses.",
+  "ratification_gates_applied": {
+    "note": "this is a pre-check GATE proposal, not a new edge -- standard OP-16 auto-ratify gates (OOS+/WF/sub-window/anchor) do not directly apply. The relevant bar is the kill criterion above: does gating the opposed bucket forfeit positive-EV trades? Evaluated via the opposed-bucket sign + n, not a WF/OOS split (the gate is a FILTER on an existing already-validated setup, not a new signal being ratified standalone)."
+  },
+  "verdict": "KILL",
+  "verdict_reason": "HTF-opposed bucket is PROFITABLE on the backtest cohort (n=48, exp=$67.15/tr, WR=72.9%, positive in 0.83 of quarters, still +$38.32/tr after dropping its top-5 winners -- broad-based, not an outlier artifact) -- today's 2 live losses do NOT generalize. A blanket HTF pre-check would forfeit real edge. Notably the ALIGNED bucket is the fragile one here: exp=$8.87/tr headline but drop-top5=$-20.41/tr (NEGATIVE -- its edge is carried by a few large winners). Plausible mechanism (consistent with LESSONS-LEARNED C28 'ribbon flip is a lagging exit'): htf_15m_stack is a SLOW 15m-ribbon read; vwap_continuation's fast intraday VWAP signal can catch a genuine early reversal before the lagging HTF stack flips -- gating on it would filter out early-reversal trades, not bad trades.",
+  "action": "STUDY ONLY -- NO PARAMS CHANGED. Recommendation for J's morning review."
+}
