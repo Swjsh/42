@@ -1,4 +1,4 @@
-"""LEVEL_BREAK_FIRST_STRIKE (LBFS) watcher (WATCH-ONLY per OP-21).
+"""LEVEL_BREAK_FIRST_STRIKE (LBFS) watcher (SHADOW-LOGGED per OP-21, 2026-07-15).
 
 Detects bearish level breaks on MIXED-ribbon days — the "first strike" before
 the ribbon fully confirms the bearish direction.
@@ -43,8 +43,34 @@ Research arc:
 
 Spec: strategy/candidates/2026-05-19-level-break-first-strike-bear.md
 Research arc: strategy/candidates/_chef-inbox/2026-05-19-ribbon-lag-first-strike-bear.md
-DO NOT wire into production heartbeat.md until: 3 live J observations confirmed.
-Production config: premium_stop_pct=-0.99, break_below_cents_min=100, strike_offset=0 (ATM).
+Production config (if/when armed): premium_stop_pct=-0.99, break_below_cents_min=100 (the
+  discriminating filter above — NOT yet applied to the shadow wiring below), strike_offset=0 (ATM).
+
+WIRING STATUS (2026-07-15, markdown/audits/DIRECTIONAL-GATE-DEEP-RESEARCH-2026-07-15.md
+section 4 — this watcher was "absent from the live dispatch list"):
+  - "3 live J observations confirmed" precondition VERIFIED UNMET: op21_live_confirmed=0
+    since the 2026-05-19 registration row; zero mentions in journal/ or analysis/self-audit/.
+    Genuine live watcher firings since go-live (2026-05-18): only 3 (2026-06-25/06-26/07-01,
+    all wins, none VIX>=20/"high" confidence) — far short of both the 3-J-confirmation bar
+    and the N>=15 VIX-gated live bar.
+  - Revalidation (analysis/recommendations/lbfs-shadow-wiring-revalidation-2026-07-15.json):
+    re-ran the existing N=19 VIX>=20 ATM cohort through today's simulate_trade_real
+    (byte-identical to the 2026-05-24 result — no engine drift), then walk-forward split it
+    chronologically: IS=+$1,351.80 / OOS=-$589.20, wf_ratio=-0.44 (< the 0.70 bar) — the
+    positive AGGREGATE (WR=58.8%, +$762.60) does not survive a proper OOS split. A fresh
+    2026-05-16..07-14 extension scan found 26 new signals, ZERO at VIX>=20. Verdict:
+    STUDY_FAILS_BAR.
+  - Shipped SHADOW-LOGGED ONLY: setup/scripts/setup_dispatch.py dispatches this detector
+    every tick (params.j_lbfs_enabled=true) so fired/skip_reason is now VISIBLE in
+    core-decisions.jsonl's extra_signals — but 'level_break_first_strike' is deliberately
+    ABSENT from params.extra_setup_exec_armed, so no order can ever be placed from this
+    signal (heartbeat_core._extra_exec_armed / _route_extra_setups fail closed). This turns
+    the WATCH-ONLY telemetry into a MEASURED one; live arming needs its own follow-up study
+    (applying the break_below_cents>=100c discriminating filter as a pre-registered
+    candidate, not a post-hoc pick) plus J's REVOKE window.
+  - GAMMA-SYNC: backtest/lib/filters.py#detect_lbfs / lbfs_enabled delegate to THIS module's
+    detect_lbfs_setup (single source of truth, no drift). Guard:
+    backtest/tests/test_lbfs_shadow_wiring_2026_07_15.py.
 """
 
 from __future__ import annotations

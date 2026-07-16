@@ -1790,6 +1790,65 @@ def vix_dayside_tp1_pct(params: Optional[dict]) -> float:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# GAMMA-SYNC seam — LEVEL_BREAK_FIRST_STRIKE (LBFS, SHADOW-LOGGED 2026-07-15).
+#
+# OP-4 / "no code drift between live and backtest": the backtest engine must make the
+# SAME entry decision as the live heartbeat for this setup. We guarantee that by SINGLE
+# SOURCE OF TRUTH — both call the one detector
+# (lib.watchers.level_break_first_strike_watcher.detect_lbfs_setup). The import is
+# FUNCTION-LOCAL (the watcher imports BarContext FROM this file -> a module-top import
+# would be circular; same pattern as detect_vix_regime_dayside/detect_vwap_reclaim_failed_break
+# above).
+#
+# STATUS (2026-07-15 revalidation, analysis/recommendations/
+# lbfs-shadow-wiring-revalidation-2026-07-15.json): the existing N=19 VIX>=20 ATM
+# real-fills cohort (2026-05-24, re-confirmed byte-identical under today's
+# simulate_trade_real) shows a POSITIVE aggregate (WR=58.8%, +$762.60) but FAILS a
+# proper chronological walk-forward split (IS +$1,351.80 / OOS -$589.20, wf_ratio=-0.44,
+# < the 0.70 bar) — the OOS half is dominated by a 2026-03-24..04-07 cluster. Verdict:
+# STUDY_FAILS_BAR_SHIP_SHADOW_ONLY_REGARDLESS. A 2-month extension scan (2026-05-16..
+# 2026-07-14) found 26 new MIXED-ribbon-break signals but ZERO at VIX>=20 (no new
+# ratifiable-regime evidence). The watcher's own docstring precondition ("3 live J
+# observations confirmed") is separately VERIFIED UNMET (0/3; op21_live_confirmed=0
+# since the 2026-05-19 registration row, zero journal/self-audit mentions).
+#
+# SHADOW ONLY: detection is pure/read-only; setup/scripts/setup_dispatch.py dispatches
+# it every tick (params.j_lbfs_enabled, default FALSE) so fired/skip_reason is VISIBLE
+# in the live decision ledger (core-decisions.jsonl's extra_signals), but
+# 'level_break_first_strike' is deliberately ABSENT from params.extra_setup_exec_armed
+# -- heartbeat_core._extra_exec_armed therefore returns False unconditionally, so
+# _route_extra_setups always logs WATCH_NOT_ARMED and _execute is NEVER called. This
+# mirrors double_bottom_base_quiet's 2026-06-28 "WIRED DISARMED" shipping shape
+# (setup_dispatch.py's own precedent) — not a new mechanism.
+# ─────────────────────────────────────────────────────────────────────────────
+def detect_lbfs(ctx: "BarContext"):
+    """Backtest-engine entry point for LEVEL_BREAK_FIRST_STRIKE (LBFS).
+
+    Delegates to the live watcher detector (single source of truth, no drift).
+    Returns the watcher's ``WatcherSignal`` (side/entry/chart-stop) or ``None``.
+    Pure/causal: reads only ``ctx.bar``/``ctx.ribbon_now``/``ctx.vix_now``/
+    ``ctx.vix_prior``/``ctx.vol_baseline_20``/``ctx.levels_active``/``ctx.timestamp_et``.
+    """
+    from .watchers.level_break_first_strike_watcher import detect_lbfs_setup
+    return detect_lbfs_setup(ctx)
+
+
+def lbfs_enabled(params: Optional[dict]) -> bool:
+    """The SHADOW flag the backtest engine checks before HONORING an LBFS entry.
+
+    Mirrors the heartbeat's ``params.json#j_lbfs_enabled`` gate. Detection always runs
+    when True (so observation/parity holds and the signal is visible in the ledger),
+    but per the 2026-07-15 revalidation (STUDY_FAILS_BAR — see the module comment
+    above), the entry is NEVER acted on this session: 'level_break_first_strike' is
+    deliberately absent from params.extra_setup_exec_armed, so no order can be placed
+    regardless of this flag's value. Default False (key absent) = fully inert.
+    """
+    if not params:
+        return False
+    return bool(params.get("j_lbfs_enabled", False))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # WP-5: per-setup STRIKE override for vwap_continuation (the live edge is at the
 #        WRONG strike). SINGLE SOURCE OF TRUTH for "what strike does
 #        vwap_continuation use", shared by backtest and (by the matching keys)

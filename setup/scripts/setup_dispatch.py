@@ -1,7 +1,8 @@
-"""setup_dispatch.py — dispatch layer for 4 validated-but-dormant setup detectors.
+"""setup_dispatch.py — dispatch layer for validated-or-shadow dormant setup detectors.
 
 Bridges heartbeat_core.py's per-tick payload to the watcher-layer detectors
-(vwap_continuation, vwap_reclaim_failed_break, vix_regime_dayside, gap_and_go).
+(vwap_continuation, gap_and_go, vwap_reclaim_failed_break, vix_regime_dayside,
+double_bottom_base_quiet, bollinger_squeeze, level_break_first_strike).
 Each detector is individually flag-gated via params.json. When ALL flags are OFF
 (the current default), this module is a pure no-op — it produces an empty list
 and has zero effect on the ribbon verdict or execution path.
@@ -63,8 +64,31 @@ PER-DETECTOR STATUS (as of 2026-07-01, trade-to-learn batch — J ratified paper
                              -$8.92/trade (n=64); only ribbon_flip sub has edge (n=6, IS
                              only). OOS gate fails (WF=-1.371). NOT wired.
                              Source: trendline-subclassification.json + trendline-ribbon-flip-01.json.
+  level_break_first_strike : j_lbfs_enabled=true, exec-arm key ABSENT -> SHADOW-LOGGED
+                             ONLY (2026-07-15). Docstring precondition ("3 live J
+                             observations confirmed") VERIFIED UNMET (0/3, zero journal/
+                             self-audit mentions). Existing N=19 VIX>=20 ATM real-fills
+                             cohort (2026-05-24, RE-CONFIRMED byte-identical under today's
+                             simulator) shows a positive AGGREGATE (WR=58.8%, +$762.60)
+                             but FAILS a proper walk-forward split (IS +$1,351.80 / OOS
+                             -$589.20, wf_ratio=-0.44 < 0.70 bar) — verdict
+                             STUDY_FAILS_BAR. A 2026-05-16..07-14 extension scan found 26
+                             new signals, ZERO at VIX>=20 (no fresh ratifiable evidence).
+                             Wired DISARMED (mirrors double_bottom_base_quiet's 2026-06-28
+                             shipping shape): detection runs+logs every tick (visible in
+                             rec['extra_signals'] -> core-decisions.jsonl), but
+                             'level_break_first_strike' stays OUT of
+                             extra_setup_exec_armed, so _route_extra_setups always logs
+                             WATCH_NOT_ARMED and _execute is never reached. This turns a
+                             WATCH-ONLY telemetry stream into a MEASURED one; live arming
+                             is a separate, explicitly deferred follow-up.
+                             Evidence: analysis/recommendations/lbfs-shadow-wiring-
+                             preregistration.json + lbfs-shadow-wiring-revalidation-
+                             2026-07-15.json.
 
 DO NOT change any enabled flags to True here. The dispatcher reads them from params.
+DO NOT add 'level_break_first_strike' to extra_setup_exec_armed without a follow-up
+study clearing the walk-forward bar (see the STATUS entry above) and J's REVOKE window.
 """
 from __future__ import annotations
 
@@ -149,6 +173,11 @@ class SetupDispatcher:
             ("double_bottom_base_quiet",  "db_base_quiet_enabled",      self._dispatch_db_base_quiet),
             # WIRE-BOLLINGER 2026-07-02: family-grind survivor, validated ATM|stop-8 cell.
             ("bollinger_squeeze",         "bollinger_squeeze_enabled",  self._dispatch_bollinger_squeeze),
+            # LBFS SHADOW-LOGGED 2026-07-15: j_lbfs_enabled=true dispatches (detect+log)
+            # every tick, but 'level_break_first_strike' is deliberately ABSENT from
+            # extra_setup_exec_armed (see module docstring PER-DETECTOR STATUS above) —
+            # WATCH_NOT_ARMED forever until a future, separately-scoped ratification.
+            ("level_break_first_strike",  "j_lbfs_enabled",             self._dispatch_lbfs),
         ]
 
         for setup_name, flag_key, method in dispatchers:
@@ -474,6 +503,49 @@ class SetupDispatcher:
             return DispatchResult("bollinger_squeeze", fired=False,
                                   skip_reason="SKIP_NO_SIGNAL")
         return DispatchResult("bollinger_squeeze", fired=True, signal=sig)
+
+    def _dispatch_lbfs(self) -> DispatchResult:
+        """Dispatch the level_break_first_strike (LBFS) detector (SHADOW-LOGGED, 2026-07-15).
+
+        Bearish breakdown-continuation on MIXED-ribbon days -- the pattern named by
+        markdown/audits/DIRECTIONAL-GATE-DEEP-RESEARCH-2026-07-15.md as "absent from the
+        live dispatch list" (this method closes that gap) and confirmed by
+        markdown/audits/FIX-SHIP-REPEAT-ROOT-CAUSE-2026-07-15.md Miner 3 as "the work is a
+        validation, not a build" -- the detector already exists
+        (backtest/lib/watchers/level_break_first_strike_watcher.py), only the wiring was
+        missing.
+
+        WIRED DISARMED (mirrors double_bottom_base_quiet's 2026-06-28 shipping pattern):
+        this method dispatches the signal (fired=True when the detector fires, visible in
+        rec['extra_signals'] every tick), but heartbeat_core._extra_exec_armed gates live
+        order placement on:
+            params["extra_setup_exec_armed"]["level_break_first_strike"] = True
+        That key is deliberately ABSENT from params.json -- every tick routes to
+        WATCH_NOT_ARMED (no order), per the 2026-07-15 revalidation
+        (analysis/recommendations/lbfs-shadow-wiring-revalidation-2026-07-15.json):
+        the existing N=19 VIX>=20 ATM real-fills cohort shows a positive aggregate
+        (WR=58.8%, +$762.60) but FAILS a chronological walk-forward split
+        (wf_ratio=-0.44 < 0.70), and a fresh 2-month extension scan found zero new
+        VIX>=20 signals. Live arming needs its own follow-up study, not this ship.
+
+        Feed: session sameday_5m_bars + ribbon_now + vix_now/vix_prior + levels_active --
+        ALL already supplied by _build_ctx(); unlike vix_regime_dayside, LBFS needs no
+        extra intraday-VIX-series feed (detect_lbfs_setup only reads vix_now/vix_prior).
+        """
+        ctx = self._build_ctx()
+        if ctx is None:
+            return DispatchResult("level_break_first_strike", fired=False,
+                                  skip_reason="SKIP_NO_FEED:sameday_5m_bars_missing")
+        try:
+            from backtest.lib.watchers.level_break_first_strike_watcher import detect_lbfs_setup  # type: ignore[import]
+        except ImportError as e:
+            return DispatchResult("level_break_first_strike", fired=False,
+                                  skip_reason=f"SKIP_IMPORT_ERROR:{e}")
+        sig = detect_lbfs_setup(ctx)
+        if sig is None:
+            return DispatchResult("level_break_first_strike", fired=False,
+                                  skip_reason="SKIP_NO_SIGNAL")
+        return DispatchResult("level_break_first_strike", fired=True, signal=sig)
 
     # ------------------------------------------------------------------
     # Helpers
