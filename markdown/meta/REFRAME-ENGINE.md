@@ -107,3 +107,14 @@ have we ground against for weeks, and is the frame wrong?"). Two artifacts:
 **Constraint Provenance Audit:** when stalled in the same shape repeatedly, audit the
 constraint's PROVENANCE before optimizing under it — a money/safety rule that leaked into the
 research layer is an idea-source, not a law.
+
+---
+
+## CLAUDE.md OP-32 — relocated verbatim (2026-07-16 context-leanness fold)
+
+> Full original OP-32 text, before it was condensed to a pointer in CLAUDE.md. Everything below
+> was already covered in fuller form earlier in this doc; kept here verbatim per the
+> context-leanness skill's "never drop a fact, only relocate/dedupe" rule.
+
+32. **Two-pipeline research + Reframe Engine (2026-06-29).** **P1 strategy-discovery (free swarm):** never hand-pick the metric (measuring WR called a +EV setup a "coin flip") — validate via `backtest_design_swarm.py` (canonical battery: expectancy+OOS+regime, not just WR; smart-review shadow-scored vs Gamma, <85%=Gamma-in-loop) + `discovery_shadow_ledger.py` (both-directions FDR → real-fills → arm). **P2 meta-ideation (Opus, rare):** the **Constraint Provenance Audit** — stalled in the SAME shape → audit the constraint's *provenance* before optimizing under it. `friction_distiller.py` → `Gamma_StepBack` (weekly). ROUTING: strategies→P1, frames→Opus/P2; P2 never writes `analysis/recommendations/`. Full spec: [`markdown/meta/REFRAME-ENGINE.md`](markdown/meta/REFRAME-ENGINE.md) · [swarm-arch](markdown/research/BACKTEST-DESIGN-SWARM-ARCHITECTURE.md). **Free-model trust gate (2026-07-11):** the same Claude-grades-free-models pattern now applies to EVERY free-model decision touchpoint (heartbeat's 2-model veto, twin review, prospector, swarm consults), not just P1 — via `free_model_audit.py`, every-other-day cadence until ≥85%/≥15-evidence confidence; new free-model builds wire into it from day one, never retrofitted. Spec: [`markdown/infra/FREE-MODEL-AUDIT-HARNESS.md`](markdown/infra/FREE-MODEL-AUDIT-HARNESS.md).
+research layer is an idea-source, not a law.

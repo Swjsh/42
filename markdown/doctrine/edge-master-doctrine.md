@@ -184,3 +184,18 @@ Known good baseline (locked floor — never regress below this):
 - 5/04: +$2,418
 - edge_capture: +$2,769
 - losers_added: $0
+
+---
+
+## J-edge source-of-truth trades
+
+> Relocated verbatim from CLAUDE.md OP-16 (2026-07-16 context-leanness fold). This is the full
+> immutable trade list behind the `edge_capture` gate; CLAUDE.md keeps only the formula +
+> threshold inline and points here for the underlying trades.
+
+**Source-of-truth trades (immutable until J adds more):**
+- **Winners (engine MUST take):** 4/29 SPY 710P × 6 → +$342 | 5/01 SPY 721P × 20 → +$470 | 5/04 SPY 721P × 10 → +$730
+- **Losers (engine MUST skip or lose less):** 5/05 SPY 722P × 20 → −$260 | 5/06 SPY 730P × 10 → −$300 | 5/07 SPY 734C × 3 → −$45 | 5/07 SPY 737C × 10 → −$120
+
+**J-edge score:** `edge_capture = sum(engine_pnl_on_winning_days) - sum(max(0, engine_loss_on_losing_days))`
+Max possible: 1542. Candidates with edge_capture < 771 (50%) are REJECTED regardless of aggregate. `final_score = edge_capture × aggregate_sharpe`. Aggregate Sharpe/P&L are secondary tiebreakers only.
