@@ -113,6 +113,154 @@ no code fences, no other text.
 
 SONNET = "claude-sonnet-4-6"  # matches manager_overseer.py's constant exactly (reused pattern)
 
+# --------------------------------------------------------------------------------------------
+# VETO-HTF-CONFLICT-REGRADE (automation/overnight/queue.md, filed 2026-07-16 ~19:05 ET, Fable):
+# the pre-registered study vwapcont-htf-precheck-2026-07-16 (analysis/recommendations/
+# vwapcont-htf-precheck-2026-07-16.json, verdict KILL) found HTF-OPPOSED vwap_continuation
+# signals OUTPERFORM aligned ones (+$67.15/tr n=48 broad-based vs +$8.87/tr n=73 outlier-
+# carried). The free-model veto's single most common cited reason is "conflicting HTF" --
+# that reasoning class is now evidence-suspect (it may systematically block the BETTER
+# cohort), so it needs to be graded as its OWN cohort, not blended into the overall veto
+# accuracy. Built from REAL reason strings grepped out of automation/state/core-decisions.jsonl
+# (160 individual vote reasons / 76 veto items, 2026-07-01..07-16 -- see
+# backtest/tests/test_free_model_audit_heartbeat_veto.py for the pinned real examples).
+# ================================================================================
+_HTF_CONFLICT_KEYWORDS = ("htf", "higher timeframe", "higher time frame")
+_SPREAD_DATA_DOUBT_KEYWORDS = ("spread", "implausib", "illiquid", "liquidity",
+                              "data entry error", "data corruption", "unrealistic", "invalid")
+
+
+def classify_veto_reason_class(reason_text: str) -> str:
+    """Pure keyword classifier over ONE free-model vote's reason string -> one of
+    {"htf_conflict", "spread_data_doubt", "other"}. Priority: htf_conflict is checked FIRST
+    because many real reasons cite BOTH htf and spread in the same sentence (e.g. "conflicting
+    HTF15m bearish and excessively wide spread 52.28c indicates poor liquidity") -- the
+    vwapcont-htf-precheck-2026-07-16 study is specifically about HTF-reasoning vetoes, so a
+    blended reason still counts as "cited HTF" for this audit's purpose (checked against the
+    real corpus: 71/76 veto items cite HTF, most of those also mention spread/ribbon in the
+    same sentence). 'other' catches everything that names neither -- VIX-spike-only vetoes,
+    the pre-2026-07-09 malformed-prompt side=None complaints, and ribbon_flip-trigger-
+    plausibility complaints are NOT part of either named cohort."""
+    lower = (reason_text or "").lower()
+    if any(kw in lower for kw in _HTF_CONFLICT_KEYWORDS):
+        return "htf_conflict"
+    if any(kw in lower for kw in _SPREAD_DATA_DOUBT_KEYWORDS):
+        return "spread_data_doubt"
+    return "other"
+
+
+def _item_veto_reason_class(free_model_output: dict) -> str:
+    """Aggregate over ALL votes' reasons for one veto item (a veto requires every ANSWERED
+    lane to say NO-GO, so every vote on a veto item is a NO-GO with its own reason string).
+    htf_conflict if ANY vote cited it, else spread_data_doubt if any vote cited that, else
+    'other'. Same priority as classify_veto_reason_class, applied across the item's lanes."""
+    reasons = [str(v.get("reason", "")) for v in (free_model_output.get("votes") or [])
+              if v.get("reason")]
+    classes = {classify_veto_reason_class(r) for r in reasons}
+    if "htf_conflict" in classes:
+        return "htf_conflict"
+    if "spread_data_doubt" in classes:
+        return "spread_data_doubt"
+    return "other"
+
+
+def veto_reason_class_breakdown(history_items: list, until, *, path: Path = CORE_DECISIONS) -> dict:
+    """Cross-tabulate EVERY graded (correct is not None) veto item in `history_items`
+    (subject="heartbeat_veto", kind="item" rows from free_model_audit.load_history_items)
+    against its free-model reason class, by re-collecting AuditItems from the ledger (source
+    of truth) and joining on item_id. Read-only, re-derives the classification FRESH every
+    call rather than persisting it -- this means items graded before this feature existed
+    (no 'veto_reason_class' field in their history row) are still correctly classified, using
+    the CURRENT classifier logic, not a stale one. Items whose item_id falls outside the
+    collected window are skipped (never guessed) -- `n_unmatched` reports how many.
+    """
+    items_by_id = {it.item_id: it for it in collect_items(None, until, path=path)}
+    out = {
+        "htf_conflict": {"n_tagged": 0, "true": 0, "false": 0, "ungraded": 0},
+        "spread_data_doubt": {"n_tagged": 0, "true": 0, "false": 0, "ungraded": 0},
+        "other": {"n_tagged": 0, "true": 0, "false": 0, "ungraded": 0},
+    }
+    n_unmatched = 0
+    for row in history_items:
+        if row.get("decision") != "veto":
+            continue
+        it = items_by_id.get(row.get("item_id"))
+        if it is None:
+            n_unmatched += 1
+            continue
+        rc = _item_veto_reason_class(it.free_model_output)
+        bucket = out[rc]
+        bucket["n_tagged"] += 1
+        correct = row.get("correct")
+        if correct is True:
+            bucket["true"] += 1
+        elif correct is False:
+            bucket["false"] += 1
+        else:
+            bucket["ungraded"] += 1
+    out["_n_unmatched"] = n_unmatched
+    return out
+
+
+def veto_reason_class_scorecard_section(history_items: list, until, *,
+                                        path: Path = CORE_DECISIONS) -> str:
+    """Renders the per-reason-class markdown block appended to the standard scorecard
+    (free_model_audit.py's render_scorecard, via SubjectAdapter.extra_scorecard_section).
+    Cites vwapcont-htf-precheck-2026-07-16 per VETO-HTF-CONFLICT-REGRADE. Honest about the
+    graded/ungraded split (never fabricates a rate from n=0) and states a MIN-N-5 threshold
+    call so it's clear at a glance whether the evidence bar for a prompt change is cleared."""
+    bd = veto_reason_class_breakdown(history_items, until, path=path)
+    L = [
+        "## Veto reason-class breakdown (VETO-HTF-CONFLICT-REGRADE, 2026-07-16 queue item)", "",
+        "Every graded VETO item, keyword-classified by its free-model reason string(s) into "
+        "{htf_conflict, spread_data_doubt, other} -- see "
+        "`setup/scripts/free_model_audit_heartbeat_veto.py::classify_veto_reason_class`. Filed "
+        "because the pre-registered study `vwapcont-htf-precheck-2026-07-16` "
+        "(analysis/recommendations/vwapcont-htf-precheck-2026-07-16.json, verdict KILL) found "
+        "the HTF-OPPOSED vwap_continuation cohort OUTPERFORMS the aligned cohort (+$67.15/tr "
+        "n=48 broad-based vs +$8.87/tr n=73 outlier-carried, mechanism fits C28 -- the 15m "
+        "ribbon lags, fast signals catch reversals first). The veto layer's single most common "
+        "cited reason is exactly this HTF-conflict framing, so its false-veto rate is graded "
+        "as its OWN cohort here, not blended into the overall veto accuracy above.",
+        "",
+        "| Reason class | Vetoes tagged | Graded | TRUE veto | FALSE veto | Ungraded | False-veto rate |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for rc in ("htf_conflict", "spread_data_doubt", "other"):
+        b = bd[rc]
+        graded = b["true"] + b["false"]
+        rate = f"**{round(100 * b['false'] / graded, 1)}%**" if graded else "n/a"
+        L.append(f"| {rc} | {b['n_tagged']} | {graded} | {b['true']} | {b['false']} "
+                f"| {b['ungraded']} | {rate} |")
+    if bd.get("_n_unmatched"):
+        L.append("")
+        L.append(f"_{bd['_n_unmatched']} previously-graded veto item(s) fell outside the "
+                f"re-collected ledger window and were skipped (never guessed)._")
+    htf = bd["htf_conflict"]
+    htf_graded = htf["true"] + htf["false"]
+    other_graded = sum(bd[rc]["true"] + bd[rc]["false"] for rc in ("spread_data_doubt", "other"))
+    other_false = sum(bd[rc]["false"] for rc in ("spread_data_doubt", "other"))
+    L.append("")
+    if htf_graded >= 5:
+        htf_rate = 100 * htf["false"] / htf_graded
+        other_rate = (100 * other_false / other_graded) if other_graded else None
+        elevated = other_rate is not None and htf_rate > other_rate
+        if elevated and other_graded >= 5:
+            L.append(f"**EVIDENCE THRESHOLD CLEARED** -- htf_conflict false-veto rate "
+                    f"{round(htf_rate,1)}% (n={htf_graded}) vs other classes combined "
+                    f"{round(other_rate,1)}% (n={other_graded}). Materially elevated: ship the "
+                    f"veto sysmsg evidence note per VETO-HTF-CONFLICT-REGRADE step 5.")
+        else:
+            L.append(f"**INSUFFICIENT CONTRAST** -- htf_conflict false-veto rate "
+                    f"{round(htf_rate,1)}% (n={htf_graded}) graded, but the other-classes "
+                    f"comparison n={other_graded} is below the 5-item floor or not elevated. "
+                    f"Do NOT touch the veto sysmsg yet.")
+    else:
+        L.append(f"**INSUFFICIENT EVIDENCE** -- only {htf_graded}/5 htf_conflict items graded "
+                f"so far (n<5 floor). Do NOT touch the veto sysmsg; leave the queue item open.")
+    L.append("")
+    return "\n".join(L) + "\n"
+
 
 # --------------------------------------------------------------------------------------------
 # Small pure helpers
@@ -443,6 +591,8 @@ def grade_item(item, opts: dict) -> dict:
     veto = bool(fmo.get("veto"))
     decision = "veto" if veto else "go"
     base = {"decision": decision, "n_lanes_answered": n_lanes_answered}
+    if veto:
+        base["veto_reason_class"] = _item_veto_reason_class(fmo)
 
     if not veto:
         real = _grade_via_real_fill(item)

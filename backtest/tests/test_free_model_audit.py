@@ -201,6 +201,107 @@ def test_already_graded_ids_missing_file_returns_empty(tmp_path):
 
 # ---------- scorecard renderer smoke test ----------
 
+def test_load_history_items_reads_only_matching_subject_item_rows(tmp_path):
+    hist = tmp_path / "history.jsonl"
+    rows = [
+        {"kind": "item", "subject": "heartbeat_veto", "item_id": "extra:safe:t1", "correct": True},
+        {"kind": "item", "subject": "heartbeat_veto", "item_id": "extra:safe:t2", "correct": False},
+        {"kind": "item", "subject": "OTHER_SUBJECT", "item_id": "extra:safe:t1", "correct": True},
+        {"kind": "run_summary", "subject": "heartbeat_veto"},
+        "not even json",
+    ]
+    with hist.open("w", encoding="utf-8") as fh:
+        for r in rows:
+            fh.write((json.dumps(r) if not isinstance(r, str) else r) + "\n")
+    items = fma.load_history_items("heartbeat_veto", history_path=hist)
+    assert {r["item_id"] for r in items} == {"extra:safe:t1", "extra:safe:t2"}
+
+
+def test_load_history_items_missing_file_returns_empty(tmp_path):
+    assert fma.load_history_items("heartbeat_veto", history_path=tmp_path / "nope.jsonl") == []
+
+
+# ---------- extra_scorecard_section wiring (VETO-HTF-CONFLICT-REGRADE, 2026-07-16) ----------
+
+def test_subject_adapter_extra_scorecard_section_defaults_to_none():
+    """Every adapter that doesn't opt in stays unaffected -- purely additive extension."""
+    assert fma.AUDIT_SUBJECTS["twin_review"].extra_scorecard_section is None
+    assert fma.AUDIT_SUBJECTS["prospector"].extra_scorecard_section is None
+    assert fma.AUDIT_SUBJECTS["swarm_consult"].extra_scorecard_section is None
+
+
+def test_heartbeat_veto_registers_extra_scorecard_section():
+    assert fma.AUDIT_SUBJECTS["heartbeat_veto"].extra_scorecard_section is not None
+
+
+def test_run_subject_appends_extra_scorecard_section(tmp_path, monkeypatch):
+    """A subject with extra_scorecard_section set gets its markdown appended to the scorecard
+    file; a broken extension is caught and never aborts the run (matches the per-item grade()
+    exception tolerance elsewhere in this module). SCORECARD_ROOT must stay UNDER fma.REPO --
+    run_subject's final log line does out_path.relative_to(REPO), which raises if the test
+    scorecard dir is outside the repo tree (e.g. pytest's tmp_path, which lives under the OS
+    temp dir) -- that's a test-harness constraint, not something under test here."""
+    scratch = fma.REPO / "automation" / "state" / "_test_scratch_free_model_audit"
+    monkeypatch.setattr(fma, "STATE", tmp_path)
+    monkeypatch.setattr(fma, "HISTORY", tmp_path / "history.jsonl")
+    monkeypatch.setattr(fma, "BAR_STATE_PATH", tmp_path / "bar-state.json")
+    monkeypatch.setattr(fma, "SCORECARD_ROOT", scratch)
+    monkeypatch.setattr(fma, "STATUS_MD", tmp_path / "STATUS.md")
+
+    def _fake_collect(since, until):
+        return [fma.AuditItem(subject="fake_subject", item_id="x1", timestamp_et="2026-07-16T09:00:00",
+                              account="safe", context={}, free_model_output={"evaluated": True, "veto": False})]
+
+    def _fake_grade(item, opts):
+        return {"decision": "go", "grading_method": "counterfactual", "correct": True}
+
+    def _extra(history_items, until):
+        return "## Injected extra section\n\nmarker-xyz\n"
+
+    fma.AUDIT_SUBJECTS["fake_subject"] = fma.SubjectAdapter(
+        name="fake_subject", collect=_fake_collect, grade=_fake_grade,
+        description="test-only", wired=True, extra_scorecard_section=_extra)
+    try:
+        result = fma.run_subject("fake_subject", force=True, today=date(2026, 7, 16))
+        assert result["status"] == "RAN"
+        content = Path(result["scorecard"]).read_text(encoding="utf-8")
+        assert "Injected extra section" in content
+        assert "marker-xyz" in content
+    finally:
+        del fma.AUDIT_SUBJECTS["fake_subject"]
+        import shutil
+        shutil.rmtree(scratch, ignore_errors=True)
+
+
+def test_run_subject_tolerates_broken_extra_scorecard_section(tmp_path, monkeypatch):
+    scratch = fma.REPO / "automation" / "state" / "_test_scratch_free_model_audit2"
+    monkeypatch.setattr(fma, "STATE", tmp_path)
+    monkeypatch.setattr(fma, "HISTORY", tmp_path / "history.jsonl")
+    monkeypatch.setattr(fma, "BAR_STATE_PATH", tmp_path / "bar-state.json")
+    monkeypatch.setattr(fma, "SCORECARD_ROOT", scratch)
+    monkeypatch.setattr(fma, "STATUS_MD", tmp_path / "STATUS.md")
+
+    def _fake_collect(since, until):
+        return []
+
+    def _fake_grade(item, opts):
+        return {"decision": "go", "grading_method": "counterfactual", "correct": True}
+
+    def _broken_extra(history_items, until):
+        raise RuntimeError("boom")
+
+    fma.AUDIT_SUBJECTS["fake_subject2"] = fma.SubjectAdapter(
+        name="fake_subject2", collect=_fake_collect, grade=_fake_grade,
+        description="test-only", wired=True, extra_scorecard_section=_broken_extra)
+    try:
+        result = fma.run_subject("fake_subject2", force=True, today=date(2026, 7, 16))
+        assert result["status"] == "RAN"  # a broken extension must never abort the run
+    finally:
+        del fma.AUDIT_SUBJECTS["fake_subject2"]
+        import shutil
+        shutil.rmtree(scratch, ignore_errors=True)
+
+
 def test_render_scorecard_smoke():
     graded = [
         {"item_id": "extra:safe:t1", "decision": "veto", "grading_method": "counterfactual",

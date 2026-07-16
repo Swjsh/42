@@ -284,6 +284,192 @@ def test_grade_not_evaluated_is_ungraded():
     assert result["correct"] is None
 
 
+# ---------- veto_reason_class classifier (VETO-HTF-CONFLICT-REGRADE, 2026-07-16) ----------
+# All quoted strings below are VERBATIM real free-model vote reasons, grepped out of
+# automation/state/core-decisions.jsonl (160 veto-vote reasons, 2026-07-01..07-16) -- not
+# invented. See setup/scripts/free_model_audit_heartbeat_veto.py::classify_veto_reason_class
+# for the keyword sets and priority rationale.
+
+REAL_HTF_CONFLICT_REASONS = [
+    "conflicting HTF15m=MIXED",
+    "conflicting HTF15m BEAR",
+    "Conflicting HTF15m=MIXED with ENTER_BULL signal; bull=None/11 indicates no confirmed "
+    "bull signal; side=None contradicts ENTER_BULL action; wide spread=125.23 ma",
+    "Conflicting HTF and ribbon signals: HTF15m=BULL and ribbon=BULL suggest bullish bias, "
+    "but entry is bearish (ENTER_BEAR). This creates a direct contradiction in ",
+    "conflicting HTF (HTF15m=BULL vs entry=BEAR)",
+]
+
+REAL_SPREAD_DATA_DOUBT_REASONS = [
+    "Excessive option spread (107 points) indicates illiquid market; avoid entry.",
+    "Excessive option spread (45c) indicates poor liquidity, making the entry unsound.",
+    "Excessive bid-ask spread (45.38c) indicates poor liquidity for a 0DTE entry.",
+    "spread=145.4 is unrealistic for SPY (typical spreads are 1-10 points), likely a data "
+    "entry error",
+    "spread value of 75.14 is implausibly large for SPY options (typical spreads are "
+    "~$0.10-$0.50), indicating a likely data entry error",
+]
+
+REAL_OTHER_REASONS = [
+    "VIX spike",
+    "Conflicting setup parameters: rules_engine_says=ENTER_BULL but side=None. VWAP-based "
+    "triggers imply directional bias but lack explicit side assignment. Setup=vw",
+    "Conflicting trigger 'ribbon_flip' when ribbon is already BULL. A ribbon flip implies a "
+    "change from prior state, but current ribbon is BULL with no indication of",
+    "no clear issues with the entry",
+    "default",
+]
+
+# A real BLENDED reason (both HTF and spread cited in one sentence, 2026-07-08T13:33:12 bold)
+# -- must resolve to htf_conflict per the documented priority (this is the common case: 71/76
+# real veto items in the full ledger cite HTF, and most of those also mention spread/ribbon).
+REAL_BLENDED_HTF_AND_SPREAD_REASON = (
+    "conflicting HTF15m bearish and excessively wide spread 52.28c indicates poor liquidity "
+    "and counter-trend risk"
+)
+
+
+def test_classify_real_htf_conflict_reasons():
+    for r in REAL_HTF_CONFLICT_REASONS:
+        assert hv.classify_veto_reason_class(r) == "htf_conflict", r
+
+
+def test_classify_real_spread_data_doubt_reasons():
+    for r in REAL_SPREAD_DATA_DOUBT_REASONS:
+        assert hv.classify_veto_reason_class(r) == "spread_data_doubt", r
+
+
+def test_classify_real_other_reasons():
+    for r in REAL_OTHER_REASONS:
+        assert hv.classify_veto_reason_class(r) == "other", r
+
+
+def test_classify_blended_reason_prioritizes_htf():
+    assert hv.classify_veto_reason_class(REAL_BLENDED_HTF_AND_SPREAD_REASON) == "htf_conflict"
+
+
+def test_classify_empty_or_missing_reason_is_other():
+    assert hv.classify_veto_reason_class("") == "other"
+    assert hv.classify_veto_reason_class(None) == "other"  # type: ignore[arg-type]
+
+
+def test_item_veto_reason_class_aggregates_across_lanes():
+    """One lane cites HTF, the other doesn't -- the item still tags htf_conflict (ANY lane
+    citing it is enough, matching the real REAL_ROW_1 fixture shape below)."""
+    fmo = {"votes": [
+        {"lane": "ollama::qwen3:14b", "go": False,
+         "reason": "Conflicting HTF15m=MIXED with ENTER_BULL signal"},
+        {"lane": "openrouter::nvidia/nemotron-3-super-120b-a12b:free", "go": False,
+         "reason": "no clear issues besides timing"},
+    ]}
+    assert hv._item_veto_reason_class(fmo) == "htf_conflict"
+
+
+def test_item_veto_reason_class_real_row1_fixture():
+    """REAL_ROW_1's extra-setup veto (both lanes cite HTF/spread) tags htf_conflict."""
+    fmo = REAL_ROW_1["extra_exec"][0]["free_eval"]
+    assert hv._item_veto_reason_class(fmo) == "htf_conflict"
+
+
+def test_item_veto_reason_class_no_reasons_is_other():
+    assert hv._item_veto_reason_class({"votes": [{"lane": "x", "go": False}]}) == "other"
+
+
+def test_grade_item_tags_veto_reason_class_on_veto(monkeypatch):
+    it = _mk_item(veto=True, votes=[
+        {"lane": "ollama::qwen3:14b", "go": False, "reason": "conflicting HTF15m=MIXED"},
+        {"lane": "openrouter::...", "go": False, "reason": "HTF15m mixed indicates conflict"},
+    ])
+    monkeypatch.setattr(hv, "_counterfactual_replay",
+                        lambda item, **kw: {"pnl": -50.0, "source": "replay", "symbol": "x",
+                                            "strike": 742, "equity_used": 1500.0,
+                                            "equity_method": "reason_text_scan",
+                                            "entry_price_proxy": 1.0, "shape": "v15_3_safe_ratified",
+                                            "n_bars": 1})
+    result = hv.grade_item(it, {"allow_llm_fallback": True})
+    assert result["veto_reason_class"] == "htf_conflict"
+
+
+def test_grade_item_does_not_tag_veto_reason_class_on_go(monkeypatch):
+    it = _mk_item(item_id="synthetic:go3", veto=False, exec_block={"symbol": "SPY260708P00742000"})
+    monkeypatch.setattr(hv, "_grade_via_real_fill",
+                        lambda item: {"pnl": 10.0, "source": "real_fill", "symbol": "x"})
+    result = hv.grade_item(it, {"allow_llm_fallback": True})
+    assert "veto_reason_class" not in result
+
+
+# ---------- veto_reason_class_breakdown / scorecard section (pure, injected ledger data) ----------
+
+def _write_core_decisions(tmp_path, rows):
+    p = tmp_path / "core-decisions.jsonl"
+    _write_jsonl(p, rows)
+    return p
+
+
+def test_veto_reason_class_breakdown_joins_history_to_ledger(tmp_path):
+    ledger = _write_core_decisions(tmp_path, [REAL_ROW_0, REAL_ROW_1])
+    history_items = [
+        # REAL_ROW_0's veto reasons are "VIX spike" / "" (empty) -- neither htf nor spread -> other
+        {"item_id": "extra:safe:2026-07-08T10:04:04:vwap_reclaim_failed_break",
+         "decision": "veto", "correct": True},
+        # REAL_ROW_1's veto reasons cite HTF15m/higher time frame in both lanes -> htf_conflict
+        {"item_id": "extra:safe:2026-07-09T09:51:03:vwap_continuation",
+         "decision": "veto", "correct": False},
+        {"item_id": "core:safe:2026-07-08T10:04:04", "decision": "go", "correct": True},  # not a veto -- skipped
+    ]
+    bd = hv.veto_reason_class_breakdown(history_items, date(2026, 7, 9), path=ledger)
+    assert bd["htf_conflict"]["n_tagged"] == 1
+    assert bd["htf_conflict"]["false"] == 1
+    assert bd["other"]["n_tagged"] == 1
+    assert bd["other"]["true"] == 1
+    assert bd["spread_data_doubt"]["n_tagged"] == 0
+    assert bd["_n_unmatched"] == 0
+
+
+def test_veto_reason_class_breakdown_never_guesses_unmatched_items(tmp_path):
+    ledger = _write_core_decisions(tmp_path, [])  # empty ledger -- nothing to join against
+    history_items = [{"item_id": "extra:safe:2026-07-08T10:04:04:vwap_reclaim_failed_break",
+                      "decision": "veto", "correct": True}]
+    bd = hv.veto_reason_class_breakdown(history_items, date(2026, 7, 9), path=ledger)
+    assert bd["_n_unmatched"] == 1
+    assert sum(bd[rc]["n_tagged"] for rc in ("htf_conflict", "spread_data_doubt", "other")) == 0
+
+
+def test_veto_reason_class_scorecard_section_cites_the_study(tmp_path):
+    ledger = _write_core_decisions(tmp_path, [REAL_ROW_1])
+    history_items = [{"item_id": "extra:safe:2026-07-09T09:51:03:vwap_continuation",
+                      "decision": "veto", "correct": False}]
+    md = hv.veto_reason_class_scorecard_section(history_items, date(2026, 7, 9), path=ledger)
+    assert "vwapcont-htf-precheck-2026-07-16" in md
+    assert "htf_conflict" in md and "spread_data_doubt" in md
+    assert "INSUFFICIENT EVIDENCE" in md  # n=1 < 5 floor
+
+
+def test_veto_reason_class_scorecard_section_reports_insufficient_contrast(tmp_path):
+    """htf_conflict n>=5 graded, but the OTHER-classes comparison has too little evidence --
+    must say INSUFFICIENT CONTRAST, never a false 'ship it' verdict."""
+    rows, history_items = [], []
+    for i in range(6):
+        ts = f"2026-07-{10+i:02d}T09:51:03"
+        row = {
+            "ts_et": ts, "account": "safe", "spy": 744.0, "ribbon": "BEAR", "spread_cents": 10.0,
+            "vix": 15.0, "htf_15m": "MIXED", "verdict": "HOLD", "side": None, "setup": None,
+            "bear_score": 5, "bull_score": 5, "triggers": [], "action": "HOLD",
+            "extra_signals": [{"setup_name": "vwap_continuation", "direction": "long"}],
+            "extra_exec": [{"setup": "vwap_continuation", "action": "VETOED_BY_MODELS",
+                            "free_eval": {"evaluated": True,
+                                         "votes": [{"lane": "a", "go": False,
+                                                   "reason": "conflicting HTF15m=MIXED"}],
+                                         "veto": True}}],
+        }
+        rows.append(row)
+        history_items.append({"item_id": f"extra:safe:{ts}:vwap_continuation",
+                              "decision": "veto", "correct": (i % 2 == 0)})
+    ledger = _write_core_decisions(tmp_path, rows)
+    md = hv.veto_reason_class_scorecard_section(history_items, date(2026, 7, 16), path=ledger)
+    assert "INSUFFICIENT CONTRAST" in md
+
+
 def test_n_lanes_answered_asymmetry_stat():
     single_lane = _mk_item(veto=True, votes=[{"lane": "ollama::qwen3:14b", "go": False}])
     both_lanes = _mk_item(veto=True, votes=[{"lane": "a", "go": False}, {"lane": "b", "go": False}])

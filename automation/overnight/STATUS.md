@@ -1,5 +1,46 @@
 ## MORNING BRIEF 2026-07-15
 
+## [2026-07-16 ~19:30 ET] RESEARCH — VETO-HTF-CONFLICT-REGRADE: htf_conflict false-veto rate 22.4% (n=49) but comparison cohort stuck at n=3, veto sysmsg NOT touched [queue item stays open]
+
+> **Context (`et_clock.py`: `2026-07-16 19:25:42 Thursday EDT market_hours=False`).** `automation/overnight/queue.md`'s VETO-HTF-CONFLICT-REGRADE (HIGH, filed ~19:05 ET by Fable): the pre-registered study `vwapcont-htf-precheck-2026-07-16` (verdict KILL) found HTF-OPPOSED vwap_continuation signals OUTPERFORM aligned ones (+$67.15/tr n=48 broad-based vs +$8.87/tr n=73 outlier-carried, mechanism fits C28). The free-model veto's most common cited reason is exactly this HTF-conflict framing — today it blocked 5 vwap_continuation re-fires on that reasoning. Task: grade that reasoning class as its own cohort, not blended.
+>
+> **What shipped:** `setup/scripts/free_model_audit_heartbeat_veto.py::classify_veto_reason_class` — pure keyword classifier over free-model reason strings into {htf_conflict, spread_data_doubt, other}, built from the real 160-reason/76-item corpus grepped out of `core-decisions.jsonl` (not invented). `veto_reason_class_breakdown`/`veto_reason_class_scorecard_section` cross-tabulate EVERY graded veto item ever (re-joins `free-model-audit-history.jsonl` against a fresh ledger re-collect, so items graded before this feature existed still get classified), rendered as a new scorecard section citing the study. Wired via a new optional `SubjectAdapter.extra_scorecard_section` hook in `free_model_audit.py` — additive only, `None` default for every other subject (twin_review/prospector/swarm_consult unaffected, guarded by test).
+>
+> **Real run, quoted** (`free_model_audit.py --subject heartbeat_veto`, cadence-due, 34 new items graded via counterfactual replay against real OPRA bars, 0 LLM-fallback calls needed):
+>
+> | Reason class | Tagged | Graded | TRUE veto | FALSE veto | False-veto rate |
+> |---|--:|--:|--:|--:|--:|
+> | htf_conflict | 49 | 49 | 38 | 11 | **22.4%** |
+> | spread_data_doubt | 1 | 1 | 1 | 0 | 0.0% |
+> | other | 2 | 2 | 1 | 1 | 50.0% |
+>
+> Full scorecard: `analysis/free-model-audit/heartbeat-veto/2026-07-16-scorecard.md`. This confirms the queue item's premise — htf_conflict is 49/52 = 94% of all graded veto items, the dominant cited reason by a wide margin.
+>
+> **Decision: veto sysmsg NOT touched.** Per the pre-registered rule, a prompt change ships only if htf_conflict's false-veto rate is materially above a same-sized (n>=5) non-HTF comparison cohort. htf_conflict itself clears n=49, but the comparison cohort (spread_data_doubt + other combined) is only **n=3** — structurally short of the floor. Non-HTF veto reasons are rare (3/76 = 4% all-time), so this may take a long time to reach n=5 through organic veto activity. Queue item **left open**, n-threshold noted, no doctrine/prompt edit made.
+>
+> **Contamination caught and fixed same session:** the new `run_subject()`-driving tests initially wrote 7 junk rows + 2 junk subject keys into the REAL `automation/state/free-model-audit-history.jsonl` / `free-model-audit-state.json` — `load_bar_state`/`save_bar_state`/`append_history`/`load_history_items`/`already_graded_ids`/`append_status_note` all had their path defaults bound at function-DEFINITION time (`path: Path = HISTORY`), so `monkeypatch.setattr(fma, "HISTORY", tmp_path)` silently had no effect on calls made through `run_subject()`. Caught by inspecting the state file post-run (not assumed clean), cleaned up surgically (removed exactly the 7 polluted lines / 2 polluted keys, verified the real 07-16 heartbeat_veto data was untouched), and root-caused: all six functions now take `Optional[Path] = None` resolved inside the function body, so a module-level monkeypatch actually takes effect. Re-ran the full test suite after the fix — 136/136 passed, and confirmed zero further contamination.
+>
+> **Tests:** `pytest backtest/tests/test_free_model_audit.py backtest/tests/test_free_model_audit_heartbeat_veto.py backtest/tests/test_free_model_audit_prospector.py backtest/tests/test_free_model_audit_swarm_consult.py backtest/tests/test_free_model_audit_twin_review.py backtest/tests/test_veto_snapshot_units.py backtest/tests/test_extra_setup_veto_payload.py -q` → **136 passed**.
+>
+> **Files touched:** `setup/scripts/free_model_audit_heartbeat_veto.py` (classifier + breakdown + scorecard section + `grade_item` tagging), `setup/scripts/free_model_audit.py` (`extra_scorecard_section` hook, `load_history_items`, the six default-arg fixes), `backtest/tests/test_free_model_audit_heartbeat_veto.py` + `test_free_model_audit.py` (new guards), `automation/overnight/queue.md` (VETO-HTF-CONFLICT-REGRADE amended with the result, left open), `automation/state/free-model-audit-history.jsonl` + `free-model-audit-state.json` (real 07-16 grading run + contamination cleanup), this STATUS.md entry.
+
+## 2026-07-16 ~20:45 ET — BOLD STRIKE DECISION, framed for J's return (Fable recommendation)
+The delta-WF re-adjudication (new gate, first application) PARKED all 4 candidate cells as
+INSUFFICIENT_REGIME_SHIFT — every candidate beats OTM-3 strongly in 2026 but trailed it in 2025.
+ATM missed passing by $0.63/tr on the IS side with all other 4 gates TRUE.
+**This is now a genuine fork (OP-0 #4), laid out plainly:**
+- FOR flipping to ATM: OTM-3 is not a neutral incumbent — it is proven actively failing
+  (34% afternoon floor-clearance = structurally dark afternoons, OOS -$14.37/tr). The
+  anti-overfit gate protects against adopting unproven improvements; it does not oblige
+  keeping a proven-broken config. 2026 evidence + participation mechanics both favor ATM.
+- AGAINST: the 2025 half genuinely disagrees; ratifying on the data that suggested the change
+  is the exact overfit pattern the gate exists to block. Waiting costs ~zero (Bold barely
+  trades under OTM-3 anyway) and ~30 new cohort episodes re-trigger the test automatically.
+**Fable recommendation: flip to ATM as a LEAST-BAD decision (not a ratification) — J's words
+still required per standing commitment ("wire Bold's strike to ATM"). Fix is built, guard-tested,
+2-minute ship, instant revert.**
+
+
 ## [2026-07-16 ~19:25 ET] RESEARCH — BOLD STRIKE-AXIS delta-WF re-adjudication: ATM/OTM-1/ITM-1/ITM-2 all INSUFFICIENT_REGIME_SHIFT vs OTM-3, nothing ships [REVOKE-report]
 
 > **Context (`et_clock.py`: `2026-07-16 19:12:22 Thursday EDT market_hours=False`).** First retro-application of the frozen WF-GATE-METHODOLOGY-2026-07-16.md (Option-B A/B-delta WF, per-trade normalized) against `bold-strike-axis-2026-07-15.json`'s near-miss ATM cell (4/5 gates, WF structurally null under the old absolute form for ALL 6 cells including the control — no gate could discriminate).
@@ -4851,3 +4892,7 @@ Zero params/config/trading-path files touched by either job. No orders placed. Q
 
 ### DEGRADED: self-check 2026-07-16T19:09:56
 - ENGINE NOT ENTERING (bear): 400 ticks today, 0 ENTER, 58 ticks scored bear>=9 but no trigger fired (HOLD all day). The LIVE bear direction never converted to a trade -- check the bear trigger detector.
+
+- [2026-07-16 17:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-16T23:27:04.437715+00:00) | fail streak: 39 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-16 17:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-16.log

@@ -177,6 +177,12 @@ class SubjectAdapter:
     grade: Callable[[AuditItem, dict], dict]
     description: str
     wired: bool = True
+    # Optional subject-specific scorecard extension (VETO-HTF-CONFLICT-REGRADE, 2026-07-16):
+    # takes (all "kind":"item" history rows ever graded for this subject, `until` date) and
+    # returns a markdown string appended to the standard scorecard, or "" for nothing to add.
+    # None (the default) for every subject that doesn't need one -- purely additive, no other
+    # adapter's behavior changes. Only heartbeat_veto sets this as of 2026-07-16.
+    extra_scorecard_section: Optional[Callable[[list, date], str]] = None
 
 
 def _build_registry() -> dict[str, SubjectAdapter]:
@@ -190,7 +196,8 @@ def _build_registry() -> dict[str, SubjectAdapter]:
             description="heartbeat_core.py's _free_model_eval 2-lane veto gate on real "
                         "ENTER_BEAR/ENTER_BULL + extra-setup signals (core-decisions.jsonl). "
                         "Production, highest stakes -- blocks real paper trades right now.",
-            wired=True)
+            wired=True,
+            extra_scorecard_section=hv.veto_reason_class_scorecard_section)
     except Exception as e:  # noqa: BLE001 -- a broken adapter must never break the framework
         print(f"[free_model_audit] WARN heartbeat_veto adapter failed to load: "
               f"{type(e).__name__}: {e}", file=sys.stderr)
@@ -326,7 +333,18 @@ def should_run(state: dict, today: date, *, force: bool = False) -> tuple[bool, 
 # History ledger (append-only jsonl) -- one row per graded item + one summary row per run.
 # --------------------------------------------------------------------------------------------
 
-def already_graded_ids(subject: str, history_path: Path = HISTORY) -> set[str]:
+def already_graded_ids(subject: str, history_path: Optional[Path] = None) -> set[str]:
+    # NOTE (2026-07-16, VETO-HTF-CONFLICT-REGRADE incident): the default must be resolved
+    # HERE, inside the function body, not as `history_path: Path = HISTORY` in the signature.
+    # A signature default is bound ONCE at module-import time -- `monkeypatch.setattr(fma,
+    # "HISTORY", tmp_path)` (or any other runtime reassignment of the module-level HISTORY
+    # constant) silently does NOT change it, so a caller relying on "the module constant
+    # got patched" keeps writing to the REAL path. This exact bug let a test's fake
+    # run_subject() call append 7 junk rows to the real automation/state/
+    # free-model-audit-history.jsonl (caught and cleaned up same session) -- fixed here AND
+    # in save_bar_state/load_bar_state/append_history/load_history_items/append_status_note
+    # below, all of which had the identical bound-default shape.
+    history_path = history_path if history_path is not None else HISTORY
     if not history_path.exists():
         return set()
     out: set[str] = set()
@@ -343,7 +361,30 @@ def already_graded_ids(subject: str, history_path: Path = HISTORY) -> set[str]:
     return out
 
 
-def append_history(rows: list[dict], history_path: Path = HISTORY) -> None:
+def load_history_items(subject: str, history_path: Optional[Path] = None) -> list[dict]:
+    """Every "kind":"item" row EVER graded for a subject (oldest-first), across all past
+    runs -- not just this run's newly-graded items. Read-only. Used by a subject's optional
+    `extra_scorecard_section` (e.g. heartbeat_veto's per-reason-class breakdown) that needs
+    the FULL graded population, not just the trickle of items newly graded today."""
+    history_path = history_path if history_path is not None else HISTORY  # see already_graded_ids
+    if not history_path.exists():
+        return []
+    out: list[dict] = []
+    for line in history_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            r = json.loads(line)
+        except ValueError:
+            continue
+        if r.get("subject") == subject and r.get("kind") == "item":
+            out.append(r)
+    return out
+
+
+def append_history(rows: list[dict], history_path: Optional[Path] = None) -> None:
+    history_path = history_path if history_path is not None else HISTORY  # see already_graded_ids
     if not rows:
         return
     history_path.parent.mkdir(parents=True, exist_ok=True)
@@ -356,7 +397,8 @@ def append_history(rows: list[dict], history_path: Path = HISTORY) -> None:
 # Bar-state persistence (per-subject json)
 # --------------------------------------------------------------------------------------------
 
-def load_bar_state(path: Path = BAR_STATE_PATH) -> dict:
+def load_bar_state(path: Optional[Path] = None) -> dict:
+    path = path if path is not None else BAR_STATE_PATH  # see already_graded_ids
     if not path.exists():
         return {}
     try:
@@ -365,7 +407,8 @@ def load_bar_state(path: Path = BAR_STATE_PATH) -> dict:
         return {}
 
 
-def save_bar_state(all_state: dict, path: Path = BAR_STATE_PATH) -> None:
+def save_bar_state(all_state: dict, path: Optional[Path] = None) -> None:
+    path = path if path is not None else BAR_STATE_PATH  # see already_graded_ids
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(all_state, indent=2, default=str), encoding="utf-8")
 
@@ -483,7 +526,8 @@ def render_scorecard(subject: str, date_str: str, graded: list[dict], run_summar
 # STATUS.md note (one line, append-only, never overwrites)
 # --------------------------------------------------------------------------------------------
 
-def append_status_note(msg: str, status_path: Path = STATUS_MD) -> None:
+def append_status_note(msg: str, status_path: Optional[Path] = None) -> None:
+    status_path = status_path if status_path is not None else STATUS_MD  # see already_graded_ids
     try:
         with status_path.open("a", encoding="utf-8") as fh:
             fh.write(f"\n- [{et_now():%Y-%m-%d %H:%M} ET] free-model-audit: {msg}\n")
@@ -554,6 +598,15 @@ def run_subject(subject: str, *, force: bool = False, allow_llm_fallback: bool =
                    "n_evidence": run_evidence_n}
     date_str = today.isoformat()
     scorecard = render_scorecard(subject, date_str, graded_rows, run_summary, new_state)
+    if adapter.extra_scorecard_section is not None:
+        try:
+            extra_md = adapter.extra_scorecard_section(load_history_items(subject), today)
+        except Exception as e:  # noqa: BLE001 -- an extension failing must never break the run
+            extra_md = (f"\n_extra_scorecard_section failed: {type(e).__name__}: {e}_\n")
+            print(f"[free_model_audit] WARN {subject} extra_scorecard_section failed: "
+                 f"{type(e).__name__}: {e}", file=sys.stderr)
+        if extra_md:
+            scorecard += "\n" + extra_md
     out_dir = SCORECARD_ROOT / subject.replace("_", "-")
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"{date_str}-scorecard.md"
