@@ -90,6 +90,27 @@ def _core_is_rule_block(status: str) -> bool:
     return (status or "").upper().startswith("RISK_DENY")
 
 
+# THIRD FALSE-RED FIX (2026-07-16, SIX-ACCOUNT-DAILY-HYPOTHESIS-REDESIGN.md §5 row 5):
+# a fleet ENTER row's placement dict is mode="LIVE" for EVERY outcome of _place_live
+# (fleet_live.py) -- including the entry-time floor/ceiling skips, which bail BEFORE
+# any broker call (mirrors the CORE NOT_FLAT/SKIP_* false-RED fixed 2026-07-07 above).
+# The fleet-path attempted check previously trusted mode=="LIVE" alone, so a correctly
+# time-gated SKIP_EARLY_ENTRY/SKIP_LATE_ENTRY row was counted as `attempted` with
+# `accepted`==0 -> a false "PLACEMENT BROKEN" RED even though the broker was never
+# touched. `reason` now gates the same way `status` does on the core side.
+_FLEET_SKIP_REASONS = frozenset({"SKIP_EARLY_ENTRY", "SKIP_LATE_ENTRY"})
+
+
+def _fleet_is_attempt(ex: dict) -> bool:
+    """True iff a FLEET placement dict (fleet_live.py's `_place_live` return value)
+    represents a real placement OUTCOME. mode=="LIVE" alone is NOT sufficient -- the
+    entry-ceiling/floor skips also return mode="LIVE", placed=False with reason
+    SKIP_EARLY_ENTRY/SKIP_LATE_ENTRY, never calling the broker."""
+    if str(ex.get("mode", "LIVE")).upper() != "LIVE":
+        return False
+    return str(ex.get("reason", "")).upper() not in _FLEET_SKIP_REASONS
+
+
 def _core_is_attempt(status: str) -> bool:
     """True iff a CORE exec status represents a real placement OUTCOME (the broker
     was called OR the attempt died at the last in-placement gate). NOT_FLAT and
@@ -199,7 +220,7 @@ def _acct_funnel(rows: list[dict], kind: str) -> dict:
             rule_blocked = bool(ex) and _core_is_rule_block(st)
             attempted = bool(ex) and _core_is_attempt(st)
         else:
-            attempted = bool(ex) and str(ex.get("mode", "LIVE")).upper() == "LIVE"
+            attempted = bool(ex) and _fleet_is_attempt(ex)
         accepted = bool(broker.get("id"))
         if rule_blocked:
             f["rule_blocked"] += 1

@@ -326,6 +326,87 @@ def test_risk_deny_is_rule_block_not_broken(tmp_path):
     assert any("RULE-BLOCKED[core:safe]" in fl for fl in f["flags"]), "must stay VISIBLE (OP-33)"
 
 
+# ---------------------------------------------------------------------------
+# BUILD 4 guard (2026-07-16, SIX-ACCOUNT-DAILY-HYPOTHESIS-REDESIGN.md §5 row 5):
+# a FLEET ENTER row whose placement died at the entry-ceiling/floor gate
+# (fleet_live.py's _place_live returns mode="LIVE", reason="SKIP_LATE_ENTRY"/
+# "SKIP_EARLY_ENTRY" BEFORE any broker call) must NOT count as `attempted` --
+# and must therefore never trip PLACEMENT BROKEN. Mirrors the core NOT_FLAT fix.
+# ---------------------------------------------------------------------------
+
+def _fleet_skip_late_entry_row(day="2026-07-16", arm="safe-1"):
+    return [{
+        "ts_et": f"{day}T15:52:01", "arm_id": arm, "action": "ENTER_BEAR",
+        "side": "P", "setup_name": "BEARISH_REJECTION", "strike": 744, "qty": 3,
+        "reason": "trendline_rejection",
+        "placement": {"mode": "LIVE", "placed": False, "reason": "SKIP_LATE_ENTRY",
+                      "entry_ceiling_et": "15:00"},
+    }]
+
+
+def test_fleet_skip_late_entry_not_attempted_not_broken(tmp_path):
+    fleet_dir = tmp_path / "fleet"
+    arm_dir = fleet_dir / "safe-1"
+    arm_dir.mkdir(parents=True)
+    _write_jsonl(arm_dir / "decisions.jsonl", _fleet_skip_late_entry_row())
+    core = tmp_path / "core-empty.jsonl"
+    core.write_text("", encoding="utf-8")
+    f = ff.compute_funnel("2026-07-16", core_path=core, fleet_dir=fleet_dir,
+                          now=dt.datetime(2026, 7, 16, 18, 0))
+    a = f["accounts"]["fleet:safe-1"]
+    assert a["enter"] == 1, "the ENTER_BEAR row must still be counted as an ENTER"
+    assert a["attempted"] == 0, "SKIP_LATE_ENTRY bailed before the broker -- NOT an attempt"
+    assert a["accepted"] == 0
+    joined = " | ".join(f["flags"])
+    assert "PLACEMENT BROKEN" not in joined, \
+        "a correctly time-gated SKIP_LATE_ENTRY must never read as PLACEMENT BROKEN"
+    assert f["verdict"] != "RED"
+
+
+def test_fleet_skip_early_entry_not_attempted_not_broken(tmp_path):
+    fleet_dir = tmp_path / "fleet"
+    arm_dir = fleet_dir / "risky-1"
+    arm_dir.mkdir(parents=True)
+    row = _fleet_skip_late_entry_row(arm="risky-1")
+    row[0]["placement"] = {"mode": "LIVE", "placed": False, "reason": "SKIP_EARLY_ENTRY",
+                            "entry_floor_et": "09:35"}
+    _write_jsonl(arm_dir / "decisions.jsonl", row)
+    core = tmp_path / "core-empty.jsonl"
+    core.write_text("", encoding="utf-8")
+    f = ff.compute_funnel("2026-07-16", core_path=core, fleet_dir=fleet_dir,
+                          now=dt.datetime(2026, 7, 16, 18, 0))
+    a = f["accounts"]["fleet:risky-1"]
+    assert a["enter"] == 1 and a["attempted"] == 0 and a["accepted"] == 0
+    assert not any("PLACEMENT BROKEN" in fl for fl in f["flags"])
+    assert f["verdict"] != "RED"
+
+
+def test_fleet_genuine_place_fail_still_broken(tmp_path):
+    """THE NON-VACUOUS BITE: a fleet ENTER that DID reach the broker and got
+    rejected must still trip PLACEMENT BROKEN -- the skip-reason carve-out must
+    not swallow real placement faults."""
+    fleet_dir = tmp_path / "fleet"
+    arm_dir = fleet_dir / "safe-1"
+    arm_dir.mkdir(parents=True)
+    rows = [{
+        "ts_et": "2026-07-16T10:15:01", "arm_id": "safe-1", "action": "ENTER_BEAR",
+        "side": "P", "setup_name": "BEARISH_REJECTION", "strike": 744, "qty": 3,
+        "reason": "trendline_rejection",
+        "placement": {"mode": "LIVE", "placed": False, "reason": "order rejected",
+                      "symbol": "SPY260716P00744000",
+                      "broker": {"_error": "insufficient buying power"}},
+    }]
+    _write_jsonl(arm_dir / "decisions.jsonl", rows)
+    core = tmp_path / "core-empty.jsonl"
+    core.write_text("", encoding="utf-8")
+    f = ff.compute_funnel("2026-07-16", core_path=core, fleet_dir=fleet_dir,
+                          now=dt.datetime(2026, 7, 16, 18, 0))
+    a = f["accounts"]["fleet:safe-1"]
+    assert a["attempted"] == 1 and a["accepted"] == 0
+    assert any("PLACEMENT BROKEN[fleet:safe-1]" in fl for fl in f["flags"])
+    assert f["verdict"] == "RED"
+
+
 def test_unknown_exec_status_still_fails_open_to_red(tmp_path):
     """The fail-open invariant survives the rule-block split: a NEW unrecognized
     status still counts as attempted and (with 0 accepted) still trips RED."""
