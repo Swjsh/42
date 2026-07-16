@@ -1,5 +1,37 @@
 ## MORNING BRIEF 2026-07-15
 
+## [2026-07-16 ~19:25 ET] RESEARCH — BOLD STRIKE-AXIS delta-WF re-adjudication: ATM/OTM-1/ITM-1/ITM-2 all INSUFFICIENT_REGIME_SHIFT vs OTM-3, nothing ships [REVOKE-report]
+
+> **Context (`et_clock.py`: `2026-07-16 19:12:22 Thursday EDT market_hours=False`).** First retro-application of the frozen WF-GATE-METHODOLOGY-2026-07-16.md (Option-B A/B-delta WF, per-trade normalized) against `bold-strike-axis-2026-07-15.json`'s near-miss ATM cell (4/5 gates, WF structurally null under the old absolute form for ALL 6 cells including the control — no gate could discriminate).
+>
+> **Method:** `backtest/tools/bold_strike_axis_deltawf.py` imports `bold_strike_axis_ab.py`'s exact replay constants/functions (SS_B_SHAPE, honest friction, 0.30 floor, 15:40 time stop, QTY=5) and re-derives PER-EPISODE outcomes (tagged by stable index into the shared n=250 signal cohort) instead of only aggregates. Verified byte-identical reproduction of the original 2026-07-15 replay for all 5 cells (`reproduction_checks.*.reproduced == True`) before trusting the new pairing.
+>
+> **RESULT — all 4 candidates land in the SAME ladder rung, INSUFFICIENT_REGIME_SHIFT (parked, not PASS):**
+>
+> | cell | is_delta_mean | oos_delta_mean | WF_delta | ladder | evidence_status |
+> |---|--:|--:|--:|:--:|:--:|
+> | ATM | -0.63 | +35.95 | None (is<=0) | INSUFFICIENT_REGIME_SHIFT | PARKED_INSUFFICIENT_REGIME_SHIFT |
+> | OTM-1 | -8.97 | +27.63 | None | INSUFFICIENT_REGIME_SHIFT | PARKED_INSUFFICIENT_REGIME_SHIFT |
+> | ITM-1 | -37.63 | +97.95 | None | INSUFFICIENT_REGIME_SHIFT | PARKED_INSUFFICIENT_REGIME_SHIFT |
+> | ITM-2 | -47.37 | +87.02 | None | INSUFFICIENT_REGIME_SHIFT | PARKED_INSUFFICIENT_REGIME_SHIFT |
+>
+> Every candidate beats OTM-3 in the 2025 IS window's OWN dollars less than OTM-3 loses (i.e. is_delta_mean <= 0 for all 4 — Bold's IS period was structurally bad for every non-control strike relative to OTM-3), while the 2026 OOS window shows a large positive delta for all 4. That is a real, differentiated, honest regime-shift signature — not a repeat of the old null-everywhere bug (control-sanity cell OTM-3-vs-itself is the ONLY one that trivially degenerates to 0/0/FAIL; the 4 real candidates' `is_delta_mean` values are large and distinct: -0.63/-8.97/-37.63/-47.37 — `wf_not_discriminating: false`, disclosed explicitly). ATM is the CLOSEST to clearing (is_delta_mean nearest zero, all other 4 gates carried-over-true), but the frozen ladder requires `is_delta_mean > 0` strictly — a near-zero negative still fails that rung.
+>
+> **NOTHING SHIPS.** ATM does NOT reach SHIP-READY-AWAITING-J this round (no cell does) — moot point, but restated: even a PASS here would change evidence status only, the Bold ATM tier flip stays PARKED for J's exact words regardless (standing commitment, three independent holds; `crypto/lib/strike_selection.py` untouched, no params file touched, no orders placed). **risky-3** (fleet_rest arm sharing the same `V15_BOLD_TIERS` table via `fleet_executor.py#_tiers_for_arm`) — queue item closed with NO diff drafted, since no cell cleared to recommend a move.
+>
+> Scorecard: `analysis/recommendations/bold-strike-axis-deltawf-readjudication-2026-07-16.json` + `.md`. Guard: `backtest/tests/test_bold_strike_axis_deltawf.py` (23/23 — synthetic fixture pins all 4 ladder rungs + the 0.70 boundary + the control-sanity degenerate case + the pairing rule + 2 structural edge cases) + `test_bold_core_strike_tier_2026_07_15.py` (10/10, unaffected — 33/33 combined). Commit: pathspec (scorecard `.json`/`.md` + tool + test only).
+
+## 2026-07-16 ~19:05 ET — NIGHT SHIP-LIST CLOSED: 2 SHIPPED / 2 HONEST NO-SHIPS / 1 KILL-with-a-finding (autonomous, J out)
+| Lane | Verdict | Key fact |
+|---|---|---|
+| Twin bear SIM lane | SHIPPED 66fb3df | Live scheduler fired autonomously on landing; real SIM entry+structure-stop close, GREEN. Twin's 53% wasted bear signal now measured. |
+| fill_funnel fleet false-RED | SHIPPED 81ccc74 | RED-proofed both directions; same class as the 07-07 core fix. |
+| gap_and_go arming (Safe) | NO-SHIP 3e73690 | Redesign cited the 06-19 ratification; a 06-28 revalidation had already REBUTTED it (0 robust cells) + no isolated exit cell. Revalidation spec filed. |
+| J_VWAP_RECLAIM_FB arming (Bold) | NO-SHIP f043fda | The "single-key flip" was a NO-OP (aggressive params never had the exec-arm map) + OP-21 unmet + open HOLD. Guard test pins the gap. L201 authored (201a848). |
+| vwap_continuation HTF pre-check | STUDY: KILL 05f70c2 | COUNTER-INTUITIVE: HTF-OPPOSED signals outperform (+$67.15/tr n=48 vs +$8.87/tr n=73 outlier-carried). The veto layer's "HTF conflict" reasoning is now evidence-suspect -> VETO-HTF-CONFLICT-REGRADE queued HIGH. |
+**Net read:** the redesign's diagnosis (drought, breadth) stands; its ship list went 1-for-4 under primary-source verification -- the validity-check discipline is the only reason 2 stale arms and 1 no-op flip didn't ship tonight. Parked for J: Bold ATM (his words), futures token, kill-switch fork.
+
+
 ## 2026-07-16 ~18:05 ET — SIX-ACCOUNT REDESIGN LANDED + TONIGHT SHIPS DISPATCHED (autonomous, J out)
 **Redesign verdict (18 agents, adversarially verified):** the engine's silence is DROUGHT (88-97% of ticks produce no signal on every account), not blocking. Gate-loosening "unlocks" REFUTED on real P&L (0-for-4, -$85). Fleet arms are one bet sized three ways (correlation ~1) — per-account hypotheses is the right pivot. 30%-scalp: zero supporting evidence, mechanism says worse than current marginal shapes. Honest cadence: 4-7/10 days per account, not 10/10. Full report: markdown/research/SIX-ACCOUNT-DAILY-HYPOTHESIS-REDESIGN-2026-07-16.md
 **Dispatched tonight (4 Sonnet lanes, each with a validity-fingerprint check before arming — stale validation = no-ship + honest report):**
@@ -4805,3 +4837,17 @@ Zero params/config/trading-path files touched by either job. No orders placed. Q
 > **Falsification rail (redesign doc §6, folded into queue.md's TWIN-B1.5 row):** if the first 10 bear-SIM fills show >55% loss rate, pull this wiring — revert = delete the `TWIN-B1.5-WIRE` block in `run_scenario_tick`, ENTER_BEAR falls straight back to `SKIP_NO_SHORT_CRYPTO`, current behavior. Tonight's fill (a structure-stop closure) is **1 of that n=10 sample, not yet decision-grade** — a stop-out is an expected, non-alarming outcome for coverage-forcing (the branch exists to exercise the stop path, not to claim edge). **Twin P&L, SIM or LIVE, stays mechanism-validation only — never SPY evidence, per standing project doctrine.**
 >
 > **Files touched:** `setup/scripts/crypto_twin_scenarios.py` (the wiring + docstring updates), `setup/scripts/crypto_twin_health.py` (docstring note only, no code change), `backtest/tests/test_crypto_twin_scenarios.py` (2 new tests + 1 rescoped assertion), `automation/overnight/queue.md` (TWIN-B1.5 row amended with the follow-up), `automation/state/SCHEDULED-TASKS.md:99` (Gamma_CryptoTwin row amended to name the new call + live evidence), this STATUS.md entry.
+
+- [2026-07-16 16:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-16T22:27:03.909432+00:00) | fail streak: 37 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 22.92% in last 24h (11/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-16 16:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-16.log
+
+### DEGRADED: self-check 2026-07-16T18:39:56
+- ENGINE NOT ENTERING (bear): 400 ticks today, 0 ENTER, 58 ticks scored bear>=9 but no trigger fired (HOLD all day). The LIVE bear direction never converted to a trade -- check the bear trigger detector.
+
+- [2026-07-16 16:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-16T22:57:03.801888+00:00) | fail streak: 38 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 20.83% in last 24h (10/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-16 16:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-16.log
+
+### DEGRADED: self-check 2026-07-16T19:09:56
+- ENGINE NOT ENTERING (bear): 400 ticks today, 0 ENTER, 58 ticks scored bear>=9 but no trigger fired (HOLD all day). The LIVE bear direction never converted to a trade -- check the bear trigger detector.

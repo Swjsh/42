@@ -70,3 +70,21 @@ Verdict ladder (explicit, no silent nulls):
 3. Prospectively: all future strike/exit/gate A/Bs.
 
 Frozen. Any change to this computation requires a successor note superseding this one by name.
+
+
+---
+
+## AMENDMENT 1 (Fable, 2026-07-16 ~20:40 ET — same night, found by first application)
+
+The INSUFFICIENT_REGIME_SHIFT re-test trigger as originally frozen ("OOS window grown >= 50%
+or n_oos >= 30") is defective: n_oos >= 30 can already be satisfied by the data present AT
+adjudication (Bold ATM adjudicated with n_oos=86), making the trigger vacuous. CORRECTED
+trigger, superseding the original sentence: re-test when EITHER (a) the OOS window has grown
+>= 50% in calendar length SINCE the adjudication date, OR (b) >= 30 NEW episodes (post-
+adjudication) have accrued in the cohort. All quantities relative to the adjudication
+snapshot recorded in the scorecard. First consumer: bold-strike-axis-deltawf-readjudication-
+2026-07-16 (adjudicated 07-16; re-test earliest ~30 new cohort episodes or ~mid-October 2026
+window growth, whichever first).
+
+Nothing else in this note changes. The verdict ladder, pairing rule, disclosures, and the
+0.70 bar are untouched.
