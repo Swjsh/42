@@ -127,6 +127,56 @@ def test_structure_exit_label_no_info_is_silent_not_crash(tmp_path, monkeypatch)
     assert w._structure_exit_label("safe-2", SYM) == ""
 
 
+def test_engine_attributed_true_when_exec_symbol_matches(tmp_path, monkeypatch):
+    """2026-07-16 fix: a fill with a matching exec.symbol in core-decisions.jsonl IS
+    engine-attributed."""
+    w = _load()
+    monkeypatch.setattr(w, "STATE", tmp_path)
+    row = {"ts_et": "2026-07-16T13:56:36", "account": "safe",
+           "exec": {"status": "FILLED", "symbol": SYM}}
+    (tmp_path / "core-decisions.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    assert w._is_engine_attributed("safe-2", SYM) is True
+
+
+def test_engine_attributed_false_red_proof_2026_07_16_incident():
+    """RED-PROOF: this is the exact real-world case that motivated the fix -- a real fill
+    (SPY260716P00751000) with NO matching exec row anywhere in the real core-decisions.jsonl
+    (a vwap_continuation watcher fired the same signal but never executed, exec=None). Runs
+    against the REAL on-disk state file, not a fixture -- pins that an unattributed fill
+    stays unattributed."""
+    w = _load()
+    assert w._is_engine_attributed("safe-2", "SPY260716P00751000") is False
+
+
+def test_engine_attributed_false_on_missing_file(tmp_path, monkeypatch):
+    """Fail-open: no core-decisions.jsonl at all -> False, never raises."""
+    w = _load()
+    monkeypatch.setattr(w, "STATE", tmp_path)
+    assert w._is_engine_attributed("safe-2", SYM) is False
+
+
+def test_unattributed_fill_label_wired_into_message(tmp_path, monkeypatch):
+    """The ping message itself must say UNATTRIBUTED, not ENGINE TRADE, when no exec
+    row matches -- proves the label is actually wired, not just the helper function."""
+    w = _load()
+    monkeypatch.setattr(w, "STATE", tmp_path)
+    monkeypatch.setattr(w, "OUTBOX", tmp_path / "discord-outbox.jsonl")
+    monkeypatch.setattr(w, "PINGED", tmp_path / "pinged.json")
+    monkeypatch.setattr(w, "LIFETIME", tmp_path / "lifetime.json")
+    (tmp_path / "fleet" / "safe-2").mkdir(parents=True)
+    monkeypatch.setattr(w.fb, "load_creds", lambda: {"safe-2": {}})
+    monkeypatch.setattr(w, "_fetch_orders", lambda creds: [
+        {"id": "ord1", "symbol": SYM, "qty": 3, "price": 1.22, "side": "buy",
+         "status": "filled", "filled_at": "2026-07-16T13:51:29Z"}])
+    monkeypatch.setattr(w, "split_rehearsal_probes", lambda orders: (orders, []))
+    monkeypatch.setattr(w, "classify_orders", lambda orders: (orders, []))
+    monkeypatch.setattr(w, "_load_user_mention", lambda: "")
+    w.main()
+    content = (tmp_path / "discord-outbox.jsonl").read_text(encoding="utf-8")
+    assert "UNATTRIBUTED FILL" in content
+    assert "ENGINE TRADE [" not in content
+
+
 def test_structure_exit_label_wired_into_fill_message(tmp_path, monkeypatch):
     """RENDER-ONLY / reuse proof: main()'s existing composer calls _structure_exit_label and
     the suffix lands in the SAME message + SAME outbox path -- no new Discord path was built."""

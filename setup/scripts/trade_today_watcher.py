@@ -247,6 +247,22 @@ def _structure_exit_label(arm: str, symbol: str) -> str:
     return ""
 
 
+def _is_engine_attributed(arm: str, symbol: str) -> bool:
+    """True if some decision row for this arm has an exec record naming this symbol
+    (2026-07-16 fix: this watcher previously labeled EVERY fill "ENGINE TRADE" regardless
+    of source -- a real fill with no matching core-decisions.jsonl/fleet decisions.jsonl
+    ENTER+exec row is NOT engine-attributed, e.g. a manual/interactive trade. Fail-open ->
+    False (unattributed) on any error; never blocks the ping itself."""
+    try:
+        for row in _decision_rows_for_arm(arm):
+            exec_rec = row.get("exec")
+            if isinstance(exec_rec, dict) and exec_rec.get("symbol") == symbol:
+                return True
+    except Exception:  # noqa: BLE001
+        pass
+    return False
+
+
 def main() -> int:
     creds_all = fb.load_creds()
     pinged = {}
@@ -291,7 +307,8 @@ def main() -> int:
     for x in new:
         first = "  <<< FIRST ENGINE FILL EVER!" if not ever_filled else ""
         struct = _structure_exit_label(x["arm"], x["symbol"])
-        msg = (f"ENGINE TRADE [{x['arm']}]: {x['symbol']} x{int(x['qty'])} @ ${x['price']:.2f} "
+        label = "ENGINE TRADE" if _is_engine_attributed(x["arm"], x["symbol"]) else "UNATTRIBUTED FILL (no matching decision row)"
+        msg = (f"{label} [{x['arm']}]: {x['symbol']} x{int(x['qty'])} @ ${x['price']:.2f} "
                f"{x.get('side')} ({x.get('filled_at', '')}){struct}{first}")
         with OUTBOX.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps({"content": mention + "[TRADE] " + msg,
