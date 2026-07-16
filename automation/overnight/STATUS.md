@@ -1,5 +1,21 @@
 ## MORNING BRIEF 2026-07-15
 
+## 2026-07-16 ~21:05 ET — NIGHT WRAP (autonomous shift complete; J out since ~afternoon)
+**Everything dispatched tonight has landed. Scorecard:**
+| Work | Result |
+|---|---|
+| Six-account redesign (18 agents) | Drought diagnosis + honest 4-7/10 cadence target; ship list went 1-for-4 under primary-source verification |
+| Twin bear SIM lane | SHIPPED 66fb3df, verified by autonomous scheduled fire (2 real SIM round trips already) |
+| fill_funnel fleet false-RED | SHIPPED 81ccc74, RED-proofed |
+| gap_and_go / J_VWAP_RECLAIM_FB armings | HONEST NO-SHIPS (rebutted evidence / no-op flip) -> L201 authored |
+| WF gate redefinition | FROZEN dee188c + same-night Amendment 1 (20ce25a) after first application exposed a vacuous trigger |
+| Delta-WF strike re-adjudication | All 4 cells PARKED_INSUFFICIENT_REGIME_SHIFT (6430314); Bold ATM = least-bad fork framed above w/ recommendation |
+| Veto HTF-conflict regrade | 22.4% false-veto rate on the DOMINANT (94%) veto class, n=49 counterfactually graded (7e08cdc); prompt change correctly held at pre-registered n-floor; standing audit keeps accruing |
+| Hygiene | Context-leanness 8964->8645 (bfa6dde); context_audit OP-attribution bug fixed (975aafc); EOD journal complete (b41e0c8); first push GREEN 4a85b5f->05f70c2 |
+**Deferred deliberately (capacity discipline, not neglect):** GAP-AND-GO-REVALIDATION study + safe-3/risky-1 larger-n gate re-test -> tomorrow after-hours/weekend; heavy burn tonight already, weekly limit was hit once this cycle.
+**Waiting on J (unchanged):** Bold ATM words ("wire Bold's strike to ATM") · futures PROD token · kill-switch fork · fleet A/B sunset decision.
+
+
 ## [2026-07-16 ~19:30 ET] RESEARCH — VETO-HTF-CONFLICT-REGRADE: htf_conflict false-veto rate 22.4% (n=49) but comparison cohort stuck at n=3, veto sysmsg NOT touched [queue item stays open]
 
 > **Context (`et_clock.py`: `2026-07-16 19:25:42 Thursday EDT market_hours=False`).** `automation/overnight/queue.md`'s VETO-HTF-CONFLICT-REGRADE (HIGH, filed ~19:05 ET by Fable): the pre-registered study `vwapcont-htf-precheck-2026-07-16` (verdict KILL) found HTF-OPPOSED vwap_continuation signals OUTPERFORM aligned ones (+$67.15/tr n=48 broad-based vs +$8.87/tr n=73 outlier-carried, mechanism fits C28). The free-model veto's most common cited reason is exactly this HTF-conflict framing — today it blocked 5 vwap_continuation re-fires on that reasoning. Task: grade that reasoning class as its own cohort, not blended.
