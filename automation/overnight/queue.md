@@ -9,6 +9,44 @@
 
 ## Active backlog
 
+### SAFE-TRADES-CSV-JOURNALING-GAP (MED, journaling infra, found 2026-07-17 tape audit)
+
+- [ ] SAFE-TRADES-CSV-JOURNALING-GAP (MED) :: `journal/trades.csv` has zero `account_id=='safe'`
+  rows for automated core-Safe engine fills on both 2026-07-17 and 2026-07-16 (only manual/J-called
+  trades get rows). Confirmed via cross-check against `automation/state/fills-ledger.jsonl` (arm
+  `safe-2`) and `mcp__alpaca__get_account_activities` — all 5 automated fills today (744P/745P/746P/
+  745P-bollinger/743P) are real, broker-confirmed, and correctly reflected in the end-of-day quant
+  funnel table's P&L total (`journal/2026-07-17.md`), but never got a per-trade prose row in
+  trades.csv, and the `## Trades` prose narrative in the daily journal only narrates the one manual
+  trade. Rule 8 ("journal every trade in real time") gap for engine-attributed fills specifically.
+  Root cause not yet diagnosed (which script normally writes trades.csv rows for engine fills, and
+  why it silently stopped / never ran for `safe-2` — check whether `fleet_journal_bridge.py`'s
+  backfill only covers fleet arms and there's no equivalent bridge for core `safe-2`). Fix: find/
+  build the missing bridge from `fills-ledger.jsonl` (arm=safe-2/bold-2) -> `trades.csv`, mirroring
+  the existing fleet backfill pattern. Full evidence: `analysis/daily-brief/2026-07-17-safe-tape-audit.md`
+  Part 1 (Trade 5). :: depends:none :: status:pending
+
+### STUDY-STATIC-VS-TRENDLINE-REJECT-BOUNCE-PHASE (MED, pre-reg spec, filed 2026-07-17 tape audit)
+
+- [ ] STUDY-STATIC-VS-TRENDLINE-REJECT-BOUNCE-PHASE (MED) :: Candidate discriminator observed in
+  today's CORE SAFE tape (n=3, NOT validated): the two morning losers (11:06 744P -$37, 11:40 745P
+  -$102) were both `tier ELITE` static-level rejections (`level_rejection`+`confluence`) fired
+  during an unfinished recovery bounce (SPY 740.80 low @ 09:35 -> 747.29 high @ 10:15) and both got
+  stopped within minutes by SPY reclaiming a few cents-to-dimes above the trigger level. The winner
+  (13:01 746P +$241) was a `tier TRENDLINE` dynamic-line rejection with a LOWER bear_score (7 vs
+  10/10) that caught the actual local top. Spec: for `BEARISH_REJECTION_RIDE_THE_RIBBON`/
+  `BULLISH_RECLAIM_RIDE_THE_RIBBON` historical signals (real-fills + real-OPRA replay, full
+  history), split by trigger composition (static level_rejection/confluence vs dynamic
+  trendline_rejection) AND by a bounce-maturity proxy (position_in_prior_range at signal time
+  and/or bars-since-session-extreme). Test whether static-level rejections underperform
+  specifically when fired against an unexhausted intraday impulse. Canonical battery (expectancy +
+  OOS + regime), BH-FDR, walk-forward, OP-16 standard bar (OOS_positive AND WF>=0.70 AND
+  sub_window_stable AND anchor_no_regression) before any gate change ships. Cross-ref lesson
+  classes C20 (proximity gates anti-correlate with breakout structure) and C22 (backward-looking
+  classifiers anti-correlate with recovery periods) — this looks like a fresh instance of both. Full
+  evidence + context-bundle field comparison: `analysis/daily-brief/2026-07-17-safe-tape-audit.md`
+  Part 2. :: depends:none :: status:proposed
+
 ### SAFE3-RISKY1-GATE-RETEST-EXTEND (MED, needs pre-reg accrual, discovered 2026-07-17)
 
 - [ ] SAFE3-RISKY1-GATE-RETEST-EXTEND (MED, this-week/needs-larger-n) :: J audit
