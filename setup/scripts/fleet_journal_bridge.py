@@ -1,10 +1,32 @@
 """fleet_journal_bridge.py -- closes the Rule-8 journaling debt for the 4
-fleet_rest arms (safe-1, safe-3, risky-1, risky-3): their real round-trip fills
-were never reaching `journal/trades.csv`, so per doctrine ("if it's not in the
-journal, it didn't happen") 193+ real fills were invisible to the journal system
-of record. This script is that bridge. It does NOT touch the core accounts'
-existing journaling path (safe-2/bold-2, written by the live heartbeat) and does
-NOT touch analysis/autopsies/ (a separate consumer being fixed elsewhere).
+fleet_rest arms (safe-1, safe-3, risky-1, risky-3) AND the 2 core mcp_heartbeat
+arms (safe-2, bold-2): their real round-trip fills were never reaching
+`journal/trades.csv`, so per doctrine ("if it's not in the journal, it didn't
+happen") real fills were invisible to the journal system of record. This script
+is that bridge. It does NOT touch analysis/autopsies/ (a separate consumer being
+fixed elsewhere).
+
+CORE-ACCOUNT EXTENSION (2026-07-17, SAFE-TRADES-CSV-JOURNALING-GAP, filed by the
+2026-07-17 safe-tape audit): this module's docstring used to claim safe-2/bold-2
+had "an existing journaling path... written by the live heartbeat" and was
+deliberately out of scope here. That path does NOT exist -- verified empirically:
+`journal/trades.csv` had ZERO automated engine rows for account_id=='safe' across
+multiple real trading days (2026-07-16, 2026-07-17), including a `bollinger_squeeze`
+extra-setup (G4 side-channel) fill worth +$105 that reached the broker and pinged
+Discord but never reached the journal. The only core rows that WERE present were
+J-called manual trades (a separate, working pathway -- j_intent_journal.py /
+the log-trade skill) plus a handful of legacy one-off "RECONCILE_FILL" backfills.
+broker_fills.py ALREADY computes correct engine-vs-manual attribution for
+safe-2/bold-2 round trips in pnl-statement.json (its ATTRIBUTION RULE checks
+`exec` AND `extra_exec` AND `exit_pass` in core-decisions.jsonl) -- so extra_exec
+fills get identical treatment to primary fills automatically, with zero new
+attribution logic needed here: they're just more `attribution=="engine"` round
+trips in the SAME pnl-statement.json array the fleet arms already flow through.
+CORE_ARMS below maps arm id -> the short account_id trades.csv already uses for
+manual core rows ("safe"/"bold", not "safe-2"/"bold-2") to match the existing
+convention. Manual round trips (attribution=="manual") are explicitly EXCLUDED
+from the core path in `_primary_round_trips` -- those are J-called trades already
+journaled by the separate manual pathway; bridging them here would duplicate them.
 
 SOURCE (preferred -- C1 real-fills authority): `automation/state/pnl-statement.json`'s
 `round_trips` array. That file is built by `setup/scripts/broker_fills.py` via
@@ -62,6 +84,7 @@ FLEET_DIR = STATE / "fleet"
 PNL_STATEMENT = STATE / "pnl-statement.json"
 FILLS_LEDGER = STATE / "fills-ledger.jsonl"
 ACCOUNTS_JSON = FLEET_DIR / "accounts.json"
+CORE_DECISIONS = STATE / "core-decisions.jsonl"
 TRADES_CSV = REPO / "journal" / "trades.csv"
 WATERMARK = STATE / ".fleet-journal-watermark.json"
 
@@ -73,6 +96,15 @@ WATERMARK = STATE / ".fleet-journal-watermark.json"
 # historical automation/state/fleet/safe-1/decisions.jsonl is untouched and still readable
 # directly by id if ever needed; it just stops being indexed by this default going forward.
 FLEET_REST_ARMS: tuple[str, ...] = ("safe-3", "risky-1", "risky-3")
+
+# The 2 core mcp_heartbeat arms -> the short account_id trades.csv already uses for their
+# (manually-journaled) rows. Deliberately the SAME mapping as broker_fills.CORE_ARMS
+# (re-declared, not imported -- dependency-free, see module docstring), since it must agree
+# with the `account` field core-decisions.jsonl rows carry.
+CORE_ARMS: dict[str, str] = {"safe-2": "safe", "bold-2": "bold"}
+
+# Everything this bridge journals by default: 3 fleet_rest arms + 2 core arms.
+ALL_BRIDGE_ARMS: tuple[str, ...] = FLEET_REST_ARMS + tuple(CORE_ARMS)
 
 # Canonical trades.csv schema (43 columns). Source of truth: journal/trades.csv header.
 # Identical to backtest/autoresearch/webull_winner_journal.py's SCHEMA (the codebase's
@@ -226,6 +258,87 @@ def _build_decision_index(fleet_dir: Path, arm: str) -> tuple[dict[str, dict], d
     return by_order_entry, by_order_exit
 
 
+_TIER_RE = re.compile(r"\(tier (\w+)\)")
+
+
+def _build_core_decision_index(core_decisions_path: Path, account: str) -> tuple[dict[str, dict], dict[str, dict]]:
+    """order_id -> synthetic entry-decision dict, order_id -> exit action info, for one
+    CORE account ("safe"/"bold"). core-decisions.jsonl uses a DIFFERENT schema than
+    fleet_rest's decisions.jsonl (see trade_today_watcher.py::_is_engine_attributed's
+    docstring for the full split): the primary path logs an entry under row["exec"], the
+    G4 extra-setup side-channel logs under row["extra_exec"][i]["exec"] -- BOTH are the
+    SAME shape (status/symbol/setup/entry_px/stop/tp/equity/broker.id), so both normalize
+    into the exact same synthetic entry_dec build_row() already understands from the fleet
+    path (entry_dec.setup_name / .reason / .equity / .placement.{entry_px,stop,tp} /
+    ._order_id) -- this is what gives extra_exec fills IDENTICAL trades.csv treatment to
+    primary fills, with zero new attribution logic: they're just two sources of the same
+    normalized shape. exit_pass has the SAME structure as the fleet schema already handles
+    (exit_pass[].actions[].broker.id/.stage/.reason/.placed) -- only the row-level filter
+    (`account` field instead of `arm_id`) differs from `_build_decision_index`."""
+    by_order_entry: dict[str, dict] = {}
+    by_order_exit: dict[str, dict] = {}
+    for row in _load_jsonl(core_decisions_path):
+        if row.get("account") != account:
+            continue
+        top_reason = row.get("reason", "") or ""
+        tier_m = _TIER_RE.search(top_reason)
+        quality = tier_m.group(1) if tier_m else ""
+
+        # (exec_dict, reason_text, is_extra) triples -- primary and extra_exec need DIFFERENT
+        # reason sources: the top-level row["reason"] describes the PRIMARY verdict (often
+        # "no setup passed scoring" on a tick whose extra_exec fired anyway -- that text would
+        # be actively misleading attached to the extra-setup fill). extra_exec fills instead
+        # pull their firing rationale from row["extra_signals"] (matched by setup name,
+        # fired==true), the same triggers/confidence data the live Discord ping shows.
+        exec_candidates: list[tuple[dict, str, bool]] = []
+        primary = row.get("exec")
+        if isinstance(primary, dict):
+            exec_candidates.append((primary, top_reason, False))
+        extra_signals_by_setup = {
+            s.get("setup_name"): s for s in (row.get("extra_signals") or [])
+            if isinstance(s, dict) and s.get("fired")
+        }
+        for extra in (row.get("extra_exec") or []):
+            if not (isinstance(extra, dict) and isinstance(extra.get("exec"), dict)):
+                continue
+            setup_name = extra.get("setup") or extra["exec"].get("setup")
+            sig = extra_signals_by_setup.get(setup_name)
+            if sig:
+                reason = (f"{setup_name} fired via G4 extra-setup side-channel "
+                          f"(triggers: {', '.join(sig.get('triggers') or [])}; "
+                          f"confidence {sig.get('confidence', 'n/a')})")
+            else:
+                reason = f"{setup_name} fired via G4 extra-setup side-channel"
+            exec_candidates.append((extra["exec"], reason, True))
+
+        for ex, reason_text, is_extra in exec_candidates:
+            broker = ex.get("broker") or {}
+            oid = broker.get("id")
+            if not oid:
+                continue
+            entry_dec = {
+                "setup_name": ex.get("setup"),
+                "quality": quality,
+                "reason": reason_text,
+                "placement": {"entry_px": ex.get("entry_px"), "stop": ex.get("stop"), "tp": ex.get("tp")},
+                "equity": ex.get("equity"),
+                "_order_id": oid,
+                "_via_extra_exec": is_extra,
+            }
+            by_order_entry.setdefault(oid, entry_dec)
+
+        for ep in (row.get("exit_pass") or []):
+            for act in (ep.get("actions") or []):
+                b = act.get("broker") or {}
+                eoid = b.get("id")
+                if eoid and act.get("placed"):
+                    by_order_exit.setdefault(eoid, {
+                        "stage": act.get("stage", ""), "reason": act.get("reason", ""),
+                        "kind": act.get("kind", ""), "_order_id": eoid,
+                    })
+    return by_order_entry, by_order_exit
+
+
 def _load_watermark(path: Path) -> dict:
     if not path.exists():
         return {"schema": "fleet-journal-watermark-v1", "processed": {}}
@@ -261,6 +374,13 @@ def _primary_round_trips(pnl_statement_path: Path, arms: tuple[str, ...],
             continue  # crypto / non-option -- out of scope (crypto is gym-only)
         if date_filter and rt.get("date_et") != date_filter:
             continue
+        if rt.get("arm") in CORE_ARMS and rt.get("attribution") != "engine":
+            # A core-account round trip broker_fills.py attributed "manual" is a J-called
+            # trade -- already journaled by the separate manual pathway (j_intent_journal.py
+            # / the log-trade skill). Bridging it here would write a SECOND, duplicate row
+            # for the same fill. Fleet_rest arms need no such check (100% engine by
+            # broker_fills.py's own attribution rule -- see FLEET_REST_ARMS comment).
+            continue
         out.append(rt)
     return out
 
@@ -272,6 +392,16 @@ def _fallback_round_trips(fleet_dir: Path, arms: tuple[str, ...],
     a price -- a leg with no parseable exit price is dropped, not guessed."""
     out: list[dict] = []
     for arm in arms:
+        if arm in CORE_ARMS:
+            # This reconstruction reads the fleet_rest decisions.jsonl schema
+            # (placement.broker / action.startswith("ENTER")) -- core accounts write a
+            # different schema (core-decisions.jsonl, exec/extra_exec) and don't need a
+            # fallback anyway: broker_fills.py's BACKFILL_SINCE window already covers every
+            # core-account trading day pnl-statement.json has ever seen. Explicit skip
+            # (rather than relying on fleet_dir/{arm}/decisions.jsonl simply not existing)
+            # so this stays correct even if that directory is ever created for another
+            # purpose (e.g. exit-state.json already lives there for safe-2/bold-2).
+            continue
         path = fleet_dir / arm / "decisions.jsonl"
         open_lots: dict[str, dict] = {}
         for row in _load_jsonl(path):
@@ -387,22 +517,40 @@ def build_row(rt: dict, entry_dec: Optional[dict], exit_info: Optional[dict],
     if rt.get("exit_activity_id"):
         order_bits.append(f"exit_act={str(rt['exit_activity_id']).split('::')[-1][:8]}")
 
-    notes = (
-        f"FLEET ARM {arm} ({arm_meta.get('cell', '?')}). "
-        f"Entry reason: {entry_reason or 'n/a'}. "
-        + (f"Exit stage={exit_stage} ({exit_reason}). " if exit_stage else "")
-        + f"Source: {source_label}. "
-        + (f"{', '.join(order_bits)}. " if order_bits else "")
-        + "Backfilled by fleet_journal_bridge.py (Rule-8 fleet journaling debt, 2026-07-09)."
-    )
-    if not is_engine:
-        notes = "UNEXPECTED attribution=manual on a fleet_rest arm -- verify. " + notes
+    is_core = arm in CORE_ARMS
+    account_id = CORE_ARMS.get(arm, arm)
+
+    if is_core:
+        notes = (
+            f"CORE ACCOUNT {arm} (account_id={account_id}, mcp_heartbeat live engine). "
+            f"Entry reason: {entry_reason or 'n/a'}. "
+            + (f"Exit stage={exit_stage} ({exit_reason}). " if exit_stage else "")
+            + f"Source: {source_label}. "
+            + (f"{', '.join(order_bits)}. " if order_bits else "")
+            + "Backfilled by fleet_journal_bridge.py (Rule-8 core-account journaling gap, "
+              "2026-07-17 safe-tape audit)."
+        )
+        if not is_engine:
+            notes = ("UNEXPECTED attribution=manual on a core account bridged row -- should "
+                      "have been filtered upstream, verify for a duplicate. " + notes)
+    else:
+        notes = (
+            f"FLEET ARM {arm} ({arm_meta.get('cell', '?')}). "
+            f"Entry reason: {entry_reason or 'n/a'}. "
+            + (f"Exit stage={exit_stage} ({exit_reason}). " if exit_stage else "")
+            + f"Source: {source_label}. "
+            + (f"{', '.join(order_bits)}. " if order_bits else "")
+            + "Backfilled by fleet_journal_bridge.py (Rule-8 fleet journaling debt, 2026-07-09)."
+        )
+        if not is_engine:
+            notes = "UNEXPECTED attribution=manual on a fleet_rest arm -- verify. " + notes
 
     arch_json = json.dumps({
         "arm": arm, "cell": arm_meta.get("cell"), "quality": quality,
         "attribution": attribution, "source": source_label,
         "entry_order_id": entry_dec.get("_order_id"),
         "exit_order_id": exit_info.get("_order_id"),
+        **({"via_extra_exec": bool(entry_dec.get("_via_extra_exec"))} if is_core else {}),
     }, separators=(",", ":"))
 
     return {
@@ -448,7 +596,7 @@ def build_row(rt: dict, entry_dec: Optional[dict], exit_info: Optional[dict],
         "archetype_match_json": arch_json,
         "tape_assistance": "",
         "notes_short": notes,
-        "account_id": arm,
+        "account_id": account_id,
     }
 
 
@@ -468,6 +616,7 @@ def _append_rows(trades_csv_path: Path, rows: list[dict]) -> None:
 # --------------------------------------------------------------------------- #
 def run_bridge(*, pnl_statement_path: Path = PNL_STATEMENT, fills_ledger_path: Path = FILLS_LEDGER,
                fleet_dir: Path = FLEET_DIR, accounts_json_path: Path = ACCOUNTS_JSON,
+               core_decisions_path: Path = CORE_DECISIONS,
                trades_csv_path: Path = TRADES_CSV, watermark_path: Path = WATERMARK,
                date_filter: Optional[str] = None, dry_run: bool = False,
                arms: tuple[str, ...] = FLEET_REST_ARMS) -> dict:
@@ -477,7 +626,13 @@ def run_bridge(*, pnl_statement_path: Path = PNL_STATEMENT, fills_ledger_path: P
 
     primary = _primary_round_trips(pnl_statement_path, arms, date_filter)
     activity_to_order = _build_activity_to_order(fills_ledger_path, arms) if primary else {}
-    decision_idx = {arm: _build_decision_index(fleet_dir, arm) for arm in arms} if primary else {}
+    decision_idx = {}
+    if primary:
+        for arm in arms:
+            if arm in CORE_ARMS:
+                decision_idx[arm] = _build_core_decision_index(core_decisions_path, CORE_ARMS[arm])
+            else:
+                decision_idx[arm] = _build_decision_index(fleet_dir, arm)
 
     candidates: list[tuple[dict, Optional[dict], Optional[dict], str]] = []
     covered: set[tuple[str, str]] = set()

@@ -1,5 +1,165 @@
 {
  "processed": {
+  "bold-2::20260626145349640::32955643-fda2-4813-81c3-bdcf072bc16d::20260626145605375::5d8e56b0-4d20-4e26-b521-9f063c562293": {
+   "date_et": "2026-06-26",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630211633513::1d2180c6-d9e7-48c7-9727-6e782aa04022::20260630212258097::dfd5da04-d925-42d7-b33b-856e4c0f6673": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630213328802::6b07c9c5-c8d5-47bb-a7f3-d35a3c02d459::20260630214312192::1f499427-2f75-43fb-b2cd-ba3ced7b0ce5": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630213328802::6b07c9c5-c8d5-47bb-a7f3-d35a3c02d459::20260630214547484::511db2a7-4c95-46c4-9003-48ab6bb150b6": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630213329080::96e0aa2c-17c5-40c1-acb2-b30d72f20457::20260630214311898::af29fa2f-c0b9-47c3-824d-ac167e00b555": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630213329080::96e0aa2c-17c5-40c1-acb2-b30d72f20457::20260630214547200::75a56ffc-e29d-490d-bc24-70498ed135cf": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630213329346::ea23ab6a-b1e2-4961-a07e-4f6baf50615d::20260630214312051::9c5b27e6-c485-4712-be78-b22ab6be14af": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630213329346::ea23ab6a-b1e2-4961-a07e-4f6baf50615d::20260630214547334::318d2d8d-a083-44da-a7cb-fff75ba769cc": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630214351579::f1e2e654-2ad4-4b95-b0ea-d9c67fe1ae10::20260630214547484::511db2a7-4c95-46c4-9003-48ab6bb150b6": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630214351579::f1e2e654-2ad4-4b95-b0ea-d9c67fe1ae10::20260630215105835::4670b62c-a47f-4c01-ac49-12f9a6b15777": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630214351968::13ff87df-b0e2-4331-944d-7b81eb37450b::20260630214547200::75a56ffc-e29d-490d-bc24-70498ed135cf": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630214351968::a395034d-582b-4b94-8907-82015c835566::20260630214547200::75a56ffc-e29d-490d-bc24-70498ed135cf": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630214351968::a395034d-582b-4b94-8907-82015c835566::20260630215106104::7ec09521-ba64-40c1-bb1c-e3efe3d72aef": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630214352247::809660c0-3791-4b2b-9f27-add1f1e59e2e::20260630214547334::318d2d8d-a083-44da-a7cb-fff75ba769cc": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630214352247::809660c0-3791-4b2b-9f27-add1f1e59e2e::20260630221819513::c0476e57-02fb-4c19-8eab-c169a5111343": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630214618681::a03cec24-d317-4a54-a51f-888d0bf9deb5::20260630215105835::4670b62c-a47f-4c01-ac49-12f9a6b15777": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630214618681::a03cec24-d317-4a54-a51f-888d0bf9deb5::20260630221819639::473d1ba2-84a6-4868-ac28-513725528adf": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630214618967::a083441c-05b8-4c77-9cd6-c2ab4fb27009::20260630215106104::7ec09521-ba64-40c1-bb1c-e3efe3d72aef": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630214618967::a083441c-05b8-4c77-9cd6-c2ab4fb27009::20260630221819385::fd21cd33-bc89-4d1c-8c88-3729ca73d611": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630214619232::8150e842-7e03-4891-a2ec-dab39711216a::20260630221819513::c0476e57-02fb-4c19-8eab-c169a5111343": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630215032855::24420e20-4f2d-44b5-aacd-933c16d0a4d1::20260630221819639::473d1ba2-84a6-4868-ac28-513725528adf": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260630215033139::37bdcbc9-d70b-4485-9fd2-de618c82afc3::20260630221819385::fd21cd33-bc89-4d1c-8c88-3729ca73d611": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260701094521881::5137a6c5-27d7-4d11-841c-dd3c9a135d51::20260701095135157::237543fb-3827-4c79-8b6f-ffd71844e9f8": {
+   "date_et": "2026-07-01",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260702093103860::0e1b79e1-b5e5-436a-8ead-eaaa05998154::20260702093205330::9258f384-8172-4be7-af07-73e252f1b8c0": {
+   "date_et": "2026-07-02",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260702125128535::9bf50466-442a-477c-97f3-80b21eb19289::20260702130506583::a4660efb-ef89-400e-bd86-29de823795e5": {
+   "date_et": "2026-07-02",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260702125128708::f1eae7d0-dde5-431a-8848-a2a0f2167578::20260702130506583::a4660efb-ef89-400e-bd86-29de823795e5": {
+   "date_et": "2026-07-02",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260702125128708::f1eae7d0-dde5-431a-8848-a2a0f2167578::20260702140905600::e79e2b4d-1bfe-4fc1-a9cb-7f5f85d18bc5": {
+   "date_et": "2026-07-02",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260707100029223::c8580904-8bec-406d-afea-bf6835701f33::20260707101442735::bcf03511-38db-4bf7-9cc9-ceb34be6f5d9": {
+   "date_et": "2026-07-07",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260707100029223::c8580904-8bec-406d-afea-bf6835701f33::20260707154505243::f7e41987-c337-4413-af1f-b0655aef0b1a": {
+   "date_et": "2026-07-07",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "bold-2::20260717135132001::74d40cb9-8266-4fa5-b01f-398656a45f05::20260717142704194::a2ffdf3b-4a62-4174-9fea-282ef66f3405": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T23:16:31.534179+00:00"
+  },
+  "bold-2::20260717135132125::76b8aa1f-bb96-41ee-96c3-6e2265e88bb8::20260717142704194::a2ffdf3b-4a62-4174-9fea-282ef66f3405": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T23:16:31.534179+00:00"
+  },
+  "bold-2::20260717135132240::eba41ef8-c98c-473d-8ca5-fa64d5cfc26f::20260717143004577::d3ca3a33-8466-464f-bee2-369ab19ff447": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T23:16:31.534179+00:00"
+  },
   "risky-1::20260629144906991::1b4df27d-eb03-4ff9-a8cb-4ff8027944e3::20260629145205782::fae433a4-3efc-4f4d-a64b-6a99f7c60528": {
    "date_et": "2026-06-29",
    "source": "pnl-statement.json (T1 broker-truth round_trips)",
@@ -124,6 +284,21 @@
    "date_et": "2026-07-09",
    "source": "pnl-statement.json (T1 broker-truth round_trips)",
    "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "risky-1::20260715100106634::025c491f-f9ce-4446-aadd-ff6a176f2531::20260715102505263::e722e90a-a80d-4565-9934-cecb6aac9fac": {
+   "date_et": "2026-07-15",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-16T12:35:01.581215+00:00"
+  },
+  "risky-1::20260717110705021::a5a500ac-f7c6-4603-9acb-e4eefd0f576b::20260717111303015::99225daa-1066-4a7a-88f8-f5875f6a8011": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T20:10:00.858117+00:00"
+  },
+  "risky-1::20260717135804744::ff8511f8-ba0c-465c-910c-b7464a98da55::20260717154004224::0c5e15ec-185b-4080-bfe4-f5cadb780dec": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T20:10:00.858117+00:00"
   },
   "risky-3::20260629144908008::34993122-396a-4d95-9633-a2c1ee5d8e89::20260629145206515::6964a13d-942f-4c8f-a319-c3ccf01d9e13": {
    "date_et": "2026-06-29",
@@ -320,6 +495,31 @@
    "source": "pnl-statement.json (T1 broker-truth round_trips)",
    "written_at_utc": "2026-07-13T20:10:00.464618+00:00"
   },
+  "risky-3::20260715100108199::44067389-41c0-4dfb-99ca-508f9843cb84::20260715102506127::486294f7-fe24-44be-b4a2-d17f680574b7": {
+   "date_et": "2026-07-15",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-16T12:35:01.581215+00:00"
+  },
+  "risky-3::20260717110706160::044ccf25-91e3-4fff-93a4-038892830544::20260717111303810::e490332f-fbeb-4e2f-a877-ba231174f619": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T20:10:00.858117+00:00"
+  },
+  "risky-3::20260717110706160::044ccf25-91e3-4fff-93a4-038892830544::20260717111303928::3242aadd-67bd-4360-bc51-aa6313b932b9": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T20:10:00.858117+00:00"
+  },
+  "risky-3::20260717135203942::58d349ae-5e5b-42b5-bffb-58a57890a704::20260717151604389::1f7be3af-941f-4eb0-85ce-0c1ffa75f66f": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T20:10:00.858117+00:00"
+  },
+  "risky-3::20260717135203942::58d349ae-5e5b-42b5-bffb-58a57890a704::20260717152804209::62c051f1-915e-4e02-90e6-6821ff538d06": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T20:10:00.858117+00:00"
+  },
   "safe-1::20260629144906000::9c1027b1-7b7d-4336-a613-2341becc10b6::20260629145204827::64886fd8-3588-490a-82b8-3cf7304a5e53": {
    "date_et": "2026-06-29",
    "source": "pnl-statement.json (T1 broker-truth round_trips)",
@@ -475,6 +675,486 @@
    "source": "pnl-statement.json (T1 broker-truth round_trips)",
    "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
   },
+  "safe-2::20260626145412429::cd2984bd-ee05-4261-bc44-facd022a2bc7::20260626154507950::0a4cad98-b6d6-40f3-8c52-cb64899aad53": {
+   "date_et": "2026-06-26",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630211632829::9a669d81-da43-4f1e-9977-49ebd1809b95::20260630212257269::22ff81e7-c993-4360-a66f-06f370b0d630": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630211632829::9a669d81-da43-4f1e-9977-49ebd1809b95::20260630212257269::91dd9c2f-c184-42ed-9b96-fe89473c7032": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630211632829::9a669d81-da43-4f1e-9977-49ebd1809b95::20260630212916856::8d296b19-94ba-4ec9-b94d-ac6dd99f8221": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630212345452::9285481c-d185-4b98-9733-cd309f4e940a::20260630212916856::8d296b19-94ba-4ec9-b94d-ac6dd99f8221": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630212345452::9285481c-d185-4b98-9733-cd309f4e940a::20260630214313594::a2245031-1643-4976-98fd-36c04939adc9": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630213327445::81d8fb99-334c-4251-9d11-440fc73d797d::20260630214313594::a2245031-1643-4976-98fd-36c04939adc9": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630213327445::81d8fb99-334c-4251-9d11-440fc73d797d::20260630214548864::a5d81c6f-ba97-44a1-89cc-d9bd6398c3b6": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630214350174::badb2824-90dc-4c5f-977f-7b4c97379f08::20260630214548864::a5d81c6f-ba97-44a1-89cc-d9bd6398c3b6": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630214350174::badb2824-90dc-4c5f-977f-7b4c97379f08::20260630215445923::527cc39a-e2e4-4a11-a262-872c93546865": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630214617340::c7162c97-4fa0-43ba-aac5-41bf3d0877be::20260630215445923::527cc39a-e2e4-4a11-a262-872c93546865": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630214617340::c7162c97-4fa0-43ba-aac5-41bf3d0877be::20260630215857471::a236fc07-0d2b-4e72-912e-3f7f3712bef6": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630215030450::ef3af47f-6bf3-4e97-aabc-6146fd5d7103::20260630215857471::a236fc07-0d2b-4e72-912e-3f7f3712bef6": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630215030450::ef3af47f-6bf3-4e97-aabc-6146fd5d7103::20260630220309077::2982c692-734e-4641-98c2-9fa3c8b0233f": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630215446207::85948e86-7daf-45f1-adb5-cdac9ae4e967::20260630220309077::2982c692-734e-4641-98c2-9fa3c8b0233f": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630215446207::85948e86-7daf-45f1-adb5-cdac9ae4e967::20260630220720646::b331010d-86f7-479f-b995-83e03da4860f": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630215857755::d6f8c751-2be2-411f-aa93-ba59ff500a07::20260630220720646::b331010d-86f7-479f-b995-83e03da4860f": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630215857755::d6f8c751-2be2-411f-aa93-ba59ff500a07::20260630221131825::6aca2596-4e9a-4167-93dd-92434ef103d4": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630220309358::ab48799b-5e3e-48cd-ab3a-741b99aadb72::20260630221131825::6aca2596-4e9a-4167-93dd-92434ef103d4": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630220309358::ab48799b-5e3e-48cd-ab3a-741b99aadb72::20260630221543336::d91a1805-000c-4b1a-a822-297397124c90": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630220720905::7dc72371-a178-4da5-bc71-46cc581cfc76::20260630221543336::d91a1805-000c-4b1a-a822-297397124c90": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630220720905::7dc72371-a178-4da5-bc71-46cc581cfc76::20260630221645656::73f6e78c-5811-4062-8ad4-025683296ed7": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630221132111::7beb96d0-9734-4cd5-857d-01596cad693b::20260630221645656::73f6e78c-5811-4062-8ad4-025683296ed7": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630221132111::7beb96d0-9734-4cd5-857d-01596cad693b::20260630221820989::3b8c5fe3-f583-413f-aa1a-95c0d2584f17": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260630221543600::6e6c1646-050b-4190-9a0f-567fe383d8a8::20260630221820989::3b8c5fe3-f583-413f-aa1a-95c0d2584f17": {
+   "date_et": "2026-06-30",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260701200708587::b45a76e7-5e8e-4048-b508-224801168486::20260701200709133::d15e157e-5414-4240-9fdf-c772ecb68f1f": {
+   "date_et": "2026-07-01",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260701200708587::b45a76e7-5e8e-4048-b508-224801168486::20260701201012000::ce77ae32-42ce-41e5-a251-ececdede54f9": {
+   "date_et": "2026-07-01",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260701201011604::8ea3822a-3049-40f6-8a39-1e3324401ec6::20260701201012000::ce77ae32-42ce-41e5-a251-ececdede54f9": {
+   "date_et": "2026-07-01",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260701201011604::8ea3822a-3049-40f6-8a39-1e3324401ec6::20260701204502760::b810a4da-a712-4b83-a33b-dab99229f025": {
+   "date_et": "2026-07-01",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260701204502314::ef5402b1-c2a6-4534-9426-a6a4d017a4ac::20260701204502760::b810a4da-a712-4b83-a33b-dab99229f025": {
+   "date_et": "2026-07-01",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260701204502314::ef5402b1-c2a6-4534-9426-a6a4d017a4ac::20260701221548479::274bb650-362a-4c50-bd37-c35f189b3639": {
+   "date_et": "2026-07-01",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260701221548074::f25be2b1-d43c-4870-b1c3-1591e5c86bb9::20260701221548479::274bb650-362a-4c50-bd37-c35f189b3639": {
+   "date_et": "2026-07-01",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260701221548074::f25be2b1-d43c-4870-b1c3-1591e5c86bb9::20260702204506664::22024335-57a6-4d1f-93d1-39f02c60084d": {
+   "date_et": "2026-07-02",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260702093037909::73b93061-2e10-43bf-b99c-a514b30574af::20260702093104233::eeb71bfe-5474-40fa-8612-7856dd82d7c2": {
+   "date_et": "2026-07-02",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260702095512089::f887dd8c-d840-4fa0-b773-52c2d9da4d23::20260702095704578::6ec35e68-34d0-41be-8331-a3635f12eca2": {
+   "date_et": "2026-07-02",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260702095715876::965a7ef6-1148-4259-b222-1d967d973c3b::20260702101104321::f52118b3-6443-4a69-b9ce-86b8f0c66fc8": {
+   "date_et": "2026-07-02",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260702095716023::149f0177-7b04-49c0-8a2f-5535ef933daa::20260702101104321::f52118b3-6443-4a69-b9ce-86b8f0c66fc8": {
+   "date_et": "2026-07-02",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260702101115555::93593277-6110-4953-a20f-bf5b73752f38::20260702102104267::a033b636-ef36-43c1-a1c2-cf44bac263fa": {
+   "date_et": "2026-07-02",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260702102112505::87c8b67c-5533-41f0-89d6-6bc259cb514e::20260702102204619::f67cf704-4cb8-4395-bba1-a7d276055899": {
+   "date_et": "2026-07-02",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260702102227200::8c29941c-41e4-4cc5-adb2-11bba490e5d1::20260702102504943::edd7f40f-cec6-4388-8fb0-9c9579ebcf2f": {
+   "date_et": "2026-07-02",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260702102515389::d51e99e3-6cab-487c-a363-561c3ddff59a::20260702102704523::39fcf75e-f2fb-46bd-9e31-3bd98e3885d4": {
+   "date_et": "2026-07-02",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260702125113622::d058dd08-ff5a-4895-b471-35a3dba44abd::20260702142904275::f4181585-fe26-4930-b00f-f45fe2a2cfe5": {
+   "date_et": "2026-07-02",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260702204505636::924f8696-deb4-4fb9-8545-3ddd3a3c008e::20260702204506664::22024335-57a6-4d1f-93d1-39f02c60084d": {
+   "date_et": "2026-07-02",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260702204505636::924f8696-deb4-4fb9-8545-3ddd3a3c008e::20260703230511089::011bc1e3-0598-4605-bfd2-16f9cf67c9f4": {
+   "date_et": "2026-07-03",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260703230510613::84ddf810-619c-4335-b1d4-cd2bdd37ff93::20260703230511089::011bc1e3-0598-4605-bfd2-16f9cf67c9f4": {
+   "date_et": "2026-07-03",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260703230510613::84ddf810-619c-4335-b1d4-cd2bdd37ff93::20260704204504849::6e69ac06-f43e-4bc2-ab3a-527f05659e27": {
+   "date_et": "2026-07-04",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260704204504400::91649320-dce8-4586-a4d7-5366203ae641::20260704204504849::6e69ac06-f43e-4bc2-ab3a-527f05659e27": {
+   "date_et": "2026-07-04",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260704204504400::91649320-dce8-4586-a4d7-5366203ae641::20260706094337246::1d1dce6c-4083-490e-801f-b0f8ab6ebc7e": {
+   "date_et": "2026-07-06",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260706094336847::d75f4ac7-7ebe-4075-9c75-950a984e9995::20260706094337246::1d1dce6c-4083-490e-801f-b0f8ab6ebc7e": {
+   "date_et": "2026-07-06",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260706094336847::d75f4ac7-7ebe-4075-9c75-950a984e9995::20260706204504371::f7e19f5b-7835-4527-997d-68e841c964d6": {
+   "date_et": "2026-07-06",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260706131136719::97ec9792-15c4-4c9d-9c71-047f5c74aa59::20260706131328298::925648f8-d31f-44ae-bc93-74605a04f91a": {
+   "date_et": "2026-07-06",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260706131340301::cf25fd6b-46bf-4a55-8a43-be39b2d3958b::20260706131828126::4c21d31a-9b4a-45d6-ba6a-a29984a97b04": {
+   "date_et": "2026-07-06",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260706131340301::cf25fd6b-46bf-4a55-8a43-be39b2d3958b::20260706131828256::cbbb7341-5863-4832-bb91-6fe3ca549b4e": {
+   "date_et": "2026-07-06",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260706133634261::1f62bb79-3690-4edd-b3b0-28701bda3817::20260706133727974::996b1f05-9e21-44a5-acd0-d2e58f18ed2a": {
+   "date_et": "2026-07-06",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260706133634261::1f62bb79-3690-4edd-b3b0-28701bda3817::20260706133728089::a3a64992-d23e-4e5c-8155-578cbbe19954": {
+   "date_et": "2026-07-06",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260706133815287::53a43d26-e434-41cb-b3ae-4317da5b5983::20260706133828084::40791cd8-60d6-488d-a200-6a890a97dcc5": {
+   "date_et": "2026-07-06",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260706133815412::ae8714ab-512c-428c-a5b1-c932be0d8c5a::20260706133828084::40791cd8-60d6-488d-a200-6a890a97dcc5": {
+   "date_et": "2026-07-06",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260706133837368::8846fc23-7ea5-444f-a716-21944a0132c2::20260706133927815::542b7776-e1e7-4583-a112-25b0817d7c15": {
+   "date_et": "2026-07-06",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260706133942383::c90d382d-78e4-4cc6-931c-9d8e6560d3d7::20260706134028023::30e58fbe-9109-40da-b829-1d7e31e1415f": {
+   "date_et": "2026-07-06",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260706134037833::5d1388fe-3ef7-40b1-a8af-2cd7ad7e2454::20260706134127829::bcf68674-a25c-40ec-8d24-de1a501dfe3e": {
+   "date_et": "2026-07-06",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260706142133165::c7dddbe5-46cf-45ac-ba3e-a35229c4face::20260706143427859::635f0ec1-1099-423f-9285-28b617e24bea": {
+   "date_et": "2026-07-06",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260706204503968::d1ca32f1-8681-4b7d-9157-b89f14b719a4::20260706204504371::f7e19f5b-7835-4527-997d-68e841c964d6": {
+   "date_et": "2026-07-06",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260706204503968::d1ca32f1-8681-4b7d-9157-b89f14b719a4::20260707204504987::63617a8c-eba7-4b65-8403-820a95ac03a8": {
+   "date_et": "2026-07-07",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260707100026342::cbbec011-f53b-48d1-9f94-0d41e7713862::20260707101439853::977071cd-2e24-4e2c-833b-f2e93cf1a217": {
+   "date_et": "2026-07-07",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260707100026342::cbbec011-f53b-48d1-9f94-0d41e7713862::20260707101440012::ade3aecb-3c35-45c1-aafa-c7e0dc2ce7ec": {
+   "date_et": "2026-07-07",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260707100026342::cbbec011-f53b-48d1-9f94-0d41e7713862::20260707154505946::f0650c23-5a61-41f6-826b-30bfde00ac23": {
+   "date_et": "2026-07-07",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260707204504550::bac32dc3-e07a-42d8-977a-eb101dfc9de2::20260707204504987::63617a8c-eba7-4b65-8403-820a95ac03a8": {
+   "date_et": "2026-07-07",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260707204504550::bac32dc3-e07a-42d8-977a-eb101dfc9de2::20260708204506017::663f8b3c-80ae-41c7-ae28-7962b7146ecf": {
+   "date_et": "2026-07-08",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260708204505566::9675fb24-e6f6-4253-b3d2-5ef4ef125719::20260708204506017::663f8b3c-80ae-41c7-ae28-7962b7146ecf": {
+   "date_et": "2026-07-08",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260708204505566::9675fb24-e6f6-4253-b3d2-5ef4ef125719::20260709204505214::4b6b4822-f0a5-4c11-b0f8-d6cbf261c274": {
+   "date_et": "2026-07-09",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260709204504784::5f092b45-b773-42a3-a162-fcf0e0a499d9::20260709204505214::4b6b4822-f0a5-4c11-b0f8-d6cbf261c274": {
+   "date_et": "2026-07-09",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260709204504784::5f092b45-b773-42a3-a162-fcf0e0a499d9::20260712204504489::6b12ed73-6e7c-4fe0-a3f2-fd7079546860": {
+   "date_et": "2026-07-12",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260712204504080::d745cf4e-75ef-43d2-a48b-50f578f23f56::20260712204504489::6b12ed73-6e7c-4fe0-a3f2-fd7079546860": {
+   "date_et": "2026-07-12",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260712204504080::d745cf4e-75ef-43d2-a48b-50f578f23f56::20260713204504058::60829905-5e5a-49a5-ac30-b40ca68a5391": {
+   "date_et": "2026-07-13",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260713204503671::01e0258a-e6a2-42d7-83e7-ead28c2242e8::20260713204504058::60829905-5e5a-49a5-ac30-b40ca68a5391": {
+   "date_et": "2026-07-13",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260713204503671::01e0258a-e6a2-42d7-83e7-ead28c2242e8::20260714204503966::a5f9afa6-3933-45d6-81eb-281a3b005153": {
+   "date_et": "2026-07-14",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260714204503536::838ea12a-45b8-4e1e-9169-86124a359b76::20260714204503966::a5f9afa6-3933-45d6-81eb-281a3b005153": {
+   "date_et": "2026-07-14",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260714204503536::838ea12a-45b8-4e1e-9169-86124a359b76::20260715204504892::b1cb29d5-09e3-4c63-80b2-38d0a84b98a2": {
+   "date_et": "2026-07-15",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260715131656933::d3d8e5c7-0fbd-4246-b72e-f8deb635f2a5::20260715132057083::1a506353-a557-4328-8ccf-f255ee84a232": {
+   "date_et": "2026-07-15",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260715135635166::fb0178ba-76de-4182-81fd-5fcf7f8364b8::20260715145005386::f6998b78-2085-474b-b600-3b8a7d3c9b3e": {
+   "date_et": "2026-07-15",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260715204504478::d8cffb85-6a4b-46bb-a6c4-308e8f528e0b::20260715204504892::b1cb29d5-09e3-4c63-80b2-38d0a84b98a2": {
+   "date_et": "2026-07-15",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260715204504478::d8cffb85-6a4b-46bb-a6c4-308e8f528e0b::20260716204505245::085ec285-1f96-4824-86f7-2a9ee2020634": {
+   "date_et": "2026-07-16",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260716095129514::47680207-45d7-4782-9b6d-ecc9b237066b::20260716095303776::f607e152-6ae1-4fd3-ab72-88cf67163c79": {
+   "date_et": "2026-07-16",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260716095345900::0bc1d77c-008c-4149-a763-6c8808551caf::20260716095404608::786d7a1f-51a9-4cb0-bacf-53226af90526": {
+   "date_et": "2026-07-16",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260716095346022::fc3645d1-da1f-417d-9d1a-316d9e6c6fe7::20260716095404608::786d7a1f-51a9-4cb0-bacf-53226af90526": {
+   "date_et": "2026-07-16",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260716140648128::5ba12b9b-fbad-46b0-ac66-9275898f8b25::20260716141104599::e6e8dad8-a852-487a-bfc5-53edce2b3a53": {
+   "date_et": "2026-07-16",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260716204504829::938b42a2-a116-414a-9561-8cb1f85d6409::20260716204505245::085ec285-1f96-4824-86f7-2a9ee2020634": {
+   "date_et": "2026-07-16",
+   "source": "seed_core_watermark_cutover.py pre-cutover historical seed",
+   "written_at_utc": "HISTORICAL CUTOVER (2026-07-17 SAFE-TRADES-CSV-JOURNALING-GAP fix) -- flagged for a separate careful reconciliation pass, not written by the bridge"
+  },
+  "safe-2::20260717110632248::c83e7d42-09ee-4ea1-ab01-dbfc963f1d27::20260717111104005::c4103ad2-db4e-4da1-9ed9-d2c7e188838b": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T23:16:31.534179+00:00"
+  },
+  "safe-2::20260717110632371::a73d8ed7-dcee-4ddb-b640-bfc2a71782e3::20260717111104005::c4103ad2-db4e-4da1-9ed9-d2c7e188838b": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T23:16:31.534179+00:00"
+  },
+  "safe-2::20260717114028866::ab958cc0-a820-4c3b-a8df-2c874dd7d95e::20260717115603875::043bb7a8-d5e7-4196-bb29-d70c26e85984": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T23:16:31.534179+00:00"
+  },
+  "safe-2::20260717130119033::a77af6a7-bfe3-4a51-88db-5ffb67e038bc::20260717135203595::f59641ce-7ca9-4b16-8f3b-76d61b664e52": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T23:16:31.534179+00:00"
+  },
+  "safe-2::20260717130119033::a77af6a7-bfe3-4a51-88db-5ffb67e038bc::20260717140303815::8e0259d7-3435-4a47-ad97-0a082d69cda2": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T23:16:31.534179+00:00"
+  },
+  "safe-2::20260717140318909::83c2348d-37b1-4a92-8a0d-55f82a270072::20260717140504233::ac72dc42-5e18-4a65-9e1a-546965a531d9": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T23:16:31.534179+00:00"
+  },
+  "safe-2::20260717140318909::83c2348d-37b1-4a92-8a0d-55f82a270072::20260717142403622::080bf660-cd24-4e70-9187-9695884625cb": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T23:16:31.534179+00:00"
+  },
+  "safe-2::20260717144942993::4f46083a-fe51-4372-a89e-4aab03ebaf70::20260717145603780::18d0d25b-22a9-4aaa-b222-8662e5dd81dc": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T23:16:31.534179+00:00"
+  },
+  "safe-2::20260717144942993::4f46083a-fe51-4372-a89e-4aab03ebaf70::20260717145603896::7a1fde3c-c72f-4b7b-a814-544d1c6ef920": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T23:16:31.534179+00:00"
+  },
   "safe-3::20260629145115096::bdc7477f-d96d-4c2f-b7f8-91ecc7b4b13c::20260629145204136::cd5b4d86-b09b-4322-9faa-2c945772a092": {
    "date_et": "2026-06-29",
    "source": "pnl-statement.json (T1 broker-truth round_trips)",
@@ -594,8 +1274,28 @@
    "date_et": "2026-07-09",
    "source": "pnl-statement.json (T1 broker-truth round_trips)",
    "written_at_utc": "2026-07-09T22:23:05.197581+00:00"
+  },
+  "safe-3::20260715100104872::6ee40526-cc8a-47ef-9a55-0b7b0d8144f7::20260715102504598::bf8b219b-8610-412b-9fd0-3e45a428aa6e": {
+   "date_et": "2026-07-15",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-16T12:35:01.581215+00:00"
+  },
+  "safe-3::20260717110704651::77a8bd43-5550-4ede-a77b-242cb70ec18d::20260717111302227::58666ecc-f046-4b29-b3f6-8e57eb55c8e7": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T20:10:00.858117+00:00"
+  },
+  "safe-3::20260717110704788::14acd3c5-f24b-41f5-8397-be05cc7691f9::20260717111302227::58666ecc-f046-4b29-b3f6-8e57eb55c8e7": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T20:10:00.858117+00:00"
+  },
+  "safe-3::20260717135803684::587b27bd-c532-43f3-8aa6-6b320548d015::20260717154003416::148879d5-6395-4733-ab65-ef3e84296d42": {
+   "date_et": "2026-07-17",
+   "source": "pnl-statement.json (T1 broker-truth round_trips)",
+   "written_at_utc": "2026-07-17T20:10:00.858117+00:00"
   }
  },
  "schema": "fleet-journal-watermark-v1",
- "updated_at_utc": "2026-07-13T20:10:00.464618+00:00"
+ "updated_at_utc": "2026-07-17T23:16:31.534179+00:00"
 }

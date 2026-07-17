@@ -1,0 +1,368 @@
+{
+  "_doc": "GOAL-REPLAY-TODAY-GREEN iteration 1 -- eval harness baseline. Measurement only; no params/config/strike-table file was modified by this run. Source: backtest/tools/replay_today_eval.py.",
+  "generated_at": "2026-07-17T17:25:34.621633",
+  "trade_date": "2026-07-17",
+  "determinism_hash": "5e4c7d50e577e0ca",
+  "faithfulness_tolerance_dollars": 150.0,
+  "arms": {
+    "core_safe": {
+      "arm": "core_safe",
+      "config_source": "automation\\state\\params.json",
+      "sod_equity": 1485.31,
+      "strike_offset": 0,
+      "strike_offset_label": "ATM",
+      "trades": [
+        {
+          "entry_time_et": "2026-07-17T13:15:00",
+          "side": "P",
+          "strike": 746,
+          "qty": 3,
+          "orig_qty": 3,
+          "entry_premium": 0.91,
+          "triggers_fired": [
+            "trendline_rejection"
+          ],
+          "quality_tier": "TRENDLINE",
+          "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+          "dollar_pnl": 26.25,
+          "dollar_pnl_at_sim_qty": 26.25,
+          "hold_minutes": 10,
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+        },
+        {
+          "entry_time_et": "2026-07-17T13:55:00",
+          "side": "P",
+          "strike": 745,
+          "qty": 3,
+          "orig_qty": 3,
+          "entry_premium": 1.12,
+          "triggers_fired": [
+            "level_rejection",
+            "ribbon_flip",
+            "trendline_rejection"
+          ],
+          "quality_tier": "SUPER",
+          "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+          "dollar_pnl": 28.87,
+          "dollar_pnl_at_sim_qty": 28.87,
+          "hold_minutes": 10,
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+        }
+      ],
+      "n_trades": 2,
+      "total_pnl": 55.12
+    },
+    "core_bold": {
+      "arm": "core_bold",
+      "config_source": "automation\\state\\aggressive\\params.json",
+      "sod_equity": 1963.04,
+      "strike_offset": 3,
+      "strike_offset_label": "OTM-3",
+      "trades": [
+        {
+          "entry_time_et": "2026-07-17T11:35:00",
+          "side": "P",
+          "strike": 742,
+          "qty": 17,
+          "orig_qty": 17,
+          "entry_premium": 0.55,
+          "triggers_fired": [
+            "level_rejection"
+          ],
+          "quality_tier": "LEVEL",
+          "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+          "dollar_pnl": -467.5,
+          "dollar_pnl_at_sim_qty": -467.5,
+          "hold_minutes": 20,
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+        },
+        {
+          "entry_time_et": "2026-07-17T13:55:00",
+          "side": "P",
+          "strike": 742,
+          "qty": 15,
+          "orig_qty": 15,
+          "entry_premium": 0.29,
+          "triggers_fired": [
+            "level_rejection",
+            "ribbon_flip",
+            "trendline_rejection"
+          ],
+          "quality_tier": "SUPER",
+          "exit_reason": "ExitReason.TP1_THEN_RUNNER_RIBBON",
+          "dollar_pnl": 217.5,
+          "dollar_pnl_at_sim_qty": 217.5,
+          "hold_minutes": 40,
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+        }
+      ],
+      "n_trades": 2,
+      "total_pnl": -250.0
+    },
+    "fleet_safe_3": {
+      "arm": "fleet_safe_3",
+      "config_source": "automation/state/fleet/strategies.py#RIBBON_RIDE + automation/state/fleet/accounts.json gate_override",
+      "sod_equity": 2000.0,
+      "strike_offset": 2,
+      "strike_offset_label": "OTM-3",
+      "min_triggers": 2,
+      "require_confluence_or_sequence": true,
+      "flat_qty": 3,
+      "trades": [],
+      "n_trades": 0,
+      "total_pnl": 0
+    },
+    "fleet_risky_1": {
+      "arm": "fleet_risky_1",
+      "config_source": "automation/state/fleet/strategies.py#RIBBON_RIDE + automation/state/fleet/accounts.json gate_override",
+      "sod_equity": 2000.0,
+      "strike_offset": 2,
+      "strike_offset_label": "OTM-3",
+      "min_triggers": 2,
+      "require_confluence_or_sequence": true,
+      "flat_qty": 5,
+      "trades": [],
+      "n_trades": 0,
+      "total_pnl": 0
+    },
+    "fleet_risky_3": {
+      "arm": "fleet_risky_3",
+      "config_source": "automation/state/fleet/strategies.py#RIBBON_RIDE + automation/state/fleet/accounts.json gate_override",
+      "sod_equity": 2000.0,
+      "strike_offset": 2,
+      "strike_offset_label": "OTM-3",
+      "min_triggers": 1,
+      "require_confluence_or_sequence": false,
+      "flat_qty": 5,
+      "trades": [
+        {
+          "entry_time_et": "2026-07-17T13:15:00",
+          "side": "P",
+          "strike": 744,
+          "qty": 5,
+          "orig_qty": 3,
+          "entry_premium": 0.36,
+          "triggers_fired": [
+            "trendline_rejection"
+          ],
+          "quality_tier": "TRENDLINE",
+          "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+          "dollar_pnl": 19.75,
+          "dollar_pnl_at_sim_qty": 11.85,
+          "hold_minutes": 10,
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+        },
+        {
+          "entry_time_et": "2026-07-17T13:55:00",
+          "side": "P",
+          "strike": 743,
+          "qty": 5,
+          "orig_qty": 13,
+          "entry_premium": 0.45,
+          "triggers_fired": [
+            "level_rejection",
+            "ribbon_flip",
+            "trendline_rejection"
+          ],
+          "quality_tier": "SUPER",
+          "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+          "dollar_pnl": 13.0,
+          "dollar_pnl_at_sim_qty": 33.8,
+          "hold_minutes": 10,
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+        }
+      ],
+      "n_trades": 2,
+      "total_pnl": 32.75
+    }
+  },
+  "live_truth": {
+    "core_safe": {
+      "label": "safe-2 (CORE-SAFE)",
+      "pnl": 240.0,
+      "round_trips": 11
+    },
+    "core_bold": {
+      "label": "bold-2 (CORE-BOLD)",
+      "pnl": 191.0,
+      "round_trips": 3
+    },
+    "fleet_safe_3": {
+      "label": "safe-3 (FLEET-TIGHT-S)",
+      "pnl": 0.0,
+      "round_trips": 3
+    },
+    "fleet_risky_1": {
+      "label": "risky-1 (FLEET-TIGHT-R)",
+      "pnl": 0.0,
+      "round_trips": 2
+    },
+    "fleet_risky_3": {
+      "label": "risky-3 (FLEET-LOOSE-R)",
+      "pnl": 248.0,
+      "round_trips": 4
+    }
+  },
+  "faithfulness": {
+    "core_safe": {
+      "live_pnl": 240.0,
+      "replay_pnl": 55.12,
+      "delta": -184.88,
+      "tolerance_dollars": 150.0,
+      "same_sign_or_zero": true,
+      "faithful": false
+    },
+    "core_bold": {
+      "live_pnl": 191.0,
+      "replay_pnl": -250.0,
+      "delta": -441.0,
+      "tolerance_dollars": 150.0,
+      "same_sign_or_zero": false,
+      "faithful": false
+    },
+    "fleet_safe_3": {
+      "live_pnl": 0.0,
+      "replay_pnl": 0,
+      "delta": 0.0,
+      "tolerance_dollars": 150.0,
+      "same_sign_or_zero": true,
+      "faithful": true
+    },
+    "fleet_risky_1": {
+      "live_pnl": 0.0,
+      "replay_pnl": 0,
+      "delta": 0.0,
+      "tolerance_dollars": 150.0,
+      "same_sign_or_zero": true,
+      "faithful": true
+    },
+    "fleet_risky_3": {
+      "live_pnl": 248.0,
+      "replay_pnl": 32.75,
+      "delta": -215.25,
+      "tolerance_dollars": 150.0,
+      "same_sign_or_zero": true,
+      "faithful": false
+    }
+  },
+  "faithfulness_summary": {
+    "n_arms": 5,
+    "n_faithful": 2,
+    "all_faithful": false
+  },
+  "capture_report": [
+    {
+      "id": "13:01_trendline_put",
+      "arm": "core_safe",
+      "time_et": "13:01",
+      "side": "P",
+      "expected_tier": "TRENDLINE",
+      "live_pnl": 241.0,
+      "in_scope": true,
+      "is_loser": false,
+      "captured": false,
+      "matched_trade": null,
+      "gap_seconds": null
+    },
+    {
+      "id": "13:51_bold_trendline_put",
+      "arm": "core_bold",
+      "time_et": "13:51",
+      "side": "P",
+      "expected_tier": "TRENDLINE",
+      "live_pnl": 191.0,
+      "in_scope": true,
+      "is_loser": false,
+      "captured": true,
+      "matched_trade": {
+        "entry_time_et": "2026-07-17T13:55:00",
+        "side": "P",
+        "strike": 742,
+        "qty": 15,
+        "orig_qty": 15,
+        "entry_premium": 0.29,
+        "triggers_fired": [
+          "level_rejection",
+          "ribbon_flip",
+          "trendline_rejection"
+        ],
+        "quality_tier": "SUPER",
+        "exit_reason": "ExitReason.TP1_THEN_RUNNER_RIBBON",
+        "dollar_pnl": 217.5,
+        "dollar_pnl_at_sim_qty": 217.5,
+        "hold_minutes": 40,
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+      },
+      "gap_seconds": 240.0
+    },
+    {
+      "id": "11:06_elite_put_loser",
+      "arm": "core_safe",
+      "time_et": "11:06",
+      "side": "P",
+      "expected_tier": "ELITE",
+      "live_pnl": -37.0,
+      "in_scope": true,
+      "is_loser": true,
+      "captured": false,
+      "matched_trade": null,
+      "gap_seconds": null
+    },
+    {
+      "id": "11:40_elite_put_loser",
+      "arm": "core_safe",
+      "time_et": "11:40",
+      "side": "P",
+      "expected_tier": "ELITE",
+      "live_pnl": -102.0,
+      "in_scope": true,
+      "is_loser": true,
+      "captured": false,
+      "matched_trade": null,
+      "gap_seconds": null
+    },
+    {
+      "id": "14:03_bollinger_wick_put",
+      "arm": "core_safe",
+      "time_et": "14:03",
+      "side": "P",
+      "expected_tier": null,
+      "live_pnl": 105.0,
+      "in_scope": false,
+      "is_loser": false,
+      "out_of_scope_reason": "j_bollinger_squeeze_* is a separate setup family (params.json j_bollinger_squeeze_* keys) -- not wired into lib.orchestrator.run_backtest's ribbon_ride detector. Iteration-1 harness scope = ribbon_ride (BEARISH_REJECTION/BULLISH_RECLAIM_RIDE_THE_RIBBON) family only.",
+      "captured": null,
+      "matched_trade": null,
+      "note": "j_bollinger_squeeze_* is a separate setup family (params.json j_bollinger_squeeze_* keys) -- not wired into lib.orchestrator.run_backtest's ribbon_ride detector. Iteration-1 harness scope = ribbon_ride (BEARISH_REJECTION/BULLISH_RECLAIM_RIDE_THE_RIBBON) family only."
+    },
+    {
+      "id": "12:04_j_called_746C",
+      "arm": "core_safe",
+      "time_et": "12:04",
+      "side": "C",
+      "expected_tier": null,
+      "live_pnl": 89.0,
+      "in_scope": false,
+      "is_loser": false,
+      "out_of_scope_reason": "J's manual discretionary trade off his own hand-drawn descending trendline (journal: 'Engine at the touch: bear 6-8 / bull 7, HOLD -- no trigger class covers trendline retest'). No live engine rule exists to fire this (trendline_reclaim is shadow-only, unthreaded) -- structurally unreplayable by any config change, not a miss.",
+      "captured": null,
+      "matched_trade": null,
+      "note": "J's manual discretionary trade off his own hand-drawn descending trendline (journal: 'Engine at the touch: bear 6-8 / bull 7, HOLD -- no trigger class covers trendline retest'). No live engine rule exists to fire this (trendline_reclaim is shadow-only, unthreaded) -- structurally unreplayable by any config change, not a miss."
+    }
+  ],
+  "capture_summary": {
+    "n_in_scope": 4,
+    "n_captured": 1,
+    "n_out_of_scope": 2
+  },
+  "harness_verdict": {
+    "trustworthy_to_tune_against": false,
+    "note": "NOT YET faithful: one or more arms diverge from live P&L beyond the disclosed $150 tolerance. Per the GOAL doc's own instruction, this is reported honestly rather than papered over -- see each arm's faithfulness delta + the module docstring's FIDELITY DECISIONS 1-7 for the known, mechanistically-identified gaps. Root-causing points to gap #6 (level-set source mismatch) as DOMINANT, not the exit-mechanics approximations (#1-5) -- see root_cause below. Closing/fixing this is scoped to iteration 2+, not this measurement-only run.",
+    "root_cause": {
+      "dominant_mechanism": "level_set_source_mismatch",
+      "evidence": "core_safe raw decision log for 2026-07-17: the orchestrator's price-history auto-detected levels (lib.levels._detect_from_history) produced ZERO candidate trigger rows near 11:06/11:40 ET, live's two actual ELITE-tier put entries (-$37/-$102 live) -- while producing an uncalled-for level_rejection candidate near 11:35 ET for core_bold that live never took (11:35 P742 LEVEL-tier, stopped -$467.50), which alone flips core_bold's replayed day from live's +$191 to a replayed -$250. Live's real level set is automation/state/key-levels.json (refreshed intraday via refresh_levels_intraday.py, 08:28 ET today) plus J's manually-armed zone-rejection intents (journal 10:39 ET) -- neither is consumed by lib.orchestrator's auto-detector.",
+      "secondary_mechanism": "bar_granularity: orchestrator evaluates 71 5-min RTH bars today vs live's 386 1-min heartbeat ticks (journal funnel table) -- compounds entry-timing/count divergence on top of the level-set gap.",
+      "implication": "Fidelity decisions #1-5 (strike/profit-lock/stop/gate/qty) are real and worth keeping, but are NOT the dominant divergence source this iteration -- fixing them alone would not make this harness faithful. The highest-value next step is feeding this harness live's actual level pipeline (key-levels.json + armed zone intents) instead of the orchestrator's own price-only auto-detector."
+    }
+  }
+}

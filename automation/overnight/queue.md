@@ -9,22 +9,28 @@
 
 ## Active backlog
 
-### SAFE-TRADES-CSV-JOURNALING-GAP (MED, journaling infra, found 2026-07-17 tape audit)
+### ADVERSE-EXTREME-AVOIDANCE-FILTER (MED, pre-reg spec, from FAVORABLE-EXTREME-ENTRY-2026-07-17 KILL)
 
-- [ ] SAFE-TRADES-CSV-JOURNALING-GAP (MED) :: `journal/trades.csv` has zero `account_id=='safe'`
-  rows for automated core-Safe engine fills on both 2026-07-17 and 2026-07-16 (only manual/J-called
-  trades get rows). Confirmed via cross-check against `automation/state/fills-ledger.jsonl` (arm
-  `safe-2`) and `mcp__alpaca__get_account_activities` — all 5 automated fills today (744P/745P/746P/
-  745P-bollinger/743P) are real, broker-confirmed, and correctly reflected in the end-of-day quant
-  funnel table's P&L total (`journal/2026-07-17.md`), but never got a per-trade prose row in
-  trades.csv, and the `## Trades` prose narrative in the daily journal only narrates the one manual
-  trade. Rule 8 ("journal every trade in real time") gap for engine-attributed fills specifically.
-  Root cause not yet diagnosed (which script normally writes trades.csv rows for engine fills, and
-  why it silently stopped / never ran for `safe-2` — check whether `fleet_journal_bridge.py`'s
-  backfill only covers fleet arms and there's no equivalent bridge for core `safe-2`). Fix: find/
-  build the missing bridge from `fills-ledger.jsonl` (arm=safe-2/bold-2) -> `trades.csv`, mirroring
-  the existing fleet backfill pattern. Full evidence: `analysis/daily-brief/2026-07-17-safe-tape-audit.md`
-  Part 1 (Trade 5). :: depends:none :: status:pending
+- [ ] ADVERSE-EXTREME-AVOIDANCE-FILTER (MED, spec-only, filed 2026-07-17 evening) :: The
+  favorable-extreme-entry study (KILL, `analysis/recommendations/favorable-extreme-entry-2026-07-17.{json,md}`)
+  produced ONE genuinely actionable positive signal as the MIRROR of its main finding: across
+  BOTH real-fill populations (primary n=30 broker fills, secondary n=119 trades.csv), the
+  **adverse_extreme entry-location bucket is the WORST** (primary -$17.87/tr 13% win; secondary
+  -$8.98/tr 6.9% win) -- a marketable fill that lands at the WRONG end of its entry bar (put filled
+  near the bar LOW, call near the bar HIGH) correlates with losing. This is a DIFFERENT, simpler
+  mechanism than the resting-limit targeting that got killed: not "rest and wait for a favorable
+  fill" (that loses clean runners + gets run over on trending days, 0/18 cells cleared anchor+BH-FDR
+  both accounts), but "AVOID/deprioritize an entry whose actual marketable fill is adverse-extreme."
+  Spec: pre-registered A/B of a post-fill (or at-fill, if a live-tick location read is available in
+  the heartbeat) gate that skips or down-weights entries landing in the bottom-30%-of-bar-toward-the
+  -wrong-side bucket, on the SAME confirmation-trigger signal population, real-OPRA replay, frozen
+  `ab_delta_per_trade_v2026_07_16` WF form + BH-FDR + anchor, both accounts per C29. Open question the
+  spec must resolve: is the fill-location knowable EARLY ENOUGH to act (the heartbeat samples SPY at
+  the decision tick, ~<=60s before the broker fill -- verify whether that read is a good enough proxy
+  for where the fill will land, or whether this is only a post-hoc diagnostic with no live actuation
+  point). **SPEC REQUEST, do not wire without a cleared A/B (OP-16 eval-first).** Evidence:
+  `analysis/recommendations/favorable-extreme-entry-2026-07-17.md` Synthesis + Build-spec sections.
+  :: depends:none :: status:proposed
 
 ### STUDY-STATIC-VS-TRENDLINE-REJECT-BOUNCE-PHASE (MED, pre-reg spec, filed 2026-07-17 tape audit)
 
@@ -451,6 +457,45 @@ These are exactly the OP-22 "371st untriaged candidate is debt" pattern. The `gy
 ## Completed
 
 > OP-22 consolidation 2026-07-08: 25 finished [x] items moved here from Active backlog (loop G15).
+
+### 2026-07-17 — worker-tier: SAFE-TRADES-CSV-JOURNALING-GAP (done-shipped, root cause found + fixed + backfilled)
+J-directed direct fix of the queue item filed by the same-day safe-tape audit
+(`analysis/daily-brief/2026-07-17-safe-tape-audit.md` Part 1, Trade 5). **Root cause:**
+`fleet_journal_bridge.py` -- the ONLY automated `pnl-statement.json` -> `trades.csv` bridge
+that exists -- hardcoded `FLEET_REST_ARMS = ("safe-3","risky-1","risky-3")` and its own
+docstring wrongly claimed the 2 core mcp_heartbeat arms (safe-2/bold-2) had "an existing
+journaling path... written by the live heartbeat"; that path does not exist. `broker_fills.py`
+was ALREADY computing correct engine-vs-manual attribution for safe-2/bold-2 round trips
+(checking `exec`/`extra_exec`/`exit_pass` in `core-decisions.jsonl`) -- the bridge just never
+consumed it for those two arms, so BOTH primary and extra_exec (G4 side-channel) core-Safe/Bold
+engine fills were silently unjournaled. **Fix:** added `CORE_ARMS`/`ALL_BRIDGE_ARMS` +
+`_build_core_decision_index()` (normalizes core's `exec`/`extra_exec` schema into the same
+entry_dec shape the fleet path already understands -- zero new attribution logic, extra_exec
+gets identical treatment automatically) + a manual-attribution exclusion in
+`_primary_round_trips` (core round trips attributed "manual" are J-called trades already
+journaled via the separate `j_intent_journal.py` pathway -- never duplicated here). Wired into
+`firm_brief.py`'s existing EOD-adjacent call site (`run_bridge(arms=ALL_BRIDGE_ARMS)`).
+**Backfill:** historical dates before 2026-07-17 were found to have a mix of already-logged
+(hand-aggregated, some with 1-second partial-fill-leg timestamp jitter) and genuinely-missing
+core round trips going back to 06-26; rather than risk a double-count on a hand-rolled natural-
+key reconciliation heuristic (verified one real near-miss case: 07-02 09:57:15/16), seeded the
+watermark with a clean historical CUTOVER at 2026-07-17 (pre-cutover dates left exactly as
+found, flagged for a separate careful reconciliation pass -- NOT done here, scope stayed to
+what J asked) and ran the real (non-dry-run) bridge for 2026-07-17 only. **Result:** all 6
+core-Safe round trips for 2026-07-17 now in `trades.csv` (744P -37, 745P -102, 746C +89
+[J-manual, pre-existing], 746P +241, 745P#2 bollinger_squeeze +105, 743P -56), CSV total
+verified **+$240.00**, exact match to broker-truth (`pnl-statement.json` / live
+`get_account_activities`). Also backfilled 3 core-Bold round trips (743P, +191 net) as a
+consistent side effect of the same fix. Idempotency verified (re-run after backfill = 0 new
+rows). journal/2026-07-17.md's `## Trades` prose gained an ADDENDUM section narrating all 5
+previously-invisible engine round trips including the bollinger_squeeze fill. **Guard tests:**
+`backtest/tests/test_fleet_journal_bridge.py` +10 new (24/24 total green), RED-proofed (8
+failed against pre-fix code, stashed/restored). Read-only on trading-decision logic --
+journaling/accounting only, no `heartbeat_core.py`/`params.json` touched. Companion fix same
+session: `trade_today_watcher.py` cross-arm order-id dedup (safe-1/safe-2 shared-account
+double-count, task_32d96df3) -- `backtest/tests/test_trade_today_watcher.py` +4 new (32/32
+green), also RED-proofed. Full detail: `automation/overnight/STATUS.md` 2026-07-17 entry.
+:: depends:none :: status:done
 
 ### 2026-07-15 — worker-tier: CONTEXT-BUNDLE-EXTENSION-EVENTS-PRIORDAY (done-shipped, LOGGED-ONLY, follow-up to Phase 0/Phase 1)
 J's direct ask: "review the new labels... that involve current real world events and prior day technical analysis." Extended `setup/scripts/context_bundle_producer.py` (Phase 0's trend-alignment producer, commit `b1597a6`) with the two pre-approved fast-follow dimensions from that same v1-scope note: `events` (macro-calendar.json + news.json — next/last event, minutes-to/-since, `no_trade_window_active` computed live via `macro_calendar.compute_no_trade_windows` reused verbatim, `calendar_stale` anchored to `Gamma_MacroCalendar`'s real 07:45 ET weekday fire), `prior_day` (prior complete trading day OHLC off the SAME already-fetched `daily_df`), `today_context` (gap_pct_at_open, position_in_prior_range, 60-min 09:30-10:30 ET opening range null-before-10:30-by-design, `rvol_session_so_far` — causal cumulative-volume-vs-20-day-median-at-same-elapsed-time, needed one new `5Min`/35-day fetch), `levels_context` (nearest active key-levels.json level above/below + count within 1%). schema_version 1→2, `compute_trend_alignment`'s signature/behavior fully untouched (re-verified: the already-built-and-KILLed Phase 1 correlation study, `test_trend_alignment_correlation_study.py`, 11/11 still green). Every field null-with-reason on missing/not-yet-available inputs; each dimension isolated in its own try/except in `main()`. Zero new `heartbeat_core.py` reads — it already tags the whole bundle dict verbatim, so the enriched schema rides along for free; re-RED-proofed anyway with 2 new tests (`test_context_bundle_tag_no_behavior_change.py`) proving byte-identical verdicts with the ENRICHED bundle present vs absent. `Gamma_ContextBundle` re-registered 09:30→09:25 ET start (`install-context-bundle.ps1`), live-verified against the real scheduled-task registry (`StartBoundary=07:25 MT`, `DaysOfWeek=62`, `RepDuration=PT6H35M`, `State=Ready`, real Wednesday `NextRunTime`). Real `--once` run pre-market against the ACTUAL current files: `degraded:false`, next_event=PPI 08:30 ET today (med), prior_day=Tuesday's real OHLC, or/rvol correctly null (market not open), levels_context resolved 7 levels within 1% of spot. 71/71 tests green across the 4 touched/adjacent suites (31 `test_context_bundle_producer.py` [+17 new] + 8 `test_context_bundle_tag_no_behavior_change.py` [+2 new] + 11 `test_trend_alignment_correlation_study.py` + 21 `test_macro_calendar_producer.py`). Grading path (correlation-scorer, same pattern that KILLed trend-alignment) pinned as a spec paragraph in the module docstring only — NOT built, per the task's explicit item-6 scope. Full detail: `automation/overnight/STATUS.md` 2026-07-15 ~01:17 ET REVOKE-report entry. :: depends:none :: status:done

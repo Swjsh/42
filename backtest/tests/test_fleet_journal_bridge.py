@@ -312,3 +312,222 @@ def test_run_bridge_signature_has_no_credential_or_network_params():
     import inspect
     params = set(inspect.signature(fjb.run_bridge).parameters)
     assert not (params & {"creds", "api_key", "secret", "session", "client"})
+
+
+# =============================================================================
+# CORE-ACCOUNT EXTENSION (2026-07-17, SAFE-TRADES-CSV-JOURNALING-GAP): safe-2/bold-2
+# (mcp_heartbeat, execution=core) round trips in pnl-statement.json were NEVER bridged into
+# trades.csv -- confirmed live on 2026-07-17 (a real +$105 bollinger_squeeze extra_exec fill
+# reached the broker + Discord but never journal/trades.csv). broker_fills.py already
+# computes correct engine/manual attribution for these arms; this extension just lets the
+# bridge CONSUME that existing signal instead of hard-excluding safe-2/bold-2 by arm id.
+# =============================================================================
+def _core_round_trip(**overrides) -> dict:
+    rt = {
+        "arm": "safe-2", "symbol": "SPY260717P00744000",
+        "entry_activity_id": "core-act-entry-1", "exit_activity_id": "core-act-exit-1",
+        "entry_price": 1.41, "exit_price": 1.29, "qty": 3.0, "pnl": -37.0,
+        "entry_ts_et": "2026-07-17T11:06:32.248844",
+        "exit_ts_et": "2026-07-17T11:11:04.123456",
+        "attribution": "engine", "date_et": "2026-07-17",
+    }
+    rt.update(overrides)
+    return rt
+
+
+def _core_exec_row(**overrides) -> dict:
+    """A primary-path core-decisions.jsonl row (row["exec"])."""
+    row = {
+        "ts_et": "2026-07-17T11:06:03", "account": "safe",
+        "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
+        "exec": {
+            "status": "PLACED", "symbol": "SPY260717P00744000", "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+            "entry_px": 1.45, "stop": 0.725, "tp": 2.13, "equity": 1485.31,
+            "broker": {"id": "core-order-entry-1"},
+        },
+        "exit_pass": [],
+    }
+    row.update(overrides)
+    return row
+
+
+def _core_exit_row(**overrides) -> dict:
+    row = {
+        "ts_et": "2026-07-17T11:11:03", "account": "safe",
+        "exit_pass": [{"symbol": "SPY260717P00744000", "actions": [
+            {"kind": "SELL_ALL", "stage": "structure_stop", "reason": "structure_stop @ 744.82",
+             "placed": True, "broker": {"id": "core-order-exit-1"}},
+        ]}],
+    }
+    row.update(overrides)
+    return row
+
+
+def test_core_arms_constant_maps_to_short_account_id():
+    assert fjb.CORE_ARMS == {"safe-2": "safe", "bold-2": "bold"}
+    assert fjb.ALL_BRIDGE_ARMS == fjb.FLEET_REST_ARMS + ("safe-2", "bold-2")
+
+
+def test_build_core_decision_index_primary_path(tmp_path):
+    p = tmp_path / "core-decisions.jsonl"
+    p.write_text(json.dumps(_core_exec_row()) + "\n" + json.dumps(_core_exit_row()) + "\n",
+                 encoding="utf-8")
+    by_entry, by_exit = fjb._build_core_decision_index(p, "safe")
+    assert by_entry["core-order-entry-1"]["setup_name"] == "BEARISH_REJECTION_RIDE_THE_RIBBON"
+    assert by_entry["core-order-entry-1"]["quality"] == "ELITE"
+    assert by_entry["core-order-entry-1"]["placement"]["stop"] == 0.725
+    assert by_exit["core-order-exit-1"]["stage"] == "structure_stop"
+
+
+def test_build_core_decision_index_extra_exec_path_same_shape_as_primary(tmp_path):
+    """THE core proof: an extra_exec (G4 side-channel) fill normalizes into the EXACT SAME
+    entry_dec shape a primary fill does -- identical downstream trades.csv treatment."""
+    p = tmp_path / "core-decisions.jsonl"
+    row = {
+        "ts_et": "2026-07-17T14:03:03", "account": "safe",
+        "reason": "no setup passed scoring (neither bear nor bull)",
+        "extra_signals": [
+            {"setup_name": "bollinger_squeeze", "fired": True, "confidence": "medium",
+             "triggers": ["BB_SQUEEZE_RECENT", "BAND_BREAK_DOWN", "VOLUME_CONFIRM"]},
+        ],
+        "extra_exec": [{
+            "setup": "bollinger_squeeze", "action": "PLACED",
+            "exec": {"status": "PLACED", "symbol": "SPY260717P00745000", "setup": "bollinger_squeeze",
+                     "entry_px": 1.01, "stop": 0.89, "tp": 1.26, "equity": 1675.83,
+                     "broker": {"id": "core-order-bollinger-entry"}},
+        }],
+    }
+    p.write_text(json.dumps(row) + "\n", encoding="utf-8")
+    by_entry, _ = fjb._build_core_decision_index(p, "safe")
+    entry = by_entry["core-order-bollinger-entry"]
+    assert entry["setup_name"] == "bollinger_squeeze"
+    assert set(entry.keys()) >= {"setup_name", "quality", "reason", "placement", "equity", "_order_id"}
+    assert "bollinger_squeeze" in entry["reason"]
+    assert "BB_SQUEEZE_RECENT" in entry["reason"]
+    assert entry["_via_extra_exec"] is True
+
+
+def test_build_core_decision_index_filters_by_account(tmp_path):
+    """A 'bold' row must never leak into a 'safe' index (and vice versa)."""
+    p = tmp_path / "core-decisions.jsonl"
+    row = _core_exec_row(account="bold")
+    p.write_text(json.dumps(row) + "\n", encoding="utf-8")
+    by_entry, _ = fjb._build_core_decision_index(p, "safe")
+    assert by_entry == {}
+    by_entry_bold, _ = fjb._build_core_decision_index(p, "bold")
+    assert "core-order-entry-1" in by_entry_bold
+
+
+def test_primary_round_trips_excludes_manual_core_attribution(tmp_path):
+    """THE double-journal guard: a core round trip attribution=='manual' (J-called, already
+    journaled via the separate manual pathway) must NEVER be picked up here."""
+    stmt = {"round_trips": [
+        _core_round_trip(),
+        _core_round_trip(symbol="SPY260717C00746000", attribution="manual",
+                          entry_activity_id="manual-1", exit_activity_id="manual-2"),
+    ]}
+    p = tmp_path / "pnl-statement.json"
+    p.write_text(json.dumps(stmt), encoding="utf-8")
+    out = fjb._primary_round_trips(p, fjb.ALL_BRIDGE_ARMS, None)
+    assert len(out) == 1
+    assert out[0]["attribution"] == "engine"
+
+
+def test_primary_round_trips_still_includes_fleet_manual_unfiltered():
+    """Fleet_rest arms are 100% engine by broker_fills.py's own rule -- the manual-filter is
+    CORE_ARMS-only and must not accidentally start dropping fleet rows tagged manual (which
+    would itself be a bug elsewhere worth surfacing, not silently hiding)."""
+    stmt = {"round_trips": [
+        {"arm": "risky-1", "symbol": "SPY260709C00750000", "attribution": "manual",
+         "date_et": "2026-07-09", "entry_activity_id": "e1", "exit_activity_id": "x1"},
+    ]}
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        p = Path(td) / "pnl-statement.json"
+        p.write_text(json.dumps(stmt), encoding="utf-8")
+        out = fjb._primary_round_trips(p, fjb.FLEET_REST_ARMS, None)
+    assert len(out) == 1
+
+
+def test_build_row_core_arm_account_id_is_short_name():
+    row = fjb.build_row(_core_round_trip(), None, None, {}, fjb.PRIMARY_SOURCE_LABEL)
+    assert row["account_id"] == "safe"
+    assert "CORE ACCOUNT safe-2" in row["notes_short"]
+    assert "FLEET ARM" not in row["notes_short"]
+
+
+def test_build_row_core_arm_bold_maps_to_bold():
+    row = fjb.build_row(_core_round_trip(arm="bold-2"), None, None, {}, fjb.PRIMARY_SOURCE_LABEL)
+    assert row["account_id"] == "bold"
+
+
+def test_build_row_core_arm_preserves_fleet_notes_format_unchanged():
+    """Non-regression: a fleet arm's build_row output must be byte-identical in shape to
+    before this extension (guards the shared code path)."""
+    row = fjb.build_row(_round_trip(), _entry_dec(), _exit_info(), _ARM_META, fjb.PRIMARY_SOURCE_LABEL)
+    assert "FLEET ARM risky-1" in row["notes_short"]
+    assert row["account_id"] == "risky-1"
+
+
+def test_end_to_end_core_bridge_writes_row_with_correct_account_id_and_setup(tmp_path):
+    """Full run_bridge() over a core-account fixture tree: proves the wiring (not just the
+    unit pieces) -- a core round trip becomes a trades.csv row with account_id='safe' and
+    the extra_exec setup name correctly attributed."""
+    state = tmp_path / "state"
+    journal = tmp_path / "journal"
+    state.mkdir()
+    journal.mkdir()
+    (state / "pnl-statement.json").write_text(json.dumps({"round_trips": [
+        {"arm": "safe-2", "symbol": "SPY260717P00745000",
+         "entry_activity_id": "core-act-entry-b", "exit_activity_id": "core-act-exit-b",
+         "entry_price": 1.00, "exit_price": 1.49, "qty": 3.0, "pnl": 105.0,
+         "entry_ts_et": "2026-07-17T14:03:18.909912", "exit_ts_et": "2026-07-17T14:24:03.000000",
+         "attribution": "engine", "date_et": "2026-07-17"},
+    ]}), encoding="utf-8")
+    (state / "fills-ledger.jsonl").write_text(
+        json.dumps({"activity_id": "core-act-entry-b", "arm": "safe-2", "order_id": "core-order-b-entry"}) + "\n"
+        + json.dumps({"activity_id": "core-act-exit-b", "arm": "safe-2", "order_id": "core-order-b-exit"}) + "\n",
+        encoding="utf-8")
+    (state / "core-decisions.jsonl").write_text(
+        json.dumps({
+            "ts_et": "2026-07-17T14:03:03", "account": "safe",
+            "reason": "no setup passed scoring (neither bear nor bull)",
+            "extra_signals": [{"setup_name": "bollinger_squeeze", "fired": True,
+                               "confidence": "medium", "triggers": ["BB_SQUEEZE_RECENT"]}],
+            "extra_exec": [{"setup": "bollinger_squeeze", "action": "PLACED",
+                            "exec": {"status": "PLACED", "symbol": "SPY260717P00745000",
+                                     "setup": "bollinger_squeeze", "entry_px": 1.01, "stop": 0.89,
+                                     "tp": 1.26, "equity": 1675.83,
+                                     "broker": {"id": "core-order-b-entry"}}}],
+        }) + "\n"
+        + json.dumps({
+            "ts_et": "2026-07-17T14:24:03", "account": "safe",
+            "exit_pass": [{"symbol": "SPY260717P00745000", "actions": [
+                {"kind": "SELL_ALL", "stage": "trail", "reason": "runner_stop @ 1.49",
+                 "placed": True, "broker": {"id": "core-order-b-exit"}}]}],
+        }) + "\n",
+        encoding="utf-8")
+    (state / "fleet").mkdir()
+    (state / "fleet" / "accounts.json").write_text(json.dumps({"arms": []}), encoding="utf-8")
+
+    summary = fjb.run_bridge(
+        pnl_statement_path=state / "pnl-statement.json",
+        fills_ledger_path=state / "fills-ledger.jsonl",
+        fleet_dir=state / "fleet",
+        accounts_json_path=state / "fleet" / "accounts.json",
+        core_decisions_path=state / "core-decisions.jsonl",
+        trades_csv_path=journal / "trades.csv",
+        watermark_path=state / ".fleet-journal-watermark.json",
+        arms=("safe-2",),
+    )
+    assert summary["n_written"] == 1
+    row = summary["rows"][0]
+    assert row["account_id"] == "safe"
+    assert row["setup"] == "bollinger_squeeze"
+    assert row["dollar_pnl"] == "105"
+    assert "G4 extra-setup side-channel" in row["notes_short"]
+
+    with (journal / "trades.csv").open(encoding="utf-8-sig", newline="") as fh:
+        parsed = list(csv.DictReader(fh))
+    assert len(parsed) == 1
+    assert parsed[0]["account_id"] == "safe"
