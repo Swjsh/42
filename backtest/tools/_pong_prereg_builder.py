@@ -1,0 +1,155 @@
+"""One-shot builder for the PONG resting-limit prereg JSON. Computes content_sha256_16
+the SAME way pong_resting_limit_study.py's preflight() will recompute it (sha256 of
+json.dumps(payload_without_hash_field, sort_keys=True, default=str)[:16]), then writes the
+final prereg file with the hash embedded. Run once; not part of the study pipeline.
+"""
+import hashlib
+import json
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+OUT = REPO / "analysis" / "recommendations" / "prereg-pong-resting-limit-2026-07-17.json"
+
+
+def _content_hash(payload_obj) -> str:
+    payload = json.dumps(payload_obj, sort_keys=True, default=str)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+
+
+prereg = {
+  "_doc": "PRE-REGISTERED spec for PONG-RESTING-LIMIT, per J's 2026-07-17 ~10:55 ET brainstorm-to-evidence directive: 'price ping-pongs between levels; set up resting limit BUY orders on the option at prices it will hit when the underlying reaches our levels, so entries are grabbed by price action.' Frozen BEFORE the study runs -- no re-picks after seeing results. Runner: backtest/tools/pong_resting_limit_study.py. STUDY ONLY -- no live code, no orders, no engine edits.",
+  "study": "pong_resting_limit_2026_07_17",
+  "version": 1,
+  "status": "FROZEN_PENDING_RUN",
+  "frozen_at": "2026-07-17T11:40:00-04:00",
+  "standing_doctrine": "Burden of proof is on the CANDIDATE mechanism, not the incumbent confirmation-entry semantics (CLAUDE.md Rule 1 / OP-16 eval-first). A untraded level touch is not itself evidence a resting-limit mechanism is profitable -- the delta population (candidate vs confirmation-entry control, matched by episode) must clear real A/B expectancy under honest, non-double-counted friction. Kill = current marketable-entry-on-confirmed-trigger semantics stand; no shame in a null result (OP-22).",
+  "motivating_context": {
+    "date": "2026-07-17",
+    "exhibits": [
+      "10:15 ET rejection at 747.27 -- 61c shy of PDL 747.88, front-ran the level, zero triggers fired (see analysis/recommendations/prereg-zone-rejection-band-2026-07-17.json's own motivating_incident, same underlying event).",
+      "~10:50 ET bounce off 745.39 key level -- price DID reach a key level and reverse, but no trigger fired to capture it (no confirmed-close/wick-rejection registered in time).",
+      "Three untraded level touches in one morning is the generative observation: a resting order placed AHEAD of the touch, priced off the LEVEL rather than waiting for a confirmed bar close AT/AFTER the level, would have been live for both exhibits above -- one where price never quite reached the level (a resting CALL/PUT priced via delta-mapping can still fill on the OPTION's own premium dip even when SPY itself falls just short, since options move on more than just spot) and one where price touched and reversed before any confirmation bar closed."
+    ],
+    "relationship_to_zone_rejection_band_study": "DIFFERENT MECHANISM, same day's sibling study. zone-rejection-band-2026-07-17 (KILLED -- see analysis/recommendations/zone-rejection-band-2026-07-17.json, no Z cell cleared on either account) tested widening the CONFIRMATION TRIGGER itself (fire the SAME confirmed-bar-close entry earlier, based on proximity instead of exact pierce). PONG tests a STRUCTURALLY DIFFERENT execution mechanism: a resting PASSIVE LIMIT order on the option contract, priced by delta-mapping from the underlying level, that fills on the OPTION's own bar-low crossing a computed target price -- independent of whether any confirmed-close trigger ever fires. The zone study's kill does not pre-judge this study; a passive resting order can profit from a level touch the zone study's confirmation-based candidate could never register (the option premium can dip to target even on a bar where SPY's own high/low never quite reaches the level, and even if it eventually does, PONG's fill is earlier/cheaper than any confirmation-based entry could ever be, per SEC DERA's non-marketable-limit finding cited below)."
+  },
+  "external_context": {
+    "_doc": "Grounds the friction/execution-cost framing. Cited previously in this codebase's own research (not fresh WebSearch for this prereg -- reusing already-verified internal citations per the task's provided CONTEXT pointers).",
+    "claims": [
+      {"claim": "SEC DERA 0DTE execution study: non-marketable limit orders roughly HALVE all-in execution cost vs marketable orders (~$0.021-0.028 vs ~$0.05 all-in); 0DTE spreads are tick-wide most of the time and retail-size limit orders fill well.", "source": "markdown/research/EDGE-DEEP-RESEARCH-SYNTHESIS-2026-07-14.md, ranked fix #1"},
+      {"claim": "Fixed round-trip friction (~$12/trade at qty3, the codebase's own standard 2c/side + $0.65/contract/side commission) is large relative to a thin-edge scalp's per-trade dollar profit and gets relatively worse as TP% shrinks -- passive-limit execution is the one lever that structurally attacks this without changing the trade's directional thesis.", "source": "markdown/research/SIX-ACCOUNT-DAILY-HYPOTHESIS-REDESIGN-2026-07-16.md section 4"},
+      {"claim": "entry_manager.py (T-W5) already implements a passive-limit entry decision core (delta-fraction-off-signal-premium, patience-tick fill/convert/cancel) -- SHADOW ONLY, no arm places orders through it yet. PONG's resting-limit-AT-A-LEVEL mechanism is a DIFFERENT parametrization (price derived from an underlying CHART LEVEL via option delta-mapping, not a flat fraction off the signal's own quoted premium) but reuses the same passive-fill philosophy and, if it clears, the same EntryState/EntryAction/plan_entry_action machinery shape for its build spec.", "source": "automation/state/fleet/entry_manager.py"}
+    ]
+  },
+  "hypothesis": {
+    "statement": "A resting limit BUY on a near-ATM option, priced via delta-mapping from an active support/resistance level (P(L) = observed_premium + delta*(L - observed_spot) - theta_adjustment, computed causally ~5 minutes before the underlying is expected to reach L) and left resting until either (a) the option's own bar-low crosses strictly below P(L) [fill], (b) the underlying trades through the level by a cancel-watcher threshold [cancel], or (c) the account's time stop is reached [expire unfilled] -- produces positive-expectancy entries, under SS-B-lineage exit shapes and honest non-double-counted friction, on the delta population versus the CURRENT engine's confirmation-entry semantics (marketable-ish entry only after a confirmed pierce/wick trigger on the SAME level), for at least one (cancel-rule, exit-shape) cell on at least one account -- WITH the critical caveat that the adverse-selection split (fills that occur because the level BOUNCED vs fills that occur because the level BROKE/sliced through) must be reported as separate populations, since a resting order structurally cannot distinguish the two at the moment of fill.",
+    "falsifiable_prediction": "If TRUE: at least one (cancel_rule x exit_shape) cell's delta population clears all 5 ratification gates + BH-FDR on Safe and/or Bold, AND the bounce-population's own expectancy is not the sole source of any positive result (i.e., the combined book is not merely laundering a bounce-only edge that the cancel-watcher then destroys via false cancels on real bounces). If FALSE: no cell clears on either account -- KILL, current confirmation-entry semantics stand, and this brainstorm becomes an honest documented miss (OP-22), not a silently-dropped idea."
+  },
+  "mechanism_spec": {
+    "level_set": {
+      "source": "backtest.lib.levels.detect_levels_at_bar -- the SAME as-of-causal level detector the backtest engine's orchestrator uses (LevelSet.active), called ONCE per day at the day's first RTH bar (09:30 ET) using ONLY bars at or before that index (C6, no look-ahead). Frozen for the whole day, matching orchestrator.run_backtest's own documented per-day LevelSet cache convention (backtest/lib/levels.py module docstring, 'orchestrator caches LevelSet PER DAY -- frozen at the first bar the day is encountered'). Memory-levels (G11 wire, level_memory_wire_ab.py) are NOT merged in this study -- disclosed scope-narrowing (memory_levels_by_day=None, i.e. the zero-behavior-change default every non-memory-focused study in this codebase uses); a follow-up could add them.",
+      "role_assignment": "Fixed per day at first-bar time: a level L is SUPPORT (candidate CALL side) if L < day_open_spot (the first RTH bar's open); RESISTANCE (candidate PUT side) if L > day_open_spot. Roles do not flip intraday in this study (disclosed simplification -- a level crossed by spot mid-day keeps its morning-assigned role for the rest of that day)."
+    },
+    "entry_zone": {
+      "definition": "A level ARMS (a resting order is created) on the first RTH bar (09:35 ET onward, matching the engine's own entry gate) whose CLOSE is within ENTRY_ZONE_WIDTH of the level, approaching from the correct side and not yet crossed: support arms when 0 < (bar.close - L) <= ENTRY_ZONE_WIDTH; resistance arms when 0 < (L - bar.close) <= ENTRY_ZONE_WIDTH.",
+      "entry_zone_width": 0.50,
+      "provenance": "Reuses the zone semantics from analysis/recommendations/prereg-zone-rejection-band-2026-07-17.json's Z grid (the same day's sibling study) -- specifically its middle fixed cell (fixed_0.5), NOT a fresh re-derivation and NOT independently swept here. DISCLOSED SCOPE DECISION: this study's central novel question is the cancel-watcher / adverse-selection split and the exit grid, not the zone width (already separately studied and killed today in zone-rejection-band). Sweeping entry_zone_width would multiply the grid by up to 8x (cancel_rule x exit_shape x zone_width) for a dimension this study is not designed to adjudicate, and -- unlike the zone study's own umbrella-Z post-filter trick -- entry_zone_width interacts with this study's ONE-POSITION-AT-A-TIME daily state machine (a wider zone arms EARLIER, which changes WHICH level's episode occupies that day's single slot), so cells at different zone widths are not simple post-filters of one one mining pass. A single frozen value is used; the KILL/SHIP writeup names this as a candidate follow-up axis if the base mechanism clears."
+    },
+    "one_position_at_a_time": "Per account, per day: only ONE resting order is live at a time (sibling-cancel semantics). While an order is pending (armed, awaiting fill/cancel/expiry), no other level's ARM condition is evaluated -- the day's bar walk simply progresses that one order's state. When the order resolves (filled, canceled, or expired at time_stop), the scan for a NEW arm resumes on the NEXT bar. This means the SET of episodes examined can differ by cancel_rule (a stricter cancel rule frees the slot earlier on a broken level, potentially allowing a second arm later the same day) -- this is a real, disclosed effect of the mechanism itself, not a study artifact.",
+    "pricing": {
+      "strike_selection": "Each account's OWN live strike tier (crypto/lib/strike_selection.py V15_SAFE_TIERS / V15_BOLD_TIERS, resolved at the account's live-verified equity this session), matching every other SS-B-lineage study's C29 per-account strike convention. 'Near-ATM' in the hypothesis statement means 'this account's own doctrine strike', not a fresh ATM-only assumption.",
+      "observed_premium": "The armed bar's OWN option-contract CLOSE (real OPRA local cache, backtest/data/options/*.csv) -- the 'current premium' the delta-mapping formula anchors to. An episode with no local OPRA coverage at the arm bar is DROPPED and counted (n_no_local_bars), never imputed (C7).",
+      "delta": "Black-Scholes delta (backtest.lib.pricing.black_scholes, the house ATM/0DTE BS model -- VIX-derived IV via vix_to_iv, time_to_expiry_years off the arm bar's own timestamp) computed at the arm bar's (spot, strike, iv, tte). MODELED, not empirical -- OPRA bars carry no greeks; disclosed as a modeling assumption, consistent with every other BS-touching script in this codebase (backtest/lib/pricing.py is the house standard, no alternative greeks source exists in the local cache).",
+      "theta_adjustment": "A one-time 5-minute forward theta haircut: theta_5min = BS_price(spot, strike, iv, tte) - BS_price(spot, strike, iv, tte_at_(arm_ts + 5min)), spot/strike/iv held fixed (isolates the pure time-decay component). P(L) = round(max(0.01, observed_premium + delta*(L - observed_spot) - theta_5min), 2). The 5-minute assumption is a disclosed fixed convention (matches the 'compute the resting price from bars ~5min before the touch' framing in the task directive) -- NOT dynamically re-estimated from the actual arm-to-touch gap, which varies per episode and is only knowable in hindsight.",
+      "reprice_cadence": "NONE in this study -- P(L) is computed ONCE at the arm bar and held fixed until fill/cancel/expiry. A live implementation would plausibly reprice periodically as spot drifts (see build spec if this clears); the study measures the simplest, most falsifiable version of the mechanism first."
+    },
+    "fill_convention": {
+      "rule": "A resting limit BUY at price P fills on the FIRST subsequent option bar (timestamp strictly after the arm bar) whose LOW is strictly less than P (bar.low < P). CONSERVATIVE -- no queue-position credit (a real resting order at the best bid might fill on bar.low == P or even slightly above on partial fills at the front of the queue; this study requires the bar to trade THROUGH the limit, understating true fill likelihood, disclosed as conservative-biased, not neutral).",
+      "fill_price": "Exactly P(L) (the limit price) -- not the bar's low, not interpolated. This is the standard resting-limit convention (you get filled at your limit or better; 'or better' is not modeled here, another conservative simplification)."
+    },
+    "cancel_watcher_grid": {
+      "definition": "Per cell: if the UNDERLYING (SPY) trades through the level by >= threshold before the option fills, the resting order is canceled (episode outcome = canceled, no trade). 'Trades through' = support: bar.low <= L - threshold; resistance: bar.high >= L + threshold. Checked on SPY bars from the arm bar forward, in parallel with the option fill-watch.",
+      "cells": ["no_cancel", "cancel_0.15", "cancel_0.30", "cancel_0.50"],
+      "no_cancel_purpose": "The control cell for measuring RAW adverse selection -- an order that is NEVER canceled will fill on both bounces and slice-throughs equally, giving the cleanest read on how much of the raw fill population is adverse."
+    },
+    "exit_grid": {
+      "_doc": "8 shapes = {tp_pct: 0.30, 0.50} x {stop_type: structure, premium_35} x {time_stop_minutes_from_fill: 12, 30}. Shotgun-lineage time-stop values (12/30 min) reused from the ratified shotgun_scalper combo family, not re-derived. tp1_qty_fraction=0.667 and profit_lock_mode='trailing'/trail_pct=0.15 reused unchanged from SS_B_SHAPE (structure_stop_study.SS_B_SHAPE) for every cell -- only tp1_premium_pct, the stop mechanism, and the time-stop window vary.",
+      "tp_pct_cells": [0.30, 0.50],
+      "stop_type_cells": {
+        "structure": "Primary stop = structure breach through the level (structure_stop_study.structure_stop_signal_time, buffer=STRUCTURE_BUFFER['SS-B']=0.0, evaluated against the SAME level L this episode is keyed to), catastrophe backstop premium_stop_pct=-0.50 (standard SS-B-lineage convention, always present as a safety net regardless of structure-stop presence).",
+        "premium_35": "NO structure check (ss_time always None) -- the ONLY stop is a flat -35% premium stop, per the task's explicit exit-grid request."
+      },
+      "time_stop_cells_minutes_from_fill": [12, 30],
+      "time_stop_capping": "effective_time_stop = min(fill_timestamp + N minutes, account's own time_stop_et [15:40 Safe / 15:40 Bold, read live from params.json]) -- a fill late in the day never extends past the account's own hard time stop."
+    },
+    "adverse_selection_classification": {
+      "_doc": "Computed for every FILLED episode, independent of which cancel_rule allowed the fill (a property of what the market actually did, not of our own order).",
+      "window": "Up to 3 subsequent SPY 5m bars (15 minutes) after the fill bar.",
+      "break_margin": 0.10,
+      "bounce": "Support: none of the window bars trade with low <= L - break_margin (level held). Resistance: none of the window bars trade with high >= L + break_margin (level held).",
+      "slice_through": "The complement of bounce -- the level was breached by >= break_margin within the classification window after the fill."
+    },
+    "control_confirmation_entry": {
+      "_doc": "The paired control for the delta-WF gate: 'what would the CURRENT engine's confirmation-based entry semantics have done on this SAME (date, level) episode.' Scoped to the SAME single level this episode is keyed to (not a full independent orchestrator run per WF-GATE-METHODOLOGY's own union-of-traded-episodes convention) -- a deliberate, disclosed scoping choice: PONG's hypothesis is about EXECUTION MECHANISM on a given level-episode, not about the full gate stack (block_level_rejection etc., separately provenanced, out of scope here, matching the zone study's own 'burden of proof on a DIFFERENT gate' carve-out).",
+      "trigger_check": "Scans bars in the SAME arm-to-timestop window for the FIRST bar where either backtest.lib.filters.detect_level_rejection or detect_wick_rejection_bearish fires against levels_active=[L] (resistance/PUT side), or detect_level_reclaim / detect_wick_reclaim_bullish (support/CALL side) -- both the strict-pierce AND the already-shipped wick-tolerant trigger are checked (current engine semantics as of the 2026-05-10 wick fix), whichever fires first.",
+      "entry_convention": "ribbon_ride_strike_exit_ab.fetch_entry_and_bars(entry_spot=trigger_bar.close, side, date, entry_ts=trigger_bar.timestamp_et + 5min, so, old_semantics=False) -- byte-identical to every other SS-B-lineage study's entry convention (first option bar's OPEN at/after the +5min mark = fill price).",
+      "untraded": "If no confirmation trigger fires in the window, control pnl = 0 for that episode (untraded side of the WF-GATE-METHODOLOGY union-of-traded pairing), across all 8 exit shapes."
+    }
+  },
+  "cohort": {
+    "window": {
+      "is_end": "2025-12-31",
+      "oos_start": "2026-01-01",
+      "end": "2026-07-08",
+      "boundary_source": "autoresearch.strategy_space_grind.OOS_BOUNDARY (2026-01-01), reused unchanged. end=2026-07-08 is the latest date with both a matching SPY and VIX master CSV on disk this session (same DATA_END constraint every SS-B-lineage study this week hit -- SPY has a 2026-07-14 master but VIX's matching master stops at 2026-07-08)."
+    },
+    "accounts_tested_independently": {
+      "_doc": "Per C29 -- each account gets its own live params (time_stop_et), own strike tier, own equity, own independent 5-gate ratification.",
+      "safe": {"params_source": "automation/state/params.json, read live this session.", "strike_tier": "crypto/lib/strike_selection.py V15_SAFE_TIERS at live-verified equity $1478.13 (mcp__alpaca__get_account_info, this session).", "qty": 3},
+      "bold": {"params_source": "automation/state/aggressive/params.json, read live this session.", "strike_tier": "crypto/lib/strike_selection.py V15_BOLD_TIERS at live-verified equity $1963.04 (mcp__alpaca_aggressive__get_account_info, this session).", "qty": 3}
+    },
+    "qty_note": "qty=3 for BOTH accounts per the task's explicit instruction (overrides each account's own live qty knob, which otherwise differs -- Safe=3/Bold=5 elsewhere in this codebase -- for apples-to-apples cross-account comparability in THIS study only; disclosed deviation from each account's own live sizing).",
+    "real_opra_bars": "backtest.lib.option_pricing_real.load_contract_bars/option_symbol, local cache only (no live fetch) -- an episode whose contract bars are not cached is DROPPED and counted (n_no_local_bars), never imputed (C7)."
+  },
+  "friction": {
+    "entry_side": "NONE on the candidate (PONG) side -- the passive-fill benefit (filling at the resting limit price P(L), never crossing the spread) IS the entry price by construction; adding the house DEFAULT_ENTRY_SLIPPAGE (2c) on top would double-count that benefit. The CONTROL (confirmation-entry) side DOES carry the full house entry-side friction (DEFAULT_ENTRY_SLIPPAGE=0.02, lib.simulator_credit) -- honestly representing that a marketable-ish entry really does cross the spread; this asymmetry is the whole point of the comparison, not an error.",
+    "exit_side": "BOTH candidate and control carry the standard house exit-side friction: DEFAULT_EXIT_SLIPPAGE=0.02 subtracted from every exit fill price, PLUS DEFAULT_COMMISSION=0.65/contract/side (both legs) -- lib.simulator_credit constants, reused unchanged, the same 'standing default' friction cited in CLAUDE.md OP-16 / the SIX-ACCOUNT doc's ~$12/trade-at-qty3 figure.",
+    "no_double_count_statement": "This is the task's explicit honesty requirement: friction is 2c/side DEFAULT, but the candidate's entry side is a passive fill by construction and does not additionally cross the spread -- so only ONE side (exit) plus commission is charged as spread-cost on the candidate; the control gets BOTH sides charged, faithfully representing current engine semantics."
+  },
+  "ratification_gates": {
+    "_doc": "Per CLAUDE.md OP-16 + analysis/recommendations/WF-GATE-METHODOLOGY-2026-07-16.md (Fable, frozen 2026-07-16) INCLUDING AMENDMENT 1 -- the frozen A/B-delta WF form, read and applied, not re-derived. ALL FIVE required for a cell to be ship-ready, per account, independently (C29).",
+    "wf_form": "ab_delta_per_trade_v2026_07_16",
+    "pairing_convention": "Per WF-GATE-METHODOLOGY's own stated form: delta_i = pnl_candidate(episode_i) - pnl_control(episode_i) over the UNION of episodes either side traded (an untraded side contributes pnl=0 for that side) -- the SAME simpler pairing bold_strike_axis_deltawf.py uses, not zone-rejection-band's own additional new/shifted/unchanged ordinal elaboration (that was zone study's own choice on top of the frozen form, not a requirement of the methodology note itself).",
+    "1_oos_positive": "sum(delta_i for episodes with date >= oos_start) > 0.",
+    "2_wf_ge_070": "WF_delta = (sum_oos(delta_i)/n_oos) / (sum_is(delta_i)/n_is) >= 0.70, computed ONLY when is_delta_mean > 0 (frozen verdict ladder). is_delta_mean <= 0 and oos_delta_mean <= 0 => FAIL. is_delta_mean <= 0 and oos_delta_mean > 0 => INSUFFICIENT_REGIME_SHIFT (park per AMENDMENT 1's re-test trigger relative to the adjudication snapshot recorded in the scorecard, not auto-ratified, not a clean pass).",
+    "3_sub_window_stable": "OOS delta episodes split chronologically in half (sw1/sw2); <=1 of {sw1,sw2} negative.",
+    "4_anchor_no_regression": "None of the 7 CLAUDE.md OP-16 J-anchor trade dates is touched by a candidate-side FILLED episode in the delta population (same anchor date set + same check pattern as zone-rejection-band-2026-07-17's own anchor_no_regression()).",
+    "5_evidence_n_advisory": "n (episodes in the delta population, post exclusions) >= 15 is ADVISORY (OP-16) -- a thin-n PASS ships if the other 4 gates clear, labeled thin, not hidden.",
+    "control_sanity_disclosure": "Per WF-GATE-METHODOLOGY's mandatory disclosure: a null/control sanity cell (candidate-vs-itself, guaranteed delta=0 for every episode by construction) is computed and reported -- the same convention bold_strike_axis_deltawf.py used, cheaper and equally valid per the methodology note's own text ('if the gate is undefined or unreachable for the sanity cell too, flag wf_not_discriminating').",
+    "bh_fdr_correction": "Benjamini-Hochberg step-up (autoresearch.ribbon_rejection_wick_battery.bh_fdr / FDR_ALPHA=0.10) across all 32 (4 cancel_rule x 8 exit_shape) test statistics PER ACCOUNT (64 total across both accounts, corrected independently per account per C29), one-sided normal-approximation p-value for mean(delta_i) > 0 against an empirical null (autoresearch.null_baseline.random_entry_null, same house convention every SS-B-lineage study uses). A cell failing the BH-FDR cut does NOT auto-ship even if conditions 1-5 nominally clear."
+  },
+  "grid": {
+    "_doc": "The swept grid per the task's explicit instruction: cancel-watcher rule x exit shape. Entry-zone width and level set are FIXED definitions (see mechanism_spec), not additional swept axes -- see entry_zone.provenance for why.",
+    "cancel_rule_cells": ["no_cancel", "cancel_0.15", "cancel_0.30", "cancel_0.50"],
+    "exit_shape_cells": ["tp30_structure_t12", "tp30_structure_t30", "tp30_premium35_t12", "tp30_premium35_t30",
+                          "tp50_structure_t12", "tp50_structure_t30", "tp50_premium35_t12", "tp50_premium35_t30"],
+    "n_cells_per_account": 32,
+    "n_cells_total": 64
+  },
+  "decision_rule": {
+    "statement": "Per account, independently: a (cancel_rule, exit_shape) cell is SHIP-READY iff it clears all 5 ratification_gates AND survives BH-FDR. If >=1 cell is ship-ready on an account, the WINNER is the cell with the highest OOS delta expectancy per trade (tie-break: larger n). A winner additionally requires that the BOUNCE-only sub-population (see adverse_selection_classification) is not the sole source of a positive combined result reported honestly alongside slice-through -- this is a REPORTING requirement, not an additional numeric gate (the task's 'adverse-selection split front and center' instruction), so a technically-ship-ready cell whose combined edge is entirely bounce-driven and slice-through-negative is still SHIP-READY but must be reported with that composition explicit, not hidden. SHIP timing (a live intent-type build) is separately gated on J review per the task's own deliverable framing ('write the BUILD SPEC, not the build') -- no j_intent_executor / entry_manager.py edit happens as part of this study or its scorecard regardless of outcome.",
+    "kill_criterion": "If NO cell clears on EITHER account: KILL. Current confirmation-entry semantics stand unchanged. The scorecard reports the cell that came CLOSEST (most gates passed, tie-break least-negative OOS delta) and names which specific gate(s) failed it, PLUS the adverse-selection split numbers regardless of outcome (measuring the split is itself the deliverable per the task's 'THE CENTRAL QUESTION' framing, independent of whether anything ships)."
+  },
+  "outputs": {
+    "study_script": "backtest/tools/pong_resting_limit_study.py",
+    "scorecard_json": "analysis/recommendations/pong-resting-limit-2026-07-17.json",
+    "scorecard_md": "analysis/recommendations/pong-resting-limit-2026-07-17.md",
+    "build_spec_location": "A section in the scorecard md (per the task's explicit instruction), NOT a separate file, IF and only if >=1 cell clears."
+  },
+  "rail": "Steps 1-4 (research, prereg freeze, implementation, run) are ANALYSIS ONLY -- read live params/account-equity/OPRA cache, no params.json/aggressive-params.json/filters.py/entry_manager.py/j_intent_executor edit happens inside the study script, no orders placed. Any BUILD (the resting_limit_at_level intent type) is explicitly deferred to a SEPARATE, later, J-reviewed step per the task's own 'write the BUILD SPEC, not the build' instruction -- this prereg and its study authorize evidence-gathering only.",
+}
+
+sha16 = _content_hash(prereg)
+prereg["content_sha256_16"] = sha16
+OUT.write_text(json.dumps(prereg, indent=2, default=str), encoding="utf-8")
+print("wrote", OUT)
+print("content_sha256_16 =", sha16)
