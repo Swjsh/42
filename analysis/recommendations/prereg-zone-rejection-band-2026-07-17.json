@@ -1,0 +1,142 @@
+{
+  "_doc": "PRE-REGISTERED spec for ZONE-REJECTION-BAND, per J's 2026-07-17 10:40 ET directive ('it was within cents!! the engine needs to trade this. fix it. levels are not ever exact to the penny! its zones!!'). Frozen BEFORE the study runs -- no re-picks after seeing results. Runner: backtest/tools/zone_rejection_band_study.py. Motivating incident + root cause below.",
+  "study": "zone_rejection_band_2026_07_17",
+  "version": 1,
+  "status": "FROZEN_PENDING_RUN",
+  "frozen_at": "2026-07-17T10:55:00-04:00",
+  "standing_doctrine": "Burden of proof is on the CANDIDATE trigger, not the incumbent (CLAUDE.md Rule 1/OP-16 eval-first). A missed setup is not itself evidence a new trigger is profitable -- the study must show the candidate's NEW-episodes-only population clears real A/B expectancy under honest friction, not merely that it would have caught today's bar. Kill = current exact-pierce semantics stand; no shame in a null result (OP-22).",
+  "motivating_incident": {
+    "date": "2026-07-17",
+    "time_et": "10:15",
+    "description": "SPY bounced to 747.27 and rejected -- 61c shy of PDL 747.88, $1.15 shy of the engine's nearest MEMORY_RES level (748.42).",
+    "live_log_confirmation": "automation/state/core-decisions.jsonl rows 2026-07-17T10:15:03 (safe) and 2026-07-17T10:15:04 (bold): action=HOLD, reason='no setup passed scoring (neither bear nor bull)', triggers_fired=[] on BOTH accounts -- confirms zero triggers fired, not merely a downstream gate block.",
+    "root_cause": "backtest/lib/filters.py#detect_level_rejection requires bar.high > level (exact pierce). J's HTF+ribbon bear alignment was intact but the setup never registered because SPY never touched 747.88/748.42 to the penny -- it rejected FROM BELOW. Prior art: detect_wick_rejection_bearish (filters.py, added 2026-05-10 after the same miss class on J's 2026-04-29 10:25 entry) already tolerates the PIERCE side (bar reaches/exceeds the level, closes back below by up to WICK_CLOSE_TOLERANCE). The APPROACH side -- price gets close but never reaches the level at all -- has NO trigger of any kind today. This study builds and tests that missing mirror."
+  },
+  "external_context": {
+    "_doc": "WebSearch, 2026-07-17, ~20 min, bounded per task instruction. Grounds the Z parameter GRID below -- our own real-OPRA data decides the verdict, these claims never gate a pass/fail.",
+    "claims": [
+      {
+        "claim": "A common ATR-based S/R zone-width method adds a fraction of ATR -- commonly 0.25x ATR -- to the zone boundary so a level test has 'breathing room' without materially widening risk.",
+        "source": "ATR Based Support and Resistance, TrendSpider Store (https://trendspider.com/trading-tools-store/indicators/68ebfc-atr-based-support-and-resistance/)"
+      },
+      {
+        "claim": "ATR-derived zone width automatically adapts to market volatility, vs. a fixed-price zone which does not; markets rarely react from one exact tick because orders/liquidity/prior positioning are distributed across a range.",
+        "source": "Support and Resistance: Identifying S/R with Average True Range, FasterCapital (https://www.fastercapital.com/content/Support-and-Resistance--Identifying-Support-and-Resistance-with-Average-True-Range.html)"
+      },
+      {
+        "claim": "Common practitioner guidance places stops 0.5-1.0x ATR beyond an S/R zone to absorb normal volatility and avoid stop-hunts (brief piercing wicks before reversal) -- a related but distinct convention from zone-width itself, cited here only to bound the ATR-multiple order of magnitude in use.",
+        "source": "Support and Resistance Trading: Complete Guide for Futures, Optimus Futures (https://optimusfutures.com/blog/support-and-resistance-trading-guide/)"
+      },
+      {
+        "claim": "A percentage-band convention (e.g. 1%, 2%, 5%, 10% off a level) is used to study price reaction near round levels; crypto practice commonly uses smaller Fibonacci-flavored bands (1.0%, 1.618%, 2.0%...).",
+        "source": "Support and Resistance Zones | Trading Key Levels, AlphaEx Capital (https://www.alphaexcapital.com/stocks/technical-analysis-for-stock-trading/price-action-and-chart-patterns/support-and-resistance-zones)"
+      },
+      {
+        "claim": "Illustrative practitioner framing: a stock 'holding $45 support' may actually bounce from $44.70 or $45.40 -- think '$44.50-$45.50' rather than '$45.00 exactly' -- i.e. an example tolerance band on the order of +/-$0.50 around a round equity level.",
+        "source": "Support and Resistance Levels Explained, StockAlarm (https://pro.stockalarm.io/blog/support-resistance-levels-guide)"
+      },
+      {
+        "claim": "Round-number levels (multiples of $5/$10/$50) attract genuine order-flow clustering from options market-maker hedging and algorithmic orders, not merely trader psychology -- supporting zone (not surgical-price) treatment of round/strike-adjacent levels such as SPY's own strike grid.",
+        "source": "0DTE SPY Options Strategy synthesis, TradeAlgo / journalplus S/R guide (https://www.tradealgo.com/trading-guides/options/0dte-spy-options-strategy ; https://journalplus.co/strategies/support-resistance-trading/)"
+      },
+      {
+        "claim": "Treating S/R as zones rather than single lines is reported to reduce false breakout signals and improve entry timing versus a strict single-line convention.",
+        "source": "Support and Resistance Zones: Why Areas Beat Exact Price Levels, The Bull (https://thebull.com.au/trading-guides/support-resistance-zones/)"
+      },
+      {
+        "claim": "A hybrid pivot-candle-structure + ATR-volatility-cap method is used by some indicator implementations specifically to prevent one unusually large candle from blowing out an otherwise-reasonable zone width -- i.e. ATR should cap, not solely define, zone size.",
+        "source": "Dynamic ATR Cluster Support Resistance Zones, TradingView / tradingbauhaus (https://www.tradingview.com/script/OMUh7f5y-Dynamic-ATR-Cluster-Support-Resistance-Zones/)"
+      }
+    ],
+    "grid_derivation": "Fixed cells {15c,30c,50c,75c,$1.00} bracket the practitioner illustrative range (~$0.50-$1.00 example tolerance on SPY-scale prices) while adding a tighter half (15c/30c) since SPY 0DTE precision is much finer than the $45-stock illustration. ATR-relative cells {0.1x,0.2x,0.3x}xATR(14,5m) are set BELOW the commonly-cited 0.25x-1.0x ATR range found above -- deliberately conservative, since a level-REJECTION entry trigger (this study) is a materially different mechanism from a stop-placement buffer (what most of the found sources describe); starting tighter and letting the data decide whether even the conservative end clears is the eval-first-appropriate choice, not an attempt to manufacture a pass."
+  },
+  "hypothesis": {
+    "statement": "Adding a proximity-band REJECTION trigger -- bar.high within Z of a resistance-role level from BELOW (level - Z <= bar.high < level, i.e. never pierced) AND a red close (bar.close < bar.open) AND no pierce/wick trigger already fired that bar -- to the SAME 'level_rejection' trigger slot filters.py already feeds (mirroring the wick-promotion pattern, filters.py evaluate_bearish_setup 'elif wick_level is not None:' branch) adds POSITIVE-EXPECTANCY entries under SS-B exit shape + honest friction, on the NEW-episodes-only population (episodes the current exact-pierce trigger does not already catch), for at least one Z cell on at least one account.",
+    "falsifiable_prediction": "If TRUE: at least one Z cell's NEW-episodes delta population clears all 5 ratification gates + BH-FDR on Safe and/or Bold. If FALSE: no Z cell clears on either account -- KILL, current pierce-only semantics stand, and today's 10:15 incident remains an accepted miss (a setup existing but ungated is not automatically a profitable trigger)."
+  },
+  "z_grid": {
+    "fixed_dollars": [
+      0.15,
+      0.3,
+      0.5,
+      0.75,
+      1.0
+    ],
+    "atr_relative_multiples": [
+      0.1,
+      0.2,
+      0.3
+    ],
+    "atr_definition": "ATR(14) on SPY 5m bars, True Range = max(high-low, abs(high-prev_close), abs(low-prev_close)), simple rolling mean over 14 bars, continuous across day boundaries (no explicit overnight-gap reset) -- disclosed convention, not the only valid one.",
+    "n_cells": 8,
+    "red_close_requirement": "bar.close < bar.open (plain red bar) -- required on ALL cells, fixed and ATR-relative alike; not itself swept (out of this grid's scope, follow-up candidate if the base mechanism clears).",
+    "mutual_exclusion_with_existing_triggers": "The candidate fires ONLY when neither the existing pierce trigger (detect_level_rejection) NOR the existing wick trigger (detect_wick_rejection_bearish) already fired that bar -- guarantees the candidate never overlaps/reclassifies an episode the engine already catches; it is additive only."
+  },
+  "control": {
+    "definition": "Current exact-pierce behavior -- backtest/lib/filters.py#detect_level_rejection UNMODIFIED (bar.high > level AND close < level). Equivalent to Z=0 / candidate disabled.",
+    "note": "No file edit to filters.py is made to produce this control -- it IS the current, already-shipped, unmodified function. The study's CANDIDATE runs are produced by an in-process monkeypatch of the imported filters.detect_level_rejection reference for the duration of a single Python process/run, never touching the checked-in file. filters.py is edited only in the SHIP step (section 5), after 16:00 ET, and only if a Z cell clears."
+  },
+  "cohort": {
+    "_doc": "The standard real-OPRA replay cohort machinery every study this week used (bold_strike_axis_ab.py / directional_gate_battery.py / ribbon_ride_strike_exit_ab.py lineage), applied here to a NEW-trigger mining problem rather than a mined-skip-log problem, since this candidate creates entries that DO NOT EXIST in core-decisions.jsonl today (zero historical log rows for a trigger that never fires).",
+    "signal_mining_engine": "backtest.lib.orchestrator.run_backtest -- the SAME full historical bar-walk engine backtest/tools/_signal_cache.py uses to build the canonical ribbon_ride signal cohort (ribbon/HTF/VIX computation + evaluate_bearish_setup/evaluate_bullish_setup + the FULL gate stack incl. block_level_rejection, block_elite_bull, entry_bar_body_pct_min, vix_bear_hard_cap -- gates.py's GATE_ORDER table cross-references these exact orchestrator.py line numbers, confirming it is the same logic, not a parallel implementation). CRITICAL DEVIATION from _signal_cache.py: params_overrides here are the REAL, UNMODIFIED live params.json / aggressive/params.json for each account (read live this session) -- NOT _signal_cache.py's L2_PATCH (which loosens block_level_rejection to False and other gates for unrelated signal-generation purposes). Using the real live gate config is required so control and candidate both reflect what the ACTUAL engine would do today, per account.",
+    "gate_stack_interaction_disclosed_upfront": "Safe's LIVE params.json currently has block_level_rejection=true, which blocks ALL bear-side single-trigger (quality_tier=='LEVEL') level_rejection entries outright (backtest/lib/orchestrator.py:1347, gates.py GATE_ORDER #1). A brand-new zone-only trigger feeding the SAME level_rejection slot is, on Safe, a LEVEL-tier entry UNLESS a second trigger (confluence/sequence_rejection/ribbon_flip) is also present that bar -- meaning it inherits this EXISTING, already-armed, differently-provenanced gate and may be suppressed on Safe regardless of this study's own verdict. Bold's live params.json has block_level_rejection=false (not armed) -- Bold is not subject to this interaction. Because orchestrator.run_backtest's own block_level_rejection kwarg (threaded automatically from params_overrides) already enforces this inline, the control-vs-candidate diff below AUTOMATICALLY reflects this suppression per account -- no separate re-implementation of gates.py needed, and the study's reported tradeable population is already net of it. This gate itself is OUT OF SCOPE to touch here (separate provenance, CLAUDE.md standing doctrine on gates: 'burden of proof is on the GATE' applies to a DIFFERENT, already-ratified gate, not re-litigated by this study).",
+    "window": {
+      "is_end": "2025-12-31",
+      "oos_start": "2026-01-01",
+      "end": "today (2026-07-17, run-time-of data availability)",
+      "boundary_source": "autoresearch.strategy_space_grind.OOS_BOUNDARY (2026-01-01), reused unchanged, same convention every SS-B-lineage study this week used."
+    },
+    "accounts_tested_independently": {
+      "_doc": "Per C29 (exit/strike verdicts do not transfer across accounts) -- each account gets its OWN params_overrides, OWN live strike tier, OWN time_stop, OWN entry gate, OWN gate stack, and its OWN independent 5-gate ratification.",
+      "safe": {
+        "params_source": "automation/state/params.json, read live this session (block_level_rejection=true, entry_bar_body_pct_min=0.2, vix_bear_hard_cap=23.0, block_elite_bull=true[0,25], block_bull_1100_1200=true, structure_veto_enabled=true, midday_trendline_gate=false).",
+        "strike_tier": "crypto/lib/strike_selection.py V15_SAFE_TIERS at live-verified current equity this session -- ATM (0) at the current <$10K band.",
+        "time_stop_et": "15:40 (params.json time_stop_et, read live)."
+      },
+      "bold": {
+        "params_source": "automation/state/aggressive/params.json, read live this session (block_level_rejection=false, block_elite_bull=true[15,18], block_conf_lvl_rec_afternoon=true, require_bearish_fill_bar=true, min_entry_premium=0.30).",
+        "strike_tier": "crypto/lib/strike_selection.py V15_BOLD_TIERS at live-verified current equity this session.",
+        "time_stop_et": "15:40 (aggressive/params.json time_stop_et, read live)."
+      }
+    },
+    "exit_shape": "structure_stop_study.SS_B_SHAPE (premium_stop_pct=-0.50, tp1_premium_pct=1.0, tp1_qty_fraction=0.667, profit_lock_mode=trailing, trail_pct=0.15, runner_target_pct=9.9) + STRUCTURE_BUFFER['SS-B']=0.0 -- the certified SS-B replay engine (structure_stop_study.replay_structure_aware + structure_stop_signal_time), reused UNCHANGED, exactly as every SS-B-lineage study this week used. Note: params.json's OWN tp1_qty_fraction (0.8 Safe / 0.667 Bold per CLAUDE.md) is NOT substituted here -- consistent with every other SS-B-lineage study this week, which holds SS_B_SHAPE fixed as the certified replay shape and treats params.json's own exit knobs as vestigial on this replay path (per those studies' own documented convention). Disclosed as a carried-forward convention, not re-derived here.",
+    "real_opra_bars": "backtest.lib.option_pricing_real.load_contract_bars/option_symbol, local cache only (no live fetch) -- a signal whose contract bars are not cached is DROPPED and counted (n_no_local_bars), never imputed (C7), same convention as bold_strike_axis_ab.py/ribbon_ride_strike_exit_ab.py.",
+    "friction": "ON (honest friction via the SS-B lineage's own simulator_credit-derived haircuts, reused unchanged)."
+  },
+  "mining_method_umbrella": {
+    "_doc": "Efficiency device, disclosed: instead of 8 separate full-history orchestrator runs per account (16 total), ONE candidate mining pass per account is run with an UMBRELLA Z = max(1.00, 0.3*ATR_at_bar) -- a per-bar dynamic value guaranteed >= every grid cell's threshold (fixed max=$1.00, ATR-relative max=0.3x). Every zone-branch fire is logged with its exact (level, proximity_cents = level-bar.high, atr_at_fire). Each of the 8 grid cells is then a POST-FILTER of this one umbrella episode set (membership: proximity_cents <= Z_dollars for fixed cells; proximity_cents <= Z_frac*atr_at_fire for ATR-relative cells) -- smaller Z is by construction a subset of the umbrella set for the SAME bar-level trigger condition.",
+    "pierce_preservation": "The candidate detector calls the ORIGINAL unmodified detect_level_rejection first and returns its result unchanged if non-None -- guarantees every bar where the pierce trigger already fires behaves IDENTICALLY (same level, same bar) in both control and candidate runs, so already-covered episodes cannot be miscounted as new.",
+    "known_path_dependence_caveat": "Because the umbrella run uses the WIDEST Z, it could in principle occupy a position slot on a bar that a STRICTER, per-cell-only run would not have entered on, altering what happens later that day in a way a true isolated per-cell run might not reproduce exactly (state-machine ripple: setup_quality_taken_today / re-entry locks are path-dependent on entry order). This is a disclosed, accepted simplification -- NOT independently verified per cell. It biases toward the umbrella set being a slight OVER-approximation of a true isolated per-cell mine in edge cases, never an under-approximation for the smallest cells' membership test itself (proximity_cents is recorded exactly per fire, so which EPISODES qualify per cell is exact; only the DOWNSTREAM SAME-DAY SEQUENCING after a wide-Z entry is the disclosed approximation).",
+    "episode_attribution": {
+      "_doc": "Per the task's explicit requirement: the delta is the NEW-entries-only population, explicit about attribution -- reuses WF-GATE-METHODOLOGY-2026-07-16.md's own matched-episode delta_i definition.",
+      "episode_key": "(date, direction) slot, matched by ORDINAL position within that day's bear-entry sequence (1st bear entry of the day in control matched to 1st bear entry of the day in candidate, etc.) -- a disclosed simplification when a day's entry COUNT differs between control and candidate (it can, since an earlier zone entry may pre-empt or unlock a different later sequence).",
+      "unchanged": "candidate ordinal-matched entry has IDENTICAL entry_ts to control's -- delta_i = 0 by construction, NOT replayed (saves the OPRA-fetch+SS-B-replay cost; the pierce-preservation guarantee above makes this safe).",
+      "new": "candidate has an entry in an ordinal slot control has none for that date -- delta_i = pnl_candidate(episode) - 0, per WF-GATE-METHODOLOGY's own rule for one-side-only episodes. This is the PRIMARY population (today's incident's exact shape: a day with zero bear entries under control that gets one under candidate).",
+      "shifted": "both control and candidate have an entry in the same ordinal slot but at DIFFERENT entry_ts (candidate's zone trigger fired before control's later pierce trigger that same underlying level-test) -- delta_i = pnl_candidate(episode) - pnl_control(episode), BOTH sides independently replayed through the IDENTICAL SS-B lineage (never orchestrator's own internal P&L, which is a legacy/uncertified exit model) so the comparison is apples-to-apples.",
+      "metadata_recovery": "Each new/shifted episode's proximity_cents/atr_at_fire is recovered by matching the trade's entry_time_et against the umbrella run's zone-branch fire log (exact timestamp match, else nearest logged fire within 10 minutes). Unrecoverable metadata (should be rare/zero given the fire log covers every zone-branch evaluation) is counted (n_metadata_unrecovered) and excluded from per-cell membership, never imputed."
+    }
+  },
+  "ratification_gates": {
+    "_doc": "Per CLAUDE.md OP-16 + WF-GATE-METHODOLOGY-2026-07-16.md (Fable, frozen 2026-07-16), the FROZEN A/B-delta WF form -- read and applied, not re-derived. ALL FIVE required for a cell to be ship-ready, per account, independently (C29).",
+    "wf_form": "ab_delta_per_trade_v2026_07_16",
+    "1_oos_positive": "sum(delta_i for episodes with date >= oos_start) > 0.",
+    "2_wf_ge_070": "WF_delta = (sum_oos(delta_i)/n_oos) / (sum_is(delta_i)/n_is) >= 0.70, computed ONLY when is_delta_mean > 0 (frozen verdict ladder). is_delta_mean <= 0 and oos_delta_mean <= 0 => FAIL. is_delta_mean <= 0 and oos_delta_mean > 0 => INSUFFICIENT_REGIME_SHIFT (park per AMENDMENT 1's re-test trigger, not auto-ratified, not a clean pass).",
+    "3_sub_window_stable": "OOS delta episodes split chronologically in half (sw1/sw2, same both_halves convention every SS-B-lineage study this week used); <=1 of {sw1,sw2} negative.",
+    "4_anchor_no_regression": "None of the 7 CLAUDE.md OP-16 J-anchor trades' own (date,direction) ordinal slot is touched by this candidate (checked directly -- anchors already fire via their own existing triggers; a candidate that is additive-only per mining_method_umbrella.pierce_preservation cannot alter an anchor's OWN entry unless the anchor's day also contains an independent NEW/SHIFTED zone episode on the SAME direction, checked explicitly, not assumed).",
+    "5_evidence_n_advisory": "n (deduped new+shifted episodes, post exclusions) >= 15 is ADVISORY (OP-16) -- a thin-n PASS ships if the other 4 gates clear, labeled thin, not hidden.",
+    "control_sanity_disclosure": "Per WF-GATE-METHODOLOGY's mandatory disclosure: a null/control sanity check is computed alongside every real cell -- the SAME delta machinery applied to a RANDOM zone-fire population (random_entry_null, seeded, drawn from the account's own entry gate) to confirm the gate is discriminating (if the sanity cell also 'passes', wf_not_discriminating=true is flagged and the verdict rests on the remaining gates with the anomaly disclosed, per the frozen note).",
+    "bh_fdr_correction": "Benjamini-Hochberg step-up across all 8 Z cells x 2 accounts = up to 16 test statistics this run, alpha=0.10, one-sided normal-approximation p-value for mean(delta_i) > 0 -- same algorithm as backtest/autoresearch/ribbon_rejection_wick_battery.bh_fdr / FDR_ALPHA, reused unchanged (the house convention every study this week used). A cell failing the BH-FDR cut does NOT auto-ship even if conditions 1-5 nominally clear."
+  },
+  "decision_rule": {
+    "statement": "Per account, independently: a Z cell is SHIP-READY iff it clears all 5 ratification_gates AND survives BH-FDR. If >=1 cell is ship-ready on an account, the WINNER is the cell with the highest OOS delta expectancy per trade (tie-break: larger n). SHIP timing is separately gated on real clock time (et_clock.py) -- no filters.py edit before 16:00 ET regardless of study verdict (mid-session engine-edit doctrine, CLAUDE.md). If a winner exists, default ON for Safe per J's directive IF Safe's own cohort independently clears (C29) -- Bold ships independently only if BOLD'S OWN cohort clears, never inherited from Safe's result.",
+    "kill_criterion": "If NO Z cell clears on EITHER account: KILL. Current exact-pierce semantics in filters.py#detect_level_rejection stand UNCHANGED. The scorecard reports the Z cell that came CLOSEST (most gates passed, or least-negative OOS delta) and names which specific gate(s) failed it -- an honest miss stays an honest miss; today's 10:15 incident is logged as an accepted gap, not silently retried."
+  },
+  "outputs": {
+    "study_script": "backtest/tools/zone_rejection_band_study.py",
+    "scorecard_json": "analysis/recommendations/zone-rejection-band-2026-07-17.json",
+    "scorecard_md": "analysis/recommendations/zone-rejection-band-2026-07-17.md",
+    "guard_test_if_shipped": "backtest/tests/test_zone_rejection_band_ships.py"
+  },
+  "rail": "Steps 1-4 (research, prereg freeze, implementation, run) are ANALYSIS ONLY -- read live params/account-equity/OPRA cache, monkeypatch an IN-PROCESS function reference for the duration of one Python run, write only to analysis/recommendations/. No filters.py/params.json/aggressive-params.json edit happens inside the study script. Any SHIP (step 5) is a SEPARATE, later, explicitly-flagged, clock-gated step per the decision_rule and CLAUDE.md's mid-session engine-edit doctrine.",
+  "content_sha256_16": "0f799f46e5dc7ab3"
+}
