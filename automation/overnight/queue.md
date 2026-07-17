@@ -9,6 +9,27 @@
 
 ## Active backlog
 
+### SAFE3-RISKY1-GATE-RETEST-EXTEND (MED, needs pre-reg accrual, discovered 2026-07-17)
+
+- [ ] SAFE3-RISKY1-GATE-RETEST-EXTEND (MED, this-week/needs-larger-n) :: J audit
+  ("why didn't safe-3/risky-1 mirror the 13:01 746P +$241 / 13:51 743P +$191 core winners")
+  traced BOTH misses to the tight arms' own `gate_override` (min_triggers=2 +
+  require_confluence_or_sequence) correctly blocking a lone `trendline_rejection` trigger with
+  no confluence/sequence tag -- design working as intended, not a bug. But the blocked-cohort
+  P&L evidence (07-16 redesign: 0-for-4, -$85) got extended with one new comparable fill today
+  (risky-3 mirrored the 13:51 signal at the identical strike table, +$233) -- extended sample
+  n=5, 1-for-5 by count, net **+$148** (sign flip from the 07-16 headline). Still far below the
+  07-16 redesign's own tightened n>=30 multi-testing floor -- NOT shippable tonight, NOT
+  permanently closeable either. Pre-reg filed:
+  `analysis/recommendations/safe3-risky1-gate-retest-preregistration.json` (frozen cohort
+  definition + pass bar; auto-accretes on the next qualifying comparable fill). Full trace:
+  `analysis/daily-brief/2026-07-17-tight-arms-audit.md`. Secondary, distinct finding folded
+  into the EXISTING 07-16 redesign's "nearer strike table for risky-3" THIS WEEK item (not a
+  new pre-reg): the 13:01 miss's real binding constraint was `SKIP_MIN_PREMIUM_FLOOR` at the
+  shared OTM-3 strike table, which applies to safe-3/risky-1 exactly as it does risky-3 -- widen
+  that item's scope to all three fleet_rest arms when picked up. :: depends:pre-reg-accrual
+  :: status:pending
+
 ### TV-MCP-GETCHARTAPI-FIX-VERIFY (MED, fix landed, verify pending restart, 2026-07-14)
 
 - [ ] TV-MCP-GETCHARTAPI-FIX-VERIFY (MED) :: G3 root-caused + fixed the `draw_list`/
@@ -1036,3 +1057,32 @@ count: worst case +4 active entries (~16-18 total, still inside `ACTIVE_BAND=$12
 cost is the confluence-tolerance interaction in item 5 above, not compute.
 
 :: depends:none :: status:proposed
+
+## BOLD-TIER-BOUNDARY-HYSTERESIS-SPEC (LOW, spec-only, from CORE-BOLD-TAPE-AUDIT-2026-07-17)
+
+- [ ] BOLD-TIER-BOUNDARY-HYSTERESIS (LOW, risk-hygiene, filed 2026-07-17 evening, Sonnet tape audit) ::
+  Bold's first confirmed round trip (743P, +$191) pushed equity $1,963.04 -> $2,153.84, crossing the
+  $2K `V15_BOLD_TIERS` boundary (OTM-3 -> OTM-2). `pick_tier()`/`pick_strike()`
+  (`crypto/lib/strike_selection.py:142-183`) is a stateless `[equity_min, equity_max)` lookup called
+  fresh every tick against LIVE broker equity (`heartbeat_core.py:1258-1261`, a real
+  `GET /v2/account`, no start-of-day cache) -- confirmed the graduation is not a "next session" event,
+  it recomputes intraday, mid-tape. Repo-wide grep for `hysteresis` finds zero hits on the strike-tier
+  path (one unrelated hit in `level_alert_daemon.py`'s level-touch debounce). The only existing test
+  (`test_bold_core_strike_tier_2026_07_15.py::T9`) checks boundary INCLUSIVITY at exactly $2,000, not
+  repeated CROSSING behavior. Bold sits 7.7% above the $2,000 line as of today -- one bad trade
+  (catastrophe -50% on a 5-lot ~$0.40 premium ~= -$100) puts it back under, a second win pushes it
+  back over; nothing damps oscillation across the line. **This is a SPEC request, not an
+  implementation** -- do not wire without ratification:
+  1. Define the flap condition precisely: N crossings within M trades/session, or dwell-time-based
+     (tier only changes if equity has been on the new side for >= K consecutive ticks/trades)?
+  2. Decide the guard shape: a hard "sticky" band (e.g. tier only steps down after equity clears
+     $1,900, not $2,000 exactly -- asymmetric hysteresis) vs a cool-down (tier locked for N trades
+     after a crossing) vs simple session-lock (tier fixed at session open, only re-evaluated at the
+     next day's premarket -- closer to what the CLAUDE.md doctrine text implicitly assumed before
+     this audit corrected it).
+  3. Whichever shape is chosen must be A/B'd against the current stateless behavior on real fills
+     before shipping (OP-16 eval-first gate) -- a flapping-prevention guard that itself never fires
+     (equity rarely actually re-crosses) has zero cost to add but also zero proven benefit; the case
+     for shipping rests on whether repeated live crossings actually happen, which needs more sessions
+     of evidence than today's single data point.
+  Evidence: `analysis/daily-brief/2026-07-17-bold-tape-audit.md` §4. :: depends:none :: status:proposed

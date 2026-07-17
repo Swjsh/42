@@ -1,0 +1,53 @@
+{
+  "_doc": "PRE-REGISTERED cohort/method/pass-bar for re-testing safe-3/risky-1's tight-gate_override (min_triggers=2 AND require_confluence_or_sequence=true) against the fleet's loose sibling. Frozen BEFORE any further replay/data is analyzed with the intent to ship -- exploratory != confirmatory, no re-picks after seeing results, FAIL is publishable. Extends (does not replace) the 07-16 forensic pass's own blocked-cohort finding (0-for-4, -$85) and the 2026-07-17 tight-arms audit's extension (n=5, 1-for-5, +$148). Do NOT ship a gate_override change on this pre-reg alone -- see pass_bar.",
+  "study": "safe3_risky1_gate_retest",
+  "version": 1,
+  "status": "FROZEN_PENDING_ACCRUAL",
+  "frozen_at": "2026-07-17",
+  "origin": {
+    "trigger": "J audit request 2026-07-17 (after-hours): why did safe-3/risky-1 not mirror the 13:01 (safe 746P +$241) / 13:51 (bold 743P +$191) winners while risky-3 banked +$248",
+    "prior_evidence": "markdown/research/SIX-ACCOUNT-DAILY-HYPOTHESIS-REDESIGN-2026-07-16.md section 2 (safe-3 row): gate-loosening's only P&L evidence was 4 real fills where risky-3 traded through the identical block, 0-for-4, -$85 total. Verdict at the time: REFUTED as biggest unlock, do not re-propose without a larger, profitable sample. Section 5 THIS WEEK item 4 explicitly kept the question open, not permanently dead.",
+    "extension_evidence": "analysis/daily-brief/2026-07-17-tight-arms-audit.md section 5: +1 comparable fill today (13:51 signal, risky-3 743P entry 0.39 -> tp1 0.98 x3 + trail 0.67 x2, +$233 per automation/state/pnl-statement.json broker-truth round_trips). Extended sample n=5, 1-for-5 by count, net +$148 (sign flip vs the 07-16 headline number). The 13:01 signal is explicitly EXCLUDED from the comparable-fill cohort: risky-3's own loose gate passed it, but the trade died downstream to SKIP_MIN_PREMIUM_FLOOR (premium 0.23 < 0.30) at the shared OTM-3 strike table -- no fill exists to compare, so it is not counted either way."
+  },
+  "gate_under_test": {
+    "mechanism": "fleet_executor._gate_check (automation/state/fleet/fleet_executor.py) -- gate_override.min_triggers and gate_override.require_confluence_or_sequence",
+    "arms_in_scope": ["safe-3", "risky-1"],
+    "gate_override_value": {"min_triggers": 2, "require_confluence_or_sequence": true},
+    "counterfactual_sibling": "risky-3 (gate_override.min_triggers=1, no confluence requirement; SAME strike_tier_table='bold' / OTM-3 as safe-3 and risky-1, so it is the correct apples-to-apples counterfactual for 'what would the tight arms have gotten if the gate had passed')"
+  },
+  "cohort_definition": {
+    "inclusion": [
+      "A tick where signal['strategies'] (or the v1 side-block fallback) carries a passed ribbon_ride entry for safe-3 and/or risky-1",
+      "safe-3 and/or risky-1's fleet/{arm}/decisions.jsonl logs a HOLD with reason matching regex '^gate: .*(triggers < |requires confluence/sequence)' for that tick",
+      "risky-3's fleet/risky-3/decisions.jsonl shows an ENTER_BEAR/ENTER_BULL action within the SAME tick or the immediately following tick for the SAME underlying signal (same side, same or adjacent strike, same setup_name) that WAS NOT itself blocked by a gate reason (i.e. risky-3's own loose gate passed and a realized fill exists in automation/state/pnl-statement.json round_trips)"
+    ],
+    "exclusion": [
+      "Ticks where risky-3 was ALSO blocked downstream (e.g. SKIP_MIN_PREMIUM_FLOOR, one-position/Rule-4, kill-switch, PDT) -- no comparable fill exists, so the tick contributes to the drought/other-blocker ledger, not this cohort",
+      "Ticks where the signal was multi-trigger/confluence and safe-3 or risky-1 ALSO entered (both arms cleared their own gate) -- not a blocked-cohort event"
+    ],
+    "attribution_source": "automation/state/pnl-statement.json round_trips (broker-truth, per arm) -- NOT journal/trades.csv notes or fleet decisions.jsonl's decision-time quoted premium (see 2026-07-17-tight-arms-audit.md section 3 for a documented instance where a sibling audit's prose used the quoted-premium figure and got a wrong per-leg P&L; pnl-statement.json is the authoritative source)."
+  },
+  "current_accrued_sample": {
+    "n": 5,
+    "wins": 1,
+    "losses": 4,
+    "net_pnl": 148.0,
+    "detail": [
+      {"date": "pre-2026-07-16 window", "n": 4, "net_pnl": -85.0, "source": "SIX-ACCOUNT-DAILY-HYPOTHESIS-REDESIGN-2026-07-16.md section 2 (not individually re-itemized in this file -- see that doc)"},
+      {"date": "2026-07-17", "n": 1, "net_pnl": 233.0, "symbol": "SPY260717P00743000", "entry": 0.39, "exit_legs": [{"qty": 3, "exit": 0.98, "stage": "tp1"}, {"qty": 2, "exit": 0.67, "stage": "trail"}], "source": "automation/state/pnl-statement.json"}
+    ]
+  },
+  "pass_bar": {
+    "min_n": 30,
+    "rationale": "Matches the 07-16 redesign's own tightened multi-testing floor (evidence_n >= 30) for any hypothesis/gate-change reopened by the six-account pivot -- NOT the older evidence_n >= 15 OP-11 default. This gate question was explicitly reopened by that pivot, so it inherits the tightened bar.",
+    "additional_conditions": [
+      "net_pnl of the accrued comparable-fill cohort must be positive at n>=30",
+      "sub_window_stable: the win is not concentrated in a single outlier day (no single day's fill(s) can account for more than ~50% of cumulative cohort P&L at the time the bar is checked)",
+      "anchor_no_regression: safe-3/risky-1's OWN currently-passing (multi-trigger/confluence) trades must not degrade if the gate is loosened -- re-verify their existing ELITE-tier win rate is unaffected by any proposed change before shipping"
+    ]
+  },
+  "ship_action_if_passed": "Loosen safe-3 and/or risky-1 gate_override.min_triggers to 1 (matching risky-3), OR reassign these two arms a distinct hypothesis per the 07-16 redesign's own honest-gap framing (section 3.2) -- whichever the accrued evidence at n>=30 actually supports. Either way: weekend-ratifiable, single-key/single-JSON-field change in automation/state/fleet/accounts.json, standard revert = restore prior gate_override block.",
+  "ship_action_if_not_passed_by_next_review": "No forced action -- re-review at the next accrual checkpoint. Do not permanently close the question (per 07-16 redesign's own honesty rail: 'not dead, failed at n=4' -- now n=5, still not enough either way).",
+  "not_shipped_tonight": true,
+  "secondary_related_finding_not_in_scope_here": "The 13:01 signal's miss traces to SKIP_MIN_PREMIUM_FLOOR at the shared OTM-3 strike table (strike_tier_table='bold'), not the gate -- this affects safe-3 and risky-1 exactly as it affects risky-3. Folds into the EXISTING 07-16 redesign THIS WEEK item 2 ('nearer strike table for risky-3') rather than opening a new pre-reg -- that item's scope should be widened to all three fleet_rest arms, not just risky-3, when it is picked up."
+}
