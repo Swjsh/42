@@ -1292,7 +1292,7 @@ MECHANISM (flag-gated, default = exactly what ships): (1) `build_shared_signal.p
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 22 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 23 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -5127,3 +5127,119 @@ Zero params/config/trading-path files touched by either job. No orders placed. Q
 - [2026-07-17 09:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-17T15:57:01.823405+00:00) | fail streak: 72 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
 
 - [2026-07-17 09:57:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+- [2026-07-17 10:27:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-17T16:27:01.664786+00:00) | fail streak: 73 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 10:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+- [2026-07-17 10:57:01] crypto-harness drift RED :: latest cron fire FAILED (2026-07-17T16:57:02.444404+00:00) | fail streak: 74 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 10:57:01] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+- [2026-07-17 11:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-17T17:27:02.998360+00:00) | fail streak: 75 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 11:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+- [2026-07-17 11:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-17T17:57:02.991617+00:00) | fail streak: 76 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 11:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+- [2026-07-17 12:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-17T18:27:03.049309+00:00) | fail streak: 77 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 12:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+- [2026-07-17 12:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-17T18:57:02.959847+00:00) | fail streak: 78 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 12:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+### DEGRADED: self-check 2026-07-17T15:09:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 1 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?']
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 1 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?']
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,485.31, $0.00 remaining, 5 entries placed today).
+
+- [2026-07-17 13:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-17T19:27:02.982949+00:00) | fail streak: 79 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 13:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+### DEGRADED: self-check 2026-07-17T15:39:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 6 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,485.31, $0.00 remaining, 5 entries placed today).
+
+- [2026-07-17 13:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-17T19:57:02.976743+00:00) | fail streak: 80 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 13:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-17T20:00:25+00:00
+- task: eod-summary
+- date_et: 2026-07-17
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-07-17T16:09:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 11 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,485.31, $0.00 remaining, 5 entries placed today).
+
+- [2026-07-17 14:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-17T20:27:02.979919+00:00) | fail streak: 81 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 14:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+### DEGRADED: self-check 2026-07-17T16:39:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 11 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,485.31, $0.00 remaining, 5 entries placed today).
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-17T20:45:29+00:00
+- task: analyst
+- date_et: 2026-07-17
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-07-17 14:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-17T20:57:02.994791+00:00) | fail streak: 82 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 14:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+- [2026-07-17 21:00:01] gym-session (2026-07-17) → **RED** :: see `automation\state\gym-scorecard-2026-07-17.json`
+### DEGRADED: self-check 2026-07-17T17:09:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 11 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,485.31, $0.00 remaining, 5 entries placed today).
+
+- [2026-07-17 15:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-17T21:27:02.961673+00:00) | fail streak: 83 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 15:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-07-17T21:30:27+00:00
+- task: manager
+- date_et: 2026-07-17
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-07-17T17:39:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 11 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,485.31, $0.00 remaining, 5 entries placed today).
+
+- [2026-07-17 15:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-17T21:57:02.970897+00:00) | fail streak: 84 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 15:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+### DEGRADED: self-check 2026-07-17T18:09:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 11 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,485.31, $0.00 remaining, 5 entries placed today).
+
+- [2026-07-17 16:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-17T22:27:03.229260+00:00) | fail streak: 85 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 16:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+- 2026-07-17 18:31 ET [fleet-attribution audit, market CLOSED] **RESOLVED: risky-3's "+$248 / zero ENTER" mystery was a FALSE ALARM in the visibility layer, not a missing decision-ledger row.** `automation/state/fleet/risky-3/decisions.jsonl` was checked directly and contains a complete, correctly-timestamped trail for all 5 broker fills (2 `ENTER_BEAR` + 3 `exit_pass` actions, every broker order id matching `trade-today.json` exactly). ROOT CAUSE: `trade_today_watcher.py::_is_engine_attributed()` only recognized the core heartbeat schema (`exec`/`extra_exec`) and had never been extended to the fleet_rest arm schema (`action`=`ENTER_BEAR`/`placement.broker`, `exit_pass[].actions[].broker`) -- so it unconditionally returned False for every fleet-arm fill, real or not. Confirmed live: **all 13 fleet fills today (safe-3 x4, risky-1 x4, risky-3 x5) pinged Discord as "UNATTRIBUTED FILL (no matching decision row)"** despite complete matching decisions.jsonl rows -- almost certainly the source of the mystery premise. Same anti-pattern class as the 2026-07-16 exec/extra_exec fix (b5c575e/9a133ee), recurring in the sibling branch that fix never touched. safe-3 (+$18) and risky-1 ($0.00 exact) 4-fill reconciliations: real mechanical structure-stop/time-stop scratches, NOT rehearsal probes (those are a separate, distinctly-tagged array). **FIXED**: `_is_engine_attributed()` extended to also check the fleet-arm ENTER/EXIT record shapes. 5 new guard tests added to `backtest/tests/test_trade_today_watcher.py` (28/28 green), including a pin against the real 2026-07-17 incident and an end-to-end reproduction proving the tests genuinely RED without the fix (stash-verified) and GREEN with it. Full evidence chain: `analysis/daily-brief/2026-07-17-fleet-attribution-audit.md`. Visibility-only change -- no order-placement/trading logic touched.
+
+- [2026-07-17 18:28 ET] HTF-LEVELS-AUDIT (Sonnet, J-directed): verified J's 740-744.5 zone read (4 RTH lows in a $1.86 band across 06-30/07-02/07-08/today, median bounce $3.30) -- level_memory_producer.py's 10-trading-day lookback dropped 06-30/07-02 out of the horizon entirely, $0.35 cluster tolerance fragmented even the in-window 07-08 touch below the 60-point Active-merge bar (scored 48). COUNTERFACTUAL: the missing level was NOT the binding constraint this morning -- ribbon never flip-stacked BULL all session (hard veto) and VIX~19 sat inside block_elite_bull's [0,25) block band, the same gate that fired SKIP_ELITE_BULL_LEVEL_RECLAIM 25x on 07-15 + 2x on 07-16. Pre-reg HTF-LEVEL-LOOKBACK-EXTENSION filed to queue.md (additive HTF tier, 25-day lookback, $1.00 cluster tol, shadow-first, OP-16 eval-first gate before live merge) -- value is conviction/visibility, not a guaranteed unlock (block_elite_bull stays CLOSED, not reopened). Full brief: `analysis/daily-brief/2026-07-17-htf-levels-audit.md`.

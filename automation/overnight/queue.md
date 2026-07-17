@@ -538,21 +538,21 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 
 ## HARVESTED-FROM-GYM (auto-queued by crypto/benchmarks/gym_harvester.py)
 
-- [ ] HARVEST-RSIEXTREME-20260716-100046 (MED) :: BTC v03_indicators rsi_14=80.60 (overbought) at last_close=65422.0 bin=2026-07-15T13:20:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-15T13:20:00+00:00:overbought :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260716-100047 (MED) :: BTC v03_indicators rsi_14=82.36 (overbought) at last_close=65512.14 bin=2026-07-15T13:25:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-15T13:25:00+00:00:overbought :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260716-100048 (MED) :: BTC v03_indicators rsi_14=19.50 (oversold) at last_close=64223.6 bin=2026-07-16T07:40:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-16T07:40:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260716-100049 (MED) :: BTC v03_indicators rsi_14=17.96 (oversold) at last_close=64166.29 bin=2026-07-16T07:45:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-16T07:45:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260716-100050 (MED) :: BTC v03_indicators rsi_14=18.37 (oversold) at last_close=64176.44 bin=2026-07-16T07:50:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-16T07:50:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260716-100051 (MED) :: BTC v03_indicators rsi_14=15.21 (oversold) at last_close=64050.01 bin=2026-07-16T07:55:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-16T07:55:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260716-100052 (MED) :: BTC v03_indicators rsi_14=19.12 (oversold) at last_close=63888.65 bin=2026-07-16T08:15:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-16T08:15:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-RIBBONFLIP-20260716-100053 (MED) :: v08_ribbon flip MIXED -> BEAR | spread=256.17>100 | recent dist BULL=16 BEAR=101 MIXED=83 :: key=EDGE_RIBBON_FLIP:2026-07-16T09:00:00+00:00:BEAR :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260714-114240 (MED) :: BTC v03_indicators rsi_14=18.95 (oversold) at last_close=62536.82 bin=2026-07-13T12:40:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-13T12:40:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260714-114241 (MED) :: BTC v03_indicators rsi_14=18.99 (oversold) at last_close=62412.25 bin=2026-07-13T13:20:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-13T13:20:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260714-114242 (LOW) :: v09_regime TREND_DOWN dominant: 57/81 bars (70%) | last_regime=TREND_DOWN atr_14=118 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-13T16:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260714-114243 (LOW) :: v09_regime TREND_DOWN dominant: 59/81 bars (73%) | last_regime=TREND_DOWN atr_14=107 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-13T17:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260714-114244 (LOW) :: v09_regime TREND_DOWN dominant: 58/81 bars (72%) | last_regime=TREND_DOWN atr_14=105 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-13T18:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260714-114245 (LOW) :: v09_regime TREND_DOWN dominant: 58/81 bars (72%) | last_regime=TREND_DOWN atr_14=101 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-13T19:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260714-114246 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=102 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-14T01:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260717-100038 (LOW) :: v09_regime TREND_DOWN dominant: 57/81 bars (70%) | last_regime=TREND_DOWN atr_14=88 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-16T13:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260717-100039 (LOW) :: v09_regime TREND_DOWN dominant: 57/81 bars (70%) | last_regime=TREND_DOWN atr_14=110 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T02:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260717-100040 (LOW) :: v09_regime TREND_DOWN dominant: 59/81 bars (73%) | last_regime=TREND_DOWN atr_14=104 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T03:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260717-100041 (LOW) :: v09_regime TREND_DOWN dominant: 56/80 bars (70%) | last_regime=TREND_DOWN atr_14=85 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T04:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260717-100042 (LOW) :: v09_regime TREND_DOWN dominant: 59/80 bars (74%) | last_regime=TREND_DOWN atr_14=81 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T05:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260717-100043 (MED) :: BTC v03_indicators rsi_14=19.02 (oversold) at last_close=62851.45 bin=2026-07-17T05:50:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-17T05:50:00+00:00:oversold :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260717-100044 (MED) :: BTC v03_indicators rsi_14=17.73 (oversold) at last_close=62799.39 bin=2026-07-17T05:55:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-17T05:55:00+00:00:oversold :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260717-100045 (MED) :: BTC v03_indicators rsi_14=17.33 (oversold) at last_close=62782.59 bin=2026-07-17T06:00:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-17T06:00:00+00:00:oversold :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260717-100046 (LOW) :: v09_regime TREND_DOWN dominant: 60/80 bars (75%) | last_regime=TREND_DOWN atr_14=91 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T06:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260717-100047 (MED) :: BTC v03_indicators rsi_14=19.80 (oversold) at last_close=62788.97 bin=2026-07-17T06:10:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-17T06:10:00+00:00:oversold :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260717-100048 (MED) :: BTC v03_indicators rsi_14=18.74 (oversold) at last_close=62725.14 bin=2026-07-17T06:20:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-17T06:20:00+00:00:oversold :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260717-100049 (LOW) :: v09_regime TREND_DOWN dominant: 63/81 bars (78%) | last_regime=TREND_DOWN atr_14=85 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T07:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260717-100050 (LOW) :: v09_regime TREND_DOWN dominant: 65/81 bars (80%) | last_regime=TREND_DOWN atr_14=73 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T08:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260717-100051 (LOW) :: v09_regime TREND_DOWN dominant: 63/81 bars (78%) | last_regime=TREND_UP atr_14=80 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T09:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-SWEEP-20260717-100052 (MED) :: v14_sweep liquidity-grab at level=64000 dir=down bar_idx=6 | wick_excess=0.0285% close_back=0.0800% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-07-17T09:57:01.661666+00:00:64000:down:6 :: depends:none :: status:queued
 
 ### T-GYM-20260619 HIGH gym-session RED for 2026-06-19
 
@@ -941,3 +941,98 @@ CAVEATS: best-fixed is IN-SAMPLE (needs OOS confirm), grid coarse 3x3, this is t
 
 ## WF-GATE-REDESIGN-METHODOLOGY (Fable judgment work, queued for next block)
 - Two studies proved wf_ge_070 structurally unreachable post-SS-B (is_mean<=0 for every cell incl. controls). Redesign candidates: rolling-origin 2026-only WF, or WF on the A/B delta. Needs a pre-registered methodology note BEFORE it gates any study again. Blocks: Bold ATM re-adjudication, risky-3 strike table.
+
+## TRENDLINE-FIXES-2026-07-17 (HIGH, tonight after 16:00 ET -- J: "fix your trends")
+1. PREMARKET DRAW CANNOT SILENTLY SKIP: 2 budget-skips in 2 days. Move the draw step out of the
+   LLM premarket fire into a deterministic scheduled step (trendline_draw_state clear + engine
+   detect + draw via cdp_eval.mjs fallback if MCP down), or make the skip emit a RED status line.
+2. FRESH/SAME-DAY DESCENDING LINE TIER: J hand-drew the week's descending line twice this week;
+   detector only scores multi-day rails (documented gap, pre-reg A/B spec already in
+   TRENDLINE-SUBSYSTEM-AUDIT-2026-07-14). Run that A/B; ship a same-day tier if it clears.
+3. ZOOM-AWARE DRAWING: multi-day rails at intraday zoom read as noise (J: "a blind person drew
+   them"). Draw rule: only render lines whose anchor span overlaps the visible ~2-day window,
+   or label-offset placement; spec small, validate on a real screenshot.
+4. THREAD shadow_triggers_fired INTO core-decisions.jsonl (was chip task_4ce16208, chips dead):
+   today's J-called trendline break is the FIRST live validation point for trendline_reclaim and
+   it is invisible in the ledger. Small heartbeat_core rec addition, zero-behavior-change guard.
+
+## WEEKEND-METHODOLOGY-REVIEW: regime-matched IS window for delta-WF (Fable, filed 2026-07-17 ~11:05 ET)
+- THREE studies in 3 days share one signature: positive/stable 2026 OOS deltas, negative 2025 IS
+  deltas -> INSUFFICIENT_REGIME_SHIFT parks (Bold strike cells 07-16; zone-rejection Bold 07-17;
+  LBFS wf split 07-15 same shape). Either all three are overfit to recent tape, or calendar-2025
+  under SS-B pricing is the wrong reference class for judging 2026 config changes (SS-B did not
+  exist in 2025; VIX regime differs; C22/C23 lineage).
+- WEEKEND TASK (rule 9 cadence): frozen successor note to WF-GATE-METHODOLOGY-2026-07-16
+  adjudicating regime-matched vs calendar IS windows. Anti-overfit protections must survive --
+  the answer is NOT "drop 2025", it is choosing the defensible reference class BEFORE looking at
+  which choice ratifies more candidates. Consider: VIX-regime-matched IS episodes, or SS-B-era-only
+  rolling origin now that 2026 has ~7 months. Adversarial review required (the obvious failure
+  mode: methodology-shopping until candidates pass).
+- Consumers waiting: Bold ATM (parked), Bold zone-rejection cells (parked), risky-3 strike table.
+
+### T-GYM-20260717 HIGH gym-session RED for 2026-07-17
+
+**Audits failing:**
+- crypto-gym (53 validators) (RED): 103/104 pass
+
+**Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+## HTF-LEVEL-LOOKBACK-EXTENSION (MED, weekend-ratifiable pre-reg, filed 2026-07-17 ~18:28 ET, Sonnet)
+
+**Trigger:** J: "why didn't we look back to 06-30/07-02/07-08 -- that was an extremely strong
+bounce off this level [741-744.5] this morning." Full audit: `analysis/daily-brief/2026-07-17-htf-levels-audit.md`.
+
+**Verified:** the 740-744.5 zone is real multi-week confluence -- RTH low landed inside it on
+06-30 (740.89), 07-02 (740.03), 07-08 (739.51), and today (740.80), each followed by a $2.4-6.9
+bounce (median $3.30 across 9/41 sessions since 05-19 that tested this band). J's read holds.
+
+**Root cause (two additive gaps, both in the still-shadow, never-live memory system):**
+1. `level_memory_producer.py::LOOKBACK_DAYS = 10` (trading days) -- as of today's window
+   (07-06..07-17), 06-30 (13 days back) and 07-02 (11 days back) are structurally outside the
+   horizon. Captured on their own day, aged out since.
+2. `level_memory.py::CLUSTER_TOL = 0.35` / producer `DEDUP_EPS = 0.60` fragment the $3.5-wide
+   zone into narrow sub-clusters. Proof: today's 16:00 ET shadow file (07-08 in-window, today's
+   whole bounce baked in) shows exactly ONE support entry near the zone -- 743.19, memory_score
+   48, tier Reference (needs >=60 for `refresh_levels_intraday.py`'s live merge). Never merged.
+
+**Counterfactual (honest, walked bar-by-bar via core-decisions.jsonl):** the missing level was
+NOT the binding constraint. Ribbon stayed BEAR-stacked all session (Filter 5 hard veto, zero bull
+triggers all day) and VIX ran 19.0-19.5 -- inside `block_elite_bull`'s [0,25) block band, the same
+gate that fired SKIP_ELITE_BULL_LEVEL_RECLAIM 25x on 07-15 and 2x on 07-16 with ribbon=BULL and
+triggers=['level_reclaim','confluence'] present. Even a perfect HTF level would have died at the
+same gate that killed 07-15/16. Value of this fix = conviction/visibility/multi_day_confluence
+signal quality, NOT a guaranteed unlock of more live entries -- `block_elite_bull` stays CLOSED
+(2026-06-30 audit, -$241 to remove) and is NOT being reopened here.
+
+**Spec:**
+1. Additive HTF tier in `level_memory_producer.py` (existing 10-day/$0.35 intraday tier
+   untouched): `HTF_LOOKBACK_DAYS=25`, `HTF_CLUSTER_TOL=1.00`, own MIN/STRONG memory floors
+   (needs backtesting, not a guessed copy of 20/60). Write to a new `key-levels-htf.json` shadow
+   file first -- mirrors the existing G11 shadow-before-merge pattern.
+2. Separate live-merge flag `level_memory_htf_live_merge` (default false) in
+   `refresh_levels_intraday.py`, own `HTF_MERGE_CAP` (propose 4, vs intraday's 6) -- independently
+   A/B-able without perturbing the already-tuned intraday merge.
+3. Render HTF levels as a ZONE (wide box), not a hairline, labeled `HTF_SUP_NN`/`HTF_RES_NN`.
+   Cross-ref `strategy/candidates/_lesson-inbox/2026-07-17-levels-are-zones-proximity-band.md`
+   (filed today ~10:15 ET, same doctrine gap on the rejection-tolerance side).
+4. Validate via the standing eval-first gate (OP-16): backfill 60-90 trading days, replay through
+   the existing trigger-replay harness, file A/B scorecard at
+   `analysis/recommendations/htf-level-lookback-extension.json`. Ratify (flip the merge flag) only
+   if OOS_positive AND WF>=0.70 AND sub_window_stable AND anchor_no_regression -- standard bar,
+   no J gate to ship.
+5. **Build requirement, not optional:** an intraday $0.35-cluster level and an HTF $1.00-cluster
+   level from the SAME physical shelf can both land in `key-levels.json` a dollar or two apart.
+   `detect_confluence`'s $0.30 tolerance is already near-tautological once any level_reclaim
+   fires (`_read_levels` tags nearly every active level as "multi_day") -- two nearby levels from
+   one shelf risks making `min_triggers=2` closer to `min_triggers=1` in practice for HTF-adjacent
+   reclaims. Extend `_normalize_levels`'s prefix-stripped dedup (or widen `ROLE_EPSILON` across
+   HTF/intraday same-shelf pairs) BEFORE live merge ships; this must be a named test in the A/B
+   scorecard.
+6. Flag-don't-touch: a larger HTF-eligible level_reclaim pool changes the input distribution
+   feeding the CLOSED block_elite_bull audit. Informational re-check after ship, not a reopening.
+
+**Cost:** compute $0 (pure Python, already scheduled, ~1950 bars vs ~780 today, <100ms). Level
+count: worst case +4 active entries (~16-18 total, still inside `ACTIVE_BAND=$12` budget). Real
+cost is the confluence-tolerance interaction in item 5 above, not compute.
+
+:: depends:none :: status:proposed
