@@ -46,6 +46,7 @@ sys.path.insert(0, str(REPO / "automation" / "state" / "fleet"))
 sys.path.insert(0, str(REPO / "setup" / "scripts"))
 import fleet_broker as fb  # noqa: E402
 from et_clock import et_offset_hours, et_today_str  # noqa: E402
+from arm_display import display_name_for_arm_id  # noqa: E402
 
 STATE = REPO / "automation" / "state"
 OUTBOX = STATE / "discord-outbox.jsonl"
@@ -248,14 +249,30 @@ def _structure_exit_label(arm: str, symbol: str) -> str:
 
 
 def _is_engine_attributed(arm: str, symbol: str) -> bool:
-    """True if some decision row for this arm has an exec record naming this symbol --
-    checks BOTH execution paths: the primary ENTER_BEAR/ENTER_BULL path (row["exec"], a
-    dict) AND the extra-setup G4 side-channel (row["extra_exec"], a LIST of dicts, each
-    with its own nested "exec" -- vwap_continuation/gap_and_go/etc when exec-armed via
-    params.extra_setup_exec_armed). CORRECTED 2026-07-16 same-day: the first version of
-    this function only checked the primary path and wrongly labeled a REAL vwap_continuation
-    engine trade "UNATTRIBUTED" -- caught when J said "I did not do anything today" forced
-    a re-investigation. Fail-open -> False on any error; never blocks the ping itself."""
+    """True if some decision row for this arm has a record naming this symbol -- checks
+    FOUR execution-record shapes across the two decisions.jsonl SCHEMAS this repo runs
+    (core heartbeat_core.py vs fleet_rest fleet_live.py -- see _decision_rows_for_arm's
+    docstring for the path split):
+      1. core primary path: row["exec"] (dict).
+      2. core extra-setup G4 side-channel: row["extra_exec"][i]["exec"] (dict).
+      3. fleet_rest ENTER path: row["action"] startswith "ENTER" + row["placement"]["broker"]
+         (dict) -- fleet_live.py's schema has NO "exec"/"extra_exec" key at all.
+      4. fleet_rest EXIT path: row["exit_pass"][i]["symbol"] + that entry's ["actions"][j]
+         carrying a "broker" dict (an actually-placed exit, not just a monitoring tick with
+         empty actions).
+    CORRECTED 2026-07-16 (paths 1-2, b5c575e/9a133ee): the first version only checked the
+    primary core path and wrongly labeled a REAL vwap_continuation engine trade
+    "UNATTRIBUTED" -- caught when J said "I did not do anything today."
+    CORRECTED 2026-07-17 (paths 3-4, SAME bug class recurring in the sibling branch that fix
+    never touched): fleet_rest arms (safe-1/safe-3/risky-1/risky-3) were STRUCTURALLY
+    guaranteed a False here -- their schema never has "exec"/"extra_exec" -- so EVERY
+    fleet-arm fill, real or not, was mislabeled "UNATTRIBUTED FILL (no matching decision
+    row)" in the Discord ping. Confirmed live: 13/13 fleet fills on 2026-07-17 (safe-3
+    x4, risky-1 x4, risky-3 x5) pinged UNATTRIBUTED despite each having a complete,
+    correctly-timestamped ENTER_BEAR + exit_pass row with an identical broker order id in
+    that arm's OWN decisions.jsonl -- the ledger was never missing anything; this checker
+    just couldn't read its schema. See analysis/daily-brief/2026-07-17-fleet-attribution-audit.md.
+    Fail-open -> False on any error; never blocks the ping itself."""
     try:
         for row in _decision_rows_for_arm(arm):
             exec_rec = row.get("exec")
@@ -267,6 +284,17 @@ def _is_engine_attributed(arm: str, symbol: str) -> bool:
                 nested = extra.get("exec")
                 if isinstance(nested, dict) and nested.get("symbol") == symbol:
                     return True
+            action = row.get("action")
+            if isinstance(action, str) and action.startswith("ENTER"):
+                broker = (row.get("placement") or {}).get("broker")
+                if isinstance(broker, dict) and broker.get("symbol") == symbol:
+                    return True
+            for ep in (row.get("exit_pass") or []):
+                if not isinstance(ep, dict) or ep.get("symbol") != symbol:
+                    continue
+                for act in (ep.get("actions") or []):
+                    if isinstance(act, dict) and isinstance(act.get("broker"), dict):
+                        return True
     except Exception:  # noqa: BLE001
         pass
     return False
@@ -317,7 +345,13 @@ def main() -> int:
         first = "  <<< FIRST ENGINE FILL EVER!" if not ever_filled else ""
         struct = _structure_exit_label(x["arm"], x["symbol"])
         label = "ENGINE TRADE" if _is_engine_attributed(x["arm"], x["symbol"]) else "UNATTRIBUTED FILL (no matching decision row)"
-        msg = (f"{label} [{x['arm']}]: {x['symbol']} x{int(x['qty'])} @ ${x['price']:.2f} "
+        # DISPLAY NAME (2026-07-17): [x['arm']] stays the ping's arm KEY for correlation with
+        # decisions.jsonl/state paths -- x['arm'] itself is untouched (still what
+        # _structure_exit_label/_is_engine_attributed key off of above). Only the label shown
+        # to J is prettified, e.g. "[safe-2]" -> "[safe-2 CORE-SAFE (KIQE)]".
+        arm_label = display_name_for_arm_id(x["arm"])
+        arm_s = x["arm"] if arm_label == x["arm"] else f"{x['arm']} {arm_label}"
+        msg = (f"{label} [{arm_s}]: {x['symbol']} x{int(x['qty'])} @ ${x['price']:.2f} "
                f"{x.get('side')} ({x.get('filled_at', '')}){struct}{first}")
         with OUTBOX.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps({"content": mention + "[TRADE] " + msg,

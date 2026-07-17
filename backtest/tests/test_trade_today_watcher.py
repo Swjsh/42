@@ -181,6 +181,100 @@ def test_engine_attributed_false_on_missing_file(tmp_path, monkeypatch):
     assert w._is_engine_attributed("safe-2", SYM) is False
 
 
+# =============================================================================
+# FLEET-ARM ATTRIBUTION (2026-07-17 fix, analysis/daily-brief/2026-07-17-fleet-attribution-
+# audit.md): fleet_rest arms (safe-1/safe-3/risky-1/risky-3) write a completely different
+# decisions.jsonl schema than the core heartbeat -- action=ENTER_BEAR/ENTER_BULL +
+# placement.broker for entries, exit_pass[].actions[].broker for exits -- and NEVER carry
+# an "exec"/"extra_exec" key. _is_engine_attributed only checked those core-only keys, so
+# EVERY fleet-arm fill was unconditionally mislabeled UNATTRIBUTED regardless of a real,
+# complete decision row existing. Same anti-pattern class as the 07-16 exec/extra_exec fix,
+# recurring in the sibling branch that fix never touched.
+# =============================================================================
+FLEET_SYM = "SPY260717P00741000"
+
+
+def test_engine_attributed_true_for_fleet_arm_enter_row(tmp_path, monkeypatch):
+    """A fleet_rest ENTER_BEAR row (placement.broker.symbol) IS engine-attributed."""
+    w = _load()
+    monkeypatch.setattr(w, "STATE", tmp_path)
+    d = tmp_path / "fleet" / "risky-3"
+    d.mkdir(parents=True)
+    row = {"ts_et": "2026-07-17T11:07:02", "arm_id": "risky-3", "action": "ENTER_BEAR",
+           "placement": {"broker": {"symbol": FLEET_SYM, "id": "2951f12e"}}}
+    (d / "decisions.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    assert w._is_engine_attributed("risky-3", FLEET_SYM) is True
+
+
+def test_engine_attributed_true_for_fleet_arm_exit_row(tmp_path, monkeypatch):
+    """A fleet_rest exit_pass row with a placed action (actions[].broker) IS
+    engine-attributed, even with no "exec" key anywhere in the row."""
+    w = _load()
+    monkeypatch.setattr(w, "STATE", tmp_path)
+    d = tmp_path / "fleet" / "risky-3"
+    d.mkdir(parents=True)
+    row = {"ts_et": "2026-07-17T11:13:01", "arm_id": "risky-3", "action": "HOLD",
+           "exit_pass": [{"symbol": FLEET_SYM, "actions": [
+               {"kind": "SELL_ALL", "stage": "structure_stop", "broker": {"id": "8c874be4"}}]}]}
+    (d / "decisions.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    assert w._is_engine_attributed("risky-3", FLEET_SYM) is True
+
+
+def test_engine_attributed_false_for_fleet_arm_monitoring_tick_no_actions(tmp_path, monkeypatch):
+    """A fleet_rest HOLD tick that is just monitoring an OPEN position (exit_pass present,
+    actions empty -- no order placed this tick) must stay unattributed for THIS symbol/tick,
+    not spuriously match on the mere presence of exit_pass. Guards against a fix that makes
+    everything true."""
+    w = _load()
+    monkeypatch.setattr(w, "STATE", tmp_path)
+    d = tmp_path / "fleet" / "risky-3"
+    d.mkdir(parents=True)
+    row = {"ts_et": "2026-07-17T11:10:03", "arm_id": "risky-3", "action": "HOLD",
+           "exit_pass": [{"symbol": FLEET_SYM, "actions": []}]}
+    (d / "decisions.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    assert w._is_engine_attributed("risky-3", FLEET_SYM) is False
+
+
+def test_engine_attributed_true_via_real_risky3_2026_07_17_incident():
+    """The exact real-world incident that motivated this fix: risky-3 filled 5 real broker
+    orders on 2026-07-17 (+$248 realized) and every single one pinged Discord as
+    "UNATTRIBUTED FILL (no matching decision row)" despite a complete ENTER_BEAR +
+    exit_pass trail existing in automation/state/fleet/risky-3/decisions.jsonl. Runs against
+    the REAL on-disk state file, not a fixture -- pins that both the entry and an exit fill
+    from that incident are now correctly attributed."""
+    w = _load()
+    assert w._is_engine_attributed("risky-3", "SPY260717P00741000") is True   # ENTER_BEAR entry
+    assert w._is_engine_attributed("risky-3", "SPY260717P00743000") is True   # 2nd ENTER_BEAR + exits
+
+
+def test_unattributed_fleet_fill_label_wired_into_message_before_fix_reproduced(tmp_path, monkeypatch):
+    """End-to-end proof the label is actually wired for a fleet arm (not just the helper):
+    a fleet-arm fill WITH a real matching ENTER row must say ENGINE TRADE, not UNATTRIBUTED --
+    this is the exact end-to-end shape (main() -> _is_engine_attributed -> outbox message)
+    that silently mislabeled 13/13 real fleet fills on 2026-07-17 before this fix."""
+    w = _load()
+    monkeypatch.setattr(w, "STATE", tmp_path)
+    monkeypatch.setattr(w, "OUTBOX", tmp_path / "discord-outbox.jsonl")
+    monkeypatch.setattr(w, "PINGED", tmp_path / "pinged.json")
+    monkeypatch.setattr(w, "LIFETIME", tmp_path / "lifetime.json")
+    d = tmp_path / "fleet" / "risky-3"
+    d.mkdir(parents=True)
+    row = {"ts_et": "2026-07-17T11:07:02", "arm_id": "risky-3", "action": "ENTER_BEAR",
+           "placement": {"broker": {"symbol": FLEET_SYM, "id": "2951f12e"}}}
+    (d / "decisions.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    monkeypatch.setattr(w.fb, "load_creds", lambda: {"risky-3": {}})
+    monkeypatch.setattr(w, "_fetch_orders", lambda creds: [
+        {"id": "2951f12e", "symbol": FLEET_SYM, "qty": 5, "price": 0.46, "side": "buy",
+         "status": "filled", "filled_at": "2026-07-17T15:07:06Z"}])
+    monkeypatch.setattr(w, "split_rehearsal_probes", lambda orders: (orders, []))
+    monkeypatch.setattr(w, "classify_orders", lambda orders: (orders, []))
+    monkeypatch.setattr(w, "_load_user_mention", lambda: "")
+    w.main()
+    content = (tmp_path / "discord-outbox.jsonl").read_text(encoding="utf-8")
+    assert "ENGINE TRADE [risky-3" in content  # arm label may carry a "FLEET-LOOSE-R (X15Q)" nickname suffix
+    assert "UNATTRIBUTED FILL" not in content
+
+
 def test_unattributed_fill_label_wired_into_message(tmp_path, monkeypatch):
     """The ping message itself must say UNATTRIBUTED, not ENGINE TRADE, when no exec
     row matches -- proves the label is actually wired, not just the helper function."""
