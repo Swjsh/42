@@ -1,0 +1,178 @@
+{
+  "_doc": "PRE-REGISTERED spec for FAVORABLE-EXTREME-ENTRY, per J's 2026-07-17 ~18:46 ET breakthrough directive after the 14:03 bollinger_squeeze PUT win (+$105): the fill landed at the TOP of the 14:00-14:05 bar's $0.47 upper wick (O=744.60 H=745.10 L=744.38 C=744.63), buying the put cheap right before SPY rolled to a 743.23 close. 'that is a PRIMO entry -- we need that every time it presents itself.' CRITICAL HONESTY FRAME (per task instruction): today's wick-fill was PARTLY INCIDENTAL -- the 1-min heartbeat tick happened to evaluate mid-spike; the engine did not deliberately target the wick. This prereg splits the question in two: (A) an OBSERVATIONAL characterization of ALL real engine fills (does entry LOCATION empirically correlate with outcome -- correlational on incidental fills, NOT causal, stated explicitly), and (B) a pre-registered CAUSAL A/B test of a DELIBERATE favorable-extreme resting-entry mechanism built on entry_manager.py (T-W5)'s already-tested EntryState/plan_entry_action state machine, reusing the SAME cancel-on-break watcher concept pong-resting-limit-2026-07-17 (KILLED, same day, sibling study) needed to survive adverse selection. STUDY ONLY -- no live code, no orders, no engine edits. Runner: backtest/tools/favorable_extreme_entry_study.py.",
+  "study": "favorable_extreme_entry_2026_07_17",
+  "version": 1,
+  "status": "FROZEN_PENDING_RUN",
+  "frozen_at": "2026-07-17T19:20:00-04:00",
+  "standing_doctrine": "Burden of proof is on the CANDIDATE mechanism (CLAUDE.md Rule 1 / OP-16 eval-first). One exemplar fill is NOT evidence a deliberate targeting mechanism is profitable -- part (A) establishes whether location correlates with outcome AT ALL across the real fill population (precondition for (B) mattering); part (B) is the actual pre-registered 5-gate + BH-FDR test of whether DELIBERATELY targeting that location beats the status quo marketable entry, net of the adverse-selection cost a resting order structurally carries (pong-resting-limit-2026-07-17's own central finding: 74-81% raw slice-through share on a structurally similar resting-limit mechanism). Kill = current marketable-entry-on-confirmed-trigger semantics stand; a null or 'location matters but targeting doesn't' result is a valid, honestly-reported outcome (OP-22), not a failure.",
+  "motivating_context": {
+    "date": "2026-07-17",
+    "exemplar": {
+      "setup": "bollinger_squeeze (extra-setup PUT)",
+      "account": "safe (Gamma-Safe-2, PA3DHPT7KIQE)",
+      "signal_time": "14:01 ET",
+      "order_placed": "14:03:03 ET",
+      "fill": "SPY745P @ $1.01",
+      "entry_bar_5m": "14:00-14:05 ET: O=744.60 H=745.10 L=744.38 C=744.63 (upper wick $0.47)",
+      "outcome": "+$105, day's 2nd-best trade (verified analysis/daily-brief/2026-07-17-safe-tape-audit.md; the trade is ALSO the SAFE-TRADES-CSV-JOURNALING-GAP item -- missing from journal/trades.csv, present in core-decisions.jsonl extra_exec + fills-ledger.jsonl only)",
+      "honesty_note": "The fill landed near the bar's HIGH (top of the upper wick against a PUT/short) because the 1-min heartbeat tick happened to sample SPY mid-spike, not because any code targeted the wick. This is the INCIDENTAL fact the whole study interrogates."
+    },
+    "relationship_to_pong_resting_limit_study": "DIFFERENT MECHANISM, same day's family. PONG (KILLED both accounts, 4/5 gates, fails anchor_no_regression; 74.1%/81.4% raw slice-through share Safe/Bold) tests a resting order ARMED BEFORE any confirmation trigger fires, priced off a chart LEVEL via delta-mapping, competing against the engine's current semantics on level-touch episodes the engine might never even trade. THIS study tests a narrower, later-stage mechanism: on a signal the engine WOULD ALREADY TRADE (a real confirmation trigger has fired), instead of converting to a marketable fill immediately, rest a SHORT patience-window limit at a modest discount off the signal's own quoted premium (entry_manager.py's EXISTING delta-fraction convention, signal_premium*(1-delta), NOT a level-derived price) hoping the SAME kind of live-tick noise that produced today's wick fill resolves favorably before the patience window expires -- with a SPY-side cancel-watcher (reusing PONG's own concept) so a real breakout does not get chased. PONG's kill does not pre-judge this study: PONG's adverse-selection problem was structural to arming BEFORE any trigger (resting at a level the market may simply run through); this study only rests AFTER a trigger has already confirmed direction, which changes the base rate of 'was this a real move or a wick' the resting order is exposed to."
+  },
+  "external_context": {
+    "_doc": "Grounds the friction/execution-cost framing and the entry_manager reuse. Reusing already-verified internal citations, not fresh WebSearch (per the task's provided CONTEXT pointers).",
+    "claims": [
+      {
+        "claim": "entry_manager.py (T-W5) already implements a passive-limit entry decision core: EntryState.from_signal(signal_premium, delta, patience_ticks, policy) computes limit_price=signal_premium*(1-delta); plan_entry_action() is a pure, unit-tested tick-wise state machine (fill/patience-count/convert/cancel) with PROVEN PARITY against the validated backtest reference t3_entry_matrix.entry_fill (backtest/tests/test_entry_manager.py). SHADOW ONLY as of 2026-07-08 -- no arm places an order through it yet; shadow_entry_actuator.py has been replaying it read-only at delta=0.10, patience=3 against real engine entries. This study reuses plan_entry_action VERBATIM (imported, not re-derived) for the candidate's fill/convert/miss state transitions -- the delta_band grid brackets the shadow default (0.05/0.10/0.15).",
+        "source": "automation/state/fleet/entry_manager.py + backtest/tests/test_entry_manager.py"
+      },
+      {
+        "claim": "pong-resting-limit-2026-07-17 (KILLED, same day) already built and validated a cancel-watcher concept: while a resting order is pending, if the underlying trades through the anchor level by >= a threshold before the option fills, cancel immediately rather than let the order fill into a real breakout. Its no_cancel control cell measured raw adverse selection at 74.1% (Safe) / 81.4% (Bold) slice-through share, and every cancel threshold tested (0.15/0.30/0.50) roughly halved fill count while RAISING per-trade expectancy -- direct evidence that a cancel-watcher is worth carrying into this study rather than omitting it.",
+        "source": "analysis/recommendations/pong-resting-limit-2026-07-17.json"
+      },
+      {
+        "claim": "The frozen ab_delta_per_trade_v2026_07_16 WF form (Fable, 2026-07-16, AMENDMENT 1) is the current house standard for any A/B ratification: delta_i = pnl_candidate(episode_i) - pnl_control(episode_i) over the union of episodes either side traded; gates = oos_positive, wf_delta>=0.70 (when is_delta_mean>0), sub_window_stable, anchor_no_regression, bh_fdr_survivor.",
+        "source": "analysis/recommendations/WF-GATE-METHODOLOGY-2026-07-16.md"
+      },
+      {
+        "claim": "automation/state/fills-ledger.jsonl is a broker-fill-confirmed ledger (activity_id/order_id/symbol/side/qty/price/ts_et, attribution engine|manual) spanning 2026-06-26..2026-07-17 for both fleet arms and the two live accounts (arm='safe-2' for Gamma-Safe-2, arm='bold-2' for Gamma-Risky-2/Bold). Verified this session: 37/37 engine-attributed BUY (entry) fills on safe-2+bold-2 join 1:1 by order_id against automation/state/core-decisions.jsonl's exec/extra_exec[].exec.broker.id, recovering the decision-tick's live-sampled SPY spot at the moment the matched order was placed -- this is the REAL ground truth for part (A), superseding journal/trades.csv, which is independently confirmed INCOMPLETE (missing at least the 14:03 bollinger_squeeze exemplar itself, per STATUS.md's SAFE-TRADES-CSV-JOURNALING-GAP finding, same evening).",
+        "source": "automation/state/fills-ledger.jsonl + automation/state/core-decisions.jsonl (verified by ad hoc join this session)"
+      }
+    ]
+  },
+  "part_a_characterization": {
+    "_doc": "OBSERVATIONAL, NOT GATED. Establishes whether entry LOCATION correlates with outcome on the REAL, already-incidental fill population. No ratification gate applies to this part -- it is descriptive evidence for whether part (B)'s deliberate mechanism is even worth testing, exactly as the task frames it ('this is correlational on incidental fills; state that clearly').",
+    "population": {
+      "primary": "automation/state/fills-ledger.jsonl BUY legs, arm in {safe-2, bold-2}, attribution=='engine' (excludes J's manual/discretionary fills -- a different, discretionary timing process, out of scope for 'does the ENGINE's incidental tick-sampling matter'), joined by order_id to core-decisions.jsonl's exec.broker.id / extra_exec[].exec.broker.id for the live-sampled SPY spot at placement. Round-trip PnL computed DIRECTLY from fills-ledger's own buy/sell price legs per (arm, symbol) FIFO group -- REAL broker dollars, no friction model needed (it is already priced into the fills).",
+      "secondary_lower_confidence": "journal/trades.csv rows (167, back to 2026-04-29) that do NOT have a fills-ledger/core-decisions match (pre-dates heartbeat_core.py's 2026-06-25 earliest coverage, or a manual/webull fill) -- favorability computed from the entry bar's OWN CLOSE as a bar-close proxy for spot (no live-tick data exists for these), reported SEPARATELY and labeled match_quality='bar_proxy' vs the primary population's match_quality='decision_log' (live-tick). Never blended into the primary population's headline numbers (C7 -- distinct-confidence populations stay distinct).",
+      "window": "2026-06-26 through 2026-07-17 (primary, fills-ledger coverage) + 2026-04-29 through 2026-07-17 (secondary, trades.csv coverage)."
+    },
+    "favorability_metric": {
+      "definition": "For the entry bar B (the real-time SPY 5m bar covering the fill timestamp, from the appropriate spy_5m master), let spot = the live-tick SPY value (decision-log 'spy' field for the primary population; bar CLOSE for the secondary/proxy population). bar_range = B.high - B.low (episodes with bar_range <= 0.01 are excluded and counted, not imputed -- flat/illiquid bar, C7). favorability = (spot - B.low) / bar_range for PUT/short entries (favorable = spot near the bar HIGH, i.e. bought the put while SPY was still elevated, before the drop -- matches the exemplar exactly); favorability = (B.high - spot) / bar_range for CALL/long entries (favorable = spot near the bar LOW). Clipped to [0,1] (a live-tick sample can fall fractionally outside [B.low,B.high] at bar-boundary timing edges; clip-and-flag, not drop).",
+      "buckets": {
+        "favorable_extreme": "favorability >= 0.70 (top/bottom 30% of the bar's range, matching direction)",
+        "neutral": "0.30 < favorability < 0.70",
+        "adverse_extreme": "favorability <= 0.30 (bottom/top 30% of the bar's range, WRONG side)"
+      },
+      "wick_against_signal_flag": {
+        "definition": "True if the entry bar has a wick against the signal direction meeting the house wick-rejection threshold (backtest.lib.filters.detect_wick_rejection_bearish/detect_wick_reclaim_bullish's OWN frozen defaults, reused unchanged, not re-derived): min_wick_pct_of_range=0.50 AND min_wick_dollars=0.15. Upper wick = B.high - max(B.open, B.close) for PUT/short; lower wick = min(B.open, B.close) - B.low for CALL/long.",
+        "caught_flag": "True if favorability >= 0.70 AND wick_against_signal_flag is True (i.e., the fill actually landed IN that wick's zone, not just 'a wick existed somewhere in the bar') -- this is the exact exemplar pattern."
+      }
+    },
+    "outcome_variables": [
+      "dollar_pnl (real, from fills-ledger buy/sell legs)",
+      "r_multiple (where computable from trades.csv join)",
+      "win (dollar_pnl > 0)"
+    ],
+    "reporting": "A favorability-bucket x outcome table (n, mean $pnl, win rate) for the primary population, the secondary population shown separately, and the wick-caught subset highlighted. Given the primary population's likely small n (dozens, not hundreds), NO significance/gate claim is attached here -- pure descriptive evidence, explicitly labeled thin-n and correlational, feeding the judgment of whether part (B) is worth having run (a precondition check, not itself a ratification gate)."
+  },
+  "part_b_deliberate_mechanism": {
+    "_doc": "PRE-REGISTERED CAUSAL A/B. The actual breakthrough test: does DELIBERATELY resting for a short window at a discount off the signal premium (instead of converting immediately to a marketable fill) beat the status quo, net of the adverse-selection cost (missed clean runners the resting order never caught) that pong-resting-limit already proved is real on a structurally similar mechanism?",
+    "hypothesis": {
+      "statement": "On a REAL confirmation-trigger signal (the SAME detection the current engine uses: detect_level_rejection/detect_wick_rejection_bearish for PUT, detect_level_reclaim/detect_wick_reclaim_bullish for CALL), replacing the current immediate marketable-ish entry with a short-patience resting limit at signal_premium*(1-delta_band) (entry_manager.EntryState/plan_entry_action, policy in {cancel, convert} on patience exhaustion), GATED by a SPY-side cancel-watcher that cancels the resting order outright if the underlying trades through the signal's own trigger level by >= cancel_threshold before the option fills -- produces positive-expectancy entries under SS-B-lineage exit shapes and honest non-double-counted friction, on the delta population versus the CURRENT engine's immediate marketable-entry semantics, for at least one (delta_band, policy, cancel_threshold) cell on at least one account.",
+      "falsifiable_prediction": "If TRUE: at least one of the 18 cells' delta population clears all 5 ratification gates + BH-FDR on Safe and/or Bold. If FALSE: no cell clears on either account -- KILL, current immediate-entry semantics stand. Per the task's explicit framing, a FALSE result that nonetheless shows part (A)'s location correlation is real is reported as 'location matters, but this deliberate targeting mechanism does not capture it profitably' -- a genuinely different, still-honest finding from 'location never mattered at all', and the scorecard distinguishes the two explicitly."
+    },
+    "mechanism_spec": {
+      "signal_population": "IDENTICAL detection + scoping to pong-resting-limit-2026-07-17's own control_outcome(): per day, the SAME as-of-causal level set (backtest.lib.levels._detect_from_history, frozen at 09:30 ET first bar, reused unchanged via direct import of pong_resting_limit_study's build_level_by_day/_detect_from_history -- NOT re-derived) with role assignment (support=CALL if L < day_open_spot, resistance=PUT otherwise); for EVERY (date, level, role) combination, scan RTH bars 09:35 ET onward for the FIRST bar where the appropriate trigger fires (detect_level_rejection or detect_wick_rejection_bearish for PUT; detect_level_reclaim or detect_wick_reclaim_bullish for CALL), matching pong_resting_limit_study.py's control_outcome() function VERBATIM (imported and called directly, not reimplemented) -- this is the SAME proxy for 'what the current engine would trade' both sibling studies today rely on.",
+      "signal_premium_anchor": "ctrl['entry_premium_raw'] from control_outcome() -- the first option bar's OPEN at/after (trigger_ts + 5min), the house 'fill price' convention (ribbon_ride_strike_exit_ab.fetch_entry_and_bars). This value is BOTH the control's own marketable entry price (unchanged, full house entry-side friction applied) AND the candidate's EntryState.from_signal(signal_premium=...) anchor -- the two arms start from the identical observed price, differing only in HOW they convert that observation into a fill.",
+      "candidate_state_machine": {
+        "core": "automation/state/fleet/entry_manager.py EntryState.from_signal + plan_entry_action, imported and called UNCHANGED (no re-derivation) -- the same module T-W5 already unit-tested for exact parity against the validated backtest reference t3_entry_matrix.entry_fill.",
+        "tick_discretization": "ONE plan_entry_action() call per subsequent 5-min OPRA option bar (walk_bars from control_outcome(), the same real-OPRA local-cache bars the control's own exit replay uses) -- ask=bar.low is the tick's 'best ask seen this tick' proxy, matching pong_resting_limit_study's own fill convention ('first subsequent bar whose LOW is strictly below the limit') and test_entry_manager.py's own tick-walk convention ('bar low = this tick's ask'). DISCLOSED: entry_manager.py is designed for live PER-SECOND tick sampling; this study necessarily discretizes to the coarser 5-min bar granularity the local OPRA cache provides -- 1 bar = 1 patience tick, a materially SLOWER patience clock than a live per-second actuator would run (a live build would resolve in seconds, not up to 15 minutes) -- named as a conservative-vs-optimistic open question in the build spec if this clears, not resolved here.",
+        "patience_ticks": 3,
+        "patience_ticks_provenance": "Reused UNCHANGED from shadow_entry_actuator.py's own already-frozen shadow-eval convention (delta=0.10, patience=3) -- not re-derived; delta_band is the swept axis around that same default (0.05/0.10/0.15).",
+        "fill_price": "state.limit_price EXACTLY on a FILLED resolution -- no added entry-side friction (the passive fill IS the honest price, matching pong-resting-limit's own no-double-count framing).",
+        "convert_price": "DISCLOSED DEVIATION from a literal plan_entry_action() single-ask-argument read: on a CONVERTED resolution (patience exhausted, policy='convert'), the realized entry price is NOT state.fill_price (which would reuse the SAME bar.low the fill-check tested against, double-dipping the bar's best price for a fallback that should be WORSE, not equally good) -- instead the candidate's convert price is bar.close + DEFAULT_ENTRY_SLIPPAGE (a realistic marketable price with the SAME real entry-side friction the control pays), computed on the SAME bar plan_entry_action resolved CONVERT on. This is a deliberate, disclosed correction of the naive reuse -- entry_manager's STATE TRANSITIONS (pending/filled/converted/missed + patience counting) are reused verbatim; only the CONVERT case's realized fill price is computed independently for honesty.",
+        "cancel_or_missed_price": "No trade -- candidate contributes pnl=0 for that episode in the delta-WF pairing (untraded side convention, matches WF-GATE-METHODOLOGY + pong precedent)."
+      },
+      "cancel_watcher": {
+        "definition": "REUSES pong-resting-limit-2026-07-17's own cancel-watcher CONCEPT (not code, since PONG's watcher is coupled to its own zone-arm mining loop): checked BEFORE each option-bar tick, over SPY bars from the trigger bar forward to the current option bar's timestamp -- if the underlying has traded through the signal's OWN trigger level by >= cancel_threshold (support: SPY.low <= L - threshold; resistance: SPY.high >= L + threshold), the resting order is canceled immediately (episode outcome = canceled_watcher, no trade), pre-empting the entry_manager state machine entirely for that tick onward -- avoiding chasing a real breakout the way PONG's own no_cancel control cell was shown to (74-81% raw slice-through).",
+        "cells": [
+          "none",
+          "0.15",
+          "0.30"
+        ],
+        "none_purpose": "the raw/uncanceled control cell for measuring adverse selection on THIS narrower, later-stage mechanism (does resting AFTER a trigger already fired see less adverse selection than PONG's before-trigger arming? -- an open empirical question this study answers)."
+      },
+      "adverse_selection_classification": "Applied to every CANDIDATE-FILLED episode (filled or converted), REUSING pong-resting-limit's own frozen convention verbatim: up to 3 subsequent SPY 5m bars (15 min) after the fill bar; bounce = level held (no window bar breaches by >= $0.10); slice_through = the complement. Reported per cell, matching PONG's central-question framing ('the adverse-selection split front and center').",
+      "exit_grid": {
+        "_doc": "FIXED, not swept -- exit shape is not the axis under test (entry mechanism is); matches SS-B-lineage / CLAUDE.md v15.3 chart-stop-primary doctrine.",
+        "tp1_premium_pct": 0.5,
+        "stop_type": "structure (structure_stop_study.structure_stop_signal_time against the SAME trigger level, buffer=STRUCTURE_BUFFER['SS-B']=0.0) with a -0.50 premium catastrophe backstop, always present -- matches live v15.3 chart-stop-primary + SS-B-lineage convention unchanged.",
+        "time_stop_minutes_from_fill": 30,
+        "tp1_qty_fraction": 0.667,
+        "profit_lock_mode": "trailing, trail_pct=0.15 -- SS_B_SHAPE unchanged, reused not re-derived."
+      },
+      "one_position_at_a_time": "Per account, per day: episodes are scoped per (date, level, role) exactly as control_outcome() already scopes them (no additional cross-level daily-slot state machine is introduced in this study -- unlike PONG, there is no PRE-TRIGGER arming step competing for a daily slot; each fired trigger is its own independent episode, matching how the live engine actually evaluates each setup opportunity)."
+    },
+    "grid": {
+      "delta_band_cells": [
+        0.05,
+        0.1,
+        0.15
+      ],
+      "policy_cells": [
+        "cancel",
+        "convert"
+      ],
+      "cancel_watcher_cells": [
+        "none",
+        "0.15",
+        "0.30"
+      ],
+      "n_cells_per_account": 18,
+      "n_cells_total": 36
+    },
+    "cohort": {
+      "window": {
+        "is_end": "2025-12-31",
+        "oos_start": "2026-01-01",
+        "end": "2026-07-08",
+        "boundary_source": "autoresearch.strategy_space_grind.OOS_BOUNDARY (2026-01-01), reused unchanged. end=2026-07-08 is the latest date with a matching SPY+VIX master on disk this session via autoresearch.runner.load_data's strict same-(start,end) file-pair matching -- verified this session: 2025-01-01..2026-07-14/16/17 all FAIL (no matching VIX master past 07-08), the SAME constraint pong-resting-limit-2026-07-17 and zone-rejection-band-2026-07-17 both hit the same day. Today's 07-17 exemplar itself is therefore NOT inside part (B)'s statistical population -- it remains purely motivating context, consistent with not letting the anchor observation grade its own test."
+      },
+      "accounts_tested_independently": {
+        "_doc": "Per C29 -- each account gets its own live params (time_stop_et), own strike tier, own equity, own independent 5-gate ratification.",
+        "safe": {
+          "params_source": "automation/state/params.json, read live this session.",
+          "strike_tier": "crypto/lib/strike_selection.py V15_SAFE_TIERS at live-verified equity $1724.59 (mcp__alpaca__get_account_info, THIS session, 2026-07-17 ~19:05 ET) -> ATM (so=0).",
+          "qty": 3
+        },
+        "bold": {
+          "params_source": "automation/state/aggressive/params.json, read live this session.",
+          "strike_tier": "crypto/lib/strike_selection.py V15_BOLD_TIERS at live-verified equity $2153.84 (mcp__alpaca_aggressive__get_account_info, THIS session) -> OTM-2 (so=-2) -- NOTE: Bold crossed the $2,000 V15_BOLD_TIERS boundary earlier today (OTM-3 -> OTM-2, per queue.md's BOLD-TIER-BOUNDARY-HYSTERESIS-SPEC item filed the same evening); this study uses the CURRENT live tier, not pong-resting-limit's earlier-today OTM-3 snapshot, and this cross-study tier difference is itself disclosed, not silently reconciled.",
+          "qty": 3
+        }
+      },
+      "qty_note": "qty=3 for BOTH accounts, matching pong-resting-limit's own disclosed apples-to-apples deviation from each account's live qty knob.",
+      "real_opra_bars": "backtest.lib.option_pricing_real.load_contract_bars/option_symbol, local cache only -- an episode whose contract bars are not cached is DROPPED and counted (n_no_local_bars), never imputed (C7)."
+    },
+    "friction": {
+      "entry_side": "NONE on the candidate's FILLED outcome (passive fill IS the honest price); the candidate's CONVERTED outcome DOES carry DEFAULT_ENTRY_SLIPPAGE (a real marketable price, honestly charged); the CONTROL carries DEFAULT_ENTRY_SLIPPAGE always (matches pong-resting-limit's own asymmetry, which is the whole point of the comparison).",
+      "exit_side": "BOTH candidate and control carry the standard house exit-side friction: DEFAULT_EXIT_SLIPPAGE=0.02 + DEFAULT_COMMISSION=0.65/contract/side (lib.simulator_credit, unchanged).",
+      "no_double_count_statement": "Same statement as pong-resting-limit-2026-07-17: only the CONVERTED candidate path and the control ever cross the spread on entry; the FILLED candidate path does not, by construction, and is not additionally charged."
+    },
+    "ratification_gates": {
+      "_doc": "Per CLAUDE.md OP-16 + WF-GATE-METHODOLOGY-2026-07-16.md (+ AMENDMENT 1), IDENTICAL form to pong-resting-limit-2026-07-17 -- re-applied, not re-derived. ALL FIVE required, per account, independently (C29).",
+      "wf_form": "ab_delta_per_trade_v2026_07_16",
+      "pairing_convention": "delta_i = pnl_candidate(episode_i) - pnl_control(episode_i) over the union of episodes either side traded (untraded side contributes pnl=0).",
+      "1_oos_positive": "sum(delta_i for episodes with date >= oos_start) > 0.",
+      "2_wf_ge_070": "WF_delta = (sum_oos(delta_i)/n_oos) / (sum_is(delta_i)/n_is) >= 0.70, computed ONLY when is_delta_mean > 0 (frozen verdict ladder per AMENDMENT 1).",
+      "3_sub_window_stable": "OOS delta episodes split chronologically in half (sw1/sw2); <=1 of {sw1,sw2} negative.",
+      "4_anchor_no_regression": "None of the 6 CLAUDE.md/WF-lineage J-anchor trade dates (2026-04-29, 05-01, 05-04, 05-05, 05-06, 05-07 -- the SAME set pong-resting-limit-2026-07-17 and zone-rejection-band-2026-07-17 both use, reused unchanged) is touched by a candidate-side FILLED-or-CONVERTED episode in the delta population.",
+      "5_evidence_n_advisory": "n (episodes in the delta population, post exclusions) >= 15 is ADVISORY (OP-16) -- a thin-n PASS ships if the other 4 gates clear, labeled thin, not hidden.",
+      "control_sanity_disclosure": "A null/control sanity cell (candidate-vs-itself, guaranteed delta=0 for every episode by construction) is computed and reported, matching pong-resting-limit's own mandatory WF-GATE-METHODOLOGY disclosure.",
+      "bh_fdr_correction": "Benjamini-Hochberg step-up (autoresearch.ribbon_rejection_wick_battery.bh_fdr / FDR_ALPHA=0.10) across all 18 (delta_band x policy x cancel_watcher) test statistics PER ACCOUNT (36 total across both accounts, corrected independently per account per C29), one-sided normal-approximation p-value for mean(delta_i) > 0 against the house empirical null (autoresearch.null_baseline.random_entry_null). A cell failing the BH-FDR cut does NOT auto-ship even if conditions 1-5 nominally clear."
+    },
+    "decision_rule": {
+      "statement": "Per account, independently: a (delta_band, policy, cancel_watcher) cell is SHIP-READY iff it clears all 5 ratification_gates AND survives BH-FDR. If >=1 cell is ship-ready on an account, the WINNER is the cell with the highest OOS delta expectancy per trade (tie-break: larger n). Per the task's explicit instruction, the adverse-selection split (bounce vs slice_through) is reported for the winner (and every cell) as a REPORTING requirement, not an additional numeric gate -- a technically-ship-ready cell whose edge is bounce-only and slice-negative still ships but must disclose that composition. SHIP timing (a live intent-type build in entry_manager.py's own shape) is separately gated on J review per the task's own 'write the BUILD SPEC, not the build' framing -- no entry_manager.py/j_intent_executor/params.json edit happens as part of this study or its scorecard regardless of outcome.",
+      "kill_criterion": "If NO cell clears on EITHER account: KILL. Current immediate marketable-entry semantics stand. The scorecard reports the closest cell (most gates passed, tie-break least-negative OOS delta) and names the failing gate(s), PLUS the adverse-selection split regardless of outcome (measuring it is itself part of the deliverable). The scorecard ADDITIONALLY cross-references part (A)'s correlational finding explicitly: if (A) shows a real location/outcome correlation but (B) kills, the honest verdict is 'location matters, deliberate targeting via THIS mechanism does not capture it' -- not a blanket 'the wick was luck, full stop'."
+    }
+  },
+  "outputs": {
+    "study_script": "backtest/tools/favorable_extreme_entry_study.py",
+    "scorecard_json": "analysis/recommendations/favorable-extreme-entry-2026-07-17.json",
+    "scorecard_md": "analysis/recommendations/favorable-extreme-entry-2026-07-17.md",
+    "build_spec_location": "A section in the scorecard md (NOT a separate file), IF AND ONLY IF >=1 part (B) cell clears."
+  },
+  "rail": "Part (A) reads real broker ledgers (fills-ledger.jsonl, core-decisions.jsonl, journal/trades.csv) and real SPY 5m bars -- READ ONLY, no state file written outside analysis/recommendations/. Part (B) is ANALYSIS ONLY over historical OPRA local cache -- no params.json/aggressive-params.json/filters.py/entry_manager.py/j_intent_executor edit happens inside the study script, no orders placed. Any BUILD (wiring entry_manager.py into a live intent path) is explicitly deferred to a SEPARATE, later, J-reviewed step -- this prereg and its study authorize evidence-gathering only.",
+  "content_sha256_16": "a559f27243ebd26d"
+}

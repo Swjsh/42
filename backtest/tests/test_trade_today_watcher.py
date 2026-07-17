@@ -429,3 +429,81 @@ def test_rehearsal_probes_wired_into_main_and_artifact():
     src = (Path(__file__).resolve().parents[2] / "setup" / "scripts" / "trade_today_watcher.py").read_text(encoding="utf-8")
     assert "split_rehearsal_probes(_fetch_orders(creds))" in src
     assert '"rehearsal_probes"' in src and '"rehearsal_probes_today"' in src
+
+
+# =============================================================================
+# CROSS-ARM ORDER-ID DEDUP (2026-07-17, task_32d96df3): fleet/secrets.json can carry two+
+# credential labels resolved to the SAME broker account (safe-1/safe-2 both -> PA3DHPT7KIQE
+# post the 2026-07-11 repoint). load_creds() has no accounts.json status awareness, so both
+# labels get polled and every core-Safe fill/order was counted TWICE (46 rows vs 31 unique
+# order ids, live-confirmed). Port of accounts_status.py's shared-account dedup workaround,
+# generalized to dedup by ALPACA ORDER ID (self-heals for any future credential collision,
+# not just this one pair).
+# =============================================================================
+DUP_ORDER = {"id": "dup-order-1", "symbol": "SPY260717P00745000", "side": "buy",
+             "status": "filled", "filled_qty": "3", "filled_avg_price": "1.00",
+             "filled_at": "2026-07-17T18:03:18Z"}
+
+
+def test_dedup_by_order_id_drops_repeat_across_calls():
+    """RED-PROOF: without dedup, the SAME order id fetched under two arms would append
+    twice. _dedup_by_order_id must keep only the first occurrence across calls sharing one
+    seen_ids set (mirrors how main() threads seen_order_ids across the arm loop)."""
+    w = _load()
+    seen: set = set()
+    first_pass = w._dedup_by_order_id([dict(DUP_ORDER)], seen)
+    second_pass = w._dedup_by_order_id([dict(DUP_ORDER)], seen)  # same id, "different arm" fetch
+    assert len(first_pass) == 1
+    assert len(second_pass) == 0, "duplicate order id from a second credential label must be dropped"
+
+
+def test_dedup_by_order_id_keeps_distinct_ids():
+    w = _load()
+    seen: set = set()
+    a = w._dedup_by_order_id([{"id": "order-a"}], seen)
+    b = w._dedup_by_order_id([{"id": "order-b"}], seen)
+    assert len(a) == 1 and len(b) == 1
+
+
+def test_dedup_by_order_id_passes_through_missing_id():
+    """A record with no id (defensive -- should not happen for a real Alpaca order) must
+    never be silently dropped just because dedup can't key it."""
+    w = _load()
+    seen: set = set()
+    out = w._dedup_by_order_id([{"symbol": "SPY260717P00745000"}], seen)
+    assert len(out) == 1
+
+
+def test_two_credential_labels_one_account_produce_one_counted_fill_per_order_id(tmp_path, monkeypatch):
+    """END-TO-END, THE EXACT INCIDENT SHAPE: two credential labels ("safe-1", "safe-2") both
+    resolving to the same broker account both return the SAME order id from _fetch_orders
+    (as the real Alpaca API would for one shared account polled under two key pairs). Before
+    the fix, main() would append it twice to all_filled AND double the spy_fills_today count.
+    After the fix: exactly one counted fill, one ping."""
+    w = _load()
+    monkeypatch.setattr(w, "STATE", tmp_path)
+    monkeypatch.setattr(w, "TRADE_TODAY", tmp_path / "trade-today.json")
+    monkeypatch.setattr(w, "OUTBOX", tmp_path / "discord-outbox.jsonl")
+    monkeypatch.setattr(w, "PINGED", tmp_path / "pinged.json")
+    monkeypatch.setattr(w, "LIFETIME", tmp_path / "lifetime.json")
+    (tmp_path / "fleet" / "safe-1").mkdir(parents=True)
+    (tmp_path / "fleet" / "safe-2").mkdir(parents=True)
+    # dict order matters: safe-1 is fetched first, mirroring secrets.json's real insertion
+    # order (safe-1 predates the 2026-07-11 safe-2 repoint) -- first-seen arm keeps the fill.
+    monkeypatch.setattr(w.fb, "load_creds", lambda: {"safe-1": {"tag": "safe-1"},
+                                                       "safe-2": {"tag": "safe-2"}})
+    monkeypatch.setattr(w, "_fetch_orders", lambda creds: [dict(DUP_ORDER)])  # SAME order both times
+    monkeypatch.setattr(w, "_load_user_mention", lambda: "")
+    w.main()
+
+    trade_today = json.loads((tmp_path / "trade-today.json").read_text(encoding="utf-8"))
+    assert trade_today["spy_fills_today"] == 1, (
+        f"expected exactly 1 deduped fill, got {trade_today['spy_fills_today']} "
+        "-- the 2026-07-17 double-count regression"
+    )
+    assert len(trade_today["fills"]) == 1
+    assert trade_today["fills"][0]["arm"] == "safe-1", "first-seen credential label keeps attribution"
+
+    outbox_path = tmp_path / "discord-outbox.jsonl"
+    pings = outbox_path.read_text(encoding="utf-8").strip().splitlines() if outbox_path.exists() else []
+    assert len(pings) == 1, f"expected exactly 1 Discord ping for the one real fill, got {len(pings)}"

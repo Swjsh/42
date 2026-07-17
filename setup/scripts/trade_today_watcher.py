@@ -248,6 +248,32 @@ def _structure_exit_label(arm: str, symbol: str) -> str:
     return ""
 
 
+def _dedup_by_order_id(records: list, seen_ids: set) -> list:
+    """PURE (2026-07-17, port of accounts_status.py's safe-1/safe-2 shared-account dedup
+    workaround -- see that module's ORDER list comment): fleet/secrets.json can carry TWO+
+    credential labels pointed at the SAME broker account (safe-1 and safe-2 both resolve to
+    PA3DHPT7KIQE post the 2026-07-11 repoint -- accounts.json's safe-1._retired_doc). Unlike
+    accounts_status.py (which hardcodes an ORDER list that simply omits the retired label),
+    this watcher iterates fleet_broker.load_creds() directly (every label in secrets.json,
+    with no accounts.json status awareness) -- so every core-Safe fill/order got fetched and
+    counted TWICE, once per label. Root cause of the 2026-07-17 46-rows/31-unique-ids
+    incident (task_32d96df3). Dedup by ALPACA ORDER ID (not by arm) is the robust fix: it
+    self-heals for ANY future credential-label collision, not just this specific pair, and
+    doesn't depend on accounts.json status staying in sync. First-seen label (dict iteration
+    = secrets.json insertion order, stable across runs) keeps attribution; later duplicates
+    are dropped before they ever reach the count/ping path. Records with no "id" pass through
+    unfiltered (never silently drop an unidentifiable order)."""
+    out = []
+    for x in records:
+        oid = x.get("id")
+        if oid:
+            if oid in seen_ids:
+                continue
+            seen_ids.add(oid)
+        out.append(x)
+    return out
+
+
 def _is_engine_attributed(arm: str, symbol: str) -> bool:
     """True if some decision row for this arm has a record naming this symbol -- checks
     FOUR execution-record shapes across the two decisions.jsonl SCHEMAS this repo runs
@@ -319,11 +345,14 @@ def main() -> int:
     all_unfilled: list[dict] = []
     all_probes: list[dict] = []
     new: list[dict] = []
+    seen_order_ids: set = set()  # cross-arm dedup (2026-07-17) -- see _dedup_by_order_id
     for arm, creds in creds_all.items():
         real, probes = split_rehearsal_probes(_fetch_orders(creds))
         f, u = classify_orders(real)
         for x in f + u + probes:
             x["arm"] = arm
+        f = _dedup_by_order_id(f, seen_order_ids)
+        u = _dedup_by_order_id(u, seen_order_ids)
         all_filled += f
         all_unfilled += u
         all_probes += probes
