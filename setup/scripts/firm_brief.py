@@ -63,6 +63,7 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 from et_clock import et_now  # noqa: E402
 from trade_today_watcher import _load_user_mention  # noqa: E402  (T3 mention-token pattern, reused not re-implemented)
+from arm_display import display_name_for_label  # noqa: E402  (2026-07-17 arm display names)
 
 STATE = REPO / "automation" / "state"
 STATEMENT = STATE / "pnl-statement.json"
@@ -276,7 +277,12 @@ def render_pdt_lines(self_check: dict) -> list[str]:
     if not pdt:
         return ["- UNKNOWN (self-check has not reported PDT status yet -- Gamma_SelfCheck fires ~every 30 min)."]
     lines: list[str] = []
-    for label, name in (("safe", "core Safe"), ("bold", "core Bold")):
+    # DISPLAY NAME (2026-07-17): "core Safe"/"core Bold" stay the pinned line-prefix (existing
+    # guards match on these substrings) -- the accounts.json display_name (e.g. "CORE-SAFE
+    # (KIQE)") is appended in brackets so the account-number-collision context (safe-1/safe-2
+    # share KIQE) is visible right here, without disturbing any pinned assertion.
+    for label, core_name in (("safe", "core Safe"), ("bold", "core Bold")):
+        name = f"{core_name} [{display_name_for_label(label)}]"
         a = pdt.get(label)
         if not a:
             lines.append(f"- {name}: UNKNOWN (no PDT reading this cycle).")

@@ -21,6 +21,10 @@ try:
     from et_clock import et_now
 except Exception:  # noqa: BLE001
     def et_now(): return dt.datetime.utcnow() - dt.timedelta(hours=4)
+try:
+    from arm_display import display_name_for_arm_id
+except Exception:  # noqa: BLE001
+    def display_name_for_arm_id(arm_id): return arm_id
 
 
 def _age_min(p: Path) -> float | None:
@@ -124,6 +128,13 @@ def main() -> int:
     if fa and isinstance(fa.get("arms"), list):
         live = sum(1 for a in fa["arms"] if a.get("live") is True)
         out.append(f"  arms: {len(fa['arms'])} configured, {live} live=true. TRADING TODAY: check fleet decisions / fills.")
+        # DISPLAY NAMES (2026-07-17): raw ids (safe-1/2/3, risky-1/3, bold-2) carry no meaning
+        # on their own and safe-1/safe-2 share ONE broker account (KIQE) -- print id + the
+        # accounts.json display_name (which embeds the account last-4) side by side so that
+        # collision is visible at a glance instead of causing a double-count.
+        for a in fa["arms"]:
+            out.append(f"    - {a.get('id', '?'):<20} {display_name_for_arm_id(a.get('id', '')):<30} "
+                       f"[{a.get('status', '?')}]")
     out.append("  HONEST: arms place only when a signal fires; engine has been HOLDing (no armable edge this regime).")
 
     # --- EXIT MODE (SS-B structure-stop, first live day 2026-07-09) ---

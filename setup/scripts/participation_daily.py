@@ -87,6 +87,7 @@ sys.path.insert(0, str(REPO / "backtest" / "tools"))         # participation_cas
 
 from et_clock import et_now                     # noqa: E402
 import participation_cascade as pc               # noqa: E402
+from arm_display import display_name_for_arm_id  # noqa: E402  (2026-07-17 arm display names)
 
 STATE = REPO / "automation" / "state"
 ANALYSIS_DIR = REPO / "analysis" / "participation-cascade"
@@ -236,7 +237,12 @@ def render_markdown_section(daily: dict) -> str:
              "| account | fills | target | enter_verdicts | attempts | verdict |",
              "|---|---|---|---|---|---|"]
     for acc, a in daily["accounts"].items():
-        lines.append(f"| {acc} ({a['arm']}) | {a['fills']} | {a['target_min']}-{a['target_max']} | "
+        # DISPLAY NAME (2026-07-17): a['arm'] stays the raw accounts.json id (unchanged --
+        # nothing downstream keys off this markdown table), display_name is appended so
+        # "safe-2" reads as "safe-2 CORE-SAFE (KIQE)" instead of a bare, ambiguous number.
+        arm_label = display_name_for_arm_id(a['arm'])
+        arm_s = a['arm'] if arm_label == a['arm'] else f"{a['arm']} {arm_label}"
+        lines.append(f"| {acc} ({arm_s}) | {a['fills']} | {a['target_min']}-{a['target_max']} | "
                       f"{a['enter_verdicts']} | {a['attempts']} | {a['verdict']} |")
     lines.append("")
     for acc, a in daily["accounts"].items():

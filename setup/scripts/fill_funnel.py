@@ -52,6 +52,10 @@ try:
 except Exception:  # noqa: BLE001
     def et_now() -> dt.datetime:  # fail-open (rig is on Mountain; never Bash TZ)
         return dt.datetime.utcnow() - dt.timedelta(hours=4)
+try:
+    from arm_display import display_name_for_label
+except Exception:  # noqa: BLE001
+    def display_name_for_label(label): return label
 
 ENTRY_CEILING_HHMM = "15:00"   # ENTER after this = DEGRADED (0DTE theta cliff)
 EOD_HHMM = "16:00"             # after this, a fill with no exit record = DEGRADED
@@ -444,13 +448,24 @@ def trades_pnl_today(day: str, repo: Path | None = None) -> dict:
 # renderers + artifact
 # ---------------------------------------------------------------------------
 
+def _display_label(account_key: str) -> str:
+    """account_key ('core:safe', 'fleet:safe-3', a raw arm id, ...) -> the SAME key with
+    accounts.json's display_name appended when resolvable, e.g. 'fleet:safe-3' ->
+    'fleet:safe-3 FLEET-TIGHT-S (OB0Q)'. The raw key is ALWAYS kept as the prefix -- nothing
+    downstream keys off this rendered text (funnel['accounts']/funnel['flags'] keep the raw
+    key), but keeping it makes correlating a report row with decisions.jsonl paths trivial.
+    Fail-open -> the raw key unchanged when no display name is found (2026-07-17)."""
+    resolved = display_name_for_label(account_key)
+    return account_key if resolved == account_key else f"{account_key} {resolved}"
+
+
 def render_text(funnel: dict) -> str:
     """One glanceable block (gamma_glance / CLI)."""
     t = funnel["totals"]
     out = [f"FUNNEL {funnel['date']}  [{funnel['verdict']}]  "
            f"ticks->sig->ENTER->ruleblk->attempt->accept->fill->exit"]
     for name, a in funnel["accounts"].items():
-        out.append(f"  {name:<14} {a['ticks']:>4} -> {a['signals']:>3} -> {a['enter']:>2} "
+        out.append(f"  {_display_label(name):<34} {a['ticks']:>4} -> {a['signals']:>3} -> {a['enter']:>2} "
                    f"-> {a.get('rule_blocked', 0):>2} -> {a['attempted']:>2} -> {a['accepted']:>2} "
                    f"-> {a['filled']:>2} -> {a['exited']:>2}")
     out.append(f"  {'TOTAL':<14} {t['ticks']:>4} -> {t['signals']:>3} -> {t['enter']:>2} "
@@ -477,7 +492,7 @@ def render_markdown(funnel: dict, repo: Path | None = None) -> str:
         "|---|---|---|---|---|---|---|---|---|",
     ]
     for name, a in funnel["accounts"].items():
-        out.append(f"| {name} | {a['ticks']} | {a['signals']} | {a['enter']} | "
+        out.append(f"| {_display_label(name)} | {a['ticks']} | {a['signals']} | {a['enter']} | "
                    f"{a.get('rule_blocked', 0)} | "
                    f"{a['attempted']} | {a['accepted']} | {a['filled']} | {a['exited']} |")
     out.append(f"| **TOTAL** | {t['ticks']} | {t['signals']} | {t['enter']} | "
@@ -518,7 +533,7 @@ def render_markdown(funnel: dict, repo: Path | None = None) -> str:
     if "by_arm" in pnl:
         for r in pnl["by_arm"]:
             any_trade = True
-            out.append(f"- [{r['arm']}] {r['n_round_trips']} round trip(s): "
+            out.append(f"- [{_display_label(r['arm'])}] {r['n_round_trips']} round trip(s): "
                        f"{r['realized_pnl']:+.0f} (engine {r['engine_pnl']:+.0f} / "
                        f"manual {r['manual_pnl']:+.0f})")
     else:

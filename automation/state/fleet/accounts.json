@@ -1,5 +1,6 @@
 {
  "_doc": "Champion/challenger fleet registry, schema fleet-v2 (2026-06-25 grid rebuild). AN ACCOUNT IS NOT A STRATEGY. Every account is a (gate-strictness x contract-sizing) profile; EVERY validated strategy in automation/state/fleet/strategies.py runs on EVERY account via fleet_executor.plan_all. The account only decides how SELECTIVE the entry gate is (gate_override) and how BIG the position is (sizing = strike depth + qty + risk cap). NO direction locks, NO per-account strategy silos (the old PUT_ONLY / loose-aggressive-as-a-strategy framing was the bug J flagged). NEVER store secrets here -- key_ref points to the GITIGNORED secrets.json. Account#/equity broker-verified 2026-06-20.",
+ "_display_name_doc": "DISPLAY NAMES ADDED 2026-07-17 (J: the safe-1/2/3, risky-1/3, bold-2 scheme is confusing on its own numbers-mean-nothing/risky-vs-bold-inconsistent merits AND unsafe -- safe-1 and safe-2 point at the SAME account (PA3DHPT7KIQE) and caused a real double-count in reporting). Each arm below gained a `display_name` field: CORE-SAFE (KIQE)=safe-2, CORE-BOLD (AT40)=bold-2, FLEET-TIGHT-S (OB0Q)=safe-3, FLEET-TIGHT-R (8G19)=risky-1, FLEET-LOOSE-R (X15Q)=risky-3, RETIRED (=CORE-SAFE acct KIQE)=safe-1, FUTURES-DIV (dormant, 3759)=mes-mnq-div-futures, FUTURES-LINEAR (pending, 3759)=mes-linear-sim. Arm IDs are UNCHANGED and remain the load-bearing key everywhere (80+ consumers grepped 2026-07-17 across automation/setup/backtest -- executor/ledger/state-file keying was NOT touched); display_name is READ-SURFACE ONLY, resolved via setup/scripts/arm_display.py. Full mapping table + rationale: markdown/infra/ARM-DISPLAY-NAMES.md. Guard: automation/state/fleet/test_arm_display_names.py.",
  "schema": "fleet-v2-grid",
  "created": "2026-06-20",
  "updated": "2026-07-11",
@@ -23,6 +24,7 @@
  "arms": [
   {
    "id": "safe-3",
+   "display_name": "FLEET-TIGHT-S (OB0Q)",
    "cell": "safe x tight",
    "status": "active",
    "execution": "fleet_rest",
@@ -40,6 +42,7 @@
   },
   {
    "id": "safe-2",
+   "display_name": "CORE-SAFE (KIQE)",
    "cell": "safe x base (CONTROL)",
    "status": "active",
    "execution": "mcp_heartbeat",
@@ -58,6 +61,7 @@
   },
   {
    "id": "safe-1",
+   "display_name": "RETIRED (=CORE-SAFE acct KIQE)",
    "cell": "safe x loose",
    "status": "retired",
    "execution": "fleet_rest",
@@ -77,6 +81,7 @@
   },
   {
    "id": "risky-1",
+   "display_name": "FLEET-TIGHT-R (8G19)",
    "cell": "risky x tight",
    "status": "active",
    "execution": "fleet_rest",
@@ -95,6 +100,7 @@
   },
   {
    "id": "bold-2",
+   "display_name": "CORE-BOLD (AT40)",
    "cell": "risky x base (CONTROL)",
    "status": "active",
    "execution": "mcp_heartbeat",
@@ -112,6 +118,7 @@
   },
   {
    "id": "risky-3",
+   "display_name": "FLEET-LOOSE-R (X15Q)",
    "cell": "risky x loose",
    "status": "active",
    "execution": "fleet_rest",
@@ -131,6 +138,7 @@
   },
   {
    "id": "mes-linear-sim",
+   "display_name": "FUTURES-LINEAR (pending, 3759)",
    "status": "pending_build",
    "fidelity": "bs_sim_ranking_only",
    "broker": "futures_sandbox_TT",
@@ -144,6 +152,7 @@
   },
   {
    "id": "mes-mnq-div-futures",
+   "display_name": "FUTURES-DIV (dormant, 3759)",
    "status": "dormant",
    "fidelity": "point_pnl_validated",
    "broker": "futures_sandbox_TT",
