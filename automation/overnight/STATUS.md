@@ -5345,3 +5345,30 @@ Zero params/config/trading-path files touched by either job. No orders placed. Q
   `analysis/recommendations/replay-today-baseline-2026-07-17.json` +
   `automation/overnight/GOAL-REPLAY-TODAY-GREEN.md` LEDGER + `markdown/planning/FUTURE-IMPROVEMENTS.md`
   PARITY-GAP-2 (updated). No params/config file touched -- measurement only.
+
+- [2026-07-17 18:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-18T00:57:03.351066+00:00) | fail streak: 90 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 18:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+- [2026-07-17 21:20 ET] GOAL-REPLAY-TODAY-GREEN ITERATION 4 (Sonnet, first real lever, L1) --
+  **NO-SHIP.** OOS-validated the safe-tape audit's n=3 discriminator (ELITE static-level bear
+  rejections vs TRENDLINE dynamic rejections) full-history, real-fills:
+  `backtest/tools/elite_bear_level_reject_gate_ab.py` -> gate BEAR-side ELITE-tier entries
+  (provably always static-level-anchored by code construction, zero invented bounce-phase
+  classifier). **Ladder verdict `INSUFFICIENT_REGIME_SHIFT`**: ELITE bear trades were net
+  WINNERS in 2025 (+$533/6tr) and net LOSERS in 2026 YTD (-$683/11tr) -- both WF forms deeply
+  negative (-0.699 / -1.774), 1/2 IS sub-windows hurt. fable-too-good hunt (built into the
+  script): dropping just the top-3 removed OOS trades zeroes the whole +$683 apparent edge to
+  $0.00, and a 20-seed random-PUT-removal placebo null does NOT clear alpha (p_null=0.1429) --
+  ELITE-tier is not demonstrably better than blocking 11 random bear trades. Confirmed (raw
+  `core-decisions.jsonl`) the lever would skip today's 11:06/11:40 losers (+$139) and keep the
+  13:01 winner untouched -- real, but explicitly the confirmation, not the ratification basis.
+  `params.json` NOT touched. Re-test trigger recorded for AMENDMENT 1 (~2026-10-19 or +30 new
+  episodes). Filed `EXIT-MANAGER-REPLAY-HARNESS` spec-only queue item per the FRAME AUDIT.
+  Full record: `analysis/recommendations/elite-bear-level-reject-gate-ab-2026-07-17.{json,md}`,
+  `automation/overnight/GOAL-REPLAY-TODAY-GREEN.md` ITERATION 4 LEDGER, `automation/overnight/queue.md`.
+
+### DEGRADED: self-check 2026-07-17T21:09:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 11 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,485.31, $0.00 remaining, 5 entries placed today).

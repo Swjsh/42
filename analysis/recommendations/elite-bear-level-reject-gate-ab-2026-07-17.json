@@ -1,0 +1,158 @@
+{
+  "_doc": "ELITE-tier BEAR level-rejection gate -- OOS A/B (GOAL-REPLAY-TODAY-GREEN iteration 4, L1).\n\nCONTEXT (automation/overnight/GOAL-REPLAY-TODAY-GREEN.md, safe-tape audit\nanalysis/daily-brief/2026-07-17-safe-tape-audit.md Part 2): today's two core-Safe morning\nLOSERS (11:06 744P -$37, 11:40 745P -$102) were both `tier ELITE` (triggers\nlevel_rejection+confluence -- a STATIC price level touch), fired into an unfinished post-gap\nbounce. The day's biggest WINNER (13:01 746P +$241) was `tier TRENDLINE` (dynamic\ntrendline_rejection only, no static level). The safe-tape audit flagged this as a n=3\nsame-day candidate discriminator, explicitly NOT proof, and pre-registered\nSTUDY-STATIC-VS-TRENDLINE-REJECT-BOUNCE-PHASE for full-history validation. THIS script is\nthat validation, generalized per the task's SCOPE REFINEMENT: rather than inventing an\nex-ante \"bounce phase\" classifier (the day-type trend/chop classifier already FAILED\n2026-07-15, analysis/recommendations/daytype-gate-result.md -- 3/3 variants KILL, p_null\n0.58-0.99), the lever is defined structurally and provably ex-ante:\n\nLEVER: gate ALL BEAR-side (PUT) ELITE-tier entries of BEARISH_REJECTION_RIDE_THE_RIBBON /\nBULLISH_RECLAIM_RIDE_THE_RIBBON. \"ELITE\" (backtest/lib/orchestrator.py:1186-1189) requires\n`has_confluence` (confluence trigger) OR `has_sequence` (sequence_rejection trigger) OR\nboth -- and BOTH of those are, by construction, IMPOSSIBLE without a matched static price\nlevel: `detect_confluence(rejection_level, ...)` (lib/filters.py:741) returns None whenever\n`rejection_level is None`, and `sequence_rejected` is only computed from a `level_state`\nlooked up FROM `rejection_level` (lib/filters.py:1390-1398, mirrored bull-side 1124-1131).\nSo \"ELITE-tier bear entry\" and \"static-level-anchored bear entry with a confirming\ntrigger\" are the SAME set, not an approximation of it -- zero invented proxy, zero\nlookahead (every field used is known at signal time), zero day-level classification.\n\nThis is also the precise structural mirror of an already-LIVE, already-ratified gate:\n`block_elite_bull` (params.json, VIX[0,25) i.e. effectively unconditional) already blocks\nELITE-tier BULL (CALL) entries. There is currently NO bear-side equivalent -- this study\ntests completing that symmetric pair, not inventing a new gate class.\n\nCANDIDATE: block ELITE-tier PUT entries (post-hoc trade removal, matching the established\n`block_level_rejection` precedent's own validation methodology -- level_rejection_gate_sweep.py\nmines a real production gate exactly this way before it was ever wired).\nCONTROL: current production Safe config (block_elite_bull ON, block_level_rejection ON\n[LEVEL tier only -- this is precisely the gap ELITE-tier trades fall through today],\nentry_bar_body_pct_min 0.2, block_bull_1100_1200 ON, vix_bear_hard_cap 23.0, chart-stop-\nprimary -50% catastrophe caps both sides, tp1_qty_fraction 0.8, profit_lock fixed arm+5%,\nstrike ATM (V15_SAFE_TIERS <$10K), real OPRA fills).\n\nWF form: analysis/recommendations/WF-GATE-METHODOLOGY-2026-07-16.md\n`ab_delta_per_trade_v2026_07_16` (+ AMENDMENT 1). IS=2025 calendar year, OOS=2026 YTD\n(through 2026-07-08, the latest date with a matched spy_5m/vix_5m file pair -- 6+ months\nOOS). Reports the gate-cohort-normalized WF (n = count of the affected/removed ELITE-bear\ntrades, matching directional_gate_battery.py's compute_wf/G3 convention -- the closer\nstructural analog, since this IS a single-gate block study) AND, disclosed, the\nfull-population-normalized alternative (n = all control trades that period, matching\nlevel_rejection_gate_sweep.py's own convention) -- both forms are live in this codebase,\nneither superseded the other in the frozen note, so both are reported per the note's own\n\"state the WF form used\" mandatory disclosure.\n\n5 ratification gates + BH-FDR (single candidate -- degenerates to a plain one-sided\nthreshold at alpha=0.10, disclosed, not hidden) + anchor (OP-16 J_WINNERS/J_LOSERS,\nlib.anchor_check) + sub-window stability + a random-removal placebo null (20 seeds,\nsame-count random PUT-trade removal, add-one empirical p_null -- the WF-GATE note's\n\"control sanity\" disclosure applied to a gate study) + drop-top-3 concentration check\n(fable-too-good hunt).\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/elite_bear_level_reject_gate_ab.py\n",
+  "generated_at": "2026-07-17T19:05:45.911822",
+  "wf_form": "ab_delta_per_trade_v2026_07_16",
+  "candidate": "block BEAR-side (PUT) ELITE-tier entries of ribbon_ride (BEARISH_REJECTION/BULLISH_RECLAIM) -- structural mirror of live block_elite_bull",
+  "control": "current production Safe config (SAFE_BASE dict, faithful to automation/state/params.json read 2026-07-17)",
+  "data": {
+    "spy_file": "spy_5m_2025-01-01_2026-07-08.csv",
+    "vix_file": "vix_5m_2025-01-01_2026-07-08.csv",
+    "is_window": [
+      "2025-01-02",
+      "2025-12-31"
+    ],
+    "oos_window": [
+      "2026-01-02",
+      "2026-07-08"
+    ]
+  },
+  "is": {
+    "base_pnl": -1348.16,
+    "n_base": 119,
+    "n_removed": 6,
+    "removed_pnl": 532.8,
+    "candidate_pnl": -1880.96,
+    "delta": -532.8
+  },
+  "oos": {
+    "base_pnl": -1553.31,
+    "n_base": 86,
+    "n_removed": 11,
+    "removed_pnl": -683.14,
+    "candidate_pnl": -870.17,
+    "delta": 683.14
+  },
+  "wf_gate_cohort_normalized": {
+    "value": -0.699,
+    "note": "gate-cohort-normalized (directional_gate_battery.py convention, n=affected/removed trades)"
+  },
+  "wf_full_population_normalized": {
+    "value": -1.774,
+    "note": "full-population-normalized (level_rejection_gate_sweep.py convention, n=all control trades that period)"
+  },
+  "sub_window_stability": {
+    "is_windows": [
+      {
+        "window": "IS_H1_2025",
+        "base_pnl": -1149.16,
+        "delta": -0.0,
+        "n_removed": 5,
+        "hurt": false
+      },
+      {
+        "window": "IS_H2_2025",
+        "base_pnl": -199.0,
+        "delta": -532.8,
+        "n_removed": 1,
+        "hurt": true
+      }
+    ],
+    "oos_windows": [
+      {
+        "window": "OOS_Q1_2026",
+        "base_pnl": 340.26,
+        "delta": -0.0,
+        "n_removed": 2,
+        "hurt": false
+      },
+      {
+        "window": "OOS_Q2_2026",
+        "base_pnl": -1321.44,
+        "delta": 568.0,
+        "n_removed": 8,
+        "hurt": false
+      },
+      {
+        "window": "OOS_Q3_2026_partial",
+        "base_pnl": -572.14,
+        "delta": 115.14,
+        "n_removed": 1,
+        "hurt": false
+      }
+    ],
+    "n_is_hurt": 1,
+    "n_oos_hurt": 0,
+    "stable": false
+  },
+  "anchor": {
+    "j_winners_dates": [
+      "2026-04-29",
+      "2026-05-01",
+      "2026-05-04"
+    ],
+    "j_losers_dates": [
+      "2026-05-05",
+      "2026-05-06",
+      "2026-05-07"
+    ],
+    "base_pnl_on_winner_days": -256.0,
+    "candidate_pnl_on_winner_days": -24.0,
+    "base_pnl_on_loser_days": 0.0,
+    "candidate_pnl_on_loser_days": 0.0,
+    "n_removed_on_winner_days": 3,
+    "n_removed_on_loser_days": 0,
+    "anchor_no_regression_winners": true,
+    "anchor_no_regression_losers_not_worsened": true
+  },
+  "bh_fdr": {
+    "p": 0.03952,
+    "threshold": 0.1,
+    "significant": true,
+    "note": "single-candidate BH-FDR degenerates to a plain one-sided test at alpha"
+  },
+  "concentration_check": {
+    "oos_removed_trades_sorted_by_abs_pnl": [
+      {
+        "date": "2026-06-26",
+        "pnl": -336.0
+      },
+      {
+        "date": "2026-05-04",
+        "pnl": -232.0
+      },
+      {
+        "date": "2026-07-08",
+        "pnl": -115.14046355059122
+      },
+      {
+        "date": "2026-01-29",
+        "pnl": 0.0
+      },
+      {
+        "date": "2026-02-03",
+        "pnl": 0.0
+      }
+    ],
+    "oos_delta_excluding_top3_by_magnitude": -0.0,
+    "still_positive_ex_top3": false
+  },
+  "random_removal_placebo_null": {
+    "n_seeds": 20,
+    "seed_base": 20260717,
+    "null_oos_delta_mean": -10.96,
+    "real_oos_delta": 683.14,
+    "p_null_add_one": 0.1429,
+    "note": "20 seeds, same-count random PUT-trade removal from the full OOS control population (any tier) -- tests whether removing ANY n_oos_removed put trades looks this good, or whether the ELITE-tier selection specifically matters."
+  },
+  "gates": {
+    "1_oos_positive": true,
+    "2_wf_ge_070_gate_cohort_form": false,
+    "3_sub_window_stable": false,
+    "4_anchor_no_regression": true,
+    "5_bh_fdr_survivor": true,
+    "evidence_n_advisory_pass": false
+  },
+  "verdict_ladder": "INSUFFICIENT_REGIME_SHIFT",
+  "all_5_gates_pass": false,
+  "final_verdict": "PARK_INSUFFICIENT_REGIME_SHIFT"
+}

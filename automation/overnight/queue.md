@@ -9,6 +9,35 @@
 
 ## Active backlog
 
+### EXIT-MANAGER-REPLAY-HARNESS (MED, spec-only, filed 2026-07-17 ~21:20 ET, GOAL-REPLAY-TODAY-GREEN iteration 4)
+
+- [ ] EXIT-MANAGER-REPLAY-HARNESS (MED, spec-only, NOT built) :: Forked from
+  `automation/overnight/GOAL-REPLAY-TODAY-GREEN.md`'s FRAME AUDIT (2026-07-17 ~20:30 ET, "same
+  wall twice"): iterations 2-3 of that goal both hit the exit-simulation wall trying to make
+  `simulate_trade_real()` reproduce live P&L to the dollar -- diagnosed as NOT a data-resolution
+  problem (1-min OPRA bars made it WORSE, not better) but a genuine sim-vs-live EXIT-PARITY gap
+  (documented lesson: `simulate_trade_real`'s profit-lock/stop model is KNOWN-divergent from the
+  live `exit_manager` -- e.g. live core_safe rode the 07-17 746P to +$241; the sim's
+  `v15_profit_lock_mode="fixed"` + zero stop-offset breakeven-zeros it in ~2 minutes). Exit-P&L
+  faithfulness via `simulate_trade_real` is ABANDONED as a goal for that project; this item is the
+  PROPER fix, forked out so it doesn't block the (unrelated) decision-layer lever loop.
+  **Spec, not implementation:** build a replay harness that drives the ACTUAL live
+  `automation/state/fleet/exit_manager.py` (or the core-Safe/Bold equivalent exit state machine
+  `heartbeat_core.py` calls) bar-by-bar against historical/cached option price data, instead of
+  the research-only `simulate_trade_real` approximation -- i.e. replay through the real exit
+  code path, not a parallel reimplementation of it. Open questions the spec must resolve: (a)
+  whether `exit_manager.py`'s functions are pure enough to call out-of-band (no live broker/MCP
+  side effects) or need a thin adapter/mock layer; (b) what state it expects to be threaded in per
+  tick (position object shape, prior HWM, armed-flags) and whether that state is fully
+  reconstructable from `core-decisions.jsonl` + fills history for a historical trade; (c) bar
+  resolution needed (1-min real OPRA, per iteration 3's finding, since 5-min is provably
+  insufficient for 0DTE intrabar moves). Once spec'd, this becomes the trustworthy exit-quality
+  measurement tool for L2 (trend-day exit tuning) and any future exit-shape A/B -- currently NONE
+  of this codebase's exit studies can claim byte-parity with live, only "same shared function,
+  measured not realized" (the standard disclosure). Context:
+  `automation/overnight/GOAL-REPLAY-TODAY-GREEN.md` FRAME AUDIT section + ITERATION 2/3 LEDGER
+  entries; `markdown/planning/FUTURE-IMPROVEMENTS.md` PARITY-GAP-2. :: depends:none :: status:proposed
+
 ### ADVERSE-EXTREME-AVOIDANCE-FILTER (MED, pre-reg spec, from FAVORABLE-EXTREME-ENTRY-2026-07-17 KILL)
 
 - [ ] ADVERSE-EXTREME-AVOIDANCE-FILTER (MED, spec-only, filed 2026-07-17 evening) :: The
@@ -31,27 +60,6 @@
   point). **SPEC REQUEST, do not wire without a cleared A/B (OP-16 eval-first).** Evidence:
   `analysis/recommendations/favorable-extreme-entry-2026-07-17.md` Synthesis + Build-spec sections.
   :: depends:none :: status:proposed
-
-### STUDY-STATIC-VS-TRENDLINE-REJECT-BOUNCE-PHASE (MED, pre-reg spec, filed 2026-07-17 tape audit)
-
-- [ ] STUDY-STATIC-VS-TRENDLINE-REJECT-BOUNCE-PHASE (MED) :: Candidate discriminator observed in
-  today's CORE SAFE tape (n=3, NOT validated): the two morning losers (11:06 744P -$37, 11:40 745P
-  -$102) were both `tier ELITE` static-level rejections (`level_rejection`+`confluence`) fired
-  during an unfinished recovery bounce (SPY 740.80 low @ 09:35 -> 747.29 high @ 10:15) and both got
-  stopped within minutes by SPY reclaiming a few cents-to-dimes above the trigger level. The winner
-  (13:01 746P +$241) was a `tier TRENDLINE` dynamic-line rejection with a LOWER bear_score (7 vs
-  10/10) that caught the actual local top. Spec: for `BEARISH_REJECTION_RIDE_THE_RIBBON`/
-  `BULLISH_RECLAIM_RIDE_THE_RIBBON` historical signals (real-fills + real-OPRA replay, full
-  history), split by trigger composition (static level_rejection/confluence vs dynamic
-  trendline_rejection) AND by a bounce-maturity proxy (position_in_prior_range at signal time
-  and/or bars-since-session-extreme). Test whether static-level rejections underperform
-  specifically when fired against an unexhausted intraday impulse. Canonical battery (expectancy +
-  OOS + regime), BH-FDR, walk-forward, OP-16 standard bar (OOS_positive AND WF>=0.70 AND
-  sub_window_stable AND anchor_no_regression) before any gate change ships. Cross-ref lesson
-  classes C20 (proximity gates anti-correlate with breakout structure) and C22 (backward-looking
-  classifiers anti-correlate with recovery periods) — this looks like a fresh instance of both. Full
-  evidence + context-bundle field comparison: `analysis/daily-brief/2026-07-17-safe-tape-audit.md`
-  Part 2. :: depends:none :: status:proposed
 
 ### SAFE3-RISKY1-GATE-RETEST-EXTEND (MED, needs pre-reg accrual, discovered 2026-07-17)
 
@@ -457,6 +465,30 @@ These are exactly the OP-22 "371st untriaged candidate is debt" pattern. The `gy
 ## Completed
 
 > OP-22 consolidation 2026-07-08: 25 finished [x] items moved here from Active backlog (loop G15).
+
+### 2026-07-17 — worker-tier: STUDY-STATIC-VS-TRENDLINE-REJECT-BOUNCE-PHASE (OOS-VALIDATED, NO-SHIP)
+GOAL-REPLAY-TODAY-GREEN ITERATION 4. Re-framed away from the originally-spec'd
+"position_in_prior_range / bars-since-session-extreme bounce-maturity proxy" (would have
+required inventing an ex-ante classifier, and the sibling day-type trend/chop classifier had
+already FAILED 2026-07-15, `daytype-gate-result.md` 3/3 KILL) to a cleaner, fully ex-ante,
+zero-invented-proxy framing: gate BEAR-side `ELITE`-tier entries (traced the code -- ELITE's
+`confluence`/`sequence_rejection` triggers are, by construction, impossible without a matched
+static price level, so "ELITE bear" IS "static-level-anchored bear," not an approximation of
+it). Structural mirror of the already-live `block_elite_bull` gate (bull side already blocked;
+bear side wasn't). Full-history real-fills OOS study (`backtest/tools/elite_bear_level_reject_gate_ab.py`,
+IS=2025 n=119, OOS=2026 YTD n=86, frozen `ab_delta_per_trade_v2026_07_16` WF form): **NO-SHIP,
+ladder verdict `INSUFFICIENT_REGIME_SHIFT`** -- ELITE-tier bear trades were net WINNERS in 2025
+(+$533/6tr) and net LOSERS in 2026 YTD (-$683/11tr), both WF forms deeply negative (-0.699 /
+-1.774), 1/2 IS sub-windows hurt. fable-too-good hunt (built into the script): the entire
+apparent OOS edge is 3 concentrated trades (drop-top-3 zeroes the delta to $0.00) and a 20-seed
+random-removal placebo null does NOT clear alpha (p_null=0.1429) -- ELITE-tier is not
+demonstrably better than blocking 11 random PUT trades. CONFIRMED (via raw
+`core-decisions.jsonl`, not audit prose) the lever would have skipped today's 11:06/11:40 ELITE
+losers (+$139 avoided) and kept the 13:01 TRENDLINE winner untouched -- real, but explicitly the
+confirmation, not the ratification basis. `params.json` NOT touched. Re-test trigger recorded
+(AMENDMENT 1): OOS window >=50% longer (on/after ~2026-10-19) OR >=30 new ELITE-bear episodes
+accrued post-2026-07-08. Full record: `analysis/recommendations/elite-bear-level-reject-gate-ab-2026-07-17.{json,md}`,
+`automation/overnight/GOAL-REPLAY-TODAY-GREEN.md` ITERATION 4 LEDGER entry.
 
 ### 2026-07-17 — worker-tier: SAFE-TRADES-CSV-JOURNALING-GAP (done-shipped, root cause found + fixed + backfilled)
 J-directed direct fix of the queue item filed by the same-day safe-tape audit
@@ -962,6 +994,7 @@ CAVEATS: best-fixed is IN-SAMPLE (needs OOS confirm), grid coarse 3x3, this is t
 
 - [ ] TWIN-ESCALATION-20260714-1784029284 2026-07-14 TICK_GAP+LOW_UPTIME (TICK_GAP: last tick 462.6 min ago (threshold 20 min); LOW_UPTIME: 48/140 ticks today (34.3%, threshold 70%)) :: dispatch a Sonnet investigation :: status:pending
 
+- [ ] TWIN-ESCALATION-20260717-1784333700 2026-07-17 TICK_GAP (TICK_GAP: last tick 4095.0 min ago (threshold 20 min)) :: dispatch a Sonnet investigation :: status:pending
 ## Needs J's own hands (system/power settings -- outside what I'm allowed to change)
 
 - [ ] PC-SLEEP-7H-OVERNIGHT-2026-07-14 (HIGH, infra, crypto-twin-uptime) :: **Root-caused, report-only (ultracode-review JOB 4).** Box slept 2026-07-13 22:01:46 local (MT) -> 2026-07-14 05:35:27 local (7h33m) = 2026-07-14T00:01:45..07:35:26 ET once correctly TZ-converted (task's own "22:01->05:35 ET" framing was local-time-as-ET, corrected in STATUS.md). Cause = a MANUAL Start-Menu Sleep click by the logged-in user (Event 1074 StartMenuExperienceHost.exe + Event 42 "Sleep Reason: Application API"), NOT an idle timeout -- `powercfg` confirms STANDBYIDLE/HIBERNATEIDLE already 0 (Never) on both AC/DC, nothing to fix there. **J action (one-liner, NOT run by me):** `reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v NoStartMenuSleepOption /t REG_DWORD /d 1 /f` (hides Sleep from the Start Menu power button; may need sign-out or `gpupdate /force`) -- I have not verified this value against a live registry read beyond confirming the parent policy key path exists, so J should confirm it actually suppresses the tile after running it. Alternative/belt-and-suspenders if J wants to keep manual sleep available: enable "Wake the computer to run this task" on a pre-market task (e.g. `Gamma_LaunchTV`) -- `RTCWAKE` is already `Enable` on AC, so this needs no other change; treats the symptom not the cause, not applied. Full evidence: STATUS.md 2026-07-14 "PC SLEPT 7.5h OVERNIGHT" entry. :: depends:none :: status:pending-needs-J

@@ -216,6 +216,90 @@ terminal state — report it, don't force it.
   binding constraint this morning" by its own audit). Expand L1's sample across recent days + the
   OP-16 anchor days before any ratification decision -- not done this iteration per the explicit
   "do not tune" instruction.
+- **ITERATION 4 COMPLETE (2026-07-17 ~21:20 ET) -- L1 OOS-VALIDATED. VERDICT: NO-SHIP
+  (`INSUFFICIENT_REGIME_SHIFT`, frozen ladder). Today's n=3 discriminator does NOT clear the OOS
+  bar on the full history -- exactly the outcome the anti-overfit law exists to catch, reported
+  honestly rather than forced.**
+
+  **Lever, made precise + fully ex-ante (no invented bounce-phase classifier):** gate BEAR-side
+  (PUT) `ELITE`-tier entries of `BEARISH_REJECTION_RIDE_THE_RIBBON`/`BULLISH_RECLAIM_RIDE_THE_RIBBON`.
+  Traced the code (`backtest/lib/orchestrator.py:1186-1219`, `backtest/lib/filters.py:741,
+  1390-1398`): `ELITE` = `has_confluence OR has_sequence`, and BOTH of those triggers are, by
+  construction, impossible without a matched static price level (`detect_confluence` returns
+  `None` whenever `rejection_level is None`; `sequence_rejected` is looked up FROM
+  `rejection_level`). So "ELITE-tier bear entry" and "static-level-anchored bear entry with a
+  confirming trigger" are the SAME set, not an approximation -- this sidesteps the day-type
+  classifier's failure mode (`analysis/recommendations/daytype-gate-result.md`, 3/3 variants
+  KILL 2026-07-15) entirely: no day-level or bounce-phase inference required, every field is
+  known at signal time. Also the precise structural mirror of the already-LIVE `block_elite_bull`
+  gate (blocks ELITE-tier CALLS unconditionally) -- this tests completing the missing bear-side
+  half of that symmetric pair, not inventing a new gate class.
+
+  **OOS study** (`backtest/tools/elite_bear_level_reject_gate_ab.py` ->
+  `analysis/recommendations/elite-bear-level-reject-gate-ab-2026-07-17.{json,md}`): full-history
+  real-fills replay, faithful current-production Safe config (chart-stop-primary -50%
+  catastrophe caps, tp1_qty_fraction 0.8, profit_lock fixed arm+5%, ATM strike, all 6 currently-
+  ratified entry gates), IS=2025 calendar year (n=119 control trades), OOS=2026 YTD through
+  2026-07-08 (n=86 control trades, 6+ months). WF form `ab_delta_per_trade_v2026_07_16`
+  (WF-GATE-METHODOLOGY-2026-07-16.md + AMENDMENT 1), both normalizations disclosed.
+
+  | gate | value | pass? |
+  |---|---|:--:|
+  | 1. OOS positive | IS_delta=-$532.80 (n=6 removed, net WINNERS in 2025) / OOS_delta=+$683.14 (n=11 removed, net losers in 2026) | OOS: True |
+  | 2. WF>=0.70 | gate-cohort-normalized **-0.699**; full-population-normalized **-1.774** (both forms reported per mandatory disclosure) | **FAIL** |
+  | 3. sub_window_stable | IS_H1_2025 flat / IS_H2_2025 HURT (-$532.80, all of IS's removed-cohort pnl concentrated in 1 trade); OOS 0/3 hurt | **FAIL** (1 IS window hurt) |
+  | 4. anchor_no_regression | OP-16 J_WINNERS days: base -$256 -> candidate -$24 (improves, 1 bad ELITE-bear trade axed on J's own 2026-05-04 win day); J_LOSERS days: unaffected (0 removed) | PASS |
+  | 5. BH-FDR | p=0.0395 (single-candidate, degenerates to a plain one-sided test at alpha=0.10 -- disclosed) | nominally PASS, but see placebo below |
+  | evidence_n advisory | n_oos_removed=11 (< 15 floor) | thin |
+
+  **Ladder verdict: `INSUFFICIENT_REGIME_SHIFT`** (is_delta<=0 AND oos_delta>0 -- ELITE-tier
+  bear entries were net WINNERS in 2025 and net LOSERS in 2026 YTD; per the frozen ladder this
+  parks, never auto-ships, on a candidate that only helps in the newest regime).
+
+  **fable-too-good hunt (built into the script, not bolted on after):**
+  - **Concentration is the whole story.** Dropping just the top-3 OOS removed trades by
+    |pnl| (2026-06-26 -$336, 2026-05-04 -$232, 2026-07-08 -$115) takes OOS_delta from +$683.14
+    to **-$0.00** -- the other 8 removed trades net to exactly zero. The apparent OOS edge is
+    3 trades, not a population effect.
+  - **Random-removal placebo null: p_null=0.1429 (does NOT clear alpha=0.10).** 20 seeds of
+    removing 11 random PUT trades (any tier) from the same OOS control population produced an
+    OOS delta >= the real candidate's in ~14% of seeds -- i.e. picking ELITE tier specifically
+    is not clearly better than blocking 11 random bear trades. This is the more relevant check
+    than the BH-FDR line above (which only asks "is the removed cohort's own mean negative,"
+    not "is ELITE the right lens") and it fails.
+  - One genuine positive: one of the 3 concentrated trades sits on 2026-05-04, one of J's own 3
+    anchor WINNER days -- axing a bad ELITE-bear entry on J's best day is directionally the
+    right kind of mechanism, just not enough alone to clear the bar.
+
+  **CONFIRMATION on today (secondary, not the fitting target)** -- verified directly against
+  raw `automation/state/core-decisions.jsonl` (account=safe, 2026-07-17), not audit prose:
+  11:06:03 `triggers=['level_rejection','confluence']` tier=ELITE -> lever SKIPS (avoids -$37).
+  11:40:04 same tier=ELITE -> lever SKIPS (avoids -$102). 13:01:03
+  `triggers=['trendline_rejection']` tier=TRENDLINE -> lever KEEPS, untouched (the +$241
+  winner). Trade 6 (14:49, 743P) is also tier=TRENDLINE, untouched (still -$56). The 13:56-14:00
+  cluster is tier=SUPER (ribbon_flip present), untouched -- lever only targets ELITE, not SUPER.
+  **Today capture-delta if shipped: +$139 (avoids both morning losers, touches nothing else) --
+  core_safe's replay P&L would move from +$240 to +$379.** This is real and mechanically clean,
+  but per the task's own instruction this is the CONFIRMATION, not the ratification basis --
+  the OOS study is what decides, and it says no.
+
+  **SHIP DECISION: NO-SHIP.** `params.json` NOT touched. This is the honest outcome the task
+  explicitly named as plausible ("a lever that only helps today is REJECTED... n=3 is almost
+  certainly too thin alone") -- confirmed, not asserted: 11 OOS episodes is a real expansion
+  beyond n=3, but the mechanism reverses sign across 2025->2026, fails both WF forms, fails
+  1/2 IS sub-windows, and fails its own placebo-null sanity check. Shipping this would be
+  fitting the artifact the concentration check just found, not the safe-tape audit's mechanism.
+
+  **Re-test trigger recorded (WF-GATE-METHODOLOGY AMENDMENT 1, adjudication snapshot):**
+  adjudicated 2026-07-17, OOS window 2026-01-02..2026-07-08 (188 calendar days), n_oos_removed=11.
+  Re-test when EITHER the OOS window has grown >=50% in calendar length since this date (i.e.
+  ~94 more days, on or after ~2026-10-19), OR >=30 NEW ELITE-tier-bear episodes have accrued in
+  the cohort post-2026-07-08 (whichever first).
+
+  **Filed:** `automation/overnight/queue.md` STUDY-STATIC-VS-TRENDLINE-REJECT-BOUNCE-PHASE moved
+  to Completed with this result (superseded by the ex-ante ELITE-tier framing, no separate
+  bounce-phase proxy needed or built). New spec-only queue item EXIT-MANAGER-REPLAY-HARNESS filed
+  per the FRAME AUDIT's item 1 (forked exit-faithfulness project) -- spec only, not built.
 
 ## SCOPE REFINEMENT (Fable/Opus judgment, 2026-07-17 ~19:40 ET — after iteration 2)
 Iteration 2 made the SIGNAL+DECISION layer faithful (5/5 sniper captures, 12/12 tier parity) but
@@ -235,3 +319,23 @@ splits:
   below the n>=30 OOS bar. "4 arms green OOS-safe + 2 tight arms need more evidence" may be the
   honest terminal state; forcing the tight arms green today would be the exact curve-fit the law
   bans. Let the faithful eval + OOS actually run before concluding.
+
+## FRAME AUDIT (Fable/Opus, 2026-07-17 ~20:30 ET — after iteration 3, OP-32 "same wall twice")
+Iterations 2 AND 3 both hit the exit-simulation wall (iter 3's 1-min data made exit fidelity
+WORSE, not better). Two hits on the same shape = audit the frame, don't grind a 4th time.
+DIAGNOSIS: the exit divergence is NOT a data-resolution problem — it's that `simulate_trade_real`'s
+profit-lock/stop model is KNOWN-divergent from the live `exit_manager` (documented lesson:
+sim-vs-live profit-lock scope mismatch; sim breakeven-locks at +5% where live's exit_manager does
+not). Live core_safe ran the 746P to +$241; the sim breakeven-zeros it in 2 min. This is a
+sim-vs-live EXIT-PARITY gap, not a live bug (live did NOT prematurely stop) and not fetchable.
+DECISION (reframe):
+1. Exit-P&L faithfulness via simulate_trade_real is ABANDONED as a goal. The truly-faithful path
+   is replaying through the live exit_manager itself — forked as its own named project
+   EXIT-MANAGER-REPLAY-HARNESS (queue), NOT a blocker for the lever loop.
+2. The DECISION layer IS faithful (5/5 capture, 12/12 tier). Proceed to decision-layer levers
+   (L1/L3/L4/L6) NOW, measured by CAPTURE (takes winner / skips loser) + OOS A/B-delta (where the
+   common-mode exit-sim error cancels — same reason delta-WF works). Exit-quality lever L2 waits
+   for the exit_manager-replay project.
+3. Goal success re-stated honestly: "the tuned engine, on today's faithful decision stream,
+   captures the sniper entries and skips the losers across all arms, with every applied lever
+   OOS-clean" — NOT an exact-dollar six-green (unachievable/untrustworthy on the current sim).
