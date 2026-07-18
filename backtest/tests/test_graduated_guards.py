@@ -3597,6 +3597,31 @@ def test_operator_friction_harvest_wired() -> None:
     assert all(ord(c) < 128 for c in hook), "prompt-submit hook must be pure ASCII (PS 5.1 silent-crash class)"
 
 
+def test_operator_friction_excludes_wrapper_self_fire() -> None:
+    """G-J-MIND-2 (2026-07-18, found while auditing the 'J asked 40+ times' claim): EVERY
+    scheduled conductor/conductor-weekend/conductor-rth/weekly-review fire submits the wrapper's
+    injected '# RUNTIME CONTEXT (injected by wrapper, ...)' header + STATE DIGEST as the literal
+    UserPromptSubmit text, and automation/prompts/conductor.md's own doctrine prose contains
+    phrases ('the success bar is daily paper trading', 'the rig's function is trading', 'never a
+    live futures order') that trip the is_running/is_trading regexes even though J typed nothing.
+    Direct regex replay against automation/prompts/conductor.md confirmed 3 self-matches. This was
+    silently inflating j-question-ledger.jsonl -- 15 of 49 lines (31%) were self-inflicted wrapper
+    fires, not J, before this fix (audited + pruned 2026-07-18). Guards that the wrapper marker is
+    excluded so a scheduled fire NEVER phantom-logs itself as J asking a state question."""
+    hook = (REPO / "setup" / "hook-detect-correction.ps1").read_text(encoding="utf-8", errors="replace")
+    assert "runtime context \\(injected by wrapper" in hook.lower(), (
+        "hook must exclude the wrapper's own '# RUNTIME CONTEXT (injected by wrapper' marker from "
+        "J-question capture -- else every scheduled conductor fire phantom-logs itself as J asking"
+    )
+    # the marker must live inside the SAME $qIsSystem exclusion the task-notification check uses,
+    # not a separate one-off -- prove it's on the qIsSystem assignment line specifically.
+    qsys_lines = [ln for ln in hook.splitlines() if "$qIsSystem = (" in ln]
+    assert qsys_lines, "hook must define $qIsSystem"
+    assert "runtime context" in qsys_lines[0].lower(), (
+        "wrapper-marker exclusion must be wired into the $qIsSystem check, not bolted on elsewhere"
+    )
+
+
 def test_tv_watchdog_checks_live_heartbeat() -> None:
     """G-TVWATCHDOG (2026-06-29): the TV watchdog's hung-bridge auto-restart must check the
     LIVE engine task Gamma_HeartbeatCore, NOT the retired LLM Gamma_Heartbeat (disabled

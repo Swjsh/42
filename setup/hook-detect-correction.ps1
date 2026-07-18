@@ -66,7 +66,18 @@ $qRules = @(
 # (task-notifications, system-reminders, tool results, slash-command echoes) -- they otherwise
 # false-fire and would phantom-trip BUILD_ELIMINATING_INSTRUMENT on noise. Caught 2026-06-29 by
 # self-verification: the first 2 ledger entries were both <task-notification> agent-finished events.
-$qIsSystem = ($low -match 'task-notification|system-reminder|</result>|<task-id|tool-use-id|<command-name|<local-command|output-file|</summary>|<function_results')
+# SECOND false-positive class caught 2026-07-18 (conductor-fire self-pollution): every scheduled
+# conductor/conductor-weekend/conductor-rth/weekly-review fire submits the wrapper's injected
+# "# RUNTIME CONTEXT (injected by wrapper, ...)" header + STATE DIGEST as the literal UserPromptSubmit
+# text, and the full conductor.md prose that follows contains doctrine phrases (e.g. "the success bar
+# is daily paper trading", "the rig's function is trading", "never a live futures order") that trip
+# the is_running/is_trading regexes even though J never typed anything. Traced via direct regex replay
+# against automation/prompts/conductor.md (3 confirmed matches) -- NOT a J question, ever. This was
+# silently inflating "J asked N times" (queue.md/STATUS.md/lesson-inbox all cited "40+ times over 18
+# days" before this fix; audit of the 48-line ledger showed ~15 of those were self-inflicted wrapper
+# fires, not J). Exclude any prompt carrying the wrapper's own marker before it ever reaches the intent
+# regexes -- automated wake prompts are never J correcting or questioning Gamma.
+$qIsSystem = ($low -match 'task-notification|system-reminder|</result>|<task-id|tool-use-id|<command-name|<local-command|output-file|</summary>|<function_results|# runtime context \(injected by wrapper|state digest \(auto-injected')
 if (-not $qIsSystem) {
     foreach ($qr in $qRules) {
         if ($scan -match $qr.rx) { $qIntent = $qr.intent; break }

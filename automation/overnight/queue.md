@@ -1388,8 +1388,21 @@ cost is the confluence-tolerance interaction in item 5 above, not compute.
 
 - [ ] J-ONLY: activate phone/watch push notifications -- this is the ONE remaining step
   that retires the "is it running / is it trading / whats the status" question J has
-  asked 40+ times over 18 days (`automation/state/j-question-ledger.jsonl`, flagged by
-  `friction_distiller.py`'s `recurring_user_question` class, occ=43, FAST_ESCALATE=2).
+  asked **34 times over 17 days** (`automation/state/j-question-ledger.jsonl`, flagged by
+  `friction_distiller.py`'s `recurring_user_question` class, occ=34, FAST_ESCALATE=2).
+  **Corrected 2026-07-18 (conductor fire, ~13:53 ET):** the original occ=43/49-line count
+  was inflated -- 15 of 49 ledger lines (31%) were self-inflicted: every scheduled
+  conductor/conductor-weekend/conductor-rth/weekly-review fire submits the wrapper's
+  `# RUNTIME CONTEXT (injected by wrapper, ...)` header + full `conductor.md` prose as the
+  literal UserPromptSubmit text, and that doctrine prose itself contains phrases ("the
+  success bar is daily paper trading", "the rig's function is trading", "never a live
+  futures order") that trip the `is_running`/`is_trading` regexes with zero J involvement.
+  Fixed in `setup/hook-detect-correction.ps1`'s `$qIsSystem` exclusion (now also skips any
+  prompt carrying the wrapper marker), the 15 fake lines were pruned from the ledger, and
+  `friction-ledger.jsonl` was regenerated (recurring_user_question now occ=34, still
+  STEP-BACK-ELIGIBLE -- the underlying J friction is real, just was over-counted). Guard:
+  `backtest/tests/test_graduated_guards.py::test_operator_friction_excludes_wrapper_self_fire`.
+  The J-action-required fix below (push activation) is unaffected -- still the correct next step.
   Root cause (two-layer, both verified this fire): (1) VAPID keys already exist
   (`automation/state/.vapid.json`, generated 2026-06-21) -- `sendPush()` is NOT disabled
   at that layer, contrary to the first hypothesis; (2) `automation/state/push-subscriptions.json`
