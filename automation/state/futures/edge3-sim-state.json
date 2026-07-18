@@ -1,0 +1,7 @@
+{
+  "_doc": "Poll watermark for futures_edge3_sim.py (EDGE #3 own-book SIM lane, MES->MNQ divergence catch-up, TT-credential dependency retired -- see edge3_mesmnq_div.py FROZEN_CONFIG). consumed_sessions = ISO dates already given ONE entry attempt this session (the frozen signal is structurally 1/(laggard,session) -- this guards against re-consuming the same day's signal_for_tick() call as a second entry after the first position closes same day), pruned to the most recent 30 entries. last_action/last_reason record the most recent poll's outcome for OP-33c glanceability without opening the ledger.",
+  "consumed_sessions": [],
+  "last_run_et": "2026-07-18T11:04:18",
+  "last_action": "noop",
+  "last_reason": "market_closed_outside_rth"
+}

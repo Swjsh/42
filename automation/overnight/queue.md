@@ -472,6 +472,41 @@ These are exactly the OP-22 "371st untriaged candidate is debt" pattern. The `gy
 
 > OP-22 consolidation 2026-07-08: 25 finished [x] items moved here from Active backlog (loop G15).
 
+### 2026-07-18 ~11:05 ET — worker-tier: FUTURES-EDGE3-TT-CREDENTIAL-RETIRE -- own-book SIM lane for mes-mnq-div-futures, TT-credential dependency killed instead of waited on
+
+- [x] FUTURES-EDGE3-TT-CREDENTIAL-RETIRE (HIGH, futures-7th-arm, $0) :: `mes-mnq-div-futures`
+  (`automation/state/fleet/accounts.json`, OOS +$71.46/tr n=118 8/8 gates,
+  `edge3_mesmnq_div.py::FROZEN_CONFIG`) sat dormant since 2026-06-21 behind `enabled=false` +
+  a Trading Technologies sandbox credential that was never wired (`docs/futures/` confirmed
+  does not exist). PM decision (Fable/Opus): retire the dependency instead of waiting on it.
+  **Alpaca-futures checked honestly first, verdict NO with live evidence:**
+  `get_all_assets(asset_class="us_future")` on the real Safe-2 paper account returns zero
+  assets (the same call with `asset_class="crypto"` returns 80+ real pairs same session,
+  proving the query path works); documented AssetClass enum is `{us_equity, us_option,
+  crypto}` only -- no Alpaca paper-futures path exists on any account we hold. **Built the
+  honest equivalent:** `setup/scripts/futures_edge3_sim.py` -- own-book SIM lane (same tier
+  as the crypto twin's bear-SIM lane) driving the SAME FROZEN_CONFIG detector byte-identical
+  (only a local `dataclasses.replace(enabled=True)` copy, never the shared object) against
+  REAL live ES=F/NQ=F quotes (yfinance, verified live), ATR-chandelier + chart-stop exit
+  reused verbatim from `edge3.b4`'s own constants, gap-aware stop fills, every ledger row
+  tagged `fidelity="sim_fill_vs_real_quote"`. RTH-scoped (09:30-16:00 ET, not the full Globex
+  week) -- an evidenced correction, not tuning: the frozen edge is defined entirely on RTH 5m
+  bars, so polling overnight buys nothing. Falsification rail: >=20 closed round trips ->
+  `edge3-sim-progress.json` compares mean pnl to $71.46/tr, flags
+  `INVESTIGATE_QUOTE_QUALITY` on a >50% shortfall. **Registered + verified alive real fire:**
+  `Gamma_FuturesEdge3Sim` (`setup/scripts/install-futures-edge3-sim.ps1`),
+  `Start-ScheduledTask` -> `LastTaskResult=0`, real `edge3-sim-state.json` after that fire:
+  `last_action="noop" last_reason="market_closed_outside_rth"` (Saturday, market genuinely
+  closed) -- `NextRunTime=2026-07-20 09:30 ET` confirms the first LIVE window is Monday's RTH
+  open (not Sunday 18:00 ET Globex open -- the edge never acts outside RTH). Tests: 24/24 new
+  (`backtest/tests/test_futures_edge3_sim.py`, incl. an end-to-end entry off a REAL validated
+  historical signal day), zero regressions on `test_futures_mirror_shadow.py` (70/70, sibling
+  lane untouched) + the fleet accounts-schema suites. `accounts.json`'s arm gained a
+  `tt_credential_dependency_RETIRED_2026_07_18` note (historical broker/key_ref fields kept
+  for audit trail, `enabled` stays false -- SIM only, no live order path implied). $0
+  (yfinance + deterministic Python). Full detail: STATUS.md ~11:05 ET entry same date. ::
+  depends:none :: status:done
+
 ### 2026-07-17 ~22:47 ET — worker-tier: GOAL-REPLAY-TODAY-GREEN ITERATION 7 (rigor verification pass) -- correct-exit re-adjudication of L1, 0/5 SHIP confirmed, goal TERMINAL
 
 Re-verified iteration 5/6's load-bearing "0/5 flip, recency-overfit" conclusion, which had been
