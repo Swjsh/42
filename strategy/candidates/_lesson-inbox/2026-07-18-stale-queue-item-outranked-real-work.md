@@ -57,3 +57,38 @@ fold into **C14** (dead/translated-but-unapplied knobs — this is the same fami
 level up: a dead *queue item* instead of a dead *knob*, caught by the same "vary and
 assert against current reality" discipline) or **C22** (compound don't accumulate —
 queue hygiene as a form of compounding).
+
+## Recurrence log (re-violated → graduated, OP-25)
+
+This pattern recurred **3 more times the SAME DAY** after the first occurrence above:
+1. `RANGE-SCALP-REGIME-STRATEGY` (~12:07 ET) — closed `CLOSED_ALREADY_ANSWERED`: the
+   design's every load-bearing element was already built+run 2026-06-28→07-01,
+   verdict `DIES_ON_SLIPPAGE`.
+2. `POSITION-MONITOR-1MIN` + 2 dependents (~11:38/12:12 ET, this file's original case).
+3. `RIBBON-LAG-PRICE-STRUCTURE-TRIGGER` (~14:15 ET, conductor-weekend) — closed
+   `CLOSED_ALREADY_ANSWERED`: all 3 named candidate detectors (`named_level_wick_bounce`,
+   `bearish_rejection_morning`, `named_level_second_test`) already had real-fills or
+   SPY-space+anchor-regression verdicts on disk (`level-family-validation.json`,
+   `edgehunt-bearish_rejection_morning.json`, `edgehunt-named-level-bounce.json`) —
+   including the item's own cited "LIVE PROOF" anchor trade being directly re-tested
+   and still not captured.
+
+**4 same-day recurrences of the same root cause = graduated to code (this fire),
+not left as prose.** `setup/scripts/task_scorer.py` now exports
+`staleness_advisory(ranked)`: when the #1-ranked ready item is `HIGH`/`CRITICAL`
+priority, both the default and `--top` CLI paths print a stderr-only reminder to
+trace the item against `analysis/recommendations/`, `strategy/candidates/`, and
+shipped infra BEFORE executing — citing this file. This is deliberately a **nudge,
+not a smart auto-resolver** (detecting "is this gap still real" needs semantic
+judgment task_scorer's regex-based ranker doesn't have); the goal is to make the
+"trace before executing" step habitual rather than silently skippable.
+
+Guarded by `backtest/tests/test_task_scorer_staleness_advisory.py` (5 tests: HIGH
+gets advisory, MED/LOW don't, empty ranking never raises, `--top`'s stdout contract
+stays id-only via a real subprocess check so the advisory can never leak onto stdout
+and break a downstream shell-out consumer). RED-proofed via `git stash` on
+`task_scorer.py` (4/5 fail with `AttributeError: module has no attribute
+'staleness_advisory'` as expected; the 5th, the stdout-contract subprocess test,
+passes either way since it exercises the unmodified real CLI path — that's correct,
+not a gap, since its job is to catch a *future* accidental `print(advisory)` without
+`file=sys.stderr`).

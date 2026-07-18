@@ -30,6 +30,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from pathlib import Path
 from typing import NamedTuple
 
@@ -431,6 +432,38 @@ def _to_json(tasks: list[Task]) -> str:
     )
 
 
+def staleness_advisory(ranked: list) -> str | None:
+    """OP-25 nudge, graduated 2026-07-18 after a 3rd same-day recurrence.
+
+    Three HIGH-priority items that ``task_scorer --top`` ranked #1 this session
+    (RANGE-SCALP-REGIME-STRATEGY, the POSITION-MONITOR-1MIN cluster,
+    RIBBON-LAG-PRICE-STRUCTURE-TRIGGER) turned out to be CLOSED_ALREADY_ANSWERED /
+    CLOSED_SUPERSEDED by research or infra that had shipped AFTER the item was
+    filed — nobody re-checked before spending a fire re-designing or re-running
+    already-finished work. ``task_scorer`` ranks readiness (depends satisfied,
+    not in_progress) but has no notion of "is the described gap still real", so
+    a stale HIGH item can sit at rank #1 for weeks, actively misdirecting the
+    conductor. This is a lightweight advisory, not a smart staleness detector
+    (that needs semantic judgment this module deliberately doesn't have) — it
+    exists to make the discipline habitual rather than to auto-resolve it.
+    See ``strategy/candidates/_lesson-inbox/2026-07-18-stale-queue-item-outranked-real-work.md``.
+    """
+    if not ranked:
+        return None
+    top = ranked[0]
+    if top.priority not in ("HIGH", "CRITICAL"):
+        return None
+    return (
+        f"[task_scorer] advisory: '{top.id}' is {top.priority}-ranked #1 — before "
+        "executing, trace it against CURRENT reality (analysis/recommendations/, "
+        "strategy/candidates/, already-shipped infra/detectors) to confirm the "
+        "described gap still reproduces. 3 same-day HIGH items were closed "
+        "CLOSED_ALREADY_ANSWERED/CLOSED_SUPERSEDED on 2026-07-18 alone because "
+        "nobody re-checked first. See "
+        "_lesson-inbox/2026-07-18-stale-queue-item-outranked-real-work.md."
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="ROI-rank the conductor's overnight backlog (queue.md)."
@@ -456,10 +489,16 @@ def main(argv: list[str] | None = None) -> int:
     if args.top:
         # --top is always over READY items only (you can't pick a blocked task).
         ranked = rank(text, include_blocked=False)
+        advisory = staleness_advisory(ranked)
+        if advisory:
+            print(advisory, file=sys.stderr)  # stderr only — --top's stdout contract is id-only
         print(ranked[0].id if ranked else "")
         return 0
 
     ranked = rank(text, include_blocked=args.all)
+    advisory = staleness_advisory(rank(text, include_blocked=False))
+    if advisory:
+        print(advisory, file=sys.stderr)
     print(_to_json(ranked))
     return 0
 
