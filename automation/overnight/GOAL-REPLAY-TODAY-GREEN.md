@@ -501,3 +501,147 @@ the part that's closed.
   trust (6/6, $17 off $342 = 5%). That harness is now available for the NEXT exit-quality
   candidate (e.g. a narrower trail, an earlier arm threshold, or a hybrid arm-scope test) without
   rebuilding anything -- `exit_manager_walk.walk_exit_manager` takes any `exit_shape` dict.
+
+## ITERATION 6 RESULT + ITERATION 7 (Fable/Opus, 2026-07-17 ~21:50 ET)
+Iteration 6: EXIT-MANAGER-REPLAY-HARNESS built, TODAY REPLAY NOW 6/6 FAITHFUL (drove real
+exit_manager on 1-min OPRA; +$324.85 replay vs +$342 live, 5%). Exit-quality lever NO-SHIP
+(regime-conditioned 0/5, only 6 SS-B trades exist).
+🚨 2ND ROOT CAUSE (material): every sim-based ribbon_ride study read exit knobs from params.json
+top-level keys, but the REAL exit_manager reads strategies.py#RIBBON_RIDE.exit (chandelier +
+structure-stop-primary, NOT fixed premium stop). The sim tested the WRONG EXIT SHAPE — too harsh
+on winners (breakeven-zeros the +$241 winner). This underlies iteration 4's L1 study AND the
+iteration-5 re-adjudication's candidate P&L.
+→ ITERATION 7 (rigor, not grind): re-run the iteration-5 regime-conditioned re-adjudication of the
+5 parked candidates using the CORRECT exit shape (exit_manager_walk.py, built iter 6) instead of
+simulate_trade_real. The "recency-overfit, 0/5 flip" verdict is LOAD-BEARING and was computed on a
+now-known-wrong exit model — it MUST be re-checked under the correct model before the goal is
+honestly declared terminal. Concentration failures likely survive (a better exit scales but
+doesn't de-concentrate), but confirm, don't assume. If 0/5 confirmed → goal loop genuinely DONE.
+If any candidate flips under the correct exit → real finding, treat it properly.
+ALSO FILE: SIM-EXIT-SHAPE-PARITY-AUDIT — all historical sim-based ribbon_ride exit studies may be
+invalid (wrong exit shape); needs a systematic re-check pass (separate from this goal).
+
+- **ITERATION 7 COMPLETE (2026-07-17 ~22:47 ET, `et_clock.py`-verified) -- RIGOR VERIFICATION PASS.
+  SCOPE AUDIT FIRST (not assumed): of the 5 parked candidates, only elite-bear L1 was actually
+  computed via `simulate_trade_real` (the confirmed-wrong shape). Code-traced all 4 others this
+  iteration -- bold-strike ATM / fleet-strike(proxy) and zone-band already drive
+  `exit_manager.plan_exit_actions` DIRECTLY via `structure_stop_study.SS_B_SHAPE` /
+  `replay_structure_aware` (an independently-built, earlier [2026-07-09] parallel harness, NOT
+  simulate_trade_real); pong's `replay_exit()` also calls `plan_exit_actions` directly with its own
+  paired-delta exit grid. Re-running those 3-as-1 under exit_manager_walk would NOT isolate "exit
+  model" as the only changed variable (the task's own constraint) -- it would swap each study's own
+  reviewed replay engine for a different one. Materiality check on SS_B_SHAPE (bold-strike/zone-band's
+  engine) via `exit_manager.py:209-223 ExitState.from_entry`: `premium_stop_pct` is INERT whenever
+  stop_mode resolves "structure" (the dominant case) -- from_entry hard-overrides it with
+  `catastrophe_stop_pct`, and SS_B_SHAPE's implicit catastrophe (unset -> global `CATASTROPHE_STOP_PCT`
+  =-0.50) byte-matches the live shape's explicit -0.50. tp1/trail/profit_lock_mode all match exactly;
+  only `runner_target_pct` differs (9.9 vs live's 99.0), empirically confirmed immaterial this run
+  (zero of the 16 replayed trades below exited via runner_target -- all chandelier-trail/structure-
+  stop/premium-stop/time-stop). **Only L1 rebuilt this iteration; the other 4 carry forward
+  unchanged, on evidenced (not assumed) grounds.**
+
+  **L1 REBUILD** (`backtest/tools/regime_readjudication_correctexit.py`, new): reuses
+  `elite_bear_level_reject_gate_ab.py`'s OWN unchanged `run_backtest(**SAFE_BASE)` call (same
+  window, same entry detection, same `split_control_candidate` block predicate -- byte-identical to
+  iteration 4/5) -- ONLY each removed (ELITE-tier PUT) trade's dollar_pnl is re-derived via
+  `exit_manager_walk.walk_exit_manager` under the REAL `strategies.py#RIBBON_RIDE.exit.to_dict()`
+  shape instead of SAFE_BASE's simulate_trade_real shape (`profit_lock_mode="fixed"`). n=17 removed,
+  16 replayed (1 dropped, no local OPRA cache for both sides equally -- excluded from BOTH the
+  wrong-exit and correct-exit comparison for a true same-population test, not just the correct side).
+
+  **CROSS-CHECK (fable-too-good discipline, task step 4):** `exit_variant_ab.py` (iteration 6)
+  imports the SAME `SAFE_BASE` from the SAME module and independently walked the SAME 188-trade
+  population through the SAME `walk_exit_manager` under the SAME control shape, in a SEPARATE
+  script run. Joined all 16 replayed trades against that file's saved `control_pnl` by
+  (entry_time_et, side): **16/16 exact match, zero mismatches, control_shape byte-verified equal.**
+  Confirms the L1 rebuild is not a new wiring bug -- the numbers reproduce an independently-generated
+  artifact, not just internal self-consistency.
+
+  **RESULT -- NOT a flip to PASS, but a REAL, PROMINENT finding the wrong-exit-sim was masking (in
+  the opposite direction the "expected" framing anticipated):**
+
+  | | WRONG exit (simulate_trade_real shape, same n=16) | CORRECT exit (exit_manager_walk, same n=16) |
+  |---|---|---|
+  | verdict | INSUFFICIENT_REGIME_SHIFT | **FAIL (clean, concentration-independent)** |
+  | is_delta_mean / oos_delta_mean | $0.00 / +$58.00 | **-$135.03 / -$40.86 (both negative)** |
+  | removed-cohort total P&L (16 trades, un-flipped sign) | -$35.20 | **+$2,629.30** |
+  | trades exactly $0.00 | **13/16 (81%)** | 0/16 |
+  | win/loss split | n/a (mostly zeros) | 10 winners / 6 losers |
+
+  **Mechanism (coherent with iteration 6's own diagnosis, not a new coincidence):** the WRONG shape's
+  `profit_lock_mode="fixed"` breakeven-locks the instant a trade ticks +5% favorable and never moves
+  again -- at 5-min-bar granularity, 13 of 16 ELITE-bear trades round-tripped back through that floor
+  and were flattened to EXACTLY $0.00, the same artifact iteration 3 found at 1-min resolution on
+  today's tape (3/5 zeroed) and iteration 6 root-caused (wrong params.json-sourced shape, not a
+  coarser approximation of the right one). Under the CORRECT trailing-chandelier shape, most of those
+  same trades ride to real gains (+$705.55, +$616.00, +$656.85, +$490.10, +$446.45, +$397.80,
+  +$380.00 among them) -- **the "ELITE-tier bear entries" this lever wanted to BLOCK are, under the
+  real production exit mechanism, a net PROFITABLE cohort** (+$2,629.30 / 16 trades, +$164/tr, 10W-6L),
+  not the wash-to-slightly-losing population the wrong sim showed. Blocking them is therefore a NET
+  LOSS relative to keeping them -- which is exactly why is_delta/oos_delta both flip negative and the
+  ladder resolves to a clean FAIL (is<=0 AND oos<=0), a HARDER, concentration-independent kill than
+  iteration 4/5's original concentration-and-placebo-dependent INSUFFICIENT_REGIME_SHIFT.
+
+  **VERDICT: the "recency-overfit, 0/5 flip" GOAL-LEVEL DISPOSITION SURVIVES -- L1 does NOT flip to
+  PASS, and neither would blocking it ever have shipped -- but the ledger's stated MECHANISM ("thin,
+  concentration-driven, regime-recency-overfit") does NOT survive intact for L1 specifically. The
+  honest mechanism is: the wrong sim was lying about these trades' economics (81% artificially
+  flattened to $0.00), not that a real edge was thin/overfit. Both routes reach NO-SHIP for L1, but
+  for materially different reasons -- reported precisely, not glossed over.** The other 4 candidates'
+  verdicts (bold-strike ATM FAIL, zone-band FAIL, pong FAIL, fleet-strike-proxy = ATM's verdict) are
+  UNCHANGED and evidenced-unaffected by this bug per the scope audit above.
+
+  **Follow-on (not actioned this iteration, scope discipline):** if ELITE-tier bear entries are
+  genuinely a net-profitable cohort under the correct exit shape, that is a DIFFERENT, unvalidated
+  hypothesis (maybe they deserve equal or preferential treatment, not blocking) -- NOT proven by a
+  negative block-delta alone, and NOT explored here. Filed into SIM-EXIT-SHAPE-PARITY-AUDIT's scope
+  below, not asserted as a new lever.
+
+  **0/5 SHIP across all 5 candidates, confirmed under the correct exit shape for the one candidate
+  actually affected by the bug, and evidenced-unaffected for the other 4.** No `params.json` /
+  `aggressive/params.json` file touched. Files:
+  `backtest/tools/regime_readjudication_correctexit.py` (new),
+  `analysis/recommendations/regime-readjudication-correctexit-2026-07-17.{json,md}` (new).
+
+  **SIM-EXIT-SHAPE-PARITY-AUDIT filed** (`automation/overnight/queue.md`, spec-only) -- the other 4
+  candidates' near-byte-identical-but-not-verified-everywhere exit shapes (SS_B_SHAPE's
+  TRENDLINE-tier premium-mode fallback -0.50 vs live's -0.20; pong's own 8-cell grid never
+  cross-checked against a live shape at all) plus every OTHER sim-based ribbon_ride study in this
+  codebase not touched by this goal deserve the same systematic re-check this iteration gave L1 --
+  separate project, not blocking this goal's disposition below.
+
+## GOAL DISPOSITION (2026-07-17 ~22:47 ET) -- TERMINAL, DONE
+
+The goal loop is DONE. Summary of the honest ceiling reached:
+1. **Faithful replay harness: BUILT and VERIFIED** (`exit_manager_replay.py` +
+   `exit_manager_walk.py`, iteration 6) -- 6/6 of today's real core trades reproduce live P&L
+   within tolerance (5.0% total delta) by driving the ACTUAL production exit_manager code, not an
+   approximation. This is the load-bearing infrastructure win the whole 7-iteration loop produced.
+2. **Decision-layer levers (L1/L3/L4/L6): CLOSED, honestly.** Regime-conditioned re-adjudication
+   (iteration 5, EARNS_RIGHTS methodology) found 0/5 parked candidates flip to PASS. **Iteration 7
+   re-verified this under the correct exit shape for the one candidate (L1) that was actually
+   computed under the wrong one — the NO-SHIP disposition SURVIVES** (now on a harder,
+   concentration-independent FAIL rather than a concentration-driven INSUFFICIENT_REGIME_SHIFT),
+   confirmed not assumed. The other 4 candidates were independently evidenced this iteration to
+   never have been subject to the wrong-exit-shape bug in the first place.
+3. **Exit-quality lever (L2): CLOSED.** `WIDER_TRAIL_25` tested under the correct exit shape
+   (iteration 6) -- clean regime-conditioned FAIL (0/5 gates, -$813.30 across 188 trades).
+4. **Today's replay, decision-layer (the primary, faithful metric):** 5/5 sniper captures, 12/12
+   tier parity (iteration 2, unchanged) -- the engine SEES J's edge correctly on today's tape.
+5. **"All 6 arms green on today via generalizable tuning": NOT achievable OOS-safely** -- the
+   honest ceiling this goal's own anti-overfit law anticipated (line 24-25 above), now proven twice
+   (iteration 5's original methodology and iteration 7's exit-shape-corrected re-check both agree).
+   Today's morning losses are noise a rigorous methodology correctly refuses to erase.
+
+**Real, load-bearing findings this loop produced beyond the "not achievable" ceiling:**
+- A reusable exit-fidelity harness (`exit_manager_walk.py`) that didn't exist before and now
+  drives ANY future exit-shape candidate at real production fidelity.
+- A previously-undocumented systemic bug (sim-based ribbon_ride studies reading the wrong exit
+  shape) that materially changes at least one historical study's conclusion in kind (L1's mechanism,
+  not its ship decision) -- filed for systematic re-check (SIM-EXIT-SHAPE-PARITY-AUDIT).
+- A validated regime-conditioned methodology (EARNS_RIGHTS, self-validated against 4 known-bad + 1
+  known-good cohort) now available for future candidate adjudication.
+
+No further iteration is scheduled under this goal name. Follow-on work (SIM-EXIT-SHAPE-PARITY-AUDIT,
+the ELITE-bear-cohort-is-actually-profitable hypothesis) is filed to `queue.md` as separate,
+non-blocking projects.

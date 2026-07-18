@@ -1,3 +1,40 @@
+## [2026-07-17 ~22:47 ET] TERMINAL -- GOAL-REPLAY-TODAY-GREEN ITERATION 7 (rigor pass): L1 re-adjudicated under the CORRECT exit shape, does NOT flip to PASS, mechanism inverts (13/16 removed trades were artifact-zeroed, real cohort nets +$2,629), 0/5-ship verdict confirmed, goal loop DONE
+
+> **Context (`et_clock.py`: `2026-07-17 22:47:38 Friday EDT market_hours=False`, after-hours weekend runway).** RIGOR VERIFICATION PASS on iteration 6's finding: every sim-based ribbon_ride study, including `elite_bear_level_reject_gate_ab.py` (L1's source), read exit knobs from `params.json` top-level keys instead of the real `strategies.py#RIBBON_RIDE.exit` shape. Iteration 5's LOAD-BEARING "0/5 flip, recency-overfitting" conclusion was computed on that wrong shape for L1 -- had to be re-checked, not assumed, before declaring the goal terminal.
+>
+> **Scope audit first:** code-traced all 5 parked candidates' actual exit engines. Only L1 was genuinely computed via `simulate_trade_real`. The other 4 (bold-strike ATM/fleet-strike-proxy, zone-band, pong) already drive `exit_manager.plan_exit_actions` directly via independently-built parallel harnesses (`structure_stop_study.SS_B_SHAPE` lineage or pong's own paired-delta grid) -- proven materially close to the live shape via a code-level trace of `ExitState.from_entry` (structure-mode `premium_stop_pct` is inert, overridden by `catastrophe_stop_pct` which byte-matches live's -0.50). NOT re-run this iteration, on evidenced grounds, not assumption.
+>
+> **L1 rebuilt** (`backtest/tools/regime_readjudication_correctexit.py`, new): same entry population + block predicate as iteration 4/5 (unchanged), only each removed trade's dollar_pnl re-derived via `exit_manager_walk.walk_exit_manager` (iteration 6's harness) under the REAL `strategies.py#RIBBON_RIDE.exit.to_dict()` shape. **Cross-checked 16/16 exact match** against `exit_variant_ab.py`'s independently-computed control_pnl for the same trades (fable-too-good discipline -- rules out a new wiring bug).
+>
+> **RESULT -- does NOT flip to PASS, but the mechanism inverts:**
+>
+> | | WRONG exit (same n=16) | CORRECT exit (same n=16) |
+> |---|---|---|
+> | verdict | INSUFFICIENT_REGIME_SHIFT | **FAIL (clean, concentration-independent)** |
+> | is_delta_mean / oos_delta_mean | $0.00 / +$58.00 | **-$135.03 / -$40.86** |
+> | removed-cohort total P&L | -$35.20 | **+$2,629.30** |
+> | trades exactly $0.00 | **13/16 (81%)** | 0/16 |
+>
+> Under the wrong shape's `profit_lock_mode="fixed"`, 13 of 16 ELITE-bear trades round-tripped through the breakeven floor and were artificially flattened to exactly $0.00 -- the same artifact iteration 3 found on today's tape at 1-min resolution, now confirmed historically at 5-min. Under the correct trailing-chandelier shape, most of those same trades ride to real gains (up to +$705.55) -- **the cohort this lever wanted to BLOCK is actually net-profitable** (+$2,629.30/16, 10W-6L) under the real mechanism, which is WHY blocking it now fails harder (both IS and OOS negative) rather than the original concentration-driven near-miss. Both routes land on NO-SHIP for L1, for materially different reasons.
+>
+> **GOAL DISPOSITION: TERMINAL, DONE.** 0/5 candidates ship -- confirmed under the correct exit model for the one affected candidate, evidenced-unaffected for the other 4. Faithful replay harness built+verified (iteration 6, 6/6, 5% delta). Decision-layer levers closed (0/5 across two independent methodology passes). Exit-quality lever closed (WIDER_TRAIL_25 clean FAIL). Today's decision-layer replay faithful (5/5 sniper capture, 12/12 tier parity). "All 6 arms green via generalizable tuning" is NOT achievable OOS-safely -- the honest ceiling the goal's own anti-overfit law anticipated, now proven on two independent axes. No `params.json`/`aggressive/params.json` file touched, this iteration or across the whole goal. No further iteration scheduled under this goal name.
+>
+> **Follow-on filed, not actioned:** SIM-EXIT-SHAPE-PARITY-AUDIT (`automation/overnight/queue.md`, spec-only) -- the correct-exit rebuild pattern likely applies to other `simulate_trade_real`-based studies in this codebase (ship-decision-bearing ones first), separate project. The "ELITE-bear cohort is actually profitable" observation is a DIFFERENT, unvalidated hypothesis (not proven by a negative block-delta alone) -- not explored here, filed for future consideration only.
+>
+> **Files:** `backtest/tools/regime_readjudication_correctexit.py`, `analysis/recommendations/regime-readjudication-correctexit-2026-07-17.{json,md}`, `automation/overnight/GOAL-REPLAY-TODAY-GREEN.md` ITERATION 7 + GOAL DISPOSITION, `automation/overnight/queue.md` (SIM-EXIT-SHAPE-PARITY-AUDIT filed + Completed entry). **Market-hours discipline:** after-hours (22:47 ET Friday), local-compute-only; push deferred to standing after-hours rule.
+
+---
+
+## [2026-07-17] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-02..2026-07-08), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-08). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-526.56); Bold_ATM_1+2=YELLOW ($-262.0)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-07-17 ~22:25 ET] BUILD -- EXIT-MANAGER-REPLAY-HARNESS: 6/6 today's real core trades faithful (was 0/5 iter2, 2/5-trivial iter3) by driving the REAL exit_manager code instead of the sim; second root cause found (sim was reading the WRONG exit shape, not just a coarser one); exit-quality candidate WIDER_TRAIL_25 tested and cleanly NO-SHIP under regime-conditioning
 
 > **Context (`et_clock.py`: `2026-07-17 22:20:38 Friday EDT market_hours=False`, after-hours weekend runway).** GOAL-REPLAY-TODAY-GREEN iteration 6. Prior iterations (2-3) proved `simulate_trade_real` -- the exit engine every real-fills study in this codebase runs -- is KNOWN-DIVERGENT from live's real `exit_manager.py` (the FRAME AUDIT, iteration 3-4). This iteration builds the forked EXIT-MANAGER-REPLAY-HARNESS: drive the ACTUAL production exit code, not the sim approximation.
@@ -126,16 +163,6 @@
 > **Verification this session:** `git status --short backtest/lib/filters.py` clean before/after (no engine file touched); full study run twice (once pre-, once post- a render_md enhancement) reproduced identical mining numbers (139/82 Safe, 191/130 Bold bear trades; 36/44 delta episodes) confirming determinism.
 >
 > **Files:** `analysis/recommendations/prereg-zone-rejection-band-2026-07-17.json` (frozen, committed before the run per instruction), `backtest/tools/zone_rejection_band_study.py`, `analysis/recommendations/zone-rejection-band-2026-07-17.{json,md}`, this STATUS.md entry.
-
----
-
-## [2026-07-16] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-02..2026-07-08), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-08). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-526.56); Bold_ATM_1+2=YELLOW ($-262.0)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
 
 ---
 
@@ -1378,7 +1405,7 @@ MECHANISM (flag-gated, default = exactly what ships): (1) `build_shared_signal.p
 - [2026-07-02 11:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-02.log
 
 ## Kitchen
-Kitchen: alive, queue 22 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 - [2026-07-02 11:57:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-02T17:57:02.061643+00:00) | fail streak: 39 consecutive fires | stage v02_source_parity pass rate dropped to 66.67% in last 24h (32/48) -- but v15 (3-source) = 100.0% in same window, likely single-provider artifact | stage v53_setup_dispatch.live pass rate dropped to 18.75% in last 24h (9/48) | v02 source parity drift in 34.99% of last-24h iterations :: see crypto/data/scorecards/drift_report.json
 
@@ -5443,3 +5470,8 @@ Zero params/config/trading-path files touched by either job. No orders placed. Q
 - [2026-07-17 20:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-18T02:27:03.322273+00:00) | fail streak: 93 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
 
 - [2026-07-17 20:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+### DEGRADED: self-check 2026-07-17T22:39:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 11 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,485.31, $0.00 remaining, 5 entries placed today).

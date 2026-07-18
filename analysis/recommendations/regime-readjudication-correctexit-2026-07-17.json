@@ -1,0 +1,468 @@
+{
+  "_doc": "regime_readjudication_correctexit.py -- GOAL-REPLAY-TODAY-GREEN ITERATION 7 (rigor pass).\n\nWHY: iteration 6 (EXIT-MANAGER-REPLAY-HARNESS) found every sim-based ribbon_ride exit study\nin this codebase, including `elite_bear_level_reject_gate_ab.py` (the source of iteration-5's\nregime-conditioned re-adjudication cohort for lever L1), reads exit knobs from\n`simulate_trade_real`'s params.json TOP-LEVEL keys (tp1_premium_pct=0.5,\nv15_profit_lock_mode=\"fixed\", runner_max_premium_pct=2.5) instead of the REAL exit_manager's\n`automation/state/fleet/strategies.py#RIBBON_RIDE.exit` shape (tp1_premium_pct=1.0,\nprofit_lock_mode=\"trailing\" chandelier arm+5%/trail15%, runner_target_pct=99.0,\nstop_mode=\"structure\"). The iteration-5 \"0/5 flip, recency-overfitting\" verdict was therefore\ncomputed, for L1 specifically, on a KNOWN-WRONG exit model that breakeven-zeros winners the\nreal engine rides. This module re-derives L1's removed-cohort P&L under the CORRECT exit\nshape (`backtest/lib/exit_manager_walk.py`, built iteration 6 -- drives the REAL\n`exit_manager.plan_exit_actions` decision core) and re-runs the UNCHANGED iteration-5\nregime-conditioned validator to check whether the verdict survives.\n\nSCOPE, per a code-trace audit of the other 4 parked candidates done THIS iteration: ONLY\nelite-bear L1 is affected by the \"wrong exit shape\" bug. Traced each of the other 3\nindependently-scored candidates' own replay engine (fleet-strike-risky3 has no separate\ncohort -- it inherits bold-strike-ATM's verdict by proxy, per WF-GATE-METHODOLOGY-2026-07-16.md's\nown disposition, unchanged this iteration):\n\n  * bold_strike_axis_deltawf.py -> bold_strike_axis_ab.py's SS_B_SHAPE (=\n    structure_stop_study.SS_B_SHAPE) via strike_ab_convention_reconciliation.replay_generic,\n    which calls automation/state/fleet/exit_manager.plan_exit_actions DIRECTLY -- the SAME\n    real decision core exit_manager_walk.py drives, an earlier (2026-07-09), independently\n    -built parallel harness, NOT simulate_trade_real. Materiality check (this iteration, via\n    exit_manager.py:209-223 ExitState.from_entry): SS_B_SHAPE's premium_stop_pct=-0.50 is\n    INERT whenever stop_mode resolves to \"structure\" (the dominant case for trigger_level\n    -anchored setups) -- from_entry HARD-OVERRIDES premium_stop_pct with catastrophe_stop_pct\n    in structure mode, and SS_B_SHAPE's implicit catastrophe_stop_pct (key absent -> global\n    CATASTROPHE_STOP_PCT=-0.50) byte-matches the live shape's explicit catastrophe_stop_pct=\n    -0.50. tp1_premium_pct (1.0), tp1_qty_fraction (0.667), profit_lock_mode (\"trailing\"),\n    trail_pct (0.15) all match the live shape exactly. Only divergence: runner_target_pct 9.9\n    vs live's 99.0 (both thresholds are >900%/session -- unreachable in 0DTE, provably\n    immaterial) and the TRENDLINE-tier (no trigger_level) premium-mode fallback stop -50% vs\n    live's -20% (a narrower, already-disclosed gap in ribbon_ride_strike_exit_ab.py's own\n    docstring, orthogonal to this goal's flagged bug). NOT re-run this iteration.\n  * zone_rejection_band_study.py's own docstring states it directly: \"REPLAY reuses\n    structure_stop_study.SS_B_SHAPE / replay_structure_aware ... exactly the SS-B lineage\n    every study this week used\" -- same lineage, same materiality argument as bold-strike\n    ATM. NOT re-run this iteration.\n  * pong_resting_limit_study.py's replay_exit() calls plan_exit_actions DIRECTLY (its own\n    inline tick loop, never reads params.json top-level keys) with a bespoke 8-cell exit\n    grid built for its OWN entry-timing A/B; BOTH control and candidate sides of its paired\n    delta share the IDENTICAL exit mechanism per cell, so any shape divergence from the live\n    production shape is common-mode and cancels in the delta -- the exact reasoning\n    exit_variant_ab.py's own docstring uses to justify its delta-form WF. NOT re-run this\n    iteration.\n\nRe-running those 3 would not isolate \"exit model\" as the ONLY changed variable (the task's\nexplicit constraint) -- it would mean discarding each study's own established, independently\n-built plan_exit_actions-driven replay engine for exit_manager_walk, a materially larger and\ndifferent change than a shape correction. SIM-EXIT-SHAPE-PARITY-AUDIT (filed separately, see\nqueue.md) should still formally re-verify these 3 outside this goal's scope.\n\nMETHOD for L1: reuse elite_bear_level_reject_gate_ab.py's OWN, UNCHANGED\nrun_backtest(**SAFE_BASE) call over the SAME full window (2025-01-02..2026-07-08) and the\nSAME split_control_candidate(trades) predicate (ELITE-tier PUT entries) -- entry detection\nand the block predicate are UNCHANGED, byte-identical to iteration 4/5. Only each removed\ntrade's dollar_pnl is re-derived, via exit_manager_walk.walk_exit_manager, under the REAL,\nbyte-exact automation/state/fleet/strategies.py#RIBBON_RIDE.exit.to_dict() shape\n(structure_stop_enabled=True) instead of simulate_trade_real's params.json-top-level-keys\nshape (profit_lock_mode=\"fixed\").\n\nCROSS-CHECK (fable-too-good discipline, task step 4): the SAME run_backtest(**SAFE_BASE)\ncall, same window, is ALSO exit_variant_ab.py's own entry population (it imports SAFE_BASE\nfrom elite_bear_level_reject_gate_ab.py directly) -- its saved\nanalysis/recommendations/exit-variant-ab-wider-trail25-2026-07-17.json already contains each\nof these 188 ribbon_ride trades' P&L under the IDENTICAL correct shape (control_shape ==\nfleet_strategies.by_name(\"ribbon_ride\").exit.to_dict(), zero cache_misses, generated by a\nDIFFERENT script's own per-trade walk_exit_manager call). This script independently\nre-derives each removed trade's P&L via a FRESH walk_exit_manager call in THIS process (never\nreusing that file's numbers directly for the headline cohort) and separately cross-validates\nevery removed trade's fresh P&L against exit-variant-ab's saved control_pnl for the SAME\n(entry_time_et, side) key -- any mismatch is reported LOUD, not averaged away. Confirms the\nre-derivation is not a new wiring bug independent of the exit-shape correction itself.\n\nANALYSIS ONLY. No params/config/trading-path file touched, no orders placed.\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/regime_readjudication_correctexit.py\n",
+  "generated_at": "2026-07-17T20:44:16.400562",
+  "gate_check": "self_validation_verdict == EARNS_RIGHTS (verified at top of main())",
+  "n_total_trades": 205,
+  "n_removed_elite_bear": 17,
+  "n_replayed": 16,
+  "n_no_local_bars": 1,
+  "correct_exit_shape": {
+    "premium_stop_pct": -0.2,
+    "tp1_premium_pct": 1.0,
+    "tp1_qty_fraction": 0.667,
+    "profit_lock_mode": "trailing",
+    "runner_target_pct": 99.0,
+    "trail_pct": 0.15,
+    "profit_lock_arm_pct": 0.05,
+    "stop_mode": "structure",
+    "catastrophe_stop_pct": -0.5,
+    "profit_lock_arm_scope": "post_tp1"
+  },
+  "wrong_exit_shape_note": {
+    "premium_stop_pct": -0.5,
+    "tp1_premium_pct": 0.5,
+    "profit_lock_mode": "fixed",
+    "runner_target_premium_pct": 2.5,
+    "note": "the WRONG shape iteration 4/5 actually simulated (simulate_trade_real via SAFE_BASE)"
+  },
+  "cross_check": {
+    "source": "C:\\Users\\jackw\\Desktop\\42\\analysis\\recommendations\\exit-variant-ab-wider-trail25-2026-07-17.json",
+    "available": true,
+    "n_checked": 16,
+    "n_match": 16,
+    "mismatches": []
+  },
+  "trades": [
+    {
+      "date": "2025-01-10",
+      "entry_time_et": "2025-01-10T10:35:00",
+      "symbol": "SPY250110P00585000",
+      "side": "P",
+      "qty": 3,
+      "trigger_level": 585.195,
+      "wrong_exit_pnl": 0.0,
+      "correct_exit_pnl": 705.55,
+      "correct_exit_reason": "runner_stop @ 4.96",
+      "resolved_stop_mode": "structure"
+    },
+    {
+      "date": "2025-01-10",
+      "entry_time_et": "2025-01-10T12:05:00",
+      "symbol": "SPY250110P00580000",
+      "side": "P",
+      "qty": 3,
+      "trigger_level": 580.51,
+      "wrong_exit_pnl": 0.0,
+      "correct_exit_pnl": 12.0,
+      "correct_exit_reason": "structure_stop @ 580.51",
+      "resolved_stop_mode": "structure"
+    },
+    {
+      "date": "2025-02-21",
+      "entry_time_et": "2025-02-21T14:05:00",
+      "symbol": "SPY250221P00603000",
+      "side": "P",
+      "qty": 4,
+      "trigger_level": 603.6,
+      "wrong_exit_pnl": 0.0,
+      "correct_exit_pnl": 616.0,
+      "correct_exit_reason": "time_stop_15:50 (runner)",
+      "resolved_stop_mode": "structure"
+    },
+    {
+      "date": "2025-06-05",
+      "entry_time_et": "2025-06-05T14:05:00",
+      "symbol": "SPY250605P00595000",
+      "side": "P",
+      "qty": 5,
+      "trigger_level": 595.98,
+      "wrong_exit_pnl": 0.0,
+      "correct_exit_pnl": -230.0,
+      "correct_exit_reason": "premium_stop @ 0.46",
+      "resolved_stop_mode": "structure"
+    },
+    {
+      "date": "2025-06-20",
+      "entry_time_et": "2025-06-20T13:05:00",
+      "symbol": "SPY250620P00595000",
+      "side": "P",
+      "qty": 4,
+      "trigger_level": 595.52,
+      "wrong_exit_pnl": 0.0,
+      "correct_exit_pnl": 397.8,
+      "correct_exit_reason": "runner_stop @ 1.99",
+      "resolved_stop_mode": "structure"
+    },
+    {
+      "date": "2025-10-15",
+      "entry_time_et": "2025-10-15T13:05:00",
+      "symbol": "SPY251015P00663000",
+      "side": "P",
+      "qty": 3,
+      "trigger_level": 663.8275103924964,
+      "wrong_exit_pnl": 532.8,
+      "correct_exit_pnl": 483.55,
+      "correct_exit_reason": "runner_stop @ 3.26",
+      "resolved_stop_mode": "structure"
+    },
+    {
+      "date": "2026-01-29",
+      "entry_time_et": "2026-01-29T11:05:00",
+      "symbol": "SPY260129P00690000",
+      "side": "P",
+      "qty": 3,
+      "trigger_level": 690.485,
+      "wrong_exit_pnl": 0.0,
+      "correct_exit_pnl": 656.85,
+      "correct_exit_reason": "runner_stop @ 4.6",
+      "resolved_stop_mode": "structure"
+    },
+    {
+      "date": "2026-02-03",
+      "entry_time_et": "2026-02-03T13:05:00",
+      "symbol": "SPY260203P00690000",
+      "side": "P",
+      "qty": 4,
+      "trigger_level": 690.545,
+      "wrong_exit_pnl": 0.0,
+      "correct_exit_pnl": 380.0,
+      "correct_exit_reason": "structure_stop @ 690.545",
+      "resolved_stop_mode": "structure"
+    },
+    {
+      "date": "2026-04-21",
+      "entry_time_et": "2026-04-21T12:55:00",
+      "symbol": "SPY260421P00706000",
+      "side": "P",
+      "qty": 5,
+      "trigger_level": 706.1400146484375,
+      "wrong_exit_pnl": 0.0,
+      "correct_exit_pnl": 490.1,
+      "correct_exit_reason": "runner_stop @ 1.98",
+      "resolved_stop_mode": "structure"
+    },
+    {
+      "date": "2026-04-21",
+      "entry_time_et": "2026-04-21T14:20:00",
+      "symbol": "SPY260421P00705000",
+      "side": "P",
+      "qty": 6,
+      "trigger_level": 706.1400146484375,
+      "wrong_exit_pnl": 0.0,
+      "correct_exit_pnl": -336.0,
+      "correct_exit_reason": "structure_stop @ 706.1400146484375",
+      "resolved_stop_mode": "structure"
+    },
+    {
+      "date": "2026-04-29",
+      "entry_time_et": "2026-04-29T14:30:00",
+      "symbol": "SPY260429P00709000",
+      "side": "P",
+      "qty": 3,
+      "trigger_level": 709.25,
+      "wrong_exit_pnl": 0.0,
+      "correct_exit_pnl": 51.0,
+      "correct_exit_reason": "structure_stop @ 709.25",
+      "resolved_stop_mode": "structure"
+    },
+    {
+      "date": "2026-05-04",
+      "entry_time_et": "2026-05-04T10:10:00",
+      "symbol": "SPY260504P00720000",
+      "side": "P",
+      "qty": 4,
+      "trigger_level": 720.6699829101562,
+      "wrong_exit_pnl": -232.0,
+      "correct_exit_pnl": -232.0,
+      "correct_exit_reason": "structure_stop @ 720.6699829101562",
+      "resolved_stop_mode": "structure"
+    },
+    {
+      "date": "2026-05-04",
+      "entry_time_et": "2026-05-04T11:25:00",
+      "symbol": "SPY260504P00718000",
+      "side": "P",
+      "qty": 3,
+      "trigger_level": 718.3900146484375,
+      "wrong_exit_pnl": 0.0,
+      "correct_exit_pnl": -102.0,
+      "correct_exit_reason": "structure_stop @ 718.3900146484375",
+      "resolved_stop_mode": "structure"
+    },
+    {
+      "date": "2026-05-18",
+      "entry_time_et": "2026-05-18T11:05:00",
+      "symbol": "SPY260518P00737000",
+      "side": "P",
+      "qty": 3,
+      "trigger_level": 739.0,
+      "wrong_exit_pnl": 0.0,
+      "correct_exit_pnl": 446.45,
+      "correct_exit_reason": "runner_stop @ 2.86",
+      "resolved_stop_mode": "structure"
+    },
+    {
+      "date": "2026-06-22",
+      "entry_time_et": "2026-06-22T11:50:00",
+      "symbol": "SPY260622P00744000",
+      "side": "P",
+      "qty": 4,
+      "trigger_level": 746.1,
+      "wrong_exit_pnl": 0.0,
+      "correct_exit_pnl": -242.0,
+      "correct_exit_reason": "premium_stop @ 0.6",
+      "resolved_stop_mode": "structure"
+    },
+    {
+      "date": "2026-06-26",
+      "entry_time_et": "2026-06-26T09:50:00",
+      "symbol": "SPY260626P00729000",
+      "side": "P",
+      "qty": 3,
+      "trigger_level": 729.7,
+      "wrong_exit_pnl": -336.0,
+      "correct_exit_pnl": -468.0,
+      "correct_exit_reason": "structure_stop @ 729.7",
+      "resolved_stop_mode": "structure"
+    }
+  ],
+  "iteration5_original_result_different_n": {
+    "candidate": "elite_bear_level_reject_gate_L1",
+    "n_total_tagged": 17,
+    "target_regime_bucket": "MID_downtrend",
+    "target_regime_bucket_meta": {
+      "counts": {
+        "MID_downtrend": 8,
+        "MID_uptrend": 8,
+        "HIGH_uptrend": 1
+      },
+      "concentration_pct": 47.1
+    },
+    "both_years_present_in_bucket": true,
+    "years_present_in_bucket": [
+      2025,
+      2026
+    ],
+    "n_bucket": 8,
+    "n_regime_is": 4,
+    "n_regime_oos": 4,
+    "regime_is_delta_mean": -133.2,
+    "regime_oos_delta_mean": 112.79,
+    "regime_is_delta_total": -532.8,
+    "regime_oos_delta_total": 451.14,
+    "wf_delta": -0.847,
+    "sub_window_stability": {
+      "is_stable": false,
+      "is_hurt": [
+        [
+          "second_half",
+          -266.4
+        ]
+      ],
+      "oos_stable": true,
+      "oos_hurt": [],
+      "stable": false
+    },
+    "bh_fdr": {
+      "p": 0.07721,
+      "threshold": 0.1,
+      "significant": true,
+      "note": "single-candidate BH-FDR degenerates to a plain one-sided test at alpha"
+    },
+    "concentration_check": {
+      "oos_top3_dropped": [
+        {
+          "date": "2026-06-26",
+          "pnl": 336.0
+        },
+        {
+          "date": "2026-07-08",
+          "pnl": 115.14046355059122
+        },
+        {
+          "date": "2026-02-03",
+          "pnl": -0.0
+        }
+      ],
+      "oos_mean_ex_top3": 0.0,
+      "survives_ex_top3": false
+    },
+    "tautology_disclosure": {
+      "pct_bucket_dated_2026": 62.5,
+      "degenerate_regime_proxy_flag": false,
+      "threshold_pct": 90.0
+    },
+    "gates": {
+      "1_regime_oos_positive": true,
+      "2_wf_delta_ge_070": false,
+      "3_sub_window_stable": false,
+      "4_bh_fdr_survivor": true,
+      "5_concentration_survives_ex_top3": false
+    },
+    "ladder_verdict": "INSUFFICIENT_REGIME_SHIFT",
+    "all_gates_pass": false,
+    "verdict": "INSUFFICIENT_REGIME_SHIFT",
+    "insufficient_data": false
+  },
+  "same_n_wrong_exit_result": {
+    "candidate": "elite_bear_level_reject_gate_L1_WRONGEXIT_same_n",
+    "n_total_tagged": 16,
+    "target_regime_bucket": "MID_uptrend",
+    "target_regime_bucket_meta": {
+      "counts": {
+        "MID_downtrend": 7,
+        "MID_uptrend": 8,
+        "HIGH_uptrend": 1
+      },
+      "concentration_pct": 50.0
+    },
+    "both_years_present_in_bucket": true,
+    "years_present_in_bucket": [
+      2025,
+      2026
+    ],
+    "n_bucket": 8,
+    "n_regime_is": 4,
+    "n_regime_oos": 4,
+    "regime_is_delta_mean": 0.0,
+    "regime_oos_delta_mean": 58.0,
+    "regime_is_delta_total": 0.0,
+    "regime_oos_delta_total": 232.0,
+    "wf_delta": null,
+    "sub_window_stability": {
+      "is_stable": true,
+      "is_hurt": [],
+      "oos_stable": true,
+      "oos_hurt": [],
+      "stable": true
+    },
+    "bh_fdr": {
+      "p": 0.15866,
+      "threshold": 0.1,
+      "significant": false,
+      "note": "single-candidate BH-FDR degenerates to a plain one-sided test at alpha"
+    },
+    "concentration_check": {
+      "oos_top3_dropped": [
+        {
+          "date": "2026-05-04",
+          "pnl": 232.0
+        },
+        {
+          "date": "2026-04-29",
+          "pnl": -0.0
+        },
+        {
+          "date": "2026-05-04",
+          "pnl": -0.0
+        }
+      ],
+      "oos_mean_ex_top3": 0.0,
+      "survives_ex_top3": false
+    },
+    "tautology_disclosure": {
+      "pct_bucket_dated_2026": 75.0,
+      "degenerate_regime_proxy_flag": false,
+      "threshold_pct": 90.0
+    },
+    "gates": {
+      "1_regime_oos_positive": true,
+      "2_wf_delta_ge_070": false,
+      "3_sub_window_stable": true,
+      "4_bh_fdr_survivor": false,
+      "5_concentration_survives_ex_top3": false
+    },
+    "ladder_verdict": "INSUFFICIENT_REGIME_SHIFT",
+    "all_gates_pass": false,
+    "verdict": "INSUFFICIENT_REGIME_SHIFT",
+    "insufficient_data": false
+  },
+  "same_n_correct_exit_result": {
+    "candidate": "elite_bear_level_reject_gate_L1_CORRECTEXIT",
+    "n_total_tagged": 16,
+    "target_regime_bucket": "MID_uptrend",
+    "target_regime_bucket_meta": {
+      "counts": {
+        "MID_downtrend": 7,
+        "MID_uptrend": 8,
+        "HIGH_uptrend": 1
+      },
+      "concentration_pct": 50.0
+    },
+    "both_years_present_in_bucket": true,
+    "years_present_in_bucket": [
+      2025,
+      2026
+    ],
+    "n_bucket": 8,
+    "n_regime_is": 4,
+    "n_regime_oos": 4,
+    "regime_is_delta_mean": -135.03,
+    "regime_oos_delta_mean": -40.86,
+    "regime_is_delta_total": -540.1,
+    "regime_oos_delta_total": -163.45,
+    "wf_delta": 0.303,
+    "sub_window_stability": {
+      "is_stable": false,
+      "is_hurt": [
+        [
+          "first_half",
+          -193.0
+        ],
+        [
+          "second_half",
+          -77.05000000000001
+        ]
+      ],
+      "oos_stable": false,
+      "oos_hurt": [
+        [
+          "second_half",
+          -172.225
+        ]
+      ],
+      "stable": false
+    },
+    "bh_fdr": {
+      "p": 0.60945,
+      "threshold": 0.1,
+      "significant": false,
+      "note": "single-candidate BH-FDR degenerates to a plain one-sided test at alpha"
+    },
+    "concentration_check": {
+      "oos_top3_dropped": [
+        {
+          "date": "2026-05-18",
+          "pnl": -446.45
+        },
+        {
+          "date": "2026-05-04",
+          "pnl": 232.0
+        },
+        {
+          "date": "2026-05-04",
+          "pnl": 102.0
+        }
+      ],
+      "oos_mean_ex_top3": -51.0,
+      "survives_ex_top3": false
+    },
+    "tautology_disclosure": {
+      "pct_bucket_dated_2026": 75.0,
+      "degenerate_regime_proxy_flag": false,
+      "threshold_pct": 90.0
+    },
+    "gates": {
+      "1_regime_oos_positive": false,
+      "2_wf_delta_ge_070": false,
+      "3_sub_window_stable": false,
+      "4_bh_fdr_survivor": false,
+      "5_concentration_survives_ex_top3": false
+    },
+    "ladder_verdict": "FAIL",
+    "all_gates_pass": false,
+    "verdict": "FAIL",
+    "insufficient_data": false
+  },
+  "flip_to_pass": false
+}
