@@ -1177,7 +1177,25 @@ _SETUP_STRIKE_OVERRIDES = {
 # analysis/recommendations/vwapcont-exit-parity.json): un-overridden it was exit-managed
 # by the ribbon_ride shape (-20% stop / tp1 +150%) — a WR-22% lotto with NEGATIVE
 # J-anchor capture; its validated cell (stop -0.08 / tp1 0.30) wins per OP-16.
-# "runner" is optional.
+# "runner" is optional. "stop_mode" is optional (literal "structure"|"premium", NOT a
+# params-key lookup like the other entries — see gap_and_go below); its absence keeps the
+# pre-2026-07-18 default "premium" byte-identical for every setup that doesn't set it.
+#
+# gap_and_go ADDED 2026-07-18 (queue GAP-AND-GO-REVALIDATION-BEFORE-ARM, blocker B):
+# its validated cell (analysis/recommendations/gap-and-go-LIVE.json go_live_params) is
+# CHART-STOP-ONLY (first-RTH-bar opposite extreme) + standard v15 TP1(+30%)/runner/time-
+# stop — structurally NOTHING like ribbon_ride's rejection/reclaim-level structure stop OR
+# any other isolated setup's premium stop. Before this entry existed, an armed gap_and_go
+# fill fell through to the `else` branch (ribbon_ride's exit.to_dict(), a -20%/+150% shape)
+# — the EXACT bug class the vwap_continuation fix above closed for that setup in 2026-07-02,
+# never closed here (queue item filed 2026-07-16 evening). j_gap_and_go_premium_stop_pct is
+# the FAIL-OPEN fallback (mirrors the -0.50 global catastrophe cap) for the tick where
+# trigger_level can't resolve (see _synthetic_verdict_from_extra's new rejection_level wire
+# below) — NOT the sim's -0.99 "off" value, since production's real catastrophe backstop is
+# -50%, matching the already-validated SS-B ribbon_ride pattern. gap_and_go's exec-arm stays
+# ABSENT (WATCH only) — this fixes the SHAPE for whenever a future re-validation (blocker A,
+# still open) clears it to arm; it does not itself arm anything.
+# Guard: test_gap_and_go_exit_wiring_2026_07_18.py.
 _SETUP_EXIT_OVERRIDES = {
     "vwap_continuation": {"stop": "j_vwap_cont_premium_stop_pct",
                           "tp1": "j_vwap_cont_tp1_pct"},
@@ -1193,6 +1211,9 @@ _SETUP_EXIT_OVERRIDES = {
                           "tq": "j_bollinger_squeeze_tp1_qty_fraction",
                           "plmode": "j_bollinger_squeeze_profit_lock_mode",
                           "trail": "j_bollinger_squeeze_profit_lock_trail_pct"},
+    "gap_and_go": {"stop": "j_gap_and_go_premium_stop_pct",
+                  "tp1": "j_gap_and_go_tp1_pct",
+                  "stop_mode": "structure"},
 }
 
 
@@ -1474,6 +1495,17 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
                     _shape["trail_pct"] = _params_float(params, _xov["trail"], 0.15)
                 if _xov.get("runner"):
                     _shape["runner_target_pct"] = _params_float(params, _xov["runner"], 2.5)
+                # STOP_MODE (2026-07-18, gap_and_go): a LITERAL "structure"|"premium" value,
+                # not a params-key lookup (unlike every other _xov entry above) — the setup's
+                # validated cell either uses a chart-level structure stop or it doesn't; that
+                # isn't a tunable number. Absent -> "premium" (byte-identical for every setup
+                # added before this one; none of them declared this key). ExitState.from_entry
+                # (exit_manager.py) still requires structure_stop_enabled=True AND a resolved
+                # trigger_level for this to actually take effect (both already required for
+                # ribbon_ride's existing structure stop) — declaring it here alone changes
+                # nothing until those two also hold.
+                if _xov.get("stop_mode"):
+                    _shape["stop_mode"] = str(_xov["stop_mode"])
             else:
                 try:
                     import strategies as _strat  # noqa: PLC0415
@@ -1550,9 +1582,25 @@ def _synthetic_verdict_from_extra(row: dict) -> "dict | None":
     v = _EXTRA_DIR_TO_VERDICT.get(str(row.get("direction", "")).lower())
     if v is None:  # neutral / unknown direction -> no trade
         return None
-    return {"verdict": v, "side": "P" if v == "ENTER_BEAR" else "C",
-            "setup_name": row.get("setup_name"),
-            "triggers_fired": list(row.get("triggers") or [])}
+    sv = {"verdict": v, "side": "P" if v == "ENTER_BEAR" else "C",
+          "setup_name": row.get("setup_name"),
+          "triggers_fired": list(row.get("triggers") or [])}
+    # REJECTION_LEVEL WIRE (2026-07-18, queue GAP-AND-GO-REVALIDATION-BEFORE-ARM blocker B):
+    # dispatch_extra_setups already stamps row["stop_price"] from the watcher's own
+    # WatcherSignal (setup_dispatch.py:661) — for gap_and_go this IS the go_live_params
+    # chart stop (first-RTH-bar opposite extreme), the exact level its validated cell exits
+    # on. Before this, _execute's trigger_level resolution (see the "EXACT vs HEURISTIC"
+    # comment above _trigger_level_exact) had NOTHING here and fell through to the nearest-
+    # key-level PROXIMITY heuristic — a semantically wrong level for a first-bar-extreme
+    # stop. Threading it through generically (any extra-setup row with a stop_price) is
+    # INERT for every setup that doesn't ALSO declare stop_mode="structure" in
+    # _SETUP_EXIT_OVERRIDES (only gap_and_go does, as of this fire) — resolved_structure in
+    # exit_manager.ExitState.from_entry requires the shape to opt in first, so
+    # vwap_continuation/vix_regime_dayside/etc stay byte-identical "premium" mode regardless
+    # of this key's presence. Guard: test_gap_and_go_exit_wiring_2026_07_18.py.
+    if row.get("stop_price") is not None:
+        sv["rejection_level"] = row.get("stop_price")
+    return sv
 
 
 def _extra_exec_armed(params: dict, setup_name: "str | None") -> bool:
