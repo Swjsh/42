@@ -87,13 +87,21 @@ $trigger.Repetition = (New-ScheduledTaskTrigger -Once -At $startLocal `
     -RepetitionInterval (New-TimeSpan -Hours 1) `
     -RepetitionDuration (New-TimeSpan -Hours ($windowHours - 1))).Repetition
 
+# NOTE (2026-07-18, doc/reality reconciliation): the LIVE Gamma_Conductor task has run at
+# 15 min (PT15M) for its entire proven history (84 fires) -- this source previously said 12,
+# a drift from some prior live Set-ScheduledTask correction never backported here. 12 min
+# leaves only 2 min of margin over the inner Invoke-Claude 600s (10 min) budget; a fire that
+# genuinely uses its full budget gets silently hard-killed by Task Scheduler before its own
+# timeout/cleanup can log anything (root-caused via a real silent-death repro on the sibling
+# Gamma_ConductorWeekend task, which had inherited this same stale 12-min value). 15 min
+# matches the value that has actually been running safely; a fresh install now matches reality.
 $settings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `
     -DontStopOnIdleEnd `
     -AllowStartIfOnBatteries `
     -DontStopIfGoingOnBatteries `
     -MultipleInstances IgnoreNew `
-    -ExecutionTimeLimit (New-TimeSpan -Minutes 12)
+    -ExecutionTimeLimit (New-TimeSpan -Minutes 15)
 
 Register-ScheduledTask `
     -TaskName $TaskName `
