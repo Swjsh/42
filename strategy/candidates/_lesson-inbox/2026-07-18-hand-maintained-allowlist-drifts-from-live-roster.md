@@ -37,6 +37,24 @@ not just a v53-specific fix.
 surfaced via gym-backpressure check while validating an unrelated task, kept in scope per
 rail-3 (one bounded task per fire).
 
+---
+
+**UPDATE 2026-07-18 ~12:20 ET (conductor-weekend, parallel fire, commit `a586100`):** fixed
++ guarded, closed in `queue.md` Completed. Took the interim fix (added
+`level_break_first_strike` to `_KNOWN_SETUP_NAMES`, gym back to 104/104) AND the
+generalizable one this note asked for — not the roster-derive refactor exactly, but the
+same guarantee via a cheaper mechanism: `backtest/tests/test_graduated_guards.py::
+test_setup_dispatch_names_registry_sync` AST-parses `SetupDispatcher.run()`'s `dispatchers`
+list and diffs it against `_KNOWN_SETUP_NAMES` in both directions, RED-proofed via
+`git stash`. Being-in-the-roster and being-in-the-allowlist can no longer silently drift —
+checked on every `pytest` run, not just discovered 60 hours later via a cron drift report.
+A near-duplicate lesson-inbox item exists from the fixing fire
+(`2026-07-18-setup-dispatch-registry-validator-drift.md`) — lesson-author: fold both into
+ONE L# under C14 (dead/translated knobs) or a new sibling theme ("N registries claiming to
+describe the same set of names must be generated from one source of truth, or guarded to
+stay in sync" — this is now a 3-occurrence pattern: F26 2026-07-11, then two independent
+same-day discoveries of this exact bug 2026-07-18, one of which shipped the guard).
+
 **Suggested graduation target for lesson-author:** a new L# under theme C14 (dead/translated
 knobs) or a new sibling theme "hand-maintained allowlist mirrors a live roster" — and a
 generic guard pattern recommendation: whenever a validator/allowlist exists purely to check
