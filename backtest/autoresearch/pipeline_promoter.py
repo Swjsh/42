@@ -12,16 +12,25 @@ Gates (must ALL pass for auto-promote):
   4. anchor_no_regression       — directional_score >= 2 on J's winner days
   5. concentration_ok           — top_5_pct <= 0.50 (OP-20 gate)
 
-OUTPUT CONTRACT (rewritten 2026-07-01 — PIPELINE-AUDIT-2026-07-01 break #2):
+OUTPUT CONTRACT (rewritten 2026-07-01 — PIPELINE-AUDIT-2026-07-01 break #2;
+EXTENDED 2026-07-18 — queue item PROMOTER-WRITES-LIVE-KEY):
   The old contract wrote '{watcher}_stage5_cleared' into params.json — a key read
   by NOTHING (a dead key that faked progress). The new contract routes to the
   engine's ONLY real consumable surface:
 
   * Watcher HAS a dispatcher entry in setup_dispatch.py's roster:
       -> write its ACTUAL enable-flag key (from the roster, e.g.
-         'gap_and_go_enabled': true) into params.json — WATCH mode only.
-         extra_setup_exec_armed is NEVER written here (exec-arming stays a
-         validation-gated step; live money needs J per OP-0 #1).
+         'gap_and_go_enabled': true) into params.json (WATCH), AND
+         set extra_setup_exec_armed[watcher_name] = True in BOTH PAPER params
+         files (PARAMS_PATH / AGG_PARAMS_PATH — Gamma-Safe-2 / Gamma-Bold-2,
+         paper accounts only). Clearing all 5 gates (WF>=0.70, sub-window
+         stable, anchor no-regression, concentration_ok) IS the OP-11/OP-16
+         auto-ratify bar — J's role is REVOKE, not pre-approve, and PAPER
+         exec-arming for a validated setup is exactly what TRADE-TO-LEARN
+         (OP-16, ratified the SAME DAY as this contract's original WATCH-only
+         cut) sanctions. This function NEVER touches GAMMA_CORE_ARMED, a
+         fleet 'live:true' flag, or any live-money surface — arming LIVE
+         money still needs J per OP-0 #1, unconditionally.
   * Watcher has NO dispatcher entry:
       -> write NO params key at all. Instead append a structured
          'WIRE-DETECTOR-<watcher>' proposal row to conductor-proposals.jsonl
@@ -253,8 +262,9 @@ def _write_discord_ping(watcher_name: str, details: dict, scorecard: dict,
     exp = best.get("expectancy", best.get("expectancy_per_trade", best.get("wide_expectancy", "?")))
     if flag_key:
         action = (
-            f"WATCH flag written: {flag_key}=true in params.json (WATCH_NOT_ARMED).\n"
-            f"ARM to trade: add extra_setup_exec_armed['{watcher_name}']=true (needs validation + J for live)."
+            f"WATCH flag written: {flag_key}=true in params.json. "
+            f"PAPER-ARMED: extra_setup_exec_armed['{watcher_name}']=true "
+            f"(Safe-2 + Bold-2 paper accounts; TRADE-TO-LEARN/OP-16, live money still needs J)."
         )
     else:
         action = (
@@ -323,11 +333,18 @@ def _promoter_accounts() -> dict:
 
 
 def _write_promote_scorecard(watcher_name: str, details: dict, scorecard: dict,
-                             *, flag_key: Optional[str], recs_dir: Path) -> None:
+                             *, flag_key: Optional[str], exec_armed: bool,
+                             recs_dir: Path) -> None:
     if flag_key:
         note = (
-            f"Auto-promoted to WATCH_NOT_ARMED via '{flag_key}': true. "
-            "Set extra_setup_exec_armed[watcher_name]=true in params.json to arm execution."
+            f"Auto-promoted to WATCH via '{flag_key}': true. "
+            + (
+                f"PAPER-ARMED: extra_setup_exec_armed['{watcher_name}']=true "
+                "(TRADE-TO-LEARN/OP-16 — 5-gate clearance IS the auto-ratify bar; "
+                "live money still needs J per OP-0 #1)."
+                if exec_armed else
+                "NOT armed (no writable paper params file found)."
+            )
         )
     else:
         note = (
@@ -342,7 +359,7 @@ def _write_promote_scorecard(watcher_name: str, details: dict, scorecard: dict,
         "best": _best_entry(scorecard),
         "dispatcher_wired": flag_key is not None,
         "watch_flag_key": flag_key,
-        "exec_armed": False,
+        "exec_armed": exec_armed,
         "note": note,
         "armability": account_armability_disclosure(_promoter_accounts()),  # G7 disclose-only
     }
@@ -352,11 +369,15 @@ def _write_promote_scorecard(watcher_name: str, details: dict, scorecard: dict,
 
 
 def _write_watch_flag_to_params(params_path: Path, watcher_name: str,
-                                flag_key: str, best_combo: dict) -> bool:
+                                flag_key: str, best_combo: dict, *,
+                                exec_armed: bool) -> bool:
     """Write the dispatcher's REAL enable-flag key (WATCH mode) + best_combo snapshot.
 
-    Does NOT set extra_setup_exec_armed — that requires validation + J for live
-    money (OP-0 #1). Atomic write via temp file. Returns True on success.
+    `exec_armed` reflects whether _arm_exec_flag also armed this watcher in this
+    same params file (documentary only — the actual arming write happens in
+    _arm_exec_flag; this function never sets extra_setup_exec_armed itself, so
+    the two writes stay independently testable and independently revertible).
+    Atomic write via temp file. Returns True on success.
     """
     if not params_path.exists():
         return False
@@ -375,10 +396,45 @@ def _write_watch_flag_to_params(params_path: Path, watcher_name: str,
         combo_key: best_combo,
         doc_key: (
             f"AUTO-PROMOTED by pipeline_promoter ({_et_now().date()}). All 5 gates passed. "
-            f"WATCH_NOT_ARMED ({flag_key}=true; exec not armed). "
-            f"Arm: extra_setup_exec_armed['{watcher_name}']=true."
+            f"{flag_key}=true. "
+            + (
+                f"PAPER-ARMED: extra_setup_exec_armed['{watcher_name}']=true "
+                "(TRADE-TO-LEARN/OP-16; live money still needs J)."
+                if exec_armed else
+                "NOT exec-armed (no writable paper params file)."
+            )
         ),
     }
+
+    tmp = params_path.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(updated, indent=2), encoding="utf-8")
+    tmp.replace(params_path)
+    return True
+
+
+def _arm_exec_flag(params_path: Path, watcher_name: str) -> bool:
+    """Set extra_setup_exec_armed[watcher_name] = True in a PAPER params file.
+
+    Idempotent (a no-op if already armed) and additive (other setups' arm
+    state is never touched). PARAMS_PATH / AGG_PARAMS_PATH are Gamma-Safe-2 /
+    Gamma-Bold-2 — PAPER accounts only; this function has no path to a
+    live-money surface (GAMMA_CORE_ARMED / fleet 'live:true' are separate
+    flags this module never writes). Returns True on success (including the
+    already-armed no-op case), False only on an unreadable/missing file.
+    """
+    if not params_path.exists():
+        return False
+    try:
+        params = json.loads(params_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return False
+
+    armed = dict(params.get("extra_setup_exec_armed") or {})
+    if armed.get(watcher_name) is True:
+        return True  # already armed — idempotent no-op, no write needed
+
+    armed[watcher_name] = True
+    updated = {**params, "extra_setup_exec_armed": armed}
 
     tmp = params_path.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(updated, indent=2), encoding="utf-8")
@@ -503,15 +559,29 @@ def check_and_promote(
     flag_key = roster.get(watcher_name)
     best_combo = _best_entry(scorecard).get("combo", _best_entry(scorecard))
 
+    exec_armed = False
     if flag_key:
+        target_paths = params_paths if params_paths is not None else [PARAMS_PATH, AGG_PARAMS_PATH]
+        # Arm PAPER exec FIRST so _write_watch_flag_to_params's doc_key can
+        # truthfully record the arm state in the same params file it writes.
+        armed_any = False
+        for p in target_paths:
+            armed_any = _arm_exec_flag(p, watcher_name) or armed_any
+        exec_armed = armed_any
+
         wrote_any = False
-        for p in (params_paths if params_paths is not None else [PARAMS_PATH, AGG_PARAMS_PATH]):
-            wrote_any = _write_watch_flag_to_params(p, watcher_name, flag_key, best_combo) or wrote_any
+        for p in target_paths:
+            wrote_any = _write_watch_flag_to_params(
+                p, watcher_name, flag_key, best_combo, exec_armed=exec_armed,
+            ) or wrote_any
         if not wrote_any:
             print(f"[pipeline_promoter] {watcher_name}: no params file writable — NOT promoted",
                   file=sys.stderr)
             return False
-        outcome = f"WATCH flag {flag_key}=true written"
+        outcome = (
+            f"WATCH flag {flag_key}=true written; "
+            f"PAPER-ARMED={exec_armed} (extra_setup_exec_armed['{watcher_name}'])"
+        )
     else:
         _append_wire_detector_proposal(
             watcher_name, details, scorecard,
@@ -519,7 +589,8 @@ def check_and_promote(
         )
         outcome = "no dispatcher entry — WIRE-DETECTOR proposal filed, NO params key written"
 
-    _write_promote_scorecard(watcher_name, details, scorecard, flag_key=flag_key, recs_dir=rd)
+    _write_promote_scorecard(watcher_name, details, scorecard, flag_key=flag_key,
+                             exec_armed=exec_armed, recs_dir=rd)
     _write_discord_ping(watcher_name, details, scorecard, flag_key=flag_key, outbox=discord_outbox)
 
     print(

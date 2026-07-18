@@ -1,16 +1,23 @@
-"""Guards for the rewritten pipeline_promoter output contract (2026-07-01).
+"""Guards for the pipeline_promoter output contract (2026-07-01, EXTENDED 2026-07-18).
 
 PIPELINE-AUDIT-2026-07-01 break #2 fix: the promoter must never again write a
 params key nothing reads. Contract under guard:
 
   1. Dispatcher-backed watcher + gates pass -> the roster's REAL enable-flag key
-     ('<flag>_enabled': true) lands in the FIXTURE params file (WATCH only);
-     extra_setup_exec_armed and the dead '*_stage5_cleared' key are NEVER written.
+     ('<flag>_enabled': true) lands in the FIXTURE params file (WATCH), AND
+     extra_setup_exec_armed[watcher]=true is written to the SAME paper params
+     file (queue item PROMOTER-WRITES-LIVE-KEY, 2026-07-18 — clearing all 5
+     gates IS the OP-11/OP-16 auto-ratify bar; TRADE-TO-LEARN sanctions PAPER
+     exec-arming without a manual step). The dead '*_stage5_cleared' key is
+     NEVER written, and no LIVE-money surface (GAMMA_CORE_ARMED / fleet
+     'live:true') is ever touched by this module.
   2. Non-dispatcher watcher + gates pass -> a pending WIRE-DETECTOR-<watcher>
      proposal row in the fixture proposals ledger; params file untouched.
   3. Stale scorecard (> MAX_SCORECARD_AGE_DAYS) is still refused.
   4. Schema fix (audit break (d)): _check_gates evaluates the REAL fresh stage5
      file (best/all_results shape) instead of failing closed on it.
+  5. Arming is idempotent (re-promoting an already-armed watcher is a no-op)
+     and additive (arming watcher A never disturbs watcher B's arm state).
 
 ALL filesystem writes go to tmp_path fixtures — never live state (the promoter's
 keyword overrides exist exactly for this).
@@ -131,18 +138,48 @@ def test_dispatcher_watcher_writes_watch_flag_to_fixture_params(sandbox: dict) -
     params = json.loads(sandbox["params"].read_text(encoding="utf-8"))
     assert params.get("gap_and_go_enabled") is True, params
     assert params.get("existing_key") == 1  # untouched neighbors
-    # WATCH only — exec-arm is a validation-gated step, NEVER the promoter's
-    assert "extra_setup_exec_armed" not in params
+    # PAPER-ARMED (2026-07-18 extension): clearing all 5 gates IS the
+    # OP-11/OP-16 auto-ratify bar — TRADE-TO-LEARN arms PAPER execution
+    # without a manual step.
+    assert params.get("extra_setup_exec_armed") == {"gap_and_go": True}, params
     # The dead legacy key must be GONE from the contract
     assert "gap_and_go_stage5_cleared" not in params
+    # Never touches a LIVE-money surface
+    assert "GAMMA_CORE_ARMED" not in params
     # No WIRE-DETECTOR proposal for a wired watcher
     assert not sandbox["proposals"].exists() or \
         "WIRE-DETECTOR" not in sandbox["proposals"].read_text(encoding="utf-8")
-    # promote scorecard records the wiring
+    # promote scorecard records the wiring + the arm
     promo = json.loads((sandbox["recs"] / "promote_gap_and_go.json").read_text(encoding="utf-8"))
     assert promo["dispatcher_wired"] is True
     assert promo["watch_flag_key"] == "gap_and_go_enabled"
-    assert promo["exec_armed"] is False
+    assert promo["exec_armed"] is True
+
+
+def test_arming_is_idempotent_and_additive(sandbox: dict) -> None:
+    """Re-promoting an already-armed watcher is a no-op; arming one watcher
+    never disturbs another watcher's arm state (both regression classes a
+    naive dict-overwrite could introduce)."""
+    # Pre-seed a DIFFERENT watcher already armed, to prove additivity.
+    seeded = json.loads(sandbox["params"].read_text(encoding="utf-8"))
+    seeded["extra_setup_exec_armed"] = {"vwap_continuation": True}
+    sandbox["params"].write_text(json.dumps(seeded), encoding="utf-8")
+
+    _write_scorecard(sandbox, "gap_and_go_stage5", _passing_stage5_scorecard())
+    ok1 = _promote(sandbox, "gap_and_go_stage5", "gap_and_go")
+    assert ok1 is True
+    params1 = json.loads(sandbox["params"].read_text(encoding="utf-8"))
+    assert params1["extra_setup_exec_armed"] == {
+        "vwap_continuation": True, "gap_and_go": True,
+    }, params1
+
+    # Second promote of the SAME watcher must not error or duplicate/flip state.
+    ok2 = _promote(sandbox, "gap_and_go_stage5", "gap_and_go")
+    assert ok2 is True
+    params2 = json.loads(sandbox["params"].read_text(encoding="utf-8"))
+    assert params2["extra_setup_exec_armed"] == {
+        "vwap_continuation": True, "gap_and_go": True,
+    }, params2
 
 
 # ---------------------------------------------------------------------------

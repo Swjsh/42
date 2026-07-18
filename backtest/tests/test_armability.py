@@ -98,7 +98,7 @@ def test_promoter_scorecard_carries_armability(tmp_path):
     pp = _load("pipeline_promoter", AUTORES / "pipeline_promoter.py")
     scorecard = {"best": {"combo": {"strike_offset": 2}}}
     pp._write_promote_scorecard("shotgun_scalper", {"wf_ratio": 0.8}, scorecard,
-                                flag_key=None, recs_dir=tmp_path)
+                                flag_key=None, exec_armed=False, recs_dir=tmp_path)
     out = json.loads((tmp_path / "promote_shotgun_scalper.json").read_text(encoding="utf-8"))
     assert "armability" in out, "promote scorecard must carry the G7 armability disclosure"
     arm = out["armability"]

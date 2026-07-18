@@ -9,6 +9,29 @@
 
 ## Active backlog
 
+### V53-GYM-RED-LEVEL-BREAK-FIRST-STRIKE-UNLISTED (HIGH, gym-regression, filed 2026-07-18 ~12:00 ET conductor)
+
+- [ ] V53-GYM-RED-LEVEL-BREAK-FIRST-STRIKE (HIGH, gym-regression, F26-class-repeat) :: Fresh
+  `crypto/data/scorecards/latest.json` (2026-07-18T15:57 UTC run) is RED: 103/104,
+  `v53_setup_dispatch.live` FAILS with `names_ok: false`. Root cause (verified this fire,
+  `python crypto/validators/v53_setup_dispatch.py --live`): `level_break_first_strike` is a
+  live roster entry in `setup_dispatch.py` (see `backtest/lib/watchers/level_break_first_strike_watcher.py`)
+  but is MISSING from `crypto/validators/v53_setup_dispatch.py`'s hardcoded
+  `_KNOWN_SETUP_NAMES` allowlist (line 58-65) — the EXACT SAME bug class as
+  F26-DISPATCH-191-FAILED-GREEN (closed 2026-07-11: `double_bottom_base_quiet` /
+  `bollinger_squeeze` missing from the same allowlist after being wired). A hand-maintained
+  allowlist next to a roster that changes independently WILL drift again; recommend
+  graduating past whack-a-mole: derive `_KNOWN_SETUP_NAMES` from
+  `pipeline_promoter.read_dispatcher_roster()` (the same source-parse of `setup_dispatch.py`
+  pipeline_promoter.py already uses) instead of hand-listing names, so being-in-the-roster
+  == being-in-the-allowlist permanently (same pattern as `test_watcher_registry.py`'s
+  being-defined==being-registered==being-run guard). Quick fix (add the one name) is a valid
+  interim if the derive-from-roster refactor is deferred, but the interim alone WILL repeat
+  a 3rd time on the next wiring. Scope check before fixing: confirm no OTHER roster entries
+  are also missing (grep the full roster vs the allowlist, not just this one). Not fixed this
+  fire (rail-3 one-bounded-task discipline — surfaced, not scope-crept, from the
+  PROMOTER-WRITES-LIVE-KEY fire). :: depends:none :: status:pending
+
 ### SIM-EXIT-SHAPE-PARITY-AUDIT (MED, spec-only, filed 2026-07-17 ~22:47 ET, GOAL-REPLAY-TODAY-GREEN iteration 7)
 
 - [ ] SIM-EXIT-SHAPE-PARITY-AUDIT (MED, spec-only, systematic re-check) :: Iteration 6
@@ -326,7 +349,7 @@
 > Merged from the interactive TaskList + `markdown/audits/PIPELINE-AUDIT-2026-07-01.md` (audit finding #5: "the conductor reads only queue.md → the autonomy loop literally cannot see the plan"). Trading-path edits for PAPER accounts are now sanctioned per the 2026-07-01 grant — each ships with a guard test that REDs on regression + a git-revert path + a REVOKE report.
 
 - [ ] PARAMS-DEAD-KNOB-DISPOSITION (MED, engine-correctness) :: Drain the 24-key KNOWN_DEAD allowlist in `test_params_consumer_reconciliation.py` — for each dead knob decide RESTORE (wire a real consumer) or REMOVE (delete the key + its _doc). Buckets: session-timing (6, scheduler-hardcoded), resilience-harness (4, _shared.ps1 literals), exit-flags (2), macro-bias-v2 (4, never wired), liquidity-gate (5, order path prose-approximate), catalyst/journaling flags (2), sizing scale-up (1). Each disposition is a small rail-4 change; the shrinks-only ratchet auto-verifies. Ref markdown/audits/PIPELINE-AUDIT-2026-07-01.md break #7. :: depends:none :: status:pending
-- [ ] PROMOTER-WRITES-LIVE-KEY (HIGH, research-bridge) :: `pipeline_promoter` writes `{watcher}_stage5_cleared` which NOTHING reads (audit break #2) — change the promoter to write a key the engine actually consumes (`extra_setup_exec_armed[setup]` on PAPER accounts per the 2026-07-01 grant), so a promoted winner can arm and place orders. Guard test + revert path. Ref markdown/audits/PIPELINE-AUDIT-2026-07-01.md. :: depends:none :: status:pending
+- [x] PROMOTER-WRITES-LIVE-KEY (HIGH, research-bridge) :: `pipeline_promoter` writes `{watcher}_stage5_cleared` which NOTHING reads (audit break #2) — change the promoter to write a key the engine actually consumes (`extra_setup_exec_armed[setup]` on PAPER accounts per the 2026-07-01 grant), so a promoted winner can arm and place orders. Guard test + revert path. Ref markdown/audits/PIPELINE-AUDIT-2026-07-01.md. **CLOSED 2026-07-18 (conductor):** `pipeline_promoter.py` now writes BOTH the WATCH flag AND `extra_setup_exec_armed[watcher]=true` to both paper params files (`params.json`/`aggressive/params.json`) when a watcher clears all 5 gates AND has a dispatcher entry — clearing those gates IS the OP-11/OP-16 auto-ratify bar, so PAPER exec-arming without a manual step is exactly what TRADE-TO-LEARN sanctions. New `_arm_exec_flag()` is idempotent + additive (guard-tested). Never touches GAMMA_CORE_ARMED or any live-money surface — LIVE money still needs J (OP-0 #1), unconditionally. 2 existing tests updated in the SAME commit (C14 vary-and-assert: the old test asserted the OLD WATCH-only contract) + 2 new tests (idempotent/additive). 27/27 green (`test_pipeline_promoter_contract.py` 9/9, `test_armability.py`, `test_kitchen_grader_crashloop_guards.py`). Confirmed zero regressions elsewhere: `test_money_path_2026_07_01.py` + `test_trade_to_learn_2026_07_01.py` + `test_params_consumer_reconciliation.py` all pass except one PRE-EXISTING unrelated failure (`recency_min_size_enabled` dead-knob drift, confirmed present with my changes `git stash`-removed too — not caused by this change). **Revert:** `git revert <this commit>` (single pathspec commit, 4 files). :: depends:none :: status:done
 - [ ] SCHEDULED-OOS-CHECK-FOR-PROMOTE-PROPOSALS (HIGH, research-bridge; id deliberately avoids the task_scorer 'PROMOTE-KEEPER' recency marker — this is INFRA / register-a-schedule, not a capital promote) :: No scheduled OOS check exists to clear promote_keeper proposals — `eval_bar_cleared` flips only by hand (audit break #4; happened once, badly: pk-2026-06-28-001). Register a scheduled `contender_oos_check` fire so each proposal clears-or-fails the eval bar automatically and the arm/entry pipeline stops stalling on a manual step. Ref markdown/audits/PIPELINE-AUDIT-2026-07-01.md. :: depends:none :: status:pending
 - [ ] SINGLE-STRATEGY-REGISTRY-DESIGN (HIGH, engine-architecture) :: Collapse the 3 disjoint hardcoded strategy menus (engine_cli literals / setup_dispatch 5-tuple / fleet 2-entry REGISTRY) into ONE registry so adding a validated family stops requiring hand-edits in 3 places; must cover the order-placement + exit wiring surface so a registered setup can actually fill. Audit: "no automated path from analysis/recommendations/ into any of them." Ref markdown/audits/PIPELINE-AUDIT-2026-07-01.md. :: depends:none :: status:pending
 - [ ] CLAUDE-PROFITLOCK-DOCTRINE-RECONCILE (LOW, doctrine-hygiene, **propose-only — CLAUDE.md**) :: Doctrine drift surfaced by ADJUDICATE-CD-2026-06-29-001: CLAUDE.md:28 describes "chandelier **trailing** profit-lock (arms at +5% favor, trails 15% off HWM)" but the validated (pk-2026-06-28-001 OOS all-pass) AND live-core value is `profit_lock_mode="fixed"`. Verify whether the doctrine's "chandelier trailing" wording refers to a SEPARATE arming mechanism vs the profit_lock_mode knob; if genuinely drifted, propose a one-line CLAUDE.md reconciliation to J (rail-4 propose-only). Not urgent (near-inert). :: depends:none :: status:pending
