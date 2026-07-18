@@ -466,6 +466,41 @@ These are exactly the OP-22 "371st untriaged candidate is debt" pattern. The `gy
 
 > OP-22 consolidation 2026-07-08: 25 finished [x] items moved here from Active backlog (loop G15).
 
+### 2026-07-17 — worker-tier: REGIME-REFERENCE-CLASS-ADJUDICATION (methodology EARNS_RIGHTS, 0/5 parked candidates flip to PASS)
+Resolved `analysis/recommendations/REGIME-REFERENCE-CLASS-ADJUDICATION-2026-07-17.md` (Fable/Opus
+frame): 5+ studies all park on negative-2025-IS/positive-2026-OOS (`INSUFFICIENT_REGIME_SHIFT`)
+under calendar WF -- is that (A) recency-overfitting or (B) genuine regime break? Built a
+regime-CONDITIONED validator (VIX band `params.json#vix_iv_regime_bands` + trend character
+`crypto/lib/market_structure.py#analyze_structure`, the SAME primitives
+`context_bundle_producer.py`'s live daily trend read uses) that classifies every trading day and
+validates candidates via a chronological (not calendar-year) within-regime split. **MANDATORY
+self-validation gate passed BEFORE adjudicating anything:** all 4 known-bad cohorts (NLWB n=23,
+confluence-fresh95 n=38, double-top n=354, a seeded pure-noise placebo n=40) correctly KILLED;
+the one known-good cohort with enough n (`vwap_continuation` ITM-2/-8%, the sole
+STRATEGY-SPACE-REGISTRY.jsonl row marked LIVE, n=163) cleared all 5 gates cleanly (WF=1.359,
+BH-FDR p=0.005); OP-16 anchor dates all coherently labelled. Global tautology check: Cramér's V
+0.21 (regime is NOT a calendar-year proxy) -- **verdict EARNS_RIGHTS.** Re-adjudicated the 5
+parked candidates anyway with an honest result: **0/5 flip to PASS.** elite-bear L1 stays
+INSUFFICIENT_REGIME_SHIFT even within its own regime bucket (n=8, thin, concentration-driven).
+bold-strike ATM's calendar confound genuinely clears under regime-conditioning (is-delta flips
+sign) but the "edge" fails BH-FDR (p=0.46) and concentration -- never a real population effect,
+just correlated with a few outsized trades that happened to land in 2026. zone-band gets WORSE
+under regime-conditioning. pong-resting-limit reproduces its original near-miss shape, now
+blocked by BH-FDR instead of the anchor gate. fleet strike/risky-3 inherits bold-strike ATM's
+result (no separate cohort, per `WF-GATE-METHODOLOGY-2026-07-16.md`'s own disposition).
+**Disclosed limitation (fable-too-good hunt):** one regime bucket (`MID_uptrend`) covers 53% of
+all 389 trading days, so most candidates' "target regime" defaults to it -- for those,
+regime-conditioning is honestly closer to a chronological (not calendar) split than a narrow
+regime-specific test; still a real, useful mechanism, just a humbler one than advertised.
+**Answer: (A) recency-overfitting** is the better-supported read for these 5 candidates -- not
+because the methodology failed (it earned the right cleanly) but because none of them survive
+scrutiny once the calendar framing is removed. No `params.json`/strike-selection file touched, no
+orders, no ship. Full record: `analysis/recommendations/prereg-regime-conditioned-validation-2026-07-17.json`
+(frozen prereg) + `regime-conditioned-validation-2026-07-17.{json,md}` +
+`regime-conditioned-readjudication-2026-07-17.json`. Code:
+`backtest/tools/regime_classifier.py` + `regime_conditioned_validator.py` +
+`regime_conditioned_self_validation.py` + `regime_conditioned_readjudication.py`.
+
 ### 2026-07-17 — worker-tier: STUDY-STATIC-VS-TRENDLINE-REJECT-BOUNCE-PHASE (OOS-VALIDATED, NO-SHIP)
 GOAL-REPLAY-TODAY-GREEN ITERATION 4. Re-framed away from the originally-spec'd
 "position_in_prior_range / bars-since-session-extreme bounce-maturity proxy" (would have

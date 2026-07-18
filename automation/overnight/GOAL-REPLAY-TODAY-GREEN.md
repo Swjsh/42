@@ -300,6 +300,25 @@ terminal state — report it, don't force it.
   to Completed with this result (superseded by the ex-ante ELITE-tier framing, no separate
   bounce-phase proxy needed or built). New spec-only queue item EXIT-MANAGER-REPLAY-HARNESS filed
   per the FRAME AUDIT's item 1 (forked exit-faithfulness project) -- spec only, not built.
+- **ITERATION 5 (2026-07-17 ~21:40 ET) -- L1's `INSUFFICIENT_REGIME_SHIFT` park (+ the same
+  signature on 4 OTHER studies: bold-strike ATM, fleet strike, zone-band, pong) resolved via a
+  load-bearing methodology adjudication, run separately and reported in full at
+  `analysis/recommendations/REGIME-REFERENCE-CLASS-ADJUDICATION-2026-07-17.md` /
+  `regime-conditioned-validation-2026-07-17.{json,md}`. Summary for this ledger: built a
+  regime-CONDITIONED validator (VIX band + trend character, the SAME primitives
+  `context_bundle_producer.py`'s live daily read uses), self-validated it FIRST against
+  known-bad (NLWB, confluence, double-top, a seeded noise placebo -- all 4 correctly killed) and
+  known-good (`vwap_continuation` ITM-2/-8%, the one STRATEGY-SPACE-REGISTRY.jsonl row marked
+  LIVE -- cleared all 5 gates, WF=1.359, BH-FDR p=0.005) cohorts. **Verdict: EARNS_RIGHTS**
+  (Cramér's V=0.21 -- not a calendar-year tautology). Re-adjudicated all 5 parked candidates
+  anyway: **0/5 flip to PASS.** L1 (elite-bear) specifically: still INSUFFICIENT_REGIME_SHIFT
+  even within its own regime bucket (MID_downtrend, n=8, concentration-driven -- drop-top-3 still
+  zeroes the regime-OOS delta, exactly like the original calendar study). **Answer for this
+  goal's L1 lever: stays NO-SHIP, now on a second independent axis (calendar AND regime), not
+  just one.** Disclosed limitation: the regime classifier's dominant bucket (`MID_uptrend`, 53%
+  of all trading days) captured most candidates by the modal-bucket rule, making regime-
+  conditioning closer to a chronological-not-calendar re-split for those cases than a true
+  narrow-regime test -- reported honestly, not hidden.
 
 ## SCOPE REFINEMENT (Fable/Opus judgment, 2026-07-17 ~19:40 ET — after iteration 2)
 Iteration 2 made the SIGNAL+DECISION layer faithful (5/5 sniper captures, 12/12 tier parity) but

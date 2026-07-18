@@ -1,0 +1,344 @@
+{
+  "_doc": "regime_conditioned_readjudication.py -- re-score the 5 PARKED candidates under\nregime-conditioned validation, GATED on regime_conditioned_self_validation.py having\nreturned self_validation_verdict == \"EARNS_RIGHTS\" (checked at the top of main(), aborts\nloud otherwise -- per prereg's own on_fail clause: re-scoring after a failed\nself-validation would itself be the methodology-shopping this whole exercise exists to\nprevent).\n\nReuses each parked study's OWN existing, already-validated simulation internals (import +\ncall, never re-derived) to extract a per-episode DATED delta cohort, then runs\nbacktest/tools/regime_conditioned_validator.py#validate_candidate on it -- the SAME\nprocedure just self-validated, unchanged.\n\nCandidates (per analysis/recommendations/REGIME-REFERENCE-CLASS-ADJUDICATION-2026-07-17.md\n+ this task's explicit list):\n  1. elite-bear-level-reject-gate (GOAL L1) -- block cohort, reuses\n     backtest/tools/elite_bear_level_reject_gate_ab.py's SAFE_BASE/run_backtest/is_target.\n  2. bold-strike-axis ATM vs OTM-3 control -- reuses\n     backtest/tools/bold_strike_axis_deltawf.py's build_episode_outcomes.\n  3. fleet strike tier (risky-3) -- NO separate cohort exists (WF-GATE-METHODOLOGY-2026-07-16.md's\n     own disposition: risky-3 resolves via the SAME V15_BOLD_TIERS table as core Bold) ->\n     inherits the bold-strike-axis ATM verdict by proxy, disclosed not computed separately.\n  4. zone-rejection-band -- BOLD account, cell fixed_0.75 (n=15, the cell showing the clearest\n     negative-IS/positive-OOS signature per the existing scorecard), reuses\n     backtest/tools/zone_rejection_band_study.py's mine_account/build_delta_population/cell_membership.\n  5. pong-resting-limit -- SAFE account, cell no_cancel|tp30_structure_t12 (the identified\n     4/5-gates-pass near-miss cell), reuses\n     backtest/tools/pong_resting_limit_study.py's mine_cancel_rule/control_outcome/candidate_pnl/compute_delta_wf.\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/regime_conditioned_readjudication.py\n",
+  "generated_at": "2026-07-17T19:46:13.553035",
+  "gate_check": "self_validation_verdict == EARNS_RIGHTS (verified at top of main())",
+  "results": {
+    "elite_bear_level_reject_gate_L1": {
+      "candidate": "elite_bear_level_reject_gate_L1",
+      "n_total_tagged": 17,
+      "target_regime_bucket": "MID_downtrend",
+      "target_regime_bucket_meta": {
+        "counts": {
+          "MID_downtrend": 8,
+          "MID_uptrend": 8,
+          "HIGH_uptrend": 1
+        },
+        "concentration_pct": 47.1
+      },
+      "both_years_present_in_bucket": true,
+      "years_present_in_bucket": [
+        2025,
+        2026
+      ],
+      "n_bucket": 8,
+      "n_regime_is": 4,
+      "n_regime_oos": 4,
+      "regime_is_delta_mean": -133.2,
+      "regime_oos_delta_mean": 112.79,
+      "regime_is_delta_total": -532.8,
+      "regime_oos_delta_total": 451.14,
+      "wf_delta": -0.847,
+      "sub_window_stability": {
+        "is_stable": false,
+        "is_hurt": [
+          [
+            "second_half",
+            -266.4
+          ]
+        ],
+        "oos_stable": true,
+        "oos_hurt": [],
+        "stable": false
+      },
+      "bh_fdr": {
+        "p": 0.07721,
+        "threshold": 0.1,
+        "significant": true,
+        "note": "single-candidate BH-FDR degenerates to a plain one-sided test at alpha"
+      },
+      "concentration_check": {
+        "oos_top3_dropped": [
+          {
+            "date": "2026-06-26",
+            "pnl": 336.0
+          },
+          {
+            "date": "2026-07-08",
+            "pnl": 115.14046355059122
+          },
+          {
+            "date": "2026-02-03",
+            "pnl": -0.0
+          }
+        ],
+        "oos_mean_ex_top3": 0.0,
+        "survives_ex_top3": false
+      },
+      "tautology_disclosure": {
+        "pct_bucket_dated_2026": 62.5,
+        "degenerate_regime_proxy_flag": false,
+        "threshold_pct": 90.0
+      },
+      "gates": {
+        "1_regime_oos_positive": true,
+        "2_wf_delta_ge_070": false,
+        "3_sub_window_stable": false,
+        "4_bh_fdr_survivor": true,
+        "5_concentration_survives_ex_top3": false
+      },
+      "ladder_verdict": "INSUFFICIENT_REGIME_SHIFT",
+      "all_gates_pass": false,
+      "verdict": "INSUFFICIENT_REGIME_SHIFT",
+      "insufficient_data": false
+    },
+    "bold_strike_axis_ATM": {
+      "candidate": "bold_strike_axis_ATM",
+      "n_total_tagged": 244,
+      "target_regime_bucket": "MID_uptrend",
+      "target_regime_bucket_meta": {
+        "counts": {
+          "MID_downtrend": 49,
+          "MID_uptrend": 168,
+          "HIGH_uptrend": 3,
+          "LOW_uptrend": 21,
+          "HIGH_downtrend": 3
+        },
+        "concentration_pct": 68.9
+      },
+      "both_years_present_in_bucket": true,
+      "years_present_in_bucket": [
+        2025,
+        2026
+      ],
+      "n_bucket": 168,
+      "n_regime_is": 84,
+      "n_regime_oos": 84,
+      "regime_is_delta_mean": 1.95,
+      "regime_oos_delta_mean": 3.57,
+      "regime_is_delta_total": 163.5,
+      "regime_oos_delta_total": 299.6,
+      "wf_delta": 1.832,
+      "sub_window_stability": {
+        "is_stable": false,
+        "is_hurt": [
+          [
+            "first_half",
+            -34.25714285714286
+          ]
+        ],
+        "oos_stable": false,
+        "oos_hurt": [
+          [
+            "first_half",
+            -24.29047619047619
+          ]
+        ],
+        "stable": false
+      },
+      "bh_fdr": {
+        "p": 0.46042,
+        "threshold": 0.1,
+        "significant": false,
+        "note": "single-candidate BH-FDR degenerates to a plain one-sided test at alpha"
+      },
+      "concentration_check": {
+        "oos_top3_dropped": [
+          {
+            "date": "2025-11-04",
+            "pnl": 949.8
+          },
+          {
+            "date": "2025-12-16",
+            "pnl": 790.0
+          },
+          {
+            "date": "2026-05-18",
+            "pnl": 674.5
+          }
+        ],
+        "oos_mean_ex_top3": -26.11,
+        "survives_ex_top3": false
+      },
+      "tautology_disclosure": {
+        "pct_bucket_dated_2026": 32.1,
+        "degenerate_regime_proxy_flag": false,
+        "threshold_pct": 90.0
+      },
+      "gates": {
+        "1_regime_oos_positive": true,
+        "2_wf_delta_ge_070": true,
+        "3_sub_window_stable": false,
+        "4_bh_fdr_survivor": false,
+        "5_concentration_survives_ex_top3": false
+      },
+      "ladder_verdict": "FAIL",
+      "all_gates_pass": false,
+      "verdict": "FAIL",
+      "insufficient_data": false
+    },
+    "zone_rejection_band_bold_fixed_0.75": {
+      "candidate": "zone_rejection_band_bold_fixed_0.75",
+      "n_total_tagged": 15,
+      "target_regime_bucket": "MID_uptrend",
+      "target_regime_bucket_meta": {
+        "counts": {
+          "MID_downtrend": 3,
+          "HIGH_downtrend": 3,
+          "MID_uptrend": 9
+        },
+        "concentration_pct": 60.0
+      },
+      "both_years_present_in_bucket": true,
+      "years_present_in_bucket": [
+        2025,
+        2026
+      ],
+      "n_bucket": 9,
+      "n_regime_is": 4,
+      "n_regime_oos": 5,
+      "regime_is_delta_mean": -475.0,
+      "regime_oos_delta_mean": -239.5,
+      "regime_is_delta_total": -1900.0,
+      "regime_oos_delta_total": -1197.5,
+      "wf_delta": 0.504,
+      "sub_window_stability": {
+        "is_stable": false,
+        "is_hurt": [
+          [
+            "first_half",
+            -360.0
+          ],
+          [
+            "second_half",
+            -590.0
+          ]
+        ],
+        "oos_stable": false,
+        "oos_hurt": [
+          [
+            "first_half",
+            -242.5
+          ],
+          [
+            "second_half",
+            -237.5
+          ]
+        ],
+        "stable": false
+      },
+      "bh_fdr": {
+        "p": 0.87548,
+        "threshold": 0.1,
+        "significant": false,
+        "note": "single-candidate BH-FDR degenerates to a plain one-sided test at alpha"
+      },
+      "concentration_check": {
+        "oos_top3_dropped": [
+          {
+            "date": "2026-05-15",
+            "pnl": -807.5
+          },
+          {
+            "date": "2026-05-15",
+            "pnl": 470.0
+          },
+          {
+            "date": "2026-04-10",
+            "pnl": -375.0
+          }
+        ],
+        "oos_mean_ex_top3": -242.5,
+        "survives_ex_top3": false
+      },
+      "tautology_disclosure": {
+        "pct_bucket_dated_2026": 33.3,
+        "degenerate_regime_proxy_flag": false,
+        "threshold_pct": 90.0
+      },
+      "gates": {
+        "1_regime_oos_positive": false,
+        "2_wf_delta_ge_070": false,
+        "3_sub_window_stable": false,
+        "4_bh_fdr_survivor": false,
+        "5_concentration_survives_ex_top3": false
+      },
+      "ladder_verdict": "FAIL",
+      "all_gates_pass": false,
+      "verdict": "FAIL",
+      "insufficient_data": false
+    },
+    "pong_resting_limit_safe_no_cancel_tp30_structure_t12": {
+      "candidate": "pong_resting_limit_safe_no_cancel_tp30_structure_t12",
+      "n_total_tagged": 1223,
+      "target_regime_bucket": "MID_uptrend",
+      "target_regime_bucket_meta": {
+        "counts": {
+          "UNKNOWN_downtrend": 2,
+          "MID_downtrend": 276,
+          "MID_uptrend": 671,
+          "LOW_uptrend": 65,
+          "HIGH_downtrend": 143,
+          "HIGH_uptrend": 66
+        },
+        "concentration_pct": 54.9
+      },
+      "both_years_present_in_bucket": true,
+      "years_present_in_bucket": [
+        2025,
+        2026
+      ],
+      "n_bucket": 671,
+      "n_regime_is": 335,
+      "n_regime_oos": 336,
+      "regime_is_delta_mean": 7.39,
+      "regime_oos_delta_mean": 6.68,
+      "regime_is_delta_total": 2475.8,
+      "regime_oos_delta_total": 2243.15,
+      "wf_delta": 0.903,
+      "sub_window_stability": {
+        "is_stable": true,
+        "is_hurt": [],
+        "oos_stable": false,
+        "oos_hurt": [
+          [
+            "second_half",
+            -3.0913690476190476
+          ]
+        ],
+        "stable": false
+      },
+      "bh_fdr": {
+        "p": 0.18665,
+        "threshold": 0.1,
+        "significant": false,
+        "note": "single-candidate BH-FDR degenerates to a plain one-sided test at alpha"
+      },
+      "concentration_check": {
+        "oos_top3_dropped": [
+          {
+            "date": "2026-03-03",
+            "pnl": -563.0
+          },
+          {
+            "date": "2026-03-05",
+            "pnl": 495.65
+          },
+          {
+            "date": "2026-03-03",
+            "pnl": -462.95
+          }
+        ],
+        "oos_mean_ex_top3": 8.33,
+        "survives_ex_top3": true
+      },
+      "tautology_disclosure": {
+        "pct_bucket_dated_2026": 31.6,
+        "degenerate_regime_proxy_flag": false,
+        "threshold_pct": 90.0
+      },
+      "gates": {
+        "1_regime_oos_positive": true,
+        "2_wf_delta_ge_070": true,
+        "3_sub_window_stable": false,
+        "4_bh_fdr_survivor": false,
+        "5_concentration_survives_ex_top3": true
+      },
+      "ladder_verdict": "FAIL",
+      "all_gates_pass": false,
+      "verdict": "FAIL",
+      "insufficient_data": false
+    }
+  },
+  "errors": {},
+  "fleet_strike_risky3_note": "risky-3 resolves its strike via the SAME shared V15_BOLD_TIERS table as core Bold (fleet_executor.py#_tiers_for_arm, confirmed by test_bold_core_strike_tier_2026_07_15.py). No separate cohort exists (WF-GATE-METHODOLOGY-2026-07-16.md's own risky-3 disposition: 'Action taken: NONE... there is no ship-ready cell to recommend risky-3 move to'). It therefore INHERITS the bold_strike_axis_ATM verdict above by proxy, not a separately-computed one."
+}

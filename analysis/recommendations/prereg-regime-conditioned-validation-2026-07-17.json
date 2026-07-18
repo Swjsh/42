@@ -1,0 +1,105 @@
+{
+  "_doc": "PRE-REGISTERED spec for the 2025-vs-2026 reference-class adjudication (Fable/Opus frame: analysis/recommendations/REGIME-REFERENCE-CLASS-ADJUDICATION-2026-07-17.md). Frozen BEFORE the self-validation is run against known-bad/known-good cohorts and BEFORE any of the 5 parked candidates are re-scored -- no re-picks of the regime definition, the split rule, or the pass/kill bar after seeing results. Runner: backtest/tools/regime_classifier.py + backtest/tools/regime_conditioned_validator.py + backtest/tools/regime_conditioned_self_validation.py. STUDY ONLY -- no live code, no orders, no engine/params edits.",
+  "study": "regime_conditioned_validation_2026_07_17",
+  "version": 1,
+  "status": "FROZEN_PENDING_RUN",
+  "frozen_at": "2026-07-17T21:33:00-04:00",
+  "standing_doctrine": "The methodology is on trial, not the candidates (ANTI-METHODOLOGY-SHOPPING SAFEGUARD, non-negotiable). Regime-conditioning may NOT adjudicate a single live candidate until it first correctly KILLS every known-bad reference cohort AND correctly PASSES every known-good reference cohort, using the EXACT SAME gate ladder / split rule / thresholds this file freezes. If it passes any known-fake, the verdict is REJECT-METHODOLOGY -- calendar-WF stands, interpretation (A) recency-overfitting holds, and NONE of the 5 parked candidates get re-adjudicated this task.",
+
+  "the_question": "5+ studies all park on INSUFFICIENT_REGIME_SHIFT (negative 2025 IS-delta / positive 2026 OOS-delta under calendar WF). Is that (A) recency-overfitting (the 2026 edges are curve-fit to recent tape) or (B) genuine regime break (2026's market character differs structurally from 2025, so calendar-year is the wrong reference class)? This study tests whether a regime-CONDITIONED validator can honestly discriminate real edges from noise -- if it can, it earns the right to answer (A) vs (B) for the 5 parked candidates; if it cannot, the honest answer is (A) by default (the parked studies' own calendar-WF verdict stands).",
+
+  "regime_classifier": {
+    "vix_band": {
+      "source": "automation/state/params.json#vix_iv_regime_bands (the live premarket context-tagging ladder; params.json _vix_section: \"iv_regime bands (LOW/MID/HIGH) used by premarket for context tagging\"). Deliberately NOT vix_entry_thresholds -- params.json's own _vix_entry_thresholds_doc discloses that ladder is VESTIGIAL, not read by the live order-placing path.",
+      "definition": "LOW: vix_close < 15.0. MID: 15.0 <= vix_close <= 22.0. HIGH: vix_close > 22.0.",
+      "causal_rule": "Band is computed from the PRIOR trading day's final 5-minute VIX close (the last row of backtest/data/vix_5m_2025-01-01_2026-07-08.csv dated strictly before the target date). Same-day VIX data is NEVER used to label that day (C6, zero lookahead)."
+    },
+    "trend_character": {
+      "source": "crypto/lib/market_structure.py#analyze_structure + classify_trend (Trend = uptrend/downtrend/range/unknown), invoked BYTE-IDENTICAL to setup/scripts/context_bundle_producer.py#_tf_state()'s live daily-timeframe call -- the function feeding the live context bundle's trend_alignment.per_tf.daily field (compute_trend_alignment's own docstring: \"AS-OF-BOUNDED and pure ... zero look-ahead (C6) and zero re-derivation of the math\").",
+      "window": "DEFAULT_WINDOW = 2 (bars-per-side fractal), identical to context_bundle_producer.py's call.",
+      "min_bars": "10 (context_bundle_producer.py MIN_BARS) -- below this, trend='unknown'.",
+      "lookback": "trailing 190 calendar days of DAILY SPY bars (context_bundle_producer.py _fetch_bars(\"1Day\", days_back=190, limit=200)), capped at 200 bars.",
+      "causal_rule": "Only daily bars strictly BEFORE the target date are used (the target date's own session is excluded). Data source: analysis/backtests/cache/trend-alignment-spy-daily-2024-07-01_2026-07-14.json (the SAME cache context_bundle_producer.py's live daily fetch populates/reads -- pre-existing, not re-derived)."
+    },
+    "regime_label": "vix_band + '_' + trend (e.g. MID_uptrend, HIGH_downtrend). Empirically 6 buckets are populated over 2025-01-02..2026-07-08 (verified by smoke-running the classifier before this freeze): HIGH_downtrend, HIGH_uptrend, LOW_uptrend, MID_downtrend, MID_uptrend, UNKNOWN_downtrend (the single boundary date with no prior VIX row). No LOW_downtrend/*_range dates occurred in this window -- disclosed, not engineered.",
+    "code": "backtest/tools/regime_classifier.py (RegimeCalendar class + regime_label/classify_trend_asof/classify_vix_band_asof functions)."
+  },
+
+  "regime_conditioned_validation_procedure": {
+    "input_contract": "A candidate is a population of dated (date, pnl) episodes. pnl is ALREADY the candidate-minus-control delta the caller intends: for a standalone 'take these trades' cohort, control=skip so delta=raw trade pnl; for a block/gate candidate, the caller passes the REMOVED cohort with pnl negated (delta = -pnl(removed), the same sign convention elite_bear_level_reject_gate_ab.py already uses) -- documented per call site, never assumed silently.",
+    "target_regime_bucket_rule": "MODAL regime bucket among the candidate's own tagged episodes (ties broken by alphabetically-first bucket name). This RULE is fixed here BEFORE any candidate is scored; which bucket a given candidate resolves to is discovered by running it, not chosen post-hoc to fit a desired answer.",
+    "split_rule": "Within the target regime bucket ONLY, sort ALL of that bucket's episodes (across the full 2025-01-02..2026-07-08 window, both years) by date ascending. First half (n//2) = regime-IS, second half = regime-OOS. This is a CHRONOLOGICAL split within the regime, not a calendar-year split -- the mechanism that removes the calendar confound while keeping a genuine held-out check.",
+    "minimum_data_requirement": "Target bucket needs >= 6 episodes total AND >= 2 on each side of the split, else verdict = INSUFFICIENT_N (distinct from FAIL -- the method declines to adjudicate rather than force an answer on too little data). A bucket with zero 2025 representation cannot, by construction, be checked against 2025 data -- both_years_present_in_bucket is reported for every candidate regardless of verdict.",
+    "wf_formula": "WF_delta = (mean regime-OOS delta) / (mean regime-IS delta) -- WF-GATE-METHODOLOGY-2026-07-16.md's Option B formula, applied within-regime instead of within-calendar-year. Same verdict ladder: is_delta_mean>0 & WF_delta>=0.70 -> PASS; is_delta_mean>0 & WF_delta<0.70 -> FAIL; is_delta_mean<=0 & oos_delta_mean<=0 -> FAIL; is_delta_mean<=0 & oos_delta_mean>0 -> INSUFFICIENT_REGIME_SHIFT (a candidate that only works in the newest slice of its OWN regime bucket is STILL not proven -- this catches recency-within-regime, not just recency-by-calendar).",
+    "additional_gates": [
+      "sub_window_stability: regime-IS and regime-OOS each split in half again chronologically; both halves' mean pnl must be >=0 for 'stable' (skipped/auto-pass when a side has <4 episodes -- too thin to sub-split meaningfully).",
+      "bh_fdr: one-sided test (mean regime-OOS pnl > 0) at alpha=0.10, single-candidate (degenerates to a plain threshold, disclosed not hidden -- same convention as elite_bear_level_reject_gate_ab.py).",
+      "concentration_check: drop the top-3 |pnl| episodes from regime-OOS; the remaining mean must stay >0 (fable-too-good hunt, built in not bolted on)."
+    ],
+    "tautology_disclosure": "For every candidate, report the % of its target regime bucket's episodes dated 2026. Threshold: >=90% (or <=10%, i.e. near-total concentration in one calendar year) sets degenerate_regime_proxy_flag=true. A candidate that would otherwise PASS is relabeled PASS_BUT_DEGENERATE_REGIME_PROXY and does NOT count as a clean earn-rights signal -- passing only because the target regime happens to be a calendar-year proxy is the exact failure mode this whole exercise exists to catch.",
+    "global_tautology_check": "Independently of any candidate, compute the regime-label x calendar-year contingency table and Cramer's V over the FULL 2025-01-02..2026-07-08 trading-day universe (backtest/tools/regime_classifier.py#tautology_stats). Reported once, disclosed in the scorecard regardless of self-validation outcome.",
+    "code": "backtest/tools/regime_conditioned_validator.py#validate_candidate."
+  },
+
+  "self_validation": {
+    "known_bad": [
+      {
+        "id": "nlwb_full_real_fills",
+        "source": "analysis/recommendations/nlwb_full_real_fills.json#results (n=29 signals, 23 completed real-OPRA-fills trades, 6 None/no-data dropped)",
+        "context": "Real-fills gate FAILED 2026-05-21 (WR 47.8%, total -$1,293.80), per PROFITABILITY-DEEP-RESEARCH-2026-07-11.md line 42 and LESSONS-LEARNED.md L58 (level quality is the structural root cause -- PDL is the weakest named-level type).",
+        "expected_verdict": "MUST_NOT_PASS (ladder FAIL or INSUFFICIENT_REGIME_SHIFT or INSUFFICIENT_N are all acceptable outcomes; PASS or PASS_BUT_DEGENERATE_REGIME_PROXY is a self-validation failure)."
+      },
+      {
+        "id": "confluence_real_fills_fresh95",
+        "source": "analysis/recommendations/confluence-real-fills-fresh95.json#results (n=38, conviction>=95 filter, WR 50%, total -$200)",
+        "context": "STRATEGY-SPACE-REGISTRY.jsonl row confluence_realfills, verdict=DEAD, source='edge-hunt 2026-06-20', notes='DEAD on real fills.'",
+        "expected_verdict": "MUST_NOT_PASS"
+      },
+      {
+        "id": "double_top_real_fills",
+        "source": "analysis/recommendations/double-top-real-fills.json#results (n=354, un-gated full population, WR 54.5%, total -$17,013, 0/6 positive quarters across BOTH years)",
+        "context": "STRATEGY-SPACE-REGISTRY.jsonl row double_top_realfills, verdict=DEAD. The single largest-n, most robustly-negative cohort available (0/6 quarters positive in EITHER year) -- the hardest known-bad the method should have zero trouble killing.",
+        "expected_verdict": "MUST_NOT_PASS"
+      },
+      {
+        "id": "pure_noise_random_entry_placebo",
+        "source": "synthetic, generated in-script (backtest/tools/regime_conditioned_self_validation.py) -- seed=20260717, n=40 dates sampled UNIFORMLY WITHOUT REPLACEMENT from the real 2025-01-02..2026-07-08 trading-day universe (backtest/tools/regime_classifier.py#RegimeCalendar.all_trading_days), pnl ~ Normal(mean=0, sd=150) rounded to cents per draw.",
+        "context": "A pure-noise cohort with zero true structure by construction (population mean forced to 0). Tests whether regime-conditioning can be fooled into finding a spurious positive-looking bucket purely from multiple-comparison / regime-shopping risk (6 buckets to choose from raises exactly this risk).",
+        "expected_verdict": "MUST_NOT_PASS (a single-seed PASS is disclosed as a real risk of the method at this seed count, not silently redrawn to a friendlier seed -- the seed is fixed here, before the run, and never changed after seeing the result)."
+      }
+    ],
+    "known_good": [
+      {
+        "id": "vwap_continuation_itm2_tight8pct",
+        "source": "computed in-script by calling backtest/autoresearch/_edgehunt_vwap_continuation.py's OWN detect_signals() + simulate_cell(strike_offset=-2, premium_stop_pct=-0.08) ONCE (byte-identical reuse of the validated detector + real-OPRA simulate_trade_real path, zero re-derivation) -- reproduces the STRATEGY-SPACE-REGISTRY.jsonl row vwap_continuation_itm2_tight (verdict=PROMOTE, status='LIVE', oos_per_trade=105, posQ='6/6'), the ONE row in the entire registry marked status=LIVE.",
+        "context": "The single least-ambiguous 'we have real conviction this is an edge' candidate in the codebase: currently-shipped, both-years 6/6 positive quarters, n=149 real-OPRA-fills trades.",
+        "expected_verdict": "MUST_PASS (PASS or PASS_BUT_DEGENERATE_REGIME_PROXY both count as 'the method did not wrongly kill it', but a DEGENERATE_REGIME_PROXY flag here would itself be disclosed as a limitation, not swept aside)."
+      },
+      {
+        "id": "op16_anchor_trades",
+        "source": "backtest/autoresearch/j_edge_tracker.py#J_WINNERS/J_LOSERS (7 dated trades total, ALL in 2026-04-29..2026-05-07 -- zero 2025 representation).",
+        "context": "J's own hand-verified source-of-truth trades (CLAUDE.md OP-16 / markdown/doctrine/edge-master-doctrine.md). Too thin (n=7, single-year) for the full regime-conditioned WF ladder above (which needs >=6 in-bucket episodes AND >=2 both years to even attempt a split) -- disclosed as a QUALITATIVE check only: (a) the regime classifier assigns each anchor date a coherent, available (non-'unknown') label, and (b) the anchor dates' regime bucket(s) are cross-referenced against whichever cohort above shares that bucket, checking the anchor days are not silently degrading that cohort's regime-conditioned result.",
+        "expected_verdict": "QUALITATIVE_NO_REGRESSION (not a PASS/FAIL ladder verdict -- reported as coverage + non-regression, per this file's own minimum_data_requirement clause)."
+      }
+    ]
+  },
+
+  "pass_kill_criteria_for_the_method_itself": {
+    "earns_rights_iff": "ALL FOUR known-bad cohorts resolve to a verdict in {FAIL, INSUFFICIENT_REGIME_SHIFT, INSUFFICIENT_N} (never PASS or PASS_BUT_DEGENERATE_REGIME_PROXY) AND the vwap_continuation known-good cohort resolves to PASS (PASS_BUT_DEGENERATE_REGIME_PROXY counts as a disclosed partial pass, not a hard method failure, but is flagged) AND the OP-16 anchor qualitative check shows no coverage/regression problem.",
+    "fails_iff": "ANY known-bad cohort PASSES cleanly (methodology-shopping proven) OR the known-good vwap_continuation cohort is KILLED (FAIL or INSUFFICIENT_REGIME_SHIFT -- over-strict, not better) OR the OP-16 anchor qualitative check reveals the classifier cannot even coherently label J's own anchor dates.",
+    "on_fail": "Verdict = REJECT-METHODOLOGY. Calendar-WF (WF-GATE-METHODOLOGY-2026-07-16.md) stands unchanged. Interpretation (A) [recency-overfitting] holds as the honest default for the 5 parked candidates. NONE of them are re-scored under this method this task -- re-scoring after a failed self-validation would itself be the methodology-shopping this file exists to prevent.",
+    "on_earn_rights": "Re-run backtest/tools/regime_conditioned_validator.py against each of the 5 parked candidates' own removed/candidate cohorts (re-derived from their existing A/B study scripts, sign convention per candidate type), report which flip from INSUFFICIENT_REGIME_SHIFT to PASS under regime-conditioning and which do not. A flip changes EVIDENCE STATUS ONLY -- see no_ship_clause."
+  },
+
+  "consumers_if_earns_rights": [
+    "elite-bear-level-reject-gate-ab-2026-07-17 (goal L1, GOAL-REPLAY-TODAY-GREEN iteration 4)",
+    "bold-strike-axis-deltawf-readjudication-2026-07-16 (Bold ATM, OTM-1, ITM-1, ITM-2 cells)",
+    "pong-resting-limit-2026-07-17",
+    "zone-rejection-band-2026-07-17",
+    "fleet strike tier / risky-3 (WF-GATE-METHODOLOGY-2026-07-16.md retro-application queue item 2, still open per that file's own disposition)"
+  ],
+
+  "no_ship_clause": "Regardless of outcome, this task produces EVIDENCE-STATUS recommendations only. No automation/state/params.json, automation/state/aggressive/params.json, or crypto/lib/strike_selection.py file is touched. No orders placed. The Bold ATM tier flip (and any other live-arming implied by a PASS) stays PARKED for J's explicit words per the standing three-independent-holds commitment already on record in bold-strike-axis-deltawf-readjudication-2026-07-16.md -- a PASS/EARNS-RIGHTS outcome changes evidence status, not live config.",
+
+  "content_sha256_16": "1b927e10e84e7fa3"
+}

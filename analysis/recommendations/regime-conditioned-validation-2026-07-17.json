@@ -1,0 +1,571 @@
+{
+  "_doc": "regime_conditioned_self_validation.py -- THE GATE (methodology is on trial).\n\nRuns `analysis/recommendations/prereg-regime-conditioned-validation-2026-07-17.json`'s\nself-validation: known-BAD cohorts must be KILLED, known-GOOD cohorts must SURVIVE, before\nregime-conditioned validation (backtest/tools/regime_conditioned_validator.py) earns the\nright to re-adjudicate any of the 5 parked candidates named in\nanalysis/recommendations/REGIME-REFERENCE-CLASS-ADJUDICATION-2026-07-17.md.\n\nPreflight fails loud on any prereg drift (content_sha256_16 mismatch) -- no post-hoc\nre-picking of the regime definition or gate thresholds after seeing results.\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/regime_conditioned_self_validation.py\n",
+  "generated_at": "2026-07-17T19:35:30.953917",
+  "prereg": "analysis\\recommendations\\prereg-regime-conditioned-validation-2026-07-17.json",
+  "preflight": {
+    "ok": true,
+    "recomputed_sha16": "1b927e10e84e7fa3",
+    "stored_sha16": "1b927e10e84e7fa3",
+    "expected_sha16": "1b927e10e84e7fa3",
+    "version": 1,
+    "status": "FROZEN_PENDING_RUN"
+  },
+  "global_tautology_check": {
+    "n_days": 389,
+    "regimes_seen": [
+      "HIGH_downtrend",
+      "HIGH_uptrend",
+      "LOW_uptrend",
+      "MID_downtrend",
+      "MID_uptrend",
+      "UNKNOWN_downtrend"
+    ],
+    "contingency_table": {
+      "HIGH_downtrend": {
+        "2025": 28,
+        "2026": 18
+      },
+      "HIGH_uptrend": {
+        "2025": 14,
+        "2026": 7
+      },
+      "LOW_uptrend": {
+        "2025": 22,
+        "2026": 5
+      },
+      "MID_downtrend": {
+        "2025": 44,
+        "2026": 44
+      },
+      "MID_uptrend": {
+        "2025": 149,
+        "2026": 57
+      },
+      "UNKNOWN_downtrend": {
+        "2025": 1,
+        "2026": 0
+      }
+    },
+    "chi2": 17.725,
+    "cramers_v": 0.2135,
+    "pct_2026_by_regime": {
+      "HIGH_downtrend": 39.1,
+      "HIGH_uptrend": 33.3,
+      "LOW_uptrend": 18.5,
+      "MID_downtrend": 50.0,
+      "MID_uptrend": 27.7,
+      "UNKNOWN_downtrend": 0.0
+    },
+    "note": "Cramer's V close to 0 = regime label is roughly independent of calendar year (good -- not a calendar proxy). Close to 1 = regime label IS essentially a calendar-year proxy (tautology risk) -- any candidate that PASSES only because its target regime happens to concentrate in one year should be treated with the same suspicion as passing on calendar-year alone."
+  },
+  "known_bad_results": {
+    "nlwb_full_real_fills": {
+      "candidate": "nlwb_full_real_fills",
+      "n_total_tagged": 23,
+      "target_regime_bucket": "MID_uptrend",
+      "target_regime_bucket_meta": {
+        "counts": {
+          "MID_downtrend": 5,
+          "MID_uptrend": 9,
+          "HIGH_downtrend": 3,
+          "HIGH_uptrend": 4,
+          "LOW_uptrend": 2
+        },
+        "concentration_pct": 39.1
+      },
+      "both_years_present_in_bucket": true,
+      "years_present_in_bucket": [
+        2025,
+        2026
+      ],
+      "n_bucket": 9,
+      "n_regime_is": 4,
+      "n_regime_oos": 5,
+      "regime_is_delta_mean": 103.35,
+      "regime_oos_delta_mean": -47.68,
+      "regime_is_delta_total": 413.4,
+      "regime_oos_delta_total": -238.4,
+      "wf_delta": -0.461,
+      "sub_window_stability": {
+        "is_stable": false,
+        "is_hurt": [
+          [
+            "second_half",
+            -39.0
+          ]
+        ],
+        "oos_stable": false,
+        "oos_hurt": [
+          [
+            "first_half",
+            -16.9
+          ],
+          [
+            "second_half",
+            -68.2
+          ]
+        ],
+        "stable": false
+      },
+      "bh_fdr": {
+        "p": 0.76755,
+        "threshold": 0.1,
+        "significant": false,
+        "note": "single-candidate BH-FDR degenerates to a plain one-sided test at alpha"
+      },
+      "concentration_check": {
+        "oos_top3_dropped": [
+          {
+            "date": "2025-09-17",
+            "pnl": -183.0
+          },
+          {
+            "date": "2026-05-04",
+            "pnl": -156.0
+          },
+          {
+            "date": "2025-09-17",
+            "pnl": 134.4
+          }
+        ],
+        "oos_mean_ex_top3": -16.9,
+        "survives_ex_top3": false
+      },
+      "tautology_disclosure": {
+        "pct_bucket_dated_2026": 11.1,
+        "degenerate_regime_proxy_flag": false,
+        "threshold_pct": 90.0
+      },
+      "gates": {
+        "1_regime_oos_positive": false,
+        "2_wf_delta_ge_070": false,
+        "3_sub_window_stable": false,
+        "4_bh_fdr_survivor": false,
+        "5_concentration_survives_ex_top3": false
+      },
+      "ladder_verdict": "FAIL",
+      "all_gates_pass": false,
+      "verdict": "FAIL",
+      "insufficient_data": false
+    },
+    "confluence_real_fills_fresh95": {
+      "candidate": "confluence_real_fills_fresh95",
+      "n_total_tagged": 38,
+      "target_regime_bucket": "MID_uptrend",
+      "target_regime_bucket_meta": {
+        "counts": {
+          "MID_uptrend": 21,
+          "MID_downtrend": 3,
+          "HIGH_downtrend": 6,
+          "HIGH_uptrend": 5,
+          "LOW_uptrend": 3
+        },
+        "concentration_pct": 55.3
+      },
+      "both_years_present_in_bucket": true,
+      "years_present_in_bucket": [
+        2025,
+        2026
+      ],
+      "n_bucket": 21,
+      "n_regime_is": 10,
+      "n_regime_oos": 11,
+      "regime_is_delta_mean": -14.4,
+      "regime_oos_delta_mean": -34.36,
+      "regime_is_delta_total": -144.0,
+      "regime_oos_delta_total": -378.0,
+      "wf_delta": 2.386,
+      "sub_window_stability": {
+        "is_stable": false,
+        "is_hurt": [
+          [
+            "second_half",
+            -31.919999999999998
+          ]
+        ],
+        "oos_stable": false,
+        "oos_hurt": [
+          [
+            "second_half",
+            -65.10000000000001
+          ]
+        ],
+        "stable": false
+      },
+      "bh_fdr": {
+        "p": 0.75667,
+        "threshold": 0.1,
+        "significant": false,
+        "note": "single-candidate BH-FDR degenerates to a plain one-sided test at alpha"
+      },
+      "concentration_check": {
+        "oos_top3_dropped": [
+          {
+            "date": "2026-04-29",
+            "pnl": -345.0
+          },
+          {
+            "date": "2025-11-17",
+            "pnl": 264.0
+          },
+          {
+            "date": "2026-04-21",
+            "pnl": -237.0
+          }
+        ],
+        "oos_mean_ex_top3": -7.5,
+        "survives_ex_top3": false
+      },
+      "tautology_disclosure": {
+        "pct_bucket_dated_2026": 19.0,
+        "degenerate_regime_proxy_flag": false,
+        "threshold_pct": 90.0
+      },
+      "gates": {
+        "1_regime_oos_positive": false,
+        "2_wf_delta_ge_070": true,
+        "3_sub_window_stable": false,
+        "4_bh_fdr_survivor": false,
+        "5_concentration_survives_ex_top3": false
+      },
+      "ladder_verdict": "FAIL",
+      "all_gates_pass": false,
+      "verdict": "FAIL",
+      "insufficient_data": false
+    },
+    "double_top_real_fills": {
+      "candidate": "double_top_real_fills",
+      "n_total_tagged": 354,
+      "target_regime_bucket": "MID_uptrend",
+      "target_regime_bucket_meta": {
+        "counts": {
+          "UNKNOWN_downtrend": 1,
+          "MID_downtrend": 85,
+          "MID_uptrend": 125,
+          "LOW_uptrend": 12,
+          "HIGH_downtrend": 86,
+          "HIGH_uptrend": 45
+        },
+        "concentration_pct": 35.3
+      },
+      "both_years_present_in_bucket": true,
+      "years_present_in_bucket": [
+        2025,
+        2026
+      ],
+      "n_bucket": 125,
+      "n_regime_is": 62,
+      "n_regime_oos": 63,
+      "regime_is_delta_mean": -48.17,
+      "regime_oos_delta_mean": -22.73,
+      "regime_is_delta_total": -2986.6,
+      "regime_oos_delta_total": -1431.8,
+      "wf_delta": 0.472,
+      "sub_window_stability": {
+        "is_stable": false,
+        "is_hurt": [
+          [
+            "first_half",
+            -98.47741935483872
+          ]
+        ],
+        "oos_stable": false,
+        "oos_hurt": [
+          [
+            "first_half",
+            -5.2774193548387105
+          ],
+          [
+            "second_half",
+            -39.63125
+          ]
+        ],
+        "stable": false
+      },
+      "bh_fdr": {
+        "p": 0.83793,
+        "threshold": 0.1,
+        "significant": false,
+        "note": "single-candidate BH-FDR degenerates to a plain one-sided test at alpha"
+      },
+      "concentration_check": {
+        "oos_top3_dropped": [
+          {
+            "date": "2025-11-13",
+            "pnl": 484.4
+          },
+          {
+            "date": "2025-10-30",
+            "pnl": -453.0
+          },
+          {
+            "date": "2025-12-17",
+            "pnl": 430.4
+          }
+        ],
+        "oos_mean_ex_top3": -31.56,
+        "survives_ex_top3": false
+      },
+      "tautology_disclosure": {
+        "pct_bucket_dated_2026": 22.4,
+        "degenerate_regime_proxy_flag": false,
+        "threshold_pct": 90.0
+      },
+      "gates": {
+        "1_regime_oos_positive": false,
+        "2_wf_delta_ge_070": false,
+        "3_sub_window_stable": false,
+        "4_bh_fdr_survivor": false,
+        "5_concentration_survives_ex_top3": false
+      },
+      "ladder_verdict": "FAIL",
+      "all_gates_pass": false,
+      "verdict": "FAIL",
+      "insufficient_data": false
+    },
+    "pure_noise_random_entry_placebo": {
+      "candidate": "pure_noise_random_entry_placebo",
+      "n_total_tagged": 40,
+      "target_regime_bucket": "MID_uptrend",
+      "target_regime_bucket_meta": {
+        "counts": {
+          "LOW_uptrend": 3,
+          "MID_uptrend": 20,
+          "MID_downtrend": 14,
+          "HIGH_downtrend": 2,
+          "HIGH_uptrend": 1
+        },
+        "concentration_pct": 50.0
+      },
+      "both_years_present_in_bucket": true,
+      "years_present_in_bucket": [
+        2025,
+        2026
+      ],
+      "n_bucket": 20,
+      "n_regime_is": 10,
+      "n_regime_oos": 10,
+      "regime_is_delta_mean": 8.76,
+      "regime_oos_delta_mean": 21.77,
+      "regime_is_delta_total": 87.6,
+      "regime_oos_delta_total": 217.71,
+      "wf_delta": 2.485,
+      "sub_window_stability": {
+        "is_stable": false,
+        "is_hurt": [
+          [
+            "second_half",
+            -42.262
+          ]
+        ],
+        "oos_stable": false,
+        "oos_hurt": [
+          [
+            "first_half",
+            -7.355999999999999
+          ]
+        ],
+        "stable": false
+      },
+      "bh_fdr": {
+        "p": 0.28848,
+        "threshold": 0.1,
+        "significant": false,
+        "note": "single-candidate BH-FDR degenerates to a plain one-sided test at alpha"
+      },
+      "concentration_check": {
+        "oos_top3_dropped": [
+          {
+            "date": "2026-05-14",
+            "pnl": 303.82
+          },
+          {
+            "date": "2025-12-11",
+            "pnl": -121.58
+          },
+          {
+            "date": "2026-01-16",
+            "pnl": 104.69
+          }
+        ],
+        "oos_mean_ex_top3": -9.89,
+        "survives_ex_top3": false
+      },
+      "tautology_disclosure": {
+        "pct_bucket_dated_2026": 25.0,
+        "degenerate_regime_proxy_flag": false,
+        "threshold_pct": 90.0
+      },
+      "gates": {
+        "1_regime_oos_positive": true,
+        "2_wf_delta_ge_070": true,
+        "3_sub_window_stable": false,
+        "4_bh_fdr_survivor": false,
+        "5_concentration_survives_ex_top3": false
+      },
+      "ladder_verdict": "FAIL",
+      "all_gates_pass": false,
+      "verdict": "FAIL",
+      "insufficient_data": false
+    }
+  },
+  "known_good_vwap_continuation_result": {
+    "candidate": "vwap_continuation_itm2_tight8pct",
+    "n_total_tagged": 163,
+    "target_regime_bucket": "MID_uptrend",
+    "target_regime_bucket_meta": {
+      "counts": {
+        "UNKNOWN_downtrend": 1,
+        "MID_downtrend": 34,
+        "MID_uptrend": 89,
+        "LOW_uptrend": 14,
+        "HIGH_downtrend": 19,
+        "HIGH_uptrend": 6
+      },
+      "concentration_pct": 54.6
+    },
+    "both_years_present_in_bucket": true,
+    "years_present_in_bucket": [
+      2025,
+      2026
+    ],
+    "n_bucket": 89,
+    "n_regime_is": 44,
+    "n_regime_oos": 45,
+    "regime_is_delta_mean": 45.21,
+    "regime_oos_delta_mean": 61.43,
+    "regime_is_delta_total": 1989.32,
+    "regime_oos_delta_total": 2764.4,
+    "wf_delta": 1.359,
+    "sub_window_stability": {
+      "is_stable": true,
+      "is_hurt": [],
+      "oos_stable": true,
+      "oos_hurt": [],
+      "stable": true
+    },
+    "bh_fdr": {
+      "p": 0.00486,
+      "threshold": 0.1,
+      "significant": true,
+      "note": "single-candidate BH-FDR degenerates to a plain one-sided test at alpha"
+    },
+    "concentration_check": {
+      "oos_top3_dropped": [
+        {
+          "date": "2025-12-08",
+          "pnl": 451.6
+        },
+        {
+          "date": "2025-12-15",
+          "pnl": 405.0
+        },
+        {
+          "date": "2026-04-17",
+          "pnl": 394.2
+        }
+      ],
+      "oos_mean_ex_top3": 36.04,
+      "survives_ex_top3": true
+    },
+    "tautology_disclosure": {
+      "pct_bucket_dated_2026": 28.1,
+      "degenerate_regime_proxy_flag": false,
+      "threshold_pct": 90.0
+    },
+    "gates": {
+      "1_regime_oos_positive": true,
+      "2_wf_delta_ge_070": true,
+      "3_sub_window_stable": true,
+      "4_bh_fdr_survivor": true,
+      "5_concentration_survives_ex_top3": true
+    },
+    "ladder_verdict": "PASS",
+    "all_gates_pass": true,
+    "verdict": "PASS",
+    "insufficient_data": false
+  },
+  "known_good_vwap_continuation_coverage": {
+    "signals": 172,
+    "filled": 163,
+    "cache_miss": 9,
+    "sim_none": 0,
+    "fill_rate": 0.948
+  },
+  "op16_anchor_qualitative_check": {
+    "rows": [
+      {
+        "date": "2026-04-29",
+        "kind": "WINNER",
+        "j_pnl": 342,
+        "regime": "MID_uptrend",
+        "vix_band": "MID",
+        "trend": "uptrend"
+      },
+      {
+        "date": "2026-05-01",
+        "kind": "WINNER",
+        "j_pnl": 470,
+        "regime": "MID_uptrend",
+        "vix_band": "MID",
+        "trend": "uptrend"
+      },
+      {
+        "date": "2026-05-04",
+        "kind": "WINNER",
+        "j_pnl": 730,
+        "regime": "MID_uptrend",
+        "vix_band": "MID",
+        "trend": "uptrend"
+      },
+      {
+        "date": "2026-05-05",
+        "kind": "LOSER",
+        "j_pnl": -260,
+        "regime": "MID_uptrend",
+        "vix_band": "MID",
+        "trend": "uptrend"
+      },
+      {
+        "date": "2026-05-06",
+        "kind": "LOSER",
+        "j_pnl": -300,
+        "regime": "MID_uptrend",
+        "vix_band": "MID",
+        "trend": "uptrend"
+      },
+      {
+        "date": "2026-05-07",
+        "kind": "LOSER",
+        "j_pnl": -45,
+        "regime": "MID_uptrend",
+        "vix_band": "MID",
+        "trend": "uptrend"
+      },
+      {
+        "date": "2026-05-07",
+        "kind": "LOSER",
+        "j_pnl": -120,
+        "regime": "MID_uptrend",
+        "vix_band": "MID",
+        "trend": "uptrend"
+      }
+    ],
+    "n_total": 7,
+    "n_coherent_label": 7,
+    "all_dates_labelable": true,
+    "regimes_touched": [
+      "MID_uptrend"
+    ],
+    "note": "n=7, all 2026 -- too thin for the full regime-conditioned WF ladder (needs >=6 in-bucket AND >=2/side AND both years present). Reported as a coverage check only: does the classifier produce a coherent, available label for every one of J's hand-verified anchor dates."
+  },
+  "self_validation_verdict": "EARNS_RIGHTS",
+  "self_validation_fail_reasons": [],
+  "cohort_sizes": {
+    "nlwb": 23,
+    "confluence": 38,
+    "double_top": 354,
+    "placebo": 40,
+    "vwap_continuation_itm2": 163
+  }
+}
