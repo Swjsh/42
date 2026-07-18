@@ -1,3 +1,19 @@
+## [2026-07-18 ~12:12 ET] conductor-weekend: OK -- QUEUE-HYGIENE CLOSE: 3 stale HIGH engine-design items (POSITION-MONITOR-1MIN + its 2 dependents) closed CLOSED_SUPERSEDED with live evidence -- task_scorer's #1 pick was already-solved work
+
+> **Context (`et_clock.py` 2026-07-18 11:38 Saturday ET, weekend conductor fire).** `task_scorer.py --top` ranked `POSITION-MONITOR-1MIN` (queue.md, filed 2026-06-24, HIGH) as the single highest-ROI ready item. Traced it against CURRENT reality instead of taking the ranking at face value (OP-22 tiebreak: close a loop > create an artifact).
+>
+> **Finding: the item's own underlying infra was superseded the DAY AFTER it was filed.** The 3-min LLM `Gamma_Heartbeat` this item's design targeted was retired 2026-06-25 -> `Gamma_HeartbeatCore` (deterministic, live-verified this fire: `Get-ScheduledTaskInfo` action chain confirms `every 1 min, 09:30-15:55 ET wd`, real command line wscript->vbs->pythonw->`run-heartbeat-core.ps1`, which sets `GAMMA_CORE_ARMED=1` AND `GAMMA_CORE_MANAGES_EXITS=1`). That already delivers exactly what J asked for 2026-06-24 ("1 minute pings to watch the trade") -- no new `Gamma_PositionMonitor` task needed.
+>
+> Its two dependents were ALSO already-shipped, differently than prescribed: `TRAILING-STOP-WIRING` asked for Alpaca-native `type=trailing_stop`; the live engine instead runs a software chandelier trail in `automation/state/fleet/exit_manager.py` (`hwm_premium` ratchet, arms +5%, trails 15% -- byte-match to CLAUDE.md's documented v15.3 doctrine, verified against `strategies.py#RIBBON_RIDE.exit`) -- functionally equivalent, ships on every 1-min tick already. `DYNAMIC-EXIT-LOGIC` asked for "chart-signal > fixed-%" exit priority -- that is CLAUDE.md's own live-ratified **v15.3 chart-stop-primary doctrine (2026-06-18)**, verbatim. It also carried a MIS-SCOPED dependency on `RIBBON-LAG-PRICE-STRUCTURE-TRIGGER` (an entry-side gap unrelated to its exit-side ask) -- a false coupling nobody had traced until now; that item stays open on its own (genuine) merits.
+>
+> **Action: closed all 3 in `automation/overnight/queue.md`** (`[x]` + `CLOSED_SUPERSEDED`, original text preserved verbatim for audit trail, evidence quoted inline). Re-ran `task_scorer.py --top` post-edit: now correctly surfaces `PROMOTER-WRITES-LIVE-KEY` -- confirms the fix took and unblocks the next several fires from re-solving solved work.
+>
+> **Learn-loop:** `strategy/candidates/_lesson-inbox/2026-07-18-stale-queue-item-outranked-real-work.md` -- first occurrence of "a HIGH queue item outranked real work because the infra it described had been superseded"; if this recurs, graduation target is a staleness check in `task_scorer.py` itself.
+>
+> **Cost: ~$0.30** (pure investigation + grep/read + one PowerShell scheduled-task query, no LLM in the loop, no orders, no code files touched -- only `queue.md` + a new lesson-inbox file). **Files:** `automation/overnight/queue.md`, `strategy/candidates/_lesson-inbox/2026-07-18-stale-queue-item-outranked-real-work.md`, `automation/overnight/STATUS.md`.
+
+---
+
 ## [2026-07-18 ~11:29 ET] SHIP -- OP-33(e) VISIBILITY FIX: "is it running?" root-caused to 2 layers (VAPID exists, 0 phone subscribers) -- gamma_glance/gamma_status now disclose the real gap + the exact J-only fix, guard-tested
 
 > **Context (`et_clock.py`: `2026-07-18 11:28:49 Saturday EDT market_hours=False`, weekend conductor fire).** UserPromptSubmit hook fired on this wake ("J asked a STATE question (intent=is_running). OP-33(e): a REPEATED question is a MISSING INSTRUMENT..."). `j-question-ledger.jsonl` shows 43 occurrences (real distinct asks after filtering false-positive wrapper-text matches: at least 8 genuine "is it running/trading/status" prompts spanning 2026-06-30..2026-07-17). `friction_distiller.py` independently confirms: `recurring_user_question occ=43 span=18d ** STEP-BACK-ELIGIBLE **`, `action: BUILD_ELIMINATING_INSTRUMENT`.
@@ -197,55 +213,3 @@
 
 ---
 
-## [2026-07-17 ~11:25 ET] RESEARCH — ZONE-REJECTION-BAND study: 61c-shy 10:15 miss real, candidate trigger does NOT clear -- honest KILL, no filters.py edit, current pierce semantics stand
-
-> **Context (`et_clock.py`: `2026-07-17 11:23:52 Friday EDT market_hours=True`).** J-directed 10:40 ET ("it was within cents!! the engine needs to trade this. fix it. levels are not ever exact to the penny! its zones!!") after 10:15 ET SPY bounced to 747.27 and rejected — 61c shy of PDL 747.88, $1.15 shy of MEMORY_RES 748.42. `core-decisions.jsonl` confirms **zero triggers fired on either account** (both logged HOLD "no setup passed scoring" at 10:15:0[34]) despite full ribbon+HTF bear alignment — `detect_level_rejection` requires an exact pierce (`bar.high > level`); the APPROACH side (never reaches the level) has no trigger of any kind today. Prior art (`detect_wick_rejection_bearish`, 2026-05-10) only tolerates the PIERCE side.
->
-> **Study, run per the market-hours-safe split (research now, engine edit clock-gated):** frozen `analysis/recommendations/prereg-zone-rejection-band-2026-07-17.json` (bounded WebSearch on zone-based S/R sizing → 8-claim external-context section grounding an 8-cell Z grid: fixed {15,30,50,75,100}c + ATR-relative {0.1,0.2,0.3}×ATR(14,5m)) → `backtest/tools/zone_rejection_band_study.py` (full 2025-01-01..2026-07-08 real-OPRA replay via the SS-B lineage, both accounts independently per C29) → `analysis/recommendations/zone-rejection-band-2026-07-17.{json,md}`.
->
-> **Method note (load-bearing):** candidate mining reused `lib.orchestrator.run_backtest` (the same engine `_signal_cache.py`'s canonical cohort uses) fed each account's REAL live `params.json`/`aggressive/params.json` — not a loosened gate config — via an in-process monkeypatch of `filters.detect_level_rejection` (never touched the checked-in file; `git status`/`git diff --stat backtest/lib/filters.py` clean before AND after the run). This automatically surfaced that **Safe's already-armed `block_level_rejection=true` gate independently suppresses single-trigger LEVEL-tier entries** (disclosed in the prereg BEFORE running) — the same gate that already blocks pure-pierce level_rejection-only bear entries on Safe today.
->
-> **Result — clean KILL, neither account clears all 5 ratification gates (frozen `ab_delta_per_trade_v2026_07_16` WF form) + BH-FDR on any of the 8 Z cells:**
->
-> | Account | Closest cell | Gates passed | Ladder | n | IS $/tr | OOS $/tr |
-> |---|---|:--:|---|--:|--:|--:|
-> | Safe | fixed_0.30 | 2/5 | FAIL_NO_IMPROVEMENT | 3 | -141.00 | -242.95 |
-> | Bold | fixed_0.75 | 3/5 | INSUFFICIENT_REGIME_SHIFT | 15 | -343.00 | +60.24 |
->
-> Safe: real economics negative on OOS at every cell (-$106 to -$530/tr) — not a close miss, current pierce-only semantics are correctly conservative here. Bold: more interesting — 7 of 8 cells show POSITIVE OOS delta ($60-470/tr), sub-window-stable, anchor-clean, but IS (2025) was uniformly negative (pre-SS-B regime), landing every one of them in **INSUFFICIENT_REGIME_SHIFT** (parked per WF-GATE-METHODOLOGY AMENDMENT 1, not a clean fail) — thin n (n_oos 2-9) also fails BH-FDR survival at alpha=0.10. Re-test-eligible once Bold's cohort accrues ≥30 new post-adjudication episodes or the OOS window grows ≥50%, same trigger AMENDMENT 1 already established for the strike-axis work.
->
-> **Diagnostic worth flagging for any follow-up:** the umbrella mining pass (widest Z=$1.00, used to post-filter all 8 cells efficiently) showed a real state-machine ripple — `control_only_excess` (control-only same-day bear entries the widened candidate lost) was 64 (Safe) / 75 (Bold) against only 36/44 new+shifted episodes, i.e. the WIDEST Z cell may be net-disruptive to the day's existing entry sequencing. Disclosed in the scorecard as a known simplification (episode attribution is ordinal per (date,direction), not a full per-cell isolated state-machine replay); tighter cells (15-30c) are far more selective and should carry much less of this effect, but that was not independently re-verified per cell.
->
-> **No filters.py edit made or planned tonight** — the kill criterion (frozen prereg) is unambiguous: no Z cell clears, current exact-pierce semantics stand. Today's 10:15 miss is logged as an accepted gap, not silently retried. If Bold's cohort re-test later clears, ship is a small, well-scoped, guard-tested addition (mirrors the existing wick-promotion pattern in `filters.py`'s `evaluate_bearish_setup`) — spec already frozen, nothing further to design.
->
-> **Verification this session:** `git status --short backtest/lib/filters.py` clean before/after (no engine file touched); full study run twice (once pre-, once post- a render_md enhancement) reproduced identical mining numbers (139/82 Safe, 191/130 Bold bear trades; 36/44 delta episodes) confirming determinism.
->
-> **Files:** `analysis/recommendations/prereg-zone-rejection-band-2026-07-17.json` (frozen, committed before the run per instruction), `backtest/tools/zone_rejection_band_study.py`, `analysis/recommendations/zone-rejection-band-2026-07-17.{json,md}`, this STATUS.md entry.
-
----
-
-## MORNING BRIEF 2026-07-15
-
-## 2026-07-16 ~21:05 ET — NIGHT WRAP (autonomous shift complete; J out since ~afternoon)
-**Everything dispatched tonight has landed. Scorecard:**
-| Work | Result |
-|---|---|
-| Six-account redesign (18 agents) | Drought diagnosis + honest 4-7/10 cadence target; ship list went 1-for-4 under primary-source verification |
-| Twin bear SIM lane | SHIPPED 66fb3df, verified by autonomous scheduled fire (2 real SIM round trips already) |
-| fill_funnel fleet false-RED | SHIPPED 81ccc74, RED-proofed |
-| gap_and_go / J_VWAP_RECLAIM_FB armings | HONEST NO-SHIPS (rebutted evidence / no-op flip) -> L201 authored |
-| WF gate redefinition | FROZEN dee188c + same-night Amendment 1 (20ce25a) after first application exposed a vacuous trigger |
-| Delta-WF strike re-adjudication | All 4 cells PARKED_INSUFFICIENT_REGIME_SHIFT (6430314); Bold ATM = least-bad fork framed above w/ recommendation |
-| Veto HTF-conflict regrade | 22.4% false-veto rate on the DOMINANT (94%) veto class, n=49 counterfactually graded (7e08cdc); prompt change correctly held at pre-registered n-floor; standing audit keeps accruing |
-| Hygiene | Context-leanness 8964->8645 (bfa6dde); context_audit OP-attribution bug fixed (975aafc); EOD journal complete (b41e0c8); first push GREEN 4a85b5f->05f70c2 |
-**Deferred deliberately (capacity discipline, not neglect):** GAP-AND-GO-REVALIDATION study + safe-3/risky-1 larger-n gate re-test -> tomorrow after-hours/weekend; heavy burn tonight already, weekly limit was hit once this cycle.
-**Waiting on J (unchanged):** Bold ATM words ("wire Bold's strike to ATM") · futures PROD token · kill-switch fork · fleet A/B sunset decision.
-
-
-
-## Kitchen
-Kitchen: alive, queue 40 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-- [2026-07-18 09:27:00] crypto-harness drift RED :: latest cron fire FAILED (2026-07-18T15:27:01.881823+00:00) | fail streak: 119 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
-
-- [2026-07-18 09:27:00] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-18.log
