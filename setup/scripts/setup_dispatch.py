@@ -125,6 +125,48 @@ class DispatchResult:
     skip_reason: Optional[str] = None
 
 
+# ---------------------------------------------------------------------------
+# DISPATCH_ROSTER — the ONE source of truth for "which extra setups exist".
+#
+# SINGLE-STRATEGY-REGISTRY-DESIGN slice (2026-07-18 conductor): this used to be
+# a list of (setup_name, flag_key, bound_method) built INSIDE SetupDispatcher.run(),
+# with crypto/validators/v53_setup_dispatch.py hand-maintaining a SEPARATE
+# _KNOWN_SETUP_NAMES set that had to be kept in sync by hand. That drift caused
+# the exact same bug 3 times (F26-DISPATCH-191-FAILED-GREEN 2026-07-11:
+# double_bottom_base_quiet+bollinger_squeeze; 2026-07-18: level_break_first_strike,
+# 120 consecutive cron failures ~60h before discovery). Hoisting the roster to a
+# module-level constant (method referenced by NAME, resolved via getattr at
+# call-time so `self` binding still works) lets the validator import
+# KNOWN_SETUP_NAMES directly from THIS module instead of re-typing a mirror set —
+# being-in-the-roster and being-a-known-name can no longer silently drift apart.
+# guard: backtest/tests/test_setup_dispatch.py::TestDispatchRosterSingleSource
+#   + backtest/tests/test_graduated_guards.py::test_setup_dispatch_names_registry_sync
+# ---------------------------------------------------------------------------
+DISPATCH_ROSTER: tuple[tuple[str, str, str], ...] = (
+    ("vwap_continuation",         "j_vwap_cont_enabled",       "_dispatch_vwap_continuation"),
+    ("gap_and_go",                "gap_and_go_enabled",         "_dispatch_gap_and_go"),
+    ("vwap_reclaim_failed_break", "j_vwap_reclaim_fb_enabled",  "_dispatch_vwap_reclaim_fb"),
+    ("vix_regime_dayside",        "j_vix_dayside_enabled",      "_dispatch_vix_dayside"),
+    # 2026-06-28: double_bottom_base_quiet wired DISARMED — enable flag present, exec-arm
+    # key absent in params.json → WATCH_NOT_ARMED on every tick (byte-identical no-op).
+    # Evidence: edgehunt-double_bottom_base_quiet.json, 4 cells clear full bar, OOS>0.
+    # ARM requires: extra_setup_exec_armed["double_bottom_base_quiet"]=True in params.json.
+    ("double_bottom_base_quiet",  "db_base_quiet_enabled",      "_dispatch_db_base_quiet"),
+    # WIRE-BOLLINGER 2026-07-02: family-grind survivor, validated ATM|stop-8 cell.
+    ("bollinger_squeeze",         "bollinger_squeeze_enabled",  "_dispatch_bollinger_squeeze"),
+    # LBFS SHADOW-LOGGED 2026-07-15: j_lbfs_enabled=true dispatches (detect+log)
+    # every tick, but 'level_break_first_strike' is deliberately ABSENT from
+    # extra_setup_exec_armed (see module docstring PER-DETECTOR STATUS above) —
+    # WATCH_NOT_ARMED forever until a future, separately-scoped ratification.
+    ("level_break_first_strike",  "j_lbfs_enabled",             "_dispatch_lbfs"),
+)
+
+# The single source of truth for "is this a known/live extra-setup name" — import
+# THIS from any consumer (validators, promoters, docs) instead of hand-typing a
+# mirror set. Adding a row to DISPATCH_ROSTER above automatically updates this.
+KNOWN_SETUP_NAMES: frozenset[str] = frozenset(name for name, _, _ in DISPATCH_ROSTER)
+
+
 class SetupDispatcher:
     """Evaluates each of the 4 extra detectors against the current tick.
 
@@ -160,24 +202,12 @@ class SetupDispatcher:
         """
         results: list[DispatchResult] = []
 
-        # Each entry: (setup_name, enabled_flag_key, _dispatch_method)
+        # Built from the module-level DISPATCH_ROSTER (single source of truth —
+        # see the comment above SetupDispatcher for why this is no longer an
+        # inline literal). Each entry: (setup_name, enabled_flag_key, bound_method).
         dispatchers = [
-            ("vwap_continuation",         "j_vwap_cont_enabled",       self._dispatch_vwap_continuation),
-            ("gap_and_go",                "gap_and_go_enabled",         self._dispatch_gap_and_go),
-            ("vwap_reclaim_failed_break", "j_vwap_reclaim_fb_enabled",  self._dispatch_vwap_reclaim_fb),
-            ("vix_regime_dayside",        "j_vix_dayside_enabled",      self._dispatch_vix_dayside),
-            # 2026-06-28: double_bottom_base_quiet wired DISARMED — enable flag present, exec-arm
-            # key absent in params.json → WATCH_NOT_ARMED on every tick (byte-identical no-op).
-            # Evidence: edgehunt-double_bottom_base_quiet.json, 4 cells clear full bar, OOS>0.
-            # ARM requires: extra_setup_exec_armed["double_bottom_base_quiet"]=True in params.json.
-            ("double_bottom_base_quiet",  "db_base_quiet_enabled",      self._dispatch_db_base_quiet),
-            # WIRE-BOLLINGER 2026-07-02: family-grind survivor, validated ATM|stop-8 cell.
-            ("bollinger_squeeze",         "bollinger_squeeze_enabled",  self._dispatch_bollinger_squeeze),
-            # LBFS SHADOW-LOGGED 2026-07-15: j_lbfs_enabled=true dispatches (detect+log)
-            # every tick, but 'level_break_first_strike' is deliberately ABSENT from
-            # extra_setup_exec_armed (see module docstring PER-DETECTOR STATUS above) —
-            # WATCH_NOT_ARMED forever until a future, separately-scoped ratification.
-            ("level_break_first_strike",  "j_lbfs_enabled",             self._dispatch_lbfs),
+            (name, flag_key, getattr(self, method_name))
+            for name, flag_key, method_name in DISPATCH_ROSTER
         ]
 
         for setup_name, flag_key, method in dispatchers:

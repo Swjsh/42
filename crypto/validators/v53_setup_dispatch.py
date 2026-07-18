@@ -36,7 +36,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "backtest"))
 
-from setup.scripts.setup_dispatch import DispatchResult, SetupDispatcher, dispatch_extra_setups
+from setup.scripts.setup_dispatch import (  # noqa: E402
+    KNOWN_SETUP_NAMES as _KNOWN_SETUP_NAMES,
+    DispatchResult,
+    SetupDispatcher,
+    dispatch_extra_setups,
+)
 
 _REPO = Path(__file__).resolve().parents[2]
 _PARAMS_PATH = _REPO / "automation" / "state" / "params.json"
@@ -55,22 +60,17 @@ _ALL_ON = {
     "j_vix_dayside_enabled": True,
 }
 
-_KNOWN_SETUP_NAMES = {
-    "vwap_continuation",
-    "gap_and_go",
-    "vwap_reclaim_failed_break",
-    "vix_regime_dayside",
-    "double_bottom_base_quiet",  # wired 2026-07-01 (commit 4e71618)
-    "bollinger_squeeze",  # wired 2026-07-02 (commit 004e7ea, WIRE-BOLLINGER)
-    "level_break_first_strike",  # wired SHADOW-LOGGED 2026-07-15 (setup_dispatch.py
-    # dispatchers list) -- this allowlist was never updated at wiring time, which
-    # made v53_setup_dispatch.live FAIL every single fire since (120 consecutive
-    # cron failures, ~60h, discovered 2026-07-18 via drift_report.json overall_health
-    # RED). names_ok requires every live setup_name to be a KNOWN one; the dispatcher
-    # registry and this allowlist must be updated together -- see L (new) in
-    # LESSONS-LEARNED.md and test_setup_dispatch_names_registry_sync in
-    # backtest/tests/test_graduated_guards.py for the guard that now catches this class.
-}
+# _KNOWN_SETUP_NAMES is now IMPORTED from setup_dispatch.KNOWN_SETUP_NAMES (the
+# single source of truth, derived from DISPATCH_ROSTER) instead of a hand-typed
+# mirror set -- this is the SINGLE-STRATEGY-REGISTRY-DESIGN fix (2026-07-18
+# conductor). The old hand-maintained set drifted from the live dispatcher
+# roster 3 times (F26-DISPATCH-191-FAILED-GREEN twice + level_break_first_strike,
+# 120 consecutive cron failures ~60h before discovery 2026-07-18). Being-in-the-
+# roster and being-a-known-name can no longer silently diverge: adding a row to
+# DISPATCH_ROSTER in setup_dispatch.py now automatically updates this validator's
+# allowlist with zero edit here. See
+# backtest/tests/test_setup_dispatch.py::TestDispatchRosterSingleSource and
+# test_setup_dispatch_names_registry_sync in test_graduated_guards.py.
 
 
 def run_offline() -> dict:

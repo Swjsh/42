@@ -71,10 +71,21 @@ MAX_SCORECARD_AGE_DAYS = 7    # freshness guard: refuse stale scorecards (the
                               # dash-variant fallback once resolved to a 2026-05-16
                               # file — promoting on 6-week-old research is a bug)
 
-# Matches roster rows in SetupDispatcher.run(), e.g.:
-#   ("vwap_continuation", "j_vwap_cont_enabled", self._dispatch_vwap_continuation),
+# Matches roster rows in the module-level DISPATCH_ROSTER constant, e.g.:
+#   ("vwap_continuation", "j_vwap_cont_enabled", "_dispatch_vwap_continuation"),
+# UPDATED 2026-07-18 (SINGLE-STRATEGY-REGISTRY-DESIGN slice): the roster used
+# to live INLINE inside SetupDispatcher.run() as `("name", "flag",
+# self._dispatch_method)` tuples with a bound-method reference as the 3rd
+# element; it is now a module-level DISPATCH_ROSTER constant with the method
+# referenced BY NAME (a plain quoted string) so a validator can import the
+# derived KNOWN_SETUP_NAMES set directly instead of hand-typing a mirror copy
+# (see setup_dispatch.py's DISPATCH_ROSTER docstring + crypto/validators/
+# v53_setup_dispatch.py). This regex still parses SOURCE TEXT, not an import —
+# deliberately preserved so this stays backtest-venv-free and always reflects
+# the on-disk file even inside a long-running process where a Python import
+# would be cached.
 _ROSTER_ROW_RE = re.compile(
-    r"""\(\s*"(?P<setup>\w+)"\s*,\s*"(?P<flag>\w+)"\s*,\s*self\._dispatch_\w+\s*\)"""
+    r"""\(\s*"(?P<setup>\w+)"\s*,\s*"(?P<flag>\w+)"\s*,\s*"(?P<method>_dispatch_\w+)"\s*\)"""
 )
 
 

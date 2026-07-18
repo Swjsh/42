@@ -576,3 +576,119 @@ class TestWiringStatus:
         """
         # This test is a documentation stub — it always passes.
         assert True, "See docstring for the next step to enable vix_regime_dayside"
+
+
+# ---------------------------------------------------------------------------
+# DISPATCH_ROSTER single-source-of-truth guard (2026-07-18 conductor,
+# SINGLE-STRATEGY-REGISTRY-DESIGN slice — see backtest/tests/test_graduated_
+# guards.py::test_setup_dispatch_names_registry_sync for the validator-side
+# half of this same guard).
+# ---------------------------------------------------------------------------
+
+class TestDispatchRosterSingleSource:
+    """RED-proofs the fix for the F26-DISPATCH class of bug (3 occurrences:
+    2x double_bottom_base_quiet/bollinger_squeeze 2026-07-11, 1x
+    level_break_first_strike 2026-07-18, 120 consecutive cron failures ~60h).
+
+    Before this fix: SetupDispatcher.run() built its `dispatchers` list as an
+    INLINE literal, and crypto/validators/v53_setup_dispatch.py hand-typed a
+    SEPARATE _KNOWN_SETUP_NAMES set that had to be manually kept in sync —
+    which drifted 3 times. After this fix: `run()`'s dispatcher list is built
+    FROM the module-level DISPATCH_ROSTER constant, KNOWN_SETUP_NAMES is
+    DERIVED from that same constant, and the validator IMPORTS
+    KNOWN_SETUP_NAMES directly instead of re-typing it — there is no second
+    hand-maintained copy left anywhere to fall out of sync.
+    """
+
+    def test_run_dispatchers_built_from_roster(self) -> None:
+        """SetupDispatcher.run() must consult EVERY row in DISPATCH_ROSTER —
+        proves run() wasn't left with its own independent inline list after
+        the refactor (the exact bug this whole fix targets, one level up)."""
+        import setup_dispatch as sd
+
+        params = {flag: False for _name, flag, _method in sd.DISPATCH_ROSTER}
+        # All OFF: pure no-op, matches every other "all off" test in this file.
+        assert SetupDispatcher(params, {}).run() == []
+
+        # Flip every flag ON (feed absent) — run() must produce exactly one
+        # DispatchResult per roster row, with matching setup_name and a
+        # non-fired SKIP outcome (never a crash from a missing feed).
+        all_on = {flag: True for _name, flag, _method in sd.DISPATCH_ROSTER}
+        results = SetupDispatcher(all_on, {}).run()
+        result_names = {r.setup_name for r in results}
+        roster_names = {name for name, _flag, _method in sd.DISPATCH_ROSTER}
+        assert result_names == roster_names, (
+            f"run() produced results for {sorted(result_names)} but "
+            f"DISPATCH_ROSTER lists {sorted(roster_names)} — run() has drifted "
+            f"from the roster (an inline dispatchers list crept back in?)."
+        )
+        assert all(r.fired is False for r in results), (
+            "expected every detector to SKIP (no feed supplied), not fire"
+        )
+
+    def test_known_setup_names_derived_from_roster(self) -> None:
+        """KNOWN_SETUP_NAMES must equal the roster's name set — an identity
+        relationship that cannot drift because it IS a derived frozenset, not
+        a second hand-typed literal."""
+        import setup_dispatch as sd
+
+        roster_names = frozenset(name for name, _flag, _method in sd.DISPATCH_ROSTER)
+        assert sd.KNOWN_SETUP_NAMES == roster_names
+        assert isinstance(sd.KNOWN_SETUP_NAMES, frozenset)
+
+    def test_validator_imports_known_setup_names_not_a_copy(self) -> None:
+        """v53_setup_dispatch.py's _KNOWN_SETUP_NAMES must be VALUE-EQUAL to
+        setup_dispatch.KNOWN_SETUP_NAMES via a real import (grep-verified: its
+        source line is `from setup.scripts.setup_dispatch import
+        KNOWN_SETUP_NAMES as _KNOWN_SETUP_NAMES`, never a hand-typed literal
+        set). NOTE: this repo has two independent import paths for the SAME
+        file — `import setup_dispatch` (bare, via setup/scripts on sys.path,
+        what this test file itself uses) vs `from setup.scripts.setup_dispatch
+        import ...` (namespace-package-qualified, what v53_setup_dispatch.py
+        uses) — Python treats those as two DIFFERENT module objects in
+        sys.modules, so an `is` identity check across the two paths would
+        spuriously fail even with a correct import-based fix (this repo's own
+        `_build_ctx` docstring documents the same package-first/bare-import
+        duality). Value equality across both import paths is therefore the
+        correct and sufficient bar here — the real drift-proofing is the
+        import-not-hand-type contract, verified below via source inspection."""
+        import importlib
+        import inspect
+        import sys as _sys
+
+        validators_dir = str(REPO / "crypto" / "validators")
+        if validators_dir not in _sys.path:
+            _sys.path.insert(0, validators_dir)
+        import setup_dispatch as sd
+        validator_mod = importlib.import_module("v53_setup_dispatch")
+
+        assert validator_mod._KNOWN_SETUP_NAMES == sd.KNOWN_SETUP_NAMES, (
+            "v53_setup_dispatch._KNOWN_SETUP_NAMES no longer matches "
+            "setup_dispatch.KNOWN_SETUP_NAMES."
+        )
+        # Source-level proof there is no second hand-typed literal set: the
+        # validator's module source must contain an IMPORT of KNOWN_SETUP_NAMES,
+        # not a `{` set-literal assignment to _KNOWN_SETUP_NAMES.
+        validator_src = inspect.getsource(validator_mod)
+        assert "KNOWN_SETUP_NAMES as _KNOWN_SETUP_NAMES" in validator_src, (
+            "v53_setup_dispatch.py must IMPORT KNOWN_SETUP_NAMES from "
+            "setup_dispatch, not hand-type a mirror set literal."
+        )
+        assert "_KNOWN_SETUP_NAMES = {" not in validator_src, (
+            "found a hand-typed set-literal assignment to _KNOWN_SETUP_NAMES — "
+            "this is exactly the drift-prone pattern the fix removed."
+        )
+
+    def test_every_roster_row_has_a_resolvable_method(self) -> None:
+        """Every DISPATCH_ROSTER method-name string must resolve to a real
+        bound method on SetupDispatcher — catches a typo'd method name that
+        would otherwise only surface as an AttributeError deep inside run()."""
+        import setup_dispatch as sd
+
+        d = SetupDispatcher({}, {})
+        for name, _flag, method_name in sd.DISPATCH_ROSTER:
+            assert hasattr(d, method_name), (
+                f"DISPATCH_ROSTER row '{name}' names method '{method_name}' "
+                f"which does not exist on SetupDispatcher."
+            )
+            assert callable(getattr(d, method_name))
