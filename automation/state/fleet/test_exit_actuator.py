@@ -130,6 +130,113 @@ def test_ribbon_flip_fn_forces_exit(tmp_path, monkeypatch):
 
 
 # =============================================================================
+# F7-EXIT-SELL-ALL-REFIRE (2026-07-18): duplicate-sell guard + failed-sell retry.
+#
+# Root cause traced this fire: BEFORE this fix, `if dec.closes_position: del
+# states[symbol]` pruned the tracked position UNCONDITIONALLY the instant
+# plan_exit_actions DECIDED to exit -- regardless of whether broker.market_sell
+# actually succeeded. A failed/errored SELL_ALL (network timeout, API rejection)
+# permanently orphaned the position from exit management (a silent forget, not a
+# re-fire) until the 15:55 ET EOD-flatten backstop caught it. Separately, blindly
+# retrying a "failed" sell is unsafe on its own: a urllib TimeoutError can fire
+# AFTER Alpaca already accepted the POST, so a naive retry risks a genuine
+# DUPLICATE real sell -- the literal risk F7 was filed to name. The fix threads
+# BOTH: (a) don't prune on a failed/skipped sell -> next tick retries, (b) before
+# retrying, check broker.open_sell_orders() for a still-resting order on this
+# symbol and skip re-submitting if one exists.
+# =============================================================================
+
+class DupeGuardBroker(FakeBroker):
+    """Extends FakeBroker with an injectable open_sell_orders() so these tests can
+    exercise the F7 duplicate-guard path without touching the base fixture other
+    tests in this file rely on (getattr-guarded in exit_actuator -- a broker WITHOUT
+    this method, like the base FakeBroker, falls back to today's pre-guard behavior,
+    proven unchanged by the 12 tests above)."""
+    def __init__(self, qty_seq, hilo_seq, resting_seq=None, sell_results=None):
+        super().__init__(qty_seq, hilo_seq)
+        self._resting = list(resting_seq or [])
+        self._sell_results = list(sell_results or [])
+        self.open_sell_orders_calls = []
+
+    def open_sell_orders(self, creds, symbol):
+        self.open_sell_orders_calls.append(symbol)
+        return self._resting.pop(0) if self._resting else []
+
+    def market_sell(self, creds, *, symbol, qty, live):
+        self.sells.append({"symbol": symbol, "qty": qty, "live": live})
+        if self._sell_results:
+            return self._sell_results.pop(0)
+        return {"id": "fake", "status": "accepted"}
+
+
+def test_duplicate_guard_skips_resubmit_when_order_already_resting(tmp_path, monkeypatch):
+    """A prior tick's SELL_ALL is still resting broker-side -> this tick must NOT place a
+    second market sell, and must NOT prune the ledger (position isn't confirmed flat yet)."""
+    arm = _arm(tmp_path, monkeypatch)
+    ea.register_entry(arm, symbol=SYM, side="P", entry_premium=1.00, qty=5,
+                      exit_shape=RIBBON_SHAPE)
+    fb = DupeGuardBroker(qty_seq=[5], hilo_seq=[(0.10, 0.05)],   # premium stop hit -> SELL_ALL
+                         resting_seq=[[{"id": "resting-1", "symbol": SYM, "side": "sell"}]])
+    res = ea.manage_tick(arm, {}, live=True, broker=fb, now_et=_dt(11, 0))
+    assert not fb.sells, "must not place a duplicate market sell while one is already resting"
+    assert fb.open_sell_orders_calls == [SYM]
+    assert SYM in ea.load_states(arm), "position must stay tracked until confirmed flat"
+    action = [a for r in res for a in r.get("actions", [])][0]
+    assert action["kind"] == "SELL_ALL" and action["placed"] is False
+    assert "duplicate guard" in action["broker"]["_skipped"]
+
+
+def test_failed_sell_not_pruned_and_retries_next_tick(tmp_path, monkeypatch):
+    """market_sell errors (e.g. network timeout) -> the position must stay tracked (NOT
+    silently orphaned) so the NEXT tick retries; once it succeeds, the ledger prunes."""
+    arm = _arm(tmp_path, monkeypatch)
+    ea.register_entry(arm, symbol=SYM, side="P", entry_premium=1.00, qty=5,
+                      exit_shape=RIBBON_SHAPE)
+    fb = DupeGuardBroker(qty_seq=[5, 5], hilo_seq=[(0.10, 0.05), (0.10, 0.05)],
+                         resting_seq=[[], []],   # no resting order either tick
+                         sell_results=[{"_error": "timeout"}, {"id": "ok", "status": "accepted"}])
+    # tick 1: sell attempt fails -> must NOT prune
+    res1 = ea.manage_tick(arm, {}, live=True, broker=fb, now_et=_dt(11, 0))
+    assert fb.sells and fb.sells[0]["qty"] == 5
+    assert res1[0]["actions"][0]["placed"] is False
+    assert SYM in ea.load_states(arm), "a failed sell must not orphan the position"
+    # tick 2: retry succeeds -> now prune
+    res2 = ea.manage_tick(arm, {}, live=True, broker=fb, now_et=_dt(11, 1))
+    assert len(fb.sells) == 2 and fb.sells[1]["qty"] == 5
+    assert res2[0]["actions"][0]["placed"] is True
+    assert SYM not in ea.load_states(arm)
+
+
+def test_watch_mode_unaffected_by_duplicate_guard(tmp_path, monkeypatch):
+    """WATCH (live=False) never calls open_sell_orders or market_sell -- the guard is a
+    LIVE-only concern; WATCH keeps previewing+pruning exactly as before this fix."""
+    arm = _arm(tmp_path, monkeypatch)
+    ea.register_entry(arm, symbol=SYM, side="P", entry_premium=1.00, qty=5,
+                      exit_shape=RIBBON_SHAPE)
+    fb = DupeGuardBroker(qty_seq=[5], hilo_seq=[(0.10, 0.05)],
+                         resting_seq=[[{"id": "resting-1", "symbol": SYM, "side": "sell"}]])
+    res = ea.manage_tick(arm, {}, live=False, broker=fb, now_et=_dt(11, 0))
+    assert not fb.open_sell_orders_calls, "WATCH must not even query for resting orders"
+    assert not fb.sells
+    assert SYM not in ea.load_states(arm), "WATCH still previews+prunes (unchanged behavior)"
+
+
+def test_base_fakebroker_without_dupe_guard_method_unaffected(tmp_path, monkeypatch):
+    """A broker double that doesn't implement open_sell_orders (e.g. every OTHER test in
+    this file's base FakeBroker) must fail OPEN to the exact pre-guard behavior -- proves
+    the getattr guard, not just that the base test suite happens to still pass."""
+    arm = _arm(tmp_path, monkeypatch)
+    ea.register_entry(arm, symbol=SYM, side="P", entry_premium=1.00, qty=5,
+                      exit_shape=RIBBON_SHAPE)
+    assert not hasattr(FakeBroker, "open_sell_orders")
+    fb = FakeBroker(qty_seq=[5], hilo_seq=[(0.10, 0.05)])
+    res = ea.manage_tick(arm, {}, live=True, broker=fb, now_et=_dt(11, 0))
+    assert fb.sells and fb.sells[0]["qty"] == 5
+    assert res[0]["actions"][0]["placed"] is True
+    assert SYM not in ea.load_states(arm)
+
+
+# =============================================================================
 # VISIBILITY (2026-07-09, OP-33c): stop_mode/trigger_level/last_closed_5m_close on every
 # exit_pass row + describe_stop() -- the render-only fix for the known cosmetic bug
 # (STATUS.md 2026-07-09 ~16:20 ET: "plan-log 'stop' shows the -20% fallback even in

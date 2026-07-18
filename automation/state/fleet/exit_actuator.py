@@ -210,13 +210,33 @@ def manage_tick(arm_id: str, creds: dict, *, live: bool,
         states[symbol] = dec.state
         changed = True
         executed = []
+        sell_placed_ok = True   # tracks whether EVERY sell action this tick was actually
+                                 # accepted (or we're in WATCH/preview) -- gates whether a
+                                 # closes_position tick is safe to prune below (F7 fix).
         for a in dec.actions:
             if a.kind in ("SELL_PARTIAL", "SELL_ALL"):
-                res = (broker.market_sell(creds, symbol=symbol, qty=a.qty, live=live)
-                       if live else {"_skipped": "WATCH"})
+                # F7-EXIT-SELL-ALL-REFIRE (2026-07-18): before submitting a REAL sell,
+                # check whether a prior tick's sell order for this symbol is still
+                # resting/open on the broker -- a slow fill, or a network timeout AFTER
+                # Alpaca actually accepted the order, would otherwise cause this tick to
+                # stack a DUPLICATE market sell on top of one that already landed.
+                # getattr-guarded: a broker double that doesn't implement the check (e.g.
+                # existing test fakes) fails OPEN to today's exact pre-guard behavior.
+                dupe_check = getattr(broker, "open_sell_orders", None)
+                resting = (dupe_check(creds, symbol) if (live and dupe_check) else [])
+                if resting:
+                    res = {"_skipped": f"duplicate guard: {len(resting)} sell order(s) "
+                                        f"already resting for {symbol}"}
+                    placed = False
+                else:
+                    res = (broker.market_sell(creds, symbol=symbol, qty=a.qty, live=live)
+                           if live else {"_skipped": "WATCH"})
+                    placed = live and not res.get("_error") and not res.get("_refused") \
+                        and not res.get("_skipped")
+                if live and not placed:
+                    sell_placed_ok = False
                 executed.append({"kind": a.kind, "qty": a.qty, "stage": a.stage,
-                                 "reason": a.reason, "placed": live and not res.get("_error")
-                                 and not res.get("_refused") and not res.get("_skipped"),
+                                 "reason": a.reason, "placed": placed,
                                  "broker": res})
             elif a.kind == "RATCHET_STOP":
                 # The runner stop ratchet is realized lazily: we PERSIST the new stop level
@@ -227,8 +247,18 @@ def manage_tick(arm_id: str, creds: dict, *, live: bool,
                 executed.append({"kind": "RATCHET_STOP", "stage": a.stage,
                                  "new_stop_premium": a.new_stop_premium, "reason": a.reason,
                                  "enforced": "tick_managed"})
-        if dec.closes_position:
-            del states[symbol]  # fully closed this tick -> prune
+        # F7 fix: only prune the tracked position when the close is either a WATCH-mode
+        # preview (nothing was actually placed, so nothing to reconcile) or every SELL_ALL
+        # this tick was genuinely accepted broker-side. A skipped-as-duplicate or failed
+        # sell must NOT drop tracking -- plan_exit_actions is idempotent-on-a-missed-tick
+        # by design (its own docstring), so leaving the state in place lets the NEXT tick
+        # re-derive the same close decision and either retry (real failure) or defer to the
+        # resting order (duplicate) -- see the dupe-guard above. Before this fix, ANY
+        # closes_position tick pruned unconditionally, so a failed/errored SELL_ALL
+        # permanently orphaned the position from exit management (worse than a re-fire --
+        # a silent forget) until the 15:55 ET EOD flatten backstop caught it.
+        if dec.closes_position and (not live or sell_placed_ok):
+            del states[symbol]  # fully closed (or WATCH preview) this tick -> prune
         results.append({"symbol": symbol, "open_qty": open_qty,
                         "best_premium": best_premium, "worst_premium": worst_premium,
                         "tp1_filled": dec.state.tp1_filled,

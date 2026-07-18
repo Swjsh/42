@@ -318,6 +318,25 @@ def open_buy_orders(creds: dict[str, str], symbol: str) -> list:
             if str(o.get("symbol")) == symbol and str(o.get("side")) == "buy"]
 
 
+def open_sell_orders(creds: dict[str, str], symbol: str) -> list:
+    """Open (un-filled/still-resting) SELL orders for this exact OCC symbol.
+
+    F7-EXIT-SELL-ALL-REFIRE guard (2026-07-18): exit_actuator.manage_tick calls this
+    BEFORE submitting a new SELL_PARTIAL/SELL_ALL so a prior tick's exit order that is
+    still resting broker-side (a slow fill, or a network timeout AFTER Alpaca actually
+    accepted the order -- market_sell's urllib call can raise TimeoutError/URLError on
+    the RESPONSE even when the POST already landed) never gets a duplicate real sell
+    stacked on top of it. [] on failure -- fail-open (same shape as open_buy_orders):
+    an empty list is read as "no known duplicate", i.e. today's exact pre-guard
+    behavior, so a broker/API hiccup on THIS read can never make the actuator refuse
+    to exit a position that genuinely needs to close."""
+    res = _request(creds, "orders?status=open&limit=100&nested=false")
+    if not isinstance(res, list):
+        return []
+    return [o for o in res
+            if str(o.get("symbol")) == symbol and str(o.get("side")) == "sell"]
+
+
 def get_position_qty(creds: dict[str, str], symbol: str) -> int:
     """Open contracts the broker shows for this exact option symbol (0 if flat). Broker is
     the source of truth (C11) — the exit manager re-derives runner state from this each tick."""
