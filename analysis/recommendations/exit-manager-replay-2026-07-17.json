@@ -1,0 +1,251 @@
+{
+  "_doc": "exit_manager_replay.py -- EXIT-MANAGER-REPLAY-HARNESS (GOAL-REPLAY-TODAY-GREEN iteration 6).\n\nWHY (the FRAME AUDIT, GOAL-REPLAY-TODAY-GREEN.md 2026-07-17 ~20:30 ET): iterations 2-3 proved\n`simulate_trade_real`'s exit model is KNOWN-DIVERGENT from the live exit_manager -- live ran\ncore_safe's 13:01 746P to +$241; the sim breakeven-zeroed it in 2 minutes. This module abandons\nsimulate_trade_real for exit-fidelity purposes and instead drives the ACTUAL production exit\ncode (`automation/state/fleet/exit_manager.py plan_exit_actions`, via\n`backtest/lib/exit_manager_walk.py`) tick-by-tick over today's REAL 1-minute OPRA option bars\n(backtest/data/highres/, fetched iteration 3) for the 6 engine-fireable core round trips\n(5 core_safe + 1 core_bold; the 12:04 J-called 746C stays OUT OF SCOPE -- no engine rule fires\nit, confirmed again via journal/trades.csv j_override='Y', consistent with every prior\niteration).\n\nSECOND ROOT CAUSE FOUND BUILDING THIS (not previously documented): the sim-based harness was\nnot merely using a coarser/divergent EXIT MECHANISM -- it was reading the WRONG EXIT NUMBERS.\n`simulate_trade_real` callers (replay_today_eval.py iterations 2-3 included) source exit knobs\nfrom automation/state/params.json's top-level keys (tp1_premium_pct=0.5, v15_profit_lock_mode=\n\"fixed\", runner_max_premium_pct=2.5). But heartbeat_core.py:1471-1477's REAL exit_manager\nregistration for ribbon_ride entries (BEARISH_REJECTION_RIDE_THE_RIBBON /\nBULLISH_RECLAIM_RIDE_THE_RIBBON -- 5 of today's 6 entries) reads\n`automation/state/fleet/strategies.py#RIBBON_RIDE.exit.to_dict()` instead: tp1_premium_pct=1.0,\nprofit_lock_mode=\"trailing\" (chandelier, arm +5%/trail 15%), runner_target_pct=99.0 (rides via\ntrail/structure/time-stop, not a fixed target), stop_mode=\"structure\" (chart-level primary,\n-50% catastrophe cap demoted). params.json's structure_stop_enabled=true (both accounts,\nconfirmed) resolves 5/6 of today's real entries to STRUCTURE mode at from_entry -- exactly the\nmechanism the sim never modeled. Only the isolated bollinger_squeeze entry (14:03) genuinely\nuses params.json's j_bollinger_squeeze_* keys (that mapping WAS correct in the prior harness).\n\nEntry data: read verbatim from automation/state/core-decisions.jsonl (SIGNAL/DECISION layer,\niteration-2-faithful, unchanged) -- symbol/side/strike/qty/setup/stop_mode/trigger_level, and\ncritically entry_premium = the REAL BROKER FILL PRICE (fill.filled_avg_price), not a re-derived\napproximation. This deliberately ISOLATES the exit-mechanism fidelity question (this iteration's\njob) from the entry-fill-price question (iteration 3 already closed that to $0.00-$0.08).\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/exit_manager_replay.py\n",
+  "generated_at": "2026-07-17T20:21:24.975934",
+  "trade_date": "2026-07-17",
+  "n_entries": 6,
+  "n_faithful": 6,
+  "n_scored": 6,
+  "all_faithful": true,
+  "faithfulness_tolerance": {
+    "abs_dollars": 40.0,
+    "pct_of_live": 0.15
+  },
+  "replay_total_pnl": 324.85,
+  "live_total_pnl": 342.0,
+  "total_delta": -17.15,
+  "per_arm": {
+    "core_safe": {
+      "n_trades": 5,
+      "replay_pnl": 147.45,
+      "live_pnl": 151.0,
+      "delta": -3.55
+    },
+    "core_bold": {
+      "n_trades": 1,
+      "replay_pnl": 177.4,
+      "live_pnl": 191.0,
+      "delta": -13.6
+    }
+  },
+  "trades": [
+    {
+      "arm": "core_safe",
+      "account_id": "safe",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "entry_time_et": "2026-07-17T11:06:03",
+      "symbol": "SPY260717P00744000",
+      "side": "P",
+      "qty": 3,
+      "entry_premium": 1.413333,
+      "resolved_stop_mode": "structure",
+      "trigger_level": 744.82,
+      "exit_reason": "structure_stop @ 744.82",
+      "exit_time_et": "2026-07-17T11:10:00",
+      "hold_minutes": 4,
+      "n_ticks_walked": 4,
+      "legs": [
+        {
+          "kind": "SELL_ALL",
+          "qty": 3,
+          "fill_price": 1.26,
+          "reason": "structure_stop @ 744.82",
+          "stage": "structure_stop",
+          "ts_et": "2026-07-17T11:10:00",
+          "leg_pnl": -46.0
+        }
+      ],
+      "replay_dollar_pnl": -46.0,
+      "live_dollar_pnl": -37.0,
+      "delta": -9.0,
+      "tolerance": 40.0,
+      "faithful": true
+    },
+    {
+      "arm": "core_safe",
+      "account_id": "safe",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "entry_time_et": "2026-07-17T11:40:04",
+      "symbol": "SPY260717P00745000",
+      "side": "P",
+      "qty": 3,
+      "entry_premium": 1.09,
+      "resolved_stop_mode": "structure",
+      "trigger_level": 745.89,
+      "exit_reason": "structure_stop @ 745.89",
+      "exit_time_et": "2026-07-17T11:55:00",
+      "hold_minutes": 15,
+      "n_ticks_walked": 15,
+      "legs": [
+        {
+          "kind": "SELL_ALL",
+          "qty": 3,
+          "fill_price": 0.75,
+          "reason": "structure_stop @ 745.89",
+          "stage": "structure_stop",
+          "ts_et": "2026-07-17T11:55:00",
+          "leg_pnl": -102.0
+        }
+      ],
+      "replay_dollar_pnl": -102.0,
+      "live_dollar_pnl": -102.0,
+      "delta": 0.0,
+      "tolerance": 40.0,
+      "faithful": true
+    },
+    {
+      "arm": "core_safe",
+      "account_id": "safe",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "entry_time_et": "2026-07-17T13:01:03",
+      "symbol": "SPY260717P00746000",
+      "side": "P",
+      "qty": 3,
+      "entry_premium": 0.78,
+      "resolved_stop_mode": "structure",
+      "trigger_level": 747.25,
+      "exit_reason": "runner_stop @ 1.68",
+      "exit_time_et": "2026-07-17T14:03:00",
+      "hold_minutes": 62,
+      "n_ticks_walked": 62,
+      "legs": [
+        {
+          "kind": "SELL_PARTIAL",
+          "qty": 2,
+          "fill_price": 1.56,
+          "reason": "tp1 @ +100%",
+          "stage": "tp1",
+          "ts_et": "2026-07-17T13:52:00",
+          "leg_pnl": 156.0
+        },
+        {
+          "kind": "SELL_ALL",
+          "qty": 1,
+          "fill_price": 1.683,
+          "reason": "runner_stop @ 1.68",
+          "stage": "trail",
+          "ts_et": "2026-07-17T14:03:00",
+          "leg_pnl": 90.3
+        }
+      ],
+      "replay_dollar_pnl": 246.3,
+      "live_dollar_pnl": 241.0,
+      "delta": 5.3,
+      "tolerance": 40.0,
+      "faithful": true
+    },
+    {
+      "arm": "core_bold",
+      "account_id": "bold",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "entry_time_et": "2026-07-17T13:51:21",
+      "symbol": "SPY260717P00743000",
+      "side": "P",
+      "qty": 5,
+      "entry_premium": 0.38,
+      "resolved_stop_mode": "structure",
+      "trigger_level": 745.98,
+      "exit_reason": "runner_stop @ 0.7",
+      "exit_time_et": "2026-07-17T14:30:00",
+      "hold_minutes": 39,
+      "n_ticks_walked": 39,
+      "legs": [
+        {
+          "kind": "SELL_PARTIAL",
+          "qty": 3,
+          "fill_price": 0.76,
+          "reason": "tp1 @ +100%",
+          "stage": "tp1",
+          "ts_et": "2026-07-17T14:26:00",
+          "leg_pnl": 114.0
+        },
+        {
+          "kind": "SELL_ALL",
+          "qty": 2,
+          "fill_price": 0.697,
+          "reason": "runner_stop @ 0.7",
+          "stage": "trail",
+          "ts_et": "2026-07-17T14:30:00",
+          "leg_pnl": 63.4
+        }
+      ],
+      "replay_dollar_pnl": 177.4,
+      "live_dollar_pnl": 191.0,
+      "delta": -13.6,
+      "tolerance": 40.0,
+      "faithful": true
+    },
+    {
+      "arm": "core_safe",
+      "account_id": "safe",
+      "setup": "bollinger_squeeze",
+      "entry_time_et": "2026-07-17T14:03:03",
+      "symbol": "SPY260717P00745000",
+      "side": "P",
+      "qty": 3,
+      "entry_premium": 1.0,
+      "resolved_stop_mode": "premium",
+      "trigger_level": 744.62,
+      "exit_reason": "runner_stop @ 1.52",
+      "exit_time_et": "2026-07-17T14:24:00",
+      "hold_minutes": 21,
+      "n_ticks_walked": 21,
+      "legs": [
+        {
+          "kind": "SELL_PARTIAL",
+          "qty": 2,
+          "fill_price": 1.3,
+          "reason": "tp1 @ +30%",
+          "stage": "tp1",
+          "ts_et": "2026-07-17T14:07:00",
+          "leg_pnl": 60.0
+        },
+        {
+          "kind": "SELL_ALL",
+          "qty": 1,
+          "fill_price": 1.5215,
+          "reason": "runner_stop @ 1.52",
+          "stage": "trail",
+          "ts_et": "2026-07-17T14:24:00",
+          "leg_pnl": 52.15
+        }
+      ],
+      "replay_dollar_pnl": 112.15,
+      "live_dollar_pnl": 105.0,
+      "delta": 7.15,
+      "tolerance": 40.0,
+      "faithful": true
+    },
+    {
+      "arm": "core_safe",
+      "account_id": "safe",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "entry_time_et": "2026-07-17T14:49:03",
+      "symbol": "SPY260717P00743000",
+      "side": "P",
+      "qty": 3,
+      "entry_premium": 0.53,
+      "resolved_stop_mode": "structure",
+      "trigger_level": 744.22,
+      "exit_reason": "structure_stop @ 744.22",
+      "exit_time_et": "2026-07-17T14:55:00",
+      "hold_minutes": 6,
+      "n_ticks_walked": 6,
+      "legs": [
+        {
+          "kind": "SELL_ALL",
+          "qty": 3,
+          "fill_price": 0.32,
+          "reason": "structure_stop @ 744.22",
+          "stage": "structure_stop",
+          "ts_et": "2026-07-17T14:55:00",
+          "leg_pnl": -63.0
+        }
+      ],
+      "replay_dollar_pnl": -63.0,
+      "live_dollar_pnl": -56.0,
+      "delta": -7.0,
+      "tolerance": 40.0,
+      "faithful": true
+    }
+  ]
+}

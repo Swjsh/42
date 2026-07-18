@@ -1,3 +1,32 @@
+## [2026-07-17 ~22:25 ET] BUILD -- EXIT-MANAGER-REPLAY-HARNESS: 6/6 today's real core trades faithful (was 0/5 iter2, 2/5-trivial iter3) by driving the REAL exit_manager code instead of the sim; second root cause found (sim was reading the WRONG exit shape, not just a coarser one); exit-quality candidate WIDER_TRAIL_25 tested and cleanly NO-SHIP under regime-conditioning
+
+> **Context (`et_clock.py`: `2026-07-17 22:20:38 Friday EDT market_hours=False`, after-hours weekend runway).** GOAL-REPLAY-TODAY-GREEN iteration 6. Prior iterations (2-3) proved `simulate_trade_real` -- the exit engine every real-fills study in this codebase runs -- is KNOWN-DIVERGENT from live's real `exit_manager.py` (the FRAME AUDIT, iteration 3-4). This iteration builds the forked EXIT-MANAGER-REPLAY-HARNESS: drive the ACTUAL production exit code, not the sim approximation.
+>
+> **Built:** `backtest/lib/exit_manager_walk.py` (ticks `exit_manager.plan_exit_actions`, the REAL live decision core, over any uniform-cadence bar series) + `backtest/tools/exit_manager_replay.py` (today's faithfulness harness, 1-min real OPRA bars) + `backtest/tools/exit_variant_ab.py` (historical exit-quality A/B, 5-min bars) + `backtest/tests/test_exit_manager_replay.py` (4/4 guard pins). Zero production files touched -- build + study only.
+>
+> **RESULT: 6/6 faithful, total delta -$17.15 on +$342.00 live (5.0%).** First time this goal's harness has reproduced live's per-trade exits to tight tolerance. Both real winners (13:01 746P, 13:51 bold 743P) now correctly RIDE via the trailing chandelier instead of breakeven-zeroing in 2 minutes (iteration 3's artifact). Table:
+>
+> | time | account | symbol | stop_mode | replay | live | delta |
+> |---|---|---|---|--:|--:|--:|
+> | 11:06 | safe | 744P | structure | -$46.00 | -$37.00 | -$9.00 |
+> | 11:40 | safe | 745P | structure | -$102.00 | -$102.00 | $0.00 |
+> | 13:01 | safe | 746P | structure | +$246.30 | +$241.00 | +$5.30 |
+> | 13:51 | bold | 743P | structure | +$177.40 | +$191.00 | -$13.60 |
+> | 14:03 | safe | 745P (bollinger) | premium | +$112.15 | +$105.00 | +$7.15 |
+> | 14:49 | safe | 743P | structure | -$63.00 | -$56.00 | -$7.00 |
+>
+> **SECOND ROOT CAUSE FOUND (new, not previously documented):** every sim-based ribbon_ride study in this codebase -- including `elite_bear_level_reject_gate_ab.py`'s own "faithful current-production Safe config" -- reads exit knobs from `params.json`'s top-level keys, but the REAL exit_manager registration (`heartbeat_core.py:1471-1477`) reads `automation/state/fleet/strategies.py#RIBBON_RIDE.exit.to_dict()` instead: `profit_lock_mode="trailing"` not `"fixed"`, `tp1_premium_pct=1.0` not `0.5`, `stop_mode="structure"` (chart-level primary) not premium. Every prior sim study has been testing the WRONG exit shape, not an approximation of the right one. Filed as RESOLVED in `markdown/planning/FUTURE-IMPROVEMENTS.md` PARITY-GAP-2.
+>
+> **Fidelity fix found + tested mid-build:** first pass (bar high/low as best/worst premium, the established 5-min sim convention) scored 5/6 -- a false stop-out on the 14:03 bollinger trade from a fleeting intra-minute low. Traced `fleet_broker.get_option_quote_hilo` (live's real data source): a SINGLE NBBO snapshot per tick, not a range. Switched to bar OPEN as the point-sample proxy; 6/6 on the next run. One hypothesis, one change, one test -- documented in the module, not silently changed.
+>
+> **STEP 3 exit-quality A/B, honest constraint found first:** queried real round trips since STOP-B (structure-stop) shipped 2026-07-09 -- only 6 exist, all today. No historical population trades under the current shape exists yet, so `exit_variant_ab.py` re-derives 188 historical ribbon_ride entries' exits (IS 2025 + OOS 2026-YTD, `run_backtest`'s entry layer only) under CONTROL (real SS-B shape) vs CANDIDATE `WIDER_TRAIL_25` (trail 15%->25%, the empirically-observed binding constraint on today's own winners). **Regime-conditioned verdict: clean FAIL, 0/5 gates** (regime-OOS delta -$5.05/tr, WF=-3.34, unstable, BH-FDR p=0.855, fails concentration check). Full-population delta -$813.30 across 188 trades. Today-specific delta is a misleading +$17.15 (one big winner rides further, two others give back more) -- exactly the single-day mirage regime-conditioning exists to catch.
+>
+> **SHIP DECISION: NO-SHIP.** `params.json`/`aggressive/params.json` untouched. Exits stay SS-B (trail 15%, arm 5%). The load-bearing win this iteration is the HARNESS, not the candidate -- `exit_manager_walk.walk_exit_manager` now exists for the next exit-quality candidate without rebuilding anything.
+>
+> **Files:** `backtest/lib/exit_manager_walk.py`, `backtest/tools/exit_manager_replay.py`, `backtest/tools/exit_variant_ab.py`, `backtest/tests/test_exit_manager_replay.py`, `analysis/recommendations/exit-manager-replay-2026-07-17.json`, `analysis/recommendations/exit-variant-ab-wider-trail25-2026-07-17.json`, `automation/overnight/GOAL-REPLAY-TODAY-GREEN.md` ITERATION 6 entry, `markdown/planning/FUTURE-IMPROVEMENTS.md` PARITY-GAP-2 resolved. **Market-hours discipline:** after-hours (22:20 ET Friday), local-compute-only; push deferred to standing after-hours rule.
+
+---
+
 ## [2026-07-17 ~21:40 ET] METHODOLOGY -- REGIME-REFERENCE-CLASS-ADJUDICATION: regime-conditioned validation EARNS_RIGHTS on self-validation, but 0/5 parked candidates (elite-bear L1, bold-strike ATM, fleet strike, zone-band, pong) flip to PASS -- honest answer is (A) recency-overfitting, not (B) regime break
 
 > **Context (`et_clock.py`: `2026-07-17 21:32:34 Friday EDT market_hours=False`, after-hours weekend runway).** Fable/Opus frame (`analysis/recommendations/REGIME-REFERENCE-CLASS-ADJUDICATION-2026-07-17.md`): 5+ independent studies all park on the same signature -- negative 2025-IS-delta, positive 2026-OOS-delta under calendar WF (`INSUFFICIENT_REGIME_SHIFT`). Is that (A) recency-overfitting (the "edges" are curve-fit to recent tape) or (B) genuine regime break (2026's market character differs structurally, so calendar-year is the wrong reference class)? Task: build a regime-CONDITIONED validator and, per the non-negotiable ANTI-METHODOLOGY-SHOPPING SAFEGUARD, make it EARN the right to adjudicate anything by first correctly separating known-good from known-bad edges.
@@ -5401,3 +5430,16 @@ Zero params/config/trading-path files touched by either job. No orders placed. Q
 - FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
 - FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 11 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
 - SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,485.31, $0.00 remaining, 5 entries placed today).
+
+- [2026-07-17 19:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-18T01:57:03.238836+00:00) | fail streak: 92 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 19:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+### DEGRADED: self-check 2026-07-17T22:09:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 11 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,485.31, $0.00 remaining, 5 entries placed today).
+
+- [2026-07-17 20:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-18T02:27:03.322273+00:00) | fail streak: 93 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 20:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log

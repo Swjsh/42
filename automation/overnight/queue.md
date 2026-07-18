@@ -9,35 +9,6 @@
 
 ## Active backlog
 
-### EXIT-MANAGER-REPLAY-HARNESS (MED, spec-only, filed 2026-07-17 ~21:20 ET, GOAL-REPLAY-TODAY-GREEN iteration 4)
-
-- [ ] EXIT-MANAGER-REPLAY-HARNESS (MED, spec-only, NOT built) :: Forked from
-  `automation/overnight/GOAL-REPLAY-TODAY-GREEN.md`'s FRAME AUDIT (2026-07-17 ~20:30 ET, "same
-  wall twice"): iterations 2-3 of that goal both hit the exit-simulation wall trying to make
-  `simulate_trade_real()` reproduce live P&L to the dollar -- diagnosed as NOT a data-resolution
-  problem (1-min OPRA bars made it WORSE, not better) but a genuine sim-vs-live EXIT-PARITY gap
-  (documented lesson: `simulate_trade_real`'s profit-lock/stop model is KNOWN-divergent from the
-  live `exit_manager` -- e.g. live core_safe rode the 07-17 746P to +$241; the sim's
-  `v15_profit_lock_mode="fixed"` + zero stop-offset breakeven-zeros it in ~2 minutes). Exit-P&L
-  faithfulness via `simulate_trade_real` is ABANDONED as a goal for that project; this item is the
-  PROPER fix, forked out so it doesn't block the (unrelated) decision-layer lever loop.
-  **Spec, not implementation:** build a replay harness that drives the ACTUAL live
-  `automation/state/fleet/exit_manager.py` (or the core-Safe/Bold equivalent exit state machine
-  `heartbeat_core.py` calls) bar-by-bar against historical/cached option price data, instead of
-  the research-only `simulate_trade_real` approximation -- i.e. replay through the real exit
-  code path, not a parallel reimplementation of it. Open questions the spec must resolve: (a)
-  whether `exit_manager.py`'s functions are pure enough to call out-of-band (no live broker/MCP
-  side effects) or need a thin adapter/mock layer; (b) what state it expects to be threaded in per
-  tick (position object shape, prior HWM, armed-flags) and whether that state is fully
-  reconstructable from `core-decisions.jsonl` + fills history for a historical trade; (c) bar
-  resolution needed (1-min real OPRA, per iteration 3's finding, since 5-min is provably
-  insufficient for 0DTE intrabar moves). Once spec'd, this becomes the trustworthy exit-quality
-  measurement tool for L2 (trend-day exit tuning) and any future exit-shape A/B -- currently NONE
-  of this codebase's exit studies can claim byte-parity with live, only "same shared function,
-  measured not realized" (the standard disclosure). Context:
-  `automation/overnight/GOAL-REPLAY-TODAY-GREEN.md` FRAME AUDIT section + ITERATION 2/3 LEDGER
-  entries; `markdown/planning/FUTURE-IMPROVEMENTS.md` PARITY-GAP-2. :: depends:none :: status:proposed
-
 ### ADVERSE-EXTREME-AVOIDANCE-FILTER (MED, pre-reg spec, from FAVORABLE-EXTREME-ENTRY-2026-07-17 KILL)
 
 - [ ] ADVERSE-EXTREME-AVOIDANCE-FILTER (MED, spec-only, filed 2026-07-17 evening) :: The
@@ -465,6 +436,12 @@ These are exactly the OP-22 "371st untriaged candidate is debt" pattern. The `gy
 ## Completed
 
 > OP-22 consolidation 2026-07-08: 25 finished [x] items moved here from Active backlog (loop G15).
+
+### 2026-07-17 ~22:25 ET — worker-tier: EXIT-MANAGER-REPLAY-HARNESS BUILT (GOAL-REPLAY-TODAY-GREEN iteration 6) -- 6/6 faithful, second root cause found, exit-quality candidate NO-SHIP
+Built the harness this item spec'd (`backtest/lib/exit_manager_walk.py` + `backtest/tools/exit_manager_replay.py`): drives the REAL `automation/state/fleet/exit_manager.py plan_exit_actions` decision core tick-by-tick over today's real 1-min OPRA bars, instead of `simulate_trade_real`. **Result: 6/6 of today's real core round trips within tolerance** (iteration 2: 0/5, iteration 3: 2/5-trivial) -- the win iterations 2-3 could not get. Total delta -$17.15 on +$342.00 live (5.0%). Both real winners now correctly ride via the trailing chandelier instead of breakeven-zeroing.
+**Second, previously-undocumented root cause found:** every sim-based ribbon_ride study in this codebase (including `elite_bear_level_reject_gate_ab.py`'s "faithful" config) reads exit knobs from `params.json`'s top-level keys, but the REAL exit_manager registration reads `automation/state/fleet/strategies.py#RIBBON_RIDE.exit.to_dict()` instead (trailing chandelier + structure-stop-primary, not fixed-mode premium stop) -- the sim was testing the WRONG shape, not an approximation of the right one.
+**Exit-quality A/B (step 3):** only 6 real trades exist under the current STOP-B shape (all today, STOP-B shipped 2026-07-09) -- no historical population to A/B against directly, so `backtest/tools/exit_variant_ab.py` re-derives 188 historical ribbon_ride entries' exits under CONTROL (real shape) vs CANDIDATE `WIDER_TRAIL_25` (trail 15%->25%). **Regime-conditioned verdict: clean FAIL, 0/5 gates** (regime-OOS delta -$5.05/tr, WF=-3.34, unstable, BH-FDR p=0.855). Full-population delta -$813.30/188 trades. NO-SHIP; params.json untouched; exits stay SS-B.
+Guard: `backtest/tests/test_exit_manager_replay.py` (4/4). Full detail: `automation/overnight/GOAL-REPLAY-TODAY-GREEN.md` ITERATION 6, `automation/overnight/STATUS.md` 2026-07-17 ~22:25 ET entry.
 
 ### 2026-07-17 — worker-tier: REGIME-REFERENCE-CLASS-ADJUDICATION (methodology EARNS_RIGHTS, 0/5 parked candidates flip to PASS)
 Resolved `analysis/recommendations/REGIME-REFERENCE-CLASS-ADJUDICATION-2026-07-17.md` (Fable/Opus

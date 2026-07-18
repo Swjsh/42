@@ -358,3 +358,146 @@ DECISION (reframe):
 3. Goal success re-stated honestly: "the tuned engine, on today's faithful decision stream,
    captures the sniper entries and skips the losers across all arms, with every applied lever
    OOS-clean" — NOT an exact-dollar six-green (unachievable/untrustworthy on the current sim).
+
+## ITERATION 5-6 SYNTHESIS (Fable/Opus, 2026-07-17 ~21:15 ET) — DECISION-LEVER PATH CLOSED, PIVOT TO EXITS
+Regime-conditioned methodology EARNED_RIGHTS (killed 4/4 known-fakes incl. NLWB + noise placebo,
+passed the 1 known-good vwap_continuation WF=1.36/FDR p=0.005, tautology check Cramér's V=0.21).
+Applied to the 5 parked candidates: **0/5 flip.** VERDICT = (A) recency-overfitting, NOT (B)
+regime break. bold-strike ATM diagnostic: calendar confound removed, still fails on concentration
+→ the calendar boundary was never the problem, a handful of outsized trades were.
+**IMPLICATION FOR THE GOAL: "make all 6 arms green on today via generalizable decision-tuning" is
+NOT honestly achievable — today's morning losses are NOISE, and every lever that erases them fails
+a methodology rigorous enough to kill known-dead strategies. This is the honest ceiling the goal
+doc anticipated, now PROVEN. Forcing today green = shipping a mirage = losing real money. TERMINAL
+for decision-layer levers (L1/L3/L4/L6 — all covered by the 5-candidate re-adjudication).**
+PIVOT (honest-open work remaining, per J's "fine-tune entries AND exits"):
+- L2 EXIT QUALITY is genuinely open + 3x corroborated (07-15 TRAIL60 flips 3 anchor days
+  -$674→+$142; today's safe-tape runner left ~$2/contract; bold audit same). Different mechanism
+  from noise-avoidance. Needs the EXIT-MANAGER-REPLAY-HARNESS (forked iter-4) to evaluate, then
+  the now-validated regime-conditioned gate. This is the highest-value honest next lever.
+- The engine's REAL edge (vwap_continuation) is confirmed; the path to $ is compounding validated
+  edges + honest new-edge discovery under regime-conditioning, NOT eliminating noise-losses.
+NON-TERMINAL: loop continues on exits + validated-edge work. "Green every day by tuning gates" is
+the part that's closed.
+
+- **ITERATION 6 COMPLETE (2026-07-17 ~22:25 ET) -- EXIT-MANAGER-REPLAY-HARNESS BUILT.
+  FAITHFULNESS: 6/6 today's real core round trips within tolerance (iteration 2: 0/5; iteration
+  3: 2/5 trivial-only) -- the win iterations 2-3 could NOT get, now achieved by abandoning
+  `simulate_trade_real` and driving the REAL `automation/state/fleet/exit_manager.py
+  plan_exit_actions` decision core tick-by-tick over today's real 1-min OPRA bars.**
+  New: `backtest/lib/exit_manager_walk.py` (the reusable tick engine) +
+  `backtest/tools/exit_manager_replay.py` (today's faithfulness harness) +
+  `backtest/tools/exit_variant_ab.py` (historical exit-quality A/B) +
+  `backtest/tests/test_exit_manager_replay.py` (4/4 guard pins). Output:
+  `analysis/recommendations/exit-manager-replay-2026-07-17.json`,
+  `analysis/recommendations/exit-variant-ab-wider-trail25-2026-07-17.json`. No
+  `params.json`/`aggressive/params.json` touched -- build + study only, per task scope.
+
+  **SECOND ROOT CAUSE FOUND (undocumented until this build): every prior sim-based ribbon_ride
+  study in this codebase, including this goal's own iterations 1-3 AND
+  `elite_bear_level_reject_gate_ab.py`'s "faithful current-production Safe config," was reading
+  the WRONG EXIT NUMBERS, not just a coarser mechanism.** `simulate_trade_real` callers source
+  exit knobs from `automation/state/params.json`'s top-level keys (tp1_premium_pct=0.5,
+  v15_profit_lock_mode="fixed", runner_max_premium_pct=2.5). But `heartbeat_core.py:1471-1477`'s
+  REAL exit_manager registration for ribbon_ride entries (5/6 of today's trades) reads
+  `automation/state/fleet/strategies.py#RIBBON_RIDE.exit.to_dict()` instead: tp1_premium_pct=1.0,
+  profit_lock_mode="trailing" (chandelier, arm +5%/trail 15%), runner_target_pct=99.0 (rides via
+  trail/structure/time-stop, never a fixed target), stop_mode="structure" (chart-level primary,
+  -50% catastrophe cap demoted). `structure_stop_enabled=true` (confirmed both accounts'
+  params.json) resolves 5/6 of today's real entries to STRUCTURE mode -- the mechanism no sim
+  study has ever modeled. This is a DEEPER divergence than the "5-min vs 1-min bar" gap
+  iterations 2-3 diagnosed: not an approximation of the right shape, the WRONG shape entirely.
+
+  **Faithfulness table** (per-trade replay vs live, engine-only P&L, tolerance
+  max($40, 15%|live|)):
+
+  | time | account | symbol | resolved stop_mode | replay P&L | live P&L | delta | faithful |
+  |---|---|---|---|--:|--:|--:|:--:|
+  | 11:06:03 | safe | 744P | structure | -$46.00 | -$37.00 | -$9.00 | YES |
+  | 11:40:04 | safe | 745P | structure | -$102.00 | -$102.00 | $0.00 | YES |
+  | 13:01:03 | safe | 746P | structure | +$246.30 | +$241.00 | +$5.30 | YES |
+  | 13:51:21 | bold | 743P | structure | +$177.40 | +$191.00 | -$13.60 | YES |
+  | 14:03:03 | safe | 745P (bollinger) | premium | +$112.15 | +$105.00 | +$7.15 | YES |
+  | 14:49:03 | safe | 743P | structure | -$63.00 | -$56.00 | -$7.00 | YES |
+  | **TOTAL** | | | | **+$324.85** | **+$342.00** | **-$17.15 (5.0%)** | **6/6** |
+
+  Both real winners now correctly RIDE via the trailing chandelier (exit stage "trail" /
+  "runner_stop", not a breakeven zero) -- exactly the mechanism iterations 2-3 proved
+  `simulate_trade_real` cannot reproduce (it breakeven-zeroed the 746P in 2 minutes; this
+  harness rides it to +$246.30 vs live's real +$241.00).
+
+  **POINT-SAMPLE FIDELITY FIX (found + tested this build, one hypothesis -> one change -> one
+  test):** first pass used bar high/low as best/worst premium per tick (the established
+  simulator_real.py 5-min convention) and scored 5/6 -- the 14:03 bollinger trade falsely
+  premium-stopped at $0.92 (a genuine but fleeting intra-minute low inside the 14:04 bar, which
+  closed at $1.20). Traced `fleet_broker.get_option_quote_hilo` (the REAL live tick's data
+  source): it returns a SINGLE NBBO snapshot (ask, bid) at the instant the heartbeat fires, not
+  a range swept over the following 60 seconds -- bar-extremes over-trigger at 1-min cadence in a
+  way they don't at the established 5-min cadence. Switched to bar OPEN as the point-sample
+  proxy for both best/worst; re-ran once; 6/6. Documented in `exit_manager_walk.py`'s docstring,
+  not silently changed.
+
+  **fable-too-good hunt on the 6/6 result:** deltas span -$13.60 to +$7.15 (no exact zeros, no
+  single dominant trade), the fix that produced it was independently motivated (found
+  `get_option_quote_hilo`'s real implementation BEFORE testing, not reverse-fit to hit a target),
+  and the mechanism explanation (chandelier trail governs both winners, structure-stop governs
+  3/4 losers) is coherent with the FRAME AUDIT's prior diagnosis, not a new coincidence.
+  Suspicion-adjusted verdict: real, not an artifact.
+
+  **STEP 3 -- exit-quality A/B under regime-conditioned validation.** Population check FIRST:
+  queried `journal/trades.csv` for non-manual core round trips since STOP-B (structure-stop)
+  shipped 2026-07-09 -- **only 6 exist, and they are ALL today.** STOP-B is brand-new; there is
+  no historical population of trades that ran under the CURRENT exit shape to A/B against. Given
+  that constraint, built `exit_variant_ab.py`: reuses `lib.orchestrator.run_backtest`'s
+  ENTRY-detection layer (SAFE_BASE config, `elite_bear_level_reject_gate_ab.py`'s own reviewed
+  dict, entries only -- every TradeFill's OWN exit fields are discarded) across IS 2025 + OOS
+  2026-YTD (188 ribbon_ride entries), then re-derives EACH entry's exit independently via
+  `exit_manager_walk` under two shapes on real 5-min OPRA bars, with a REAL per-day 5-min SPY
+  series feeding `last_closed_5m_close` (structure_stop can actually fire -- unlike
+  `hold_posture_ab_study.py`/EDGE-3, whose own disclosure list admits "structure_stop/ribbon-flip
+  collapse to the -50% catastrophe cap"). CONTROL = the real `RIBBON_RIDE.exit.to_dict()` shape
+  (trail 15%/arm 5%). CANDIDATE = `WIDER_TRAIL_25` (trail_pct 0.15->0.25, everything else
+  identical) -- chosen because TODAY's own faithful replay showed BOTH real winners exiting via
+  the "trail" stage (the chandelier floor is the empirically OBSERVED binding constraint), and
+  it is the TRAIL60-REOPEN-WATCH family's underlying mechanism (`queue.md`), now testable under
+  correct structure-stop machinery instead of the premium-only approximation that produced the
+  earlier inconclusive EDGE-3 result. Disclosed, bounded limitations: ribbon_flip_back OFF for
+  this population (never fired even once in today's real 6-trade primary population; replicating
+  an 18-month ribbon series was out of this iteration's budget), TRENDLINE-tier entries (no
+  static level) fall back to the shape's own -20% premium floor rather than live's heuristic
+  nearest-key-level lookup (historical key-levels.json snapshots don't exist).
+
+  **RESULT: clean NO-SHIP.** `regime_conditioned_validator.validate_candidate` (the iteration-5
+  EARNED_RIGHTS methodology, same bar that killed L1/bold-strike/fleet-strike/zone-band/pong) --
+  target bucket MID_uptrend (n=115, 61% concentration, not degenerate per the tautology check):
+  regime-IS delta_mean +$1.51/tr (n=57) -> regime-OOS delta_mean **-$5.05/tr (n=58)**, WF=-3.34,
+  sub-window UNSTABLE both sides, BH-FDR p=0.855 (not significant), concentration check FAILS
+  (drop-top-3 leaves -$7.49/tr, still negative). **0/5 gates pass, ladder=FAIL** (not even
+  INSUFFICIENT_REGIME_SHIFT -- this is a clean, decisive negative on both sides of the split, not
+  a regime-newness artifact). Full-population total: control +$5,547.70 vs candidate +$4,734.40
+  across 188 trades, **delta -$813.30**. A wider trail gives back more on the far more numerous
+  ordinary-runner trades than it gains on rare mega-runners.
+
+  **Today confirmation (secondary, descriptive only -- not the ratification basis):** re-ran
+  today's 6 real entries under WIDER_TRAIL_25. Net **+$17.15** on today specifically (13:01 746P
+  captured $38.70 MORE by riding the wider floor further: +$285.00 vs control's +$246.30) but
+  that gain is partly offset by TWO other real winners doing WORSE (13:51 bold -$16.40, 14:03
+  bollinger -$5.15 -- the wider floor also ratchets up slower, giving back more before locking
+  in on trades that peak earlier). This is the textbook wider-trail tradeoff and is fully
+  consistent with, not contradictory to, the population-level NO-SHIP: one trend day's marginal
+  improvement does not survive population-level testing, exactly what regime-conditioning exists
+  to catch.
+
+  **SHIP DECISION: NO-SHIP.** `automation/state/params.json` / `aggressive/params.json` NOT
+  touched. Exits stay SS-B (trail 15%, arm 5%, structure-stop primary). Per the task's own
+  standing instruction ("do NOT lower the bar to force it") -- this candidate fails on population
+  data, not on thin evidence (n=188 clears the evidence_n>=15 advisory bar by 12x), so there is
+  no reopen condition to set (unlike TRAIL_ONLY_60's own n<50-fills reopen watch, which stays
+  unmet at n=6).
+
+  **VERDICT: exits stay SS-B.** The genuinely new, load-bearing result this iteration produced
+  is NOT the exit-variant kill -- it is the harness itself: for the first time, this goal can
+  replay a real trading day through the ACTUAL exit_manager code and get numbers close enough to
+  trust (6/6, $17 off $342 = 5%). That harness is now available for the NEXT exit-quality
+  candidate (e.g. a narrower trail, an earlier arm threshold, or a hybrid arm-scope test) without
+  rebuilding anything -- `exit_manager_walk.walk_exit_manager` takes any `exit_shape` dict.
