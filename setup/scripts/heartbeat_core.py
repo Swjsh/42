@@ -1314,7 +1314,13 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     setup_name = verdict.get("setup_name") or (
         "BEARISH_REJECTION_RIDE_THE_RIBBON" if side == "P" else "BULLISH_RECLAIM_RIDE_THE_RIBBON")
     # strike + contract + premium
-    strike = ss.pick_strike(spy, equity, side, ss.V15_BOLD_TIERS if account == "bold" else ss.V15_SAFE_TIERS) \
+    # BOLD CORE ATM WIRE (2026-07-18, J explicit "Yes -- wire Bold to ATM" in-chat):
+    # bold branch repointed from V15_BOLD_TIERS to V15_BOLD_CORE_TIERS ($0-2K tier only:
+    # OTM-3 -> ATM). V15_BOLD_TIERS itself is untouched -- fleet_executor.py's safe-3/
+    # risky-1/risky-3 arms still resolve the original OTM-3 table directly. See
+    # crypto/lib/strike_selection.py's V15_BOLD_CORE_TIERS docstring for full evidence
+    # + revert instructions.
+    strike = ss.pick_strike(spy, equity, side, ss.V15_BOLD_CORE_TIERS if account == "bold" else ss.V15_SAFE_TIERS) \
         if ss else (int(round(spy)) + (2 if side == "P" else -2))
     # FIX4/WP-5 + trade-to-learn (2026-07-01): per-setup strike override — each armed extra
     # setup is VALIDATED at a specific strike tier (e.g. vwap_continuation ATM on Safe /

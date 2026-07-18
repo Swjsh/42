@@ -304,7 +304,11 @@ def resolve_symbol(intent: dict, spy_price: float, equity: float) -> str:
     """ATM/OTM strike via the SAME V15 tier ladder + pick_strike the live
     engine trades (crypto/lib/strike_selection.py) -- never a hand-picked
     strike. Expiry = today (0DTE, per CLAUDE.md 'The strategy')."""
-    tiers = ss.V15_BOLD_TIERS if intent["account"] == "bold" else ss.V15_SAFE_TIERS
+    # BOLD CORE ATM WIRE (2026-07-18, J explicit "Yes -- wire Bold to ATM" in-chat):
+    # bold branch repointed to V15_BOLD_CORE_TIERS so J-called conditional trades on
+    # the bold account share the same $0-2K ATM tier as the heartbeat path (was a
+    # documented divergence risk -- see crypto/lib/strike_selection.py docstring).
+    tiers = ss.V15_BOLD_CORE_TIERS if intent["account"] == "bold" else ss.V15_SAFE_TIERS
     strike = ss.pick_strike(spy_price, equity, intent["side"], tiers)
     expiry_yymmdd = et_now().strftime("%y%m%d")
     return spx.occ_symbol(intent["side"], strike, expiry_yymmdd, underlying="SPY")

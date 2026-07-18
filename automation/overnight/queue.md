@@ -762,6 +762,10 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 
 ## HARVESTED-FROM-GYM (auto-queued by crypto/benchmarks/gym_harvester.py)
 
+- [ ] HARVEST-REGIMEEXT-20260718-100042 (LOW) :: v09_regime TREND_DOWN dominant: 60/80 bars (75%) | last_regime=TREND_UP atr_14=73 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T10:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260718-100043 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=118 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T19:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260718-100044 (LOW) :: v09_regime TREND_UP dominant: 58/81 bars (72%) | last_regime=CHOP atr_14=99 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T20:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260718-100045 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=CHOP atr_14=88 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T21:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260717-100038 (LOW) :: v09_regime TREND_DOWN dominant: 57/81 bars (70%) | last_regime=TREND_DOWN atr_14=88 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-16T13:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260717-100039 (LOW) :: v09_regime TREND_DOWN dominant: 57/81 bars (70%) | last_regime=TREND_DOWN atr_14=110 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T02:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260717-100040 (LOW) :: v09_regime TREND_DOWN dominant: 59/81 bars (73%) | last_regime=TREND_DOWN atr_14=104 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T03:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
@@ -773,10 +777,6 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 - [ ] HARVEST-REGIMEEXT-20260717-100046 (LOW) :: v09_regime TREND_DOWN dominant: 60/80 bars (75%) | last_regime=TREND_DOWN atr_14=91 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T06:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-RSIEXTREME-20260717-100047 (MED) :: BTC v03_indicators rsi_14=19.80 (oversold) at last_close=62788.97 bin=2026-07-17T06:10:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-17T06:10:00+00:00:oversold :: depends:none :: status:queued
 - [ ] HARVEST-RSIEXTREME-20260717-100048 (MED) :: BTC v03_indicators rsi_14=18.74 (oversold) at last_close=62725.14 bin=2026-07-17T06:20:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-17T06:20:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260717-100049 (LOW) :: v09_regime TREND_DOWN dominant: 63/81 bars (78%) | last_regime=TREND_DOWN atr_14=85 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T07:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260717-100050 (LOW) :: v09_regime TREND_DOWN dominant: 65/81 bars (80%) | last_regime=TREND_DOWN atr_14=73 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T08:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260717-100051 (LOW) :: v09_regime TREND_DOWN dominant: 63/81 bars (78%) | last_regime=TREND_UP atr_14=80 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T09:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-SWEEP-20260717-100052 (MED) :: v14_sweep liquidity-grab at level=64000 dir=down bar_idx=6 | wick_excess=0.0285% close_back=0.0800% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-07-17T09:57:01.661666+00:00:64000:down:6 :: depends:none :: status:queued
 
 ### T-GYM-20260619 HIGH gym-session RED for 2026-06-19
 
@@ -1290,3 +1290,29 @@ cost is the confluence-tolerance interaction in item 5 above, not compute.
      for shipping rests on whether repeated live crossings actually happen, which needs more sessions
      of evidence than today's single data point.
   Evidence: `analysis/daily-brief/2026-07-17-bold-tape-audit.md` §4. :: depends:none :: status:proposed
+
+  **UPDATE 2026-07-18 (BOLD-CORE-ATM-WIRE ship):** the boundary this item concerns has moved. Core
+  Bold's $0-2K tier is now ATM (`crypto/lib/strike_selection.py#V15_BOLD_CORE_TIERS`, wired into both
+  `heartbeat_core.py` and `j_intent_executor.py`'s bold branches), so the first crossing Bold will hit
+  climbing from $2K is now ATM -> OTM-2, not OTM-3 -> OTM-2 -- one tier-step milder (offset delta 2 vs
+  3). The flap mechanism and this spec's open questions (1-3 above) are unchanged; only the specific
+  strike-offset jump at the boundary shrinks. Re-check this item's evidence against the new boundary
+  once Bold has crossed $2K again under the ATM tier.
+
+## BOLD-CORE-ATM-WIRE-FALSIFICATION-RAIL (HIGH, filed 2026-07-18, from BOLD-CORE-ATM-WIRE ship)
+
+- [ ] BOLD-CORE-ATM-WIRE-FALSIFICATION-RAIL :: core Bold's $0-2K strike tier shipped OTM-3 -> ATM
+  2026-07-18 (`crypto/lib/strike_selection.py#V15_BOLD_CORE_TIERS`, wired into `heartbeat_core.py` +
+  `j_intent_executor.py`'s bold branches; `STATUS.md` [2026-07-18 ~10:51 ET] entry has full detail) on
+  J's explicit in-chat authorization, as a PARTICIPATION fix (afternoon `min_entry_premium` floor
+  clearance 0.3376 OTM-3 vs 0.9688 ATM) -- NOT a claim that the underlying P&L evidence
+  (`analysis/recommendations/bold-strike-axis-2026-07-15.json`) cleared OP-16's auto-ratify bar; it
+  clears 4/5 gates but FAILS `wf_ge_070` per the still-open WF-GATE-STRUCTURALLY-NULL item above.
+  ACTION: once core Bold accumulates n>=20 live fills under this sub-$2K ATM tier, run a real-fills
+  expectancy check (OOS_positive / WF / sub_window_stable / anchor_no_regression, same battery as any
+  other candidate) against this specific cell. If the result is NEGATIVE, this is NOT a silent
+  re-flip back to OTM-3 -- escalate to Fable judgment (`/think-like-fable`) given the WF-gate-fail
+  provenance already on record, rather than a mechanical Sonnet revert. If POSITIVE, this closes the
+  loop on the WF-gate-structurally-null item's "re-adjudicate once the WF redesign lands" deferral for
+  this specific candidate. Revert available any time regardless (one line each call site, back to
+  `ss.V15_BOLD_TIERS`) if J calls it before n=20. :: depends:none :: status:proposed

@@ -65,6 +65,85 @@ V15_SAFE_TIERS: tuple[StrikeTier, ...] = (
     StrikeTier(25_000.0,   999_999_999.0, +2, "ITM-2"),
 )
 
+# --- V15_BOLD_CORE_TIERS -----------------------------------------------------------
+# Core-Bold-ONLY candidate tier table. Identical to V15_BOLD_TIERS except the $0-$2K
+# tier is ATM (strike_offset=0) instead of OTM-3. Source: the frozen strike-axis A/B,
+# analysis/recommendations/bold-strike-axis-2026-07-15.json -- OTM-3 at this tier shows
+# a structural floor-collision (afternoon premium-floor clearance 0.3376, i.e. ~66% of
+# afternoon signals never clear min_entry_premium and are silently skipped) and
+# -$14.37/tr OOS; ATM clears floor at 0.9688 afternoon / 0.9795 overall and is
+# +$28.77/tr OOS, beats control, BH-FDR survivor, sub_window_stable, anchor
+# no-regression (4 of 5 gates). See that file's near_miss_diagnostic for the full
+# writeup, INCLUDING why it is NOT auto-shipped (next paragraph).
+#
+# WHY A NEW TABLE INSTEAD OF EDITING V15_BOLD_TIERS IN PLACE:
+# V15_BOLD_TIERS is a SHARED surface with consumers beyond core Bold's heartbeat path.
+# A direct edit to its $0-2K tier would silently change:
+#   1. automation/state/fleet/fleet_executor.py:158 (_tiers_for_arm) -- any fleet arm
+#      whose strike_tier_table resolves to "bold" reads V15_BOLD_TIERS directly. Per
+#      automation/state/fleet/accounts.json (grid.sizing_profiles.safe / arm safe-3's
+#      params_patch.strike_tier_table="bold"), safe-3 DELIBERATELY routes through this
+#      table to get cheap OTM pricing at $2K equity ("OTM strikes... ATM doesn't place
+#      this small"). risky-1 and risky-3 also resolve here via the id-prefix default
+#      (_tiers_for_arm's fallback: "bold" for any non-"safe"-prefixed arm id).
+#   2. setup/scripts/j_intent_executor.py:307 (resolve_symbol) -- the deterministic
+#      executor for J-called conditional trades on the bold account ALSO reads
+#      V15_BOLD_TIERS directly for account=="bold". This is a SECOND consumer not
+#      identified by the original naive-fix investigation that led to this table's
+#      creation; found independently via a full-repo grep before this table was added.
+#      Flagged here so any future wiring decision considers it explicitly instead of
+#      leaving J's manual conditional-trade path silently diverged from the heartbeat
+#      path's strike tier.
+# This table lets core Bold's heartbeat_core.py call site repoint to the new ATM
+# behavior WITHOUT touching either consumer above. V15_BOLD_TIERS itself is
+# byte-identical / untouched by this table's existence.
+#
+# STATUS UPDATE 2026-07-18: WIRED. Both live call sites (heartbeat_core.py's bold
+# branch, j_intent_executor.py's bold branch) now read V15_BOLD_CORE_TIERS for
+# account=="bold" / intent["account"]=="bold". Authorized by J's explicit in-chat
+# "Yes -- wire Bold to ATM" (2026-07-17 night), which supersedes the WF-gate-pending
+# hold below -- this was a PARTICIPATION fix (OTM-3 = 34% afternoon floor-clearance vs
+# ATM's 97%), not a claim that the P&L evidence cleared all 5 auto-ratify gates; that
+# regime-parked evidence is unchanged and still honestly disclosed as such. Revert =
+# repoint both call sites back to V15_BOLD_TIERS (one line each). Falsification rail:
+# first n>=20 live Bold fills under this tier get an expectancy check
+# (automation/overnight/queue.md).
+#
+# STATUS AS OF 2026-07-15 evening (historical, pre-wiring): NOT WIRED into
+# heartbeat_core.py, deliberately. This table exists and is guard-tested
+# (backtest/tests/test_bold_core_strike_tier_2026_07_15.py) but the live call site
+# (setup/scripts/heartbeat_core.py, the
+# `ss.V15_BOLD_TIERS if account == "bold" else ss.V15_SAFE_TIERS` line) still points at
+# V15_BOLD_TIERS. Two primary-source documents explicitly say this candidate is NOT
+# yet ready to auto-ship:
+#   - bold-strike-axis-2026-07-15.json's own near_miss_diagnostic.watch_tier_candidate
+#     verdict_label: "WATCH -- NOT ship-ready (fails the pre-registered 5-gate bar,
+#     specifically wf_ge_070)... near-miss worth a human/Fable look, not a same-night
+#     or same-morning auto-ship." Its conditional_one_line_diff_if_a_future_decision_
+#     waives_or_redefines_the_wf_gate section explicitly logs this exact diff as
+#     "not_applied" / "NOT edited in this session."
+#   - automation/overnight/queue.md's "WF-GATE-STRUCTURALLY-NULL" entry, filed the SAME
+#     evening (2026-07-15), independently says: "until then every battery/scorecard
+#     must disclose WF-null and rest on the remaining gates. Do NOT silently drop the
+#     gate." and lists this exact candidate ("ATM cell for BOLD") as "re-adjudicate
+#     once the WF redesign lands" -- i.e. a deliberate future decision, not a same-
+#     session wire-up.
+# Per this project's own OP-16 ("J is NOT a ratification gate... Auto-ratify requires
+# OOS_positive AND WF >= 0.70 AND sub_window_stable AND anchor_no_regression") and
+# OP-32 (gate-provenance / gate-redefinition questions route to P2/Opus judgment, not
+# mechanical Sonnet execution), wiring this table into the live path requires that
+# separate WF-gate re-adjudication to land first, not a same-evening flip on the
+# strength of the near-miss argument alone. Revert-to-live-wire is a one-line change
+# once that lands: point heartbeat_core.py's bold branch at V15_BOLD_CORE_TIERS instead
+# of V15_BOLD_TIERS (and, per the second consumer above, decide then whether
+# j_intent_executor.py's bold branch should move too).
+V15_BOLD_CORE_TIERS: tuple[StrikeTier, ...] = (
+    StrikeTier(0.0,        2_000.0,     0, "ATM"),
+    StrikeTier(2_000.0,    10_000.0,    -2, "OTM-2"),
+    StrikeTier(10_000.0,   25_000.0,    -1, "OTM-1"),
+    StrikeTier(25_000.0,   999_999_999.0, +2, "ITM-2"),
+)
+
 
 def atm_strike(spot: float) -> int:
     """ATM strike = round(spot) to nearest dollar (matches simulator)."""
