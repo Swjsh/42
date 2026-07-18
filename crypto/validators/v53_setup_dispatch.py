@@ -62,6 +62,14 @@ _KNOWN_SETUP_NAMES = {
     "vix_regime_dayside",
     "double_bottom_base_quiet",  # wired 2026-07-01 (commit 4e71618)
     "bollinger_squeeze",  # wired 2026-07-02 (commit 004e7ea, WIRE-BOLLINGER)
+    "level_break_first_strike",  # wired SHADOW-LOGGED 2026-07-15 (setup_dispatch.py
+    # dispatchers list) -- this allowlist was never updated at wiring time, which
+    # made v53_setup_dispatch.live FAIL every single fire since (120 consecutive
+    # cron failures, ~60h, discovered 2026-07-18 via drift_report.json overall_health
+    # RED). names_ok requires every live setup_name to be a KNOWN one; the dispatcher
+    # registry and this allowlist must be updated together -- see L (new) in
+    # LESSONS-LEARNED.md and test_setup_dispatch_names_registry_sync in
+    # backtest/tests/test_graduated_guards.py for the guard that now catches this class.
 }
 
 

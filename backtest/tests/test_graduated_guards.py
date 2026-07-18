@@ -3828,3 +3828,78 @@ def test_level_memory_live_merge_key_present_and_boolean() -> None:
         f"_memory_merge_enabled() calls bool() on it, so a stray string/number "
         f"would silently coerce rather than fail loudly."
     )
+
+
+def test_setup_dispatch_names_registry_sync() -> None:
+    """SETUP-DISPATCH-REGISTRY-SYNC-GUARD (2026-07-18, weekend conductor fire):
+    every setup_name in SetupDispatcher.run()'s `dispatchers` list must also
+    appear in v53_setup_dispatch.py's `_KNOWN_SETUP_NAMES` allowlist.
+
+    Root cause of the incident this guards: 'level_break_first_strike' was
+    wired into setup_dispatch.py's dispatcher registry on 2026-07-15
+    (SHADOW-LOGGED, detect+log every tick) but _KNOWN_SETUP_NAMES was never
+    updated to match. v53_setup_dispatch.live's names_ok check then failed on
+    EVERY tick that reached that detector -- 120 consecutive cron fires (~60h,
+    2026-07-15 through 2026-07-18) before drift_report.json's overall_health
+    RED alert surfaced it. This is the C14 dead/orphaned-registry class
+    (L182-style: being-defined must == being-registered == being-checked) --
+    a producer (the dispatcher) gained a new name the consumer (the validator's
+    allowlist) never learned about. This test makes that drift structurally
+    impossible: a name added to one side without the other now fails CI/gym
+    immediately instead of silently red-lining a 24/7 cron for days."""
+    import importlib
+    import sys as _sys
+
+    setup_scripts_dir = str(REPO / "setup" / "scripts")
+    validators_dir = str(REPO / "crypto" / "validators")
+    for p in (str(REPO), setup_scripts_dir, validators_dir):
+        if p not in _sys.path:
+            _sys.path.insert(0, p)
+
+    dispatch_mod = importlib.import_module("setup.scripts.setup_dispatch")
+    validator_mod = importlib.import_module("v53_setup_dispatch")
+
+    # SetupDispatcher.run() builds its `dispatchers` list inline (no module-level
+    # constant to import), so extract the registered names the same way the real
+    # loop does: instantiate with empty params/payload and read the tuple names
+    # off the class via a lightweight re-parse of the method (cheapest robust
+    # option — the loop assigns `dispatchers = [...]` once, near the top of run()).
+    import ast
+    import inspect
+    import textwrap
+
+    src = textwrap.dedent(inspect.getsource(dispatch_mod.SetupDispatcher.run))
+    tree = ast.parse(src)
+    registered_names: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign) and any(
+            isinstance(t, ast.Name) and t.id == "dispatchers" for t in node.targets
+        ):
+            for elt in node.value.elts:  # type: ignore[attr-defined]
+                first = elt.elts[0]  # type: ignore[attr-defined]
+                if isinstance(first, ast.Constant) and isinstance(first.value, str):
+                    registered_names.add(first.value)
+
+    assert registered_names, (
+        "Could not parse any setup names out of SetupDispatcher.run() -- "
+        "the AST-walk extraction broke (method body reshaped?). Fix the "
+        "parser or, if `dispatchers` becomes a module-level constant, import "
+        "it directly instead."
+    )
+
+    known_names = validator_mod._KNOWN_SETUP_NAMES
+    missing_from_validator = registered_names - known_names
+    assert not missing_from_validator, (
+        f"setup_dispatch.py's dispatcher registry has name(s) "
+        f"{sorted(missing_from_validator)} that v53_setup_dispatch.py's "
+        f"_KNOWN_SETUP_NAMES does NOT include -- v53_setup_dispatch.live's "
+        f"names_ok check will FAIL on every tick that reaches this detector. "
+        f"Add the name(s) to _KNOWN_SETUP_NAMES when wiring a new dispatcher entry."
+    )
+    stale_in_validator = known_names - registered_names
+    assert not stale_in_validator, (
+        f"v53_setup_dispatch.py's _KNOWN_SETUP_NAMES has name(s) "
+        f"{sorted(stale_in_validator)} that no longer exist in setup_dispatch.py's "
+        f"dispatcher registry -- likely a detector was renamed/removed without "
+        f"pruning the validator's allowlist. Harmless but stale; clean it up."
+    )
