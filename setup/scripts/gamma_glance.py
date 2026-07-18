@@ -265,6 +265,47 @@ def _probe_arm(now: dt.datetime) -> list[str]:
     return [f"  PROBE: {arm_id} {n}/{cap} entries today, cohorts {cohort_str}"]
 
 
+def _push_status() -> list[str]:
+    """PUSH block (2026-07-18, OP-33e): does J's phone/watch actually get pushed
+    the answer to "is it running/trading", or does he have to keep asking?
+    Root cause found this fire (two-layer, corrected mid-investigation): VAPID
+    keys DO exist (automation/state/.vapid.json, generated 2026-06-21) so
+    sendPush() in push.js/approvals.js/escalate.js is NOT silently disabled --
+    the first hypothesis was wrong and this replaces it. The REAL gap is one
+    layer deeper: automation/state/push-subscriptions.json is `[]` -- ZERO
+    devices have ever subscribed, 27 days after VAPID went live. Per
+    gamma-companion/MOBILE_PWA_DESIGN.md, Android Chrome refuses push/voice
+    over plain http://192.168.x.x -- J needs Tailscale Serve (or another HTTPS
+    front-door) + one "Add to Home Screen" + one notification-permission grant
+    on his phone before a subscription can ever be created. That is a physical
+    device+network step only J can perform; this conductor cannot do it for him.
+
+    This function reads ONLY the subscriber COUNT (len of the array), never
+    prints endpoint/key content -- push-subscriptions.json holds live push
+    endpoint URLs+keys per device, so this stays a pure existence/count check,
+    the same discipline as the VAPID-presence check it replaces."""
+    vapid = STATE / ".vapid.json"
+    subs_path = STATE / "push-subscriptions.json"
+    if not vapid.exists():
+        return [
+            f"  {RED} push: DISABLED -- automation/state/.vapid.json absent, sendPush() is a silent no-op",
+            "        fix (J-only, one time): cd gamma-companion && node tools/gen-vapid.js",
+        ]
+    n_subs = 0
+    try:
+        n_subs = len(json.loads(subs_path.read_text(encoding="utf-8")) or [])
+    except Exception:  # noqa: BLE001
+        pass
+    if n_subs > 0:
+        return [f"  {GREEN} push: VAPID configured, {n_subs} device(s) subscribed -- pushes are live"]
+    return [
+        f"  {RED} push: VAPID configured but 0 devices subscribed -- sendPush() has nowhere to send",
+        "        fix (J-only, one-time device setup, see gamma-companion/MOBILE_PWA_DESIGN.md):",
+        "        1) expose the companion over HTTPS (Tailscale Serve is the documented path)",
+        "        2) open it on your phone, Add to Home Screen, grant notification permission",
+    ]
+
+
 def _arms() -> list[str]:
     """ARMS block: which arms are live=true + flat."""
     fa = _j(STATE / "fleet" / "accounts.json") or {}
@@ -322,7 +363,11 @@ def build() -> str:
     out.append("\nPROBE ARM")
     out.extend(_probe_arm(now))
 
-    # one-line bottom verdict: RED if any RED block
+    out.append("\nPUSH (phone/watch)")
+    out.extend(_push_status())
+
+    # one-line bottom verdict: RED if any RED block (push excluded -- a J-only
+    # one-time setup step, not an engine fault; it never blocks "nothing screaming")
     any_red = RED in (sc_tag, eng_tag, fill_tag, lvl_tag, pm_tag)
     out.append("\n" + "-" * 72)
     out.append(f" OVERALL: {RED + ' attention needed' if any_red else GREEN + ' nothing screaming'}")

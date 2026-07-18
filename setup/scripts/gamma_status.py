@@ -84,6 +84,40 @@ def _structure_stop_glance(fa: dict | None) -> str:
             f"positions open under structure: {n_structure}; last structure exit: {last_s}")
 
 
+def _push_glance() -> list[str]:
+    """PUSH block (2026-07-18, OP-33e): does the companion actually push to J's
+    phone/watch, or does he have to keep asking "is it running"? Two-layer
+    root cause found this fire: VAPID keys DO exist (generated 2026-06-21) so
+    sendPush() is NOT silently disabled at that layer -- but
+    push-subscriptions.json is `[]`, 27 days later. ZERO devices have ever
+    subscribed. Per gamma-companion/MOBILE_PWA_DESIGN.md, Android Chrome
+    refuses push/voice over plain http://192.168.x.x -- J needs an HTTPS
+    front-door (Tailscale Serve is the documented path) + one
+    Add-to-Home-Screen + one notification-permission grant on his phone.
+    Physical device step only J can do; count-only read here, never prints
+    endpoint/key content (push-subscriptions.json holds live push
+    endpoints+keys per device)."""
+    vapid_present = (STATE / ".vapid.json").exists()
+    n_subs = 0
+    try:
+        n_subs = len(json.loads((STATE / "push-subscriptions.json").read_text(encoding="utf-8")) or [])
+    except Exception:  # noqa: BLE001
+        pass
+    if not vapid_present:
+        return [
+            "  [DISABLED] .vapid.json absent -- sendPush() is a silent no-op",
+            "  fix (J-only, one time): cd gamma-companion && node tools/gen-vapid.js",
+        ]
+    if n_subs > 0:
+        return [f"  [OK] VAPID configured, {n_subs} device(s) subscribed -- pushes are live"]
+    return [
+        "  [DISABLED] VAPID configured but 0 devices subscribed -- nowhere to send",
+        "  fix (J-only, one-time device setup, see gamma-companion/MOBILE_PWA_DESIGN.md):",
+        "  1) expose the companion over HTTPS (Tailscale Serve is the documented path)",
+        "  2) open it on your phone, Add to Home Screen, grant notification permission",
+    ]
+
+
 def main() -> int:
     now = et_now()
     hm = now.strftime("%H:%M")
@@ -139,6 +173,10 @@ def main() -> int:
 
     # --- EXIT MODE (SS-B structure-stop, first live day 2026-07-09) ---
     out.append(_structure_stop_glance(fa))
+
+    # --- PUSH (2026-07-18, OP-33e) ---
+    out.append("\n-- PUSH (phone/watch) --")
+    out.extend(_push_glance())
 
     # --- AUTONOMY TASKS (verified by WORK, not exit code) ---
     out.append("\n-- AUTONOMY (verified by actual output, NOT lastResult=0) --")

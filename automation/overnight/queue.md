@@ -1351,3 +1351,37 @@ cost is the confluence-tolerance interaction in item 5 above, not compute.
   loop on the WF-gate-structurally-null item's "re-adjudicate once the WF redesign lands" deferral for
   this specific candidate. Revert available any time regardless (one line each call site, back to
   `ss.V15_BOLD_TIERS`) if J calls it before n=20. :: depends:none :: status:proposed
+
+## J-ONLY-COMPANION-PUSH-ACTIVATION (HIGH, J-action-required, filed 2026-07-18 conductor-weekend)
+
+- [ ] J-ONLY: activate phone/watch push notifications -- this is the ONE remaining step
+  that retires the "is it running / is it trading / whats the status" question J has
+  asked 40+ times over 18 days (`automation/state/j-question-ledger.jsonl`, flagged by
+  `friction_distiller.py`'s `recurring_user_question` class, occ=43, FAST_ESCALATE=2).
+  Root cause (two-layer, both verified this fire): (1) VAPID keys already exist
+  (`automation/state/.vapid.json`, generated 2026-06-21) -- `sendPush()` is NOT disabled
+  at that layer, contrary to the first hypothesis; (2) `automation/state/push-subscriptions.json`
+  is `[]` -- ZERO devices have EVER subscribed, because Android Chrome refuses
+  push/voice permission grants over plain `http://192.168.x.x`
+  (`gamma-companion/MOBILE_PWA_DESIGN.md`, written 2026-06-21, never actioned). The
+  fix is two commands + one phone tap, all on J's own device/network, which is why
+  this is filed here rather than auto-applied:
+  1. `tailscale serve https://gamma.tailnet:443 http://localhost:4317` (or your chosen
+     Tailscale MagicDNS name) -- gives the companion an HTTPS front-door Android trusts.
+  2. On your Android phone (same tailnet): open `https://gamma.tailnet/`, Chrome menu ->
+     "Add to Home Screen", open the installed app once, grant the notification
+     permission prompt. That single grant creates the FIRST row in
+     `push-subscriptions.json` and `sendPush()` (already wired into
+     `approvals.js`/`escalate.js`/`server.js`) starts actually reaching your phone+watch.
+  3. Repeat step 2 on the Samsung Watch's browser if it has one, or rely on Android's
+     cross-device notification mirroring (watch usually inherits phone push automatically).
+  **Verification once done:** `backtest/.venv/Scripts/python.exe setup/scripts/gamma_status.py`
+  -> the `-- PUSH (phone/watch) --` line should read `[OK] VAPID configured, N device(s)
+  subscribed -- pushes are live`. Until then it will keep (correctly) reporting DISABLED --
+  that is not a bug, it is the honest current state.
+  **Not done autonomously, and won't be:** `gamma-companion/lib/guard.js` DENY_WRITEs
+  `.vapid.json`/`push-subscriptions.json`/`.approve-hmac.key` for any automated Claude by
+  design (defense in depth against prompt injection exfiltrating push secrets), and the
+  Tailscale/phone steps require your physical device + your Tailscale account regardless.
+  Evidence + full diagnostic: `strategy/candidates/_lesson-inbox/2026-07-18-visibility-tool-built-but-inert.md`,
+  `backtest/tests/test_push_visibility_guard.py` (6/6, RED-proofed). :: depends:none :: status:proposed
