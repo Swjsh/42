@@ -311,6 +311,27 @@
       "http_status": 403,
       "purpose": "ppi_release release dates -- direct verification attempt",
       "fallback": "Used static verified table (KNOWN_EVENTS_2026 in macro_calendar.py, source-cited, confirmed via web search) -- matches this file's own established fallback pattern from 2026-05-14."
+    },
+    {
+      "fetched_at": "2026-07-18T16:12:40.992321",
+      "url": "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "http_status": 403,
+      "purpose": "nfp_release release dates -- direct verification attempt",
+      "fallback": "Used static verified table (KNOWN_EVENTS_2026 in macro_calendar.py, source-cited, confirmed via web search) -- matches this file's own established fallback pattern from 2026-05-14."
+    },
+    {
+      "fetched_at": "2026-07-18T16:12:40.992321",
+      "url": "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "http_status": 403,
+      "purpose": "cpi_release release dates -- direct verification attempt",
+      "fallback": "Used static verified table (KNOWN_EVENTS_2026 in macro_calendar.py, source-cited, confirmed via web search) -- matches this file's own established fallback pattern from 2026-05-14."
+    },
+    {
+      "fetched_at": "2026-07-18T16:12:40.992321",
+      "url": "https://www.bls.gov/schedule/news_release/ppi.htm",
+      "http_status": 403,
+      "purpose": "ppi_release release dates -- direct verification attempt",
+      "fallback": "Used static verified table (KNOWN_EVENTS_2026 in macro_calendar.py, source-cited, confirmed via web search) -- matches this file's own established fallback pattern from 2026-05-14."
     }
   ],
   "refresh_log": [
@@ -516,6 +537,40 @@
       "fetched_count": 8,
       "added_count": 0,
       "skipped_existing_count": 7,
+      "pruned_count": 0,
+      "data_quality": "live_verified",
+      "live_status": {
+        "fomc": {
+          "http_status": 200,
+          "content_match": false
+        },
+        "bea_pce_gdp": {
+          "http_status": 200,
+          "content_match": true
+        },
+        "fed_speeches": {
+          "http_status": 200,
+          "content_match": true
+        },
+        "bls_nfp_release": {
+          "http_status": 403
+        },
+        "bls_cpi_release": {
+          "http_status": 403
+        },
+        "bls_ppi_release": {
+          "http_status": 403
+        }
+      },
+      "warnings": [],
+      "coverage_thru": "2026-09-16"
+    },
+    {
+      "ran_at": "2026-07-18T16:12:40.992321",
+      "source": "setup/scripts/macro_calendar.py",
+      "fetched_count": 8,
+      "added_count": 0,
+      "skipped_existing_count": 5,
       "pruned_count": 0,
       "data_quality": "live_verified",
       "live_status": {

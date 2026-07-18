@@ -3919,3 +3919,77 @@ def test_setup_dispatch_names_registry_sync() -> None:
         f"DISPATCH_ROSTER entries with an empty flag_key: {sorted(empty_flag_names)} "
         "-- these detectors can never be enabled via params.json."
     )
+
+
+def test_no_monitor_trusts_lasttaskresult_as_authoritative() -> None:
+    """wscript-chain-masks-all-exit-codes guard (2026-07-18 conductor-weekend, graduating
+    the lesson filed 2026-07-09: strategy/candidates/_lesson-inbox/
+    2026-07-09-wscript-chain-masks-all-exit-codes.md).
+
+    Root cause (that lesson): the standard hidden-launch chain (wscript.exe ->
+    run_exe_hidden.vbs -> pythonw) calls `Shell.Run cmd, 0, False` -- WaitOnReturn=False
+    means wscript exits 0 the INSTANT it launches the child, before the child does any
+    real work. Task Scheduler records wscript's exit, not the child's -- so
+    `Get-ScheduledTaskInfo`'s LastTaskResult/LastRunResult is STRUCTURALLY INCAPABLE of
+    reflecting whether the actual Python script succeeded, for every task using this
+    pattern (most of the ~60-task registry, confirmed live this fire: Gamma_MacroCalendar
+    showed LastTaskResult=0 + LastRunTime=2026-07-17 05:45 while its own refresh_log's
+    last real entry was 2026-07-15 -- a 2-day silent gap Task Scheduler could never see).
+
+    2026-07-08's flatten-class incident (EodFlatten LastTaskResult=0 while the real log
+    said "exit=1 -- Exceeded USD budget") already proved this live; the fix scope back
+    then was flatten-only + preopen_readiness.py. This guard makes the INVARIANT the
+    lesson asked for repo-wide: no monitor/self-check/gate script may key a health
+    verdict off LastTaskResult/LastRunResult -- it must read the task's OWN output
+    artifact (log tail, refresh_log timestamp, state file, ledger row) instead. A file
+    is EXEMPT if it explicitly documents (in a nearby comment) that the value is
+    untrusted/diagnostic-only -- preopen_readiness.py does this today (reads it only to
+    LOG a cross-check, the real verdict comes from the log-tail parse) and is
+    allow-listed below by name; a NEW consumer must earn the same exemption explicitly,
+    not silently inherit safety by omission."""
+    import re
+
+    monitor_scripts = [
+        REPO / "setup" / "scripts" / "self_check.py",
+        REPO / "setup" / "scripts" / "engine_health.py",
+        REPO / "setup" / "scripts" / "preopen_readiness.py",
+        REPO / "setup" / "scripts" / "gamma_glance.py",
+        REPO / "setup" / "scripts" / "gamma_status.py",
+    ]
+    # preopen_readiness.py is the ONE known, already-audited exception: it reads
+    # LastTaskResult purely as a cross-check LOG line (see its own module docstring +
+    # test_preopen_readiness.py's masking-defeat test) -- the REAL verdict comes from
+    # parsing each task's log-tail. Any occurrence there is fine BY NAME; every other
+    # monitor script must have ZERO occurrences.
+    ALLOW_LISTED = {"preopen_readiness.py"}
+
+    pattern = re.compile(r"LastTaskResult|LastRunResult")
+    violations: dict[str, int] = {}
+    for path in monitor_scripts:
+        if not path.exists() or path.name in ALLOW_LISTED:
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        hits = len(pattern.findall(text))
+        if hits:
+            violations[path.name] = hits
+
+    assert not violations, (
+        f"monitor script(s) reference LastTaskResult/LastRunResult without an explicit "
+        f"allow-list exemption: {violations} -- Task Scheduler's exit code is FAKE for "
+        f"the wscript/vbs hidden-launch chain (WaitOnReturn=False), so a health verdict "
+        f"keyed off it can report GREEN on a silently-dead task. Read the task's own "
+        f"output artifact instead (see preopen_readiness.py's log-tail pattern)."
+    )
+
+    # And prove the one allow-listed file's exemption is EARNED, not vestigial: its own
+    # module-level text must still carry the untrusted/cross-check disclaimer this test
+    # is trusting it for -- if that comment is ever deleted, this test should catch the
+    # exemption silently going stale.
+    preopen_path = REPO / "setup" / "scripts" / "preopen_readiness.py"
+    if preopen_path.exists():
+        preopen_text = preopen_path.read_text(encoding="utf-8", errors="replace")
+        assert "UNTRUSTED" in preopen_text, (
+            "preopen_readiness.py is allow-listed to reference LastTaskResult because it "
+            "explicitly documents the value as UNTRUSTED and cross-checks via log-tail -- "
+            "that disclaimer text is gone, so the exemption is no longer earned."
+        )
