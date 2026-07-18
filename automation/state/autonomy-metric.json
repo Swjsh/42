@@ -1,11 +1,11 @@
 {
-  "computed_at": "2026-07-18T17:59:51+00:00",
+  "computed_at": "2026-07-18T21:58:02+00:00",
   "window": 20,
-  "net_improvement": 21,
-  "total_drained": 21,
+  "net_improvement": 19,
+  "total_drained": 19,
   "total_regressions": 0,
-  "total_cost_usd": 32.75,
-  "cost_per_drained_usd": 1.5595,
+  "total_cost_usd": 43.5,
+  "cost_per_drained_usd": 2.2895,
   "fires_counted": 20,
   "function_score_avg": 21.1,
   "function_latest": {

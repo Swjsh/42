@@ -1,3 +1,21 @@
+## [2026-07-18 ~17:48-17:58 ET] SHIP (REVOKE) -- conductor: EOD-PHASE-2.4 real `analyze_execution` shipped, item narrowed from "9 stub modules" to 1
+
+> **Context (`et_clock.py`: `2026-07-18 17:57:15 Saturday EDT market_hours=False`, AFTERHOURS-mode conductor fire, Task=conductor).** `task_scorer.py --top` ranked `EOD-PHASE-2.2/2.3/2.4` (queue.md Tier 4, MED, weekend-flagged multi-day work). Traced against current reality FIRST (today's own repeated staleness lesson, 5th+ instance): 2.2 (tight fingerprint matching) + 2.3 (hit-rate+expectancy via OPRA fills / `simulator_real`) were ALREADY fully real in `modules/forensics.py` (590 lines, built 2026-06-15) — the item's premise was stale. Of 2.4's claimed "9 stub modules", grepped `main.py`'s analyze block: only 2 were still Phase-1-shallow (`analyze_execution`, `analyze_doctrine`) — the other 9 categories (`detection`/`macro`/`technical`/`watcher_fleet`/`lessons`/`risk`/`process`/`tomorrow`/`engine_health`) were already real. Scoped this fire to the well-defined, bounded slice: real `analyze_execution`.
+
+> **Shipped `backtest/autoresearch/eod_deep/modules/execution.py`** (new, 200 lines): (1) fill-timing-vs-trigger-bar — matches the engine's ENTER_BULL/ENTER_BEAR decision `time_et` to the first entry-fill `time_et`, scores responsiveness (<=60s/180s/300s/slower tiers); (2) partial-fill detection — multi-clip entry fills + spread-seconds, penalizes spread-out partials vs tight ones; (3) slippage (kept Phase-1 thresholds). **Degrades gracefully, never crashes**, when `engine_decisions` can't be matched (J-manual entry, decisions.jsonl gap, or the CSV-fallback ingestion path) — falls back to a neutral-low timing score. Wired into `main.py`'s analyze block, replacing `stubs_mod.analyze_execution`.
+
+> **Verified THIS fire:** 6 new guard tests (`test_eod_deep_execution_phase24.py`) green; run together with the existing `test_eod_deep_detection_phase3.py` → **17/17 PASS**. **Live smoke run** on a real recent day (`python -m autoresearch.eod_deep.main --date 2026-07-17 --rerun`): completed end-to-end, `execution` category now `phase: "2.4"` (was `"1-shallow"`) with real per-trade evidence (22 trades, score 77/100) — and the smoke run happened to hit the exact "no decisions.jsonl match" graceful-degradation path for real (the CSV-fallback ingestion path genuinely has empty `engine_decisions`), confirming the test coverage matches production behavior, not just a synthetic fixture. An unrelated pre-existing bug surfaced in the same run (`missed_setups_scanner.py` tz-aware pandas comparison, `InvalidComparison`) — traced to a completely different module untouched by this change; the orchestrator's own exception handling absorbed it and still produced a complete, correctly-scored output, so not a regression from this fire (not fixed here — out of scope for this bounded task, noted for a future fire if it recurs).
+
+> **Queue item narrowed, not closed** (`automation/overnight/queue.md`): the ONE real remaining item is `analyze_doctrine` (currently only tallies `rule_breaks_today` count — Phase 2 should score per-trade doctrine-compliance dimensions). Scope went from "9 modules, multi-day" to "1 module, one bounded fire" — future fires won't re-investigate the 9 that are already real.
+
+> **Rail-4 (PAPER/engine-benefit — guard test + revert path):** touches only `backtest/autoresearch/eod_deep/` (analysis/journaling code, never order placement) + `backtest/tests/` (new guard) + `queue.md`. Zero trading-path files (no `params.json`, `heartbeat_core.py`, `filters.py`, placement/exit code). Revert: single pathspec commit, `git revert <this-commit>`.
+
+> **Learn-loop:** no new lesson-inbox item filed — this is the same "queue item description stale relative to superseded/partially-superseded reality" class already covered by today's `2026-07-18-stale-queue-item-outranked-real-work.md` (5th+ corroborating instance today: POSITION-MONITOR-1MIN, RANGE-SCALP, SCHEDULED-OOS-CHECK, V53-GYM-RED, now EOD-PHASE-2). Per OP-22 anti-bloat, compounding into the existing note rather than filing a duplicate.
+
+> **Cost: ~$3.10** (investigation trace across 2 modules + 1 orchestrator file, 1 new 200-line module, 1 new 6-test guard file, 2 test runs incl. a 17-test background suite, 1 live smoke run against real 2026-07-17 data, 1 queue.md narrowing edit, no LLM in the hot path, no orders, no trading-path files touched). **Files:** `backtest/autoresearch/eod_deep/modules/execution.py`, `backtest/autoresearch/eod_deep/main.py`, `backtest/tests/test_eod_deep_execution_phase24.py`, `automation/overnight/queue.md`.
+
+---
+
 ## [2026-07-18 ~16:00-16:35 ET] SHIP (REVOKE) -- conductor-weekend: independently converged on F7 (already shipped by a parallel fire, verified not re-done) + graduated the wscript-exit-code-masking lesson to a repo-wide guard + self-healed a live MACRO-CALENDAR RED
 
 > **Context (`et_clock.py`: `2026-07-18 16:00:03 Saturday EDT market_hours=False`, Task=conductor-weekend).** STAGE 0 engine-health = GREEN. `task_scorer.py --top` ranked `SINGLE-STRATEGY-REGISTRY-DESIGN` #1, but `git status` showed a PARALLEL fire mid-flight on exactly those 5 files (uncommitted diff matching that item) — per rail-3 (never clobber another session's work), did not touch it; investigated instead and confirmed it later landed clean as commit `0945136`. Picked the next non-colliding HIGH item: `F7-EXIT-SELL-ALL-REFIRE`.
@@ -186,90 +204,5 @@
 
 ---
 
-## [2026-07-18 ~10:51 ET] SHIP -- BOLD CORE STRIKE FLIP: $0-2K tier OTM-3 -> ATM, both live call sites wired, J-authorized
 
-> **Context (`et_clock.py`: `2026-07-18 10:51:09 Saturday EDT market_hours=False`, weekend grind window).** Executes the prepared-but-parked 2026-07-15 candidate: `crypto/lib/strike_selection.py#V15_BOLD_CORE_TIERS` (additive table, identical to `V15_BOLD_TIERS` above $2K) is now WIRED into both live consumers of core-Bold's strike tier -- `setup/scripts/heartbeat_core.py`'s bold branch and `setup/scripts/j_intent_executor.py`'s `resolve_symbol` bold branch, repointed together in one commit so automated and J-called Bold trades never diverge on strike tier. `V15_BOLD_TIERS` itself is byte-unchanged; fleet arms (safe-3/risky-1/risky-3, via `automation/state/fleet/fleet_executor.py`) still resolve OTM-3 under $2K through the shared table, confirmed by `test_fleet_arms_resolve_otm3_under_2k_via_shared_table`.
->
-> **AUTHORIZATION:** J's explicit in-chat "Yes -- wire Bold to ATM" (2026-07-17 ~night), ending the three-day hold this table's docstring had recorded since 2026-07-15 (WF-gate-structurally-null, `automation/overnight/queue.md`'s WF-GATE-STRUCTURALLY-NULL entry). J's direct authorization is a valid alternate path to shipping independent of OP-16's auto-ratify gates -- those gates are NOT claimed cleared here; see framing below.
->
-> **HONEST FRAMING -- this is a PARTICIPATION fix, not a proven P&L edge.** OTM-3 at the $0-2K tier has a structural floor-collision: afternoon `min_entry_premium` clearance rate was only 0.3376 (~66% of afternoon signals silently never clear the floor and get SKIP_GATE'd before risk_gate ever sees them). ATM clears 0.9688 afternoon / 0.9795 overall. The underlying P&L read (`analysis/recommendations/bold-strike-axis-2026-07-15.json`: +$28.77/tr OOS ATM vs -$14.37/tr OOS OTM-3) clears 4 of 5 auto-ratify gates (OOS_positive, BH-FDR survivor, sub_window_stable, anchor_no_regression) but FAILS `wf_ge_070` -- that gate remains unmet and is not silently dropped.
->
-> **Guards:** `backtest/tests/test_bold_core_strike_tier_2026_07_15.py` (10/10 pass -- 2 "not yet repointed" pins flipped to "repointed_to_core_tiers", 1 downstream pin (`test_j_intent_executor_bold_resolves_otm3_under_2k` -> `..._resolves_atm_under_2k`) updated to match the now-intended j_intent_executor behavior, all in this same commit per C14 vary-and-assert). `test_fleet_arm_parity.py`: 15/19 pass, 4 pre-existing FAIL confirmed IDENTICAL against a `git stash` baseline (all `qty clamped ... recency RED` -- a sizing-clamp issue unrelated to strike selection, documented 2026-07-15, zero new failures from this change). `test_directional_gate_battery_ships.py` 22/22 pass. `test_j_intent_executor_replay.py` 23/23 pass. `crypto/validators/v20_strike_selection.py` 12/12 offline pass (T1/T2 OTM-3 pins on `V15_BOLD_TIERS` itself still hold, confirming that table is untouched; T11 Safe ATM pin unaffected).
->
-> **Revert (one line each, instant):** repoint `heartbeat_core.py`'s bold branch and `j_intent_executor.py`'s `resolve_symbol` bold branch back to `ss.V15_BOLD_TIERS`.
->
-> **Falsification rail filed to `queue.md`:** first n>=20 live Bold fills under the sub-$2K ATM tier get an expectancy check; a negative result escalates to Fable judgment, not a silent re-flip.
->
-> **Files:** `crypto/lib/strike_selection.py`, `setup/scripts/heartbeat_core.py`, `setup/scripts/j_intent_executor.py`, `backtest/tests/test_bold_core_strike_tier_2026_07_15.py`, `automation/state/aggressive/params.json` (visibility doc key), `automation/overnight/queue.md` (BOLD-TIER-BOUNDARY-HYSTERESIS note + falsification-rail entry).
-
----
-
-## [2026-07-17 ~22:47 ET] TERMINAL -- GOAL-REPLAY-TODAY-GREEN ITERATION 7 (rigor pass): L1 re-adjudicated under the CORRECT exit shape, does NOT flip to PASS, mechanism inverts (13/16 removed trades were artifact-zeroed, real cohort nets +$2,629), 0/5-ship verdict confirmed, goal loop DONE
-
-> **Context (`et_clock.py`: `2026-07-17 22:47:38 Friday EDT market_hours=False`, after-hours weekend runway).** RIGOR VERIFICATION PASS on iteration 6's finding: every sim-based ribbon_ride study, including `elite_bear_level_reject_gate_ab.py` (L1's source), read exit knobs from `params.json` top-level keys instead of the real `strategies.py#RIBBON_RIDE.exit` shape. Iteration 5's LOAD-BEARING "0/5 flip, recency-overfitting" conclusion was computed on that wrong shape for L1 -- had to be re-checked, not assumed, before declaring the goal terminal.
->
-> **Scope audit first:** code-traced all 5 parked candidates' actual exit engines. Only L1 was genuinely computed via `simulate_trade_real`. The other 4 (bold-strike ATM/fleet-strike-proxy, zone-band, pong) already drive `exit_manager.plan_exit_actions` directly via independently-built parallel harnesses (`structure_stop_study.SS_B_SHAPE` lineage or pong's own paired-delta grid) -- proven materially close to the live shape via a code-level trace of `ExitState.from_entry` (structure-mode `premium_stop_pct` is inert, overridden by `catastrophe_stop_pct` which byte-matches live's -0.50). NOT re-run this iteration, on evidenced grounds, not assumption.
->
-> **L1 rebuilt** (`backtest/tools/regime_readjudication_correctexit.py`, new): same entry population + block predicate as iteration 4/5 (unchanged), only each removed trade's dollar_pnl re-derived via `exit_manager_walk.walk_exit_manager` (iteration 6's harness) under the REAL `strategies.py#RIBBON_RIDE.exit.to_dict()` shape. **Cross-checked 16/16 exact match** against `exit_variant_ab.py`'s independently-computed control_pnl for the same trades (fable-too-good discipline -- rules out a new wiring bug).
->
-> **RESULT -- does NOT flip to PASS, but the mechanism inverts:**
->
-> | | WRONG exit (same n=16) | CORRECT exit (same n=16) |
-> |---|---|---|
-> | verdict | INSUFFICIENT_REGIME_SHIFT | **FAIL (clean, concentration-independent)** |
-> | is_delta_mean / oos_delta_mean | $0.00 / +$58.00 | **-$135.03 / -$40.86** |
-> | removed-cohort total P&L | -$35.20 | **+$2,629.30** |
-> | trades exactly $0.00 | **13/16 (81%)** | 0/16 |
->
-> Under the wrong shape's `profit_lock_mode="fixed"`, 13 of 16 ELITE-bear trades round-tripped through the breakeven floor and were artificially flattened to exactly $0.00 -- the same artifact iteration 3 found on today's tape at 1-min resolution, now confirmed historically at 5-min. Under the correct trailing-chandelier shape, most of those same trades ride to real gains (up to +$705.55) -- **the cohort this lever wanted to BLOCK is actually net-profitable** (+$2,629.30/16, 10W-6L) under the real mechanism, which is WHY blocking it now fails harder (both IS and OOS negative) rather than the original concentration-driven near-miss. Both routes land on NO-SHIP for L1, for materially different reasons.
->
-> **GOAL DISPOSITION: TERMINAL, DONE.** 0/5 candidates ship -- confirmed under the correct exit model for the one affected candidate, evidenced-unaffected for the other 4. Faithful replay harness built+verified (iteration 6, 6/6, 5% delta). Decision-layer levers closed (0/5 across two independent methodology passes). Exit-quality lever closed (WIDER_TRAIL_25 clean FAIL). Today's decision-layer replay faithful (5/5 sniper capture, 12/12 tier parity). "All 6 arms green via generalizable tuning" is NOT achievable OOS-safely -- the honest ceiling the goal's own anti-overfit law anticipated, now proven on two independent axes. No `params.json`/`aggressive/params.json` file touched, this iteration or across the whole goal. No further iteration scheduled under this goal name.
->
-> **Follow-on filed, not actioned:** SIM-EXIT-SHAPE-PARITY-AUDIT (`automation/overnight/queue.md`, spec-only) -- the correct-exit rebuild pattern likely applies to other `simulate_trade_real`-based studies in this codebase (ship-decision-bearing ones first), separate project. The "ELITE-bear cohort is actually profitable" observation is a DIFFERENT, unvalidated hypothesis (not proven by a negative block-delta alone) -- not explored here, filed for future consideration only.
->
-> **Files:** `backtest/tools/regime_readjudication_correctexit.py`, `analysis/recommendations/regime-readjudication-correctexit-2026-07-17.{json,md}`, `automation/overnight/GOAL-REPLAY-TODAY-GREEN.md` ITERATION 7 + GOAL DISPOSITION, `automation/overnight/queue.md` (SIM-EXIT-SHAPE-PARITY-AUDIT filed + Completed entry). **Market-hours discipline:** after-hours (22:47 ET Friday), local-compute-only; push deferred to standing after-hours rule.
-
----
-
-## [2026-07-17] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-02..2026-07-08), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-08). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-526.56); Bold_ATM_1+2=YELLOW ($-262.0)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
-## [2026-07-17 ~22:25 ET] BUILD -- EXIT-MANAGER-REPLAY-HARNESS: 6/6 today's real core trades faithful (was 0/5 iter2, 2/5-trivial iter3) by driving the REAL exit_manager code instead of the sim; second root cause found (sim was reading the WRONG exit shape, not just a coarser one); exit-quality candidate WIDER_TRAIL_25 tested and cleanly NO-SHIP under regime-conditioning
-
-> **Context (`et_clock.py`: `2026-07-17 22:20:38 Friday EDT market_hours=False`, after-hours weekend runway).** GOAL-REPLAY-TODAY-GREEN iteration 6. Prior iterations (2-3) proved `simulate_trade_real` -- the exit engine every real-fills study in this codebase runs -- is KNOWN-DIVERGENT from live's real `exit_manager.py` (the FRAME AUDIT, iteration 3-4). This iteration builds the forked EXIT-MANAGER-REPLAY-HARNESS: drive the ACTUAL production exit code, not the sim approximation.
->
-> **Built:** `backtest/lib/exit_manager_walk.py` (ticks `exit_manager.plan_exit_actions`, the REAL live decision core, over any uniform-cadence bar series) + `backtest/tools/exit_manager_replay.py` (today's faithfulness harness, 1-min real OPRA bars) + `backtest/tools/exit_variant_ab.py` (historical exit-quality A/B, 5-min bars) + `backtest/tests/test_exit_manager_replay.py` (4/4 guard pins). Zero production files touched -- build + study only.
->
-> **RESULT: 6/6 faithful, total delta -$17.15 on +$342.00 live (5.0%).** First time this goal's harness has reproduced live's per-trade exits to tight tolerance. Both real winners (13:01 746P, 13:51 bold 743P) now correctly RIDE via the trailing chandelier instead of breakeven-zeroing in 2 minutes (iteration 3's artifact). Table:
->
-> | time | account | symbol | stop_mode | replay | live | delta |
-> |---|---|---|---|--:|--:|--:|
-> | 11:06 | safe | 744P | structure | -$46.00 | -$37.00 | -$9.00 |
-> | 11:40 | safe | 745P | structure | -$102.00 | -$102.00 | $0.00 |
-> | 13:01 | safe | 746P | structure | +$246.30 | +$241.00 | +$5.30 |
-> | 13:51 | bold | 743P | structure | +$177.40 | +$191.00 | -$13.60 |
-> | 14:03 | safe | 745P (bollinger) | premium | +$112.15 | +$105.00 | +$7.15 |
-> | 14:49 | safe | 743P | structure | -$63.00 | -$56.00 | -$7.00 |
->
-> **SECOND ROOT CAUSE FOUND (new, not previously documented):** every sim-based ribbon_ride study in this codebase -- including `elite_bear_level_reject_gate_ab.py`'s own "faithful current-production Safe config" -- reads exit knobs from `params.json`'s top-level keys, but the REAL exit_manager registration (`heartbeat_core.py:1471-1477`) reads `automation/state/fleet/strategies.py#RIBBON_RIDE.exit.to_dict()` instead: `profit_lock_mode="trailing"` not `"fixed"`, `tp1_premium_pct=1.0` not `0.5`, `stop_mode="structure"` (chart-level primary) not premium. Every prior sim study has been testing the WRONG exit shape, not an approximation of the right one. Filed as RESOLVED in `markdown/planning/FUTURE-IMPROVEMENTS.md` PARITY-GAP-2.
->
-> **Fidelity fix found + tested mid-build:** first pass (bar high/low as best/worst premium, the established 5-min sim convention) scored 5/6 -- a false stop-out on the 14:03 bollinger trade from a fleeting intra-minute low. Traced `fleet_broker.get_option_quote_hilo` (live's real data source): a SINGLE NBBO snapshot per tick, not a range. Switched to bar OPEN as the point-sample proxy; 6/6 on the next run. One hypothesis, one change, one test -- documented in the module, not silently changed.
->
-> **STEP 3 exit-quality A/B, honest constraint found first:** queried real round trips since STOP-B (structure-stop) shipped 2026-07-09 -- only 6 exist, all today. No historical population trades under the current shape exists yet, so `exit_variant_ab.py` re-derives 188 historical ribbon_ride entries' exits (IS 2025 + OOS 2026-YTD, `run_backtest`'s entry layer only) under CONTROL (real SS-B shape) vs CANDIDATE `WIDER_TRAIL_25` (trail 15%->25%, the empirically-observed binding constraint on today's own winners). **Regime-conditioned verdict: clean FAIL, 0/5 gates** (regime-OOS delta -$5.05/tr, WF=-3.34, unstable, BH-FDR p=0.855, fails concentration check). Full-population delta -$813.30 across 188 trades. Today-specific delta is a misleading +$17.15 (one big winner rides further, two others give back more) -- exactly the single-day mirage regime-conditioning exists to catch.
->
-> **SHIP DECISION: NO-SHIP.** `params.json`/`aggressive/params.json` untouched. Exits stay SS-B (trail 15%, arm 5%). The load-bearing win this iteration is the HARNESS, not the candidate -- `exit_manager_walk.walk_exit_manager` now exists for the next exit-quality candidate without rebuilding anything.
->
-> **Files:** `backtest/lib/exit_manager_walk.py`, `backtest/tools/exit_manager_replay.py`, `backtest/tools/exit_variant_ab.py`, `backtest/tests/test_exit_manager_replay.py`, `analysis/recommendations/exit-manager-replay-2026-07-17.json`, `analysis/recommendations/exit-variant-ab-wider-trail25-2026-07-17.json`, `automation/overnight/GOAL-REPLAY-TODAY-GREEN.md` ITERATION 6 entry, `markdown/planning/FUTURE-IMPROVEMENTS.md` PARITY-GAP-2 resolved. **Market-hours discipline:** after-hours (22:20 ET Friday), local-compute-only; push deferred to standing after-hours rule.
-
----
-
-
-### BROKEN: self-check 2026-07-18T16:09:56
-- MACRO-CALENDAR STALE (RED): freshness_stamp 2026-07-15T19:20:11.283104 predates the expected 2026-07-17T07:45:00 ET fire (~68.8h old) -- Gamma_MacroCalendar (07:45 ET weekdays) may have missed its fire or the producer is dead; the engine's no-trade-window coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales event may be blind. Re-run setup/scripts/macro_calendar.py by hand, or check `schtasks /query /tn Gamma_MacroCalendar /v`.
+- [2026-07-18 15:57:02] crypto-harness drift RED :: stage v53_setup_dispatch.live pass rate dropped to 30.77% in last 24h (16/52) :: see crypto/data/scorecards/drift_report.json

@@ -43,6 +43,7 @@ if __name__ == "__main__" and __package__ is None:
     from autoresearch.eod_deep.modules import watcher_fleet as watcher_fleet_mod
     from autoresearch.eod_deep.modules import lessons as lessons_mod
     from autoresearch.eod_deep.modules import detection as detection_mod
+    from autoresearch.eod_deep.modules import execution as execution_mod
     from autoresearch.eod_deep.modules import _stubs as stubs_mod
     from autoresearch.eod_deep import feedback as feedback_mod
     from autoresearch.eod_deep import drift as drift_mod
@@ -66,6 +67,7 @@ else:
     from .modules import watcher_fleet as watcher_fleet_mod
     from .modules import lessons as lessons_mod
     from .modules import detection as detection_mod
+    from .modules import execution as execution_mod
     from .modules import _stubs as stubs_mod
     from .projections import markdown as md_proj
     from .projections import html as html_proj
@@ -397,7 +399,7 @@ def run(date_str: str,
 
     # === STAGE 3: ANALYZE (12 modules) ===
     categories = {
-        "execution":     stubs_mod.analyze_execution(data, trades),
+        "execution":     execution_mod.analyze_execution(data, trades),           # Phase 2.4 REAL
         "detection":     detection_mod.analyze_detection(data, trades),   # Tier B MVP REAL
         "edge":          edge_mod.analyze_edge(data, trades),
         "doctrine":      stubs_mod.analyze_doctrine(data, trades),        # Tier A — partial-real already
