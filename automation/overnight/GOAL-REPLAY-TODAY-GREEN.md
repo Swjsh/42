@@ -146,3 +146,92 @@ terminal state — report it, don't force it.
   limitation and re-scoping the faithfulness check to ENTRY-side-only levers (L1, L6) that don't
   route through the exit walk -- a decision for iteration 3 to make explicitly, not pre-picked
   here.
+- **ITERATION 3 COMPLETE (2026-07-17 ~20:55 ET) -- chose option (i): acquired real 1-minute OPRA
+  option bars + 1-minute SPY bars for exactly today's 7 traded contracts. RESULT, HONEST (not
+  forced): the entry-fill-price mechanism is FIXED; the exit-mechanism mechanism is NOT fixed --
+  1-min resolution revealed a DIFFERENT, MORE SEVERE artifact of the same underlying fragility,
+  not a smaller one. Harness still NOT trustworthy_to_tune_against at the exit-layer dollar
+  level.** Tool: `backtest/tools/fetch_today_1min.py` (new, bounded, 8 REST calls, $0) ->
+  `backtest/data/highres/*_1m_2026-07-17.csv`. `backtest/tools/replay_today_eval.py` extended
+  with `simulate_entry_best()` (1-min primary, 5-min `simulate_entry()` fallback, never triggered
+  this run). Two new backward-compatible optional kwargs added to the SHARED
+  `backtest/lib/simulator_real.simulate_trade_real()` (`entry_fill_delay_minutes`,
+  `opt_df_override`, both default to prior 5-min behavior byte-for-byte) so the 150+ other callers
+  of that function are provably unaffected -- full existing pytest suite re-run clean (223 passed
+  / 1 skipped, zero regressions) before and after. Guard: `backtest/tests/test_replay_today_eval.py`
+  now 24/24 (13 iteration-2 pins unchanged + 11 new iteration-3 pins).
+
+  **1-min data availability: REAL bars, not BS-approx.** All 7 contracts (SPY260717P00741000
+  through P00746000 + C00746000) plus SPY itself returned gapless 1-minute OPRA/stock bars
+  covering the full 390-minute RTH session on the existing Safe-2 paper-key market-data
+  entitlement -- no fallback needed, confirmed via a direct test fetch before building anything.
+
+  | arm | live P&L (engine-only) | replay P&L (5-min, iter 2) | replay P&L (1-min, iter 3) | faithful (1-min)? |
+  |---|--:|--:|--:|:--:|
+  | core_safe | +$151 | -$312.00 | $0.00 | NO (tol $40) |
+  | core_bold | +$191 | +$65.25 | +$99.00 | NO (tol $40) |
+  | fleet_safe_3 | $0 | -$83.25 | $0.00 | YES (trivial) |
+  | fleet_risky_1 | $0 | -$138.75 | $0.00 | YES (trivial) |
+  | fleet_risky_3 | +$248 | -$36.75 | +$4.00 | NO (tol $40) |
+
+  Faithfulness: 2/5 arms (both trivial $0/$0, not a mechanism win) -- same count as would clear
+  by coincidence, not an improvement in kind over iteration 2's 0/5.
+
+  **Entry-fill-price mechanism: FIXED, measured.** All 12 real entries now show entry-price
+  deltas of $0.00-$0.08 vs live's actual fill (was up to $0.23/30% at 5-min resolution,
+  core_safe's 13:01 trendline entry). This closes iteration 2's mechanism (a) cleanly.
+
+  **Exit-mechanism gap: NOT fixed -- REVEALED A WORSE ARTIFACT.** `v15_profit_lock_mode="fixed"`
+  (the real, live-configured value in `automation/state/params.json`) plus a stop-offset that
+  defaults to 0.0 (never wired to a production value) locks the stop floor at EXACTLY breakeven
+  the instant a position ticks +5% favorable, and never moves it again. Checked at 1-min cadence
+  (390 checks/day vs 78 at 5-min) against genuinely volatile real 0DTE intra-minute prints
+  (verified: `SPY260717P00744000`'s opening minute alone ranged $2.13-$3.64 on 237 real
+  trades/1387 contracts -- confirmed via the raw cached bar, not a stale-quote guess), this now
+  fires almost immediately: **all 5 of core_safe's entries exit via `EXIT_ALL_PREMIUM_STOP` at
+  exactly $0.00 P&L in exactly 2 minutes each** (was 3/5 zeroed at 5-min). More discrete checks
+  against real intra-minute noise raised the odds of catching a floor-touch, not lowered them --
+  the uniformity (5/5 identical hold-time, exit reason, and $0 outcome regardless of whether the
+  trade was a real winner or loser live) is itself the fable-too-good tell that this is an
+  artifact, not a fidelity win. Not a bug in this harness or in `simulate_trade_real` (both
+  correctly implement the real, configured "fixed" profit-lock convention) -- filed as an updated
+  finding in `markdown/planning/FUTURE-IMPROVEMENTS.md` PARITY-GAP-2, along with a new, NOT-yet-
+  validated hypothesis (`profit_lock_stop_offset_pct` is a real, currently-unset production knob
+  -- candidate for lever L2, needs its own OOS scorecard before touching).
+
+  **VERDICT: `harness_verdict.trustworthy_to_tune_against = False`, unchanged from iteration 2.**
+  Per the task's own routing (step 6, conditional on faithfulness passing) no dollar-level lever
+  is ratified this iteration. Per the SCOPE REFINEMENT below (pre-authorized before this run),
+  the SIGNAL/DECISION layer -- iteration 2's actual, untouched-by-this-iteration fix -- remains
+  100% capture / 12-of-12 tier match, so entry-side levers (L1/L3/L4/L6) ARE evaluable now,
+  independent of the exit-layer dollar residual. **First-lever recommendation (per task step 6,
+  not acted on this iteration): OOS-validate L1 (static-vs-trendline tier down-weight in bounce
+  phase) next.** It is the single mechanism that cleanly explains BOTH of today's core_safe
+  morning losers (11:06/11:40 ELITE static-level rejections fired mid-bounce) AND the day's best
+  winner (13:01 TRENDLINE-tier entry with a LOWER raw bear_score, 7 vs 10/10, that outperformed
+  anyway) -- the safe-tape audit already named this discriminator but only at n=3 (today only),
+  well short of the OOS bar; L3/L4 are lower-priority (L3's blocked-cohort evidence is n=5, "far
+  below n>=30" per the SCOPE REFINEMENT's own pre-flagged honest ceiling; L4 has no fleet-specific
+  evidence yet, only a confirmed-zero-impact reading for core Bold; L6 was already found "not the
+  binding constraint this morning" by its own audit). Expand L1's sample across recent days + the
+  OP-16 anchor days before any ratification decision -- not done this iteration per the explicit
+  "do not tune" instruction.
+
+## SCOPE REFINEMENT (Fable/Opus judgment, 2026-07-17 ~19:40 ET — after iteration 2)
+Iteration 2 made the SIGNAL+DECISION layer faithful (5/5 sniper captures, 12/12 tier parity) but
+the EXIT layer diverges because only 5-min option bars are cached vs live's 1-min clock. The
+literal "green dollar figure per arm" is therefore NOT trustworthy at current resolution —
+forcing it green would measure a data artifact (anti-overfit law forbids). So the success metric
+splits:
+- **PRIMARY (faithful now):** does the tuned engine CAPTURE the winners (13:01 trendline, 14:03
+  bollinger, 13:51 bold) and SKIP/reduce the losers (11:06/11:40 ELITE static) across all 6 arms?
+  Measured on the faithful decision layer — this is the real "does it see J's edge" question.
+- **SECONDARY (data-gated):** directional P&L sign, exact dollars only trustworthy once 1-min
+  OPRA bars for today's contracts close the exit-walk gap (iteration 3).
+- **Lever routing:** entry-side levers (L1 static-vs-trendline, L3 tight-gate, L4 strike, L6 HTF)
+  are evaluable NOW on the faithful decision layer. Exit lever (L2) waits for 1-min faithfulness.
+- **Likely honest ceiling (flagged, not pre-concluded):** the tight arms (safe-3/risky-1) can only
+  go green-on-today by loosening their gate = L3, which is a 1-for-5/+$148 cohort at n=5 — far
+  below the n>=30 OOS bar. "4 arms green OOS-safe + 2 tight arms need more evidence" may be the
+  honest terminal state; forcing the tight arms green today would be the exact curve-fit the law
+  bans. Let the faithful eval + OOS actually run before concluding.

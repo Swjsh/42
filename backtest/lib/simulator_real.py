@@ -366,6 +366,21 @@ def simulate_trade_real(
     # behavior. "et-v2" = DST-correct true ET — pass it when spy_df was built with
     # build_rth(frame="et-v2"). NEVER mix frames across this call.
     frame: str = DEFAULT_FRAME,
+    # --- GOAL-REPLAY-TODAY-GREEN ITERATION 3 (2026-07-17): 1-MIN EXIT-LAYER FIDELITY ---
+    # simulator_real.py's fill convention was hardcoded to "next 5-min bar's open" (see
+    # module docstring). replay_today_eval.py iteration 2 diagnosed this as the dominant
+    # residual vs live: a fast intrabar move inside the 5-min bar (e.g. core_safe's 13:01
+    # trendline entry, filled live at $0.78 but priced $1.01 by the 5-min-bar-open proxy)
+    # cannot be captured at 5-min resolution. Both new params default to the EXACT prior
+    # behavior (byte-for-byte identical for every existing caller) — only replay_today_
+    # eval.py's iteration-3 1-min call site sets them.
+    entry_fill_delay_minutes: float = 5.0,  # was the bare literal `minutes=5` below.
+    opt_df_override: Optional[pd.DataFrame] = None,  # when supplied, use this DataFrame
+    # instead of load_contract_bars(symbol) — lets a caller feed finer-resolution (e.g.
+    # 1-min) option bars without touching the shared CACHE_DIR / backtest/data/options/
+    # 5-min cache files every OTHER caller of this function relies on (150+ call sites).
+    # Must match load_contract_bars' schema (timestamp_et, open, high, low, close,
+    # volume, vwap, trade_count). Default None = OFF = identical to every existing caller.
 ) -> Optional[TradeFill]:
     """Simulate a bracket trade with real option fills.
 
@@ -402,7 +417,7 @@ def simulate_trade_real(
             strike = atm + strike_offset
     symbol = option_symbol(entry_time.date(), strike, side)
 
-    opt_df = load_contract_bars(symbol)
+    opt_df = opt_df_override if opt_df_override is not None else load_contract_bars(symbol)
     if opt_df is None:
         return None  # not cached — caller decides what to do
 
@@ -414,8 +429,9 @@ def simulate_trade_real(
 
     # Entry: NEXT bar after the trigger bar (no look-ahead).
     # Trigger bar timestamp = bar START. Trigger fires at bar CLOSE.
-    # Earliest realistic fill = first trade of the next 5-min bar.
-    next_bar_start = entry_time + dt.timedelta(minutes=5)
+    # Earliest realistic fill = first trade of the next bar (prod: 5-min; ITER-3 1-min
+    # call sites pass entry_fill_delay_minutes=1.0).
+    next_bar_start = entry_time + dt.timedelta(minutes=entry_fill_delay_minutes)
     entry_bar_opt = bar_at_or_after(opt_df, next_bar_start)
     if entry_bar_opt is None or entry_bar_opt.open <= 0:
         return None

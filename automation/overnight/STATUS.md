@@ -5304,3 +5304,44 @@ Zero params/config/trading-path files touched by either job. No orders placed. Q
 - [2026-07-17 17:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-17T23:27:03.494339+00:00) | fail streak: 87 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
 
 - [2026-07-17 17:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+### DEGRADED: self-check 2026-07-17T19:39:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 11 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,485.31, $0.00 remaining, 5 entries placed today).
+
+- [2026-07-17 17:57:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-17T23:57:03.180124+00:00) | fail streak: 88 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 17:57:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+### DEGRADED: self-check 2026-07-17T20:09:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 11 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,485.31, $0.00 remaining, 5 entries placed today).
+
+- [2026-07-17 18:27:02] crypto-harness drift RED :: latest cron fire FAILED (2026-07-18T00:27:03.618718+00:00) | fail streak: 89 consecutive fires | stage v53_setup_dispatch.live pass rate dropped to 0.0% in last 24h (0/48) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-17 18:27:02] crypto-regression FAIL (exit=1) - see C:\Users\jackw\Desktop\42\automation\state\logs\crypto-regression-2026-07-17.log
+
+### DEGRADED: self-check 2026-07-17T20:39:56
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 6 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 11 ENTER after 15:00 ET: ['15:06 ENTER_BEAR ?', '15:11 ENTER_BEAR ?', '15:12 ENTER_BEAR ?']
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,485.31, $0.00 remaining, 5 entries placed today).
+
+- [2026-07-17 20:44 ET] GOAL-REPLAY-TODAY-GREEN ITERATION 3 (Sonnet, read-only measurement):
+  fetched real 1-min Alpaca OPRA + SPY bars for today's 7 traded contracts (`fetch_today_1min.py`
+  -> `backtest/data/highres/`, gapless 390/390 RTH minutes, no BS-approx needed) and pointed
+  `replay_today_eval.py`'s exit walk at them via 2 new backward-compatible kwargs on the shared
+  `simulate_trade_real()` (defaults preserve prior behavior for all 150+ other callers; full
+  regression suite re-run clean, 223 passed/1 skipped). **Entry-fill-price mechanism FIXED**
+  (deltas now $0.00-$0.08, was up to $0.23/30%). **Exit-mechanism gap NOT fixed** -- finer bars
+  revealed a WORSE version of the same fragility: `v15_profit_lock_mode="fixed"` + zero stop-
+  offset (real params.json values) now zeros ALL 5 core_safe entries at exactly breakeven in
+  exactly 2 minutes each (was 3/5 at 5-min), confirmed against real (not stale) 1-min OPRA noise.
+  Faithfulness still 2/5 (both trivial $0/$0). Harness NOT trustworthy_to_tune_against at the
+  dollar level; SIGNAL/DECISION layer (iteration 2's fix) untouched, still 100%/12-of-12.
+  First-lever recommendation: OOS-validate L1 (static-vs-trendline bounce-phase discriminator)
+  next -- explains both morning losers + the day's best winner, currently n=3 only. Full record:
+  `analysis/recommendations/replay-today-baseline-2026-07-17.json` +
+  `automation/overnight/GOAL-REPLAY-TODAY-GREEN.md` LEDGER + `markdown/planning/FUTURE-IMPROVEMENTS.md`
+  PARITY-GAP-2 (updated). No params/config file touched -- measurement only.

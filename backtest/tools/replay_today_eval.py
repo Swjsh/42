@@ -1,4 +1,4 @@
-"""replay_today_eval.py -- GOAL-REPLAY-TODAY-GREEN ITERATION 2: faithful-signal rebuild.
+"""replay_today_eval.py -- GOAL-REPLAY-TODAY-GREEN ITERATION 3: 1-min exit-layer fidelity.
 
 ITERATION 1 (see analysis/recommendations/replay-today-baseline-2026-07-17.json +
 GOAL-REPLAY-TODAY-GREEN.md LEDGER) built this harness on lib.orchestrator.run_backtest, which
@@ -55,46 +55,66 @@ recorded tick) lands the fill at the very next bar's open, much closer to the tr
 bar as the signal-detection bar (bar START = the bar whose close is the most recent one available
 when live acted). Used uniformly below; see entry_bar_idx_for().
 
-RESULT OF THIS ITERATION (see harness_verdict below for the full, unforced writeup): the SIGNAL
-layer fix is complete -- CAPTURE is now 100% on every in-scope named event (13:01 trendline,
-14:03 bollinger wick via extra_exec, both 11:06/11:40 losers all found; iteration 1 found 1/4) and
-the DECISION layer re-run reproduces live's own recorded tier on 12/12 entries. The EXIT layer,
-however, is NOT yet faithful to tight tolerance on any arm. Root-cause of the residual (quoted
-with real numbers from this run, not asserted) is TWO DISTINCT mechanisms, both rooted in the
-SAME underlying limit -- only 5-MINUTE OPRA/SPY bars are cached for today; live trades on a much
-finer (near-continuous, 1-minute-tick) clock, and 0DTE option premiums move fast enough intrabar
-that 5-minute resolution is provably not fine enough to reproduce live fills/exits here:
+ITERATION 2 RESULT: the SIGNAL layer fix was complete -- CAPTURE 100% on every in-scope named
+event (iteration 1 found 1/4) and DECISION layer 12/12 tier matches. The EXIT layer was NOT
+faithful. Root-cause (quantified, not asserted): only 5-MINUTE OPRA/SPY bars were cached for
+today; live trades on a much finer clock. Two mechanisms named: (a) entry-fill-price approximation
+("next 5-min bar open" missed a fast intrabar move by up to $0.23/30%), (b) exit-mechanism gap in
+both directions (chart-level stop, checked on 5-min bar CLOSE, fires LATER than live's real
+structure-stop; premium/profit-lock stop, checked on 5-min bar LOW, fires EARLIER/WRONGLY once
+profit-lock arms at +5% favorable and the floor jumps to breakeven).
 
-  (a) ENTRY-FILL-PRICE approximation error. simulate_trade_real fills at "the next 5-min bar's
-      open + slippage" (see ENTRY-BAR ALIGNMENT above). On a bar with a fast intrabar move this
-      can be large: core_safe's 13:01 trendline entry filled live at $0.78 (13:01:18 ET); this
-      harness's 13:00 bar-open proxy priced entry at $1.01 -- a $0.23 (30%) miss, because the
-      option premium fell sharply in just the first ~90 seconds of that bar, before a 1-min-tick
-      fill would have captured it. (core_safe's 11:06 entry, by contrast, only missed by $0.07 --
-      the size of this gap is bar-dependent, not a fixed offset.)
-  (b) EXIT-MECHANISM resolution gap, in BOTH directions:
-        - Chart-level stop (simulator_real.py ~717-728) checks 5-MIN BAR CLOSE vs
-          rejection_level +/- level_stop_buffer_dollars (0.50, the real production buffer) --
-          this can fire LATER than live's faster structure-stop reaction (core_safe's 11:06
-          trade: live exited in 5 minutes for -$37 via structure_stop; this harness's walk does
-          not confirm a buffered 5m-close breach until 25 minutes in).
-        - Premium/profit-lock stop (simulator_real.py ~561-605, ~662-669) checks each 5-min BAR'S
-          LOW (the "conservative worst-case touch" convention used throughout this codebase's
-          real-fills path) against the trailing floor -- this can fire EARLIER/WRONGLY vs live's
-          finer view: once profit-lock arms (+5% favorable), the stop floor jumps to breakeven:
-          for 3 of core_safe's 5 entries (13:01, 14:03, 14:49) this harness's 5-min-bar low
-          round-tripped back to exactly that breakeven floor, zeroing out trades that on live's
-          real (finer-resolution) tape ran to substantial winners (+$241, +$105) before ever
-          giving back that much -- a 5-minute bar's LOW is a much stronger "touched the floor"
-          claim than what a continuous or 1-minute tape actually experienced intrabar.
+ITERATION 3 (this file): fetched real Alpaca 1-minute OPRA option bars + 1-minute SPY bars for
+EXACTLY today's 7 traded contracts (backtest/tools/fetch_today_1min.py ->
+backtest/data/highres/*_1m_2026-07-17.csv; all 7 option series + SPY are gapless, 390/390 RTH
+minutes -- real bars, no BS-approx fallback needed) and pointed the exit walk at them via two new
+BACKWARD-COMPATIBLE optional kwargs on lib.simulator_real.simulate_trade_real()
+(`entry_fill_delay_minutes`, `opt_df_override` -- both default to the exact prior 5-min behavior;
+150+ other callers of that shared function are unaffected, confirmed by the full existing pytest
+suite: 223 passed / 1 skipped, zero regressions). simulate_entry_best() tries the 1-min walk first
+and falls back to the original 5-min simulate_entry() only if 1-min data is missing for a given
+contract (never happened this run -- 12/12 entries used the 1-min path).
 
-  This is a genuine DATA-RESOLUTION limit, not a bug in this harness and not fixable by tuning a
-  lever (no lever changes what data is available). Filed as its own investigation item, not
-  patched blindly here: markdown/planning/FUTURE-IMPROVEMENTS.md PARITY-GAP-2 (this run's
-  harness_verdict.exit_layer_gap carries the same diagnosis for the JSON record).
+RESULT, HONEST (not forced): mechanism (a) is FIXED. Entry-fill deltas across all 12 real entries
+are now $0.00-$0.08 (vs up to $0.23/30% before) -- confirmed measured, not asserted. Mechanism (b)
+is NOT fixed -- 1-min resolution REVEALED A DIFFERENT, MORE SEVERE version of the same underlying
+fragility rather than closing it:
 
-Guard: backtest/tests/test_replay_today_eval.py pins determinism + this run's actual faithfulness
-numbers (regression pin, not an assertion that they "should" be different).
+  `v15_profit_lock_mode="fixed"` + the (never-configured, defaults to 0.0) stop-offset means once
+  a position ticks +5% favorable the stop floor locks at EXACTLY breakeven and never moves again.
+  Checked at 1-min cadence (390 checks/day vs 78 at 5-min) against genuinely volatile real 0DTE
+  intra-minute prints (verified: SPY260717P00744000's OPENING MINUTE alone ranged $2.13-$3.64 on
+  237 real trades/1387 contracts -- not a stale-quote artifact), this fires almost immediately:
+  ALL 5 of core_safe's entries now exit via EXIT_ALL_PREMIUM_STOP at exactly $0.00 P&L in exactly
+  2 minutes each (was 3/5 at 5-min resolution) -- a uniformity (5/5 identical hold_minutes, exit
+  reason, and $0 outcome regardless of whether the trade was a real winner or loser live) that is
+  itself the tell: finer bars did not bring the harness closer to live, they made the SAME
+  zero-offset-breakeven fragility trigger MORE reliably, because more discrete checks against
+  real intra-minute noise raises the odds of catching a floor-touch, not lowers them. This is a
+  genuine, disclosed, NOT-lever-tunable-this-iteration finding (touches PARITY-GAP-2, see
+  markdown/planning/FUTURE-IMPROVEMENTS.md) -- the harness is not "trustworthy_to_tune_against" at
+  the exit-layer dollar level. It IS a concrete new hypothesis for lever L2 (trend-day exit
+  tuning): `profit_lock_stop_offset_pct` is a real, currently-unset production knob.
+
+Faithfulness this run: 2/5 arms clear tolerance (fleet_safe_3, fleet_risky_1 -- both trivially
+$0/$0, not a mechanism win). core_safe/core_bold/fleet_risky_3 still fail, now via the breakeven-
+floor artifact above rather than iteration 2's mixed causes. The SIGNAL/DECISION layer (iteration
+2's actual fix) is untouched and still 100%/12-of-12 -- see SCOPE REFINEMENT in GOAL-REPLAY-TODAY-
+GREEN.md: entry-side levers (L1/L3/L4/L6) are evaluable NOW on that faithful decision layer,
+independent of this exit-layer residual.
+
+ENTRY-BAR ALIGNMENT (empirically chosen, not assumed, 5-min path): simulate_trade_real fills at
+"the next 5-min bar's open after the trigger bar" (no-lookahead convention used everywhere else in
+this codebase). Passing the 5-min bar that CONTAINS the recorded live tick as "the trigger bar"
+fills one full bar (~5 min) LATE vs the true live fill instant (tested: core_safe's 11:06 entry --
+containing-bar alignment priced entry at $1.18 vs live's real $1.413 fill, delta $0.23). Passing
+the PRIOR closed bar (the bar whose CLOSE is the most recent data live had as of the recorded
+tick) lands the fill at the very next bar's open, much closer to the true instant. Used uniformly
+(both 5-min and, with a 1-bar-not-5-min interval, the 1-min path); see entry_bar_idx_for() /
+entry_bar_idx_for_1min().
+
+Guard: backtest/tests/test_replay_today_eval.py pins determinism + both iterations' actual
+faithfulness numbers (regression pins, not assertions that they "should" be any particular value).
 
 Run: backtest/.venv/Scripts/python.exe backtest/tools/replay_today_eval.py
 """
@@ -117,6 +137,7 @@ for _p in (REPO, BACKTEST, BACKTEST / "tools"):
 import pandas as pd  # noqa: E402
 
 import sniper_matrix as SM  # noqa: E402 -- reused CSV timestamp normalizer
+from lib.option_pricing_real import option_symbol  # noqa: E402 -- ITER-3 1-min cache lookup
 from lib.ribbon import compute_ribbon  # noqa: E402
 from lib.simulator_real import simulate_trade_real  # noqa: E402
 
@@ -124,6 +145,7 @@ TRADE_DATE = dt.date(2026, 7, 17)
 DATE_STR = "2026-07-17"
 DATA_DIR = BACKTEST / "data"
 SPY_PATH = DATA_DIR / "spy_5m_2026-05-19_2026-07-17.csv"
+HIRES_DIR = DATA_DIR / "highres"  # ITER-3: 1-min SPY + OPRA bars, backtest/tools/fetch_today_1min.py
 CORE_SAFE_PARAMS_PATH = REPO / "automation" / "state" / "params.json"
 CORE_BOLD_PARAMS_PATH = REPO / "automation" / "state" / "aggressive" / "params.json"
 CORE_DECISIONS_PATH = REPO / "automation" / "state" / "core-decisions.jsonl"
@@ -461,6 +483,132 @@ def entry_bar_idx_for(spy_rth: pd.DataFrame, ts_et_str: str) -> int | None:
 
 
 # ---------------------------------------------------------------------------------------------
+# ITERATION 3: 1-MINUTE EXIT-LAYER DATA -- closes the 5-min-bar data-resolution gap iteration 2
+# diagnosed (module docstring). Fetched once via backtest/tools/fetch_today_1min.py: real Alpaca
+# OPRA 1-min bars for exactly today's 7 traded contracts + 1-min SPY bars
+# (backtest/data/highres/). Both spy_df and opt_df must move to 1-min TOGETHER --
+# simulate_trade_real's exit loop walks them in LOCKSTEP by raw positional index (`spy_idx`/
+# `opt_idx` both += 1 per iteration, no per-step timestamp resync), so mismatched granularity
+# between the two would desync the walk. Verified this iteration: every traded contract's 1-min
+# OPRA cache has ZERO gaps across full RTH (390/390 minutes for all 7 symbols; SPY 1-min is also
+# 390/390) -- index-lockstep on two dense, co-aligned 390-row 1-min series is exact here, not an
+# approximation on top of an approximation.
+# ---------------------------------------------------------------------------------------------
+def load_spy_1min_rth() -> pd.DataFrame | None:
+    path = HIRES_DIR / f"SPY_1m_{DATE_STR}.csv"
+    if not path.exists():
+        return None
+    spy = SM.norm_str(pd.read_csv(path))
+    spy["timestamp_et"] = pd.to_datetime(spy["timestamp_et"])
+    rth_mask = (spy["timestamp_et"].dt.time >= dt.time(9, 30)) & (spy["timestamp_et"].dt.time < dt.time(16, 0))
+    return spy.loc[rth_mask].reset_index(drop=True)
+
+
+def build_ribbon_1min(spy_1m_rth: pd.DataFrame, spy_5m_rth: pd.DataFrame, ribbon_5m: pd.DataFrame) -> pd.DataFrame:
+    """Ribbon state per 1-min bar = the most-recently-CLOSED 5-min bar's ribbon state at that
+    instant -- does NOT recompute EMAs on 1-min closes. The ribbon's fast/pivot/slow periods
+    (lib/ribbon.py load_periods()) are calibrated to 5-min bars; running the same period counts
+    directly on 1-min data would shrink the effective lookback window 5x and produce a DIFFERENT,
+    uncalibrated ribbon state (a new bug, not a fidelity improvement). Forward-filling the
+    unchanged, iteration-1/2-validated 5-min ribbon onto each 1-min bar preserves the exact
+    calibration while giving simulate_trade_real's _ribbon_at(ribbon_df, idx) a per-1-min-index
+    lookup it can use unmodified."""
+    five = spy_5m_rth[["timestamp_et"]].copy()
+    five["five_idx"] = five.index
+    merged = pd.merge_asof(
+        spy_1m_rth[["timestamp_et"]].sort_values("timestamp_et"),
+        five.sort_values("timestamp_et"),
+        on="timestamp_et", direction="backward",
+    )
+    return ribbon_5m.loc[merged["five_idx"].values].reset_index(drop=True)
+
+
+def load_opt_1min(symbol: str) -> pd.DataFrame | None:
+    """Same schema load_contract_bars() would produce (timestamp_et parsed, OHLCV+vwap+
+    trade_count) -- read from backtest/data/highres/ instead of the shared 5-min
+    backtest/data/options/ cache every OTHER simulate_trade_real caller relies on."""
+    path = HIRES_DIR / f"{symbol}_1m_{DATE_STR}.csv"
+    if not path.exists():
+        return None
+    df = pd.read_csv(path)
+    df["timestamp_et"] = pd.to_datetime(df["timestamp_et"])
+    return df
+
+
+def entry_bar_idx_for_1min(spy_1m_rth: pd.DataFrame, ts_et_str: str) -> int | None:
+    """1-min analogue of entry_bar_idx_for(): the last 1-min bar CLOSED strictly before the
+    recorded live tick (5-min version floors to the 5-min bucket then steps back 5 min; here we
+    floor to the minute then step back 1 min -- same convention, finer interval)."""
+    ts = _parse_et_naive(ts_et_str)
+    floored = ts.replace(second=0, microsecond=0)
+    prior = floored - dt.timedelta(minutes=1)
+    target = pd.Timestamp(prior)
+    col = spy_1m_rth["timestamp_et"]
+    if col.dt.tz is not None:
+        col = col.dt.tz_localize(None)
+    matches = spy_1m_rth.index[col == target]
+    if len(matches) == 0:
+        return None
+    return int(matches[0])
+
+
+def simulate_entry_1min(e: dict, spy_1m_rth: pd.DataFrame, ribbon_1m: pd.DataFrame,
+                         levels_active: list[float], levels_carry: list[float],
+                         opt_1min_cache: dict[str, pd.DataFrame]) -> tuple[object, str]:
+    idx = entry_bar_idx_for_1min(spy_1m_rth, e["ts_et"])
+    if idx is None or idx < 0:
+        return None, "no_matching_spy_1m_bar"
+    entry_bar = spy_1m_rth.iloc[idx]
+    symbol = option_symbol(TRADE_DATE, e["strike"], e["side"])
+    opt_1m = opt_1min_cache.get(symbol)
+    if opt_1m is None:
+        return None, f"no_1min_opra_cache_for_{symbol}"
+    premium_stop_pct = e.get("premium_stop_pct")
+    if premium_stop_pct is None:
+        premium_stop_pct = -0.50
+    fill = simulate_trade_real(
+        entry_bar_idx=idx, entry_bar=entry_bar, spy_df=spy_1m_rth, ribbon_df=ribbon_1m,
+        rejection_level=e.get("rejection_level"), triggers_fired=e["triggers"], side=e["side"],
+        qty=e["qty"], setup=e.get("setup") or "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        levels_active=levels_active, levels_carry=levels_carry,
+        strike_override=e["strike"],
+        premium_stop_pct=premium_stop_pct,
+        tp1_qty_fraction=e.get("tp1_qty_fraction", 0.667),
+        runner_target_premium_pct=e.get("runner_target_premium_pct", 2.5),
+        tp1_premium_pct=e.get("tp1_premium_pct", 0.30),
+        profit_lock_mode=e.get("profit_lock_mode", "fixed"),
+        profit_lock_threshold_pct=e.get("profit_lock_threshold_pct", 0.0),
+        profit_lock_trail_pct=e.get("profit_lock_trail_pct", 0.0),
+        time_stop_et=e.get("time_stop_et", dt.time(15, 40)),
+        entry_fill_delay_minutes=1.0,   # ITER-3: fill on the immediate next 1-min bar, not +5min
+        opt_df_override=opt_1m,          # ITER-3: real 1-min OPRA bars, not the 5-min cache
+    )
+    if fill is None:
+        return None, "opra_1min_no_bar_after_entry"
+    return fill, "ok"
+
+
+def simulate_entry_best(e: dict, spy_5m_rth: pd.DataFrame, ribbon_5m: pd.DataFrame,
+                         spy_1m_rth: "pd.DataFrame | None", ribbon_1m: "pd.DataFrame | None",
+                         levels_active: list[float], levels_carry: list[float],
+                         opt_1min_cache: dict[str, pd.DataFrame]) -> tuple[object, str, str]:
+    """1-min exit walk PRIMARY, 5-min simulate_entry() FALLBACK (task instruction: 'keep the
+    5-min path as fallback'). Returns (fill, status, resolution); resolution in
+    {'1min', '5min_fallback', 'none'}."""
+    if spy_1m_rth is not None and ribbon_1m is not None:
+        fill, status = simulate_entry_1min(e, spy_1m_rth, ribbon_1m, levels_active, levels_carry, opt_1min_cache)
+        if fill is not None:
+            return fill, status, "1min"
+        min1_status = status
+    else:
+        min1_status = "no_1min_spy_data"
+    fill, status = simulate_entry(e, spy_5m_rth, ribbon_5m, levels_active, levels_carry)
+    if fill is not None:
+        return fill, status, "5min_fallback"
+    return None, f"1min_miss={min1_status};5min_miss={status}", "none"
+
+
+# ---------------------------------------------------------------------------------------------
 # EXIT LAYER -- simulate_trade_real, unmodified, real OPRA bars.
 # ---------------------------------------------------------------------------------------------
 def simulate_entry(e: dict, spy_rth: pd.DataFrame, ribbon_df: pd.DataFrame,
@@ -492,11 +640,12 @@ def simulate_entry(e: dict, spy_rth: pd.DataFrame, ribbon_df: pd.DataFrame,
     return fill, "ok"
 
 
-def fill_to_dict(e: dict, fill) -> dict:
+def fill_to_dict(e: dict, fill, resolution: str = "5min_fallback") -> dict:
     return {
         "arm": e["arm"], "channel": e["channel"], "signal_ts_et": e["ts_et"],
         "setup": e.get("setup"), "side": e["side"],
         "triggers": e["triggers"], "triggers_source": e["triggers_source"],
+        "exit_layer_resolution": resolution,  # ITER-3: '1min' | '5min_fallback'
         "recorded_tier": e.get("recorded_tier"),
         "decision_layer_tier_computed": e.get("decision_layer_tier_computed"),
         "decision_layer_match": e.get("decision_layer_match"),
@@ -668,23 +817,44 @@ def main() -> int:
     spy_rth, ribbon_df = load_spy_ribbon()
     log(f"spy RTH bars total={len(spy_rth)}")
 
+    log("Loading 1-min OPRA/SPY bars (ITERATION 3 exit-layer fidelity)")
+    spy_1m_rth = load_spy_1min_rth()
+    ribbon_1m = build_ribbon_1min(spy_1m_rth, spy_rth, ribbon_df) if spy_1m_rth is not None else None
+    opt_1min_cache: dict[str, pd.DataFrame] = {}
+    if HIRES_DIR.exists():
+        suffix = f"_1m_{DATE_STR}.csv"
+        for p in HIRES_DIR.glob(f"SPY{TRADE_DATE.strftime('%y%m%d')}*{suffix}"):
+            sym = p.name[: -len(suffix)]
+            df = load_opt_1min(sym)
+            if df is not None:
+                opt_1min_cache[sym] = df
+    if spy_1m_rth is not None:
+        log(f"  1-min SPY RTH bars={len(spy_1m_rth)}; 1-min OPRA contracts cached="
+            f"{len(opt_1min_cache)} ({', '.join(sorted(opt_1min_cache))})")
+    else:
+        log("  WARNING: no 1-min SPY data found -- exit walk falls back to 5-min for every entry")
+
     all_results = {}
     cache_misses = []
+    resolution_counts = {"1min": 0, "5min_fallback": 0, "none": 0}
     for arm, es in entries_by_arm.items():
         trades = []
         for e in es:
-            fill, status = simulate_entry(e, spy_rth, ribbon_df, levels_active, levels_carry)
+            fill, status, resolution = simulate_entry_best(
+                e, spy_rth, ribbon_df, spy_1m_rth, ribbon_1m, levels_active, levels_carry, opt_1min_cache)
+            resolution_counts[resolution] += 1
             if fill is None:
                 cache_misses.append({"arm": arm, "ts_et": e["ts_et"], "strike": e["strike"],
                                       "side": e["side"], "reason": status})
                 continue
-            trades.append(fill_to_dict(e, fill))
+            trades.append(fill_to_dict(e, fill, resolution))
         trades.sort(key=lambda t: t["entry_time_et"])
         all_results[arm] = {
             "arm": arm, "trades": trades, "n_trades": len(trades),
             "total_pnl": round(sum(t["dollar_pnl"] for t in trades), 2),
         }
         log(f"  {arm}: n={len(trades)} total_pnl=${all_results[arm]['total_pnl']}")
+    log(f"exit-layer resolution used: {resolution_counts}")
     if cache_misses:
         log(f"WARNING: {len(cache_misses)} entries skipped (OPRA cache miss / no matching SPY bar): {cache_misses}")
 
@@ -711,15 +881,19 @@ def main() -> int:
     dh = determinism_hash(all_results)
 
     out = {
-        "_doc": "GOAL-REPLAY-TODAY-GREEN iteration 2 -- faithful-signal rebuild. Entries read "
+        "_doc": "GOAL-REPLAY-TODAY-GREEN iteration 3 -- 1-min exit-layer fidelity. Entries read "
                 "verbatim from recorded core-decisions.jsonl + fleet decisions.jsonl (no level "
-                "re-detection); exits simulated via lib.simulator_real.simulate_trade_real "
-                "against real OPRA bars. Measurement only; no params/config file modified. "
+                "re-detection, unchanged from iteration 2); exits simulated via "
+                "lib.simulator_real.simulate_trade_real against real 1-MINUTE OPRA/SPY bars "
+                "(backtest/data/highres/, fetched via fetch_today_1min.py) with 5-min fallback "
+                "if 1-min data is missing for a contract (did not happen this run -- 12/12 used "
+                "1-min). Measurement only; no params/config file modified. "
                 "Source: backtest/tools/replay_today_eval.py.",
-        "iteration": 2,
+        "iteration": 3,
         "generated_at": dt.datetime.now().isoformat(),
         "trade_date": TRADE_DATE.isoformat(),
         "determinism_hash": dh,
+        "exit_layer_resolution_counts": resolution_counts,
         "faithfulness_tolerance": {"abs_dollars": FAITHFULNESS_ABS_DOLLARS, "pct_of_live": FAITHFULNESS_PCT,
                                     "note": "max(abs_dollars, |live_engine_pnl|*pct) per arm"},
         "arms": all_results,
@@ -754,35 +928,52 @@ def main() -> int:
                            "n_active": len(levels_active), "n_carry": len(levels_carry)},
         "harness_verdict": {
             "signal_layer": (
-                f"FIXED (iteration 1 root cause #6, level-set source mismatch, closed by "
-                f"construction -- entries are read verbatim from the engine's own recorded "
-                f"exec blocks, no level re-detection remains anywhere in this harness). "
-                f"CAPTURE: {n_captured}/{n_in_scope} in-scope named events captured this "
-                f"iteration (iteration 1: 1/4). Decision-layer tier reproduction: "
+                f"FIXED (iteration 2, unchanged this iteration -- entries are read verbatim "
+                f"from the engine's own recorded exec blocks, no level re-detection anywhere). "
+                f"CAPTURE: {n_captured}/{n_in_scope} in-scope named events captured "
+                f"(iteration 1: 1/4). Decision-layer tier reproduction: "
                 f"{len(all_entries) - len(decision_mismatches)}/{len(all_entries)}."
             ),
+            "exit_layer_entry_fill_mechanism": (
+                f"FIXED this iteration. Real 1-minute Alpaca OPRA bars fetched for exactly "
+                f"today's 7 traded contracts + 1-min SPY bars (backtest/tools/fetch_today_1min.py "
+                f"-> backtest/data/highres/, all gapless 390/390 RTH minutes -- real data, no "
+                f"BS-approx fallback needed). Exit-layer resolution used: {resolution_counts} "
+                f"(12/12 entries used the real 1-min path, zero 5-min fallbacks). Entry-fill-price "
+                f"deltas vs live's real fill are now $0.00-$0.08 across all 12 entries (was up to "
+                f"$0.23/30% at 5-min resolution) -- measured this run, see arms[*].trades[*]."
+            ),
             "exit_layer_gap": (
-                "NOT yet faithful to tight tolerance on any arm -- see faithfulness above for "
-                "actual per-arm deltas. Root cause (quantified this run, not asserted) is TWO "
-                "mechanisms, both rooted in the same 5-minute-bar data-resolution ceiling "
-                "(today's cached OPRA/SPY bars are 5-minute; live trades on ~1-minute ticks): "
-                "(a) ENTRY-FILL price approximation -- 'next bar open + slippage' can miss badly "
-                "on a fast intrabar move (core_safe 13:01 entry: $1.01 sim vs $0.78 live, 30% "
-                "off; core_safe 11:06 entry: only $0.07 off -- bar-dependent, not fixed). "
-                "(b) EXIT-MECHANISM gap in BOTH directions -- the chart-level stop "
-                "(simulator_real.py ~717-728, 5m bar CLOSE vs level+/-0.50 buffer) can fire "
-                "LATER than live's faster structure-stop (core_safe 11:06: live exited in 5 min "
-                "for -$37; this harness confirms a buffered breach only after 25 min), while the "
-                "premium/profit-lock stop (simulator_real.py ~561-605/662-669, checks each 5m "
-                "bar's LOW as the conservative worst-case touch) can fire EARLIER/WRONGLY -- once "
-                "profit-lock arms at +5%, the floor jumps to breakeven, and a 5-min bar's LOW "
-                "round-tripping back to that floor zeroed out 3 of core_safe's 5 entries (13:01, "
-                "14:03, 14:49) that on live's real finer-resolution tape ran to +$241/+$105/-$56 "
-                "without ever giving back that much intrabar. Not a bug in this harness, not "
-                "lever-tunable (no lever changes what data is available). Filed separately, not "
-                "patched blindly here: markdown/planning/FUTURE-IMPROVEMENTS.md PARITY-GAP-2."
+                "STILL NOT faithful to tight tolerance on 3/5 arms -- but the mechanism changed, "
+                "it did not close. 1-min resolution did NOT fix the exit-mechanism gap iteration "
+                "2 diagnosed; it revealed a DIFFERENT, MORE SEVERE artifact of the same underlying "
+                "fragility. v15_profit_lock_mode='fixed' (automation/state/params.json, real "
+                "production value) plus a never-configured stop-offset (defaults to 0.0) means "
+                "once a position ticks +5% favorable the stop floor locks at EXACTLY breakeven "
+                "and never moves. Checked at 1-min cadence (390 checks/day vs 78 at 5-min) "
+                "against genuinely volatile real 0DTE intra-minute prints (verified: "
+                "SPY260717P00744000's opening minute alone ranged $2.13-$3.64 on 237 real trades/ "
+                "1387 contracts -- not a stale-quote artifact), this fires almost immediately: "
+                "ALL 5 of core_safe's entries now exit via EXIT_ALL_PREMIUM_STOP at exactly $0.00 "
+                "P&L in exactly 2 minutes each (was 3/5 zeroed at 5-min resolution) -- a "
+                "uniformity across winners AND losers alike that is itself the tell finer bars "
+                "made the SAME zero-offset-breakeven fragility trigger MORE reliably, not less "
+                "(more discrete checks against real intra-minute noise raises the odds of "
+                "catching a floor-touch). NOT a bug in this harness or in simulate_trade_real "
+                "(both correctly implement the real, configured 'fixed' profit-lock convention); "
+                "NOT lever-tunable this iteration per task instruction, but IS a concrete new "
+                "hypothesis for lever L2 (trend-day exit tuning) -- "
+                "profit_lock_stop_offset_pct is a real, currently-unset production knob. Filed: "
+                "markdown/planning/FUTURE-IMPROVEMENTS.md PARITY-GAP-2 (updated this iteration)."
             ),
             "trustworthy_to_tune_against": all_faithful,
+            "primary_scope_metric_note": (
+                "Per GOAL-REPLAY-TODAY-GREEN.md's SCOPE REFINEMENT, PRIMARY faithfulness is the "
+                "SIGNAL/DECISION layer (capture + tier match), which is unaffected by this "
+                "iteration's exit-layer work and remains 100% / 12-of-12. Entry-side levers "
+                "(L1/L3/L4/L6) are evaluable now against that faithful layer independent of the "
+                "exit-layer dollar residual documented above."
+            ),
         },
     }
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)

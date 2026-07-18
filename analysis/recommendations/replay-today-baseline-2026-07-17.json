@@ -1,9 +1,14 @@
 {
-  "_doc": "GOAL-REPLAY-TODAY-GREEN iteration 2 -- faithful-signal rebuild. Entries read verbatim from recorded core-decisions.jsonl + fleet decisions.jsonl (no level re-detection); exits simulated via lib.simulator_real.simulate_trade_real against real OPRA bars. Measurement only; no params/config file modified. Source: backtest/tools/replay_today_eval.py.",
-  "iteration": 2,
-  "generated_at": "2026-07-17T18:00:07.232944",
+  "_doc": "GOAL-REPLAY-TODAY-GREEN iteration 3 -- 1-min exit-layer fidelity. Entries read verbatim from recorded core-decisions.jsonl + fleet decisions.jsonl (no level re-detection, unchanged from iteration 2); exits simulated via lib.simulator_real.simulate_trade_real against real 1-MINUTE OPRA/SPY bars (backtest/data/highres/, fetched via fetch_today_1min.py) with 5-min fallback if 1-min data is missing for a contract (did not happen this run -- 12/12 used 1-min). Measurement only; no params/config file modified. Source: backtest/tools/replay_today_eval.py.",
+  "iteration": 3,
+  "generated_at": "2026-07-17T18:39:54.441201",
   "trade_date": "2026-07-17",
-  "determinism_hash": "4d57bc48d151e1e2",
+  "determinism_hash": "b1199323f7e5c827",
+  "exit_layer_resolution_counts": {
+    "1min": 12,
+    "5min_fallback": 0,
+    "none": 0
+  },
   "faithfulness_tolerance": {
     "abs_dollars": 40.0,
     "pct_of_live": 0.15,
@@ -24,20 +29,21 @@
             "confluence"
           ],
           "triggers_source": "recorded",
+          "exit_layer_resolution": "1min",
           "recorded_tier": "ELITE",
           "decision_layer_tier_computed": "ELITE",
           "decision_layer_match": true,
           "strike": 744,
           "qty": 3,
-          "entry_time_et": "2026-07-17T11:05:00",
-          "sim_entry_premium": 1.48,
+          "entry_time_et": "2026-07-17T11:06:00",
+          "sim_entry_premium": 1.34,
           "live_entry_px": 1.413333,
-          "entry_px_delta": 0.0667,
-          "exit_reason": "ExitReason.EXIT_ALL_LEVEL_STOP",
-          "hold_minutes": 25,
-          "dollar_pnl": -186.0,
+          "entry_px_delta": -0.0733,
+          "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+          "hold_minutes": 2,
+          "dollar_pnl": 0.0,
           "ground_truth_pnl": -37.0,
-          "ground_truth_delta": -149.0
+          "ground_truth_delta": 37.0
         },
         {
           "arm": "core_safe",
@@ -50,6 +56,7 @@
             "confluence"
           ],
           "triggers_source": "recorded",
+          "exit_layer_resolution": "1min",
           "recorded_tier": "ELITE",
           "decision_layer_tier_computed": "ELITE",
           "decision_layer_match": true,
@@ -60,7 +67,7 @@
           "live_entry_px": 1.09,
           "entry_px_delta": 0.07,
           "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
-          "hold_minutes": 10,
+          "hold_minutes": 2,
           "dollar_pnl": 0.0,
           "ground_truth_pnl": -102.0,
           "ground_truth_delta": 102.0
@@ -75,17 +82,18 @@
             "trendline_rejection"
           ],
           "triggers_source": "recorded",
+          "exit_layer_resolution": "1min",
           "recorded_tier": "TRENDLINE",
           "decision_layer_tier_computed": "TRENDLINE",
           "decision_layer_match": true,
           "strike": 746,
           "qty": 3,
-          "entry_time_et": "2026-07-17T13:00:00",
-          "sim_entry_premium": 1.01,
+          "entry_time_et": "2026-07-17T13:01:00",
+          "sim_entry_premium": 0.81,
           "live_entry_px": 0.78,
-          "entry_px_delta": 0.23,
+          "entry_px_delta": 0.03,
           "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
-          "hold_minutes": 25,
+          "hold_minutes": 2,
           "dollar_pnl": 0.0,
           "ground_truth_pnl": 241.0,
           "ground_truth_delta": -241.0
@@ -102,17 +110,18 @@
             "VOLUME_CONFIRM"
           ],
           "triggers_source": "recorded_extra_signals",
+          "exit_layer_resolution": "1min",
           "recorded_tier": null,
           "decision_layer_tier_computed": null,
           "decision_layer_match": null,
           "strike": 745,
           "qty": 3,
-          "entry_time_et": "2026-07-17T14:00:00",
-          "sim_entry_premium": 1.29,
+          "entry_time_et": "2026-07-17T14:03:00",
+          "sim_entry_premium": 1.08,
           "live_entry_px": 1.0,
-          "entry_px_delta": 0.29,
+          "entry_px_delta": 0.08,
           "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
-          "hold_minutes": 10,
+          "hold_minutes": 2,
           "dollar_pnl": 0.0,
           "ground_truth_pnl": 105.0,
           "ground_truth_delta": -105.0
@@ -127,24 +136,25 @@
             "trendline_rejection"
           ],
           "triggers_source": "recorded",
+          "exit_layer_resolution": "1min",
           "recorded_tier": "TRENDLINE",
           "decision_layer_tier_computed": "TRENDLINE",
           "decision_layer_match": true,
           "strike": 743,
           "qty": 3,
-          "entry_time_et": "2026-07-17T14:45:00",
-          "sim_entry_premium": 0.84,
+          "entry_time_et": "2026-07-17T14:49:00",
+          "sim_entry_premium": 0.52,
           "live_entry_px": 0.53,
-          "entry_px_delta": 0.31,
+          "entry_px_delta": -0.01,
           "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
-          "hold_minutes": 10,
-          "dollar_pnl": -126.0,
+          "hold_minutes": 2,
+          "dollar_pnl": 0.0,
           "ground_truth_pnl": -56.0,
-          "ground_truth_delta": -70.0
+          "ground_truth_delta": 56.0
         }
       ],
       "n_trades": 5,
-      "total_pnl": -312.0
+      "total_pnl": 0.0
     },
     "core_bold": {
       "arm": "core_bold",
@@ -159,24 +169,25 @@
             "trendline_rejection"
           ],
           "triggers_source": "recorded",
+          "exit_layer_resolution": "1min",
           "recorded_tier": "TRENDLINE",
           "decision_layer_tier_computed": "TRENDLINE",
           "decision_layer_match": true,
           "strike": 743,
           "qty": 5,
-          "entry_time_et": "2026-07-17T13:50:00",
-          "sim_entry_premium": 0.29,
+          "entry_time_et": "2026-07-17T13:51:00",
+          "sim_entry_premium": 0.39,
           "live_entry_px": 0.38,
-          "entry_px_delta": -0.09,
+          "entry_px_delta": 0.01,
           "exit_reason": "ExitReason.TP1_THEN_RUNNER_RIBBON",
-          "hold_minutes": 70,
-          "dollar_pnl": 65.25,
+          "hold_minutes": 63,
+          "dollar_pnl": 99.0,
           "ground_truth_pnl": 191.0,
-          "ground_truth_delta": -125.75
+          "ground_truth_delta": -92.0
         }
       ],
       "n_trades": 1,
-      "total_pnl": 65.25
+      "total_pnl": 99.0
     },
     "fleet_safe_3": {
       "arm": "fleet_safe_3",
@@ -191,20 +202,21 @@
             "confluence"
           ],
           "triggers_source": "reconstructed_from_recorded_quality_tier",
+          "exit_layer_resolution": "1min",
           "recorded_tier": "ELITE",
           "decision_layer_tier_computed": "ELITE",
           "decision_layer_match": true,
           "strike": 741,
           "qty": 3,
-          "entry_time_et": "2026-07-17T11:05:00",
-          "sim_entry_premium": 0.57,
+          "entry_time_et": "2026-07-17T11:07:00",
+          "sim_entry_premium": 0.52,
           "live_entry_px": 0.48,
-          "entry_px_delta": 0.09,
+          "entry_px_delta": 0.04,
           "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
-          "hold_minutes": 25,
-          "dollar_pnl": -85.5,
+          "hold_minutes": 9,
+          "dollar_pnl": 0.0,
           "ground_truth_pnl": 0.0,
-          "ground_truth_delta": -85.5
+          "ground_truth_delta": 0.0
         },
         {
           "arm": "fleet_safe_3",
@@ -216,24 +228,25 @@
             "confluence"
           ],
           "triggers_source": "reconstructed_from_recorded_quality_tier",
+          "exit_layer_resolution": "1min",
           "recorded_tier": "ELITE",
           "decision_layer_tier_computed": "ELITE",
           "decision_layer_match": true,
           "strike": 742,
           "qty": 3,
-          "entry_time_et": "2026-07-17T13:55:00",
-          "sim_entry_premium": 0.29,
+          "entry_time_et": "2026-07-17T13:58:00",
+          "sim_entry_premium": 0.34,
           "live_entry_px": 0.34,
-          "entry_px_delta": -0.05,
+          "entry_px_delta": 0.0,
           "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
-          "hold_minutes": 10,
-          "dollar_pnl": 2.25,
+          "hold_minutes": 9,
+          "dollar_pnl": 0.0,
           "ground_truth_pnl": 0.0,
-          "ground_truth_delta": 2.25
+          "ground_truth_delta": 0.0
         }
       ],
       "n_trades": 2,
-      "total_pnl": -83.25
+      "total_pnl": 0.0
     },
     "fleet_risky_1": {
       "arm": "fleet_risky_1",
@@ -248,20 +261,21 @@
             "confluence"
           ],
           "triggers_source": "reconstructed_from_recorded_quality_tier",
+          "exit_layer_resolution": "1min",
           "recorded_tier": "ELITE",
           "decision_layer_tier_computed": "ELITE",
           "decision_layer_match": true,
           "strike": 741,
           "qty": 5,
-          "entry_time_et": "2026-07-17T11:05:00",
-          "sim_entry_premium": 0.57,
+          "entry_time_et": "2026-07-17T11:07:00",
+          "sim_entry_premium": 0.52,
           "live_entry_px": 0.53,
-          "entry_px_delta": 0.04,
+          "entry_px_delta": -0.01,
           "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
-          "hold_minutes": 25,
-          "dollar_pnl": -142.5,
+          "hold_minutes": 9,
+          "dollar_pnl": 0.0,
           "ground_truth_pnl": 0.0,
-          "ground_truth_delta": -142.5
+          "ground_truth_delta": 0.0
         },
         {
           "arm": "fleet_risky_1",
@@ -273,24 +287,25 @@
             "confluence"
           ],
           "triggers_source": "reconstructed_from_recorded_quality_tier",
+          "exit_layer_resolution": "1min",
           "recorded_tier": "ELITE",
           "decision_layer_tier_computed": "ELITE",
           "decision_layer_match": true,
           "strike": 742,
           "qty": 5,
-          "entry_time_et": "2026-07-17T13:55:00",
-          "sim_entry_premium": 0.29,
+          "entry_time_et": "2026-07-17T13:58:00",
+          "sim_entry_premium": 0.34,
           "live_entry_px": 0.34,
-          "entry_px_delta": -0.05,
+          "entry_px_delta": 0.0,
           "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
-          "hold_minutes": 10,
-          "dollar_pnl": 3.75,
+          "hold_minutes": 9,
+          "dollar_pnl": 0.0,
           "ground_truth_pnl": 0.0,
-          "ground_truth_delta": 3.75
+          "ground_truth_delta": 0.0
         }
       ],
       "n_trades": 2,
-      "total_pnl": -138.75
+      "total_pnl": 0.0
     },
     "fleet_risky_3": {
       "arm": "fleet_risky_3",
@@ -305,20 +320,21 @@
             "confluence"
           ],
           "triggers_source": "reconstructed_from_recorded_quality_tier",
+          "exit_layer_resolution": "1min",
           "recorded_tier": "ELITE",
           "decision_layer_tier_computed": "ELITE",
           "decision_layer_match": true,
           "strike": 741,
           "qty": 5,
-          "entry_time_et": "2026-07-17T11:05:00",
-          "sim_entry_premium": 0.57,
+          "entry_time_et": "2026-07-17T11:07:00",
+          "sim_entry_premium": 0.52,
           "live_entry_px": 0.53,
-          "entry_px_delta": 0.04,
+          "entry_px_delta": -0.01,
           "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
-          "hold_minutes": 25,
-          "dollar_pnl": -142.5,
+          "hold_minutes": 9,
+          "dollar_pnl": 0.0,
           "ground_truth_pnl": 15.0,
-          "ground_truth_delta": -157.5
+          "ground_truth_delta": -15.0
         },
         {
           "arm": "fleet_risky_3",
@@ -328,24 +344,25 @@
           "side": "P",
           "triggers": [],
           "triggers_source": "reconstructed_from_recorded_quality_tier",
+          "exit_layer_resolution": "1min",
           "recorded_tier": "BASE",
           "decision_layer_tier_computed": "BASE",
           "decision_layer_match": true,
           "strike": 743,
           "qty": 5,
-          "entry_time_et": "2026-07-17T13:50:00",
-          "sim_entry_premium": 0.29,
+          "entry_time_et": "2026-07-17T13:52:00",
+          "sim_entry_premium": 0.4,
           "live_entry_px": 0.44,
-          "entry_px_delta": -0.15,
+          "entry_px_delta": -0.04,
           "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
-          "hold_minutes": 10,
-          "dollar_pnl": 105.75,
+          "hold_minutes": 3,
+          "dollar_pnl": 4.0,
           "ground_truth_pnl": 233.0,
-          "ground_truth_delta": -127.25
+          "ground_truth_delta": -229.0
         }
       ],
       "n_trades": 2,
-      "total_pnl": -36.75
+      "total_pnl": 4.0
     }
   },
   "live_truth_raw": {
@@ -373,48 +390,48 @@
   "faithfulness": {
     "core_safe": {
       "live_engine_pnl": 151.0,
-      "replay_pnl": -312.0,
-      "delta": -463.0,
+      "replay_pnl": 0.0,
+      "delta": -151.0,
       "tolerance_dollars": 40.0,
-      "same_sign_or_zero": false,
+      "same_sign_or_zero": true,
       "faithful": false
     },
     "core_bold": {
       "live_engine_pnl": 191.0,
-      "replay_pnl": 65.25,
-      "delta": -125.75,
+      "replay_pnl": 99.0,
+      "delta": -92.0,
       "tolerance_dollars": 40.0,
       "same_sign_or_zero": true,
       "faithful": false
     },
     "fleet_safe_3": {
       "live_engine_pnl": 0.0,
-      "replay_pnl": -83.25,
-      "delta": -83.25,
+      "replay_pnl": 0.0,
+      "delta": 0.0,
       "tolerance_dollars": 40.0,
       "same_sign_or_zero": true,
-      "faithful": false
+      "faithful": true
     },
     "fleet_risky_1": {
       "live_engine_pnl": 0.0,
-      "replay_pnl": -138.75,
-      "delta": -138.75,
+      "replay_pnl": 0.0,
+      "delta": 0.0,
       "tolerance_dollars": 40.0,
       "same_sign_or_zero": true,
-      "faithful": false
+      "faithful": true
     },
     "fleet_risky_3": {
       "live_engine_pnl": 248.0,
-      "replay_pnl": -36.75,
-      "delta": -284.75,
+      "replay_pnl": 4.0,
+      "delta": -244.0,
       "tolerance_dollars": 40.0,
-      "same_sign_or_zero": false,
+      "same_sign_or_zero": true,
       "faithful": false
     }
   },
   "faithfulness_summary": {
     "n_arms": 5,
-    "n_faithful": 0,
+    "n_faithful": 2,
     "all_faithful": false
   },
   "decision_layer": {
@@ -444,22 +461,23 @@
           "trendline_rejection"
         ],
         "triggers_source": "recorded",
+        "exit_layer_resolution": "1min",
         "recorded_tier": "TRENDLINE",
         "decision_layer_tier_computed": "TRENDLINE",
         "decision_layer_match": true,
         "strike": 746,
         "qty": 3,
-        "entry_time_et": "2026-07-17T13:00:00",
-        "sim_entry_premium": 1.01,
+        "entry_time_et": "2026-07-17T13:01:00",
+        "sim_entry_premium": 0.81,
         "live_entry_px": 0.78,
-        "entry_px_delta": 0.23,
+        "entry_px_delta": 0.03,
         "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
-        "hold_minutes": 25,
+        "hold_minutes": 2,
         "dollar_pnl": 0.0,
         "ground_truth_pnl": 241.0,
         "ground_truth_delta": -241.0
       },
-      "gap_seconds": 60.0
+      "gap_seconds": 0.0
     },
     {
       "id": "13:51_bold_trendline_put",
@@ -481,22 +499,23 @@
           "trendline_rejection"
         ],
         "triggers_source": "recorded",
+        "exit_layer_resolution": "1min",
         "recorded_tier": "TRENDLINE",
         "decision_layer_tier_computed": "TRENDLINE",
         "decision_layer_match": true,
         "strike": 743,
         "qty": 5,
-        "entry_time_et": "2026-07-17T13:50:00",
-        "sim_entry_premium": 0.29,
+        "entry_time_et": "2026-07-17T13:51:00",
+        "sim_entry_premium": 0.39,
         "live_entry_px": 0.38,
-        "entry_px_delta": -0.09,
+        "entry_px_delta": 0.01,
         "exit_reason": "ExitReason.TP1_THEN_RUNNER_RIBBON",
-        "hold_minutes": 70,
-        "dollar_pnl": 65.25,
+        "hold_minutes": 63,
+        "dollar_pnl": 99.0,
         "ground_truth_pnl": 191.0,
-        "ground_truth_delta": -125.75
+        "ground_truth_delta": -92.0
       },
-      "gap_seconds": 60.0
+      "gap_seconds": 0.0
     },
     {
       "id": "11:06_elite_put_loser",
@@ -519,22 +538,23 @@
           "confluence"
         ],
         "triggers_source": "recorded",
+        "exit_layer_resolution": "1min",
         "recorded_tier": "ELITE",
         "decision_layer_tier_computed": "ELITE",
         "decision_layer_match": true,
         "strike": 744,
         "qty": 3,
-        "entry_time_et": "2026-07-17T11:05:00",
-        "sim_entry_premium": 1.48,
+        "entry_time_et": "2026-07-17T11:06:00",
+        "sim_entry_premium": 1.34,
         "live_entry_px": 1.413333,
-        "entry_px_delta": 0.0667,
-        "exit_reason": "ExitReason.EXIT_ALL_LEVEL_STOP",
-        "hold_minutes": 25,
-        "dollar_pnl": -186.0,
+        "entry_px_delta": -0.0733,
+        "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
+        "hold_minutes": 2,
+        "dollar_pnl": 0.0,
         "ground_truth_pnl": -37.0,
-        "ground_truth_delta": -149.0
+        "ground_truth_delta": 37.0
       },
-      "gap_seconds": 60.0
+      "gap_seconds": 0.0
     },
     {
       "id": "11:40_elite_put_loser",
@@ -557,6 +577,7 @@
           "confluence"
         ],
         "triggers_source": "recorded",
+        "exit_layer_resolution": "1min",
         "recorded_tier": "ELITE",
         "decision_layer_tier_computed": "ELITE",
         "decision_layer_match": true,
@@ -567,7 +588,7 @@
         "live_entry_px": 1.09,
         "entry_px_delta": 0.07,
         "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
-        "hold_minutes": 10,
+        "hold_minutes": 2,
         "dollar_pnl": 0.0,
         "ground_truth_pnl": -102.0,
         "ground_truth_delta": 102.0
@@ -597,22 +618,23 @@
           "VOLUME_CONFIRM"
         ],
         "triggers_source": "recorded_extra_signals",
+        "exit_layer_resolution": "1min",
         "recorded_tier": null,
         "decision_layer_tier_computed": null,
         "decision_layer_match": null,
         "strike": 745,
         "qty": 3,
-        "entry_time_et": "2026-07-17T14:00:00",
-        "sim_entry_premium": 1.29,
+        "entry_time_et": "2026-07-17T14:03:00",
+        "sim_entry_premium": 1.08,
         "live_entry_px": 1.0,
-        "entry_px_delta": 0.29,
+        "entry_px_delta": 0.08,
         "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP",
-        "hold_minutes": 10,
+        "hold_minutes": 2,
         "dollar_pnl": 0.0,
         "ground_truth_pnl": 105.0,
         "ground_truth_delta": -105.0
       },
-      "gap_seconds": 180.0
+      "gap_seconds": 0.0
     },
     {
       "id": "12:04_j_called_746C",
@@ -637,13 +659,15 @@
   "cache_misses": [],
   "levels_source": {
     "path": "automation/state/key-levels.json",
-    "as_of": "2026-07-17T19:58:36-04:00",
+    "as_of": "2026-07-17T20:38:36-04:00",
     "n_active": 14,
     "n_carry": 1
   },
   "harness_verdict": {
-    "signal_layer": "FIXED (iteration 1 root cause #6, level-set source mismatch, closed by construction -- entries are read verbatim from the engine's own recorded exec blocks, no level re-detection remains anywhere in this harness). CAPTURE: 5/5 in-scope named events captured this iteration (iteration 1: 1/4). Decision-layer tier reproduction: 12/12.",
-    "exit_layer_gap": "NOT yet faithful to tight tolerance on any arm -- see faithfulness above for actual per-arm deltas. Root cause (quantified this run, not asserted) is TWO mechanisms, both rooted in the same 5-minute-bar data-resolution ceiling (today's cached OPRA/SPY bars are 5-minute; live trades on ~1-minute ticks): (a) ENTRY-FILL price approximation -- 'next bar open + slippage' can miss badly on a fast intrabar move (core_safe 13:01 entry: $1.01 sim vs $0.78 live, 30% off; core_safe 11:06 entry: only $0.07 off -- bar-dependent, not fixed). (b) EXIT-MECHANISM gap in BOTH directions -- the chart-level stop (simulator_real.py ~717-728, 5m bar CLOSE vs level+/-0.50 buffer) can fire LATER than live's faster structure-stop (core_safe 11:06: live exited in 5 min for -$37; this harness confirms a buffered breach only after 25 min), while the premium/profit-lock stop (simulator_real.py ~561-605/662-669, checks each 5m bar's LOW as the conservative worst-case touch) can fire EARLIER/WRONGLY -- once profit-lock arms at +5%, the floor jumps to breakeven, and a 5-min bar's LOW round-tripping back to that floor zeroed out 3 of core_safe's 5 entries (13:01, 14:03, 14:49) that on live's real finer-resolution tape ran to +$241/+$105/-$56 without ever giving back that much intrabar. Not a bug in this harness, not lever-tunable (no lever changes what data is available). Filed separately, not patched blindly here: markdown/planning/FUTURE-IMPROVEMENTS.md PARITY-GAP-2.",
-    "trustworthy_to_tune_against": false
+    "signal_layer": "FIXED (iteration 2, unchanged this iteration -- entries are read verbatim from the engine's own recorded exec blocks, no level re-detection anywhere). CAPTURE: 5/5 in-scope named events captured (iteration 1: 1/4). Decision-layer tier reproduction: 12/12.",
+    "exit_layer_entry_fill_mechanism": "FIXED this iteration. Real 1-minute Alpaca OPRA bars fetched for exactly today's 7 traded contracts + 1-min SPY bars (backtest/tools/fetch_today_1min.py -> backtest/data/highres/, all gapless 390/390 RTH minutes -- real data, no BS-approx fallback needed). Exit-layer resolution used: {'1min': 12, '5min_fallback': 0, 'none': 0} (12/12 entries used the real 1-min path, zero 5-min fallbacks). Entry-fill-price deltas vs live's real fill are now $0.00-$0.08 across all 12 entries (was up to $0.23/30% at 5-min resolution) -- measured this run, see arms[*].trades[*].",
+    "exit_layer_gap": "STILL NOT faithful to tight tolerance on 3/5 arms -- but the mechanism changed, it did not close. 1-min resolution did NOT fix the exit-mechanism gap iteration 2 diagnosed; it revealed a DIFFERENT, MORE SEVERE artifact of the same underlying fragility. v15_profit_lock_mode='fixed' (automation/state/params.json, real production value) plus a never-configured stop-offset (defaults to 0.0) means once a position ticks +5% favorable the stop floor locks at EXACTLY breakeven and never moves. Checked at 1-min cadence (390 checks/day vs 78 at 5-min) against genuinely volatile real 0DTE intra-minute prints (verified: SPY260717P00744000's opening minute alone ranged $2.13-$3.64 on 237 real trades/ 1387 contracts -- not a stale-quote artifact), this fires almost immediately: ALL 5 of core_safe's entries now exit via EXIT_ALL_PREMIUM_STOP at exactly $0.00 P&L in exactly 2 minutes each (was 3/5 zeroed at 5-min resolution) -- a uniformity across winners AND losers alike that is itself the tell finer bars made the SAME zero-offset-breakeven fragility trigger MORE reliably, not less (more discrete checks against real intra-minute noise raises the odds of catching a floor-touch). NOT a bug in this harness or in simulate_trade_real (both correctly implement the real, configured 'fixed' profit-lock convention); NOT lever-tunable this iteration per task instruction, but IS a concrete new hypothesis for lever L2 (trend-day exit tuning) -- profit_lock_stop_offset_pct is a real, currently-unset production knob. Filed: markdown/planning/FUTURE-IMPROVEMENTS.md PARITY-GAP-2 (updated this iteration).",
+    "trustworthy_to_tune_against": false,
+    "primary_scope_metric_note": "Per GOAL-REPLAY-TODAY-GREEN.md's SCOPE REFINEMENT, PRIMARY faithfulness is the SIGNAL/DECISION layer (capture + tier match), which is unaffected by this iteration's exit-layer work and remains 100% / 12-of-12. Entry-side levers (L1/L3/L4/L6) are evaluable now against that faithful layer independent of the exit-layer dollar residual documented above."
   }
 }
