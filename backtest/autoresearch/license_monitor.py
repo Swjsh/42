@@ -35,6 +35,15 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]              # ...\42\backtest
 ROOT = REPO.parent                                       # ...\42
+
+# recency_check.py-style sys.path insertion (needed so `from autoresearch import ...`
+# resolves regardless of the caller's cwd — this script has always been invoked as
+# `python backtest/autoresearch/license_monitor.py`, i.e. cwd=ROOT, not backtest/).
+for _p in (str(REPO), str(ROOT)):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
+from autoresearch import trade_to_learn_digest as _t2l  # noqa: E402
 STATE = ROOT / "automation" / "state"
 RECENCY_JSON = STATE / "recency-confirmation.json"
 RECENCY_PY = REPO / "autoresearch" / "recency_check.py"
@@ -217,9 +226,21 @@ def run(*, refresh: bool, announce_baseline: bool, force_ping: bool, dry_run: bo
         if force_ping and not dry_run:
             _queue(f"\U0001F4CD **LICENSE-MONITOR standing** ({run_date}): {standing}. No change.")
 
-    if (events or force_ping) and not dry_run:
-        _write_status(run_date, out_lines or
-                      ["; ".join(f"{t}={v}({classify(v)})" for t, v in cur.items())])
+    # Trade-to-learn cumulative digest (TRADE-TO-LEARN-CUMULATIVE-DIGEST, F3 close 2026-07-18):
+    # folded into the SAME nightly STATUS block, not a second section — visibility only
+    # (Rule 9, never disarms), so J sees "since arm date" real-fill P&L every night without
+    # having to ask, regardless of whether a recency-tier transition also fired.
+    t2l_digest = _t2l.compute_since_arm()
+    t2l_lines = ["**Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**"] \
+        + [f"  {ln}" for ln in _t2l.format_lines(t2l_digest)]
+
+    status_lines = (out_lines or
+                    ["; ".join(f"{t}={v}({classify(v)})" for t, v in cur.items())]) + t2l_lines
+
+    if not dry_run:
+        _write_status(run_date, status_lines)
+        _t2l.OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
+        _t2l.OUT_JSON.write_text(json.dumps(t2l_digest, indent=2), encoding="utf-8")
 
     if not dry_run:
         SNAP.write_text(json.dumps({
