@@ -50,37 +50,60 @@ if (Test-WeekDay -Et $et) {
 
 Write-TaskLog -TaskName $task -Message ("conductor-weekend: START (" + $et.ToString("yyyy-MM-dd HH:mm dddd") + " ET)")
 
-# Same L181 retention + B2b twin-gauntlet autowires as run-conductor.ps1 -- STATUS.md
-# silently regrows past the Read cap between fires regardless of which conductor mode
-# is writing to it, and a weekend fire is exactly the kind of trading-path-adjacent
-# session the gauntlet-gap check exists to catch.
-try {
-    $null = Invoke-PythonHidden -ScriptPath "setup\scripts\status_retention.py" `
-        -ArgList @() -TaskName "status-retention" -TimeoutSec 30
-} catch { }
-try {
-    $null = Invoke-PythonHidden -ScriptPath "setup\scripts\twin_gauntlet_conductor_hook.py" `
-        -ArgList @() -TaskName "twin-gauntlet-conductor-hook" -TimeoutSec 30
-} catch { }
-
-$promptFile = Join-Path $projectRoot "automation\prompts\conductor.md"
-if (-not (Test-Path $promptFile)) {
-    Write-TaskLog -TaskName $task -Message "conductor-weekend: ERROR conductor.md missing at $promptFile"
-    exit 1
+# --- CROSS-FIRE LOCK (fail-open; SHARED with run-conductor.ps1) -----------------
+# Same lock file / same Enter-ConductorFireLock helper as run-conductor.ps1 --
+# conductor and conductor-weekend pick from the SAME queue.md and can (and, per
+# 2026-07-18 STATUS.md evidence, DID) fire close enough together to independently
+# build the byte-identical fix for the same item. See _shared.ps1's
+# Enter-ConductorFireLock for the full incident writeup. Never blocks J's
+# interactive session (rail 2); fails open via the stale-minutes overwrite.
+$conductorLock = Enter-ConductorFireLock
+$conductorLockFile = $conductorLock.lockFile
+if (-not $conductorLock.acquired) {
+    Write-TaskLog -TaskName $task -Message ("conductor-weekend: SKIP -- another conductor fire holds the lock (age " + [math]::Round($conductorLock.ageMinutes, 1) + "m)")
+    exit 0
 }
+$conductorLockHeld = $true
 
-# Sonnet, high effort, full $10 budget -- same as the after-hours full loop. The prompt's
-# `Task: conductor-weekend` header selects WEEKEND mode (STAGE 1 twin/kitchen nudge);
-# everything else is the identical STAGE 0->5 machinery.
-$exitCode = Invoke-ClaudeWithRetry `
-    -PromptFile $promptFile `
-    -TaskName $task `
-    -MaxBudgetUsd 10.00 `
-    -Model "sonnet" `
-    -Effort "high" `
-    -AgentName "gamma" `
-    -TimeoutSec 600 `
-    -MaxRateLimitWaitSec 3600
+$exitCode = 1
+try {
+    # Same L181 retention + B2b twin-gauntlet autowires as run-conductor.ps1 -- STATUS.md
+    # silently regrows past the Read cap between fires regardless of which conductor mode
+    # is writing to it, and a weekend fire is exactly the kind of trading-path-adjacent
+    # session the gauntlet-gap check exists to catch.
+    try {
+        $null = Invoke-PythonHidden -ScriptPath "setup\scripts\status_retention.py" `
+            -ArgList @() -TaskName "status-retention" -TimeoutSec 30
+    } catch { }
+    try {
+        $null = Invoke-PythonHidden -ScriptPath "setup\scripts\twin_gauntlet_conductor_hook.py" `
+            -ArgList @() -TaskName "twin-gauntlet-conductor-hook" -TimeoutSec 30
+    } catch { }
+
+    $promptFile = Join-Path $projectRoot "automation\prompts\conductor.md"
+    if (-not (Test-Path $promptFile)) {
+        Write-TaskLog -TaskName $task -Message "conductor-weekend: ERROR conductor.md missing at $promptFile"
+        exit 1
+    }
+
+    # Sonnet, high effort, full $10 budget -- same as the after-hours full loop. The prompt's
+    # `Task: conductor-weekend` header selects WEEKEND mode (STAGE 1 twin/kitchen nudge);
+    # everything else is the identical STAGE 0->5 machinery.
+    $exitCode = Invoke-ClaudeWithRetry `
+        -PromptFile $promptFile `
+        -TaskName $task `
+        -MaxBudgetUsd 10.00 `
+        -Model "sonnet" `
+        -Effort "high" `
+        -AgentName "gamma" `
+        -TimeoutSec 600 `
+        -MaxRateLimitWaitSec 3600
+}
+finally {
+    if ($conductorLockHeld) {
+        Exit-ConductorFireLock -LockFile $conductorLockFile
+    }
+}
 
 Write-TaskLog -TaskName $task -Message "conductor-weekend: END exit=$exitCode"
 exit $exitCode

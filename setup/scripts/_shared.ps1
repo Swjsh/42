@@ -819,3 +819,51 @@ function Invoke-TvLaunchSafe {
     }
     return @{ skipped = $false }
 }
+
+function Enter-ConductorFireLock {
+    # Cross-fire mutual-exclusion lock shared by run-conductor.ps1 and
+    # run-conductor-weekend.ps1 -- the two heavy STAGE 1-5 loop wrappers that pick
+    # from the SAME automation/overnight/queue.md and can genuinely fire close
+    # together (conductor: hourly 18:00-07:00 ET every day; conductor-weekend: every
+    # 2h all day Sat/Sun -- both cadences overlap on weekend evenings).
+    #
+    # 2026-07-18 self-audit gap ("cross-fire coordination... to prevent concurrent
+    # conductor fires from clobbering") + same-day CONCRETE evidence in STATUS.md:
+    # conductor and conductor-weekend fired ~16:00-16:20 ET and ~16:02-16:20 ET the
+    # SAME afternoon, independently derived and built the byte-identical fix for
+    # F7-EXIT-SELL-ALL-REFIRE (real wasted duplicate-work cost), and a SEPARATE
+    # overlapping pair collided on a `git stash` mid-edit the same day
+    # (SINGLE-STRATEGY-REGISTRY-DESIGN fire had to recover via
+    # `git checkout stash@{0} -- <files>`).
+    #
+    # Same proven pattern as Invoke-TvLaunchSafe's tv-launch.lock above: a FRESH
+    # lock = a live peer -> caller must SKIP (the next scheduled wake tries again);
+    # a STALE lock = a dead/crashed instance -> overwrite and proceed. Fail-open
+    # (rail 2): this NEVER blocks J's interactive session, only serializes
+    # automated conductor fires against EACH OTHER -- a killed/crashed fire's lock
+    # simply ages past StaleMinutes and the next wake reclaims it.
+    #
+    # Guard: backtest/tests/test_conductor_fire_lock_2026_07_18.py (text-assertion +
+    # a real subprocess round-trip, same convention as test_tv_launch_safe_2026_07_06.py
+    # per the "Guard OWED" note on Invoke-TvLaunchSafe above -- no Pester harness here).
+    param(
+        [int]$StaleMinutes = 20,
+        [string]$LockFile = (Join-Path $WorkDir "automation\state\conductor-fire.lock")
+    )
+    if (Test-Path $LockFile) {
+        $ageMin = ((Get-Date) - (Get-Item $LockFile).LastWriteTime).TotalMinutes
+        if ($ageMin -lt $StaleMinutes) {
+            return @{ acquired = $false; lockFile = $LockFile; ageMinutes = $ageMin }
+        }
+    }
+    try { (Get-Date).ToString("o") | Out-File -FilePath $LockFile -Encoding utf8 -Force } catch { }
+    return @{ acquired = $true; lockFile = $LockFile; ageMinutes = 0 }
+}
+
+function Exit-ConductorFireLock {
+    # Releases a lock acquired via Enter-ConductorFireLock. Always call from a
+    # `finally` block so a thrown/early-exited fire still releases promptly instead
+    # of relying solely on the StaleMinutes timeout to recover.
+    param([string]$LockFile)
+    if ($LockFile) { Remove-Item $LockFile -Force -ErrorAction SilentlyContinue }
+}

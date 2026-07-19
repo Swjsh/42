@@ -170,3 +170,15 @@
 - All agree that the system lacks a single source of truth for account/credential mapping, leading to coordination overhea
 - All agree that better monitoring/alerting (real‑time market data, PnL anomalies, API health) is needed to prevent silent
 - **Edge generation vs. operational hygiene**: Perspective 1 and 3 stress autonomous edge creation/backtesting as a core g
+
+## 2026-07-18T17:34:29 -- 6 new gap(s) Gamma self-identified
+- Cascade to other monitors
+- All perspectives that gave concrete feedback (1, 2, 5) agree Gamma lacks reliable *pre‑flight guarantees* that trading‑r
+- They also agree on the need for *cross‑fire coordination* (a lock/mutex) to prevent concurrent conductor fires from clob
+  <!-- DONE 2026-07-18T20:xx conductor-weekend: shipped Enter-ConductorFireLock/Exit-ConductorFireLock in _shared.ps1,
+  wired into run-conductor.ps1 + run-conductor-weekend.ps1 (fresh lock = SKIP, stale = fail-open overwrite). 8 new
+  guard tests (test_conductor_fire_lock_2026_07_18.py, incl. 5 live powershell.exe subprocess round-trips), RED-proofed
+  via git stash. See STATUS.md for the full REVOKE report. Commit: (see queue.md entry). -->
+- There is broad agreement that Gamma’s *health‑monitoring and self‑healing* layer is insufficient: the scheduler (`wscrip
+- Finally, all concur that Gamma should have an *automated kill‑switch or circuit‑breaker* (e.g., a file‑trigger or cost l
+- **Perspectives 1, 2, 5** view the guard issue as a symptom of a broader class of problems (lack of pre‑flight commit che
