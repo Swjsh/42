@@ -1,14 +1,14 @@
 {
   "tracker": "RECENCY-CONFIRMATION \u2014 the CONFIRM-BEFORE-CAPITAL gate (weekly)",
-  "run_date": "2026-07-13",
+  "run_date": "2026-07-18",
   "cadence": "WEEKLY \u2014 fold into weekly-review / OP-11 outer loop as recent fills accrue",
   "gate": "NO live flip while an edge's recency verdict is RED; capital scaling on an edge WAITS for CONFIRM (yellow-flag gate). See markdown/planning/LIVE-PATH-WORKPACKAGE.md.",
-  "opra_cache_last": "2026-07-08",
-  "recent_window": "2026-06-02..2026-07-08",
+  "opra_cache_last": "2026-07-17",
+  "recent_window": "2026-06-11..2026-07-17",
   "recent_window_trading_days": 25,
   "lookback_trading_days_requested": 25,
   "confirm_n_floor": 10,
-  "frame": "2025-01-02..2026-07-13 (master + recent daily concat)",
+  "frame": "2025-01-02..2026-07-17 (master + recent daily concat)",
   "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1)",
   "book_basis": "cap-aware REALIZABLE book \u2014 lib.cap_admission (risk_gate.check_order) applied per account at current equity; verdict is on the affordable book",
   "config": {
@@ -49,7 +49,7 @@
   },
   "edges": {
     "vwap_continuation": {
-      "n_signals": 173,
+      "n_signals": 174,
       "tiers": {
         "ATM": {
           "sim_offset": 0,
@@ -57,56 +57,56 @@
           "qty": 3,
           "equity": 2000.0,
           "coverage": {
-            "signals": 173,
-            "filled": 162,
+            "signals": 174,
+            "filled": 163,
             "cache_miss": 11,
             "sim_none": 0,
-            "fill_rate": 0.936
+            "fill_rate": 0.937
           },
           "admission": {
             "account": "Gamma-Safe-2",
             "equity": 2000.0,
             "qty": 3,
-            "n_total": 162,
-            "n_admitted": 126,
+            "n_total": 163,
+            "n_admitted": 127,
             "n_blocked": 36,
-            "block_rate": 0.2222,
+            "block_rate": 0.2209,
             "block_codes": {
               "RISK_CAP": 36
             }
           },
           "recent_window": {
-            "window": "2026-06-02..2026-07-08",
+            "window": "2026-06-11..2026-07-17",
             "n": 5,
             "n_days": 5,
-            "wr_pct": 0.0,
-            "exp_per_trade": -39.89,
-            "total_dollar": -199.44,
+            "wr_pct": 20.0,
+            "exp_per_trade": -11.26,
+            "total_dollar": -56.28,
             "sign": "NEGATIVE",
-            "best_day": -32.4,
+            "best_day": 100.2,
             "worst_day": -46.08,
-            "win_days": 0,
-            "loss_days": 5,
-            "first_fill": "2026-06-03",
-            "last_fill": "2026-07-08"
+            "win_days": 1,
+            "loss_days": 4,
+            "first_fill": "2026-06-15",
+            "last_fill": "2026-07-09"
           },
           "full_oos_2026": {
-            "window": "2026-01-01..2026-07-08",
-            "n": 40,
-            "n_days": 40,
-            "wr_pct": 42.5,
-            "exp_per_trade": 49.12,
-            "total_dollar": 1964.96,
+            "window": "2026-01-01..2026-07-17",
+            "n": 41,
+            "n_days": 41,
+            "wr_pct": 43.9,
+            "exp_per_trade": 50.37,
+            "total_dollar": 2065.16,
             "sign": "POSITIVE",
             "best_day": 379.2,
             "worst_day": -46.08,
-            "win_days": 17,
+            "win_days": 18,
             "loss_days": 23,
             "first_fill": "2026-01-08",
-            "last_fill": "2026-07-08"
+            "last_fill": "2026-07-09"
           },
           "verdict": "YELLOW",
-          "reason": "recent exp $-39.89/tr <=0 but n=5 < floor 10; full-OOS base positive ($49.12/tr) -> small-n wobble, not a kill",
+          "reason": "recent exp $-11.26/tr <=0 but n=5 < floor 10; full-OOS base positive ($50.37/tr) -> small-n wobble, not a kill",
           "book_basis": "cap-aware REALIZABLE (lib.cap_admission -> risk_gate.check_order)"
         },
         "ITM-2": {
@@ -115,30 +115,30 @@
           "qty": 3,
           "equity": 2000.0,
           "coverage": {
-            "signals": 173,
-            "filled": 163,
+            "signals": 174,
+            "filled": 164,
             "cache_miss": 10,
             "sim_none": 0,
-            "fill_rate": 0.942
+            "fill_rate": 0.943
           },
           "admission": {
             "account": "Gamma-Safe-2",
             "equity": 2000.0,
             "qty": 3,
-            "n_total": 163,
+            "n_total": 164,
             "n_admitted": 34,
-            "n_blocked": 129,
-            "block_rate": 0.7914,
+            "n_blocked": 130,
+            "block_rate": 0.7927,
             "block_codes": {
-              "RISK_CAP": 129
+              "RISK_CAP": 130
             }
           },
           "recent_window": {
             "n": 0,
-            "window": "2026-06-02..2026-07-08"
+            "window": "2026-06-11..2026-07-17"
           },
           "full_oos_2026": {
-            "window": "2026-01-01..2026-07-08",
+            "window": "2026-01-01..2026-07-17",
             "n": 14,
             "n_days": 14,
             "wr_pct": 85.7,
@@ -162,8 +162,8 @@
           "qty": 3,
           "equity": 2000.0,
           "coverage": {
-            "signals": 173,
-            "filled": 160,
+            "signals": 174,
+            "filled": 161,
             "cache_miss": 13,
             "sim_none": 0,
             "fill_rate": 0.925
@@ -172,46 +172,46 @@
             "account": "Gamma-Safe-2",
             "equity": 2000.0,
             "qty": 3,
-            "n_total": 160,
-            "n_admitted": 149,
+            "n_total": 161,
+            "n_admitted": 150,
             "n_blocked": 11,
-            "block_rate": 0.0688,
+            "block_rate": 0.0683,
             "block_codes": {
               "RISK_CAP": 11
             }
           },
           "recent_window": {
-            "window": "2026-06-02..2026-07-08",
+            "window": "2026-06-11..2026-07-17",
             "n": 8,
             "n_days": 8,
-            "wr_pct": 25.0,
-            "exp_per_trade": 4.62,
-            "total_dollar": 36.96,
+            "wr_pct": 37.5,
+            "exp_per_trade": 13.38,
+            "total_dollar": 107.04,
             "sign": "POSITIVE",
             "best_day": 114.6,
             "worst_day": -40.56,
-            "win_days": 2,
-            "loss_days": 6,
-            "first_fill": "2026-06-03",
-            "last_fill": "2026-07-08"
+            "win_days": 3,
+            "loss_days": 5,
+            "first_fill": "2026-06-15",
+            "last_fill": "2026-07-09"
           },
           "full_oos_2026": {
-            "window": "2026-01-01..2026-07-08",
-            "n": 51,
-            "n_days": 51,
-            "wr_pct": 37.3,
-            "exp_per_trade": 16.33,
-            "total_dollar": 832.96,
+            "window": "2026-01-01..2026-07-17",
+            "n": 52,
+            "n_days": 52,
+            "wr_pct": 38.5,
+            "exp_per_trade": 16.87,
+            "total_dollar": 877.36,
             "sign": "POSITIVE",
             "best_day": 210.0,
             "worst_day": -40.56,
-            "win_days": 19,
+            "win_days": 20,
             "loss_days": 32,
             "first_fill": "2026-01-08",
-            "last_fill": "2026-07-08"
+            "last_fill": "2026-07-09"
           },
           "verdict": "YELLOW",
-          "reason": "recent exp +$4.62/tr POSITIVE but n=8 < floor 10 (small-n)",
+          "reason": "recent exp +$13.38/tr POSITIVE but n=8 < floor 10 (small-n)",
           "book_basis": "cap-aware REALIZABLE (lib.cap_admission -> risk_gate.check_order)"
         }
       }
@@ -221,64 +221,6 @@
       "tiers": {
         "ATM": {
           "sim_offset": 0,
-          "primary_account": "Gamma-Safe-2",
-          "qty": 3,
-          "equity": 2000.0,
-          "coverage": {
-            "signals": 91,
-            "filled": 84,
-            "cache_miss": 7,
-            "sim_none": 0,
-            "fill_rate": 0.923
-          },
-          "admission": {
-            "account": "Gamma-Safe-2",
-            "equity": 2000.0,
-            "qty": 3,
-            "n_total": 84,
-            "n_admitted": 65,
-            "n_blocked": 19,
-            "block_rate": 0.2262,
-            "block_codes": {
-              "RISK_CAP": 19
-            }
-          },
-          "recent_window": {
-            "window": "2026-06-02..2026-07-08",
-            "n": 4,
-            "n_days": 4,
-            "wr_pct": 0.0,
-            "exp_per_trade": -44.94,
-            "total_dollar": -179.76,
-            "sign": "NEGATIVE",
-            "best_day": -33.36,
-            "worst_day": -54.0,
-            "win_days": 0,
-            "loss_days": 4,
-            "first_fill": "2026-06-03",
-            "last_fill": "2026-07-08"
-          },
-          "full_oos_2026": {
-            "window": "2026-01-01..2026-07-08",
-            "n": 19,
-            "n_days": 19,
-            "wr_pct": 31.6,
-            "exp_per_trade": 7.36,
-            "total_dollar": 139.8,
-            "sign": "POSITIVE",
-            "best_day": 326.4,
-            "worst_day": -54.0,
-            "win_days": 6,
-            "loss_days": 13,
-            "first_fill": "2026-01-08",
-            "last_fill": "2026-07-08"
-          },
-          "verdict": "YELLOW",
-          "reason": "recent exp $-44.94/tr <=0 but n=4 < floor 10; full-OOS base positive ($7.36/tr) -> small-n wobble, not a kill",
-          "book_basis": "cap-aware REALIZABLE (lib.cap_admission -> risk_gate.check_order)"
-        },
-        "ITM-2": {
-          "sim_offset": -2,
           "primary_account": "Gamma-Safe-2",
           "qty": 3,
           "equity": 2000.0,
@@ -294,19 +236,77 @@
             "equity": 2000.0,
             "qty": 3,
             "n_total": 85,
-            "n_admitted": 13,
-            "n_blocked": 72,
-            "block_rate": 0.8471,
+            "n_admitted": 66,
+            "n_blocked": 19,
+            "block_rate": 0.2235,
             "block_codes": {
-              "RISK_CAP": 72
+              "RISK_CAP": 19
+            }
+          },
+          "recent_window": {
+            "window": "2026-06-11..2026-07-17",
+            "n": 4,
+            "n_days": 4,
+            "wr_pct": 0.0,
+            "exp_per_trade": -45.06,
+            "total_dollar": -180.24,
+            "sign": "NEGATIVE",
+            "best_day": -33.84,
+            "worst_day": -54.0,
+            "win_days": 0,
+            "loss_days": 4,
+            "first_fill": "2026-06-15",
+            "last_fill": "2026-07-09"
+          },
+          "full_oos_2026": {
+            "window": "2026-01-01..2026-07-17",
+            "n": 20,
+            "n_days": 20,
+            "wr_pct": 30.0,
+            "exp_per_trade": 5.3,
+            "total_dollar": 105.96,
+            "sign": "POSITIVE",
+            "best_day": 326.4,
+            "worst_day": -54.0,
+            "win_days": 6,
+            "loss_days": 14,
+            "first_fill": "2026-01-08",
+            "last_fill": "2026-07-09"
+          },
+          "verdict": "YELLOW",
+          "reason": "recent exp $-45.06/tr <=0 but n=4 < floor 10; full-OOS base positive ($5.3/tr) -> small-n wobble, not a kill",
+          "book_basis": "cap-aware REALIZABLE (lib.cap_admission -> risk_gate.check_order)"
+        },
+        "ITM-2": {
+          "sim_offset": -2,
+          "primary_account": "Gamma-Safe-2",
+          "qty": 3,
+          "equity": 2000.0,
+          "coverage": {
+            "signals": 91,
+            "filled": 86,
+            "cache_miss": 5,
+            "sim_none": 0,
+            "fill_rate": 0.945
+          },
+          "admission": {
+            "account": "Gamma-Safe-2",
+            "equity": 2000.0,
+            "qty": 3,
+            "n_total": 86,
+            "n_admitted": 13,
+            "n_blocked": 73,
+            "block_rate": 0.8488,
+            "block_codes": {
+              "RISK_CAP": 73
             }
           },
           "recent_window": {
             "n": 0,
-            "window": "2026-06-02..2026-07-08"
+            "window": "2026-06-11..2026-07-17"
           },
           "full_oos_2026": {
-            "window": "2026-01-01..2026-07-08",
+            "window": "2026-01-01..2026-07-17",
             "n": 4,
             "n_days": 4,
             "wr_pct": 50.0,
@@ -354,37 +354,37 @@
             }
           },
           "recent_window": {
-            "window": "2026-06-02..2026-07-08",
+            "window": "2026-06-11..2026-07-17",
             "n": 5,
             "n_days": 5,
             "wr_pct": 0.0,
-            "exp_per_trade": -36.96,
-            "total_dollar": -184.8,
+            "exp_per_trade": -36.53,
+            "total_dollar": -182.64,
             "sign": "NEGATIVE",
             "best_day": -31.44,
             "worst_day": -42.96,
             "win_days": 0,
             "loss_days": 5,
             "first_fill": "2026-06-15",
-            "last_fill": "2026-07-08"
+            "last_fill": "2026-07-09"
           },
           "full_oos_2026": {
-            "window": "2026-01-01..2026-07-08",
+            "window": "2026-01-01..2026-07-17",
             "n": 23,
             "n_days": 23,
             "wr_pct": 52.2,
-            "exp_per_trade": 51.85,
-            "total_dollar": 1192.6,
+            "exp_per_trade": 51.95,
+            "total_dollar": 1194.76,
             "sign": "POSITIVE",
             "best_day": 359.4,
             "worst_day": -46.32,
             "win_days": 12,
             "loss_days": 11,
             "first_fill": "2026-01-15",
-            "last_fill": "2026-07-08"
+            "last_fill": "2026-07-09"
           },
           "verdict": "YELLOW",
-          "reason": "recent exp $-36.96/tr <=0 but n=5 < floor 10; full-OOS base positive ($51.85/tr) -> small-n wobble, not a kill",
+          "reason": "recent exp $-36.53/tr <=0 but n=5 < floor 10; full-OOS base positive ($51.95/tr) -> small-n wobble, not a kill",
           "book_basis": "cap-aware REALIZABLE (lib.cap_admission -> risk_gate.check_order)"
         }
       }
@@ -404,27 +404,27 @@
       "recent_window": {
         "n_days": 6,
         "n_trades": 14,
-        "total_dollar": -564.0,
-        "daily_mean": -94.0,
-        "win_days": 0,
-        "loss_days": 6,
-        "best_day": -31.44,
+        "total_dollar": -419.16,
+        "daily_mean": -69.86,
+        "win_days": 1,
+        "loss_days": 5,
+        "best_day": 31.08,
         "worst_day": -135.12,
         "sign": "NEGATIVE"
       },
       "full_oos_2026": {
-        "n_days": 43,
-        "n_trades": 82,
-        "total_dollar": 3297.36,
-        "daily_mean": 76.68,
-        "win_days": 21,
+        "n_days": 44,
+        "n_trades": 84,
+        "total_dollar": 3365.88,
+        "daily_mean": 76.5,
+        "win_days": 22,
         "loss_days": 22,
         "best_day": 1045.2,
         "worst_day": -135.12,
         "sign": "POSITIVE"
       },
       "verdict": "RED",
-      "reason": "recent exp $-40.29/tr NEGATIVE, n=14 >= floor 10 (clear)"
+      "reason": "recent exp $-29.94/tr NEGATIVE, n=14 >= floor 10 (clear)"
     },
     "Bold_ATM_1+2": {
       "account": "Gamma-Risky-2",
@@ -438,27 +438,27 @@
       "recent_window": {
         "n_days": 3,
         "n_trades": 4,
-        "total_dollar": -262.0,
-        "daily_mean": -87.33,
+        "total_dollar": -262.8,
+        "daily_mean": -87.6,
         "win_days": 0,
         "loss_days": 3,
-        "best_day": -55.6,
+        "best_day": -56.4,
         "worst_day": -144.0,
         "sign": "NEGATIVE"
       },
       "full_oos_2026": {
-        "n_days": 33,
-        "n_trades": 45,
-        "total_dollar": 3660.9,
-        "daily_mean": 110.94,
+        "n_days": 34,
+        "n_trades": 46,
+        "total_dollar": 3604.5,
+        "daily_mean": 106.01,
         "win_days": 15,
-        "loss_days": 18,
+        "loss_days": 19,
         "best_day": 1273.2,
         "worst_day": -144.0,
         "sign": "POSITIVE"
       },
       "verdict": "YELLOW",
-      "reason": "recent exp $-65.5/tr <=0 but n=4 < floor 10; full-OOS base positive ($81.35/tr) -> small-n wobble, not a kill"
+      "reason": "recent exp $-65.7/tr <=0 but n=4 < floor 10; full-OOS base positive ($78.36/tr) -> small-n wobble, not a kill"
     }
   },
   "books_future_reference": {

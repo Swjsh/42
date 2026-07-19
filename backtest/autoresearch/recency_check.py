@@ -170,7 +170,37 @@ FUTURE_REFERENCE_BOOKS = {
 
 
 def read_cache_last_date() -> dt.date:
-    """Auto-read the OPRA real-fills cache last-date from data-coverage.json."""
+    """Auto-read the OPRA real-fills cache last-date from data-coverage.json.
+
+    SELF-REFRESHES the manifest first (2026-07-18 fix, F3-RED-BOOK-STILL-ARMED audit):
+    ``data-coverage.json`` is a MANUALLY-run tool with no scheduled task, so nothing kept
+    it current -- found stuck at ``option_chain_realfills.last=2026-07-08`` (manifest
+    itself last regenerated 2026-07-14) while the REAL on-disk option cache had already
+    extended to 2026-07-17 (verified: ``backtest/tools/data_coverage_manifest.build_manifest()``
+    rescans ``backtest/data/options/*.csv`` directly). This silently truncated the
+    CONFIRM-BEFORE-CAPITAL recent-window by ~9 trading days on every nightly
+    ``Gamma_LicenseMonitor`` run -- the exact silent-degradation foot-gun this manifest's
+    own docstring says it exists to prevent (ironic: the guard itself needed a guard).
+    Fail-open: any failure to regenerate falls back to the existing (possibly stale)
+    JSON on disk rather than crashing the gate (a stale-but-readable window beats no
+    window at all -- OP-25 fail-open-for-the-gate's-caller, matches the module's other
+    ``_safe()`` wrappers). Guard: ``test_recency_check_self_refreshes_coverage.py``.
+    """
+    try:
+        from tools.data_coverage_manifest import build_manifest
+
+        manifest = build_manifest()
+        # Write to DATA_COVERAGE (this module's own constant, not the tools module's
+        # OUT) so a test can redirect the write target the same way it redirects the
+        # read target -- and so this stays a single source of truth for "where does
+        # recency_check think the manifest lives" (C14: no second copy to drift).
+        DATA_COVERAGE.parent.mkdir(parents=True, exist_ok=True)
+        DATA_COVERAGE.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+        last = manifest["classes"]["option_chain_realfills"]["last"]
+        if last:
+            return dt.date.fromisoformat(last)
+    except Exception as exc:  # noqa: BLE001 — never let a refresh failure block the gate
+        print(f"[recency] WARN manifest self-refresh failed ({exc}); using existing data-coverage.json", flush=True)
     cov = json.loads(DATA_COVERAGE.read_text(encoding="utf-8"))
     last = cov["classes"]["option_chain_realfills"]["last"]
     return dt.date.fromisoformat(last)
