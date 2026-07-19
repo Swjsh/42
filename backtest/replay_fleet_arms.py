@@ -63,7 +63,7 @@ for p in ("backtest", "setup/scripts", "automation/state/fleet"):
 
 from lib.orchestrator import run_backtest, _align_vix_to_spy, _params_to_kwargs  # noqa: E402
 from lib.levels import _detect_from_history  # noqa: E402
-from lib.engine.engine_cli import decide_payload  # noqa: E402
+from lib.engine.engine_cli import decide_payload, _classify_sameday_5m, _veto_side  # noqa: E402
 import datetime as _dt  # noqa: E402
 import heartbeat_core as hc  # noqa: E402
 import fleet_executor as fx  # noqa: E402
@@ -137,14 +137,52 @@ def _is_elite_triggers(triggers) -> bool:
                for t in (triggers or []))
 
 
-def _ground_truth_trades(arm: dict, spy, vix, start, end):
-    """run_backtest GT for the arm, then post-filter for the gates run_backtest cannot model."""
+def _ground_truth_trades(arm: dict, spy, vix, start, end, payload_by_bar: dict | None = None):
+    """run_backtest GT for the arm, then post-filter for the gates run_backtest cannot model.
+
+    STRUCTURE-VETO POST-FILTER (2026-07-18 conductor fire, REPLAY-FLEET-ARMS-FIDELITY-DRIFT):
+    orchestrator.run_backtest has ZERO implementation of `structure_veto_enabled`
+    (`gate_params["structure_veto_enabled"]` — engine_cli.py L574, live in production
+    params.json since the chart-stop-primary v15.3 rollout). decide_payload (the SAME
+    deterministic brain that drives core-decisions.jsonl / this harness's signal-driven
+    arm path) DOES apply it — so when it's ON, run_backtest's own trade simulation can
+    include counter-structure entries (e.g. a P/bear entry during a confirmed intraday
+    uptrend) that the live signal path would correctly SKIP_STRUCTURE_VETO. Confirmed
+    live 2026-07-18: safe-1 bar 1394 (2026-06-12 15:10 ET, P, trendline_rejection) is a
+    real run_backtest trade, but the SAME bar's replayed decide_payload verdict is
+    SKIP_STRUCTURE_VETO (bear_score=7, structure=uptrend) — GT was over-counting an entry
+    the live brain would never take. This is the SAME post-filter class as
+    direction_lock/elite/min_confidence below (a live-decision-layer gate run_backtest
+    cannot express) — NOT the previously-hypothesized level-state window-truncation
+    (which was ruled out for this bar: trendline_rejection is not level-state-derived).
+    Fail-open when payload_by_bar is absent or the trade's entry bar wasn't replayed
+    (mirrors _classify_sameday_5m's own <5-bars -> 'unknown' -> no-veto fail-open)."""
     p = _arm_run_backtest_params(arm)
     eq = float(arm.get("starting_equity") or 2000.0)
     kw = _params_to_kwargs(p, account_equity=eq)
     res = run_backtest(spy.drop(columns=["date"]), vix, start_date=start, end_date=end, **kw)
     trades = list(res.trades)
     notes = []
+
+    if p.get("structure_veto_enabled", False) and payload_by_bar:
+        _bar_of = _bar_index_map(spy)
+        _vetoed = []
+
+        def _not_vetoed(t):
+            idx = _bar_of(getattr(t, "entry_time_et", None))
+            payload = payload_by_bar.get(idx) if idx is not None else None
+            if payload is None:
+                return True  # not replayed -> fail-open, unchanged from before this filter
+            trend = _classify_sameday_5m(payload.get("sameday_5m_bars"))
+            if _veto_side(getattr(t, "side", None), trend):
+                _vetoed.append((idx, getattr(t, "side", None), trend))
+                return False
+            return True
+
+        trades = [t for t in trades if _not_vetoed(t)]
+        if _vetoed:
+            notes.append(f"structure_veto post-filter dropped {len(_vetoed)} GT trade(s) "
+                         f"decide_payload would SKIP_STRUCTURE_VETO: {_vetoed}")
 
     g = arm.get("gate_override") or {}
     dl = arm.get("direction_lock")
@@ -449,7 +487,8 @@ def compute_arm_fidelity(spy_csv: Path = SPY_CSV, vix_csv: Path = VIX_CSV,
         arm = _arm(arm_id)
         pack = safe_pack if arm_id.startswith("safe") else bold_pack
         verdict_by_bar, payload_by_bar = pack[2], pack[3]
-        _gtres, gt_trades, notes, benched = _ground_truth_trades(arm, spy, vix, start, end)
+        _gtres, gt_trades, notes, benched = _ground_truth_trades(
+            arm, spy, vix, start, end, payload_by_bar=payload_by_bar)
         fid = _entry_fidelity(arm, gt_trades, verdict_by_bar, payload_by_bar, _gtres.decisions, spy)
         gt_n = len(fid["gt_by_bar"])
         matched, extra, missed = len(fid["matched"]), len(fid["extra"]), len(fid["missed"])
