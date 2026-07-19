@@ -235,7 +235,7 @@ These are non-negotiable, second only to the 10 rules above.
     | C11 | Broker is source of truth: verify flat before entry | L47,76,180 |
     | C12 | Stateful detectors need warmup / persisted state | L30,35 |
     | C13 | Confidence tiers must be reachable AND diverse over N>=20 | L63,65 |
-    | C14 | Dead/translated-but-unapplied knobs: vary-and-assert (L201: enable-flag != exec-arm-map, a distinct sibling failure) | L38,70,72,77,88,89,96,99,106,108,109,110,111,113,114,115,116,117,123,127,130,131,147,152,155,176,180,201 |
+    | C14 | Dead/translated-but-unapplied knobs: vary-and-assert (L201: enable-flag != exec-arm-map; L202: a stale queue item is the same failure one level up) | L38,70,72,77,88,89,96,99,106,108,109,110,111,113,114,115,116,117,123,127,130,131,147,152,155,176,180,201,202 |
     | C15 | Gates interact multiplicatively — trace session cascades | L07,08,09,66,95,163,180,199 |
     | C16 | Multi-bar reversal vs single-bar continuation discriminator | L52,59,75 |
     | C17 | Build reusable skills + crypto validation, not one-shots | L36,37 |

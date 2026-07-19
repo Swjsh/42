@@ -92,3 +92,17 @@ and break a downstream shell-out consumer). RED-proofed via `git stash` on
 passes either way since it exercises the unmodified real CLI path — that's correct,
 not a gap, since its job is to catch a *future* accidental `print(advisory)` without
 `file=sys.stderr`).
+
+5. `PROMOTE-KEEPER-OOS-VALIDATION` (2026-07-19T01:51 ET, conductor AFTERHOURS) — closed
+   `CLOSED_ALREADY_ANSWERED`: item asked a human to manually run OOS validation on a
+   contender; the ask was fully automated 3 weeks earlier (`Gamma_OosCheck`, registered
+   2026-07-01) and had ALREADY run the exact validation to completion TWICE — once
+   applied+kept (`pk-2026-06-28-001`), once killed on a recency-RED refresh
+   (`pk-2026-07-01-001`, `kill_reason` cites a lotto-shape WR + concentration finding).
+   Live tonight's `oos-check-2026-07-18.log` shows the nightly runner correctly SKIPping
+   both stale rows and landing `pending validatable proposals: []` — the bridge isn't
+   broken, it's just out of fresh input because the upstream grind (`Gamma_Grind_all`)
+   has been disabled since 2026-07-01. Distinct from the first 4 recurrences in that this
+   one is a HIGH item whose described gap was closed by INFRA BUILT AFTER FILING (the
+   very runner it asks for), not infra that predates it — same root cause, one layer
+   later in the pipeline's life.
