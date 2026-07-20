@@ -1,0 +1,3904 @@
+[
+  {
+    "date": "2026-07-13",
+    "account": "PA31WIU8X15Q",
+    "arm_id": "risky-3",
+    "arm_display": "FLEET-LOOSE-R (X15Q)",
+    "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "setup_quality_tier": "BASE",
+    "side": "P",
+    "symbol": "SPY260713P00747000",
+    "contract": "SPY 2026-07-13 747P",
+    "qty": 5,
+    "entry_et": "2026-07-13T12:40:05.968138",
+    "exit_et": "2026-07-13T12:49:04.024976",
+    "entry_px": 0.27,
+    "exit_px": 0.22,
+    "pnl_usd": -25.0,
+    "hold_minutes": 9.0,
+    "exit_stage": "structure_stop",
+    "exit_stages_all_legs": [
+      "structure_stop"
+    ],
+    "leg_count": 2,
+    "attribution": "engine",
+    "entry_reason": "ribbon_ride P (BASE)",
+    "context": {
+      "spy": 749.61,
+      "ribbon": "BEAR",
+      "htf_15m": "MIXED",
+      "vix": 16.44,
+      "bear_score": 9,
+      "bull_score": 8,
+      "triggers": [
+        "trendline_rejection"
+      ],
+      "trigger_level_exact": null,
+      "context_bundle": null,
+      "context_source": "core_proxy(account=safe,delta=0.0m)",
+      "context_ts_et": "2026-07-13T12:40:04",
+      "time_of_day_bucket": "10:30-14:00",
+      "alignment_score": null,
+      "nearest_level_distance": null,
+      "position_in_prior_range": null
+    },
+    "join_quality": "fleet_own_setup_exact+core_context_proxy",
+    "entry_order_id": "32eb1808-d943-4b25-9466-9372c02f5885"
+  },
+  {
+    "date": "2026-07-15",
+    "account": "PA32RD49OB0Q",
+    "arm_id": "safe-3",
+    "arm_display": "FLEET-TIGHT-S (OB0Q)",
+    "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+    "setup_quality_tier": "ELITE",
+    "side": "C",
+    "symbol": "SPY260715C00757000",
+    "contract": "SPY 2026-07-15 757C",
+    "qty": 3,
+    "entry_et": "2026-07-15T10:01:04.872358",
+    "exit_et": "2026-07-15T10:25:04.598402",
+    "entry_px": 0.3,
+    "exit_px": 0.16,
+    "pnl_usd": -42.0,
+    "hold_minutes": 24.0,
+    "exit_stage": "premium_stop",
+    "exit_stages_all_legs": [
+      "premium_stop"
+    ],
+    "leg_count": 1,
+    "attribution": "engine",
+    "entry_reason": "ribbon_ride C (ELITE)",
+    "context": {
+      "spy": 754.41,
+      "ribbon": "BULL",
+      "htf_15m": "BULL",
+      "vix": 16.22,
+      "bear_score": 4,
+      "bull_score": 10,
+      "triggers": [],
+      "trigger_level_exact": null,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-15T10:00:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.733,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 136,
+            "reason": null
+          },
+          "m15": {
+            "trend": "uptrend",
+            "confidence": 0.867,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 142,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily",
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 3,
+            "available_count": 3,
+            "aligned": true
+          },
+          "bear": {
+            "agreeing_timeframes": [],
+            "agree_count": 0,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": 3,
+        "events": {
+          "next_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "next_event_et": "08:30 ET 2026-07-16",
+          "minutes_to_next_event": 1350.0,
+          "next_event_severity": "med",
+          "last_event_name": "PPI (June 2026 data)",
+          "minutes_since_last_event": 90.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [
+            {
+              "start_et": "08:25",
+              "end_et": "08:50",
+              "event": "PPI (June 2026 data)",
+              "type": "ppi_release",
+              "severity": "med"
+            }
+          ],
+          "calendar_stale": true,
+          "calendar_stale_reason": "freshness_stamp 2026-07-14T07:45:01.518286 predates the expected 2026-07-15T07:45:00 ET fire (~26.3h old)"
+        },
+        "prior_day": {
+          "prior_close": 751.94,
+          "prior_high": 753.31,
+          "prior_low": 748.71,
+          "prior_range": 4.6,
+          "prior_date": "2026-07-14",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 754.23,
+          "gap_pct_at_open": 0.304,
+          "gap_reason": null,
+          "position_in_prior_range": 1.2391,
+          "position_reason": null,
+          "or_high": null,
+          "or_low": null,
+          "or_reason": "before_10:30_et_opening_range_not_yet_formed",
+          "rvol_session_so_far": 0.938,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 755.54,
+            "distance": 1.13,
+            "source": "intraday_rth_high"
+          },
+          "nearest_level_below": {
+            "price": 753.52,
+            "distance": 0.89,
+            "source": "premarket_high"
+          },
+          "n_levels_within_1pct": 10,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "core_proxy(account=safe,delta=0.0m)",
+      "context_ts_et": "2026-07-15T10:01:04",
+      "time_of_day_bucket": "09:30-10:30",
+      "alignment_score": 3,
+      "nearest_level_distance": 0.89,
+      "position_in_prior_range": 1.2391
+    },
+    "join_quality": "fleet_own_setup_exact+core_context_proxy",
+    "entry_order_id": "11721199-febf-4967-8326-48a94692ba90"
+  },
+  {
+    "date": "2026-07-15",
+    "account": "PA3W17FD8G19",
+    "arm_id": "risky-1",
+    "arm_display": "FLEET-TIGHT-R (8G19)",
+    "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+    "setup_quality_tier": "ELITE",
+    "side": "C",
+    "symbol": "SPY260715C00757000",
+    "contract": "SPY 2026-07-15 757C",
+    "qty": 5,
+    "entry_et": "2026-07-15T10:01:06.634823",
+    "exit_et": "2026-07-15T10:25:05.263198",
+    "entry_px": 0.31,
+    "exit_px": 0.16,
+    "pnl_usd": -75.0,
+    "hold_minutes": 24.0,
+    "exit_stage": "premium_stop",
+    "exit_stages_all_legs": [
+      "premium_stop"
+    ],
+    "leg_count": 1,
+    "attribution": "engine",
+    "entry_reason": "ribbon_ride C (ELITE)",
+    "context": {
+      "spy": 754.41,
+      "ribbon": "BULL",
+      "htf_15m": "BULL",
+      "vix": 16.22,
+      "bear_score": 4,
+      "bull_score": 10,
+      "triggers": [],
+      "trigger_level_exact": null,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-15T10:00:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.733,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 136,
+            "reason": null
+          },
+          "m15": {
+            "trend": "uptrend",
+            "confidence": 0.867,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 142,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily",
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 3,
+            "available_count": 3,
+            "aligned": true
+          },
+          "bear": {
+            "agreeing_timeframes": [],
+            "agree_count": 0,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": 3,
+        "events": {
+          "next_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "next_event_et": "08:30 ET 2026-07-16",
+          "minutes_to_next_event": 1350.0,
+          "next_event_severity": "med",
+          "last_event_name": "PPI (June 2026 data)",
+          "minutes_since_last_event": 90.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [
+            {
+              "start_et": "08:25",
+              "end_et": "08:50",
+              "event": "PPI (June 2026 data)",
+              "type": "ppi_release",
+              "severity": "med"
+            }
+          ],
+          "calendar_stale": true,
+          "calendar_stale_reason": "freshness_stamp 2026-07-14T07:45:01.518286 predates the expected 2026-07-15T07:45:00 ET fire (~26.3h old)"
+        },
+        "prior_day": {
+          "prior_close": 751.94,
+          "prior_high": 753.31,
+          "prior_low": 748.71,
+          "prior_range": 4.6,
+          "prior_date": "2026-07-14",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 754.23,
+          "gap_pct_at_open": 0.304,
+          "gap_reason": null,
+          "position_in_prior_range": 1.2391,
+          "position_reason": null,
+          "or_high": null,
+          "or_low": null,
+          "or_reason": "before_10:30_et_opening_range_not_yet_formed",
+          "rvol_session_so_far": 0.938,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 755.54,
+            "distance": 1.13,
+            "source": "intraday_rth_high"
+          },
+          "nearest_level_below": {
+            "price": 753.52,
+            "distance": 0.89,
+            "source": "premarket_high"
+          },
+          "n_levels_within_1pct": 10,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "core_proxy(account=safe,delta=0.0m)",
+      "context_ts_et": "2026-07-15T10:01:04",
+      "time_of_day_bucket": "09:30-10:30",
+      "alignment_score": 3,
+      "nearest_level_distance": 0.89,
+      "position_in_prior_range": 1.2391
+    },
+    "join_quality": "fleet_own_setup_exact+core_context_proxy",
+    "entry_order_id": "f97c1499-c292-4274-b2e8-7570b239b0b9"
+  },
+  {
+    "date": "2026-07-15",
+    "account": "PA31WIU8X15Q",
+    "arm_id": "risky-3",
+    "arm_display": "FLEET-LOOSE-R (X15Q)",
+    "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+    "setup_quality_tier": "ELITE",
+    "side": "C",
+    "symbol": "SPY260715C00757000",
+    "contract": "SPY 2026-07-15 757C",
+    "qty": 5,
+    "entry_et": "2026-07-15T10:01:08.199801",
+    "exit_et": "2026-07-15T10:25:06.127836",
+    "entry_px": 0.31,
+    "exit_px": 0.16,
+    "pnl_usd": -75.0,
+    "hold_minutes": 24.0,
+    "exit_stage": "premium_stop",
+    "exit_stages_all_legs": [
+      "premium_stop"
+    ],
+    "leg_count": 1,
+    "attribution": "engine",
+    "entry_reason": "ribbon_ride C (ELITE)",
+    "context": {
+      "spy": 754.41,
+      "ribbon": "BULL",
+      "htf_15m": "BULL",
+      "vix": 16.22,
+      "bear_score": 4,
+      "bull_score": 10,
+      "triggers": [],
+      "trigger_level_exact": null,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-15T10:00:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.733,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 136,
+            "reason": null
+          },
+          "m15": {
+            "trend": "uptrend",
+            "confidence": 0.867,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 142,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily",
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 3,
+            "available_count": 3,
+            "aligned": true
+          },
+          "bear": {
+            "agreeing_timeframes": [],
+            "agree_count": 0,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": 3,
+        "events": {
+          "next_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "next_event_et": "08:30 ET 2026-07-16",
+          "minutes_to_next_event": 1350.0,
+          "next_event_severity": "med",
+          "last_event_name": "PPI (June 2026 data)",
+          "minutes_since_last_event": 90.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [
+            {
+              "start_et": "08:25",
+              "end_et": "08:50",
+              "event": "PPI (June 2026 data)",
+              "type": "ppi_release",
+              "severity": "med"
+            }
+          ],
+          "calendar_stale": true,
+          "calendar_stale_reason": "freshness_stamp 2026-07-14T07:45:01.518286 predates the expected 2026-07-15T07:45:00 ET fire (~26.3h old)"
+        },
+        "prior_day": {
+          "prior_close": 751.94,
+          "prior_high": 753.31,
+          "prior_low": 748.71,
+          "prior_range": 4.6,
+          "prior_date": "2026-07-14",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 754.23,
+          "gap_pct_at_open": 0.304,
+          "gap_reason": null,
+          "position_in_prior_range": 1.2391,
+          "position_reason": null,
+          "or_high": null,
+          "or_low": null,
+          "or_reason": "before_10:30_et_opening_range_not_yet_formed",
+          "rvol_session_so_far": 0.938,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 755.54,
+            "distance": 1.13,
+            "source": "intraday_rth_high"
+          },
+          "nearest_level_below": {
+            "price": 753.52,
+            "distance": 0.89,
+            "source": "premarket_high"
+          },
+          "n_levels_within_1pct": 10,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "core_proxy(account=safe,delta=0.0m)",
+      "context_ts_et": "2026-07-15T10:01:04",
+      "time_of_day_bucket": "09:30-10:30",
+      "alignment_score": 3,
+      "nearest_level_distance": 0.89,
+      "position_in_prior_range": 1.2391
+    },
+    "join_quality": "fleet_own_setup_exact+core_context_proxy",
+    "entry_order_id": "6a774211-0a11-489f-8b44-f79f58b4d54e"
+  },
+  {
+    "date": "2026-07-15",
+    "account": "PA3DHPT7KIQE",
+    "arm_id": "safe-2",
+    "arm_display": "CORE-SAFE (KIQE)",
+    "setup": "UNKNOWN",
+    "setup_quality_tier": null,
+    "side": "P",
+    "symbol": "SPY260715P00752000",
+    "contract": "SPY 2026-07-15 752P",
+    "qty": 3,
+    "entry_et": "2026-07-15T13:16:56.933443",
+    "exit_et": "2026-07-15T13:20:57.083969",
+    "entry_px": 0.8,
+    "exit_px": 0.6,
+    "pnl_usd": -60.0,
+    "hold_minutes": 4.0,
+    "exit_stage": null,
+    "exit_stages_all_legs": [],
+    "leg_count": 1,
+    "attribution": "manual",
+    "entry_reason": "no setup passed scoring (neither bear nor bull)",
+    "context": {
+      "spy": 751.785,
+      "ribbon": "BEAR",
+      "htf_15m": "MIXED",
+      "vix": 16.18,
+      "bear_score": 8,
+      "bull_score": 8,
+      "triggers": [],
+      "trigger_level_exact": null,
+      "via_extra_exec": false,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-15T13:15:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.733,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "uptrend",
+            "confidence": 0.867,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 140,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 142,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily",
+              "hourly"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "m15"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": 1,
+        "events": {
+          "next_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "next_event_et": "08:30 ET 2026-07-16",
+          "minutes_to_next_event": 1155.0,
+          "next_event_severity": "med",
+          "last_event_name": "PPI (June 2026 data)",
+          "minutes_since_last_event": 285.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [
+            {
+              "start_et": "08:25",
+              "end_et": "08:50",
+              "event": "PPI (June 2026 data)",
+              "type": "ppi_release",
+              "severity": "med"
+            }
+          ],
+          "calendar_stale": true,
+          "calendar_stale_reason": "freshness_stamp 2026-07-14T07:45:01.518286 predates the expected 2026-07-15T07:45:00 ET fire (~29.5h old)"
+        },
+        "prior_day": {
+          "prior_close": 751.94,
+          "prior_high": 753.31,
+          "prior_low": 748.71,
+          "prior_range": 4.6,
+          "prior_date": "2026-07-14",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 754.23,
+          "gap_pct_at_open": 0.304,
+          "gap_reason": null,
+          "position_in_prior_range": 0.6685,
+          "position_reason": null,
+          "or_high": 755.54,
+          "or_low": 753.19,
+          "or_reason": null,
+          "rvol_session_so_far": 1.083,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 752.4,
+            "distance": 0.62,
+            "source": "intraday_swing_high"
+          },
+          "nearest_level_below": {
+            "price": 751.69,
+            "distance": 0.09,
+            "source": "level_memory"
+          },
+          "n_levels_within_1pct": 10,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "own_account_decision_row",
+      "context_ts_et": "2026-07-15T13:17:04",
+      "time_of_day_bucket": "10:30-14:00",
+      "alignment_score": 1,
+      "nearest_level_distance": 0.09,
+      "position_in_prior_range": 0.6685
+    },
+    "join_quality": "nearest_minute_manual_trade_no_engine_decision_row(delta=0.1m)",
+    "entry_order_id": "58311e14-87f8-4083-b10f-b86dfb2f3bfe"
+  },
+  {
+    "date": "2026-07-15",
+    "account": "PA3DHPT7KIQE",
+    "arm_id": "safe-2",
+    "arm_display": "CORE-SAFE (KIQE)",
+    "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+    "setup_quality_tier": null,
+    "side": "C",
+    "symbol": "SPY260715C00754000",
+    "contract": "SPY 2026-07-15 754C",
+    "qty": 3,
+    "entry_et": "2026-07-15T13:56:35.166697",
+    "exit_et": "2026-07-15T14:50:05.386493",
+    "entry_px": 0.8,
+    "exit_px": 0.41,
+    "pnl_usd": -117.0,
+    "hold_minutes": 53.5,
+    "exit_stage": "premium_stop",
+    "exit_stages_all_legs": [
+      "premium_stop"
+    ],
+    "leg_count": 1,
+    "attribution": "engine",
+    "entry_reason": "BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier SUPER)",
+    "context": {
+      "spy": 754.37,
+      "ribbon": "BULL",
+      "htf_15m": "BULL",
+      "vix": 15.87,
+      "bear_score": 4,
+      "bull_score": 11,
+      "triggers": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "trigger_level_exact": 754.0,
+      "via_extra_exec": false,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-15T13:55:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.733,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "uptrend",
+            "confidence": 0.867,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 140,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 143,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily",
+              "hourly"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "m15"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": 1,
+        "events": {
+          "next_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "next_event_et": "08:30 ET 2026-07-16",
+          "minutes_to_next_event": 1115.0,
+          "next_event_severity": "med",
+          "last_event_name": "PPI (June 2026 data)",
+          "minutes_since_last_event": 325.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [
+            {
+              "start_et": "08:25",
+              "end_et": "08:50",
+              "event": "PPI (June 2026 data)",
+              "type": "ppi_release",
+              "severity": "med"
+            }
+          ],
+          "calendar_stale": true,
+          "calendar_stale_reason": "freshness_stamp 2026-07-14T07:45:01.518286 predates the expected 2026-07-15T07:45:00 ET fire (~30.2h old)"
+        },
+        "prior_day": {
+          "prior_close": 751.94,
+          "prior_high": 753.31,
+          "prior_low": 748.71,
+          "prior_range": 4.6,
+          "prior_date": "2026-07-14",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 754.23,
+          "gap_pct_at_open": 0.304,
+          "gap_reason": null,
+          "position_in_prior_range": 1.2304,
+          "position_reason": null,
+          "or_high": 755.54,
+          "or_low": 753.19,
+          "or_reason": null,
+          "rvol_session_so_far": 1.11,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 755.54,
+            "distance": 1.17,
+            "source": "intraday_rth_high"
+          },
+          "nearest_level_below": {
+            "price": 754.0,
+            "distance": 0.37,
+            "source": "level_memory"
+          },
+          "n_levels_within_1pct": 12,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "own_account_decision_row",
+      "context_ts_et": "2026-07-15T13:56:04",
+      "time_of_day_bucket": "10:30-14:00",
+      "alignment_score": 1,
+      "nearest_level_distance": 0.37,
+      "position_in_prior_range": 1.2304
+    },
+    "join_quality": "exact_order_match",
+    "entry_order_id": "ae1b22c1-2d67-4512-9ecd-71a99e4e1583"
+  },
+  {
+    "date": "2026-07-16",
+    "account": "PA3DHPT7KIQE",
+    "arm_id": "safe-2",
+    "arm_display": "CORE-SAFE (KIQE)",
+    "setup": "vwap_continuation",
+    "setup_quality_tier": null,
+    "side": "P",
+    "symbol": "SPY260716P00751000",
+    "contract": "SPY 2026-07-16 751P",
+    "qty": 3,
+    "entry_et": "2026-07-16T09:51:29.514532",
+    "exit_et": "2026-07-16T09:53:03.776914",
+    "entry_px": 1.22,
+    "exit_px": 1.04,
+    "pnl_usd": -54.0,
+    "hold_minutes": 1.6,
+    "exit_stage": "premium_stop",
+    "exit_stages_all_legs": [
+      "premium_stop"
+    ],
+    "leg_count": 1,
+    "attribution": "engine",
+    "entry_reason": "vwap_continuation fired via G4 extra-setup side-channel (triggers: VWAP_TREND_ESTABLISHED, VWAP_CONTINUATION_BREAKOUT; confidence medium)",
+    "context": {
+      "spy": 751.115,
+      "ribbon": "BEAR",
+      "htf_15m": "BULL",
+      "vix": 16.3,
+      "bear_score": 8,
+      "bull_score": 8,
+      "triggers": [
+        "VWAP_TREND_ESTABLISHED",
+        "VWAP_CONTINUATION_BREAKOUT"
+      ],
+      "trigger_level_exact": null,
+      "via_extra_exec": true,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-16T09:50:02",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.733,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 144,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.933,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 141,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily",
+              "hourly"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "m15"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": 1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 18970.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 80.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [
+            {
+              "start_et": "08:25",
+              "end_et": "08:50",
+              "event": "Advance Monthly Retail Trade Sales (June 2026)",
+              "type": "retail_sales",
+              "severity": "med"
+            }
+          ],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 754.77,
+          "prior_high": 755.54,
+          "prior_low": 750.25,
+          "prior_range": 5.29,
+          "prior_date": "2026-07-15",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 752.8,
+          "gap_pct_at_open": -0.261,
+          "gap_reason": null,
+          "position_in_prior_range": 0.1635,
+          "position_reason": null,
+          "or_high": null,
+          "or_low": null,
+          "or_reason": "before_10:30_et_opening_range_not_yet_formed",
+          "rvol_session_so_far": 1.187,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 751.13,
+            "distance": 0.01,
+            "source": "intraday_rth_low"
+          },
+          "nearest_level_below": {
+            "price": 750.5,
+            "distance": 0.62,
+            "source": "level_memory"
+          },
+          "n_levels_within_1pct": 11,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "own_account_decision_row",
+      "context_ts_et": "2026-07-16T09:51:03",
+      "time_of_day_bucket": "09:30-10:30",
+      "alignment_score": 1,
+      "nearest_level_distance": 0.01,
+      "position_in_prior_range": 0.1635
+    },
+    "join_quality": "exact_order_match",
+    "entry_order_id": "8b10fe24-721d-4b1f-a047-35d68fd9512b"
+  },
+  {
+    "date": "2026-07-16",
+    "account": "PA3DHPT7KIQE",
+    "arm_id": "safe-2",
+    "arm_display": "CORE-SAFE (KIQE)",
+    "setup": "vwap_continuation",
+    "setup_quality_tier": null,
+    "side": "P",
+    "symbol": "SPY260716P00751000",
+    "contract": "SPY 2026-07-16 751P",
+    "qty": 3,
+    "entry_et": "2026-07-16T09:53:45.900591",
+    "exit_et": "2026-07-16T09:54:04.608359",
+    "entry_px": 1.2367,
+    "exit_px": 1.19,
+    "pnl_usd": -14.0,
+    "hold_minutes": 0.3,
+    "exit_stage": "premium_stop",
+    "exit_stages_all_legs": [
+      "premium_stop"
+    ],
+    "leg_count": 2,
+    "attribution": "engine",
+    "entry_reason": "vwap_continuation fired via G4 extra-setup side-channel (triggers: VWAP_TREND_ESTABLISHED, VWAP_CONTINUATION_BREAKOUT; confidence medium)",
+    "context": {
+      "spy": 751.115,
+      "ribbon": "BEAR",
+      "htf_15m": "BULL",
+      "vix": 16.27,
+      "bear_score": 8,
+      "bull_score": 8,
+      "triggers": [
+        "VWAP_TREND_ESTABLISHED",
+        "VWAP_CONTINUATION_BREAKOUT"
+      ],
+      "trigger_level_exact": null,
+      "via_extra_exec": true,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-16T09:50:02",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.733,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 144,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.933,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 141,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily",
+              "hourly"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "m15"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": 1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 18970.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 80.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [
+            {
+              "start_et": "08:25",
+              "end_et": "08:50",
+              "event": "Advance Monthly Retail Trade Sales (June 2026)",
+              "type": "retail_sales",
+              "severity": "med"
+            }
+          ],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 754.77,
+          "prior_high": 755.54,
+          "prior_low": 750.25,
+          "prior_range": 5.29,
+          "prior_date": "2026-07-15",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 752.8,
+          "gap_pct_at_open": -0.261,
+          "gap_reason": null,
+          "position_in_prior_range": 0.1635,
+          "position_reason": null,
+          "or_high": null,
+          "or_low": null,
+          "or_reason": "before_10:30_et_opening_range_not_yet_formed",
+          "rvol_session_so_far": 1.187,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 751.13,
+            "distance": 0.01,
+            "source": "intraday_rth_low"
+          },
+          "nearest_level_below": {
+            "price": 750.5,
+            "distance": 0.62,
+            "source": "level_memory"
+          },
+          "n_levels_within_1pct": 11,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "own_account_decision_row",
+      "context_ts_et": "2026-07-16T09:52:03",
+      "time_of_day_bucket": "09:30-10:30",
+      "alignment_score": 1,
+      "nearest_level_distance": 0.01,
+      "position_in_prior_range": 0.1635
+    },
+    "join_quality": "exact_order_match",
+    "entry_order_id": "fd720220-f81c-4871-a3d9-f00a0b8e1d7b"
+  },
+  {
+    "date": "2026-07-16",
+    "account": "PA3DHPT7KIQE",
+    "arm_id": "safe-2",
+    "arm_display": "CORE-SAFE (KIQE)",
+    "setup": "bollinger_squeeze",
+    "setup_quality_tier": null,
+    "side": "P",
+    "symbol": "SPY260716P00751000",
+    "contract": "SPY 2026-07-16 751P",
+    "qty": 3,
+    "entry_et": "2026-07-16T14:06:48.128783",
+    "exit_et": "2026-07-16T14:11:04.599657",
+    "entry_px": 0.9,
+    "exit_px": 0.85,
+    "pnl_usd": -15.0,
+    "hold_minutes": 4.3,
+    "exit_stage": "premium_stop",
+    "exit_stages_all_legs": [
+      "premium_stop"
+    ],
+    "leg_count": 1,
+    "attribution": "engine",
+    "entry_reason": "bollinger_squeeze fired via G4 extra-setup side-channel (triggers: BB_SQUEEZE_RECENT, BAND_BREAK_DOWN, VOLUME_CONFIRM; confidence medium)",
+    "context": {
+      "spy": 750.92,
+      "ribbon": "BEAR",
+      "htf_15m": "BEAR",
+      "vix": 16.38,
+      "bear_score": 9,
+      "bull_score": 7,
+      "triggers": [
+        "BB_SQUEEZE_RECENT",
+        "BAND_BREAK_DOWN",
+        "VOLUME_CONFIRM"
+      ],
+      "trigger_level_exact": null,
+      "via_extra_exec": true,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-16T14:05:02",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.733,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 149,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.933,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 141,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily",
+              "hourly"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "m15"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": 1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 18715.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 335.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [
+            {
+              "start_et": "08:25",
+              "end_et": "08:50",
+              "event": "Advance Monthly Retail Trade Sales (June 2026)",
+              "type": "retail_sales",
+              "severity": "med"
+            }
+          ],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 754.77,
+          "prior_high": 755.54,
+          "prior_low": 750.25,
+          "prior_range": 5.29,
+          "prior_date": "2026-07-15",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 752.8,
+          "gap_pct_at_open": -0.261,
+          "gap_reason": null,
+          "position_in_prior_range": 0.1267,
+          "position_reason": null,
+          "or_high": 754.38,
+          "or_low": 750.7,
+          "or_reason": null,
+          "rvol_session_so_far": 0.891,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 750.96,
+            "distance": 0.04,
+            "source": "level_memory"
+          },
+          "nearest_level_below": {
+            "price": 750.7,
+            "distance": 0.22,
+            "source": "intraday_rth_low"
+          },
+          "n_levels_within_1pct": 12,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "own_account_decision_row",
+      "context_ts_et": "2026-07-16T14:06:04",
+      "time_of_day_bucket": "14:00-15:55",
+      "alignment_score": 1,
+      "nearest_level_distance": 0.04,
+      "position_in_prior_range": 0.1267
+    },
+    "join_quality": "exact_order_match",
+    "entry_order_id": "fd1e4a73-c620-419b-a245-d0a457b209a8"
+  },
+  {
+    "date": "2026-07-17",
+    "account": "PA3DHPT7KIQE",
+    "arm_id": "safe-2",
+    "arm_display": "CORE-SAFE (KIQE)",
+    "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "setup_quality_tier": null,
+    "side": "P",
+    "symbol": "SPY260717P00744000",
+    "contract": "SPY 2026-07-17 744P",
+    "qty": 3,
+    "entry_et": "2026-07-17T11:06:32.248844",
+    "exit_et": "2026-07-17T11:11:04.005239",
+    "entry_px": 1.4133,
+    "exit_px": 1.29,
+    "pnl_usd": -37.0,
+    "hold_minutes": 4.5,
+    "exit_stage": "structure_stop",
+    "exit_stages_all_legs": [
+      "structure_stop"
+    ],
+    "leg_count": 2,
+    "attribution": "engine",
+    "entry_reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
+    "context": {
+      "spy": 744.31,
+      "ribbon": "BEAR",
+      "htf_15m": "BEAR",
+      "vix": 18.21,
+      "bear_score": 10,
+      "bull_score": 7,
+      "triggers": [
+        "level_rejection",
+        "confluence"
+      ],
+      "trigger_level_exact": 744.82,
+      "via_extra_exec": false,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-17T11:05:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "downtrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 151,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.933,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 142,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": -1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 17455.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 1595.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 750.87,
+          "prior_high": 754.55,
+          "prior_low": 747.88,
+          "prior_range": 6.67,
+          "prior_date": "2026-07-16",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 742.17,
+          "gap_pct_at_open": -1.159,
+          "gap_reason": null,
+          "position_in_prior_range": -0.5352,
+          "position_reason": null,
+          "or_high": 747.24,
+          "or_low": 740.8,
+          "or_reason": null,
+          "rvol_session_so_far": 1.583,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 744.82,
+            "distance": 0.51,
+            "source": "premarket_high"
+          },
+          "nearest_level_below": {
+            "price": 744.22,
+            "distance": 0.09,
+            "source": "premarket_low"
+          },
+          "n_levels_within_1pct": 10,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "own_account_decision_row",
+      "context_ts_et": "2026-07-17T11:06:03",
+      "time_of_day_bucket": "10:30-14:00",
+      "alignment_score": -1,
+      "nearest_level_distance": 0.09,
+      "position_in_prior_range": -0.5352
+    },
+    "join_quality": "exact_order_match",
+    "entry_order_id": "e8744781-fdcd-4a83-ae31-8a4e6ee11bcf"
+  },
+  {
+    "date": "2026-07-17",
+    "account": "PA32RD49OB0Q",
+    "arm_id": "safe-3",
+    "arm_display": "FLEET-TIGHT-S (OB0Q)",
+    "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "setup_quality_tier": "ELITE",
+    "side": "P",
+    "symbol": "SPY260717P00741000",
+    "contract": "SPY 2026-07-17 741P",
+    "qty": 3,
+    "entry_et": "2026-07-17T11:07:04.651317",
+    "exit_et": "2026-07-17T11:13:02.227233",
+    "entry_px": 0.48,
+    "exit_px": 0.48,
+    "pnl_usd": 0.0,
+    "hold_minutes": 6.0,
+    "exit_stage": "structure_stop",
+    "exit_stages_all_legs": [
+      "structure_stop"
+    ],
+    "leg_count": 2,
+    "attribution": "engine",
+    "entry_reason": "ribbon_ride P (ELITE)",
+    "context": {
+      "spy": 744.31,
+      "ribbon": "BEAR",
+      "htf_15m": "BEAR",
+      "vix": 18.27,
+      "bear_score": 10,
+      "bull_score": 7,
+      "triggers": [
+        "level_rejection",
+        "confluence"
+      ],
+      "trigger_level_exact": 744.82,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-17T11:05:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "downtrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 151,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.933,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 142,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": -1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 17455.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 1595.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 750.87,
+          "prior_high": 754.55,
+          "prior_low": 747.88,
+          "prior_range": 6.67,
+          "prior_date": "2026-07-16",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 742.17,
+          "gap_pct_at_open": -1.159,
+          "gap_reason": null,
+          "position_in_prior_range": -0.5352,
+          "position_reason": null,
+          "or_high": 747.24,
+          "or_low": 740.8,
+          "or_reason": null,
+          "rvol_session_so_far": 1.583,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 744.82,
+            "distance": 0.51,
+            "source": "premarket_high"
+          },
+          "nearest_level_below": {
+            "price": 744.22,
+            "distance": 0.09,
+            "source": "premarket_low"
+          },
+          "n_levels_within_1pct": 10,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "core_proxy(account=safe,delta=0.0m)",
+      "context_ts_et": "2026-07-17T11:07:03",
+      "time_of_day_bucket": "10:30-14:00",
+      "alignment_score": -1,
+      "nearest_level_distance": 0.09,
+      "position_in_prior_range": -0.5352
+    },
+    "join_quality": "fleet_own_setup_exact+core_context_proxy",
+    "entry_order_id": "8670654d-2af0-45c1-9746-52fb85c08f6a"
+  },
+  {
+    "date": "2026-07-17",
+    "account": "PA3W17FD8G19",
+    "arm_id": "risky-1",
+    "arm_display": "FLEET-TIGHT-R (8G19)",
+    "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "setup_quality_tier": "ELITE",
+    "side": "P",
+    "symbol": "SPY260717P00741000",
+    "contract": "SPY 2026-07-17 741P",
+    "qty": 5,
+    "entry_et": "2026-07-17T11:07:05.021457",
+    "exit_et": "2026-07-17T11:13:03.015396",
+    "entry_px": 0.48,
+    "exit_px": 0.48,
+    "pnl_usd": 0.0,
+    "hold_minutes": 6.0,
+    "exit_stage": "structure_stop",
+    "exit_stages_all_legs": [
+      "structure_stop"
+    ],
+    "leg_count": 1,
+    "attribution": "engine",
+    "entry_reason": "ribbon_ride P (ELITE)",
+    "context": {
+      "spy": 744.31,
+      "ribbon": "BEAR",
+      "htf_15m": "BEAR",
+      "vix": 18.27,
+      "bear_score": 10,
+      "bull_score": 7,
+      "triggers": [
+        "level_rejection",
+        "confluence"
+      ],
+      "trigger_level_exact": 744.82,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-17T11:05:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "downtrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 151,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.933,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 142,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": -1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 17455.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 1595.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 750.87,
+          "prior_high": 754.55,
+          "prior_low": 747.88,
+          "prior_range": 6.67,
+          "prior_date": "2026-07-16",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 742.17,
+          "gap_pct_at_open": -1.159,
+          "gap_reason": null,
+          "position_in_prior_range": -0.5352,
+          "position_reason": null,
+          "or_high": 747.24,
+          "or_low": 740.8,
+          "or_reason": null,
+          "rvol_session_so_far": 1.583,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 744.82,
+            "distance": 0.51,
+            "source": "premarket_high"
+          },
+          "nearest_level_below": {
+            "price": 744.22,
+            "distance": 0.09,
+            "source": "premarket_low"
+          },
+          "n_levels_within_1pct": 10,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "core_proxy(account=safe,delta=0.0m)",
+      "context_ts_et": "2026-07-17T11:07:03",
+      "time_of_day_bucket": "10:30-14:00",
+      "alignment_score": -1,
+      "nearest_level_distance": 0.09,
+      "position_in_prior_range": -0.5352
+    },
+    "join_quality": "fleet_own_setup_exact+core_context_proxy",
+    "entry_order_id": "58b74fd1-2671-4f9e-95b6-6d16187f1839"
+  },
+  {
+    "date": "2026-07-17",
+    "account": "PA31WIU8X15Q",
+    "arm_id": "risky-3",
+    "arm_display": "FLEET-LOOSE-R (X15Q)",
+    "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "setup_quality_tier": "ELITE",
+    "side": "P",
+    "symbol": "SPY260717P00741000",
+    "contract": "SPY 2026-07-17 741P",
+    "qty": 5,
+    "entry_et": "2026-07-17T11:07:06.160043",
+    "exit_et": "2026-07-17T11:13:03.928861",
+    "entry_px": 0.46,
+    "exit_px": 0.49,
+    "pnl_usd": 15.0,
+    "hold_minutes": 6.0,
+    "exit_stage": "structure_stop",
+    "exit_stages_all_legs": [
+      "structure_stop"
+    ],
+    "leg_count": 2,
+    "attribution": "engine",
+    "entry_reason": "ribbon_ride P (ELITE)",
+    "context": {
+      "spy": 744.31,
+      "ribbon": "BEAR",
+      "htf_15m": "BEAR",
+      "vix": 18.27,
+      "bear_score": 10,
+      "bull_score": 7,
+      "triggers": [
+        "level_rejection",
+        "confluence"
+      ],
+      "trigger_level_exact": 744.82,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-17T11:05:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "downtrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 151,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.933,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 142,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": -1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 17455.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 1595.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 750.87,
+          "prior_high": 754.55,
+          "prior_low": 747.88,
+          "prior_range": 6.67,
+          "prior_date": "2026-07-16",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 742.17,
+          "gap_pct_at_open": -1.159,
+          "gap_reason": null,
+          "position_in_prior_range": -0.5352,
+          "position_reason": null,
+          "or_high": 747.24,
+          "or_low": 740.8,
+          "or_reason": null,
+          "rvol_session_so_far": 1.583,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 744.82,
+            "distance": 0.51,
+            "source": "premarket_high"
+          },
+          "nearest_level_below": {
+            "price": 744.22,
+            "distance": 0.09,
+            "source": "premarket_low"
+          },
+          "n_levels_within_1pct": 10,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "core_proxy(account=safe,delta=0.0m)",
+      "context_ts_et": "2026-07-17T11:07:03",
+      "time_of_day_bucket": "10:30-14:00",
+      "alignment_score": -1,
+      "nearest_level_distance": 0.09,
+      "position_in_prior_range": -0.5352
+    },
+    "join_quality": "fleet_own_setup_exact+core_context_proxy",
+    "entry_order_id": "2951f12e-94fb-4a5c-99a5-6425dec00464"
+  },
+  {
+    "date": "2026-07-17",
+    "account": "PA3DHPT7KIQE",
+    "arm_id": "safe-2",
+    "arm_display": "CORE-SAFE (KIQE)",
+    "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "setup_quality_tier": null,
+    "side": "P",
+    "symbol": "SPY260717P00745000",
+    "contract": "SPY 2026-07-17 745P",
+    "qty": 3,
+    "entry_et": "2026-07-17T11:40:28.866709",
+    "exit_et": "2026-07-17T11:56:03.875193",
+    "entry_px": 1.09,
+    "exit_px": 0.75,
+    "pnl_usd": -102.0,
+    "hold_minutes": 15.6,
+    "exit_stage": "structure_stop",
+    "exit_stages_all_legs": [
+      "structure_stop"
+    ],
+    "leg_count": 1,
+    "attribution": "engine",
+    "entry_reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
+    "context": {
+      "spy": 745.03,
+      "ribbon": "BEAR",
+      "htf_15m": "BEAR",
+      "vix": 18.41,
+      "bear_score": 10,
+      "bull_score": 5,
+      "triggers": [
+        "level_rejection",
+        "confluence"
+      ],
+      "trigger_level_exact": 745.89,
+      "via_extra_exec": false,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-17T11:40:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "downtrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 151,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.933,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 142,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": -1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 17420.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 1630.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 750.87,
+          "prior_high": 754.55,
+          "prior_low": 747.88,
+          "prior_range": 6.67,
+          "prior_date": "2026-07-16",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 742.17,
+          "gap_pct_at_open": -1.159,
+          "gap_reason": null,
+          "position_in_prior_range": -0.3403,
+          "position_reason": null,
+          "or_high": 747.24,
+          "or_low": 740.8,
+          "or_reason": null,
+          "rvol_session_so_far": 1.49,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 745.89,
+            "distance": 0.28,
+            "source": "intraday_swing_high"
+          },
+          "nearest_level_below": {
+            "price": 744.82,
+            "distance": 0.79,
+            "source": "premarket_high"
+          },
+          "n_levels_within_1pct": 11,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "own_account_decision_row",
+      "context_ts_et": "2026-07-17T11:40:04",
+      "time_of_day_bucket": "10:30-14:00",
+      "alignment_score": -1,
+      "nearest_level_distance": 0.28,
+      "position_in_prior_range": -0.3403
+    },
+    "join_quality": "exact_order_match",
+    "entry_order_id": "df021181-3040-4eb7-8a57-1a215fd289e4"
+  },
+  {
+    "date": "2026-07-17",
+    "account": "PA3DHPT7KIQE",
+    "arm_id": "safe-2",
+    "arm_display": "CORE-SAFE (KIQE)",
+    "setup": "UNKNOWN",
+    "setup_quality_tier": null,
+    "side": "C",
+    "symbol": "SPY260717C00746000",
+    "contract": "SPY 2026-07-17 746C",
+    "qty": 3,
+    "entry_et": "2026-07-17T12:04:29.884350",
+    "exit_et": "2026-07-17T12:12:20.749544",
+    "entry_px": 1.13,
+    "exit_px": 1.4267,
+    "pnl_usd": 89.0,
+    "hold_minutes": 7.8,
+    "exit_stage": null,
+    "exit_stages_all_legs": [],
+    "leg_count": 2,
+    "attribution": "manual",
+    "entry_reason": "no setup passed scoring (neither bear nor bull)",
+    "context": {
+      "spy": 746.85,
+      "ribbon": "BEAR",
+      "htf_15m": "BEAR",
+      "vix": 18.1,
+      "bear_score": 7,
+      "bull_score": 7,
+      "triggers": [],
+      "trigger_level_exact": null,
+      "via_extra_exec": false,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-17T12:00:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "downtrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 150,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.933,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 141,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": -1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 17400.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 1650.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 750.87,
+          "prior_high": 754.55,
+          "prior_low": 747.88,
+          "prior_range": 6.67,
+          "prior_date": "2026-07-16",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 742.17,
+          "gap_pct_at_open": -1.159,
+          "gap_reason": null,
+          "position_in_prior_range": -0.1544,
+          "position_reason": null,
+          "or_high": 747.24,
+          "or_low": 740.8,
+          "or_reason": null,
+          "rvol_session_so_far": 1.469,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 747.24,
+            "distance": 0.39,
+            "source": "intraday_rth_high"
+          },
+          "nearest_level_below": {
+            "price": 745.89,
+            "distance": 0.96,
+            "source": "intraday_swing_high"
+          },
+          "n_levels_within_1pct": 11,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "own_account_decision_row",
+      "context_ts_et": "2026-07-17T12:04:03",
+      "time_of_day_bucket": "10:30-14:00",
+      "alignment_score": -1,
+      "nearest_level_distance": 0.39,
+      "position_in_prior_range": -0.1544
+    },
+    "join_quality": "nearest_minute_manual_trade_no_engine_decision_row(delta=0.4m)",
+    "entry_order_id": "42ff9c59-7a6a-4cd0-8746-50b9cf0a0396"
+  },
+  {
+    "date": "2026-07-17",
+    "account": "PA3DHPT7KIQE",
+    "arm_id": "safe-2",
+    "arm_display": "CORE-SAFE (KIQE)",
+    "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "setup_quality_tier": null,
+    "side": "P",
+    "symbol": "SPY260717P00746000",
+    "contract": "SPY 2026-07-17 746P",
+    "qty": 3,
+    "entry_et": "2026-07-17T13:01:19.033833",
+    "exit_et": "2026-07-17T14:03:03.815143",
+    "entry_px": 0.78,
+    "exit_px": 1.5833,
+    "pnl_usd": 241.0,
+    "hold_minutes": 61.7,
+    "exit_stage": "trail",
+    "exit_stages_all_legs": [
+      "tp1",
+      "trail"
+    ],
+    "leg_count": 2,
+    "attribution": "engine",
+    "entry_reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+    "context": {
+      "spy": 746.32,
+      "ribbon": "MIXED",
+      "htf_15m": "BEAR",
+      "vix": 18.04,
+      "bear_score": 7,
+      "bull_score": 5,
+      "triggers": [
+        "trendline_rejection"
+      ],
+      "trigger_level_exact": null,
+      "via_extra_exec": false,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-17T13:00:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "downtrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 150,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.933,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 141,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": -1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 17340.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 1710.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 750.87,
+          "prior_high": 754.55,
+          "prior_low": 747.88,
+          "prior_range": 6.67,
+          "prior_date": "2026-07-16",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 742.17,
+          "gap_pct_at_open": -1.159,
+          "gap_reason": null,
+          "position_in_prior_range": -0.2339,
+          "position_reason": null,
+          "or_high": 747.24,
+          "or_low": 740.8,
+          "or_reason": null,
+          "rvol_session_so_far": 1.401,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 747.25,
+            "distance": 0.93,
+            "source": "intraday_rth_high"
+          },
+          "nearest_level_below": {
+            "price": 745.98,
+            "distance": 0.34,
+            "source": "level_memory"
+          },
+          "n_levels_within_1pct": 11,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "own_account_decision_row",
+      "context_ts_et": "2026-07-17T13:01:03",
+      "time_of_day_bucket": "10:30-14:00",
+      "alignment_score": -1,
+      "nearest_level_distance": 0.34,
+      "position_in_prior_range": -0.2339
+    },
+    "join_quality": "exact_order_match",
+    "entry_order_id": "c7ed0a9c-9c27-4c40-988c-bfc27c0fc8dc"
+  },
+  {
+    "date": "2026-07-17",
+    "account": "PA33W2KUAT40",
+    "arm_id": "bold-2",
+    "arm_display": "CORE-BOLD (AT40)",
+    "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "setup_quality_tier": null,
+    "side": "P",
+    "symbol": "SPY260717P00743000",
+    "contract": "SPY 2026-07-17 743P",
+    "qty": 5,
+    "entry_et": "2026-07-17T13:51:32.001364",
+    "exit_et": "2026-07-17T14:30:04.577400",
+    "entry_px": 0.38,
+    "exit_px": 0.762,
+    "pnl_usd": 191.0,
+    "hold_minutes": 38.5,
+    "exit_stage": "trail",
+    "exit_stages_all_legs": [
+      "tp1",
+      "trail"
+    ],
+    "leg_count": 3,
+    "attribution": "engine",
+    "entry_reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+    "context": {
+      "spy": 745.52,
+      "ribbon": "MIXED",
+      "htf_15m": "BEAR",
+      "vix": 17.89,
+      "bear_score": 9,
+      "bull_score": 6,
+      "triggers": [
+        "trendline_rejection"
+      ],
+      "trigger_level_exact": null,
+      "via_extra_exec": false,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-17T13:50:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "downtrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 151,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.867,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 142,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": -1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 17290.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 1760.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 750.87,
+          "prior_high": 754.55,
+          "prior_low": 747.88,
+          "prior_range": 6.67,
+          "prior_date": "2026-07-16",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 742.17,
+          "gap_pct_at_open": -1.159,
+          "gap_reason": null,
+          "position_in_prior_range": -0.3538,
+          "position_reason": null,
+          "or_high": 747.24,
+          "or_low": 740.8,
+          "or_reason": null,
+          "rvol_session_so_far": 1.417,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 745.98,
+            "distance": 0.46,
+            "source": "intraday_swing_low"
+          },
+          "nearest_level_below": {
+            "price": 745.29,
+            "distance": 0.23,
+            "source": "level_memory"
+          },
+          "n_levels_within_1pct": 12,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "own_account_decision_row",
+      "context_ts_et": "2026-07-17T13:51:21",
+      "time_of_day_bucket": "10:30-14:00",
+      "alignment_score": -1,
+      "nearest_level_distance": 0.23,
+      "position_in_prior_range": -0.3538
+    },
+    "join_quality": "exact_order_match",
+    "entry_order_id": "75bcb5fe-c176-458d-a0ac-ca91aa01a800"
+  },
+  {
+    "date": "2026-07-17",
+    "account": "PA31WIU8X15Q",
+    "arm_id": "risky-3",
+    "arm_display": "FLEET-LOOSE-R (X15Q)",
+    "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "setup_quality_tier": "BASE",
+    "side": "P",
+    "symbol": "SPY260717P00743000",
+    "contract": "SPY 2026-07-17 743P",
+    "qty": 5,
+    "entry_et": "2026-07-17T13:52:03.942153",
+    "exit_et": "2026-07-17T15:28:04.209663",
+    "entry_px": 0.39,
+    "exit_px": 0.856,
+    "pnl_usd": 233.0,
+    "hold_minutes": 96.0,
+    "exit_stage": "trail",
+    "exit_stages_all_legs": [
+      "tp1",
+      "trail"
+    ],
+    "leg_count": 2,
+    "attribution": "engine",
+    "entry_reason": "ribbon_ride P (BASE)",
+    "context": {
+      "spy": 745.52,
+      "ribbon": "MIXED",
+      "htf_15m": "BEAR",
+      "vix": 17.94,
+      "bear_score": 9,
+      "bull_score": 6,
+      "triggers": [
+        "trendline_rejection"
+      ],
+      "trigger_level_exact": null,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-17T13:50:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "downtrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 151,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.867,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 142,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": -1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 17290.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 1760.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 750.87,
+          "prior_high": 754.55,
+          "prior_low": 747.88,
+          "prior_range": 6.67,
+          "prior_date": "2026-07-16",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 742.17,
+          "gap_pct_at_open": -1.159,
+          "gap_reason": null,
+          "position_in_prior_range": -0.3538,
+          "position_reason": null,
+          "or_high": 747.24,
+          "or_low": 740.8,
+          "or_reason": null,
+          "rvol_session_so_far": 1.417,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 745.98,
+            "distance": 0.46,
+            "source": "intraday_swing_low"
+          },
+          "nearest_level_below": {
+            "price": 745.29,
+            "distance": 0.23,
+            "source": "level_memory"
+          },
+          "n_levels_within_1pct": 12,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "core_proxy(account=safe,delta=0.0m)",
+      "context_ts_et": "2026-07-17T13:52:03",
+      "time_of_day_bucket": "10:30-14:00",
+      "alignment_score": -1,
+      "nearest_level_distance": 0.23,
+      "position_in_prior_range": -0.3538
+    },
+    "join_quality": "fleet_own_setup_exact+core_context_proxy",
+    "entry_order_id": "64a735e0-491a-472d-b378-8519df80fd8f"
+  },
+  {
+    "date": "2026-07-17",
+    "account": "PA32RD49OB0Q",
+    "arm_id": "safe-3",
+    "arm_display": "FLEET-TIGHT-S (OB0Q)",
+    "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "setup_quality_tier": "ELITE",
+    "side": "P",
+    "symbol": "SPY260717P00742000",
+    "contract": "SPY 2026-07-17 742P",
+    "qty": 3,
+    "entry_et": "2026-07-17T13:58:03.684683",
+    "exit_et": "2026-07-17T15:40:03.416349",
+    "entry_px": 0.33,
+    "exit_px": 0.33,
+    "pnl_usd": 0.0,
+    "hold_minutes": 102.0,
+    "exit_stage": "time_stop",
+    "exit_stages_all_legs": [
+      "time_stop"
+    ],
+    "leg_count": 1,
+    "attribution": "engine",
+    "entry_reason": "ribbon_ride P (ELITE)",
+    "context": {
+      "spy": 744.935,
+      "ribbon": "BEAR",
+      "htf_15m": "BEAR",
+      "vix": 18.02,
+      "bear_score": 10,
+      "bull_score": 7,
+      "triggers": [
+        "level_rejection",
+        "ribbon_flip",
+        "confluence",
+        "trendline_rejection"
+      ],
+      "trigger_level_exact": 745.29,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-17T13:55:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "downtrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 151,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.867,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 142,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": -1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 17285.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 1765.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 750.87,
+          "prior_high": 754.55,
+          "prior_low": 747.88,
+          "prior_range": 6.67,
+          "prior_date": "2026-07-16",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 742.17,
+          "gap_pct_at_open": -1.159,
+          "gap_reason": null,
+          "position_in_prior_range": -0.4415,
+          "position_reason": null,
+          "or_high": 747.24,
+          "or_low": 740.8,
+          "or_reason": null,
+          "rvol_session_so_far": 1.394,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 745.29,
+            "distance": 0.36,
+            "source": "level_memory"
+          },
+          "nearest_level_below": {
+            "price": 744.82,
+            "distance": 0.11,
+            "source": "premarket_high"
+          },
+          "n_levels_within_1pct": 12,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "core_proxy(account=safe,delta=0.0m)",
+      "context_ts_et": "2026-07-17T13:58:03",
+      "time_of_day_bucket": "10:30-14:00",
+      "alignment_score": -1,
+      "nearest_level_distance": 0.11,
+      "position_in_prior_range": -0.4415
+    },
+    "join_quality": "fleet_own_setup_exact+core_context_proxy",
+    "entry_order_id": "284317b1-7437-4ac9-955d-a193d4314ad6"
+  },
+  {
+    "date": "2026-07-17",
+    "account": "PA3W17FD8G19",
+    "arm_id": "risky-1",
+    "arm_display": "FLEET-TIGHT-R (8G19)",
+    "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "setup_quality_tier": "ELITE",
+    "side": "P",
+    "symbol": "SPY260717P00742000",
+    "contract": "SPY 2026-07-17 742P",
+    "qty": 5,
+    "entry_et": "2026-07-17T13:58:04.744362",
+    "exit_et": "2026-07-17T15:40:04.224246",
+    "entry_px": 0.33,
+    "exit_px": 0.33,
+    "pnl_usd": 0.0,
+    "hold_minutes": 102.0,
+    "exit_stage": "time_stop",
+    "exit_stages_all_legs": [
+      "time_stop"
+    ],
+    "leg_count": 1,
+    "attribution": "engine",
+    "entry_reason": "ribbon_ride P (ELITE)",
+    "context": {
+      "spy": 744.935,
+      "ribbon": "BEAR",
+      "htf_15m": "BEAR",
+      "vix": 18.02,
+      "bear_score": 10,
+      "bull_score": 7,
+      "triggers": [
+        "level_rejection",
+        "ribbon_flip",
+        "confluence",
+        "trendline_rejection"
+      ],
+      "trigger_level_exact": 745.29,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-17T13:55:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "downtrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 151,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.867,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 142,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": -1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 17285.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 1765.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 750.87,
+          "prior_high": 754.55,
+          "prior_low": 747.88,
+          "prior_range": 6.67,
+          "prior_date": "2026-07-16",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 742.17,
+          "gap_pct_at_open": -1.159,
+          "gap_reason": null,
+          "position_in_prior_range": -0.4415,
+          "position_reason": null,
+          "or_high": 747.24,
+          "or_low": 740.8,
+          "or_reason": null,
+          "rvol_session_so_far": 1.394,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 745.29,
+            "distance": 0.36,
+            "source": "level_memory"
+          },
+          "nearest_level_below": {
+            "price": 744.82,
+            "distance": 0.11,
+            "source": "premarket_high"
+          },
+          "n_levels_within_1pct": 12,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "core_proxy(account=safe,delta=0.0m)",
+      "context_ts_et": "2026-07-17T13:58:03",
+      "time_of_day_bucket": "10:30-14:00",
+      "alignment_score": -1,
+      "nearest_level_distance": 0.11,
+      "position_in_prior_range": -0.4415
+    },
+    "join_quality": "fleet_own_setup_exact+core_context_proxy",
+    "entry_order_id": "d7fd23e7-4b3e-41be-870a-c200f99f716f"
+  },
+  {
+    "date": "2026-07-17",
+    "account": "PA3DHPT7KIQE",
+    "arm_id": "safe-2",
+    "arm_display": "CORE-SAFE (KIQE)",
+    "setup": "bollinger_squeeze",
+    "setup_quality_tier": null,
+    "side": "P",
+    "symbol": "SPY260717P00745000",
+    "contract": "SPY 2026-07-17 745P",
+    "qty": 3,
+    "entry_et": "2026-07-17T14:03:18.909912",
+    "exit_et": "2026-07-17T14:24:03.622075",
+    "entry_px": 1.0,
+    "exit_px": 1.35,
+    "pnl_usd": 105.0,
+    "hold_minutes": 20.7,
+    "exit_stage": "trail",
+    "exit_stages_all_legs": [
+      "tp1",
+      "trail"
+    ],
+    "leg_count": 2,
+    "attribution": "engine",
+    "entry_reason": "bollinger_squeeze fired via G4 extra-setup side-channel (triggers: BB_SQUEEZE_RECENT, BAND_BREAK_DOWN, VOLUME_CONFIRM; confidence medium)",
+    "context": {
+      "spy": 744.59,
+      "ribbon": "BEAR",
+      "htf_15m": "BEAR",
+      "vix": 18.03,
+      "bear_score": 9,
+      "bull_score": 6,
+      "triggers": [
+        "BB_SQUEEZE_RECENT",
+        "BAND_BREAK_DOWN",
+        "VOLUME_CONFIRM"
+      ],
+      "trigger_level_exact": null,
+      "via_extra_exec": true,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-17T14:00:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "downtrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 150,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.867,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 141,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": -1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 17280.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 1770.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 750.87,
+          "prior_high": 754.55,
+          "prior_low": 747.88,
+          "prior_range": 6.67,
+          "prior_date": "2026-07-16",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 742.17,
+          "gap_pct_at_open": -1.159,
+          "gap_reason": null,
+          "position_in_prior_range": -0.4933,
+          "position_reason": null,
+          "or_high": 747.24,
+          "or_low": 740.8,
+          "or_reason": null,
+          "rvol_session_so_far": 1.374,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 744.62,
+            "distance": 0.03,
+            "source": "level_memory"
+          },
+          "nearest_level_below": {
+            "price": 744.22,
+            "distance": 0.37,
+            "source": "premarket_low"
+          },
+          "n_levels_within_1pct": 12,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "own_account_decision_row",
+      "context_ts_et": "2026-07-17T14:03:03",
+      "time_of_day_bucket": "14:00-15:55",
+      "alignment_score": -1,
+      "nearest_level_distance": 0.03,
+      "position_in_prior_range": -0.4933
+    },
+    "join_quality": "exact_order_match",
+    "entry_order_id": "60e5d58b-dabd-4fc7-b294-4787f0015813"
+  },
+  {
+    "date": "2026-07-17",
+    "account": "PA3DHPT7KIQE",
+    "arm_id": "safe-2",
+    "arm_display": "CORE-SAFE (KIQE)",
+    "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "setup_quality_tier": null,
+    "side": "P",
+    "symbol": "SPY260717P00743000",
+    "contract": "SPY 2026-07-17 743P",
+    "qty": 3,
+    "entry_et": "2026-07-17T14:49:42.993511",
+    "exit_et": "2026-07-17T14:56:03.896654",
+    "entry_px": 0.53,
+    "exit_px": 0.3433,
+    "pnl_usd": -56.0,
+    "hold_minutes": 6.3,
+    "exit_stage": "structure_stop",
+    "exit_stages_all_legs": [
+      "structure_stop"
+    ],
+    "leg_count": 2,
+    "attribution": "engine",
+    "entry_reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+    "context": {
+      "spy": 743.26,
+      "ribbon": "BEAR",
+      "htf_15m": "BEAR",
+      "vix": 18.69,
+      "bear_score": 9,
+      "bull_score": 5,
+      "triggers": [
+        "trendline_rejection"
+      ],
+      "trigger_level_exact": null,
+      "via_extra_exec": false,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-17T14:45:01",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "downtrend",
+            "confidence": 0.867,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 151,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.867,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 141,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": -1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 17235.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 1815.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 750.87,
+          "prior_high": 754.55,
+          "prior_low": 747.88,
+          "prior_range": 6.67,
+          "prior_date": "2026-07-16",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 742.17,
+          "gap_pct_at_open": -1.159,
+          "gap_reason": null,
+          "position_in_prior_range": -0.6927,
+          "position_reason": null,
+          "or_high": 747.24,
+          "or_low": 740.8,
+          "or_reason": null,
+          "rvol_session_so_far": 1.371,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 744.22,
+            "distance": 0.96,
+            "source": "premarket_low"
+          },
+          "nearest_level_below": {
+            "price": 740.8,
+            "distance": 2.46,
+            "source": "intraday_rth_low"
+          },
+          "n_levels_within_1pct": 11,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "own_account_decision_row",
+      "context_ts_et": "2026-07-17T14:49:03",
+      "time_of_day_bucket": "14:00-15:55",
+      "alignment_score": -1,
+      "nearest_level_distance": 0.96,
+      "position_in_prior_range": -0.6927
+    },
+    "join_quality": "exact_order_match",
+    "entry_order_id": "84aedc89-0857-4476-9310-4c74ea06ec47"
+  },
+  {
+    "date": "2026-07-20",
+    "account": "PA3DHPT7KIQE",
+    "arm_id": "safe-2",
+    "arm_display": "CORE-SAFE (KIQE)",
+    "setup": "vix_regime_dayside",
+    "setup_quality_tier": null,
+    "side": "C",
+    "symbol": "SPY260720C00748000",
+    "contract": "SPY 2026-07-20 748C",
+    "qty": 3,
+    "entry_et": "2026-07-20T09:51:24.728008",
+    "exit_et": "2026-07-20T09:52:03.562365",
+    "entry_px": 1.13,
+    "exit_px": 0.98,
+    "pnl_usd": -45.0,
+    "hold_minutes": 0.6,
+    "exit_stage": "premium_stop",
+    "exit_stages_all_legs": [
+      "premium_stop"
+    ],
+    "leg_count": 1,
+    "attribution": "engine",
+    "entry_reason": "vix_regime_dayside fired via G4 extra-setup side-channel (triggers: VWAP_DAY_TREND_ESTABLISHED, VIX_REGIME_FAVORABLE_LOW_NOT_RISING; confidence medium)",
+    "context": {
+      "spy": 747.575,
+      "ribbon": "BULL",
+      "htf_15m": "BEAR",
+      "vix": 17.7,
+      "bear_score": 7,
+      "bull_score": 6,
+      "triggers": [
+        "VWAP_DAY_TREND_ESTABLISHED",
+        "VIX_REGIME_FAVORABLE_LOW_NOT_RISING"
+      ],
+      "trigger_level_exact": null,
+      "via_extra_exec": true,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-20T09:50:02",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "uptrend",
+            "confidence": 0.733,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 134,
+            "reason": null
+          },
+          "m15": {
+            "trend": "uptrend",
+            "confidence": 0.733,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 139,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily",
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 3,
+            "available_count": 3,
+            "aligned": true
+          },
+          "bear": {
+            "agreeing_timeframes": [],
+            "agree_count": 0,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": 3,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 13210.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 5840.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 743.28,
+          "prior_high": 747.25,
+          "prior_low": 740.8,
+          "prior_range": 6.45,
+          "prior_date": "2026-07-17",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 747.04,
+          "gap_pct_at_open": 0.506,
+          "gap_reason": null,
+          "position_in_prior_range": 1.0504,
+          "position_reason": null,
+          "or_high": null,
+          "or_low": null,
+          "or_reason": "before_10:30_et_opening_range_not_yet_formed",
+          "rvol_session_so_far": 0.725,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 748.42,
+            "distance": 0.84,
+            "source": "level_memory"
+          },
+          "nearest_level_below": {
+            "price": 746.87,
+            "distance": 0.71,
+            "source": "intraday_rth_low"
+          },
+          "n_levels_within_1pct": 10,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "own_account_decision_row",
+      "context_ts_et": "2026-07-20T09:51:02",
+      "time_of_day_bucket": "09:30-10:30",
+      "alignment_score": 3,
+      "nearest_level_distance": 0.71,
+      "position_in_prior_range": 1.0504
+    },
+    "join_quality": "exact_order_match",
+    "entry_order_id": "95379311-a54b-45b4-9c6a-37c38629a616"
+  },
+  {
+    "date": "2026-07-20",
+    "account": "PA3DHPT7KIQE",
+    "arm_id": "safe-2",
+    "arm_display": "CORE-SAFE (KIQE)",
+    "setup": "vix_regime_dayside",
+    "setup_quality_tier": null,
+    "side": "C",
+    "symbol": "SPY260720C00748000",
+    "contract": "SPY 2026-07-20 748C",
+    "qty": 3,
+    "entry_et": "2026-07-20T09:54:19.657410",
+    "exit_et": "2026-07-20T09:55:04.092096",
+    "entry_px": 0.79,
+    "exit_px": 0.73,
+    "pnl_usd": -18.0,
+    "hold_minutes": 0.7,
+    "exit_stage": "premium_stop",
+    "exit_stages_all_legs": [
+      "premium_stop"
+    ],
+    "leg_count": 2,
+    "attribution": "engine",
+    "entry_reason": "vix_regime_dayside fired via G4 extra-setup side-channel (triggers: VWAP_DAY_TREND_ESTABLISHED, VIX_REGIME_FAVORABLE_LOW_NOT_RISING; confidence medium)",
+    "context": {
+      "spy": 747.575,
+      "ribbon": "BULL",
+      "htf_15m": "BEAR",
+      "vix": 17.66,
+      "bear_score": 7,
+      "bull_score": 6,
+      "triggers": [
+        "VWAP_DAY_TREND_ESTABLISHED",
+        "VIX_REGIME_FAVORABLE_LOW_NOT_RISING"
+      ],
+      "trigger_level_exact": null,
+      "via_extra_exec": true,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-20T09:50:02",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "uptrend",
+            "confidence": 0.733,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 134,
+            "reason": null
+          },
+          "m15": {
+            "trend": "uptrend",
+            "confidence": 0.733,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 139,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily",
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 3,
+            "available_count": 3,
+            "aligned": true
+          },
+          "bear": {
+            "agreeing_timeframes": [],
+            "agree_count": 0,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": 3,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 13210.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 5840.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 743.28,
+          "prior_high": 747.25,
+          "prior_low": 740.8,
+          "prior_range": 6.45,
+          "prior_date": "2026-07-17",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 747.04,
+          "gap_pct_at_open": 0.506,
+          "gap_reason": null,
+          "position_in_prior_range": 1.0504,
+          "position_reason": null,
+          "or_high": null,
+          "or_low": null,
+          "or_reason": "before_10:30_et_opening_range_not_yet_formed",
+          "rvol_session_so_far": 0.725,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 748.42,
+            "distance": 0.84,
+            "source": "level_memory"
+          },
+          "nearest_level_below": {
+            "price": 746.87,
+            "distance": 0.71,
+            "source": "intraday_rth_low"
+          },
+          "n_levels_within_1pct": 10,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "own_account_decision_row",
+      "context_ts_et": "2026-07-20T09:54:02",
+      "time_of_day_bucket": "09:30-10:30",
+      "alignment_score": 3,
+      "nearest_level_distance": 0.71,
+      "position_in_prior_range": 1.0504
+    },
+    "join_quality": "exact_order_match",
+    "entry_order_id": "67e64327-7c66-4e66-98e4-a37326823a39"
+  },
+  {
+    "date": "2026-07-20",
+    "account": "PA3DHPT7KIQE",
+    "arm_id": "safe-2",
+    "arm_display": "CORE-SAFE (KIQE)",
+    "setup": "vix_regime_dayside",
+    "setup_quality_tier": null,
+    "side": "C",
+    "symbol": "SPY260720C00748000",
+    "contract": "SPY 2026-07-20 748C",
+    "qty": 3,
+    "entry_et": "2026-07-20T09:55:24.874427",
+    "exit_et": "2026-07-20T09:56:03.439149",
+    "entry_px": 0.76,
+    "exit_px": 0.68,
+    "pnl_usd": -24.0,
+    "hold_minutes": 0.6,
+    "exit_stage": "premium_stop",
+    "exit_stages_all_legs": [
+      "premium_stop"
+    ],
+    "leg_count": 1,
+    "attribution": "engine",
+    "entry_reason": "vix_regime_dayside fired via G4 extra-setup side-channel (triggers: VWAP_DAY_TREND_ESTABLISHED, VIX_REGIME_FAVORABLE_LOW_NOT_RISING; confidence medium)",
+    "context": {
+      "spy": 747.575,
+      "ribbon": "BULL",
+      "htf_15m": "BEAR",
+      "vix": 17.74,
+      "bear_score": 7,
+      "bull_score": 6,
+      "triggers": [
+        "VWAP_DAY_TREND_ESTABLISHED",
+        "VIX_REGIME_FAVORABLE_LOW_NOT_RISING"
+      ],
+      "trigger_level_exact": null,
+      "via_extra_exec": true,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-20T09:55:02",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "downtrend",
+            "confidence": 0.867,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 134,
+            "reason": null
+          },
+          "m15": {
+            "trend": "uptrend",
+            "confidence": 0.733,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 139,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily",
+              "m15"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "hourly"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": 1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 13205.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 5845.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 743.28,
+          "prior_high": 747.25,
+          "prior_low": 740.8,
+          "prior_range": 6.45,
+          "prior_date": "2026-07-17",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 747.04,
+          "gap_pct_at_open": 0.506,
+          "gap_reason": null,
+          "position_in_prior_range": 0.8729,
+          "position_reason": null,
+          "or_high": null,
+          "or_low": null,
+          "or_reason": "before_10:30_et_opening_range_not_yet_formed",
+          "rvol_session_so_far": 0.869,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 748.42,
+            "distance": 1.99,
+            "source": "level_memory"
+          },
+          "nearest_level_below": {
+            "price": 745.96,
+            "distance": 0.47,
+            "source": "premarket_low"
+          },
+          "n_levels_within_1pct": 9,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "own_account_decision_row",
+      "context_ts_et": "2026-07-20T09:55:03",
+      "time_of_day_bucket": "09:30-10:30",
+      "alignment_score": 1,
+      "nearest_level_distance": 0.47,
+      "position_in_prior_range": 0.8729
+    },
+    "join_quality": "exact_order_match",
+    "entry_order_id": "3fbd90e1-fd0e-4902-81b1-42d8ae18b1d2"
+  },
+  {
+    "date": "2026-07-20",
+    "account": "PA3DHPT7KIQE",
+    "arm_id": "safe-2",
+    "arm_display": "CORE-SAFE (KIQE)",
+    "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "setup_quality_tier": null,
+    "side": "P",
+    "symbol": "SPY260720P00745000",
+    "contract": "SPY 2026-07-20 745P",
+    "qty": 3,
+    "entry_et": "2026-07-20T14:01:31.781989",
+    "exit_et": "2026-07-20T14:16:03.323392",
+    "entry_px": 0.78,
+    "exit_px": 0.7,
+    "pnl_usd": -24.0,
+    "hold_minutes": 14.5,
+    "exit_stage": "structure_stop",
+    "exit_stages_all_legs": [
+      "structure_stop"
+    ],
+    "leg_count": 1,
+    "attribution": "engine",
+    "entry_reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+    "context": {
+      "spy": 744.54,
+      "ribbon": "BEAR",
+      "htf_15m": "BEAR",
+      "vix": 18.19,
+      "bear_score": 9,
+      "bull_score": 7,
+      "triggers": [
+        "trendline_rejection"
+      ],
+      "trigger_level_exact": null,
+      "via_extra_exec": false,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-20T14:00:02",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "downtrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 133,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.867,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 138,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": -1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 12960.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 6090.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 743.28,
+          "prior_high": 747.25,
+          "prior_low": 740.8,
+          "prior_range": 6.45,
+          "prior_date": "2026-07-17",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 747.04,
+          "gap_pct_at_open": 0.506,
+          "gap_reason": null,
+          "position_in_prior_range": 0.5798,
+          "position_reason": null,
+          "or_high": 748.69,
+          "or_low": 744.26,
+          "or_reason": null,
+          "rvol_session_so_far": 0.961,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 744.92,
+            "distance": 0.38,
+            "source": "intraday_swing_high"
+          },
+          "nearest_level_below": {
+            "price": 744.52,
+            "distance": 0.02,
+            "source": "level_memory"
+          },
+          "n_levels_within_1pct": 11,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "own_account_decision_row",
+      "context_ts_et": "2026-07-20T14:01:02",
+      "time_of_day_bucket": "14:00-15:55",
+      "alignment_score": -1,
+      "nearest_level_distance": 0.02,
+      "position_in_prior_range": 0.5798
+    },
+    "join_quality": "exact_order_match",
+    "entry_order_id": "df5b8ca2-4178-4cd4-93fc-1c8fe31ff713"
+  },
+  {
+    "date": "2026-07-20",
+    "account": "PA3DHPT7KIQE",
+    "arm_id": "safe-2",
+    "arm_display": "CORE-SAFE (KIQE)",
+    "setup": "bollinger_squeeze",
+    "setup_quality_tier": null,
+    "side": "P",
+    "symbol": "SPY260720P00743000",
+    "contract": "SPY 2026-07-20 743P",
+    "qty": 3,
+    "entry_et": "2026-07-20T14:49:20.218830",
+    "exit_et": "2026-07-20T14:53:03.992923",
+    "entry_px": 0.8,
+    "exit_px": 0.7,
+    "pnl_usd": -30.0,
+    "hold_minutes": 3.7,
+    "exit_stage": "premium_stop",
+    "exit_stages_all_legs": [
+      "premium_stop"
+    ],
+    "leg_count": 1,
+    "attribution": "engine",
+    "entry_reason": "bollinger_squeeze fired via G4 extra-setup side-channel (triggers: BB_SQUEEZE_RECENT, BAND_BREAK_DOWN, VOLUME_CONFIRM; confidence medium)",
+    "context": {
+      "spy": 742.59,
+      "ribbon": "BEAR",
+      "htf_15m": "BEAR",
+      "vix": 18.05,
+      "bear_score": 9,
+      "bull_score": 6,
+      "triggers": [
+        "BB_SQUEEZE_RECENT",
+        "BAND_BREAK_DOWN",
+        "VOLUME_CONFIRM"
+      ],
+      "trigger_level_exact": null,
+      "via_extra_exec": true,
+      "context_bundle": {
+        "schema_version": 2,
+        "computed_at_et": "2026-07-20T14:45:02",
+        "per_tf": {
+          "daily": {
+            "trend": "uptrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 130,
+            "reason": null
+          },
+          "hourly": {
+            "trend": "downtrend",
+            "confidence": 0.8,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 134,
+            "reason": null
+          },
+          "m15": {
+            "trend": "downtrend",
+            "confidence": 0.867,
+            "trend_basis": "structure_breaks",
+            "available": true,
+            "n_bars": 138,
+            "reason": null
+          }
+        },
+        "trend_alignment": {
+          "bull": {
+            "agreeing_timeframes": [
+              "daily"
+            ],
+            "agree_count": 1,
+            "available_count": 3,
+            "aligned": false
+          },
+          "bear": {
+            "agreeing_timeframes": [
+              "hourly",
+              "m15"
+            ],
+            "agree_count": 2,
+            "available_count": 3,
+            "aligned": false
+          }
+        },
+        "alignment_score": -1,
+        "events": {
+          "next_event_name": "FOMC Rate Decision (Jul 2026 meeting)",
+          "next_event_et": "14:00 ET 2026-07-29",
+          "minutes_to_next_event": 12915.0,
+          "next_event_severity": "high",
+          "last_event_name": "Advance Monthly Retail Trade Sales (June 2026)",
+          "minutes_since_last_event": 6135.0,
+          "no_trade_window_active": false,
+          "active_windows": [],
+          "todays_windows": [],
+          "calendar_stale": false,
+          "calendar_stale_reason": null
+        },
+        "prior_day": {
+          "prior_close": 743.28,
+          "prior_high": 747.25,
+          "prior_low": 740.8,
+          "prior_range": 6.45,
+          "prior_date": "2026-07-17",
+          "reason": null
+        },
+        "today_context": {
+          "today_open": 747.04,
+          "gap_pct_at_open": 0.506,
+          "gap_reason": null,
+          "position_in_prior_range": 0.2775,
+          "position_reason": null,
+          "or_high": 748.69,
+          "or_low": 744.26,
+          "or_reason": null,
+          "rvol_session_so_far": 1.02,
+          "rvol_reason": null
+        },
+        "levels_context": {
+          "nearest_level_above": {
+            "price": 743.0,
+            "distance": 0.41,
+            "source": "intraday_rth_low"
+          },
+          "nearest_level_below": null,
+          "n_levels_within_1pct": 11,
+          "reason": null
+        },
+        "degraded": false,
+        "degraded_reason": null,
+        "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by score/gates/_derive_tier this phase -- see heartbeat_core._read_context_bundle + rec['context_bundle']. Grading path (spec only, not built): see this module's docstring 'GRADING PATH' section."
+      },
+      "context_source": "own_account_decision_row",
+      "context_ts_et": "2026-07-20T14:49:02",
+      "time_of_day_bucket": "14:00-15:55",
+      "alignment_score": -1,
+      "nearest_level_distance": 0.41,
+      "position_in_prior_range": 0.2775
+    },
+    "join_quality": "exact_order_match",
+    "entry_order_id": "120bd9f9-07a3-4800-9105-4ed694cebf3b"
+  }
+]
