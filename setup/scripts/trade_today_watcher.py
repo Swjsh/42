@@ -54,6 +54,7 @@ TRADE_TODAY = STATE / "trade-today.json"
 PINGED = STATE / "trade-today-pinged.json"
 LIFETIME = STATE / "engine-lifetime-fills.json"
 DISCORD_CFG = STATE / ".discord-config.json"
+ACCOUNTS_PATH = STATE / "fleet" / "accounts.json"
 
 
 def _now() -> str:
@@ -79,6 +80,34 @@ def _load_user_mention() -> str:
 
 def _is_spy_option(sym) -> bool:
     return isinstance(sym, str) and sym.startswith("SPY") and len(sym) >= 15
+
+
+# EXIT-PROFILE COLUMN (2026-07-20, J directive: "one gets stopped out on the ribbon, one
+# plays the rejection outside the ribbon, one rides it better" -- every fleet arm now trades
+# the SAME shared signal but with a DIFFERENT accounts.json params_patch.exit_patch overlay,
+# see fleet_executor.py's _exit_shape_dict docstring). J's #1 recurring ask for this file is
+# "did it trade" -- the natural next question once arms carry DIFFERENT exits is "which exit
+# banked THIS fill." accounts.json's per-arm "exit_profile" field (RIBBON/TRIG-EXACT/
+# ZONE-RIDE/CORE) is the single source of truth (set alongside each arm's exit_patch, not
+# duplicated here); this is a thin, fail-open, cached reader -- never used for dispatch,
+# read-surface only, mirrors arm_display.py's own _arms() caching pattern.
+_ARM_EXIT_PROFILE_CACHE: "dict | None" = None
+
+
+def _exit_profile_for_arm(arm_id: str) -> str:
+    """This arm's short exit-profile label, or '' when the arm/file/field is missing --
+    fail-open, must never block the fill ping itself."""
+    global _ARM_EXIT_PROFILE_CACHE
+    if _ARM_EXIT_PROFILE_CACHE is None:
+        try:
+            data = json.loads(ACCOUNTS_PATH.read_text(encoding="utf-8"))
+            _ARM_EXIT_PROFILE_CACHE = {
+                a["id"]: str(a.get("exit_profile") or "")
+                for a in data.get("arms", []) if isinstance(a, dict) and a.get("id")
+            }
+        except (OSError, ValueError):
+            _ARM_EXIT_PROFILE_CACHE = {}
+    return _ARM_EXIT_PROFILE_CACHE.get(arm_id, "")
 
 
 REHEARSAL_MAX_LIMIT = 0.02    # rehearsal PROBE_LIMIT is $0.01, never-marketable
@@ -351,6 +380,7 @@ def main() -> int:
         f, u = classify_orders(real)
         for x in f + u + probes:
             x["arm"] = arm
+            x["exit_profile"] = _exit_profile_for_arm(arm)
         f = _dedup_by_order_id(f, seen_order_ids)
         u = _dedup_by_order_id(u, seen_order_ids)
         all_filled += f
@@ -380,8 +410,13 @@ def main() -> int:
         # to J is prettified, e.g. "[safe-2]" -> "[safe-2 CORE-SAFE (KIQE)]".
         arm_label = display_name_for_arm_id(x["arm"])
         arm_s = x["arm"] if arm_label == x["arm"] else f"{x['arm']} {arm_label}"
+        # EXIT-PROFILE TAG (2026-07-20): which exit_patch overlay banked this fill --
+        # RIBBON / TRIG-EXACT / ZONE-RIDE / CORE (see _exit_profile_for_arm). '' when the
+        # arm has no label yet -- omitted rather than printing an empty " | exit:" tag.
+        profile = x.get("exit_profile") or _exit_profile_for_arm(x["arm"])
+        exit_tag = f" | exit:{profile}" if profile else ""
         msg = (f"{label} [{arm_s}]: {x['symbol']} x{int(x['qty'])} @ ${x['price']:.2f} "
-               f"{x.get('side')} ({x.get('filled_at', '')}){struct}{first}")
+               f"{x.get('side')} ({x.get('filled_at', '')}){struct}{exit_tag}{first}")
         with OUTBOX.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps({"content": mention + "[TRADE] " + msg,
                                  "source": "trade_today_watcher", "queued_at": _now()}) + "\n")

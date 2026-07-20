@@ -418,6 +418,9 @@ def run(signal_path: Path, master_live: bool) -> list[dict]:
     now = _now_et()
     creds_all = fb.load_creds()
     accounts = json.loads(ACCOUNTS_PATH.read_text(encoding="utf-8"))
+    # Eager exit_patch validation (2026-07-20 exit-diversity overlay): a typo'd knob must
+    # kill the tick loudly at config load, not silently no-op at entry time (C14/L201).
+    fx.validate_accounts_exit_patches(accounts)
     signal, sig_err = _load_signal(signal_path, now)
     usable_signal = signal if (signal is not None and sig_err is None) else None
     results: list[dict] = []

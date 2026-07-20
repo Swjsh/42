@@ -370,19 +370,88 @@ def _gate_check(arm: Mapping[str, Any], blk: Mapping[str, Any], signal: Mapping[
     return None
 
 
-def _exit_shape_dict(strat) -> dict:
+def _exit_shape_dict(strat, arm: Optional[Mapping[str, Any]] = None) -> dict:
     """The full exit shape threaded into the EntryPlan -> live exit_manager. Uses the
     ExitShape.to_dict() canonical form (includes runner_target_pct / trail_pct /
-    profit_lock_arm_pct) so the live runner ride is fully described by the strategy."""
+    profit_lock_arm_pct) so the live runner ride is fully described by the strategy.
+
+    EXIT-PARAMETER A/B OVERLAY (2026-07-20, J directive: "every fleet arm takes the SAME
+    engine signals but with DIFFERENT exit/risk parameters"): when `arm` is given and its
+    accounts.json `params_patch.exit_patch` is non-empty, the patch is shallow-merged OVER
+    this dict (patch keys win) -- so two arms trading the IDENTICAL entry signal can carry
+    DIFFERENT stops/targets/trails, turning daily real fills into a live exit-parameter A/B.
+    This intentionally BREAKS the pre-2026-07-20 "exit is a property of the strategy, not
+    the account" invariant (test_six_account_exit_shapes.py updated same-session) -- that
+    was correct doctrine for "no accidental per-account exit drift"; this is a deliberate,
+    disclosed, schema-validated overlay, not drift. arm=None (every pre-existing caller
+    that never passes it) stays byte-identical -- opt-in only.
+    """
     ex = strat.exit
-    if hasattr(ex, "to_dict"):
-        return ex.to_dict()
-    return {  # defensive fallback (older ExitShape without to_dict)
+    base = ex.to_dict() if hasattr(ex, "to_dict") else {  # defensive fallback (no to_dict)
         "premium_stop_pct": ex.premium_stop_pct,
         "tp1_premium_pct": ex.tp1_premium_pct,
         "tp1_qty_fraction": ex.tp1_qty_fraction,
         "profit_lock_mode": ex.profit_lock_mode,
     }
+    if arm is not None:
+        patch = _exit_patch_for_arm(arm)
+        if patch:
+            base = {**base, **patch}
+    return base
+
+
+# EXIT_PATCH schema = exactly strategies.ExitShape's dataclass fields -- the SAME keys
+# ExitShape.to_dict() emits and exit_manager.ExitState.from_entry reads (verified against
+# that function's exit_shape.get(...) call sites, 2026-07-20). Never hand-maintained as a
+# separate list -- deriving it from the dataclass means a future ExitShape field addition
+# is automatically a valid exit_patch key with no second edit required.
+EXIT_PATCH_ALLOWED_KEYS: frozenset = frozenset(
+    getattr(strategies.ExitShape, "__dataclass_fields__", {}).keys()
+)
+
+
+def _validate_exit_patch(arm_id: str, patch: Any) -> dict:
+    """Validate an arm's params_patch.exit_patch against the REAL ExitShape schema.
+
+    None/absent -> {} (byte-identical no-op, the overwhelming default). A non-dict value
+    or ANY key outside EXIT_PATCH_ALLOWED_KEYS raises ValueError immediately -- fail loud,
+    never silently ignored (C14/L201: a translated-but-unapplied knob is this repo's #1
+    recurring failure class). Called both eagerly (validate_accounts_exit_patches, at
+    accounts.json load) and at every merge site (_exit_shape_dict), so a typo'd key can
+    never survive to production regardless of whether this arm's strategies happen to
+    fire on a given tick.
+    """
+    if patch is None:
+        return {}
+    if not isinstance(patch, Mapping):
+        raise ValueError(
+            f"arm {arm_id!r}: params_patch.exit_patch must be a dict, got "
+            f"{type(patch).__name__}"
+        )
+    unknown = set(patch) - EXIT_PATCH_ALLOWED_KEYS
+    if unknown:
+        raise ValueError(
+            f"arm {arm_id!r}: params_patch.exit_patch has unknown key(s) "
+            f"{sorted(unknown)} -- valid keys are {sorted(EXIT_PATCH_ALLOWED_KEYS)} "
+            f"(strategies.ExitShape schema; do not invent keys the exit manager can't read)"
+        )
+    return dict(patch)
+
+
+def _exit_patch_for_arm(arm: Mapping[str, Any]) -> dict:
+    """This arm's validated exit_patch dict (see _validate_exit_patch), or {} when absent."""
+    arm_patch = arm.get("params_patch")
+    raw = arm_patch.get("exit_patch") if isinstance(arm_patch, Mapping) else None
+    return _validate_exit_patch(str(arm.get("id", "?")), raw)
+
+
+def validate_accounts_exit_patches(accounts: Mapping[str, Any]) -> None:
+    """Fail loud AT CONFIG-LOAD TIME: validate every arm's exit_patch up front, independent
+    of whether any strategy fires for that arm on a given signal (a per-tick-only check
+    could leave a typo'd patch silently unvalidated for an inactive/quiet arm). Call once
+    per accounts.json read. Raises ValueError on the first offending arm."""
+    for arm in accounts.get("arms", []):
+        _exit_patch_for_arm(arm)
 
 
 def _gate_block_for_entry(entry: Mapping[str, Any]) -> dict:
@@ -445,7 +514,7 @@ def _plan_from_strategies(arm, signal, equity, params, arm_id, tiers, spot) -> l
             _reason += f"; {_clamp_note}"
         plans.append(EntryPlan(arm_id, "ENTER", side, setup, strike, qty, quality,
                                _reason,
-                               strategy=strat.name, exit_shape=_exit_shape_dict(strat),
+                               strategy=strat.name, exit_shape=_exit_shape_dict(strat, arm),
                                trigger_level=(float(_tl) if _tl is not None else None)))
     return plans
 
@@ -555,7 +624,7 @@ def _probe_plan(
         return EntryPlan(arm_id, "ENTER", side, setup, strike, qty, quality,
                          f"PROBE_ARM cohort={cohort}",
                          strategy=strategies.RIBBON_RIDE.name,
-                         exit_shape=_exit_shape_dict(strategies.RIBBON_RIDE),
+                         exit_shape=_exit_shape_dict(strategies.RIBBON_RIDE, arm),
                          trigger_level=(float(_tl) if _tl is not None else None))
     return None
 
@@ -622,7 +691,7 @@ def plan_all(
                     _reason += f"; {_clamp_note}"
                 plans.append(EntryPlan(arm_id, "ENTER", side, setup, strike, qty, quality,
                                        _reason,
-                                       strategy=strat.name, exit_shape=_exit_shape_dict(strat),
+                                       strategy=strat.name, exit_shape=_exit_shape_dict(strat, arm),
                                        trigger_level=(float(_tl) if _tl is not None else None)))
 
     if _is_probe_active(arm, probe_cfg) and not any(p.action == "ENTER" for p in plans):
@@ -747,6 +816,7 @@ def run_dry(signal: Mapping[str, Any], accounts: Mapping[str, Any]) -> list[tupl
     Returns (decision, selected_plan) pairs so the dry-run can surface which strategy
     fired and the exit shape it would have used. selected_plan is None when no strategy
     fired at all (a pure no-setup HOLD)."""
+    validate_accounts_exit_patches(accounts)  # fail loud on a bad exit_patch, before any tick
     out: list[tuple[ArmDecision, Optional[EntryPlan]]] = []
     for arm in accounts.get("arms", []):
         if arm.get("status") != "active":

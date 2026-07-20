@@ -254,6 +254,7 @@ def test_unattributed_fleet_fill_label_wired_into_message_before_fix_reproduced(
     that silently mislabeled 13/13 real fleet fills on 2026-07-17 before this fix."""
     w = _load()
     monkeypatch.setattr(w, "STATE", tmp_path)
+    monkeypatch.setattr(w, "TRADE_TODAY", tmp_path / "trade-today.json")
     monkeypatch.setattr(w, "OUTBOX", tmp_path / "discord-outbox.jsonl")
     monkeypatch.setattr(w, "PINGED", tmp_path / "pinged.json")
     monkeypatch.setattr(w, "LIFETIME", tmp_path / "lifetime.json")
@@ -280,6 +281,7 @@ def test_unattributed_fill_label_wired_into_message(tmp_path, monkeypatch):
     row matches -- proves the label is actually wired, not just the helper function."""
     w = _load()
     monkeypatch.setattr(w, "STATE", tmp_path)
+    monkeypatch.setattr(w, "TRADE_TODAY", tmp_path / "trade-today.json")
     monkeypatch.setattr(w, "OUTBOX", tmp_path / "discord-outbox.jsonl")
     monkeypatch.setattr(w, "PINGED", tmp_path / "pinged.json")
     monkeypatch.setattr(w, "LIFETIME", tmp_path / "lifetime.json")
@@ -304,6 +306,7 @@ def test_attributed_fill_label_wired_into_message(tmp_path, monkeypatch):
     makes everything say UNATTRIBUTED."""
     w = _load()
     monkeypatch.setattr(w, "STATE", tmp_path)
+    monkeypatch.setattr(w, "TRADE_TODAY", tmp_path / "trade-today.json")
     monkeypatch.setattr(w, "OUTBOX", tmp_path / "discord-outbox.jsonl")
     monkeypatch.setattr(w, "PINGED", tmp_path / "pinged.json")
     monkeypatch.setattr(w, "LIFETIME", tmp_path / "lifetime.json")
@@ -472,6 +475,109 @@ def test_dedup_by_order_id_passes_through_missing_id():
     seen: set = set()
     out = w._dedup_by_order_id([{"symbol": "SPY260717P00745000"}], seen)
     assert len(out) == 1
+
+
+# =============================================================================
+# EXIT-PROFILE COLUMN (2026-07-20, J directive: "one gets stopped out on the ribbon, one
+# plays the rejection outside the ribbon, one rides it better" -- exit_patch A/B build).
+# accounts.json's per-arm "exit_profile" field (RIBBON/TRIG-EXACT/ZONE-RIDE/CORE) is read
+# by _exit_profile_for_arm and threaded into both trade-today.json's fill records and the
+# Discord fill ping, so "which exit banked this fill" answers itself without J asking.
+# =============================================================================
+def test_exit_profile_for_arm_reads_accounts_json(tmp_path, monkeypatch):
+    w = _load()
+    accounts = {"arms": [
+        {"id": "safe-3", "exit_profile": "RIBBON"},
+        {"id": "risky-1", "exit_profile": "TRIG-EXACT"},
+        {"id": "no-label-arm"},
+    ]}
+    (tmp_path / "accounts.json").write_text(json.dumps(accounts), encoding="utf-8")
+    monkeypatch.setattr(w, "ACCOUNTS_PATH", tmp_path / "accounts.json")
+    monkeypatch.setattr(w, "_ARM_EXIT_PROFILE_CACHE", None)
+    assert w._exit_profile_for_arm("safe-3") == "RIBBON"
+    assert w._exit_profile_for_arm("risky-1") == "TRIG-EXACT"
+    assert w._exit_profile_for_arm("no-label-arm") == ""
+    assert w._exit_profile_for_arm("unknown-arm") == ""
+
+
+def test_exit_profile_for_arm_fails_open_on_missing_file(tmp_path, monkeypatch):
+    w = _load()
+    monkeypatch.setattr(w, "ACCOUNTS_PATH", tmp_path / "missing.json")
+    monkeypatch.setattr(w, "_ARM_EXIT_PROFILE_CACHE", None)
+    assert w._exit_profile_for_arm("safe-3") == ""
+
+
+def test_exit_profile_matches_live_accounts_json():
+    """Runs against the REAL fleet/accounts.json (2026-07-20 build) -- pins the actual
+    assignment so a future accounts.json edit that silently drops/renames a label is caught
+    here, not just in the fleet-side test suite."""
+    w = _load()
+    monkeypatch_cache = w._ARM_EXIT_PROFILE_CACHE
+    w._ARM_EXIT_PROFILE_CACHE = None
+    try:
+        assert w._exit_profile_for_arm("safe-3") == "RIBBON"
+        assert w._exit_profile_for_arm("risky-1") == "TRIG-EXACT"
+        assert w._exit_profile_for_arm("risky-3") == "ZONE-RIDE"
+        assert w._exit_profile_for_arm("safe-2") == "CORE"
+        assert w._exit_profile_for_arm("bold-2") == "CORE"
+    finally:
+        w._ARM_EXIT_PROFILE_CACHE = monkeypatch_cache
+
+
+def test_exit_profile_wired_into_fill_ping_message(tmp_path, monkeypatch):
+    """End-to-end: main()'s ping message carries the ' | exit:<PROFILE>' tag for a fleet
+    arm with a label -- proves the label is actually wired, not just the helper function."""
+    w = _load()
+    monkeypatch.setattr(w, "STATE", tmp_path)
+    monkeypatch.setattr(w, "TRADE_TODAY", tmp_path / "trade-today.json")
+    monkeypatch.setattr(w, "OUTBOX", tmp_path / "discord-outbox.jsonl")
+    monkeypatch.setattr(w, "PINGED", tmp_path / "pinged.json")
+    monkeypatch.setattr(w, "LIFETIME", tmp_path / "lifetime.json")
+    accounts = {"arms": [{"id": "risky-3", "exit_profile": "ZONE-RIDE"}]}
+    (tmp_path / "accounts.json").write_text(json.dumps(accounts), encoding="utf-8")
+    monkeypatch.setattr(w, "ACCOUNTS_PATH", tmp_path / "accounts.json")
+    monkeypatch.setattr(w, "_ARM_EXIT_PROFILE_CACHE", None)
+    d = tmp_path / "fleet" / "risky-3"
+    d.mkdir(parents=True)
+    row = {"ts_et": "2026-07-20T11:07:02", "arm_id": "risky-3", "action": "ENTER_BEAR",
+           "placement": {"broker": {"symbol": FLEET_SYM, "id": "2951f12e"}}}
+    (d / "decisions.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    monkeypatch.setattr(w.fb, "load_creds", lambda: {"risky-3": {}})
+    monkeypatch.setattr(w, "_fetch_orders", lambda creds: [
+        {"id": "2951f12e", "symbol": FLEET_SYM, "qty": 5, "price": 0.46, "side": "buy",
+         "status": "filled", "filled_at": "2026-07-20T15:07:06Z"}])
+    monkeypatch.setattr(w, "split_rehearsal_probes", lambda orders: (orders, []))
+    monkeypatch.setattr(w, "classify_orders", lambda orders: (orders, []))
+    monkeypatch.setattr(w, "_load_user_mention", lambda: "")
+    w.main()
+    content = (tmp_path / "discord-outbox.jsonl").read_text(encoding="utf-8")
+    assert " | exit:ZONE-RIDE" in content
+    trade_today = json.loads((tmp_path / "trade-today.json").read_text(encoding="utf-8"))
+    assert trade_today["fills"][0]["exit_profile"] == "ZONE-RIDE"
+
+
+def test_exit_profile_tag_omitted_when_label_missing(tmp_path, monkeypatch):
+    """An arm with no exit_profile label yet must not print an empty ' | exit:' tag."""
+    w = _load()
+    monkeypatch.setattr(w, "STATE", tmp_path)
+    monkeypatch.setattr(w, "TRADE_TODAY", tmp_path / "trade-today.json")
+    monkeypatch.setattr(w, "OUTBOX", tmp_path / "discord-outbox.jsonl")
+    monkeypatch.setattr(w, "PINGED", tmp_path / "pinged.json")
+    monkeypatch.setattr(w, "LIFETIME", tmp_path / "lifetime.json")
+    (tmp_path / "accounts.json").write_text(json.dumps({"arms": []}), encoding="utf-8")
+    monkeypatch.setattr(w, "ACCOUNTS_PATH", tmp_path / "accounts.json")
+    monkeypatch.setattr(w, "_ARM_EXIT_PROFILE_CACHE", None)
+    (tmp_path / "fleet" / "safe-2").mkdir(parents=True)
+    monkeypatch.setattr(w.fb, "load_creds", lambda: {"safe-2": {}})
+    monkeypatch.setattr(w, "_fetch_orders", lambda creds: [
+        {"id": "ord3", "symbol": SYM, "qty": 3, "price": 1.22, "side": "buy",
+         "status": "filled", "filled_at": "2026-07-20T13:51:29Z"}])
+    monkeypatch.setattr(w, "split_rehearsal_probes", lambda orders: (orders, []))
+    monkeypatch.setattr(w, "classify_orders", lambda orders: (orders, []))
+    monkeypatch.setattr(w, "_load_user_mention", lambda: "")
+    w.main()
+    content = (tmp_path / "discord-outbox.jsonl").read_text(encoding="utf-8")
+    assert " | exit:" not in content
 
 
 def test_two_credential_labels_one_account_produce_one_counted_fill_per_order_id(tmp_path, monkeypatch):
