@@ -1,13 +1,13 @@
 {
-  "audited_at": "2026-07-14T13:02:59.632431+00:00",
+  "audited_at": "2026-07-20T02:02:31.201518+00:00",
   "health": "GREEN",
   "ps1_bare_python_count": 0,
   "py_subprocess_no_creationflags_count": 0,
   "mcp_unwrapped_launcher_count": 0,
   "live_task_registry_count": 0,
   "scan_coverage": {
-    "ps1_files_scanned": 144,
-    "py_files_scanned": 1039
+    "ps1_files_scanned": 153,
+    "py_files_scanned": 1071
   },
   "flags": []
 }
