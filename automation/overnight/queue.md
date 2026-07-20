@@ -1283,6 +1283,29 @@ CAVEATS: best-fixed is IN-SAMPLE (needs OOS confirm), grid coarse 3x3, this is t
 2. FRESH/SAME-DAY DESCENDING LINE TIER: J hand-drew the week's descending line twice this week;
    detector only scores multi-day rails (documented gap, pre-reg A/B spec already in
    TRENDLINE-SUBSYSTEM-AUDIT-2026-07-14). Run that A/B; ship a same-day tier if it clears.
+   **CLOSED 2026-07-20 ~04:xx ET conductor (AFTERHOURS), commit see STATUS.md.** Corrected a
+   false premise first: the audit's referenced pre-reg
+   (`analysis/recommendations/trendline-structure-conviction-preregistration.json`) answers a
+   DIFFERENT question (a VIX-band conviction override for `block_elite_bull`) and is already
+   `status: RUN_COMPLETE` / `result_verdict: KILL` -- not a spec for the same-day-priority gap;
+   the audit's own "Not done" section says the same-day tier "needs its own eval, not bundled
+   into this audit's read-mostly fixes," i.e. no A/B spec existed for THIS gap. Since this is a
+   SHADOW-only visibility feature (write_live_state's own docstring: "the engine does NOT trade
+   off these yet"), not a live trading gate, no P&L A/B applies -- a mechanism-correctness guard
+   is the right validation, same class as item 1/item 4's shipped precedents. Fix:
+   `trendline_engine.detect(bars, include_same_day_tier=True)` (default False, every existing
+   caller/test byte-identical) adds a second best-scoring pass restricted to TODAY's bars per
+   (kind, family), appended `tier="same_day"` when genuinely different from its primary sibling
+   (deduped on exact anchor identity); wired live at `main()`, the one production entry point
+   (`Gamma_Trendlines` 5-min RTH cadence + the premarket drawing bridge). `Trendline.tier` +
+   `write_live_state`'s JSON both carry the new field. **Deliberately NOT wired into the
+   drawing skill's on-chart DRAW CAP** (`.claude/skills/trendline-draw/SKILL.md`) -- doing so
+   would reopen the 2026-07-15 "too many trend lines" noise complaint the cap exists to fix;
+   left for item 3 (zoom-aware drawing) to reconsider together. Guard:
+   `backtest/tests/test_trendline_same_day_tier.py` (9/9 -- default-unchanged, additive-never-
+   replaces, dedup-when-primary-already-is-same-day, no-op-when-no-distinct-line, no-lookahead,
+   write_live_state schema, families=both). Zero trading-path files touched (`params.json`/
+   `heartbeat_core.py`/`filters.py`/placement/exit code untouched) -- SHADOW/visibility-only.
 3. ZOOM-AWARE DRAWING: multi-day rails at intraday zoom read as noise (J: "a blind person drew
    them"). Draw rule: only render lines whose anchor span overlaps the visible ~2-day window,
    or label-offset placement; spec small, validate on a real screenshot.
@@ -1320,6 +1343,13 @@ CAVEATS: best-fixed is IN-SAMPLE (needs OOS confirm), grid coarse 3x3, this is t
 - crypto-gym (53 validators) (RED): 103/104 pass
 
 **Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
+
+**CLOSED 2026-07-20 ~04:xx ET conductor (AFTERHOURS) -- STALE, self-resolved.** Live-checked
+`crypto/data/scorecards/latest.json` this fire: `overall_pass: true`, `104/104 passed`
+(`checked_at 2026-07-20T08:19:06Z`, fresher than this item's 2026-07-17 filing) -- a later
+scheduled gym run since this was filed cleared the 1 failing stage, same pattern as the
+2026-07-19 `conductor-weekend` fire's "gym drift already resolved" finding for a different
+stage. No action needed; closing so it stops competing for attention against live RED items.
 
 ## HTF-LEVEL-LOOKBACK-EXTENSION (MED, weekend-ratifiable pre-reg, filed 2026-07-17 ~18:28 ET, Sonnet)
 

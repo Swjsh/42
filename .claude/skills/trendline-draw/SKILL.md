@@ -62,17 +62,26 @@ every 5 min); DRAWING is not continuously live without a session open to run it.
    ```
    cd backtest && .venv/Scripts/python.exe -m autoresearch.trendline_engine --no-log --json
    ```
-   Returns up to 4 lines: wick-support, wick-resistance, body-support, body-resistance (only
-   lines that actually scored `respect_count >= 1` are present -- may be fewer than 4). Each line
-   carries `anchor_family` ("wick" | "body"), `kind` ("support" | "resistance"), anchors
-   (`a_unix`/`a_price`/`b_unix`/`b_price`), the forward projection (`proj_unix`/`proj_price`),
-   `status` (INTACT/TESTING/BROKEN), `respect_count`, and `break_level`.
+   Returns up to 4 PRIMARY lines (wick-support, wick-resistance, body-support, body-resistance --
+   only lines that actually scored `respect_count >= 1` are present, may be fewer than 4), PLUS
+   up to 4 more `tier="same_day"` lines (T15, 2026-07-20 -- the best-scoring line per
+   (kind, family) restricted to TODAY's bars only, appended when it's a genuinely different line
+   from its primary sibling; see `trendline_engine.detect(include_same_day_tier=True)`). Each
+   line carries `anchor_family` ("wick" | "body"), `tier` ("primary" | "same_day"), `kind`
+   ("support" | "resistance"), anchors (`a_unix`/`a_price`/`b_unix`/`b_price`), the forward
+   projection (`proj_unix`/`proj_price`), `status` (INTACT/TESTING/BROKEN), `respect_count`, and
+   `break_level`.
 
-3. **DRAW CAP — at most 2 lines on the chart: the single best-respected line per SIDE
+3. **DRAW CAP — at most 2 lines on the chart: the single best-respected PRIMARY line per SIDE
    (support + resistance), selected across BOTH families by `respect_count`.** (J, 2026-07-15:
    "way too many trend lines on the screen" — the 4-line families×sides draw plus his own lines
-   was unreadable. All 4 detections still LOG; only the DRAW is capped. State the winning
-   line's family in its label.)
+   was unreadable. All detections still LOG; only the DRAW is capped. State the winning line's
+   family in its label.) **`tier="same_day"` lines are deliberately EXCLUDED from this draw
+   selection for now** (T15, 2026-07-20) -- they exist in the JSON/log/`trendlines-live.json`
+   shadow state for self_check/dashboard/future consumers, but adding them to the on-chart draw
+   pool would reopen the exact 2026-07-15 noise complaint this cap exists to fix. Item 3
+   (TRENDLINE-FIXES-2026-07-17, zoom-aware drawing) should reconsider the draw cap together with
+   same_day-tier visibility once it ships, not before.
 
 4. **Assert before drawing -- never render a mixed-anchor line.** For each line, before calling
    `draw_shape`, sanity-check: `anchor_family` is exactly one of "wick"/"body" (the engine's own

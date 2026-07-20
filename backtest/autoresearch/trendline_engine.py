@@ -56,7 +56,7 @@ import json
 import math
 import sys
 import urllib.request
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -246,11 +246,16 @@ class Trendline:
     proj_unix: int          # a forward point ON the line (for drawing)
     proj_price: float
     anchor_family: str = "wick"   # T14 (2026-07-14): "wick" | "body" -- never mixed per line
+    tier: str = "primary"   # T15 (2026-07-20): "primary" (best-scoring, whole lookback) |
+                             # "same_day" (best-scoring restricted to TODAY's bars only --
+                             # see detect(include_same_day_tier=...)). Additive field, default
+                             # preserves every existing caller/reader byte-identical.
 
     def summary(self) -> str:
         sign = "below" if self.kind == "support" else "above"
         fam = self.anchor_family.upper()
-        return (f"{self.kind.upper()} [{fam}] {self.a_et}@{self.a_price:.2f} -> {self.b_et}@{self.b_price:.2f} "
+        tier_tag = "" if self.tier == "primary" else f" [{self.tier.upper()}]"
+        return (f"{self.kind.upper()} [{fam}]{tier_tag} {self.a_et}@{self.a_price:.2f} -> {self.b_et}@{self.b_price:.2f} "
                 f"slope {self.slope_per_bar:+.2f}/bar | line now {self.current_value:.2f} "
                 f"(close {self.last_close:.2f}) | respected x{self.respect_count} | {self.status} | "
                 f"BREAK = 5m close {sign} ~{self.break_level:.2f}")
@@ -332,14 +337,35 @@ def _fit(bars, pivots, kind: str, family: str = "wick") -> Trendline | None:
     )
 
 
-def detect(bars: list[dict], families: tuple[str, ...] = ("wick", "body")) -> list[Trendline]:
+def _bar_date_et(b: dict) -> str:
+    """'MM-DD' ET calendar-date portion of a bar's timestamp, for same-day grouping.
+    Reuses `_et()` (the one DST-aware ET converter) rather than re-deriving a date."""
+    return _et(b["t"])[:5]
+
+
+def detect(bars: list[dict], families: tuple[str, ...] = ("wick", "body"),
+           include_same_day_tier: bool = False) -> list[Trendline]:
     """Detect the best-scoring line per (kind, family) -- up to 4 lines: wick-support,
     wick-resistance, body-support, body-resistance. NEVER mixes a wick anchor with a body
     anchor within one line (see _fit's per-family assert). Families default to BOTH -- J's rule
     is bodies XOR wicks PER LINE, not "wicks only" system-wide; the engine surfaces whichever
     flavor(s) actually fit today's tape. `families=("wick",)` reproduces the pre-T14 behavior
     exactly (existing callers/tests that only look at the first support/resistance match are
-    unaffected: wick is computed identically to before and is listed first)."""
+    unaffected: wick is computed identically to before and is listed first).
+
+    T15 (2026-07-20, TRENDLINE-FIXES-2026-07-17 item 2): `_fit`'s own score
+    (`respect - 5*violations + span*0.1`) structurally rewards LONGER-LIVED lines, so a fresh
+    2-3-touch same-day line J hand-draws almost never wins a (kind, family) slot over an older
+    multi-day line that happens to share it -- exactly the "engine drew a different, multi-day
+    line than J's own same-day line" gap the 2026-07-14 audit found. `include_same_day_tier=True`
+    (default False -- every existing caller/test is byte-identical unless it opts in) adds a
+    SECOND, independent best-scoring pass restricted to ONLY today's bars (the same trading day
+    as the last bar in `bars`) per (kind, family), and appends it tagged `tier="same_day"` if it
+    is genuinely a DIFFERENT line from the primary slot (deduped on exact anchor identity) --
+    additive, never replaces the primary line. No-look-ahead is inherited for free: this only
+    ever narrows the SAME already-truncated `bars` list the caller passed in, never reads beyond
+    it (C6 invariant, mirrors the no_look_ahead_guard convention in
+    trendline-structure-conviction-preregistration.json)."""
     out = []
     for family in families:
         lows, highs = find_pivots(bars, family=family)
@@ -347,6 +373,23 @@ def detect(bars: list[dict], families: tuple[str, ...] = ("wick", "body")) -> li
             line = _fit(bars, piv, kind, family=family)
             if line:
                 out.append(line)
+    if include_same_day_tier and bars:
+        today = _bar_date_et(bars[-1])
+        same_day_bars = [b for b in bars if _bar_date_et(b) == today]
+        for family in families:
+            lows, highs = find_pivots(same_day_bars, family=family)
+            for kind, piv in (("support", lows), ("resistance", highs)):
+                sd_line = _fit(same_day_bars, piv, kind, family=family)
+                if sd_line is None:
+                    continue
+                is_dup = any(
+                    ln.kind == kind and ln.anchor_family == family
+                    and ln.a_et == sd_line.a_et and ln.b_et == sd_line.b_et
+                    for ln in out
+                )
+                if is_dup:
+                    continue
+                out.append(replace(sd_line, tier="same_day"))
     return out
 
 
@@ -380,7 +423,7 @@ def write_live_state(lines: list[Trendline], date_et: str) -> None:
         "ts_et": et_now().strftime("%Y-%m-%dT%H:%M:%S"),
         "generated_at": _dt.datetime.now(_dt.timezone.utc).isoformat(),
         "count": len(lines),
-        "trendlines": [{"kind": ln.kind, "anchor_family": ln.anchor_family,
+        "trendlines": [{"kind": ln.kind, "anchor_family": ln.anchor_family, "tier": ln.tier,
                         "current_value": round(ln.current_value, 2),
                         "break_level": round(ln.break_level, 2), "status": ln.status,
                         "respect_count": ln.respect_count, "violations": ln.violations,
@@ -408,7 +451,11 @@ def main(n_days: int = N_DAYS, write_log: bool = True, as_json: bool = False) ->
         else:
             print(f"trendline_engine: only {len(bars)} RTH bars -- too early/no data")
         return 0
-    lines = detect(bars)
+    # T15 (2026-07-20): include_same_day_tier=True live on the ONE production entry point --
+    # SHADOW-only (write_live_state's own docstring: "the engine does NOT trade off these yet"),
+    # so surfacing J's own same-day line alongside the multi-day primary is a pure visibility
+    # win with zero trading-behavior change.
+    lines = detect(bars, include_same_day_tier=True)
     if not lines:
         if as_json:
             print(json.dumps({"lines": [], "note": "no respected trendline yet"}))
@@ -430,7 +477,7 @@ def main(n_days: int = N_DAYS, write_log: bool = True, as_json: bool = False) ->
     for ln in lines:
         print("  " + ln.summary())
         print(f"     draw_shape trend_line: A=({ln.a_unix},{ln.a_price}) "
-              f"B=({ln.proj_unix},{ln.proj_price})  [family={ln.anchor_family}]")
+              f"B=({ln.proj_unix},{ln.proj_price})  [family={ln.anchor_family}] [tier={ln.tier}]")
     if write_log:
         print(f"  logged -> {LOG.relative_to(REPO)}")
     return 0
