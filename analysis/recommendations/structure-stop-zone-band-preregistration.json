@@ -1,0 +1,56 @@
+{
+  "_doc": "PRE-REGISTERED buffer-width sweep for the ALREADY-LIVE structure stop (structure_stop_enabled=true, SS-B shape, validated 2026-07-09). Frozen BEFORE any candidate replay is run (exploratory != confirmatory -- no re-picks after seeing results; FAIL is publishable). Motivated by J's live-called exit 2026-07-20 14:01-14:26 ET (queue item STRUCTURE-STOP-ZONE-BAND): safe 3x 745P entered on trendline_rejection, structure stop armed at the EXACT trigger 744.92; the 14:10-14:15 5m bar closed 745.04 -- 12 CENTS above -- and SELL_ALL fired at 14:16 @0.70 (-$24) while the ribbon was still BEAR and price never decisively broke the 745.14-745.40 key-level zone. Price then dumped to 744.26 by 14:26; counterfactual TP1 would likely have touched (~+$115-130 vs -$24 taken). This pre-reg tests ONLY the close-above/close-below BAND WIDTH on the existing trigger_level reference (item (a) of the queue item) -- it does NOT touch WHICH reference level is used (item (b), the trigger-exact-vs-zone-boundary choice), which needs its own key-level-lookup wiring at entry time and is filed separately as STRUCTURE-STOP-REFERENCE-LEVEL (follow-up, not in scope here). Scoping the two apart keeps this a single bounded, fully-closeable fire.",
+  "version": 1,
+  "status": "FROZEN_PENDING_RUN",
+  "frozen_at": "2026-07-20T16:xx ET (before any candidate replay)",
+  "runner": "backtest/tools/structure_stop_zone_band_ab.py",
+  "reuses": "backtest/tools/structure_stop_study.py's trigger-level recovery, bar-fetch, and replay_structure_aware machinery UNCHANGED -- this study only sweeps the `buffer` argument already accepted by structure_stop_signal_time and adds it (currently unused live) to exit_manager.py's _structure_stop_hit.",
+  "strategy": "ribbon_ride (both directions), all fleet_rest arms -- same population convention as structure-stop-preregistration.json v1 (no strategy filter beyond side-derivable-from-symbol)",
+
+  "fixed_exit_shape": {
+    "note": "SS-B, the shape CURRENTLY LIVE in automation/state/fleet/strategies.py#RIBBON_RIDE.exit (params.json structure_stop_enabled=true since 2026-07-09). Held FIXED across every candidate -- only the structure-stop buffer varies, isolating that one variable (the 2026-07-09 study confounded buffer with tp1_premium_pct across SS-A/B/C).",
+    "shape": {"premium_stop_pct": -0.50, "tp1_premium_pct": 1.0, "tp1_qty_fraction": 0.667,
+              "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 9.9}
+  },
+
+  "candidates": {
+    "BAND-00": {"buffer": 0.00, "role": "CONTROL -- exact byte-identical reproduction of the LIVE structure-stop condition today (no band, cents-noise included)"},
+    "BAND-05": {"buffer": 0.05},
+    "BAND-08": {"buffer": 0.08},
+    "BAND-10": {"buffer": 0.10, "note": "same buffer as the 2026-07-09 study's SS-C (which failed there, but confounded with a different TP1 shape -- re-tested here isolated)"},
+    "BAND-12": {"buffer": 0.12, "note": "closest sweep point to the 2026-07-20 exhibit's 12-cent overshoot"},
+    "BAND-15": {"buffer": 0.15},
+    "BAND-20": {"buffer": 0.20}
+  },
+
+  "signal_set_integrity": {
+    "layer_a_fresh_slice": {
+      "file": "analysis/exit-parity/signal-set-fresh-20260619-20260708.json",
+      "n": 18, "window": "2026-06-19..2026-07-08",
+      "sha256_16": "d10e1a3a51cbf155",
+      "reused_unchanged": true,
+      "role": "independent OOS-like population (never seen the 2026-07-20 hypothesis -- entirely predates it)"
+    },
+    "layer_b_real_fills_anchor": {
+      "source": "automation/state/fills-ledger.jsonl via exit_shape_parity_study.load_fleet_engine_fills()+reconstruct_positions(), ALL fleet_rest positions (no date lower bound beyond ledger start)",
+      "anchor_end_date": "2026-07-17",
+      "anchor_end_date_note": "2026-07-20 (today, the hypothesis-generating day) is EXCLUDED from the anchor by construction -- EXHIBIT ONLY, reported separately, never pass/fail data (same discipline as the 2026-07-09 study excluding its own hypothesis day).",
+      "n_positions": 99, "n_trading_days": 11,
+      "date_span": "2026-06-29..2026-07-17",
+      "population_sha256_16": "0c2d963360e57fd7",
+      "population_sha256_note": "sha256 of json.dumps(sort_keys=True) of the sorted [{date_et,symbol,arm,entry_ts_utc,entry_qty}] anchor list, computed at freeze time via exit_shape_parity_study.load_fleet_engine_fills()+reconstruct_positions() filtered date_et<=2026-07-17. Ledger is append-only/growing but this date range is CLOSED (no future fills will ever land <=2026-07-17), so a re-run reproduces this exact hash."
+    }
+  },
+
+  "structure_stop_signal_time_convention": "identical to structure_stop_study.py: first SPY 5m bar whose CLOSE breaches (close < trigger_level - buffer for calls, close > trigger_level + buffer for puts); C6 fill-mark = that bar's close time == next bar's open (earliest tradeable price once known). Trigger-level recovery: layer(a) exact entry_spot-matched (tw8_level_context.enrich_signals); layer(b) backward-scan heuristic (lookback=8 bars/40min, same as structure_stop_study). Positions with no recoverable trigger_level NEVER dropped -- fall back to the SAME SS-B premium-only replay (no structure check) for every candidate identically, per the pre-existing fallback discipline.",
+
+  "pass_bar": {
+    "primary": "a candidate's buffer beats BAND-00 (the literal current-live behavior) on BOTH layer(a) fresh-slice expectancy AND layer(b) anchor total, same dual-layer gate as the 2026-07-09 study",
+    "sub_window_stability": "layer(b) anchor split at the population midpoint by date (2026-06-29..2026-07-08 vs 2026-07-09..2026-07-17, ~50/50 by position count) -- the winning candidate (if any) must not FLIP SIGN of its delta-vs-BAND-00 in either half (informational disclosure, not a hard veto given n is small in each half -- reported explicitly either way)",
+    "small_n_disclosure": "anchor n=99 positions but only the subset with a recoverable trigger_level is exposed to the buffer sweep at all (the rest replay identically to BAND-00 under every candidate by construction) -- report n_recoverable/n_total for both layers plainly; evidence_n<15 on the recoverable-only subset is INCONCLUSIVE_UNDERPOWERED per the evidence-floor doctrine, not a FAIL, and is disclosed as such rather than silently passed or failed",
+    "today_exhibit": "2026-07-20's 3 fills (the hypothesis-generating trade + any siblings) replayed under every candidate for narrative comparison ONLY -- excluded from pass/fail exactly like the 2026-07-09 study excluded its own hypothesis day"
+  },
+
+  "if_a_candidate_clears": "ship as automation/state/fleet/exit_manager.py: add structure_stop_buffer: float=0.0 field to ExitState (default 0.0 = byte-identical current behavior for every OTHER caller/test), thread it through _structure_stop_hit's close comparison, resolve it ONCE in ExitState.from_entry from exit_shape.get('structure_stop_buffer', 0.0) (so it is frozen at entry like every other structure-stop field, never flaps mid-trade), and set automation/state/fleet/strategies.py#RIBBON_RIDE.exit's structure_stop_buffer to the cleared value. Guard test + git-revert path + REVOKE report per rail 4 (PAPER-only, both fleet + core lanes read the same strategies.py shape).",
+  "if_none_clear": "leave BAND-00 (today's live behavior) in place, document the null result, and re-file item (b) (reference-level choice) as the more promising remaining lever per the queue item's own quantified counterfactual (a wider REFERENCE, not a wider band on the same reference, is what flips the exhibit's outcome per its own worked discriminator table)."
+}

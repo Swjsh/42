@@ -9,6 +9,146 @@
 
 ## Active backlog
 
+### STRUCTURE-STOP-ZONE-BAND (HIGH, trading-path, filed 2026-07-20 ~14:50 ET during RTH -- FIX AFTER 16:00, Rule 9; J called the failure live)
+
+- [ ] STRUCTURE-STOP-ZONE-BAND (HIGH, after-hours fix + pre-reg A/B) :: Live exhibit
+  2026-07-20 14:01-14:26, safe 3x 745P @ 0.78 (trendline_rejection): structure stop armed at
+  the EXACT trigger price 744.92; the 14:10-14:15 5m bar closed ~745.04 -- **12 cents** above
+  -- and SELL_ALL fired at 14:16 @ 0.70 (-$24), ribbon still BEAR. Price then topped at
+  745.22 -- INSIDE the 745.14-745.40 key-level zone, which was never decisively broken -- and
+  dumped to 744.26 by 14:26. Held-through-zone counterfactual: puts ~0.85-1.00 on the dump
+  (TP1 +30% @ 1.01 likely touched). J called it live from the chart: "if we respected the
+  key level, we'd still be in it. And it did dump." This is the levels-are-zones doctrine
+  (J 2026-07-17, feedback_levels_are_zones memory) applied to the EXIT side -- entry triggers
+  got zone treatment, structure_stop still compares close > level to the penny. TWO defects:
+  (1) NO band on the structure-stop close-above check (cents-noise kills the position);
+  (2) WRONG reference level for rejection setups -- stop uses trigger_level (the trendline
+  value, 744.92, which was BELOW spot at entry), when the chart-logic invalidation of a
+  rejection is a close back above the REJECTED ZONE BOUNDARY (here the 745.14 swing high /
+  745.29 memory level band). FIX: (a) structure_stop close-above test gets a proximity band
+  -- width from a pre-reg A/B over historical exit_pass rows (same discipline as entry-side
+  zone bands, NEVER hand-picked); (b) for level/trendline-rejection setups, evaluate stop
+  reference = nearest key level ABOVE trigger (zone boundary) vs trigger-exact in the same
+  A/B; (c) replay via backtest/lib/exit_manager_walk.py (the faithful 6/6 harness) on
+  2026-07-20 + prior days before shipping; guard test RED-proofed both ways.
+  QUANTIFIED COUNTERFACTUAL (SIP 5m + OPRA option bars, pulled 14:50 ET same day): after
+  the 14:16 stop-out @ 0.70, SPY's 14:15-14:20 bar poked 745.38 high / closed 745.24, then
+  rejected J's zone exactly and dumped 745.2 -> 743.58 by 14:40. The 745P ran 0.55 low ->
+  1.20 -> 1.73 high. Under live exit config (TP1 +30%=1.01 x0.8 qty, chandelier runner 15%
+  off HWM~1.73): TP1 fills in the 14:20-14:25 bar (+$46 on 2), runner trail ~1.47 (+$69)
+  => counterfactual ~+$115-130 vs -$24 taken. DISCRIMINATOR THE A/B MUST RESOLVE (do NOT
+  fit to this n=1, C24/L140): stop-reference choice INVERTS the outcome -- trigger-exact
+  744.92 = stopped 14:16 -$24 (actual); swing-high 745.14 close-above = stopped 14:20 @
+  ~0.61 = -$51 (WORSE than actual); zone-TOP 745.40 close-above = survives (14:20 bar
+  closed 745.24, never closed above 745.40) = +$115-130. Max adverse while holding: premium
+  0.55 = -29% MAE (above the -50% catastrophe cap). Wider reference holds through noise but
+  eats bigger losses when zones genuinely break -- that tradeoff is what the historical
+  replay must price, not today's single winner.
+  depends:none :: status:CLOSED_PARTIAL (item a REJECT_ALL, item b re-filed below)
+
+> **CLOSED item (a) 2026-07-20 ~16:19-16:55 ET (conductor, AFTERHOURS): pre-reg A/B REJECT_ALL_CANDIDATES.**
+> Ran `backtest/tools/structure_stop_zone_band_ab.py` (frozen pre-reg:
+> `analysis/recommendations/structure-stop-zone-band-preregistration.json`, output:
+> `analysis/recommendations/structure-stop-zone-band-2026-07-20.json`) -- isolated ONLY the
+> buffer/band width on the existing trigger_level reference (the 2026-07-09 study's SS-A/B/C
+> confounded buffer with tp1_premium_pct; this study held the LIVE SS-B shape fixed and swept
+> buffer 0.00/0.05/0.08/0.10/0.12/0.15/0.20 alone). **REJECT_ALL**: every buffer >0 FAILS the
+> dual-layer gate (fresh-slice layer(a) expectancy WORSE than the 0-buffer control for every
+> single candidate, -47.9 to -52.34 vs -47.34 control) AND the real-fills anchor layer(b) "wins"
+> that clear the bar (BAND-10/12/15/20, +$677 to +$801 vs -$900.7 control) are entirely an
+> artifact of ONE 2026-07-08 signal (SPY260708P00741000, replicated across 4 arms, $532/388/331
+> per-leg swing) -- the sub-window split (first half vs second half) shows a hard SIGN FLIP
+> (+$1656-1736 first half vs -$34.5 to -$74.5 second half) for every passing candidate, the
+> exact single-anchor-trade-driving-everything signature C24 warns about. Today's 3 exhibit
+> fills were NOT recoverable via this study's fills-ledger source (0/0 -- a separate, disclosed
+> data-path gap: `exit_shape_parity_study.load_fleet_engine_fills()` tops out 2026-07-17 despite
+> `fills-ledger.jsonl` itself having 2026-07-20 rows -- worth a future fire's attention but not
+> blocking here since the exhibit was informational-only by the pre-reg's own design). **Verdict
+> confirms the queue item's own quantified counterfactual**: widening the SAME (trigger-exact)
+> reference doesn't reproduce a stable edge -- it's the REFERENCE CHOICE (item b) that flips
+> today's outcome, not the band width on the wrong reference. BAND-00 (today's live behavior,
+> buffer=0) stays unchanged. Guard: `backtest/tests/test_structure_stop_zone_band_ab.py` (7/7,
+> RED-proofed via file-move -- untracked file, `git stash` unsafe here, see below). Curated
+> safety gate (31+5-suite) PASS. **Zero trading-path files touched** -- ANALYSIS ONLY, no
+> `params.json`/`strategies.py`/`exit_manager.py`/placement/exit code edited; nothing to revert.
+> **Blast-radius near-miss (recorded, not a lesson -- no code change needed):** attempted
+> `git stash -- backtest/tools/structure_stop_zone_band_ab.py` (an UNTRACKED file) to RED-proof;
+> the pathspec didn't match (untracked files need `-u`/`add` first), the command aborted with
+> exit 1, and NOTHING was stashed -- confirmed via `git rev-parse stash@{0}^1` resolving to a
+> 2026-07-18 commit (2 days stale, pre-existing from an earlier session, untouched by this fire).
+> Recovery = none needed; switched to the file-move RED-proof technique (matches the
+> SAFE-VIX-CONDITIONAL-SIZING 2026-07-20 precedent for untracked new modules) for the rest of
+> this fire and going forward for any future untracked-file RED-proof.
+
+### STRUCTURE-STOP-REFERENCE-LEVEL (HIGH, trading-path, filed 2026-07-20 ~16:55 ET, follow-up to STRUCTURE-STOP-ZONE-BAND item (b))
+
+- [ ] STRUCTURE-STOP-REFERENCE-LEVEL (HIGH, after-hours fix + pre-reg A/B, needs new wiring) ::
+  Item (b) of STRUCTURE-STOP-ZONE-BAND, re-filed standalone after item (a)'s REJECT_ALL closed
+  the simpler buffer-width axis (see the CLOSED note directly above -- widening the SAME
+  trigger-exact reference does NOT reproduce a stable edge; only 1 anchor trade drove every
+  apparent win, sub-window sign-flipped). The 2026-07-20 14:16 exhibit's own quantified
+  counterfactual (still valid, restated from the original filing): stop-reference choice
+  INVERTS the outcome -- trigger-exact 744.92 = stopped 14:16 -$24 (actual); swing-high 745.14
+  close-above = stopped 14:20 ~-$51 (WORSE); zone-TOP 745.40 close-above = survives, dump
+  reverses, counterfactual +$115-130. UNLIKE item (a), this needs NEW wiring, not just a buffer
+  sweep on data already available: `exit_manager.nearest_active_level` (the entry-time trigger
+  resolver, `automation/state/fleet/exit_manager.py:100`) already exists and is directionally
+  filtered, but only returns the SINGLE nearest level TO SPOT -- it does not resolve "the zone
+  boundary the rejection bounced off" as a DISTINCT, further-out level. SPEC before building:
+  (1) does `key-levels.json` (or `lib/levels.py`'s backtest-approximation) carry enough
+  multi-level structure at entry time to identify a zone boundary ABOVE/BELOW the exact trigger
+  (not just the nearest level to spot)? (2) if yes, extend `nearest_active_level` (or add a
+  sibling resolver) to return BOTH the trigger-exact level AND the next level further from spot
+  in the rejection/reclaim direction, threaded through `ExitState.from_entry`'s existing
+  `trigger_level` field (byte-identical for every position where only one level is available --
+  additive, not a replacement) as a NEW optional `structure_stop_reference_mode` exit-shape
+  knob ("trigger_exact" default | "zone_boundary"). (3) pre-reg A/B: zone_boundary vs
+  trigger_exact vs control(no structure), SAME dual-layer + sub-window-stability discipline as
+  item (a)'s study (reuse `structure_stop_study.py`/`structure_stop_zone_band_ab.py`'s already-
+  built replay machinery -- only the trigger_level RESOLUTION differs, not the replay). (4)
+  replay via `backtest/lib/exit_manager_walk.py` (the faithful harness) before shipping; RED-
+  proof both ways. Evidence: `analysis/recommendations/structure-stop-zone-band-2026-07-20.json`
+  (item a's REJECT, motivating why item b is the more promising remaining lever), original
+  narrative in this file's CLOSED block above.
+  depends:none :: status:pending
+
+### EXTRA-SIGNAL-CHURN-COOLDOWN (HIGH, trading-path, filed 2026-07-20 ~11:25 ET during RTH -- FIX AFTER 16:00, Rule 9)
+
+- [ ] EXTRA-SIGNAL-CHURN-COOLDOWN (HIGH, after-hours fix + guard) :: Live exhibit 2026-07-20
+  09:51-09:56 ET, safe account, extra_exec lane `vix_regime_dayside`: THREE 3-lot 748C
+  entries in 5 minutes (fills 1.13/0.79/0.76), each stopped out in 40-60s (0.98/0.73/0.68),
+  net -$87. Two failure shapes stacked: (1) NO re-entry cooldown -- the same setup re-fired
+  the very next minute after a stop-out, twice (Rule-4-adjacent churn; L168's sizing-up
+  cousin); free-model veto blocked the 09:52+09:53 attempts (HTF-conflict) but let
+  09:54+09:55 through -- nondeterministic veto is not a cooldown. (2) The extra-signal lane
+  still runs the OLD +30%/-8% premium bracket (tp 1.43/stop 1.01 on 1.10 entry) -- the
+  noise-floor study (2026-07-08) showed -8% premium stops on 0DTE = reading spread noise;
+  core lane moved to chart-stop-primary 2026-06-18 but this lane never did. FIX (both
+  after-hours, each with RED-proof guard): (a) per-setup re-entry cooldown after stop-out
+  (min N bars or requires-new-trigger-bar, pre-reg the value, don't hand-pick); (b) audit
+  extra-signal exit shape vs core chart-stop doctrine -- either align or document why not.
+  NOTE: stops did their job directionally today (calls bought into a fade; -$87 instead of
+  worse) -- the churn is the defect, not the stop concept. depends:none :: status:pending
+
+### PREMARKET-TOUCH-CREDIT-STUDY (HIGH, study-first, filed 2026-07-20 ~09:36 ET, J question same morning)
+
+- [ ] PREMARKET-TOUCH-CREDIT-STUDY (HIGH, pre-reg study, NOT a same-day wire) :: J's Monday
+  2026-07-20 premarket question is the motivating exhibit: SPY rejected the 747.4-747.5 zone
+  "to a t" at the premarket open, danced around it again ~08:30, and approached it a third
+  time near the bell -- and the engine gave that zone ZERO touch-credit because level_states
+  touch counting starts at 09:30 RTH (verified: `heartbeat_core._read_levels` seeds fresh
+  each day; premarket bars never increment touches/rejections). A human reads the third test
+  of a level differently from the first; the engine literally cannot see that the first two
+  tests happened. STUDY (frozen pre-reg BEFORE running, per WF-GATE-METHODOLOGY +
+  zones-not-prices doctrine): on historical days, seed each level's touch/rejection state at
+  09:30 from 04:00-09:30 premarket bars (SIP feed, provenance per DATA-PROVENANCE.md), then
+  measure whether RTH rejection triggers at levels WITH >=1 premarket rejection outperform
+  identical triggers at untouched levels, real-fill outcomes under SS-B exits, per-episode
+  accounting, random + shuffled-level nulls, BH-FDR, concentration disclosure. KILL is a
+  valid outcome (premarket touches may be noise). If it clears, the wire is one seam:
+  seed `level_states` at 09:30 open from premarket bars (same zone-band logic as RTH).
+  depends:none :: status:pending
+
 ### SIM-EXIT-SHAPE-PARITY-AUDIT (MED, spec-only, filed 2026-07-17 ~22:47 ET, GOAL-REPLAY-TODAY-GREEN iteration 7)
 
 - [ ] SIM-EXIT-SHAPE-PARITY-AUDIT (MED, spec-only, systematic re-check) :: Iteration 6
@@ -1527,3 +1667,18 @@ cost is the confluence-tolerance interaction in item 5 above, not compute.
 - ALSO flag to J: Bold's broker account became 4x MARGIN over the weekend (origin unknown --
   J may have reset it in the Alpaca dashboard; multiplier 1 -> 4). Handled premarket 07-20
   (pdt_gate_mode -> margin_pdt, cc1a2bd) but the ORIGIN needs J's confirmation.
+
+### T-AUTOPSY-H-2026-07-20-stop-noise MED — autopsy hypothesis: stop_inside_noise_floor
+
+**Claim:** the live stop exits losers that then pay the thesis -- the stop is harvesting winners, not cutting losers. **Evidence:** `{"losers_in_window": 21, "stopped_then_paid": 15, "fraction": 0.714, "window_n": 30}` (analysis/autopsies/2026-07-20.md).
+**Action:** replay exit-A (-50/+150/sell66/trail15) on these exact fills via exit_shape_parity_study (kill-check) · confirm on the fresh OPRA slice per the STOP-A pre-registration (T-W7) :: depends:none :: status:proposed
+
+### T-AUTOPSY-H-2026-07-20-entry-spike MED — autopsy hypothesis: paying_the_signal_spike
+
+**Claim:** entries fill materially above the signal-minute low -- the marketable ask+buffer buys the local premium spike (defect #2). **Evidence:** `{"median_paid_above_min_low": 0.087, "n": 30}` (analysis/autopsies/2026-07-20.md).
+**Action:** entry_manager shadow (T-W5): log limit-below/patience counterfactual fills next to real entries for 3+ sessions :: depends:none :: status:proposed
+
+### T-AUTOPSY-H-2026-07-20-left-on-table MED — autopsy hypothesis: exit_shape_dominated
+
+**Claim:** a fixed counterfactual shape beats the shipped exits by more than 2x the window's net P&L -- the exit shape, not the signal, is the bottleneck. **Evidence:** `{"sum_stop_cost": 4038.4, "window_net_pnl": -110.0, "n_dominated": 14, "window_n": 30}` (analysis/autopsies/2026-07-20.md).
+**Action:** STOP-A sign-off -> T-W7 confirmatory on the frozen v2 candidates · enumerate levers beyond exit shape per markdown/trading-knowledge/GENERATIVE-LENS.md (DTE / spread / strike / sizing) :: depends:none :: status:proposed

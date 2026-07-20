@@ -1,3 +1,86 @@
+## [2026-07-20 16:19-17:xx ET] OK -- conductor (AFTERHOURS): STRUCTURE-STOP-ZONE-BAND item (a) closed REJECT_ALL_CANDIDATES; item (b) re-filed as STRUCTURE-STOP-REFERENCE-LEVEL
+
+> **Context.** STAGE 0 GREEN (engine-health 13/13, market closed since 15:55). Top HIGH item:
+> J's live-called exit today 14:01-14:26 ET -- safe 3x 745P structure-stopped on a 12-cent
+> overshoot of the exact trigger level while the ribbon stayed BEAR and price never decisively
+> broke the surrounding key-level zone (-$24 actual vs a ~+$115-130 counterfactual). Filed as
+> `STRUCTURE-STOP-ZONE-BAND` with two sub-fixes: (a) proximity band on the close-above test,
+> (b) reference-level choice (trigger-exact vs zone boundary).
+
+> **Built + ran a frozen pre-reg A/B for item (a) only** (reference-level choice needs new
+> wiring, scoped out -- see below): `backtest/tools/structure_stop_zone_band_ab.py`, reusing
+> `structure_stop_study.py`'s already-validated trigger-recovery/replay machinery unchanged,
+> held the LIVE SS-B exit shape fixed, swept ONLY the buffer width (0.00 control / 0.05/0.08/
+> 0.10/0.12/0.15/0.20) against real-fills anchor (99 positions, 2026-06-29..2026-07-17, hash-
+> pinned) + an independent 18-signal fresh-slice population, plus a sub-window (first-half vs
+> second-half) stability check the 2026-07-09 predecessor study didn't have.
+
+> **Result: REJECT_ALL_CANDIDATES.** Every non-zero buffer FAILS the fresh-slice layer (worse
+> expectancy than the 0-buffer control, every single candidate). The real-fills anchor "wins"
+> for BAND-10/12/15/20 (+$677 to +$801 vs -$900.7 control) are a single-trade artifact: ONE
+> 2026-07-08 signal (SPY260708P00741000, 4 arms, $532/388/331 per-leg swings) accounts for the
+> entire delta, and the sub-window split hard SIGN-FLIPS (+$1656-1736 first half vs -$34.5 to
+> -$74.5 second half) -- the exact single-anchor-trade-driving-everything signature C24 warns
+> against. This is an honest negative result that directly CONFIRMS the original queue item's
+> own quantified counterfactual table: widening the band on the SAME (trigger-exact) reference
+> doesn't reproduce a stable edge -- the REFERENCE CHOICE is the real lever, not band width.
+> BAND-00 (today's actual live behavior) stays unchanged; nothing shipped to the trading path.
+
+> **Verified this fire:** new guard `backtest/tests/test_structure_stop_zone_band_ab.py` (7/7)
+> covers the one novel piece of logic (`build_verdicts`'s dual-layer gate + sub-window sign-flip
+> + underpowered-n<15 downgrade), including a pinned regression test against this fire's actual
+> disclosed REJECT_ALL output. **RED-proofed via file-move** (the module is untracked -- `git
+> stash` on an untracked-file pathspec silently no-ops rather than stashing it, see the
+> blast-radius note below): moved `structure_stop_zone_band_ab.py` out of `backtest/tools/`,
+> confirmed `ModuleNotFoundError` (exact expected mechanism), moved back, re-verified 7/7 green.
+> Curated safety gate (31 + 5-suite) PASS.
+
+> **Blast-radius near-miss, no lesson needed (self-corrected within the fire):** attempted
+> `git stash -- backtest/tools/structure_stop_zone_band_ab.py` (untracked file -- pathspec
+> stashing needs `-u`/`git add` first) to RED-proof; the command errored/aborted and stashed
+> NOTHING. `git stash list` then surfaced TWO pre-existing stashes unrelated to this fire
+> (base commits 2026-07-18, from an earlier session) -- confirmed via `git rev-parse
+> stash@{0}^1` that neither predates nor was touched by anything this fire did. No recovery
+> action needed; left both pre-existing stashes untouched (not this fire's mess to clean up,
+> flagging only for visibility) and switched to the file-move RED-proof technique used for the
+> rest of this fire.
+
+> **Rail-4 (PAPER/research-only -- guard test + revert path + this REVOKE report):** touches
+> `backtest/tools/structure_stop_zone_band_ab.py` (new, standalone), `backtest/tests/
+> test_structure_stop_zone_band_ab.py` (new guard), `analysis/recommendations/structure-stop-
+> zone-band-preregistration.json` + `structure-stop-zone-band-2026-07-20.json` (new pre-reg +
+> output), `automation/overnight/queue.md` (item a closed, item b re-filed as
+> `STRUCTURE-STOP-REFERENCE-LEVEL`). **Zero trading-path files touched** (`params.json`/
+> `strategies.py`/`exit_manager.py`/placement/exit code untouched) -- this is a REJECT research
+> finding, nothing ships, no params flip, no revert needed. **Revert:** `git revert <commit>`
+> if ever needed (1 commit, 5 files).
+
+> **Learn-loop:** no new lesson-inbox item -- the sub-window-sign-flip / single-trade-driving-
+> everything finding directly confirms the already-indexed C24 pattern (anchor trades are one-
+> off exceptional setups) rather than surfacing a new foot-gun. One methodology note worth
+> keeping inline (not a new L##): when RED-proofing an UNTRACKED new module, `git stash` on a
+> pathspec that doesn't match silently no-ops rather than erroring loudly enough to notice at a
+> glance -- the file-move technique (used successfully in the 2026-07-20 SAFE-VIX-CONDITIONAL-
+> SIZING fire) is the safer default for any future untracked-file RED-proof in this repo.
+
+> **Cost: ~$4.1** (STAGE 0/1 reads, queue.md HIGH-item scan, traced `exit_manager.py`'s
+> `nearest_active_level`/`_structure_stop_hit`/`ExitState.from_entry` + `heartbeat_core.py`'s
+> trigger_level resolution (~150 lines), read `structure_stop_study.py` in full (~700 lines,
+> reused machinery) + its 2026-07-09 output JSON verdicts, checked SPY 5m cache coverage
+> (extended discovery to 2026-07-20, adjusted LEVEL_HISTORY_START), computed + froze a new
+> anchor-population hash (99 positions), wrote the pre-registration JSON, wrote the ~360-line
+> study script, ran it live (2 Alpaca OPRA network fetch passes, layer a + layer b), diagnosed
+> the single-trade-driving-everything result via a targeted row-diff script, wrote + ran the
+> new 7-test guard file, RED-proofed via file-move, ran curated safety gate, investigated +
+> recovered from a git-stash near-miss, 2 queue.md edits (closed item a, filed item b), 1
+> STATUS.md entry, 1 commit -- no LLM in the hot path, no orders, PAPER-only research, zero
+> trading-path files touched). **Files:** `backtest/tools/structure_stop_zone_band_ab.py`,
+> `backtest/tests/test_structure_stop_zone_band_ab.py`, `analysis/recommendations/structure-
+> stop-zone-band-preregistration.json`, `analysis/recommendations/structure-stop-zone-band-
+> 2026-07-20.json`, `automation/overnight/queue.md`. **Commit:** pending (next step).
+
+---
+
 ## [2026-07-20 16:12-16:35 ET] OK -- conductor (AFTERHOURS): fixed a false ENTER-AFTER-CEILING alarm in fill_funnel.py -- REVOKE-eligible, guard-tested, committed
 
 > **Context (`et_clock.py` 16:12 ET Monday, market closed since 15:55).** STAGE 0: engine-health GREEN (13/13). STATUS showed six `DEGRADED: FILL-FUNNEL ENTER AFTER CEILING[core:bold/safe]` flags from the 16:09:57 self-check for entries at 15:41-15:45 ET. Investigated per priority-1 (FUNCTION FIRST): pulled the raw `core-decisions.jsonl` rows -- every flagged row had `verdict:"ENTER_BEAR"` but `action:"SKIP_LATE_ENTRY"` and **no `exec` dict at all** (heartbeat_core.py's `_past_entry_ceiling` gate correctly fired, zero broker attempts -- `fill_funnel`'s own `attempted` count was already 0 for these). **Root cause (one sentence):** `fill_funnel.py`'s ceiling-bypass check keyed off the pre-gate `verdict` field instead of the post-gate `action` field, so a row the ceiling gate *already caught* was double-counted as a ceiling *bypass* -- a producer/consumer field mismatch between heartbeat_core's own two truth fields.
@@ -157,87 +240,3 @@
 
 ---
 
-## [2026-07-19 ~22:19-22:47 ET] SHIP (REVOKE) -- conductor (AFTERHOURS): TRENDLINE-FIXES-2026-07-17 item 4 closed -- shadow_triggers_fired threaded into core-decisions.jsonl
-
-> **Context (`et_clock.py`: `2026-07-19 22:19 Sunday EDT market_hours=False`, Task=conductor).** STAGE 0 engine-health GREEN (13/13 checks GREEN, market closed/quiet). `task_scorer.py --top` again ranked `MORNING-BULL-QUALITY-GATE-RECONSIDER` #1 -- re-confirmed (Nth recurrence) J-DECISION-GATED, not fabricatable in one bounded fire. Self-audit gaps surface (`analysis/self-audit/new-gaps-flagged.md`) is fully actioned as of the prior fire's close. Grepped `queue.md` for open `(HIGH` items and found `TRENDLINE-FIXES-2026-07-17` item 4 ("THREAD shadow_triggers_fired INTO core-decisions.jsonl ... today's J-called trendline break is the FIRST live validation point for trendline_reclaim and it is invisible in the ledger") -- a small, bounded, zero-behavior-change addition explicitly scoped by the item itself, unlike items 1-3 in the same batch (draw-skip/tier/zoom design work).
-
-> **Traced before building:** confirmed `BullishSetupResult.shadow_triggers_fired` (`backtest/lib/filters.py`) is computed every tick (trendline_reclaim/wick_reclaim, LOGGED-ONLY per the 2026-07-15 shadow-only guard) but was discarded at the `engine_cli` subprocess boundary -- `decide_payload`'s `base` dict (`backtest/lib/engine/engine_cli.py`) never carried it, so `heartbeat_core.py::run_account`'s `rec` dict (the row written to `core-decisions.jsonl`) had no way to see it.
-
-> **Fixed (2 files, additive-only):** (1) `engine_cli.py`'s `decide_payload` `base` dict gains `"shadow_triggers_fired": list(score.bull.shadow_triggers_fired) if score.bull is not None else []` -- independent of routing/winning_side, present on every verdict shape (HOLD/SKIP_*/ENTER_*) since it's the same `base` object mutated throughout. (2) `heartbeat_core.py::run_account`'s `rec` dict gains `"shadow_triggers_fired": list(verdict.get("shadow_triggers_fired") or [])` alongside the existing `trigger_level_exact` provenance key (same None-safe convention).
-
-> **Verified this fire:** new guard `backtest/tests/test_shadow_triggers_threaded_2026_07_19.py` (6/6) -- mirrors `test_trigger_level_exact_provenance.py`'s exact two-part methodology: Part 1 proves `decide_payload` forwards the bull-side shadow tag non-vacuously (reusing the `test_bull_trendline_wick_reclaim_shadow_only.py` descending-pivot fixture, driven through the FULL JSON payload boundary this time, not `evaluate_bullish_setup` directly) AND that every scored/routed field (verdict/side/setup_name/bull_score/bull_blockers/triggers_fired/rejection_level/quality_tier/gate/reason) stays byte-identical regardless (`bear_score`/`bear_blockers` deliberately excluded from that equality -- they legitimately differ from the fixture's own distractor-level count, not a shadow-trigger leak; documented inline). Part 2 proves `run_account` stamps it into the logged row, None-safe on a legacy/older verdict shape, and is emission-only (every other logged key byte-identical with/without the tag). **RED-proofed via `git stash`** on both source files (kept the test file): all 5 non-trivial assertions failed with the exact expected mechanism (`KeyError: 'shadow_triggers_fired'` on the heartbeat_core side, empty/missing key on the decide_payload side); `git stash pop` restored both files cleanly (`git diff --stat` confirmed the intended 2-file, ~30-line diff). Also updated `test_engine_cli_parity.py`'s independent oracle (`_direct_verdict`) to re-derive the same field from `bull.shadow_triggers_fired` directly (not copied) so the "shim adds no logic beyond documented derivation" parity proof stays honest — its 16 originally-failing parametrized cases (missing key) now pass. Broader sweep (`-k "engine_cli or heartbeat_core or shadow_trigger or trigger_level_exact or trendline"`) → **136/136 PASS**, zero regressions. Curated safety gate (31 + 5-suite) PASS, run via the commit hook.
-
-> **Rail-4 (PAPER/engine-visibility -- guard test + revert path + this REVOKE report):** touches `backtest/lib/engine/engine_cli.py` (additive key only, no routing/gate logic changed), `setup/scripts/heartbeat_core.py` (additive `rec` key only, no order-placement/sizing/exit logic touched), `backtest/tests/test_shadow_triggers_threaded_2026_07_19.py` (new guard), `backtest/tests/test_engine_cli_parity.py` (oracle kept honest), `automation/overnight/queue.md` (item 4 of the TRENDLINE-FIXES-2026-07-17 batch closed, items 1-3 remain open — design/data work, not zero-behavior-change). Zero change to any gate/scoring/placement/sizing behavior — this is pure LOGGED-ONLY visibility, the same class as the 2026-07-09 `trigger_level_exact` precedent. **Revert:** `git revert aa80fe3` (single pathspec commit, 5 files).
-
-> **Learn-loop:** no new lesson-inbox item filed — this is a direct, uneventful application of the already-proven `trigger_level_exact` LOGGED-ONLY-provenance pattern (2026-07-09) to a second field; no new foot-gun surfaced. The one wrinkle (bear-side score legitimately drifting between the A/B shadow fixture due to the shared distractor level, unrelated to shadow triggers) was caught and documented inline in the guard rather than silently over-asserting or under-testing — not novel enough to warrant its own lesson.
-
-> **Cost: ~$3.90** (STAGE 0/1 re-trace of the top-ranked scorer item (correctly re-rejected), self-audit gaps confirmed fully actioned, direct queue.md grep for HIGH items + full-section read (~250 lines), git-worktree/fire-lock sanity check, 4 targeted greps/reads tracing `shadow_triggers_fired`'s producer/consumer gap across `filters.py`/`score.py`/`engine_cli.py`/`heartbeat_core.py`, 2 source-file edits (docstring + base dict + rec dict), 1 new ~230-line guard test file (2 iterations to fix a pandas out-of-bounds fixture issue + a legitimate bear-score confound), 1 test-file edit to `test_engine_cli_parity.py`'s oracle, 3 pytest runs (6/6, then 45/45 combined, then 136/136 broad sweep), 1 RED-proof git-stash round-trip across 2 files, 1 curated safety-gate run (commit hook), 1 queue.md closure edit, 1 commit -- no LLM in the hot path, no orders, PAPER-only, zero trading-behavior files touched). **Files:** `backtest/lib/engine/engine_cli.py`, `setup/scripts/heartbeat_core.py`, `backtest/tests/test_shadow_triggers_threaded_2026_07_19.py`, `backtest/tests/test_engine_cli_parity.py`, `automation/overnight/queue.md`. **Commit:** `aa80fe3`.
-
----
-
-
-### DEGRADED: self-check 2026-07-20T09:39:57
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-20T10:09:57
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-## Kitchen
-Kitchen: alive, queue 27 pending, last cook 0 min ago, today $0.00, model=grinder-python
-
-### BROKEN: self-check 2026-07-20T10:39:57
-- ENGINE CANNOT ENTER: 70 ticks today, 0 ENTER, 5x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-20T11:09:57
-- ENGINE CANNOT ENTER: 100 ticks today, 0 ENTER, 5x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-20T11:39:57
-- ENGINE CANNOT ENTER: 130 ticks today, 0 ENTER, 5x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-20T12:09:57
-- ENGINE CANNOT ENTER: 160 ticks today, 0 ENTER, 5x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-20T12:39:57
-- ENGINE CANNOT ENTER: 190 ticks today, 0 ENTER, 5x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-20T13:09:57
-- ENGINE CANNOT ENTER: 220 ticks today, 0 ENTER, 5x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-20T13:39:57
-- ENGINE CANNOT ENTER: 250 ticks today, 0 ENTER, 5x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-20T14:09:57
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-20T14:39:57
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-20T15:09:57
-- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-20T15:39:57
-- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
-- ts: 2026-07-20T20:00:17+00:00
-- task: eod-summary
-- date_et: 2026-07-20
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-### DEGRADED: self-check 2026-07-20T16:09:57
-- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 1 ENTER after 15:00 ET: ['15:43 ENTER_BEAR ?']
-- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:41 ENTER_BEAR ?', '15:42 ENTER_BEAR ?', '15:43 ENTER_BEAR ?']
-- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- **RESOLVED 16:35 ET (commit 270e9ca):** both FILL-FUNNEL ENTER-AFTER-CEILING lines above were a FALSE ALARM -- the 6 flagged rows all had `action:"SKIP_LATE_ENTRY"` (correctly gated, zero broker attempts). `fill_funnel.py` was keying the check off the pre-gate `verdict` field instead of the post-gate `action` field. Fixed + guard-tested (see top-of-file entry). Re-run confirms GREEN. SETTLEMENT-BLOCKED[safe] and TRENDLINE-DRAW are unrelated, still open (informational, non-critical).
