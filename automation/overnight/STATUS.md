@@ -1,3 +1,44 @@
+## [2026-07-19] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
+
+> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
+> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
+> -   bollinger_squeeze (armed 2026-07-02): since-arm 2tr $+105.00 ($+52.50/tr, 100.0% WR)
+> -   double_bottom_base_quiet (armed 2026-07-01, 18d ago): 0 fills since arm — no live signal yet
+> -   vix_regime_dayside (armed 2026-07-01, 18d ago): 0 fills since arm — no live signal yet
+> -   vwap_continuation (armed 2026-07-01): since-arm 2tr $-68.00 ($-34.00/tr, 0.0% WR)
+> -   vwap_reclaim_failed_break (armed 2026-07-01, 18d ago): 0 fills since arm — no live signal yet
+> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
+
+---
+
+## [2026-07-19] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-11..2026-07-17), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-17). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-419.16); Bold_ATM_1+2=YELLOW ($-262.8)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
+## [2026-07-19 ~22:19-22:47 ET] SHIP (REVOKE) -- conductor (AFTERHOURS): TRENDLINE-FIXES-2026-07-17 item 4 closed -- shadow_triggers_fired threaded into core-decisions.jsonl
+
+> **Context (`et_clock.py`: `2026-07-19 22:19 Sunday EDT market_hours=False`, Task=conductor).** STAGE 0 engine-health GREEN (13/13 checks GREEN, market closed/quiet). `task_scorer.py --top` again ranked `MORNING-BULL-QUALITY-GATE-RECONSIDER` #1 -- re-confirmed (Nth recurrence) J-DECISION-GATED, not fabricatable in one bounded fire. Self-audit gaps surface (`analysis/self-audit/new-gaps-flagged.md`) is fully actioned as of the prior fire's close. Grepped `queue.md` for open `(HIGH` items and found `TRENDLINE-FIXES-2026-07-17` item 4 ("THREAD shadow_triggers_fired INTO core-decisions.jsonl ... today's J-called trendline break is the FIRST live validation point for trendline_reclaim and it is invisible in the ledger") -- a small, bounded, zero-behavior-change addition explicitly scoped by the item itself, unlike items 1-3 in the same batch (draw-skip/tier/zoom design work).
+
+> **Traced before building:** confirmed `BullishSetupResult.shadow_triggers_fired` (`backtest/lib/filters.py`) is computed every tick (trendline_reclaim/wick_reclaim, LOGGED-ONLY per the 2026-07-15 shadow-only guard) but was discarded at the `engine_cli` subprocess boundary -- `decide_payload`'s `base` dict (`backtest/lib/engine/engine_cli.py`) never carried it, so `heartbeat_core.py::run_account`'s `rec` dict (the row written to `core-decisions.jsonl`) had no way to see it.
+
+> **Fixed (2 files, additive-only):** (1) `engine_cli.py`'s `decide_payload` `base` dict gains `"shadow_triggers_fired": list(score.bull.shadow_triggers_fired) if score.bull is not None else []` -- independent of routing/winning_side, present on every verdict shape (HOLD/SKIP_*/ENTER_*) since it's the same `base` object mutated throughout. (2) `heartbeat_core.py::run_account`'s `rec` dict gains `"shadow_triggers_fired": list(verdict.get("shadow_triggers_fired") or [])` alongside the existing `trigger_level_exact` provenance key (same None-safe convention).
+
+> **Verified this fire:** new guard `backtest/tests/test_shadow_triggers_threaded_2026_07_19.py` (6/6) -- mirrors `test_trigger_level_exact_provenance.py`'s exact two-part methodology: Part 1 proves `decide_payload` forwards the bull-side shadow tag non-vacuously (reusing the `test_bull_trendline_wick_reclaim_shadow_only.py` descending-pivot fixture, driven through the FULL JSON payload boundary this time, not `evaluate_bullish_setup` directly) AND that every scored/routed field (verdict/side/setup_name/bull_score/bull_blockers/triggers_fired/rejection_level/quality_tier/gate/reason) stays byte-identical regardless (`bear_score`/`bear_blockers` deliberately excluded from that equality -- they legitimately differ from the fixture's own distractor-level count, not a shadow-trigger leak; documented inline). Part 2 proves `run_account` stamps it into the logged row, None-safe on a legacy/older verdict shape, and is emission-only (every other logged key byte-identical with/without the tag). **RED-proofed via `git stash`** on both source files (kept the test file): all 5 non-trivial assertions failed with the exact expected mechanism (`KeyError: 'shadow_triggers_fired'` on the heartbeat_core side, empty/missing key on the decide_payload side); `git stash pop` restored both files cleanly (`git diff --stat` confirmed the intended 2-file, ~30-line diff). Also updated `test_engine_cli_parity.py`'s independent oracle (`_direct_verdict`) to re-derive the same field from `bull.shadow_triggers_fired` directly (not copied) so the "shim adds no logic beyond documented derivation" parity proof stays honest — its 16 originally-failing parametrized cases (missing key) now pass. Broader sweep (`-k "engine_cli or heartbeat_core or shadow_trigger or trigger_level_exact or trendline"`) → **136/136 PASS**, zero regressions. Curated safety gate (31 + 5-suite) PASS, run via the commit hook.
+
+> **Rail-4 (PAPER/engine-visibility -- guard test + revert path + this REVOKE report):** touches `backtest/lib/engine/engine_cli.py` (additive key only, no routing/gate logic changed), `setup/scripts/heartbeat_core.py` (additive `rec` key only, no order-placement/sizing/exit logic touched), `backtest/tests/test_shadow_triggers_threaded_2026_07_19.py` (new guard), `backtest/tests/test_engine_cli_parity.py` (oracle kept honest), `automation/overnight/queue.md` (item 4 of the TRENDLINE-FIXES-2026-07-17 batch closed, items 1-3 remain open — design/data work, not zero-behavior-change). Zero change to any gate/scoring/placement/sizing behavior — this is pure LOGGED-ONLY visibility, the same class as the 2026-07-09 `trigger_level_exact` precedent. **Revert:** `git revert aa80fe3` (single pathspec commit, 5 files).
+
+> **Learn-loop:** no new lesson-inbox item filed — this is a direct, uneventful application of the already-proven `trigger_level_exact` LOGGED-ONLY-provenance pattern (2026-07-09) to a second field; no new foot-gun surfaced. The one wrinkle (bear-side score legitimately drifting between the A/B shadow fixture due to the shared distractor level, unrelated to shadow triggers) was caught and documented inline in the guard rather than silently over-asserting or under-testing — not novel enough to warrant its own lesson.
+
+> **Cost: ~$3.90** (STAGE 0/1 re-trace of the top-ranked scorer item (correctly re-rejected), self-audit gaps confirmed fully actioned, direct queue.md grep for HIGH items + full-section read (~250 lines), git-worktree/fire-lock sanity check, 4 targeted greps/reads tracing `shadow_triggers_fired`'s producer/consumer gap across `filters.py`/`score.py`/`engine_cli.py`/`heartbeat_core.py`, 2 source-file edits (docstring + base dict + rec dict), 1 new ~230-line guard test file (2 iterations to fix a pandas out-of-bounds fixture issue + a legitimate bear-score confound), 1 test-file edit to `test_engine_cli_parity.py`'s oracle, 3 pytest runs (6/6, then 45/45 combined, then 136/136 broad sweep), 1 RED-proof git-stash round-trip across 2 files, 1 curated safety-gate run (commit hook), 1 queue.md closure edit, 1 commit -- no LLM in the hot path, no orders, PAPER-only, zero trading-behavior files touched). **Files:** `backtest/lib/engine/engine_cli.py`, `setup/scripts/heartbeat_core.py`, `backtest/tests/test_shadow_triggers_threaded_2026_07_19.py`, `backtest/tests/test_engine_cli_parity.py`, `automation/overnight/queue.md`. **Commit:** `aa80fe3`.
+
+---
+
 ## [2026-07-19 ~22:00-22:03 ET] SHIP (REVOKE) -- conductor-weekend: window-leak-compliance RED closed (recovery_splice_2026_07_14.py)
 
 > **Context (`et_clock.py`: `2026-07-19 22:00:02 Sunday EDT market_hours=False`, Task=conductor-weekend).** STAGE 0 engine-health GREEN (all 13 checks GREEN, market closed/quiet). `task_scorer.py --top` again ranked `MORNING-BULL-QUALITY-GATE-RECONSIDER` #1 -- re-confirmed J-DECISION-GATED, not fabricatable in one bounded fire (Nth re-confirmation, consistent with every prior fire tonight). Instead of falling through to `queue.md` (406KB, would cost a large read to re-scan), took the prior fire's own explicit pointer: its closing note flagged 2 RED items "worth the next fire's first look" -- crypto-gym `v02_source_parity`/`v15_three_source_parity` drift and a window-leak-compliance RED, both timestamped 18:18:59 and NOT investigated that fire.
@@ -58,16 +99,6 @@
 
 ---
 
-## [2026-07-19] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-11..2026-07-17), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-17). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-419.16); Bold_ATM_1+2=YELLOW ($-262.8)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
 ## [2026-07-19 ~01:48-02:05 ET] SHIP (REVOKE) -- conductor (AFTERHOURS): PROMOTE-KEEPER-OOS-VALIDATION closed (stale) + L202 graduated
 
 > **Context (`et_clock.py`: `2026-07-19 01:51:50 Sunday EDT market_hours=False`, Task=conductor).** STAGE 0 engine-health GREEN (all 13 checks GREEN, market closed/quiet). `task_scorer.py --top` again ranked `MORNING-BULL-QUALITY-GATE-RECONSIDER` #1 — re-confirmed J-DECISION-GATED, needs a fresh per-trade-scored orchestrator run, not fabricatable in one bounded fire (Nth re-confirmation of the same finding prior fires already made). Grepped `queue.md` directly for open `(HIGH` items instead: picked `PROMOTE-KEEPER-OOS-VALIDATION` (filed 2026-06-28, "NEXT: run OOS validation on the top contender").
@@ -105,19 +136,6 @@
 > **Learn-loop:** the CSV-quoting note above is the new lesson filed this fire; the presence-ratchet pattern (armed-setup-with-no-ARM_DATES-entry fails loud) is the same C14 dead-knob-drift class already indexed, applied to a fresh surface, not a new lesson class.
 
 > **Cost: ~$4.60** (STAGE 0/1 read of engine-health + STATUS + queue.md HIGH-item grep + self-audit gaps, task_scorer top-pick investigation, traced journal/trades.csv + core-decisions.jsonl schemas to find the real-fills authority, 2 git-log-S date lookups, 1 new ~180-line module, 1 license_monitor.py wiring edit, 1 new 10-test guard file, 2 live standalone runs (`--dry-run` + `--force-ping`) to verify real file writes, 1 RED-proof neuter/restore/diff round-trip, 1 broader 49-test sweep, 2 curated safety-gate runs, 1 queue.md closure edit, 1 lesson-inbox file, 1 commit — no LLM in the hot path, no orders, no trading-path files touched, PAPER-only). **Files:** `backtest/autoresearch/trade_to_learn_digest.py`, `backtest/autoresearch/license_monitor.py`, `backtest/tests/test_trade_to_learn_digest.py`, `automation/overnight/queue.md`, `strategy/candidates/_lesson-inbox/2026-07-18-trades-csv-unescaped-json-quote-corrupts-late-columns.md`. **Commit:** `7be470f`.
-
----
-
-## [2026-07-18] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
-
-> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
-> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
-> -   bollinger_squeeze (armed 2026-07-02): since-arm 2tr $+105.00 ($+52.50/tr, 100.0% WR)
-> -   double_bottom_base_quiet (armed 2026-07-01, 17d ago): 0 fills since arm — no live signal yet
-> -   vix_regime_dayside (armed 2026-07-01, 17d ago): 0 fills since arm — no live signal yet
-> -   vwap_continuation (armed 2026-07-01): since-arm 2tr $-68.00 ($-34.00/tr, 0.0% WR)
-> -   vwap_reclaim_failed_break (armed 2026-07-01, 17d ago): 0 fills since arm — no live signal yet
-> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
 
 ---
 
@@ -161,25 +179,6 @@
 
 ---
 
-## [2026-07-18 ~19:48-20:04 ET] SHIP (REVOKE) -- conductor (AFTERHOURS): REPLAY-FLEET-ARMS-FIDELITY-DRIFT root-caused + closed — GT simulator was missing the structure_veto gate, not a window-truncation bug
 
-> **Context (`et_clock.py`: `2026-07-18 19:48:03 Saturday EDT market_hours=False`, Task=conductor).** STAGE 0 engine-health GREEN. `task_scorer.py --top` ranked `MORNING-BULL-QUALITY-GATE-RECONSIDER` #1, but it's explicitly J-DECISION-GATED and not fabricatable in one bounded fire (needs a fresh per-trade-scored orchestrator run). Moved to the next tied-MED item: `REPLAY-FLEET-ARMS-FIDELITY-DRIFT` (`backtest/tests/test_replay_fleet_arms.py`, 3 tests RED, `pending-narrowed-not-root-caused` from a prior session that couldn't finish its diagnostic — box was saturated by a concurrent `Gamma_ShotgunScalperStage3` grind both times it tried).
-
-> **Box was quiet enough this fire** (CPU 30.6%, only a `bullish_grinder --workers 4` background crew, no saturation) — ran the standalone harness fresh (`backtest/replay_fleet_arms.py`, ~52s) and got a MATERIALLY DIFFERENT mismatch signature than the stale hypothesis assumed: safe-1 `MISSED=[1394] EXTRA=[1761]`, not bar 1405 (which is now fully MATCHED). Built a scratch diagnostic (deleted after use) dumping both the GT orchestrator's and the signal-driven arm-path's verdict/triggers at the exact mismatched bars — **denied the window-truncation hypothesis directly**: bar 1394's trigger is `trendline_rejection`, zero shared code path with the `level_states`/`sequence_rejection` mechanism the stale hypothesis was built on.
-
-> **Root cause (confirmed via direct grep + the diagnostic dump): `orchestrator.run_backtest` has ZERO implementation of `structure_veto_enabled`** (`gate_params["structure_veto_enabled"]`, live `true` in production `params.json` since the v15.3 chart-stop-primary rollout) — while `decide_payload` (the SAME deterministic brain the signal-driven replay uses) correctly applies it. At bar 1394 decide_payload returns `SKIP_STRUCTURE_VETO` (bear entry fighting a confirmed intraday uptrend); GT's blind simulator took the trade anyway. GT was over-counting a trade the live decision layer would never place — the replay wasn't under-trading, GT was over-trading relative to ground truth-that-matters.
-
-> **Fixed:** added a `structure_veto` post-filter to `_ground_truth_trades` in `backtest/replay_fleet_arms.py` — same established pattern already used there for `direction_lock`/elite/`min_confidence` (gates `run_backtest` can't express, applied as GT post-filters), reusing the already-built `sameday_5m_bars` payload for byte-faithful comparison, fail-open when unreplayed. `structure_veto_enabled` is absent from `aggressive/params.json`, so the filter is naturally a no-op for Bold/risky arms — matches the documented SAFE-only gate asymmetry with zero extra code. **safe-1 missed: 1 → 0.**
-
-> **Bar 1761 (extra=1) is a separate, genuinely NEW finding, deliberately NOT fixed this fire** (would exceed one bounded task): a 1-point score-parity edge (`bear_score` 10 in the replay vs 9 in GT) at a `fhh_level_rejection` trigger. Checked and ruled out as the same mechanism as risky-1's known bar-1801 window-truncation gap (`fhh_level` is a same-day scalar, not the multi-bar `level_states` accumulation risky-1's mechanism depends on). Ratcheted into `KNOWN_MAX_EXTRA["safe-1"]=1` with full evidence + a named next-diagnosis step (compare `engine_cli.score_bar`'s bear-score breakdown vs orchestrator's internal scorer at that bar), bounded by the test's own pre-existing `score_pct>=95%` tolerance — same documented-exception pattern as risky-1.
-
-> **Verified this fire:** `pytest backtest/tests/test_replay_fleet_arms.py -q` → **7/7 PASS** (was 3 failed/3 passed). **RED-proofed live** via `git stash` on both edited files: reproduces the exact prior failure signature (`safe-1 entry-fidelity REGRESSED: missed=1 > known cap 0`) plus the new regression-pin test's own failure; `stash pop` restored cleanly (byte-verified). Curated safety gate (`backtest/tests/run_safety_gate.py`) → 31/31 + 5-suite gate PASS. Broader sweep (`test_fleet_keystone_consumer.py`+`test_fleet_producer_keystone.py`+`test_armability.py`) → 25/26; the 1 failure (qty 5≠8 recency-clamp) confirmed **pre-existing and unrelated** by reproducing the identical failure with my 2 files stashed OUT (matches the already-documented `recency_min_size_enabled` dead-knob drift flagged 2026-07-15).
-
-> **Rail-4 (PAPER/test-harness-only — guard test + revert path + this REVOKE report):** touches `backtest/replay_fleet_arms.py` (offline validation harness, docstring: "places NO orders") + `backtest/tests/test_replay_fleet_arms.py` (2 new/updated tests) + `automation/overnight/queue.md`. **Zero production trading-path files** — test-fidelity fix, not a live-behavior change; does NOT arm any fleet arm (safe-1/risky-1 both stay `ARM-READY: NO`, each now blocked only by its own single documented `KNOWN_MAX_EXTRA`, not a mystery). Revert: `git revert 1fece0e` (single pathspec commit, 4 files).
-
-> **Learn-loop:** filed `strategy/candidates/_lesson-inbox/2026-07-18-gt-simulator-missing-live-only-gate.md` — generalizable lesson: any harness treating `run_backtest`'s trade list as ground truth against a `decide_payload`-driven verdict is only as faithful as the SET OF GATES both paths apply; a gate added to `engine_cli.py` without a matching `orchestrator.py` implementation (or a named post-filter) drifts silently. Also flags a 2nd-order lesson: a filed hypothesis with an unconfirmed bar number (blocked by a saturated box in a prior session) must be RE-VERIFIED fresh, not assumed still-correct — this fire's actual mismatch bars (1394/1761) were entirely different from the stale hypothesis's bar (1405).
-
-> **Cost: ~$4.60** (task_scorer + queue read, 1 fresh harness run (~52s), 1 scratch diagnostic (built + run twice + deleted), 1 targeted grep root-cause confirmation, 1 replay_fleet_arms.py edit (structure_veto post-filter), 1 test file edit (ratchet + 2 tests), 1 pytest run (7/7), 1 RED-proof git-stash round-trip, 1 curated safety gate run, 1 broader 26-test sweep + 1 pre-existing-failure reproduction, 1 queue.md closure edit, 1 lesson-inbox file, 1 commit — no LLM in the hot path, no orders, no trading-path files touched). **Files:** `backtest/replay_fleet_arms.py`, `backtest/tests/test_replay_fleet_arms.py`, `automation/overnight/queue.md`, `strategy/candidates/_lesson-inbox/2026-07-18-gt-simulator-missing-live-only-gate.md`. **Commit:** `1fece0e`.
-
----
-
+## Kitchen
+Kitchen: alive, queue 28 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
