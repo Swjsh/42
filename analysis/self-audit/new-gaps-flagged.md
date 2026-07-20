@@ -182,3 +182,32 @@
 - There is broad agreement that Gamma’s *health‑monitoring and self‑healing* layer is insufficient: the scheduler (`wscrip
 - Finally, all concur that Gamma should have an *automated kill‑switch or circuit‑breaker* (e.g., a file‑trigger or cost l
 - **Perspectives 1, 2, 5** view the guard issue as a symptom of a broader class of problems (lack of pre‑flight commit che
+
+<!-- DONE 2026-07-19T21:xx conductor (AFTERHOURS): ROOT-CAUSE FIXED (not just re-triaged) the recurring
+scaffold-noise class that leaked across the 07-09/07-11/07-13/07-18 batches above (14 of the 15 lines
+flagged as "gaps" in those 4 batches were pure synthesis META-COMMENTARY, not gap statements -- "All
+perspectives agree that ...", "All agree that ...", "All concur that ...", "There is broad agreement
+that ...", "A majority (4/5) agree that ...", "Finally, all concur that ...", plus the PLURAL form of
+the already-fixed 07-01 "Perspective N flags ..." cross-ref lead-in ("Perspectives 1, 2, 5 view ...",
+missed by the singular-only regex). Same root cause as the 06-29 and 07-01 fixes (self_audit._extract_gaps'
+bold/bullet harvest grabs the model's own cross-perspective synthesis commentary, not just genuine
+gaps) -- a re-violated lesson (C7 silent-success-is-failure: a self-audit that surfaces synthesis
+noise on a line is itself a silent failure of the gap-finder organ), graduated per OP-25. FIX: extended
+setup/scripts/self_audit.py's `_PERSPECTIVE_REF_RE` to accept the plural ("perspectives?") + added a new
+`_CONSENSUS_LEADIN_RE` catching the "all X agree/concur", "there is broad agreement", "a majority ...
+agree", "finally all concur" lexical family, wired into `_is_real_gap`. Guard: 14 new parametrized
+scaffold-rejection cases + 4 non-over-rejection survivor cases added to
+backtest/tests/test_self_audit_extract.py -- 60/60 PASS. RED-proofed via `git stash` on self_audit.py
+alone: 9/9 of the new consensus-leadin cases + the pure-scaffold bite-test failed with the EXACT expected
+leak (verbatim quoted assertion diff); `git stash pop` restored cleanly, re-verified 60/60 green. Curated
+safety gate (31 + 5-suite) PASS. Live-verified the fix against the EXACT leaked strings from all 4
+batches: 14/15 now correctly rejected (1 known remaining miss, deliberately NOT chased to avoid
+over-fitting the regex: "All perspectives that gave concrete feedback (1, 2, 5) agree Gamma lacks
+reliable pre-flight guarantees ..." -- the inserted clause between "All perspectives" and "agree" isn't
+covered by the anchored lead-in regex; conservative-by-design per the file's own stated policy, "when in
+doubt KEEP"). Zero trading-path files touched (`self_audit.py` is an observation-only R&D organ, no
+params/heartbeat_core/filters/placement/exit code). Revert: `git revert <this commit>` (2 files:
+setup/scripts/self_audit.py, backtest/tests/test_self_audit_extract.py). This DONE marker + the STATUS.md
+REVOKE report close the loop on all 4 batches above -- their 14 noise lines will no longer be
+re-extracted on any future re-run of the extractor against archived consult JSON, and the fixed regex
+prevents this SAME lexical family from re-leaking in future audits. -->

@@ -126,11 +126,34 @@ _SCAFFOLD_PREFIXES = (
     "question for reviewer", "question for the reviewer",
 )
 _COMMIT_RE = re.compile(r"^[0-9a-f]{7,8}(?:/[0-9a-f]{6,8})*$")
-# "Perspective 2 flags ...", "Perspective 3 zeroes in ..." -- the synthesis
-# describing WHAT a perspective said, not stating a gap. Reject the cross-ref
-# lead-in (normalized to 'perspective 2 flags ...'). Word-boundary + digit so a
-# genuine gap that merely contains the word 'perspective' mid-sentence survives.
-_PERSPECTIVE_REF_RE = re.compile(r"^perspective\s*\d")
+# "Perspective 2 flags ...", "Perspective 3 zeroes in ...", "Perspectives 1, 2, 5
+# view ..." -- the synthesis describing WHAT a perspective (or several) said, not
+# stating a gap. Reject the cross-ref lead-in (normalized to 'perspective(s) 2
+# flags ...'). `s?` handles the plural form seen in the 2026-07-18 batch
+# ("Perspectives 1, 2, 5 view the guard issue as a symptom ..."), which the
+# singular-only regex let through. Word-boundary + digit so a genuine gap that
+# merely contains the word 'perspective' mid-sentence survives.
+_PERSPECTIVE_REF_RE = re.compile(r"^perspectives?\s*\d")
+# 2026-07-19: "All perspectives agree that ...", "All agree that ...", "All
+# concur that ...", "There is broad agreement that ...", "A majority (4/5) agree
+# that ...", "Finally, all concur that ..." -- the SAME synthesis
+# cross-reference-noise class the 2026-07-01 fix targeted for the singular
+# "Perspective N flags ..." lead-in, just a different lexical family: consensus
+# COMMENTARY describing what the perspectives collectively said, not a gap
+# statement itself. Recurred untouched across the 07-09/07-10/07-11/07-13/07-18
+# batches (7+ leaked "gaps" that are pure meta-commentary, e.g. "All agree that
+# missing real-time risk guards ... can lead to Rule 9/10 vi[olations]" -- a
+# description of consensus, not an actionable finding on its own). Conservative:
+# anchored to the LEAD-IN only, so a real gap that happens to mention "most
+# perspectives" or "a majority" mid-sentence still survives.
+_CONSENSUS_LEADIN_RE = re.compile(
+    r"^(all (perspectives )?(agree|concur)\b"
+    r"|there is (broad )?agreement\b"
+    r"|a majority\b"
+    r"|most (perspectives|agree)\b"
+    r"|finally all (concur|agree)\b"
+    r"|several (perspectives )?agree\b)"
+)
 
 
 def _is_real_gap(text: str) -> bool:
@@ -148,7 +171,9 @@ def _is_real_gap(text: str) -> bool:
     n = _norm(t)
     if len(n.split()) < 3:                   # 'Overfit' / 'Risk score' / 'Trade missed'
         return False
-    if _PERSPECTIVE_REF_RE.match(n):         # 'Perspective 2 flags ...' cross-ref lead-in
+    if _PERSPECTIVE_REF_RE.match(n):         # 'Perspective(s) 2 flags ...' cross-ref lead-in
+        return False
+    if _CONSENSUS_LEADIN_RE.match(n):        # 'All perspectives agree that ...' consensus commentary
         return False
     for p in _SCAFFOLD_PREFIXES:
         # multi-word scaffold prefixes match as a true prefix (handles tokens the

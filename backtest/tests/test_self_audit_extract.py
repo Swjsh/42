@@ -43,6 +43,18 @@ SCAFFOLD = [
     "Perspective 3 zeroes in on an operational oversight: unbounded lesson-inbox CSV growth causing silent crashes",
     "Perspective 4 warns that widening history probes creates a history-slippage feedback loop that overfits",
     "Perspective 5 enumerates a broad checklist (latency failover, liquidity checks, ML retraining, retry logic).",
+    # 2026-07-19: the SAME synthesis cross-reference-noise class as the 07-01 fix,
+    # a different lexical family ("all X agree/concur", plural "Perspectives N")
+    # that leaked across the 07-09/07-10/07-11/07-13/07-18 batches untouched.
+    "All perspectives agree that Gamma lacks continuous, autonomous validation/reconciliation mechanisms to ensure internal c",
+    "All agree that missing real-time risk guards (hard stop, position-size limits, gate compliance) can lead to Rule 9/10 vi",
+    "All concur that the system should be self-healing: detecting data-feed staleness, order-fill discrepancies, or strategy",
+    "All perspectives agree that Project Gamma must eliminate silent gate bugs caused by `is not None` checks, duplicated log",
+    "A majority (4/5) agree that Gamma should automatically validate that every gate-read field is actually populated by the",
+    "All agree that automated validation/drift detection is missing: configuration drift, fill attribution/P&L reconciliation",
+    "There is broad agreement that Gamma's *health-monitoring and self-healing* layer is insufficient: the scheduler (`wscrip",
+    "Finally, all concur that Gamma should have an automated kill-switch or circuit-breaker (e.g., a file-trigger or cost l",
+    "Perspectives 1, 2, 5 view the guard issue as a symptom of a broader class of problems (lack of pre-flight commit che",
 ]
 
 # The EXACT real gaps that must survive (from the 06-28/06-29 batches + perspective 4).
@@ -58,6 +70,13 @@ REAL_GAPS = [
     # non-over-rejection: a genuine gap that merely CONTAINS 'perspective' mid-sentence
     # must survive (the _PERSPECTIVE_REF_RE is anchored to a LEAD-IN + digit only).
     "Filter thresholds lack a per-perspective backtest validation before shipping",
+    # non-over-rejection: real gaps from the SAME batches the consensus-leadin fix
+    # targets, that do NOT open with a consensus lead-in, must still survive.
+    "The current dead-knob/reconciliation guard is insufficient: it runs only in CI/test, uses static allow-lists, and cannot",
+    "Real-time OPRA data-health gate",
+    "The `orchestrator.py` `is not None` Time Bomb.",
+    # non-over-rejection: 'majority'/'agree'/'all' mid-sentence (not a lead-in) must survive.
+    "Position sizing should scale down after a majority of the week's trades are losers",
 ]
 
 
