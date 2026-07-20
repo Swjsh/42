@@ -1995,6 +1995,22 @@ cost is the confluence-tolerance interaction in item 5 above, not compute.
 - ALSO flag to J: Bold's broker account became 4x MARGIN over the weekend (origin unknown --
   J may have reset it in the Alpaca dashboard; multiplier 1 -> 4). Handled premarket 07-20
   (pdt_gate_mode -> margin_pdt, cc1a2bd) but the ORIGIN needs J's confirmation.
+- **MECHANISM DEMONSTRATED (2026-07-20 ~18:40 ET, second reversion same day):** during the
+  evening sight-staleness investigation, an agent's `git stash`/`pop` collided with live
+  automation writing circuit-breaker.json -- and at 18:40 the evening verify found BOTH
+  breakers + today-bias.json carrying 2026-07-14 content again (re-armed 18:42, verified
+  fresh: safe equity 1582.19 baseline / bold 2153.66). `git stash`/`checkout` on TRACKED
+  live state files reverts them to last-committed content (07-14 vintage = the last commit
+  touching them) -- this reproduces the morning signature exactly, so the 04:27/05:58
+  writer is now strongly suspected to be a conductor/background fire's git operation, not a
+  snapshot-restore path. **THE REAL FIX (spec for conductor, blast-radius-checked):**
+  migrate live MUTABLE state files (circuit-breaker*.json, today-bias.json, and audit the
+  rest of automation/state for tracked-but-live-written files) OUT of git tracking -- same
+  migration shape as 41889a0's decision-ledger gitignore move (git rm --cached + .gitignore
+  entry; readers are path-based and don't care about tracking; only git ops care). Until
+  the migration lands: NO git stash / checkout / clean touching automation/state by ANY
+  session or fire (added here as the interim rule), and the embedded-date-vs-mtime
+  regression guard remains wanted as defense-in-depth.
 
 ### T-AUTOPSY-H-2026-07-20-stop-noise MED — autopsy hypothesis: stop_inside_noise_floor
 
