@@ -1377,6 +1377,22 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
                                          buffer=float(params.get("entry_cross_buffer", 0.03)))
     if not mid or mid <= 0 or not entry_px or entry_px <= 0:
         return {"status": "NO_PREMIUM", "symbol": symbol}
+    # NBBO CAPTURE (2026-07-20, queue: PROFIT-P4-NBBO-CAPTURE): the friction stream had NO
+    # option bid/ask history anywhere (spread_cents in the ledger is the SPY EMA-ribbon
+    # spread, not an option quote) -- bid_ask_spread_max_cents was a dead knob with zero
+    # consumers. RECONSTRUCTED from the SAME mid/entry_px this tick already priced off of
+    # (get_option_mid + marketable_limit_price above), NOT a third independent quote fetch --
+    # that keeps this purely additive telemetry with zero new network round-trips on the
+    # entry-critical path and zero risk of drifting from what actually priced the order.
+    # ask = entry_px - buffer (marketable_limit_price's own buy-side formula, inverted);
+    # bid = 2*mid - ask (get_option_mid's own formula, inverted). Exact when both broker
+    # calls this tick saw the same quote (the common case); any drift between the two
+    # calls shows up here as a wider/narrower reconstructed spread -- itself honest
+    # telemetry (quote movement between calls), not something to hide.
+    _nbbo_buf = float(params.get("entry_cross_buffer", 0.03))
+    _nbbo_ask = round(entry_px - _nbbo_buf, 2)
+    _nbbo_bid = round(2 * mid - _nbbo_ask, 2)
+    nbbo = {"bid": _nbbo_bid, "ask": _nbbo_ask, "mid": mid, "spread": round(_nbbo_ask - _nbbo_bid, 2)}
     # ENTRY-1 PREMIUM FLOOR (2026-07-09 ship, STOP-B disposition, entry-exit-matrix-2026-07-09.md
     # scorecard): sub-$0.20 fills are a toxic cohort (T2: ~2-tick stops, ~42% spread proxy -- the
     # stop reads spread noise, not price) that cost ~$685 of the real week's losses (entry-1+
@@ -1415,7 +1431,7 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
     stop = round(mid * (1 + _stop_pct), 2)
     plan = {"status": "WOULD_PLACE" if dry else "PLACING", "symbol": symbol, "side": side,
             "strike": strike, "qty": qty, "premium": mid, "tp": tp, "stop": stop, "equity": equity,
-            "setup": setup_name}
+            "setup": setup_name, "nbbo": nbbo}
     if dry:
         plan["greeks"] = _capture_greeks(creds, symbol)  # G8 log-only (no fill in dry mode)
         return plan
