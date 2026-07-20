@@ -218,6 +218,15 @@ SCORECARD_DIR = REPO / "analysis" / "shadow-model"
 SAFE_LEDGER = REPO / "automation" / "state" / "decisions.jsonl"
 BOLD_LEDGER = REPO / "automation" / "state" / "aggressive" / "decisions.jsonl"
 
+# The engine migrated to ONE consolidated both-accounts ledger (~2026-06-25); the legacy
+# per-account files above stopped being written that day and SAFE_LEDGER/BOLD_LEDGER have
+# been stale ever since (silent since 2026-06-24 -- see queue.md
+# SHADOWEVAL-WEEKLY-TRIGGER-VS-DAILY-DOCS investigation, 2026-07-20: 4 weeks of "No ticks
+# found -- skipping" with Task Scheduler still reporting exit=0/1 masked by the wscript
+# fire-and-forget wrapper). load_ticks_for_date() falls back to this file, normalized via
+# _normalize_core_row(), whenever the legacy ledger has nothing for the requested date.
+CORE_LEDGER = REPO / "automation" / "state" / "core-decisions.jsonl"
+
 # ────────────────────────────────────────────────────────────────────────────
 # Vocabulary enforcement (v9.0)
 # ────────────────────────────────────────────────────────────────────────────
@@ -586,44 +595,118 @@ REMINDER: JSON on LINE 1. Action from the VALID list above. FORBIDDEN strings ar
 # ────────────────────────────────────────────────────────────────────────────
 
 
-def load_ticks_for_date(ledger_path: Path, date: str) -> list[dict]:
-    """Read all JSONL rows for the target date, deduplicated by (tick_id, time_et)."""
-    if not ledger_path.exists():
-        print(f"  WARNING: ledger not found: {ledger_path}", file=sys.stderr)
-        return []
+def _normalize_core_row(row: dict, account: str, tick_id: int) -> Optional[dict]:
+    """Translate one automation/state/core-decisions.jsonl row into the legacy tick shape
+    the rest of this module expects (the shape the old per-account decisions.jsonl used).
 
+    core-decisions.jsonl multiplexes BOTH accounts through one file via an "account" field
+    and never logs EXIT_* verdicts (exit management is owned by exit_manager.py /
+    fleet_executor.py, not this decision ledger) -- so this adapter only recovers the
+    entry-decision population (HOLD / SKIP_* / ENTER_BULL / ENTER_BEAR / ERROR). That is
+    exactly the DT-agreement mechanism's decision-bearing population: is_decision_tick()
+    already excludes HOLD and SKIP_* from the DT count, so ENTER_* is the signal that
+    matters here. Known, disclosed scope limit: HOLD_RUNNER/EXIT_* grading stays
+    unavailable until exit ticks land in a schema this adapter can read.
+    """
+    if row.get("account") != account:
+        return None
+    ts_et = str(row.get("ts_et") or "")
+    if len(ts_et) < 16:
+        return None
+    verdict = row.get("verdict")
+    if not verdict:
+        return None
+    exec_blk = row.get("exec") or {}
+    triggers = row.get("triggers") or []
+    return {
+        "date": ts_et[:10],
+        "time_et": ts_et[11:16],
+        "tick_id": tick_id,
+        "action": verdict,
+        "position_status": None,  # not tracked here -> downstream defaults to "flat"
+        "spy": row.get("spy"),
+        "vix": row.get("vix"),
+        "vix_dir": None,
+        "ribbon_stack": row.get("ribbon"),
+        "ribbon_spread_cents": row.get("spread_cents"),
+        "htf_15m_stack": row.get("htf_15m"),
+        "bull_score": row.get("bull_score"),
+        "bear_score": row.get("bear_score"),
+        "setup_name": row.get("setup"),
+        "trigger": triggers[0] if triggers else None,
+        "reason": row.get("reason"),
+        "entry_px": exec_blk.get("entry_px"),
+        "tp1_px": exec_blk.get("tp"),
+        "stop_px": exec_blk.get("stop"),
+    }
+
+
+def load_ticks_for_date(ledger_path: Path, date: str, account: Optional[str] = None) -> list[dict]:
+    """Read all JSONL rows for the target date, deduplicated by (tick_id, time_et).
+
+    Reads the legacy per-account ledger first; if it has nothing for this date and
+    `account` is known, falls back to the consolidated CORE_LEDGER (normalized). This
+    keeps pre-migration (<=2026-06-24) grading behavior byte-identical while restoring
+    grading for every date since the engine moved to the consolidated ledger.
+    """
     ticks: list[dict] = []
     seen_keys: set[tuple] = set()
 
-    with open(ledger_path, encoding="utf-8", errors="replace") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                row = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-
-            # Handle double-encoded rows (some bold ticks are JSON strings inside JSON)
-            if isinstance(row, str):
+    if not ledger_path.exists():
+        print(f"  WARNING: ledger not found: {ledger_path}", file=sys.stderr)
+    else:
+        with open(ledger_path, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
                 try:
-                    row = json.loads(row)
+                    row = json.loads(line)
                 except json.JSONDecodeError:
                     continue
-            if not isinstance(row, dict):
-                continue
 
-            row_date = str(row.get("date", "") or "")
-            if row_date != date:
-                continue
+                # Handle double-encoded rows (some bold ticks are JSON strings inside JSON)
+                if isinstance(row, str):
+                    try:
+                        row = json.loads(row)
+                    except json.JSONDecodeError:
+                        continue
+                if not isinstance(row, dict):
+                    continue
 
-            # Deduplicate by (tick_id, time_et, action)
-            key = (row.get("tick_id"), row.get("time_et"), row.get("action"))
-            if key in seen_keys:
-                continue
-            seen_keys.add(key)
-            ticks.append(row)
+                row_date = str(row.get("date", "") or "")
+                if row_date != date:
+                    continue
+
+                # Deduplicate by (tick_id, time_et, action)
+                key = (row.get("tick_id"), row.get("time_et"), row.get("action"))
+                if key in seen_keys:
+                    continue
+                seen_keys.add(key)
+                ticks.append(row)
+
+    if not ticks and account and CORE_LEDGER.exists():
+        with open(CORE_LEDGER, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if not isinstance(row, dict):
+                    continue
+                if not str(row.get("ts_et") or "").startswith(date):
+                    continue
+                norm = _normalize_core_row(row, account, len(ticks))
+                if norm is None:
+                    continue
+                key = (norm.get("tick_id"), norm.get("time_et"), norm.get("action"))
+                if key in seen_keys:
+                    continue
+                seen_keys.add(key)
+                ticks.append(norm)
 
     # Sort: tick_id ascending, then time_et
     def _sort_key(r: dict) -> tuple:
@@ -1292,7 +1375,7 @@ def run_eval(date: str, accounts: list[str], model_cfg: dict) -> list[dict]:
 
     for account in accounts:
         ledger = ledger_map[account]
-        ticks = load_ticks_for_date(ledger, date)
+        ticks = load_ticks_for_date(ledger, date, account=account)
         if not ticks:
             print(f"[{account}] No ticks found for {date} — skipping.")
             continue
@@ -1702,7 +1785,7 @@ def _main() -> int:
     if args.dry_run:
         ledger_map = {"safe": SAFE_LEDGER, "bold": BOLD_LEDGER}
         for account in accounts:
-            ticks = load_ticks_for_date(ledger_map[account], args.date)
+            ticks = load_ticks_for_date(ledger_map[account], args.date, account=account)
             if ticks:
                 print(f"=== SAMPLE PROMPT [{account} first tick] ===")
                 print("--- SYSTEM ---")

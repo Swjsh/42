@@ -638,15 +638,73 @@
 
 ### SHADOWEVAL-WEEKLY-TRIGGER-VS-DAILY-DOCS (LOW, doc/reality mismatch, discovered 2026-07-14)
 
-- [ ] SHADOWEVAL-WEEKLY-TRIGGER-VS-DAILY-DOCS (LOW) :: `Gamma_ShadowEval`'s LIVE registered
-  trigger is `MSFT_TaskWeeklyTrigger`, but `run-shadow-eval.ps1`'s own header comment
-  ("fires after market close on weekdays") and `SCHEDULED-TASKS.md`'s doc row ("daily Nemotron
-  ... shadow DT-agreement scorer... daily 16:05 ET weekdays") both describe a DAILY cadence.
-  Discovered incidentally while auditing this task's launcher for the popup-storm fix (its
-  window-leak issue was fixed and verified separately). If the trigger is really weekly, the
-  shadow-model promotion scorecard has been accruing far less evidence than the doctrine
-  believes; if it's meant to be daily, the registered trigger needs correcting.
-  :: depends:none :: status:pending
+- [x] SHADOWEVAL-WEEKLY-TRIGGER-VS-DAILY-DOCS (LOW) :: **CLOSED 2026-07-20 ~19:12-19:55 ET
+  (conductor, AFTERHOURS).** The ORIGINAL premise is a non-issue: `Get-ScheduledTask
+  Gamma_ShadowEval | Triggers` live-checked this fire shows `MSFT_TaskRepetitionPattern`-class
+  weekly trigger with `WeeksInterval=1` + `DaysOfWeek=62` (bitmask 2+4+8+16+32 = Mon-Thu-Fri..
+  i.e. all 5 weekdays) -- that IS "daily on weekdays" in Windows Task Scheduler's own
+  representation (a weekly trigger with every weekday checked = fires every weekday, same as a
+  daily trigger would). No mismatch, no fix needed on the trigger itself.
+
+  **BUT investigating it FOUND a real, much bigger C7 silent-failure the doc-mismatch hunt
+  was never aimed at:** `Get-ScheduledTaskInfo` showed `LastRunTime=2026-07-20 14:05:00`,
+  `LastTaskResult=0` (success) -- yet the newest file in `analysis/shadow-model/*-scorecard.md`
+  was dated **2026-06-24**, a full FOUR WEEKS of weekday fires (real per-day logs exist,
+  `automation/state/logs/shadow-eval-2026-06-29.log` through `-2026-07-20.log`, ~15 trading
+  days) with every single one printing `"No ticks found for <date> -- skipping"` and exiting 1
+  -- masked from Task Scheduler by the wscript fire-and-forget wrapper (the SAME exit-code-
+  masking class as `Gamma_EodFlattenCore`'s founding incident). **Root cause:** the live engine
+  migrated from two per-account ledgers (`automation/state/decisions.jsonl` +
+  `automation/state/aggressive/decisions.jsonl`, both frozen at 2026-06-25 14:01:00) to ONE
+  consolidated both-accounts ledger (`automation/state/core-decisions.jsonl`, schema:
+  `ts_et`/`account`/`verdict`/`ribbon`/`htf_15m`/`setup`/`triggers`/`exec` -- materially
+  different field names AND file shape from the legacy `date`/`action`/`ribbon_stack`/
+  `htf_15m_stack`/`setup_name`/`trigger` schema) around 2026-06-25 -- `shadow_model_eval.py`'s
+  `SAFE_LEDGER`/`BOLD_LEDGER` constants were never updated to follow the migration. Textbook
+  C14 (dead/translated-but-unapplied knob, one level up: a whole PRODUCER migrated and a
+  CONSUMER silently kept reading the old file).
+
+  **Fixed:** added `CORE_LEDGER` constant + `_normalize_core_row()` (maps the new schema's
+  field names to the legacy shape: `ribbon`->`ribbon_stack`, `htf_15m`->`htf_15m_stack`,
+  `setup`->`setup_name`, `triggers[0]`->`trigger`, `ts_et`->`date`+`time_et`, `verdict`->
+  `action`, `exec.entry_px`/`exec.tp`/`exec.stop`->`entry_px`/`tp1_px`/`stop_px`) +
+  `load_ticks_for_date(ledger_path, date, account=None)` now falls back to `CORE_LEDGER`
+  (filtered by account + date, normalized) whenever the legacy ledger has nothing for the
+  requested date -- pre-migration (<=2026-06-24) grading stays byte-identical (legacy ledger
+  still has data, fallback never fires), every date since 2026-06-25 is now readable.
+  **Disclosed scope limit:** `core-decisions.jsonl` logs ZERO `EXIT_*` verdicts (exit
+  management lives in `exit_manager.py`/`fleet_executor.py`, not this ledger) -- so
+  `HOLD_RUNNER`/`EXIT_*` DT-agreement grading stays unavailable until exit ticks land
+  somewhere this adapter can read; `ENTER_BULL`/`ENTER_BEAR`/`HOLD`/`SKIP_*` grading (the
+  DT-agreement mechanism's actual decision-bearing population -- `is_decision_tick()` already
+  excludes HOLD/SKIP_* from the DT count, so ENTER_* was always the signal) is fully restored.
+
+  **Verified this fire (not claimed):** live dry-run (`--dry-run --date 2026-07-20`) now
+  builds real prompts and reports `(406 ticks total for 2026-07-20)` for safe / 386 for bold --
+  **exact match** to `fill_funnel.py`'s independently-computed tick counts for the same day
+  (406/386), proving the fix reads the correct live rows, not a coincidence. New guard
+  `backtest/tests/test_shadow_model_eval_core_ledger.py` (11/11 incl. a live-ledger regression
+  pin against the real production file, RED-proofed via `git stash` on `shadow_model_eval.py`
+  alone -- all 11 failed with `AttributeError: no attribute 'CORE_LEDGER'` as expected,
+  `stash pop` restored cleanly, re-verified 11/11 green). Curated safety gate (31 + 5-suite)
+  PASS. Kicked off the REAL production eval (`shadow_model_eval.py --date 2026-07-20
+  --account both`, exact command `run-shadow-eval.ps1` runs nightly) in the background this
+  fire to produce tonight's actual scorecard end-to-end -- $0 (Nemotron free tier), ~792 ticks
+  x 2.5s inter-call sleep means this legitimately runs long; if this queue entry is read before
+  it finishes, check `analysis/shadow-model/2026-07-20-scorecard.md` directly rather than
+  re-running.
+
+  **Rail-4 N/A (not a trading-path file):** `shadow_model_eval.py` is a read-only, propose-only
+  monitoring/audit script by its own docstring ("NEVER imports or calls any Alpaca tool or
+  order function... Read-only on production state") -- ships as engine-benefit per OP-22/OP-26,
+  no J ratification needed. Zero `params.json`/`heartbeat_core.py`/`filters.py`/placement/exit
+  code touched. **Revert:** single pathspec commit, `git revert <this-commit>` (2 files:
+  `setup/scripts/shadow_model_eval.py`, the new test file). **Learn-loop:** this is the SAME
+  root cause class as the queue's own recurring C7/C14 theme (producer migrates, consumer
+  doesn't follow) -- the guard test itself is the graduation (a live-ledger regression pin that
+  will RED the moment `core-decisions.jsonl`'s schema changes again without a matching update
+  here), no separate lesson-inbox item needed on top of the guard.
+  :: depends:none :: status:CLOSED_ROOT_CAUSED_AND_FIXED
 
 ### REPLAY-FLEET-ARMS-FIDELITY-DRIFT (MED, silently-red guard, discovered 2026-07-11)
 
