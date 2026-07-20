@@ -1,0 +1,152 @@
+{
+  "task": "b1c3e829-0002-safe-vix-conditional-sizing",
+  "source": "context-86-followup (cook-queue), queue.md SAFE-VIX-CONDITIONAL-SIZING",
+  "parent_study": "analysis/recommendations/safe_quality_sizing_ab.json (REJECTED, WF=0.06)",
+  "candidate": "TRENDLINE bear trades (bearish_streak>=3 OR vol_ratio_1.0-1.5) upgraded qty 3->10, gated additionally on VIX regime at entry (day-level 09:35 ET reading)",
+  "regime_bands_source": "markdown/planning/FUTURE-IMPROVEMENTS.md:130",
+  "regime_bands": {
+    "BULL": [
+      0.0,
+      17.5
+    ],
+    "NEUTRAL": [
+      17.5,
+      22.0
+    ],
+    "VOLATILE": [
+      22.0,
+      999.0
+    ]
+  },
+  "note_on_context_103": "Found: automation/overnight/STATUS-ARCHIVE.md 2026-06-18 'CONTEXT-103: VIX-REGIME ANALYSIS' -- BULL(<17.5) n=23 bears breakeven (+$66), NEUTRAL(17.5-22) n=29 bears profitable (+$2,544, WR55.2%), VOLATILE(>22) n=2 too-thin. IMPORTANT SCOPE MISMATCH: that finding is IS-ONLY (no OOS/WF check) over the GENERAL SAFE bear population (all tiers, all trigger types) -- NOT the narrow TRENDLINE-tier quality-sizing-eligible subset (bearish_streak>=3 OR vol_ratio 1.0-1.5) this study re-tests. The two populations legitimately diverge: general bears being NEUTRAL-favorable does not imply the quality-sizing CANDIDATE specifically is NEUTRAL-favorable once OOS/WF discipline is applied -- and this study's result (NEUTRAL cut WF=-0.287, worse than pooled) shows it is not, for this specific candidate.",
+  "pooled_reproduction_sanity_check": {
+    "reproduced_wf": -0.144,
+    "parent_study_wf": 0.06,
+    "matches_within_0.05": false,
+    "note": "confirms this script's trade population matches the parent study before trusting the regime cuts"
+  },
+  "cuts": {
+    "POOLED_baseline_reproduction": {
+      "cut": "POOLED_baseline_reproduction",
+      "regime_filter": null,
+      "is_upgraded_trades": 21,
+      "oos_upgraded_trades": 13,
+      "is_pool_eligible_quality_trades": 21,
+      "oos_pool_eligible_quality_trades": 13,
+      "is_delta": 9669.1,
+      "oos_delta": -1389.8,
+      "wf": -0.144,
+      "sw_hurt": 0,
+      "sw_detail": {
+        "SW1_2025H1": 2192.9,
+        "SW2_2025H2": 6743.6,
+        "SW3_early26": 732.7
+      },
+      "anchor_baseline": -1145.0,
+      "anchor_candidate": -1145.0,
+      "evidence_n": 34,
+      "gates": {
+        "G1_is_nonneg": true,
+        "G2_oos_pos": false,
+        "G3_wf": false,
+        "G4_subwindow": true,
+        "G5_anchor": true,
+        "G6_evidence_floor_15": true,
+        "all_pass_bar": false
+      },
+      "verdict": "REJECT"
+    },
+    "BULL_lt_17.5": {
+      "cut": "BULL_lt_17.5",
+      "regime_filter": "BULL",
+      "is_upgraded_trades": 8,
+      "oos_upgraded_trades": 5,
+      "is_pool_eligible_quality_trades": 21,
+      "oos_pool_eligible_quality_trades": 13,
+      "is_delta": 5987.6,
+      "oos_delta": -418.2,
+      "wf": -0.07,
+      "sw_hurt": 0,
+      "sw_detail": {
+        "SW1_2025H1": 315.0,
+        "SW2_2025H2": 5672.6,
+        "SW3_early26": 0.0
+      },
+      "anchor_baseline": -1145.0,
+      "anchor_candidate": -1145.0,
+      "evidence_n": 13,
+      "gates": {
+        "G1_is_nonneg": true,
+        "G2_oos_pos": false,
+        "G3_wf": false,
+        "G4_subwindow": true,
+        "G5_anchor": true,
+        "G6_evidence_floor_15": false,
+        "all_pass_bar": false
+      },
+      "verdict": "INCONCLUSIVE_UNDERPOWERED"
+    },
+    "NEUTRAL_17.5_22": {
+      "cut": "NEUTRAL_17.5_22",
+      "regime_filter": "NEUTRAL",
+      "is_upgraded_trades": 11,
+      "oos_upgraded_trades": 6,
+      "is_pool_eligible_quality_trades": 21,
+      "oos_pool_eligible_quality_trades": 13,
+      "is_delta": 2404.1,
+      "oos_delta": -690.9,
+      "wf": -0.287,
+      "sw_hurt": 0,
+      "sw_detail": {
+        "SW1_2025H1": 600.4,
+        "SW2_2025H2": 1071.0,
+        "SW3_early26": 732.7
+      },
+      "anchor_baseline": -1145.0,
+      "anchor_candidate": -1145.0,
+      "evidence_n": 17,
+      "gates": {
+        "G1_is_nonneg": true,
+        "G2_oos_pos": false,
+        "G3_wf": false,
+        "G4_subwindow": true,
+        "G5_anchor": true,
+        "G6_evidence_floor_15": true,
+        "all_pass_bar": false
+      },
+      "verdict": "REJECT"
+    },
+    "VOLATILE_ge_22": {
+      "cut": "VOLATILE_ge_22",
+      "regime_filter": "VOLATILE",
+      "is_upgraded_trades": 2,
+      "oos_upgraded_trades": 0,
+      "is_pool_eligible_quality_trades": 21,
+      "oos_pool_eligible_quality_trades": 13,
+      "is_delta": 1277.5,
+      "oos_delta": 0.0,
+      "wf": 0.0,
+      "sw_hurt": 0,
+      "sw_detail": {
+        "SW1_2025H1": 1277.5,
+        "SW2_2025H2": 0.0,
+        "SW3_early26": 0.0
+      },
+      "anchor_baseline": -1145.0,
+      "anchor_candidate": -1145.0,
+      "evidence_n": 2,
+      "gates": {
+        "G1_is_nonneg": true,
+        "G2_oos_pos": false,
+        "G3_wf": false,
+        "G4_subwindow": true,
+        "G5_anchor": true,
+        "G6_evidence_floor_15": false,
+        "all_pass_bar": false
+      },
+      "verdict": "INCONCLUSIVE_UNDERPOWERED"
+    }
+  },
+  "any_regime_cut_ratifies": false,
+  "verdict_overall": "REJECT_ALL_CUTS"
+}

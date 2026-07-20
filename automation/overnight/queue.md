@@ -421,7 +421,22 @@
 ### Tier 3 — research items not owned by the cook-queue loop
 
 - [ ] RIBBON-SPREAD-PER-TIER-DESIGN (MED) :: `ribbon_min_spread_cents=30` applies globally to ALL quality tiers (LEVEL/ELITE/SUPER). Hypothesis: ELITE/SUPER setups tolerate a tighter spread. Design a per-tier spread table + backtest. (Also in cook-queue, source=claude.) :: depends:none :: status:pending
-- [ ] SAFE-VIX-CONDITIONAL-SIZING (MED) :: Quality sizing (bearish_streak>=3 OR vol_ratio 1.0-1.5) failed G3 WF due to regime-dependence. Re-test the SAME criteria gated on VIX regime (NEUTRAL 17.5-22 was the profitable band per CONTEXT-103). (Also in cook-queue, context-86-followup.) :: depends:none :: status:pending
+- [x] SAFE-VIX-CONDITIONAL-SIZING (MED) :: Quality sizing (bearish_streak>=3 OR vol_ratio 1.0-1.5) failed G3 WF due to regime-dependence. Re-test the SAME criteria gated on VIX regime (NEUTRAL 17.5-22 was the profitable band per CONTEXT-103). (Also in cook-queue, context-86-followup.) :: depends:none :: status:done
+  **[CLOSED 2026-07-20 ~02:xx ET conductor (AFTERHOURS)]** Built `backtest/tools/safe_vix_conditional_sizing_ab.py`
+  (reuses safe_quality_sizing_ab.py's eligibility/reweight logic, adds a VIX-regime-at-entry gate,
+  day-level 09:35 ET reading per agg_vix_bear_threshold_sweep.py convention). Found CONTEXT-103
+  (STATUS-ARCHIVE.md 2026-06-18) -- it's an IS-ONLY finding over the GENERAL SAFE bear population,
+  not the narrow TRENDLINE-tier quality-sizing candidate this study re-tests; scope mismatch
+  documented in the output. **Result: REJECT_ALL_CUTS** -- POOLED reproduction WF=-0.144 (worse than
+  parent's already-failing 0.06 -- OOS grew from 6 to 13 upgraded trades since the parent study ran,
+  weeks of fresh data added, net negative), BULL/VOLATILE both evidence_n<15 (INCONCLUSIVE_UNDERPOWERED,
+  not FAIL), and NEUTRAL_17.5_22 -- the specific band CONTEXT-103's general-bear finding would predict
+  as favorable -- comes back WORSE than pooled (WF=-0.287). No VIX regime rescues the candidate; the
+  quality-sizing upgrade stays REJECTED. Scorecard: `analysis/recommendations/safe_vix_conditional_sizing.json`.
+  Guard: `backtest/tests/test_safe_vix_conditional_sizing_regime.py` (6/6, RED-proofed by removing the
+  source module -- ModuleNotFoundError as expected, restored clean). Curated safety gate (31+5) PASS.
+  Zero trading-path files touched (pure research tool + scorecard + test, no params/heartbeat/filters/
+  placement edits) -- this is a REJECT finding, nothing ships to the live engine.
 - [ ] SAFE-MULTIDAY-APPROACH-GATE (MED) :: When price within $0.30-0.50 of a multi_day level (PDH/PDL/weekly), trigger on APPROACH rather than exact touch. (Also in cook-queue, gamma-autonomous.) :: depends:none :: status:pending
 - [ ] FALSE-BREAK-OPEN-CARRY-GATE (LOW, defensive) :: Do-no-harm gate protecting the LIVE bearish_rejection edge: suspend bear entries 30 min after a ★★★ named level (Carry/Active/multi-day) is breached at the 09:35 open bar AND the next closed bar recovers above it (single-bar L59 floor_hold variant, n_min=1). NOT entry-hunting (so not OP-22-superseded) but single-day evidence (one -$204 trade 2026-05-21) + C28/L156 diminishing-returns on bear-rejection exit refinement. Full spec preserved in `strategy/candidates/_chef-inbox/2026-05-21-false-break-open-carry-gate.md.DONE`. Promote to chef fire ONLY IF (a) >=3 more days show the same false-break-open->bear-trap pattern, or (b) J prioritizes bear-rejection exit hardening. :: depends:none :: status:pending
 
