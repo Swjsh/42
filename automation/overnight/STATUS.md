@@ -1,3 +1,27 @@
+## [2026-07-20 16:12-16:35 ET] OK -- conductor (AFTERHOURS): fixed a false ENTER-AFTER-CEILING alarm in fill_funnel.py -- REVOKE-eligible, guard-tested, committed
+
+> **Context (`et_clock.py` 16:12 ET Monday, market closed since 15:55).** STAGE 0: engine-health GREEN (13/13). STATUS showed six `DEGRADED: FILL-FUNNEL ENTER AFTER CEILING[core:bold/safe]` flags from the 16:09:57 self-check for entries at 15:41-15:45 ET. Investigated per priority-1 (FUNCTION FIRST): pulled the raw `core-decisions.jsonl` rows -- every flagged row had `verdict:"ENTER_BEAR"` but `action:"SKIP_LATE_ENTRY"` and **no `exec` dict at all** (heartbeat_core.py's `_past_entry_ceiling` gate correctly fired, zero broker attempts -- `fill_funnel`'s own `attempted` count was already 0 for these). **Root cause (one sentence):** `fill_funnel.py`'s ceiling-bypass check keyed off the pre-gate `verdict` field instead of the post-gate `action` field, so a row the ceiling gate *already caught* was double-counted as a ceiling *bypass* -- a producer/consumer field mismatch between heartbeat_core's own two truth fields.
+>
+> **Fix:** `setup/scripts/fill_funnel.py` -- only append to `enters_after_ceiling` when the row was NOT already gated (`action != SKIP_LATE_ENTRY` core / `placement.reason != SKIP_LATE_ENTRY` fleet). Verified against real 2026-07-20 data: funnel flips DEGRADED->**GREEN**, `automation/state/fill-funnel-2026-07-20.json` rewritten. Regression-pinned: the 2026-07-01 pre-ceiling-gate fixture (a genuine bypass, `action:"PLACE_FAIL"`, real broker attempt) still correctly flags -- confirms this narrows the false positive without swallowing a real fault. 4 new tests + 18 pre-existing all green: `backtest/.venv/Scripts/python.exe -m pytest backtest/tests/test_fill_funnel_guard.py -q` -> `22 passed`.
+>
+> **Rail-4 (PAPER trading-path carve-out):** read-only diagnostics file, never touches placement/order code. Guard test + git-revert (`git revert 270e9ca`) both in place -- REVOKE, not pre-approve. Committed `270e9ca`, pre-commit safety gate PASS (curated 5-suite). No J ping needed (diagnostics-only, doesn't touch live doctrine/params).
+>
+> **Why this matters beyond today:** this exact false alarm would have fired again every trading day the engine correctly declines a late-session ENTER (routine, by design) -- eroding trust in the funnel's real RED/DEGRADED signal (OP-33 visibility discipline: a noisy instrument gets ignored right when a genuine bypass needs to cut through).
+
+---
+
+## [2026-07-20 ~09:30-09:36 ET] GREEN -- interactive (Fable): Monday pre-open verify complete, all 4 debut/live tasks FIRING with real output quoted
+
+> **Context (`et_clock.py`: `2026-07-20 09:30:34 Monday EDT market_hours=True`).** Final check of the morning preflight (breakers re-armed 08:02 after the STATE-FILE-REVERSION incident; Bold margin_pdt flip cc1a2bd; bias fresh `2026-07-20 bearish`; both accounts flat, zero stray orders -- all verified 09:06). Check 4 (the 09:25-09:30 debut fires), verified with REAL OUTPUT per OP-33, not wrapper exit codes:
+> - **Gamma_HeartbeatCore** fired 09:30:01, exit 0 -- PROOF: two fresh `core-decisions.jsonl` rows at 09:34 (safe `SKIP_STRUCTURE_VETO` + bold `SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY`, both `armed:true`, context_bundle v2 attached, and the stale Friday-15:55 trendline trigger correctly caught by `SKIP_STALE_TRIGGER`).
+> - **Gamma_JIntentExecutor** (debut) fired 09:25, exit 0 -- `j-intents.json` intents=[] => pure no-op loop, as designed.
+> - **Gamma_ConductorRTH** (debut) fired 09:30, exit 0 -- prior 09:12 AFTERHOURS fire logged to `conductor-outcomes.jsonl`; RTH_LIGHT pass running on 30-min cadence.
+> - **Gamma_FuturesEdge3Sim** (debut) fired 09:30, exit 0 -- PROOF: `automation/state/logs/futures-edge3-sim-2026-07-20.log` `[09:30:02] pass complete {"action":"tick","in_rth":true,...}` + 09:35 tick; state files under `automation/state/futures/` updating.
+>
+> Engine owns the session from here. No interactive scheduling remains. New queue item filed this pass: PREMARKET-TOUCH-CREDIT-STUDY (J's 747.46 premarket-rejection question -- engine gives zero touch-credit to premarket rejections).
+
+---
+
 ## [2026-07-20 ~09:12-09:16 ET] OK (light) -- conductor (AFTERHOURS, market opens 09:30 -- deliberately kept small): engine GREEN, no safe bounded build started this close to open
 
 > **Context (`et_clock.py`: `2026-07-20 09:14 Monday EDT market_hours=False`, Task=conductor).** Woke ~18 min before market open. STAGE 0 engine-health GREEN (13/13 checks). `task_scorer.py --top` again ranked `MORNING-BULL-QUALITY-GATE-RECONSIDER` (J-DECISION-GATED, Nth recurrence, correctly skipped). Self-audit gaps confirmed fully actioned through the 07-19 21:xx consensus-leadin fix -- no new batches. Grepped `queue.md` HIGH items live: every one that's genuinely one-fire-bounded was already drained by tonight's 4 prior fires (00:19/02:19/04:19/06:19/08:19); the remaining HIGH items (`ENGINE-VECTORIZATION`, `GATE-TIERS-IMPLEMENT`, `D1-TV-CDP-ROOT-CAUSE`, `SINGLE-STRATEGY-REGISTRY-DESIGN` remainder, `MM-05-WAKE-FIRE-REVIVAL`, `DIRECTION-BLOCK-BATCH-RECONCILE`) are all multi-step builds or J-gated, not startable with ~15 min of runway before rail-1's hard RTH boundary.
@@ -151,3 +175,69 @@
 
 ---
 
+
+### DEGRADED: self-check 2026-07-20T09:39:57
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-20T10:09:57
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+## Kitchen
+Kitchen: alive, queue 27 pending, last cook 0 min ago, today $0.00, model=grinder-python
+
+### BROKEN: self-check 2026-07-20T10:39:57
+- ENGINE CANNOT ENTER: 70 ticks today, 0 ENTER, 5x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-20T11:09:57
+- ENGINE CANNOT ENTER: 100 ticks today, 0 ENTER, 5x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-20T11:39:57
+- ENGINE CANNOT ENTER: 130 ticks today, 0 ENTER, 5x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-20T12:09:57
+- ENGINE CANNOT ENTER: 160 ticks today, 0 ENTER, 5x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-20T12:39:57
+- ENGINE CANNOT ENTER: 190 ticks today, 0 ENTER, 5x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-20T13:09:57
+- ENGINE CANNOT ENTER: 220 ticks today, 0 ENTER, 5x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-20T13:39:57
+- ENGINE CANNOT ENTER: 250 ticks today, 0 ENTER, 5x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-20T14:09:57
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-20T14:39:57
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-20T15:09:57
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-20T15:39:57
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-20T20:00:17+00:00
+- task: eod-summary
+- date_et: 2026-07-20
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-07-20T16:09:57
+- FILL-FUNNEL ENTER AFTER CEILING[core:bold]: 1 ENTER after 15:00 ET: ['15:43 ENTER_BEAR ?']
+- FILL-FUNNEL ENTER AFTER CEILING[core:safe]: 5 ENTER after 15:00 ET: ['15:41 ENTER_BEAR ?', '15:42 ENTER_BEAR ?', '15:43 ENTER_BEAR ?']
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- **RESOLVED 16:35 ET (commit 270e9ca):** both FILL-FUNNEL ENTER-AFTER-CEILING lines above were a FALSE ALARM -- the 6 flagged rows all had `action:"SKIP_LATE_ENTRY"` (correctly gated, zero broker attempts). `fill_funnel.py` was keying the check off the pre-gate `verdict` field instead of the post-gate `action` field. Fixed + guard-tested (see top-of-file entry). Re-run confirms GREEN. SETTLEMENT-BLOCKED[safe] and TRENDLINE-DRAW are unrelated, still open (informational, non-critical).
