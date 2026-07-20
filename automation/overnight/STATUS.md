@@ -1,3 +1,78 @@
+## [2026-07-20 16:42-16:53 ET] SHIP (REVOKE) -- conductor (AFTERHOURS): EXTRA-SIGNAL-CHURN-COOLDOWN item 1 shipped (same-bar re-entry guard), item 2 re-filed as EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT
+
+> **Context.** STAGE 0 engine-health GREEN (13/13, market closed since 15:55). `task_scorer.py
+> --top` re-ranked `MORNING-BULL-QUALITY-GATE-RECONSIDER` (J-DECISION-GATED, correctly skipped
+> per standing precedent). Grepped live `queue.md` HIGH items: picked `EXTRA-SIGNAL-CHURN-
+> COOLDOWN` (filed ~11:25 ET during RTH, explicitly gated "FIX AFTER 16:00" per Rule 9, ready
+> now) over `STRUCTURE-STOP-REFERENCE-LEVEL`/`PREMARKET-TOUCH-CREDIT-STUDY` -- a concrete,
+> well-scoped mechanism bug with a clear live exhibit, not a fresh multi-day study.
+
+> **Root cause (one sentence):** `_route_extra_setups` (`setup/scripts/heartbeat_core.py`) had
+> no memory of "did this setup already attempt an entry on this trigger bar" -- the watchers'
+> current-bar guards stop a DUPLICATE signal firing twice, but nothing stopped a FRESH entry
+> once the account went flat again mid-bar (a stop-out), so `vix_regime_dayside` fired 3x 748C
+> entries within a single closed 5m bar 09:51-09:55 ET (net -$87), only nondeterministically
+> slowed by the free-model veto.
+
+> **Fixed:** added a per-arm, per-setup "last trigger-bar attempted" ledger
+> (`exit_actuator.load_last_entry_bars`/`record_entry_bar`/`same_bar_cooldown_active`, additive,
+> new functions only) wired into `_route_extra_setups`: refuse a new entry for a setup on the
+> SAME trigger bar it already attempted one on (`SKIP_COOLDOWN_SAME_BAR`); record only on an
+> actual PLACED/PLACING/WOULD_PLACE, never on WATCH_NOT_ARMED/VETOED_BY_MODELS. Chose
+> "requires-new-trigger-bar" over a hand-picked N-minute duration -- a brand-new mechanism has
+> no trade population to pre-register a numeric cooldown against, so the bar boundary is the
+> smallest non-arbitrary unit (no knob to hand-pick). Fail-open throughout; scoped to the
+> extra-setup lane only (primary ribbon path untouched, out of this fix's scope).
+
+> **Verified this fire:** new guard `backtest/tests/test_extra_signal_churn_cooldown_2026_07_20.py`
+> (10/10) -- round-trip, same-bar-blocks/different-bar-doesn't, fail-open on a cooldown-check
+> exception, record-only-on-actual-placement. RED-proofed via `git stash` on the 2 edited files
+> (+ file-move for the untracked new test): reproduced the exact expected mechanism
+> (`AttributeError: module 'exit_actuator' has no attribute 'load_last_entry_bars'`, 9/10 fail),
+> pop restored cleanly, re-verified 10/10 green. Broader sweep (`test_g4_extra_setup_routing` +
+> `test_gap_and_go_exit_wiring_2026_07_18` + `test_audit_fix_heartbeat` + `test_audit_fix_exit`
+> + `test_execute_stop_display` + `test_g14_fleet_ribbon_exit` + `test_money_path_2026_07_01` +
+> `test_trade_to_learn_2026_07_01` + this file) -> **136/136 PASS, 0 regressions**. Curated
+> safety gate (31+5-suite) PASS.
+
+> **Rail-4 (PAPER trading-path -- guard test + revert path + this REVOKE report):** touches
+> `automation/state/fleet/exit_actuator.py` (additive, 3 new functions), `setup/scripts/
+> heartbeat_core.py` (`_route_extra_setups` gains one same-bar check + one recording call;
+> zero change to the primary ribbon path/gate ordering/`_execute` pricing logic),
+> `backtest/tests/test_extra_signal_churn_cooldown_2026_07_20.py` (new guard),
+> `automation/overnight/queue.md` (item 1 closed, item 2 re-filed). **Revert:**
+> `git revert fd91712` (1 commit, 4 files touched by the fix + 1 lesson file, additive-only so
+> a revert is a clean rollback to today's exact pre-fix churn risk).
+
+> **Item 2 NOT fixed this fire (deliberately):** confirmed live `j_vix_dayside_premium_stop_pct=
+> -0.08` / `j_vix_dayside_tp1_pct=0.30` still the stale 2026-06-01-era bracket the item cited,
+> unchanged since the 2026-06-18 core-lane chart-stop-primary shift. Did NOT flip it blind --
+> C29 (exit knobs validated on one setup/tier don't transfer without independent evidence) --
+> re-filed as `EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT` (MED, needs a real pre-reg A/B, small-n
+> likely so DEFER-INSUFFICIENT-DATA is an acceptable honest outcome, not a forced flip).
+
+> **Learn-loop:** filed `strategy/candidates/_lesson-inbox/extra-signal-same-bar-churn-2026-07-20.md`
+> -- flags that the PRIMARY ribbon path has no equivalent same-bar re-entry guard (currently
+> protected only by its own flat-check + gate discipline, a materially different and untested-
+> for-this-exact-shape safety net) as the first place to look if this churn class ever
+> reappears there.
+
+> **Cost: ~$5.0** (STAGE 0/1 reads, `task_scorer.py --top`, queue.md HIGH-item grep + read,
+> traced `setup_dispatch.py`/`heartbeat_core.py`'s extra-setup dispatch+route+exec path in full,
+> `exit_actuator.py`/`exit_manager.py` exit-action stage/reason vocabulary, confirmed
+> `params.json`'s live `j_vix_dayside_*` values, designed+wrote the same-bar cooldown mechanism
+> (3 new exit_actuator functions + heartbeat_core wiring), wrote+ran the 10-test guard file
+> (2 full syntax checks, 1 targeted run, 1 broader 136-test sweep), 1 RED-proof git-stash +
+> file-move round-trip, 1 curated safety-gate run, 2 queue.md edits (closure + new item), 1
+> lesson-inbox file, 1 commit, 1 verify-committed check, this STATUS entry -- no LLM in the hot
+> path, no orders, PAPER-only, zero pricing/gate/placement logic touched). **Files:**
+> `automation/state/fleet/exit_actuator.py`, `setup/scripts/heartbeat_core.py`,
+> `backtest/tests/test_extra_signal_churn_cooldown_2026_07_20.py`, `automation/overnight/queue.md`,
+> `strategy/candidates/_lesson-inbox/extra-signal-same-bar-churn-2026-07-20.md`. **Commit:**
+> `fd91712`.
+
+---
+
 ## [2026-07-20 16:19-17:xx ET] OK -- conductor (AFTERHOURS): STRUCTURE-STOP-ZONE-BAND item (a) closed REJECT_ALL_CANDIDATES; item (b) re-filed as STRUCTURE-STOP-REFERENCE-LEVEL
 
 > **Context.** STAGE 0 GREEN (engine-health 13/13, market closed since 15:55). Top HIGH item:
@@ -217,26 +292,11 @@
 
 ---
 
-## [2026-07-19] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
 
-> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
-> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
-> -   bollinger_squeeze (armed 2026-07-02): since-arm 2tr $+105.00 ($+52.50/tr, 100.0% WR)
-> -   double_bottom_base_quiet (armed 2026-07-01, 18d ago): 0 fills since arm — no live signal yet
-> -   vix_regime_dayside (armed 2026-07-01, 18d ago): 0 fills since arm — no live signal yet
-> -   vwap_continuation (armed 2026-07-01): since-arm 2tr $-68.00 ($-34.00/tr, 0.0% WR)
-> -   vwap_reclaim_failed_break (armed 2026-07-01, 18d ago): 0 fills since arm — no live signal yet
-> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
-
----
-
-## [2026-07-19] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-11..2026-07-17), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-17). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-419.16); Bold_ATM_1+2=YELLOW ($-262.8)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-20T20:45:51+00:00
+- task: analyst
+- date_et: 2026-07-20
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
