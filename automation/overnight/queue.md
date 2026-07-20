@@ -82,7 +82,7 @@
 
 ### STRUCTURE-STOP-REFERENCE-LEVEL (HIGH, trading-path, filed 2026-07-20 ~16:55 ET, follow-up to STRUCTURE-STOP-ZONE-BAND item (b))
 
-- [ ] STRUCTURE-STOP-REFERENCE-LEVEL (HIGH, after-hours fix + pre-reg A/B, needs new wiring) ::
+- [x] STRUCTURE-STOP-REFERENCE-LEVEL (HIGH, after-hours fix + pre-reg A/B, needs new wiring) ::
   Item (b) of STRUCTURE-STOP-ZONE-BAND, re-filed standalone after item (a)'s REJECT_ALL closed
   the simpler buffer-width axis (see the CLOSED note directly above -- widening the SAME
   trigger-exact reference does NOT reproduce a stable edge; only 1 anchor trade drove every
@@ -110,7 +110,68 @@
   proof both ways. Evidence: `analysis/recommendations/structure-stop-zone-band-2026-07-20.json`
   (item a's REJECT, motivating why item b is the more promising remaining lever), original
   narrative in this file's CLOSED block above.
-  depends:none :: status:pending
+  depends:none :: status:CLOSED_NO_SHIP
+
+> **CLOSED item (b) 2026-07-20 ~17:00-17:35 ET (Sonnet worker, AFTERHOURS): pre-reg A/B
+> NO-SHIP, both candidates.** Answered SPEC question (1) affirmatively: `lib/levels.py`'s
+> `LevelSet.active` (via `tw8_level_context.frozen_level_set_for_date`, the SAME per-day-
+> frozen level set `lib/orchestrator.py`/`lib/filters.py` trade against) already carries
+> the full multi-level structure per day, and `detect_level_reclaim`/`detect_level_rejection`
+> already identify WHICH specific level fired -- no new data plumbing was needed to resolve a
+> zone boundary. Built `backtest/tools/structure_stop_reference_level_ab.py` (new
+> `resolve_zone_boundary`/`reference_level_for` pure functions + reuses
+> `structure_stop_study.py`'s trigger recovery/replay machinery unchanged, per spec (2)/(3)),
+> froze `analysis/recommendations/structure-stop-reference-level-preregistration.json` BEFORE
+> running anything (band width held at 0.00 for every candidate by rule -- item (a) already
+> falsified that axis; re-opening it here without reference-level evidence would be fishing),
+> ran it, verdict: `analysis/recommendations/structure-stop-reference-level-2026-07-20.json`.
+> **REF-ZONE** (nearest active level beyond the trigger, away from spot) FAILS layer(a)
+> fresh-slice expectancy (-$63.73/tr vs -$47.34 control, n=18) -- worse, not better. Its
+> layer(b) real-fills anchor "win" (+$481.2 vs -$900.7 control, n=68) is the SAME single-
+> anchor-trade artifact C24 flagged in item (a): one 2026-07-08 position
+> (SPY260708P00741000, 3 legs) accounts for the entire delta -- under REF-ZONE the structure
+> stop simply never fires that day (zone boundary 745.21 vs entry-adjacent trigger 744.17,
+> too far to matter) and the position rides to $427/$427/$307 vs -$105/+$20/-$81 under
+> today's live reference -- and the sub-window split hard sign-flips (+$1473.4 first half vs
+> -$91.5 second half). **REF-NONE** (no structure stop at all, pure premium-only SS-B) fails
+> the SAME way, even worse on layer(a) (-$84.29/tr). **Verdict: NO-SHIP both candidates** --
+> `automation/state/fleet/exit_manager.py`/`strategies.py` UNCHANGED, no
+> `structure_stop_reference_mode` knob added (per the task's own gating: wiring only happens
+> if a candidate clears; neither did). `backtest/lib/exit_manager_walk.py` faithful-harness
+> replay (spec (4)) was correctly SKIPPED, not omitted -- that step is the SHIP-gate
+> verification for a cleared candidate against the tick-managed live decision core; nothing
+> cleared the exploratory pre-reg bar to reach it. Guard:
+> `backtest/tests/test_structure_stop_reference_level_ab.py` (17/17, RED-proofed via the
+> file-move technique -- untracked new module, `git stash` on an unmatched pathspec silently
+> no-ops rather than stashing, per tonight's established precedent: moved the module out,
+> confirmed `ModuleNotFoundError` on all 17, moved back, re-verified 17/17 green). Broader
+> sweep (`test_structure_stop_study` + `test_structure_stop_zone_band_ab` +
+> `test_structure_stop_reference_level_ab` + `automation/state/fleet/test_exit_manager` +
+> `test_exit_actuator`) -> **113/113 PASS, 0 regressions**. **Both sub-fixes of the original
+> STRUCTURE-STOP-ZONE-BAND queue item (band width, item a; reference choice, item b) are now
+> tested and rejected under the same dual-layer discipline** -- the 2026-07-20 14:16 exhibit's
+> own -$24 vs +$115-130 counterfactual remains a single anecdote (C24/L140) this study could
+> not generalize into a population-level edge. Today's 3 fills were again NOT recoverable via
+> this study's fills-ledger source (0/0, exhibit shows 0 positions) -- the same disclosed
+> `load_fleet_engine_fills()` date-ceiling gap item (a) flagged, unfixed here (out of scope,
+> flagged only). **Zero trading-path files touched.** Cost: ~$4 (1 pre-reg write, 1 new
+> ~330-line study tool reusing existing machinery, 1 live run against real OPRA/fills data, 1
+> guard-test file + RED-proof round-trip, 1 broader regression sweep, this queue/STATUS
+> update). No commit made (orchestrator commits after verification per this fire's own rules).
+
+> **CROSS-REFERENCE 2026-07-20 evening (fleet exit-parameter A/B build, separate fire):**
+> `automation/state/fleet/accounts.json`'s risky-3 (FLEET-LOOSE-R) now carries a per-arm
+> `params_patch.exit_patch` (new mechanism, `fleet_executor._exit_shape_dict` /
+> `EXIT_PATCH_ALLOWED_KEYS`) meant to make this arm "ride it longer" than safe-3's
+> chart-stop-primary lane. The IDEAL knob for that -- stop referenced to the zone boundary
+> ABOVE the entry trigger, not the trigger itself -- is exactly item (b) above (REF-ZONE),
+> which is NO-SHIP per tonight's own pre-reg A/B (single-anchor-trade artifact, sub-window
+> sign-flip). Since that knob does not exist and is not currently evidence-backed, risky-3's
+> exit_patch approximates "rides longer" with a wider chandelier trail (`trail_pct: 0.20` vs
+> the registry's 0.15/0.125) on the SAME trigger-exact `stop_mode=structure` reference every
+> other structure-stop position uses -- deliberately NOT re-opening the rejected REF-ZONE
+> axis. If a future pre-reg A/B on a DIFFERENT reference-level formulation ever clears,
+> revisit risky-3's exit_patch to use it instead of the trail-width proxy.
 
 ### EXTRA-SIGNAL-CHURN-COOLDOWN (HIGH, trading-path, filed 2026-07-20 ~11:25 ET during RTH -- FIX AFTER 16:00, Rule 9)
 
@@ -218,6 +279,44 @@
   `setup/scripts/heartbeat_core.py::_SETUP_EXIT_OVERRIDES`, the EXTRA-SIGNAL-CHURN-COOLDOWN
   closure note above (this fire's live confirmation).
   depends:none :: status:pending
+
+> **STEP (1) DONE for `vix_regime_dayside` only, 2026-07-20 ~evening (after-hours, AUDIT-ONLY --
+> no params/stop-shape change made): pulled the lane's fills history and it is thinner than
+> even this item anticipated.** `core-decisions.jsonl` scan of every `extra_exec` row with
+> `setup=="vix_regime_dayside"` (14 rows total across the lane's whole life) shows exactly
+> **3 PLACED entries ever** -- and all 3 are TODAY's churn exhibit (09:51/09:54/09:55).
+> Every earlier attempt (2026-07-02, 2026-07-09) was blocked at `RISK_DENY_RISK_CAP` /
+> `RISK_DENY_PDT` before ever reaching the broker. **Today is this lane's first-ever live
+> fill, so n=3 is not a sample of the lane's history -- it IS the lane's entire history.**
+> Per-trade detail (`fills-ledger.jsonl`, symbol `SPY260720C00748000`, arm `safe-2`; NBBO +
+> `spy` spot from the matching `core-decisions.jsonl` ticks):
+>
+> | # | entry fill | stop fill | hold | entry NBBO spread | -8% stop distance | spread/stop-distance | SPY spot entry-tick -> exit-tick |
+> |---|---|---|---|---|---|---|---|
+> | 1 | 09:51:24.73 @ 1.13 | 09:52:03.56 @ 0.98 | 38.8s | $0.00 (bid=ask=1.10) | $0.088 | 0% | 747.575 -> 747.575 (unchanged) |
+> | 2 | 09:54:19.66 @ 0.79 | 09:55:03.98 @ 0.73 | 44.3s | $0.04 (0.76/0.80) | $0.0624 | **64%** | 747.575 -> 747.575 (unchanged) |
+> | 3 | 09:55:24.87 @ 0.76 | 09:56:03.44 @ 0.68 | 38.6s | $0.02 (0.72/0.74) | $0.0584 | 34% | 747.575 -> 746.43 (real -1.145pt move) |
+>
+> **Reading:** 2 of 3 stop-outs (trades 1+2) fired while the engine's OWN logged SPY spot was
+> IDENTICAL at entry and exit -- zero observed underlying movement across the full hold, i.e.
+> the -8%/-6% premium move that triggered the stop has no price-action justification in the
+> engine's own record; trade 2's entry-time NBBO spread alone ($0.04) consumed **64% of its
+> entire stop distance** ($0.0624), meaning roughly two-thirds of that stop's margin was spread,
+> not room. Trade 3 is the one case with a real, contemporaneous SPY move against the position
+> (-1.145pts) -- closer to a legitimate invalidation, though its spread (34% of stop distance)
+> was still non-trivial. This is DIRECTIONALLY CONSISTENT with the 2026-07-08 noise-floor
+> finding (the same mechanism the core lane moved off of on 2026-06-18) but **n=3, all from one
+> session, is not a verdict** -- exactly the DEFER-INSUFFICIENT-DATA condition this item's own
+> step (3) pre-committed to. Caveat for whoever runs steps (2)-(4): SPY spot pinned at EXACTLY
+> 747.575 for 4 consecutive 1-minute ticks (09:51-09:55) is itself worth independently checking
+> for a stale/frozen quote snapshot in the engine's log before leaning on the "flat SPY" reading
+> too hard -- if it's a live-feed artifact rather than genuine chop, only the spread-ratio numbers
+> (0%/64%/34%) stand on their own, which still lean noise-consistent for trade 2 specifically.
+> **No stop-shape change made** (per this item's own gate + this fire's instructions) -- this is
+> disclosure to sharpen steps (2)-(4), not a substitute for them; the other 3 non-`gap_and_go`
+> overrides named in step (1) are still unpulled (out of this fire's scope, which was
+> `vix_regime_dayside` only). Status stays `pending` -- the real pre-reg A/B still needs more
+> organic n than one session can supply.
 
 ### PREMARKET-TOUCH-CREDIT-STUDY (HIGH, study-first, filed 2026-07-20 ~09:36 ET, J question same morning)
 

@@ -1,3 +1,81 @@
+## [2026-07-20 17:00-17:35 ET] NO-SHIP -- Sonnet worker (AFTERHOURS): STRUCTURE-STOP-REFERENCE-LEVEL pre-reg A/B, both candidates REJECT
+
+> **Context.** Assigned STRUCTURE-STOP-ZONE-BAND; on arrival, the queue showed item (a) (buffer
+> width) had already been closed REJECT_ALL_CANDIDATES by a conductor session ~5 minutes earlier
+> (commit `956cf84`) and item (b) (reference-level choice) had been re-filed standalone as
+> `STRUCTURE-STOP-REFERENCE-LEVEL`, status:pending, unclaimed. To avoid duplicating already-
+> falsified work (item (a)'s band-width axis) and to avoid clobbering the completed item (a)
+> artifacts (the assigned output filename collided with item (a)'s own verdict file), picked up
+> the still-open item (b) instead, per its own already-written spec in the queue.
+
+> **Built + ran a frozen pre-reg A/B for item (b)**: `backtest/tools/structure_stop_reference_level_ab.py`
+> (new `resolve_zone_boundary`/`reference_level_for` pure functions; reuses
+> `structure_stop_study.py`'s trigger recovery/replay machinery + `tw8_level_context.
+> frozen_level_set_for_date`'s per-day multi-level active set unchanged). Pre-reg:
+> `analysis/recommendations/structure-stop-reference-level-preregistration.json`, frozen BEFORE
+> any candidate replay. 3 candidates: REF-EXACT (control, today's live trigger-exact reference),
+> REF-ZONE (nearest active level beyond the trigger, away from spot -- the "zone boundary"),
+> REF-NONE (no structure stop at all). Band width held at 0.00 for all 3 by rule -- item (a)
+> already falsified that axis; re-testing it here without reference-level evidence would be
+> fishing. Preflight confirmed the SAME fresh-slice (n=18) + real-fills anchor (n=99,
+> 2026-06-29..2026-07-17) populations as item (a), byte-identical hashes -- only the
+> trigger_level resolution differs, matching the spec's own stated scope.
+
+> **Result: NO-SHIP both candidates.** REF-ZONE FAILS layer(a) fresh-slice expectancy (-$63.73/tr
+> vs -$47.34 control, worse not better). Its layer(b) real-fills "win" (+$481.2 vs -$900.7
+> control) is the SAME single-anchor-trade artifact C24 flagged in item (a): ONE 2026-07-08
+> position (SPY260708P00741000, 3 legs) drives the entire delta -- the zone boundary (745.21) is
+> far enough from the entry-adjacent trigger (744.17) that the structure stop simply never fires
+> that day, and the position rides to $427/$427/$307 instead of -$105/+$20/-$81 under today's
+> live reference; sub-window split hard sign-flips (+$1473.4 first half vs -$91.5 second half).
+> REF-NONE (no structure check at all) fails the same way, worse on layer(a) (-$84.29/tr). This
+> directly confirms item (a)'s own finding generalizes: it is not just band-width-on-the-wrong-
+> reference that fails to reproduce a stable edge -- the alternative reference itself fails too,
+> for the identical single-trade-driven reason.
+
+> **Verified this fire:** new guard `backtest/tests/test_structure_stop_reference_level_ab.py`
+> (17/17) covers `resolve_zone_boundary` (7 cases: nearest-above/below, no-level-set, no-trigger,
+> no-level-beyond, max-distance, invalid-side), `reference_level_for` (4 cases incl. the
+> zone-unavailable fallback), and `build_verdicts`' PASS/FAIL/sign-flip-downgrade/underpowered
+> classification (6 cases) + a pinned regression against this fire's actual disclosed NO-SHIP
+> output. RED-proofed via file-move (untracked new module -- `git stash` on an unmatched
+> pathspec silently no-ops, per tonight's established precedent): moved the module out of
+> `backtest/tools/`, confirmed `ModuleNotFoundError` (exact expected mechanism, all 17 fail to
+> collect), moved back, re-verified 17/17 green. Broader sweep (`test_structure_stop_study` +
+> `test_structure_stop_zone_band_ab` + this file + `automation/state/fleet/test_exit_manager` +
+> `test_exit_actuator`) -> **113/113 PASS, 0 regressions**.
+
+> **Rail-4 (PAPER/research-only -- guard test + no revert needed, nothing shipped):** touches
+> `backtest/tools/structure_stop_reference_level_ab.py` (new, standalone), `backtest/tests/
+> test_structure_stop_reference_level_ab.py` (new guard), `analysis/recommendations/structure-
+> stop-reference-level-preregistration.json` + `structure-stop-reference-level-2026-07-20.json`
+> (new pre-reg + output), `automation/overnight/queue.md` (item b closed NO-SHIP). **Zero
+> trading-path files touched** (`params.json`/`strategies.py`/`exit_manager.py`/placement/exit
+> code untouched) -- this is a REJECT research finding exactly like item (a), nothing ships, no
+> params flip, no revert needed. `backtest/lib/exit_manager_walk.py` (the faithful tick-managed
+> harness) was correctly NOT invoked -- that step is the SHIP-gate verification for a cleared
+> candidate, and neither candidate cleared the exploratory pre-reg bar to reach it.
+
+> **Learn-loop:** no new lesson-inbox item -- this is the SECOND time in one evening (item (a),
+> then item (b)) that the SAME single 2026-07-08 anchor position drove an apparent layer(b) win
+> that a sub-window split then exposed as unstable; this directly re-confirms the already-
+> indexed C24 pattern (anchor trades are one-off exceptional setups) rather than surfacing a new
+> foot-gun. Both sub-fixes of the original STRUCTURE-STOP-ZONE-BAND queue item are now closed
+> NO-SHIP under the same dual-layer discipline -- the queue item itself is fully resolved (no
+> further follow-up filed; the 2026-07-20 14:16 exhibit's -$24 vs +$115-130 counterfactual
+> remains a single anecdote this evening's research could not generalize into a population-level
+> edge).
+
+> **Cost: ~$4** (queue/STATUS read + duplicate-work check, read `exit_manager.py`/
+> `tw8_level_context.py`/`structure_stop_study.py`/`structure_stop_zone_band_ab.py` in full to
+> design the reference resolver, wrote the pre-reg + ~330-line study tool + guard test, 1 live
+> run against real OPRA/fills data (network calls), 1 RED-proof file-move round-trip, 1 broader
+> 113-test regression sweep, 2 queue.md edits, this STATUS entry -- no LLM in the hot path, no
+> orders, PAPER-only, zero pricing/gate/placement logic touched). **No commit made** (orchestrator
+> commits after verification per this fire's own rules).
+
+---
+
 ## [2026-07-20 16:42-16:53 ET] SHIP (REVOKE) -- conductor (AFTERHOURS): EXTRA-SIGNAL-CHURN-COOLDOWN item 1 shipped (same-bar re-entry guard), item 2 re-filed as EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT
 
 > **Context.** STAGE 0 engine-health GREEN (13/13, market closed since 15:55). `task_scorer.py
@@ -252,51 +330,3 @@
 
 ---
 
-## [2026-07-20 ~02:19-02:35 ET] SHIP (REVOKE) -- conductor (AFTERHOURS): SAFE-VIX-CONDITIONAL-SIZING re-test closed -- REJECT_ALL_CUTS
-
-> **Context (`et_clock.py`: `2026-07-20 02:19 Monday EDT market_hours=False`, Task=conductor).** STAGE 0 engine-health GREEN (13/13 checks GREEN, market closed/quiet). `task_scorer.py` top-ranked `MORNING-BULL-QUALITY-GATE-RECONSIDER` again -- re-confirmed J-DECISION-GATED (Nth recurrence, unbounded). Next-ranked tied-MED items: `RRW-AS-VETO-STUDY`, `SAFE-VIX-CONDITIONAL-SIZING`. Picked the latter -- an existing runner (`backtest/tools/safe_quality_sizing_ab.py`) already had the exact reusable eligibility/reweight logic, making it a clean one-fire bounded study rather than a from-scratch build. Self-audit gaps surface confirmed fully actioned (no new batches since the 07-19 21:48 fix).
-
-> **Traced before building:** `safe_quality_sizing_ab.py`'s parent study (`analysis/recommendations/safe_quality_sizing_ab.json`) REJECTED the TRENDLINE-tier quality-sizing upgrade (bearish_streak>=3 OR vol_ratio 1.0-1.5, qty 3->10) on WF=0.06 (fails G3>=0.70) despite both IS_delta and OOS_delta individually positive -- the queue item's framing ("regime-dependence") plus its "CONTEXT-103: NEUTRAL 17.5-22 was the profitable band" citation. Found CONTEXT-103 live in `automation/overnight/STATUS-ARCHIVE.md` (2026-06-18): an **IS-only** finding over the **general SAFE bear population** (all tiers) -- NOT the narrow TRENDLINE-tier quality-sizing subset this study re-tests. Documented that scope mismatch explicitly rather than assuming the claim transfers.
-
-> **Built + ran:** `backtest/tools/safe_vix_conditional_sizing_ab.py` -- reuses `classify_tier_from_triggers`/`compute_bar_metrics`/`is_quality` from the parent script unchanged, adds a VIX-regime-at-entry gate (day-level 09:35 ET reading, same convention as `agg_vix_bear_threshold_sweep.py::get_vix_at_entry`). Regime bands (BULL<17.5, NEUTRAL 17.5-22, VOLATILE>=22) sourced from `markdown/planning/FUTURE-IMPROVEMENTS.md:130`, the only concrete band definition in-repo. Evaluated 4 cuts side-by-side (POOLED reproduction + all 3 regimes) to avoid methodology-shopping (report all cuts, not just whichever passes).
-
-> **Result: REJECT_ALL_CUTS.** POOLED reproduction WF=-0.144 (worse than the parent's already-failing 0.06 -- OOS grew from 6 to 13 upgraded trades since the parent study ran, weeks of fresh trading days added, net negative). `BULL_lt_17.5` and `VOLATILE_ge_22` both evidence_n<15 (INCONCLUSIVE_UNDERPOWERED, not FAIL -- honest per the evidence-floor doctrine). `NEUTRAL_17.5_22` -- the exact band CONTEXT-103's general-bear finding would predict as favorable -- comes back **worse** than pooled (WF=-0.287, evidence_n=17, clears the floor, genuine REJECT). No VIX regime rescues the candidate; the sizing upgrade stays REJECTED (unconditionally now, not just "regime-dependent unresolved"). Also closed the sibling free-tier draft `strategy/candidates/2026-06-19-chef-nemo-vix-conditional-quality-filter.md` (chef-nemotron, all fields "unknown -- requires Stage-1 backtest") via the VOLATILE_ge_22 cut rather than re-running its narrower VIX>20 framing standalone (would hit the same n=2 evidence floor). Cook-queue task `b1c3e829-0002` marked resolved.
-
-> **Verified this fire:** ran the study live (`.venv/Scripts/python.exe tools/safe_vix_conditional_sizing_ab.py`), confirmed printed console output matches the saved JSON exactly. New guard `backtest/tests/test_safe_vix_conditional_sizing_regime.py` (6/6) covers the one genuinely new piece of logic (`vix_regime()` boundary classification, exhaustive 0-50 sweep in 0.1 steps for gaps/overlaps). **RED-proofed** by moving the source module out of `tools/` and re-running pytest: `ModuleNotFoundError: No module named 'safe_vix_conditional_sizing_ab'` (exact expected mechanism, untracked new file so `git stash` needed `mv`/restore instead), moved back and re-verified 6/6 green. Curated safety gate (31 + 5-suite) PASS, run twice (both commits, via hook).
-
-> **Rail-4 (PAPER/research-only -- guard test + revert path + this REVOKE report):** touches `backtest/tools/safe_vix_conditional_sizing_ab.py` (new, standalone research tool), `backtest/tests/test_safe_vix_conditional_sizing_regime.py` (new guard), `analysis/recommendations/safe_vix_conditional_sizing.json` (new scorecard), `automation/overnight/queue.md` (item closed), `strategy/candidates/2026-06-19-chef-nemo-vix-conditional-quality-filter.md` (RESOLVED annotation), `automation/state/cook-queue.jsonl` (resolved event appended). **Zero trading-path files** (`params.json`/`heartbeat_core.py`/`filters.py`/placement/exit code untouched) -- this is a REJECT research finding, nothing ships to the live engine, no params flip. **Revert:** `git revert 7772c1b 78dd54b` (2 commits, 6 files total).
-
-> **Learn-loop:** no new lesson-inbox item filed -- confirms an existing pattern (C4/C22: regime-dependent P&L needs OOS+WF discipline, not just an IS split) rather than surfacing a new foot-gun. One methodology note worth keeping for future sizing-upgrade re-tests: pooled-baseline reproduction against a parent study will legitimately drift as the OOS window grows with fresh trading days (13 vs 6 upgraded OOS trades here) -- always report the reproduction-sanity-check delta explicitly rather than silently trusting a stale comparison, which this study did (`pooled_reproduction_sanity_check` field, `matches_within_0.05: false`, root cause stated).
-
-> **Cost: ~$2.50** (STAGE 0/1: engine-health/STATUS/queue reads, `task_scorer.py` full ranking, targeted queue.md reads for 2 candidate MED items, existing-runner-script discovery grep, read of `safe_quality_sizing_ab.py` + its result JSON, cook-queue grep for `context-86-followup` provenance, `FUTURE-IMPROVEMENTS.md` grep for regime-band definition, `agg_vix_bear_threshold_sweep.py` read for the VIX-at-entry convention, 1 new ~230-line study script (2 edits: vix-file fallback logic + CONTEXT-103 scope-mismatch note), 1 background CONTEXT-103 grep + STATUS-ARCHIVE read, 2 live engine backtest runs (IS 287d + OOS 90d each run), 1 new 41-line guard test file, 1 pytest run (6/6), 1 RED-proof round-trip via file move, 1 curated safety-gate run x2, 1 queue.md closure edit, 1 candidate-doc RESOLVED annotation, 1 cook-queue provenance append, 2 commits -- no LLM in the hot path, no orders, PAPER-only, zero trading-path files touched). **Files:** `backtest/tools/safe_vix_conditional_sizing_ab.py`, `backtest/tests/test_safe_vix_conditional_sizing_regime.py`, `analysis/recommendations/safe_vix_conditional_sizing.json`, `automation/overnight/queue.md`, `strategy/candidates/2026-06-19-chef-nemo-vix-conditional-quality-filter.md`, `automation/state/cook-queue.jsonl`. **Commits:** `78dd54b`, `7772c1b`.
-
----
-
-## [2026-07-20 ~00:19-00:32 ET] SHIP (REVOKE) -- conductor (AFTERHOURS): TRENDLINE-FIXES-2026-07-17 item 1 closed -- Step 5c silent-skip visibility
-
-> **Context (`et_clock.py`: `2026-07-20 00:19 Monday EDT market_hours=False`, Task=conductor).** STAGE 0 engine-health GREEN (13/13 checks GREEN, market closed/quiet). `task_scorer.py --top` again ranked `MORNING-BULL-QUALITY-GATE-RECONSIDER` #1 -- re-confirmed J-DECISION-GATED (Nth recurrence). Self-audit gaps surface (`analysis/self-audit/new-gaps-flagged.md`) fully actioned as of the prior fire's close (verified: all 14 batches either DONE-marked or resolved-as-noise by the 2026-07-19 consensus-leadin fix). Grepped `queue.md` for open `(HIGH` items: `J-INTENT-EXECUTOR` (large standalone-daemon build, not one-fire-bounded), `WF-GATE-STRUCTURALLY-NULL`/`WF-GATE-REDESIGN-METHODOLOGY` (Fable judgment work, explicitly filed for "next block", not Sonnet-appropriate per the model-routing law), `VETO-HTF-CONFLICT-REGRADE` (waiting on organic evidence to reach n>=5 comparison cohort, nothing to do this fire), `BOLD-CORE-ATM-WIRE-FALSIFICATION-RAIL` (checked live: 0 Bold fills since the 2026-07-18 arm date via `journal/trades.csv`, far short of the n>=20 floor -- not ready), `J-ONLY-COMPANION-PUSH-ACTIVATION` (explicitly J-action-required, not pickable). Landed on `TRENDLINE-FIXES-2026-07-17` item 1 ("PREMARKET DRAW CANNOT SILENTLY SKIP") -- item 4 of the same batch was closed last fire; items 2/3 need their own eval/screenshot-validation design work; item 1 explicitly offered a bounded alternative ("or make the skip emit a RED status line") that fits one fire.
-
-> **Traced before building:** `automation/prompts/premarket.md` Step 5c's failure branch ("If TV is down or the skill fails") only wrote a journal `## Setups skipped` line -- no state file, no self_check/engine-health/STATUS.md surface. Two budget-skips happened in two days (2026-07-16/17) and neither was visible anywhere but the journal; J found out only by noticing his chart was bare. `trendline_draw_state.py` (the existing entity-id bookkeeping module for the drawing bridge) had no concept of a run OUTCOME at all, only which entities were drawn.
-
-> **Fixed (5 files):** `trendline_draw_state.py` gained `mark_run(status, reason="")` (+ CLI `mark-run --status success|skipped --reason ...`), stamping a `last_run: {status, reason, date_et, ts_et}` field into `trendline-draw-state.json`. `save()` now preserves `last_run` across bookkeeping-only calls (`record()`/`clear_record()`) and vice versa, so the two write paths can never clobber each other. Wired into `premarket.md` Step 5c's success path AND its "TV down / skill fails" path, plus a new Step 6 in `.claude/skills/trendline-draw/SKILL.md` (on-demand invocations may skip it -- only the once-daily premarket fire needs the stamp). `setup/scripts/self_check.py` gained `check_trendline_draw_freshness(now, path=None)` -- weekday-only, gated past a 09:00 ET slack window (30 min past the 08:30 fire) -- flagging never-marked / stale-prior-day / today-marked-skipped, wired as check #13 in `run()`. Deliberately **DEGRADED, never BROKEN**: Step 5c is explicitly "additive visibility, never load-bearing for the trading day" per its own doc, unlike e.g. the macro-calendar check's trading-relevant no-trade-window gate -- still surfaces via the existing `_alert()` path to STATUS.md + Discord (no new alert mechanism needed).
-
-> **Verified this fire:** 5 new tests in `test_trendline_draw_state.py` (mark_run stamps correctly with a monkeypatched `et_now`, preserves the drawn-entity bookkeeping in both directions) + new `backtest/tests/test_self_check_trendline_draw_freshness.py` (9 tests: weekend no-op, before-slack-window no-op, missing-state/no-last_run-key/stale-prior-day/skipped-today all flag DEGRADED-not-BROKEN, success-today no problem, corrupt-JSON fails open to "never marked" not a crash, source-level `run()` wiring). **RED-proofed via `git stash`** on both source files (`trendline_draw_state.py` + `self_check.py`, guard test files kept in place): all 14 new tests + 7 pre-existing `test_trendline_draw_state.py` tests failed with the exact expected mechanism (`AttributeError: module 'self_check' has no attribute 'check_trendline_draw_freshness'` / missing `mark_run`); `git stash pop` restored cleanly, re-verified 21/21 green. Targeted sweep (`test_trendline_draw_state.py` + `test_self_check_trendline_draw_freshness.py` + `test_self_check_macro_calendar_freshness.py` + `test_self_check_pdt_status.py` + `test_trendline_multiday.py`) -> **60/60 PASS**, zero regressions. Curated safety gate (31 + 5-suite) PASS, run twice (standalone + commit hook).
-
-> **Rail-4 (PAPER/visibility-only -- guard test + revert path + this REVOKE report):** touches `setup/scripts/trendline_draw_state.py` (new `mark_run` function + CLI subcommand, additive-only), `setup/scripts/self_check.py` (new check function + 1 wiring line in `run()`), `automation/prompts/premarket.md` (Step 5c doc text, 2 new one-line CLI calls), `.claude/skills/trendline-draw/SKILL.md` (new Step 6), `backtest/tests/test_trendline_draw_state.py` + new `backtest/tests/test_self_check_trendline_draw_freshness.py` (guards), `automation/overnight/queue.md` (item 1 of 4 in the TRENDLINE-FIXES batch closed, items 2/3 remain -- design/eval work). **Zero trading-path files** (`params.json`/`heartbeat_core.py`/`filters.py`/placement/exit code untouched) -- Step 5c is a read-only visibility bridge that draws context on J's chart, never a capital decision. **Revert:** `git revert acd02d4` (single pathspec commit, 7 files).
-
-> **Learn-loop:** no new lesson-inbox item filed -- this is a direct application of the already-established "producer stamps an outcome, self_check reads staleness/skip, surfaces via the existing `_alert()` path" pattern (same class as `check_macro_calendar_freshness` 2026-07-15, `check_dress_rehearsal`, `check_pdt_status`) to a new producer, not a new foot-gun. The one design choice worth recording inline (not a new L##): classify by LOAD-BEARINGNESS, not by severity-sounding language -- Step 5c's own docs already say "additive visibility, never load-bearing", so this check is DEGRADED-only by design even though the queue item's own wording said "RED status line" colloquially.
-
-> **Cost: ~$4.70** (STAGE 0/1: engine-health/STATUS/queue reads, `task_scorer.py --top` re-trace (correctly re-rejected), self-audit gaps confirmed fully actioned, grep for open HIGH items + 3 targeted queue.md section reads (~250 lines), 1 live `journal/trades.csv` count check for BOLD-CORE-ATM readiness (not ready), traced `premarket.md`/`trendline_draw_state.py`/`SKILL.md`/`self_check.py` producer/consumer gap across 4 files, 5 source-file edits (2 new functions + 1 CLI subcommand + 2 doc-text wirings), 2 new test files (14 new test cases total), 2 targeted pytest runs (21/21, then 60/60), 1 RED-proof git-stash round-trip across 2 files, 1 curated safety-gate run (standalone), 1 broader background sweep (131/131 PASS, confirmed after commit), 1 queue.md closure edit, 1 commit + hook-verified safety gate again -- no LLM in the hot path, no orders, PAPER-only, zero trading-behavior files touched). **Files:** `setup/scripts/trendline_draw_state.py`, `setup/scripts/self_check.py`, `automation/prompts/premarket.md`, `.claude/skills/trendline-draw/SKILL.md`, `backtest/tests/test_trendline_draw_state.py`, `backtest/tests/test_self_check_trendline_draw_freshness.py`, `automation/overnight/queue.md`. **Commit:** `acd02d4`.
-
-> **Autonomy metric (`conductor_outcome.py metric`, 20-fire window):** `trend: "regressing"` (cost_per_drained $3.59, net_improvement 18). This fire drained exactly 1 item at $4.70 -- above the rolling average but a clean full closure with 14 new tests and zero regressions, not a narrowing. `function_latest` shows 0 enters/fills for trading_day 2026-07-18 (Saturday, market closed -- expected/correct, not a malfunction signal). **Next fire should prioritize another full-closure queue HIGH item** (items 2/3 of TRENDLINE-FIXES-2026-07-17 remain but need their own eval/screenshot-validation design work, not a one-fire bounded fix) to keep correcting the trend.
-
----
-
-
-### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
-- ts: 2026-07-20T20:45:51+00:00
-- task: analyst
-- date_et: 2026-07-20
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
