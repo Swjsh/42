@@ -264,7 +264,27 @@ def _acct_funnel(rows: list[dict], kind: str) -> dict:
             "reason": r.get("reason"),
         }
         f["enter_events"].append(ev)
-        if hhmm and hhmm > ENTRY_CEILING_HHMM:
+        # FALSE-CEILING-ALARM FIX (2026-07-20): a row whose `verdict` is ENTER_BEAR/
+        # ENTER_BULL but was ALREADY correctly gated by heartbeat_core.py's own
+        # _past_entry_ceiling check (core: rec["action"]="SKIP_LATE_ENTRY", never
+        # reaching _execute -- no `exec` dict at all; fleet: fleet_live.py's
+        # placement.reason="SKIP_LATE_ENTRY", placed=False, never reaching the broker)
+        # is NOT a ceiling bypass -- it is the ceiling working. Flagging it as "ENTER
+        # AFTER CEILING" was a producer/consumer mismatch: this funnel keys `v` off the
+        # PRE-gate `verdict` field (line ~195), but the ceiling gate's verdict lives in
+        # the POST-gate `action` (core) / `placement.reason` (fleet) field. 2026-07-20
+        # ground truth: 6 core rows (5 safe + 1 bold) fired ENTER_BEAR 15:41-15:45 ET,
+        # ALL correctly downgraded to action=SKIP_LATE_ENTRY with zero broker attempts
+        # (attempted==0 above proves it) -- yet this line still spammed a false DEGRADED
+        # "ENTER AFTER CEILING" to self_check/STATUS.md every 30 min. Only flag when the
+        # gate did NOT catch it (a genuine bypass -- see test_real_day_enter_after_ceiling_
+        # flagged's 2026-07-01 fixture: action="PLACE_FAIL", pre-dates this ceiling gate).
+        # Guard: test_enter_after_ceiling_excludes_gated_skip_late_entry.
+        gated_by_ceiling = (
+            (kind == "core" and str(r.get("action") or "") == "SKIP_LATE_ENTRY")
+            or (kind == "fleet" and str(ex.get("reason") or "").upper() == "SKIP_LATE_ENTRY")
+        )
+        if hhmm and hhmm > ENTRY_CEILING_HHMM and not gated_by_ceiling:
             f["enters_after_ceiling"].append(f"{hhmm} {v} {sym or '?'}")
     f["filled"] = len(filled_syms)
     f["exited"] = len(filled_syms & exited_syms)

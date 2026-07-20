@@ -407,6 +407,70 @@ def test_fleet_genuine_place_fail_still_broken(tmp_path):
     assert f["verdict"] == "RED"
 
 
+# ---------------------------------------------------------------------------
+# BUILD 5 guard (2026-07-20): a `verdict`=ENTER row that was ALREADY correctly
+# gated by heartbeat_core.py's own entry-time ceiling (action="SKIP_LATE_ENTRY",
+# no exec dict, zero broker attempt -- confirmed via 2026-07-20 real ground
+# truth: 6 core rows 15:41-15:45 ET, all attempted==0) must NOT be flagged as
+# "ENTER AFTER CEILING" -- that flag means the GATE FAILED, not that it fired.
+# Producer/consumer mismatch: this funnel keyed off the pre-gate `verdict`
+# field while the ceiling's own verdict lives in the post-gate `action` field.
+# ---------------------------------------------------------------------------
+
+def _core_skip_late_entry_row(day="2026-07-20", hhmm="15:41:02"):
+    return [{
+        "ts_et": f"{day}T{hhmm}", "account": "safe", "verdict": "ENTER_BEAR",
+        "side": "P", "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "triggers": ["trendline_rejection"],
+        "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates",
+        "action": "SKIP_LATE_ENTRY", "entry_ceiling_et": "15:00",
+        # no "exec" key at all -- the ceiling branch never reaches _execute
+    }]
+
+
+def test_enter_after_ceiling_excludes_gated_skip_late_entry(tmp_path):
+    core = tmp_path / "core-decisions.jsonl"
+    _write_jsonl(core, _core_skip_late_entry_row())
+    f = ff.compute_funnel("2026-07-20", core_path=core, fleet_dir=_empty_fleet(tmp_path),
+                          now=dt.datetime(2026, 7, 20, 18, 0))
+    a = f["accounts"]["core:safe"]
+    assert a["enter"] == 1, "still counted as an ENTER verdict"
+    assert a["attempted"] == 0, "SKIP_LATE_ENTRY never reaches _execute -- no exec dict"
+    assert a["enters_after_ceiling"] == [], \
+        "a row the ceiling gate already caught (action=SKIP_LATE_ENTRY) is NOT a bypass"
+    joined = " | ".join(f["flags"])
+    assert "ENTER AFTER CEILING" not in joined
+    assert f["verdict"] != "RED"
+
+
+def test_enter_after_ceiling_fleet_excludes_gated_skip_late_entry(tmp_path):
+    fleet_dir = tmp_path / "fleet"
+    arm_dir = fleet_dir / "safe-1"
+    arm_dir.mkdir(parents=True)
+    _write_jsonl(arm_dir / "decisions.jsonl", _fleet_skip_late_entry_row())
+    core = tmp_path / "core-empty.jsonl"
+    core.write_text("", encoding="utf-8")
+    f = ff.compute_funnel("2026-07-16", core_path=core, fleet_dir=fleet_dir,
+                          now=dt.datetime(2026, 7, 16, 18, 0))
+    a = f["accounts"]["fleet:safe-1"]
+    assert a["enters_after_ceiling"] == [], \
+        "fleet SKIP_LATE_ENTRY (placement.reason) is also gate-caught, not a bypass"
+    joined = " | ".join(f["flags"])
+    assert "ENTER AFTER CEILING" not in joined
+
+
+def test_real_day_enter_after_ceiling_still_flagged_when_genuinely_bypassed(tmp_path):
+    """THE NON-VACUOUS BITE: the 2026-07-01 fixture (pre-dates the ceiling gate --
+    action="PLACE_FAIL", a REAL broker attempt after 15:00) must still trip the
+    flag. Duplicates test_real_day_enter_after_ceiling_flagged as an explicit
+    regression pin for this fix."""
+    f = ff.compute_funnel(DAY, core_path=Path(CORE_FIXTURE),
+                          fleet_dir=_empty_fleet(tmp_path), now=EOD)
+    joined = " | ".join(f["flags"])
+    assert "ENTER AFTER CEILING" in joined, \
+        "a genuine post-ceiling broker attempt (action=PLACE_FAIL, not SKIP_LATE_ENTRY) must still flag"
+
+
 def test_unknown_exec_status_still_fails_open_to_red(tmp_path):
     """The fail-open invariant survives the rule-block split: a NEW unrecognized
     status still counts as attempted and (with 0 accepted) still trips RED."""
