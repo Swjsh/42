@@ -9,9 +9,29 @@
 
 ## Active backlog
 
+### DECISION-ROW-SPY-STALENESS (HIGH, sight-integrity investigation, filed 2026-07-20 ~18:30 ET from Lever-2 discovery)
+
+- [ ] DECISION-ROW-SPY-STALENESS (HIGH, investigate before tuning ANYTHING else -- stale
+  sight invalidates every downstream logic conclusion) :: Lever-2's replay
+  (analysis/recommendations/extra-signal-premium-stop-counterfactual-2026-07-20.json)
+  proved the engine's logged spot was STALE by ~$1.48 during 2026-07-20 09:51-09:56:
+  decision rows carried spy=747.575 (bundle computed once 09:50:02, reused) while real SIP
+  tape sold off 747.62 -> 746.14. Separately, the 09:34 rows carried spy=743.28 == prior
+  close exactly, with gap_reason "no_rth_bars_for_today_yet" -- another fallback-value
+  seam. INVESTIGATE: (1) which field(s) feed the TRIGGER/scoring path vs merely the log --
+  did any ENTER/exit decision actually key off a stale spot (the 09:51 vix_regime_dayside
+  3x call entries INTO a $1.48 selloff are exactly the signature of stale-sight entry)?
+  Trace sight_beacon -> _build_payload -> engine_cli score path for the spot's provenance
+  + freshness stamps at those exact ticks. (2) Quantify across all of last week's decision
+  rows: |row.spy - SIP 1-min close| distribution; flag ticks >$0.25 divergence. (3) Fix =
+  freshness guard on the scoring path's spot (max-age seconds, fail-open to HOLD not to
+  stale-ENTER) + regression guard; this is C7 (audit outputs) + never-blind-beacon
+  territory. Related corrections already folded into
+  analysis/winning-trade-map/SYNTHESIS-2026-07-20.md signal #2. depends:none :: status:pending
+
 ### STRUCTURE-STOP-ZONE-BAND (HIGH, trading-path, filed 2026-07-20 ~14:50 ET during RTH -- FIX AFTER 16:00, Rule 9; J called the failure live)
 
-- [ ] STRUCTURE-STOP-ZONE-BAND (HIGH, after-hours fix + pre-reg A/B) :: Live exhibit
+- [x] STRUCTURE-STOP-ZONE-BAND (HIGH, after-hours fix + pre-reg A/B) :: Live exhibit
   2026-07-20 14:01-14:26, safe 3x 745P @ 0.78 (trendline_rejection): structure stop armed at
   the EXACT trigger price 744.92; the 14:10-14:15 5m bar closed ~745.04 -- **12 cents** above
   -- and SELL_ALL fired at 14:16 @ 0.70 (-$24), ribbon still BEAR. Price then topped at
@@ -318,9 +338,38 @@
 > `vix_regime_dayside` only). Status stays `pending` -- the real pre-reg A/B still needs more
 > organic n than one session can supply.
 
+> **EVIDENCE ADDED 2026-07-20 ~evening (after-hours, REPORT-ONLY -- no params/stop-shape
+> change): counterfactual replay of ALL 11 `exit_stage=premium_stop` episodes (2026-07-13..
+> 07-20, `analysis/winning-trade-map/episodes-2026-07-13-to-2026-07-20.json`) under RIBBON_
+> RIDE's chart-stop-primary shape** (`backtest/tools/extra_signal_premium_stop_counterfactual.py`
+> -> `analysis/recommendations/extra-signal-premium-stop-counterfactual-2026-07-20.json`),
+> driven through the REAL `exit_manager.plan_exit_actions` over real 1-min SIP(SPY)/OPRA
+> bars fetched fresh this fire. **Result: NET WORSE, not better** -- actual $-509.00 vs.
+> counterfactual $-601.01 (delta **-$92.01**). Per-episode: 2/11 clearly better (+$78/+$33,
+> both the SAME vwap_continuation 07-16 09:51-09:53 lane -- noise-floor-consistent), **3/11
+> clearly WORSE** (-$63/-$84/-$27 -- real, continuing adverse SPY moves that the -50%-
+> catastrophe-adjacent shape let bleed further before catching), 5/11 roughly neutral
+> (+/-$15), 1/11 an exact fidelity-match (E4, already running structure mode live in
+> production). **CAVEAT CORRECTED against this run's own evidence:** the "a losers-only
+> cohort can only look better-or-equal under a looser stop" argument this item's framing
+> assumed does NOT hold for an exit-SHAPE-SWAP (vs. an entry-filter-removal) counterfactual
+> -- chart-stop-primary is not a pure loosening (its -50% cap is wider than these lanes'
+> native -6%/-8% brackets), and this run's own 3 worse-outcomes refute the "can't look
+> worse" premise directly. **STALE-QUOTE caveat (flagged in the STEP(1) note above) RESOLVED:**
+> confirmed a STALE-FEED ARTIFACT in the DECISION CONTEXT LOG only (context_bundle computed
+> once at 09:50:02, reused across the 09:51/09:54/09:55 ticks) -- the real 1-min SIP tape
+> shows SPY genuinely sold off 747.62->746.14 (~$1.48, 100K-265K shares/min) over that
+> window; contaminates only those 3 episodes' logged alignment/levels context, not this
+> replay (reads real bars directly). **Verdict: DEFER-INSUFFICIENT-DATA** -- n=11 across 3
+> sessions and effectively 2 true shape-swap lanes (vix_regime_dayside's n=3 is one
+> session's entire history; bollinger_squeeze/vwap_continuation each n<=3), exactly this
+> item's own step-3 pre-committed condition. Status stays `pending` -- this evidence neither
+> supports shipping the alignment nor rejects it; steps (2)-(4)'s real pre-reg A/B still
+> needs organic n this after-hours fire cannot manufacture.
+
 ### PREMARKET-TOUCH-CREDIT-STUDY (HIGH, study-first, filed 2026-07-20 ~09:36 ET, J question same morning)
 
-- [ ] PREMARKET-TOUCH-CREDIT-STUDY (HIGH, pre-reg study, NOT a same-day wire) :: J's Monday
+- [x] PREMARKET-TOUCH-CREDIT-STUDY (HIGH, pre-reg study, NOT a same-day wire) :: J's Monday
   2026-07-20 premarket question is the motivating exhibit: SPY rejected the 747.4-747.5 zone
   "to a t" at the premarket open, danced around it again ~08:30, and approached it a third
   time near the bell -- and the engine gave that zone ZERO touch-credit because level_states
@@ -1913,3 +1962,46 @@ cost is the confluence-tolerance interaction in item 5 above, not compute.
 
 **Claim:** a fixed counterfactual shape beats the shipped exits by more than 2x the window's net P&L -- the exit shape, not the signal, is the bottleneck. **Evidence:** `{"sum_stop_cost": 4038.4, "window_net_pnl": -110.0, "n_dominated": 14, "window_n": 30}` (analysis/autopsies/2026-07-20.md).
 **Action:** STOP-A sign-off -> T-W7 confirmatory on the frozen v2 candidates · enumerate levers beyond exit shape per markdown/trading-knowledge/GENERATIVE-LENS.md (DTE / spread / strike / sizing) :: depends:none :: status:proposed
+
+## LEVER-1-TREND-ALIGNMENT-VERDICT-STANDING (filed 2026-07-20 evening, dispatched from analysis/winning-trade-map/SYNTHESIS-2026-07-20.md signal #1)
+
+- **NO-SHIP -- verdict stands, not re-run.** The winning-trade-map's disclosed confound
+  (this week's 27 real episodes: 0/11 wins on positive-alignment entries vs 6/15 on negative)
+  motivated a re-check of the Phase-1 trend-alignment correlation study
+  (`backtest/tools/trend_alignment_correlation_study.py`, frozen pre-reg
+  `analysis/recommendations/prereg-trend-alignment-correlation-2026-07-14.json`). That study was
+  already run to a definitive **KILL** verdict on 2026-07-14 (commit 6400a61), then RE-RUN after
+  an adversarial pass found+fixed a real C6 look-ahead leak (commit bbcadc8) -- the fix made the
+  KILL MORE decisive, not less (P1 OOS rho -0.054 -> -0.150, P2 engine rho +0.041 -> -0.143, now
+  agreeing in sign with each other and BOTH negative -- the opposite of the hypothesized direction).
+- **Why not re-run over the fresh 07-13..07-20 data:** P1 (the population that gates the overall
+  SUPPORTED/KILL verdict per the pre-reg's AND aggregation) is a FIXED historical cohort
+  (`_signal_cache.load_or_build_signals()`, n=250, 2025-01-01..2026-06-18) -- it does not grow
+  with new trading days and cannot be legitimately extended without a NEW pre-reg version per the
+  frozen spec's own `no_repick_clause` ("no bucket definition, population filter... may be edited
+  in light of results"). P1 already fails 2 of the 4 AND'd conditions (condition_1 OOS-positive:
+  FALSE; condition_2 monotonic-ish: FALSE) -- not a close call. Since overall SUPPORTED requires
+  P1 SUPPORTED (all 4 conditions) AND P2 corroboration, no amount of fresh P2 data (even the full
+  27-episode week, or extending `FETCH_END` past its frozen 2026-07-14 literal) can flip the
+  overall verdict -- P1 alone already gates KILL. Re-running anyway would be exactly the
+  re-pick-after-seeing-results pattern the freeze exists to prevent.
+  Guard tests confirmed fresh and green this session: `pytest backtest/tests/test_trend_alignment_correlation_study.py backtest/tests/test_context_bundle_producer.py backtest/tests/test_context_bundle_tag_no_behavior_change.py` -> **50 passed**.
+- **Phase 2 (conviction/sizing modulation) NOT implemented.** Per the plan doc
+  (`~/.claude/plans/jazzy-giggling-trinket.md`), Phase 2 is gated on Phase 1 clearing its bar --
+  it does not. `context_bundle.alignment_score` stays LOGGED-ONLY on the decision row; no change
+  to `setup/scripts/heartbeat_core.py`.
+- **A kill is a valid outcome (per the task brief and the pre-reg's own discipline):** the
+  mechanical entry may already price trend in -- consistent with P1/P2 both showing the
+  FULLY-aligned bucket (+3) as the WORST bucket, not the best.
+- Addendum with this session's fresh-verification detail appended to
+  `analysis/recommendations/trend-alignment-correlation.md` (scorecard itself untouched --
+  no-repick clause -- this is a dated addendum section, not an edit to the frozen results).
+- **Housekeeping finding (out of scope for this fire, not fixed):** the module's standalone
+  `trend_alignment_correlation_study.py --self-check` CLI path (`_self_check_no_lookahead()`)
+  is now stale -- it manually slices with a naive `<=T` cutoff, pre-dating the bar-CLOSE
+  granularity fix (`_BAR_GRANULARITY`) shipped in bbcadc8. Running it live throws
+  `AssertionError: alignment_for_decision must reproduce a manually <=T-sliced call exactly`.
+  This does NOT affect the frozen verdict or the pytest guards (which correctly use per-timeframe
+  granularity in their own manual slices, e.g. `test_alignment_for_decision_matches_cutoff_only_series`)
+  -- confirmed both by reading the test file and by the 50/50 pytest pass above. It's dead/orphaned
+  CLI-only code that would mislead anyone who runs `--self-check` by hand. :: depends:none :: status:proposed

@@ -1,0 +1,746 @@
+{
+  "_doc": "REPORT-ONLY counterfactual replay of the 11 exit_stage=premium_stop loss episodes (2026-07-13..07-20) under RIBBON_RIDE's chart-stop-primary exit shape (structure stop + chandelier trail + -50% catastrophe cap), driven through the REAL production exit_manager.plan_exit_actions decision core over real 1-minute SIP(SPY)/OPRA(options) bars. Feeds evidence into the queued EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT A/B (automation/overnight/queue.md) -- does NOT ship, ratify, or arm anything; no trading-path file is touched. \n\nSURVIVORSHIP CAVEAT, STATED AND THEN CORRECTED AGAINST THIS RUN'S OWN EVIDENCE (per task instruction to state it prominently, and per OP-33 verify-don't-claim to not repeat an assumption this run falsified): the task's incoming premise was that this cohort is losers BY CONSTRUCTION (selected on exit_stage=premium_stop), so a looser/delayed stop 'can only look better-or-equal' on it -- an entry-side-filter-removal-style argument. THAT ARGUMENT DOES NOT TRANSFER to an EXIT-SHAPE SWAP: chart-stop-primary is not a pure loosening, it also demotes to a -50% catastrophe cap that is FAR looser than several lanes' native -6%/-8% bracket, so on a trade suffering a REAL continuing adverse move (not noise), the wider cap lets it bleed further before anything catches it -- a strictly LARGER loss than the tight stop that caught it early. This run's own per-episode results confirm the mechanism empirically: 3/11 episodes came out WORSE under the swap, 2/11 clearly better (both same lane/session -- vwap_continuation, consistent with the noise-floor hypothesis), 5/11 roughly neutral (+/-$15), 1/11 an exact-match fidelity check (E4, already running structure mode live). AGGREGATE: NET WORSE by $92.01 -- NOT an 'upper bound on improvement'; do not read this as 'chart-stop-primary is bad' either -- n=11, concentrated in 3 sessions and effectively 2 lanes (vix_regime_dayside's whole n=3 history is one session), far short of the queue item's own step-3 pre-committed DEFER-INSUFFICIENT-DATA threshold. The symmetric cost the task also flagged (winners elsewhere that a looser shape would let run into bigger losses) remains real, separate, and still unmeasured by this cohort -- on top of, not instead of, this already-negative within-cohort result. Net: this evidence does NOT support shipping the alignment change; it also does not clear the bar to reject it outright -- correctly classified DEFER-INSUFFICIENT-DATA per the queue item's own step (3). \n\nSTALE-QUOTE FINDING (2026-07-20): 3 episodes (vix_regime_dayside, 09:51/09:54/09:55 ET) logged an identical context.spy=747.575 snapshot across the whole window -- cross-checked against the real 1-min SIP tape fetched this run: SPY genuinely sold off 747.62->746.14 (~$1.48, 100K-265K shares/min) over that window, so the pinned quote was a STALE-FEED ARTIFACT in the DECISION CONTEXT LOG (a cached context_bundle reused across 3 ticks), not a flat tape. This contaminates those 3 episodes' logged alignment/levels context fields -- it does NOT contaminate this replay, which reads the real 1-min bars directly.",
+  "generated_at": "2026-07-20T15:55:39.144325",
+  "source_episodes_file": "analysis\\winning-trade-map\\episodes-2026-07-13-to-2026-07-20.json",
+  "n_episodes": 11,
+  "n_scored": 11,
+  "actual_pnl_total": -509.0,
+  "actual_pnl_total_scored_only": -509.0,
+  "counterfactual_pnl_total": -601.01,
+  "aggregate_delta": -92.01,
+  "classification_counts": {
+    "better": 2,
+    "worse": 3,
+    "neutral": 5,
+    "fidelity_check": 1
+  },
+  "verdict": "DEFER_INSUFFICIENT_DATA",
+  "episodes": [
+    {
+      "episode_id": "2026-07-15_10:01:04_SPY260715C00757000",
+      "date": "2026-07-15",
+      "arm_id": "safe-3",
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "symbol": "SPY260715C00757000",
+      "side": "C",
+      "qty": 3,
+      "entry_et": "2026-07-15T10:01:04.872358",
+      "entry_px": 0.3,
+      "actual_exit_et": "2026-07-15T10:25:04.598402",
+      "actual_exit_px": 0.16,
+      "actual_pnl": -42.0,
+      "trigger_level_provenance": "reconstructed_from_levels_context(premarket_high,dist=0.89)",
+      "trigger_level_used": 753.52,
+      "already_structure_mode_live": false,
+      "structure_mode_live_ambiguous": true,
+      "stale_quote_contaminated_context": false,
+      "counterfactual_pnl": -45.0,
+      "counterfactual_exit_stage": "structure",
+      "counterfactual_exit_time": "2026-07-15T10:26:00",
+      "counterfactual_vs_actual_delta": -3.0,
+      "classification": "neutral",
+      "max_adverse_premium_pct": -0.5667,
+      "variant_structure": {
+        "exit_stage": "premium_stop",
+        "exit_reason": "premium_stop @ 0.15",
+        "exit_time_et": "2026-07-15T10:26:00",
+        "hold_minutes": 25,
+        "resolved_stop_mode": "structure",
+        "trigger_level_used": 753.52,
+        "dollar_pnl": -45.0,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 0.15,
+            "reason": "premium_stop @ 0.15",
+            "stage": "premium_stop",
+            "ts_et": "2026-07-15T10:26:00",
+            "leg_pnl": -45.0
+          }
+        ]
+      },
+      "variant_premium_fallback": {
+        "exit_stage": "premium_stop",
+        "exit_reason": "premium_stop @ 0.24",
+        "exit_time_et": "2026-07-15T10:23:00",
+        "hold_minutes": 22,
+        "resolved_stop_mode": "premium",
+        "trigger_level_used": null,
+        "dollar_pnl": -18.0,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 0.24,
+            "reason": "premium_stop @ 0.24",
+            "stage": "premium_stop",
+            "ts_et": "2026-07-15T10:23:00",
+            "leg_pnl": -18.0
+          }
+        ]
+      },
+      "notes": "trigger_level reconstructed_from_levels_context(premarket_high,dist=0.89). primary_variant=structure. setup=BULLISH_RECLAIM_RIDE_THE_RIBBON arm=safe-3 attribution=engine. PROVENANCE GAP: this is a genuine ribbon_ride/fleet entry with trigger_level_exact=null in this episodes JSON, but fleet_executor.py prefers a proximity-guess trigger_level (nearest_active_level, computed at signal-build time) NOT captured by this JSON when the exact field is absent -- whether production resolved structure mode live is AMBIGUOUS, not provably a shape-swap. The real live exit (~-47%, near the -50% catastrophe cap, not the -20% flat fallback) is SUGGESTIVE that structure mode WAS already resolved live here too -- treat this row as likely-fidelity-check, not confirmed shape-swap."
+    },
+    {
+      "episode_id": "2026-07-15_10:01:06_SPY260715C00757000",
+      "date": "2026-07-15",
+      "arm_id": "risky-1",
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "symbol": "SPY260715C00757000",
+      "side": "C",
+      "qty": 5,
+      "entry_et": "2026-07-15T10:01:06.634823",
+      "entry_px": 0.31,
+      "actual_exit_et": "2026-07-15T10:25:05.263198",
+      "actual_exit_px": 0.16,
+      "actual_pnl": -75.0,
+      "trigger_level_provenance": "reconstructed_from_levels_context(premarket_high,dist=0.89)",
+      "trigger_level_used": 753.52,
+      "already_structure_mode_live": false,
+      "structure_mode_live_ambiguous": true,
+      "stale_quote_contaminated_context": false,
+      "counterfactual_pnl": -77.5,
+      "counterfactual_exit_stage": "structure",
+      "counterfactual_exit_time": "2026-07-15T10:26:00",
+      "counterfactual_vs_actual_delta": -2.5,
+      "classification": "neutral",
+      "max_adverse_premium_pct": -0.5806,
+      "variant_structure": {
+        "exit_stage": "premium_stop",
+        "exit_reason": "premium_stop @ 0.15",
+        "exit_time_et": "2026-07-15T10:26:00",
+        "hold_minutes": 25,
+        "resolved_stop_mode": "structure",
+        "trigger_level_used": 753.52,
+        "dollar_pnl": -77.5,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 5,
+            "fill_price": 0.155,
+            "reason": "premium_stop @ 0.15",
+            "stage": "premium_stop",
+            "ts_et": "2026-07-15T10:26:00",
+            "leg_pnl": -77.5
+          }
+        ]
+      },
+      "variant_premium_fallback": {
+        "exit_stage": "premium_stop",
+        "exit_reason": "premium_stop @ 0.25",
+        "exit_time_et": "2026-07-15T10:23:00",
+        "hold_minutes": 22,
+        "resolved_stop_mode": "premium",
+        "trigger_level_used": null,
+        "dollar_pnl": -31.0,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 5,
+            "fill_price": 0.248,
+            "reason": "premium_stop @ 0.25",
+            "stage": "premium_stop",
+            "ts_et": "2026-07-15T10:23:00",
+            "leg_pnl": -31.0
+          }
+        ]
+      },
+      "notes": "trigger_level reconstructed_from_levels_context(premarket_high,dist=0.89). primary_variant=structure. setup=BULLISH_RECLAIM_RIDE_THE_RIBBON arm=risky-1 attribution=engine. PROVENANCE GAP: this is a genuine ribbon_ride/fleet entry with trigger_level_exact=null in this episodes JSON, but fleet_executor.py prefers a proximity-guess trigger_level (nearest_active_level, computed at signal-build time) NOT captured by this JSON when the exact field is absent -- whether production resolved structure mode live is AMBIGUOUS, not provably a shape-swap. The real live exit (~-47%, near the -50% catastrophe cap, not the -20% flat fallback) is SUGGESTIVE that structure mode WAS already resolved live here too -- treat this row as likely-fidelity-check, not confirmed shape-swap."
+    },
+    {
+      "episode_id": "2026-07-15_10:01:08_SPY260715C00757000",
+      "date": "2026-07-15",
+      "arm_id": "risky-3",
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "symbol": "SPY260715C00757000",
+      "side": "C",
+      "qty": 5,
+      "entry_et": "2026-07-15T10:01:08.199801",
+      "entry_px": 0.31,
+      "actual_exit_et": "2026-07-15T10:25:06.127836",
+      "actual_exit_px": 0.16,
+      "actual_pnl": -75.0,
+      "trigger_level_provenance": "reconstructed_from_levels_context(premarket_high,dist=0.89)",
+      "trigger_level_used": 753.52,
+      "already_structure_mode_live": false,
+      "structure_mode_live_ambiguous": true,
+      "stale_quote_contaminated_context": false,
+      "counterfactual_pnl": -77.5,
+      "counterfactual_exit_stage": "structure",
+      "counterfactual_exit_time": "2026-07-15T10:26:00",
+      "counterfactual_vs_actual_delta": -2.5,
+      "classification": "neutral",
+      "max_adverse_premium_pct": -0.5806,
+      "variant_structure": {
+        "exit_stage": "premium_stop",
+        "exit_reason": "premium_stop @ 0.15",
+        "exit_time_et": "2026-07-15T10:26:00",
+        "hold_minutes": 25,
+        "resolved_stop_mode": "structure",
+        "trigger_level_used": 753.52,
+        "dollar_pnl": -77.5,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 5,
+            "fill_price": 0.155,
+            "reason": "premium_stop @ 0.15",
+            "stage": "premium_stop",
+            "ts_et": "2026-07-15T10:26:00",
+            "leg_pnl": -77.5
+          }
+        ]
+      },
+      "variant_premium_fallback": {
+        "exit_stage": "premium_stop",
+        "exit_reason": "premium_stop @ 0.25",
+        "exit_time_et": "2026-07-15T10:23:00",
+        "hold_minutes": 22,
+        "resolved_stop_mode": "premium",
+        "trigger_level_used": null,
+        "dollar_pnl": -31.0,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 5,
+            "fill_price": 0.248,
+            "reason": "premium_stop @ 0.25",
+            "stage": "premium_stop",
+            "ts_et": "2026-07-15T10:23:00",
+            "leg_pnl": -31.0
+          }
+        ]
+      },
+      "notes": "trigger_level reconstructed_from_levels_context(premarket_high,dist=0.89). primary_variant=structure. setup=BULLISH_RECLAIM_RIDE_THE_RIBBON arm=risky-3 attribution=engine. PROVENANCE GAP: this is a genuine ribbon_ride/fleet entry with trigger_level_exact=null in this episodes JSON, but fleet_executor.py prefers a proximity-guess trigger_level (nearest_active_level, computed at signal-build time) NOT captured by this JSON when the exact field is absent -- whether production resolved structure mode live is AMBIGUOUS, not provably a shape-swap. The real live exit (~-47%, near the -50% catastrophe cap, not the -20% flat fallback) is SUGGESTIVE that structure mode WAS already resolved live here too -- treat this row as likely-fidelity-check, not confirmed shape-swap."
+    },
+    {
+      "episode_id": "2026-07-15_13:56:35_SPY260715C00754000",
+      "date": "2026-07-15",
+      "arm_id": "safe-2",
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "symbol": "SPY260715C00754000",
+      "side": "C",
+      "qty": 3,
+      "entry_et": "2026-07-15T13:56:35.166697",
+      "entry_px": 0.8,
+      "actual_exit_et": "2026-07-15T14:50:05.386493",
+      "actual_exit_px": 0.41,
+      "actual_pnl": -117.0,
+      "trigger_level_provenance": "native_trigger_level_exact",
+      "trigger_level_used": 754.0,
+      "already_structure_mode_live": true,
+      "structure_mode_live_ambiguous": false,
+      "stale_quote_contaminated_context": false,
+      "counterfactual_pnl": -117.0,
+      "counterfactual_exit_stage": "structure",
+      "counterfactual_exit_time": "2026-07-15T14:50:00",
+      "counterfactual_vs_actual_delta": 0.0,
+      "classification": "fidelity_check_exact_match",
+      "max_adverse_premium_pct": -0.5375,
+      "variant_structure": {
+        "exit_stage": "structure_stop",
+        "exit_reason": "structure_stop @ 754.0",
+        "exit_time_et": "2026-07-15T14:50:00",
+        "hold_minutes": 53,
+        "resolved_stop_mode": "structure",
+        "trigger_level_used": 754.0,
+        "dollar_pnl": -117.0,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 0.41,
+            "reason": "structure_stop @ 754.0",
+            "stage": "structure_stop",
+            "ts_et": "2026-07-15T14:50:00",
+            "leg_pnl": -117.0
+          }
+        ]
+      },
+      "variant_premium_fallback": {
+        "exit_stage": "premium_stop",
+        "exit_reason": "premium_stop @ 0.64",
+        "exit_time_et": "2026-07-15T14:45:00",
+        "hold_minutes": 48,
+        "resolved_stop_mode": "premium",
+        "trigger_level_used": null,
+        "dollar_pnl": -48.0,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 0.64,
+            "reason": "premium_stop @ 0.64",
+            "stage": "premium_stop",
+            "ts_et": "2026-07-15T14:45:00",
+            "leg_pnl": -48.0
+          }
+        ]
+      },
+      "notes": "trigger_level native_trigger_level_exact. primary_variant=structure. setup=BULLISH_RECLAIM_RIDE_THE_RIBBON arm=safe-2 attribution=engine. NOTE: this entry is a genuine ribbon_ride primary-channel fire with a native trigger_level under structure_stop_enabled=True (live since 2026-07-09) -- it was almost certainly ALREADY running structure mode in production; this replay is a RESOLUTION-FIDELITY check (1-min vs live's coarser tick), not a shape-swap counterfactual like the other episodes in this cohort."
+    },
+    {
+      "episode_id": "2026-07-16_09:51:29_SPY260716P00751000",
+      "date": "2026-07-16",
+      "arm_id": "safe-2",
+      "setup": "vwap_continuation",
+      "symbol": "SPY260716P00751000",
+      "side": "P",
+      "qty": 3,
+      "entry_et": "2026-07-16T09:51:29.514532",
+      "entry_px": 1.22,
+      "actual_exit_et": "2026-07-16T09:53:03.776914",
+      "actual_exit_px": 1.04,
+      "actual_pnl": -54.0,
+      "trigger_level_provenance": "reconstructed_from_levels_context(intraday_rth_low,dist=0.01)",
+      "trigger_level_used": 751.13,
+      "already_structure_mode_live": false,
+      "structure_mode_live_ambiguous": false,
+      "stale_quote_contaminated_context": false,
+      "counterfactual_pnl": 24.0,
+      "counterfactual_exit_stage": "structure",
+      "counterfactual_exit_time": "2026-07-16T09:55:00",
+      "counterfactual_vs_actual_delta": 78.0,
+      "classification": "better",
+      "max_adverse_premium_pct": -0.1803,
+      "variant_structure": {
+        "exit_stage": "structure_stop",
+        "exit_reason": "structure_stop @ 751.13",
+        "exit_time_et": "2026-07-16T09:55:00",
+        "hold_minutes": 4,
+        "resolved_stop_mode": "structure",
+        "trigger_level_used": 751.13,
+        "dollar_pnl": 24.0,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 1.3,
+            "reason": "structure_stop @ 751.13",
+            "stage": "structure_stop",
+            "ts_et": "2026-07-16T09:55:00",
+            "leg_pnl": 24.0
+          }
+        ]
+      },
+      "variant_premium_fallback": {
+        "exit_stage": "premium_stop",
+        "exit_reason": "premium_stop @ 0.98",
+        "exit_time_et": "2026-07-16T10:01:00",
+        "hold_minutes": 10,
+        "resolved_stop_mode": "premium",
+        "trigger_level_used": null,
+        "dollar_pnl": -73.2,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 0.976,
+            "reason": "premium_stop @ 0.98",
+            "stage": "premium_stop",
+            "ts_et": "2026-07-16T10:01:00",
+            "leg_pnl": -73.2
+          }
+        ]
+      },
+      "notes": "trigger_level reconstructed_from_levels_context(intraday_rth_low,dist=0.01). primary_variant=structure. setup=vwap_continuation arm=safe-2 attribution=engine. SHAPE-SWAP counterfactual (unambiguous): live ran this via vwap_continuation's own _SETUP_EXIT_OVERRIDES bracket (not RIBBON_RIDE.exit -- that registry only maps ribbon_ride's own setup names); this replay substitutes RIBBON_RIDE.exit -- exactly the alignment hypothesis the queue item asks about."
+    },
+    {
+      "episode_id": "2026-07-16_09:53:45_SPY260716P00751000",
+      "date": "2026-07-16",
+      "arm_id": "safe-2",
+      "setup": "vwap_continuation",
+      "symbol": "SPY260716P00751000",
+      "side": "P",
+      "qty": 3,
+      "entry_et": "2026-07-16T09:53:45.900591",
+      "entry_px": 1.2367,
+      "actual_exit_et": "2026-07-16T09:54:04.608359",
+      "actual_exit_px": 1.19,
+      "actual_pnl": -14.0,
+      "trigger_level_provenance": "reconstructed_from_levels_context(intraday_rth_low,dist=0.01)",
+      "trigger_level_used": 751.13,
+      "already_structure_mode_live": false,
+      "structure_mode_live_ambiguous": false,
+      "stale_quote_contaminated_context": false,
+      "counterfactual_pnl": 18.99,
+      "counterfactual_exit_stage": "structure",
+      "counterfactual_exit_time": "2026-07-16T09:55:00",
+      "counterfactual_vs_actual_delta": 32.99,
+      "classification": "better",
+      "max_adverse_premium_pct": -0.1833,
+      "variant_structure": {
+        "exit_stage": "structure_stop",
+        "exit_reason": "structure_stop @ 751.13",
+        "exit_time_et": "2026-07-16T09:55:00",
+        "hold_minutes": 1,
+        "resolved_stop_mode": "structure",
+        "trigger_level_used": 751.13,
+        "dollar_pnl": 18.99,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 1.3,
+            "reason": "structure_stop @ 751.13",
+            "stage": "structure_stop",
+            "ts_et": "2026-07-16T09:55:00",
+            "leg_pnl": 18.99
+          }
+        ]
+      },
+      "variant_premium_fallback": {
+        "exit_stage": "premium_stop",
+        "exit_reason": "premium_stop @ 0.99",
+        "exit_time_et": "2026-07-16T10:01:00",
+        "hold_minutes": 7,
+        "resolved_stop_mode": "premium",
+        "trigger_level_used": null,
+        "dollar_pnl": -74.19,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 0.9894,
+            "reason": "premium_stop @ 0.99",
+            "stage": "premium_stop",
+            "ts_et": "2026-07-16T10:01:00",
+            "leg_pnl": -74.19
+          }
+        ]
+      },
+      "notes": "trigger_level reconstructed_from_levels_context(intraday_rth_low,dist=0.01). primary_variant=structure. setup=vwap_continuation arm=safe-2 attribution=engine. SHAPE-SWAP counterfactual (unambiguous): live ran this via vwap_continuation's own _SETUP_EXIT_OVERRIDES bracket (not RIBBON_RIDE.exit -- that registry only maps ribbon_ride's own setup names); this replay substitutes RIBBON_RIDE.exit -- exactly the alignment hypothesis the queue item asks about."
+    },
+    {
+      "episode_id": "2026-07-16_14:06:48_SPY260716P00751000",
+      "date": "2026-07-16",
+      "arm_id": "safe-2",
+      "setup": "bollinger_squeeze",
+      "symbol": "SPY260716P00751000",
+      "side": "P",
+      "qty": 3,
+      "entry_et": "2026-07-16T14:06:48.128783",
+      "entry_px": 0.9,
+      "actual_exit_et": "2026-07-16T14:11:04.599657",
+      "actual_exit_px": 0.85,
+      "actual_pnl": -15.0,
+      "trigger_level_provenance": "reconstructed_from_levels_context(level_memory,dist=0.04)",
+      "trigger_level_used": 750.96,
+      "already_structure_mode_live": false,
+      "structure_mode_live_ambiguous": false,
+      "stale_quote_contaminated_context": false,
+      "counterfactual_pnl": -78.0,
+      "counterfactual_exit_stage": "structure",
+      "counterfactual_exit_time": "2026-07-16T14:20:00",
+      "counterfactual_vs_actual_delta": -63.0,
+      "classification": "worse",
+      "max_adverse_premium_pct": -0.3111,
+      "variant_structure": {
+        "exit_stage": "structure_stop",
+        "exit_reason": "structure_stop @ 750.96",
+        "exit_time_et": "2026-07-16T14:20:00",
+        "hold_minutes": 13,
+        "resolved_stop_mode": "structure",
+        "trigger_level_used": 750.96,
+        "dollar_pnl": -78.0,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 0.64,
+            "reason": "structure_stop @ 750.96",
+            "stage": "structure_stop",
+            "ts_et": "2026-07-16T14:20:00",
+            "leg_pnl": -78.0
+          }
+        ]
+      },
+      "variant_premium_fallback": {
+        "exit_stage": "premium_stop",
+        "exit_reason": "premium_stop @ 0.72",
+        "exit_time_et": "2026-07-16T14:17:00",
+        "hold_minutes": 10,
+        "resolved_stop_mode": "premium",
+        "trigger_level_used": null,
+        "dollar_pnl": -54.0,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 0.72,
+            "reason": "premium_stop @ 0.72",
+            "stage": "premium_stop",
+            "ts_et": "2026-07-16T14:17:00",
+            "leg_pnl": -54.0
+          }
+        ]
+      },
+      "notes": "trigger_level reconstructed_from_levels_context(level_memory,dist=0.04). primary_variant=structure. setup=bollinger_squeeze arm=safe-2 attribution=engine. SHAPE-SWAP counterfactual (unambiguous): live ran this via bollinger_squeeze's own _SETUP_EXIT_OVERRIDES bracket (not RIBBON_RIDE.exit -- that registry only maps ribbon_ride's own setup names); this replay substitutes RIBBON_RIDE.exit -- exactly the alignment hypothesis the queue item asks about."
+    },
+    {
+      "episode_id": "2026-07-20_09:51:24_SPY260720C00748000",
+      "date": "2026-07-20",
+      "arm_id": "safe-2",
+      "setup": "vix_regime_dayside",
+      "symbol": "SPY260720C00748000",
+      "side": "C",
+      "qty": 3,
+      "entry_et": "2026-07-20T09:51:24.728008",
+      "entry_px": 1.13,
+      "actual_exit_et": "2026-07-20T09:52:03.562365",
+      "actual_exit_px": 0.98,
+      "actual_pnl": -45.0,
+      "trigger_level_provenance": "reconstructed_from_levels_context(intraday_rth_low,dist=0.71)",
+      "trigger_level_used": 746.87,
+      "already_structure_mode_live": false,
+      "structure_mode_live_ambiguous": false,
+      "stale_quote_contaminated_context": true,
+      "counterfactual_pnl": -129.0,
+      "counterfactual_exit_stage": "structure",
+      "counterfactual_exit_time": "2026-07-20T09:55:00",
+      "counterfactual_vs_actual_delta": -84.0,
+      "classification": "worse",
+      "max_adverse_premium_pct": -0.3805,
+      "variant_structure": {
+        "exit_stage": "structure_stop",
+        "exit_reason": "structure_stop @ 746.87",
+        "exit_time_et": "2026-07-20T09:55:00",
+        "hold_minutes": 4,
+        "resolved_stop_mode": "structure",
+        "trigger_level_used": 746.87,
+        "dollar_pnl": -129.0,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 0.7,
+            "reason": "structure_stop @ 746.87",
+            "stage": "structure_stop",
+            "ts_et": "2026-07-20T09:55:00",
+            "leg_pnl": -129.0
+          }
+        ]
+      },
+      "variant_premium_fallback": {
+        "exit_stage": "premium_stop",
+        "exit_reason": "premium_stop @ 0.9",
+        "exit_time_et": "2026-07-20T09:53:00",
+        "hold_minutes": 2,
+        "resolved_stop_mode": "premium",
+        "trigger_level_used": null,
+        "dollar_pnl": -67.8,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 0.904,
+            "reason": "premium_stop @ 0.9",
+            "stage": "premium_stop",
+            "ts_et": "2026-07-20T09:53:00",
+            "leg_pnl": -67.8
+          }
+        ]
+      },
+      "notes": "trigger_level reconstructed_from_levels_context(intraday_rth_low,dist=0.71). primary_variant=structure. setup=vix_regime_dayside arm=safe-2 attribution=engine. SHAPE-SWAP counterfactual (unambiguous): live ran this via vix_regime_dayside's own _SETUP_EXIT_OVERRIDES bracket (not RIBBON_RIDE.exit -- that registry only maps ribbon_ride's own setup names); this replay substitutes RIBBON_RIDE.exit -- exactly the alignment hypothesis the queue item asks about. STALE-QUOTE-CONTAMINATED CONTEXT: this episode's logged decision context.spy=747.575 is a cached/stale snapshot (context_bundle computed once at 09:50:02, reused across ticks) -- the real 1-min SIP tape shows SPY genuinely selling off 747.62->746.14 in this window (confirmed this run, NOT a flat tape). This replay's OWN walk uses the real 1-min bars directly and is NOT affected by the stale context field; only the episode's LOGGED alignment/levels context (not consumed by this replay) is contaminated."
+    },
+    {
+      "episode_id": "2026-07-20_09:54:19_SPY260720C00748000",
+      "date": "2026-07-20",
+      "arm_id": "safe-2",
+      "setup": "vix_regime_dayside",
+      "symbol": "SPY260720C00748000",
+      "side": "C",
+      "qty": 3,
+      "entry_et": "2026-07-20T09:54:19.657410",
+      "entry_px": 0.79,
+      "actual_exit_et": "2026-07-20T09:55:04.092096",
+      "actual_exit_px": 0.73,
+      "actual_pnl": -18.0,
+      "trigger_level_provenance": "reconstructed_from_levels_context(intraday_rth_low,dist=0.71)",
+      "trigger_level_used": 746.87,
+      "already_structure_mode_live": false,
+      "structure_mode_live_ambiguous": false,
+      "stale_quote_contaminated_context": true,
+      "counterfactual_pnl": -27.0,
+      "counterfactual_exit_stage": "structure",
+      "counterfactual_exit_time": "2026-07-20T09:55:00",
+      "counterfactual_vs_actual_delta": -9.0,
+      "classification": "neutral",
+      "max_adverse_premium_pct": -0.1139,
+      "variant_structure": {
+        "exit_stage": "structure_stop",
+        "exit_reason": "structure_stop @ 746.87",
+        "exit_time_et": "2026-07-20T09:55:00",
+        "hold_minutes": 1,
+        "resolved_stop_mode": "structure",
+        "trigger_level_used": 746.87,
+        "dollar_pnl": -27.0,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 0.7,
+            "reason": "structure_stop @ 746.87",
+            "stage": "structure_stop",
+            "ts_et": "2026-07-20T09:55:00",
+            "leg_pnl": -27.0
+          }
+        ]
+      },
+      "variant_premium_fallback": {
+        "exit_stage": "premium_stop",
+        "exit_reason": "premium_stop @ 0.63",
+        "exit_time_et": "2026-07-20T09:58:00",
+        "hold_minutes": 4,
+        "resolved_stop_mode": "premium",
+        "trigger_level_used": null,
+        "dollar_pnl": -47.4,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 0.632,
+            "reason": "premium_stop @ 0.63",
+            "stage": "premium_stop",
+            "ts_et": "2026-07-20T09:58:00",
+            "leg_pnl": -47.4
+          }
+        ]
+      },
+      "notes": "trigger_level reconstructed_from_levels_context(intraday_rth_low,dist=0.71). primary_variant=structure. setup=vix_regime_dayside arm=safe-2 attribution=engine. SHAPE-SWAP counterfactual (unambiguous): live ran this via vix_regime_dayside's own _SETUP_EXIT_OVERRIDES bracket (not RIBBON_RIDE.exit -- that registry only maps ribbon_ride's own setup names); this replay substitutes RIBBON_RIDE.exit -- exactly the alignment hypothesis the queue item asks about. STALE-QUOTE-CONTAMINATED CONTEXT: this episode's logged decision context.spy=747.575 is a cached/stale snapshot (context_bundle computed once at 09:50:02, reused across ticks) -- the real 1-min SIP tape shows SPY genuinely selling off 747.62->746.14 in this window (confirmed this run, NOT a flat tape). This replay's OWN walk uses the real 1-min bars directly and is NOT affected by the stale context field; only the episode's LOGGED alignment/levels context (not consumed by this replay) is contaminated."
+    },
+    {
+      "episode_id": "2026-07-20_09:55:24_SPY260720C00748000",
+      "date": "2026-07-20",
+      "arm_id": "safe-2",
+      "setup": "vix_regime_dayside",
+      "symbol": "SPY260720C00748000",
+      "side": "C",
+      "qty": 3,
+      "entry_et": "2026-07-20T09:55:24.874427",
+      "entry_px": 0.76,
+      "actual_exit_et": "2026-07-20T09:56:03.439149",
+      "actual_exit_px": 0.68,
+      "actual_pnl": -24.0,
+      "trigger_level_provenance": "reconstructed_from_levels_context(premarket_low,dist=0.47)",
+      "trigger_level_used": 745.96,
+      "already_structure_mode_live": false,
+      "structure_mode_live_ambiguous": false,
+      "stale_quote_contaminated_context": true,
+      "counterfactual_pnl": -51.0,
+      "counterfactual_exit_stage": "structure",
+      "counterfactual_exit_time": "2026-07-20T10:00:00",
+      "counterfactual_vs_actual_delta": -27.0,
+      "classification": "worse",
+      "max_adverse_premium_pct": -0.2895,
+      "variant_structure": {
+        "exit_stage": "structure_stop",
+        "exit_reason": "structure_stop @ 745.96",
+        "exit_time_et": "2026-07-20T10:00:00",
+        "hold_minutes": 5,
+        "resolved_stop_mode": "structure",
+        "trigger_level_used": 745.96,
+        "dollar_pnl": -51.0,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 0.59,
+            "reason": "structure_stop @ 745.96",
+            "stage": "structure_stop",
+            "ts_et": "2026-07-20T10:00:00",
+            "leg_pnl": -51.0
+          }
+        ]
+      },
+      "variant_premium_fallback": {
+        "exit_stage": "premium_stop",
+        "exit_reason": "premium_stop @ 0.61",
+        "exit_time_et": "2026-07-20T09:59:00",
+        "hold_minutes": 4,
+        "resolved_stop_mode": "premium",
+        "trigger_level_used": null,
+        "dollar_pnl": -45.6,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 0.608,
+            "reason": "premium_stop @ 0.61",
+            "stage": "premium_stop",
+            "ts_et": "2026-07-20T09:59:00",
+            "leg_pnl": -45.6
+          }
+        ]
+      },
+      "notes": "trigger_level reconstructed_from_levels_context(premarket_low,dist=0.47). primary_variant=structure. setup=vix_regime_dayside arm=safe-2 attribution=engine. SHAPE-SWAP counterfactual (unambiguous): live ran this via vix_regime_dayside's own _SETUP_EXIT_OVERRIDES bracket (not RIBBON_RIDE.exit -- that registry only maps ribbon_ride's own setup names); this replay substitutes RIBBON_RIDE.exit -- exactly the alignment hypothesis the queue item asks about. STALE-QUOTE-CONTAMINATED CONTEXT: this episode's logged decision context.spy=747.575 is a cached/stale snapshot (context_bundle computed once at 09:50:02, reused across ticks) -- the real 1-min SIP tape shows SPY genuinely selling off 747.62->746.14 in this window (confirmed this run, NOT a flat tape). This replay's OWN walk uses the real 1-min bars directly and is NOT affected by the stale context field; only the episode's LOGGED alignment/levels context (not consumed by this replay) is contaminated."
+    },
+    {
+      "episode_id": "2026-07-20_14:49:20_SPY260720P00743000",
+      "date": "2026-07-20",
+      "arm_id": "safe-2",
+      "setup": "bollinger_squeeze",
+      "symbol": "SPY260720P00743000",
+      "side": "P",
+      "qty": 3,
+      "entry_et": "2026-07-20T14:49:20.218830",
+      "entry_px": 0.8,
+      "actual_exit_et": "2026-07-20T14:53:03.992923",
+      "actual_exit_px": 0.7,
+      "actual_pnl": -30.0,
+      "trigger_level_provenance": "reconstructed_from_levels_context(intraday_rth_low,dist=0.41)",
+      "trigger_level_used": 743.0,
+      "already_structure_mode_live": false,
+      "structure_mode_live_ambiguous": false,
+      "stale_quote_contaminated_context": false,
+      "counterfactual_pnl": -42.0,
+      "counterfactual_exit_stage": "structure",
+      "counterfactual_exit_time": "2026-07-20T14:55:00",
+      "counterfactual_vs_actual_delta": -12.0,
+      "classification": "neutral",
+      "max_adverse_premium_pct": -0.225,
+      "variant_structure": {
+        "exit_stage": "structure_stop",
+        "exit_reason": "structure_stop @ 743.0",
+        "exit_time_et": "2026-07-20T14:55:00",
+        "hold_minutes": 6,
+        "resolved_stop_mode": "structure",
+        "trigger_level_used": 743.0,
+        "dollar_pnl": -42.0,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 0.66,
+            "reason": "structure_stop @ 743.0",
+            "stage": "structure_stop",
+            "ts_et": "2026-07-20T14:55:00",
+            "leg_pnl": -42.0
+          }
+        ]
+      },
+      "variant_premium_fallback": {
+        "exit_stage": "premium_stop",
+        "exit_reason": "premium_stop @ 0.64",
+        "exit_time_et": "2026-07-20T15:02:00",
+        "hold_minutes": 13,
+        "resolved_stop_mode": "premium",
+        "trigger_level_used": null,
+        "dollar_pnl": -48.0,
+        "legs": [
+          {
+            "kind": "SELL_ALL",
+            "qty": 3,
+            "fill_price": 0.64,
+            "reason": "premium_stop @ 0.64",
+            "stage": "premium_stop",
+            "ts_et": "2026-07-20T15:02:00",
+            "leg_pnl": -48.0
+          }
+        ]
+      },
+      "notes": "trigger_level reconstructed_from_levels_context(intraday_rth_low,dist=0.41). primary_variant=structure. setup=bollinger_squeeze arm=safe-2 attribution=engine. SHAPE-SWAP counterfactual (unambiguous): live ran this via bollinger_squeeze's own _SETUP_EXIT_OVERRIDES bracket (not RIBBON_RIDE.exit -- that registry only maps ribbon_ride's own setup names); this replay substitutes RIBBON_RIDE.exit -- exactly the alignment hypothesis the queue item asks about."
+    }
+  ]
+}

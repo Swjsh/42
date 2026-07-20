@@ -22,14 +22,21 @@ bull-side entry (9/9 engine ones) and every sub-5-minute premium-stop death was 
    never trade-removal) if Phase 1 clears. → LEVER 1, dispatched tonight.
 
 2. **Exit stage: trail 4/4 +$770, premium_stop 0/11 -$509.** PARTLY tautological (premium
-   stop firing means the trade went against us). The non-tautological core: 7 of the 11
-   premium-stop deaths were < 5-minute holds, and today's audit showed 2 of 3 morning
-   stop-outs had ZERO SPY movement during the hold — the stop read spread noise, not price.
-   All 11 came from lanes still running the old +30%/-8% premium bracket (extra-signal
-   lanes) or pre-cooldown churn. Chart-stop-primary lanes produced every winner.
-   → LEVER 2: counterfactual replay of those 11 episodes under the chart-stop shape,
-   dispatched tonight (informs the queued EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT A/B; its
-   pre-committed organic-n rule still gates the ship).
+   stop firing means the trade went against us). ~~The non-tautological core: 2 of 3 morning
+   stop-outs had ZERO SPY movement — spread noise~~ **CORRECTED SAME EVENING by Lever 2's
+   replay against the real SIP tape:** the "SPY unchanged at 747.575" reads were a STALE
+   LOGGED-CONTEXT artifact (bundle computed 09:50:02, reused across ticks); the real tape
+   sold off 747.62→746.14 (~$1.48) during those holds — the morning call stops were REAL
+   adverse moves, not spread noise. **Lever 2 verdict: chart-stop swap on this cohort is
+   NET WORSE (actual -$509 vs counterfactual -$601, delta -$92)** — the -50% catastrophe
+   cap is wider than the -8% brackets, so genuine adverse moves bleed further; my "upper
+   bound" premise was wrong for exit-shape swaps and the agent caught it against the real
+   exit_manager code. EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT stays DEFER-INSUFFICIENT-DATA
+   (n=11). The 2026-07-08 noise-floor finding is NOT overturned (different cohort), but
+   today's exhibits no longer support it. NEW LEAD from the correction: decision rows
+   logged spot ~$1.48 stale from tape in that window → DECISION-ROW-SPY-STALENESS filed
+   HIGH (did any ENTER key off a stale spot read? The 09:51 calls-into-a-selloff pattern
+   is exactly what a stale-sight entry would look like).
 
 3. **Bull side: engine bull entries 0/9, -$513 this window** (BULLISH_RECLAIM 0/4 -$309,
    vix_regime calls 0/3 -$87, core reclaim -$117); the only bull winner was J's manual +$89.
