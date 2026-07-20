@@ -389,4 +389,8 @@ def test_real_repo_params_resolve_cash_settlement_for_both_core_accounts():
     safe_params = sc._default_account_params("safe")
     bold_params = sc._default_account_params("bold")
     assert sc._pdt_gate_mode(safe_params) == "cash_settlement"
-    assert sc._pdt_gate_mode(bold_params) == "cash_settlement"
+    # UPDATED 2026-07-20 per this test's own docstring instruction: Bold's broker account
+    # became a 4x MARGIN account over the 07-18/19 weekend (multiplier=4, live-verified),
+    # so bold flipped to margin_pdt that morning -- the margin-PDT branch is live again
+    # for bold and this pin now tracks that reality. See aggressive/params.json#_pdt_gate_mode_doc.
+    assert sc._pdt_gate_mode(bold_params) == "margin_pdt"
