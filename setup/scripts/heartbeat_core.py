@@ -184,6 +184,66 @@ def _before_entry_floor(params: dict, now_et: datetime) -> bool:
     return now_et.time() < floor
 
 
+# SIGHT-FRESHNESS GUARD (DECISION-ROW-SPY-STALENESS, 2026-07-20 investigation) -----------
+# ROOT CAUSE: bc['bar']['close'] (the price the score/gates AND every extra-setup watcher's
+# entry+stop derive from) is `trig['close']` where trig_idx = n-2 in _build_payload -- the
+# trigger is ALWAYS the 2nd-to-last fetched 5m bar (the newest bar is reserved as the
+# forward-confirmation bar require_bearish_fill_bar reads), so it only advances once per 5m
+# bar-close and is therefore ~5-10 minutes old by DESIGN (matches backtest fidelity -- this
+# lag itself is not a bug, and a bare "trigger bar age > N minutes" guard would either be
+# toothless (N>=10) or block nearly every tick of this 5m-bar architecture (N<10)).
+# _stale_trigger_bar (above) already catches the EXTREME cross-session case (a prior-day bar
+# carried at today's open -- proven live: every >$3 divergence in the 2026-07-14..07-20
+# ledger is a 09:30-09:35 SKIP_STALE_TRIGGER row). EXTRA-SIGNAL-CHURN-COOLDOWN (commit
+# fd91712, same day) already stops a setup from RE-firing on the SAME stale trigger bar after
+# a stop-out. What neither catches: a FIRST entry attempt whose trigger bar is still within
+# its normal ~5-10min lag but the market has genuinely moved fast INSIDE that window -- the
+# live exhibit this guard is built from (2026-07-20 09:51-09:55 ET, safe/vix_regime_dayside):
+# bc['bar']['close'] pinned at 747.575 (the 09:45-09:50 bar) for 5 straight ticks while the
+# real 1-min SIP tape sold off 747.62->746.14; the 09:54:19 and 09:55:24 fills traded a
+# swing-low stop (746.87) and a "buy the day-trend" direction computed against a spot that
+# was already $1.12/$1.38 away from reality. Quantification (analysis/recommendations/
+# decision-row-spy-staleness-2026-07-20.json, n=3860 RTH rows 07-14..07-20): legitimate
+# real-fills entries this same week (excluding the 07-20 cluster and the already-guarded
+# session-open rows) topped out at $0.63 divergence; the three 07-20 vix_dayside fills alone
+# reached $0.40/$1.12/$1.38 -- so a $1.00 threshold catches exactly the pathological cluster
+# without touching a single other real entry this week.
+#
+# FIX: cross-check the decision spot against a genuinely tick-level read (Alpaca latest-trade,
+# NOT another bar close -- a second bar-close read would inherit the identical lag) ONLY at
+# the moment an entry is actually being attempted (primary ENTER_BEAR/ENTER_BULL and the
+# extra-setup route, after their existing gates/cooldown already passed -- bounded cost, a
+# handful of REST calls/day, not a hot-path add). FAIL-OPEN both ways: no live quote
+# available -> the guard cannot assert staleness, so it never blocks (NEVER-BLIND doctrine --
+# an auxiliary safety check must never become a new single point of failure); a live quote
+# IS available and diverges past the threshold -> SKIP_STALE_SIGHT, no order attempted
+# (fail-open to NOT-TRADING, never to trading blind). Guard: test_sight_staleness_guard.py.
+SIGHT_STALENESS_MAX_DIVERGENCE_USD = 1.00
+
+
+_SIGHT_NOOP = {"checked": False, "live_spy": None, "divergence": None, "stale": False}
+
+
+def _sight_staleness_check(trigger_spy: "float | None") -> dict:
+    """Compare the decision's trigger-bar spot against a fresh live quote. Returns a dict
+    always safe to log verbatim onto a decision row: {checked, live_spy, divergence, stale}.
+    `checked=False` (live quote unavailable, trigger_spy missing, OR any unexpected error) ->
+    `stale` is always False -> callers may use the result directly without their own
+    try/except (this function itself never raises -- self-safe by design, same contract as
+    _fetch_live_spy_quote; defense-in-depth beyond that function's own internal try/except)."""
+    try:
+        if trigger_spy is None:
+            return dict(_SIGHT_NOOP)
+        live = _fetch_live_spy_quote()
+        if live is None:
+            return dict(_SIGHT_NOOP)
+        divergence = round(abs(float(trigger_spy) - live), 4)
+        return {"checked": True, "live_spy": live, "divergence": divergence,
+                "stale": divergence > SIGHT_STALENESS_MAX_DIVERGENCE_USD}
+    except Exception:  # noqa: BLE001 -- fail-open: never raise, never block on an internal error
+        return dict(_SIGHT_NOOP)
+
+
 def _stale_trigger_bar(payload: dict, now_et: datetime) -> bool:
     """FIX (2026-07-02): an ENTER is only actionable when its trigger bar is from
     TODAY's session. At the open ticks the 2nd-to-last fetched bar is the PRIOR day's
@@ -216,6 +276,33 @@ def _fetch_spy_5m() -> pd.DataFrame:
                        "close": b["c"], "volume": b["v"]} for b in bars])
     df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True).dt.tz_convert("America/New_York")
     return df.reset_index(drop=True)
+
+
+def _fetch_live_spy_quote() -> "float | None":
+    """Tick-level SPY price via Alpaca's latest-trade REST endpoint (NOT a 5m bar close) --
+    the sight-freshness cross-check's ground truth. Same un-blockable direct-REST path/creds
+    as _fetch_spy_5m; deliberately a DIFFERENT endpoint (/trades/latest, not /bars) so this
+    reads the actual last print instead of another bar-close (which would inherit the exact
+    same structural lag it's meant to catch — see SIGHT_STALENESS_MAX_DIVERGENCE_USD below).
+    None on ANY failure (bad key, timeout, empty payload) -- NEVER raises. Callers must treat
+    None as "cannot verify freshness" and fail OPEN (never block a legitimate entry just
+    because this one auxiliary read hiccupped -- NEVER-BLIND doctrine); only a POSITIVE,
+    successfully-fetched divergence may block. Cost: one REST call, only at actual
+    entry-attempt moments (see call sites) -- a handful of times/day, $0 (existing paper-key
+    market-data entitlement)."""
+    import urllib.request
+    try:
+        m = json.loads((REPO / ".mcp.json").read_text(encoding="utf-8"))
+        env = m["mcpServers"]["alpaca"]["env"]
+        key, sec = env["ALPACA_API_KEY"], env["ALPACA_SECRET_KEY"]
+        url = "https://data.alpaca.markets/v2/stocks/SPY/trades/latest?feed=iex"
+        req = urllib.request.Request(url, headers={"APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": sec})
+        with urllib.request.urlopen(req, timeout=8) as r:
+            data = json.loads(r.read())
+        px = (data.get("trade") or {}).get("p")
+        return float(px) if px is not None else None
+    except Exception:  # noqa: BLE001 -- fail-open: never raise, never block on a fetch hiccup
+        return None
 
 
 def _fetch_vix() -> tuple[float, float]:
@@ -877,7 +964,14 @@ def run_account(account: str) -> dict:
            # comment above and context_bundle_producer.py). Tagged straight off the payload
            # so the decision-row ledger carries the SAME bundle (or None) the engine payload
            # did this tick -- never recomputed, never re-read, so the two can't drift.
-           "context_bundle": bc.get("context_bundle")}
+           "context_bundle": bc.get("context_bundle"),
+           # SIGHT PROVENANCE (DECISION-ROW-SPY-STALENESS, 2026-07-20): the trigger bar's own
+           # timestamp, now logged on EVERY row (previously only stamped in the
+           # SKIP_STALE_TRIGGER branch below). `spy` above IS this bar's close -- by
+           # construction it is exactly as old as (now_et - trigger_bar_et), typically
+           # 5-10 minutes (trig_idx = n-2 in _build_payload). Purely additive/visibility --
+           # answers "how stale was this row's spot" without a cross-reference investigation.
+           "trigger_bar_et": str(bc.get("timestamp_et"))}
     # EXIT-MANAGEMENT PASS (flag-gated, default OFF -> byte-identical armed behavior).
     # Manage every open position's scale-out FIRST (before evaluating a new entry), so a
     # winner's TP1/runner or a stop is realized this tick. Places only when ARMED (live);
@@ -955,7 +1049,25 @@ def run_account(account: str) -> dict:
         # FIX (2026-07-02): wall-clock floor — [09:35, 15:00) now enforced on BOTH ends.
         rec["action"] = "SKIP_EARLY_ENTRY"
         rec["entry_floor_et"] = str(params.get("entry_no_trade_before_et") or "09:35")
+    elif (v in ("ENTER_BEAR", "ENTER_BULL")
+          and (_sight := _sight_staleness_check(bc["bar"]["close"])).get("stale")):
+        # SIGHT-FRESHNESS GUARD (DECISION-ROW-SPY-STALENESS, 2026-07-20): the trigger bar's
+        # close diverges from a fresh live SPY trade by more than SIGHT_STALENESS_MAX_
+        # DIVERGENCE_USD -- proof the decision spot is stale relative to the real tape RIGHT
+        # NOW, not just "old by the usual ~5-10min bar-close lag". Checked BEFORE the
+        # free-model eval (same reasoning as the entry-ceiling/floor checks above: a tick
+        # that's never going to place spends nothing). Fail-open logic lives inside
+        # _sight_staleness_check itself (no live quote -> stale=False -> this branch never
+        # matches -> falls through to the normal ENTER branch below, which also logs the
+        # (non-stale) check for visibility -- see rec["sight_check"] there).
+        rec["action"] = "SKIP_STALE_SIGHT"
+        rec["sight_check"] = _sight
     elif v in ("ENTER_BEAR", "ENTER_BULL"):
+        # `_sight` was already computed by the walrus in the preceding elif's condition
+        # (it always evaluates when v is ENTER_* -- Python only reaches THIS branch when
+        # that condition was False, i.e. stale=False) -- reused here, not re-fetched, so a
+        # non-stale ENTER tick costs exactly ONE live-quote REST call, not two.
+        rec["sight_check"] = _sight
         rec["free_eval"] = _free_model_eval(account, payload, verdict)
         if rec["free_eval"].get("veto"):
             rec["action"] = "VETOED_BY_MODELS"
@@ -1690,6 +1802,20 @@ def _route_extra_setups(account: str, extra: list, payload: dict, params: dict) 
                 continue
         except Exception:  # noqa: BLE001 -- fail-open: a cooldown-check error never blocks
             pass
+        # SIGHT-FRESHNESS GUARD (DECISION-ROW-SPY-STALENESS, 2026-07-20): the exact live
+        # exhibit this fix is built from (09:51-09:55 ET, safe/vix_regime_dayside, see the
+        # module-level SIGHT_STALENESS_MAX_DIVERGENCE_USD comment above _stale_trigger_bar)
+        # fired on THIS lane -- the extra-setup route reads bc['bar']['close'] via its own
+        # BarContext (setup_dispatch._build_ctx -> sameday_5m_bars), the SAME stale-by-design
+        # trigger bar the primary path uses. Same cross-check, same fail-open contract.
+        _sight = {"checked": False, "stale": False}
+        try:
+            _sight = _sight_staleness_check(payload.get("bar_ctx", {}).get("bar", {}).get("close"))
+        except Exception:  # noqa: BLE001 -- fail-open: a sight-check error never blocks
+            pass
+        if _sight.get("stale"):
+            out.append({"setup": setup, "action": "SKIP_STALE_SIGHT", "sight_check": _sight})
+            continue
         try:
             ev = _free_model_eval(account, payload, sv)
             if ev.get("veto"):
@@ -1699,7 +1825,7 @@ def _route_extra_setups(account: str, extra: list, payload: dict, params: dict) 
                 out.append({"setup": setup, "action": "PERCEPTION_ONLY"})
                 continue
             ex = _reconcile_exec(_execute(account, sv, payload, params, dry=not ARMED))
-            out.append({"setup": setup, "action": ex.get("status"), "exec": ex})
+            out.append({"setup": setup, "action": ex.get("status"), "exec": ex, "sight_check": _sight})
             if ex.get("status") in _TAKEN:
                 placed_this_tick = True
                 if _arm and _trigger_bar_et:

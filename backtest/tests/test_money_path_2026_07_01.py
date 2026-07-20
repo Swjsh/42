@@ -109,6 +109,11 @@ class TestEntryCeiling:
         monkeypatch.setattr(hc, "_engine_verdict", lambda p: dict(verdict))
         monkeypatch.setattr(hc, "CORE_MANAGES_EXITS", False)
         monkeypatch.setattr(hc, "CORE_PLACES_ORDERS", True)
+        # DECISION-ROW-SPY-STALENESS (2026-07-20): pin the sight-freshness guard's live
+        # quote to the SAME value as the trigger bar's close (zero divergence) so this
+        # harness stays focused on entry-ceiling/floor behavior and never makes a real
+        # network call or incidentally trips SKIP_STALE_SIGHT.
+        monkeypatch.setattr(hc, "_fetch_live_spy_quote", lambda: payload["bar_ctx"]["bar"]["close"])
         logged: list = []
         monkeypatch.setattr(hc, "_log", lambda rec: logged.append(rec))
         monkeypatch.setitem(sys.modules, "setup_dispatch",

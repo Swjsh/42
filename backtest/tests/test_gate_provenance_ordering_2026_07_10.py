@@ -71,6 +71,11 @@ def _wire(monkeypatch, *, now: dt.datetime, bar_ts: str, verdict: dict):
     monkeypatch.setattr(hc, "CORE_PLACES_ORDERS", True)
     monkeypatch.setattr(hc, "_execute", lambda *a, **k: {"status": "WOULD_PLACE"})
     monkeypatch.setattr(hc, "_free_model_eval", lambda *a, **k: {"veto": False})
+    # DECISION-ROW-SPY-STALENESS (2026-07-20): pin the sight-freshness guard's live quote to
+    # the SAME value as the trigger bar's close (zero divergence) so this harness stays
+    # focused on gate-provenance/staleness-ordering behavior and never makes a real network
+    # call or incidentally trips SKIP_STALE_SIGHT.
+    monkeypatch.setattr(hc, "_fetch_live_spy_quote", lambda: payload["bar_ctx"]["bar"]["close"])
     logged: list = []
     monkeypatch.setattr(hc, "_log", lambda rec: logged.append(rec))
     monkeypatch.setitem(sys.modules, "setup_dispatch",
@@ -212,7 +217,10 @@ class TestFreshBarByteIdenticalTape:
         _wire(monkeypatch, now=self._FRESH_NOW, bar_ts=self._FRESH_BAR_TS, verdict=verdict)
         rec = hc.run_account("safe")
         assert rec["action"] == verdict_name, "a FRESH bar must never be relabeled SKIP_STALE_TRIGGER"
-        assert "trigger_bar_et" not in rec
+        # DECISION-ROW-SPY-STALENESS (2026-07-20): trigger_bar_et is now logged on EVERY row
+        # (sight provenance/visibility, not just the SKIP_STALE_TRIGGER branch) -- pin it's
+        # present and correct rather than absent.
+        assert rec["trigger_bar_et"] == self._FRESH_BAR_TS
 
     def test_fresh_enter_still_executes(self, monkeypatch):
         verdict = {"verdict": "ENTER_BULL", "side": "C",
@@ -223,7 +231,7 @@ class TestFreshBarByteIdenticalTape:
         _wire(monkeypatch, now=self._FRESH_NOW, bar_ts=self._FRESH_BAR_TS, verdict=verdict)
         rec = hc.run_account("safe")
         assert rec["action"] == "WOULD_PLACE"
-        assert "trigger_bar_et" not in rec
+        assert rec["trigger_bar_et"] == self._FRESH_BAR_TS
 
     @pytest.mark.parametrize("hh,mm,expected_action", [
         (15, 30, "SKIP_LATE_ENTRY"),   # past ceiling
