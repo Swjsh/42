@@ -59,3 +59,21 @@ Gym validators (7/7 PASS), walk-forward OOS/IS ratio >=0.5, real-fills on top 3 
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md as it is a filter change on base BEARISH_REJECTION_RIDE_THE_RIBBON strategy. May complement watcher proposals (e.g., V14E_BEAR_ONLY_GATE) by adding regime-conditioned entry filter. No overlap with new trade classes (e.g., SNIPER, TBR) as it modifies existing PUT strategy logic.
+
+---
+
+## RESOLVED 2026-07-20 (conductor, AFTERHOURS) -- Stage-1 backtest run, REJECTED
+
+The Stage-1 backtest this draft called for (line 37/53 "unknown -- requires Stage-1 backtest",
+"NEEDS-REAL-FILLS") has now been run: `backtest/tools/safe_vix_conditional_sizing_ab.py`,
+scorecard `analysis/recommendations/safe_vix_conditional_sizing.json`. Note the tested candidate
+is the sibling queue.md formulation (VIX regime-GATED SIZING UPGRADE on the quality-eligible
+TRENDLINE subset, qty 3->10) rather than this draft's exact VIX>20-entry-filter framing, but the
+underlying hypothesis is the same one this draft states ("quality signal is real in high-vol,
+noise in low-vol") and the VOLATILE_ge_22 cut in that study directly covers this draft's VIX>20
+condition: **evidence_n=2, INCONCLUSIVE_UNDERPOWERED** (too few historical VIX>=22 quality-eligible
+TRENDLINE bears to say anything) -- and no other regime cut (BULL/NEUTRAL/pooled) ratified either.
+**Verdict: REJECT_ALL_CUTS.** This draft does not clear the pre-merge gate and is not being carried
+forward as a separate track -- closed via the sibling study rather than re-run standalone, since
+both share the identical quality-signal/regime-dependence root question and re-running an
+under-powered VIX>20-only cut a second time would not change the n=2 evidence-floor problem.
