@@ -192,6 +192,10 @@ def _direct_verdict(ctx: BarContext, gate_params: dict, *, enable_bullish=True,
         "bull_blockers": (None if score.bull_blockers is None else list(score.bull_blockers)),
         "triggers_fired": list(trigs), "rejection_level": level,
         "quality_tier": None, "gate": None,
+        # 2026-07-19 (TRENDLINE-FIXES item 4): must match decide_payload's own
+        # additive "shadow_triggers_fired" tag exactly -- independently re-derived
+        # here (not copied) so this stays a genuine "shim adds no logic" proof.
+        "shadow_triggers_fired": (list(bull.shadow_triggers_fired) if bull is not None else []),
     }
     if side is None:
         out["verdict"] = "HOLD"

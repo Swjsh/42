@@ -862,6 +862,17 @@ def run_account(account: str) -> dict:
            # heuristic (exit_manager.nearest_active_level), never guess. DATA-ADDITIVE: a
            # new key: every existing core-decisions.jsonl reader ignores unknown keys.
            "trigger_level_exact": verdict.get("rejection_level"),
+           # SHADOW TRIGGERS (2026-07-19, TRENDLINE-FIXES item 4, LOGGED ONLY --
+           # queue.md's "thread shadow_triggers_fired into core-decisions.jsonl" ask).
+           # engine_cli's decide_payload already tags every tick with the bull side's
+           # shadow-only detections (trendline_reclaim/wick_reclaim -- see
+           # filters.BullishSetupResult.shadow_triggers_fired); this was computed every
+           # tick but discarded before this change (never read past the engine_cli
+           # subprocess boundary). Zero-behavior-change: purely additive key, DATA-ONLY,
+           # never influences verdict/triggers/side/gate. [] when absent (older verdict
+           # shape / bull scoring disabled) -- consumers must treat missing/[] as "no
+           # shadow signal this tick", never guess.
+           "shadow_triggers_fired": list(verdict.get("shadow_triggers_fired") or []),
            # CONTEXT BUNDLE (Phase 0, 2026-07-14, LOGGED ONLY -- see the matching bar_ctx
            # comment above and context_bundle_producer.py). Tagged straight off the payload
            # so the decision-row ledger carries the SAME bundle (or None) the engine payload

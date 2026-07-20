@@ -103,7 +103,19 @@ stdout: a single compact JSON object.
       "rejection_level": float | null,     # winning level (reject for P / reclaim for C)
       "quality_tier": str | null,          # "SUPER"|"ELITE"|"LEVEL"|"TRENDLINE"|... or null
       "gate": {"gate_id": str, "action": str, "blockers": [str,...]} | null,
-      "reason": str                        # one human clause
+      "reason": str,                       # one human clause
+      "shadow_triggers_fired": [str, ...]  # LOGGED-ONLY bull shadow detections
+                                            # (trendline_reclaim/wick_reclaim; see
+                                            # filters.BullishSetupResult.shadow_triggers_fired).
+                                            # [] whenever bull scoring didn't run
+                                            # (enable_bullish=false) or neither shadow
+                                            # detector fired. NEVER affects verdict/
+                                            # triggers_fired/side/gate -- purely additive
+                                            # visibility (2026-07-19, TRENDLINE-FIXES item 4:
+                                            # threads score.bull.shadow_triggers_fired all the
+                                            # way to core-decisions.jsonl so a live
+                                            # trendline_reclaim/wick_reclaim detection is no
+                                            # longer invisible in the ledger).
     }
 
   verdict resolution (mirrors the orchestrator's per-bar flow exactly):
@@ -557,6 +569,12 @@ def decide_payload(payload: Mapping[str, Any]) -> dict:
         "rejection_level": winning_level,
         "quality_tier": None,
         "gate": None,
+        # LOGGED-ONLY visibility tag (2026-07-19, additive, DATA-ONLY -- see the module
+        # docstring's "shadow_triggers_fired" entry). Never derived from winning_triggers/
+        # winning_side; always score.bull's own tag, independent of who won routing.
+        "shadow_triggers_fired": (
+            list(score.bull.shadow_triggers_fired) if score.bull is not None else []
+        ),
     }
 
     if winning_side is None:

@@ -1264,6 +1264,16 @@ CAVEATS: best-fixed is IN-SAMPLE (needs OOS confirm), grid coarse 3x3, this is t
 4. THREAD shadow_triggers_fired INTO core-decisions.jsonl (was chip task_4ce16208, chips dead):
    today's J-called trendline break is the FIRST live validation point for trendline_reclaim and
    it is invisible in the ledger. Small heartbeat_core rec addition, zero-behavior-change guard.
+   **[CLOSED 2026-07-19 ~22:xx ET conductor (AFTERHOURS), commit see STATUS.md]** Threaded
+   `score.bull.shadow_triggers_fired` (filters.BullishSetupResult, LOGGED-ONLY) all the way
+   through `engine_cli.decide_payload`'s `base` dict -> `heartbeat_core.py::run_account`'s
+   `rec` dict -> `core-decisions.jsonl`. Purely additive DATA-ONLY key (`shadow_triggers_fired`,
+   `[]` default), zero effect on verdict/side/triggers_fired/gate. Guard:
+   `backtest/tests/test_shadow_triggers_threaded_2026_07_19.py` (6/6, RED-proofed via
+   `git stash`: all 5 non-trivial assertions failed with the exact expected KeyError/[] leak
+   with the fix stashed out; restored clean). Broader sweep (engine_cli/heartbeat_core/
+   shadow_trigger/trigger_level_exact/trendline-scoped) 136/136 PASS, zero regressions.
+   Curated safety gate (31+5) PASS. Full REVOKE report in STATUS.md.
 
 ## WEEKEND-METHODOLOGY-REVIEW: regime-matched IS window for delta-WF (Fable, filed 2026-07-17 ~11:05 ET)
 - THREE studies in 3 days share one signature: positive/stable 2026 OOS deltas, negative 2025 IS
