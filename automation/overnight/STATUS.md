@@ -1,3 +1,68 @@
+## [2026-07-20 19:42-19:50 ET] OK -- conductor (AFTERHOURS): STATE-FILE-REVERSION-2026-07-20 -- untracked circuit-breaker*.json + today-bias.json (git-ops-reverts-live-state bug), CLOSED_PARTIAL, committed
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Fill-funnel priority-1
+> check GREEN (406/386 core ticks, 1 attempt/1 accept/3 fills safe, no funnel break). No new
+> self-audit gap batch today. `task_scorer.py --top` returned the already-repeatedly-skipped
+> J-decision-gated `MORNING-BULL-QUALITY-GATE-RECONSIDER`. Top of queue.md's HIGH backlog: the
+> filed-but-unactioned `STATE-FILE-REVERSION-2026-07-20` (real, twice-reproduced-today infra
+> bug, outranks that J-gated item and every routine MED/LOW item) -- picked it.
+
+> **Verified the bug is live, not stale:** `git ls-files` confirmed circuit-breaker.json (both
+> core accounts + 4 fleet arms) and today-bias.json (main + futures) were STILL tracked, last
+> committed 2026-07-14, with mtimes as recent as tonight 17:43 ET -- exactly the
+> tracked-but-rarely-committed danger signature that let a `git stash`/`checkout` in the shared
+> checkout silently revert live kill-switch/bias state BACKWARD (reproduced twice today per the
+> queue item: 04:27/05:58 ET premarket + 18:40 ET mid-session). Same root-cause CLASS as the
+> 2026-07-14 decision-ledger stash-drop incident (commit 41889a0), recurring on a different file
+> class because that fix treated the symptom (4 specific ledgers) not the mechanism (any
+> continuously-overwritten file under automation/state/ tracked-but-rarely-committed).
+
+> **A broader scripted audit found this is much bigger than the queue item's 8 named files:**
+> ~279 tracked JSON/JSONL files under automation/state/ are ALSO last-committed 2026-07-14 with
+> today's mtimes. Scoped this fire to the 8 CONFIRMED-reproduced overwritten-in-place files
+> (circuit-breaker.json x6, today-bias.json x2) -- most of the other 271 are dated one-time
+> snapshots or append-only historical logs (lower risk, don't regress in place) and were not
+> individually triaged; filed `STATE-FILE-REVERSION-AUDIT-FOLLOWUP` (MED) in queue.md for a
+> future bounded fire rather than risk a same-fire 279-file migration.
+
+> **Fix:** exact pattern as 41889a0 -- gitignored + `git rm --cached` the 8 files (content stays
+> on disk unchanged, readers are path-based and don't care about git tracking; verified both
+> files still load via `json.load` post-untrack). Extended the existing guard
+> (`backtest/tests/test_ledger_gitignore_guard.py`) with a `STATE_SNAPSHOTS` list + 2 new tests.
+> RED-proofed: `git stash push --keep-index -- .gitignore` then re-ran the new tests ->
+> `test_state_snapshots_are_gitignored` FAILED with the exact expected assertion
+> (`automation/state/circuit-breaker.json is NOT gitignored`), `git stash pop` restored cleanly,
+> re-verified 4/4 green. Curated pre-commit safety gate (31 tests + 5 suites) PASS at commit
+> time. **Noted but NOT touched (lane discipline):** 3 pre-existing stashes were already sitting
+> in the repo from other work (`git stash list` showed 3 unrelated WIP entries before my own
+> push/pop round-tripped cleanly around them) -- flagging as an observation, not mine to clear.
+
+> **REVOKE window open (rail 4 -- engine-benefit infra, not a trading-path edit).** Change:
+> `.gitignore` + `git rm --cached` on 8 state files + guard test extension. Zero
+> `params.json`/`heartbeat_core.py`/`filters.py`/placement/exit code touched -- this is
+> infra/ops (state-file git tracking), ships per OP-22/OP-26 without J ratification. **Revert:**
+> `git revert 25e31e2` (5 files: `.gitignore`, `backtest/tests/test_ledger_gitignore_guard.py`,
+> + the 6 circuit-breaker.json/2 today-bias.json path re-adds are harmless either way since
+> on-disk content is unaffected by tracking status). **Commit:** `25e31e2`.
+
+> **Learn-loop:** filed `strategy/candidates/_lesson-inbox/state-file-reversion-git-ops-on-live-state-2026-07-20.md`
+> flagging this as the SECOND occurrence of the SAME mechanism (07-14 ledgers, 07-20 state
+> snapshots) -- OP-25 re-violation class, recommending lesson-author fold both under one L#
+> rather than filing separately. The interim rule ("no git stash/checkout/clean touching
+> automation/state by any session/fire") remains PROSE-ONLY -- not yet code-enforced; flagged
+> in both the lesson item and the queue follow-up as the next graduation candidate (a
+> git-diff-after-stash allowlist check) if this recurs a THIRD time.
+
+> **Cost: ~$3.4** (STAGE 0/1 reads incl. engine-health/STATUS/queue/self-audit/fill-funnel,
+> task-scorer, queue.md targeted reads (2129-line file, offset-read not full-read), a python
+> audit script identifying the 279-file broader scope, git tracking/mtime forensics, the fix
+> itself (gitignore + rm --cached + guard test extension), RED-proof round-trip, 1 curated
+> safety gate run, 1 commit, lesson-inbox write, queue.md + STATUS.md writeups). **Files:**
+> `.gitignore`, `backtest/tests/test_ledger_gitignore_guard.py`,
+> `automation/overnight/queue.md`, `strategy/candidates/_lesson-inbox/state-file-reversion-git-ops-on-live-state-2026-07-20.md`.
+
+---
+
 ## [2026-07-20 19:12-19:25 ET] OK -- conductor (AFTERHOURS): SHADOWEVAL-WEEKLY-TRIGGER-VS-DAILY-DOCS -- investigated a LOW doc-mismatch item, found + fixed a real 4-week silent C7 failure instead, committed
 
 > **STAGE 0/1:** engine-health GREEN, market closed since 15:55. Fill-funnel priority-1 check
@@ -531,22 +596,6 @@
 > **Rail-1 discipline:** zero code/trading-path files touched. Only `automation/overnight/queue.md` (1 annotation) + this STATUS entry. No Agent-tool fan-out this fire -- correctly small given the clock. Next AFTERHOURS-mode fire is this evening (18:00+ ET); `Gamma_ConductorRTH` covers the light verify-and-flag pass through the trading day.
 
 > **Cost: ~$1.7** (STAGE 0/1 reads, `task_scorer.py --top`, self-audit gaps re-confirmation, HIGH-item live re-grep + readiness triage, `status:todo` re-audit for TASK-SCORER-STATUS-VOCAB-GAP, 1 queue.md annotation, 1 commit -- no LLM in hot path, no orders, zero trading-path files touched). **Files:** `automation/overnight/queue.md`.
-
----
-
-## [2026-07-20 ~08:19-08:35 ET] SHIP (REVOKE) -- conductor (AFTERHOURS): 2 stale HIGH queue items closed (GATE-ORDERING-FIX-RELAUNCH, TV-MCP-DRAW-API-FIX-REOPENED) -- both already fixed, checkboxes never flipped
-
-> **Context (`et_clock.py`: `2026-07-20 08:19 Monday EDT market_hours=False`, Task=conductor).** STAGE 0 engine-health GREEN (13/13 checks, market closed/quiet). `task_scorer.py --top` again ranked `MORNING-BULL-QUALITY-GATE-RECONSIDER` — re-confirmed J-DECISION-GATED (Nth recurrence). Self-audit gaps (`analysis/self-audit/new-gaps-flagged.md`) fully actioned, no new batches since 07-19 21:xx. Grepped `queue.md` for open `(HIGH` items (14 hits) and picked 2 candidates worth tracing before building: `GATE-ORDERING-FIX-RELAUNCH` ("confirmed-bug", trading-path) and `TV-MCP-DRAW-API-FIX-REOPENED` ("confirmed FABRICATED by a judge").
-
-> **Both turned out to be stale — already fixed, never closed.** (1) `GATE-ORDERING-FIX-RELAUNCH` claimed a "dead crew died on session limit BEFORE editing." Live-read `heartbeat_core.py::run_account` lines 911-946: the exact fix (stale-trigger-bar check moved unconditionally to the TOP of the post-verdict ladder, before any ENTER/SKIP branch) is present verbatim, with an inline dated comment citing the SAME `GATE-PROVENANCE-SWEEP-2026-07-10.md` doc the item points to. Guard `test_gate_provenance_ordering_2026_07_10.py` exists on main — re-ran live: **17/17 PASS**. (2) `TV-MCP-DRAW-API-FIX-REOPENED` claimed a judge "verified: commit nonexistent, test file nonexistent, bug still live" in the tradingview-mcp server's `drawing.js`. Read the live file at `SwjshAlgoKnife\mcp-servers\tradingview-mcp\src\core\drawing.js`: `listDrawings`/`getProperties`/`removeOne`/`clearAll` all correctly call `_resolve(_deps)`. `git log` on that repo shows the real fix landed 2026-07-14 10:12 MT (commit `6f25ce4`, author "Sauce Bot", root-cause message matches exactly), with a real test file `tests/drawing_getchartapi.test.js` — re-ran live: **5/5 PASS**. No dist/build step in that package, so no staleness risk between `src/` and what the MCP server actually imports; the fix is genuinely live on the path every Claude Code session's stdio-spawned server uses.
-
-> **Verified this fire:** both guard suites re-run fresh (17/17 + 5/5, both green, quoted above) — not assumed from the queue item's own text. No source code changed in either the `42` repo or (READ-ONLY) `SwjshAlgoKnife` — this was pure verification + queue-hygiene closure, the same class as the 2026-07-11 "stale checkbox, shipped work" closures for G11/CROSS-TICKER/CRYPTO-TWIN-T1-T4.
-
-> **Rail-4 N/A (no trading-path/code change):** only `automation/overnight/queue.md` touched (2 items flipped `[ ]`→`[x]` with evidence). Zero `params.json`/`heartbeat_core.py`/`filters.py`/placement/exit files edited. **Revert:** `git revert <this commit>` (1 file).
-
-> **Learn-loop:** no new lesson-inbox item filed — this is a second/third instance of an already-indexed pattern (a queue item's premise going stale once the described work is actually completed by a *different* fire/session that never closed the loop, e.g. the 2026-07-20 04:19 fire's "false-premise citation" and the 2026-07-11 hygiene pass). Worth a standing note for future fires: **before building a HIGH item, grep the target file/test for the fix's own described symptom FIRST** — cheap ($0 code reads) and caught 2 already-done builds this fire before any code was written, which would otherwise have wasted a full build-cycle re-deriving work that already shipped.
-
-> **Cost: ~$2.3** (STAGE 0/1: engine-health/STATUS/queue reads, `task_scorer.py --top` re-trace, self-audit gaps confirmation, grep for open HIGH items, live trace of 2 candidate items across `heartbeat_core.py`, the referenced audit doc, `drawing.js`, and the tradingview-mcp repo's git log/test suite, 2 live test-suite runs (17/17 + 5/5), 2 queue.md closures, 1 commit — no LLM in the hot path, no orders, no code edits outside queue.md). **Files:** `automation/overnight/queue.md`.
 
 ---
 

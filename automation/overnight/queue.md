@@ -2070,6 +2070,42 @@ cost is the confluence-tolerance interaction in item 5 above, not compute.
   session or fire (added here as the interim rule), and the embedded-date-vs-mtime
   regression guard remains wanted as defense-in-depth.
 
+**CLOSED_PARTIAL 2026-07-20 ~19:55 ET (conductor, AFTERHOURS, commit 25e31e2).** THE REAL FIX
+migration applied to the 8 confirmed-reproduced files (circuit-breaker.json x6 across both core
+accounts + 4 fleet arms, today-bias.json x2 main+futures): gitignored + `git rm --cached`,
+exact pattern as 41889a0. Extended `test_ledger_gitignore_guard.py` with `STATE_SNAPSHOTS` +
+2 new tests (4/4 green), RED-proofed via `git stash` on `.gitignore` alone (failed as expected,
+restored clean). Verified files remain readable on disk post-untrack (path-based reads don't
+care about git tracking). Curated safety gate (31+5) PASS at commit time. Lesson filed:
+`_lesson-inbox/state-file-reversion-git-ops-on-live-state-2026-07-20.md` (flags this as the
+SAME mechanism as the never-L-numbered 07-14 ledger incident recurring on a different file
+class -- lesson-author should consider one L# covering the general class).
+**PARTIAL because:** a broader audit this fire found ~279 tracked JSON/JSONL files under
+`automation/state/` also last-committed 2026-07-14 -- most are dated one-time snapshots /
+append-only historical logs (lower risk, don't regress in place) and were NOT individually
+triaged; see follow-up `STATE-FILE-REVERSION-AUDIT-FOLLOWUP` below. The embedded-date-vs-mtime
+staleness guard and the "no git stash/checkout on automation/state" hard rule remain UNBUILT
+(prose-only interim rule) -- also folded into the follow-up. **Also unconfirmed:** the WHO/WHY
+of the original 04:27/05:58 ET writer (conductor fire's git op vs something else) -- the 18:40
+reproduction demonstrates the MECHANISM conclusively but not which specific process ran the
+04:27/05:58 git operation; not chased further since the mechanism-level fix (untrack) makes the
+attribution moot for prevention purposes. Bold's 4x-margin origin flag from this item's original
+filing is still open, separately, for J confirmation (not a code question).
+:: status:CLOSED_PARTIAL
+
+### STATE-FILE-REVERSION-AUDIT-FOLLOWUP (MED, infra hygiene, filed 2026-07-20 ~19:55 ET, follow-up to STATE-FILE-REVERSION-2026-07-20)
+- [ ] STATE-FILE-REVERSION-AUDIT-FOLLOWUP (MED, bounded audit) :: Triage the ~279 tracked
+  JSON/JSONL files under `automation/state/` last-committed 2026-07-14 (full list reproducible
+  via the python snippet used this fire: flag any tracked file whose mtime is recent but whose
+  last commit predates it by >3 days). For each, classify: (a) dated one-time snapshot / append-
+  only historical log -- leave tracked, no risk; (b) overwritten-in-place live state, same hazard
+  class as circuit-breaker.json/today-bias.json -- gitignore + untrack + extend
+  `STATE_SNAPSHOTS` in `test_ledger_gitignore_guard.py`. Also consider the interim rule's
+  code-enforced form floated in the lesson-inbox item: a guard that fails if any file under
+  `automation/state/` NOT in an explicit tracked-config allowlist (`params.json`,
+  `aggressive/params.json`, `fleet/accounts.json`, `SCHEDULED-TASKS.md`, `README.md`) shows up
+  in a git diff after any stash/checkout op. :: depends:none :: status:pending
+
 ### T-AUTOPSY-H-2026-07-20-stop-noise MED — autopsy hypothesis: stop_inside_noise_floor
 
 **Claim:** the live stop exits losers that then pay the thesis -- the stop is harvesting winners, not cutting losers. **Evidence:** `{"losers_in_window": 21, "stopped_then_paid": 15, "fraction": 0.714, "window_n": 30}` (analysis/autopsies/2026-07-20.md).
