@@ -1,3 +1,39 @@
+## [2026-07-20 18:19-18:58 ET] OK -- conductor (AFTERHOURS): DECISION-ROW-SPY-STALENESS -- finished + shipped a fix an earlier fire left uncommitted, REVOKE-eligible, guard-tested, committed
+
+> **STAGE 0/1:** engine-health GREEN, market closed since 15:55. self-check DEGRADED but
+> both flags non-critical (cash-settlement sanity cap, trendline-draw visibility gap only).
+> Top of `queue.md` Active backlog: `DECISION-ROW-SPY-STALENESS` (HIGH, filed ~18:30 ET same
+> evening, "investigate before tuning ANYTHING else") -- picked over `task_scorer.py --top`'s
+> `MORNING-BULL-QUALITY-GATE-RECONSIDER` per the queue item's own explicit priority framing
+> + priority-1 FUNCTION FIRST (sight-integrity feeding trigger/scoring is exactly that class).
+
+> **Investigating found the fix already ~90% built and fully wired in `heartbeat_core.py`
+> (`_fetch_live_spy_quote` + `_sight_staleness_check`, both call sites, `SKIP_STALE_SIGHT`
+> verdict) plus a new 23-test guard file and a quantification report -- all UNCOMMITTED,
+> from an earlier fire this session (16:08-16:17 ET file timestamps). This fire's job
+> became VERIFY + FINISH + SHIP, not re-derive: read the whole diff, confirmed the $1.00
+> threshold is evidence-derived (not hand-picked -- n=3860 rows, real fills topped out at
+> $0.63 outside the pathological cluster which hit $1.12-1.38), confirmed both fail-open
+> directions are correct (no live quote -> never blocks; NEVER-BLIND doctrine), ran
+> `test_sight_staleness_guard.py` (23/23), ran the two existing test files it modified
+> (53/53), then the full heartbeat_core-adjacent suite (136/136, zero regressions).
+> Committed `c593508` (pre-commit safety gate PASS). Closed the queue item with full
+> evidence; filed one small non-blocking follow-up (`GAP-REASON-SESSION-OPEN-FALLBACK`,
+> LOW -- a separate, confirmed log-only fallback-value seam at the 09:34 session open,
+> does not touch trigger/scoring).**
+
+> **REVOKE window open.** Change: entry-time freshness cross-check against Alpaca
+> `/trades/latest` (not another bar-close) fires ONLY at the moment an ENTER is about to be
+> attempted; diverges >$1.00 from the trigger bar's close -> `SKIP_STALE_SIGHT`, no order
+> placed. PAPER accounts only (Safe + Bold core, and the fleet arms via the same core
+> ledger). Revert: `git revert c593508`. Files: `setup/scripts/heartbeat_core.py`,
+> `backtest/tests/test_sight_staleness_guard.py` (new), `backtest/tests/
+> test_gate_provenance_ordering_2026_07_10.py`, `backtest/tests/test_money_path_2026_07_01.py`,
+> `analysis/recommendations/decision-row-spy-staleness-2026-07-20.json` (new),
+> `backtest/tools/fetch_spy_1min_sight_staleness.py` (new). **Commit:** `c593508`.
+
+---
+
 ## [2026-07-20 17:42-17:58 ET] OK -- conductor (AFTERHOURS): self-audit gap batch (17:31:45, 9 items) investigated, 0 real gaps, queue hygiene fixed
 
 > **STAGE 0/1:** engine-health GREEN (13/13), market closed. Self-audit gaps
@@ -505,3 +541,6 @@
 ### DEGRADED: self-check 2026-07-20T17:48:01
 - SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
 - TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+## Kitchen
+Kitchen: alive, queue 27 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free

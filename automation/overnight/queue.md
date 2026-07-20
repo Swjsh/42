@@ -11,7 +11,7 @@
 
 ### DECISION-ROW-SPY-STALENESS (HIGH, sight-integrity investigation, filed 2026-07-20 ~18:30 ET from Lever-2 discovery)
 
-- [ ] DECISION-ROW-SPY-STALENESS (HIGH, investigate before tuning ANYTHING else -- stale
+- [x] DECISION-ROW-SPY-STALENESS (HIGH, investigate before tuning ANYTHING else -- stale
   sight invalidates every downstream logic conclusion) :: Lever-2's replay
   (analysis/recommendations/extra-signal-premium-stop-counterfactual-2026-07-20.json)
   proved the engine's logged spot was STALE by ~$1.48 during 2026-07-20 09:51-09:56:
@@ -27,7 +27,55 @@
   freshness guard on the scoring path's spot (max-age seconds, fail-open to HOLD not to
   stale-ENTER) + regression guard; this is C7 (audit outputs) + never-blind-beacon
   territory. Related corrections already folded into
-  analysis/winning-trade-map/SYNTHESIS-2026-07-20.md signal #2. depends:none :: status:pending
+  analysis/winning-trade-map/SYNTHESIS-2026-07-20.md signal #2. depends:none :: status:CLOSED
+
+> **CLOSED 2026-07-20 ~18:19-18:55 ET (conductor, AFTERHOURS): shipped, tested, committed
+> `c593508`.** Found the fix already ~90% built + fully wired but UNCOMMITTED in the working
+> tree from an earlier fire this session (16:08-16:17 ET timestamps on the new files) --
+> this fire's job was VERIFY + FINISH + SHIP, not re-derive. **(1) Provenance answer:**
+> `bc['bar']['close']` (== `trig['close']`, trig_idx=n-2 of the fetched 5m window) IS the
+> field BOTH the trigger/scoring path AND the log use -- same value, single source, not two
+> divergent fields. The lag (~5-10min, only advances once per 5m bar close) is BY DESIGN
+> (no-look-ahead requirement, matches backtest fidelity) -- confirmed the separate
+> `context_bundle.spy` field (context_bundle_producer.py) is genuinely log-only and does
+> NOT feed score/gates (docstring + grep-verified, zero consumers on the score/_derive_tier
+> path), so that field was a red herring; the REAL exposure is the trigger-bar's own
+> structural lag becoming pathological when price moves fast inside the ~5-10min window --
+> exactly what happened 07-20 09:51-09:55 (3 fleet vix_regime_dayside fills traded against
+> a spot $0.40-$1.38 stale). **(2) Quantification**
+> (`analysis/recommendations/decision-row-spy-staleness-2026-07-20.json`, n=3860 RTH rows
+> 07-14..07-20): mean divergence 0.38, median 0.27 (expected structural lag), p99 2.49; real
+> FILLS this week topped out at $0.63 divergence outside the 07-20 cluster, which alone hit
+> $0.40/$1.12/$1.38 -- $1.00 threshold cleanly separates pathological from normal without
+> touching a single other real entry. **(3) Fix shipped:** `_fetch_live_spy_quote()`
+> (Alpaca `/trades/latest`, deliberately NOT another bar-close) +
+> `_sight_staleness_check()` cross-check the trigger spot against a fresh tick-level read
+> ONLY at the moment an ENTER is about to be attempted (primary path + extra-setup route),
+> fail-open both directions (no live quote -> never blocks; divergence > $1.00 ->
+> `SKIP_STALE_SIGHT`, no order attempted). `trigger_bar_et` now logged on every row
+> (visibility). Guard: `backtest/tests/test_sight_staleness_guard.py` 23/23 green; adapted
+> `test_gate_provenance_ordering_2026_07_10.py` + `test_money_path_2026_07_01.py` to pin
+> `_fetch_live_spy_quote` (deterministic, never trips the new guard incidentally) -- 136/136
+> heartbeat_core-adjacent tests green, zero regressions; pre-commit safety gate PASS.
+> **Not addressed (separate, smaller, non-blocking):** the 09:34 `spy=743.28 ==
+> prior-close` / `gap_reason="no_rth_bars_for_today_yet"` seam is a DIFFERENT field
+> (context_bundle's daily-gap computation, not the trigger-bar spot this fix covers) --
+> filed as a follow-up below, LOW, since it's a log-only fallback value this same
+> investigation confirms is non-load-bearing. **PAPER accounts only, rail-4
+> guard+revert+REVOKE:** revert = `git revert c593508`. REVOKE window open on Discord.
+
+### GAP-REASON-SESSION-OPEN-FALLBACK (LOW, follow-up from DECISION-ROW-SPY-STALENESS close, filed 2026-07-20 ~18:55 ET)
+
+- [ ] GAP-REASON-SESSION-OPEN-FALLBACK (LOW, log-only fallback-value seam, non-load-bearing) ::
+  Separate from the trigger-bar staleness fix above: 09:34 ET decision rows on 2026-07-20
+  carried spy=743.28 (== prior session close exactly) with gap_reason
+  "no_rth_bars_for_today_yet" (context_bundle_producer.py:467/497) -- the daily-gap
+  computation falls back to prior-close when today's RTH bars aren't available yet at the
+  very open. Confirmed context_bundle is LOGGED ONLY (heartbeat_core.py:331-337 docstring,
+  zero score/gates/_derive_tier consumers) so this does NOT affect trigger/scoring -- purely
+  a cosmetic/log accuracy seam at the 09:30-09:35 open window. Low value, pick up only if a
+  future fire is already touching context_bundle_producer.py for something else.
+  depends:none :: status:pending
 
 ### STRUCTURE-STOP-ZONE-BAND (HIGH, trading-path, filed 2026-07-20 ~14:50 ET during RTH -- FIX AFTER 16:00, Rule 9; J called the failure live)
 
