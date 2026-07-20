@@ -128,7 +128,96 @@
   (min N bars or requires-new-trigger-bar, pre-reg the value, don't hand-pick); (b) audit
   extra-signal exit shape vs core chart-stop doctrine -- either align or document why not.
   NOTE: stops did their job directionally today (calls bought into a fade; -$87 instead of
-  worse) -- the churn is the defect, not the stop concept. depends:none :: status:pending
+  worse) -- the churn is the defect, not the stop concept.
+  depends:none :: status:CLOSED_PARTIAL (item 1 SHIPPED same-bar cooldown, item 2 re-filed below)
+
+> **CLOSED item 1 (re-entry cooldown) 2026-07-20 ~16:42-17:15 ET (conductor, AFTERHOURS): SAME-BAR
+> re-entry guard shipped, guard-tested, committed.** Traced the churn mechanism first: the
+> extra-setup lane's watcher "current-bar guards" only stop a DUPLICATE signal firing twice --
+> they never stop a FRESH entry attempt once the account goes flat again mid-bar (a stop-out),
+> and `_route_extra_setups` had zero memory of "did this setup already try this bar." Chose
+> **"requires-new-trigger-bar" over a hand-picked N-minute duration** (the item's own suggested
+> alternative) specifically because this is a brand-new mechanism with no existing trade
+> population to pre-register a numeric cooldown against -- the bar boundary is the smallest
+> non-arbitrary unit available, so there is no knob to A/B here (unlike item 2 below, which DOES
+> need one). **Built:** `exit_actuator.load_last_entry_bars` / `record_entry_bar` /
+> `same_bar_cooldown_active` (new, `automation/state/fleet/exit_actuator.py` -- a per-arm,
+> per-setup "last trigger-bar attempted" ledger, same persistence pattern as the existing
+> `load_states`/`save_states` pair) + wired into `heartbeat_core._route_extra_setups`
+> (`setup/scripts/heartbeat_core.py`): before any entry attempt, refuse it
+> (`SKIP_COOLDOWN_SAME_BAR`) if the setup already attempted an entry on this EXACT trigger bar;
+> record the bar on an actual PLACED/PLACING/WOULD_PLACE only (never on WATCH_NOT_ARMED /
+> VETOED_BY_MODELS / SKIP_TICK_ENTRY_TAKEN). Fail-open throughout: a cooldown-file read/write
+> error never blocks a legitimate entry. Scoped to the extra-setup lane only -- the primary
+> ribbon path already has its own one-position-at-a-time + gate discipline and was out of this
+> fix's scope. **Verified this fire:** new guard
+> `backtest/tests/test_extra_signal_churn_cooldown_2026_07_20.py` (10/10) covers the round-trip,
+> same-bar-blocks / different-bar-doesn't, fail-open on a cooldown-check exception, and
+> record-only-on-actual-placement. RED-proofed via `git stash` on the 2 edited files (untracked
+> new test file separately moved out and back, per the file-move technique this session's earlier
+> fires established for untracked modules): stashing the 2 tracked files + moving the test file
+> out reproduced the exact expected mechanism (`AttributeError: module 'exit_actuator' has no
+> attribute 'load_last_entry_bars'`, 9/10 fail), `git stash pop` + move-back restored cleanly,
+> re-verified 10/10 green. Broader sweep (`test_g4_extra_setup_routing` +
+> `test_gap_and_go_exit_wiring_2026_07_18` + `test_audit_fix_heartbeat` + `test_audit_fix_exit` +
+> `test_execute_stop_display` + `test_g14_fleet_ribbon_exit` + `test_money_path_2026_07_01` +
+> `test_trade_to_learn_2026_07_01` + this file) -> **136/136 PASS, 0 regressions**. Curated
+> safety gate (31+5-suite, `run_safety_gate.py`) PASS.
+>
+> **Rail-4 (PAPER trading-path -- guard test + revert path + this REVOKE report):** touches
+> `automation/state/fleet/exit_actuator.py` (additive, 3 new functions, zero existing function
+> bodies changed), `setup/scripts/heartbeat_core.py` (`_route_extra_setups` gains one new
+> same-bar check before the existing veto/execute try-block + one recording call after a
+> successful placement; zero change to the primary ribbon path, zero change to gate ordering,
+> zero change to `_execute`'s pricing/sizing/placement logic), `backtest/tests/
+> test_extra_signal_churn_cooldown_2026_07_20.py` (new guard), `automation/overnight/queue.md`
+> (this closure). **Revert:** `git revert <commit>` (single pathspec commit, 3 files) -- purely
+> additive, so a revert is a clean no-behavior-change rollback to today's exact pre-fix churn
+> risk (the item's own live exhibit).
+>
+> **Item 2 (exit-shape misalignment) NOT fixed this fire -- re-filed below as
+> `EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT`.** Confirmed live (not just claimed): `params.json`
+> carries `j_vix_dayside_premium_stop_pct: -0.08` / `j_vix_dayside_tp1_pct: 0.3` (the exact
+> old-shape numbers the item cites), routed through `_SETUP_EXIT_OVERRIDES["vix_regime_dayside"]`
+> in `heartbeat_core.py` -- confirmed still live and unchanged since 2026-06-18's core-lane
+> chart-stop-primary shift, exactly as the item alleged. Did NOT flip it this fire: changing a
+> live exit-stop knob without a pre-reg A/B against real fills would violate C29 (exit knobs
+> ratified on one tier/setup don't transfer to another -- there is no existing validated
+> chart-stop cell for `vix_regime_dayside` to fall back to, unlike `gap_and_go`'s already-
+> validated shape) -- a blind widen is exactly the kind of "hand-picked knob" OP-16/C29 forbid.
+
+### EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT (MED, trading-path, needs pre-reg A/B, filed 2026-07-20 ~17:10 ET, item 2 of EXTRA-SIGNAL-CHURN-COOLDOWN)
+
+- [ ] EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT (MED, after-hours study + pre-reg A/B) :: The
+  `vix_regime_dayside` extra-setup lane (and by inspection every OTHER `_SETUP_EXIT_OVERRIDES`
+  entry except `gap_and_go`) still trades its ORIGINAL 2026-06-01-era premium bracket
+  (`j_vix_dayside_premium_stop_pct=-0.08` / `j_vix_dayside_tp1_pct=0.30`) -- confirmed live in
+  `params.json` 2026-07-20. The 2026-07-08 noise-floor study found -8% premium stops on 0DTE
+  read as spread/quote noise more than real invalidation (10-min MAE -36% vs -20% stop = winners
+  stopped by noise, per the standing memory `project_noise_floor_entry_exit_matrix`); the core
+  ribbon path moved to chart-stop-primary on 2026-06-18 for exactly this reason, but the
+  extra-setup lane's per-setup overrides were never revisited after that shift. FIX (needs a
+  REAL pre-reg A/B before any params flip -- C29: exit knobs validated on one setup/tier don't
+  transfer to another without independent evidence):
+  (1) pull `vix_regime_dayside`'s (and the other 3 non-gap_and_go overrides') own fills history
+  from `fills-ledger.jsonl` + `core-decisions.jsonl` (small-n expected -- these are newer/rarer
+  extra-setup lanes than the core path, so this may be an underpowered-n<15 DISCLOSE-not-hide
+  case per C13, not a block on running the study);
+  (2) pre-register a widened-stop candidate (e.g. -20%/-30%, matching the core lane's pre-SS-B
+  premium-stop era, NOT a guess -- cite the specific historical value being reused) vs the
+  current -8% control, same dual-layer (fresh-slice expectancy + real-fills anchor) + sub-window
+  stability discipline the STRUCTURE-STOP-ZONE-BAND study used (reuse its machinery where the
+  setup shape allows);
+  (3) if n is too small for a real verdict, the honest conclusion is DEFER-INSUFFICIENT-DATA,
+  not a blind flip -- do not hand-pick a replacement value absent evidence just because -8% is
+  suspected to be too tight;
+  (4) if/when a candidate clears the auto-ratify gate (OOS+/WF>=0.70/sub-window-stable/anchor-
+  no-regression), ship it exactly like any other trading-path change (guard test + revert path +
+  REVOKE report, rail 4) -- this item does NOT need J's ratification, only real evidence.
+  Evidence: `automation/state/params.json` (`j_vix_dayside_premium_stop_pct`/`_tp1_pct`),
+  `setup/scripts/heartbeat_core.py::_SETUP_EXIT_OVERRIDES`, the EXTRA-SIGNAL-CHURN-COOLDOWN
+  closure note above (this fire's live confirmation).
+  depends:none :: status:pending
 
 ### PREMARKET-TOUCH-CREDIT-STUDY (HIGH, study-first, filed 2026-07-20 ~09:36 ET, J question same morning)
 

@@ -65,6 +65,65 @@ def save_states(arm_id: str, states: dict) -> None:
                  encoding="utf-8")
 
 
+def _cooldown_path(arm_id: str) -> Path:
+    d = FLEET_DIR / arm_id
+    d.mkdir(exist_ok=True)
+    return d / "extra-setup-cooldown.json"
+
+
+def load_last_entry_bars(arm_id: str) -> dict:
+    """{setup_name: trigger_bar_et_iso} -- the LAST trigger-bar timestamp an extra-setup
+    ATTEMPTED (armed placement, dry or live -- see _TAKEN in heartbeat_core.py) an entry on,
+    per setup. Read by heartbeat_core._route_extra_setups (EXTRA-SIGNAL-CHURN-COOLDOWN,
+    2026-07-20) to refuse a SAME-BAR re-entry after a stop-out reopens the account to flat:
+    the churn exhibit (09:51/09:54/09:55 ET 3x 748C entries, one stopped-out trigger bar,
+    net -$87) fired repeatedly within a SINGLE closed 5m bar once the free-model veto let
+    one tick through -- a same-bar re-entry, not a genuinely new signal. Requiring the trigger
+    bar to ADVANCE before the SAME setup can re-enter is a structural fix with no numeric
+    knob to hand-pick (the "requires-new-trigger-bar" option named in the queue item, chosen
+    over "min N bars" specifically because there is no existing trade population to
+    pre-register a duration against -- this is a brand-new mechanism, not a re-tunable
+    parameter). Empty on missing/corrupt (fail-open -- an unreadable cooldown file can never
+    block a legitimate entry, only ever fail toward "no cooldown recorded")."""
+    p = _cooldown_path(arm_id)
+    if not p.exists():
+        return {}
+    try:
+        raw = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return raw if isinstance(raw, dict) else {}
+
+
+def record_entry_bar(arm_id: str, setup_name: str, trigger_bar_et: str) -> None:
+    """Persist the trigger-bar timestamp `setup_name` just attempted an entry on (see
+    load_last_entry_bars for the full rationale). Fail-safe: any write error is swallowed --
+    this is a churn-prevention side-record, never allowed to abort an entry that already
+    placed/would-place."""
+    if not setup_name or not trigger_bar_et:
+        return
+    try:
+        states = load_last_entry_bars(arm_id)
+        states[str(setup_name)] = str(trigger_bar_et)
+        _cooldown_path(arm_id).write_text(json.dumps(states, indent=2), encoding="utf-8")
+    except Exception:  # noqa: BLE001 -- never abort the caller's already-placed entry
+        pass
+
+
+def same_bar_cooldown_active(arm_id: str, setup_name: "str | None",
+                             trigger_bar_et: "str | None") -> bool:
+    """True iff `setup_name` already attempted an entry on THIS exact trigger bar for this
+    arm (per load_last_entry_bars) -- the SAME-BAR re-entry guard. False (never blocks) on
+    any missing input or read error -- fail-open by construction."""
+    if not setup_name or not trigger_bar_et:
+        return False
+    try:
+        last = load_last_entry_bars(arm_id)
+    except Exception:  # noqa: BLE001
+        return False
+    return str(last.get(str(setup_name), "")) == str(trigger_bar_et)
+
+
 def register_entry(arm_id: str, *, symbol: str, side: str, entry_premium: float,
                    qty: int, exit_shape: dict, strategy: str = "",
                    trigger_level: Optional[float] = None,

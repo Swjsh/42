@@ -1649,10 +1649,28 @@ def _route_extra_setups(account: str, extra: list, payload: dict, params: dict) 
     working orders, so two same-tick placements would both pass it and could fill 3P+3C
     simultaneously — violating one-position-at-a-time. First placement wins the tick;
     later fired rows log SKIP_TICK_ENTRY_TAKEN (they re-fire on a later tick only if
-    still the current-bar signal, which the watchers' current-bar guards enforce)."""
+    still the current-bar signal, which the watchers' current-bar guards enforce).
+
+    SAME-BAR RE-ENTRY COOLDOWN (EXTRA-SIGNAL-CHURN-COOLDOWN, 2026-07-20): the watchers'
+    current-bar guards stop a setup firing a *duplicate* signal within one bar, but they do
+    NOT stop a *fresh* entry once the account goes flat again mid-bar (e.g. a stop-out) --
+    live exhibit 2026-07-20 09:51-09:55 ET, safe/vix_regime_dayside: 3x 748C entries on what
+    was a single closed 5m bar (09:52/09:53 blocked only by the nondeterministic free-model
+    veto, not a real gate), each stopped out in under a minute, net -$87. Before ANY new
+    entry attempt for a setup, refuse it if that setup already attempted an entry on this
+    EXACT trigger bar (exit_actuator.same_bar_cooldown_active) -- a stop-out on bar N no
+    longer re-arms the setup until bar N+1 closes and a genuinely new trigger bar exists.
+    Chose "requires-new-trigger-bar" over a hand-picked N-minute duration deliberately: this
+    is a brand-new mechanism with no existing trade population to pre-register a numeric
+    cooldown against, so the bar-boundary is the smallest non-arbitrary unit available.
+    Scoped to the extra-setup lane only (this function) -- the primary ribbon path already
+    has its own one-position-at-a-time + gate discipline and is out of this fix's scope.
+    Guard: test_extra_signal_churn_cooldown_2026_07_20.py."""
     out: list = []
     placed_this_tick = False
     _TAKEN = {"PLACED", "PLACING", "WOULD_PLACE"}
+    _arm = ACCOUNTS.get(account, {}).get("fleet_arm")
+    _trigger_bar_et = str(payload.get("bar_ctx", {}).get("timestamp_et") or "") or None
     for row in extra or []:
         sv = _synthetic_verdict_from_extra(row)
         if sv is None:
@@ -1665,6 +1683,14 @@ def _route_extra_setups(account: str, extra: list, payload: dict, params: dict) 
             out.append({"setup": setup, "action": "SKIP_TICK_ENTRY_TAKEN"})
             continue
         try:
+            import exit_actuator as _ea_cd  # noqa: PLC0415
+            if _arm and _ea_cd.same_bar_cooldown_active(_arm, setup, _trigger_bar_et):
+                out.append({"setup": setup, "action": "SKIP_COOLDOWN_SAME_BAR",
+                           "trigger_bar_et": _trigger_bar_et})
+                continue
+        except Exception:  # noqa: BLE001 -- fail-open: a cooldown-check error never blocks
+            pass
+        try:
             ev = _free_model_eval(account, payload, sv)
             if ev.get("veto"):
                 out.append({"setup": setup, "action": "VETOED_BY_MODELS", "free_eval": ev})
@@ -1676,6 +1702,11 @@ def _route_extra_setups(account: str, extra: list, payload: dict, params: dict) 
             out.append({"setup": setup, "action": ex.get("status"), "exec": ex})
             if ex.get("status") in _TAKEN:
                 placed_this_tick = True
+                if _arm and _trigger_bar_et:
+                    try:
+                        _ea_cd.record_entry_bar(_arm, setup, _trigger_bar_et)
+                    except Exception:  # noqa: BLE001 -- never abort an already-placed entry
+                        pass
         except Exception as e:  # noqa: BLE001 — never crash the tick
             out.append({"setup": setup, "action": "EXTRA_EXEC_ERROR", "err": str(e)[:120]})
     return out
