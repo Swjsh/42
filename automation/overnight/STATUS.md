@@ -77,7 +77,7 @@
 > trading-path files touched). **Files:** `backtest/tools/structure_stop_zone_band_ab.py`,
 > `backtest/tests/test_structure_stop_zone_band_ab.py`, `analysis/recommendations/structure-
 > stop-zone-band-preregistration.json`, `analysis/recommendations/structure-stop-zone-band-
-> 2026-07-20.json`, `automation/overnight/queue.md`. **Commit:** pending (next step).
+> 2026-07-20.json`, `automation/overnight/queue.md`. **Commit:** `956cf84`.
 
 ---
 
