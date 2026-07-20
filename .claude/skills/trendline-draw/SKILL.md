@@ -117,6 +117,20 @@ every 5 min); DRAWING is not continuously live without a session open to run it.
 - Drawn on the live chart, family-labeled (or break levels reported analytically if TV is down).
 - Prior engine-drawn lines scoped-cleared (never `draw_clear`) before the new set is drawn.
 - The break level + status + family communicated as an actionable trigger.
+- Called `trendline_draw_state.py mark-run` (see step 6 below) so a skipped/missed daily run
+  surfaces to `self_check`/STATUS.md instead of going unnoticed (2026-07-19 fix).
+
+## Step 6 — stamp the outcome (2026-07-19, self_check visibility)
+Once daily via `Gamma_Premarket`, ALWAYS stamp the run outcome so
+`self_check.check_trendline_draw_freshness` can tell whether Step 5c actually fired today:
+```
+# on success
+.venv/Scripts/python.exe setup/scripts/trendline_draw_state.py mark-run --status success
+# on TV-down / skill failure / context-budget skip
+.venv/Scripts/python.exe setup/scripts/trendline_draw_state.py mark-run --status skipped --reason "<why>"
+```
+On-demand invocations (J asking mid-session) may skip this — it exists to catch the ONE daily
+premarket fire silently not happening, not to track every ad-hoc redraw.
 
 ## Notes / roadmap
 - A trendline break IS a Break-of-Structure; pair with `crypto/lib/market_structure.py` (BOS/CHoCH + HH/HL/LH/LL).

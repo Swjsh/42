@@ -300,8 +300,16 @@ purpose. The full 4-line detection still LOGS to trendlines-live.json — only t
 capped.) Persist the new entity_ids to `automation/state/trendline-draw-state.json` via
 `setup/scripts/trendline_draw_state.py`.
 
-If TV is down or the skill fails: log a warning under `## Setups skipped` and continue — this
-step is additive visibility, never load-bearing for the trading day.
+On success (all draws completed), stamp it so self_check can confirm the fire happened:
+`backtest/.venv/Scripts/python.exe setup/scripts/trendline_draw_state.py mark-run --status success`.
+
+If TV is down or the skill fails (including a context-budget skip of this whole step): log a
+warning under `## Setups skipped` AND stamp the skip —
+`backtest/.venv/Scripts/python.exe setup/scripts/trendline_draw_state.py mark-run --status skipped --reason "<short reason, e.g. TV down / context budget>"`
+— then continue. This step is additive visibility, never load-bearing for the trading day, but
+two silent skips in two days (2026-07-16/17) went unnoticed until J found a bare chart by eye;
+`Gamma_SelfCheck` now reads this stamp (`self_check.check_trendline_draw_freshness`) so a skip or
+a missed fire surfaces to STATUS.md/Discord instead of only the journal.
 
 ## Step 6 — seed today's journal
 

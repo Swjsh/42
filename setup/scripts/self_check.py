@@ -638,6 +638,49 @@ def check_macro_calendar_freshness(now, news_path=None) -> list:
             f"`schtasks /query /tn Gamma_MacroCalendar /v`."]
 
 
+TRENDLINE_DRAW_STATE = STATE / "trendline-draw-state.json"
+
+
+def check_trendline_draw_freshness(now, path=None) -> list:
+    """VISIBILITY instrument for premarket Step 5c (TRENDLINE-FIXES-2026-07-17 item 1: 'PREMARKET
+    DRAW CANNOT SILENTLY SKIP'). Step 5c (automation/prompts/premarket.md) draws the live engine's
+    trendlines on J's chart once daily inside the 08:30 ET Gamma_Premarket fire -- an LLM-driven
+    step with a context-budget ceiling, unlike the pure-Python producers this file mostly watches.
+    Two budget-skips happened in two days (2026-07-16/17) and both went ONLY to journal
+    '## Setups skipped' -- nothing self_check/engine-health/STATUS.md ever surfaced, so J found out
+    only by noticing his chart was bare. trendline_draw_state.mark_run() (called by the skill /
+    Step 5c on both the success and the skip path) is the producer this reads.
+
+    DEGRADED, never BROKEN: Step 5c is explicitly 'additive visibility, never load-bearing for the
+    trading day' (premarket.md's own words) -- a miss does not block or misinform trading decisions
+    the way a stale macro calendar or contradictory key-levels role does, so this must not classify
+    as BROKEN (see _problem_is_broken) even though it is still worth a real, non-silent flag."""
+    if now.weekday() >= 5:
+        return []  # no premarket fire on weekends -- nothing to check
+    if now.strftime("%H:%M") < "09:00":
+        return []  # give Step 5c (08:30 ET) its slack window before judging today stale
+    p = path or TRENDLINE_DRAW_STATE
+    today = now.strftime("%Y-%m-%d")
+    try:
+        state = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        state = {}
+    last_run = state.get("last_run") if isinstance(state, dict) else None
+    if not isinstance(last_run, dict) or not last_run.get("date_et"):
+        return [f"TRENDLINE-DRAW never marked today ({today}) -- Step 5c may have silently "
+                f"skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-"
+                f"bearing (visibility only); run the trendline-draw skill by hand to catch up."]
+    if last_run["date_et"] != today:
+        return [f"TRENDLINE-DRAW STALE: last mark_run was {last_run['date_et']} ({last_run.get('status')}), "
+                f"not today ({today}) -- Step 5c likely didn't fire this morning. Non-load-bearing "
+                f"(visibility only); run the trendline-draw skill by hand to catch up."]
+    if last_run.get("status") == "skipped":
+        reason = last_run.get("reason") or "no reason recorded"
+        return [f"TRENDLINE-DRAW SKIPPED today ({today}): {reason}. Non-load-bearing (visibility "
+                f"only); run the trendline-draw skill by hand if J wants the chart populated."]
+    return []
+
+
 def _problem_is_broken(p: str) -> bool:
     """BROKEN (vs DEGRADED) classifier for a problem string. Module-level so the
     graduated guards can assert the mapping (e.g. PLACEMENT BROKEN -> BROKEN)."""
@@ -729,6 +772,10 @@ def run() -> dict:
     # it to STATUS.md/Discord (context_bundle_producer's calendar_stale flag is LOGGED ONLY).
     # Standing instrument now, so a future miss (any cause) can't rot silently either.
     problems.extend(check_macro_calendar_freshness(now))
+
+    # 13. TRENDLINE-DRAW FRESHNESS -- the 2026-07-16/17 scar: 2 budget-skips of premarket
+    # Step 5c in 2 days went to journal only, invisible to J until he noticed a bare chart.
+    problems.extend(check_trendline_draw_freshness(now))
 
     verdict = "GREEN" if not problems else ("BROKEN" if any(_problem_is_broken(p) for p in problems) else "DEGRADED")
     result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth,

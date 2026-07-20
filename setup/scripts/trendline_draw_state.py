@@ -24,10 +24,20 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 STATE = REPO / "automation" / "state" / "trendline-draw-state.json"
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    from et_clock import et_now
+except Exception:  # noqa: BLE001
+    import datetime as _dt
+
+    def et_now():  # pragma: no cover -- fallback mirrors self_check.py's own fallback
+        return _dt.datetime.utcnow() - _dt.timedelta(hours=4)
 
 
 def load() -> dict:
@@ -42,15 +52,43 @@ def load() -> dict:
     return payload
 
 
-def save(entries: list[dict]) -> None:
+def save(entries: list[dict], *, last_run: dict | None = None) -> None:
     STATE.parent.mkdir(parents=True, exist_ok=True)
-    STATE.write_text(json.dumps({"drawn": entries}, indent=2), encoding="utf-8")
+    payload: dict = {"drawn": entries}
+    if last_run is not None:
+        payload["last_run"] = last_run
+    else:
+        # record()/clear_record() don't know about last_run -- preserve whatever mark_run()
+        # last wrote so a bookkeeping-only save never silently erases the freshness stamp.
+        prior = load().get("last_run")
+        if prior is not None:
+            payload["last_run"] = prior
+    STATE.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
 def ids_to_clear() -> list[str]:
     """Entity IDs from the PRIOR draw pass -- call draw_remove_one on each of these (never
     draw_clear) before drawing the new set, so a refresh doesn't accumulate stale lines."""
     return [e["entity_id"] for e in load().get("drawn", []) if e.get("entity_id")]
+
+
+def mark_run(status: str, reason: str = "") -> dict:
+    """Stamp the outcome of a Step 5c (or on-demand skill) invocation -- TRENDLINE-FIXES-2026-07-17
+    item 1: 'PREMARKET DRAW CANNOT SILENTLY SKIP'. Two budget-skips in two days (2026-07-16/17)
+    went to journal '## Setups skipped' only -- nothing self_check/engine-health reads, so J never
+    saw it. This is independent of the entity-id bookkeeping above (a 'skipped' run has no
+    entities); self_check.check_trendline_draw_freshness() reads last_run to detect a silent skip
+    or a missed fire entirely (state never touched today)."""
+    now = et_now()
+    last_run = {
+        "status": status,
+        "reason": reason,
+        "date_et": now.strftime("%Y-%m-%d"),
+        "ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"),
+    }
+    entries = load().get("drawn", [])
+    save(entries, last_run=last_run)
+    return last_run
 
 
 def record(entity_id: str, kind: str, family: str, label: str = "") -> list[dict]:
@@ -82,10 +120,19 @@ def _cli() -> int:
     sub.add_parser("clear-record", help="Wipe the bookkeeping after chart-side removal.")
     sub.add_parser("show", help="Print the current record as JSON.")
 
+    mr = sub.add_parser("mark-run", help="Stamp today's Step 5c outcome for self_check staleness detection.")
+    mr.add_argument("--status", required=True, choices=["success", "skipped"])
+    mr.add_argument("--reason", default="")
+
     args = p.parse_args()
     if args.cmd == "list-ids":
         for entity_id in ids_to_clear():
             print(entity_id)
+        return 0
+    if args.cmd == "mark-run":
+        last_run = mark_run(args.status, args.reason)
+        suffix = f" -- {last_run['reason']}" if last_run["reason"] else ""
+        print(f"marked {last_run['status']} at {last_run['ts_et']} ET{suffix}")
         return 0
     if args.cmd == "record":
         entries = record(args.entity_id, args.kind, args.family, args.label)

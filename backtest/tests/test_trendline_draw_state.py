@@ -67,3 +67,53 @@ def test_record_accumulates_across_calls() -> None:
     tds.record("e2", "resistance", "wick")
     tds.record("e3", "support", "body")
     assert len(tds.load()["drawn"]) == 3
+
+
+# ---- mark_run: TRENDLINE-FIXES-2026-07-17 item 1 (silent Step 5c skip visibility) ----
+
+def test_mark_run_success_stamps_last_run(monkeypatch) -> None:
+    import datetime as dt
+    monkeypatch.setattr(tds, "et_now", lambda: dt.datetime(2026, 7, 19, 8, 35, 0))
+    last_run = tds.mark_run("success")
+    assert last_run == {
+        "status": "success", "reason": "",
+        "date_et": "2026-07-19", "ts_et": "2026-07-19T08:35:00",
+    }
+    assert tds.load()["last_run"] == last_run
+
+
+def test_mark_run_skipped_carries_reason(monkeypatch) -> None:
+    import datetime as dt
+    monkeypatch.setattr(tds, "et_now", lambda: dt.datetime(2026, 7, 17, 8, 40, 0))
+    last_run = tds.mark_run("skipped", "context budget")
+    assert last_run["status"] == "skipped"
+    assert last_run["reason"] == "context budget"
+    assert tds.load()["last_run"] == last_run
+
+
+def test_mark_run_preserves_drawn_entries() -> None:
+    """mark_run() must not clobber the entity-id bookkeeping record()/clear_record() own."""
+    tds.record("e1", "support", "wick")
+    tds.mark_run("success")
+    payload = tds.load()
+    assert payload["drawn"] == [{"entity_id": "e1", "kind": "support", "family": "wick", "label": ""}]
+    assert payload["last_run"]["status"] == "success"
+
+
+def test_record_after_mark_run_preserves_last_run() -> None:
+    """The reverse direction: a bookkeeping-only save() (from record()/clear_record()) must not
+    silently erase the freshness stamp mark_run() last wrote (save()'s prior-preservation path)."""
+    tds.mark_run("success")
+    tds.record("e1", "support", "wick")
+    payload = tds.load()
+    assert payload["last_run"]["status"] == "success"
+    assert len(payload["drawn"]) == 1
+
+
+def test_clear_record_preserves_last_run() -> None:
+    tds.mark_run("skipped", "TV down")
+    tds.record("e1", "support", "wick")
+    tds.clear_record()
+    payload = tds.load()
+    assert payload["drawn"] == []
+    assert payload["last_run"]["status"] == "skipped"

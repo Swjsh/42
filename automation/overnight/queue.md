@@ -1255,6 +1255,16 @@ CAVEATS: best-fixed is IN-SAMPLE (needs OOS confirm), grid coarse 3x3, this is t
 1. PREMARKET DRAW CANNOT SILENTLY SKIP: 2 budget-skips in 2 days. Move the draw step out of the
    LLM premarket fire into a deterministic scheduled step (trendline_draw_state clear + engine
    detect + draw via cdp_eval.mjs fallback if MCP down), or make the skip emit a RED status line.
+   **[CLOSED 2026-07-20 ~00:xx ET conductor (AFTERHOURS), commit see STATUS.md]** Took the
+   stated alternative (status-line, not the deterministic-step rewrite): `trendline_draw_state.py`
+   gained `mark_run(status, reason)` (+ CLI `mark-run --status success|skipped --reason ...`),
+   stamped into `trendline-draw-state.json`'s new `last_run` field. Wired both success and
+   TV-down/skill-failure/context-budget-skip paths in `premarket.md` Step 5c + the
+   `trendline-draw` skill's new Step 6 to call it. New `self_check.check_trendline_draw_freshness`
+   (check #13 in `run()`) reads the stamp weekday-only, past a 09:00 ET slack window past the
+   08:30 fire: never-marked / stale-prior-day / today-marked-skipped all surface as DEGRADED
+   (deliberately never BROKEN -- Step 5c is non-load-bearing visibility per its own docs) to
+   STATUS.md + Discord via the existing `_alert()` path, so a 3rd silent skip can't recur invisibly.
 2. FRESH/SAME-DAY DESCENDING LINE TIER: J hand-drew the week's descending line twice this week;
    detector only scores multi-day rails (documented gap, pre-reg A/B spec already in
    TRENDLINE-SUBSYSTEM-AUDIT-2026-07-14). Run that A/B; ship a same-day tier if it clears.
