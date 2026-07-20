@@ -1,3 +1,31 @@
+## [2026-07-19 ~20:19-20:34 ET] SHIP (REVOKE) -- conductor (AFTERHOURS): PARAMS-DEAD-KNOB-DISPOSITION slice 1 (resilience-harness bucket, 4/24) closed -- plus a bonus fix to the reconciliation guard's own consumer-corpus glob
+
+> **Context (`et_clock.py`: `2026-07-19 20:19 Sunday EDT market_hours=False`, Task=conductor).** STAGE 0 engine-health GREEN (all 13 checks GREEN, market closed/quiet). `task_scorer.py --top` ranked `MORNING-BULL-QUALITY-GATE-RECONSIDER` #1 again -- re-confirmed (per the now well-documented recurring pattern) it's still J-DECISION-GATED and needs a fresh per-trade-scored orchestrator run, not fabricatable in one bounded fire. Fell through to the next tied-MED item, `PARAMS-DEAD-KNOB-DISPOSITION` (queue.md Tier 0.1, filed 2026-07-01 pipeline-audit break #7): drain the 24-key `KNOWN_DEAD` allowlist in `test_params_consumer_reconciliation.py`, one bucket per fire.
+
+> **Picked the resilience-harness bucket (4 keys)** and traced each before deciding disposition, rather than trusting the allowlist's own comment. The doc claimed "actual values are also embedded in _shared.ps1" -- **false for 3 of 4 keys.** `max_consecutive_failed_mcp_calls` / `max_consecutive_tv_failures_before_kill_switch` / `wedged_state_alert_hours` describe a consecutive-failure-counter kill-switch that was **never built anywhere in the repo** -- `run-tv-watchdog.ps1`'s live self-heal design uses immediate-relaunch + always-alert-on-every-relaunch instead, a different (and arguably simpler) mechanism that already covers the "J finds out" intent without ever needing a counter. **REMOVED** all 3 from `params.json`. `min_disk_free_mb` genuinely WAS a hardcoded literal (`Test-DiskSpaceAvailable`'s default param `=100`, matching the params value by convention only, never read) -- **RESTORED**: new `Get-ParamsMinDiskFreeMb` helper in `_shared.ps1` reads it live (fail-open to 100 on any read/parse error), wired as the function's default so its one live call site (`Invoke-Claude`'s pre-flight disk check) no longer hardcodes `-MinFreeMB 100`.
+
+> **Bonus finding while restoring `min_disk_free_mb` (would have false-failed the ratchet without it):** the reconciliation guard's OWN `_CONSUMER_GLOBS` corpus never scanned `setup/scripts/*.ps1` -- only the top-level `setup/*.ps1` (installers) directory, never the directory where `_shared.ps1` and every `run-*.ps1` task script actually live. Fixing that surfaced a SECOND, independent corpus gap: `automation/state/fleet/*.py` (the live fleet-lane consumer, e.g. `fleet_executor.py`) was never scanned either -- which had been silently false-flagging `recency_min_size_enabled` as a new dead knob for 4+ days (a pre-existing drift already tracked in STATUS.md history since 2026-07-15, reproduced independently this fire via `git stash` before touching anything, confirming it predates this fire and is not something I caused). Added both directories to `_CONSUMER_GLOBS`; the reconciliation test suite went from 1 pass / 3 fail to 4/4 green, with zero change to any trading-path behavior -- purely a corpus-coverage fix in a test file.
+
+> **Verified this fire:** new guard `backtest/tests/test_params_dead_knob_disposition_2026_07_19.py` (8 tests) -- static assertions (removed keys gone from params.json, restored key still present, helper function exists, no caller still hardcodes the old literal, both new corpus globs present) PLUS **3 live `powershell.exe` subprocess round-trips** against the real `Test-DiskSpaceAvailable` function using a scratch `automation/state/params.json` copy (never touches the real file): a changed value (12345) is picked up live, a missing key fails open to 100, and malformed JSON fails open to 100 -- non-vacuous, same convention as the `test_conductor_fire_lock_2026_07_18.py` precedent. **RED-proofed via `git stash`** on the 3 edited files (kept the new guard file in place): 5/8 tests fail with the exact expected mechanism (keys still present, old hardcoded literal still there, new corpus globs absent); `git stash pop` restored cleanly, re-verified 12/12 green (guard file + reconciliation suite together). Broader sweep: `-k "shared or params_consumer or dead_knob or self_heal or tv_launch_safe"` -> 30/30, zero regressions. `test-self-heal.ps1` (the PS1-native harness, not pytest) -> 23/23 PASS, including its own pre-existing `Test-DiskSpaceAvailable` shape test (explicit-override callers unaffected by the params-driven default). Curated safety gate (31 + 5-suite) PASS, run via the commit hook.
+
+> **Rail-4 (PAPER/engine-infra -- guard test + revert path + this REVOKE report):** touches `automation/state/params.json` (3 keys removed, 1 doc string corrected -- zero trading-behavior params touched, this is scheduler/resilience-harness config only), `setup/scripts/_shared.ps1` (new helper + 1 call-site default change, used by every scheduled task script -- pre-flight disk-space gate only, no trading logic), `backtest/tests/test_params_consumer_reconciliation.py` (corpus glob fix, test-only), `backtest/tests/test_params_dead_knob_disposition_2026_07_19.py` (new guard), `automation/overnight/queue.md` (item narrowed, 1 of 6 buckets closed). Zero `heartbeat_core.py`/`filters.py`/placement/exit files touched -- no capital-decision surface changed. **Revert:** `git revert b10be35` (single pathspec commit, 5 files).
+
+> **Learn-loop:** no new lesson-inbox item filed -- the corpus-coverage gap (a reconciliation guard's own consumer-glob missing 2 directories) is the same C14 dead-knob-drift class already indexed (a guard that under-scans its own corpus is itself a subtler instance of the class it's meant to catch), applied to the guard's own implementation rather than a new lesson.
+
+> **Cost: ~$3.55** (STAGE 0/1 re-trace of the top-ranked scorer item (correctly re-rejected as J-gated/unbounded), task_scorer full ranking read, queue.md targeted reads for 2 candidate items, 1 params/aggressive-params key-presence check, 3 grep sweeps tracing the resilience-harness bucket's real consumers (`_shared.ps1`, `run-tv-watchdog.ps1`, repo-wide key search), 1 params.json edit, 1 `_shared.ps1` edit (new helper + call-site fix), 1 reconciliation-test edit (KNOWN_DEAD shrink + 2 corpus-glob additions), 1 new 8-test guard file, 1 PS1 parse-check, 1 live 3-case PowerShell bite-test round-trip, 1 pytest run (4/4), 1 RED-proof git-stash round-trip, 1 broader 30-test sweep, 1 curated safety-gate run, 1 `test-self-heal.ps1` run (23/23), 1 queue.md narrowing edit, 1 commit -- no LLM in the hot path, no orders, PAPER-only, zero trading-path files touched). **Files:** `automation/state/params.json`, `setup/scripts/_shared.ps1`, `backtest/tests/test_params_consumer_reconciliation.py`, `backtest/tests/test_params_dead_knob_disposition_2026_07_19.py`, `automation/overnight/queue.md`. **Commit:** `b10be35`.
+
+---
+
+## [2026-07-19] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-11..2026-07-17), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-17). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-419.16); Bold_ATM_1+2=YELLOW ($-262.8)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-07-19 ~01:48-02:05 ET] SHIP (REVOKE) -- conductor (AFTERHOURS): PROMOTE-KEEPER-OOS-VALIDATION closed (stale) + L202 graduated
 
 > **Context (`et_clock.py`: `2026-07-19 01:51:50 Sunday EDT market_hours=False`, Task=conductor).** STAGE 0 engine-health GREEN (all 13 checks GREEN, market closed/quiet). `task_scorer.py --top` again ranked `MORNING-BULL-QUALITY-GATE-RECONSIDER` #1 — re-confirmed J-DECISION-GATED, needs a fresh per-trade-scored orchestrator run, not fabricatable in one bounded fire (Nth re-confirmation of the same finding prior fires already made). Grepped `queue.md` directly for open `(HIGH` items instead: picked `PROMOTE-KEEPER-OOS-VALIDATION` (filed 2026-06-28, "NEXT: run OOS validation on the top contender").
@@ -48,16 +76,6 @@
 > -   vwap_continuation (armed 2026-07-01): since-arm 2tr $-68.00 ($-34.00/tr, 0.0% WR)
 > -   vwap_reclaim_failed_break (armed 2026-07-01, 17d ago): 0 fills since arm — no live signal yet
 > - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
-
----
-
-## [2026-07-18] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-11..2026-07-17), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-17). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-419.16); Bold_ATM_1+2=YELLOW ($-262.8)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
 
 ---
 
@@ -189,3 +207,9 @@
 
 
 - [2026-07-18 23:57:02] crypto-harness drift RED :: stage v53_setup_dispatch.live pass rate dropped to 61.54% in last 24h (32/52) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-19 18:18:59] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 92.31% in last 24h (12/13) | stage v15_three_source_parity.live pass rate dropped to 92.31% in last 24h (12/13) :: see crypto/data/scorecards/drift_report.json
+
+- [2026-07-19 18:18:58] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-07-19 18:18:58] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-19.md
