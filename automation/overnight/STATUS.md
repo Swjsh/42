@@ -1,3 +1,72 @@
+## [2026-07-20 19:12-19:25 ET] OK -- conductor (AFTERHOURS): SHADOWEVAL-WEEKLY-TRIGGER-VS-DAILY-DOCS -- investigated a LOW doc-mismatch item, found + fixed a real 4-week silent C7 failure instead, committed
+
+> **STAGE 0/1:** engine-health GREEN, market closed since 15:55. Fill-funnel priority-1 check
+> GREEN (406/386 ticks safe/bold, 3 fills, both closed -- no funnel break). All HIGH queue
+> items already CLOSED tonight by prior fires; self-audit gaps fully actioned through 07-18.
+> `task_scorer.py --top` re-flagged J-decision-gated `MORNING-BULL-QUALITY-GATE-RECONSIDER`
+> (correctly re-skipped, confirmed its residual question is still J-gated, not auto-shippable).
+> Picked the remaining LOW queue item `SHADOWEVAL-WEEKLY-TRIGGER-VS-DAILY-DOCS` (closes a loop
+> over creating an artifact; `TV-MCP-GETCHARTAPI-FIX-VERIFY` was next but this session has no
+> TradingView MCP tools wired -- left pending for an interactive/Pilot session with TV MCP).
+
+> **The original premise was a non-issue** (live-checked `Get-ScheduledTask` trigger:
+> `WeeksInterval=1` + `DaysOfWeek=62` = all 5 weekdays = functionally "daily," no mismatch) --
+> **but investigating it surfaced a real, much bigger bug the doc-mismatch hunt wasn't even
+> aimed at:** `Gamma_ShadowEval` has fired every weekday since 2026-06-29 (real per-day logs
+> exist) with Task Scheduler reporting `LastTaskResult=0`, yet **no scorecard has been produced
+> since 2026-06-24** -- 4 weeks of `analysis/shadow-model/*-scorecard.md` silence, masked by the
+> wscript fire-and-forget exit-code masking (same class as the `Gamma_EodFlattenCore` founding
+> incident). **Root cause:** the live engine migrated from two per-account ledgers
+> (`decisions.jsonl`/`aggressive/decisions.jsonl`, frozen 2026-06-25) to one consolidated
+> both-accounts ledger (`core-decisions.jsonl`, materially different schema) around
+> 2026-06-25 -- `shadow_model_eval.py`'s `SAFE_LEDGER`/`BOLD_LEDGER` never followed the
+> migration, so every day since printed "No ticks found -- skipping" and exited 1.
+
+> **Fixed:** `_normalize_core_row()` + a `CORE_LEDGER` fallback in `load_ticks_for_date()` --
+> maps the new schema's field names to the legacy shape (`ribbon`->`ribbon_stack`,
+> `htf_15m`->`htf_15m_stack`, `setup`->`setup_name`, `triggers[0]`->`trigger`, `verdict`->
+> `action`, `exec.entry_px/tp/stop`->`entry_px/tp1_px/stop_px`), consulted only when the legacy
+> ledger has nothing for the date (pre-2026-06-25 grading stays byte-identical). Disclosed scope
+> limit: `core-decisions.jsonl` logs zero `EXIT_*` verdicts (owned by `exit_manager.py`), so
+> `HOLD_RUNNER`/`EXIT_*` DT grading stays unavailable -- `ENTER_BULL`/`ENTER_BEAR`/`HOLD`/
+> `SKIP_*` (the actual DT-agreement decision-bearing population) is fully restored.
+
+> **Verified this fire:** dry-run tick counts (406 safe / 386 bold for 2026-07-20) exact-match
+> `fill_funnel.py`'s independent count for the same day. New guard
+> `backtest/tests/test_shadow_model_eval_core_ledger.py` (11/11), RED-proofed via `git stash`
+> on `shadow_model_eval.py` alone (all 11 failed with `AttributeError: no attribute
+> 'CORE_LEDGER'`, `stash pop` restored + re-verified 11/11 green). Curated safety gate
+> (31+5-suite) PASS at commit time. Kicked off the REAL production eval
+> (`shadow_model_eval.py --date 2026-07-20 --account both`, the exact nightly command) live in
+> the background this fire -- confirmed streaming real per-tick Nemotron agreement grades
+> (e.g. `t 0 09:30 HOLD -> HOLD_DEV OK (10111ms)`), not just a dry-run. ~792 ticks x 2.5s
+> inter-call sleep + real LLM latency means this legitimately runs ~2h; it will keep running
+> past this fire as an independent process ($0, free tier) -- check
+> `analysis/shadow-model/2026-07-20-scorecard.md` directly for the finished artifact rather
+> than re-running it.
+
+> **Rail-4 N/A (not a trading-path file):** `shadow_model_eval.py` is read-only/propose-only
+> by its own docstring ("NEVER imports or calls any Alpaca tool or order function... Read-only
+> on production state") -- ships as engine-benefit per OP-22/OP-26, no J ratification needed.
+> Zero `params.json`/`heartbeat_core.py`/`filters.py`/placement/exit code touched. **Revert:**
+> `git revert 3adada9` (2 files: `setup/scripts/shadow_model_eval.py`,
+> `backtest/tests/test_shadow_model_eval_core_ledger.py`). **Commit:** `3adada9`.
+
+> **Learn-loop:** same root-cause class as the queue's own recurring C7/C14 theme (a producer
+> migrates its ledger shape, a consumer silently keeps reading the old file/schema) --
+> the guard test's live-ledger regression pin (`test_live_core_ledger_produces_ticks_for_a_real_recent_date`)
+> IS the graduation: it will RED the moment `core-decisions.jsonl`'s schema changes again
+> without a matching update here, so no separate lesson-inbox item was filed on top of it.
+
+> **Cost: ~$4.4** (STAGE 0/1 reads incl. engine-health/STATUS/queue/self-audit/fill-funnel,
+> task-scorer + queue triage across ~10 candidate items, schema investigation (3 python probes
+> of core-decisions.jsonl), the fix itself (~115-line diff), 1 new 11-test guard file + RED-proof
+> round-trip, 1 curated safety gate run, 1 real dry-run + 1 real background production fire,
+> queue.md + STATUS.md writeups, 1 commit). **Files:** `setup/scripts/shadow_model_eval.py`,
+> `backtest/tests/test_shadow_model_eval_core_ledger.py`, `automation/overnight/queue.md`.
+
+---
+
 ## [2026-07-20 18:19-18:58 ET] OK -- conductor (AFTERHOURS): DECISION-ROW-SPY-STALENESS -- finished + shipped a fix an earlier fire left uncommitted, REVOKE-eligible, guard-tested, committed
 
 > **STAGE 0/1:** engine-health GREEN, market closed since 15:55. self-check DEGRADED but
@@ -481,72 +550,3 @@
 
 ---
 
-## [2026-07-20 ~06:19-06:44 ET] SHIP (REVOKE) -- conductor (AFTERHOURS): PROFIT-P4-NBBO-CAPTURE closed -- entry-side option NBBO threaded into decision rows
-
-> **Context (`et_clock.py`: `2026-07-20 06:19 Monday EDT market_hours=False`, Task=conductor).** STAGE 0 engine-health GREEN (13/13 checks GREEN, market closed/quiet). `task_scorer.py --top` again ranked `MORNING-BULL-QUALITY-GATE-RECONSIDER` -- re-confirmed J-DECISION-GATED, not fabricatable in one bounded fire (Nth recurrence). Self-audit gaps surface (`analysis/self-audit/new-gaps-flagged.md`, 14 batches) checked: the noise-filter fix from the 07-19 21:48 fire holds; the remaining un-actioned SUBSTANTIVE items across the 07-02/07-08/07-09/07-10/07-11/07-13 batches are broad multi-week-scale audit asks ("automated backup and state recovery", "real-time model drift detection", etc.), not one-fire bounded -- noted, not actioned, correctly deferred rather than force-fit. Grepped `queue.md` for open `(HIGH` items directly (scorer's own scope gap, noted by the prior fire, still not fixed) and picked `PROFIT-P4-NBBO-CAPTURE`: a small, precisely-scoped, additive-telemetry ask ("Persist option NBBO ... Additive telemetry on heartbeat_core decision logging + guard test") -- the same class as the last 3 fires' successful `trigger_level_exact`/`shadow_triggers_fired`/same-day-tier threading work.
-
-> **Traced before building:** the item's own "entry/exit event" framing turned out to be half-already-true. `exit_actuator.manage_tick`'s per-tick results already carry `best_premium`/`worst_premium` (literally ask/bid from `get_option_quote_hilo`, added 2026-07-09 for STRUCTURE-STOP visibility) and that list threads verbatim into `rec["exit_pass"]` in `heartbeat_core.run_account` -- so exit-side NBBO was already reaching `core-decisions.jsonl`, just under different field names. The genuine, un-closed gap was ENTRY-side: `_execute`'s `plan` dict (persisted as `rec["exec"]`) computed `mid` (`get_option_mid`) and `entry_px` (`marketable_limit_price`) every tick but discarded the bid/ask that produced them.
-
-> **Fixed (1 source file, additive-only):** `_execute` now reconstructs `plan["nbbo"] = {bid, ask, mid, spread}` from the SAME `mid`/`entry_px` already computed this tick -- `ask = entry_px - buffer` and `bid = 2*mid - ask` (both formulas are the existing `marketable_limit_price`/`get_option_mid` arithmetic, algebraically inverted). Deliberately NOT a third independent `get_option_quote_hilo` fetch: existing tests mock only `get_option_mid`+`marketable_limit_price` on this path (mirroring the established `test_audit_fix_heartbeat.py` pattern), and a genuine extra fetch would add a real network round-trip to the entry-critical path plus risk a race between 3 separate quote reads on the same symbol. Zero change to `mid`/`entry_px`/`tp`/`stop`/`qty`/gate logic -- pure additive key on the `plan` dict.
-
-> **Verified this fire:** new guard `backtest/tests/test_nbbo_capture_2026_07_20.py` (5/5) -- dry-plan exact-value reconstruction pin (mid=1.00/entry_px=1.08/buffer=0.03 -> bid=0.95/ask=1.05/spread=0.10), a non-default `entry_cross_buffer` inversion check, an explicit "must never call `get_option_quote_hilo`" pin (fails the test outright if a future edit adds a real 3rd fetch), an end-to-end dry=False PLACED-row persistence + JSON-serializability check, and a NO_PREMIUM short-circuit check (nbbo key absent, never a None-valued fake telemetry entry). **RED-proofed via `git stash`** on the single edited file: 4/5 new tests failed with the exact expected mechanism (`KeyError: 'nbbo'`); `git stash pop` restored cleanly (`git diff --stat` confirmed the intended 2-hunk, ~18-line diff), re-verified 5/5 green. Broader sweep (`test_audit_fix_heartbeat.py`+`test_money_path_2026_07_01.py`+`test_trade_to_learn_2026_07_01.py`+`test_min_entry_premium_floor.py`+`test_real_fill_guard.py`+this file) -> **100/100 PASS, 0 regressions**. Curated safety gate (31+5-suite) PASS, run via the commit hook.
-
-> **Rail-4 (PAPER/entry-telemetry-only -- guard test + revert path + this REVOKE report):** touches `setup/scripts/heartbeat_core.py` (`_execute`'s `plan` dict gains one additive key only -- no pricing/sizing/gate/placement logic changed), `backtest/tests/test_nbbo_capture_2026_07_20.py` (new guard), `automation/overnight/queue.md` (item closed with the exit-side-already-present correction documented inline). Zero change to any order-placement/sizing/exit behavior -- this is pure LOGGED-ONLY entry telemetry, the same class as the 2026-07-09 `trigger_level_exact` and 2026-07-19 `shadow_triggers_fired` precedents. **Revert:** `git revert 50fa30f` (single pathspec commit, 3 files).
-
-> **Learn-loop:** no new lesson-inbox item filed -- this is a direct, uneventful application of the already-proven "LOGGED-ONLY additive telemetry, reuse the tick's existing broker calls instead of adding a new fetch" pattern to a third field family (after `trigger_level_exact` and `shadow_triggers_fired`); no new foot-gun surfaced. One thing worth flagging inline (not a new L##, just a scope note): `fleet_live.py` (lines 322/326) and `j_intent_executor.py` (line 483) have the IDENTICAL `get_option_mid`+`marketable_limit_price` double-call shape on their own separate entry paths (fleet-arm live trading + J-called manual entries) and are candidates for the same NBBO-reconstruction treatment in a future slice -- left untouched this fire since the queue item's own scope named "heartbeat_core decision logging" specifically.
-
-> **Cost: ~$3.9** (STAGE 0/1: engine-health/STATUS/queue reads, `task_scorer.py --top` re-trace (correctly re-rejected), self-audit gaps full-batch review across 14 dated sections (correctly deferred the remaining broad multi-week asks as not one-fire-bounded), grep for open HIGH items + targeted section reads, existing-quote-fetch-pattern discovery across `fleet_broker.py`/`heartbeat_core.py`/`exit_actuator.py`/`fleet_live.py`/`j_intent_executor.py` (confirmed the exit-side gap was already closed before building anything), 1 source-file edit (2 hunks, ~18 lines), 1 new 5-test guard file, 1 targeted pytest run (5/5), 1 RED-proof git-stash round-trip, 1 broader 100-test regression sweep, 1 curated safety-gate run (commit hook), 1 queue.md closure edit, 1 commit -- no LLM in the hot path, no orders, PAPER-only, zero pricing/gate/placement logic touched). **Files:** `setup/scripts/heartbeat_core.py`, `backtest/tests/test_nbbo_capture_2026_07_20.py`, `automation/overnight/queue.md`. **Commit:** `50fa30f`.
-
----
-
-## [2026-07-20 ~04:19-04:41 ET] SHIP (REVOKE) -- conductor (AFTERHOURS): TRENDLINE-FIXES-2026-07-17 item 2 closed -- same-day priority tier
-
-> **Context (`et_clock.py`: `2026-07-20 04:19 Monday EDT market_hours=False`, Task=conductor).** STAGE 0 engine-health GREEN (13/13 checks GREEN, market closed/quiet). `task_scorer.py --top` again ranked `MORNING-BULL-QUALITY-GATE-RECONSIDER` — re-confirmed J-DECISION-GATED, not fabricatable in one bounded fire (Nth recurrence). Self-audit gaps surface (`analysis/self-audit/new-gaps-flagged.md`) confirmed fully actioned — the 07-19 21:48 noise-filter fix's own DONE marker states future re-extracts will correctly reject the remaining 07-18-batch lines as scaffold, verified this fire by re-reading the batch (no un-actioned real gaps left). `task_scorer.py`'s Active-backlog ranking never surfaces HIGH items (confirmed: 0/34 scored items are HIGH — a scope gap in the scorer itself, since HIGH items live in dated sub-sections below `## Active backlog`, not parsed; noted for a future fire, not fixed this one) so grepped `queue.md` directly for open `(HIGH` items (15 found). Picked `TRENDLINE-FIXES-2026-07-17` item 2 (item 1 closed 00:xx, item 4 closed 22:xx last night; items 2/3 were flagged by both prior fires as "needs its own eval/design work" — traced item 2 far enough to confirm it WAS actually one-fire-bounded once its false premise was corrected).
-
-> **Traced before building:** item 2 claimed a "pre-reg A/B spec already in TRENDLINE-SUBSYSTEM-AUDIT-2026-07-14" for the same-day-priority-tier gap. Read the referenced pre-reg (`analysis/recommendations/trendline-structure-conviction-preregistration.json`) in full: it answers a COMPLETELY DIFFERENT question (a VIX-band conviction override for `block_elite_bull`, motivated by a 2026-07-14 11:06 ET exhibit signal) and is already `status: RUN_COMPLETE` / `result_verdict: KILL` (dated 2026-07-14). The audit doc's own "Not done / explicitly deferred" section states the same-day-priority tier "needs its own eval, not bundled into this audit's read-mostly fixes" — i.e. no A/B spec was ever written for THIS gap; the queue item's premise was simply wrong. Corrected this explicitly in `queue.md` rather than silently building on the false citation.
-
-> **Re-scoped the validation method to match what the feature actually is:** `write_live_state`'s own docstring states "the engine does NOT trade off these yet" — this is a SHADOW-only visibility feature (surfaces J's same-day line on the chart/JSON, never an input to any trading gate), not a live decision. No P&L A/B applies; the correct validation is a mechanism-correctness guard, the same class as item 1 (draw-skip visibility) and item 4 (shadow_triggers_fired threading), both already shipped this way in the last 2 fires.
-
-> **Traced the root gap:** `trendline_engine._fit`'s own score (`respect - 5*violations + span*0.1`) structurally rewards longer-lived lines — a fresh 2-3-touch same-day line J hand-draws essentially never wins a (kind, family) slot over an older multi-day line sharing it, because `detect()` only ever returns ONE best-scoring line per (kind, family) across the WHOLE lookback window. Confirmed via a synthetic fixture (2 disjoint-price-range trading days, hand-placed pivots, iteratively verified live via a scratch script before committing to the test — the first 2 fixture attempts accidentally created unintended cross-day/rising-trend pivot structure and were discarded, not silently kept).
-
-> **Fixed (2 files, additive-only):** `trendline_engine.py` — `Trendline` gained `tier: str = "primary"` (default preserves every existing reader/caller byte-identical); `detect(bars, families=..., include_same_day_tier: bool = False)` (new kwarg, default False = zero behavior change for the 6+ existing call sites across `v52_trendline_break.py`/`trendline_conviction_override_study.py`/tests, all of which call with defaults) adds a second best-scoring pass restricted to bars matching the LAST bar's ET calendar date, appending a result tagged `tier="same_day"` only when it is a genuinely different line from its primary sibling (deduped on exact anchor identity `a_et`/`b_et`, never a duplicate). No-look-ahead is inherited for free — the same-day slice only ever narrows the ALREADY-truncated `bars` the caller passed in, never reads beyond it (C6 invariant, proven by a dedicated no-lookahead guard). Wired live at `main()` (`include_same_day_tier=True`) — the ONE production entry point both `Gamma_Trendlines` (5-min RTH cadence) and the premarket drawing bridge (`--json` mode) call; `write_live_state`'s JSON payload now carries `tier` per line.
-
-> **Deliberately did NOT wire same-day lines into the drawing skill's on-chart selection.** `.claude/skills/trendline-draw/SKILL.md`'s existing DRAW CAP (added 2026-07-15 after J's "way too many trend lines on the screen" complaint) already caps the chart to 1 line per side by `respect_count` — adding same-day lines to that pool would reopen exactly that noise complaint, and is item 3's explicit scope (zoom-aware drawing), not item 2's. Updated the SKILL.md doc to state this explicitly (same-day lines now exist in the JSON/log/shadow-state for self_check/dashboard/future consumers, excluded from the draw-cap selection pending item 3) so a future fire tackling item 3 knows to reconsider the two together, rather than silently dropping the connection.
-
-> **Verified this fire:** new guard `backtest/tests/test_trendline_same_day_tier.py` (9/9) — default-unchanged (no kwarg == explicit False), additive-never-replaces-primary, dedup-when-primary-already-is-same-day (single-day fixture), no-op-when-no-distinct-today-line, no-lookahead (mirrors `test_trendline_conviction_override_no_lookahead.py`'s truncation-invariance pattern), `write_live_state` schema carries `tier`, and `families=("wick","body")` (the production default) doesn't crash with the new kwarg. **RED-proofed via `git stash`** on the 2 edited source files (kept the new test file in place): all 9 tests failed with the exact expected mechanism (`TypeError: detect() got an unexpected keyword argument 'include_same_day_tier'`); `git stash pop` restored cleanly (`git diff --stat` confirmed the intended 2-file, 72-insertion/16-deletion diff), re-verified 24/24 green (new file + `test_trendline_engine.py` + `test_trendline_multiday.py` + `test_trendline_live_state.py`). Broader sweep (`-k trendline`, whole repo, matches the exact command the 2026-07-14 audit used) → **86/86 PASS, 0 regressions** (403.85s — the same ~6-7 min this sweep has always taken per the audit's own recorded 364.63s baseline, not a new slowdown). Curated safety gate (31 + 5-suite) PASS, run twice (before and after the stash round-trip).
-
-> **Rail-4 (PAPER/visibility-only — guard test + revert path + this REVOKE report):** touches `backtest/autoresearch/trendline_engine.py` (new `tier` field + `include_same_day_tier` kwarg, default-False/additive-only), `.claude/skills/trendline-draw/SKILL.md` (doc text — same_day lines exist in JSON, excluded from draw selection), `backtest/tests/test_trendline_same_day_tier.py` (new guard), `automation/overnight/queue.md` (item 2 of TRENDLINE-FIXES-2026-07-17 closed + false-premise correction; also closed the stale `T-GYM-20260717` HIGH item — live-checked `crypto/data/scorecards/latest.json`, `104/104 pass` as of this fire, a later scheduled gym run self-resolved the 1 prior failure). **Zero trading-path files** (`params.json`/`heartbeat_core.py`/`filters.py`/placement/exit code untouched) — `trendline_engine.py` is a SHADOW-only structure-visibility producer, never fed to entries (entry-wire is separately A/B-gated NEEDS-REVIEW per its own docstring, untouched here). **Revert:** `git revert <this commit>` (single pathspec commit, 4 files: `trendline_engine.py`, `SKILL.md`, the new test, `queue.md`).
-
-> **Learn-loop:** no new lesson-inbox item filed — this is a direct instance of an already-indexed pattern (a queue item's premise citing a real artifact that, on inspection, answers a different question than claimed) rather than a new foot-gun; the correction is recorded inline in `queue.md` itself so the next reader doesn't re-trust the stale citation. One methodology note worth keeping: when a fixture-construction script's first 1-2 attempts produce unintended structure (accidental cross-day pivots, unintended local trends from a "rising baseline"), iterate live via a scratch script BEFORE writing the committed test — this fire hit exactly that twice (documented in the exploration, not in the shipped test) and the third, disjoint-price-range design worked cleanly on the first try.
-
-> **Cost: ~$3.85** (STAGE 0/1: engine-health/STATUS/queue reads, self-audit gaps re-confirmation, `task_scorer.py --top` + full-ranking read (confirmed 0 HIGH items scored — scope gap noted, not fixed), grep for open `(HIGH` items across the whole queue.md (15 found, read in full), read of `TRENDLINE-SUBSYSTEM-AUDIT-2026-07-14.md`'s relevant sections + the referenced pre-reg JSON in full (caught the false-premise mismatch), read of `trendline_engine.py`'s detect/_fit/find_pivots (~200 lines) + grep for all callers/consumers across the repo (6+ call sites, all default-arg), read of `trendline_draw_state.py` + `SKILL.md` for drawing-bridge assumptions, 3 iterative scratch-script fixture explorations (2 discarded for unintended structure) before landing the clean 2-disjoint-day design, 2 source-file edits (dataclass field + detect() logic + main()-wiring + write_live_state + CLI print), 1 SKILL.md doc edit, 1 new 9-test guard file, 1 targeted pytest run (9/9), 1 broader 24-test regression run, 1 full `-k trendline` repo-wide sweep (86/86, ~404s), 1 curated safety-gate run, 1 RED-proof git-stash round-trip + re-verify, 2nd curated safety-gate run, 2 queue.md edits (item 2 closure + stale T-GYM-20260717 closure), 1 commit — no LLM in the hot path, no orders, PAPER-only, zero trading-path files touched). **Files:** `backtest/autoresearch/trendline_engine.py`, `.claude/skills/trendline-draw/SKILL.md`, `backtest/tests/test_trendline_same_day_tier.py`, `automation/overnight/queue.md`. **Commit:** `8555860`.
-
-> **Autonomy metric (`conductor_outcome.py metric`, 20-fire window):** `trend: "improving"` (cost_per_drained $4.12, net_improvement 17, this fire drained 2 items -- the same-day tier + the stale T-GYM-20260717 closure -- at $3.85, a full closure with 9 new tests and zero regressions). Trend flipped from `regressing` to `improving` since the last recorded fire. `function_latest` still shows 0 enters/fills for trading_day 2026-07-18 (last trading day with data; today 2026-07-20 hasn't opened yet -- expected/correct, not a malfunction signal). **Open for the next fire:** items 3 (zoom-aware drawing, spec small but needs a real-screenshot validation loop) remains in TRENDLINE-FIXES-2026-07-17; `task_scorer.py`'s Active-backlog ranking never surfaces HIGH items (0/34 scored this fire) since HIGH items live in dated sub-sections it doesn't parse -- worth a future fire's attention so `--top` stops perpetually re-suggesting the same J-gated MED item while real HIGH work sits unranked.
-
----
-
-
-### INFO: eod-analytics manager used free-tier model (free-tier-primary)
-- ts: 2026-07-20T21:30:53+00:00
-- task: manager
-- date_et: 2026-07-20
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-### DEGRADED: self-check 2026-07-20T17:39:56
-- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-20T17:48:01
-- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-## Kitchen
-Kitchen: alive, queue 23 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-### BROKEN: self-check 2026-07-20T18:39:56
-- PREMARKET STALE: today-bias.json date=2026-07-14 != today 2026-07-20 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
-- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
-- MACRO-CALENDAR STALE (RED): freshness_stamp 2026-07-15T19:20:11.283104 predates the expected 2026-07-20T07:45:00 ET fire (~119.3h old) -- Gamma_MacroCalendar (07:45 ET weekdays) may have missed its fire or the producer is dead; the engine's no-trade-window coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales event may be blind. Re-run setup/scripts/macro_calendar.py by hand, or check `schtasks /query /tn Gamma_MacroCalendar /v`.
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
