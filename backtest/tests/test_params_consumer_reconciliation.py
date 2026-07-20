@@ -68,6 +68,12 @@ _METADATA_KEYS = {
 # the worktree duplicate, and the archived params snapshots (not consumers).
 _CONSUMER_GLOBS = [
     ("setup/scripts", "*.py"),
+    ("setup/scripts", "*.ps1"),  # ADDED 2026-07-19: _shared.ps1 + run-*.ps1 live HERE, not
+    # setup/*.ps1 (that dir is installers only) -- the corpus never scanned the directory
+    # where params actually get READ by the .ps1 task scripts, so any knob consumed ONLY by
+    # a setup/scripts/*.ps1 file (e.g. min_disk_free_mb via Test-DiskSpaceAvailable) false-
+    # flagged dead. Found live via PARAMS-DEAD-KNOB-DISPOSITION slice 1 (2026-07-19,
+    # conductor) when restoring min_disk_free_mb tripped this exact gap.
     ("setup", "*.py"),
     ("setup", "*.ps1"),
     ("backtest/lib", "**/*.py"),
@@ -75,6 +81,11 @@ _CONSUMER_GLOBS = [
     ("automation/scripts", "*.py"),
     ("crypto/validators", "*.py"),
     ("automation/prompts", "*.md"),
+    ("automation/state/fleet", "*.py"),  # ADDED 2026-07-19: the live fleet-lane consumer
+    # (fleet_executor.py etc) was never scanned, so any fleet-only knob (e.g.
+    # recency_min_size_enabled, whose OWN _doc names fleet_executor.py as its consumer)
+    # false-flagged dead. Same class of gap as the setup/scripts/*.ps1 fix above -- found
+    # together via PARAMS-DEAD-KNOB-DISPOSITION slice 1 (2026-07-19, conductor).
 ]
 
 # ── The documented dead-knob allowlist (SHRINKS-ONLY). ────────────────────────
@@ -92,12 +103,15 @@ KNOWN_DEAD: dict[str, str] = {
     "daily_review_et": "session-timing; scheduled trigger hardcodes 16:30 (RESTORE-or-REMOVE)",
     "premarket_et": "session-timing; Gamma_Premarket trigger hardcodes 08:30 (RESTORE-or-REMOVE)",
     "weekly_review_et_sunday": "session-timing; weekly trigger hardcodes 18:00 Sun (RESTORE-or-REMOVE)",
-    # Resilience harness: doc says values are "also embedded in _shared.ps1"; the .ps1
-    # embeds literals and does not read these keys. RESTORE (read from params) or REMOVE.
-    "max_consecutive_failed_mcp_calls": "resilience; _shared.ps1 embeds literal (RESTORE-or-REMOVE)",
-    "max_consecutive_tv_failures_before_kill_switch": "resilience; _shared.ps1 embeds literal (RESTORE-or-REMOVE)",
-    "min_disk_free_mb": "resilience; _shared.ps1 embeds literal (RESTORE-or-REMOVE)",
-    "wedged_state_alert_hours": "resilience; _shared.ps1 embeds literal (RESTORE-or-REMOVE)",
+    # Resilience-harness bucket CLOSED 2026-07-19 (conductor, PARAMS-DEAD-KNOB-DISPOSITION
+    # slice 1 of 6): max_consecutive_failed_mcp_calls / max_consecutive_tv_failures_before_
+    # kill_switch / wedged_state_alert_hours REMOVED from params.json (verified zero
+    # consumers anywhere in the repo -- the doc's "also embedded in _shared.ps1" claim was
+    # false; the live self-heal design in run-tv-watchdog.ps1 never counted consecutive
+    # failures, it relaunches immediately + always alerts, so no counter was ever built).
+    # min_disk_free_mb RESTORED: Test-DiskSpaceAvailable now reads it live via the new
+    # Get-ParamsMinDiskFreeMb helper (fail-open to 100) -- no longer dead, removed from
+    # this allowlist entirely (see test_min_disk_free_mb_restored_2026_07_19.py).
     # Exit-behavior flags: the exit path hardcodes runner/TP1 behavior; these are not read
     # by name on the live or sim exit surface. RESTORE (thread into exit_manager) or REMOVE.
     "runner_be_stop_after_tp1": "exit flag; runner BE behavior hardcoded in exit path (RESTORE-or-REMOVE)",

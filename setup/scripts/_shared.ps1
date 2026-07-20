@@ -122,12 +122,27 @@ function Invoke-PythonHidden {
     return @{ ExitCode = $exit; Stdout = $stdout; Stderr = $stderr; LogFile = $logFile }
 }
 
+function Get-ParamsMinDiskFreeMb {
+    # RESTORE of the min_disk_free_mb dead knob (PARAMS-DEAD-KNOB-DISPOSITION 2026-07-19):
+    # reads automation/state/params.json's min_disk_free_mb live so the value there is a
+    # real read, not documentation. Fail-open to 100 (the pre-fix hardcoded literal) on any
+    # read/parse error -- never let a malformed params.json block the disk pre-flight check.
+    $paramsPath = Join-Path $WorkDir "automation\state\params.json"
+    try {
+        $p = Get-Content -Path $paramsPath -Raw -ErrorAction Stop | ConvertFrom-Json
+        if ($null -ne $p.min_disk_free_mb) { return [int]$p.min_disk_free_mb }
+        return 100
+    } catch {
+        return 100
+    }
+}
+
 function Test-DiskSpaceAvailable {
     # Pre-flight: refuse to invoke claude if WorkDir's drive has < $MinFreeMB.
     # State writes, log writes, and JSONL session logs all need disk. A silent
     # ENOSPC during a state write produces a partial JSON the next task can't
     # parse. Refusing up-front is much better than recovering after.
-    param([int]$MinFreeMB = 100)
+    param([int]$MinFreeMB = (Get-ParamsMinDiskFreeMb))
     try {
         $drive = (Get-Item $WorkDir).PSDrive.Name
         $free = (Get-PSDrive -Name $drive).Free
@@ -540,7 +555,7 @@ function Invoke-Claude {
 
     # Pre-flight: refuse to spawn if disk is critically low. A state write that
     # fails with ENOSPC produces a partial JSON the next task can't parse.
-    $disk = Test-DiskSpaceAvailable -MinFreeMB 100
+    $disk = Test-DiskSpaceAvailable
     if (-not $disk.OK) {
         $diskMsg = "ABORT_LOW_DISK: free=" + $disk.FreeMB + "MB threshold=" + $disk.MinMB + "MB - refusing to invoke claude (state writes would risk corruption)"
         Write-TaskLog -TaskName $TaskName -Message $diskMsg
