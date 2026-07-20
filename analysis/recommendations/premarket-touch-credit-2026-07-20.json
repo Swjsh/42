@@ -1,0 +1,418 @@
+{
+  "_doc": "PREMARKET-TOUCH-CREDIT segmentation study -- pre-registered, frozen before any replay. ANALYSIS ONLY: no trading-path file touched by this run, any verdict.",
+  "generated_at": "2026-07-20T15:28:24.868617",
+  "preregistration_file": "analysis/recommendations/premarket-touch-credit-preregistration.json",
+  "preflight": {
+    "preregistration_version": 1,
+    "preregistration_version_ok": true
+  },
+  "population_prep": {
+    "n_signals_total": 41,
+    "n_eligible": 27,
+    "n_excluded_no_trigger_level": 14,
+    "n_excluded_no_option_bars": 0
+  },
+  "overall": {
+    "label": "overall",
+    "n_total": 27,
+    "n_touched": 15,
+    "n_untouched": 12,
+    "observed_delta_touched_minus_untouched": 286.62,
+    "touched_summary": {
+      "n_trades": 15,
+      "wins": 5,
+      "losses": 10,
+      "win_rate": 0.333,
+      "expectancy_per_trade_usd": -15.88,
+      "total_pnl_usd": -238.2,
+      "mean_trade_usd": -15.88,
+      "median_trade_usd": -255.0,
+      "worst_trade_usd": -980.0,
+      "best_trade_usd": 1234.0
+    },
+    "untouched_summary": {
+      "n_trades": 12,
+      "wins": 1,
+      "losses": 11,
+      "win_rate": 0.083,
+      "expectancy_per_trade_usd": -302.5,
+      "total_pnl_usd": -3630.0,
+      "mean_trade_usd": -302.5,
+      "median_trade_usd": -232.5,
+      "worst_trade_usd": -965.0,
+      "best_trade_usd": 560.0
+    },
+    "touched_day_concentration": {
+      "n_active_days": 13,
+      "n_losing_days": 8,
+      "total_pnl_usd": -238.2,
+      "top3_day_pct_of_net": -1323.1,
+      "median_day_usd": -255.0,
+      "trimmed_day_mean_usd": 23.44,
+      "trimmed_day_total_usd": 257.8,
+      "by_day_pnl": {
+        "2026-05-20": 1234.0,
+        "2026-05-21": -290.0,
+        "2026-05-26": -255.0,
+        "2026-05-28": -255.0,
+        "2026-06-10": -1730.0,
+        "2026-06-17": -765.0,
+        "2026-06-22": -395.0,
+        "2026-06-23": 353.2,
+        "2026-06-24": 890.0,
+        "2026-06-29": -390.0,
+        "2026-07-06": 407.0,
+        "2026-07-07": -70.0,
+        "2026-07-08": 1027.6
+      }
+    },
+    "touched_concentration_flag": {
+      "top3_day_pct_of_net": -1323.1,
+      "max_pct": 150.0,
+      "concentrated": false,
+      "note": "concentration within tolerance"
+    },
+    "random_label_null": {
+      "p_value": 0.21,
+      "n_draws": 2000,
+      "null_mean": 6.93,
+      "null_stdev": 224.6
+    },
+    "shuffled_level_null": {
+      "p_value": 0.208,
+      "n_draws": 500,
+      "n_signals_with_no_alt_level": 0,
+      "null_mean": 98.2,
+      "null_stdev": 204.28
+    },
+    "significance_floor": {
+      "n": 12,
+      "min_n": 8,
+      "sufficient": true,
+      "note": "n=12 >= 8: sample sufficient"
+    }
+  },
+  "sub_windows": {
+    "first_half": {
+      "label": "first_half",
+      "n_total": 21,
+      "n_touched": 11,
+      "n_untouched": 10,
+      "observed_delta_touched_minus_untouched": 229.25,
+      "touched_summary": {
+        "n_trades": 11,
+        "wins": 3,
+        "losses": 8,
+        "win_rate": 0.273,
+        "expectancy_per_trade_usd": -110.25,
+        "total_pnl_usd": -1212.8,
+        "mean_trade_usd": -110.25,
+        "median_trade_usd": -255.0,
+        "worst_trade_usd": -980.0,
+        "best_trade_usd": 1234.0
+      },
+      "untouched_summary": {
+        "n_trades": 10,
+        "wins": 1,
+        "losses": 9,
+        "win_rate": 0.1,
+        "expectancy_per_trade_usd": -339.5,
+        "total_pnl_usd": -3395.0,
+        "mean_trade_usd": -339.5,
+        "median_trade_usd": -310.0,
+        "worst_trade_usd": -965.0,
+        "best_trade_usd": 560.0
+      },
+      "touched_day_concentration": {
+        "n_active_days": 9,
+        "n_losing_days": 6,
+        "total_pnl_usd": -1212.8,
+        "top3_day_pct_of_net": -204.3,
+        "median_day_usd": -255.0,
+        "trimmed_day_mean_usd": -102.4,
+        "trimmed_day_total_usd": -716.8,
+        "by_day_pnl": {
+          "2026-05-20": 1234.0,
+          "2026-05-21": -290.0,
+          "2026-05-26": -255.0,
+          "2026-05-28": -255.0,
+          "2026-06-10": -1730.0,
+          "2026-06-17": -765.0,
+          "2026-06-22": -395.0,
+          "2026-06-23": 353.2,
+          "2026-06-24": 890.0
+        }
+      },
+      "touched_concentration_flag": {
+        "top3_day_pct_of_net": -204.3,
+        "max_pct": 150.0,
+        "concentrated": false,
+        "note": "concentration within tolerance"
+      },
+      "random_label_null": {
+        "p_value": 0.386,
+        "n_draws": 2000,
+        "null_mean": -11.75,
+        "null_stdev": 254.99
+      },
+      "shuffled_level_null": {
+        "p_value": 0.356,
+        "n_draws": 500,
+        "n_signals_with_no_alt_level": 0,
+        "null_mean": 32.97,
+        "null_stdev": 243.26
+      },
+      "significance_floor": {
+        "n": 10,
+        "min_n": 8,
+        "sufficient": true,
+        "note": "n=10 >= 8: sample sufficient"
+      }
+    },
+    "second_half": {
+      "label": "second_half",
+      "n_total": 6,
+      "n_touched": 4,
+      "n_untouched": 2,
+      "observed_delta_touched_minus_untouched": 361.15,
+      "touched_summary": {
+        "n_trades": 4,
+        "wins": 2,
+        "losses": 2,
+        "win_rate": 0.5,
+        "expectancy_per_trade_usd": 243.65,
+        "total_pnl_usd": 974.6,
+        "mean_trade_usd": 243.65,
+        "median_trade_usd": 168.5,
+        "worst_trade_usd": -390.0,
+        "best_trade_usd": 1027.6
+      },
+      "untouched_summary": {
+        "n_trades": 2,
+        "wins": 0,
+        "losses": 2,
+        "win_rate": 0.0,
+        "expectancy_per_trade_usd": -117.5,
+        "total_pnl_usd": -235.0,
+        "mean_trade_usd": -117.5,
+        "median_trade_usd": -117.5,
+        "worst_trade_usd": -165.0,
+        "best_trade_usd": -70.0
+      },
+      "touched_day_concentration": {
+        "n_active_days": 4,
+        "n_losing_days": 2,
+        "total_pnl_usd": 974.6,
+        "top3_day_pct_of_net": 140.0,
+        "median_day_usd": 168.5,
+        "trimmed_day_mean_usd": 168.5,
+        "trimmed_day_total_usd": 337.0,
+        "by_day_pnl": {
+          "2026-06-29": -390.0,
+          "2026-07-06": 407.0,
+          "2026-07-07": -70.0,
+          "2026-07-08": 1027.6
+        }
+      },
+      "touched_concentration_flag": {
+        "top3_day_pct_of_net": 140.0,
+        "max_pct": 150.0,
+        "concentrated": false,
+        "note": "concentration within tolerance"
+      },
+      "random_label_null": {
+        "p_value": 0.5905,
+        "n_draws": 2000,
+        "null_mean": 2.35,
+        "null_stdev": 438.64
+      },
+      "shuffled_level_null": {
+        "p_value": 0.438,
+        "n_draws": 500,
+        "n_signals_with_no_alt_level": 0,
+        "null_mean": 170.57,
+        "null_stdev": 412.31
+      },
+      "significance_floor": {
+        "n": 2,
+        "min_n": 8,
+        "sufficient": false,
+        "note": "n=2 < 8: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+      }
+    }
+  },
+  "by_direction": {
+    "bear": {
+      "label": "bear",
+      "n_total": 18,
+      "n_touched": 9,
+      "n_untouched": 9,
+      "observed_delta_touched_minus_untouched": 216.76,
+      "touched_summary": {
+        "n_trades": 9,
+        "wins": 3,
+        "losses": 6,
+        "win_rate": 0.333,
+        "expectancy_per_trade_usd": -101.02,
+        "total_pnl_usd": -909.2,
+        "mean_trade_usd": -101.02,
+        "median_trade_usd": -270.0,
+        "worst_trade_usd": -980.0,
+        "best_trade_usd": 1027.6
+      },
+      "untouched_summary": {
+        "n_trades": 9,
+        "wins": 1,
+        "losses": 8,
+        "win_rate": 0.111,
+        "expectancy_per_trade_usd": -317.78,
+        "total_pnl_usd": -2860.0,
+        "mean_trade_usd": -317.78,
+        "median_trade_usd": -300.0,
+        "worst_trade_usd": -965.0,
+        "best_trade_usd": 560.0
+      },
+      "touched_day_concentration": {
+        "n_active_days": 7,
+        "n_losing_days": 4,
+        "total_pnl_usd": -909.2,
+        "top3_day_pct_of_net": -249.8,
+        "median_day_usd": -290.0,
+        "trimmed_day_mean_usd": -41.36,
+        "trimmed_day_total_usd": -206.8,
+        "by_day_pnl": {
+          "2026-05-21": -290.0,
+          "2026-06-10": -1730.0,
+          "2026-06-17": -765.0,
+          "2026-06-22": -395.0,
+          "2026-06-23": 353.2,
+          "2026-06-24": 890.0,
+          "2026-07-08": 1027.6
+        }
+      },
+      "touched_concentration_flag": {
+        "top3_day_pct_of_net": -249.8,
+        "max_pct": 150.0,
+        "concentrated": false,
+        "note": "concentration within tolerance"
+      },
+      "random_label_null": {
+        "p_value": 0.4605,
+        "n_draws": 2000,
+        "null_mean": 6.77,
+        "null_stdev": 282.49
+      },
+      "shuffled_level_null": {
+        "p_value": 0.48,
+        "n_draws": 500,
+        "n_signals_with_no_alt_level": 0,
+        "null_mean": 30.47,
+        "null_stdev": 271.62
+      },
+      "significance_floor": {
+        "n": 9,
+        "min_n": 8,
+        "sufficient": true,
+        "note": "n=9 >= 8: sample sufficient"
+      }
+    },
+    "bull": {
+      "label": "bull",
+      "n_total": 9,
+      "n_touched": 6,
+      "n_untouched": 3,
+      "observed_delta_touched_minus_untouched": 368.5,
+      "touched_summary": {
+        "n_trades": 6,
+        "wins": 2,
+        "losses": 4,
+        "win_rate": 0.333,
+        "expectancy_per_trade_usd": 111.83,
+        "total_pnl_usd": 671.0,
+        "mean_trade_usd": 111.83,
+        "median_trade_usd": -162.5,
+        "worst_trade_usd": -390.0,
+        "best_trade_usd": 1234.0
+      },
+      "untouched_summary": {
+        "n_trades": 3,
+        "wins": 0,
+        "losses": 3,
+        "win_rate": 0.0,
+        "expectancy_per_trade_usd": -256.67,
+        "total_pnl_usd": -770.0,
+        "mean_trade_usd": -256.67,
+        "median_trade_usd": -90.0,
+        "worst_trade_usd": -610.0,
+        "best_trade_usd": -70.0
+      },
+      "touched_day_concentration": {
+        "n_active_days": 6,
+        "n_losing_days": 4,
+        "total_pnl_usd": 671.0,
+        "top3_day_pct_of_net": 234.1,
+        "median_day_usd": -162.5,
+        "trimmed_day_mean_usd": -43.25,
+        "trimmed_day_total_usd": -173.0,
+        "by_day_pnl": {
+          "2026-05-20": 1234.0,
+          "2026-05-26": -255.0,
+          "2026-05-28": -255.0,
+          "2026-06-29": -390.0,
+          "2026-07-06": 407.0,
+          "2026-07-07": -70.0
+        }
+      },
+      "touched_concentration_flag": {
+        "top3_day_pct_of_net": 234.1,
+        "max_pct": 150.0,
+        "concentrated": true,
+        "note": "top-3 days = 234.1% of net (> 150.0%): CONCENTRATED -- fragile, not deploy-ready; needs more spread-out days"
+      },
+      "random_label_null": {
+        "p_value": 0.4305,
+        "n_draws": 2000,
+        "null_mean": -9.16,
+        "null_stdev": 389.99
+      },
+      "shuffled_level_null": {
+        "p_value": 0.384,
+        "n_draws": 500,
+        "n_signals_with_no_alt_level": 0,
+        "null_mean": 199.25,
+        "null_stdev": 340.72
+      },
+      "significance_floor": {
+        "n": 3,
+        "min_n": 8,
+        "sufficient": false,
+        "note": "n=3 < 8: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+      }
+    }
+  },
+  "verdict": {
+    "overall": "KILL",
+    "reason": "p_random=0.21 p_shuffled_level=0.208 -- BH-FDR survivors=[False, False], not both significant.",
+    "p_random_label": 0.21,
+    "p_shuffled_level": 0.208,
+    "bh_fdr_survivors": [
+      false,
+      false
+    ],
+    "sub_window_sign_flip": false,
+    "sub_window_delta_first_half": 229.25,
+    "sub_window_delta_second_half": 361.15,
+    "touched_concentrated": false,
+    "underpowered": false
+  },
+  "disclosures": [
+    "SEGMENTATION study, not a shape sweep: TOUCHED and UNTOUCHED groups replay under the byte-identical live exit shape (SS-B, trigger-exact reference, buffer 0.00 -- confirmed live in structure-stop-zone-band-2026-07-20.json BAND-00 / structure-stop-reference-level-2026-07-20.json REF-EXACT). Only the premarket-touch LABEL differs between groups.",
+    "Layer (b) real-fills anchor DEFERRED this run (pre-reg scope_note) -- this is layer (a) fresh-slice only, $0, no live network calls (option bars from local cache).",
+    "Small-n disclosed IN ADVANCE (pre-reg small_n_floor): n~40 total population, touched likely a minority -- INCONCLUSIVE_UNDERPOWERED is an expected, not a failure, outcome.",
+    "Premarket window restricted to 2026-05-19 onward (Alpaca-SIP-verified premarket OHLC per DATA-PROVENANCE.md) -- older signals excluded by rule to avoid an IEX/09:00-start feed provenance confound on touch counts.",
+    "Random-label null: 2000 draws, seed=20260720. Shuffled-level null: 500 draws per segment, same seed family -- reproducible, not re-rolled.",
+    "BH-FDR (backtest/futures/battery.py::bh_fdr algorithm, copied verbatim to avoid an unrelated swing_sim import chain) applied to the 2 overall p-values; per-direction and sub-window segments reported for disclosure but not independently gated (single primary verdict per pre-reg, avoiding a multiple-comparisons fishing expedition across cuts).",
+    "Frictionless fills, matching every prior study built on structure_stop_study.py's replay engine.",
+    "This run NEVER touches heartbeat_core.py/level_states/params.json/any trading-path file regardless of verdict, per the item's own 'NOT a same-day wire' scope."
+  ]
+}

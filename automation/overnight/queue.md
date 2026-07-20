@@ -335,7 +335,50 @@
   accounting, random + shuffled-level nulls, BH-FDR, concentration disclosure. KILL is a
   valid outcome (premarket touches may be noise). If it clears, the wire is one seam:
   seed `level_states` at 09:30 open from premarket bars (same zone-band logic as RTH).
-  depends:none :: status:pending
+  depends:none :: status:CLOSED_KILL
+
+> **CLOSED 2026-07-20 ~17:15-18:05 ET (conductor, AFTERHOURS): KILL, pre-registered and run
+> in full.** Froze `analysis/recommendations/premarket-touch-credit-preregistration.json`
+> BEFORE any replay. Built `backtest/tools/premarket_touch_credit_study.py`, reusing
+> `structure_stop_study.py`'s replay engine (SS-B, trigger-exact, buffer=0.00 -- confirmed
+> literal live behavior per tonight's structure-stop studies), `tw8_level_context.py`'s
+> frozen per-day level set, and `lib.filters.detect_level_rejection`/`detect_level_reclaim`
+> (the EXACT production bar-test, direction-matched to side) reused verbatim for premarket
+> touch detection -- zero new hand-picked band/proximity parameter. Fresh-slice population:
+> 41 signals combined from the canonical 2025-2026 signal cache (filtered to the Alpaca-SIP-
+> verified premarket window 2026-05-19..2026-07-17, per DATA-PROVENANCE.md -- older dates
+> excluded by rule to avoid an IEX/09:00-start feed provenance confound) + the existing 18-
+> signal FRESH_SIGNAL_SET, deduplicated; 27 had a recoverable trigger_level and cached option
+> bars (0 network calls -- all local cache, $0). **Result: n_touched=15 (SS-B expectancy
+> -$15.88/tr), n_untouched=12 (-$302.50/tr), observed delta +$286.62 favoring premarket-
+> touched levels -- directionally consistent with J's own reading, but NOT statistically
+> distinguishable from noise**: random-label permutation null p=0.21 (2000 draws), shuffled-
+> level null p=0.208 (500 draws/segment) -- neither survives BH-FDR at alpha=0.05 (both
+> False). **Verdict: KILL**, exactly the pre-reg's own disclosed-in-advance expected outcome
+> for an n~27 population. Layer (b) real-fills anchor (live OPRA re-fetch) was DEFERRED by
+> the pre-reg's own scope_note -- not worth ~$4 of network calls to confirm a KILL that layer
+> (a) alone already resolves; no follow-up study needed unless a future, larger fresh-slice
+> population (e.g. once the canonical signal cache is rebuilt through a later END date)
+> reopens the question with more power. **Guard:**
+> `backtest/tests/test_premarket_touch_credit_study.py` (26/26: BH-FDR against a classic
+> textbook example, direction-matched touch detection incl. no-cross-day-leakage and no-RTH-
+> bar-leakage, segmentation math, verdict-ladder branch coverage, live pre-reg/output sanity),
+> RED-proofed via the file-move technique (untracked new module -- moved out, confirmed
+> `ModuleNotFoundError` on all 26, moved back, re-verified 26/26 green). Broader sweep
+> (`test_structure_stop_study` + `test_structure_stop_zone_band_ab` +
+> `test_structure_stop_reference_level_ab` + this file) -> **72/72 PASS, 0 regressions**.
+> Curated safety gate (31+5-suite) PASS. **Zero trading-path files touched** -- ANALYSIS ONLY,
+> no `heartbeat_core.py`/level_states/`params.json`/any placement/exit code edited; nothing to
+> revert; no wire attempted (per the item's own "NOT a same-day wire" scope -- KILL means
+> there is nothing to wire). Files: `analysis/recommendations/premarket-touch-credit-
+> preregistration.json`, `analysis/recommendations/premarket-touch-credit-2026-07-20.json`,
+> `backtest/tools/premarket_touch_credit_study.py`,
+> `backtest/tests/test_premarket_touch_credit_study.py`, this queue.md entry. Cost: ~$4.5
+> (STAGE 0/1 reads + task selection, machinery survey across levels.py/filters.py/
+> tw8_level_context.py/structure_stop_study.py/probe_stats.py/_signal_cache.py, 1 pre-reg
+> write, 1 ~330-line study tool, 1 local run (0 network calls), 1 new 26-test guard file +
+> RED-proof round-trip, 1 broader 72-test regression sweep, 1 curated safety gate run, 1
+> queue.md closure).
 
 ### SIM-EXIT-SHAPE-PARITY-AUDIT (MED, spec-only, filed 2026-07-17 ~22:47 ET, GOAL-REPLAY-TODAY-GREEN iteration 7)
 
