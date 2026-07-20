@@ -142,3 +142,20 @@ automation/state/fleet/risky-1/decisions.jsonl
 automation/state/fleet/risky-3/decisions.jsonl
 automation/state/fleet/safe-3/decisions.jsonl
 automation/archive/
+
+# === Added 2026-07-20: STATE-FILE-REVERSION incident fix (same mechanism, recurred TWICE
+# same day -- once 04:27/05:58 ET premarket, once 18:40 ET mid-session) ===
+# circuit-breaker*.json + today-bias.json are continuously overwritten-in-place (not
+# appended) but were last COMMITTED 2026-07-14 -- any `git stash`/`checkout`/`reset` in
+# the shared checkout silently reverts them to that 6-day-stale snapshot (kill-switch
+# state + morning bias regressing backward, not just lost history). Demonstrated live
+# both times by an agent's `git stash`/`pop` colliding with the running heartbeat's writes.
+# Untracked so no git operation can touch them; see queue.md STATE-FILE-REVERSION-2026-07-20.
+automation/state/circuit-breaker.json
+automation/state/aggressive/circuit-breaker.json
+automation/state/fleet/risky-1/circuit-breaker.json
+automation/state/fleet/risky-3/circuit-breaker.json
+automation/state/fleet/safe-1/circuit-breaker.json
+automation/state/fleet/safe-3/circuit-breaker.json
+automation/state/today-bias.json
+automation/state/futures/today-bias.json

@@ -4,29 +4,28 @@
  "bias_note": "PREMARKET GAP FOUND: this file and key-levels.json were both stale-dated 2026-06-30 -- premarket has not written fresh state in 2 weeks. Rebuilt now from live TV bars + Alpaca. CPI (June data) printed 08:30 ET, spiked SPY from ~748.6 to 754.24 (138k-vol bar) then faded to 750.87 by 09:15 -- bearish-leaning rejection off the CPI high. VIX 16.80 (MID) is BELOW the bear_min_exclusive_and_rising threshold (17.30) -- BEAR entries are VIX-filter-BLOCKED today regardless of chart structure. Bull entries ARE VIX-eligible (16.80 < 17.2 bull_max, well under 22.0 hard cap). Net: technical read is bearish-fade, but only bullish setups clear the VIX gate unless VIX rises above 17.3 intraday.",
  "key_levels": {
   "resistance": [
-   743.35,
-   752.32,
-   752.52,
-   753.23,
-   753.93
+   743.34,
+   746.43,
+   748.69,
+   750.0
   ],
   "support": [
-   751.75,
-   751.15,
-   750.3,
-   750.0,
-   749.53,
-   748.82,
-   748.71,
-   748.15,
-   741.61
+   747.96,
+   747.15,
+   745.96,
+   745.34,
+   744.38,
+   742.89,
+   741.56,
+   734.52,
+   731.22
   ],
-  "ema_fast": 752.23,
-  "ema_pivot": 752.2,
-  "ema_slow": 751.95,
+  "ema_fast": 742.5,
+  "ema_pivot": 742.78,
+  "ema_slow": 743.63,
   "sma_50": null,
   "ema_read_failed": false,
-  "ribbon_source": "refresh_levels_intraday_15:58ET"
+  "ribbon_source": "refresh_levels_intraday_19:43ET"
  },
  "falsifiable_predictions": [
   {

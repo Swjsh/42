@@ -2,14 +2,14 @@
   "_doc": "Aggressive account daily P&L circuit breaker. Trips at -50% of start-of-day equity (Rule 5: Gamma-Bold = -50%; reconciled 2026-06-21 from the prior -60% drift to match CLAUDE.md Rule 5 + aggressive/params.json#daily_loss_kill_switch_pct=0.5). Managed by daily_loss_guard.py (mechanical post-tick trip) + aggressive heartbeat + premarket (arm from live equity).",
   "daily_loss_kill_switch_pct": 0.5,
   "tripped": false,
-  "session_id": "2026-07-14",
-  "equity_start_of_day": 1963.04,
-  "equity_current": 1963.04,
+  "session_id": "2026-07-20",
+  "equity_start_of_day": 2153.66,
+  "equity_current": 2153.66,
   "loss_pct": 0.0,
   "trip_reason": null,
   "tripped_at_et": null,
   "day_trades_used_5d": 1,
-  "_note": "Re-armed 2026-07-14 premarket (DETERMINISTIC fallback -- daily_loss_guard.rearm; prior stamped date was 2026-06-26). equity=$1963.04 confirmed live (Alpaca REST, un-blockable by claude/CCR outages). Kill switch: -50% = -$981.52/day. day_trades_used_5d left untouched (out of this guard's scope).",
+  "_note": "Re-armed 2026-07-20 premarket (DETERMINISTIC fallback -- daily_loss_guard.rearm; prior stamped date was 2026-07-14). equity=$2153.66 confirmed live (Alpaca REST, un-blockable by claude/CCR outages). Kill switch: -50% = -$1076.83/day. day_trades_used_5d left untouched (out of this guard's scope).",
   "_schema_note": "AGGRESSIVE breaker schema. The SAFE breaker (automation/state/circuit-breaker.json) uses a fully divergent vocabulary (C9 symmetry trap). Field-name mapping AGGRESSIVE -> SAFE: tripped->tripped (SAME, both present); trip_reason->tripped_reason; tripped_at_et->tripped_at; equity_start_of_day->starting_equity_today; equity_current->current_equity; loss_pct->(no direct equivalent; safe stores daily_loss_limit_dollars/_pct as the LIMIT, this file stores realized loss %). Today each heartbeat reads ONLY its own breaker and mostly only `.tripped` (present in both), so nothing breaks \u2014 but any CROSS-ACCOUNT consumer must use this mapping or it will read null on the other file. Do NOT rename the live keys here (the aggressive heartbeat gate reads them). THRESHOLD DRIFT RESOLVED 2026-06-21: reconciled to -50% (daily_loss_kill_switch_pct=0.5) to match CLAUDE.md Rule 5 Bold=-50%.",
   "day_trades_used_5d_computed_at": "2026-07-14T10:37:42"
 }
