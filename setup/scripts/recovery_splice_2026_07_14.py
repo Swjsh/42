@@ -24,6 +24,8 @@ import subprocess
 import sys
 import time
 
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
+
 MAIN = r"C:/Users/jackw/Desktop/42"
 BASE = "05339e3"
 STASH = "232a161"
@@ -64,7 +66,9 @@ TARGETS = [
 
 def git_blob(commit, path):
     r = subprocess.run(
-        ["git", "-C", MAIN, "show", f"{commit}:{path}"], capture_output=True
+        ["git", "-C", MAIN, "show", f"{commit}:{path}"],
+        capture_output=True,
+        creationflags=_CREATE_NO_WINDOW,
     )
     return r.stdout if r.returncode == 0 else None
 
