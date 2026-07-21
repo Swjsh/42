@@ -81,6 +81,10 @@ automation/state/fleet/secrets.json
 automation/state/crypto-twin/secrets.json
 # Fleet runtime decision logs (ephemeral)
 automation/state/fleet/decisions/
+# DOJO replay-training session state (live/ephemeral: ledgers, state, scorecards, harvest stubs).
+# Per the 2026-07-20 STATE-FILE-REVERSION lesson, live mutable state files stay UNTRACKED so no
+# git op ever reverts them. The dojo CODE lives in setup/scripts/dojo/ and IS tracked.
+automation/state/dojo/
 # Backup copies of mcp config carry plaintext secrets — never track them
 .mcp.json.bak*
 **/*.bak-winfix-*
