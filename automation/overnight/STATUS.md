@@ -1,3 +1,72 @@
+## [2026-07-20 22:12-22:40 ET] OK -- conductor (AFTERHOURS): CLAUDE-INDEX-FOLD-BATCH -- 20 remaining lessons folded into OP-25 index, reconciliation ratchet drained to zero, committed `33c7bad`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Self-audit gaps file
+> has no un-actioned tail (last batch, 2026-07-18, already closed 2026-07-19). `task_scorer.py
+> --top` re-surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still correctly J-decision-gated,
+> skipped again). Active-backlog HIGH items were all closed/J-gated/not-pickable
+> (`DOJO-BUILD-HANDOFF` needs TradingView MCP tools this fire's tool set doesn't have bound;
+> `MM-05-WAKE-FIRE-REVIVAL` is awaiting-j-ratification). Manually surfaced
+> `CLAUDE-INDEX-FOLD-BATCH` (LOW, doc-index, score 4.5, ready) by grepping the 2317-line
+> queue.md for `(HIGH,`/L###-CLAUDE-FOLD clusters rather than trusting task_scorer's top-N
+> alone -- it consolidates 8 separate queue items and directly closes a standing doctrine-debt
+> loop (OP-22 "close a loop > create an artifact").
+
+> **What shipped:** the item's own text claimed **30** unindexed lessons; live re-derivation via
+> the guard's own `find_unindexed_lessons()` showed the true remaining debt was **20**
+> (`KNOWN_UNINDEXED_BASELINE` = 12 older L03,13,16,24,25,29,31,43,56,126,137,146 + 8 recent
+> L192-198,200) -- L169-191 had already been folded by the 2026-06-24/06-28 batches per the
+> guard file's own comments, and this queue item was simply never updated (same
+> stale-checkbox-shipped-work class as several other items closed tonight). Read each lesson's
+> FULL text in LESSONS-LEARNED.md (not just the title) before picking a fold destination:
+> L03->C17 (TDD/hand-computed-fixture pattern), L13/L16/L25/L29/L31/L193/L196/L197->C7 (all 8
+> are "task exits 0 but the real work silently failed" cases -- Discord bridge, watcher
+> granularity, pandas dtype coercion, CDP port death, a decorative sibling-organ gate, a
+> presence-not-consistency producer guard, a guard baking in a stale frame), L24->C30
+> (chandelier-trailing profit-lock vs fixed-cap exit-shape tuning), L43->C13 (confidence-tier
+> rarity-gate calibration), L56->C9 (sys.path/`__file__` anchoring), L126/L137/L146->C22
+> (regime-conditional IS/OOS classifiers -- L146's own title literally says "mirrors C22
+> regime split"), L192->C4 (edge_capture is a directional-anchor metric, regime-stratification
+> class), L194/L195/L198->C14 (dead-knob/gate-completeness class -- selector-vs-executor gate
+> gaps, structurally-dead trigger inputs, hardcoded-window frame audits), L200->C11 (verify
+> the ACTUAL broker/account facts before modeling a regulatory rule).
+
+> **Precedent applied:** tonight's earlier L202/L203 fold (commit `714f797`) established that a
+> lesson-index-ONLY CLAUDE.md edit is the one surface OP-25 reserves for the lesson-author
+> path, not rail-4-blocked -- so this item's own "conductor cannot edit CLAUDE.md" framing was
+> itself stale. 9 `Edit` calls folded all 20 numbers into their C-rows; verified zero
+> within-row duplicates via a small script before committing.
+
+> **Verified this fire, not just claimed:** guard `test_op25_index_reconciliation.py` 9/9 PASS
+> with `KNOWN_UNINDEXED_BASELINE` drained to `frozenset(set())`; live re-derivation via the
+> guard's own `find_unindexed_lessons`/`find_phantom_index_refs` against the on-disk
+> CLAUDE.md/LESSONS-LEARNED.md returns `[]`/`[]` -- zero unindexed lessons, zero phantom index
+> refs, the actual invariant holds (not just green tests). Context-budget re-checked post-edit:
+> `CLAUDE.md 8831 tok / 9000 (98%)` -- still YELLOW, not pushed to RED (was 8791 pre-edit, +40
+> tok net for 9 rows of new L-numbers -- well inside OP-3's 9K cap). Broader sweep
+> `test_op25_index_reconciliation.py` + `test_author_inbox_reconciliation.py` +
+> `test_self_audit_extract.py` -> **80/80 PASS**. Curated safety gate (5-suite) PASS at commit
+> time.
+
+> **Rail-4/OP-25 (doc-index-only -- the one CLAUDE.md surface this class of fire may touch):**
+> zero params/heartbeat_core/filters/placement/exit files touched -- only CLAUDE.md's OP-25
+> lessons table (9 rows) + the guard's baseline constant. **Revert:** `git revert 33c7bad`
+> (3 files: CLAUDE.md, `backtest/tests/test_op25_index_reconciliation.py`,
+> `automation/overnight/queue.md`). **Commit:** `33c7bad`.
+
+> **Queue hygiene:** closed all 8 items in the cluster in one edit -- `CLAUDE-INDEX-FOLD-BATCH`
+> (corrected, not just checked off) + the 6 subsumed `L169/L170/L173/L174/L177/L178-CLAUDE-FOLD`
+> follow-ups (all stale checkboxes -- that work was already done 2026-06-24, well before
+> tonight). The reconciliation ratchet is now at true zero: any future authored-but-unfolded
+> lesson will fail the guard loud on its own, with no baseline debt left to hide behind.
+
+> **Cost: ~$3.9** (STAGE 0/1 reads incl. engine-health/self-audit-gaps/gym-scorecard/task_scorer,
+> 2317-line queue.md targeted greps + reads to find the HIGH-item cluster and this LOW item,
+> 20 lesson full-text reads across LESSONS-LEARNED.md to pick fold destinations, 9 CLAUDE.md
+> `Edit` calls + 1 guard-file edit, duplicate-check script, context-budget re-check, 3 test-suite
+> runs, commit + curated safety gate, queue.md 8-item closure writeup, this STATUS entry).
+
+---
+
 ## [2026-07-20 21:42-22:xx ET] OK -- conductor (AFTERHOURS): lesson-inbox drain -- L203 never-average-down guard pinned + C31 attribution corrected, committed `714f797`
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Fill-funnel priority-1
@@ -587,92 +656,6 @@
 > 113-test regression sweep, 2 queue.md edits, this STATUS entry -- no LLM in the hot path, no
 > orders, PAPER-only, zero pricing/gate/placement logic touched). **No commit made** (orchestrator
 > commits after verification per this fire's own rules).
-
----
-
-## [2026-07-20 16:42-16:53 ET] SHIP (REVOKE) -- conductor (AFTERHOURS): EXTRA-SIGNAL-CHURN-COOLDOWN item 1 shipped (same-bar re-entry guard), item 2 re-filed as EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT
-
-> **Context.** STAGE 0 engine-health GREEN (13/13, market closed since 15:55). `task_scorer.py
-> --top` re-ranked `MORNING-BULL-QUALITY-GATE-RECONSIDER` (J-DECISION-GATED, correctly skipped
-> per standing precedent). Grepped live `queue.md` HIGH items: picked `EXTRA-SIGNAL-CHURN-
-> COOLDOWN` (filed ~11:25 ET during RTH, explicitly gated "FIX AFTER 16:00" per Rule 9, ready
-> now) over `STRUCTURE-STOP-REFERENCE-LEVEL`/`PREMARKET-TOUCH-CREDIT-STUDY` -- a concrete,
-> well-scoped mechanism bug with a clear live exhibit, not a fresh multi-day study.
-
-> **Root cause (one sentence):** `_route_extra_setups` (`setup/scripts/heartbeat_core.py`) had
-> no memory of "did this setup already attempt an entry on this trigger bar" -- the watchers'
-> current-bar guards stop a DUPLICATE signal firing twice, but nothing stopped a FRESH entry
-> once the account went flat again mid-bar (a stop-out), so `vix_regime_dayside` fired 3x 748C
-> entries within a single closed 5m bar 09:51-09:55 ET (net -$87), only nondeterministically
-> slowed by the free-model veto.
-
-> **Fixed:** added a per-arm, per-setup "last trigger-bar attempted" ledger
-> (`exit_actuator.load_last_entry_bars`/`record_entry_bar`/`same_bar_cooldown_active`, additive,
-> new functions only) wired into `_route_extra_setups`: refuse a new entry for a setup on the
-> SAME trigger bar it already attempted one on (`SKIP_COOLDOWN_SAME_BAR`); record only on an
-> actual PLACED/PLACING/WOULD_PLACE, never on WATCH_NOT_ARMED/VETOED_BY_MODELS. Chose
-> "requires-new-trigger-bar" over a hand-picked N-minute duration -- a brand-new mechanism has
-> no trade population to pre-register a numeric cooldown against, so the bar boundary is the
-> smallest non-arbitrary unit (no knob to hand-pick). Fail-open throughout; scoped to the
-> extra-setup lane only (primary ribbon path untouched, out of this fix's scope).
-
-> **Verified this fire:** new guard `backtest/tests/test_extra_signal_churn_cooldown_2026_07_20.py`
-> (10/10) -- round-trip, same-bar-blocks/different-bar-doesn't, fail-open on a cooldown-check
-> exception, record-only-on-actual-placement. RED-proofed via `git stash` on the 2 edited files
-> (+ file-move for the untracked new test): reproduced the exact expected mechanism
-> (`AttributeError: module 'exit_actuator' has no attribute 'load_last_entry_bars'`, 9/10 fail),
-> pop restored cleanly, re-verified 10/10 green. Broader sweep (`test_g4_extra_setup_routing` +
-> `test_gap_and_go_exit_wiring_2026_07_18` + `test_audit_fix_heartbeat` + `test_audit_fix_exit`
-> + `test_execute_stop_display` + `test_g14_fleet_ribbon_exit` + `test_money_path_2026_07_01` +
-> `test_trade_to_learn_2026_07_01` + this file) -> **136/136 PASS, 0 regressions**. Curated
-> safety gate (31+5-suite) PASS.
-
-> **Rail-4 (PAPER trading-path -- guard test + revert path + this REVOKE report):** touches
-> `automation/state/fleet/exit_actuator.py` (additive, 3 new functions), `setup/scripts/
-> heartbeat_core.py` (`_route_extra_setups` gains one same-bar check + one recording call;
-> zero change to the primary ribbon path/gate ordering/`_execute` pricing logic),
-> `backtest/tests/test_extra_signal_churn_cooldown_2026_07_20.py` (new guard),
-> `automation/overnight/queue.md` (item 1 closed, item 2 re-filed). **Revert:**
-> `git revert fd91712` (1 commit, 4 files touched by the fix + 1 lesson file, additive-only so
-> a revert is a clean rollback to today's exact pre-fix churn risk).
-
-> **Item 2 NOT fixed this fire (deliberately):** confirmed live `j_vix_dayside_premium_stop_pct=
-> -0.08` / `j_vix_dayside_tp1_pct=0.30` still the stale 2026-06-01-era bracket the item cited,
-> unchanged since the 2026-06-18 core-lane chart-stop-primary shift. Did NOT flip it blind --
-> C29 (exit knobs validated on one setup/tier don't transfer without independent evidence) --
-> re-filed as `EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT` (MED, needs a real pre-reg A/B, small-n
-> likely so DEFER-INSUFFICIENT-DATA is an acceptable honest outcome, not a forced flip).
-
-> **Learn-loop:** filed `strategy/candidates/_lesson-inbox/extra-signal-same-bar-churn-2026-07-20.md`
-> -- flags that the PRIMARY ribbon path has no equivalent same-bar re-entry guard (currently
-> protected only by its own flat-check + gate discipline, a materially different and untested-
-> for-this-exact-shape safety net) as the first place to look if this churn class ever
-> reappears there.
-
-> **Cost: ~$5.0** (STAGE 0/1 reads, `task_scorer.py --top`, queue.md HIGH-item grep + read,
-> traced `setup_dispatch.py`/`heartbeat_core.py`'s extra-setup dispatch+route+exec path in full,
-> `exit_actuator.py`/`exit_manager.py` exit-action stage/reason vocabulary, confirmed
-> `params.json`'s live `j_vix_dayside_*` values, designed+wrote the same-bar cooldown mechanism
-> (3 new exit_actuator functions + heartbeat_core wiring), wrote+ran the 10-test guard file
-> (2 full syntax checks, 1 targeted run, 1 broader 136-test sweep), 1 RED-proof git-stash +
-> file-move round-trip, 1 curated safety-gate run, 2 queue.md edits (closure + new item), 1
-> lesson-inbox file, 1 commit, 1 verify-committed check, this STATUS entry -- no LLM in the hot
-> path, no orders, PAPER-only, zero pricing/gate/placement logic touched). **Files:**
-> `automation/state/fleet/exit_actuator.py`, `setup/scripts/heartbeat_core.py`,
-> `backtest/tests/test_extra_signal_churn_cooldown_2026_07_20.py`, `automation/overnight/queue.md`,
-> `strategy/candidates/_lesson-inbox/extra-signal-same-bar-churn-2026-07-20.md`. **Commit:**
-> `fd91712`.
-
----
-
-
-## Kitchen
-Kitchen: alive, queue 22 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-### DEGRADED: self-check 2026-07-20T21:18:06
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
-- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 
 ---
 
