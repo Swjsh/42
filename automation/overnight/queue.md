@@ -9,6 +9,27 @@
 
 ## Active backlog
 
+### DOJO-FLEET-HISTORICAL-SIGNAL (HIGH, Phase 1b, filed 2026-07-20 ~23:40 ET) :: The dojo's 3 fleet
+  arms (safe-3/risky-1/risky-3 = the RIBBON/control/ZONE-RIDE exit-diversity lanes, the WHOLE
+  point of J's "watch each arm trade the same signal differently" vision) currently render
+  FLEET_VIEW_PENDING in the whisper because setup/scripts/dojo/engine_step.py can only produce
+  the 2 core arms (safe/bold). Root cause: build_shared_signal.py builds its signal from TODAY's
+  on-disk core-decisions.jsonl/sight-beacon.json, not a date-parameterized historical bar. FIX:
+  make the shared-signal builder replay-aware (accept a replay_day + the sliced bars), then have
+  engine_step run fleet_executor.plan_all on that historical signal per arm so the whisper shows
+  all 5 arms' gated+sized+exit-profiled views. CAREFUL: build_shared_signal.py is a shared
+  PRODUCTION module -- blast-radius grep + guard that the live path is byte-unchanged (add a
+  replay-only code path, do not mutate the today path). This is what turns the dojo from a 2-arm
+  demo into J's full exit-diversity experiment. depends:none :: status:pending
+
+### DOJO-HISTORICAL-KEY-LEVELS-SNAPSHOT (MED, Phase 1b, filed 2026-07-20 ~23:40 ET) :: engine_step
+  parity on 2026-07-17 is ~87% verdict/side but bear/bull scores only 43-50% exact, because no
+  historical key-levels.json snapshot exists in the repo -- levels are approximated from the
+  CURRENT key-levels.json (no-look-ahead filtered). To lift score parity toward 100%, start
+  snapshotting key-levels.json daily (append-only, dated) so past replays inject the ACTUAL levels
+  the live engine saw that day. Verdict/side are robust to the drift; this is a fidelity upgrade,
+  not a blocker. depends:none :: status:pending
+
 ### DOJO-BUILD-HANDOFF (HIGH, Opus-tier build, filed 2026-07-20 ~21:45 ET -- J's idea, Fable-specced same evening)
 
 - [ ] DOJO-BUILD-HANDOFF (HIGH, Opus builds Phase 1) :: J's replay-training-room program.

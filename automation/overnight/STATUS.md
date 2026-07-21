@@ -1,3 +1,15 @@
+## [2026-07-20 ~22:00-23:40 ET] DOJO Phase 1 BUILT + RUNS E2E -- interactive (Opus + 4 Sonnet builders): J's replay training room. 2 honest gaps before it's the full 6-arm vision.
+
+> **Built + committed + pushed** (1f30e89 + adb1780; audit GREEN): the DOJO tick-by-tick replay training room. Spec markdown/specs/DOJO-REPLAY-TRAINING-SPEC.md, architecture+contracts DOJO-ARCHITECTURE-DECISION.md, runbook DOJO-SESSION-RUNBOOK.md. Package setup/scripts/dojo/ (clock, session spine+fence, engine_step, whisper, directive, sim_executor, scorecard). 109 dojo tests green (100 fast + 9 engine_step slow). TradingView Plus (J-bought) unlocked intraday replay -- VERIFIED (5-min 2026-07-17 steps, ribbon re-forms per step).
+> **RUNS END-TO-END (verified this session, not claimed):** `python -m dojo.session step` at 14:00 ET 2026-07-17 renders the real per-arm whisper -- safe ENTER_BEAR bear=10/bull=6, bold SKIP_BULLISH_FILL_BAR (actual Friday behavior). A real directive walked real OPRA bars: TP1 +$553.60 / runner +$262.10 / scorecard +$815.70.
+> **Architecture correction (Opus):** spec's "Python drives TV replay" was impossible (MCP tools are the agent's, not a script's). Two roles: agent=hands (TV MCP + relay), Python=brain+books (real engine decision + sim + score). No-LLM-in-decision preserved.
+> **TWO HONEST GAPS (NOT the full vision yet -- do NOT call it 100%):**
+>   1. **Only 2 of 5 arms live.** safe+bold render faithfully; the 3 FLEET arms (RIBBON/control/ZONE-RIDE exit-diversity lanes -- the "watch them differ" point) show FLEET_VIEW_PENDING. Cause: build_shared_signal.py builds only from TODAY's state, not a historical replay. Phase 1b = DOJO-FLEET-HISTORICAL-SIGNAL (touches a shared prod module -- careful).
+>   2. **engine parity ~87% verdict/side, scores drift** (bear/bull exact 43-50%). Cause: no historical key-levels.json snapshot; levels approximated from current (no-look-ahead). Verdict/side robust. Filed: DOJO-HISTORICAL-KEY-LEVELS-SNAPSHOT.
+> **Usable NOW:** J + a Sonnet agent walk a real day via the runbook -- see the engine's mind + direct safe/bold + sim P&L. The 3 fleet exit-diversity arms are the immediate next build.
+
+---
+
 ## [2026-07-20 ~23:12-23:5x ET] OK -- conductor (AFTERHOURS): RRW-AS-VETO-STUDY -- bear-wick bull overlay tested, FAIL (honest kill), committed
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `task_scorer.py --top`
