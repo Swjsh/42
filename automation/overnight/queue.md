@@ -1839,7 +1839,37 @@ CAVEATS: best-fixed is IN-SAMPLE (needs OOS confirm), grid coarse 3x3, this is t
 
 - [x] G11-LEVEL-MEMORY-AB-REPLAY (HIGH, engine-edge, research-bridge) :: DONE 2026-07-15 — pre-reg `analysis/recommendations/prereg-level-memory-wire-2026-07-15.json` (frozen+committed before run), scorecard `analysis/recommendations/level-memory-wire.json`/`.md`. Real-fills counterfactual replay (`backtest/tools/level_memory_wire_ab.py`, new additive `levels.py#_detect_from_history(memory_levels_by_day=...)` hook, real production trigger logic) over 2026-06-05..07-14 (26 sessions): CONTROL 28 trades / TREATMENT 26 trades. Participation-added n=2 (−$489.50, both `confluence`-triggered losers) + shared-behavior-changed n=1 ($0 delta) = combined n=3, below the pre-registered 15-evidence floor → **verdict NEGATIVE_INSUFFICIENT_N, flag left ON** (revert clause not invoked — insufficient evidence, not a pass). Live cross-check of the 3 real wire-live sessions (07-09/07-10/07-14): the wire touched exactly 1 real signal episode (07-14 10:36-10:38 ET, deduped from 3 identical ticks) — blocked by `VETOED_BY_MODELS` then `RISK_DENY_PDT`, zero real fills, zero real P&L. OPRA cache backfilled for the 4 missing sessions (88 contracts, 0 errors) so the whole window replays on real fills. :: depends:none :: status:done
 - [x] G11-C14-WIRING-GUARD (MED, engine-correctness) :: DONE 2026-07-15 — `backtest/tests/test_graduated_guards.py::test_level_memory_live_merge_key_present_and_boolean` asserts live params.json carries `level_memory_live_merge` as a present boolean; PASSED. :: depends:none :: status:done
-- [ ] D1-TV-CDP-ROOT-CAUSE (HIGH, infra) :: TV CDP root-cause live repro (Invoke-TvLaunchSafe PSArgumentException, D1 #1) + port assess_tv_cdp into self_check.py (D1 #3) :: depends:none :: status:pending
+- [x] D1-TV-CDP-ROOT-CAUSE (HIGH, infra) :: TV CDP root-cause live repro (Invoke-TvLaunchSafe PSArgumentException, D1 #1) + port assess_tv_cdp into self_check.py (D1 #3) :: depends:none :: status:CLOSED_PARTIAL (item 3 SHIPPED, item 1 not re-pickable -- no active outage to repro)
+
+> **CLOSED item 3 (port assess_tv_cdp into self_check.py) 2026-07-21 ~17:12-17:35 ET
+> (conductor, AFTERHOURS): SHIPPED, commit `866aac9`.** Confirmed live (grep, zero hits) that
+> `self_check.py` -- the surface J's STATUS.md/engine-health.json morning brief actually reads
+> every ~30 min -- still had ZERO tv/cdp/9222/TradingView awareness, 12 days after the D1 audit
+> flagged this as effort=S. `preopen_readiness.py`'s `assess_tv_cdp`/`fetch_tv_cdp` (built
+> 2026-07-06) already solved this correctly but only fires once at 08:25 ET and is a different
+> file. **Built:** `check_tv_cdp(now, fetch=None)` (new, ported not imported -- matches this
+> file's own deliberate-duplication convention per `check_macro_calendar_freshness`'s docstring)
+> + `_fetch_tv_cdp_reachable()` (urllib probe on `:9222/json/version`, fail-open on any
+> exception, never raises). Windowed 08:10-16:00 ET weekdays (Gamma_LaunchTV 08:00 + 5-min-slack,
+> Gamma_TvWatchdog 08:05-16:00/5min); classifies RED/BROKEN (not DEGRADED) on an unreachable CDP,
+> matching `assess_tv_cdp`'s own critical severity -- a dead CDP has the disclosed real cost from
+> the 07-07/09 outage (premarket bias degraded to `"no-trade-tv-fail"`). Wired as step 14 in
+> `run()`. **Verified this fire (OP-33):** new guard `backtest/tests/test_self_check_tv_cdp.py`
+> (8/8) RED-proofed via `git stash -- setup/scripts/self_check.py` alone -- all 8 failed pre-fix
+> with the exact expected `AttributeError: module 'self_check' has no attribute 'check_tv_cdp'`,
+> `git stash pop` restored cleanly, re-verified 8/8 green. Broader sweep:
+> `pytest backtest/tests/ -k self_check` -> **71/71 PASS, 0 regressions**. Curated safety gate
+> (31+5-suite) PASS. `git ls-tree HEAD` confirmed both files (self_check.py, new test) landed on
+> HEAD, not just staged. **Zero trading-path files touched** -- `self_check.py` is an
+> observation-only monitoring organ (no broker/params/heartbeat_core/placement/exit code); ships
+> as engine-benefit per OP-22/OP-26, no J ratification needed. **Revert:** `git revert 866aac9`
+> (2 files, additive, no data loss). **Item 1 (live repro of the 2026-07-08 PSArgumentException)
+> NOT attempted this fire** -- confirmed `tv-watchdog-status.json` shows `cdp_up: true` right now
+> (2026-07-21 16:00 ET), i.e. there is no active outage to reproduce; deliberately forcing a kill
+> just to repro a 12-day-stale error message would be a live-TV-disruption risk for no evidentiary
+> gain (TV is J's actively-used chart tool, not a throwaway sandbox) and is out of scope for an
+> after-hours conductor fire. Left `status:CLOSED_PARTIAL` rather than fully closed so a future
+> fire that HAS a live repro opportunity (TV genuinely down again) knows item 1 is still open.
 - [x] J-BRAINSTORM-CROSS-TICKER (HIGH, dedicated-session, Fable-owned) :: DONE 2026-07-10 — delivered as markdown/planning/CROSS-TICKER-BRAINSTORM-2026-07-10.md. Verdict: confluence=yes (one composite feature), second-chain=no (QQQ pre-named as the only future exception), explicit preconditions + kill criteria. qqq_divergence_confluence seeded battery-ready in Prospector. Checkbox was stale (work shipped, box never flipped) — closed 2026-07-11 during queue hygiene pass. :: depends:STOP-B-done :: status:done
 - [x] CRYPTO-TWIN-T1-T4 (CRITICAL, J-requirement 2026-07-10) :: DONE, superseded and exceeded — T1-T4 shipped 2026-07-10 night and the program continued straight into markdown/planning/TWIN-PROGRAM.md's B1-B2 build (unit-lots, scenario scheduler, gauntlet, real live autonomous fill 2026-07-11). Checkbox was stale (work shipped, box never flipped) — closed 2026-07-11 during queue hygiene pass. :: depends:none :: status:done
 - [x] GATE-ORDERING-FIX-RELAUNCH (HIGH, confirmed-bug) :: **CLOSED 2026-07-20 (conductor, verification-only) -- ALREADY SHIPPED, item was stale.** Live-read `setup/scripts/heartbeat_core.py::run_account` lines 911-946: the exact fix the item's own spec named ("move the stale-trigger-bar check to the top ... before decide_payload") is present verbatim, with an inline dated comment block ("FIX (2026-07-10, GATE-PROVENANCE-SWEEP): staleness must be resolved BEFORE any verdict/gate name can claim this tick's logged action") citing the SAME `GATE-PROVENANCE-SWEEP-2026-07-10.md` doc this item points to. `if _stale_trigger_bar(payload, et): rec["action"] = "SKIP_STALE_TRIGGER"` is checked unconditionally, first, ahead of every other branch (ENTER_*/SKIP_LATE_ENTRY/etc.) -- exactly the ordering the item asked for. Guard test `backtest/tests/test_gate_provenance_ordering_2026_07_10.py` exists and is committed to main; re-ran live this fire: **17/17 PASS**. Some prior fire (not this session, no matching STATUS.md/commit-message trace found for "GATE-ORDERING" specifically) completed the relaunch and the checkbox was simply never flipped -- same "stale checkbox, shipped work" class as G11/CROSS-TICKER/CRYPTO-TWIN-T1-T4 above. No code changed this fire (verification-only). :: depends:none :: status:done

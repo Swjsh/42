@@ -1,3 +1,51 @@
+## [2026-07-21 ~17:12-17:35 ET] OK -- conductor (AFTERHOURS): TV-CDP liveness check shipped to self_check.py, commit `866aac9`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55, TV CDP itself currently
+> healthy per `tv-watchdog-status.json`). `task_scorer.py --top` surfaced
+> `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still correctly J-decision-gated, not actionable).
+> Self-audit gaps (`analysis/self-audit/new-gaps-flagged.md`) fully triaged, nothing new.
+> Author inboxes (validator/skill/lesson/chef) had only already-DONE or thin/low-value items.
+> Chose `D1-TV-CDP-ROOT-CAUSE` (HIGH, filed 2026-07-09, pending 12 days) instead: item 3
+> ("port assess_tv_cdp into self_check.py") was a clean, bounded, effort=S visibility gap the
+> original D1 audit itself scoped -- confirmed still real via a live grep (zero tv/cdp/9222
+> hits in self_check.py) before touching anything.
+
+> **What shipped:** `self_check.py` gained `check_tv_cdp(now, fetch=None)` +
+> `_fetch_tv_cdp_reachable()` -- a live urllib probe of TradingView's CDP endpoint
+> (`:9222/json/version`), ported (not imported, matching this file's own established
+> deliberate-duplication convention) from `preopen_readiness.py`'s existing
+> `assess_tv_cdp`/`fetch_tv_cdp` pair. Windowed 08:10-16:00 ET weekdays (matches
+> Gamma_LaunchTV/Gamma_TvWatchdog's operating window); classifies RED/BROKEN (not DEGRADED) on
+> an unreachable CDP, matching the source function's own critical severity -- the 2026-07-07/09
+> 41+ hour outage had a real, disclosed cost (premarket bias degraded to `"no-trade-tv-fail"`,
+> waving off a plausible trading day) and nothing in self_check.py -- the surface J's
+> STATUS.md/engine-health.json morning brief actually reads every ~30 min -- ever saw it, 12
+> days after the audit flagged the fix as effort=S. Wired as step 14 in `run()`.
+
+> **Verified this fire (OP-33):** new guard `backtest/tests/test_self_check_tv_cdp.py` (8/8)
+> RED-proofed via `git stash -- setup/scripts/self_check.py` alone -- all 8 failed pre-fix with
+> the exact expected `AttributeError: module 'self_check' has no attribute 'check_tv_cdp'`,
+> `git stash pop` restored cleanly, re-verified 8/8 green. Broader sweep
+> (`pytest backtest/tests/ -k self_check`) -> **71/71 PASS, 0 regressions**. Curated safety gate
+> (31+5-suite) PASS. `git ls-tree HEAD` confirmed both files landed on HEAD, not just staged.
+
+> **Zero trading-path files touched** -- `self_check.py` is an observation-only monitoring
+> organ (no broker/params/heartbeat_core/placement/exit code). Ships as engine-benefit per
+> OP-22/OP-26, no J ratification needed. **Revert:** `git revert 866aac9` (2 files, additive,
+> no data loss). **Not done this fire:** item 1 of the same queue entry (live repro of the
+> 2026-07-08 `PSArgumentException` in `Invoke-TvLaunchSafe`) was NOT attempted -- TV/CDP is
+> currently healthy (`cdp_up: true`), so there is no active outage to reproduce, and forcing one
+> just to repro a 12-day-stale error message would risk disrupting J's actively-used TV chart
+> for no evidentiary gain. Left `D1-TV-CDP-ROOT-CAUSE` as `CLOSED_PARTIAL` in queue.md so a
+> future fire with a genuine live outage can still pick up item 1.
+
+> **Cost: ~$2.9** (STAGE 0/1 reads incl. task_scorer + self-audit/inbox sweep, D1-audit
+> re-read, source survey of preopen_readiness.py + self_check.py conventions, new function +
+> wiring, new 8-test guard file + RED-proof round-trip, broader 71-test sweep, curated safety
+> gate, commit + `git ls-tree HEAD` verification, this STATUS/queue update).
+
+---
+
 ## [2026-07-21 ~16:42-17:35 ET] OK -- conductor (AFTERHOURS): exit_shape_parity_study core-arms blind-spot fixed, T-W7C closed SUPERSEDED, commit `e7d98b3`
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Fill-funnel GREEN
@@ -615,91 +663,3 @@
 
 ---
 
-## [2026-07-20 20:45-21:35 ET] OK -- conductor (AFTERHOURS): STATE-FILE-REVERSION genuinely fixed this time -- prior fire's "closed" claim was false, found + fixed a real git-mechanics footgun, committed `cb27ce5`
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed). STATUS/queue showed all HIGH
-> items closed tonight; picked up the queued MED follow-up `STATE-FILE-REVERSION-AUDIT-
-> FOLLOWUP` (bounded audit of ~279 tracked `automation/state/` files last-committed
-> 2026-07-14). Standard practice: re-ran the existing guard as a sanity baseline before
-> starting the broader triage -- **it was RED.** `test_state_snapshots_are_gitignored` /
-> `test_state_snapshots_are_untracked` failed for exactly the 8 files (`circuit-breaker.json`
-> x6 + `today-bias.json` x2) that the PRIOR fire (19:42-19:50 ET, commit `25e31e2`) claimed
-> to have fixed with "4/4 green" + "curated safety gate PASS". That claim was false.
-
-> **Root cause of the false-green (OP-33 violation, one level up):** `25e31e2`'s diff for
-> those files showed ordinary CONTENT changes (8 +--/14 +---- lines), not a deletion --
-> `git ls-tree HEAD` proved the original blobs were still fully present in the tree.
-> `git rm --cached` was either never run or its result was silently discarded before that
-> commit landed.
-
-> **Fixing it this fire took 4 attempts (all logged, none hidden) to actually root-cause the
-> git mechanic, not just retry blindly:** (1) rm --cached + commit -- <pathspec> across two
-> separate tool calls -> only today-bias.json's incidental content diff landed, 7/8 lost;
-> (2) rm --cached + commit -- <pathspec> in ONE shell invocation -> same result, ruling out
-> a cross-invocation-staging theory; (3) discovered the actual mechanic: `git commit --
-> <pathspec>` WITHOUT `--only` does NOT use staged/index content for named paths -- it
-> commits the CURRENT WORKING-TREE content instead (implicit re-add), silently discarding
-> the `git rm --cached` staging since the files still exist on disk; (4) `git commit
-> --only -- <pathspec>` then hit an unexplained "nothing to commit" against paths staged in
-> an earlier tool call (not fully root-caused, not worth chasing further); the workaround
-> that actually worked: confirm `git diff --cached --stat` (no path filter) is EXACTLY the
-> 8 target deletions and nothing else, then plain `git commit -m "..."` with **no pathspec
-> at all** -- landed cleanly as `8 files changed, 224 deletions(-), delete mode 100644` x8.
-
-> **Verified this time, not just claimed:** `git ls-tree HEAD` empty for all 8 paths (proof
-> the blobs are actually gone from the committed tree, not just the working index) +
-> `git ls-files` empty for all 8 + guard 4/4 green + broader sweep `pytest -k
-> "circuit_breaker or today_bias or gitignore or state_file"` -> 11/11 PASS + all 8 files
-> confirmed still on disk and load as valid JSON post-untrack (readers are path-based, don't
-> care about git tracking). Commit: `cb27ce5`.
-
-> **Rail-4 (PAPER/infra-only -- guard test + revert path + this REVOKE report).** Change:
-> git-untracks 8 already-gitignored state files (`.gitignore` itself untouched this fire,
-> only the index/tree). Zero `params.json`/`heartbeat_core.py`/`filters.py`/placement/exit
-> code touched, zero content changed on disk -- pure git-tracking hygiene, ships per
-> OP-22/OP-26 without J ratification. **Revert:** `git revert cb27ce5` (re-adds the 8 files
-> to the index at their current on-disk content -- harmless either way, on-disk content is
-> unaffected by tracking status). **Commit:** `cb27ce5` (plus the two now-superseded
-> intermediate attempts `5a2becb`/`9ed0580` sitting in history, both harmless no-ops on the
-> tracking question -- their real diffs were incidental today-bias.json content writes).
-
-> **Learn-loop:** filed `strategy/candidates/_lesson-inbox/2026-07-20-git-commit-pathspec-
-> resurrects-staged-deletion.md` -- documents the git mechanic (`git commit -- <pathspec>`
-> without `--only` silently resurrects a staged deletion from working-tree content) and
-> recommends graduating a reusable `git_untrack_state_file.py` helper OR folding the
-> "verify via `git ls-tree HEAD`, not just the guard" addendum into the existing
-> STATE-FILE-REVERSION lesson, since the guard test alone was proven insufficient to catch
-> this class of false-green (it checks the index, which was correctly staged -- the commit
-> step was the broken one). **This is a re-violated lesson at the meta level (OP-33 "verify
-> don't claim" was violated by the prior fire's own git verification step) -- flagged for
-> priority graduation given `STATE-FILE-REVERSION-AUDIT-FOLLOWUP` (queue.md, MED, still
-> pending) will need this exact untrack operation for potentially dozens more files and
-> would otherwise hit the identical footgun a third time.** Queue.md's
-> `STATE-FILE-REVERSION-2026-07-20` entry corrected with this finding (append-only, prior
-> false claim preserved with a correction below it, not overwritten).
-
-> **STATE-FILE-REVERSION-AUDIT-FOLLOWUP itself NOT started this fire** -- this fire's full
-> budget went to discovering and correctly fixing the false-green on the original 8-file
-> scope; the broader ~279-file triage remains queued (MED, pending) for a future fire, now
-> with the correct verified procedure documented so it won't repeat this mistake.
-
-> **Cost: ~$4.6** (STAGE 0/1 reads, task_scorer, self-audit gaps check, queue.md targeted
-> reads of a 2198-line file, the mtime-vs-commit-gap audit script (786 tracked files, 81
-> candidates), git forensics across 4 commit attempts, 2 RED-proof round trips, multiple
-> guard/regression runs, lesson-inbox write, queue.md + STATUS.md writeups). **Files:**
-> `automation/state/{circuit-breaker.json,aggressive/circuit-breaker.json,fleet/{risky-1,
-> risky-3,safe-1,safe-3}/circuit-breaker.json,today-bias.json,futures/today-bias.json}`
-> (untracked, content unchanged), `automation/overnight/queue.md`,
-> `strategy/candidates/_lesson-inbox/2026-07-20-git-commit-pathspec-resurrects-staged-
-> deletion.md`.
-
----
-
-
-### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
-- ts: 2026-07-21T20:45:48+00:00
-- task: analyst
-- date_et: 2026-07-21
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
