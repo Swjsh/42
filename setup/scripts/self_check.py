@@ -681,6 +681,62 @@ def check_trendline_draw_freshness(now, path=None) -> list:
     return []
 
 
+TV_CDP_URL = "http://localhost:9222/json/version"
+
+
+def _fetch_tv_cdp_reachable(timeout: float = 5.0) -> "tuple[bool, str]":
+    """Live liveness probe -- is TradingView's CDP endpoint actually responding on :9222?
+    Fail-open -> (False, detail) on ANY error, never raises (rail-2). Ported from (not
+    imported -- see check_macro_calendar_freshness's docstring for why this file deliberately
+    duplicates rather than imports) preopen_readiness.py's proven fetch_tv_cdp/assess_tv_cdp
+    pair (built 2026-07-06 for the exact same D1-audit-flagged gap)."""
+    import urllib.request
+    try:
+        with urllib.request.urlopen(TV_CDP_URL, timeout=timeout) as r:
+            if r.status == 200:
+                return True, "CDP responding on :9222"
+            return False, f"CDP returned HTTP {r.status}"
+    except Exception as e:  # noqa: BLE001 -- fail-open, this is a notify-only observer
+        return False, f"CDP unreachable on :9222: {type(e).__name__}: {e}"
+
+
+def check_tv_cdp(now, fetch=None) -> list:
+    """VISIBILITY instrument for TradingView's CDP endpoint (D1-TV-CDP-ROOT-CAUSE queue item,
+    part 3 -- OVERNIGHT-READ-D1-2026-07-09.md Finding #3). Motivation: TV/CDP went dead for
+    41+ hours 2026-07-07/09 (degraded premarket bias to a real 'no-trade-tv-fail' framing that
+    waved off a plausible trading day) and NOTHING in self_check.py/STATUS.md ever surfaced
+    it -- preopen_readiness.py's assess_tv_cdp/fetch_tv_cdp already existed and already caught
+    this class correctly at its own 08:25 ET one-shot fire, but self_check.py (the file J's
+    STATUS.md/engine-health.json morning-brief surface actually reads, running every ~30 min)
+    had ZERO tv/cdp/9222/TradingView awareness -- confirmed by grep, 12 days after the audit
+    flagged it as effort=S. This ports the same live-probe pattern into that surface.
+
+    RED (BROKEN), not DEGRADED: a dead CDP has a real, disclosed trading-relevant cost (the
+    07-08 'no-trade-tv-fail' precedent), matching assess_tv_cdp's own 'critical' classification
+    -- unlike TRENDLINE-DRAW-freshness, which is explicitly non-load-bearing.
+
+    Windowed 08:10-16:00 ET weekdays only: Gamma_LaunchTV fires once at 08:00 ET and
+    Gamma_TvWatchdog every 5 min 08:05-16:00 ET -- the window gives the 08:00 launch a few
+    minutes of slack before judging it dead, and there is no TV-up expectation
+    overnight/weekends (matches this file's own rth-gated staleness checks)."""
+    if now.weekday() >= 5:
+        return []
+    hm = now.strftime("%H:%M")
+    if hm < "08:10" or hm > "16:00":
+        return []
+    probe = fetch or _fetch_tv_cdp_reachable
+    reachable, detail = probe()
+    if reachable:
+        return []
+    return [f"TV-CDP UNREACHABLE (RED): {detail} -- TradingView's CDP endpoint is not "
+            f"responding. Premarket bias generation and named-level chart context may be "
+            f"degraded (2026-07-07/09 precedent: a 41+h outage produced a real "
+            f"'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV "
+            f"(08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this "
+            f"persists, manually `taskkill /F /IM TradingView.exe` then run "
+            f"`setup\\launch_tv_debug.ps1` by hand."]
+
+
 def _problem_is_broken(p: str) -> bool:
     """BROKEN (vs DEGRADED) classifier for a problem string. Module-level so the
     graduated guards can assert the mapping (e.g. PLACEMENT BROKEN -> BROKEN)."""
@@ -776,6 +832,12 @@ def run() -> dict:
     # 13. TRENDLINE-DRAW FRESHNESS -- the 2026-07-16/17 scar: 2 budget-skips of premarket
     # Step 5c in 2 days went to journal only, invisible to J until he noticed a bare chart.
     problems.extend(check_trendline_draw_freshness(now))
+
+    # 14. TV-CDP LIVENESS -- the 2026-07-07/09 scar (D1 audit Finding #1/#3): a 41+ hour
+    # TradingView CDP outage degraded premarket bias to real 'no-trade-tv-fail' framing and
+    # NOTHING in this file ever saw it. preopen_readiness.py caught this class at its own
+    # one-shot 08:25 ET fire; this closes the same gap on the surface J's morning brief reads.
+    problems.extend(check_tv_cdp(now))
 
     verdict = "GREEN" if not problems else ("BROKEN" if any(_problem_is_broken(p) for p in problems) else "DEGRADED")
     result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth,
