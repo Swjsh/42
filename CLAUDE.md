@@ -50,7 +50,7 @@ J's rules — Gamma enforces them, doesn't write them.
 
 ## Account context
 
-**As of 2026-06-15: Account 1 = Gamma-Safe-2 ($2K fresh); old Safe-1 retired.** **REPOINTED 2026-07-11:** Safe-2's account `PA3S2PYAS2WQ` was accidentally deleted 2026-07-10 evening (J, making room for the crypto twin); repointed the SAME "Gamma-Safe-2" alias at `PA3DHPT7KIQE` — the *fleet* champion/challenger arm's "safe-1" account (unrelated naming collision: that's `automation/state/fleet/accounts.json`'s grid-cell arm id, not this section's original Safe-1/Safe-2 account-tier history) — and retired the fleet arm to free it for reuse. One account, one execution path. Full design: [`dual-account-design.md`](markdown/0dte/dual-account-design.md)
+**As of 2026-06-15: Account 1 = Gamma-Safe-2 ($2K fresh); old Safe-1 retired.** **REPOINTED 2026-07-11** (old `PA3S2PYAS2WQ` accidentally deleted 2026-07-10): "Gamma-Safe-2" alias now points at `PA3DHPT7KIQE`, the repurposed fleet safe-1 arm (unrelated naming collision — see `automation/state/fleet/accounts.json`; fleet arm retired to free it). One account, one execution path. Full history: [`dual-account-design.md`](markdown/0dte/dual-account-design.md).
 
 | Account | Alias | Account # | Equity | Style | Config |
 |---|---|---|---|---|---|
@@ -70,8 +70,8 @@ J's rules — Gamma enforces them, doesn't write them.
 | Layer | Tool | Status |
 |---|---|---|
 | Chart/levels/indicators | TradingView MCP (`tradesdontlie/tradingview-mcp`) | CDP on port 9222. Launch via `setup\launch_tv_debug.ps1` |
-| Account/chain/fills/orders (Gamma-Safe) | Alpaca MCP — `alpaca` server | `uvx alpaca-mcp-server` via pythonw hidden-shim, key `PKZFN5G3…` (Safe-2 repointed 2026-07-11 → PA3DHPT7KIQE) in project-root `.mcp.json` (sole source; mirrors removed 2026-07-09). Tools: `mcp__alpaca__*` |
-| Account/chain/fills/orders (Gamma-Bold) | Alpaca MCP — `alpaca_aggressive` server | Same binary, key `PKQMQD2N…` (Risky-2) in project-root `.mcp.json`. Tools: `mcp__alpaca_aggressive__*`. REST fallback if MCP not connected. |
+| Account/chain/fills/orders (Gamma-Safe) | Alpaca MCP — `alpaca` server | `uvx alpaca-mcp-server` via pythonw hidden-shim, key `PKZFN5G3…` → PA3DHPT7KIQE. Tools: `mcp__alpaca__*` |
+| Account/chain/fills/orders (Gamma-Bold) | Alpaca MCP — `alpaca_aggressive` server | Same binary, key `PKQMQD2N…` (Risky-2). Both creds live ONLY in project-root `.mcp.json` (mirrors removed 2026-07-09, never re-mirror). Tools: `mcp__alpaca_aggressive__*`. REST fallback if MCP not connected. |
 | Trade engine | `Gamma_SightBeacon` + `Gamma_HeartbeatCore` (Python) | Never-blind beacon (direct REST) + deterministic `heartbeat_core.py` (engine_cli + structure-veto + 2 free-model veto + risk_gate); LLM heartbeats retired. Arch: [`ARCHITECTURE.md`](markdown/specs/ARCHITECTURE.md) §3.2. |
 | Heartbeat scheduler | Windows Task Scheduler (Python) | ~60 registered (counts drift -- registry is truth). Registry: [`SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md) |
 | Nemotron shadow eval | `shadow_model_eval.py` + `Gamma_ShadowEval` (16:05 ET) | $0. Scores decisions.jsonl daily; grad bar ≥85% DT over ≥15 days. [Scorecard](analysis/shadow-model/PROMOTION-SCORECARD.md). |
@@ -264,15 +264,11 @@ These are non-negotiable, second only to the 10 rules above.
 
 > ## ⛔ OP-33 — VERIFY, DON'T CLAIM. VISIBILITY IS THE PRODUCT. (J 2026-06-29 — OP-0's missing other half.)
 >
-> The loop is **ACT → VERIFY → report only the VERIFIED truth.** Acting without verifying, then declaring victory, is the #1 trust-killer.
-> - **(a) NEVER say something "works / runs / is fixed / is trading" without quoting the check you ran THIS turn.** `lastResult=0`, "it's built", "registered", "I ran it once" are **NOT proof** — a wrapper exits 0 while the actual work crashed. Proof = the real output / log line / fill / decision row, quoted. If you can't verify it right now, say **UNVERIFIED** — never imply it works.
-> - **(b) "Built" ≠ "running."** A build is done ONLY when verified FIRING on its schedule, reaper-exempt, and surviving at least one real fire. A file that exists is not a system that runs. A tool you ran once by hand is NOT autonomous — say so.
-> - **(c) VISIBILITY is the #1 gap — J is effectively blind.** Every autonomous component must emit a state J can glance at and verify **independent of your word.** Proactively surface the REAL status (what fired, what crashed, are we actually trading) BEFORE he asks — and prefer giving him a command/view he can run himself over asking him to trust you.
-> - **(d) THINK LIKE JACK:** be skeptical of your OWN output; the goal is **TRADING + money**, not demos/artifacts/green checkmarks; if you hit the same wall twice, audit the FRAME (OP-32) instead of grinding. Measure a session by *"can J see it, and does it still run tomorrow,"* not by what you shipped. **Hard problem / stuck / ship-kill call / too-good result → invoke `/think-like-fable` (+ the 5 fable drills; catalog + `markdown/doctrine/fable-judgment/`).** When J calls out a blocked/missed trade, the burden of proof is on the GATE (provenance + evidence), not the trade.
-> - **(e) A REPEATED QUESTION FROM J IS A MISSING INSTRUMENT, not a query** (the generative half; metacog 2026-06-29). The 2nd time J asks any variant of is-it-running / did-it-crash / is-it-trading / where-is-X, **STOP answering ad-hoc and BUILD the standing surface that retires it** (state file + glanceable view + auto-ping-on-change), then report you built it. Assurance — J not having to ask — is the deliverable; the artifact is its carrier. **I am the monitoring loop; J is the off-switch** — if J saw the break before I did, my visibility layer has a hole. Mechanized so it survives session amnesia: `j-question-ledger` → `friction_distiller` `recurring_user_question` escalates at ≥2. Ritual: the **J-MIND CHECK** in `/self-check`.
-> - **(f) LEAN OUTPUT.** Lead with the decision/result (HOLD/SKIP/ENTER, or the answer), then minimal reasoning — no walls of text (J's standing gripe). NEVER end an authorized-work turn with "No response requested" or a permission-question (OP-0).
+> The loop is **ACT → VERIFY → report only the VERIFIED truth.** Acting without verifying, then declaring victory, is the #1 trust-killer. Full (a)-(f) text (proof-quoting standard, built≠running, visibility-is-the-product, THINK LIKE JACK, repeated-question=missing-instrument, lean output) relocated verbatim: [`OP-33-verify-visibility.md`](markdown/doctrine/OP-33-verify-visibility.md). Same force as if inline — read it before any "it works" claim.
 ---
 
 ## Update log
 
 All doctrine evolution in [CHANGELOG.md](CHANGELOG.md). Append new entries there — never inline in CLAUDE.md.
+
+- 2026-07-21: context-leanness trim, RED(9017)→YELLOW(8359/9000). OP-33 full (a)-(f) text relocated verbatim to `markdown/doctrine/OP-33-verify-visibility.md` (pointer left inline); Account context repointing narrative + Tech stack Alpaca rows deduped. No rule semantics/account numbers/kill-switches changed. Verify: PASS all 8 integrity checks.
