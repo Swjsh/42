@@ -1181,6 +1181,20 @@ These are exactly the OP-22 "371st untriaged candidate is debt" pattern. The `gy
 
 ## Completed
 
+### 2026-07-21 ~17:42-18:10 ET — conductor (AFTERHOURS): stale validator-inbox item closed + time-bomb test found+fixed, commit `426e097`
+
+- [x] 2026-07-14-tick-audit-zero-count-bug (validator-inbox, 7d stale) :: root fix already
+  shipped commit `cc6755b` (2026-07-14), inbox item never marked closed. Live-verified fix
+  still holds (`heartbeat-tick-audit-2026-07-21.json` total_ticks=770). While re-running its
+  guard suite, found `test_stale_source_none_when_fresh` had gone silently RED on 2026-07-21 --
+  a hardcoded `TODAY="2026-07-14"` literal compared against a freshly-written temp file's REAL
+  mtime, only ever true on the day it was authored. Fixed: derive TODAY/now from the file's
+  own real mtime. RED-proofed via `git stash`; 33/33 broader sweep; curated safety gate PASS.
+  Self-audit gap batch re: TV-CDP check (2026-07-21T17:31:28) triaged as evidence-checked-false
+  (timeout already exists, zero heartbeat_core consumption of self_check output). Lesson filed:
+  `2026-07-21-hardcoded-today-literal-vs-real-file-mtime-time-bomb.md`. Full report:
+  `STATUS.md` this timestamp. :: status:done
+
 ### 2026-07-21 ~07:48-08:20 ET — conductor (AFTERHOURS): PROSPECTOR-STATE-LOSS-REPROMOTION-FLOOD fixed + backlog deduped, commit `ff8ac55`
 
 - [x] PROSPECTOR-STATE-LOSS-REPROMOTION-FLOOD (author-inbox hygiene + producer bug, self-found

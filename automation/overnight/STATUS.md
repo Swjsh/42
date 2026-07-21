@@ -1,3 +1,47 @@
+## [2026-07-21 ~17:42-18:10 ET] OK -- conductor (AFTERHOURS): stale validator-inbox item closed + time-bomb test found+fixed, commit `426e097`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `task_scorer.py --top`
+> surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still correctly J-decision-gated). Checked
+> the fresh self-audit gap batch (2026-07-21T17:31:28, 7 gaps re: the TV-CDP check the PRIOR
+> fire shipped) first per Stage-1 priority-3 -- both its concrete claims ("missing timeout",
+> "trading-halt risk") were checked against live code and found FACTUALLY WRONG (timeout=5.0
+> exists; `heartbeat_core.py` has zero self_check/engine-health consumption, confirmed by grep
+> -- it's a pure visibility instrument, no halt path exists). Triaged + disposed with evidence,
+> no code action. Moved to priority-5 (author inboxes, oldest-first): `_validator-inbox`'s
+> oldest live item, `2026-07-14-tick-audit-zero-count-bug.md` (7 days stale), was the pick.
+
+> **What shipped:** the item's root fix had ALREADY landed same-week (commit `cc6755b`,
+> 2026-07-14) but the inbox item itself was never marked closed -- live-verified the fix still
+> holds (`heartbeat-tick-audit-2026-07-21.json` -> `total_ticks: 770`, not 0) and closed the
+> loop. While re-running the fix's own guard suite to verify before closing, found
+> `test_stale_source_none_when_fresh` (`backtest/tests/test_eod_full_audit.py`) had gone
+> SILENTLY RED on 2026-07-21 with zero code change -- a genuine new defect, a "time-bomb test"
+> that hardcoded `TODAY="2026-07-14"` while relying on a freshly-written temp file's REAL
+> filesystem mtime, so the "fresh" assertion only ever held on the day it was authored. Fixed by
+> deriving `TODAY`/`now` from the file's own real mtime instead of a frozen literal.
+
+> **Verified this fire (OP-33):** RED-proofed via `git stash` -- failed pre-fix with the exact
+> expected mtime-mismatch AssertionError, `git stash pop` restored clean, re-verified 10/10
+> green. Broader sweep (+ `test_gym_session_tick_audit_classify.py` +
+> `test_gym_session_verdict.py`) -> **33/33 PASS**. Curated safety gate (31+5) PASS. `git
+> ls-tree HEAD` confirmed all 4 files (test fix, self-audit triage, validator-inbox close,
+> new lesson) landed on HEAD, not just staged. Commit `426e097`.
+
+> **Zero trading-path files touched** -- test file + docs only. Ships as engine-benefit per
+> OP-22/OP-26, no J ratification needed. **Revert:** `git revert 426e097` (4 files, additive +
+> one doc-append, no data loss). **Lesson filed:**
+> `_lesson-inbox/2026-07-21-hardcoded-today-literal-vs-real-file-mtime-time-bomb.md` -- the
+> generalizable class (hardcoded date literal + real-mtime-dependent fixture = silent future
+> RED), with the sibling tests in the same file that correctly avoided the trap noted as the
+> counter-example pattern.
+
+> **Cost: ~$3.1** (STAGE 0/1 reads incl. self-audit-gap live-code verification, validator-inbox
+> read, root-cause trace to commit cc6755b + live JSON spot-check, guard-suite re-run that
+> surfaced the time-bomb test, fix + RED-proof round-trip, 2 regression sweeps, curated safety
+> gate, commit + `git ls-tree HEAD` verification, lesson-inbox write, this STATUS/queue update).
+
+---
+
 ## [2026-07-21 ~17:12-17:35 ET] OK -- conductor (AFTERHOURS): TV-CDP liveness check shipped to self_check.py, commit `866aac9`
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55, TV CDP itself currently
@@ -592,74 +636,6 @@
 > 20 lesson full-text reads across LESSONS-LEARNED.md to pick fold destinations, 9 CLAUDE.md
 > `Edit` calls + 1 guard-file edit, duplicate-check script, context-budget re-check, 3 test-suite
 > runs, commit + curated safety gate, queue.md 8-item closure writeup, this STATUS entry).
-
----
-
-## [2026-07-20 21:42-22:xx ET] OK -- conductor (AFTERHOURS): lesson-inbox drain -- L203 never-average-down guard pinned + C31 attribution corrected, committed `714f797`
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Fill-funnel priority-1
-> check GREEN (bold's lone "1 ENTER / 0 attempt" row confirmed as the FALSE-CEILING-ALARM-FIXED
-> `SKIP_LATE_ENTRY` case, not a funnel break -- verified via core-decisions.jsonl directly).
-> `task_scorer.py --top` re-surfaced the correctly-J-decision-gated `MORNING-BULL-QUALITY-GATE-
-> RECONSIDER` (skipped again). Top of `queue.md`'s Active backlog HIGH item `DOJO-BUILD-HANDOFF`
-> (filed ~21:45 ET this same evening) is **NOT pickable by this fire**: its step 0 requires
-> empirically calling the TradingView `replay_start`/`replay_step` MCP tools, and this conductor
-> fire's available tool set has zero TradingView MCP tools bound (Alpaca + file/bash tools only)
-> -- filed a note on the item below for the next TV-wired interactive session. All other HIGH
-> items in the active backlog are already CLOSED/CLOSED_PARTIAL/DEFER-INSUFFICIENT-DATA by
-> tonight's earlier fires. Dropped to priority-5 (author inboxes): `_lesson-inbox` had **18
-> pending (non-.DONE) items**, the oldest dated 2026-07-01 -- picked the oldest.
-
-> **What shipped:** processed `strategy/candidates/_lesson-inbox/2026-07-01-never-average-down-
-> graduated-guard.md` (J's real WeBull E5 evidence: 67 scaled-in episodes lost -$9,281; doctrine
-> credited "Rule 4 alone" with that whole figure). Traced the ACTUAL guard chain first rather than
-> assuming new code was needed: `fb.is_flat_spy_options(creds)` (single source,
-> `automation/state/fleet/fleet_broker.py`) already blocks ANY second entry, unconditionally, no
-> bypass parameter anywhere -- both `heartbeat_core._execute` (primary ribbon route AND the
-> extra-setup G4 route share this one function) and `fleet_live.run()`'s per-arm AND-gate
-> (`... and flat and usable_signal`) enforce it. Rule 4 was ALREADY satisfied completely; what was
-> missing was a dedicated test. **Shipped:** `backtest/tests/test_never_average_down_2026_07_20.py`
-> (9 tests: core-route NOT_FLAT refusal both directions/both accounts + a flat-account PLACED
-> control that proves the harness itself isn't just swallowing every attempt, fleet_live's
-> AND-gate with a forced ENTER decision + a booby-trapped `_place_live`, 2 no-bypass-parameter
-> signature pins). **RED-proofed on the REAL production code, not a mock:** temporarily edited
-> `heartbeat_core.py`'s `if not fb.is_flat_spy_options(...)` to `if False and ...` in place -- 5/6
-> core-route tests failed loud with the exact expected assertion; separately edited
-> `fleet_live.py`'s AND-gate to drop the `flat` term -- the fleet test failed loud identically.
-> Both edits reverted; `git diff --stat` on both files confirmed EMPTY before committing (per
-> this evening's own git-commit-pathspec lesson: `git add` each path individually, verify
-> `git diff --cached --stat` names exactly the intended files, plain `git commit` with no
-> pathspec). Broader sweep (money-path/gap-and-go/bollinger/fleet-time-stop + this file) ->
-> **68/68 PASS**; curated safety gate (31+5-suite) PASS.
-
-> **Doctrine correction (the actual point of the lesson):** the E5 arithmetic shows no-add ALONE
-> recovers only **+$794** of the -$9,281 at fixed exits (averaging down LOWERS cost basis, so
-> added contracts lose less per contract at the same exits) -- the recoverable money is the
-> no-add + -50%-catastrophe-cap PACKAGE: **+$3,428 bound on the scaled-in cohort, +$6,176 bound
-> book-wide** (cohorts overlap by 29 episodes, don't sum). Folded L203 into
-> `markdown/doctrine/LESSONS-LEARNED.md` (full arithmetic + watch-out) and amended CLAUDE.md's
-> OP-25 C31 index bullet with the correction (a lesson-index CLAUDE.md edit is the one surface
-> OP-25 reserves for the lesson-author path, not rail-4-blocked -- L202 precedent). Also bumped
-> the stale "current through L201" pointer to L203 (L202 had been added by an earlier fire without
-> updating that pointer). CLAUDE.md context-budget check re-run after the edit: **8791/9000 tok
-> (98%), still YELLOW** -- confirmed not pushed to RED.
-
-> **Rail-4 (PAPER/observation-only -- guard test + revert path + this REVOKE report):** ZERO
-> trading-path behavior change -- `heartbeat_core.py` and `fleet_live.py` are byte-identical to
-> before this fire (confirmed via `git diff --stat`, empty, before every commit). Only new test +
-> doctrine files touched. **Revert:** `git revert 714f797` (4 files: CLAUDE.md,
-> LESSONS-LEARNED.md, the new test, the inbox rename -- clean no-behavior-change rollback).
-> **Commit:** `714f797`.
-
-> **Also flagged, not fixed this fire:** `_lesson-inbox` still carries 17 more pending items after
-> this one (oldest remaining: 2026-07-02 x3) -- a genuinely large backlog for a single-item-per-
-> fire cadence; queued as a standing priority-5 target for upcoming fires rather than a one-off.
-
-> **Cost: ~$5.9** (STAGE 0/1 reads incl. engine-health/fill-funnel/task_scorer/queue.md targeted
-> reads of a 2300-line file, DOJO spec read + TV-MCP-tool-availability check, inbox item read +
-> full guard-chain trace across 3 files, new 246-line test file authored, 2 separate RED-proof
-> round-trips on live production files with verified clean reverts, 2 regression sweeps + 1
-> curated safety gate, LESSONS-LEARNED.md + CLAUDE.md edits, commit, this STATUS/queue update).
 
 ---
 
