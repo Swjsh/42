@@ -1,3 +1,70 @@
+## [2026-07-21 ~16:42-17:35 ET] OK -- conductor (AFTERHOURS): exit_shape_parity_study core-arms blind-spot fixed, T-W7C closed SUPERSEDED, commit `e7d98b3`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Fill-funnel GREEN
+> (core:safe/bold only accounts trading -- fleet arms all 0, expected/known). Self-check DEGRADED
+> on the same non-load-bearing TRENDLINE-DRAW-never-marked flag as the prior fire (not re-fixed,
+> visibility-only). `task_scorer.py --top` surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER`
+> (still correctly J-decision-gated, not actionable this fire). Chose NOT to take the top-scored
+> item; instead followed the recurring signal: the SAME `T-AUTOPSY-*-stop-noise`/`-left-on-table`
+> hypothesis + identical "proposed_tests" text has been re-filed by `trade_autopsy.py` every day
+> since 2026-07-09 (07-09/07-20/07-21 all present in queue.md) pointing at
+> `exit_shape_parity_study` + "STOP-A pre-registration (T-W7)" -- a 12-day-old un-actioned loop,
+> exactly the "compound don't accumulate" (OP-22) tiebreak.
+
+> **Root-caused, not just re-triaged:** `exit_shape_parity_study.load_fleet_engine_fills()`
+> (the shared real-fills loader for the ENTIRE exit-shape research lineage -- structure_stop_study,
+> structure_stop_zone_band_ab, structure_stop_reference_level_ab, ribbon_ride_strike_exit_ab,
+> p5_topcell_real_fills_confirm, t4/t5_matrix, ~14 call sites) hardcoded `FLEET_REST_ARMS`
+> (safe-1/safe-3/risky-1/risky-3) -- fleet_rest has been dark (0 fills) since 2026-07-09, while
+> ALL real trading since has been on the CORE arms (`safe-2`/`bold-2`, 200 fills in
+> `fills-ledger.jsonl`, current through today). This is the exact, twice-disclosed-but-unfixed
+> "0/0 exhibit fills recoverable" gap from 2026-07-20's STRUCTURE-STOP-ZONE-BAND/
+> STRUCTURE-STOP-REFERENCE-LEVEL closures, and the reason the recurring T-AUTOPSY hypothesis's
+> proposed test has never once been runnable against current data.
+
+> **Fix shipped (additive, NOT a default change):** added `CORE_ARMS = ("safe-2","bold-2")` +
+> `ALL_LIVE_ARMS = FLEET_REST_ARMS + CORE_ARMS`; `load_fleet_engine_fills` gained an `arms=`
+> parameter defaulting to the UNCHANGED `FLEET_REST_ARMS` (verified 127 real core-arm fills
+> predate `structure_stop_study.ANCHOR_END_DATE` 2026-07-08 -- a default-scope widening would
+> have silently shifted the already-frozen `-757.1` CONTROL anchor pin, the exact
+> re-pick-after-seeing-results hazard the no_repick_clause discipline exists to prevent). Also
+> fixed the hardcoded `exit-shape-parity-2026-07-08.json` output filename to use the real run
+> date. Closed `T-W7C-GRIND-VERIFY-THEN-STOPB` (HIGH, pending since 07-09) as SUPERSEDED -- its
+> mass-grind machinery was already overtaken by the more rigorous 2026-07-11/07-20 real-fills
+> study lineage, which already answered STOP-B's governing question (SS-B/chart-stop-primary
+> stays, ATM strike, trigger-exact reference).
+
+> **Verified this fire (OP-33):** new `backtest/tests/test_exit_shape_parity_study_core_arms.py`
+> (5 tests) RED-proofed via `git stash push -- backtest/tools/exit_shape_parity_study.py` --
+> 4/5 failed pre-fix with the exact expected `AttributeError: ... no attribute 'ALL_LIVE_ARMS'`
+> (5th, backward-compat default test, correctly passed pre-fix too -- unchanged behavior);
+> `git stash pop` restored cleanly, re-verified 5/5 green. Broader sweep:
+> `test_structure_stop_study.py -m "not slow"` -> **21/21 PASS** (1 network-dependent anchor-pin
+> test correctly deselected, untouched by design). Curated safety gate (31+5) PASS. `git ls-tree
+> HEAD` confirmed all 4 files (tool, new test, queue.md, lesson-inbox) landed on HEAD, not just
+> staged. Commit: `e7d98b3`.
+
+> **Zero trading-path files touched** -- `exit_shape_parity_study.py` is observation-only
+> analysis tooling (no broker import, no params/heartbeat_core/filters/placement/exit code).
+> Ships as engine-benefit per OP-22/OP-26, no J ratification needed. **Revert:** `git revert
+> e7d98b3` (4 files, additive + one queue-doc edit, no data loss). **Lesson filed:**
+> `_lesson-inbox/2026-07-21-real-fills-loader-blind-to-arm-rename.md` -- a "real fills" anchor
+> can go synthetic-by-omission when the account/arm lineup moves on without the loader's scope
+> being re-verified (C14/C7 new angle).
+
+> **Not done this fire (deliberately, per no_repick_clause):** did NOT re-run any of the
+> exit-shape studies against the newly-visible core-arm data -- that is left for a future fire
+> to spec as its OWN fresh, separately-frozen pre-registration, not silently folded into an
+> existing verdict.
+
+> **Cost: ~$5.4** (STAGE 0/1 reads incl. task_scorer + fill_funnel + queue HIGH-tier sweep,
+> root-cause trace across 6+ downstream tools, fills-ledger arm-distribution forensics, source
+> fix + docstring, new guard test file + RED-proof round-trip, 2 regression sweeps, curated
+> safety gate, commit + `git ls-tree HEAD` verification, lesson-inbox write, this
+> STATUS/queue update).
+
+---
+
 ## [2026-07-21 ~16:12-16:45 ET] OK -- conductor (AFTERHOURS): DOJO-EXIT-HARNESS-BUGS fixed + re-run, commit `e94d72b`
 
 > **STAGE 0/1:** engine-health GREEN (market closed since 15:55 today, this fire's own check
@@ -628,60 +695,11 @@
 
 ---
 
-## [2026-07-20 20:15-20:45 ET] OK -- conductor (AFTERHOURS): BROKER-CANARY-SENTINEL-HOOKUP -- one-line wiring shipped, guard-tested, committed `3332454`
 
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 18:19+). Fill-funnel priority-1
-> check GREEN (1176 ticks, 11 ENTER, 1 attempt/1 accept/3 fills safe, no funnel break). Self-audit
-> gaps fully actioned through the 07-19 batch. All queue.md HIGH items already CLOSED tonight by
-> prior fires (`DECISION-ROW-SPY-STALENESS`, `STRUCTURE-STOP-ZONE-BAND`, `STRUCTURE-STOP-
-> REFERENCE-LEVEL`, `EXTRA-SIGNAL-CHURN-COOLDOWN` item 1, `PREMARKET-TOUCH-CREDIT-STUDY`); the
-> remaining MED items (`EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT`, `STRIKE-TIER-RECONCILIATION-
-> FOLLOWUP`, `PROFIT-P2-ARMED`) are all correctly `pending`/`DEFER-INSUFFICIENT-DATA`/`forward-
-> watch` -- genuinely blocked on more organic data or a J doctrine decision, not pickable this
-> fire. `task_scorer.py --top` re-flagged the J-decision-gated `MORNING-BULL-QUALITY-GATE-
-> RECONSIDER` (correctly re-skipped again). Picked `BROKER-CANARY-SENTINEL-HOOKUP` (LOW,
-> "ready-for-one-line-wire" since 2026-07-11) -- closes a real 9-day-old loop (a fully-built,
-> live-verified module sitting completely unwired) over creating a new artifact, and is a
-> genuinely bounded, low-risk task matching this fire's remaining scope.
-
-> **What shipped:** `setup/scripts/broker_canary.py`'s `probe()` was built + live-verified
-> 2026-07-11 but had zero scheduled-task hookup -- `preopen_readiness.py`'s `broker_canary`
-> check could only ever see a stale/absent file until someone ran the CLI by hand. Wired the
-> one-line call (`import broker_canary as bc` + `bc.probe()`) into `crypto_twin_health.main()`
-> -- the CLI entrypoint `Gamma_CryptoTwin`'s scheduled task invokes every 5 min, 24/7 -- rather
-> than into `run_tick_with_health()`, deliberately: that function has 34 existing tests with
-> zero network mocking, and `probe()`'s leg 1 (unauthenticated crypto bars) is a REAL HTTP call;
-> wiring it there would have made the whole existing suite silently network-dependent. `main()`
-> had zero prior coverage, so this is a strictly additive change with no blast radius to an
-> already-tested surface. Belt-and-suspenders `try/except` at the call site on top of `probe()`'s
-> own internal fail-open guarantee -- a canary failure can never change the tick's own exit code
-> or logged action.
-
-> **Verified this fire:** 2 new tests RED-proofed via `git stash` on both files -- both failed
-> with the exact expected `AttributeError: module 'crypto_twin_health' has no attribute 'bc'`
-> with the wiring removed, `stash pop` restored cleanly, re-verified 34/34 green in
-> `test_crypto_twin_health.py` (0.23s -- confirms zero accidental real network calls leaked into
-> the mocked tests). Broader sweep `test_crypto_twin_health.py` + `test_broker_canary.py` ->
-> **72/72 PASS**. Cross-checked `test_preopen_readiness.py`'s 1 pre-existing failure
-> (`test_fetch_eod_flatten_reality_reads_real_tmp_files`, `KeyError: 'Gamma_EodFlatten'`) is
-> unrelated and pre-existing -- reproduces identically with both my files stashed out, confirmed
-> before closing this item as clean. Curated safety gate (31+5-suite) PASS.
-
-> **Rail-4 (PAPER/visibility-only -- guard test + revert path + this REVOKE report).** Change:
-> `setup/scripts/crypto_twin_health.py` (additive: 1 new import, 1 new try/except block in
-> `main()`, 1 new key in the printed JSON) + `backtest/tests/test_crypto_twin_health.py` (2 new
-> tests). Zero `params.json`/`heartbeat_core.py`/`filters.py`/placement/exit code touched -- this
-> is observability, not a capital decision; the canary can never place an order or change any
-> trading behavior. **Revert:** `git revert 3332454` (2 files, clean no-behavior-change rollback
-> -- the twin's tick and `preopen_readiness.py`'s existing fail-open handling of a stale canary
-> file are both unaffected either way). **Commit:** `3332454`.
-
-> **Cost: ~$2.9** (STAGE 0/1 reads incl. engine-health/STATUS/queue/self-audit/fill-funnel/
-> task_scorer, queue.md targeted offset reads (2200-line file), module read + wiring-site
-> survey, edit, 2 new tests, 2 RED-proof round trips via git stash, 1 broader 72-test
-> regression sweep, 1 curated safety gate run, 1 commit, this queue/STATUS update). **Files:**
-> `setup/scripts/crypto_twin_health.py`, `backtest/tests/test_crypto_twin_health.py`,
-> `automation/overnight/queue.md`.
-
----
-
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-21T20:45:48+00:00
+- task: analyst
+- date_et: 2026-07-21
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
