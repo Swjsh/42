@@ -1,0 +1,23 @@
+# Chef Inbox — 0DTE IV Skew Slope (25-delta Put vs 25-delta Call)
+
+**Routed by:** Gamma_Prospector 2026-07-12
+**Priority:** MED
+**Category:** New data signal / exogenous idea
+**Source:** swarm:google/gemma-4-31b-it:free
+
+## The Finding
+Prospector beat `options_structure_metrics` surfaced: 0DTE IV Skew Slope (25-delta Put vs 25-delta Call) -- Measures the market's perceived risk of a tail event relative to an upside move, signaling potential regime shifts in intraday volatility. Data source: Interactive Brokers API (implied volatility per strike). Cost: paid. Instrument fit: 0dte.
+
+## Research Question for Chef
+0DTE IV Skew Slope (25-delta Put vs 25-delta Call) -- this carries a testable directional/timing edge for 0dte.
+
+## Backtest Request
+Data: Interactive Brokers API (implied volatility per strike)
+Null hypothesis: the signal has no measurable effect on entry/exit quality vs the existing engine baseline over the same days.
+Pass bar: OOS positive AND walk-forward >= 0.70 AND sub-window stable AND anchor-day no-regression (the standing OP-11/OP-16 autoresearch bar) before any wiring proposal reaches conductor-proposals.jsonl.
+
+## Files for Reference
+analysis/prospector/ideas-ledger.jsonl (dedupe_key: options_structure_metrics:0dte-iv-skew-slope-25-delta-put-vs-25-de) · markdown/infra/PROSPECTOR-SPEC.md
+
+## Priority / Dependencies
+depends:none

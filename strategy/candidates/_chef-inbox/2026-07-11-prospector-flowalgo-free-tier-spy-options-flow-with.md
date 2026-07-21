@@ -1,0 +1,23 @@
+# Chef Inbox — FlowAlgo free tier: SPY options flow with large block detection (100+ 
+
+**Routed by:** Gamma_Prospector 2026-07-11
+**Priority:** MED
+**Category:** New data signal / exogenous idea
+**Source:** swarm:qwen/qwen3-next-80b-a3b-instruct:free
+
+## The Finding
+Prospector beat `data_feeds_free` surfaced: FlowAlgo free tier: SPY options flow with large block detection (100+ contracts) -- Large block options trades (even free-tier filtered) precede directional moves in SPY by 5-15 minutes, offering a lagged but high-probability edge for 0DTE entry/exit timing. Data source: FlowAlgo Free Tier, https://flowalgo.com/free-options-flow/. Cost: $0. Instrument fit: 0dte.
+
+## Research Question for Chef
+FlowAlgo free tier: SPY options flow with large block detection (100+ contracts) -- this carries a testable directional/timing edge for 0dte.
+
+## Backtest Request
+Data: FlowAlgo Free Tier, https://flowalgo.com/free-options-flow/
+Null hypothesis: the signal has no measurable effect on entry/exit quality vs the existing engine baseline over the same days.
+Pass bar: OOS positive AND walk-forward >= 0.70 AND sub-window stable AND anchor-day no-regression (the standing OP-11/OP-16 autoresearch bar) before any wiring proposal reaches conductor-proposals.jsonl.
+
+## Files for Reference
+analysis/prospector/ideas-ledger.jsonl (dedupe_key: data_feeds_free:flowalgo-free-tier-spy-options-flow-with) · markdown/infra/PROSPECTOR-SPEC.md
+
+## Priority / Dependencies
+depends:none

@@ -349,6 +349,43 @@ def append_ledger_rows(new_rows: list[dict], path: Path = LEDGER_FILE) -> int:
     return len(to_write)
 
 
+_INBOX_FNAME_RE = re.compile(r"^\d{4}-\d{2}-\d{2}-prospector-(.+?)\.md(\.DONE)?$")
+
+
+def already_promoted_from_inbox(rows: list[dict], inbox_dir: Path = CHEF_INBOX) -> set:
+    """Defense-in-depth re-promotion guard, INDEPENDENT of state.json.
+
+    Incident (found 2026-07-21, see _lesson-inbox): the 2026-06-27..07-13 git-stash-drop data-loss
+    recovery (commit 41889a0) reset analysis/prospector/state.json, silently
+    wiping `promoted_dedupe_keys`. Ledger rows created before the reset never
+    re-entered the ledger (append_ledger_rows is dedupe_key-idempotent) but
+    WERE re-eligible for promote_top1's `already_promoted` check -- so the
+    SAME idea got re-promoted into _chef-inbox/ under a fresh date every few
+    days for weeks, undetected (37 of 65 prospector files were pure re-promotion
+    noise, 0 ever reviewed by chef). This function reconstructs "already
+    promoted" straight from the filesystem (any existing _chef-inbox file,
+    .md or .md.DONE, whose filename tail matches a ledger row's dedupe_key
+    tail) so a SECOND state.json loss can never reproduce this class of bug --
+    the inbox itself is the source of truth for "was this ever written."
+    """
+    if not inbox_dir.exists():
+        return set()
+    tail_to_key = {}
+    for r in rows:
+        dk = r.get("dedupe_key")
+        if not dk:
+            continue
+        tail_to_key[dk.split(":")[-1][:44]] = dk
+    seen_tails = set()
+    for fname in inbox_dir.iterdir():
+        if not fname.is_file():
+            continue
+        m = _INBOX_FNAME_RE.match(fname.name)
+        if m:
+            seen_tails.add(m.group(1))
+    return {tail_to_key[t] for t in seen_tails if t in tail_to_key}
+
+
 def kill_idea(dedupe_key: str, reason: str, path: Path = LEDGER_FILE) -> dict:
     """Append a kill row. Ideas ledger is append-only truth -- a kill is a NEW
     row, never a mutation of the original idea row. Once killed, dedupe_key
@@ -574,6 +611,7 @@ def promote_top1(rows: list[dict], state: dict, *, date: str,
     filename it wrote), or None if nothing is eligible. Writes NO code, only
     the spec markdown."""
     already_promoted = set(state.get("promoted_dedupe_keys", []) or [])
+    already_promoted |= already_promoted_from_inbox(rows, inbox_dir=inbox_dir)
     killed = killed_dedupe_keys(rows)
     candidates = [
         r for r in rows

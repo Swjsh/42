@@ -1,0 +1,23 @@
+# Chef Inbox — Treasuries.gov real-time 2Y and 10Y yield curve dynamics
+
+**Routed by:** Gamma_Prospector 2026-07-11
+**Priority:** MED
+**Category:** New data signal / exogenous idea
+**Source:** swarm:qwen/qwen3-next-80b-a3b-instruct:free
+
+## The Finding
+Prospector beat `data_feeds_free` surfaced: Treasuries.gov real-time 2Y and 10Y yield curve dynamics -- Rapid shifts in the 2Y-10Y spread correlate with intraday risk-off/risk-on sentiment that drives MES/MNQ futures volatility and SPY option gamma exposure. Data source: Treasuries.gov Real-Time Yield Data, https://www.treasury.gov/resource-center/data-chart-center/interest-rates/Pages/TextView.aspx?data=yield. Cost: $0. Instrument fit: both.
+
+## Research Question for Chef
+Treasuries.gov real-time 2Y and 10Y yield curve dynamics -- this carries a testable directional/timing edge for both.
+
+## Backtest Request
+Data: Treasuries.gov Real-Time Yield Data, https://www.treasury.gov/resource-center/data-chart-center/interest-rates/Pages/TextView.aspx?data=yield
+Null hypothesis: the signal has no measurable effect on entry/exit quality vs the existing engine baseline over the same days.
+Pass bar: OOS positive AND walk-forward >= 0.70 AND sub-window stable AND anchor-day no-regression (the standing OP-11/OP-16 autoresearch bar) before any wiring proposal reaches conductor-proposals.jsonl.
+
+## Files for Reference
+analysis/prospector/ideas-ledger.jsonl (dedupe_key: data_feeds_free:treasuriesgov-real-time-2y-and-10y-yield) · markdown/infra/PROSPECTOR-SPEC.md
+
+## Priority / Dependencies
+depends:none

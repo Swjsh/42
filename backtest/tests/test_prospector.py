@@ -330,6 +330,80 @@ def test_promote_top1_uses_hand_authored_spec_for_gex_flip(tmp_path):
     assert "60-90 as-of days" in text                      # the real gex_regime feasibility bar
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# already_promoted_from_inbox / state-loss re-promotion regression
+#
+# Incident (found 2026-07-21): the 2026-06-27..07-13 git-stash-drop recovery
+# (commit 41889a0) reset analysis/prospector/state.json, wiping
+# promoted_dedupe_keys. Ledger rows from before the reset stayed in the
+# ledger (append_ledger_rows is dedupe_key-idempotent, so they were never
+# re-added) but WERE re-eligible for promote_top1 once state's
+# promoted_dedupe_keys forgot them -- 37 of 65 _chef-inbox/prospector-*.md
+# files ended up pure re-promotion noise of 17 ideas, 0 ever reviewed by
+# chef. These tests pin the fix: promote_top1 must treat an EXISTING
+# _chef-inbox file (by dedupe_key tail, any date, .md or .md.DONE) as
+# already-promoted even when state.json has no memory of it at all.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def test_already_promoted_from_inbox_matches_by_tail(tmp_path):
+    inbox = tmp_path / "_chef-inbox"
+    inbox.mkdir()
+    (inbox / "2026-07-10-prospector-tick-index-nyse-tick.md").write_text("x", encoding="utf-8")
+    rows = [_idea_row("data_feeds_free:tick-index-nyse-tick", testability="battery-ready")]
+    found = pr.already_promoted_from_inbox(rows, inbox_dir=inbox)
+    assert found == {"data_feeds_free:tick-index-nyse-tick"}
+
+
+def test_already_promoted_from_inbox_matches_done_files_too(tmp_path):
+    inbox = tmp_path / "_chef-inbox"
+    inbox.mkdir()
+    (inbox / "2026-07-10-prospector-vix1d_gate.md.DONE").write_text("x", encoding="utf-8")
+    rows = [_idea_row("vix1d_gate", testability="battery-ready")]
+    found = pr.already_promoted_from_inbox(rows, inbox_dir=inbox)
+    assert found == {"vix1d_gate"}
+
+
+def test_already_promoted_from_inbox_empty_or_missing_dir_returns_empty(tmp_path):
+    rows = [_idea_row("something", testability="battery-ready")]
+    assert pr.already_promoted_from_inbox(rows, inbox_dir=tmp_path / "nonexistent") == set()
+    empty_inbox = tmp_path / "_chef-inbox"
+    empty_inbox.mkdir()
+    assert pr.already_promoted_from_inbox(rows, inbox_dir=empty_inbox) == set()
+
+
+def test_already_promoted_from_inbox_ignores_non_prospector_files(tmp_path):
+    inbox = tmp_path / "_chef-inbox"
+    inbox.mkdir()
+    (inbox / "README.md").write_text("x", encoding="utf-8")
+    (inbox / "2026-07-14-late-entry-ceiling-review.md").write_text("x", encoding="utf-8")
+    rows = [_idea_row("data_feeds_free:tick-index-nyse-tick", testability="battery-ready")]
+    assert pr.already_promoted_from_inbox(rows, inbox_dir=inbox) == set()
+
+
+def test_promote_top1_does_not_repromote_after_state_loss_if_inbox_file_exists(tmp_path):
+    """THE regression test: state.json has NO memory of the promotion (as if
+    reset by a data-loss incident), but the inbox already carries a file for
+    this idea from an earlier date -- promote_top1 must not write a duplicate."""
+    inbox = tmp_path / "_chef-inbox"
+    inbox.mkdir()
+    (inbox / "2026-07-10-prospector-tick-index-nyse-tick.md").write_text("x", encoding="utf-8")
+    rows = [_idea_row("data_feeds_free:tick-index-nyse-tick", testability="battery-ready")]
+    promoted = pr.promote_top1(rows, {}, date="2026-07-21", inbox_dir=inbox)  # state={} = lost memory
+    assert promoted is None
+    assert len(list(inbox.iterdir())) == 1                 # no new file written
+
+
+def test_promote_top1_still_promotes_new_candidate_when_inbox_has_unrelated_file(tmp_path):
+    inbox = tmp_path / "_chef-inbox"
+    inbox.mkdir()
+    (inbox / "2026-07-10-prospector-tick-index-nyse-tick.md").write_text("x", encoding="utf-8")
+    rows = [_idea_row("data_feeds_free:tick-index-nyse-tick", testability="battery-ready"),
+            _idea_row("data_feeds_free:brand-new-idea", testability="battery-ready")]
+    promoted = pr.promote_top1(rows, {}, date="2026-07-21", inbox_dir=inbox)
+    assert promoted["dedupe_key"] == "data_feeds_free:brand-new-idea"
+
+
 def test_promote_top1_uses_generic_spec_for_unknown_idea(tmp_path):
     rows = [_idea_row("some_new_swarm_idea", testability="battery-ready")]
     inbox = tmp_path / "_chef-inbox"
