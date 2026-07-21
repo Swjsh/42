@@ -1,3 +1,52 @@
+## [2026-07-21 ~01:48-01:56 ET] OK -- conductor (AFTERHOURS): STATE-FILE-REVERSION-AUDIT-FOLLOWUP -- 13 more decision-gating state files untracked (crypto-twin's OWN breaker was one), commit `0de01a3`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `task_scorer.py --top`
+> re-surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still correctly J-decision-gated). Read
+> the self-audit gaps tail (no un-actioned substantive items -- the 2026-07-18 batch's real
+> content was already closed by the fire lock + consensus-noise-filter fixes). Picked the
+> `STATE-FILE-REVERSION-AUDIT-FOLLOWUP` (MED, ready, depends:none) over the task_scorer top hit
+> -- it closes a loop the 2026-07-20 fire left explicitly partial (a documented, bounded,
+> non-trading-path infra-hygiene item, OP-22 "close a loop > create an artifact").
+
+> **What shipped:** re-derived the flagged set live (776 tracked files x commit-vs-mtime) --
+> found **76** files actively written since last commit, not the item's own stale "~279"
+> estimate. Classified all 76 by decision-gating hazard (not just append-vs-snapshot): does a
+> silent backward git-revert misrepresent a fact a live entry/exit/kill-switch/sizing decision
+> reads? **13 are decision-gating and now fixed:** `fleet/{safe-2,bold-2}/exit-state.json`
+> (trailing-stop HWM), **`crypto-twin/breaker.json`+`exit-state.json`+`scenario-state.json`+
+> `sim-bear-{scenario-state,positions}.json`** (the twin's OWN circuit-breaker equivalent --
+> same hazard class as core `circuit-breaker.json`, simply out of scope for the 2026-07-20
+> fix), `key-levels.json`, `sight-beacon.json` (the never-blind eye), `fleet/shared-signal.json`,
+> `futures/{mirror-shadow-state,mirror-positions}.json`, `j-intents.json` (J-called trade
+> intents). Confirmed live production usage via grep (47 scripts touch the exit-state/breaker/
+> key-levels/sight-beacon/j-intents family) before untracking any of them.
+
+> **Verified this fire, not just claimed:** used THIS SAME incident's own corrected technique
+> (2026-07-20's queue note: `git commit -- <pathspec>` silently resurrects a staged `rm --cached`
+> deletion) -- staged `git diff --cached --stat` confirmed exactly the 15-file target set
+> BEFORE committing, then a plain `git commit -m` with **no** pathspec, then `git ls-tree HEAD`
+> + `git ls-files` both confirmed EMPTY for all 13 paths (not just the guard test, which only
+> checks the index). All 13 files confirmed still present + readable on disk post-untrack. New
+> guard tests `test_decision_gating_snapshots_are_gitignored` + `_are_untracked` in
+> `backtest/tests/test_ledger_gitignore_guard.py` -- 6/6 green (extends via a new
+> `DECISION_GATING_SNAPSHOTS` list, original `STATE_SNAPSHOTS` left byte-identical for audit
+> history). Curated safety gate (31+5-suite) PASS via the pre-commit hook automatically.
+
+> **The other 63 flagged files were reviewed, not deferred:** display/diagnostic/derived-cache
+> surfaces (`engine-health.json`, `kitchen-status.json`, `dashboard-dialogue.json`, audit logs,
+> etc.) -- a revert would show stale info to J/self_check (could trip a false DEGRADED alert)
+> but doesn't silently misdirect a placement/exit/sizing decision. Left tracked by design.
+
+> **Rail-4:** zero *behavior* trading-path files touched (`params.json`/`heartbeat_core.py`/
+> `filters.py`/placement/exit code unchanged) -- git-tracking-only change; engine code already
+> reads these files by path so untracking has no runtime effect. Guard test + git-revert path
+> satisfy rail 4's discipline anyway. **Revert:** `git revert 0de01a3` (single pathspec commit,
+> 15 files). **Cost: ~$2.7** (STAGE 0/1 reads, engine-health/task_scorer/self-audit-gaps checks,
+> queue.md targeted greps across a 2300+-line file, live commit-vs-mtime derivation script,
+> 47-file usage grep before untracking, 2 edits + 1 test-file edit + commit + verification).
+
+---
+
 ## [2026-07-20 ~22:00-23:40 ET] DOJO Phase 1 BUILT + RUNS E2E -- interactive (Opus + 4 Sonnet builders): J's replay training room. 2 honest gaps before it's the full 6-arm vision.
 
 > **Built + committed + pushed** (1f30e89 + adb1780; audit GREEN): the DOJO tick-by-tick replay training room. Spec markdown/specs/DOJO-REPLAY-TRAINING-SPEC.md, architecture+contracts DOJO-ARCHITECTURE-DECISION.md, runbook DOJO-SESSION-RUNBOOK.md. Package setup/scripts/dojo/ (clock, session spine+fence, engine_step, whisper, directive, sim_executor, scorecard). 109 dojo tests green (100 fast + 9 engine_step slow). TradingView Plus (J-bought) unlocked intraday replay -- VERIFIED (5-min 2026-07-17 steps, ribbon re-forms per step).
@@ -602,69 +651,6 @@
 > break -- `self_check.py` corroborates: only DEGRADED flags today are SETTLEMENT-BLOCKED[safe]
 > 5/5 same-day-entry cap reached, and a non-load-bearing TRENDLINE-DRAW visibility miss). No
 > funnel break outranked the self-audit-gaps pick.
-
----
-
-## [2026-07-20 17:15-18:05 ET] KILL (analysis-only) -- conductor (AFTERHOURS): PREMARKET-TOUCH-CREDIT-STUDY pre-reg run, closed
-
-> **STAGE 0/1:** engine-health GREEN (13/13), market closed. `task_scorer.py --top` re-flagged
-> J-DECISION-GATED `MORNING-BULL-QUALITY-GATE-RECONSIDER` (correctly skipped, Nth recurrence).
-> Self-audit gaps (`analysis/self-audit/new-gaps-flagged.md`) fully actioned through 2026-07-19.
-> Both HIGH items filed today during RTH (`STRUCTURE-STOP-ZONE-BAND`, `EXTRA-SIGNAL-CHURN-
-> COOLDOWN`) were already CLOSED by prior fires tonight before this fire started. Picked the
-> remaining open HIGH item: `PREMARKET-TOUCH-CREDIT-STUDY` (J's own 09:36 ET premarket question,
-> pre-reg study, explicitly "NOT a same-day wire").
-
-> **Built + ran the frozen pre-reg.** Froze `analysis/recommendations/premarket-touch-credit-
-> preregistration.json` before any replay. Reused `structure_stop_study.py`'s replay engine
-> (SS-B, trigger-exact, buffer=0.00 -- confirmed literal live behavior by tonight's 2 prior
-> structure-stop studies), `tw8_level_context.py`'s frozen per-day level set, and
-> `lib.filters.detect_level_rejection`/`detect_level_reclaim` (the exact production bar-test,
-> direction-matched) for premarket touch detection -- zero new hand-picked band parameter.
-> Fresh-slice population: 41 signals (canonical 2025-2026 signal cache filtered to the Alpaca-
-> SIP-verified premarket window 2026-05-19..2026-07-17, per DATA-PROVENANCE.md, + the existing
-> 18-signal FRESH_SIGNAL_SET, deduplicated); 27 eligible (recoverable trigger_level + cached
-> option bars, $0 -- no network calls). **Result: touched levels (n=15) SS-B expectancy
-> -$15.88/tr vs untouched (n=12) -$302.50/tr -- delta +$286.62 directionally consistent with
-> J's own read, but random-label permutation p=0.21 and shuffled-level permutation p=0.208
-> (neither BH-FDR-survives at alpha=0.05). Verdict: KILL** -- the pre-reg's own disclosed-in-
-> advance expected outcome for n~27. Layer (b) real-fills anchor deliberately DEFERRED (pre-
-> reg scope_note: not worth ~$4 of live OPRA network calls to confirm a KILL layer (a) alone
-> already resolves).
-
-> **Verified this fire:** new guard `backtest/tests/test_premarket_touch_credit_study.py`
-> (26/26 -- BH-FDR vs a textbook example, direction-matched touch detection incl. no-cross-day
-> and no-RTH-bar leakage, segmentation math, full verdict-ladder branch coverage, live pre-reg/
-> output sanity), RED-proofed via the file-move technique (untracked new module -- moved out,
-> confirmed `ModuleNotFoundError` on all 26, moved back, re-verified 26/26 green). Broader
-> sweep (`test_structure_stop_study` + `test_structure_stop_zone_band_ab` +
-> `test_structure_stop_reference_level_ab` + this file) -> **72/72 PASS, 0 regressions**.
-> Curated safety gate (31+5-suite) PASS.
-
-> **Rail-4 N/A (no trading-path change):** ANALYSIS ONLY -- `analysis/recommendations/
-> premarket-touch-credit-preregistration.json`, `analysis/recommendations/premarket-touch-
-> credit-2026-07-20.json`, `backtest/tools/premarket_touch_credit_study.py`,
-> `backtest/tests/test_premarket_touch_credit_study.py`, `automation/overnight/queue.md`. Zero
-> `heartbeat_core.py`/`level_states`/`params.json`/placement/exit code touched; no wire
-> attempted -- KILL means there is nothing to wire, per the item's own scope. **Revert:**
-> `git revert <this commit>` (5 files) -- purely additive, nothing downstream depends on it.
-
-> **Learn-loop:** no new lesson-inbox item -- this fire's method (reuse an already-built
-> sibling study's replay engine + level-context machinery for a new segmentation question,
-> rather than re-deriving trigger-level recovery / real-fill replay from scratch) is a direct
-> instance of the already-proven "compound, don't accumulate" discipline this session's other
-> structure-stop studies established tonight; no new foot-gun surfaced.
-
-> **Cost: ~$4.6** (STAGE 0/1 reads + task selection incl. confirming both RTH-filed HIGH items
-> already closed, machinery survey across `levels.py`/`filters.py`/`tw8_level_context.py`/
-> `structure_stop_study.py`/`structure_stop_reference_level_ab.py`/`probe_stats.py`/
-> `_signal_cache.py`, 1 pre-reg write, 1 ~330-line study tool, 1 local run (0 network calls),
-> 1 new 26-test guard file + RED-proof round-trip, 1 broader 72-test regression sweep, 1
-> curated safety-gate run, 1 queue.md closure, 1 STATUS.md entry, 1 commit -- no LLM in the
-> hot path, no orders, PAPER-N/A (analysis-only)). **Files:** `analysis/recommendations/
-> premarket-touch-credit-preregistration.json`, `analysis/recommendations/premarket-touch-
-> credit-2026-07-20.json`, `backtest/tools/premarket_touch_credit_study.py`,
-> `backtest/tests/test_premarket_touch_credit_study.py`, `automation/overnight/queue.md`.
 
 ---
 

@@ -2193,7 +2193,7 @@ sufficient proof, as this incident demonstrated twice.**
 :: status:CLOSED_PARTIAL
 
 ### STATE-FILE-REVERSION-AUDIT-FOLLOWUP (MED, infra hygiene, filed 2026-07-20 ~19:55 ET, follow-up to STATE-FILE-REVERSION-2026-07-20)
-- [ ] STATE-FILE-REVERSION-AUDIT-FOLLOWUP (MED, bounded audit) :: Triage the ~279 tracked
+- [x] STATE-FILE-REVERSION-AUDIT-FOLLOWUP (MED, bounded audit) :: Triage the ~279 tracked
   JSON/JSONL files under `automation/state/` last-committed 2026-07-14 (full list reproducible
   via the python snippet used this fire: flag any tracked file whose mtime is recent but whose
   last commit predates it by >3 days). For each, classify: (a) dated one-time snapshot / append-
@@ -2203,7 +2203,55 @@ sufficient proof, as this incident demonstrated twice.**
   code-enforced form floated in the lesson-inbox item: a guard that fails if any file under
   `automation/state/` NOT in an explicit tracked-config allowlist (`params.json`,
   `aggressive/params.json`, `fleet/accounts.json`, `SCHEDULED-TASKS.md`, `README.md`) shows up
-  in a git diff after any stash/checkout op. :: depends:none :: status:pending
+  in a git diff after any stash/checkout op. :: depends:none :: status:done
+
+> **CLOSED 2026-07-21 ~01:xx ET (conductor, AFTERHOURS), commit `0de01a3`.** Re-derived the
+> flagged set live rather than trusting the stale "~279" figure in this item's own text: a
+> `git ls-files automation/state` (779 tracked) x `git log -1 --format=%at` per file x mtime
+> comparison found **76** files (not 279) whose mtime runs >3 days ahead of their last commit
+> -- the true "actively written since last commit" population; the rest of the 779 (incl. the
+> ~279 estimate) are stale/dormant or committed recently and not at risk.
+> **Classified all 76 by decision-gating hazard** (not just append-vs-snapshot as the item's
+> own (a)/(b) framing suggested -- refined the test: does a silent backward revert of this
+> file misrepresent a fact a live entry/exit/kill-switch/sizing decision reads, vs. merely
+> show stale info on a display/diagnostic surface?). **13 are class (b), decision-gating,
+> fixed this fire:** `fleet/{safe-2,bold-2}/exit-state.json` (trailing-stop HWM), `crypto-twin/
+> {breaker,exit-state,scenario-state,sim-bear-scenario-state,sim-bear-positions}.json` (the
+> twin's OWN circuit-breaker equivalent -- same exact hazard class as core circuit-breaker.json,
+> simply missed in the 2026-07-20 fix's scope), `key-levels.json` + `sight-beacon.json` (feed
+> every live trigger read), `fleet/shared-signal.json` (fleet-wide arm signal), `futures/
+> {mirror-shadow-state,mirror-positions}.json`, `j-intents.json` (J-called trade intents).
+> Confirmed live usage (not guessed) via grep before untracking: 47 production scripts read the
+> exit-state/breaker/key-levels/sight-beacon/j-intents family, 15 read fleet/shared-signal.json.
+> Gitignored + `git rm --cached` using THIS SAME incident's own corrected technique (verify
+> `git diff --cached --stat` is exactly the target set, plain `git commit -m` with **no**
+> pathspec, THEN verify `git ls-tree HEAD` is empty for all 13 -- not just the guard test,
+> per the lesson this exact item's parent task learned the hard way three commits in a row on
+> 2026-07-20). **Verified this fire:** `git ls-tree HEAD` + `git ls-files` both empty for all
+> 13 paths; all 13 files confirmed still present and readable on disk post-untrack (path-based
+> reads don't care about git tracking). New guard `test_decision_gating_snapshots_are_gitignored`
+> + `test_decision_gating_snapshots_are_untracked` in `backtest/tests/test_ledger_gitignore_guard.py`
+> (6/6 green, extends the existing `STATE_SNAPSHOTS` pattern with a new `DECISION_GATING_SNAPSHOTS`
+> list rather than merging the two -- keeps the 2026-07-20 incident's original list byte-identical
+> for audit history). Curated safety gate (31+5-suite, ran automatically via the pre-commit hook)
+> PASS.
+> **The other 63 flagged files were reviewed, not deferred:** display/diagnostic/derived-cache
+> surfaces (`engine-health.json`, `watcher-summary.json`, `kitchen-status.json`,
+> `dashboard-dialogue.json`, `trade-autopsy-last.json`, audit logs, etc.) -- a revert would show
+> J/self_check stale info (annoying, could trip a false DEGRADED alert) but does not silently
+> misdirect a placement/exit/sizing decision. Left tracked; if any of these graduates to
+> decision-gating status later, add it to `DECISION_GATING_SNAPSHOTS` the same way.
+> **The code-enforced allowlist-guard idea (item's own stretch goal) NOT built this fire** --
+> the 2 targeted guard tests (gitignored + untracked, checked every pytest run + pre-commit)
+> already give equivalent protection for the confirmed hazard set without the false-positive
+> risk of a blanket "nothing new may appear under automation/state/" allowlist (which would
+> need constant maintenance as new diagnostic files are added); noted as a possible future
+> hardening, not chased further to keep this fire bounded.
+> **Rail-4:** zero trading-path files touched in the *behavior* sense (`params.json`/
+> `heartbeat_core.py`/`filters.py`/placement/exit code unchanged) -- this is a git-tracking/infra
+> change to state files that engine code already reads by path (untracking has no runtime
+> effect). Guard test + git-history revert path (`git revert 0de01a3`, single pathspec commit,
+> 15 files) satisfy rail 4's discipline anyway out of caution. **Commit:** `0de01a3`.
 
 ### T-AUTOPSY-H-2026-07-20-stop-noise MED — autopsy hypothesis: stop_inside_noise_floor
 
