@@ -125,9 +125,12 @@ def cmd_step(session_id: str, cursor_epoch: int) -> dict:
         return {"ok": True, "session_id": session_id, "bar_et": None, "whisper": whisper}
 
     # --- lazy engine reuse (Agent A) + whisper (Agent B); graceful if not built yet ---
+    # NB: `from dojo import X` (mirrors the module-top `from dojo import clock`) — bare
+    # `import X` does NOT resolve because setup/scripts/dojo/ is not itself on sys.path
+    # (only its parent setup/scripts is); a bare import could also shadow-collide.
     try:
-        import engine_step  # type: ignore
-        import whisper as dojo_whisper  # type: ignore
+        from dojo import engine_step  # type: ignore
+        from dojo import whisper as dojo_whisper  # type: ignore
     except ImportError as e:
         _write_state(st)
         return {"ok": True, "session_id": session_id, "bar_et": bar_et.isoformat(),
@@ -153,7 +156,7 @@ def cmd_directive(session_id: str, raw_json: str) -> dict:
     if st.phase != PHASE_STEPPING:
         return {"ok": False, "error": f"can only issue a directive while STEPPING (phase={st.phase})"}
     try:
-        import directive as dojo_directive  # type: ignore
+        from dojo import directive as dojo_directive  # type: ignore
     except ImportError as e:
         return {"ok": False, "error": f"directive module not built yet (Phase 1): {e}"}
     try:
@@ -177,7 +180,7 @@ def cmd_close(session_id: str) -> dict:
     result = {"ok": True, "session_id": session_id, "steps": st.step_count,
               "directives": st.directive_count}
     try:
-        import scorecard  # type: ignore
+        from dojo import scorecard  # type: ignore
         result["scorecard"] = scorecard.score_session(st.ledger_path)
     except ImportError:
         result["scorecard"] = "scorecard module not built yet (Phase 1b)"
@@ -194,7 +197,7 @@ def cmd_status(session_id: str) -> dict:
 # --------------------------------------------------------------------------- sim glue (Agent C)
 def _advance_sim(st: SessionState, bar_et, bars_df) -> list:
     try:
-        import sim_executor  # type: ignore
+        from dojo import sim_executor  # type: ignore
     except ImportError:
         return []
     return sim_executor.advance_session(st.session_id, bar_et, bars_df, dojo_dir=DOJO_DIR)
@@ -202,7 +205,7 @@ def _advance_sim(st: SessionState, bar_et, bars_df) -> list:
 
 def _arm_sim(st: SessionState, directive) -> None:
     try:
-        import sim_executor  # type: ignore
+        from dojo import sim_executor  # type: ignore
     except ImportError:
         return
     sim_executor.arm_directive(st.session_id, directive, dojo_dir=DOJO_DIR)
