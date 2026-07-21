@@ -9,6 +9,25 @@
 
 ## Active backlog
 
+### DOJO-EXIT-HARNESS-BUGS (HIGH, after-hours fix, filed 2026-07-21 ~08:xx ET -- verdict VOID until fixed)
+
+- [ ] DOJO-EXIT-HARNESS-BUGS (HIGH, fix + re-run) :: backtest/tools/dojo_exit_diversity_replay.py
+  produced a VOID "CONTROL_HOLDS" (analysis/dojo/EXIT-DIVERSITY-2026-07-20.md, banner-marked
+  void). TWO confirmed bugs: (1) ENTRY-SCAN SCOPE -- entries scanned across the whole multi-month
+  cache frame not the target day (a day=2026-06-30 episode carries cursor_et=2026-05-21); 4 days
+  -> 810 episodes/270 entries, most BS-synthetic (wrong old dates have no OPRA). load_day_bars
+  returns full history for warmup; the harness's entry extraction must RTH-filter to replay_day
+  only before treating would_place as an entry. (2) EXIT PROFILES NON-DIFFERENTIATING -- CONTROL
+  == RIBBON P&L identical to the penny across 115 episodes; a CONTROL episode shows
+  exit_reason=ribbon_flip_back. The profile->exit_patch->sim_executor mapping collapses; verify
+  each profile's exit shape actually reaches walk_exit_manager and produces distinct exits (guard:
+  a fixture entry must exit at DIFFERENT bars/prices under CONTROL vs RIBBON vs ZONE-RIDE).
+  ALSO related: DOJO-CACHE-SELECTION-PERF -- _find_cache_csv picks the largest DST-spanning
+  superset for 07-08 (36k bars) -> per-bar extraction hangs; fix = prefer smallest covering file
+  or cap warmup history. NOT a market-hours job (heavy compute; L54 heartbeat-starvation). Only
+  the autonomous exit-fine-tune is blocked; the interactive dojo (24bc365) + DST fix (c8c0a0d)
+  are real and unaffected. depends:none :: status:pending
+
 ### DOJO-FLEET-HISTORICAL-SIGNAL (HIGH, Phase 1b, filed 2026-07-20 ~23:40 ET) :: The dojo's 3 fleet
   arms (safe-3/risky-1/risky-3 = the RIBBON/control/ZONE-RIDE exit-diversity lanes, the WHOLE
   point of J's "watch each arm trade the same signal differently" vision) currently render

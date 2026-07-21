@@ -1,0 +1,113 @@
+{
+  "_doc": "DOJO exit-diversity replay -- FROZEN pre-registration, written BEFORE any simulation run. See markdown/specs/DOJO-AUTONOMOUS-FINETUNE.md. No field in this file may be edited after `run` executes; a changed curriculum/gate/profile definition requires a NEW dated pre-reg, never an edit to this one.",
+  "generated_at": "2026-07-21T00:15:03.920409-04:00",
+  "entry_source": {
+    "dojo_arm": "safe",
+    "accounts_json_id": "safe-2",
+    "display_name": "CORE-SAFE",
+    "strategy": "ribbon_ride",
+    "disclosure": "Entries = every bar where core-safe's OWN engine verdict (heartbeat_core's real decide path, via dojo.engine_step.step()) is ENTER_BEAR/ENTER_BULL. Consecutive would_place=True bars on the SAME side are collapsed into ONE entry event (the first bar of the run) -- matches Rule 4 (no adding without a NEW confirmed trigger) and the one-position-at-a-time invariant; without this collapse, a held setup would double/triple-count as separate entries. Bold/aggressive entries are NOT included (disclosed scope narrowing)."
+  },
+  "curriculum": [
+    {
+      "date": "2026-06-29",
+      "opra_available": true,
+      "requested_explicitly": false
+    },
+    {
+      "date": "2026-06-30",
+      "opra_available": true,
+      "requested_explicitly": true
+    },
+    {
+      "date": "2026-07-01",
+      "opra_available": true,
+      "requested_explicitly": false
+    },
+    {
+      "date": "2026-07-02",
+      "opra_available": true,
+      "requested_explicitly": true
+    },
+    {
+      "date": "2026-07-06",
+      "opra_available": true,
+      "requested_explicitly": false
+    },
+    {
+      "date": "2026-07-07",
+      "opra_available": true,
+      "requested_explicitly": false
+    },
+    {
+      "date": "2026-07-08",
+      "opra_available": true,
+      "requested_explicitly": true
+    },
+    {
+      "date": "2026-07-09",
+      "opra_available": true,
+      "requested_explicitly": false
+    },
+    {
+      "date": "2026-07-10",
+      "opra_available": true,
+      "requested_explicitly": false
+    },
+    {
+      "date": "2026-07-13",
+      "opra_available": true,
+      "requested_explicitly": false
+    },
+    {
+      "date": "2026-07-14",
+      "opra_available": true,
+      "requested_explicitly": false
+    },
+    {
+      "date": "2026-07-17",
+      "opra_available": true,
+      "requested_explicitly": true
+    },
+    {
+      "date": "2026-07-20",
+      "opra_available": false,
+      "requested_explicitly": true
+    }
+  ],
+  "held_out_days": [
+    "2026-07-14",
+    "2026-07-17",
+    "2026-07-20"
+  ],
+  "held_out_rule": "chronological tail, last 25% of curriculum days by date, frozen pre-run",
+  "exit_profiles": {
+    "CONTROL": {},
+    "RIBBON": {
+      "stop_mode": "structure",
+      "profit_lock_mode": "trailing"
+    },
+    "ZONE-RIDE": {
+      "stop_mode": "structure",
+      "profit_lock_mode": "trailing",
+      "trail_pct": 0.2
+    }
+  },
+  "exit_profiles_source": "automation/state/fleet/accounts.json (pulled verbatim at pre-reg time, hashed below)",
+  "exit_profiles_disclosure": "CONTROL = risky-1/safe-2's shared empty exit_patch (today's live trigger-exact structure stop + chandelier, the ribbon_ride REGISTRY default). RIBBON = safe-3's exit_patch -- MATHEMATICALLY IDENTICAL to CONTROL for every entry in this population, because ribbon_ride's registry shape already IS {stop_mode: structure, profit_lock_mode: trailing, trail_pct: 0.15} (accounts.json's own docstring: 'for ribbon_ride this is a no-op'). ZONE-RIDE = risky-3's exit_patch (same lane, trail_pct widened 0.15 -> 0.20) -- the ONLY profile that can differ from CONTROL for this entry population.",
+  "accounts_json_sha256_16": "5511d86211c17a9d",
+  "metric": "per-episode real-fill dollar P&L (walk_exit_manager.dollar_pnl), qty-scaled",
+  "win_gate": {
+    "_doc": "A profile beats CONTROL only if ALL FOUR hold (AND, not OR):",
+    "condition_1": "higher aggregate P&L than CONTROL across every real-fills episode",
+    "condition_2": "wins (higher day-total P&L than CONTROL) on a STRICT MAJORITY of curriculum days",
+    "condition_3": "edge survives dropping the profile's OWN single largest-P&L episode (concentration/C4/C24 check) -- total-minus-top-trade must still beat CONTROL's full aggregate",
+    "condition_4": "holds (beats CONTROL's day-totals) on the frozen held-out day subset",
+    "real_fills_only": "The gate is computed ONLY over episodes whose entry premium came from real OPRA data (price_source=='opra_5m'); BS-synthetic episodes (any day lacking OPRA coverage, e.g. 2026-07-20 itself) are reported separately, never counted toward the gate, per C1 (real-fills is the only WR authority).",
+    "no_post_hoc_tuning": "This gate's math is fixed here; `run` may not adjust it after seeing results."
+  },
+  "reconciliation_target": {
+    "file": "analysis/recommendations/structure-stop-reference-level-2026-07-20.json",
+    "note": "structure-stop-reference-level-2026-07-20.json's REF-ZONE tests a DIFFERENT mechanism (stop referenced to a nearby key level's zone boundary, not built in ExitShape -- disclosed schema gap) than this study's ZONE-RIDE (a wider chandelier trail_pct on the SAME trigger-exact structure stop). Naming overlap ('zone') is coincidental, not a shared mechanism -- see the MD report's reconciliation section for the full comparison, done regardless of directional agreement."
+  }
+}
