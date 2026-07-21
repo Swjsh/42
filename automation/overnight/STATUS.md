@@ -1,3 +1,61 @@
+## [2026-07-21 ~18:42-18:58 ET] OK -- conductor (AFTERHOURS): zoom-aware trendline classification shipped, commit `c741d1d`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Self-audit gaps fully
+> triaged (nothing new/un-actioned in `new-gaps-flagged.md`). `task_scorer.py --top` again
+> surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still J-decision-gated). Checked
+> `BOLD-CORE-ATM-WIRE-FALSIFICATION-RAIL`'s n>=20 readiness first: real trades.csv shows **0**
+> Bold trades since the 2026-07-18 ATM wire -- nowhere near ready, correctly deferred (not
+> re-triaged further). Picked queue.md's still-open HIGH item `TRENDLINE-FIXES-2026-07-17` #3
+> (ZOOM-AWARE DRAWING, filed 2026-07-17, deferred by items 1/2/4's own text: "should reconsider
+> the draw cap together with same_day-tier visibility once it ships").
+
+> **What shipped:** `trendline_engine.zoom_classify(a_unix, now_unix, window_days=2.0)` +
+> `Trendline.zoom_class` ("in_window" | "anchor_offscreen", additive field, default preserves
+> every existing caller/reader byte-identical) -- classifies each detected line's anchor against
+> a ~2-day window ending at the line's OWN last bar (never wall-clock time, mirrors T15's
+> same-day-tier no-look-ahead pattern exactly). Opt-in via `detect(include_zoom_class=True)`,
+> wired live at the ONE production entry point (`main()`, same call site as T15's
+> `include_same_day_tier=True`) so both `Gamma_Trendlines`'s 5-min cadence and the on-demand
+> `--json` skill invocation get it for free. `write_live_state`'s JSON payload now carries
+> `zoom_class` per line. `.claude/skills/trendline-draw/SKILL.md` gained a new step 3a
+> documenting the label-offset behavior J's queue item asked for: draw the full ray regardless,
+> but flag `anchor_offscreen` lines verbally and cross-check `chart_get_state` before trusting
+> the bars-only heuristic over the actual chart.
+
+> **Verified this fire (OP-33):** new guard `backtest/tests/test_trendline_zoom_aware.py` (13/13)
+> RED-proofed via `git stash -- backtest/autoresearch/trendline_engine.py` alone -- all 13 failed
+> pre-fix with the exact expected `TypeError`/`AttributeError` (missing kwarg / missing
+> function), `git stash pop` restored cleanly (confirmed only my own stash entry existed;
+> pre-existing unrelated stashes from earlier sessions left untouched per C34/L214/L228), and
+> re-verified 13/13 green. Caught + fixed a real test-fixture bug during RED-proofing (the
+> original 1-day-apart fixture put day1's anchor INSIDE the 2-day window relative to day2's
+> "now", so `anchor_offscreen` never actually fired -- widened the fixture gap to 6 calendar
+> days). Broader sweep `pytest backtest/tests/ -k trendline` -> **99/99 PASS, zero regressions**.
+> Curated safety gate (31+5) PASS. `git ls-tree HEAD` confirmed all 4 files (engine, guard test,
+> SKILL.md, queue.md doc-update) landed on HEAD, not just staged -- commit `c741d1d`.
+
+> **Zero trading-path files touched** -- `trendline_engine.py`'s consumption remains SHADOW-only
+> (`write_live_state`'s own docstring: "the engine does NOT trade off these yet"); `params.json`/
+> `heartbeat_core.py`/`filters.py`/placement/exit code untouched. Ships as engine-benefit per
+> OP-22/OP-26, no J ratification needed. **Revert:** `git revert c741d1d` (4 files, additive +
+> one doc-append each, no data loss). **NOT done this fire, deliberately deferred (stated
+> up front in the queue.md item, not silently dropped):** on-chart screenshot validation against
+> the ACTUAL TradingView visible range -- this conductor fire has no live TV MCP tool binding
+> (headless), so `zoom_class` is a bars-only heuristic approximation, not yet a proven fix for
+> J's visual complaint. The next interactive session with a live TV chart should invoke the
+> trendline-draw skill, deliberately surface a multi-day line that comes back
+> `anchor_offscreen`, and confirm the on-chart result actually reads clean at J's normal intraday
+> zoom before this queue item is considered fully closed (queue.md item 3 left open with this
+> note, matching item 2's same "SHADOW-only, mechanism-guard-not-P&L-A/B" shipping bar).
+
+> **Cost: ~$4.7** (STAGE 0/1 reads incl. self-audit-gap/inbox sweep, task_scorer, BOLD-ATM
+> readiness check via real trades.csv, queue.md HIGH-item survey across ~350 lines, trendline_
+> engine.py source survey, design + implementation, 13-test guard file + one round of fixture-bug
+> fix found during RED-proofing, broader 99-test sweep, curated safety gate x2, SKILL.md doc
+> update, commit + `git ls-tree HEAD` verification, this STATUS/queue update).
+
+---
+
 ## [2026-07-21 ~18:12-19:10 ET] OK -- conductor (AFTERHOURS): EOD-DOJO-EXHIBIT-MANIFEST built + shipped, commits `34608da` (+ `6a2e641` side-quest)
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Self-audit gaps fully
@@ -606,101 +664,3 @@
 
 ---
 
-## [2026-07-20] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
-
-> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
-> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
-> -   bollinger_squeeze (armed 2026-07-02): since-arm 2tr $+105.00 ($+52.50/tr, 100.0% WR)
-> -   double_bottom_base_quiet (armed 2026-07-01, 19d ago): 0 fills since arm — no live signal yet
-> -   vix_regime_dayside (armed 2026-07-01, 19d ago): 0 fills since arm — no live signal yet
-> -   vwap_continuation (armed 2026-07-01): since-arm 2tr $-68.00 ($-34.00/tr, 0.0% WR)
-> -   vwap_reclaim_failed_break (armed 2026-07-01, 19d ago): 0 fills since arm — no live signal yet
-> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
-
----
-
-## [2026-07-20] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-11..2026-07-17), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-17). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-419.16); Bold_ATM_1+2=YELLOW ($-262.8)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
-## [2026-07-20 22:12-22:40 ET] OK -- conductor (AFTERHOURS): CLAUDE-INDEX-FOLD-BATCH -- 20 remaining lessons folded into OP-25 index, reconciliation ratchet drained to zero, committed `33c7bad`
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Self-audit gaps file
-> has no un-actioned tail (last batch, 2026-07-18, already closed 2026-07-19). `task_scorer.py
-> --top` re-surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still correctly J-decision-gated,
-> skipped again). Active-backlog HIGH items were all closed/J-gated/not-pickable
-> (`DOJO-BUILD-HANDOFF` needs TradingView MCP tools this fire's tool set doesn't have bound;
-> `MM-05-WAKE-FIRE-REVIVAL` is awaiting-j-ratification). Manually surfaced
-> `CLAUDE-INDEX-FOLD-BATCH` (LOW, doc-index, score 4.5, ready) by grepping the 2317-line
-> queue.md for `(HIGH,`/L###-CLAUDE-FOLD clusters rather than trusting task_scorer's top-N
-> alone -- it consolidates 8 separate queue items and directly closes a standing doctrine-debt
-> loop (OP-22 "close a loop > create an artifact").
-
-> **What shipped:** the item's own text claimed **30** unindexed lessons; live re-derivation via
-> the guard's own `find_unindexed_lessons()` showed the true remaining debt was **20**
-> (`KNOWN_UNINDEXED_BASELINE` = 12 older L03,13,16,24,25,29,31,43,56,126,137,146 + 8 recent
-> L192-198,200) -- L169-191 had already been folded by the 2026-06-24/06-28 batches per the
-> guard file's own comments, and this queue item was simply never updated (same
-> stale-checkbox-shipped-work class as several other items closed tonight). Read each lesson's
-> FULL text in LESSONS-LEARNED.md (not just the title) before picking a fold destination:
-> L03->C17 (TDD/hand-computed-fixture pattern), L13/L16/L25/L29/L31/L193/L196/L197->C7 (all 8
-> are "task exits 0 but the real work silently failed" cases -- Discord bridge, watcher
-> granularity, pandas dtype coercion, CDP port death, a decorative sibling-organ gate, a
-> presence-not-consistency producer guard, a guard baking in a stale frame), L24->C30
-> (chandelier-trailing profit-lock vs fixed-cap exit-shape tuning), L43->C13 (confidence-tier
-> rarity-gate calibration), L56->C9 (sys.path/`__file__` anchoring), L126/L137/L146->C22
-> (regime-conditional IS/OOS classifiers -- L146's own title literally says "mirrors C22
-> regime split"), L192->C4 (edge_capture is a directional-anchor metric, regime-stratification
-> class), L194/L195/L198->C14 (dead-knob/gate-completeness class -- selector-vs-executor gate
-> gaps, structurally-dead trigger inputs, hardcoded-window frame audits), L200->C11 (verify
-> the ACTUAL broker/account facts before modeling a regulatory rule).
-
-> **Precedent applied:** tonight's earlier L202/L203 fold (commit `714f797`) established that a
-> lesson-index-ONLY CLAUDE.md edit is the one surface OP-25 reserves for the lesson-author
-> path, not rail-4-blocked -- so this item's own "conductor cannot edit CLAUDE.md" framing was
-> itself stale. 9 `Edit` calls folded all 20 numbers into their C-rows; verified zero
-> within-row duplicates via a small script before committing.
-
-> **Verified this fire, not just claimed:** guard `test_op25_index_reconciliation.py` 9/9 PASS
-> with `KNOWN_UNINDEXED_BASELINE` drained to `frozenset(set())`; live re-derivation via the
-> guard's own `find_unindexed_lessons`/`find_phantom_index_refs` against the on-disk
-> CLAUDE.md/LESSONS-LEARNED.md returns `[]`/`[]` -- zero unindexed lessons, zero phantom index
-> refs, the actual invariant holds (not just green tests). Context-budget re-checked post-edit:
-> `CLAUDE.md 8831 tok / 9000 (98%)` -- still YELLOW, not pushed to RED (was 8791 pre-edit, +40
-> tok net for 9 rows of new L-numbers -- well inside OP-3's 9K cap). Broader sweep
-> `test_op25_index_reconciliation.py` + `test_author_inbox_reconciliation.py` +
-> `test_self_audit_extract.py` -> **80/80 PASS**. Curated safety gate (5-suite) PASS at commit
-> time.
-
-> **Rail-4/OP-25 (doc-index-only -- the one CLAUDE.md surface this class of fire may touch):**
-> zero params/heartbeat_core/filters/placement/exit files touched -- only CLAUDE.md's OP-25
-> lessons table (9 rows) + the guard's baseline constant. **Revert:** `git revert 33c7bad`
-> (3 files: CLAUDE.md, `backtest/tests/test_op25_index_reconciliation.py`,
-> `automation/overnight/queue.md`). **Commit:** `33c7bad`.
-
-> **Queue hygiene:** closed all 8 items in the cluster in one edit -- `CLAUDE-INDEX-FOLD-BATCH`
-> (corrected, not just checked off) + the 6 subsumed `L169/L170/L173/L174/L177/L178-CLAUDE-FOLD`
-> follow-ups (all stale checkboxes -- that work was already done 2026-06-24, well before
-> tonight). The reconciliation ratchet is now at true zero: any future authored-but-unfolded
-> lesson will fail the guard loud on its own, with no baseline debt left to hide behind.
-
-> **Cost: ~$3.9** (STAGE 0/1 reads incl. engine-health/self-audit-gaps/gym-scorecard/task_scorer,
-> 2317-line queue.md targeted greps + reads to find the HIGH-item cluster and this LOW item,
-> 20 lesson full-text reads across LESSONS-LEARNED.md to pick fold destinations, 9 CLAUDE.md
-> `Edit` calls + 1 guard-file edit, duplicate-check script, context-budget re-check, 3 test-suite
-> runs, commit + curated safety gate, queue.md 8-item closure writeup, this STATUS entry).
-
----
-
-
-### DEGRADED: self-check 2026-07-21T18:09:56
-- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-## Kitchen
-Kitchen: alive, queue 37 pending, last cook 0 min ago, today $0.00, model=grinder-python
