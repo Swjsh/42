@@ -112,10 +112,16 @@ def test_stale_source_silent_on_weekend(mod, tmp_path):
 
 
 def test_stale_source_none_when_fresh(mod, tmp_path):
-    mod.TODAY = "2026-07-14"
+    # Time-bomb fix (found by conductor 2026-07-21, 7 days after this test was authored on
+    # 2026-07-14): the file's mtime is set by the REAL filesystem clock at write-time, which
+    # only ever equals a hardcoded "2026-07-14" literal on the day the test was written --
+    # this test silently went RED on 2026-07-21 with zero code change. Derive TODAY/`now` from
+    # the file's own real mtime instead of a frozen literal, so "fresh" stays fresh forever.
     p = tmp_path / "core-decisions.jsonl"
     p.write_text("{}\n", encoding="utf-8")  # mtime = now = today
-    now = datetime(2026, 7, 14, 14, 0)
+    mtime_et = datetime.fromtimestamp(p.stat().st_mtime, tz=timezone.utc).astimezone(mod._ET_TZ)
+    mod.TODAY = mtime_et.strftime("%Y-%m-%d")
+    now = mtime_et.replace(hour=14, minute=0, second=0, microsecond=0, tzinfo=None)
     assert mod._stale_source_note(p, now) is None
 
 

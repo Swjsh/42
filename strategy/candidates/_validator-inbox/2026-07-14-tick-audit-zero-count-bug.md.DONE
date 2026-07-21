@@ -1,0 +1,72 @@
+# Validator research item: tick-count auditors report 0 on populated days
+
+> Queued by Analyst 2026-07-14 (from the 2026-07-13 zero-supervision full audit).
+
+## Observation
+
+Two independently-built instruments both reported zero activity for 2026-07-13 despite
+772 real rows in `automation/state/core-decisions.jsonl` and 5,460 real rows across the 4
+active fleet arms' `decisions.jsonl` files for that date:
+
+1. The (now-replaced) `analysis/daily-brief/2026-07-13-FULL-AUDIT.md` auto-generator reported
+   "ticks today: 0" and "0 decisions" for every fleet arm.
+2. `automation/state/heartbeat-tick-audit-2026-07-13.json` independently reported
+   `"live_ticks": 0, "misaligned_critical": 0"`.
+
+Both are wrong by a wide margin (772 core ticks, 128 ticks per active fleet arm, verified by
+direct `json.loads` line count filtered on `ts_et.startswith('2026-07-13')` this session).
+
+## Primitive to test
+
+Whatever date-matching / file-glob / path-resolution helper both of these tools share (or
+independently reimplement) for locating "today's" decision rows.
+
+## Expected behavior
+
+Given a decisions.jsonl file with N rows timestamped on a target date, the counter should
+report N, not 0. Write a deterministic offline test: seed a small JSONL fixture with known-date
+rows, point each auditor's counting logic at it, assert count == N.
+
+## Live-source check
+
+Confirm both auditors are reading `core-decisions.jsonl` / `fleet/*/decisions.jsonl` from the
+correct absolute path (not a stale relative path or an alternate/legacy log location) and using
+the correct field name (`ts_et`, ISO-prefixed with date) for the date match.
+
+## Foot-gun this prevents
+
+If both the flagship daily-audit doc and the tick-alignment auditor are silently blind on a
+day the engine actually ran 900+ decisions, J has zero automated visibility into whether the
+engine is alive on any given day — exactly the OP-33(c) failure mode ("J is effectively
+blind"). Two independent tools failing the same way on the same day suggests a shared root
+cause worth finding once, not two one-off bugs.
+
+## CLOSED 2026-07-21 ~17:42-18:05 ET (conductor, AFTERHOURS)
+
+**Already fixed, not by this fire** — root cause + fix shipped same-week, commit `cc6755b`
+(2026-07-14 07:40 ET, `fix(audit): tick-audit + FULL-AUDIT generator read the live decision
+ledgers, not dead paths`): `heartbeat_tick_audit.py` was parsing a retired pre-v15 LLM-heartbeat
+text-log format nobody had written since 2026-06-25 (always silently 0/0); `eod_full_audit.py`
+had the same defect class twice (dead root `decisions.jsonl` + a frozen `fleet/decisions/*`
+mirror-dir fixture instead of the real `fleet/<arm>/decisions.jsonl` files). Fix re-sourced both
+from `core-decisions.jsonl` (`account=='safe'/'bold'`) + the live `fleet/*/decisions.jsonl`
+files, keyed on `ts_et`. Live-verified this fire: `automation/state/heartbeat-tick-audit-
+2026-07-21.json` → `total_ticks: 770` (not 0) on a real trading day — the bug is gone in
+production, not just in the test suite.
+
+**What THIS fire actually did:** the inbox item itself was never marked closed (7 days stale,
+surfaced by the conductor's inbox-age sweep) — closing that loop now. While verifying, found
+the fix's OWN regression-guard test, `test_stale_source_none_when_fresh`
+(`backtest/tests/test_eod_full_audit.py`), had silently gone RED on 2026-07-21 — a genuine new
+defect, unrelated to the original bug: it hardcoded `mod.TODAY = "2026-07-14"` and asserted a
+freshly-written tmp file's REAL filesystem mtime would equal that literal, which is only ever
+true on the day the test was authored (`git stash`-confirmed pre-existing, not introduced by
+this fire). **Fixed:** the test now derives `TODAY`/`now` from the file's own real mtime instead
+of a frozen date literal, so "fresh" stays fresh on every future date. RED-proofed via `git
+stash` (failed pre-fix with the exact expected mtime-mismatch message, `git stash pop` restored
+clean); full `test_eod_full_audit.py` 10/10, broader sweep (+ `test_gym_session_tick_audit_
+classify.py` + `test_gym_session_verdict.py`) 33/33, curated safety gate (31+5) PASS. Lesson
+filed to `_lesson-inbox` (hardcoded-date-literal-vs-real-mtime test time-bomb class).
+
+**Zero trading-path files touched** (`backtest/tests/` only) — ships as engine-benefit per
+OP-22/OP-26, no J ratification needed. **Revert:** `git revert <commit>` (test-only, 1 file).

@@ -323,3 +323,31 @@ setup/scripts/self_audit.py, backtest/tests/test_self_audit_extract.py). This DO
 REVOKE report close the loop on all 4 batches above -- their 14 noise lines will no longer be
 re-extracted on any future re-run of the extractor against archived consult JSON, and the fixed regex
 prevents this SAME lexical family from re-leaking in future audits. -->
+
+## 2026-07-21T17:31:28 -- 7 new gap(s) Gamma self-identified
+- The new TV‑CDP liveness check in `self_check.py` can cause the engine‑health feed (`STATUS.md`, `engine‑health.json`) to
+- An inaccurate health feed leads either to unnecessary trading halts (false RED) or to trading with degraded/no TV data (
+- The change was deployed mid‑session without a weekend J‑ratification, touching Rule 9 (no mid‑session rule changes) and 
+- All perspectives note hidden‑costs: duplication debt, alert‑fatigue, CI/test fragility, and downstream effects on module
+- **Blocking vs. non‑invocation vs. lockout flag** – Perspectives 1 & 2 argue the `urllib` call lacks a timeout and may ha
+- **Risk severity** – Perspective 3 scores the risk 8 (full‑day halt), Perspective 5 scores 7 (mis‑directed trade), while 
+- **Most rigorous take** – Perspectives 1 & 2 converge on a concrete, testable defect (missing timeout leading to possible
+
+<!-- TRIAGED 2026-07-21 ~18:05 ET (conductor, AFTERHOURS): the 2026-07-21T17:31:28 batch (7
+gaps re: the new check_tv_cdp TV-CDP liveness check) was checked against live code, not just
+re-read. Both concrete factual claims in the batch are WRONG as stated:
+(1) "missing timeout" -- `_fetch_tv_cdp_reachable(timeout: float = 5.0)` (setup/scripts/
+self_check.py:687) already has a 5s timeout, wraps the urllib call in a bare `except Exception`,
+and its own docstring states "Fail-open -> (False, detail) on ANY error, never raises (rail-2)".
+(2) "trading halts / trading with degraded TV data" -- `check_tv_cdp`'s output is APPENDED to
+`self_check.py`'s `problems` list, which feeds STATUS.md/engine-health.json ONLY; grepped
+`setup/scripts/heartbeat_core.py` for any self_check/engine-health consumption -- zero hits
+(one comment noting it's read by external observers, never gates placement). self_check.py's own
+module docstring calls it a "VISIBILITY instrument." There is no code path from this check to a
+trading halt or an order decision -- rail 2 (fail-open, never block J/the engine) was never at
+risk. The Rule-9/mid-session-ratification claim is also inapplicable: Rule 9 governs the 10
+TRADING rules, not observability tooling, and the deploy landed ~17:12-17:35 ET (market closed
+since 15:55, correctly after-hours per OP-22). Net: this batch is swarm-reviewer noise on a
+correctly-scoped, already fail-open, already-tested change -- no code action taken. Filed as a
+DONE-triage rather than silently dropped per C7 (silent success is failure -- a self-audit gap
+needs a disposition, not just being read). -->
