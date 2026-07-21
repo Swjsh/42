@@ -5208,3 +5208,73 @@ actuator test family). Curated safety gate (31+5) PASS.
 **The rule:** two individually-correct guards (no-duplicate-per-tick, no-duplicate-signal-per-bar) can still compose to allow unbounded churn if neither tracks "was an attempt already made and it failed." Scoped to the extra-setup lane only — the PRIMARY ribbon path (`ENTER_BEAR`/`ENTER_BULL`) has NO equivalent same-bar re-entry guard; if a future incident shows the primary path re-entering the same trigger bar after a stop-out, this is the first place to look, and the fix pattern generalizes directly.
 
 **Encoded in:** `automation/state/fleet/exit_actuator.py` (`load_last_entry_bars`/`record_entry_bar`/`same_bar_cooldown_active`), `backtest/tests/test_extra_signal_churn_cooldown_2026_07_20.py`. Inbox source `strategy/candidates/_lesson-inbox/extra-signal-same-bar-churn-2026-07-20.md`. **Related:** C15.
+
+---
+
+## L231 -- 2026-07-21: a doc's own "shipped/verified" claim, written in the same artifact it's editing, is not proof `git commit` ever ran
+
+**Symptom:** `CLAUDE.md`'s Update log carried a dated, self-verified "context-leanness trim ... Verify: PASS all 8 integrity checks" entry describing a completed change. The change was real (the relocation target existed, `check-context-budget.ps1` independently confirmed the claimed effect) — but `git status` showed `CLAUDE.md` still MODIFIED and the new doctrine file still UNTRACKED. No `git commit` had ever run; the change sat invisible to every other session/worktree for an unknown number of fires.
+
+**Root cause:** a prior fire wrote its own "done" claim in the SAME artifact it was editing (the changelog it was updating), and the self-referential proof-quote looked identical to a normal committed changelog entry — nothing distinguished "I verified the CHANGE" from "I verified the change AND committed it." This is the same class L221 already names ("built != shipped until committed"), recurring because nothing in the conductor loop's own close-out actually calls `verify_committed.py` before a fire writes a "shipped" line.
+
+**Fix (this instance):** committed as `6a2e641`, verified via `git ls-tree HEAD`, before starting the fire's main build. **Owed (not built this fire):** wire `verify_committed.assert_all_tracked` (or an equivalent `git status --porcelain --untracked-files=all -- <touched-files>` check) into the conductor's own STAGE 5 close-out as a final assertion before writing an "OK -- shipped" STATUS.md line — scoped only to the files the fire itself touched, never a repo-wide sweep (a shared, constantly-churning production tree would false-positive on background writers).
+
+**The rule:** a changelog/doc entry claiming "shipped" and "verified" is not itself evidence of a commit — verify with `git status`/`git ls-tree HEAD` on the SPECIFIC touched files before trusting or writing such a line, every fire, no exceptions.
+
+**Encoded in:** commit `6a2e641` (acute fix only — the STAGE-5 wiring is still owed). Inbox source `strategy/candidates/_lesson-inbox/2026-07-21-claimed-shipped-in-own-doc-before-commit-ran.md`. **Related:** L221, L228, C35.
+
+---
+
+## L232 -- 2026-07-21: a test that hardcodes a "TODAY" date literal but relies on a REAL filesystem mtime is a time bomb, not a passing test
+
+**Symptom:** `test_stale_source_none_when_fresh` (`backtest/tests/test_eod_full_audit.py`, authored 2026-07-14) set `mod.TODAY = "2026-07-14"` (a hardcoded literal), wrote a temp file whose mtime is the REAL OS clock, and asserted "not stale" when `now` was also hardcoded to `2026-07-14`. It passed on the day it was written and every day after — UNTIL 2026-07-21, the exact day it went silently RED with zero code change, caught only because a conductor fire happened to run the full suite 7 days later.
+
+**Root cause:** the function under test correctly compares a file's real mtime against a caller-supplied `TODAY`. The bug is in the HARNESS: it froze `TODAY` to a fixed string while leaving the file-write (and its mtime) tied to the real, unmocked system clock. The two clocks only agree on the day the test was written.
+
+**The generalizable pattern (C6-adjacent, distinct sub-class — for TEST FIXTURES, not backtest data):** any test that (a) creates a real filesystem artifact whose mtime is the real OS clock, and (b) separately hardcodes a date literal meant to represent "today," will silently expire the day those two diverge, with zero CI signal calling it out as a time-bomb rather than a regression. Spot it by grepping test files for a hardcoded `"20XX-XX-XX"` literal assigned in the same test as a real `.write_text()`/file-creation call the assertion expects to read as "fresh." The landmine is specifically the fresh/no-staleness assertion — the OLD/stale-assertion sibling tests in the same file are correctly time-invariant forever, since a real mtime being newer than an old frozen `TODAY` never flips.
+
+**Fix:** derive the date literal FROM the real artifact's own mtime (converted to the same timezone the production code uses), never the reverse.
+
+**Encoded in:** `backtest/tests/test_eod_full_audit.py::test_stale_source_none_when_fresh` (fixed, 2026-07-21). Inbox source `strategy/candidates/_lesson-inbox/2026-07-21-hardcoded-today-literal-vs-real-file-mtime-time-bomb.md`. **Related:** C6, C7.
+
+---
+
+## L233 -- 2026-07-21: a silently-reset producer idempotency state can flood a downstream author inbox for weeks with zero functional symptom
+
+**Symptom:** the 2026-06-27..07-13 git-stash-drop incident (commit `41889a0`, C34/L214/L228) reset `analysis/prospector/state.json`, wiping its `promoted_dedupe_keys` list. `Gamma_Prospector`'s daily fire kept re-selecting the SAME already-promoted ledger rows as "oldest not-yet-promoted" and silently re-wrote near-duplicate `_chef-inbox/prospector-*.md` files under fresh dates for **24 days** before any fire noticed: 65 files, 37 (57%) pure re-promotion noise across 17 duplicated ideas, and 0 of the 28 unique underlying ideas ever reviewed by chef.
+
+**Root cause class (distinct from C34's git-ops mechanism — this is the DETECTION GAP one level up):** any daily/periodic autonomous producer that tracks "already emitted X" in a small state file separate from its main append-only ledger, where that state file lives in a path a tree-wide git recovery could touch, is exposed to: state loss => idempotency memory loss => re-emission flood, invisible until manually audited — no crash, no RED, no error, only volume growth in a directory nobody was checking for DUPLICATE-content backlog (only staleness/oldest-first drain).
+
+**Fix (this instance):** `already_promoted_from_inbox()` in `setup/scripts/prospector.py` derives "already promoted" from the `_chef-inbox` filesystem itself (any date, matched by dedupe_key tail) as a SECOND check independent of `state.json` — a repeat state loss can no longer reproduce this bug class. Backlog deduped (37 files renamed `.DONE` with pointer notes).
+
+**The rule:** make idempotency self-healing by deriving "already done" from the DOWNSTREAM artifact, not solely an upstream counter that can be reset independently of it. **Owed (not this fire):** sweep other daily/periodic producers writing to author inboxes (kitchen seeder, self-audit gap-finder, swarm consult routers) for the same state-file-tracks-what-was-emitted exposure.
+
+**Encoded in:** `setup/scripts/prospector.py::already_promoted_from_inbox`, `backtest/tests/test_prospector.py` (commit `ff8ac55`). Inbox source `strategy/candidates/_lesson-inbox/2026-07-21-producer-state-loss-silent-inbox-flood.md`. **Related:** C34, C7.
+
+---
+
+## L234 -- 2026-07-21: a "real fills" anchor can go synthetic-by-omission when the account/arm lineup moves on without the loader's scope being re-verified
+
+**Symptom:** `exit_shape_parity_study.py::load_fleet_engine_fills()` hardcoded `FLEET_REST_ARMS = ("safe-1","safe-3","risky-1","risky-3")` (2026-07-09 build); ~14 downstream real-fills-anchor studies reused it verbatim. Fleet_rest went dark 2026-07-09 (0 fills since); ALL real trading since has been on the CORE arms (`safe-2`/`bold-2`, 200+ fills, current through today). Every study built on this loader was structurally BLIND to current data — including a twice-disclosed, never-fixed "0/0 exhibit fills recoverable" gap, and 12 straight days (07-09 through 07-21) of `trade_autopsy.py`'s "confirm on fresh OPRA slice" recommendation never once being executable.
+
+**Root cause:** the loader's "which population counts as real" filter was a point-in-time snapshot of the account lineup, not a derived/live-read fact. When the lineup moved on, the loader kept returning SOME fills (the frozen fleet-rest population), so it never threw, never returned empty, never tripped an obvious broken signal — it just quietly stopped tracking reality. A "real fills" anchor is only as real as its account/arm scope; that scope needs the same producer-freshness discipline as any other data feed (C7's "audit outputs, not exit codes" applies to WHICH population a tool reads, not just whether it ran).
+
+**Fix:** added `CORE_ARMS`/`ALL_LIVE_ARMS` + an opt-in `arms=` parameter — deliberately did NOT change the default (127 real core-arm fills predate `structure_stop_study.ANCHOR_END_DATE`; a default-scope widening would have silently shifted every already-frozen anchor pin, the exact re-pick-after-seeing-results hazard `no_repick_clause` exists to prevent). Any future study wanting current-day coverage must be its own separately-frozen pre-registration.
+
+**Suggested guard (not built, sized for skill-author/validator-author):** a drift-ratchet test (shape of `v25_filter_gates.py`'s presence guard) failing if `fills-ledger.jsonl`'s most dominant recent arm by fill count is NOT a member of any hardcoded arm-scope constant in `backtest/tools/`.
+
+**Encoded in:** `backtest/tools/exit_shape_parity_study.py` (`CORE_ARMS`, `ALL_LIVE_ARMS`), `backtest/tests/test_exit_shape_parity_study_core_arms.py` (commit `e7d98b3`). Inbox source `strategy/candidates/_lesson-inbox/2026-07-21-real-fills-loader-blind-to-arm-rename.md`. **Related:** C14, C7.
+
+---
+
+## L235 -- 2026-07-21: a shared loader documented to return a full-history WARMUP frame is not automatically safe to iterate as a single-day EVENT stream
+
+**Symptom:** `dojo_exit_diversity_replay.py`'s entry-scan harness inflated 4 requested curriculum days into 810 episodes / 270 "entries" (most BS-synthetic); a `day=2026-06-30` episode carried a cursor dated `2026-05-21`, voiding the whole study's `CONTROL_HOLDS` verdict.
+
+**Root cause:** `engine_step.load_day_bars(replay_day)` is documented (its own docstring) to return the FULL multi-month cache frame through `replay_day` — correct for its real consumer, `heartbeat_core._build_payload`, which internally RTH-filters/windows to the bar it's scoring. The new harness called this same loader, then iterated EVERY RTH bar in the returned frame as if each belonged to the target day — a wrong-day-scope contamination, not a future-peek (distinct from C6's classic look-ahead shape). Two different "day" scopes were silently conflated: (a) days needed as warmup/history context, and (b) days whose bars should be treated as candidate iteration/event points. A function correctly serving (a) does not make its return value safe to iterate as (b) without an explicit re-slice.
+
+**Fix:** `day_rth = rth[rth["timestamp"].dt.date == day_date]` restricts the entry/ribbon cursor loop to the target day only; the untrimmed `bars` frame is still passed to `engine_step.step()` unchanged, since THAT call genuinely needs the full window for warmup.
+
+**The rule:** when reusing a shared loader/producer whose docstring says "returns X for the whole window, not just the target" (a warmup/context frame), a new consumer must explicitly re-slice to its own actual scope of interest before treating the untrimmed return value as an iteration frame.
+
+**Encoded in:** `backtest/tools/dojo_exit_diversity_replay.py::extract_entries_and_ribbon`, `backtest/tests/test_dojo_exit_diversity_replay.py::test_extract_entries_scoped_to_target_day_only` (commit `e94d72b`). Inbox source `strategy/candidates/_lesson-inbox/2026-07-21-warmup-frame-misread-as-single-day-scope.md`. **Related:** C6.
