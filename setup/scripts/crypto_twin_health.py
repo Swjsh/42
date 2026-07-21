@@ -93,6 +93,8 @@ from et_clock import et_now  # noqa: E402
 import crypto_twin_core as ctc  # noqa: E402
 import crypto_twin_broker as broker  # noqa: E402
 import crypto_twin_scenarios as cts  # noqa: E402
+import broker_canary as bc  # noqa: E402  -- BROKER-CANARY-SENTINEL-HOOKUP (queue.md 2026-07-11):
+# the one-line piggyback this scheduled tick was built to carry. See main()'s call site.
 
 STATE = REPO / "automation" / "state"
 # TOP-LEVEL glance file -- deliberately a sibling of engine-health.json/
@@ -390,11 +392,24 @@ def main(argv: Optional[list[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     result = run_tick_with_health(live=args.live)
+
+    # BROKER-CANARY-SENTINEL-HOOKUP (queue.md 2026-07-11): the one-line piggyback.
+    # bc.probe() is already fail-open internally (never raises -- see its own module
+    # docstring), so this call can never affect this tick's action/error/exit-code.
+    # The try/except is belt-and-suspenders only, kept OUTSIDE run_tick_with_health so
+    # the twin's own tested tick path (40+ existing tests) is untouched by this addition.
+    canary_result: Optional[dict] = None
+    try:
+        canary_result = bc.probe()
+    except Exception:  # noqa: BLE001 -- the canary must never break the twin's own tick
+        pass
+
     print(json.dumps({
         "action": (result["row"] or {}).get("action"),
         "error": result["error"],
         "health": result["health"],
         "soak_row_written": result["soak_row"] is not None,
+        "broker_canary": (canary_result or {}).get("assess", {}).get("verdict"),
     }, indent=2))
     return 0 if result["error"] is None else 1
 

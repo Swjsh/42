@@ -503,5 +503,51 @@ def test_run_tick_with_health_error_gets_counted_in_a_later_soak_rollup(tmp_path
     assert r2["soak_row"]["n_errors"] == 1
 
 
+# ============================================================================
+# BROKER-CANARY-SENTINEL-HOOKUP (queue.md 2026-07-11) -- main() now piggybacks
+# broker_canary.probe() on every scheduled tick. Never touches run_tick_with_health
+# itself (zero risk to the 40+ tests above); lives entirely in the CLI entrypoint.
+# ============================================================================
+def test_main_calls_broker_canary_probe(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(cth.broker, "TWIN_SECRETS_PATH", tmp_path / "no-secrets.json")
+    monkeypatch.setattr(cth, "HEALTH_PATH", tmp_path / "twin-health.json")
+    monkeypatch.setattr(cth, "run_tick_with_health",
+                        lambda live=False: {"row": {"action": "HOLD_BAD_BARS"}, "error": None,
+                                            "health": {}, "soak_row": None})
+    calls = []
+
+    def _fake_probe():
+        calls.append(1)
+        return {"assess": {"verdict": "GREEN"}}
+
+    monkeypatch.setattr(cth.bc, "probe", _fake_probe)
+    rc = cth.main([])
+    assert rc == 0
+    assert calls == [1]  # probe() was actually invoked, not just imported
+    out = json.loads(capsys.readouterr().out)
+    assert out["broker_canary"] == "GREEN"
+
+
+def test_main_survives_a_broker_canary_exception(tmp_path, monkeypatch, capsys):
+    """The canary must never break the twin's own tick -- even if probe() itself
+    somehow raised (belt-and-suspenders on top of probe()'s own internal fail-open),
+    main() still returns the tick's own exit code and prints its own result."""
+    monkeypatch.setattr(cth.broker, "TWIN_SECRETS_PATH", tmp_path / "no-secrets.json")
+    monkeypatch.setattr(cth, "HEALTH_PATH", tmp_path / "twin-health.json")
+    monkeypatch.setattr(cth, "run_tick_with_health",
+                        lambda live=False: {"row": {"action": "HOLD_BAD_BARS"}, "error": None,
+                                            "health": {}, "soak_row": None})
+
+    def _boom():
+        raise ConnectionError("simulated canary network outage")
+
+    monkeypatch.setattr(cth.bc, "probe", _boom)
+    rc = cth.main([])
+    assert rc == 0  # tick itself had no error -- the canary blowing up must not change that
+    out = json.loads(capsys.readouterr().out)
+    assert out["action"] == "HOLD_BAD_BARS"
+    assert out["broker_canary"] is None
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-v"]))
