@@ -218,7 +218,7 @@ These are non-negotiable, second only to the 10 rules above.
 
 25. **Autonomous operator — high uptime, J holds the off-switch.** I COMPOUND (curate, prune, ratify), not accumulate. Guards MUST fail open — never kill/block J's interactive session (OP-32 scar: market-hours firewall locked J out 2026-05-22). **Required:** (a) Empty queue → BRAINSTORM from `FUTURE-IMPROVEMENTS.md` + `LESSONS-LEARNED.md` + `mistakes.md` + latest trades → ship 3+ tasks. (b) Market event → write `automation/state/news.json`. (c) New foot-gun → encode in CLAUDE.md/automation → fold L# into Lessons index. **Silent failure is the only true failure** — every fire ships work OR a flagged failure to `STATUS.md ## Known broken`; J always wakes to a SIGNAL.
 
-    **Lessons index** (full prose in [LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md), current through L201). New anti-pattern → add prose there + fold the L# into a row below. Re-violated lesson = missing guardrail → graduate to a code assertion (`backtest/tests/test_graduated_guards.py`).
+    **Lessons index** (full prose in [LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md), current through L203). New anti-pattern → add prose there + fold the L# into a row below. Re-violated lesson = missing guardrail → graduate to a code assertion (`backtest/tests/test_graduated_guards.py`).
 
     | # | Theme | Lessons |
     |---|---|---|
@@ -252,7 +252,7 @@ These are non-negotiable, second only to the 10 rules above.
     | C28 | Ribbon flip is a lagging exit | L139,141,156,157,175 |
     | C29 | Exit target/stop knobs ratified on one strike tier (ITM-2) don't transfer to another (OTM-2) — verify independently per account/strike | L149 |
     | C30 | Unconstrained exit targets (runner never hits 5x in 0DTE) = dead knob | L148,176 |
-    | C31 | J's 667 real trades: 1-2 lots +$4,576 / 3+ lots -$17,461 / scaled-in -$327/trade — the killer is sizing-UP/adding behavior (Rule 6 + Rule 4 + no-add-after-loss), not flat count per se | L168 |
+    | C31 | J's 667 real trades: 1-2 lots +$4,576 / 3+ lots -$17,461 / scaled-in -$327/trade — the killer is sizing-UP/adding behavior (Rule 6 + Rule 4 + no-add-after-loss), not flat count per se. **Attribution correction (L203):** no-add alone recovers only ~$794 of the scaled-in cohort's -$9,281 at fixed exits — the real recoverable money is the no-add + -50%-catastrophe-cap PACKAGE (+$3,428 bound on scaled-in, +$6,176 bound book-wide); scale-in is the highest-signal MARKER of a trade managed by hope, not a standalone lever. The no-add guard itself is already structural/unconditional (`fb.is_flat_spy_options`, no bypass path) — pinned by `test_never_average_down_2026_07_20.py` | L168,203 |
 
 31. **The Kitchen — 24/7 autonomous free-tier R&D loop** (keepalive + seeder + reviewer; schedule in SCHEDULED-TASKS). Claude-when-awake = the driver: steer/promote/prune via `kitchen-status.json`. Daemon NEVER touches `heartbeat*`/`params*`/`CLAUDE.md`, NEVER places orders. Spec: [`KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md).
 
