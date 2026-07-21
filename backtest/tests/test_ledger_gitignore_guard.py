@@ -43,6 +43,31 @@ STATE_SNAPSHOTS = [
     "automation/state/futures/today-bias.json",
 ]
 
+# STATE-FILE-REVERSION-AUDIT-FOLLOWUP (2026-07-21): triage of the ~76 tracked files under
+# automation/state/ whose mtime runs >3 days ahead of their last commit (script + full list
+# in this fire's STATUS.md entry). These 13 are the confirmed DECISION-GATING overwritten-
+# in-place hazard class (same mechanism as STATE_SNAPSHOTS above -- a git stash/checkout in
+# the shared checkout can revert them backward and silently misrepresent CURRENT trailing-
+# stop/breaker/level/position/intent state to a live decision path). The other ~63 flagged
+# files were reviewed and judged LOWER-RISK (display/diagnostic/derived-cache surfaces whose
+# reversion would show stale info, not silently misdirect an entry/exit/kill-switch/sizing
+# decision) and deliberately left tracked -- not unclassified, a completed lower-priority call.
+DECISION_GATING_SNAPSHOTS = [
+    "automation/state/fleet/safe-2/exit-state.json",
+    "automation/state/fleet/bold-2/exit-state.json",
+    "automation/state/crypto-twin/breaker.json",
+    "automation/state/crypto-twin/exit-state.json",
+    "automation/state/crypto-twin/scenario-state.json",
+    "automation/state/crypto-twin/sim-bear-scenario-state.json",
+    "automation/state/crypto-twin/sim-bear-positions.json",
+    "automation/state/key-levels.json",
+    "automation/state/sight-beacon.json",
+    "automation/state/fleet/shared-signal.json",
+    "automation/state/futures/mirror-shadow-state.json",
+    "automation/state/futures/mirror-positions.json",
+    "automation/state/j-intents.json",
+]
+
 
 def test_decision_ledgers_are_gitignored():
     for path in LEDGERS:
@@ -87,6 +112,34 @@ def test_state_snapshots_are_gitignored():
 def test_state_snapshots_are_untracked():
     r = subprocess.run(
         ["git", "-C", str(REPO), "ls-files", "--", *STATE_SNAPSHOTS],
+        capture_output=True,
+        text=True,
+    )
+    tracked = [ln for ln in r.stdout.splitlines() if ln.strip()]
+    assert not tracked, (
+        f"Still tracked in the index (gitignore alone does not untrack): {tracked}. "
+        f"Run `git rm --cached <path>` for each."
+    )
+
+
+def test_decision_gating_snapshots_are_gitignored():
+    for path in DECISION_GATING_SNAPSHOTS:
+        r = subprocess.run(
+            ["git", "-C", str(REPO), "check-ignore", "-q", path],
+            capture_output=True,
+        )
+        assert r.returncode == 0, (
+            f"{path} is NOT gitignored -- a tree-wide git stash/checkout/reset in the "
+            f"shared checkout can silently revert live trailing-stop/breaker/level/"
+            f"position/intent state backward to a stale committed snapshot "
+            f"(STATE-FILE-REVERSION-AUDIT-FOLLOWUP, 2026-07-21). Re-add it to "
+            f".gitignore and `git rm --cached` it."
+        )
+
+
+def test_decision_gating_snapshots_are_untracked():
+    r = subprocess.run(
+        ["git", "-C", str(REPO), "ls-files", "--", *DECISION_GATING_SNAPSHOTS],
         capture_output=True,
         text=True,
     )

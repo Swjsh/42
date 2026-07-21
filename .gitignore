@@ -163,3 +163,23 @@ automation/state/fleet/safe-1/circuit-breaker.json
 automation/state/fleet/safe-3/circuit-breaker.json
 automation/state/today-bias.json
 automation/state/futures/today-bias.json
+
+# STATE-FILE-REVERSION-AUDIT-FOLLOWUP (2026-07-21): same mechanism, wider triage. These 13
+# are overwritten-in-place JSON snapshots that gate a live decision (trailing-stop/HWM state,
+# twin circuit-breaker, key levels, sight-beacon, fleet shared-signal, mirror-shadow state,
+# J-called intents) and were confirmed actively written (mtime >3d ahead of last commit) while
+# tracked-but-rarely-committed -- same hazard class as circuit-breaker.json/today-bias.json
+# above. See backtest/tests/test_ledger_gitignore_guard.py DECISION_GATING_SNAPSHOTS.
+automation/state/fleet/safe-2/exit-state.json
+automation/state/fleet/bold-2/exit-state.json
+automation/state/crypto-twin/breaker.json
+automation/state/crypto-twin/exit-state.json
+automation/state/crypto-twin/scenario-state.json
+automation/state/crypto-twin/sim-bear-scenario-state.json
+automation/state/crypto-twin/sim-bear-positions.json
+automation/state/key-levels.json
+automation/state/sight-beacon.json
+automation/state/fleet/shared-signal.json
+automation/state/futures/mirror-shadow-state.json
+automation/state/futures/mirror-positions.json
+automation/state/j-intents.json
