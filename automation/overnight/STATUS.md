@@ -1,3 +1,62 @@
+## [2026-07-21 ~18:12-19:10 ET] OK -- conductor (AFTERHOURS): EOD-DOJO-EXHIBIT-MANIFEST built + shipped, commits `34608da` (+ `6a2e641` side-quest)
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Self-audit gaps fully
+> triaged (nothing un-actioned). `task_scorer.py --top` again surfaced
+> `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still J-decision-gated). Picked queue.md's HIGH item
+> `EOD-DOJO-EXHIBIT-MANIFEST` (filed 14:45 ET today, J-directed) per priority-4 -- a clean,
+> bounded, spec'd Sonnet build (`markdown/specs/DOJO-EOD-PIPELINE.md`).
+
+> **Side quest before the build:** found `CLAUDE.md` MODIFIED + a new
+> `markdown/doctrine/OP-33-verify-visibility.md` UNTRACKED in the working tree -- a prior fire's
+> context-leanness trim that was complete (verified: `check-context-budget.ps1` -> YELLOW
+> 8457/9000, 94%, matching the trim's own claimed effect) but had NEVER been committed (an
+> L221/OP-33 "built != shipped until committed" violation sitting silently in the tree).
+> Committed it standalone (`6a2e641`) before starting the main build. Filed a lesson-inbox item
+> (`2026-07-21-claimed-shipped-in-own-doc-before-commit-ran.md`) proposing `verify_committed.py`
+> get wired into the conductor's own STAGE 5 close-out so this class can't recur silently.
+
+> **What shipped:** `setup/scripts/dojo/exhibit_extractor.py` -- pure, $0 read of
+> `core-decisions.jsonl` + `journal/trades.csv` -> `automation/state/dojo/session-briefs/
+> {date}.md`, <=6 ranked exhibits/day: BLOCKED-TRIGGER (verdict SKIP_* w/ triggers non-empty,
+> forward SPY path per OP-33(d)), SCORE-HIGH-NO-TRIGGER (bull/bear score >=9, triggers=[]),
+> EXTRA-LANE FILL (`extra_exec[].exec.status=="PLACED"`), J-CALLED (`trades.csv`'s own clean
+> `j_override=="Y"` marker). Never overwrites a hand-authored brief (AUTO_MARKER guard).
+> Registered `Gamma_EodDojoManifest`, 16:20 ET weekdays (5 min after `Gamma_TradeAutopsy` so its
+> counterfactuals are citable), `backtest\.venv` pythonw = already reaper-exempt. Ported
+> trade_autopsy.py's HEADLESS STDIO REDIRECT popup guard proactively (identical launch chain
+> that caused that scar on a sibling script).
+
+> **Verified this fire (OP-33):** `backtest/tests/test_exhibit_extractor.py` 29/29 -- caught +
+> fixed a real def-time-parameter-binding bug DURING RED-proofing (`build_exhibits`/`main` were
+> silently ignoring test monkeypatches on `TRADES_CSV`/`CORE_DECISIONS` -- the exact footgun
+> `trade_autopsy.py`'s own `write_twin_hypotheses` docstring names; fixed by forwarding the
+> current module global explicitly at every call site). RED-proofed via file-move (new
+> untracked file -- avoided a tree-wide `git stash` after discovering an UNRELATED pre-existing
+> stash@{0..2} in this shared checkout from earlier sessions; a blind stash/pop here risked
+> clobbering live state, C34/L214/L228 territory -- left those stashes untouched). Broader sweep
+> `pytest -k "dojo or exhibit"` -> **158/158 PASS**, zero regressions. Curated safety gate
+> (31+5) PASS. Live-verified end-to-end: real 2026-07-17 run (390 decision rows -> 6 exhibits,
+> sane content); real 2026-07-21 run correctly SKIPPED (today's hand-authored brief confirmed
+> byte-intact after); real `Start-ScheduledTask Gamma_EodDojoManifest` fire, `LastTaskResult=0`.
+> `git ls-tree HEAD` confirmed all 3 new files + 2 doc updates landed on HEAD, not just staged.
+
+> **Zero trading-path files touched** -- `exhibit_extractor.py` is observation-only (no broker/
+> params/heartbeat_core/placement/exit code), CLAUDE.md side-quest was doc-only. Ships as
+> engine-benefit per OP-22/OP-26, no J ratification needed. **Revert:**
+> `git revert 34608da` (4 files: extractor, tests, installer, SCHEDULED-TASKS.md/queue.md doc
+> updates) + `Unregister-ScheduledTask -TaskName Gamma_EodDojoManifest` to un-arm the schedule
+> independently. **Not done this fire:** `DOJO-BUILD-HANDOFF`'s Phase-1 step 0 (TV replay MCP
+> tools) remains not-pickable by a conductor fire (no TV MCP tool binding this session --
+> unchanged from prior fires' finding, not re-investigated).
+
+> **Cost: ~$6.4** (STAGE 0/1 reads, schema exploration of core-decisions.jsonl/trades.csv, side
+> quest investigation + commit, module build, 29-test guard file + one round of real bug fixes
+> found during RED-proofing, file-move RED-proof, 158-test broader sweep, curated safety gate x2,
+> live scheduled-task registration + fire + verification, doc updates (SCHEDULED-TASKS.md +
+> queue.md), lesson-inbox filing, this STATUS/queue update, conductor_outcome recording).
+
+---
+
 ## [2026-07-21 ~17:42-18:10 ET] OK -- conductor (AFTERHOURS): stale validator-inbox item closed + time-bomb test found+fixed, commit `426e097`
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `task_scorer.py --top`
@@ -639,3 +698,9 @@
 
 ---
 
+
+### DEGRADED: self-check 2026-07-21T18:09:56
+- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+## Kitchen
+Kitchen: alive, queue 37 pending, last cook 0 min ago, today $0.00, model=grinder-python
