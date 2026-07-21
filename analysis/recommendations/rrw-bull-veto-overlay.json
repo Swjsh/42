@@ -1,0 +1,247 @@
+{
+ "rule_id": "rrw-bull-veto-overlay",
+ "study": "RRW-AS-VETO-STUDY",
+ "generated_at": "2026-07-20T21:23:32",
+ "spec_origin": "queue.md RRW-AS-VETO-STUDY, filed 2026-07-02 after-close",
+ "entry_verdict_context": "RIBBON_REJECTION_WICK is KILLED as an ENTRY (0/24 BH-FDR survivors, analysis/recommendations/ribbon-rejection-wick.json) -- this study asks a DIFFERENT question: overlay value on the already-live bull path.",
+ "window": {
+  "start": "2025-01-02",
+  "end": "2026-07-01"
+ },
+ "bull_config": "PROD_GATED (block_bull_ribbon_flip + block_bull_1100_1200), ATM strike, chart-stop-primary -- what the engine actually trades today",
+ "veto_lookback_minutes": 30,
+ "n_bull_trades": 86,
+ "n_bear_events_cached": 1793,
+ "veto_tests": {
+  "A_defaults": {
+   "config": {
+    "wick_frac_min": 0.35,
+    "break_lookback_bars": 12,
+    "vol_mult_min": 0.0,
+    "require_stack_not_flipped": true
+   },
+   "baseline": {
+    "n": 86,
+    "pnl": 4344.8,
+    "wr": 0.279,
+    "expectancy": 50.52
+   },
+   "veto_applied": {
+    "n": 78,
+    "pnl": 3079.0,
+    "wr": 0.231,
+    "expectancy": 39.47
+   },
+   "vetoed_trades": {
+    "n": 8,
+    "pnl": 1265.8,
+    "wr": 0.75,
+    "expectancy": 158.23
+   },
+   "delta_pnl_from_veto": -1265.8,
+   "n_vetoed": 8,
+   "vetoed_examples": [
+    {
+     "date": "2025-01-30",
+     "entry": "10:35",
+     "pnl": 372.6,
+     "exit_reason": "ExitReason.TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+     "date": "2025-02-07",
+     "entry": "10:30",
+     "pnl": 310.0,
+     "exit_reason": "ExitReason.EXIT_ALL_LEVEL_STOP"
+    },
+    {
+     "date": "2025-08-07",
+     "entry": "10:30",
+     "pnl": -96.8,
+     "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP"
+    },
+    {
+     "date": "2025-12-26",
+     "entry": "10:35",
+     "pnl": 154.8,
+     "exit_reason": "ExitReason.TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+     "date": "2026-01-09",
+     "entry": "10:30",
+     "pnl": 304.2,
+     "exit_reason": "ExitReason.TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+     "date": "2026-05-21",
+     "entry": "15:05",
+     "pnl": 138.6,
+     "exit_reason": "ExitReason.TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+     "date": "2026-05-29",
+     "entry": "10:55",
+     "pnl": 237.6,
+     "exit_reason": "ExitReason.TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+     "date": "2026-06-09",
+     "entry": "10:25",
+     "pnl": -155.2,
+     "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP"
+    }
+   ]
+  },
+  "B_vol1.5": {
+   "config": {
+    "wick_frac_min": 0.35,
+    "break_lookback_bars": 12,
+    "vol_mult_min": 1.5,
+    "require_stack_not_flipped": true
+   },
+   "baseline": {
+    "n": 86,
+    "pnl": 4344.8,
+    "wr": 0.279,
+    "expectancy": 50.52
+   },
+   "veto_applied": {
+    "n": 82,
+    "pnl": 3747.2,
+    "wr": 0.256,
+    "expectancy": 45.7
+   },
+   "vetoed_trades": {
+    "n": 4,
+    "pnl": 597.6,
+    "wr": 0.75,
+    "expectancy": 149.4
+   },
+   "delta_pnl_from_veto": -597.6,
+   "n_vetoed": 4,
+   "vetoed_examples": [
+    {
+     "date": "2025-02-07",
+     "entry": "10:30",
+     "pnl": 310.0,
+     "exit_reason": "ExitReason.EXIT_ALL_LEVEL_STOP"
+    },
+    {
+     "date": "2026-01-09",
+     "entry": "10:30",
+     "pnl": 304.2,
+     "exit_reason": "ExitReason.TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+     "date": "2026-05-21",
+     "entry": "15:05",
+     "pnl": 138.6,
+     "exit_reason": "ExitReason.TP1_THEN_RUNNER_RIBBON"
+    },
+    {
+     "date": "2026-06-09",
+     "entry": "10:25",
+     "pnl": -155.2,
+     "exit_reason": "ExitReason.EXIT_ALL_PREMIUM_STOP"
+    }
+   ]
+  }
+ },
+ "tighten_tests": {
+  "A_defaults": {
+   "config": {
+    "wick_frac_min": 0.35,
+    "break_lookback_bars": 12,
+    "vol_mult_min": 0.0,
+    "require_stack_not_flipped": true
+   },
+   "baseline_all_bull": {
+    "n": 86,
+    "pnl": 4344.8,
+    "wr": 0.279,
+    "expectancy": 50.52
+   },
+   "n_flagged": 2,
+   "opra_miss": 0,
+   "actual_on_flagged": {
+    "n": 2,
+    "pnl": 1110.6,
+    "wr": 1.0,
+    "expectancy": 555.3
+   },
+   "counterfactual_on_flagged": {
+    "n": 2,
+    "pnl": 1045.0,
+    "wr": 0.5,
+    "expectancy": 522.5
+   },
+   "delta_pnl_from_tighten": -65.6,
+   "flagged_examples": [
+    {
+     "date": "2025-01-30",
+     "entry": "10:35",
+     "tighten_at": "10:50",
+     "exit": "11:00",
+     "actual_pnl": 372.6,
+     "counterfactual_pnl": -1010.0,
+     "delta": -1382.6
+    },
+    {
+     "date": "2026-02-02",
+     "entry": "10:30",
+     "tighten_at": "14:55",
+     "exit": "15:50",
+     "actual_pnl": 738.0,
+     "counterfactual_pnl": 2055.0,
+     "delta": 1317.0
+    }
+   ]
+  },
+  "B_vol1.5": {
+   "config": {
+    "wick_frac_min": 0.35,
+    "break_lookback_bars": 12,
+    "vol_mult_min": 1.5,
+    "require_stack_not_flipped": true
+   },
+   "baseline_all_bull": {
+    "n": 86,
+    "pnl": 4344.8,
+    "wr": 0.279,
+    "expectancy": 50.52
+   },
+   "n_flagged": 1,
+   "opra_miss": 0,
+   "actual_on_flagged": {
+    "n": 1,
+    "pnl": 738.0,
+    "wr": 1.0,
+    "expectancy": 738.0
+   },
+   "counterfactual_on_flagged": {
+    "n": 1,
+    "pnl": 2055.0,
+    "wr": 1.0,
+    "expectancy": 2055.0
+   },
+   "delta_pnl_from_tighten": 1317.0,
+   "flagged_examples": [
+    {
+     "date": "2026-02-02",
+     "entry": "10:30",
+     "tighten_at": "14:55",
+     "exit": "15:50",
+     "actual_pnl": 738.0,
+     "counterfactual_pnl": 2055.0,
+     "delta": 1317.0
+    }
+   ]
+  }
+ },
+ "verdict": "FAIL",
+ "clearing_tests": [],
+ "caveats": [
+  "TIGHTEN counterfactual is a whole-position approximation (ignores TP1 partial fills / tp1_qty_fraction) -- directional indicator, not a production-ready dollar estimate. A real wiring proposal needs a partial-fill-aware replay.",
+  "veto and tighten are tested SEPARATELY (not stacked) to keep each counterfactual legible; a trade can appear in both.",
+  "No live wiring happens from this study regardless of verdict -- CLEARS still needs a separate rail-4 ratification pass (guard test + revert + REVOKE)."
+ ]
+}

@@ -1,3 +1,78 @@
+## [2026-07-20 ~23:12-23:5x ET] OK -- conductor (AFTERHOURS): RRW-AS-VETO-STUDY -- bear-wick bull overlay tested, FAIL (honest kill), committed
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `task_scorer.py --top`
+> re-surfaced the correctly-J-decision-gated `MORNING-BULL-QUALITY-GATE-RECONSIDER` (skipped
+> again). The queue's HIGH-priority trading-path items (`EXTRA-SIGNAL-CHURN-COOLDOWN`,
+> `EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT`) were already closed/DEFER-INSUFFICIENT-DATA'd by
+> two earlier fires tonight; `DOJO-BUILD-HANDOFF` needs TradingView MCP tools this fire's
+> tool set doesn't have bound. Picked the top-scored MED research item instead:
+> `RRW-AS-VETO-STUDY` (queued 2026-07-02, never actioned — ribbon_rejection_wick is KILLED
+> as an entry but demonstrably SEES real bear rejections; untested as a defensive overlay
+> on the live bull path).
+
+> **What shipped:** `backtest/autoresearch/rrw_bull_veto_study.py` -- reuses the EXISTING
+> cached RRW superset scan (1793 bear events, $0 to reload) against the REAL bull trade
+> population from `lib.orchestrator.run_backtest(use_real_fills=True, enable_bullish=True)`
+> at PROD_GATED (the two ratified bull gates), ATM strike (live core tier). Two
+> pre-registered configs (detector's own dataclass defaults + the FAIL scorecard's own
+> "keeps today's anchor" vol note). **Result: FAIL on both hypotheses.** VETO: both configs
+> net NEGATIVE to apply -- the vetoed trades (n=8/$1,265.80 and n=4/$597.60, WR 75% both)
+> were WINNERS, not losers; the hypothesis (bear-wick flags bad bull entries) does not hold
+> in this sample. TIGHTEN: too rare (n=2, n=1) to clear the pre-registered n>=10 bar, and
+> the n=2 case is internally mixed (one trade +$1,317 better, one -$1,382 worse tightened).
+> Scorecard: `analysis/recommendations/rrw-bull-veto-overlay.json` (full trade lists +
+> caveats). Queue item closed with the full writeup: `automation/overnight/queue.md`
+> `RRW-AS-VETO-STUDY`.
+
+> **DST-frame lesson applied, not re-violated:** `load_contract_bars`' raw tz-aware OPRA
+> timestamps (fixed -04:00, EST-mislabeled) were re-derived to the same et-v2 frame the
+> SPY/bear-events/trades already use before any comparison -- caught this fire via a live
+> `TypeError` on first run, fixed per `project_dst_frame_artifact_2026_07_02`, re-verified.
+
+> **Verified this fire:** new guard `backtest/tests/test_rrw_bull_veto_study.py` (12/12
+> PASS -- gate logic, veto-window semantics, stats arithmetic, cache-freshness sanity on
+> $0 synthetic fixtures, no full-backtest re-run needed to catch a future regression).
+> `test_ribbon_rejection_wick.py` + this file -> 20/20 PASS. Curated safety gate
+> (31+5-suite) PASS.
+
+> **Research-only, zero trading-path files touched** (no params/heartbeat_core/filters/
+> placement/exit edits -- rail 4 does not apply; ships without J ratification per
+> OP-22/OP-26, same class as any author-inbox deliverable). **Revert:** `git revert <commit>`
+> (3 new files, purely additive). No live wiring proposed regardless of verdict -- this FAIL
+> closes the RRW-AS-VETO-STUDY thread; any future re-open needs new evidence, not a re-run
+> of this same config pair.
+
+> **Cost: ~$4.9** (STAGE 0/1 reads, queue.md targeted greps/reads across ~2400 lines to find
+> the next pickable item, detector/battery/orchestrator/simulator_real source reads to design
+> the overlay study without duplicating existing machinery, 1 script write + 1 DST-frame bugfix
+> + 1 successful run, 1 guard-test file write + 1 tolerance fix + verification runs, curated
+> safety gate, queue.md + this STATUS entry).
+
+---
+
+## [2026-07-20] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
+
+> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
+> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
+> -   bollinger_squeeze (armed 2026-07-02): since-arm 2tr $+105.00 ($+52.50/tr, 100.0% WR)
+> -   double_bottom_base_quiet (armed 2026-07-01, 19d ago): 0 fills since arm — no live signal yet
+> -   vix_regime_dayside (armed 2026-07-01, 19d ago): 0 fills since arm — no live signal yet
+> -   vwap_continuation (armed 2026-07-01): since-arm 2tr $-68.00 ($-34.00/tr, 0.0% WR)
+> -   vwap_reclaim_failed_break (armed 2026-07-01, 19d ago): 0 fills since arm — no live signal yet
+> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
+
+---
+
+## [2026-07-20] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-11..2026-07-17), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-17). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-419.16); Bold_ATM_1+2=YELLOW ($-262.8)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-07-20 22:12-22:40 ET] OK -- conductor (AFTERHOURS): CLAUDE-INDEX-FOLD-BATCH -- 20 remaining lessons folded into OP-25 index, reconciliation ratchet drained to zero, committed `33c7bad`
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Self-audit gaps file
@@ -578,84 +653,6 @@
 > premarket-touch-credit-preregistration.json`, `analysis/recommendations/premarket-touch-
 > credit-2026-07-20.json`, `backtest/tools/premarket_touch_credit_study.py`,
 > `backtest/tests/test_premarket_touch_credit_study.py`, `automation/overnight/queue.md`.
-
----
-
-## [2026-07-20 17:00-17:35 ET] NO-SHIP -- Sonnet worker (AFTERHOURS): STRUCTURE-STOP-REFERENCE-LEVEL pre-reg A/B, both candidates REJECT
-
-> **Context.** Assigned STRUCTURE-STOP-ZONE-BAND; on arrival, the queue showed item (a) (buffer
-> width) had already been closed REJECT_ALL_CANDIDATES by a conductor session ~5 minutes earlier
-> (commit `956cf84`) and item (b) (reference-level choice) had been re-filed standalone as
-> `STRUCTURE-STOP-REFERENCE-LEVEL`, status:pending, unclaimed. To avoid duplicating already-
-> falsified work (item (a)'s band-width axis) and to avoid clobbering the completed item (a)
-> artifacts (the assigned output filename collided with item (a)'s own verdict file), picked up
-> the still-open item (b) instead, per its own already-written spec in the queue.
-
-> **Built + ran a frozen pre-reg A/B for item (b)**: `backtest/tools/structure_stop_reference_level_ab.py`
-> (new `resolve_zone_boundary`/`reference_level_for` pure functions; reuses
-> `structure_stop_study.py`'s trigger recovery/replay machinery + `tw8_level_context.
-> frozen_level_set_for_date`'s per-day multi-level active set unchanged). Pre-reg:
-> `analysis/recommendations/structure-stop-reference-level-preregistration.json`, frozen BEFORE
-> any candidate replay. 3 candidates: REF-EXACT (control, today's live trigger-exact reference),
-> REF-ZONE (nearest active level beyond the trigger, away from spot -- the "zone boundary"),
-> REF-NONE (no structure stop at all). Band width held at 0.00 for all 3 by rule -- item (a)
-> already falsified that axis; re-testing it here without reference-level evidence would be
-> fishing. Preflight confirmed the SAME fresh-slice (n=18) + real-fills anchor (n=99,
-> 2026-06-29..2026-07-17) populations as item (a), byte-identical hashes -- only the
-> trigger_level resolution differs, matching the spec's own stated scope.
-
-> **Result: NO-SHIP both candidates.** REF-ZONE FAILS layer(a) fresh-slice expectancy (-$63.73/tr
-> vs -$47.34 control, worse not better). Its layer(b) real-fills "win" (+$481.2 vs -$900.7
-> control) is the SAME single-anchor-trade artifact C24 flagged in item (a): ONE 2026-07-08
-> position (SPY260708P00741000, 3 legs) drives the entire delta -- the zone boundary (745.21) is
-> far enough from the entry-adjacent trigger (744.17) that the structure stop simply never fires
-> that day, and the position rides to $427/$427/$307 instead of -$105/+$20/-$81 under today's
-> live reference; sub-window split hard sign-flips (+$1473.4 first half vs -$91.5 second half).
-> REF-NONE (no structure check at all) fails the same way, worse on layer(a) (-$84.29/tr). This
-> directly confirms item (a)'s own finding generalizes: it is not just band-width-on-the-wrong-
-> reference that fails to reproduce a stable edge -- the alternative reference itself fails too,
-> for the identical single-trade-driven reason.
-
-> **Verified this fire:** new guard `backtest/tests/test_structure_stop_reference_level_ab.py`
-> (17/17) covers `resolve_zone_boundary` (7 cases: nearest-above/below, no-level-set, no-trigger,
-> no-level-beyond, max-distance, invalid-side), `reference_level_for` (4 cases incl. the
-> zone-unavailable fallback), and `build_verdicts`' PASS/FAIL/sign-flip-downgrade/underpowered
-> classification (6 cases) + a pinned regression against this fire's actual disclosed NO-SHIP
-> output. RED-proofed via file-move (untracked new module -- `git stash` on an unmatched
-> pathspec silently no-ops, per tonight's established precedent): moved the module out of
-> `backtest/tools/`, confirmed `ModuleNotFoundError` (exact expected mechanism, all 17 fail to
-> collect), moved back, re-verified 17/17 green. Broader sweep (`test_structure_stop_study` +
-> `test_structure_stop_zone_band_ab` + this file + `automation/state/fleet/test_exit_manager` +
-> `test_exit_actuator`) -> **113/113 PASS, 0 regressions**.
-
-> **Rail-4 (PAPER/research-only -- guard test + no revert needed, nothing shipped):** touches
-> `backtest/tools/structure_stop_reference_level_ab.py` (new, standalone), `backtest/tests/
-> test_structure_stop_reference_level_ab.py` (new guard), `analysis/recommendations/structure-
-> stop-reference-level-preregistration.json` + `structure-stop-reference-level-2026-07-20.json`
-> (new pre-reg + output), `automation/overnight/queue.md` (item b closed NO-SHIP). **Zero
-> trading-path files touched** (`params.json`/`strategies.py`/`exit_manager.py`/placement/exit
-> code untouched) -- this is a REJECT research finding exactly like item (a), nothing ships, no
-> params flip, no revert needed. `backtest/lib/exit_manager_walk.py` (the faithful tick-managed
-> harness) was correctly NOT invoked -- that step is the SHIP-gate verification for a cleared
-> candidate, and neither candidate cleared the exploratory pre-reg bar to reach it.
-
-> **Learn-loop:** no new lesson-inbox item -- this is the SECOND time in one evening (item (a),
-> then item (b)) that the SAME single 2026-07-08 anchor position drove an apparent layer(b) win
-> that a sub-window split then exposed as unstable; this directly re-confirms the already-
-> indexed C24 pattern (anchor trades are one-off exceptional setups) rather than surfacing a new
-> foot-gun. Both sub-fixes of the original STRUCTURE-STOP-ZONE-BAND queue item are now closed
-> NO-SHIP under the same dual-layer discipline -- the queue item itself is fully resolved (no
-> further follow-up filed; the 2026-07-20 14:16 exhibit's -$24 vs +$115-130 counterfactual
-> remains a single anecdote this evening's research could not generalize into a population-level
-> edge).
-
-> **Cost: ~$4** (queue/STATUS read + duplicate-work check, read `exit_manager.py`/
-> `tw8_level_context.py`/`structure_stop_study.py`/`structure_stop_zone_band_ab.py` in full to
-> design the reference resolver, wrote the pre-reg + ~330-line study tool + guard test, 1 live
-> run against real OPRA/fills data (network calls), 1 RED-proof file-move round-trip, 1 broader
-> 113-test regression sweep, 2 queue.md edits, this STATUS entry -- no LLM in the hot path, no
-> orders, PAPER-only, zero pricing/gate/placement logic touched). **No commit made** (orchestrator
-> commits after verification per this fire's own rules).
 
 ---
 
