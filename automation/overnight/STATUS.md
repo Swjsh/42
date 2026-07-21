@@ -1,3 +1,83 @@
+## [2026-07-20 20:45-21:35 ET] OK -- conductor (AFTERHOURS): STATE-FILE-REVERSION genuinely fixed this time -- prior fire's "closed" claim was false, found + fixed a real git-mechanics footgun, committed `cb27ce5`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed). STATUS/queue showed all HIGH
+> items closed tonight; picked up the queued MED follow-up `STATE-FILE-REVERSION-AUDIT-
+> FOLLOWUP` (bounded audit of ~279 tracked `automation/state/` files last-committed
+> 2026-07-14). Standard practice: re-ran the existing guard as a sanity baseline before
+> starting the broader triage -- **it was RED.** `test_state_snapshots_are_gitignored` /
+> `test_state_snapshots_are_untracked` failed for exactly the 8 files (`circuit-breaker.json`
+> x6 + `today-bias.json` x2) that the PRIOR fire (19:42-19:50 ET, commit `25e31e2`) claimed
+> to have fixed with "4/4 green" + "curated safety gate PASS". That claim was false.
+
+> **Root cause of the false-green (OP-33 violation, one level up):** `25e31e2`'s diff for
+> those files showed ordinary CONTENT changes (8 +--/14 +---- lines), not a deletion --
+> `git ls-tree HEAD` proved the original blobs were still fully present in the tree.
+> `git rm --cached` was either never run or its result was silently discarded before that
+> commit landed.
+
+> **Fixing it this fire took 4 attempts (all logged, none hidden) to actually root-cause the
+> git mechanic, not just retry blindly:** (1) rm --cached + commit -- <pathspec> across two
+> separate tool calls -> only today-bias.json's incidental content diff landed, 7/8 lost;
+> (2) rm --cached + commit -- <pathspec> in ONE shell invocation -> same result, ruling out
+> a cross-invocation-staging theory; (3) discovered the actual mechanic: `git commit --
+> <pathspec>` WITHOUT `--only` does NOT use staged/index content for named paths -- it
+> commits the CURRENT WORKING-TREE content instead (implicit re-add), silently discarding
+> the `git rm --cached` staging since the files still exist on disk; (4) `git commit
+> --only -- <pathspec>` then hit an unexplained "nothing to commit" against paths staged in
+> an earlier tool call (not fully root-caused, not worth chasing further); the workaround
+> that actually worked: confirm `git diff --cached --stat` (no path filter) is EXACTLY the
+> 8 target deletions and nothing else, then plain `git commit -m "..."` with **no pathspec
+> at all** -- landed cleanly as `8 files changed, 224 deletions(-), delete mode 100644` x8.
+
+> **Verified this time, not just claimed:** `git ls-tree HEAD` empty for all 8 paths (proof
+> the blobs are actually gone from the committed tree, not just the working index) +
+> `git ls-files` empty for all 8 + guard 4/4 green + broader sweep `pytest -k
+> "circuit_breaker or today_bias or gitignore or state_file"` -> 11/11 PASS + all 8 files
+> confirmed still on disk and load as valid JSON post-untrack (readers are path-based, don't
+> care about git tracking). Commit: `cb27ce5`.
+
+> **Rail-4 (PAPER/infra-only -- guard test + revert path + this REVOKE report).** Change:
+> git-untracks 8 already-gitignored state files (`.gitignore` itself untouched this fire,
+> only the index/tree). Zero `params.json`/`heartbeat_core.py`/`filters.py`/placement/exit
+> code touched, zero content changed on disk -- pure git-tracking hygiene, ships per
+> OP-22/OP-26 without J ratification. **Revert:** `git revert cb27ce5` (re-adds the 8 files
+> to the index at their current on-disk content -- harmless either way, on-disk content is
+> unaffected by tracking status). **Commit:** `cb27ce5` (plus the two now-superseded
+> intermediate attempts `5a2becb`/`9ed0580` sitting in history, both harmless no-ops on the
+> tracking question -- their real diffs were incidental today-bias.json content writes).
+
+> **Learn-loop:** filed `strategy/candidates/_lesson-inbox/2026-07-20-git-commit-pathspec-
+> resurrects-staged-deletion.md` -- documents the git mechanic (`git commit -- <pathspec>`
+> without `--only` silently resurrects a staged deletion from working-tree content) and
+> recommends graduating a reusable `git_untrack_state_file.py` helper OR folding the
+> "verify via `git ls-tree HEAD`, not just the guard" addendum into the existing
+> STATE-FILE-REVERSION lesson, since the guard test alone was proven insufficient to catch
+> this class of false-green (it checks the index, which was correctly staged -- the commit
+> step was the broken one). **This is a re-violated lesson at the meta level (OP-33 "verify
+> don't claim" was violated by the prior fire's own git verification step) -- flagged for
+> priority graduation given `STATE-FILE-REVERSION-AUDIT-FOLLOWUP` (queue.md, MED, still
+> pending) will need this exact untrack operation for potentially dozens more files and
+> would otherwise hit the identical footgun a third time.** Queue.md's
+> `STATE-FILE-REVERSION-2026-07-20` entry corrected with this finding (append-only, prior
+> false claim preserved with a correction below it, not overwritten).
+
+> **STATE-FILE-REVERSION-AUDIT-FOLLOWUP itself NOT started this fire** -- this fire's full
+> budget went to discovering and correctly fixing the false-green on the original 8-file
+> scope; the broader ~279-file triage remains queued (MED, pending) for a future fire, now
+> with the correct verified procedure documented so it won't repeat this mistake.
+
+> **Cost: ~$4.6** (STAGE 0/1 reads, task_scorer, self-audit gaps check, queue.md targeted
+> reads of a 2198-line file, the mtime-vs-commit-gap audit script (786 tracked files, 81
+> candidates), git forensics across 4 commit attempts, 2 RED-proof round trips, multiple
+> guard/regression runs, lesson-inbox write, queue.md + STATUS.md writeups). **Files:**
+> `automation/state/{circuit-breaker.json,aggressive/circuit-breaker.json,fleet/{risky-1,
+> risky-3,safe-1,safe-3}/circuit-breaker.json,today-bias.json,futures/today-bias.json}`
+> (untracked, content unchanged), `automation/overnight/queue.md`,
+> `strategy/candidates/_lesson-inbox/2026-07-20-git-commit-pathspec-resurrects-staged-
+> deletion.md`.
+
+---
+
 ## [2026-07-20 20:15-20:45 ET] OK -- conductor (AFTERHOURS): BROKER-CANARY-SENTINEL-HOOKUP -- one-line wiring shipped, guard-tested, committed `3332454`
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed since 18:19+). Fill-funnel priority-1
@@ -597,38 +677,6 @@
 > `backtest/tests/test_structure_stop_zone_band_ab.py`, `analysis/recommendations/structure-
 > stop-zone-band-preregistration.json`, `analysis/recommendations/structure-stop-zone-band-
 > 2026-07-20.json`, `automation/overnight/queue.md`. **Commit:** `956cf84`.
-
----
-
-## [2026-07-20 16:12-16:35 ET] OK -- conductor (AFTERHOURS): fixed a false ENTER-AFTER-CEILING alarm in fill_funnel.py -- REVOKE-eligible, guard-tested, committed
-
-> **Context (`et_clock.py` 16:12 ET Monday, market closed since 15:55).** STAGE 0: engine-health GREEN (13/13). STATUS showed six `DEGRADED: FILL-FUNNEL ENTER AFTER CEILING[core:bold/safe]` flags from the 16:09:57 self-check for entries at 15:41-15:45 ET. Investigated per priority-1 (FUNCTION FIRST): pulled the raw `core-decisions.jsonl` rows -- every flagged row had `verdict:"ENTER_BEAR"` but `action:"SKIP_LATE_ENTRY"` and **no `exec` dict at all** (heartbeat_core.py's `_past_entry_ceiling` gate correctly fired, zero broker attempts -- `fill_funnel`'s own `attempted` count was already 0 for these). **Root cause (one sentence):** `fill_funnel.py`'s ceiling-bypass check keyed off the pre-gate `verdict` field instead of the post-gate `action` field, so a row the ceiling gate *already caught* was double-counted as a ceiling *bypass* -- a producer/consumer field mismatch between heartbeat_core's own two truth fields.
->
-> **Fix:** `setup/scripts/fill_funnel.py` -- only append to `enters_after_ceiling` when the row was NOT already gated (`action != SKIP_LATE_ENTRY` core / `placement.reason != SKIP_LATE_ENTRY` fleet). Verified against real 2026-07-20 data: funnel flips DEGRADED->**GREEN**, `automation/state/fill-funnel-2026-07-20.json` rewritten. Regression-pinned: the 2026-07-01 pre-ceiling-gate fixture (a genuine bypass, `action:"PLACE_FAIL"`, real broker attempt) still correctly flags -- confirms this narrows the false positive without swallowing a real fault. 4 new tests + 18 pre-existing all green: `backtest/.venv/Scripts/python.exe -m pytest backtest/tests/test_fill_funnel_guard.py -q` -> `22 passed`.
->
-> **Rail-4 (PAPER trading-path carve-out):** read-only diagnostics file, never touches placement/order code. Guard test + git-revert (`git revert 270e9ca`) both in place -- REVOKE, not pre-approve. Committed `270e9ca`, pre-commit safety gate PASS (curated 5-suite). No J ping needed (diagnostics-only, doesn't touch live doctrine/params).
->
-> **Why this matters beyond today:** this exact false alarm would have fired again every trading day the engine correctly declines a late-session ENTER (routine, by design) -- eroding trust in the funnel's real RED/DEGRADED signal (OP-33 visibility discipline: a noisy instrument gets ignored right when a genuine bypass needs to cut through).
-
----
-
-## [2026-07-20 ~16:53-18:40 ET] LOOP CLOSED -- interactive (Fable + 5 Sonnet builders): J's "map winning trades / fine-tune / get profitable" loop -- 2 shipped, 3 honest kills/defers, 1 new HIGH lead
-
-> **J directive (verbal, ~16:45 ET):** step back, logic not code, map winning trades from real data, loop until fine-tuned. Ran 3 iterations. **Full detail: analysis/winning-trade-map/SYNTHESIS-2026-07-20.md** (committed with the 27-episode broker-truth map).
->
-> **SHIPPED (commits 508f516, 8d4ec39 + prior-session fd91712 verified):**
-> - Per-arm EXIT-DIVERSITY overlay (J's arms vision): exit_patch merged over registry exit shape; matrix live for tomorrow -- FLEET-TIGHT-S=RIBBON, FLEET-TIGHT-R=control, FLEET-LOOSE-R=ZONE-RIDE (wider trail); eager+per-merge unknown-key validation incl. fleet_live.py load point (proven both ways); arm table shows exit profile per fill. 272/272 + 46/46 fresh.
-> - Extra-signal re-entry cooldown (prior session's fd91712, independently verified 10/10 + 136/136): the 3-entries-in-5-min churn class is dead.
-> - Winning-trade map: 27 real-fill episodes 07-13..20, reconciled to the dollar vs both day anchors (NOTE: 2026-07-20 true EOD = -$141; the -$111 was an intraday snapshot before a 5th trade, bollinger_squeeze 14:49, -$30).
->
-> **HONEST KILLS / NO-SHIPS (each with frozen pre-reg, artifacts committed):**
-> - STRUCTURE-STOP-REFERENCE-LEVEL: NO-SHIP -- REF-ZONE -$63.73/tr vs -$47.34 control; today's +$130 zone counterfactual was the classic single-anchor mirage. Core stop unchanged; risky-3's ZONE-RIDE arm is the live falsification rail.
-> - LEVER 1 trend-alignment sizing: KILL stands (twice-confirmed, look-ahead-fixed): rho NEGATIVE (~-0.15) in both cohorts -- fully-aligned signals are the WORST bucket. "Size up with the trend" is measurably backwards for this engine.
-> - LEVER 2 premium-stop -> chart-stop swap: NET WORSE on the 11-loser cohort (-$509 actual vs -$601 counterfactual); my "upper bound" premise was wrong (catastrophe cap wider than -8% brackets) -- agent corrected it against real exit_manager code. DEFER-INSUFFICIENT-DATA stands.
->
-> **CORRECTION + NEW HIGH LEAD:** the morning "stops read spread noise / SPY unchanged" claim was a STALE LOGGED-CONTEXT artifact -- real tape sold off $1.48 during those holds. Filed DECISION-ROW-SPY-STALENESS (HIGH): did any ENTER key off a stale spot read? (09:51 calls-into-a-selloff = the stale-sight signature.) This is the next session's first item.
->
-> **Loop exit condition met:** map synthesized, all 3 levers adjudicated, everything verified-fresh and committed (safety gate green x5). Remaining items need organic n or market hours; conductor owns the overnight cadence.
 
 ---
 

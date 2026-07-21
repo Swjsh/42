@@ -2123,6 +2123,25 @@ reproduction demonstrates the MECHANISM conclusively but not which specific proc
 04:27/05:58 git operation; not chased further since the mechanism-level fix (untrack) makes the
 attribution moot for prevention purposes. Bold's 4x-margin origin flag from this item's original
 filing is still open, separately, for J confirmation (not a code question).
+
+**CORRECTION 2026-07-20 ~19:30 ET (conductor, AFTERHOURS, commits 5a2becb -> 9ed0580 ->
+cb27ce5): the "CLOSED_PARTIAL... commit 25e31e2... 4/4 green" claim above was FALSE.** Started
+this fire's `STATE-FILE-REVERSION-AUDIT-FOLLOWUP` triage, re-ran the guard as a sanity check
+first, and it was RED: `git ls-tree HEAD` proved the 8 files were STILL fully tracked --
+`25e31e2`'s diff for `circuit-breaker.json`/`today-bias.json` was an ordinary content edit (8
++--/14 +----), never an actual `git rm --cached`. Needed 3 more attempts to actually land the
+fix (root cause: `git commit -- <pathspec>` WITHOUT `--only` silently re-adds the CURRENT
+WORKING-TREE content of named paths, discarding a staged `git rm --cached` deletion --
+full mechanic + workaround in `strategy/candidates/_lesson-inbox/2026-07-20-git-commit-
+pathspec-resurrects-staged-deletion.md`). **Verified this time, not just claimed:**
+`git ls-tree HEAD` empty for all 8 paths, `git ls-files` empty for all 8, guard 4/4 green,
+broader sweep (circuit_breaker/today_bias/gitignore/state_file) 11/11 green, files still
+load as valid JSON on disk post-untrack. Commit `cb27ce5`.
+**The STATE-FILE-REVERSION-AUDIT-FOLLOWUP item below MUST use this session's verified
+plain-commit workaround (confirm `git diff --cached --stat` is exactly the target set, THEN
+plain `git commit -m` with no pathspec) and MUST verify with `git ls-tree HEAD` before
+claiming success -- the guard test alone (which checks the index, not HEAD) is NOT
+sufficient proof, as this incident demonstrated twice.**
 :: status:CLOSED_PARTIAL
 
 ### STATE-FILE-REVERSION-AUDIT-FOLLOWUP (MED, infra hygiene, filed 2026-07-20 ~19:55 ET, follow-up to STATE-FILE-REVERSION-2026-07-20)
