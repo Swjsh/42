@@ -1,3 +1,71 @@
+## [2026-07-20 21:42-22:xx ET] OK -- conductor (AFTERHOURS): lesson-inbox drain -- L203 never-average-down guard pinned + C31 attribution corrected, committed `714f797`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Fill-funnel priority-1
+> check GREEN (bold's lone "1 ENTER / 0 attempt" row confirmed as the FALSE-CEILING-ALARM-FIXED
+> `SKIP_LATE_ENTRY` case, not a funnel break -- verified via core-decisions.jsonl directly).
+> `task_scorer.py --top` re-surfaced the correctly-J-decision-gated `MORNING-BULL-QUALITY-GATE-
+> RECONSIDER` (skipped again). Top of `queue.md`'s Active backlog HIGH item `DOJO-BUILD-HANDOFF`
+> (filed ~21:45 ET this same evening) is **NOT pickable by this fire**: its step 0 requires
+> empirically calling the TradingView `replay_start`/`replay_step` MCP tools, and this conductor
+> fire's available tool set has zero TradingView MCP tools bound (Alpaca + file/bash tools only)
+> -- filed a note on the item below for the next TV-wired interactive session. All other HIGH
+> items in the active backlog are already CLOSED/CLOSED_PARTIAL/DEFER-INSUFFICIENT-DATA by
+> tonight's earlier fires. Dropped to priority-5 (author inboxes): `_lesson-inbox` had **18
+> pending (non-.DONE) items**, the oldest dated 2026-07-01 -- picked the oldest.
+
+> **What shipped:** processed `strategy/candidates/_lesson-inbox/2026-07-01-never-average-down-
+> graduated-guard.md` (J's real WeBull E5 evidence: 67 scaled-in episodes lost -$9,281; doctrine
+> credited "Rule 4 alone" with that whole figure). Traced the ACTUAL guard chain first rather than
+> assuming new code was needed: `fb.is_flat_spy_options(creds)` (single source,
+> `automation/state/fleet/fleet_broker.py`) already blocks ANY second entry, unconditionally, no
+> bypass parameter anywhere -- both `heartbeat_core._execute` (primary ribbon route AND the
+> extra-setup G4 route share this one function) and `fleet_live.run()`'s per-arm AND-gate
+> (`... and flat and usable_signal`) enforce it. Rule 4 was ALREADY satisfied completely; what was
+> missing was a dedicated test. **Shipped:** `backtest/tests/test_never_average_down_2026_07_20.py`
+> (9 tests: core-route NOT_FLAT refusal both directions/both accounts + a flat-account PLACED
+> control that proves the harness itself isn't just swallowing every attempt, fleet_live's
+> AND-gate with a forced ENTER decision + a booby-trapped `_place_live`, 2 no-bypass-parameter
+> signature pins). **RED-proofed on the REAL production code, not a mock:** temporarily edited
+> `heartbeat_core.py`'s `if not fb.is_flat_spy_options(...)` to `if False and ...` in place -- 5/6
+> core-route tests failed loud with the exact expected assertion; separately edited
+> `fleet_live.py`'s AND-gate to drop the `flat` term -- the fleet test failed loud identically.
+> Both edits reverted; `git diff --stat` on both files confirmed EMPTY before committing (per
+> this evening's own git-commit-pathspec lesson: `git add` each path individually, verify
+> `git diff --cached --stat` names exactly the intended files, plain `git commit` with no
+> pathspec). Broader sweep (money-path/gap-and-go/bollinger/fleet-time-stop + this file) ->
+> **68/68 PASS**; curated safety gate (31+5-suite) PASS.
+
+> **Doctrine correction (the actual point of the lesson):** the E5 arithmetic shows no-add ALONE
+> recovers only **+$794** of the -$9,281 at fixed exits (averaging down LOWERS cost basis, so
+> added contracts lose less per contract at the same exits) -- the recoverable money is the
+> no-add + -50%-catastrophe-cap PACKAGE: **+$3,428 bound on the scaled-in cohort, +$6,176 bound
+> book-wide** (cohorts overlap by 29 episodes, don't sum). Folded L203 into
+> `markdown/doctrine/LESSONS-LEARNED.md` (full arithmetic + watch-out) and amended CLAUDE.md's
+> OP-25 C31 index bullet with the correction (a lesson-index CLAUDE.md edit is the one surface
+> OP-25 reserves for the lesson-author path, not rail-4-blocked -- L202 precedent). Also bumped
+> the stale "current through L201" pointer to L203 (L202 had been added by an earlier fire without
+> updating that pointer). CLAUDE.md context-budget check re-run after the edit: **8791/9000 tok
+> (98%), still YELLOW** -- confirmed not pushed to RED.
+
+> **Rail-4 (PAPER/observation-only -- guard test + revert path + this REVOKE report):** ZERO
+> trading-path behavior change -- `heartbeat_core.py` and `fleet_live.py` are byte-identical to
+> before this fire (confirmed via `git diff --stat`, empty, before every commit). Only new test +
+> doctrine files touched. **Revert:** `git revert 714f797` (4 files: CLAUDE.md,
+> LESSONS-LEARNED.md, the new test, the inbox rename -- clean no-behavior-change rollback).
+> **Commit:** `714f797`.
+
+> **Also flagged, not fixed this fire:** `_lesson-inbox` still carries 17 more pending items after
+> this one (oldest remaining: 2026-07-02 x3) -- a genuinely large backlog for a single-item-per-
+> fire cadence; queued as a standing priority-5 target for upcoming fires rather than a one-off.
+
+> **Cost: ~$5.9** (STAGE 0/1 reads incl. engine-health/fill-funnel/task_scorer/queue.md targeted
+> reads of a 2300-line file, DOJO spec read + TV-MCP-tool-availability check, inbox item read +
+> full guard-chain trace across 3 files, new 246-line test file authored, 2 separate RED-proof
+> round-trips on live production files with verified clean reverts, 2 regression sweeps + 1
+> curated safety gate, LESSONS-LEARNED.md + CLAUDE.md edits, commit, this STATUS/queue update).
+
+---
+
 ## [2026-07-20 20:45-21:35 ET] OK -- conductor (AFTERHOURS): STATE-FILE-REVERSION genuinely fixed this time -- prior fire's "closed" claim was false, found + fixed a real git-mechanics footgun, committed `cb27ce5`
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed). STATUS/queue showed all HIGH
@@ -599,7 +667,7 @@
 
 
 ## Kitchen
-Kitchen: alive, queue 25 pending, last cook 0 min ago, today $0.00, model=scorecard-python
+Kitchen: alive, queue 22 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### DEGRADED: self-check 2026-07-20T21:18:06
 - PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
@@ -608,60 +676,3 @@ Kitchen: alive, queue 25 pending, last cook 0 min ago, today $0.00, model=scorec
 
 ---
 
-## [2026-07-20 21:12-21:22 ET] OK -- conductor (AFTERHOURS): SELF-CHECK-BROKEN-2026-07-20 -- BROKEN -> DEGRADED, root-caused 2 real defects, committed `cbb93c6`
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). But
-> `self-check-last.json` verdict was **BROKEN** (3 real problems) -- outranks routine
-> queue/inbox work per this fire's own priority order (self-audit/function-first). Picked it.
-
-> **Finding 1 (real, root-caused): `today-bias.json` had been reverted to stale 2026-07-14
-> content.** `git show 25e31e2^:automation/state/today-bias.json` proved the on-disk content
-> exactly matched the last git-committed blob -- meaning tonight's OWN `git stash` during the
-> `STATE-FILE-REVERSION` debugging (commit `7b26cca`, ~18:43 ET) clobbered the fresh 08:30 ET
-> premarket write with the stale committed snapshot. Unlike `circuit-breaker.json` (both
-> accounts self-healed via `daily_loss_guard.rearm()`'s own stale-stamp detector -- confirmed
-> both show correct 2026-07-20 `last_reset`/`session_id`), `today-bias.json` has no equivalent
-> auto-repair. **No live-trading impact**: the clobber happened after 15:55 ET close; today's
-> real 09:30-15:55 decisions used the genuine fresh bias (premarket log: "VERIFIED today-bias
-> dated 2026-07-20"). Repaired via the ALREADY-EXISTING, already-tested (23/23 green)
-> `python setup/scripts/premarket_deterministic_fallback.py` -- a $0/no-LLM/un-blockable tool
-> built exactly for this failure class -- rather than hand-fabricating content. Verified fresh
-> write: `date=2026-07-20`, honestly stamped `degraded:true, source:deterministic_fallback`.
-
-> **Finding 2 (real, root-caused): `news.json` freshness_stamp was ~122h stale despite
-> `Gamma_MacroCalendar` Task Scheduler showing `LastTaskResult:0, NumberOfMissedRuns:0`.**
-> Root-caused: `setup/scripts/run_exe_hidden.vbs` (the standard hidden-launcher for ~60
-> scheduled tasks per `SCHEDULED-TASKS.md`) uses `shell.Run cmd, 0, False` -- fire-and-forget
-> (`bWaitOnReturn=False`) -- so Task Scheduler's exit code only proves `wscript.exe` launched
-> the child process, never that the payload script actually completed. This makes
-> `LastTaskResult`/`NumberOfMissedRuns` a misleading health signal for every task on this
-> launcher. Repaired tonight by hand-running `macro_calendar.py` (fresh `freshness_stamp`
-> confirmed). **Root cause NOT fixed this fire** -- too broad (audit-breadth work across ~60
-> tasks) -- filed `WSCRIPT-FIRE-AND-FORGET-AUDIT` (queue.md, MED) + lesson-inbox item
-> `2026-07-20-wscript-fire-and-forget-hides-scheduled-task-failure.md` for `lesson-author`.
-
-> **Verified this fire (OP-33):** re-ran `python setup/scripts/self_check.py` after both
-> fixes -- verdict **BROKEN -> DEGRADED** (2 remaining findings are expected/non-actionable:
-> the honestly-labeled DEGRADED premarket note, and an informational settlement-cap message).
-> Regression sweep: `pytest backtest/tests/test_premarket_deterministic_fallback.py
-> backtest/tests/test_macro_calendar_producer.py
-> backtest/tests/test_self_check_macro_calendar_freshness.py` -> **59/59 passed**. Curated
-> safety gate (pre-commit) PASS.
-
-> **Rail-4 (PAPER/data-integrity-only, zero trading-path change).** Both repairs write to
-> ALREADY-gitignored state files via ALREADY-existing, ALREADY-tested tools -- zero
-> `params.json`/`heartbeat_core.py`/`filters.py`/placement/exit code touched, zero new
-> behavior, zero commit needed for the repairs themselves (not tracked by git). Committed
-> only the bookkeeping: `automation/overnight/queue.md` (closure + new audit item),
-> `automation/overnight/STATUS.md`, a `status_retention.py` archive roll that was already
-> sitting uncommitted on disk from earlier tonight (verified archived verbatim, nothing lost
-> -- confirmed the pruned STRUCTURE-STOP-ZONE-BAND entry is present in
-> `STATUS-archive-2026-07.md` before committing), and the new lesson-inbox file. **Commit:**
-> `cbb93c6`.
-
-> **Cost: ~$3.15** (STAGE 0/1 reads, self-check + git forensics across 2 findings, dry-run +
-> live fallback run, macro_calendar re-run + Task Scheduler + vbs-launcher root-cause dig,
-> circuit-breaker + fleet + futures cross-check of all 8 untracked files from tonight's prior
-> fire, 2 regression sweeps, lesson-inbox write, queue/STATUS writeup, 1 commit, outcome
-> recorder). **Next up:** `WSCRIPT-FIRE-AND-FORGET-AUDIT` (MED, needs its own fire) or the
-> next queue.md HIGH item.

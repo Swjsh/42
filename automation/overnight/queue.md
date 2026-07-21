@@ -18,6 +18,19 @@
   rule + no-live-state fence are load-bearing. Routing: Opus framework -> Sonnet runs
   sessions with J -> Fable adjudicates Lane-B harvests only. depends:none :: status:pending
 
+> **NOT PICKABLE by a conductor fire (checked 2026-07-20 ~21:50-22:xx ET, AFTERHOURS):** step 0
+> requires literally calling the TradingView `replay_start`/`replay_step`/`replay_status` MCP
+> tools against the live TV desktop app (CDP port 9222) -- this conductor fire's bound tool set
+> has zero TradingView MCP tools (only Alpaca account/position/clock + file/bash tools), confirmed
+> by checking the actual available function list this session, not assumed. No CLI/script wrapper
+> around the TV MCP server exists in-repo either (grepped for `replay_start` usage -- only
+> mentions are in two automation prompt docs, no callable client). **This needs an interactive
+> session with the TradingView MCP server wired** (J's own session, or a future agent invocation
+> that has it bound) to actually run step 0 -- a conductor fire cannot self-escalate its own tool
+> set mid-fire. Leaving `status:pending`, HIGH, at the top of the backlog is correct; just noting
+> WHY it keeps getting skipped by AFTERHOURS/WEEKEND conductor fires specifically, so a future fire
+> doesn't waste a cycle re-discovering the same tool-availability gap.
+
 ### DOJO-DEEP-RESEARCH (LOW, bounded, free/Sonnet) :: one research pass -- DAgger-style
   imitation learning from expert replay for trading policies; prop-firm bar-replay drill
   methodology; open-source trading replay trainers worth mining. Output: short notes doc
