@@ -1,4 +1,155 @@
-## [2026-07-21 ~01:48-01:56 ET] OK -- conductor (AFTERHOURS): STATE-FILE-REVERSION-AUDIT-FOLLOWUP -- 13 more decision-gating state files untracked (crypto-twin's OWN breaker was one), commit `0de01a3`
+## [2026-07-21 ~07:48-08:20 ET] OK -- conductor (AFTERHOURS): PROSPECTOR-STATE-LOSS-REPROMOTION-FLOOD fixed + backlog deduped, commit `ff8ac55`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55 prior day). Self-check
+> GREEN, fill-funnel GREEN both today (idle, premarket) and yesterday 2026-07-20 (core:safe
+> 406->28->10->0->1->1->3->3, core:bold 386->18->1->0->0->0->0->0 -- traced the bold ENTER=1/
+> attempt=0 row: verdict ENTER_BEAR at 15:43 ET correctly downgraded to `SKIP_LATE_ENTRY`
+> (post-15:00 ceiling), not a placement gap). Self-audit gaps file clean (no batch since 07-18,
+> already closed last fire). `task_scorer.py --top` re-surfaced the still-correctly-J-gated
+> `MORNING-BULL-QUALITY-GATE-RECONSIDER`. Read every `queue.md` HIGH item in full: all either
+> `status:done`/`CLOSED`/`CLOSED_KILL`/`CLOSED_NO_SHIP`/`CLOSED_PARTIAL`-with-remainder-already-
+> re-filed-and-DEFER-INSUFFICIENT-DATA, or explicitly `NOT PICKABLE` (`DOJO-BUILD-HANDOFF` needs
+> live TradingView MCP tools this fire's bound tool set does not carry -- confirmed again by
+> checking the actual function list, not assumed). HIGH tier fully drained/blocked -> moved to
+> STAGE 1 priority-5 (author inboxes, oldest-first).
+
+> **What was found:** `_chef-inbox` carried 65 files, 60 of them `prospector-*` (`Gamma_Prospector`,
+> the daily exogenous-data-idea scout), oldest 2026-06-16 -- and `_chef-log.jsonl` had **0** hits
+> for "prospector": chef had never reviewed a single one. Traced why: root cause is the
+> 2026-06-27..07-13 git-stash-drop recovery (commit `41889a0`) reset `analysis/prospector/
+> state.json`, wiping its `promoted_dedupe_keys` idempotency tracker. Ledger rows from before
+> the reset stayed re-eligible for `promote_top1`'s FIFO "oldest not-yet-promoted" pick (the
+> ledger itself never lost them -- `append_ledger_rows` is dedupe_key-idempotent, so they were
+> never re-added, only re-SELECTED for promotion) -- so the same 17 underlying ideas got
+> re-promoted into fresh dated `_chef-inbox` files every few days for **24 days**, undetected:
+> 37 of 65 files (57%) were pure re-promotion noise.
+
+> **What shipped (commit `ff8ac55`):** `already_promoted_from_inbox()` in
+> `setup/scripts/prospector.py` derives "already promoted" straight from the `_chef-inbox`
+> filesystem (any date, `.md` or `.md.DONE`, matched by dedupe_key tail) as a SECOND check
+> independent of `state.json` -- a repeat state loss can no longer reproduce this bug class.
+> Repaired `state.json`'s `promoted_dedupe_keys` from 5 entries to the full recovered set of 28
+> (union of state + filesystem-derived). Deduped the existing backlog: the 37 redundant files
+> renamed to `.DONE` with a pointer note to the surviving first-surfaced copy, leaving **28
+> unique ideas + 1 non-prospector item** for chef to actually work through (down from 60).
+> **Verified this fire, not just claimed (OP-33):** 6 new guard tests in
+> `backtest/tests/test_prospector.py` (55/55 total) RED-proofed via `git stash` -- all 6 failed
+> with the exact expected pre-fix mismatch (quoted assertion diffs match the bug mechanism
+> precisely), `git stash pop` restored cleanly, re-verified 55/55 green. Broader sweep
+> (`test_prospector` + `test_firm_brief_prospector_section` + `test_free_model_audit_prospector`)
+> **81/81 PASS**. Curated safety gate (31+5-suite) PASS. Post-commit, confirmed the commit
+> ACTUALLY landed via `git ls-tree HEAD` on both a surviving unique file and a `.DONE`-renamed
+> duplicate (both present exactly as expected), not just a green pytest run.
+
+> **Zero trading-path files touched** (`prospector.py` is an observation-only R&D organ, no
+> params/heartbeat_core/filters/placement/exit code) -- ships as engine-benefit per OP-22/OP-26,
+> no J ratification needed. **Revert:** `git revert ff8ac55` (68 files, purely additive/renaming,
+> no data loss on revert). **Lesson filed:**
+> `_lesson-inbox/2026-07-21-producer-state-loss-silent-inbox-flood.md` -- new discovery angle on
+> C34 (a silently-reset producer idempotency state can flood a downstream author inbox for weeks
+> with zero crash/RED symptom; general antidote is deriving idempotency from the downstream
+> artifact, not solely an upstream counter that can be reset independently of it). Flags a
+> broader-sweep follow-up (future fire, not this one): check whether the kitchen seeder /
+> self-audit gap-finder / swarm consult routers have the same exposure.
+
+> **Not fixed this fire (flagged, out of scope):** `state.json`'s `fires_total: 4` counter is
+> itself stale (real fire count since 2026-06-16 is far higher) -- cosmetic/non-load-bearing,
+> left alone. 3 pre-existing dangling `git stash` entries (unrelated to this fire, predate this
+> session, correctly NOT dropped) -- noted for a future fire's cleanup judgment.
+
+> **Cost: ~$3.9** (STAGE 0/1 reads incl. funnel/self-check/engine-health/task_scorer, full
+> `queue.md` HIGH-tier review, chef-inbox root-cause investigation across prospector.py/
+> state.json/git log/ideas-ledger.jsonl, fix + state-repair script + backlog-dedup script, 6 new
+> guard tests + RED-proof round-trip, 81-test broader sweep, curated safety gate, commit +
+> post-commit verification, queue/STATUS/lesson-inbox updates).
+
+---
+
+## [2026-07-21 ~05:48-05:56 ET] OK -- conductor (AFTERHOURS): SELF-AUDIT-GAPS-TRIAGE-BATCH -- 8 un-actioned batches (07-02 through 07-18) closed, commit `fdbdfec`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `task_scorer.py --top`
+> re-surfaced the still-correctly-J-decision-gated `MORNING-BULL-QUALITY-GATE-RECONSIDER`. Checked
+> `analysis/self-audit/new-gaps-flagged.md` (STAGE 1 priority-3, Gamma's own proactive gap-finder
+> organ) and found **8 daily batches (2026-07-02 through 2026-07-18) with NO DONE resolution** --
+> the exact "compound, don't accumulate" (OP-22) violation the lesson-inbox drain fixed two fires
+> ago, this time in the self-flagged-gaps producer. This outranked the queue's remaining HIGH items
+> per STAGE 1 priority order.
+
+> **What shipped:** read all ~90 flagged lines across 8 batches, verified every falsifiable claim
+> against current code THIS fire (not memory/docs): `fill_funnel.py` exists and resolves the "Zero
+> Fill Execution Black Hole (G9)" gap; `risk_gate.py` line 347 already rejects missing/unreadable
+> `per_trade_risk_cap_pct` and fails CLOSED, resolving "position-sizing must be guarded against
+> corrupt config"; `Gamma_LicenseMonitor` runs DAILY (22:30 ET) not weekly, so the 07-13 "recency
+> gate too infrequent" claim was stale/false when it fired; `orchestrator.py`'s 42 `is not None`
+> occurrences are all standard override-fallback reads (grepped + read in context), not the
+> silent-gate-bypass the 07-11 "Time Bomb" gap alleged -- reviewed, not a bug; `accounts.json` +
+> `accounts_status.py`, `promote_keeper.py` + `Gamma_OosCheck` + the AutoApply actuator,
+> `v25_filter_gates.py`'s drift+presence ratchets, `contracts/models.py`'s `load_validated`, THE
+> DOJO (shipped 07-20), and V15_SAFE_TIERS ATM (shipped 06-18) each independently close one or
+> more of the remaining gaps. The rest (cross-asset regime detector, online hyperparameter tuner,
+> pre-market stress-test harness, etc.) are forward-looking ideas with no concrete current failure
+> cited -- left as ideas, not gaps, consistent with the noise-vs-signal bar the 06-29/07-01/07-19
+> fires already established for this same producer.
+
+> **No new gap survived triage with a concrete, unaddressed fix attached.** This fire is
+> confirmation the engine's self-generated gap list is being kept current by systems already
+> shipped in the weeks since these batches fired -- not new build work. Full per-batch citations:
+> `analysis/self-audit/new-gaps-flagged.md`.
+
+> **Zero trading-path files touched** (doc-only: one markdown file, 8 DONE-block insertions) --
+> ships as engine-benefit per OP-22/OP-26, no J ratification needed. Curated safety gate (31+5-suite)
+> PASS. **Revert:** `git revert fdbdfec` (1 file, purely additive markdown blocks).
+
+> **Cost: ~$2.4** (STAGE 0/1 reads, task_scorer + self-audit-gaps read, 8 code-verification greps
+> across risk_gate.py/orchestrator.py/fill_funnel.py/accounts.json/SCHEDULED-TASKS.md, 8 targeted
+> Edit insertions, commit + safety-gate verification).
+
+---
+
+## [2026-07-21 ~03:48-04:20 ET] OK -- conductor (AFTERHOURS): LESSON-INBOX-DRAIN-BATCH -- 30 backlogged items (oldest 19d stale) -> 27 new L204-L230 entries + OP-25 index fold, commit `3c9bd69`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `task_scorer.py --top`
+> re-surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still correctly J-decision-gated, skipped
+> again). Self-audit gaps file had no un-actioned tail. Checked `_lesson-inbox/` (STAGE 1
+> priority-5, author inboxes oldest-first) and found **30** un-actioned items (all 4 non-README
+> non-.DONE files were pending), oldest dated 2026-07-02 -- a 19-day-stale author-inbox backlog
+> is exactly the "compound, don't accumulate" (OP-22) violation this stage exists to catch, and
+> clearly outranked the queue's remaining HIGH items (all already closed or needing TradingView
+> MCP tools this fire's tool set doesn't bind).
+
+> **What shipped:** read all 30 inbox items in full, merged 3 write-ups of the same incident into
+> single lessons where warranted (hand-maintained-allowlist + hand-mirrored-set +
+> setup-dispatch-registry-validator-drift -> **L223**; git-stash-drop-wipes-shared-checkout +
+> state-file-reversion-git-ops-on-live-state -> **L214**), producing **27** new cite-or-defer
+> entries (**L204-L230**) in `markdown/doctrine/LESSONS-LEARNED.md`, each citing specific file
+> paths/line numbers/dates per the lesson-author spec (no hand-wavy doctrine shipped). Folded
+> into 8 existing OP-25 C-theme rows (C6 bar-convention, C7 silent-success x8 additions, C8
+> headless-spawn, C11 broker-truth, C14 dead-knobs x7 additions, C15 gate-cascades x3, C18
+> status-format, C20 gate-direction) and **4 new theme rows**: C32 (autonomous
+> proactivity/TradeAutopsy), C33 (shared-gateway-lockout, the CCR/Desktop-app incident), C34
+> (tree-wide git ops on live state), C35 (built+tested+RED-proofed != shipped until committed).
+> CLAUDE.md's "current through" pointer updated L203 -> L230. Deleted all 30 processed inbox
+> items per lesson-author convention (3 of the 30 were untracked-by-git, confirmed via
+> `git ls-files` before assuming a clean `rm`).
+
+> **Verified this fire, not just claimed (applying L228's own lesson):** `check-context-budget.ps1`
+> flagged RED after the table additions (9139/9000, 102%) -- trimmed the new C32-C35 rows + C14
+> parenthetical to 9017/9000 (100.2%, well inside the documented 10.5K hard ceiling; the last ~17
+> tokens were left alone per the standing "don't hand-shave doctrine to undershoot" guidance
+> rather than chased for a cosmetic green). Post-commit, verified the commit ACTUALLY landed
+> (not just staged-green, the exact L228/L214 failure mode) via `git ls-tree HEAD` on a deleted
+> inbox path (empty, confirmed gone) and `git show HEAD:...` on both edited files (L230 header
+> present, "current through L230" pointer present) -- not just a green pytest run. Curated safety
+> gate (31 + 5-suite) PASS.
+
+> **Zero trading-path files touched** (doctrine/index-only change: `LESSONS-LEARNED.md`,
+> `CLAUDE.md`, inbox deletions) -- ships as engine-benefit per OP-22/OP-26, no J ratification
+> needed. **Revert:** `git revert 3c9bd69` (29 files, 2 edits + 27 deletions).
+> **Cost: ~$5.4** (STAGE 0/1 reads, reading all 30 inbox items in full across 3 batches, composing
+> 27 cite-or-defer lesson entries + OP-25 fold, 2 rounds of context-budget trimming, verification
+> greps + commit + post-commit HEAD checks).
+
+---
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `task_scorer.py --top`
 > re-surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still correctly J-decision-gated). Read
@@ -542,115 +693,10 @@
 
 ---
 
-## [2026-07-20 18:19-18:58 ET] OK -- conductor (AFTERHOURS): DECISION-ROW-SPY-STALENESS -- finished + shipped a fix an earlier fire left uncommitted, REVOKE-eligible, guard-tested, committed
 
-> **STAGE 0/1:** engine-health GREEN, market closed since 15:55. self-check DEGRADED but
-> both flags non-critical (cash-settlement sanity cap, trendline-draw visibility gap only).
-> Top of `queue.md` Active backlog: `DECISION-ROW-SPY-STALENESS` (HIGH, filed ~18:30 ET same
-> evening, "investigate before tuning ANYTHING else") -- picked over `task_scorer.py --top`'s
-> `MORNING-BULL-QUALITY-GATE-RECONSIDER` per the queue item's own explicit priority framing
-> + priority-1 FUNCTION FIRST (sight-integrity feeding trigger/scoring is exactly that class).
+- [2026-07-21 04:00:02] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
 
-> **Investigating found the fix already ~90% built and fully wired in `heartbeat_core.py`
-> (`_fetch_live_spy_quote` + `_sight_staleness_check`, both call sites, `SKIP_STALE_SIGHT`
-> verdict) plus a new 23-test guard file and a quantification report -- all UNCOMMITTED,
-> from an earlier fire this session (16:08-16:17 ET file timestamps). This fire's job
-> became VERIFY + FINISH + SHIP, not re-derive: read the whole diff, confirmed the $1.00
-> threshold is evidence-derived (not hand-picked -- n=3860 rows, real fills topped out at
-> $0.63 outside the pathological cluster which hit $1.12-1.38), confirmed both fail-open
-> directions are correct (no live quote -> never blocks; NEVER-BLIND doctrine), ran
-> `test_sight_staleness_guard.py` (23/23), ran the two existing test files it modified
-> (53/53), then the full heartbeat_core-adjacent suite (136/136, zero regressions).
-> Committed `c593508` (pre-commit safety gate PASS). Closed the queue item with full
-> evidence; filed one small non-blocking follow-up (`GAP-REASON-SESSION-OPEN-FALLBACK`,
-> LOW -- a separate, confirmed log-only fallback-value seam at the 09:34 session open,
-> does not touch trigger/scoring).**
+[2026-07-21 04:00:02] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-21.md
 
-> **REVOKE window open.** Change: entry-time freshness cross-check against Alpaca
-> `/trades/latest` (not another bar-close) fires ONLY at the moment an ENTER is about to be
-> attempted; diverges >$1.00 from the trigger bar's close -> `SKIP_STALE_SIGHT`, no order
-> placed. PAPER accounts only (Safe + Bold core, and the fleet arms via the same core
-> ledger). Revert: `git revert c593508`. Files: `setup/scripts/heartbeat_core.py`,
-> `backtest/tests/test_sight_staleness_guard.py` (new), `backtest/tests/
-> test_gate_provenance_ordering_2026_07_10.py`, `backtest/tests/test_money_path_2026_07_01.py`,
-> `analysis/recommendations/decision-row-spy-staleness-2026-07-20.json` (new),
-> `backtest/tools/fetch_spy_1min_sight_staleness.py` (new). **Commit:** `c593508`.
-
----
-
-## [2026-07-20 17:42-17:58 ET] OK -- conductor (AFTERHOURS): self-audit gap batch (17:31:45, 9 items) investigated, 0 real gaps, queue hygiene fixed
-
-> **STAGE 0/1:** engine-health GREEN (13/13), market closed. Self-audit gaps
-> (`analysis/self-audit/new-gaps-flagged.md`) had a fresh un-actioned batch (2026-07-20T17:31:45,
-> 9 items) filed minutes before this fire started -- priority-3, outranks queue.md HIGH items,
-> so picked it over `task_scorer.py --top`'s `MORNING-BULL-QUALITY-GATE-RECONSIDER` (J-decision-
-> gated, correctly skipped again per its own recurring-flag note).
-
-> **Investigated all 9 gap claims individually (grep + live pytest, not vibes) -- found ZERO
-> real actionable gaps.** This is a new failure MODE for the self-audit organ, distinct from the
-> text-pattern scaffold noise already fixed 06-29/07-19: the swarm consult's perspectives
-> described code content that was already FALSE by the time the consult ran, because 4 sibling
-> fires landed structure-stop studies + fixes in rapid succession the SAME evening (17:00-18:05
-> ET) -- the swarm caught mid-flight state, not the settled end state. Concretely: (1) margin
-> mismatch = already tracked+J-pinged elsewhere; (2) resolve_zone_boundary "missing fallback" =
-> FALSE, the function already returns None safely on every edge case (verified reading
-> structure_stop_reference_level_ab.py:113-130) and is moot besides (REF-ZONE was NO-SHIP); (3)
-> exit-diversity overlay "not merged" = FALSE, already merged + guarded
-> (test_exit_patch_overlay.py, live-ran 13/13 PASS this fire); (4) margin/PDT multi-leg =
-> unfounded, fleet_executor.py already force-overrides pdt_gate_mode for all fleet arms; (5)
-> "incomplete" structure-stop edge-case coverage = FALSE, the exact 4 cases named
-> (no-trigger/max-distance/invalid-side/no-level-set) are already individually tested in
-> test_structure_stop_reference_level_ab.py; (6) missing audit trail for reference-level
-> decisions = moot, both candidates NO-SHIP tonight, nothing wires to production; (7) stale
-> queue state "blocking work" = partly real as a hygiene nit only (task_scorer.py already
-> correctly excludes both closed items from ranking via their `status:CLOSED_*` field -- live-
-> verified) -- FIXED (2 checkbox flips, queue.md); (8) over-fitting to single-trade artifacts =
-> not new, this IS C24/L140, already the explicit verdict driver in tonight's own structure-stop
-> DONE notes; (9) pure-function-wrapper latency "in the hot path" = FALSE, the named functions
-> live in an analysis-only `backtest/tools/` module never imported by `heartbeat_core.py` or any
-> live tick path.
-
-> **Root cause + standing mitigation (no new code guard -- documented in the DONE marker
-> instead):** there's no cheap way to auto-verify "was the LLM's prose claim about code content
-> true" generically; that verification IS the grep-then-decide step this fire just performed.
-> The existing OP-25/C7 discipline (read a self-audit gap, VERIFY against live code/tests before
-> actioning, only then fix-or-dismiss) already covers this class -- this fire is a clean
-> instance of that discipline working as designed, not a new gap in the gap-finder itself.
-
-> **Verified this fire:** `python -m pytest automation/state/fleet/test_exit_patch_overlay.py -q`
-> -> 13 passed. `grep` confirmed the 4 named edge-case tests exist verbatim in
-> `test_structure_stop_reference_level_ab.py`. `python setup/scripts/task_scorer.py --top` ->
-> `MORNING-BULL-QUALITY-GATE-RECONSIDER` (confirms closed items already correctly excluded from
-> ranking before my checkbox fix -- the fix is pure hygiene, not a ranking-correctness fix).
-
-> **Rail-4 N/A (no trading-path change):** `analysis/self-audit/new-gaps-flagged.md` (DONE
-> marker) + `automation/overnight/queue.md` (2 checkbox flips, `[ ]`->`[x]` on already-
-> `status:CLOSED_*` items) + this STATUS.md entry. Zero `params.json`/`heartbeat_core.py`/
-> `filters.py`/placement/exit code touched. **Revert:** `git revert <commit>` if committed (2
-> files, purely additive/hygiene, nothing downstream depends on it). **Not yet committed** --
-> this evening has a large uncommitted-state backlog across many sibling fires (structure-stop
-> studies, premarket-touch-credit study, LEVER-1 trend-alignment verdict, plus routine state-
-> journal drift); did not force a bulk commit outside this fire's own scope, per rail 3 (one
-> bounded task per fire, don't clobber sibling in-flight work in a shared file).
-
-> **Learn-loop:** no new lesson-inbox item -- this fire's method (verify each self-audit gap
-> claim against live grep/pytest before treating it as real, rather than actioning prose at face
-> value) is the SAME discipline the 06-29 and 07-19 self-audit fixes already established for the
-> text-pattern-noise failure mode; this fire demonstrates it generalizes to the stale-context
-> failure mode too, without needing new code.
-
-> **Cost: ~$2.4** (STAGE 0/1 reads incl. engine-health/STATUS/queue/self-audit-gaps triage, 9-gap
-> individual grep+pytest verification pass, 2 queue.md checkbox hygiene edits, 1 self-audit DONE
-> marker, this STATUS entry). **Files:** `analysis/self-audit/new-gaps-flagged.md`,
-> `automation/overnight/queue.md`.
-
-> **STAGE 1 priority-1 (fill-funnel, checked before the self-audit pick):**
-> `python setup/scripts/fill_funnel.py` -> **GREEN**, TOTAL 1162 ticks -> 39 sig -> 11 ENTER ->
-> 1 attempt -> 1 accept -> 3 fills -> 3 exits. core:safe fully closed (10 ENTER dedup'd to 1
-> attempt/accept, 3-lot fill+exit). core:bold 18 ENTER, 0 attempts (gated upstream, not a funnel
-> break -- `self_check.py` corroborates: only DEGRADED flags today are SETTLEMENT-BLOCKED[safe]
-> 5/5 same-day-entry cap reached, and a non-load-bearing TRENDLINE-DRAW visibility miss). No
-> funnel break outranked the self-audit-gaps pick.
-
----
-
+## Kitchen
+Kitchen: alive, queue 33 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free

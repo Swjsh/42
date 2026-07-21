@@ -1107,6 +1107,46 @@ These are exactly the OP-22 "371st untriaged candidate is debt" pattern. The `gy
 
 ## Completed
 
+### 2026-07-21 ~07:48-08:20 ET — conductor (AFTERHOURS): PROSPECTOR-STATE-LOSS-REPROMOTION-FLOOD fixed + backlog deduped, commit `ff8ac55`
+
+- [x] PROSPECTOR-STATE-LOSS-REPROMOTION-FLOOD (author-inbox hygiene + producer bug, self-found
+  via STAGE 1 priority-5 chef-inbox audit) :: `_chef-inbox` had 65 files, 60 of them
+  `prospector-*` data-source candidates dating back to 2026-06-16 (35 days stale) with 0 ever
+  reviewed by chef (0 hits in `_chef-log.jsonl`). Root cause: the 2026-06-27..07-13
+  git-stash-drop recovery (commit 41889a0) reset `analysis/prospector/state.json`, wiping
+  `promoted_dedupe_keys` -- ledger rows from before the reset stayed re-eligible for
+  `promote_top1`'s "oldest not-yet-promoted" pick, so the SAME 17 ideas got re-promoted into
+  fresh dated files every few days for weeks (37 of 65 files were pure re-promotion noise).
+  FIX: `already_promoted_from_inbox()` (`setup/scripts/prospector.py`) derives already-promoted
+  status from the `_chef-inbox` filesystem itself (any date, `.md`/`.md.DONE`, matched by
+  dedupe_key tail) as a second, state.json-independent check -- a repeat state loss cannot
+  reproduce this bug class again. Repaired `state.json`'s `promoted_dedupe_keys` (5 -> 28,
+  full recovered set). Deduped the existing backlog: 37 redundant files renamed to `.DONE`
+  with a pointer to the surviving first-surfaced copy, leaving 28 unique ideas + 1 non-prospector
+  item for chef to actually review going forward (down from 60). Guard: 6 new tests in
+  `backtest/tests/test_prospector.py` (55/55 total), RED-proofed via `git stash` (all 6 failed
+  with the exact expected pre-fix mismatch, restored clean, re-verified green). Broader sweep
+  (`test_prospector` + `test_firm_brief_prospector_section` + `test_free_model_audit_prospector`)
+  81/81 PASS. Curated safety gate (31+5-suite) PASS. Post-commit verified via `git ls-tree HEAD`
+  (both a surviving unique file and a `.DONE`-renamed duplicate confirmed present as expected).
+  **Zero trading-path files touched** (`prospector.py` is an observation-only R&D organ feeding
+  `_chef-inbox`, no params/heartbeat_core/filters/placement/exit code) -- ships as engine-benefit
+  per OP-22/OP-26, no J ratification needed. **Revert:** `git revert ff8ac55` (68 files, purely
+  additive/renaming). Lesson filed:
+  `_lesson-inbox/2026-07-21-producer-state-loss-silent-inbox-flood.md` (new discovery angle on
+  C34: a silently-reset producer idempotency state can flood a downstream author inbox for
+  weeks with zero crash/RED symptom -- the general antidote is deriving idempotency from the
+  downstream artifact itself, not solely an upstream counter). **Not fixed this fire (out of
+  scope, flagged only):** `state.json`'s `fires_total: 4` counter is itself stale/wrong (real
+  fire count since 2026-06-16 is far higher) -- cosmetic, non-load-bearing, left alone rather
+  than chased for a green number; a pre-existing set of 3 dangling `git stash` entries (unrelated
+  to this fire, from prior sessions, correctly NOT dropped) noted for a future fire's cleanup
+  judgment, not actioned here. Cost: ~$3.9 (STAGE 0/1 reads incl. task_scorer + queue.md HIGH
+  tier review confirming all HIGH items already closed/not-pickable, chef-inbox audit + root-cause
+  trace through prospector.py/state.json/git log, fix + backfill script + backlog dedup script,
+  6 new tests + RED-proof round-trip, broader 81-test sweep, curated safety gate, commit +
+  post-commit verification, this queue/STATUS/lesson-inbox update).
+
 > OP-22 consolidation 2026-07-08: 25 finished [x] items moved here from Active backlog (loop G15).
 
 ### 2026-07-18 ~12:00-12:20 ET — conductor-weekend: V53-GYM-RED-LEVEL-BREAK-FIRST-STRIKE fixed + structurally guarded (3rd occurrence of the F26-class registry-drift bug, now closed with a graduated guard instead of a 3rd hand-fix)
@@ -1466,6 +1506,14 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 
 ## HARVESTED-FROM-GYM (auto-queued by crypto/benchmarks/gym_harvester.py)
 
+- [ ] HARVEST-REGIMEEXT-20260721-100046 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=183 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-20T16:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260721-100047 (LOW) :: v09_regime TREND_UP dominant: 57/80 bars (71%) | last_regime=TREND_UP atr_14=89 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T05:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260721-100048 (LOW) :: v09_regime TREND_UP dominant: 59/81 bars (73%) | last_regime=TREND_UP atr_14=89 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T06:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260721-100049 (LOW) :: v09_regime TREND_UP dominant: 63/81 bars (78%) | last_regime=TREND_UP atr_14=86 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T07:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260721-100050 (LOW) :: v09_regime TREND_UP dominant: 65/81 bars (80%) | last_regime=TREND_UP atr_14=94 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T08:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260721-100051 (LOW) :: v09_regime TREND_UP dominant: 69/81 bars (85%) | last_regime=TREND_UP atr_14=93 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T09:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-RIBBONFLIP-20260721-100052 (MED) :: v08_ribbon flip MIXED -> BULL | spread=231.28>100 | recent dist BULL=100 BEAR=23 MIXED=77 :: key=EDGE_RIBBON_FLIP:2026-07-21T09:00:00+00:00:BULL :: depends:none :: status:queued
+- [ ] HARVEST-SWEEP-20260721-100053 (MED) :: v14_sweep liquidity-grab at level=65000 dir=down bar_idx=27 | wick_excess=0.0206% close_back=0.0963% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-07-21T09:57:03.647938+00:00:65000:down:27 :: depends:none :: status:queued
 - [ ] HARVEST-SWEEP-20260720-100042 (MED) :: v14_sweep liquidity-grab at level=64000 dir=up bar_idx=188 | wick_excess=0.0740% close_back=0.0659% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-07-20T09:48:59.631828+00:00:64000:up:188 :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260720-002020 (LOW) :: v09_regime TREND_UP dominant: 75/81 bars (93%) | last_regime=CHOP atr_14=40 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-19T00:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260720-002021 (LOW) :: v09_regime TREND_UP dominant: 67/81 bars (83%) | last_regime=CHOP atr_14=38 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-19T01:00:00+00:00:TREND_UP :: depends:none :: status:queued
@@ -1473,14 +1521,6 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 - [ ] HARVEST-REGIMEEXT-20260718-100042 (LOW) :: v09_regime TREND_DOWN dominant: 60/80 bars (75%) | last_regime=TREND_UP atr_14=73 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T10:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260718-100043 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=118 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T19:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260718-100044 (LOW) :: v09_regime TREND_UP dominant: 58/81 bars (72%) | last_regime=CHOP atr_14=99 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T20:00:00+00:00:TREND_UP :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260718-100045 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=CHOP atr_14=88 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T21:00:00+00:00:TREND_UP :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260717-100038 (LOW) :: v09_regime TREND_DOWN dominant: 57/81 bars (70%) | last_regime=TREND_DOWN atr_14=88 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-16T13:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260717-100039 (LOW) :: v09_regime TREND_DOWN dominant: 57/81 bars (70%) | last_regime=TREND_DOWN atr_14=110 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T02:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260717-100040 (LOW) :: v09_regime TREND_DOWN dominant: 59/81 bars (73%) | last_regime=TREND_DOWN atr_14=104 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T03:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260717-100041 (LOW) :: v09_regime TREND_DOWN dominant: 56/80 bars (70%) | last_regime=TREND_DOWN atr_14=85 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T04:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260717-100042 (LOW) :: v09_regime TREND_DOWN dominant: 59/80 bars (74%) | last_regime=TREND_DOWN atr_14=81 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T05:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260717-100043 (MED) :: BTC v03_indicators rsi_14=19.02 (oversold) at last_close=62851.45 bin=2026-07-17T05:50:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-17T05:50:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260717-100044 (MED) :: BTC v03_indicators rsi_14=17.73 (oversold) at last_close=62799.39 bin=2026-07-17T05:55:00+00:00 :: key=EDGE_RSI_EXTREME:2026-07-17T05:55:00+00:00:oversold :: depends:none :: status:queued
 
 ### T-GYM-20260619 HIGH gym-session RED for 2026-06-19
 
