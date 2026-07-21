@@ -9,6 +9,17 @@
 
 ## Active backlog
 
+### EOD-DOJO-EXHIBIT-MANIFEST (HIGH, after-hours build, filed 2026-07-21 ~14:45 ET, J-directed)
+
+- [ ] EOD-DOJO-EXHIBIT-MANIFEST (HIGH, Sonnet build) :: Build the nightly film-room generator
+  per markdown/specs/DOJO-EOD-PIPELINE.md: setup/scripts/dojo/exhibit_extractor.py (pure read
+  of the day's core-decisions.jsonl -> automation/state/dojo/session-briefs/YYYY-MM-DD.md with
+  <=6 ranked exhibits: blocked-triggers w/ forward-path cost, score>=9-no-trigger stretches,
+  extra-lane fills, J-called trades), wired after TradeAutopsy 16:15 so its counterfactuals are
+  citable, Task-Scheduler + reaper-exempt pattern, guard test on a fixture day. Hand-built
+  exemplar of the output: session-briefs/2026-07-21.md (Fable-authored -- match its shape).
+  depends:none :: status:pending
+
 ### DOJO-EXIT-HARNESS-BUGS (HIGH, after-hours fix, filed 2026-07-21 ~08:xx ET -- verdict VOID until fixed)
 
 - [x] DOJO-EXIT-HARNESS-BUGS (HIGH, fix + re-run) :: backtest/tools/dojo_exit_diversity_replay.py
