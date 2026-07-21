@@ -605,3 +605,63 @@ Kitchen: alive, queue 25 pending, last cook 0 min ago, today $0.00, model=scorec
 - PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
 - SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
 - TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+---
+
+## [2026-07-20 21:12-21:22 ET] OK -- conductor (AFTERHOURS): SELF-CHECK-BROKEN-2026-07-20 -- BROKEN -> DEGRADED, root-caused 2 real defects, committed `cbb93c6`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). But
+> `self-check-last.json` verdict was **BROKEN** (3 real problems) -- outranks routine
+> queue/inbox work per this fire's own priority order (self-audit/function-first). Picked it.
+
+> **Finding 1 (real, root-caused): `today-bias.json` had been reverted to stale 2026-07-14
+> content.** `git show 25e31e2^:automation/state/today-bias.json` proved the on-disk content
+> exactly matched the last git-committed blob -- meaning tonight's OWN `git stash` during the
+> `STATE-FILE-REVERSION` debugging (commit `7b26cca`, ~18:43 ET) clobbered the fresh 08:30 ET
+> premarket write with the stale committed snapshot. Unlike `circuit-breaker.json` (both
+> accounts self-healed via `daily_loss_guard.rearm()`'s own stale-stamp detector -- confirmed
+> both show correct 2026-07-20 `last_reset`/`session_id`), `today-bias.json` has no equivalent
+> auto-repair. **No live-trading impact**: the clobber happened after 15:55 ET close; today's
+> real 09:30-15:55 decisions used the genuine fresh bias (premarket log: "VERIFIED today-bias
+> dated 2026-07-20"). Repaired via the ALREADY-EXISTING, already-tested (23/23 green)
+> `python setup/scripts/premarket_deterministic_fallback.py` -- a $0/no-LLM/un-blockable tool
+> built exactly for this failure class -- rather than hand-fabricating content. Verified fresh
+> write: `date=2026-07-20`, honestly stamped `degraded:true, source:deterministic_fallback`.
+
+> **Finding 2 (real, root-caused): `news.json` freshness_stamp was ~122h stale despite
+> `Gamma_MacroCalendar` Task Scheduler showing `LastTaskResult:0, NumberOfMissedRuns:0`.**
+> Root-caused: `setup/scripts/run_exe_hidden.vbs` (the standard hidden-launcher for ~60
+> scheduled tasks per `SCHEDULED-TASKS.md`) uses `shell.Run cmd, 0, False` -- fire-and-forget
+> (`bWaitOnReturn=False`) -- so Task Scheduler's exit code only proves `wscript.exe` launched
+> the child process, never that the payload script actually completed. This makes
+> `LastTaskResult`/`NumberOfMissedRuns` a misleading health signal for every task on this
+> launcher. Repaired tonight by hand-running `macro_calendar.py` (fresh `freshness_stamp`
+> confirmed). **Root cause NOT fixed this fire** -- too broad (audit-breadth work across ~60
+> tasks) -- filed `WSCRIPT-FIRE-AND-FORGET-AUDIT` (queue.md, MED) + lesson-inbox item
+> `2026-07-20-wscript-fire-and-forget-hides-scheduled-task-failure.md` for `lesson-author`.
+
+> **Verified this fire (OP-33):** re-ran `python setup/scripts/self_check.py` after both
+> fixes -- verdict **BROKEN -> DEGRADED** (2 remaining findings are expected/non-actionable:
+> the honestly-labeled DEGRADED premarket note, and an informational settlement-cap message).
+> Regression sweep: `pytest backtest/tests/test_premarket_deterministic_fallback.py
+> backtest/tests/test_macro_calendar_producer.py
+> backtest/tests/test_self_check_macro_calendar_freshness.py` -> **59/59 passed**. Curated
+> safety gate (pre-commit) PASS.
+
+> **Rail-4 (PAPER/data-integrity-only, zero trading-path change).** Both repairs write to
+> ALREADY-gitignored state files via ALREADY-existing, ALREADY-tested tools -- zero
+> `params.json`/`heartbeat_core.py`/`filters.py`/placement/exit code touched, zero new
+> behavior, zero commit needed for the repairs themselves (not tracked by git). Committed
+> only the bookkeeping: `automation/overnight/queue.md` (closure + new audit item),
+> `automation/overnight/STATUS.md`, a `status_retention.py` archive roll that was already
+> sitting uncommitted on disk from earlier tonight (verified archived verbatim, nothing lost
+> -- confirmed the pruned STRUCTURE-STOP-ZONE-BAND entry is present in
+> `STATUS-archive-2026-07.md` before committing), and the new lesson-inbox file. **Commit:**
+> `cbb93c6`.
+
+> **Cost: ~$3.15** (STAGE 0/1 reads, self-check + git forensics across 2 findings, dry-run +
+> live fallback run, macro_calendar re-run + Task Scheduler + vbs-launcher root-cause dig,
+> circuit-breaker + fleet + futures cross-check of all 8 untracked files from tonight's prior
+> fire, 2 regression sweeps, lesson-inbox write, queue/STATUS writeup, 1 commit, outcome
+> recorder). **Next up:** `WSCRIPT-FIRE-AND-FORGET-AUDIT` (MED, needs its own fire) or the
+> next queue.md HIGH item.
