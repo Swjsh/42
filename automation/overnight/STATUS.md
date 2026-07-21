@@ -1,3 +1,57 @@
+## [2026-07-21 ~09:12-09:26 ET] OK -- conductor (AFTERHOURS): ACTUATOR-RESOLVE-DUP-ID-FAIL-LOUD shipped (L207 defense-in-depth), commit `f60da48`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market not yet open -- fired ~09:12-09:26 ET, before
+> the 09:30 gate; STAGE 0's market-hours check only blocks 09:30<=ET<15:55, so this window is
+> legitimately open work time, same as any other pre-open minute). `task_scorer.py --top` again
+> surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still correctly J-decision-gated). Self-audit
+> gaps file has no un-actioned tail (last batch 07-18, already closed). Read every open HIGH
+> queue.md item: all either blocked on organic data accrual (EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT
+> -- n too small, correctly DEFER-INSUFFICIENT-DATA, not re-chaseable this fire), too broad for
+> one bounded fire by the filer's own framing (WSCRIPT-FIRE-AND-FORGET-AUDIT), or big multi-fire
+> architecture builds (DOJO-BUILD-HANDOFF needs live TV MCP tools not in this fire's tool set;
+> ENGINE-VECTORIZATION/GATE-TIERS-IMPLEMENT). Investigated WSCRIPT-FIRE-AND-FORGET-AUDIT's two
+> sub-options first (redirect stdio per-task vs a generic freshness-ratchet loop) and found the
+> `_exec` blocking-vbs variants that already solve the launcher problem exist but are unwired
+> from ~14 tasks -- flagged as a genuine but Task-Scheduler-touching change, correctly left for a
+> dedicated fire rather than forced here. Dropped to `ACTUATOR-RESOLVE-DUP-ID-FAIL-LOUD` (LOW,
+> ready, engine-benefit) -- a well-scoped, already-diagnosed (L207) hardening with a named fix.
+
+> **What shipped:** `autonomy_actuator.py` resolved "the row for this proposal_id" via THREE
+> incompatible mechanisms (not the two L207 originally named) -- `sync_companion_approvals`'s
+> dict-comprehension (last-wins), `revert`'s `next()`-scan (first-wins), and `_set_status`'s
+> for-loop-with-break (a third, distinct first-wins shape, found while fixing this). Added ONE
+> shared `resolve_proposal(pid, rows)` + `DuplicateProposalError`, routed through all three call
+> sites. A terminal+active duplicate (e.g. a harmless `promote_keeper` re-emission) now resolves
+> to the ACTIONABLE row regardless of file order -- the old first-wins scans could have silently
+> mutated a terminal sibling instead of the live one; two genuinely ACTIVE rows sharing an id now
+> raise loud instead of silently picking one; `sync_companion_approvals` catches the exception
+> per-decision (logs `duplicate_id_blocked`, skips only that id) so one collision can't stall the
+> rest of a companion-approval sync batch.
+
+> **Verified this fire (OP-33):** new `backtest/tests/test_resolve_proposal.py` (10 tests)
+> RED-proofed via `git stash` on `autonomy_actuator.py` alone -- 9/10 failed against the pre-fix
+> module with the exact expected `AttributeError` (no `resolve_proposal`/`DuplicateProposalError`
+> yet), `git stash pop` restored cleanly, re-verified 44/44 green across the full actuator test
+> family (`test_resolve_proposal` + `test_autonomy_actuator` + `test_proposal_id_uniqueness` +
+> `test_autonomy_auto_approve` + `test_actuator_recency_gate`). Curated safety gate (31+5,
+> pre-commit hook) PASS. `git ls-tree HEAD` confirms all 3 files (actuator, new test,
+> LESSONS-LEARNED.md) landed on HEAD, not just staged -- not just claimed from a green pytest run.
+> L207 updated with a SHIPPED note (was "owed defense-in-depth", now done).
+
+> **Rail-4 CLEAR** (as the item itself flagged): zero `params.json`/`heartbeat_core.py`/
+> `filters.py`/placement/exit code touched -- `autonomy_actuator.py` only ever edits those files
+> THROUGH its own gated `apply_ops` + safety-gate + snapshot path, never directly; this fix is to
+> the approval-bus plumbing around that path. **Revert:** `git revert f60da48` (3 files, additive
+> + one doctrine-doc edit, no data loss).
+
+> **Cost: ~$4.9** (STAGE 0/1 reads incl. task_scorer + full HIGH-tier queue review + WSCRIPT
+> sub-investigation that was correctly NOT acted on, engine_health.py/self_check.py/vbs-launcher
+> reads, autonomy_actuator.py code read + root-cause trace of the third resolution mechanism, fix
+> + 10 new guard tests, RED-proof round-trip, 5-file regression sweep, curated safety gate, commit
+> + `git ls-tree HEAD` verification, L207/queue/STATUS updates).
+
+---
+
 ## [2026-07-21 ~07:48-08:20 ET] OK -- conductor (AFTERHOURS): PROSPECTOR-STATE-LOSS-REPROMOTION-FLOOD fixed + backlog deduped, commit `ff8ac55`
 
 > **Autonomy metric (`conductor_outcome.py metric`, 20-fire window):** `trend: "regressing"`
@@ -631,79 +685,3 @@
 
 ---
 
-## [2026-07-20 19:12-19:25 ET] OK -- conductor (AFTERHOURS): SHADOWEVAL-WEEKLY-TRIGGER-VS-DAILY-DOCS -- investigated a LOW doc-mismatch item, found + fixed a real 4-week silent C7 failure instead, committed
-
-> **STAGE 0/1:** engine-health GREEN, market closed since 15:55. Fill-funnel priority-1 check
-> GREEN (406/386 ticks safe/bold, 3 fills, both closed -- no funnel break). All HIGH queue
-> items already CLOSED tonight by prior fires; self-audit gaps fully actioned through 07-18.
-> `task_scorer.py --top` re-flagged J-decision-gated `MORNING-BULL-QUALITY-GATE-RECONSIDER`
-> (correctly re-skipped, confirmed its residual question is still J-gated, not auto-shippable).
-> Picked the remaining LOW queue item `SHADOWEVAL-WEEKLY-TRIGGER-VS-DAILY-DOCS` (closes a loop
-> over creating an artifact; `TV-MCP-GETCHARTAPI-FIX-VERIFY` was next but this session has no
-> TradingView MCP tools wired -- left pending for an interactive/Pilot session with TV MCP).
-
-> **The original premise was a non-issue** (live-checked `Get-ScheduledTask` trigger:
-> `WeeksInterval=1` + `DaysOfWeek=62` = all 5 weekdays = functionally "daily," no mismatch) --
-> **but investigating it surfaced a real, much bigger bug the doc-mismatch hunt wasn't even
-> aimed at:** `Gamma_ShadowEval` has fired every weekday since 2026-06-29 (real per-day logs
-> exist) with Task Scheduler reporting `LastTaskResult=0`, yet **no scorecard has been produced
-> since 2026-06-24** -- 4 weeks of `analysis/shadow-model/*-scorecard.md` silence, masked by the
-> wscript fire-and-forget exit-code masking (same class as the `Gamma_EodFlattenCore` founding
-> incident). **Root cause:** the live engine migrated from two per-account ledgers
-> (`decisions.jsonl`/`aggressive/decisions.jsonl`, frozen 2026-06-25) to one consolidated
-> both-accounts ledger (`core-decisions.jsonl`, materially different schema) around
-> 2026-06-25 -- `shadow_model_eval.py`'s `SAFE_LEDGER`/`BOLD_LEDGER` never followed the
-> migration, so every day since printed "No ticks found -- skipping" and exited 1.
-
-> **Fixed:** `_normalize_core_row()` + a `CORE_LEDGER` fallback in `load_ticks_for_date()` --
-> maps the new schema's field names to the legacy shape (`ribbon`->`ribbon_stack`,
-> `htf_15m`->`htf_15m_stack`, `setup`->`setup_name`, `triggers[0]`->`trigger`, `verdict`->
-> `action`, `exec.entry_px/tp/stop`->`entry_px/tp1_px/stop_px`), consulted only when the legacy
-> ledger has nothing for the date (pre-2026-06-25 grading stays byte-identical). Disclosed scope
-> limit: `core-decisions.jsonl` logs zero `EXIT_*` verdicts (owned by `exit_manager.py`), so
-> `HOLD_RUNNER`/`EXIT_*` DT grading stays unavailable -- `ENTER_BULL`/`ENTER_BEAR`/`HOLD`/
-> `SKIP_*` (the actual DT-agreement decision-bearing population) is fully restored.
-
-> **Verified this fire:** dry-run tick counts (406 safe / 386 bold for 2026-07-20) exact-match
-> `fill_funnel.py`'s independent count for the same day. New guard
-> `backtest/tests/test_shadow_model_eval_core_ledger.py` (11/11), RED-proofed via `git stash`
-> on `shadow_model_eval.py` alone (all 11 failed with `AttributeError: no attribute
-> 'CORE_LEDGER'`, `stash pop` restored + re-verified 11/11 green). Curated safety gate
-> (31+5-suite) PASS at commit time. Kicked off the REAL production eval
-> (`shadow_model_eval.py --date 2026-07-20 --account both`, the exact nightly command) live in
-> the background this fire -- confirmed streaming real per-tick Nemotron agreement grades
-> (e.g. `t 0 09:30 HOLD -> HOLD_DEV OK (10111ms)`), not just a dry-run. ~792 ticks x 2.5s
-> inter-call sleep + real LLM latency means this legitimately runs ~2h; it will keep running
-> past this fire as an independent process ($0, free tier) -- check
-> `analysis/shadow-model/2026-07-20-scorecard.md` directly for the finished artifact rather
-> than re-running it.
-
-> **Rail-4 N/A (not a trading-path file):** `shadow_model_eval.py` is read-only/propose-only
-> by its own docstring ("NEVER imports or calls any Alpaca tool or order function... Read-only
-> on production state") -- ships as engine-benefit per OP-22/OP-26, no J ratification needed.
-> Zero `params.json`/`heartbeat_core.py`/`filters.py`/placement/exit code touched. **Revert:**
-> `git revert 3adada9` (2 files: `setup/scripts/shadow_model_eval.py`,
-> `backtest/tests/test_shadow_model_eval_core_ledger.py`). **Commit:** `3adada9`.
-
-> **Learn-loop:** same root-cause class as the queue's own recurring C7/C14 theme (a producer
-> migrates its ledger shape, a consumer silently keeps reading the old file/schema) --
-> the guard test's live-ledger regression pin (`test_live_core_ledger_produces_ticks_for_a_real_recent_date`)
-> IS the graduation: it will RED the moment `core-decisions.jsonl`'s schema changes again
-> without a matching update here, so no separate lesson-inbox item was filed on top of it.
-
-> **Cost: ~$4.4** (STAGE 0/1 reads incl. engine-health/STATUS/queue/self-audit/fill-funnel,
-> task-scorer + queue triage across ~10 candidate items, schema investigation (3 python probes
-> of core-decisions.jsonl), the fix itself (~115-line diff), 1 new 11-test guard file + RED-proof
-> round-trip, 1 curated safety gate run, 1 real dry-run + 1 real background production fire,
-> queue.md + STATUS.md writeups, 1 commit). **Files:** `setup/scripts/shadow_model_eval.py`,
-> `backtest/tests/test_shadow_model_eval_core_ledger.py`, `automation/overnight/queue.md`.
-
----
-
-
-- [2026-07-21 04:00:02] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
-
-[2026-07-21 04:00:02] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-21.md
-
-## Kitchen
-Kitchen: alive, queue 33 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
