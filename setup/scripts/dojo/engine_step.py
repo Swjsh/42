@@ -175,8 +175,25 @@ def _find_cache_csv(prefix: str, replay_day: dt.date) -> Path:
 
 
 def _tz_aware(series: "pd.Series") -> "pd.Series":
+    """Coerce a timestamp column to tz-aware ET, robust to the three formats the cache files
+    actually carry (verified 2026-07-21): naive ET wall-clock strings, uniform-offset strings,
+    and MIXED-offset strings (a DST-spanning cache file, e.g. vix_5m_2025-01-01_2026-07-08.csv
+    holds both -0500 winter and -0400 summer rows). pd.to_datetime returns OBJECT dtype on mixed
+    offsets, which makes the .dt accessor raise -- the crash that killed the 5-day exit-diversity
+    run. Offset-carrying strings are interpreted by their own offset (utc=True normalises them);
+    naive strings are localised as ET. No DST look-ahead introduced (project_dst_frame_artifact)."""
+    # Route on whether the raw strings carry a tz offset, so we never depend on pandas' (now
+    # deprecated) mixed-offset->object-dtype behaviour: offset-carrying strings (incl. a
+    # DST-spanning file mixing -0500/-0400) normalise cleanly via utc=True; fully-naive strings
+    # are ET wall-clock and get localised. (Non-string/pre-parsed input falls through the same.)
+    as_str = series.astype("string").str.strip()
+    has_offset = bool(as_str.str.contains(r"(?:[+-]\d{2}:?\d{2}|Z)$", regex=True, na=False).any())
+    if has_offset:
+        return pd.to_datetime(series, utc=True).dt.tz_convert(ET)
     parsed = pd.to_datetime(series)
-    return parsed.dt.tz_localize(ET) if parsed.dt.tz is None else parsed.dt.tz_convert(ET)
+    if parsed.dt.tz is None:  # naive strings are ET wall-clock
+        return parsed.dt.tz_localize(ET)
+    return parsed.dt.tz_convert(ET)  # uniform tz-aware
 
 
 def load_day_bars(replay_day: str) -> pd.DataFrame:
