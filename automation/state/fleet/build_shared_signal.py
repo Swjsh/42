@@ -359,23 +359,11 @@ def _row_trigger_args(row: dict) -> tuple[list, object, bool]:
     return [], trigger, fired
 
 
-def _bold_passed_blocks(today: str, now: datetime) -> dict:
-    """Scoring-peak passed blocks derived off the BOLD perception (the 'bold' core row).
-
-    Returns {'bull': {...}, 'bear': {...}} mirroring build()'s side-block shape. Used
-    only by the flagged dual-perception build(); resolves the perception-source confound
-    (safe arms judged on the SAFE row, bold arms on the BOLD row). Under USE_CORE_LEDGER
-    the bold row is the account=="bold" core-decisions row; on the revert path it falls
-    back to the dead BOLD_DECISIONS LLM ledger."""
-    if USE_CORE_LEDGER:
-        row = _latest_today_decision(today, account="bold")
-    else:
-        global DECISIONS
-        _safe, DECISIONS = DECISIONS, BOLD_DECISIONS
-        try:
-            row = _latest_today_decision(today)
-        finally:
-            DECISIONS = _safe
+def _bold_passed_blocks_from_row(row: "dict | None") -> dict:
+    """Pure row->blocks mapping extracted from _bold_passed_blocks (2026-07-20 DOJO-FLEET-
+    HISTORICAL-SIGNAL split): identical logic, but takes an ALREADY-FETCHED row instead of
+    reading disk. This is what lets a replay caller (DOJO's engine_step.py) supply a
+    historical bold-account row without touching _latest_today_decision at all."""
     if row is None:
         return {"bull": {"passed": False, "score": 0, "triggers_fired": [], "confluence": False},
                 "bear": {"passed": False, "score": 0, "triggers_fired": [], "confluence": False}}
@@ -401,6 +389,27 @@ def _bold_passed_blocks(today: str, now: datetime) -> dict:
                  "confluence": bool(bear_p and has_conf),
                  "trigger_level_exact": (_tl_exact if bear_p else None)},
     }
+
+
+def _bold_passed_blocks(today: str, now: datetime) -> dict:
+    """Scoring-peak passed blocks derived off the BOLD perception (the 'bold' core row).
+
+    Returns {'bull': {...}, 'bear': {...}} mirroring build()'s side-block shape. Used
+    only by the flagged dual-perception build(); resolves the perception-source confound
+    (safe arms judged on the SAFE row, bold arms on the BOLD row). Under USE_CORE_LEDGER
+    the bold row is the account=="bold" core-decisions row; on the revert path it falls
+    back to the dead BOLD_DECISIONS LLM ledger. Thin disk-read wrapper over
+    _bold_passed_blocks_from_row (the pure mapping) -- unchanged behavior, just factored."""
+    if USE_CORE_LEDGER:
+        row = _latest_today_decision(today, account="bold")
+    else:
+        global DECISIONS
+        _safe, DECISIONS = DECISIONS, BOLD_DECISIONS
+        try:
+            row = _latest_today_decision(today)
+        finally:
+            DECISIONS = _safe
+    return _bold_passed_blocks_from_row(row)
 
 
 def build(now: datetime | None = None, scoring_peak: bool | None = None,
@@ -696,6 +705,13 @@ def _probe_passed_blocks(today: str, now: datetime) -> dict:
             DECISIONS = _safe_decisions
     else:
         row = _latest_today_decision(today)
+    return _probe_passed_blocks_from_row(row)
+
+
+def _probe_passed_blocks_from_row(row: "dict | None") -> dict:
+    """Pure row->blocks mapping extracted from _probe_passed_blocks (2026-07-20 DOJO-FLEET-
+    HISTORICAL-SIGNAL split): identical logic, takes an ALREADY-FETCHED row. Lets a replay
+    caller supply a historical probe-ledger row without touching disk."""
     if row is None:
         return {"bull": dict(_PROBE_EMPTY), "bear": dict(_PROBE_EMPTY)}
     action = row.get("action")
@@ -718,6 +734,115 @@ def _probe_passed_blocks(today: str, now: datetime) -> dict:
                  "blocked_verdict": (action if bear_p else None),
                  "trigger_level_exact": (_tl_exact if bear_p else None)},
     }
+
+
+def build_from_rows(row: "dict | None", now: datetime, *, bold_row: "dict | None" = None,
+                     probe_row: "dict | None" = None, scoring_peak: bool | None = None,
+                     emit_strategies: bool | None = None, run_vwap: bool | None = None,
+                     probe_cohort: bool | None = None, write: bool = False) -> dict:
+    """Replay-aware sibling of build() (2026-07-20 DOJO-FLEET-HISTORICAL-SIGNAL). Produces the
+    IDENTICAL shared-signal shape build() writes, but fed an ALREADY-MAPPED row (the exact shape
+    _map_core_row/a DojoDecision->row mapping produces) instead of reading today's on-disk
+    core-decisions.jsonl. This is what lets the DOJO replay room (setup/scripts/dojo/
+    engine_step.py) drive the 3 fleet exit-diversity arms (safe-3/risky-1/risky-3) off a
+    HISTORICAL bar's engine decision, using the SAME signal-construction logic as the live
+    producer (bear/bull block shape, _bold_passed_blocks_from_row, _probe_passed_blocks_from_row,
+    _strategies_block) -- so there is exactly one implementation of "what a core row means as a
+    fleet signal", no separate replay re-derivation to drift out of sync.
+
+    BLAST-RADIUS DISCIPLINE (this module is a shared PRODUCTION module the live fleet_rest
+    executor consumes every tick): this function is PURELY ADDITIVE -- build(), _latest_today_
+    decision, _decision_is_blind, and every existing disk-reading code path are UNTOUCHED. write
+    defaults to False and this function NEVER calls OUT.write_text unless write=True is passed
+    explicitly, so a replay session can never clobber the live automation/state/fleet/
+    shared-signal.json (guarded: test_build_from_rows_replay.py::test_build_from_rows_never_
+    writes_by_default).
+
+    `row is None` (no engine decision this bar, e.g. before 2 RTH bars exist) returns the same
+    'no-decision' HOLD stub shape build() returns for that case, so a fleet-arm consumer sees a
+    structurally identical signal regardless of live/replay source."""
+    today = now.strftime("%Y-%m-%d")
+    use_peak = SCORING_PEAK_LIVE if scoring_peak is None else bool(scoring_peak)
+    do_strats = EMIT_STRATEGIES if emit_strategies is None else bool(emit_strategies)
+    do_vwap = RUN_VWAP if run_vwap is None else bool(run_vwap)
+    do_probe = PROBE_COHORT_LIVE if probe_cohort is None else bool(probe_cohort)
+
+    if row is None:
+        sig = {
+            "_doc": "Derived from build_from_rows() (replay/DOJO path) -- no engine decision "
+                    "for this bar.",
+            "tick_id": None, "date": today, "time_et": now.strftime("%H:%M"),
+            "spot": None, "production_action": "HOLD",
+            "bear": {"passed": False, "score": 0}, "bull": {"passed": False, "score": 0},
+            "written_at": now.strftime("%Y-%m-%dT%H:%M:%S%z"),
+            "source": "derived-no-decision-replay",
+        }
+        if use_peak:
+            sig["safe"] = {"bull": {"passed": False, "score": 0}, "bear": {"passed": False, "score": 0}}
+            sig["bold"] = {"bull": {"passed": False, "score": 0}, "bear": {"passed": False, "score": 0}}
+            sig["scoring_peak_live"] = True
+        if do_strats:
+            sig["strategies"] = []
+        if do_probe:
+            sig["probe"] = {"bull": dict(_PROBE_EMPTY), "bear": dict(_PROBE_EMPTY)}
+        if write:
+            OUT.write_text(json.dumps(sig, indent=2), encoding="utf-8")
+        return sig
+
+    action = row.get("action")
+    triggers, _trig0, _fired = _row_trigger_args(row)
+    has_conf = _has_confluence(triggers)
+    setup = row.get("setup_name")
+
+    bear_pass = action == "ENTER_BEAR"
+    bull_pass = action == "ENTER_BULL"
+    _tl_exact = row.get("trigger_level_exact")
+    bear = {"passed": bear_pass, "score": row.get("bear_score", 0),
+            "triggers_fired": triggers if bear_pass else [],
+            "setup_name": setup if bear_pass else None,
+            "confluence": bool(bear_pass and has_conf),
+            "trigger_level_exact": (_tl_exact if bear_pass else None)}
+    bull = {"passed": bull_pass, "score": row.get("bull_score", 0),
+            "triggers_fired": triggers if bull_pass else [],
+            "setup_name": setup if bull_pass else None,
+            "confluence": bool(bull_pass and has_conf),
+            "trigger_level_exact": (_tl_exact if bull_pass else None)}
+
+    sig = {
+        "_doc": "Derived from build_from_rows() (replay/DOJO path) -- same shape as the live "
+                "producer's build(), fed a historical row instead of a disk read.",
+        "tick_id": row.get("tick_id"),
+        "date": row.get("date") or today,
+        "time_et": row.get("time_et") or now.strftime("%H:%M"),
+        "spot": row.get("spy"),
+        "vix": row.get("vix"),
+        "vix_dir": row.get("vix_dir"),
+        "ribbon_stack": row.get("ribbon_stack"),
+        "ribbon_spread_cents": row.get("ribbon_spread_cents"),
+        "htf_15m_stack": row.get("htf_15m_stack"),
+        "production_action": action,
+        "bear": bear,
+        "bull": bull,
+        "written_at": now.strftime("%Y-%m-%dT%H:%M:%S%z"),
+        "source": "derived-from-row-replay",
+    }
+    if use_peak:
+        sig["safe"] = {"bull": dict(bull), "bear": dict(bear)}
+        sig["bold"] = _bold_passed_blocks_from_row(bold_row)
+        sig["scoring_peak_live"] = True
+        sig["source"] = "derived-from-row-replay-dualperception"
+    if do_strats:
+        s_bear, s_bull = bear, bull
+        if use_peak:
+            bold = sig.get("bold") or {}
+            if (bold.get("bear") or {}).get("passed") or (bold.get("bull") or {}).get("passed"):
+                s_bear, s_bull = bold.get("bear") or bear, bold.get("bull") or bull
+        sig["strategies"] = _strategies_block(s_bear, s_bull, row.get("spy"), now, do_vwap)
+    if do_probe:
+        sig["probe"] = _probe_passed_blocks_from_row(probe_row)
+    if write:
+        OUT.write_text(json.dumps(sig, indent=2), encoding="utf-8")
+    return sig
 
 
 def build_shadow(now: datetime | None = None) -> dict:

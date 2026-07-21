@@ -183,15 +183,44 @@ def test_dojo_decision_is_json_serializable_via_asdict(day_bars):
         json.dumps(row)  # must not raise
 
 
-def test_fleet_arms_are_honest_placeholders_never_fabricated(day_bars):
+def test_fleet_arms_are_wired_never_fabricated(day_bars):
+    """DOJO-FLEET-HISTORICAL-SIGNAL (2026-07-20): the 3 fleet arms now run the REAL
+    fleet_executor.plan_all/select_plan pass against a historical shared signal built from
+    THIS bar's own safe/bold DojoDecisions (build_shared_signal.build_from_rows) -- no longer
+    a permanent FLEET_VIEW_PENDING placeholder. Every arm resolves to a well-formed verdict
+    (HOLD/ENTER_BEAR/ENTER_BULL, or FLEET_VIEW_PENDING only as the fail-safe fallback if the
+    arm is missing/inactive in accounts.json or its pass raises) -- never a null/garbage verdict."""
     bar_et = dt.datetime(2026, 7, 17, 13, 0, tzinfo=ET)
     decisions = {d.arm: d for d in engine_step.step(REPLAY_DAY, bar_et, day_bars)}
     for arm in ("fleet_safe_3", "fleet_risky_1", "fleet_risky_3"):
         d = decisions[arm]
-        assert d.verdict == "FLEET_VIEW_PENDING"
-        assert d.bear_score is None and d.bull_score is None
-        assert d.side is None and d.setup is None and d.trigger_level is None
-        assert d.would_place is False
+        assert d.verdict in ("HOLD", "ENTER_BEAR", "ENTER_BULL", "FLEET_VIEW_PENDING")
+        if d.verdict in ("ENTER_BEAR", "ENTER_BULL"):
+            assert d.would_place is True
+            assert d.side in ("P", "C")
+        else:
+            assert d.would_place is False
+
+
+def test_fleet_arms_reflect_their_own_gate_strictness(day_bars):
+    """The 3 fleet arms carry DIFFERENT gate_override strictness (safe-3/risky-1 =
+    min_triggers=2+confluence-or-sequence, risky-3 = min_triggers=1) -- proves the wiring
+    threads each arm's OWN accounts.json config through plan_all, not one shared default.
+    Sampled at a handful of representative RTH times (not a full 5-min stride -- each bar
+    already costs 2 engine_cli subprocess spawns via the real safe/bold decide path, and
+    test_real_enter_bear_call_is_reproduced_2026_07_17 already exercises the full-day sweep
+    elsewhere in this file) including the known 13:56 ENTER_BEAR ground-truth bar."""
+    any_fleet_verdict_seen = False
+    for h, m in ((9, 35), (10, 30), (13, 56), (14, 30), (15, 30)):
+        bar_et = dt.datetime(2026, 7, 17, h, m, tzinfo=ET)
+        decisions = {d.arm: d for d in engine_step.step(REPLAY_DAY, bar_et, day_bars)}
+        for arm in ("fleet_safe_3", "fleet_risky_1", "fleet_risky_3"):
+            if decisions[arm].verdict in ("ENTER_BEAR", "ENTER_BULL"):
+                any_fleet_verdict_seen = True
+    assert any_fleet_verdict_seen, (
+        "expected at least one fleet-arm ENTER across the sampled 2026-07-17 RTH bars -- "
+        "if this ever goes False, the wiring likely regressed to a permanently-inert HOLD"
+    )
 
 
 def test_step_rejects_naive_bar_et(day_bars):

@@ -43,14 +43,23 @@ HISTORICAL VIX/LEVELS — DISCLOSED APPROXIMATION (read before trusting a score 
     saw. This is disclosed, not silently assumed — see test_dojo_engine_step.py for the
     measured match rate on 2026-07-17.
 
-FLEET ARMS (safe-3, risky-1, risky-3): NOT wired this pass. fleet_executor.plan_all() needs a
-"shared signal" dict that automation/state/fleet/build_shared_signal.py only knows how to build
-by reading TODAY's automation/state/core-decisions.jsonl + automation/state/sight-beacon.json
-off disk (both live-only, not date-parameterized) — wiring it to a historical bar would mean
-forking/rewriting a shared production module, out of scope for a dojo-only Phase-1 pass and a
-blast-radius risk for zero validated benefit yet. Per the task's own honesty-over-completeness
-clause: each fleet arm gets exactly one DojoDecision with verdict="FLEET_VIEW_PENDING" and every
-score/trigger field left None (never fabricated).
+FLEET ARMS (safe-3, risky-1, risky-3): WIRED (2026-07-20, DOJO-FLEET-HISTORICAL-SIGNAL). The
+core safe/bold DojoDecisions this module already computed are mapped into the row shape
+_map_core_row produces, then fed to build_shared_signal.build_from_rows() (the new replay-aware
+sibling of the live build() — SAME signal-construction logic, just parameterized on a supplied
+row instead of a disk read; see that function's docstring). The resulting historical shared
+signal is run through fleet_executor.plan_all()/select_plan() per active FLEET_ARM_IDS arm
+(accounts.json), exactly the pre-finalize gating+sizing pass run_dry() uses live. write=False is
+threaded through so this NEVER touches automation/state/fleet/shared-signal.json.
+DISCLOSED SCOPE NARROWING vs the live fleet: run_vwap=False (an offline/deterministic replay —
+no live network VWAP fetch — so only ribbon_ride strategy entries appear, vwap_continuation is
+omitted this pass); the probe arm's day-based counter state (risky-3's cohort-bypass daily cap)
+is NOT modeled (probe_cohort left at its module default via build_from_rows, but plan_all's own
+probe pass needs a live probe-count.json this replay does not have — so probe entries, if any,
+render but are NOT counted against a daily cap; this is a training-room view, not a placement
+system, so this is fine). Any exception during an arm's plan_all/select_plan pass falls back to
+FLEET_VIEW_PENDING for THAT arm only (never crashes the whole step() — mirrors _strategies_
+block's own fail-safe philosophy for the VWAP network pass).
 
 NO BROKER: this module imports nothing from any alpaca/broker/live-order path (guard-tested in
 backtest/tests/test_dojo_fence.py alongside the rest of the dojo package).
@@ -81,6 +90,8 @@ import pandas as pd  # noqa: E402
 
 import heartbeat_core as hc  # noqa: E402 -- the REAL live decision path (bare import, setup/scripts on path)
 from lib.orchestrator import _align_vix_to_spy  # noqa: E402 -- reused verbatim, not reimplemented
+import build_shared_signal as bss  # noqa: E402 -- replay-aware signal builder (build_from_rows)
+import fleet_executor as fx  # noqa: E402 -- the REAL fleet gating+sizing pass (plan_all/select_plan)
 
 ET = ZoneInfo("America/New_York")
 RTH_OPEN = dtime(9, 30)
@@ -88,9 +99,20 @@ RTH_CLOSE = dtime(16, 0)
 
 DATA_DIR = _ROOT / "backtest" / "data"
 KEY_LEVELS_PATH = _ROOT / "automation" / "state" / "key-levels.json"
+ACCOUNTS_PATH = _ROOT / "automation" / "state" / "fleet" / "accounts.json"
 
 FLEET_ARM_IDS = ("safe-3", "risky-1", "risky-3")
 CORE_ACCOUNTS = ("safe", "bold")
+
+
+def _load_fleet_arms() -> dict:
+    """{'safe-3': {...}, ...} from accounts.json, re-read each call (accounts.json is small and
+    hand-edited rarely; avoids a stale-module-level cache across a long dojo session)."""
+    try:
+        cfg = json.loads(ACCOUNTS_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return {str(a.get("id")): a for a in cfg.get("arms", []) if isinstance(a, dict)}
 
 
 # --------------------------------------------------------------------------- DojoDecision
@@ -361,8 +383,9 @@ def _decide_for_account(account: str, sliced: pd.DataFrame, bar_et: datetime,
 
 
 def _fleet_view_pending(arm_id: str, bar_et: datetime) -> DojoDecision:
-    """Honest placeholder — see module docstring FLEET ARMS. No score/trigger field is ever
-    fabricated; every one is None."""
+    """Honest placeholder — used when an arm is missing/inactive in accounts.json, or its
+    plan_all/select_plan pass raises (fail-safe, never crashes the whole step()). No score/
+    trigger field is ever fabricated; every one is None."""
     return DojoDecision(
         arm=f"fleet_{arm_id.replace('-', '_')}", side=None, verdict="FLEET_VIEW_PENDING",
         bear_score=None, bull_score=None, ribbon=None, htf_15m=None, vix=None, triggers=(),
@@ -371,11 +394,82 @@ def _fleet_view_pending(arm_id: str, bar_et: datetime) -> DojoDecision:
     )
 
 
+# --------------------------------------------------------------------------- fleet arm decide
+def _row_from_core_decision(d: DojoDecision) -> dict:
+    """Map a core DojoDecision (safe/bold) into the row shape build_shared_signal's
+    build_from_rows() expects — the exact shape _map_core_row produces for a live
+    core-decisions.jsonl row. Pure/local; touches no ledger, no disk."""
+    ts = d.cursor_et
+    return {
+        "action": d.verdict,
+        "spy": d.spy,
+        "vix": d.vix,
+        "vix_dir": None,
+        "ribbon_stack": d.ribbon,
+        "ribbon_spread_cents": None,
+        "htf_15m_stack": d.htf_15m,
+        "bear_score": d.bear_score or 0,
+        "bull_score": d.bull_score or 0,
+        "triggers_fired": list(d.triggers),
+        "setup_name": d.setup,
+        "side": d.side,
+        "time_et": ts[11:16] if len(ts) >= 16 else None,
+        "tick_id": None,
+        "date": ts[:10] if len(ts) >= 10 else None,
+        "_core": True,
+        "trigger_level_exact": d.trigger_level,
+    }
+
+
+def _decide_for_fleet_arm(arm_id: str, arm: "dict | None", signal: dict,
+                          bar_et: datetime) -> DojoDecision:
+    """Run the REAL fleet gating+sizing pass (fleet_executor.plan_all + select_plan, the exact
+    pre-finalize functions run_dry() calls live) against a historical shared signal. Falls back
+    to FLEET_VIEW_PENDING (never fabricates, never raises) when the arm is missing/inactive in
+    accounts.json, or the pass itself errors."""
+    if arm is None or arm.get("status") != "active":
+        return _fleet_view_pending(arm_id, bar_et)
+    try:
+        equity = float(arm.get("starting_equity") or 0.0)
+        params = fx._params_for(arm)
+        plan = fx.select_plan(fx.plan_all(arm, signal, equity, params))
+    except Exception:
+        return _fleet_view_pending(arm_id, bar_et)
+    if plan is None or plan.action != "ENTER":
+        return DojoDecision(
+            arm=f"fleet_{arm_id.replace('-', '_')}", side=None, verdict="HOLD",
+            bear_score=(signal.get("bear") or {}).get("score"),
+            bull_score=(signal.get("bull") or {}).get("score"),
+            ribbon=signal.get("ribbon_stack"), htf_15m=signal.get("htf_15m_stack"),
+            vix=signal.get("vix"), triggers=(), setup=None, trigger_level=None,
+            would_place=False, spy=signal.get("spot"), cursor_et=bar_et.isoformat(),
+            context_bundle=None,
+        )
+    triggers: tuple[str, ...] = ()
+    for entry in (signal.get("strategies") or []):
+        if entry.get("name") == plan.strategy and entry.get("side") == plan.side:
+            triggers = tuple(entry.get("triggers") or [])
+            break
+    return DojoDecision(
+        arm=f"fleet_{arm_id.replace('-', '_')}",
+        side=plan.side,
+        verdict="ENTER_BULL" if plan.side == "C" else "ENTER_BEAR",
+        bear_score=(signal.get("bear") or {}).get("score"),
+        bull_score=(signal.get("bull") or {}).get("score"),
+        ribbon=signal.get("ribbon_stack"), htf_15m=signal.get("htf_15m_stack"),
+        vix=signal.get("vix"), triggers=triggers, setup=plan.setup_name,
+        trigger_level=plan.trigger_level, would_place=True, spy=signal.get("spot"),
+        cursor_et=bar_et.isoformat(), context_bundle=None,
+    )
+
+
 # --------------------------------------------------------------------------- the contract entry point
 def step(replay_day: str, bar_et: datetime, bars_df: pd.DataFrame) -> "list[DojoDecision]":
     """Frozen contract (DOJO-ARCHITECTURE-DECISION.md): slice bars_df to <= bar_et, produce the
-    engine's decision for BOTH core accounts (safe, bold) via the REAL live decide path, plus
-    one honest placeholder per fleet arm. One DojoDecision per arm, 5 total."""
+    engine's decision for BOTH core accounts (safe, bold) via the REAL live decide path, then the
+    3 fleet exit-diversity arms via the REAL fleet gating+sizing pass fed a historical shared
+    signal built from those same 2 core decisions (build_shared_signal.build_from_rows). One
+    DojoDecision per arm, 5 total."""
     if bar_et.tzinfo is None:
         raise ValueError("bar_et must be timezone-aware (ET)")
     bar_et = bar_et.astimezone(ET)
@@ -396,10 +490,26 @@ def step(replay_day: str, bar_et: datetime, bars_df: pd.DataFrame) -> "list[Dojo
         levels_active, levels_carry = _load_levels_as_of(day, trig_close)
         vix_intraday_hist = _historical_vix_intraday(vix_df, trig_ts)
 
-    decisions = [
+    core_decisions = [
         _decide_for_account(account, sliced, bar_et, vix_now, vix_prior, vix5, vix20,
                             levels_active, levels_carry, vix_intraday_hist)
         for account in CORE_ACCOUNTS
     ]
-    decisions.extend(_fleet_view_pending(arm_id, bar_et) for arm_id in FLEET_ARM_IDS)
+    decisions = list(core_decisions)
+
+    try:
+        safe_row = _row_from_core_decision(core_decisions[0])
+        bold_row = _row_from_core_decision(core_decisions[1])
+        signal = bss.build_from_rows(safe_row, bar_et, bold_row=bold_row, run_vwap=False,
+                                     write=False)
+        arms = _load_fleet_arms()
+    except Exception:
+        signal, arms = None, {}
+    if signal is None:
+        decisions.extend(_fleet_view_pending(arm_id, bar_et) for arm_id in FLEET_ARM_IDS)
+    else:
+        decisions.extend(
+            _decide_for_fleet_arm(arm_id, arms.get(arm_id), signal, bar_et)
+            for arm_id in FLEET_ARM_IDS
+        )
     return decisions
