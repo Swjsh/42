@@ -11,14 +11,69 @@
 
 ### EOD-DOJO-EXHIBIT-MANIFEST (HIGH, after-hours build, filed 2026-07-21 ~14:45 ET, J-directed)
 
-- [ ] EOD-DOJO-EXHIBIT-MANIFEST (HIGH, Sonnet build) :: Build the nightly film-room generator
+- [x] EOD-DOJO-EXHIBIT-MANIFEST (HIGH, Sonnet build) :: Build the nightly film-room generator
   per markdown/specs/DOJO-EOD-PIPELINE.md: setup/scripts/dojo/exhibit_extractor.py (pure read
   of the day's core-decisions.jsonl -> automation/state/dojo/session-briefs/YYYY-MM-DD.md with
   <=6 ranked exhibits: blocked-triggers w/ forward-path cost, score>=9-no-trigger stretches,
   extra-lane fills, J-called trades), wired after TradeAutopsy 16:15 so its counterfactuals are
   citable, Task-Scheduler + reaper-exempt pattern, guard test on a fixture day. Hand-built
   exemplar of the output: session-briefs/2026-07-21.md (Fable-authored -- match its shape).
-  depends:none :: status:pending
+  depends:none :: status:CLOSED
+
+  **CLOSED 2026-07-21 ~18:20-19:05 ET (conductor, AFTERHOURS).** Built exactly per spec:
+  `setup/scripts/dojo/exhibit_extractor.py` -- pure functions `is_blocked_trigger` /
+  `is_score_high_no_trigger` / `group_runs` (contiguous-key + max-15min-gap campaign grouper,
+  the "blocked 20 ticks in a row" shape from J's own exemplar) / per-class exhibit builders /
+  `rank_and_cap` (blocked-trigger > score-high > extra-lane-fill > J-called, capped at 6) /
+  `render_manifest_md`. J-CALLED class uses `journal/trades.csv`'s own clean `j_override=="Y"`
+  marker (no heuristic needed -- confirmed it exists and is populated). Extra-lane class fires
+  on `extra_exec[].exec.status=="PLACED"` (confirmed against real rows: PLACED/RISK_DENY_*/
+  NOT_FLAT/SKIP_LATE_ENTRY are the real status vocabulary). Ported the trade_autopsy.py
+  HEADLESS STDIO REDIRECT (OP-27 L41 layer 3) proactively since this launches via the identical
+  wscript->run_exe_hidden.vbs->pythonw chain that caused that scar on a sibling script.
+  **Guard-test-first (rail-4):** `backtest/tests/test_exhibit_extractor.py`, 29/29 -- predicates,
+  run-grouping (merge/split-on-key/split-on-gap), per-class exhibit builders, rank/cap, render,
+  a synthetic 4-class end-to-end day, a real-ledger smoke test (never fabricated), and 3
+  `main()` guard tests for the hand-authored-brief protection (skip / write / idempotent
+  re-write). Caught + fixed a real def-time-parameter-binding bug DURING RED-proofing (not
+  after): `build_exhibits`/`main` were relying on `j_called_exhibits`/`load_core_decisions`'s
+  own default parameters, which Python binds ONCE at def time -- a test's
+  `monkeypatch.setattr(ee, "TRADES_CSV", ...)` silently kept hitting the original path (the
+  EXACT footgun trade_autopsy.py's own `write_twin_hypotheses` docstring already names). Fixed
+  by forwarding `trades_csv=TRADES_CSV` / `path=CORE_DECISIONS` explicitly at every call site so
+  the current module global is re-read live. **RED-proofed via file-move (not git stash --
+  this is a NEW untracked file, and this fire discovered an UNRELATED pre-existing stash@{0..2}
+  in this shared checkout from earlier sessions that a tree-wide `git stash` would risk
+  clobbering; moved the file aside instead):** `mv exhibit_extractor.py .movedaway` ->
+  exact expected `ImportError: cannot import name 'exhibit_extractor'` on all 29 -> moved back
+  -> 29/29 green. Broader sweep `pytest -k "dojo or exhibit"` -> **158/158 PASS**, zero
+  regressions. Curated safety gate (31+5) PASS. **Live-verified, not just unit-tested:** (a) ran
+  the real CLI against the real 2026-07-17 ledger -- 390 decision rows -> 6 exhibits, sane
+  content (1 blocked-trigger + 5 score-high-no-trigger runs, real SPY forward-path numbers);
+  (b) ran it against 2026-07-21 (today, the date carrying J's own hand-authored brief) --
+  correctly printed `SKIP -- already exists and is NOT auto-generated`, confirmed byte-identical
+  hand-authored content survived; (c) registered `Gamma_EodDojoManifest` for real
+  (`setup/install-eod-dojo-manifest.ps1`, 14:20 MT = 16:20 ET weekdays, 5 min after
+  `Gamma_TradeAutopsy`, `backtest\.venv` pythonw = already reaper-exempt) and fired it via
+  `Start-ScheduledTask` -- `LastTaskResult=0`, hand-authored file still intact after the real
+  scheduled-task launch chain (not just the raw `python` invocation). Documented in
+  `automation/state/SCHEDULED-TASKS.md` (88 registered, new table row after `Gamma_TradeAutopsy`).
+  **Also found + shipped in-fire (unrelated to this task, discovered while reading STATUS/
+  CLAUDE.md):** a prior fire's context-leanness CLAUDE.md trim (OP-33 relocation +
+  Account-context/Tech-stack dedupe) was built, self-documented in its own Update-log entry, but
+  never git-committed -- an L221/OP-33 "built != shipped" violation sitting in the tree.
+  Verified the claimed effect still held (`check-context-budget.ps1` -> YELLOW 8457/9000, 94%)
+  and committed it as its own atomic docs-only commit before starting this build (`6a2e641`).
+  **Zero trading-path files touched this whole fire** -- exhibit_extractor.py is observation-
+  only (no broker/params/heartbeat_core/placement/exit code), the CLAUDE.md commit is doc-only.
+  Ships as engine-benefit per OP-22/OP-26, no J ratification needed. **Revert:** the manifest
+  build is 4 files across 2 commits (`git log --oneline -- setup/scripts/dojo/exhibit_extractor.py
+  backtest/tests/test_exhibit_extractor.py setup/install-eod-dojo-manifest.ps1
+  automation/state/SCHEDULED-TASKS.md`); `Unregister-ScheduledTask -TaskName
+  Gamma_EodDojoManifest` un-arms the schedule independently of any code revert. **Not done this
+  fire:** the spec's "runbook gains a film room mode" line already exists per
+  `markdown/specs/DOJO-SESSION-RUNBOOK.md` (built in an earlier session, verified present, not
+  re-touched -- out of this task's scope).
 
 ### DOJO-EXIT-HARNESS-BUGS (HIGH, after-hours fix, filed 2026-07-21 ~08:xx ET -- verdict VOID until fixed)
 
