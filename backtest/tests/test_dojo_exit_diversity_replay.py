@@ -173,6 +173,56 @@ def test_exit_profiles_pulled_from_live_accounts_json():
     assert profiles["ZONE-RIDE"].get("trail_pct") != profiles["RIBBON"].get("trail_pct")
 
 
+# =====================================================================================
+# DOJO-EXIT-HARNESS-BUGS bug (1) -- entry-scan scope (2026-07-21 fix)
+# =====================================================================================
+def test_extract_entries_scoped_to_target_day_only(monkeypatch):
+    """load_day_bars() returns the FULL multi-month warmup frame BY DESIGN (its own
+    docstring), but the entry-scan CURSOR loop must only walk the TARGET day's own RTH
+    bars -- not every RTH bar in the whole returned frame. Pre-fix, a day=2026-06-30 call
+    would also invoke engine_step.step() with a cursor dated 2026-06-29 (or earlier), the
+    exact "day=2026-06-30 episode carries cursor_et=2026-05-21" defect from the VOID report
+    (analysis/dojo/EXIT-DIVERSITY-2026-07-20.md, DOJO-EXIT-HARNESS-BUGS bug 1)."""
+    import pandas as pd
+    from datetime import datetime as _dt
+    from zoneinfo import ZoneInfo
+
+    et = ZoneInfo("America/New_York")
+
+    def _bar(d, hh, mm):
+        return {"timestamp": pd.Timestamp(_dt(2026, 6, d, hh, mm), tz=et),
+                "open": 100.0, "high": 100.0, "low": 100.0, "close": 100.0, "volume": 1000}
+
+    # two days in the SAME returned frame: 06-29 (prior day, warmup-only) + 06-30 (target)
+    rows = [_bar(29, 9, 30), _bar(29, 9, 35), _bar(29, 9, 40),
+            _bar(30, 9, 30), _bar(30, 9, 35), _bar(30, 9, 40)]
+    synthetic_bars = pd.DataFrame(rows)
+    monkeypatch.setattr(ddr.engine_step, "load_day_bars", lambda day: synthetic_bars)
+
+    seen_cursor_dates: set[str] = set()
+
+    def _fake_step(day, cursor, bars_df):
+        seen_cursor_dates.add(cursor.date().isoformat())
+        dec = ddr.engine_step.DojoDecision(
+            arm="safe", side=None, verdict="HOLD", bear_score=None, bull_score=None,
+            ribbon="MIXED", htf_15m=None, vix=None, triggers=(), setup=None,
+            trigger_level=None, would_place=False, spy=100.0,
+            cursor_et=cursor.isoformat(), context_bundle=None,
+        )
+        return [dec, dec]  # CORE_ACCOUNTS = ("safe", "bold") -- 2 entries expected
+
+    monkeypatch.setattr(ddr.engine_step, "step", _fake_step)
+
+    ribbon_df, entries, err = ddr.extract_entries_and_ribbon("2026-06-30")
+
+    assert err is None
+    assert seen_cursor_dates == {"2026-06-30"}, (
+        f"entry-scan cursor loop leaked cross-day bars: saw {seen_cursor_dates}"
+    )
+    assert ribbon_df is not None
+    assert set(ribbon_df["timestamp_et"].dt.date.astype(str)) == {"2026-06-30"}
+
+
 def test_curriculum_includes_every_requested_day():
     curriculum = ddr.build_curriculum()
     dates = {c["date"] for c in curriculum}

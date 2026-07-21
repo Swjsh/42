@@ -1,23 +1,34 @@
-# ⛔ VOID RESULT — DO NOT TRUST THIS VERDICT (annotated 2026-07-21 by Opus)
+# CORRECTED RE-RUN 2026-07-21 (conductor, AFTERHOURS) -- DOJO-EXIT-HARNESS-BUGS bug 1 fixed
 
-> This run is INVALID. Two load-bearing harness bugs, confirmed from the episode data:
-> (1) ENTRY-SCAN SCOPE BUG: entries were scanned across the WHOLE multi-month cache frame, not
->     the target day -- e.g. a `day=2026-06-30` episode has `cursor_et=2026-05-21`. This inflated
->     4 days to 810 episodes / 270 'entries' (most BS-synthetic, since OPRA doesn't cover the
->     wrong old dates). load_day_bars returns full history; the entry extraction must filter to
->     replay_day's RTH bars only.
-> (2) EXIT PROFILES DO NOT DIFFERENTIATE: CONTROL and RIBBON P&L are identical to the penny
->     ($-17261.35) across all 115 episodes, and a CONTROL episode shows exit_reason=ribbon_flip_back.
->     The profile->exit_patch mapping collapses; the harness is not testing different exits.
-> The 'CONTROL_HOLDS' verdict below is comparing garbage to garbage. The exit-diversity question
-> is UNANSWERED. Fix tracked in queue.md DOJO-EXIT-HARNESS-BUGS. The DST-cache fix (c8c0a0d) and
-> the INTERACTIVE dojo (24bc365, all 5 arms) are unaffected and real.
+> The prior VOID banner (bug 1: entry-scan scope leaking cross-day cursors into
+> `extract_entries_and_ribbon`) is fixed in `backtest/tools/dojo_exit_diversity_replay.py`
+> -- the entry/ribbon cursor loop now walks ONLY the target day's own RTH bars (`day_rth`),
+> while the full multi-month `bars` frame is still passed to `engine_step.step()` unchanged
+> so ribbon/level EMA warmup is unaffected. RED-proofed via `git stash` on the source file
+> alone: new guard `test_extract_entries_scoped_to_target_day_only` failed pre-fix with the
+> EXACT leaked-date signature (`saw {'2026-06-30', '2026-06-29'}`), passed post-fix; full
+> suite `backtest/tests/test_dojo_exit_diversity_replay.py` 11/11 green. Re-running the SAME
+> reduced day-set now gives a sane, non-contaminated n=5 real-fills episodes per profile
+> (was the bogus n=115 across 810 cross-day episodes before). **Bug 2 re-assessed, NOT a
+> separate defect:** CONTROL==RIBBON identical-to-the-penny is BY DESIGN for this study's
+> ribbon_ride-only entry population -- `ribbon_ride`'s REGISTRY exit shape already equals
+> RIBBON's own patch (`stop_mode=structure`, `trail_pct=0.15`), a mathematical identity this
+> module's own docstring (lines 24-34) and the frozen pre-reg's `exit_profiles_disclosure`
+> already called out explicitly BEFORE this run, and `test_exit_profiles_pulled_from_live_
+> accounts_json` already pins it. ZONE-RIDE (the only profile that CAN differ) does differ
+> below ($369.91 vs $400.91) -- the profile->exit_patch mapping was reaching
+> `walk_exit_manager` correctly all along; it was bug 1's cross-day contamination that made
+> the earlier 115-episode run look suspicious. Verdict below is CONTROL_HOLDS on a much
+> smaller, now-honest n=5 -- read it as "first clean signal", not a final answer; more
+> curriculum days (07-08/07-09/etc, currently BS-synthetic/no OPRA per the per-day table)
+> would sharpen it. Full detail: `automation/overnight/queue.md` DOJO-EXIT-HARNESS-BUGS
+> (closed this fire) + `automation/overnight/STATUS.md` [2026-07-21 ~16:12 ET].
 
 ---
 
 # DOJO Exit-Diversity Replay -- 2026-07-20
 
-Generated: 2026-07-21T10:30:27.494655-04:00
+Generated: 2026-07-21T16:22:53.920428-04:00
 Pre-registration: `analysis/dojo/exit-diversity-prereg-2026-07-20.json` (sha256-16 `1f946a883866465f`)
 
 ## Scope
@@ -28,42 +39,42 @@ Ran a REDUCED day-set: `['2026-06-30', '2026-07-02', '2026-07-17', '2026-07-20']
 
 | Profile | n | Total P&L | Expectancy/tr | WR |
 |---|---|---|---|---|
-| CONTROL | 115 | $-17261.35 | $-150.1 | 0.0348 |
-| RIBBON | 115 | $-17261.35 | $-150.1 | 0.0348 |
-| ZONE-RIDE | 115 | $-17292.35 | $-150.37 | 0.0348 |
+| CONTROL | 5 | $400.91 | $80.18 | 0.4 |
+| RIBBON | 5 | $400.91 | $80.18 | 0.4 |
+| ZONE-RIDE | 5 | $369.91 | $73.98 | 0.4 |
 
 ## Headline (including BS-synthetic episodes -- disclosed, not gate-eligible)
 
 | Profile | n | Total P&L | Expectancy/tr | n synthetic | n no-fill/error |
 |---|---|---|---|---|---|
-| CONTROL | 270 | $-19842.04 | $-73.49 | 155 | 0 |
-| RIBBON | 270 | $-19842.04 | $-73.49 | 155 | 0 |
-| ZONE-RIDE | 270 | $-19881.2 | $-73.63 | 155 | 0 |
+| CONTROL | 10 | $443.84 | $44.38 | 5 | 0 |
+| RIBBON | 10 | $443.84 | $44.38 | 5 | 0 |
+| ZONE-RIDE | 10 | $404.68 | $40.47 | 5 | 0 |
 
 ## Win-gate verdicts (challengers vs CONTROL, real fills only)
 
 ### RIBBON -- **CONTROL_HOLDS**
 
-- Beats CONTROL aggregate: False ($-17261.35 vs $-17261.35)
-- Day-majority: False (0/3 days)
-- Survives top-trade drop: False (total-minus-top $-17683.3 vs control $-17261.35)
-- Holds on held-out subset: False ($-15531.16 vs control $-15531.16)
+- Beats CONTROL aggregate: False ($400.91 vs $400.91)
+- Day-majority: False (0/2 days)
+- Survives top-trade drop: False (total-minus-top $-21.04 vs control $400.91)
+- Holds on held-out subset: False ($324.95 vs control $324.95)
 
 ### ZONE-RIDE -- **CONTROL_HOLDS**
 
-- Beats CONTROL aggregate: False ($-17292.35 vs $-17261.35)
-- Day-majority: False (0/3 days)
-- Survives top-trade drop: False (total-minus-top $-17696.8 vs control $-17261.35)
-- Holds on held-out subset: False ($-15544.66 vs control $-15531.16)
+- Beats CONTROL aggregate: False ($369.91 vs $400.91)
+- Day-majority: False (0/2 days)
+- Survives top-trade drop: False (total-minus-top $-34.54 vs control $400.91)
+- Holds on held-out subset: False ($311.45 vs control $324.95)
 
 ## Per-day entry counts
 
 | Day | Entries | OPRA available | Error |
 |---|---|---|---|
 | 2026-06-29 | 0 | True |  |
-| 2026-06-30 | 56 | True |  |
+| 2026-06-30 | 0 | True |  |
 | 2026-07-01 | 0 | True |  |
-| 2026-07-02 | 58 | True |  |
+| 2026-07-02 | 3 | True |  |
 | 2026-07-06 | 0 | True |  |
 | 2026-07-07 | 0 | True |  |
 | 2026-07-08 | 0 | True |  |
@@ -71,8 +82,8 @@ Ran a REDUCED day-set: `['2026-06-30', '2026-07-02', '2026-07-17', '2026-07-20']
 | 2026-07-10 | 0 | True |  |
 | 2026-07-13 | 0 | True |  |
 | 2026-07-14 | 0 | True |  |
-| 2026-07-17 | 75 | True |  |
-| 2026-07-20 | 81 | False |  |
+| 2026-07-17 | 2 | True |  |
+| 2026-07-20 | 5 | False |  |
 
 ## Reconciliation vs structure-stop-reference-level-2026-07-20.json
 

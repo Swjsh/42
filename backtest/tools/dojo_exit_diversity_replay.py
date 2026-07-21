@@ -277,18 +277,28 @@ def extract_entries_and_ribbon(day: str) -> "tuple[Optional[pd.DataFrame], list[
     day's native 5-min cadence (tz-naive ET) -- fed straight into
     sim_executor._ribbon_aligned_to for every position opened that day, unedited reuse."""
     try:
-        bars = engine_step.load_day_bars(day)
+        bars = engine_step.load_day_bars(day)  # full multi-month frame -- NEEDED for warmup below
     except FileNotFoundError as exc:
         return None, [], f"no bar cache for {day}: {exc}"
     rth = engine_step._rth_filter(bars)  # reused utility, not reimplemented
-    if len(rth) < 2:
+
+    # BUG FIX 2026-07-21 (DOJO-EXIT-HARNESS-BUGS, entry-scan scope): load_day_bars()
+    # deliberately returns the FULL multi-month cache frame (warmup for the ribbon/level
+    # EMA seed, per that function's own docstring) -- but the OLD code iterated `rth` (every
+    # RTH bar in that whole frame) as if it were `day`'s own bars, so a day=2026-06-30 episode
+    # could carry a cursor from 2026-05-21. Restrict the CURSOR/entry-scan loop to `day`'s own
+    # RTH bars only; `bars` (untrimmed) is still passed to engine_step.step() below so warmup
+    # is unaffected -- only the entry-discovery window narrows to the target day.
+    day_date = date.fromisoformat(day)
+    day_rth = rth[rth["timestamp"].dt.date == day_date].reset_index(drop=True)
+    if len(day_rth) < 2:
         return None, [], f"fewer than 2 RTH bars cached for {day}"
 
     entries: list[EntryEvent] = []
     ribbon_rows: list[dict] = []
     active_side: "str | None" = None
-    for i in range(1, len(rth)):
-        cursor = rth.iloc[i]["timestamp"].to_pydatetime()  # already tz-aware ET
+    for i in range(1, len(day_rth)):
+        cursor = day_rth.iloc[i]["timestamp"].to_pydatetime()  # already tz-aware ET
         decisions = engine_step.step(day, cursor, bars)
         safe_dec = decisions[0]  # CORE_ACCOUNTS = ("safe", "bold") -- index 0 is "safe"
         ribbon_rows.append({

@@ -11,7 +11,7 @@
 
 ### DOJO-EXIT-HARNESS-BUGS (HIGH, after-hours fix, filed 2026-07-21 ~08:xx ET -- verdict VOID until fixed)
 
-- [ ] DOJO-EXIT-HARNESS-BUGS (HIGH, fix + re-run) :: backtest/tools/dojo_exit_diversity_replay.py
+- [x] DOJO-EXIT-HARNESS-BUGS (HIGH, fix + re-run) :: backtest/tools/dojo_exit_diversity_replay.py
   produced a VOID "CONTROL_HOLDS" (analysis/dojo/EXIT-DIVERSITY-2026-07-20.md, banner-marked
   void). TWO confirmed bugs: (1) ENTRY-SCAN SCOPE -- entries scanned across the whole multi-month
   cache frame not the target day (a day=2026-06-30 episode carries cursor_et=2026-05-21); 4 days
@@ -26,7 +26,37 @@
   superset for 07-08 (36k bars) -> per-bar extraction hangs; fix = prefer smallest covering file
   or cap warmup history. NOT a market-hours job (heavy compute; L54 heartbeat-starvation). Only
   the autonomous exit-fine-tune is blocked; the interactive dojo (24bc365) + DST fix (c8c0a0d)
-  are real and unaffected. depends:none :: status:pending
+  are real and unaffected. depends:none
+
+  **CLOSED 2026-07-21 ~16:40 ET (conductor, AFTERHOURS).** Bug (1) FIXED:
+  `extract_entries_and_ribbon` now restricts the entry/ribbon cursor loop to the target
+  day's own RTH bars (`day_rth = rth[rth["timestamp"].dt.date == day_date]`); the full
+  multi-month `bars` frame is still passed to `engine_step.step()` unchanged so ribbon/level
+  EMA warmup is unaffected -- only the entry-discovery window narrowed. New guard
+  `test_extract_entries_scoped_to_target_day_only` RED-proofed via `git stash` on the source
+  file alone (failed pre-fix with the exact leaked-date signature
+  `saw {'2026-06-30', '2026-06-29'}`, passed post-fix, stash popped clean). Full suite
+  `test_dojo_exit_diversity_replay.py` 11/11 green; broader dojo sweep (+ engine_step,
+  sim_executor, fence, no_broker) 44/44 green. Curated safety gate (31+5) PASS.
+  Bug (2) RE-ASSESSED, not a separate defect: CONTROL==RIBBON identical-to-the-penny is BY
+  DESIGN for this study's ribbon_ride-only entry population (registry exit shape already
+  equals RIBBON's own patch) -- the module's own docstring and the frozen pre-reg already
+  disclosed this mathematical identity BEFORE the void run, and
+  `test_exit_profiles_pulled_from_live_accounts_json` already pins it; bug 1's cross-day
+  contamination (n=115 bogus episodes) is what made it look like a collapsed mapping.
+  Re-ran the SAME reduced day-set post-fix: clean, non-contaminated n=5 real-fills episodes
+  per profile (was bogus n=115/810 before); ZONE-RIDE (the only profile that CAN differ)
+  DOES differ from CONTROL ($369.91 vs $400.91) -- the exit_patch mapping was reaching
+  `walk_exit_manager` correctly all along. Verdict CONTROL_HOLDS on this small n -- an
+  honest first clean signal, not a final answer (more curriculum days would sharpen it,
+  tracked separately). Corrected report + provenance banner:
+  `analysis/dojo/EXIT-DIVERSITY-2026-07-20.md`. **DOJO-CACHE-SELECTION-PERF NOT independently
+  re-verified this fire** (out of scope -- `engine_step._find_cache_csv` already implements
+  "prefer smallest covering file" per its own current docstring/sort key, so the perf
+  complaint may already be moot as a side effect of an earlier fix, but 07-08 specifically
+  was not re-run to confirm the hang is gone -- left open if J or a future fire hits it).
+  Revert: `git revert <this-commit>` (2 source files + 2 regenerated analysis artifacts,
+  no data loss). :: status:CLOSED
 
 ### DOJO-FLEET-HISTORICAL-SIGNAL (HIGH, Phase 1b, filed 2026-07-20 ~23:40 ET) :: The dojo's 3 fleet
   arms (safe-3/risky-1/risky-3 = the RIBBON/control/ZONE-RIDE exit-diversity lanes, the WHOLE
@@ -2468,3 +2498,18 @@ sufficient proof, as this incident demonstrated twice.**
   picking a launcher redesign, and adding tests per task is real infra-breadth work that
   does not fit inside one bounded conductor task alongside tonight's primary repair.
   :: depends:none :: status:proposed
+
+### T-AUTOPSY-H-2026-07-21-stop-noise MED — autopsy hypothesis: stop_inside_noise_floor
+
+**Claim:** the live stop exits losers that then pay the thesis -- the stop is harvesting winners, not cutting losers. **Evidence:** `{"losers_in_window": 19, "stopped_then_paid": 13, "fraction": 0.684, "window_n": 30}` (analysis/autopsies/2026-07-21.md).
+**Action:** replay exit-A (-50/+150/sell66/trail15) on these exact fills via exit_shape_parity_study (kill-check) · confirm on the fresh OPRA slice per the STOP-A pre-registration (T-W7) :: depends:none :: status:proposed
+
+### T-AUTOPSY-H-2026-07-21-entry-spike MED — autopsy hypothesis: paying_the_signal_spike
+
+**Claim:** entries fill materially above the signal-minute low -- the marketable ask+buffer buys the local premium spike (defect #2). **Evidence:** `{"median_paid_above_min_low": 0.1, "n": 30}` (analysis/autopsies/2026-07-21.md).
+**Action:** entry_manager shadow (T-W5): log limit-below/patience counterfactual fills next to real entries for 3+ sessions :: depends:none :: status:proposed
+
+### T-AUTOPSY-H-2026-07-21-left-on-table MED — autopsy hypothesis: exit_shape_dominated
+
+**Claim:** a fixed counterfactual shape beats the shipped exits by more than 2x the window's net P&L -- the exit shape, not the signal, is the bottleneck. **Evidence:** `{"sum_stop_cost": 3197.9, "window_net_pnl": -79.0, "n_dominated": 11, "window_n": 30}` (analysis/autopsies/2026-07-21.md).
+**Action:** STOP-A sign-off -> T-W7 confirmatory on the frozen v2 candidates · enumerate levers beyond exit shape per markdown/trading-knowledge/GENERATIVE-LENS.md (DTE / spread / strike / sizing) :: depends:none :: status:proposed
