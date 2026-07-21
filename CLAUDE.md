@@ -225,25 +225,25 @@ These are non-negotiable, second only to the 10 rules above.
     | C1 | Real-fills is the only WR authority | L02,12,23,50,71,99,100,107,182 |
     | C2 | First-strike entries: chart-stop only, premium-stop disabled | L51,55,64,171 |
     | C3 | SPY-price edge != option edge (delta/theta/stop-misfire) | L58,74,100,101,112,136,148,149,172,177,183,184,188 |
-    | C4 | Disclose concentration, normalize OOS, stratify by regime | L01,04,05,10,11,22,46,48,92,104,122,124,128,129,154,166,167,174,175,178 |
+    | C4 | Disclose concentration, normalize OOS, stratify by regime | L01,04,05,10,11,22,46,48,92,104,122,124,128,129,154,166,167,174,175,178,192 |
     | C5 | VIX *character* > VIX level | L40,44,45,73,93,118,133,134,154,162,167 |
     | C6 | No look-ahead: filter <= current bar, verify bar closed, slice prior_bars | L14,34,57,61,94,161,165,166,191 |
-    | C7 | Silent success is failure — audit outputs, not exit codes | L19,26,28,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161,164,169,170,173,179,181,185,186,187,189,190 |
+    | C7 | Silent success is failure — audit outputs, not exit codes | L13,16,19,25,26,28,29,31,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161,164,169,170,173,179,181,185,186,187,189,190,193,196,197 |
     | C8 | Headless Windows spawn = system-pythonw + CREATE_NO_WINDOW + WMI liveness | L20,27,33,41,81 |
-    | C9 | Anchor paths to __file__ | L21,42,49,60 |
+    | C9 | Anchor paths to __file__ | L21,42,49,56,60 |
     | C10 | Rate-limit pool: separate prod key | L54,62,68,69 |
-    | C11 | Broker is source of truth: verify flat before entry | L47,76,180 |
+    | C11 | Broker is source of truth: verify flat before entry | L47,76,180,200 |
     | C12 | Stateful detectors need warmup / persisted state | L30,35 |
-    | C13 | Confidence tiers must be reachable AND diverse over N>=20 | L63,65 |
-    | C14 | Dead/translated-but-unapplied knobs: vary-and-assert (L201: enable-flag != exec-arm-map; L202: a stale queue item is the same failure one level up) | L38,70,72,77,88,89,96,99,106,108,109,110,111,113,114,115,116,117,123,127,130,131,147,152,155,176,180,201,202 |
+    | C13 | Confidence tiers must be reachable AND diverse over N>=20 | L43,63,65 |
+    | C14 | Dead/translated-but-unapplied knobs: vary-and-assert (L201: enable-flag != exec-arm-map; L202: a stale queue item is the same failure one level up) | L38,70,72,77,88,89,96,99,106,108,109,110,111,113,114,115,116,117,123,127,130,131,147,152,155,176,180,194,195,198,201,202 |
     | C15 | Gates interact multiplicatively — trace session cascades | L07,08,09,66,95,163,180,199 |
     | C16 | Multi-bar reversal vs single-bar continuation discriminator | L52,59,75 |
-    | C17 | Build reusable skills + crypto validation, not one-shots | L36,37 |
+    | C17 | Build reusable skills + crypto validation, not one-shots | L03,36,37 |
     | C18 | Status-format discipline | L06,15,17,18 |
     | C19 | Cowork FUSE mount: no deletes + truncated read-after-edit | L78 |
     | C20 | Gate direction must match setup structure: proximity gates anti-correlate with breakout setups | L102 |
     | C21 | Bypass fires at bar-level not date-level: verify trigger+time+type match J's entry | L103,153 |
-    | C22 | Backward-looking classifiers anti-correlate with recovery periods | L118,119,120,121,125,132,133,134,135,138,159 |
+    | C22 | Backward-looking classifiers anti-correlate with recovery periods | L118,119,120,121,125,126,132,133,134,135,137,138,146,159 |
     | C23 | Quality-tier blocking fails when IS/OOS VIX regimes differ — tier labels conflate multiple VIX populations | L122 |
     | C24 | Anchor trades are one-off exceptional setups — general population of same pattern class may be losers | L140,158 |
     | C25 | Level score formula must be validated for direction: high touch_count drives both stars AND eventual breaks (inverse correlation) | L142 |
@@ -251,7 +251,7 @@ These are non-negotiable, second only to the 10 rules above.
     | C27 | Pattern detectors firing >80% of days measure noise not signal | L145 |
     | C28 | Ribbon flip is a lagging exit | L139,141,156,157,175 |
     | C29 | Exit target/stop knobs ratified on one strike tier (ITM-2) don't transfer to another (OTM-2) — verify independently per account/strike | L149 |
-    | C30 | Unconstrained exit targets (runner never hits 5x in 0DTE) = dead knob | L148,176 |
+    | C30 | Unconstrained exit targets (runner never hits 5x in 0DTE) = dead knob | L24,148,176 |
     | C31 | J's 667 real trades: 1-2 lots +$4,576 / 3+ lots -$17,461 / scaled-in -$327/trade — the killer is sizing-UP/adding behavior (Rule 6 + Rule 4 + no-add-after-loss), not flat count per se. **Attribution correction (L203):** no-add alone recovers only ~$794 of the scaled-in cohort's -$9,281 at fixed exits — the real recoverable money is the no-add + -50%-catastrophe-cap PACKAGE (+$3,428 bound on scaled-in, +$6,176 bound book-wide); scale-in is the highest-signal MARKER of a trade managed by hope, not a standalone lever. The no-add guard itself is already structural/unconditional (`fb.is_flat_spy_options`, no bypass path) — pinned by `test_never_average_down_2026_07_20.py` | L168,203 |
 
 31. **The Kitchen — 24/7 autonomous free-tier R&D loop** (keepalive + seeder + reviewer; schedule in SCHEDULED-TASKS). Claude-when-awake = the driver: steer/promote/prune via `kitchen-status.json`. Daemon NEVER touches `heartbeat*`/`params*`/`CLAUDE.md`, NEVER places orders. Spec: [`KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md).

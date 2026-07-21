@@ -40,37 +40,18 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 CLAUDE_MD = ROOT / "CLAUDE.md"
 LESSONS_MD = ROOT / "markdown" / "doctrine" / "LESSONS-LEARNED.md"
 
-# Pinned 2026-06-21. Lessons defined in LESSONS-LEARNED.md but not yet folded
-# into the CLAUDE.md OP-25 index. The 6 recent rail-4-blocked folds + 12 older
-# pre-existing gaps the new reconciliation surfaced. TRIM as folds land; the
-# ratchet asserts this set only ever SHRINKS.
-KNOWN_UNINDEXED_BASELINE = frozenset(
-    {3, 13, 16, 24, 25, 29, 31, 43, 56, 126, 137, 146, 192, 193, 194, 195, 196, 197, 198, 200}
-    # 200 pending fold to C11/C9 (L200 verify the ACTUAL account type before modeling
-    #   a regulatory constraint -- margin-PDT was modeled on cash accounts for months;
-    #   Rule 7 rewrite, 2026-07-14 STATUS.md entry); lesson-author folds the OP-25
-    #   CLAUDE.md bullet next pass (rail-4: this session cannot edit CLAUDE.md's OP-25
-    #   index -- only lesson-author has that write access).
-    # 193 pending fold to C7 (L193 a documented capital gate must be enforced at the
-    #   autonomous apply chokepoint, not a sibling organ); proposal cd-2026-06-28-002
-    # 194 pending fold to C14/C15 (L194 gate the SELECTOR too, not only the executor);
-    #   both trim on cd-2026-06-28-002 apply
-    # 195 pending fold to C14/C3 (L195 a trigger whose INPUT is gated behind another
-    #   trigger's precondition is a structurally-dead knob); cd-2026-06-28-002 trims on apply
-    # 196 pending fold to C7 (L196 a producer guard checking presence/freshness but not
-    #   consistency ships a contradictory-structure regression green); trims on same apply
-    # 197 pending fold to C7 (L197 a graduated guard bakes in the old frame -> frame-fix a
-    #   monitor and its guard in the SAME commit); trims on cd-2026-06-28-002 apply
-    # 198 pending fold to C14/C4/C7 (L198 a hardcoded recent-window file + stale comment
-    #   fakes a data-blocked wall; re-measure the span from source); trims on same apply
-    # 192 pending fold to C4/C24 (L192 edge_capture is a directional-anchor metric ->
-    #   auto-rejects regime strategies); proposal cd-2026-06-28-002 trims on apply
-    # 169,170,173,174,177,178,179,181,182,183,184,185,186,187 folded 2026-06-24 batch
-    # 188 folded 2026-06-28 (L188 dir-controlled null -> C3); trimmed from baseline
-    # 189 folded 2026-06-28 (L189 stuck-RED audit masks new orphans -> C7); trimmed from baseline
-    # 190 folded 2026-06-28 (L190 guard the source not the detector -> C7); trimmed from baseline
-    # 191 folded 2026-06-28 (L191 tzinfo.utcoffset must not self-astimezone -> C6); trimmed from baseline
-)
+# Pinned 2026-06-21, DRAINED TO EMPTY 2026-07-20 (conductor, AFTERHOURS,
+# CLAUDE-INDEX-FOLD-BATCH). All 20 remaining baseline lessons (the 12 older
+# pre-existing gaps + the 8 more recent 06-28..07-14 folds) were folded into
+# the CLAUDE.md OP-25 index in a single batch this fire, per the L202 precedent
+# that a lesson-index-only CLAUDE.md edit is the one surface OP-25 reserves for
+# the lesson-author path, not rail-4-blocked (see queue.md CLAUDE-INDEX-FOLD-BATCH
+# for the full per-lesson fold-destination rationale). Folded this pass:
+# L03->C17, L13->C7, L16->C7, L24->C30, L25->C7, L29->C7, L31->C7, L43->C13,
+# L56->C9, L126->C22, L137->C22, L146->C22, L192->C4, L193->C7, L194->C14,
+# L195->C14, L196->C7, L197->C7, L198->C14, L200->C11.
+# Ratchet now at zero -- any future unfolded lesson is a genuinely NEW gap.
+KNOWN_UNINDEXED_BASELINE = frozenset(set())
 
 
 # --------------------------------------------------------------------------- #
