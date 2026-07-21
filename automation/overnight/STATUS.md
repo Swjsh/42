@@ -1,3 +1,93 @@
+## [2026-07-21 ~19:42-19:58 ET] OK -- conductor (AFTERHOURS): drained 5 lesson-inbox items into L231-L235 + OP-25 fold, commit `d827cd3`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `task_scorer.py --top`
+> re-surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still correctly J-decision-gated). Self-audit
+> gaps fully triaged (2026-07-21T17:31:28 batch already TRIAGED by an earlier fire today). Checked
+> `_lesson-inbox/` (STAGE 1 priority-5, author inboxes oldest-first) and found **5** un-actioned
+> items, all filed by earlier fires TODAY (2026-07-21) -- an inbox that would otherwise sit
+> un-drained until a future fire happened to look, exactly the class this stage exists to prevent.
+
+> **What shipped:** read all 5 items in full and wrote **L231-L235** in
+> `markdown/doctrine/LESSONS-LEARNED.md`, each citing the specific commit/file/test that already
+> fixed the acute instance: L231 (a doc's own "shipped/verified" claim isn't proof `git commit`
+> ran -- folds into C35 alongside L221), L232 (a test hardcoding a "TODAY" date literal but
+> relying on a REAL filesystem mtime is a time-bomb, not a passing test -- new C6/C7 angle), L233
+> (a silently-reset producer idempotency state floods a downstream author inbox for weeks with
+> zero crash/RED symptom -- folds into C34 alongside L214/L228), L234 (a "real fills" arm-scope
+> filter goes synthetic-by-omission when the live account lineup moves on without the loader's
+> scope being re-verified -- folds into C14), L235 (a shared loader documented to return a
+> full-history WARMUP frame is not automatically safe to iterate as a single-day EVENT stream --
+> folds into C6). Folded all 5 into the CLAUDE.md OP-25 index (C6/C7/C14/C34/C35 rows), bumped
+> the "current through" pointer L230->L235. Deleted all 5 processed inbox items.
+
+> **Verified this fire (OP-33), applying L231's own lesson before writing this line:** curated
+> safety gate (31+5-suite) PASS both pre-commit (manual run) and via the pre-commit hook on the
+> actual commit. `git diff --cached --stat` confirmed exactly the 7 intended files staged (2
+> edits + 5 deletions) before committing -- no accidental scope creep in this large, actively-
+> churning shared checkout. Post-commit, `git ls-tree HEAD` confirmed the 5 inbox paths are
+> correctly ABSENT and `git show HEAD:markdown/doctrine/LESSONS-LEARNED.md` confirmed 7 `## L23x`
+> headers present, `git show HEAD:CLAUDE.md` confirmed the "current through L235" pointer landed
+> -- not just a green pytest run. `check-context-budget.ps1` -> YELLOW 8548/9000 (95%), inside
+> budget after the index-row growth. Commit `d827cd3`.
+
+> **Zero trading-path files touched** -- pure doctrine/lesson-index update. Ships as
+> engine-benefit per OP-22/OP-25/OP-26, no J ratification needed. **Revert:** `git revert
+> d827cd3` (7 files, 2 edits + 5 restored deletions, no data loss). **Not done this fire
+> (deliberately, scope discipline):** none of the 5 lessons' own "owed" follow-ups (wiring
+> `verify_committed` into conductor STAGE 5 for L231; a drift-ratchet guard for L234; a broader
+> producer-idempotency sweep for L233) were built -- each lesson explicitly flags its follow-up as
+> future work, not required to close the inbox drain itself.
+
+> **Cost: ~$2.3** (STAGE 0/1 reads, task_scorer + self-audit-gap re-check, reading all 5 inbox
+> items in full, composing 5 cite-or-defer lessons + OP-25 fold, context-budget check, safety
+> gate x2, commit + post-commit `git ls-tree`/`git show` verification, this STATUS/queue update).
+
+---
+
+## [2026-07-21 ~19:12-19:15 ET] OK -- conductor (AFTERHOURS): closed stale-but-shipped J-INTENT-EXECUTOR queue item, no code change
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Self-audit gaps fully
+> triaged (`new-gaps-flagged.md`'s 2026-07-21T17:31:28 batch already TRIAGED by an earlier fire
+> today, nothing un-actioned). `task_scorer.py --top` again surfaced
+> `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still J-decision-gated, correctly skipped). Author
+> inboxes checked (5 open `_lesson-inbox` items, all from earlier today's fires -- not
+> re-actioned, that's `lesson-author`'s lane). Surveyed all 8 top-level HIGH queue.md items:
+> `WF-GATE-STRUCTURALLY-NULL` / `WF-GATE-REDESIGN-METHODOLOGY` are Fable-judgment-gated (not a
+> Sonnet call); `VETO-HTF-CONFLICT-REGRADE` is LEFT OPEN pending organic evidence accrual (n>=5
+> non-HTF comparison cohort, no action available this fire beyond a re-run that wouldn't move the
+> count); `BOLD-CORE-ATM-WIRE-FALSIFICATION-RAIL` still blocked on n>=20 Bold fills (0 since the
+> 07-18 wire, re-checked); `J-ONLY-COMPANION-PUSH-ACTIVATION` is J-action-required (Tailscale +
+> phone tap, not conductor-pickable); `STATE-FILE-REVERSION-2026-07-20` + its
+> `AUDIT-FOLLOWUP` are both effectively closed (CLOSED_PARTIAL + status:done, mechanism-level fix
+> shipped 07-21 01:xx). That left `J-INTENT-EXECUTOR` (filed 2026-07-15, never marked closed) as
+> the one HIGH item with real, bounded, closeable work.
+
+> **What I found:** `J-INTENT-EXECUTOR` was fully built, wired, and scheduled back on 2026-07-18
+> (`setup/scripts/j_intent_executor.py`, 38.4KB) but its queue.md entry was never annotated
+> CLOSED -- a "shipped but the ledger doesn't know it" loop sitting open, competing for a future
+> fire's attention against real unstarted work (OP-22 compound-don't-accumulate: closing a stale
+> loop outranks starting a new artifact).
+
+> **Verified this fire (OP-33), did not just trust the file listing:** confirmed
+> `Gamma_JIntentExecutor` registered in `SCHEDULED-TASKS.md` (09:25 ET weekdays);
+> `automation/state/j-intents.json` is the live store, default-empty (pure no-op when idle, by
+> design). Re-ran the item's OWN acceptance gate fresh: `pytest backtest/tests/
+> test_j_intent_executor_replay.py -q` -> **23/23 PASS**, and inspected the fixture directly --
+> `spy_5m_2026-07-15_j_intent_752p.csv` reproduces the EXACT real trade the acceptance gate names
+> (entry bar closes 13:15 ET @ 751.785 < 751.94 confirm-close; chart-stop exit bar closes 13:20 ET
+> @ 752.405 > 752.26 stop), byte-matching the numbers written into the gate's own prose. Annotated
+> the queue.md item CLOSED with this evidence.
+
+> **Zero code/trading-path files touched** -- this fire's only write was a queue.md doc-append
+> (closing a stale ledger entry with fresh verification evidence). No guard/revert/REVOKE
+> machinery needed (rail 4 doesn't apply -- no behavior changed). **Cost: ~$1.5** (STAGE 0/1
+> reads, task_scorer, self-audit-gap + inbox + all-8-HIGH-item survey across ~500 queue.md lines,
+> live file/schedule verification, guard re-run, fixture inspection, this STATUS/queue update,
+> conductor_outcome recording). Autonomy metric this fire: net_improvement 98/20-fire-window,
+> trend **improving**, zero regressions.
+
+---
+
 ## [2026-07-21 ~18:42-18:58 ET] OK -- conductor (AFTERHOURS): zoom-aware trendline classification shipped, commit `c741d1d`
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Self-audit gaps fully
@@ -600,67 +690,6 @@
 
 ---
 
-## [2026-07-20 ~22:00-23:40 ET] DOJO Phase 1 BUILT + RUNS E2E -- interactive (Opus + 4 Sonnet builders): J's replay training room. 2 honest gaps before it's the full 6-arm vision.
 
-> **Built + committed + pushed** (1f30e89 + adb1780; audit GREEN): the DOJO tick-by-tick replay training room. Spec markdown/specs/DOJO-REPLAY-TRAINING-SPEC.md, architecture+contracts DOJO-ARCHITECTURE-DECISION.md, runbook DOJO-SESSION-RUNBOOK.md. Package setup/scripts/dojo/ (clock, session spine+fence, engine_step, whisper, directive, sim_executor, scorecard). 109 dojo tests green (100 fast + 9 engine_step slow). TradingView Plus (J-bought) unlocked intraday replay -- VERIFIED (5-min 2026-07-17 steps, ribbon re-forms per step).
-> **RUNS END-TO-END (verified this session, not claimed):** `python -m dojo.session step` at 14:00 ET 2026-07-17 renders the real per-arm whisper -- safe ENTER_BEAR bear=10/bull=6, bold SKIP_BULLISH_FILL_BAR (actual Friday behavior). A real directive walked real OPRA bars: TP1 +$553.60 / runner +$262.10 / scorecard +$815.70.
-> **Architecture correction (Opus):** spec's "Python drives TV replay" was impossible (MCP tools are the agent's, not a script's). Two roles: agent=hands (TV MCP + relay), Python=brain+books (real engine decision + sim + score). No-LLM-in-decision preserved.
-> **TWO HONEST GAPS (NOT the full vision yet -- do NOT call it 100%):**
->   1. **Only 2 of 5 arms live.** safe+bold render faithfully; the 3 FLEET arms (RIBBON/control/ZONE-RIDE exit-diversity lanes -- the "watch them differ" point) show FLEET_VIEW_PENDING. Cause: build_shared_signal.py builds only from TODAY's state, not a historical replay. Phase 1b = DOJO-FLEET-HISTORICAL-SIGNAL (touches a shared prod module -- careful).
->   2. **engine parity ~87% verdict/side, scores drift** (bear/bull exact 43-50%). Cause: no historical key-levels.json snapshot; levels approximated from current (no-look-ahead). Verdict/side robust. Filed: DOJO-HISTORICAL-KEY-LEVELS-SNAPSHOT.
-> **Usable NOW:** J + a Sonnet agent walk a real day via the runbook -- see the engine's mind + direct safe/bold + sim P&L. The 3 fleet exit-diversity arms are the immediate next build.
-
----
-
-## [2026-07-20 ~23:12-23:5x ET] OK -- conductor (AFTERHOURS): RRW-AS-VETO-STUDY -- bear-wick bull overlay tested, FAIL (honest kill), committed
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `task_scorer.py --top`
-> re-surfaced the correctly-J-decision-gated `MORNING-BULL-QUALITY-GATE-RECONSIDER` (skipped
-> again). The queue's HIGH-priority trading-path items (`EXTRA-SIGNAL-CHURN-COOLDOWN`,
-> `EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT`) were already closed/DEFER-INSUFFICIENT-DATA'd by
-> two earlier fires tonight; `DOJO-BUILD-HANDOFF` needs TradingView MCP tools this fire's
-> tool set doesn't have bound. Picked the top-scored MED research item instead:
-> `RRW-AS-VETO-STUDY` (queued 2026-07-02, never actioned — ribbon_rejection_wick is KILLED
-> as an entry but demonstrably SEES real bear rejections; untested as a defensive overlay
-> on the live bull path).
-
-> **What shipped:** `backtest/autoresearch/rrw_bull_veto_study.py` -- reuses the EXISTING
-> cached RRW superset scan (1793 bear events, $0 to reload) against the REAL bull trade
-> population from `lib.orchestrator.run_backtest(use_real_fills=True, enable_bullish=True)`
-> at PROD_GATED (the two ratified bull gates), ATM strike (live core tier). Two
-> pre-registered configs (detector's own dataclass defaults + the FAIL scorecard's own
-> "keeps today's anchor" vol note). **Result: FAIL on both hypotheses.** VETO: both configs
-> net NEGATIVE to apply -- the vetoed trades (n=8/$1,265.80 and n=4/$597.60, WR 75% both)
-> were WINNERS, not losers; the hypothesis (bear-wick flags bad bull entries) does not hold
-> in this sample. TIGHTEN: too rare (n=2, n=1) to clear the pre-registered n>=10 bar, and
-> the n=2 case is internally mixed (one trade +$1,317 better, one -$1,382 worse tightened).
-> Scorecard: `analysis/recommendations/rrw-bull-veto-overlay.json` (full trade lists +
-> caveats). Queue item closed with the full writeup: `automation/overnight/queue.md`
-> `RRW-AS-VETO-STUDY`.
-
-> **DST-frame lesson applied, not re-violated:** `load_contract_bars`' raw tz-aware OPRA
-> timestamps (fixed -04:00, EST-mislabeled) were re-derived to the same et-v2 frame the
-> SPY/bear-events/trades already use before any comparison -- caught this fire via a live
-> `TypeError` on first run, fixed per `project_dst_frame_artifact_2026_07_02`, re-verified.
-
-> **Verified this fire:** new guard `backtest/tests/test_rrw_bull_veto_study.py` (12/12
-> PASS -- gate logic, veto-window semantics, stats arithmetic, cache-freshness sanity on
-> $0 synthetic fixtures, no full-backtest re-run needed to catch a future regression).
-> `test_ribbon_rejection_wick.py` + this file -> 20/20 PASS. Curated safety gate
-> (31+5-suite) PASS.
-
-> **Research-only, zero trading-path files touched** (no params/heartbeat_core/filters/
-> placement/exit edits -- rail 4 does not apply; ships without J ratification per
-> OP-22/OP-26, same class as any author-inbox deliverable). **Revert:** `git revert <commit>`
-> (3 new files, purely additive). No live wiring proposed regardless of verdict -- this FAIL
-> closes the RRW-AS-VETO-STUDY thread; any future re-open needs new evidence, not a re-run
-> of this same config pair.
-
-> **Cost: ~$4.9** (STAGE 0/1 reads, queue.md targeted greps/reads across ~2400 lines to find
-> the next pickable item, detector/battery/orchestrator/simulator_real source reads to design
-> the overlay study without duplicating existing machinery, 1 script write + 1 DST-frame bugfix
-> + 1 successful run, 1 guard-test file write + 1 tolerance fix + verification runs, curated
-> safety gate, queue.md + this STATUS entry).
-
----
-
+### DEGRADED: self-check 2026-07-21T19:39:56
+- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
