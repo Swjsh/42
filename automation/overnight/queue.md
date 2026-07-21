@@ -2214,3 +2214,77 @@ sufficient proof, as this incident demonstrated twice.**
   granularity in their own manual slices, e.g. `test_alignment_for_decision_matches_cutoff_only_series`)
   -- confirmed both by reading the test file and by the 50/50 pytest pass above. It's dead/orphaned
   CLI-only code that would mislead anyone who runs `--self-check` by hand. :: depends:none :: status:proposed
+
+## SELF-CHECK-BROKEN-2026-07-20 (filed 21:12-21:20 ET, conductor AFTERHOURS) -- CLOSED, restored + repaired
+
+- **What was found:** `self-check-last.json` verdict was `BROKEN` (3 real problems + 1
+  non-load-bearing). Root-caused and fixed 2 of 3 this fire:
+  1. **`today-bias.json` reverted to stale 2026-07-14 content** -- confirmed via `git show
+     25e31e2^:automation/state/today-bias.json` that the last-committed blob (pre-untrack)
+     exactly matched the on-disk content, meaning tonight's own `git stash` during the
+     `STATE-FILE-REVERSION` debugging (16:43 ET fire, commit `7b26cca`) clobbered the fresh
+     08:30 ET premarket write with the last git-committed snapshot, and -- unlike
+     `circuit-breaker.json` (which self-healed via `daily_loss_guard.rearm()`'s stale-stamp
+     detector) -- nothing auto-repaired `today-bias.json`. **No live-trading impact**: market
+     closed 15:55 ET, well before the 18:43 ET clobber; today's real 09:30-15:55 decisions
+     used the genuine fresh bias (confirmed via `automation/state/logs/premarket-2026-07-20.log`:
+     "VERIFIED today-bias dated 2026-07-20"). Fixed by running the existing, purpose-built,
+     already-tested (23/23 green) `python setup/scripts/premarket_deterministic_fallback.py`
+     -- a $0/no-LLM/un-blockable repair tool built exactly for this failure class (see its
+     module docstring, `analysis/deep-research/2026-07-14-premarket-reliability.md`). Verified:
+     `today-bias.json` now `date=2026-07-20`, clearly stamped `degraded:true,
+     source:deterministic_fallback` (honest -- not a fabricated LLM narrative).
+  2. **`news.json` freshness_stamp 122h stale despite `Gamma_MacroCalendar` showing
+     `LastTaskResult:0, NumberOfMissedRuns:0`** -- root-caused: `run_exe_hidden.vbs` uses
+     `shell.Run cmd, 0, False` (fire-and-forget, `bWaitOnReturn=False`), so Task Scheduler's
+     exit code only proves wscript.exe launched the child process, never that the inner
+     `pythonw.exe` script actually completed. Fixed for tonight by running
+     `python setup/scripts/macro_calendar.py` by hand (fresh `freshness_stamp` confirmed).
+     **Root cause NOT fixed** (generalizes to ~60 scheduled tasks using the same launcher --
+     too broad for one bounded fire) -- filed as `WSCRIPT-FIRE-AND-FORGET-AUDIT` below, and
+     as `strategy/candidates/_lesson-inbox/2026-07-20-wscript-fire-and-forget-hides-
+     scheduled-task-failure.md` for `lesson-author`.
+  3. **`TRENDLINE-DRAW` never marked today** -- left alone, self-check's own text marks it
+     non-load-bearing (visibility only).
+  4. **`SETTLEMENT-BLOCKED[safe]`** -- not a bug, informational (5/5 cash-settlement entries
+     used today, correctly reported).
+- **Verified this fire (OP-33):** re-ran `python setup/scripts/self_check.py` after both
+  fixes -- verdict moved `BROKEN` (3 problems) -> `DEGRADED` (2 problems, both expected/
+  non-actionable: the honest DEGRADED premarket label + the informational settlement note).
+  Regression sweep: `pytest backtest/tests/test_premarket_deterministic_fallback.py
+  backtest/tests/test_macro_calendar_producer.py
+  backtest/tests/test_self_check_macro_calendar_freshness.py` -> **59/59 passed**.
+- **Rail-4 (PAPER/data-integrity-only, no trading-path change):** zero `params.json`/
+  `heartbeat_core.py`/`filters.py`/placement/exit code touched -- this is a state-file
+  content repair via two ALREADY-EXISTING, already-tested tools, not new trading logic.
+  Revert: none needed (both files are gitignored/untracked; `git status` shows no diff to
+  commit for this fire's changes -- the "fix" is entirely a state-file write, not a code
+  change). No commit required.
+- **Cost: ~$2.4** (STAGE 0/1 reads, self-check + git forensics, dry-run + live fallback run,
+  macro_calendar re-run + task-scheduler + vbs-launcher root-cause dig, 2 regression sweeps,
+  lesson-inbox write, this queue/STATUS update). :: depends:none :: status:done
+
+### WSCRIPT-FIRE-AND-FORGET-AUDIT (MED, infra breadth, filed 2026-07-20 ~21:20 ET, follow-up to SELF-CHECK-BROKEN-2026-07-20)
+
+- **Root cause (confirmed, not theorized):** `setup/scripts/run_exe_hidden.vbs`'s
+  `shell.Run cmd, 0, False` is fire-and-forget -- Task Scheduler's `LastTaskResult`/
+  `NumberOfMissedRuns` for EVERY task using this launcher (~60 per `SCHEDULED-TASKS.md`)
+  only proves wscript.exe launched the child process, never that the payload script
+  actually completed. `Gamma_MacroCalendar` showed perfect health (`0`/`0 missed`) while
+  its actual output (`news.json`) was 5 days stale -- caught this fire only because
+  `self_check.py` happens to have a dedicated freshness test for that one producer
+  (`test_self_check_macro_calendar_freshness.py`); most of the other ~60 tasks have no
+  equivalent content-freshness check, so an identical silent failure on any of them would
+  currently be invisible to Task Scheduler AND to `engine-health.json` unless it's one of
+  the handful of checks already wired in.
+- **Scope for the next fire that picks this up:** (a) redirect stdout/stderr per-task (new
+  vbs variant with a log-path arg, or switch to `WshShell.Exec` + poll which exposes
+  `Status`/`ExitCode`/`StdOut` without a visible window) -- would make root-causing WHY a
+  task went stale possible instead of just detecting THAT it did; (b) extend
+  `engine-health.json` (or `self_check.py`) with a generic freshness-ratchet loop over
+  every producer with a `freshness_stamp`/`updated_at`/`as_of` field + an expected cadence,
+  rather than the current handful of hand-wired checks.
+- **Deliberately not attempted this fire** -- auditing which of ~60 tasks need this,
+  picking a launcher redesign, and adding tests per task is real infra-breadth work that
+  does not fit inside one bounded conductor task alongside tonight's primary repair.
+  :: depends:none :: status:proposed

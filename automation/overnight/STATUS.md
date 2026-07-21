@@ -597,86 +597,11 @@
 
 ---
 
-## [2026-07-20 16:19-17:xx ET] OK -- conductor (AFTERHOURS): STRUCTURE-STOP-ZONE-BAND item (a) closed REJECT_ALL_CANDIDATES; item (b) re-filed as STRUCTURE-STOP-REFERENCE-LEVEL
 
-> **Context.** STAGE 0 GREEN (engine-health 13/13, market closed since 15:55). Top HIGH item:
-> J's live-called exit today 14:01-14:26 ET -- safe 3x 745P structure-stopped on a 12-cent
-> overshoot of the exact trigger level while the ribbon stayed BEAR and price never decisively
-> broke the surrounding key-level zone (-$24 actual vs a ~+$115-130 counterfactual). Filed as
-> `STRUCTURE-STOP-ZONE-BAND` with two sub-fixes: (a) proximity band on the close-above test,
-> (b) reference-level choice (trigger-exact vs zone boundary).
+## Kitchen
+Kitchen: alive, queue 25 pending, last cook 0 min ago, today $0.00, model=scorecard-python
 
-> **Built + ran a frozen pre-reg A/B for item (a) only** (reference-level choice needs new
-> wiring, scoped out -- see below): `backtest/tools/structure_stop_zone_band_ab.py`, reusing
-> `structure_stop_study.py`'s already-validated trigger-recovery/replay machinery unchanged,
-> held the LIVE SS-B exit shape fixed, swept ONLY the buffer width (0.00 control / 0.05/0.08/
-> 0.10/0.12/0.15/0.20) against real-fills anchor (99 positions, 2026-06-29..2026-07-17, hash-
-> pinned) + an independent 18-signal fresh-slice population, plus a sub-window (first-half vs
-> second-half) stability check the 2026-07-09 predecessor study didn't have.
-
-> **Result: REJECT_ALL_CANDIDATES.** Every non-zero buffer FAILS the fresh-slice layer (worse
-> expectancy than the 0-buffer control, every single candidate). The real-fills anchor "wins"
-> for BAND-10/12/15/20 (+$677 to +$801 vs -$900.7 control) are a single-trade artifact: ONE
-> 2026-07-08 signal (SPY260708P00741000, 4 arms, $532/388/331 per-leg swings) accounts for the
-> entire delta, and the sub-window split hard SIGN-FLIPS (+$1656-1736 first half vs -$34.5 to
-> -$74.5 second half) -- the exact single-anchor-trade-driving-everything signature C24 warns
-> against. This is an honest negative result that directly CONFIRMS the original queue item's
-> own quantified counterfactual table: widening the band on the SAME (trigger-exact) reference
-> doesn't reproduce a stable edge -- the REFERENCE CHOICE is the real lever, not band width.
-> BAND-00 (today's actual live behavior) stays unchanged; nothing shipped to the trading path.
-
-> **Verified this fire:** new guard `backtest/tests/test_structure_stop_zone_band_ab.py` (7/7)
-> covers the one novel piece of logic (`build_verdicts`'s dual-layer gate + sub-window sign-flip
-> + underpowered-n<15 downgrade), including a pinned regression test against this fire's actual
-> disclosed REJECT_ALL output. **RED-proofed via file-move** (the module is untracked -- `git
-> stash` on an untracked-file pathspec silently no-ops rather than stashing it, see the
-> blast-radius note below): moved `structure_stop_zone_band_ab.py` out of `backtest/tools/`,
-> confirmed `ModuleNotFoundError` (exact expected mechanism), moved back, re-verified 7/7 green.
-> Curated safety gate (31 + 5-suite) PASS.
-
-> **Blast-radius near-miss, no lesson needed (self-corrected within the fire):** attempted
-> `git stash -- backtest/tools/structure_stop_zone_band_ab.py` (untracked file -- pathspec
-> stashing needs `-u`/`git add` first) to RED-proof; the command errored/aborted and stashed
-> NOTHING. `git stash list` then surfaced TWO pre-existing stashes unrelated to this fire
-> (base commits 2026-07-18, from an earlier session) -- confirmed via `git rev-parse
-> stash@{0}^1` that neither predates nor was touched by anything this fire did. No recovery
-> action needed; left both pre-existing stashes untouched (not this fire's mess to clean up,
-> flagging only for visibility) and switched to the file-move RED-proof technique used for the
-> rest of this fire.
-
-> **Rail-4 (PAPER/research-only -- guard test + revert path + this REVOKE report):** touches
-> `backtest/tools/structure_stop_zone_band_ab.py` (new, standalone), `backtest/tests/
-> test_structure_stop_zone_band_ab.py` (new guard), `analysis/recommendations/structure-stop-
-> zone-band-preregistration.json` + `structure-stop-zone-band-2026-07-20.json` (new pre-reg +
-> output), `automation/overnight/queue.md` (item a closed, item b re-filed as
-> `STRUCTURE-STOP-REFERENCE-LEVEL`). **Zero trading-path files touched** (`params.json`/
-> `strategies.py`/`exit_manager.py`/placement/exit code untouched) -- this is a REJECT research
-> finding, nothing ships, no params flip, no revert needed. **Revert:** `git revert <commit>`
-> if ever needed (1 commit, 5 files).
-
-> **Learn-loop:** no new lesson-inbox item -- the sub-window-sign-flip / single-trade-driving-
-> everything finding directly confirms the already-indexed C24 pattern (anchor trades are one-
-> off exceptional setups) rather than surfacing a new foot-gun. One methodology note worth
-> keeping inline (not a new L##): when RED-proofing an UNTRACKED new module, `git stash` on a
-> pathspec that doesn't match silently no-ops rather than erroring loudly enough to notice at a
-> glance -- the file-move technique (used successfully in the 2026-07-20 SAFE-VIX-CONDITIONAL-
-> SIZING fire) is the safer default for any future untracked-file RED-proof in this repo.
-
-> **Cost: ~$4.1** (STAGE 0/1 reads, queue.md HIGH-item scan, traced `exit_manager.py`'s
-> `nearest_active_level`/`_structure_stop_hit`/`ExitState.from_entry` + `heartbeat_core.py`'s
-> trigger_level resolution (~150 lines), read `structure_stop_study.py` in full (~700 lines,
-> reused machinery) + its 2026-07-09 output JSON verdicts, checked SPY 5m cache coverage
-> (extended discovery to 2026-07-20, adjusted LEVEL_HISTORY_START), computed + froze a new
-> anchor-population hash (99 positions), wrote the pre-registration JSON, wrote the ~360-line
-> study script, ran it live (2 Alpaca OPRA network fetch passes, layer a + layer b), diagnosed
-> the single-trade-driving-everything result via a targeted row-diff script, wrote + ran the
-> new 7-test guard file, RED-proofed via file-move, ran curated safety gate, investigated +
-> recovered from a git-stash near-miss, 2 queue.md edits (closed item a, filed item b), 1
-> STATUS.md entry, 1 commit -- no LLM in the hot path, no orders, PAPER-only research, zero
-> trading-path files touched). **Files:** `backtest/tools/structure_stop_zone_band_ab.py`,
-> `backtest/tests/test_structure_stop_zone_band_ab.py`, `analysis/recommendations/structure-
-> stop-zone-band-preregistration.json`, `analysis/recommendations/structure-stop-zone-band-
-> 2026-07-20.json`, `automation/overnight/queue.md`. **Commit:** `956cf84`.
-
----
-
+### DEGRADED: self-check 2026-07-20T21:18:06
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
