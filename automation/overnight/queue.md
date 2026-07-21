@@ -2198,6 +2198,37 @@ CAVEATS: best-fixed is IN-SAMPLE (needs OOS confirm), grid coarse 3x3, this is t
 3. ZOOM-AWARE DRAWING: multi-day rails at intraday zoom read as noise (J: "a blind person drew
    them"). Draw rule: only render lines whose anchor span overlaps the visible ~2-day window,
    or label-offset placement; spec small, validate on a real screenshot.
+   **MECHANISM SHIPPED 2026-07-21 ~19:xx ET (conductor, AFTERHOURS), commit see STATUS.md.**
+   Implemented the label-offset branch: `trendline_engine.zoom_classify(a_unix, now_unix,
+   window_days=2.0)` + `Trendline.zoom_class` ("in_window" | "anchor_offscreen", additive field,
+   default preserves every existing caller/reader byte-identical) classify each line's anchor
+   against a ~2-day window ending at the line's own last bar (no wall-clock dependency, no
+   look-ahead -- `now` is always the last bar already in the caller's `bars` slice, mirrors T15's
+   same-day-tier no-look-ahead pattern exactly). Opt-in via `detect(include_zoom_class=True)`,
+   wired live at the ONE production entry point (`main()`, same call site as T15's
+   `include_same_day_tier=True`) so both the `Gamma_Trendlines` 5-min cadence and the on-demand
+   `--json` skill invocation get it. `write_live_state`'s JSON payload carries `zoom_class` per
+   line for self_check/dashboard/skill consumers. SKILL.md gained a new step 3a documenting how
+   the drawing skill should read the hint (draw the full ray regardless; treat
+   `anchor_offscreen` as a prompt to verbally flag the anchor is off J's current view / consider
+   `chart_get_state` before trusting the heuristic over the real chart). Guard:
+   `backtest/tests/test_trendline_zoom_aware.py` (13/13 -- boundary inclusive/exclusive,
+   opt-in-default-unchanged, old-anchor-classified-offscreen, fresh-same-day-anchor-in-window,
+   selection/count unchanged, composes with the same-day tier, no-look-ahead, write_live_state
+   schema). RED-proofed via `git stash -- backtest/autoresearch/trendline_engine.py` (all 13
+   failed with the exact expected `TypeError`/`AttributeError`, `git stash pop` restored clean,
+   re-verified 13/13 green). Broader sweep `pytest backtest/tests/ -k trendline` -> **99/99 PASS,
+   zero regressions**. Curated safety gate (31+5) PASS. Zero trading-path files touched
+   (`params.json`/`heartbeat_core.py`/`filters.py`/placement/exit code untouched) --
+   SHADOW/visibility-only, same class as T15. **NOT done this fire, deliberately deferred:**
+   validation "on a real screenshot" against the ACTUAL chart-visible-range -- this conductor
+   fire has no live TV MCP tool binding (headless), so the classification is a bars-only
+   heuristic approximation, not a proven fix for the visual complaint; the next interactive
+   session with a live TV chart should invoke the trendline-draw skill, deliberately pick a
+   multi-day line that comes back `anchor_offscreen`, and confirm the on-chart result actually
+   reads clean at J's normal intraday zoom -- only then is this item fully closed. Revert:
+   `git revert <commit>` (3 files: engine, guard test, SKILL.md doc -- additive-only, no data
+   loss).
 4. THREAD shadow_triggers_fired INTO core-decisions.jsonl (was chip task_4ce16208, chips dead):
    today's J-called trendline break is the FIRST live validation point for trendline_reclaim and
    it is invisible in the ledger. Small heartbeat_core rec addition, zero-behavior-change guard.

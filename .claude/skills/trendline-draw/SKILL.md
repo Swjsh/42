@@ -69,8 +69,9 @@ every 5 min); DRAWING is not continuously live without a session open to run it.
    from its primary sibling; see `trendline_engine.detect(include_same_day_tier=True)`). Each
    line carries `anchor_family` ("wick" | "body"), `tier` ("primary" | "same_day"), `kind`
    ("support" | "resistance"), anchors (`a_unix`/`a_price`/`b_unix`/`b_price`), the forward
-   projection (`proj_unix`/`proj_price`), `status` (INTACT/TESTING/BROKEN), `respect_count`, and
-   `break_level`.
+   projection (`proj_unix`/`proj_price`), `status` (INTACT/TESTING/BROKEN), `respect_count`,
+   `break_level`, and (T16, 2026-07-21) `zoom_class` ("in_window" | "anchor_offscreen" -- see
+   step 3a).
 
 3. **DRAW CAP — at most 2 lines on the chart: the single best-respected PRIMARY line per SIDE
    (support + resistance), selected across BOTH families by `respect_count`.** (J, 2026-07-15:
@@ -79,9 +80,31 @@ every 5 min); DRAWING is not continuously live without a session open to run it.
    family in its label.) **`tier="same_day"` lines are deliberately EXCLUDED from this draw
    selection for now** (T15, 2026-07-20) -- they exist in the JSON/log/`trendlines-live.json`
    shadow state for self_check/dashboard/future consumers, but adding them to the on-chart draw
-   pool would reopen the exact 2026-07-15 noise complaint this cap exists to fix. Item 3
-   (TRENDLINE-FIXES-2026-07-17, zoom-aware drawing) should reconsider the draw cap together with
-   same_day-tier visibility once it ships, not before.
+   pool would reopen the exact 2026-07-15 noise complaint this cap exists to fix.
+
+3a. **ZOOM-AWARE LABEL PLACEMENT (T16, 2026-07-21, TRENDLINE-FIXES-2026-07-17 item 3):** J's
+    complaint was specifically about intraday zoom -- "multi-day rails at intraday zoom read as
+    noise... a blind person drew them." Each returned line now carries a `zoom_class` HINT
+    computed from the bars alone (a ~2-day window ending at the line's own `current_et`, NOT a
+    live check of the chart): `"in_window"` (the anchor `a_unix` is recent -- label normally, at
+    the anchor point via `point`) or `"anchor_offscreen"` (the anchor predates the window -- at
+    a normal intraday zoom the anchor point renders off-screen to the left, so **label-offset**
+    instead: still draw the full ray from the true anchor through `proj_unix` (`extendRight`
+    already does this), but when calling `draw_shape`, note in your report to J that this line's
+    anchor is off J's current view and consider placing the descriptive text label near the
+    line's CURRENT value (at/after `proj_unix`) rather than trusting `showLabel`'s default
+    anchor-point placement -- TradingView's own label rendering for a `trend_line` shape is
+    anchored at `point`/`point2`, not independently repositionable, so this is a SOFT signal for
+    your verbal report and for choosing whether to zoom the chart out before drawing, not (yet) a
+    distinct on-chart mechanism. **Before trusting this heuristic over what you actually see: call
+    `mcp__tradingview__chart_get_state` (or eyeball the current chart) for the TRUE visible time
+    range** -- `zoom_class` is a conservative, no-look-ahead APPROXIMATION computed from bars
+    alone; it has no idea what J actually has on screen. If a line comes back `anchor_offscreen`
+    and you have a live TV session, this is exactly the case to validate against a real
+    screenshot before reporting the fix as visually confirmed -- that validation has NOT
+    happened yet (mechanism-only ship, same shipping bar as T15's same-day tier: SHADOW-only,
+    engine does not trade off these, so a mechanism-correctness guard is the right bar, not a P&L
+    A/B). Guard: `backtest/tests/test_trendline_zoom_aware.py`.
 
 4. **Assert before drawing -- never render a mixed-anchor line.** For each line, before calling
    `draw_shape`, sanity-check: `anchor_family` is exactly one of "wick"/"body" (the engine's own

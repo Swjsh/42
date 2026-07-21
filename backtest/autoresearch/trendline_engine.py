@@ -67,6 +67,7 @@ TOL = 0.10          # $ tolerance for a "touch" and for break confirmation
 PIVOT_K = 1         # swing pivot = extreme of a +/-PIVOT_K window
 MIN_SPAN = 3        # anchors must be >= this many bars apart (a real trend, not 2 adjacent bars)
 N_DAYS = 5          # T8: trailing trading days of lookback (was implicitly 1 -- today only)
+ZOOM_WINDOW_DAYS = 2.0   # T16 (2026-07-21): J's normal intraday zoom span, for zoom_classify()
 
 # MIN_SPAN=3 stays correct at the N_DAYS=5 scale (~390 RTH bars): it is a MINIMUM floor that
 # still lets short, fresh intraday lines qualify (unchanged single-day behavior), while the
@@ -250,6 +251,21 @@ class Trendline:
                              # "same_day" (best-scoring restricted to TODAY's bars only --
                              # see detect(include_same_day_tier=...)). Additive field, default
                              # preserves every existing caller/reader byte-identical.
+    zoom_class: str = "in_window"   # T16 (2026-07-21, TRENDLINE-FIXES-2026-07-17 item 3, zoom-
+                             # aware drawing): "in_window" (the anchor point `a_unix` falls
+                             # within the ~ZOOM_WINDOW_DAYS-day window ending at the line's own
+                             # `current_et` bar -- safe to label AT the anchor) | "anchor_
+                             # offscreen" (the anchor predates that window -- at J's normal
+                             # intraday zoom the anchor point renders off to the left of the
+                             # visible chart, so the DRAWING skill should place the on-chart
+                             # label near the line's CURRENT end (proj_unix), not at the anchor,
+                             # per "multi-day rails at intraday zoom read as noise... a blind
+                             # person drew them"). Additive field, default preserves every
+                             # existing caller/reader byte-identical. This is a pure, no-
+                             # look-ahead CLASSIFICATION computed from bars already in hand --
+                             # it does NOT know the chart's true visible range (only a live
+                             # `chart_get_state` call in the drawing skill does); it is a
+                             # conservative heuristic hint the skill combines with that.
 
     def summary(self) -> str:
         sign = "below" if self.kind == "support" else "above"
@@ -343,8 +359,30 @@ def _bar_date_et(b: dict) -> str:
     return _et(b["t"])[:5]
 
 
+def zoom_classify(a_unix: int, now_unix: int, window_days: float = ZOOM_WINDOW_DAYS) -> str:
+    """T16 (2026-07-21, TRENDLINE-FIXES-2026-07-17 item 3, zoom-aware drawing): "multi-day rails
+    at intraday zoom read as noise" (J: "a blind person drew them"). Classify whether a line's
+    ANCHOR point falls within J's normal ~window_days-day intraday zoom window ending at
+    `now_unix` (the last bar the caller has in hand -- never wall-clock time, so this stays
+    no-look-ahead and deterministic under replay).
+
+    Returns "in_window" (anchor is recent enough to render its label AT the anchor point --
+    normal behavior) or "anchor_offscreen" (the anchor predates the window -- at a normal
+    intraday zoom it renders off-screen to the left, so the drawing skill should place the
+    on-chart TEXT LABEL near the line's projected/current end instead, per the queue item's
+    proposed rule: "only render lines whose anchor span overlaps the visible ~2-day window, or
+    label-offset placement" -- this implements the label-offset branch; the line itself (a real
+    respected multi-day rail) is still worth drawing as a ray, just not worth an off-screen
+    label).
+
+    Boundary is INCLUSIVE at exactly `window_days` back (>= window_start counts as in_window) --
+    matches the same >= convention `_bar_date_et` grouping and the same_day tier's `==` use."""
+    window_start = now_unix - int(window_days * 86400)
+    return "in_window" if a_unix >= window_start else "anchor_offscreen"
+
+
 def detect(bars: list[dict], families: tuple[str, ...] = ("wick", "body"),
-           include_same_day_tier: bool = False) -> list[Trendline]:
+           include_same_day_tier: bool = False, include_zoom_class: bool = False) -> list[Trendline]:
     """Detect the best-scoring line per (kind, family) -- up to 4 lines: wick-support,
     wick-resistance, body-support, body-resistance. NEVER mixes a wick anchor with a body
     anchor within one line (see _fit's per-family assert). Families default to BOTH -- J's rule
@@ -365,7 +403,15 @@ def detect(bars: list[dict], families: tuple[str, ...] = ("wick", "body"),
     additive, never replaces the primary line. No-look-ahead is inherited for free: this only
     ever narrows the SAME already-truncated `bars` list the caller passed in, never reads beyond
     it (C6 invariant, mirrors the no_look_ahead_guard convention in
-    trendline-structure-conviction-preregistration.json)."""
+    trendline-structure-conviction-preregistration.json).
+
+    T16 (2026-07-21, TRENDLINE-FIXES-2026-07-17 item 3): `include_zoom_class=True` (default
+    False -- byte-identical for every existing caller/test unless it opts in) additionally
+    classifies each returned line's `zoom_class` via `zoom_classify()`, using the LAST bar
+    already in `bars` as "now" (never wall-clock time -- no-look-ahead is inherited the same
+    way as the same-day tier above: this only ever reads timestamps already in the caller's own
+    slice). Purely a classification -- never changes which lines are selected, their order, or
+    their count."""
     out = []
     for family in families:
         lows, highs = find_pivots(bars, family=family)
@@ -390,6 +436,9 @@ def detect(bars: list[dict], families: tuple[str, ...] = ("wick", "body"),
                 if is_dup:
                     continue
                 out.append(replace(sd_line, tier="same_day"))
+    if include_zoom_class and bars:
+        now_unix = _unix(bars[-1]["t"])
+        out = [replace(ln, zoom_class=zoom_classify(ln.a_unix, now_unix)) for ln in out]
     return out
 
 
@@ -424,6 +473,7 @@ def write_live_state(lines: list[Trendline], date_et: str) -> None:
         "generated_at": _dt.datetime.now(_dt.timezone.utc).isoformat(),
         "count": len(lines),
         "trendlines": [{"kind": ln.kind, "anchor_family": ln.anchor_family, "tier": ln.tier,
+                        "zoom_class": ln.zoom_class,
                         "current_value": round(ln.current_value, 2),
                         "break_level": round(ln.break_level, 2), "status": ln.status,
                         "respect_count": ln.respect_count, "violations": ln.violations,
@@ -455,7 +505,9 @@ def main(n_days: int = N_DAYS, write_log: bool = True, as_json: bool = False) ->
     # SHADOW-only (write_live_state's own docstring: "the engine does NOT trade off these yet"),
     # so surfacing J's own same-day line alongside the multi-day primary is a pure visibility
     # win with zero trading-behavior change.
-    lines = detect(bars, include_same_day_tier=True)
+    # T16 (2026-07-21): include_zoom_class=True likewise -- a pure classification hint for the
+    # on-demand trendline-draw skill's label placement, zero effect on which lines are detected.
+    lines = detect(bars, include_same_day_tier=True, include_zoom_class=True)
     if not lines:
         if as_json:
             print(json.dumps({"lines": [], "note": "no respected trendline yet"}))
