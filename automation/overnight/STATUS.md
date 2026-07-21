@@ -1,5 +1,12 @@
 ## [2026-07-21 ~07:48-08:20 ET] OK -- conductor (AFTERHOURS): PROSPECTOR-STATE-LOSS-REPROMOTION-FLOOD fixed + backlog deduped, commit `ff8ac55`
 
+> **Autonomy metric (`conductor_outcome.py metric`, 20-fire window):** `trend: "regressing"`
+> (net_improvement 99 / cost_per_drained $0.73 / 0 regressions across the window) -- this fire's
+> own drained:37/cost:$3.9 (~$0.11/drained) pulls the average the RIGHT direction, but the trend
+> label itself hasn't flipped yet. Flagging per this prompt's own STAGE 5 instruction rather than
+> chasing it further this fire (rail 3, one bounded task); next fire should prefer a loop-closer
+> again over a fresh artifact if the trend is still regressing.
+
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55 prior day). Self-check
 > GREEN, fill-funnel GREEN both today (idle, premarket) and yesterday 2026-07-20 (core:safe
 > 406->28->10->0->1->1->3->3, core:bold 386->18->1->0->0->0->0->0 -- traced the bold ENTER=1/
