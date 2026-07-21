@@ -103,6 +103,63 @@ def _rewrite_proposals(rows: list[dict]) -> None:
     tmp.replace(PROPOSALS)
 
 
+# Statuses a `ship`/apply/revert could still act on -> ambiguity here is unsafe.
+# Mirrors test_proposal_id_uniqueness.py's ACTIVE_STATUSES exactly (kept in sync by
+# test_resolve_proposal.py::test_active_statuses_match_uniqueness_guard).
+_ACTIVE_STATUSES = frozenset({"pending", "approved", "needs_structured_apply"})
+
+
+class DuplicateProposalError(RuntimeError):
+    """Raised by resolve_proposal when >1 ACTIVE-status row shares a proposal_id --
+    the caller must never silently pick one (L207 / FIX-CD-2026-06-28-002-ID-COLLISION:
+    cd-2026-06-28-002 was reused on two different active proposals, and this same
+    module resolved 'the' row three incompatible ways -- sync_companion_approvals's
+    dict-comprehension (last-wins), revert's next()-scan (first-wins), and
+    _set_status's for-loop-with-break (also first-wins but a different mechanism) --
+    so a single `ship <id>` could approve one row while apply/revert silently acted
+    on a DIFFERENT one. test_proposal_id_uniqueness.py pins that this can't happen in
+    the real ledger; this is the runtime backstop for a race window or a caller that
+    hands in an un-vetted `rows` list."""
+
+
+def resolve_proposal(pid: str, rows: list[dict]) -> "dict | None":
+    """THE single lookup helper for 'the row matching this proposal_id' -- every
+    mutation site (sync_companion_approvals / _set_status / revert) MUST route
+    through this instead of its own dict-comprehension / next()-scan / loop-with-
+    break, so a duplicate id resolves the SAME way (or fails loud) everywhere.
+
+    - 0 matches -> None.
+    - 1 match -> that row, regardless of status.
+    - >1 matches, but only ONE is ACTIVE (pending/approved/needs_structured_apply)
+      -> that active row (a terminal re-emission, e.g. promote_keeper replaying an
+      already-`applied` id, is harmless and explicitly allowed -- mirrors
+      test_terminal_duplicate_is_allowed).
+    - >1 ACTIVE matches -> raise DuplicateProposalError. This is the real hazard
+      the L207 incident hit: two rows a `ship`/apply/revert could BOTH still act
+      on, sharing one id. Never silently pick one.
+    - >1 matches, none ACTIVE (all terminal) -> return the first (nothing
+      actionable either way; preserves prior harmless behavior).
+    """
+    matches = [r for r in rows if r.get("proposal_id") == pid]
+    if not matches:
+        return None
+    if len(matches) == 1:
+        return matches[0]
+    active = [r for r in matches if str(r.get("status", "")).lower() in _ACTIVE_STATUSES]
+    if len(active) > 1:
+        raise DuplicateProposalError(
+            f"proposal_id {pid!r} matches {len(active)} ACTIVE rows "
+            f"(statuses={[r.get('status') for r in active]}) out of {len(matches)} total row(s) "
+            "sharing this id -- refusing to silently resolve one. Re-id all-but-one active row "
+            "in conductor-proposals.jsonl (test_proposal_id_uniqueness.py should already have "
+            "caught this at guard-test time; seeing it here means a race window or an un-vetted "
+            "rows list)."
+        )
+    if len(active) == 1:
+        return active[0]
+    return matches[0]  # all terminal -- harmless, nothing actionable
+
+
 def _read_companion_decisions() -> list[dict]:
     if not COMPANION_DECISIONS.exists():
         return []
@@ -144,11 +201,19 @@ def sync_companion_approvals() -> int:
     if not decisions:
         return 0
     rows = _read_proposals()
-    by_id = {r.get("proposal_id"): r for r in rows if r.get("proposal_id")}
     changed = 0
     for d in decisions:
         pid = d.get("id")
-        prop = by_id.get(pid)
+        if not pid:
+            continue  # synthetic companion card (act-*/oblig-*) -- no proposal_id to match
+        try:
+            prop = resolve_proposal(pid, rows)
+        except DuplicateProposalError as exc:
+            # Fail LOUD, not silent: log the collision and skip THIS decision only --
+            # other decisions in the batch still get a chance to sync (L207).
+            print(f"[actuator] sync_companion_approvals: {exc}", file=sys.stderr)
+            _log_change({"proposal_id": pid, "outcome": "duplicate_id_blocked", "reason": str(exc)})
+            continue
         if prop is None or prop.get("status") != "pending":
             continue  # not a real pending proposal (synthetic id / already-resolved)
         decision = d.get("decision")
@@ -568,10 +633,9 @@ def _run_gate() -> tuple[bool, str]:
 
 # ----------------------------------------------------------------------- apply
 def _set_status(rows: list[dict], pid: str, **fields) -> None:
-    for r in rows:
-        if r.get("proposal_id") == pid:
-            r.update(fields)
-            break
+    r = resolve_proposal(pid, rows)  # raises DuplicateProposalError loud on a real collision
+    if r is not None:
+        r.update(fields)
     _rewrite_proposals(rows)
 
 
@@ -688,7 +752,7 @@ def apply_approved(dry_run: bool = False) -> int:
 # ---------------------------------------------------------------------- revert
 def revert(pid: str) -> int:
     rows = _read_proposals()
-    prop = next((r for r in rows if r.get("proposal_id") == pid), None)
+    prop = resolve_proposal(pid, rows)
     if prop is None:
         print(f"[actuator] revert: no proposal {pid}.")
         return 1

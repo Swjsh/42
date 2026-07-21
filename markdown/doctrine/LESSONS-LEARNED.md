@@ -4860,9 +4860,26 @@ This keeps the commit scoped (only staged files land) AND avoids the partial-com
 
 **Fix:** split the colliding ids (commit 5e536ca) + `backtest/tests/test_proposal_id_uniqueness.py` guards ACTIVE-status id uniqueness so a dup active id cannot exist.
 
-**The rule:** any time two code paths look up the same key with different container semantics (dict vs linear scan), a duplicate key produces a silent disagreement — pick ONE resolution helper, or assert-unique at the boundary. (Owed defense-in-depth: harden the actuator to fail LOUD on a duplicate id, or route both paths through one shared `resolve_proposal(pid, rows)` helper.)
+**The rule:** any time two code paths look up the same key with different container semantics (dict vs linear scan), a duplicate key produces a silent disagreement — pick ONE resolution helper, or assert-unique at the boundary.
 
-**Encoded in:** `backtest/tests/test_proposal_id_uniqueness.py`. Inbox source `strategy/candidates/_lesson-inbox/2026-07-02-same-id-resolved-two-ways-in-one-module.md`. **Related:** C7, C14.
+**Defense-in-depth SHIPPED 2026-07-21 (conductor, AFTERHOURS):** the owed hardening is done —
+`setup/scripts/autonomy_actuator.py` now has ONE shared `resolve_proposal(pid, rows)` helper
+(+ `DuplicateProposalError`) that `sync_companion_approvals`, `_set_status`, and `revert` all
+route through (a THIRD resolution mechanism — `_set_status`'s for-loop-with-break — was found
+during this fix, not just the two named above). Semantics: a terminal+active duplicate (e.g. a
+harmless `promote_keeper` re-emission) resolves to the ONE active row regardless of file order
+(the old first-wins scan could silently mutate the wrong — terminal — row); TWO active rows
+sharing an id raises `DuplicateProposalError` loud instead of picking one, and
+`sync_companion_approvals` catches it per-decision (logs `duplicate_id_blocked`, skips only
+that id, keeps syncing the rest of the batch). Guard: `backtest/tests/test_resolve_proposal.py`
+(10 tests, RED-proofed via `git stash` — 9/10 failed against the pre-fix module with the exact
+expected `AttributeError`, `git stash pop` restored cleanly, re-verified 44/44 across the full
+actuator test family). Curated safety gate (31+5) PASS.
+
+**Encoded in:** `backtest/tests/test_proposal_id_uniqueness.py` (the presence guard) +
+`backtest/tests/test_resolve_proposal.py` (the shared-resolution guard). Inbox source
+`strategy/candidates/_lesson-inbox/2026-07-02-same-id-resolved-two-ways-in-one-module.md`.
+**Related:** C7, C14.
 
 ---
 
