@@ -6,6 +6,27 @@ risky-3; engine-attributed; options only) under 4 candidate exit shapes, using t
 decision core the live actuator runs) driven by REAL Alpaca 1-min option bars
 (/v1beta1/options/bars -- confirmed real OPRA trade data, not synthetic).
 
+DEFAULT SCOPE STAYS FLEET-ONLY -- DO NOT CHANGE WITHOUT RE-VERIFYING THE FROZEN ANCHOR (2026-07-21
+finding, conductor): fleet_rest went dark 2026-07-09 (0 fills since, per PROFIT-P1-FLEET-EXIT-
+PARITY) while ALL real trading since has happened on the CORE arms (safe-2/bold-2 in
+fills-ledger.jsonl, current through today) -- this loader is BLIND to that by original design,
+which is the root cause of the "0/0 exhibit fills recoverable" gap disclosed twice on 2026-07-20
+(STRUCTURE-STOP-ZONE-BAND/STRUCTURE-STOP-REFERENCE-LEVEL) and of every T-AUTOPSY hypothesis's
+"confirm on fresh OPRA slice" proposed-test coming up empty. **The fix is additive, NOT a default
+change**: 127 core-arm (safe-2/bold-2) fills already predate `structure_stop_study.ANCHOR_END_DATE`
+(2026-07-08) -- flipping the DEFAULT to include them would silently shift the FROZEN anchor
+population every downstream DONE-with-verdict study (structure_stop_study CONTROL/SS-A/B/C,
+T4/T5, ribbon_ride_strike_exit_ab, p5_topcell_real_fills_confirm) cites its pinned numbers
+against (`test_control_anchor_reproduces_established_baseline_live` pins CONTROL anchor_total
+== -757.1 EXACTLY), which is precisely the re-pick-after-seeing-results hazard the no_repick_clause
+discipline exists to prevent. So: `load_fleet_engine_fills`'s default stays `FLEET_REST_ARMS`
+(byte-identical to every prior call), and a NEW `ALL_LIVE_ARMS = FLEET_REST_ARMS + CORE_ARMS`
+constant is available for any FUTURE re-run that wants current-day coverage -- call
+`load_fleet_engine_fills(arms=ALL_LIVE_ARMS)` explicitly (never as a silent default) to include
+today's real exhibits. Any study wanting to re-confirm against fresh core-arm data must do so as
+its OWN new frozen pre-registration (a NEW population is a NEW study, not a silent extension of
+an already-verdicted one).
+
 SCOPE / DISCLOSED LIMITATION: this replay tests the PREMIUM- and TIME-based components of each
 shape only (premium stop, TP1 partial, runner profit-lock, runner target, 15:50 time stop).
 `ribbon_flip_back` is always False here -- chart-stop / ribbon-flip invalidation is NOT
@@ -43,6 +64,8 @@ STATE = REPO / "automation" / "state"
 LEDGER = STATE / "fills-ledger.jsonl"
 OUT_DIR = REPO / "analysis" / "exit-parity"
 FLEET_REST_ARMS = ("safe-1", "safe-3", "risky-1", "risky-3")
+CORE_ARMS = ("safe-2", "bold-2")  # production Gamma-Safe-2 / Gamma-Bold(Risky-2) -- added 2026-07-21
+ALL_LIVE_ARMS = FLEET_REST_ARMS + CORE_ARMS
 OPTIONS_HOST = "https://data.alpaca.markets"
 
 # --- the 4 candidate shapes (HANDOFF T6) --------------------------------------------------
@@ -68,7 +91,12 @@ SHAPES = {
 }
 
 
-def load_fleet_engine_fills(ledger_path: Path = LEDGER) -> list[dict]:
+def load_fleet_engine_fills(ledger_path: Path = LEDGER,
+                            arms: tuple[str, ...] = FLEET_REST_ARMS) -> list[dict]:
+    """Default stays `FLEET_REST_ARMS` (byte-identical to every existing caller/frozen anchor --
+    see the module docstring's 2026-07-21 note on why the default must NOT change). Pass
+    `arms=ALL_LIVE_ARMS` explicitly to also include the CORE arms (safe-2/bold-2) for a NEW,
+    separately-frozen study that wants current-day coverage."""
     if not ledger_path.exists():
         return []
     out = []
@@ -81,7 +109,7 @@ def load_fleet_engine_fills(ledger_path: Path = LEDGER) -> list[dict]:
                 r = json.loads(line)
             except ValueError:
                 continue
-            if (r.get("arm") in FLEET_REST_ARMS and r.get("attribution") == "engine"
+            if (r.get("arm") in arms and r.get("attribution") == "engine"
                     and not r.get("is_crypto") and r.get("is_option")):
                 out.append(r)
     return out
@@ -258,7 +286,8 @@ def main() -> int:
         }
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    (OUT_DIR / "exit-shape-parity-2026-07-08.json").write_text(
+    run_date = datetime.now(timezone.utc).date().isoformat()
+    (OUT_DIR / f"exit-shape-parity-{run_date}.json").write_text(
         json.dumps({"generated_at_utc": datetime.now(timezone.utc).isoformat(),
                     "n_positions": len(positions), "summary": summary, "results": results},
                    indent=2), encoding="utf-8")
