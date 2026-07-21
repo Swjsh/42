@@ -41,6 +41,669 @@
 
 
 
+
+
+
+
+
+
+
+
+<!-- rolled off 2026-07-21 by status_retention.py (L181 consolidation): 1 entries / 118 lines -->
+
+## [2026-07-20 19:42-19:50 ET] OK -- conductor (AFTERHOURS): STATE-FILE-REVERSION-2026-07-20 -- untracked circuit-breaker*.json + today-bias.json (git-ops-reverts-live-state bug), CLOSED_PARTIAL, committed
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Fill-funnel priority-1
+> check GREEN (406/386 core ticks, 1 attempt/1 accept/3 fills safe, no funnel break). No new
+> self-audit gap batch today. `task_scorer.py --top` returned the already-repeatedly-skipped
+> J-decision-gated `MORNING-BULL-QUALITY-GATE-RECONSIDER`. Top of queue.md's HIGH backlog: the
+> filed-but-unactioned `STATE-FILE-REVERSION-2026-07-20` (real, twice-reproduced-today infra
+> bug, outranks that J-gated item and every routine MED/LOW item) -- picked it.
+
+> **Verified the bug is live, not stale:** `git ls-files` confirmed circuit-breaker.json (both
+> core accounts + 4 fleet arms) and today-bias.json (main + futures) were STILL tracked, last
+> committed 2026-07-14, with mtimes as recent as tonight 17:43 ET -- exactly the
+> tracked-but-rarely-committed danger signature that let a `git stash`/`checkout` in the shared
+> checkout silently revert live kill-switch/bias state BACKWARD (reproduced twice today per the
+> queue item: 04:27/05:58 ET premarket + 18:40 ET mid-session). Same root-cause CLASS as the
+> 2026-07-14 decision-ledger stash-drop incident (commit 41889a0), recurring on a different file
+> class because that fix treated the symptom (4 specific ledgers) not the mechanism (any
+> continuously-overwritten file under automation/state/ tracked-but-rarely-committed).
+
+> **A broader scripted audit found this is much bigger than the queue item's 8 named files:**
+> ~279 tracked JSON/JSONL files under automation/state/ are ALSO last-committed 2026-07-14 with
+> today's mtimes. Scoped this fire to the 8 CONFIRMED-reproduced overwritten-in-place files
+> (circuit-breaker.json x6, today-bias.json x2) -- most of the other 271 are dated one-time
+> snapshots or append-only historical logs (lower risk, don't regress in place) and were not
+> individually triaged; filed `STATE-FILE-REVERSION-AUDIT-FOLLOWUP` (MED) in queue.md for a
+> future bounded fire rather than risk a same-fire 279-file migration.
+
+> **Fix:** exact pattern as 41889a0 -- gitignored + `git rm --cached` the 8 files (content stays
+> on disk unchanged, readers are path-based and don't care about git tracking; verified both
+> files still load via `json.load` post-untrack). Extended the existing guard
+> (`backtest/tests/test_ledger_gitignore_guard.py`) with a `STATE_SNAPSHOTS` list + 2 new tests.
+> RED-proofed: `git stash push --keep-index -- .gitignore` then re-ran the new tests ->
+> `test_state_snapshots_are_gitignored` FAILED with the exact expected assertion
+> (`automation/state/circuit-breaker.json is NOT gitignored`), `git stash pop` restored cleanly,
+> re-verified 4/4 green. Curated pre-commit safety gate (31 tests + 5 suites) PASS at commit
+> time. **Noted but NOT touched (lane discipline):** 3 pre-existing stashes were already sitting
+> in the repo from other work (`git stash list` showed 3 unrelated WIP entries before my own
+> push/pop round-tripped cleanly around them) -- flagging as an observation, not mine to clear.
+
+> **REVOKE window open (rail 4 -- engine-benefit infra, not a trading-path edit).** Change:
+> `.gitignore` + `git rm --cached` on 8 state files + guard test extension. Zero
+> `params.json`/`heartbeat_core.py`/`filters.py`/placement/exit code touched -- this is
+> infra/ops (state-file git tracking), ships per OP-22/OP-26 without J ratification. **Revert:**
+> `git revert 25e31e2` (5 files: `.gitignore`, `backtest/tests/test_ledger_gitignore_guard.py`,
+> + the 6 circuit-breaker.json/2 today-bias.json path re-adds are harmless either way since
+> on-disk content is unaffected by tracking status). **Commit:** `25e31e2`.
+
+> **Learn-loop:** filed `strategy/candidates/_lesson-inbox/state-file-reversion-git-ops-on-live-state-2026-07-20.md`
+> flagging this as the SECOND occurrence of the SAME mechanism (07-14 ledgers, 07-20 state
+> snapshots) -- OP-25 re-violation class, recommending lesson-author fold both under one L#
+> rather than filing separately. The interim rule ("no git stash/checkout/clean touching
+> automation/state by any session/fire") remains PROSE-ONLY -- not yet code-enforced; flagged
+> in both the lesson item and the queue follow-up as the next graduation candidate (a
+> git-diff-after-stash allowlist check) if this recurs a THIRD time.
+
+> **Cost: ~$3.4** (STAGE 0/1 reads incl. engine-health/STATUS/queue/self-audit/fill-funnel,
+> task-scorer, queue.md targeted reads (2129-line file, offset-read not full-read), a python
+> audit script identifying the 279-file broader scope, git tracking/mtime forensics, the fix
+> itself (gitignore + rm --cached + guard test extension), RED-proof round-trip, 1 curated
+> safety gate run, 1 commit, lesson-inbox write, queue.md + STATUS.md writeups). **Files:**
+> `.gitignore`, `backtest/tests/test_ledger_gitignore_guard.py`,
+> `automation/overnight/queue.md`, `strategy/candidates/_lesson-inbox/state-file-reversion-git-ops-on-live-state-2026-07-20.md`.
+
+---
+
+
+### DEGRADED: self-check 2026-07-21T09:39:56
+- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+## Kitchen
+Kitchen: alive, queue 38 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+### DEGRADED: self-check 2026-07-21T10:09:56
+- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-21T10:39:56
+- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-21T11:09:56
+- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-21T11:39:56
+- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-21T12:09:56
+- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-21T12:39:56
+- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-21T13:09:56
+- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-21T13:39:56
+- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-21T14:09:56
+- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-21T14:39:56
+- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-21T15:09:56
+- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-21T15:39:56
+- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-21T20:00:59+00:00
+- task: eod-summary
+- date_et: 2026-07-21
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-07-21T16:09:56
+- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+<!-- rolled off 2026-07-21 by status_retention.py (L181 consolidation): 1 entries / 79 lines -->
+
+## [2026-07-20 19:12-19:25 ET] OK -- conductor (AFTERHOURS): SHADOWEVAL-WEEKLY-TRIGGER-VS-DAILY-DOCS -- investigated a LOW doc-mismatch item, found + fixed a real 4-week silent C7 failure instead, committed
+
+> **STAGE 0/1:** engine-health GREEN, market closed since 15:55. Fill-funnel priority-1 check
+> GREEN (406/386 ticks safe/bold, 3 fills, both closed -- no funnel break). All HIGH queue
+> items already CLOSED tonight by prior fires; self-audit gaps fully actioned through 07-18.
+> `task_scorer.py --top` re-flagged J-decision-gated `MORNING-BULL-QUALITY-GATE-RECONSIDER`
+> (correctly re-skipped, confirmed its residual question is still J-gated, not auto-shippable).
+> Picked the remaining LOW queue item `SHADOWEVAL-WEEKLY-TRIGGER-VS-DAILY-DOCS` (closes a loop
+> over creating an artifact; `TV-MCP-GETCHARTAPI-FIX-VERIFY` was next but this session has no
+> TradingView MCP tools wired -- left pending for an interactive/Pilot session with TV MCP).
+
+> **The original premise was a non-issue** (live-checked `Get-ScheduledTask` trigger:
+> `WeeksInterval=1` + `DaysOfWeek=62` = all 5 weekdays = functionally "daily," no mismatch) --
+> **but investigating it surfaced a real, much bigger bug the doc-mismatch hunt wasn't even
+> aimed at:** `Gamma_ShadowEval` has fired every weekday since 2026-06-29 (real per-day logs
+> exist) with Task Scheduler reporting `LastTaskResult=0`, yet **no scorecard has been produced
+> since 2026-06-24** -- 4 weeks of `analysis/shadow-model/*-scorecard.md` silence, masked by the
+> wscript fire-and-forget exit-code masking (same class as the `Gamma_EodFlattenCore` founding
+> incident). **Root cause:** the live engine migrated from two per-account ledgers
+> (`decisions.jsonl`/`aggressive/decisions.jsonl`, frozen 2026-06-25) to one consolidated
+> both-accounts ledger (`core-decisions.jsonl`, materially different schema) around
+> 2026-06-25 -- `shadow_model_eval.py`'s `SAFE_LEDGER`/`BOLD_LEDGER` never followed the
+> migration, so every day since printed "No ticks found -- skipping" and exited 1.
+
+> **Fixed:** `_normalize_core_row()` + a `CORE_LEDGER` fallback in `load_ticks_for_date()` --
+> maps the new schema's field names to the legacy shape (`ribbon`->`ribbon_stack`,
+> `htf_15m`->`htf_15m_stack`, `setup`->`setup_name`, `triggers[0]`->`trigger`, `verdict`->
+> `action`, `exec.entry_px/tp/stop`->`entry_px/tp1_px/stop_px`), consulted only when the legacy
+> ledger has nothing for the date (pre-2026-06-25 grading stays byte-identical). Disclosed scope
+> limit: `core-decisions.jsonl` logs zero `EXIT_*` verdicts (owned by `exit_manager.py`), so
+> `HOLD_RUNNER`/`EXIT_*` DT grading stays unavailable -- `ENTER_BULL`/`ENTER_BEAR`/`HOLD`/
+> `SKIP_*` (the actual DT-agreement decision-bearing population) is fully restored.
+
+> **Verified this fire:** dry-run tick counts (406 safe / 386 bold for 2026-07-20) exact-match
+> `fill_funnel.py`'s independent count for the same day. New guard
+> `backtest/tests/test_shadow_model_eval_core_ledger.py` (11/11), RED-proofed via `git stash`
+> on `shadow_model_eval.py` alone (all 11 failed with `AttributeError: no attribute
+> 'CORE_LEDGER'`, `stash pop` restored + re-verified 11/11 green). Curated safety gate
+> (31+5-suite) PASS at commit time. Kicked off the REAL production eval
+> (`shadow_model_eval.py --date 2026-07-20 --account both`, the exact nightly command) live in
+> the background this fire -- confirmed streaming real per-tick Nemotron agreement grades
+> (e.g. `t 0 09:30 HOLD -> HOLD_DEV OK (10111ms)`), not just a dry-run. ~792 ticks x 2.5s
+> inter-call sleep + real LLM latency means this legitimately runs ~2h; it will keep running
+> past this fire as an independent process ($0, free tier) -- check
+> `analysis/shadow-model/2026-07-20-scorecard.md` directly for the finished artifact rather
+> than re-running it.
+
+> **Rail-4 N/A (not a trading-path file):** `shadow_model_eval.py` is read-only/propose-only
+> by its own docstring ("NEVER imports or calls any Alpaca tool or order function... Read-only
+> on production state") -- ships as engine-benefit per OP-22/OP-26, no J ratification needed.
+> Zero `params.json`/`heartbeat_core.py`/`filters.py`/placement/exit code touched. **Revert:**
+> `git revert 3adada9` (2 files: `setup/scripts/shadow_model_eval.py`,
+> `backtest/tests/test_shadow_model_eval_core_ledger.py`). **Commit:** `3adada9`.
+
+> **Learn-loop:** same root-cause class as the queue's own recurring C7/C14 theme (a producer
+> migrates its ledger shape, a consumer silently keeps reading the old file/schema) --
+> the guard test's live-ledger regression pin (`test_live_core_ledger_produces_ticks_for_a_real_recent_date`)
+> IS the graduation: it will RED the moment `core-decisions.jsonl`'s schema changes again
+> without a matching update here, so no separate lesson-inbox item was filed on top of it.
+
+> **Cost: ~$4.4** (STAGE 0/1 reads incl. engine-health/STATUS/queue/self-audit/fill-funnel,
+> task-scorer + queue triage across ~10 candidate items, schema investigation (3 python probes
+> of core-decisions.jsonl), the fix itself (~115-line diff), 1 new 11-test guard file + RED-proof
+> round-trip, 1 curated safety gate run, 1 real dry-run + 1 real background production fire,
+> queue.md + STATUS.md writeups, 1 commit). **Files:** `setup/scripts/shadow_model_eval.py`,
+> `backtest/tests/test_shadow_model_eval_core_ledger.py`, `automation/overnight/queue.md`.
+
+---
+
+
+- [2026-07-21 04:00:02] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+[2026-07-21 04:00:02] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-21.md
+
+## Kitchen
+Kitchen: alive, queue 33 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+### DEGRADED: self-check 2026-07-21T09:09:56
+- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+<!-- rolled off 2026-07-21 by status_retention.py (L181 consolidation): 1 entries / 39 lines -->
+
+## [2026-07-20 18:19-18:58 ET] OK -- conductor (AFTERHOURS): DECISION-ROW-SPY-STALENESS -- finished + shipped a fix an earlier fire left uncommitted, REVOKE-eligible, guard-tested, committed
+
+> **STAGE 0/1:** engine-health GREEN, market closed since 15:55. self-check DEGRADED but
+> both flags non-critical (cash-settlement sanity cap, trendline-draw visibility gap only).
+> Top of `queue.md` Active backlog: `DECISION-ROW-SPY-STALENESS` (HIGH, filed ~18:30 ET same
+> evening, "investigate before tuning ANYTHING else") -- picked over `task_scorer.py --top`'s
+> `MORNING-BULL-QUALITY-GATE-RECONSIDER` per the queue item's own explicit priority framing
+> + priority-1 FUNCTION FIRST (sight-integrity feeding trigger/scoring is exactly that class).
+
+> **Investigating found the fix already ~90% built and fully wired in `heartbeat_core.py`
+> (`_fetch_live_spy_quote` + `_sight_staleness_check`, both call sites, `SKIP_STALE_SIGHT`
+> verdict) plus a new 23-test guard file and a quantification report -- all UNCOMMITTED,
+> from an earlier fire this session (16:08-16:17 ET file timestamps). This fire's job
+> became VERIFY + FINISH + SHIP, not re-derive: read the whole diff, confirmed the $1.00
+> threshold is evidence-derived (not hand-picked -- n=3860 rows, real fills topped out at
+> $0.63 outside the pathological cluster which hit $1.12-1.38), confirmed both fail-open
+> directions are correct (no live quote -> never blocks; NEVER-BLIND doctrine), ran
+> `test_sight_staleness_guard.py` (23/23), ran the two existing test files it modified
+> (53/53), then the full heartbeat_core-adjacent suite (136/136, zero regressions).
+> Committed `c593508` (pre-commit safety gate PASS). Closed the queue item with full
+> evidence; filed one small non-blocking follow-up (`GAP-REASON-SESSION-OPEN-FALLBACK`,
+> LOW -- a separate, confirmed log-only fallback-value seam at the 09:34 session open,
+> does not touch trigger/scoring).**
+
+> **REVOKE window open.** Change: entry-time freshness cross-check against Alpaca
+> `/trades/latest` (not another bar-close) fires ONLY at the moment an ENTER is about to be
+> attempted; diverges >$1.00 from the trigger bar's close -> `SKIP_STALE_SIGHT`, no order
+> placed. PAPER accounts only (Safe + Bold core, and the fleet arms via the same core
+> ledger). Revert: `git revert c593508`. Files: `setup/scripts/heartbeat_core.py`,
+> `backtest/tests/test_sight_staleness_guard.py` (new), `backtest/tests/
+> test_gate_provenance_ordering_2026_07_10.py`, `backtest/tests/test_money_path_2026_07_01.py`,
+> `analysis/recommendations/decision-row-spy-staleness-2026-07-20.json` (new),
+> `backtest/tools/fetch_spy_1min_sight_staleness.py` (new). **Commit:** `c593508`.
+
+---
+
+
+## Kitchen
+Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+<!-- rolled off 2026-07-21 by status_retention.py (L181 consolidation): 1 entries / 79 lines -->
+
+## [2026-07-20 17:42-17:58 ET] OK -- conductor (AFTERHOURS): self-audit gap batch (17:31:45, 9 items) investigated, 0 real gaps, queue hygiene fixed
+
+> **STAGE 0/1:** engine-health GREEN (13/13), market closed. Self-audit gaps
+> (`analysis/self-audit/new-gaps-flagged.md`) had a fresh un-actioned batch (2026-07-20T17:31:45,
+> 9 items) filed minutes before this fire started -- priority-3, outranks queue.md HIGH items,
+> so picked it over `task_scorer.py --top`'s `MORNING-BULL-QUALITY-GATE-RECONSIDER` (J-decision-
+> gated, correctly skipped again per its own recurring-flag note).
+
+> **Investigated all 9 gap claims individually (grep + live pytest, not vibes) -- found ZERO
+> real actionable gaps.** This is a new failure MODE for the self-audit organ, distinct from the
+> text-pattern scaffold noise already fixed 06-29/07-19: the swarm consult's perspectives
+> described code content that was already FALSE by the time the consult ran, because 4 sibling
+> fires landed structure-stop studies + fixes in rapid succession the SAME evening (17:00-18:05
+> ET) -- the swarm caught mid-flight state, not the settled end state. Concretely: (1) margin
+> mismatch = already tracked+J-pinged elsewhere; (2) resolve_zone_boundary "missing fallback" =
+> FALSE, the function already returns None safely on every edge case (verified reading
+> structure_stop_reference_level_ab.py:113-130) and is moot besides (REF-ZONE was NO-SHIP); (3)
+> exit-diversity overlay "not merged" = FALSE, already merged + guarded
+> (test_exit_patch_overlay.py, live-ran 13/13 PASS this fire); (4) margin/PDT multi-leg =
+> unfounded, fleet_executor.py already force-overrides pdt_gate_mode for all fleet arms; (5)
+> "incomplete" structure-stop edge-case coverage = FALSE, the exact 4 cases named
+> (no-trigger/max-distance/invalid-side/no-level-set) are already individually tested in
+> test_structure_stop_reference_level_ab.py; (6) missing audit trail for reference-level
+> decisions = moot, both candidates NO-SHIP tonight, nothing wires to production; (7) stale
+> queue state "blocking work" = partly real as a hygiene nit only (task_scorer.py already
+> correctly excludes both closed items from ranking via their `status:CLOSED_*` field -- live-
+> verified) -- FIXED (2 checkbox flips, queue.md); (8) over-fitting to single-trade artifacts =
+> not new, this IS C24/L140, already the explicit verdict driver in tonight's own structure-stop
+> DONE notes; (9) pure-function-wrapper latency "in the hot path" = FALSE, the named functions
+> live in an analysis-only `backtest/tools/` module never imported by `heartbeat_core.py` or any
+> live tick path.
+
+> **Root cause + standing mitigation (no new code guard -- documented in the DONE marker
+> instead):** there's no cheap way to auto-verify "was the LLM's prose claim about code content
+> true" generically; that verification IS the grep-then-decide step this fire just performed.
+> The existing OP-25/C7 discipline (read a self-audit gap, VERIFY against live code/tests before
+> actioning, only then fix-or-dismiss) already covers this class -- this fire is a clean
+> instance of that discipline working as designed, not a new gap in the gap-finder itself.
+
+> **Verified this fire:** `python -m pytest automation/state/fleet/test_exit_patch_overlay.py -q`
+> -> 13 passed. `grep` confirmed the 4 named edge-case tests exist verbatim in
+> `test_structure_stop_reference_level_ab.py`. `python setup/scripts/task_scorer.py --top` ->
+> `MORNING-BULL-QUALITY-GATE-RECONSIDER` (confirms closed items already correctly excluded from
+> ranking before my checkbox fix -- the fix is pure hygiene, not a ranking-correctness fix).
+
+> **Rail-4 N/A (no trading-path change):** `analysis/self-audit/new-gaps-flagged.md` (DONE
+> marker) + `automation/overnight/queue.md` (2 checkbox flips, `[ ]`->`[x]` on already-
+> `status:CLOSED_*` items) + this STATUS.md entry. Zero `params.json`/`heartbeat_core.py`/
+> `filters.py`/placement/exit code touched. **Revert:** `git revert <commit>` if committed (2
+> files, purely additive/hygiene, nothing downstream depends on it). **Not yet committed** --
+> this evening has a large uncommitted-state backlog across many sibling fires (structure-stop
+> studies, premarket-touch-credit study, LEVER-1 trend-alignment verdict, plus routine state-
+> journal drift); did not force a bulk commit outside this fire's own scope, per rail 3 (one
+> bounded task per fire, don't clobber sibling in-flight work in a shared file).
+
+> **Learn-loop:** no new lesson-inbox item -- this fire's method (verify each self-audit gap
+> claim against live grep/pytest before treating it as real, rather than actioning prose at face
+> value) is the SAME discipline the 06-29 and 07-19 self-audit fixes already established for the
+> text-pattern-noise failure mode; this fire demonstrates it generalizes to the stale-context
+> failure mode too, without needing new code.
+
+> **Cost: ~$2.4** (STAGE 0/1 reads incl. engine-health/STATUS/queue/self-audit-gaps triage, 9-gap
+> individual grep+pytest verification pass, 2 queue.md checkbox hygiene edits, 1 self-audit DONE
+> marker, this STATUS entry). **Files:** `analysis/self-audit/new-gaps-flagged.md`,
+> `automation/overnight/queue.md`.
+
+> **STAGE 1 priority-1 (fill-funnel, checked before the self-audit pick):**
+> `python setup/scripts/fill_funnel.py` -> **GREEN**, TOTAL 1162 ticks -> 39 sig -> 11 ENTER ->
+> 1 attempt -> 1 accept -> 3 fills -> 3 exits. core:safe fully closed (10 ENTER dedup'd to 1
+> attempt/accept, 3-lot fill+exit). core:bold 18 ENTER, 0 attempts (gated upstream, not a funnel
+> break -- `self_check.py` corroborates: only DEGRADED flags today are SETTLEMENT-BLOCKED[safe]
+> 5/5 same-day-entry cap reached, and a non-load-bearing TRENDLINE-DRAW visibility miss). No
+> funnel break outranked the self-audit-gaps pick.
+
+---
+
+
+## Kitchen
+Kitchen: alive, queue 37 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+<!-- rolled off 2026-07-20 by status_retention.py (L181 consolidation): 1 entries / 75 lines -->
+
+## [2026-07-20 17:15-18:05 ET] KILL (analysis-only) -- conductor (AFTERHOURS): PREMARKET-TOUCH-CREDIT-STUDY pre-reg run, closed
+
+> **STAGE 0/1:** engine-health GREEN (13/13), market closed. `task_scorer.py --top` re-flagged
+> J-DECISION-GATED `MORNING-BULL-QUALITY-GATE-RECONSIDER` (correctly skipped, Nth recurrence).
+> Self-audit gaps (`analysis/self-audit/new-gaps-flagged.md`) fully actioned through 2026-07-19.
+> Both HIGH items filed today during RTH (`STRUCTURE-STOP-ZONE-BAND`, `EXTRA-SIGNAL-CHURN-
+> COOLDOWN`) were already CLOSED by prior fires tonight before this fire started. Picked the
+> remaining open HIGH item: `PREMARKET-TOUCH-CREDIT-STUDY` (J's own 09:36 ET premarket question,
+> pre-reg study, explicitly "NOT a same-day wire").
+
+> **Built + ran the frozen pre-reg.** Froze `analysis/recommendations/premarket-touch-credit-
+> preregistration.json` before any replay. Reused `structure_stop_study.py`'s replay engine
+> (SS-B, trigger-exact, buffer=0.00 -- confirmed literal live behavior by tonight's 2 prior
+> structure-stop studies), `tw8_level_context.py`'s frozen per-day level set, and
+> `lib.filters.detect_level_rejection`/`detect_level_reclaim` (the exact production bar-test,
+> direction-matched) for premarket touch detection -- zero new hand-picked band parameter.
+> Fresh-slice population: 41 signals (canonical 2025-2026 signal cache filtered to the Alpaca-
+> SIP-verified premarket window 2026-05-19..2026-07-17, per DATA-PROVENANCE.md, + the existing
+> 18-signal FRESH_SIGNAL_SET, deduplicated); 27 eligible (recoverable trigger_level + cached
+> option bars, $0 -- no network calls). **Result: touched levels (n=15) SS-B expectancy
+> -$15.88/tr vs untouched (n=12) -$302.50/tr -- delta +$286.62 directionally consistent with
+> J's own read, but random-label permutation p=0.21 and shuffled-level permutation p=0.208
+> (neither BH-FDR-survives at alpha=0.05). Verdict: KILL** -- the pre-reg's own disclosed-in-
+> advance expected outcome for n~27. Layer (b) real-fills anchor deliberately DEFERRED (pre-
+> reg scope_note: not worth ~$4 of live OPRA network calls to confirm a KILL layer (a) alone
+> already resolves).
+
+> **Verified this fire:** new guard `backtest/tests/test_premarket_touch_credit_study.py`
+> (26/26 -- BH-FDR vs a textbook example, direction-matched touch detection incl. no-cross-day
+> and no-RTH-bar leakage, segmentation math, full verdict-ladder branch coverage, live pre-reg/
+> output sanity), RED-proofed via the file-move technique (untracked new module -- moved out,
+> confirmed `ModuleNotFoundError` on all 26, moved back, re-verified 26/26 green). Broader
+> sweep (`test_structure_stop_study` + `test_structure_stop_zone_band_ab` +
+> `test_structure_stop_reference_level_ab` + this file) -> **72/72 PASS, 0 regressions**.
+> Curated safety gate (31+5-suite) PASS.
+
+> **Rail-4 N/A (no trading-path change):** ANALYSIS ONLY -- `analysis/recommendations/
+> premarket-touch-credit-preregistration.json`, `analysis/recommendations/premarket-touch-
+> credit-2026-07-20.json`, `backtest/tools/premarket_touch_credit_study.py`,
+> `backtest/tests/test_premarket_touch_credit_study.py`, `automation/overnight/queue.md`. Zero
+> `heartbeat_core.py`/`level_states`/`params.json`/placement/exit code touched; no wire
+> attempted -- KILL means there is nothing to wire, per the item's own scope. **Revert:**
+> `git revert <this commit>` (5 files) -- purely additive, nothing downstream depends on it.
+
+> **Learn-loop:** no new lesson-inbox item -- this fire's method (reuse an already-built
+> sibling study's replay engine + level-context machinery for a new segmentation question,
+> rather than re-deriving trigger-level recovery / real-fill replay from scratch) is a direct
+> instance of the already-proven "compound, don't accumulate" discipline this session's other
+> structure-stop studies established tonight; no new foot-gun surfaced.
+
+> **Cost: ~$4.6** (STAGE 0/1 reads + task selection incl. confirming both RTH-filed HIGH items
+> already closed, machinery survey across `levels.py`/`filters.py`/`tw8_level_context.py`/
+> `structure_stop_study.py`/`structure_stop_reference_level_ab.py`/`probe_stats.py`/
+> `_signal_cache.py`, 1 pre-reg write, 1 ~330-line study tool, 1 local run (0 network calls),
+> 1 new 26-test guard file + RED-proof round-trip, 1 broader 72-test regression sweep, 1
+> curated safety-gate run, 1 queue.md closure, 1 STATUS.md entry, 1 commit -- no LLM in the
+> hot path, no orders, PAPER-N/A (analysis-only)). **Files:** `analysis/recommendations/
+> premarket-touch-credit-preregistration.json`, `analysis/recommendations/premarket-touch-
+> credit-2026-07-20.json`, `backtest/tools/premarket_touch_credit_study.py`,
+> `backtest/tests/test_premarket_touch_credit_study.py`, `automation/overnight/queue.md`.
+
+---
+
+
+### WARN: spend-summary threshold breach
+- ts: 2026-07-21T03:30:24+00:00
+- date_et: 2026-07-20
+- total: $345.61 (threshold $30.00)
+- claude: $345.61  minimax: $0.00
+- claude_sessions: 64
+
+### DEGRADED: self-check 2026-07-20T23:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+<!-- rolled off 2026-07-20 by status_retention.py (L181 consolidation): 1 entries / 88 lines -->
+
+## [2026-07-20 17:00-17:35 ET] NO-SHIP -- Sonnet worker (AFTERHOURS): STRUCTURE-STOP-REFERENCE-LEVEL pre-reg A/B, both candidates REJECT
+
+> **Context.** Assigned STRUCTURE-STOP-ZONE-BAND; on arrival, the queue showed item (a) (buffer
+> width) had already been closed REJECT_ALL_CANDIDATES by a conductor session ~5 minutes earlier
+> (commit `956cf84`) and item (b) (reference-level choice) had been re-filed standalone as
+> `STRUCTURE-STOP-REFERENCE-LEVEL`, status:pending, unclaimed. To avoid duplicating already-
+> falsified work (item (a)'s band-width axis) and to avoid clobbering the completed item (a)
+> artifacts (the assigned output filename collided with item (a)'s own verdict file), picked up
+> the still-open item (b) instead, per its own already-written spec in the queue.
+
+> **Built + ran a frozen pre-reg A/B for item (b)**: `backtest/tools/structure_stop_reference_level_ab.py`
+> (new `resolve_zone_boundary`/`reference_level_for` pure functions; reuses
+> `structure_stop_study.py`'s trigger recovery/replay machinery + `tw8_level_context.
+> frozen_level_set_for_date`'s per-day multi-level active set unchanged). Pre-reg:
+> `analysis/recommendations/structure-stop-reference-level-preregistration.json`, frozen BEFORE
+> any candidate replay. 3 candidates: REF-EXACT (control, today's live trigger-exact reference),
+> REF-ZONE (nearest active level beyond the trigger, away from spot -- the "zone boundary"),
+> REF-NONE (no structure stop at all). Band width held at 0.00 for all 3 by rule -- item (a)
+> already falsified that axis; re-testing it here without reference-level evidence would be
+> fishing. Preflight confirmed the SAME fresh-slice (n=18) + real-fills anchor (n=99,
+> 2026-06-29..2026-07-17) populations as item (a), byte-identical hashes -- only the
+> trigger_level resolution differs, matching the spec's own stated scope.
+
+> **Result: NO-SHIP both candidates.** REF-ZONE FAILS layer(a) fresh-slice expectancy (-$63.73/tr
+> vs -$47.34 control, worse not better). Its layer(b) real-fills "win" (+$481.2 vs -$900.7
+> control) is the SAME single-anchor-trade artifact C24 flagged in item (a): ONE 2026-07-08
+> position (SPY260708P00741000, 3 legs) drives the entire delta -- the zone boundary (745.21) is
+> far enough from the entry-adjacent trigger (744.17) that the structure stop simply never fires
+> that day, and the position rides to $427/$427/$307 instead of -$105/+$20/-$81 under today's
+> live reference; sub-window split hard sign-flips (+$1473.4 first half vs -$91.5 second half).
+> REF-NONE (no structure check at all) fails the same way, worse on layer(a) (-$84.29/tr). This
+> directly confirms item (a)'s own finding generalizes: it is not just band-width-on-the-wrong-
+> reference that fails to reproduce a stable edge -- the alternative reference itself fails too,
+> for the identical single-trade-driven reason.
+
+> **Verified this fire:** new guard `backtest/tests/test_structure_stop_reference_level_ab.py`
+> (17/17) covers `resolve_zone_boundary` (7 cases: nearest-above/below, no-level-set, no-trigger,
+> no-level-beyond, max-distance, invalid-side), `reference_level_for` (4 cases incl. the
+> zone-unavailable fallback), and `build_verdicts`' PASS/FAIL/sign-flip-downgrade/underpowered
+> classification (6 cases) + a pinned regression against this fire's actual disclosed NO-SHIP
+> output. RED-proofed via file-move (untracked new module -- `git stash` on an unmatched
+> pathspec silently no-ops, per tonight's established precedent): moved the module out of
+> `backtest/tools/`, confirmed `ModuleNotFoundError` (exact expected mechanism, all 17 fail to
+> collect), moved back, re-verified 17/17 green. Broader sweep (`test_structure_stop_study` +
+> `test_structure_stop_zone_band_ab` + this file + `automation/state/fleet/test_exit_manager` +
+> `test_exit_actuator`) -> **113/113 PASS, 0 regressions**.
+
+> **Rail-4 (PAPER/research-only -- guard test + no revert needed, nothing shipped):** touches
+> `backtest/tools/structure_stop_reference_level_ab.py` (new, standalone), `backtest/tests/
+> test_structure_stop_reference_level_ab.py` (new guard), `analysis/recommendations/structure-
+> stop-reference-level-preregistration.json` + `structure-stop-reference-level-2026-07-20.json`
+> (new pre-reg + output), `automation/overnight/queue.md` (item b closed NO-SHIP). **Zero
+> trading-path files touched** (`params.json`/`strategies.py`/`exit_manager.py`/placement/exit
+> code untouched) -- this is a REJECT research finding exactly like item (a), nothing ships, no
+> params flip, no revert needed. `backtest/lib/exit_manager_walk.py` (the faithful tick-managed
+> harness) was correctly NOT invoked -- that step is the SHIP-gate verification for a cleared
+> candidate, and neither candidate cleared the exploratory pre-reg bar to reach it.
+
+> **Learn-loop:** no new lesson-inbox item -- this is the SECOND time in one evening (item (a),
+> then item (b)) that the SAME single 2026-07-08 anchor position drove an apparent layer(b) win
+> that a sub-window split then exposed as unstable; this directly re-confirms the already-
+> indexed C24 pattern (anchor trades are one-off exceptional setups) rather than surfacing a new
+> foot-gun. Both sub-fixes of the original STRUCTURE-STOP-ZONE-BAND queue item are now closed
+> NO-SHIP under the same dual-layer discipline -- the queue item itself is fully resolved (no
+> further follow-up filed; the 2026-07-20 14:16 exhibit's -$24 vs +$115-130 counterfactual
+> remains a single anecdote this evening's research could not generalize into a population-level
+> edge).
+
+> **Cost: ~$4** (queue/STATUS read + duplicate-work check, read `exit_manager.py`/
+> `tw8_level_context.py`/`structure_stop_study.py`/`structure_stop_zone_band_ab.py` in full to
+> design the reference resolver, wrote the pre-reg + ~330-line study tool + guard test, 1 live
+> run against real OPRA/fills data (network calls), 1 RED-proof file-move round-trip, 1 broader
+> 113-test regression sweep, 2 queue.md edits, this STATUS entry -- no LLM in the hot path, no
+> orders, PAPER-only, zero pricing/gate/placement logic touched). **No commit made** (orchestrator
+> commits after verification per this fire's own rules).
+
+---
+
+
+### DEGRADED: self-check 2026-07-20T22:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-20T23:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+<!-- rolled off 2026-07-20 by status_retention.py (L181 consolidation): 1 entries / 91 lines -->
+
+## [2026-07-20 16:42-16:53 ET] SHIP (REVOKE) -- conductor (AFTERHOURS): EXTRA-SIGNAL-CHURN-COOLDOWN item 1 shipped (same-bar re-entry guard), item 2 re-filed as EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT
+
+> **Context.** STAGE 0 engine-health GREEN (13/13, market closed since 15:55). `task_scorer.py
+> --top` re-ranked `MORNING-BULL-QUALITY-GATE-RECONSIDER` (J-DECISION-GATED, correctly skipped
+> per standing precedent). Grepped live `queue.md` HIGH items: picked `EXTRA-SIGNAL-CHURN-
+> COOLDOWN` (filed ~11:25 ET during RTH, explicitly gated "FIX AFTER 16:00" per Rule 9, ready
+> now) over `STRUCTURE-STOP-REFERENCE-LEVEL`/`PREMARKET-TOUCH-CREDIT-STUDY` -- a concrete,
+> well-scoped mechanism bug with a clear live exhibit, not a fresh multi-day study.
+
+> **Root cause (one sentence):** `_route_extra_setups` (`setup/scripts/heartbeat_core.py`) had
+> no memory of "did this setup already attempt an entry on this trigger bar" -- the watchers'
+> current-bar guards stop a DUPLICATE signal firing twice, but nothing stopped a FRESH entry
+> once the account went flat again mid-bar (a stop-out), so `vix_regime_dayside` fired 3x 748C
+> entries within a single closed 5m bar 09:51-09:55 ET (net -$87), only nondeterministically
+> slowed by the free-model veto.
+
+> **Fixed:** added a per-arm, per-setup "last trigger-bar attempted" ledger
+> (`exit_actuator.load_last_entry_bars`/`record_entry_bar`/`same_bar_cooldown_active`, additive,
+> new functions only) wired into `_route_extra_setups`: refuse a new entry for a setup on the
+> SAME trigger bar it already attempted one on (`SKIP_COOLDOWN_SAME_BAR`); record only on an
+> actual PLACED/PLACING/WOULD_PLACE, never on WATCH_NOT_ARMED/VETOED_BY_MODELS. Chose
+> "requires-new-trigger-bar" over a hand-picked N-minute duration -- a brand-new mechanism has
+> no trade population to pre-register a numeric cooldown against, so the bar boundary is the
+> smallest non-arbitrary unit (no knob to hand-pick). Fail-open throughout; scoped to the
+> extra-setup lane only (primary ribbon path untouched, out of this fix's scope).
+
+> **Verified this fire:** new guard `backtest/tests/test_extra_signal_churn_cooldown_2026_07_20.py`
+> (10/10) -- round-trip, same-bar-blocks/different-bar-doesn't, fail-open on a cooldown-check
+> exception, record-only-on-actual-placement. RED-proofed via `git stash` on the 2 edited files
+> (+ file-move for the untracked new test): reproduced the exact expected mechanism
+> (`AttributeError: module 'exit_actuator' has no attribute 'load_last_entry_bars'`, 9/10 fail),
+> pop restored cleanly, re-verified 10/10 green. Broader sweep (`test_g4_extra_setup_routing` +
+> `test_gap_and_go_exit_wiring_2026_07_18` + `test_audit_fix_heartbeat` + `test_audit_fix_exit`
+> + `test_execute_stop_display` + `test_g14_fleet_ribbon_exit` + `test_money_path_2026_07_01` +
+> `test_trade_to_learn_2026_07_01` + this file) -> **136/136 PASS, 0 regressions**. Curated
+> safety gate (31+5-suite) PASS.
+
+> **Rail-4 (PAPER trading-path -- guard test + revert path + this REVOKE report):** touches
+> `automation/state/fleet/exit_actuator.py` (additive, 3 new functions), `setup/scripts/
+> heartbeat_core.py` (`_route_extra_setups` gains one same-bar check + one recording call;
+> zero change to the primary ribbon path/gate ordering/`_execute` pricing logic),
+> `backtest/tests/test_extra_signal_churn_cooldown_2026_07_20.py` (new guard),
+> `automation/overnight/queue.md` (item 1 closed, item 2 re-filed). **Revert:**
+> `git revert fd91712` (1 commit, 4 files touched by the fix + 1 lesson file, additive-only so
+> a revert is a clean rollback to today's exact pre-fix churn risk).
+
+> **Item 2 NOT fixed this fire (deliberately):** confirmed live `j_vix_dayside_premium_stop_pct=
+> -0.08` / `j_vix_dayside_tp1_pct=0.30` still the stale 2026-06-01-era bracket the item cited,
+> unchanged since the 2026-06-18 core-lane chart-stop-primary shift. Did NOT flip it blind --
+> C29 (exit knobs validated on one setup/tier don't transfer without independent evidence) --
+> re-filed as `EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT` (MED, needs a real pre-reg A/B, small-n
+> likely so DEFER-INSUFFICIENT-DATA is an acceptable honest outcome, not a forced flip).
+
+> **Learn-loop:** filed `strategy/candidates/_lesson-inbox/extra-signal-same-bar-churn-2026-07-20.md`
+> -- flags that the PRIMARY ribbon path has no equivalent same-bar re-entry guard (currently
+> protected only by its own flat-check + gate discipline, a materially different and untested-
+> for-this-exact-shape safety net) as the first place to look if this churn class ever
+> reappears there.
+
+> **Cost: ~$5.0** (STAGE 0/1 reads, `task_scorer.py --top`, queue.md HIGH-item grep + read,
+> traced `setup_dispatch.py`/`heartbeat_core.py`'s extra-setup dispatch+route+exec path in full,
+> `exit_actuator.py`/`exit_manager.py` exit-action stage/reason vocabulary, confirmed
+> `params.json`'s live `j_vix_dayside_*` values, designed+wrote the same-bar cooldown mechanism
+> (3 new exit_actuator functions + heartbeat_core wiring), wrote+ran the 10-test guard file
+> (2 full syntax checks, 1 targeted run, 1 broader 136-test sweep), 1 RED-proof git-stash +
+> file-move round-trip, 1 curated safety-gate run, 2 queue.md edits (closure + new item), 1
+> lesson-inbox file, 1 commit, 1 verify-committed check, this STATUS entry -- no LLM in the hot
+> path, no orders, PAPER-only, zero pricing/gate/placement logic touched). **Files:**
+> `automation/state/fleet/exit_actuator.py`, `setup/scripts/heartbeat_core.py`,
+> `backtest/tests/test_extra_signal_churn_cooldown_2026_07_20.py`, `automation/overnight/queue.md`,
+> `strategy/candidates/_lesson-inbox/extra-signal-same-bar-churn-2026-07-20.md`. **Commit:**
+> `fd91712`.
+
+---
+
+
+## Kitchen
+Kitchen: alive, queue 22 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+### DEGRADED: self-check 2026-07-20T21:18:06
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+---
+
+
+### DEGRADED: self-check 2026-07-20T22:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+<!-- rolled off 2026-07-20 by status_retention.py (L181 consolidation): 1 entries / 62 lines -->
+
+## [2026-07-20 21:12-21:22 ET] OK -- conductor (AFTERHOURS): SELF-CHECK-BROKEN-2026-07-20 -- BROKEN -> DEGRADED, root-caused 2 real defects, committed `cbb93c6`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). But
+> `self-check-last.json` verdict was **BROKEN** (3 real problems) -- outranks routine
+> queue/inbox work per this fire's own priority order (self-audit/function-first). Picked it.
+
+> **Finding 1 (real, root-caused): `today-bias.json` had been reverted to stale 2026-07-14
+> content.** `git show 25e31e2^:automation/state/today-bias.json` proved the on-disk content
+> exactly matched the last git-committed blob -- meaning tonight's OWN `git stash` during the
+> `STATE-FILE-REVERSION` debugging (commit `7b26cca`, ~18:43 ET) clobbered the fresh 08:30 ET
+> premarket write with the stale committed snapshot. Unlike `circuit-breaker.json` (both
+> accounts self-healed via `daily_loss_guard.rearm()`'s own stale-stamp detector -- confirmed
+> both show correct 2026-07-20 `last_reset`/`session_id`), `today-bias.json` has no equivalent
+> auto-repair. **No live-trading impact**: the clobber happened after 15:55 ET close; today's
+> real 09:30-15:55 decisions used the genuine fresh bias (premarket log: "VERIFIED today-bias
+> dated 2026-07-20"). Repaired via the ALREADY-EXISTING, already-tested (23/23 green)
+> `python setup/scripts/premarket_deterministic_fallback.py` -- a $0/no-LLM/un-blockable tool
+> built exactly for this failure class -- rather than hand-fabricating content. Verified fresh
+> write: `date=2026-07-20`, honestly stamped `degraded:true, source:deterministic_fallback`.
+
+> **Finding 2 (real, root-caused): `news.json` freshness_stamp was ~122h stale despite
+> `Gamma_MacroCalendar` Task Scheduler showing `LastTaskResult:0, NumberOfMissedRuns:0`.**
+> Root-caused: `setup/scripts/run_exe_hidden.vbs` (the standard hidden-launcher for ~60
+> scheduled tasks per `SCHEDULED-TASKS.md`) uses `shell.Run cmd, 0, False` -- fire-and-forget
+> (`bWaitOnReturn=False`) -- so Task Scheduler's exit code only proves `wscript.exe` launched
+> the child process, never that the payload script actually completed. This makes
+> `LastTaskResult`/`NumberOfMissedRuns` a misleading health signal for every task on this
+> launcher. Repaired tonight by hand-running `macro_calendar.py` (fresh `freshness_stamp`
+> confirmed). **Root cause NOT fixed this fire** -- too broad (audit-breadth work across ~60
+> tasks) -- filed `WSCRIPT-FIRE-AND-FORGET-AUDIT` (queue.md, MED) + lesson-inbox item
+> `2026-07-20-wscript-fire-and-forget-hides-scheduled-task-failure.md` for `lesson-author`.
+
+> **Verified this fire (OP-33):** re-ran `python setup/scripts/self_check.py` after both
+> fixes -- verdict **BROKEN -> DEGRADED** (2 remaining findings are expected/non-actionable:
+> the honestly-labeled DEGRADED premarket note, and an informational settlement-cap message).
+> Regression sweep: `pytest backtest/tests/test_premarket_deterministic_fallback.py
+> backtest/tests/test_macro_calendar_producer.py
+> backtest/tests/test_self_check_macro_calendar_freshness.py` -> **59/59 passed**. Curated
+> safety gate (pre-commit) PASS.
+
+> **Rail-4 (PAPER/data-integrity-only, zero trading-path change).** Both repairs write to
+> ALREADY-gitignored state files via ALREADY-existing, ALREADY-tested tools -- zero
+> `params.json`/`heartbeat_core.py`/`filters.py`/placement/exit code touched, zero new
+> behavior, zero commit needed for the repairs themselves (not tracked by git). Committed
+> only the bookkeeping: `automation/overnight/queue.md` (closure + new audit item),
+> `automation/overnight/STATUS.md`, a `status_retention.py` archive roll that was already
+> sitting uncommitted on disk from earlier tonight (verified archived verbatim, nothing lost
+> -- confirmed the pruned STRUCTURE-STOP-ZONE-BAND entry is present in
+> `STATUS-archive-2026-07.md` before committing), and the new lesson-inbox file. **Commit:**
+> `cbb93c6`.
+
+> **Cost: ~$3.15** (STAGE 0/1 reads, self-check + git forensics across 2 findings, dry-run +
+> live fallback run, macro_calendar re-run + Task Scheduler + vbs-launcher root-cause dig,
+> circuit-breaker + fleet + futures cross-check of all 8 untracked files from tonight's prior
+> fire, 2 regression sweeps, lesson-inbox write, queue/STATUS writeup, 1 commit, outcome
+> recorder). **Next up:** `WSCRIPT-FIRE-AND-FORGET-AUDIT` (MED, needs its own fire) or the
+> next queue.md HIGH item.
+
+### DEGRADED: self-check 2026-07-20T21:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- SETTLEMENT-BLOCKED[safe]: 5/5 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $1,723.79, $400.79 remaining, 5 entries placed today).
+- TRENDLINE-DRAW never marked today (2026-07-20) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
 <!-- rolled off 2026-07-20 by status_retention.py (L181 consolidation): 1 entries / 89 lines -->
 
 ## [2026-07-20 16:19-17:xx ET] OK -- conductor (AFTERHOURS): STRUCTURE-STOP-ZONE-BAND item (a) closed REJECT_ALL_CANDIDATES; item (b) re-filed as STRUCTURE-STOP-REFERENCE-LEVEL

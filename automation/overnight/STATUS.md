@@ -1,3 +1,68 @@
+## [2026-07-21 ~16:12-16:45 ET] OK -- conductor (AFTERHOURS): DOJO-EXIT-HARNESS-BUGS fixed + re-run, commit `e94d72b`
+
+> **STAGE 0/1:** engine-health GREEN (market closed since 15:55 today, this fire's own check
+> ran 16:12 ET before the gate mattered). Fill-funnel GREEN today (core:bold's lone ENTER_BEAR
+> at 15:10:04 traced -- `action: SKIP_LATE_ENTRY`, correctly downgraded by the post-15:00 entry
+> ceiling, not a placement gap, same pattern as the 07-20 precedent). Self-check DEGRADED on
+> "TRENDLINE-DRAW never marked today" (non-load-bearing, visibility-only) -- left for the
+> trendline-draw skill, not this fire's scope. `task_scorer.py --top` surfaced
+> `DOJO-EXIT-HARNESS-BUGS` (HIGH, filed 08:xx ET today, verdict VOID) with an advisory to
+> re-verify it still reproduces before acting -- confirmed still real by reading the VOID
+> report + the harness source before touching anything.
+
+> **What shipped (commit `e94d72b`):** `backtest/tools/dojo_exit_diversity_replay.py`'s
+> `extract_entries_and_ribbon` iterated `engine_step.load_day_bars()`'s full multi-month
+> warmup frame as if it were the target day's own bars -- a `day=2026-06-30` episode leaked a
+> cursor dated `2026-05-21` into `engine_step.step()`, inflating 4 curriculum days to 810 bogus
+> episodes (most BS-synthetic) and voiding the whole study. Fix: `day_rth =
+> rth[rth["timestamp"].dt.date == day_date]` restricts the entry/ribbon cursor loop to the
+> target day only; the untrimmed `bars` frame is still passed to `engine_step.step()`
+> unchanged so ribbon/level EMA warmup is unaffected. Re-assessed the report's SECOND claimed
+> bug (CONTROL==RIBBON identical P&L) as NOT a separate defect -- it's mathematically BY
+> DESIGN for this ribbon_ride-only entry population (registry exit shape already equals
+> RIBBON's own patch), already disclosed in the module's own docstring and pinned by an
+> existing test (`test_exit_profiles_pulled_from_live_accounts_json`); bug 1's contamination
+> is what made it look like a collapsed mapping.
+
+> **Verified this fire (OP-33):** new guard `test_extract_entries_scoped_to_target_day_only`
+> RED-proofed via `git stash` on the source file alone -- failed pre-fix with the exact
+> leaked-date signature (`saw {'2026-06-30', '2026-06-29'}`), passed post-fix, stash popped
+> clean. Full `test_dojo_exit_diversity_replay.py` 11/11 green; broader dojo sweep (+
+> engine_step, sim_executor, fence, no_broker) **44/44 PASS**. Curated safety gate (31+5)
+> PASS. Re-ran the harness on the SAME reduced day-set post-fix: clean, non-contaminated n=5
+> real-fills episodes per profile (was bogus n=115/810) -- ZONE-RIDE correctly differentiates
+> from CONTROL ($369.91 vs $400.91), confirming the exit_patch->walk_exit_manager mapping was
+> reaching correctly all along. Verdict `CONTROL_HOLDS` on this small, now-honest n --
+> disclosed as a first clean signal, not a final answer. `git ls-tree HEAD` confirmed all 5
+> changed files (2 source, 1 report, 1 scorecard, 1 queue) + the new lesson-inbox file landed
+> on HEAD, not just staged.
+
+> **Zero trading-path files touched** -- `dojo_exit_diversity_replay.py` is an
+> observation-only analysis tool (HARD FENCE: no broker import, no git ops, guarded), so this
+> ships as engine-benefit per OP-22/OP-26, no J ratification needed. **Revert:** `git revert
+> e94d72b` (6 files, additive + one regenerated-report + one regenerated-scorecard, no data
+> loss). **Lesson filed:**
+> `_lesson-inbox/2026-07-21-warmup-frame-misread-as-single-day-scope.md` -- new angle
+> alongside C6 (no look-ahead): a shared loader documented to return a full-history WARMUP
+> frame is not automatically safe to iterate as a per-day EVENT stream; a new consumer must
+> explicitly re-slice to its own actual scope before treating the untrimmed return value as an
+> iteration frame.
+
+> **Not fixed this fire (flagged, out of scope):** `DOJO-CACHE-SELECTION-PERF` (the
+> `_find_cache_csv` "picks the largest DST-spanning superset for 07-08 -> hangs" complaint)
+> was NOT independently re-verified -- `engine_step._find_cache_csv`'s current docstring/sort
+> key already implements "prefer smallest covering file", so the perf issue may already be
+> moot as a side effect of an earlier fix, but 07-08 specifically was not re-run to confirm.
+> Left open for a future fire or if J hits it directly.
+
+> **Cost: ~$4.7** (STAGE 0/1 reads incl. fill-funnel trace + task_scorer + full harness source
+> read + engine_step/sim_executor/exit_manager_walk root-cause trace across 3 files, fix +
+> new RED-proofed guard test, stash round-trip, 44-test broader sweep, curated safety gate,
+> harness re-run to produce the corrected report, commit + `git ls-tree HEAD` verification,
+> queue/STATUS/lesson-inbox updates).
+
+---
+
 ## [2026-07-21 ~09:12-09:26 ET] OK -- conductor (AFTERHOURS): ACTUATOR-RESOLVE-DUP-ID-FAIL-LOUD shipped (L207 defense-in-depth), commit `f60da48`
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market not yet open -- fired ~09:12-09:26 ET, before
@@ -617,71 +682,6 @@
 > regression sweep, 1 curated safety gate run, 1 commit, this queue/STATUS update). **Files:**
 > `setup/scripts/crypto_twin_health.py`, `backtest/tests/test_crypto_twin_health.py`,
 > `automation/overnight/queue.md`.
-
----
-
-## [2026-07-20 19:42-19:50 ET] OK -- conductor (AFTERHOURS): STATE-FILE-REVERSION-2026-07-20 -- untracked circuit-breaker*.json + today-bias.json (git-ops-reverts-live-state bug), CLOSED_PARTIAL, committed
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Fill-funnel priority-1
-> check GREEN (406/386 core ticks, 1 attempt/1 accept/3 fills safe, no funnel break). No new
-> self-audit gap batch today. `task_scorer.py --top` returned the already-repeatedly-skipped
-> J-decision-gated `MORNING-BULL-QUALITY-GATE-RECONSIDER`. Top of queue.md's HIGH backlog: the
-> filed-but-unactioned `STATE-FILE-REVERSION-2026-07-20` (real, twice-reproduced-today infra
-> bug, outranks that J-gated item and every routine MED/LOW item) -- picked it.
-
-> **Verified the bug is live, not stale:** `git ls-files` confirmed circuit-breaker.json (both
-> core accounts + 4 fleet arms) and today-bias.json (main + futures) were STILL tracked, last
-> committed 2026-07-14, with mtimes as recent as tonight 17:43 ET -- exactly the
-> tracked-but-rarely-committed danger signature that let a `git stash`/`checkout` in the shared
-> checkout silently revert live kill-switch/bias state BACKWARD (reproduced twice today per the
-> queue item: 04:27/05:58 ET premarket + 18:40 ET mid-session). Same root-cause CLASS as the
-> 2026-07-14 decision-ledger stash-drop incident (commit 41889a0), recurring on a different file
-> class because that fix treated the symptom (4 specific ledgers) not the mechanism (any
-> continuously-overwritten file under automation/state/ tracked-but-rarely-committed).
-
-> **A broader scripted audit found this is much bigger than the queue item's 8 named files:**
-> ~279 tracked JSON/JSONL files under automation/state/ are ALSO last-committed 2026-07-14 with
-> today's mtimes. Scoped this fire to the 8 CONFIRMED-reproduced overwritten-in-place files
-> (circuit-breaker.json x6, today-bias.json x2) -- most of the other 271 are dated one-time
-> snapshots or append-only historical logs (lower risk, don't regress in place) and were not
-> individually triaged; filed `STATE-FILE-REVERSION-AUDIT-FOLLOWUP` (MED) in queue.md for a
-> future bounded fire rather than risk a same-fire 279-file migration.
-
-> **Fix:** exact pattern as 41889a0 -- gitignored + `git rm --cached` the 8 files (content stays
-> on disk unchanged, readers are path-based and don't care about git tracking; verified both
-> files still load via `json.load` post-untrack). Extended the existing guard
-> (`backtest/tests/test_ledger_gitignore_guard.py`) with a `STATE_SNAPSHOTS` list + 2 new tests.
-> RED-proofed: `git stash push --keep-index -- .gitignore` then re-ran the new tests ->
-> `test_state_snapshots_are_gitignored` FAILED with the exact expected assertion
-> (`automation/state/circuit-breaker.json is NOT gitignored`), `git stash pop` restored cleanly,
-> re-verified 4/4 green. Curated pre-commit safety gate (31 tests + 5 suites) PASS at commit
-> time. **Noted but NOT touched (lane discipline):** 3 pre-existing stashes were already sitting
-> in the repo from other work (`git stash list` showed 3 unrelated WIP entries before my own
-> push/pop round-tripped cleanly around them) -- flagging as an observation, not mine to clear.
-
-> **REVOKE window open (rail 4 -- engine-benefit infra, not a trading-path edit).** Change:
-> `.gitignore` + `git rm --cached` on 8 state files + guard test extension. Zero
-> `params.json`/`heartbeat_core.py`/`filters.py`/placement/exit code touched -- this is
-> infra/ops (state-file git tracking), ships per OP-22/OP-26 without J ratification. **Revert:**
-> `git revert 25e31e2` (5 files: `.gitignore`, `backtest/tests/test_ledger_gitignore_guard.py`,
-> + the 6 circuit-breaker.json/2 today-bias.json path re-adds are harmless either way since
-> on-disk content is unaffected by tracking status). **Commit:** `25e31e2`.
-
-> **Learn-loop:** filed `strategy/candidates/_lesson-inbox/state-file-reversion-git-ops-on-live-state-2026-07-20.md`
-> flagging this as the SECOND occurrence of the SAME mechanism (07-14 ledgers, 07-20 state
-> snapshots) -- OP-25 re-violation class, recommending lesson-author fold both under one L#
-> rather than filing separately. The interim rule ("no git stash/checkout/clean touching
-> automation/state by any session/fire") remains PROSE-ONLY -- not yet code-enforced; flagged
-> in both the lesson item and the queue follow-up as the next graduation candidate (a
-> git-diff-after-stash allowlist check) if this recurs a THIRD time.
-
-> **Cost: ~$3.4** (STAGE 0/1 reads incl. engine-health/STATUS/queue/self-audit/fill-funnel,
-> task-scorer, queue.md targeted reads (2129-line file, offset-read not full-read), a python
-> audit script identifying the 279-file broader scope, git tracking/mtime forensics, the fix
-> itself (gitignore + rm --cached + guard test extension), RED-proof round-trip, 1 curated
-> safety gate run, 1 commit, lesson-inbox write, queue.md + STATUS.md writeups). **Files:**
-> `.gitignore`, `backtest/tests/test_ledger_gitignore_guard.py`,
-> `automation/overnight/queue.md`, `strategy/candidates/_lesson-inbox/state-file-reversion-git-ops-on-live-state-2026-07-20.md`.
 
 ---
 
