@@ -20,7 +20,7 @@
   all 5 arms' gated+sized+exit-profiled views. CAREFUL: build_shared_signal.py is a shared
   PRODUCTION module -- blast-radius grep + guard that the live path is byte-unchanged (add a
   replay-only code path, do not mutate the today path). This is what turns the dojo from a 2-arm
-  demo into J's full exit-diversity experiment. depends:none :: status:pending
+  demo into J's full exit-diversity experiment. depends:none :: status:done (committed 24bc365 2026-07-21; live build() byte-unchanged 58/58; dojo renders 5 arms differentiated)
 
 ### DOJO-HISTORICAL-KEY-LEVELS-SNAPSHOT (MED, Phase 1b, filed 2026-07-20 ~23:40 ET) :: engine_step
   parity on 2026-07-17 is ~87% verdict/side but bear/bull scores only 43-50% exact, because no
