@@ -9,6 +9,20 @@
 
 ## Active backlog
 
+### DOJO-BUILD-HANDOFF (HIGH, Opus-tier build, filed 2026-07-20 ~21:45 ET -- J's idea, Fable-specced same evening)
+
+- [ ] DOJO-BUILD-HANDOFF (HIGH, Opus builds Phase 1) :: J's replay-training-room program.
+  The build prompt IS markdown/specs/DOJO-REPLAY-TRAINING-SPEC.md -- read it whole, build
+  Phase 1 in its listed order (step 0: empirically test TV replay_* MCP tools on the
+  CURRENT TradingView plan and document limits BEFORE J buys a tier). Two-lane harvest
+  rule + no-live-state fence are load-bearing. Routing: Opus framework -> Sonnet runs
+  sessions with J -> Fable adjudicates Lane-B harvests only. depends:none :: status:pending
+
+### DOJO-DEEP-RESEARCH (LOW, bounded, free/Sonnet) :: one research pass -- DAgger-style
+  imitation learning from expert replay for trading policies; prop-firm bar-replay drill
+  methodology; open-source trading replay trainers worth mining. Output: short notes doc
+  feeding the DOJO build; does NOT gate it. depends:none :: status:pending
+
 ### DECISION-ROW-SPY-STALENESS (HIGH, sight-integrity investigation, filed 2026-07-20 ~18:30 ET from Lever-2 discovery)
 
 - [x] DECISION-ROW-SPY-STALENESS (HIGH, investigate before tuning ANYTHING else -- stale
