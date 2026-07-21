@@ -1,3 +1,60 @@
+## [2026-07-20 20:15-20:45 ET] OK -- conductor (AFTERHOURS): BROKER-CANARY-SENTINEL-HOOKUP -- one-line wiring shipped, guard-tested, committed `3332454`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 18:19+). Fill-funnel priority-1
+> check GREEN (1176 ticks, 11 ENTER, 1 attempt/1 accept/3 fills safe, no funnel break). Self-audit
+> gaps fully actioned through the 07-19 batch. All queue.md HIGH items already CLOSED tonight by
+> prior fires (`DECISION-ROW-SPY-STALENESS`, `STRUCTURE-STOP-ZONE-BAND`, `STRUCTURE-STOP-
+> REFERENCE-LEVEL`, `EXTRA-SIGNAL-CHURN-COOLDOWN` item 1, `PREMARKET-TOUCH-CREDIT-STUDY`); the
+> remaining MED items (`EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT`, `STRIKE-TIER-RECONCILIATION-
+> FOLLOWUP`, `PROFIT-P2-ARMED`) are all correctly `pending`/`DEFER-INSUFFICIENT-DATA`/`forward-
+> watch` -- genuinely blocked on more organic data or a J doctrine decision, not pickable this
+> fire. `task_scorer.py --top` re-flagged the J-decision-gated `MORNING-BULL-QUALITY-GATE-
+> RECONSIDER` (correctly re-skipped again). Picked `BROKER-CANARY-SENTINEL-HOOKUP` (LOW,
+> "ready-for-one-line-wire" since 2026-07-11) -- closes a real 9-day-old loop (a fully-built,
+> live-verified module sitting completely unwired) over creating a new artifact, and is a
+> genuinely bounded, low-risk task matching this fire's remaining scope.
+
+> **What shipped:** `setup/scripts/broker_canary.py`'s `probe()` was built + live-verified
+> 2026-07-11 but had zero scheduled-task hookup -- `preopen_readiness.py`'s `broker_canary`
+> check could only ever see a stale/absent file until someone ran the CLI by hand. Wired the
+> one-line call (`import broker_canary as bc` + `bc.probe()`) into `crypto_twin_health.main()`
+> -- the CLI entrypoint `Gamma_CryptoTwin`'s scheduled task invokes every 5 min, 24/7 -- rather
+> than into `run_tick_with_health()`, deliberately: that function has 34 existing tests with
+> zero network mocking, and `probe()`'s leg 1 (unauthenticated crypto bars) is a REAL HTTP call;
+> wiring it there would have made the whole existing suite silently network-dependent. `main()`
+> had zero prior coverage, so this is a strictly additive change with no blast radius to an
+> already-tested surface. Belt-and-suspenders `try/except` at the call site on top of `probe()`'s
+> own internal fail-open guarantee -- a canary failure can never change the tick's own exit code
+> or logged action.
+
+> **Verified this fire:** 2 new tests RED-proofed via `git stash` on both files -- both failed
+> with the exact expected `AttributeError: module 'crypto_twin_health' has no attribute 'bc'`
+> with the wiring removed, `stash pop` restored cleanly, re-verified 34/34 green in
+> `test_crypto_twin_health.py` (0.23s -- confirms zero accidental real network calls leaked into
+> the mocked tests). Broader sweep `test_crypto_twin_health.py` + `test_broker_canary.py` ->
+> **72/72 PASS**. Cross-checked `test_preopen_readiness.py`'s 1 pre-existing failure
+> (`test_fetch_eod_flatten_reality_reads_real_tmp_files`, `KeyError: 'Gamma_EodFlatten'`) is
+> unrelated and pre-existing -- reproduces identically with both my files stashed out, confirmed
+> before closing this item as clean. Curated safety gate (31+5-suite) PASS.
+
+> **Rail-4 (PAPER/visibility-only -- guard test + revert path + this REVOKE report).** Change:
+> `setup/scripts/crypto_twin_health.py` (additive: 1 new import, 1 new try/except block in
+> `main()`, 1 new key in the printed JSON) + `backtest/tests/test_crypto_twin_health.py` (2 new
+> tests). Zero `params.json`/`heartbeat_core.py`/`filters.py`/placement/exit code touched -- this
+> is observability, not a capital decision; the canary can never place an order or change any
+> trading behavior. **Revert:** `git revert 3332454` (2 files, clean no-behavior-change rollback
+> -- the twin's tick and `preopen_readiness.py`'s existing fail-open handling of a stale canary
+> file are both unaffected either way). **Commit:** `3332454`.
+
+> **Cost: ~$2.9** (STAGE 0/1 reads incl. engine-health/STATUS/queue/self-audit/fill-funnel/
+> task_scorer, queue.md targeted offset reads (2200-line file), module read + wiring-site
+> survey, edit, 2 new tests, 2 RED-proof round trips via git stash, 1 broader 72-test
+> regression sweep, 1 curated safety gate run, 1 commit, this queue/STATUS update). **Files:**
+> `setup/scripts/crypto_twin_health.py`, `backtest/tests/test_crypto_twin_health.py`,
+> `automation/overnight/queue.md`.
+
+---
+
 ## [2026-07-20 19:42-19:50 ET] OK -- conductor (AFTERHOURS): STATE-FILE-REVERSION-2026-07-20 -- untracked circuit-breaker*.json + today-bias.json (git-ops-reverts-live-state bug), CLOSED_PARTIAL, committed
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Fill-funnel priority-1
@@ -572,30 +629,6 @@
 > **CORRECTION + NEW HIGH LEAD:** the morning "stops read spread noise / SPY unchanged" claim was a STALE LOGGED-CONTEXT artifact -- real tape sold off $1.48 during those holds. Filed DECISION-ROW-SPY-STALENESS (HIGH): did any ENTER key off a stale spot read? (09:51 calls-into-a-selloff = the stale-sight signature.) This is the next session's first item.
 >
 > **Loop exit condition met:** map synthesized, all 3 levers adjudicated, everything verified-fresh and committed (safety gate green x5). Remaining items need organic n or market hours; conductor owns the overnight cadence.
-
----
-
-## [2026-07-20 ~09:30-09:36 ET] GREEN -- interactive (Fable): Monday pre-open verify complete, all 4 debut/live tasks FIRING with real output quoted
-
-> **Context (`et_clock.py`: `2026-07-20 09:30:34 Monday EDT market_hours=True`).** Final check of the morning preflight (breakers re-armed 08:02 after the STATE-FILE-REVERSION incident; Bold margin_pdt flip cc1a2bd; bias fresh `2026-07-20 bearish`; both accounts flat, zero stray orders -- all verified 09:06). Check 4 (the 09:25-09:30 debut fires), verified with REAL OUTPUT per OP-33, not wrapper exit codes:
-> - **Gamma_HeartbeatCore** fired 09:30:01, exit 0 -- PROOF: two fresh `core-decisions.jsonl` rows at 09:34 (safe `SKIP_STRUCTURE_VETO` + bold `SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY`, both `armed:true`, context_bundle v2 attached, and the stale Friday-15:55 trendline trigger correctly caught by `SKIP_STALE_TRIGGER`).
-> - **Gamma_JIntentExecutor** (debut) fired 09:25, exit 0 -- `j-intents.json` intents=[] => pure no-op loop, as designed.
-> - **Gamma_ConductorRTH** (debut) fired 09:30, exit 0 -- prior 09:12 AFTERHOURS fire logged to `conductor-outcomes.jsonl`; RTH_LIGHT pass running on 30-min cadence.
-> - **Gamma_FuturesEdge3Sim** (debut) fired 09:30, exit 0 -- PROOF: `automation/state/logs/futures-edge3-sim-2026-07-20.log` `[09:30:02] pass complete {"action":"tick","in_rth":true,...}` + 09:35 tick; state files under `automation/state/futures/` updating.
->
-> Engine owns the session from here. No interactive scheduling remains. New queue item filed this pass: PREMARKET-TOUCH-CREDIT-STUDY (J's 747.46 premarket-rejection question -- engine gives zero touch-credit to premarket rejections).
-
----
-
-## [2026-07-20 ~09:12-09:16 ET] OK (light) -- conductor (AFTERHOURS, market opens 09:30 -- deliberately kept small): engine GREEN, no safe bounded build started this close to open
-
-> **Context (`et_clock.py`: `2026-07-20 09:14 Monday EDT market_hours=False`, Task=conductor).** Woke ~18 min before market open. STAGE 0 engine-health GREEN (13/13 checks). `task_scorer.py --top` again ranked `MORNING-BULL-QUALITY-GATE-RECONSIDER` (J-DECISION-GATED, Nth recurrence, correctly skipped). Self-audit gaps confirmed fully actioned through the 07-19 21:xx consensus-leadin fix -- no new batches. Grepped `queue.md` HIGH items live: every one that's genuinely one-fire-bounded was already drained by tonight's 4 prior fires (00:19/02:19/04:19/06:19/08:19); the remaining HIGH items (`ENGINE-VECTORIZATION`, `GATE-TIERS-IMPLEMENT`, `D1-TV-CDP-ROOT-CAUSE`, `SINGLE-STRATEGY-REGISTRY-DESIGN` remainder, `MM-05-WAKE-FIRE-REVIVAL`, `DIRECTION-BLOCK-BATCH-RECONCILE`) are all multi-step builds or J-gated, not startable with ~15 min of runway before rail-1's hard RTH boundary.
-
-> **Deliberate judgment call:** rather than start a build that could bleed into 09:30 ET (exactly the L54 failure shape -- a conductor fan-out starving the live heartbeat), used the remaining time to re-verify `TASK-SCORER-STATUS-VOCAB-GAP` (LOW hygiene item): live-grepped every `status:todo` line in `queue.md` -- only 2 exist, F3 (already `status:done`) and `PDT-WIRE-FLEET-ARMS` (genuinely blocked by its own open `depends:`), so **zero currently-open items are actually hidden by the scorer's vocab gap right now**. Annotated the item in-place rather than rushing the broader fix (which needs a real per-status audit across `todo`/`queued`(18)/`proposed`(12)/`open`(2) -- many `proposed` items are deliberately spec-only and would become false-ready if the regex were widened carelessly).
-
-> **Rail-1 discipline:** zero code/trading-path files touched. Only `automation/overnight/queue.md` (1 annotation) + this STATUS entry. No Agent-tool fan-out this fire -- correctly small given the clock. Next AFTERHOURS-mode fire is this evening (18:00+ ET); `Gamma_ConductorRTH` covers the light verify-and-flag pass through the trading day.
-
-> **Cost: ~$1.7** (STAGE 0/1 reads, `task_scorer.py --top`, self-audit gaps re-confirmation, HIGH-item live re-grep + readiness triage, `status:todo` re-audit for TASK-SCORER-STATUS-VOCAB-GAP, 1 queue.md annotation, 1 commit -- no LLM in hot path, no orders, zero trading-path files touched). **Files:** `automation/overnight/queue.md`.
 
 ---
 

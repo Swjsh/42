@@ -840,7 +840,39 @@
 
 ### BROKER-CANARY-SENTINEL-HOOKUP (LOW, one-line wiring, ready-now, 2026-07-11)
 
-- [ ] BROKER-CANARY-SENTINEL-HOOKUP (LOW, wiring, TWIN-PROGRAM.md) :: `setup/scripts/broker_canary.py` is DONE and LIVE-VERIFIED (real probe run 2026-07-11: bars leg 160.2ms ok, account leg 128.6ms ok status=ACTIVE, assess()=GREEN — see `automation/state/broker-canary.jsonl`/`.json`) but has **NO scheduled-task hookup yet** — checked for `Gamma_TwinSentinel` before building (grep across the repo, zero hits) so per the build spec this shipped as a library + tiny CLI instead of a new task (avoids task sprawl / crew collision with whoever owns twin scheduling). **THE ONE-LINE HOOKUP:** whichever tick already talks to Alpaca 24/7 (`Gamma_CryptoTwin`'s `crypto_twin_health.py --live`, or a future dedicated `Gamma_TwinSentinel`) should add exactly one call: `import broker_canary; broker_canary.probe()` (zero required args — piggybacks ONE unauthenticated crypto-bars request + ONE authenticated `GET /v2/account` when twin creds exist, both already lightweight/limit=1; appends to the rolling `automation/state/broker-canary.jsonl` (size-capped ~2000 rows) AND refreshes the glance `automation/state/broker-canary.json` in the same call — `assess()` runs internally, nothing else to wire). Until this one line lands, `preopen_readiness.py`'s new `broker_canary` check reads a file that only updates when someone runs `python setup/scripts/broker_canary.py` by hand — it fails OPEN (INFO, never RED) on a stale/absent file by design, so this is a pure enhancement gap, not a blocker. Do NOT create a new scheduled task just for this (per the build's HARD RULES — $0, no new API-call volume beyond the one piggybacked probe). :: depends:none :: status:ready-for-one-line-wire
+- [x] BROKER-CANARY-SENTINEL-HOOKUP (LOW, wiring, TWIN-PROGRAM.md) :: `setup/scripts/broker_canary.py` is DONE and LIVE-VERIFIED (real probe run 2026-07-11: bars leg 160.2ms ok, account leg 128.6ms ok status=ACTIVE, assess()=GREEN — see `automation/state/broker-canary.jsonl`/`.json`) but has **NO scheduled-task hookup yet** — checked for `Gamma_TwinSentinel` before building (grep across the repo, zero hits) so per the build spec this shipped as a library + tiny CLI instead of a new task (avoids task sprawl / crew collision with whoever owns twin scheduling). **THE ONE-LINE HOOKUP:** whichever tick already talks to Alpaca 24/7 (`Gamma_CryptoTwin`'s `crypto_twin_health.py --live`, or a future dedicated `Gamma_TwinSentinel`) should add exactly one call: `import broker_canary; broker_canary.probe()` (zero required args — piggybacks ONE unauthenticated crypto-bars request + ONE authenticated `GET /v2/account` when twin creds exist, both already lightweight/limit=1; appends to the rolling `automation/state/broker-canary.jsonl` (size-capped ~2000 rows) AND refreshes the glance `automation/state/broker-canary.json` in the same call — `assess()` runs internally, nothing else to wire). Until this one line lands, `preopen_readiness.py`'s new `broker_canary` check reads a file that only updates when someone runs `python setup/scripts/broker_canary.py` by hand — it fails OPEN (INFO, never RED) on a stale/absent file by design, so this is a pure enhancement gap, not a blocker. Do NOT create a new scheduled task just for this (per the build's HARD RULES — $0, no new API-call volume beyond the one piggybacked probe). :: depends:none :: status:done
+
+> **CLOSED 2026-07-20 ~20:15-20:45 ET (conductor, AFTERHOURS): wired, guard-tested, committed
+> `3332454`.** Added the one-line call to `crypto_twin_health.main()` (the CLI entrypoint
+> `Gamma_CryptoTwin`'s scheduled task actually invokes every 5 min) rather than into
+> `run_tick_with_health()` -- that function has 34 existing tests with zero network mocking,
+> and `probe()`'s leg 1 (unauthenticated crypto bars) is a REAL HTTP call; wiring it there
+> would have made the entire existing test suite silently network-dependent. `main()` had
+> zero prior test coverage, so this is a strictly additive change with no blast radius to an
+> already-tested surface. Belt-and-suspenders `try/except` around the call site on top of
+> `probe()`'s own internal fail-open guarantee (its own docstring: "never raises") -- a canary
+> failure can never change the tick's own exit code or logged action. **Verified this fire:**
+> 2 new tests (`test_main_calls_broker_canary_probe`, `test_main_survives_a_broker_canary_exception`)
+> RED-proofed via `git stash` on both files -- both failed with the exact expected
+> `AttributeError: module 'crypto_twin_health' has no attribute 'bc'` with the wiring removed,
+> `stash pop` restored cleanly, re-verified 34/34 green in `test_crypto_twin_health.py` (0.23s,
+> confirming zero accidental real network calls leaked into the mocked tests). Broader sweep
+> `test_crypto_twin_health.py` + `test_broker_canary.py` -> **72/72 PASS**. Cross-checked
+> `test_preopen_readiness.py`'s 1 pre-existing failure (`test_fetch_eod_flatten_reality_reads_real_tmp_files`,
+> `KeyError: 'Gamma_EodFlatten'`) is unrelated and pre-existing -- reproduces identically with
+> both my files stashed out, confirmed before closing this item as clean. Curated safety gate
+> (31+5-suite) PASS. **Rail-4 (PAPER/visibility-only, guard test + revert path + this REVOKE
+> report):** touches `setup/scripts/crypto_twin_health.py` (additive: 1 new import, 1 new
+> try/except block in `main()`, 1 new key in the printed JSON) + `backtest/tests/
+> test_crypto_twin_health.py` (2 new tests). Zero `params.json`/`heartbeat_core.py`/
+> `filters.py`/placement/exit code touched -- this is observability, not a capital decision;
+> the canary can never place an order or change any trading behavior. **Revert:**
+> `git revert 3332454` (2 files, clean no-behavior-change rollback -- the twin's tick and
+> `preopen_readiness.py`'s existing fail-open handling of a stale canary file are both
+> unaffected either way). Cost: ~$2.6 (STAGE 0/1 reads incl. engine-health/STATUS/queue/
+> self-audit/fill-funnel/task_scorer, module read, wiring-site survey, edit, 2 new tests,
+> 2 RED-proof round trips via git stash, 1 broader regression sweep, 1 curated safety gate
+> run, 1 commit, this queue/STATUS update).
 
 ### Recovered audit-tail findings (G10, 2026-07-08 — not yet fixed)
 - [x] F1-RIBBON-MOMENTUM-GATE-INVERTED-DISABLE (HIGH/CRITICAL, engine-edge, gate-provenance) :: `min_ribbon_momentum_cents=0` ARMS the gate on Safe (gates.py:322 `is not None`; 0 blocks when 3-bar ribbon spread contracts). Intended-off; code needs `null`. Recovered from wf_a6e5356c audit tail, re-verified live 2026-07-08. Fix 0->null (completes the intended revert) but ENTRY-PATH -> A/B via override harness or J nod first. Ref markdown/audits/RECOVERED-AUDIT-TAIL-2026-07-08.md F1. **CLOSED 2026-07-11:** duplicate of MIN-RIBBON-SEMI-ARMED-FIX below (identical gates.py:322 bug) — see that entry for the fix + evidence + guard test. No A/B/J-nod needed: this is a CODE fix restoring the already-ratified L107 revert, not arming anything new (params.json already held `null`, unchanged by this fix). :: depends:none :: status:done
