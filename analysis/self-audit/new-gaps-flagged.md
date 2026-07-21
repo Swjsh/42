@@ -107,6 +107,30 @@
 - Lessons learned are not self‑applied; they sit in the lesson‑inbox awaiting manual follow‑up, violating the “self‑healin
 - The system lacks real‑time behavioral validation of parameters (string presence ≠ actual influence on trading logic) and
 
+<!-- DONE 2026-07-21T05:xx conductor (AFTERHOURS): TRIAGED, no new build needed -- all 12 items
+overlap systems built in the 3 weeks since this batch fired: "automated lesson application" /
+"lessons sit in inbox awaiting manual follow-up" is the SAME misconception the 2026-07-01 fire
+already resolved (conductor never applies lessons to params -- rail-4; lessons only ever land in
+LESSONS-LEARNED.md, by design, not a gap). "Integration of the promoter" / "research-to-live
+integration (PROMOTER-WRITES-LIVE-KEY bridge) not automated" -> `promote_keeper.py` +
+`Gamma_OosCheck` (Gamma_OosCheck registered 2026-07-01, runs nightly 20:30 ET, flips
+`eval_bar_cleared` on the conductor-proposals row) + the AutoApply actuator (`autonomy_actuator.py`)
+now close this end-to-end; verified both scripts exist and are scheduled (SCHEDULED-TASKS.md).
+"Lock-out of the nightly-fire" -> `Enter-ConductorFireLock`/`Exit-ConductorFireLock` shipped
+2026-07-18 (already DONE-marked below in the 07-18 batch). "Real-time model drift detection" ->
+`free_model_audit.py` (85%/15-evidence bar, wired per FREE-MODEL-AUDIT-HARNESS.md) +
+`shadow_model_eval.py` (Nemotron shadow grading). "Execution quality monitoring" ->
+`setup/scripts/fill_funnel.py` (verified present this fire, entry->attempted->accepted->filled
+funnel, now STAGE-1 priority-1 in this very conductor prompt). "The current dead-knob/
+reconciliation guard is insufficient (static allow-lists...)" -> superseded by the drift+presence
+RATCHET class (`v25_filter_gates.py` + `test_params_filters_drift.py`, shipped since; every active
+gate knob must appear by name in the heartbeat prompt AND match params, not a static allowlist).
+Remaining items ("real-time risk mgmt beyond GEX-calendar-gating", "automated backup/state
+recovery", "mid-day Discord pings") are vague/low-value with no concrete failure mode cited --
+consistent with the scaffold-crowding pattern the 06-29/07-01/07-19 fires already root-caused in
+`self_audit.py`. No new lesson/guard needed -- this is confirmation the fixes already shipped are
+doing their job, not a new gap. -->
+
 ## 2026-07-08T17:32:15 -- 12 new gap(s) Gamma self-identified
 - #1: The "Zero Fill" Execution Black Hole (G9).
 - #2: Vision-Wire Decoupling (V1/V3/V4).
@@ -121,6 +145,21 @@
 - Excessive reliance on manual operator intervention (ping‑J on routine signals) undermines autonomy.
 - Critical risk monitors (Greeks/vega exposure, capital‑scaling limits, overnight gap bleed) are not automated or enforced
 
+<!-- DONE 2026-07-21T05:xx conductor (AFTERHOURS): TRIAGED. The headline gap ("Zero Fill" Execution
+Black Hole / G9 -- "orders placed but not reliably filled or verified, G9 shows 0 reconciled fills")
+is now RESOLVED by `setup/scripts/fill_funnel.py` (confirmed present + is this conductor prompt's
+own STAGE-1 priority-1 check: "if the last trading day had ENTER > 0 with 0 broker-accepted
+orders... fixing THAT outranks every rail/inbox/lesson/queue item"). "Recency Blindness (OP-25)" ->
+`recency_check.py` + `Gamma_LicenseMonitor` (registered 2026-06-28, runs DAILY 22:30 ET calling
+`recency_check.py --run` inline -- NOT the weekly cadence a later 07-13 gap wrongly assumed;
+verified against SCHEDULED-TASKS.md this fire). "Environment/Config Drift (G2/G15)" -> the same
+drift-ratchet class noted in the 07-02 DONE above. "The 'Ping J' Crutch" is OP-0 doctrine itself
+(default = act, only 4 things need J first) -- not an unaddressed gap, a description of a rule
+already in force. "Overnight Risk Vacuum (G6)" / "Flailing Gate Logic (F1)" / "Vision-Wire
+Decoupling (V1/V3/V4)" / "OP-12 (Data Integrity)" cite no concrete failure mode (pure headline
+fragments, same AI-scaffold shape as the noise class self_audit.py already filters) -- not
+actioned for lack of a falsifiable claim to fix. No new gap survives triage. -->
+
 ## 2026-07-09T17:33:57 -- 10 new gap(s) Gamma self-identified
 - Future fleet‑wide stop‑mode experiments
 - Discord‑bridge schema upgrade
@@ -132,6 +171,22 @@
 - If any mismatch is found, issues a market‑order to flatten all positions, writes a timestamped flag to `automation/state
 - Run this script via Windows Task Scheduler every 30 seconds during market hours (09:30‑16:00 ET).
 - Test today by manually creating a mismatch (e.g., cancel an order via Alpaca) and verify the script flattens and halts w
+
+<!-- DONE 2026-07-21T05:xx conductor (AFTERHOURS): TRIAGED. The literal proposed script (query
+Alpaca positions/orders, compare to core-decisions.jsonl + live position tracker, auto-flatten on
+mismatch, run every 30s during market hours) is functionally `self_check.py` + the
+`is_flat_spy_options` broker-truth check (C11: "verify flat before entry", `test_never_average_
+down_2026_07_20.py`) + `Gamma_SelfCheck` (30-min cadence, not 30s -- the 30s ask is unnecessarily
+aggressive for a 0DTE swing-hold strategy and would itself risk hammering the Alpaca API; the
+30-min cadence is the deliberate, already-shipped tradeoff). "Continuous, autonomous validation/
+reconciliation" + "missing real-time risk guards (hard stop, position-size limits, gate
+compliance)" -> risk_gate.py (Rule 5/6 enforcement, fails closed) + kill switches (isolated
+per-account) already cover this; no concrete NEW failure mode cited beyond what these already
+guard. "Self-healing... detecting data-feed staleness" -> engine-health.json's `sight_beacon` /
+`watcher_feed` / `level_feed` checks (all verified GREEN this fire, all flag staleness explicitly
+in their `detail` field). "Discord-bridge schema upgrade" / "Future fleet-wide stop-mode
+experiments" are forward-looking ideas with no concrete ask -- left as-is, not gaps. No new
+build needed. -->
 
 ## 2026-07-10T17:31:54 -- 11 new gap(s) Gamma self-identified
 - Real‑time OPRA data‑health gate
@@ -146,6 +201,23 @@
 - The Prospector/idea‑generation organ must be wired into an automated backtest → certification → promotion pipeline so th
 - Position‑sizing / min‑size logic must be isolated from shared mutable config (params.json) and guarded against corrupt o
 
+<!-- DONE 2026-07-21T05:xx conductor (AFTERHOURS): TRIAGED. Checked the one concrete, falsifiable
+claim -- "position-sizing/min-size logic must be isolated from shared mutable config (params.json)
+and guarded against corruption" -- against `backtest/lib/risk_gate.py` this fire: it ALREADY reads
+`per_trade_risk_cap_pct` / `daily_loss_kill_switch_pct` / `min_contracts` via `.get()` with an
+explicit "missing/unreadable" rejection path (line 347) that fails CLOSED (uncertainty = no trade,
+per the risk_gate's own documented doctrine) -- this is exactly the guard-against-corruption
+behavior the gap asks for. Not a gap, already built. "Automated OPRA freshness/integrity checks"
+-> `sight_beacon`/`watcher_feed`/`level_feed`/`gex_archive` checks in engine-health.json (all
+GREEN, all flag staleness in `detail`). "Edge replacement hunting when primary is RED-blocked" ->
+the Reframe Engine's P1 continuous-discovery pipeline + `promote_keeper`/`Gamma_OosCheck` (07-09
+DONE) already form this loop. "Prospector wired into automated backtest->certify->promote" -> same
+promote_keeper/OosCheck/AutoApply chain. "Cross-asset regime detector" / "online hyper-parameter
+tuner" / "centralized model-health observability" / "pre-market stress-test harness" / "self-
+healing data-pipeline watchdog" are forward-looking with no concrete current failure cited --
+left as ideas, not gaps (consistent with the "no falsifiable claim = not actioned" bar applied
+across this whole triage pass). No new build needed. -->
+
 ## 2026-07-11T17:31:55 -- 11 new gap(s) Gamma self-identified
 - The `orchestrator.py` `is not None` Time Bomb.
 - Automated Gate-Signal Schema Validation.
@@ -159,9 +231,34 @@
 - All agree that Gamma requires a mechanism to detect silent failures or starvation (zero trades despite signals) in real 
 - A majority (4/5) agree that Gamma should automatically validate that every gate‑read field is actually populated by the 
 
+<!-- DONE 2026-07-21T05:xx conductor (AFTERHOURS): TRIAGED. Investigated the one specific,
+falsifiable claim in this batch -- "The `orchestrator.py` `is not None` Time Bomb" -- by grepping
+`backtest/lib/orchestrator.py` for `is not None` this fire: 42 occurrences, all standard
+override-fallback reads (`bear_min_triggers = min_triggers_bear if min_triggers_bear is not None
+else min_triggers`) or tz-awareness guards, not a silent-gate-bypass pattern; this is a research
+BACKTEST module (gated behind gym/pytest before any live wiring), not the live heartbeat path, so
+even a real bug here can't silently misfire live money without also breaking a test. Reviewed, not
+a bug -- no concrete failure case exists to fix. "Automated Gate-Signal Schema Validation" / "every
+gate-read field is actually populated" -> `backtest/lib/contracts/models.py`'s `load_validated`
+(shipped since, the exact contracts-at-every-state-read pattern this gap describes). "LLM Output
+Sanitization Layer" -> moot: `feedback_no_llm_in_live_trade_loop_2026_07_15` doctrine means there
+is no LLM in the live decision path to sanitize; the free-model VETO layer (heartbeat_core's
+2-veto gate) is separately graded by `free_model_audit.py`. "Auto-Execution of Overnight Queue" is
+literally what THIS conductor family already does (STAGE 1-5). "EOD State Consistency Checker" /
+"Twin-Master Correlation Monitoring" / "Regime-Shift Anchor Invalidation" are forward-looking with
+no concrete current failure cited; partial coverage already exists (self_check.py position-flat
+check, twin-sentinel.json, anchor-no-regression gate in the auto-ratify bar) -- not chased further
+this fire to stay bounded. No new gap survives triage with a concrete fix attached. -->
+
 ## 2026-07-12T17:31:50 -- 2 new gap(s) Gamma self-identified
 - Replay and back‑testing pipelines
 - Ribbon‑ride ATM override
+
+<!-- DONE 2026-07-21T05:xx conductor (AFTERHOURS): TRIAGED, both fully resolved already. "Replay
+and back-testing pipelines" -> THE DOJO, built + committed + running E2E 2026-07-20 (see the
+STATUS.md entry directly above this fire's; 109 dojo tests green, real per-arm whisper verified
+against a real trading day). "Ribbon-ride ATM override" -> V15_SAFE_TIERS already trades ATM on
+the live core path (shipped 2026-06-18, `crypto/lib/strike_selection.py`). Nothing left to build. -->
 
 ## 2026-07-13T17:34:22 -- 6 new gap(s) Gamma self-identified
 - All perspectives agree that Project Gamma’s reliance on hard‑coded account IDs and scattered configuration creates britt
@@ -170,6 +267,21 @@
 - All agree that the system lacks a single source of truth for account/credential mapping, leading to coordination overhea
 - All agree that better monitoring/alerting (real‑time market data, PnL anomalies, API health) is needed to prevent silent
 - **Edge generation vs. operational hygiene**: Perspective 1 and 3 stress autonomous edge creation/backtesting as a core g
+
+<!-- DONE 2026-07-21T05:xx conductor (AFTERHOURS): TRIAGED. "Recency-confirmation gate too
+infrequent (weekly), can't catch intra-week edge degradation" -- VERIFIED FALSE this fire:
+`Gamma_LicenseMonitor` runs DAILY (22:30 ET), not weekly, calling `recency_check.py --run` inline
+each night (SCHEDULED-TASKS.md, confirmed). This gap was already stale when it fired -- the daily
+cadence predates it (registered 2026-06-28). "No single source of truth for account/credential
+mapping" / "hard-coded account IDs and scattered configuration" -> `automation/state/fleet/
+accounts.json` (roster truth) + `accounts_status.py` (canonical view) already fill this role (per
+standing memory `project_accounts_roster_source`); verified the file exists and has a `schema`
+field this fire. "Config drift / fill-attribution / P&L reconciliation missing" -> the drift-
+ratchet class (07-02 DONE) + `fill_funnel.py` (07-09 DONE) cover this. "Better monitoring/alerting
+(real-time market data, PnL anomalies, API health)" -> engine-health.json's 13-check fused verdict
+(GREEN this fire) already covers market-data/API health; PnL-anomaly alerting has no concrete
+spec proposed here to build against. "Edge generation vs operational hygiene" is a meta-tradeoff
+observation, not an actionable gap. Nothing left to build. -->
 
 ## 2026-07-18T17:34:29 -- 6 new gap(s) Gamma self-identified
 - Cascade to other monitors
