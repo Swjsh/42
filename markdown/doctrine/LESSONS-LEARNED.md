@@ -4807,3 +4807,387 @@ This keeps the commit scoped (only staged files land) AND avoids the partial-com
 **Encoded in:** `backtest/tests/test_never_average_down_2026_07_20.py`. Inbox source `strategy/candidates/_lesson-inbox/2026-07-01-never-average-down-graduated-guard.md`. CLAUDE.md OP-25 **C31** index bullet amended (this commit).
 
 **Related lessons:** C31 (sizing/adding kernel — this REVISES its attribution from "Rule 4 alone" to "the no-add + −50%-cap package"), C14 (dead/unapplied knobs — the inverse case: here the guard was ALREADY live and unconditional, just untested — "verify before building" applies to guards as much as to knobs), C7 (audit outputs, not the category total — the per-trade counterfactual arithmetic is the authority, not "scaled-in episodes lost −$9,281" taken at face value), L200 (verify the ACTUAL mechanism/account fields rather than assume from convention — here: verify the guard's ACTUAL code path and bypass surface rather than assume a "graduated guard" must be newly built).
+
+---
+
+## L204 -- 2026-07-02: a reconciliation guard scoped to ONE key-family reads as full config↔consumer coverage — state coverage as a measured fraction, never implied as total
+
+**Symptom:** `test_params_filters_drift.py` (2026-06-18) reconciled `params.json` against consumers but scoped itself to gate/threshold knobs (`block_*`/`*_gate`/`*_min`/`*_hard_cap`/`*_required`) vs heartbeat prose, concluding "no clean new hard parity to add." 24 of 114 ratified knobs (exit flags, sizing tiers, entry-window, liquidity thresholds, macro-bias, session-timing) had zero live reader outside that scope — one (`entry_no_trade_after_et`) caused 10 `PLACE_FAIL` late `ENTER_BEAR`s on 2026-07-01.
+
+**Root cause:** a reconciliation guard bound to a named subset (one name-family, one consumer file) reads as full coverage; knobs outside the family accrue silently as dead knobs (C14) behind a confidently-worded docstring.
+
+**Fix:** `backtest/tests/test_params_consumer_reconciliation.py` — a broad ratchet over EVERY ratified key vs the whole live consumer surface (code + prompts + installers), shrinks-only `KNOWN_DEAD` allowlist; new dead knob → RED.
+
+**The rule:** a guard that reconciles config↔consumer must state its coverage as a measured fraction of the whole ("covers the gate family = N of M keys"), never imply totality. "No new parity to add" is a claim about the guard's own family, not the config.
+
+**Encoded in:** `backtest/tests/test_params_consumer_reconciliation.py`. Inbox source `strategy/candidates/_lesson-inbox/2026-07-02-family-scoped-reconcile-guard-masks-other-families.md`. **Related:** C14, C7, L206 (sibling same-day finding — a read-to-mutate consumer fools even the BROAD version of this guard).
+
+---
+
+## L205 -- 2026-07-02: a research caveat's "dead-knob / flagged-for-fix" label was transcribed into a HIGH work order without checking whether the behavior is an already-guarded, lesson-encoded INTENTIONAL design
+
+**Symptom:** queue item `PARAMS-TO-KWARGS-CHANDELIER-DEADKNOB` instructed fixing `_params_to_kwargs`'s silent drop of v15 chandelier keys as a bug. Executing it as written would have violated L156, RED'd the existing guard `test_profit_lock_not_in_baseline.py`, and reintroduced the exact measurement-integrity foot-gun L156 exists to prevent.
+
+**Root cause:** the drop is INTENTIONAL and guard-protected (L156: chandelier is regime-conditional, net-negative on volume-dominant trending IS windows; mapping it into the params→baseline path would bias every A/B comparison negative). The "flagged for fix" label originated in a research doc caveat (`analysis/j-webull/PHASEC-port/RESULTS.md` caveat 7) and was transcribed verbatim into the queue as an actionable HIGH fix, carrying two false claims: it's a bug (it's design), and "every A/B verdict is suspect" (false — the drop is symmetric across both A/B arms).
+
+**Fix:** did not execute the caveat as a fix; instead strengthened the L156 guard to use real production key names (`v15_profit_lock_*`) + a non-vacuous real-params.json bite.
+
+**The rule:** before queueing or executing any "flagged-for-fix / dead-knob / silently-drops X" caveat, grep the guards + LESSONS-LEARNED for the symbol first (`grep -rn "profit_lock\|chandelier" backtest/tests` surfaces the L156 guard in seconds). A "dead knob" is only dead if no guard and no lesson defends its absence.
+
+**Encoded in:** `backtest/tests/test_profit_lock_not_in_baseline.py` (strengthened). Inbox source `strategy/candidates/_lesson-inbox/2026-07-02-flagged-for-fix-caveat-was-guarded-intentional-design.md`. **Related:** L156, L197 (a guard can bake in a frame you need to correct — here the inverse: a guard can correctly DEFEND a frame a later caveat wrongly attacks), OP-16 sim-accuracy gate.
+
+---
+
+## L206 -- 2026-07-02: a read-to-mutate consumer (a writer that reads-before-rewriting) passes a dead-knob reconciliation guard that only checks reference PRESENCE, not behavioral USE
+
+**Symptom:** while adjudicating a chandelier revert, found `v15_profit_lock_mode` is a dead knob in the live core exit path — both `heartbeat_core` exit branches force `"fixed"` (L1055 hardcodes it; L1068's fallback reads the wrong un-prefixed key name and always defaults `"fixed"`). Yet the reconciliation guard shipped the same night (`test_params_consumer_reconciliation.py`) does NOT flag it dead, because `promote_keeper.py:130` reads `current_params.get("v15_profit_lock_mode")`.
+
+**Root cause:** the guard's presence check counts ANY word-boundary reader as "a live consumer" — but `promote_keeper`'s read is read-to-mutate (reads the current value only to decide whether to rewrite it, then emits apply-ops); it is a WRITER, not a behavior-path reader. Presence of a reference ≠ presence of a behavior dependency.
+
+**Fix (owed, LOW):** tighten the consumer classification to exclude known mutator surfaces (`promote_keeper.py`, `autonomy_actuator.py` apply-op emitters), or require a value-USE (compared/branched/passed to a behavior fn) rather than a key-name mention.
+
+**The rule:** a mutate-only reader is not a live consumer. Any dead-knob/reconciliation guard must discriminate "someone references the string" from "some behavior depends on the value."
+
+**Encoded in:** owed follow-up `RECONCILE-GUARD-READ-TO-MUTATE-BLIND-SPOT` (queue.md, LOW). Inbox source `strategy/candidates/_lesson-inbox/2026-07-02-read-to-mutate-consumer-masks-dead-knob.md`. **Related:** C14, C7, L156, L197, L204 (sibling same-day finding).
+
+---
+
+## L207 -- 2026-07-02: the same identifier resolved TWO ways in the same module (dict-comprehension last-wins vs linear-scan first-wins) silently disagrees on a duplicate key
+
+**Symptom:** `conductor-proposals.jsonl` had `cd-2026-06-28-002` on two different active proposals (a BOLD-FLEET accounts.json change + an L192 doc-fold). A single J `ship cd-2026-06-28-002` was ambiguous — and resolved DIFFERENTLY depending on which actuator code path ran.
+
+**Root cause:** `setup/scripts/autonomy_actuator.py` resolves a `proposal_id` two incompatible ways in the SAME module: `sync_companion_approvals` builds `by_id = {r["proposal_id"]: r for r in rows}` (line ~155, dict comprehension — LAST row wins on a dup), while `apply_approved`/`revert` use `next((r for r in rows if r["proposal_id"] == pid))` (lines ~580, ~699 — FIRST row wins). No error is raised; the disagreement is silent and lands on an order/arm-adjacent surface.
+
+**Fix:** split the colliding ids (commit 5e536ca) + `backtest/tests/test_proposal_id_uniqueness.py` guards ACTIVE-status id uniqueness so a dup active id cannot exist.
+
+**The rule:** any time two code paths look up the same key with different container semantics (dict vs linear scan), a duplicate key produces a silent disagreement — pick ONE resolution helper, or assert-unique at the boundary. (Owed defense-in-depth: harden the actuator to fail LOUD on a duplicate id, or route both paths through one shared `resolve_proposal(pid, rows)` helper.)
+
+**Encoded in:** `backtest/tests/test_proposal_id_uniqueness.py`. Inbox source `strategy/candidates/_lesson-inbox/2026-07-02-same-id-resolved-two-ways-in-one-module.md`. **Related:** C7, C14.
+
+---
+
+## L208 -- 2026-07-08: an autonomous system is only as proactive as the QUESTIONS its scheduled processes are pointed at — capability + data + idle compute do not become insight unless some fire's explicit job is "generate the hypothesis"
+
+**Symptom:** J personally discovered the noise-floor/stop-too-tight defect (the 741P stopped-then-paid trade, 40/45 winners touching −20% first) TWICE across two days, while the rig's full 24/7 autonomy layer (kitchen, chef, conductor, analyst, grinders, ~68 scheduled tasks) never surfaced it — the evidence sat in the broker-truth fills-ledger for two weeks.
+
+**Root cause:** every autonomous loop was either a PARAMETER-TUNER (kitchen/chef/mass-grind sweep knobs on shapes they were handed) or a COMPLIANCE-CHECKER (analyst EOD grades rule adherence). No organ had the job of reading our own fills and asking "why did the money die." Proof it was a mission gap, not a knowledge gap: once J asked the question, the existing machinery produced the stop-harvest matrix in 53 seconds.
+
+**Fix (shipped, commit 1a463d3):** `Gamma_TradeAutopsy` (16:15 ET daily) — `setup/scripts/trade_autopsy.py` autopsies every closed engine position via counterfactual replay through the LIVE exit_manager on real 1-min bars → mechanism tags (stopped_then_paid / paid_the_spike / exit_shape_cost / exit_beat_theta) → rolling detectors with n-honesty floors → structured hypotheses into `hypothesis-queue.jsonl` + queue.md + firm-brief. First fire re-derived the 741P finding unprompted and emitted 3 hypotheses.
+
+**The rule:** when J has to hand the system an insight its own data already contained, the fix is never "be smarter" — it is a new standing consumer of that data with a hypothesis-shaped output contract (OP-33e generalized from questions to insights).
+
+**Encoded in:** `backtest/tests/test_trade_autopsy.py` (10/10). Inbox source `strategy/candidates/_lesson-inbox/2026-07-08-loops-tuned-knobs-nobody-owned-hypotheses.md`. **Related:** OP-33(e), C7, C32.
+
+---
+
+## L209 -- 2026-07-09: strict-priority scheduling with continuous upper-tier inflow starves the bottom tier FOREVER, and a documented queue-control event (requeue/close) that no consumer honors is a silent dead letter
+
+**Symptom:** the kitchen seeder's meta-task brainstorm lane went silent for 17 days (last seeder create event 2026-06-22) while the scheduled task kept firing hourly and exiting 0. Verified 2026-07-09: 20 `priority=low` seeder tasks pending 37-49 days, `llm_pending=36 >= MAX_PENDING_BACKLOG=25` — the seeder's own skip-gate was permanently tripped. Separately, 13 `requeue reason=archived*` events and 12 `close` events had been emitted over weeks with ZERO effect (task `25a0d08d` "archived" 2026-06 still sat pending 2026-07-09).
+
+**Root cause:** two independent mechanisms, one file. (1) `kitchen_daemon._pick_next_task` ranked strictly by label then age; reviewer/grinder-auto/analyst-eod-auto continuously inject medium/high tasks, so a `low` task could NEVER be picked — and the seeder's own prompt instructs the model to label brainstorm tasks `low`. The starved backlog then kept the producer's backpressure gate tripped: starvation upstream compounded into silence downstream. (2) `_load_queue` forced every `requeue` to `status=pending` and ignored `close` entirely — documented queue-control events (KITCHEN-SPEC step 6) that nothing honored.
+
+**Fix (2026-07-09):** `_effective_priority` ages pending tasks one priority tier per 24h (capped at `high`, oldest-first within a tier, `critical` unreachable by aging); `_load_queue` collapses `requeue reason~=archived*` to terminal `archived` and `close` to terminal `closed`; `kitchen_queue_gc.py` repeatable dry-run-first prune tool. Live queue pruned: 20/20 stale seeder lows archived, pending 50→30, `llm_pending` 36→16.
+
+**The rule:** (a) a strict-priority queue with a continuously-refilled upper tier starves its bottom tier forever — any scheduler needs aging or a starvation floor, and "mark X low" in a continuously-refilled queue is a delete-X instruction until aging exists; (b) an event type that producers emit but no consumer collapses is a dead letter — grep the consumer for every event kind the spec/tools emit and guard the round-trip (emit → collapse → status) with a test.
+
+**Encoded in:** `backtest/tests/test_kitchen_daemon_starvation.py` (17 tests), `markdown/infra/KITCHEN-SPEC.md`. Inbox source `strategy/candidates/_lesson-inbox/2026-07-09-priority-starvation-dead-letter-queue-events.md`. **Related:** C7, C14, C15 (starvation tripped the backlog gate — gates interacting multiplicatively).
+
+---
+
+## L210 -- 2026-07-09/2026-07-18: `wscript.exe`'s fire-and-forget launch chain makes `LastTaskResult` structurally incapable of reflecting the child process's real outcome — any monitor reading it is reading noise
+
+**Symptom:** `Gamma_EodFlatten` + `Gamma_EodFlatten_Aggressive` both FAILED on 2026-07-08 (`=== END tick exit=1 ===`, "Exceeded USD budget") yet `Get-ScheduledTaskInfo` showed `LastTaskResult: 0` for both — and `preopen_readiness.py` trusted that masked 0, so the pre-open gate would have reported GREEN on a day the flatten backstop was broken.
+
+**Root cause:** the standard window-flash-free launch chain (`wscript.exe → run_hidden.vbs → pythonw`) uses `Shell.Run cmd, 0, False` — `WaitOnReturn=False` means wscript exits 0 the instant it LAUNCHES the child. Task Scheduler records wscript's exit, so `LastTaskResult` cannot reflect the child's real outcome for EVERY task using this pattern (most of the ~69-task registry). Not flatten-specific — the pattern.
+
+**Fix (2026-07-09, commit 2b9d938):** registered the non-LLM `eod_flatten.py` as `Gamma_EodFlattenCore` (15:52 ET) and rewrote `preopen_readiness.py` to read each flatten task's REAL log tail instead of `LastTaskResult`, failing toward RED on missing/stale evidence.
+
+**Guard graduated 2026-07-18 (re-hit live):** `Gamma_MacroCalendar` showed `LastTaskResult=0`/fresh `LastRunTime` while its own refresh_log's last real entry was 2 days stale. Audited the 5 monitor/glance scripts by grep — 4 of 5 already read artifacts, not `LastTaskResult`; shipped the missing regression guard, `backtest/tests/test_graduated_guards.py::test_no_monitor_trusts_lasttaskresult_as_authoritative` (RED-proofed: injecting a bare `LastTaskResult` string into `self_check.py` failed the test with the exact expected assertion). Root infra bug (`run_exe_hidden.vbs`'s `WaitOnReturn=False`) deliberately left unfixed — flipping it would block wscript for the child's full runtime across ~60 tasks including the live trading heartbeat, correctly scoped out as a propose-and-scope item. **Re-hit again 2026-07-20 on the SAME macro_calendar task** (see L229) — the guard prevents monitors from TRUSTING the signal, but the root mechanism (the launcher's exit code is meaningless) is still open across the ~60-task registry.
+
+**The rule:** any monitor/gate/audit reading `LastTaskResult` (or any wrapper exit code) for a wscript-chained task is reading noise — health checks must read the task's own output artifact (log tail, state file, ledger row).
+
+**Encoded in:** `backtest/tests/test_graduated_guards.py::test_no_monitor_trusts_lasttaskresult_as_authoritative`, `setup/scripts/preopen_readiness.py`. Inbox source `strategy/candidates/_lesson-inbox/2026-07-09-wscript-chain-masks-all-exit-codes.md`. **Related:** C7, C8, L229.
+
+---
+
+## L211 -- 2026-07-11: a failover/retry ladder must gate on the CALLER'S acceptance criterion (schema-valid output), not transport success — "it returned bytes" is C7 silent success
+
+**Symptom:** `swarm_client.call_role_json` returned `parsed=None` on ~half of twin_review's critic calls (live-tested 2026-07-11): the primary lane (openrouter nemotron-3-super-120b) drifted into inline chain-of-thought prose instead of JSON even under a strict "ONLY raw JSON" system prompt — while the same prompt passed first-try on the local ollama floor (qwen3:14b), which the roster never fell through to. Same mechanism silently threw away one of `heartbeat_core`'s 2-model entry-veto votes whenever the critic lane drifted on a live ENTER candidate.
+
+**Root cause:** `call_role`'s failover condition was `ok=True AND non-empty content` — transport success. A lane that answered with malformed-for-the-caller content (prose when schema-valid JSON was required) was treated as the winning lane, so the ladder never reached the compliant fallback lanes. The module header even documented "repair-retry then failover to the next lane" — the failover was never implemented (docstring described intent, not code).
+
+**Fix (2026-07-11):** `call_role_json` now owns its lane loop; schema-valid JSON is the WIN CONDITION per lane, transport-ok prose is a failed lane and falls through. One repair-retry total, pinned to the lane it repairs. Envelope carries `json_attempts`/`json_lanes_rejected` for the free-model audit harness.
+
+**The rule:** any retry/failover ladder must test the caller's ACCEPTANCE criterion, not the transport's.
+
+**Encoded in:** `setup/scripts/swarm_client.py::call_role_json`, `backtest/tests/test_swarm_client_json.py` (9 tests). Inbox source `strategy/candidates/_lesson-inbox/2026-07-11-failover-must-gate-on-output-validity.md`. **Related:** C7, C14 (the documented-but-never-implemented failover was a dead contract).
+
+---
+
+## L212 -- 2026-07-11: two engines replaying "the same trade" under a different fill-bar convention (fill bar included vs excluded) can sign-flip a cell's expectancy — name the convention, don't silently mix it
+
+**Symptom:** building `p5_topcell_real_fills_confirm.py`, a P5 top cell (OTM-1, −8% stop, trailing-15% lock) replayed at −$20.23/tr through `t4_exit_matrix._load_bars` but +$25.62/tr with the fill bar excluded — a sign flip on identical trades.
+
+**Root cause:** `t4._load_bars` masks `ts >= entry_ts` (bars[0] IS the fill bar, checks its own H/L) while `simulator_real.simulate_trade_real` walks exits from `entry_idx_opt + 1` (one-full-bar min hold). Neither convention is wrong — t4's is closer to the live 1-min exit actuator; the sim's is the convention every P5 cell/grind/ship-gate was graded under. The failure mode is MIXING them silently — a limit fill mid-bar replayed against that bar's full H/L can credit prints that predate the fill (same-bar TP1 look-behind).
+
+**Audit result (2026-07-11):** re-ran the T5 layer fill-bar-excluded — zero verdict flips on the 3 kills (byte-identical), floor ship reinforced (+$13.71→+$18.87/tr), one narrative kill (exit-C+entry-2) flipped because its "beat control" was two same-bar TP1 credits from look-behind (−$14.73→−$138.26 excluded).
+
+**Fix:** semantics deliberately UNCHANGED (published artifacts stay reproducible); divergence made LOUD instead — a FILL-BAR CONVENTION disclosure block in `t4`'s docstring/output, a KNOWN-HAZARD docstring on `t5.replay_entry2_pair`, guard `backtest/tests/test_fill_bar_convention.py` (4 tests) pins both conventions so either side changing REDs into a conscious re-audit.
+
+**The rule:** when two engines replay "the same trade," parity needs an explicit check per axis — knob scope, fill price, AND the management-window boundary (which bar may first exit). Grade a cell under one convention, confirm it under the same one; any cross-convention comparison must name the divergence or be treated as unmeasured. Limit/stop-triggered fills must never be managed against their own fill bar's extremes on bars coarser than the fill process.
+
+**Encoded in:** `backtest/tests/test_fill_bar_convention.py`, `analysis/recommendations/entry-exit-matrix-fillbar-audit-2026-07-11.md`. Inbox source `strategy/candidates/_lesson-inbox/2026-07-11-fill-bar-window-convention-divergence.md`. **Related:** C6, L218 (sibling: same "undisclosed convention divergence between two scorecards" family, different dominant cause).
+
+---
+
+## L213 -- 2026-07-14: a shared automation gateway wired at a GLOBAL user-level default silently captured J's interactive Claude tools for a full workday — a liveness probe checking "is it listening" is not equivalent to "is it correct"
+
+**Symptom:** J's Claude Desktop app was silently served local Ollama instead of real Claude after a Monday PC restart — no error, no crash, no refused connection. He lost a full workday of usable Claude access before diagnosing it.
+
+**Root cause:** the "brain sovereignty" initiative (2026-07-08) wired `claude-code-router` (CCR) under every claude fire by writing `apiKeyHelper`/`env` overrides into `~/.claude/settings.json` — the GLOBAL, user-level file every `claude` entrypoint reads, shared by two fundamentally different consumer classes (automation lanes, for whom cheap/local routing is a legitimate cost-saving design; and J's interactive surfaces, for whom any dependency on a correctly-configured local gateway is an unacceptable single point of failure). CCR's static fallback router had zero Anthropic provider entry, so on any cold boot before its fuller gateway stack was live, the main router still accepted connections and silently resolved J's traffic to local Ollama. The existing keepalive's health check only TCP-probed the port ("is something listening") — it could not distinguish "serving real Claude" from "serving Ollama." Confirmed live: restarting CCR via the exact keepalive command RE-INJECTED the identical hijack into `~/.claude/settings.json` — proving this is CCR's normal, repeatable restart behavior, not a rare misconfiguration.
+
+**Fix:** removed `apiKeyHelper`/`env` entirely from `~/.claude/settings.json` (J's tools now hit `api.anthropic.com` directly, unconditionally); audited every automation consumer first (none broke); `ccr_keepalive.py` gained `_check_and_fix_interactive_settings()`, called every 5-minute fire, re-scanning and auto-stripping the router-pointing keys + pinging J via Discord. Guard `backtest/tests/test_ccr_interactive_isolation.py` (14/14) scans the repo asserting the CCR port string appears ONLY in an explicit automation/narrative allowlist.
+
+**The rule:** any shared gateway/proxy/router that automation opts into must be wired at the automation's OWN launch point (per-fire env vars, config-dir override), NEVER at a global default interactive tools also inherit — automation should opt IN to the exotic path, not require interactive tools to opt out. A liveness probe for anything that silently changes BEHAVIOR (not just uptime) must assert the actual consumer-facing contract (which model gets served), not a proxy for it (is a socket open). And: when a keepalive's OWN restart action can re-introduce the fault it exists to prevent, the guard must check AFTER every restart, not just before.
+
+**Encoded in:** `backtest/tests/test_ccr_interactive_isolation.py`, `setup/scripts/ccr_keepalive.py::_check_and_fix_interactive_settings`. Inbox source `strategy/candidates/_lesson-inbox/2026-07-14-ccr-boot-lockout.md`. **Related:** OP-25 fail-open mandate, OP-32 scar (2026-05-22), C33.
+
+---
+
+## L214 -- 2026-07-14/2026-07-20: tree-wide git operations (`git stash`, `checkout`, `reset`) in the SHARED live checkout revert continuously-written state files BACKWARD — the fix must remove the file from tracking, not correct the symptom once
+
+**Symptom (2026-07-14, CRITICAL):** `automation/state/core-decisions.jsonl` + all 3 active fleet arms' `decisions.jsonl` reverted on disk to the last commit that touched them (667217a, 2026-06-26) mid-premarket — ~3 weeks of live trading-decision history vanished; `git status` showed the files clean. 211 files / ~140K uncommitted lines were affected in total. **Recurrence (2026-07-20, TWICE the same day):** `circuit-breaker.json` (both core accounts) + `today-bias.json` carrying 2026-07-14 content despite same-morning write timestamps — content regressed BACKWARD, not just went stale; a second collision at ~18:40 ET (an agent's `git stash`/`pop` colliding with the live heartbeat's writes) reverted both again.
+
+**Root cause:** a workflow subagent ran `git stash && pytest && git stash pop` in the shared main checkout to test 3 files in isolation; the `&&`-chain's pop never executed, the agent selectively checked out its 3 files from the stash and then ran `git stash drop` — discarding the only copy of every OTHER uncommitted change in the tree. The recurrence's root class is the SAME mechanism one level generalized: `circuit-breaker*.json` (6 files) + `today-bias.json` (2 files) are overwritten-in-place JSON state, continuously written by live automation, but tracked-but-rarely-committed (last real commit 2026-07-14) — any stash/checkout/reset touching them reverts working-tree content to whatever was last committed, which for an overwritten-in-place file means state jumps BACKWARD (stale kill-switch flags, stale bias) — a MORE dangerous failure mode than lost history, because it can silently misrepresent CURRENT state. The 07-14 fix treated the symptom (that specific file set) rather than the mechanism (ANY tracked-but-continuously-written file in `automation/state/` is vulnerable to ANY tree-wide git op in the shared checkout) — so it recurred on a different file class within a week.
+
+**Why 07-14 was recoverable:** a dropped stash is a dangling commit, not deleted data — `git fsck --unreachable --no-reflogs` surfaced it, pinned gc-proof via `git branch recovery/stash-data-loss-2026-07-14`; restored via 3-way classification + prefix-checked splice-merge for append-only logs.
+
+**Fix:** (07-14) gitignored + untracked the 4 decision ledgers, `test_ledger_gitignore_guard.py`. (07-20) gitignored + `git rm --cached` the 8 confirmed-reproduced files (`circuit-breaker.json` x6, `today-bias.json` x2), extended the SAME guard with a `STATE_SNAPSHOTS` list + 2 new tests, RED-proofed via `git stash` on `.gitignore` alone. A broader audit found ~279 tracked JSON/JSONL files under `automation/state/` last-committed 2026-07-14; most are one-time snapshots or append-only logs (lower risk), a handful may share the overwritten-in-place hazard and were not individually triaged — follow-up `STATE-FILE-REVERSION-AUDIT-FOLLOWUP` (closed 2026-07-20/21, re-derived 76 actively-written files, classified 13 as decision-gating and untracked them: fleet exit-state HWMs, the crypto twin's own breaker/exit-state/scenario-state, key-levels.json, sight-beacon.json, fleet/shared-signal.json, futures mirror-shadow state, j-intents.json).
+
+**The rule:** NEVER run tree-wide `git stash`/`reset --hard`/`checkout .`/`clean` in the shared main checkout — use a worktree or pathspec-scoped stash (`git stash push -- <paths>`). If a stash pop fails, the stash is the only copy of everyone else's work — escalate, never `git stash drop` after a partial recovery. Any continuously-written state file that a live/placement/exit/sizing decision reads must be gitignored + untracked, not "tracked but rarely committed" — that combination is a standing loaded gun. A guard test asserting a "decision-gating" file list matches `.gitignore` (`git check-ignore <path>`) makes a future re-track fail loud.
+
+**Encoded in:** `backtest/tests/test_ledger_gitignore_guard.py` (`STATE_SNAPSHOTS` + `DECISION_GATING_SNAPSHOTS`, extended twice). Inbox sources `strategy/candidates/_lesson-inbox/2026-07-14-git-stash-drop-wipes-shared-checkout.md` + `state-file-reversion-git-ops-on-live-state-2026-07-20.md` (merged — same mechanism, two occurrences). **Related:** L-git-commit-only-drops-untracked-2026-06-19, L228 (the git-mechanics root cause of the untrack COMMIT itself silently failing twice before landing), C34.
+
+---
+
+## L215 -- 2026-07-14: PDT day-trade counts are tracked per BROKER ACCOUNT, not per logical alias/strategy — a repointed/reused account inherits the prior tenant's rolling day-trade count
+
+**Symptom:** core Safe's first live trading day after being repointed to account `PA3DHPT7KIQE` (2026-07-11) produced a `RISK_DENY_PDT` block on a fully-valid, gate-passing signal at 12:39 ET — the account's own "first trade of its new life" was blocked by "9 day-trades in 5d."
+
+**Root cause:** `PA3DHPT7KIQE` is the same broker account previously used by fleet arm safe-1 (retired 2026-07-11). PDT counts are tracked per broker account; core Safe silently inherited safe-1's rolling 5-business-day count. The circuit-breaker re-arm script's own note confirms this was never addressed ("day_trades_used_5d left untouched"). Not a bug in the PDT gate (rule 7 worked correctly on the data it was given) — a missing step in the account-repoint runbook.
+
+**Fix:** any future account repoint/reuse must EXPLICITLY audit and decide on the inherited PDT day-trade count as part of the repoint checklist.
+
+**The rule:** a regulatory/account-type counter inherited from convention rather than verified against the account's actual trading history can block real trading unexpectedly — verify the inherited count before going live on a reused account.
+
+**Encoded in:** proposed addition to the account-repoint checklist in `markdown/0dte/dual-account-design.md`. Inbox source `strategy/candidates/_lesson-inbox/2026-07-14-pdt-inherited-on-account-repoint.md`. **Related:** L200 (verify actual account fields, not convention), C11.
+
+---
+
+## L216 -- 2026-07-14/15: a monitor that already computes the diagnostic evidence a human would use to dismiss an alert, but still gates severity on the raw symptom, is diagnosing decoratively, not functionally
+
+**Symptom:** `crypto/data/scorecards/drift_report.json` `overall_health` flipped RED on `v02_source_parity` dips repeatedly (370+ consecutive fail-streak episodes across weeks), even though `track_drift.py::build_report` was already printing the correct diagnosis in the alert text itself ("but v15 (3-source) = 100.0% in same window, likely single-provider artifact"). The code knew the answer and reported RED anyway. Separately, `v12_multi_timeframe.py::_compare` used a zero-tolerance pass criterion against a confirmed-rare (2 incidents in 17,656 grinder iterations, both isolated, both benign same-provider settlement artifacts) volume disagreement, dragging the 24h rolling rate to ~87.5%.
+
+**Root cause:** `build_report` appended EVERY stage dip to one flat `alerts` list and computed `overall_health = "RED" if alerts else "GREEN"` — the v15 ratifier's pass rate was read into the message string for context but never used to decide whether the alert should be load-bearing. Diagnosing an artifact and still gating on it is "papering" by omission.
+
+**Fix:** `build_report` now splits `alerts` (all, unchanged, for OP-33 visibility) from a new `blocking_alerts` field (drives `overall_health`); a v02 dip is demoted to informational-only when v15's SAME-WINDOW quorum is healthy (>=95%), tagged `[info-only]` vs `[BLOCKING]`, never hidden. `v12_multi_timeframe.py::_compare` gained `max_vol_outlier_bars` (default 1) tolerating up to 1 isolated same-provider volume disagreement per run while price stays true zero-tolerance. Guarded by `crypto/benchmarks/test_track_drift.py` (5 tests) + `v12_multi_timeframe.py` T7-T9.
+
+**The rule:** if a monitor can already tell you "this is benign" (a ratifier check, a rarity count, a self-heal pattern), that conclusion must reach the pass/fail verdict, not just sit next to it in a log line. Applies at EVERY layer between raw stage failure and the human-facing health verdict, not just the first one that gets fixed (this is one layer above the already-fixed `gym_harvester.py` CRITICAL-queueing lesson, L169).
+
+**Encoded in:** `crypto/benchmarks/track_drift.py` (`build_report`, `_grinder_source_parity_drift`), `crypto/validators/v12_multi_timeframe.py` (`_compare`, `MAX_VOL_OUTLIER_BARS`), `crypto/benchmarks/test_track_drift.py`. Inbox source `strategy/candidates/_lesson-inbox/2026-07-14-quorum-ratified-alert-still-gated-health.md`. **Related:** C7, L169.
+
+---
+
+## L217 -- 2026-07-14: mismatched seed vs appender data feeds hide a pipeline defect behind the seed's quality — a data defect that "starts" on a date is often a source SEAM, not a code change
+
+**Symptom:** every 5m premarket bar (04:00-09:25 ET) in the canonical spy_5m chain had volume=0 for all sessions 2026-06-01..2026-07-14, and the 09:15-09:25 bars were missing (63 vs 66 bars) — RTH bars intact. Discovered ~6 weeks after onset.
+
+**Root cause:** `append_today.py` fetched SPY from yfinance, whose extended-hours intraday bars have no volume (and drop 09:15-09:25); the defect existed from the appender's FIRST fire (2026-05-13) but was masked because the 05-19..05-29 seed rows came from Alpaca SIP — the "2026-06-01 onset" was a provenance seam, not a code change. (Feed semantics, second lesson: SIP = consolidated real premarket tape, IEX = ~2-4% of tape, yfinance = RTH-only volume; never mix strata in one volume calc.)
+
+**Fix:** `alpaca_bars.py` (SIP fetch, 15-min-delay age gate), `append_today.py` SPY→SIP with loud yfinance fallback + `source` ledger field, `repair_premarket_volume.py` repaired both newest chain files (RTH verified value-identical). Guards `test_premarket_volume_alive_in_latest_chain` + `test_append_today_spy_uses_alpaca_sip` (graduated: `backtest/tests/test_graduated_guards.py` G-PREMARKET-VOL).
+
+**The rule:** when a data defect "starts" on a date, first ask whether that date is a *source* seam — diff the producer of rows before vs after the boundary (filename ranges, version ledgers, bars-per-day fingerprints identify the two producers instantly).
+
+**Encoded in:** `backtest/lib/alpaca_bars.py`, `setup/scripts/append_today.py`, `backtest/tests/test_graduated_guards.py` (G-PREMARKET-VOL), `markdown/infra/DATA-PROVENANCE.md`. Inbox source `strategy/candidates/_lesson-inbox/2026-07-14-yfinance-premarket-volume-zero.md`. **Related:** C4, C7.
+
+---
+
+## L218 -- 2026-07-15: two scorecards on the SAME signal cohort reached OPPOSITE-SIGN verdicts because neither declared its friction/shape/fill-bar/structure-layer conventions in a machine-checkable place
+
+**Symptom:** the 2026-07-14 strike A/B (the study that armed the ATM strike-tier override) reported its ATM/SS-B cell at +$65.82/tr (n=244). The same night's debit-spread study, run on the SAME 250-signal cohort (n=244 after coverage drops) with an ATM long leg, reported its naked-ATM control at -$5.24/tr — a sign flip on what was assumed to be the same measurement.
+
+**Root cause:** the two scripts differed on 5 axes, only 2 of which were named (friction, fill-bar convention) — 3 were undisclosed: (1) exit shape — one held `SS_B_SHAPE` fixed, the other read `params.json` FRESH (differs on every knob except `premium_stop_pct`) — this ONE axis alone was -$57.81/tr, 81% of the total gap; (2) structure-stop chart layer — present in one, absent in the other, +$32.55/tr pulling the OTHER direction (invisible without decomposing separately); (3) friction — absent vs present, -$47.86/tr; (4) fill-bar convention — the "corrected" label was actually mischaracterized (the debit-spread study used the OLD pre-p5_topcell-fix convention), a negligible +$2.06/tr here but a genuine regression, not a fix. Roughly two-thirds of the gap traced to the 2 NAMED axes; the rest to the 2 UNNAMED ones.
+
+**Fix:** re-ran the strike axis with SS-B genuinely held fixed plus honest friction; under that honest-but-comparable convention the ATM-vs-OTM-2 relative delta SURVIVED ($50.52/tr honest vs $47.96/tr pre-friction), so the arming decision stood on relative grounds independent of the mismatched absolute number. A 2^5 factorial decomposition (forward + reverse path, empirically confirmed additive/order-independent to the cent) is now the reusable pattern.
+
+**The rule:** every cohort-level scorecard JSON in `analysis/recommendations/` should carry a top-level `convention_header` object (`signal_cohort_source`, `exit_shape_source`, `structure_stop_layer`, `friction_model`, `fill_bar_convention`, `qty_convention`, `time_stop_et`) — a scorecard cited in prose as "same cohort, different X" must diff this header first; a mismatched header means the comparison is not isolating the claimed variable, and any headline number built on it should be labeled comparison-invalid until reconciled.
+
+**Encoded in:** `analysis/recommendations/strike-ab-convention-reconciliation.json`/`.md` (the decomposition). TODO (owed): wire the `convention_header` schema into a shared validator for scripts under `backtest/tools/*_ab*.py`/`*_study.py`. Inbox source `strategy/candidates/_lesson-inbox/2026-07-15-cohort-scorecard-convention-header-missing.md`. **Related:** C6, L212 (sibling family, different dominant cause).
+
+---
+
+## L219 -- 2026-07-17: levels are ZONES, not exact prices — a rejection trigger that requires an exact pierce misses a fully-valid rejection that stops just shy of the level
+
+**Symptom:** 2026-07-17 ~10:15 ET, SPY bounced to 747.27 and rejected — 61c shy of PDL 747.88, $1.15 shy of the engine's nearest level (748.42). `detect_level_rejection` requires `bar.high > level` (exact pierce), so the fully-HTF-aligned rejection produced NO trigger. J: "levels are not ever exact to the penny! its zones!!"
+
+**Root cause:** the pierce side already had a fix (`wick_rejection`, 2026-05-10, after a prior miss) — the APPROACH side (reject shy of a level) was never covered. A proximity-band rejection needs: `bar.high` within Z of the level (below) + red close + close below a confirm threshold — Z sizing must be validated (fixed cents vs pct vs ATR-fraction) via a pre-registered real-fills A/B, not hand-picked.
+
+**Fix:** proximity-band study dispatched same day.
+
+**The rule:** describe setups to J as zones, not prices — trendline/level triggers need proximity bands on BOTH the pierce side and the approach side; band width is a pre-registration decision, never a hand-picked constant.
+
+**Encoded in:** owed — proximity-band A/B study (dispatched 2026-07-17). Inbox source `strategy/candidates/_lesson-inbox/2026-07-17-levels-are-zones-proximity-band.md`. **Related:** C3, C20, wick_rejection (2026-05-10).
+
+---
+
+## L220 -- 2026-07-18: an exit ledger must prune on CONFIRMED sell completion, not on the DECISION to sell — conflating "we decided to do X" with "X happened" either orphans failures or, if naively retry-fixed, duplicates successes
+
+**Symptom:** filed as F7-EXIT-SELL-ALL-REFIRE ("exit engine re-fires a full SELL_ALL every tick while the prior exit order is pending_new"). The literal symptom didn't reproduce, but the SAME root defect class was real, inverted.
+
+**Root cause:** `exit_actuator.manage_tick` computed `dec.closes_position` and used it to prune the tracked exit-state ledger entry UNCONDITIONALLY, regardless of whether `broker.market_sell` actually succeeded. Two failure modes hid behind one line: (1) silent orphan — if `market_sell` errored, the ledger entry was deleted anyway, so the position stayed open on the broker but exit_actuator would never manage it again until the 15:55 ET EOD-flatten backstop caught it; (2) a naive "retry on failure" fix alone would reintroduce genuine duplicate-sell risk, because a `urllib` request can raise a timeout/URLError on reading the response even after Alpaca already accepted the POST server-side.
+
+**Fix:** `fleet_broker.open_sell_orders()` checks for a still-resting sell order before retrying (skip if found, no duplicate); `manage_tick` only prunes the ledger when the sell was WATCH-preview or genuinely confirmed-placed (never on failure/skip — next tick retries). Shared by both core (Safe/Bold via `heartbeat_core._manage_exits`) and all 4 fleet arms. Guard `test_exit_actuator.py` +4 tests (16/16), RED-proofed via `git stash`; 320/320 across the full exit-path test surface + 88/88 fleet-local.
+
+**The rule:** a ledger/state-machine transition driven by a system with an unreliable confirmation channel must gate its prune/finalize step on CONFIRMED completion, not on the decision to act — and before retrying an apparently-failed action, check the external system's own state for evidence the action already landed, so retry-on-failure doesn't become duplicate-on-success-that-looked-like-failure.
+
+**Encoded in:** `automation/state/fleet/fleet_broker.py` (`open_sell_orders`), `automation/state/fleet/exit_actuator.py` (`manage_tick`), `backtest/tests/test_exit_actuator.py`. Inbox source `strategy/candidates/_lesson-inbox/2026-07-18-exit-prune-on-decision-not-confirmation.md`. **Related:** C7, C11.
+
+---
+
+## L221 -- 2026-07-18: a fix can be fully built, tested, and RED-proofed, and still not be "shipped" — nothing in the conductor loop checked whether the CURRENT fire's own trading-path edits actually got committed before the fire ended
+
+**Symptom:** an earlier same-day fire root-caused F7-EXIT-SELL-ALL-REFIRE (see L220), wrote the fix, added 4 RED-proofed guard tests, and wrote the full `queue.md` closure entry — but NONE of it was committed and ZERO STATUS.md entry existed (`grep -c F7 STATUS.md` = 0). Had this later fire not re-picked the same HIGH item, the work would have sat uncommitted indefinitely, at real risk of being silently lost to a concurrent fire's `git stash`/reset (L214), or never reaching J's REVOKE surface at all.
+
+**Root cause:** nothing in the conductor's own STAGE 5 ("update state, or the next fire runs blind") checks whether the current fire's own trading-path edits actually got committed before the fire ends — the doctrine assumes a fire that edits code naturally ends with a commit, but nothing enforces it.
+
+**Fix (owed, not yet built):** the conductor's STAGE 0 backpressure check should ALSO check `git status --porcelain` for trading-path files (`automation/state/fleet/*.py`, `setup/scripts/heartbeat_core.py`, `backtest/lib/filters.py`, `params*.json`) modified-but-uncommitted at fire START — same family signal as an engine-RED or gym-RED, arguably higher priority than picking new work since it represents real completed work at risk of loss.
+
+**The rule:** "the queue/lesson-inbox text is accurate" and "the work actually reached the shipped/committed state" are different claims — a producer telling the truth about work it did is not the same failure as C7 (a producer lying about its outcome), but it is an equally real gap between claimed and delivered state.
+
+**Encoded in:** owed — conductor.md STAGE 0 git-status-porcelain check (a conductor-loop-discipline addition, not a code assertion). Inbox source `strategy/candidates/_lesson-inbox/2026-07-18-fix-built-not-shipped-is-not-shipped.md`. **Related:** C7 (sibling, not identical), L214, L227, C35.
+
+---
+
+## L222 -- 2026-07-18: a harness that treats one simulator's trade list as ground truth for comparison against a live decision layer is only as faithful as the SET OF GATES both paths apply — a gate added to one without the other creates silent, asymmetric drift
+
+**Symptom:** `backtest/replay_fleet_arms.py`'s entry-fidelity gate showed safe-1 under-trading its own ground truth (`missed=1` at bar 1394) — the signal-driven arm path never entered a trade that `orchestrator.run_backtest` (GT) took.
+
+**Root cause:** `orchestrator.run_backtest` has ZERO implementation of `structure_veto_enabled` — a live-decision-layer gate applied by `decide_payload`/`engine_cli`, the same brain that drives `core-decisions.jsonl`/any live-signal replay. Because GT's own simulator is blind to this gate, it can include trades the live decision layer would actually SKIP — the replay wasn't under-trading, GT was over-counting. (An earlier, unconfirmed hypothesis attributed a DIFFERENT bar's mismatch to window-truncation; re-running fresh on a quiet box surfaced a different bar entirely — a hypothesis filed under time pressure with an unconfirmed bar number must be re-verified against a fresh run before acting on it.)
+
+**Fix:** `_ground_truth_trades` in `replay_fleet_arms.py` gained a `structure_veto` post-filter — the same existing pattern already used there for `direction_lock`/elite/`min_confidence` (gates `run_backtest` cannot express, applied as post-filters instead).
+
+**The rule:** `run_backtest` and `decide_payload` are two independently-maintained simulators of "the same" decision — a gate added to one without a corresponding update to the other creates a silent drift that doesn't throw or fail loudly, it just shows up as "missed"/"extra" in whatever fidelity gate compares them (C15 sibling: a gate MISSING from one path acts identically to a phantom gate present in the other). Graduation candidate (not yet built, scope for a 3rd occurrence per OP-25): a registry/diff test asserting every `gate_params.get("*_enabled")` key `engine_cli.py` reads has either a corresponding `orchestrator.py` implementation or a named, justified post-filter in every harness treating `run_backtest` as ground truth.
+
+**Encoded in:** `backtest/replay_fleet_arms.py` (`_ground_truth_trades`). Inbox source `strategy/candidates/_lesson-inbox/2026-07-18-gt-simulator-missing-live-only-gate.md`. **Related:** C15.
+
+---
+
+## L223 -- 2026-07-18: a hand-maintained allowlist/set that mirrors a live registry WILL drift — fixing it by re-typing the mirror correctly does not remove the drift MECHANISM, only importing the derived value does (3rd occurrence of the same bug class)
+
+**Symptom:** `crypto/data/scorecards/latest.json` RED — `v53_setup_dispatch.live` failed `names_ok: false` for 120 consecutive cron fires (~60 hours) because `level_break_first_strike` (wired into `setup_dispatch.py`'s live roster 2026-07-15) was absent from `v53_setup_dispatch.py`'s hardcoded `_KNOWN_SETUP_NAMES` set. This is the THIRD occurrence of the exact class: 2x in F26-DISPATCH-191-FAILED-GREEN (`double_bottom_base_quiet`, `bollinger_squeeze`, closed 2026-07-11, 191 consecutive silent-green-while-dead fires before discovery), now a 3rd on `level_break_first_strike`.
+
+**Root cause:** `_KNOWN_SETUP_NAMES` is a hand-maintained Python set that must be manually kept in sync with `setup_dispatch.py`'s roster every time a new setup is wired — nothing enforces the sync, so the two lists can only agree by discipline. Each prior fix patched the mirror set correctly, but each time the mirror stayed a second, independently-maintained copy waiting to drift again on the next dispatcher edit — the same shape already documented for watchers (`backtest/lib/watchers/runner.py` `WATCHERS` + `test_watcher_registry.py`: being-defined must == being-registered == being-checked), recurring on a sibling registry with no equivalent guard.
+
+**Fix (per OP-25, a re-violated lesson must become a code assertion, not a 3rd hand-fix):** two complementary fixes shipped the same day: (1) `_KNOWN_SETUP_NAMES` gained the missing entry AND `backtest/tests/test_graduated_guards.py::test_setup_dispatch_names_registry_sync` (AST-parses `SetupDispatcher.run()`'s `dispatchers` list, diffs against the validator's set in both directions, RED-proofed via `git stash` reproducing the exact `missing_from_validator` diagnosis); (2) the DEEPER fix — hoisted `setup_dispatch.py`'s inline `dispatchers` list to a module-level `DISPATCH_ROSTER` constant + a derived `KNOWN_SETUP_NAMES` frozenset, and had the validator `from setup.scripts.setup_dispatch import KNOWN_SETUP_NAMES` instead of hand-typing a set literal — removing the second copy entirely, not just correcting it.
+
+**The rule:** when file B hand-maintains a set/list supposed to mirror file A's real registry, the durable fix is never "correct B's copy," it is "make B import a value DERIVED from A" so there is structurally only one copy in memory. When a 3rd occurrence of the same "mirror drifted" bug class is found, don't write a 3rd patch — ask "can the copy be deleted and replaced with an import of the source of truth?" first. A guard test should assert IMPORT-NOT-HAND-TYPE at the source level (not just value-equality, which still passes for a re-typed-but-still-independent copy).
+
+**Encoded in:** `setup/scripts/setup_dispatch.py` (`DISPATCH_ROSTER`, `KNOWN_SETUP_NAMES`), `crypto/validators/v53_setup_dispatch.py` (imports instead of hand-typing), `backtest/tests/test_graduated_guards.py::test_setup_dispatch_names_registry_sync`. Inbox sources `strategy/candidates/_lesson-inbox/2026-07-18-hand-maintained-allowlist-drifts-from-live-roster.md` + `2026-07-18-hand-mirrored-set-drifts-fix-by-importing-not-typing.md` + `2026-07-18-setup-dispatch-registry-validator-drift.md` (merged — same incident, three complementary write-ups). **Related:** C14, watcher-registry lesson (`test_watcher_registry.py`).
+
+---
+
+## L224 -- 2026-07-18: an instrument built to measure human friction must be audited for whether it can hear ITSELF talking — a keyword-based detector will silently inflate on the automation's own scheduled prompts unless every non-human prompt source is positively excluded
+
+**Symptom:** `j-question-ledger.jsonl` (the OP-33e J-MIND-CHECK harvest) claimed J asked an "is it running/trading" state-question 43-49 times over 18 days, cited verbatim in a queue item and a same-day lesson-inbox item. Auditing the actual ledger showed 15 of 49 lines (31%) were self-inflicted wrapper fires, not J typing anything.
+
+**Root cause:** every scheduled conductor/conductor-weekend/conductor-rth/weekly-review fire submits the wrapper's injected `# RUNTIME CONTEXT (injected by wrapper...)` header + STATE DIGEST + the full conductor.md doctrine text as the literal UserPromptSubmit prompt. That doctrine prose itself contains ordinary phrases that trip the hook's `is_running`/`is_trading` interrogative regexes with zero J involvement (e.g. "the success bar is daily paper trading" matches `is .{0,25}trading`). The existing `$qIsSystem` exclusion (built 2026-06-29 after a similar phantom-fire class) filtered tool/agent-result markers but had no marker for the wrapper's own scheduled-task prompt.
+
+**Fix:** added `# runtime context \(injected by wrapper|state digest \(auto-injected` to the `$qIsSystem` exclusion regex in `setup/hook-detect-correction.ps1`; verified with a simulated wrapper prompt (ledger unchanged) and a real J-style prompt (ledger grew by 1). Pruned the 15 confirmed self-inflicted lines (34 real entries remain, still STEP-BACK-ELIGIBLE — the underlying J friction is real, it was just over-counted). Guard `test_operator_friction_excludes_wrapper_self_fire` (RED without the fix).
+
+**The rule:** "we already added a system-message filter" is not the same claim as "we filtered every non-J prompt source." Any future harvest source added to `friction_distiller.py` that reads from a channel automated fires ALSO write to needs the same self-exclusion audit before its counts are trusted for an escalation threshold.
+
+**Encoded in:** `setup/hook-detect-correction.ps1` (`$qIsSystem`), `backtest/tests/test_graduated_guards.py::test_operator_friction_excludes_wrapper_self_fire`. Inbox source `strategy/candidates/_lesson-inbox/2026-07-18-instrument-that-counts-friction-self-pollutes.md`. **Related:** C7, L227 (shared "instrumentation integrity / built != delivered" theme, same day).
+
+---
+
+## L225 -- 2026-07-18: a manually-run manifest with a "regenerate this" docstring WILL go stale — self-refresh at the point of use, not by cadence discipline, for any manifest cheap enough to never be a bottleneck
+
+**Symptom:** `backtest/tools/data_coverage_manifest.py` exists to close a "silent real-fills blind spot" but nothing scheduled it. Found stuck at `option_chain_realfills.last=2026-07-08` (manifest regenerated 2026-07-14 but already undercounted) while the real on-disk option-chain cache had genuinely extended to 2026-07-17 — a silent ~9-trading-day gap. `recency_check.py::read_cache_last_date()` trusted the manifest blindly, so the CONFIRM-BEFORE-CAPITAL gate's "recent window" was silently truncated by ~9 days on every nightly license-monitor fire.
+
+**Root cause:** a monitoring/manifest tool that answers "is my data fresh" is itself data that can go stale, and "run this periodically" is a hope, not a mechanism. The manifest's own staleness was invisible because nothing checked the checker.
+
+**Fix:** since `build_manifest()` is cheap to regenerate (pure file-scan, no network, no heavy compute), the CONSUMER now calls it inline at the point of use and rewrites the manifest before reading, falling back to the stale file only on exception (fail-open). Applied in `recency_check.py::read_cache_last_date()`. Guard `test_recency_check_self_refreshes_coverage.py` (4/4, RED-proofed).
+
+**The rule:** any manually-run manifest/coverage/freshness reporter that is (a) cheap to regenerate and (b) has a known consumer treating its JSON as ground truth is a candidate for self-refresh-at-point-of-use. Do NOT apply this to EXPENSIVE manifests (full backtest re-runs, OPRA re-fetches) — those genuinely need a scheduled cadence; the discriminator is whether regeneration itself is cheap enough to never be the bottleneck.
+
+**Encoded in:** `backtest/autoresearch/recency_check.py::read_cache_last_date`, `backtest/tests/test_recency_check_self_refreshes_coverage.py`. Inbox source `strategy/candidates/_lesson-inbox/2026-07-18-manifest-tools-need-self-refresh-not-manual-cadence.md`. **Related:** C7, C9, L210 (a guard-generating mechanism whose OWN health nobody verifies is a recurring shape, not a one-off).
+
+---
+
+## L226 -- 2026-07-18: hand-embedding a JSON string into a CSV row without routing it through `csv.writer`'s quote-escaping silently corrupts every column after it the moment the JSON contains an un-doubled internal quote
+
+**Symptom:** two 2026-07-16 `VWAP_CONTINUATION` backfilled rows in `journal/trades.csv` have their `archetype_match_json` field's embedded notes text containing a literal `"` that was never CSV-doubled — `csv.DictReader` treats the raw `"` as the end of the quoted field, so everything after it (the rest of `archetype_match_json`, `tape_assistance`, `notes_short`, `account_id`) shifts/garbles; `row["account_id"]` for those 2 rows returns a fragment of notes text, not `"safe"`.
+
+**Root cause:** whatever wrote those 2 rows serialized `archetype_match_json` with `json.dumps(...)` but embedded it into the CSV row without going through `csv.writer`'s own quote-doubling (`"` → `""`) — likely a raw f-string / manual quote-wrap instead of `csv.writer.writerow(...)`. Impact bounded: consumers reading only EARLY columns (date/time/setup/dollar_pnl) are unaffected (verified: all 179 rows including these 2 parse `dollar_pnl` correctly, guarded by `test_real_csv_malformed_quoting_rows_still_parse_early_columns`); consumers reading LATE columns for these 2 rows are unreliable.
+
+**Fix (owed — the digest consumer doesn't need the corrupted columns, so not fixed this fire):** whatever writer path produced these 2 rows should route `archetype_match_json` through `csv.writer`/`csv.DictWriter` instead of manual string concatenation. A follow-up sweep of `journal/trades.csv` for other rows with the same defect is worth a quick pass before trusting `account_id`/`notes_short` broadly.
+
+**The rule:** any pipeline that builds a CSV row by hand-embedding a JSON string (rather than through `csv.writer`) is one un-doubled internal quote away from silently corrupting every column after it — and because `csv.DictReader` doesn't error on this, it just mis-assigns fields (C7 class). Prefer `csv.writer`/`csv.DictWriter` for any row containing embedded JSON.
+
+**Encoded in:** `backtest/tests/test_trade_to_learn_digest.py::test_real_csv_malformed_quoting_rows_still_parse_early_columns`. Inbox source `strategy/candidates/_lesson-inbox/2026-07-18-trades-csv-unescaped-json-quote-corrupts-late-columns.md`. **Related:** C7.
+
+---
+
+## L227 -- 2026-07-18: a built visibility/push tool that never reaches the human's actual device is still invisible — "I built the instrument" and "J stopped having to ask" are two different claims, and only the second retires OP-33(e) friction
+
+**Symptom:** `j-question-ledger.jsonl` showed J asking a state-question variant 40+ times across 18 days despite J already having two purpose-built pull instruments (`gamma_glance.py`, `gamma_status.py`) AND a phone/watch companion app with a full push-notification stack (VAPID, wrist-approve, obligations registry) built 2026-06-21.
+
+**Root cause (two compounding gaps, found only by tracing the full delivery path):** (1) pull instruments require J to run a command — J was asking in conversation instead, so their existence never reduced the ask rate; (2) `.vapid.json` has existed since 2026-06-21 (the push code path is NOT the silent no-op the first hypothesis assumed) but `push-subscriptions.json` is `[]` 27 days later — zero devices have ever subscribed, because Android Chrome refuses push/voice over plain `http://192.168.x.x` and the companion needs an HTTPS front-door (documented, never actioned) before J's phone can complete a subscription — a one-time, J-only, physical device+network step no autonomous session can complete.
+
+**Fix:** `gamma_glance.py`/`gamma_status.py` now report the REAL two-layer state (VAPID present? subscriber count?) with the exact remaining J-only step, instead of staying silent on the gap. Flagged directly to J (queue.md, STATUS.md) as the one concrete remaining action. Deliberately did NOT touch `.vapid.json`/`push-subscriptions.json` (denylisted for automated writes by design — a J-only consent step). Guard `test_push_visibility_guard.py` (6/6, RED-proofed).
+
+**The rule:** a tool that exists but is never invoked, or a push pipe wired end-to-end in code with zero live subscribers, is architecturally complete and operationally inert — and looks identical to "done" from inside the codebase. When the `friction_distiller.py` `recurring_user_question` class judges "BUILD_ELIMINATING_INSTRUMENT" and a candidate already exists, the FIRST check must be "does it actually reach J's device today" (grep the real subscriber/session state), not "does the code path exist."
+
+**Encoded in:** `setup/scripts/gamma_glance.py::_push_status`, `setup/scripts/gamma_status.py::_push_glance`, `backtest/tests/test_push_visibility_guard.py`. Inbox source `strategy/candidates/_lesson-inbox/2026-07-18-visibility-tool-built-but-inert.md`. **Related:** C7, C18, L221, L224 (shared "instrumentation integrity" theme, same day).
+
+---
+
+## L228 -- 2026-07-20: `git commit -- <pathspec>` WITHOUT `--only` does not commit staged (index) content for those paths — it silently re-adds the CURRENT WORKING TREE content, discarding a staged `git rm --cached` deletion
+
+**Symptom:** two separate fires both claimed to gitignore+untrack `circuit-breaker*.json`/`today-bias.json` (the L214 incident), both reported "4/4 green"/"curated safety gate PASS," and both silently failed to actually untrack the files — `git ls-tree HEAD` kept showing the original blobs after each "fix" commit. A third fire found the guard test RED at the start (contradicting the prior "green" claims), root-caused it, and needed four attempts to actually land the fix.
+
+**Root cause (confirmed empirically):** `git commit -m "..." -- <pathspec>` without `--only` treats explicit pathspecs as "commit the CURRENT WORKING TREE content of these paths" (an implicit `git add <pathspec>` immediately before the commit), NOT "commit whatever I already staged for these paths." Since `git rm --cached <path>` leaves the file on disk, the very next `git commit -- <path>` silently re-adds it from disk, discarding the staged deletion entirely — `git status`/`git diff --cached` right before the commit correctly show the deletion staged; the commit still drops it.
+
+**Fix:** the working fix is a plain `git commit -m "..."` with NO pathspec at all, only after confirming via `git diff --cached --stat` (no path filter) that the ENTIRE staged index is exactly the intended deletions — nothing else. (`git commit --only -- <pathspec>` was tried and failed with "nothing to commit" against paths staged in an earlier tool invocation — not fully root-caused, not chased further since the no-pathspec workaround was verified clean.)
+
+**The rule:** always verify a claimed untrack with `git ls-tree HEAD -- <path>` (must be empty) in the SAME fire before writing "N/N green" to STATUS.md — `git status`/pytest-guard green only proves the STAGED state is correct, not that the commit actually captured it. This is the concrete, mechanical form of "verify, don't claim" (OP-33) for this specific git operation.
+
+**Encoded in:** `strategy/candidates/_lesson-inbox/2026-07-20-git-commit-pathspec-resurrects-staged-deletion.md` (prose only — the recommended reusable helper, `setup/scripts/git_untrack_state_file.py`, is owed, not yet built). **Related:** L214 (the incident this git-mechanics bug repeatedly broke the fix for), C24 (pathspec-commit discipline), C34.
+
+---
+
+## L229 -- 2026-07-20: `run_exe_hidden.vbs`'s `Shell.Run cmd, 0, False` makes Task Scheduler's `LastTaskResult`/`NumberOfMissedRuns` meaningless for ~60 registered tasks — a task can show fully healthy while its payload has been silently failing for days
+
+**Symptom:** `self_check.py` flagged `MACRO-CALENDAR STALE (RED)` — `news.json`'s freshness_stamp was ~5 days old — even though `Gamma_MacroCalendar` (07:45 ET daily) showed `LastTaskResult: 0`, `NumberOfMissedRuns: 0`, including a "successful" run that very morning. By every Task Scheduler signal, the task was healthy. It was not.
+
+**Root cause:** `bWaitOnReturn=False` means `wscript.exe` launches the inner `pythonw.exe` and returns immediately without waiting — its own exit code (which Task Scheduler records) reflects only "did I successfully hand off the launch," never whether the inner process ran to completion, crashed, hung, or was reaped by the fleet's 3-minute stale-process reaper. No log path is wired for this launcher (headless-by-design), so there was no artifact to catch this except `self_check.py`'s own independent content-freshness read, which happened to already exist for an unrelated reason. Verified as the mechanism, not theorized: manually running `macro_calendar.py` succeeded immediately and cleared the staleness. This is the SAME mechanism as L210 (wscript exit-code masking), re-hit on a DIFFERENT task (macro_calendar vs eod_flatten) — the L210 graduated guard prevents monitors from TRUSTING `LastTaskResult`, but the ROOT mechanism (the launcher's exit code is meaningless) is still open across the ~60-task registry.
+
+**Fix (not done this fire — infra-breadth work, filed `WSCRIPT-FIRE-AND-FORGET-AUDIT`, queue.md MED):** two complementary options: (1) redirect stdout/stderr per-task (extend `run_exe_hidden.vbs` or switch to `WshShell.Exec` + poll, exposing `Status`/`ExitCode`/`StdOut`); (2) a generic "last successful completion" staleness ratchet extending `engine-health.json`'s existing pattern (proven for heartbeat/sight_beacon/watcher_feed) to EVERY producer with a `freshness_stamp`/`updated_at` field and an expected cadence.
+
+**The rule:** `LastTaskResult`/`NumberOfMissedRuns` is the FIRST place anyone looks to judge "is this task healthy" — for any wscript-chained task that signal is unconditionally green regardless of the payload's actual outcome. Do not attempt to fix all ~60 tasks in one bounded fire; audit which tasks would benefit, then pick a launcher redesign.
+
+**Encoded in:** manually re-run `setup/scripts/macro_calendar.py` (acute fix); owed: `WSCRIPT-FIRE-AND-FORGET-AUDIT` (queue.md). Inbox source `strategy/candidates/_lesson-inbox/2026-07-20-wscript-fire-and-forget-hides-scheduled-task-failure.md`. **Related:** L210 (same mechanism, first occurrence + partial graduation), C7, C8.
+
+---
+
+## L230 -- 2026-07-20: a watcher's "current-bar" duplicate-signal guard and the entry-path's "flat account" check compose to ALLOW repeated re-entry churn on the SAME trigger bar after each stop-out — neither guard alone is wrong, but together they leave no memory of a failed attempt
+
+**Symptom:** 2026-07-20 09:51-09:55 ET, safe account, extra_exec lane `vix_regime_dayside`: THREE 3-lot 748C entries in 5 minutes, each stopped out in 40-60s, net -$87. Two of the five heartbeat ticks in that window were blocked only by the nondeterministic free-model veto (HTF-conflict reasoning), not a real gate.
+
+**Root cause:** `heartbeat_core._route_extra_setups` had a `placed_this_tick` guard preventing two placements on the SAME heartbeat tick, and the watchers have current-bar guards preventing a duplicate signal from firing twice within one 5m bar — but nothing tracked "did this setup already ATTEMPT (and fail) an entry on this trigger bar." Once a stop-out returned the account to flat mid-bar, the SAME setup's still-valid signal for the still-current bar could re-fire on the very next tick and place again, repeatedly, until the bar rolled over or the nondeterministic veto happened to block it.
+
+**Fix:** a per-arm, per-setup "last trigger-bar attempted" ledger (`exit_actuator.load_last_entry_bars`/`record_entry_bar`/`same_bar_cooldown_active`, additive) wired into `_route_extra_setups`: refuse a new entry attempt for a setup on the SAME trigger bar it already attempted one on this session (`SKIP_COOLDOWN_SAME_BAR`); record only on an actual PLACED/PLACING/WOULD_PLACE outcome. Chose bar-boundary cooldown over a hand-picked N-minute duration deliberately — a brand-new mechanism with no existing trade population to pre-register a duration against. Guard `test_extra_signal_churn_cooldown_2026_07_20.py` (10/10, RED-proofed). Fail-open throughout.
+
+**The rule:** two individually-correct guards (no-duplicate-per-tick, no-duplicate-signal-per-bar) can still compose to allow unbounded churn if neither tracks "was an attempt already made and it failed." Scoped to the extra-setup lane only — the PRIMARY ribbon path (`ENTER_BEAR`/`ENTER_BULL`) has NO equivalent same-bar re-entry guard; if a future incident shows the primary path re-entering the same trigger bar after a stop-out, this is the first place to look, and the fix pattern generalizes directly.
+
+**Encoded in:** `automation/state/fleet/exit_actuator.py` (`load_last_entry_bars`/`record_entry_bar`/`same_bar_cooldown_active`), `backtest/tests/test_extra_signal_churn_cooldown_2026_07_20.py`. Inbox source `strategy/candidates/_lesson-inbox/extra-signal-same-bar-churn-2026-07-20.md`. **Related:** C15.

@@ -218,7 +218,7 @@ These are non-negotiable, second only to the 10 rules above.
 
 25. **Autonomous operator — high uptime, J holds the off-switch.** I COMPOUND (curate, prune, ratify), not accumulate. Guards MUST fail open — never kill/block J's interactive session (OP-32 scar: market-hours firewall locked J out 2026-05-22). **Required:** (a) Empty queue → BRAINSTORM from `FUTURE-IMPROVEMENTS.md` + `LESSONS-LEARNED.md` + `mistakes.md` + latest trades → ship 3+ tasks. (b) Market event → write `automation/state/news.json`. (c) New foot-gun → encode in CLAUDE.md/automation → fold L# into Lessons index. **Silent failure is the only true failure** — every fire ships work OR a flagged failure to `STATUS.md ## Known broken`; J always wakes to a SIGNAL.
 
-    **Lessons index** (full prose in [LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md), current through L203). New anti-pattern → add prose there + fold the L# into a row below. Re-violated lesson = missing guardrail → graduate to a code assertion (`backtest/tests/test_graduated_guards.py`).
+    **Lessons index** (full prose in [LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md), current through L230). New anti-pattern → add prose there + fold the L# into a row below. Re-violated lesson = missing guardrail → graduate to a code assertion (`backtest/tests/test_graduated_guards.py`).
 
     | # | Theme | Lessons |
     |---|---|---|
@@ -227,21 +227,21 @@ These are non-negotiable, second only to the 10 rules above.
     | C3 | SPY-price edge != option edge (delta/theta/stop-misfire) | L58,74,100,101,112,136,148,149,172,177,183,184,188 |
     | C4 | Disclose concentration, normalize OOS, stratify by regime | L01,04,05,10,11,22,46,48,92,104,122,124,128,129,154,166,167,174,175,178,192 |
     | C5 | VIX *character* > VIX level | L40,44,45,73,93,118,133,134,154,162,167 |
-    | C6 | No look-ahead: filter <= current bar, verify bar closed, slice prior_bars | L14,34,57,61,94,161,165,166,191 |
-    | C7 | Silent success is failure — audit outputs, not exit codes | L13,16,19,25,26,28,29,31,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161,164,169,170,173,179,181,185,186,187,189,190,193,196,197 |
-    | C8 | Headless Windows spawn = system-pythonw + CREATE_NO_WINDOW + WMI liveness | L20,27,33,41,81 |
+    | C6 | No look-ahead: filter <= current bar, verify bar closed, slice prior_bars | L14,34,57,61,94,161,165,166,191,212,218 |
+    | C7 | Silent success is failure — audit outputs, not exit codes | L13,16,19,25,26,28,29,31,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161,164,169,170,173,179,181,185,186,187,189,190,193,196,197,207,211,216,217,220,224,225,226 |
+    | C8 | Headless Windows spawn = system-pythonw + CREATE_NO_WINDOW + WMI liveness | L20,27,33,41,81,210,229 |
     | C9 | Anchor paths to __file__ | L21,42,49,56,60 |
     | C10 | Rate-limit pool: separate prod key | L54,62,68,69 |
-    | C11 | Broker is source of truth: verify flat before entry | L47,76,180,200 |
+    | C11 | Broker is source of truth: verify flat before entry | L47,76,180,200,215,220 |
     | C12 | Stateful detectors need warmup / persisted state | L30,35 |
     | C13 | Confidence tiers must be reachable AND diverse over N>=20 | L43,63,65 |
-    | C14 | Dead/translated-but-unapplied knobs: vary-and-assert (L201: enable-flag != exec-arm-map; L202: a stale queue item is the same failure one level up) | L38,70,72,77,88,89,96,99,106,108,109,110,111,113,114,115,116,117,123,127,130,131,147,152,155,176,180,194,195,198,201,202 |
-    | C15 | Gates interact multiplicatively — trace session cascades | L07,08,09,66,95,163,180,199 |
+    | C14 | Dead/translated-but-unapplied knobs: vary-and-assert (L201: enable-flag != exec-arm-map; L202: stale queue=same failure one level up; L223: mirror drift fixed by importing, not re-typing) | L38,70,72,77,88,89,96,99,106,108,109,110,111,113,114,115,116,117,123,127,130,131,147,152,155,176,180,194,195,198,201,202,204,205,206,207,209,211,223 |
+    | C15 | Gates interact multiplicatively — trace session cascades | L07,08,09,66,95,163,180,199,209,222,230 |
     | C16 | Multi-bar reversal vs single-bar continuation discriminator | L52,59,75 |
     | C17 | Build reusable skills + crypto validation, not one-shots | L03,36,37 |
-    | C18 | Status-format discipline | L06,15,17,18 |
+    | C18 | Status-format discipline | L06,15,17,18,227 |
     | C19 | Cowork FUSE mount: no deletes + truncated read-after-edit | L78 |
-    | C20 | Gate direction must match setup structure: proximity gates anti-correlate with breakout setups | L102 |
+    | C20 | Gate direction must match setup structure: proximity gates anti-correlate with breakout setups | L102,219 |
     | C21 | Bypass fires at bar-level not date-level: verify trigger+time+type match J's entry | L103,153 |
     | C22 | Backward-looking classifiers anti-correlate with recovery periods | L118,119,120,121,125,126,132,133,134,135,137,138,146,159 |
     | C23 | Quality-tier blocking fails when IS/OOS VIX regimes differ — tier labels conflate multiple VIX populations | L122 |
@@ -253,6 +253,10 @@ These are non-negotiable, second only to the 10 rules above.
     | C29 | Exit target/stop knobs ratified on one strike tier (ITM-2) don't transfer to another (OTM-2) — verify independently per account/strike | L149 |
     | C30 | Unconstrained exit targets (runner never hits 5x in 0DTE) = dead knob | L24,148,176 |
     | C31 | J's 667 real trades: 1-2 lots +$4,576 / 3+ lots -$17,461 / scaled-in -$327/trade — the killer is sizing-UP/adding behavior (Rule 6 + Rule 4 + no-add-after-loss), not flat count per se. **Attribution correction (L203):** no-add alone recovers only ~$794 of the scaled-in cohort's -$9,281 at fixed exits — the real recoverable money is the no-add + -50%-catastrophe-cap PACKAGE (+$3,428 bound on scaled-in, +$6,176 bound book-wide); scale-in is the highest-signal MARKER of a trade managed by hope, not a standalone lever. The no-add guard itself is already structural/unconditional (`fb.is_flat_spy_options`, no bypass path) — pinned by `test_never_average_down_2026_07_20.py` | L168,203 |
+    | C32 | Capability+data+idle compute != insight unless a fire's job is "generate the hypothesis" | L208 |
+    | C33 | Shared gateway/router wires at automation's OWN launch point, never a global default interactive tools inherit | L213 |
+    | C34 | Tree-wide git ops in the shared checkout revert live state BACKWARD — untrack decision-gating state; verify via `git ls-tree HEAD` | L214,228 |
+    | C35 | Built+tested+RED-proofed != shipped until committed + on J's REVOKE surface | L221 |
 
 31. **The Kitchen — 24/7 autonomous free-tier R&D loop** (keepalive + seeder + reviewer; schedule in SCHEDULED-TASKS). Claude-when-awake = the driver: steer/promote/prune via `kitchen-status.json`. Daemon NEVER touches `heartbeat*`/`params*`/`CLAUDE.md`, NEVER places orders. Spec: [`KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md).
 
