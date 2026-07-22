@@ -1,3 +1,74 @@
+## [2026-07-22 ~18:12-18:33 ET] OK -- conductor (AFTERHOURS): PULLBACK-HOLD-BULL-TRIGGER Lane-A vocabulary build (shadow-only), commit pending
+
+> **STAGE 0/1:** ET confirmed 18:12->18:33, Wednesday, market closed since 15:55 (correctly
+> after-hours). `engine-health.json` GREEN 13/13 (heartbeat/beacon/watcher quiet-OK,
+> kill-switches armed-not-tripped both accounts). `self-check-last.json` DEGRADED only on the
+> pre-existing non-load-bearing TRENDLINE-DRAW visibility flag (unchanged, PDT both accounts
+> OK). `task_scorer.py --top` surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` again, but
+> `queue.md`'s own newest HIGH item, **`PULLBACK-HOLD-BULL-TRIGGER`** (filed 2026-07-22 Fable
+> review), explicitly REFRAMES + supersedes that reconsider item's framing -- picked it
+> (priority-4, ready, depends:none, outranks the author-inbox tier).
+
+> **What shipped (Lane A only -- see queue.md's own Lane A/Lane B split):** added
+> `detect_pullback_hold_bullish` to `backtest/lib/filters.py` -- finds the EARLIEST bar
+> achieving the lowest low inside a level's $0.30 zone band (levels-are-zones doctrine,
+> J 2026-07-17; band width reused from the already-sanctioned `CONFLUENCE_TOLERANCE_DOLLARS`,
+> not hand-picked), requires >=2 bars where the close never breaks the zone floor, then fires
+> when the current bar closes above the hold window's highest close -- an entry bars EARLIER
+> than `detect_level_reclaim` (same-bar low<level<close) can ever fire. SHADOW-LOGGED ONLY
+> (`BullishSetupResult.shadow_triggers_fired`, identical precedent to `wick_reclaim`/
+> `trendline_reclaim`) -- wired into `evaluate_bullish_setup`'s shadow block, provably NOT
+> touching `triggers`/`bull_score`/`passed`.
+
+> **Verified this fire (OP-33):** ran the detector against the item's OWN 07-22 exhibit using
+> REAL SIP 5m bars (`backtest/data/spy_5m_2026-05-19_2026-07-22.csv`), not a synthetic-only
+> claim -- fires at 10:50 ET (2 bars after the 10:40 pullback low of 746.78, 22c inside the
+> zone band around level 746.54), matching the item's own "$2-3 earlier than level_reclaim"
+> claim on real tape. `pytest backtest/tests/test_pullback_hold_trigger.py
+> backtest/tests/test_pullback_hold_shadow_only.py -q` -> 13/13 PASS. **RED-proofed live**
+> (per the wick/trendline shadow test's own documented methodology): temporarily leaked
+> `pullback_hold` into `triggers` inside `evaluate_bullish_setup`, re-ran the shadow-only
+> guard -> FAILED on `triggers_fired` mismatch (proving the guard actually exercises the
+> wiring), reverted, confirmed 13/13 green again. Zero regressions:
+> `test_wick_reclaim_trigger.py` + `test_trendline_reclaim_trigger.py` +
+> `test_bull_trendline_wick_reclaim_shadow_only.py` + `test_bull_sequence_reclaim_coupling.py`
+> all still 15/15; gym `crypto/validators/runner.py` 104/104 GREEN. Caught + fixed a real bug
+> DURING authorship (not after): the first low-selection design ("tightest touch to level")
+> mis-picked an earlier still-descending bar over the true pullback low on a symmetric-distance
+> tie, silently producing a false-negative on a clean synthetic fixture -- redesigned to "lowest
+> low, earliest tie-break" (matches how a human would actually name "the pullback low"), fixed,
+> re-verified against both the real-tape and synthetic fixtures.
+
+> **Trading-path scope: SHADOW-ONLY, not a live trading-path change.** `evaluate_bullish_setup`'s
+> `passed`/`bull_score`/`triggers_fired`/routing are provably untouched (the shadow-only guard
+> + its RED-proof above) -- this ships as engine-benefit observer/authoring work, same class
+> as the wick_reclaim/trendline_reclaim precedent it mirrors, not a params/heartbeat_core/
+> filters-live-path change requiring guard+revert+REVOKE under rail 4. **Revert (if ever
+> needed):** `git revert <this commit>` (fully additive: 1 new function + 3 new constants + 1
+> shadow-append line in filters.py + 2 new test files; zero existing lines removed/changed).
+
+> **Queue state:** `PULLBACK-HOLD-BULL-TRIGGER` moved to `status:LANE-A-DONE-LANE-B-PENDING`
+> in queue.md with a full closing note. **Lane B (frozen pre-reg -> real-fills replay ->
+> 4-condition gate + BH-FDR) is a SEPARATE, larger next fire** -- explicitly NOT attempted this
+> fire per rail 3 (one bounded task) and C25 (no hand-tuning off a single exhibit; needs a
+> frozen grid on `min_hold_bars`/`zone_band_dollars` first, mirroring
+> `rsi_extension_block_probe.py`'s own discipline). `SELFCHECK-TRENDLINE-DRAW-DUPLICATE-SPAM`
+> (LOW) and `QUEUE-MD-RETENTION-CAP` (LOW) remain open/untouched, correctly lower priority.
+> Noted in passing: `automation/overnight/STATUS.md` + `STATUS-archive-2026-07.md` +
+> `queue-harvest-archive.md` were already mid-consolidation by the standing
+> `status_retention.py` job when this fire started (L181 precedent, oldest entry rolled off
+> to the monthly archive) -- confirmed this is the known/expected retention mechanism (not a
+> conflict with this fire) before including those files as-is in this commit.
+
+> **Cost: ~$4.8** (STAGE 0/1 reads, engine-health/self-check/task_scorer/queue survey, reading
+> filters.py's bullish-trigger architecture + BarContext + existing shadow-trigger precedent
+> in detail to match convention exactly, fetching+inspecting real 07-22 SPY 5m bars for a
+> tape-grounded fixture, writing the detector + 2 test files, one debugging round-trip fixing
+> the tie-break bug, a live RED-proof + revert, 2 gym/pytest regression runs, this STATUS +
+> queue.md update, pending commit).
+
+---
+
 ## [2026-07-22 ~17:48-17:56 ET] OK -- conductor (AFTERHOURS): FINRA UA-block lesson graduated to shared http_fetch.py guard (L241), commits `5b97b9e4` + `4efc229b`
 
 > **STAGE 0/1:** ET confirmed 17:48->17:56, Wednesday, market closed since 15:55 (correctly
@@ -631,114 +702,3 @@
 
 ---
 
-## [2026-07-21 ~23:42-23:45 ET] OK -- conductor (AFTERHOURS): drained last open lesson-inbox item -> L239, commit `9463625`
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `fill_funnel.py` GREEN
-> (core:safe 2 fills/2 exits today, core:bold 1 ENTER->0-attempt informational, all fleet arms
-> idle-clean). `self-check-last.json` DEGRADED on the same pre-existing non-load-bearing
-> TRENDLINE-DRAW visibility flag (unchanged). Self-audit gaps: the 2026-07-21T17:31:28 batch
-> already TRIAGED (re-verified by an earlier fire tonight, no new batch since). `task_scorer.py
-> --top` again surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (J-decision-gated, correctly
-> skipped). `queue.md` `status:open` grep found only `T-AUDIT-TAIL` (already deprioritized 2-day-
-> stale synthesis-resume, left as-is -- not a 60-min bounded task). Author inboxes:
-> validator-inbox/skill-inbox both empty of actionable items (skill-inbox has only a correction-
-> queue log). **`_lesson-inbox` had exactly 1 open item** -- the self-caught foot-gun the
-> immediately-prior fire filed on itself (2026-07-21-git-add-mixed-pathspec-fails-atomically.md) --
-> a well-documented, first-occurrence, single-mechanism candidate. Picked it (priority-5,
-> author-inbox tier, nothing higher-priority ready).
-
-> **What shipped:** graduated to `markdown/doctrine/LESSONS-LEARNED.md` as **L239** -- `git add`
-> with a mix of valid + stale (already-renamed) pathspecs fails ATOMICALLY (nothing from that
-> call stages, not just the bad path), root-caused to a `fatal:` mid-batch aborting the whole
-> `git add` while `git commit` proceeds anyway on whatever was already staged, producing a
-> "successful" commit quietly missing intended content. Folded into CLAUDE.md's OP-25 index
-> (C35 row, `L221,231` -> `L221,231,239`), bumped "current through" pointer L238->L239, marked
-> the source inbox item `.DONE`.
-
-> **Verified this fire (OP-33 -- and specifically applying L239's own rule to itself):** ran
-> `pytest backtest/tests/test_op25_index_reconciliation.py backtest/tests/test_inbox_done_suffix.py
-> backtest/tests/test_verify_committed.py -q` -> **16/16 PASS**; `grep -c "^    | C" CLAUDE.md` = 35
-> (no duplicate/malformed rows); curated safety gate (31+5) PASS pre-commit. Staged exactly the
-> 3 intended files via a single `git add <path1> <path2> <path3>` (not a batch mixing any stale
-> path), then ran `git status --short -- <those 3 exact paths>` BEFORE committing (clean staged
-> state, no unstaged leftovers) -- confirmed post-commit via `git show --stat HEAD`: 3 files
-> changed, 15 insertions(+)/2 deletions(-), rename shows 0/0 (as expected for a pure `git mv`).
-> Context budget checked post-edit: YELLOW 8709/9000 tok (97%, up from 8548 -- still within
-> budget, no hard breach).
-
-> **Trading-path scope:** zero trading-path files touched (CLAUDE.md/LESSONS-LEARNED.md/inbox
-> file only -- doctrine-authoring, not params/heartbeat_core/filters/placement/exit). No
-> guard/revert/REVOKE needed under rail 4 (nothing shipped that could regress a live decision).
-> **Revert:** `git revert 9463625` (1 commit, fully additive doc/inbox change, no functional
-> code path touched).
-
-> **Queue state:** all 4 author inboxes now empty of actionable items (validator/skill/lesson
-> all clear; chef-inbox has 14 unactioned prospector candidates, lower priority than a ready
-> queue item but the next natural pick if no HIGH queue item surfaces). `queue.md` has 0
-> genuinely open bounded items (`T-AUDIT-TAIL` is a 2-week-stale synthesis-resume, not a clean
-> 60-min task -- next fire should consider re-running the synthesis fresh per its own note, or
-> picking from chef-inbox / BRAINSTORM if that's still not attractive).
-
-> **Cost: ~$1.7** (STAGE 0/1 reads, self_check + fill_funnel + task_scorer + self-audit-gap
-> re-check + 4-inbox survey + queue.md targeted grep, reading the 1 lesson candidate in full,
-> writing 1 lesson entry + 1 CLAUDE.md index fold, context-budget check, 3 guard-test runs +
-> curated safety gate, 1 commit with pre/post verification, this STATUS update).
-
----
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `fill_funnel.py` GREEN
-> (core:safe 2 fills/2 exits today, core:bold 0-attempt informational). `self-check-last.json`
-> DEGRADED on the same pre-existing non-load-bearing TRENDLINE-DRAW visibility flag (unchanged).
-> Self-audit gaps: all triaged through the 2026-07-21T17:31:28 batch, nothing new. `queue.md`
-> grep for `status:open` found only `T-AUDIT-TAIL` (already deprioritized, left as-is).
-> `task_scorer.py --top` again surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (J-decision-gated,
-> correctly skipped). Author-inbox priority order: validator-inbox all `.DONE`, skill-inbox has
-> only a correction-queue (no actionable item), so `_lesson-inbox`'s 3 open items were next --
-> all three were fresh, well-documented, first-occurrence candidates with clear C-cluster targets
-> already suggested by their own filer.
-
-> **What shipped:** graduated all 3 to `markdown/doctrine/LESSONS-LEARNED.md` entries + folded
-> into CLAUDE.md's OP-25 index (C7/C11/C14/C34 rows), bumped the "current through" pointer
-> L235->L238, and marked the 3 source inbox items `.DONE`:
-> - **L236** -- an LLM-swarm's self-reported `Cost: $0` tag is an unverified claim (5 prospector
->   items live-verified this fire as inaccessible/not-actually-free); no independent feasibility
->   probe exists in `prospector.py` before that claim gets written to a ledger row.
-> - **L237** -- Alpaca's open-orders LIST endpoint can transiently lag its own single-order GET
->   by 1-2s, producing a false NOT-CLEAN read right after a confirmed cancel (already fixed in
->   `dress_rehearsal.py` earlier today, commit `d6cc86a` -- this fire only wrote up the lesson).
-> - **L238** -- `git stash` on an untracked file fails silently mid-sequence, and an unchained
->   trailing `git stash pop` can pop an UNRELATED session's stash in this permanently-dirty shared
->   checkout -- never use `git stash` here; rename-and-restore (`mv`) instead.
-
-> **Self-caught foot-gun mid-fire (OP-33 verify-committed):** the first commit (`04dea1d`) silently
-> landed ONLY the 3 inbox renames -- `git add` with 7 paths, one of which was a just-renamed file's
-> now-nonexistent OLD name, failed **atomically** (`fatal: pathspec ... did not match`), so NONE of
-> that call's paths staged, including `CLAUDE.md`/`LESSONS-LEARNED.md` (the actual content).
-> `git commit` doesn't refuse to run just because a prior `git add` failed, so it "succeeded" with
-> `0 insertions` on the real content. Caught immediately via `git status --short -- <intended
-> files>` right after committing (not trusted the exit code alone) -- fixed same-fire with a
-> corrected `git add` + follow-up commit `2c0265a` (47 insertions, verified). Filed the new
-> mechanism itself as a fresh `_lesson-inbox` item (`2026-07-21-git-add-mixed-pathspec-fails-
-> atomically.md`, candidate L239) rather than self-graduating it -- kept this fire bounded to its
-> picked task (draining the lesson-inbox backlog), commit `613c128`.
-
-> **Verified this fire (OP-33):** `git show --stat HEAD` on all 3 commits individually (04dea1d =
-> 3 renames only, 2c0265a = 2 files/47 insertions, 613c128 = 1 file/64 insertions); `grep -c "^    |
-> C" CLAUDE.md` = 35 (no duplicate/malformed rows introduced); curated safety gate (31+5) PASS on
-> all 3 commits (pytest ran clean each time -- pure-doc changes, no code touched).
-
-> **Trading-path scope:** zero trading-path files touched (CLAUDE.md/LESSONS-LEARNED.md/inbox
-> files only -- observation/doctrine-authoring, not params/heartbeat_core/filters/placement/exit).
-> No guard/revert/REVOKE needed under rail 4 (nothing shipped that could regress a live decision).
-> **Revert:** `git revert 613c128 2c0265a 04dea1d` (3 commits, fully additive doc/inbox changes,
-> no functional code path touched).
-
-> **Cost: ~$2.3** (STAGE 0/1 reads, fill_funnel + self-check + task_scorer + self-audit-gap survey
-> + grep across queue.md, reading 3 inbox candidates in full, writing 3 lesson entries +
-> 4 CLAUDE.md index folds, 3 separate commits with a mid-fire self-correction, this STATUS update).
-
----
-
-
-## Kitchen
-Kitchen: alive, queue 31 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free

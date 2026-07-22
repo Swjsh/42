@@ -49,6 +49,14 @@ WICK_MIN_PCT_OF_RANGE = 0.50         # upper wick must be ≥ 50% of bar range f
 WICK_MIN_DOLLARS = 0.15              # upper wick must be ≥ $0.15 for wick_rejection trigger
 WICK_CLOSE_TOLERANCE = 0.10          # close can be up to $0.10 above level (wick-rejection leniency)
 
+# PULLBACK_HOLD_ZONE_BAND_DOLLARS: levels-are-zones doctrine (J 2026-07-17) — a level is a
+# BAND, not a penny-exact price. Pre-registered at the same $0.30 width already used for
+# CONFLUENCE_TOLERANCE_DOLLARS (an existing, already-doctrine-sanctioned band width) rather
+# than hand-picked for this detector specifically (C25/no-hand-tuning discipline).
+PULLBACK_HOLD_ZONE_BAND_DOLLARS = 0.30
+PULLBACK_HOLD_MIN_HOLD_BARS = 2       # bars (incl. the pullback-low bar) that must defend the zone before reclaim
+PULLBACK_HOLD_LOOKBACK_BARS = 12      # how far back to search for the pullback low (12 × 5 min = 1 hour)
+
 
 @dataclass
 class LevelState:
@@ -849,6 +857,105 @@ def detect_wick_reclaim_bullish(
     return float(round(level, 2))
 
 
+def detect_pullback_hold_bullish(
+    bar: pd.Series,
+    prior_bars: pd.DataFrame,
+    bar_idx: int,
+    levels_active: list[float],
+    zone_band_dollars: float = PULLBACK_HOLD_ZONE_BAND_DOLLARS,
+    min_hold_bars: int = PULLBACK_HOLD_MIN_HOLD_BARS,
+    lookback_bars: int = PULLBACK_HOLD_LOOKBACK_BARS,
+) -> Optional[float]:
+    """PULLBACK-HOLD bull trigger (Lane-A vocabulary build, queue item
+    PULLBACK-HOLD-BULL-TRIGGER, filed 2026-07-22 Fable review).
+
+    SHADOW-LOGGED ONLY — see `evaluate_bullish_setup`'s `shadow_triggers_fired`; NOT
+    wired into `triggers`/`bull_score`/`passed`. Lane-B validation (frozen pre-reg →
+    real-fills replay through exit_manager_walk → full 4-condition gate + concentration
+    + BH-FDR, per OP-16) must clear before any live wiring — same precedent as
+    `detect_wick_reclaim_bullish` / `detect_trendline_reclaim_bullish`, both shadow-only
+    pending their own Lane-B.
+
+    ROOT CAUSE this targets: `detect_level_reclaim` requires `bar.low < level < bar.close`
+    on the SAME bar — by construction it can only fire AFTER price has already crossed
+    back above the level, i.e. at-or-after the move (queue item's two verified exhibits:
+    07-21 shelf+engulfing bull=9-10 with triggers=[] until the trigger finally fired at
+    the session top; 07-22 pullback low sitting 26c above a KNOWN level_memory level with
+    triggers=[] for 30+ minutes). PULLBACK-HOLD instead watches for price dipping INTO a
+    level's zone band (never a penny-exact touch — levels-are-zones, J 2026-07-17),
+    HOLDING there (not closing below the zone floor) for >= `min_hold_bars`, then
+    breaking back above the minor structure the hold itself built (the highest close
+    seen during the hold window) — an entry that can fire bars EARLIER than
+    `detect_level_reclaim` ever can, at the shelf itself rather than the confirmation bar.
+
+    Geometry (closed bars only — C6 no-look-ahead: `bar_idx` is the last bar examined,
+    `prior_bars` includes it and nothing forward):
+      1. Scan the "approach" window `[bar_idx - lookback_bars .. bar_idx - min_hold_bars]`
+         for the bar whose LOW enters some level's zone band
+         `[level - zone_band_dollars, level + zone_band_dollars]`. Pick the level with the
+         TIGHTEST touch (smallest |low - level|) across the whole window.
+      2. `low_idx` = the index of that tightest-touching bar.
+      3. HOLD check: every bar from `low_idx` through `bar_idx - 1` inclusive must CLOSE
+         >= `level - zone_band_dollars` (the zone floor was defended, not lost) — a single
+         close below the floor invalidates the whole pattern (returns None).
+      4. RECLAIM check: `bar` (the current, `bar_idx`) must CLOSE strictly above the
+         highest close seen in the hold window AND still be >= the zone floor.
+
+    Returns the defended level (float, rounded to cents) if the pattern confirms on
+    `bar`, else None. Mirrors `detect_wick_reclaim_bullish`'s Optional[float] contract.
+    """
+    if bar_idx < min_hold_bars or not levels_active:
+        return None
+
+    approach_start = max(0, bar_idx - lookback_bars)
+    approach_end = bar_idx - min_hold_bars  # last bar allowed to be the pullback low
+    if approach_end < approach_start:
+        return None
+
+    # Find "the pullback low" = the EARLIEST bar achieving the LOWEST low among all
+    # bars in the approach window whose low is within zone_band_dollars of some level
+    # (i.e. the actual bottom of the dip, not merely the closest-to-level touch —
+    # a bar still descending toward the level can tie or beat a later bar's distance
+    # without yet being the true low, so pick by extremity-of-low first).
+    best_level: Optional[float] = None
+    best_low_idx: Optional[int] = None
+    best_low_value: Optional[float] = None
+
+    for i in range(approach_start, approach_end + 1):
+        low_i = float(prior_bars.iloc[i]["low"])
+        nearest_level = min(levels_active, key=lambda lvl: abs(low_i - lvl))
+        if abs(low_i - nearest_level) > zone_band_dollars:
+            continue  # this bar never entered any level's zone band
+        if best_low_value is None or low_i < best_low_value:
+            best_low_value = low_i
+            best_low_idx = i
+            best_level = nearest_level
+
+    if best_level is None or best_low_idx is None:
+        return None
+
+    zone_floor = best_level - zone_band_dollars
+
+    hold_indices = list(range(best_low_idx, bar_idx))  # low_idx .. bar_idx-1 inclusive
+    if len(hold_indices) < min_hold_bars:
+        return None  # not enough bars actually held before the reclaim bar
+
+    highest_hold_close = float("-inf")
+    for i in hold_indices:
+        close_i = float(prior_bars.iloc[i]["close"])
+        if close_i < zone_floor:
+            return None  # zone floor broken during the hold — pattern invalidated
+        highest_hold_close = max(highest_hold_close, close_i)
+
+    current_close = float(bar["close"])
+    if current_close < zone_floor:
+        return None
+    if current_close <= highest_hold_close:
+        return None  # hasn't broken above the hold-window structure yet
+
+    return float(round(best_level, 2))
+
+
 def detect_trendline_reclaim_bullish(
     bar: pd.Series,
     prior_bars: pd.DataFrame,
@@ -1180,6 +1287,14 @@ def evaluate_bullish_setup(
     )
     if _shadow_wick_reclaim is not None:
         shadow_triggers.append("wick_reclaim")
+    _shadow_pullback_hold = detect_pullback_hold_bullish(
+        ctx.bar, ctx.prior_bars, ctx.bar_idx, ctx.levels_active,
+        zone_band_dollars=PULLBACK_HOLD_ZONE_BAND_DOLLARS,
+        min_hold_bars=PULLBACK_HOLD_MIN_HOLD_BARS,
+        lookback_bars=PULLBACK_HOLD_LOOKBACK_BARS,
+    )
+    if _shadow_pullback_hold is not None:
+        shadow_triggers.append("pullback_hold")
 
     return BullishSetupResult(
         passed=(len(blockers) == 0),

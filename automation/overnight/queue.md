@@ -41,7 +41,47 @@
   REFRAMES MORNING-BULL-QUALITY-GATE-RECONSIDER: the answer to "unblock elite bull?" is NO --
   unblocking admits late tops (07-22 proved the block right at 11:31). The fix is the EARLY
   trigger, not removing the guard on the late one. Conductor: stop surfacing the reconsider
-  item as J-gated; point it here. depends:none :: status:pending
+  item as J-gated; point it here. depends:none :: status:LANE-A-DONE-LANE-B-PENDING
+
+  **LANE-A BUILT 2026-07-22 ~18:12-19:10 ET (conductor, AFTERHOURS).** Built exactly the
+  vocabulary the item specifies: `detect_pullback_hold_bullish` in `backtest/lib/filters.py`
+  -- scans an approach window for the EARLIEST bar achieving the lowest low inside a level's
+  zone band (`PULLBACK_HOLD_ZONE_BAND_DOLLARS=0.30`, same width as the already-doctrine
+  `CONFLUENCE_TOLERANCE_DOLLARS`, not hand-picked), requires >= `PULLBACK_HOLD_MIN_HOLD_BARS=2`
+  bars where the CLOSE never breaks the zone floor, then fires when the current bar closes
+  above the highest close of that hold window. SHADOW-LOGGED ONLY (`BullishSetupResult
+  .shadow_triggers_fired`, same precedent as `wick_reclaim`/`trendline_reclaim`) -- NOT wired
+  into `triggers`/`bull_score`/`passed`; cannot affect live scoring until Lane-B clears.
+  **Verified against the item's OWN 07-22 exhibit** (real SIP 5m bars from
+  `backtest/data/spy_5m_2026-05-19_2026-07-22.csv`, not a synthetic-only claim): fires at the
+  10:50 ET bar (2 bars after the 10:40 pullback low of 746.78, 22c inside the zone band around
+  level 746.54), i.e. BARS EARLIER than `level_reclaim` (which per the exhibit doesn't confirm
+  until ~748+, the session top) -- the exact "$2-3 earlier" the item claims, now demonstrated
+  on real tape rather than asserted. Guards: `backtest/tests/test_pullback_hold_trigger.py`
+  (11/11 -- real-tape fires-at-10:50 + does-not-fire-at-the-low-bar-itself +
+  insufficient-hold negatives + 6 synthetic edge cases covering every branch) +
+  `backtest/tests/test_pullback_hold_shadow_only.py` (2/2 -- zero-behavior-change proof using
+  a byte-identical current bar between the fires/doesn't-fire variants so
+  level_reclaim/wick_reclaim/trendline_reclaim are proven unaffected by construction, not by
+  coincidence; RED-proofed live during authorship by temporarily leaking `pullback_hold` into
+  `triggers` -- caught the contamination, reverted, confirmed green again, exactly the
+  `test_bull_trendline_wick_reclaim_shadow_only.py` precedent's own methodology). Zero
+  regressions: `test_wick_reclaim_trigger.py` + `test_trendline_reclaim_trigger.py` +
+  `test_bull_trendline_wick_reclaim_shadow_only.py` + `test_bull_sequence_reclaim_coupling.py`
+  all still 15/15; gym 104/104 GREEN (`crypto/validators/runner.py`).
+  **LANE-B NOT RUN THIS FIRE (scope discipline, rail 3 one-bounded-task-per-fire):** the
+  item's own text separates "vocabulary build" (Lane A, done) from "frozen pre-reg -> detector
+  over history -> real-fills replay through exit_manager_walk -> full 4-condition gate +
+  concentration + BH-FDR" (Lane B) -- that is a SEPARATE, larger fire (needs a frozen grid on
+  `min_hold_bars`/`zone_band_dollars` before running, an OPRA-cache real-fills pass, and
+  BH-FDR across the grid, matching the exact discipline `rsi_extension_block_probe.py`
+  already used). Next bounded step for the next fire: pre-register that grid (do NOT
+  hand-tune off the one 07-22 exhibit -- C25/no-post-hoc-picking) and run it.
+  **Rail-4 scope: SHADOW-ONLY, not a trading-path change.** `evaluate_bullish_setup`'s
+  `passed`/`bull_score`/`triggers_fired`/routing are provably untouched (see the shadow-only
+  guard above) -- this ships as engine-benefit observer/authoring work, same class as the
+  wick_reclaim/trendline_reclaim precedent, not a params/heartbeat_core/filters-live-path
+  change requiring guard+revert+REVOKE under rail 4.
 
 ### SELFCHECK-TRENDLINE-DRAW-DUPLICATE-SPAM (LOW, OP-22 hygiene, filed 2026-07-22 conductor AFTERHOURS)
 
