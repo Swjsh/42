@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: cross_asset_signals:vix-term
 
 ## Priority / Dependencies
 depends:none
+
+<!-- DONE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef -- no Agent-tool subagent available this session): CONSOLIDATED into vix1d_gate. This is a refinement of the same underlying VIX1D idea (term-structure slope VIX1D-VIX30 instead of a bare VIX1D level) -- both reduce to 'read ^VIX1D via yfinance, use it as a same-horizon vol signal.' Folded into the 2026-07-09 vix1d_gate item's design as a named variant (slope vs level) rather than tracked as a separate candidate. See that item for the feasibility-verified note. -->

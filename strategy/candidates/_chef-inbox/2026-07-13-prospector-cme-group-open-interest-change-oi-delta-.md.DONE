@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: futures_positioning:cme-grou
 
 ## Priority / Dependencies
 depends:none
+
+<!-- DONE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef -- no Agent-tool subagent available this session): REJECTED -- self-labeled paid. Item's own Data source line: 'Quandl datasets ... accessed through Quandl API. Cost: paid.' Violates the $0-research-only doctrine. REJECT. -->

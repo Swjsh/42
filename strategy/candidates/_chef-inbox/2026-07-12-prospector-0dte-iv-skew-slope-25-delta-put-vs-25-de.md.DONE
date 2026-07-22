@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: options_structure_metrics:0d
 
 ## Priority / Dependencies
 depends:none
+
+<!-- DONE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef -- no Agent-tool subagent available this session): REJECTED -- self-labeled paid. Item's own Data source line: 'Interactive Brokers API (implied volatility per strike). Cost: paid.' Violates the $0-research-only doctrine. REJECT. -->

@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: options_structure_metrics:0d
 
 ## Priority / Dependencies
 depends:none
+
+<!-- DONE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef -- no Agent-tool subagent available this session): REJECTED -- self-labeled paid. Item's own Data source line: 'OPRA real-time options chain data via Tradier or ThetaData API. Cost: paid.' Violates the standing $0-research-only doctrine (project scope lock, 'free swarm only' memory). Note our GEX-wall proxy already exists $0 via the banked CBOE archive (journal/gex-archive/*-cboe.json + gex_regime.py, see the open vix1d_gate/gex_flip items) -- if a gamma-wall signal is wanted, that free path is the one to pursue, not a paid real-time chain. REJECT this item as stated. -->

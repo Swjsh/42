@@ -21,3 +21,18 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: vix1d_gate) · markdown/infr
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef): CONSOLIDATED + FEASIBILITY
+VERIFIED, still open (not a full backtest yet -- that remains real future work). This is the
+canonical item for the VIX1D family; two duplicates/refinements folded into it this fire:
+2026-07-12-prospector-cboe-vix1d-index-tracking.md.DONE (bare re-proposal) and
+2026-07-12-prospector-vix-term-structure-slope-vix1d-minus-vix.md.DONE (VIX1D-VIX30 slope
+variant -- worth testing as a variant of THIS design, not a separate candidate). Feasibility
+VERIFIED live this fire: `yf.Ticker('^VIX1D').history(period='5d')` returns real daily OHLC
+(confirmed 4 rows through 2026-07-21) -- unlike ^TICK/^ADD/^TRIN (all 404, see the rejected
+NYSE-internals items), ^VIX1D IS genuinely free and fetchable via our existing yfinance path.
+NEXT bounded step for a future chef fire: pull ^VIX1D + ^VIX daily history alongside the real
+0DTE trade log, test both the bare-level gate and the VIX1D-VIX30 slope variant against the
+standing OP-11/OP-16 pass bar. Not attempted this fire (real backtest work, out of this
+triage-pass's budget). -->
+

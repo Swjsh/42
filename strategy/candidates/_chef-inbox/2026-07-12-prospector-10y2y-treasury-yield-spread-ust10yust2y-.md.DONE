@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: cross_asset_signals:10y2y-tr
 
 ## Priority / Dependencies
 depends:none
+
+<!-- DONE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef -- no Agent-tool subagent available this session): CONSOLIDATED into fred-daily-treasury-par-yield-curve. Same underlying idea as the 2026-07-10 fred-daily-treasury-par-yield-curve-10y- item -- both read the FRED daily par-yield-curve series (GS10/GS2 or DGS10/DGS2) for a macro regime tag. That item is the canonical master; this duplicate carries no new information. -->

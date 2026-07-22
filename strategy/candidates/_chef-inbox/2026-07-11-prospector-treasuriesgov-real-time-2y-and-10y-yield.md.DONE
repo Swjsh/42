@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: data_feeds_free:treasuriesgo
 
 ## Priority / Dependencies
 depends:none
+
+<!-- DONE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef -- no Agent-tool subagent available this session): REJECTED -- 'real-time' claim is false + duplicate of FRED family. Treasury.gov's Daily Treasury Par Yield Curve is published ONCE PER DAY (end-of-day), not real-time as this item claims -- the 'real-time yield curve dynamics' framing overstates the actual data. Functionally identical to the FRED daily-yield-curve idea already consolidated under the 2026-07-10 fred-daily-treasury-par-yield-curve-10y- master (FRED mirrors the same Treasury series with a documented, versioned free API -- the better path of the two). REJECT this framing, consolidated into the FRED master. -->

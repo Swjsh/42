@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: data_feeds_free:nyse-openboo
 
 ## Priority / Dependencies
 depends:none
+
+<!-- DONE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef -- no Agent-tool subagent available this session): REJECTED -- claimed-free data is actually a licensed paid feed. Item claims 'Cost: $0' for 'NYSE OpenBook' auction-imbalance data. NYSE OpenBook / OpenBook Ultra is a licensed, paid, real-time proprietary market-data product (subscriber/vendor agreement required) -- the public nyse.com/data page describes the product, it is not itself a free data feed. The 'Cost: $0' tag is factually wrong. REJECT as stated; no free opening-imbalance proxy identified this fire. -->

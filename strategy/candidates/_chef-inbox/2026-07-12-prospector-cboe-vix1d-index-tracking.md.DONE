@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: options_structure_metrics:cb
 
 ## Priority / Dependencies
 depends:none
+
+<!-- DONE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef -- no Agent-tool subagent available this session): SUPERSEDED-DUPLICATE. Same underlying idea as the 2026-07-09 vix1d_gate item (dedupe_key family: VIX1D as a same-horizon vol gate). That item is the canonical one to review -- it now carries a feasibility-verified note (this fire confirmed yf.Ticker('^VIX1D') returns real daily bars, free). This duplicate carries no new information; consolidated forward. -->

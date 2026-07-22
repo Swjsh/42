@@ -21,3 +21,18 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: qqq_divergence_confluence) Â
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef): STILL OPEN, HIGHEST-
+READINESS item in the whole chef-inbox backlog after this fire's triage pass -- flagging for
+next chef fire priority. The design is FULLY SPEC'D already (not by prospector's swarm, but by
+J's own 2026-07-10 fable session): markdown/planning/CROSS-TICKER-BRAINSTORM-2026-07-10.md
+calls this "battery-ready," specifies the exact method (label every ribbon_ride signal with
+QQQ's simultaneous behavior at its own equivalent level: reclaimed/failed/none; stratify P&L;
+wire as ONE scored composite feature, never a hard block -- explicitly NOT the TICK/ADD
+internals also named in that doc, which this fire's parallel triage confirmed are NOT
+fetchable free via yfinance, 404 on ^TICK/^ADD/^TRIN). Zero new external data-feed risk (QQQ
+bars via Alpaca/yfinance, same mechanism as SPY). NOT executed this fire: doing it properly
+needs fetching real QQQ 5m bars for the ribbon_ride signal population's dates (not just a
+lightweight triage check) -- a legitimate, separate, real backtest task for a future chef fire
+with its own budget, not folded into this inbox-hygiene pass. -->
+

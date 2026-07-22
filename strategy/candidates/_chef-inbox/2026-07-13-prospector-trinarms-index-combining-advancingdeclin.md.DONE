@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: microstructure_internals:tri
 
 ## Priority / Dependencies
 depends:none
+
+<!-- DONE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef -- no Agent-tool subagent available this session): REJECTED -- self-labeled paid + verified inaccessible. Self-labeled 'Cost: paid' (Bloomberg/Refinitiv/IQFeed). VERIFIED THIS FIRE: yf.Ticker('^TRIN').history(period='5d') returns no data (delisted/not found). No free path exists on our current data stack. REJECT. -->

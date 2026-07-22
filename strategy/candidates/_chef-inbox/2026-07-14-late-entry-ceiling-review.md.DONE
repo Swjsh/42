@@ -35,3 +35,20 @@ conservative for a signal that keeps re-confirming cleanly, and is discarding le
 
 2026-07-13's own ledger shows the ceiling ate 14 gate-passing re-confirmations of one signal
 in a single session — a concrete, countable cost, not speculation.
+
+<!-- DONE 2026-07-21 ~20:33 ET conductor (AFTERHOURS, acting as chef -- no Agent-tool subagent
+available this session): ACTUALLY BACKTESTED, not just triaged. Pulled all 71 SKIP_LATE_ENTRY
+rows from the live automation/state/core-decisions.jsonl (2026-07-07..2026-07-21, all the
+ledger retains -- NOT the 30 days this item asked for, disclosed as a real limitation), grouped
+into 19 distinct re-confirming episodes, joined each to backtest/data/spy_5m_2026-05-19_2026-07-21.csv
+to get the SPY price at first-block and at the 15:50 ET flatten reference. Swept the ceiling to
+15:15/15:30/15:40 per the item's own spec: newly-qualifying episodes were directionally
+favorable only 10%/31%/31% of the time -- well below breakeven for a late-session 0DTE entry.
+This CONVERGES with the existing agg_block_bull_morning_afternoon POWER_HOUR finding (n=3,
+WR=33%, -$45 IS) via an independent method and dataset. VERDICT: REJECTED -- do not loosen
+entry_no_trade_after_et. Full writeup + OP-20 disclosures (n=19 is thin, SPY-spot-direction is
+a proxy not real OPRA fills, path-dependency not modeled):
+strategy/candidates/2026-07-21-202600-late-entry-ceiling-reconsider.md (leaderboard rank 47).
+Logged to _chef-log.jsonl. No code/params touched -- pure research finding, no ratification
+needed either way (nothing changed). -->
+

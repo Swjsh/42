@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: data_feeds_free:treasury-tre
 
 ## Priority / Dependencies
 depends:none
+
+<!-- DONE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef -- no Agent-tool subagent available this session): FOLDED into fred-daily-treasury-par-yield-curve as a sub-series. Same FRED API family as the 2026-07-10 fred-daily-treasury-par-yield-curve-10y- master (this one specifically DGS3MO, 3-month T-bill yield, vs the master's 10Y-2Y spread). Not a duplicate of the SAME series, but the same ingestion mechanism -- folded in as 'when the FRED master gets built, pull DGS3MO too' rather than tracked as an independent candidate. -->

@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: data_feeds_free:flowalgo-fre
 
 ## Priority / Dependencies
 depends:none
+
+<!-- DONE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef -- no Agent-tool subagent available this session): REJECTED -- 'free tier' is a marketing sample, not a programmatic API. FlowAlgo is a paid options-flow subscription service; its public 'free' page is a limited promotional sample/demo view, not a documented, stable, automatable free API suitable for backtest ingestion. No free bulk-export or API-key path identified. REJECT as stated. -->

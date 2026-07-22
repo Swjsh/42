@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: data_feeds_free:tick-index-n
 
 ## Priority / Dependencies
 depends:none
+
+<!-- DONE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef -- no Agent-tool subagent available this session): REJECTED -- data infeasible-as-claimed. This item claimed 'Cost: $0' via 'TradingView (Ticker: TICK) or Yahoo Finance via ^TICK'. VERIFIED THIS FIRE with a live probe: yf.Ticker('^TICK').history(period='5d') returns 'Quote not found for symbol: ^TICK' (HTTP 404) -- the ticker does not exist on our yfinance path. TradingView TICK access would require a live TV MCP data_get_ohlcv call on a symbol we have not confirmed resolves either. No free, already-wired path to this data exists. Consistent with the sibling 07-13 item below which self-labels the same underlying data 'Cost: paid' (Bloomberg/Polygon/IQFeed) -- the swarm model that wrote THIS item's 'free via Yahoo Finance' claim was wrong. REJECT until a real free path is found. -->

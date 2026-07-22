@@ -21,3 +21,5 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: microstructure_internals:nys
 
 ## Priority / Dependencies
 depends:none
+
+<!-- DONE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef -- no Agent-tool subagent available this session): REJECTED -- self-labeled paid + verified inaccessible. Self-labeled 'Cost: paid' (Bloomberg/Refinitiv/Polygon.io). Consistent with this fire's live probe on the sibling 07-10 TICK item: ^TICK is not fetchable via yfinance either (404). No free path exists on our current data stack. REJECT. -->

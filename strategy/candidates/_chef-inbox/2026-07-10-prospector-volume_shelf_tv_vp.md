@@ -21,3 +21,15 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: volume_shelf_tv_vp) · markd
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-07-21 ~20:40 ET conductor (AFTERHOURS, acting as chef): CONSOLIDATED, still open
+(real implementation work remains, not attempted this fire). This is the canonical item for the
+TV Volume-Profile-shelf family (higher provenance than a swarm re-discovery: J-directed
+2026-07-09). One duplicate folded in: 2026-07-11-prospector-volume-profile-visible-range-vpvr-
+shows-.md.DONE (identical ask, swarm-sourced, no new information). The TV MCP tools this item
+needs (chart_manage_indicator, data_get_pine_boxes) are confirmed present in this session's tool
+surface -- the mechanism is available, just not yet wired into a backtest. Next bounded step:
+add the Volume Profile study to a live TV chart session, pull shelves via data_get_pine_boxes
+for a sample window, compare against Gamma's existing trendline/level-memory levels for overlap
+vs incremental signal before committing to a full backtest. -->
+
