@@ -1,0 +1,62 @@
+{
+  "_doc": "qqq_divergence_confluence_study.py -- FIRST-PASS proxy information test for the\nprospector's cross_asset_signals finding (chef-inbox 2026-07-11 --\n`2026-07-11-prospector-qqq_divergence_confluence.md`; spec source:\nmarkdown/planning/CROSS-TICKER-BRAINSTORM-2026-07-10.md, \"battery-ready\").\n\nQUESTION: does QQQ's own simultaneous structural behavior at a SPY ribbon_ride signal's\nentry timestamp (did QQQ ALSO reclaim its own recent N-bar high [bull] / break its own\nrecent N-bar low [bear], or fail to, or do neither) predict whether the SPY signal\ncontinues in its intended direction over the next 30 minutes?\n\nWHY A PROXY, NOT THE FULL REAL-FILLS REPLAY (disclosed per OP-20 -- do not oversell this):\nthe canonical 250-signal cohort (`_signal_cache.load_or_build_signals()`) has no $ P&L\nattached without running the full per-strike real-OPRA replay\n(`ribbon_ride_strike_exit_ab.py::replay_cell`, ~250 signals x per-strike option-chain\nfetch/replay) -- a legitimate but SEPARATE, heavier task the 2026-07-21 chef-inbox note\nexplicitly deferred to \"a future chef fire with its own budget.\" Per the BACKTESTING-\nPLAYBOOK 5-stage grinder (cheap synthetic screen BEFORE expensive real-fills validation),\nthis script answers the cheaper prior question first: does a QQQ agreement/disagreement\nlabel carry ANY information about SPY's own forward spot continuation? If this first pass\nshows nothing, the expensive real-fills wiring is not worth funding. If it shows a real\nsplit, THAT is the evidence to fund the full pipeline next.\n\nMEASURED vs MODELED: QQQ bars + SPY bars are real market data (Alpaca SIP/cached CSV), but\nthe \"outcome\" is a spot-return proxy, NOT a $ P&L and NOT a real fill. This result is NOT\neligible for conductor-proposals.jsonl / wiring on its own (OP-11's OOS+WF+anchor+A/B bar\ndoes not apply to a spot-return information test) -- it is a funding decision for the next,\nheavier study.\n\nNO LOOK-AHEAD (C6): QQQ's own N-bar high/low as of a signal's entry_ts is computed from\nQQQ bars STRICTLY BEFORE entry_ts. The reclaim/failure label is assigned by reading the\nentry bar (the first QQQ bar with timestamp >= entry_ts) against that PRIOR window only --\nnever a bar that closes after the label is assigned. `qqq_label_for_signal()` is the one\nplace this happens; guarded by backtest/tests/test_qqq_divergence_confluence_study.py.\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/qqq_divergence_confluence_study.py\n",
+  "generated_at": "2026-07-21T18:50:32.409639",
+  "signal_cohort": {
+    "source": "_signal_cache.load_or_build_signals()",
+    "window": "2025-01-01..2026-06-18",
+    "n_total": 250,
+    "n_usable": 250,
+    "n_dropped_no_data": 0
+  },
+  "method": {
+    "qqq_level_window_bars": 20,
+    "forward_horizon_minutes": 30,
+    "outcome_metric": "direction-aligned SPY spot return over forward_horizon_minutes from signal entry_ts (NOT a $ P&L, NOT a real fill -- MODELED spot-return information-test proxy, disclosed per OP-20)"
+  },
+  "strata_by_qqq_label": {
+    "reclaimed": {
+      "n": 21,
+      "mean_aligned_return": 1.0833,
+      "median_aligned_return": 0.77,
+      "pct_positive": 81.0,
+      "min_n": 10,
+      "sufficient": true,
+      "note": "n=21 >= 10: sample sufficient"
+    },
+    "failed": {
+      "n": 27,
+      "mean_aligned_return": 0.5455,
+      "median_aligned_return": 0.69,
+      "pct_positive": 70.4,
+      "min_n": 10,
+      "sufficient": true,
+      "note": "n=27 >= 10: sample sufficient"
+    },
+    "none": {
+      "n": 202,
+      "mean_aligned_return": 0.0662,
+      "median_aligned_return": -0.0175,
+      "pct_positive": 48.5,
+      "min_n": 10,
+      "sufficient": true,
+      "note": "n=202 >= 10: sample sufficient"
+    }
+  },
+  "by_direction": {
+    "bull": {
+      "n": 59,
+      "n_reclaimed": 8,
+      "n_failed": 12,
+      "n_none": 39
+    },
+    "bear": {
+      "n": 191,
+      "n_reclaimed": 13,
+      "n_failed": 15,
+      "n_none": 163
+    }
+  },
+  "reclaimed_vs_other_mean_spread": 0.9606,
+  "verdict": "QQQ_AGREEMENT_INFORMATIVE",
+  "next_step": "If verdict == QQQ_AGREEMENT_INFORMATIVE: fund the full real-fills replay (ribbon_ride_strike_exit_ab.py-class per-strike OPRA replay, stratified by qqq_label) before any wiring proposal. If NO_SIGNAL or INVERSE: do not fund the expensive replay; close the chef-inbox item as explored-and-not-promising."
+}

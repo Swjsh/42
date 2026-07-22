@@ -36,3 +36,22 @@ needs fetching real QQQ 5m bars for the ribbon_ride signal population's dates (n
 lightweight triage check) -- a legitimate, separate, real backtest task for a future chef fire
 with its own budget, not folded into this inbox-hygiene pass. -->
 
+<!-- DONE 2026-07-21 ~21:00 ET conductor (AFTERHOURS, acting as chef) :: EXECUTED the
+first-pass proxy version this fire (the "future chef fire" named above). Fetched real QQQ
+5m bars (69,978 bars, 2025-01-02..2026-06-18, Alpaca SIP, cached
+analysis/backtests/cache/qqq-5m-2025-01-01_2026-06-18.csv), labeled all 250 canonical
+ribbon_ride signals with QQQ's own no-look-ahead 20-bar reclaim/failed/none, stratified a
+disclosed spot-return proxy (NOT $ P&L). Verdict QQQ_AGREEMENT_INFORMATIVE (reclaimed n=21
+mean +1.08 vs none n=202 mean +0.07, spread +0.96) -- write-up + open confound (failed ALSO
+beats none, may be a trend-day/volatility proxy not pure confirmation) at
+strategy/candidates/2026-07-21-205400-qqq-divergence-confluence-first-pass.md. New reusable
+tool: backtest/tools/qqq_divergence_confluence_study.py + guard
+backtest/tests/test_qqq_divergence_confluence_study.py (9/9, RED-proofed). NOT a wiring
+proposal -- next step (named, not executed) is funding the full real-fills replay
+(join qqq_label into ribbon_ride_strike_exit_ab.py's per-strike SS-B replay, resolve the
+confound first) before anything reaches conductor-proposals.jsonl. Item CLOSED -- the
+"needs a fresh QQQ bar fetch" blocker is resolved; the follow-up is now a NEW, separate,
+narrower ask (not re-filed here, tracked via the candidate doc's own "Next step" section
+and this fire's queue.md/STATUS.md entries). -->
+
+
