@@ -9,6 +9,21 @@
 
 ## Active backlog
 
+### GAMMA-STUDY-CURRICULUM (MED, standing conductor mode, filed 2026-07-22 night, J-directed "learn new things -- TA, indicators, risk management... like a person")
+
+- [ ] GAMMA-STUDY-CURRICULUM (MED, conductor AFTERHOURS mode extension) :: Give Gamma a visible
+  study life: a standing rotation where one AFTERHOURS conductor fire per night is a STUDY fire
+  -- pick one topic from a curriculum file (markdown/doctrine/STUDY-CURRICULUM.md, seed topics:
+  candlestick pattern taxonomies, volume profile, market internals TICK/ADD, options greeks
+  behavior intraday 0DTE, risk-of-ruin / position sizing literature, VWAP bands, opening range
+  theory), read free sources (http_fetch.py helper, $0), DISTILL into (a) a 10-line study note
+  appended to a living doc + (b) 0-2 TESTABLE hypotheses filed to chef-inbox in the canonical
+  battery format (never wired directly -- everything through the standing gates). Weekly: the
+  Sunday treasurer/analyst fire includes "what Gamma learned this week" in the brief. Wire into
+  conductor.md MODES as STUDY (1 fire/night max, skip if queue has HIGH trading-path work).
+  Purpose: J's "it needs to basically be a person" -- the visible learning loop, feeding the
+  same validation machinery, zero new spend. depends:none :: status:pending
+
 ### PULLBACK-HOLD-BULL-TRIGGER (HIGH, THE bull-side build, filed 2026-07-22 Fable review -- supersedes the framing of MORNING-BULL-QUALITY-GATE-RECONSIDER)
 
 - [ ] PULLBACK-HOLD-BULL-TRIGGER (HIGH, Lane-A vocabulary build + Lane-B pre-reg validation) ::
