@@ -683,7 +683,7 @@
 - TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 
 ## Kitchen
-Kitchen: alive, queue 32 pending, last cook 0 min ago, today $0.00, model=grinder-python
+Kitchen: alive, queue 31 pending, last cook 0 min ago, today $0.00, model=ollama::qwen3:14b
 
 ### DEGRADED: self-check 2026-07-22T12:09:56
 - TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
@@ -758,3 +758,8 @@ bull-frontier thread).
 **Cost: ~$3.5** (STAGE 0/1 reads across engine-health/STATUS/queue/inboxes/task_scorer, RSI
 primitive discovery (crypto/lib/indicators.py), TradeFill schema read, probe build + one live
 run against real cached OPRA fills, guard test authored + 27/27 verified, queue/STATUS update).
+
+**Autonomy metric this fire:** `trend=regressing` (net_improvement=47/20-window, cost/drained=$1.38,
+function_score_avg=33.7 — enters_last_trading_day=0 today despite fills=3, worth a look by the
+next fire that has function-funnel bandwidth; not investigated further this fire, one bounded
+task already claimed).
