@@ -666,3 +666,95 @@
 
 ---
 
+
+### DEGRADED: self-check 2026-07-22T09:39:56
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-22T10:09:56
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-22T10:39:56
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-22T11:09:56
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-22T11:39:56
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+## Kitchen
+Kitchen: alive, queue 32 pending, last cook 0 min ago, today $0.00, model=grinder-python
+
+### DEGRADED: self-check 2026-07-22T12:09:56
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-22T12:39:57
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-22T13:09:56
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-22T13:39:57
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-22T14:09:56
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-22T14:39:56
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-22T15:09:57
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-22T15:39:56
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-22T20:00:13+00:00
+- task: eod-summary
+- date_et: 2026-07-22
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-07-22T16:09:57
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+---
+
+## 2026-07-22 ~16:xx ET — conductor (AFTERHOURS): RSI-EXTENSION-BLOCK-ELITE-BULL pre-reg RAN
+
+**Picked via task_scorer.py ranking** (top-ranked MORNING-BULL-QUALITY-GATE-RECONSIDER was
+J-decision-gated + needs a not-bounded-in-one-fire fresh backtest; this HIGH item was the next
+ready, genuinely-executable pick — J's own 2026-07-21 dojo ruling, pre-reg spec already frozen
+in the queue).
+
+Built `backtest/autoresearch/rsi_extension_block_probe.py`: re-ran the CLOSED bull-unblock
+SLICE 1 methodology (`block_elite_bull` True/False real-fills A/B) widened to the latest
+OPRA-cached window (05-21..07-17), computed RSI(14) independently from SPY 5m closes (Wilder,
+no RSI wired into filters.py today), and tested J's pre-registered grid (X/Y/N/Z, BH-FDR q=0.10,
+15 cells, frozen before running).
+
+**Verdict: INCONCLUSIVE_SAMPLE_TOO_SMALL** (removed cohort n=9, still <10). More useful than the
+n-shortfall: at the most permissive grid point only **1 of 9** trades even qualifies as
+"RSI-extended" — 8/9 sit at RSI 47-62, not clearly extended. J's tape-read of the ONE
+2026-07-21 exhibit (RSI 68.8 vs 63.6 + reset) may be correct for that pair but doesn't (yet)
+describe the wider population this data can price. J's own two exhibits fall outside the
+option-cache window (through 07-17 only) so couldn't be individually scored — disclosed, not
+papered over.
+
+Guard `backtest/tests/test_rsi_extension_block_probe.py` 9/9 (pins the verdict, the grid, the
+1/9-population-thinness finding, non-vacuous unit checks on the pure condition + BH-FDR
+functions). Zero regressions: 27/27 across this + 3 sibling bull-unblock probes. Result:
+`analysis/recommendations/rsi-extension-block-elite-bull-2026-07-22.json`.
+
+**Rail-4:** pure research probe (no params/filters/heartbeat/CLAUDE touched) — nothing to
+propose to J since the grid didn't clear; the honest next step is "widen the window as more
+OPRA cache accrues, re-run this EXACT frozen grid" (same standing direction as every other
+bull-frontier thread).
+
+**Queue:** `RSI-EXTENSION-BLOCK-ELITE-BULL` closed `done-inconclusive-widen-data-before-retest`.
+
+**Cost: ~$3.5** (STAGE 0/1 reads across engine-health/STATUS/queue/inboxes/task_scorer, RSI
+primitive discovery (crypto/lib/indicators.py), TradeFill schema read, probe build + one live
+run against real cached OPRA fills, guard test authored + 27/27 verified, queue/STATUS update).

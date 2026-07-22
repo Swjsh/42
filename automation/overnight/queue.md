@@ -9,6 +9,20 @@
 
 ## Active backlog
 
+### SELFCHECK-TRENDLINE-DRAW-DUPLICATE-SPAM (LOW, OP-22 hygiene, filed 2026-07-22 conductor AFTERHOURS)
+
+- [ ] SELFCHECK-TRENDLINE-DRAW-DUPLICATE-SPAM (LOW) :: `self_check.py`'s
+  "TRENDLINE-DRAW never marked today" DEGRADED finding appended a NEW near-identical block to
+  STATUS.md 13x today (2026-07-22, every ~30min from 09:39 through 16:09 ET) for the exact same
+  underlying fact (non-load-bearing visibility-only skip). This is the exact C7/OP-22 anti-pattern
+  the retention-cap discipline exists to prevent -- one genuine finding should append ONCE per
+  day (or dedupe on re-check), not once per self-check tick. Not fixed this fire (scope
+  discipline -- one bounded task already picked). Fix: either (a) self_check.py checks
+  "already flagged today" before appending (same pattern conductor-rth's STAGE 0-RTH already
+  uses against Gamma_SelfCheck's own flags), or (b) STATUS.md consolidation folds same-day
+  duplicate DEGRADED blocks into one line with a repeat-count, same precedent as the L181
+  STATUS.md consolidation. :: depends:none :: status:pending
+
 ### QUEUE-MD-RETENTION-CAP (LOW, OP-22 hygiene, filed 2026-07-22 conductor AFTERHOURS)
 
 - [ ] QUEUE-MD-RETENTION-CAP (LOW) :: `automation/overnight/queue.md` is 2789 lines / ~530KB --
@@ -62,7 +76,7 @@
 
 ### RSI-EXTENSION-BLOCK-ELITE-BULL (HIGH, Lane-B pre-reg, filed 2026-07-21 dojo session, J RULING)
 
-- [ ] RSI-EXTENSION-BLOCK-ELITE-BULL (HIGH, pre-reg then A/B) :: J's LIVE RULING from the
+- [x] RSI-EXTENSION-BLOCK-ELITE-BULL (HIGH, pre-reg then A/B) :: J's LIVE RULING from the
   2026-07-21 dojo walkthrough (session 2026-07-21-225649), on the 12:21 SKIP_ELITE_BULL
   exhibit: "12:21 needs to not happen -- the move is already happening, we didn't bounce off
   a key level. If that's an entry the same logic should apply to the 11:15 candle, and 11:15
@@ -85,7 +99,35 @@
   overextension filter and an alignment filter can both be true; do not conflate them.
   RELATED: this is the live exhibit the standing MORNING-BULL-QUALITY-GATE-RECONSIDER item has
   been waiting for -- J's ruling is "cut the 12:21 class", NOT "unblock elite bull wholesale".
-  depends:none :: status:pending
+  depends:none :: status:done-inconclusive-widen-data-before-retest
+
+> **PRE-REG RAN 2026-07-22 ~16:xx ET (conductor, AFTERHOURS).** Built
+> `backtest/autoresearch/rsi_extension_block_probe.py` exactly as pre-registered above (grid
+> X in {65,68,70}, Y in {50,55}, N in {6,10} bars, Z in {3,4,5}$, frozen before running, BH-FDR
+> q=0.10 across all 15 grid cells). Re-ran the SAME real-fills A/B methodology as the CLOSED
+> bull-unblock SLICE 1 (`block_elite_bull` True vs False) but widened the window to the latest
+> OPRA-cached trading day (2026-05-21..2026-07-17, vs SLICE 1's 05-21..06-30) to get more than
+> n=7 to test the discriminator against. **Result: removed-by-block_elite_bull cohort n=9
+> (only 2 more trades than SLICE 1 found on the narrower window) -> VERDICT
+> INCONCLUSIVE_SAMPLE_TOO_SMALL** (n<10, same statistical-power ceiling as every prior
+> bull-frontier probe). **More important honest finding than the n-shortfall itself: at the
+> MOST PERMISSIVE grid point (X=65), only 1 of the 9 real trades even qualifies as
+> "RSI-extended" — 8/9 sit at RSI 47-62 at entry, not clearly "extended" by RSI(14) on 5m bars.**
+> So the discriminator J read correctly off the ONE 2026-07-21 exhibit (RSI 68.8 vs 63.6, extension
+> vs reset) does not describe the wider removed-cohort population as measured — it may still be
+> real for THAT specific pair, but it is not (yet) a general rule this data can confirm. J's own
+> 11:15/12:21 exhibits themselves fall OUTSIDE this probe's option-cache window (cached only
+> through 2026-07-17) so they could not be individually priced here — reported as a gap, not
+> papered over. **Verdict is a genuine null, not a rejection of the idea:** the honest next step
+> is the SAME one every other bull-frontier thread landed on (CLIMB-LADDER-NEXT-RUNG-IS-CLASS,
+> BULL-UNBLOCK-REPLAY-PROBE) — widen the window as more OPRA cache accrues, then re-run this
+> EXACT frozen grid (no re-picking) rather than hand-tuning post-hoc. Guard:
+> `backtest/tests/test_rsi_extension_block_probe.py` (9/9, pins the INCONCLUSIVE verdict + the
+> "only 1/9 qualifies" population-thinness finding + non-vacuous unit checks on the pure
+> condition functions + BH-FDR helper). Zero regressions: 27/27 across this + the 3 sibling
+> bull-unblock probe test files. Result: `analysis/recommendations/rsi-extension-block-elite-bull-2026-07-22.json`.
+> Rail-4 CLEAR: pure research probe + JSON + guard test — touches NO params/filters/heartbeat/
+> CLAUDE; no live wiring proposed (there is nothing to propose — the grid didn't clear).
 
 ### EOD-DOJO-EXHIBIT-MANIFEST (HIGH, after-hours build, filed 2026-07-21 ~14:45 ET, J-directed)
 

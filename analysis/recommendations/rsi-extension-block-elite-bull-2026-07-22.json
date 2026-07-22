@@ -1,0 +1,3219 @@
+{
+  "probe": "rsi_extension_block_probe",
+  "queue_id": "RSI-EXTENSION-BLOCK-ELITE-BULL",
+  "generated_at": "2026-07-22T14:19:02.154349",
+  "window": [
+    "2026-05-21",
+    "2026-07-17"
+  ],
+  "real_fills": true,
+  "removed_by_block_elite_bull_cohort_n": 9,
+  "feature_extraction_n": 9,
+  "excluded_missing_features_n": 0,
+  "pre_registered_grid": {
+    "X_rsi_extension": [
+      65.0,
+      68.0,
+      70.0
+    ],
+    "Y_reset_below": [
+      50.0,
+      55.0
+    ],
+    "N_reset_lookback_bars": [
+      6,
+      10
+    ],
+    "Z_dollars_above_low": [
+      3.0,
+      4.0,
+      5.0
+    ]
+  },
+  "condition_a_rsi_no_reset": [
+    {
+      "X": 65.0,
+      "Y": 50.0,
+      "N": 6,
+      "would_stay_blocked": {
+        "summary": {
+          "n_trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "win_rate": 0.0,
+          "expectancy_per_trade_usd": -46.08,
+          "total_pnl_usd": -46.08,
+          "mean_trade_usd": -46.08,
+          "median_trade_usd": -46.08,
+          "worst_trade_usd": -46.08,
+          "best_trade_usd": -46.08
+        },
+        "significance": {
+          "n": 1,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=1 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 1,
+          "n_losing_days": 1,
+          "total_pnl_usd": -46.08,
+          "top3_day_pct_of_net": 100.0,
+          "median_day_usd": -46.08,
+          "trimmed_day_mean_usd": -46.08,
+          "trimmed_day_total_usd": -46.08,
+          "by_day_pnl": {
+            "2026-06-04": -46.07999999999999
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": 100.0,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 1,
+          "gross_expectancy_per_trade_usd": -46.08,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -46.08,
+              "total_pnl_usd": -46.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -52.08,
+              "total_pnl_usd": -52.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -58.08,
+              "total_pnl_usd": -58.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -64.08,
+              "total_pnl_usd": -64.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -76.08,
+              "total_pnl_usd": -76.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -91.08,
+              "total_pnl_usd": -91.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -106.08,
+              "total_pnl_usd": -106.08,
+              "win_rate": 0.0,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "would_pass": {
+        "summary": {
+          "n_trades": 8,
+          "wins": 1,
+          "losses": 7,
+          "win_rate": 0.125,
+          "expectancy_per_trade_usd": -40.75,
+          "total_pnl_usd": -325.98,
+          "mean_trade_usd": -40.75,
+          "median_trade_usd": -63.12,
+          "worst_trade_usd": -91.68,
+          "best_trade_usd": 139.86
+        },
+        "significance": {
+          "n": 8,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=8 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 8,
+          "n_losing_days": 7,
+          "total_pnl_usd": -325.98,
+          "top3_day_pct_of_net": -13.7,
+          "median_day_usd": -63.12,
+          "trimmed_day_mean_usd": -62.36,
+          "trimmed_day_total_usd": -374.16,
+          "by_day_pnl": {
+            "2026-05-27": -75.8399999999999,
+            "2026-05-29": 139.86,
+            "2026-06-01": -41.27999999999998,
+            "2026-06-12": -91.67999999999988,
+            "2026-06-16": -62.39999999999992,
+            "2026-06-22": -63.840000000000025,
+            "2026-07-02": -76.79999999999993,
+            "2026-07-07": -53.999999999999915
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": -13.7,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 8,
+          "gross_expectancy_per_trade_usd": -40.75,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -40.75,
+              "total_pnl_usd": -325.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -46.75,
+              "total_pnl_usd": -373.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -52.75,
+              "total_pnl_usd": -421.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -58.75,
+              "total_pnl_usd": -469.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -70.75,
+              "total_pnl_usd": -565.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -85.75,
+              "total_pnl_usd": -685.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -100.75,
+              "total_pnl_usd": -805.98,
+              "win_rate": 0.125,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "p_value_raw": 1.0,
+      "bh_fdr_significant_q10": false
+    },
+    {
+      "X": 65.0,
+      "Y": 50.0,
+      "N": 10,
+      "would_stay_blocked": {
+        "summary": {
+          "n_trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "win_rate": 0.0,
+          "expectancy_per_trade_usd": -46.08,
+          "total_pnl_usd": -46.08,
+          "mean_trade_usd": -46.08,
+          "median_trade_usd": -46.08,
+          "worst_trade_usd": -46.08,
+          "best_trade_usd": -46.08
+        },
+        "significance": {
+          "n": 1,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=1 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 1,
+          "n_losing_days": 1,
+          "total_pnl_usd": -46.08,
+          "top3_day_pct_of_net": 100.0,
+          "median_day_usd": -46.08,
+          "trimmed_day_mean_usd": -46.08,
+          "trimmed_day_total_usd": -46.08,
+          "by_day_pnl": {
+            "2026-06-04": -46.07999999999999
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": 100.0,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 1,
+          "gross_expectancy_per_trade_usd": -46.08,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -46.08,
+              "total_pnl_usd": -46.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -52.08,
+              "total_pnl_usd": -52.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -58.08,
+              "total_pnl_usd": -58.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -64.08,
+              "total_pnl_usd": -64.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -76.08,
+              "total_pnl_usd": -76.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -91.08,
+              "total_pnl_usd": -91.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -106.08,
+              "total_pnl_usd": -106.08,
+              "win_rate": 0.0,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "would_pass": {
+        "summary": {
+          "n_trades": 8,
+          "wins": 1,
+          "losses": 7,
+          "win_rate": 0.125,
+          "expectancy_per_trade_usd": -40.75,
+          "total_pnl_usd": -325.98,
+          "mean_trade_usd": -40.75,
+          "median_trade_usd": -63.12,
+          "worst_trade_usd": -91.68,
+          "best_trade_usd": 139.86
+        },
+        "significance": {
+          "n": 8,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=8 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 8,
+          "n_losing_days": 7,
+          "total_pnl_usd": -325.98,
+          "top3_day_pct_of_net": -13.7,
+          "median_day_usd": -63.12,
+          "trimmed_day_mean_usd": -62.36,
+          "trimmed_day_total_usd": -374.16,
+          "by_day_pnl": {
+            "2026-05-27": -75.8399999999999,
+            "2026-05-29": 139.86,
+            "2026-06-01": -41.27999999999998,
+            "2026-06-12": -91.67999999999988,
+            "2026-06-16": -62.39999999999992,
+            "2026-06-22": -63.840000000000025,
+            "2026-07-02": -76.79999999999993,
+            "2026-07-07": -53.999999999999915
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": -13.7,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 8,
+          "gross_expectancy_per_trade_usd": -40.75,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -40.75,
+              "total_pnl_usd": -325.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -46.75,
+              "total_pnl_usd": -373.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -52.75,
+              "total_pnl_usd": -421.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -58.75,
+              "total_pnl_usd": -469.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -70.75,
+              "total_pnl_usd": -565.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -85.75,
+              "total_pnl_usd": -685.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -100.75,
+              "total_pnl_usd": -805.98,
+              "win_rate": 0.125,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "p_value_raw": 1.0,
+      "bh_fdr_significant_q10": false
+    },
+    {
+      "X": 65.0,
+      "Y": 55.0,
+      "N": 6,
+      "would_stay_blocked": {
+        "summary": {
+          "n_trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "win_rate": 0.0,
+          "expectancy_per_trade_usd": -46.08,
+          "total_pnl_usd": -46.08,
+          "mean_trade_usd": -46.08,
+          "median_trade_usd": -46.08,
+          "worst_trade_usd": -46.08,
+          "best_trade_usd": -46.08
+        },
+        "significance": {
+          "n": 1,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=1 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 1,
+          "n_losing_days": 1,
+          "total_pnl_usd": -46.08,
+          "top3_day_pct_of_net": 100.0,
+          "median_day_usd": -46.08,
+          "trimmed_day_mean_usd": -46.08,
+          "trimmed_day_total_usd": -46.08,
+          "by_day_pnl": {
+            "2026-06-04": -46.07999999999999
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": 100.0,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 1,
+          "gross_expectancy_per_trade_usd": -46.08,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -46.08,
+              "total_pnl_usd": -46.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -52.08,
+              "total_pnl_usd": -52.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -58.08,
+              "total_pnl_usd": -58.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -64.08,
+              "total_pnl_usd": -64.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -76.08,
+              "total_pnl_usd": -76.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -91.08,
+              "total_pnl_usd": -91.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -106.08,
+              "total_pnl_usd": -106.08,
+              "win_rate": 0.0,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "would_pass": {
+        "summary": {
+          "n_trades": 8,
+          "wins": 1,
+          "losses": 7,
+          "win_rate": 0.125,
+          "expectancy_per_trade_usd": -40.75,
+          "total_pnl_usd": -325.98,
+          "mean_trade_usd": -40.75,
+          "median_trade_usd": -63.12,
+          "worst_trade_usd": -91.68,
+          "best_trade_usd": 139.86
+        },
+        "significance": {
+          "n": 8,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=8 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 8,
+          "n_losing_days": 7,
+          "total_pnl_usd": -325.98,
+          "top3_day_pct_of_net": -13.7,
+          "median_day_usd": -63.12,
+          "trimmed_day_mean_usd": -62.36,
+          "trimmed_day_total_usd": -374.16,
+          "by_day_pnl": {
+            "2026-05-27": -75.8399999999999,
+            "2026-05-29": 139.86,
+            "2026-06-01": -41.27999999999998,
+            "2026-06-12": -91.67999999999988,
+            "2026-06-16": -62.39999999999992,
+            "2026-06-22": -63.840000000000025,
+            "2026-07-02": -76.79999999999993,
+            "2026-07-07": -53.999999999999915
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": -13.7,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 8,
+          "gross_expectancy_per_trade_usd": -40.75,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -40.75,
+              "total_pnl_usd": -325.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -46.75,
+              "total_pnl_usd": -373.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -52.75,
+              "total_pnl_usd": -421.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -58.75,
+              "total_pnl_usd": -469.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -70.75,
+              "total_pnl_usd": -565.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -85.75,
+              "total_pnl_usd": -685.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -100.75,
+              "total_pnl_usd": -805.98,
+              "win_rate": 0.125,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "p_value_raw": 1.0,
+      "bh_fdr_significant_q10": false
+    },
+    {
+      "X": 65.0,
+      "Y": 55.0,
+      "N": 10,
+      "would_stay_blocked": {
+        "summary": {
+          "n_trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "win_rate": 0.0,
+          "expectancy_per_trade_usd": -46.08,
+          "total_pnl_usd": -46.08,
+          "mean_trade_usd": -46.08,
+          "median_trade_usd": -46.08,
+          "worst_trade_usd": -46.08,
+          "best_trade_usd": -46.08
+        },
+        "significance": {
+          "n": 1,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=1 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 1,
+          "n_losing_days": 1,
+          "total_pnl_usd": -46.08,
+          "top3_day_pct_of_net": 100.0,
+          "median_day_usd": -46.08,
+          "trimmed_day_mean_usd": -46.08,
+          "trimmed_day_total_usd": -46.08,
+          "by_day_pnl": {
+            "2026-06-04": -46.07999999999999
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": 100.0,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 1,
+          "gross_expectancy_per_trade_usd": -46.08,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -46.08,
+              "total_pnl_usd": -46.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -52.08,
+              "total_pnl_usd": -52.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -58.08,
+              "total_pnl_usd": -58.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -64.08,
+              "total_pnl_usd": -64.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -76.08,
+              "total_pnl_usd": -76.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -91.08,
+              "total_pnl_usd": -91.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -106.08,
+              "total_pnl_usd": -106.08,
+              "win_rate": 0.0,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "would_pass": {
+        "summary": {
+          "n_trades": 8,
+          "wins": 1,
+          "losses": 7,
+          "win_rate": 0.125,
+          "expectancy_per_trade_usd": -40.75,
+          "total_pnl_usd": -325.98,
+          "mean_trade_usd": -40.75,
+          "median_trade_usd": -63.12,
+          "worst_trade_usd": -91.68,
+          "best_trade_usd": 139.86
+        },
+        "significance": {
+          "n": 8,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=8 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 8,
+          "n_losing_days": 7,
+          "total_pnl_usd": -325.98,
+          "top3_day_pct_of_net": -13.7,
+          "median_day_usd": -63.12,
+          "trimmed_day_mean_usd": -62.36,
+          "trimmed_day_total_usd": -374.16,
+          "by_day_pnl": {
+            "2026-05-27": -75.8399999999999,
+            "2026-05-29": 139.86,
+            "2026-06-01": -41.27999999999998,
+            "2026-06-12": -91.67999999999988,
+            "2026-06-16": -62.39999999999992,
+            "2026-06-22": -63.840000000000025,
+            "2026-07-02": -76.79999999999993,
+            "2026-07-07": -53.999999999999915
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": -13.7,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 8,
+          "gross_expectancy_per_trade_usd": -40.75,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -40.75,
+              "total_pnl_usd": -325.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -46.75,
+              "total_pnl_usd": -373.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -52.75,
+              "total_pnl_usd": -421.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -58.75,
+              "total_pnl_usd": -469.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -70.75,
+              "total_pnl_usd": -565.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -85.75,
+              "total_pnl_usd": -685.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -100.75,
+              "total_pnl_usd": -805.98,
+              "win_rate": 0.125,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "p_value_raw": 1.0,
+      "bh_fdr_significant_q10": false
+    },
+    {
+      "X": 68.0,
+      "Y": 50.0,
+      "N": 6,
+      "would_stay_blocked": {
+        "summary": {
+          "n_trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "win_rate": 0.0,
+          "expectancy_per_trade_usd": -46.08,
+          "total_pnl_usd": -46.08,
+          "mean_trade_usd": -46.08,
+          "median_trade_usd": -46.08,
+          "worst_trade_usd": -46.08,
+          "best_trade_usd": -46.08
+        },
+        "significance": {
+          "n": 1,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=1 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 1,
+          "n_losing_days": 1,
+          "total_pnl_usd": -46.08,
+          "top3_day_pct_of_net": 100.0,
+          "median_day_usd": -46.08,
+          "trimmed_day_mean_usd": -46.08,
+          "trimmed_day_total_usd": -46.08,
+          "by_day_pnl": {
+            "2026-06-04": -46.07999999999999
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": 100.0,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 1,
+          "gross_expectancy_per_trade_usd": -46.08,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -46.08,
+              "total_pnl_usd": -46.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -52.08,
+              "total_pnl_usd": -52.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -58.08,
+              "total_pnl_usd": -58.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -64.08,
+              "total_pnl_usd": -64.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -76.08,
+              "total_pnl_usd": -76.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -91.08,
+              "total_pnl_usd": -91.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -106.08,
+              "total_pnl_usd": -106.08,
+              "win_rate": 0.0,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "would_pass": {
+        "summary": {
+          "n_trades": 8,
+          "wins": 1,
+          "losses": 7,
+          "win_rate": 0.125,
+          "expectancy_per_trade_usd": -40.75,
+          "total_pnl_usd": -325.98,
+          "mean_trade_usd": -40.75,
+          "median_trade_usd": -63.12,
+          "worst_trade_usd": -91.68,
+          "best_trade_usd": 139.86
+        },
+        "significance": {
+          "n": 8,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=8 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 8,
+          "n_losing_days": 7,
+          "total_pnl_usd": -325.98,
+          "top3_day_pct_of_net": -13.7,
+          "median_day_usd": -63.12,
+          "trimmed_day_mean_usd": -62.36,
+          "trimmed_day_total_usd": -374.16,
+          "by_day_pnl": {
+            "2026-05-27": -75.8399999999999,
+            "2026-05-29": 139.86,
+            "2026-06-01": -41.27999999999998,
+            "2026-06-12": -91.67999999999988,
+            "2026-06-16": -62.39999999999992,
+            "2026-06-22": -63.840000000000025,
+            "2026-07-02": -76.79999999999993,
+            "2026-07-07": -53.999999999999915
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": -13.7,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 8,
+          "gross_expectancy_per_trade_usd": -40.75,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -40.75,
+              "total_pnl_usd": -325.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -46.75,
+              "total_pnl_usd": -373.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -52.75,
+              "total_pnl_usd": -421.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -58.75,
+              "total_pnl_usd": -469.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -70.75,
+              "total_pnl_usd": -565.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -85.75,
+              "total_pnl_usd": -685.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -100.75,
+              "total_pnl_usd": -805.98,
+              "win_rate": 0.125,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "p_value_raw": 1.0,
+      "bh_fdr_significant_q10": false
+    },
+    {
+      "X": 68.0,
+      "Y": 50.0,
+      "N": 10,
+      "would_stay_blocked": {
+        "summary": {
+          "n_trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "win_rate": 0.0,
+          "expectancy_per_trade_usd": -46.08,
+          "total_pnl_usd": -46.08,
+          "mean_trade_usd": -46.08,
+          "median_trade_usd": -46.08,
+          "worst_trade_usd": -46.08,
+          "best_trade_usd": -46.08
+        },
+        "significance": {
+          "n": 1,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=1 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 1,
+          "n_losing_days": 1,
+          "total_pnl_usd": -46.08,
+          "top3_day_pct_of_net": 100.0,
+          "median_day_usd": -46.08,
+          "trimmed_day_mean_usd": -46.08,
+          "trimmed_day_total_usd": -46.08,
+          "by_day_pnl": {
+            "2026-06-04": -46.07999999999999
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": 100.0,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 1,
+          "gross_expectancy_per_trade_usd": -46.08,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -46.08,
+              "total_pnl_usd": -46.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -52.08,
+              "total_pnl_usd": -52.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -58.08,
+              "total_pnl_usd": -58.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -64.08,
+              "total_pnl_usd": -64.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -76.08,
+              "total_pnl_usd": -76.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -91.08,
+              "total_pnl_usd": -91.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -106.08,
+              "total_pnl_usd": -106.08,
+              "win_rate": 0.0,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "would_pass": {
+        "summary": {
+          "n_trades": 8,
+          "wins": 1,
+          "losses": 7,
+          "win_rate": 0.125,
+          "expectancy_per_trade_usd": -40.75,
+          "total_pnl_usd": -325.98,
+          "mean_trade_usd": -40.75,
+          "median_trade_usd": -63.12,
+          "worst_trade_usd": -91.68,
+          "best_trade_usd": 139.86
+        },
+        "significance": {
+          "n": 8,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=8 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 8,
+          "n_losing_days": 7,
+          "total_pnl_usd": -325.98,
+          "top3_day_pct_of_net": -13.7,
+          "median_day_usd": -63.12,
+          "trimmed_day_mean_usd": -62.36,
+          "trimmed_day_total_usd": -374.16,
+          "by_day_pnl": {
+            "2026-05-27": -75.8399999999999,
+            "2026-05-29": 139.86,
+            "2026-06-01": -41.27999999999998,
+            "2026-06-12": -91.67999999999988,
+            "2026-06-16": -62.39999999999992,
+            "2026-06-22": -63.840000000000025,
+            "2026-07-02": -76.79999999999993,
+            "2026-07-07": -53.999999999999915
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": -13.7,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 8,
+          "gross_expectancy_per_trade_usd": -40.75,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -40.75,
+              "total_pnl_usd": -325.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -46.75,
+              "total_pnl_usd": -373.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -52.75,
+              "total_pnl_usd": -421.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -58.75,
+              "total_pnl_usd": -469.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -70.75,
+              "total_pnl_usd": -565.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -85.75,
+              "total_pnl_usd": -685.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -100.75,
+              "total_pnl_usd": -805.98,
+              "win_rate": 0.125,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "p_value_raw": 1.0,
+      "bh_fdr_significant_q10": false
+    },
+    {
+      "X": 68.0,
+      "Y": 55.0,
+      "N": 6,
+      "would_stay_blocked": {
+        "summary": {
+          "n_trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "win_rate": 0.0,
+          "expectancy_per_trade_usd": -46.08,
+          "total_pnl_usd": -46.08,
+          "mean_trade_usd": -46.08,
+          "median_trade_usd": -46.08,
+          "worst_trade_usd": -46.08,
+          "best_trade_usd": -46.08
+        },
+        "significance": {
+          "n": 1,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=1 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 1,
+          "n_losing_days": 1,
+          "total_pnl_usd": -46.08,
+          "top3_day_pct_of_net": 100.0,
+          "median_day_usd": -46.08,
+          "trimmed_day_mean_usd": -46.08,
+          "trimmed_day_total_usd": -46.08,
+          "by_day_pnl": {
+            "2026-06-04": -46.07999999999999
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": 100.0,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 1,
+          "gross_expectancy_per_trade_usd": -46.08,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -46.08,
+              "total_pnl_usd": -46.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -52.08,
+              "total_pnl_usd": -52.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -58.08,
+              "total_pnl_usd": -58.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -64.08,
+              "total_pnl_usd": -64.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -76.08,
+              "total_pnl_usd": -76.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -91.08,
+              "total_pnl_usd": -91.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -106.08,
+              "total_pnl_usd": -106.08,
+              "win_rate": 0.0,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "would_pass": {
+        "summary": {
+          "n_trades": 8,
+          "wins": 1,
+          "losses": 7,
+          "win_rate": 0.125,
+          "expectancy_per_trade_usd": -40.75,
+          "total_pnl_usd": -325.98,
+          "mean_trade_usd": -40.75,
+          "median_trade_usd": -63.12,
+          "worst_trade_usd": -91.68,
+          "best_trade_usd": 139.86
+        },
+        "significance": {
+          "n": 8,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=8 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 8,
+          "n_losing_days": 7,
+          "total_pnl_usd": -325.98,
+          "top3_day_pct_of_net": -13.7,
+          "median_day_usd": -63.12,
+          "trimmed_day_mean_usd": -62.36,
+          "trimmed_day_total_usd": -374.16,
+          "by_day_pnl": {
+            "2026-05-27": -75.8399999999999,
+            "2026-05-29": 139.86,
+            "2026-06-01": -41.27999999999998,
+            "2026-06-12": -91.67999999999988,
+            "2026-06-16": -62.39999999999992,
+            "2026-06-22": -63.840000000000025,
+            "2026-07-02": -76.79999999999993,
+            "2026-07-07": -53.999999999999915
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": -13.7,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 8,
+          "gross_expectancy_per_trade_usd": -40.75,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -40.75,
+              "total_pnl_usd": -325.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -46.75,
+              "total_pnl_usd": -373.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -52.75,
+              "total_pnl_usd": -421.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -58.75,
+              "total_pnl_usd": -469.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -70.75,
+              "total_pnl_usd": -565.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -85.75,
+              "total_pnl_usd": -685.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -100.75,
+              "total_pnl_usd": -805.98,
+              "win_rate": 0.125,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "p_value_raw": 1.0,
+      "bh_fdr_significant_q10": false
+    },
+    {
+      "X": 68.0,
+      "Y": 55.0,
+      "N": 10,
+      "would_stay_blocked": {
+        "summary": {
+          "n_trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "win_rate": 0.0,
+          "expectancy_per_trade_usd": -46.08,
+          "total_pnl_usd": -46.08,
+          "mean_trade_usd": -46.08,
+          "median_trade_usd": -46.08,
+          "worst_trade_usd": -46.08,
+          "best_trade_usd": -46.08
+        },
+        "significance": {
+          "n": 1,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=1 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 1,
+          "n_losing_days": 1,
+          "total_pnl_usd": -46.08,
+          "top3_day_pct_of_net": 100.0,
+          "median_day_usd": -46.08,
+          "trimmed_day_mean_usd": -46.08,
+          "trimmed_day_total_usd": -46.08,
+          "by_day_pnl": {
+            "2026-06-04": -46.07999999999999
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": 100.0,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 1,
+          "gross_expectancy_per_trade_usd": -46.08,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -46.08,
+              "total_pnl_usd": -46.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -52.08,
+              "total_pnl_usd": -52.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -58.08,
+              "total_pnl_usd": -58.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -64.08,
+              "total_pnl_usd": -64.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -76.08,
+              "total_pnl_usd": -76.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -91.08,
+              "total_pnl_usd": -91.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -106.08,
+              "total_pnl_usd": -106.08,
+              "win_rate": 0.0,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "would_pass": {
+        "summary": {
+          "n_trades": 8,
+          "wins": 1,
+          "losses": 7,
+          "win_rate": 0.125,
+          "expectancy_per_trade_usd": -40.75,
+          "total_pnl_usd": -325.98,
+          "mean_trade_usd": -40.75,
+          "median_trade_usd": -63.12,
+          "worst_trade_usd": -91.68,
+          "best_trade_usd": 139.86
+        },
+        "significance": {
+          "n": 8,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=8 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 8,
+          "n_losing_days": 7,
+          "total_pnl_usd": -325.98,
+          "top3_day_pct_of_net": -13.7,
+          "median_day_usd": -63.12,
+          "trimmed_day_mean_usd": -62.36,
+          "trimmed_day_total_usd": -374.16,
+          "by_day_pnl": {
+            "2026-05-27": -75.8399999999999,
+            "2026-05-29": 139.86,
+            "2026-06-01": -41.27999999999998,
+            "2026-06-12": -91.67999999999988,
+            "2026-06-16": -62.39999999999992,
+            "2026-06-22": -63.840000000000025,
+            "2026-07-02": -76.79999999999993,
+            "2026-07-07": -53.999999999999915
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": -13.7,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 8,
+          "gross_expectancy_per_trade_usd": -40.75,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -40.75,
+              "total_pnl_usd": -325.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -46.75,
+              "total_pnl_usd": -373.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -52.75,
+              "total_pnl_usd": -421.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -58.75,
+              "total_pnl_usd": -469.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -70.75,
+              "total_pnl_usd": -565.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -85.75,
+              "total_pnl_usd": -685.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -100.75,
+              "total_pnl_usd": -805.98,
+              "win_rate": 0.125,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "p_value_raw": 1.0,
+      "bh_fdr_significant_q10": false
+    },
+    {
+      "X": 70.0,
+      "Y": 50.0,
+      "N": 6,
+      "would_stay_blocked": {
+        "summary": {
+          "n_trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "win_rate": 0.0,
+          "expectancy_per_trade_usd": -46.08,
+          "total_pnl_usd": -46.08,
+          "mean_trade_usd": -46.08,
+          "median_trade_usd": -46.08,
+          "worst_trade_usd": -46.08,
+          "best_trade_usd": -46.08
+        },
+        "significance": {
+          "n": 1,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=1 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 1,
+          "n_losing_days": 1,
+          "total_pnl_usd": -46.08,
+          "top3_day_pct_of_net": 100.0,
+          "median_day_usd": -46.08,
+          "trimmed_day_mean_usd": -46.08,
+          "trimmed_day_total_usd": -46.08,
+          "by_day_pnl": {
+            "2026-06-04": -46.07999999999999
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": 100.0,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 1,
+          "gross_expectancy_per_trade_usd": -46.08,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -46.08,
+              "total_pnl_usd": -46.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -52.08,
+              "total_pnl_usd": -52.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -58.08,
+              "total_pnl_usd": -58.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -64.08,
+              "total_pnl_usd": -64.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -76.08,
+              "total_pnl_usd": -76.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -91.08,
+              "total_pnl_usd": -91.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -106.08,
+              "total_pnl_usd": -106.08,
+              "win_rate": 0.0,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "would_pass": {
+        "summary": {
+          "n_trades": 8,
+          "wins": 1,
+          "losses": 7,
+          "win_rate": 0.125,
+          "expectancy_per_trade_usd": -40.75,
+          "total_pnl_usd": -325.98,
+          "mean_trade_usd": -40.75,
+          "median_trade_usd": -63.12,
+          "worst_trade_usd": -91.68,
+          "best_trade_usd": 139.86
+        },
+        "significance": {
+          "n": 8,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=8 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 8,
+          "n_losing_days": 7,
+          "total_pnl_usd": -325.98,
+          "top3_day_pct_of_net": -13.7,
+          "median_day_usd": -63.12,
+          "trimmed_day_mean_usd": -62.36,
+          "trimmed_day_total_usd": -374.16,
+          "by_day_pnl": {
+            "2026-05-27": -75.8399999999999,
+            "2026-05-29": 139.86,
+            "2026-06-01": -41.27999999999998,
+            "2026-06-12": -91.67999999999988,
+            "2026-06-16": -62.39999999999992,
+            "2026-06-22": -63.840000000000025,
+            "2026-07-02": -76.79999999999993,
+            "2026-07-07": -53.999999999999915
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": -13.7,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 8,
+          "gross_expectancy_per_trade_usd": -40.75,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -40.75,
+              "total_pnl_usd": -325.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -46.75,
+              "total_pnl_usd": -373.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -52.75,
+              "total_pnl_usd": -421.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -58.75,
+              "total_pnl_usd": -469.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -70.75,
+              "total_pnl_usd": -565.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -85.75,
+              "total_pnl_usd": -685.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -100.75,
+              "total_pnl_usd": -805.98,
+              "win_rate": 0.125,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "p_value_raw": 1.0,
+      "bh_fdr_significant_q10": false
+    },
+    {
+      "X": 70.0,
+      "Y": 50.0,
+      "N": 10,
+      "would_stay_blocked": {
+        "summary": {
+          "n_trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "win_rate": 0.0,
+          "expectancy_per_trade_usd": -46.08,
+          "total_pnl_usd": -46.08,
+          "mean_trade_usd": -46.08,
+          "median_trade_usd": -46.08,
+          "worst_trade_usd": -46.08,
+          "best_trade_usd": -46.08
+        },
+        "significance": {
+          "n": 1,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=1 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 1,
+          "n_losing_days": 1,
+          "total_pnl_usd": -46.08,
+          "top3_day_pct_of_net": 100.0,
+          "median_day_usd": -46.08,
+          "trimmed_day_mean_usd": -46.08,
+          "trimmed_day_total_usd": -46.08,
+          "by_day_pnl": {
+            "2026-06-04": -46.07999999999999
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": 100.0,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 1,
+          "gross_expectancy_per_trade_usd": -46.08,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -46.08,
+              "total_pnl_usd": -46.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -52.08,
+              "total_pnl_usd": -52.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -58.08,
+              "total_pnl_usd": -58.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -64.08,
+              "total_pnl_usd": -64.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -76.08,
+              "total_pnl_usd": -76.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -91.08,
+              "total_pnl_usd": -91.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -106.08,
+              "total_pnl_usd": -106.08,
+              "win_rate": 0.0,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "would_pass": {
+        "summary": {
+          "n_trades": 8,
+          "wins": 1,
+          "losses": 7,
+          "win_rate": 0.125,
+          "expectancy_per_trade_usd": -40.75,
+          "total_pnl_usd": -325.98,
+          "mean_trade_usd": -40.75,
+          "median_trade_usd": -63.12,
+          "worst_trade_usd": -91.68,
+          "best_trade_usd": 139.86
+        },
+        "significance": {
+          "n": 8,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=8 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 8,
+          "n_losing_days": 7,
+          "total_pnl_usd": -325.98,
+          "top3_day_pct_of_net": -13.7,
+          "median_day_usd": -63.12,
+          "trimmed_day_mean_usd": -62.36,
+          "trimmed_day_total_usd": -374.16,
+          "by_day_pnl": {
+            "2026-05-27": -75.8399999999999,
+            "2026-05-29": 139.86,
+            "2026-06-01": -41.27999999999998,
+            "2026-06-12": -91.67999999999988,
+            "2026-06-16": -62.39999999999992,
+            "2026-06-22": -63.840000000000025,
+            "2026-07-02": -76.79999999999993,
+            "2026-07-07": -53.999999999999915
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": -13.7,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 8,
+          "gross_expectancy_per_trade_usd": -40.75,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -40.75,
+              "total_pnl_usd": -325.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -46.75,
+              "total_pnl_usd": -373.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -52.75,
+              "total_pnl_usd": -421.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -58.75,
+              "total_pnl_usd": -469.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -70.75,
+              "total_pnl_usd": -565.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -85.75,
+              "total_pnl_usd": -685.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -100.75,
+              "total_pnl_usd": -805.98,
+              "win_rate": 0.125,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "p_value_raw": 1.0,
+      "bh_fdr_significant_q10": false
+    },
+    {
+      "X": 70.0,
+      "Y": 55.0,
+      "N": 6,
+      "would_stay_blocked": {
+        "summary": {
+          "n_trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "win_rate": 0.0,
+          "expectancy_per_trade_usd": -46.08,
+          "total_pnl_usd": -46.08,
+          "mean_trade_usd": -46.08,
+          "median_trade_usd": -46.08,
+          "worst_trade_usd": -46.08,
+          "best_trade_usd": -46.08
+        },
+        "significance": {
+          "n": 1,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=1 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 1,
+          "n_losing_days": 1,
+          "total_pnl_usd": -46.08,
+          "top3_day_pct_of_net": 100.0,
+          "median_day_usd": -46.08,
+          "trimmed_day_mean_usd": -46.08,
+          "trimmed_day_total_usd": -46.08,
+          "by_day_pnl": {
+            "2026-06-04": -46.07999999999999
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": 100.0,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 1,
+          "gross_expectancy_per_trade_usd": -46.08,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -46.08,
+              "total_pnl_usd": -46.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -52.08,
+              "total_pnl_usd": -52.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -58.08,
+              "total_pnl_usd": -58.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -64.08,
+              "total_pnl_usd": -64.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -76.08,
+              "total_pnl_usd": -76.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -91.08,
+              "total_pnl_usd": -91.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -106.08,
+              "total_pnl_usd": -106.08,
+              "win_rate": 0.0,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "would_pass": {
+        "summary": {
+          "n_trades": 8,
+          "wins": 1,
+          "losses": 7,
+          "win_rate": 0.125,
+          "expectancy_per_trade_usd": -40.75,
+          "total_pnl_usd": -325.98,
+          "mean_trade_usd": -40.75,
+          "median_trade_usd": -63.12,
+          "worst_trade_usd": -91.68,
+          "best_trade_usd": 139.86
+        },
+        "significance": {
+          "n": 8,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=8 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 8,
+          "n_losing_days": 7,
+          "total_pnl_usd": -325.98,
+          "top3_day_pct_of_net": -13.7,
+          "median_day_usd": -63.12,
+          "trimmed_day_mean_usd": -62.36,
+          "trimmed_day_total_usd": -374.16,
+          "by_day_pnl": {
+            "2026-05-27": -75.8399999999999,
+            "2026-05-29": 139.86,
+            "2026-06-01": -41.27999999999998,
+            "2026-06-12": -91.67999999999988,
+            "2026-06-16": -62.39999999999992,
+            "2026-06-22": -63.840000000000025,
+            "2026-07-02": -76.79999999999993,
+            "2026-07-07": -53.999999999999915
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": -13.7,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 8,
+          "gross_expectancy_per_trade_usd": -40.75,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -40.75,
+              "total_pnl_usd": -325.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -46.75,
+              "total_pnl_usd": -373.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -52.75,
+              "total_pnl_usd": -421.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -58.75,
+              "total_pnl_usd": -469.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -70.75,
+              "total_pnl_usd": -565.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -85.75,
+              "total_pnl_usd": -685.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -100.75,
+              "total_pnl_usd": -805.98,
+              "win_rate": 0.125,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "p_value_raw": 1.0,
+      "bh_fdr_significant_q10": false
+    },
+    {
+      "X": 70.0,
+      "Y": 55.0,
+      "N": 10,
+      "would_stay_blocked": {
+        "summary": {
+          "n_trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "win_rate": 0.0,
+          "expectancy_per_trade_usd": -46.08,
+          "total_pnl_usd": -46.08,
+          "mean_trade_usd": -46.08,
+          "median_trade_usd": -46.08,
+          "worst_trade_usd": -46.08,
+          "best_trade_usd": -46.08
+        },
+        "significance": {
+          "n": 1,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=1 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 1,
+          "n_losing_days": 1,
+          "total_pnl_usd": -46.08,
+          "top3_day_pct_of_net": 100.0,
+          "median_day_usd": -46.08,
+          "trimmed_day_mean_usd": -46.08,
+          "trimmed_day_total_usd": -46.08,
+          "by_day_pnl": {
+            "2026-06-04": -46.07999999999999
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": 100.0,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 1,
+          "gross_expectancy_per_trade_usd": -46.08,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -46.08,
+              "total_pnl_usd": -46.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -52.08,
+              "total_pnl_usd": -52.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -58.08,
+              "total_pnl_usd": -58.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -64.08,
+              "total_pnl_usd": -64.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -76.08,
+              "total_pnl_usd": -76.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -91.08,
+              "total_pnl_usd": -91.08,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -106.08,
+              "total_pnl_usd": -106.08,
+              "win_rate": 0.0,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "would_pass": {
+        "summary": {
+          "n_trades": 8,
+          "wins": 1,
+          "losses": 7,
+          "win_rate": 0.125,
+          "expectancy_per_trade_usd": -40.75,
+          "total_pnl_usd": -325.98,
+          "mean_trade_usd": -40.75,
+          "median_trade_usd": -63.12,
+          "worst_trade_usd": -91.68,
+          "best_trade_usd": 139.86
+        },
+        "significance": {
+          "n": 8,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=8 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 8,
+          "n_losing_days": 7,
+          "total_pnl_usd": -325.98,
+          "top3_day_pct_of_net": -13.7,
+          "median_day_usd": -63.12,
+          "trimmed_day_mean_usd": -62.36,
+          "trimmed_day_total_usd": -374.16,
+          "by_day_pnl": {
+            "2026-05-27": -75.8399999999999,
+            "2026-05-29": 139.86,
+            "2026-06-01": -41.27999999999998,
+            "2026-06-12": -91.67999999999988,
+            "2026-06-16": -62.39999999999992,
+            "2026-06-22": -63.840000000000025,
+            "2026-07-02": -76.79999999999993,
+            "2026-07-07": -53.999999999999915
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": -13.7,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 8,
+          "gross_expectancy_per_trade_usd": -40.75,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -40.75,
+              "total_pnl_usd": -325.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -46.75,
+              "total_pnl_usd": -373.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -52.75,
+              "total_pnl_usd": -421.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -58.75,
+              "total_pnl_usd": -469.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -70.75,
+              "total_pnl_usd": -565.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -85.75,
+              "total_pnl_usd": -685.98,
+              "win_rate": 0.125,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -100.75,
+              "total_pnl_usd": -805.98,
+              "win_rate": 0.125,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "p_value_raw": 1.0,
+      "bh_fdr_significant_q10": false
+    }
+  ],
+  "condition_b_dollars_above_low": [
+    {
+      "Z": 3.0,
+      "would_stay_blocked": {
+        "summary": {
+          "n_trades": 6,
+          "wins": 0,
+          "losses": 6,
+          "win_rate": 0.0,
+          "expectancy_per_trade_usd": -62.28,
+          "total_pnl_usd": -373.68,
+          "mean_trade_usd": -62.28,
+          "median_trade_usd": -58.92,
+          "worst_trade_usd": -91.68,
+          "best_trade_usd": -41.28
+        },
+        "significance": {
+          "n": 6,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=6 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 6,
+          "n_losing_days": 6,
+          "total_pnl_usd": -373.68,
+          "top3_day_pct_of_net": 37.8,
+          "median_day_usd": -58.92,
+          "trimmed_day_mean_usd": -60.18,
+          "trimmed_day_total_usd": -240.72,
+          "by_day_pnl": {
+            "2026-06-01": -41.27999999999998,
+            "2026-06-04": -46.07999999999999,
+            "2026-06-12": -91.67999999999988,
+            "2026-06-22": -63.840000000000025,
+            "2026-07-02": -76.79999999999993,
+            "2026-07-07": -53.999999999999915
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": 37.8,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 6,
+          "gross_expectancy_per_trade_usd": -62.28,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -62.28,
+              "total_pnl_usd": -373.68,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -68.28,
+              "total_pnl_usd": -409.68,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -74.28,
+              "total_pnl_usd": -445.68,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -80.28,
+              "total_pnl_usd": -481.68,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -92.28,
+              "total_pnl_usd": -553.68,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -107.28,
+              "total_pnl_usd": -643.68,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -122.28,
+              "total_pnl_usd": -733.68,
+              "win_rate": 0.0,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "would_pass": {
+        "summary": {
+          "n_trades": 3,
+          "wins": 1,
+          "losses": 2,
+          "win_rate": 0.333,
+          "expectancy_per_trade_usd": 0.54,
+          "total_pnl_usd": 1.62,
+          "mean_trade_usd": 0.54,
+          "median_trade_usd": -62.4,
+          "worst_trade_usd": -75.84,
+          "best_trade_usd": 139.86
+        },
+        "significance": {
+          "n": 3,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=3 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 3,
+          "n_losing_days": 2,
+          "total_pnl_usd": 1.62,
+          "top3_day_pct_of_net": 100.0,
+          "median_day_usd": -62.4,
+          "trimmed_day_mean_usd": -62.4,
+          "trimmed_day_total_usd": -62.4,
+          "by_day_pnl": {
+            "2026-05-27": -75.8399999999999,
+            "2026-05-29": 139.86,
+            "2026-06-16": -62.39999999999992
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": 100.0,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 3,
+          "gross_expectancy_per_trade_usd": 0.54,
+          "breakeven_half_spread": 0.0009,
+          "realistic_half_spread": 0.05,
+          "verdict": "FRAGILE_TO_SLIPPAGE",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": 0.54,
+              "total_pnl_usd": 1.62,
+              "win_rate": 0.333,
+              "positive": true
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -5.46,
+              "total_pnl_usd": -16.38,
+              "win_rate": 0.333,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -11.46,
+              "total_pnl_usd": -34.38,
+              "win_rate": 0.333,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -17.46,
+              "total_pnl_usd": -52.38,
+              "win_rate": 0.333,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -29.46,
+              "total_pnl_usd": -88.38,
+              "win_rate": 0.333,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -44.46,
+              "total_pnl_usd": -133.38,
+              "win_rate": 0.333,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -59.46,
+              "total_pnl_usd": -178.38,
+              "win_rate": 0.333,
+              "positive": false
+            }
+          ],
+          "note": "edge breakeven at 0.0009 $/share half-spread (realistic reference 0.05); FRAGILE_TO_SLIPPAGE"
+        }
+      },
+      "p_value_raw": 0.3709,
+      "bh_fdr_significant_q10": false
+    },
+    {
+      "Z": 4.0,
+      "would_stay_blocked": {
+        "summary": {
+          "n_trades": 4,
+          "wins": 0,
+          "losses": 4,
+          "win_rate": 0.0,
+          "expectancy_per_trade_usd": -69.6,
+          "total_pnl_usd": -278.4,
+          "mean_trade_usd": -69.6,
+          "median_trade_usd": -70.32,
+          "worst_trade_usd": -91.68,
+          "best_trade_usd": -46.08
+        },
+        "significance": {
+          "n": 4,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=4 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 4,
+          "n_losing_days": 4,
+          "total_pnl_usd": -278.4,
+          "top3_day_pct_of_net": 67.1,
+          "median_day_usd": -70.32,
+          "trimmed_day_mean_usd": -70.32,
+          "trimmed_day_total_usd": -140.64,
+          "by_day_pnl": {
+            "2026-06-04": -46.07999999999999,
+            "2026-06-12": -91.67999999999988,
+            "2026-06-22": -63.840000000000025,
+            "2026-07-02": -76.79999999999993
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": 67.1,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 4,
+          "gross_expectancy_per_trade_usd": -69.6,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -69.6,
+              "total_pnl_usd": -278.4,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -75.6,
+              "total_pnl_usd": -302.4,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -81.6,
+              "total_pnl_usd": -326.4,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -87.6,
+              "total_pnl_usd": -350.4,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -99.6,
+              "total_pnl_usd": -398.4,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -114.6,
+              "total_pnl_usd": -458.4,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -129.6,
+              "total_pnl_usd": -518.4,
+              "win_rate": 0.0,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "would_pass": {
+        "summary": {
+          "n_trades": 5,
+          "wins": 1,
+          "losses": 4,
+          "win_rate": 0.2,
+          "expectancy_per_trade_usd": -18.73,
+          "total_pnl_usd": -93.66,
+          "mean_trade_usd": -18.73,
+          "median_trade_usd": -54.0,
+          "worst_trade_usd": -75.84,
+          "best_trade_usd": 139.86
+        },
+        "significance": {
+          "n": 5,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=5 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 5,
+          "n_losing_days": 4,
+          "total_pnl_usd": -93.66,
+          "top3_day_pct_of_net": -47.6,
+          "median_day_usd": -54.0,
+          "trimmed_day_mean_usd": -52.56,
+          "trimmed_day_total_usd": -157.68,
+          "by_day_pnl": {
+            "2026-05-27": -75.8399999999999,
+            "2026-05-29": 139.86,
+            "2026-06-01": -41.27999999999998,
+            "2026-06-16": -62.39999999999992,
+            "2026-07-07": -53.999999999999915
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": -47.6,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 5,
+          "gross_expectancy_per_trade_usd": -18.73,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -18.73,
+              "total_pnl_usd": -93.66,
+              "win_rate": 0.2,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -24.73,
+              "total_pnl_usd": -123.66,
+              "win_rate": 0.2,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -30.73,
+              "total_pnl_usd": -153.66,
+              "win_rate": 0.2,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -36.73,
+              "total_pnl_usd": -183.66,
+              "win_rate": 0.2,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -48.73,
+              "total_pnl_usd": -243.66,
+              "win_rate": 0.2,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -63.73,
+              "total_pnl_usd": -318.66,
+              "win_rate": 0.2,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -78.73,
+              "total_pnl_usd": -393.66,
+              "win_rate": 0.2,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "p_value_raw": 0.217,
+      "bh_fdr_significant_q10": false
+    },
+    {
+      "Z": 5.0,
+      "would_stay_blocked": {
+        "summary": {
+          "n_trades": 3,
+          "wins": 0,
+          "losses": 3,
+          "win_rate": 0.0,
+          "expectancy_per_trade_usd": -67.2,
+          "total_pnl_usd": -201.6,
+          "mean_trade_usd": -67.2,
+          "median_trade_usd": -63.84,
+          "worst_trade_usd": -91.68,
+          "best_trade_usd": -46.08
+        },
+        "significance": {
+          "n": 3,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=3 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 3,
+          "n_losing_days": 3,
+          "total_pnl_usd": -201.6,
+          "top3_day_pct_of_net": 100.0,
+          "median_day_usd": -63.84,
+          "trimmed_day_mean_usd": -63.84,
+          "trimmed_day_total_usd": -63.84,
+          "by_day_pnl": {
+            "2026-06-04": -46.07999999999999,
+            "2026-06-12": -91.67999999999988,
+            "2026-06-22": -63.840000000000025
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": 100.0,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 3,
+          "gross_expectancy_per_trade_usd": -67.2,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -67.2,
+              "total_pnl_usd": -201.6,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -73.2,
+              "total_pnl_usd": -219.6,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -79.2,
+              "total_pnl_usd": -237.6,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -85.2,
+              "total_pnl_usd": -255.6,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -97.2,
+              "total_pnl_usd": -291.6,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -112.2,
+              "total_pnl_usd": -336.6,
+              "win_rate": 0.0,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -127.2,
+              "total_pnl_usd": -381.6,
+              "win_rate": 0.0,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "would_pass": {
+        "summary": {
+          "n_trades": 6,
+          "wins": 1,
+          "losses": 5,
+          "win_rate": 0.167,
+          "expectancy_per_trade_usd": -28.41,
+          "total_pnl_usd": -170.46,
+          "mean_trade_usd": -28.41,
+          "median_trade_usd": -58.2,
+          "worst_trade_usd": -76.8,
+          "best_trade_usd": 139.86
+        },
+        "significance": {
+          "n": 6,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=6 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "day_concentration": {
+          "n_active_days": 6,
+          "n_losing_days": 5,
+          "total_pnl_usd": -170.46,
+          "top3_day_pct_of_net": -26.2,
+          "median_day_usd": -58.2,
+          "trimmed_day_mean_usd": -58.38,
+          "trimmed_day_total_usd": -233.52,
+          "by_day_pnl": {
+            "2026-05-27": -75.8399999999999,
+            "2026-05-29": 139.86,
+            "2026-06-01": -41.27999999999998,
+            "2026-06-16": -62.39999999999992,
+            "2026-07-02": -76.79999999999993,
+            "2026-07-07": -53.999999999999915
+          }
+        },
+        "concentration_flag": {
+          "top3_day_pct_of_net": -26.2,
+          "max_pct": 150.0,
+          "concentrated": false,
+          "note": "concentration within tolerance"
+        },
+        "slippage": {
+          "n_trades": 6,
+          "gross_expectancy_per_trade_usd": -28.41,
+          "breakeven_half_spread": null,
+          "realistic_half_spread": 0.05,
+          "verdict": "DRY_AT_ZERO",
+          "grid": [
+            {
+              "half_spread": 0.0,
+              "expectancy_per_trade_usd": -28.41,
+              "total_pnl_usd": -170.46,
+              "win_rate": 0.167,
+              "positive": false
+            },
+            {
+              "half_spread": 0.01,
+              "expectancy_per_trade_usd": -34.41,
+              "total_pnl_usd": -206.46,
+              "win_rate": 0.167,
+              "positive": false
+            },
+            {
+              "half_spread": 0.02,
+              "expectancy_per_trade_usd": -40.41,
+              "total_pnl_usd": -242.46,
+              "win_rate": 0.167,
+              "positive": false
+            },
+            {
+              "half_spread": 0.03,
+              "expectancy_per_trade_usd": -46.41,
+              "total_pnl_usd": -278.46,
+              "win_rate": 0.167,
+              "positive": false
+            },
+            {
+              "half_spread": 0.05,
+              "expectancy_per_trade_usd": -58.41,
+              "total_pnl_usd": -350.46,
+              "win_rate": 0.167,
+              "positive": false
+            },
+            {
+              "half_spread": 0.075,
+              "expectancy_per_trade_usd": -73.41,
+              "total_pnl_usd": -440.46,
+              "win_rate": 0.167,
+              "positive": false
+            },
+            {
+              "half_spread": 0.1,
+              "expectancy_per_trade_usd": -88.41,
+              "total_pnl_usd": -530.46,
+              "win_rate": 0.167,
+              "positive": false
+            }
+          ],
+          "note": "no positive edge to erode at zero slippage; DRY_AT_ZERO"
+        }
+      },
+      "p_value_raw": 0.2891,
+      "bh_fdr_significant_q10": false
+    }
+  ],
+  "anchor_no_regression": true,
+  "exhibit_note": "J's 11:15/12:21 2026-07-21 exhibits are OUTSIDE this probe's option-cache window (options cached only through 2026-07-17) -- cannot be individually priced/scored here; this probe answers the GENERAL discriminator question on the full removed-by-block_elite_bull population instead of the single anecdote, per OP-16's 'general population, not one-off exception' discipline.",
+  "verdict": "INCONCLUSIVE_SAMPLE_TOO_SMALL",
+  "trades": [
+    {
+      "date": "2026-05-27",
+      "strike": 748.0,
+      "pnl": -75.84,
+      "rsi_at_entry": 48.9,
+      "dollars_above_session_low": 1.26
+    },
+    {
+      "date": "2026-05-29",
+      "strike": 754.0,
+      "pnl": 139.86,
+      "rsi_at_entry": 47.5,
+      "dollars_above_session_low": 1.14
+    },
+    {
+      "date": "2026-06-01",
+      "strike": 757.0,
+      "pnl": -41.28,
+      "rsi_at_entry": 59.3,
+      "dollars_above_session_low": 3.82
+    },
+    {
+      "date": "2026-06-04",
+      "strike": 755.0,
+      "pnl": -46.08,
+      "rsi_at_entry": 71.8,
+      "dollars_above_session_low": 6.81
+    },
+    {
+      "date": "2026-06-12",
+      "strike": 740.0,
+      "pnl": -91.68,
+      "rsi_at_entry": 59.9,
+      "dollars_above_session_low": 6.65
+    },
+    {
+      "date": "2026-06-16",
+      "strike": 753.0,
+      "pnl": -62.4,
+      "rsi_at_entry": 52.2,
+      "dollars_above_session_low": 1.65
+    },
+    {
+      "date": "2026-06-22",
+      "strike": 748.0,
+      "pnl": -63.84,
+      "rsi_at_entry": 55.1,
+      "dollars_above_session_low": 6.77
+    },
+    {
+      "date": "2026-07-02",
+      "strike": 746.0,
+      "pnl": -76.8,
+      "rsi_at_entry": 47.1,
+      "dollars_above_session_low": 4.26
+    },
+    {
+      "date": "2026-07-07",
+      "strike": 747.0,
+      "pnl": -54.0,
+      "rsi_at_entry": 61.6,
+      "dollars_above_session_low": 3.89
+    }
+  ]
+}
