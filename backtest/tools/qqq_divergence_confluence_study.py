@@ -152,6 +152,75 @@ def qqq_label_for_signal(qqq_df: pd.DataFrame, entry_ts: dt.datetime, direction:
 
 
 # ---------------------------------------------------------------------------------------
+# CONFOUND CONTROL -- the 2026-07-21 candidate doc's disclosure #3 flagged that `failed`
+# (QQQ touched but did NOT confirm) ALSO beats `none` in the raw pooled strata, suggesting
+# the effect might be a general trend-day/volatility-regime proxy (QQQ was simply active
+# enough to reach the level that day) rather than pure directional CONFIRMATION. This
+# computes a realized-volatility proxy from SPY's OWN prior bars (no look-ahead, same
+# convention as the QQQ label: bars strictly BEFORE entry_ts only) so the reclaimed-vs-none
+# spread can be checked WITHIN volatility-matched halves of the population, not just pooled.
+# ---------------------------------------------------------------------------------------
+def realized_vol_for_signal(spy_full: pd.DataFrame, entry_ts: dt.datetime,
+                             window_bars: int = LEVEL_WINDOW_BARS) -> float | None:
+    """Population stdev of bar-to-bar simple returns over the `window_bars` SPY bars
+    strictly before entry_ts. Returns None if too few prior bars exist (mirrors the
+    `qqq_label_for_signal` no-data floor: max(5, window_bars // 4))."""
+    prior = spy_full[spy_full["timestamp_et"] < entry_ts].tail(window_bars)
+    if len(prior) < max(5, window_bars // 4):
+        return None
+    closes = prior["close"].to_numpy()
+    if len(closes) < 3:
+        return None
+    rets = [(closes[i] - closes[i - 1]) / closes[i - 1] for i in range(1, len(closes))
+            if closes[i - 1] != 0]
+    if len(rets) < 2:
+        return None
+    return float(statistics.pstdev(rets))
+
+
+def confound_check_by_volatility(usable: list[dict]) -> dict:
+    """Splits `usable` rows (must carry 'realized_vol', 'qqq_label', and
+    'spy_forward_return_aligned') at the population median realized_vol into LOW/HIGH
+    halves, then recomputes the reclaimed-vs-none mean spread inside each half. If the
+    spread survives (stays positive) in BOTH halves, the QQQ-agreement effect is not fully
+    explained by "QQQ was just more volatile that day." If it collapses or inverts in
+    either half, the pooled result is confound-contaminated and should not be treated as
+    clean confirmation evidence."""
+    with_vol = [r for r in usable if r.get("realized_vol") is not None]
+    if len(with_vol) < 20:
+        return {"status": "INSUFFICIENT_N_FOR_VOL_CONTROL", "n_with_vol": len(with_vol)}
+
+    vols = sorted(r["realized_vol"] for r in with_vol)
+    median_vol = vols[len(vols) // 2]
+    halves = {
+        "low_vol": [r for r in with_vol if r["realized_vol"] <= median_vol],
+        "high_vol": [r for r in with_vol if r["realized_vol"] > median_vol],
+    }
+    out = {"status": "OK", "median_realized_vol": round(median_vol, 6), "halves": {}}
+    for half_name, rows in halves.items():
+        reclaimed = [r["spy_forward_return_aligned"] for r in rows if r["qqq_label"] == "reclaimed"]
+        none_ = [r["spy_forward_return_aligned"] for r in rows if r["qqq_label"] == "none"]
+        entry = {"n_total": len(rows), "n_reclaimed": len(reclaimed), "n_none": len(none_)}
+        if reclaimed and none_:
+            entry["mean_reclaimed"] = round(statistics.mean(reclaimed), 4)
+            entry["mean_none"] = round(statistics.mean(none_), 4)
+            entry["reclaimed_vs_none_spread"] = round(statistics.mean(reclaimed) - statistics.mean(none_), 4)
+        else:
+            entry["reclaimed_vs_none_spread"] = None
+        out["halves"][half_name] = entry
+
+    spreads = [h["reclaimed_vs_none_spread"] for h in out["halves"].values()
+               if h.get("reclaimed_vs_none_spread") is not None]
+    if len(spreads) == 2 and all(s > 0 for s in spreads):
+        out["verdict"] = "SPREAD_SURVIVES_VOL_CONTROL"
+    elif len(spreads) == 2 and any(s <= 0 for s in spreads):
+        out["verdict"] = "SPREAD_COLLAPSES_IN_AT_LEAST_ONE_VOL_HALF"
+    else:
+        out["verdict"] = "INDETERMINATE_MISSING_STRATUM"
+    return out
+
+
+# ---------------------------------------------------------------------------------------
 # OUTCOME PROXY -- direction-aligned SPY forward return over FORWARD_MINUTES from entry_ts.
 # Positive = the signal kept going the intended way. NOT a $ P&L (disclosed above).
 # ---------------------------------------------------------------------------------------
@@ -189,18 +258,23 @@ def run(refresh: bool = False) -> dict:
     spy_by_date = {d: g.reset_index(drop=True) for d, g in spy.groupby("date")}
 
     print("[4/4] labeling + stratifying...")
+    spy_sorted = spy.sort_values("timestamp_et").reset_index(drop=True)
     rows = []
     for s in signals:
         entry_ts = dt.datetime.fromisoformat(s["entry_ts"])
         date_obj = dt.date.fromisoformat(s["date"])
         lbl = qqq_label_for_signal(qqq, entry_ts, s["direction"])
         fwd = spy_forward_return(spy_by_date, date_obj, entry_ts, float(s["entry_spot"]), s["direction"])
+        rvol = realized_vol_for_signal(spy_sorted, entry_ts)
         rows.append({**s, "qqq_label": lbl["label"], "qqq_level": lbl["level"],
-                     "spy_forward_return_aligned": fwd})
+                     "spy_forward_return_aligned": fwd, "realized_vol": rvol})
 
     usable = [r for r in rows if r["spy_forward_return_aligned"] is not None
               and r["qqq_label"] != "no_data"]
     n_dropped = len(rows) - len(usable)
+
+    print("[+1] confound check: does the spread survive a realized-volatility control?...")
+    confound = confound_check_by_volatility(usable)
 
     strata = {}
     for label in ("reclaimed", "failed", "none"):
@@ -247,21 +321,29 @@ def run(refresh: bool = False) -> dict:
         "strata_by_qqq_label": strata,
         "by_direction": by_direction,
         "reclaimed_vs_other_mean_spread": spread,
+        "confound_check_realized_vol": confound,
         "verdict": (
             "NO_SIGNAL" if spread is None or abs(spread) < 0.05 else
             ("QQQ_AGREEMENT_INFORMATIVE" if spread > 0 else "QQQ_AGREEMENT_INVERSE")
         ),
         "next_step": (
-            "If verdict == QQQ_AGREEMENT_INFORMATIVE: fund the full real-fills replay "
+            "If verdict == QQQ_AGREEMENT_INFORMATIVE AND confound_check_realized_vol.verdict "
+            "== SPREAD_SURVIVES_VOL_CONTROL: fund the full real-fills replay "
             "(ribbon_ride_strike_exit_ab.py-class per-strike OPRA replay, stratified by "
-            "qqq_label) before any wiring proposal. If NO_SIGNAL or INVERSE: do not fund "
-            "the expensive replay; close the chef-inbox item as explored-and-not-promising."
+            "qqq_label) before any wiring proposal. If the confound check COLLAPSES the "
+            "spread in either volatility half: the pooled result is likely a trend-day/"
+            "volatility proxy, not QQQ-specific confirmation -- do not fund the expensive "
+            "replay on this evidence alone; a volatility-regime feature (not a QQQ-agreement "
+            "feature) would be the more honest candidate if one is pursued at all. If "
+            "NO_SIGNAL or INVERSE: do not fund the expensive replay; close the chef-inbox "
+            "item as explored-and-not-promising."
         ),
     }
     OUT_JSON.write_text(json.dumps(out, indent=2, default=str), encoding="utf-8")
     OUT_MD.write_text(_render_md(out), encoding="utf-8")
     print(f"\nWrote {OUT_JSON}\nWrote {OUT_MD}")
     print(f"Verdict: {out['verdict']}  (spread={spread})")
+    print(f"Confound check: {confound.get('verdict', confound.get('status'))}")
     return out
 
 
@@ -293,6 +375,9 @@ def _render_md(out: dict) -> str:
     lines += [
         "",
         f"## Reclaimed vs other mean spread: {out['reclaimed_vs_other_mean_spread']}",
+        "",
+        "## Confound check -- does the spread survive a realized-volatility control?",
+        json.dumps(out["confound_check_realized_vol"], indent=2),
         "",
         "## By direction",
         json.dumps(out["by_direction"], indent=2),

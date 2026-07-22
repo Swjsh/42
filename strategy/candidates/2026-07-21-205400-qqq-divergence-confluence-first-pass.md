@@ -122,3 +122,63 @@ research tool + analysis output).
 disclosure #3's confound (reclaimed AND failed both beat none — may be a trend-day/
 volatility proxy, not pure QQQ-specific confirmation) is a genuine open question the funded
 follow-up must resolve before this graduates past "worth funding" to "worth wiring."
+
+---
+
+## ADDENDUM 2026-07-22 (conductor, AFTERHOURS, acting as chef) — disclosure #3's confound
+check RUN, per this doc's own "Next step" instruction (confound FIRST, before funding).
+
+**Method:** added `realized_vol_for_signal()` (population stdev of bar-to-bar SPY simple
+returns over the trailing 20 bars strictly BEFORE `entry_ts` — same no-look-ahead
+convention as the QQQ label itself, guarded by 4 new tests) and
+`confound_check_by_volatility()` to `backtest/tools/qqq_divergence_confluence_study.py`.
+Splits the usable population at the median realized-vol into LOW/HIGH halves, then
+recomputes the reclaimed-vs-none mean spread WITHIN each half. If the spread only exists
+in one half, the pooled result is a volatility-regime proxy, not QQQ-specific confirmation.
+
+**Result (`analysis/recommendations/qqq-divergence-confluence-study.json` →
+`confound_check_realized_vol`):**
+
+| Vol half | n_total | n_reclaimed | n_none | mean reclaimed | mean none | spread |
+|---|---|---|---|---|---|---|
+| low_vol  | 126 | 8  | 108 | +0.886 | +0.060 | **+0.826** |
+| high_vol | 124 | 13 | 94  | +1.205 | +0.073 | **+1.132** |
+
+**Verdict: `SPREAD_SURVIVES_VOL_CONTROL`** — the reclaimed-vs-none advantage is POSITIVE
+and of similar magnitude in BOTH the low- and high-realized-volatility halves of the
+population (in fact slightly larger in the high-vol half, the opposite of what a pure
+"QQQ was just more active that day" artifact would predict, which would collapse the
+spread specifically in the low-vol half where there's less room for any structure to
+matter). This is evidence AGAINST the trend-day/volatility-proxy explanation disclosure #3
+raised — the effect looks more like genuine QQQ-specific structural agreement than a
+volatility confound.
+
+**Honest caveat (does not fully resolve, only strengthens):** `n_reclaimed` per half is
+thin (8 and 13 — both individually below the `probe_stats.INCONCLUSIVE_MIN_N=10` floor
+used elsewhere in this doc; only the POOLED n=21 clears it). A volatility-median split is
+also a coarse binary control, not a continuous regression — it rules out "the effect is
+driven entirely by one volatility regime" but does not rule out a more subtle
+volatility-weighted confound. Treat this as raising confidence from 6/10 to **7/10**, not
+as a final clearance.
+
+**Decision per this doc's own pre-committed gate:** `next_step` now reads
+`QQQ_AGREEMENT_INFORMATIVE` AND `SPREAD_SURVIVES_VOL_CONTROL` → **the full real-fills
+replay is now justified to fund** (both pre-conditions this doc set for itself are met).
+NOT executed this fire (scope discipline — a per-strike real-OPRA replay across 250
+signals is a materially heavier, separate task with its own budget, matching the same
+discipline this doc itself used when it deferred the confound check last time). Filed as
+`QQQ-DIVERGENCE-REALFILLS-REPLAY` in `automation/overnight/queue.md` for a dedicated future
+chef fire.
+
+Guards: `backtest/tests/test_qqq_divergence_confluence_study.py` 17/17 PASS (8 new:
+`TestRealizedVolNoLookAhead` ×4, `TestConfoundCheckByVolatility` ×4), RED-proofed via the
+rename/restore technique (checked out the pre-edit HEAD version of both files, confirmed
+the exact expected `ImportError: cannot import name 'realized_vol_for_signal'` on
+collection, restored the new versions, re-verified 17/17 green — no `git stash` used, per
+C34/L228/L238). Broader sweep (`test_qqq_divergence_confluence_study` +
+`test_ribbon_rejection_wick` + `test_structure_stop_study`) → 47/47 PASS. Curated safety
+gate (`backtest/tests/run_safety_gate.py`, 31+5 suites) PASS. Zero trading-path files
+touched (pure research tool + guard tests + this doc + queue.md — no
+params/heartbeat_core/filters/placement/exit edits); ships per OP-22/OP-25/OP-26 without J
+ratification. **Revert:** `git revert <commit>` (2 files changed, purely additive
+function/test additions — no existing function bodies altered).

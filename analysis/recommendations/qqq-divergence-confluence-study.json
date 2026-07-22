@@ -1,6 +1,6 @@
 {
   "_doc": "qqq_divergence_confluence_study.py -- FIRST-PASS proxy information test for the\nprospector's cross_asset_signals finding (chef-inbox 2026-07-11 --\n`2026-07-11-prospector-qqq_divergence_confluence.md`; spec source:\nmarkdown/planning/CROSS-TICKER-BRAINSTORM-2026-07-10.md, \"battery-ready\").\n\nQUESTION: does QQQ's own simultaneous structural behavior at a SPY ribbon_ride signal's\nentry timestamp (did QQQ ALSO reclaim its own recent N-bar high [bull] / break its own\nrecent N-bar low [bear], or fail to, or do neither) predict whether the SPY signal\ncontinues in its intended direction over the next 30 minutes?\n\nWHY A PROXY, NOT THE FULL REAL-FILLS REPLAY (disclosed per OP-20 -- do not oversell this):\nthe canonical 250-signal cohort (`_signal_cache.load_or_build_signals()`) has no $ P&L\nattached without running the full per-strike real-OPRA replay\n(`ribbon_ride_strike_exit_ab.py::replay_cell`, ~250 signals x per-strike option-chain\nfetch/replay) -- a legitimate but SEPARATE, heavier task the 2026-07-21 chef-inbox note\nexplicitly deferred to \"a future chef fire with its own budget.\" Per the BACKTESTING-\nPLAYBOOK 5-stage grinder (cheap synthetic screen BEFORE expensive real-fills validation),\nthis script answers the cheaper prior question first: does a QQQ agreement/disagreement\nlabel carry ANY information about SPY's own forward spot continuation? If this first pass\nshows nothing, the expensive real-fills wiring is not worth funding. If it shows a real\nsplit, THAT is the evidence to fund the full pipeline next.\n\nMEASURED vs MODELED: QQQ bars + SPY bars are real market data (Alpaca SIP/cached CSV), but\nthe \"outcome\" is a spot-return proxy, NOT a $ P&L and NOT a real fill. This result is NOT\neligible for conductor-proposals.jsonl / wiring on its own (OP-11's OOS+WF+anchor+A/B bar\ndoes not apply to a spot-return information test) -- it is a funding decision for the next,\nheavier study.\n\nNO LOOK-AHEAD (C6): QQQ's own N-bar high/low as of a signal's entry_ts is computed from\nQQQ bars STRICTLY BEFORE entry_ts. The reclaim/failure label is assigned by reading the\nentry bar (the first QQQ bar with timestamp >= entry_ts) against that PRIOR window only --\nnever a bar that closes after the label is assigned. `qqq_label_for_signal()` is the one\nplace this happens; guarded by backtest/tests/test_qqq_divergence_confluence_study.py.\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/qqq_divergence_confluence_study.py\n",
-  "generated_at": "2026-07-21T18:50:32.409639",
+  "generated_at": "2026-07-22T14:49:37.513395",
   "signal_cohort": {
     "source": "_signal_cache.load_or_build_signals()",
     "window": "2025-01-01..2026-06-18",
@@ -57,6 +57,29 @@
     }
   },
   "reclaimed_vs_other_mean_spread": 0.9606,
+  "confound_check_realized_vol": {
+    "status": "OK",
+    "median_realized_vol": 0.000596,
+    "halves": {
+      "low_vol": {
+        "n_total": 126,
+        "n_reclaimed": 8,
+        "n_none": 108,
+        "mean_reclaimed": 0.8863,
+        "mean_none": 0.0604,
+        "reclaimed_vs_none_spread": 0.8259
+      },
+      "high_vol": {
+        "n_total": 124,
+        "n_reclaimed": 13,
+        "n_none": 94,
+        "mean_reclaimed": 1.2046,
+        "mean_none": 0.0728,
+        "reclaimed_vs_none_spread": 1.1318
+      }
+    },
+    "verdict": "SPREAD_SURVIVES_VOL_CONTROL"
+  },
   "verdict": "QQQ_AGREEMENT_INFORMATIVE",
-  "next_step": "If verdict == QQQ_AGREEMENT_INFORMATIVE: fund the full real-fills replay (ribbon_ride_strike_exit_ab.py-class per-strike OPRA replay, stratified by qqq_label) before any wiring proposal. If NO_SIGNAL or INVERSE: do not fund the expensive replay; close the chef-inbox item as explored-and-not-promising."
+  "next_step": "If verdict == QQQ_AGREEMENT_INFORMATIVE AND confound_check_realized_vol.verdict == SPREAD_SURVIVES_VOL_CONTROL: fund the full real-fills replay (ribbon_ride_strike_exit_ab.py-class per-strike OPRA replay, stratified by qqq_label) before any wiring proposal. If the confound check COLLAPSES the spread in either volatility half: the pooled result is likely a trend-day/volatility proxy, not QQQ-specific confirmation -- do not fund the expensive replay on this evidence alone; a volatility-regime feature (not a QQQ-agreement feature) would be the more honest candidate if one is pursued at all. If NO_SIGNAL or INVERSE: do not fund the expensive replay; close the chef-inbox item as explored-and-not-promising."
 }

@@ -1,6 +1,6 @@
 # QQQ divergence/confluence -- first-pass information test
 
-Generated 2026-07-21T18:50:32.409639. Verdict: **QQQ_AGREEMENT_INFORMATIVE**.
+Generated 2026-07-22T14:49:37.513395. Verdict: **QQQ_AGREEMENT_INFORMATIVE**.
 
 ## Method (disclosed proxy, NOT a real-fills P&L study)
 - QQQ own-level window: 20 bars
@@ -16,6 +16,31 @@ Generated 2026-07-21T18:50:32.409639. Verdict: **QQQ_AGREEMENT_INFORMATIVE**.
 - **none** (n=202): mean aligned return=0.0662, median=-0.0175, %positive=48.5%, n=202 >= 10: sample sufficient
 
 ## Reclaimed vs other mean spread: 0.9606
+
+## Confound check -- does the spread survive a realized-volatility control?
+{
+  "status": "OK",
+  "median_realized_vol": 0.000596,
+  "halves": {
+    "low_vol": {
+      "n_total": 126,
+      "n_reclaimed": 8,
+      "n_none": 108,
+      "mean_reclaimed": 0.8863,
+      "mean_none": 0.0604,
+      "reclaimed_vs_none_spread": 0.8259
+    },
+    "high_vol": {
+      "n_total": 124,
+      "n_reclaimed": 13,
+      "n_none": 94,
+      "mean_reclaimed": 1.2046,
+      "mean_none": 0.0728,
+      "reclaimed_vs_none_spread": 1.1318
+    }
+  },
+  "verdict": "SPREAD_SURVIVES_VOL_CONTROL"
+}
 
 ## By direction
 {
@@ -34,4 +59,4 @@ Generated 2026-07-21T18:50:32.409639. Verdict: **QQQ_AGREEMENT_INFORMATIVE**.
 }
 
 ## Next step
-If verdict == QQQ_AGREEMENT_INFORMATIVE: fund the full real-fills replay (ribbon_ride_strike_exit_ab.py-class per-strike OPRA replay, stratified by qqq_label) before any wiring proposal. If NO_SIGNAL or INVERSE: do not fund the expensive replay; close the chef-inbox item as explored-and-not-promising.
+If verdict == QQQ_AGREEMENT_INFORMATIVE AND confound_check_realized_vol.verdict == SPREAD_SURVIVES_VOL_CONTROL: fund the full real-fills replay (ribbon_ride_strike_exit_ab.py-class per-strike OPRA replay, stratified by qqq_label) before any wiring proposal. If the confound check COLLAPSES the spread in either volatility half: the pooled result is likely a trend-day/volatility proxy, not QQQ-specific confirmation -- do not fund the expensive replay on this evidence alone; a volatility-regime feature (not a QQQ-agreement feature) would be the more honest candidate if one is pursued at all. If NO_SIGNAL or INVERSE: do not fund the expensive replay; close the chef-inbox item as explored-and-not-promising.
