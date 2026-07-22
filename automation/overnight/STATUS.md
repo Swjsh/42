@@ -1,3 +1,87 @@
+## [2026-07-22 ~07:48-07:58 ET] OK -- conductor (AFTERHOURS): prospector concept-family dedupe (root-cause fix), commits `a4368bd` + `cdcd48f`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55 prior day).
+> `self-check-last.json` GREEN (PDT both accounts OK, safe cash-settlement $1,581.62,
+> bold day-trades 1/3 used). Self-audit gaps: all triaged through 2026-07-22, nothing
+> new (re-verified). `task_scorer.py --top` again surfaced only the J-decision-gated
+> `MORNING-BULL-QUALITY-GATE-RECONSIDER`, correctly skipped. `queue.md` has 0 open HIGH
+> items. Author-inbox order: validator/lesson-inbox empty, skill-inbox only a
+> correction-queue log -> `_chef-inbox` next (priority-5). Oldest open item
+> (`2026-07-10-prospector-volume_shelf_tv_vp.md`, canonical VPVR item, its own noted
+> next step) needs `tradingview`-prefixed MCP tools -- confirmed NOT present in this
+> fire's tool surface (contradicts a prior fire's note that they were), so that exact
+> next step stayed blocked.
+
+> **What shipped instead (real finding, not a punt):** while surveying the 12 open
+> chef-inbox items to find the next actionable one, found **5 independent VIX1D items**
+> and **3 independent Volume-Profile/VPVR items** each promoted under a UNIQUE
+> dedupe_key (swarm re-phrases the same concept per beat/model; `dedupe_key =
+> beat:slugify(idea_text,40)` is exact-wording-only, so `already_promoted_from_inbox`'s
+> tail-match never catches a re-worded re-ask). Root-caused and fixed IN THE PRODUCER:
+> added `FAMILY_KEYWORDS` + `family_already_covered()` to `setup/scripts/prospector.py`
+> -- a hand-curated keyword-family second dedupe layer, wired into `promote_top1`
+> (folds into an existing open-or-.DONE chef-inbox item instead of writing a fresh
+> file); `queue_ping`/`write_last_json`/state counters (`folded_total`) updated for
+> honest visibility. Retroactively folded the 2 live open duplicates this fire found
+> (2026-07-21 VIX1D-swarm item -> canonical `2026-07-09-prospector-vix1d_gate.md.DONE`,
+> already answered NO_CANDIDATE_CLEARS_BAR_YET by `vix1d_gate_probe.py` commit
+> `6f90576`; 2026-07-22 VPVR item -> canonical `2026-07-10-prospector-volume_shelf_tv_vp.md`,
+> still open/TV-blocked) with fold-provenance notes, `.DONE`-renamed both.
+
+> **Verified this fire (OP-33):** `pytest backtest/tests/test_prospector.py -q` 64/64
+> PASS (12 new: `test_idea_family_*` incl. a negative case, `test_family_already_
+> covered_*` incl. README-exclusion + no-existing-match + open-vs-.DONE matching,
+> `test_promote_top1_folds_family_duplicate_instead_of_repromoting` +
+> `test_promote_top1_still_writes_new_file_for_family_less_idea` pinning BOTH the
+> fold path AND that a genuinely novel idea still promotes normally) BEFORE
+> committing; first commit's pre-commit hook ran 31 tests + curated 5-suite safety
+> gate, both PASS; second (lesson-inbox-only) commit's hook also PASS. `git diff
+> --cached --stat` confirmed exactly 4 files staged for commit 1 (the 2 code/test
+> files + the 2 renamed `.DONE` fold notes, none of the OTHER 3 unrelated open
+> chef-inbox items sitting untracked alongside them) before committing, `git show
+> --stat HEAD` post-commit confirmed the same 4 landed and nothing stray (L239
+> discipline).
+
+> **Trading-path scope:** zero trading-path files touched (research-organ dedupe
+> logic + guard tests + 2 inbox fold notes + 1 lesson-inbox item only -- no params/
+> heartbeat_core/filters/placement/exit). No guard/revert/REVOKE needed under rail 4
+> beyond the guard tests already shipped with the change. **Revert:** `git revert
+> cdcd48f a4368bd` (fully additive; folding the 2 duplicates back open is a
+> non-functional annotation revert).
+
+> **Learn (STAGE 4.5):** filed `strategy/candidates/_lesson-inbox/2026-07-22-
+> prospector-exact-dedupe-key-misses-reworded-family-duplicate.md` for lesson-author
+> to graduate into the next `L##` -- generalizes to any LLM-fed inbox that dedupes by
+> an exact key derived from the LLM's own (paraphrase-variant) wording.
+
+> **Queue state:** chef-inbox now has 10 open prospector items (was 12, -2 folds, no
+> new promotions this fire). Next fire should pick the next-oldest genuinely-open item
+> (`2026-07-11-prospector-auto-support-resistance-zones-community-.md` or
+> `2026-07-11-prospector-market-profile-tpo-...md`) if nothing higher-priority
+> surfaces -- both are TV-MCP-dependent too, so check tool surface again before
+> picking; if still absent, skip to a non-TV item (CFTC/FINRA/alpha-vantage/polygon/
+> OFI family, all free-data-only). `queue.md` retention-cap consolidation still noted,
+> not actioned (unchanged from last fire).
+
+> **Cost: ~$3.5** (STAGE 0/1 reads, engine-health/self-check/self-audit/task_scorer/
+> 4-inbox survey, chef-inbox duplicate-family investigation via ideas-ledger.jsonl
+> query, reading prospector.py's promote_top1/already_promoted_from_inbox +
+> test_prospector.py for pattern, writing the fix + 12 guard tests + 2 commits with
+> pre/post verification, 1 lesson-inbox item, this STATUS update).
+
+> **Outcome metric:** `conductor_outcome.py metric` flagged `trend: "regressing"`
+> (`function_score_avg` 35.0, driven by 2026-07-21's 18-ENTER/1-accepted funnel ratio,
+> same day two prior fires this window already dug into). Re-ran `fill_funnel.py
+> --date 2026-07-21` fresh rather than trusting the stale flag: **[GREEN]**, unchanged
+> from the prior fires' finding (core:safe 17->1 is the already-open-position
+> re-eval-tick pattern, not 17 failed attempts; core:bold 1->0 is the documented
+> informational pattern). No new funnel break -- the "regressing" trend is a known,
+> already-explained artifact of the raw-ratio scoring, not a fresh problem; next
+> trading-day data will refresh it. Flagging per instructions rather than silently
+> re-verifying and moving on.
+
+---
+
 ## [2026-07-22 ~05:48-06:20 ET] OK -- conductor (AFTERHOURS): chef-inbox FRED 10Y-2Y yield-curve gate feasibility screen, commit `8ec7fde`
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `self-check-last.json`
@@ -688,3 +772,10 @@
 
 ---
 
+
+- [2026-07-22 04:00:02] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+[2026-07-22 04:00:02] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-22.md
+
+## Kitchen
+Kitchen: alive, queue 27 pending, last cook 0 min ago, today $0.00, model=grinder-python
