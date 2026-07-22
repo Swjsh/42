@@ -1,4 +1,97 @@
-## [2026-07-21 ~21:12-21:16 ET] OK -- conductor (AFTERHOURS): FIXED self-check BROKEN -- dress-rehearsal false-RED on Alpaca open-orders listing lag, commit `d6cc86a`
+## [2026-07-21 ~22:12-22:38 ET] OK -- conductor (AFTERHOURS): closed stale T-VWAPCONT-AB-VALIDATE queue item (already shipped + reconfirmed), commit `7f2ee9c`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `fill_funnel.py` GREEN
+> (core:safe 2 fills/2 exits today, core:bold 1 ENTER->0-attempt correctly excluded as SKIP_LATE_ENTRY).
+> `self-check-last.json` DEGRADED on the same pre-existing non-load-bearing TRENDLINE-DRAW visibility
+> flag (unchanged). Self-audit gaps: the 2026-07-21T17:31:28 batch already TRIAGED, nothing new.
+> `task_scorer.py --top` again surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (J-decision-gated,
+> correctly skipped). Author inboxes: lesson-inbox 3 items / chef-inbox 14 (both lower priority than
+> a ready queue item). Searched `queue.md` for genuinely open (`status:open`) items across the whole
+> ~2,500-line file (grep, not a full read -- file is 524KB) and found only 2: `T-AUDIT-TAIL`
+> (already deprioritized by a prior fire, left as-is) and `T-VWAPCONT-AB-VALIDATE` (filed 2026-07-07,
+> read as "running... if CLEARS ship via guard+revert+REVOKE" -- looked genuinely open).
+
+> **What I found:** the A/B validation this item was waiting on had ALREADY completed and shipped
+> the same week it was filed -- `vwapcont-exit-ab-ship-gate.json` (2026-07-07) verdict SHIP, all 5
+> OP-22 gates PASS (parity/OOS-beats-current $75.47 vs $66.83, WF=1.62, 6/6 quarters stable, anchor
+> edge_capture 82.04 vs 44.52, drop-top3 +$45.86). The queue entry's own "status:open" was simply
+> never updated after the ship -- another instance of tonight's recurring T-AUDIT-cluster class
+> (verified-shipped work sitting open, competing for future fires' attention against real unstarted
+> work).
+
+> **Verified this fire (OP-33), not just trusted the old scorecard:** `automation/state/params.json`
+> live-read `j_vwap_cont_premium_stop_pct=-0.06` / `j_vwap_cont_tp1_pct=0.4` (doc-stamped
+> `_j_vwap_cont_exit_updated_2026_07_07`); `automation/state/fleet/strategies.py:122`
+> VWAP_CONTINUATION.exit carries the identical shape (both lanes synced, no two-lane drift);
+> `git status --short` on both files clean (zero uncommitted drift), `git log` confirms the shipping
+> commits already landed on HEAD. `pytest backtest/tests/test_vwapcont_exit_ab_ship_gate.py -q` ->
+> **6/6 PASS**, fresh run against the actual working tree. **Bonus finding, not assumed:** the
+> independent 2026-07-09 `vwapcont-entry-exit-matrix.json` (STOP-A ground rule 11, a pre-registered
+> 24-cell grid replayed through the LIVE `exit_manager.plan_exit_actions` decision core, not just
+> `simulate_trade_real`) tried to unseat this exact cell and failed -- its own `control_id:
+> "P1T1F1L1"` IS the shipped -0.06/0.40 shape (`live_cell_as_of_freeze` matches byte-for-byte),
+> verdict **CONTROL-STANDS**: 0/23 wider/looser challenger cells beat it on all 4 pre-registered
+> conditions. This item's own stated CAVEATS ("IS-only, needs OOS confirm") are answered twice over
+> -- once by the ship-gate's OOS split, once by an independent later study that tried to beat it and
+> couldn't.
+
+> **Trading-path scope:** zero trading-path files touched by THIS fire -- the params/strategies.py
+> changes were already committed on 2026-07-07; this fire edited only `automation/overnight/
+> queue.md` (doc-close, not code). No new guard/revert/REVOKE needed (nothing shipped that could
+> regress). Curated safety gate (31+5) PASS pre-commit. **Revert:** `git revert 7f2ee9c` (1 file,
+> fully additive annotation, no functional change).
+
+> **Cost: ~$1.9** (STAGE 0/1 reads, fill_funnel + self-check + task_scorer + self-audit-gap +
+> inbox survey, a targeted grep across the full 524KB queue.md for `status:open` rather than a full
+> read, deep-dive into 3 scorecard JSONs + the live params/strategies.py + git log to independently
+> re-verify the ship (not just trust the old note), pytest run, commit + this STATUS/queue update).
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed). `fill_funnel.py` GREEN (safe 2
+> fills/2 exits, bold 0-attempt informational). `self-check-last.json` DEGRADED on the
+> pre-existing non-load-bearing TRENDLINE-DRAW visibility flag only (unchanged from earlier
+> fires). `task_scorer.py --top` again surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER`
+> (J-decision-gated, correctly skipped). Self-audit gaps: nothing new since the last triaged
+> batch. Author inboxes: lesson-inbox has 3 unactioned items, chef-inbox 14 — lower priority
+> than a ready queue item this fire. Surveyed `queue.md` HIGH items: `DOJO-BUILD-HANDOFF`
+> confirmed NOT pickable again (this session's tool set has zero TradingView MCP tools, only
+> Alpaca account/position/clock + file/bash — matches the prior fire's own note, not
+> re-derived blind). Found `T-AUDIT-01..05` (an 2026-07-07 audit-fix cluster) sitting
+> unclosed despite their own fix comments dated 2026-07-07/08.
+
+> **What shipped:** re-verified all 4 non-policy items (T-AUDIT-02/03/04/05) against LIVE
+> code before closing, not just trusting the old note: (a) expired-level filter —
+> `heartbeat_core.py:376` `FIX2 (2026-07-07)` skips any level whose `expires_at` predates
+> today, fail-open on missing/unparseable; (b) fill reconciliation — `heartbeat_core.py:1170`
+> `_reconcile_fill` `FIX3 (2026-07-07)` polls the placed order to a terminal state
+> (bounded retries, 3s hard cap) instead of leaving it `pending_new`/`filled_qty=0` forever;
+> (c) `fill_funnel.py` false-RED — `NOT_FLAT`/`SKIP_*`/`RISK_DENY_*` explicitly excluded from
+> `attempted` (2 rounds, 07-07 + 07-08); live run tonight confirms GREEN; (d) `time_stop_et` —
+> `heartbeat_core.py:987` passes `params.get("time_stop_et")` through to
+> `exit_actuator.manage_tick` -> `exit_manager.parse_time_stop_et`, confirmed NOT hardcoded
+> 15:50 (`params.json:39` carries `"15:40"` live). **T-AUDIT-05's own "EVIDENCE WAS TRUNCATED
+> -- re-verify grep before fixing" instruction was followed literally** — the re-verify
+> proved the fix already shipped, not that it needed (re-)building.
+
+> **Verified this fire (OP-33):** `pytest -k time_stop -q` -> 26 passed;
+> `pytest -k audit_fix -q` -> 36 passed (both fresh runs against the actual working tree, not
+> assumed from the old fix comments). No code changed — this is a pure queue-hygiene closure
+> (OP-22 compound-don't-accumulate): the cluster was fixed weeks ago and never pruned, so
+> every subsequent conductor fire was re-reading (and now correctly re-skipping) already-dead
+> work. `T-AUDIT-01` (a genuine manual-vs-engine coexistence POLICY fork) correctly left
+> `awaiting-j-ratification` — not something a conductor fire decides. `T-AUDIT-TAIL`
+> (recover a truncated old synthesis run) left open but downgraded — its own worry (more
+> undelivered items in that cluster) is moot now that 02-05 are confirmed closed.
+
+> **Trading-path scope:** zero trading-path files touched — this fire edited only
+> `automation/overnight/queue.md` (documentation/state, not code). No guard/revert/REVOKE
+> needed (nothing shipped that could regress). **Revert:** `git revert f17f054` (1 file,
+> fully additive annotation, no functional change).
+
+> **Cost: ~$1.7** (STAGE 0/1 reads, grepping 4 code paths to re-verify each fix live, 2 pytest
+> runs, the queue.md edit, commit, this STATUS/queue update).
+
+---
+
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed). `task_scorer.py --top` again
 > surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still J-decision-gated, correctly skipped).
@@ -605,63 +698,6 @@
 
 ---
 
-## [2026-07-21 ~09:12-09:26 ET] OK -- conductor (AFTERHOURS): ACTUATOR-RESOLVE-DUP-ID-FAIL-LOUD shipped (L207 defense-in-depth), commit `f60da48`
 
-> **STAGE 0/1:** engine-health GREEN (13/13, market not yet open -- fired ~09:12-09:26 ET, before
-> the 09:30 gate; STAGE 0's market-hours check only blocks 09:30<=ET<15:55, so this window is
-> legitimately open work time, same as any other pre-open minute). `task_scorer.py --top` again
-> surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still correctly J-decision-gated). Self-audit
-> gaps file has no un-actioned tail (last batch 07-18, already closed). Read every open HIGH
-> queue.md item: all either blocked on organic data accrual (EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT
-> -- n too small, correctly DEFER-INSUFFICIENT-DATA, not re-chaseable this fire), too broad for
-> one bounded fire by the filer's own framing (WSCRIPT-FIRE-AND-FORGET-AUDIT), or big multi-fire
-> architecture builds (DOJO-BUILD-HANDOFF needs live TV MCP tools not in this fire's tool set;
-> ENGINE-VECTORIZATION/GATE-TIERS-IMPLEMENT). Investigated WSCRIPT-FIRE-AND-FORGET-AUDIT's two
-> sub-options first (redirect stdio per-task vs a generic freshness-ratchet loop) and found the
-> `_exec` blocking-vbs variants that already solve the launcher problem exist but are unwired
-> from ~14 tasks -- flagged as a genuine but Task-Scheduler-touching change, correctly left for a
-> dedicated fire rather than forced here. Dropped to `ACTUATOR-RESOLVE-DUP-ID-FAIL-LOUD` (LOW,
-> ready, engine-benefit) -- a well-scoped, already-diagnosed (L207) hardening with a named fix.
-
-> **What shipped:** `autonomy_actuator.py` resolved "the row for this proposal_id" via THREE
-> incompatible mechanisms (not the two L207 originally named) -- `sync_companion_approvals`'s
-> dict-comprehension (last-wins), `revert`'s `next()`-scan (first-wins), and `_set_status`'s
-> for-loop-with-break (a third, distinct first-wins shape, found while fixing this). Added ONE
-> shared `resolve_proposal(pid, rows)` + `DuplicateProposalError`, routed through all three call
-> sites. A terminal+active duplicate (e.g. a harmless `promote_keeper` re-emission) now resolves
-> to the ACTIONABLE row regardless of file order -- the old first-wins scans could have silently
-> mutated a terminal sibling instead of the live one; two genuinely ACTIVE rows sharing an id now
-> raise loud instead of silently picking one; `sync_companion_approvals` catches the exception
-> per-decision (logs `duplicate_id_blocked`, skips only that id) so one collision can't stall the
-> rest of a companion-approval sync batch.
-
-> **Verified this fire (OP-33):** new `backtest/tests/test_resolve_proposal.py` (10 tests)
-> RED-proofed via `git stash` on `autonomy_actuator.py` alone -- 9/10 failed against the pre-fix
-> module with the exact expected `AttributeError` (no `resolve_proposal`/`DuplicateProposalError`
-> yet), `git stash pop` restored cleanly, re-verified 44/44 green across the full actuator test
-> family (`test_resolve_proposal` + `test_autonomy_actuator` + `test_proposal_id_uniqueness` +
-> `test_autonomy_auto_approve` + `test_actuator_recency_gate`). Curated safety gate (31+5,
-> pre-commit hook) PASS. `git ls-tree HEAD` confirms all 3 files (actuator, new test,
-> LESSONS-LEARNED.md) landed on HEAD, not just staged -- not just claimed from a green pytest run.
-> L207 updated with a SHIPPED note (was "owed defense-in-depth", now done).
-
-> **Rail-4 CLEAR** (as the item itself flagged): zero `params.json`/`heartbeat_core.py`/
-> `filters.py`/placement/exit code touched -- `autonomy_actuator.py` only ever edits those files
-> THROUGH its own gated `apply_ops` + safety-gate + snapshot path, never directly; this fix is to
-> the approval-bus plumbing around that path. **Revert:** `git revert f60da48` (3 files, additive
-> + one doctrine-doc edit, no data loss).
-
-> **Cost: ~$4.9** (STAGE 0/1 reads incl. task_scorer + full HIGH-tier queue review + WSCRIPT
-> sub-investigation that was correctly NOT acted on, engine_health.py/self_check.py/vbs-launcher
-> reads, autonomy_actuator.py code read + root-cause trace of the third resolution mechanism, fix
-> + 10 new guard tests, RED-proof round-trip, 5-file regression sweep, curated safety gate, commit
-> + `git ls-tree HEAD` verification, L207/queue/STATUS updates).
-
----
-
-
-### DEGRADED: self-check 2026-07-21T21:14:32
+### DEGRADED: self-check 2026-07-21T22:09:56
 - TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-## Kitchen
-Kitchen: alive, queue 50 pending, last cook 0 min ago, today $0.00, model=grinder-python
