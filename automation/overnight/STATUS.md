@@ -1,3 +1,79 @@
+## [2026-07-22 ~17:12-17:23 ET] OK -- conductor (AFTERHOURS): FINRA short-volume chef study run, KILL (clean), commit `67fb80d8`
+
+> **STAGE 0/1:** ET confirmed 17:12->17:23 via `et_clock.py`, Wednesday, market closed since
+> 15:55 (correctly after-hours). `engine-health.json` GREEN (market-closed quiet-OK across
+> the board, kill-switches armed-not-tripped both accounts). `self-check-last.json` DEGRADED
+> only on the same pre-existing non-load-bearing TRENDLINE-DRAW flag (already tracked as
+> `SELFCHECK-TRENDLINE-DRAW-DUPLICATE-SPAM` in queue.md, not re-flagged). `fill_funnel.py`
+> IDLE (after-hours, expected). `task_scorer.py --top` again surfaced only the J-decision-gated
+> `MORNING-BULL-QUALITY-GATE-RECONSIDER` (skipped per precedent). Self-audit gaps: no new batch
+> since 2026-07-21T17:31:28 (already triaged). Queue HIGH tier: scanned every `(HIGH` item in
+> the active backlog -- all CLOSED/done except `DOJO-BUILD-HANDOFF` (Opus-tier, not a sonnet
+> pick). Author inboxes: validator/lesson empty, skill only a correction-queue log, **chef-inbox
+> had 13 open items** (stable vs prior 2 fires) -- picked the oldest data-testable one (TV-MCP
+> items skipped: this session's tool surface does NOT include the tradingview MCP tools despite
+> the injected server instructions mentioning them, so the volume-shelf item's "add TV Volume
+> Profile study" next-step was not executable this fire).
+
+> **What shipped:** froze `analysis/recommendations/finra-short-volume-preregistration.json`
+> BEFORE any fetch (median-split + 5000-draw permutation test methodology, pass bar, no-look-
+> ahead construction). Built `backtest/tools/finra_short_volume_study.py` against FINRA's real,
+> free, no-auth Reg SHO daily short-volume files, joined to cached SPY daily closes (merged
+> `spy_5m_2025-01-01_2026-07-14.csv` + `spy_5m_2026-05-19_2026-07-22.csv`). **Result over 69 real
+> trading days: hypothesis direction NOT confirmed** (high short-ratio days showed a slightly
+> MORE positive next-day return than low, +0.00145 vs +0.00105 -- opposite of the prospector's
+> claim), permutation p=0.8246. **Verdict: KILL** -- clean, honest first-pass screen failure.
+> Closed the chef-inbox item (renamed to `.md.DONE` with full closure note per the standing
+> convention) and the pre-reg (`status: CLOSED_KILL`).
+
+> **Side-find, fixed (not just noted):** first live run returned 0/69 days of FINRA data --
+> looked like a dead data source. Root cause: FINRA's CDN returns HTTP 403 for Python's default
+> `urllib.request` User-Agent (curl/browser UA works against the identical URL). One-line fix
+> (explicit `User-Agent: Mozilla/5.0` header); re-run got 69/69. Strengthened the live smoke
+> test to require a real ratio for a known-valid trading day instead of accepting `None` (the
+> weaker version would have silently passed through this exact bug). Filed as a lesson-inbox
+> candidate (`2026-07-22-finra-cdn-user-agent-block-silent-zero-data.md`) -- several OTHER
+> chef-inbox items use the same raw-CDN-scrape-via-urllib pattern and could hit an identical
+> false-negative "data source is dead" mis-diagnosis.
+
+> **Verified this fire (OP-33):** `pytest backtest/tests/test_finra_short_volume_study.py -q`
+> -> 13/13 PASS (12 pure-function + 1 live network smoke). RED-proofed via file-move (new
+> untracked module -- moved aside, confirmed exact expected `ModuleNotFoundError`, moved back,
+> re-verified 13/13; no `git stash` per the standing C34/L228/L238 discipline for this shared
+> checkout). Broader sweep `pytest backtest/tests/ -k "finra or short_volume"` -> 13/13, 0
+> regressions. Curated safety gate (31+5) PASS (also re-ran automatically via the pre-commit
+> hook). **Caught + fixed a staging bug during this fire's own commit discipline:** an initial
+> `git add` of the renamed `.DONE` chef-inbox file staged only the PRE-edit 23-line content
+> (the `git mv` + a later closure-note `Edit` interleaved such that the first `git add` missed
+> the note) -- caught via `git diff --cached -M --stat` showing `0 insertions/0 deletions` on a
+> rename that should have carried +45 lines, which was the tell; re-ran `git add` on the exact
+> path and confirmed `69 insertions(+), 23 deletions(-)` before committing. `git show --stat
+> HEAD` post-commit confirms exactly 7 files / 473 insertions(+) / 23 deletions(-) landed
+> (renames count as delete+add), matching intent exactly.
+
+> **Rail-4 / trading-path scope:** zero trading-path files touched (research tool + guard tests
+> + candidate docs + queue-adjacent inbox files only -- no params/heartbeat_core/filters/
+> placement/exit). Ships per OP-22/OP-25/OP-26 without J ratification (a KILL verdict has
+> nothing to wire). **Revert:** `git revert 67fb80d8` (1 commit, 7 files, purely additive/
+> rename-only -- no existing function bodies altered elsewhere in the repo).
+
+> **Cost: ~$3.7** (STAGE 0/1 reads across engine-health/self-check/fill-funnel/self-audit-gaps/
+> task_scorer/4-inbox survey/HIGH-tier queue scan, live FINRA curl probe + a real 403-Forbidden
+> debug round-trip, pre-reg write, ~185-line study tool + ~140-line guard-test file, 1 real
+> permutation-test run against live data ($0 network, 69 small file fetches), RED-proof,
+> broader sweep, safety gate x2 (manual + pre-commit hook), a staging-bug catch-and-fix, this
+> STATUS update).
+
+> **`conductor_outcome.py metric` trend: `regressing`** (net_improvement=48/20-fire window,
+> function_score_avg=31.1) -- same pre-existing funnel-attribution quirk flagged in the prior
+> 2 fires (`function_latest` shows `enters_last_trading_day=0`/`orders_accepted=0` despite
+> `fills=3`, because the extra-setup-lane's fills don't route through the ribbon-path's ENTER
+> logging), NOT a new regression this fire caused. Flagging per the standing instruction
+> rather than silently passing it; the underlying counter-scope gap is already a queued
+> next-fire item (see prior fire's note, `~16:42-17:35 ET` entry below).
+
+---
+
 ## [2026-07-22 ~16:42-17:35 ET] OK -- conductor (AFTERHOURS): QQQ divergence confound check run, spread survives volatility control, commit `61a6dcbe`
 
 > **STAGE 0/1:** ET confirmed 16:42, Wednesday, market closed since 15:55 (correctly
@@ -607,256 +683,3 @@
 
 ---
 
-## [2026-07-21 ~22:12-22:38 ET] OK -- conductor (AFTERHOURS): closed stale T-VWAPCONT-AB-VALIDATE queue item (already shipped + reconfirmed), commit `7f2ee9c`
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `fill_funnel.py` GREEN
-> (core:safe 2 fills/2 exits today, core:bold 1 ENTER->0-attempt correctly excluded as SKIP_LATE_ENTRY).
-> `self-check-last.json` DEGRADED on the same pre-existing non-load-bearing TRENDLINE-DRAW visibility
-> flag (unchanged). Self-audit gaps: the 2026-07-21T17:31:28 batch already TRIAGED, nothing new.
-> `task_scorer.py --top` again surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (J-decision-gated,
-> correctly skipped). Author inboxes: lesson-inbox 3 items / chef-inbox 14 (both lower priority than
-> a ready queue item). Searched `queue.md` for genuinely open (`status:open`) items across the whole
-> ~2,500-line file (grep, not a full read -- file is 524KB) and found only 2: `T-AUDIT-TAIL`
-> (already deprioritized by a prior fire, left as-is) and `T-VWAPCONT-AB-VALIDATE` (filed 2026-07-07,
-> read as "running... if CLEARS ship via guard+revert+REVOKE" -- looked genuinely open).
-
-> **What I found:** the A/B validation this item was waiting on had ALREADY completed and shipped
-> the same week it was filed -- `vwapcont-exit-ab-ship-gate.json` (2026-07-07) verdict SHIP, all 5
-> OP-22 gates PASS (parity/OOS-beats-current $75.47 vs $66.83, WF=1.62, 6/6 quarters stable, anchor
-> edge_capture 82.04 vs 44.52, drop-top3 +$45.86). The queue entry's own "status:open" was simply
-> never updated after the ship -- another instance of tonight's recurring T-AUDIT-cluster class
-> (verified-shipped work sitting open, competing for future fires' attention against real unstarted
-> work).
-
-> **Verified this fire (OP-33), not just trusted the old scorecard:** `automation/state/params.json`
-> live-read `j_vwap_cont_premium_stop_pct=-0.06` / `j_vwap_cont_tp1_pct=0.4` (doc-stamped
-> `_j_vwap_cont_exit_updated_2026_07_07`); `automation/state/fleet/strategies.py:122`
-> VWAP_CONTINUATION.exit carries the identical shape (both lanes synced, no two-lane drift);
-> `git status --short` on both files clean (zero uncommitted drift), `git log` confirms the shipping
-> commits already landed on HEAD. `pytest backtest/tests/test_vwapcont_exit_ab_ship_gate.py -q` ->
-> **6/6 PASS**, fresh run against the actual working tree. **Bonus finding, not assumed:** the
-> independent 2026-07-09 `vwapcont-entry-exit-matrix.json` (STOP-A ground rule 11, a pre-registered
-> 24-cell grid replayed through the LIVE `exit_manager.plan_exit_actions` decision core, not just
-> `simulate_trade_real`) tried to unseat this exact cell and failed -- its own `control_id:
-> "P1T1F1L1"` IS the shipped -0.06/0.40 shape (`live_cell_as_of_freeze` matches byte-for-byte),
-> verdict **CONTROL-STANDS**: 0/23 wider/looser challenger cells beat it on all 4 pre-registered
-> conditions. This item's own stated CAVEATS ("IS-only, needs OOS confirm") are answered twice over
-> -- once by the ship-gate's OOS split, once by an independent later study that tried to beat it and
-> couldn't.
-
-> **Trading-path scope:** zero trading-path files touched by THIS fire -- the params/strategies.py
-> changes were already committed on 2026-07-07; this fire edited only `automation/overnight/
-> queue.md` (doc-close, not code). No new guard/revert/REVOKE needed (nothing shipped that could
-> regress). Curated safety gate (31+5) PASS pre-commit. **Revert:** `git revert 7f2ee9c` (1 file,
-> fully additive annotation, no functional change).
-
-> **Cost: ~$1.9** (STAGE 0/1 reads, fill_funnel + self-check + task_scorer + self-audit-gap +
-> inbox survey, a targeted grep across the full 524KB queue.md for `status:open` rather than a full
-> read, deep-dive into 3 scorecard JSONs + the live params/strategies.py + git log to independently
-> re-verify the ship (not just trust the old note), pytest run, commit + this STATUS/queue update).
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed). `fill_funnel.py` GREEN (safe 2
-> fills/2 exits, bold 0-attempt informational). `self-check-last.json` DEGRADED on the
-> pre-existing non-load-bearing TRENDLINE-DRAW visibility flag only (unchanged from earlier
-> fires). `task_scorer.py --top` again surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER`
-> (J-decision-gated, correctly skipped). Self-audit gaps: nothing new since the last triaged
-> batch. Author inboxes: lesson-inbox has 3 unactioned items, chef-inbox 14 — lower priority
-> than a ready queue item this fire. Surveyed `queue.md` HIGH items: `DOJO-BUILD-HANDOFF`
-> confirmed NOT pickable again (this session's tool set has zero TradingView MCP tools, only
-> Alpaca account/position/clock + file/bash — matches the prior fire's own note, not
-> re-derived blind). Found `T-AUDIT-01..05` (an 2026-07-07 audit-fix cluster) sitting
-> unclosed despite their own fix comments dated 2026-07-07/08.
-
-> **What shipped:** re-verified all 4 non-policy items (T-AUDIT-02/03/04/05) against LIVE
-> code before closing, not just trusting the old note: (a) expired-level filter —
-> `heartbeat_core.py:376` `FIX2 (2026-07-07)` skips any level whose `expires_at` predates
-> today, fail-open on missing/unparseable; (b) fill reconciliation — `heartbeat_core.py:1170`
-> `_reconcile_fill` `FIX3 (2026-07-07)` polls the placed order to a terminal state
-> (bounded retries, 3s hard cap) instead of leaving it `pending_new`/`filled_qty=0` forever;
-> (c) `fill_funnel.py` false-RED — `NOT_FLAT`/`SKIP_*`/`RISK_DENY_*` explicitly excluded from
-> `attempted` (2 rounds, 07-07 + 07-08); live run tonight confirms GREEN; (d) `time_stop_et` —
-> `heartbeat_core.py:987` passes `params.get("time_stop_et")` through to
-> `exit_actuator.manage_tick` -> `exit_manager.parse_time_stop_et`, confirmed NOT hardcoded
-> 15:50 (`params.json:39` carries `"15:40"` live). **T-AUDIT-05's own "EVIDENCE WAS TRUNCATED
-> -- re-verify grep before fixing" instruction was followed literally** — the re-verify
-> proved the fix already shipped, not that it needed (re-)building.
-
-> **Verified this fire (OP-33):** `pytest -k time_stop -q` -> 26 passed;
-> `pytest -k audit_fix -q` -> 36 passed (both fresh runs against the actual working tree, not
-> assumed from the old fix comments). No code changed — this is a pure queue-hygiene closure
-> (OP-22 compound-don't-accumulate): the cluster was fixed weeks ago and never pruned, so
-> every subsequent conductor fire was re-reading (and now correctly re-skipping) already-dead
-> work. `T-AUDIT-01` (a genuine manual-vs-engine coexistence POLICY fork) correctly left
-> `awaiting-j-ratification` — not something a conductor fire decides. `T-AUDIT-TAIL`
-> (recover a truncated old synthesis run) left open but downgraded — its own worry (more
-> undelivered items in that cluster) is moot now that 02-05 are confirmed closed.
-
-> **Trading-path scope:** zero trading-path files touched — this fire edited only
-> `automation/overnight/queue.md` (documentation/state, not code). No guard/revert/REVOKE
-> needed (nothing shipped that could regress). **Revert:** `git revert f17f054` (1 file,
-> fully additive annotation, no functional change).
-
-> **Cost: ~$1.7** (STAGE 0/1 reads, grepping 4 code paths to re-verify each fix live, 2 pytest
-> runs, the queue.md edit, commit, this STATUS/queue update).
-
----
-
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed). `task_scorer.py --top` again
-> surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still J-decision-gated, correctly skipped).
-> `self-check-last.json` read **verdict=BROKEN**: "DRESS-REHEARSAL RED: broker-boundary
-> rehearsal at 2026-07-21T20:45:02 FAILED ... Tomorrow's open is NOT proven." Per STAGE-1
-> priority-2 (Engine RED / STATUS BROKEN outranks every inbox/queue item), this was the fire's
-> task -- a self-check BROKEN on the literal "are we good for tomorrow" instrument is exactly
-> the class this conductor exists to catch before it becomes a missed morning open.
-
-> **Root cause (one sentence):** `check1_options_safe`'s end-state check queried Alpaca's
-> `GET /v2/orders?status=open` listing immediately after the single-order `GET` had already
-> confirmed the probe order canceled -- that list endpoint is backed by a different index than
-> the single-order lookup and can lag it ~1-2s (eventual consistency), so the just-canceled
-> order still showed up as "open" for one query. Evidence: `dress-rehearsal.json` showed
-> `check1_options_bold` GREEN on the byte-identical code path moments later -- same
-> non-determinism, not a real broker-side residue (no genuine order/position leak, verified by
-> re-reading the raw evidence before touching code, per debugging-discipline "read evidence
-> before hypothesizing").
-
-> **What shipped:** `setup/scripts/dress_rehearsal.py` -- end-state open-orders/positions check
-> now retries up to 5x (1.5s apart, `END_STATE_RETRIES`/`END_STATE_RETRY_SLEEP`), same shape as
-> the file's own pre-existing `_flatten_crypto` verify-flat retry pattern, before declaring
-> NOT CLEAN. 3 new guard tests in `backtest/tests/test_dress_rehearsal.py`
-> (`TestEndStateRetryTolerance`): transient staleness clears on retry: GREEN + 3 tries;
-> genuine persistent residue still REDs after `END_STATE_RETRIES` tries (never silently
-> softened -- the whole point of this instrument per its own docstring); the clean case costs
-> only 1 try (no added latency on the common path).
-
-> **Verified this fire (OP-33):** 31/31 pytest PASS on the actual commit + curated safety gate
-> (5-suite) PASS (`[safety-gate] PASS -- curated safety gate (5 suites) green`, quoted from the
-> pre-commit hook output). **Also re-ran the LIVE rehearsal against the real Alpaca paper API**
-> (not just the unit guards) -- `dress_rehearsal.py` now returns `overall=GREEN`, all 4 checks
-> GREEN (was RED on `check1_options_safe`). Re-ran `self_check.py`: verdict moved
-> **BROKEN -> DEGRADED** (only remaining item is the pre-existing, self-described
-> non-load-bearing TRENDLINE-DRAW visibility flag -- unrelated, not this fire's scope).
-> Tomorrow's 2026-07-22 open **is now proven** by the instrument built for exactly that purpose.
-
-> **Trading-path scope:** touches `setup/scripts/dress_rehearsal.py` (a paper-account
-> pre-flight PROBE script, not the live placement/exit path itself -- `heartbeat_core.py` was
-> read-only imported, never edited) + its guard + the refreshed live artifact. Ships as an
-> infra/engine-benefit fix (rail 1 priority-2 CRITICAL class) with guard test + clean
-> git-revert path, no J ratification needed. **Revert:** `git revert d6cc86a` (3 files:
-> the retry loop, the 3 new guard tests, the artifact refresh -- fully additive/reversible).
-
-> **Cost: ~$1.5** (STAGE 0/1 reads, root-cause read of `dress_rehearsal.py` +
-> `dress-rehearsal.json` raw evidence, the fix, 3 new guard tests authored + iterated to
-> green, live re-run against real Alpaca API to verify the actual fix (not just the mock),
-> self_check re-run, commit + this STATUS/queue update).
-
----
-
-
-### DEGRADED: self-check 2026-07-22T09:39:56
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-22T10:09:56
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-22T10:39:56
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-22T11:09:56
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-22T11:39:56
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-## Kitchen
-Kitchen: alive, queue 31 pending, last cook 0 min ago, today $0.00, model=ollama::qwen3:14b
-
-### DEGRADED: self-check 2026-07-22T12:09:56
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-22T12:39:57
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-22T13:09:56
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-22T13:39:57
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-22T14:09:56
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-22T14:39:56
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-22T15:09:57
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-22T15:39:56
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
-- ts: 2026-07-22T20:00:13+00:00
-- task: eod-summary
-- date_et: 2026-07-22
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-### DEGRADED: self-check 2026-07-22T16:09:57
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
----
-
-## 2026-07-22 ~16:xx ET — conductor (AFTERHOURS): RSI-EXTENSION-BLOCK-ELITE-BULL pre-reg RAN
-
-**Picked via task_scorer.py ranking** (top-ranked MORNING-BULL-QUALITY-GATE-RECONSIDER was
-J-decision-gated + needs a not-bounded-in-one-fire fresh backtest; this HIGH item was the next
-ready, genuinely-executable pick — J's own 2026-07-21 dojo ruling, pre-reg spec already frozen
-in the queue).
-
-Built `backtest/autoresearch/rsi_extension_block_probe.py`: re-ran the CLOSED bull-unblock
-SLICE 1 methodology (`block_elite_bull` True/False real-fills A/B) widened to the latest
-OPRA-cached window (05-21..07-17), computed RSI(14) independently from SPY 5m closes (Wilder,
-no RSI wired into filters.py today), and tested J's pre-registered grid (X/Y/N/Z, BH-FDR q=0.10,
-15 cells, frozen before running).
-
-**Verdict: INCONCLUSIVE_SAMPLE_TOO_SMALL** (removed cohort n=9, still <10). More useful than the
-n-shortfall: at the most permissive grid point only **1 of 9** trades even qualifies as
-"RSI-extended" — 8/9 sit at RSI 47-62, not clearly extended. J's tape-read of the ONE
-2026-07-21 exhibit (RSI 68.8 vs 63.6 + reset) may be correct for that pair but doesn't (yet)
-describe the wider population this data can price. J's own two exhibits fall outside the
-option-cache window (through 07-17 only) so couldn't be individually scored — disclosed, not
-papered over.
-
-Guard `backtest/tests/test_rsi_extension_block_probe.py` 9/9 (pins the verdict, the grid, the
-1/9-population-thinness finding, non-vacuous unit checks on the pure condition + BH-FDR
-functions). Zero regressions: 27/27 across this + 3 sibling bull-unblock probes. Result:
-`analysis/recommendations/rsi-extension-block-elite-bull-2026-07-22.json`.
-
-**Rail-4:** pure research probe (no params/filters/heartbeat/CLAUDE touched) — nothing to
-propose to J since the grid didn't clear; the honest next step is "widen the window as more
-OPRA cache accrues, re-run this EXACT frozen grid" (same standing direction as every other
-bull-frontier thread).
-
-**Queue:** `RSI-EXTENSION-BLOCK-ELITE-BULL` closed `done-inconclusive-widen-data-before-retest`.
-
-**Cost: ~$3.5** (STAGE 0/1 reads across engine-health/STATUS/queue/inboxes/task_scorer, RSI
-primitive discovery (crypto/lib/indicators.py), TradeFill schema read, probe build + one live
-run against real cached OPRA fills, guard test authored + 27/27 verified, queue/STATUS update).
-
-**Autonomy metric this fire:** `trend=regressing` (net_improvement=47/20-window, cost/drained=$1.38,
-function_score_avg=33.7 — enters_last_trading_day=0 today despite fills=3, worth a look by the
-next fire that has function-funnel bandwidth; not investigated further this fire, one bounded
-task already claimed).
-
-### DEGRADED: self-check 2026-07-22T16:39:57
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
-- ts: 2026-07-22T20:45:48+00:00
-- task: analyst
-- date_et: 2026-07-22
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
