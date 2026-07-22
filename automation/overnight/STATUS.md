@@ -1,3 +1,70 @@
+## [2026-07-22 ~03:48-03:56 ET] OK -- conductor (AFTERHOURS): chef-inbox BXM gate feasibility screen, commit `7cab87c`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `self-check-last.json`
+> GREEN (PDT both accounts OK). Self-audit gaps: all triaged through 2026-07-21T17:31:28,
+> nothing new. `task_scorer.py --top` again surfaced only the J-decision-gated
+> `MORNING-BULL-QUALITY-GATE-RECONSIDER`, correctly skipped. `queue.md` has 2788 lines but
+> only 1 `status: open` grep hit (mostly COMPLETED history -- a retention-cap consolidation
+> candidate for a future fire, not actioned this fire to stay bounded). Author-inbox order:
+> validator/lesson-inbox empty, skill-inbox only a correction-queue log -> `_chef-inbox` next
+> (priority-5), oldest open item picked: the 2026-07-10 CBOE BuyWrite Index (BXM) prospector
+> finding.
+
+> **What shipped:** built `backtest/autoresearch/bxm_gate_probe.py` -- tested the BXM
+> prospector claim ("covered-call writing pressure ... can signal short-term volatility
+> compression or expansion ahead of expiry") against ALL 190 real `journal/trades.csv` fills.
+> BXM is a covered-call TOTAL-RETURN price index (non-stationary, trends with SPX) so a raw
+> level-band gate (the VIX1D-probe shape) was the wrong form for the literal ask -- adapted
+> (disclosed substitution, OP-20, not silent) to a 5-day trailing annualized realized-vol-of-
+> BXM-log-returns gate, median-split compressed/elevated, reusing `probe_stats.py`'s canonical
+> significance/concentration/verdict helpers (C14/C17). Confirmed free `^BXM` daily data via
+> yfinance covers the full trade-history window (2026-04-01 through today). Honest result:
+> **NO_CANDIDATE_CLEARS_BAR_YET** -- compressed-half CONCENTRATED (exp $18.42/tr, top-3 days
+> dominate), elevated-half DRY (exp -$5.37/tr), neither walk-forward stable across the
+> chronological half-split. Filed as a screening result (NEEDS-MORE-DATA, not a rejection --
+> n=190/~65 days is still thin). Marked the source chef-inbox item `.DONE`, added leaderboard
+> row 50.
+
+> **Verified this fire (OP-33):** `pytest backtest/tests/test_bxm_gate_probe.py -q` 4/4 PASS
+> (causal prior-day lookback never leaks same-day, malformed-date degrades to None without
+> crashing, realized-vol math pinned against a hand-computed stdev on a synthetic series so a
+> future refactor can't silently drift the formula, end-to-end schema) BEFORE committing;
+> pre-commit hook ran 31 tests + curated 5-suite safety gate, both PASS. `git status --short`
+> on the exact 5 intended paths before staging (L239 discipline -- the first `git add` attempt
+> correctly failed ATOMICALLY on a stale pre-rename pathspec, exactly the class L239 predicts;
+> re-staged with only the post-rename path, verified A/A/A/M/R on the 5 files, zero mixed-in
+> content from the concurrent background daemons rewriting hundreds of other state files this
+> same window); `git show --stat HEAD` post-commit confirms exactly 5 files / 853 insertions,
+> nothing unexpected.
+
+> **Trading-path scope:** zero trading-path files touched (research probe + guard test +
+> leaderboard + inbox rename only -- no params/heartbeat_core/filters/placement/exit). No
+> guard/revert/REVOKE needed under rail 4 beyond the guard tests already shipped with the
+> change. **Revert:** `git revert 7cab87c` (fully additive, no functional trading-path change).
+
+> **Queue state:** chef-inbox now has 12 open prospector items remaining (was 13); next fire
+> should pick the next-oldest (`2026-07-10-prospector-fred-daily-treasury-par-yield-curve-10y-`)
+> if nothing higher-priority surfaces. `queue.md` still has 0 clean HIGH items (only 1
+> `status: open` hit total). **Noted, not actioned this fire:** `queue.md` is 2788 lines /
+> ~530KB -- almost entirely COMPLETED history with only 1 open item left; a future fire should
+> consider an OP-22 retention-cap consolidation/archive pass (same pattern as
+> `STATUS-archive-2026-07.md`) so the file stays a fast read for the next conductor.
+
+> **Post-hoc function check:** `conductor_outcome.py metric` flagged a low `function_score_avg`
+> (33.7) driven by 2026-07-21's 18 ENTER vs 1 accepted-order ratio -- ran `fill_funnel.py
+> --date 2026-07-21` directly to verify (not just trust the aggregate score): verdict
+> **[GREEN]**. core:safe 17->1 is the already-open-position re-eval-tick pattern (not 17
+> failed order attempts -- 1 real attempt, 1 accept, 2 fills, 2 exits, a clean round-trip);
+> core:bold's 1 ENTER->0 attempt matches the already-documented informational pattern from
+> prior fires. No funnel break -- confirmed, not assumed.
+
+> **Cost: ~$2.9** (STAGE 0/1 reads, engine-health/self-check/self-audit-gaps/task_scorer/
+> 4-inbox survey, reading the chef-inbox item + an existing probe for pattern, fetching+caching
+> BXM daily data via yfinance, writing the probe + guard tests, 1 commit with pre/post
+> verification, fill-funnel sanity check, this STATUS update).
+
+---
+
 ## [2026-07-22 ~01:48-02:00 ET] OK -- conductor (AFTERHOURS): chef-inbox VIX1D gate feasibility screen + trades.csv corruption fix, commit `6f90576`
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed). `self-check-last.json` GREEN
@@ -648,4 +715,4 @@
 
 
 ## Kitchen
-Kitchen: alive, queue 42 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 24 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
