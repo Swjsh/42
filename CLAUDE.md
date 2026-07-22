@@ -218,7 +218,7 @@ These are non-negotiable, second only to the 10 rules above.
 
 25. **Autonomous operator — high uptime, J holds the off-switch.** I COMPOUND (curate, prune, ratify), not accumulate. Guards MUST fail open — never kill/block J's interactive session (OP-32 scar: market-hours firewall locked J out 2026-05-22). **Required:** (a) Empty queue → BRAINSTORM from `FUTURE-IMPROVEMENTS.md` + `LESSONS-LEARNED.md` + `mistakes.md` + latest trades → ship 3+ tasks. (b) Market event → write `automation/state/news.json`. (c) New foot-gun → encode in CLAUDE.md/automation → fold L# into Lessons index. **Silent failure is the only true failure** — every fire ships work OR a flagged failure to `STATUS.md ## Known broken`; J always wakes to a SIGNAL.
 
-    **Lessons index** (full prose in [LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md), current through L238). New anti-pattern → add prose there + fold the L# into a row below. Re-violated lesson = missing guardrail → graduate to a code assertion (`backtest/tests/test_graduated_guards.py`).
+    **Lessons index** (full prose in [LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md), current through L239). New anti-pattern → add prose there + fold the L# into a row below. Re-violated lesson = missing guardrail → graduate to a code assertion (`backtest/tests/test_graduated_guards.py`).
 
     | # | Theme | Lessons |
     |---|---|---|
@@ -256,7 +256,7 @@ These are non-negotiable, second only to the 10 rules above.
     | C32 | Capability+data+idle compute != insight unless a fire's job is "generate the hypothesis" | L208 |
     | C33 | Shared gateway/router wires at automation's OWN launch point, never a global default interactive tools inherit | L213 |
     | C34 | Tree-wide git ops in the shared checkout revert live state BACKWARD — untrack decision-gating state; verify via `git ls-tree HEAD` (L233: a silently-reset producer idempotency state floods a downstream author inbox for weeks with zero crash/RED symptom; L238: `git stash` on an untracked file fails silently mid-sequence and an unchained trailing `stash pop` can pop an unrelated session's stash — never use stash in this repo, rename-and-restore instead) | L214,228,233,238 |
-    | C35 | Built+tested+RED-proofed != shipped until committed + on J's REVOKE surface | L221,231 |
+    | C35 | Built+tested+RED-proofed != shipped until committed + on J's REVOKE surface (L239: a multi-path `git add` fails ATOMICALLY if any pathspec is stale — nothing in that call stages, not just the bad path; verify committed content, not just exit code) | L221,231,239 |
 
 31. **The Kitchen — 24/7 autonomous free-tier R&D loop** (keepalive + seeder + reviewer; schedule in SCHEDULED-TASKS). Claude-when-awake = the driver: steer/promote/prune via `kitchen-status.json`. Daemon NEVER touches `heartbeat*`/`params*`/`CLAUDE.md`, NEVER places orders. Spec: [`KITCHEN-SPEC.md`](markdown/infra/KITCHEN-SPEC.md).
 
