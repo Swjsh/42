@@ -139,6 +139,42 @@ def _extract_field(rest: str, key: str) -> str:
     return ""
 
 
+def _extract_field_last(block_text: str, key: str) -> str:
+    """Like ``_extract_field`` but scans an entire (possibly multi-line) item
+    BLOCK for ``::``-delimited ``key:<value>`` chunks and returns the LAST
+    match, not just whatever is on the checkbox's own line.
+
+    WHY: queue.md items are append-only (OP-22) — a closing verdict such as
+    ``status:CLOSED-LANE-B-NO-CELL-SHIPS`` routinely lands several physical
+    lines below the ``- [ ]`` checkbox line, inside later continuation prose
+    (e.g. ``... point here. depends:none :: status:CLOSED-...`` on line 44 of
+    a 33-line item whose checkbox line 14 ends bare at ``::`` with nothing
+    after it). Reading only the checkbox line's own ``rest`` therefore sees
+    status ``""`` — which this module's own ready-rule treats as READY — on
+    an item that is provably closed. Confirmed live 2026-07-22: this exact
+    bug is why ``PULLBACK-HOLD-BULL-TRIGGER`` (status:CLOSED-LANE-B-NO-CELL-
+    SHIPS) still ranked ``ready:true`` at the top of ``--top`` days after
+    closure. Scanning the WHOLE block and taking the LAST match (the most
+    recently appended, hence most current, disposition) fixes this without
+    touching single-line items (where "last" == "only" == the original
+    behavior). Never raises; missing key returns "".
+    """
+    # Bound each ``::``-chunk to its OWN LINE, not the whole block: splitting
+    # ``block_text`` by ``::`` globally lets a field with no LATER ``::`` on
+    # its own line (e.g. a bare ``status:pending`` immediately followed by
+    # unrelated multi-paragraph blockquote prose with no ``::`` at all) bleed
+    # everything after it into the "value" — silently corrupting a clean
+    # "pending" into "pending\n\n> **NOT PICKABLE...(paragraphs)...". Per-line
+    # splitting keeps every field's value correctly terminated at end-of-line.
+    found = ""
+    for raw_line in block_text.splitlines():
+        for chunk in raw_line.split("::"):
+            chunk = chunk.strip()
+            if chunk.lower().startswith(key + ":"):
+                found = chunk[len(key) + 1 :].strip()
+    return found
+
+
 def _recency_explicitly_red(path: Path | None = None) -> bool:
     """True ONLY when the confirm-before-capital headline is readable and
     EXPLICITLY RED (``headline.edges_confirmed_on_recent is False``).
@@ -206,13 +242,21 @@ def _open_item_ids(lines: list[str]) -> set[str]:
     Open = an unchecked ``- [ ]`` item whose status is in OPEN_DEP_STATUSES.
     ``- [x]`` / ``- [~]`` / status:done / unknown-status items are NOT open, so
     dependencies naming them are satisfied.
+
+    Reads status from the item's WHOLE block (see ``_extract_field_last``),
+    not just its checkbox line — the same append-only-prose fix as
+    ``parse_queue``'s status read, applied here so a closed-but-unchecked
+    dependency (e.g. ``status:CLOSED-...`` several lines below the checkbox)
+    correctly stops blocking its dependents instead of appearing perpetually
+    open.
     """
     ids: set[str] = set()
-    for line in lines:
+    for block in _item_blocks(lines):
+        line = block[0]
         m = ITEM_RE.match(line.strip())
         if not m or m.group("check").lower() == "x":
             continue
-        status = _extract_field(m.group("rest"), "status").lower()
+        status = _extract_field_last("\n".join(block), "status").lower()
         if status in OPEN_DEP_STATUSES:
             ids.add(m.group("id"))
     return ids
@@ -313,6 +357,39 @@ def _active_lines(text: str) -> list[str]:
     return out
 
 
+def _item_blocks(lines: list[str]) -> list[list[str]]:
+    """Group active-section lines into per-item blocks.
+
+    A block starts at a ``- [ ]``/``- [x]`` checkbox line and absorbs every
+    following line up to (not including) the next checkbox line or the next
+    ``###``/``##`` header — i.e. all of that item's continuation/append-only
+    prose. Lines before the first checkbox (headers, blockquote preamble) are
+    dropped (they never belonged to any item). Never raises.
+    """
+    blocks: list[list[str]] = []
+    current: list[str] | None = None
+    for line in lines:
+        is_new_item = ITEM_RE.match(line.strip()) is not None
+        is_header = bool(SUBHEADER_RE.match(line)) or (
+            bool(TOP_LEVEL_RE.match(line)) and not SUBHEADER_RE.match(line)
+        )
+        if is_new_item:
+            if current is not None:
+                blocks.append(current)
+            current = [line]
+            continue
+        if is_header:
+            if current is not None:
+                blocks.append(current)
+            current = None
+            continue
+        if current is not None:
+            current.append(line)
+    if current is not None:
+        blocks.append(current)
+    return blocks
+
+
 def parse_queue(text: str) -> list[Task]:
     """Parse the Active-backlog section of a queue.md string into scored Tasks.
 
@@ -323,7 +400,9 @@ def parse_queue(text: str) -> list[Task]:
     active = _active_lines(text)
     # First pass: which item ids are genuinely OPEN (for dependency resolution).
     open_ids = _open_item_ids(active)
-    for line in active:
+    for block in _item_blocks(active):
+        line = block[0]
+        block_text = "\n".join(block)
         try:
             m = ITEM_RE.match(line.strip())
             if not m:
@@ -345,7 +424,13 @@ def parse_queue(text: str) -> list[Task]:
             # (rest already excludes the id+paren; its first chunk is the desc.)
             description = rest.split("::", 1)[0].strip()
 
-            status = _extract_field(rest, "status").lower()
+            # status: scan the WHOLE block (last match wins — see
+            # _extract_field_last docstring) so a closing verdict appended
+            # several lines below the checkbox line is not silently missed.
+            # depends: checkbox-line-only, unchanged (status is the confirmed,
+            # demonstrated bug; widening depends parsing is a separate,
+            # out-of-scope risk — see TASK-SCORER-STATUS-VOCAB-GAP).
+            status = _extract_field_last(block_text, "status").lower()
             depends = _extract_field(rest, "depends")
 
             # Exclusions: bad status, or a still-open dependency = not ready.

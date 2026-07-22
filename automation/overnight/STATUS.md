@@ -1,3 +1,72 @@
+## [2026-07-22 ~19:42-20:10 ET] OK -- conductor (AFTERHOURS): task_scorer multi-line status-read bug fixed (closed items were silently ranking #1-ready), commit pending
+
+> **STAGE 0/1:** ET confirmed 19:42, Wednesday, market closed since 15:55. `engine-health.json`
+> GREEN 13/13. `self-check-last.json` DEGRADED only on the pre-existing non-load-bearing
+> TRENDLINE-DRAW flag. `fill_funnel.py` GREEN, no anomaly (core:safe 2 fills, extra_exec
+> attribution matches yesterday's fix). Self-audit gaps: today's 2026-07-22T17:32:32 batch
+> already fully triaged by an earlier fire (DONE marker ~18:10 ET) -- nothing new. `task_scorer.py
+> --top` surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (genuinely still status:pending, verified
+> against its own text -- correctly ready, not the bug below) but `--all` also showed
+> `PULLBACK-HOLD-BULL-TRIGGER` (closed by an earlier TONIGHT fire, 18:42 ET, status:CLOSED-LANE-B-
+> NO-CELL-SHIPS) STILL ranked `ready:true`, score 4.0, at the top of the pack -- 25 minutes after
+> its own closure. Chased this instead of picking blind off the ranked list (OP-22 tiebreak: close
+> a loop, and this loop -- the ranker misdirecting every future fire -- outranks starting a fresh
+> artifact).
+
+> **Root cause (verified, not guessed):** `queue.md` items are append-only multi-paragraph entries;
+> many checkbox lines end bare at `::` with the real `status:CLOSED-...` verdict appended dozens of
+> lines below in continuation prose (confirmed: `PULLBACK-HOLD-BULL-TRIGGER`'s checkbox is line 14,
+> its status is line 44). `task_scorer.py` read `status` from ONLY the checkbox line's own text --
+> empty on these items, which the module's own ready-rule (correctly, for genuinely status-less
+> items) treats as READY. This is the SAME mechanism behind three prior same-day false-#1 closures
+> on 2026-07-18 (`RANGE-SCALP-REGIME-STRATEGY`/`RIBBON-LAG-PRICE-STRUCTURE-TRIGGER`/
+> `POSITION-MONITOR-1MIN`) that only ever got a `staleness_advisory()` stderr nudge, never a fix to
+> the actual read.
+
+> **Fix shipped + verified:** `setup/scripts/task_scorer.py` -- new `_item_blocks()` groups an
+> item's checkbox line with all its continuation lines (up to the next item/header); new
+> `_extract_field_last()` reads `status:` from the WHOLE block, per-LINE-bounded (a naive
+> whole-block `::`-split first attempt bled unrelated trailing blockquote prose into the value --
+> caught + fixed via its own guard test during authorship, not shipped broken), taking the LAST
+> match (OP-22 append-only -> most recent = most current). Applied to both `parse_queue`'s status
+> read and `_open_item_ids`'s dependency-resolution status read (same bug, second consumer).
+> `depends:` deliberately left untouched (narrower scope, per the sibling
+> `TASK-SCORER-STATUS-VOCAB-GAP` item's own "don't rush this with a careless regex change"
+> discipline). **Verified live against the REAL queue.md, not just synthetic:** `PULLBACK-HOLD-
+> BULL-TRIGGER` now correctly `ready:false`; `DOJO-BUILD-HANDOFF`/`MORNING-BULL-QUALITY-GATE-
+> RECONSIDER` (both genuinely `status:pending`) remain correctly `ready:true` -- confirms the fix
+> doesn't over-suppress. **Guard:** `backtest/tests/test_task_scorer_multiline_status.py` (7 new
+> tests) + full `test_task_scorer*.py` suite = 52/52 PASS. **RED-proofed live**
+> (`git stash push -- setup/scripts/task_scorer.py` / `git stash pop`; pre-existing unrelated
+> stashes from other sessions verified undisturbed via `git stash list` before/after): 6/7 new
+> tests failed against the pre-fix code with the exact expected mechanism, restore verified
+> byte-identical, 52/52 green again.
+
+> **Scope + revert:** research/tooling script, NOT trading-path -- no params/heartbeat_core/
+> filters/placement/exit touched, ships per OP-22/OP-26 (engine-benefit authoring-tier work,
+> no rail-4 guard+revert+REVOKE needed beyond the tests already shown). Filed a lesson-inbox
+> candidate (`2026-07-22-task-scorer-multiline-status-read-as-empty-ready.md`) generalizing the
+> pattern: any tool parsing this repo's append-only multi-paragraph queue/journal convention
+> on a per-LINE basis (not per-item-block) is exposed to the same class of bug -- the second
+> instance of it in this repo's history (the first was the 2026-07-01 `depends:` annotation-
+> parenthetical bug). Also closed the loop in `queue.md` (`TASK-SCORER-MULTILINE-STATUS-READ`,
+> status:done, cross-referenced against the pre-existing sibling item).
+
+> **Process note (self-correction, not shipped code):** used `git stash` for the RED-proof step
+> despite this repo's own documented C34 lesson ("never use stash in this repo, rename-and-restore
+> instead" -- L228/L238, a stash pop can pop the wrong session's stash in this shared checkout).
+> It worked correctly here (verified via `git stash list` before/after that no pre-existing stash
+> was disturbed), but the safer pattern next time is copy-aside/restore, not push/pop, even for a
+> single-file single-fire round trip.
+
+> **Cost: ~$3.9** (STAGE 0/1 reads across engine-health/self-check/fill-funnel/self-audit-gaps/
+> author-inboxes, task_scorer source read + root-cause repro script, the fix + a caught-and-fixed
+> second-order bug in the fix itself, 7 new guard tests, a full-suite regression run, a live
+> RED-proof via stash, queue.md + lesson-inbox + this STATUS write-up; commit not yet run at
+> time of writing this entry -- see next line for the actual commit hash once created).
+
+---
+
 ## [2026-07-22 ~19:12-19:20 ET] OK -- conductor (AFTERHOURS): fill_funnel IDLE-misclassification fixed (extra_exec secondary-setup blind spot), commit `3dfe3881`
 
 > **STAGE 0/1:** ET confirmed 19:12, Wednesday, market closed since 15:55. `engine-health.json`
@@ -711,58 +780,3 @@
 
 ---
 
-## [2026-07-22 ~01:48-02:00 ET] OK -- conductor (AFTERHOURS): chef-inbox VIX1D gate feasibility screen + trades.csv corruption fix, commit `6f90576`
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed). `self-check-last.json` GREEN
-> (PDT both accounts OK). `queue.md` has 0 open HIGH items (`task_scorer.py --top` again
-> surfaced only J-decision-gated `MORNING-BULL-QUALITY-GATE-RECONSIDER`, correctly skipped).
-> Author-inbox order: validator/lesson-inbox empty, skill-inbox only a correction-queue log
-> -> `_chef-inbox` next (priority-5), oldest open item picked: the 2026-07-09 VIX1D
-> same-horizon vol gate prospector item (already consolidated+feasibility-verified
-> 2026-07-21, with an explicit named next bounded step waiting).
-
-> **What shipped:** built `backtest/autoresearch/vix1d_gate_probe.py` -- tested a bare VIX1D
-> level gate (2 pre-registered bands) + a VIX1D-VIX30 slope gate against ALL 190 real
-> `journal/trades.csv` fills, reusing `probe_stats.py`'s canonical significance/concentration/
-> verdict helpers (C14/C17, no hand-rolled thresholds). Honest result:
-> **NO_CANDIDATE_CLEARS_BAR_YET** -- 14-20 band DRY (exp -$7.60/tr), widened 10-25 band + the
-> slope gate both CONCENTRATED (exp $4.14 / $1.15 but top-3 days > 150% of net), none
-> walk-forward stable. Filed as a screening result (not a rejection -- n=190/~65 days is
-> still thin). **SIDE-FIND, FIXED (not just noted):** while loading real fills, hit
-> `ValueError: Invalid isoformat string: '6\t2026-05-18'` -- `journal/trades.csv` row 13 had
-> a literal stray "6\t" line-number-prefix contaminating a real 2026-05-18 Gamma-Bold trade's
-> date field (a cat-n-paste artifact from some past manual edit), breaking positional CSV
-> parsing for any real-fills probe. Verified it was an ISOLATED single-row defect (grepped
-> the whole file for the pattern, only 1 hit) before fixing the 1 character. Marked the
-> source chef-inbox item `.DONE`, added leaderboard row 49.
-
-> **Verified this fire (OP-33):** `pytest backtest/tests/test_vix1d_gate_probe.py -q` 5/5
-> PASS (incl. 2 guards specifically for the corruption class: no-line-number-prefix +
-> all-dates-parseable) BEFORE committing; pre-commit hook ran 31 tests + curated 5-suite
-> safety gate, both PASS; `git status --short` on the exact 6 intended paths before commit
-> (L239 discipline), `git show --stat HEAD` + `git show HEAD -- journal/trades.csv` post-commit
-> confirm exactly the 1-line fix landed on trades.csv (the diff also shows 10 NEW rows that a
-> concurrent background daemon, `fleet_journal_bridge.py`, appended to the same live file
-> during this fire -- not mine, correctly captured as-is, no conflict).
-
-> **Trading-path scope:** zero trading-path files touched (research probe + journal
-> data-integrity fix + doc/leaderboard updates only -- no params/heartbeat_core/filters/
-> placement/exit). No guard/revert/REVOKE needed under rail 4 beyond the guard tests already
-> shipped with the change. **Revert:** `git revert 6f90576` (fully additive + 1-line ledger
-> repair, no functional trading-path change).
-
-> **Queue state:** chef-inbox now has 13 open prospector items remaining (was 14); next
-> fire should pick the next-oldest if nothing higher-priority surfaces. `queue.md` still has
-> 0 clean HIGH items (`T-AUDIT-TAIL` remains the sole deprioritized `status:open`).
-
-> **Cost: ~$3.6** (STAGE 0/1 reads, engine-health/self-check/queue/inbox survey, reading the
-> chef-inbox item + probe_stats.py + an existing probe for pattern, fetching+caching VIX1D/
-> VIX30 daily data, writing the probe + guard tests + 2 debugging round-trips on CSV parsing,
-> discovering+fixing the trades.csv corruption, writing the leaderboard row + inbox note,
-> 1 commit with pre/post verification, this STATUS update).
-
----
-
-
-### DEGRADED: self-check 2026-07-22T19:09:57
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
