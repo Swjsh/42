@@ -1,4 +1,4 @@
-## [2026-07-22 ~19:42-20:10 ET] OK -- conductor (AFTERHOURS): task_scorer multi-line status-read bug fixed (closed items were silently ranking #1-ready), commit pending
+## [2026-07-22 ~19:42-20:10 ET] OK -- conductor (AFTERHOURS): task_scorer multi-line status-read bug fixed (closed items were silently ranking #1-ready), commit `e456f667`
 
 > **STAGE 0/1:** ET confirmed 19:42, Wednesday, market closed since 15:55. `engine-health.json`
 > GREEN 13/13. `self-check-last.json` DEGRADED only on the pre-existing non-load-bearing
