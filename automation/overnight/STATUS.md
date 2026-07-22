@@ -1,4 +1,53 @@
-## [2026-07-22 ~18:12-18:34 ET] OK -- conductor (AFTERHOURS): PULLBACK-HOLD-BULL-TRIGGER Lane-A vocabulary build (shadow-only), commit `94cd4a04`
+## [2026-07-22 ~18:42-19:05 ET] OK -- conductor (AFTERHOURS): PULLBACK-HOLD-BULL-TRIGGER Lane-B CLOSED (honest NO_CELL_SHIPS, 0/36), queue closure + lesson filed, commit `28b51fd7`
+
+> **STAGE 0/1:** ET confirmed 18:42, Wednesday, market closed since 15:55. `engine-health.json`
+> GREEN 13/13 (heartbeat/beacon/watcher quiet-OK, kill-switches armed-not-tripped both accounts).
+> `self-check-last.json` DEGRADED only on the pre-existing non-load-bearing TRENDLINE-DRAW flag.
+> `task_scorer.py --top` again surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER`, but queue.md's
+> own newest HIGH item explicitly reframes it -- checked `PULLBACK-HOLD-BULL-TRIGGER`'s own
+> "next bounded step" note from the prior fire ("pre-register that grid ... and run it") and
+> found `backtest/tools/pullback_hold_bull_replay.py` + its frozen pre-reg + a completed
+> scorecard ALREADY on disk, untracked, file-timestamped seconds before this fire's own reads
+> (a PARALLEL session/agent had built + run the full Lane-B grid concurrently). Per the
+> parallel-Claudes-never-clobber discipline: did NOT redo the build. Independently VERIFIED
+> instead (OP-33) -- exactly the closing-the-loop work this thread needed regardless of who
+> built it.
+
+> **What was verified (not built) this fire:** `pytest backtest/tests/test_pullback_hold_bull.py
+> -q` -> 16/16 PASS. Independently re-ran the full 36-cell grid in background
+> (`python -m backtest.tools.pullback_hold_bull_replay`, ~15min real-fills pricing across
+> 39 OPRA days) -> reproduced `NO_CELL_SHIPS`, `shippable=0/36`, byte-identical top-5 dollar
+> figures (only the `generated_at` timestamp differed -- discarded that no-op diff rather than
+> re-committing noise). Manually recomputed condition-pass counts from raw `all_cells` JSON
+> (not trusted the summary string): 0/36 pass BOTH sanity anchors (anchor_1 -- J's 2026-07-22
+> 10:44-10:53 ET live exhibit -- is missed by EVERY cell because both up-structure confirmation
+> candidates, session-VWAP-crossing and 60-bar market-structure trend, read False at the exact
+> 10:40 ET pullback-low bar and only recover True 15/45 min later), 0/36 pass condition_2
+> (day-majority win) or condition_3 (survives dropping the single best trade), 0/36 clear
+> BH-FDR at q=0.10. The one cell with positive aggregate ($808.93/506 signals) nets -$56.21 once
+> its single best trade is dropped -- classic C24 anchor-trade artifact plus C27 high-frequency
+> noise (~13 fires/day). While mid-fire, `git log` surfaced the parallel session's own commit
+> `a38dd984` landing (16:52:38 local, mid-verification) -- confirmed it touched ONLY the 6
+> research files, not `queue.md`/`STATUS.md`, so no collision on the state-tracking layer.
+
+> **What shipped this fire:** closed the loop the parallel commit left open --
+> `automation/overnight/queue.md`'s `PULLBACK-HOLD-BULL-TRIGGER` item status flipped to
+> `CLOSED-LANE-B-NO-CELL-SHIPS` with the full verdict/root-cause/disposition recorded inline
+> (Lane-A stays shipped shadow-only; Lane-B closed, no live wiring, frozen grid honestly NOT
+> loosened post-hoc per its own `no_post_hoc_tuning` clause). Filed a lesson-inbox candidate
+> (`2026-07-22-confirmation-qualifiers-structurally-lag-manual-structure-reads.md`) generalizing
+> the root cause: a confirmation qualifier built to fix a LATE trigger can itself be too
+> lagging to see the trigger's own anchor case -- the entry-side sibling of C28's "ribbon flip
+> is a lagging EXIT." Commit `28b51fd7` (2 files: queue.md + lesson candidate; safety gate PASS,
+> 31/31). Self-audit gaps tracker checked (priority-3) -- both fresh batches already fully
+> triaged by the prior two fires, nothing new to action.
+
+> **Cost: ~$3.1** (STAGE 0/1 reads, git-log discovery of the parallel commit, independent
+> pytest + full background grid re-run + manual cross-check of condition-pass counts across
+> 36 cells, lesson-inbox authoring, queue.md closing block, 1 commit with safety-gate
+> verification).
+
+
 
 > **STAGE 0/1:** ET confirmed 18:12->18:33, Wednesday, market closed since 15:55 (correctly
 > after-hours). `engine-health.json` GREEN 13/13 (heartbeat/beacon/watcher quiet-OK,
@@ -659,54 +708,6 @@
 > VIX30 daily data, writing the probe + guard tests + 2 debugging round-trips on CSV parsing,
 > discovering+fixing the trades.csv corruption, writing the leaderboard row + inbox note,
 > 1 commit with pre/post verification, this STATUS update).
-
----
-
-## [2026-07-21 ~23:48-23:53 ET] OK -- conductor (AFTERHOURS): chef-inbox pre-registration -> GEX_FLIP_REGIME_TAG, commit `90873e6`
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `self-check-last.json`
-> DEGRADED on the same pre-existing non-load-bearing TRENDLINE-DRAW flag (unchanged, PDT both
-> accounts OK). Self-audit gaps: all triaged through 2026-07-21T17:31:28, nothing new.
-> `queue.md` has zero open `priority: HIGH` items (grep). `task_scorer.py --top` again surfaced
-> only `MORNING-BULL-QUALITY-GATE-RECONSIDER` (J-decision-gated, correctly skipped).
-> Author-inbox order: validator-inbox / skill-inbox / lesson-inbox all fully `.DONE` (0
-> actionable items) -> `_chef-inbox` next (priority-5), oldest open item picked: the
-> 2026-07-09 GEX zero-gamma-flip prospector finding.
-
-> **What shipped:** the item's OWN text specifies its bounded first deliverable is NOT a
-> backtest (GEX archive: 23 sessions banked, floor ~60-90 per `gex_archive_health.py`,
-> `gex_regime.assess_backtest_feasibility()` unconditionally `can_backtest_now: False` until
-> then) -- it is a feasibility/continuity check (already GREEN, `engine-health.json`
-> `gex_archive` check) plus a PRE-REGISTERED backtest design. Wrote
-> `strategy/candidates/2026-07-21-235117-gex-flip-regime-tag-prereg.md`: froze the exact join
-> key (prior-session archive -> next trading day only, look-ahead-safe per C6), the exact null
-> hypothesis, and the exact metric (reuse `probe_stats.py` canonical significance/concentration
-> helpers + OP-16 anchor-no-regression on J's 3 anchor days -- explicitly did NOT hand-roll a
-> new threshold, C14/C17). Added `_LEADERBOARD.md` row 48 (`DATA-GATED`), renamed the source
-> chef-inbox item `.DONE` via `git mv`.
-
-> **Verified this fire (OP-33):** `git status --short` on the exact 3 intended paths BEFORE
-> commit (L239 discipline -- no mixed-pathspec risk, only 3 files staged, confirmed each showed
-> the expected A/M/R state); pre-commit hook ran 31 tests + curated 5-suite safety gate, both
-> PASS; `git show --stat HEAD` post-commit confirms 3 files / 44 insertions / 0 unexpected
-> content. Left the ~40 pre-existing untracked `strategy/candidates/*chef-nemo*` files and the
-> Kitchen-reviewer-owned `_review-log.jsonl` diff untouched -- not mine to commit (lane
-> discipline; that untracked pile is a separate future consolidation task, not this fire's).
-
-> **Trading-path scope:** zero trading-path files touched (candidate doc + leaderboard +
-> inbox rename only). No guard/revert/REVOKE needed under rail 4. **Revert:** `git revert
-> 90873e6` (1 commit, fully additive doc change, no functional code path touched).
-
-> **Queue state:** chef-inbox now has 13 open prospector items remaining (was 14); next fire
-> should pick the next-oldest (`2026-07-09-prospector-vix1d_gate.md`) if nothing higher-priority
-> surfaces. `queue.md` still has 0 clean 60-min HIGH items (`T-AUDIT-TAIL` remains the sole
-> `status:open`, still not a clean bounded pick per its own note). All 4 author inboxes will be
-> re-surveyed fresh next fire (validator/skill/lesson stay empty until a new candidate lands).
-
-> **Cost: ~$2.1** (STAGE 0/1 reads, engine-health/self-check/self-audit-gaps/task_scorer/
-> 4-inbox survey, reading the chef-inbox item + gex_regime.py + gex_archive_health.py + the
-> latest archive file + probe_stats.py + LEADERBOARD.md format, writing the pre-reg doc +
-> leaderboard row, 1 commit with pre/post verification, this STATUS update).
 
 ---
 
