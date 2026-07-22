@@ -1,3 +1,55 @@
+## [2026-07-22 ~19:12-19:20 ET] OK -- conductor (AFTERHOURS): fill_funnel IDLE-misclassification fixed (extra_exec secondary-setup blind spot), commit `3dfe3881`
+
+> **STAGE 0/1:** ET confirmed 19:12, Wednesday, market closed since 15:55. `engine-health.json`
+> GREEN 13/13. `self-check-last.json` DEGRADED only on the pre-existing non-load-bearing
+> TRENDLINE-DRAW flag. `task_scorer.py --top` again surfaced `MORNING-BULL-QUALITY-GATE-
+> RECONSIDER`, but STAGE 1 priority-1 (function-first: read the fill funnel) outranked it --
+> `fill_funnel.py` showed core:safe with `enter=0/attempted=0/accepted=0` yet `fill=2/exit=2`,
+> a mismatch worth chasing before picking anything off the queue.
+
+> **What was found (real, live, TODAY-dated bug):** `automation/state/core-decisions.jsonl`
+> carries a SECOND execution path per row -- `extra_exec` (secondary/dormant setups
+> `vwap_continuation`/`bollinger_squeeze`/`vix_regime_dayside`/`gap_and_go`, first flagged
+> in the 2026-06-26 self-audit batch) -- entirely separate from the primary `verdict`/`exec`
+> ENTER pipeline `fill_funnel.py` was built against. Grep confirmed ZERO references to
+> `extra_exec`/`extra_signals` in `fill_funnel.py` before this fire. Today core:safe fired
+> 4 `extra_exec` PLACED orders (vwap_continuation x3, bollinger_squeeze x1) and had 2 real
+> broker-truth fills+exits (via `exit_pass`) while the primary pipeline read 0 ENTERs across
+> the board -- so the funnel's verdict line (`GREEN if enter>0 else IDLE`, blind to both
+> `filled` and the extra_exec activity) read `[IDLE]`, which propagated straight into
+> `automation/state/gamma-narrative.json`'s `facts_digest` and the LLM narrative text: **"the
+> system stayed idle"** -- false, on a day it placed and filled orders. C7 silent-success class,
+> from the *monitor's* side rather than the knob's side.
+
+> **What shipped:** `setup/scripts/fill_funnel.py` -- additive `extra_setup_placed`/
+> `extra_placed_total` attribution per account (does not touch `enter`/`attempted`/`accepted`/
+> `rule_blocked`), verdict fixed to `GREEN if (enter>0 OR filled>0 OR extra_placed_total>0)
+> else IDLE`, both `render_text`/`render_markdown` now print the secondary-setup breakdown.
+> **Verified live (OP-33):** re-ran against today's real ledger before/after -- `[IDLE]` ->
+> `[GREEN]` with `vwap_continuation=3PLACED[core:safe], bollinger_squeeze=1PLACED[core:safe]`
+> now printed; re-wrote `automation/state/fill-funnel-2026-07-22.json` (`--write`) so today's
+> on-disk artifact carries the correction. 5 new guard tests in `test_fill_funnel_guard.py`
+> (`BUILD 6 guard`: attribution counting, the exact IDLE->GREEN repro, the sibling
+> fill-via-exit_pass-alone repro, a non-vacuous "genuinely empty day still reads IDLE" pin) --
+> 26/26 green (21 pre-existing + 5 new, zero regressions). Also ran all 5
+> `test_self_check_*.py` files (57/57 green) since `self_check.check_fill_funnel` forwards
+> every funnel flag verbatim -- confirmed no downstream regression.
+
+> **Scope + revert:** engine-benefit observability/reporting fix, not a placement/exit/params
+> change -- ships per OP-22/OP-26 (author-tier engine-benefit work), no live trading-path
+> behavior touched. Revert: `git revert 3dfe3881` (one commit, 3 files, fully additive except
+> the single verdict-line change). Filed a lesson-inbox candidate
+> (`2026-07-22-funnel-blind-to-secondary-execution-path.md`) generalizing the pattern: a
+> monitoring/attribution tool must be re-audited for new producer paths whenever an engine
+> adds one, not assumed complete forever.
+
+> **Cost: ~$3.3** (STAGE 0/1 reads, fill_funnel deep-read + root-cause trace through
+> core-decisions.jsonl extra_exec rows, gamma-narrative.json cross-check confirming real
+> J-facing impact, the fix + 5 tests, 2 regression test runs, 1 commit with safety-gate
+> verification, this STATUS update).
+
+---
+
 ## [2026-07-22 ~18:42-19:05 ET] OK -- conductor (AFTERHOURS): PULLBACK-HOLD-BULL-TRIGGER Lane-B CLOSED (honest NO_CELL_SHIPS, 0/36), queue closure + lesson filed, commit `28b51fd7`
 
 > **STAGE 0/1:** ET confirmed 18:42, Wednesday, market closed since 15:55. `engine-health.json`
@@ -711,3 +763,6 @@
 
 ---
 
+
+### DEGRADED: self-check 2026-07-22T19:09:57
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
