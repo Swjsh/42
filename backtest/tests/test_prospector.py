@@ -413,6 +413,106 @@ def test_promote_top1_uses_generic_spec_for_unknown_idea(tmp_path):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Concept-family dedupe (found live 2026-07-22: 5 VIX1D + 3 Volume-Profile
+# chef-inbox items independently promoted under unique dedupe_keys because
+# exact dedupe_key/tail matching never catches a re-worded re-discovery of
+# the SAME underlying concept). See family_already_covered docstring.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def test_idea_family_matches_vix1d_variants():
+    assert pr.idea_family("CBOE VIX1D Index as a Volatility Gauge") == "vix1d"
+    assert pr.idea_family("Track the VIX Term Structure: VIX1D minus VIX30") == "vix1d"
+    assert pr.idea_family("A totally unrelated idea about FINRA short volume") is None
+
+
+def test_idea_family_matches_volume_profile_variants():
+    assert pr.idea_family("Volume Profile Visible Range (VPVR) shelves") == "volume_profile"
+    assert pr.idea_family("Read TradingView's high-volume-node shelves") == "volume_profile"
+    assert pr.idea_family("") is None
+
+
+def test_family_already_covered_finds_existing_open_item(tmp_path):
+    inbox = tmp_path / "_chef-inbox"
+    inbox.mkdir()
+    (inbox / "2026-07-09-prospector-vix1d_gate.md").write_text(
+        "idea for vix1d_gate: track VIX1D as a same-horizon vol gate.", encoding="utf-8")
+    covered = pr.family_already_covered("CBOE VIX1D Index as a Volatility Gauge", inbox_dir=inbox)
+    assert covered is not None
+    assert covered.name == "2026-07-09-prospector-vix1d_gate.md"
+
+
+def test_family_already_covered_finds_existing_done_item(tmp_path):
+    inbox = tmp_path / "_chef-inbox"
+    inbox.mkdir()
+    (inbox / "2026-07-11-prospector-vpvr-shows.md.DONE").write_text(
+        "idea for volume_shelf_tv_vp: Volume Profile Visible Range shelves.",
+        encoding="utf-8")
+    covered = pr.family_already_covered(
+        "Volume Profile Visible Range (VPVR) high-volume nodes", inbox_dir=inbox)
+    assert covered is not None
+    assert covered.name == "2026-07-11-prospector-vpvr-shows.md.DONE"
+
+
+def test_family_already_covered_ignores_readme():
+    readme = CHEF_INBOX_README
+    # README.md documents the template and legitimately contains no family
+    # keywords today, but even if it did, family_already_covered must never
+    # treat README.md as a canonical "already covered" item.
+    covered = pr.family_already_covered("CBOE VIX1D Index", inbox_dir=readme.parent)
+    if covered is not None:
+        assert covered.name != "README.md"
+
+
+def test_family_already_covered_returns_none_for_family_less_idea(tmp_path):
+    inbox = tmp_path / "_chef-inbox"
+    inbox.mkdir()
+    (inbox / "2026-07-09-prospector-vix1d_gate.md").write_text(
+        "idea for vix1d_gate", encoding="utf-8")
+    covered = pr.family_already_covered("FINRA daily short-sale volume", inbox_dir=inbox)
+    assert covered is None
+
+
+def test_family_already_covered_returns_none_when_no_existing_family_match(tmp_path):
+    inbox = tmp_path / "_chef-inbox"
+    inbox.mkdir()
+    (inbox / "2026-07-14-prospector-finra-short-vol.md").write_text(
+        "idea for finra_short_volume", encoding="utf-8")
+    # first-of-its-family VIX1D idea: nothing in the inbox mentions vix1d yet
+    covered = pr.family_already_covered("CBOE VIX1D Index as a Volatility Gauge", inbox_dir=inbox)
+    assert covered is None
+
+
+def test_promote_top1_folds_family_duplicate_instead_of_repromoting(tmp_path):
+    inbox = tmp_path / "_chef-inbox"
+    inbox.mkdir()
+    (inbox / "2026-07-09-prospector-vix1d_gate.md.DONE").write_text(
+        "idea for vix1d_gate: VIX1D same-horizon vol gate, already screened.",
+        encoding="utf-8")
+    rows = [_idea_row("data_feeds_free:cboe-vix1d-index-as-volatility-gauge",
+                      idea="CBOE VIX1D Index as a Volatility Gauge")]
+    promoted = pr.promote_top1(rows, {}, date="2026-07-21", inbox_dir=inbox)
+    assert promoted is not None
+    assert promoted["_chef_inbox_file"] is None                         # no new file written
+    assert promoted["_folded_into"] == "2026-07-09-prospector-vix1d_gate.md.DONE"
+    assert len(list(inbox.iterdir())) == 1                              # still just the 1 pre-existing file
+
+
+def test_promote_top1_still_writes_new_file_for_family_less_idea(tmp_path):
+    inbox = tmp_path / "_chef-inbox"
+    inbox.mkdir()
+    (inbox / "2026-07-09-prospector-vix1d_gate.md.DONE").write_text(
+        "idea for vix1d_gate: VIX1D vol gate.", encoding="utf-8")
+    rows = [_idea_row("data_feeds_free:finra-short-vol",
+                      idea="FINRA daily short-sale volume as a positioning gauge")]
+    promoted = pr.promote_top1(rows, {}, date="2026-07-21", inbox_dir=inbox)
+    assert promoted is not None
+    assert promoted.get("_folded_into") is None
+    assert promoted["_chef_inbox_file"] is not None
+    assert (inbox / promoted["_chef_inbox_file"]).exists()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # _chef-inbox item format -- fixture built from the REAL README.md template
 # ─────────────────────────────────────────────────────────────────────────────
 

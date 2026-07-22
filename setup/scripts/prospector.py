@@ -386,6 +386,73 @@ def already_promoted_from_inbox(rows: list[dict], inbox_dir: Path = CHEF_INBOX) 
     return {tail_to_key[t] for t in seen_tails if t in tail_to_key}
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Concept-family dedupe -- second, coarser layer above dedupe_key
+#
+# Root cause (found live 2026-07-22, conductor fire): dedupe_key is
+# `beat:slugify(idea_text, 40)` -- stable per EXACT wording, but the free
+# swarm re-discovers the SAME underlying concept under different beats and
+# different phrasing every few days ("CBOE VIX1D Index as Volatility Gauge"
+# vs "vix1d_gate" vs "VIX Term Structure Slope (VIX1D minus VIX30)" all
+# describe the same VIX1D-as-signal idea; "Volume Profile (Visible Range)"
+# has independently resurfaced under 3+ dedupe_keys). Each variant gets a
+# UNIQUE dedupe_key, so already_promoted_from_inbox's exact-tail match never
+# catches it -- live count on 2026-07-22: 5 separate VIX1D chef-inbox items,
+# 3 separate Volume-Profile/VPVR items, each independently promoted, each
+# requiring a conductor fire to manually notice the duplication before
+# folding it. FAMILY_KEYWORDS is a coarse keyword-family check: if the new
+# idea's text hits the same keyword family as an EXISTING chef-inbox item
+# (open or .DONE -- a .DONE item means the concept was already researched,
+# which is the whole point), fold instead of re-promoting. Extend this dict
+# whenever a new duplicate family is caught; it is intentionally a small,
+# hand-curated allowlist (false negatives just mean one extra fire re-notices
+# the duplicate manually, same as today -- false positives would wrongly
+# suppress a genuinely novel idea, which this coarse a match will not do
+# given the keyword sets below are concept-specific, not generic terms).
+FAMILY_KEYWORDS: dict[str, tuple[str, ...]] = {
+    "vix1d": (
+        "vix1d", "vix 1d", "vix-1d", "1-day implied vol", "1 day implied vol",
+        "vix1d minus vix", "vix1d vs vix",
+    ),
+    "volume_profile": (
+        "volume profile", "vpvr", "visible range", "volume shelf",
+        "volume-at-price", "volume at price", "high-volume node",
+        "high volume node", "high-volume-node",
+    ),
+}
+
+
+def idea_family(idea_text: str) -> Optional[str]:
+    """Return the FAMILY_KEYWORDS family id idea_text belongs to, else None."""
+    low = (idea_text or "").lower()
+    for family, keywords in FAMILY_KEYWORDS.items():
+        if any(kw in low for kw in keywords):
+            return family
+    return None
+
+
+def family_already_covered(idea_text: str, inbox_dir: Path = CHEF_INBOX) -> Optional[Path]:
+    """If idea_text belongs to a known family AND an existing chef-inbox file
+    (open or .DONE, any dedupe_key) already carries that same family's
+    keywords, return that file's path (the canonical item to fold into).
+    Returns None for a family-less idea or a genuinely first-of-its-family
+    one -- promote_top1 still promotes those normally."""
+    family = idea_family(idea_text)
+    if family is None or not inbox_dir.exists():
+        return None
+    keywords = FAMILY_KEYWORDS[family]
+    for path in sorted(inbox_dir.glob("*.md")) + sorted(inbox_dir.glob("*.md.DONE")):
+        if not path.is_file() or path.name == "README.md":
+            continue
+        try:
+            text = path.read_text(encoding="utf-8").lower()
+        except OSError:
+            continue
+        if any(kw in text for kw in keywords):
+            return path
+    return None
+
+
 def kill_idea(dedupe_key: str, reason: str, path: Path = LEDGER_FILE) -> dict:
     """Append a kill row. Ideas ledger is append-only truth -- a kill is a NEW
     row, never a mutation of the original idea row. Once killed, dedupe_key
@@ -413,6 +480,7 @@ _DEFAULT_STATE: dict = {
     "fires_total": 0,
     "ideas_total": 0,
     "promoted_total": 0,
+    "folded_total": 0,
     "promoted_dedupe_keys": [],
 }
 
@@ -623,6 +691,13 @@ def promote_top1(rows: list[dict], state: dict, *, date: str,
     if not candidates:
         return None
     pick = candidates[0]
+    covered = family_already_covered(pick["idea"], inbox_dir=inbox_dir)
+    if covered is not None:
+        # Fold, don't re-promote: mark this dedupe_key consumed (caller adds it
+        # to state['promoted_dedupe_keys'], same as a real promotion) but write
+        # NO new chef-inbox file -- the existing `covered` file is the canonical
+        # answer for this concept family. See family_already_covered docstring.
+        return {**pick, "_chef_inbox_file": None, "_folded_into": covered.name}
     spec = STUDY_SPECS.get(pick["dedupe_key"]) or {
         "hypothesis": (
             f"{_sentence(pick['idea'])} -- this carries a testable directional/timing "
@@ -865,6 +940,7 @@ def write_last_json(*, date: str, beat: str, scan_ok: bool, n_new_ideas: int,
         "n_total_ideas": n_total_ideas,
         "promoted_idea": promoted.get("dedupe_key") if promoted else None,
         "promoted_file": promoted.get("_chef_inbox_file") if promoted else None,
+        "folded_into": promoted.get("_folded_into") if promoted else None,
         "error": error,
         "generated_at": et_now().isoformat(),
     }
@@ -881,7 +957,13 @@ def queue_ping(date: str, beat: str, n_added: int, promoted: Optional[dict],
         mention = _load_user_mention()
     except Exception:  # noqa: BLE001
         mention = ""
-    promo_s = f"; promoted `{promoted['dedupe_key']}` -> _chef-inbox" if promoted else ""
+    if promoted and promoted.get("_folded_into"):
+        promo_s = (f"; folded `{promoted['dedupe_key']}` into existing "
+                   f"`{promoted['_folded_into']}` (same concept family, no new file)")
+    elif promoted:
+        promo_s = f"; promoted `{promoted['dedupe_key']}` -> _chef-inbox"
+    else:
+        promo_s = ""
     lane_s = "" if scan_ok else " (no free lane up tonight)"
     msg = f"{mention}[PROSPECTOR] {date} beat={beat}: {n_added} new idea(s){promo_s}{lane_s}."
     try:
@@ -942,8 +1024,12 @@ def run(*, beat: Optional[str] = None, dry_run: bool = False,
         if promoted:
             keys = list(state.get("promoted_dedupe_keys", []) or [])
             keys.append(promoted["dedupe_key"])
-            state = {**state, "promoted_dedupe_keys": keys,
-                     "promoted_total": int(state.get("promoted_total", 0) or 0) + 1}
+            if promoted.get("_folded_into"):
+                state = {**state, "promoted_dedupe_keys": keys,
+                         "folded_total": int(state.get("folded_total", 0) or 0) + 1}
+            else:
+                state = {**state, "promoted_dedupe_keys": keys,
+                         "promoted_total": int(state.get("promoted_total", 0) or 0) + 1}
         state = advance_beat({
             **state, "last_beat": chosen_beat, "last_run_et": et_now().isoformat(),
             "fires_total": int(state.get("fires_total", 0) or 0) + 1,
@@ -982,8 +1068,12 @@ def cmd_seed(*, date: Optional[str] = None, ledger_path: Path = LEDGER_FILE,
     if promoted:
         keys = list(state.get("promoted_dedupe_keys", []) or [])
         keys.append(promoted["dedupe_key"])
-        state = {**state, "promoted_dedupe_keys": keys,
-                "promoted_total": int(state.get("promoted_total", 0) or 0) + 1}
+        if promoted.get("_folded_into"):
+            state = {**state, "promoted_dedupe_keys": keys,
+                    "folded_total": int(state.get("folded_total", 0) or 0) + 1}
+        else:
+            state = {**state, "promoted_dedupe_keys": keys,
+                    "promoted_total": int(state.get("promoted_total", 0) or 0) + 1}
     save_state(state, state_path)
     write_last_json(date=date, beat="seed", scan_ok=True, n_new_ideas=n_added,
                     n_total_ideas=len(load_ledger(ledger_path)), promoted=promoted,

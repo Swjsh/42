@@ -1,0 +1,41 @@
+# Chef Inbox — Volume Profile Visible Range (VPVR) – visualizes traded volume distrib
+
+**Routed by:** Gamma_Prospector 2026-07-22
+**Priority:** MED
+**Category:** New data signal / exogenous idea
+**Source:** swarm:cerebras:gpt-oss-120b
+
+## The Finding
+Prospector beat `tv_community_indicators` surfaced: Volume Profile Visible Range (VPVR) – visualizes traded volume distribution across price levels -- Identifies high-volume price zones that act as dynamic support/resistance, revealing market structure missed by EMA ribbons. Data source: TradingView built‑in indicator "Volume Profile Visible Range" (access via TV UI, no external API). Cost: $0. Instrument fit: both.
+
+## Research Question for Chef
+Volume Profile Visible Range (VPVR) – visualizes traded volume distribution across price levels -- this carries a testable directional/timing edge for both.
+
+## Backtest Request
+Data: TradingView built‑in indicator "Volume Profile Visible Range" (access via TV UI, no external API)
+Null hypothesis: the signal has no measurable effect on entry/exit quality vs the existing engine baseline over the same days.
+Pass bar: OOS positive AND walk-forward >= 0.70 AND sub-window stable AND anchor-day no-regression (the standing OP-11/OP-16 autoresearch bar) before any wiring proposal reaches conductor-proposals.jsonl.
+
+## Files for Reference
+analysis/prospector/ideas-ledger.jsonl (dedupe_key: tv_community_indicators:volume-profile-visible-range-vpvr-visual) · markdown/infra/PROSPECTOR-SPEC.md
+
+## Priority / Dependencies
+depends:none
+
+<!-- FOLDED 2026-07-22 ~07:50 ET conductor (AFTERHOURS): duplicate of the canonical
+Volume-Profile/shelf item, 2026-07-10-prospector-volume_shelf_tv_vp.md (still OPEN,
+higher provenance -- J-directed 2026-07-09, not a swarm re-discovery). That item
+already absorbed one earlier VPVR duplicate (2026-07-11-prospector-volume-profile-
+visible-range-vpvr-shows-.md.DONE, folded 2026-07-21) and states the next bounded
+step: add the TV Volume Profile (Visible Range) study to a live TV chart session,
+pull shelves via `data_get_pine_boxes`, compare against Gamma's existing trendline/
+level-memory levels for overlap vs incremental signal before committing to a full
+backtest -- BLOCKED this fire on TradingView MCP tools not being present in this
+session's tool surface (confirmed: no `tradingview`-prefixed tool available this
+fire despite a prior fire's note that they were present then). No new information in
+THIS item beyond the canonical one. ROOT-CAUSE FIX SHIPPED THIS FIRE: `prospector.py`
+now has a `FAMILY_KEYWORDS`/`family_already_covered()` second dedupe layer (guard
+tests: `backtest/tests/test_prospector.py::test_promote_top1_folds_family_duplicate_*`)
+so a 4th Volume-Profile rediscovery auto-folds into the existing item instead of
+spawning a new chef-inbox file. -->
+
