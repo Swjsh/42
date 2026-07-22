@@ -188,6 +188,7 @@ def _acct_funnel(rows: list[dict], kind: str) -> dict:
         "accepted": 0, "filled": 0, "exited": 0, "retired_ladder_fails": 0,
         "enter_events": [], "place_fail_reasons": [], "rule_block_reasons": [],
         "enters_after_ceiling": [], "open_fills_no_exit": [],
+        "extra_setup_placed": {}, "extra_placed_total": 0,
     }
     filled_syms: set[str] = set()
     exited_syms: set[str] = set()
@@ -195,6 +196,26 @@ def _acct_funnel(rows: list[dict], kind: str) -> dict:
         v = str((r.get("verdict") if kind == "core" else r.get("action")) or "")
         if r.get("triggers") or (v and v != "HOLD"):
             f["signals"] += 1
+        # SECONDARY-SETUP VISIBILITY FIX (2026-07-22): core rows can carry an
+        # `extra_exec` list -- non-primary setups (vwap_continuation,
+        # bollinger_squeeze, vix_regime_dayside, gap_and_go...) scored + placed
+        # on a path separate from the primary `verdict`/`exec` ENTER pipeline
+        # this funnel otherwise tracks exclusively. Before this fix a day with
+        # 0 primary ENTERs but several extra_exec PLACED orders read as IDLE/
+        # "0 attempts, mystery 2 fills via exit_pass broker-truth" -- a C7
+        # silent-success gap (ground truth 2026-07-22: core:safe showed
+        # enter=0/attempted=0/accepted=0 while extra_exec fired 4 PLACED across
+        # vwap_continuation + bollinger_squeeze). This does NOT change any
+        # enter/attempted/accepted/rule_blocked stage (those stay scoped to the
+        # primary pipeline, unchanged) -- it adds a SEPARATE, additive
+        # attribution so secondary-setup activity is visible instead of silent.
+        for ex in (r.get("extra_exec") or []):
+            setup = str(ex.get("setup") or "?")
+            action = str(ex.get("action") or "?")
+            bucket = f["extra_setup_placed"].setdefault(setup, {})
+            bucket[action] = bucket.get(action, 0) + 1
+            if action == "PLACED":
+                f["extra_placed_total"] += 1
         # exit_pass rows carry broker-truth: open_qty>0 = we HOLD a fill;
         # a placed action (SELL_ALL / tp / stop) = the exit went to the broker.
         for ep in (r.get("exit_pass") or []):
@@ -322,6 +343,7 @@ def compute_funnel(day: str | None = None, *, core_path: Path | None = None,
             accounts[f"fleet:{p.parent.name}"] = _acct_funnel(rows, "fleet")
 
     totals = {s: sum(a[s] for a in accounts.values()) for s in _STAGES}
+    totals["extra_placed_total"] = sum(a.get("extra_placed_total", 0) for a in accounts.values())
     funnel = {
         "date": day,
         "generated_at_et": now.strftime("%Y-%m-%dT%H:%M:%S"),
@@ -370,7 +392,20 @@ def _evaluate(funnel: dict, now: dt.datetime) -> tuple[list[str], str]:
         return flags, "RED"
     if flags:
         return flags, "DEGRADED"
-    return flags, ("GREEN" if funnel["totals"]["enter"] > 0 else "IDLE")
+    # IDLE-MISCLASSIFICATION FIX (2026-07-22): verdict used to key off `enter`
+    # alone -- blind to (a) broker-truth fills/exits seen only via exit_pass
+    # (no primary ENTER row at all) and (b) extra_exec secondary-setup PLACED
+    # orders (see the extra_setup_placed comment above). Ground truth 2026-07-22:
+    # core:safe read enter=0/attempted=0/accepted=0 -> this line said IDLE, and
+    # gamma-narrative.json/facts_digest propagated "the system stayed idle" to
+    # J's narrative -- while the SAME day had 2 real broker-truth fills+exits
+    # and 4 extra_exec PLACED orders (vwap_continuation/bollinger_squeeze).
+    # "Real trading activity happened" now means enter>0 OR filled>0 OR an
+    # extra-setup PLACED order fired; IDLE is reserved for a day with none of
+    # the three (test_idle_day_is_not_a_fault pins the genuine-idle case).
+    real_activity = (funnel["totals"]["enter"] > 0 or funnel["totals"]["filled"] > 0
+                     or funnel["totals"].get("extra_placed_total", 0) > 0)
+    return flags, ("GREEN" if real_activity else "IDLE")
 
 
 # ---------------------------------------------------------------------------
@@ -491,6 +526,15 @@ def render_text(funnel: dict) -> str:
     out.append(f"  {'TOTAL':<14} {t['ticks']:>4} -> {t['signals']:>3} -> {t['enter']:>2} "
                f"-> {t.get('rule_blocked', 0):>2} -> {t['attempted']:>2} -> {t['accepted']:>2} "
                f"-> {t['filled']:>2} -> {t['exited']:>2}")
+    if t.get("extra_placed_total", 0) > 0:
+        parts = []
+        for name, a in funnel["accounts"].items():
+            for setup, actions in a.get("extra_setup_placed", {}).items():
+                n = actions.get("PLACED", 0)
+                if n:
+                    parts.append(f"{setup}={n}PLACED[{name}]")
+        out.append(f"  + secondary setups (extra_exec, outside the primary ENTER pipeline): "
+                   f"{', '.join(parts)}")
     for fl in funnel["flags"]:
         out.append(f"  ! {fl}")
     return "\n".join(out)
@@ -530,6 +574,16 @@ def render_markdown(funnel: dict, repo: Path | None = None) -> str:
                        + (f" -- {ev['reason']}" if ev.get("reason") else ""))
     else:
         out.append("- none")
+    # secondary-setup placements (extra_exec) -- outside the primary ENTER pipeline,
+    # separately attributed here so they cannot silently under-report as IDLE (2026-07-22)
+    out.append("")
+    out.append(f"**Secondary-setup placements (extra_exec, {t.get('extra_placed_total', 0)} PLACED):**")
+    extra_rows = []
+    for name, a in funnel["accounts"].items():
+        for setup, actions in a.get("extra_setup_placed", {}).items():
+            extra_rows.append(f"- [{name}] {setup}: " + ", ".join(
+                f"{cnt}x {act}" for act, cnt in sorted(actions.items())))
+    out.extend(sorted(extra_rows) if extra_rows else ["- none"])
     # PLACE_FAIL reasons verbatim
     fails = Counter()
     for a in funnel["accounts"].values():

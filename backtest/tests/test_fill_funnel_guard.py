@@ -486,3 +486,89 @@ def test_unknown_exec_status_still_fails_open_to_red(tmp_path):
     a = f["accounts"]["core:safe"]
     assert a["attempted"] == 1 and a["rule_blocked"] == 0
     assert f["verdict"] == "RED"
+
+
+# ---------------------------------------------------------------------------
+# BUILD 6 guard (2026-07-22): secondary-setup (extra_exec) attribution + the
+# IDLE-misclassification fix it exposed. Ground truth: 2026-07-22 core:safe
+# read enter=0/attempted=0/accepted=0 in the PRIMARY ENTER pipeline while
+# extra_exec fired 4 PLACED across vwap_continuation + bollinger_squeeze (the
+# secondary-setup placement path fill_funnel never counted) and 2 real
+# broker-truth fills+exits landed via exit_pass with zero primary ENTER rows.
+# The old verdict line keyed on `enter` ALONE -> read IDLE -> propagated into
+# gamma-narrative.json's facts_digest + LLM narrative text as "the system
+# stayed idle" on a day the engine actually placed and filled orders. C7
+# (silent success is failure): this did not crash, it just told J the wrong
+# thing about whether the engine traded.
+# ---------------------------------------------------------------------------
+
+def _extra_exec_only_rows(day="2026-07-02"):
+    return [
+        {"ts_et": f"{day}T10:00:02", "account": "safe", "verdict": "HOLD",
+         "extra_exec": [{"setup": "vwap_continuation", "action": "PLACED"}]},
+        {"ts_et": f"{day}T10:05:02", "account": "safe", "verdict": "HOLD",
+         "extra_exec": [{"setup": "bollinger_squeeze", "action": "SKIP_LATE_ENTRY"}]},
+        {"ts_et": f"{day}T10:10:02", "account": "safe", "verdict": "HOLD",
+         "extra_exec": [{"setup": "vwap_continuation", "action": "PLACED"}]},
+    ]
+
+
+def test_extra_exec_attribution_counts_by_setup_and_action(tmp_path):
+    core = tmp_path / "core.jsonl"
+    _write_jsonl(core, _extra_exec_only_rows())
+    f = ff.compute_funnel("2026-07-02", core_path=core, fleet_dir=_empty_fleet(tmp_path),
+                          now=dt.datetime(2026, 7, 2, 18, 0))
+    a = f["accounts"]["core:safe"]
+    assert a["extra_setup_placed"] == {
+        "vwap_continuation": {"PLACED": 2},
+        "bollinger_squeeze": {"SKIP_LATE_ENTRY": 1},
+    }
+    assert a["extra_placed_total"] == 2, "only PLACED actions count toward the total"
+    assert f["totals"]["extra_placed_total"] == 2
+    assert "vwap_continuation=2PLACED" in ff.render_text(f)
+    md = ff.render_markdown(f, repo=tmp_path)
+    assert "Secondary-setup placements (extra_exec, 2 PLACED)" in md
+    assert "vwap_continuation: 2x PLACED" in md
+
+
+def test_extra_exec_placed_flips_idle_to_green(tmp_path):
+    """THE BITE: 0 primary ENTERs but a secondary-setup PLACED order fired ->
+    the day is NOT idle. This is the exact 2026-07-22 disease reproduced."""
+    core = tmp_path / "core.jsonl"
+    _write_jsonl(core, _extra_exec_only_rows())
+    f = ff.compute_funnel("2026-07-02", core_path=core, fleet_dir=_empty_fleet(tmp_path),
+                          now=dt.datetime(2026, 7, 2, 18, 0))
+    assert f["totals"]["enter"] == 0, "no primary-pipeline ENTER fired -- this is the trap"
+    assert f["flags"] == []
+    assert f["verdict"] == "GREEN", (
+        "a day with a real secondary-setup PLACED order must not read IDLE -- "
+        "IDLE silently told J 'the system stayed idle' while it placed orders")
+
+
+def test_fill_via_exit_pass_alone_flips_idle_to_green(tmp_path):
+    """The OTHER root cause: a real broker-truth fill+exit with 0 primary
+    ENTER rows at all (2026-07-22 ground truth: core:safe filled=2/exited=2,
+    enter=0) must also not read IDLE."""
+    rows = [{"ts_et": "2026-07-02T10:00:02", "account": "safe", "verdict": "HOLD",
+             "exit_pass": [{"symbol": "SPY_TEST_P00740000", "open_qty": 3,
+                            "actions": [{"kind": "SELL_ALL", "qty": 3, "placed": True}]}]}]
+    core = tmp_path / "core.jsonl"
+    _write_jsonl(core, rows)
+    f = ff.compute_funnel("2026-07-02", core_path=core, fleet_dir=_empty_fleet(tmp_path),
+                          now=dt.datetime(2026, 7, 2, 18, 0))
+    a = f["accounts"]["core:safe"]
+    assert a["enter"] == 0 and a["filled"] == 1 and a["exited"] == 1
+    assert f["verdict"] == "GREEN", "a real broker-truth fill+exit with 0 ENTERs is not idle"
+
+
+def test_genuinely_empty_day_still_reads_idle(tmp_path):
+    """Non-vacuous bite the other direction: NO fill, NO extra_exec PLACED,
+    NO enter -> still IDLE (duplicates test_idle_day_is_not_a_fault's intent
+    with an explicit extra_setup_placed/extra_placed_total assertion)."""
+    core = tmp_path / "core.jsonl"
+    _write_jsonl(core, [{"ts_et": "2026-07-02T10:00:02", "account": "safe", "verdict": "HOLD"}])
+    f = ff.compute_funnel("2026-07-02", core_path=core, fleet_dir=_empty_fleet(tmp_path),
+                          now=dt.datetime(2026, 7, 2, 18, 0))
+    a = f["accounts"]["core:safe"]
+    assert a["extra_setup_placed"] == {} and a["extra_placed_total"] == 0
+    assert f["verdict"] == "IDLE"
