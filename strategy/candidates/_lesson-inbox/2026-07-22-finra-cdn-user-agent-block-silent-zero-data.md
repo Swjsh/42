@@ -1,0 +1,43 @@
+# Lesson candidate — bare Python urllib gets 403'd by some data-vendor CDNs; looks like "no data" not "blocked"
+
+**Filed by:** conductor (AFTERHOURS), 2026-07-22, during the FINRA short-sale-volume chef study
+**Source:** `strategy/candidates/_chef-inbox/2026-07-14-prospector-finra-daily-short-sale-volume-aggregated.md.DONE`
+
+## The finding
+`fetch_finra_short_ratio()` (a fresh fetcher hitting FINRA's free, public, no-auth Reg SHO
+daily short-volume CSV files, `https://cdn.finra.org/equity/regsho/daily/CNMSshvol{YYYYMMDD}.txt`)
+returned `None` for **69/69** attempted trading days on its first live run — looked exactly like
+"this free data source is dead/unreachable," which is a common and plausible verdict for a
+first-pass prospector idea. Root cause on inspection: FINRA's CDN returns **HTTP 403 Forbidden**
+specifically for Python's default `urllib.request` User-Agent string (`Python-urllib/3.x`) —
+`curl` (and any browser-like UA) against the byte-identical URL succeeds with `HTTP 200`. One-line
+fix: `Request(url, headers={"User-Agent": "Mozilla/5.0"})`. After the fix, all 69/69 dates
+resolved real data.
+
+## Why this matters beyond this one study
+This session's `_chef-inbox` has several OTHER items proposing raw free-CDN file scrapes
+(FRED yield curve files, CBOE BXM daily files, NYSE TICK/OpenBook files, Treasury.gov yield
+files) built with the same "plain urllib GET" pattern. Any of those could hit the identical
+UA-block and get mis-diagnosed as "data source dead" (a false KILL) rather than "one header
+away from working" — a false-negative that silently throws away a legitimately free, testable
+idea. The class of bug: **a 403/blocked response and a genuinely-absent dataset are
+indistinguishable from a bare `try/except: return None` fetcher** unless the exception detail
+(status code) is inspected before concluding "no data."
+
+## Suggested guard / graduation
+- When any fetcher wraps a network call in a blanket `except Exception: return None` for a
+  "fail open, treat as no-data-that-day" pattern (the correct behavior for genuine holidays/
+  missing files), also **log or surface the HTTP status code distinctly** so a 403/429/5xx
+  doesn't silently look identical to a clean 404-style "no file today." A recurring 403 across
+  many dates (vs isolated 404s on holidays) is the tell.
+- Any NEW raw-CDN-scrape fetcher in this codebase should set a browser-like `User-Agent` header
+  by default (cheap, no downside) rather than relying on the vendor's CDN treating a bare
+  `Python-urllib` UA the same as a browser — several vendors (confirmed: FINRA) do not.
+- This is a good candidate for a small shared helper (e.g. `lib/http_fetch.py#fetch_text(url)`)
+  used by all raw-CDN-scrape prospector studies, rather than each one hand-rolling its own
+  `urllib.request.urlopen` call — would prevent this exact mis-diagnosis from recurring per-study.
+
+## Evidence
+`backtest/tools/finra_short_volume_study.py` (fixed), `backtest/tests/test_finra_short_volume_study.py`
+(the live smoke test was ALSO originally too weak to catch this — `assert ratio is None or 0<=ratio<=1`
+passes trivially on the bug; strengthened to require a real ratio for a known-valid trading day).

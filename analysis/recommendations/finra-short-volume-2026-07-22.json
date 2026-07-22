@@ -1,0 +1,19 @@
+{
+  "study_id": "finra-short-volume-spy-2026-07-22",
+  "run_at_et": "2026-07-22T15:18:54.131221",
+  "n_dates_attempted": 69,
+  "n_dates_with_finra_data": 69,
+  "result": {
+    "n": 69,
+    "n_high": 35,
+    "n_low": 34,
+    "mean_return_high_short_ratio": 0.0014875043032794594,
+    "mean_return_low_short_ratio": 0.0010527421330744145,
+    "observed_diff_high_minus_low": 0.00043476217020504493,
+    "hypothesis_direction_confirmed": false,
+    "permutation_p_value": 0.8246,
+    "n_permutations": 5000,
+    "underpowered": false
+  },
+  "verdict": "KILL"
+}

@@ -1,0 +1,24 @@
+{
+  "study_id": "finra-short-volume-spy-2026-07-22",
+  "frozen_at_et": "2026-07-22T17:30:00-04:00",
+  "source_chef_item": "strategy/candidates/_chef-inbox/2026-07-14-prospector-finra-daily-short-sale-volume-aggregated.md",
+  "hypothesis": "Elevated FINRA daily short-sale volume ratio (ShortVolume/TotalVolume) for SPY predicts near-term downward pressure in SPY the FOLLOWING trading day.",
+  "null_hypothesis": "SPY next-day close-to-close return has no measurable relationship to that day's FINRA short-volume ratio -- median-split high-ratio days vs low-ratio days show no distinguishable next-day-return difference beyond noise.",
+  "data_sources": {
+    "short_volume": "FINRA Regulation SHO daily short volume files, https://cdn.finra.org/equity/regsho/daily/CNMSshvol{YYYYMMDD}.txt, ticker SPY, field ShortVolume/TotalVolume. Cost: $0, no auth required.",
+    "price": "backtest/data/spy_5m_2025-01-01_2026-07-14.csv + backtest/data/spy_5m_2026-05-19_2026-07-22.csv (merged, deduped), aggregated to daily close (last 5m bar of RTH per date)."
+  },
+  "methodology": {
+    "sample_window": "Last N available trading days where BOTH a FINRA short-volume file AND a SPY daily close AND the FOLLOWING day's SPY daily close exist (bounded network fetch -- most recent ~65 trading days, 2026-04-xx through 2026-07-21; today 2026-07-22 excluded as it has no 'next day' yet).",
+    "ratio_construction": "short_ratio_t = ShortVolume_t / TotalVolume_t for SPY on trading day t (t's OWN FINRA file, strictly same-day -- no look-ahead: t's ratio is known only after t's session closes, same timing constraint as the return being predicted, i.e. this is a next-day-forward test using info available at day t's close).",
+    "target": "next_day_return_t = (close_{t+1} - close_t) / close_t",
+    "split": "Median split of short_ratio_t across the sample into HIGH (>= median) and LOW (< median) halves.",
+    "test": "Compare mean next_day_return in HIGH vs LOW halves. Hypothesis direction: HIGH short-ratio days should show MORE NEGATIVE next_day_return than LOW short-ratio days if the prospector's directional claim holds.",
+    "significance": "Two-sided permutation test (label-shuffle, 5000 draws) on the difference of means. Report exact p-value, not just significance flag.",
+    "pass_bar": "Per OP-11/OP-16 standing autoresearch bar -- for THIS pre-reg (a first-pass correlation screen, not a full OP-21 wired-signal validation), the bar is: permutation p < 0.05 on the SAME DIRECTION as the hypothesis (elevated short-ratio -> more negative next-day return). Failing this is a clean, honest KILL for a first-pass screen; a full OP-21 walk-forward/OOS/anchor validation would only be funded if this screen clears.",
+    "disclosure": "n_high / n_low reported explicitly; if either side has n<15, flag as underpowered per CLAUDE.md OP-16 evidence_n advisory threshold; no cherry-picking sub-windows after seeing the result."
+  },
+  "status": "CLOSED_KILL",
+  "closed_at_et": "2026-07-22T17:45:00-04:00",
+  "result_file": "analysis/recommendations/finra-short-volume-2026-07-22.json"
+}
