@@ -1,0 +1,766 @@
+{
+  "probe": "vix1d_gate_feasibility",
+  "generated_at": "2026-07-22T05:53:36.353830+00:00",
+  "source_inbox_item": "strategy/candidates/_chef-inbox/2026-07-09-prospector-vix1d_gate.md",
+  "trade_population": "journal/trades.csv -- ALL accounts (core safe/bold + fleet safe-1/safe-3/risky-1/risky-3), real broker fills, disclosed blend for a day-level regime question (not a per-account edge question)",
+  "n_total_trades_loaded": 190,
+  "n_unresolved_vix_asof": 0,
+  "ungated": {
+    "n_trades": 190,
+    "wins": 29,
+    "losses": 161,
+    "win_rate": 0.153,
+    "expectancy_per_trade_usd": 2.65,
+    "total_pnl_usd": 503.0,
+    "mean_trade_usd": 2.65,
+    "median_trade_usd": -10.0,
+    "worst_trade_usd": -770.0,
+    "best_trade_usd": 1500.0,
+    "n_active_days": 27,
+    "n_losing_days": 20,
+    "top3_day_pct_of_net": 637.0,
+    "median_day_usd": -99.0,
+    "trimmed_day_mean_usd": -20.88,
+    "trimmed_day_total_usd": -522.0,
+    "by_day_pnl": {
+      "2026-04-29": 342.0,
+      "2026-05-01": 470.0,
+      "2026-05-14": 1795.0,
+      "2026-05-04": 730.0,
+      "2026-06-18": -24.0,
+      "2026-05-07": -165.0,
+      "2026-05-05": -260.0,
+      "2026-05-06": -300.0,
+      "2026-05-15": -770.0,
+      "2026-05-18": -99.0,
+      "2026-06-03": -18.0,
+      "2026-06-15": 552.0,
+      "2026-06-26": -252.0,
+      "2026-07-02": 16.0,
+      "2026-07-06": -217.0,
+      "2026-06-29": -136.0,
+      "2026-06-30": -388.0,
+      "2026-07-01": -64.0,
+      "2026-07-07": -123.0,
+      "2026-07-08": -382.0,
+      "2026-07-09": -381.0,
+      "2026-07-13": -25.0,
+      "2026-07-15": -192.0,
+      "2026-07-16": -68.0,
+      "2026-07-17": 679.0,
+      "2026-07-20": -141.0,
+      "2026-07-21": -76.0
+    },
+    "significance": {
+      "n": 190,
+      "min_n": 10,
+      "sufficient": true,
+      "note": "n=190 >= 10: sample sufficient"
+    },
+    "verdict": "CONCENTRATED"
+  },
+  "candidates": {
+    "level_gate::same_as_vix30_band_14_20": {
+      "band": {
+        "low": 14.0,
+        "high": 20.0
+      },
+      "kept": {
+        "n_trades": 20,
+        "wins": 3,
+        "losses": 17,
+        "win_rate": 0.15,
+        "expectancy_per_trade_usd": -7.6,
+        "total_pnl_usd": -152.0,
+        "mean_trade_usd": -7.6,
+        "median_trade_usd": -21.0,
+        "worst_trade_usd": -237.0,
+        "best_trade_usd": 474.0,
+        "n_active_days": 6,
+        "n_losing_days": 5,
+        "top3_day_pct_of_net": -248.0,
+        "median_day_usd": -117.5,
+        "trimmed_day_mean_usd": -113.0,
+        "trimmed_day_total_usd": -452.0,
+        "by_day_pnl": {
+          "2026-05-18": -99.0,
+          "2026-06-15": 552.0,
+          "2026-06-26": -252.0,
+          "2026-06-29": -136.0,
+          "2026-07-20": -141.0,
+          "2026-07-21": -76.0
+        },
+        "significance": {
+          "n": 20,
+          "min_n": 10,
+          "sufficient": true,
+          "note": "n=20 >= 10: sample sufficient"
+        },
+        "verdict": "DRY"
+      },
+      "dropped": {
+        "n_trades": 170,
+        "wins": 26,
+        "losses": 144,
+        "win_rate": 0.153,
+        "expectancy_per_trade_usd": 3.85,
+        "total_pnl_usd": 655.0,
+        "mean_trade_usd": 3.85,
+        "median_trade_usd": -9.5,
+        "worst_trade_usd": -770.0,
+        "best_trade_usd": 1500.0,
+        "n_active_days": 21,
+        "n_losing_days": 15,
+        "top3_day_pct_of_net": 489.2,
+        "median_day_usd": -68.0,
+        "trimmed_day_mean_usd": -19.47,
+        "trimmed_day_total_usd": -370.0,
+        "by_day_pnl": {
+          "2026-04-29": 342.0,
+          "2026-05-01": 470.0,
+          "2026-05-14": 1795.0,
+          "2026-05-04": 730.0,
+          "2026-06-18": -24.0,
+          "2026-05-07": -165.0,
+          "2026-05-05": -260.0,
+          "2026-05-06": -300.0,
+          "2026-05-15": -770.0,
+          "2026-06-03": -18.0,
+          "2026-07-02": 16.0,
+          "2026-07-06": -217.0,
+          "2026-06-30": -388.0,
+          "2026-07-01": -64.0,
+          "2026-07-07": -123.0,
+          "2026-07-08": -382.0,
+          "2026-07-09": -381.0,
+          "2026-07-13": -25.0,
+          "2026-07-15": -192.0,
+          "2026-07-16": -68.0,
+          "2026-07-17": 679.0
+        },
+        "significance": {
+          "n": 170,
+          "min_n": 10,
+          "sufficient": true,
+          "note": "n=170 >= 10: sample sufficient"
+        },
+        "verdict": "CONCENTRATED"
+      },
+      "walk_forward": {
+        "first_half": {
+          "kept": {
+            "n_trades": 5,
+            "wins": 2,
+            "losses": 3,
+            "win_rate": 0.4,
+            "expectancy_per_trade_usd": 40.2,
+            "total_pnl_usd": 201.0,
+            "mean_trade_usd": 40.2,
+            "median_trade_usd": -15.0,
+            "worst_trade_usd": -237.0,
+            "best_trade_usd": 474.0,
+            "n_active_days": 3,
+            "n_losing_days": 2,
+            "top3_day_pct_of_net": 100.0,
+            "median_day_usd": -99.0,
+            "trimmed_day_mean_usd": -99.0,
+            "trimmed_day_total_usd": -99.0,
+            "by_day_pnl": {
+              "2026-05-18": -99.0,
+              "2026-06-15": 552.0,
+              "2026-06-26": -252.0
+            },
+            "significance": {
+              "n": 5,
+              "min_n": 10,
+              "sufficient": false,
+              "note": "n=5 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+            },
+            "verdict": "INCONCLUSIVE"
+          },
+          "dropped": {
+            "n_trades": 12,
+            "wins": 5,
+            "losses": 7,
+            "win_rate": 0.417,
+            "expectancy_per_trade_usd": 150.0,
+            "total_pnl_usd": 1800.0,
+            "mean_trade_usd": 150.0,
+            "median_trade_usd": -21.0,
+            "worst_trade_usd": -770.0,
+            "best_trade_usd": 1500.0,
+            "n_active_days": 10,
+            "n_losing_days": 6,
+            "top3_day_pct_of_net": 166.4,
+            "median_day_usd": -21.0,
+            "trimmed_day_mean_usd": 96.88,
+            "trimmed_day_total_usd": 775.0,
+            "by_day_pnl": {
+              "2026-04-29": 342.0,
+              "2026-05-01": 470.0,
+              "2026-05-14": 1795.0,
+              "2026-05-04": 730.0,
+              "2026-06-18": -24.0,
+              "2026-05-07": -165.0,
+              "2026-05-05": -260.0,
+              "2026-05-06": -300.0,
+              "2026-05-15": -770.0,
+              "2026-06-03": -18.0
+            },
+            "significance": {
+              "n": 12,
+              "min_n": 10,
+              "sufficient": true,
+              "note": "n=12 >= 10: sample sufficient"
+            },
+            "verdict": "CONCENTRATED"
+          }
+        },
+        "second_half": {
+          "kept": {
+            "n_trades": 15,
+            "wins": 1,
+            "losses": 14,
+            "win_rate": 0.067,
+            "expectancy_per_trade_usd": -23.53,
+            "total_pnl_usd": -353.0,
+            "mean_trade_usd": -23.53,
+            "median_trade_usd": -24.0,
+            "worst_trade_usd": -66.0,
+            "best_trade_usd": 18.0,
+            "n_active_days": 3,
+            "n_losing_days": 3,
+            "top3_day_pct_of_net": 100.0,
+            "median_day_usd": -136.0,
+            "trimmed_day_mean_usd": -136.0,
+            "trimmed_day_total_usd": -136.0,
+            "by_day_pnl": {
+              "2026-06-29": -136.0,
+              "2026-07-20": -141.0,
+              "2026-07-21": -76.0
+            },
+            "significance": {
+              "n": 15,
+              "min_n": 10,
+              "sufficient": true,
+              "note": "n=15 >= 10: sample sufficient"
+            },
+            "verdict": "DRY"
+          },
+          "dropped": {
+            "n_trades": 158,
+            "wins": 21,
+            "losses": 137,
+            "win_rate": 0.133,
+            "expectancy_per_trade_usd": -7.25,
+            "total_pnl_usd": -1145.0,
+            "mean_trade_usd": -7.25,
+            "median_trade_usd": -9.0,
+            "worst_trade_usd": -152.0,
+            "best_trade_usd": 348.0,
+            "n_active_days": 11,
+            "n_losing_days": 9,
+            "top3_day_pct_of_net": -58.5,
+            "median_day_usd": -123.0,
+            "trimmed_day_mean_usd": -159.56,
+            "trimmed_day_total_usd": -1436.0,
+            "by_day_pnl": {
+              "2026-07-02": 16.0,
+              "2026-07-06": -217.0,
+              "2026-06-30": -388.0,
+              "2026-07-01": -64.0,
+              "2026-07-07": -123.0,
+              "2026-07-08": -382.0,
+              "2026-07-09": -381.0,
+              "2026-07-13": -25.0,
+              "2026-07-15": -192.0,
+              "2026-07-16": -68.0,
+              "2026-07-17": 679.0
+            },
+            "significance": {
+              "n": 158,
+              "min_n": 10,
+              "sufficient": true,
+              "note": "n=158 >= 10: sample sufficient"
+            },
+            "verdict": "DRY"
+          }
+        },
+        "sub_window_stable": false
+      }
+    },
+    "level_gate::widened_band_10_25": {
+      "band": {
+        "low": 10.0,
+        "high": 25.0
+      },
+      "kept": {
+        "n_trades": 178,
+        "wins": 29,
+        "losses": 149,
+        "win_rate": 0.163,
+        "expectancy_per_trade_usd": 4.14,
+        "total_pnl_usd": 737.0,
+        "mean_trade_usd": 4.14,
+        "median_trade_usd": -10.0,
+        "worst_trade_usd": -770.0,
+        "best_trade_usd": 1500.0,
+        "n_active_days": 23,
+        "n_losing_days": 16,
+        "top3_day_pct_of_net": 434.7,
+        "median_day_usd": -136.0,
+        "trimmed_day_mean_usd": -13.71,
+        "trimmed_day_total_usd": -288.0,
+        "by_day_pnl": {
+          "2026-04-29": 342.0,
+          "2026-05-01": 470.0,
+          "2026-05-14": 1795.0,
+          "2026-05-04": 730.0,
+          "2026-06-18": -24.0,
+          "2026-05-07": -165.0,
+          "2026-05-05": -260.0,
+          "2026-05-06": -300.0,
+          "2026-05-15": -770.0,
+          "2026-05-18": -99.0,
+          "2026-06-15": 552.0,
+          "2026-06-26": -252.0,
+          "2026-07-02": 16.0,
+          "2026-07-06": -217.0,
+          "2026-06-29": -136.0,
+          "2026-06-30": -388.0,
+          "2026-07-01": -64.0,
+          "2026-07-08": -382.0,
+          "2026-07-09": -381.0,
+          "2026-07-15": -192.0,
+          "2026-07-17": 679.0,
+          "2026-07-20": -141.0,
+          "2026-07-21": -76.0
+        },
+        "significance": {
+          "n": 178,
+          "min_n": 10,
+          "sufficient": true,
+          "note": "n=178 >= 10: sample sufficient"
+        },
+        "verdict": "CONCENTRATED"
+      },
+      "dropped": {
+        "n_trades": 12,
+        "wins": 0,
+        "losses": 12,
+        "win_rate": 0.0,
+        "expectancy_per_trade_usd": -19.5,
+        "total_pnl_usd": -234.0,
+        "mean_trade_usd": -19.5,
+        "median_trade_usd": -16.5,
+        "worst_trade_usd": -54.0,
+        "best_trade_usd": -4.0,
+        "n_active_days": 4,
+        "n_losing_days": 4,
+        "top3_day_pct_of_net": 47.4,
+        "median_day_usd": -46.5,
+        "trimmed_day_mean_usd": -46.5,
+        "trimmed_day_total_usd": -93.0,
+        "by_day_pnl": {
+          "2026-06-03": -18.0,
+          "2026-07-07": -123.0,
+          "2026-07-13": -25.0,
+          "2026-07-16": -68.0
+        },
+        "significance": {
+          "n": 12,
+          "min_n": 10,
+          "sufficient": true,
+          "note": "n=12 >= 10: sample sufficient"
+        },
+        "verdict": "DRY"
+      },
+      "walk_forward": {
+        "first_half": {
+          "kept": {
+            "n_trades": 16,
+            "wins": 7,
+            "losses": 9,
+            "win_rate": 0.438,
+            "expectancy_per_trade_usd": 126.19,
+            "total_pnl_usd": 2019.0,
+            "mean_trade_usd": 126.19,
+            "median_trade_usd": -19.5,
+            "worst_trade_usd": -770.0,
+            "best_trade_usd": 1500.0,
+            "n_active_days": 12,
+            "n_losing_days": 7,
+            "top3_day_pct_of_net": 152.4,
+            "median_day_usd": -61.5,
+            "trimmed_day_mean_usd": 99.4,
+            "trimmed_day_total_usd": 994.0,
+            "by_day_pnl": {
+              "2026-04-29": 342.0,
+              "2026-05-01": 470.0,
+              "2026-05-14": 1795.0,
+              "2026-05-04": 730.0,
+              "2026-06-18": -24.0,
+              "2026-05-07": -165.0,
+              "2026-05-05": -260.0,
+              "2026-05-06": -300.0,
+              "2026-05-15": -770.0,
+              "2026-05-18": -99.0,
+              "2026-06-15": 552.0,
+              "2026-06-26": -252.0
+            },
+            "significance": {
+              "n": 16,
+              "min_n": 10,
+              "sufficient": true,
+              "note": "n=16 >= 10: sample sufficient"
+            },
+            "verdict": "CONCENTRATED"
+          },
+          "dropped": {
+            "n_trades": 1,
+            "wins": 0,
+            "losses": 1,
+            "win_rate": 0.0,
+            "expectancy_per_trade_usd": -18.0,
+            "total_pnl_usd": -18.0,
+            "mean_trade_usd": -18.0,
+            "median_trade_usd": -18.0,
+            "worst_trade_usd": -18.0,
+            "best_trade_usd": -18.0,
+            "n_active_days": 1,
+            "n_losing_days": 1,
+            "top3_day_pct_of_net": 100.0,
+            "median_day_usd": -18.0,
+            "trimmed_day_mean_usd": -18.0,
+            "trimmed_day_total_usd": -18.0,
+            "by_day_pnl": {
+              "2026-06-03": -18.0
+            },
+            "significance": {
+              "n": 1,
+              "min_n": 10,
+              "sufficient": false,
+              "note": "n=1 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+            },
+            "verdict": "INCONCLUSIVE"
+          }
+        },
+        "second_half": {
+          "kept": {
+            "n_trades": 162,
+            "wins": 22,
+            "losses": 140,
+            "win_rate": 0.136,
+            "expectancy_per_trade_usd": -7.91,
+            "total_pnl_usd": -1282.0,
+            "mean_trade_usd": -7.91,
+            "median_trade_usd": -10.0,
+            "worst_trade_usd": -152.0,
+            "best_trade_usd": 348.0,
+            "n_active_days": 11,
+            "n_losing_days": 9,
+            "top3_day_pct_of_net": -49.2,
+            "median_day_usd": -141.0,
+            "trimmed_day_mean_usd": -174.78,
+            "trimmed_day_total_usd": -1573.0,
+            "by_day_pnl": {
+              "2026-07-02": 16.0,
+              "2026-07-06": -217.0,
+              "2026-06-29": -136.0,
+              "2026-06-30": -388.0,
+              "2026-07-01": -64.0,
+              "2026-07-08": -382.0,
+              "2026-07-09": -381.0,
+              "2026-07-15": -192.0,
+              "2026-07-17": 679.0,
+              "2026-07-20": -141.0,
+              "2026-07-21": -76.0
+            },
+            "significance": {
+              "n": 162,
+              "min_n": 10,
+              "sufficient": true,
+              "note": "n=162 >= 10: sample sufficient"
+            },
+            "verdict": "DRY"
+          },
+          "dropped": {
+            "n_trades": 11,
+            "wins": 0,
+            "losses": 11,
+            "win_rate": 0.0,
+            "expectancy_per_trade_usd": -19.64,
+            "total_pnl_usd": -216.0,
+            "mean_trade_usd": -19.64,
+            "median_trade_usd": -15.0,
+            "worst_trade_usd": -54.0,
+            "best_trade_usd": -4.0,
+            "n_active_days": 3,
+            "n_losing_days": 3,
+            "top3_day_pct_of_net": 100.0,
+            "median_day_usd": -68.0,
+            "trimmed_day_mean_usd": -68.0,
+            "trimmed_day_total_usd": -68.0,
+            "by_day_pnl": {
+              "2026-07-07": -123.0,
+              "2026-07-13": -25.0,
+              "2026-07-16": -68.0
+            },
+            "significance": {
+              "n": 11,
+              "min_n": 10,
+              "sufficient": true,
+              "note": "n=11 >= 10: sample sufficient"
+            },
+            "verdict": "DRY"
+          }
+        },
+        "sub_window_stable": false
+      }
+    },
+    "slope_gate::calm_le_neg2": {
+      "threshold": {
+        "slope_calm_max": -2.0,
+        "definition": "vix1d - vix30"
+      },
+      "kept_calm": {
+        "n_trades": 182,
+        "wins": 27,
+        "losses": 155,
+        "win_rate": 0.148,
+        "expectancy_per_trade_usd": 1.15,
+        "total_pnl_usd": 210.0,
+        "mean_trade_usd": 1.15,
+        "median_trade_usd": -10.0,
+        "worst_trade_usd": -770.0,
+        "best_trade_usd": 1500.0,
+        "n_active_days": 23,
+        "n_losing_days": 17,
+        "top3_day_pct_of_net": 1525.7,
+        "median_day_usd": -123.0,
+        "trimmed_day_mean_usd": -38.81,
+        "trimmed_day_total_usd": -815.0,
+        "by_day_pnl": {
+          "2026-04-29": 342.0,
+          "2026-05-01": 470.0,
+          "2026-05-14": 1795.0,
+          "2026-05-04": 730.0,
+          "2026-05-07": -165.0,
+          "2026-05-05": -260.0,
+          "2026-05-06": -300.0,
+          "2026-05-15": -770.0,
+          "2026-06-03": -18.0,
+          "2026-06-26": -252.0,
+          "2026-07-02": 16.0,
+          "2026-07-06": -217.0,
+          "2026-06-30": -388.0,
+          "2026-07-01": -64.0,
+          "2026-07-07": -123.0,
+          "2026-07-08": -382.0,
+          "2026-07-09": -381.0,
+          "2026-07-13": -25.0,
+          "2026-07-15": -192.0,
+          "2026-07-16": -68.0,
+          "2026-07-17": 679.0,
+          "2026-07-20": -141.0,
+          "2026-07-21": -76.0
+        },
+        "significance": {
+          "n": 182,
+          "min_n": 10,
+          "sufficient": true,
+          "note": "n=182 >= 10: sample sufficient"
+        },
+        "verdict": "CONCENTRATED"
+      },
+      "dropped_event": {
+        "n_trades": 8,
+        "wins": 2,
+        "losses": 6,
+        "win_rate": 0.25,
+        "expectancy_per_trade_usd": 36.62,
+        "total_pnl_usd": 293.0,
+        "mean_trade_usd": 36.62,
+        "median_trade_usd": -28.0,
+        "worst_trade_usd": -99.0,
+        "best_trade_usd": 474.0,
+        "n_active_days": 4,
+        "n_losing_days": 3,
+        "top3_day_pct_of_net": 146.4,
+        "median_day_usd": -61.5,
+        "trimmed_day_mean_usd": -61.5,
+        "trimmed_day_total_usd": -123.0,
+        "by_day_pnl": {
+          "2026-06-18": -24.0,
+          "2026-05-18": -99.0,
+          "2026-06-15": 552.0,
+          "2026-06-29": -136.0
+        },
+        "significance": {
+          "n": 8,
+          "min_n": 10,
+          "sufficient": false,
+          "note": "n=8 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+        },
+        "verdict": "INCONCLUSIVE"
+      },
+      "walk_forward": {
+        "first_half": {
+          "kept": {
+            "n_trades": 13,
+            "wins": 5,
+            "losses": 8,
+            "win_rate": 0.385,
+            "expectancy_per_trade_usd": 120.92,
+            "total_pnl_usd": 1572.0,
+            "mean_trade_usd": 120.92,
+            "median_trade_usd": -18.0,
+            "worst_trade_usd": -770.0,
+            "best_trade_usd": 1500.0,
+            "n_active_days": 10,
+            "n_losing_days": 6,
+            "top3_day_pct_of_net": 190.5,
+            "median_day_usd": -91.5,
+            "trimmed_day_mean_usd": 68.38,
+            "trimmed_day_total_usd": 547.0,
+            "by_day_pnl": {
+              "2026-04-29": 342.0,
+              "2026-05-01": 470.0,
+              "2026-05-14": 1795.0,
+              "2026-05-04": 730.0,
+              "2026-05-07": -165.0,
+              "2026-05-05": -260.0,
+              "2026-05-06": -300.0,
+              "2026-05-15": -770.0,
+              "2026-06-03": -18.0,
+              "2026-06-26": -252.0
+            },
+            "significance": {
+              "n": 13,
+              "min_n": 10,
+              "sufficient": true,
+              "note": "n=13 >= 10: sample sufficient"
+            },
+            "verdict": "CONCENTRATED"
+          },
+          "dropped": {
+            "n_trades": 4,
+            "wins": 2,
+            "losses": 2,
+            "win_rate": 0.5,
+            "expectancy_per_trade_usd": 107.25,
+            "total_pnl_usd": 429.0,
+            "mean_trade_usd": 107.25,
+            "median_trade_usd": 27.0,
+            "worst_trade_usd": -99.0,
+            "best_trade_usd": 474.0,
+            "n_active_days": 3,
+            "n_losing_days": 2,
+            "top3_day_pct_of_net": 100.0,
+            "median_day_usd": -24.0,
+            "trimmed_day_mean_usd": -24.0,
+            "trimmed_day_total_usd": -24.0,
+            "by_day_pnl": {
+              "2026-06-18": -24.0,
+              "2026-05-18": -99.0,
+              "2026-06-15": 552.0
+            },
+            "significance": {
+              "n": 4,
+              "min_n": 10,
+              "sufficient": false,
+              "note": "n=4 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+            },
+            "verdict": "INCONCLUSIVE"
+          }
+        },
+        "second_half": {
+          "kept": {
+            "n_trades": 169,
+            "wins": 22,
+            "losses": 147,
+            "win_rate": 0.13,
+            "expectancy_per_trade_usd": -8.06,
+            "total_pnl_usd": -1362.0,
+            "mean_trade_usd": -8.06,
+            "median_trade_usd": -10.0,
+            "worst_trade_usd": -152.0,
+            "best_trade_usd": 348.0,
+            "n_active_days": 13,
+            "n_losing_days": 11,
+            "top3_day_pct_of_net": -49.2,
+            "median_day_usd": -123.0,
+            "trimmed_day_mean_usd": -150.27,
+            "trimmed_day_total_usd": -1653.0,
+            "by_day_pnl": {
+              "2026-07-02": 16.0,
+              "2026-07-06": -217.0,
+              "2026-06-30": -388.0,
+              "2026-07-01": -64.0,
+              "2026-07-07": -123.0,
+              "2026-07-08": -382.0,
+              "2026-07-09": -381.0,
+              "2026-07-13": -25.0,
+              "2026-07-15": -192.0,
+              "2026-07-16": -68.0,
+              "2026-07-17": 679.0,
+              "2026-07-20": -141.0,
+              "2026-07-21": -76.0
+            },
+            "significance": {
+              "n": 169,
+              "min_n": 10,
+              "sufficient": true,
+              "note": "n=169 >= 10: sample sufficient"
+            },
+            "verdict": "DRY"
+          },
+          "dropped": {
+            "n_trades": 4,
+            "wins": 0,
+            "losses": 4,
+            "win_rate": 0.0,
+            "expectancy_per_trade_usd": -34.0,
+            "total_pnl_usd": -136.0,
+            "mean_trade_usd": -34.0,
+            "median_trade_usd": -40.0,
+            "worst_trade_usd": -48.0,
+            "best_trade_usd": -8.0,
+            "n_active_days": 1,
+            "n_losing_days": 1,
+            "top3_day_pct_of_net": 100.0,
+            "median_day_usd": -136.0,
+            "trimmed_day_mean_usd": -136.0,
+            "trimmed_day_total_usd": -136.0,
+            "by_day_pnl": {
+              "2026-06-29": -136.0
+            },
+            "significance": {
+              "n": 4,
+              "min_n": 10,
+              "sufficient": false,
+              "note": "n=4 < 10: INCONCLUSIVE -- a positive net on this few trades is noise, not a confirmed edge; widen the window before concluding"
+            },
+            "verdict": "INCONCLUSIVE"
+          }
+        },
+        "sub_window_stable": false
+      }
+    }
+  },
+  "method_disclosures": {
+    "causality": "VIX1D/VIX30 read as the prior trading day's close (up to 7 calendar days back to skip weekends/holidays) -- the only reading available before a day's 09:30 open at daily granularity. C6-safe.",
+    "scope_limitation": "An INTRADAY VIX1D gate (checked at entry time, not pre-market) is explicitly OUT of scope -- no free intraday VIX1D feed found. This probe answers 'is a pre-market VIX1D read informative', not 'is an intraday VIX1D check informative'.",
+    "fill_model": "Real broker fills only (journal/trades.csv dollar_pnl), no simulation.",
+    "yardstick": "per-trade expectancy + concentration-robust day metrics (probe_stats canonical helpers) -- NOT J edge_capture (this is a cross-strategy regime gate, not a single directional candidate; L192).",
+    "pre_registration": "VIX1D bands + slope threshold below were fixed BEFORE this run produced any output (anchored to the doctrine's existing VIX-30 range-regime band, not hand-picked post-hoc)."
+  },
+  "overall_verdict": "NO_CANDIDATE_CLEARS_BAR_YET",
+  "verdict_reasons": [
+    "level_gate::same_as_vix30_band_14_20: does NOT clear bar (verdict=DRY, expectancy=$-7.6, wf_stable=False)",
+    "level_gate::widened_band_10_25: does NOT clear bar (verdict=CONCENTRATED, expectancy=$4.14, wf_stable=False)",
+    "slope_gate::calm_le_neg2: does NOT clear bar (verdict=CONCENTRATED, expectancy=$1.15, wf_stable=False)"
+  ],
+  "eval_bar_cleared": false,
+  "next_step": "small real-fills n (see n_total_trades_loaded) means this is a screening result, not a rejection -- re-run as the trade log grows; do not re-propose without new data"
+}
