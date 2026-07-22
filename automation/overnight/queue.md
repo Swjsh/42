@@ -9,6 +9,40 @@
 
 ## Active backlog
 
+### PULLBACK-HOLD-BULL-TRIGGER (HIGH, THE bull-side build, filed 2026-07-22 Fable review -- supersedes the framing of MORNING-BULL-QUALITY-GATE-RECONSIDER)
+
+- [ ] PULLBACK-HOLD-BULL-TRIGGER (HIGH, Lane-A vocabulary build + Lane-B pre-reg validation) ::
+  ROOT CAUSE, three exhibits in two days: the engine's ONLY high-conviction bull trigger
+  (ELITE level_reclaim) is structurally LATE -- a reclaim by definition fires AFTER the move.
+  Late bull entries bled historically (bull n=80 WR 1.2%) so block_elite_bull was added; the
+  net system now fires bull at TOPS and then blocks itself = zero core bull participation on
+  up days. The block is a tourniquet on a late trigger, not the disease.
+  EXHIBITS (all verified from core-decisions.jsonl):
+    * 07-21 10:40-11:15: three taps of a shelf, engulfing, bull 9-10 -- triggers=[] -- SPY ran
+      746.77->748.97 uncaptured. Trigger finally fired 12:21 at 748.47 (the top), blocked;
+      J ruled the 12:21 class "needs to not happen".
+    * 07-22 10:45-10:50 (J live, angry): pullback low 746.80 sat 26c above a KNOWN
+      level_memory level at 746.54 (the engine SAW the level, levels_context quoted) --
+      triggers=[] -- ribbon still labeled BEAR (flipped BULL 11:16, 30 min LATE, C28 on the
+      entry side) -- extra lanes already dead (3 vwap stops -$108 then RISK_DENY_SETTLEMENT/
+      vetoes/SKIP_LATE_ENTRY). SPY ran 746.80->749.98 (+$3.2) uncaptured. Trigger finally
+      fired 11:31 bull=11 at 749.41 (+$2.6 above J's entry) -- blocked, and TODAY the block
+      was locally CORRECT (price went sideways then faded): the trigger fired at the top again.
+  THE BUILD (vocabulary, Lane A): a PULLBACK-HOLD bull trigger -- in an emerging/confirmed up
+  structure, price pulls back and HOLDS above a known level (zone band per levels-are-zones,
+  never penny-exact; e.g. low within band of level, N bars hold, close back above minor
+  structure) -> bull entry NEAR support, stop below the zone. Enters $2-3 EARLIER than
+  level_reclaim ever can. This is J's actual repeated pattern (07-21 shelf + engulfing,
+  07-22 higher-low at 746.54-746.80).
+  VALIDATION (Lane B, before any live wire): frozen pre-reg -> detector over history ->
+  real-fills replay through exit_manager_walk -> full 4-condition gate + concentration +
+  BH-FDR. The RSI-reset observation (J 07-21) and ribbon-spread observation (retraction doc)
+  are candidate CONFIRMATION features inside this trigger, not separate gates.
+  REFRAMES MORNING-BULL-QUALITY-GATE-RECONSIDER: the answer to "unblock elite bull?" is NO --
+  unblocking admits late tops (07-22 proved the block right at 11:31). The fix is the EARLY
+  trigger, not removing the guard on the late one. Conductor: stop surfacing the reconsider
+  item as J-gated; point it here. depends:none :: status:pending
+
 ### SELFCHECK-TRENDLINE-DRAW-DUPLICATE-SPAM (LOW, OP-22 hygiene, filed 2026-07-22 conductor AFTERHOURS)
 
 - [ ] SELFCHECK-TRENDLINE-DRAW-DUPLICATE-SPAM (LOW) :: `self_check.py`'s
