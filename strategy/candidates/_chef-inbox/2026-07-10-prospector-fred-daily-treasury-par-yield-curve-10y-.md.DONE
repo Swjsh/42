@@ -38,3 +38,25 @@ series alongside the 0DTE trade log, test the 10Y-2Y spread level/slope as a mac
 against the standing OP-11/OP-16 pass bar. Not attempted this fire (real backtest + new
 API-key registration, out of this triage-pass's budget). -->
 
+<!-- DONE 2026-07-22 ~05:48-06:15 ET conductor (AFTERHOURS): the "register a FRED API key"
+blocker above was WRONG -- confirmed live this fire that FRED's `fredgraph.csv` CSV-download
+endpoint (`https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10,DGS2,DGS3MO`) needs NO
+key/registration (plain unauthenticated GET, full history back to the 1960s-70s). Cached
+DGS10/DGS2/DGS3MO daily 2026-04-01..2026-07-22 to
+`backtest/data/fred_yield_curve_2026-04-01_2026-07-22.csv` (79 rows). Built
+`backtest/autoresearch/fred_yield_curve_probe.py` -- tested the 10Y-2Y spread against ALL 190
+real `journal/trades.csv` fills as (a) a median-split LEVEL gate (steep vs flat -- the spread
+never inverted in-window, min +0.27pp/max +0.57pp entirely positive, so a standard
+inverted-vs-normal test would degenerate to a single-population no-op; adapted to a median
+split of the observed distribution, same disclosed-adaptation pattern as bxm_gate_probe.py,
+OP-20) and (b) a day-over-day SLOPE gate (steepening vs flattening), reusing
+`probe_stats.py`'s canonical significance/concentration/verdict helpers (C14/C17). Honest
+result: **NO_CANDIDATE_CLEARS_BAR_YET** -- steep-half CONCENTRATED (exp $158.45/tr, top-3 days
+dominate), flat-half DRY (exp -$6.93/tr), slope gate CONCENTRATED (exp $9.60/tr), none
+walk-forward stable across the chronological half-split. Filed as a screening result
+(NEEDS-MORE-DATA, not a rejection -- n=190/~65 days is still thin). DGS3MO cached but unused
+(left for a future fire as the item's own note specifies -- a sub-series fold-in, not a
+separate candidate). Leaderboard row 51 added. Guard `pytest
+backtest/tests/test_fred_yield_curve_probe.py -q` 5/5 PASS. Zero trading-path files touched
+(research probe + guard test + cached CSV + leaderboard + this inbox note only). -->
+

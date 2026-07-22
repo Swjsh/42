@@ -44,6 +44,20 @@
 - Gamma has a face (UI) but the Approve button is display-only (G8 bus not wired). Actually G8 was shipped: companion appr
 - There is a self-audit mechanism but there are orphan tasks (G9-SELF-AUDIT PART-2 low). So self-audit not fully autonomou
 
+<!-- TRIAGED 2026-07-22 ~06:15 ET (conductor, AFTERHOURS): almost 4 weeks stale, re-checked
+against live state rather than left silently. "Self-audit orphan tasks not autonomously
+resolved" is the SAME gap as the 2026-06-26T20:42 batch above and was ALREADY closed by the
+06-27T17:56 DONE marker (commit 50ca875, all 16 orphans documented in SCHEDULED-TASKS.md) --
+this entry is a duplicate surfaced by the same audit run, not a new unresolved item. The
+remaining scaffold lines (#9/#10 "First, a ranked list..." / "Then, for the top gap...") are
+prompt-template noise (same class the 06-29 self_audit._is_real_gap fix targets, but this
+batch predates that fix and was never re-extracted). The 4 genuine Face/companion items (approve
+button wiring, live equity display, voice/Electron merge) and the drift-detection/dependency-
+scan items were already tracked in the 06-27T17:56 DONE marker's own disposition ("Face/
+companion items = G8(shipped)/face-build follow-ups (J's-move, rail-4)"; drift-detection
+mapped to Rule 5 + risk_gate). No new code action -- this triage closes the loop so the batch
+stops reading as open. -->
+
 ## 2026-06-28T17:30:40 -- 12 new gap(s) Gamma self-identified
 - Most likely failure mode
 - Worst-case impact on J's environment
