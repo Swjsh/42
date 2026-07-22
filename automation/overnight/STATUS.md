@@ -1,3 +1,67 @@
+## [2026-07-22 ~09:12-09:20 ET] OK -- conductor (AFTERHOURS): drained lesson-inbox -> L240 + fixed a mis-suffixed DONE marker, commit `0a79918b`
+
+> **STAGE 0/1:** ET confirmed via `et_clock.py` (09:12, Wednesday, market_hours=False -- still
+> pre-open, gate correctly did NOT skip). engine-health GREEN (13/13, market closed since 15:55
+> prior day). `self-check-last.json` DEGRADED on the same pre-existing non-load-bearing
+> TRENDLINE-DRAW visibility flag (unchanged). `fill_funnel.py` IDLE (pre-open, 0 ticks yet --
+> expected). `task_scorer.py --top` again surfaced only the J-decision-gated
+> `MORNING-BULL-QUALITY-GATE-RECONSIDER`, correctly skipped. Self-audit gaps: no new batch since
+> 2026-07-21T17:31:28 (already triaged). `queue.md` `status:open` grep: only `T-AUDIT-TAIL`
+> (already deprioritized, not a clean 60-min pick, left as-is). Author-inbox order:
+> validator-inbox all `.DONE`, skill-inbox only a correction-queue log ->
+> **`_lesson-inbox` had exactly 1 open item** (the prior fire's self-filed
+> `2026-07-22-prospector-exact-dedupe-key-misses-reworded-family-duplicate.md`) -- picked it
+> (priority-5, author-inbox tier, ahead of chef-inbox, nothing higher-priority ready).
+
+> **What shipped:** graduated the item to **L240** in `markdown/doctrine/LESSONS-LEARNED.md`
+> (exact-key dedupe silently let 8 re-worded re-asks of 2 concepts -- VIX1D x5, VPVR x3 --
+> promote as "8 fresh ideas" before the FAMILY_KEYWORDS fix, commit `a4368bd`), folded into
+> CLAUDE.md's OP-25 index (C7 row -- fits the "silent success is failure" theme better than C34,
+> per the item's own dual cross-reference), bumped the "current through" pointer L239->L240,
+> marked the source inbox item `.DONE`.
+
+> **Side-find, fixed (not just noted):** re-running the guard suite
+> (`test_inbox_done_suffix.py`) turned up a LIVE pre-existing foot-gun from an earlier fire --
+> `2026-07-10-prospector-cboe-buywrite-index-bxm-real-time-levels.DONE.md` was named
+> `*.DONE.md` instead of the required `*.md.DONE`, so it still ends in `.md` and the chef's
+> `*.md` glob would silently re-consume it as open work (exactly what this guard exists to
+> catch). Verified isolated (the 3 sibling BXM-family DONE markers all used the correct
+> convention) before renaming via `git mv`.
+
+> **Verified this fire (OP-33):** `pytest backtest/tests/test_op25_index_reconciliation.py
+> backtest/tests/test_inbox_done_suffix.py backtest/tests/test_verify_committed.py -q` ->
+> 1 FAIL (the mis-suffixed marker) on first run, **16/16 PASS** after the rename fix.
+> `grep -c "^    | C" CLAUDE.md` = 35 (no duplicate/malformed rows). `git status --short` on the
+> exact 4 intended paths before staging (L239 discipline), curated safety gate (31+5) PASS
+> pre-commit, `git show --stat HEAD` post-commit confirms exactly 4 files / 14 insertions(+) /
+> 2 deletions(-), 2 clean renames, nothing stray. Context budget re-checked post-edit:
+> `context_audit.py` -> YELLOW 8739/9000 tok (97%, up from 8709 -- still within budget).
+
+> **Trading-path scope:** zero trading-path files touched (LESSONS-LEARNED.md/CLAUDE.md
+> doctrine-authoring + 2 inbox-marker renames only -- no params/heartbeat_core/filters/
+> placement/exit). No guard/revert/REVOKE needed under rail 4 (nothing shipped that could
+> regress a live decision). **Revert:** `git revert 0a79918b` (1 commit, fully additive
+> doc/inbox change, no functional code path touched).
+
+> **Queue state:** all 4 author inboxes empty of actionable items again (validator/skill/lesson
+> all clear). `_chef-inbox` has 10 open prospector items remaining (2 new since the last fire's
+> count: `2026-07-22-prospector-auto-supportresistance-zones-by-luxalgo-.md` and
+> `2026-07-22-prospector-order-flow-imbalance-ofi-by-sanjay-cumul.md`). Next fire: if nothing
+> higher-priority surfaces, pick the next-oldest chef-inbox item that is NOT TradingView-MCP-
+> dependent (this session's tool surface again has zero `tradingview`-prefixed tools -- the
+> 2026-07-10 VPVR and 2026-07-11 auto-S/R and market-profile items stay blocked on that; the
+> CFTC/FINRA/alpha-vantage/polygon/OFI-family items are free-data-only and unblocked).
+> `queue.md` retention-cap consolidation still noted, not actioned (unchanged from last several
+> fires -- a genuine future task, correctly not rushed here to stay bounded).
+
+> **Cost: ~$1.9** (STAGE 0/1 reads, engine-health/self-check/task_scorer/fill_funnel/
+> self-audit-gaps/queue-grep/4-inbox survey, reading the 1 lesson-inbox item in full, writing
+> the L240 entry + CLAUDE.md index fold, discovering + fixing the mis-suffixed DONE marker,
+> 3 guard-test runs (1 RED, then GREEN), 1 commit with pre/post verification, this STATUS
+> update).
+
+---
+
 ## [2026-07-22 ~07:48-07:58 ET] OK -- conductor (AFTERHOURS): prospector concept-family dedupe (root-cause fix), commits `a4368bd` + `cdcd48f`
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55 prior day).
@@ -602,180 +666,3 @@
 
 ---
 
-## [2026-07-21 ~20:42-21:10 ET] OK -- conductor (AFTERHOURS): QQQ divergence/confluence first-pass -- QQQ_AGREEMENT_INFORMATIVE, commit `1e16b09`
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `fill_funnel.py`
-> checked: safe/bold both GREEN (bold's 1 ENTER->0-attempt row is an excluded informational
-> status per the script's own false-RED-fix classes, not a bug). Self-audit gaps: the
-> 2026-07-21T17:31:28 batch already TRIAGED by an earlier fire today, nothing new. `queue.md`
-> HIGH survey: all remaining HIGH items are J-decision-gated / Fable-methodology-gated /
-> evidence-accrual-blocked (unchanged from earlier fires' findings). Picked chef-inbox
-> priority-5: `_chef-inbox/2026-07-11-prospector-qqq_divergence_confluence.md`, explicitly
-> named by the 20:12-20:53 fire as the single highest-readiness item, deferred pending "a
-> future chef fire with its own budget" -- this fire was that budget.
-
-> **What shipped:** fetched real QQQ 5m bars (69,978 bars, 2025-01-02..2026-06-18, Alpaca
-> SIP, paginated, cached `analysis/backtests/cache/qqq-5m-2025-01-01_2026-06-18.csv` --
-> zero new external data-feed risk). Labeled all 250 canonical `ribbon_ride` signals
-> (`_signal_cache.load_or_build_signals()`, reused unmodified) with QQQ's own no-look-ahead
-> 20-bar rolling high/low reclaim/failed/none at each signal's `entry_ts`. Stratified a
-> clearly-disclosed spot-return proxy (direction-aligned SPY forward return over 30 min --
-> NOT a $ P&L, NOT a real fill, per the standard staged-research discipline: cheap
-> information test BEFORE funding the expensive real-OPRA replay). Result: reclaimed n=21
-> mean +1.08 SPY pts / failed n=27 mean +0.55 / none n=202 mean +0.07 -- spread +0.96,
-> verdict **QQQ_AGREEMENT_INFORMATIVE**. Honestly flagged an open confound in the write-up
-> (failed ALSO beats none -- may be a trend-day/volatility proxy, not pure QQQ-specific
-> confirmation) as the first thing the funded real-fills follow-up must resolve. NOT a
-> wiring proposal -- explicitly not eligible for `conductor-proposals.jsonl` on its own.
-> New reusable tool `backtest/tools/qqq_divergence_confluence_study.py` + guard
-> `backtest/tests/test_qqq_divergence_confluence_study.py` (9/9 PASS). Candidate doc:
-> `strategy/candidates/2026-07-21-205400-qqq-divergence-confluence-first-pass.md`.
-> Chef-inbox item closed (renamed `.DONE`, 14->13 open), `_chef-log.jsonl` + `_LEADERBOARD.md`
-> updated (Rank I, NEEDS-MORE-DATA).
-
-> **Foot-gun hit + lesson filed (not graduated yet, first occurrence):** RED-proofing the
-> new guard via `git stash -- <untracked file>` failed (git can't pathspec-stash a file
-> that was never tracked), and because the follow-up commands in that Bash call weren't
-> `&&`-chained, a bare `git stash pop` ran anyway and nearly popped an UNRELATED
-> pre-existing stash left by another session. It aborted safely on its own (this shared
-> checkout has ~2,400 files modified-but-uncommitted at any time -- conflicts blocked the
-> pop) -- verified `git stash list` unchanged (3 pre-existing stashes intact) and my new
-> files untouched before proceeding. Switched to rename/restore (`mv`) for the actual
-> RED-proof. Filed `_lesson-inbox/2026-07-21-git-stash-in-shared-checkout-pops-wrong-stash.md`
-> (candidate L236) -- the durable takeaway: **never use `git stash`/`git stash pop` in this
-> repo's automation context** (same root class as C34).
-
-> **Verified this fire (OP-33):** curated safety gate (31+5-suite) PASS on the actual
-> commit (pre-commit hook output quoted: "31 passed in 1.34s ... [safety-gate] PASS").
-> `git diff --cached --stat` confirmed exactly the 10 intended files before committing.
-> Post-commit `git show HEAD --stat` + `git ls-tree HEAD` confirmed the rename landed
-> (`.md.DONE` present, original path absent) and the new files are all tracked. Commit
-> `1e16b09`.
-
-> **Zero trading-path files touched** -- pure research/authoring work (new tool + guard +
-> analysis outputs + inbox/leaderboard/lesson bookkeeping). Ships as engine-benefit per
-> OP-22/OP-25/OP-26, no J ratification needed. **Revert:** `git revert 1e16b09` (10 files,
-> additive except the 2 append-only ledgers and the .DONE rename -- no data loss).
-
-> **Cost: ~$4.5** (STAGE 0/1 reads incl. fill_funnel + self-audit-gap + queue.md HIGH
-> survey, deep-dive into 5 existing backtest tools to find the reusable signal-cohort +
-> SPY-loader + probe_stats machinery before writing anything new, ~300-line new study
-> script + ~130-line guard test authored + iterated to green, live QQQ bar fetch (69,978
-> bars), the actual stratification run, candidate write-up with OP-20 disclosures,
-> leaderboard/chef-log/inbox bookkeeping, the git-stash near-miss investigation +
-> lesson write-up, commit + post-commit verification, this STATUS/queue update).
-
----
-
-## [2026-07-21 ~20:12-20:53 ET] OK -- conductor (AFTERHOURS): drained chef-inbox backlog 31->14 open + rejected late-entry-ceiling hypothesis, commit `3422e7b`
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `task_scorer.py --top`
-> again surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (confirmed still J-decision-gated via
-> queue.md's own text, correctly skipped). Self-audit gaps fully triaged (nothing new since the
-> 2026-07-21T17:31:28 batch, already TRIAGED by an earlier fire today). Checked `_chef-inbox/`
-> (STAGE 1 priority-5, author inboxes oldest-first) and found **31** un-actioned items dating
-> back to 2026-07-09 (12+ days stale) -- chef's own log (`_chef-log.jsonl`) last fired
-> 2026-07-07, meaning this inbox has been silently accumulating for 2 weeks while higher-
-> priority items always won the STAGE-1 pick. **No Agent-tool available this session** (tool
-> list was Read/Edit/Write/Bash/Grep/Glob + Alpaca MCP only) -- acted directly as chef per its
-> own guardrails (DRAFT-only, no live orders, no params/CLAUDE.md edits) rather than deferring.
-
-> **What shipped:** (1) REAL backtest on Analyst's 07-14 `late-entry-ceiling-review` item: 71
-> raw `SKIP_LATE_ENTRY` rows from live `core-decisions.jsonl` (2026-07-07..07-21, all the ledger
-> retains) grouped into 19 distinct re-confirming episodes, joined to a fresh SPY 5m bar cache.
-> Sweeping the ceiling to 15:15/15:30/15:40 would only have been directionally favorable
-> 10%/31%/31% of the time by the 15:50 flatten -- REJECTED, converges with the prior
-> `agg_block_bull_morning_afternoon` POWER_HOUR finding (n=3, WR=33%, -$45) via an independent
-> method+dataset. Written up with full OP-20 disclosures at
-> `strategy/candidates/2026-07-21-202600-late-entry-ceiling-reconsider.md` (leaderboard rank 47).
-> (2) Rejected 10 prospector items with live evidence: `yf.Ticker('^TICK'/'^ADD'/'^TRIN')` all
-> 404 (the "free via Yahoo Finance" claims were wrong -- caught a genuine swarm inconsistency,
-> a sibling item labels the same NYSE-TICK data "Cost: paid"), NYSE OpenBook + FlowAlgo "free
-> tier" are licensed/marketing not programmatic APIs, 4 items self-labeled "Cost: paid" outright.
-> (3) Consolidated 6 duplicates into 3 canonical masters (VIX1D family -- feasibility VERIFIED
-> this fire via a live `^VIX1D` probe, real daily bars; TV Volume-Profile-shelf family; FRED
-> treasury-yield-curve family), each left OPEN with a concrete next-step note instead of
-> re-litigating cold on a future fire. (4) Flagged `qqq_divergence_confluence` as the single
-> highest-readiness remaining item (fully spec'd in `CROSS-TICKER-BRAINSTORM-2026-07-10.md`,
-> zero new data-feed risk) for the next chef fire's top pick. (5) Filed a lesson-inbox item
-> (`_lesson-inbox/2026-07-21-prospector-free-claim-not-verified-before-cost-tag.md`) documenting
-> the free-claim-hallucination pattern -- first occurrence, not yet graduated to code, watching
-> for a repeat per OP-25.
-
-> **Verified this fire (OP-33):** curated safety gate (31+5-suite) PASS on the actual commit
-> (pre-commit hook output quoted: "31 passed in 1.47s ... [safety-gate] PASS"). `git diff
-> --cached --stat` confirmed exactly 26 intended files before committing (no scope creep in the
-> large actively-churning shared checkout -- left an unrelated pre-existing uncommitted
-> `_review-log.jsonl` change untouched, not mine to stage). Post-commit `git show HEAD --stat` +
-> `git ls-tree HEAD` confirmed the renames landed correctly (12 tracked `.DONE` files present,
-> originals absent) and `ls` on disk confirmed 14 open items remain (12 tracked + 2 items from
-> today that were never committed in the first place, correctly left untouched). Commit `3422e7b`.
-
-> **Zero trading-path files touched** -- pure research/author-inbox work. Ships as
-> engine-benefit per OP-22/OP-25/OP-26, no J ratification needed. **Revert:** `git revert
-> 3422e7b` (26 files, restores all 15 renamed-to-.DONE originals + removes the 2 new inbox
-> masters' annotations + the new candidate/lesson files). **Not done this fire (named for next
-> chef pick):** the actual QQQ-divergence-confluence backtest (design ready, needs a fresh QQQ
-> bar fetch — real work, not a triage item); 2 items still genuinely unverified (Alpha Vantage
-> intraday rate limits, Polygon.io free-tier delay, IEX Cloud current status) — left open,
-> honestly un-investigated rather than guessed.
-
-> **Cost: ~$7.5** (STAGE 0/1 reads, task_scorer, self-audit-gap re-check, reading all 31
-> chef-inbox items across 5 batches, 2 live yfinance feasibility probes, a real 19-episode
-> SPY-bar-joined backtest with a fresh CSV cache, writing a full OP-20-disclosed candidate +
-> leaderboard row + chef-log entry + lesson-inbox item, 17 file dispositions via a scratch
-> script, commit + post-commit verification, this STATUS/queue update).
-
----
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `task_scorer.py --top`
-> re-surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still correctly J-decision-gated). Self-audit
-> gaps fully triaged (2026-07-21T17:31:28 batch already TRIAGED by an earlier fire today). Checked
-> `_lesson-inbox/` (STAGE 1 priority-5, author inboxes oldest-first) and found **5** un-actioned
-> items, all filed by earlier fires TODAY (2026-07-21) -- an inbox that would otherwise sit
-> un-drained until a future fire happened to look, exactly the class this stage exists to prevent.
-
-> **What shipped:** read all 5 items in full and wrote **L231-L235** in
-> `markdown/doctrine/LESSONS-LEARNED.md`, each citing the specific commit/file/test that already
-> fixed the acute instance: L231 (a doc's own "shipped/verified" claim isn't proof `git commit`
-> ran -- folds into C35 alongside L221), L232 (a test hardcoding a "TODAY" date literal but
-> relying on a REAL filesystem mtime is a time-bomb, not a passing test -- new C6/C7 angle), L233
-> (a silently-reset producer idempotency state floods a downstream author inbox for weeks with
-> zero crash/RED symptom -- folds into C34 alongside L214/L228), L234 (a "real fills" arm-scope
-> filter goes synthetic-by-omission when the live account lineup moves on without the loader's
-> scope being re-verified -- folds into C14), L235 (a shared loader documented to return a
-> full-history WARMUP frame is not automatically safe to iterate as a single-day EVENT stream --
-> folds into C6). Folded all 5 into the CLAUDE.md OP-25 index (C6/C7/C14/C34/C35 rows), bumped
-> the "current through" pointer L230->L235. Deleted all 5 processed inbox items.
-
-> **Verified this fire (OP-33), applying L231's own lesson before writing this line:** curated
-> safety gate (31+5-suite) PASS both pre-commit (manual run) and via the pre-commit hook on the
-> actual commit. `git diff --cached --stat` confirmed exactly the 7 intended files staged (2
-> edits + 5 deletions) before committing -- no accidental scope creep in this large, actively-
-> churning shared checkout. Post-commit, `git ls-tree HEAD` confirmed the 5 inbox paths are
-> correctly ABSENT and `git show HEAD:markdown/doctrine/LESSONS-LEARNED.md` confirmed 7 `## L23x`
-> headers present, `git show HEAD:CLAUDE.md` confirmed the "current through L235" pointer landed
-> -- not just a green pytest run. `check-context-budget.ps1` -> YELLOW 8548/9000 (95%), inside
-> budget after the index-row growth. Commit `d827cd3`.
-
-> **Zero trading-path files touched** -- pure doctrine/lesson-index update. Ships as
-> engine-benefit per OP-22/OP-25/OP-26, no J ratification needed. **Revert:** `git revert
-> d827cd3` (7 files, 2 edits + 5 restored deletions, no data loss). **Not done this fire
-> (deliberately, scope discipline):** none of the 5 lessons' own "owed" follow-ups (wiring
-> `verify_committed` into conductor STAGE 5 for L231; a drift-ratchet guard for L234; a broader
-> producer-idempotency sweep for L233) were built -- each lesson explicitly flags its follow-up as
-> future work, not required to close the inbox drain itself.
-
-> **Cost: ~$2.3** (STAGE 0/1 reads, task_scorer + self-audit-gap re-check, reading all 5 inbox
-> items in full, composing 5 cite-or-defer lessons + OP-25 fold, context-budget check, safety
-> gate x2, commit + post-commit `git ls-tree`/`git show` verification, this STATUS/queue update).
-
----
-
-
-- [2026-07-22 04:00:02] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
-
-[2026-07-22 04:00:02] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-22.md
-
-## Kitchen
-Kitchen: alive, queue 27 pending, last cook 0 min ago, today $0.00, model=grinder-python

@@ -1327,6 +1327,22 @@ These are exactly the OP-22 "371st untriaged candidate is debt" pattern. The `gy
 
 ## Completed
 
+### 2026-07-22 ~09:12-09:20 ET — conductor (AFTERHOURS): lesson-inbox drain -> L240 + mis-suffixed DONE marker fix, commit `0a79918b`
+
+- [x] `2026-07-22-prospector-exact-dedupe-key-misses-reworded-family-duplicate` (lesson-inbox,
+  sole open item) :: graduated to L240 in LESSONS-LEARNED.md, folded into CLAUDE.md OP-25 C7
+  row, pointer bumped L239->L240. Side-find fixed: `2026-07-10-...bxm-real-time-levels.DONE.md`
+  in `_chef-inbox` was mis-suffixed (`.DONE.md` not `.md.DONE`) — still `*.md`-globbable, a live
+  re-consumption risk; renamed via `git mv`. 16/16 guard tests PASS (1 RED before the rename
+  fix). Full report: `STATUS.md` this timestamp. :: status:done
+
+- [ ] Next fire (no higher-priority item ready): all 4 author inboxes empty; pick next-oldest
+  `_chef-inbox` item that is NOT TradingView-MCP-dependent (tool surface still lacks
+  `tradingview`-prefixed tools this window) — CFTC/FINRA/alpha-vantage/polygon/OFI family is
+  free-data-only and unblocked. `T-AUDIT-TAIL` remains the only queue.md `status:open` item,
+  still not a clean 60-min pick per its own note. `queue.md` retention-cap consolidation
+  (2789+ lines) still a named future task, not yet actioned. :: status:open
+
 ### 2026-07-21 ~17:42-18:10 ET — conductor (AFTERHOURS): stale validator-inbox item closed + time-bomb test found+fixed, commit `426e097`
 
 - [x] 2026-07-14-tick-audit-zero-count-bug (validator-inbox, 7d stale) :: root fix already
@@ -1740,6 +1756,14 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 
 ## HARVESTED-FROM-GYM (auto-queued by crypto/benchmarks/gym_harvester.py)
 
+- [ ] HARVEST-REGIMEEXT-20260722-100050 (LOW) :: v09_regime TREND_UP dominant: 75/81 bars (93%) | last_regime=CHOP atr_14=67 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T10:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260722-100051 (LOW) :: v09_regime TREND_UP dominant: 69/81 bars (85%) | last_regime=TREND_DOWN atr_14=70 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T11:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260722-100052 (LOW) :: v09_regime TREND_UP dominant: 63/81 bars (78%) | last_regime=TREND_UP atr_14=59 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T12:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260722-100053 (LOW) :: v09_regime TREND_UP dominant: 69/81 bars (85%) | last_regime=TREND_UP atr_14=81 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T13:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260722-100054 (LOW) :: v09_regime TREND_UP dominant: 58/80 bars (72%) | last_regime=BREAKOUT atr_14=116 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T14:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260722-100055 (LOW) :: v09_regime TREND_DOWN dominant: 56/80 bars (70%) | last_regime=TREND_DOWN atr_14=68 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-22T07:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260722-100056 (LOW) :: v09_regime TREND_DOWN dominant: 68/81 bars (84%) | last_regime=TREND_DOWN atr_14=69 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-22T08:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260722-100057 (LOW) :: v09_regime TREND_DOWN dominant: 57/81 bars (70%) | last_regime=TREND_UP atr_14=70 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-22T09:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260721-100046 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=183 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-20T16:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260721-100047 (LOW) :: v09_regime TREND_UP dominant: 57/80 bars (71%) | last_regime=TREND_UP atr_14=89 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T05:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260721-100048 (LOW) :: v09_regime TREND_UP dominant: 59/81 bars (73%) | last_regime=TREND_UP atr_14=89 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T06:00:00+00:00:TREND_UP :: depends:none :: status:queued
@@ -1747,14 +1771,6 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 - [ ] HARVEST-REGIMEEXT-20260721-100050 (LOW) :: v09_regime TREND_UP dominant: 65/81 bars (80%) | last_regime=TREND_UP atr_14=94 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T08:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260721-100051 (LOW) :: v09_regime TREND_UP dominant: 69/81 bars (85%) | last_regime=TREND_UP atr_14=93 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T09:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-RIBBONFLIP-20260721-100052 (MED) :: v08_ribbon flip MIXED -> BULL | spread=231.28>100 | recent dist BULL=100 BEAR=23 MIXED=77 :: key=EDGE_RIBBON_FLIP:2026-07-21T09:00:00+00:00:BULL :: depends:none :: status:queued
-- [ ] HARVEST-SWEEP-20260721-100053 (MED) :: v14_sweep liquidity-grab at level=65000 dir=down bar_idx=27 | wick_excess=0.0206% close_back=0.0963% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-07-21T09:57:03.647938+00:00:65000:down:27 :: depends:none :: status:queued
-- [ ] HARVEST-SWEEP-20260720-100042 (MED) :: v14_sweep liquidity-grab at level=64000 dir=up bar_idx=188 | wick_excess=0.0740% close_back=0.0659% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-07-20T09:48:59.631828+00:00:64000:up:188 :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260720-002020 (LOW) :: v09_regime TREND_UP dominant: 75/81 bars (93%) | last_regime=CHOP atr_14=40 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-19T00:00:00+00:00:TREND_UP :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260720-002021 (LOW) :: v09_regime TREND_UP dominant: 67/81 bars (83%) | last_regime=CHOP atr_14=38 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-19T01:00:00+00:00:TREND_UP :: depends:none :: status:queued
-- [ ] HARVEST-RIBBONFLIP-20260720-002022 (MED) :: v08_ribbon flip MIXED -> BULL | spread=143.66>100 | recent dist BULL=58 BEAR=50 MIXED=91 :: key=EDGE_RIBBON_FLIP:2026-07-20T00:00:00+00:00:BULL :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260718-100042 (LOW) :: v09_regime TREND_DOWN dominant: 60/80 bars (75%) | last_regime=TREND_UP atr_14=73 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T10:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260718-100043 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=118 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T19:00:00+00:00:TREND_UP :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260718-100044 (LOW) :: v09_regime TREND_UP dominant: 58/81 bars (72%) | last_regime=CHOP atr_14=99 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T20:00:00+00:00:TREND_UP :: depends:none :: status:queued
 
 ### T-GYM-20260619 HIGH gym-session RED for 2026-06-19
 
