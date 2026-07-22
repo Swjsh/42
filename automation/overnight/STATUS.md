@@ -1,3 +1,89 @@
+## [2026-07-22 ~16:42-17:35 ET] OK -- conductor (AFTERHOURS): QQQ divergence confound check run, spread survives volatility control, commit `61a6dcbe`
+
+> **STAGE 0/1:** ET confirmed 16:42, Wednesday, market closed since 15:55 (correctly
+> after-hours). `engine-health.json` GREEN 13/13 (market-closed quiet-OK across the board,
+> kill-switches armed-not-tripped both accounts). `self-check-last.json` DEGRADED only on
+> the pre-existing non-load-bearing TRENDLINE-DRAW visibility flag (unchanged, has its own
+> LOW queue item). `fill_funnel.py`: today's core:safe shows 2 fills/2 exits in the funnel
+> summary vs 3 real round-trips in `fills-ledger.jsonl` (09:51/10:01/10:10, all `attribution:
+> engine`) and 0 `ENTER` actions logged in `core-decisions.jsonl` for either account today --
+> traced this: the extra-setup lane's fills don't route through the ribbon-path's ENTER
+> logging (matches the standing digest note "ENTERs may not log to the ledger"), not a new
+> break; did not chase further (would have exceeded a bounded triage budget for a
+> non-critical, already-flagged quirk). Self-audit gaps: last batch (2026-07-21T17:31:28)
+> already triaged, nothing new. All 4 author inboxes: validator/lesson empty, skill only a
+> correction-queue log, chef-inbox 13 open (2 fewer than the prior fire's count of 13 --
+> stable). `task_scorer.py --top` again surfaced only the J-decision-gated
+> `MORNING-BULL-QUALITY-GATE-RECONSIDER` (correctly skipped, per established precedent).
+> Next-highest queue items were either Opus-scoped (`DOJO-BUILD-HANDOFF`), already
+> DEFER-INSUFFICIENT-DATA'd twice (`EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT`), or J-ratification-
+> gated -- so picked the chef-inbox's own highest-readiness item: the 2026-07-21 QQQ
+> divergence/confluence first-pass study had named its OWN next step as "run the confound
+> check FIRST" (disclosure #3) before funding the full real-fills replay.
+
+> **What shipped:** added `realized_vol_for_signal()` (no-look-ahead SPY realized-vol proxy,
+> same strictly-before-entry_ts convention as the existing QQQ label) +
+> `confound_check_by_volatility()` (median-split, per-half reclaimed-vs-none spread) to
+> `backtest/tools/qqq_divergence_confluence_study.py`; re-ran the study. **Result:
+> `SPREAD_SURVIVES_VOL_CONTROL`** -- low-vol half spread +0.826 (n_reclaimed=8/n_none=108),
+> high-vol half spread +1.132 (n_reclaimed=13/n_none=94), both positive and similar
+> magnitude (if anything larger in the high-vol half -- the opposite of what a pure
+> volatility-artifact explanation predicts). This resolves the confound the 2026-07-21 doc
+> flagged as its own blocker for funding decision; confidence raised 6/10 -> 7/10 (per-half
+> n_reclaimed is thin, disclosed honestly, not hidden). **Decision per the doc's own
+> pre-committed gate: funding the full real-fills replay is now justified** -- filed as
+> `QQQ-DIVERGENCE-REALFILLS-REPLAY` in queue.md, deliberately NOT executed this fire (a
+> per-strike real-OPRA replay across 250 signals is a materially heavier, separate-budget
+> task; one bounded task per fire, rail 3). Addendum written to
+> `strategy/candidates/2026-07-21-205400-qqq-divergence-confluence-first-pass.md`.
+> **Bonus hygiene (closes loops, doesn't just create an artifact):** fixed 2 stale queue.md
+> checkboxes that stayed `[ ]` after their underlying work had already shipped
+> (`QQQ-DIVERGENCE-CONFLUENCE-BACKTEST` -- the 2026-07-21 first-pass was already `.DONE` on
+> disk; `EXTRA-SIGNAL-CHURN-COOLDOWN` -- item 1 shipped 2026-07-20, item 2 already re-filed
+> separately).
+
+> **Verified this fire (OP-33):** new guard tests `TestRealizedVolNoLookAhead` (4) +
+> `TestConfoundCheckByVolatility` (4) added to
+> `backtest/tests/test_qqq_divergence_confluence_study.py` -> 17/17 PASS. RED-proofed via
+> the rename/restore technique (checked out the pre-edit HEAD version of both the module and
+> the test file, confirmed the exact expected `ImportError: cannot import name
+> 'realized_vol_for_signal'` on collection, restored the new versions, re-verified 17/17
+> green) -- **no `git stash` used**, per the standing C34/L228/L238 discipline for this
+> shared, constantly-churning checkout. Broader sweep (`test_qqq_divergence_confluence_study`
+> + `test_ribbon_rejection_wick` + `test_structure_stop_study`) -> 47/47 PASS. Curated safety
+> gate (`backtest/tests/run_safety_gate.py`, 31+5 suites) PASS. `git status --short` on the
+> exact 6 intended paths before staging (L239 discipline -- other daemons' concurrent state
+> writes across ~30 other tracked files were correctly left untouched, pathspec-only add);
+> `git diff --cached --stat automation/overnight/queue.md` confirmed only my 2 checkbox
+> flips + 1 new section (29 insertions/2 deletions) before committing -- no accidental
+> concurrent-daemon content mixed in. `git show --stat HEAD` post-commit confirms exactly 6
+> files / 322 insertions(+) / 10 deletions(-) landed, nothing stray.
+
+> **Rail-4 / trading-path scope:** zero trading-path files touched (research tool + guard
+> tests + candidate doc + queue.md only -- no params/heartbeat_core/filters/placement/exit).
+> Ships per OP-22/OP-25/OP-26 without J ratification. **Revert:** `git revert 61a6dcbe`
+> (1 commit, 6 files, purely additive -- no existing function bodies altered, no behavior
+> anywhere changes; safe no-op rollback).
+
+> **Cost: ~$5.1** (STAGE 0/1 reads across engine-health/self-check/fill_funnel/self-audit-
+> gaps/4-inbox survey/task_scorer, a real-money-adjacent funnel-discrepancy investigation
+> that concluded non-critical, reading the full chef-inbox item + candidate doc + existing
+> study script/tests, ~180 lines of new production code + guard tests, 1 real study re-run
+> against live-cached OPRA/SIP data, 1 RED-proof round-trip, 1 broader 47-test regression
+> sweep, 1 curated safety-gate run, 1 commit with pre/post verification, this STATUS update).
+
+> **`conductor_outcome.py metric` trend: `regressing`** (net_improvement=48/20-fire window,
+> function_score_avg=32.4, today's `function_latest` shows `enters_last_trading_day=0` /
+> `orders_accepted=0` despite `fills=3`). This tracks the SAME funnel quirk flagged in
+> STAGE 0/1 above (extra-setup-lane fills don't increment the ENTER/accepted counters the
+> function score reads) -- not a new regression this fire caused, but flagging per the
+> conductor's own "say so if regressing" instruction rather than silently passing it. Next
+> fire with spare budget: check whether `fill_funnel.py`'s/`conductor_outcome.py`'s
+> `orders_accepted` counter should also count extra-setup-lane fills (a counter-scope gap,
+> not a trading-path bug -- visibility only).
+
+---
+
 ## [2026-07-22 ~09:12-09:20 ET] OK -- conductor (AFTERHOURS): drained lesson-inbox -> L240 + fixed a mis-suffixed DONE marker, commit `0a79918b`
 
 > **STAGE 0/1:** ET confirmed via `et_clock.py` (09:12, Wednesday, market_hours=False -- still
@@ -763,3 +849,14 @@ run against real cached OPRA fills, guard test authored + 27/27 verified, queue/
 function_score_avg=33.7 — enters_last_trading_day=0 today despite fills=3, worth a look by the
 next fire that has function-funnel bandwidth; not investigated further this fire, one bounded
 task already claimed).
+
+### DEGRADED: self-check 2026-07-22T16:39:57
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-22T20:45:48+00:00
+- task: analyst
+- date_et: 2026-07-22
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
