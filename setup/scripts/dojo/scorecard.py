@@ -143,12 +143,26 @@ def _open_intervals(positions: dict[str, dict]) -> list[dict]:
     return out
 
 
+def _as_naive_et(value: str) -> datetime:
+    """Parse an ISO timestamp and drop any tz offset so all comparisons happen in one frame.
+
+    Seam fix (2026-07-21): position `entry_time_et`/`exit_time_et` are written NAIVE
+    ("2026-07-21T11:05:00") by sim_executor, while step rows' `bar_et` is tz-AWARE
+    ("2026-07-21T11:05:00-04:00") from clock.py. Comparing them raised
+    `TypeError: can't compare offset-naive and offset-aware datetimes` and killed the whole
+    scorecard. Both sides are already ET wall-clock by package convention, so stripping the
+    offset compares like-for-like without shifting any instant (never localize-then-convert
+    here -- that would silently move the naive side by the UTC offset).
+    """
+    return datetime.fromisoformat(value).replace(tzinfo=None)
+
+
 def _position_covers(interval: dict, bar_et: Optional[str]) -> bool:
     if not bar_et:
         return False
     try:
-        entry = datetime.fromisoformat(interval["entry_time_et"])
-        bar = datetime.fromisoformat(bar_et)
+        entry = _as_naive_et(interval["entry_time_et"])
+        bar = _as_naive_et(bar_et)
     except (ValueError, TypeError):
         return False
     if bar < entry:
@@ -157,7 +171,7 @@ def _position_covers(interval: dict, bar_et: Optional[str]) -> bool:
     if exit_ts is None:
         return True  # still open at session end -- covers every bar from entry onward
     try:
-        return bar <= datetime.fromisoformat(exit_ts)
+        return bar <= _as_naive_et(exit_ts)
     except (ValueError, TypeError):
         return True
 

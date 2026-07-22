@@ -200,6 +200,13 @@ def _advance_sim(st: SessionState, bar_et, bars_df) -> list:
         from dojo import sim_executor  # type: ignore
     except ImportError:
         return []
+    # Column-name seam (2026-07-21): engine_step.load_day_bars returns the live
+    # heartbeat_core._fetch_spy_5m shape (`timestamp`), while sim_executor.advance_session
+    # requires `timestamp_et`. Alias here at the integration point rather than editing either
+    # builder's module -- both contracts stay as written, the spine reconciles them.
+    if bars_df is not None and "timestamp_et" not in getattr(bars_df, "columns", []):
+        if "timestamp" in getattr(bars_df, "columns", []):
+            bars_df = bars_df.assign(timestamp_et=bars_df["timestamp"])
     return sim_executor.advance_session(st.session_id, bar_et, bars_df, dojo_dir=DOJO_DIR)
 
 
