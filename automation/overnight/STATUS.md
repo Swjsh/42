@@ -1,3 +1,81 @@
+## [2026-07-21 ~22:42-23:05 ET] OK -- conductor (AFTERHOURS): drained 3 lesson-inbox candidates -> L236/L237/L238, commits `04dea1d`+`2c0265a`+`613c128`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `fill_funnel.py` GREEN
+> (core:safe 2 fills/2 exits today, core:bold 0-attempt informational). `self-check-last.json`
+> DEGRADED on the same pre-existing non-load-bearing TRENDLINE-DRAW visibility flag (unchanged).
+> Self-audit gaps: all triaged through the 2026-07-21T17:31:28 batch, nothing new. `queue.md`
+> grep for `status:open` found only `T-AUDIT-TAIL` (already deprioritized, left as-is).
+> `task_scorer.py --top` again surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (J-decision-gated,
+> correctly skipped). Author-inbox priority order: validator-inbox all `.DONE`, skill-inbox has
+> only a correction-queue (no actionable item), so `_lesson-inbox`'s 3 open items were next --
+> all three were fresh, well-documented, first-occurrence candidates with clear C-cluster targets
+> already suggested by their own filer.
+
+> **What shipped:** graduated all 3 to `markdown/doctrine/LESSONS-LEARNED.md` entries + folded
+> into CLAUDE.md's OP-25 index (C7/C11/C14/C34 rows), bumped the "current through" pointer
+> L235->L238, and marked the 3 source inbox items `.DONE`:
+> - **L236** -- an LLM-swarm's self-reported `Cost: $0` tag is an unverified claim (5 prospector
+>   items live-verified this fire as inaccessible/not-actually-free); no independent feasibility
+>   probe exists in `prospector.py` before that claim gets written to a ledger row.
+> - **L237** -- Alpaca's open-orders LIST endpoint can transiently lag its own single-order GET
+>   by 1-2s, producing a false NOT-CLEAN read right after a confirmed cancel (already fixed in
+>   `dress_rehearsal.py` earlier today, commit `d6cc86a` -- this fire only wrote up the lesson).
+> - **L238** -- `git stash` on an untracked file fails silently mid-sequence, and an unchained
+>   trailing `git stash pop` can pop an UNRELATED session's stash in this permanently-dirty shared
+>   checkout -- never use `git stash` here; rename-and-restore (`mv`) instead.
+
+> **Self-caught foot-gun mid-fire (OP-33 verify-committed):** the first commit (`04dea1d`) silently
+> landed ONLY the 3 inbox renames -- `git add` with 7 paths, one of which was a just-renamed file's
+> now-nonexistent OLD name, failed **atomically** (`fatal: pathspec ... did not match`), so NONE of
+> that call's paths staged, including `CLAUDE.md`/`LESSONS-LEARNED.md` (the actual content).
+> `git commit` doesn't refuse to run just because a prior `git add` failed, so it "succeeded" with
+> `0 insertions` on the real content. Caught immediately via `git status --short -- <intended
+> files>` right after committing (not trusted the exit code alone) -- fixed same-fire with a
+> corrected `git add` + follow-up commit `2c0265a` (47 insertions, verified). Filed the new
+> mechanism itself as a fresh `_lesson-inbox` item (`2026-07-21-git-add-mixed-pathspec-fails-
+> atomically.md`, candidate L239) rather than self-graduating it -- kept this fire bounded to its
+> picked task (draining the lesson-inbox backlog), commit `613c128`.
+
+> **Verified this fire (OP-33):** `git show --stat HEAD` on all 3 commits individually (04dea1d =
+> 3 renames only, 2c0265a = 2 files/47 insertions, 613c128 = 1 file/64 insertions); `grep -c "^    |
+> C" CLAUDE.md` = 35 (no duplicate/malformed rows introduced); curated safety gate (31+5) PASS on
+> all 3 commits (pytest ran clean each time -- pure-doc changes, no code touched).
+
+> **Trading-path scope:** zero trading-path files touched (CLAUDE.md/LESSONS-LEARNED.md/inbox
+> files only -- observation/doctrine-authoring, not params/heartbeat_core/filters/placement/exit).
+> No guard/revert/REVOKE needed under rail 4 (nothing shipped that could regress a live decision).
+> **Revert:** `git revert 613c128 2c0265a 04dea1d` (3 commits, fully additive doc/inbox changes,
+> no functional code path touched).
+
+> **Cost: ~$2.3** (STAGE 0/1 reads, fill_funnel + self-check + task_scorer + self-audit-gap survey
+> + grep across queue.md, reading 3 inbox candidates in full, writing 3 lesson entries +
+> 4 CLAUDE.md index folds, 3 separate commits with a mid-fire self-correction, this STATUS update).
+
+---
+
+## [2026-07-21] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
+
+> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
+> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
+> -   bollinger_squeeze (armed 2026-07-02): since-arm 3tr $+75.00 ($+25.00/tr, 66.7% WR)
+> -   double_bottom_base_quiet (armed 2026-07-01, 20d ago): 0 fills since arm — no live signal yet
+> -   vix_regime_dayside (armed 2026-07-01): since-arm 5tr $-153.00 ($-30.60/tr, 0.0% WR)
+> -   vwap_continuation (armed 2026-07-01): since-arm 4tr $-96.00 ($-24.00/tr, 0.0% WR)
+> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 1tr $+18.00 ($+18.00/tr, 100.0% WR)
+> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
+
+---
+
+## [2026-07-21] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-11..2026-07-17), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-17). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-419.16); Bold_ATM_1+2=YELLOW ($-262.8)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-07-21 ~22:12-22:38 ET] OK -- conductor (AFTERHOURS): closed stale T-VWAPCONT-AB-VALIDATE queue item (already shipped + reconfirmed), commit `7f2ee9c`
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `fill_funnel.py` GREEN
@@ -566,138 +644,3 @@
 
 ---
 
-## [2026-07-21 ~16:42-17:35 ET] OK -- conductor (AFTERHOURS): exit_shape_parity_study core-arms blind-spot fixed, T-W7C closed SUPERSEDED, commit `e7d98b3`
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Fill-funnel GREEN
-> (core:safe/bold only accounts trading -- fleet arms all 0, expected/known). Self-check DEGRADED
-> on the same non-load-bearing TRENDLINE-DRAW-never-marked flag as the prior fire (not re-fixed,
-> visibility-only). `task_scorer.py --top` surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER`
-> (still correctly J-decision-gated, not actionable this fire). Chose NOT to take the top-scored
-> item; instead followed the recurring signal: the SAME `T-AUTOPSY-*-stop-noise`/`-left-on-table`
-> hypothesis + identical "proposed_tests" text has been re-filed by `trade_autopsy.py` every day
-> since 2026-07-09 (07-09/07-20/07-21 all present in queue.md) pointing at
-> `exit_shape_parity_study` + "STOP-A pre-registration (T-W7)" -- a 12-day-old un-actioned loop,
-> exactly the "compound don't accumulate" (OP-22) tiebreak.
-
-> **Root-caused, not just re-triaged:** `exit_shape_parity_study.load_fleet_engine_fills()`
-> (the shared real-fills loader for the ENTIRE exit-shape research lineage -- structure_stop_study,
-> structure_stop_zone_band_ab, structure_stop_reference_level_ab, ribbon_ride_strike_exit_ab,
-> p5_topcell_real_fills_confirm, t4/t5_matrix, ~14 call sites) hardcoded `FLEET_REST_ARMS`
-> (safe-1/safe-3/risky-1/risky-3) -- fleet_rest has been dark (0 fills) since 2026-07-09, while
-> ALL real trading since has been on the CORE arms (`safe-2`/`bold-2`, 200 fills in
-> `fills-ledger.jsonl`, current through today). This is the exact, twice-disclosed-but-unfixed
-> "0/0 exhibit fills recoverable" gap from 2026-07-20's STRUCTURE-STOP-ZONE-BAND/
-> STRUCTURE-STOP-REFERENCE-LEVEL closures, and the reason the recurring T-AUTOPSY hypothesis's
-> proposed test has never once been runnable against current data.
-
-> **Fix shipped (additive, NOT a default change):** added `CORE_ARMS = ("safe-2","bold-2")` +
-> `ALL_LIVE_ARMS = FLEET_REST_ARMS + CORE_ARMS`; `load_fleet_engine_fills` gained an `arms=`
-> parameter defaulting to the UNCHANGED `FLEET_REST_ARMS` (verified 127 real core-arm fills
-> predate `structure_stop_study.ANCHOR_END_DATE` 2026-07-08 -- a default-scope widening would
-> have silently shifted the already-frozen `-757.1` CONTROL anchor pin, the exact
-> re-pick-after-seeing-results hazard the no_repick_clause discipline exists to prevent). Also
-> fixed the hardcoded `exit-shape-parity-2026-07-08.json` output filename to use the real run
-> date. Closed `T-W7C-GRIND-VERIFY-THEN-STOPB` (HIGH, pending since 07-09) as SUPERSEDED -- its
-> mass-grind machinery was already overtaken by the more rigorous 2026-07-11/07-20 real-fills
-> study lineage, which already answered STOP-B's governing question (SS-B/chart-stop-primary
-> stays, ATM strike, trigger-exact reference).
-
-> **Verified this fire (OP-33):** new `backtest/tests/test_exit_shape_parity_study_core_arms.py`
-> (5 tests) RED-proofed via `git stash push -- backtest/tools/exit_shape_parity_study.py` --
-> 4/5 failed pre-fix with the exact expected `AttributeError: ... no attribute 'ALL_LIVE_ARMS'`
-> (5th, backward-compat default test, correctly passed pre-fix too -- unchanged behavior);
-> `git stash pop` restored cleanly, re-verified 5/5 green. Broader sweep:
-> `test_structure_stop_study.py -m "not slow"` -> **21/21 PASS** (1 network-dependent anchor-pin
-> test correctly deselected, untouched by design). Curated safety gate (31+5) PASS. `git ls-tree
-> HEAD` confirmed all 4 files (tool, new test, queue.md, lesson-inbox) landed on HEAD, not just
-> staged. Commit: `e7d98b3`.
-
-> **Zero trading-path files touched** -- `exit_shape_parity_study.py` is observation-only
-> analysis tooling (no broker import, no params/heartbeat_core/filters/placement/exit code).
-> Ships as engine-benefit per OP-22/OP-26, no J ratification needed. **Revert:** `git revert
-> e7d98b3` (4 files, additive + one queue-doc edit, no data loss). **Lesson filed:**
-> `_lesson-inbox/2026-07-21-real-fills-loader-blind-to-arm-rename.md` -- a "real fills" anchor
-> can go synthetic-by-omission when the account/arm lineup moves on without the loader's scope
-> being re-verified (C14/C7 new angle).
-
-> **Not done this fire (deliberately, per no_repick_clause):** did NOT re-run any of the
-> exit-shape studies against the newly-visible core-arm data -- that is left for a future fire
-> to spec as its OWN fresh, separately-frozen pre-registration, not silently folded into an
-> existing verdict.
-
-> **Cost: ~$5.4** (STAGE 0/1 reads incl. task_scorer + fill_funnel + queue HIGH-tier sweep,
-> root-cause trace across 6+ downstream tools, fills-ledger arm-distribution forensics, source
-> fix + docstring, new guard test file + RED-proof round-trip, 2 regression sweeps, curated
-> safety gate, commit + `git ls-tree HEAD` verification, lesson-inbox write, this
-> STATUS/queue update).
-
----
-
-## [2026-07-21 ~16:12-16:45 ET] OK -- conductor (AFTERHOURS): DOJO-EXIT-HARNESS-BUGS fixed + re-run, commit `e94d72b`
-
-> **STAGE 0/1:** engine-health GREEN (market closed since 15:55 today, this fire's own check
-> ran 16:12 ET before the gate mattered). Fill-funnel GREEN today (core:bold's lone ENTER_BEAR
-> at 15:10:04 traced -- `action: SKIP_LATE_ENTRY`, correctly downgraded by the post-15:00 entry
-> ceiling, not a placement gap, same pattern as the 07-20 precedent). Self-check DEGRADED on
-> "TRENDLINE-DRAW never marked today" (non-load-bearing, visibility-only) -- left for the
-> trendline-draw skill, not this fire's scope. `task_scorer.py --top` surfaced
-> `DOJO-EXIT-HARNESS-BUGS` (HIGH, filed 08:xx ET today, verdict VOID) with an advisory to
-> re-verify it still reproduces before acting -- confirmed still real by reading the VOID
-> report + the harness source before touching anything.
-
-> **What shipped (commit `e94d72b`):** `backtest/tools/dojo_exit_diversity_replay.py`'s
-> `extract_entries_and_ribbon` iterated `engine_step.load_day_bars()`'s full multi-month
-> warmup frame as if it were the target day's own bars -- a `day=2026-06-30` episode leaked a
-> cursor dated `2026-05-21` into `engine_step.step()`, inflating 4 curriculum days to 810 bogus
-> episodes (most BS-synthetic) and voiding the whole study. Fix: `day_rth =
-> rth[rth["timestamp"].dt.date == day_date]` restricts the entry/ribbon cursor loop to the
-> target day only; the untrimmed `bars` frame is still passed to `engine_step.step()`
-> unchanged so ribbon/level EMA warmup is unaffected. Re-assessed the report's SECOND claimed
-> bug (CONTROL==RIBBON identical P&L) as NOT a separate defect -- it's mathematically BY
-> DESIGN for this ribbon_ride-only entry population (registry exit shape already equals
-> RIBBON's own patch), already disclosed in the module's own docstring and pinned by an
-> existing test (`test_exit_profiles_pulled_from_live_accounts_json`); bug 1's contamination
-> is what made it look like a collapsed mapping.
-
-> **Verified this fire (OP-33):** new guard `test_extract_entries_scoped_to_target_day_only`
-> RED-proofed via `git stash` on the source file alone -- failed pre-fix with the exact
-> leaked-date signature (`saw {'2026-06-30', '2026-06-29'}`), passed post-fix, stash popped
-> clean. Full `test_dojo_exit_diversity_replay.py` 11/11 green; broader dojo sweep (+
-> engine_step, sim_executor, fence, no_broker) **44/44 PASS**. Curated safety gate (31+5)
-> PASS. Re-ran the harness on the SAME reduced day-set post-fix: clean, non-contaminated n=5
-> real-fills episodes per profile (was bogus n=115/810) -- ZONE-RIDE correctly differentiates
-> from CONTROL ($369.91 vs $400.91), confirming the exit_patch->walk_exit_manager mapping was
-> reaching correctly all along. Verdict `CONTROL_HOLDS` on this small, now-honest n --
-> disclosed as a first clean signal, not a final answer. `git ls-tree HEAD` confirmed all 5
-> changed files (2 source, 1 report, 1 scorecard, 1 queue) + the new lesson-inbox file landed
-> on HEAD, not just staged.
-
-> **Zero trading-path files touched** -- `dojo_exit_diversity_replay.py` is an
-> observation-only analysis tool (HARD FENCE: no broker import, no git ops, guarded), so this
-> ships as engine-benefit per OP-22/OP-26, no J ratification needed. **Revert:** `git revert
-> e94d72b` (6 files, additive + one regenerated-report + one regenerated-scorecard, no data
-> loss). **Lesson filed:**
-> `_lesson-inbox/2026-07-21-warmup-frame-misread-as-single-day-scope.md` -- new angle
-> alongside C6 (no look-ahead): a shared loader documented to return a full-history WARMUP
-> frame is not automatically safe to iterate as a per-day EVENT stream; a new consumer must
-> explicitly re-slice to its own actual scope before treating the untrimmed return value as an
-> iteration frame.
-
-> **Not fixed this fire (flagged, out of scope):** `DOJO-CACHE-SELECTION-PERF` (the
-> `_find_cache_csv` "picks the largest DST-spanning superset for 07-08 -> hangs" complaint)
-> was NOT independently re-verified -- `engine_step._find_cache_csv`'s current docstring/sort
-> key already implements "prefer smallest covering file", so the perf issue may already be
-> moot as a side effect of an earlier fix, but 07-08 specifically was not re-run to confirm.
-> Left open for a future fire or if J hits it directly.
-
-> **Cost: ~$4.7** (STAGE 0/1 reads incl. fill-funnel trace + task_scorer + full harness source
-> read + engine_step/sim_executor/exit_manager_walk root-cause trace across 3 files, fix +
-> new RED-proofed guard test, stash round-trip, 44-test broader sweep, curated safety gate,
-> harness re-run to produce the corrected report, commit + `git ls-tree HEAD` verification,
-> queue/STATUS/lesson-inbox updates).
-
----
-
-
-### DEGRADED: self-check 2026-07-21T22:09:56
-- TRENDLINE-DRAW never marked today (2026-07-21) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
