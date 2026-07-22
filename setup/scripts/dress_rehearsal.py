@@ -84,6 +84,8 @@ PROBE_LIMIT = 0.01           # never-marketable probe price
 CRYPTO_NOTIONAL = 10.0       # broker MINIMUM: Alpaca 403 40310000 "cost basis must be
 #                              >= minimal amount of order 10" (found live 2026-07-01)
 CRYPTO_NOTIONAL_CAP = 10.0   # HARD cap — guard-tested; placement refuses anything ABOVE this
+END_STATE_RETRIES = 5        # retries for the post-cancel open-orders/positions listing
+END_STATE_RETRY_SLEEP = 1.5  # seconds between retries (index-lag tolerance, found 2026-07-21)
 
 
 # ── engine placement path (the point of the whole rehearsal) ──────────────────
@@ -249,11 +251,25 @@ def check1_options_acceptance(account: str, creds: dict, place_fn, occ_fn,
         ev.append("order did NOT reach a canceled/terminal state — residue risk")
         return out
 
-    # end-state: zero open orders + zero positions on this account
-    open_orders = fb._request(creds, "orders?status=open&limit=100")
-    positions = fb.get_positions(creds)
-    n_open = len(open_orders) if isinstance(open_orders, list) else -1
-    ev.append(f"end-state: open_orders={n_open} positions={len(positions)}")
+    # end-state: zero open orders + zero positions on this account.
+    # Alpaca's GET /v2/orders?status=open list endpoint is backed by a different
+    # index than the single-order GET we just polled to a confirmed terminal
+    # status above, and can lag it by ~1-2s (eventual consistency, found live
+    # 2026-07-21: safe RED'd on a stale listing while bold GREENed moments later
+    # on an identical code path — same non-determinism, not a real residue).
+    # Retry with backoff before declaring NOT CLEAN so a transient index lag
+    # doesn't false-RED the whole rehearsal.
+    open_orders, positions, n_open = [], [], -1
+    for attempt in range(END_STATE_RETRIES):
+        open_orders = fb._request(creds, "orders?status=open&limit=100")
+        positions = fb.get_positions(creds)
+        n_open = len(open_orders) if isinstance(open_orders, list) else -1
+        if n_open == 0 and len(positions) == 0:
+            break
+        if attempt < END_STATE_RETRIES - 1:
+            _time.sleep(END_STATE_RETRY_SLEEP)
+    ev.append(f"end-state: open_orders={n_open} positions={len(positions)} "
+              f"(after up to {END_STATE_RETRIES} tries, {END_STATE_RETRY_SLEEP}s apart)")
     if n_open != 0 or len(positions) != 0:
         ev.append(f"NOT CLEAN: open_orders={json.dumps(open_orders)[:400]} "
                   f"positions={json.dumps(positions)[:400]}")

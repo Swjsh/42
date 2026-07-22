@@ -156,6 +156,71 @@ class TestOverallVerdict:
         assert dr._classify_rejection(422, "mystery")[0] == "RED"  # unknown NEVER softens
 
 
+# ── end-state open-orders/positions listing lag tolerance (L found 2026-07-21) ─
+#
+# Alpaca's GET /v2/orders?status=open list is backed by a different index than
+# the single-order GET check1 just polled to a confirmed terminal status, and
+# can lag it by ~1-2s. Found LIVE on the nightly run: safe RED'd on a stale
+# listing (order still shown "open" after a confirmed cancel) while bold
+# GREENed moments later on the identical code path — non-determinism, not a
+# real broker-side residue. These guards pin the retry-before-NOT-CLEAN fix.
+
+class _FakeTime:
+    def sleep(self, _s):
+        pass
+
+
+class TestEndStateRetryTolerance:
+    def _rig(self, monkeypatch, dr, open_orders_sequence):
+        import fleet_broker as fb
+        calls = {"open_orders": 0}
+
+        def fake_request(creds, endpoint, method="GET", data=None, timeout=15):
+            if endpoint.startswith("options/contracts"):
+                return {"option_contracts": [{"symbol": "SPY260722P00709000",
+                                               "strike_price": "709.0",
+                                               "close_price": "0.05", "tradable": True}]}
+            if endpoint == "orders" and method == "POST":
+                return {"id": "oid1", "status": "accepted"}
+            if endpoint.startswith("orders?status=open"):
+                idx = min(calls["open_orders"], len(open_orders_sequence) - 1)
+                calls["open_orders"] += 1
+                return open_orders_sequence[idx]
+            raise AssertionError(f"unexpected _request endpoint {endpoint!r}")
+
+        monkeypatch.setattr(fb, "_request", fake_request)
+        monkeypatch.setattr(fb, "cancel_order", lambda creds, oid, live=True: {})
+        monkeypatch.setattr(fb, "get_order", lambda creds, oid: {"status": "canceled"})
+        monkeypatch.setattr(fb, "get_positions", lambda creds: [])
+        monkeypatch.setattr(dr, "_time", _FakeTime())
+        return calls
+
+    def _run(self, dr):
+        occ_fn = lambda side, strike, expiry: "SPY260722P00709000"  # noqa: E731
+        place_fn = lambda creds, symbol, qty, limit_price: {"id": "oid1", "status": "accepted"}  # noqa: E731
+        return dr.check1_options_acceptance("safe", _CREDS, place_fn, occ_fn,
+                                            "2026-07-22", 747.95)
+
+    def test_transient_stale_listing_clears_on_retry(self, dr, monkeypatch):
+        calls = self._rig(monkeypatch, dr, [[{"id": "oid1"}], [{"id": "oid1"}], []])
+        out = self._run(dr)
+        assert out["verdict"] == "GREEN", out["evidence"]
+        assert calls["open_orders"] == 3, "must actually retry, not just get lucky on try 1"
+
+    def test_persistent_open_order_stays_red_not_silently_green(self, dr, monkeypatch):
+        calls = self._rig(monkeypatch, dr, [[{"id": "oid1"}]])  # never clears
+        out = self._run(dr)
+        assert out["verdict"] == "RED", "genuine residue must never be softened to GREEN"
+        assert calls["open_orders"] == dr.END_STATE_RETRIES, (
+            "must give up after a bounded number of retries, not hang or under-try")
+
+    def test_immediate_clean_needs_only_one_try(self, dr, monkeypatch):
+        calls = self._rig(monkeypatch, dr, [[]])
+        out = self._run(dr)
+        assert out["verdict"] == "GREEN"
+        assert calls["open_orders"] == 1, "the common case must not pay retry latency"
+
+
 # ── artifact schema (validates the LIVE artifact when present) ────────────────
 
 class TestArtifactSchema:
