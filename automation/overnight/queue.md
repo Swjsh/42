@@ -9,6 +9,33 @@
 
 ## Active backlog
 
+### RSI-EXTENSION-BLOCK-ELITE-BULL (HIGH, Lane-B pre-reg, filed 2026-07-21 dojo session, J RULING)
+
+- [ ] RSI-EXTENSION-BLOCK-ELITE-BULL (HIGH, pre-reg then A/B) :: J's LIVE RULING from the
+  2026-07-21 dojo walkthrough (session 2026-07-21-225649), on the 12:21 SKIP_ELITE_BULL
+  exhibit: "12:21 needs to not happen -- the move is already happening, we didn't bounce off
+  a key level. If that's an entry the same logic should apply to the 11:15 candle, and 11:15
+  would have been a great entry." VERIFIED FROM TAPE this session:
+    * 12:20 bar: RSI(14)=68.8, +$4.40 off session low, no pullback -- engine's level_reclaim+
+      confluence fired at the day's MOST EXTENDED point (RSI peaked 69.7 @12:30, then stalled
+      748.68 -> 748.60 by 14:25).
+    * 11:15 bar: RSI(14)=63.6, +$3.23 off low, and structurally clean -- 10:40 L745.77 /
+      11:00 L745.83 / 11:05 L745.85 (three taps of one shelf) then 11:15 CLOSED 747.41, above
+      the 10:30/10:45 highs 747.25/747.26. Wick-wick-wick -> close above = real reclaim.
+  HONEST CAVEAT (do not skip): a textbook RSI>70 block would NOT have stopped 12:20 (68.8 <
+  70). The discriminator that DOES separate them in this sample is an RSI RESET: 11:15 came
+  after RSI dipped to 50.8 at 11:00 and recovered; 12:20 had no reset, just a 63->69 grind.
+  HYPOTHESIS TO PRE-REGISTER (frozen BEFORE running): block/de-tier an ELITE bull
+  level_reclaim when (a) RSI(14) >= X with no intervening reset below Y within N bars, and/or
+  (b) close is >= Z dollars above the session low. Grid X/Y/N/Z pre-registered, never
+  hand-picked post-hoc. Test on the real-fills population through the exit_manager, per-episode
+  accounting, concentration + day-stability disclosure, BH-FDR. NOTE THE TENSION: this is a
+  DIFFERENT mechanism from the trend-alignment KILL (rho~-0.15, aligned=worst bucket) -- an
+  overextension filter and an alignment filter can both be true; do not conflate them.
+  RELATED: this is the live exhibit the standing MORNING-BULL-QUALITY-GATE-RECONSIDER item has
+  been waiting for -- J's ruling is "cut the 12:21 class", NOT "unblock elite bull wholesale".
+  depends:none :: status:pending
+
 ### EOD-DOJO-EXHIBIT-MANIFEST (HIGH, after-hours build, filed 2026-07-21 ~14:45 ET, J-directed)
 
 - [x] EOD-DOJO-EXHIBIT-MANIFEST (HIGH, Sonnet build) :: Build the nightly film-room generator
