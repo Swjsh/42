@@ -41,3 +41,22 @@ indistinguishable from a bare `try/except: return None` fetcher** unless the exc
 `backtest/tools/finra_short_volume_study.py` (fixed), `backtest/tests/test_finra_short_volume_study.py`
 (the live smoke test was ALSO originally too weak to catch this — `assert ratio is None or 0<=ratio<=1`
 passes trivially on the bug; strengthened to require a real ratio for a known-valid trading day).
+
+<!-- DONE 2026-07-22 ~17:50-18:10 ET conductor (AFTERHOURS): GRADUATED to L241 in
+markdown/doctrine/LESSONS-LEARNED.md + folded into CLAUDE.md OP-25 C7 index. Built the shared
+helper this note suggested: backtest/lib/http_fetch.py#fetch_url_text() (browser-like UA by
+default, typed HttpFetchBlocked for 403/429 distinct from fail-open None on 404/other). Refactored
+finra_short_volume_study.py::fetch_finra_short_ratio() onto it (preserving its "fails open, never
+raises" contract via a raise_on_block opt-in) and wired main()'s date loop to detect a systematic
+block (>=50% of attempted dates blocked) -> verdict KILL_FETCHER_BLOCKED instead of silently
+reporting a near-empty sample. 26 new/updated tests (test_http_fetch.py: 12 mock-based cases;
+test_finra_short_volume_study.py: +5 cases) all pass, RED-proofed via rename-and-restore (confirmed
+exact ModuleNotFoundError on both consumers, no git stash per L238), live FINRA network smoke test
+re-verified post-refactor, curated safety gate (31+5) PASS. Audited the other 20 urllib.request
+callers in backtest/tools/ for the same class -- all hit only https://data.alpaca.markets
+(authenticated API-key headers, not a public-CDN UA-sniffed endpoint), so none share this exact
+failure mode; the shared helper is positioned for the NEXT public-CDN scraper (several proposed in
+this same chef-inbox: FRED, CBOE BXM, NYSE TICK/OpenBook, Treasury.gov) to use from day one. Zero
+trading-path files touched. Revert: single commit, `git revert <sha>` (purely additive new module +
+refactor + tests + docs, no existing function bodies altered elsewhere). -->
+
