@@ -52,6 +52,14 @@
 > parenthetical bug). Also closed the loop in `queue.md` (`TASK-SCORER-MULTILINE-STATUS-READ`,
 > status:done, cross-referenced against the pre-existing sibling item).
 
+> **Outcome metric:** `conductor_outcome.py record` + `metric` -- net_improvement 27/window20,
+> cost_per_drained $2.39, zero regressions across the tracked window. `trend: "regressing"` --
+> driven by `function_latest` (last trading day: 0 primary-pipeline ENTERs, 3 fills all via the
+> secondary `extra_exec` lane per yesterday's fill_funnel fix, 1 distinct setup traded), NOT by
+> this fire's own tests/lessons/drain count. Next fire: prefer a loop-closing item on the primary-
+> pipeline zero-ENTER pattern (why bull/bear core triggers aren't firing while extra_exec setups
+> are) over starting a fresh artifact, per the metric's own guidance.
+
 > **Process note (self-correction, not shipped code):** used `git stash` for the RED-proof step
 > despite this repo's own documented C34 lesson ("never use stash in this repo, rename-and-restore
 > instead" -- L228/L238, a stash pop can pop the wrong session's stash in this shared checkout).
