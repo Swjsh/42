@@ -1,4 +1,4 @@
-## [2026-07-22 ~18:12-18:33 ET] OK -- conductor (AFTERHOURS): PULLBACK-HOLD-BULL-TRIGGER Lane-A vocabulary build (shadow-only), commit pending
+## [2026-07-22 ~18:12-18:34 ET] OK -- conductor (AFTERHOURS): PULLBACK-HOLD-BULL-TRIGGER Lane-A vocabulary build (shadow-only), commit `94cd4a04`
 
 > **STAGE 0/1:** ET confirmed 18:12->18:33, Wednesday, market closed since 15:55 (correctly
 > after-hours). `engine-health.json` GREEN 13/13 (heartbeat/beacon/watcher quiet-OK,
@@ -65,7 +65,15 @@
 > in detail to match convention exactly, fetching+inspecting real 07-22 SPY 5m bars for a
 > tape-grounded fixture, writing the detector + 2 test files, one debugging round-trip fixing
 > the tie-break bug, a live RED-proof + revert, 2 gym/pytest regression runs, this STATUS +
-> queue.md update, pending commit).
+> queue.md update, 1 commit with pre/post verification).
+
+> **Outcome tracker:** `conductor_outcome.py record` + `metric` run post-commit --
+> `net_improvement=48`/20-fire window, `cost_per_drained_usd=1.351`, but `trend=regressing`
+> (this fire itself drained 0 fully-closed items -- PULLBACK-HOLD-BULL-TRIGGER stays open at
+> LANE-A-DONE-LANE-B-PENDING, correctly, since Lane-B is real remaining scope, not busywork).
+> Flagging for the next fire: prefer a loop-CLOSING item (Lane-B pre-reg on this same thread,
+> or draining a chef-inbox/queue item to `.DONE`) over opening a third new thread, per OP-22's
+> own "trend regressing -> favor closing" guidance.
 
 ---
 
