@@ -1,0 +1,57 @@
+{
+  "_doc": "FROZEN pre-registration for the TRAIL-WIDTH / TP1-SIZE exit knob A/B (DOJO-HARVEST-2026-07-21.md LANE-B HYPOTHESIS #3). Written BEFORE any candidate replay -- no re-picks after seeing results. Runner: backtest/tools/trail_width_exit_ab.py (verifies the population hash below before scoring anything).",
+  "version": 1,
+  "generated_at": "2026-07-21T00:00:00",
+  "hypothesis": "The live chandelier trail (trail_pct=0.15) is too tight and/or TP1 (tp1_qty_fraction=0.667) sells too much size too early, so winners get cut short. Convergent evidence: (1) 2026-07-17 real fills -- every winner exited via `trail` after a 40-96 min hold (+$241/+$233/+$191/+$105), every loser exited via `structure_stop` inside 16 min (-$37/-$102/-$56); (2) 2026-07-21 dojo SIM (BS-synthetic, directional only) -- a RIDE profile (trail_pct=0.30, tp1_premium_pct=0.50, tp1_qty_fraction=0.5) beat CONTROL (trail_pct=0.15) by 42% on an identical entry (+$62.52 vs +$44.15).",
+  "reconciliation_note": "analysis/recommendations/structure-stop-reference-level-2026-07-20.json already returned FAIL/REJECT_ALL_CANDIDATES for widening the structure-stop REFERENCE LEVEL (trigger-exact vs zone-boundary vs none -- WHERE the chart-stop is anchored). That is a DIFFERENT knob from this study's trail WIDTH / TP1 SIZE axis. Every candidate below keeps trigger-exact recovery identical to that study's control (REF-EXACT) -- this pre-reg does not re-open the reference-level axis.",
+  "prior_evidence_context": "analysis/recommendations/exit-variant-ab-wider-trail25-2026-07-17.json already tested trail_pct=0.25 vs 0.15 on a SYNTHETIC detector-fired population (n=188, IS2025+OOS2026YTD, lib.orchestrator.run_backtest SAFE_BASE) and found -$813.30 aggregate, FAIL on every regime-conditioned gate. That is prior evidence to reconcile against, cited for context; this pre-reg's population is the REAL-FILLS anchor instead (per task instruction), which is a materially different (smaller, live-priced, live-sized) population than that synthetic 18-month sweep.",
+  "population": {
+    "definition": "Every engine-attributed, non-crypto, is_option=true position reconstructed from automation/state/fills-ledger.jsonl (group consecutive BUYs before the first SELL into one entry; a fresh BUY after full close starts a new position -- same grouping rule as exit_shape_parity_study.reconstruct_positions) across ALL_LIVE_ARMS = FLEET_REST_ARMS(safe-1,safe-3,risky-1,risky-3) + CORE_ARMS(safe-2,bold-2), restricted to positions with entry_qty>=1, entry_price>0, AND a cached real-OPRA option-bar CSV in backtest/data/options/{symbol}.csv (backtest/tools/fetch_option_data.py; no network call, no broker import at replay time).",
+    "arms_scope_note": "ALL_LIVE_ARMS (fleet_rest + core) is exit_shape_parity_study.py's own 2026-07-21-sanctioned explicit opt-in for a NEW study wanting current-day coverage (its docstring: 'a NEW population is a NEW study, not a silent extension of an already-verdicted one'). This does not touch or redefine the FLEET_REST_ARMS-only anchors the already-verdicted structure-stop studies pin.",
+    "n_positions": 113,
+    "anchor_population_sha256_16": "798c91fab0ad3754",
+    "hash_definition": "SHA256(json.dumps(sorted([{date_et,symbol,arm,entry_ts_utc,entry_qty} for each included position], key=(date_et,symbol,arm,entry_ts_utc)), sort_keys=True))[:16] -- computed by build_anchor_population()+anchor_population_signature() in the runner, verified at the top of main() before any shape is replayed.",
+    "date_span_expected": "2026-06-26..2026-07-17",
+    "n_trading_days_expected": 11,
+    "no_repick_clause": "If the population hash does not match at run time (e.g. a fresh OPRA cache fetch changed which symbols are covered), the runner ABORTS rather than silently scoring a drifted population. A drifted population is a NEW study with its own new pre-registration, not a silent extension of this one."
+  },
+  "control_shape_source": "automation/state/fleet/strategies.py#RIBBON_RIDE.exit.to_dict() -- read FRESH by the runner at execution time, never hand-typed/copied into this pre-reg (so a future strategies.py edit cannot silently go stale here). Expected as of 2026-07-21: premium_stop_pct=-0.20, tp1_premium_pct=1.0, tp1_qty_fraction=0.667, profit_lock_mode=trailing, runner_target_pct=99.0, trail_pct=0.15, stop_mode=structure, catastrophe_stop_pct=-0.50, profit_lock_arm_pct=0.05 (default), profit_lock_arm_scope=post_tp1 (default).",
+  "structure_stop_enabled": true,
+  "trigger_level_recovery": {
+    "method": "Backward-scan heuristic, IDENTICAL to structure_stop_study.recover_trigger_level_real_position: scan up to lookback_bars SPY 5m bars with timestamp_et<=entry_ts_et, closest-to-entry first, for the first bar where detect_level_reclaim (calls) / detect_level_rejection (puts) fires against the day's frozen LevelSet.active (tw8_level_context.frozen_level_set_for_date).",
+    "lookback_bars": 8,
+    "fallback": "A position with no recoverable trigger_level passes trigger_level=None to EVERY shape (control and every candidate) identically -- ExitState.from_entry then resolves stop_mode=premium for that position under every shape, never a fabricated level, never dropped from the population."
+  },
+  "metric": "backtest/lib/exit_manager_walk.py:walk_exit_manager -- the REAL exit_manager.plan_exit_actions decision core (not a parallel reimplementation), ticked over cached 5-min option bars with last_closed_5m_close fed from the real SPY 5-min series (backtest/data/spy_5m_2026-05-19_2026-07-21.csv) so structure_stop can fire faithfully. time_stop_et=15:50 ET (exit_manager.TIME_STOP_ET, the production default). ribbon_flip_back held False for every replay (disclosed limitation, same as every prior real-fills study in this codebase -- no historical ribbon-state reconstruction available for arbitrary past dates).",
+  "candidate_grid": {
+    "grid_selection_rule": "THREE axes, each chosen by a stated rule, never hand-picked to fit results (results have not been seen at the time this file is written): (1) TRAIL axis alone (tp1_qty_fraction held at control 0.667) -- trail_pct steps of +0.05 from control (0.15) up to the dojo-evidence ceiling (0.30), the same step size the codebase's own prior exit_variant_ab.py candidate (trail_pct=0.25) already used once: {0.20, 0.25, 0.30}. (2) TP1-SIZE axis alone (trail_pct held at control 0.15) -- the two smaller sell-fractions reachable under Rule 6's min-3-contracts floor (2-of-3 sold today -> 1-of-2 -> 1-of-3): {0.5, 0.333}. (3) ONE bundle cell replaying the dojo sim's EXACT RIDE profile verbatim (trail_pct=0.30, tp1_premium_pct=0.50, tp1_qty_fraction=0.5) -- justified because that IS the literal cell the hypothesis originated from; testing it directly on real fills is the most direct confirm/falsify test available. All other ExitShape fields (premium_stop_pct, profit_lock_mode, runner_target_pct, stop_mode, catastrophe_stop_pct, profit_lock_arm_pct/scope) stay byte-identical to control for every candidate, isolating exactly the named axis/axes.",
+    "candidates": {
+      "TRAIL-20":    {"trail_pct": 0.20, "tp1_qty_fraction": null, "tp1_premium_pct": null, "note": "trail axis alone, step 1 of 3"},
+      "TRAIL-25":    {"trail_pct": 0.25, "tp1_qty_fraction": null, "tp1_premium_pct": null, "note": "trail axis alone, step 2 of 3 (matches exit_variant_ab.py's prior synthetic-population candidate)"},
+      "TRAIL-30":    {"trail_pct": 0.30, "tp1_qty_fraction": null, "tp1_premium_pct": null, "note": "trail axis alone, step 3 of 3 -- the dojo-evidence ceiling"},
+      "TP1Q-050":    {"trail_pct": null, "tp1_qty_fraction": 0.5,   "tp1_premium_pct": null, "note": "TP1-size axis alone, sell half instead of two-thirds"},
+      "TP1Q-033":    {"trail_pct": null, "tp1_qty_fraction": 0.333, "tp1_premium_pct": null, "note": "TP1-size axis alone, sell one-third instead of two-thirds"},
+      "RIDE-BUNDLE": {"trail_pct": 0.30, "tp1_qty_fraction": 0.5,   "tp1_premium_pct": 0.50, "note": "the dojo sim's exact RIDE cell, replayed verbatim on real fills"}
+    }
+  },
+  "gates": {
+    "oos_midpoint_date": "2026-07-06",
+    "oos_midpoint_rule": "The date whose cumulative position-count fraction is closest to 50% of the frozen population (computed once, before any candidate score is seen): 2026-07-02 sits at 37.2% cumulative, 2026-07-06 sits at 61.9% cumulative -- 2026-07-06 is closer to 50% (|61.9-50|=11.9 vs |37.2-50|=12.8). first_half = date_et<=2026-07-06 (n=70 expected), second_half = date_et>2026-07-06 (n=43 expected).",
+    "ship_requires_ALL_of": [
+      "1_aggregate: sum(candidate_pnl) > sum(control_pnl) over the full population",
+      "2_majority_of_days: count(days where day-candidate-total > day-control-total) > count(days where day-control-total >= day-candidate-total); ties never count for the candidate",
+      "3_survives_drop_single_best_trade: remove the ONE position with the largest positive (candidate-control) delta; the remaining aggregate delta must still be > 0",
+      "4_oos_holds: second-half (OOS, date_et>2026-07-06) delta > 0 AND no sign flip vs the first-half (IS) delta -- a nominal pass with a sub-window sign flip is NOT a ship, mirroring the NO_SHIP_SUBWINDOW_UNSTABLE downgrade the structure-stop-reference-level study already applied"
+    ],
+    "disclosure_only_not_gating": [
+      "one-sided BH-FDR test (alpha=0.10) on the per-episode paired (candidate-control) deltas",
+      "drop-top-3 concentration check (delta excluding the 3 largest-magnitude trades) -- the precedent studies' own stricter cousin of gate 3"
+    ],
+    "honesty_requirement": "Every candidate must report GIVE-BACK ACCOUNTING: sum of POSITIVE per-episode deltas (extra captured where the candidate beat control) reported SEPARATELY from the sum of NEGATIVE per-episode deltas (extra given back where the candidate lost MORE than control -- e.g. a wider trail riding a reversal further before stopping out). CONTROL_HOLDS is reported as a valid, undecorated verdict when any gate fails -- no oversell."
+  },
+  "scope_constraints": [
+    "NO trading-path file is written by the runner: strategies.py, params.json, exit_manager.py all READ-ONLY.",
+    "NO broker import, NO network call at replay time -- every input is a local cached CSV/JSONL (backtest/data/options/*.csv, backtest/data/spy_5m_2026-05-19_2026-07-21.csv, automation/state/fills-ledger.jsonl) already on disk.",
+    "NO git commit/push performed by this study or its runner."
+  ]
+}
