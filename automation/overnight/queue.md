@@ -9,6 +9,38 @@
 
 ## Active backlog
 
+### DOUBLE-BOTTOM-LOOKBACK-AB (MED, pre-reg proposal, filed 2026-07-21 dojo overnight)
+
+- [ ] DOUBLE-BOTTOM-LOOKBACK-AB (MED, pre-reg then A/B -- do NOT hand-widen) :: DIAGNOSED this
+  session (backtest/tools/diag_double_bottom_base_quiet_20260721.py, read-only). J's 2026-07-21
+  double bottom (08:15 low 744.790 + 10:15 low 744.790) could NOT be seen by
+  double_bottom_base_quiet for TWO independent reasons, either sufficient alone:
+    (a) prior_bars is built RTH-only (heartbeat_core.py:551-556 + orchestrator.py:798-803, the
+        deliberate 2026-06-25 score-parity fix) so the 08:15 PREMARKET low never enters the frame;
+    (b) chart_patterns.double_bottom_detector's validated lookback=20 bars (100 min) is 20 min
+        SHORTER than the real 120-min gap -- low #1 scrolls out before low #2 is the trigger.
+  NOT dead-by-bug: a full 35-day scan calling the REAL detect_db_base_quiet_setup fired 26x
+  (VIX pinned) / 22x (real VIX) with levels_active=[] -- roughly every 1.5 RTH days.
+  PROPOSAL (not wired): grid lookback in {20 control, 30, 40, 60} with _WINDOW_BARS >= lookback,
+  re-run the ORIGINAL methodology (backtest/autoresearch/pattern_backtest.py +
+  db_base_quiet_real_fills_validate.py) over the full 16-month window; must clear the existing
+  OP-21 bar (OOS>0, posQ>=4/6, N>=20, WF stable) -- NOT merely "would it have caught J's one
+  example" (that is textbook overfit and would invalidate the N=168/N=122 evidence behind the
+  current arming). Do NOT touch the shared RTH-only prior_bars construction (every watcher +
+  ribbon/baseline depends on it); premarket-anchored patterns belong to Lane-A #5/#6
+  (premarket-derived levels) in markdown/doctrine/DOJO-HARVEST-2026-07-21.md.
+  depends:none :: status:pending
+
+### DB-BASE-QUIET-PROXIMITY-GATE-LEAD (MED, investigate, filed 2026-07-21)
+
+- [ ] DB-BASE-QUIET-PROXIMITY-GATE-LEAD (MED) :: NEW LEAD from the diagnosis above: the detector
+  fires ~22x/35 days under near-real conditions with levels_active=[], yet production shows
+  "0 fills since arm" over 20+ days (STATUS.md LICENSE-MONITOR). The gap points at the
+  NOT_NEAR_NAMED $0.50 proximity gate (Gate 6) as the dominant production suppressor -- NOT
+  reproduced in the diagnostic (needs the full level-detection pipeline). Measure how many of
+  those 22 fires die on proximity, and whether $0.50 is the right band given the levels-are-zones
+  doctrine (J 2026-07-17). depends:none :: status:pending
+
 ### RSI-EXTENSION-BLOCK-ELITE-BULL (HIGH, Lane-B pre-reg, filed 2026-07-21 dojo session, J RULING)
 
 - [ ] RSI-EXTENSION-BLOCK-ELITE-BULL (HIGH, pre-reg then A/B) :: J's LIVE RULING from the
