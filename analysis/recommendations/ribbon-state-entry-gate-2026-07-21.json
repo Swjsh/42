@@ -1,0 +1,1025 @@
+{
+  "_doc": "ribbon_state_entry_gate_study.py -- LANE-B HYPOTHESIS #1 population validation\n(markdown/doctrine/DOJO-HARVEST-2026-07-21.md). Frozen pre-reg:\nanalysis/recommendations/ribbon-state-entry-gate-prereg-2026-07-21.json -- read that file\nfor the full frozen feature/population/candidate/ship-gate definitions; this module is the\nrunner, not a second copy of the spec.\n\nWHY THIS EXISTS: the harvest doc's quantified finding (5 real-fill 2026-07-17 entries, same\ntrigger family level_rejection+confluence, split -$139 [2 losers, ribbon BULL+rising] vs\n+$665 [3 winners, ribbon rolled over]) is n=2 days. This module reconstructs the SAME trigger\nfamily's bear-entry population across the widest OPRA-covered history (backtest/data/options/,\n382 distinct trading dates 2025-01-02..2026-07-17) and walks EVERY episode through the REAL\nexit_manager (backtest/lib/exit_manager_walk.py) instead of trusting orchestrator's own\nsimulate_trade_real P&L, which exit_manager_walk.py's own docstring documents as KNOWN-\nDIVERGENT from the live exit_manager for ribbon_ride entries.\n\nTIMESTAMP FRAME (see backtest/lib/et_frame.py): SPY master + OPRA option cache both store a\nFIXED -04:00 offset year-round (mislabeled for EST months but internally self-consistent --\nsame UTC instants). This module follows the SAME \"wall-v1\" convention every existing scorecard\nin this codebase uses: strip whatever tz label is attached, keep the wall-clock numbers,\nNEVER tz_convert. Matches exit_manager_walk.py's own internal handling exactly.\n\nSIGNAL-BAR RECOVERY: TradeFill.entry_time_et is overwritten by simulator_real.py to the FILL\nbar's timestamp (signal bar + >=5 min, next available OPRA bar -- see simulator_real.py lines\n430-436), NOT the signal bar the engine's filters.py / ribbon gates actually evaluated on. The\nribbon-at-entry feature this study measures MUST be read at the SIGNAL bar. This module\nrecovers it AUTHORITATIVELY via BacktestResult.decisions -- orchestrator's own unconditional\nper-bar audit log (\"Always log the decision\", orchestrator.py ~line 1099), matched to each\nTradeFill by (date, triggers_fired, rejection_level) -- rather than reverse-engineering a bar\nindex from price/time. An earlier version of this module DID reverse-engineer the signal bar\nvia entry_spot price-matching and produced ribbon_stack values that silently disagreed with\nfilter_5's own hard requirement (see GROUND-TRUTH CORRECTION below); root cause found via a\ncross-check assertion (decision-log ribbon_stack vs an independent ribbon_at() recompute must\nagree bar-for-bar) was a FRAME MISMATCH: orchestrator's `idx` indexes its internal RTH-only\n(>=09:30, <16:00), reset_index(drop=True) frame, not the raw merged CSV (which still carries\npremarket/after-hours rows) -- this module now reproduces that exact RTH filter before\ncomputing its own ribbon_df, and the cross-check assertion is left in place as a standing guard.\n\nGROUND-TRUTH CORRECTION (found building this study, verified against automation/state/\ncore-decisions.jsonl -- the real live engine's own per-tick record, not a model): the harvest\ndoc's characterization of the 2026-07-17 motivating observation does not hold up against the\nlive log. The two LOSING entries (11:06, 11:40) fired with ribbon=BEAR (bear_score=10, ALL 10\nfilters passed, spread ~200+c -- a strongly, not weakly, BEAR-stacked ribbon), not BULL as\ndescribed. The three WINNING entries (13:01, 13:51, 13:52) fired on triggers=['trendline_\nrejection'] ONLY -- a DIFFERENT trigger family than level_rejection+confluence, via the\ntrendline_only_setup relaxation that bypasses filter_5 (ribbon-stack) with a score demerit\n(bear_score 7-9, not 10) -- not the \"same trigger family\" the harvest doc asserted. The real\ndiscriminator in the live data is TRIGGER TIER (ELITE static-level-anchored vs TRENDLINE\ndynamic-only), not ribbon STACK STATE -- and that correctly-framed hypothesis is ALREADY filed\nand ALREADY tested: backtest/tools/elite_bear_level_reject_gate_ab.py (2026-07-17), verdict\nPARK_INSUFFICIENT_REGIME_SHIFT. See build_scorecard()'s ground_truth_correction block for the\nvalues pulled fresh from core-decisions.jsonl this run (not hand-transcribed).\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/ribbon_state_entry_gate_study.py\n",
+  "generated_at": "2026-07-22T00:06:24.604291",
+  "prereg_path": "analysis/recommendations/ribbon-state-entry-gate-prereg-2026-07-21.json",
+  "prereg_frozen_at": "2026-07-21T00:00:00-04:00",
+  "ground_truth_correction": {
+    "_doc": "Fresh cross-check of the harvest doc's motivating observation against automation/state/core-decisions.jsonl (the real live engine's own per-tick record) -- values below are read from that file THIS run, not hand-transcribed.",
+    "entries": [
+      {
+        "time_et": "11:06",
+        "found": true,
+        "verdict": "ENTER_BEAR",
+        "ribbon_LIVE_ENGINE_FIELD": "BEAR",
+        "spread_cents": 211.1,
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "bear_score": 10,
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+      },
+      {
+        "time_et": "11:40",
+        "found": true,
+        "verdict": "ENTER_BEAR",
+        "ribbon_LIVE_ENGINE_FIELD": "BEAR",
+        "spread_cents": 195.1,
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "bear_score": 10,
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+      },
+      {
+        "time_et": "13:01",
+        "found": true,
+        "verdict": "ENTER_BEAR",
+        "ribbon_LIVE_ENGINE_FIELD": "MIXED",
+        "spread_cents": 53.7,
+        "triggers": [
+          "trendline_rejection"
+        ],
+        "bear_score": 7,
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+      },
+      {
+        "time_et": "13:51",
+        "found": true,
+        "verdict": "ENTER_BEAR",
+        "ribbon_LIVE_ENGINE_FIELD": "MIXED",
+        "spread_cents": 32.1,
+        "triggers": [
+          "trendline_rejection"
+        ],
+        "bear_score": 9,
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+      },
+      {
+        "time_et": "13:52",
+        "found": true,
+        "verdict": "ENTER_BEAR",
+        "ribbon_LIVE_ENGINE_FIELD": "MIXED",
+        "spread_cents": 32.1,
+        "triggers": [
+          "trendline_rejection"
+        ],
+        "bear_score": 9,
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON"
+      }
+    ],
+    "finding_losers_ribbon_field_is_BEAR_not_BULL": true,
+    "finding_losers_do_carry_level_rejection_plus_confluence": true,
+    "finding_winners_ALSO_carry_level_rejection_plus_confluence": false,
+    "interpretation": "The harvest doc's 'same trigger family, ribbon BULL+rising for the losers' characterization does not hold against the live log. Losers fired with ribbon=BEAR (bear_score=10, ribbon strongly stacked, not weak/turning) and triggers=[level_rejection, confluence]. Winners fired with triggers=[trendline_rejection] ONLY -- a DIFFERENT trigger family, via the trendline_only_setup relaxation that bypasses filter_5 (the ribbon-stack requirement) with a score demerit (bear_score 7-9, not 10). The real discriminator visible in the live data is TRIGGER TIER (ELITE static-level-anchored vs TRENDLINE dynamic-only no static level), not ribbon STACK STATE. That correctly-framed hypothesis is ALREADY filed and ALREADY tested: analysis/recommendations/elite-bear-level-reject-gate-ab-2026-07-17.json, verdict PARK_INSUFFICIENT_REGIME_SHIFT (IS delta -$532.80, OOS delta +$683.14, WF gate FAILED, sub_window_stability FAILED)."
+  },
+  "population": {
+    "n_walked": 27,
+    "n_bs_fallback_excluded": 3,
+    "n_signal_bar_unmatched": 0,
+    "n_ribbon_warmup_excluded": 0,
+    "n_opra_coverage_skip": 0,
+    "date_range_available": [
+      "2025-01-02",
+      "2026-07-17"
+    ],
+    "note": "n_walked is the FULL gate-eligible-plus-discovery-day population (IS 2025 + OOS 2026 YTD thru 2026-07-17, discovery day INCLUDED here and excluded only inside each candidate's g1-g4 windows per the frozen pre-reg). ZERO of these 27 entries are on 2026-07-17 itself -- the bar-cadence backtest reconstruction does not reproduce that day's live 1-min-tick entries (disclosed in the frozen pre-reg's motivating_observation.note); see ground_truth_correction above for what the REAL 07-17 entries actually looked like."
+  },
+  "trades": [
+    {
+      "date": "2025-01-10",
+      "signal_time_et": "2025-01-10T10:30:00",
+      "fill_time_et": "2025-01-10T10:35:00",
+      "strike": 585,
+      "qty": 3,
+      "entry_premium": 2.1,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence"
+      ],
+      "tier": "ELITE",
+      "rejection_level": 585.195,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 102.95,
+      "ribbon_momentum_3bar_cents": 76.94,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": true,
+      "am_pm_bucket": "AM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": 705.55,
+      "control_exit_reason": "runner_stop @ 4.96",
+      "control_hold_minutes": 50,
+      "candidate_A_suppress_pnl": 705.55,
+      "candidate_B_detier_pnl": 705.55,
+      "candidate_C_price_confirmed_suppress_pnl": 705.55
+    },
+    {
+      "date": "2025-01-10",
+      "signal_time_et": "2025-01-10T12:00:00",
+      "fill_time_et": "2025-01-10T12:05:00",
+      "strike": 580,
+      "qty": 3,
+      "entry_premium": 1.44,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence"
+      ],
+      "tier": "ELITE",
+      "rejection_level": 580.51,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 277.38,
+      "ribbon_momentum_3bar_cents": 5.65,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "PM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": 12.0,
+      "control_exit_reason": "structure_stop @ 580.51",
+      "control_hold_minutes": 40,
+      "candidate_A_suppress_pnl": 12.0,
+      "candidate_B_detier_pnl": 12.0,
+      "candidate_C_price_confirmed_suppress_pnl": 12.0
+    },
+    {
+      "date": "2025-02-21",
+      "signal_time_et": "2025-02-21T14:00:00",
+      "fill_time_et": "2025-02-21T14:05:00",
+      "strike": 603,
+      "qty": 4,
+      "entry_premium": 1.18,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence"
+      ],
+      "tier": "ELITE",
+      "rejection_level": 603.6,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 161.61,
+      "ribbon_momentum_3bar_cents": 36.08,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "PM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": 616.0,
+      "control_exit_reason": "time_stop_15:50 (runner)",
+      "control_hold_minutes": 95,
+      "candidate_A_suppress_pnl": 616.0,
+      "candidate_B_detier_pnl": 616.0,
+      "candidate_C_price_confirmed_suppress_pnl": 616.0
+    },
+    {
+      "date": "2025-06-05",
+      "signal_time_et": "2025-06-05T14:00:00",
+      "fill_time_et": "2025-06-05T14:05:00",
+      "strike": 595,
+      "qty": 5,
+      "entry_premium": 0.92,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence"
+      ],
+      "tier": "ELITE",
+      "rejection_level": 595.98,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 40.78,
+      "ribbon_momentum_3bar_cents": 17.15,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "PM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": -230.0,
+      "control_exit_reason": "premium_stop @ 0.46",
+      "control_hold_minutes": 35,
+      "candidate_A_suppress_pnl": -230.0,
+      "candidate_B_detier_pnl": -230.0,
+      "candidate_C_price_confirmed_suppress_pnl": -230.0
+    },
+    {
+      "date": "2025-06-13",
+      "signal_time_et": "2025-06-13T14:00:00",
+      "fill_time_et": "2025-06-13T14:05:00",
+      "strike": 599,
+      "qty": 5,
+      "entry_premium": 0.9500000000000001,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence",
+        "trendline_rejection"
+      ],
+      "tier": "SUPER",
+      "rejection_level": 600.0,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 52.34,
+      "ribbon_momentum_3bar_cents": 3.38,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "PM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": 656.0,
+      "control_exit_reason": "runner_stop @ 2.81",
+      "control_hold_minutes": 50,
+      "candidate_A_suppress_pnl": 656.0,
+      "candidate_B_detier_pnl": 656.0,
+      "candidate_C_price_confirmed_suppress_pnl": 656.0
+    },
+    {
+      "date": "2025-06-20",
+      "signal_time_et": "2025-06-20T13:00:00",
+      "fill_time_et": "2025-06-20T13:05:00",
+      "strike": 595,
+      "qty": 4,
+      "entry_premium": 1.06,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence"
+      ],
+      "tier": "ELITE",
+      "rejection_level": 595.52,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 81.09,
+      "ribbon_momentum_3bar_cents": -16.06,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": true,
+      "am_pm_bucket": "PM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": 397.8,
+      "control_exit_reason": "runner_stop @ 1.99",
+      "control_hold_minutes": 40,
+      "candidate_A_suppress_pnl": 397.8,
+      "candidate_B_detier_pnl": 397.8,
+      "candidate_C_price_confirmed_suppress_pnl": 397.8
+    },
+    {
+      "date": "2025-10-15",
+      "signal_time_et": "2025-10-15T13:00:00",
+      "fill_time_et": "2025-10-15T13:05:00",
+      "strike": 663,
+      "qty": 3,
+      "entry_premium": 1.58,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence"
+      ],
+      "tier": "ELITE",
+      "rejection_level": 663.8275103924964,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 96.26,
+      "ribbon_momentum_3bar_cents": 38.81,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "PM",
+      "simulate_real_pnl_disclosed_only": 532.8,
+      "control_pnl": 483.55,
+      "control_exit_reason": "runner_stop @ 3.26",
+      "control_hold_minutes": 20,
+      "candidate_A_suppress_pnl": 483.55,
+      "candidate_B_detier_pnl": 483.55,
+      "candidate_C_price_confirmed_suppress_pnl": 483.55
+    },
+    {
+      "date": "2026-01-29",
+      "signal_time_et": "2026-01-29T11:00:00",
+      "fill_time_et": "2026-01-29T11:05:00",
+      "strike": 690,
+      "qty": 3,
+      "entry_premium": 1.97,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence"
+      ],
+      "tier": "ELITE",
+      "rejection_level": 690.485,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 112.88,
+      "ribbon_momentum_3bar_cents": 85.73,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "AM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": 656.85,
+      "control_exit_reason": "runner_stop @ 4.6",
+      "control_hold_minutes": 70,
+      "candidate_A_suppress_pnl": 656.85,
+      "candidate_B_detier_pnl": 656.85,
+      "candidate_C_price_confirmed_suppress_pnl": 656.85
+    },
+    {
+      "date": "2026-02-03",
+      "signal_time_et": "2026-02-03T13:00:00",
+      "fill_time_et": "2026-02-03T13:05:00",
+      "strike": 690,
+      "qty": 4,
+      "entry_premium": 1.08,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence"
+      ],
+      "tier": "ELITE",
+      "rejection_level": 690.545,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 183.61,
+      "ribbon_momentum_3bar_cents": 4.28,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "PM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": 380.0,
+      "control_exit_reason": "structure_stop @ 690.545",
+      "control_hold_minutes": 5,
+      "candidate_A_suppress_pnl": 380.0,
+      "candidate_B_detier_pnl": 380.0,
+      "candidate_C_price_confirmed_suppress_pnl": 380.0
+    },
+    {
+      "date": "2026-02-26",
+      "signal_time_et": "2026-02-26T11:00:00",
+      "fill_time_et": "2026-02-26T11:05:00",
+      "strike": 690,
+      "qty": 3,
+      "entry_premium": 1.66,
+      "triggers_fired": [
+        "level_rejection",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "tier": "SUPER",
+      "rejection_level": 690.6,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 32.45,
+      "ribbon_momentum_3bar_cents": -1.0,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "AM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": 636.05,
+      "control_exit_reason": "runner_stop @ 4.7",
+      "control_hold_minutes": 35,
+      "candidate_A_suppress_pnl": 636.05,
+      "candidate_B_detier_pnl": 636.05,
+      "candidate_C_price_confirmed_suppress_pnl": 636.05
+    },
+    {
+      "date": "2026-04-21",
+      "signal_time_et": "2026-04-21T14:15:00",
+      "fill_time_et": "2026-04-21T14:20:00",
+      "strike": 705,
+      "qty": 6,
+      "entry_premium": 0.84,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence"
+      ],
+      "tier": "ELITE",
+      "rejection_level": 706.1400146484375,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 87.26,
+      "ribbon_momentum_3bar_cents": -5.19,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "PM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": -336.0,
+      "control_exit_reason": "structure_stop @ 706.1400146484375",
+      "control_hold_minutes": 35,
+      "candidate_A_suppress_pnl": -336.0,
+      "candidate_B_detier_pnl": -336.0,
+      "candidate_C_price_confirmed_suppress_pnl": -336.0
+    },
+    {
+      "date": "2026-04-28",
+      "signal_time_et": "2026-04-28T09:50:00",
+      "fill_time_et": "2026-04-28T09:55:00",
+      "strike": 712,
+      "qty": 3,
+      "entry_premium": 1.66,
+      "triggers_fired": [
+        "level_rejection",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "tier": "SUPER",
+      "rejection_level": 712.2949829101562,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 73.68,
+      "ribbon_momentum_3bar_cents": 52.44,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "AM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": -261.0,
+      "control_exit_reason": "ribbon_flip_back",
+      "control_hold_minutes": 295,
+      "candidate_A_suppress_pnl": -261.0,
+      "candidate_B_detier_pnl": -261.0,
+      "candidate_C_price_confirmed_suppress_pnl": -261.0
+    },
+    {
+      "date": "2026-04-29",
+      "signal_time_et": "2026-04-29T14:05:00",
+      "fill_time_et": "2026-04-29T14:10:00",
+      "strike": 709,
+      "qty": 3,
+      "entry_premium": 2.22,
+      "triggers_fired": [
+        "level_rejection",
+        "ribbon_flip",
+        "confluence",
+        "trendline_rejection"
+      ],
+      "tier": "SUPER",
+      "rejection_level": 709.25,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 38.06,
+      "ribbon_momentum_3bar_cents": 9.2,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "PM",
+      "simulate_real_pnl_disclosed_only": -333.0,
+      "control_pnl": -162.0,
+      "control_exit_reason": "structure_stop @ 709.25",
+      "control_hold_minutes": 10,
+      "candidate_A_suppress_pnl": -162.0,
+      "candidate_B_detier_pnl": -162.0,
+      "candidate_C_price_confirmed_suppress_pnl": -162.0
+    },
+    {
+      "date": "2026-05-04",
+      "signal_time_et": "2026-05-04T11:15:00",
+      "fill_time_et": "2026-05-04T11:20:00",
+      "strike": 719,
+      "qty": 3,
+      "entry_premium": 1.56,
+      "triggers_fired": [
+        "level_rejection",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "tier": "SUPER",
+      "rejection_level": 720.469970703125,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 51.74,
+      "ribbon_momentum_3bar_cents": 34.85,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "AM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": 445.0,
+      "control_exit_reason": "runner_stop @ 2.89",
+      "control_hold_minutes": 60,
+      "candidate_A_suppress_pnl": 445.0,
+      "candidate_B_detier_pnl": 445.0,
+      "candidate_C_price_confirmed_suppress_pnl": 445.0
+    },
+    {
+      "date": "2026-05-18",
+      "signal_time_et": "2026-05-18T11:00:00",
+      "fill_time_et": "2026-05-18T11:05:00",
+      "strike": 737,
+      "qty": 3,
+      "entry_premium": 1.6,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence"
+      ],
+      "tier": "ELITE",
+      "rejection_level": 739.0,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 140.7,
+      "ribbon_momentum_3bar_cents": 11.97,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "AM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": 446.45,
+      "control_exit_reason": "runner_stop @ 2.86",
+      "control_hold_minutes": 240,
+      "candidate_A_suppress_pnl": 446.45,
+      "candidate_B_detier_pnl": 446.45,
+      "candidate_C_price_confirmed_suppress_pnl": 446.45
+    },
+    {
+      "date": "2026-05-21",
+      "signal_time_et": "2026-05-21T11:30:00",
+      "fill_time_et": "2026-05-21T11:35:00",
+      "strike": 738,
+      "qty": 3,
+      "entry_premium": 1.6,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence",
+        "trendline_rejection"
+      ],
+      "tier": "SUPER",
+      "rejection_level": 738.9,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 48.55,
+      "ribbon_momentum_3bar_cents": -0.35,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "AM",
+      "simulate_real_pnl_disclosed_only": -240.0,
+      "control_pnl": -189.0,
+      "control_exit_reason": "structure_stop @ 738.9",
+      "control_hold_minutes": 5,
+      "candidate_A_suppress_pnl": -189.0,
+      "candidate_B_detier_pnl": -189.0,
+      "candidate_C_price_confirmed_suppress_pnl": -189.0
+    },
+    {
+      "date": "2026-06-08",
+      "signal_time_et": "2026-06-08T13:30:00",
+      "fill_time_et": "2026-06-08T13:35:00",
+      "strike": 742,
+      "qty": 3,
+      "entry_premium": 1.3900000000000001,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence",
+        "trendline_rejection"
+      ],
+      "tier": "SUPER",
+      "rejection_level": 742.0841623480467,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 70.1,
+      "ribbon_momentum_3bar_cents": -2.7,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": true,
+      "am_pm_bucket": "PM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": 439.9,
+      "control_exit_reason": "runner_stop @ 3.01",
+      "control_hold_minutes": 115,
+      "candidate_A_suppress_pnl": 439.9,
+      "candidate_B_detier_pnl": 439.9,
+      "candidate_C_price_confirmed_suppress_pnl": 439.9
+    },
+    {
+      "date": "2026-06-08",
+      "signal_time_et": "2026-06-08T14:35:00",
+      "fill_time_et": "2026-06-08T14:40:00",
+      "strike": 741,
+      "qty": 5,
+      "entry_premium": 0.9,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence",
+        "trendline_rejection"
+      ],
+      "tier": "SUPER",
+      "rejection_level": 742.0841623480467,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 42.23,
+      "ribbon_momentum_3bar_cents": -5.83,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "PM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": 532.0,
+      "control_exit_reason": "runner_stop @ 2.21",
+      "control_hold_minutes": 50,
+      "candidate_A_suppress_pnl": 532.0,
+      "candidate_B_detier_pnl": 532.0,
+      "candidate_C_price_confirmed_suppress_pnl": 532.0
+    },
+    {
+      "date": "2026-06-09",
+      "signal_time_et": "2026-06-09T10:45:00",
+      "fill_time_et": "2026-06-09T10:50:00",
+      "strike": 735,
+      "qty": 3,
+      "entry_premium": 2.6,
+      "triggers_fired": [
+        "level_rejection",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "tier": "SUPER",
+      "rejection_level": 738.1900024414062,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 79.31,
+      "ribbon_momentum_3bar_cents": 47.46,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "AM",
+      "simulate_real_pnl_disclosed_only": -390.0,
+      "control_pnl": -390.0,
+      "control_exit_reason": "premium_stop @ 1.3",
+      "control_hold_minutes": 10,
+      "candidate_A_suppress_pnl": -390.0,
+      "candidate_B_detier_pnl": -390.0,
+      "candidate_C_price_confirmed_suppress_pnl": -390.0
+    },
+    {
+      "date": "2026-06-17",
+      "signal_time_et": "2026-06-17T14:00:00",
+      "fill_time_et": "2026-06-17T14:05:00",
+      "strike": 745,
+      "qty": 3,
+      "entry_premium": 2.37,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence",
+        "trendline_rejection"
+      ],
+      "tier": "SUPER",
+      "rejection_level": 750.8286009873198,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 79.79,
+      "ribbon_momentum_3bar_cents": 24.29,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "PM",
+      "simulate_real_pnl_disclosed_only": -355.5,
+      "control_pnl": -355.5,
+      "control_exit_reason": "premium_stop @ 1.19",
+      "control_hold_minutes": 15,
+      "candidate_A_suppress_pnl": -355.5,
+      "candidate_B_detier_pnl": -355.5,
+      "candidate_C_price_confirmed_suppress_pnl": -355.5
+    },
+    {
+      "date": "2026-06-22",
+      "signal_time_et": "2026-06-22T11:45:00",
+      "fill_time_et": "2026-06-22T11:50:00",
+      "strike": 744,
+      "qty": 4,
+      "entry_premium": 1.21,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence"
+      ],
+      "tier": "ELITE",
+      "rejection_level": 746.1,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 105.49,
+      "ribbon_momentum_3bar_cents": -14.91,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "AM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": -242.0,
+      "control_exit_reason": "premium_stop @ 0.6",
+      "control_hold_minutes": 65,
+      "candidate_A_suppress_pnl": -242.0,
+      "candidate_B_detier_pnl": -242.0,
+      "candidate_C_price_confirmed_suppress_pnl": -242.0
+    },
+    {
+      "date": "2026-06-22",
+      "signal_time_et": "2026-06-22T14:55:00",
+      "fill_time_et": "2026-06-22T15:00:00",
+      "strike": 744,
+      "qty": 5,
+      "entry_premium": 0.88,
+      "triggers_fired": [
+        "level_rejection",
+        "ribbon_flip",
+        "confluence",
+        "trendline_rejection"
+      ],
+      "tier": "SUPER",
+      "rejection_level": 743.8599853515625,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 38.52,
+      "ribbon_momentum_3bar_cents": 15.36,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "PM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": -50.0,
+      "control_exit_reason": "structure_stop @ 743.8599853515625",
+      "control_hold_minutes": 5,
+      "candidate_A_suppress_pnl": -50.0,
+      "candidate_B_detier_pnl": -50.0,
+      "candidate_C_price_confirmed_suppress_pnl": -50.0
+    },
+    {
+      "date": "2026-06-24",
+      "signal_time_et": "2026-06-24T13:15:00",
+      "fill_time_et": "2026-06-24T13:20:00",
+      "strike": 734,
+      "qty": 3,
+      "entry_premium": 1.6400000000000001,
+      "triggers_fired": [
+        "level_rejection",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "tier": "SUPER",
+      "rejection_level": 734.9107038864064,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 85.68,
+      "ribbon_momentum_3bar_cents": 58.8,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "PM",
+      "simulate_real_pnl_disclosed_only": 242.4,
+      "control_pnl": 309.0,
+      "control_exit_reason": "time_stop_15:50",
+      "control_hold_minutes": 140,
+      "candidate_A_suppress_pnl": 309.0,
+      "candidate_B_detier_pnl": 309.0,
+      "candidate_C_price_confirmed_suppress_pnl": 309.0
+    },
+    {
+      "date": "2026-06-25",
+      "signal_time_et": "2026-06-25T09:55:00",
+      "fill_time_et": "2026-06-25T10:00:00",
+      "strike": 730,
+      "qty": 3,
+      "entry_premium": 2.8,
+      "triggers_fired": [
+        "level_rejection",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "tier": "SUPER",
+      "rejection_level": 730.8400268554688,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 91.11,
+      "ribbon_momentum_3bar_cents": 40.06,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "AM",
+      "simulate_real_pnl_disclosed_only": -420.0,
+      "control_pnl": -579.0,
+      "control_exit_reason": "structure_stop @ 730.8400268554688",
+      "control_hold_minutes": 5,
+      "candidate_A_suppress_pnl": -579.0,
+      "candidate_B_detier_pnl": -579.0,
+      "candidate_C_price_confirmed_suppress_pnl": -579.0
+    },
+    {
+      "date": "2026-06-25",
+      "signal_time_et": "2026-06-25T13:30:00",
+      "fill_time_et": "2026-06-25T13:35:00",
+      "strike": 733,
+      "qty": 3,
+      "entry_premium": 1.34,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence",
+        "sequence_rejection"
+      ],
+      "tier": "SUPER",
+      "rejection_level": 733.4773412770263,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 68.3,
+      "ribbon_momentum_3bar_cents": -5.58,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": true,
+      "am_pm_bucket": "PM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": -246.0,
+      "control_exit_reason": "structure_stop @ 733.4773412770263",
+      "control_hold_minutes": 45,
+      "candidate_A_suppress_pnl": -246.0,
+      "candidate_B_detier_pnl": -246.0,
+      "candidate_C_price_confirmed_suppress_pnl": -246.0
+    },
+    {
+      "date": "2026-06-26",
+      "signal_time_et": "2026-06-26T09:45:00",
+      "fill_time_et": "2026-06-26T09:50:00",
+      "strike": 729,
+      "qty": 3,
+      "entry_premium": 2.55,
+      "triggers_fired": [
+        "level_rejection",
+        "confluence"
+      ],
+      "tier": "ELITE",
+      "rejection_level": 729.7,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 179.88,
+      "ribbon_momentum_3bar_cents": 64.33,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": true,
+      "am_pm_bucket": "AM",
+      "simulate_real_pnl_disclosed_only": -336.0,
+      "control_pnl": -468.0,
+      "control_exit_reason": "structure_stop @ 729.7",
+      "control_hold_minutes": 10,
+      "candidate_A_suppress_pnl": -468.0,
+      "candidate_B_detier_pnl": -468.0,
+      "candidate_C_price_confirmed_suppress_pnl": -468.0
+    },
+    {
+      "date": "2026-06-26",
+      "signal_time_et": "2026-06-26T14:45:00",
+      "fill_time_et": "2026-06-26T14:50:00",
+      "strike": 732,
+      "qty": 5,
+      "entry_premium": 0.9500000000000001,
+      "triggers_fired": [
+        "level_rejection",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "tier": "SUPER",
+      "rejection_level": 732.2,
+      "ribbon_stack_at_entry": "BEAR",
+      "ribbon_spread_cents_at_entry": 38.67,
+      "ribbon_momentum_3bar_cents": 25.21,
+      "rising_bull_at_entry": false,
+      "price_riding_up_at_entry": false,
+      "am_pm_bucket": "PM",
+      "simulate_real_pnl_disclosed_only": 0.0,
+      "control_pnl": -230.0,
+      "control_exit_reason": "structure_stop @ 732.2",
+      "control_hold_minutes": 20,
+      "candidate_A_suppress_pnl": -230.0,
+      "candidate_B_detier_pnl": -230.0,
+      "candidate_C_price_confirmed_suppress_pnl": -230.0
+    }
+  ],
+  "candidates": {
+    "A_suppress": {
+      "n_flagged": 0,
+      "n_total_population": 27,
+      "control_total_pnl": 2977.65,
+      "candidate_total_pnl": 2977.65,
+      "gates": {
+        "g1_aggregate": {
+          "delta": 0.0,
+          "pass": false
+        },
+        "g2_majority_of_days": {
+          "n_days_with_flag": 0,
+          "n_days_up": 0,
+          "n_days_down": 0,
+          "day_deltas": [],
+          "pass": false
+        },
+        "g3_survives_drop_best_trade": {
+          "delta_ex_best": null,
+          "pass": false
+        },
+        "g4_held_out_subset": {
+          "is_2025_delta": 0.0,
+          "oos_2026_ex_discovery_day_delta": 0.0,
+          "pass": false
+        },
+        "g5_not_discovery_day_artifact": {
+          "discovery_day_2026_07_17_delta": 0.0,
+          "delta_excluding_discovery_day": 0.0,
+          "note": "population already excludes discovery day from g1-g4 by construction; this reports the discovery day's OWN contribution for transparency."
+        }
+      },
+      "advisory_bh_fdr": {
+        "p_one_sided_mean_lt_0": null,
+        "threshold": 0.1,
+        "significant": false,
+        "note": "single-candidate BH-FDR degenerates to alpha=0.10 (elite_bear_level_reject_gate_ab.py convention); advisory only, not gating."
+      },
+      "advisory_evidence_n": {
+        "n_flagged": 0,
+        "floor": 15,
+        "meets_floor": false
+      },
+      "time_of_day_confound": {
+        "AM": {
+          "n": 11,
+          "n_flagged": 0,
+          "flagged_rate": 0.0,
+          "mean_control_pnl": 69.17,
+          "mean_flagged_control_pnl": null
+        },
+        "PM": {
+          "n": 16,
+          "n_flagged": 0,
+          "flagged_rate": 0.0,
+          "mean_control_pnl": 138.55,
+          "mean_flagged_control_pnl": null
+        },
+        "note": "n too small to isolate the ribbon-state effect WITHIN a fixed time-of-day bucket"
+      },
+      "verdict": "INSUFFICIENT_N"
+    },
+    "B_detier_half_size": {
+      "n_flagged": 0,
+      "n_total_population": 27,
+      "control_total_pnl": 2977.65,
+      "candidate_total_pnl": 2977.65,
+      "gates": {
+        "g1_aggregate": {
+          "delta": 0.0,
+          "pass": false
+        },
+        "g2_majority_of_days": {
+          "n_days_with_flag": 0,
+          "n_days_up": 0,
+          "n_days_down": 0,
+          "day_deltas": [],
+          "pass": false
+        },
+        "g3_survives_drop_best_trade": {
+          "delta_ex_best": null,
+          "pass": false
+        },
+        "g4_held_out_subset": {
+          "is_2025_delta": 0.0,
+          "oos_2026_ex_discovery_day_delta": 0.0,
+          "pass": false
+        },
+        "g5_not_discovery_day_artifact": {
+          "discovery_day_2026_07_17_delta": 0.0,
+          "delta_excluding_discovery_day": 0.0,
+          "note": "population already excludes discovery day from g1-g4 by construction; this reports the discovery day's OWN contribution for transparency."
+        }
+      },
+      "advisory_bh_fdr": {
+        "p_one_sided_mean_lt_0": null,
+        "threshold": 0.1,
+        "significant": false,
+        "note": "single-candidate BH-FDR degenerates to alpha=0.10 (elite_bear_level_reject_gate_ab.py convention); advisory only, not gating."
+      },
+      "advisory_evidence_n": {
+        "n_flagged": 0,
+        "floor": 15,
+        "meets_floor": false
+      },
+      "time_of_day_confound": {
+        "AM": {
+          "n": 11,
+          "n_flagged": 0,
+          "flagged_rate": 0.0,
+          "mean_control_pnl": 69.17,
+          "mean_flagged_control_pnl": null
+        },
+        "PM": {
+          "n": 16,
+          "n_flagged": 0,
+          "flagged_rate": 0.0,
+          "mean_control_pnl": 138.55,
+          "mean_flagged_control_pnl": null
+        },
+        "note": "n too small to isolate the ribbon-state effect WITHIN a fixed time-of-day bucket"
+      },
+      "verdict": "INSUFFICIENT_N"
+    },
+    "C_price_confirmed_suppress_disclosed_only": {
+      "n_flagged": 0,
+      "n_total_population": 27,
+      "control_total_pnl": 2977.65,
+      "candidate_total_pnl": 2977.65,
+      "gates": {
+        "g1_aggregate": {
+          "delta": 0.0,
+          "pass": false
+        },
+        "g2_majority_of_days": {
+          "n_days_with_flag": 0,
+          "n_days_up": 0,
+          "n_days_down": 0,
+          "day_deltas": [],
+          "pass": false
+        },
+        "g3_survives_drop_best_trade": {
+          "delta_ex_best": null,
+          "pass": false
+        },
+        "g4_held_out_subset": {
+          "is_2025_delta": 0.0,
+          "oos_2026_ex_discovery_day_delta": 0.0,
+          "pass": false
+        },
+        "g5_not_discovery_day_artifact": {
+          "discovery_day_2026_07_17_delta": 0.0,
+          "delta_excluding_discovery_day": 0.0,
+          "note": "population already excludes discovery day from g1-g4 by construction; this reports the discovery day's OWN contribution for transparency."
+        }
+      },
+      "advisory_bh_fdr": {
+        "p_one_sided_mean_lt_0": null,
+        "threshold": 0.1,
+        "significant": false,
+        "note": "single-candidate BH-FDR degenerates to alpha=0.10 (elite_bear_level_reject_gate_ab.py convention); advisory only, not gating."
+      },
+      "advisory_evidence_n": {
+        "n_flagged": 0,
+        "floor": 15,
+        "meets_floor": false
+      },
+      "time_of_day_confound": {
+        "AM": {
+          "n": 11,
+          "n_flagged": 0,
+          "flagged_rate": 0.0,
+          "mean_control_pnl": 69.17,
+          "mean_flagged_control_pnl": null
+        },
+        "PM": {
+          "n": 16,
+          "n_flagged": 0,
+          "flagged_rate": 0.0,
+          "mean_control_pnl": 138.55,
+          "mean_flagged_control_pnl": null
+        },
+        "note": "n too small to isolate the ribbon-state effect WITHIN a fixed time-of-day bucket"
+      },
+      "verdict": "INSUFFICIENT_N"
+    }
+  }
+}

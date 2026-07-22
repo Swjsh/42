@@ -42,17 +42,41 @@
 - After the breakdown, price came back up ~**14:55 and retested the premarket level again**.
 - Exit/target idea: could have targeted the **742.70** or **743.36** area for a sell/exit.
 
-## QUANTIFIED FINDING (mine, from 07-17 real fills — the strongest of the night)
+## ~~QUANTIFIED FINDING~~ — **RETRACTED 2026-07-22, I GOT THIS WRONG**
 
-Same trigger family (`level_rejection + confluence`), opposite outcomes, split by ribbon state:
+I originally wrote: "same trigger family (`level_rejection + confluence`), split by ribbon state —
+losers fired into a BULLISH ribbon riding up, winners after it rolled over." **Both halves of that
+are false.** I inferred the ribbon state by eye from the chart instead of reading
+`core-decisions.jsonl`. Ground truth, quoted from the live log:
 
-| entries | ribbon at entry | hold | result |
-|---|---|---|---|
-| 11:06, 11:40 | bullish + price riding it UP | 5-16 min | **-$37, -$102** |
-| 13:01, 13:51, 13:52 | rolled over at the highs | 40-96 min | **+$241, +$191, +$233** |
+| entry | ribbon | spread | triggers | result |
+|---|---|---|---|---|
+| 11:06 | **BEAR** | 211c | level_rejection + confluence | -$37 |
+| 11:40 | **BEAR** | 195c | level_rejection + confluence | -$102 |
+| 13:01 | **MIXED** | 54c | trendline_rejection ONLY | +$241 |
+| 13:51 | **MIXED** | 32c | trendline_rejection ONLY | +$191 |
+| 13:52 | **MIXED** | 32c | trendline_rejection ONLY | +$233 |
 
-Every 07-17 winner exited via `trail` after a 40-96 min hold; every loser via `structure_stop`
-inside 16 min. -$139 vs +$665 on the same trigger type.
+Corrections: (1) the losers fired with the ribbon **BEAR-stacked**, not bullish; (2) the winners
+are a **different trigger family** (trendline-only, via the filter-relaxation path), so this was
+never a like-for-like comparison. The correctly-framed version of "ELITE static-level vs
+TRENDLINE dynamic" is ALREADY filed and tested:
+`analysis/recommendations/elite-bear-level-reject-gate-ab-2026-07-17.json`, verdict
+PARK_INSUFFICIENT_REGIME_SHIFT.
+
+**Also structurally impossible as I framed it:** `backtest/lib/filters.py` Filter 5 already hard-
+blocks any bear entry of this family unless the ribbon is exactly BEAR-stacked. "Bear entry while
+ribbon is bullish" cannot occur in production — the study returned n_flagged=0 on all 3 candidates
+(INSUFFICIENT_N), confirmed both by a 27-position reconstruction and the real 07-17 log.
+
+**What survives, as an OBSERVATION not a finding (n=5, one day, needs its own pre-reg):** the
+losers fired at ribbon spread ~195-211c (wide / extended stack) and the winners at ~32-54c
+(compressed / transitioning). If that holds at population scale it would CONVERGE with J's own
+07-21 ruling ("don't enter when the move already happened") via a different measurement —
+ribbon-spread-as-extension rather than RSI. Untested. Do not treat as a result.
+
+**Lesson for this file's own methodology:** read the decision log, never infer engine internals
+from a chart screenshot. Filed as the reason this section is a retraction rather than a finding.
 
 ## LANE A — capability gaps (ship as plumbing, no pre-reg needed)
 
