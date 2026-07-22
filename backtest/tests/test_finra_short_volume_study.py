@@ -3,12 +3,15 @@
 Pure-function tests only (no network) except one explicitly-marked live smoke test.
 """
 import datetime as dt
+from unittest.mock import patch
 
 import pandas as pd
 import pytest
 
+from backtest.lib.http_fetch import HttpFetchBlocked
 from backtest.tools.finra_short_volume_study import (
     build_sample,
+    fetch_finra_short_ratio,
     median_split_test,
     verdict_from_result,
 )
@@ -126,6 +129,79 @@ class TestVerdictFromResult:
     def test_pass_when_direction_right_and_significant(self):
         result = {"hypothesis_direction_confirmed": True, "permutation_p_value": 0.01}
         assert verdict_from_result(result) == "PASS_FIRST_SCREEN"
+
+
+class TestFetchFinraShortRatioBlockHandling:
+    """L241 graduation: verify fetch_finra_short_ratio's `raise_on_block` toggle
+    -- fails open (returns None) by default, propagates HttpFetchBlocked only
+    when the caller explicitly opts in (main()'s systematic-block detector)."""
+
+    @patch("backtest.tools.finra_short_volume_study.fetch_url_text")
+    def test_blocked_fails_open_to_none_by_default(self, mock_fetch):
+        mock_fetch.side_effect = HttpFetchBlocked("https://cdn.finra.org/x", 403)
+        result = fetch_finra_short_ratio(dt.date(2026, 7, 17))
+        assert result is None
+
+    @patch("backtest.tools.finra_short_volume_study.fetch_url_text")
+    def test_blocked_raises_when_opted_in(self, mock_fetch):
+        mock_fetch.side_effect = HttpFetchBlocked("https://cdn.finra.org/x", 403)
+        with pytest.raises(HttpFetchBlocked):
+            fetch_finra_short_ratio(dt.date(2026, 7, 17), raise_on_block=True)
+
+    @patch("backtest.tools.finra_short_volume_study.fetch_url_text")
+    def test_genuinely_missing_returns_none_regardless_of_flag(self, mock_fetch):
+        mock_fetch.return_value = None
+        assert fetch_finra_short_ratio(dt.date(2026, 7, 17)) is None
+        assert fetch_finra_short_ratio(dt.date(2026, 7, 17), raise_on_block=True) is None
+
+
+class TestMainSystematicBlockDetection:
+    """L241 guard: main() must distinguish 'fetcher is blocked on most dates'
+    from 'genuinely no data' rather than silently reporting a near-empty
+    sample as if the hypothesis had been fairly tested."""
+
+    @patch("backtest.tools.finra_short_volume_study.OUTPUT_PATH")
+    @patch("backtest.tools.finra_short_volume_study.fetch_finra_short_ratio")
+    @patch("backtest.tools.finra_short_volume_study.load_spy_daily_closes")
+    def test_majority_blocked_flags_kill_fetcher_blocked(
+        self, mock_load, mock_fetch, mock_output_path
+    ):
+        from backtest.tools.finra_short_volume_study import main
+
+        dates = [dt.date(2026, 1, d) for d in range(1, 12)]
+        mock_load.return_value = pd.DataFrame(
+            {"date": dates, "close": [100.0 + i for i in range(len(dates))]}
+        )
+        mock_fetch.side_effect = HttpFetchBlocked("https://cdn.finra.org/x", 403)
+        mock_output_path.write_text = lambda *a, **k: None
+
+        out = main()
+        assert out["fetcher_systematically_blocked"] is True
+        assert out["verdict"] == "KILL_FETCHER_BLOCKED"
+        assert out["n_dates_blocked_403_429"] == out["n_dates_attempted"]
+
+    @patch("backtest.tools.finra_short_volume_study.OUTPUT_PATH")
+    @patch("backtest.tools.finra_short_volume_study.fetch_finra_short_ratio")
+    @patch("backtest.tools.finra_short_volume_study.load_spy_daily_closes")
+    def test_minority_blocked_does_not_flag(self, mock_load, mock_fetch, mock_output_path):
+        from backtest.tools.finra_short_volume_study import main
+
+        dates = [dt.date(2026, 1, d) for d in range(1, 12)]
+        mock_load.return_value = pd.DataFrame(
+            {"date": dates, "close": [100.0 + i for i in range(len(dates))]}
+        )
+
+        def _side_effect(d, raise_on_block=False):
+            if d == dates[0]:
+                raise HttpFetchBlocked("https://cdn.finra.org/x", 403)
+            return 0.4
+
+        mock_fetch.side_effect = _side_effect
+        mock_output_path.write_text = lambda *a, **k: None
+
+        out = main()
+        assert out["fetcher_systematically_blocked"] is False
+        assert out["n_dates_blocked_403_429"] == 1
 
 
 @pytest.mark.network

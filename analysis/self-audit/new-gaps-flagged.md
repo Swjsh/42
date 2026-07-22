@@ -365,3 +365,32 @@ since 15:55, correctly after-hours per OP-22). Net: this batch is swarm-reviewer
 correctly-scoped, already fail-open, already-tested change -- no code action taken. Filed as a
 DONE-triage rather than silently dropped per C7 (silent success is failure -- a self-audit gap
 needs a disposition, not just being read). -->
+
+## 2026-07-22T17:32:32 -- 9 new gap(s) Gamma self-identified
+- Let's look at the "Question" section again.
+- Let's look at the "Your task" section again.
+- Wait, let me double check.
+- Let's look at the prompt again.
+- Wait, is there a proposed change?
+- Is the user asking me to audit the *system* or the *FINRA study*?
+- Okay, I will stick to the Top 6-8 gaps.
+- Chef‑inbox backlog growth
+- Missing generic User‑Agent guard
+
+<!-- DONE 2026-07-22 ~18:10 ET conductor (AFTERHOURS): TRIAGED. 7 of 9 lines are pure
+scaffold/meta-commentary noise (the model narrating its own audit prompt -- "Let's look at
+the Question section again", "Wait, let me double check" etc.), same extraction-noise class
+as the 2026-07-19 DONE-marked batches above, NOT genuine gaps -- self_audit.py's scaffold-
+rejection regex family doesn't yet cover this exact "thinking out loud about the prompt
+itself" phrasing; noted for a future extractor-hardening pass if this exact phrasing recurs
+(not chased this fire -- conservative "when in doubt KEEP" policy already documented at the
+2026-07-19 DONE marker above, and this variant is cheap to eyeball-filter by a human/
+conductor reader). The 2 REAL items were BOTH actioned this fire, not just re-triaged:
+"Missing generic User-Agent guard" -> graduated L241 (LESSONS-LEARNED.md + CLAUDE.md C7
+index) + built backtest/lib/http_fetch.py#fetch_url_text() + refactored
+finra_short_volume_study.py onto it + 26 new guard tests -- see the matching DONE marker on
+strategy/candidates/_lesson-inbox/2026-07-22-finra-cdn-user-agent-block-silent-zero-data.md.DONE
+for full detail. "Chef-inbox backlog growth" -- verified via live count: 78 files total, 66
+`.DONE` (85%), 12 open (15%) -- a healthy throughput ratio for an active research pipeline,
+NOT unbounded growth; no action needed. -->
+

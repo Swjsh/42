@@ -12,10 +12,11 @@ import datetime as dt
 import io
 import json
 import random
-import urllib.request
 from pathlib import Path
 
 import pandas as pd
+
+from backtest.lib.http_fetch import HttpFetchBlocked, fetch_url_text
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FINRA_URL_TMPL = "https://cdn.finra.org/equity/regsho/daily/CNMSshvol{ymd}.txt"
@@ -46,20 +47,27 @@ def load_spy_daily_closes() -> pd.DataFrame:
     return daily
 
 
-def fetch_finra_short_ratio(date: dt.date, symbol: str = "SPY", timeout: float = 15.0) -> float | None:
+def fetch_finra_short_ratio(
+    date: dt.date, symbol: str = "SPY", timeout: float = 15.0, raise_on_block: bool = False
+) -> float | None:
     """Fetch ONE day's FINRA Reg SHO short-volume file and return SPY's
     ShortVolume/TotalVolume ratio, or None if unavailable (holiday/no file/symbol
-    missing). Fails open -- never raises."""
+    missing). Fails open by default -- never raises -- via the shared
+    `backtest.lib.http_fetch.fetch_url_text` helper (browser-like User-Agent by
+    default; FINRA's CDN 403s the bare urllib default UA, see L241).
+
+    Set `raise_on_block=True` to instead propagate `HttpFetchBlocked` on a 403/429
+    -- used by `main()`'s loop to detect a SYSTEMATIC block across many dates
+    rather than silently recording each blocked day as "no data" (L241)."""
     ymd = date.strftime("%Y%m%d")
     url = FINRA_URL_TMPL.format(ymd=ymd)
-    # FINRA's CDN 403s the default urllib User-Agent ("Python-urllib/x.y") --
-    # a plain browser-like UA is required (verified live 2026-07-22: curl works,
-    # bare urllib.request.urlopen(url) does not, header-only fix, no other diff).
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            raw = resp.read().decode("utf-8", errors="replace")
-    except Exception:
+        raw = fetch_url_text(url, timeout=timeout)
+    except HttpFetchBlocked:
+        if raise_on_block:
+            raise
+        return None
+    if raw is None:
         return None
     try:
         df = pd.read_csv(io.StringIO(raw), sep="|")
@@ -147,22 +155,36 @@ def main() -> dict:
     # bound the fetch: last 65 trading days that have a "next day" available
     candidate_dates = list(daily["date"])[-70:-1]  # exclude today (no next-day yet)
     short_ratios = {}
+    n_blocked = 0
     for d in candidate_dates:
-        r = fetch_finra_short_ratio(d)
+        try:
+            r = fetch_finra_short_ratio(d, raise_on_block=True)
+        except HttpFetchBlocked:
+            n_blocked += 1
+            continue
         if r is not None:
             short_ratios[d] = r
+
+    # L241 guard: a systematic 403/429 block looks identical to "no data" unless
+    # surfaced distinctly -- if MOST attempted dates came back blocked (not just
+    # a stray holiday/rate-limit blip), this is a fetcher-is-blocked situation,
+    # not a genuinely-empty data source. Flag it loudly instead of quietly
+    # reporting a near-zero sample as if the hypothesis had been tested.
+    fetcher_systematically_blocked = bool(candidate_dates) and n_blocked >= 0.5 * len(candidate_dates)
 
     sample = build_sample(daily[daily["date"].isin(candidate_dates + [candidate_dates[-1]])] if candidate_dates else daily, short_ratios)
     # simpler + correct: just use full daily frame, build_sample already looks up next-day internally
     sample = build_sample(daily, short_ratios)
     result = median_split_test(sample)
-    verdict = verdict_from_result(result)
+    verdict = "KILL_FETCHER_BLOCKED" if fetcher_systematically_blocked else verdict_from_result(result)
 
     output = {
         "study_id": "finra-short-volume-spy-2026-07-22",
         "run_at_et": dt.datetime.now().isoformat(),
         "n_dates_attempted": len(candidate_dates),
         "n_dates_with_finra_data": len(short_ratios),
+        "n_dates_blocked_403_429": n_blocked,
+        "fetcher_systematically_blocked": fetcher_systematically_blocked,
         "result": result,
         "verdict": verdict,
     }
