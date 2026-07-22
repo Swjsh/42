@@ -218,7 +218,7 @@ These are non-negotiable, second only to the 10 rules above.
 
 25. **Autonomous operator — high uptime, J holds the off-switch.** I COMPOUND (curate, prune, ratify), not accumulate. Guards MUST fail open — never kill/block J's interactive session (OP-32 scar: market-hours firewall locked J out 2026-05-22). **Required:** (a) Empty queue → BRAINSTORM from `FUTURE-IMPROVEMENTS.md` + `LESSONS-LEARNED.md` + `mistakes.md` + latest trades → ship 3+ tasks. (b) Market event → write `automation/state/news.json`. (c) New foot-gun → encode in CLAUDE.md/automation → fold L# into Lessons index. **Silent failure is the only true failure** — every fire ships work OR a flagged failure to `STATUS.md ## Known broken`; J always wakes to a SIGNAL.
 
-    **Lessons index** (full prose in [LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md), current through L239). New anti-pattern → add prose there + fold the L# into a row below. Re-violated lesson = missing guardrail → graduate to a code assertion (`backtest/tests/test_graduated_guards.py`).
+    **Lessons index** (full prose in [LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md), current through L240). New anti-pattern → add prose there + fold the L# into a row below. Re-violated lesson = missing guardrail → graduate to a code assertion (`backtest/tests/test_graduated_guards.py`).
 
     | # | Theme | Lessons |
     |---|---|---|
@@ -228,7 +228,7 @@ These are non-negotiable, second only to the 10 rules above.
     | C4 | Disclose concentration, normalize OOS, stratify by regime | L01,04,05,10,11,22,46,48,92,104,122,124,128,129,154,166,167,174,175,178,192 |
     | C5 | VIX *character* > VIX level | L40,44,45,73,93,118,133,134,154,162,167 |
     | C6 | No look-ahead: filter <= current bar, verify bar closed, slice prior_bars (L235: a warmup/context frame != an iteration frame — re-slice to caller's own scope) | L14,34,57,61,94,161,165,166,191,212,218,235 |
-    | C7 | Silent success is failure — audit outputs, not exit codes (L236: an LLM-swarm's self-reported "Cost: $0" is an unverified claim, not a fact, until something probes it) | L13,16,19,25,26,28,29,31,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161,164,169,170,173,179,181,185,186,187,189,190,193,196,197,207,211,216,217,220,224,225,226,232,233,234,236 |
+    | C7 | Silent success is failure — audit outputs, not exit codes (L236: an LLM-swarm's self-reported "Cost: $0" is an unverified claim, not a fact, until something probes it; L240: exact-key dedupe silently let 8 re-worded re-asks of 2 concepts sit as "8 fresh ideas") | L13,16,19,25,26,28,29,31,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161,164,169,170,173,179,181,185,186,187,189,190,193,196,197,207,211,216,217,220,224,225,226,232,233,234,236,240 |
     | C8 | Headless Windows spawn = system-pythonw + CREATE_NO_WINDOW + WMI liveness | L20,27,33,41,81,210,229 |
     | C9 | Anchor paths to __file__ | L21,42,49,56,60 |
     | C10 | Rate-limit pool: separate prod key | L54,62,68,69 |
