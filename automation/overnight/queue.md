@@ -41,7 +41,9 @@
   REFRAMES MORNING-BULL-QUALITY-GATE-RECONSIDER: the answer to "unblock elite bull?" is NO --
   unblocking admits late tops (07-22 proved the block right at 11:31). The fix is the EARLY
   trigger, not removing the guard on the late one. Conductor: stop surfacing the reconsider
-  item as J-gated; point it here. depends:none :: status:LANE-A-DONE-LANE-B-PENDING
+  item as J-gated; point it here. depends:none :: status:CLOSED-LANE-B-NO-CELL-SHIPS
+  (2026-07-22 ~18:42 ET -- Lane-A stays shipped shadow-only; Lane-B closed honest-null, see
+  closing block below the Lane-A build for full verdict)
 
   **LANE-A BUILT 2026-07-22 ~18:12-19:10 ET (conductor, AFTERHOURS).** Built exactly the
   vocabulary the item specifies: `detect_pullback_hold_bullish` in `backtest/lib/filters.py`
@@ -82,6 +84,52 @@
   guard above) -- this ships as engine-benefit observer/authoring work, same class as the
   wick_reclaim/trendline_reclaim precedent, not a params/heartbeat_core/filters-live-path
   change requiring guard+revert+REVOKE under rail 4.
+
+  **LANE-B RUN 2026-07-22 ~18:19-18:42 ET (conductor, AFTERHOURS) -- VERDICT: NO_CELL_SHIPS
+  (honest null). CLOSED.** Frozen pre-reg
+  (`analysis/recommendations/pullback-hold-bull-prereg-2026-07-22.json`, 36-cell grid --
+  `up_structure_mode{MARKET_STRUCTURE,PRICE_VWAP} x zone_band_cents{15,25,40} x
+  hold_bars_n{1,2,3} x confirm_mode{NONE,BOTH}`) -> `detect_pullback_hold_bull`
+  (`backtest/tools/pullback_hold_bull_detector.py`) -> full-history detector-frequency pass
+  (44 days) + real-fills dollar pass via `exit_manager_walk`/`option_pricing_real` on the
+  39-day OPRA-covered subset (`backtest/tools/pullback_hold_bull_replay.py`) -> ship-bar
+  conditions 1-5 + BH-FDR q=0.10, evaluated against the 10-day held-out tail
+  (2026-07-01..07-17) and BOTH of J's own named live exhibits as sanity anchors (fidelity
+  gate, evaluated BEFORE dollar economics per the pre-reg's own `cell_disqualified_if`).
+  **RESULT: 0/36 cells clear both sanity anchors -- anchor_1 (2026-07-22 10:44-10:53 ET,
+  the pullback low at 746.80 over LevelMemory's independently-found 746.54 level) is missed
+  by EVERY cell**, because both up-structure qualifier candidates read False AT the
+  pullback-low bar itself (PRICE_VWAP recovers True 15 min late, MARKET_STRUCTURE 45 min
+  late) -- the confirmation layer built to fix the "trigger fires too late" problem is
+  ITSELF too late to see J's own earliest read. Anchor_2 (07-21 shelf) fires on 18/36 cells,
+  but the AND-gate on both anchors still disqualifies the whole grid. Even ignoring the
+  fidelity gate: 0/36 clear condition_2 (day-majority win) or condition_3 (survives dropping
+  the single best trade) -- the only cell with positive aggregate P&L
+  (`PRICE_VWAP_band40c_N1_NONE`, 506 signals/39 days = ~13/day) nets `total-top_trade =
+  -$56.21`, i.e. one outlier trade explains the entire "profit" (C24 anchor-trade
+  anti-pattern) and it's a high-frequency/low-selectivity fire (C27). 0/36 cells clear
+  BH-FDR at q=0.10 (best p-value 0.44). Tighter bands (15c/25c) get WORSE, not better, as
+  hold-bars N grows.
+  **Verified this fire (OP-33):** `pytest backtest/tests/test_pullback_hold_bull.py -q` ->
+  16/16 PASS. Independently RE-RAN the full grid (`python -m
+  backtest.tools.pullback_hold_bull_replay`, background, ~15min real-fills pricing over
+  36 cells x 39 days) -> reproduced `NO_CELL_SHIPS`, `shippable=0/36`, and byte-identical
+  top-5 dollar figures to the pre-existing artifact -- deterministic, not a fluke read.
+  Manually recomputed condition-pass counts across all 36 cells from raw `all_cells` JSON
+  (not trusted the summary `verdict` string): 0/36 anchors, 1/36 cond1, 0/36 cond2, 0/36
+  cond3, 15/36 cond4, 6/36 cond5 -- matches the claimed honest-null exactly. Full writeup:
+  `analysis/recommendations/pullback-hold-bull-stage-summary-2026-07-22.md`.
+  **Disposition:** Lane-A stays shipped (shadow-only, zero live effect, useful ingredient
+  for a future differently-confirmed attempt). Lane-B is CLOSED -- no live wiring, honest
+  null reported, NOT hand-loosened post-hoc to manufacture a pass (no_post_hoc_tuning
+  clause honored). `MORNING-BULL-QUALITY-GATE-RECONSIDER`'s original "unblock elite bull?"
+  stays answered NO. Real next step if pursued (would need its OWN fresh dated pre-reg, not
+  an edit to this one): a genuinely earlier up-structure confirmation primitive than
+  session-VWAP-crossing or 60-bar market-structure trend -- both pre-registered candidates
+  are themselves lagging-confirmation signals, which is WHY they can't see J's earliest read.
+  Rail-4 unaffected (research tool + JSON/MD outputs only, no params/orders/filters/
+  heartbeat_core/strategies.py/CLAUDE.md touched, no broker import). depends:none ::
+  status:CLOSED-NO-SHIP
 
 ### SELFCHECK-TRENDLINE-DRAW-DUPLICATE-SPAM (LOW, OP-22 hygiene, filed 2026-07-22 conductor AFTERHOURS)
 
