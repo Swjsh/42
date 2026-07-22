@@ -1,4 +1,157 @@
-## [2026-07-21 ~22:42-23:05 ET] OK -- conductor (AFTERHOURS): drained 3 lesson-inbox candidates -> L236/L237/L238, commits `04dea1d`+`2c0265a`+`613c128`
+## [2026-07-22 ~01:48-02:00 ET] OK -- conductor (AFTERHOURS): chef-inbox VIX1D gate feasibility screen + trades.csv corruption fix, commit `6f90576`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed). `self-check-last.json` GREEN
+> (PDT both accounts OK). `queue.md` has 0 open HIGH items (`task_scorer.py --top` again
+> surfaced only J-decision-gated `MORNING-BULL-QUALITY-GATE-RECONSIDER`, correctly skipped).
+> Author-inbox order: validator/lesson-inbox empty, skill-inbox only a correction-queue log
+> -> `_chef-inbox` next (priority-5), oldest open item picked: the 2026-07-09 VIX1D
+> same-horizon vol gate prospector item (already consolidated+feasibility-verified
+> 2026-07-21, with an explicit named next bounded step waiting).
+
+> **What shipped:** built `backtest/autoresearch/vix1d_gate_probe.py` -- tested a bare VIX1D
+> level gate (2 pre-registered bands) + a VIX1D-VIX30 slope gate against ALL 190 real
+> `journal/trades.csv` fills, reusing `probe_stats.py`'s canonical significance/concentration/
+> verdict helpers (C14/C17, no hand-rolled thresholds). Honest result:
+> **NO_CANDIDATE_CLEARS_BAR_YET** -- 14-20 band DRY (exp -$7.60/tr), widened 10-25 band + the
+> slope gate both CONCENTRATED (exp $4.14 / $1.15 but top-3 days > 150% of net), none
+> walk-forward stable. Filed as a screening result (not a rejection -- n=190/~65 days is
+> still thin). **SIDE-FIND, FIXED (not just noted):** while loading real fills, hit
+> `ValueError: Invalid isoformat string: '6\t2026-05-18'` -- `journal/trades.csv` row 13 had
+> a literal stray "6\t" line-number-prefix contaminating a real 2026-05-18 Gamma-Bold trade's
+> date field (a cat-n-paste artifact from some past manual edit), breaking positional CSV
+> parsing for any real-fills probe. Verified it was an ISOLATED single-row defect (grepped
+> the whole file for the pattern, only 1 hit) before fixing the 1 character. Marked the
+> source chef-inbox item `.DONE`, added leaderboard row 49.
+
+> **Verified this fire (OP-33):** `pytest backtest/tests/test_vix1d_gate_probe.py -q` 5/5
+> PASS (incl. 2 guards specifically for the corruption class: no-line-number-prefix +
+> all-dates-parseable) BEFORE committing; pre-commit hook ran 31 tests + curated 5-suite
+> safety gate, both PASS; `git status --short` on the exact 6 intended paths before commit
+> (L239 discipline), `git show --stat HEAD` + `git show HEAD -- journal/trades.csv` post-commit
+> confirm exactly the 1-line fix landed on trades.csv (the diff also shows 10 NEW rows that a
+> concurrent background daemon, `fleet_journal_bridge.py`, appended to the same live file
+> during this fire -- not mine, correctly captured as-is, no conflict).
+
+> **Trading-path scope:** zero trading-path files touched (research probe + journal
+> data-integrity fix + doc/leaderboard updates only -- no params/heartbeat_core/filters/
+> placement/exit). No guard/revert/REVOKE needed under rail 4 beyond the guard tests already
+> shipped with the change. **Revert:** `git revert 6f90576` (fully additive + 1-line ledger
+> repair, no functional trading-path change).
+
+> **Queue state:** chef-inbox now has 13 open prospector items remaining (was 14); next
+> fire should pick the next-oldest if nothing higher-priority surfaces. `queue.md` still has
+> 0 clean HIGH items (`T-AUDIT-TAIL` remains the sole deprioritized `status:open`).
+
+> **Cost: ~$3.6** (STAGE 0/1 reads, engine-health/self-check/queue/inbox survey, reading the
+> chef-inbox item + probe_stats.py + an existing probe for pattern, fetching+caching VIX1D/
+> VIX30 daily data, writing the probe + guard tests + 2 debugging round-trips on CSV parsing,
+> discovering+fixing the trades.csv corruption, writing the leaderboard row + inbox note,
+> 1 commit with pre/post verification, this STATUS update).
+
+---
+
+## [2026-07-21 ~23:48-23:53 ET] OK -- conductor (AFTERHOURS): chef-inbox pre-registration -> GEX_FLIP_REGIME_TAG, commit `90873e6`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `self-check-last.json`
+> DEGRADED on the same pre-existing non-load-bearing TRENDLINE-DRAW flag (unchanged, PDT both
+> accounts OK). Self-audit gaps: all triaged through 2026-07-21T17:31:28, nothing new.
+> `queue.md` has zero open `priority: HIGH` items (grep). `task_scorer.py --top` again surfaced
+> only `MORNING-BULL-QUALITY-GATE-RECONSIDER` (J-decision-gated, correctly skipped).
+> Author-inbox order: validator-inbox / skill-inbox / lesson-inbox all fully `.DONE` (0
+> actionable items) -> `_chef-inbox` next (priority-5), oldest open item picked: the
+> 2026-07-09 GEX zero-gamma-flip prospector finding.
+
+> **What shipped:** the item's OWN text specifies its bounded first deliverable is NOT a
+> backtest (GEX archive: 23 sessions banked, floor ~60-90 per `gex_archive_health.py`,
+> `gex_regime.assess_backtest_feasibility()` unconditionally `can_backtest_now: False` until
+> then) -- it is a feasibility/continuity check (already GREEN, `engine-health.json`
+> `gex_archive` check) plus a PRE-REGISTERED backtest design. Wrote
+> `strategy/candidates/2026-07-21-235117-gex-flip-regime-tag-prereg.md`: froze the exact join
+> key (prior-session archive -> next trading day only, look-ahead-safe per C6), the exact null
+> hypothesis, and the exact metric (reuse `probe_stats.py` canonical significance/concentration
+> helpers + OP-16 anchor-no-regression on J's 3 anchor days -- explicitly did NOT hand-roll a
+> new threshold, C14/C17). Added `_LEADERBOARD.md` row 48 (`DATA-GATED`), renamed the source
+> chef-inbox item `.DONE` via `git mv`.
+
+> **Verified this fire (OP-33):** `git status --short` on the exact 3 intended paths BEFORE
+> commit (L239 discipline -- no mixed-pathspec risk, only 3 files staged, confirmed each showed
+> the expected A/M/R state); pre-commit hook ran 31 tests + curated 5-suite safety gate, both
+> PASS; `git show --stat HEAD` post-commit confirms 3 files / 44 insertions / 0 unexpected
+> content. Left the ~40 pre-existing untracked `strategy/candidates/*chef-nemo*` files and the
+> Kitchen-reviewer-owned `_review-log.jsonl` diff untouched -- not mine to commit (lane
+> discipline; that untracked pile is a separate future consolidation task, not this fire's).
+
+> **Trading-path scope:** zero trading-path files touched (candidate doc + leaderboard +
+> inbox rename only). No guard/revert/REVOKE needed under rail 4. **Revert:** `git revert
+> 90873e6` (1 commit, fully additive doc change, no functional code path touched).
+
+> **Queue state:** chef-inbox now has 13 open prospector items remaining (was 14); next fire
+> should pick the next-oldest (`2026-07-09-prospector-vix1d_gate.md`) if nothing higher-priority
+> surfaces. `queue.md` still has 0 clean 60-min HIGH items (`T-AUDIT-TAIL` remains the sole
+> `status:open`, still not a clean bounded pick per its own note). All 4 author inboxes will be
+> re-surveyed fresh next fire (validator/skill/lesson stay empty until a new candidate lands).
+
+> **Cost: ~$2.1** (STAGE 0/1 reads, engine-health/self-check/self-audit-gaps/task_scorer/
+> 4-inbox survey, reading the chef-inbox item + gex_regime.py + gex_archive_health.py + the
+> latest archive file + probe_stats.py + LEADERBOARD.md format, writing the pre-reg doc +
+> leaderboard row, 1 commit with pre/post verification, this STATUS update).
+
+---
+
+## [2026-07-21 ~23:42-23:45 ET] OK -- conductor (AFTERHOURS): drained last open lesson-inbox item -> L239, commit `9463625`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `fill_funnel.py` GREEN
+> (core:safe 2 fills/2 exits today, core:bold 1 ENTER->0-attempt informational, all fleet arms
+> idle-clean). `self-check-last.json` DEGRADED on the same pre-existing non-load-bearing
+> TRENDLINE-DRAW visibility flag (unchanged). Self-audit gaps: the 2026-07-21T17:31:28 batch
+> already TRIAGED (re-verified by an earlier fire tonight, no new batch since). `task_scorer.py
+> --top` again surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (J-decision-gated, correctly
+> skipped). `queue.md` `status:open` grep found only `T-AUDIT-TAIL` (already deprioritized 2-day-
+> stale synthesis-resume, left as-is -- not a 60-min bounded task). Author inboxes:
+> validator-inbox/skill-inbox both empty of actionable items (skill-inbox has only a correction-
+> queue log). **`_lesson-inbox` had exactly 1 open item** -- the self-caught foot-gun the
+> immediately-prior fire filed on itself (2026-07-21-git-add-mixed-pathspec-fails-atomically.md) --
+> a well-documented, first-occurrence, single-mechanism candidate. Picked it (priority-5,
+> author-inbox tier, nothing higher-priority ready).
+
+> **What shipped:** graduated to `markdown/doctrine/LESSONS-LEARNED.md` as **L239** -- `git add`
+> with a mix of valid + stale (already-renamed) pathspecs fails ATOMICALLY (nothing from that
+> call stages, not just the bad path), root-caused to a `fatal:` mid-batch aborting the whole
+> `git add` while `git commit` proceeds anyway on whatever was already staged, producing a
+> "successful" commit quietly missing intended content. Folded into CLAUDE.md's OP-25 index
+> (C35 row, `L221,231` -> `L221,231,239`), bumped "current through" pointer L238->L239, marked
+> the source inbox item `.DONE`.
+
+> **Verified this fire (OP-33 -- and specifically applying L239's own rule to itself):** ran
+> `pytest backtest/tests/test_op25_index_reconciliation.py backtest/tests/test_inbox_done_suffix.py
+> backtest/tests/test_verify_committed.py -q` -> **16/16 PASS**; `grep -c "^    | C" CLAUDE.md` = 35
+> (no duplicate/malformed rows); curated safety gate (31+5) PASS pre-commit. Staged exactly the
+> 3 intended files via a single `git add <path1> <path2> <path3>` (not a batch mixing any stale
+> path), then ran `git status --short -- <those 3 exact paths>` BEFORE committing (clean staged
+> state, no unstaged leftovers) -- confirmed post-commit via `git show --stat HEAD`: 3 files
+> changed, 15 insertions(+)/2 deletions(-), rename shows 0/0 (as expected for a pure `git mv`).
+> Context budget checked post-edit: YELLOW 8709/9000 tok (97%, up from 8548 -- still within
+> budget, no hard breach).
+
+> **Trading-path scope:** zero trading-path files touched (CLAUDE.md/LESSONS-LEARNED.md/inbox
+> file only -- doctrine-authoring, not params/heartbeat_core/filters/placement/exit). No
+> guard/revert/REVOKE needed under rail 4 (nothing shipped that could regress a live decision).
+> **Revert:** `git revert 9463625` (1 commit, fully additive doc/inbox change, no functional
+> code path touched).
+
+> **Queue state:** all 4 author inboxes now empty of actionable items (validator/skill/lesson
+> all clear; chef-inbox has 14 unactioned prospector candidates, lower priority than a ready
+> queue item but the next natural pick if no HIGH queue item surfaces). `queue.md` has 0
+> genuinely open bounded items (`T-AUDIT-TAIL` is a 2-week-stale synthesis-resume, not a clean
+> 60-min task -- next fire should consider re-running the synthesis fresh per its own note, or
+> picking from chef-inbox / BRAINSTORM if that's still not attractive).
+
+> **Cost: ~$1.7** (STAGE 0/1 reads, self_check + fill_funnel + task_scorer + self-audit-gap
+> re-check + 4-inbox survey + queue.md targeted grep, reading the 1 lesson candidate in full,
+> writing 1 lesson entry + 1 CLAUDE.md index fold, context-budget check, 3 guard-test runs +
+> curated safety gate, 1 commit with pre/post verification, this STATUS update).
+
+---
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `fill_funnel.py` GREEN
 > (core:safe 2 fills/2 exits today, core:bold 0-attempt informational). `self-check-last.json`
@@ -493,154 +646,6 @@
 
 ---
 
-## [2026-07-21 ~18:12-19:10 ET] OK -- conductor (AFTERHOURS): EOD-DOJO-EXHIBIT-MANIFEST built + shipped, commits `34608da` (+ `6a2e641` side-quest)
 
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Self-audit gaps fully
-> triaged (nothing un-actioned). `task_scorer.py --top` again surfaced
-> `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still J-decision-gated). Picked queue.md's HIGH item
-> `EOD-DOJO-EXHIBIT-MANIFEST` (filed 14:45 ET today, J-directed) per priority-4 -- a clean,
-> bounded, spec'd Sonnet build (`markdown/specs/DOJO-EOD-PIPELINE.md`).
-
-> **Side quest before the build:** found `CLAUDE.md` MODIFIED + a new
-> `markdown/doctrine/OP-33-verify-visibility.md` UNTRACKED in the working tree -- a prior fire's
-> context-leanness trim that was complete (verified: `check-context-budget.ps1` -> YELLOW
-> 8457/9000, 94%, matching the trim's own claimed effect) but had NEVER been committed (an
-> L221/OP-33 "built != shipped until committed" violation sitting silently in the tree).
-> Committed it standalone (`6a2e641`) before starting the main build. Filed a lesson-inbox item
-> (`2026-07-21-claimed-shipped-in-own-doc-before-commit-ran.md`) proposing `verify_committed.py`
-> get wired into the conductor's own STAGE 5 close-out so this class can't recur silently.
-
-> **What shipped:** `setup/scripts/dojo/exhibit_extractor.py` -- pure, $0 read of
-> `core-decisions.jsonl` + `journal/trades.csv` -> `automation/state/dojo/session-briefs/
-> {date}.md`, <=6 ranked exhibits/day: BLOCKED-TRIGGER (verdict SKIP_* w/ triggers non-empty,
-> forward SPY path per OP-33(d)), SCORE-HIGH-NO-TRIGGER (bull/bear score >=9, triggers=[]),
-> EXTRA-LANE FILL (`extra_exec[].exec.status=="PLACED"`), J-CALLED (`trades.csv`'s own clean
-> `j_override=="Y"` marker). Never overwrites a hand-authored brief (AUTO_MARKER guard).
-> Registered `Gamma_EodDojoManifest`, 16:20 ET weekdays (5 min after `Gamma_TradeAutopsy` so its
-> counterfactuals are citable), `backtest\.venv` pythonw = already reaper-exempt. Ported
-> trade_autopsy.py's HEADLESS STDIO REDIRECT popup guard proactively (identical launch chain
-> that caused that scar on a sibling script).
-
-> **Verified this fire (OP-33):** `backtest/tests/test_exhibit_extractor.py` 29/29 -- caught +
-> fixed a real def-time-parameter-binding bug DURING RED-proofing (`build_exhibits`/`main` were
-> silently ignoring test monkeypatches on `TRADES_CSV`/`CORE_DECISIONS` -- the exact footgun
-> `trade_autopsy.py`'s own `write_twin_hypotheses` docstring names; fixed by forwarding the
-> current module global explicitly at every call site). RED-proofed via file-move (new
-> untracked file -- avoided a tree-wide `git stash` after discovering an UNRELATED pre-existing
-> stash@{0..2} in this shared checkout from earlier sessions; a blind stash/pop here risked
-> clobbering live state, C34/L214/L228 territory -- left those stashes untouched). Broader sweep
-> `pytest -k "dojo or exhibit"` -> **158/158 PASS**, zero regressions. Curated safety gate
-> (31+5) PASS. Live-verified end-to-end: real 2026-07-17 run (390 decision rows -> 6 exhibits,
-> sane content); real 2026-07-21 run correctly SKIPPED (today's hand-authored brief confirmed
-> byte-intact after); real `Start-ScheduledTask Gamma_EodDojoManifest` fire, `LastTaskResult=0`.
-> `git ls-tree HEAD` confirmed all 3 new files + 2 doc updates landed on HEAD, not just staged.
-
-> **Zero trading-path files touched** -- `exhibit_extractor.py` is observation-only (no broker/
-> params/heartbeat_core/placement/exit code), CLAUDE.md side-quest was doc-only. Ships as
-> engine-benefit per OP-22/OP-26, no J ratification needed. **Revert:**
-> `git revert 34608da` (4 files: extractor, tests, installer, SCHEDULED-TASKS.md/queue.md doc
-> updates) + `Unregister-ScheduledTask -TaskName Gamma_EodDojoManifest` to un-arm the schedule
-> independently. **Not done this fire:** `DOJO-BUILD-HANDOFF`'s Phase-1 step 0 (TV replay MCP
-> tools) remains not-pickable by a conductor fire (no TV MCP tool binding this session --
-> unchanged from prior fires' finding, not re-investigated).
-
-> **Cost: ~$6.4** (STAGE 0/1 reads, schema exploration of core-decisions.jsonl/trades.csv, side
-> quest investigation + commit, module build, 29-test guard file + one round of real bug fixes
-> found during RED-proofing, file-move RED-proof, 158-test broader sweep, curated safety gate x2,
-> live scheduled-task registration + fire + verification, doc updates (SCHEDULED-TASKS.md +
-> queue.md), lesson-inbox filing, this STATUS/queue update, conductor_outcome recording).
-
----
-
-## [2026-07-21 ~17:42-18:10 ET] OK -- conductor (AFTERHOURS): stale validator-inbox item closed + time-bomb test found+fixed, commit `426e097`
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `task_scorer.py --top`
-> surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still correctly J-decision-gated). Checked
-> the fresh self-audit gap batch (2026-07-21T17:31:28, 7 gaps re: the TV-CDP check the PRIOR
-> fire shipped) first per Stage-1 priority-3 -- both its concrete claims ("missing timeout",
-> "trading-halt risk") were checked against live code and found FACTUALLY WRONG (timeout=5.0
-> exists; `heartbeat_core.py` has zero self_check/engine-health consumption, confirmed by grep
-> -- it's a pure visibility instrument, no halt path exists). Triaged + disposed with evidence,
-> no code action. Moved to priority-5 (author inboxes, oldest-first): `_validator-inbox`'s
-> oldest live item, `2026-07-14-tick-audit-zero-count-bug.md` (7 days stale), was the pick.
-
-> **What shipped:** the item's root fix had ALREADY landed same-week (commit `cc6755b`,
-> 2026-07-14) but the inbox item itself was never marked closed -- live-verified the fix still
-> holds (`heartbeat-tick-audit-2026-07-21.json` -> `total_ticks: 770`, not 0) and closed the
-> loop. While re-running the fix's own guard suite to verify before closing, found
-> `test_stale_source_none_when_fresh` (`backtest/tests/test_eod_full_audit.py`) had gone
-> SILENTLY RED on 2026-07-21 with zero code change -- a genuine new defect, a "time-bomb test"
-> that hardcoded `TODAY="2026-07-14"` while relying on a freshly-written temp file's REAL
-> filesystem mtime, so the "fresh" assertion only ever held on the day it was authored. Fixed by
-> deriving `TODAY`/`now` from the file's own real mtime instead of a frozen literal.
-
-> **Verified this fire (OP-33):** RED-proofed via `git stash` -- failed pre-fix with the exact
-> expected mtime-mismatch AssertionError, `git stash pop` restored clean, re-verified 10/10
-> green. Broader sweep (+ `test_gym_session_tick_audit_classify.py` +
-> `test_gym_session_verdict.py`) -> **33/33 PASS**. Curated safety gate (31+5) PASS. `git
-> ls-tree HEAD` confirmed all 4 files (test fix, self-audit triage, validator-inbox close,
-> new lesson) landed on HEAD, not just staged. Commit `426e097`.
-
-> **Zero trading-path files touched** -- test file + docs only. Ships as engine-benefit per
-> OP-22/OP-26, no J ratification needed. **Revert:** `git revert 426e097` (4 files, additive +
-> one doc-append, no data loss). **Lesson filed:**
-> `_lesson-inbox/2026-07-21-hardcoded-today-literal-vs-real-file-mtime-time-bomb.md` -- the
-> generalizable class (hardcoded date literal + real-mtime-dependent fixture = silent future
-> RED), with the sibling tests in the same file that correctly avoided the trap noted as the
-> counter-example pattern.
-
-> **Cost: ~$3.1** (STAGE 0/1 reads incl. self-audit-gap live-code verification, validator-inbox
-> read, root-cause trace to commit cc6755b + live JSON spot-check, guard-suite re-run that
-> surfaced the time-bomb test, fix + RED-proof round-trip, 2 regression sweeps, curated safety
-> gate, commit + `git ls-tree HEAD` verification, lesson-inbox write, this STATUS/queue update).
-
----
-
-## [2026-07-21 ~17:12-17:35 ET] OK -- conductor (AFTERHOURS): TV-CDP liveness check shipped to self_check.py, commit `866aac9`
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55, TV CDP itself currently
-> healthy per `tv-watchdog-status.json`). `task_scorer.py --top` surfaced
-> `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still correctly J-decision-gated, not actionable).
-> Self-audit gaps (`analysis/self-audit/new-gaps-flagged.md`) fully triaged, nothing new.
-> Author inboxes (validator/skill/lesson/chef) had only already-DONE or thin/low-value items.
-> Chose `D1-TV-CDP-ROOT-CAUSE` (HIGH, filed 2026-07-09, pending 12 days) instead: item 3
-> ("port assess_tv_cdp into self_check.py") was a clean, bounded, effort=S visibility gap the
-> original D1 audit itself scoped -- confirmed still real via a live grep (zero tv/cdp/9222
-> hits in self_check.py) before touching anything.
-
-> **What shipped:** `self_check.py` gained `check_tv_cdp(now, fetch=None)` +
-> `_fetch_tv_cdp_reachable()` -- a live urllib probe of TradingView's CDP endpoint
-> (`:9222/json/version`), ported (not imported, matching this file's own established
-> deliberate-duplication convention) from `preopen_readiness.py`'s existing
-> `assess_tv_cdp`/`fetch_tv_cdp` pair. Windowed 08:10-16:00 ET weekdays (matches
-> Gamma_LaunchTV/Gamma_TvWatchdog's operating window); classifies RED/BROKEN (not DEGRADED) on
-> an unreachable CDP, matching the source function's own critical severity -- the 2026-07-07/09
-> 41+ hour outage had a real, disclosed cost (premarket bias degraded to `"no-trade-tv-fail"`,
-> waving off a plausible trading day) and nothing in self_check.py -- the surface J's
-> STATUS.md/engine-health.json morning brief actually reads every ~30 min -- ever saw it, 12
-> days after the audit flagged the fix as effort=S. Wired as step 14 in `run()`.
-
-> **Verified this fire (OP-33):** new guard `backtest/tests/test_self_check_tv_cdp.py` (8/8)
-> RED-proofed via `git stash -- setup/scripts/self_check.py` alone -- all 8 failed pre-fix with
-> the exact expected `AttributeError: module 'self_check' has no attribute 'check_tv_cdp'`,
-> `git stash pop` restored cleanly, re-verified 8/8 green. Broader sweep
-> (`pytest backtest/tests/ -k self_check`) -> **71/71 PASS, 0 regressions**. Curated safety gate
-> (31+5-suite) PASS. `git ls-tree HEAD` confirmed both files landed on HEAD, not just staged.
-
-> **Zero trading-path files touched** -- `self_check.py` is an observation-only monitoring
-> organ (no broker/params/heartbeat_core/placement/exit code). Ships as engine-benefit per
-> OP-22/OP-26, no J ratification needed. **Revert:** `git revert 866aac9` (2 files, additive,
-> no data loss). **Not done this fire:** item 1 of the same queue entry (live repro of the
-> 2026-07-08 `PSArgumentException` in `Invoke-TvLaunchSafe`) was NOT attempted -- TV/CDP is
-> currently healthy (`cdp_up: true`), so there is no active outage to reproduce, and forcing one
-> just to repro a 12-day-stale error message would risk disrupting J's actively-used TV chart
-> for no evidentiary gain. Left `D1-TV-CDP-ROOT-CAUSE` as `CLOSED_PARTIAL` in queue.md so a
-> future fire with a genuine live outage can still pick up item 1.
-
-> **Cost: ~$2.9** (STAGE 0/1 reads incl. task_scorer + self-audit/inbox sweep, D1-audit
-> re-read, source survey of preopen_readiness.py + self_check.py conventions, new function +
-> wiring, new 8-test guard file + RED-proof round-trip, broader 71-test sweep, curated safety
-> gate, commit + `git ls-tree HEAD` verification, this STATUS/queue update).
-
----
-
+## Kitchen
+Kitchen: alive, queue 42 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
