@@ -1,4 +1,81 @@
-## [2026-07-22 ~03:48-03:56 ET] OK -- conductor (AFTERHOURS): chef-inbox BXM gate feasibility screen, commit `7cab87c`
+## [2026-07-22 ~05:48-06:20 ET] OK -- conductor (AFTERHOURS): chef-inbox FRED 10Y-2Y yield-curve gate feasibility screen, commit `8ec7fde`
+
+> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `self-check-last.json`
+> GREEN (PDT both accounts OK). Fill-funnel `2026-07-21` re-verified `[GREEN]` via
+> `fill_funnel.py --date 2026-07-21` directly (core:safe 17->1 already-open-position re-eval
+> pattern, core:bold 1->0 documented informational pattern -- no new break). Self-audit gaps:
+> only 2 open batches on re-check, both turned out to be duplicates/noise already covered by
+> earlier DONE markers -- triaged the 2026-06-27T17:31:04 batch closed (see below), the
+> 2026-07-21T17:31:28 batch was already TRIAGED by the prior fire. `task_scorer.py --top`
+> again surfaced only the J-decision-gated `MORNING-BULL-QUALITY-GATE-RECONSIDER`, correctly
+> skipped. Author-inbox order: validator/lesson-inbox empty, skill-inbox only a
+> correction-queue log -> `_chef-inbox` next (priority-5), oldest open item picked: the
+> 2026-07-10 FRED 10Y-2Y Treasury yield-curve prospector finding (canonical master for the
+> FRED/Treasury family after 2026-07-21's 4-duplicate fold).
+
+> **What shipped:** the item's own 2026-07-21 consolidation note named "register a FRED API
+> key" as the blocking next step -- verified live this fire that FRED's `fredgraph.csv`
+> CSV-download endpoint (`https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10,DGS2,DGS3MO`)
+> needs NO key/registration at all (plain unauthenticated GET, full history), closing that
+> blocker without an account signup. Cached DGS10/DGS2/DGS3MO daily 2026-04-01..2026-07-22 to
+> `backtest/data/fred_yield_curve_2026-04-01_2026-07-22.csv` (79 rows, gitignored per
+> `backtest/data/` -- same as the sibling VIX1D/BXM probe caches). Built
+> `backtest/autoresearch/fred_yield_curve_probe.py` -- tested the 10Y-2Y spread against ALL
+> 190 real `journal/trades.csv` fills as (a) a median-split LEVEL gate (the spread never
+> inverted in-window, min +0.27pp/max +0.57pp entirely positive, so a standard
+> inverted-vs-normal test degenerates to a no-op -- adapted to a median split, disclosed
+> substitution per OP-20, same pattern as `bxm_gate_probe.py`) and (b) a day-over-day SLOPE
+> gate (steepening vs flattening), reusing `probe_stats.py`'s canonical
+> significance/concentration/verdict helpers (C14/C17). Honest result:
+> **NO_CANDIDATE_CLEARS_BAR_YET** -- steep-half CONCENTRATED (exp $158.45/tr, top-3 days
+> dominate), flat-half DRY (exp -$6.93/tr), slope gate CONCENTRATED (exp $9.60/tr), none
+> walk-forward stable across the chronological half-split. Filed as a screening result
+> (NEEDS-MORE-DATA, not a rejection -- n=190/~65 days is still thin). DGS3MO cached but
+> unused (the item's own note: fold in as a sub-series once built, not a separate candidate --
+> left for a future fire). Marked the source chef-inbox item `.DONE`, added leaderboard row 51.
+
+> **Side-cleanup:** the 2026-06-27T17:31:04 self-audit gap batch (Face UI/companion items,
+> ~4 weeks stale) turned out to be a DUPLICATE of the already-closed 06-26T20:42 orphan-tasks
+> gap plus prompt-scaffold noise -- triaged closed with a note, no new code action (all real
+> sub-items were already dispositioned by the 06-27T17:56 DONE marker).
+
+> **Verified this fire (OP-33):** `pytest backtest/tests/test_fred_yield_curve_probe.py -q`
+> 5/5 PASS (causal lookback incl. a dedicated `skip=1`-strictly-older-than-`skip=0` guard for
+> the slope gate, no-crash-on-malformed-date, spread math pinned against a hand-built
+> synthetic FRED csv, end-to-end schema with both level+slope candidates present) BEFORE
+> committing; pre-commit hook ran 31 tests + curated 5-suite safety gate, both PASS.
+> `git status --short` on the exact intended paths before staging (L239 discipline -- the
+> first `git add` attempt correctly failed ATOMICALLY on the stale pre-`git mv` pathspec,
+> exactly the class L239 predicts; re-staged with only the post-rename `.md.DONE` path,
+> confirmed A/A/A/M/M/A on the 6 files); `git show --stat HEAD` post-commit confirms exactly
+> 7 files (my 6 + one pre-existing stray staged deletion from the earlier BXM fire --
+> `2026-07-10-...bxm-real-time-levels.md`, its content already preserved in the `.DONE.md`
+> committed by `7cab87c` 4+ hours earlier, so completing that leftover stage was a correct,
+> harmless sweep, not contamination -- verified `git status --short` post-commit shows only
+> unrelated concurrent-daemon state files, nothing of mine left uncommitted or stray).
+
+> **Trading-path scope:** zero trading-path files touched (research probe + guard test +
+> leaderboard + inbox rename + self-audit triage only -- no params/heartbeat_core/filters/
+> placement/exit). No guard/revert/REVOKE needed under rail 4 beyond the guard tests already
+> shipped with the change. **Revert:** `git revert 8ec7fde` (fully additive; the self-audit
+> triage note is a non-functional annotation).
+
+> **Queue state:** chef-inbox now has 12 open prospector items remaining (was 13, several new
+> ones also landed from the concurrent Prospector daemon this window -- not touched, not mine
+> this fire); next fire should pick the next-oldest by mtime. `queue.md` is now 2789+ lines /
+> ~530KB -- still an OP-22 retention-cap consolidation candidate (Active backlog + the dated
+> post-Completed sections dominate the size, not just the `## Completed` history section;
+> archiving `## Completed` alone only recovers ~53KB of ~530KB -- a full pass needs careful
+> per-section triage, correctly NOT attempted rushed in this fire's remaining budget; flagged
+> as a named future task, not silently dropped).
+
+> **Cost: ~$4.2** (STAGE 0/1 reads, engine-health/self-check/fill-funnel/self-audit-gaps/
+> task_scorer/4-inbox survey, reading the chef-inbox item + an existing probe for pattern,
+> confirming the FRED no-key endpoint + fetching/caching yield data, writing the probe + guard
+> tests, self-audit gap triage, 1 commit with pre/post verification, this STATUS update).
+
+---
+
 
 > **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `self-check-last.json`
 > GREEN (PDT both accounts OK). Self-audit gaps: all triaged through 2026-07-21T17:31:28,
@@ -611,108 +688,3 @@
 
 ---
 
-## [2026-07-21 ~19:12-19:15 ET] OK -- conductor (AFTERHOURS): closed stale-but-shipped J-INTENT-EXECUTOR queue item, no code change
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Self-audit gaps fully
-> triaged (`new-gaps-flagged.md`'s 2026-07-21T17:31:28 batch already TRIAGED by an earlier fire
-> today, nothing un-actioned). `task_scorer.py --top` again surfaced
-> `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still J-decision-gated, correctly skipped). Author
-> inboxes checked (5 open `_lesson-inbox` items, all from earlier today's fires -- not
-> re-actioned, that's `lesson-author`'s lane). Surveyed all 8 top-level HIGH queue.md items:
-> `WF-GATE-STRUCTURALLY-NULL` / `WF-GATE-REDESIGN-METHODOLOGY` are Fable-judgment-gated (not a
-> Sonnet call); `VETO-HTF-CONFLICT-REGRADE` is LEFT OPEN pending organic evidence accrual (n>=5
-> non-HTF comparison cohort, no action available this fire beyond a re-run that wouldn't move the
-> count); `BOLD-CORE-ATM-WIRE-FALSIFICATION-RAIL` still blocked on n>=20 Bold fills (0 since the
-> 07-18 wire, re-checked); `J-ONLY-COMPANION-PUSH-ACTIVATION` is J-action-required (Tailscale +
-> phone tap, not conductor-pickable); `STATE-FILE-REVERSION-2026-07-20` + its
-> `AUDIT-FOLLOWUP` are both effectively closed (CLOSED_PARTIAL + status:done, mechanism-level fix
-> shipped 07-21 01:xx). That left `J-INTENT-EXECUTOR` (filed 2026-07-15, never marked closed) as
-> the one HIGH item with real, bounded, closeable work.
-
-> **What I found:** `J-INTENT-EXECUTOR` was fully built, wired, and scheduled back on 2026-07-18
-> (`setup/scripts/j_intent_executor.py`, 38.4KB) but its queue.md entry was never annotated
-> CLOSED -- a "shipped but the ledger doesn't know it" loop sitting open, competing for a future
-> fire's attention against real unstarted work (OP-22 compound-don't-accumulate: closing a stale
-> loop outranks starting a new artifact).
-
-> **Verified this fire (OP-33), did not just trust the file listing:** confirmed
-> `Gamma_JIntentExecutor` registered in `SCHEDULED-TASKS.md` (09:25 ET weekdays);
-> `automation/state/j-intents.json` is the live store, default-empty (pure no-op when idle, by
-> design). Re-ran the item's OWN acceptance gate fresh: `pytest backtest/tests/
-> test_j_intent_executor_replay.py -q` -> **23/23 PASS**, and inspected the fixture directly --
-> `spy_5m_2026-07-15_j_intent_752p.csv` reproduces the EXACT real trade the acceptance gate names
-> (entry bar closes 13:15 ET @ 751.785 < 751.94 confirm-close; chart-stop exit bar closes 13:20 ET
-> @ 752.405 > 752.26 stop), byte-matching the numbers written into the gate's own prose. Annotated
-> the queue.md item CLOSED with this evidence.
-
-> **Zero code/trading-path files touched** -- this fire's only write was a queue.md doc-append
-> (closing a stale ledger entry with fresh verification evidence). No guard/revert/REVOKE
-> machinery needed (rail 4 doesn't apply -- no behavior changed). **Cost: ~$1.5** (STAGE 0/1
-> reads, task_scorer, self-audit-gap + inbox + all-8-HIGH-item survey across ~500 queue.md lines,
-> live file/schedule verification, guard re-run, fixture inspection, this STATUS/queue update,
-> conductor_outcome recording). Autonomy metric this fire: net_improvement 98/20-fire-window,
-> trend **improving**, zero regressions.
-
----
-
-## [2026-07-21 ~18:42-18:58 ET] OK -- conductor (AFTERHOURS): zoom-aware trendline classification shipped, commit `c741d1d`
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). Self-audit gaps fully
-> triaged (nothing new/un-actioned in `new-gaps-flagged.md`). `task_scorer.py --top` again
-> surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (still J-decision-gated). Checked
-> `BOLD-CORE-ATM-WIRE-FALSIFICATION-RAIL`'s n>=20 readiness first: real trades.csv shows **0**
-> Bold trades since the 2026-07-18 ATM wire -- nowhere near ready, correctly deferred (not
-> re-triaged further). Picked queue.md's still-open HIGH item `TRENDLINE-FIXES-2026-07-17` #3
-> (ZOOM-AWARE DRAWING, filed 2026-07-17, deferred by items 1/2/4's own text: "should reconsider
-> the draw cap together with same_day-tier visibility once it ships").
-
-> **What shipped:** `trendline_engine.zoom_classify(a_unix, now_unix, window_days=2.0)` +
-> `Trendline.zoom_class` ("in_window" | "anchor_offscreen", additive field, default preserves
-> every existing caller/reader byte-identical) -- classifies each detected line's anchor against
-> a ~2-day window ending at the line's OWN last bar (never wall-clock time, mirrors T15's
-> same-day-tier no-look-ahead pattern exactly). Opt-in via `detect(include_zoom_class=True)`,
-> wired live at the ONE production entry point (`main()`, same call site as T15's
-> `include_same_day_tier=True`) so both `Gamma_Trendlines`'s 5-min cadence and the on-demand
-> `--json` skill invocation get it for free. `write_live_state`'s JSON payload now carries
-> `zoom_class` per line. `.claude/skills/trendline-draw/SKILL.md` gained a new step 3a
-> documenting the label-offset behavior J's queue item asked for: draw the full ray regardless,
-> but flag `anchor_offscreen` lines verbally and cross-check `chart_get_state` before trusting
-> the bars-only heuristic over the actual chart.
-
-> **Verified this fire (OP-33):** new guard `backtest/tests/test_trendline_zoom_aware.py` (13/13)
-> RED-proofed via `git stash -- backtest/autoresearch/trendline_engine.py` alone -- all 13 failed
-> pre-fix with the exact expected `TypeError`/`AttributeError` (missing kwarg / missing
-> function), `git stash pop` restored cleanly (confirmed only my own stash entry existed;
-> pre-existing unrelated stashes from earlier sessions left untouched per C34/L214/L228), and
-> re-verified 13/13 green. Caught + fixed a real test-fixture bug during RED-proofing (the
-> original 1-day-apart fixture put day1's anchor INSIDE the 2-day window relative to day2's
-> "now", so `anchor_offscreen` never actually fired -- widened the fixture gap to 6 calendar
-> days). Broader sweep `pytest backtest/tests/ -k trendline` -> **99/99 PASS, zero regressions**.
-> Curated safety gate (31+5) PASS. `git ls-tree HEAD` confirmed all 4 files (engine, guard test,
-> SKILL.md, queue.md doc-update) landed on HEAD, not just staged -- commit `c741d1d`.
-
-> **Zero trading-path files touched** -- `trendline_engine.py`'s consumption remains SHADOW-only
-> (`write_live_state`'s own docstring: "the engine does NOT trade off these yet"); `params.json`/
-> `heartbeat_core.py`/`filters.py`/placement/exit code untouched. Ships as engine-benefit per
-> OP-22/OP-26, no J ratification needed. **Revert:** `git revert c741d1d` (4 files, additive +
-> one doc-append each, no data loss). **NOT done this fire, deliberately deferred (stated
-> up front in the queue.md item, not silently dropped):** on-chart screenshot validation against
-> the ACTUAL TradingView visible range -- this conductor fire has no live TV MCP tool binding
-> (headless), so `zoom_class` is a bars-only heuristic approximation, not yet a proven fix for
-> J's visual complaint. The next interactive session with a live TV chart should invoke the
-> trendline-draw skill, deliberately surface a multi-day line that comes back
-> `anchor_offscreen`, and confirm the on-chart result actually reads clean at J's normal intraday
-> zoom before this queue item is considered fully closed (queue.md item 3 left open with this
-> note, matching item 2's same "SHADOW-only, mechanism-guard-not-P&L-A/B" shipping bar).
-
-> **Cost: ~$4.7** (STAGE 0/1 reads incl. self-audit-gap/inbox sweep, task_scorer, BOLD-ATM
-> readiness check via real trades.csv, queue.md HIGH-item survey across ~350 lines, trendline_
-> engine.py source survey, design + implementation, 13-test guard file + one round of fixture-bug
-> fix found during RED-proofing, broader 99-test sweep, curated safety gate x2, SKILL.md doc
-> update, commit + `git ls-tree HEAD` verification, this STATUS/queue update).
-
----
-
-
-## Kitchen
-Kitchen: alive, queue 24 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free

@@ -9,6 +9,25 @@
 
 ## Active backlog
 
+### QUEUE-MD-RETENTION-CAP (LOW, OP-22 hygiene, filed 2026-07-22 conductor AFTERHOURS)
+
+- [ ] QUEUE-MD-RETENTION-CAP (LOW) :: `automation/overnight/queue.md` is 2789 lines / ~530KB --
+  now exceeds the Read tool's 256KB single-shot limit (must offset-read in chunks). Byte
+  breakdown this fire (`wc`/python len check): Active backlog 222KB, `## Archived 2026-06-19`
+  6KB (already a rolled-up summary, leave alone), `## Completed` 92KB (38KB is 2026-07-01..21
+  recent, likely still worth an at-a-glance read; 54KB is 2026-06-19..07-01 older history --
+  archive-candidate, same pattern as `queue-archive-2026-06-19.md` / `queue-archive-2026-06-20.md`
+  / `STATUS-archive-2026-06.md`), rest (HARVESTED-FROM-GYM + all dated post-Completed sections)
+  220KB -- mostly recent (last ~2 weeks), NOT an archive candidate without individual triage.
+  Archiving just the old half of `## Completed` only recovers ~54KB (530KB->~476KB, still over
+  the read limit) -- NOT a one-line fix; needs a careful per-section pass (verify nothing "real"
+  gets lost, same discipline as the L181 STATUS.md consolidation) rather than a rushed single-fire
+  sweep. Not attempted this fire (correctly bounded to the chef-inbox pick instead). Next bounded
+  step: archive `## Completed`'s 2026-06-19..07-01 half to `queue-archive-2026-07-22-completed.md`
+  (byte-for-byte preserved, pointer left, same as precedent), THEN re-measure; if still >256KB,
+  triage the dated post-1974-line sections oldest-first for genuinely-stale (not just old)
+  entries. :: depends:none :: status:pending
+
 ### DOUBLE-BOTTOM-LOOKBACK-AB (MED, pre-reg proposal, filed 2026-07-21 dojo overnight)
 
 - [ ] DOUBLE-BOTTOM-LOOKBACK-AB (MED, pre-reg then A/B -- do NOT hand-widen) :: DIAGNOSED this
