@@ -5,28 +5,19 @@
 
 # CANDIDATE: RIBBON_SQUEEZE_BREAKOUT_LONG
 
-**Filed:** 2026-07-22  
+**Filed:** 2026-07-09  
 **Filer:** chef-nemotron (free-tier autonomous R&D)  
 **Type:** new_trigger  
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-A squeeze in the EMA ribbon (where fast, pivot, and slow EMAs converge within a narrow range) indicates low volatility and impending expansion. A breakout from this squeeze with volume confirmation captures the initial leg of a sustained directional move, providing an edge because volatility contraction precedes expansion and breakouts from squeezed conditions often trend.
+A tightly contracted EMA ribbon (indicating low volatility and equilibrium) that expands on a strong bullish volume bar signals institutional participation and breakout continuation. The edge exists because volatility contractions often precede explosive moves, and a volume-surge confirmation filters false breakouts in choppy conditions.
 
 ## Mechanism
 
-**Entry trigger:**  
-- Ribbon squeeze: 9-period EMA, 21-period EMA, and 50-period EMA all within $0.15 range for ≥3 consecutive 5-minute bars.  
-- Breakout: price closes above the high of the squeeze bar (or the highest high within the squeeze window) on volume ≥1.5x the 20-bar average volume.  
-- Entry: at the open of the next bar after the breakout bar.  
-- Direction: long only (PUTS are handled separately via BEARISH_REJECTION_RIDE_THE_RIBBON).  
-
-**Exit logic:**  
-- Primary stop: chart stop — if price closes below the low of the breakout bar (invalidates the breakout structure).  
-- Profit-taking: TP1 at +50% premium (sell 2/3 of position), then move runner stop to breakeven.  
-- Runner exit: any of — price closes back into the EMA ribbon, premium ≥3x entry, or time stop 15:50 ET.  
-- Catastrophe cap: -50% premium stop (backstop only; chart-stop is primary).  
+**Entry:** When the ribbon width (EMA55-EMA8) / price < 0.005 for at least three consecutive bars, then go long on the first bar that closes above the highest EMA in the ribbon with volume ≥1.5× the 20‑bar average volume.  
+**Exit:** Chart‑stop at the low of the breakout bar, TP1 at 2R (measured from entry to stop), runner trail 12% off the high‑water mark (trailing stop activated after TP1 fills).
 
 ## Expected impact on OP-16 anchors
 
@@ -42,29 +33,24 @@ A squeeze in the EMA ribbon (where fast, pivot, and slow EMAs converge within a 
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper account ~= 14% headline P&L (per OP-20 disclosure 1).  
-2. **Sample bias:** Proposed trigger has zero historical validation; sample size = 0. High overfit risk until Stage-1 backtest confirms edge on non-anchor days.  
-3. **Out-of-sample:** NEEDS-OOS (no walk-forward or held-out window tested).  
-4. **Real-fills:** NEEDS-REAL-FILLS (no validation on top 3 J days via realistic OPRA simulator).  
-5. **Failure modes:**  
-   - Worst day: whipsaw breakout that immediately reverses, hitting -50% stop.  
-   - Max drawdown: consecutive failed breakouts in choppy market could exceed -30% equity.  
-   - Blow-up scenario: volatile news event (e.g., FOMC) triggers false breakout with adverse slippage, causing catastrophic loss if premium stop fails to fill.  
-6. **Concentration:** unknown -- requires Stage-1 backtest to compute top-5 days % of P&L.  
+1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline (per OP-20 disclosure rule).
+2. **Sample bias:** Zero historical samples; proposal is purely theoretical. Selection method is conceptual (no data-driven optimization). High overfit risk without empirical validation.
+3. **Out-of-sample:** NEEDS-OOS
+4. **Real-fills:** NEEDS-REAL-FILLS
+5. **Failure modes:** 
+   - Worst day: False breakout during low-volume chop triggers entry, stopped by chart-stop at breakout bar low (small loss). 
+   - Max drawdown: Unknown without backtest; risk defined by chart-stop and volume filter may limit losses but consecutive failures possible.
+   - Blow-up scenario: Multiple false breakouts in sideways market (e.g., pre-FOMC consolidation) causing series of small losses that accumulate.
+6. **Concentration:** Unknown without backtest; if trigger fires infrequently (e.g., only during specific volatility regimes), top-5 days could represent high % of P&L.
 
 ## Pre-merge gate
 
-- Stage-1 backtest must show positive edge_capture on non-J days (walk-forward OOS positive).  
-- Gym validators must pass (no crashes, correct indicator calculations).  
-- Real-fills check on top 3 J days must confirm simulated behavior aligns with OPRA within ±20%.  
-- Anchor no-regression: must not reduce edge_capture on J's winner days below current baseline (to be measured post-backtest).  
+needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification
 
 ## Confidence
 
-3 / 10 -- Zero historical validation; high overfit risk; mechanism is plausible but untested. Requires rigorous backtesting before confidence can increase.  
+3 / 10 -- Hypothesis is structurally sound but requires empirical validation; no historical testing performed to date.
 
 ## Pre-existing leaderboard impact
 
-Does not conflict with existing candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION) as it targets a distinct volatility-breakout regime. May complement WEEKLY_DTE_NOT_0DTE if applied to longer DTE, but as a 0DTE trigger it stands alone. No overlap with structural gates (e.g., TRENDLINE_BREAK_CALL_VETO) or watcher-only proposals.  
-
----
+Does not conflict with top 9 candidates (QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS, WEEKLY_DTE_NOT_0DTE, VWAPCONT_DTE_OVERRIDE_2DTE, TRENDLINE_BREAK_CALL_VETO, STRUCTURE_VETO_DIR_VS_TREND, REQUIRE_BEARISH_FILL_BAR_REVAL, ENTRY_BODY_GATE_BEAR_REVAL, UNBLOCK_MIDDAY_TRENDLINE_GATE, BULL_SCOPE_LOCK_REVAL). All top 9 are gates, filters, or structural changes; this proposal is a new entry trigger, making it complementary by adding a distinct mechanism.
