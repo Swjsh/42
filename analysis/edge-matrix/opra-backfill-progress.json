@@ -1,0 +1,47 @@
+{
+  "job": "opra_recent_gap_backfill",
+  "target_dates": [
+    "2026-07-15",
+    "2026-07-16",
+    "2026-07-20",
+    "2026-07-21",
+    "2026-07-22"
+  ],
+  "day_ranges": {
+    "2026-07-15": {
+      "low": 750.2,
+      "high": 755.58,
+      "close": 754.74
+    },
+    "2026-07-16": {
+      "low": 747.88,
+      "high": 754.57,
+      "close": 750.76
+    },
+    "2026-07-20": {
+      "low": 741.5103,
+      "high": 748.73,
+      "close": 742.1
+    },
+    "2026-07-21": {
+      "low": 744.18,
+      "high": 749.04,
+      "close": 748.315
+    },
+    "2026-07-22": {
+      "low": 746.37,
+      "high": 750.02,
+      "close": 747.39
+    }
+  },
+  "total_contracts": 136,
+  "already_cached_before": 0,
+  "to_fetch": 136,
+  "fetched_this_run": 136,
+  "empty_this_run": 0,
+  "errors_count": 0,
+  "errors_sample": [],
+  "elapsed_seconds": 67,
+  "last_update": "2026-07-23T02:04:18.800879+00:00",
+  "status": "completed"
+}

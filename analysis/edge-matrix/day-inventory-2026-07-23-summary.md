@@ -13,3 +13,15 @@
 - **Dedupe:** overlapping spy_5m caches resolved per-day to the single file with max RTH bars; no cross-file row mixing.
 - **Gate math population:** OPRA days only; BS-synthetic days are disclosed, never gated.
 - **Source:** `analysis/edge-matrix/day-inventory-2026-07-23.json` (per-day gap/type/vix/provenance; excluded fragments listed).
+
+## Amendment 2026-07-22 — OPRA recent-gap backfill
+
+OPRA backfill mission (target: extend cache backward to 2026-01-02) found the backward
+extension **already complete** — 381/386 days had real fills spanning 2025-01-02 → 2026-07-17,
+verified against live Alpaca (3 spot-checks, identical bars). The only real gap was the 5 most
+recent trading days (2026-07-15, 07-16, 07-20, 07-21, 07-22), fetched this session via
+`backtest/tools/_backfill_opra_recent_gap.py` (136 contracts, 0 errors). **OPRA real-fill days:
+381 → 386 (100% of SPY-covered days).** `day_type`/`gap_pct`/`vix_band` for these 5 rows were
+NOT recomputed (needs the original builder's ATR20/VIX pipeline) and `heldout_days` was left
+untouched (frozen boundary). Full detail: `analysis/edge-matrix/OPRA-BACKFILL-REPORT.md`.
+See `day-inventory-2026-07-23.json#manual_amendments` for the machine-readable diff.
