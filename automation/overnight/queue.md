@@ -7,6 +7,10 @@
 
 ---
 
+- [ ] FUNCTION-SCORE-ZERO-ENTER-CHECK (HIGH, engine-function, added 2026-07-23 conductor) :: `conductor_outcome.py metric`'s `function_latest` has read **0 ENTERs / 0 orders_accepted / 3 fills / 1 distinct setup** on the last trading day (2026-07-22) across at least the 2 preceding conductor fires (06:42 and 07:42 ET fires both noted it, calling it "worth a dedicated look if it persists past tonight's session close" — it has). `engine-health.json` is GREEN and `self_check.py`'s tradeability check (post SELF-CHECK-DATA-GATED-FRAME-FIX, 2026-06-30) does NOT flag this BROKEN, which is consistent with a genuinely quiet/no-valid-setup day rather than a structural break (the bull-unblock ENGINE-CANNOT-ENTER thread is fully closed per queue history, EDGE-gated not bug-gated). **Next fire: read `automation/state/core-decisions.jsonl` for 2026-07-22 and confirm which of (a) no setups triggered that day (benign), (b) a gate silently ate every trigger (real bug), or (c) the `extra_exec` secondary lane is the only path seeing fills while the primary path never got a live trigger (matches prior fires' "already-diagnosed" note — verify that diagnosis is still accurate, don't just re-cite it).** Do NOT just re-read the metric and re-flag — actually pull the day's tick-by-tick reasoning and name which of (a)/(b)/(c) it is. :: depends:none :: status:pending
+
+---
+
 ## Active backlog
 
 ### DOUBLE-BOTTOM-DISARM-DECISION (HIGH, 24h re-audit then act, filed 2026-07-23 overnight kitchen)

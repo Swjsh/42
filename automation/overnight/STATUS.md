@@ -1,3 +1,51 @@
+## [2026-07-23 ~08:12-08:20 ET] OK -- conductor (AFTERHOURS): backfilled 41 untracked strategy/candidates/ files + shipped the L242 re-violation prevention guard, commits `8a9e4902` + `a9efcab5`
+
+> **STAGE 0/1:** ET confirmed 08:12 (Thursday, market closed, opens 09:30). `engine-health.json`
+> GREEN 13/13. `self-check-last.json` reported **DEGRADED**: 39 (actually 41 via live git
+> status) untracked `strategy/candidates/` files -- same class as the L242 scar (2026-07-22,
+> 1,176 files) and its threshold-20 detector, now re-violating just 24h later. This outranked
+> the `task_scorer.py --top` pick (`TRENDLINE-TIGHT-EXIT-ACCRETE`, MED) as an engine-health flag.
+
+> **What shipped:** (1) backfilled the 41 files (chef-nemo strategy proposals + grinder-stage
+> keeper analyses) via scoped `git add --pathspec-from-file`, commit `8a9e4902` -- `self_check.py`
+> confirmed GREEN 0 problems immediately after. (2) Recognized this as a RE-VIOLATED lesson
+> (L242's detector fired again within 24h with no automatic remediation) and graduated it to a
+> guard per OP-25: `setup/scripts/auto_commit_candidates.py` + `Gamma_AutoCommitCandidates`
+> scheduled task (every 2h, every day) stages+commits `strategy/candidates/` ONLY once >=10
+> untracked/modified entries accrue -- below `self_check.py`'s 20-threshold DEGRADED bar, so the
+> preventer acts before the detector would ever need to complain again. Scoped to that path only
+> (never `-A`), local commit only (no push), fail-open on any git error including the repo's own
+> pre-commit safety-gate hook rejecting the commit. Commit `a9efcab5`.
+
+> **Verified this fire (OP-33):** 9/9 new guard tests green (`test_auto_commit_candidates.py`),
+> curated safety gate (31 tests) PASS at both commits. Task registered LIVE and verified via
+> `Get-ScheduledTask` (`State=Ready`, real `MSFT_TaskDailyTrigger` w/ 2h repetition, not a dark
+> one-time trigger -- L per project_scheduled_task_onetime_trigger_dark). Real smoke-run of the
+> script against the live repo (post-backfill) logged `QUIET, untracked_or_modified: 0` --
+> correct behavior, nothing to commit right after the manual clear. Post-commit (not just
+> pre-commit `--cached`, L247): `git show HEAD --stat --name-status` on both commits confirms
+> exactly the intended files landed (41 candidate files in the first; 5 infra files in the
+> second) -- nothing else swept in.
+
+> **Scope + revert:** pure infra/tooling + doc backfill -- zero params/heartbeat_core/filters/
+> placement/exit/CLAUDE.md touched. Ships per OP-22/OP-26 (engine-benefit, no J ratification
+> needed) + rail 4 (guard test + git-revert path, both satisfied). Revert: `git revert 8a9e4902`
+> + `git revert a9efcab5`; disable the task via `Unregister-ScheduledTask Gamma_AutoCommitCandidates`
+> or `setup/scripts/install-auto-commit-candidates.ps1 -Uninstall`.
+
+> **Foot-gun graduated:** filed `_lesson-inbox/2026-07-23-l242-detector-reviolated-within-24h-
+> graduated-to-preventer.md` for lesson-author -- the generalizable point: a detector for a
+> re-violated lesson is necessary but not sufficient if the underlying condition re-accrues on
+> its own (a continuously-running producer) between the moments a human/conductor happens to
+> look. Ask a second question when graduating a lesson to "a check that flags it": does anything
+> *act* on the flag without a human in the loop?
+
+> **Cost: ~$2.4** (STAGE 0/1 reads, git status/add/commit x2, writing+testing the guard script +
+> install script + 9 pytest cases, registering + verifying the scheduled task live, lesson
+> filing, SCHEDULED-TASKS.md registry update, STATUS write-up).
+
+---
+
 ## [2026-07-23 ~07:42-08:00 ET] OK -- conductor (AFTERHOURS): triaged the 15-item chef-inbox backlog -- 8 closed, 7 reframed, commit `e0354f3c`
 
 > **STAGE 0/1:** ET confirmed 07:42 (Thursday, market closed, opens 09:30 -- clear runway).
@@ -671,4 +719,7 @@
 
 
 ## Kitchen
-Kitchen: alive, queue 28 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 21 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+### DEGRADED: self-check 2026-07-23T08:09:57
+- CANDIDATES-UNTRACKED: 39 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
