@@ -9,6 +9,22 @@
 
 ## Active backlog
 
+### CHEF-FOCUS-FILTER (HIGH, after-hours build, filed 2026-07-22 night -- enforces FOCUS-DOCTRINE)
+
+- [ ] CHEF-FOCUS-FILTER (HIGH, small build, NOT a new system) :: Enforce
+  markdown/doctrine/FOCUS-DOCTRINE.md at the R&D intake seams: (1) chef/kitchen/prospector
+  candidate intake tags each idea level_family: true/false (rejection/reclaim/flip-retest/
+  range-pingpong/break-retest = true); non-level candidates queue BEHIND all open level-family
+  work unless they carry an explicit "cannot be expressed as a level interaction because..."
+  line; (2) task_scorer.py adds a level-family priority weight for research items; (3) the
+  over-engineering tells (>4 tunable params, gate-on-gate rescue, not statable in 2 sentences
+  of chart language) become an intake checklist the chef persona applies BEFORE writing a
+  candidate file -- reject at authoring time, not after a battery run; (4) consolidation
+  sweep: the 100+ existing strategy/candidates/ files get a one-time triage -- level-family
+  actives kept, the long tail archived per OP-22 (compound, don't accumulate). Keep the build
+  tiny: tags + a sort key + a checklist in the persona prompt, no new pipeline.
+  depends:none :: status:pending
+
 ### GAMMA-STUDY-CURRICULUM (MED, standing conductor mode, filed 2026-07-22 night, J-directed "learn new things -- TA, indicators, risk management... like a person")
 
 - [ ] GAMMA-STUDY-CURRICULUM (MED, conductor AFTERHOURS mode extension) :: Give Gamma a visible
