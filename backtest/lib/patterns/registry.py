@@ -439,6 +439,28 @@ REGISTRY: tuple[PatternRule, ...] = (
                     "shelf, or a bearish engulfing candle within $0.30 of a fresh 2-touch intraday "
                     "swing-high shelf -- an engulfing candle reacting AT the shelf itself, not a "
                     "named daily level and not a neckline break.",
+        anchors=(
+            {
+                "date": "2026-07-21", "time_et": "11:05", "bias": "bullish",
+                "expected_fire": False,
+                "note": "J's original bullish exhibit this rule was built to cover. VERIFIED "
+                        "(post-ship OP-33 falsification, same day): does NOT fire. Root cause "
+                        "pinned, not vibes -- flat_side()/labeled_swings (the shared swing "
+                        "primitive every swing-family rule composes on) never registers J's tight "
+                        "touch cluster (~$0.08 apart, 5min apart) as 2+ DISTINCT confirmed pivots "
+                        "at its current confirmation timescale. Follow-up: a new rolling-K-bar "
+                        "local-extreme-cluster primitive (queue.md ENGULFING-AT-STRUCTURE-TRIGGER, "
+                        "_lesson-inbox/2026-07-23-swing-primitive-timescale-bounds-every-composed-"
+                        "rule.md) must be falsified against this exact bar BEFORE any pre-reg is "
+                        "built on it.",
+            },
+            {
+                "date": "2026-07-23", "time_et": "10:40", "bias": "bearish",
+                "expected_fire": False,
+                "note": "J's mirror-symmetric bearish exhibit, same day this rule shipped. Same "
+                        "root cause as the 07-21 anchor above -- see that note.",
+            },
+        ),
     ),
     PatternRule(
         name="island_reversal",

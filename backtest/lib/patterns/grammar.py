@@ -64,6 +64,24 @@ class PatternRule:
     thresholds:  the OBJECTIVE, DISCLOSED numeric knobs this rule's composition used
                  (for audit — "no magic numbers" per repo coding style).
     description: one paragraph, human-readable.
+    anchors:     OPTIONAL tuple of live-tape exhibit dicts this rule was built FROM or
+                 is claimed to cover — the pre-ship + drift contract (filed
+                 2026-07-23 from the self-audit gap "no reliable pre-ship validation
+                 step that confirms a rule actually fires on the specific anchor bars
+                 J identified", ENGULFING-AT-STRUCTURE-TRIGGER near-miss). Each dict:
+                 {"date": "YYYY-MM-DD", "time_et": "HH:MM", "bias": "bullish"|"bearish",
+                  "expected_fire": bool, "note": str}. `expected_fire` is the CURRENT,
+                 HONEST state of whether the predicate actually fires at that bar — not
+                 an aspiration. backtest/tools/pattern_anchor_verify.py re-checks every
+                 declared anchor against the live predicate; test_pattern_anchor_verify.py
+                 asserts actual == expected_fire for all of them, so registry.py can never
+                 silently drift out of sync with the anchor exhibits it cites (either a
+                 rule that was supposed to cover an anchor quietly stops firing on it, or
+                 one honestly declared NOT to fire starts firing without anyone updating
+                 the record). Empty tuple (default) = no anchor claim made; nothing to
+                 verify — most rules (esp. the original 11 seed rules, which were built
+                 from TA-PATTERN-REFERENCE.md citations, not specific live bars) leave
+                 this empty by design.
     """
     name: str
     tier: int
@@ -73,6 +91,7 @@ class PatternRule:
     citation: str
     thresholds: dict
     description: str
+    anchors: tuple[dict, ...] = ()
 
     def __post_init__(self) -> None:
         if self.tier not in RULE_TIERS:
@@ -91,6 +110,12 @@ class PatternRule:
             raise ValueError(f"{self.name}: citation must be non-empty")
         if not self.description:
             raise ValueError(f"{self.name}: description must be non-empty")
+        for a in self.anchors:
+            missing = {"date", "time_et", "bias", "expected_fire"} - set(a)
+            if missing:
+                raise ValueError(f"{self.name}: anchor {a!r} missing required keys {missing}")
+            if a["bias"] not in ("bullish", "bearish"):
+                raise ValueError(f"{self.name}: anchor bias must be bullish/bearish, got {a['bias']!r}")
 
 
 def evaluate_rule(rule: PatternRule, ctx: PatternContext, t: int, *, timeframe: str) -> Optional[GrammarHit]:
