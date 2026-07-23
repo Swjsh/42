@@ -13,6 +13,90 @@
 
 ## Active backlog
 
+### ENGULFING-AT-STRUCTURE-TRIGGER (HIGH, THE build -- 3 live exhibits, mirror-symmetric, untested by the 181-cell matrix)
+
+- [ ] ENGULFING-AT-STRUCTURE-TRIGGER (HIGH, Lane-A vocabulary + Lane-B pre-reg) :: J called this
+  pattern live on THREE separate days, both directions, and the engine had ZERO trigger every
+  time. VERIFIED FROM TAPE + core-decisions.jsonl:
+    * 2026-07-21 BULLISH: engulfing at a double bottom (lows 744.790 / 744.795, 3 taps of one
+      shelf) -> SPY ran 746.77 -> 748.97. Engine: bull 9-10, triggers=[].
+    * 2026-07-23 BEARISH (mirror): 10:40 bar O740.38 H740.59 L738.68 C738.86, body 79.5% (the
+      most decisive candle of the window), textbook bearish engulfing (opens >= prior close
+      740.37, closes <= prior open 739.04) at a DOUBLE TOP (highs 740.505 @10:35 / 740.585
+      @10:40, 8c apart; shelf also tested 10:00-10:05) -> SPY fell 738.86 -> 736.63+.
+      Engine: triggers=[], and its score moved AGAINST the setup at the turn (10:40 bear 8 /
+      bull 6 -> 10:41-10:45 bear 6 / bull 7-8).
+  THREE DISTINCT MECHANISMS, all confirmed:
+    (1) NO ENGULFING VOCABULARY -- no detector emits a trigger for an engulfing bar, either
+        direction. (double_bottom_base_quiet is the nearest thing and is proven dead-strict:
+        lookback 20 bars < the real 24-bar gap, RTH-only strips premarket lows.)
+    (2) NO INTRADAY SWING DOUBLE-TOP/BOTTOM AS A LEVEL -- the 740.505/740.585 twin highs never
+        became a level; engine's levels_context showed nearest_above=739.9, then jumped to
+        742.51 once price poked above 739.9, LOSING the actual reversal shelf entirely.
+    (3) SCORING IS LAST-BAR REACTIVE -- the 10:35 green bar pushed bull up exactly as the top
+        formed, so the engine was at its LEAST bearish at the highest-conviction short. Same
+        shape mirrored on 07-21 (least bullish into the bottom).
+  WHY THIS IS NOT ONE OF THE 181 DEAD CELLS: the edge-matrix (98) + kitchen (83) tested
+  LEVEL-TOUCH triggers (rejection/reclaim/flip/pingpong/break-retest) and non-level trend
+  vocab. A CANDLE PATTERN AT A SWING STRUCTURE (engulfing at a 2-touch swing high/low) was
+  never a cell in either. Mirror-symmetry across both directions is evidence of structure, not
+  curve-fit -- but it is still 3 exhibits and MUST clear the standing 4-gate bar + BH.
+  BUILD (after close, Rule 9): (a) intraday swing-high/low detector -> 2-touch shelf becomes a
+  zone-banded level (levels-are-zones); (b) engulfing detector (body-% floor, engulfs prior
+  body, direction) fired AT that zone; (c) frozen pre-reg grid <=16 cells, real-fills replay
+  through exit_manager_walk over the 386-day history, standing gates + BH. Sanity anchors the
+  winning cell MUST fire on: 07-21 11:05 bullish, 07-23 10:40 bearish.
+  CREDIT WHERE DUE (J's own read, verified): the 10:30 SKIP_DOJI_ENTRY_BAR block was CORRECT --
+  the next bar (10:35) closed +$1.33 green. The doji gate is not the problem; the missing
+  vocabulary is. depends:none :: status:pending
+
+> **PARTIAL PROGRESS 2026-07-23 ~16:15-16:50 ET (conductor, AFTERHOURS), commit `31c5089e`.**
+> Checked the grammar registry (`backtest/lib/patterns/`, built 2026-07-09, "NO WIRING") before
+> building anything from scratch -- it already has an `engulfing` predicate (candlestick geometry,
+> mechanism (1)) AND a `flat_side`/`labeled_swings` swing-shelf primitive (mechanism (2)'s
+> nearest cousin, powers `double_top_bottom_at_level`/`rectangle_range_break`/`triangle_*`). What
+> was genuinely missing: a rule COMBINING them anchored to the intraday swing shelf specifically
+> (the registry's existing `engulfing_at_level` anchors to NAMED DAILY levels only). Built + shipped
+> `engulfing_at_swing_shelf` (bullish engulfing at a 2-touch swing-low shelf / bearish at a 2-touch
+> swing-high shelf, $0.30 proximity). C27 prescreen: **TESTABLE full-history (28.9% days, 0.42
+> fires/day) AND stable recent-90d (no drift)** -- notably CLEANER than `engulfing_at_level`,
+> which this same prescreen run showed has DRIFTED to NOISE-KILL recently (fires almost daily
+> now; not disclosed before this fire).
+
+> **Sanity-anchor falsification -- RUN, and it FAILED (reporting honestly, not just the clean
+> prescreen number -- OP-33/`/fable-too-good` discipline):** checked the shipped predicate
+> DIRECTLY against both exhibits this item names. **07-21 11:05 bullish: does NOT fire.**
+> `flat_side(kind="swing_low", n_touches=2)` returns `None` at that bar -- the last 2 CONFIRMED
+> swing lows by then are 10:15 (744.79) and 10:40 (745.77), 0.98\$ apart (not a flat shelf), and
+> the actual tight cluster J read (10:40 L745.77 / 11:00 L745.83 / 11:05 L745.85, ~8c apart --
+> see the RSI-EXTENSION-BLOCK-ELITE-BULL item above, same day) never registers as 2+ DISTINCT
+> swing-low pivots at all: `crypto/lib/market_structure.py`'s labeler only emits 10:40 as a
+> pivot; 11:00/11:05 are higher, so they're read as trend continuation, not new reversal points.
+> **07-23 10:40 bearish: does NOT fire either** (checked directly against the freshest cache,
+> `backtest/data/spy_5m_2026-05-19_2026-07-23.csv` -- today's bar IS present). Same root cause:
+> the 740.505/740.585 double-top (8c apart, 5 min apart) never registers as 2 distinct swing-high
+> pivots; the last confirmed swing high by 10:40 is 09:40 (742.56), stale and irrelevant.
+
+> **Root cause is now precisely pinned (not just re-asserted):** this is not "missing
+> vocabulary" after all -- `ctx.structure.labeled_swings`'s underlying pivot-labeling timescale
+> (shared by EVERY rule in the swing family: `flat_side`, `monotone_swings`,
+> `double_top_bottom_at_level`, and now `engulfing_at_swing_shelf`) is fundamentally too COARSE
+> to ever see a tight/fast double-top-or-bottom that resolves within 2-3 five-minute bars and
+> a few cents of price. Building more compositions on `labeled_swings` cannot fix this; the gap
+> is a genuinely NEW, cheaper primitive: a rolling-K-bar local-extreme-CLUSTER check (e.g. "the
+> last K closes/highs/lows sit within $X of each other", no formal reversal-pivot confirmation
+> lag required) -- structurally different from the existing swing-pivot family. **NEXT STEP
+> (not this fire):** design + prereg that primitive, re-run the same 2-anchor falsification test
+> BEFORE composing it with `engulfing` or committing to the frozen 16-cell grid + real-fills
+> replay this item originally asked for -- doing the expensive replay on a still-unverified
+> primitive would be exactly the "build first, falsify never" mistake this fire's own discipline
+> caught. Foot-gun (a shared primitive's timescale silently bounds every rule built on it, and a
+> clean aggregate prescreen number can still fail a targeted anchor check) filed to
+> `_lesson-inbox` for graduation. Ships as-is: `engulfing_at_swing_shelf` remains a real,
+> tested, stable grammar addition regardless (12/12 registry rules, 57/57 tests, curated gate
+> 31+5 PASS) -- it just doesn't (yet) explain these 2 exact exhibits. Item stays `status:pending`,
+> NOT closed -- the swing-shelf angle is exhausted, the tight-cluster primitive is the live thread.
+
 ### DOUBLE-BOTTOM-DISARM-DECISION (HIGH, 24h re-audit then act, filed 2026-07-23 overnight kitchen)
 
 - [x] DOUBLE-BOTTOM-DISARM-DECISION (HIGH) :: **RESOLVED 2026-07-23 ~01:55 ET (conductor,
