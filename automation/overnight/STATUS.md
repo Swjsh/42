@@ -1,3 +1,51 @@
+## [2026-07-23 ~01:48-01:58 ET] OK -- conductor (AFTERHOURS): resolved DOUBLE-BOTTOM-DISARM-DECISION -- KEEP ARMED, headline -\$3,504 was a fidelity artifact not the production number
+
+> **STAGE 0/1:** ET confirmed 01:48, Thursday, market closed since 15:55. `engine-health.json`
+> GREEN 13/13 (all quiet-OK, market closed). `self_check.py` GREEN 0 problems. `fill_funnel.py`
+> IDLE 2026-07-23 (market not yet open, expected). Self-audit gaps: all batches through
+> 2026-07-22T17:32:32 already actioned by earlier fires -- nothing new. `task_scorer.py --top`
+> surfaced `EDGE-MATRIX-NIGHTLY-RERUN` (MED); picked `DOUBLE-BOTTOM-DISARM-DECISION` instead
+> (HIGH, ready, no depends) -- STAGE 1 priority order ranks queue HIGH above MED, and this item
+> gates a real live-armed lane's arm/disarm status, outranking a standing-loop wiring task.
+
+> **What was resolved (no code/params change -- the resolution IS the deliverable):** the item's
+> own filing quoted `double_bottom_base_quiet`'s kitchen-harness BASELINE cell (-\$2,564 tuning /
+> -\$940 held-out, 1/4 gates) as grounds to maybe disarm the live-paper-armed lane, but flagged
+> unresolved fidelity risk: does that cell include the NOT_NEAR_NAMED \$0.50 proximity gate
+> production always applies? Traced it directly: `double_bottom_base_quiet_watcher.py` Gate 6
+> (`enrich_hit_with_proximity`) is hardcoded UNCONDITIONAL in the live watcher -- no enable flag,
+> every real signal passes through it. The harness's own pre-reg
+> (`analysis/kitchen/prereg-extra-lanes-fullhist-2026-07-23.json`) had ALREADY disclosed its
+> BASELINE cell omits this gate (matches the detector's old published simplified-scan precedent,
+> not live config) AND had already run the correctly-gated refinement cell
+> (`not_near_named=True`, causal LevelMemory-reconstructed proximity) in the same results file --
+> it just wasn't the number quoted downstream. Read the production-faithful cell in
+> `analysis/kitchen/extra-lanes-fullhist-results-2026-07-23.json`: n=21 (gate alone kills ~82% of
+> the ungated n=115 population -- consistent with DB-BASE-QUIET-PROXIMITY-GATE-LEAD's "0 fills in
+> 20+ live days" observation), total_pnl +\$8.95 (expectancy +\$0.43/tr), held_out -\$112.40,
+> gates_passed 2/4, p_raw=0.988 (statistically indistinguishable from zero). **Verdict: near-flat
+> noise on thin n, not the "-\$3,504 deeply negative pattern" that motivated considering a
+> disarm.** KEEP ARMED -- status quo, zero params.json change, zero live bleed either way (lane
+> already fills almost nothing).
+
+> **Foot-gun graduated:** filed `strategy/candidates/_lesson-inbox/2026-07-23-harness-baseline-
+> knob-omitting-unconditional-production-gate.md` for lesson-author -- the generalizable pattern
+> (a harness's `|BASELINE`-suffixed cell can mean "matches live config" for most lanes but "matches
+> an old published precedent, NOT live config" for one lane in the SAME run; a downstream reader
+> must check which before quoting a headline P&L as "the live-armed lane's number").
+
+> **Scope + revert:** pure documentation/decision-closure (queue.md resolution write-up + one
+> lesson-inbox filing) -- no params/heartbeat_core/filters/placement/exit/CLAUDE.md touched, no
+> commit needed for a decision-only fire (no code diff). DB-BASE-QUIET-PROXIMITY-GATE-LEAD gets
+> its first quantified suppression estimate from this fire (~82% of an ungated population) but
+> stays open (its own \$0.50-band-width question is separate). DOUBLE-BOTTOM-LOOKBACK-AB
+> unaffected (different question).
+
+> **Cost: ~$1.8** (STAGE 0/1 reads, tracing the watcher gate + pre-reg + results files, queue.md
+> resolution write-up, lesson-inbox filing, STATUS write-up).
+
+---
+
 ## [2026-07-23 overnight] KITCHEN NIGHT COMPLETE -- 83 cells / 6 lanes cooked, 0 ship (honest), best-ever near-miss found, 2 infrastructure wins, portfolio math delivered
 
 > **J's directive: "good traders make money most days -- we need a few solid strats; cook all night." Delivered, Sonnet army throughout.** Full doc: markdown/research/STRATEGY-PORTFOLIO-2026-07-23.md.
@@ -592,85 +640,3 @@
 
 ---
 
-## [2026-07-22 ~17:48-17:56 ET] OK -- conductor (AFTERHOURS): FINRA UA-block lesson graduated to shared http_fetch.py guard (L241), commits `5b97b9e4` + `4efc229b`
-
-> **STAGE 0/1:** ET confirmed 17:48->17:56, Wednesday, market closed since 15:55 (correctly
-> after-hours). `engine-health.json` GREEN 13/13 (market-closed quiet-OK, kill-switches armed-
-> not-tripped both accounts). `self-check-last.json` DEGRADED only on the pre-existing non-
-> load-bearing TRENDLINE-DRAW flag (unchanged, already tracked). Checked the self-audit gap
-> tracker (priority-3 in STAGE 1) ahead of queue.md's HIGH tier: the freshest batch
-> (2026-07-22T17:32:32, 9 lines) had 2 real, un-triaged items -- "Missing generic User-Agent
-> guard" and "Chef-inbox backlog growth" -- directly downstream of THIS SESSION'S OWN prior
-> fire (the FINRA short-volume study that fixed a 403-UA-block bug ~17:12-17:23 ET and filed
-> a matching lesson-inbox candidate). Picked this: a self-identified gap with a ready,
-> concrete fix beats an unread queue item.
-
-> **What shipped:** graduated the FINRA lesson-inbox candidate to **L241** in
-> `LESSONS-LEARNED.md` + folded into CLAUDE.md's OP-25 C7 index (per OP-25's re-violated-
-> lesson-must-become-code mandate -- several OTHER chef-inbox items propose the same raw-CDN-
-> scrape pattern that caused this bug). Built `backtest/lib/http_fetch.py#fetch_url_text()` --
-> a shared HTTP fetch helper: browser-like User-Agent by default, typed `HttpFetchBlocked` for
-> HTTP 403/429 (distinct from a genuine 404, which still fails open to `None` -- correct for a
-> real holiday/no-data day). Refactored `finra_short_volume_study.py::fetch_finra_short_ratio()`
-> onto the shared helper (preserving its "fails open, never raises" contract by default via a
-> `raise_on_block` opt-in) and wired `main()`'s date loop to detect a SYSTEMATIC block (>=50%
-> of attempted dates blocked) -> new `verdict: KILL_FETCHER_BLOCKED` instead of silently
-> scoring a near-empty sample as if the hypothesis had been fairly tested. Audited the other 20
-> `urllib.request` callers across `backtest/tools/` for the same failure class: all hit
-> authenticated `data.alpaca.markets` (API-key headers, not a public-CDN UA-sniffed endpoint),
-> so none share this exact bug -- the shared helper is positioned for the NEXT public-CDN
-> scraper (FRED, CBOE BXM, NYSE TICK/OpenBook, Treasury.gov all proposed live in chef-inbox).
-> Triaged both source items to `.DONE`/closed with full closure notes: the lesson-inbox file
-> and the self-audit gap batch (the other 7/9 lines in that batch were pure scaffold/meta-
-> commentary noise, not gaps -- noted, not chased this fire; "chef-inbox backlog growth"
-> verified FALSE via live count -- 78 files, 66 `.DONE` (85%), 12 open -- healthy throughput,
-> not unbounded growth).
-
-> **Verified this fire (OP-33):** 26 new/updated tests (`test_http_fetch.py`: 12 mock-based
-> cases covering UA-default/custom-UA/403+429->`HttpFetchBlocked`/404+5xx+timeout+connection-
-> error->fail-open `None`; `test_finra_short_volume_study.py`: +5 cases covering the
-> `raise_on_block` toggle and `main()`'s systematic-block detector) -> 26/26 PASS. RED-proofed
-> via rename-and-restore (`mv http_fetch.py http_fetch.py.bak`, confirmed the EXACT expected
-> `ModuleNotFoundError` on both consumer test files, restored, re-verified 26/26 green -- no
-> `git stash`, per the standing C34/L228/L238 discipline). Broader sweep
-> (`pytest backtest/tests/ -k "http_fetch or finra"`) -> 26/26 PASS, 0 regressions. **Live
-> network smoke test re-run against the REAL FINRA CDN post-refactor** -> still resolves real
-> data (proves the refactor preserved the actual production fix, not just the mocks). Curated
-> safety gate (31+5 suites) PASS, twice (once per commit, both via the pre-commit hook).
-> **Caught + fixed the EXACT L239 bug live, in this same fire:** a first `git add` listing 9
-> paths (8 new/intended + 1 stale pre-`git mv` name) failed atomically with `fatal: pathspec
-> ... did not match any files` -- confirmed via `git status --short` that NOTHING from that
-> call staged beyond what `git mv` had already staged. Re-ran `git add` with only valid paths,
-> confirmed `8 files changed, 342 insertions(+), 13 deletions(-)` staged correctly, committed
-> (`5b97b9e4`). Post-commit `git status --short` on the exact touched-file list (OP-33
-> `verify_committed`) caught a SECOND instance of the same root cause: the renamed `.DONE`
-> file's closure-note `Edit` had landed on the working tree AFTER `git mv` already staged the
-> bare rename, so `5b97b9e4` shipped the rename with 0 insertions on that path. Fixed with a
-> tightly-scoped follow-up commit (`4efc229b`, 1 file, +19 insertions, 0 deletions elsewhere);
-> re-verified `git status --short` on that exact path is clean post-fix.
-
-> **Rail-4 / trading-path scope:** zero trading-path files touched (shared lib module + guard
-> tests + one research-tool refactor + doctrine/lesson docs + self-audit/inbox bookkeeping
-> only -- no params/heartbeat_core/filters/placement/exit). Ships per OP-22/OP-25/OP-26
-> without J ratification. **Revert:** `git revert 4efc229b 5b97b9e4` (2 commits, purely
-> additive/refactor -- `fetch_finra_short_ratio`'s public return contract for existing callers
-> is unchanged, `main()`'s new `KILL_FETCHER_BLOCKED` verdict is additive).
-
-> **Context budget:** CLAUDE.md's C7 row grew by one clause (L241 fold) -- re-checked via
-> `check-context-budget.ps1`: 8782/9000 tok (98%), still YELLOW, +43 tok over this fire's
-> starting baseline (8739). No hand-shaving per standing instruction (cap bounds attention, not
-> forced minimization) -- flagging since it's now within ~220 tok of RED for the next fire that
-> touches CLAUDE.md.
-
-> **Cost: ~$3.4** (STAGE 0/1 reads across engine-health/self-check/self-audit-gaps/task_scorer/
-> lesson-inbox+chef-inbox surveys, live chef-inbox+urllib-caller domain audit across 20 files,
-> a new ~85-line shared module + ~106-line + ~76-line test files, a 2-file refactor, 2 lesson/
-> doctrine doc edits, 1 live-network smoke re-verification, 1 RED-proof round-trip, 1 broader
-> regression sweep, 2 curated safety-gate runs, 2 commits with pre/post verification including
-> a caught-and-fixed L239 staging bug, this STATUS update, `conductor_outcome.py record`).
-
----
-
-
-### DEGRADED: self-check 2026-07-22T23:42:35
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.

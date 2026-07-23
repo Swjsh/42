@@ -11,17 +11,34 @@
 
 ### DOUBLE-BOTTOM-DISARM-DECISION (HIGH, 24h re-audit then act, filed 2026-07-23 overnight kitchen)
 
-- [ ] DOUBLE-BOTTOM-DISARM-DECISION (HIGH) :: The extra-lanes full-history harness (kitchen
-  2026-07-23) measured double_bottom_base_quiet's own baseline cell at -\$2,564 tuning /
-  -\$940 held-out (-\$3,504 combined, 1/4 gates) over 18 months -- a live-armed lane with a
-  deeply negative pattern. NOT flipped tonight for one disciplined reason: harness-vs-
-  production gate-stack fidelity untraced (production ALSO applies the NOT_NEAR_NAMED \$0.50
-  proximity gate that has starved the lane to 0 fills in 20+ days; the harness baseline may
-  not include it). RE-AUDIT: trace whether the harness cell includes the proximity gate;
-  if the pattern is negative even before that gate -> DISARM the lane (paper autonomy,
-  guard+revert+REVOKE); if the harness diverges from live config -> re-run the baseline at
-  true production stack first. Zero live bleed while waiting (lane fills nothing anyway).
-  Related: DB-BASE-QUIET-PROXIMITY-GATE-LEAD, DOUBLE-BOTTOM-LOOKBACK-AB.
+- [x] DOUBLE-BOTTOM-DISARM-DECISION (HIGH) :: **RESOLVED 2026-07-23 ~01:55 ET (conductor,
+  AFTERHOURS) -- KEEP ARMED, do NOT disarm. The -\$3,504 headline number was a fidelity
+  artifact, not the production-faithful read.** Traced the fidelity question directly: grepped
+  `backtest/lib/watchers/double_bottom_base_quiet_watcher.py` -- Gate 6 (`enrich_hit_with_
+  proximity` / NOT_NEAR_NAMED \$0.50 check) is hardcoded and UNCONDITIONAL in the live watcher
+  (no enable flag, always applied to every real signal). The harness's own pre-reg
+  (`analysis/kitchen/prereg-extra-lanes-fullhist-2026-07-23.json`) already disclosed its
+  BASELINE cell omits this gate ("matching the detector's own already-published simplified-scan
+  precedent" -- not matching production). The harness ALSO already ran the gated cell as its
+  refinement knob (`not_near_named=True`, using a causal LevelMemory-reconstructed proximity
+  series) -- this is the production-faithful cell, and it already existed in
+  `analysis/kitchen/extra-lanes-fullhist-results-2026-07-23.json`, just not the one quoted in
+  this item's own filing. Read it: n=21 tuning fills (vs 115 ungated -- the gate alone kills
+  ~82% of the population, consistent with DB-BASE-QUIET-PROXIMITY-GATE-LEAD's "0 fills in 20+
+  live days" observation), total_pnl +\$8.95 (expectancy +\$0.43/tr), held_out -\$112.40,
+  gates_passed 2/4, p_raw=0.988 (statistically indistinguishable from zero). **Verdict: near-flat
+  noise on thin n, NOT the "-\$3,504 deeply negative" pattern that motivated considering a
+  disarm** -- that number came from the ungated cell, which production never actually trades.
+  Per the item's own pre-stated decision logic ("if the harness diverges from live config ->
+  re-run the baseline at true production stack first") -- divergence confirmed, production-
+  faithful cell already exists, and it does not support disarming. No params.json change (status
+  quo = correctly armed already); zero live bleed regardless (lane already fills almost nothing).
+  Foot-gun flagged to `_lesson-inbox` (a full-history harness's disclosed baseline-knob number is
+  NOT the production number when the knob is a gate that's unconditional live -- the refinement
+  cell is the one to quote, not the baseline). Related: DB-BASE-QUIET-PROXIMITY-GATE-LEAD (this
+  fire supplies its first quantified suppression estimate, ~82% of an ungated population --
+  that item's own \$0.50-band-width question stays open), DOUBLE-BOTTOM-LOOKBACK-AB (unaffected,
+  separate lookback-window question).
 
 ### TRENDLINE-TIGHT-EXIT-ACCRETE (MED, watch candidate from the kitchen's best near-miss)
 
