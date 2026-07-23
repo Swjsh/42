@@ -1,0 +1,23 @@
+# Chef Inbox — Polygon.io Aggregated Trades and Quotes for SPY
+
+**Routed by:** Gamma_Prospector 2026-07-21
+**Priority:** MED
+**Category:** New data signal / exogenous idea
+**Source:** swarm:openai/gpt-oss-20b:free
+
+## The Finding
+Prospector beat `data_feeds_free` surfaced: Polygon.io Aggregated Trades and Quotes for SPY -- Delivers high‑frequency trade and quote data with minimal latency, enabling precise entry/exit timing for 0DTE SPY options. Data source: Polygon.io free tier (https://polygon.io). Cost: $0. Instrument fit: 0dte.
+
+## Research Question for Chef
+Polygon.io Aggregated Trades and Quotes for SPY -- this carries a testable directional/timing edge for 0dte.
+
+## Backtest Request
+Data: Polygon.io free tier (https://polygon.io)
+Null hypothesis: the signal has no measurable effect on entry/exit quality vs the existing engine baseline over the same days.
+Pass bar: OOS positive AND walk-forward >= 0.70 AND sub-window stable AND anchor-day no-regression (the standing OP-11/OP-16 autoresearch bar) before any wiring proposal reaches conductor-proposals.jsonl.
+
+## Files for Reference
+analysis/prospector/ideas-ledger.jsonl (dedupe_key: data_feeds_free:polygonio-aggregated-trades-and-quotes-f) · markdown/infra/PROSPECTOR-SPEC.md
+
+## Priority / Dependencies
+depends:none

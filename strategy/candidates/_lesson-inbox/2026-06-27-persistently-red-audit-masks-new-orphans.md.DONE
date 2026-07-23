@@ -1,0 +1,45 @@
+# Lesson candidate: a persistently-RED audit masks NEW flags of every other class
+
+**Date:** 2026-06-27 (conductor fire, while closing G9-SELF-AUDIT PART-2)
+
+## Symptom
+`audit_scheduled_tasks.py` reported **16 ORPHAN_TASK** flags — including the TWO most
+critical live components, `Gamma_HeartbeatCore` (the deterministic live trading engine)
+and `Gamma_SightBeacon` (the never-blind eye) — registered-but-undocumented for an
+unknown but long stretch. The queue's own breadcrumb (G9 PART-2) claimed only **5**
+orphans; reality was 16 (stale-breadcrumb, L181/L185, again).
+
+## Root cause (two compounding mechanisms)
+1. **Two different definitions of "registered."** The static guard
+   `backtest/tests/test_scheduled_tasks_doc.py` derives its `registered` set by grepping
+   **install scripts** (`_registered_name_to_scripts()`), while the runtime audit
+   `audit_scheduled_tasks.py` reads the **live Windows scheduler**. Tasks registered
+   manually or by a script the static scan doesn't cover (HeartbeatCore/SightBeacon/the
+   grind+funnel workers/the free-manager loop) are INVISIBLE to the green static guard —
+   only the live-truth audit sees them. A green pytest suite therefore did NOT mean the
+   registry was honest. (C7: audit the real artifact, not a proxy for it.)
+2. **A persistently-RED audit cannot signal a NEW failure.** `engine_health` / the audit
+   ping on a RED *transition* only (anti-spam). HEALTH was already RED from 2 unrelated
+   `BARE_CMD_POWERSHELL` hard-fails (`Gamma_ContextGuard`, `Gamma_SwarmPremarket`), so a
+   NEW orphan never produced a GREEN→RED edge → no alert → 16 orphans accrued silently.
+   A monitor stuck RED is functionally blind to everything else that breaks.
+
+## Fix shipped this fire
+Documented all 16 in `SCHEDULED-TASKS.md` (ORPHAN 16→0, verified) + reconciled the
+stated-count guard (46→61). The 2 BARE_CMD flags remain (separate hidden-chain fire).
+
+## Graduate-to-guard candidates (for lesson-author)
+- **Per-flag-class transition alerting:** the audit/health alerter should fire on a NEW
+  flag of ANY class even while overall HEALTH stays RED (track the flag SET, alert on
+  set-growth, not just GREEN→RED). A stuck-RED monitor must not mask new breakage.
+- **Reconcile the two "registered" sources:** either drive `test_scheduled_tasks_doc.py`
+  off the live scheduler (env-gated) or assert the static install-script set ⊇ the live
+  ORPHAN set, so a live ORPHAN can't be green in pytest. (A pure-live test is
+  machine-dependent — prefer the superset assertion or an env-gated live check.)
+- **Conductor STAGE-0 could read `scheduled-tasks-audit.json`** alongside
+  `engine-health.json` so a RED registry surfaces as drainable work, not silent debt.
+
+## Cross-refs
+L181/L185 (stale breadcrumb), C7 (audit outputs not exit codes / real artifact not proxy),
+the "registry-makes-orphaning-impossible" pattern (gamma.md) — which only holds if the
+registry is checked against LIVE truth, not a static proxy.
