@@ -107,7 +107,56 @@
   conductor AFTERHOURS rotation (weekly full re-run as OPRA days accrue; the "infinite
   backtesting" standing loop J asked for). Family runners need the incremental --since flags
   finished (TODOs in the stub). New days shift the held-out window forward per the frozen
-  protocol -- never re-tune on formerly-held-out days without disclosing. depends:none :: status:pending
+  protocol -- never re-tune on formerly-held-out days without disclosing.
+  depends:none :: status:in_progress-step1-of-4-done
+
+  > **[2026-07-23 ~06:12-06:55 ET conductor] Step 1 (day-inventory forward-extend) SHIPPED
+  > this fire** -- was a bare stub referencing a script (`build_day_inventory.py`) that had
+  > never actually been built (verified: `Glob "**/build_day_inventory*"` -> zero hits before
+  > this fire). Built `backtest/tools/build_day_inventory.py` (`--extend`/`--status`):
+  > forward-extends the FROZEN `day-inventory-2026-07-23.json` with any new trading days
+  > accrued in the SPY/VIX 5m caches since its last day (2026-07-22), computing has_opra/
+  > n_opra_files/gap_pct/n_rth_bars/partial mechanically and day_type/vix_band via the SAME
+  > formulas recorded in the original's own `method` field (verified via grep across all 6
+  > `edge_matrix_*.py` family runners that day_type/vix_band are DISCLOSURE-ONLY, never a
+  > gate/filter -- safe to best-effort-classify forward days). `heldout_days` is carried
+  > through VERBATIM, never touched (rerun protocol rule 2). Writes a NEW file,
+  > `analysis/edge-matrix/day-inventory-extended.json` -- deliberately NOT the stub's proposed
+  > `-<today>.json` naming, which would collide with the frozen original's own filename the
+  > very first time this runs (today literally IS 2026-07-23, and that suffix encodes the
+  > EDGE MATRIX build, not a run date); corrected `edge_matrix_rerun.py`'s own docstring to
+  > match. The 6 family runners' hardcoded `INVENTORY_PATH` constants are UNCHANGED -- this
+  > step only makes forward days computable/inspectable, it does not yet feed them anywhere
+  > (that's Step 2, per-runner `--days-after` flags, still a TODO).
+  >
+  > **Verified this fire (OP-33):** ran `--status`/`--extend` live against the real repo state
+  > -> 0 pending days (correct: it's 06:xx ET 2026-07-23, today's session hasn't traded yet,
+  > so there is genuinely nothing to accrue) -- confirmed the output is a byte-for-byte content
+  > match of `days`/`opra_days`/`heldout_days`/`excluded_fragments` against the frozen original
+  > when 0 new days exist (`python -c` diff, all `True`). Since the real "adds a day" path
+  > can't be exercised against live data yet, built 17 guard tests
+  > (`backtest/tests/test_build_day_inventory.py`) with synthetic fixture SPY/VIX/OPRA files
+  > covering: zero-pending no-op, a genuine new day added with correct has_opra/n_opra_files/
+  > n_rth_bars/gap_pct, a <30-bar fragment correctly excluded (not added to `days[]`), a
+  > 30-70-bar day correctly flagged `partial`, `heldout_days` provably NOT gaining the new day,
+  > plus direct unit coverage of the 3 pure classification helpers (`_vix_band`,
+  > `_classify_day_type`, `_atr20`). **RED-proofed live:** injected a deliberate gap_pct
+  > formula bug (`*200` instead of `*100`) -> `test_extend_adds_one_new_day_with_correct_fields`
+  > failed with the exact expected mismatch (`2.0 != 1.0`); reverted -> 17/17 green again. Full
+  > `pytest backtest/tests/test_build_day_inventory.py backtest/tests/test_task_scorer*.py -q`
+  > -> 79/79 PASS, no regression.
+  >
+  > **Scope + revert:** pure research-tooling build (1 new script, 1 new test file, 1 docstring
+  > correction in `edge_matrix_rerun.py`, 1 generated JSON artifact) -- zero params/
+  > heartbeat_core/filters/placement/exit/CLAUDE.md touched, no live wiring, no broker import.
+  > Ships per OP-22 (engine-benefit research infra). Revert: one commit.
+  > **Remaining (named, NOT done this fire -- rail 3, one bounded task):** Step 2 (per-family
+  > `--days-after` incremental flags on the 6 `edge_matrix_*.py` runners -- genuinely
+  > "hours-of-grind, weekend-grade" per the stub's own warning, not a single-fire slice), Step 3
+  > (matrix-wide BH recompute + `EDGE-MATRIX-2026-07-23.md` rerun-delta doc section), Step 4
+  > (watermark file + conductor AFTERHOURS rotation wiring). Next natural trigger for
+  > re-verifying the new-day-add path against REAL (not synthetic) data: any future fire after
+  > today's session closes and the SPY/VIX 5m caches gain a 2026-07-23 file.
 
 ### MIN-TRIGGERS-BULL-ASYMMETRY-AB (MED, pre-reg follow-up, filed 2026-07-23 from the mirror-parity audit)
 
@@ -2169,6 +2218,7 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 
 ## HARVESTED-FROM-GYM (auto-queued by crypto/benchmarks/gym_harvester.py)
 
+- [ ] HARVEST-SWEEP-20260723-100054 (MED) :: v14_sweep liquidity-grab at level=66000 dir=up bar_idx=12 | wick_excess=0.0379% close_back=0.2331% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-07-23T09:57:03.671131+00:00:66000:up:12 :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260722-100050 (LOW) :: v09_regime TREND_UP dominant: 75/81 bars (93%) | last_regime=CHOP atr_14=67 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T10:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260722-100051 (LOW) :: v09_regime TREND_UP dominant: 69/81 bars (85%) | last_regime=TREND_DOWN atr_14=70 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T11:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260722-100052 (LOW) :: v09_regime TREND_UP dominant: 63/81 bars (78%) | last_regime=TREND_UP atr_14=59 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T12:00:00+00:00:TREND_UP :: depends:none :: status:queued
@@ -2183,7 +2233,6 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 - [ ] HARVEST-REGIMEEXT-20260721-100049 (LOW) :: v09_regime TREND_UP dominant: 63/81 bars (78%) | last_regime=TREND_UP atr_14=86 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T07:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260721-100050 (LOW) :: v09_regime TREND_UP dominant: 65/81 bars (80%) | last_regime=TREND_UP atr_14=94 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T08:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260721-100051 (LOW) :: v09_regime TREND_UP dominant: 69/81 bars (85%) | last_regime=TREND_UP atr_14=93 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T09:00:00+00:00:TREND_UP :: depends:none :: status:queued
-- [ ] HARVEST-RIBBONFLIP-20260721-100052 (MED) :: v08_ribbon flip MIXED -> BULL | spread=231.28>100 | recent dist BULL=100 BEAR=23 MIXED=77 :: key=EDGE_RIBBON_FLIP:2026-07-21T09:00:00+00:00:BULL :: depends:none :: status:queued
 
 ### T-GYM-20260619 HIGH gym-session RED for 2026-06-19
 

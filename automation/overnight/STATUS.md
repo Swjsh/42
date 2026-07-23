@@ -1,3 +1,73 @@
+## [2026-07-23 ~06:12-06:58 ET] OK -- conductor (AFTERHOURS): EDGE-MATRIX-NIGHTLY-RERUN Step 1 shipped -- built the day-inventory forward-extend script the stub had cited but never built
+
+> **STAGE 0/1:** ET confirmed 06:12, Thursday, market closed (opens 09:30). `engine-health.json`
+> GREEN 13/13 (all quiet-OK, market closed). Self-audit gaps: all batches through
+> 2026-07-22T17:32:32 already triaged -- nothing new (next batch not due until ~17:3x ET).
+> `task_scorer.py --top` surfaced `EDGE-MATRIX-NIGHTLY-RERUN` (MED) again -- checked the FULL
+> HIGH tier first this time (12 HIGH items in `queue.md`'s Active backlog): all CLOSED/done
+> except `DOJO-BUILD-HANDOFF` (documented NOT-PICKABLE, no TV MCP tools bound to this session)
+> and `DOUBLE-BOTTOM-DISARM-DECISION` (already resolved by the immediately-prior fire, 01:48-01:58
+> ET tonight). With HIGH tier exhausted, picked the standing MED-top item per STAGE 1 priority
+> order.
+
+> **What shipped:** `backtest/tools/edge_matrix_rerun.py`'s own docstring named Step 1 as
+> `python backtest/tools/build_day_inventory.py --extend` -- that file did not exist anywhere
+> in the repo (`Glob "**/build_day_inventory*"` -> zero hits, verified before building). Built
+> it for real: forward-extends the FROZEN `day-inventory-2026-07-23.json` with any new trading
+> days accrued in the SPY/VIX 5m caches since its last day (2026-07-22) -- has_opra/
+> n_opra_files/gap_pct/n_rth_bars/partial computed mechanically; day_type/vix_band via the SAME
+> formulas recorded in the original's own `method` field (verified via grep across all 6
+> `edge_matrix_*.py` family runners that these 2 fields are DISCLOSURE-ONLY, never a gate/
+> filter -- safe to best-effort-classify forward days without independently proving byte-
+> identical provenance). `heldout_days` carried through VERBATIM, never touched (rerun
+> protocol rule 2 -- the whole point of a frozen OOS boundary). Writes a NEW file,
+> `analysis/edge-matrix/day-inventory-extended.json` -- deliberately NOT the stub's proposed
+> `-<today>.json` naming (that would literally collide with the frozen original's own filename
+> the very first time this runs, since "2026-07-23" is the EDGE MATRIX build date, not a run
+> date); corrected `edge_matrix_rerun.py`'s docstring to match reality instead of leaving
+> aspirational text next to now-real code. The 6 family runners' hardcoded `INVENTORY_PATH`
+> constants are UNCHANGED this fire -- Step 1 only makes forward days computable/inspectable,
+> Step 2 (per-runner `--days-after` incremental flags) is still a TODO and is genuinely
+> "hours-of-grind, weekend-grade" per the stub's own warning, correctly NOT attempted in one
+> bounded fire (rail 3).
+
+> **Verified this fire (OP-33):** ran `--status`/`--extend` live -> 0 pending days (correct:
+> 06:xx ET 2026-07-23, today's session hasn't traded yet) -- confirmed byte-for-byte content
+> match of `days`/`opra_days`/`heldout_days`/`excluded_fragments` against the frozen original
+> when 0 new days exist. Since the real new-day-add path can't be exercised against live data
+> yet, built 17 guard tests (`backtest/tests/test_build_day_inventory.py`, synthetic SPY/VIX/
+> OPRA fixtures) covering: zero-pending no-op, a genuine new day added with correct fields, a
+> <30-bar fragment correctly excluded, a 30-70-bar day correctly flagged `partial`,
+> `heldout_days` provably not gaining the new day, plus the 3 pure classification helpers.
+> **RED-proofed live:** injected a deliberate gap_pct formula bug (`*200` vs `*100`) -> the
+> exact expected test failure (`2.0 != 1.0`, quoted); reverted -> 17/17 green again. Full
+> `pytest backtest/tests/test_build_day_inventory.py backtest/tests/test_task_scorer*.py -q`
+> -> 79/79 PASS, no regression.
+
+> **Foot-gun graduated:** filed `strategy/candidates/_lesson-inbox/2026-07-23-stub-docstring-
+> cited-never-built-dependency-script.md` -- the generalizable pattern (a stub's own pipeline
+> docstring narrating a multi-step loop in present-tense prose, naming OTHER scripts as steps
+> without marking their build status, reads as a spec of working code rather than a wishlist --
+> and this exact item sat un-opened across >=3 prior conductor fires that all deferred it to
+> higher-priority work without anyone checking whether its named Step-1 dependency existed).
+
+> **Scope + revert:** pure research-tooling build (1 new script, 1 new test file, 1 docstring
+> correction, 1 generated JSON artifact, 1 lesson-inbox filing, 1 queue.md item update) -- zero
+> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched, no live wiring, no broker
+> import. Ships per OP-22 (engine-benefit research infra). Revert: `git revert <this commit>`.
+> **Item status:** `EDGE-MATRIX-NIGHTLY-RERUN` updated to `status:in_progress-step1-of-4-done`
+> in queue.md (Steps 2-4 named, not attempted -- next natural trigger for re-verifying the
+> new-day-add path against REAL data: any fire after today's session closes and the SPY/VIX 5m
+> caches gain a 2026-07-23 file).
+
+> **Cost: ~$3.9** (STAGE 0/1 reads incl. checking all 12 HIGH items' true status via targeted
+> reads of a >256KB queue.md, tracing the day-inventory schema + formulas from the frozen JSON
+> and the 6 family runners' consumption code, building + testing + RED-proofing the script,
+> lesson-inbox filing, queue/STATUS write-up). `conductor_outcome.py metric` to be recorded
+> next.
+
+---
+
 ## [2026-07-23 ~05:42-06:12 ET] OK -- conductor (AFTERHOURS): QUEUE-MD-RETENTION-CAP step 1 shipped -- 54KB archived out of queue.md, caught+fixed an LF->CRLF write foot-gun
 
 > **STAGE 0/1:** ET confirmed 05:42, Thursday, market closed since 15:55 (opens 09:30). `engine-health.json`
@@ -616,137 +686,3 @@
 
 ---
 
-## [2026-07-22 ~18:42-19:05 ET] OK -- conductor (AFTERHOURS): PULLBACK-HOLD-BULL-TRIGGER Lane-B CLOSED (honest NO_CELL_SHIPS, 0/36), queue closure + lesson filed, commit `28b51fd7`
-
-> **STAGE 0/1:** ET confirmed 18:42, Wednesday, market closed since 15:55. `engine-health.json`
-> GREEN 13/13 (heartbeat/beacon/watcher quiet-OK, kill-switches armed-not-tripped both accounts).
-> `self-check-last.json` DEGRADED only on the pre-existing non-load-bearing TRENDLINE-DRAW flag.
-> `task_scorer.py --top` again surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER`, but queue.md's
-> own newest HIGH item explicitly reframes it -- checked `PULLBACK-HOLD-BULL-TRIGGER`'s own
-> "next bounded step" note from the prior fire ("pre-register that grid ... and run it") and
-> found `backtest/tools/pullback_hold_bull_replay.py` + its frozen pre-reg + a completed
-> scorecard ALREADY on disk, untracked, file-timestamped seconds before this fire's own reads
-> (a PARALLEL session/agent had built + run the full Lane-B grid concurrently). Per the
-> parallel-Claudes-never-clobber discipline: did NOT redo the build. Independently VERIFIED
-> instead (OP-33) -- exactly the closing-the-loop work this thread needed regardless of who
-> built it.
-
-> **What was verified (not built) this fire:** `pytest backtest/tests/test_pullback_hold_bull.py
-> -q` -> 16/16 PASS. Independently re-ran the full 36-cell grid in background
-> (`python -m backtest.tools.pullback_hold_bull_replay`, ~15min real-fills pricing across
-> 39 OPRA days) -> reproduced `NO_CELL_SHIPS`, `shippable=0/36`, byte-identical top-5 dollar
-> figures (only the `generated_at` timestamp differed -- discarded that no-op diff rather than
-> re-committing noise). Manually recomputed condition-pass counts from raw `all_cells` JSON
-> (not trusted the summary string): 0/36 pass BOTH sanity anchors (anchor_1 -- J's 2026-07-22
-> 10:44-10:53 ET live exhibit -- is missed by EVERY cell because both up-structure confirmation
-> candidates, session-VWAP-crossing and 60-bar market-structure trend, read False at the exact
-> 10:40 ET pullback-low bar and only recover True 15/45 min later), 0/36 pass condition_2
-> (day-majority win) or condition_3 (survives dropping the single best trade), 0/36 clear
-> BH-FDR at q=0.10. The one cell with positive aggregate ($808.93/506 signals) nets -$56.21 once
-> its single best trade is dropped -- classic C24 anchor-trade artifact plus C27 high-frequency
-> noise (~13 fires/day). While mid-fire, `git log` surfaced the parallel session's own commit
-> `a38dd984` landing (16:52:38 local, mid-verification) -- confirmed it touched ONLY the 6
-> research files, not `queue.md`/`STATUS.md`, so no collision on the state-tracking layer.
-
-> **What shipped this fire:** closed the loop the parallel commit left open --
-> `automation/overnight/queue.md`'s `PULLBACK-HOLD-BULL-TRIGGER` item status flipped to
-> `CLOSED-LANE-B-NO-CELL-SHIPS` with the full verdict/root-cause/disposition recorded inline
-> (Lane-A stays shipped shadow-only; Lane-B closed, no live wiring, frozen grid honestly NOT
-> loosened post-hoc per its own `no_post_hoc_tuning` clause). Filed a lesson-inbox candidate
-> (`2026-07-22-confirmation-qualifiers-structurally-lag-manual-structure-reads.md`) generalizing
-> the root cause: a confirmation qualifier built to fix a LATE trigger can itself be too
-> lagging to see the trigger's own anchor case -- the entry-side sibling of C28's "ribbon flip
-> is a lagging EXIT." Commit `28b51fd7` (2 files: queue.md + lesson candidate; safety gate PASS,
-> 31/31). Self-audit gaps tracker checked (priority-3) -- both fresh batches already fully
-> triaged by the prior two fires, nothing new to action.
-
-> **Cost: ~$3.1** (STAGE 0/1 reads, git-log discovery of the parallel commit, independent
-> pytest + full background grid re-run + manual cross-check of condition-pass counts across
-> 36 cells, lesson-inbox authoring, queue.md closing block, 1 commit with safety-gate
-> verification).
-
-
-
-> **STAGE 0/1:** ET confirmed 18:12->18:33, Wednesday, market closed since 15:55 (correctly
-> after-hours). `engine-health.json` GREEN 13/13 (heartbeat/beacon/watcher quiet-OK,
-> kill-switches armed-not-tripped both accounts). `self-check-last.json` DEGRADED only on the
-> pre-existing non-load-bearing TRENDLINE-DRAW visibility flag (unchanged, PDT both accounts
-> OK). `task_scorer.py --top` surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` again, but
-> `queue.md`'s own newest HIGH item, **`PULLBACK-HOLD-BULL-TRIGGER`** (filed 2026-07-22 Fable
-> review), explicitly REFRAMES + supersedes that reconsider item's framing -- picked it
-> (priority-4, ready, depends:none, outranks the author-inbox tier).
-
-> **What shipped (Lane A only -- see queue.md's own Lane A/Lane B split):** added
-> `detect_pullback_hold_bullish` to `backtest/lib/filters.py` -- finds the EARLIEST bar
-> achieving the lowest low inside a level's $0.30 zone band (levels-are-zones doctrine,
-> J 2026-07-17; band width reused from the already-sanctioned `CONFLUENCE_TOLERANCE_DOLLARS`,
-> not hand-picked), requires >=2 bars where the close never breaks the zone floor, then fires
-> when the current bar closes above the hold window's highest close -- an entry bars EARLIER
-> than `detect_level_reclaim` (same-bar low<level<close) can ever fire. SHADOW-LOGGED ONLY
-> (`BullishSetupResult.shadow_triggers_fired`, identical precedent to `wick_reclaim`/
-> `trendline_reclaim`) -- wired into `evaluate_bullish_setup`'s shadow block, provably NOT
-> touching `triggers`/`bull_score`/`passed`.
-
-> **Verified this fire (OP-33):** ran the detector against the item's OWN 07-22 exhibit using
-> REAL SIP 5m bars (`backtest/data/spy_5m_2026-05-19_2026-07-22.csv`), not a synthetic-only
-> claim -- fires at 10:50 ET (2 bars after the 10:40 pullback low of 746.78, 22c inside the
-> zone band around level 746.54), matching the item's own "$2-3 earlier than level_reclaim"
-> claim on real tape. `pytest backtest/tests/test_pullback_hold_trigger.py
-> backtest/tests/test_pullback_hold_shadow_only.py -q` -> 13/13 PASS. **RED-proofed live**
-> (per the wick/trendline shadow test's own documented methodology): temporarily leaked
-> `pullback_hold` into `triggers` inside `evaluate_bullish_setup`, re-ran the shadow-only
-> guard -> FAILED on `triggers_fired` mismatch (proving the guard actually exercises the
-> wiring), reverted, confirmed 13/13 green again. Zero regressions:
-> `test_wick_reclaim_trigger.py` + `test_trendline_reclaim_trigger.py` +
-> `test_bull_trendline_wick_reclaim_shadow_only.py` + `test_bull_sequence_reclaim_coupling.py`
-> all still 15/15; gym `crypto/validators/runner.py` 104/104 GREEN. Caught + fixed a real bug
-> DURING authorship (not after): the first low-selection design ("tightest touch to level")
-> mis-picked an earlier still-descending bar over the true pullback low on a symmetric-distance
-> tie, silently producing a false-negative on a clean synthetic fixture -- redesigned to "lowest
-> low, earliest tie-break" (matches how a human would actually name "the pullback low"), fixed,
-> re-verified against both the real-tape and synthetic fixtures.
-
-> **Trading-path scope: SHADOW-ONLY, not a live trading-path change.** `evaluate_bullish_setup`'s
-> `passed`/`bull_score`/`triggers_fired`/routing are provably untouched (the shadow-only guard
-> + its RED-proof above) -- this ships as engine-benefit observer/authoring work, same class
-> as the wick_reclaim/trendline_reclaim precedent it mirrors, not a params/heartbeat_core/
-> filters-live-path change requiring guard+revert+REVOKE under rail 4. **Revert (if ever
-> needed):** `git revert <this commit>` (fully additive: 1 new function + 3 new constants + 1
-> shadow-append line in filters.py + 2 new test files; zero existing lines removed/changed).
-
-> **Queue state:** `PULLBACK-HOLD-BULL-TRIGGER` moved to `status:LANE-A-DONE-LANE-B-PENDING`
-> in queue.md with a full closing note. **Lane B (frozen pre-reg -> real-fills replay ->
-> 4-condition gate + BH-FDR) is a SEPARATE, larger next fire** -- explicitly NOT attempted this
-> fire per rail 3 (one bounded task) and C25 (no hand-tuning off a single exhibit; needs a
-> frozen grid on `min_hold_bars`/`zone_band_dollars` first, mirroring
-> `rsi_extension_block_probe.py`'s own discipline). `SELFCHECK-TRENDLINE-DRAW-DUPLICATE-SPAM`
-> (LOW) and `QUEUE-MD-RETENTION-CAP` (LOW) remain open/untouched, correctly lower priority.
-> Noted in passing: `automation/overnight/STATUS.md` + `STATUS-archive-2026-07.md` +
-> `queue-harvest-archive.md` were already mid-consolidation by the standing
-> `status_retention.py` job when this fire started (L181 precedent, oldest entry rolled off
-> to the monthly archive) -- confirmed this is the known/expected retention mechanism (not a
-> conflict with this fire) before including those files as-is in this commit.
-
-> **Cost: ~$4.8** (STAGE 0/1 reads, engine-health/self-check/task_scorer/queue survey, reading
-> filters.py's bullish-trigger architecture + BarContext + existing shadow-trigger precedent
-> in detail to match convention exactly, fetching+inspecting real 07-22 SPY 5m bars for a
-> tape-grounded fixture, writing the detector + 2 test files, one debugging round-trip fixing
-> the tie-break bug, a live RED-proof + revert, 2 gym/pytest regression runs, this STATUS +
-> queue.md update, 1 commit with pre/post verification).
-
-> **Outcome tracker:** `conductor_outcome.py record` + `metric` run post-commit --
-> `net_improvement=48`/20-fire window, `cost_per_drained_usd=1.351`, but `trend=regressing`
-> (this fire itself drained 0 fully-closed items -- PULLBACK-HOLD-BULL-TRIGGER stays open at
-> LANE-A-DONE-LANE-B-PENDING, correctly, since Lane-B is real remaining scope, not busywork).
-> Flagging for the next fire: prefer a loop-CLOSING item (Lane-B pre-reg on this same thread,
-> or draining a chef-inbox/queue item to `.DONE`) over opening a third new thread, per OP-22's
-> own "trend regressing -> favor closing" guidance.
-
----
-
-
-## Kitchen
-Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-### DEGRADED: self-check 2026-07-23T05:39:57
-- CANDIDATES-UNTRACKED: 21 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).

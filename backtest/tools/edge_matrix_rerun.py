@@ -36,11 +36,18 @@ THE FROZEN CONTRACT (violating any of these = a NEW dated prereg, not a rerun)
 
 PIPELINE (what --refresh runs, in order)
 ----------------------------------------
-Step 1: day inventory forward-extend
-    python backtest/tools/build_day_inventory.py --extend  (rebuild = same frozen rules:
-    TRUE-ET frame, per-day source dedupe, OPRA coverage census, heldout list UNTOUCHED)
-    -> writes analysis/edge-matrix/day-inventory-<today>.json with the ORIGINAL heldout_days
-       carried verbatim + new key forward_days.
+Step 1: day inventory forward-extend -- SHIPPED 2026-07-23 (was a stub-only TODO; guard
+    tests: backtest/tests/test_build_day_inventory.py, 17/17).
+    python backtest/tools/build_day_inventory.py --extend  (TRUE-ET frame, per-day
+    max-RTH-bars source selection, OPRA coverage census, heldout list UNTOUCHED)
+    -> writes analysis/edge-matrix/day-inventory-extended.json (NOT "-<today>.json" -- that
+       literally collides with the frozen original's own filename the day this first runs,
+       since "2026-07-23" is the EDGE MATRIX build date, not a run date; see the script's own
+       docstring) with the ORIGINAL heldout_days carried verbatim + new key forward_days.
+       As of 2026-07-23 06:xx ET this is a verified no-op (0 forward days -- today's session
+       hadn't traded yet); the new-day-add path is covered by synthetic fixture tests, not
+       yet by a real trading day (next natural trigger: tonight's/tomorrow's rerun once
+       2026-07-23 accrues to the SPY/VIX 5m caches).
 Step 2: per-family incremental run (frozen grids)
     for runner in:
         backtest/tools/edge_matrix_bear_level_rejection.py      (18 cells)
