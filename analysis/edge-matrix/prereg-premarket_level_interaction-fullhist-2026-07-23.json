@@ -1,0 +1,102 @@
+{
+  "family": "premarket-level-interaction",
+  "version": 2,
+  "run_kind": "FULL-HISTORY RE-RUN of the v1 (44-day-era) grid over the complete 386-day OPRA inventory",
+  "frozen_at": "2026-07-22",
+  "author": "edge-matrix subagent (premarket-level-interaction lane, fullhist re-run)",
+  "status": "FROZEN before any grid execution. Grid cells and the 4-gate ship bar are copied VERBATIM from v1 (analysis/edge-matrix/prereg-premarket-level-interaction-2026-07-23.json); changing either on a re-run would be methodology-shopping. Only the POPULATION changes, plus one disclosed LOADING-seam amendment (timestamp frame) and added DISCLOSURE-only stratification.",
+  "v1_prereg": "analysis/edge-matrix/prereg-premarket-level-interaction-2026-07-23.json",
+
+  "hypothesis": "Levels formed by premarket structure (04:00-09:30 ET highs/lows and premarket S/R-flip levels; J exhibits: 745.94 on 07-21, the 04:15/05:30/07:20 flip level on 07-17) carry tradeable information on their FIRST RTH touch: a rejection (fade) or a reclaim/break (go-with) at the zone produces positive per-trade expectancy under the live RIBBON_RIDE exit shape.",
+
+  "population": {
+    "day_inventory": "analysis/edge-matrix/day-inventory-2026-07-23.json",
+    "days": "ALL opra_days in the inventory: 386 days, 2025-01-02 .. 2026-07-22 (includes the 5 OPRA-backfilled days 2026-07-15/16/20/21/22 flipped has_opra=true by the 2026-07-22 amendment)",
+    "heldout_rule": "last 25% of opra_days by date, RECOMPUTED from the full 386-day list: floor(386/4) = 96 days, 2026-03-04 .. 2026-07-22. This SUPERSEDES the inventory's frozen heldout_days list (2026-02-25..2026-07-17), which was cut before the 5 amended days extended the tail. All tuning-side gate math uses ONLY the 290 non-heldout days (2025-01-02..2026-03-03); held-out totals are computed in the same single pass and used ONLY for gate G4, never for selection. Held-out days are never touched during any tuning.",
+    "coverage_floor": "a day enters the signal population only if it has >= 6 premarket 5m bars (04:00 <= t < 09:30 TRUE ET under the et-v2 frame) in its inventory source_file; days failing the floor are excluded and counted",
+    "amended_days_tag_disclosure": "The 5 OPRA-backfilled days (2026-07-15..2026-07-22) were amended for has_opra/n_opra_files only; the amendment note says day_type/vix_band were NOT recomputed for them, but their rows already carried full tags from the original inventory build (verified on disk this session: all 5 have day_type in {chop,range,trend} and vix_band=mid) -- they participate in every split normally. Separately, the 5 EARLIEST days of the inventory (2025-01-02..2025-01-08) carry day_type='unclassified' (classifier ATR20 warmup); they participate in the population and vix_band split normally and fall in the 'unclassified' bucket of any day_type disclosure. No day is dropped for a missing tag.",
+    "data_provenance_disclosure": "MEASURED BEFORE ANY CELL RAN (et-v2 census this session): tuning side (290 days) has near-zero premarket depth -- median 2 pm bars/day, 82/290 days pass the >=6 floor, only 3/290 have >=20 pm bars. Held-out side (96 days): 94/96 pass the floor, 84/96 have >=20 bars, median 63; full 04:00 coverage (>=50 bars/day) starts 2026-03-16 and lies almost entirely inside held-out (83 such days total). Floor-passing days by regime: y2025h1=7, y2025h2=44, y2026=125. The tuning population is therefore measured from a structurally thin premarket feed and every verdict carries that confound; the tuning-vs-heldout comparison is additionally a thin-feed-vs-full-feed comparison. Honest nulls / INSUFFICIENT_N remain the expected outcome on the thin-feed side; full-fidelity evaluation of 2025 requires a premarket data backfill."
+  },
+
+  "loading_seam_amendment": {
+    "what": "timestamp frame for LOADING ONLY amended wall-v1 -> et-v2 (lib/et_frame.py FRAME_ET_V2: parse to UTC, tz_convert America/New_York, strip tz) for BOTH the SPY master and the OPRA option cache.",
+    "why": "The SPY masters and OPRA cache store a FIXED -04:00 offset year-round (writer bug; UTC instants correct, labels wrong Nov-Mar -- markdown/audits/DST-FRAME-AUDIT-2026-07-02.md). The v1 44-day-era population was EDT-dominated so wall-v1 was harmless; the full-history population contains ~129 EST days where wall-v1 shifts every session window by +1h (premarket window would capture true 03:00-08:30, the 'RTH' slice would treat true 08:30-09:30 premarket bars as RTH first-touches, and the last true trading hour would be clipped). Verified on disk this session: 2025-01-02 SPY and OPRA rows are stamped 10:30-04:00 = true ET 09:30 EST.",
+    "frame_consistency": "SPY and OPRA are parsed with the SAME et-v2 convention, so every join hits the same UTC instants (never mix frames across a join -- et_frame.py contract). All window constants (04:00 premarket start, 09:30 RTH, 15:45 entry cutoff, 15:50 time stop) now mean TRUE ET on every day of the year.",
+    "scope": "LOADING seam only -- zero detector-logic, grid, gate, seed, band, or population-rule changes beyond those stated in this prereg. Frozen before any cell ran; motivated by data correctness, not by results (no cell had been run under either frame when this was frozen)."
+  },
+
+  "detector": {
+    "timestamp_frame": "et-v2 (lib/et_frame.py FRAME_ET_V2) for both SPY and OPRA -- see loading_seam_amendment; v1 used wall-v1",
+    "premarket_window": "04:00 <= t < 09:30 same-day TRUE ET",
+    "levels_frozen_at": "09:30 -- computed once per day from premarket bars ONLY; never recomputed intraday (causal by construction)",
+    "level_definitions": {
+      "pm_hl": "premarket high (max of pm bar highs) and premarket low (min of pm bar lows); up to 2 levels/day",
+      "pm_flip": "LevelMemory (backtest/lib/watchers/level_memory.py -- the LIVE engine's level vocabulary, verbatim import, zero new level math) run over the day's premarket bars only; keep levels with role_flips >= 1; take the single highest-memory_score such level; up to 1 level/day. LevelMemory's own structural constants (SWING_HALF=2, CLUSTER_TOL=0.35, MIN_PIVOTS=2) mean this arm rarely forms on sparse-premarket days -- disclosed, not patched"
+    },
+    "first_touch": "first RTH 5m bar (09:30 <= t < 16:00) whose [low, high] range intersects [level - band, level + band]; ONE episode max per (day, level); if the first touch fails the direction rule there is NO trade at that level that day (no re-arm)",
+    "approach_side": "close of the bar immediately before the touch bar (last premarket bar if the touch is the 09:30 bar); 'above' iff that close >= level",
+    "direction_rules": {
+      "reject": "fade the zone: approach above AND touch bar closes > level -> BULL (calls); approach below AND touch bar closes < level -> BEAR (puts); else no trade",
+      "reclaim": "go with the break: approach below AND touch bar closes >= level + 0.15 -> BULL; approach above AND touch bar closes <= level - 0.15 -> BEAR; else no trade. 0.15 = LevelMemory BREAK_MARGIN, the live decisive-close constant, not a new knob"
+    },
+    "confirm_rules": {
+      "none": "signal at the touch bar; entry at touch-bar close time (bar timestamp + 5 min)",
+      "next_bar": "the bar after the touch bar must close beyond the touch bar's close in the trade direction; entry at that bar's close time; else no trade"
+    },
+    "entry_time_gate": "entry timestamp >= 09:35 (automatic: earliest RTH bar closes 09:35, matching the live 09:35 entry gate) and <= 15:45 (must leave >= 1 exit tick before the 15:50 time stop); signals past the cutoff are dropped and counted",
+    "causality": "assert-checked in code: all level inputs timestamped < 09:30; signal bar decision reads only bars <= signal bar; entry strictly after signal bar; C6"
+  },
+
+  "knobs": {
+    "level_def": ["pm_hl", "pm_flip"],
+    "band": [0.2, 0.35],
+    "rule": ["reject", "reclaim"],
+    "confirm": ["none", "next_bar"]
+  },
+  "n_knobs": 4,
+  "n_cells": 16,
+  "cell_id_format": "pmli-<level_def>-b<band_cents>-<rule>-<confirm>",
+
+  "band_provenance": "0.20 = LevelMemory TOUCH_TOL (live interaction tolerance); 0.35 = LevelMemory CLUSTER_TOL (live cluster width). Both are standing live constants -- no hand-picked widths (feedback_levels_are_zones: band width = pre-reg A/B, never hand-picked).",
+
+  "execution": {
+    "instrument": "SPY 0DTE, ATM strike = round(signal-bar close) per V15_SAFE_TIERS strike_offset=0 (live truth, fills-verified 2026-07-11)",
+    "qty": 3,
+    "qty_rationale": "live minimum (2 TP1 + 1 runner) so tp1_qty_fraction=0.667 realizes the live scale-out mechanics exactly",
+    "entry_fill": "next OPRA 5-min bar at-or-after entry time, filled at that bar's VWAP (option_pricing_real.py documented convention); walk begins on the bar strictly after the fill bar",
+    "exit": "backtest/lib/exit_manager_walk.walk_exit_manager with exit_shape = automation/state/fleet/strategies.RIBBON_RIDE.exit.to_dict() (SS-B cell), structure_stop_enabled = True (live params.json value, verified 2026-07-22), trigger_level = the premarket level (trigger-exact reference, buffer 0.00 -- the confirmed live behavior), strategy = 'ribbon_ride', time_stop 15:50 ET",
+    "ribbon": "lib/ribbon.compute_ribbon over each source file's RTH-only frame (orchestrator frame convention), aligned to option bars by (et-v2) wall timestamp for ribbon_flip_back exits",
+    "dollars": "real OPRA fills ONLY (backtest/data/options/ via option_pricing_real). Signals with no cached contract, no bar at/after entry, or vwap <= 0 are counted in n_signals but EXCLUDED from all gate math and disclosed as no-fill. Zero BS-synthetic episodes."
+  },
+
+  "metrics_per_cell": {
+    "n_signals": "tuning-side signal count (incl. no-fill)",
+    "n_real_fills": "tuning-side episodes with a real OPRA fill",
+    "expectancy": "mean $ per filled trade (tuning side)",
+    "total_pnl": "sum $ (tuning side)",
+    "day_wr": "fraction of tuning days with >= 1 fill whose day P&L > 0",
+    "ex_top3_total": "tuning total minus the 3 largest single-trade P&Ls",
+    "held_out_total": "sum $ over held-out-day fills (single blind pass; gate only)",
+    "p_raw": "one-sided sign-flip permutation p for tuning total > 0; 10000 draws, seed 20260723; p = P(perm_total >= observed); cells with n_real_fills < 5 report p_raw = 1.0 (untestable)",
+    "gates": [
+      "G1: tuning total_pnl > 0",
+      "G2: day_wr > 0.5",
+      "G3: tuning total minus single best trade > 0 (survives ex-top-1)",
+      "G4: held_out_total > 0"
+    ]
+  },
+
+  "stratification_disclosure_only": {
+    "regime_split": "per cell: {y2025h1 (< 2025-07-01), y2025h2 (2025-07-01..2025-12-31), y2026 (>= 2026-01-01)} each {n, total_pnl, n_heldout} over ALL real fills (tuning + held-out pooled; the n_heldout field keeps the pools distinguishable)",
+    "vix_band_split": "per cell: inventory vix_band tag of the fill's day {low, mid, elevated, high} each {n, total_pnl, n_heldout}; all 386 days carry a vix_band tag (verified on disk)",
+    "status": "DISCLOSURE of which regimes carry a result. NOT a gate; adds no selection pressure; the 4-gate bar above is unchanged and immutable."
+  },
+
+  "outputs": {
+    "runner": "backtest/tools/edge_matrix_premarket_level_interaction.py (extended in-place for the fullhist window; detector functions unchanged)",
+    "episodes": "analysis/edge-matrix/premarket_level_interaction-episodes-fullhist.json",
+    "results": "returned as the structured cell table + embedded in the episodes file header"
+  },
+
+  "no_touch": "NO live wiring, NO git commits, NO broker imports, NO trading-path file edits regardless of outcome."
+}

@@ -1,0 +1,137 @@
+{
+  "family": "break-retest-continuation",
+  "registered_at_utc": "2026-07-23T02:19:21Z",
+  "registered_before_any_run": true,
+  "frozen": true,
+  "author": "edge-matrix subagent (break-retest-continuation, full-history re-run)",
+  "provenance": {
+    "j_quote": "13:50 is a nice break and then retest -- I like how it got in there too. (J, dojo walkthrough of 2026-07-17, DOJO-HARVEST-2026-07-21.md)",
+    "lane_a_gap": "DOJO-HARVEST Lane A #4: no trigger vocabulary for break-and-retest",
+    "focus_doctrine": "FOCUS-DOCTRINE.md section 2: break-and-retest is an enumerated primary-lane level interaction"
+  },
+  "hypothesis": "A closed-bar BREAK of a live-engine LevelMemory level, followed by a RETEST of that level's zone within a bounded number of bars, then continuation in the break direction, has positive per-trade expectancy on real OPRA fills when exited via the live RIBBON_RIDE exit shape (both directions).",
+  "population": {
+    "inventory": "analysis/edge-matrix/day-inventory-2026-07-23.json",
+    "opra_days_total": 386,
+    "date_range": "2025-01-02 .. 2026-07-22",
+    "tune_days": 289,
+    "heldout_days": 97,
+    "heldout_rule": "held-out = last ceil(25%) of opra_days BY DATE, RECOMPUTED from the full amended 386-day list: ceil(0.25*386) = 97 days, 2026-03-03 .. 2026-07-22. Tune metrics (n, expectancy, total_pnl, day_wr, ex_top3, p_raw, gates 1-3) are computed on the 289 tune days (2025-01-02 .. 2026-03-02) ONLY. Heldout days are consumed exactly once, by the frozen 16-cell grid, to fill held_out_total / gate 4. No knob is chosen after seeing heldout output; no tuning of any kind occurs in this re-run (the grid is frozen).",
+    "heldout_boundary_shift_disclosure": "v1 heldout was the inventory's frozen 96-day list (2026-02-25 .. 2026-07-17), computed before the 5-day OPRA amendment. Recomputing last-25% over 386 days moves the boundary 4 trading days later: 2026-02-25/02-26/02-27/03-02 move from v1-heldout into this run's tune segment, and the 5 amended July days join heldout. Additionally, v1 already evaluated the frozen grid once on the old heldout, so this re-run's heldout is not virgin data in the strict sense; with a frozen grid and immutable gates there is no selection channel through which that prior exposure can bias any knob, but it is disclosed.",
+    "level_context_days": "all 386 covered days feed LevelMemory lookback context; signals are only evaluated on OPRA days",
+    "amended_days_disclosure": "5 days (2026-07-15, 07-16, 07-20, 07-21, 07-22) entered opra_days via the 2026-07-22 OPRA backfill amendment. The amendment note says their day_type/vix_band were not recomputed by the amender, but the on-disk inventory rows for all 5 DO carry day_type + vix_band tags (chop/range/trend, all vix_band=mid); those tags are used as-is for the disclosure splits.",
+    "untagged_days_disclosure": "5 days ARE untagged for day_type: 2025-01-02 .. 2025-01-08 (day_type='unclassified', classifier warmup at the start of the inventory). They carry vix_band tags and participate fully in signals/fills and the y2025h1 regime bucket; day_type is not used by any gate.",
+    "excluded_day": "2026-06-15 (12-bar RTH fragment) excluded upstream by the inventory; not in opra_days"
+  },
+  "timestamp_frame": "et-v2 (pd.to_datetime(utc=True).tz_convert('America/New_York')) for BOTH spy_5m and OPRA caches -- same storage frame, so joins stay aligned; RTH = 09:30 <= t < 16:00 true ET",
+  "detector_fixed_rules": {
+    "levels_source": "backtest/lib/watchers/level_memory.py LevelMemory (the LIVE engine's multi-day level engine), RTH 5m bars, lookback_days=5 (module default), all engine constants untouched (SWING_HALF=2, CLUSTER_TOL=0.35, TOUCH_TOL=0.20, MIN_PIVOTS=2). No invented level sets.",
+    "level_set_at_break": "levels_at(break_idx - 1): the level must pre-exist the break bar; its role is read BEFORE the break bar can flip it (causal, C6)",
+    "break_up": "level role == 'resistance' at break_idx-1 AND close[break_idx] >= level + break_margin",
+    "break_down": "level role == 'support' at break_idx-1 AND close[break_idx] <= level - break_margin",
+    "retest_zone": "zone = [level - retest_band, level + retest_band] (zones, never penny-exact, per feedback_levels_are_zones). Touch = bar range intersects the zone, i.e. low <= level + band AND high >= level - band, in bars break_idx+1 .. break_idx+max_gap_bars",
+    "invalidation": "episode dies if any bar in (break_idx, signal_idx] CLOSES back beyond the level on the ORIGIN side by >= break_margin (failed break); also dies on retest-window expiry or confirm-window expiry",
+    "confirm_touch": "confirm='touch': signal bar = the first touch bar itself",
+    "confirm_close": "confirm='close_confirm': signal bar = first bar in [touch_idx .. touch_idx+3] whose close is beyond the level in the break direction (close > level for up, close < level for down); the touch bar may confirm itself; window of 3 bars after touch is a FIXED constant",
+    "same_level_rearm": "a new episode for a level within $0.35 (CLUSTER_TOL) of an unresolved episode's level cannot open until that episode resolves (entered or died)",
+    "same_bar_dedupe": "if multiple episodes signal on the same bar, keep the one whose level has the highest memory_score (mirrors LevelMemory saliency)",
+    "signal_window_et": "signal bar label in [09:30, 15:25] so entry fill bar starts within [09:35, 15:30] (live 09:35 entry gate; leaves >=2 bars before the 15:40 live time stop)",
+    "one_position_at_a_time": "signals arriving while a walked position is still open are counted in n_signals but not filled (skip_reason='overlap') -- live engine is one-at-a-time",
+    "directions": "BOTH: up-break+retest -> CALL, down-break+retest -> PUT"
+  },
+  "grid": {
+    "knobs": {
+      "break_margin_c": [
+        15,
+        30
+      ],
+      "retest_band_c": [
+        10,
+        25
+      ],
+      "max_gap_bars": [
+        6,
+        12
+      ],
+      "confirm": [
+        "touch",
+        "close_confirm"
+      ]
+    },
+    "n_knobs": 4,
+    "n_cells": 16,
+    "cell_id_format": "bm{break_margin_c}_rb{retest_band_c}_g{max_gap_bars}_{confirm_short}",
+    "cells": [
+      "bm15_rb10_g6_touch",
+      "bm15_rb10_g6_close",
+      "bm15_rb10_g12_touch",
+      "bm15_rb10_g12_close",
+      "bm15_rb25_g6_touch",
+      "bm15_rb25_g6_close",
+      "bm15_rb25_g12_touch",
+      "bm15_rb25_g12_close",
+      "bm30_rb10_g6_touch",
+      "bm30_rb10_g6_close",
+      "bm30_rb10_g12_touch",
+      "bm30_rb10_g12_close",
+      "bm30_rb25_g6_touch",
+      "bm30_rb25_g6_close",
+      "bm30_rb25_g12_touch",
+      "bm30_rb25_g12_close"
+    ],
+    "rationale": "break_margin 15c = the live LevelMemory BREAK_MARGIN itself; 30c = decisive-break variant. retest_band 10c = tight zone, 25c = wide zone (~TOUCH_TOL+5c). max_gap 6/12 bars = 30/60 min. confirm axis = J's entry-quality question (enter on the touch vs demand a directional close)."
+  },
+  "entry_fill_model": {
+    "convention": "option_pricing_real.py documented model: signal bar closes at label+5min; entry = next 5m OPRA bar (bar_at_or_after(signal_label+5min)) at that bar's VWAP",
+    "strike": "ATM = round(spot at signal bar close) -- live truth for core Safe at $2K tier (crypto/lib/strike_selection.py V15_SAFE_TIERS offset 0)",
+    "qty": 3,
+    "qty_note": "live minimum per Rule 6 (2 TP + 1 runner); RIBBON_RIDE tp1_qty_fraction 0.667 -> tp1_qty=2, runner=1"
+  },
+  "exit_model": {
+    "engine": "backtest/lib/exit_manager_walk.py walk_exit_manager -- the REAL live exit_manager.plan_exit_actions ticked over 5m OPRA bars. Entry-side tuning ONLY; no exit knob is in the grid.",
+    "exit_shape": "automation/state/fleet/strategies.py RIBBON_RIDE.exit.to_dict() verbatim: premium_stop_pct=-0.20, tp1_premium_pct=1.0, tp1_qty_fraction=0.667, profit_lock_mode='trailing', runner_target_pct=99.0, trail_pct=0.15, profit_lock_arm_pct=0.05, stop_mode='structure', catastrophe_stop_pct=-0.50, profit_lock_arm_scope='post_tp1'",
+    "structure_stop_enabled": true,
+    "structure_stop_note": "live params.json structure_stop_enabled=true as of registration; trigger_level = the BROKEN LEVEL price (the natural chart invalidation for break-retest: a closed 5m bar back through the level exits the position)",
+    "time_stop_et": "15:40 (live params.json time_stop_et, parsed via exit_manager.parse_time_stop_et)",
+    "ribbon": "Saty Pivot Ribbon 13/20/48 (backtest/lib/ribbon.py, fingerprinted config) computed on the continuous RTH 5m close series across all covered days; ribbon_flip_back per walk convention (BULL stack flips a put, BEAR stack flips a call)",
+    "strategy_tag": "ribbon_ride"
+  },
+  "dollars": {
+    "source": "real OPRA fills only (backtest/data/options/ via option_pricing_real.py)",
+    "bs_synthetic": "NONE -- episodes without a cached OPRA contract or without an entry bar are EXCLUDED from all gate math and disclosed per cell as n_signals - n_real_fills with skip reasons"
+  },
+  "per_cell_outputs": {
+    "n_signals": "confirmed entry signals on the segment's days (includes overlap-skips and no-OPRA skips)",
+    "n_real_fills": "signals actually walked on real OPRA bars (tune segment)",
+    "expectancy": "mean trade dollar P&L, tune segment",
+    "total_pnl": "sum of trade dollar P&L, tune segment",
+    "day_wr": "fraction of covered days (>=1 real fill, tune) with day P&L > 0",
+    "ex_top3_total": "tune total_pnl minus the 3 largest single-trade P&Ls",
+    "held_out_total": "sum of trade dollar P&L on the 96 heldout days (same frozen cell params)",
+    "p_raw": "one-sided sign-flip permutation test on tune per-trade P&L: 10000 resamples, seed 42, p = P(permuted total >= observed total)",
+    "gates_passed": "count of 4: (1) tune total_pnl > 0; (2) tune day_wr > 0.5; (3) tune total_pnl minus single best trade > 0; (4) held_out_total > 0"
+  },
+  "artifacts": {
+    "runner": "backtest/tools/edge_matrix_break_retest_continuation_fullhist.py",
+    "runner_note": "minimal extension of the committed v1 runner backtest/tools/edge_matrix_break_retest_continuation.py: same detector/walk/metric functions IMPORTED unchanged; new code only re-derives the heldout split, extends the levels cache incrementally to the 5 amended days, and adds the disclosure splits",
+    "episodes": "analysis/edge-matrix/break_retest_continuation-episodes-fullhist.json",
+    "results": "analysis/edge-matrix/break_retest_continuation-results-fullhist.json",
+    "levels_cache": "session scratchpad (intermediate only; recomputable from the runner)"
+  },
+  "causality_guards": [
+    "level set for break detection is levels_at(break_idx-1) -- structurally cannot see the break bar",
+    "runtime truncation assert: on a sampled day, LevelMemory over the frame truncated at bar i must produce the identical (price, role) set as the full-frame levels_at(i) call",
+    "runtime ordering assert per episode: break_idx < touch_idx <= signal_idx and entry bar timestamp >= signal bar close time"
+  ],
+  "no_live_wiring": true,
+  "no_commits_by_this_agent": true,
+  "honest_null_statement": "A null (0 gates passed everywhere, or negative expectancy across the grid) is a valid and expected outcome and will be reported as such.",
+  "rerun_of": "analysis/edge-matrix/prereg-break-retest-continuation-2026-07-23.json",
+  "rerun_statement": "FULL-HISTORY RE-RUN. The 16-cell grid, all detector fixed rules, the entry/exit model, and the immutable 4-gate ship bar are copied VERBATIM from the v1 prereg (rerun_of). Changing cells or gates on a re-run is methodology-shopping and disqualifies the run. ONLY the population changes: all 386 opra_days in the amended day inventory (v1 ran the pre-amendment 381).",
+  "regime_split_disclosure": {
+    "purpose": "DISCLOSURE ONLY (which regimes carry a result) -- NOT a gate. The 4-gate ship bar is unchanged from v1.",
+    "regime_split": "per cell, over TUNE real fills: y2025h1 (date < 2025-07-01), y2025h2 (2025-07-01 <= date < 2026-01-01), y2026 (date >= 2026-01-01), each {n, total_pnl}",
+    "vix_band_split": "per cell, over TUNE real fills, by the inventory's per-day vix_band tag (low/mid/elevated/high), each {n, total_pnl}",
+    "heldout_note": "the heldout segment (2026-03-03 .. 2026-07-22) is entirely inside y2026 and is reported only via held_out_total / heldout_* fields"
+  }
+}
