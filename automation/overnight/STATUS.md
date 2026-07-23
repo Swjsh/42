@@ -1,3 +1,67 @@
+## [2026-07-23 ~19:48-19:58 ET] OK -- conductor (AFTERHOURS): fixed participation-cascade misclassifying real fills as stale_trigger_bar, corrected today's false RED alert, commit `9d79939c`
+
+> **STAGE 0/1:** ET confirmed 19:48 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. Gym scorecard YELLOW (detector_verdict GREEN, not blocking). Self-audit gaps
+> fully triaged through today's 17:31 batch. `task_scorer.py --top` returned
+> `PARTICIPATION-DAILY-SELF-CHECK-WIRE` (MED) but its stated `depends:self-check-hygiene-lane`
+> is a phantom dependency (grepped: no such task id exists anywhere, and `self_check.py` has
+> been actively co-edited by conductor fires 15+ times since -- the "owned by another agent"
+> caveat is stale, matching the recurring stale-dependency pattern from the last 2 fires'
+> lessons). Before chasing that, ran the STAGE 1 FUNCTION-FIRST check (read
+> `automation/state/participation-daily.json`) and found something more urgent: TODAY's file
+> showed `verdict: RED` both accounts, `fills: 0` both -- contradicting the known fact (this
+> STATUS file's own EOD entry above) that bold placed+filled a real SPY735P at 11:29 ET.
+
+> **Root cause traced, not assumed (OP-33):** `participation_cascade.py#classify_core_row`'s
+> staleness fallback (`action==SKIP_STALE_TRIGGER or row.get("trigger_bar_et")`) was sound
+> only while `trigger_bar_et` had exactly one writer in `heartbeat_core.py` (true 2026-07-10).
+> The UNRELATED 2026-07-20 DECISION-ROW-SPY-STALENESS visibility fix made that field universal
+> (every row, stale or not) -- nobody revisited the 07-10 consumer-side fallback when the 07-20
+> producer-side change shipped, 10 days and two unrelated PRs apart. Confirmed against the real
+> ledger: bold's 11:29 PLACED/filled row and all 13 same-day SKIP_LATE_ENTRY rows were
+> misclassified as `stale_trigger_bar`, driving the false RED + a real Discord alert to J at
+> 16:10:03 ET ("orders=0").
+
+> **What shipped:** `_trigger_bar_cross_session(row)` -- compares trigger_bar_et's calendar day
+> vs the row's OWN ts_et day (mirrors heartbeat_core's actual `_stale_trigger_bar` predicate)
+> instead of a bare truthy check. 2 new regression tests pin the exact 2026-07-23 exhibit
+> (same-day SKIP_LATE_ENTRY + same-day PLACED); 1 existing test updated (its premise --
+> "trigger_bar_et has exactly one writer" -- is now false, so it needed ts_et added to still
+> exercise genuine cross-session staleness). Re-ran `participation_daily.py --date 2026-07-23`
+> against the fix: verdict corrected RED->YELLOW, bold now shows fills=1, safe's REAL blockers
+> are visible (entry_ceiling_15:00, min_premium_floor, entry_bar_body_pct_min,
+> require_bearish_fill_bar, block_level_rejection) instead of one opaque bucket. Posted an
+> explicit Discord correction alongside the naturally-refreshed line (verdict changed so
+> dedup didn't suppress it).
+
+> **Verified this fire (OP-33):** 51/51 `test_participation_cascade.py` + `test_participation_daily.py`
+> green, curated safety gate (31+5) PASS, commit `9d79939c` confirmed in HEAD via `git show --stat`.
+
+> **Learn (STAGE 4.5):** filed `_lesson-inbox/2026-07-23-participation-cascade-universal-field-
+> broke-presence-heuristic.md` -- same class as L234 (producer widens a field's scope, consumer's
+> bare-presence heuristic silently breaks). Proposed guard-graduation: when a shared-ledger field
+> gets a second writer / widened scope, grep every consumer for a bare-truthy check on that field
+> name before shipping.
+
+> **Scope + revert:** `backtest/tools/participation_cascade.py` (1 helper + 1 branch) +
+> `backtest/tests/test_participation_cascade.py` (1 updated + 2 new) + regenerated
+> `automation/state/participation-daily.json` + `participation-cascade.json` + appended
+> `analysis/participation-cascade/2026-07-23.md` + 2 Discord lines + 1 lesson-inbox file. Zero
+> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched -- pure observability-instrument
+> bugfix, engine-benefit, ships per OP-22/26, no J ratification needed. Revert:
+> `git revert 9d79939c`.
+
+> **PARTICIPATION-DAILY-SELF-CHECK-WIRE still not started** (its real blocker isn't the phantom
+> dependency -- it's simply not yet done); left as next-fire-ready in queue.md, dependency note
+> corrected.
+
+> **Cost: ~$3.8** (STAGE 0/1 reads + phantom-dependency trace, live-data root-cause investigation
+> across 2 modules, fix + 2 regression tests + 1 test correction, curated gate, live re-run +
+> state regeneration + Discord correction, lesson-inbox write-up, STATUS/queue write-up,
+> conductor_outcome record+metric).
+
+---
+
 ## [2026-07-23 ~19:42-19:55 ET] OK -- conductor (AFTERHOURS): closed stale checkbox BREAKER-REARM-STALENESS (fix already shipped 07-09), commit `78b2018f`
 
 > **STAGE 0/1:** ET confirmed 19:42 (Thursday, market closed since 15:55). `engine-health.json`
@@ -597,76 +661,6 @@
 > rather than a separate commit (nothing here needs a commit of its own -- the STATUS.md edit
 > lands in this fire's own history, and the lesson-inbox file will be picked up by the next
 > commit that touches queue/state).
-
----
-
-## [2026-07-23 ~06:12-06:58 ET] OK -- conductor (AFTERHOURS): EDGE-MATRIX-NIGHTLY-RERUN Step 1 shipped -- built the day-inventory forward-extend script the stub had cited but never built
-
-> **STAGE 0/1:** ET confirmed 06:12, Thursday, market closed (opens 09:30). `engine-health.json`
-> GREEN 13/13 (all quiet-OK, market closed). Self-audit gaps: all batches through
-> 2026-07-22T17:32:32 already triaged -- nothing new (next batch not due until ~17:3x ET).
-> `task_scorer.py --top` surfaced `EDGE-MATRIX-NIGHTLY-RERUN` (MED) again -- checked the FULL
-> HIGH tier first this time (12 HIGH items in `queue.md`'s Active backlog): all CLOSED/done
-> except `DOJO-BUILD-HANDOFF` (documented NOT-PICKABLE, no TV MCP tools bound to this session)
-> and `DOUBLE-BOTTOM-DISARM-DECISION` (already resolved by the immediately-prior fire, 01:48-01:58
-> ET tonight). With HIGH tier exhausted, picked the standing MED-top item per STAGE 1 priority
-> order.
-
-> **What shipped:** `backtest/tools/edge_matrix_rerun.py`'s own docstring named Step 1 as
-> `python backtest/tools/build_day_inventory.py --extend` -- that file did not exist anywhere
-> in the repo (`Glob "**/build_day_inventory*"` -> zero hits, verified before building). Built
-> it for real: forward-extends the FROZEN `day-inventory-2026-07-23.json` with any new trading
-> days accrued in the SPY/VIX 5m caches since its last day (2026-07-22) -- has_opra/
-> n_opra_files/gap_pct/n_rth_bars/partial computed mechanically; day_type/vix_band via the SAME
-> formulas recorded in the original's own `method` field (verified via grep across all 6
-> `edge_matrix_*.py` family runners that these 2 fields are DISCLOSURE-ONLY, never a gate/
-> filter -- safe to best-effort-classify forward days without independently proving byte-
-> identical provenance). `heldout_days` carried through VERBATIM, never touched (rerun
-> protocol rule 2 -- the whole point of a frozen OOS boundary). Writes a NEW file,
-> `analysis/edge-matrix/day-inventory-extended.json` -- deliberately NOT the stub's proposed
-> `-<today>.json` naming (that would literally collide with the frozen original's own filename
-> the very first time this runs, since "2026-07-23" is the EDGE MATRIX build date, not a run
-> date); corrected `edge_matrix_rerun.py`'s docstring to match reality instead of leaving
-> aspirational text next to now-real code. The 6 family runners' hardcoded `INVENTORY_PATH`
-> constants are UNCHANGED this fire -- Step 1 only makes forward days computable/inspectable,
-> Step 2 (per-runner `--days-after` incremental flags) is still a TODO and is genuinely
-> "hours-of-grind, weekend-grade" per the stub's own warning, correctly NOT attempted in one
-> bounded fire (rail 3).
-
-> **Verified this fire (OP-33):** ran `--status`/`--extend` live -> 0 pending days (correct:
-> 06:xx ET 2026-07-23, today's session hasn't traded yet) -- confirmed byte-for-byte content
-> match of `days`/`opra_days`/`heldout_days`/`excluded_fragments` against the frozen original
-> when 0 new days exist. Since the real new-day-add path can't be exercised against live data
-> yet, built 17 guard tests (`backtest/tests/test_build_day_inventory.py`, synthetic SPY/VIX/
-> OPRA fixtures) covering: zero-pending no-op, a genuine new day added with correct fields, a
-> <30-bar fragment correctly excluded, a 30-70-bar day correctly flagged `partial`,
-> `heldout_days` provably not gaining the new day, plus the 3 pure classification helpers.
-> **RED-proofed live:** injected a deliberate gap_pct formula bug (`*200` vs `*100`) -> the
-> exact expected test failure (`2.0 != 1.0`, quoted); reverted -> 17/17 green again. Full
-> `pytest backtest/tests/test_build_day_inventory.py backtest/tests/test_task_scorer*.py -q`
-> -> 79/79 PASS, no regression.
-
-> **Foot-gun graduated:** filed `strategy/candidates/_lesson-inbox/2026-07-23-stub-docstring-
-> cited-never-built-dependency-script.md` -- the generalizable pattern (a stub's own pipeline
-> docstring narrating a multi-step loop in present-tense prose, naming OTHER scripts as steps
-> without marking their build status, reads as a spec of working code rather than a wishlist --
-> and this exact item sat un-opened across >=3 prior conductor fires that all deferred it to
-> higher-priority work without anyone checking whether its named Step-1 dependency existed).
-
-> **Scope + revert:** pure research-tooling build (1 new script, 1 new test file, 1 docstring
-> correction, 1 generated JSON artifact, 1 lesson-inbox filing, 1 queue.md item update) -- zero
-> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched, no live wiring, no broker
-> import. Ships per OP-22 (engine-benefit research infra). Revert: `git revert <this commit>`.
-> **Item status:** `EDGE-MATRIX-NIGHTLY-RERUN` updated to `status:in_progress-step1-of-4-done`
-> in queue.md (Steps 2-4 named, not attempted -- next natural trigger for re-verifying the
-> new-day-add path against REAL data: any fire after today's session closes and the SPY/VIX 5m
-> caches gain a 2026-07-23 file).
-
-> **Cost: ~$3.9** (STAGE 0/1 reads incl. checking all 12 HIGH items' true status via targeted
-> reads of a >256KB queue.md, tracing the day-inventory schema + formulas from the frozen JSON
-> and the 6 family runners' consumption code, building + testing + RED-proofing the script,
-> lesson-inbox filing, queue/STATUS write-up). `conductor_outcome.py metric` to be recorded
-> next.
 
 ---
 
