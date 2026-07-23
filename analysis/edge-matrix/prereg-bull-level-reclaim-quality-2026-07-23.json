@@ -1,0 +1,74 @@
+{
+  "_doc": "EDGE-MATRIX 2026-07-23 -- FROZEN pre-registration for family bull-level-reclaim-quality, written BEFORE any grid run. Question: raw bull level-reclaim fires at tops (live blocked cohort n=24 WR 0%) -- does NOT-extended quality conditioning (RSI cap / RSI-reset / distance-from-session-low cap, per J's 2026-07-21 dojo ruling) rescue reclaim from the lottery profile? Honest null expected and valued.",
+  "family": "bull-level-reclaim-quality",
+  "generated_at": "2026-07-23T00:00:00-04:00",
+  "shared_protocol": "edge-matrix 2026-07-23 (FOCUS-DOCTRINE.md lens; DOJO-HARVEST-2026-07-21.md incl. retraction read before authoring)",
+
+  "detector_definition_fixed": {
+    "level_source": "backtest/lib/watchers/level_memory.py LevelMemory -- the LIVE engine's multi-day level perception layer. lookback_days=5 (module DEFAULT_LOOKBACK_DAYS), memory_score >= 20.0 (the producer's MIN_MEMORY selection floor, cited in level_memory.py's own T7 commentary -- reused, not invented). Never an invented level set.",
+    "reclaim_event": "At 5m bar i (RTH): take the level set from LevelMemory.levels_at(i-1) built on a window of the prior 4 covered days + today up to bar i-1 (STRICTLY causal -- the level set, roles, and memory scores are frozen as of the PRIOR closed bar). A level qualifies if role=='resistance' as of i-1 AND close[i-1] <= level.price (price genuinely below/at the level). The reclaim fires when close[i] > level.price + zone_band (the bar CLOSES above the zone top -- zones, never penny-exact). zone_band is grid axis 1.",
+    "causality": "bar i uses only bars <= i (C6). Levels/roles from bars <= i-1; the trigger close is bar i's own close, known at bar close time. Enforced by an in-code truncation spot-check assertion (re-derive a sample of signals on frames truncated at the signal bar; identical result required).",
+    "cooldown": "6 bars (30 min) per level price per cell -- a re-fire of the same level inside the cooldown is dropped (dedupe of the same reclaim, fixed constant).",
+    "entry_window_et": "trigger-bar START time in [09:35, 15:30] true ET (live 09:35 entry gate; 15:30 cutoff leaves room before the 15:40 time stop).",
+    "one_position_at_a_time": "Per cell per day, signals are executed sequentially; a signal whose trigger falls before the prior trade's exit time is skipped (mirrors the live engine's single-position mechanics and the FOCUS one-good-trade cadence). n_signals counts post-cooldown detector signals; n_real_fills counts executed, non-overlapping, real-OPRA-filled trades.",
+    "timestamp_frame": "et-v2 (per-row offset -> UTC -> America/New_York, DST-correct) on BOTH the SPY caches and the OPRA option cache -- frame-consistent joins per backtest/lib/et_frame.py; never a wall-v1/et-v2 mix."
+  },
+
+  "quality_conditioning_provenance": {
+    "rsi_cap_68": "J 2026-07-21 ruling on the 12:21 entry ('in what world is that an entry? The move is already happening'): RSI(14) was 68.8 -- textbook 70 would NOT have caught it (DOJO-HARVEST Lane B #2). The good 11:15 entry read 63.6. Cap 68 blocks 68.8, passes 63.6. n=1-day provenance -- which is exactly why it is a grid knob under a frozen ship bar, not a rule.",
+    "rsi_reset_55_within_12": "J contrast: the great 11:15 entry 'came right after RSI reset to 50.8 at 11:00'. Reset := min RSI(14) over bars [i-12, i] (60 min) <= 55. Thresholds fixed at authoring time from that worked example; binary require/not is the knob.",
+    "dist_cap_3_50": "J's extension read: 12:21 was +$4.40 off the session low (bad), 11:15 was +$3.23 (good). Cap 3.50 sits between them: blocks 4.40, passes 3.23. dist := close[i] - min(RTH low from 09:30 through bar i).",
+    "rsi_impl": "Wilder RSI(14) on the CONTINUOUS multi-day 5m close series (no per-day reset), backtest/autoresearch/rsi_extension_block_probe.py::_wilder_rsi -- reused, not re-derived. ewm is causal."
+  },
+
+  "grid": {
+    "knob_count": 4,
+    "cell_count": 16,
+    "axes": {
+      "zone_band_dollars": [0.15, 0.25],
+      "rsi_cap": [null, 68.0],
+      "rsi_reset_required": [false, true],
+      "dist_from_session_low_cap_dollars": [null, 3.5]
+    },
+    "cell_id_format": "band{15|25}_cap{none|68}_reset{off|on}_dist{none|350}",
+    "note": "Full factorial 2x2x2x2. The (cap=none, reset=off, dist=none) cells ARE the raw-reclaim control -- the family question is answered by comparing conditioned cells against them, not by tuning."
+  },
+
+  "execution_fixed": {
+    "side": "C (bull calls only)",
+    "strike": "ATM per live Safe tier -- setup/scripts/dojo/sim_executor._strike_for on accounts.json arm 'safe-2' (crypto/lib/strike_selection.py V15_SAFE_TIERS path), spot = trigger bar close.",
+    "entry_fill": "next 5m OPRA bar VWAP at/after trigger-bar close time (trigger start + 5 min) via backtest/lib/option_pricing_real.bar_at_or_after -- real fills only.",
+    "qty": "min(params.json min_contracts=3, backtest/lib/risk_gate.max_affordable_qty(equity=2000, premium, params)).",
+    "exit_shape": "the LIVE RIBBON_RIDE shape via the live merge (sim_executor._resolve_exit_shape(arm 'safe-2', 'ribbon_ride', None)): premium_stop_pct -0.20 (flag-off fallback), tp1 +100% sell 0.667, trailing 15% off HWM, runner_target 99.0, stop_mode structure, catastrophe -0.50.",
+    "structure_stop_enabled": true,
+    "trigger_level": "zone_low = level.price - zone_band (the reclaimed zone's bottom; a closed 5m SPY close back below it invalidates the reclaim).",
+    "time_stop_et": "15:40 (automation/state/params.json time_stop_et, live truth at authoring)",
+    "exit_walk": "backtest/lib/exit_manager_walk.walk_exit_manager -- the REAL production exit_manager decision core. Entry-side tuning ONLY; no exit knob is on the grid.",
+    "ribbon": "backtest/lib/ribbon.compute_ribbon over the full continuous close series (proper EMA warmup), 'stack' aligned to option bars via sim_executor._ribbon_aligned_to."
+  },
+
+  "population": {
+    "inventory": "analysis/edge-matrix/day-inventory-2026-07-23.json (built 2026-07-22).",
+    "context_days": "all 386 covered days feed level/RSI/ribbon context (lookback only).",
+    "signal_and_dollar_days": "the 381 opra_days -- signals are counted and dollars computed ONLY on these.",
+    "held_out": "the inventory's heldout_days list (96 days, 2026-02-25..2026-07-17, last 25% of opra_days BY DATE). The grid is frozen here and run ONCE -- no tuning iteration reads held-out results.",
+    "synthetic_policy": "NO BS-synthetic pricing anywhere in this study. A signal whose ATM contract CSV is absent from backtest/data/options/ is recorded status=NO_OPTION_DATA, disclosed in counts, excluded from all gate math."
+  },
+
+  "per_cell_outputs": ["n_signals", "n_real_fills", "expectancy", "total_pnl", "day_wr", "ex_top3_total", "held_out_total", "p_raw", "gates_passed"],
+  "gates": {
+    "gate_1": "positive aggregate: total_pnl > 0",
+    "gate_2": "day majority: day-total P&L > 0 on a strict majority of covered days with >=1 real fill",
+    "gate_3": "survives ex-top-1: total_pnl minus the single best trade > 0",
+    "gate_4": "held-out positive: total P&L on held-out days > 0 with >=1 held-out fill",
+    "p_raw": "one-sample t vs zero on per-trade P&L (normal-approx, same convention as pullback_hold_bull_replay._one_sample_p)",
+    "ex_top3_total": "total_pnl minus the sum of the 3 best trades (disclosure metric, not a gate)"
+  },
+
+  "no_post_hoc_tuning": "Grid, constants, population, held-out list, and gates are fixed at this file's write time. The runner may not adjust any of these after seeing results; any changed definition requires a new dated pre-reg.",
+  "deliverables": {
+    "runner": "backtest/tools/edge_matrix_bull_level_reclaim_quality.py",
+    "episodes": "analysis/edge-matrix/bull-level-reclaim-quality-episodes.json",
+    "results": "analysis/edge-matrix/bull-level-reclaim-quality-results-2026-07-23.json"
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "family": "range-pingpong",
+  "prereg_frozen_at": "2026-07-22",
+  "built_for": "edge-matrix 2026-07-23",
+  "thesis": "J: 'things just ping-pong between levels'. Fade the edge of a qualified two-level range: when price tags the zone of one of two adjacent, prior-touched, role-consistent levels bounding the current price and rejects back toward the other level, enter toward the range interior (puts at the upper level, calls at the lower level). Both directions.",
+  "frozen_before_any_run": true,
+  "single_pass_commitment": "The grid below is run EXACTLY ONCE over the tuning population and once over the held-out population in the same pass. No knob, threshold, or definition may change after results are seen. Honest nulls expected.",
+
+  "grid": {
+    "knobs": 4,
+    "cells": 16,
+    "k1_min_level_spacing_dollars": [0.80, 1.20],
+    "k2_min_touches_per_side": [2, 3],
+    "k3_zone_band_dollars": [0.10, 0.20],
+    "k4_confirm_bars": [0, 1],
+    "cell_id_format": "rp-s{spacing:03d}-t{touches}-b{band:03d}-c{confirm} (spacing/band in cents)"
+  },
+
+  "fixed_structural_choices_not_tuned": {
+    "max_level_spacing_dollars": 3.50,
+    "level_source": "backtest/lib/watchers/level_memory.py LevelMemory (the LIVE engine's multi-day level perception layer), lookback_days=5 (its production default), UNMODIFIED constants (CLUSTER_TOL 0.35, TOUCH_TOL 0.20, BREAK_MARGIN 0.15, MIN_PIVOTS 2). Never an invented level set.",
+    "bar_universe": "5m SPY RTH bars (09:30<=t<16:00 TRUE ET), per-day source file exactly as chosen by the day inventory's dedupe (analysis/edge-matrix/day-inventory-2026-07-23.json), rows deduped by timestamp. RTH-only for uniformity: premarket coverage differs by source-file era, so premarket bars are excluded everywhere to keep the detector identical across the population (disclosed limitation vs J's premarket-level thesis).",
+    "context_frame": "For day D: RTH bars of the 4 prior inventory-covered days (each from its own inventory-chosen source file) + day D. Gives LevelMemory its 5-day lookback and the ribbon its EMA warmup. Earliest days in the population have fewer prior days (disclosed).",
+    "timestamp_frame": "et-v2 (parse stored offset -> UTC -> America/New_York -> naive true ET) for BOTH SPY and OPRA caches, per lib/et_frame.py + the DST-frame audit; frame-consistent joins, no winter 1h misalignment.",
+    "range_qualification_at_bar_i": [
+      "levels = LevelMemory.levels_at(i, lookback_days=5) (CAUSAL: bars <= i only)",
+      "U = nearest level ABOVE close_i with role=='resistance' and touches >= k2",
+      "L = nearest level BELOW close_i with role=='support' and touches >= k2",
+      "k1 <= (U - L) <= 3.50"
+    ],
+    "tag_and_reject_trigger": {
+      "put_at_U": "high_i >= U - k3 AND close_i < U AND low_i > L + k3 (no simultaneous tag of both zones)",
+      "call_at_L": "low_i <= L + k3 AND close_i > L AND high_i < U - k3",
+      "zone_semantics": "Levels are ZONES, never penny-exact (J 2026-07-17): a tag is the bar's extreme entering the +-k3 zone; a reject is the close back on the range-interior side."
+    },
+    "confirm_knob_semantics": "c=0: decision bar = tag bar i, enter at its close. c=1: decision bar = i+1, requires close_{i+1} strictly inside (L, U); enter at close of i+1. Levels/U/L are frozen from the tag bar's snapshot.",
+    "entry_window_et": "decision-bar close time in [09:35, 15:30] (live 09:35 entry gate; 15:30 cutoff leaves room before the 15:50 time stop)",
+    "position_discipline": "One position at a time (live doctrine). A new signal is only eligible after the prior walk's exit_time. No adds, no pyramiding.",
+    "direction": "BOTH (P at U, C at L) per validation-is-the-only-scope",
+    "sizing": "qty=3 contracts (Safe minimum: 2 TP1 + 1 runner; tp1_qty_fraction 0.667 -> int(3*0.667)=2). Fixed, never tuned.",
+    "strike": "ATM = round(decision-bar SPY close), per crypto/lib/strike_selection.py V15_SAFE_TIERS (live core Safe truth, fills-verified 2026-07-11)."
+  },
+
+  "fill_model": {
+    "entry": "First 5m OPRA bar of backtest/data/options/SPY{yymmdd}{P|C}{strike*1000:08d}.csv at/after the decision-bar close instant; entry premium = that bar's VWAP (the documented option_pricing_real convention). The entry bar must start within 5 minutes of the decision close or the episode is NOT a real fill (stale-fill honesty guard).",
+    "real_fills_only": "Missing/empty contract CSV or no qualifying entry bar => n_signals counts it, n_real_fills does not; NO BS-synthetic substitution anywhere in gate math. BS-synthetic is not used at all in this study.",
+    "exit": "backtest/lib/exit_manager_walk.walk_exit_manager over the SAME contract's 5m bars — the REAL live exit_manager decision core. Its documented fill conventions apply (limit stages at level, market stages at close minus $0.02 slippage, point-sample at bar open, data-exhausted force close disclosed)."
+  },
+
+  "exit_shape_frozen": {
+    "source": "automation/state/fleet/strategies.py RIBBON_RIDE.exit.to_dict() — the LIVE shape, entry-side tuning ONLY per protocol",
+    "shape": {
+      "premium_stop_pct": -0.20, "tp1_premium_pct": 1.0, "tp1_qty_fraction": 0.667,
+      "profit_lock_mode": "trailing", "runner_target_pct": 99.0, "trail_pct": 0.15,
+      "profit_lock_arm_pct": 0.05, "stop_mode": "structure", "catastrophe_stop_pct": -0.50,
+      "profit_lock_arm_scope": "post_tp1"
+    },
+    "structure_stop_enabled": true,
+    "structure_stop_enabled_provenance": "automation/state/params.json structure_stop_enabled=true (live, verified this session)",
+    "trigger_level_rule": "the tagged level: U for puts (structure stop when a CLOSED 5m SPY bar closes above U = range top actually broke), L for calls (closed 5m below L). This is the family's natural chart invalidation and matches v15.3 chart-stop-primary.",
+    "ribbon_flip_exits": "ACTIVE, live periods (backtest/lib/ribbon.py: fast 13 / pivot 20 / slow 48 EMA on 5m RTH closes, multi-day continuous, causal SMA-seeded EMA). Opt-bar row k uses the stack of the last CLOSED SPY 5m bar at that row's instant. WARMUP/MIXED never flips.",
+    "time_stop_et": "15:50 (exit_manager.TIME_STOP_ET)"
+  },
+
+  "population": {
+    "inventory": "analysis/edge-matrix/day-inventory-2026-07-23.json",
+    "gate_math_days": "OPRA days only (381)",
+    "heldout": "the inventory's frozen heldout_days list (96 days, 2026-02-25..2026-07-17, last 25% of OPRA days BY DATE). Used ONLY for held_out_total and gate 4; never inspected during tuning (there IS no iterative tuning — one frozen pass).",
+    "tuning": "OPRA days minus heldout (285 days)"
+  },
+
+  "per_cell_outputs": {
+    "n_signals": "count of decision-bar signals on tuning days (position-discipline applied), incl. signals with no real fill",
+    "n_real_fills": "episodes with a real OPRA entry fill + walk, tuning days",
+    "expectancy": "mean per-trade dollar P&L (qty=3), tuning real fills",
+    "total_pnl": "sum of per-trade P&L, tuning real fills",
+    "day_wr": "fraction of covered tuning days (>=1 real fill) whose day P&L > 0",
+    "ex_top3_total": "total_pnl minus the 3 largest per-trade P&Ls",
+    "held_out_total": "sum of per-trade P&L on heldout days (same frozen cell params)",
+    "p_raw": "one-sided sign-flip permutation test on tuning per-trade P&Ls: 10000 iterations, numpy seed 42, p = (1 + #{perm_mean >= observed_mean}) / 10001",
+    "gates": [
+      "G1 positive aggregate: total_pnl > 0",
+      "G2 day majority: day_wr > 0.5",
+      "G3 survives ex-top-1: total_pnl - max_trade > 0",
+      "G4 held-out positive: held_out_total > 0"
+    ]
+  },
+
+  "causality_contract": "Detector at bar i reads ONLY bars <= i (C6). Enforced structurally (LevelMemory.levels_at(i)) AND assert-checked in code: (a) runtime asserts that every level's first_seen_idx/last_touch_idx <= i; (b) a truncation self-test on 3 fixed dates (2025-03-19, 2025-11-14, 2026-01-13) asserting that signals computed on a frame truncated at mid-day bar k are identical to full-frame signals restricted to decision bars <= k. Runner refuses to produce results if the self-test fails.",
+  "artifacts": {
+    "runner": "backtest/tools/edge_matrix_range_pingpong.py",
+    "episodes": "analysis/edge-matrix/range-pingpong-episodes.json",
+    "results": "analysis/edge-matrix/range-pingpong-results.json"
+  },
+  "no_live_wiring": true,
+  "no_git_commits": true
+}

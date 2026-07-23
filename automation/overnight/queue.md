@@ -9,6 +9,29 @@
 
 ## Active backlog
 
+### RIBBON-SESSION-SCOPE-DIVERGENCE (HIGH, discovery from the TV parity oracle 2026-07-23)
+
+- [ ] RIBBON-SESSION-SCOPE-DIVERGENCE (HIGH, two-part) :: THE discovery of the edge-matrix run:
+  J's TV chart computes ribbon EMAs over EXTENDED-HOURS bars; the engine/backtest ribbon is
+  RTH-only (deliberate 2026-06-25 parity fix). Divergence up to $6.40 at gap opens (07-17),
+  persisting in the 48/51 EMAs into the afternoon; 24/27 oracle checkpoints CRITICAL. Bar-data
+  parity itself is OK ($0.04). CONSEQUENCE: on gap mornings J and the engine are reading
+  materially DIFFERENT ribbons -- retro-explains several dojo divergences. PART 1 (ship fast,
+  Lane A): the dojo whisper + daily briefs FLAG the divergence on gap days ("my ribbon differs
+  from your chart's by $X here"); film-room brief notes it per gap-morning exhibit. PART 2
+  (pre-reg A/B, Lane B): does an ETH-inclusive ribbon improve gap-morning decisions vs the
+  RTH-only one? Replay both scopes through the standing battery on gap days specifically.
+  CAUTION: RTH-only is load-bearing for backtest parity (42%->fixed score alignment) -- any
+  scope change must re-run the parity suite. depends:none :: status:pending
+
+### EDGE-MATRIX-NIGHTLY-RERUN (MED, standing loop wiring)
+
+- [ ] EDGE-MATRIX-NIGHTLY-RERUN (MED) :: Wire backtest/tools/edge_matrix_rerun.py into the
+  conductor AFTERHOURS rotation (weekly full re-run as OPRA days accrue; the "infinite
+  backtesting" standing loop J asked for). Family runners need the incremental --since flags
+  finished (TODOs in the stub). New days shift the held-out window forward per the frozen
+  protocol -- never re-tune on formerly-held-out days without disclosing. depends:none :: status:pending
+
 ### MIN-TRIGGERS-BULL-ASYMMETRY-AB (MED, pre-reg follow-up, filed 2026-07-23 from the mirror-parity audit)
 
 - [ ] MIN-TRIGGERS-BULL-ASYMMETRY-AB (MED) :: The 2026-07-22 mirror-parity audit found a live,

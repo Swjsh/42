@@ -1,0 +1,637 @@
+{
+ "generated_at": "2026-07-22T19:08:23.508091",
+ "family": "sr-flip-retest",
+ "prereg_file": "analysis/edge-matrix/prereg-sr-flip-retest-2026-07-23.json",
+ "grid_size": 16,
+ "population": {
+  "covered_days": 386,
+  "day_contexts_built": 376,
+  "days_skipped": [
+   {
+    "day": "2025-11-28",
+    "reason": "NO_BARS_IN_ASSIGNED_FRAME"
+   },
+   {
+    "day": "2025-12-24",
+    "reason": "NO_BARS_IN_ASSIGNED_FRAME"
+   },
+   {
+    "day": "2025-01-02",
+    "reason": "NO_PRIOR_DAY_IN_FRAME"
+   },
+   {
+    "day": "2025-06-02",
+    "reason": "NO_PRIOR_DAY_IN_FRAME"
+   },
+   {
+    "day": "2026-01-02",
+    "reason": "NO_PRIOR_DAY_IN_FRAME"
+   },
+   {
+    "day": "2026-03-16",
+    "reason": "NO_PRIOR_DAY_IN_FRAME"
+   },
+   {
+    "day": "2026-04-08",
+    "reason": "NO_PRIOR_DAY_IN_FRAME"
+   },
+   {
+    "day": "2026-05-08",
+    "reason": "NO_PRIOR_DAY_IN_FRAME"
+   },
+   {
+    "day": "2026-05-18",
+    "reason": "NO_PRIOR_DAY_IN_FRAME"
+   },
+   {
+    "day": "2026-05-19",
+    "reason": "NO_PRIOR_DAY_IN_FRAME"
+   }
+  ],
+  "opra_days": 381,
+  "tuning_days": 285,
+  "heldout_days": 96
+ },
+ "fixed_execution": {
+  "arm": "safe",
+  "strategy": "ribbon_ride",
+  "structure_stop_enabled": true,
+  "exit_shape": {
+   "premium_stop_pct": -0.2,
+   "tp1_premium_pct": 1.0,
+   "tp1_qty_fraction": 0.667,
+   "profit_lock_mode": "trailing",
+   "runner_target_pct": 99.0,
+   "trail_pct": 0.15,
+   "profit_lock_arm_pct": 0.05,
+   "stop_mode": "structure",
+   "catastrophe_stop_pct": -0.5,
+   "profit_lock_arm_scope": "post_tp1"
+  },
+  "time_stop_et": "15:40:00",
+  "min_memory_score": 20.0,
+  "base_qty": 3
+ },
+ "causality_self_check": {
+  "prefix_pairs_checked": 6,
+  "sample_days": [
+   "2025-01-03",
+   "2025-07-10",
+   "2026-01-12"
+  ]
+ },
+ "execution_notes": [
+  "DISCLOSURE-SHAPE DEVIATION from pre-reg (gates/axes/population untouched): the pre-reg said BS-synthetic fallback episodes would be 'flagged is_synthetic' and excluded; this runner never prices synthetic at all -- OPRA days whose exact contract csv is absent are excluded from gate math and disclosed as status=NO_REAL_OPRA (root cause: sim_executor's synthetic path crashes on mixed-DST VIX caches; pricing synthetic was disclosure-only either way)."
+ ],
+ "sanity_anchor_diagnostic": {
+  "anchor": "2026-07-17, J's praised '13:50 break and then retest' bear entry: any BEAR cell signal with decision instant in [13:40, 14:15] ET on 2026-07-17.",
+  "hits": [],
+  "hit": false
+ },
+ "cells": [
+  {
+   "cell_id": "m10_b35_NB_BULL",
+   "params": {
+    "flip_margin_cents": 10,
+    "retest_band_cents": 35,
+    "confirm_mode": "NEXT_BAR_CLOSE",
+    "direction": "BULL"
+   },
+   "n_signals": 937,
+   "n_real_fills": 388,
+   "expectancy": -5.08,
+   "total_pnl": -1972.62,
+   "day_wr": 0.371,
+   "ex_top1_total": -2780.64,
+   "ex_top3_total": -4127.67,
+   "held_out_total": 2191.16,
+   "n_heldout_fills": 100,
+   "p_raw": 0.592,
+   "gate_1_positive_aggregate": false,
+   "gate_2_day_majority": false,
+   "gate_3_survives_ex_top1": false,
+   "gate_4_heldout_positive": true,
+   "gates_passed": 1,
+   "win_rate": 0.312,
+   "n_tuning_days_with_fills": 178,
+   "disclosures": {
+    "n_synth_excluded": 0,
+    "n_missing_real_opra": 69,
+    "n_skipped_overlap": 278,
+    "n_unaffordable": 76,
+    "n_no_fill": 0,
+    "n_not_opra_day": 26
+   }
+  },
+  {
+   "cell_id": "m20_b35_NB_BULL",
+   "params": {
+    "flip_margin_cents": 20,
+    "retest_band_cents": 35,
+    "confirm_mode": "NEXT_BAR_CLOSE",
+    "direction": "BULL"
+   },
+   "n_signals": 926,
+   "n_real_fills": 377,
+   "expectancy": -6.14,
+   "total_pnl": -2315.07,
+   "day_wr": 0.356,
+   "ex_top1_total": -3123.09,
+   "ex_top3_total": -4470.12,
+   "held_out_total": 876.1,
+   "n_heldout_fills": 98,
+   "p_raw": 0.5322,
+   "gate_1_positive_aggregate": false,
+   "gate_2_day_majority": false,
+   "gate_3_survives_ex_top1": false,
+   "gate_4_heldout_positive": true,
+   "gates_passed": 1,
+   "win_rate": 0.305,
+   "n_tuning_days_with_fills": 177,
+   "disclosures": {
+    "n_synth_excluded": 0,
+    "n_missing_real_opra": 70,
+    "n_skipped_overlap": 278,
+    "n_unaffordable": 78,
+    "n_no_fill": 0,
+    "n_not_opra_day": 25
+   }
+  },
+  {
+   "cell_id": "m10_b35_RC_BULL",
+   "params": {
+    "flip_margin_cents": 10,
+    "retest_band_cents": 35,
+    "confirm_mode": "RETEST_CLOSE",
+    "direction": "BULL"
+   },
+   "n_signals": 1109,
+   "n_real_fills": 477,
+   "expectancy": -6.5,
+   "total_pnl": -3100.64,
+   "day_wr": 0.379,
+   "ex_top1_total": -3908.15,
+   "ex_top3_total": -5322.69,
+   "held_out_total": 1140.45,
+   "n_heldout_fills": 124,
+   "p_raw": 0.4264,
+   "gate_1_positive_aggregate": false,
+   "gate_2_day_majority": false,
+   "gate_3_survives_ex_top1": false,
+   "gate_4_heldout_positive": true,
+   "gates_passed": 1,
+   "win_rate": 0.327,
+   "n_tuning_days_with_fills": 190,
+   "disclosures": {
+    "n_synth_excluded": 0,
+    "n_missing_real_opra": 100,
+    "n_skipped_overlap": 279,
+    "n_unaffordable": 103,
+    "n_no_fill": 0,
+    "n_not_opra_day": 26
+   }
+  },
+  {
+   "cell_id": "m10_b15_RC_BULL",
+   "params": {
+    "flip_margin_cents": 10,
+    "retest_band_cents": 15,
+    "confirm_mode": "RETEST_CLOSE",
+    "direction": "BULL"
+   },
+   "n_signals": 1083,
+   "n_real_fills": 500,
+   "expectancy": -7.78,
+   "total_pnl": -3890.73,
+   "day_wr": 0.353,
+   "ex_top1_total": -4698.75,
+   "ex_top3_total": -6127.62,
+   "held_out_total": 249.77,
+   "n_heldout_fills": 132,
+   "p_raw": 0.2989,
+   "gate_1_positive_aggregate": false,
+   "gate_2_day_majority": false,
+   "gate_3_survives_ex_top1": false,
+   "gate_4_heldout_positive": true,
+   "gates_passed": 1,
+   "win_rate": 0.302,
+   "n_tuning_days_with_fills": 184,
+   "disclosures": {
+    "n_synth_excluded": 0,
+    "n_missing_real_opra": 91,
+    "n_skipped_overlap": 243,
+    "n_unaffordable": 90,
+    "n_no_fill": 0,
+    "n_not_opra_day": 27
+   }
+  },
+  {
+   "cell_id": "m20_b35_RC_BULL",
+   "params": {
+    "flip_margin_cents": 20,
+    "retest_band_cents": 35,
+    "confirm_mode": "RETEST_CLOSE",
+    "direction": "BULL"
+   },
+   "n_signals": 1078,
+   "n_real_fills": 458,
+   "expectancy": -8.79,
+   "total_pnl": -4024.4,
+   "day_wr": 0.378,
+   "ex_top1_total": -4831.91,
+   "ex_top3_total": -6246.45,
+   "held_out_total": 1226.73,
+   "n_heldout_fills": 121,
+   "p_raw": 0.2993,
+   "gate_1_positive_aggregate": false,
+   "gate_2_day_majority": false,
+   "gate_3_survives_ex_top1": false,
+   "gate_4_heldout_positive": true,
+   "gates_passed": 1,
+   "win_rate": 0.314,
+   "n_tuning_days_with_fills": 185,
+   "disclosures": {
+    "n_synth_excluded": 0,
+    "n_missing_real_opra": 99,
+    "n_skipped_overlap": 271,
+    "n_unaffordable": 104,
+    "n_no_fill": 0,
+    "n_not_opra_day": 25
+   }
+  },
+  {
+   "cell_id": "m10_b15_NB_BULL",
+   "params": {
+    "flip_margin_cents": 10,
+    "retest_band_cents": 15,
+    "confirm_mode": "NEXT_BAR_CLOSE",
+    "direction": "BULL"
+   },
+   "n_signals": 877,
+   "n_real_fills": 401,
+   "expectancy": -15.32,
+   "total_pnl": -6141.5,
+   "day_wr": 0.318,
+   "ex_top1_total": -6798.58,
+   "ex_top3_total": -7926.76,
+   "held_out_total": 1823.5,
+   "n_heldout_fills": 100,
+   "p_raw": 0.0697,
+   "gate_1_positive_aggregate": false,
+   "gate_2_day_majority": false,
+   "gate_3_survives_ex_top1": false,
+   "gate_4_heldout_positive": true,
+   "gates_passed": 1,
+   "win_rate": 0.307,
+   "n_tuning_days_with_fills": 179,
+   "disclosures": {
+    "n_synth_excluded": 0,
+    "n_missing_real_opra": 58,
+    "n_skipped_overlap": 229,
+    "n_unaffordable": 68,
+    "n_no_fill": 0,
+    "n_not_opra_day": 21
+   }
+  },
+  {
+   "cell_id": "m20_b15_NB_BULL",
+   "params": {
+    "flip_margin_cents": 20,
+    "retest_band_cents": 15,
+    "confirm_mode": "NEXT_BAR_CLOSE",
+    "direction": "BULL"
+   },
+   "n_signals": 880,
+   "n_real_fills": 395,
+   "expectancy": -15.38,
+   "total_pnl": -6073.75,
+   "day_wr": 0.301,
+   "ex_top1_total": -6753.35,
+   "ex_top3_total": -7981.83,
+   "held_out_total": 1012.04,
+   "n_heldout_fills": 97,
+   "p_raw": 0.0834,
+   "gate_1_positive_aggregate": false,
+   "gate_2_day_majority": false,
+   "gate_3_survives_ex_top1": false,
+   "gate_4_heldout_positive": true,
+   "gates_passed": 1,
+   "win_rate": 0.284,
+   "n_tuning_days_with_fills": 176,
+   "disclosures": {
+    "n_synth_excluded": 0,
+    "n_missing_real_opra": 64,
+    "n_skipped_overlap": 229,
+    "n_unaffordable": 73,
+    "n_no_fill": 0,
+    "n_not_opra_day": 22
+   }
+  },
+  {
+   "cell_id": "m20_b15_RC_BEAR",
+   "params": {
+    "flip_margin_cents": 20,
+    "retest_band_cents": 15,
+    "confirm_mode": "RETEST_CLOSE",
+    "direction": "BEAR"
+   },
+   "n_signals": 1034,
+   "n_real_fills": 490,
+   "expectancy": -30.69,
+   "total_pnl": -15038.81,
+   "day_wr": 0.271,
+   "ex_top1_total": -15699.12,
+   "ex_top3_total": -16978.27,
+   "held_out_total": 64.24,
+   "n_heldout_fills": 143,
+   "p_raw": 0.0,
+   "gate_1_positive_aggregate": false,
+   "gate_2_day_majority": false,
+   "gate_3_survives_ex_top1": false,
+   "gate_4_heldout_positive": true,
+   "gates_passed": 1,
+   "win_rate": 0.247,
+   "n_tuning_days_with_fills": 170,
+   "disclosures": {
+    "n_synth_excluded": 0,
+    "n_missing_real_opra": 85,
+    "n_skipped_overlap": 186,
+    "n_unaffordable": 104,
+    "n_no_fill": 0,
+    "n_not_opra_day": 26
+   }
+  },
+  {
+   "cell_id": "m20_b15_RC_BULL",
+   "params": {
+    "flip_margin_cents": 20,
+    "retest_band_cents": 15,
+    "confirm_mode": "RETEST_CLOSE",
+    "direction": "BULL"
+   },
+   "n_signals": 1052,
+   "n_real_fills": 481,
+   "expectancy": -9.29,
+   "total_pnl": -4467.85,
+   "day_wr": 0.339,
+   "ex_top1_total": -5275.87,
+   "ex_top3_total": -6704.74,
+   "held_out_total": -310.96,
+   "n_heldout_fills": 123,
+   "p_raw": 0.2272,
+   "gate_1_positive_aggregate": false,
+   "gate_2_day_majority": false,
+   "gate_3_survives_ex_top1": false,
+   "gate_4_heldout_positive": false,
+   "gates_passed": 0,
+   "win_rate": 0.293,
+   "n_tuning_days_with_fills": 180,
+   "disclosures": {
+    "n_synth_excluded": 0,
+    "n_missing_real_opra": 94,
+    "n_skipped_overlap": 234,
+    "n_unaffordable": 93,
+    "n_no_fill": 0,
+    "n_not_opra_day": 27
+   }
+  },
+  {
+   "cell_id": "m10_b15_NB_BEAR",
+   "params": {
+    "flip_margin_cents": 10,
+    "retest_band_cents": 15,
+    "confirm_mode": "NEXT_BAR_CLOSE",
+    "direction": "BEAR"
+   },
+   "n_signals": 833,
+   "n_real_fills": 378,
+   "expectancy": -18.37,
+   "total_pnl": -6944.44,
+   "day_wr": 0.317,
+   "ex_top1_total": -7660.59,
+   "ex_top3_total": -9051.75,
+   "held_out_total": -645.76,
+   "n_heldout_fills": 118,
+   "p_raw": 0.0639,
+   "gate_1_positive_aggregate": false,
+   "gate_2_day_majority": false,
+   "gate_3_survives_ex_top1": false,
+   "gate_4_heldout_positive": false,
+   "gates_passed": 0,
+   "win_rate": 0.272,
+   "n_tuning_days_with_fills": 161,
+   "disclosures": {
+    "n_synth_excluded": 0,
+    "n_missing_real_opra": 76,
+    "n_skipped_overlap": 162,
+    "n_unaffordable": 76,
+    "n_no_fill": 0,
+    "n_not_opra_day": 23
+   }
+  },
+  {
+   "cell_id": "m20_b15_NB_BEAR",
+   "params": {
+    "flip_margin_cents": 20,
+    "retest_band_cents": 15,
+    "confirm_mode": "NEXT_BAR_CLOSE",
+    "direction": "BEAR"
+   },
+   "n_signals": 838,
+   "n_real_fills": 378,
+   "expectancy": -21.32,
+   "total_pnl": -8059.21,
+   "day_wr": 0.295,
+   "ex_top1_total": -8775.36,
+   "ex_top3_total": -10092.67,
+   "held_out_total": -714.21,
+   "n_heldout_fills": 118,
+   "p_raw": 0.0281,
+   "gate_1_positive_aggregate": false,
+   "gate_2_day_majority": false,
+   "gate_3_survives_ex_top1": false,
+   "gate_4_heldout_positive": false,
+   "gates_passed": 0,
+   "win_rate": 0.254,
+   "n_tuning_days_with_fills": 156,
+   "disclosures": {
+    "n_synth_excluded": 0,
+    "n_missing_real_opra": 72,
+    "n_skipped_overlap": 162,
+    "n_unaffordable": 87,
+    "n_no_fill": 0,
+    "n_not_opra_day": 21
+   }
+  },
+  {
+   "cell_id": "m10_b35_NB_BEAR",
+   "params": {
+    "flip_margin_cents": 10,
+    "retest_band_cents": 35,
+    "confirm_mode": "NEXT_BAR_CLOSE",
+    "direction": "BEAR"
+   },
+   "n_signals": 916,
+   "n_real_fills": 387,
+   "expectancy": -25.53,
+   "total_pnl": -9880.01,
+   "day_wr": 0.306,
+   "ex_top1_total": -10498.33,
+   "ex_top3_total": -11694.3,
+   "held_out_total": -1019.7,
+   "n_heldout_fills": 112,
+   "p_raw": 0.0089,
+   "gate_1_positive_aggregate": false,
+   "gate_2_day_majority": false,
+   "gate_3_survives_ex_top1": false,
+   "gate_4_heldout_positive": false,
+   "gates_passed": 0,
+   "win_rate": 0.266,
+   "n_tuning_days_with_fills": 160,
+   "disclosures": {
+    "n_synth_excluded": 0,
+    "n_missing_real_opra": 85,
+    "n_skipped_overlap": 227,
+    "n_unaffordable": 85,
+    "n_no_fill": 0,
+    "n_not_opra_day": 20
+   }
+  },
+  {
+   "cell_id": "m10_b35_RC_BEAR",
+   "params": {
+    "flip_margin_cents": 10,
+    "retest_band_cents": 35,
+    "confirm_mode": "RETEST_CLOSE",
+    "direction": "BEAR"
+   },
+   "n_signals": 1105,
+   "n_real_fills": 476,
+   "expectancy": -25.96,
+   "total_pnl": -12357.47,
+   "day_wr": 0.312,
+   "ex_top1_total": -13011.98,
+   "ex_top3_total": -14289.96,
+   "held_out_total": -162.19,
+   "n_heldout_fills": 147,
+   "p_raw": 0.0013,
+   "gate_1_positive_aggregate": false,
+   "gate_2_day_majority": false,
+   "gate_3_survives_ex_top1": false,
+   "gate_4_heldout_positive": false,
+   "gates_passed": 0,
+   "win_rate": 0.263,
+   "n_tuning_days_with_fills": 170,
+   "disclosures": {
+    "n_synth_excluded": 0,
+    "n_missing_real_opra": 98,
+    "n_skipped_overlap": 245,
+    "n_unaffordable": 115,
+    "n_no_fill": 0,
+    "n_not_opra_day": 24
+   }
+  },
+  {
+   "cell_id": "m20_b35_RC_BEAR",
+   "params": {
+    "flip_margin_cents": 20,
+    "retest_band_cents": 35,
+    "confirm_mode": "RETEST_CLOSE",
+    "direction": "BEAR"
+   },
+   "n_signals": 1063,
+   "n_real_fills": 461,
+   "expectancy": -26.62,
+   "total_pnl": -12272.04,
+   "day_wr": 0.313,
+   "ex_top1_total": -12926.55,
+   "ex_top3_total": -14204.53,
+   "held_out_total": -132.76,
+   "n_heldout_fills": 136,
+   "p_raw": 0.0012,
+   "gate_1_positive_aggregate": false,
+   "gate_2_day_majority": false,
+   "gate_3_survives_ex_top1": false,
+   "gate_4_heldout_positive": false,
+   "gates_passed": 0,
+   "win_rate": 0.267,
+   "n_tuning_days_with_fills": 166,
+   "disclosures": {
+    "n_synth_excluded": 0,
+    "n_missing_real_opra": 94,
+    "n_skipped_overlap": 229,
+    "n_unaffordable": 120,
+    "n_no_fill": 0,
+    "n_not_opra_day": 23
+   }
+  },
+  {
+   "cell_id": "m20_b35_NB_BEAR",
+   "params": {
+    "flip_margin_cents": 20,
+    "retest_band_cents": 35,
+    "confirm_mode": "NEXT_BAR_CLOSE",
+    "direction": "BEAR"
+   },
+   "n_signals": 903,
+   "n_real_fills": 375,
+   "expectancy": -27.43,
+   "total_pnl": -10284.8,
+   "day_wr": 0.293,
+   "ex_top1_total": -10945.11,
+   "ex_top3_total": -12167.0,
+   "held_out_total": -859.07,
+   "n_heldout_fills": 109,
+   "p_raw": 0.0057,
+   "gate_1_positive_aggregate": false,
+   "gate_2_day_majority": false,
+   "gate_3_survives_ex_top1": false,
+   "gate_4_heldout_positive": false,
+   "gates_passed": 0,
+   "win_rate": 0.256,
+   "n_tuning_days_with_fills": 157,
+   "disclosures": {
+    "n_synth_excluded": 0,
+    "n_missing_real_opra": 82,
+    "n_skipped_overlap": 228,
+    "n_unaffordable": 90,
+    "n_no_fill": 0,
+    "n_not_opra_day": 19
+   }
+  },
+  {
+   "cell_id": "m10_b15_RC_BEAR",
+   "params": {
+    "flip_margin_cents": 10,
+    "retest_band_cents": 15,
+    "confirm_mode": "RETEST_CLOSE",
+    "direction": "BEAR"
+   },
+   "n_signals": 1071,
+   "n_real_fills": 500,
+   "expectancy": -32.68,
+   "total_pnl": -16338.73,
+   "day_wr": 0.256,
+   "ex_top1_total": -16983.14,
+   "ex_top3_total": -18213.59,
+   "held_out_total": -416.72,
+   "n_heldout_fills": 156,
+   "p_raw": 0.0,
+   "gate_1_positive_aggregate": false,
+   "gate_2_day_majority": false,
+   "gate_3_survives_ex_top1": false,
+   "gate_4_heldout_positive": false,
+   "gates_passed": 0,
+   "win_rate": 0.244,
+   "n_tuning_days_with_fills": 176,
+   "disclosures": {
+    "n_synth_excluded": 0,
+    "n_missing_real_opra": 90,
+    "n_skipped_overlap": 201,
+    "n_unaffordable": 95,
+    "n_no_fill": 0,
+    "n_not_opra_day": 29
+   }
+  }
+ ]
+}

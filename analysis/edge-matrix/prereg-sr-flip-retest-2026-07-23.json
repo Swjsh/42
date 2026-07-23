@@ -1,0 +1,70 @@
+{
+  "family": "sr-flip-retest",
+  "prereg_frozen_at": "2026-07-22",
+  "built_for": "edge-matrix 2026-07-23",
+  "status": "FROZEN before any grid execution. No axis, fixed parameter, gate, or population may change after this file is written. Honest nulls expected and valued.",
+  "hypothesis": "S/R FLIP + RETEST (J 07-21: 745.89 'S/R flipped' premarket; J 07-17: '13:50 is a nice break and then retest'): a battle-tested horizontal level breaks (close-through), price leaves, returns, and retests the level from the OTHER side; a confirm candle at the retest is the entry. Both directions: break-UP -> support retest -> CALL; break-DOWN -> resistance retest -> PUT.",
+  "level_source": {
+    "engine": "backtest/lib/watchers/level_memory.py LevelMemory (the LIVE engine's multi-day level perception layer). Level sets are NEVER invented.",
+    "snapshot_rule": "Level set for day D = LevelMemory.levels_at(idx_prev) where idx_prev = the LAST RTH bar of the prior covered day within D's inventory-assigned source-file frame. Strictly prior-session data only (causal by construction; asserted in code).",
+    "lookback_days": 5,
+    "min_memory_score": 20.0,
+    "min_memory_score_provenance": "the key-levels producer's MIN_MEMORY=20 selection floor (documented in level_memory.py's ROLE_FLIP_MEMORY_THRESHOLD block); NOT tuned here.",
+    "role_init": "level.role from the LevelMemory snapshot; intraday role thereafter evolves ONLY via this detector's close-through margin rule (grid knob 1).",
+    "static_for_day": true,
+    "note": "RTH bars only (09:30<=t<16:00 true ET). Premarket bars are not in the caches' covered population; premarket-derived flips are therefore expressed as first-RTH-bar close-throughs (a gap through a level flips it on the first RTH close beyond margin)."
+  },
+  "detector_definition": {
+    "flip": "At bar i (close c), a level L with current role resistance flips to support iff c >= L + margin; role support flips to resistance iff c <= L - margin. Every flip cancels any unconsumed pending setup on that level and arms a NEW pending setup in the flip direction (BULL after break-up, BEAR after break-down).",
+    "leave_zone_requirement": "After the flip bar, at least one bar FULLY CLEAR of the retest zone must print before a retest is valid (BULL: bar low > L + band; BEAR: bar high < L - band). Fixed, not a knob: without it the bar after every break trivially 'retests'.",
+    "retest": "First subsequent bar whose low (BULL) / high (BEAR) enters [L - band, L + band]. Same-day only (flip and retest on the same session).",
+    "confirm_RETEST_CLOSE": "The retest bar itself closes on the flip side of L (BULL: close > L; BEAR: close < L). Decision instant = that bar's close time (bar_start + 5min).",
+    "confirm_NEXT_BAR_CLOSE": "The bar AFTER the retest bar closes on the flip side of L. Decision instant = confirm bar's close time. If the confirm bar itself is still inside the zone without confirming, it becomes the new retest bar (rolling); if it is clear above/below the zone without confirming, the setup returns to armed (a later zone re-entry may retest again).",
+    "one_entry_per_flip": "A pending setup is consumed by its first confirmed entry; no re-entry on the same (level, flip) event.",
+    "same_bar_tiebreak": "If multiple levels confirm on the same bar, take the one with the higher LevelMemory memory_score.",
+    "causality": "Bar i decisions use bars <= i only. Assert-checked in code two ways: (a) every signal's referenced bar indices <= its decision index; (b) prefix-equality self-check: on sampled (day, cell) pairs the detector is re-run on every truncated prefix of the day and must emit an identical signal prefix."
+  },
+  "grid_axes": {
+    "flip_margin_cents": [10, 20],
+    "retest_band_cents": [15, 35],
+    "confirm_mode": ["RETEST_CLOSE", "NEXT_BAR_CLOSE"],
+    "direction": ["BULL", "BEAR"]
+  },
+  "grid_size": 16,
+  "grid_statement": "16 cells = 2 margins x 2 bands x 2 confirms x 2 directions. 4 knobs, <=18 cells per protocol. Band values echo the live vocabulary (TOUCH_TOL=0.20, CLUSTER_TOL=0.35 bracketed by 15c/35c); margins bracket LevelMemory's own BREAK_MARGIN=0.15 (10c/20c). Zones, never penny-exact.",
+  "fixed_execution_params": {
+    "entry_decision_window_et": ["09:35", "15:00"],
+    "one_position_at_a_time_per_cell": true,
+    "account": "safe-2 (CORE-SAFE) via dojo sim_executor arm alias 'safe'",
+    "strike": "live V15_SAFE_TIERS (ATM at $2K) via fleet_executor._tiers_for_arm + strike_selection.pick_strike; side C for BULL, P for BEAR",
+    "qty": "min(3, risk_gate.max_affordable_qty(equity=2000, premium, safe params)); <1 => UNAFFORDABLE (excluded, disclosed)",
+    "entry_fill": "first OPRA 5m bar at/after the decision instant; entry premium = that bar's VWAP (option_pricing_real.bar_at_or_after convention)",
+    "exit": "the LIVE RIBBON_RIDE shape via sim_executor._resolve_exit_shape(safe-2, 'ribbon_ride', None), walked by backtest/lib/exit_manager_walk.walk_exit_manager (the REAL production exit_manager decision core). structure_stop_enabled=True for all cells; trigger_level = the flipped level's price (side C exits on closed 5m < level; side P on closed 5m > level -- exactly the S/R-flip invalidation). Ribbon 'stack' from backtest/lib/ribbon.compute_ribbon over the full continuous source-file frame (proper EMA-48 warmup). time_stop from automation/state/params.json (15:50). Entry-side tuning ONLY; no exit knob varies across cells."
+  },
+  "population": {
+    "inventory": "analysis/edge-matrix/day-inventory-2026-07-23.json",
+    "signal_days": "all covered days (386), each processed inside its inventory-assigned source_file frame (dedupe honored; no cross-file row mixing)",
+    "gate_math_days": "OPRA days only (381), REAL fills only; BS-synthetic fallback episodes are flagged is_synthetic, excluded from all gate math, and disclosed separately",
+    "tuning_days": "OPRA days NOT in heldout_days",
+    "held_out": "the inventory's heldout_days list (last 25% of OPRA days by date, 96 days). Touched ONLY by gate 4 / held_out_total after the single frozen grid pass; never used to select or adjust anything.",
+    "first_day_per_frame_skipped": "a day with no prior covered day inside its own source-file frame has no level snapshot and emits no signals (disclosed in results)."
+  },
+  "per_cell_outputs": ["n_signals", "n_real_fills", "expectancy", "total_pnl", "day_wr", "ex_top3_total", "held_out_total", "p_raw", "gates_passed"],
+  "gates": {
+    "gate_1": "tuning total_pnl > 0 (positive aggregate)",
+    "gate_2": "tuning day majority: fraction of tuning days with >=1 real fill whose day P&L > 0 exceeds 0.5",
+    "gate_3": "survives ex-top-1: tuning total_pnl minus the single best trade > 0 (ex_top3_total additionally reported)",
+    "gate_4": "held-out positive: >=1 real held-out fill AND held_out_total > 0",
+    "p_raw": "two-sided one-sample t (normal approx) of tuning per-trade P&L vs zero; reported, not a gate"
+  },
+  "sanity_anchor_diagnostic_only": {
+    "anchor": "2026-07-17, J's praised '13:50 break and then retest' bear entry: any BEAR cell signal with decision instant in [13:40, 14:15] ET on 2026-07-17.",
+    "note": "2026-07-17 sits in the held-out list; this check is evaluated AFTER the frozen pass, affects no gate, no ranking, no parameter. J's 07-21 745.89 anchor is premarket-structure and cannot reproduce in an RTH-only frame (disclosed, not forced)."
+  },
+  "deliverables": {
+    "runner": "backtest/tools/edge_matrix_sr_flip_retest.py",
+    "episodes": "analysis/edge-matrix/sr-flip-retest-episodes.json",
+    "results": "analysis/edge-matrix/sr-flip-retest-results-2026-07-23.json"
+  },
+  "non_goals": "NO live wiring, NO git commits, NO broker imports, NO params/doctrine edits. Research artifact only."
+}

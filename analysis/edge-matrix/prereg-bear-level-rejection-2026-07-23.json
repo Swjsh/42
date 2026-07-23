@@ -1,0 +1,106 @@
+{
+  "family": "bear-level-rejection",
+  "prereg_version": 2,
+  "frozen_at": "2026-07-22T22:30:00-06:00",
+  "frozen_before_any_run": true,
+  "amendments": [
+    {
+      "n": 1,
+      "at": "2026-07-22T23:20:00-06:00",
+      "what": "population.timestamp_frame changed from wall-v1 (offset-strip) to TRUE ET (per-row offset -> UTC -> DST-aware America/New_York), applied uniformly to SPY and OPRA.",
+      "why": "DATA BUG found before any full-run results were read: the SPY master is a display-frame patchwork (2025 winter stratum stored fixed -04:00, 2026 winter stratum stored true-EST -05:00) while the OPRA cache is uniformly fixed -04:00; offset-STRIPPING therefore misaligned SPY vs OPRA by exactly 1h on 2026 winter days, in the leakage direction (fills priced off option prints from before the signal). Verified: SPY 2025-01-07 first RTH row 10:30-04:00 == OPRA 10:30-04:00 (same UTC instant, true 09:30 EST) but SPY 2026-01-15 first RTH row 09:30-05:00 vs OPRA 10:30-04:00. All strata carry correct UTC instants, so uniform UTC->ET conversion aligns every join and makes entry windows / time stops read TRUE ET (live semantics). The inventory's own method note already prescribed exactly this conversion.",
+      "not_changed": "grid axes, cell count, baseline definition, gates, fixed constraints, populations -- untouched. This is a data-plumbing correction, not tuning."
+    },
+    {
+      "n": 2,
+      "at": "2026-07-22T23:45:00-06:00",
+      "what": "Offset-less-source fallback in SPY frame assembly: a day whose inventory-designated source_file stores NO per-row offsets is re-sourced from the other inventory source files (first offset-carrying file yielding >= 30 true-ET RTH bars; deterministic order), fail-loud if none.",
+      "why": "spy_5m_2025-01-01_2026-05-19_merged.csv stores 31,350 naive rows whose wall numbers are internally a frame patchwork (2025 winter = EDT-frame, 2026 winter = EST-frame -- verified against the offset-carrying twin file's identical closes), so per-row frame is unknowable and _true_et refuses it. Affects exactly 3 days (2025-07-03, 2025-11-28, 2025-12-24 -- the 2025 half-days); all 3 re-sourced to offset-carrying files with row-identical data.",
+      "not_changed": "grid axes, gates, populations -- untouched."
+    }
+  ],
+  "runner": "backtest/tools/edge_matrix_bear_level_rejection.py",
+  "episodes_output": "analysis/edge-matrix/bear-level-rejection-episodes.json",
+  "results_output": "analysis/edge-matrix/bear-level-rejection-results-2026-07-23.json",
+
+  "hypothesis": "The proven live family (BEARISH_REJECTION: put entry on a bear rejection of a known overhead level) can be REFINED on the entry side along three axes: (1) zone band width (levels are ZONES, not penny prices -- J standing doctrine), (2) Nth-touch-of-level requirement (J 07-17 dojo thesis: repeated rejection of the same level => put), (3) confirmation candle shape. The baseline cell replicates the live detector exactly and serves as control; every other cell is judged relative to the same gates, not against the baseline.",
+
+  "population": {
+    "day_inventory": "analysis/edge-matrix/day-inventory-2026-07-23.json",
+    "signal_days": "inventory opra_days (381) -- days with real OPRA option coverage",
+    "tuning_days": "opra_days MINUS heldout_days = 285 days (2025-01-02 .. day before first heldout)",
+    "held_out_days": "inventory heldout_days = 96 days (last 25% of opra_days BY DATE, 2026-02-25 .. 2026-07-17). Used ONLY for the held-out gate; never for selection or tuning.",
+    "spy_frame": "Continuous RTH-only (wall 09:30-16:00) 5m frame built per-day from each inventory day's OWN designated source_file (dedupe by timestamp). ALL 386 covered days feed LevelMemory/ribbon warmup continuity; signals are evaluated only on opra_days.",
+    "timestamp_frame": "TRUE ET (amendment 1): per-row offset -> UTC -> US-DST-aware America/New_York -> naive wall, applied uniformly to SPY AND OPRA before any join. Matches the day-inventory's own method note. RTH slicing, entry windows, and time stops therefore all read true ET. Constant across all cells."
+  },
+
+  "level_source": {
+    "engine": "backtest/lib/watchers/level_memory.py LevelMemory (the LIVE key-levels-memory producer's engine; causal by construction, guard-tested)",
+    "config": "lookback_days=10, memory_score >= 20.0 -- byte-matched to setup/scripts/level_memory_producer.py LOOKBACK_DAYS=10 / MIN_MEMORY=20.0 (the live key-levels vocabulary floor). Levels are NEVER invented; only LevelMemory cluster prices are used.",
+    "frame": "RTH-only continuous frame (the live producer's level set is RTH-derived; premarket levels are a known live gap per DOJO-HARVEST Lane A #5 -- replicated, not fixed, here)."
+  },
+
+  "detector_definition": {
+    "signal_bar": "A fully closed 5m bar i evaluated with bars <= i ONLY (C6). Structural causality: the detector receives only day arrays sliced to i+1, and levels come from LevelMemory.levels_at(global_idx_of(i)) which reads only bars <= that index. Additionally assert-checked at runtime by recomputing levels on a truncated frame for sampled signals.",
+    "zone": "level price p with band w: zone = [p - w, p + w]",
+    "tag": "bar.high > p - w (bar reached into the zone; at w=0 this is exactly the live detect_level_rejection reach condition bar.high > level)",
+    "confirmation_modes": {
+      "close_below": "bar.close < p - w (closed back below the zone; at w=0 exactly the live detect_level_rejection condition bar.close < level)",
+      "red_bar": "tag AND bar.close < bar.open (rejection read from candle color, no close-below-level requirement)",
+      "none": "tag alone (no confirmation candle)"
+    },
+    "level_choice": "among levels passing the cell's tag+confirmation at bar i, pick max(p) -- the live detect_level_rejection convention",
+    "nth_touch": "touch EPISODES of the zone counted over TODAY's RTH bars 0..i (an episode = maximal consecutive run of bars with high > p - w, separated by >=1 clear bar). The signal bar's own episode index (1-based, counting the current episode) must be >= nth_touch_min. Causal: episode counting reads only today's bars <= i.",
+    "per_episode_dedupe": "after a signal fires at level p, no further signal within $0.35 (LevelMemory CLUSTER_TOL) of p until a bar prints with high <= p - w (episode over). One signal per (level, touch-episode).",
+    "one_position_at_a_time": "signals whose entry time falls while a prior walked position is still open are recorded as signals but not filled (live engine trades one at a time)."
+  },
+
+  "grid": {
+    "n_knobs": 3,
+    "n_cells": 18,
+    "axes": {
+      "zone_band_dollars": [0.0, 0.2],
+      "nth_touch_min": [1, 2, 3],
+      "confirmation": ["close_below", "red_bar", "none"]
+    },
+    "axis_rationale": {
+      "zone_band_dollars": "0.00 = live penny-exact baseline (filters.py detect_level_rejection). 0.20 = LevelMemory's own TOUCH_TOL -- the level engine's documented interaction tolerance, chosen from the engine's own constants, not hand-picked (feedback_levels_are_zones: band width = pre-reg A/B).",
+      "nth_touch_min": "1 = no requirement (live baseline). 2 / 3 = J's 07-17 thesis 'repeated rejection => put' at the two smallest strengths.",
+      "confirmation": "close_below = live baseline. red_bar and none = the two relaxations named in the family assignment."
+    },
+    "baseline_cell": "band0.00|nth1|close_below -- replicates the live BEARISH_REJECTION trigger (backtest/lib/filters.py detect_level_rejection: bar.high > level AND bar.close < level, max rejected level, no touch-count requirement) as control."
+  },
+
+  "fixed_not_tuned": {
+    "ribbon_gate": "signal bar ribbon stack must == BEAR (live filters.py Filter 5 hard-blocks this family's bear entries unless BEAR-stacked; structural per ribbon-state-entry-gate study). compute via backtest/lib/ribbon.compute_ribbon over the continuous RTH close series.",
+    "entry_window": "entry bar time (signal + 5min) in [09:35, 15:00) ET wall -- params.json entry_no_trade_before_et=09:35 / entry_no_trade_after_et=15:00, read fresh 2026-07-22",
+    "side": "P (puts only)",
+    "strike": "production picker: dojo sim_executor._strike_for(safe arm cfg, spot=signal close, 'P') -- ATM per V15_SAFE_TIERS",
+    "qty": "min(min_contracts=3, risk_gate.max_affordable_qty(equity=safe arm starting_equity, premium, params)) -- pullback_hold_bull_replay convention",
+    "entry_fill": "next OPRA 5m bar at-or-after signal_ts+5min, filled at that bar's VWAP (option_pricing_real documented convention)",
+    "min_entry_premium": "0.30 (params.json min_entry_premium) -- fills below floor are skipped and disclosed",
+    "exits": "the LIVE RIBBON_RIDE shape resolved via sim_executor._resolve_exit_shape(safe arm, 'ribbon_ride', None), walked through backtest/lib/exit_manager_walk.walk_exit_manager (the REAL production exit_manager decision core). structure_stop_enabled=True (params.json), trigger_level = the rejected level price, time_stop_et=15:40 (params.json). ENTRY-SIDE TUNING ONLY -- exits identical across all 18 cells."
+  },
+
+  "dollars": {
+    "authority": "real OPRA fills only (backtest/data/options via option_pricing_real.load_contract_bars). NO Black-Scholes synthetic anywhere in gate math: signals whose contract has no cached OPRA series are excluded from fills and counted/disclosed as no_opra skips."
+  },
+
+  "per_cell_outputs": [
+    "n_signals (tuning days, post-dedupe)",
+    "n_real_fills (tuning days, FILLED with real OPRA)",
+    "expectancy = total_pnl / n_real_fills (tuning)",
+    "total_pnl (tuning)",
+    "day_wr = fraction of tuning days with >=1 fill whose day P&L > 0",
+    "ex_top3_total = total_pnl minus the 3 best trades (tuning)",
+    "held_out_total = sum of fills P&L on heldout_days (same fixed mechanics, no selection)",
+    "p_raw = two-sided one-sample t vs zero on tuning per-trade P&L (pullback_hold_bull_replay._one_sample_p convention)",
+    "gates_passed of 4: [tuning total_pnl > 0] [day majority: winning days > covered days / 2] [survives ex-top-1: total minus single best trade > 0] [held-out positive: >=1 held-out fill AND held_out_total > 0]"
+  ],
+
+  "disclosures_committed_in_advance": {
+    "not_full_engine_replication": "The full production cascade also applies VIX gates, volume filter, HTF modifier, entry-bar body, tier blocks (block_level_rejection=true currently blocks the bare LEVEL tier in production; the ELITE level_rejection+confluence pair still trades). This matrix isolates the DETECTOR family with the two structural gates that define it (ribbon BEAR + entry window); it is a detector-refinement study, not an engine parity study. Constant across all cells, so within-grid comparisons are clean.",
+    "small_n_honesty": "Any cell with n_real_fills < 15 is below the OP-16 advisory evidence floor and will be labeled accordingly regardless of gates.",
+    "honest_null": "If no cell clears gates, that is the result. No post-hoc knob additions, no grid extension after seeing results."
+  }
+}

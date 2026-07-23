@@ -1,0 +1,458 @@
+{
+ "family": "range-pingpong",
+ "prereg": "analysis\\edge-matrix\\prereg-range-pingpong-2026-07-23.json",
+ "generated": "2026-07-22T19:09:44",
+ "population": {
+  "opra_days_run": 381,
+  "tuning_days": 285,
+  "heldout_days": 96
+ },
+ "exit_shape": {
+  "premium_stop_pct": -0.2,
+  "tp1_premium_pct": 1.0,
+  "tp1_qty_fraction": 0.667,
+  "profit_lock_mode": "trailing",
+  "runner_target_pct": 99.0,
+  "trail_pct": 0.15,
+  "profit_lock_arm_pct": 0.05,
+  "stop_mode": "structure",
+  "catastrophe_stop_pct": -0.5,
+  "profit_lock_arm_scope": "post_tp1"
+ },
+ "qty": 3,
+ "day_errors": [],
+ "cells": [
+  {
+   "cell_id": "rp-s080-t2-b010-c0",
+   "params": {
+    "spacing_min": 0.8,
+    "touches_min": 2,
+    "band": 0.1,
+    "confirm": 0
+   },
+   "n_signals": 1327,
+   "n_real_fills": 1057,
+   "expectancy": -12.87,
+   "total_pnl": -13606.52,
+   "day_wr": 0.358,
+   "n_covered_days": 257,
+   "ex_top1_total": -14508.0,
+   "ex_top3_total": -16285.66,
+   "held_out_total": -5922.04,
+   "held_out_n_fills": 469,
+   "p_raw": 0.9825,
+   "gates_passed": 0,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_heldout_positive": false
+   }
+  },
+  {
+   "cell_id": "rp-s080-t2-b010-c1",
+   "params": {
+    "spacing_min": 0.8,
+    "touches_min": 2,
+    "band": 0.1,
+    "confirm": 1
+   },
+   "n_signals": 975,
+   "n_real_fills": 842,
+   "expectancy": -12.19,
+   "total_pnl": -10261.19,
+   "day_wr": 0.3906,
+   "n_covered_days": 256,
+   "ex_top1_total": -11293.34,
+   "ex_top3_total": -13142.34,
+   "held_out_total": -7167.69,
+   "held_out_n_fills": 375,
+   "p_raw": 0.953,
+   "gates_passed": 0,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_heldout_positive": false
+   }
+  },
+  {
+   "cell_id": "rp-s080-t2-b020-c0",
+   "params": {
+    "spacing_min": 0.8,
+    "touches_min": 2,
+    "band": 0.2,
+    "confirm": 0
+   },
+   "n_signals": 1465,
+   "n_real_fills": 1185,
+   "expectancy": -12.03,
+   "total_pnl": -14253.88,
+   "day_wr": 0.3664,
+   "n_covered_days": 262,
+   "ex_top1_total": -15146.84,
+   "ex_top3_total": -16898.05,
+   "held_out_total": -8244.42,
+   "held_out_n_fills": 494,
+   "p_raw": 0.9825,
+   "gates_passed": 0,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_heldout_positive": false
+   }
+  },
+  {
+   "cell_id": "rp-s080-t2-b020-c1",
+   "params": {
+    "spacing_min": 0.8,
+    "touches_min": 2,
+    "band": 0.2,
+    "confirm": 1
+   },
+   "n_signals": 1098,
+   "n_real_fills": 947,
+   "expectancy": -9.25,
+   "total_pnl": -8760.04,
+   "day_wr": 0.3769,
+   "n_covered_days": 260,
+   "ex_top1_total": -9792.19,
+   "ex_top3_total": -11641.19,
+   "held_out_total": -9078.75,
+   "held_out_n_fills": 392,
+   "p_raw": 0.92101,
+   "gates_passed": 0,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_heldout_positive": false
+   }
+  },
+  {
+   "cell_id": "rp-s080-t3-b010-c0",
+   "params": {
+    "spacing_min": 0.8,
+    "touches_min": 3,
+    "band": 0.1,
+    "confirm": 0
+   },
+   "n_signals": 1325,
+   "n_real_fills": 1055,
+   "expectancy": -10.73,
+   "total_pnl": -11319.27,
+   "day_wr": 0.3658,
+   "n_covered_days": 257,
+   "ex_top1_total": -12220.75,
+   "ex_top3_total": -13998.41,
+   "held_out_total": -6725.64,
+   "held_out_n_fills": 468,
+   "p_raw": 0.9561,
+   "gates_passed": 0,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_heldout_positive": false
+   }
+  },
+  {
+   "cell_id": "rp-s080-t3-b010-c1",
+   "params": {
+    "spacing_min": 0.8,
+    "touches_min": 3,
+    "band": 0.1,
+    "confirm": 1
+   },
+   "n_signals": 974,
+   "n_real_fills": 840,
+   "expectancy": -11.2,
+   "total_pnl": -9405.03,
+   "day_wr": 0.3922,
+   "n_covered_days": 255,
+   "ex_top1_total": -10437.18,
+   "ex_top3_total": -12286.18,
+   "held_out_total": -6882.02,
+   "held_out_n_fills": 373,
+   "p_raw": 0.93671,
+   "gates_passed": 0,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_heldout_positive": false
+   }
+  },
+  {
+   "cell_id": "rp-s080-t3-b020-c0",
+   "params": {
+    "spacing_min": 0.8,
+    "touches_min": 3,
+    "band": 0.2,
+    "confirm": 0
+   },
+   "n_signals": 1459,
+   "n_real_fills": 1179,
+   "expectancy": -9.97,
+   "total_pnl": -11749.91,
+   "day_wr": 0.3779,
+   "n_covered_days": 262,
+   "ex_top1_total": -12642.87,
+   "ex_top3_total": -14394.08,
+   "held_out_total": -9262.91,
+   "held_out_n_fills": 491,
+   "p_raw": 0.9639,
+   "gates_passed": 0,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_heldout_positive": false
+   }
+  },
+  {
+   "cell_id": "rp-s080-t3-b020-c1",
+   "params": {
+    "spacing_min": 0.8,
+    "touches_min": 3,
+    "band": 0.2,
+    "confirm": 1
+   },
+   "n_signals": 1094,
+   "n_real_fills": 942,
+   "expectancy": -8.05,
+   "total_pnl": -7586.92,
+   "day_wr": 0.3822,
+   "n_covered_days": 259,
+   "ex_top1_total": -8619.07,
+   "ex_top3_total": -10468.07,
+   "held_out_total": -8095.84,
+   "held_out_n_fills": 387,
+   "p_raw": 0.88621,
+   "gates_passed": 0,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_heldout_positive": false
+   }
+  },
+  {
+   "cell_id": "rp-s120-t2-b010-c0",
+   "params": {
+    "spacing_min": 1.2,
+    "touches_min": 2,
+    "band": 0.1,
+    "confirm": 0
+   },
+   "n_signals": 627,
+   "n_real_fills": 475,
+   "expectancy": -16.45,
+   "total_pnl": -7815.26,
+   "day_wr": 0.3873,
+   "n_covered_days": 173,
+   "ex_top1_total": -8708.22,
+   "ex_top3_total": -10247.1,
+   "held_out_total": -1984.18,
+   "held_out_n_fills": 245,
+   "p_raw": 0.94701,
+   "gates_passed": 0,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_heldout_positive": false
+   }
+  },
+  {
+   "cell_id": "rp-s120-t2-b010-c1",
+   "params": {
+    "spacing_min": 1.2,
+    "touches_min": 2,
+    "band": 0.1,
+    "confirm": 1
+   },
+   "n_signals": 454,
+   "n_real_fills": 373,
+   "expectancy": -20.78,
+   "total_pnl": -7750.71,
+   "day_wr": 0.3491,
+   "n_covered_days": 169,
+   "ex_top1_total": -8662.53,
+   "ex_top3_total": -10200.31,
+   "held_out_total": -4667.48,
+   "held_out_n_fills": 193,
+   "p_raw": 0.9588,
+   "gates_passed": 0,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_heldout_positive": false
+   }
+  },
+  {
+   "cell_id": "rp-s120-t2-b020-c0",
+   "params": {
+    "spacing_min": 1.2,
+    "touches_min": 2,
+    "band": 0.2,
+    "confirm": 0
+   },
+   "n_signals": 709,
+   "n_real_fills": 545,
+   "expectancy": -14.96,
+   "total_pnl": -8155.83,
+   "day_wr": 0.3651,
+   "n_covered_days": 189,
+   "ex_top1_total": -9048.79,
+   "ex_top3_total": -10587.67,
+   "held_out_total": -3748.15,
+   "held_out_n_fills": 266,
+   "p_raw": 0.94711,
+   "gates_passed": 0,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_heldout_positive": false
+   }
+  },
+  {
+   "cell_id": "rp-s120-t2-b020-c1",
+   "params": {
+    "spacing_min": 1.2,
+    "touches_min": 2,
+    "band": 0.2,
+    "confirm": 1
+   },
+   "n_signals": 529,
+   "n_real_fills": 433,
+   "expectancy": -12.01,
+   "total_pnl": -5201.06,
+   "day_wr": 0.3548,
+   "n_covered_days": 186,
+   "ex_top1_total": -6112.88,
+   "ex_top3_total": -7650.66,
+   "held_out_total": -7284.45,
+   "held_out_n_fills": 211,
+   "p_raw": 0.86141,
+   "gates_passed": 0,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_heldout_positive": false
+   }
+  },
+  {
+   "cell_id": "rp-s120-t3-b010-c0",
+   "params": {
+    "spacing_min": 1.2,
+    "touches_min": 3,
+    "band": 0.1,
+    "confirm": 0
+   },
+   "n_signals": 631,
+   "n_real_fills": 476,
+   "expectancy": -13.78,
+   "total_pnl": -6560.3,
+   "day_wr": 0.3908,
+   "n_covered_days": 174,
+   "ex_top1_total": -7453.26,
+   "ex_top3_total": -8992.14,
+   "held_out_total": -2533.79,
+   "held_out_n_fills": 243,
+   "p_raw": 0.91761,
+   "gates_passed": 0,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_heldout_positive": false
+   }
+  },
+  {
+   "cell_id": "rp-s120-t3-b010-c1",
+   "params": {
+    "spacing_min": 1.2,
+    "touches_min": 3,
+    "band": 0.1,
+    "confirm": 1
+   },
+   "n_signals": 457,
+   "n_real_fills": 374,
+   "expectancy": -18.34,
+   "total_pnl": -6860.21,
+   "day_wr": 0.3588,
+   "n_covered_days": 170,
+   "ex_top1_total": -7772.03,
+   "ex_top3_total": -9309.81,
+   "held_out_total": -4386.24,
+   "held_out_n_fills": 192,
+   "p_raw": 0.93571,
+   "gates_passed": 0,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_heldout_positive": false
+   }
+  },
+  {
+   "cell_id": "rp-s120-t3-b020-c0",
+   "params": {
+    "spacing_min": 1.2,
+    "touches_min": 3,
+    "band": 0.2,
+    "confirm": 0
+   },
+   "n_signals": 709,
+   "n_real_fills": 542,
+   "expectancy": -12.41,
+   "total_pnl": -6728.36,
+   "day_wr": 0.3651,
+   "n_covered_days": 189,
+   "ex_top1_total": -7621.32,
+   "ex_top3_total": -9160.2,
+   "held_out_total": -3807.33,
+   "held_out_n_fills": 262,
+   "p_raw": 0.91171,
+   "gates_passed": 0,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_heldout_positive": false
+   }
+  },
+  {
+   "cell_id": "rp-s120-t3-b020-c1",
+   "params": {
+    "spacing_min": 1.2,
+    "touches_min": 3,
+    "band": 0.2,
+    "confirm": 1
+   },
+   "n_signals": 530,
+   "n_real_fills": 432,
+   "expectancy": -9.54,
+   "total_pnl": -4120.24,
+   "day_wr": 0.3622,
+   "n_covered_days": 185,
+   "ex_top1_total": -5032.06,
+   "ex_top3_total": -6569.84,
+   "held_out_total": -6495.24,
+   "held_out_n_fills": 208,
+   "p_raw": 0.80742,
+   "gates_passed": 0,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_heldout_positive": false
+   }
+  }
+ ]
+}

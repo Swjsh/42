@@ -1,0 +1,94 @@
+{
+  "family": "premarket-level-interaction",
+  "version": 1,
+  "frozen_at": "2026-07-22",
+  "author": "edge-matrix subagent (premarket-level-interaction lane)",
+  "status": "FROZEN before any grid execution. No knob, band, gate, seed, or population rule may change after the first cell runs.",
+
+  "hypothesis": "Levels formed by premarket structure (04:00-09:30 ET highs/lows and premarket S/R-flip levels; J exhibits: 745.94 on 07-21, the 04:15/05:30/07:20 flip level on 07-17) carry tradeable information on their FIRST RTH touch: a rejection (fade) or a reclaim/break (go-with) at the zone produces positive per-trade expectancy under the live RIBBON_RIDE exit shape.",
+
+  "reconciliation_with_premarket_touch_credit_kill": {
+    "killed_study": "analysis/recommendations/premarket-touch-credit-2026-07-20.json (verdict KILL, p_random=0.21, p_shuffled_level=0.208)",
+    "what_that_study_tested": "SEGMENTATION of the EXISTING RTH trigger population: do RTH rejection/reclaim triggers whose (RTH-derived) trigger_level had >=1 premarket touch outperform the same triggers at untouched levels. Premarket touches were a LABEL on someone else's level set.",
+    "what_this_study_tests": "The premarket level ITSELF as the trade anchor: a NEW signal population defined by first RTH touch of a level DERIVED FROM premarket structure (PM high/low, PM flip level). No overlap with the engine's existing trigger population or its RTH-derived level set.",
+    "why_the_kill_does_not_pre-decide_this": "The kill says premarket touch COUNTS add no segmentation value to RTH-anchored entries. It says nothing about whether the premarket level's own location is a viable entry anchor. If THIS study also nulls, the premarket-structure idea is dead from both directions and should be recorded as such.",
+    "shared_root": "Both exist because the engine's level set is RTH-derived (DOJO-HARVEST-2026-07-21 Lane A gap #5)."
+  },
+
+  "population": {
+    "day_inventory": "analysis/edge-matrix/day-inventory-2026-07-23.json",
+    "days": "all has_opra=true days (381)",
+    "heldout_days": "the inventory's heldout_days list (96 days, 2026-02-25..2026-07-17) -- honored verbatim; all tuning-side gate math uses ONLY non-heldout days; held-out totals are computed in the same single pass and used ONLY for the held-out gate, never for selection",
+    "coverage_floor": "a day enters the signal population only if it has >= 6 premarket 5m bars (04:00 <= t < 09:30 wall-clock ET) in its inventory source_file; days failing the floor are excluded and counted",
+    "data_provenance_disclosure": "MEASURED BEFORE ANY CELL RAN (feed-seam audit this session; figures AMENDED pre-run after switching the census to the correct wall-v1 frame -- the first census wrongly tz_converted, which shifted after-hours rows into premarket and overstated tuning coverage as 77 days >=6): under wall-v1, tuning-side days (2025-01-02..2026-02-24) have near-ZERO premarket coverage (0 days with >=20 pm bars; only 24 of 285 days with >=6; median 2 bars/day), while full 04:00-premarket coverage (>=50 bars/day) starts 2026-03-16 and lies ENTIRELY inside the held-out window (78 of 96 held-out days; 89 held-out days pass the >=6 floor). The family's tuning population is therefore structurally tiny and measured from a sparse feed; the tuning-vs-heldout comparison carries a feed confound no verdict may ignore. Same seam the touch-credit study handled by restricting to 2026-05-19+ (DATA-PROVENANCE.md). An honest INSUFFICIENT_N / null on the tuning side is the EXPECTED outcome; full-fidelity evaluation of this family requires a premarket data backfill for 2025. Amendment scope: disclosure figures only -- zero knobs, gates, bands, seeds, or population rules changed."
+  },
+
+  "detector": {
+    "timestamp_frame": "wall-v1: strip whatever tz offset the SPY master carries, keep wall-clock numbers, never tz_convert (matches et_frame.py convention and every existing scorecard)",
+    "premarket_window": "04:00 <= t < 09:30 same-day wall-clock",
+    "levels_frozen_at": "09:30 -- computed once per day from premarket bars ONLY; never recomputed intraday (causal by construction)",
+    "level_definitions": {
+      "pm_hl": "premarket high (max of pm bar highs) and premarket low (min of pm bar lows); up to 2 levels/day",
+      "pm_flip": "LevelMemory (backtest/lib/watchers/level_memory.py -- the LIVE engine's level vocabulary, verbatim import, zero new level math) run over the day's premarket bars only; keep levels with role_flips >= 1; take the single highest-memory_score such level; up to 1 level/day. LevelMemory's own structural constants (SWING_HALF=2, CLUSTER_TOL=0.35, MIN_PIVOTS=2) mean this arm rarely forms on sparse-premarket days -- disclosed, not patched"
+    },
+    "first_touch": "first RTH 5m bar (09:30 <= t < 16:00) whose [low, high] range intersects [level - band, level + band]; ONE episode max per (day, level); if the first touch fails the direction rule there is NO trade at that level that day (no re-arm)",
+    "approach_side": "close of the bar immediately before the touch bar (last premarket bar if the touch is the 09:30 bar); 'above' iff that close >= level",
+    "direction_rules": {
+      "reject": "fade the zone: approach above AND touch bar closes > level -> BULL (calls); approach below AND touch bar closes < level -> BEAR (puts); else no trade",
+      "reclaim": "go with the break: approach below AND touch bar closes >= level + 0.15 -> BULL; approach above AND touch bar closes <= level - 0.15 -> BEAR; else no trade. 0.15 = LevelMemory BREAK_MARGIN, the live decisive-close constant, not a new knob"
+    },
+    "confirm_rules": {
+      "none": "signal at the touch bar; entry at touch-bar close time (bar timestamp + 5 min)",
+      "next_bar": "the bar after the touch bar must close beyond the touch bar's close in the trade direction; entry at that bar's close time; else no trade"
+    },
+    "entry_time_gate": "entry timestamp >= 09:35 (automatic: earliest RTH bar closes 09:35, matching the live 09:35 entry gate) and <= 15:45 (must leave >= 1 exit tick before the 15:50 time stop); signals past the cutoff are dropped and counted",
+    "causality": "assert-checked in code: all level inputs timestamped < 09:30; signal bar decision reads only bars <= signal bar; entry strictly after signal bar; C6"
+  },
+
+  "knobs": {
+    "level_def": ["pm_hl", "pm_flip"],
+    "band": [0.2, 0.35],
+    "rule": ["reject", "reclaim"],
+    "confirm": ["none", "next_bar"]
+  },
+  "n_knobs": 4,
+  "n_cells": 16,
+  "cell_id_format": "pmli-<level_def>-b<band_cents>-<rule>-<confirm>",
+
+  "band_provenance": "0.20 = LevelMemory TOUCH_TOL (live interaction tolerance); 0.35 = LevelMemory CLUSTER_TOL (live cluster width). Both are standing live constants -- no hand-picked widths (feedback_levels_are_zones: band width = pre-reg A/B, never hand-picked).",
+
+  "execution": {
+    "instrument": "SPY 0DTE, ATM strike = round(signal-bar close) per V15_SAFE_TIERS strike_offset=0 (live truth, fills-verified 2026-07-11)",
+    "qty": 3,
+    "qty_rationale": "live minimum (2 TP1 + 1 runner) so tp1_qty_fraction=0.667 realizes the live scale-out mechanics exactly",
+    "entry_fill": "next OPRA 5-min bar at-or-after entry time, filled at that bar's VWAP (option_pricing_real.py documented convention); walk begins on the bar strictly after the fill bar",
+    "exit": "backtest/lib/exit_manager_walk.walk_exit_manager with exit_shape = automation/state/fleet/strategies.RIBBON_RIDE.exit.to_dict() (SS-B cell), structure_stop_enabled = True (live params.json value, verified this session), trigger_level = the premarket level (trigger-exact reference, buffer 0.00 -- the confirmed live behavior), strategy = 'ribbon_ride', time_stop 15:50 ET",
+    "ribbon": "lib/ribbon.compute_ribbon over each source file's RTH-only frame (orchestrator frame convention), aligned to option bars by wall timestamp for ribbon_flip_back exits",
+    "dollars": "real OPRA fills ONLY (backtest/data/options/ via option_pricing_real). Signals with no cached contract, no bar at/after entry, or vwap <= 0 are counted in n_signals but EXCLUDED from all gate math and disclosed as no-fill. Zero BS-synthetic episodes."
+  },
+
+  "metrics_per_cell": {
+    "n_signals": "tuning-side signal count (incl. no-fill)",
+    "n_real_fills": "tuning-side episodes with a real OPRA fill",
+    "expectancy": "mean $ per filled trade (tuning side)",
+    "total_pnl": "sum $ (tuning side)",
+    "day_wr": "fraction of tuning days with >= 1 fill whose day P&L > 0",
+    "ex_top3_total": "tuning total minus the 3 largest single-trade P&Ls",
+    "held_out_total": "sum $ over held-out-day fills (single blind pass; gate only)",
+    "p_raw": "one-sided sign-flip permutation p for tuning total > 0; 10000 draws, seed 20260723; p = P(perm_total >= observed); cells with n_real_fills < 5 report p_raw = 1.0 (untestable)",
+    "gates": [
+      "G1: tuning total_pnl > 0",
+      "G2: day_wr > 0.5",
+      "G3: tuning total minus single best trade > 0 (survives ex-top-1)",
+      "G4: held_out_total > 0"
+    ]
+  },
+
+  "outputs": {
+    "runner": "backtest/tools/edge_matrix_premarket_level_interaction.py",
+    "episodes": "analysis/edge-matrix/premarket-level-interaction-episodes.json",
+    "results": "returned as the structured cell table + embedded in the episodes file header"
+  },
+
+  "no_touch": "NO live wiring, NO git commits, NO broker imports, NO trading-path file edits regardless of outcome."
+}
