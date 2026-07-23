@@ -22,7 +22,16 @@
   (pre-reg A/B, Lane B): does an ETH-inclusive ribbon improve gap-morning decisions vs the
   RTH-only one? Replay both scopes through the standing battery on gap days specifically.
   CAUTION: RTH-only is load-bearing for backtest parity (42%->fixed score alignment) -- any
-  scope change must re-run the parity suite. depends:none :: status:pending
+  scope change must re-run the parity suite. depends:none :: status:PART-2-RESOLVED 2026-07-23 (A/B verdict: HONEST NULL -- keep the engine's
+  RTH ribbon. 3 cells on 24 top-quartile gap days: RTH control +\$15.03/tr but held-out -\$821;
+  ETH swap -\$46.12/tr; AGREE_ONLY +\$60.75/tr tuning but -\$2,392 held-out = classic mirage,
+  0-1/4 gates all cells, no BH survivor. Scope change refuted; RTH stays (also parity-load-bearing).
+  PART A DELIVERED THE DURABLE WIN: our ETH ribbon math validated vs TV renders (stack concordance
+  43%->90%, residual \$0.29/bar = SIP-vs-BATS premarket feed noise, root-caused) -- validated
+  J's-eyes stand-in = backtest/tools/eth_ribbon.py + ribbon_scope_compare.py (9/9 guards).
+  REMAINING (small, Lane A): wire compare_at into the dojo session step + morning-brief gap-day
+  line ("my ribbon differs from your chart by \$X this morning") -- disagreement is ~45% of
+  first-hour bars EVERY day, not just gaps, so the flag is a daily J-vs-engine translation aid.)
 
 ### EDGE-MATRIX-NIGHTLY-RERUN (MED, standing loop wiring)
 
