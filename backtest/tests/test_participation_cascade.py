@@ -228,16 +228,56 @@ class TestStaleTriggerOutranksGateAttribution:
         c = pc.classify_core_row(r)
         assert c["stage"] == "STALE_TRIGGER"
 
-    def test_trigger_bar_et_alone_marks_staleness(self):
-        """Fallback detector: top-level trigger_bar_et has exactly ONE writer in
-        heartbeat_core.py (the staleness branch) -- its presence marks the row
-        stale even if a future edit ever changes the action label."""
+    def test_trigger_bar_et_cross_session_marks_staleness_even_without_action_label(self):
+        """Fallback detector (CORRECTED 2026-07-23 -- see the PARTICIPATION-CASCADE-
+        TRIGGER-BAR regression comment on classify_core_row): trigger_bar_et no longer
+        has exactly one writer -- since the 2026-07-20 visibility fix it is stamped on
+        EVERY row, stale or not -- so mere PRESENCE can't mark staleness anymore (that
+        was this test's pre-fix premise). The fallback now requires the trigger bar's
+        calendar day to differ from the row's OWN ts_et day: a genuine cross-session
+        carry-over, even if a future edit ever drops the SKIP_STALE_TRIGGER action label."""
         r = {"verdict": "SKIP_BULL_1100_1200", "action": "SKIP_BULL_1100_1200",
              "side": "C", "setup": None,
              "reason": "blocked by entry gate block_bull_1100_1200",
-             "trigger_bar_et": self._STALE_BAR}
+             "trigger_bar_et": self._STALE_BAR, "ts_et": "2026-07-10T09:31:03"}
         c = pc.classify_core_row(r)
         assert c["stage"] == "STALE_TRIGGER"
+
+    def test_same_day_trigger_bar_et_does_not_falsely_mark_staleness(self):
+        """THE 2026-07-23 regression this caught live in production:
+        participation-daily.json reported RED for both accounts (fills=0) and Discord
+        told J "orders=0" even though bold placed+filled a real 0DTE put at 11:29 ET --
+        because EVERY row (including the real PLACED row and 13 real SKIP_LATE_ENTRY
+        rows) carries a SAME-DAY trigger_bar_et since the 2026-07-20 visibility fix, and
+        the old "trigger_bar_et truthy" fallback swallowed them all into STALE_TRIGGER
+        before _classify_action_code ever got a chance to attribute them correctly. A
+        same-day trigger_bar_et with a non-stale action must classify by its real action."""
+        r = {"verdict": "ENTER_BULL", "action": "SKIP_LATE_ENTRY", "side": "C",
+             "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+             "reason": "BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier SUPER)",
+             "trigger_bar_et": "2026-07-23T15:40:00-04:00", "ts_et": "2026-07-23T15:47:03"}
+        c = pc.classify_core_row(r)
+        assert c["stage"] == "WINDOW_BLOCK", (
+            f"same-day trigger_bar_et misclassified as {c['stage']!r} -- the "
+            "2026-07-23 PARTICIPATION-CASCADE regression (real rows swallowed into "
+            "STALE_TRIGGER)")
+        assert c["tier"] == "SUPER"
+
+    def test_same_day_trigger_bar_et_placed_row_still_counts_as_placed(self):
+        """The exact live 2026-07-23 exhibit: bold's 11:29 ET ENTER_BEAR, action=PLACED,
+        broker-filled -- must classify PLACED/FILLED, never STALE_TRIGGER, despite
+        carrying a same-day trigger_bar_et."""
+        r = {"verdict": "ENTER_BEAR", "action": "PLACED", "side": "P",
+             "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+             "reason": "BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier LEVEL)",
+             "trigger_bar_et": "2026-07-23T11:20:00-04:00", "ts_et": "2026-07-23T11:29:03",
+             "exec": {"status": "PLACED", "symbol": "SPY260723P00735000",
+                      "broker": {"filled_qty": "5", "filled_at": "2026-07-23T15:29:25Z"}}}
+        c = pc.classify_core_row(r)
+        assert c["stage"] == "PLACED", (
+            f"same-day trigger_bar_et misclassified a real placed/filled order as "
+            f"{c['stage']!r} -- the 2026-07-23 PARTICIPATION-CASCADE regression")
+        assert c["category"] == pc.CAT_SUCCESS
 
     def test_stale_hold_stays_no_signal(self):
         """Deliberate ordering: NO_DATA/NO_SIGNAL stay ABOVE staleness.

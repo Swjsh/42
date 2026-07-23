@@ -1,31 +1,31 @@
 {
- "date": "2026-07-15",
- "generated_at_et": "2026-07-15T19:57:31",
+ "date": "2026-07-23",
+ "generated_at_et": "2026-07-23T19:55:33",
  "verdict": "YELLOW",
  "accounts": {
   "safe": {
    "arm": "safe-2",
    "target_min": 2,
    "target_max": 4,
-   "verdict": "YELLOW",
-   "enter_verdicts": 5,
-   "attempts": 1,
-   "fills": 1,
+   "verdict": "IDLE",
+   "enter_verdicts": 0,
+   "attempts": 0,
+   "fills": 0,
    "top_no_order_sinks": [
     {
-     "blocker": "vetoed_by_models",
+     "blocker": "entry_bar_body_pct_min",
      "category": "gate",
-     "n_events": 6
+     "n_events": 2
     },
     {
-     "blocker": "block_elite_bull",
-     "category": "gate",
-     "n_events": 5
+     "blocker": "entry_ceiling_15:00",
+     "category": "window",
+     "n_events": 2
     },
     {
-     "blocker": "not_flat_rule4",
-     "category": "risk_gate",
-     "n_events": 3
+     "blocker": "block_level_rejection",
+     "category": "gate",
+     "n_events": 1
     }
    ]
   },
@@ -35,32 +35,27 @@
    "target_max": 4,
    "verdict": "YELLOW",
    "enter_verdicts": 1,
-   "attempts": 0,
-   "fills": 0,
+   "attempts": 1,
+   "fills": 1,
    "top_no_order_sinks": [
-    {
-     "blocker": "block_elite_bull",
-     "category": "gate",
-     "n_events": 7
-    },
     {
      "blocker": "require_bearish_fill_bar",
      "category": "gate",
      "n_events": 2
     },
     {
-     "blocker": "min_premium_floor",
-     "category": "risk_gate",
-     "n_events": 1
+     "blocker": "entry_ceiling_15:00",
+     "category": "window",
+     "n_events": 2
     }
    ]
   }
  },
  "cascade": {
-  "n_passed_scoring_events": 60,
-  "n_orders": 4,
-  "joint_participation_pct": 6.7,
-  "spy_range_pct": 0.713,
+  "n_passed_scoring_events": 13,
+  "n_orders": 1,
+  "joint_participation_pct": 7.7,
+  "spy_range_pct": 0.994,
   "cascade_verdict": "OK"
  },
  "scope_note": "ENGINE-decided fills only (core-decisions.jsonl via participation_cascade.py). A J-called MANUAL fill that bypasses the engine's decision path is invisible to this instrument -- see participation_daily.py module docstring SCOPE NOTE."

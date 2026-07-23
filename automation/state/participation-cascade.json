@@ -1,39 +1,34 @@
 {
- "date": "2026-07-15",
+ "date": "2026-07-23",
  "per_arm_funnel": {
   "bold-2": {
-   "events": 21,
-   "passed_scoring": 11,
+   "events": 11,
+   "passed_scoring": 5,
    "by_stage": {
-    "NO_SIGNAL": 10,
-    "GATE_BLOCK": 9,
-    "RISK_GATE_DENY": 1,
-    "OTHER_BLOCK": 1
+    "NO_SIGNAL": 6,
+    "GATE_BLOCK": 2,
+    "WINDOW_BLOCK": 2,
+    "FILLED": 1
+   },
+   "orders": 1
+  },
+  "risky-1": {
+   "events": 3,
+   "passed_scoring": 1,
+   "by_stage": {
+    "NO_SIGNAL": 2,
+    "RISK_GATE_DENY": 1
    },
    "orders": 0
   },
-  "risky-1": {
-   "events": 28,
-   "passed_scoring": 10,
-   "by_stage": {
-    "NO_DATA": 5,
-    "NO_SIGNAL": 13,
-    "GATE_BLOCK": 2,
-    "RISK_GATE_DENY": 7,
-    "FILLED": 1
-   },
-   "orders": 1
-  },
   "risky-3": {
-   "events": 28,
-   "passed_scoring": 10,
+   "events": 3,
+   "passed_scoring": 1,
    "by_stage": {
-    "NO_DATA": 5,
-    "NO_SIGNAL": 13,
-    "RISK_GATE_DENY": 9,
-    "FILLED": 1
+    "NO_SIGNAL": 2,
+    "RISK_GATE_DENY": 1
    },
-   "orders": 1
+   "orders": 0
   },
   "safe-1": {
    "events": 0,
@@ -42,88 +37,52 @@
    "orders": 0
   },
   "safe-2": {
-   "events": 28,
-   "passed_scoring": 18,
+   "events": 11,
+   "passed_scoring": 5,
    "by_stage": {
-    "NO_SIGNAL": 10,
-    "STRUCTURE_VETO": 2,
-    "GATE_BLOCK": 5,
-    "STALE_TRIGGER": 1,
-    "RISK_GATE_DENY": 3,
-    "FILLED": 1,
-    "OTHER_BLOCK": 6
+    "NO_SIGNAL": 6,
+    "GATE_BLOCK": 3,
+    "WINDOW_BLOCK": 2
    },
-   "orders": 1
+   "orders": 0
   },
   "safe-3": {
-   "events": 29,
-   "passed_scoring": 11,
+   "events": 3,
+   "passed_scoring": 1,
    "by_stage": {
-    "NO_DATA": 5,
-    "NO_SIGNAL": 13,
-    "GATE_BLOCK": 2,
-    "RISK_GATE_DENY": 7,
-    "FILLED": 1,
-    "OTHER_BLOCK": 1
+    "NO_SIGNAL": 2,
+    "RISK_GATE_DENY": 1
    },
-   "orders": 1
+   "orders": 0
   }
  },
- "n_passed_scoring_events": 60,
- "n_orders": 4,
- "joint_participation_pct": 6.7,
- "spy_range_pct": 0.713,
+ "n_passed_scoring_events": 13,
+ "n_orders": 1,
+ "joint_participation_pct": 7.7,
+ "spy_range_pct": 0.994,
  "top_blockers": [
   {
-   "blocker": "min_premium_floor",
-   "category": "risk_gate",
-   "n_arm_events": 24,
+   "blocker": "entry_ceiling_15:00",
+   "category": "window",
+   "n_arm_events": 4,
    "tier_cohort_gate": false,
    "tiers": [
-    "BASE",
     "ELITE",
-    "SUPER"
-   ]
-  },
-  {
-   "blocker": "block_elite_bull",
-   "category": "gate",
-   "n_arm_events": 12,
-   "tier_cohort_gate": true,
-   "tiers": []
-  },
-  {
-   "blocker": "vetoed_by_models",
-   "category": "gate",
-   "n_arm_events": 7,
-   "tier_cohort_gate": false,
-   "tiers": [
-    "SUPER",
     "TRENDLINE"
    ]
   },
   {
-   "blocker": "arm_selectivity_gate",
-   "category": "gate",
-   "n_arm_events": 4,
-   "tier_cohort_gate": false,
-   "tiers": [
-    "BASE"
-   ]
-  },
-  {
-   "blocker": "not_flat_rule4",
+   "blocker": "min_premium_floor",
    "category": "risk_gate",
    "n_arm_events": 3,
    "tier_cohort_gate": false,
    "tiers": [
-    "SUPER",
-    "TRENDLINE"
+    "ELITE"
    ]
   },
   {
-   "blocker": "structure_veto",
-   "category": "veto",
+   "blocker": "entry_bar_body_pct_min",
+   "category": "gate",
    "n_arm_events": 2,
    "tier_cohort_gate": false,
    "tiers": []
@@ -136,14 +95,7 @@
    "tiers": []
   },
   {
-   "blocker": "stale_trigger_bar",
-   "category": "execution",
-   "n_arm_events": 1,
-   "tier_cohort_gate": false,
-   "tiers": []
-  },
-  {
-   "blocker": "error",
+   "blocker": "block_level_rejection",
    "category": "gate",
    "n_arm_events": 1,
    "tier_cohort_gate": false,
@@ -152,64 +104,8 @@
  ],
  "verdict": "OK",
  "flags": [],
- "generated_at_et": "2026-07-15T19:57:31",
+ "generated_at_et": "2026-07-23T19:55:33",
  "sessions": [
-  {
-   "date": "2026-07-03",
-   "n_passed_scoring_events": 0,
-   "n_orders": 0,
-   "joint_participation_pct": null,
-   "spy_range_pct": null,
-   "verdict": "IDLE"
-  },
-  {
-   "date": "2026-07-06",
-   "n_passed_scoring_events": 42,
-   "n_orders": 21,
-   "joint_participation_pct": 50.0,
-   "spy_range_pct": 0.668,
-   "verdict": "OK"
-  },
-  {
-   "date": "2026-07-07",
-   "n_passed_scoring_events": 30,
-   "n_orders": 6,
-   "joint_participation_pct": 20.0,
-   "spy_range_pct": 0.766,
-   "verdict": "OK"
-  },
-  {
-   "date": "2026-07-08",
-   "n_passed_scoring_events": 31,
-   "n_orders": 14,
-   "joint_participation_pct": 45.2,
-   "spy_range_pct": 0.892,
-   "verdict": "OK"
-  },
-  {
-   "date": "2026-07-09",
-   "n_passed_scoring_events": 82,
-   "n_orders": 10,
-   "joint_participation_pct": 12.2,
-   "spy_range_pct": 0.854,
-   "verdict": "OK"
-  },
-  {
-   "date": "2026-07-10",
-   "n_passed_scoring_events": 32,
-   "n_orders": 0,
-   "joint_participation_pct": 0.0,
-   "spy_range_pct": 0.973,
-   "verdict": "PARTICIPATION_HOLE"
-  },
-  {
-   "date": "2026-07-11",
-   "n_passed_scoring_events": 1,
-   "n_orders": 0,
-   "joint_participation_pct": 0.0,
-   "spy_range_pct": null,
-   "verdict": "LOW_PARTICIPATION"
-  },
   {
    "date": "2026-07-13",
    "n_passed_scoring_events": 10,
@@ -232,6 +128,62 @@
    "n_orders": 4,
    "joint_participation_pct": 6.7,
    "spy_range_pct": 0.713,
+   "verdict": "OK"
+  },
+  {
+   "date": "2026-07-16",
+   "n_passed_scoring_events": 4,
+   "n_orders": 0,
+   "joint_participation_pct": 0.0,
+   "spy_range_pct": 0.889,
+   "verdict": "PARTICIPATION_HOLE"
+  },
+  {
+   "date": "2026-07-17",
+   "n_passed_scoring_events": 43,
+   "n_orders": 11,
+   "joint_participation_pct": 25.6,
+   "spy_range_pct": 0.875,
+   "verdict": "OK"
+  },
+  {
+   "date": "2026-07-18",
+   "n_passed_scoring_events": 1,
+   "n_orders": 0,
+   "joint_participation_pct": 0.0,
+   "spy_range_pct": null,
+   "verdict": "LOW_PARTICIPATION"
+  },
+  {
+   "date": "2026-07-20",
+   "n_passed_scoring_events": 15,
+   "n_orders": 1,
+   "joint_participation_pct": 6.7,
+   "spy_range_pct": 0.966,
+   "verdict": "OK"
+  },
+  {
+   "date": "2026-07-21",
+   "n_passed_scoring_events": 40,
+   "n_orders": 1,
+   "joint_participation_pct": 2.5,
+   "spy_range_pct": 0.651,
+   "verdict": "OK"
+  },
+  {
+   "date": "2026-07-22",
+   "n_passed_scoring_events": 21,
+   "n_orders": 0,
+   "joint_participation_pct": 0.0,
+   "spy_range_pct": 0.489,
+   "verdict": "LOW_PARTICIPATION"
+  },
+  {
+   "date": "2026-07-23",
+   "n_passed_scoring_events": 13,
+   "n_orders": 1,
+   "joint_participation_pct": 7.7,
+   "spy_range_pct": 0.994,
    "verdict": "OK"
   }
  ],

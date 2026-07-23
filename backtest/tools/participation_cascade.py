@@ -264,6 +264,23 @@ def _classify_action_code(side, setup, tier, code: str) -> dict:
     return _stage(side, setup, tier, "OTHER_BLOCK", CAT_GATE, c.lower() or "unknown", code)
 
 
+def _trigger_bar_cross_session(row: dict) -> bool:
+    """True only when the row's trigger_bar_et is from a DIFFERENT calendar day than
+    the row's own decision timestamp (ts_et) -- a genuine cross-session carry-over,
+    mirroring heartbeat_core.py's own `_stale_trigger_bar` predicate exactly (bar's
+    date != now's date). NOT "trigger_bar_et is merely present" -- since the
+    2026-07-20 visibility fix that field is stamped on every row regardless of
+    staleness (see the CORRECTED 2026-07-23 comment on the caller). Missing/malformed
+    timestamps are NOT flagged stale here -- the explicit action==SKIP_STALE_TRIGGER
+    check the caller ORs this with already catches the reliable, unconditional signal;
+    this is only a same-day sanity backstop for a future action-label change."""
+    tb = str(row.get("trigger_bar_et") or "")
+    ts = str(row.get("ts_et") or "")
+    if len(tb) < 10 or len(ts) < 10:
+        return False
+    return tb[:10] != ts[:10]
+
+
 def classify_core_row(row: dict) -> dict:
     """Terminal classification for one automation/state/core-decisions.jsonl row."""
     verdict = str(row.get("verdict") or "")
@@ -298,7 +315,25 @@ def classify_core_row(row: dict) -> dict:
     # SKIP_STALE_TRIGGER arm (still reachable via exec.status on ENTER rows), so both
     # row shapes aggregate under one leaderboard line and one dedup identity.
     # Guard: test_participation_cascade.py::TestStaleTriggerOutranksGateAttribution.
-    if str(row.get("action") or "") == "SKIP_STALE_TRIGGER" or row.get("trigger_bar_et"):
+    #
+    # CORRECTED 2026-07-23 (PARTICIPATION-CASCADE-TRIGGER-BAR regression, found live):
+    # the bare `or row.get("trigger_bar_et")` fallback was only sound while trigger_bar_et
+    # had EXACTLY ONE writer (the staleness branch, true as of 2026-07-10). The
+    # 2026-07-20 DECISION-ROW-SPY-STALENESS visibility fix (heartbeat_core.py) made
+    # trigger_bar_et a field on EVERY decision row (stale or not), so this fallback
+    # started matching ~100% of rows -- swallowing real PLACED/FILLED/SKIP_LATE_ENTRY
+    # rows into STALE_TRIGGER before _classify_action_code ever saw them. Confirmed live
+    # 2026-07-23: bold's 11:29 ET ENTER_BEAR (action=PLACED, broker filled_qty=5) and 13
+    # same-day SKIP_LATE_ENTRY rows all misclassified as stale_trigger_bar, driving
+    # participation-daily.json to report RED/"orders=0" to J via Discord (16:10:03 ET)
+    # for a day that actually placed+filled a real 0DTE put. The fallback now requires a
+    # genuine CROSS-SESSION carry (trigger_bar_et's calendar day != the row's OWN ts_et
+    # day) -- exactly what _stale_trigger_bar checks live in heartbeat_core.py -- so a
+    # same-day trigger_bar_et (now universal) never falsely marks staleness; only a
+    # prior-day bar surviving into today's ledger does.
+    # Guard: test_same_day_trigger_bar_et_does_not_falsely_mark_staleness,
+    #        test_same_day_trigger_bar_et_placed_row_still_counts_as_placed.
+    if str(row.get("action") or "") == "SKIP_STALE_TRIGGER" or _trigger_bar_cross_session(row):
         detail = str(row.get("action") or "SKIP_STALE_TRIGGER")
         if row.get("trigger_bar_et"):
             detail += f" trigger_bar_et={row['trigger_bar_et']}"
