@@ -53,13 +53,19 @@ RECENCY_GATED_ID_MARKER = "PROMOTE-KEEPER"
 
 # ---------------------------------------------------------------------------
 # Section parsing markers.
-#  - Active items live ONLY under "## Active backlog".
-#  - We stop at the NEXT top-level "## " heading (e.g. "## Archived", "## Completed").
-#  - "### Tier N" are sub-headers WITHIN the active section — they do NOT stop us.
+#  - Active items start at "## Active backlog" and run to EOF.
+#  - Only the PROVABLY-resolved "## Archived ..." / "## Completed" sections are
+#    skipped; every other top-level "## " heading after Active backlog is
+#    scanned too (see EXCLUDED_SECTION_RE below for why this changed).
+#  - "### Tier N" are sub-headers WITHIN a section — they never toggle exclusion.
 # ---------------------------------------------------------------------------
 ACTIVE_HEADING = "## Active backlog"
 TOP_LEVEL_RE = re.compile(r"^##\s+\S")          # a "## " heading (not "### ")
 SUBHEADER_RE = re.compile(r"^###\s+")            # a "### " sub-header
+
+# Section titles that are PROVABLY resolved/historical — real work never lives
+# here, so these stay excluded even though scanning now runs to EOF.
+EXCLUDED_SECTION_RE = re.compile(r"\b(archived|completed)\b", re.IGNORECASE)
 
 # A backlog line looks like:
 #   - [ ] <id> (<PRIORITY...>) :: <description> :: depends:<...> :: status:<...>
@@ -362,23 +368,44 @@ def score_item(
 
 
 def _active_lines(text: str) -> list[str]:
-    """Return only the lines inside the '## Active backlog' section.
+    """Return the lines from '## Active backlog' onward, skipping only the
+    provably-resolved 'Archived' / 'Completed' sections.
 
-    Starts after the Active-backlog heading; stops at the next top-level '## '
-    heading. '### Tier N' sub-headers are kept (they are inside the section).
+    WHY THIS SCANS TO EOF (fixed 2026-07-23, was "stop at the first '## '
+    heading after Active backlog"): queue.md's actual append discipline never
+    matched that assumption — many conductor fires filed NEW dated top-level
+    sections below Active backlog instead of adding to it (e.g. '## Blocked',
+    '## Twin escalations', '## TRENDLINE-FIXES-2026-07-17 (HIGH...)',
+    '## HARVESTED-FROM-GYM' whose body also picked up non-harvest items like
+    GATE-TIERS-IMPLEMENT). The old stop-at-first-heading rule made every one
+    of those items permanently INVISIBLE to this ranker — confirmed live:
+    18 genuine ``status:pending`` items (9 of them HIGH) sat unrankable, some
+    for weeks, discovered only by a conductor fire manually grepping the file.
+    Same failure class as C14/L245-L246 (a parser's silent scope boundary
+    quietly drops real work). Fix: keep scanning to EOF; only skip sections
+    that are PROVABLY resolved (Archived/Completed — matched by
+    ``EXCLUDED_SECTION_RE``). 'HARVESTED-FROM-GYM' is deliberately NOT
+    excluded any more: its genuine auto-queued rows carry ``status:queued``,
+    which already self-excludes via READY_STATUSES, so including the section
+    only surfaces the real (non-harvest) items that had drifted into it.
+    '### Tier N' sub-headers never toggle exclusion (they are content within
+    whatever top-level section they sit under). Never raises.
     """
     lines = text.splitlines()
     out: list[str] = []
     in_section = False
+    excluded = False
     for line in lines:
         if not in_section:
             if line.strip() == ACTIVE_HEADING:
                 in_section = True
             continue
-        # Inside the section: a "## " (but not "### ") heading ends it.
+        # A top-level (but not sub-) heading starts a new section — decide
+        # whether IT is one of the provably-resolved ones.
         if TOP_LEVEL_RE.match(line) and not SUBHEADER_RE.match(line):
-            break
-        out.append(line)
+            excluded = bool(EXCLUDED_SECTION_RE.search(line))
+        if not excluded:
+            out.append(line)
     return out
 
 

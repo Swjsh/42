@@ -10,8 +10,13 @@ instead of fixed tier label. These tests pin the contract that matters:
      ready-only ranking), but appear with ready=false under --all.
   3. The engine-benefit signal boosts an item above an otherwise-equal one.
   4. Malformed / non-item lines are skipped, never crash the parser.
-  5. Only the "## Active backlog" section is parsed — Completed/Archived/
-     HARVESTED items are ignored.
+  5. Parsing starts at "## Active backlog" and runs to EOF; only the
+     provably-resolved "## Completed" / "## Archived ..." sections are
+     skipped. Everything else after Active backlog (including sections like
+     "## HARVESTED-FROM-GYM" whose genuine harvest rows self-exclude via
+     status:queued) IS scanned — fixed 2026-07-23 after confirming the old
+     stop-at-first-heading rule silently hid 18 genuine status:pending items
+     (9 HIGH) that had drifted into later dated sections.
   6. A missing queue file yields [] (array) / "" (--top) and never raises.
 """
 from __future__ import annotations
@@ -71,9 +76,22 @@ this is a malformed line that should be skipped entirely
 
 - [ ] SHOULD-NOT-APPEAR (HIGH, engine-benefit) :: This is under Completed, must be ignored :: depends:none :: status:pending
 
-## HARVESTED-FROM-GYM
+## Archived 2026-06-19 (resolved / stale — preserved, not deleted)
 
-- [ ] HARVEST-X (HIGH) :: also must be ignored, wrong section :: depends:none :: status:queued
+- [ ] SHOULD-NOT-APPEAR-ARCHIVED (HIGH, engine-benefit) :: Also must be ignored :: depends:none :: status:pending
+
+## HARVESTED-FROM-GYM (auto-queued by crypto/benchmarks/gym_harvester.py)
+
+- [ ] HARVEST-X (HIGH) :: a genuine auto-harvest row, self-excludes via status :: depends:none :: status:queued
+- [ ] DRIFTED-REAL-ITEM (HIGH, engine-benefit) :: A real item that drifted into this section body, must now be visible :: depends:none :: status:pending
+
+## Blocked
+
+(none active)
+
+## 2026-07-17 some dated fire-filed section (HIGH, filed after-hours)
+
+- [ ] LATE-SECTION-ITEM (HIGH, engine-benefit) :: A real item filed under a dated section instead of Active backlog :: depends:none :: status:pending
 """
 
 
@@ -165,12 +183,31 @@ def test_parser_never_raises_on_garbage():
 
 
 # ---------------------------------------------------------------------------
-# 5. Only the Active-backlog section is parsed.
+# 5. Parsing runs Active-backlog -> EOF; only Completed/Archived are skipped.
 # ---------------------------------------------------------------------------
 def test_only_active_section_parsed():
     ids = [t.id for t in TS.parse_queue(SYNTHETIC_QUEUE)]
-    assert "SHOULD-NOT-APPEAR" not in ids  # under ## Completed
-    assert "HARVEST-X" not in ids  # under ## HARVESTED-FROM-GYM
+    assert "SHOULD-NOT-APPEAR" not in ids  # under ## Completed — provably resolved
+    assert "SHOULD-NOT-APPEAR-ARCHIVED" not in ids  # under ## Archived — provably resolved
+    # A genuine auto-harvest row still self-excludes via status:queued (not
+    # in READY_STATUSES) — it's parseable now but never ready.
+    harvest_ids = {t.id for t in TS.rank(SYNTHETIC_QUEUE, include_blocked=True)}
+    assert "HARVEST-X" in harvest_ids
+    by_id_all = _by_id(TS.rank(SYNTHETIC_QUEUE, include_blocked=True))
+    assert by_id_all["HARVEST-X"].ready is False
+
+
+def test_items_in_later_dated_sections_are_now_visible():
+    """The 2026-07-23 fix: real work that drifted into a later '## <event>'
+    section (instead of living under '## Active backlog') must be rankable —
+    the old stop-at-first-heading rule silently hid it forever."""
+    ids = [t.id for t in TS.parse_queue(SYNTHETIC_QUEUE)]
+    assert "DRIFTED-REAL-ITEM" in ids  # sits in the HARVESTED-FROM-GYM body
+    assert "LATE-SECTION-ITEM" in ids  # sits in its own dated section
+
+    ready_ids = [t.id for t in TS.rank(SYNTHETIC_QUEUE, include_blocked=False)]
+    assert "DRIFTED-REAL-ITEM" in ready_ids
+    assert "LATE-SECTION-ITEM" in ready_ids
 
 
 def test_done_and_awaiting_j_excluded():
