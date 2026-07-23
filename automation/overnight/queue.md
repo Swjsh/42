@@ -9,6 +9,17 @@
 
 ## Active backlog
 
+### MIN-TRIGGERS-BULL-ASYMMETRY-AB (MED, pre-reg follow-up, filed 2026-07-23 from the mirror-parity audit)
+
+- [ ] MIN-TRIGGERS-BULL-ASYMMETRY-AB (MED) :: The 2026-07-22 mirror-parity audit found a live,
+  armed, non-cited asymmetry: filter_10_min_triggers_bull=2 vs bear=1 (orchestrator.py:778-779)
+  -- bulls need DOUBLE the confirming triggers. NOT loosened tonight and deliberately so: real
+  bull fills under current config are n=24 WR 0% -$885 (bull-requalification-2026-07-22.json),
+  so easing bull entry admission is contraindicated by the same data. But the knob has no
+  current-config provenance either way. PRE-REG A/B when bull evidence accrues or regime turns:
+  does min_triggers_bull=1 admit winners or just more of the losing population? Replay at
+  ATM+SS-B through exit_manager_walk, standing 4-condition bar. depends:none :: status:pending
+
 ### CHEF-FOCUS-FILTER (HIGH, after-hours build, filed 2026-07-22 night -- enforces FOCUS-DOCTRINE)
 
 - [ ] CHEF-FOCUS-FILTER (HIGH, small build, NOT a new system) :: Enforce

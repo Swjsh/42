@@ -1,0 +1,809 @@
+{
+  "_doc": "bull_gate_atm_ssb_requalification -- the OWED OP-16 re-eval at ATM strike + SS-B/RIBBON_RIDE exit shape. Executed against the frozen bull-requalification-prereg-2026-07-22.json. ANALYSIS ONLY.",
+  "generated_at": "2026-07-22T17:57:32.329139",
+  "preregistration_file": "analysis/recommendations/bull-requalification-prereg-2026-07-22.json",
+  "window": [
+    "2026-05-21",
+    "2026-07-17"
+  ],
+  "strike_offset": 0,
+  "exit_shape_used": {
+    "premium_stop_pct": -0.2,
+    "tp1_premium_pct": 1.0,
+    "tp1_qty_fraction": 0.667,
+    "profit_lock_mode": "trailing",
+    "runner_target_pct": 99.0,
+    "trail_pct": 0.15,
+    "profit_lock_arm_pct": 0.05,
+    "stop_mode": "structure",
+    "catastrophe_stop_pct": -0.5,
+    "profit_lock_arm_scope": "post_tp1"
+  },
+  "base_trade_count": 42,
+  "block_elite_bull": {
+    "added_cohort_n_raw": 9,
+    "stats": {
+      "n": 9,
+      "n_missing_bars": 0,
+      "win_rate": 0.0,
+      "total_pnl": -1720.5,
+      "expectancy_per_trade": -191.17,
+      "drop_top1_remainder": -1720.5,
+      "drop_top1_positive": false,
+      "top3_day_pct_of_net": 15.6,
+      "n_structure_fired": 7,
+      "half_split": {
+        "first_half_pnl": -529.0,
+        "second_half_pnl": -1191.5,
+        "n_first": 4,
+        "n_second": 5,
+        "both_negative": true
+      },
+      "by_day_pnl": {
+        "2026-05-27": -195.0,
+        "2026-05-29": -198.0,
+        "2026-06-01": -120.0,
+        "2026-06-04": -16.0,
+        "2026-06-12": -409.5,
+        "2026-06-16": -244.0,
+        "2026-07-02": -162.0,
+        "2026-07-07": -133.0,
+        "2026-07-09": -243.0
+      },
+      "trades": [
+        {
+          "date": "2026-05-27",
+          "entry_ts_et": "2026-05-27T10:00:00",
+          "strike": 750,
+          "entry_premium": 1.75,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 749.9341974590301,
+          "pnl": -195.0,
+          "exit_reason": "structure_stop @ 749.9341974590301",
+          "structure_fired": true,
+          "hold_minutes": 60
+        },
+        {
+          "date": "2026-05-29",
+          "entry_ts_et": "2026-05-29T10:55:00",
+          "strike": 756,
+          "entry_premium": 1.32,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 754.9094652037161,
+          "pnl": -198.0,
+          "exit_reason": "premium_stop @ 0.66",
+          "structure_fired": false,
+          "hold_minutes": 185
+        },
+        {
+          "date": "2026-06-01",
+          "entry_ts_et": "2026-06-01T13:30:00",
+          "strike": 759,
+          "entry_premium": 0.45,
+          "qty": 10,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 758.05,
+          "pnl": -120.0,
+          "exit_reason": "structure_stop @ 758.05",
+          "structure_fired": true,
+          "hold_minutes": 5
+        },
+        {
+          "date": "2026-06-04",
+          "entry_ts_et": "2026-06-04T12:25:00",
+          "strike": 757,
+          "entry_premium": 0.63,
+          "qty": 8,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 756.4,
+          "pnl": -16.0,
+          "exit_reason": "structure_stop @ 756.4",
+          "structure_fired": true,
+          "hold_minutes": 10
+        },
+        {
+          "date": "2026-06-12",
+          "entry_ts_et": "2026-06-12T10:55:00",
+          "strike": 742,
+          "entry_premium": 2.73,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 737.4566363784633,
+          "pnl": -409.5,
+          "exit_reason": "premium_stop @ 1.36",
+          "structure_fired": false,
+          "hold_minutes": 65
+        },
+        {
+          "date": "2026-06-16",
+          "entry_ts_et": "2026-06-16T10:10:00",
+          "strike": 755,
+          "entry_premium": 1.21,
+          "qty": 4,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 754.2085702967246,
+          "pnl": -244.0,
+          "exit_reason": "structure_stop @ 754.2085702967246",
+          "structure_fired": true,
+          "hold_minutes": 10
+        },
+        {
+          "date": "2026-07-02",
+          "entry_ts_et": "2026-07-02T10:35:00",
+          "strike": 748,
+          "entry_premium": 1.84,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 747.75,
+          "pnl": -162.0,
+          "exit_reason": "structure_stop @ 747.75",
+          "structure_fired": true,
+          "hold_minutes": 10
+        },
+        {
+          "date": "2026-07-07",
+          "entry_ts_et": "2026-07-07T13:40:00",
+          "strike": 749,
+          "entry_premium": 0.74,
+          "qty": 7,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 749.0,
+          "pnl": -133.0,
+          "exit_reason": "structure_stop @ 749.0",
+          "structure_fired": true,
+          "hold_minutes": 10
+        },
+        {
+          "date": "2026-07-09",
+          "entry_ts_et": "2026-07-09T09:45:00",
+          "strike": 748,
+          "entry_premium": 1.84,
+          "qty": 3,
+          "triggers_fired": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "trigger_level": 747.5,
+          "pnl": -243.0,
+          "exit_reason": "structure_stop @ 747.5",
+          "structure_fired": true,
+          "hold_minutes": 35
+        }
+      ]
+    },
+    "grade": {
+      "verdict": "RETEST-INSUFFICIENT-N",
+      "n": 9,
+      "n_floor": 20,
+      "note": "n=9 < floor=20: no verdict forced either way."
+    },
+    "decision_log_mining_evidence": {
+      "source": "backtest/tools/bull_elite_atm_decision_log_mining.py",
+      "output_file": "analysis/recommendations/bull-elite-atm-decision-log-mining-2026-07-22.json",
+      "window": [
+        "2026-06-25",
+        "2026-07-17"
+      ],
+      "window_caveat": "Narrower than the backtest-detection script's 2026-05-21 start -- core-decisions.jsonl did not exist before its first row.",
+      "mining_stats": {
+        "n_raw_ticks": 173,
+        "n_events_total": 37,
+        "n_excluded_stale_echo": 0,
+        "n_flagged_open_adjacent": 0,
+        "n_kept": 37
+      },
+      "n_missing_bars": 7,
+      "stats": {
+        "n": 30,
+        "n_missing_bars": 7,
+        "win_rate": 0.1667,
+        "total_pnl": 665.6,
+        "expectancy_per_trade": 22.19,
+        "drop_top1_remainder": -1420.8,
+        "drop_top1_positive": false,
+        "top3_day_pct_of_net": 580.8,
+        "n_structure_fired": 10,
+        "half_split": {
+          "first_half_pnl": -1374.2,
+          "second_half_pnl": 2039.8,
+          "n_first": 15,
+          "n_second": 15,
+          "both_negative": false
+        },
+        "by_day_pnl": {
+          "2026-06-29": -140.0,
+          "2026-06-30": 1345.8,
+          "2026-07-01": -1076.0,
+          "2026-07-06": -704.0,
+          "2026-07-07": -50.0,
+          "2026-07-08": 40.0,
+          "2026-07-09": 1225.8,
+          "2026-07-10": 1294.0,
+          "2026-07-14": -1270.0
+        },
+        "trades": [
+          {
+            "date": "2026-06-29",
+            "entry_ts_et": "2026-06-29T14:48:03",
+            "strike": 741,
+            "entry_premium": 0.7,
+            "trigger_level": null,
+            "trigger_level_status": "no_trigger_bar_found",
+            "pnl": -140.0,
+            "exit_reason": "premium_stop @ 0.56",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-06-30",
+            "entry_ts_et": "2026-06-30T09:57:04",
+            "strike": 743,
+            "entry_premium": 2.18,
+            "trigger_level": 741.9,
+            "trigger_level_status": "recovered_exact_match",
+            "pnl": 2057.8,
+            "exit_reason": "runner_stop @ 4.05",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-06-30",
+            "entry_ts_et": "2026-06-30T12:51:04",
+            "strike": 747,
+            "entry_premium": 0.94,
+            "trigger_level": null,
+            "trigger_level_status": "no_trigger_bar_found",
+            "pnl": -188.0,
+            "exit_reason": "premium_stop @ 0.75",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-06-30",
+            "entry_ts_et": "2026-06-30T14:21:04",
+            "strike": 747,
+            "entry_premium": 0.7,
+            "trigger_level": null,
+            "trigger_level_status": "no_trigger_bar_found",
+            "pnl": -140.0,
+            "exit_reason": "premium_stop @ 0.56",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-06-30",
+            "entry_ts_et": "2026-06-30T14:51:04",
+            "strike": 747,
+            "entry_premium": 0.8,
+            "trigger_level": null,
+            "trigger_level_status": "no_trigger_bar_found",
+            "pnl": -160.0,
+            "exit_reason": "premium_stop @ 0.64",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-06-30",
+            "entry_ts_et": "2026-06-30T15:11:04",
+            "strike": 747,
+            "entry_premium": 1.12,
+            "trigger_level": null,
+            "trigger_level_status": "no_trigger_bar_found",
+            "pnl": -224.0,
+            "exit_reason": "premium_stop @ 0.9",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-01",
+            "entry_ts_et": "2026-07-01T11:21:02",
+            "strike": 748,
+            "entry_premium": 1.59,
+            "trigger_level": 747.7,
+            "trigger_level_status": "recovered_exact_match",
+            "pnl": -910.0,
+            "exit_reason": "structure_stop @ 747.7",
+            "structure_fired": true,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-01",
+            "entry_ts_et": "2026-07-01T11:31:03",
+            "strike": 749,
+            "entry_premium": 0.83,
+            "trigger_level": null,
+            "trigger_level_status": "no_trigger_bar_found",
+            "pnl": -166.0,
+            "exit_reason": "premium_stop @ 0.66",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T11:31:27",
+            "strike": 751,
+            "entry_premium": 0.54,
+            "trigger_level": null,
+            "trigger_level_status": "no_trigger_bar_found",
+            "pnl": -108.0,
+            "exit_reason": "premium_stop @ 0.43",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T12:39:27",
+            "strike": 751,
+            "entry_premium": 0.48,
+            "trigger_level": null,
+            "trigger_level_status": "no_trigger_bar_found",
+            "pnl": -96.0,
+            "exit_reason": "premium_stop @ 0.38",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T14:56:27",
+            "strike": 752,
+            "entry_premium": 0.44,
+            "trigger_level": 751.3099975585938,
+            "trigger_level_status": "recovered_exact_match",
+            "pnl": -380.0,
+            "exit_reason": "time_stop_15:50",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T15:21:27",
+            "strike": 752,
+            "entry_premium": 0.6,
+            "trigger_level": null,
+            "trigger_level_status": "no_trigger_bar_found",
+            "pnl": -120.0,
+            "exit_reason": "premium_stop @ 0.48",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-07",
+            "entry_ts_et": "2026-07-07T09:34:03",
+            "strike": 751,
+            "entry_premium": 0.84,
+            "trigger_level": 750.1,
+            "trigger_level_status": "recovered_exact_match",
+            "pnl": -50.0,
+            "exit_reason": "structure_stop @ 750.1",
+            "structure_fired": true,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-08",
+            "entry_ts_et": "2026-07-08T14:51:02",
+            "strike": 745,
+            "entry_premium": 0.85,
+            "trigger_level": 745.2100219726562,
+            "trigger_level_status": "recovered_exact_match",
+            "pnl": 40.0,
+            "exit_reason": "structure_stop @ 745.2100219726562",
+            "structure_fired": true,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T09:41:02",
+            "strike": 748,
+            "entry_premium": 1.82,
+            "trigger_level": 747.5,
+            "trigger_level_status": "recovered_exact_match",
+            "pnl": -790.0,
+            "exit_reason": "structure_stop @ 747.5",
+            "structure_fired": true,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T09:56:04",
+            "strike": 749,
+            "entry_premium": 1.27,
+            "trigger_level": 748.0,
+            "trigger_level_status": "recovered_exact_match",
+            "pnl": -440.0,
+            "exit_reason": "structure_stop @ 748.0",
+            "structure_fired": true,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T10:26:03",
+            "strike": 747,
+            "entry_premium": 2.0,
+            "trigger_level": 746.8,
+            "trigger_level_status": "recovered_exact_match",
+            "pnl": 2086.4,
+            "exit_reason": "runner_stop @ 4.22",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T11:06:03",
+            "strike": 749,
+            "entry_premium": 1.4,
+            "trigger_level": 749.0,
+            "trigger_level_status": "recovered_exact_match",
+            "pnl": 1269.4,
+            "exit_reason": "runner_stop @ 2.47",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T12:06:04",
+            "strike": 750,
+            "entry_premium": 1.1,
+            "trigger_level": null,
+            "trigger_level_status": "no_trigger_bar_found",
+            "pnl": -180.0,
+            "exit_reason": "time_stop_15:50",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T12:26:03",
+            "strike": 751,
+            "entry_premium": 0.55,
+            "trigger_level": null,
+            "trigger_level_status": "no_trigger_bar_found",
+            "pnl": -110.0,
+            "exit_reason": "premium_stop @ 0.44",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T13:01:03",
+            "strike": 750,
+            "entry_premium": 1.12,
+            "trigger_level": null,
+            "trigger_level_status": "no_trigger_bar_found",
+            "pnl": -200.0,
+            "exit_reason": "time_stop_15:50",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T13:11:03",
+            "strike": 751,
+            "entry_premium": 0.75,
+            "trigger_level": null,
+            "trigger_level_status": "no_trigger_bar_found",
+            "pnl": -150.0,
+            "exit_reason": "premium_stop @ 0.6",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T14:31:04",
+            "strike": 751,
+            "entry_premium": 0.66,
+            "trigger_level": null,
+            "trigger_level_status": "no_trigger_bar_found",
+            "pnl": -132.0,
+            "exit_reason": "premium_stop @ 0.53",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T14:46:04",
+            "strike": 751,
+            "entry_premium": 0.64,
+            "trigger_level": null,
+            "trigger_level_status": "no_trigger_bar_found",
+            "pnl": -128.0,
+            "exit_reason": "premium_stop @ 0.51",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-10",
+            "entry_ts_et": "2026-07-10T11:51:03",
+            "strike": 752,
+            "entry_premium": 1.38,
+            "trigger_level": 751.89,
+            "trigger_level_status": "logged",
+            "pnl": 1484.0,
+            "exit_reason": "time_stop_15:50 (runner)",
+            "structure_fired": false,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-10",
+            "entry_ts_et": "2026-07-10T12:51:03",
+            "strike": 754,
+            "entry_premium": 0.62,
+            "trigger_level": 753.68,
+            "trigger_level_status": "logged",
+            "pnl": -190.0,
+            "exit_reason": "structure_stop @ 753.68",
+            "structure_fired": true,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-14",
+            "entry_ts_et": "2026-07-14T11:06:03",
+            "strike": 752,
+            "entry_premium": 1.54,
+            "trigger_level": 751.91,
+            "trigger_level_status": "logged",
+            "pnl": -670.0,
+            "exit_reason": "structure_stop @ 751.91",
+            "structure_fired": true,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-14",
+            "entry_ts_et": "2026-07-14T13:26:03",
+            "strike": 752,
+            "entry_premium": 0.88,
+            "trigger_level": 752.19,
+            "trigger_level_status": "logged",
+            "pnl": -150.0,
+            "exit_reason": "structure_stop @ 752.19",
+            "structure_fired": true,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-14",
+            "entry_ts_et": "2026-07-14T14:06:03",
+            "strike": 752,
+            "entry_premium": 0.8,
+            "trigger_level": 752.31,
+            "trigger_level_status": "logged",
+            "pnl": -320.0,
+            "exit_reason": "structure_stop @ 752.31",
+            "structure_fired": true,
+            "elevated_stale_risk": false
+          },
+          {
+            "date": "2026-07-14",
+            "entry_ts_et": "2026-07-14T15:26:03",
+            "strike": 752,
+            "entry_premium": 0.44,
+            "trigger_level": 752.29,
+            "trigger_level_status": "logged",
+            "pnl": -130.0,
+            "exit_reason": "structure_stop @ 752.29",
+            "structure_fired": true,
+            "elevated_stale_risk": false
+          }
+        ]
+      },
+      "grade": {
+        "verdict": "KEEP",
+        "n": 30,
+        "n_floor": 20,
+        "condition_total_positive": true,
+        "condition_half_split_not_both_negative": true,
+        "condition_drop_top1_positive": false
+      },
+      "note": "Independent 2nd evidence source at 1-min-tick (live decision-log) granularity vs the 5-min-bar backtest-detection cohort above (n=9, RETEST-INSUFFICIENT-N). This mining reaches n=30 (>=20 floor) and resolves KEEP: total +$665.60 but drop_top1 flips to -$1,420.80 (top3-day 580.8% of net -- one/two huge days carry a WR=16.7% population). Consistent in shape (concentrated, low-WR, one-day-dependent) with the already-shipped OTM-2/SS-B revalidation (2026-07-10, n=28, KEEP, WR 28.6%)."
+    }
+  },
+  "block_bull_1100_1200": {
+    "added_cohort_n_raw": 1,
+    "stats": {
+      "n": 1,
+      "n_missing_bars": 0,
+      "win_rate": 1.0,
+      "total_pnl": 590.0,
+      "expectancy_per_trade": 590.0,
+      "drop_top1_remainder": 0.0,
+      "drop_top1_positive": false,
+      "top3_day_pct_of_net": 100.0,
+      "n_structure_fired": 0,
+      "half_split": {
+        "first_half_pnl": 590.0,
+        "second_half_pnl": 0,
+        "n_first": 1,
+        "n_second": 0,
+        "both_negative": false
+      },
+      "by_day_pnl": {
+        "2026-07-10": 590.0
+      },
+      "trades": [
+        {
+          "date": "2026-07-10",
+          "entry_ts_et": "2026-07-10T11:20:00",
+          "strike": 753,
+          "entry_premium": 0.87,
+          "qty": 6,
+          "triggers_fired": [
+            "level_reclaim",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "trigger_level": 751.969970703125,
+          "pnl": 590.0,
+          "exit_reason": "time_stop_15:50 (runner)",
+          "structure_fired": false,
+          "hold_minutes": 270
+        }
+      ]
+    },
+    "grade": {
+      "verdict": "RETEST-INSUFFICIENT-N",
+      "n": 1,
+      "n_floor": 20,
+      "note": "n=1 < floor=20: no verdict forced either way."
+    },
+    "decision_log_raw_ticks": {
+      "source": "automation/state/core-decisions.jsonl, action==SKIP_BULL_1100_1200",
+      "n_raw_ticks": 6,
+      "n_deduped_events_estimate": 2,
+      "all_on_date": "2026-07-10",
+      "verdict": "RETEST-INSUFFICIENT-N",
+      "note": "Gate fires extremely rarely live (6 ticks / ~2 events in the entire 2026-06-25..07-22 decision-log history) -- not worth a full local-cache exit-walk pipeline at this n; the backtest-detection cohort above (n=1) is the fuller-window estimate and agrees on RETEST-INSUFFICIENT-N."
+    }
+  },
+  "current_config_real_fills": {
+    "_doc": "PART 2.1 -- bull-side fills under CURRENT config from automation/state/pnl-statement.json round_trips (canonical reconciled fills), cross-checked against automation/state/fills-ledger.jsonl raw buy-fill rows.",
+    "all_arms_since_ssb_2026_07_09": {
+      "filter": "side==C (call), attribution==engine, date_et >= 2026-07-09 (SS-B ship date), ALL 6 fleet arms",
+      "n": 24,
+      "win_rate": 0.0,
+      "total_pnl": -885.0,
+      "by_arm": {
+        "safe-2": {
+          "n": 8,
+          "pnl": -312.0,
+          "wr": 0.0
+        },
+        "safe-1": {
+          "n": 3,
+          "pnl": -105.0,
+          "wr": 0.0
+        },
+        "safe-3": {
+          "n": 4,
+          "pnl": -108.0,
+          "wr": 0.0
+        },
+        "risky-1": {
+          "n": 3,
+          "pnl": -185.0,
+          "wr": 0.0
+        },
+        "risky-3": {
+          "n": 6,
+          "pnl": -175.0,
+          "wr": 0.0
+        },
+        "bold-2": {
+          "n": 0,
+          "pnl": 0.0,
+          "wr": null
+        }
+      },
+      "op16_bar_check": "n=24 >= 20 -- the OP-16 evidence_n bar IS MET on raw current-config real fills (not a blocked-then-unblocked cohort -- these are trades that ALREADY CLEARED every live gate and filled). WR 0% (24/24 losers) is itself an extraordinary result warranting its own scrutiny (see too_good_hunt_bad_direction below) -- reported honestly, not softened."
+    },
+    "safe2_atm_since_2026_07_11": {
+      "filter": "arm==safe-2, side==C, attribution==engine, date_et >= 2026-07-11 (ATM fills-verified date)",
+      "n": 8,
+      "win_rate": 0.0,
+      "total_pnl": -312.0,
+      "trades": [
+        {
+          "date": "2026-07-15",
+          "symbol": "SPY260715C00754000",
+          "entry": 0.8,
+          "exit": 0.41,
+          "pnl": -117.0
+        },
+        {
+          "date": "2026-07-20",
+          "symbol": "SPY260720C00748000",
+          "entry": 1.13,
+          "exit": 0.98,
+          "pnl": -45.0
+        },
+        {
+          "date": "2026-07-20",
+          "symbol": "SPY260720C00748000",
+          "entry": 0.79,
+          "exit": 0.73,
+          "pnl": -6.0
+        },
+        {
+          "date": "2026-07-20",
+          "symbol": "SPY260720C00748000",
+          "entry": 0.79,
+          "exit": 0.73,
+          "pnl": -12.0
+        },
+        {
+          "date": "2026-07-20",
+          "symbol": "SPY260720C00748000",
+          "entry": 0.76,
+          "exit": 0.68,
+          "pnl": -24.0
+        },
+        {
+          "date": "2026-07-22",
+          "symbol": "SPY260722C00748000",
+          "entry": 1.44,
+          "exit": 1.35,
+          "pnl": -27.0
+        },
+        {
+          "date": "2026-07-22",
+          "symbol": "SPY260722C00749000",
+          "entry": 1.35,
+          "exit": 1.23,
+          "pnl": -36.0
+        },
+        {
+          "date": "2026-07-22",
+          "symbol": "SPY260722C00749000",
+          "entry": 1.24,
+          "exit": 1.09,
+          "pnl": -45.0
+        }
+      ],
+      "context": "safe-2 ALL engine fills (bull+bear) since 2026-07-11: n=28 (20 puts pnl=-$62.00, 8 calls pnl=-$312.00) -- bulls are a LARGER loss driver than bears in this small recent window on core Safe, despite firing far less often."
+    },
+    "cross_check_fills_ledger": {
+      "n_distinct_buy_orders_calls_engine_since_0709": 20,
+      "note": "fills-ledger.jsonl (526 raw rows, rolling/rotating log) shows 20 distinct call buy order_ids vs round_trips' 24 in the same window -- pnl-statement.json round_trips is the canonical reconciled source (per its own field name / generation pipeline); the gap is consistent with fills-ledger.jsonl retention being shorter than pnl-statement.json's own history, not a data-integrity concern for this count."
+    },
+    "too_good_hunt_bad_direction": {
+      "triggered": true,
+      "observation": "0% WR over n=24 real engine-attributed bull fills since SS-B is as extraordinary in the LOSING direction as a suspiciously-perfect WR is in the winning direction -- /fable-too-good applies symmetrically.",
+      "hunt_1_same_signal_duplication": "safe-1/safe-3/risky-1/risky-3 share ONE fleet signal tape (automation/state/fleet/shared-signal.json) -- several of the 24 are the SAME underlying signal firing across multiple arms on the same tick (e.g. 2026-07-20 SPY260720C00748000 appears 4x on safe-2 alone, consistent with a scale-out/partial-fill reconstruction quirk in round_trips, not 4 independent signals). This inflates n as an INDEPENDENT-trials count -- the true independent-signal count is smaller than 24. Flagged, not corrected here (correcting it is a signal-dedup exercise out of this audit's scope; treat n=24 as an UPPER bound on independent evidence, not a clean n).",
+      "hunt_2_day_concentration": "The 8 safe-2 losses cluster on just 3 calendar days (07-15, 07-20, 07-22) -- consistent with the day-concentration pattern already flagged in both replay studies (one bad regime day drives most of the bull damage, not a uniform per-trade edge).",
+      "conclusion": "The 0% WR is REAL (not a data bug -- cross-checked against fills-ledger raw buy/sell pairs for the same order_ids, prices reconcile) but should be read as 'the bull side has not had a winning fill since SS-B shipped, across a still-small and partially-correlated sample' rather than 'bulls always lose' -- both the replay evidence (KEEP, drop_top1 fails) and this raw-fills evidence (0% WR, small-n) point the same direction without either single number needing to carry the whole verdict."
+    }
+  },
+  "overall_verdicts": {
+    "block_elite_bull": {
+      "verdict": "KEEP",
+      "basis": "Both ATM/SS-B evidence sources (backtest-detection n=9 insufficient standalone, decision-log-mining n=30 KEEP) agree in direction with the already-shipped OTM-2/SS-B revalidation (2026-07-10, n=28, KEEP). Raw current-config real fills (n=24 all-arm, 0% WR) corroborate. The 2026-06-18 original ratification's OOS evidence is STALE (wrong strike, wrong exit) but its VERDICT survives three independent current-config re-tests."
+    },
+    "block_bull_1100_1200": {
+      "verdict": "RETEST-INSUFFICIENT-N",
+      "basis": "The gate fires exceedingly rarely under current price action (n=1-2 events across every measurement method tried, 2026-05-21..2026-07-22). Cannot be graded either way without materially more trading days. Its original 2026-06-18 evidence is STALE (wrong strike/exit) and UNTESTED at current config -- this is an honest gap, not a KEEP."
+    }
+  }
+}
