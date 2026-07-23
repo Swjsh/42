@@ -1,3 +1,54 @@
+## [2026-07-23 ~18:12-18:35 ET] OK -- conductor (AFTERHOURS): task_scorer.py silently ignored ~34 backlog items outside "## Active backlog", fixed, commit `6d42d211`
+
+> **STAGE 0/1:** ET confirmed 18:12 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. Self-audit gaps file fully triaged through today's 17:31 batch (no open items).
+> `task_scorer.py --top` returned `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED) again, but cross-checking
+> the queue's own HIGH tier by hand (`grep "(HIGH" queue.md`) surfaced several HIGH items
+> (`GATE-TIERS-IMPLEMENT`, `ENGINE-VECTORIZATION`, `OPEN-BELL-STATUS-PUSH`, `TWIN-B6-...`) that
+> `task_scorer.py --all` did NOT return at all -- not ready:false, just absent. Traced the root
+> cause instead of trusting the ranker: `_active_lines()` stopped parsing at the FIRST top-level
+> `## ` heading after `## Active backlog`, but `queue.md`'s real append history never matched
+> that assumption -- 34 items (18 `status:pending`, 9 of them HIGH) sit in later dated `##
+> <event>` sections that past fires filed instead of adding to Active backlog.
+
+> **What shipped:** `_active_lines()` now scans `## Active backlog` -> EOF, excluding only
+> sections whose heading matches `archived`/`completed` (provably resolved). Everything else,
+> including `## HARVESTED-FROM-GYM` (whose genuine auto-harvest rows already self-exclude via
+> `status:queued`, not in `READY_STATUSES`), is now visible. Verified live:
+> `task_scorer.py --all` went from 45 parsed items to 79; HIGH-ready went from 2 to 6
+> (`DOJO-BUILD-HANDOFF`, `ENGULFING-AT-STRUCTURE-TRIGGER`, `GATE-TIERS-IMPLEMENT`,
+> `OPEN-BELL-STATUS-PUSH`, `TWIN-B6-SIM-FRICTION-CALIBRATION`, `VWAP-TREND-PULLBACK-VERIFY-FAILED`).
+
+> **Verified this fire (OP-33):** 2 new regression tests (`test_only_active_section_parsed`
+> extended + `test_items_in_later_dated_sections_are_now_visible`) RED-proofed via `git stash`
+> round-trip -- both fail with the exact expected `AssertionError` on the pre-fix code, pass
+> clean after `stash pop`. Full `task_scorer` suite 63/63, curated safety gate (31+5) PASS.
+> `git show 6d42d211 --stat --name-status` confirms exactly the 3 intended files landed
+> (task_scorer.py, test_task_scorer.py, one new lesson-inbox file).
+
+> **Did NOT execute any of the newly-visible HIGH items this fire** -- rail 3 (one bounded
+> task per fire); the ranker fix itself is the deliverable. `VWAP-TREND-PULLBACK-VERIFY-FAILED`
+> now correctly triggers `task_scorer`'s own staleness advisory (HIGH-ranked #1) -- its own text
+> says "do-NOT-wire", so the next fire that considers it must re-verify against current reality
+> before treating it as "the study still needs running", not blind-execute.
+
+> **Scope + revert:** pure `setup/scripts/task_scorer.py` + `backtest/tests/test_task_scorer.py`
+> + a lesson-inbox file -- zero params/heartbeat_core/filters/placement/exit/CLAUDE.md touched.
+> Ships per OP-22/26 (engine-benefit infra authoring, no J ratification needed). Revert:
+> `git revert 6d42d211`.
+
+> **Lesson filed** (`strategy/candidates/_lesson-inbox/2026-07-23-task-scorer-section-scope-
+> blind-spot.md`) for graduation into C14 -- same class as L245/L246 but for SECTION scope
+> instead of field scope: a positional "stop at heading X" parser boundary is a silent-drop
+> risk; status/dependency fields should do the excluding, not section position.
+
+> **Cost: ~$3.1** (STAGE 0/1 reads incl. task_scorer/self-audit-gaps/queue greps, root-cause
+> trace of the section-scope bug, implementing + testing the fix, RED-proof stash round-trip,
+> curated gate x2, live before/after verification, lesson-inbox write-up, STATUS/queue write-up,
+> conductor_outcome record+metric).
+
+---
+
 ## [2026-07-23 ~17:42-17:58 ET] OK -- conductor (AFTERHOURS): closed self-audit gap PATTERN-ANCHOR-PRE-SHIP-CHECK (priority-3), commits `eea3f423` + `fad447e1`
 
 > **STAGE 0/1:** ET confirmed 17:42 (Thursday, market closed since 15:55). `engine-health.json`
@@ -616,202 +667,3 @@
 
 ---
 
-## [2026-07-23 ~01:48-01:58 ET] OK -- conductor (AFTERHOURS): resolved DOUBLE-BOTTOM-DISARM-DECISION -- KEEP ARMED, headline -\$3,504 was a fidelity artifact not the production number
-
-> **STAGE 0/1:** ET confirmed 01:48, Thursday, market closed since 15:55. `engine-health.json`
-> GREEN 13/13 (all quiet-OK, market closed). `self_check.py` GREEN 0 problems. `fill_funnel.py`
-> IDLE 2026-07-23 (market not yet open, expected). Self-audit gaps: all batches through
-> 2026-07-22T17:32:32 already actioned by earlier fires -- nothing new. `task_scorer.py --top`
-> surfaced `EDGE-MATRIX-NIGHTLY-RERUN` (MED); picked `DOUBLE-BOTTOM-DISARM-DECISION` instead
-> (HIGH, ready, no depends) -- STAGE 1 priority order ranks queue HIGH above MED, and this item
-> gates a real live-armed lane's arm/disarm status, outranking a standing-loop wiring task.
-
-> **What was resolved (no code/params change -- the resolution IS the deliverable):** the item's
-> own filing quoted `double_bottom_base_quiet`'s kitchen-harness BASELINE cell (-\$2,564 tuning /
-> -\$940 held-out, 1/4 gates) as grounds to maybe disarm the live-paper-armed lane, but flagged
-> unresolved fidelity risk: does that cell include the NOT_NEAR_NAMED \$0.50 proximity gate
-> production always applies? Traced it directly: `double_bottom_base_quiet_watcher.py` Gate 6
-> (`enrich_hit_with_proximity`) is hardcoded UNCONDITIONAL in the live watcher -- no enable flag,
-> every real signal passes through it. The harness's own pre-reg
-> (`analysis/kitchen/prereg-extra-lanes-fullhist-2026-07-23.json`) had ALREADY disclosed its
-> BASELINE cell omits this gate (matches the detector's old published simplified-scan precedent,
-> not live config) AND had already run the correctly-gated refinement cell
-> (`not_near_named=True`, causal LevelMemory-reconstructed proximity) in the same results file --
-> it just wasn't the number quoted downstream. Read the production-faithful cell in
-> `analysis/kitchen/extra-lanes-fullhist-results-2026-07-23.json`: n=21 (gate alone kills ~82% of
-> the ungated n=115 population -- consistent with DB-BASE-QUIET-PROXIMITY-GATE-LEAD's "0 fills in
-> 20+ live days" observation), total_pnl +\$8.95 (expectancy +\$0.43/tr), held_out -\$112.40,
-> gates_passed 2/4, p_raw=0.988 (statistically indistinguishable from zero). **Verdict: near-flat
-> noise on thin n, not the "-\$3,504 deeply negative pattern" that motivated considering a
-> disarm.** KEEP ARMED -- status quo, zero params.json change, zero live bleed either way (lane
-> already fills almost nothing).
-
-> **Foot-gun graduated:** filed `strategy/candidates/_lesson-inbox/2026-07-23-harness-baseline-
-> knob-omitting-unconditional-production-gate.md` for lesson-author -- the generalizable pattern
-> (a harness's `|BASELINE`-suffixed cell can mean "matches live config" for most lanes but "matches
-> an old published precedent, NOT live config" for one lane in the SAME run; a downstream reader
-> must check which before quoting a headline P&L as "the live-armed lane's number").
-
-> **Scope + revert:** pure documentation/decision-closure (queue.md resolution write-up + one
-> lesson-inbox filing) -- no params/heartbeat_core/filters/placement/exit/CLAUDE.md touched, no
-> commit needed for a decision-only fire (no code diff). DB-BASE-QUIET-PROXIMITY-GATE-LEAD gets
-> its first quantified suppression estimate from this fire (~82% of an ungated population) but
-> stays open (its own \$0.50-band-width question is separate). DOUBLE-BOTTOM-LOOKBACK-AB
-> unaffected (different question).
-
-> **Cost: ~$1.8** (STAGE 0/1 reads, tracing the watcher gate + pre-reg + results files, queue.md
-> resolution write-up, lesson-inbox filing, STATUS write-up). `conductor_outcome.py metric`:
-> `trend=regressing` (cost/drained \$3.08 over the last 20 fires) -- noting per protocol; next
-> fire should prefer another loop-closer over a fresh artifact.
-
----
-
-## [2026-07-23 overnight] KITCHEN NIGHT COMPLETE -- 83 cells / 6 lanes cooked, 0 ship (honest), best-ever near-miss found, 2 infrastructure wins, portfolio math delivered
-
-> **J's directive: "good traders make money most days -- we need a few solid strats; cook all night." Delivered, Sonnet army throughout.** Full doc: markdown/research/STRATEGY-PORTFOLIO-2026-07-23.md.
-> - **0/83 cells ship** (4-gate bar + 83-cell BH-FDR). Cleanest kills: range-day-fade 16/16 (2nd independent range-entry failure), trend-day-continuation 16/16.
-> - **Best near-miss of the entire week: A6** -- TIGHTER trendline-class exits (stop -12%, trail 10%): the only 4/4-gate cell, 67.4% day-WR, but q=0.31 after portfolio-wide correction. Accreting via live shadow (TRENDLINE-TIGHT-EXIT-ACCRETE).
-> - **Audit flag:** double_bottom_base_quiet live-armed with -\$3,504 full-history baseline -> DOUBLE-BOTTOM-DISARM-DECISION (24h re-audit then act; zero live bleed meanwhile).
-> - **Portfolio math (honest):** current full stack ~= +\$13-20/calendar-day, ~36-60% day coverage -- 10x short of the \$100-200 goal. The binding gap is not entries (98+83 cells prove it): it is per-day consistency (core median trading day -\$63) + the uncovered chop/high-VIX days.
-> - Earlier tonight, same program: EDGE-MATRIX final (0/98, null certain), 18-month full-engine number (+\$5,064.75 provisional), level-feed snapshots LIVE (fidelity fix), ETH-ribbon A/B null (engine keeps RTH; J's-eyes stand-in validated + whisper/brief divergence flags wired by a parallel fire).
-
----
-
-## [2026-07-22 ~23:42-23:56 ET] OK -- conductor (AFTERHOURS): closed RIBBON-SESSION-SCOPE-DIVERGENCE fully (Lane-A wiring, the last open piece), commit `fbfb6343`
-
-> **STAGE 0/1:** ET confirmed 23:42, Wednesday, market closed since 15:55. `engine-health.json`
-> GREEN 13/13 (all quiet-OK). `self_check.py` DEGRADED only on the pre-existing non-load-bearing
-> TRENDLINE-DRAW flag. `fill_funnel.py` GREEN 2026-07-22: core:safe 2 fills/2 exits, core:bold 0
-> ENTER (20/21 signals correctly gated, no anomaly). Self-audit gaps: latest batch
-> (2026-07-22T17:32:32) already triaged by an earlier fire tonight -- nothing new.
-> `task_scorer.py --top` surfaced `EDGE-MATRIX-NIGHTLY-RERUN` (MED); picked
-> `RIBBON-SESSION-SCOPE-DIVERGENCE` (HIGH) instead -- it had been surfaced with a "trace-first
-> advisory" by 2 prior fires tonight but was actually PART-2-RESOLVED already, leaving only a
-> small, well-scoped remainder ("wire compare_at into the dojo session step + morning-brief
-> gap-day line") -- OP-22 tiebreak: close a loop over re-deciding priority on a fresh MED item.
-
-> **What shipped:** `backtest/tools/ribbon_scope_compare.py` gets a new
-> `latest_available_day(before=)` (most recent cached day with a warmed-up RTH stack -- so a
-> premarket caller with no bars for "today" yet can honestly report on the most recent day it
-> DOES have data for). Two wiring points: (1) `dojo/session.py cmd_step` now calls a new
-> `_ribbon_scope_line()` after rendering the whisper -- on a genuine RTH-vs-ETH disagreement it
-> appends a "[!] ribbon scope divergence" line + records the raw comparison on the ledger row;
-> agreement or comparator-unavailable -> silent, fail-open. (2) `daily_brief.py` morning mode
-> gets `_ribbon_scope_note(day)` -- reports the most recent PRIOR day's open-bar divergence
-> (today's own bars don't exist at 08:45 ET premarket), adds a "Heads up" line to the spoken
-> brief only on genuine disagreement, silent on agreement (no spam). **Verified this fire
-> (OP-33):** manual smoke test on real cached data for both integration points -- a real dojo
-> session step at 2026-07-21 10:05 ET produced the divergence line live (RTH=BULL vs ETH=BEAR,
-> $1.14 apart); `daily_brief.py --mode morning --no-voice --date 2026-07-22` produced "Heads
-> up: at 2026-07-21's open my ribbon read BEAR while the full extended-hours chart read MIXED,
-> $2.26 apart" in the actual spoken text. Test session artifacts deleted after (smoke-test
-> only). 12 new guard tests across 3 files (4 `latest_available_day` cases, 4 new
-> `test_dojo_session_ribbon_scope.py` cases incl. 2 fail-open paths via monkeypatched
-> `sys.modules`, 4 `daily_brief.py` composition cases). RED-proofed via `git show HEAD:<path>`
-> (never `git stash`, standing C34/L214/L228/L238 rule) -- confirmed none of the 3 new
-> functions exist pre-fix. Full suite 82/82 PASS, gym 104/104 PASS.
-
-> **Self-caught near-miss, same fire:** mid-RED-proof-prep I reached for `git stash push -u --
-> <3 files>` before catching myself -- the repo's standing rule (C34/L214/L228/L238) is NEVER
-> use stash here (past incidents: untracked-file stash failures, cross-session stash pollution).
-> Immediately popped `stash@{0}` back (my own entry, applied cleanly, zero conflicts) and
-> confirmed the 3 pre-existing stashes (`stash@{1..3}`, from earlier unrelated sessions) were
-> untouched before/after. Switched to the repo's own established non-destructive convention
-> (`git show HEAD:<path>` diff-against-committed-copy) for the rest of the RED-proof. No data
-> lost, no live state touched -- flagging it here per OP-33 honesty, not burying a clean recovery.
-
-> **Scope + revert:** pure authoring (comparator helper + 2 wiring call sites + guard tests), no
-> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched. Revert: `git revert fbfb6343`.
-
-> **Cost: ~$5.4** (STAGE 0/1 reads, tracing the dojo/whisper/session/brief call graph across 5+
-> files to find the right insertion points, 2 new functions + 2 wiring edits, manual smoke tests
-> of both integration points on real cached data, 12 new guard tests + RED-proof, full-suite +
-> gym re-verification, queue/STATUS write-up).
-
----
-
-> **STAGE 0/1:** ET confirmed 22:42, Wednesday, market closed since 15:55. `engine-health.json`
-> GREEN 13/13 (all quiet-OK, market closed). `self_check.py` DEGRADED only on the pre-existing
-> non-load-bearing TRENDLINE-DRAW flag (already tracked). `fill_funnel.py` GREEN 2026-07-22:
-> core:safe 2 fills/2 exits, core:bold 0 ENTER (21 signals correctly gated, no anomaly). Self-audit
-> gaps: all batches through 2026-07-22T17:32:32 already actioned by earlier fires -- nothing new.
-> `task_scorer.py --top` surfaced `RIBBON-SESSION-SCOPE-DIVERGENCE` with its own trace-first
-> advisory (same as 2 fires ago); the prior fire's own `conductor_outcome.py metric` flagged
-> `trend=regressing` and explicitly named `STRATEGY-CANDIDATES-UNTRACKED-BACKFILL` as the
-> preferred loop-closer -- picked that instead (OP-22 tiebreak: close a loop the repo already
-> committed to).
-
-> **What shipped -- all 3 named fix-parts, not just the backfill:**
-> **(1)+(2) the backfill (`d148f7e8`):** staged all 1,176 untracked `strategy/candidates/`
-> files (confirmed not gitignored via `git check-ignore`, ~8MB, all markdown) via
-> `git add --pathspec-from-file` against the exact `git status --porcelain` untracked list --
-> never `-A`/`.`. Deliberately excluded the concurrently-modified `_review-log.jsonl` (another
-> live process's in-flight write). **Verified this fire (OP-33):** `git show --stat HEAD` shows
-> exactly 1,176 files changed, ALL under `strategy/candidates/`; re-ran `git status --porcelain`
-> after commit and confirmed only the excluded file remains modified.
-> **(3) the guard (`2d8c7594`):** graduated `self_check.py#check_candidates_untracked_backlog`
-> ($0, fail-open -- any git-invocation error returns `[]` rather than raising, rail-2). Scoped
-> `git status --porcelain -- strategy/candidates/`, counts only `??` lines, flags DEGRADED
-> (never BROKEN -- zero trading-relevant impact) above threshold 20. 8 new guard tests
-> (`test_self_check_candidates_untracked.py`, mirrors `test_self_check_tv_cdp.py`'s fake-probe
-> convention): under/at/over threshold, non-untracked lines ignored, exact-1176 scar
-> reproduction, fail-open on git error, default-probe-never-raises, `run()`-wiring assertion.
-> Confirmed the pre-fix HEAD copy of `self_check.py` has neither the function nor the wiring
-> (would RED-catch a regression) -- checked via a throwaway `git show HEAD:...` temp file, NOT
-> `git stash` (standing never-stash-in-this-repo rule, C34/L214/L228/L238), deleted after.
-> Curated safety gate 31+5 PASS on both commits (pre-commit hook auto-ran it). Gym 104/104
-> PASS, no regression. Real-repo probe now returns `[]` (0 untracked, post-backfill).
-
-> **Self-caught foot-gun, same fire:** a stale `.git/index.lock` (0 bytes, ~1h40m old) blocked
-> the first `git add` attempt. Confirmed via `tasklist` that no live `git.exe` process was
-> running before removing it -- standard git-recommended cleanup per git's own error message,
-> not a live-process kill (rail-2 respected: verified-dead, not assumed-dead). Also caught my
-> own Bash-quoting mistake (`--pathspec-file-nul` on a newline-, not NUL-, separated file list)
-> before it could silently no-op the `git add` -- re-ran without that flag and verified the
-> staged count matched (1176) before committing.
-
-> **Scope + revert:** the backfill is pure file version-control (no code behavior change) +
-> the guard is a new observability-only self_check function -- no params/heartbeat_core/
-> filters/placement/exit/CLAUDE.md touched. Ships per OP-22 (engine-benefit hygiene). Revert:
-> `git revert 2d8c7594` then `git revert d148f7e8` (guard first; the backfill itself is safe to
-> leave standing even if the guard alone is reverted).
-
-> **Cost: ~$2.8** (STAGE 0/1 reads, git-status/pathspec staging + verification, self_check.py
-> function authorship + wiring, guard-test authorship + RED-proof via temp-file HEAD read (no
-> stash) + green run, curated safety gate + gym re-verification both commits, queue/STATUS
-> write-up).
-
----
-
-
-### DEGRADED: self-check 2026-07-23T16:39:56
-- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
-- ts: 2026-07-23T20:45:35+00:00
-- task: analyst
-- date_et: 2026-07-23
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-## Kitchen
-Kitchen: alive, queue 33 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-- [2026-07-23 21:00:02] gym-session (2026-07-23) → **YELLOW** :: see `automation\state\gym-scorecard-2026-07-23.json`
-### DEGRADED: self-check 2026-07-23T17:09:56
-- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-23T17:12:38
-- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### INFO: eod-analytics manager used free-tier model (free-tier-primary)
-- ts: 2026-07-23T21:30:51+00:00
-- task: manager
-- date_et: 2026-07-23
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-### DEGRADED: self-check 2026-07-23T17:39:56
-- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
