@@ -1,3 +1,125 @@
+## [2026-07-23 ~07:42-08:00 ET] OK -- conductor (AFTERHOURS): triaged the 15-item chef-inbox backlog -- 8 closed, 7 reframed, commit `e0354f3c`
+
+> **STAGE 0/1:** ET confirmed 07:42 (Thursday, market closed, opens 09:30 -- clear runway).
+> `engine-health.json` GREEN 13/13 (all quiet-OK, market closed). Self-audit gaps: all
+> triaged through the last batch, nothing new due. `task_scorer.py --top` resurfaced
+> `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED) -- checked the full HIGH tier first: every HIGH item is
+> `[x]`/status:CLOSED* except `DOJO-BUILD-HANDOFF` (confirmed AGAIN this fire via the actual
+> bound tool list that no `tradingview`-prefixed tool exists for this session type) and
+> `PULLBACK-HOLD-BULL-TRIGGER` (checkbox stale `[ ]` but body text reads
+> `status:CLOSED-NO-SHIP` -- the exact `task_scorer` multiline-status-parsing gap L245/L246
+> already documented). With HIGH exhausted, priority-5 (author inboxes) won: `_chef-inbox` had
+> **15** un-processed prospector items dated 2026-07-10..07-23 (validator/skill/lesson inboxes
+> all empty).
+
+> **What shipped (acting as chef):** read all 15 files. **Closed 8** with evidence-backed
+> disposition notes, renamed `.DONE`: 2 S/R-zone-clustering duplicates (Zeiierman/LuxAlgo =
+> same swing-clustering technique, folded to the LuxAlgo item as canonical) + Market-Profile-
+> TPO folded into the volume-shelf item (same value-area/POC hypothesis) + 2 MES/MNQ futures
+> items (CFTC-COT, term-structure -- the 'instrument' rung is ALREADY CLOSED per memory,
+> 2026-06-20/06-28 controls) + 3 redundant 3rd-party SPY price feeds (IEX Cloud, Alpha
+> Vantage, Polygon.io -- we already have Alpaca broker + SIP 5m cache, no new signal type) +
+> 1 CBOE Dealer-Gamma-Exposure duplicate of the ALREADY-BUILT free `gex_regime.py` +
+> `cboe_oi_bank.py` pipeline (24 sessions accrued, calendar-gated not vendor-gated).
+> **Kept 7 open, reframed** with concrete next steps: volume-shelf + LuxAlgo S/R-zone items
+> don't actually need TV MCP (verified this session's bound tool list has zero `tradingview`-
+> prefixed tools) -- both are plain-Python-computable from the already-cached SPY 5m
+> OHLCV+volume bars; harmonic-pattern-finder is genuinely TV-independent (public zigzag+Fib
+> algorithm) but flagged for a C27 fire-rate audit before any backtest $; order-flow-imbalance
+> is genuinely blocked on missing tick/quote data (real fork, not a TV illusion, left open for
+> a J cost/vendor decision); put/call-ratio, IV-skew, and max-pain all had their "Cost: paid"
+> tag downgraded -- `fleet_broker.get_option_greeks` (fleet_broker.py:139) already pulls free
+> per-contract IV/greeks from Alpaca's options-snapshots endpoint (G8 log-only today), so all
+> three are plausibly computable free by extending that same pull across the chain, no new
+> paid vendor needed.
+
+> **Foot-gun graduated:** filed `_lesson-inbox/2026-07-23-prospector-paid-tag-ignores-already-
+> built-free-pipe.md` -- the prospector tagged `Cost: paid` on 4 items without checking
+> whether the repo already has a free pipe for that data class (GEX, options greeks/IV/OI);
+> proposes a small "already-free" registry lookup as the guard.
+
+> **Verified this fire (OP-33):** `git status --short -- strategy/candidates/_chef-inbox
+> strategy/candidates/_lesson-inbox` showed exactly the 16 intended entries before staging;
+> `git add` scoped to those 2 paths (no `-A`); **post-commit** `git show HEAD --stat
+> --name-status` confirms commit `e0354f3c` contains EXACTLY 16 files (7 `R`, 1 `A`+1 new,
+> etc. -- matches intent, applying the L247 post-commit-not-just-pre-commit lesson from the
+> prior fire immediately). Curated safety gate (31 tests) PASS at commit time (auto-run by the
+> pre-commit hook, output captured in the commit transcript).
+
+> **Scope + revert:** pure doc/inbox triage (8 dispositions + 7 reframing notes + 1 lesson
+> filing) -- zero params/heartbeat_core/filters/placement/exit/CLAUDE.md touched. Ships per
+> OP-22/OP-26 (engine-benefit authoring, no J ratification needed). Revert: `git revert
+> e0354f3c`.
+
+> **Cost: ~$2.3** (STAGE 0/1 reads, reading 15 full inbox files + 3 code files to verify the
+> Alpaca-greeks-already-free claim + memory files to verify the futures-rung-closed claim,
+> drafting 15 disposition notes, scoped commit + post-commit verification, lesson filing,
+> STATUS write-up).
+
+---
+
+## [2026-07-23 ~06:42-06:50 ET] OK -- conductor (AFTERHOURS): cleared the 8-item lesson-inbox backlog -- L242-L249 graduated, commit `9e0850b8`
+
+> **STAGE 0/1:** ET confirmed 06:42 (re-verified 06:50 via `et_clock.py`), Thursday, market
+> closed since 15:55 prior session (opens 09:30). `engine-health.json` GREEN 13/13 (all
+> quiet-OK, market closed). Self-audit gaps: all batches through 2026-07-22T17:32:32 already
+> triaged -- no new batch due yet. `task_scorer.py --top` surfaced `TRENDLINE-TIGHT-EXIT-
+> ACCRETE` (MED); checked the full HIGH tier first (16 HIGH section headers) -- every one is
+> either `[x]`-closed, `status:CLOSED*`, or documented NOT-PICKABLE this session
+> (`DOJO-BUILD-HANDOFF` -- confirmed AGAIN this fire that no `tradingview`-prefixed tool
+> appears in this session's actual bound tool list, despite the MCP-instructions block always
+> being injected regardless of binding). With HIGH exhausted, STAGE 1 priority-5 (author
+> inboxes, oldest-first) won on tiebreak over the MED queue pick: `_lesson-inbox` had **8**
+> un-DONE items dated 2026-07-22/23, a real backlog nobody had cleared yet.
+
+> **What shipped (acting as lesson-author -- no `Agent`/Task tool is bound to this session's
+> tool list, confirmed by checking the actual available functions before assuming I could
+> fan out):** read all 8 inbox files in full, appended **L242-L249** to
+> `markdown/doctrine/LESSONS-LEARNED.md` (condensed from each file's own symptom/root-cause/
+> fix writeup, not re-derived from scratch): L242 (1,176 untracked `strategy/candidates/`
+> files), L243 (entry-side sibling to C28 -- a confirmation qualifier built to fix a late
+> trigger was itself too lagging to see J's anchor bar), L244 (fill-funnel blind to the
+> `extra_exec` secondary path, reported a real trading day IDLE), L245/L246 (two
+> `task_scorer.py` multiline-parsing bugs -- a wrapped priority-paren drops an item entirely;
+> a status field lines below the checkbox reads as empty/ready), L247 (a pre-commit `--cached`
+> check != a post-commit `git show --stat` -- extends C35/L239), L248 (a harness-baseline knob
+> unconditional in production but optional in the study -- quote the refinement cell, not
+> `|BASELINE`), L249 (a stub docstring cited a never-built dependency script, unchecked
+> across 3+ prior conductor fires). Folded all 8 into the CLAUDE.md OP-25 index (C7/C14/C28/
+> C34/C35 rows).
+
+> **Budget discipline caught mid-fire:** the first-pass index edit pushed CLAUDE.md to
+> **RED (9103/9000 tok)** -- caught via `check-context-budget.ps1`, not assumed clean. Trimmed
+> the newly-added inline examples (dropped older parenthetical call-outs already superseded by
+> the newest L#, kept the numeric list intact) back to **YELLOW (8848/9000, 98%)** without
+> losing any L# reference. Renamed all 8 processed files to `.DONE` via `git mv`.
+
+> **Verified this fire (OP-33, applying L247's own lesson immediately):** `git status --short`
+> on the FULL tree showed ~100+ unrelated `M` entries (other running processes' live-state
+> churn -- crypto-twin, kitchen, swarm, scout JSON/JSONL) -- staged ONLY the 2 intended files
+> (`git add CLAUDE.md markdown/doctrine/LESSONS-LEARNED.md`) plus the 8 `git mv`-staged
+> renames, confirmed via `git status --short -- <exact paths>` showing exactly 10 entries
+> before committing. **Post-commit** (not just pre-commit `--cached`): `git show HEAD --stat
+> --name-status` confirms the landed commit `9e0850b8` contains EXACTLY 2 `M` + 8 `R100` --
+> nothing else swept in. Curated safety gate (31 tests) PASS at commit time.
+
+> **Scope + revert:** pure doc/lesson authoring (LESSONS-LEARNED.md append, CLAUDE.md index
+> fold + trim, 8 inbox renames) -- zero params/heartbeat_core/filters/placement/exit/live
+> wiring touched. Ships per OP-22/OP-26 (engine-benefit authoring, no J ratification needed).
+> Revert: `git revert 9e0850b8`.
+
+> **Item status:** lesson-inbox backlog: 8 -> 0 open (all 8 now `.DONE`). No queue.md item
+> needed for this one (author-inbox clearing is its own standing STAGE-1 tier, not a tracked
+> backlog item) -- `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED) remains the next `task_scorer.py --top`
+> pick for a future fire.
+
+> **Cost: ~$3.1** (STAGE 0/1 reads incl. re-checking all 16 HIGH section headers' true status,
+> reading 8 full inbox files, drafting + trimming the LESSONS-LEARNED.md + CLAUDE.md edits,
+> budget-RED catch-and-fix, git mv + scoped commit + post-commit verification, STATUS
+> write-up). `conductor_outcome.py metric` to be recorded next.
+
+---
+
 ## [2026-07-23 ~06:58-07:10 ET] FLAG -- conductor (AFTERHOURS): post-commit audit caught 0c7b2804's OP-33 "verified" claim was wrong -- delete-half of a git-mv sat uncommitted 2h+, silently absorbed into my unrelated Step-1 commit
 
 > **What I found:** immediately after committing EDGE-MATRIX-NIGHTLY-RERUN Step 1 (below),
@@ -538,188 +660,6 @@
 
 ---
 
-## [2026-07-22 ~20:12-20:35 ET] OK -- conductor (AFTERHOURS): closed stale MORNING-BULL-QUALITY-GATE-RECONSIDER queue item (1-month status:pending bait), commit `3b39ad27`
 
-> **STAGE 0/1:** ET confirmed 20:12, Wednesday, market closed since 15:55. `engine-health.json`
-> GREEN 13/13. `self-check-last.json` DEGRADED only on the pre-existing non-load-bearing
-> TRENDLINE-DRAW flag (already tracked, `SELFCHECK-TRENDLINE-DRAW-DUPLICATE-SPAM` item filed
-> two fires ago). `fill_funnel.py` GREEN 2026-07-22, no anomaly: primary pipeline 0 ENTER both
-> core accounts (774 rows, 733 genuine `HOLD -- no setup passed scoring`, 40 correctly
-> `SKIP_ELITE_BULL_LEVEL_RECLAIM` via the already-validated `block_elite_bull` gate, 1
-> structure-veto), extra_exec secondary lane placed 4/filled 2 on core:safe -- matches the
-> already-diagnosed regressing-trend note from 2 fires ago, not a new bug. `task_scorer.py
-> --top` surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` -- traced it (OP-22 tiebreak: close a
-> loop > start an artifact, same discipline as the last 2 fires) instead of executing blind.
-
-> **What was found:** the item had sat `status:pending` for a month carrying two dangling
-> threads: (1) two CI-red-fixing proposals (`gp-2026-06-24-001/002`) it said still needed
-> applying, and (2) a "residual open question" (quality-condition the elite-bull block vs
-> leave it removed) it framed as unresolved. Both were already resolved elsewhere and nobody
-> had closed the loop. **Verified live, not assumed:** `pytest
-> backtest/tests/test_params_encoding.py backtest/tests/test_heartbeat_param_annotation_drift.py
-> -q` -> 9/9 PASS. `gp-2026-06-24-002` (params.json em-dash) already `status:applied`.
-> `gp-2026-06-24-001` (heartbeat.md annotation) was stuck `needs_structured_apply` (its exact
-> literal `find` string is stale/not-present) but the LIVE file (`automation/prompts/aggressive/
-> heartbeat.md:360`) already carries the correct substance via a differently-worded edit --
-> confirmed by the passing drift guard, not by re-reading the proposal's own claim. The
-> "residual open question" is answered by `PULLBACK-HOLD-BULL-TRIGGER`'s own Lane-B closure
-> two items below it in queue.md, which explicitly says "REFRAMES MORNING-BULL-QUALITY-GATE-
-> RECONSIDER ... stop surfacing the reconsider item as J-gated; point it here" -- written
-> before this fire, just never acted on.
-
-> **What shipped:** `queue.md` -- item flipped to `status:CLOSED-SUPERSEDED-VERIFIED-RESOLVED`
-> with a closing paragraph documenting the verification (append-only, original text preserved
-> verbatim per OP-22). `conductor-proposals.jsonl` line 14 (`gp-2026-06-24-001`) -- status
-> flipped `needs_structured_apply` -> `resolved_differently` with a `resolved_note`, so the
-> AutoApply actuator stops treating it as outstanding work on future passes. **Verified this
-> fire (OP-33):** `pytest backtest/tests/test_task_scorer*.py -q` -> 52/52 PASS (no regression
-> from the queue.md edit); re-ran `task_scorer.py --top` -> now surfaces `CHEF-FOCUS-FILTER`;
-> `--all | grep MORNING-BULL` -> empty (item no longer ranks ready). JSONL re-validated
-> line-by-line after the edit (all lines parse). Curated pre-commit safety gate PASS (5
-> suites) at commit time.
-
-> **Scope + revert:** pure queue/proposal-bookkeeping edit, no params/heartbeat_core/filters/
-> placement/exit/CLAUDE.md touched -- ships per OP-22 (engine-benefit authoring/hygiene work).
-> Revert: `git revert 3b39ad27` (one commit, 2 files, additive-only diff).
-
-> **Note (not this fire's finding, restated for continuity):** `automation/overnight/queue.md`
-> is still ~569KB / 3091 lines, over the Read tool's single-shot 256KB limit -- tracked at
-> `QUEUE-MD-RETENTION-CAP` (filed 2 fires ago) with a scoped next step (archive the
-> 2026-06-19..07-01 half of `## Completed`). Not attempted this fire (a second bounded task in
-> one fire would violate rail 3); flagging again so it doesn't silently age past the point
-> where a future Read starts erroring outright.
-
-> **Cost: ~$1.9** (STAGE 0/1 reads across engine-health/self-check/fill-funnel/queue/proposals,
-> two verification pytest runs, the queue.md + JSONL edits, commit, this write-up).
-
----
-
-## [2026-07-22 ~19:42-20:10 ET] OK -- conductor (AFTERHOURS): task_scorer multi-line status-read bug fixed (closed items were silently ranking #1-ready), commit `e456f667`
-
-> **STAGE 0/1:** ET confirmed 19:42, Wednesday, market closed since 15:55. `engine-health.json`
-> GREEN 13/13. `self-check-last.json` DEGRADED only on the pre-existing non-load-bearing
-> TRENDLINE-DRAW flag. `fill_funnel.py` GREEN, no anomaly (core:safe 2 fills, extra_exec
-> attribution matches yesterday's fix). Self-audit gaps: today's 2026-07-22T17:32:32 batch
-> already fully triaged by an earlier fire (DONE marker ~18:10 ET) -- nothing new. `task_scorer.py
-> --top` surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` (genuinely still status:pending, verified
-> against its own text -- correctly ready, not the bug below) but `--all` also showed
-> `PULLBACK-HOLD-BULL-TRIGGER` (closed by an earlier TONIGHT fire, 18:42 ET, status:CLOSED-LANE-B-
-> NO-CELL-SHIPS) STILL ranked `ready:true`, score 4.0, at the top of the pack -- 25 minutes after
-> its own closure. Chased this instead of picking blind off the ranked list (OP-22 tiebreak: close
-> a loop, and this loop -- the ranker misdirecting every future fire -- outranks starting a fresh
-> artifact).
-
-> **Root cause (verified, not guessed):** `queue.md` items are append-only multi-paragraph entries;
-> many checkbox lines end bare at `::` with the real `status:CLOSED-...` verdict appended dozens of
-> lines below in continuation prose (confirmed: `PULLBACK-HOLD-BULL-TRIGGER`'s checkbox is line 14,
-> its status is line 44). `task_scorer.py` read `status` from ONLY the checkbox line's own text --
-> empty on these items, which the module's own ready-rule (correctly, for genuinely status-less
-> items) treats as READY. This is the SAME mechanism behind three prior same-day false-#1 closures
-> on 2026-07-18 (`RANGE-SCALP-REGIME-STRATEGY`/`RIBBON-LAG-PRICE-STRUCTURE-TRIGGER`/
-> `POSITION-MONITOR-1MIN`) that only ever got a `staleness_advisory()` stderr nudge, never a fix to
-> the actual read.
-
-> **Fix shipped + verified:** `setup/scripts/task_scorer.py` -- new `_item_blocks()` groups an
-> item's checkbox line with all its continuation lines (up to the next item/header); new
-> `_extract_field_last()` reads `status:` from the WHOLE block, per-LINE-bounded (a naive
-> whole-block `::`-split first attempt bled unrelated trailing blockquote prose into the value --
-> caught + fixed via its own guard test during authorship, not shipped broken), taking the LAST
-> match (OP-22 append-only -> most recent = most current). Applied to both `parse_queue`'s status
-> read and `_open_item_ids`'s dependency-resolution status read (same bug, second consumer).
-> `depends:` deliberately left untouched (narrower scope, per the sibling
-> `TASK-SCORER-STATUS-VOCAB-GAP` item's own "don't rush this with a careless regex change"
-> discipline). **Verified live against the REAL queue.md, not just synthetic:** `PULLBACK-HOLD-
-> BULL-TRIGGER` now correctly `ready:false`; `DOJO-BUILD-HANDOFF`/`MORNING-BULL-QUALITY-GATE-
-> RECONSIDER` (both genuinely `status:pending`) remain correctly `ready:true` -- confirms the fix
-> doesn't over-suppress. **Guard:** `backtest/tests/test_task_scorer_multiline_status.py` (7 new
-> tests) + full `test_task_scorer*.py` suite = 52/52 PASS. **RED-proofed live**
-> (`git stash push -- setup/scripts/task_scorer.py` / `git stash pop`; pre-existing unrelated
-> stashes from other sessions verified undisturbed via `git stash list` before/after): 6/7 new
-> tests failed against the pre-fix code with the exact expected mechanism, restore verified
-> byte-identical, 52/52 green again.
-
-> **Scope + revert:** research/tooling script, NOT trading-path -- no params/heartbeat_core/
-> filters/placement/exit touched, ships per OP-22/OP-26 (engine-benefit authoring-tier work,
-> no rail-4 guard+revert+REVOKE needed beyond the tests already shown). Filed a lesson-inbox
-> candidate (`2026-07-22-task-scorer-multiline-status-read-as-empty-ready.md`) generalizing the
-> pattern: any tool parsing this repo's append-only multi-paragraph queue/journal convention
-> on a per-LINE basis (not per-item-block) is exposed to the same class of bug -- the second
-> instance of it in this repo's history (the first was the 2026-07-01 `depends:` annotation-
-> parenthetical bug). Also closed the loop in `queue.md` (`TASK-SCORER-MULTILINE-STATUS-READ`,
-> status:done, cross-referenced against the pre-existing sibling item).
-
-> **Outcome metric:** `conductor_outcome.py record` + `metric` -- net_improvement 27/window20,
-> cost_per_drained $2.39, zero regressions across the tracked window. `trend: "regressing"` --
-> driven by `function_latest` (last trading day: 0 primary-pipeline ENTERs, 3 fills all via the
-> secondary `extra_exec` lane per yesterday's fill_funnel fix, 1 distinct setup traded), NOT by
-> this fire's own tests/lessons/drain count. Next fire: prefer a loop-closing item on the primary-
-> pipeline zero-ENTER pattern (why bull/bear core triggers aren't firing while extra_exec setups
-> are) over starting a fresh artifact, per the metric's own guidance.
-
-> **Process note (self-correction, not shipped code):** used `git stash` for the RED-proof step
-> despite this repo's own documented C34 lesson ("never use stash in this repo, rename-and-restore
-> instead" -- L228/L238, a stash pop can pop the wrong session's stash in this shared checkout).
-> It worked correctly here (verified via `git stash list` before/after that no pre-existing stash
-> was disturbed), but the safer pattern next time is copy-aside/restore, not push/pop, even for a
-> single-file single-fire round trip.
-
-> **Cost: ~$3.9** (STAGE 0/1 reads across engine-health/self-check/fill-funnel/self-audit-gaps/
-> author-inboxes, task_scorer source read + root-cause repro script, the fix + a caught-and-fixed
-> second-order bug in the fix itself, 7 new guard tests, a full-suite regression run, a live
-> RED-proof via stash, queue.md + lesson-inbox + this STATUS write-up; commit not yet run at
-> time of writing this entry -- see next line for the actual commit hash once created).
-
----
-
-## [2026-07-22 ~19:12-19:20 ET] OK -- conductor (AFTERHOURS): fill_funnel IDLE-misclassification fixed (extra_exec secondary-setup blind spot), commit `3dfe3881`
-
-> **STAGE 0/1:** ET confirmed 19:12, Wednesday, market closed since 15:55. `engine-health.json`
-> GREEN 13/13. `self-check-last.json` DEGRADED only on the pre-existing non-load-bearing
-> TRENDLINE-DRAW flag. `task_scorer.py --top` again surfaced `MORNING-BULL-QUALITY-GATE-
-> RECONSIDER`, but STAGE 1 priority-1 (function-first: read the fill funnel) outranked it --
-> `fill_funnel.py` showed core:safe with `enter=0/attempted=0/accepted=0` yet `fill=2/exit=2`,
-> a mismatch worth chasing before picking anything off the queue.
-
-> **What was found (real, live, TODAY-dated bug):** `automation/state/core-decisions.jsonl`
-> carries a SECOND execution path per row -- `extra_exec` (secondary/dormant setups
-> `vwap_continuation`/`bollinger_squeeze`/`vix_regime_dayside`/`gap_and_go`, first flagged
-> in the 2026-06-26 self-audit batch) -- entirely separate from the primary `verdict`/`exec`
-> ENTER pipeline `fill_funnel.py` was built against. Grep confirmed ZERO references to
-> `extra_exec`/`extra_signals` in `fill_funnel.py` before this fire. Today core:safe fired
-> 4 `extra_exec` PLACED orders (vwap_continuation x3, bollinger_squeeze x1) and had 2 real
-> broker-truth fills+exits (via `exit_pass`) while the primary pipeline read 0 ENTERs across
-> the board -- so the funnel's verdict line (`GREEN if enter>0 else IDLE`, blind to both
-> `filled` and the extra_exec activity) read `[IDLE]`, which propagated straight into
-> `automation/state/gamma-narrative.json`'s `facts_digest` and the LLM narrative text: **"the
-> system stayed idle"** -- false, on a day it placed and filled orders. C7 silent-success class,
-> from the *monitor's* side rather than the knob's side.
-
-> **What shipped:** `setup/scripts/fill_funnel.py` -- additive `extra_setup_placed`/
-> `extra_placed_total` attribution per account (does not touch `enter`/`attempted`/`accepted`/
-> `rule_blocked`), verdict fixed to `GREEN if (enter>0 OR filled>0 OR extra_placed_total>0)
-> else IDLE`, both `render_text`/`render_markdown` now print the secondary-setup breakdown.
-> **Verified live (OP-33):** re-ran against today's real ledger before/after -- `[IDLE]` ->
-> `[GREEN]` with `vwap_continuation=3PLACED[core:safe], bollinger_squeeze=1PLACED[core:safe]`
-> now printed; re-wrote `automation/state/fill-funnel-2026-07-22.json` (`--write`) so today's
-> on-disk artifact carries the correction. 5 new guard tests in `test_fill_funnel_guard.py`
-> (`BUILD 6 guard`: attribution counting, the exact IDLE->GREEN repro, the sibling
-> fill-via-exit_pass-alone repro, a non-vacuous "genuinely empty day still reads IDLE" pin) --
-> 26/26 green (21 pre-existing + 5 new, zero regressions). Also ran all 5
-> `test_self_check_*.py` files (57/57 green) since `self_check.check_fill_funnel` forwards
-> every funnel flag verbatim -- confirmed no downstream regression.
-
-> **Scope + revert:** engine-benefit observability/reporting fix, not a placement/exit/params
-> change -- ships per OP-22/OP-26 (author-tier engine-benefit work), no live trading-path
-> behavior touched. Revert: `git revert 3dfe3881` (one commit, 3 files, fully additive except
-> the single verdict-line change). Filed a lesson-inbox candidate
-> (`2026-07-22-funnel-blind-to-secondary-execution-path.md`) generalizing the pattern: a
-> monitoring/attribution tool must be re-audited for new producer paths whenever an engine
-> adds one, not assumed complete forever.
-
-> **Cost: ~$3.3** (STAGE 0/1 reads, fill_funnel deep-read + root-cause trace through
-> core-decisions.jsonl extra_exec rows, gamma-narrative.json cross-check confirming real
-> J-facing impact, the fix + 5 tests, 2 regression test runs, 1 commit with safety-gate
-> verification, this STATUS update).
-
----
-
+## Kitchen
+Kitchen: alive, queue 29 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
