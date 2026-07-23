@@ -1,0 +1,102 @@
+{
+  "family": "trend-day-continuation",
+  "prereg_version": 1,
+  "frozen_at": "2026-07-22T23:45:00-06:00",
+  "frozen_before_any_run": true,
+  "amendments": [],
+
+  "runner": "backtest/tools/kitchen_trend_day_continuation.py",
+  "episodes_output": "analysis/kitchen/trend-day-continuation-episodes.json",
+  "results_output": "analysis/kitchen/trend-day-continuation-results-2026-07-23.json",
+
+  "hypothesis": "HARVEST-DAY-ANATOMY-2026-07-23.md #4 flags `trend` day-type as the single most underexploited GOOD archetype for the live ribbon_ride engine (+$92.55/traded-day, best of any archetype, yet 60.8% of trend days are sat out) because ribbon_ride's trigger requires a LEVEL touch (rejection/reclaim) and pure trend days without a clean level touch never generate one. This family tests a NON-level continuation vocabulary on established intraday trend days: (a) opening-range breakout hold -- price breaks the first-15-min range and a later shallow pullback to the broken level holds and resumes, and (b) ribbon-persistence pullback-to-VWAP -- the EMA ribbon has been persistently stacked one direction and a shallow pullback to session VWAP holds and resumes. Both directions. NO LevelMemory/static S/R level is read anywhere in this detector -- the trigger is trend-state (opening-range breakout OR sustained ribbon stack) plus a pullback-depth zone touch, never a remembered price level. This is deliberately NOT the killed level-reclaim/level-rejection/break-retest/sr-flip-retest/range-pingpong/premarket-level families in EDGE-MATRIX-FULLHIST-2026-07-23.md (0/98 cells shipped, do not re-cook).",
+
+  "prior_art_disclosure": {
+    "vwap_trend_pullback_watcher": "backtest/lib/watchers/vwap_trend_pullback_watcher.py (H4) trades a SIMILAR surface (trend-day pullback-to-VWAP) but was VERIFY-FAILED (markdown/audits/VWAP-TREND-PULLBACK-VERIFY-FAILED-2026-07-10.md): its shipped scorecard used the WRONG exit model (simulator_real.simulate_trade_real, since shown KNOWN-DIVERGENT from the real exit_manager -- the exact defect this pre-reg's fidelity stack (exit_manager_walk.walk_exit_manager) structurally avoids) AND a separate study (analysis/recommendations/VWAP-PULLBACK-EDGE-VERIFY.json) found its signal-days are a 100% same-side subset of the already-live vwap_continuation edge's fire-days (RESKIN_OF_1), independent of exit config.",
+    "vwap_continuation_watcher": "backtest/lib/watchers/vwap_continuation_watcher.py (J_VWAP_CONT) defines its trend side as 'first 3 RTH bars all close same side of VWAP' and its continuation trigger as EITHER a fresh session extreme OR a shallow VWAP-ward dip -- this is the mechanism BOTH of the above watchers share, and the one this pre-reg's grid deliberately does NOT reuse.",
+    "design_response": "To avoid re-cooking either of the above two VWAP-side-persistence detectors under a new name, this family's two trend_qualifier arms use DIFFERENT causal trend-establishment mechanisms: (a) a fixed opening-range breakout (first 3 bars' high/low, a classic ORB construct absent from both prior watchers and from the killed EDGE-MATRIX-FULLHIST level families), and (b) sustained multi-bar RIBBON STACK persistence (fast>pivot>slow EMA ordering, the ribbon_ride engine's own trend primitive, held for >=6 consecutive bars) rather than VWAP-side persistence. Arm (b) still pulls back TO VWAP (matching the family's 'first-pullback-to-VWAP' brief) so a residual overlap risk with vwap_continuation's fire-days cannot be fully ruled out without that detector's own full-history batch replay (none exists per HARVEST-DAY-ANATOMY-2026-07-23.md's own disclosure) -- this is disclosed as an open, not-fully-closeable risk, not claimed as independence.",
+    "not_re_cooking": "EDGE-MATRIX-FULLHIST-2026-07-23.md's 98 cells (premarket-level, sr-flip-retest, bull-reclaim-quality, range-pingpong, break-retest-continuation, bear-level-rejection) are a disjoint vocabulary (all LevelMemory/static-S-R triggered) and are not touched by this grid."
+  },
+
+  "population": {
+    "day_inventory": "analysis/edge-matrix/day-inventory-2026-07-23.json",
+    "signal_days": "inventory opra_days (386) -- days with real OPRA option coverage, matching the fullhist convention used by every other 2026-07-23 family run",
+    "tuning_days": "opra_days MINUS heldout_days = 289 days (2025-01-02 .. day before first heldout)",
+    "held_out_days": "last ceil(25%) of opra_days BY DATE = 97 days (2026-03-03/04 .. 2026-07-22) -- SACRED, touched once, never for selection or tuning",
+    "spy_frame": "Continuous RTH-only (wall 09:30-16:00) 5m frame built per-day from each inventory day's OWN designated source_file (dedupe by timestamp), with the offset-less-source fallback (re-source from the first other inventory source file yielding >=30 true-ET RTH bars) -- byte-identical loader to backtest/tools/edge_matrix_bear_level_rejection.py#load_spy_frame. ALL 386 covered days feed ribbon-EMA/VWAP warmup continuity; signals evaluated only on opra_days.",
+    "timestamp_frame": "TRUE ET: per-row offset -> UTC -> US-DST-aware America/New_York -> naive wall, applied uniformly to SPY AND OPRA before any join (same _true_et convention as every other 2026-07-23 family; matches day-inventory's own method note)."
+  },
+
+  "detector_definition": {
+    "signal_bar": "A fully closed 5m bar i evaluated with bars <= i ONLY (C6). Both trend-qualifier arms and the VWAP anchor are computed from arrays sliced to i+1 only; asserted by a truncated-frame causality audit on a deterministic sample of signal bars (ribbon stack + VWAP value recomputed on bars[:i+1], required to match the full-frame value exactly).",
+    "opening_range": "FIXED, not tuned: OR_high/OR_low = max(high)/min(low) over the first 3 RTH bars of the day (09:30, 09:35, 09:40 -- covering 09:30-09:45). Established at 09:45 ET, before any candidate signal bar (entry window floor below).",
+    "trend_qualifier_or_breakout_hold": "Scanning bars strictly after the OR window in chronological order, the FIRST bar whose CLOSE > OR_high resolves the day BULL (anchor = OR_high); the first bar whose CLOSE < OR_low resolves the day BEAR (anchor = OR_low). Direction and anchor are LOCKED for the rest of the day once resolved (first breakout wins, no re-resolution). No breakout by end of window = no signal that day for this arm.",
+    "trend_qualifier_ribbon_trend_persist": "Ribbon stack (backtest/lib/ribbon.compute_ribbon, fast=13/pivot=20/slow=48 EMA, SMA-seeded then pure recursion -- causal by construction, no forward dependency) computed once over the FULL continuous close series. Day resolves BULL at the first bar i (after the OR window, for a floor-consistent entry window across both arms) where stack[i-5..i] (6 consecutive bars, RIBBON_PERSIST_BARS=6 = 30min, the same TREND_BARS-class constant already documented in vwap_trend_pullback_watcher.py, not hand-picked) are ALL 'BULL'; resolves BEAR symmetrically on 6 consecutive 'BEAR'. Anchor = the RUNNING session-cumulative VWAP value AT the pullback touch bar (not frozen at trend-resolution time) -- typical-price*volume cumulative from the session's first RTH bar through bar i, matching vwap_trend_pullback_watcher.py#_session_rth_vwap's own causal convention (bars[0..i] only).",
+    "pullback_touch": "For BULL: touch bar = first bar i strictly after trend-resolution where bar.low <= anchor(i) + pullback_depth_dollars AND bar.close >= anchor(i) - pullback_depth_dollars (dipped into the zone without closing through/below it -- still a pullback, not a breakdown). For BEAR: symmetric (bar.high >= anchor(i) - depth AND bar.close <= anchor(i) + depth).",
+    "confirmation_modes": {
+      "none": "Signal fires ON the touch bar itself if additionally bar.close is on the trend side of the zone (BULL: close > anchor(i) - depth; already implied by the touch definition above) -- no extra confirming candle required.",
+      "resume": "Signal fires on the bar AFTER the touch bar, only if that next bar's CLOSE has moved fully back beyond the anchor in the trend direction (BULL: close > anchor(that bar); BEAR: close < anchor(that bar)) -- one extra confirming candle, the family's 'one confirm' knob."
+    },
+    "one_signal_per_day": "At most ONE signal per (day, cell): both trend_qualifier arms resolve direction once per day (locked), and the pullback trigger fires on the FIRST qualifying touch (+ confirm bar if required) only. Matches FOCUS-DOCTRINE's one-good-trade-a-day cadence and the existing extra-setup watchers' 'one entry per day' convention.",
+    "structure_stop_trigger_level": "The anchor value AT THE SIGNAL BAR (OR_high/OR_low for the or_breakout_hold arm -- already day-constant; the running VWAP value at the touch bar for the ribbon_trend_persist arm) is frozen into exit_manager's trigger_level at entry, identical mechanically to how bear-level-rejection freezes the rejected level -- if price closes back through this frozen anchor, the continuation thesis is invalidated (em._structure_stop_hit semantics: calls exit on close < trigger_level, puts exit on close > trigger_level)."
+  },
+
+  "grid": {
+    "n_knobs": 4,
+    "n_cells": 16,
+    "axes": {
+      "trend_qualifier": ["or_breakout_hold", "ribbon_trend_persist"],
+      "pullback_depth_dollars": [0.20, 0.40],
+      "entry_window_end_et": ["11:30", "14:00"],
+      "confirmation": ["none", "resume"]
+    },
+    "axis_rationale": {
+      "trend_qualifier": "Two independent, causal, non-level trend-establishment mechanisms per prior_art_disclosure.design_response above -- opening-range breakout (classic ORB, untested anywhere in this codebase) vs sustained ribbon-EMA-stack persistence (the ribbon_ride engine's own trend primitive, used here as a multi-bar PERSISTENCE condition rather than ribbon_ride's single-bar gate).",
+      "pullback_depth_dollars": "0.20 = LevelMemory's own documented TOUCH_TOL constant (same engine-sourced value used as one axis point in prereg-bear-level-rejection-2026-07-23.json -- not hand-picked). 0.40 = 2x, the standard looser-zone comparison point used identically across the other 2026-07-23 families.",
+      "entry_window_end_et": "11:30 = morning-trend-only (trend days per HARVEST-DAY-ANATOMY often resolve their character early); 14:00 = extends through the early afternoon. Floor is fixed at 09:45 ET for BOTH arms (see fixed_not_tuned) so this axis isolates only the upper cutoff.",
+      "confirmation": "none = fire on the touch bar itself (fastest, most signals); resume = require one additional bar closing back beyond the anchor before firing (slower, fewer, higher-conviction signals) -- direct analog of the bear-level-rejection family's confirmation axis."
+    },
+    "baseline_cell": "or_breakout_hold|depth0.20|window11:30|confirm_none -- the simplest, most conservative reading (classic ORB + tightest documented zone + morning-only + no extra confirm bar). NOT a replicated live detector (no live baseline exists for this family, unlike bear-level-rejection) -- disclosed as a retail-intuitive control point, not a claim of prior validation."
+  },
+
+  "fixed_not_tuned": {
+    "opening_range_window": "First 3 RTH bars (09:30-09:45), fixed for both trend_qualifier arms -- see opening_range above.",
+    "ribbon_persist_bars": "6 consecutive bars (30min), fixed -- sourced from vwap_trend_pullback_watcher.py's own TREND_BARS=6 documented constant, not hand-picked.",
+    "entry_window_floor": "09:45 ET fixed for both arms (the OR must close before any candidate bar is evaluated; params.json's own entry_no_trade_before_et=09:35 is looser and therefore non-binding here). Ceiling per params.json entry_no_trade_after_et=15:00 always binds as an outer cap regardless of the grid's 11:30/14:00 axis value.",
+    "side": "BULL trend -> Calls (C); BEAR trend -> Puts (P). Both directions modeled, direction is per-signal (not a grid axis), matching every other 2026-07-23 family's convention.",
+    "strike": "production picker: dojo sim_executor._strike_for(safe arm cfg, spot=signal-bar close, side) -- ATM per V15_SAFE_TIERS.",
+    "qty": "min(min_contracts=3, risk_gate.max_affordable_qty(equity=safe arm starting_equity, premium, params)) -- identical convention to every other 2026-07-23 family.",
+    "entry_fill": "next OPRA 5m bar at-or-after signal_ts+5min, filled at that bar's VWAP (option_pricing_real documented convention, byte-identical to bear-level-rejection).",
+    "min_entry_premium": "0.30 (params.json min_entry_premium) -- fills below floor are skipped and disclosed.",
+    "exits": "the LIVE RIBBON_RIDE shape resolved via sim_executor._resolve_exit_shape(safe arm, 'ribbon_ride', None), walked through backtest/lib/exit_manager_walk.walk_exit_manager (the REAL production exit_manager decision core, NOT simulator_real.simulate_trade_real -- the exact defect that sank vwap_trend_pullback_watcher's own prior scorecard, see prior_art_disclosure). structure_stop_enabled=True (params.json), trigger_level = the day's frozen anchor (see structure_stop_trigger_level above). time_stop_et=15:40 (params.json). ENTRY-SIDE TUNING ONLY -- exits identical across all 16 cells."
+  },
+
+  "dollars": {
+    "authority": "real OPRA fills only (backtest/data/options via option_pricing_real.load_contract_bars). NO Black-Scholes synthetic anywhere in gate math: signals whose contract has no cached OPRA series are excluded from fills and counted/disclosed as NO_OPRA skips."
+  },
+
+  "per_cell_outputs": [
+    "n_signals (tuning days, post one-per-day rule)",
+    "n_real_fills (tuning days, FILLED with real OPRA)",
+    "expectancy = total_pnl / n_real_fills (tuning)",
+    "total_pnl (tuning)",
+    "day_wr = fraction of tuning days with >=1 fill whose day P&L > 0",
+    "ex_top3_total = total_pnl minus the 3 best trades (tuning)",
+    "held_out_total = sum of fills P&L on heldout_days (same fixed mechanics, no selection)",
+    "p_raw = two-sided one-sample t vs zero on tuning per-trade P&L (same _one_sample_p convention as every other 2026-07-23 family)",
+    "gates_passed of 4 (the standing bar, verbatim): [tuning total_pnl > 0] [day majority: winning days > covered days / 2] [survives ex-top-1: total minus single best trade > 0] [held-out positive: >=1 held-out fill AND held_out_total > 0]",
+    "archetype_coverage: DESCRIPTIVE ONLY (never a gate, never fed back into the detector) -- distribution of this cell's tuning fill days across day-inventory day_type (trend/range/chop/unclassified), reported to check whether the detector is actually landing on trend-archetype days as hypothesized"
+  ],
+
+  "bh_fdr": {
+    "method": "Benjamini-Hochberg across all 16 cells' raw p-values, same convention as EDGE-MATRIX-FULLHIST-2026-07-23.md (fresh computation, no cross-run re-normalization). Reported as q(BH-16) alongside p_raw for the portfolio-level read, per the task's explicit instruction to report ex_top3 and p_raw for the portfolio-level BH."
+  },
+
+  "disclosures_committed_in_advance": {
+    "not_full_engine_replication": "The full production cascade also applies VIX gates, volume filter, HTF modifier, entry-bar body, and tier blocks. This grid isolates the DETECTOR family with only the entry-window + trend-qualifier structural gates that define it; it is a detector-discovery study, not an engine parity study. Constant across all cells, so within-grid comparisons are clean.",
+    "small_n_honesty": "Any cell with n_real_fills < 15 is below the OP-16 advisory evidence floor and will be labeled accordingly regardless of gates. One-signal-per-day construction means max possible n_real_fills = 289 (tuning days) per cell, and realistically far fewer once trend-qualifier + touch + OPRA-cache availability all have to align.",
+    "levels_caveat": "No LevelMemory or any historical key-levels.json read anywhere in this detector -- the family is explicitly level-free per the task brief, sidestepping the levels-snapshot-history-doesn't-exist caveat entirely.",
+    "honest_null": "If no cell clears gates, that is the result. No post-hoc knob additions, no grid extension after seeing results.",
+    "reskin_risk": "See prior_art_disclosure.design_response -- the ribbon_trend_persist arm's VWAP-touch pullback cannot be proven independent of vwap_continuation's live fire-days without that detector's own full-history batch replay (does not exist). Any candidate surviving on that arm specifically should be cross-checked against vwap_continuation fire-days before any ship consideration, not just against this grid's own gates."
+  }
+}

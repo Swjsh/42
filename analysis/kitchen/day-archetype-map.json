@@ -1,0 +1,577 @@
+{
+  "_doc": "Day-archetype coverage map for HARVEST-DAY-ANATOMY-2026-07-23.md. Built by analysis/kitchen/_harvest_anatomy_build.py joining engine-fullhist-replay-2026-07-23.json (190 trades / 141 trading days) to day-inventory-2026-07-23.json (386 days) and journal/trades.csv (this week's real fills).",
+  "generated_from": {
+    "replay": "analysis/recommendations/engine-fullhist-replay-2026-07-23.json",
+    "day_inventory": "analysis/edge-matrix/day-inventory-2026-07-23.json",
+    "spy_5m_source": "backtest/data/spy_5m_2025-01-01_2026-07-22.csv",
+    "trades_csv": "journal/trades.csv"
+  },
+  "population": {
+    "n_days_total": 386,
+    "n_trading_days": 141,
+    "n_win_days": 48,
+    "n_loss_days": 93,
+    "n_flat_days": 0,
+    "n_sitout_days": 246,
+    "pct_sitout": 63.7
+  },
+  "win_days": {
+    "n_days": 48,
+    "day_types": [
+      [
+        "range",
+        23
+      ],
+      [
+        "trend",
+        17
+      ],
+      [
+        "chop",
+        5
+      ],
+      [
+        "unclassified",
+        2
+      ]
+    ],
+    "vix_bands": [
+      [
+        "mid",
+        37
+      ],
+      [
+        "elevated",
+        5
+      ],
+      [
+        "low",
+        5
+      ]
+    ],
+    "avg_gap_pct": 0.081,
+    "avg_rth_range": 6.91,
+    "entry_hours": [
+      [
+        9,
+        10
+      ],
+      [
+        10,
+        7
+      ],
+      [
+        11,
+        10
+      ],
+      [
+        12,
+        9
+      ],
+      [
+        13,
+        20
+      ],
+      [
+        14,
+        15
+      ]
+    ],
+    "triggers": [
+      [
+        "trendline_rejection",
+        43
+      ],
+      [
+        "confluence",
+        28
+      ],
+      [
+        "ribbon_flip",
+        20
+      ],
+      [
+        "level_rejection",
+        18
+      ],
+      [
+        "level_reclaim",
+        17
+      ],
+      [
+        "sequence_reclaim",
+        4
+      ],
+      [
+        "sequence_rejection",
+        2
+      ]
+    ],
+    "setups": [
+      [
+        "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        54
+      ],
+      [
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        17
+      ]
+    ],
+    "sides": [
+      [
+        "P",
+        54
+      ],
+      [
+        "C",
+        17
+      ]
+    ],
+    "tiers": [
+      [
+        "TRENDLINE",
+        36
+      ],
+      [
+        "SUPER",
+        22
+      ],
+      [
+        "ELITE",
+        8
+      ],
+      [
+        "LEVEL",
+        5
+      ]
+    ],
+    "exit_categories": [
+      [
+        "runner_stop",
+        35
+      ],
+      [
+        "premium_stop",
+        16
+      ],
+      [
+        "structure_stop",
+        8
+      ],
+      [
+        "time_stop",
+        8
+      ],
+      [
+        "ribbon_flip_back",
+        4
+      ]
+    ],
+    "avg_trades_per_day": 1.48
+  },
+  "loss_days": {
+    "n_days": 93,
+    "day_types": [
+      [
+        "chop",
+        36
+      ],
+      [
+        "range",
+        35
+      ],
+      [
+        "trend",
+        21
+      ],
+      [
+        "unclassified",
+        1
+      ]
+    ],
+    "vix_bands": [
+      [
+        "mid",
+        72
+      ],
+      [
+        "elevated",
+        16
+      ],
+      [
+        "low",
+        5
+      ]
+    ],
+    "avg_gap_pct": 0.088,
+    "avg_rth_range": 6.26,
+    "entry_hours": [
+      [
+        9,
+        13
+      ],
+      [
+        10,
+        11
+      ],
+      [
+        11,
+        22
+      ],
+      [
+        12,
+        24
+      ],
+      [
+        13,
+        20
+      ],
+      [
+        14,
+        25
+      ],
+      [
+        15,
+        4
+      ]
+    ],
+    "triggers": [
+      [
+        "trendline_rejection",
+        90
+      ],
+      [
+        "ribbon_flip",
+        23
+      ],
+      [
+        "level_reclaim",
+        22
+      ],
+      [
+        "confluence",
+        18
+      ],
+      [
+        "level_rejection",
+        9
+      ],
+      [
+        "sequence_reclaim",
+        5
+      ],
+      [
+        "sequence_rejection",
+        1
+      ]
+    ],
+    "setups": [
+      [
+        "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        97
+      ],
+      [
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        22
+      ]
+    ],
+    "sides": [
+      [
+        "P",
+        97
+      ],
+      [
+        "C",
+        22
+      ]
+    ],
+    "tiers": [
+      [
+        "TRENDLINE",
+        88
+      ],
+      [
+        "SUPER",
+        15
+      ],
+      [
+        "LEVEL",
+        13
+      ],
+      [
+        "ELITE",
+        3
+      ]
+    ],
+    "exit_categories": [
+      [
+        "premium_stop",
+        76
+      ],
+      [
+        "structure_stop",
+        26
+      ],
+      [
+        "ribbon_flip_back",
+        15
+      ],
+      [
+        "time_stop",
+        2
+      ]
+    ],
+    "avg_trades_per_day": 1.28
+  },
+  "flat_days": {
+    "n_days": 0,
+    "day_types": [],
+    "vix_bands": [],
+    "avg_gap_pct": null,
+    "avg_rth_range": null,
+    "entry_hours": [],
+    "triggers": [],
+    "setups": [],
+    "sides": [],
+    "tiers": [],
+    "exit_categories": [],
+    "avg_trades_per_day": null
+  },
+  "sitout_archetypes": {
+    "range": {
+      "n_days": 90,
+      "pct_of_all_days": 23.3,
+      "pct_of_sitout_days": 36.6,
+      "avg_rth_range": 7.75,
+      "median_rth_range": 6.88,
+      "avg_gap_pct": -0.143,
+      "vix_band_dist": [
+        [
+          "mid",
+          54
+        ],
+        [
+          "elevated",
+          21
+        ],
+        [
+          "high",
+          12
+        ],
+        [
+          "low",
+          3
+        ]
+      ],
+      "up_days": 51,
+      "down_days": 36,
+      "flat_days": 3,
+      "avg_pct_move": 0.178,
+      "n_directional_sample": 90
+    },
+    "chop": {
+      "n_days": 95,
+      "pct_of_all_days": 24.6,
+      "pct_of_sitout_days": 38.6,
+      "avg_rth_range": 4.49,
+      "median_rth_range": 4.08,
+      "avg_gap_pct": 0.184,
+      "vix_band_dist": [
+        [
+          "mid",
+          63
+        ],
+        [
+          "low",
+          12
+        ],
+        [
+          "elevated",
+          11
+        ],
+        [
+          "high",
+          9
+        ]
+      ],
+      "up_days": 61,
+      "down_days": 23,
+      "flat_days": 11,
+      "avg_pct_move": 0.216,
+      "n_directional_sample": 95
+    },
+    "trend": {
+      "n_days": 59,
+      "pct_of_all_days": 15.3,
+      "pct_of_sitout_days": 24.0,
+      "avg_rth_range": 11.23,
+      "median_rth_range": 9.72,
+      "avg_gap_pct": -0.093,
+      "vix_band_dist": [
+        [
+          "mid",
+          30
+        ],
+        [
+          "elevated",
+          14
+        ],
+        [
+          "high",
+          14
+        ],
+        [
+          "low",
+          1
+        ]
+      ],
+      "up_days": 36,
+      "down_days": 23,
+      "flat_days": 0,
+      "avg_pct_move": 0.11,
+      "n_directional_sample": 59
+    },
+    "unclassified": {
+      "n_days": 2,
+      "pct_of_all_days": 0.5,
+      "pct_of_sitout_days": 0.8,
+      "avg_rth_range": 8.31,
+      "median_rth_range": 8.31,
+      "avg_gap_pct": 0.499,
+      "vix_band_dist": [
+        [
+          "mid",
+          2
+        ]
+      ],
+      "up_days": 1,
+      "down_days": 1,
+      "flat_days": 0,
+      "avg_pct_move": 0.019,
+      "n_directional_sample": 2
+    }
+  },
+  "full_population_by_day_type": {
+    "unclassified": {
+      "n_days_total": 5,
+      "n_traded": 3,
+      "n_sitout": 2,
+      "pct_sitout_within_type": 40.0
+    },
+    "range": {
+      "n_days_total": 148,
+      "n_traded": 58,
+      "n_sitout": 90,
+      "pct_sitout_within_type": 60.8
+    },
+    "chop": {
+      "n_days_total": 136,
+      "n_traded": 41,
+      "n_sitout": 95,
+      "pct_sitout_within_type": 69.9
+    },
+    "trend": {
+      "n_days_total": 97,
+      "n_traded": 38,
+      "n_sitout": 59,
+      "pct_sitout_within_type": 60.8
+    }
+  },
+  "this_week_extra_setup_fills_by_daytype": {
+    "range": {
+      "TRENDLINE_BREAK_RETEST": 1,
+      "BEARISH_REJECTION_RIDE_THE_RIBBON": 19,
+      "bollinger_squeeze": 2
+    },
+    "trend": {
+      "vix_regime_dayside": 4,
+      "BEARISH_REJECTION_RIDE_THE_RIBBON": 1,
+      "bollinger_squeeze": 1
+    },
+    "chop": {
+      "vix_regime_dayside": 1,
+      "vwap_continuation": 5,
+      "vwap_reclaim_failed_break": 1,
+      "BEARISH_REJECTION_RIDE_THE_RIBBON": 1
+    }
+  },
+  "daytype_pnl_traded_days": {
+    "unclassified": {
+      "n_traded_days": 3,
+      "total_pnl": 649.7,
+      "avg_pnl_per_day": 216.57,
+      "day_win_rate": 66.7
+    },
+    "range": {
+      "n_traded_days": 58,
+      "total_pnl": 2629.1,
+      "avg_pnl_per_day": 45.33,
+      "day_win_rate": 39.7
+    },
+    "chop": {
+      "n_traded_days": 41,
+      "total_pnl": -1797.0,
+      "avg_pnl_per_day": -43.83,
+      "day_win_rate": 12.2
+    },
+    "trend": {
+      "n_traded_days": 38,
+      "total_pnl": 3516.95,
+      "avg_pnl_per_day": 92.55,
+      "day_win_rate": 44.7
+    }
+  },
+  "vixband_pnl_traded_days": {
+    "mid": {
+      "n_traded_days": 109,
+      "total_pnl": 2462.55,
+      "avg_pnl_per_day": 22.59,
+      "day_win_rate": 33.9
+    },
+    "low": {
+      "n_traded_days": 10,
+      "total_pnl": 1768.65,
+      "avg_pnl_per_day": 176.87,
+      "day_win_rate": 50.0
+    },
+    "elevated": {
+      "n_traded_days": 21,
+      "total_pnl": 767.55,
+      "avg_pnl_per_day": 36.55,
+      "day_win_rate": 23.8
+    }
+  },
+  "lane_assignment": {
+    "trend": {
+      "primary_lane": "trend-continuation",
+      "secondary_lane": "extra-lanes harness",
+      "why": "ribbon_ride requires a level touch (rejection/reclaim); pure trend days without one never fire it. Best traded avg-$/day (+92.55) of any archetype, 60.8% still sits out."
+    },
+    "chop": {
+      "primary_lane": "day-gate",
+      "secondary_lane": "class-conditional exits",
+      "why": "Only net-losing traded archetype (-43.83/day, 12.2% day-WR). Cheapest fix: veto ribbon_ride entries when day_type=chop using data already computed (range_ratio<0.75) -- no new indicator."
+    },
+    "range": {
+      "primary_lane": "extra-lanes harness",
+      "secondary_lane": null,
+      "why": "range-pingpong ENTRY family already killed 16/16 cells in EDGE-MATRIX-FULLHIST-2026-07-23.md -- do not re-cook range-fade entries. This week's real fills show 22 extra-setup fills already landing on range days."
+    },
+    "trendline_tier_mismatch": {
+      "scope": "cross-cutting, not day-type-specific",
+      "primary_lane": "trendline refinement",
+      "secondary_lane": "class-conditional exits",
+      "why": "TRENDLINE tier = 65% of all volume (124/190) but net -1830.10 at 19.35% WR, the worst tier by both $ and WR. Single-trigger (trendline_rejection alone, no confluence) by construction."
+    },
+    "high_vix": {
+      "scope": "orthogonal to day_type, VIX band >= 25",
+      "primary_lane": null,
+      "why": "35/386 days (9.1%), 0 ever traded -- already fully gated by vix_bear_hard_cap=23.0 + block_elite_bull VIX[0,25). Not a cook target."
+    },
+    "unclassified": {
+      "scope": "5/386 days total",
+      "primary_lane": null,
+      "why": "ATR-20 warmup artifact of the day_type classifier (first ~20 days of window); not a real market archetype."
+    }
+  }
+}

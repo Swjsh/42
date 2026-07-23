@@ -1,0 +1,1286 @@
+{
+ "family": "trend-day-continuation",
+ "generated_at": "2026-07-22T21:49:07.592317",
+ "prereg_path": "analysis/kitchen/prereg-trend-day-continuation-2026-07-23.json",
+ "prereg_frozen_at": "2026-07-22T23:45:00-06:00",
+ "day_inventory": "analysis/edge-matrix/day-inventory-2026-07-23.json",
+ "n_opra_days": 386,
+ "n_tuning_days": 289,
+ "n_heldout_days": 97,
+ "heldout_definition": "last ceil(25%) of the 386-day opra_days list by date: 2026-03-03..2026-07-22 (97 days)",
+ "exit_shape": {
+  "premium_stop_pct": -0.2,
+  "tp1_premium_pct": 1.0,
+  "tp1_qty_fraction": 0.667,
+  "profit_lock_mode": "trailing",
+  "runner_target_pct": 99.0,
+  "trail_pct": 0.15,
+  "profit_lock_arm_pct": 0.05,
+  "stop_mode": "structure",
+  "catastrophe_stop_pct": -0.5,
+  "profit_lock_arm_scope": "post_tp1"
+ },
+ "structure_stop_enabled": true,
+ "time_stop_et": "15:40:00",
+ "causality_audit": [
+  {
+   "gidx": 5,
+   "ribbon_match": true,
+   "vwap_match": true
+  },
+  {
+   "gidx": 7679,
+   "ribbon_match": true,
+   "vwap_match": true
+  },
+  {
+   "gidx": 14553,
+   "ribbon_match": true,
+   "vwap_match": true
+  },
+  {
+   "gidx": 22207,
+   "ribbon_match": true,
+   "vwap_match": true
+  },
+  {
+   "gidx": 29963,
+   "ribbon_match": true,
+   "vwap_match": true
+  }
+ ],
+ "cells": [
+  {
+   "cell_id": "or_breakout_hold|depth0.20|window11:30|confirm_none",
+   "params": {
+    "trend_qualifier": "or_breakout_hold",
+    "pullback_depth_dollars": 0.2,
+    "entry_window_end_et": "11:30",
+    "confirmation": "none"
+   },
+   "n_signals": 233,
+   "n_real_fills": 206,
+   "expectancy": -21.94,
+   "total_pnl": -4520.3,
+   "day_wr": 0.277,
+   "n_days_covered": 206,
+   "n_day_wins": 57,
+   "ex_top1_total": -5274.93,
+   "ex_top3_total": -6667.78,
+   "held_out_total": -595.29,
+   "n_heldout_fills": 65,
+   "n_heldout_signals": 81,
+   "p_raw": 0.14234,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_held_out_positive": false
+   },
+   "gates_passed": 0,
+   "below_evidence_floor_n15": false,
+   "archetype_coverage": "n=206 days: chop 88 (43%), range 75 (36%), trend 39 (19%), unclassified 4 (2%)",
+   "n_by_side": {
+    "C": 118,
+    "P": 88
+   },
+   "skips_tuning": {
+    "no_signal_days": 56,
+    "no_opra": 27,
+    "no_fill": 0,
+    "below_min_premium": 0,
+    "unaffordable": 0,
+    "no_bars_after_entry": 0
+   },
+   "regime_split": {
+    "scope": "tuning fills only",
+    "y2025h1": {
+     "n": 78,
+     "total_pnl": -2510.73
+    },
+    "y2025h2": {
+     "n": 95,
+     "total_pnl": -3660.67
+    },
+    "y2026": {
+     "n": 33,
+     "total_pnl": 1651.1
+    },
+    "vix_band": {
+     "low": {
+      "n": 21,
+      "total_pnl": -932.68
+     },
+     "mid": {
+      "n": 145,
+      "total_pnl": -1103.82
+     },
+     "elevated": {
+      "n": 36,
+      "total_pnl": -2364.79
+     },
+     "high": {
+      "n": 4,
+      "total_pnl": -119.01
+     }
+    }
+   },
+   "q_bh16": 0.509216
+  },
+  {
+   "cell_id": "or_breakout_hold|depth0.20|window11:30|confirm_resume",
+   "params": {
+    "trend_qualifier": "or_breakout_hold",
+    "pullback_depth_dollars": 0.2,
+    "entry_window_end_et": "11:30",
+    "confirmation": "resume"
+   },
+   "n_signals": 204,
+   "n_real_fills": 181,
+   "expectancy": -12.77,
+   "total_pnl": -2311.01,
+   "day_wr": 0.315,
+   "n_days_covered": 181,
+   "n_day_wins": 57,
+   "ex_top1_total": -4278.79,
+   "ex_top3_total": -5722.48,
+   "held_out_total": -2236.56,
+   "n_heldout_fills": 59,
+   "n_heldout_signals": 71,
+   "p_raw": 0.51208,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_held_out_positive": false
+   },
+   "gates_passed": 0,
+   "below_evidence_floor_n15": false,
+   "archetype_coverage": "n=181 days: chop 72 (40%), range 69 (38%), trend 37 (20%), unclassified 3 (2%)",
+   "n_by_side": {
+    "C": 105,
+    "P": 76
+   },
+   "skips_tuning": {
+    "no_signal_days": 85,
+    "no_opra": 23,
+    "no_fill": 0,
+    "below_min_premium": 0,
+    "unaffordable": 0,
+    "no_bars_after_entry": 0
+   },
+   "regime_split": {
+    "scope": "tuning fills only",
+    "y2025h1": {
+     "n": 66,
+     "total_pnl": -1259.09
+    },
+    "y2025h2": {
+     "n": 85,
+     "total_pnl": -2631.55
+    },
+    "y2026": {
+     "n": 30,
+     "total_pnl": 1579.63
+    },
+    "vix_band": {
+     "low": {
+      "n": 18,
+      "total_pnl": -594.36
+     },
+     "mid": {
+      "n": 128,
+      "total_pnl": -1806.76
+     },
+     "elevated": {
+      "n": 31,
+      "total_pnl": -1429.29
+     },
+     "high": {
+      "n": 4,
+      "total_pnl": 1519.4
+     }
+    }
+   },
+   "q_bh16": 0.630252
+  },
+  {
+   "cell_id": "or_breakout_hold|depth0.20|window14:00|confirm_none",
+   "params": {
+    "trend_qualifier": "or_breakout_hold",
+    "pullback_depth_dollars": 0.2,
+    "entry_window_end_et": "14:00",
+    "confirmation": "none"
+   },
+   "n_signals": 247,
+   "n_real_fills": 220,
+   "expectancy": -20.24,
+   "total_pnl": -4452.98,
+   "day_wr": 0.282,
+   "n_days_covered": 220,
+   "n_day_wins": 62,
+   "ex_top1_total": -5207.61,
+   "ex_top3_total": -6600.46,
+   "held_out_total": -1013.88,
+   "n_heldout_fills": 69,
+   "n_heldout_signals": 85,
+   "p_raw": 0.15913,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_held_out_positive": false
+   },
+   "gates_passed": 0,
+   "below_evidence_floor_n15": false,
+   "archetype_coverage": "n=220 days: chop 89 (40%), range 86 (39%), trend 41 (19%), unclassified 4 (2%)",
+   "n_by_side": {
+    "C": 126,
+    "P": 94
+   },
+   "skips_tuning": {
+    "no_signal_days": 42,
+    "no_opra": 27,
+    "no_fill": 0,
+    "below_min_premium": 0,
+    "unaffordable": 0,
+    "no_bars_after_entry": 0
+   },
+   "regime_split": {
+    "scope": "tuning fills only",
+    "y2025h1": {
+     "n": 83,
+     "total_pnl": -2651.23
+    },
+    "y2025h2": {
+     "n": 102,
+     "total_pnl": -3357.9
+    },
+    "y2026": {
+     "n": 35,
+     "total_pnl": 1556.15
+    },
+    "vix_band": {
+     "low": {
+      "n": 21,
+      "total_pnl": -932.68
+     },
+     "mid": {
+      "n": 155,
+      "total_pnl": -1071.62
+     },
+     "elevated": {
+      "n": 39,
+      "total_pnl": -1854.56
+     },
+     "high": {
+      "n": 5,
+      "total_pnl": -594.12
+     }
+    }
+   },
+   "q_bh16": 0.509216
+  },
+  {
+   "cell_id": "or_breakout_hold|depth0.20|window14:00|confirm_resume",
+   "params": {
+    "trend_qualifier": "or_breakout_hold",
+    "pullback_depth_dollars": 0.2,
+    "entry_window_end_et": "14:00",
+    "confirmation": "resume"
+   },
+   "n_signals": 228,
+   "n_real_fills": 203,
+   "expectancy": -14.15,
+   "total_pnl": -2872.64,
+   "day_wr": 0.305,
+   "n_days_covered": 203,
+   "n_day_wins": 62,
+   "ex_top1_total": -4840.42,
+   "ex_top3_total": -6288.76,
+   "held_out_total": -3059.64,
+   "n_heldout_fills": 64,
+   "n_heldout_signals": 77,
+   "p_raw": 0.43745,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_held_out_positive": false
+   },
+   "gates_passed": 0,
+   "below_evidence_floor_n15": false,
+   "archetype_coverage": "n=203 days: range 81 (40%), chop 80 (39%), trend 39 (19%), unclassified 3 (1%)",
+   "n_by_side": {
+    "C": 117,
+    "P": 86
+   },
+   "skips_tuning": {
+    "no_signal_days": 61,
+    "no_opra": 25,
+    "no_fill": 0,
+    "below_min_premium": 0,
+    "unaffordable": 0,
+    "no_bars_after_entry": 0
+   },
+   "regime_split": {
+    "scope": "tuning fills only",
+    "y2025h1": {
+     "n": 76,
+     "total_pnl": -2002.13
+    },
+    "y2025h2": {
+     "n": 94,
+     "total_pnl": -2106.07
+    },
+    "y2026": {
+     "n": 33,
+     "total_pnl": 1235.56
+    },
+    "vix_band": {
+     "low": {
+      "n": 18,
+      "total_pnl": -594.36
+     },
+     "mid": {
+      "n": 143,
+      "total_pnl": -2142.15
+     },
+     "elevated": {
+      "n": 37,
+      "total_pnl": -1041.94
+     },
+     "high": {
+      "n": 5,
+      "total_pnl": 905.81
+     }
+    }
+   },
+   "q_bh16": 0.583267
+  },
+  {
+   "cell_id": "or_breakout_hold|depth0.40|window11:30|confirm_none",
+   "params": {
+    "trend_qualifier": "or_breakout_hold",
+    "pullback_depth_dollars": 0.4,
+    "entry_window_end_et": "11:30",
+    "confirmation": "none"
+   },
+   "n_signals": 257,
+   "n_real_fills": 226,
+   "expectancy": -14.61,
+   "total_pnl": -3302.81,
+   "day_wr": 0.292,
+   "n_days_covered": 226,
+   "n_day_wins": 66,
+   "ex_top1_total": -4266.85,
+   "ex_top3_total": -5773.0,
+   "held_out_total": -1164.64,
+   "n_heldout_fills": 72,
+   "n_heldout_signals": 88,
+   "p_raw": 0.3483,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_held_out_positive": false
+   },
+   "gates_passed": 0,
+   "below_evidence_floor_n15": false,
+   "archetype_coverage": "n=226 days: chop 93 (41%), range 86 (38%), trend 43 (19%), unclassified 4 (2%)",
+   "n_by_side": {
+    "C": 129,
+    "P": 97
+   },
+   "skips_tuning": {
+    "no_signal_days": 32,
+    "no_opra": 31,
+    "no_fill": 0,
+    "below_min_premium": 0,
+    "unaffordable": 0,
+    "no_bars_after_entry": 0
+   },
+   "regime_split": {
+    "scope": "tuning fills only",
+    "y2025h1": {
+     "n": 87,
+     "total_pnl": -1899.45
+    },
+    "y2025h2": {
+     "n": 104,
+     "total_pnl": -1499.2
+    },
+    "y2026": {
+     "n": 35,
+     "total_pnl": 95.84
+    },
+    "vix_band": {
+     "low": {
+      "n": 22,
+      "total_pnl": 242.23
+     },
+     "mid": {
+      "n": 160,
+      "total_pnl": -919.94
+     },
+     "elevated": {
+      "n": 38,
+      "total_pnl": -3127.59
+     },
+     "high": {
+      "n": 6,
+      "total_pnl": 502.49
+     }
+    }
+   },
+   "q_bh16": 0.537585
+  },
+  {
+   "cell_id": "or_breakout_hold|depth0.40|window11:30|confirm_resume",
+   "params": {
+    "trend_qualifier": "or_breakout_hold",
+    "pullback_depth_dollars": 0.4,
+    "entry_window_end_et": "11:30",
+    "confirmation": "resume"
+   },
+   "n_signals": 227,
+   "n_real_fills": 200,
+   "expectancy": -18.82,
+   "total_pnl": -3763.32,
+   "day_wr": 0.31,
+   "n_days_covered": 200,
+   "n_day_wins": 62,
+   "ex_top1_total": -5731.1,
+   "ex_top3_total": -7338.48,
+   "held_out_total": -1575.69,
+   "n_heldout_fills": 62,
+   "n_heldout_signals": 77,
+   "p_raw": 0.32014,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_held_out_positive": false
+   },
+   "gates_passed": 0,
+   "below_evidence_floor_n15": false,
+   "archetype_coverage": "n=200 days: chop 79 (40%), range 76 (38%), trend 41 (20%), unclassified 4 (2%)",
+   "n_by_side": {
+    "C": 115,
+    "P": 85
+   },
+   "skips_tuning": {
+    "no_signal_days": 62,
+    "no_opra": 27,
+    "no_fill": 0,
+    "below_min_premium": 0,
+    "unaffordable": 0,
+    "no_bars_after_entry": 0
+   },
+   "regime_split": {
+    "scope": "tuning fills only",
+    "y2025h1": {
+     "n": 74,
+     "total_pnl": -927.86
+    },
+    "y2025h2": {
+     "n": 93,
+     "total_pnl": -3317.48
+    },
+    "y2026": {
+     "n": 33,
+     "total_pnl": 482.02
+    },
+    "vix_band": {
+     "low": {
+      "n": 21,
+      "total_pnl": -627.6
+     },
+     "mid": {
+      "n": 141,
+      "total_pnl": -3442.64
+     },
+     "elevated": {
+      "n": 34,
+      "total_pnl": -2322.39
+     },
+     "high": {
+      "n": 4,
+      "total_pnl": 2629.31
+     }
+    }
+   },
+   "q_bh16": 0.537585
+  },
+  {
+   "cell_id": "or_breakout_hold|depth0.40|window14:00|confirm_none",
+   "params": {
+    "trend_qualifier": "or_breakout_hold",
+    "pullback_depth_dollars": 0.4,
+    "entry_window_end_et": "14:00",
+    "confirmation": "none"
+   },
+   "n_signals": 269,
+   "n_real_fills": 237,
+   "expectancy": -16.3,
+   "total_pnl": -3863.55,
+   "day_wr": 0.287,
+   "n_days_covered": 237,
+   "n_day_wins": 68,
+   "ex_top1_total": -4827.59,
+   "ex_top3_total": -6333.74,
+   "held_out_total": -1256.44,
+   "n_heldout_fills": 73,
+   "n_heldout_signals": 89,
+   "p_raw": 0.27785,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_held_out_positive": false
+   },
+   "gates_passed": 0,
+   "below_evidence_floor_n15": false,
+   "archetype_coverage": "n=237 days: chop 96 (41%), range 94 (40%), trend 43 (18%), unclassified 4 (2%)",
+   "n_by_side": {
+    "C": 134,
+    "P": 103
+   },
+   "skips_tuning": {
+    "no_signal_days": 20,
+    "no_opra": 32,
+    "no_fill": 0,
+    "below_min_premium": 0,
+    "unaffordable": 0,
+    "no_bars_after_entry": 0
+   },
+   "regime_split": {
+    "scope": "tuning fills only",
+    "y2025h1": {
+     "n": 92,
+     "total_pnl": -2401.42
+    },
+    "y2025h2": {
+     "n": 110,
+     "total_pnl": -1557.97
+    },
+    "y2026": {
+     "n": 35,
+     "total_pnl": 95.84
+    },
+    "vix_band": {
+     "low": {
+      "n": 24,
+      "total_pnl": 191.89
+     },
+     "mid": {
+      "n": 164,
+      "total_pnl": -1115.72
+     },
+     "elevated": {
+      "n": 42,
+      "total_pnl": -3135.61
+     },
+     "high": {
+      "n": 7,
+      "total_pnl": 195.89
+     }
+    }
+   },
+   "q_bh16": 0.537585
+  },
+  {
+   "cell_id": "or_breakout_hold|depth0.40|window14:00|confirm_resume",
+   "params": {
+    "trend_qualifier": "or_breakout_hold",
+    "pullback_depth_dollars": 0.4,
+    "entry_window_end_et": "14:00",
+    "confirmation": "resume"
+   },
+   "n_signals": 246,
+   "n_real_fills": 219,
+   "expectancy": -19.08,
+   "total_pnl": -4179.49,
+   "day_wr": 0.301,
+   "n_days_covered": 219,
+   "n_day_wins": 66,
+   "ex_top1_total": -6147.27,
+   "ex_top3_total": -7754.65,
+   "held_out_total": -2422.56,
+   "n_heldout_fills": 67,
+   "n_heldout_signals": 82,
+   "p_raw": 0.28504,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_held_out_positive": false
+   },
+   "gates_passed": 0,
+   "below_evidence_floor_n15": false,
+   "archetype_coverage": "n=219 days: range 86 (39%), chop 86 (39%), trend 43 (20%), unclassified 4 (2%)",
+   "n_by_side": {
+    "C": 125,
+    "P": 94
+   },
+   "skips_tuning": {
+    "no_signal_days": 43,
+    "no_opra": 27,
+    "no_fill": 0,
+    "below_min_premium": 0,
+    "unaffordable": 0,
+    "no_bars_after_entry": 0
+   },
+   "regime_split": {
+    "scope": "tuning fills only",
+    "y2025h1": {
+     "n": 82,
+     "total_pnl": -1398.71
+    },
+    "y2025h2": {
+     "n": 104,
+     "total_pnl": -3262.8
+    },
+    "y2026": {
+     "n": 33,
+     "total_pnl": 482.02
+    },
+    "vix_band": {
+     "low": {
+      "n": 22,
+      "total_pnl": -641.58
+     },
+     "mid": {
+      "n": 154,
+      "total_pnl": -3918.53
+     },
+     "elevated": {
+      "n": 38,
+      "total_pnl": -1773.58
+     },
+     "high": {
+      "n": 5,
+      "total_pnl": 2154.2
+     }
+    }
+   },
+   "q_bh16": 0.537585
+  },
+  {
+   "cell_id": "ribbon_trend_persist|depth0.20|window11:30|confirm_none",
+   "params": {
+    "trend_qualifier": "ribbon_trend_persist",
+    "pullback_depth_dollars": 0.2,
+    "entry_window_end_et": "11:30",
+    "confirmation": "none"
+   },
+   "n_signals": 220,
+   "n_real_fills": 198,
+   "expectancy": -8.61,
+   "total_pnl": -1704.45,
+   "day_wr": 0.293,
+   "n_days_covered": 198,
+   "n_day_wins": 58,
+   "ex_top1_total": -2735.84,
+   "ex_top3_total": -4474.29,
+   "held_out_total": 4716.42,
+   "n_heldout_fills": 66,
+   "n_heldout_signals": 75,
+   "p_raw": 0.60343,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_held_out_positive": true
+   },
+   "gates_passed": 1,
+   "below_evidence_floor_n15": false,
+   "archetype_coverage": "n=198 days: chop 86 (43%), range 76 (38%), trend 33 (17%), unclassified 3 (2%)",
+   "n_by_side": {
+    "C": 125,
+    "P": 73
+   },
+   "skips_tuning": {
+    "no_signal_days": 69,
+    "no_opra": 22,
+    "no_fill": 0,
+    "below_min_premium": 0,
+    "unaffordable": 0,
+    "no_bars_after_entry": 0
+   },
+   "regime_split": {
+    "scope": "tuning fills only",
+    "y2025h1": {
+     "n": 74,
+     "total_pnl": -471.9
+    },
+    "y2025h2": {
+     "n": 93,
+     "total_pnl": 703.29
+    },
+    "y2026": {
+     "n": 31,
+     "total_pnl": -1935.84
+    },
+    "vix_band": {
+     "low": {
+      "n": 23,
+      "total_pnl": 231.88
+     },
+     "mid": {
+      "n": 139,
+      "total_pnl": -1888.67
+     },
+     "elevated": {
+      "n": 32,
+      "total_pnl": -254.59
+     },
+     "high": {
+      "n": 4,
+      "total_pnl": 206.93
+     }
+    }
+   },
+   "q_bh16": 0.689634
+  },
+  {
+   "cell_id": "ribbon_trend_persist|depth0.20|window11:30|confirm_resume",
+   "params": {
+    "trend_qualifier": "ribbon_trend_persist",
+    "pullback_depth_dollars": 0.2,
+    "entry_window_end_et": "11:30",
+    "confirmation": "resume"
+   },
+   "n_signals": 192,
+   "n_real_fills": 173,
+   "expectancy": -27.44,
+   "total_pnl": -4746.39,
+   "day_wr": 0.266,
+   "n_days_covered": 173,
+   "n_day_wins": 46,
+   "ex_top1_total": -5679.7,
+   "ex_top3_total": -6972.33,
+   "held_out_total": 3200.99,
+   "n_heldout_fills": 62,
+   "n_heldout_signals": 69,
+   "p_raw": 0.11859,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_held_out_positive": true
+   },
+   "gates_passed": 1,
+   "below_evidence_floor_n15": false,
+   "archetype_coverage": "n=173 days: chop 76 (44%), range 67 (39%), trend 27 (16%), unclassified 3 (2%)",
+   "n_by_side": {
+    "C": 111,
+    "P": 62
+   },
+   "skips_tuning": {
+    "no_signal_days": 97,
+    "no_opra": 19,
+    "no_fill": 0,
+    "below_min_premium": 0,
+    "unaffordable": 0,
+    "no_bars_after_entry": 0
+   },
+   "regime_split": {
+    "scope": "tuning fills only",
+    "y2025h1": {
+     "n": 68,
+     "total_pnl": -2539.32
+    },
+    "y2025h2": {
+     "n": 79,
+     "total_pnl": -919.94
+    },
+    "y2026": {
+     "n": 26,
+     "total_pnl": -1287.13
+    },
+    "vix_band": {
+     "low": {
+      "n": 21,
+      "total_pnl": 107.52
+     },
+     "mid": {
+      "n": 122,
+      "total_pnl": -3755.86
+     },
+     "elevated": {
+      "n": 25,
+      "total_pnl": 355.99
+     },
+     "high": {
+      "n": 5,
+      "total_pnl": -1454.04
+     }
+    }
+   },
+   "q_bh16": 0.509216
+  },
+  {
+   "cell_id": "ribbon_trend_persist|depth0.20|window14:00|confirm_none",
+   "params": {
+    "trend_qualifier": "ribbon_trend_persist",
+    "pullback_depth_dollars": 0.2,
+    "entry_window_end_et": "14:00",
+    "confirmation": "none"
+   },
+   "n_signals": 255,
+   "n_real_fills": 229,
+   "expectancy": -15.84,
+   "total_pnl": -3626.49,
+   "day_wr": 0.275,
+   "n_days_covered": 229,
+   "n_day_wins": 63,
+   "ex_top1_total": -4657.88,
+   "ex_top3_total": -6486.14,
+   "held_out_total": 4146.59,
+   "n_heldout_fills": 77,
+   "n_heldout_signals": 86,
+   "p_raw": 0.31094,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_held_out_positive": true
+   },
+   "gates_passed": 1,
+   "below_evidence_floor_n15": false,
+   "archetype_coverage": "n=229 days: chop 94 (41%), range 93 (41%), trend 38 (17%), unclassified 4 (2%)",
+   "n_by_side": {
+    "C": 141,
+    "P": 88
+   },
+   "skips_tuning": {
+    "no_signal_days": 34,
+    "no_opra": 26,
+    "no_fill": 0,
+    "below_min_premium": 0,
+    "unaffordable": 0,
+    "no_bars_after_entry": 0
+   },
+   "regime_split": {
+    "scope": "tuning fills only",
+    "y2025h1": {
+     "n": 89,
+     "total_pnl": -1327.59
+    },
+    "y2025h2": {
+     "n": 104,
+     "total_pnl": -381.54
+    },
+    "y2026": {
+     "n": 36,
+     "total_pnl": -1917.36
+    },
+    "vix_band": {
+     "low": {
+      "n": 24,
+      "total_pnl": 159.67
+     },
+     "mid": {
+      "n": 159,
+      "total_pnl": -2987.4
+     },
+     "elevated": {
+      "n": 39,
+      "total_pnl": 233.76
+     },
+     "high": {
+      "n": 7,
+      "total_pnl": -1032.52
+     }
+    }
+   },
+   "q_bh16": 0.537585
+  },
+  {
+   "cell_id": "ribbon_trend_persist|depth0.20|window14:00|confirm_resume",
+   "params": {
+    "trend_qualifier": "ribbon_trend_persist",
+    "pullback_depth_dollars": 0.2,
+    "entry_window_end_et": "14:00",
+    "confirmation": "resume"
+   },
+   "n_signals": 237,
+   "n_real_fills": 212,
+   "expectancy": -32.36,
+   "total_pnl": -6860.83,
+   "day_wr": 0.245,
+   "n_days_covered": 212,
+   "n_day_wins": 52,
+   "ex_top1_total": -7794.14,
+   "ex_top3_total": -9277.57,
+   "held_out_total": 3280.33,
+   "n_heldout_fills": 73,
+   "n_heldout_signals": 80,
+   "p_raw": 0.03817,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_held_out_positive": true
+   },
+   "gates_passed": 1,
+   "below_evidence_floor_n15": false,
+   "archetype_coverage": "n=212 days: range 89 (42%), chop 88 (42%), trend 31 (15%), unclassified 4 (2%)",
+   "n_by_side": {
+    "C": 132,
+    "P": 80
+   },
+   "skips_tuning": {
+    "no_signal_days": 52,
+    "no_opra": 25,
+    "no_fill": 0,
+    "below_min_premium": 0,
+    "unaffordable": 0,
+    "no_bars_after_entry": 0
+   },
+   "regime_split": {
+    "scope": "tuning fills only",
+    "y2025h1": {
+     "n": 83,
+     "total_pnl": -3189.66
+    },
+    "y2025h2": {
+     "n": 97,
+     "total_pnl": -1893.9
+    },
+    "y2026": {
+     "n": 32,
+     "total_pnl": -1777.27
+    },
+    "vix_band": {
+     "low": {
+      "n": 23,
+      "total_pnl": -28.08
+     },
+     "mid": {
+      "n": 150,
+      "total_pnl": -5435.49
+     },
+     "elevated": {
+      "n": 33,
+      "total_pnl": 426.95
+     },
+     "high": {
+      "n": 6,
+      "total_pnl": -1824.21
+     }
+    }
+   },
+   "q_bh16": 0.509216
+  },
+  {
+   "cell_id": "ribbon_trend_persist|depth0.40|window11:30|confirm_none",
+   "params": {
+    "trend_qualifier": "ribbon_trend_persist",
+    "pullback_depth_dollars": 0.4,
+    "entry_window_end_et": "11:30",
+    "confirmation": "none"
+   },
+   "n_signals": 246,
+   "n_real_fills": 219,
+   "expectancy": -0.23,
+   "total_pnl": -49.34,
+   "day_wr": 0.315,
+   "n_days_covered": 219,
+   "n_day_wins": 69,
+   "ex_top1_total": -1080.73,
+   "ex_top3_total": -2879.59,
+   "held_out_total": 3190.13,
+   "n_heldout_fills": 66,
+   "n_heldout_signals": 76,
+   "p_raw": 0.98862,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_held_out_positive": true
+   },
+   "gates_passed": 1,
+   "below_evidence_floor_n15": false,
+   "archetype_coverage": "n=219 days: chop 92 (42%), range 86 (39%), trend 37 (17%), unclassified 4 (2%)",
+   "n_by_side": {
+    "C": 136,
+    "P": 83
+   },
+   "skips_tuning": {
+    "no_signal_days": 43,
+    "no_opra": 27,
+    "no_fill": 0,
+    "below_min_premium": 0,
+    "unaffordable": 0,
+    "no_bars_after_entry": 0
+   },
+   "regime_split": {
+    "scope": "tuning fills only",
+    "y2025h1": {
+     "n": 81,
+     "total_pnl": 86.03
+    },
+    "y2025h2": {
+     "n": 106,
+     "total_pnl": 736.33
+    },
+    "y2026": {
+     "n": 32,
+     "total_pnl": -871.7
+    },
+    "vix_band": {
+     "low": {
+      "n": 24,
+      "total_pnl": -239.52
+     },
+     "mid": {
+      "n": 157,
+      "total_pnl": -879.64
+     },
+     "elevated": {
+      "n": 33,
+      "total_pnl": 135.41
+     },
+     "high": {
+      "n": 5,
+      "total_pnl": 934.41
+     }
+    }
+   },
+   "q_bh16": 0.98862
+  },
+  {
+   "cell_id": "ribbon_trend_persist|depth0.40|window11:30|confirm_resume",
+   "params": {
+    "trend_qualifier": "ribbon_trend_persist",
+    "pullback_depth_dollars": 0.4,
+    "entry_window_end_et": "11:30",
+    "confirmation": "resume"
+   },
+   "n_signals": 209,
+   "n_real_fills": 188,
+   "expectancy": -16.12,
+   "total_pnl": -3030.3,
+   "day_wr": 0.303,
+   "n_days_covered": 188,
+   "n_day_wins": 57,
+   "ex_top1_total": -3963.61,
+   "ex_top3_total": -5390.02,
+   "held_out_total": 5427.4,
+   "n_heldout_fills": 63,
+   "n_heldout_signals": 71,
+   "p_raw": 0.36959,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_held_out_positive": true
+   },
+   "gates_passed": 1,
+   "below_evidence_floor_n15": false,
+   "archetype_coverage": "n=188 days: chop 79 (42%), range 74 (39%), trend 31 (16%), unclassified 4 (2%)",
+   "n_by_side": {
+    "C": 120,
+    "P": 68
+   },
+   "skips_tuning": {
+    "no_signal_days": 80,
+    "no_opra": 21,
+    "no_fill": 0,
+    "below_min_premium": 0,
+    "unaffordable": 0,
+    "no_bars_after_entry": 0
+   },
+   "regime_split": {
+    "scope": "tuning fills only",
+    "y2025h1": {
+     "n": 74,
+     "total_pnl": -1896.1
+    },
+    "y2025h2": {
+     "n": 88,
+     "total_pnl": -16.33
+    },
+    "y2026": {
+     "n": 26,
+     "total_pnl": -1117.87
+    },
+    "vix_band": {
+     "low": {
+      "n": 22,
+      "total_pnl": -222.15
+     },
+     "mid": {
+      "n": 133,
+      "total_pnl": -2127.0
+     },
+     "elevated": {
+      "n": 27,
+      "total_pnl": 80.35
+     },
+     "high": {
+      "n": 6,
+      "total_pnl": -761.5
+     }
+    }
+   },
+   "q_bh16": 0.537585
+  },
+  {
+   "cell_id": "ribbon_trend_persist|depth0.40|window14:00|confirm_none",
+   "params": {
+    "trend_qualifier": "ribbon_trend_persist",
+    "pullback_depth_dollars": 0.4,
+    "entry_window_end_et": "14:00",
+    "confirmation": "none"
+   },
+   "n_signals": 268,
+   "n_real_fills": 238,
+   "expectancy": -3.97,
+   "total_pnl": -945.34,
+   "day_wr": 0.311,
+   "n_days_covered": 238,
+   "n_day_wins": 74,
+   "ex_top1_total": -1976.73,
+   "ex_top3_total": -3804.99,
+   "held_out_total": 2513.59,
+   "n_heldout_fills": 78,
+   "n_heldout_signals": 88,
+   "p_raw": 0.79864,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_held_out_positive": true
+   },
+   "gates_passed": 1,
+   "below_evidence_floor_n15": false,
+   "archetype_coverage": "n=238 days: chop 96 (40%), range 95 (40%), trend 43 (18%), unclassified 4 (2%)",
+   "n_by_side": {
+    "C": 146,
+    "P": 92
+   },
+   "skips_tuning": {
+    "no_signal_days": 21,
+    "no_opra": 30,
+    "no_fill": 0,
+    "below_min_premium": 0,
+    "unaffordable": 0,
+    "no_bars_after_entry": 0
+   },
+   "regime_split": {
+    "scope": "tuning fills only",
+    "y2025h1": {
+     "n": 92,
+     "total_pnl": -21.6
+    },
+    "y2025h2": {
+     "n": 110,
+     "total_pnl": 385.18
+    },
+    "y2026": {
+     "n": 36,
+     "total_pnl": -1308.92
+    },
+    "vix_band": {
+     "low": {
+      "n": 24,
+      "total_pnl": -239.52
+     },
+     "mid": {
+      "n": 168,
+      "total_pnl": -1580.77
+     },
+     "elevated": {
+      "n": 39,
+      "total_pnl": 1052.91
+     },
+     "high": {
+      "n": 7,
+      "total_pnl": -177.96
+     }
+    }
+   },
+   "q_bh16": 0.851883
+  },
+  {
+   "cell_id": "ribbon_trend_persist|depth0.40|window14:00|confirm_resume",
+   "params": {
+    "trend_qualifier": "ribbon_trend_persist",
+    "pullback_depth_dollars": 0.4,
+    "entry_window_end_et": "14:00",
+    "confirmation": "resume"
+   },
+   "n_signals": 248,
+   "n_real_fills": 222,
+   "expectancy": -23.38,
+   "total_pnl": -5191.15,
+   "day_wr": 0.279,
+   "n_days_covered": 222,
+   "n_day_wins": 62,
+   "ex_top1_total": -6124.46,
+   "ex_top3_total": -7668.8,
+   "held_out_total": 5208.75,
+   "n_heldout_fills": 73,
+   "n_heldout_signals": 81,
+   "p_raw": 0.15117,
+   "gates": {
+    "g1_positive_aggregate": false,
+    "g2_day_majority": false,
+    "g3_survives_ex_top1": false,
+    "g4_held_out_positive": true
+   },
+   "gates_passed": 1,
+   "below_evidence_floor_n15": false,
+   "archetype_coverage": "n=222 days: range 93 (42%), chop 90 (41%), trend 35 (16%), unclassified 4 (2%)",
+   "n_by_side": {
+    "C": 137,
+    "P": 85
+   },
+   "skips_tuning": {
+    "no_signal_days": 41,
+    "no_opra": 26,
+    "no_fill": 0,
+    "below_min_premium": 0,
+    "unaffordable": 0,
+    "no_bars_after_entry": 0
+   },
+   "regime_split": {
+    "scope": "tuning fills only",
+    "y2025h1": {
+     "n": 88,
+     "total_pnl": -2653.1
+    },
+    "y2025h2": {
+     "n": 102,
+     "total_pnl": -451.93
+    },
+    "y2026": {
+     "n": 32,
+     "total_pnl": -2086.12
+    },
+    "vix_band": {
+     "low": {
+      "n": 23,
+      "total_pnl": -286.47
+     },
+     "mid": {
+      "n": 156,
+      "total_pnl": -3910.8
+     },
+     "elevated": {
+      "n": 36,
+      "total_pnl": 137.79
+     },
+     "high": {
+      "n": 7,
+      "total_pnl": -1131.67
+     }
+    }
+   },
+   "q_bh16": 0.509216
+  }
+ ]
+}

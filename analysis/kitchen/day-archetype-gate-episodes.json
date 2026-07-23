@@ -1,0 +1,633 @@
+{
+  "_doc": "Episode/cell output for the DAY-ARCHETYPE PARTICIPATION GATE study (analysis/kitchen/prereg-day-archetype-gate-2026-07-23.json, FROZEN before this run). Runner: analysis/kitchen/_day_archetype_gate_run.py. Analysis-only, $0, no orders/params/live-wiring/commits.",
+  "generated_from": {
+    "prereg": "analysis/kitchen/prereg-day-archetype-gate-2026-07-23.json",
+    "replay": "analysis/recommendations/engine-fullhist-replay-2026-07-23.json",
+    "day_inventory": "analysis/edge-matrix/day-inventory-2026-07-23.json",
+    "spy_5m_source": "backtest/data/spy_5m_2025-01-01_2026-07-22.csv",
+    "harvest_anatomy": "analysis/kitchen/HARVEST-DAY-ANATOMY-2026-07-23.md + day-archetype-map.json"
+  },
+  "prereg_content_sha256_16_check": null,
+  "baseline": {
+    "n_trades": 190,
+    "n_days": 141,
+    "total_pnl": 5064.75,
+    "day_wr": 0.3404,
+    "n_day_wins": 48
+  },
+  "classifier_diagnostics": {
+    "30": {
+      "n_days_classifiable": 381,
+      "n_days_undefined": 5
+    },
+    "60": {
+      "n_days_classifiable": 381,
+      "n_days_undefined": 5
+    }
+  },
+  "grid": {
+    "n_knobs": 4,
+    "n_cells": 16
+  },
+  "cells": [
+    {
+      "cell_id": "N30_k060_skip_vixOFF",
+      "params": {
+        "window_minutes": 30,
+        "compression_threshold_k": 0.6,
+        "action": "skip_day",
+        "vix_confirmation": "off"
+      },
+      "n_real_fills": 170,
+      "n_zeroed_slots": 20,
+      "n_halved_slots": 0,
+      "n_pre_cutoff_retained": 4,
+      "n_gated_days": 61,
+      "expectancy": 32.65,
+      "total_pnl": 6202.75,
+      "day_wr": 0.3262,
+      "n_days_covered": 141,
+      "n_day_wins": 46,
+      "ex_top1_total": 5342.8,
+      "ex_top3_total": 3885.25,
+      "held_out_total": 1495.65,
+      "n_heldout_trade_slots": 55,
+      "p_raw": 0.07899,
+      "gates": {
+        "g1_positive_aggregate": true,
+        "g2_day_majority": false,
+        "g3_survives_ex_top1": true,
+        "g4_held_out_positive": true
+      },
+      "gates_passed": 3,
+      "lift_vs_baseline": {
+        "total_pnl_delta": 1138.0,
+        "day_wr_delta": -0.0142
+      },
+      "bh_fdr_survivor": false,
+      "archetype_coverage": "61/386 pop days gated (chop=48[79%] range=8[13%] trend=5[8%] unclassified=0)"
+    },
+    {
+      "cell_id": "N30_k060_skip_vixON",
+      "params": {
+        "window_minutes": 30,
+        "compression_threshold_k": 0.6,
+        "action": "skip_day",
+        "vix_confirmation": "on"
+      },
+      "n_real_fills": 172,
+      "n_zeroed_slots": 18,
+      "n_halved_slots": 0,
+      "n_pre_cutoff_retained": 4,
+      "n_gated_days": 52,
+      "expectancy": 32.04,
+      "total_pnl": 6086.95,
+      "day_wr": 0.3262,
+      "n_days_covered": 141,
+      "n_day_wins": 46,
+      "ex_top1_total": 5227.0,
+      "ex_top3_total": 3769.45,
+      "held_out_total": 1451.25,
+      "n_heldout_trade_slots": 55,
+      "p_raw": 0.08493,
+      "gates": {
+        "g1_positive_aggregate": true,
+        "g2_day_majority": false,
+        "g3_survives_ex_top1": true,
+        "g4_held_out_positive": true
+      },
+      "gates_passed": 3,
+      "lift_vs_baseline": {
+        "total_pnl_delta": 1022.2,
+        "day_wr_delta": -0.0142
+      },
+      "bh_fdr_survivor": false,
+      "archetype_coverage": "52/386 pop days gated (chop=41[79%] range=7[13%] trend=4[8%] unclassified=0)"
+    },
+    {
+      "cell_id": "N30_k060_half_vixOFF",
+      "params": {
+        "window_minutes": 30,
+        "compression_threshold_k": 0.6,
+        "action": "half_size",
+        "vix_confirmation": "off"
+      },
+      "n_real_fills": 190,
+      "n_zeroed_slots": 0,
+      "n_halved_slots": 20,
+      "n_pre_cutoff_retained": 4,
+      "n_gated_days": 61,
+      "expectancy": 29.65,
+      "total_pnl": 5633.75,
+      "day_wr": 0.3404,
+      "n_days_covered": 141,
+      "n_day_wins": 48,
+      "ex_top1_total": 4773.8,
+      "ex_top3_total": 3316.25,
+      "held_out_total": 1437.45,
+      "n_heldout_trade_slots": 55,
+      "p_raw": 0.11174,
+      "gates": {
+        "g1_positive_aggregate": true,
+        "g2_day_majority": false,
+        "g3_survives_ex_top1": true,
+        "g4_held_out_positive": true
+      },
+      "gates_passed": 3,
+      "lift_vs_baseline": {
+        "total_pnl_delta": 569.0,
+        "day_wr_delta": 0.0
+      },
+      "bh_fdr_survivor": false,
+      "archetype_coverage": "61/386 pop days gated (chop=48[79%] range=8[13%] trend=5[8%] unclassified=0)"
+    },
+    {
+      "cell_id": "N30_k060_half_vixON",
+      "params": {
+        "window_minutes": 30,
+        "compression_threshold_k": 0.6,
+        "action": "half_size",
+        "vix_confirmation": "on"
+      },
+      "n_real_fills": 190,
+      "n_zeroed_slots": 0,
+      "n_halved_slots": 18,
+      "n_pre_cutoff_retained": 4,
+      "n_gated_days": 52,
+      "expectancy": 29.35,
+      "total_pnl": 5575.85,
+      "day_wr": 0.3404,
+      "n_days_covered": 141,
+      "n_day_wins": 48,
+      "ex_top1_total": 4715.9,
+      "ex_top3_total": 3258.35,
+      "held_out_total": 1415.25,
+      "n_heldout_trade_slots": 55,
+      "p_raw": 0.11559,
+      "gates": {
+        "g1_positive_aggregate": true,
+        "g2_day_majority": false,
+        "g3_survives_ex_top1": true,
+        "g4_held_out_positive": true
+      },
+      "gates_passed": 3,
+      "lift_vs_baseline": {
+        "total_pnl_delta": 511.1,
+        "day_wr_delta": 0.0
+      },
+      "bh_fdr_survivor": false,
+      "archetype_coverage": "52/386 pop days gated (chop=41[79%] range=7[13%] trend=4[8%] unclassified=0)"
+    },
+    {
+      "cell_id": "N30_k075_skip_vixOFF",
+      "params": {
+        "window_minutes": 30,
+        "compression_threshold_k": 0.75,
+        "action": "skip_day",
+        "vix_confirmation": "off"
+      },
+      "n_real_fills": 145,
+      "n_zeroed_slots": 45,
+      "n_halved_slots": 0,
+      "n_pre_cutoff_retained": 6,
+      "n_gated_days": 112,
+      "expectancy": 39.47,
+      "total_pnl": 7499.05,
+      "day_wr": 0.2979,
+      "n_days_covered": 141,
+      "n_day_wins": 42,
+      "ex_top1_total": 6639.1,
+      "ex_top3_total": 5181.55,
+      "held_out_total": 1897.8,
+      "n_heldout_trade_slots": 55,
+      "p_raw": 0.02751,
+      "gates": {
+        "g1_positive_aggregate": true,
+        "g2_day_majority": false,
+        "g3_survives_ex_top1": true,
+        "g4_held_out_positive": true
+      },
+      "gates_passed": 3,
+      "lift_vs_baseline": {
+        "total_pnl_delta": 2434.3,
+        "day_wr_delta": -0.0425
+      },
+      "bh_fdr_survivor": false,
+      "archetype_coverage": "112/386 pop days gated (chop=70[62%] range=27[24%] trend=15[13%] unclassified=0)"
+    },
+    {
+      "cell_id": "N30_k075_skip_vixON",
+      "params": {
+        "window_minutes": 30,
+        "compression_threshold_k": 0.75,
+        "action": "skip_day",
+        "vix_confirmation": "on"
+      },
+      "n_real_fills": 148,
+      "n_zeroed_slots": 42,
+      "n_halved_slots": 0,
+      "n_pre_cutoff_retained": 6,
+      "n_gated_days": 95,
+      "expectancy": 38.43,
+      "total_pnl": 7301.65,
+      "day_wr": 0.2979,
+      "n_days_covered": 141,
+      "n_day_wins": 42,
+      "ex_top1_total": 6441.7,
+      "ex_top3_total": 4984.15,
+      "held_out_total": 1771.8,
+      "n_heldout_trade_slots": 55,
+      "p_raw": 0.03207,
+      "gates": {
+        "g1_positive_aggregate": true,
+        "g2_day_majority": false,
+        "g3_survives_ex_top1": true,
+        "g4_held_out_positive": true
+      },
+      "gates_passed": 3,
+      "lift_vs_baseline": {
+        "total_pnl_delta": 2236.9,
+        "day_wr_delta": -0.0425
+      },
+      "bh_fdr_survivor": false,
+      "archetype_coverage": "95/386 pop days gated (chop=60[63%] range=22[23%] trend=13[14%] unclassified=0)"
+    },
+    {
+      "cell_id": "N30_k075_half_vixOFF",
+      "params": {
+        "window_minutes": 30,
+        "compression_threshold_k": 0.75,
+        "action": "half_size",
+        "vix_confirmation": "off"
+      },
+      "n_real_fills": 190,
+      "n_zeroed_slots": 0,
+      "n_halved_slots": 45,
+      "n_pre_cutoff_retained": 6,
+      "n_gated_days": 112,
+      "expectancy": 33.06,
+      "total_pnl": 6281.9,
+      "day_wr": 0.3404,
+      "n_days_covered": 141,
+      "n_day_wins": 48,
+      "ex_top1_total": 5421.95,
+      "ex_top3_total": 3964.4,
+      "held_out_total": 1638.52,
+      "n_heldout_trade_slots": 55,
+      "p_raw": 0.06868,
+      "gates": {
+        "g1_positive_aggregate": true,
+        "g2_day_majority": false,
+        "g3_survives_ex_top1": true,
+        "g4_held_out_positive": true
+      },
+      "gates_passed": 3,
+      "lift_vs_baseline": {
+        "total_pnl_delta": 1217.15,
+        "day_wr_delta": 0.0
+      },
+      "bh_fdr_survivor": false,
+      "archetype_coverage": "112/386 pop days gated (chop=70[62%] range=27[24%] trend=15[13%] unclassified=0)"
+    },
+    {
+      "cell_id": "N30_k075_half_vixON",
+      "params": {
+        "window_minutes": 30,
+        "compression_threshold_k": 0.75,
+        "action": "half_size",
+        "vix_confirmation": "on"
+      },
+      "n_real_fills": 190,
+      "n_zeroed_slots": 0,
+      "n_halved_slots": 42,
+      "n_pre_cutoff_retained": 6,
+      "n_gated_days": 95,
+      "expectancy": 32.54,
+      "total_pnl": 6183.2,
+      "day_wr": 0.3404,
+      "n_days_covered": 141,
+      "n_day_wins": 48,
+      "ex_top1_total": 5323.25,
+      "ex_top3_total": 3865.7,
+      "held_out_total": 1575.52,
+      "n_heldout_trade_slots": 55,
+      "p_raw": 0.07335,
+      "gates": {
+        "g1_positive_aggregate": true,
+        "g2_day_majority": false,
+        "g3_survives_ex_top1": true,
+        "g4_held_out_positive": true
+      },
+      "gates_passed": 3,
+      "lift_vs_baseline": {
+        "total_pnl_delta": 1118.45,
+        "day_wr_delta": 0.0
+      },
+      "bh_fdr_survivor": false,
+      "archetype_coverage": "95/386 pop days gated (chop=60[63%] range=22[23%] trend=13[14%] unclassified=0)"
+    },
+    {
+      "cell_id": "N60_k060_skip_vixOFF",
+      "params": {
+        "window_minutes": 60,
+        "compression_threshold_k": 0.6,
+        "action": "skip_day",
+        "vix_confirmation": "off"
+      },
+      "n_real_fills": 169,
+      "n_zeroed_slots": 21,
+      "n_halved_slots": 0,
+      "n_pre_cutoff_retained": 4,
+      "n_gated_days": 50,
+      "expectancy": 32.37,
+      "total_pnl": 6149.45,
+      "day_wr": 0.3191,
+      "n_days_covered": 141,
+      "n_day_wins": 45,
+      "ex_top1_total": 5289.5,
+      "ex_top3_total": 3831.95,
+      "held_out_total": 1749.25,
+      "n_heldout_trade_slots": 55,
+      "p_raw": 0.07964,
+      "gates": {
+        "g1_positive_aggregate": true,
+        "g2_day_majority": false,
+        "g3_survives_ex_top1": true,
+        "g4_held_out_positive": true
+      },
+      "gates_passed": 3,
+      "lift_vs_baseline": {
+        "total_pnl_delta": 1084.7,
+        "day_wr_delta": -0.0213
+      },
+      "bh_fdr_survivor": false,
+      "archetype_coverage": "50/386 pop days gated (chop=38[76%] range=11[22%] trend=1[2%] unclassified=0)"
+    },
+    {
+      "cell_id": "N60_k060_skip_vixON",
+      "params": {
+        "window_minutes": 60,
+        "compression_threshold_k": 0.6,
+        "action": "skip_day",
+        "vix_confirmation": "on"
+      },
+      "n_real_fills": 171,
+      "n_zeroed_slots": 19,
+      "n_halved_slots": 0,
+      "n_pre_cutoff_retained": 4,
+      "n_gated_days": 42,
+      "expectancy": 31.7,
+      "total_pnl": 6023.45,
+      "day_wr": 0.3191,
+      "n_days_covered": 141,
+      "n_day_wins": 45,
+      "ex_top1_total": 5163.5,
+      "ex_top3_total": 3705.95,
+      "held_out_total": 1623.25,
+      "n_heldout_trade_slots": 55,
+      "p_raw": 0.08622,
+      "gates": {
+        "g1_positive_aggregate": true,
+        "g2_day_majority": false,
+        "g3_survives_ex_top1": true,
+        "g4_held_out_positive": true
+      },
+      "gates_passed": 3,
+      "lift_vs_baseline": {
+        "total_pnl_delta": 958.7,
+        "day_wr_delta": -0.0213
+      },
+      "bh_fdr_survivor": false,
+      "archetype_coverage": "42/386 pop days gated (chop=32[76%] range=9[21%] trend=1[2%] unclassified=0)"
+    },
+    {
+      "cell_id": "N60_k060_half_vixOFF",
+      "params": {
+        "window_minutes": 60,
+        "compression_threshold_k": 0.6,
+        "action": "half_size",
+        "vix_confirmation": "off"
+      },
+      "n_real_fills": 190,
+      "n_zeroed_slots": 0,
+      "n_halved_slots": 21,
+      "n_pre_cutoff_retained": 4,
+      "n_gated_days": 50,
+      "expectancy": 29.51,
+      "total_pnl": 5607.1,
+      "day_wr": 0.3404,
+      "n_days_covered": 141,
+      "n_day_wins": 48,
+      "ex_top1_total": 4747.15,
+      "ex_top3_total": 3289.6,
+      "held_out_total": 1564.25,
+      "n_heldout_trade_slots": 55,
+      "p_raw": 0.1117,
+      "gates": {
+        "g1_positive_aggregate": true,
+        "g2_day_majority": false,
+        "g3_survives_ex_top1": true,
+        "g4_held_out_positive": true
+      },
+      "gates_passed": 3,
+      "lift_vs_baseline": {
+        "total_pnl_delta": 542.35,
+        "day_wr_delta": 0.0
+      },
+      "bh_fdr_survivor": false,
+      "archetype_coverage": "50/386 pop days gated (chop=38[76%] range=11[22%] trend=1[2%] unclassified=0)"
+    },
+    {
+      "cell_id": "N60_k060_half_vixON",
+      "params": {
+        "window_minutes": 60,
+        "compression_threshold_k": 0.6,
+        "action": "half_size",
+        "vix_confirmation": "on"
+      },
+      "n_real_fills": 190,
+      "n_zeroed_slots": 0,
+      "n_halved_slots": 19,
+      "n_pre_cutoff_retained": 4,
+      "n_gated_days": 42,
+      "expectancy": 29.18,
+      "total_pnl": 5544.1,
+      "day_wr": 0.3404,
+      "n_days_covered": 141,
+      "n_day_wins": 48,
+      "ex_top1_total": 4684.15,
+      "ex_top3_total": 3226.6,
+      "held_out_total": 1501.25,
+      "n_heldout_trade_slots": 55,
+      "p_raw": 0.11593,
+      "gates": {
+        "g1_positive_aggregate": true,
+        "g2_day_majority": false,
+        "g3_survives_ex_top1": true,
+        "g4_held_out_positive": true
+      },
+      "gates_passed": 3,
+      "lift_vs_baseline": {
+        "total_pnl_delta": 479.35,
+        "day_wr_delta": 0.0
+      },
+      "bh_fdr_survivor": false,
+      "archetype_coverage": "42/386 pop days gated (chop=32[76%] range=9[21%] trend=1[2%] unclassified=0)"
+    },
+    {
+      "cell_id": "N60_k075_skip_vixOFF",
+      "params": {
+        "window_minutes": 60,
+        "compression_threshold_k": 0.75,
+        "action": "skip_day",
+        "vix_confirmation": "off"
+      },
+      "n_real_fills": 153,
+      "n_zeroed_slots": 37,
+      "n_halved_slots": 0,
+      "n_pre_cutoff_retained": 10,
+      "n_gated_days": 109,
+      "expectancy": 34.57,
+      "total_pnl": 6567.8,
+      "day_wr": 0.2979,
+      "n_days_covered": 141,
+      "n_day_wins": 42,
+      "ex_top1_total": 5707.85,
+      "ex_top3_total": 4250.3,
+      "held_out_total": 2007.4,
+      "n_heldout_trade_slots": 55,
+      "p_raw": 0.055,
+      "gates": {
+        "g1_positive_aggregate": true,
+        "g2_day_majority": false,
+        "g3_survives_ex_top1": true,
+        "g4_held_out_positive": true
+      },
+      "gates_passed": 3,
+      "lift_vs_baseline": {
+        "total_pnl_delta": 1503.05,
+        "day_wr_delta": -0.0425
+      },
+      "bh_fdr_survivor": false,
+      "archetype_coverage": "109/386 pop days gated (chop=77[71%] range=23[21%] trend=9[8%] unclassified=0)"
+    },
+    {
+      "cell_id": "N60_k075_skip_vixON",
+      "params": {
+        "window_minutes": 60,
+        "compression_threshold_k": 0.75,
+        "action": "skip_day",
+        "vix_confirmation": "on"
+      },
+      "n_real_fills": 157,
+      "n_zeroed_slots": 33,
+      "n_halved_slots": 0,
+      "n_pre_cutoff_retained": 10,
+      "n_gated_days": 89,
+      "expectancy": 32.98,
+      "total_pnl": 6266.6,
+      "day_wr": 0.2979,
+      "n_days_covered": 141,
+      "n_day_wins": 42,
+      "ex_top1_total": 5406.65,
+      "ex_top3_total": 3949.1,
+      "held_out_total": 1796.2,
+      "n_heldout_trade_slots": 55,
+      "p_raw": 0.06764,
+      "gates": {
+        "g1_positive_aggregate": true,
+        "g2_day_majority": false,
+        "g3_survives_ex_top1": true,
+        "g4_held_out_positive": true
+      },
+      "gates_passed": 3,
+      "lift_vs_baseline": {
+        "total_pnl_delta": 1201.85,
+        "day_wr_delta": -0.0425
+      },
+      "bh_fdr_survivor": false,
+      "archetype_coverage": "89/386 pop days gated (chop=62[70%] range=19[21%] trend=8[9%] unclassified=0)"
+    },
+    {
+      "cell_id": "N60_k075_half_vixOFF",
+      "params": {
+        "window_minutes": 60,
+        "compression_threshold_k": 0.75,
+        "action": "half_size",
+        "vix_confirmation": "off"
+      },
+      "n_real_fills": 190,
+      "n_zeroed_slots": 0,
+      "n_halved_slots": 37,
+      "n_pre_cutoff_retained": 10,
+      "n_gated_days": 109,
+      "expectancy": 30.61,
+      "total_pnl": 5816.27,
+      "day_wr": 0.3404,
+      "n_days_covered": 141,
+      "n_day_wins": 48,
+      "ex_top1_total": 4956.32,
+      "ex_top3_total": 3498.77,
+      "held_out_total": 1693.32,
+      "n_heldout_trade_slots": 55,
+      "p_raw": 0.09301,
+      "gates": {
+        "g1_positive_aggregate": true,
+        "g2_day_majority": false,
+        "g3_survives_ex_top1": true,
+        "g4_held_out_positive": true
+      },
+      "gates_passed": 3,
+      "lift_vs_baseline": {
+        "total_pnl_delta": 751.52,
+        "day_wr_delta": 0.0
+      },
+      "bh_fdr_survivor": false,
+      "archetype_coverage": "109/386 pop days gated (chop=77[71%] range=23[21%] trend=9[8%] unclassified=0)"
+    },
+    {
+      "cell_id": "N60_k075_half_vixON",
+      "params": {
+        "window_minutes": 60,
+        "compression_threshold_k": 0.75,
+        "action": "half_size",
+        "vix_confirmation": "on"
+      },
+      "n_real_fills": 190,
+      "n_zeroed_slots": 0,
+      "n_halved_slots": 33,
+      "n_pre_cutoff_retained": 10,
+      "n_gated_days": 89,
+      "expectancy": 29.82,
+      "total_pnl": 5665.68,
+      "day_wr": 0.3404,
+      "n_days_covered": 141,
+      "n_day_wins": 48,
+      "ex_top1_total": 4805.73,
+      "ex_top3_total": 3348.18,
+      "held_out_total": 1587.72,
+      "n_heldout_trade_slots": 55,
+      "p_raw": 0.10218,
+      "gates": {
+        "g1_positive_aggregate": true,
+        "g2_day_majority": false,
+        "g3_survives_ex_top1": true,
+        "g4_held_out_positive": true
+      },
+      "gates_passed": 3,
+      "lift_vs_baseline": {
+        "total_pnl_delta": 600.93,
+        "day_wr_delta": 0.0
+      },
+      "bh_fdr_survivor": false,
+      "archetype_coverage": "89/386 pop days gated (chop=62[70%] range=19[21%] trend=8[9%] unclassified=0)"
+    }
+  ],
+  "portfolio_level_bh_fdr": {
+    "alpha": 0.1,
+    "n_comparisons": 16,
+    "n_survivors": 0
+  },
+  "candidate_pass_count": 0,
+  "verdict": "NO CANDIDATE_PASS -- KILL (0/16 cells clear all 4 gates)"
+}

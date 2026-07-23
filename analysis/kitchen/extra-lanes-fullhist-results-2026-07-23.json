@@ -1,0 +1,372 @@
+{
+  "_doc": "extra_lanes_fullhist_harness.py -- FULL-HISTORY batch-replay harness for the 4 \"extra\"\ndetectors that place real Safe-paper orders live today but have NO full-history batch-replay\nharness (engine-fullhist-replay-2026-07-23.md's own scope disclosure): bollinger_squeeze,\nvwap_reclaim_failed_break, gap_and_go (WATCH-only, not exec-armed), double_bottom_base_quiet.\n\nFrozen pre-reg (written BEFORE this ran): analysis/kitchen/prereg-extra-lanes-fullhist-2026-07-23.json\n-- 4 knobs, 10 cells total (baseline = each lane's LIVE ARMED CONFIG + 1 tiny refinement axis).\n\nMANDATORY FIDELITY STACK (verbatim from the task brief, all four honored below):\n  1. Exits ONLY via backtest/lib/exit_manager_walk.py#walk_exit_manager driving the REAL\n     automation/state/fleet/exit_manager.py#plan_exit_actions core (never simulator_real.py's\n     KNOWN-WRONG params.json-top-level-keys shape). Each lane's OWN live-armed isolated exit\n     shape is used (resolved from automation/state/params.json's isolated keys through\n     setup/scripts/heartbeat_core.py's _SETUP_EXIT_OVERRIDES dispatch table), not RIBBON_RIDE's\n     numbers -- RIBBON_RIDE is a DIFFERENT strategy with a different validated cell.\n  2. Dollars from real OPRA fills only (backtest/data/options/); a signal whose contract isn't\n     cached is EXCLUDED and counted, never Black-Scholes-synthesized.\n  3. Population + held-out from analysis/edge-matrix/day-inventory-2026-07-23.json; the file's\n     OWN frozen heldout_days (96 days, last-25%-by-date) is used verbatim, never touched during\n     grid selection.\n  4. Detectors are CAUSAL (C6) -- every one below is the byte-for-byte validated core function\n     already shipped in backtest/lib/watchers/, reused (not reimplemented) for the baseline\n     cell; refinement cells vary exactly ONE documented knob per lane.\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/extra_lanes_fullhist_harness.py\n",
+  "generated_at": "2026-07-22T21:59:40.205093",
+  "prereg": "analysis/kitchen/prereg-extra-lanes-fullhist-2026-07-23.json",
+  "population": {
+    "opra_days": 386,
+    "tuning_days": 290,
+    "heldout_days": 96
+  },
+  "cells": [
+    {
+      "lane": "bollinger_squeeze",
+      "cell_id": "bollinger_squeeze|sq_recent=2",
+      "params": {
+        "sq_recent": 2
+      },
+      "stop_mode": "premium",
+      "n_real_fills": 196,
+      "n_heldout_fills": 78,
+      "n_signals_total": 310,
+      "n_no_opra": 35,
+      "n_skipped_open_position": 1,
+      "expectancy": 5.02,
+      "total_pnl": 984.41,
+      "day_wr": 0.2625,
+      "n_covered_tuning_days": 160,
+      "ex_top1_total": 413.31,
+      "ex_top3_total": -281.84,
+      "held_out_total": 1938.73,
+      "p_raw": 0.38612,
+      "gates": {
+        "positive_aggregate": true,
+        "day_majority": false,
+        "survives_ex_top1": true,
+        "held_out_positive": true
+      },
+      "gates_passed": 3,
+      "archetype_coverage": {
+        "unclassified": 2,
+        "range": 81,
+        "chop": 62,
+        "trend": 51
+      },
+      "below_evidence_floor_n15": false,
+      "bh_significant_q10": false
+    },
+    {
+      "lane": "bollinger_squeeze",
+      "cell_id": "bollinger_squeeze|sq_recent=4|BASELINE",
+      "params": {
+        "sq_recent": 4
+      },
+      "stop_mode": "premium",
+      "n_real_fills": 237,
+      "n_heldout_fills": 93,
+      "n_signals_total": 372,
+      "n_no_opra": 41,
+      "n_skipped_open_position": 1,
+      "expectancy": 8.5,
+      "total_pnl": 2014.68,
+      "day_wr": 0.2781,
+      "n_covered_tuning_days": 187,
+      "ex_top1_total": 1443.58,
+      "ex_top3_total": 748.43,
+      "held_out_total": 2389.55,
+      "p_raw": 0.11115,
+      "gates": {
+        "positive_aggregate": true,
+        "day_majority": false,
+        "survives_ex_top1": true,
+        "held_out_positive": true
+      },
+      "gates_passed": 3,
+      "archetype_coverage": {
+        "unclassified": 2,
+        "range": 99,
+        "chop": 76,
+        "trend": 60
+      },
+      "below_evidence_floor_n15": false,
+      "bh_significant_q10": false
+    },
+    {
+      "lane": "bollinger_squeeze",
+      "cell_id": "bollinger_squeeze|sq_recent=6",
+      "params": {
+        "sq_recent": 6
+      },
+      "stop_mode": "premium",
+      "n_real_fills": 257,
+      "n_heldout_fills": 98,
+      "n_signals_total": 401,
+      "n_no_opra": 43,
+      "n_skipped_open_position": 3,
+      "expectancy": 8.39,
+      "total_pnl": 2157.24,
+      "day_wr": 0.2887,
+      "n_covered_tuning_days": 194,
+      "ex_top1_total": 1586.14,
+      "ex_top3_total": 818.09,
+      "held_out_total": 2553.67,
+      "p_raw": 0.11581,
+      "gates": {
+        "positive_aggregate": true,
+        "day_majority": false,
+        "survives_ex_top1": true,
+        "held_out_positive": true
+      },
+      "gates_passed": 3,
+      "archetype_coverage": {
+        "unclassified": 3,
+        "range": 107,
+        "chop": 82,
+        "trend": 65
+      },
+      "below_evidence_floor_n15": false,
+      "bh_significant_q10": false
+    },
+    {
+      "lane": "vwap_reclaim_failed_break",
+      "cell_id": "vwap_reclaim_failed_break|entry_cutoff=10:00",
+      "params": {
+        "entry_cutoff": "10:00"
+      },
+      "stop_mode": "premium",
+      "n_real_fills": 24,
+      "n_heldout_fills": 5,
+      "n_signals_total": 33,
+      "n_no_opra": 4,
+      "n_skipped_open_position": 0,
+      "expectancy": 28.4,
+      "total_pnl": 681.63,
+      "day_wr": 0.375,
+      "n_covered_tuning_days": 24,
+      "ex_top1_total": 313.04,
+      "ex_top3_total": -242.73,
+      "held_out_total": 115.26,
+      "p_raw": 0.29402,
+      "gates": {
+        "positive_aggregate": true,
+        "day_majority": false,
+        "survives_ex_top1": true,
+        "held_out_positive": true
+      },
+      "gates_passed": 3,
+      "archetype_coverage": {
+        "unclassified": 1,
+        "chop": 8,
+        "range": 12,
+        "trend": 3
+      },
+      "below_evidence_floor_n15": false,
+      "bh_significant_q10": false
+    },
+    {
+      "lane": "vwap_reclaim_failed_break",
+      "cell_id": "vwap_reclaim_failed_break|entry_cutoff=10:30|BASELINE",
+      "params": {
+        "entry_cutoff": "10:30"
+      },
+      "stop_mode": "premium",
+      "n_real_fills": 59,
+      "n_heldout_fills": 17,
+      "n_signals_total": 92,
+      "n_no_opra": 15,
+      "n_skipped_open_position": 0,
+      "expectancy": 29.02,
+      "total_pnl": 1712.27,
+      "day_wr": 0.3729,
+      "n_covered_tuning_days": 59,
+      "ex_top1_total": 1343.68,
+      "ex_top3_total": 739.7,
+      "held_out_total": -26.15,
+      "p_raw": 0.05937,
+      "gates": {
+        "positive_aggregate": true,
+        "day_majority": false,
+        "survives_ex_top1": true,
+        "held_out_positive": false
+      },
+      "gates_passed": 2,
+      "archetype_coverage": {
+        "unclassified": 2,
+        "range": 27,
+        "chop": 21,
+        "trend": 9
+      },
+      "below_evidence_floor_n15": false,
+      "bh_significant_q10": false
+    },
+    {
+      "lane": "vwap_reclaim_failed_break",
+      "cell_id": "vwap_reclaim_failed_break|entry_cutoff=11:00",
+      "params": {
+        "entry_cutoff": "11:00"
+      },
+      "stop_mode": "premium",
+      "n_real_fills": 72,
+      "n_heldout_fills": 22,
+      "n_signals_total": 112,
+      "n_no_opra": 17,
+      "n_skipped_open_position": 0,
+      "expectancy": 27.59,
+      "total_pnl": 1986.63,
+      "day_wr": 0.4028,
+      "n_covered_tuning_days": 72,
+      "ex_top1_total": 1618.04,
+      "ex_top3_total": 1014.06,
+      "held_out_total": -19.77,
+      "p_raw": 0.0343,
+      "gates": {
+        "positive_aggregate": true,
+        "day_majority": false,
+        "survives_ex_top1": true,
+        "held_out_positive": false
+      },
+      "gates_passed": 2,
+      "archetype_coverage": {
+        "unclassified": 2,
+        "range": 30,
+        "chop": 29,
+        "trend": 11
+      },
+      "below_evidence_floor_n15": false,
+      "bh_significant_q10": false
+    },
+    {
+      "lane": "gap_and_go",
+      "cell_id": "gap_and_go|side=put|BASELINE",
+      "params": {
+        "side": "put"
+      },
+      "stop_mode": "structure",
+      "n_real_fills": 15,
+      "n_heldout_fills": 15,
+      "n_signals_total": 43,
+      "n_no_opra": 13,
+      "n_skipped_open_position": 0,
+      "expectancy": -100.18,
+      "total_pnl": -1502.65,
+      "day_wr": 0.4,
+      "n_covered_tuning_days": 15,
+      "ex_top1_total": -1726.67,
+      "ex_top3_total": -2042.1,
+      "held_out_total": -3055.74,
+      "p_raw": 0.10207,
+      "gates": {
+        "positive_aggregate": false,
+        "day_majority": false,
+        "survives_ex_top1": false,
+        "held_out_positive": false
+      },
+      "gates_passed": 0,
+      "archetype_coverage": {
+        "range": 10,
+        "chop": 4,
+        "trend": 1
+      },
+      "below_evidence_floor_n15": false,
+      "bh_significant_q10": false
+    },
+    {
+      "lane": "gap_and_go",
+      "cell_id": "gap_and_go|side=both",
+      "params": {
+        "side": "both"
+      },
+      "stop_mode": "structure",
+      "n_real_fills": 55,
+      "n_heldout_fills": 28,
+      "n_signals_total": 104,
+      "n_no_opra": 20,
+      "n_skipped_open_position": 0,
+      "expectancy": -55.1,
+      "total_pnl": -3030.71,
+      "day_wr": 0.4182,
+      "n_covered_tuning_days": 55,
+      "ex_top1_total": -3303.53,
+      "ex_top3_total": -3844.29,
+      "held_out_total": -2525.58,
+      "p_raw": 0.02916,
+      "gates": {
+        "positive_aggregate": false,
+        "day_majority": false,
+        "survives_ex_top1": false,
+        "held_out_positive": false
+      },
+      "gates_passed": 0,
+      "archetype_coverage": {
+        "unclassified": 2,
+        "range": 23,
+        "chop": 20,
+        "trend": 10
+      },
+      "below_evidence_floor_n15": false,
+      "bh_significant_q10": false
+    },
+    {
+      "lane": "double_bottom_base_quiet",
+      "cell_id": "double_bottom_base_quiet|not_near_named=False|BASELINE",
+      "params": {
+        "not_near_named": false
+      },
+      "stop_mode": "premium",
+      "n_real_fills": 115,
+      "n_heldout_fills": 40,
+      "n_signals_total": 175,
+      "n_no_opra": 9,
+      "n_skipped_open_position": 11,
+      "expectancy": -22.3,
+      "total_pnl": -2564.07,
+      "day_wr": 0.5116,
+      "n_covered_tuning_days": 86,
+      "ex_top1_total": -3071.65,
+      "ex_top3_total": -3599.01,
+      "held_out_total": -940.25,
+      "p_raw": 0.14464,
+      "gates": {
+        "positive_aggregate": false,
+        "day_majority": true,
+        "survives_ex_top1": false,
+        "held_out_positive": false
+      },
+      "gates_passed": 1,
+      "archetype_coverage": {
+        "unclassified": 4,
+        "range": 52,
+        "chop": 28,
+        "trend": 31
+      },
+      "below_evidence_floor_n15": false,
+      "bh_significant_q10": false
+    },
+    {
+      "lane": "double_bottom_base_quiet",
+      "cell_id": "double_bottom_base_quiet|not_near_named=True",
+      "params": {
+        "not_near_named": true
+      },
+      "stop_mode": "premium",
+      "n_real_fills": 21,
+      "n_heldout_fills": 10,
+      "n_signals_total": 35,
+      "n_no_opra": 3,
+      "n_skipped_open_position": 1,
+      "expectancy": 0.43,
+      "total_pnl": 8.95,
+      "day_wr": 0.5789,
+      "n_covered_tuning_days": 19,
+      "ex_top1_total": -221.32,
+      "ex_top3_total": -508.06,
+      "held_out_total": -112.4,
+      "p_raw": 0.98858,
+      "gates": {
+        "positive_aggregate": true,
+        "day_majority": true,
+        "survives_ex_top1": false,
+        "held_out_positive": false
+      },
+      "gates_passed": 2,
+      "archetype_coverage": {
+        "unclassified": 1,
+        "chop": 4,
+        "range": 12,
+        "trend": 4
+      },
+      "below_evidence_floor_n15": false,
+      "bh_significant_q10": false
+    }
+  ],
+  "runtime_seconds": 43.4
+}

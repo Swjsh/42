@@ -1,3 +1,14 @@
+## [2026-07-23 overnight] KITCHEN NIGHT COMPLETE -- 83 cells / 6 lanes cooked, 0 ship (honest), best-ever near-miss found, 2 infrastructure wins, portfolio math delivered
+
+> **J's directive: "good traders make money most days -- we need a few solid strats; cook all night." Delivered, Sonnet army throughout.** Full doc: markdown/research/STRATEGY-PORTFOLIO-2026-07-23.md.
+> - **0/83 cells ship** (4-gate bar + 83-cell BH-FDR). Cleanest kills: range-day-fade 16/16 (2nd independent range-entry failure), trend-day-continuation 16/16.
+> - **Best near-miss of the entire week: A6** -- TIGHTER trendline-class exits (stop -12%, trail 10%): the only 4/4-gate cell, 67.4% day-WR, but q=0.31 after portfolio-wide correction. Accreting via live shadow (TRENDLINE-TIGHT-EXIT-ACCRETE).
+> - **Audit flag:** double_bottom_base_quiet live-armed with -\$3,504 full-history baseline -> DOUBLE-BOTTOM-DISARM-DECISION (24h re-audit then act; zero live bleed meanwhile).
+> - **Portfolio math (honest):** current full stack ~= +\$13-20/calendar-day, ~36-60% day coverage -- 10x short of the \$100-200 goal. The binding gap is not entries (98+83 cells prove it): it is per-day consistency (core median trading day -\$63) + the uncovered chop/high-VIX days.
+> - Earlier tonight, same program: EDGE-MATRIX final (0/98, null certain), 18-month full-engine number (+\$5,064.75 provisional), level-feed snapshots LIVE (fidelity fix), ETH-ribbon A/B null (engine keeps RTH; J's-eyes stand-in validated + whisper/brief divergence flags wired by a parallel fire).
+
+---
+
 ## [2026-07-22 ~23:42-23:56 ET] OK -- conductor (AFTERHOURS): closed RIBBON-SESSION-SCOPE-DIVERGENCE fully (Lane-A wiring, the last open piece), commit `fbfb6343`
 
 > **STAGE 0/1:** ET confirmed 23:42, Wednesday, market closed since 15:55. `engine-health.json`

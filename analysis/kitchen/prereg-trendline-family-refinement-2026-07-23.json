@@ -1,0 +1,72 @@
+{
+  "_doc": "FROZEN pre-registration for the trendline-family-refinement overnight-kitchen candidate lane. Written and locked BEFORE any cell was computed -- thresholds below are chosen from the STRUCTURE of the input distribution only (spread_cents/entry-hour histograms over the population), never from PnL-by-bucket. No knob/band/gate/grid change is permitted after this file is written; a change requires a NEW dated pre-reg, never an edit to this one.",
+  "written_et": "2026-07-22T23:44:04",
+  "candidate_lane": "trendline-family-refinement",
+  "task_framing": "TRENDLINE-REJECTION REFINEMENT -- conditioning a PROVEN live-fills winner class (07-17 real fills: 13:01 MIXED/54c +$241, 13:51 MIXED/32c +$191, 13:52 MIXED/32c +$233, all trendline_rejection-only entries), NOT resurrecting a dead entry family. Cross-references markdown/doctrine/DOJO-HARVEST-2026-07-21.md's retracted-but-flagged observation (n=5, one day: losers at ribbon spread ~195-211c wide-stacked, winners at ~32-54c compressed-MIXED) and analysis/kitchen/HARVEST-DAY-ANATOMY-2026-07-23.md's cross-cutting finding (TRENDLINE tier = 65% of all engine volume, -$1,830.10 total, 19.35% WR -- the worst tier by both $ and WR, single-trigger by construction).",
+
+  "population": {
+    "source": "analysis/recommendations/engine-fullhist-replay-2026-07-23.json (`trades` array), filtered to tier==\"TRENDLINE\" (per elite_bear_level_reject_gate_ab.classify_tier: trendline_rejection present, no confluence/sequence/level_rejection/level_reclaim trigger, <3 total triggers -- the exact convention the source replay itself used to label tiers).",
+    "n_total": 124,
+    "window": "2025-01-02 to 2026-07-22 (386 calendar RTH days, 18.5 months)",
+    "side_composition": "100% P (bear) -- TRENDLINE tier cannot contain a bull trade under min_triggers_bull=2, disclosed not re-derived",
+    "fidelity_stack": [
+      "ENTRY: backtest/lib/orchestrator.py#run_backtest(**SAFE_BASE_LIVE) -- the same engine_cli-equivalent score+gate+filter cascade the source replay already ran. NOT re-run here -- reused verbatim from the committed replay JSON.",
+      "EXIT: backtest/lib/exit_manager_walk.py#walk_exit_manager driving the REAL automation/state/fleet/exit_manager.py#plan_exit_actions decision core under automation/state/fleet/strategies.py#RIBBON_RIDE.exit.to_dict() -- NOT simulate_trade_real's known-divergent params.json-top-level shape. Also reused verbatim, not re-run.",
+      "DOLLARS: real OPRA fills only (backtest/data/options/) -- the source replay already excludes any entry whose contract CSV isn't cached (n_no_opra=16 excluded upstream); zero BS-synthetic in this population.",
+      "NEW COMPUTATION THIS STUDY: ribbon state (spread_cents, stack) at each trade's entry_time_et, via lib/ribbon.py#compute_ribbon over the CONTINUOUS RTH-only (09:30-16:00) SPY 5-min close series (identical construction to engine_fullhist_replay.py#build_ribbon_lookup -- same warmup, same continuity across days as what run_backtest computes internally for entry scoring), looked up via backward (no-lookahead) search: the last ribbon bar whose timestamp is <= entry_time_et. This is the ONLY new data joined onto the existing trades; no new backtest run, no live wiring, no commits, no broker imports."
+    ]
+  },
+
+  "held_out": {
+    "source": "analysis/edge-matrix/day-inventory-2026-07-23.json `heldout_days` (96 dates, last ceil(25%) of the 386 opra_days by date, per that file's own `method.heldout` field) -- SACRED, read exactly once, only for gate 4, never during grid design or tuning-side comparison.",
+    "heldout_date_range": "2026-02-25 to 2026-07-17",
+    "n_trendline_trades_in_heldout": 29,
+    "n_trendline_trades_in_tuning": 95
+  },
+
+  "grid": {
+    "n_knobs": 3,
+    "n_cells": 12,
+    "knobs": [
+      {
+        "name": "ribbon_spread_band",
+        "levels": ["compressed_lt75c", "wide_ge75c"],
+        "threshold_cents": 75,
+        "threshold_provenance": "Round number chosen from the POPULATION's spread_cents distribution alone (median=82.8c, mean=103.6c, IQR 46-133c across all 124 trades) -- 75c sits near the median and gives a reasonably balanced split (58/66 across the full population) without being reverse-engineered to any outcome. Explicitly NOT the DOJO-HARVEST anecdote's own 32-54c/195-211c cluster boundaries (that n=5 single-day observation is cited as motivation only, never as a threshold source, per FOCUS-DOCTRINE's 'zones, never penny-exact, never hand-picked to fit an outcome' rule)."
+      },
+      {
+        "name": "structure_state",
+        "levels": ["MIXED", "STACKED"],
+        "definition": "Direct categorical read of lib/ribbon.py RibbonState.stack at entry. STACKED = BULL or BEAR pooled (both are 'the move already happened' states per J's 07-21 ruling); MIXED = transitioning/compressed. Population is lopsided (19 MIXED / 105 STACKED across all 124) -- disclosed up front, not adjusted for."
+      },
+      {
+        "name": "entry_window",
+        "levels": ["AM_0935_1159", "MIDDAY_1200_1259", "PM_1300_1500"],
+        "threshold_provenance": "Round clock-hour zones bounded by the standing entry window (09:35-15:00 ET, params.json no_trade_before/no_trade_window) split into three even hour-blocks -- not derived from any win/loss pattern. Population by hour (all 124): 9h=1,10h=8,11h=27,12h=28,13h=28,14h=29,15h=3 -> AM=36, MIDDAY=28, PM=60, none empty."
+      }
+    ],
+    "cell_id_scheme": "trendline_{spread_band}_{structure}_{window}"
+  },
+
+  "gates": {
+    "convention": "Standing 4-gate bar, verbatim from backtest/tools/edge_matrix_bear_level_rejection.py#cell_metrics (the same gate math already governing the 6-family, 98-cell edge matrix) -- reused, not reinvented.",
+    "g1_positive_aggregate": "tuning total_pnl > 0",
+    "g2_day_majority": "n_days_covered > 0 AND n_day_wins > n_days_covered / 2",
+    "g3_survives_ex_top1": "n_real_fills >= 1 AND (total_pnl - single largest winning trade) > 0",
+    "g4_held_out_positive": "n_heldout_fills > 0 AND held_out_total_pnl > 0",
+    "evidence_floor": "n_real_fills >= 15 (advisory per OP-16 -- flagged, not auto-disqualifying at cell level given the 3-knob/12-cell grid necessarily thins some cells; disqualifying at the CANDIDATE level if the best surviving cell is below floor)"
+  },
+
+  "significance": {
+    "p_raw_convention": "Two-sided one-sample test on per-trade dollar_pnl within the tuning-scope cell, normal-approximation of the t-statistic (erf-based), verbatim from backtest/tools/pullback_hold_bull_replay.py#_one_sample_p -- the same convention used across every edge-matrix family for comparability.",
+    "portfolio_bh": "Benjamini-Hochberg FDR at q=0.10 across all 12 cells' tuning-scope p_raw values, verbatim algorithm from backtest/tools/pullback_hold_bull_replay.py#_bh_fdr. Computed ONCE across the full 12-cell grid (not per-knob), reported as q(BH-12) per cell alongside p_raw."
+  },
+
+  "disclosures_before_run": [
+    "This is a CONDITIONING study on an existing entry family already live and gated (min_triggers_bear=1, block_level_rejection, vix_bear_hard_cap=23.0, structure-stop-primary v15.3) -- it can only ever narrow the TRENDLINE tier's admission bar (an additional filter on top of the existing trigger), never widen it or invent a new detector. FOCUS-DOCTRINE-compliant: stated in two sentences ('don't take single-trigger trendline rejections when the ribbon is wide/stacked' is the hypothesis under test), <=3 tunable knobs, no new indicator (ribbon already exists and is already computed live).",
+    "The 124-trade population is NOT independent of the 98-cell EDGE-MATRIX-FULLHIST-2026-07-23.md run -- that matrix tested six DIFFERENT level-interaction ENTRY families (bear-level-rejection, bull-reclaim-quality, sr-flip-retest, range-pingpong, break-retest, premarket-level) and explicitly excluded ribbon_ride/trendline_rejection from its own scope. This study does not re-cook any of those 98 dead cells; it is a distinct entry-trigger family under the RIDE_THE_RIBBON exit shape.",
+    "23 of 124 TRENDLINE trades show a BULL-stacked ribbon at their own bear-entry timestamp -- structurally plausible (ribbon can flip between the triggering bar and the recorded entry_time_et/fill bar) but NOT independently reconciled against the live structure_veto's own real-time read for this study; disclosed as a population characteristic, not adjusted or filtered out.",
+    "Some of the 12 cells will fall below the n>=15 evidence floor given 95 tuning trades split three ways across 12 cells (mean ~7.9/cell) -- expected and disclosed, not a study defect. Cells below floor are reported honestly, not hidden.",
+    "No live wiring, no commits, no broker imports, no params.json edits. Output is a ranked cell table + honest-null verdict only."
+  ]
+}

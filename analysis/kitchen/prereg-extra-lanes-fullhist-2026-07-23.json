@@ -1,0 +1,121 @@
+{
+  "candidate": "extra-lanes-fullhist",
+  "prereg_version": 1,
+  "frozen_at": "2026-07-22T21:47:58-06:00 (23:47 ET)",
+  "frozen_before_fullhist_run": true,
+  "runner": "backtest/tools/extra_lanes_fullhist_harness.py",
+  "episodes_output": "analysis/kitchen/extra-lanes-fullhist-episodes.json",
+  "results_output": "analysis/kitchen/extra-lanes-fullhist-results-2026-07-23.json",
+
+  "hypothesis": "The 18mo engine-fullhist-replay (analysis/recommendations/engine-fullhist-replay-2026-07-23.md) and the 98-cell EDGE-MATRIX-FULLHIST synthesis both scope to RIDE_THE_RIBBON only -- no full-history batch-replay harness exists for the 4 'extra' detectors that place real Safe-paper orders live today (bollinger_squeeze, vwap_reclaim_failed_break, gap_and_go [WATCH-only, not exec-armed], double_bottom_base_quiet). This is a MEASUREMENT-HOLE-CLOSING study, not a fresh entry-signal search: each detector was already validated on its own (smaller, differently-scoped) real-fills sample and is either armed live or watch-only per automation/state/params.json. This harness (1) builds the missing full-history batch replay by reusing each detector's already-shipped byte-for-byte causal core function from backtest/lib/watchers/, (2) runs each at its LIVE ARMED CONFIG (isolated params.json keys, resolved via setup/scripts/heartbeat_core.py's _SETUP_EXIT_OVERRIDES / _SETUP_STRIKE_OVERRIDES dispatch tables, read fresh 2026-07-22) as the baseline cell, and (3) adds ONE small refinement knob per lane. Live evidence cited in the task brief (bollinger_squeeze +$75/3tr this week) is a HINT to investigate, not an assumed result -- this study reports whatever the full 386-day population actually shows.",
+
+  "population": {
+    "day_inventory": "analysis/edge-matrix/day-inventory-2026-07-23.json (used ONLY for the tuning/held-out day-list split and day_type/vix_band regime tags -- NOT as the bar source; bars come from the single continuous spy_5m_2025-01-01_2026-07-22.csv / vix_5m_2025-01-01_2026-07-22.csv files, matching engine_fullhist_replay.py's convention)",
+    "opra_days": "386 days, 2025-01-02..2026-07-22 (the file's own opra_days list, used verbatim)",
+    "tuning_days": "opra_days MINUS heldout_days = 290 days",
+    "held_out_days": "the file's own frozen heldout_days field, 96 days, 2026-02-25..2026-07-17 -- USED VERBATIM, NOT recomputed (the day-inventory's own manual_amendments[0] entry explicitly did not touch heldout_days when it backfilled 5 more OPRA days on 2026-07-22, to avoid shifting the OOS cutoff -- same discipline honored here). Never read during grid selection; touched once for the held-out gate + disclosure.",
+    "excluded": "2026-06-15 (12-bar SPY fragment, excluded_fragments) is out of the 386-day population identically to every other fullhist study this week.",
+    "spy_vix_frame": "backtest/data/spy_5m_2025-01-01_2026-07-22.csv + vix_5m_2025-01-01_2026-07-22.csv, RTH-only (09:30-16:00 wall), continuous across days for ribbon/warmup continuity (byte-identical source files to engine-fullhist-replay-2026-07-23.md and the 98-cell EDGE-MATRIX-FULLHIST run)."
+  },
+
+  "detectors_reused_verbatim": {
+    "bollinger_squeeze": "backtest/lib/watchers/bollinger_squeeze_watcher.py#detect_bollinger_squeeze_frame -- the exact validated batch scanner (316/316 signal parity pinned by test_bollinger_squeeze_watcher_parity.py) called directly for the baseline cell.",
+    "vwap_reclaim_failed_break": "backtest/lib/watchers/vwap_reclaim_failed_break_watcher.py#detect_vwap_reclaim_failed_break_core -- the pure per-day phase-machine core, called per trading day.",
+    "gap_and_go": "backtest/lib/watchers/gap_and_go_watcher.py#detect_gap_and_go_core -- the pure per-day gap+confirm core, called per trading day.",
+    "double_bottom_base_quiet": "crypto.lib.chart_patterns.double_bottom_detector (the same detector backtest/lib/watchers/double_bottom_base_quiet_watcher.py wraps), run on a rolling 30-bar window every RTH bar >= bar 10 of the session, replicating the watcher's own gates (VIX<20, confidence<0.60, RTH 09:35-15:55, 30-min cooldown) in a batch loop instead of a live BarContext stream. NOT_NEAR_NAMED is the refinement knob (see grid) -- the baseline OMITS it, matching this exact detector's own already-published real-fills precedent (db-base-quiet-real-fills.json, 'simplified scan, NOT_NEAR_NAMED omitted', N=131/WR=63.9%) rather than inventing a historical key-levels series that does not exist."
+  },
+
+  "live_armed_config": {
+    "_source": "automation/state/params.json (isolated per-setup keys) resolved through setup/scripts/heartbeat_core.py _SETUP_EXIT_OVERRIDES / _SETUP_STRIKE_OVERRIDES dispatch tables, read fresh 2026-07-22. ATM strike (offset 0) for all 4 lanes. qty=3 (min_contracts) uniformly -- max_affordable_qty clamping NOT applied (disclosed simplification; every DEFAULT_QTY in the 4 watcher modules is already 3, so this is a no-op in the vast majority of real fills at this account's equity).",
+    "bollinger_squeeze": {
+      "armed": "extra_setup_exec_armed.bollinger_squeeze=True (LIVE, both directions)",
+      "exit_shape": {"premium_stop_pct": -0.08, "tp1_premium_pct": 0.30, "tp1_qty_fraction": 0.667,
+                      "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 2.5,
+                      "stop_mode": "premium"},
+      "side": "both"
+    },
+    "vwap_reclaim_failed_break": {
+      "armed": "extra_setup_exec_armed.vwap_reclaim_failed_break=True (LIVE); j_vwap_reclaim_fb_side=both",
+      "exit_shape": {"premium_stop_pct": -0.08, "tp1_premium_pct": 0.30, "tp1_qty_fraction": 0.8,
+                      "profit_lock_mode": "fixed", "runner_target_pct": 2.5, "stop_mode": "premium"},
+      "side": "both",
+      "note": "level_stop_buffer_dollars=0.25 exists in params but is NOT load-bearing here: _SETUP_EXIT_OVERRIDES declares no stop_mode key for this setup, so the live exit_manager runs 'premium' mode (the isolated -8% pct), not a structure/chart stop, regardless of the buffer key's presence."
+    },
+    "gap_and_go": {
+      "armed": "NOT exec-armed (extra_setup_exec_armed has no gap_and_go key -- WATCH-only per the 2026-06-28 re-validation note in params.json#_extra_setup_exec_armed_doc). Detector IS enabled (gap_and_go_enabled=True) and gap_and_go_side=put. This cell is therefore a WATCH-config replay, not a live-money replay -- disclosed explicitly, not silently upgraded to 'live'.",
+      "exit_shape": {"premium_stop_pct": -0.5, "tp1_premium_pct": 0.30, "tp1_qty_fraction": 0.8,
+                      "profit_lock_mode": "fixed", "runner_target_pct": 2.5, "stop_mode": "structure",
+                      "catastrophe_stop_pct": -0.5},
+      "side": "put",
+      "note": "stop_mode='structure' is a literal declaration in _SETUP_EXIT_OVERRIDES (not a params lookup); trigger_level = the first-RTH-bar opposite extreme the detector itself returns (stop_level field)."
+    },
+    "double_bottom_base_quiet": {
+      "armed": "extra_setup_exec_armed.double_bottom_base_quiet=True (LIVE PAPER, trade-to-learn)",
+      "exit_shape": {"premium_stop_pct": -0.99, "tp1_premium_pct": 0.30, "tp1_qty_fraction": 0.8,
+                      "profit_lock_mode": "fixed", "runner_target_pct": 2.0, "stop_mode": "premium"},
+      "side": "call (long only, by detector design)",
+      "gates": "VIX<20 at signal bar, pattern confidence<0.60, RTH 09:35-15:55, 30-min cooldown, NOT_NEAR_NAMED OMITTED at baseline (see detectors_reused_verbatim)"
+    }
+  },
+
+  "exits_mechanism": "backtest/lib/exit_manager_walk.py#walk_exit_manager driving the REAL automation/state/fleet/exit_manager.py#plan_exit_actions decision core -- the SAME mechanism engine-fullhist-replay-2026-07-23.md shipped, extended here to 4 non-ribbon_ride shapes instead of RIBBON_RIDE.exit. NOT simulator_real.py#simulate_trade_real (KNOWN-WRONG params.json-top-level-keys shape). Each lane's exit_shape above (its OWN live-armed isolated config, not RIBBON_RIDE's numbers) is passed verbatim into ExitState.from_entry. Ribbon-flip-back exits are modeled for every lane (continuous RTH ribbon computed once, backward merge_asof onto each contract's own bar timestamps -- same construction as engine_fullhist_replay.py#build_ribbon_lookup/ribbon_tick_df_for). time_stop_et=15:40 ET (SAFE_BASE's time_stop_minutes_before_close=20 convention, matching engine_fullhist_replay.py). structure_stop_enabled=True passed uniformly (params.json global flag); it is a no-op for the 3 lanes whose exit_shape does not declare stop_mode='structure'.",
+
+  "entry_fill_convention": "next OPRA 5m bar at-or-after (signal_bar_close_time + 5min), filled at that bar's VWAP -- byte-identical convention to option_pricing_real.py's documented fill model and the bear-level-rejection fullhist prereg. ATM strike = round(SPY close at the signal bar). One position at a time PER LANE PER CELL (a signal firing while a prior walked position in the same cell is still open is recorded in episodes as an unfilled skip, never double-filled) -- each of the 4 lanes is measured in ISOLATION (as if it were the only strategy trading the account); cross-lane / cross-ribbon_ride position conflicts are a portfolio-construction question explicitly OUT of this measurement-hole-closing task's scope (disclosed, not silently assumed away).",
+
+  "dollars": "real OPRA fills only (backtest/data/options via option_pricing_real.load_contract_bars). NO Black-Scholes synthetic anywhere in gate math -- signals whose contract has no cached OPRA series are excluded and counted/disclosed as no_opra skips.",
+
+  "levels_caveat": "Historical key-levels.json snapshots do not exist before tonight (2026-07-23) -- only double_bottom_base_quiet's live gate set (NOT_NEAR_NAMED, a $0.50-proximity check against named star2+ levels) depends on a levels source. The baseline cell OMITS this gate (matching the detector's own already-published simplified-scan precedent, see detectors_reused_verbatim). The refinement cell ADDS it back using backtest/lib/watchers/level_memory.py#LevelMemory -- a fully causal, reconstructable-from-OHLC level engine (the SAME engine setup/scripts/level_memory_producer.py uses live, lookback_days=10/memory_score>=20.0, byte-matched) -- rather than fabricating a historical key-levels series that was never captured. This turns the caveat into the lane's one refinement knob instead of silently working around it.",
+
+  "grid": {
+    "n_knobs_total": 4,
+    "n_cells_total": 10,
+    "per_lane": {
+      "bollinger_squeeze": {
+        "knob": "sq_recent (bars since a squeeze is still eligible to count as 'recent' for a breakout)",
+        "values": [2, 4, 6],
+        "baseline": 4,
+        "rationale": "4 = the live SQ_RECENT constant (validated cell). 2/6 test whether tightening/loosening the squeeze-to-breakout window changes the population without touching any other knob."
+      },
+      "vwap_reclaim_failed_break": {
+        "knob": "entry_cutoff (latest morning bar-close time the reclaim entry can fire)",
+        "values": ["10:00", "10:30", "11:00"],
+        "baseline": "10:30",
+        "rationale": "10:30 = the live ENTRY_CUTOFF constant (validated ATM rescue cell). 10:00/11:00 test whether the morning-only window is well-calibrated."
+      },
+      "gap_and_go": {
+        "knob": "side",
+        "values": ["put", "both"],
+        "baseline": "put",
+        "rationale": "put = live gap_and_go_side config (bear-only, OP-16-conservative). 'both' tests the bull-side extend params.json#_gap_and_go_doc explicitly flags as 'J's call' -- reusing detect_gap_and_go_core's own native two-sided logic, no reimplementation."
+      },
+      "double_bottom_base_quiet": {
+        "knob": "not_near_named_gate",
+        "values": [false, true],
+        "baseline": false,
+        "rationale": "false = the detector's own published simplified-scan precedent (db-base-quiet-real-fills.json). true = LevelMemory-reconstructed NOT_NEAR_NAMED proximity gate (see levels_caveat) -- tests whether the doc's own claim ('adding it should further improve WR') holds over the full 18mo population instead of the N=131 sample."
+      }
+    }
+  },
+
+  "per_cell_outputs": [
+    "n_real_fills (tuning days, filled with real OPRA)",
+    "expectancy = total_pnl / n_real_fills (tuning)",
+    "total_pnl (tuning)",
+    "day_wr = fraction of tuning trading-days-with->=1-fill whose day P&L > 0",
+    "ex_top3_total = tuning total_pnl minus the 3 best trades (concentration check, DISCLOSURE not a gate)",
+    "held_out_total = sum of fills P&L on the 96 held-out days, same fixed mechanics, no selection",
+    "p_raw = two-sided one-sample t vs zero on tuning per-trade P&L (pullback_hold_bull_replay._one_sample_p convention, reused verbatim)",
+    "gates_passed of 4 (STANDING BAR, verbatim): [tuning total_pnl > 0] [day majority: winning days > covered days / 2] [survives ex-top-1: total minus single best trade > 0] [held-out positive: >=1 held-out fill AND held_out_total > 0]",
+    "archetype_coverage: day_type mix of tuning fills (trend/range/chop %), for HARVEST-DAY-ANATOMY cross-reference"
+  ],
+
+  "portfolio_bh": "Benjamini-Hochberg FDR (q=0.10) computed fresh across all 10 cells' p_raw, one pooled test -- reported alongside the per-cell table. No cell selection or grid extension after seeing results (frozen grid, honest null if nothing survives).",
+
+  "disclosures_committed_in_advance": {
+    "not_full_engine_replication": "Each lane is measured as if it traded ALONE (no interaction with core ribbon_ride or the other 3 extra lanes' positions). Real production runs all validated setups concurrently with one-position-at-a-time across the WHOLE account -- this study cannot and does not simulate that cross-setup contention. Numbers here are each detector's OWN standalone edge, not an incremental-to-the-portfolio number.",
+    "gap_and_go_not_armed": "gap_and_go's cell is a WATCH-config replay (params confirm it is deliberately NOT exec-armed as of 2026-07-22). Its result answers 'would this be worth arming', not 'what did this actually earn live' -- zero real orders exist for this setup to cross-check against.",
+    "small_n_honesty": "Any cell with n_real_fills < 15 is below the OP-16 advisory evidence floor and will be labeled accordingly regardless of gates.",
+    "affordability_simplification": "qty fixed at 3 (min_contracts) for every fill; risk_gate.max_affordable_qty clamping is not applied. Disclosed, not hidden -- every lane's own DEFAULT_QTY is already 3 so this is expected to be a near-no-op at ATM 0DTE premiums.",
+    "honest_null": "If no cell clears gates, that is the result. No post-hoc knob additions, no grid extension after seeing results."
+  }
+}

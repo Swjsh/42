@@ -1,0 +1,102 @@
+{
+  "_doc": "FROZEN pre-registration for the class-conditional-exits overnight-kitchen candidate lane. Written and locked BEFORE any candidate cell was computed -- knob values below are chosen from the STRUCTURE of the population's exit-reason/stop-mode mechanics (per class, which stop each class actually reads) and from precedent step sizes already used in trail-width-exit-2026-07-21.json, never from PnL-by-bucket. No knob/band/gate/grid change is permitted after this file is written; a change requires a NEW dated pre-reg, never an edit to this one.",
+  "written_et": "2026-07-23T00:40:00",
+  "candidate_lane": "class-conditional-exits",
+  "task_framing": "The global trail-width A/B (trail-width-exit-2026-07-21.json) tested ONE exit shape applied uniformly to the whole blended real-fills population and returned CONTROL_HOLDS on every candidate (n=113, 6 candidates, 0/6 shipped). This is a DIFFERENT, legitimately new question: do the WINNER/LOSER CLASSES the engine already produces internally (trendline-only-tier vs confluence-tier trades; day-regime around the trade) want a DIFFERENT exit shape than the one blended shape currently applied to everyone? If per-class beats global control on the standing 4-gate bar, that is real; if not, CONTROL_HOLDS again and is reported as such, honestly.",
+
+  "population": {
+    "source": "analysis/recommendations/engine-fullhist-replay-2026-07-23.json (`trades` array) -- the CURRENT LIVE core-Safe engine's full-history replay, RIDE_THE_RIBBON family only, 190 trades / 141 trading days / 2025-01-02..2026-07-22. Reused verbatim, NOT re-run (no new run_backtest call).",
+    "n_total": 190,
+    "anchor_population_sha256_16": "14c189ff316803fd",
+    "anchor_population_signature": "sorted list of {date, symbol, entry_time_et, qty} for all 190 trades -- hash-locked so a drifted source file aborts the run rather than silently reusing a stale hash.",
+    "fidelity_stack": [
+      "ENTRY: backtest/lib/orchestrator.py#run_backtest(**SAFE_BASE_LIVE) -- reused verbatim from the committed replay JSON, not re-run.",
+      "EXIT: backtest/lib/exit_manager_walk.py#walk_exit_manager driving the REAL automation/state/fleet/exit_manager.py#plan_exit_actions core, re-walked fresh in THIS study under each candidate exit_shape (the whole point of the study). Ribbon-flip-back fidelity preserved: this study rebuilds the SAME continuous-RTH ribbon lookup + backward merge_asof onto each trade's own option-contract bars that engine_fullhist_replay.py#build_ribbon_lookup/ribbon_tick_df_for used, so CONTROL replayed here reproduces the source replay's per-trade dollar_pnl byte-for-byte (verified as a preflight check before any candidate is scored).",
+      "DOLLARS: real OPRA fills only (backtest/data/options/{symbol}.csv via lib.option_pricing_real.load_contract_bars) -- the source replay already excluded any entry whose contract CSV wasn't cached (16 excluded upstream); zero BS-synthetic in this population.",
+      "trigger_level: reused verbatim from the source replay's own per-trade field (t.rejection_level at entry) -- not re-recovered via a backward-scan heuristic. Mechanically confirmed (this study, preflight): ALL 124 TRENDLINE-tier trades have trigger_level=None (0% recoverable -- trendline_rejection alone never resolves a discrete S/R level) and ALL 66 non-TRENDLINE trades (SUPER+ELITE+LEVEL) have trigger_level present (100%). This is a real, structural, causal-at-entry fact (which tier a signal earns is known the instant it fires, from which triggers co-occur), not a study artifact -- it is WHY exit_manager.ExitState.from_entry resolves TRENDLINE trades to stop_mode='premium' (reads premium_stop_pct) and every other tier to stop_mode='structure' (reads catastrophe_stop_pct as its pre-TP1 floor) with zero overlap. This mechanical fact is the causal handle this study's knobs are built on."
+    ]
+  },
+
+  "held_out": {
+    "source": "analysis/edge-matrix/day-inventory-2026-07-23.json `heldout_days` (96 dates, last ceil(25%) of the 386 opra_days by date, per that file's own `method.heldout` field) -- SACRED, read exactly once per cell, only for gate 4, never during grid design.",
+    "heldout_date_range": "2026-02-25 .. 2026-07-22",
+    "n_trades_in_heldout": 55,
+    "n_trades_in_tuning": 135
+  },
+
+  "class_dimensions": {
+    "CLASS_TIER (causal at entry, PRIMARY, gate-eligible)": {
+      "definition": "tier field already on each trade record (elite_bear_level_reject_gate_ab.classify_tier, computed from which triggers co-fired at signal time -- known the instant the setup fires, before any exit decision). TRENDLINE = single-trigger (trendline_rejection alone). STRUCTURE = SUPER+ELITE+LEVEL pooled (any trade carrying a recoverable trigger_level, i.e. a real S/R level was touched).",
+      "n_trendline": 124, "n_structure": 66,
+      "causality": "Fully causal -- the tier is fixed at the moment the setup fires, before entry, before any exit-shape decision is made."
+    },
+    "CLASS_DAYLAG (causal at entry, SECONDARY, gate-eligible)": {
+      "definition": "The PRIOR covered trading day's day_type (analysis/edge-matrix/day-inventory-2026-07-23.json, ATR20-based trend/range/chop classification) -- looked up as the entry immediately preceding this trade's date in the inventory's own chronologically-sorted `days` list. PRIOR_CHOP = yesterday classified chop. PRIOR_OTHER = yesterday classified trend/range/unclassified, or no prior row available (1 date, 2026-06-15, the disclosed SPY-bar-gap day -- falls back to PRIOR_OTHER/control, never fabricated).",
+      "causality": "Fully causal -- yesterday's classification is complete and known before today's market open, unlike the day-inventory's SAME-day day_type (which needs that day's own full RTH range/body_frac and is therefore NOT known until EOD). This is a genuinely deployable, lagged proxy for the anatomy doc's day-archetype finding, not the identical signal."
+    },
+    "CLASS_DAYSAME (NON-CAUSAL, DIAGNOSTIC ONLY -- excluded from ship gates)": {
+      "definition": "The SAME trading day's day_type from day-inventory.json, used ONLY to check whether the causal CLASS_DAYLAG proxy above is leaving signal on the table (an oracle upper-bound check), never proposed as a deployable policy.",
+      "disclosure": "Requires the day's own realized RTH range and candle body fraction, both of which are only complete at end-of-day -- a same-day day_type gate cannot be evaluated at any actual entry time this morning. Cells built on this dimension are reported honestly (per the standing OP-33 visibility rule) but are NOT eligible for a SHIP verdict regardless of how the 4 gates read; they exist to answer one question only -- 'is the causal proxy failing to find something a perfect-hindsight classifier would have found' -- and that answer is disclosed as a diagnostic finding, never a candidate."
+    }
+  },
+
+  "grid": {
+    "n_knobs": 2,
+    "n_cells": 13,
+    "control_shape": "strategies.RIBBON_RIDE.exit.to_dict() unchanged in every field for any trade not matched by a cell's class rule.",
+    "knobs": [
+      {
+        "name": "premium_stop_pct",
+        "control": -0.20,
+        "levels": [-0.12, -0.30],
+        "mechanism": "The pre-TP1 hard stop read ONLY when ExitState resolves stop_mode='premium' -- exclusively TRENDLINE-tier trades in this population (see population.fidelity_stack). 71% of TRENDLINE trades (88/124) exit via this exact stop; it is the single largest loss driver in the whole engine (anatomy doc: premium_stop 92 tr matrix-wide, -$8,584). -0.12/-0.30 are +/-0.08 steps from control, the same step-size family trail-width-exit-2026-07-21.json's TRAIL-20/25/30 axis already used (+0.05 steps off a 0.15 base) scaled to this knob's larger control magnitude; never touches a STRUCTURE-tier trade (that class reads catastrophe_stop_pct instead, a structurally disjoint field)."
+      },
+      {
+        "name": "trail_pct",
+        "control": 0.15,
+        "levels": [0.10, 0.25],
+        "mechanism": "The post-TP1 chandelier trail width (HWM*(1-trail_pct) floor) -- read by ANY trade that reaches the runner stage, regardless of tier (14/124 TRENDLINE and 19/66 STRUCTURE trades close via runner_stop/trail in the source replay). 0.10 is the same value TRENDLINE's own exit distribution rarely reaches, testing 'lock in wins faster'; 0.25 replays the SAME upper value trail-width-exit-2026-07-21.json's TRAIL-30 already tested on the real-fills population (that cell's own aggregate delta was +$168 but failed gate 2, CONTROL_HOLDS -- cited, not reused, since this is a different, smaller, non-overlapping population)."
+      }
+    ],
+    "cells": [
+      {"id": "A1_T-CTRL_TR-CTRL",   "group": "A-tier", "premium_stop_pct": -0.20, "trail_pct": 0.15, "note": "== pure CONTROL, sanity check only (delta must be exactly $0.00)"},
+      {"id": "A2_T-TIGHT_TR-CTRL", "group": "A-tier", "premium_stop_pct": -0.12, "trail_pct": 0.15},
+      {"id": "A3_T-LOOSE_TR-CTRL", "group": "A-tier", "premium_stop_pct": -0.30, "trail_pct": 0.15},
+      {"id": "A4_T-CTRL_TR-TIGHT", "group": "A-tier", "premium_stop_pct": -0.20, "trail_pct": 0.10},
+      {"id": "A5_T-CTRL_TR-WIDE",  "group": "A-tier", "premium_stop_pct": -0.20, "trail_pct": 0.25},
+      {"id": "A6_T-TIGHT_TR-TIGHT","group": "A-tier", "premium_stop_pct": -0.12, "trail_pct": 0.10},
+      {"id": "A7_T-TIGHT_TR-WIDE", "group": "A-tier", "premium_stop_pct": -0.12, "trail_pct": 0.25},
+      {"id": "A8_T-LOOSE_TR-TIGHT","group": "A-tier", "premium_stop_pct": -0.30, "trail_pct": 0.10},
+      {"id": "A9_T-LOOSE_TR-WIDE", "group": "A-tier", "premium_stop_pct": -0.30, "trail_pct": 0.25},
+      {"id": "B1_PRIORCHOP-TIGHT", "group": "B-daylag", "applies_to": "trades whose PRIOR covered day was chop", "premium_stop_pct": -0.12, "trail_pct": 0.10},
+      {"id": "B2_PRIOROTHER-WIDE", "group": "B-daylag", "applies_to": "trades whose PRIOR covered day was NOT chop", "premium_stop_pct": -0.20, "trail_pct": 0.25},
+      {"id": "C1_DIAG-CHOP-TIGHT", "group": "C-diagnostic-noncausal", "applies_to": "trades entered on a day whose OWN (same-day) day_type == chop", "premium_stop_pct": -0.12, "trail_pct": 0.10},
+      {"id": "C2_DIAG-NONCHOP-WIDE","group": "C-diagnostic-noncausal", "applies_to": "trades entered on a day whose OWN (same-day) day_type != chop", "premium_stop_pct": -0.20, "trail_pct": 0.25}
+    ],
+    "group_A_rule": "premium_stop_pct value applies ONLY to TRENDLINE-tier trades (the only trades that ever read this field); trail_pct value applies to ALL trades regardless of tier (whichever trades reach the runner stage read it). STRUCTURE-tier trades' catastrophe_stop_pct is UNCHANGED (-0.50) in every group-A cell -- this study does not re-open that knob.",
+    "group_B_and_C_rule": "Both knobs applied together, uniformly across BOTH tiers, ONLY to trades matching the cell's date-class rule; non-matching trades get the untouched control shape. Applied together (not isolated per-knob) because they are non-overlapping in which trade-stage they affect (premium_stop_pct only touches premium-mode pre-TP1 trades; trail_pct only touches trades that reach the post-TP1 runner stage) -- this is a single coherent 'go tighter on this day-class' or 'go wider on this day-class' policy, not two confounded experiments."
+  },
+
+  "gates": {
+    "convention": "Standing 4-gate bar (task's explicit instruction), adapted to an EXIT-SHAPE A/B exactly per the precedent trail-width-exit-2026-07-21.json already established for this exact population type (delta = candidate minus control, not a raw-PnL floor, since every cell replays the SAME 190 trades under two different exit shapes rather than filtering to a population subset).",
+    "g1_positive_aggregate": "sum(candidate_pnl) - sum(control_pnl) > 0 over the TUNING population only",
+    "g2_day_majority": "count(days where candidate day-total > control day-total) > count(days where control day-total >= candidate day-total), TUNING population only",
+    "g3_survives_ex_top1": "remove the single trade with the largest POSITIVE (candidate-control) delta; remaining aggregate delta still > 0, TUNING population only",
+    "g4_held_out_positive": "sum(candidate_pnl) - sum(control_pnl) > 0 on the SACRED held-out population, touched once, never used for cell selection",
+    "evidence_floor": "n_real_fills (trades actually touched by the cell's class rule, tuning-scope) >= 15 advisory per OP-16 -- flagged, not auto-disqualifying at cell level; disqualifying at the CANDIDATE level if the only cell(s) clearing all 4 gates are below floor."
+  },
+
+  "significance": {
+    "p_raw_convention": "One-sided paired-delta test (candidate_pnl - control_pnl, mean > 0), normal-approximation t-statistic (erf-based) -- verbatim convention from trail-width-exit-2026-07-21.json's `one_sided_p_mean_gt_0`, computed on the TUNING-scope per-trade deltas for each cell.",
+    "portfolio_bh": "Benjamini-Hochberg FDR at alpha=0.10 across all 13 cells' p_raw values, computed ONCE across the full grid (matching EDGE-MATRIX-FULLHIST-2026-07-23.md's portfolio-level convention) -- reported per the task's explicit instruction to report ex_top3 and p_raw for the portfolio-level BH."
+  },
+
+  "disclosures_before_run": [
+    "This is a DIFFERENT axis from trail-width-exit-2026-07-21.json (CONTROL_HOLDS on 113 mixed real-fills positions, blended population, uniform shape). That study is NOT re-run here; its result is cited as prior evidence the blended-population version of this knob family already failed, motivating why a CLASS-CONDITIONAL version is the legitimately new question.",
+    "This study's population (190 fullhist-replay trades, real OPRA option-bar-derived P&L) is DIFFERENT from trail-width-exit-2026-07-21.json's population (113 real broker-fill positions from fills-ledger.jsonl, 2026-06-26..2026-07-17 only) -- both are 'real OPRA fills, not BS-synthetic' by this repo's standing convention, but they are not the same trades and are not pooled together anywhere in this study.",
+    "CLASS_DAYSAME cells (C1/C2) are explicitly NON-CAUSAL and NON-DEPLOYABLE -- included as a disclosed diagnostic only, per the mandatory fidelity stack's 'levels caveat' instruction and OP-33. They will be reported with a verdict of 'not gate-eligible (non-causal)' regardless of what the 4 gates read, never as SHIP or CONTROL_HOLDS.",
+    "trendline-family-refinement-2026-07-23.json (sibling lane, same night) tests a DIFFERENT question on an overlapping population -- ENTRY-side admission conditioning (ribbon spread/structure/entry-hour gates that would exclude some TRENDLINE trades from firing at all). This study never touches entry admission; it only changes what happens to a trade AFTER it has already fired. The two lanes are complementary, not overlapping, and neither result depends on the other.",
+    "ribbon_tick_df fidelity: this study rebuilds the continuous-RTH ribbon lookup (lib.ribbon.compute_ribbon over the full 2025-01-02..2026-07-22 RTH close series) and re-derives each trade's ribbon_tick_df via the identical backward merge_asof engine_fullhist_replay.py used, specifically so ribbon_flip_back exits replay identically under CONTROL here as they did in the source replay -- verified via an exact byte-for-byte CONTROL-vs-source-replay reconciliation check before any candidate cell is scored (reported in the output, not assumed).",
+    "No live wiring, no commits, no broker imports, no params.json edits, no strategies.py edits. Output is a ranked cell table + honest-null verdict only, written to analysis/kitchen/class-conditional-exits-episodes.json."
+  ]
+}

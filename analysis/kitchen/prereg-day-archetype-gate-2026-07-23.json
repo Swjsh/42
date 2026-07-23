@@ -1,0 +1,77 @@
+{
+  "_doc": "FROZEN PRE-REGISTRATION for the DAY-ARCHETYPE PARTICIPATION GATE kitchen fire (2026-07-23 overnight). Written BEFORE the runner script executes or any cell result is seen. Not a new entry signal -- conditions the ENGINE'S OWN 190 real-OPRA-fill entries (analysis/recommendations/engine-fullhist-replay-2026-07-23.json, RIBBON_RIDE only, current live core-Safe config, exits via real exit_manager.plan_exit_actions per that replay's own disclosure) on a CAUSAL early-day classification computed from information available by 10:00/10:30 ET. Question: does sitting out (or de-sizing) hostile-looking early sessions lift $/day, day win rate, and drawdown relative to the unconditional baseline? Runner: analysis/kitchen/_day_archetype_gate_run.py. Episodes: analysis/kitchen/day-archetype-gate-episodes.json. Read-only: no orders, no params/config changes, no live wiring, no commits.",
+  "study": "day_archetype_gate",
+  "version": 1,
+  "status": "RUN_COMPLETE",
+  "frozen_at": "2026-07-23",
+  "result_pointer": "analysis/kitchen/day-archetype-gate-episodes.json -- verdict: KILL, 0/16 cells clear all 4 gates, uniformly on g2_day_majority (day_wr 0.298-0.340 vs the >0.5 bar; baseline itself is only 0.3404, so half_size cells -- which cannot change any day's win/loss sign by construction -- reproduce baseline's day_wr exactly and were never going to clear this gate). NOT a flat null: g1/g3/g4 pass in EVERY cell (positive aggregate, ex_top1-robust, held-out positive throughout), and the classifier has real construct validity -- the best skip cell (N30/k=0.75/vixOFF) lifts total_pnl +$2,434 (+48% vs baseline +$5,064.75) and 62-79% of its gated days are day-inventory's own (non-causal, full-day) 'chop' label, confirming the causal opening-range-compression proxy is finding the right archetype. But day-COUNT majority never improves -- skip-day cells actually move day_wr the WRONG way (0.298-0.326, below baseline 0.3404) because the compression signal zeroes out some genuinely winning trend/range days alongside the intended chop losers, costing more win-COUNT than it costs win-DOLLARS. Per FOCUS-DOCTRINE's own stated ranking (day-consistency over total P&L, §3), this is a correct KILL, not a close call: the gate would trade fewer, dollar-richer, LESS consistent days -- the opposite of J's 'good traders make money most days' brief. 0/16 survive portfolio BH-FDR at alpha=0.10 (best p_raw=0.0275, BH threshold for rank-1-of-16 at alpha=0.10 is 0.10/16=0.00625). Full cell table in episodes.json.",
+  "cost": "$0 -- local caches only (backtest/data/spy_5m_2025-01-01_2026-07-22.csv, analysis/edge-matrix/day-inventory-2026-07-23.json, analysis/recommendations/engine-fullhist-replay-2026-07-23.json). Pure Python/pandas, no network, no broker imports.",
+  "hypothesis": {
+    "under_test": "A CAUSAL opening-range-compression signal, computable from SPY 5m bars in the first 30-60 minutes of the session (true ET, DST-corrected) plus the prior trading day's VIX band, identifies days that will resolve CHOP-like (the day-inventory's own definition: full-day range/ATR20 < 0.75) and on which the live core-Safe RIBBON_RIDE engine has a NEGATIVE traded-day edge (HARVEST-DAY-ANATOMY-2026-07-23.md #4: chop days -$43.83/day traded, 12.2% day-WR, the only net-losing archetype). Sitting out (or half-sizing) the engine's own trades on days this signal flags as compressed lifts $/day, day win rate, and drawdown relative to the unconditional 190-trade baseline.",
+    "why_this_matters": "HARVEST-DAY-ANATOMY-2026-07-23.md's own natural-lane assignment names 'day-gate' as the cheapest, most FOCUS-DOCTRINE-aligned fix for the chop archetype (uses data already computed, range_ratio<0.75, no new indicator) -- but that full-day range_ratio is NOT causal (uses the day's own close/high/low, known only at 16:00). This study builds the CAUSAL analogue (first-N-minute range vs a trailing 20-day median of first-N-minute ranges) so the gate could actually be evaluated pre-entry, and tests it against the CURRENT engine's real 190-trade population (not a different strike/exit convention).",
+    "competing_hypothesis": "A directly analogous ex-ante TREND/CHOP classifier (opening-range-extension + hold, RVOL+close-location, and a pure compression-ratio test) was already tested and KILLED on a related population (JOB1 OTM-2 cohort, analysis/recommendations/prereg-daytype-gate-2026-07-15.json / daytype-gate-result.json): none of V1/V2/V3 cleared direction_correct (TREND-bucket expectancy was WORSE than CHOP-bucket for every variant), consistent with the finding that day-level concentration in this engine's edge is driven by unpredictable intraday catalysts, not a 10:00/10:30-ET-observable opening-range signature. This study's compression-based classifier (inverse framing: LOW early-range ratio -> predicted CHOP, not HIGH ratio -> predicted TREND) and its target population (the live engine's own real fills, not a strike-convention cohort) are different enough to warrant an independent honest test, but the prior KILL is the base rate to beat -- a second KILL here is fully anticipated and equally publishable.",
+    "source": "This study's own design, built on HARVEST-DAY-ANATOMY-2026-07-23.md + day-archetype-map.json (§3/§4, natural lane 'day-gate') and FOCUS-DOCTRINE.md (uses data already computed, <=4 knobs, no new indicator)."
+  },
+  "population": {
+    "base": {
+      "source": "analysis/recommendations/engine-fullhist-replay-2026-07-23.json 'trades' array -- 190 real-OPRA-fill (resolved=true) entries / 141 trading days / 2025-01-06..2026-07-21, RIBBON_RIDE only (BEARISH_REJECTION + BULLISH_RECLAIM), current live core-Safe exit shape (premium_stop -20%, tp1 +100%/0.667 qty, trailing profit-lock, catastrophe -50%, structure stop mode).",
+      "known_fidelity_caveat": "The replay's own trade-level sanity anchor check FAILED (2/4 2026-07-17 live entries reproduced by strike+side; ALL TRADE-LEVEL ANCHORS PASS: False per engine-fullhist-replay-2026-07-23.md). This study inherits that caveat unchanged -- it gates/de-sizes the replay's existing dollar_pnl, it does not re-derive or improve trade-level fidelity. Disclosed, not fixed, here."
+    },
+    "day_universe": {
+      "source": "analysis/edge-matrix/day-inventory-2026-07-23.json 'days' array, 386 SPY-covered days 2025-01-02..2026-07-22, chronologically sorted -- the SAME date universe day_type/ATR20/vix_band are built from, reused for this study's own trailing-baseline windows so the causal classifier stays comparable in spirit to the (non-causal) day_type rule it's built to approximate ex-ante.",
+      "heldout": "analysis/edge-matrix/day-inventory-2026-07-23.json 'heldout_days' -- 96 OPRA days, 2026-02-25..2026-07-17, last ceil(25%) of opra_days by date. FROZEN, never read while choosing among the 16 cells below. Used ONLY as gate 4 (held_out_positive) per cell, post-hoc."
+    }
+  },
+  "classifier": {
+    "computed_from": "SPY 5m bars (backtest/data/spy_5m_2025-01-01_2026-07-22.csv) parsed with backtest/lib/et_frame.py parse_timestamp_et(frame='et-v2') -- true DST-corrected ET wall time, NOT the raw fixed -04:00 file label (the documented DST-frame artifact; naive parsing would mislabel every winter-month bar by +1h and make the 'first 30/60 minutes' window wrong on 129+ of the 386 days). The replay's own entry_time_et field is in the wall-v1 (uncorrected) frame per engine_fullhist_replay.py's plain pd.to_datetime(no utc=True) -- this study converts each trade's entry timestamp to true ET via a DST-aware -1h correction on EST-month dates before comparing it to the classifier's own true-ET info-cutoff, so the gate is never applied using information from after a trade's actual entry.",
+    "first_n_range": "For window N in {30, 60} minutes: max(high) - min(low) over the day's true-ET bars with timestamp < 09:30+N. Undefined (day excluded from gating, baseline retained) if the day has zero such bars.",
+    "trailing_median_n": "median(first_n_range) over the up-to-20 most recent STRICTLY PRIOR days (chronological, day_universe order) that have a defined first_n_range. Requires >=5 such prior days (mirrors day-inventory's own ATR20 min-5 rule) else undefined -> day excluded from gating, baseline retained, count disclosed.",
+    "ratio": "first_n_range(day) / trailing_median_n(day). LOW ratio = compressed opening relative to trailing norm -> hypothesized CHOP-like day (day-inventory's own chop rule keys off a narrow FULL-DAY range/ATR20; a narrow FIRST-N-MINUTE range vs its own trailing norm is this study's causal, pre-16:00 analogue).",
+    "prior_day_vix_band": "day-inventory 'vix_band' of the immediately preceding day_universe day (lag-1) -- fully causal, known before today's open. Used only as an optional confirming condition (K4 below), never in place of the compression ratio.",
+    "entry_time_cutoff_rule": "A trade is GATE-ELIGIBLE only if its (DST-corrected) true-ET entry time is >= 09:30+N for that cell's window N. Trades entered strictly before that cutoff are ALWAYS RETAINED AT BASELINE SIZE regardless of the day's label (the classifier's own information does not exist yet at that entry time) -- counted and disclosed per window N, never silently dropped or silently gated."
+  },
+  "grid": {
+    "n_knobs": 4,
+    "n_cells": 16,
+    "focus_doctrine_note": "At the <=4-knob / <=16-cell cap stated in FOCUS-DOCTRINE.md's over-engineering tells -- deliberately not exceeded.",
+    "knobs": {
+      "K1_window_minutes": [30, 60],
+      "K2_compression_threshold_k": [0.60, 0.75],
+      "K3_action": ["skip_day", "half_size"],
+      "K4_vix_confirmation": ["off", "on"]
+    },
+    "gate_rule": "A day is GATED iff ratio(day, K1) is defined AND ratio(day, K1) < K2, AND (K4=='off' OR prior_day_vix_band(day) in {'low','mid'}). K3 determines the action taken on that day's GATE-ELIGIBLE trades: skip_day = dollar_pnl set to 0 (position not taken); half_size = dollar_pnl * 0.5 (qty-fraction approximation of a de-sized entry -- linear scaling, the standard approximation this repo already uses for partial-close legs; NOT a re-walk through exit_manager_walk, disclosed as a fidelity limitation of the half_size action specifically).",
+    "cell_id_format": "N{30|60}_k{060|075}_{skip|half}_vix{OFF|ON}"
+  },
+  "metrics_per_cell": [
+    "n_real_fills (count of the 190 baseline trades retained as real, non-zeroed entries after gating -- skip_day cells reduce this; half_size cells do not)",
+    "expectancy ($ / retained trade, post-gate dollar_pnl)",
+    "total_pnl (sum of post-gate dollar_pnl across all 190 baseline trade-slots, gated slots contributing 0 or 0.5x per K3)",
+    "day_wr (post-gate day win rate: fraction of the 141 baseline trading days whose post-gate daily total > 0; a fully-skipped day contributes a $0 day, counted as NOT a win)",
+    "ex_top1_total / ex_top3_total (total_pnl after dropping the single best / best-3 individual post-gate trade dollar_pnl values, sorted descending -- outlier-concentration guard, same convention as backtest/tools/edge_matrix_*.py cell_metrics())",
+    "held_out_total (post-gate total_pnl restricted to trades whose date is in the frozen 96-day heldout set)",
+    "p_raw (one-sample two-sided normal-approx p-value on the post-gate per-trade pnl vector != 0, backtest/tools/pullback_hold_bull_replay.py:_one_sample_p convention, reused unchanged)",
+    "gates_passed (0-4, see kill_criteria)",
+    "n_pre_cutoff_retained (disclosure only: count of this window's gate-ineligible, always-retained-at-baseline trades)"
+  ],
+  "portfolio_level_bh": {
+    "method": "backtest/autoresearch/ribbon_rejection_wick_battery.py bh_fdr() convention, reused unchanged: Benjamini-Hochberg across the 16 cells' p_raw values, alpha=0.10.",
+    "n_comparisons": 16
+  },
+  "kill_criteria": {
+    "statement": "A cell is a CANDIDATE_PASS (report as a specifiable participation-gate lever, still requires J-visible REVOKE window per standing doctrine -- this study does not build or arm anything) only if ALL of the following hold, evaluated with ZERO post-hoc threshold adjustment. ANY failing condition = KILL for that cell; a KILL is a valid, fully-anticipated, publishable outcome (the directly analogous JOB2 daytype-gate study already killed a similar ex-ante classifier on a related population).",
+    "conditions": [
+      "1. g1_positive_aggregate: total_pnl > 0.",
+      "2. g2_day_majority: day_wr > 0.5 (strict majority of the 141-day baseline population is a post-gate winning day) -- NOTE: the unconditional baseline itself only clears 48/141=34.0%, so this is a genuine bar, not a rubber stamp.",
+      "3. g3_survives_ex_top1: ex_top1_total > 0.",
+      "4. g4_held_out_positive: held_out_total > 0."
+    ],
+    "gates_passed_field": "int(g1)+int(g2)+int(g3)+int(g4), reported per cell regardless of pass/kill so partial credit is visible.",
+    "additional_disclosure_not_gating": "lift_vs_baseline ($ delta total_pnl and day_wr vs the unconditional 190-trade / 141-day baseline) and bh_fdr_survivor (whether the cell's p_raw survives the 16-way BH-FDR at alpha=0.10) are reported for every cell but do not themselves gate CANDIDATE_PASS -- consistent with this lineage's convention that the 4-condition bar is the ship bar and BH-FDR/p_raw are diagnostic context, not an added 5th gate."
+  },
+  "outputs": {
+    "episodes_json": "analysis/kitchen/day-archetype-gate-episodes.json",
+    "runner": "analysis/kitchen/_day_archetype_gate_run.py"
+  },
+  "rail": "ANALYSIS ONLY. No orders, no params/config changes, read-only on production. Touches NO trading-path file (params.json, heartbeat_core.py, gates.py, strategies.py, exit_manager.py). $0 cost -- local cache only. A CANDIDATE_PASS is SPECIFIED for J, never auto-built or auto-wired (OP-32 P1 routing)."
+}

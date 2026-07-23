@@ -1,0 +1,94 @@
+{
+  "family": "range-day-fade",
+  "prereg_frozen_at": "2026-07-23",
+  "built_for": "overnight kitchen cook -- CANDIDATE LANE: range-day-fade (day-archetype-conditioned mean reversion)",
+  "relation_to_prior_range_family": "NOT a re-cook of range-pingpong (analysis/edge-matrix/prereg-range-pingpong-2026-07-23.json / prereg-range_pingpong-fullhist-2026-07-23.json, 16/16 cells DEAD per markdown/research/EDGE-MATRIX-FULLHIST-2026-07-23.md). range-pingpong fades ANY multi-day LevelMemory S/R level touched on ANY day type (a level-touch trigger, day-type-blind). This family fades the CURRENT day's own opening-range edge, and ONLY fires on days a causal 10:30-ET classifier has ALREADY called range-archetype -- a day-level gate range-pingpong never had. Distinct structure class per HARVEST-DAY-ANATOMY-2026-07-23.md's 'range' lane note (do not re-cook range-pingpong; this is not that).",
+  "thesis": "J: 'things ping-pong between levels' + the day-anatomy finding that range days are the single largest ABSOLUTE sit-out cohort (90/386 days, 23.3%) and the 2nd-best traded archetype when the (level-touch, day-blind) engine does fire on one (+45.33/day). Hypothesis: a day that has ALREADY traded tight through its first 30-60 minutes (opening range narrow vs a causal ATR20 baseline) tends to keep rotating -- fade the opening-range edge back toward the interior for the REST of that day, entries gated on the day classification alone (no multi-day level, no LevelMemory).",
+
+  "grid": {
+    "knobs": 4,
+    "cells": 16,
+    "k1_or_window_minutes": [30, 60],
+    "k2_tightness_ratio": [0.35, 0.50],
+    "k3_zone_band_dollars": [0.15, 0.30],
+    "k4_confirm_bars": [0, 1],
+    "cell_id_format": "rdf-w{window}-t{tightness*100:03d}-b{band*100:03d}-c{confirm}"
+  },
+
+  "fixed_structural_choices_not_tuned": {
+    "day_classification_causality": "Decided ONCE per day at the opening-range window's close instant (10:00 ET for k1=30, 10:30 ET for k1=60) -- the task's 'range-archetype by 10:30' requirement. Uses ONLY bars <= that instant. NEVER re-derived intraday (no repainting): the OR_high/OR_low pair and the range/no-range verdict are frozen at classification time and reused for every candidate the rest of the day.",
+    "opening_range": "OR_high = max(high), OR_low = min(low) over the first k1/5 RTH 5m bars of day D (day's own bars only, 09:30 start).",
+    "atr20_causal": "MY OWN causal ATR20, independent of day-inventory's day_type field (which is EOD/full-day and NOT used anywhere in this study to avoid look-ahead): mean of analysis/edge-matrix/day-inventory-2026-07-23.json 'rth_range' over the <=20 covered days with date STRICTLY BEFORE day D (min 5 required, else day excluded as insufficient_atr_history -- affects only the first few 2025-01 days). rth_range itself is a per-day fact of a day that has ALREADY closed by the time day D trades, so this is fully causal.",
+    "range_day_qualification": "day D classifies range-archetype iff atr20_causal is available AND OR_range = (OR_high - OR_low) > 0 AND (OR_range / atr20_causal) <= k2. Days failing this gate produce ZERO signals (no setup, no trade) -- the day-level gate this family is built to test.",
+    "level_source_disclosure": "NO key-levels.json, NO LevelMemory. The task's levels caveat (historical key-levels.json does not exist; snapshots started 2026-07-23 night) is sidestepped by construction: OR_high/OR_low are reconstructed ENTIRELY from the day's own RTH bars (a fully reconstructable, always-available source), never from any historical level snapshot.",
+    "bar_universe": "5m SPY RTH bars (09:30<=t<16:00 TRUE ET), per-day source file exactly as chosen by the day inventory's dedupe (day-inventory-2026-07-23.json). RTH-only, same disclosed limitation as range-pingpong (premarket bars excluded).",
+    "context_frame": "For day D: RTH bars of the 4 prior inventory-covered days + day D, for ribbon EMA warmup ONLY (48-period slow EMA needs multi-day history) -- OR/ATR classification never reads this multi-day frame, only day D's own bars + prior days' pre-computed rth_range facts.",
+    "timestamp_frame": "et-v2 (parse stored offset -> UTC -> America/New_York -> naive true ET) for both SPY and OPRA, format='mixed' parse (two writer eras coexist in the master CSVs) -- identical loader code to edge_matrix_range_pingpong.py's proven _load_spy_source.",
+    "tag_and_reject_trigger": {
+      "put_at_or_high": "high_i >= OR_high - k3 AND close_i < OR_high AND low_i > OR_low + k3, evaluated only on decision bars strictly AFTER the OR window closes",
+      "call_at_or_low": "low_i <= OR_low + k3 AND close_i > OR_low AND high_i < OR_high - k3",
+      "zone_semantics": "Zones, never penny-exact (feedback_levels_are_zones, 2026-07-17)."
+    },
+    "confirm_knob_semantics": "c=0: decision bar = tag bar i, enter at its close. c=1: decision bar = i+1, requires OR_low < close_{i+1} < OR_high, enter at close of i+1. OR_high/OR_low are frozen from classification time regardless of c.",
+    "entry_window_et": "decision-bar close time in (OR window close, 15:30] -- 15:30 cutoff leaves room before the 15:50 time stop (same convention as range-pingpong).",
+    "position_discipline": "One position at a time. A new signal is only eligible after the prior walk's exit_time. No adds, no pyramiding.",
+    "direction": "BOTH (P at OR_high fade, C at OR_low fade).",
+    "sizing": "qty=3 contracts (Safe minimum: 2 TP1 + 1 runner). Fixed, never tuned.",
+    "strike": "ATM = round(decision-bar SPY close), per crypto/lib/strike_selection.py V15_SAFE_TIERS (live core Safe truth)."
+  },
+
+  "fill_model": {
+    "entry": "First 5m OPRA bar of backtest/data/options/SPY{yymmdd}{P|C}{strike*1000:08d}.csv at/after the decision-bar close instant; entry premium = that bar's VWAP. Entry bar must start within 5 minutes of the decision close or the episode is NOT a real fill.",
+    "real_fills_only": "Missing/empty contract CSV or no qualifying entry bar => n_signals counts it, n_real_fills does not; NO BS-synthetic substitution anywhere in gate math."
+  },
+
+  "exit_shape_frozen": {
+    "source": "automation/state/fleet/strategies.py RIBBON_RIDE.exit.to_dict() -- the LIVE shape, driven via backtest/lib/exit_manager_walk.walk_exit_manager (the REAL exit_manager decision core). entry-side is the ONLY thing this study cooks.",
+    "shape": {
+      "premium_stop_pct": -0.20, "tp1_premium_pct": 1.0, "tp1_qty_fraction": 0.667,
+      "profit_lock_mode": "trailing", "runner_target_pct": 99.0, "trail_pct": 0.15,
+      "profit_lock_arm_pct": 0.05, "stop_mode": "structure", "catastrophe_stop_pct": -0.50,
+      "profit_lock_arm_scope": "post_tp1"
+    },
+    "structure_stop_enabled": true,
+    "trigger_level_rule": "the tagged OR edge: OR_high for puts (structure stop when a CLOSED 5m SPY bar closes above OR_high -- the range actually broke, thesis invalidated), OR_low for calls (closed 5m below OR_low). This is the family's natural chart invalidation.",
+    "disclosed_deviation_from_candidate_brief": "The candidate brief describes 'TP at opposite band/mid' as a SPY-price target. That is NOT separately implemented: the mandatory fidelity stack pins ALL exit mechanics to the real exit_manager under RIBBON_RIDE.exit verbatim (no second, invented TP-at-SPY-level path). Profit-taking is entirely the real TP1 (+100% premium, sell 66.7%) + 15%-trailing-chandelier runner. A clean reversion from one OR edge toward the interior/opposite edge is the MECHANISM expected to produce the premium move that trips TP1 -- it is not separately gated as a second exit condition. Disclosed up front, not discovered after seeing results.",
+    "ribbon_flip_exits": "ACTIVE, inherited verbatim from the real exit path (ribbon fast/pivot/slow 13/20/48 EMA, same as every other RIBBON_RIDE-exit study) -- this is a known tension for a mean-reversion entry (ribbon-flip is a trend-following invalidation) but the fidelity mandate requires using the real exit_manager AS-IS, not a selectively-disabled copy.",
+    "time_stop_et": "15:50 (exit_manager.TIME_STOP_ET)"
+  },
+
+  "population": {
+    "inventory": "analysis/edge-matrix/day-inventory-2026-07-23.json",
+    "gate_math_days": "ALL opra_days: 386 days, 2025-01-02 .. 2026-07-22, minus any day excluded as insufficient_atr_history (< 5 prior covered days)",
+    "heldout": "last ceil(0.25 * 386) = 97 days = opra_days[-97:] = 2026-03-03 .. 2026-07-22 (SACRED per task instruction -- touched only for held_out_total / gate G4, never inspected during grid selection).",
+    "tuning": "opra_days[:289] = 289 days, 2025-01-02 .. 2026-03-02"
+  },
+
+  "per_cell_outputs": {
+    "n_real_fills": "episodes with a real OPRA entry fill + walk, tuning days",
+    "expectancy": "mean per-trade dollar P&L (qty=3), tuning real fills",
+    "total_pnl": "sum of per-trade P&L, tuning real fills",
+    "day_wr": "fraction of covered tuning days (>=1 real fill) whose day P&L > 0",
+    "ex_top3_total": "total_pnl minus the 3 largest per-trade P&Ls (concentration check, reported per task instruction)",
+    "held_out_total": "sum of per-trade P&L on heldout days (same frozen cell params)",
+    "p_raw": "one-sided sign-flip permutation test on tuning per-trade P&Ls: 10000 iterations, numpy seed 42, p = (1 + #{perm_mean >= observed_mean}) / 10001 (fade family, positive-edge convention, same as range-pingpong/break-retest/premarket-level)",
+    "q_bh16": "Benjamini-Hochberg FDR across the 16 cells' p_raw, computed fresh by this run, reported at the portfolio level per task instruction",
+    "gates": [
+      "G1 positive aggregate: total_pnl > 0",
+      "G2 day majority: day_wr > 0.5",
+      "G3 survives ex-top-1: total_pnl - max_trade > 0",
+      "G4 held-out positive: held_out_total > 0"
+    ]
+  },
+
+  "causality_contract": "Detector at bar i reads ONLY bars <= i (C6): OR is frozen at its window's close instant, ATR20 reads only strictly-prior days' already-closed rth_range, ribbon warmup uses only prior context. Assert-checked via a truncation self-test on 3 fixed dates (2025-03-19, 2025-11-14, 2026-01-13): a frame truncated at mid-day bar k must produce identical signals (restricted to decision bars <= k) to the full-frame run. Runner refuses to produce results if the self-test fails.",
+  "artifacts": {
+    "runner": "backtest/tools/edge_matrix_range_day_fade.py",
+    "episodes": "analysis/kitchen/range-day-fade-episodes.json",
+    "results": "analysis/kitchen/range-day-fade-results.json"
+  },
+  "single_pass_commitment": "The grid is run EXACTLY ONCE over the tuning population and once over the held-out population in the same pass. No knob, threshold, or definition may change after results are seen. Honest nulls expected and will be reported as such.",
+  "no_live_wiring": true,
+  "no_git_commits": true,
+  "no_broker_imports": true
+}

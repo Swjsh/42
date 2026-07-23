@@ -9,6 +9,31 @@
 
 ## Active backlog
 
+### DOUBLE-BOTTOM-DISARM-DECISION (HIGH, 24h re-audit then act, filed 2026-07-23 overnight kitchen)
+
+- [ ] DOUBLE-BOTTOM-DISARM-DECISION (HIGH) :: The extra-lanes full-history harness (kitchen
+  2026-07-23) measured double_bottom_base_quiet's own baseline cell at -\$2,564 tuning /
+  -\$940 held-out (-\$3,504 combined, 1/4 gates) over 18 months -- a live-armed lane with a
+  deeply negative pattern. NOT flipped tonight for one disciplined reason: harness-vs-
+  production gate-stack fidelity untraced (production ALSO applies the NOT_NEAR_NAMED \$0.50
+  proximity gate that has starved the lane to 0 fills in 20+ days; the harness baseline may
+  not include it). RE-AUDIT: trace whether the harness cell includes the proximity gate;
+  if the pattern is negative even before that gate -> DISARM the lane (paper autonomy,
+  guard+revert+REVOKE); if the harness diverges from live config -> re-run the baseline at
+  true production stack first. Zero live bleed while waiting (lane fills nothing anyway).
+  Related: DB-BASE-QUIET-PROXIMITY-GATE-LEAD, DOUBLE-BOTTOM-LOOKBACK-AB.
+
+### TRENDLINE-TIGHT-EXIT-ACCRETE (MED, watch candidate from the kitchen's best near-miss)
+
+- [ ] TRENDLINE-TIGHT-EXIT-ACCRETE (MED) :: Kitchen cell A6 (class-conditional-exits): tighten
+  TRENDLINE-class stops -20%->-12% and trail 15%->10% = the night's ONLY 4/4-gate cell, best
+  day-WR of any candidate (67.4%) -- but q=0.31 after the 83-cell portfolio BH correction
+  (own-lane q=0.066 was homework-self-grading). NOT a ship; IS the best-evidenced exit lead
+  since SS-B. Accrual path: live SHADOW-score the tightened exit on every real trendline-class
+  fill going forward (shadow ledger, zero behavior change) until n clears a pre-registered
+  bar; the nightly matrix rerun re-tests it as history grows. Opposite-direction sanity: the
+  global trail-width A/B (CONTROL-HOLDS) tested WIDER, not tighter -- no conflict.
+
 ### RIBBON-SESSION-SCOPE-DIVERGENCE (HIGH, discovery from the TV parity oracle 2026-07-23)
 
 - [x] RIBBON-SESSION-SCOPE-DIVERGENCE (HIGH, two-part) :: THE discovery of the edge-matrix run:
