@@ -21,3 +21,13 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: data_feeds_free:iex-cloud-re
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-07-23 ~07:xx ET conductor (AFTERHOURS, acting as chef, backlog triage):
+CLOSED-REDUNDANT-DATA-SOURCE. We already have low-latency real-time SPY quotes via the
+Alpaca broker feed (used live for trading, mcp__alpaca__* / fleet_broker.py) plus a SIP-
+sourced 5m bar cache (backtest/data/spy_5m_*.csv, confirmed OHLCV+volume columns present,
+see DATA-PROVENANCE.md). Adding IEX Cloud as a 3rd vendor for the SAME underlying price data
+(no new signal TYPE, just another quote feed) is plumbing, not engine-benefit -- it does not
+clear the "testable directional/timing edge" bar the item itself sets, because there's no
+new information content to test. Would reconsider only if IEX offered something Alpaca/SIP
+structurally cannot (it doesn't, for 0DTE SPY). -->

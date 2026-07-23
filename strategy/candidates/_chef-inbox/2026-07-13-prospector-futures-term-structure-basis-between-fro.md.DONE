@@ -21,3 +21,10 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: futures_positioning:futures-
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-07-23 ~07:xx ET conductor (AFTERHOURS, acting as chef, backlog triage):
+CLOSED-DEAD-RUNG. Same disposition as the CFTC-COT item filed the same day: instrument fit
+mes only, and the MES/MNQ 'instrument' rung is CLOSED for both momentum and range-fade
+lenses (see .claude/agent-memory/gamma/project_instrument_rung_closed_climb_to_class.md).
+A term-structure/basis overlay does not reopen a rung whose underlying price-signal edge is
+already proven dead by two independent full-history controls. -->

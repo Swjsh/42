@@ -21,3 +21,11 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: options_structure_metrics:sp
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-07-23 ~07:xx ET conductor (AFTERHOURS, acting as chef, backlog triage):
+STAYS OPEN, REFRAMED -- downgrade the "Cost: paid" framing. IV per contract is ALREADY
+fetched free via the same Alpaca options snapshots endpoint used by _capture_greeks /
+get_option_greeks (log-only today, G8) -- a 10-delta vs 25-delta skew read is a strike-
+selection detail on top of data we already pull, not a reason to license OptionMetrics/
+Bloomberg B-PIPE. Not attempted this fire (needs a proper strike-to-delta mapping + skew-
+over-time capture loop, real new work) -- flagged as the likely free path. -->

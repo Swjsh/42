@@ -21,3 +21,10 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: data_feeds_free:alpha-vantag
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-07-23 ~07:xx ET conductor (AFTERHOURS, acting as chef, backlog triage):
+CLOSED-REDUNDANT-DATA-SOURCE. Same disposition class as the IEX Cloud item: we already have
+SPY intraday OHLC (SIP-sourced 5m cache) and compute our own SMA/RSI/indicators in-house
+(crypto/lib/, backtest/lib/) tuned to OUR bar structure and look-ahead-safety rules
+(C6) -- a 3rd-party precomputed-indicator feed adds vendor risk + a NEW look-ahead-safety
+surface to re-audit, with no new signal type. Not engine-benefit. -->

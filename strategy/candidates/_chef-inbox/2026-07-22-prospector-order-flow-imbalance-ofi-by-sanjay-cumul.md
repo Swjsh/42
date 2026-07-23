@@ -21,3 +21,14 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: tv_community_indicators:orde
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-07-23 ~07:xx ET conductor (AFTERHOURS, acting as chef, backlog triage):
+STAYS OPEN, BLOCKER CLARIFIED. The real blocker for this one is NOT TV MCP access -- it's
+that a genuine order-flow-imbalance / cumulative-delta signal needs bid/ask-classified TICK
+or QUOTE data (buyer-initiated vs seller-initiated volume), which is NOT present in anything
+we currently cache (5m OHLCV+volume bars carry no bid/ask/tick classification). This is a
+genuinely NEW data-source question, not a TV-tool-availability question like the S/R-zone
+items. Do not attempt a bar-volume proxy and call it OFI (that's a different, weaker signal
+with a different name) -- either source real tick/quote data (cost/vendor decision, flag to
+J before any paid vendor) or close this one as infeasible without new data. Left open
+pending that decision rather than closed, since it's a genuine fork not yet resolved. -->

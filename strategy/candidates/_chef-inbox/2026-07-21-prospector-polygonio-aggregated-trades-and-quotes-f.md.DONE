@@ -21,3 +21,10 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: data_feeds_free:polygonio-ag
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-07-23 ~07:xx ET conductor (AFTERHOURS, acting as chef, backlog triage):
+CLOSED-REDUNDANT-DATA-SOURCE. Same disposition as the IEX Cloud / Alpha Vantage items --
+duplicate of the existing Alpaca+SIP price pipeline, no new signal type. Additionally,
+Polygon.io's free tier is end-of-day/delayed for most trade/quote granularity in practice;
+genuine tick-level intraday access is a paid tier (cost-gate: no net-new paid vendor without
+explicit J OK, CLAUDE.md OP-3/global cost discipline). Two independent reasons to close. -->

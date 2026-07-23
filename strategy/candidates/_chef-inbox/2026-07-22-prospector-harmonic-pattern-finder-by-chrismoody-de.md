@@ -21,3 +21,14 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: tv_community_indicators:harm
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-07-23 ~07:xx ET conductor (AFTERHOURS, acting as chef, backlog triage):
+STAYS OPEN, REFRAMED. Harmonic patterns (Gartley/Bat/Butterfly/Crab) are a well-documented,
+public zigzag+Fibonacci-ratio geometric algorithm -- genuinely computable in pure Python from
+cached OHLCV without any TV dependency (unlike the S/R-zone items, this one was never
+actually TV-locked, the prospector just cited a TV script as the discovery source). Real
+scope risk: harmonic detectors are notorious for firing constantly on noise (the C27
+"fires >80% of days = measures noise" lesson applies directly) -- any build MUST include
+a naive-fire-rate audit before a single backtest number is trusted. Next bounded step: build
+the pure zigzag+ratio detector + immediately run the C27 fire-rate sanity check before
+spending real-fills budget on it. -->

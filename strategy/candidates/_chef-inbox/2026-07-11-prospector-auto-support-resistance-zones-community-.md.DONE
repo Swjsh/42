@@ -21,3 +21,11 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: tv_community_indicators:auto
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-07-23 ~07:xx ET conductor (AFTERHOURS, acting as chef, backlog triage):
+CLOSED-DUPLICATE-TECHNIQUE. This is the SAME underlying algorithm as the 2026-07-22 LuxAlgo
+item (2026-07-22-prospector-auto-supportresistance-zones-by-luxalgo-.md) -- swing-high/low
+clustering into dynamic S/R zones, just a different TV marketplace author (Zeiierman vs
+LuxAlgo) describing the identical technique. Consolidating into the LuxAlgo item as canonical
+(more detail: "statistically significant... rectangles") rather than running two backtests
+on the same idea. No action needed on THIS file beyond this disposition note. -->

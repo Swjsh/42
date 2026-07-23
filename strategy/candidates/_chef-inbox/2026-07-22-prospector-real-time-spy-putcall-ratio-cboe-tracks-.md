@@ -21,3 +21,13 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: options_structure_metrics:re
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-07-23 ~07:xx ET conductor (AFTERHOURS, acting as chef, backlog triage):
+STAYS OPEN, REFRAMED -- downgrade the "Cost: paid" framing. fleet_broker.get_option_greeks
+(automation/state/fleet/fleet_broker.py:139) ALREADY pulls per-contract snapshots
+(greeks+IV) from Alpaca's free /v1beta1/options/snapshots endpoint for the live entry log
+(G8). A put/call VOLUME ratio proxy is plausibly computable FREE by extending that same
+snapshot pull across the day's SPY 0DTE chain (call volume vs put volume) instead of
+paying for a CBOE Live Options Data feed. Not attempted this fire (a full-chain puller +
+snapshot-across-strikes loop is real new work, not a triage-scope item) -- flagged as the
+likely free path before any paid-vendor ask reaches J. -->

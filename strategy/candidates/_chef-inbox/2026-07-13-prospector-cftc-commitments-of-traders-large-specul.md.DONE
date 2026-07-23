@@ -21,3 +21,15 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: futures_positioning:cftc-com
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-07-23 ~07:xx ET conductor (AFTERHOURS, acting as chef, backlog triage):
+CLOSED-DEAD-RUNG. Instrument fit is mes (MES/MNQ futures) ONLY. The 'instrument' rung of
+the standing search-space ladder (signal -> structure -> DTE -> instrument -> class) is
+ALREADY CLOSED for both momentum AND range-fade lenses on MES/MNQ -- see
+.claude/agent-memory/gamma/project_instrument_rung_closed_climb_to_class.md
+(2026-06-20 control: MES -$26k/MNQ -$11k, WR 48%, both directions; 2026-06-28 range-fade
+probe: WALK_FORWARD_FAIL_REGIME_FLIP on both). Adding a NEW input signal (COT positioning) to
+an instrument whose price-signal edge is already proven dead does not reopen the rung -- COT
+is a filter/overlay, not a fix for "no edge in the underlying price signal on this
+instrument." Do not re-investigate without a genuinely new reason the instrument rung itself
+should reopen. -->

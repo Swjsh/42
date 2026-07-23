@@ -21,3 +21,12 @@ analysis/prospector/ideas-ledger.jsonl (dedupe_key: tv_community_indicators:mark
 
 ## Priority / Dependencies
 depends:none
+
+<!-- NOTE 2026-07-23 ~07:xx ET conductor (AFTERHOURS, acting as chef, backlog triage):
+CLOSED-SAME-FAMILY-DUPLICATE. Market Profile (TPO) and Volume Profile (Visible Range) --
+the canonical 2026-07-10 volume_shelf_tv_vp.md item -- both reduce to the SAME testable
+hypothesis: does a computed price-acceptance zone (value area / POC / high-volume node)
+derived from historical bars add signal beyond the existing trendline/level-memory engines?
+TPO uses time-at-price, VP uses volume-at-price -- different weighting, same structural
+claim. Folding into the volume_shelf_tv_vp.md item as the canonical vehicle for this family
+(note added there) rather than running two near-identical studies. -->
