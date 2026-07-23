@@ -56,6 +56,15 @@
 > drafting 15 disposition notes, scoped commit + post-commit verification, lesson filing,
 > STATUS write-up).
 
+> **Outcome metric (`conductor_outcome.py metric`, 20-fire window):** `trend: regressing`,
+> `cost_per_drained: $1.64`, `function_latest`: 0 ENTERs / 0 orders / 3 fills / 1 distinct
+> setup on the last trading day (2026-07-22) -- the fill count is from the `extra_exec`
+> secondary lane (already-diagnosed, matches prior fires' notes), the core primary path saw
+> 0 ENTERs that session. This fire itself was loop-closing (backlog drain, not a new
+> artifact) per the tiebreak rule; next fire should keep preferring drain-over-create while
+> the trend reads regressing, and the low-ENTER function score is worth a dedicated look if
+> it persists past tonight's session close.
+
 ---
 
 ## [2026-07-23 ~06:42-06:50 ET] OK -- conductor (AFTERHOURS): cleared the 8-item lesson-inbox backlog -- L242-L249 graduated, commit `9e0850b8`
@@ -662,4 +671,4 @@
 
 
 ## Kitchen
-Kitchen: alive, queue 29 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 28 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
