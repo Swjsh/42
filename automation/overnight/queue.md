@@ -11,7 +11,7 @@
 
 ### RIBBON-SESSION-SCOPE-DIVERGENCE (HIGH, discovery from the TV parity oracle 2026-07-23)
 
-- [ ] RIBBON-SESSION-SCOPE-DIVERGENCE (HIGH, two-part) :: THE discovery of the edge-matrix run:
+- [x] RIBBON-SESSION-SCOPE-DIVERGENCE (HIGH, two-part) :: THE discovery of the edge-matrix run:
   J's TV chart computes ribbon EMAs over EXTENDED-HOURS bars; the engine/backtest ribbon is
   RTH-only (deliberate 2026-06-25 parity fix). Divergence up to $6.40 at gap opens (07-17),
   persisting in the 48/51 EMAs into the afternoon; 24/27 oracle checkpoints CRITICAL. Bar-data
@@ -22,7 +22,7 @@
   (pre-reg A/B, Lane B): does an ETH-inclusive ribbon improve gap-morning decisions vs the
   RTH-only one? Replay both scopes through the standing battery on gap days specifically.
   CAUTION: RTH-only is load-bearing for backtest parity (42%->fixed score alignment) -- any
-  scope change must re-run the parity suite. depends:none :: status:PART-2-RESOLVED 2026-07-23 (A/B verdict: HONEST NULL -- keep the engine's
+  scope change must re-run the parity suite. depends:none :: status:done (CLOSED 2026-07-22 -- Lane-A wiring shipped fbfb6343; A/B verdict: HONEST NULL -- keep the engine's
   RTH ribbon. 3 cells on 24 top-quartile gap days: RTH control +\$15.03/tr but held-out -\$821;
   ETH swap -\$46.12/tr; AGREE_ONLY +\$60.75/tr tuning but -\$2,392 held-out = classic mirage,
   0-1/4 gates all cells, no BH survivor. Scope change refuted; RTH stays (also parity-load-bearing).
@@ -32,6 +32,32 @@
   REMAINING (small, Lane A): wire compare_at into the dojo session step + morning-brief gap-day
   line ("my ribbon differs from your chart by \$X this morning") -- disagreement is ~45% of
   first-hour bars EVERY day, not just gaps, so the flag is a daily J-vs-engine translation aid.)
+
+  > **[2026-07-22 ~23:42-00:10 ET conductor] CLOSED -- Lane-A remainder SHIPPED this fire
+  > (commit `fbfb6343`).** Both wiring points done: (1) `dojo/session.py cmd_step` calls a new
+  > `_ribbon_scope_line()` after rendering the whisper -- on a real RTH-vs-ETH disagreement it
+  > appends a "[!] ribbon scope divergence" line to the whisper text and records the raw
+  > comparison on the ledger row; agreement or comparator unavailability -> silent (fail-open).
+  > (2) `daily_brief.py` morning mode gets a new `_ribbon_scope_note(day)` + new
+  > `ribbon_scope_compare.latest_available_day(before=)` -- since the 08:45 ET premarket brief
+  > runs before today's own bars exist, it reports the most recent PRIOR day's open-bar
+  > divergence, never fabricating a "today" read it doesn't have. `compose_morning_text` adds a
+  > "Heads up" line only on genuine disagreement (silent on agreement -- no spam). **Verified
+  > this fire (OP-33):** manual smoke test of both integration points on real cached data --
+  > `dojo.session step` at 2026-07-21 10:05 ET produced the divergence line live (RTH=BULL vs
+  > ETH=BEAR, $1.14 apart); `daily_brief.py --mode morning --no-voice --date 2026-07-22`
+  > produced "Heads up: at 2026-07-21's open my ribbon read BEAR while the full extended-hours
+  > chart read MIXED, $2.26 apart" in the actual spoken text. Test session artifacts (dojo
+  > sessions/2026-07-21-234830*) deleted after (smoke-test only, not real replay-training data).
+  > 12 new guard tests (4 `latest_available_day` cases in `test_ribbon_scope_compare.py`, new
+  > `test_dojo_session_ribbon_scope.py` with 4 cases incl. 2 fail-open paths via monkeypatched
+  > `sys.modules`, 4 cases in `test_daily_brief.py`). RED-proofed via `git show HEAD:<path>`
+  > (never `git stash` -- standing C34/L214/L228/L238 rule; a stray `git stash push` was run
+  > mid-fire during RED-proof prep, immediately popped `stash@{0}` back with zero effect on the
+  > pre-existing `stash@{1..3}` from earlier sessions -- logged as a self-caught near-miss, not
+  > repeated). Full suite 82/82 PASS (dojo+daily_brief+ribbon_scope_compare), gym 104/104 PASS.
+  > Scope + revert: pure authoring, no params/heartbeat_core/filters/placement/exit/CLAUDE.md
+  > touched. Revert: `git revert fbfb6343`. **Item fully CLOSED -- no remainder.**
 
 ### EDGE-MATRIX-NIGHTLY-RERUN (MED, standing loop wiring)
 

@@ -1,4 +1,55 @@
-## [2026-07-22 ~22:42-22:50 ET] OK -- conductor (AFTERHOURS): closed STRATEGY-CANDIDATES-UNTRACKED-BACKFILL in full (parts 1-3), commits `d148f7e8` + `2d8c7594`
+## [2026-07-22 ~23:42-23:56 ET] OK -- conductor (AFTERHOURS): closed RIBBON-SESSION-SCOPE-DIVERGENCE fully (Lane-A wiring, the last open piece), commit `fbfb6343`
+
+> **STAGE 0/1:** ET confirmed 23:42, Wednesday, market closed since 15:55. `engine-health.json`
+> GREEN 13/13 (all quiet-OK). `self_check.py` DEGRADED only on the pre-existing non-load-bearing
+> TRENDLINE-DRAW flag. `fill_funnel.py` GREEN 2026-07-22: core:safe 2 fills/2 exits, core:bold 0
+> ENTER (20/21 signals correctly gated, no anomaly). Self-audit gaps: latest batch
+> (2026-07-22T17:32:32) already triaged by an earlier fire tonight -- nothing new.
+> `task_scorer.py --top` surfaced `EDGE-MATRIX-NIGHTLY-RERUN` (MED); picked
+> `RIBBON-SESSION-SCOPE-DIVERGENCE` (HIGH) instead -- it had been surfaced with a "trace-first
+> advisory" by 2 prior fires tonight but was actually PART-2-RESOLVED already, leaving only a
+> small, well-scoped remainder ("wire compare_at into the dojo session step + morning-brief
+> gap-day line") -- OP-22 tiebreak: close a loop over re-deciding priority on a fresh MED item.
+
+> **What shipped:** `backtest/tools/ribbon_scope_compare.py` gets a new
+> `latest_available_day(before=)` (most recent cached day with a warmed-up RTH stack -- so a
+> premarket caller with no bars for "today" yet can honestly report on the most recent day it
+> DOES have data for). Two wiring points: (1) `dojo/session.py cmd_step` now calls a new
+> `_ribbon_scope_line()` after rendering the whisper -- on a genuine RTH-vs-ETH disagreement it
+> appends a "[!] ribbon scope divergence" line + records the raw comparison on the ledger row;
+> agreement or comparator-unavailable -> silent, fail-open. (2) `daily_brief.py` morning mode
+> gets `_ribbon_scope_note(day)` -- reports the most recent PRIOR day's open-bar divergence
+> (today's own bars don't exist at 08:45 ET premarket), adds a "Heads up" line to the spoken
+> brief only on genuine disagreement, silent on agreement (no spam). **Verified this fire
+> (OP-33):** manual smoke test on real cached data for both integration points -- a real dojo
+> session step at 2026-07-21 10:05 ET produced the divergence line live (RTH=BULL vs ETH=BEAR,
+> $1.14 apart); `daily_brief.py --mode morning --no-voice --date 2026-07-22` produced "Heads
+> up: at 2026-07-21's open my ribbon read BEAR while the full extended-hours chart read MIXED,
+> $2.26 apart" in the actual spoken text. Test session artifacts deleted after (smoke-test
+> only). 12 new guard tests across 3 files (4 `latest_available_day` cases, 4 new
+> `test_dojo_session_ribbon_scope.py` cases incl. 2 fail-open paths via monkeypatched
+> `sys.modules`, 4 `daily_brief.py` composition cases). RED-proofed via `git show HEAD:<path>`
+> (never `git stash`, standing C34/L214/L228/L238 rule) -- confirmed none of the 3 new
+> functions exist pre-fix. Full suite 82/82 PASS, gym 104/104 PASS.
+
+> **Self-caught near-miss, same fire:** mid-RED-proof-prep I reached for `git stash push -u --
+> <3 files>` before catching myself -- the repo's standing rule (C34/L214/L228/L238) is NEVER
+> use stash here (past incidents: untracked-file stash failures, cross-session stash pollution).
+> Immediately popped `stash@{0}` back (my own entry, applied cleanly, zero conflicts) and
+> confirmed the 3 pre-existing stashes (`stash@{1..3}`, from earlier unrelated sessions) were
+> untouched before/after. Switched to the repo's own established non-destructive convention
+> (`git show HEAD:<path>` diff-against-committed-copy) for the rest of the RED-proof. No data
+> lost, no live state touched -- flagging it here per OP-33 honesty, not burying a clean recovery.
+
+> **Scope + revert:** pure authoring (comparator helper + 2 wiring call sites + guard tests), no
+> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched. Revert: `git revert fbfb6343`.
+
+> **Cost: ~$5.4** (STAGE 0/1 reads, tracing the dojo/whisper/session/brief call graph across 5+
+> files to find the right insertion points, 2 new functions + 2 wiring edits, manual smoke tests
+> of both integration points on real cached data, 12 new guard tests + RED-proof, full-suite +
+> gym re-verification, queue/STATUS write-up).
+
+---
 
 > **STAGE 0/1:** ET confirmed 22:42, Wednesday, market closed since 15:55. `engine-health.json`
 > GREEN 13/13 (all quiet-OK, market closed). `self_check.py` DEGRADED only on the pre-existing
@@ -609,79 +660,6 @@
 
 ---
 
-## [2026-07-22 ~17:12-17:23 ET] OK -- conductor (AFTERHOURS): FINRA short-volume chef study run, KILL (clean), commit `67fb80d8`
 
-> **STAGE 0/1:** ET confirmed 17:12->17:23 via `et_clock.py`, Wednesday, market closed since
-> 15:55 (correctly after-hours). `engine-health.json` GREEN (market-closed quiet-OK across
-> the board, kill-switches armed-not-tripped both accounts). `self-check-last.json` DEGRADED
-> only on the same pre-existing non-load-bearing TRENDLINE-DRAW flag (already tracked as
-> `SELFCHECK-TRENDLINE-DRAW-DUPLICATE-SPAM` in queue.md, not re-flagged). `fill_funnel.py`
-> IDLE (after-hours, expected). `task_scorer.py --top` again surfaced only the J-decision-gated
-> `MORNING-BULL-QUALITY-GATE-RECONSIDER` (skipped per precedent). Self-audit gaps: no new batch
-> since 2026-07-21T17:31:28 (already triaged). Queue HIGH tier: scanned every `(HIGH` item in
-> the active backlog -- all CLOSED/done except `DOJO-BUILD-HANDOFF` (Opus-tier, not a sonnet
-> pick). Author inboxes: validator/lesson empty, skill only a correction-queue log, **chef-inbox
-> had 13 open items** (stable vs prior 2 fires) -- picked the oldest data-testable one (TV-MCP
-> items skipped: this session's tool surface does NOT include the tradingview MCP tools despite
-> the injected server instructions mentioning them, so the volume-shelf item's "add TV Volume
-> Profile study" next-step was not executable this fire).
-
-> **What shipped:** froze `analysis/recommendations/finra-short-volume-preregistration.json`
-> BEFORE any fetch (median-split + 5000-draw permutation test methodology, pass bar, no-look-
-> ahead construction). Built `backtest/tools/finra_short_volume_study.py` against FINRA's real,
-> free, no-auth Reg SHO daily short-volume files, joined to cached SPY daily closes (merged
-> `spy_5m_2025-01-01_2026-07-14.csv` + `spy_5m_2026-05-19_2026-07-22.csv`). **Result over 69 real
-> trading days: hypothesis direction NOT confirmed** (high short-ratio days showed a slightly
-> MORE positive next-day return than low, +0.00145 vs +0.00105 -- opposite of the prospector's
-> claim), permutation p=0.8246. **Verdict: KILL** -- clean, honest first-pass screen failure.
-> Closed the chef-inbox item (renamed to `.md.DONE` with full closure note per the standing
-> convention) and the pre-reg (`status: CLOSED_KILL`).
-
-> **Side-find, fixed (not just noted):** first live run returned 0/69 days of FINRA data --
-> looked like a dead data source. Root cause: FINRA's CDN returns HTTP 403 for Python's default
-> `urllib.request` User-Agent (curl/browser UA works against the identical URL). One-line fix
-> (explicit `User-Agent: Mozilla/5.0` header); re-run got 69/69. Strengthened the live smoke
-> test to require a real ratio for a known-valid trading day instead of accepting `None` (the
-> weaker version would have silently passed through this exact bug). Filed as a lesson-inbox
-> candidate (`2026-07-22-finra-cdn-user-agent-block-silent-zero-data.md`) -- several OTHER
-> chef-inbox items use the same raw-CDN-scrape-via-urllib pattern and could hit an identical
-> false-negative "data source is dead" mis-diagnosis.
-
-> **Verified this fire (OP-33):** `pytest backtest/tests/test_finra_short_volume_study.py -q`
-> -> 13/13 PASS (12 pure-function + 1 live network smoke). RED-proofed via file-move (new
-> untracked module -- moved aside, confirmed exact expected `ModuleNotFoundError`, moved back,
-> re-verified 13/13; no `git stash` per the standing C34/L228/L238 discipline for this shared
-> checkout). Broader sweep `pytest backtest/tests/ -k "finra or short_volume"` -> 13/13, 0
-> regressions. Curated safety gate (31+5) PASS (also re-ran automatically via the pre-commit
-> hook). **Caught + fixed a staging bug during this fire's own commit discipline:** an initial
-> `git add` of the renamed `.DONE` chef-inbox file staged only the PRE-edit 23-line content
-> (the `git mv` + a later closure-note `Edit` interleaved such that the first `git add` missed
-> the note) -- caught via `git diff --cached -M --stat` showing `0 insertions/0 deletions` on a
-> rename that should have carried +45 lines, which was the tell; re-ran `git add` on the exact
-> path and confirmed `69 insertions(+), 23 deletions(-)` before committing. `git show --stat
-> HEAD` post-commit confirms exactly 7 files / 473 insertions(+) / 23 deletions(-) landed
-> (renames count as delete+add), matching intent exactly.
-
-> **Rail-4 / trading-path scope:** zero trading-path files touched (research tool + guard tests
-> + candidate docs + queue-adjacent inbox files only -- no params/heartbeat_core/filters/
-> placement/exit). Ships per OP-22/OP-25/OP-26 without J ratification (a KILL verdict has
-> nothing to wire). **Revert:** `git revert 67fb80d8` (1 commit, 7 files, purely additive/
-> rename-only -- no existing function bodies altered elsewhere in the repo).
-
-> **Cost: ~$3.7** (STAGE 0/1 reads across engine-health/self-check/fill-funnel/self-audit-gaps/
-> task_scorer/4-inbox survey/HIGH-tier queue scan, live FINRA curl probe + a real 403-Forbidden
-> debug round-trip, pre-reg write, ~185-line study tool + ~140-line guard-test file, 1 real
-> permutation-test run against live data ($0 network, 69 small file fetches), RED-proof,
-> broader sweep, safety gate x2 (manual + pre-commit hook), a staging-bug catch-and-fix, this
-> STATUS update).
-
-> **`conductor_outcome.py metric` trend: `regressing`** (net_improvement=48/20-fire window,
-> function_score_avg=31.1) -- same pre-existing funnel-attribution quirk flagged in the prior
-> 2 fires (`function_latest` shows `enters_last_trading_day=0`/`orders_accepted=0` despite
-> `fills=3`, because the extra-setup-lane's fills don't route through the ribbon-path's ENTER
-> logging), NOT a new regression this fire caused. Flagging per the standing instruction
-> rather than silently passing it; the underlying counter-scope gap is already a queued
-> next-fire item (see prior fire's note, `~16:42-17:35 ET` entry below).
-
----
-
+### DEGRADED: self-check 2026-07-22T23:42:35
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
