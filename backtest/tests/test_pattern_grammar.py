@@ -66,6 +66,7 @@ EXPECTED_RULE_NAMES = {
     "inside_day_nr7_break",
     "wedge_rising_into_resistance",
     "engulfing_at_level",
+    "engulfing_at_swing_shelf",
     "island_reversal",
 }
 
@@ -241,8 +242,10 @@ class TestDeterminism:
 # ── 3. registry schema ─────────────────────────────────────────────────────────
 
 class TestRegistrySchema:
-    def test_exactly_eleven_rules_with_the_expected_names(self):
-        assert len(REGISTRY) == 11
+    def test_exactly_twelve_rules_with_the_expected_names(self):
+        """11 seed rules + engulfing_at_swing_shelf (2026-07-23, ENGULFING-AT-STRUCTURE-
+        TRIGGER) — see registry.py's module docstring."""
+        assert len(REGISTRY) == 12
         assert {r.name for r in REGISTRY} == EXPECTED_RULE_NAMES
 
     def test_names_unique(self):
@@ -262,8 +265,10 @@ class TestRegistrySchema:
         assert isinstance(rule.description, str) and len(rule.description) > 10
 
     def test_tier_split_matches_intraday_applicability_design(self):
-        """Locks the Tier-1 (7) / Tier-2 (4) split documented in
-        markdown/research/PATTERN-GRAMMAR.md sec 2 -- a change here should be a
+        """Locks the Tier-1 (7) / Tier-2 (5) split documented in
+        markdown/research/PATTERN-GRAMMAR.md sec 2 (Tier-2 now +1:
+        engulfing_at_swing_shelf, 2026-07-23 -- structure-dependent like
+        double_top_bottom_at_level, so tier=2) -- a change here should be a
         deliberate doc-and-code edit together, not a silent drift."""
         tier1 = {r.name for r in REGISTRY if r.tier == 1}
         tier2 = {r.name for r in REGISTRY if r.tier == 2}
@@ -274,7 +279,7 @@ class TestRegistrySchema:
         }
         assert tier2 == {
             "double_top_bottom_at_level", "inside_day_nr7_break",
-            "wedge_rising_into_resistance", "island_reversal",
+            "wedge_rising_into_resistance", "island_reversal", "engulfing_at_swing_shelf",
         }
 
     def test_bidirectional_rule_predicate_must_supply_bias(self, c6_bars, c6_levels):

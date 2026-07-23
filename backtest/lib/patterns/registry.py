@@ -1,14 +1,20 @@
 """registry.py — the seeded Tier-1/2 pattern-grammar rules.
 
-11 rules total (the brief's 10-item list names "triangle_ascending/descending" via a
+11 seed rules (the brief's 10-item list names "triangle_ascending/descending" via a
 slash, which TA-PATTERN-REFERENCE.md sec C.3/C.4 treats as two genuinely different
 patterns — different bias, different Bulkowski stats, different predicate composition —
-so this registry seeds BOTH as separate entries; every other brief item maps 1:1).
+so this registry seeds BOTH as separate entries; every other brief item maps 1:1) PLUS
+one live-tape-driven addition, engulfing_at_swing_shelf (2026-07-23, filed from
+queue.md ENGULFING-AT-STRUCTURE-TRIGGER — an engulfing-candle-at-a-fresh-intraday-
+swing-shelf composition J called live on two mirror-symmetric days that neither
+engulfing_at_level (named-level anchor) nor double_top_bottom_at_level (neckline-break
+resolution, not a same-bar reaction) covers) — 12 rules total as of that addition.
 
 Full citation table + Tier-1/2 rationale + the "why 15 predicates not exactly 10-14, why
-these 11 rules, what's deliberately excluded (harmonics/Elliott)" design discussion lives
-in markdown/research/PATTERN-GRAMMAR.md sec 2. This file is the executable contract; the
-doc is the reasoning.
+these 11 seed rules, what's deliberately excluded (harmonics/Elliott)" design discussion
+lives in markdown/research/PATTERN-GRAMMAR.md sec 2 (engulfing_at_swing_shelf's own
+rationale is inline on its PatternRule + _engulfing_at_swing_shelf_predicate below).
+This file is the executable contract; the doc is the reasoning.
 
 NO WIRING: nothing here is imported by the live engine, setup_dispatch, or any watcher.
 This registry is consumed ONLY by backtest/tools/pattern_prescreen.py (frequency/
@@ -168,6 +174,33 @@ def _engulfing_at_level_predicate(ctx: PatternContext, t: int) -> Optional[dict]
         near = level_proximity(max_distance=LEVEL_PROXIMITY_DOLLARS, level_role="resistance")(ctx, t)
         if near is not None:
             return {"bias": "bearish", **near, **bear}
+    return None
+
+
+def _engulfing_at_swing_shelf_predicate(ctx: PatternContext, t: int) -> Optional[dict]:
+    """Bullish engulfing at a 2-touch swing-LOW shelf, or bearish engulfing at a 2-touch
+    swing-HIGH shelf -- DELIBERATELY DISTINCT from engulfing_at_level (which anchors to
+    a NAMED daily support/resistance level from key-levels.json). This rule anchors to
+    the INTRADAY swing structure itself (ctx.structure.labeled_swings via flat_side,
+    the same double-top/bottom-neckline primitive double_top_bottom_at_level uses) --
+    the exact vocabulary gap ENGULFING-AT-STRUCTURE-TRIGGER (queue.md, filed
+    2026-07-23) named: J called an engulfing candle at a fresh intraday double-bottom/
+    double-top shelf live on 2026-07-21 (bullish) and 2026-07-23 (bearish), and neither
+    the plain engulfing_at_level rule (anchored to daily levels, not the intraday
+    shelf) nor double_top_bottom_at_level (requires a neckline BREAK, not a same-bar
+    engulfing reaction AT the shelf) covers that exact composition. Same
+    zero-shared-state two-branch shape as _engulfing_at_level_predicate."""
+    bar = ctx.bars[t]
+    bull = engulfing(direction="bullish")(ctx, t)
+    if bull is not None:
+        shelf = flat_side(kind="swing_low", n_touches=2, tolerance=FLAT_TOLERANCE_DOLLARS)(ctx, t)
+        if shelf is not None and abs(bar.close - shelf["trigger_level"]) <= LEVEL_PROXIMITY_DOLLARS:
+            return {"bias": "bullish", "touch_spread": shelf["touch_spread"], **shelf, **bull}
+    bear = engulfing(direction="bearish")(ctx, t)
+    if bear is not None:
+        shelf = flat_side(kind="swing_high", n_touches=2, tolerance=FLAT_TOLERANCE_DOLLARS)(ctx, t)
+        if shelf is not None and abs(bar.close - shelf["trigger_level"]) <= LEVEL_PROXIMITY_DOLLARS:
+            return {"bias": "bearish", "touch_spread": shelf["touch_spread"], **shelf, **bear}
     return None
 
 
@@ -384,6 +417,28 @@ REGISTRY: tuple[PatternRule, ...] = (
         thresholds={"level_proximity_dollars": LEVEL_PROXIMITY_DOLLARS},
         description="A bullish engulfing candle within $0.30 of a support level, or a bearish "
                     "engulfing candle within $0.30 of a resistance level.",
+    ),
+    PatternRule(
+        name="engulfing_at_swing_shelf",
+        tier=2,
+        timeframes=TIMEFRAMES_ALL,
+        direction="bidirectional",
+        predicate=_engulfing_at_swing_shelf_predicate,
+        citation="Standard OHLC engulfing-candle geometry (see engulfing_at_level's citation) +"
+                 " the same intraday 2-touch flat-swing-shelf primitive"
+                 " double_top_bottom_at_level/rectangle_range_break/triangle_* use"
+                 " (flat_side over ctx.structure.labeled_swings) -- composed here as an ANCHOR"
+                 " for the candle instead of a neckline-break level. Filed from a live-tape"
+                 " gap: queue.md ENGULFING-AT-STRUCTURE-TRIGGER (2026-07-23), J called this"
+                 " exact composition on 2 separate days, mirror-symmetric, both directions.",
+        thresholds={
+            "flat_tolerance_dollars": FLAT_TOLERANCE_DOLLARS,
+            "shelf_proximity_dollars": LEVEL_PROXIMITY_DOLLARS,
+        },
+        description="A bullish engulfing candle within $0.30 of a fresh 2-touch intraday swing-low "
+                    "shelf, or a bearish engulfing candle within $0.30 of a fresh 2-touch intraday "
+                    "swing-high shelf -- an engulfing candle reacting AT the shelf itself, not a "
+                    "named daily level and not a neckline break.",
     ),
     PatternRule(
         name="island_reversal",
