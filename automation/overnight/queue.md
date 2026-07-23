@@ -169,7 +169,7 @@
 
 ### CHEF-CANDIDATES-CONSOLIDATION-SWEEP (HIGH, follow-up split off CHEF-FOCUS-FILTER part 4, filed 2026-07-22 night)
 
-- [ ] CHEF-CANDIDATES-CONSOLIDATION-SWEEP (HIGH, one-time triage, do in batches) ::
+- [x] CHEF-CANDIDATES-CONSOLIDATION-SWEEP (HIGH, one-time triage, do in batches) ::
   `strategy/candidates/` holds 1619 files (verified count
   2026-07-22, far more than the "100+" the parent item estimated) -- a one-time triage per
   OP-22 (compound, don't accumulate): for each file, read its (now-standard, post
@@ -181,7 +181,9 @@
   200-300 files per fire) across several chef/conductor fires, not as one giant single-fire
   pass -- each batch still needs `python crypto/validators/runner.py` clean before/after per
   chef.md guardrail #6. Refresh `_LEADERBOARD.md` at the end of the LAST batch.
-  depends:none :: status:in_progress
+  depends:none :: status:CLOSED (batch 2 completed 2026-07-23 ~04:05 ET -- 110/110 remaining
+  eligible moved, remaining_eligible_after_batch:0, gym 103/104 clean before+after, no further
+  batches owed; script stays reusable/idempotent for future accrual)
 
   > **[2026-07-22 ~21:48-22:15 ET conductor] Batch 1 SHIPPED this fire.** Built
   > `backtest/tools/chef_candidates_consolidation_sweep.py` -- $0 pure-Python classifier (no
@@ -216,6 +218,26 @@
   > filters/placement/exit/CLAUDE.md touched -- ships per OP-22 (engine-benefit hygiene, same
   > class as CHEF-FOCUS-FILTER). Revert: one commit, `git revert <sha>` (restores the 250 files
   > to their original paths via git history; the script itself is idempotent/re-runnable).
+
+  > **[2026-07-23 ~03:49-04:05 ET conductor] Batch 2 SHIPPED this fire -- item CLOSED.** Re-ran
+  > the same `chef_candidates_consolidation_sweep.py` with no code changes. The 72 files noted
+  > as remaining-eligible after batch 1 had grown to 110 by tonight (more candidates aged past
+  > the 30d cutoff since 2026-07-22, plus a handful of same-night fresh Kitchen drafts kept
+  > current). Dry-run first (1377 scanned, 110 eligible), gym baseline
+  > `python crypto/validators/runner.py` -> 103/104 PASS (1 known-flaky excluded) BEFORE the
+  > move. Applied (`--batch-size 250 --apply`): all 110 eligible moved in one pass
+  > (`remaining_eligible_after_batch: 0`) to `strategy/candidates/_archive/sweep-2026-07-23/`.
+  > **Verified this fire (OP-33):** `git status --porcelain` shows exactly 110 `D` (deleted from
+  > original path) + 1 new untracked dir (`_archive/sweep-2026-07-23/`); an independent
+  > `find ... -name "*.md" | wc -l` on that dir counts 110, matching the delete count exactly.
+  > Re-ran gym AFTER the move -> 103/104 PASS again, no regression. Top-level
+  > `strategy/candidates/` count: 1377 -> 1267. `_archive/README.md` gets a new
+  > `sweep-2026-07-23/` section (same format as batch 1). **Item CLOSED** --
+  > `remaining_eligible_after_batch: 0` means no further batches are owed right now; the
+  > reusable, idempotent script handles any future accrual on demand, no new design work needed.
+  > **Scope + revert:** pure file-move + one README doc update, no params/heartbeat_core/
+  > filters/placement/exit/CLAUDE.md touched. Revert: `git revert <this commit>` (restores the
+  > 110 files via git history).
 
 ### GAMMA-STUDY-CURRICULUM (MED, standing conductor mode, filed 2026-07-22 night, J-directed "learn new things -- TA, indicators, risk management... like a person")
 

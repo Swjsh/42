@@ -30,6 +30,22 @@ Move-not-delete per OP-22; `git mv` history is preserved. Remaining
 batches (next ~72+ eligible, plus whatever ages into eligibility) follow
 the same script, same conservative "when in doubt KEEP" policy.
 
+## sweep-2026-07-23/
+Batch 2 of `CHEF-CANDIDATES-CONSOLIDATION-SWEEP` (queue.md), executed by the
+2026-07-23 ~04:00 ET AFTERHOURS conductor via the same
+`backtest/tools/chef_candidates_consolidation_sweep.py`, no new design work.
+The 72 eligible files noted at the end of batch 1 had grown to 110 by this
+run (more candidates aged past the 30d cutoff since 2026-07-22) — all 110
+moved in one pass (batch-size 250 covered the full eligible set;
+`remaining_eligible_after_batch: 0`). Same eligibility rule as batch 1
+(stale >30d AND non-level-family AND no traction). Gym
+(`crypto/validators/runner.py`) verified 103/104 PASS both immediately
+before and immediately after the move — no regression. Top-level
+`strategy/candidates/` count: 1267 post-move. This clears the
+CONSOLIDATION-SWEEP item's named remainder; the sweep script itself is
+reusable and idempotent for any future accrual — no further scheduled
+batches are owed unless a future audit flags fresh backlog.
+
 ## Deliberately KEPT in strategy/candidates/ (NOT archived)
 - `_LEADERBOARD.md`, `_LEADERBOARD-pending.md` — the curated promotion ledger.
 - `_analysis/` — Chef/Analyst analysis notes.
