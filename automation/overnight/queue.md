@@ -15,6 +15,19 @@
 
 ## Active backlog
 
+### CATASTROPHE-CAP-WIDEN-WATCH (MED, accrue-then-decide, filed 2026-07-23 EOD)
+
+- [ ] CATASTROPHE-CAP-WIDEN-WATCH (MED) :: The stop-forensics A/B (catastrophe-stop-shakeout-2026-07-23)
+  found a REAL but UNDERPOWERED signal: the -50% catastrophe cap has fired on only n=4 historical
+  bear trades, and 4/4 of those were genuine shakeouts (premium recovered past the exit, 3/4 hit
+  full TP1). Widening to -70% (Δ+\$2,146) or structure-only (Δ+\$3,626 with ZERO losses) both beat
+  control on aggregate + drop-best-1 -- but FAIL majority-of-days (a rare-tail lever can't win most
+  days) and have ZERO held-out fires (can't OOS-confirm). TODAY was NOT one of these: today's 735P
+  decayed on theta, holding would have lost more (-\$615 vs -\$305) -- the cap was correct today.
+  This is the FIRST study to touch catastrophe_stop_pct itself (trail-width + structure-ref both
+  held it at -0.50). ACCRUE: shadow-log every future catastrophe-cap fire + its held-to-EOD
+  counterfactual until n>=10, then a pre-registered decision. Do NOT widen on n=4. depends:none :: status:pending
+
 ### ENGULFING-AT-STRUCTURE-TRIGGER (HIGH, THE build -- 3 live exhibits, mirror-symmetric, untested by the 181-cell matrix)
 
 - [ ] ENGULFING-AT-STRUCTURE-TRIGGER (HIGH, Lane-A vocabulary + Lane-B pre-reg) :: J called this

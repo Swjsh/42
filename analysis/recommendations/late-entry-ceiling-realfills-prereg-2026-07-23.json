@@ -1,0 +1,48 @@
+{
+  "_doc": "FROZEN pre-registration, written BEFORE the P&L replay ran (episode POPULATION was necessarily extracted first to know what to fetch option bars for -- that is data collection, not an outcome peek; no dollar figure or exit reason was computed before this file was written). J-directed forensic Q2 (2026-07-23): Safe's 15:36 trendline bear signal today was SKIP_LATE_ENTRY'd (8 ENTER_BEAR verdicts 15:36-15:49, all past the entry_no_trade_after_et=15:00 ceiling). Upgrade of the 2026-07-21 chef study (strategy/candidates/2026-07-21-202600-late-entry-ceiling-reconsider.md, SPY-spot-direction-proxy method) to REAL per-episode option-economics P&L via exit_manager_walk -- the task's explicit instruction.",
+  "study": "late_entry_ceiling_realfills",
+  "version": 1,
+  "generated_at_et": "2026-07-23 (after-hours work block)",
+  "runner": "backtest/tools/late_entry_ceiling_realfills.py",
+
+  "gate_under_review": {
+    "param_key": "entry_no_trade_after_et", "current_value_both_accounts": "15:00",
+    "verified_live": "grep 'entry_no_trade_after_et' automation/state/params.json automation/state/aggressive/params.json -> both '15:00' (read live, 2026-07-23)",
+    "code_path": "setup/scripts/heartbeat_core.py:_past_entry_ceiling (line ~149), action logged = SKIP_LATE_ENTRY"
+  },
+
+  "population": {
+    "method": "Exhaustive scan of automation/state/core-decisions.jsonl (full retained history, 2026-06-25..2026-07-23) + automation/state/fleet/*/decisions.jsonl (0 matches -- fleet arms did not fire a bear SKIP_LATE_ENTRY in this window) for action=='SKIP_LATE_ENTRY' AND side=='P' AND verdict=='ENTER_BEAR' (bear-only, per Q2's explicit scope -- Q1/today's incident was a bear trade). Consecutive same-account fires <=3 minutes apart collapsed into ONE episode (a single re-confirming signal is one trading opportunity, not N independent ones -- Rule 4), matching the 2026-07-21 chef study's own episode-grouping convention exactly.",
+    "n_episodes": 21, "n_accounts": 2, "date_span": "2026-07-07..2026-07-23",
+    "n_with_recoverable_trigger_level_exact": 2,
+    "note": "Retention window is now ~4 weeks (core-decisions.jsonl spans 2026-06-25 onward), longer than the 07-21 study's disclosed ~2-week retention at that time -- more evidence has passively accumulated, per that study's own 'next_step' plan."
+  },
+
+  "entry_reconstruction": {
+    "entry_time": "the FIRST block-fire minute of each episode (Rule 4 -- only the first re-confirmation of a repeating signal is a genuinely new trigger)",
+    "entry_premium": "the option contract's OWN 5-min OHLC bar OPEN at/after the first block-fire minute (same convention as engine_fullhist_replay.py / trail_width_exit_ab.py's real-fills entry proxy)",
+    "strike_convention": "ATM (round(SPY spot at block time)), consistent across ALL 21 episodes for both accounts -- a disclosed APPROXIMATION (the blocked entries never reached strike selection; CLAUDE.md's V15_SAFE_TIERS documents core Safe trades ATM, so this matches Safe's real convention exactly; applied uniformly to Bold episodes too for methodological consistency, disclosed as a deviation from Bold's live OTM-2 tier).",
+    "qty_convention": "3 contracts (Rule 6 minimum-lot floor) uniformly -- the blocked entries never reached position sizing, disclosed approximation.",
+    "trigger_level": "trigger_level_exact from the live decision log where present (2/21 episodes); None otherwise -> falls back to stop_mode=='premium' (premium_stop_pct=-0.20) IDENTICALLY to how a real entry with no recoverable level would resolve -- never a fabricated level."
+  },
+
+  "exit_method": {
+    "engine": "backtest/lib/exit_manager_walk.py#walk_exit_manager -- the REAL exit_manager.plan_exit_actions decision core, NOT a spot-price proxy (the upgrade this task asked for over the 07-21 study).",
+    "exit_shape": "automation/state/fleet/strategies.py#RIBBON_RIDE.exit.to_dict() -- the live shape, unmodified (this is a KEEP/MOVE/RETEST verdict on the CEILING, not an exit-shape A/B).",
+    "structure_stop_enabled": true, "time_stop_et": "15:40 (current live value, verified in automation/state/params.json)",
+    "ribbon_flip_back": "modeled (continuous RTH ribbon lookup + backward merge_asof onto each contract's own bar timestamps, same construction as engine_fullhist_replay.py / catastrophe_stop_shakeout_ab.py)."
+  },
+
+  "verdict_rule": {
+    "options": ["KEEP", "MOVE_TO_X", "RETEST_INSUFFICIENT_N"],
+    "advisory_evidence_floor": 15,
+    "KEEP_if": "n >= floor AND aggregate real-fills P&L across all 21 episodes is negative or flat (the ceiling is correctly avoiding a losing cohort)",
+    "MOVE_TO_X_if": "n >= floor AND aggregate P&L is clearly positive AND the loss is concentrated specifically in the currently-blocked 15:00-15:xx band (not the documented 15:45+ broker-rejection scar band, which stays hard-blocked regardless of P&L -- see band_B_scar_disposition in the 07-14 chef precedent, not re-litigated here)",
+    "RETEST_INSUFFICIENT_N_if": "n < floor, OR result is mixed-sign/sub-window-unstable in a way a 21-episode sample cannot resolve -- reported honestly, not forced either direction",
+    "decisive_number": "aggregate real-fills $ across all 21 episodes + per-account split + win rate, stated plainly in the .md verdict line."
+  },
+
+  "reconciliation_with_2026_07_21_chef_study": "That study used a SPY-spot-direction proxy (favorable/unfavorable by 15:50 close) on 19 ALL-DIRECTION episodes and found 10-31% favorable hit rate depending on ceiling tested -- REJECTED loosening. This study restricts to the 21 BEAR-ONLY episodes (a slightly different, larger-by-2-weeks population) and replays REAL option P&L via exit_manager_walk instead of a spot proxy -- a methodologically stronger, independent check on the same underlying question. Both results reported; agreement or disagreement stated plainly.",
+
+  "rules": "READ-ONLY: no params.json/heartbeat_core.py edit. No broker imports beyond read-only historical-market-data fetch (same _alpaca_creds.py pattern already established in this repo -- market-data auth only, never order placement). No commit (orchestrator adjudicates)."
+}

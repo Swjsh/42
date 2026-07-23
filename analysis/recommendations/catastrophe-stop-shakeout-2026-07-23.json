@@ -1,0 +1,997 @@
+{
+  "_doc": "Q1 catastrophe-stop shakeout A/B -- frozen pre-registered, real OPRA fills via exit_manager_walk, 386-day (2025-01-02..2026-07-22) bear population reused from engine-fullhist-replay-2026-07-23.json. ANALYSIS ONLY.",
+  "generated_at": "2026-07-23T16:38:55.089003",
+  "preregistration_file": "analysis/recommendations/catastrophe-stop-shakeout-prereg-2026-07-23.json",
+  "baseline_population_file": "analysis/recommendations/engine-fullhist-replay-2026-07-23.json",
+  "today_counterfactual": {
+    "symbol": "SPY260723P00735000",
+    "entry_time_et": "2026-07-23T11:29:25",
+    "entry_premium": 1.28,
+    "qty": 5,
+    "actual_exit_time_et": "2026-07-23T11:56:05",
+    "actual_exit_premium": 0.67,
+    "actual_realized_pnl": -305.0,
+    "max_favorable_premium_after_stop": 0.78,
+    "max_favorable_premium_time_et": "2026-07-23T11:57:00",
+    "best_case_counterfactual_pnl_if_sold_at_max_favorable": -250.0,
+    "held_to_time_stop_15_40_et_premium": 0.12,
+    "held_to_time_stop_counterfactual_pnl": -580.0,
+    "held_to_eod_16_00_et_premium": 0.05,
+    "held_to_eod_counterfactual_pnl": -615.0,
+    "verdict": "NOT a shakeout in hindsight -- max-favorable-after-stop ($0.78 at 11:57 ET, one minute after the exit) never approached breakeven let alone TP1; both the held-to-time-stop and held-to-EOD counterfactuals are WORSE than the actual catastrophe-stop exit. SPY bounced off the 11:30 ET low (735.21) and STAYED elevated (RTH close ~738.24, not the lower level implied by an assumed later-day reversal) -- the 735P decayed on theta/OTM drift, not a wick that reversed."
+  },
+  "preflight": {
+    "n_bear_total": 151,
+    "n_bear_total_ok": true,
+    "n_structure_mode": 27,
+    "n_structure_mode_ok": true,
+    "population_content_sha256_16": "0f522e20f3895beb",
+    "preregistration_version": 1
+  },
+  "sanity_mismatches_vs_baseline": [],
+  "control_shape": {
+    "premium_stop_pct": -0.2,
+    "tp1_premium_pct": 1.0,
+    "tp1_qty_fraction": 0.667,
+    "profit_lock_mode": "trailing",
+    "runner_target_pct": 99.0,
+    "trail_pct": 0.15,
+    "profit_lock_arm_pct": 0.05,
+    "stop_mode": "structure",
+    "catastrophe_stop_pct": -0.5,
+    "profit_lock_arm_scope": "post_tp1"
+  },
+  "candidate_shapes": {
+    "CAND-WIDE70": {
+      "premium_stop_pct": -0.2,
+      "tp1_premium_pct": 1.0,
+      "tp1_qty_fraction": 0.667,
+      "profit_lock_mode": "trailing",
+      "runner_target_pct": 99.0,
+      "trail_pct": 0.15,
+      "profit_lock_arm_pct": 0.05,
+      "stop_mode": "structure",
+      "catastrophe_stop_pct": -0.7,
+      "profit_lock_arm_scope": "post_tp1"
+    },
+    "CAND-NOCAT": {
+      "premium_stop_pct": -0.2,
+      "tp1_premium_pct": 1.0,
+      "tp1_qty_fraction": 0.667,
+      "profit_lock_mode": "trailing",
+      "runner_target_pct": 99.0,
+      "trail_pct": 0.15,
+      "profit_lock_arm_pct": 0.05,
+      "stop_mode": "structure",
+      "catastrophe_stop_pct": -0.99,
+      "profit_lock_arm_scope": "post_tp1"
+    }
+  },
+  "population": {
+    "n_bear_total": 151,
+    "n_structure_mode_replayed": 27,
+    "n_premium_mode_untouched": 124,
+    "date_span": "2025-01-10..2026-07-20",
+    "oos_split_index": 21,
+    "n_oos_trades": 6,
+    "oos_dates": [
+      "2026-06-25",
+      "2026-06-26",
+      "2026-07-17",
+      "2026-07-20"
+    ]
+  },
+  "control_total_pnl_structure_mode_subset": 4559.45,
+  "descriptive_shakeout_stat": {
+    "n_premium_stop_fires_under_control": 4,
+    "n_structure_confirmed_by_eod": 0,
+    "rate_structure_confirmed_by_eod": 0.0,
+    "n_premium_recovered_past_exit_by_eod": 4,
+    "rate_premium_recovered_past_exit": 1.0,
+    "n_premium_reached_tp1_by_eod": 3,
+    "rate_premium_reached_tp1_by_eod": 0.75,
+    "detail": [
+      {
+        "applicable": true,
+        "trigger_level": 595.98,
+        "exit_fill_price": 0.46,
+        "structure_confirmed_by_eod": false,
+        "structure_confirm_time_et": null,
+        "max_option_premium_after_stop": 4.04,
+        "tp1_level": 1.84,
+        "premium_recovered_past_exit_by_eod": true,
+        "premium_reached_tp1_by_eod": true,
+        "date": "2025-06-05",
+        "symbol": "SPY250605P00595000",
+        "entry_time_et": "2025-06-05T14:05:00",
+        "entry_premium": 0.92,
+        "control_pnl": -230.0
+      },
+      {
+        "applicable": true,
+        "trigger_level": 738.1900024414062,
+        "exit_fill_price": 1.3,
+        "structure_confirmed_by_eod": false,
+        "structure_confirm_time_et": null,
+        "max_option_premium_after_stop": 12.42,
+        "tp1_level": 5.2,
+        "premium_recovered_past_exit_by_eod": true,
+        "premium_reached_tp1_by_eod": true,
+        "date": "2026-06-09",
+        "symbol": "SPY260609P00735000",
+        "entry_time_et": "2026-06-09T10:50:00",
+        "entry_premium": 2.6,
+        "control_pnl": -390.0
+      },
+      {
+        "applicable": true,
+        "trigger_level": 750.8286009873198,
+        "exit_fill_price": 1.19,
+        "structure_confirmed_by_eod": false,
+        "structure_confirm_time_et": null,
+        "max_option_premium_after_stop": 5.74,
+        "tp1_level": 4.74,
+        "premium_recovered_past_exit_by_eod": true,
+        "premium_reached_tp1_by_eod": true,
+        "date": "2026-06-17",
+        "symbol": "SPY260617P00745000",
+        "entry_time_et": "2026-06-17T14:05:00",
+        "entry_premium": 2.37,
+        "control_pnl": -355.5
+      },
+      {
+        "applicable": true,
+        "trigger_level": 746.1,
+        "exit_fill_price": 0.6,
+        "structure_confirmed_by_eod": false,
+        "structure_confirm_time_et": null,
+        "max_option_premium_after_stop": 1.07,
+        "tp1_level": 2.42,
+        "premium_recovered_past_exit_by_eod": true,
+        "premium_reached_tp1_by_eod": false,
+        "date": "2026-06-22",
+        "symbol": "SPY260622P00744000",
+        "entry_time_et": "2026-06-22T11:50:00",
+        "entry_premium": 1.21,
+        "control_pnl": -242.0
+      }
+    ]
+  },
+  "verdicts": {
+    "CAND-WIDE70": {
+      "n": 27,
+      "control_total": 4559.45,
+      "candidate_total": 6706.0,
+      "aggregate_delta": 2146.55,
+      "gate1_aggregate_beats_control": true,
+      "gate2_majority_of_days": {
+        "result": false,
+        "candidate_wins_days": 2,
+        "control_wins_or_ties_days": 18,
+        "n_days": 20
+      },
+      "gate3_survives_drop_best1": {
+        "result": true,
+        "delta_ex_best1": 705.2
+      },
+      "gate4_oos_last25_holds": {
+        "result": false,
+        "is_delta": 2146.55,
+        "oos_delta": 0.0,
+        "sign_flip": false,
+        "n_is": 20,
+        "n_oos": 7
+      },
+      "disclosure_concentration_ex_top3": {
+        "delta_ex_top3": -239.0,
+        "survives_ex_top3": false
+      },
+      "p_value_raw": 0.10518,
+      "give_back_accounting": {
+        "extra_captured_on_beats": 2385.55,
+        "n_beats": 2,
+        "extra_given_back_on_losses": -239.0,
+        "n_losses": 2,
+        "net": 2146.55
+      },
+      "overall_ship_decision": "CONTROL_HOLDS",
+      "disclosure_bh_fdr": {
+        "p": 0.10518,
+        "bh_threshold": 0.1,
+        "significant": false
+      }
+    },
+    "CAND-NOCAT": {
+      "n": 27,
+      "control_total": 4559.45,
+      "candidate_total": 8185.5,
+      "aggregate_delta": 3626.05,
+      "gate1_aggregate_beats_control": true,
+      "gate2_majority_of_days": {
+        "result": false,
+        "candidate_wins_days": 4,
+        "control_wins_or_ties_days": 16,
+        "n_days": 20
+      },
+      "gate3_survives_drop_best1": {
+        "result": true,
+        "delta_ex_best1": 2184.7
+      },
+      "gate4_oos_last25_holds": {
+        "result": false,
+        "is_delta": 3626.05,
+        "oos_delta": 0.0,
+        "sign_flip": false,
+        "n_is": 20,
+        "n_oos": 7
+      },
+      "disclosure_concentration_ex_top3": {
+        "delta_ex_top3": 102.0,
+        "survives_ex_top3": true
+      },
+      "p_value_raw": 0.03377,
+      "give_back_accounting": {
+        "extra_captured_on_beats": 3626.05,
+        "n_beats": 4,
+        "extra_given_back_on_losses": 0,
+        "n_losses": 0,
+        "net": 3626.05
+      },
+      "overall_ship_decision": "CONTROL_HOLDS",
+      "disclosure_bh_fdr": {
+        "p": 0.03377,
+        "bh_threshold": 0.05,
+        "significant": true
+      }
+    }
+  },
+  "position_detail": {
+    "CAND-WIDE70": [
+      {
+        "date": "2025-01-10",
+        "symbol": "SPY250110P00585000",
+        "entry_time_et": "2025-01-10T10:35:00",
+        "control_pnl": 705.55,
+        "candidate_pnl": 705.55,
+        "control_exit_reason": "runner_stop @ 4.96",
+        "candidate_exit_reason": "runner_stop @ 4.96"
+      },
+      {
+        "date": "2025-01-10",
+        "symbol": "SPY250110P00580000",
+        "entry_time_et": "2025-01-10T12:05:00",
+        "control_pnl": 12.0,
+        "candidate_pnl": 12.0,
+        "control_exit_reason": "structure_stop @ 580.51",
+        "candidate_exit_reason": "structure_stop @ 580.51"
+      },
+      {
+        "date": "2025-02-21",
+        "symbol": "SPY250221P00603000",
+        "entry_time_et": "2025-02-21T14:05:00",
+        "control_pnl": 616.0,
+        "candidate_pnl": 616.0,
+        "control_exit_reason": "time_stop_15:50 (runner)",
+        "candidate_exit_reason": "time_stop_15:50 (runner)"
+      },
+      {
+        "date": "2025-06-05",
+        "symbol": "SPY250605P00595000",
+        "entry_time_et": "2025-06-05T14:05:00",
+        "control_pnl": -230.0,
+        "candidate_pnl": 714.2,
+        "control_exit_reason": "premium_stop @ 0.46",
+        "candidate_exit_reason": "runner_stop @ 3.11"
+      },
+      {
+        "date": "2025-06-13",
+        "symbol": "SPY250613P00599000",
+        "entry_time_et": "2025-06-13T14:05:00",
+        "control_pnl": 656.0,
+        "candidate_pnl": 656.0,
+        "control_exit_reason": "runner_stop @ 2.81",
+        "candidate_exit_reason": "runner_stop @ 2.81"
+      },
+      {
+        "date": "2025-06-20",
+        "symbol": "SPY250620P00595000",
+        "entry_time_et": "2025-06-20T13:05:00",
+        "control_pnl": 397.8,
+        "candidate_pnl": 397.8,
+        "control_exit_reason": "runner_stop @ 1.99",
+        "candidate_exit_reason": "runner_stop @ 1.99"
+      },
+      {
+        "date": "2025-10-15",
+        "symbol": "SPY251015P00663000",
+        "entry_time_et": "2025-10-15T13:05:00",
+        "control_pnl": 483.55,
+        "candidate_pnl": 483.55,
+        "control_exit_reason": "runner_stop @ 3.26",
+        "candidate_exit_reason": "runner_stop @ 3.26"
+      },
+      {
+        "date": "2026-01-29",
+        "symbol": "SPY260129P00690000",
+        "entry_time_et": "2026-01-29T11:05:00",
+        "control_pnl": 656.85,
+        "candidate_pnl": 656.85,
+        "control_exit_reason": "runner_stop @ 4.6",
+        "candidate_exit_reason": "runner_stop @ 4.6"
+      },
+      {
+        "date": "2026-02-03",
+        "symbol": "SPY260203P00690000",
+        "entry_time_et": "2026-02-03T13:05:00",
+        "control_pnl": 380.0,
+        "candidate_pnl": 380.0,
+        "control_exit_reason": "structure_stop @ 690.545",
+        "candidate_exit_reason": "structure_stop @ 690.545"
+      },
+      {
+        "date": "2026-02-26",
+        "symbol": "SPY260226P00690000",
+        "entry_time_et": "2026-02-26T11:05:00",
+        "control_pnl": 636.05,
+        "candidate_pnl": 636.05,
+        "control_exit_reason": "runner_stop @ 4.7",
+        "candidate_exit_reason": "runner_stop @ 4.7"
+      },
+      {
+        "date": "2026-05-18",
+        "symbol": "SPY260518P00737000",
+        "entry_time_et": "2026-05-18T11:05:00",
+        "control_pnl": 446.45,
+        "candidate_pnl": 446.45,
+        "control_exit_reason": "runner_stop @ 2.86",
+        "candidate_exit_reason": "runner_stop @ 2.86"
+      },
+      {
+        "date": "2026-05-18",
+        "symbol": "SPY260518P00736000",
+        "entry_time_et": "2026-05-18T14:05:00",
+        "control_pnl": 514.4,
+        "candidate_pnl": 514.4,
+        "control_exit_reason": "runner_stop @ 2.06",
+        "candidate_exit_reason": "runner_stop @ 2.06"
+      },
+      {
+        "date": "2026-05-21",
+        "symbol": "SPY260521P00738000",
+        "entry_time_et": "2026-05-21T11:35:00",
+        "control_pnl": -189.0,
+        "candidate_pnl": -189.0,
+        "control_exit_reason": "structure_stop @ 738.85",
+        "candidate_exit_reason": "structure_stop @ 738.85"
+      },
+      {
+        "date": "2026-06-08",
+        "symbol": "SPY260608P00742000",
+        "entry_time_et": "2026-06-08T13:35:00",
+        "control_pnl": 439.9,
+        "candidate_pnl": 439.9,
+        "control_exit_reason": "runner_stop @ 3.01",
+        "candidate_exit_reason": "runner_stop @ 3.01"
+      },
+      {
+        "date": "2026-06-08",
+        "symbol": "SPY260608P00741000",
+        "entry_time_et": "2026-06-08T14:40:00",
+        "control_pnl": 532.0,
+        "candidate_pnl": 532.0,
+        "control_exit_reason": "runner_stop @ 2.21",
+        "candidate_exit_reason": "runner_stop @ 2.21"
+      },
+      {
+        "date": "2026-06-09",
+        "symbol": "SPY260609P00735000",
+        "entry_time_et": "2026-06-09T10:50:00",
+        "control_pnl": -390.0,
+        "candidate_pnl": 1051.35,
+        "control_exit_reason": "premium_stop @ 1.3",
+        "candidate_exit_reason": "runner_stop @ 7.91"
+      },
+      {
+        "date": "2026-06-17",
+        "symbol": "SPY260617P00745000",
+        "entry_time_et": "2026-06-17T14:05:00",
+        "control_pnl": -355.5,
+        "candidate_pnl": -497.7,
+        "control_exit_reason": "premium_stop @ 1.19",
+        "candidate_exit_reason": "premium_stop @ 0.71"
+      },
+      {
+        "date": "2026-06-22",
+        "symbol": "SPY260622P00744000",
+        "entry_time_et": "2026-06-22T11:50:00",
+        "control_pnl": -242.0,
+        "candidate_pnl": -338.8,
+        "control_exit_reason": "premium_stop @ 0.6",
+        "candidate_exit_reason": "premium_stop @ 0.36"
+      },
+      {
+        "date": "2026-06-22",
+        "symbol": "SPY260622P00744000",
+        "entry_time_et": "2026-06-22T15:00:00",
+        "control_pnl": -50.0,
+        "candidate_pnl": -50.0,
+        "control_exit_reason": "structure_stop @ 743.8599853515625",
+        "candidate_exit_reason": "structure_stop @ 743.8599853515625"
+      },
+      {
+        "date": "2026-06-24",
+        "symbol": "SPY260624P00734000",
+        "entry_time_et": "2026-06-24T13:20:00",
+        "control_pnl": 309.0,
+        "candidate_pnl": 309.0,
+        "control_exit_reason": "time_stop_15:50",
+        "candidate_exit_reason": "time_stop_15:50"
+      },
+      {
+        "date": "2026-06-25",
+        "symbol": "SPY260625P00730000",
+        "entry_time_et": "2026-06-25T10:00:00",
+        "control_pnl": -579.0,
+        "candidate_pnl": -579.0,
+        "control_exit_reason": "structure_stop @ 730.8400268554688",
+        "candidate_exit_reason": "structure_stop @ 730.8400268554688"
+      },
+      {
+        "date": "2026-06-25",
+        "symbol": "SPY260625P00733000",
+        "entry_time_et": "2026-06-25T13:35:00",
+        "control_pnl": -246.0,
+        "candidate_pnl": -246.0,
+        "control_exit_reason": "structure_stop @ 733.4773412770263",
+        "candidate_exit_reason": "structure_stop @ 733.4773412770263"
+      },
+      {
+        "date": "2026-06-26",
+        "symbol": "SPY260626P00729000",
+        "entry_time_et": "2026-06-26T09:50:00",
+        "control_pnl": -468.0,
+        "candidate_pnl": -468.0,
+        "control_exit_reason": "structure_stop @ 729.7",
+        "candidate_exit_reason": "structure_stop @ 729.7"
+      },
+      {
+        "date": "2026-06-26",
+        "symbol": "SPY260626P00732000",
+        "entry_time_et": "2026-06-26T14:55:00",
+        "control_pnl": -240.0,
+        "candidate_pnl": -240.0,
+        "control_exit_reason": "structure_stop @ 732.0982057689337",
+        "candidate_exit_reason": "structure_stop @ 732.0982057689337"
+      },
+      {
+        "date": "2026-07-17",
+        "symbol": "SPY260717P00745000",
+        "entry_time_et": "2026-07-17T13:55:00",
+        "control_pnl": 459.0,
+        "candidate_pnl": 459.0,
+        "control_exit_reason": "runner_stop @ 2.29",
+        "candidate_exit_reason": "runner_stop @ 2.29"
+      },
+      {
+        "date": "2026-07-20",
+        "symbol": "SPY260720P00744000",
+        "entry_time_et": "2026-07-20T13:40:00",
+        "control_pnl": -185.0,
+        "candidate_pnl": -185.0,
+        "control_exit_reason": "structure_stop @ 744.5112751919311",
+        "candidate_exit_reason": "structure_stop @ 744.5112751919311"
+      },
+      {
+        "date": "2026-07-20",
+        "symbol": "SPY260720P00744000",
+        "entry_time_et": "2026-07-20T14:35:00",
+        "control_pnl": 489.4,
+        "candidate_pnl": 489.4,
+        "control_exit_reason": "runner_stop @ 1.97",
+        "candidate_exit_reason": "runner_stop @ 1.97"
+      }
+    ],
+    "CAND-NOCAT": [
+      {
+        "date": "2025-01-10",
+        "symbol": "SPY250110P00585000",
+        "entry_time_et": "2025-01-10T10:35:00",
+        "control_pnl": 705.55,
+        "candidate_pnl": 705.55,
+        "control_exit_reason": "runner_stop @ 4.96",
+        "candidate_exit_reason": "runner_stop @ 4.96"
+      },
+      {
+        "date": "2025-01-10",
+        "symbol": "SPY250110P00580000",
+        "entry_time_et": "2025-01-10T12:05:00",
+        "control_pnl": 12.0,
+        "candidate_pnl": 12.0,
+        "control_exit_reason": "structure_stop @ 580.51",
+        "candidate_exit_reason": "structure_stop @ 580.51"
+      },
+      {
+        "date": "2025-02-21",
+        "symbol": "SPY250221P00603000",
+        "entry_time_et": "2025-02-21T14:05:00",
+        "control_pnl": 616.0,
+        "candidate_pnl": 616.0,
+        "control_exit_reason": "time_stop_15:50 (runner)",
+        "candidate_exit_reason": "time_stop_15:50 (runner)"
+      },
+      {
+        "date": "2025-06-05",
+        "symbol": "SPY250605P00595000",
+        "entry_time_et": "2025-06-05T14:05:00",
+        "control_pnl": -230.0,
+        "candidate_pnl": 714.2,
+        "control_exit_reason": "premium_stop @ 0.46",
+        "candidate_exit_reason": "runner_stop @ 3.11"
+      },
+      {
+        "date": "2025-06-13",
+        "symbol": "SPY250613P00599000",
+        "entry_time_et": "2025-06-13T14:05:00",
+        "control_pnl": 656.0,
+        "candidate_pnl": 656.0,
+        "control_exit_reason": "runner_stop @ 2.81",
+        "candidate_exit_reason": "runner_stop @ 2.81"
+      },
+      {
+        "date": "2025-06-20",
+        "symbol": "SPY250620P00595000",
+        "entry_time_et": "2025-06-20T13:05:00",
+        "control_pnl": 397.8,
+        "candidate_pnl": 397.8,
+        "control_exit_reason": "runner_stop @ 1.99",
+        "candidate_exit_reason": "runner_stop @ 1.99"
+      },
+      {
+        "date": "2025-10-15",
+        "symbol": "SPY251015P00663000",
+        "entry_time_et": "2025-10-15T13:05:00",
+        "control_pnl": 483.55,
+        "candidate_pnl": 483.55,
+        "control_exit_reason": "runner_stop @ 3.26",
+        "candidate_exit_reason": "runner_stop @ 3.26"
+      },
+      {
+        "date": "2026-01-29",
+        "symbol": "SPY260129P00690000",
+        "entry_time_et": "2026-01-29T11:05:00",
+        "control_pnl": 656.85,
+        "candidate_pnl": 656.85,
+        "control_exit_reason": "runner_stop @ 4.6",
+        "candidate_exit_reason": "runner_stop @ 4.6"
+      },
+      {
+        "date": "2026-02-03",
+        "symbol": "SPY260203P00690000",
+        "entry_time_et": "2026-02-03T13:05:00",
+        "control_pnl": 380.0,
+        "candidate_pnl": 380.0,
+        "control_exit_reason": "structure_stop @ 690.545",
+        "candidate_exit_reason": "structure_stop @ 690.545"
+      },
+      {
+        "date": "2026-02-26",
+        "symbol": "SPY260226P00690000",
+        "entry_time_et": "2026-02-26T11:05:00",
+        "control_pnl": 636.05,
+        "candidate_pnl": 636.05,
+        "control_exit_reason": "runner_stop @ 4.7",
+        "candidate_exit_reason": "runner_stop @ 4.7"
+      },
+      {
+        "date": "2026-05-18",
+        "symbol": "SPY260518P00737000",
+        "entry_time_et": "2026-05-18T11:05:00",
+        "control_pnl": 446.45,
+        "candidate_pnl": 446.45,
+        "control_exit_reason": "runner_stop @ 2.86",
+        "candidate_exit_reason": "runner_stop @ 2.86"
+      },
+      {
+        "date": "2026-05-18",
+        "symbol": "SPY260518P00736000",
+        "entry_time_et": "2026-05-18T14:05:00",
+        "control_pnl": 514.4,
+        "candidate_pnl": 514.4,
+        "control_exit_reason": "runner_stop @ 2.06",
+        "candidate_exit_reason": "runner_stop @ 2.06"
+      },
+      {
+        "date": "2026-05-21",
+        "symbol": "SPY260521P00738000",
+        "entry_time_et": "2026-05-21T11:35:00",
+        "control_pnl": -189.0,
+        "candidate_pnl": -189.0,
+        "control_exit_reason": "structure_stop @ 738.85",
+        "candidate_exit_reason": "structure_stop @ 738.85"
+      },
+      {
+        "date": "2026-06-08",
+        "symbol": "SPY260608P00742000",
+        "entry_time_et": "2026-06-08T13:35:00",
+        "control_pnl": 439.9,
+        "candidate_pnl": 439.9,
+        "control_exit_reason": "runner_stop @ 3.01",
+        "candidate_exit_reason": "runner_stop @ 3.01"
+      },
+      {
+        "date": "2026-06-08",
+        "symbol": "SPY260608P00741000",
+        "entry_time_et": "2026-06-08T14:40:00",
+        "control_pnl": 532.0,
+        "candidate_pnl": 532.0,
+        "control_exit_reason": "runner_stop @ 2.21",
+        "candidate_exit_reason": "runner_stop @ 2.21"
+      },
+      {
+        "date": "2026-06-09",
+        "symbol": "SPY260609P00735000",
+        "entry_time_et": "2026-06-09T10:50:00",
+        "control_pnl": -390.0,
+        "candidate_pnl": 1051.35,
+        "control_exit_reason": "premium_stop @ 1.3",
+        "candidate_exit_reason": "runner_stop @ 7.91"
+      },
+      {
+        "date": "2026-06-17",
+        "symbol": "SPY260617P00745000",
+        "entry_time_et": "2026-06-17T14:05:00",
+        "control_pnl": -355.5,
+        "candidate_pnl": 783.0,
+        "control_exit_reason": "premium_stop @ 1.19",
+        "candidate_exit_reason": "time_stop_15:50"
+      },
+      {
+        "date": "2026-06-22",
+        "symbol": "SPY260622P00744000",
+        "entry_time_et": "2026-06-22T11:50:00",
+        "control_pnl": -242.0,
+        "candidate_pnl": -140.0,
+        "control_exit_reason": "premium_stop @ 0.6",
+        "candidate_exit_reason": "time_stop_15:50"
+      },
+      {
+        "date": "2026-06-22",
+        "symbol": "SPY260622P00744000",
+        "entry_time_et": "2026-06-22T15:00:00",
+        "control_pnl": -50.0,
+        "candidate_pnl": -50.0,
+        "control_exit_reason": "structure_stop @ 743.8599853515625",
+        "candidate_exit_reason": "structure_stop @ 743.8599853515625"
+      },
+      {
+        "date": "2026-06-24",
+        "symbol": "SPY260624P00734000",
+        "entry_time_et": "2026-06-24T13:20:00",
+        "control_pnl": 309.0,
+        "candidate_pnl": 309.0,
+        "control_exit_reason": "time_stop_15:50",
+        "candidate_exit_reason": "time_stop_15:50"
+      },
+      {
+        "date": "2026-06-25",
+        "symbol": "SPY260625P00730000",
+        "entry_time_et": "2026-06-25T10:00:00",
+        "control_pnl": -579.0,
+        "candidate_pnl": -579.0,
+        "control_exit_reason": "structure_stop @ 730.8400268554688",
+        "candidate_exit_reason": "structure_stop @ 730.8400268554688"
+      },
+      {
+        "date": "2026-06-25",
+        "symbol": "SPY260625P00733000",
+        "entry_time_et": "2026-06-25T13:35:00",
+        "control_pnl": -246.0,
+        "candidate_pnl": -246.0,
+        "control_exit_reason": "structure_stop @ 733.4773412770263",
+        "candidate_exit_reason": "structure_stop @ 733.4773412770263"
+      },
+      {
+        "date": "2026-06-26",
+        "symbol": "SPY260626P00729000",
+        "entry_time_et": "2026-06-26T09:50:00",
+        "control_pnl": -468.0,
+        "candidate_pnl": -468.0,
+        "control_exit_reason": "structure_stop @ 729.7",
+        "candidate_exit_reason": "structure_stop @ 729.7"
+      },
+      {
+        "date": "2026-06-26",
+        "symbol": "SPY260626P00732000",
+        "entry_time_et": "2026-06-26T14:55:00",
+        "control_pnl": -240.0,
+        "candidate_pnl": -240.0,
+        "control_exit_reason": "structure_stop @ 732.0982057689337",
+        "candidate_exit_reason": "structure_stop @ 732.0982057689337"
+      },
+      {
+        "date": "2026-07-17",
+        "symbol": "SPY260717P00745000",
+        "entry_time_et": "2026-07-17T13:55:00",
+        "control_pnl": 459.0,
+        "candidate_pnl": 459.0,
+        "control_exit_reason": "runner_stop @ 2.29",
+        "candidate_exit_reason": "runner_stop @ 2.29"
+      },
+      {
+        "date": "2026-07-20",
+        "symbol": "SPY260720P00744000",
+        "entry_time_et": "2026-07-20T13:40:00",
+        "control_pnl": -185.0,
+        "candidate_pnl": -185.0,
+        "control_exit_reason": "structure_stop @ 744.5112751919311",
+        "candidate_exit_reason": "structure_stop @ 744.5112751919311"
+      },
+      {
+        "date": "2026-07-20",
+        "symbol": "SPY260720P00744000",
+        "entry_time_et": "2026-07-20T14:35:00",
+        "control_pnl": 489.4,
+        "candidate_pnl": 489.4,
+        "control_exit_reason": "runner_stop @ 1.97",
+        "candidate_exit_reason": "runner_stop @ 1.97"
+      }
+    ]
+  },
+  "control_position_detail": [
+    {
+      "date": "2025-01-10",
+      "symbol": "SPY250110P00585000",
+      "entry_time_et": "2025-01-10T10:35:00",
+      "trigger_level": 585.195,
+      "control_pnl": 705.55,
+      "control_exit_reason": "runner_stop @ 4.96",
+      "control_hold_minutes": 50
+    },
+    {
+      "date": "2025-01-10",
+      "symbol": "SPY250110P00580000",
+      "entry_time_et": "2025-01-10T12:05:00",
+      "trigger_level": 580.51,
+      "control_pnl": 12.0,
+      "control_exit_reason": "structure_stop @ 580.51",
+      "control_hold_minutes": 40
+    },
+    {
+      "date": "2025-02-21",
+      "symbol": "SPY250221P00603000",
+      "entry_time_et": "2025-02-21T14:05:00",
+      "trigger_level": 603.6,
+      "control_pnl": 616.0,
+      "control_exit_reason": "time_stop_15:50 (runner)",
+      "control_hold_minutes": 95
+    },
+    {
+      "date": "2025-06-05",
+      "symbol": "SPY250605P00595000",
+      "entry_time_et": "2025-06-05T14:05:00",
+      "trigger_level": 595.98,
+      "control_pnl": -230.0,
+      "control_exit_reason": "premium_stop @ 0.46",
+      "control_hold_minutes": 35
+    },
+    {
+      "date": "2025-06-13",
+      "symbol": "SPY250613P00599000",
+      "entry_time_et": "2025-06-13T14:05:00",
+      "trigger_level": 600.0,
+      "control_pnl": 656.0,
+      "control_exit_reason": "runner_stop @ 2.81",
+      "control_hold_minutes": 50
+    },
+    {
+      "date": "2025-06-20",
+      "symbol": "SPY250620P00595000",
+      "entry_time_et": "2025-06-20T13:05:00",
+      "trigger_level": 595.52,
+      "control_pnl": 397.8,
+      "control_exit_reason": "runner_stop @ 1.99",
+      "control_hold_minutes": 40
+    },
+    {
+      "date": "2025-10-15",
+      "symbol": "SPY251015P00663000",
+      "entry_time_et": "2025-10-15T13:05:00",
+      "trigger_level": 663.8275103924964,
+      "control_pnl": 483.55,
+      "control_exit_reason": "runner_stop @ 3.26",
+      "control_hold_minutes": 20
+    },
+    {
+      "date": "2026-01-29",
+      "symbol": "SPY260129P00690000",
+      "entry_time_et": "2026-01-29T11:05:00",
+      "trigger_level": 690.485,
+      "control_pnl": 656.85,
+      "control_exit_reason": "runner_stop @ 4.6",
+      "control_hold_minutes": 70
+    },
+    {
+      "date": "2026-02-03",
+      "symbol": "SPY260203P00690000",
+      "entry_time_et": "2026-02-03T13:05:00",
+      "trigger_level": 690.545,
+      "control_pnl": 380.0,
+      "control_exit_reason": "structure_stop @ 690.545",
+      "control_hold_minutes": 5
+    },
+    {
+      "date": "2026-02-26",
+      "symbol": "SPY260226P00690000",
+      "entry_time_et": "2026-02-26T11:05:00",
+      "trigger_level": 690.6,
+      "control_pnl": 636.05,
+      "control_exit_reason": "runner_stop @ 4.7",
+      "control_hold_minutes": 35
+    },
+    {
+      "date": "2026-05-18",
+      "symbol": "SPY260518P00737000",
+      "entry_time_et": "2026-05-18T11:05:00",
+      "trigger_level": 739.0,
+      "control_pnl": 446.45,
+      "control_exit_reason": "runner_stop @ 2.86",
+      "control_hold_minutes": 240
+    },
+    {
+      "date": "2026-05-18",
+      "symbol": "SPY260518P00736000",
+      "entry_time_et": "2026-05-18T14:05:00",
+      "trigger_level": 737.0,
+      "control_pnl": 514.4,
+      "control_exit_reason": "runner_stop @ 2.06",
+      "control_hold_minutes": 60
+    },
+    {
+      "date": "2026-05-21",
+      "symbol": "SPY260521P00738000",
+      "entry_time_et": "2026-05-21T11:35:00",
+      "trigger_level": 738.85,
+      "control_pnl": -189.0,
+      "control_exit_reason": "structure_stop @ 738.85",
+      "control_hold_minutes": 5
+    },
+    {
+      "date": "2026-06-08",
+      "symbol": "SPY260608P00742000",
+      "entry_time_et": "2026-06-08T13:35:00",
+      "trigger_level": 742.0841623480467,
+      "control_pnl": 439.9,
+      "control_exit_reason": "runner_stop @ 3.01",
+      "control_hold_minutes": 115
+    },
+    {
+      "date": "2026-06-08",
+      "symbol": "SPY260608P00741000",
+      "entry_time_et": "2026-06-08T14:40:00",
+      "trigger_level": 742.0841623480467,
+      "control_pnl": 532.0,
+      "control_exit_reason": "runner_stop @ 2.21",
+      "control_hold_minutes": 50
+    },
+    {
+      "date": "2026-06-09",
+      "symbol": "SPY260609P00735000",
+      "entry_time_et": "2026-06-09T10:50:00",
+      "trigger_level": 738.1900024414062,
+      "control_pnl": -390.0,
+      "control_exit_reason": "premium_stop @ 1.3",
+      "control_hold_minutes": 10
+    },
+    {
+      "date": "2026-06-17",
+      "symbol": "SPY260617P00745000",
+      "entry_time_et": "2026-06-17T14:05:00",
+      "trigger_level": 750.8286009873198,
+      "control_pnl": -355.5,
+      "control_exit_reason": "premium_stop @ 1.19",
+      "control_hold_minutes": 15
+    },
+    {
+      "date": "2026-06-22",
+      "symbol": "SPY260622P00744000",
+      "entry_time_et": "2026-06-22T11:50:00",
+      "trigger_level": 746.1,
+      "control_pnl": -242.0,
+      "control_exit_reason": "premium_stop @ 0.6",
+      "control_hold_minutes": 65
+    },
+    {
+      "date": "2026-06-22",
+      "symbol": "SPY260622P00744000",
+      "entry_time_et": "2026-06-22T15:00:00",
+      "trigger_level": 743.8599853515625,
+      "control_pnl": -50.0,
+      "control_exit_reason": "structure_stop @ 743.8599853515625",
+      "control_hold_minutes": 5
+    },
+    {
+      "date": "2026-06-24",
+      "symbol": "SPY260624P00734000",
+      "entry_time_et": "2026-06-24T13:20:00",
+      "trigger_level": 735.15,
+      "control_pnl": 309.0,
+      "control_exit_reason": "time_stop_15:50",
+      "control_hold_minutes": 140
+    },
+    {
+      "date": "2026-06-25",
+      "symbol": "SPY260625P00730000",
+      "entry_time_et": "2026-06-25T10:00:00",
+      "trigger_level": 730.8400268554688,
+      "control_pnl": -579.0,
+      "control_exit_reason": "structure_stop @ 730.8400268554688",
+      "control_hold_minutes": 5
+    },
+    {
+      "date": "2026-06-25",
+      "symbol": "SPY260625P00733000",
+      "entry_time_et": "2026-06-25T13:35:00",
+      "trigger_level": 733.4773412770263,
+      "control_pnl": -246.0,
+      "control_exit_reason": "structure_stop @ 733.4773412770263",
+      "control_hold_minutes": 45
+    },
+    {
+      "date": "2026-06-26",
+      "symbol": "SPY260626P00729000",
+      "entry_time_et": "2026-06-26T09:50:00",
+      "trigger_level": 729.7,
+      "control_pnl": -468.0,
+      "control_exit_reason": "structure_stop @ 729.7",
+      "control_hold_minutes": 10
+    },
+    {
+      "date": "2026-06-26",
+      "symbol": "SPY260626P00732000",
+      "entry_time_et": "2026-06-26T14:55:00",
+      "trigger_level": 732.0982057689337,
+      "control_pnl": -240.0,
+      "control_exit_reason": "structure_stop @ 732.0982057689337",
+      "control_hold_minutes": 15
+    },
+    {
+      "date": "2026-07-17",
+      "symbol": "SPY260717P00745000",
+      "entry_time_et": "2026-07-17T13:55:00",
+      "trigger_level": 745.2,
+      "control_pnl": 459.0,
+      "control_exit_reason": "runner_stop @ 2.29",
+      "control_hold_minutes": 95
+    },
+    {
+      "date": "2026-07-20",
+      "symbol": "SPY260720P00744000",
+      "entry_time_et": "2026-07-20T13:40:00",
+      "trigger_level": 744.5112751919311,
+      "control_pnl": -185.0,
+      "control_exit_reason": "structure_stop @ 744.5112751919311",
+      "control_hold_minutes": 15
+    },
+    {
+      "date": "2026-07-20",
+      "symbol": "SPY260720P00744000",
+      "entry_time_et": "2026-07-20T14:35:00",
+      "trigger_level": 744.1598866941566,
+      "control_pnl": 489.4,
+      "control_exit_reason": "runner_stop @ 1.97",
+      "control_hold_minutes": 50
+    }
+  ],
+  "reconciliation": {
+    "trail_width_exit_2026_07_21": "held catastrophe_stop_pct constant at -0.50 across every candidate (control_shape dict printed in that study's own output: 'catastrophe_stop_pct': -0.5, unchanged in TRAIL-20/25/30, TP1Q-050/033, RIDE-BUNDLE) -- varied ONLY trail_pct/tp1_qty_fraction/tp1_premium_pct. Disjoint from this study's axis.",
+    "structure_stop_reference_level_2026_07_20": "held catastrophe_stop_pct constant at -0.50 across REF-EXACT/REF-ZONE/REF-NONE -- varied ONLY the structure-stop's REFERENCE LEVEL (WHERE trigger_level is sourced from: trigger-exact vs zone-boundary vs none), never whether/how hard the catastrophe backstop bites. Disjoint from this study's axis.",
+    "conclusion_pre_committed": "This study's axis (catastrophe_stop_pct threshold, i.e. HOW WIDE the premium backstop is once already in structure mode) is genuinely disjoint from both prior NO-SHIP/CONTROL_HOLDS studies -- not a re-litigation. Restated with the actual run numbers in the companion .md regardless of which way this study's own verdict lands."
+  },
+  "disclosures": [
+    "This axis (catastrophe_stop_pct) only ever exposes the 27/151 bear trades that resolved stop_mode=='structure' at entry (rejection_level populated by the orchestrator entry layer). The other 124 trades use premium_stop_pct=-0.20 (untouched by any candidate here) -- their delta is exactly $0 by construction, excluded from the gate population to avoid diluting/hiding the real n.",
+    "n_structure_mode=27 clears this codebase's own advisory evidence floor (15 events for a directional read, per late-entry-ceiling-review.json precedent), but the count of trades where a candidate can show ANY nonzero delta is strictly bounded by how many hit premium_stop under CONTROL (n=4) -- reported per-candidate; n=4 is FAR below the floor and is the real limiting sample size for this mechanism.",
+    "ribbon_flip_back IS modeled (continuous RTH ribbon lookup, backward merge_asof, same construction as engine_fullhist_replay.py) -- unlike several prior real-fills studies that disclosed it OFF, this study inherits the fuller engine-fullhist-replay harness.",
+    "C6 fill-mark convention (exit_manager_walk.py): market-style stages (structure_stop/ribbon_flip/time_stop) fill at that bar's close minus $0.02 slippage; limit-style stages (tp1/premium_stop/trail/runner_target) fill exactly at the triggered premium level. Frictionless beyond that (no spread/queue modelled).",
+    "descriptive_shakeout_stat's 'structure_confirmed_by_eod' answers a DIFFERENT question than 'premium_recovered_past_exit' -- a trade can be a genuine early-vs-late-by-minutes call (structure confirms shortly after, as today's live trade did) without the OPTION premium ever actually recovering (theta/decay can dominate even when the underlying keeps moving favorably) -- both reported, never collapsed into one number."
+  ]
+}
