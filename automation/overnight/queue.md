@@ -104,7 +104,41 @@
   200-300 files per fire) across several chef/conductor fires, not as one giant single-fire
   pass -- each batch still needs `python crypto/validators/runner.py` clean before/after per
   chef.md guardrail #6. Refresh `_LEADERBOARD.md` at the end of the LAST batch.
-  depends:none :: status:pending
+  depends:none :: status:in_progress
+
+  > **[2026-07-22 ~21:48-22:15 ET conductor] Batch 1 SHIPPED this fire.** Built
+  > `backtest/tools/chef_candidates_consolidation_sweep.py` -- $0 pure-Python classifier (no
+  > LLM per file, 1619 files ruled that out on cost): stale = filename date >30d old
+  > (cutoff 2026-06-22); level-family = explicit `level_family:` tag if present, else inferred
+  > via the same FOCUS-DOCTRINE vocabulary as `task_scorer.py`'s `LEVEL_FAMILY_RE` (kept as a
+  > literal copy, not an import, for zero runtime coupling -- a guard test cross-checks the
+  > vocabulary lists don't silently diverge); traction = filename cited in `_LEADERBOARD.md`,
+  > `_LEADERBOARD-pending.md`, or any of the 4 live inbox dirs. Archive-eligible = stale AND
+  > non-level-family AND no traction (conservative "when in doubt KEEP", matching the
+  > `_archive/README.md`'s own stated policy). **Verified this fire (OP-33):** new guard suite
+  > `backtest/tests/test_chef_candidates_consolidation_sweep.py` (12 tests, synthetic tmp_path
+  > sandbox only -- never touches the real tree) caught a real bug before it touched
+  > production files: `run_batch`'s dry-run path resolved the archive-batch folder against the
+  > module-level `ARCHIVE_ROOT` constant instead of the caller's `candidates_dir` parameter,
+  > which would have been silently harmless in dry-run but wrong the moment a caller pointed
+  > `--candidates-dir` anywhere but the default; fixed, 12/12 green. Dry-run against the REAL
+  > tree first (`--dry-run`): 1619 scanned, 322 eligible, 888 not-yet-stale, 347 level-family,
+  > 62 traction. Gym baseline `python crypto/validators/runner.py` -> 104/104 PASS BEFORE the
+  > move. Applied batch 1 (`--batch-size 250 --apply`): 250 of 322 eligible archived
+  > oldest-first to `_archive/sweep-2026-07-22/` (spot-checked the list -- same
+  > `chef-nemo-*`-dominated May/June Kitchen-brainstorm-noise class as the precedent 2026-05/
+  > batch, nothing that reads as a named/promoted strategy). Re-ran gym AFTER the move ->
+  > 104/104 PASS, no regression. `strategy/candidates/` top-level count: 1619 -> 1369.
+  > `_chef-log.jsonl` +1 line (one batch-summary line with the full `moved_files` array, not
+  > 250 separate lines -- judged log-spam at this volume; documented as a deliberate deviation
+  > from the item's literal "one line each" wording, full audit trail is the summary line +
+  > `_archive/README.md`'s new `sweep-2026-07-22/` section + git history). **72 files remain
+  > eligible for batch 2** (plus whatever newly ages past the 30d cutoff by the next fire) --
+  > re-run the same script, same batch-size default (250), no new design work needed.
+  > **Scope + revert:** pure file-move + new tooling/test/doc, no params/heartbeat_core/
+  > filters/placement/exit/CLAUDE.md touched -- ships per OP-22 (engine-benefit hygiene, same
+  > class as CHEF-FOCUS-FILTER). Revert: one commit, `git revert <sha>` (restores the 250 files
+  > to their original paths via git history; the script itself is idempotent/re-runnable).
 
 ### GAMMA-STUDY-CURRICULUM (MED, standing conductor mode, filed 2026-07-22 night, J-directed "learn new things -- TA, indicators, risk management... like a person")
 

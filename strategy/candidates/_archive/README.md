@@ -10,6 +10,26 @@ DeepSeek / MiniMax free-tier drafts) — none were cited in `_LEADERBOARD.md` or
 ("a 371st untriaged candidate is debt, not progress"), they were moved out of the
 active candidate pile to keep it scannable.
 
+## sweep-2026-07-22/
+Batch 1 of `CHEF-CANDIDATES-CONSOLIDATION-SWEEP` (queue.md, filed 2026-07-22
+night, executed same night by the AFTERHOURS conductor via
+`backtest/tools/chef_candidates_consolidation_sweep.py`). 250 candidates
+moved (of 322 eligible; 72 remain eligible for the next batch), oldest-first
+out of 1619 top-level files scanned. Eligibility = stale (>30d old by
+filename date) AND non-level-family (no `level_family: true` tag and no
+FOCUS-DOCTRINE level-vocabulary match in title/heading) AND no traction
+(not cited in `_LEADERBOARD.md`/`_LEADERBOARD-pending.md` or any live
+inbox). Same class as the 2026-05/ batch below — mostly `chef-nemo-*`
+free-tier Kitchen brainstorm drafts from the May/June cook cycles, never
+promoted, nothing on the live path reads them. Disposition logged at
+`_chef-log.jsonl` (one summary line per batch, `"verdict":
+"archived-consolidation-sweep"`, with the full `moved_files` list — a
+per-file log line was judged log-spam given 250 files/batch; the summary
+line + this README entry + git history together are the audit trail).
+Move-not-delete per OP-22; `git mv` history is preserved. Remaining
+batches (next ~72+ eligible, plus whatever ages into eligibility) follow
+the same script, same conservative "when in doubt KEEP" policy.
+
 ## Deliberately KEPT in strategy/candidates/ (NOT archived)
 - `_LEADERBOARD.md`, `_LEADERBOARD-pending.md` — the curated promotion ledger.
 - `_analysis/` — Chef/Analyst analysis notes.
