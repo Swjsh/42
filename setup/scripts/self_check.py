@@ -737,6 +737,41 @@ def check_tv_cdp(now, fetch=None) -> list:
             f"`setup\\launch_tv_debug.ps1` by hand."]
 
 
+CANDIDATES_UNTRACKED_THRESHOLD = 20
+
+
+def check_candidates_untracked_backlog(run_git=None) -> list:
+    """VISIBILITY instrument for the STRATEGY-CANDIDATES-UNTRACKED-BACKFILL scar
+    (2026-07-22): 1,176 files under strategy/candidates/ -- live chef/kitchen/prospector
+    pipeline state, not gitignored -- had silently accumulated with ZERO commit history
+    (no recovery path on disk loss) until a one-time backfill commit. The lesson's own
+    fix explicitly named a graduated guard as part (3): 'a cheap periodic check flagging
+    strategy/candidates/ untracked-count above a small threshold (>20) so this can't
+    silently re-accumulate unnoticed' (C7 -- silent success is failure).
+
+    DEGRADED, never BROKEN: an untracked-file backlog has zero trading-relevant impact
+    (it cannot block/misinform a live decision) -- it is a version-control hygiene risk,
+    not an engine-tradeability one. $0, fail-open: any git-invocation error returns []
+    rather than raising (rail-2 -- this must never be able to interrupt the scheduler)."""
+    import subprocess
+    probe = run_git or (lambda: subprocess.run(
+        ["git", "status", "--porcelain=v1", "--", "strategy/candidates/"],
+        cwd=str(REPO), capture_output=True, text=True, timeout=15))
+    try:
+        proc = probe()
+        lines = [ln for ln in proc.stdout.splitlines() if ln.startswith("??")]
+    except Exception:  # noqa: BLE001 -- fail-open, this is a notify-only observer
+        return []
+    n = len(lines)
+    if n <= CANDIDATES_UNTRACKED_THRESHOLD:
+        return []
+    return [f"CANDIDATES-UNTRACKED: {n} untracked files under strategy/candidates/ "
+            f"(threshold {CANDIDATES_UNTRACKED_THRESHOLD}) -- live chef/kitchen/prospector "
+            f"pipeline state accumulating with no commit history / no disk-loss recovery "
+            f"path. Batch `git add --pathspec-from-file` + commit to clear (see "
+            f"STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22)."]
+
+
 def _problem_is_broken(p: str) -> bool:
     """BROKEN (vs DEGRADED) classifier for a problem string. Module-level so the
     graduated guards can assert the mapping (e.g. PLACEMENT BROKEN -> BROKEN)."""
@@ -838,6 +873,11 @@ def run() -> dict:
     # NOTHING in this file ever saw it. preopen_readiness.py caught this class at its own
     # one-shot 08:25 ET fire; this closes the same gap on the surface J's morning brief reads.
     problems.extend(check_tv_cdp(now))
+
+    # 15. CANDIDATES-UNTRACKED BACKLOG -- the 2026-07-22 scar: 1,176 strategy/candidates/
+    # files accumulated with zero commit history before a one-time backfill. Guards against
+    # silent re-accumulation (C7); DEGRADED-only, checked every self_check cadence ($0, fail-open).
+    problems.extend(check_candidates_untracked_backlog())
 
     verdict = "GREEN" if not problems else ("BROKEN" if any(_problem_is_broken(p) for p in problems) else "DEGRADED")
     result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth,
