@@ -1,3 +1,40 @@
+## [2026-07-23 ~19:42-19:55 ET] OK -- conductor (AFTERHOURS): closed stale checkbox BREAKER-REARM-STALENESS (fix already shipped 07-09), commit `78b2018f`
+
+> **STAGE 0/1:** ET confirmed 19:42 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. Self-audit gaps file fully triaged through today's 17:31 batch. `task_scorer.py
+> --top` returned `BREAKER-REARM-STALENESS` (MED, filed 2026-07-09). Traced it against live
+> code before executing (this exact re-verify-before-trusting discipline is why the last fire's
+> ranker fix + the `_lesson-inbox/2026-07-18-stale-queue-item-outranked-real-work.md` lesson
+> exist) and found the fix had ALREADY shipped the SAME DAY the ticket was filed: commit
+> `1b2cfeeb` (2026-07-09 11:34 MT) added `daily_loss_guard.py#rearm()` + `engine_health.py
+> #check_breaker_rearm()` ("re-armed TODAY" canary for both breakers). The queue checkbox was
+> never flipped -- 14 days stale on a same-day-fixed bug.
+
+> **What shipped:** re-verified `test_engine_health_breaker_rearm.py` 14/14 green, confirmed
+> live `engine-health.json` this fire shows `breaker_rearm_safe`/`breaker_rearm_bold` GREEN with
+> TODAY's date (last_reset=2026-07-23, session_id=2026-07-23) -- the exact "GREEN-while-stale
+> hole" the ticket exists to close no longer exists. Closed the checkbox in `queue.md` with the
+> full evidence trail. `task_scorer.py --top` now returns a different, real item
+> (`PARTICIPATION-DAILY-SELF-CHECK-WIRE`), confirmed post-fix.
+
+> **Learn (STAGE 4.5):** this is the 3rd confirmed instance of "work shipped, queue checkbox
+> left open" (T-W8-HEADROOM 07-11, FUTURES-PHASE1-BATTERY 07-14, this one) -- a re-violated
+> pattern per OP-25. Filed `_lesson-inbox/2026-07-23-stale-queue-checkbox-work-done-ticket-
+> open.md` proposing a pre-flight cross-reference guard (ticket names a file with a
+> post-filing commit touching it + still status:pending -> flag "possibly-already-shipped,
+> re-verify" before trusting `task_scorer --top` blindly) for graduation.
+
+> **Scope + revert:** `queue.md` (1 checkbox flip + evidence) + 1 new lesson-inbox file. Zero
+> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched -- pure queue-hygiene/
+> engine-benefit authoring, ships per OP-22/26, no J ratification needed. Curated safety gate
+> (31+5) PASS. Revert: `git revert 78b2018f`.
+
+> **Cost: ~$1.7** (STAGE 0/1 reads, root-cause trace against live code + git blame, guard
+> re-verification, lesson-inbox write-up, STATUS/queue write-up, conductor_outcome
+> record+metric).
+
+---
+
 ## [2026-07-23 ~18:42-18:55 ET] OK -- conductor (AFTERHOURS): VWAP-TREND-PULLBACK-VERIFY-FAILED closed -- ran the frozen honest study, verdict KEEP-DORMANT (confirmed reskin)
 
 > **STAGE 0/1:** ET confirmed 18:42 (Thursday, market closed since 15:55). `engine-health.json`
@@ -630,63 +667,6 @@
 > and the 6 family runners' consumption code, building + testing + RED-proofing the script,
 > lesson-inbox filing, queue/STATUS write-up). `conductor_outcome.py metric` to be recorded
 > next.
-
----
-
-## [2026-07-23 ~05:42-06:12 ET] OK -- conductor (AFTERHOURS): QUEUE-MD-RETENTION-CAP step 1 shipped -- 54KB archived out of queue.md, caught+fixed an LF->CRLF write foot-gun
-
-> **STAGE 0/1:** ET confirmed 05:42, Thursday, market closed since 15:55 (opens 09:30). `engine-health.json`
-> GREEN 13/13 (all quiet-OK, market closed). Self-audit gaps: all batches through 2026-07-22T17:32:32
-> already triaged by earlier fires -- nothing new (next batch not due until ~17:3x ET, after market
-> close). Checked HIGH-tier queue items first: `DOJO-BUILD-HANDOFF` (HIGH) is documented
-> NOT-PICKABLE by a conductor fire (no TradingView MCP tools bound to this session); `CHEF-FOCUS-FILTER`
-> (HIGH) has all 4 parts done (1-3 shipped 07-22, part 4 split off to `CHEF-CANDIDATES-CONSOLIDATION-SWEEP`
-> which is now CLOSED) -- just needs its own status line corrected, not fresh work.
-> `task_scorer.py --top` surfaced `EDGE-MATRIX-NIGHTLY-RERUN` (MED) again; picked
-> `QUEUE-MD-RETENTION-CAP` (LOW) instead -- it has an explicit, already-scoped "next bounded step"
-> written into its own queue text, closes a loop (OP-22), and directly fixes a functional pain this
-> fire hit firsthand: `Read` on `automation/overnight/queue.md` failed outright at STAGE 0
-> ("exceeds the Read tool's 256KB limit"), forcing every conductor fire's STAGE 0 to fall back to
-> grep/sed gymnastics -- LOW-labeled but real engine-benefit for every future fire's read cost.
-
-> **What shipped:** archived the 2026-06-19..07-01 dated half of queue.md's `## Completed` section
-> (119 lines / 53,831 bytes, lines 2129-2247 -- located via a python per-`## `-section byte-boundary
-> scan, not guessed) to new file `automation/overnight/queue-archive-2026-07-23-completed.md`, same
-> precedent as `queue-archive-2026-06-19.md`/`queue-archive-2026-06-20.md`. Checked first that no
-> live `## Active backlog` item's `depends:` references any of the 6 entry-ids being archived --
-> zero hits, safe to move. Left a 4-line pointer in queue.md matching the existing archive-pointer
-> style already there. `queue.md`: 577,392 -> 539,787 bytes (net change after also writing up this
-> item's own progress note: 43 insertions / 133 deletions per `git diff --stat`) -- still over the
-> 256KB single-read limit (always a multi-fire job, not a regression; the actively-growing
-> `## Active backlog` section alone is 267KB and needs its own separate triage pass).
-
-> **Foot-gun caught + fixed same fire (OP-33, not filed to lesson-inbox -- folded straight in since
-> it's this item's own mechanism):** my first-pass `open(path, 'w', encoding='utf-8')` in Python
-> silently converted `\n` -> `\r\n` on this Windows box, which would have broken the "byte-for-byte
-> preserved" archival claim with a spurious whitespace-only diff across the entire file. Caught it
-> by running `file` on the output (reported "with CRLF line terminators" on a repo file that was
-> LF-only) BEFORE committing -- re-wrote both files with `newline='\n'`, re-diffed, confirmed
-> byte-identical against the pre-edit `git show HEAD:...` range. **Lesson for future
-> archival/file-move scripts in this repo:** always open with `newline='\n'` (or binary mode) --
-> plain text-mode writes on Windows are not byte-preserving by default.
-
-> **Verified this fire (OP-33):** `diff` of the archived segment against the pre-edit git-HEAD
-> line range -> byte-identical after the LF fix. `git diff --stat automation/overnight/queue.md` ->
-> clean, only the intended range touched. `python setup/scripts/task_scorer.py --top` re-run after
-> the edit -> same result as before (`EDGE-MATRIX-NIGHTLY-RERUN`), confirming the queue parser is
-> unaffected by the archival move. No gym/pytest run required -- pure doc/archival move, zero
-> code/params/heartbeat_core/filters/placement/exit/CLAUDE.md touched.
-
-> **Item status:** `QUEUE-MD-RETENTION-CAP` updated to `status:in_progress-step1-of-N-done` in
-> queue.md (not closed -- still >256KB, remaining work named: triage `## Active backlog`'s 267KB
-> and/or the ~208KB of dated post-Completed sections, oldest-first, for genuinely-stale content).
-> **Scope + revert:** pure doc/archival move (queue.md trimmed, 1 new archive file) -- ships per
-> OP-22 (engine-benefit hygiene). Revert: `git revert <this commit>`.
-
-> **Cost: ~$2.2** (STAGE 0/1 reads incl. checking 2 HIGH items weren't pickable, python
-> byte-boundary scan, extraction + archival file build, LF-fix round-trip + re-verification,
-> `task_scorer.py` parse-check, queue/STATUS write-up). `conductor_outcome.py metric` to be
-> recorded next.
 
 ---
 
