@@ -1,3 +1,105 @@
+## [2026-07-23 ~05:42-06:12 ET] OK -- conductor (AFTERHOURS): QUEUE-MD-RETENTION-CAP step 1 shipped -- 54KB archived out of queue.md, caught+fixed an LF->CRLF write foot-gun
+
+> **STAGE 0/1:** ET confirmed 05:42, Thursday, market closed since 15:55 (opens 09:30). `engine-health.json`
+> GREEN 13/13 (all quiet-OK, market closed). Self-audit gaps: all batches through 2026-07-22T17:32:32
+> already triaged by earlier fires -- nothing new (next batch not due until ~17:3x ET, after market
+> close). Checked HIGH-tier queue items first: `DOJO-BUILD-HANDOFF` (HIGH) is documented
+> NOT-PICKABLE by a conductor fire (no TradingView MCP tools bound to this session); `CHEF-FOCUS-FILTER`
+> (HIGH) has all 4 parts done (1-3 shipped 07-22, part 4 split off to `CHEF-CANDIDATES-CONSOLIDATION-SWEEP`
+> which is now CLOSED) -- just needs its own status line corrected, not fresh work.
+> `task_scorer.py --top` surfaced `EDGE-MATRIX-NIGHTLY-RERUN` (MED) again; picked
+> `QUEUE-MD-RETENTION-CAP` (LOW) instead -- it has an explicit, already-scoped "next bounded step"
+> written into its own queue text, closes a loop (OP-22), and directly fixes a functional pain this
+> fire hit firsthand: `Read` on `automation/overnight/queue.md` failed outright at STAGE 0
+> ("exceeds the Read tool's 256KB limit"), forcing every conductor fire's STAGE 0 to fall back to
+> grep/sed gymnastics -- LOW-labeled but real engine-benefit for every future fire's read cost.
+
+> **What shipped:** archived the 2026-06-19..07-01 dated half of queue.md's `## Completed` section
+> (119 lines / 53,831 bytes, lines 2129-2247 -- located via a python per-`## `-section byte-boundary
+> scan, not guessed) to new file `automation/overnight/queue-archive-2026-07-23-completed.md`, same
+> precedent as `queue-archive-2026-06-19.md`/`queue-archive-2026-06-20.md`. Checked first that no
+> live `## Active backlog` item's `depends:` references any of the 6 entry-ids being archived --
+> zero hits, safe to move. Left a 4-line pointer in queue.md matching the existing archive-pointer
+> style already there. `queue.md`: 577,392 -> 539,787 bytes (net change after also writing up this
+> item's own progress note: 43 insertions / 133 deletions per `git diff --stat`) -- still over the
+> 256KB single-read limit (always a multi-fire job, not a regression; the actively-growing
+> `## Active backlog` section alone is 267KB and needs its own separate triage pass).
+
+> **Foot-gun caught + fixed same fire (OP-33, not filed to lesson-inbox -- folded straight in since
+> it's this item's own mechanism):** my first-pass `open(path, 'w', encoding='utf-8')` in Python
+> silently converted `\n` -> `\r\n` on this Windows box, which would have broken the "byte-for-byte
+> preserved" archival claim with a spurious whitespace-only diff across the entire file. Caught it
+> by running `file` on the output (reported "with CRLF line terminators" on a repo file that was
+> LF-only) BEFORE committing -- re-wrote both files with `newline='\n'`, re-diffed, confirmed
+> byte-identical against the pre-edit `git show HEAD:...` range. **Lesson for future
+> archival/file-move scripts in this repo:** always open with `newline='\n'` (or binary mode) --
+> plain text-mode writes on Windows are not byte-preserving by default.
+
+> **Verified this fire (OP-33):** `diff` of the archived segment against the pre-edit git-HEAD
+> line range -> byte-identical after the LF fix. `git diff --stat automation/overnight/queue.md` ->
+> clean, only the intended range touched. `python setup/scripts/task_scorer.py --top` re-run after
+> the edit -> same result as before (`EDGE-MATRIX-NIGHTLY-RERUN`), confirming the queue parser is
+> unaffected by the archival move. No gym/pytest run required -- pure doc/archival move, zero
+> code/params/heartbeat_core/filters/placement/exit/CLAUDE.md touched.
+
+> **Item status:** `QUEUE-MD-RETENTION-CAP` updated to `status:in_progress-step1-of-N-done` in
+> queue.md (not closed -- still >256KB, remaining work named: triage `## Active backlog`'s 267KB
+> and/or the ~208KB of dated post-Completed sections, oldest-first, for genuinely-stale content).
+> **Scope + revert:** pure doc/archival move (queue.md trimmed, 1 new archive file) -- ships per
+> OP-22 (engine-benefit hygiene). Revert: `git revert <this commit>`.
+
+> **Cost: ~$2.2** (STAGE 0/1 reads incl. checking 2 HIGH items weren't pickable, python
+> byte-boundary scan, extraction + archival file build, LF-fix round-trip + re-verification,
+> `task_scorer.py` parse-check, queue/STATUS write-up). `conductor_outcome.py metric` to be
+> recorded next.
+
+---
+
+## [2026-07-23 ~03:49-04:10 ET] OK -- conductor (AFTERHOURS): closed CHEF-CANDIDATES-CONSOLIDATION-SWEEP batch 2 -- 110 stale candidates archived, commit `0c7b2804`
+
+> **STAGE 0/1:** ET confirmed 03:48, Thursday, market closed since 15:55 (opens 09:30). `engine-health.json`
+> GREEN 13/13 (all quiet-OK, market closed). Self-audit gaps: all batches through 2026-07-22T17:32:32
+> already triaged by earlier fires -- nothing new. `task_scorer.py --top` surfaced
+> `EDGE-MATRIX-NIGHTLY-RERUN` (MED); picked `CHEF-CANDIDATES-CONSOLIDATION-SWEEP` instead (HIGH,
+> `status:in_progress`, explicit documented remainder "72 files remain eligible for batch 2 ...
+> no new design work needed") -- OP-22 tiebreak: close a loop over re-deciding priority on a fresh
+> MED item, and the prior fire's own `conductor_outcome.py metric` flagged `trend=regressing`
+> (cost/drained \$3.08/20-fires), which explicitly favors a cheap loop-closer this fire.
+
+> **What shipped:** re-ran `backtest/tools/chef_candidates_consolidation_sweep.py` with ZERO code
+> changes (the item's own note: "no new design work needed"). The 72 files noted as
+> remaining-eligible after batch 1 (2026-07-22) had grown to 110 by tonight (more candidates aged
+> past the 30d staleness cutoff, plus same-night fresh Kitchen drafts staying current). Dry-run
+> first: 1377 scanned, 110 eligible. Gym baseline (`python crypto/validators/runner.py`) ->
+> 103/104 PASS (1 known-flaky excluded) BEFORE the move. Applied (`--batch-size 250 --apply`):
+> all 110 moved in one pass (`remaining_eligible_after_batch: 0`) to
+> `strategy/candidates/_archive/sweep-2026-07-23/`. **Verified this fire (OP-33):** `git status
+> --porcelain` showed exactly 110 `D` (deleted originals) + 1 new untracked dir; an independent
+> `find ... -name "*.md" | wc -l` on the destination counted 110, matching the delete count
+> exactly. Re-ran gym AFTER the move -> 103/104 PASS again, no regression. Top-level
+> `strategy/candidates/` count: 1377 -> 1267. `_archive/README.md` got a new `sweep-2026-07-23/`
+> section (same format as batch 1). Staged the move as 110 git-detected renames (pathspec-from-file
+> on the exact `git status --porcelain` deleted-paths list, never `-A`/`.`) alongside the queue.md
+> and README.md edits -- confirmed via `git diff --cached --name-only` that ONLY those 112 files
+> were staged before commit, none of the ~110 unrelated concurrently-modified live-state files
+> (kitchen/heartbeat/swarm JSON churn from other running processes) got swept in.
+
+> **Item CLOSED in queue.md** (`CHEF-CANDIDATES-CONSOLIDATION-SWEEP`, checkbox flipped `[x]`,
+> `status:CLOSED`) -- `remaining_eligible_after_batch: 0` means no further scheduled batches are
+> owed; the script stays reusable/idempotent for any future accrual on demand.
+
+> **Scope + revert:** pure file-move (archive relocation) + 2 doc edits (queue.md, README.md), no
+> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched -- ships per OP-22 (engine-benefit
+> hygiene, same class as batch 1 / CHEF-FOCUS-FILTER). Revert: `git revert 0c7b2804` (restores the
+> 110 files to their original paths via git history; commit passed the pre-commit curated safety
+> gate, 31+5 suites, before landing).
+
+> **Cost: ~$2.4** (STAGE 0/1 reads, dry-run + gym-before, apply, gym-after, `git status`/`find`
+> cross-verification, 2 doc edits, pathspec-precise staging + commit, STATUS/queue write-up).
+> `conductor_outcome.py metric` to be recorded next.
+
+---
+
 ## [2026-07-23 ~01:48-01:58 ET] OK -- conductor (AFTERHOURS): resolved DOUBLE-BOTTOM-DISARM-DECISION -- KEEP ARMED, headline -\$3,504 was a fidelity artifact not the production number
 
 > **STAGE 0/1:** ET confirmed 01:48, Thursday, market closed since 15:55. `engine-health.json`
@@ -642,3 +744,9 @@
 
 ---
 
+
+## Kitchen
+Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+### DEGRADED: self-check 2026-07-23T05:39:57
+- CANDIDATES-UNTRACKED: 21 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
