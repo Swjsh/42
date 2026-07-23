@@ -9,24 +9,6 @@
 
 ## Active backlog
 
-### STRATEGY-CANDIDATES-UNTRACKED-BACKFILL (HIGH, discovered 2026-07-22 night as a side-effect of CHEF-CANDIDATES-CONSOLIDATION-SWEEP batch 1)
-
-- [ ] STRATEGY-CANDIDATES-UNTRACKED-BACKFILL (HIGH) :: `strategy/candidates/` has 1,176
-  UNTRACKED files (never `git add`ed, not gitignored -- verified `git check-ignore` returns
-  nothing) spread across the top-level dated candidates, `_analysis/`, `_chef-inbox/`, and
-  `_lesson-inbox/*.DONE`. Only ~443 of 1,619 top-level `.md` files scanned by the consolidation
-  sweep were actually tracked. Risk: nothing here is backed by version control (a bad `rm` or
-  disk failure wipes it with no recovery -- the exact class OP-22 move-not-delete is meant to
-  guard against, moot if never committed); `_chef-inbox`/`_analysis` are LIVE pipeline state per
-  `_archive/README.md`'s own "deliberately kept" list, so an author using `git log`/`git blame`
-  to pick up inbox work sees nothing. FIX: (1) confirmed NOT a `.gitignore` exclusion -- genuine
-  oversight; (2) `git add` in dated batches (200-300/fire, same cadence as the consolidation
-  sweep) or one bulk backfill commit if J prefers; (3) graduate a guard -- a cheap periodic
-  check flagging `strategy/candidates/` untracked-count above a small threshold (e.g. >20) so
-  this can't silently re-accumulate unnoticed (C7). Full write-up:
-  `strategy/candidates/_lesson-inbox/2026-07-22-1176-untracked-candidate-files-never-git-added.md`.
-  depends:none :: status:pending
-
 ### RIBBON-SESSION-SCOPE-DIVERGENCE (HIGH, discovery from the TV parity oracle 2026-07-23)
 
 - [ ] RIBBON-SESSION-SCOPE-DIVERGENCE (HIGH, two-part) :: THE discovery of the edge-matrix run:
@@ -1718,6 +1700,32 @@ These are exactly the OP-22 "371st untriaged candidate is debt" pattern. The `gy
 ---
 
 ## Completed
+
+### 2026-07-22 ~22:42-23:05 ET — conductor (AFTERHOURS): STRATEGY-CANDIDATES-UNTRACKED-BACKFILL closed in full (parts 1-3), commits `d148f7e8` + `2d8c7594`
+
+- [x] STRATEGY-CANDIDATES-UNTRACKED-BACKFILL (HIGH) :: all 3 named fix-parts shipped this fire
+  (a genuine loop-close, per the prior fire's own `conductor_outcome.py` "trend=regressing ->
+  prefer a loop-closing item" note). **Part (1)+(2), one bulk commit (`d148f7e8`):** staged
+  all 1,176 untracked `strategy/candidates/` files (confirmed not gitignored, ~8MB all
+  markdown) via `git add --pathspec-from-file` against the exact `git status --porcelain`
+  untracked list -- never `-A`/`.`. Deliberately excluded the concurrently-modified
+  `_review-log.jsonl` (another live process's in-flight write), same lane-safety discipline as
+  the prior consolidation-sweep commits that same night. Verified post-commit: `git show --stat`
+  shows exactly 1,176 files, all under `strategy/candidates/`; nothing else swept in.
+  **Part (3), guard (`2d8c7594`):** graduated `self_check.py#check_candidates_untracked_backlog`
+  -- $0, fail-open, `git status --porcelain -- strategy/candidates/` scoped, flags DEGRADED
+  (never BROKEN) above threshold 20. 8 new guard tests (`test_self_check_candidates_untracked.py`)
+  -- confirmed the pre-fix HEAD copy of self_check.py has neither the function nor the `run()`
+  wiring (would RED-catch a regression, verified without git-stash per the standing
+  never-stash-in-this-repo rule -- read HEAD's copy into a throwaway temp file instead, then
+  deleted it). Curated safety gate 31+5 PASS both commits (pre-commit hook auto-ran it); gym
+  104/104 PASS, no regression. Real-repo probe now returns `[]` (0 untracked, post-backfill).
+  Also found + fixed a Bash-quoting side-issue while staging (nothing structural -- a plain
+  `--pathspec-from-file` without the erroneous `--pathspec-file-nul` flag was all that was
+  needed) and a stale `.git/index.lock` (0 bytes, 1h40m old, confirmed no live `git.exe` process
+  via `tasklist` before removing -- standard git-recommended cleanup, not a live-process kill).
+  Revert: `git revert 2d8c7594` then `git revert d148f7e8` (guard first, since it's the later
+  commit; the 1176-file backfill itself is safe to leave even if the guard is reverted). :: status:done
 
 ### 2026-07-22 ~09:12-09:20 ET — conductor (AFTERHOURS): lesson-inbox drain -> L240 + mis-suffixed DONE marker fix, commit `0a79918b`
 

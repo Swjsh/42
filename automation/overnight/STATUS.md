@@ -1,3 +1,81 @@
+## [2026-07-22 ~22:42-22:50 ET] OK -- conductor (AFTERHOURS): closed STRATEGY-CANDIDATES-UNTRACKED-BACKFILL in full (parts 1-3), commits `d148f7e8` + `2d8c7594`
+
+> **STAGE 0/1:** ET confirmed 22:42, Wednesday, market closed since 15:55. `engine-health.json`
+> GREEN 13/13 (all quiet-OK, market closed). `self_check.py` DEGRADED only on the pre-existing
+> non-load-bearing TRENDLINE-DRAW flag (already tracked). `fill_funnel.py` GREEN 2026-07-22:
+> core:safe 2 fills/2 exits, core:bold 0 ENTER (21 signals correctly gated, no anomaly). Self-audit
+> gaps: all batches through 2026-07-22T17:32:32 already actioned by earlier fires -- nothing new.
+> `task_scorer.py --top` surfaced `RIBBON-SESSION-SCOPE-DIVERGENCE` with its own trace-first
+> advisory (same as 2 fires ago); the prior fire's own `conductor_outcome.py metric` flagged
+> `trend=regressing` and explicitly named `STRATEGY-CANDIDATES-UNTRACKED-BACKFILL` as the
+> preferred loop-closer -- picked that instead (OP-22 tiebreak: close a loop the repo already
+> committed to).
+
+> **What shipped -- all 3 named fix-parts, not just the backfill:**
+> **(1)+(2) the backfill (`d148f7e8`):** staged all 1,176 untracked `strategy/candidates/`
+> files (confirmed not gitignored via `git check-ignore`, ~8MB, all markdown) via
+> `git add --pathspec-from-file` against the exact `git status --porcelain` untracked list --
+> never `-A`/`.`. Deliberately excluded the concurrently-modified `_review-log.jsonl` (another
+> live process's in-flight write). **Verified this fire (OP-33):** `git show --stat HEAD` shows
+> exactly 1,176 files changed, ALL under `strategy/candidates/`; re-ran `git status --porcelain`
+> after commit and confirmed only the excluded file remains modified.
+> **(3) the guard (`2d8c7594`):** graduated `self_check.py#check_candidates_untracked_backlog`
+> ($0, fail-open -- any git-invocation error returns `[]` rather than raising, rail-2). Scoped
+> `git status --porcelain -- strategy/candidates/`, counts only `??` lines, flags DEGRADED
+> (never BROKEN -- zero trading-relevant impact) above threshold 20. 8 new guard tests
+> (`test_self_check_candidates_untracked.py`, mirrors `test_self_check_tv_cdp.py`'s fake-probe
+> convention): under/at/over threshold, non-untracked lines ignored, exact-1176 scar
+> reproduction, fail-open on git error, default-probe-never-raises, `run()`-wiring assertion.
+> Confirmed the pre-fix HEAD copy of `self_check.py` has neither the function nor the wiring
+> (would RED-catch a regression) -- checked via a throwaway `git show HEAD:...` temp file, NOT
+> `git stash` (standing never-stash-in-this-repo rule, C34/L214/L228/L238), deleted after.
+> Curated safety gate 31+5 PASS on both commits (pre-commit hook auto-ran it). Gym 104/104
+> PASS, no regression. Real-repo probe now returns `[]` (0 untracked, post-backfill).
+
+> **Self-caught foot-gun, same fire:** a stale `.git/index.lock` (0 bytes, ~1h40m old) blocked
+> the first `git add` attempt. Confirmed via `tasklist` that no live `git.exe` process was
+> running before removing it -- standard git-recommended cleanup per git's own error message,
+> not a live-process kill (rail-2 respected: verified-dead, not assumed-dead). Also caught my
+> own Bash-quoting mistake (`--pathspec-file-nul` on a newline-, not NUL-, separated file list)
+> before it could silently no-op the `git add` -- re-ran without that flag and verified the
+> staged count matched (1176) before committing.
+
+> **Scope + revert:** the backfill is pure file version-control (no code behavior change) +
+> the guard is a new observability-only self_check function -- no params/heartbeat_core/
+> filters/placement/exit/CLAUDE.md touched. Ships per OP-22 (engine-benefit hygiene). Revert:
+> `git revert 2d8c7594` then `git revert d148f7e8` (guard first; the backfill itself is safe to
+> leave standing even if the guard alone is reverted).
+
+> **Cost: ~$2.8** (STAGE 0/1 reads, git-status/pathspec staging + verification, self_check.py
+> function authorship + wiring, guard-test authorship + RED-proof via temp-file HEAD read (no
+> stash) + green run, curated safety gate + gym re-verification both commits, queue/STATUS
+> write-up).
+
+---
+
+## [2026-07-22] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
+
+> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
+> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
+> -   bollinger_squeeze (armed 2026-07-02): since-arm 3tr $+75.00 ($+25.00/tr, 66.7% WR)
+> -   double_bottom_base_quiet (armed 2026-07-01, 21d ago): 0 fills since arm — no live signal yet
+> -   vix_regime_dayside (armed 2026-07-01): since-arm 5tr $-153.00 ($-30.60/tr, 0.0% WR)
+> -   vwap_continuation (armed 2026-07-01): since-arm 7tr $-204.00 ($-29.14/tr, 0.0% WR)
+> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 1tr $+18.00 ($+18.00/tr, 100.0% WR)
+> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
+
+---
+
+## [2026-07-22] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-16..2026-07-22), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-22). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-276.48); Bold_ATM_1+2=YELLOW ($-166.9)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-07-22 ~21:48-22:00 ET] OK -- conductor (AFTERHOURS): shipped CHEF-CANDIDATES-CONSOLIDATION-SWEEP batch 1 (250 stale non-level candidates archived, 1619->1369 top-level files), commits `5f09fee3` + `fa53a3d0`
 
 > **STAGE 0/1:** ET confirmed 21:48, Wednesday, market closed since 15:55. `engine-health.json`
@@ -607,92 +685,3 @@
 
 ---
 
-## [2026-07-22 ~16:42-17:35 ET] OK -- conductor (AFTERHOURS): QQQ divergence confound check run, spread survives volatility control, commit `61a6dcbe`
-
-> **STAGE 0/1:** ET confirmed 16:42, Wednesday, market closed since 15:55 (correctly
-> after-hours). `engine-health.json` GREEN 13/13 (market-closed quiet-OK across the board,
-> kill-switches armed-not-tripped both accounts). `self-check-last.json` DEGRADED only on
-> the pre-existing non-load-bearing TRENDLINE-DRAW visibility flag (unchanged, has its own
-> LOW queue item). `fill_funnel.py`: today's core:safe shows 2 fills/2 exits in the funnel
-> summary vs 3 real round-trips in `fills-ledger.jsonl` (09:51/10:01/10:10, all `attribution:
-> engine`) and 0 `ENTER` actions logged in `core-decisions.jsonl` for either account today --
-> traced this: the extra-setup lane's fills don't route through the ribbon-path's ENTER
-> logging (matches the standing digest note "ENTERs may not log to the ledger"), not a new
-> break; did not chase further (would have exceeded a bounded triage budget for a
-> non-critical, already-flagged quirk). Self-audit gaps: last batch (2026-07-21T17:31:28)
-> already triaged, nothing new. All 4 author inboxes: validator/lesson empty, skill only a
-> correction-queue log, chef-inbox 13 open (2 fewer than the prior fire's count of 13 --
-> stable). `task_scorer.py --top` again surfaced only the J-decision-gated
-> `MORNING-BULL-QUALITY-GATE-RECONSIDER` (correctly skipped, per established precedent).
-> Next-highest queue items were either Opus-scoped (`DOJO-BUILD-HANDOFF`), already
-> DEFER-INSUFFICIENT-DATA'd twice (`EXTRA-SIGNAL-PREMIUM-STOP-ALIGNMENT`), or J-ratification-
-> gated -- so picked the chef-inbox's own highest-readiness item: the 2026-07-21 QQQ
-> divergence/confluence first-pass study had named its OWN next step as "run the confound
-> check FIRST" (disclosure #3) before funding the full real-fills replay.
-
-> **What shipped:** added `realized_vol_for_signal()` (no-look-ahead SPY realized-vol proxy,
-> same strictly-before-entry_ts convention as the existing QQQ label) +
-> `confound_check_by_volatility()` (median-split, per-half reclaimed-vs-none spread) to
-> `backtest/tools/qqq_divergence_confluence_study.py`; re-ran the study. **Result:
-> `SPREAD_SURVIVES_VOL_CONTROL`** -- low-vol half spread +0.826 (n_reclaimed=8/n_none=108),
-> high-vol half spread +1.132 (n_reclaimed=13/n_none=94), both positive and similar
-> magnitude (if anything larger in the high-vol half -- the opposite of what a pure
-> volatility-artifact explanation predicts). This resolves the confound the 2026-07-21 doc
-> flagged as its own blocker for funding decision; confidence raised 6/10 -> 7/10 (per-half
-> n_reclaimed is thin, disclosed honestly, not hidden). **Decision per the doc's own
-> pre-committed gate: funding the full real-fills replay is now justified** -- filed as
-> `QQQ-DIVERGENCE-REALFILLS-REPLAY` in queue.md, deliberately NOT executed this fire (a
-> per-strike real-OPRA replay across 250 signals is a materially heavier, separate-budget
-> task; one bounded task per fire, rail 3). Addendum written to
-> `strategy/candidates/2026-07-21-205400-qqq-divergence-confluence-first-pass.md`.
-> **Bonus hygiene (closes loops, doesn't just create an artifact):** fixed 2 stale queue.md
-> checkboxes that stayed `[ ]` after their underlying work had already shipped
-> (`QQQ-DIVERGENCE-CONFLUENCE-BACKTEST` -- the 2026-07-21 first-pass was already `.DONE` on
-> disk; `EXTRA-SIGNAL-CHURN-COOLDOWN` -- item 1 shipped 2026-07-20, item 2 already re-filed
-> separately).
-
-> **Verified this fire (OP-33):** new guard tests `TestRealizedVolNoLookAhead` (4) +
-> `TestConfoundCheckByVolatility` (4) added to
-> `backtest/tests/test_qqq_divergence_confluence_study.py` -> 17/17 PASS. RED-proofed via
-> the rename/restore technique (checked out the pre-edit HEAD version of both the module and
-> the test file, confirmed the exact expected `ImportError: cannot import name
-> 'realized_vol_for_signal'` on collection, restored the new versions, re-verified 17/17
-> green) -- **no `git stash` used**, per the standing C34/L228/L238 discipline for this
-> shared, constantly-churning checkout. Broader sweep (`test_qqq_divergence_confluence_study`
-> + `test_ribbon_rejection_wick` + `test_structure_stop_study`) -> 47/47 PASS. Curated safety
-> gate (`backtest/tests/run_safety_gate.py`, 31+5 suites) PASS. `git status --short` on the
-> exact 6 intended paths before staging (L239 discipline -- other daemons' concurrent state
-> writes across ~30 other tracked files were correctly left untouched, pathspec-only add);
-> `git diff --cached --stat automation/overnight/queue.md` confirmed only my 2 checkbox
-> flips + 1 new section (29 insertions/2 deletions) before committing -- no accidental
-> concurrent-daemon content mixed in. `git show --stat HEAD` post-commit confirms exactly 6
-> files / 322 insertions(+) / 10 deletions(-) landed, nothing stray.
-
-> **Rail-4 / trading-path scope:** zero trading-path files touched (research tool + guard
-> tests + candidate doc + queue.md only -- no params/heartbeat_core/filters/placement/exit).
-> Ships per OP-22/OP-25/OP-26 without J ratification. **Revert:** `git revert 61a6dcbe`
-> (1 commit, 6 files, purely additive -- no existing function bodies altered, no behavior
-> anywhere changes; safe no-op rollback).
-
-> **Cost: ~$5.1** (STAGE 0/1 reads across engine-health/self-check/fill_funnel/self-audit-
-> gaps/4-inbox survey/task_scorer, a real-money-adjacent funnel-discrepancy investigation
-> that concluded non-critical, reading the full chef-inbox item + candidate doc + existing
-> study script/tests, ~180 lines of new production code + guard tests, 1 real study re-run
-> against live-cached OPRA/SIP data, 1 RED-proof round-trip, 1 broader 47-test regression
-> sweep, 1 curated safety-gate run, 1 commit with pre/post verification, this STATUS update).
-
-> **`conductor_outcome.py metric` trend: `regressing`** (net_improvement=48/20-fire window,
-> function_score_avg=32.4, today's `function_latest` shows `enters_last_trading_day=0` /
-> `orders_accepted=0` despite `fills=3`). This tracks the SAME funnel quirk flagged in
-> STAGE 0/1 above (extra-setup-lane fills don't increment the ENTER/accepted counters the
-> function score reads) -- not a new regression this fire caused, but flagging per the
-> conductor's own "say so if regressing" instruction rather than silently passing it. Next
-> fire with spare budget: check whether `fill_funnel.py`'s/`conductor_outcome.py`'s
-> `orders_accepted` counter should also count extra-setup-lane fills (a counter-scope gap,
-> not a trading-path bug -- visibility only).
-
----
-
-
-### DEGRADED: self-check 2026-07-22T21:48:21
-- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
