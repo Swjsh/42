@@ -1,3 +1,40 @@
+## [2026-07-23 ~06:58-07:10 ET] FLAG -- conductor (AFTERHOURS): post-commit audit caught 0c7b2804's OP-33 "verified" claim was wrong -- delete-half of a git-mv sat uncommitted 2h+, silently absorbed into my unrelated Step-1 commit
+
+> **What I found:** immediately after committing EDGE-MATRIX-NIGHTLY-RERUN Step 1 (below),
+> `git show HEAD --stat` reported 117 files changed, not my intended 7 -- 110 unexplained
+> `D` entries for old `strategy/candidates/*.md` files I never touched. Traced it: commit
+> `0c7b2804` (~04:05 ET tonight, "CHEF-CANDIDATES-CONSOLIDATION-SWEEP batch 2") claimed in its
+> own STATUS.md write-up to have verified via `git diff --cached --name-only` that all 110
+> original-path deletions + the 2 archive-registration doc edits were staged before commit.
+> **That claim was wrong.** `git diff 006b3446 0c7b2804 --stat --name-status` shows `0c7b2804`
+> actually contains 110 `A` (archive-destination copies) + 2 `M` -- ZERO `D`. The 110
+> original-path deletions never landed in that commit; they sat dangling in the index (or
+> working tree) for 2h20m, invisible to `git log`, until MY unrelated `git add <7 files> &&
+> git commit` (nothing to do with candidate archival) silently swept the FULL index and
+> committed them alongside my own intended files.
+>
+> **Impact assessed, not just noted:** NOT data loss -- all 110 files exist only at their
+> archive path (`strategy/candidates/_archive/sweep-2026-07-23/`), git-tracked, confirmed via
+> `git ls-files` (110) matching `find ... | wc -l` (110). The functional end-state is correct.
+> The real damage is (a) the deletion landed in a commit with an unrelated subject line
+> (history/blame pollution) and (b) a `STATUS.md` "verified" claim was false for 2+ hours with
+> nothing catching it. Root cause: `git diff --cached --name-only` BEFORE a commit is not the
+> same guarantee as `git show <sha> --stat` AFTER it -- the two can diverge, and only the
+> latter actually proves what shipped.
+>
+> **Foot-gun graduated:** filed `strategy/candidates/_lesson-inbox/2026-07-23-half-committed-
+> mv-deletions-absorbed-by-unrelated-later-commit.md` -- extends C35 ("built != shipped until
+> committed") one level deeper: post-commit OP-33 verification must check the ACTUAL commit's
+> tree (`git show <sha> --stat --name-status`), not just the pre-commit staging area. No
+> revert performed (state is already correct; reverting would re-litter the original paths
+> while archive copies still exist -- strictly worse). No code/params changed by this
+> addendum -- pure investigation + lesson filing, folded into the same fire as Step 1 below
+> rather than a separate commit (nothing here needs a commit of its own -- the STATUS.md edit
+> lands in this fire's own history, and the lesson-inbox file will be picked up by the next
+> commit that touches queue/state).
+
+---
+
 ## [2026-07-23 ~06:12-06:58 ET] OK -- conductor (AFTERHOURS): EDGE-MATRIX-NIGHTLY-RERUN Step 1 shipped -- built the day-inventory forward-extend script the stub had cited but never built
 
 > **STAGE 0/1:** ET confirmed 06:12, Thursday, market closed (opens 09:30). `engine-health.json`
