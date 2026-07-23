@@ -1,3 +1,59 @@
+## [2026-07-22 ~20:12-20:35 ET] OK -- conductor (AFTERHOURS): closed stale MORNING-BULL-QUALITY-GATE-RECONSIDER queue item (1-month status:pending bait), commit `3b39ad27`
+
+> **STAGE 0/1:** ET confirmed 20:12, Wednesday, market closed since 15:55. `engine-health.json`
+> GREEN 13/13. `self-check-last.json` DEGRADED only on the pre-existing non-load-bearing
+> TRENDLINE-DRAW flag (already tracked, `SELFCHECK-TRENDLINE-DRAW-DUPLICATE-SPAM` item filed
+> two fires ago). `fill_funnel.py` GREEN 2026-07-22, no anomaly: primary pipeline 0 ENTER both
+> core accounts (774 rows, 733 genuine `HOLD -- no setup passed scoring`, 40 correctly
+> `SKIP_ELITE_BULL_LEVEL_RECLAIM` via the already-validated `block_elite_bull` gate, 1
+> structure-veto), extra_exec secondary lane placed 4/filled 2 on core:safe -- matches the
+> already-diagnosed regressing-trend note from 2 fires ago, not a new bug. `task_scorer.py
+> --top` surfaced `MORNING-BULL-QUALITY-GATE-RECONSIDER` -- traced it (OP-22 tiebreak: close a
+> loop > start an artifact, same discipline as the last 2 fires) instead of executing blind.
+
+> **What was found:** the item had sat `status:pending` for a month carrying two dangling
+> threads: (1) two CI-red-fixing proposals (`gp-2026-06-24-001/002`) it said still needed
+> applying, and (2) a "residual open question" (quality-condition the elite-bull block vs
+> leave it removed) it framed as unresolved. Both were already resolved elsewhere and nobody
+> had closed the loop. **Verified live, not assumed:** `pytest
+> backtest/tests/test_params_encoding.py backtest/tests/test_heartbeat_param_annotation_drift.py
+> -q` -> 9/9 PASS. `gp-2026-06-24-002` (params.json em-dash) already `status:applied`.
+> `gp-2026-06-24-001` (heartbeat.md annotation) was stuck `needs_structured_apply` (its exact
+> literal `find` string is stale/not-present) but the LIVE file (`automation/prompts/aggressive/
+> heartbeat.md:360`) already carries the correct substance via a differently-worded edit --
+> confirmed by the passing drift guard, not by re-reading the proposal's own claim. The
+> "residual open question" is answered by `PULLBACK-HOLD-BULL-TRIGGER`'s own Lane-B closure
+> two items below it in queue.md, which explicitly says "REFRAMES MORNING-BULL-QUALITY-GATE-
+> RECONSIDER ... stop surfacing the reconsider item as J-gated; point it here" -- written
+> before this fire, just never acted on.
+
+> **What shipped:** `queue.md` -- item flipped to `status:CLOSED-SUPERSEDED-VERIFIED-RESOLVED`
+> with a closing paragraph documenting the verification (append-only, original text preserved
+> verbatim per OP-22). `conductor-proposals.jsonl` line 14 (`gp-2026-06-24-001`) -- status
+> flipped `needs_structured_apply` -> `resolved_differently` with a `resolved_note`, so the
+> AutoApply actuator stops treating it as outstanding work on future passes. **Verified this
+> fire (OP-33):** `pytest backtest/tests/test_task_scorer*.py -q` -> 52/52 PASS (no regression
+> from the queue.md edit); re-ran `task_scorer.py --top` -> now surfaces `CHEF-FOCUS-FILTER`;
+> `--all | grep MORNING-BULL` -> empty (item no longer ranks ready). JSONL re-validated
+> line-by-line after the edit (all lines parse). Curated pre-commit safety gate PASS (5
+> suites) at commit time.
+
+> **Scope + revert:** pure queue/proposal-bookkeeping edit, no params/heartbeat_core/filters/
+> placement/exit/CLAUDE.md touched -- ships per OP-22 (engine-benefit authoring/hygiene work).
+> Revert: `git revert 3b39ad27` (one commit, 2 files, additive-only diff).
+
+> **Note (not this fire's finding, restated for continuity):** `automation/overnight/queue.md`
+> is still ~569KB / 3091 lines, over the Read tool's single-shot 256KB limit -- tracked at
+> `QUEUE-MD-RETENTION-CAP` (filed 2 fires ago) with a scoped next step (archive the
+> 2026-06-19..07-01 half of `## Completed`). Not attempted this fire (a second bounded task in
+> one fire would violate rail 3); flagging again so it doesn't silently age past the point
+> where a future Read starts erroring outright.
+
+> **Cost: ~$1.9** (STAGE 0/1 reads across engine-health/self-check/fill-funnel/queue/proposals,
+> two verification pytest runs, the queue.md + JSONL edits, commit, this write-up).
+
+---
+
 ## [2026-07-22 ~19:42-20:10 ET] OK -- conductor (AFTERHOURS): task_scorer multi-line status-read bug fixed (closed items were silently ranking #1-ready), commit `e456f667`
 
 > **STAGE 0/1:** ET confirmed 19:42, Wednesday, market closed since 15:55. `engine-health.json`
@@ -641,150 +697,6 @@
 > already-explained artifact of the raw-ratio scoring, not a fresh problem; next
 > trading-day data will refresh it. Flagging per instructions rather than silently
 > re-verifying and moving on.
-
----
-
-## [2026-07-22 ~05:48-06:20 ET] OK -- conductor (AFTERHOURS): chef-inbox FRED 10Y-2Y yield-curve gate feasibility screen, commit `8ec7fde`
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `self-check-last.json`
-> GREEN (PDT both accounts OK). Fill-funnel `2026-07-21` re-verified `[GREEN]` via
-> `fill_funnel.py --date 2026-07-21` directly (core:safe 17->1 already-open-position re-eval
-> pattern, core:bold 1->0 documented informational pattern -- no new break). Self-audit gaps:
-> only 2 open batches on re-check, both turned out to be duplicates/noise already covered by
-> earlier DONE markers -- triaged the 2026-06-27T17:31:04 batch closed (see below), the
-> 2026-07-21T17:31:28 batch was already TRIAGED by the prior fire. `task_scorer.py --top`
-> again surfaced only the J-decision-gated `MORNING-BULL-QUALITY-GATE-RECONSIDER`, correctly
-> skipped. Author-inbox order: validator/lesson-inbox empty, skill-inbox only a
-> correction-queue log -> `_chef-inbox` next (priority-5), oldest open item picked: the
-> 2026-07-10 FRED 10Y-2Y Treasury yield-curve prospector finding (canonical master for the
-> FRED/Treasury family after 2026-07-21's 4-duplicate fold).
-
-> **What shipped:** the item's own 2026-07-21 consolidation note named "register a FRED API
-> key" as the blocking next step -- verified live this fire that FRED's `fredgraph.csv`
-> CSV-download endpoint (`https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10,DGS2,DGS3MO`)
-> needs NO key/registration at all (plain unauthenticated GET, full history), closing that
-> blocker without an account signup. Cached DGS10/DGS2/DGS3MO daily 2026-04-01..2026-07-22 to
-> `backtest/data/fred_yield_curve_2026-04-01_2026-07-22.csv` (79 rows, gitignored per
-> `backtest/data/` -- same as the sibling VIX1D/BXM probe caches). Built
-> `backtest/autoresearch/fred_yield_curve_probe.py` -- tested the 10Y-2Y spread against ALL
-> 190 real `journal/trades.csv` fills as (a) a median-split LEVEL gate (the spread never
-> inverted in-window, min +0.27pp/max +0.57pp entirely positive, so a standard
-> inverted-vs-normal test degenerates to a no-op -- adapted to a median split, disclosed
-> substitution per OP-20, same pattern as `bxm_gate_probe.py`) and (b) a day-over-day SLOPE
-> gate (steepening vs flattening), reusing `probe_stats.py`'s canonical
-> significance/concentration/verdict helpers (C14/C17). Honest result:
-> **NO_CANDIDATE_CLEARS_BAR_YET** -- steep-half CONCENTRATED (exp $158.45/tr, top-3 days
-> dominate), flat-half DRY (exp -$6.93/tr), slope gate CONCENTRATED (exp $9.60/tr), none
-> walk-forward stable across the chronological half-split. Filed as a screening result
-> (NEEDS-MORE-DATA, not a rejection -- n=190/~65 days is still thin). DGS3MO cached but
-> unused (the item's own note: fold in as a sub-series once built, not a separate candidate --
-> left for a future fire). Marked the source chef-inbox item `.DONE`, added leaderboard row 51.
-
-> **Side-cleanup:** the 2026-06-27T17:31:04 self-audit gap batch (Face UI/companion items,
-> ~4 weeks stale) turned out to be a DUPLICATE of the already-closed 06-26T20:42 orphan-tasks
-> gap plus prompt-scaffold noise -- triaged closed with a note, no new code action (all real
-> sub-items were already dispositioned by the 06-27T17:56 DONE marker).
-
-> **Verified this fire (OP-33):** `pytest backtest/tests/test_fred_yield_curve_probe.py -q`
-> 5/5 PASS (causal lookback incl. a dedicated `skip=1`-strictly-older-than-`skip=0` guard for
-> the slope gate, no-crash-on-malformed-date, spread math pinned against a hand-built
-> synthetic FRED csv, end-to-end schema with both level+slope candidates present) BEFORE
-> committing; pre-commit hook ran 31 tests + curated 5-suite safety gate, both PASS.
-> `git status --short` on the exact intended paths before staging (L239 discipline -- the
-> first `git add` attempt correctly failed ATOMICALLY on the stale pre-`git mv` pathspec,
-> exactly the class L239 predicts; re-staged with only the post-rename `.md.DONE` path,
-> confirmed A/A/A/M/M/A on the 6 files); `git show --stat HEAD` post-commit confirms exactly
-> 7 files (my 6 + one pre-existing stray staged deletion from the earlier BXM fire --
-> `2026-07-10-...bxm-real-time-levels.md`, its content already preserved in the `.DONE.md`
-> committed by `7cab87c` 4+ hours earlier, so completing that leftover stage was a correct,
-> harmless sweep, not contamination -- verified `git status --short` post-commit shows only
-> unrelated concurrent-daemon state files, nothing of mine left uncommitted or stray).
-
-> **Trading-path scope:** zero trading-path files touched (research probe + guard test +
-> leaderboard + inbox rename + self-audit triage only -- no params/heartbeat_core/filters/
-> placement/exit). No guard/revert/REVOKE needed under rail 4 beyond the guard tests already
-> shipped with the change. **Revert:** `git revert 8ec7fde` (fully additive; the self-audit
-> triage note is a non-functional annotation).
-
-> **Queue state:** chef-inbox now has 12 open prospector items remaining (was 13, several new
-> ones also landed from the concurrent Prospector daemon this window -- not touched, not mine
-> this fire); next fire should pick the next-oldest by mtime. `queue.md` is now 2789+ lines /
-> ~530KB -- still an OP-22 retention-cap consolidation candidate (Active backlog + the dated
-> post-Completed sections dominate the size, not just the `## Completed` history section;
-> archiving `## Completed` alone only recovers ~53KB of ~530KB -- a full pass needs careful
-> per-section triage, correctly NOT attempted rushed in this fire's remaining budget; flagged
-> as a named future task, not silently dropped).
-
-> **Cost: ~$4.2** (STAGE 0/1 reads, engine-health/self-check/fill-funnel/self-audit-gaps/
-> task_scorer/4-inbox survey, reading the chef-inbox item + an existing probe for pattern,
-> confirming the FRED no-key endpoint + fetching/caching yield data, writing the probe + guard
-> tests, self-audit gap triage, 1 commit with pre/post verification, this STATUS update).
-
----
-
-
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55). `self-check-last.json`
-> GREEN (PDT both accounts OK). Self-audit gaps: all triaged through 2026-07-21T17:31:28,
-> nothing new. `task_scorer.py --top` again surfaced only the J-decision-gated
-> `MORNING-BULL-QUALITY-GATE-RECONSIDER`, correctly skipped. `queue.md` has 2788 lines but
-> only 1 `status: open` grep hit (mostly COMPLETED history -- a retention-cap consolidation
-> candidate for a future fire, not actioned this fire to stay bounded). Author-inbox order:
-> validator/lesson-inbox empty, skill-inbox only a correction-queue log -> `_chef-inbox` next
-> (priority-5), oldest open item picked: the 2026-07-10 CBOE BuyWrite Index (BXM) prospector
-> finding.
-
-> **What shipped:** built `backtest/autoresearch/bxm_gate_probe.py` -- tested the BXM
-> prospector claim ("covered-call writing pressure ... can signal short-term volatility
-> compression or expansion ahead of expiry") against ALL 190 real `journal/trades.csv` fills.
-> BXM is a covered-call TOTAL-RETURN price index (non-stationary, trends with SPX) so a raw
-> level-band gate (the VIX1D-probe shape) was the wrong form for the literal ask -- adapted
-> (disclosed substitution, OP-20, not silent) to a 5-day trailing annualized realized-vol-of-
-> BXM-log-returns gate, median-split compressed/elevated, reusing `probe_stats.py`'s canonical
-> significance/concentration/verdict helpers (C14/C17). Confirmed free `^BXM` daily data via
-> yfinance covers the full trade-history window (2026-04-01 through today). Honest result:
-> **NO_CANDIDATE_CLEARS_BAR_YET** -- compressed-half CONCENTRATED (exp $18.42/tr, top-3 days
-> dominate), elevated-half DRY (exp -$5.37/tr), neither walk-forward stable across the
-> chronological half-split. Filed as a screening result (NEEDS-MORE-DATA, not a rejection --
-> n=190/~65 days is still thin). Marked the source chef-inbox item `.DONE`, added leaderboard
-> row 50.
-
-> **Verified this fire (OP-33):** `pytest backtest/tests/test_bxm_gate_probe.py -q` 4/4 PASS
-> (causal prior-day lookback never leaks same-day, malformed-date degrades to None without
-> crashing, realized-vol math pinned against a hand-computed stdev on a synthetic series so a
-> future refactor can't silently drift the formula, end-to-end schema) BEFORE committing;
-> pre-commit hook ran 31 tests + curated 5-suite safety gate, both PASS. `git status --short`
-> on the exact 5 intended paths before staging (L239 discipline -- the first `git add` attempt
-> correctly failed ATOMICALLY on a stale pre-rename pathspec, exactly the class L239 predicts;
-> re-staged with only the post-rename path, verified A/A/A/M/R on the 5 files, zero mixed-in
-> content from the concurrent background daemons rewriting hundreds of other state files this
-> same window); `git show --stat HEAD` post-commit confirms exactly 5 files / 853 insertions,
-> nothing unexpected.
-
-> **Trading-path scope:** zero trading-path files touched (research probe + guard test +
-> leaderboard + inbox rename only -- no params/heartbeat_core/filters/placement/exit). No
-> guard/revert/REVOKE needed under rail 4 beyond the guard tests already shipped with the
-> change. **Revert:** `git revert 7cab87c` (fully additive, no functional trading-path change).
-
-> **Queue state:** chef-inbox now has 12 open prospector items remaining (was 13); next fire
-> should pick the next-oldest (`2026-07-10-prospector-fred-daily-treasury-par-yield-curve-10y-`)
-> if nothing higher-priority surfaces. `queue.md` still has 0 clean HIGH items (only 1
-> `status: open` hit total). **Noted, not actioned this fire:** `queue.md` is 2788 lines /
-> ~530KB -- almost entirely COMPLETED history with only 1 open item left; a future fire should
-> consider an OP-22 retention-cap consolidation/archive pass (same pattern as
-> `STATUS-archive-2026-07.md`) so the file stays a fast read for the next conductor.
-
-> **Post-hoc function check:** `conductor_outcome.py metric` flagged a low `function_score_avg`
-> (33.7) driven by 2026-07-21's 18 ENTER vs 1 accepted-order ratio -- ran `fill_funnel.py
-> --date 2026-07-21` directly to verify (not just trust the aggregate score): verdict
-> **[GREEN]**. core:safe 17->1 is the already-open-position re-eval-tick pattern (not 17
-> failed order attempts -- 1 real attempt, 1 accept, 2 fills, 2 exits, a clean round-trip);
-> core:bold's 1 ENTER->0 attempt matches the already-documented informational pattern from
-> prior fires. No funnel break -- confirmed, not assumed.
-
-> **Cost: ~$2.9** (STAGE 0/1 reads, engine-health/self-check/self-audit-gaps/task_scorer/
-> 4-inbox survey, reading the chef-inbox item + an existing probe for pattern, fetching+caching
-> BXM daily data via yfinance, writing the probe + guard tests, 1 commit with pre/post
-> verification, fill-funnel sanity check, this STATUS update).
 
 ---
 
