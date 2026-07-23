@@ -1,4 +1,83 @@
-## [2026-07-22 ~21:12-21:35 ET] OK -- conductor (AFTERHOURS): shipped CHEF-FOCUS-FILTER parts (1)-(3) -- FOCUS-DOCTRINE intake gate wired into chef.md + task_scorer.py level-family weight; part (4) split off as its own item; found+fixed a self-inflicted multi-line-paren queue.md bug same fire
+## [2026-07-22 ~21:48-22:00 ET] OK -- conductor (AFTERHOURS): shipped CHEF-CANDIDATES-CONSOLIDATION-SWEEP batch 1 (250 stale non-level candidates archived, 1619->1369 top-level files), commits `5f09fee3` + `fa53a3d0`
+
+> **STAGE 0/1:** ET confirmed 21:48, Wednesday, market closed since 15:55. `engine-health.json`
+> GREEN 13/13 (all quiet-OK, market closed). `self_check.py` DEGRADED only on the pre-existing
+> non-load-bearing TRENDLINE-DRAW flag (already tracked). `fill_funnel.py` GREEN 2026-07-22:
+> core:safe 2 fills/2 exits, core:bold 0 (0 ENTER both -- 20/21 signals correctly gated, no
+> anomaly), extra_exec secondary lane 4 placed. Self-audit gaps: all batches through
+> 2026-07-22T17:32:32 already actioned by earlier fires -- nothing new. `task_scorer.py --top`
+> surfaced `RIBBON-SESSION-SCOPE-DIVERGENCE` with a trace-first advisory; picked
+> `CHEF-CANDIDATES-CONSOLIDATION-SWEEP` instead (also HIGH, a follow-up split off 2 fires ago
+> from `CHEF-FOCUS-FILTER` part 4, concretely scoped "200-300 files/fire batch" -- OP-22
+> tiebreak: close a loop the repo already committed to, over re-deciding priority on a fresh
+> item that itself says "trace before executing").
+
+> **What shipped:** `backtest/tools/chef_candidates_consolidation_sweep.py` -- $0 pure-Python
+> classifier (1619 files ruled out per-file LLM cost). Eligible = stale (filename date >30d,
+> cutoff 2026-06-22) AND non-level-family (explicit `level_family:` tag, else inferred via the
+> same FOCUS-DOCTRINE vocabulary as `task_scorer.py`'s `LEVEL_FAMILY_RE`) AND no traction (not
+> cited in `_LEADERBOARD.md`/`_LEADERBOARD-pending.md`/any live inbox). Conservative "when in
+> doubt KEEP" per `_archive/README.md`'s own policy. **Verified this fire (OP-33):** new guard
+> suite `backtest/tests/test_chef_candidates_consolidation_sweep.py` (12 tests, synthetic
+> tmp_path sandbox only) caught a real bug BEFORE touching production files -- `run_batch`
+> resolved the archive folder against the module-level `ARCHIVE_ROOT` constant instead of the
+> caller's `candidates_dir` param; fixed, 12/12 green. Dry-run against the real tree first:
+> 1619 scanned, 322 eligible, 888 not-yet-stale, 347 level-family, 62 traction. Gym baseline
+> `python crypto/validators/runner.py` -> 104/104 PASS BEFORE the move. Applied batch 1
+> (`--batch-size 250 --apply`): 250 of 322 archived oldest-first to
+> `_archive/sweep-2026-07-22/` (spot-checked -- same `chef-nemo-*` Kitchen-brainstorm-noise
+> class as the precedent 2026-05/ batch). Gym re-verified 104/104 PASS AFTER the move, no
+> regression. `strategy/candidates/` top-level: 1619 -> 1369. 72 files remain eligible for
+> batch 2 (script is re-runnable as-is, no new design work needed).
+
+> **Self-caught foot-gun, same fire (own test pollution):** a pre-fix test run (before the
+> `ARCHIVE_ROOT` bug fix above) had `apply=True` and moved one real file
+> (`2026-05-01-a.md`, from the test's own tmp_path fixture) into the REAL
+> `strategy/candidates/_archive/sweep-2026-07-22/` before crashing on the `relative_to` line --
+> caught by directly diffing the log's `moved_files` array against the real directory listing
+> (OP-33 verify-don't-claim, not "12/12 green so it's fine") rather than trusting the batch
+> summary. Deleted the stray file before staging; re-verified directory count (250) matches the
+> log exactly.
+
+> **Second foot-gun, real discovery not self-inflicted:** while staging, `git add
+> strategy/candidates/` surfaced **1,176 untracked files** (never `git add`ed, confirmed NOT
+> gitignored) spread across top-level candidates + `_analysis/` + `_chef-inbox/` +
+> `_lesson-inbox/*.DONE` -- only ~443 of 1619 top-level files were actually tracked. This is a
+> real version-control gap (live Kitchen pipeline state with no commit history, no recovery
+> path on disk loss) that predates this fire and is out of scope to fix here (rail 3). Filed
+> `STRATEGY-CANDIDATES-UNTRACKED-BACKFILL` (HIGH, queue.md) + lesson-inbox writeup
+> (`2026-07-22-1176-untracked-candidate-files-never-git-added.md`) for the next fire, committed
+> separately (`fa53a3d0`) so it doesn't get lost.
+
+> **Staging discipline (rail-3/lane-safety):** the repo has other automation writing
+> concurrently (kitchen daemon, scout, swarm, etc. -- ~150 files showed unrelated `M`/`??` at
+> `git status` time). Never used `-A`/`.` -- scoped the batch-1 commit to exactly
+> `_archive/sweep-2026-07-22/` + `_archive/README.md` + `_chef-log.jsonl` + the 250
+> renamed-away original paths (via `--pathspec-from-file`, verified git detected 250 clean
+> renames) + the 2 new tool/test files + `queue.md`; explicitly excluded a concurrently-modified
+> `_review-log.jsonl` (+80 lines, not mine) from the commit. Second commit scoped to just the
+> 2 new lesson/queue files.
+
+> **Scope + revert:** pure file-move + new tooling/test/doc + queue/lesson bookkeeping -- no
+> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched. Ships per OP-22
+> (engine-benefit hygiene, same class as CHEF-FOCUS-FILTER). Revert: `git revert fa53a3d0` then
+> `git revert 5f09fee3` (git history restores the 250 files to their original paths; the sweep
+> script itself is idempotent/re-runnable for future batches either way).
+
+> **Cost: ~$3.6** (STAGE 0/1 reads, dry-run design + guard-test authorship + bug catch, real
+> dry-run + gym before/after, batch apply, the test-pollution catch + cleanup, careful pathspec
+> staging around ~150 concurrently-touched files, the second untracked-files discovery +
+> writeup + commit, this write-up).
+
+> **Autonomy metric (`conductor_outcome.py metric`, 20-fire window):** `net_improvement=24`,
+> `cost_per_drained=$2.66`, `trend=regressing` (this fire's own note field got a cosmetic `$0`
+> shell-substitution glitch in the JSONL -- harmless, not re-fired for). Trend flagged per
+> conductor.md instruction; next fire should prefer a loop-closing item (e.g. picking up
+> `STRATEGY-CANDIDATES-UNTRACKED-BACKFILL` or `CHEF-CANDIDATES-CONSOLIDATION-SWEEP` batch 2,
+> both already scoped and ready) over starting a fresh artifact.
+
+---
+
 
 > **STAGE 0/1:** ET confirmed 21:12, Wednesday, market closed since 15:55.
 > `engine-health.json` GREEN 13/13 (all checks quiet-OK, market closed). `self-check-last.json`
@@ -614,70 +693,6 @@
 
 ---
 
-## [2026-07-22 ~09:12-09:20 ET] OK -- conductor (AFTERHOURS): drained lesson-inbox -> L240 + fixed a mis-suffixed DONE marker, commit `0a79918b`
 
-> **STAGE 0/1:** ET confirmed via `et_clock.py` (09:12, Wednesday, market_hours=False -- still
-> pre-open, gate correctly did NOT skip). engine-health GREEN (13/13, market closed since 15:55
-> prior day). `self-check-last.json` DEGRADED on the same pre-existing non-load-bearing
-> TRENDLINE-DRAW visibility flag (unchanged). `fill_funnel.py` IDLE (pre-open, 0 ticks yet --
-> expected). `task_scorer.py --top` again surfaced only the J-decision-gated
-> `MORNING-BULL-QUALITY-GATE-RECONSIDER`, correctly skipped. Self-audit gaps: no new batch since
-> 2026-07-21T17:31:28 (already triaged). `queue.md` `status:open` grep: only `T-AUDIT-TAIL`
-> (already deprioritized, not a clean 60-min pick, left as-is). Author-inbox order:
-> validator-inbox all `.DONE`, skill-inbox only a correction-queue log ->
-> **`_lesson-inbox` had exactly 1 open item** (the prior fire's self-filed
-> `2026-07-22-prospector-exact-dedupe-key-misses-reworded-family-duplicate.md`) -- picked it
-> (priority-5, author-inbox tier, ahead of chef-inbox, nothing higher-priority ready).
-
-> **What shipped:** graduated the item to **L240** in `markdown/doctrine/LESSONS-LEARNED.md`
-> (exact-key dedupe silently let 8 re-worded re-asks of 2 concepts -- VIX1D x5, VPVR x3 --
-> promote as "8 fresh ideas" before the FAMILY_KEYWORDS fix, commit `a4368bd`), folded into
-> CLAUDE.md's OP-25 index (C7 row -- fits the "silent success is failure" theme better than C34,
-> per the item's own dual cross-reference), bumped the "current through" pointer L239->L240,
-> marked the source inbox item `.DONE`.
-
-> **Side-find, fixed (not just noted):** re-running the guard suite
-> (`test_inbox_done_suffix.py`) turned up a LIVE pre-existing foot-gun from an earlier fire --
-> `2026-07-10-prospector-cboe-buywrite-index-bxm-real-time-levels.DONE.md` was named
-> `*.DONE.md` instead of the required `*.md.DONE`, so it still ends in `.md` and the chef's
-> `*.md` glob would silently re-consume it as open work (exactly what this guard exists to
-> catch). Verified isolated (the 3 sibling BXM-family DONE markers all used the correct
-> convention) before renaming via `git mv`.
-
-> **Verified this fire (OP-33):** `pytest backtest/tests/test_op25_index_reconciliation.py
-> backtest/tests/test_inbox_done_suffix.py backtest/tests/test_verify_committed.py -q` ->
-> 1 FAIL (the mis-suffixed marker) on first run, **16/16 PASS** after the rename fix.
-> `grep -c "^    | C" CLAUDE.md` = 35 (no duplicate/malformed rows). `git status --short` on the
-> exact 4 intended paths before staging (L239 discipline), curated safety gate (31+5) PASS
-> pre-commit, `git show --stat HEAD` post-commit confirms exactly 4 files / 14 insertions(+) /
-> 2 deletions(-), 2 clean renames, nothing stray. Context budget re-checked post-edit:
-> `context_audit.py` -> YELLOW 8739/9000 tok (97%, up from 8709 -- still within budget).
-
-> **Trading-path scope:** zero trading-path files touched (LESSONS-LEARNED.md/CLAUDE.md
-> doctrine-authoring + 2 inbox-marker renames only -- no params/heartbeat_core/filters/
-> placement/exit). No guard/revert/REVOKE needed under rail 4 (nothing shipped that could
-> regress a live decision). **Revert:** `git revert 0a79918b` (1 commit, fully additive
-> doc/inbox change, no functional code path touched).
-
-> **Queue state:** all 4 author inboxes empty of actionable items again (validator/skill/lesson
-> all clear). `_chef-inbox` has 10 open prospector items remaining (2 new since the last fire's
-> count: `2026-07-22-prospector-auto-supportresistance-zones-by-luxalgo-.md` and
-> `2026-07-22-prospector-order-flow-imbalance-ofi-by-sanjay-cumul.md`). Next fire: if nothing
-> higher-priority surfaces, pick the next-oldest chef-inbox item that is NOT TradingView-MCP-
-> dependent (this session's tool surface again has zero `tradingview`-prefixed tools -- the
-> 2026-07-10 VPVR and 2026-07-11 auto-S/R and market-profile items stay blocked on that; the
-> CFTC/FINRA/alpha-vantage/polygon/OFI-family items are free-data-only and unblocked).
-> `queue.md` retention-cap consolidation still noted, not actioned (unchanged from last several
-> fires -- a genuine future task, correctly not rushed here to stay bounded).
-
-> **Cost: ~$1.9** (STAGE 0/1 reads, engine-health/self-check/task_scorer/fill_funnel/
-> self-audit-gaps/queue-grep/4-inbox survey, reading the 1 lesson-inbox item in full, writing
-> the L240 entry + CLAUDE.md index fold, discovering + fixing the mis-suffixed DONE marker,
-> 3 guard-test runs (1 RED, then GREEN), 1 commit with pre/post verification, this STATUS
-> update).
-
----
-
-
-## Kitchen
-Kitchen: alive, queue 41 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+### DEGRADED: self-check 2026-07-22T21:48:21
+- TRENDLINE-DRAW never marked today (2026-07-22) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
