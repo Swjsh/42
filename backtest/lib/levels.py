@@ -74,9 +74,21 @@ def _detect_from_history(
             ``intraday`` source). Default False = production behavior unchanged.
             Set via level_flags={} in run_backtest() for A/B testing only.
     """
+    # PERF 2026-07-23 (ENGINE-VECTORIZATION queue item, layer 1/3): this function is
+    # called once per trading day with an EVER-GROWING history slice (orchestrator's
+    # _level_per_day cache), so re-deriving "date"/"time" via the (notoriously slow,
+    # per-row Python-object) .dt.date/.dt.time accessors on the full growing slice
+    # every call was O(n^2) across a backtest. Callers that already precomputed these
+    # columns on their own full frame ONCE (orchestrator.py's spy_df_full) skip the
+    # recompute here; callers that pass a raw slice (every other call site) are
+    # unaffected — same derivation, same values, just conditional. Mirrors the
+    # existing precedent in this same file (_find_swept_levels' `if "date" not in
+    # history.columns`).
     history = history.copy()
-    history["date"] = history["timestamp_et"].dt.date
-    history["time"] = history["timestamp_et"].dt.time
+    if "date" not in history.columns:
+        history["date"] = history["timestamp_et"].dt.date
+    if "time" not in history.columns:
+        history["time"] = history["timestamp_et"].dt.time
 
     today_bars = history[history["date"] == today]
     prior_bars = history[history["date"] < today]

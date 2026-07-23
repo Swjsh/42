@@ -789,6 +789,13 @@ def run_backtest(
     spy_df_full = spy_df.copy()
     spy_df_full["timestamp_et"] = pd.to_datetime(spy_df_full["timestamp_et"])
     spy_df_full["date"] = spy_df_full["timestamp_et"].dt.date
+    # PERF 2026-07-23 (ENGINE-VECTORIZATION layer 1/3): precompute "time" here too,
+    # once, so _detect_from_history's per-day cache-miss call (which slices a
+    # GROWING window of spy_df_full every trading day) can skip re-deriving both
+    # "date" (already present) AND "time" via the slow .dt.date/.dt.time accessors
+    # on the full slice each time — was O(n^2) across a backtest. Byte-identical
+    # values: same source column, same derivation, just computed once up front.
+    spy_df_full["time"] = spy_df_full["timestamp_et"].dt.time
 
     if spy_df_full.empty:
         for _fa, _v in _filter_const_saved.items():
