@@ -178,6 +178,7 @@ automation/state/crypto-twin/scenario-state.json
 automation/state/crypto-twin/sim-bear-scenario-state.json
 automation/state/crypto-twin/sim-bear-positions.json
 automation/state/key-levels.json
+automation/state/key-levels-history/
 automation/state/sight-beacon.json
 automation/state/fleet/shared-signal.json
 automation/state/futures/mirror-shadow-state.json
