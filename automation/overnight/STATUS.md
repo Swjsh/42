@@ -1,3 +1,65 @@
+## [2026-07-23 ~16:12-16:52 ET] OK -- conductor (AFTERHOURS): ENGULFING-AT-STRUCTURE-TRIGGER (HIGH) -- shipped a real grammar rule, honestly falsified against both anchors, commits `31c5089e` + `e15f85dd`
+
+> **STAGE 0/1:** ET confirmed 16:12 (Thursday, market closed since 15:55 -- clean after-hours
+> runway). `engine-health.json` GREEN 13/13. `self_check.py` DEGRADED only on the pre-existing
+> non-load-bearing TRENDLINE-DRAW flag. `fill_funnel.py` GREEN for 2026-07-23: core:bold 1
+> fill/1 exit; core:safe 8 ENTER signals but 0 attempts (not RED -- RED requires attempted>0 &
+> accepted==0; this is attempted==0, consistent with a rule-block upstream of placement, not a
+> funnel break). Self-audit gaps: all triaged through 07-22, nothing new due yet (next batch
+> fires 17:30). `task_scorer.py --top` picked `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED) but the queue's
+> own HIGH tier had a live, un-actioned item: `ENGULFING-AT-STRUCTURE-TRIGGER`, filed today from
+> 3 live-tape exhibits J called (engine had ZERO trigger every time, both directions, mirror-
+> symmetric) -- outranks MED per priority order.
+
+> **What I found before building anything:** the pattern-grammar registry
+> (`backtest/lib/patterns/`, built 2026-07-09, "NO WIRING" -- consumed only by the C27 prescreen)
+> ALREADY had both raw ingredients: an `engulfing` candlestick predicate and a `flat_side` swing-
+> shelf primitive (powers `double_top_bottom_at_level`/`rectangle_range_break`/`triangle_*`) --
+> just never composed together anchored to the intraday shelf (the existing `engulfing_at_level`
+> anchors to NAMED DAILY levels only). Built + shipped `engulfing_at_swing_shelf` (commit
+> `31c5089e`): 12th registry rule, 57/57 pattern-grammar tests green, curated safety gate 31+5
+> PASS. C27 prescreen came back clean -- TESTABLE full-history (28.9% days, 0.42 fires/day) AND
+> stable recent-90d (no drift), notably CLEANER than `engulfing_at_level` itself, which this same
+> prescreen run showed has DRIFTED to NOISE-KILL recently (undisclosed before this fire).
+
+> **Ran the falsification test anyway (OP-33 / `/fable-too-good`) -- and it FAILED both anchors.**
+> A clean prescreen number is not proof the rule captures the SPECIFIC mechanism it was built
+> for. Checked the shipped predicate directly against both bars J named: 07-21 11:05 bullish and
+> 07-23 10:40 bearish (verified against the freshest cache including today,
+> `spy_5m_2026-05-19_2026-07-23.csv`) -- neither fires. Root cause, precisely pinned with direct
+> evidence (not re-asserted): the tight touch clusters J read (~$0.08 apart, 5 min apart) never
+> register as 2+ DISTINCT confirmed swing pivots under `crypto/lib/market_structure.py`'s
+> labeling timescale -- the SAME shared primitive every swing-family rule (`flat_side`,
+> `monotone_swings`, `double_top_bottom_at_level`, and now `engulfing_at_swing_shelf`) is built
+> on. This is not a missing-vocabulary problem after all; it's a timescale mismatch in a shared
+> primitive that bounds every rule composed on it. Full detail + refined next step (a genuinely
+> new rolling-K-bar local-extreme-cluster primitive, to be falsified BEFORE any pre-reg/replay is
+> built on it) filed in `queue.md`'s own item (commit `e15f85dd`) + `_lesson-inbox` for
+> graduation (`2026-07-23-swing-primitive-timescale-bounds-every-composed-rule.md`).
+
+> **Verified this fire (OP-33):** direct Python calls against both live commits' code (not
+> assumed) reproduced the exact pivot lists showing `flat_side` returns `None` at both anchor
+> bars; `git show --stat --name-status` on both commits confirms exactly the intended files (2
+> code files first commit, queue+lesson-inbox second commit, nothing else swept in).
+
+> **Scope + revert:** pure `backtest/lib/patterns/` authoring + docs -- registry.py's own
+> docstring: "NO WIRING: nothing here is imported by the live engine... consumed ONLY by
+> pattern_prescreen.py." Zero params/heartbeat_core/filters/placement/exit/CLAUDE.md touched.
+> Ships per OP-22/26 (engine-benefit research authoring, no J ratification needed). Revert:
+> `git revert e15f85dd` then `git revert 31c5089e`.
+
+> **Item stays `status:pending`, NOT closed** -- this is genuine progress (a vague 3-mechanism
+> hypothesis narrowed to one precisely falsified composition + a concrete named next primitive),
+> not a stall; per OP-22's tiebreak this counts as advancing a HIGH item, the right call over
+> starting a fresh MED item cold.
+
+> **Cost: ~$5.3** (STAGE 0/1 reads, registry/predicates/grammar/context code study, composing +
+> registering the new rule, 2 prescreen runs (~140s), targeted anchor verification against 2
+> separate cached CSVs incl. today's live data, curated-gate x2, lesson-inbox authoring,
+> queue/STATUS write-up, conductor_outcome record+metric).
+
+---
+
 ## [2026-07-23 ~09:12-09:35 ET] OK -- conductor (AFTERHOURS): closed FUNCTION-SCORE-ZERO-ENTER-CHECK (HIGH) -- diagnosed benign + fixed a real metric blind spot, commit `56b4bd2b`
 
 > **STAGE 0/1:** ET confirmed 09:12 (Thursday, market not yet open -- opens 09:30, clean
@@ -608,179 +670,3 @@
 
 ---
 
-## [2026-07-22] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
-
-> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
-> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
-> -   bollinger_squeeze (armed 2026-07-02): since-arm 3tr $+75.00 ($+25.00/tr, 66.7% WR)
-> -   double_bottom_base_quiet (armed 2026-07-01, 21d ago): 0 fills since arm — no live signal yet
-> -   vix_regime_dayside (armed 2026-07-01): since-arm 5tr $-153.00 ($-30.60/tr, 0.0% WR)
-> -   vwap_continuation (armed 2026-07-01): since-arm 7tr $-204.00 ($-29.14/tr, 0.0% WR)
-> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 1tr $+18.00 ($+18.00/tr, 100.0% WR)
-> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
-
----
-
-## [2026-07-22] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-16..2026-07-22), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-22). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-276.48); Bold_ATM_1+2=YELLOW ($-166.9)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
-## [2026-07-22 ~21:48-22:00 ET] OK -- conductor (AFTERHOURS): shipped CHEF-CANDIDATES-CONSOLIDATION-SWEEP batch 1 (250 stale non-level candidates archived, 1619->1369 top-level files), commits `5f09fee3` + `fa53a3d0`
-
-> **STAGE 0/1:** ET confirmed 21:48, Wednesday, market closed since 15:55. `engine-health.json`
-> GREEN 13/13 (all quiet-OK, market closed). `self_check.py` DEGRADED only on the pre-existing
-> non-load-bearing TRENDLINE-DRAW flag (already tracked). `fill_funnel.py` GREEN 2026-07-22:
-> core:safe 2 fills/2 exits, core:bold 0 (0 ENTER both -- 20/21 signals correctly gated, no
-> anomaly), extra_exec secondary lane 4 placed. Self-audit gaps: all batches through
-> 2026-07-22T17:32:32 already actioned by earlier fires -- nothing new. `task_scorer.py --top`
-> surfaced `RIBBON-SESSION-SCOPE-DIVERGENCE` with a trace-first advisory; picked
-> `CHEF-CANDIDATES-CONSOLIDATION-SWEEP` instead (also HIGH, a follow-up split off 2 fires ago
-> from `CHEF-FOCUS-FILTER` part 4, concretely scoped "200-300 files/fire batch" -- OP-22
-> tiebreak: close a loop the repo already committed to, over re-deciding priority on a fresh
-> item that itself says "trace before executing").
-
-> **What shipped:** `backtest/tools/chef_candidates_consolidation_sweep.py` -- $0 pure-Python
-> classifier (1619 files ruled out per-file LLM cost). Eligible = stale (filename date >30d,
-> cutoff 2026-06-22) AND non-level-family (explicit `level_family:` tag, else inferred via the
-> same FOCUS-DOCTRINE vocabulary as `task_scorer.py`'s `LEVEL_FAMILY_RE`) AND no traction (not
-> cited in `_LEADERBOARD.md`/`_LEADERBOARD-pending.md`/any live inbox). Conservative "when in
-> doubt KEEP" per `_archive/README.md`'s own policy. **Verified this fire (OP-33):** new guard
-> suite `backtest/tests/test_chef_candidates_consolidation_sweep.py` (12 tests, synthetic
-> tmp_path sandbox only) caught a real bug BEFORE touching production files -- `run_batch`
-> resolved the archive folder against the module-level `ARCHIVE_ROOT` constant instead of the
-> caller's `candidates_dir` param; fixed, 12/12 green. Dry-run against the real tree first:
-> 1619 scanned, 322 eligible, 888 not-yet-stale, 347 level-family, 62 traction. Gym baseline
-> `python crypto/validators/runner.py` -> 104/104 PASS BEFORE the move. Applied batch 1
-> (`--batch-size 250 --apply`): 250 of 322 archived oldest-first to
-> `_archive/sweep-2026-07-22/` (spot-checked -- same `chef-nemo-*` Kitchen-brainstorm-noise
-> class as the precedent 2026-05/ batch). Gym re-verified 104/104 PASS AFTER the move, no
-> regression. `strategy/candidates/` top-level: 1619 -> 1369. 72 files remain eligible for
-> batch 2 (script is re-runnable as-is, no new design work needed).
-
-> **Self-caught foot-gun, same fire (own test pollution):** a pre-fix test run (before the
-> `ARCHIVE_ROOT` bug fix above) had `apply=True` and moved one real file
-> (`2026-05-01-a.md`, from the test's own tmp_path fixture) into the REAL
-> `strategy/candidates/_archive/sweep-2026-07-22/` before crashing on the `relative_to` line --
-> caught by directly diffing the log's `moved_files` array against the real directory listing
-> (OP-33 verify-don't-claim, not "12/12 green so it's fine") rather than trusting the batch
-> summary. Deleted the stray file before staging; re-verified directory count (250) matches the
-> log exactly.
-
-> **Second foot-gun, real discovery not self-inflicted:** while staging, `git add
-> strategy/candidates/` surfaced **1,176 untracked files** (never `git add`ed, confirmed NOT
-> gitignored) spread across top-level candidates + `_analysis/` + `_chef-inbox/` +
-> `_lesson-inbox/*.DONE` -- only ~443 of 1619 top-level files were actually tracked. This is a
-> real version-control gap (live Kitchen pipeline state with no commit history, no recovery
-> path on disk loss) that predates this fire and is out of scope to fix here (rail 3). Filed
-> `STRATEGY-CANDIDATES-UNTRACKED-BACKFILL` (HIGH, queue.md) + lesson-inbox writeup
-> (`2026-07-22-1176-untracked-candidate-files-never-git-added.md`) for the next fire, committed
-> separately (`fa53a3d0`) so it doesn't get lost.
-
-> **Staging discipline (rail-3/lane-safety):** the repo has other automation writing
-> concurrently (kitchen daemon, scout, swarm, etc. -- ~150 files showed unrelated `M`/`??` at
-> `git status` time). Never used `-A`/`.` -- scoped the batch-1 commit to exactly
-> `_archive/sweep-2026-07-22/` + `_archive/README.md` + `_chef-log.jsonl` + the 250
-> renamed-away original paths (via `--pathspec-from-file`, verified git detected 250 clean
-> renames) + the 2 new tool/test files + `queue.md`; explicitly excluded a concurrently-modified
-> `_review-log.jsonl` (+80 lines, not mine) from the commit. Second commit scoped to just the
-> 2 new lesson/queue files.
-
-> **Scope + revert:** pure file-move + new tooling/test/doc + queue/lesson bookkeeping -- no
-> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched. Ships per OP-22
-> (engine-benefit hygiene, same class as CHEF-FOCUS-FILTER). Revert: `git revert fa53a3d0` then
-> `git revert 5f09fee3` (git history restores the 250 files to their original paths; the sweep
-> script itself is idempotent/re-runnable for future batches either way).
-
-> **Cost: ~$3.6** (STAGE 0/1 reads, dry-run design + guard-test authorship + bug catch, real
-> dry-run + gym before/after, batch apply, the test-pollution catch + cleanup, careful pathspec
-> staging around ~150 concurrently-touched files, the second untracked-files discovery +
-> writeup + commit, this write-up).
-
-> **Autonomy metric (`conductor_outcome.py metric`, 20-fire window):** `net_improvement=24`,
-> `cost_per_drained=$2.66`, `trend=regressing` (this fire's own note field got a cosmetic `$0`
-> shell-substitution glitch in the JSONL -- harmless, not re-fired for). Trend flagged per
-> conductor.md instruction; next fire should prefer a loop-closing item (e.g. picking up
-> `STRATEGY-CANDIDATES-UNTRACKED-BACKFILL` or `CHEF-CANDIDATES-CONSOLIDATION-SWEEP` batch 2,
-> both already scoped and ready) over starting a fresh artifact.
-
----
-
-
-> **STAGE 0/1:** ET confirmed 21:12, Wednesday, market closed since 15:55.
-> `engine-health.json` GREEN 13/13 (all checks quiet-OK, market closed). `self-check-last.json`
-> DEGRADED only on the pre-existing non-load-bearing TRENDLINE-DRAW flag (already tracked).
-> `task_scorer.py --top` surfaced `CHEF-FOCUS-FILTER` (HIGH, filed THIS SAME NIGHT by an
-> earlier fire off J's FOCUS-DOCTRINE directive) with its own advisory to trace-before-
-> executing -- traced it: genuinely fresh, not yet built, still status:pending, four concrete
-> sub-parts with a clear bounded slice available.
-
-> **What shipped -- parts (1)-(3) of CHEF-FOCUS-FILTER (part 4 split off, see below):**
-> 1. **Intake tagging + over-engineering checklist** -- `.claude/agents/chef.md`: new
->    "FOCUS-DOCTRINE intake gate" section applied BEFORE writing any candidate file (not
->    after a battery run), `level_family: true|false` top-line field added to the candidate
->    skeleton (with the required "cannot be expressed as a level interaction because..."
->    justification when false), plus guardrail #7 cross-reference and a
->    `"verdict":"rejected-at-intake"` logging convention for ideas killed at authoring time.
-> 2. **Scorer weight** -- `setup/scripts/task_scorer.py`: new `LEVEL_FAMILY_RE` (matches
->    level-reject/reclaim/interaction/touch/flip/retest/break, "rejection at a[n adjective]
->    level", reclaim(s/ed/ing), flip-retest, range-ping-pong, break-(and-)retest, S/R flip)
->    + `LEVEL_FAMILY_BONUS = 1.0`, additive in `score_item`, stacks with engine-benefit/
->    quick-win exactly like the existing signals.
-> **Verified this fire (OP-33):** new guard test
-> `backtest/tests/test_task_scorer_level_family.py` (8 tests) -- RED before the regex fix
-> (the "rejection at a KEY level" phrase needed an adjective-in-between case, caught by the
-> test itself, not assumed correct on the first try), GREEN after widening to
-> `(?:\w+\s+){0,3}level`. Full `pytest backtest/tests/test_task_scorer*.py -q` -> **62/62
-> PASS**, no regression across all 5 task_scorer test files.
-
-> **Part (4) SPLIT OFF, not attempted this fire (rail 3):** a 1619-file (verified count,
-> `strategy/candidates/` -- the parent item's own "100+" estimate was stale) one-time
-> archival triage is its own multi-fire batch job, not a tail-end of this one. Filed as
-> `CHEF-CANDIDATES-CONSOLIDATION-SWEEP` (HIGH) in `queue.md` with a concrete batching plan
-> (200-300 files/fire, gym-clean before/after each batch, move-not-delete to `_archive/`).
-
-> **Self-caught foot-gun, same fire:** appending `CHEF-CANDIDATES-CONSOLIDATION-SWEEP` to
-> `queue.md` with a priority-parenthetical that wrapped across two physical lines caused
-> `task_scorer.py` to drop the item ENTIRELY -- not `ready:false`, absent from `--all` too
-> (worse than the already-known multi-line-`status:` bug fixed 2 fires ago: here no `Task`
-> object is ever created, because `ITEM_RE` can't match a paren that doesn't close on the
-> checkbox's own line). Caught by directly re-probing the scorer's own JSON output after the
-> edit (OP-33 verify-don't-claim) instead of assuming the append "obviously" worked. Fixed by
-> keeping the full `(HIGH, ...)` parenthetical on one physical line. **Learned:** filed
-> `strategy/candidates/_lesson-inbox/2026-07-22-task-scorer-multiline-paren-silently-drops-
-> item.md` (sibling to the existing multi-line-status lesson) with a recommended guard-test
-> spec for `validator-author`/`skill-author` to graduate next -- a live-queue.md scan for any
-> OPEN (`- [ ]`) line with an unclosed same-line paren. Confirmed via grep this is the ONLY
-> live open-item instance in the file (3 pre-existing occurrences are all `- [x]` done items,
-> which parse-skip regardless, so provably harmless).
-
-> **Scope + revert:** pure authoring/scorer-signal + queue-bookkeeping work -- no
-> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched. Ships per OP-22
-> (engine-benefit authoring/hygiene). Revert: one commit, 4 files
-> (`chef.md`, `task_scorer.py`, new test file, `queue.md`), `git revert <sha>`.
-
-> **Cost: ~$2.0** (STAGE 0/1 reads, FOCUS-DOCTRINE + chef.md + task_scorer.py reads, the
-> regex+bonus edit, chef.md persona edit, new 8-test guard file, two rounds of live-queue
-> re-verification via direct script probes catching + fixing the multi-line-paren bug, the
-> lesson-inbox write-up, this write-up).
-
----
-
-
-## Kitchen
-Kitchen: alive, queue 20 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-### DEGRADED: self-check 2026-07-23T08:09:57
-- CANDIDATES-UNTRACKED: 39 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
-
-### DEGRADED: self-check 2026-07-23T09:09:57
-- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-23T09:12:44
-- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
