@@ -2365,7 +2365,44 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 
 **Action:** investigate, fix the underlying primitive, re-run `python -m autoresearch.gym_session --date {date_str} --rerun-all`.
 
-- [ ] ENGINE-VECTORIZATION (HIGH, perf — the "thousands fast" unlock) :: **2026-06-24: the backtest is 54s/combo → grinds take hours; profile shows the cost is per-bar pandas row-indexing (1.6M `.iloc`/`fast_xs` calls), NOT cacheable I/O.** Baseline for byte-identical validation captured: `backtest/autoresearch/_vectorize_baseline.json` (strike_offset=2/L2/-8% → n=159, sum_pnl=2593.09, **hash c9b7c82bce74250d**). THREE hot layers (each validated against the hash after change, 54-80s/run): (1) **levels.py `_detect_from_history`** — `history=spy_df.iloc[:bar_idx+1].copy()` + re-derive date/time on the GROWING slice every day (365× = O(n²), ~44s cumulative). spy_df_full ALREADY carries `date`; precompute `time`+tz once, skip the per-day copy/derive (~1.8× alone, most isolated → DO FIRST). (2) **filters.py per-bar lookback loops** — `prior_bars.iloc[j]["close"]` double-index in range loops (L393/408 sweep, +`.iloc[k]` at L377/452/521/650/1000/1187) → precompute close/high/low/open/vol numpy arrays ONCE in run_backtest, inject via BarContext (new fields), replace .iloc with array[k]. THIS is the big multiplier. (3) **orchestrator bar loop** L865 `bar=spy_df.iloc[idx]` + L906 `vix_aligned.iloc[idx]` per bar → array access. Target: 54s → ~3-5s (10-15×) so the 3360 grid runs in ~minutes. Do as a DEDICATED build, one layer at a time, hash-validated. :: depends:none :: status:pending
+- [ ] ENGINE-VECTORIZATION (HIGH, perf — the "thousands fast" unlock) :: **2026-06-24: the backtest is 54s/combo → grinds take hours; profile shows the cost is per-bar pandas row-indexing (1.6M `.iloc`/`fast_xs` calls), NOT cacheable I/O.** Baseline for byte-identical validation captured: `backtest/autoresearch/_vectorize_baseline.json` (strike_offset=2/L2/-8% → n=159, sum_pnl=2593.09, **hash c9b7c82bce74250d** — NOTE: this exact combo now reproduces n=308/total=$3982.94 on today's larger OPRA window, per the LAYER-1 fire below; n/sum_pnl in this stale baseline reflect the 2026-06-24 data cutoff, not a regression). THREE hot layers (each validated against the hash after change, 54-80s/run): (1) **levels.py `_detect_from_history`** — `history=spy_df.iloc[:bar_idx+1].copy()` + re-derive date/time on the GROWING slice every day (365× = O(n²), ~44s cumulative). spy_df_full ALREADY carries `date`; precompute `time`+tz once, skip the per-day copy/derive (~1.8× alone, most isolated → DO FIRST). **[LAYER 1 SHIPPED 2026-07-23, see note below — honest result was ~6%, not 1.8×; the boolean-mask slice construction dominates that layer, unaddressed.]** (2) **filters.py per-bar lookback loops** — `prior_bars.iloc[j]["close"]` double-index in range loops (L393/408 sweep, +`.iloc[k]` at L377/452/521/650/1000/1187) → precompute close/high/low/open/vol numpy arrays ONCE in run_backtest, inject via BarContext (new fields), replace .iloc with array[k]. THIS is the big multiplier — cProfile (2026-07-23) confirms: `fast_xs`/`_ixs`/`__getitem__` chain totals ~110s cumulative of a ~205s profiled run (profiler overhead inflates absolute seconds; relative share is the signal), concentrated in `filters.py:evaluate_bullish_setup`/`evaluate_bearish_setup` (~90s+40s cumulative) and `engine/score.py:score_bar` (~65s). **NEXT STEP, not yet attempted.** (3) **orchestrator bar loop** L865 `bar=spy_df.iloc[idx]` + L906 `vix_aligned.iloc[idx]` per bar → array access. Target: 54s → ~3-5s (10-15×) so the 3360 grid runs in ~minutes. Do as a DEDICATED build, one layer at a time, hash-validated. :: depends:none :: status:layer1-shipped-layer2-3-open
+
+> **LAYER 1 SHIPPED 2026-07-23 ~17:12-18:10 ET (conductor, AFTERHOURS), commit `2c6eaf75`.**
+> `_detect_from_history` now skips re-deriving "date"/"time" via `.dt.date`/`.dt.time` when the
+> caller already supplies those columns (mirrors the pre-existing `_find_swept_levels` precedent
+> in the same file); `orchestrator.py` precomputes "time" on `spy_df_full` once up front
+> alongside the already-precomputed "date" so its hot path (`_level_per_day` cache-miss, once
+> per trading day) benefits automatically.
+>
+> **Verified byte-identical (OP-33, not just "should work"):** ran the full real-OPRA-fills
+> reproducer (`strategy_space_grind --cell OTM-2:L2:pct_-8`) before AND after the change —
+> n=308, total=$3982.94, edge_capture=$1100.97, wf=2.762, wr=0.1786, max_dd=-$988.33 identical
+> to the last decimal both times. 3 new guard tests
+> (`test_levels_precomputed_columns_parity.py`: skip-if-present==recompute parity,
+> date-only-precomputed still derives time independently, no-precompute path unaffected) +
+> 23/23 pre-existing `test_level_quality_guards.py` + 31+5 curated safety gate all PASS.
+> Post-commit `git show 2c6eaf75 --stat --name-status` confirms exactly the 3 intended files
+> landed.
+>
+> **Reported honestly, not oversold (no-oversell doctrine):** cProfile'd the same cell and
+> isolated `_detect_from_history` in a direct microbenchmark (365 calls, real data, no
+> cProfile overhead skewing the number): 27.33s → 25.74s, a genuine but modest ~6% win at this
+> layer — NOT the item's speculated "~1.8× alone." Root cause of the shortfall: the dominant
+> remaining cost inside this layer is the boolean-mask slice construction
+> (`spy_df_full[spy_df_full["timestamp_et"] <= bar_time]`, O(n) per day, unchanged by this fix),
+> not the `.dt.date`/`.dt.time` derivation this fix targeted. Full wall-clock A/B on the whole
+> grind cell (83.4s → 87.2s) showed NO measurable difference — within run-to-run noise, because
+> this layer is a small fraction of total runtime once real-OPRA-fills I/O and layer-2's ~1.6M
+> `.iloc` calls dominate (cProfile breakdown filed above in the item body).
+>
+> **Scope + revert:** pure `backtest/lib/` perf + a new test file — zero params/heartbeat_core/
+> filters/placement/exit/CLAUDE.md touched. Revert: `git revert 2c6eaf75`.
+>
+> **NEXT (not this fire):** layer 2 (filters.py's `.iloc`-per-bar lookback loops, the real
+> "big multiplier" per the cProfile numbers above) is the next dedicated build — precompute
+> close/high/low/open/vol as numpy arrays once in `run_backtest`, inject via `BarContext`,
+> replace `.iloc[k]` with `array[k]` at the ~7 cited call sites. Item stays open (HIGH), not
+> closed — layer 1 of 3 done, honestly quantified, 2 remain.
 
 - [x] ENGINE-VECTORIZATION-FINDING (2026-06-24) :: **RESOLVED — the real lever is a config flag, not vectorization.** Self-time profile (not cumulative) showed evaluate_bearish/bullish_setup called 50,814× = EXACTLY 2× the 25,407 bars: the orchestrator scores each bar once for the decision (L983/1008) then AGAIN via engine.score_bar as a per-bar parity oracle (L1031, gated by `_ENGINE_SCORE_ASSERT`, docstring: "Opt-out via GAMMA_ENGINE_SCORE_ASSERT=0 for perf-sensitive sweeps"). The oracle changes ZERO trades. Clean A/B: assert-ON 73.4s, assert-OFF 46.0s = **1.6x, byte-identical (hash c9b7c82bce74250d)**. Wired GAMMA_ENGINE_SCORE_ASSERT=0 into mass_grind.py. My L1 (levels copy/derive) + L2 (sweep array) code attempts were NO-OPS (already day-cached / sweep not hot) — REVERTED via git checkout. HONEST CEILING: no 10x without a full numpy bar-loop rewrite; cost is distributed (filters/pandas/levels). 1.6x is the free validated win. Baseline signature kept at backtest/autoresearch/_vectorize_baseline.json for any future engine-perf work. :: depends:none :: status:done
 - [ ] GATE-TIERS-IMPLEMENT (HIGH, fleet-architecture) :: Implement the per-arm gate-tier design from markdown/audits/GATE-PROVENANCE-AUDIT-2026-07-02.md: SAFE=full stack / BASE=untouched / RISKY=safety-class-only + min_triggers 1, via gate_profile+gate_params in fleet accounts.json gate_override (absent = byte-identical today), per-arm _HARD_SKIP_VERDICTS; guards per step, single-key revertible; measure per-arm fill-funnel N=10 days. J directive 2026-07-02 ("risky account should take the one-gate-away trade"). :: depends:none :: status:pending

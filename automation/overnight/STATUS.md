@@ -1,3 +1,64 @@
+## [2026-07-23 ~17:12-18:15 ET] OK -- conductor (AFTERHOURS): ENGINE-VECTORIZATION layer 1/3 shipped, honestly quantified (~6%, not 1.8x), commit `2c6eaf75`
+
+> **STAGE 0/1:** ET confirmed 17:12 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `self_check.py` DEGRADED only on the pre-existing non-load-bearing TRENDLINE-DRAW
+> flag. `fill_funnel.py` GREEN 2026-07-23 (core:bold 1/1 fill/exit; core:safe 8 ENTER signals, 0
+> attempted -- attempted==0 is not RED, consistent with an upstream rule-block, not a funnel
+> break). Self-audit gaps: everything through 2026-07-22 already triaged, next batch fires 17:30
+> (after this fire started). `task_scorer.py --top` picked `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED),
+> but the queue's own HIGH tier had `ENGINE-VECTORIZATION` -- a fully-specced, pre-baselined
+> "one layer at a time, hash-validated" perf build with concrete layer-1 instructions already
+> written out, outranking a MED accrual-watch item.
+
+> **What shipped:** `_detect_from_history` (backtest/lib/levels.py) was unconditionally
+> re-deriving "date"/"time" via `.dt.date`/`.dt.time` on the SAME ever-growing history slice
+> every trading day (called once per day through orchestrator's `_level_per_day` cache), even
+> though `orchestrator.py`'s `spy_df_full` already carries a precomputed "date" column. Fixed:
+> skip the recompute when the caller already supplies the columns (mirrors the pre-existing
+> `_find_swept_levels` precedent in the SAME file -- this pattern was already proven safe
+> elsewhere in levels.py, not invented fresh); `orchestrator.py` now precomputes "time" once
+> up front alongside "date" so the hot path benefits automatically.
+
+> **Verified this fire (OP-33):** ran the FULL real-OPRA-fills reproducer
+> (`strategy_space_grind --cell OTM-2:L2:pct_-8`) before AND after the change: n=308,
+> total=$3982.94, edge_capture=$1100.97, wf=2.762, wr=0.1786, max_dd=-$988.33 -- byte-identical
+> to the last decimal both times (confirms the pre-existing `_vectorize_baseline.json`'s n=159/
+> $2593.09 is stale to the 2026-06-24 data window, not a live regression -- noted in queue.md).
+> 3 new guard tests (`test_levels_precomputed_columns_parity.py`) + 23/23 pre-existing
+> `test_level_quality_guards.py` + 31+5 curated safety gate + a broader `-k "levels or
+> orchestrator"` sweep (82/82, 930s, real integration-weight tests) ALL PASS -- zero
+> regressions at every scope checked. Post-commit `git show 2c6eaf75 --stat --name-status`
+> confirms exactly the 3 intended files landed.
+
+> **Reported honestly, not oversold (no-oversell doctrine, `/fable-too-good` discipline):**
+> cProfile'd the same cell (205s profiled vs 83s real -- profiler overhead, relative shares are
+> the signal) and ran a clean isolated microbenchmark of `_detect_from_history` alone (365 real
+> calls, no profiler): 27.33s -> 25.74s, a genuine but MODEST ~6% win at this layer -- not the
+> item's speculated "~1.8x alone". Root cause of the shortfall, precisely pinned: the dominant
+> remaining cost inside this layer is the boolean-mask slice construction
+> (`spy_df_full[spy_df_full["timestamp_et"] <= bar_time]`, still O(n) per day), which this fix
+> does not touch. Full wall-clock A/B on the whole grind cell (83.4s vs 87.2s) showed NO
+> measurable difference -- within run-to-run noise, because real-OPRA-fills I/O + layer 2's
+> ~1.6M `.iloc`/`fast_xs` calls (confirmed via cProfile: `filters.py:evaluate_bullish_setup`
+> ~90s cumulative, `evaluate_bearish_setup` ~40s, `engine/score.py:score_bar` ~65s) dominate
+> total runtime, not this layer.
+
+> **Scope + revert:** pure `backtest/lib/` perf + 1 new test file -- zero params/heartbeat_core/
+> filters/placement/exit/CLAUDE.md touched. Ships per OP-22/26 (engine-benefit research infra,
+> no J ratification needed). Revert: `git revert 2c6eaf75`.
+
+> **Item stays open (HIGH), status `layer1-shipped-layer2-3-open`** -- 1 of 3 hot layers done
+> and honestly quantified with a cProfile-backed next-step (layer 2: filters.py's `.iloc`-per-bar
+> lookback loops are the real "big multiplier", numpy-array precompute + `BarContext` injection
+> is the concrete next build), not closed. Full detail in queue.md's own entry.
+
+> **Cost: ~$4.7** (STAGE 0/1 reads, code study of `_detect_from_history`+orchestrator+3
+> intervening layers, 2 full real-fills reproducer runs (~83s+87s), cProfile run (~205s),
+> isolated microbenchmark (~53s), implementing+guard-testing the fix, curated gate x2, a
+> background 82-test/930s broad sweep, queue+STATUS write-up, conductor_outcome record+metric).
+
+---
+
 ## [2026-07-23 ~16:12-16:52 ET] OK -- conductor (AFTERHOURS): ENGULFING-AT-STRUCTURE-TRIGGER (HIGH) -- shipped a real grammar rule, honestly falsified against both anchors, commits `31c5089e` + `e15f85dd`
 
 > **STAGE 0/1:** ET confirmed 16:12 (Thursday, market closed since 15:55 -- clean after-hours
@@ -670,3 +731,35 @@
 
 ---
 
+
+### DEGRADED: self-check 2026-07-23T16:39:56
+- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-23T20:45:35+00:00
+- task: analyst
+- date_et: 2026-07-23
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+## Kitchen
+Kitchen: alive, queue 33 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+- [2026-07-23 21:00:02] gym-session (2026-07-23) → **YELLOW** :: see `automation\state\gym-scorecard-2026-07-23.json`
+### DEGRADED: self-check 2026-07-23T17:09:56
+- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-23T17:12:38
+- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-07-23T21:30:51+00:00
+- task: manager
+- date_et: 2026-07-23
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-07-23T17:39:56
+- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
