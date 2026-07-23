@@ -71,6 +71,7 @@ _FUNCTION_FIELDS = (
     "orders_accepted",
     "fills",
     "distinct_setups_traded",
+    "extra_exec_orders_accepted",
 )
 
 
@@ -132,6 +133,7 @@ def trading_function_snapshot(
         "orders_accepted": 0,
         "fills": 0,
         "distinct_setups_traded": 0,
+        "extra_exec_orders_accepted": 0,
     }
     setups: set[str] = set()
     try:
@@ -152,6 +154,26 @@ def trading_function_snapshot(
                 snap["orders_accepted"] += 1
                 if ex.get("setup"):
                     setups.add(str(ex["setup"]))
+            # SECONDARY-SETUP VISIBILITY (2026-07-23, mirrors the 2026-07-22
+            # fill_funnel.py fix): a core row can also carry an `extra_exec`
+            # list — non-primary setups (vwap_continuation, bollinger_squeeze,
+            # vix_regime_dayside...) routed + placed through _route_extra_setups,
+            # a path separate from the primary verdict/exec ENTER pipeline this
+            # loop otherwise tracks. Before this fix a day with 0 primary ENTERs
+            # but several extra_exec PLACED orders read as "0 orders_accepted"
+            # here even though fill_funnel.py's own funnel (which WAS fixed)
+            # showed GREEN with real fills — 3 straight conductor fires
+            # (2026-07-23 06:42/07:42/08:12 ET) flagged the resulting metric
+            # mismatch as "worth a dedicated look" against 2026-07-22's ledger,
+            # which had 2 real extra_exec PLACED+filled orders this loop was
+            # silently blind to. Kept as a SEPARATE additive field (not folded
+            # into orders_accepted) so the primary-pipeline signal stays
+            # uncontaminated — same scoping decision fill_funnel.py already made.
+            for exr in (row.get("extra_exec") or []):
+                if isinstance(exr, dict) and exr.get("action") == "PLACED":
+                    snap["extra_exec_orders_accepted"] += 1
+                    if exr.get("setup"):
+                        setups.add(str(exr["setup"]))
 
         # 2) Fleet ledgers (same day only; establish day if core was empty).
         try:
@@ -242,6 +264,7 @@ def record(
         "trading_day": str(snap.get("trading_day", "") or ""),
         "enters_last_trading_day": int(snap.get("enters_last_trading_day", 0) or 0),
         "orders_accepted": int(snap.get("orders_accepted", 0) or 0),
+        "extra_exec_orders_accepted": int(snap.get("extra_exec_orders_accepted", 0) or 0),
         "fills": int(snap.get("fills", 0) or 0),
         "distinct_setups_traded": int(snap.get("distinct_setups_traded", 0) or 0),
     }
@@ -339,6 +362,7 @@ def _fire_function_score(row: dict[str, Any]) -> float:
     return (
         3.0 * _num(row, "fills")
         + 2.0 * _num(row, "orders_accepted")
+        + 2.0 * _num(row, "extra_exec_orders_accepted")
         + 1.0 * _num(row, "enters_last_trading_day")
     )
 
@@ -426,6 +450,7 @@ def compute_metric(
             "trading_day": str(latest_snap.get("trading_day", "") or ""),
             "enters_last_trading_day": int(_num(latest_snap, "enters_last_trading_day")),
             "orders_accepted": int(_num(latest_snap, "orders_accepted")),
+            "extra_exec_orders_accepted": int(_num(latest_snap, "extra_exec_orders_accepted")),
             "fills": int(_num(latest_snap, "fills")),
             "distinct_setups_traded": int(_num(latest_snap, "distinct_setups_traded")),
         },

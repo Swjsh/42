@@ -119,6 +119,61 @@ def test_snapshot_missing_ledgers_yields_zeros_never_raises(co):
     assert snap["orders_accepted"] == 0
     assert snap["fills"] == 0
     assert snap["distinct_setups_traded"] == 0
+    assert snap["extra_exec_orders_accepted"] == 0
+
+
+# ---------------------------------------------------------------------------
+# EXTRA-EXEC VISIBILITY (2026-07-23): a core row can carry an `extra_exec`
+# list — secondary setups (vwap_continuation, bollinger_squeeze...) routed +
+# placed OUTSIDE the primary verdict/exec pipeline (_route_extra_setups in
+# heartbeat_core.py). Before this fix a day with 0 primary ENTERs but real
+# extra_exec PLACED fills silently read "0 orders_accepted" here — the exact
+# live mismatch on 2026-07-22 (0 primary orders_accepted, 2 real extra_exec
+# fills) that 3 straight conductor fires flagged as "worth a dedicated look."
+# fill_funnel.py already fixed this same blind spot on 2026-07-22 for its own
+# report; this guard pins the matching fix in conductor_outcome.py.
+# ---------------------------------------------------------------------------
+def _write_core_ledger_with_extra_exec(co):
+    rows = [
+        {"ts_et": "2026-07-05T09:51:00", "verdict": "HOLD",
+         "extra_exec": [
+             {"setup": "vwap_continuation", "action": "PLACED"},
+             {"setup": "vwap_continuation", "action": "WATCH_NOT_ARMED"},
+         ]},
+        {"ts_et": "2026-07-05T13:31:00", "verdict": "HOLD",
+         "extra_exec": [{"setup": "bollinger_squeeze", "action": "PLACED"}]},
+        {"ts_et": "2026-07-05T13:32:00", "verdict": "HOLD",
+         "extra_exec": [{"setup": "bollinger_squeeze", "action": "SKIP_COOLDOWN_SAME_BAR"}]},
+    ]
+    co.DECISIONS_FILE.write_text(
+        "\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8"
+    )
+
+
+def test_snapshot_counts_extra_exec_placed_separately_from_primary(co):
+    _write_core_ledger_with_extra_exec(co)
+    snap = co.trading_function_snapshot()
+    assert snap["trading_day"] == "2026-07-05"
+    # zero PRIMARY ENTERs/orders_accepted -- extra_exec must not contaminate
+    # the primary-pipeline signal (matches fill_funnel.py's scoping choice).
+    assert snap["enters_last_trading_day"] == 0
+    assert snap["orders_accepted"] == 0
+    # 2 PLACED extra_exec rows (vwap_continuation + bollinger_squeeze); the
+    # WATCH_NOT_ARMED / SKIP_COOLDOWN_SAME_BAR rows must not count.
+    assert snap["extra_exec_orders_accepted"] == 2
+    # both extra_exec setups counted toward distinct_setups_traded too
+    assert snap["distinct_setups_traded"] == 2
+
+
+def test_record_and_metric_carry_extra_exec_field(co):
+    _write_core_ledger_with_extra_exec(co)
+    row = co.record(task_id="T-extra")
+    assert row is not None
+    assert row["extra_exec_orders_accepted"] == 2
+    metric = co.compute_metric(window=20)
+    assert metric["function_latest"]["extra_exec_orders_accepted"] == 2
+    # score now counts extra_exec PLACED at the same weight as orders_accepted (x2)
+    assert metric["function_score_avg"] == 4.0
 
 
 def test_record_writes_function_fields(co):
