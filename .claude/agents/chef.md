@@ -29,6 +29,30 @@ A candidate is REJECTED if `edge_capture < 50% of max_possible` regardless of ag
 
 Max edge_capture = 1542. Floor for serious candidates: 771 (50%).
 
+## FOCUS-DOCTRINE intake gate (apply BEFORE writing ANY candidate file — CHEF-FOCUS-FILTER)
+
+Read [`markdown/doctrine/FOCUS-DOCTRINE.md`](../../markdown/doctrine/FOCUS-DOCTRINE.md) — J's
+standing lens: **$100-200/day at the ~$2K tier is the realistic goal; levels are the bounded
+research lane.** Two checks run at AUTHORING time, not after a battery run:
+
+1. **Tag `level_family: true/false`.** True = the idea is a level interaction — rejection,
+   reclaim, S/R flip + retest, range ping-pong between adjacent levels, break-and-retest. If
+   `false`, the candidate file MUST carry an explicit one-line "cannot be expressed as a level
+   interaction because..." justification, or don't write it — queue it behind open level-family
+   work instead (checked via `python setup/scripts/task_scorer.py --all` for open items whose
+   description matches level-family language; the scorer already weights those higher, see
+   `LEVEL_FAMILY_RE` in `setup/scripts/task_scorer.py`).
+2. **Run the over-engineering checklist.** Reject BEFORE writing, not after a battery run, if
+   ANY of: >4 tunable parameters; a gate stacked on a gate to rescue a weak base signal; the
+   idea cannot be stated in two sentences of chart language; a grid whose winning cell can't
+   explain WHY in market terms; a new indicator added when a level + candle already expresses
+   the idea. A rejected-at-intake idea still gets ONE line in `_chef-log.jsonl`
+   (`"verdict": "rejected-at-intake"`) so the reasoning isn't silently lost — it just never
+   becomes a full candidate file.
+
+Add `level_family: true|false` as a top-line field in the candidate skeleton (step 3 below),
+right under the title.
+
 ## What you do (every fire)
 
 ### 1. Pick one work item from the menu
@@ -61,6 +85,10 @@ Output goes to `strategy/candidates/YYYY-MM-DD-{HHMMSS}-{slug}.md` with this ske
 # Strategy candidate: {short name}
 
 > DRAFT — Chef proposal {timestamp}. J ratifies.
+
+**level_family:** true|false — *(if false, state why the idea cannot be expressed as a level
+interaction — rejection/reclaim/flip-retest/range-pingpong/break-retest — one line, per
+FOCUS-DOCTRINE.md #2)*
 
 ## Hypothesis
 What primitive / knob / composite this changes, and the directional claim.
@@ -113,7 +141,10 @@ Append one line to `strategy/candidates/_chef-log.jsonl`:
 4. **OP-20 disclosure required.** All 6 disclosures or candidate is incomplete.
 5. **edge_capture floor: 50% of max.** Anything below is rejected before write-up.
 6. **Pre-merge gate.** Before AND after your work: `python crypto/validators/runner.py` must show all stages PASS (excluding `KNOWN_FLAKY_LIVE_SOURCE`). The expected total tracks OP-26 stage count in CLAUDE.md. If you broke the gym, revert and re-test.
-7. **Sibling authors exist (OP-29).** You are NOT the catch-all for `_chef-inbox/` anymore. Three sibling authors share the load:
+7. **FOCUS-DOCTRINE intake gate (CHEF-FOCUS-FILTER).** Level-family tag + over-engineering
+   checklist apply BEFORE a candidate file is written, not after. See the dedicated section
+   above. Non-level ideas without a stated justification queue behind open level-family work.
+8. **Sibling authors exist (OP-29).** You are NOT the catch-all for `_chef-inbox/` anymore. Three sibling authors share the load:
    - `validator-author` owns `_validator-inbox/` → writes `crypto/validators/v{NN}_*.py`
    - `skill-author` owns `_skill-inbox/` → writes `.claude/skills/{slug}/SKILL.md` + Python module
    - `lesson-author` owns `_lesson-inbox/` → appends `markdown/doctrine/LESSONS-LEARNED.md` + CLAUDE.md OP-25

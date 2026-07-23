@@ -36,6 +36,53 @@
   tiny: tags + a sort key + a checklist in the persona prompt, no new pipeline.
   depends:none :: status:pending
 
+  > **[2026-07-22 ~21:12-21:35 ET conductor] Parts (1)-(3) SHIPPED this fire.**
+  > **(1) intake tagging:** `.claude/agents/chef.md` -- new "FOCUS-DOCTRINE intake gate"
+  > section (applies BEFORE writing any candidate file, not after a battery run) +
+  > `level_family: true|false` top-line field added to the candidate skeleton (with the
+  > required "cannot be expressed as a level interaction because..." line when false) +
+  > guardrail #7 cross-reference. **(2) scorer weight:** `setup/scripts/task_scorer.py` --
+  > new `LEVEL_FAMILY_RE` (matches level-reject/reclaim/interaction/touch/flip/retest/break,
+  > "rejection at a([n adjective]) level", reclaim(s/ed/ing), flip-retest, range-ping-pong,
+  > break-(and-)retest, S/R flip) + `LEVEL_FAMILY_BONUS = 1.0` additive in `score_item`
+  > (stacks with engine-benefit/quick-win, same mechanism). **(3) over-engineering
+  > checklist:** folded into the same chef.md intake-gate section (>4 tunable params /
+  > gate-on-gate rescue / not statable in 2 sentences / unexplainable winning grid cell /
+  > new indicator when a level+candle already expresses it) -- a reject-at-intake still gets
+  > one `_chef-log.jsonl` line (`"verdict":"rejected-at-intake"`) so the reasoning isn't
+  > silently lost. **Verified this fire (OP-33):** new guard test
+  > `backtest/tests/test_task_scorer_level_family.py` (8 tests: 6 phrase-recognition
+  > parametrized cases from FOCUS-DOCTRINE #2's own vocabulary, a non-level-not-matched
+  > negative, a same-priority bonus-ordering check, an engine-benefit-stacking check, and an
+  > end-to-end `parse_queue`/`rank` ordering check) -- RED before the regex fix (one
+  > phrase-recognition case failed: "rejection at a key level" needs the adjective-in-between
+  > case, not just `(?:a\s+)?level`), GREEN after widening to `(?:\w+\s+){0,3}level`. Full
+  > `pytest backtest/tests/test_task_scorer*.py -q` -> 62/62 PASS (no regression across all 5
+  > existing task_scorer test files). **Scope + revert:** pure authoring/scorer-signal work
+  > (persona prompt + a scoring-weight regex), no params/heartbeat_core/filters/placement/
+  > exit/CLAUDE.md touched -- ships per OP-22 (engine-benefit authoring). Revert: one commit.
+  > **Part (4) SPLIT OFF, not attempted this fire** (rail 3: one bounded task per fire; a
+  > 1619-file one-time triage is its own multi-fire job, not a 20-minute tail-end of this
+  > one) -- filed as `CHEF-CANDIDATES-CONSOLIDATION-SWEEP` below.
+
+  Parts (1)-(3) verified shipped, part (4) split to its own item. depends:none :: status:PARTIALLY-SHIPPED-1-2-3-DONE-4-SPLIT-OFF
+
+### CHEF-CANDIDATES-CONSOLIDATION-SWEEP (HIGH, follow-up split off CHEF-FOCUS-FILTER part 4, filed 2026-07-22 night)
+
+- [ ] CHEF-CANDIDATES-CONSOLIDATION-SWEEP (HIGH, one-time triage, do in batches) ::
+  `strategy/candidates/` holds 1619 files (verified count
+  2026-07-22, far more than the "100+" the parent item estimated) -- a one-time triage per
+  OP-22 (compound, don't accumulate): for each file, read its (now-standard, post
+  CHEF-FOCUS-FILTER) `level_family:` line where present, or infer from title/hypothesis text
+  where the file predates the tag; level-family actives stay; non-level + stale (>30d, no
+  traction, no open dependent work) get moved under a `strategy/candidates/_archive/` folder
+  (never deleted -- OP-22 prune means move-out-of-the-way, not destroy) with one line each
+  in `_chef-log.jsonl` (`"verdict":"archived-consolidation-sweep"`). Do this in batches (e.g.
+  200-300 files per fire) across several chef/conductor fires, not as one giant single-fire
+  pass -- each batch still needs `python crypto/validators/runner.py` clean before/after per
+  chef.md guardrail #6. Refresh `_LEADERBOARD.md` at the end of the LAST batch.
+  depends:none :: status:pending
+
 ### GAMMA-STUDY-CURRICULUM (MED, standing conductor mode, filed 2026-07-22 night, J-directed "learn new things -- TA, indicators, risk management... like a person")
 
 - [ ] GAMMA-STUDY-CURRICULUM (MED, conductor AFTERHOURS mode extension) :: Give Gamma a visible

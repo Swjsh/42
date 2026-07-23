@@ -1,3 +1,65 @@
+## [2026-07-22 ~21:12-21:35 ET] OK -- conductor (AFTERHOURS): shipped CHEF-FOCUS-FILTER parts (1)-(3) -- FOCUS-DOCTRINE intake gate wired into chef.md + task_scorer.py level-family weight; part (4) split off as its own item; found+fixed a self-inflicted multi-line-paren queue.md bug same fire
+
+> **STAGE 0/1:** ET confirmed 21:12, Wednesday, market closed since 15:55.
+> `engine-health.json` GREEN 13/13 (all checks quiet-OK, market closed). `self-check-last.json`
+> DEGRADED only on the pre-existing non-load-bearing TRENDLINE-DRAW flag (already tracked).
+> `task_scorer.py --top` surfaced `CHEF-FOCUS-FILTER` (HIGH, filed THIS SAME NIGHT by an
+> earlier fire off J's FOCUS-DOCTRINE directive) with its own advisory to trace-before-
+> executing -- traced it: genuinely fresh, not yet built, still status:pending, four concrete
+> sub-parts with a clear bounded slice available.
+
+> **What shipped -- parts (1)-(3) of CHEF-FOCUS-FILTER (part 4 split off, see below):**
+> 1. **Intake tagging + over-engineering checklist** -- `.claude/agents/chef.md`: new
+>    "FOCUS-DOCTRINE intake gate" section applied BEFORE writing any candidate file (not
+>    after a battery run), `level_family: true|false` top-line field added to the candidate
+>    skeleton (with the required "cannot be expressed as a level interaction because..."
+>    justification when false), plus guardrail #7 cross-reference and a
+>    `"verdict":"rejected-at-intake"` logging convention for ideas killed at authoring time.
+> 2. **Scorer weight** -- `setup/scripts/task_scorer.py`: new `LEVEL_FAMILY_RE` (matches
+>    level-reject/reclaim/interaction/touch/flip/retest/break, "rejection at a[n adjective]
+>    level", reclaim(s/ed/ing), flip-retest, range-ping-pong, break-(and-)retest, S/R flip)
+>    + `LEVEL_FAMILY_BONUS = 1.0`, additive in `score_item`, stacks with engine-benefit/
+>    quick-win exactly like the existing signals.
+> **Verified this fire (OP-33):** new guard test
+> `backtest/tests/test_task_scorer_level_family.py` (8 tests) -- RED before the regex fix
+> (the "rejection at a KEY level" phrase needed an adjective-in-between case, caught by the
+> test itself, not assumed correct on the first try), GREEN after widening to
+> `(?:\w+\s+){0,3}level`. Full `pytest backtest/tests/test_task_scorer*.py -q` -> **62/62
+> PASS**, no regression across all 5 task_scorer test files.
+
+> **Part (4) SPLIT OFF, not attempted this fire (rail 3):** a 1619-file (verified count,
+> `strategy/candidates/` -- the parent item's own "100+" estimate was stale) one-time
+> archival triage is its own multi-fire batch job, not a tail-end of this one. Filed as
+> `CHEF-CANDIDATES-CONSOLIDATION-SWEEP` (HIGH) in `queue.md` with a concrete batching plan
+> (200-300 files/fire, gym-clean before/after each batch, move-not-delete to `_archive/`).
+
+> **Self-caught foot-gun, same fire:** appending `CHEF-CANDIDATES-CONSOLIDATION-SWEEP` to
+> `queue.md` with a priority-parenthetical that wrapped across two physical lines caused
+> `task_scorer.py` to drop the item ENTIRELY -- not `ready:false`, absent from `--all` too
+> (worse than the already-known multi-line-`status:` bug fixed 2 fires ago: here no `Task`
+> object is ever created, because `ITEM_RE` can't match a paren that doesn't close on the
+> checkbox's own line). Caught by directly re-probing the scorer's own JSON output after the
+> edit (OP-33 verify-don't-claim) instead of assuming the append "obviously" worked. Fixed by
+> keeping the full `(HIGH, ...)` parenthetical on one physical line. **Learned:** filed
+> `strategy/candidates/_lesson-inbox/2026-07-22-task-scorer-multiline-paren-silently-drops-
+> item.md` (sibling to the existing multi-line-status lesson) with a recommended guard-test
+> spec for `validator-author`/`skill-author` to graduate next -- a live-queue.md scan for any
+> OPEN (`- [ ]`) line with an unclosed same-line paren. Confirmed via grep this is the ONLY
+> live open-item instance in the file (3 pre-existing occurrences are all `- [x]` done items,
+> which parse-skip regardless, so provably harmless).
+
+> **Scope + revert:** pure authoring/scorer-signal + queue-bookkeeping work -- no
+> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched. Ships per OP-22
+> (engine-benefit authoring/hygiene). Revert: one commit, 4 files
+> (`chef.md`, `task_scorer.py`, new test file, `queue.md`), `git revert <sha>`.
+
+> **Cost: ~$2.0** (STAGE 0/1 reads, FOCUS-DOCTRINE + chef.md + task_scorer.py reads, the
+> regex+bonus edit, chef.md persona edit, new 8-test guard file, two rounds of live-queue
+> re-verification via direct script probes catching + fixing the multi-line-paren bug, the
+> lesson-inbox write-up, this write-up).
+
+---
+
 ## [2026-07-22 ~20:12-20:35 ET] OK -- conductor (AFTERHOURS): closed stale MORNING-BULL-QUALITY-GATE-RECONSIDER queue item (1-month status:pending bait), commit `3b39ad27`
 
 > **STAGE 0/1:** ET confirmed 20:12, Wednesday, market closed since 15:55. `engine-health.json`
@@ -616,87 +678,6 @@
 
 ---
 
-## [2026-07-22 ~07:48-07:58 ET] OK -- conductor (AFTERHOURS): prospector concept-family dedupe (root-cause fix), commits `a4368bd` + `cdcd48f`
 
-> **STAGE 0/1:** engine-health GREEN (13/13, market closed since 15:55 prior day).
-> `self-check-last.json` GREEN (PDT both accounts OK, safe cash-settlement $1,581.62,
-> bold day-trades 1/3 used). Self-audit gaps: all triaged through 2026-07-22, nothing
-> new (re-verified). `task_scorer.py --top` again surfaced only the J-decision-gated
-> `MORNING-BULL-QUALITY-GATE-RECONSIDER`, correctly skipped. `queue.md` has 0 open HIGH
-> items. Author-inbox order: validator/lesson-inbox empty, skill-inbox only a
-> correction-queue log -> `_chef-inbox` next (priority-5). Oldest open item
-> (`2026-07-10-prospector-volume_shelf_tv_vp.md`, canonical VPVR item, its own noted
-> next step) needs `tradingview`-prefixed MCP tools -- confirmed NOT present in this
-> fire's tool surface (contradicts a prior fire's note that they were), so that exact
-> next step stayed blocked.
-
-> **What shipped instead (real finding, not a punt):** while surveying the 12 open
-> chef-inbox items to find the next actionable one, found **5 independent VIX1D items**
-> and **3 independent Volume-Profile/VPVR items** each promoted under a UNIQUE
-> dedupe_key (swarm re-phrases the same concept per beat/model; `dedupe_key =
-> beat:slugify(idea_text,40)` is exact-wording-only, so `already_promoted_from_inbox`'s
-> tail-match never catches a re-worded re-ask). Root-caused and fixed IN THE PRODUCER:
-> added `FAMILY_KEYWORDS` + `family_already_covered()` to `setup/scripts/prospector.py`
-> -- a hand-curated keyword-family second dedupe layer, wired into `promote_top1`
-> (folds into an existing open-or-.DONE chef-inbox item instead of writing a fresh
-> file); `queue_ping`/`write_last_json`/state counters (`folded_total`) updated for
-> honest visibility. Retroactively folded the 2 live open duplicates this fire found
-> (2026-07-21 VIX1D-swarm item -> canonical `2026-07-09-prospector-vix1d_gate.md.DONE`,
-> already answered NO_CANDIDATE_CLEARS_BAR_YET by `vix1d_gate_probe.py` commit
-> `6f90576`; 2026-07-22 VPVR item -> canonical `2026-07-10-prospector-volume_shelf_tv_vp.md`,
-> still open/TV-blocked) with fold-provenance notes, `.DONE`-renamed both.
-
-> **Verified this fire (OP-33):** `pytest backtest/tests/test_prospector.py -q` 64/64
-> PASS (12 new: `test_idea_family_*` incl. a negative case, `test_family_already_
-> covered_*` incl. README-exclusion + no-existing-match + open-vs-.DONE matching,
-> `test_promote_top1_folds_family_duplicate_instead_of_repromoting` +
-> `test_promote_top1_still_writes_new_file_for_family_less_idea` pinning BOTH the
-> fold path AND that a genuinely novel idea still promotes normally) BEFORE
-> committing; first commit's pre-commit hook ran 31 tests + curated 5-suite safety
-> gate, both PASS; second (lesson-inbox-only) commit's hook also PASS. `git diff
-> --cached --stat` confirmed exactly 4 files staged for commit 1 (the 2 code/test
-> files + the 2 renamed `.DONE` fold notes, none of the OTHER 3 unrelated open
-> chef-inbox items sitting untracked alongside them) before committing, `git show
-> --stat HEAD` post-commit confirmed the same 4 landed and nothing stray (L239
-> discipline).
-
-> **Trading-path scope:** zero trading-path files touched (research-organ dedupe
-> logic + guard tests + 2 inbox fold notes + 1 lesson-inbox item only -- no params/
-> heartbeat_core/filters/placement/exit). No guard/revert/REVOKE needed under rail 4
-> beyond the guard tests already shipped with the change. **Revert:** `git revert
-> cdcd48f a4368bd` (fully additive; folding the 2 duplicates back open is a
-> non-functional annotation revert).
-
-> **Learn (STAGE 4.5):** filed `strategy/candidates/_lesson-inbox/2026-07-22-
-> prospector-exact-dedupe-key-misses-reworded-family-duplicate.md` for lesson-author
-> to graduate into the next `L##` -- generalizes to any LLM-fed inbox that dedupes by
-> an exact key derived from the LLM's own (paraphrase-variant) wording.
-
-> **Queue state:** chef-inbox now has 10 open prospector items (was 12, -2 folds, no
-> new promotions this fire). Next fire should pick the next-oldest genuinely-open item
-> (`2026-07-11-prospector-auto-support-resistance-zones-community-.md` or
-> `2026-07-11-prospector-market-profile-tpo-...md`) if nothing higher-priority
-> surfaces -- both are TV-MCP-dependent too, so check tool surface again before
-> picking; if still absent, skip to a non-TV item (CFTC/FINRA/alpha-vantage/polygon/
-> OFI family, all free-data-only). `queue.md` retention-cap consolidation still noted,
-> not actioned (unchanged from last fire).
-
-> **Cost: ~$3.5** (STAGE 0/1 reads, engine-health/self-check/self-audit/task_scorer/
-> 4-inbox survey, chef-inbox duplicate-family investigation via ideas-ledger.jsonl
-> query, reading prospector.py's promote_top1/already_promoted_from_inbox +
-> test_prospector.py for pattern, writing the fix + 12 guard tests + 2 commits with
-> pre/post verification, 1 lesson-inbox item, this STATUS update).
-
-> **Outcome metric:** `conductor_outcome.py metric` flagged `trend: "regressing"`
-> (`function_score_avg` 35.0, driven by 2026-07-21's 18-ENTER/1-accepted funnel ratio,
-> same day two prior fires this window already dug into). Re-ran `fill_funnel.py
-> --date 2026-07-21` fresh rather than trusting the stale flag: **[GREEN]**, unchanged
-> from the prior fires' finding (core:safe 17->1 is the already-open-position
-> re-eval-tick pattern, not 17 failed attempts; core:bold 1->0 is the documented
-> informational pattern). No new funnel break -- the "regressing" trend is a known,
-> already-explained artifact of the raw-ratio scoring, not a fresh problem; next
-> trading-day data will refresh it. Flagging per instructions rather than silently
-> re-verifying and moving on.
-
----
-
+## Kitchen
+Kitchen: alive, queue 41 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free

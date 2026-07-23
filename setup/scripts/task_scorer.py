@@ -109,9 +109,29 @@ TRADING_PATH_RE = re.compile(
 # Pure-bookkeeping marker in the priority parens (de-prioritize busywork).
 DOC_INDEX_RE = re.compile(r"doc-index", re.IGNORECASE)
 
+# FOCUS-DOCTRINE (markdown/doctrine/FOCUS-DOCTRINE.md, 2026-07-22 night,
+# CHEF-FOCUS-FILTER) — a research/candidate item expressed as a LEVEL
+# INTERACTION (rejection, reclaim, S/R flip + retest, range ping-pong between
+# adjacent levels, break-and-retest) is J's primary bounded research lane and
+# gets a priority nudge over non-level research of the same priority tier.
+# This is intake-SCOPE steering (which lane goes first), not a merit judgment
+# on the item's other qualities — it stacks with engine-benefit/quick-win,
+# same as every other additive signal in this function.
+LEVEL_FAMILY_RE = re.compile(
+    r"\blevel[\s-]*(?:reject|rejection|reclaim|interaction|touch|flip|retest|break)"
+    r"|reject(?:ion)?\s+at\s+(?:\w+\s+){0,3}level"
+    r"|\breclaim(?:s|ed|ing)?\b"
+    r"|flip[\s-]*retest"
+    r"|range[\s-]*ping[\s-]*pong"
+    r"|break[\s-]*(?:and[\s-]*)?retest"
+    r"|s\s*/\s*r\s+flip",
+    re.IGNORECASE,
+)
+
 ENGINE_BENEFIT_BONUS = 2.0
 QUICK_WIN_BONUS = 1.5
 READY_BONUS = 1.0
+LEVEL_FAMILY_BONUS = 1.0
 DOC_INDEX_PENALTY = 1.0
 EXPENSIVE_DIVISOR = 1.5
 MIN_SCORE = 0.5  # the doc-index penalty can never push a score below this floor
@@ -288,7 +308,8 @@ def score_item(
 ) -> tuple[float, str]:
     """Compute the ROI score + a human-readable reason string.
 
-    value  = priority base + engine-benefit + quick-win + ready-now - doc-index
+    value  = priority base + engine-benefit + quick-win + level-family
+             + ready-now - doc-index
     cost   = expensive ? 1.5 : 1.0
     score  = max(MIN_SCORE_when_penalized, value / cost)
 
@@ -306,6 +327,10 @@ def score_item(
     if QUICK_WIN_RE.search(description):
         value += QUICK_WIN_BONUS
         reasons.append(f"+{QUICK_WIN_BONUS:g} quick-win")
+
+    if LEVEL_FAMILY_RE.search(description):
+        value += LEVEL_FAMILY_BONUS
+        reasons.append(f"+{LEVEL_FAMILY_BONUS:g} level-family(FOCUS-DOCTRINE)")
 
     # Ready-now bonus: deps satisfied (depends:none/empty) AND pickable state.
     if ready and not has_deps:
