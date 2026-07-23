@@ -1,3 +1,61 @@
+## [2026-07-23 ~18:42-18:55 ET] OK -- conductor (AFTERHOURS): VWAP-TREND-PULLBACK-VERIFY-FAILED closed -- ran the frozen honest study, verdict KEEP-DORMANT (confirmed reskin)
+
+> **STAGE 0/1:** ET confirmed 18:42 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `task_scorer.py --top` picked `VWAP-TREND-PULLBACK-VERIFY-FAILED` (HIGH) --
+> the queue item itself carried an explicit re-verify-before-trusting warning (this exact class
+> of stale-HIGH-item risk, per `_lesson-inbox/2026-07-18-stale-queue-item-outranked-real-work.md`).
+> Traced it: the item asked to run a pre-registered, frozen (2026-07-10), NEVER-EXECUTED study
+> spec (`analysis/recommendations/vwap-trend-pullback-study-spec.json`) -- real, current, ready
+> work, not stale. Self-audit gaps fully triaged through today's 17:31 batch.
+
+> **What shipped:** built `backtest/autoresearch/vwap_trend_pullback_honest_study.py`, reusing
+> the spec's named modules verbatim (C14): `infinite_ammo_discovery` (detector/load/sim/summarize),
+> `vwap_pullback_ratify` (causality/walk-forward/sub-window), `j_daily_pattern_ratify.detect_j_vwap_continuation`
+> + `_sub_struct_vwap_reclaim_failed_break` + `_b5_vix_regime_dayside` (gate_11 book comparison),
+> `null_baseline` (gate_5). One new thin wrapper (`simulate_signals_with_stop`) to thread
+> `premium_stop_pct` through -- the one gap in the reused `simulate_signals` (it hardcoded the
+> simulator default -0.08, and the whole point of this study is the LIVE chart-stop-only config).
+> Ran on 387 trading days through 2026-07-22 (~13 months more than the original 2026-06-21
+> independence check).
+
+> **VERDICT: KEEP-DORMANT (confirmed reskin of #1 vwap_continuation, gate_11 HARD BLOCK).**
+> ATM PRIMARY (chart-stop-only) exp -$1.09/trade, WF median -0.857 (FAILS >=0.70 gate), sub-window
+> 3/4 hurt, drop-top3/top5 both negative. gate_11 (independence re-check, mandatory/blocking per
+> the frozen spec REGARDLESS of gates 1-10) reproduces the 2026-06-21 finding on the extended
+> dataset: same-side day-overlap vs live `vwap_continuation` = **1.000** (>= 0.80 reskin
+> threshold). The spec's own escape hatch (an after-10:30-only subset clearing its own bar) does
+> NOT save it: only 20.2% of H4's 104 signals land after 10:30 (spec's own hard threshold is 30%
+> -- FALSIFIES the "fills the afternoon coverage-hole" framing that motivated re-opening this
+> thread), and that n=21 subset is itself expectancy-negative (-$16.90/tr) and OOS-unstable.
+> Scorecard: `analysis/recommendations/vwap-trend-pullback-honest-study.json` + paired `.md`.
+
+> **Corrected the watcher's live-visible strings** (docstring + the `reason=`/`metadata` fields
+> the WATCH_ONLY signal actually emits) to cite the closed study instead of the never-run spec +
+> a stale "OOS +$69/trade" claim that was still sitting in the live `reason=` f-string.
+> `promotion_status` stays `WATCH_ONLY` (unchanged, correct, and the only field the guard test
+> asserts). Verified this fire (OP-33): `test_vwap_trend_pullback_watcher.py` 5/5 green,
+> curated safety gate (31+5) PASS, study script itself run live (not a dry-run) with printed
+> per-tier/per-gate output quoted above.
+
+> **Scope + revert:** pure `backtest/autoresearch/` (1 new file) + `backtest/lib/watchers/`
+> (docstring/string-only edit to the ALREADY-dormant watcher, zero logic/behavior change) +
+> `analysis/recommendations/` (2 new scorecard files) + queue.md. Zero params/heartbeat_core/
+> filters/placement/exit/CLAUDE.md touched -- this is engine-benefit research authoring (closes
+> a HIGH backlog item with a real answer), ships per OP-22/26, no J ratification needed.
+> Revert: `git revert <this commit>`.
+
+> **Does NOT wire vwap_trend_pullback** (explicit non-goal in the frozen spec, honored) -- the
+> detector stays WATCH_ONLY forever absent genuinely new detector logic; the reskin finding is
+> exit-config-independent and now confirmed TWICE (2026-06-21 master frame + 2026-07-23 extended
+> frame). No further re-litigation of H4 as a standalone edge is warranted.
+
+> **Cost: ~$1.7** (STAGE 0/1 reads, tracing the queue item against current reality, reading 4
+> reused-module signatures to avoid re-implementing them, writing + debugging the study script
+> against real API signatures, one live run, docstring/metadata correction, guard test + curated
+> gate, STATUS/queue write-up, conductor_outcome record+metric).
+
+---
+
 ## [2026-07-23 EOD] LOSING DAY -$305 (Bold) -- honest report: bear day that CHOPPED, not trended; 4 setups, 4 blocks/losses, 2 fixes tested = both NULL/KEEP, 1 accountability correction
 
 > **The number: -$305** (Bold 735P; Safe 0 trades). Week-to-date net ~+\$49. NOT the +\$679-style harvest I promised "the next bear day."

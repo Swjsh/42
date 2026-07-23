@@ -1,22 +1,28 @@
 """VWAP_TREND_PULLBACK watcher (H4) — trend-day pullback to session VWAP.
 
-UNVALIDATED — claims removed 2026-07-10 (no backing artifact for the exit config
-this watcher actually trades; see
-markdown/audits/VWAP-TREND-PULLBACK-VERIFY-FAILED-2026-07-10.md). The previous
-docstring quoted ``analysis/recommendations/vwap-trend-pullback-LIVE.json``'s
-headline cell (ATM, +$45.88/trade, WR 42.4%, n=92, WF median 1.679) as clearing
-the OP-16/OP-22 SHIP bar. That headline was computed with ``premium_stop=-0.08``;
-this watcher trades CHART-STOP-ONLY (``DEFAULT_PREMIUM_STOP_PCT=-0.99`` below,
-L51/L55/C2). On the config actually traded, the SAME scorecard's own disclosure
-block reports only +$14.03/trade, WR 70.7%, and walk-forward median 0.239 — FAILS
-the >=0.70 gate. A separate 2026-06-21 study
-(``analysis/recommendations/VWAP-PULLBACK-EDGE-VERIFY.json``) additionally found
-this detector's signal-days are a 100% same-side subset of the already-live
-``vwap_continuation`` edge's fire-days (verdict ``RESKIN_OF_1``), independent of
-exit config. Real study pre-spec'd (not yet run):
-``analysis/recommendations/vwap-trend-pullback-study-spec.json``. **DO NOT WIRE**
-this detector into the live/paper order path until that study ships a scorecard
-that clears its pre-registered gates, including the independence re-check.
+KEEP-DORMANT — CONFIRMED, closed 2026-07-23. The pre-registered honest study
+(``analysis/recommendations/vwap-trend-pullback-study-spec.json``, frozen
+2026-07-10, run 2026-07-23) is now COMPLETE:
+``analysis/recommendations/vwap-trend-pullback-honest-study.json`` /
+``.md``. Verdict: **KEEP-DORMANT (confirmed reskin of #1 vwap_continuation,
+gate_11 HARD BLOCK)**. On the LIVE chart-stop-only exit config (387 trading
+days through 2026-07-22): ATM exp -$1.09/trade, walk-forward median -0.857
+(FAILS >=0.70), sub-window 3/4 hurt, drop-top3/top5 both negative. gate_11
+(independence re-check, mandatory/blocking per the frozen spec regardless of
+gates 1-10) reproduces the 2026-06-21 finding on the extended dataset:
+same-side day-overlap vs the already-live ``vwap_continuation`` edge is
+**1.000** (100% of H4's 104 signal-days are also #1's fire-days, same side) —
+still >= the 0.80 reskin threshold. The spec's own escape hatch (an
+independently-clearing after-10:30-only subset) does NOT clear: only 20.2% of
+signals land after 10:30 (falsifies the "fills the afternoon coverage hole"
+framing outright, spec threshold 30%), and that n=21 subset is
+expectancy-negative (-$16.90/trade) and OOS-unstable. **DO NOT WIRE.** This
+closes the thread opened by the dead wire-crew's 2026-07-10 VERIFY-FAILED
+finding (``markdown/audits/VWAP-TREND-PULLBACK-VERIFY-FAILED-2026-07-10.md``)
+— no further re-litigation of H4 as a standalone edge is warranted without new
+detector logic (a genuinely different entry rule), since the reskin finding is
+exit-config-independent and now confirmed on ~13 months more data than the
+original 2026-06-21 check.
 
 Detector logic below is UNCHANGED — this is a documentation-only correction; the
 live streaming detector still fires the exact same signals it always has, still
@@ -257,7 +263,8 @@ def detect_vwap_trend_pullback_setup(ctx: BarContext) -> Optional[WatcherSignal]
             f"VWAP) -> enter {'calls' if side_letter == 'C' else 'puts'}. "
             f"Chart-stop {stop:.2f} (session {'low' if side_letter == 'C' else 'high'} to "
             f"date; chart-stop ONLY per L51/L55). VIX={vix_now:.1f}. "
-            f"H4 data-discovered edge (OOS +$69/trade, DSR PASS, causality PASS)."
+            f"H4 CONFIRMED KEEP-DORMANT 2026-07-23 (reskin of live #1 vwap_continuation, "
+            f"same-side day-overlap 1.000 >= 0.80 threshold; WF -0.857 FAILS >=0.70)."
         ),
         triggers_fired=["vwap_trend_established", "vwap_pullback_tag"],
         metadata={
@@ -270,9 +277,9 @@ def detect_vwap_trend_pullback_setup(ctx: BarContext) -> Optional[WatcherSignal]
             "default_tp1_pct": DEFAULT_TP1_PREMIUM_PCT,
             "default_tp1_qty_fraction": DEFAULT_TP1_QTY_FRACTION,
             "default_runner_target_pct": DEFAULT_RUNNER_TARGET_PCT,
-            "winner_combo_source": "analysis/recommendations/vwap-trend-pullback-LIVE.json",
+            "winner_combo_source": "analysis/recommendations/vwap-trend-pullback-honest-study.json",
             "promotion_status": "WATCH_ONLY",
-            "ship_bar": "OOS+ AND WF>=0.70 AND sub-window stable AND A/B scorecard filed "
-                        "(OP-16/OP-22) — scorecard PASS; J holds REVOKE.",
+            "ship_bar": "KEEP-DORMANT (confirmed reskin of #1, gate_11 HARD BLOCK). Do not "
+                        "wire absent new detector logic; see honest-study scorecard.",
         },
     )
