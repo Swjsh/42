@@ -9,6 +9,24 @@
 
 ## Active backlog
 
+### STRATEGY-CANDIDATES-UNTRACKED-BACKFILL (HIGH, discovered 2026-07-22 night as a side-effect of CHEF-CANDIDATES-CONSOLIDATION-SWEEP batch 1)
+
+- [ ] STRATEGY-CANDIDATES-UNTRACKED-BACKFILL (HIGH) :: `strategy/candidates/` has 1,176
+  UNTRACKED files (never `git add`ed, not gitignored -- verified `git check-ignore` returns
+  nothing) spread across the top-level dated candidates, `_analysis/`, `_chef-inbox/`, and
+  `_lesson-inbox/*.DONE`. Only ~443 of 1,619 top-level `.md` files scanned by the consolidation
+  sweep were actually tracked. Risk: nothing here is backed by version control (a bad `rm` or
+  disk failure wipes it with no recovery -- the exact class OP-22 move-not-delete is meant to
+  guard against, moot if never committed); `_chef-inbox`/`_analysis` are LIVE pipeline state per
+  `_archive/README.md`'s own "deliberately kept" list, so an author using `git log`/`git blame`
+  to pick up inbox work sees nothing. FIX: (1) confirmed NOT a `.gitignore` exclusion -- genuine
+  oversight; (2) `git add` in dated batches (200-300/fire, same cadence as the consolidation
+  sweep) or one bulk backfill commit if J prefers; (3) graduate a guard -- a cheap periodic
+  check flagging `strategy/candidates/` untracked-count above a small threshold (e.g. >20) so
+  this can't silently re-accumulate unnoticed (C7). Full write-up:
+  `strategy/candidates/_lesson-inbox/2026-07-22-1176-untracked-candidate-files-never-git-added.md`.
+  depends:none :: status:pending
+
 ### RIBBON-SESSION-SCOPE-DIVERGENCE (HIGH, discovery from the TV parity oracle 2026-07-23)
 
 - [ ] RIBBON-SESSION-SCOPE-DIVERGENCE (HIGH, two-part) :: THE discovery of the edge-matrix run:
