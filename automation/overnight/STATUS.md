@@ -1,3 +1,58 @@
+## [2026-07-23 ~09:12-09:35 ET] OK -- conductor (AFTERHOURS): closed FUNCTION-SCORE-ZERO-ENTER-CHECK (HIGH) -- diagnosed benign + fixed a real metric blind spot, commit `56b4bd2b`
+
+> **STAGE 0/1:** ET confirmed 09:12 (Thursday, market not yet open -- opens 09:30, clean
+> runway). `engine-health.json` GREEN 13/13. `self_check.py` DEGRADED on 1 non-load-bearing
+> item (trendline-draw not marked today -- explicitly skipped this morning's premarket fire
+> under its own $3 budget cap, visibility-only). Inboxes small (skill=1, lesson=2, chef=8,
+> validator=0). `task_scorer.py --top` picked `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED), but
+> `queue.md`'s HIGH-priority `FUNCTION-SCORE-ZERO-ENTER-CHECK` outranked it -- a 3rd
+> conductor fire re-flagging the same "0 orders_accepted" reading on 2026-07-22 as "worth a
+> dedicated look" is exactly the priority-1 function-first check this loop is built to chase
+> down, not another re-cite.
+
+> **What I found:** pulled 2026-07-22's `core-decisions.jsonl` tick-by-tick (774 rows):
+> 733/774 reasoned "no setup passed scoring" with an EMPTY triggers list -- bear score never
+> exceeded 9 with a live trigger, a genuinely quiet bear day, not a gate eating triggers. The
+> other 40 were the bull side hitting the ALREADY-AUDITED, ALREADY-CLOSED `block_elite_bull`
+> data-gate (BULL-UNBLOCK-REPLAY-PROBE thread, verdict KEEP, closed 2026-06-30) -- not new,
+> not a bug. `fill_funnel.py --date 2026-07-22` independently verdicts **GREEN**: core:safe
+> had 2 real fills/2 exits via the `extra_exec` secondary lane (vwap_continuation +
+> bollinger_squeeze -- a designed, armed, cooldown-gated execution path in
+> `heartbeat_core._route_extra_setups`, not a workaround).
+
+> **The actual bug (why this kept re-triggering):** `conductor_outcome.py`'s
+> `trading_function_snapshot()` only read the PRIMARY verdict/exec pipeline for
+> `orders_accepted` -- it never learned about the `extra_exec` lane that `fill_funnel.py`
+> already fixed visibility for on 2026-07-22 (a prior fire's fix to ONE consumer of
+> `core-decisions.jsonl` that never propagated to this SECOND consumer of the same file --
+> the exact producer/consumer-mismatch class C14/C7 exist to catch). Result: the function
+> metric kept reading "0 orders_accepted" on a day that actually placed 4 real extra_exec
+> orders (2 filled), making 3 straight fires flag a non-issue as a concern.
+
+> **Fix shipped:** added `extra_exec_orders_accepted` (a NEW field, kept separate from
+> `orders_accepted` -- mirrors `fill_funnel.py`'s own scoping choice so the primary-pipeline
+> signal stays uncontaminated), folded into `distinct_setups_traded` + the weighted function
+> score (x2, same weight as `orders_accepted`). **Verified this fire (OP-33):** direct call to
+> `trading_function_snapshot()` against the live repo now reads
+> `extra_exec_orders_accepted=4, distinct_setups_traded=2` for 2026-07-22 -- matches
+> `fill_funnel.py`'s independently-computed funnel exactly (4 PLACED = 3 vwap_continuation + 1
+> bollinger_squeeze). 2 new guard tests (`test_conductor_outcome_function.py`, scoping
+> isolation + record/metric plumbing), 23/23 in the module pass, curated safety gate (31
+> tests) PASS at commit time. Post-commit `git show 56b4bd2b --stat --name-status` confirms
+> exactly the 2 intended files landed, nothing else swept in.
+
+> **Scope + revert:** pure observability/metric code (`conductor_outcome.py` +
+> its test file) -- zero params/heartbeat_core/filters/placement/exit/CLAUDE.md touched.
+> Ships per OP-22/OP-26 (engine-benefit, no J ratification needed) + rail 4 (guard test +
+> git-revert path, both satisfied). Revert: `git revert 56b4bd2b`.
+
+> **Cost: ~$2.9** (STAGE 0/1 reads, pulling + cross-checking 07-22's decision ledger 3
+> different ways, reading heartbeat_core's extra_exec routing + fill_funnel's prior fix for
+> precedent, implementing + testing the conductor_outcome fix, curated-gate commit, queue +
+> STATUS write-up).
+
+---
+
 ## [2026-07-23 ~08:12-08:20 ET] OK -- conductor (AFTERHOURS): backfilled 41 untracked strategy/candidates/ files + shipped the L242 re-violation prevention guard, commits `8a9e4902` + `a9efcab5`
 
 > **STAGE 0/1:** ET confirmed 08:12 (Thursday, market closed, opens 09:30). `engine-health.json`
@@ -719,7 +774,13 @@
 
 
 ## Kitchen
-Kitchen: alive, queue 21 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 20 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### DEGRADED: self-check 2026-07-23T08:09:57
 - CANDIDATES-UNTRACKED: 39 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
+
+### DEGRADED: self-check 2026-07-23T09:09:57
+- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-23T09:12:44
+- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
