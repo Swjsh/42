@@ -109,6 +109,31 @@ def auth_headers(token: str) -> dict[str, str]:
     return {"Authorization": f"Bot {token}", "Content-Type": "application/json"}
 
 
+def _send_file_message(token: str, channel_id: str, content: str, file_path: str):
+    """Multipart send: content + ONE file attachment (e.g. a Gamma voice-brief .wav).
+    Added 2026-07-22 for daily_brief.py's morning/EOD presence briefs (J directive) --
+    the outbox schema gains an optional `file` key; every existing text-only producer is
+    untouched (no `file` key -> the plain JSON send path below, unchanged).
+    Returns the requests.Response, or None on a network error (caller treats like the
+    text-send network-error case: don't advance the watermark, retry next tick)."""
+    fp = Path(file_path)
+    if not fp.exists():
+        logger.error("outbox file attachment missing on disk: %s", file_path)
+        return "missing"
+    try:
+        with fp.open("rb") as fh:
+            files = {"files[0]": (fp.name, fh, "audio/wav")}
+            data = {"payload_json": json.dumps({"content": content})}
+            return requests.post(
+                f"{API}/channels/{channel_id}/messages",
+                headers={"Authorization": f"Bot {token}"},  # NOTE: no Content-Type -- requests
+                data=data, files=files, timeout=30,           # sets the multipart boundary itself
+            )
+    except requests.RequestException as e:
+        logger.error("file send network error: %s -- will retry next tick", e)
+        return None
+
+
 def poll_inbox(config: dict, wm: dict) -> int:
     """Fetch new messages from configured channel, append to inbox JSONL.
     Returns count of new messages found.
@@ -231,21 +256,33 @@ def drain_outbox(config: dict, wm: dict) -> int:
         if len(content) > 1900:
             content = content[:1900] + "...[truncated]"
 
-        try:
-            r = requests.post(
-                f"{API}/channels/{channel_id}/messages",
-                headers=auth_headers(token),
-                json={"content": content},
-                timeout=15,
-            )
-        except requests.RequestException as e:
-            logger.error("outbox send network error: %s -- will retry next tick", e)
-            return sent  # don't advance watermark; retry this line later
+        file_path = row.get("file")  # optional: audio-brief attachment (daily_brief.py, 2026-07-22)
+        if file_path:
+            r = _send_file_message(token, channel_id, content, file_path)
+            if r is None:
+                return sent  # network error -- don't advance watermark, retry this line later
+            if r == "missing":
+                logger.error("outbox line %d file attachment missing on disk -- skipping", i)
+                wm["last_outbox_line_no"] = i + 1
+                save_watermarks(wm)
+                continue
+        else:
+            try:
+                r = requests.post(
+                    f"{API}/channels/{channel_id}/messages",
+                    headers=auth_headers(token),
+                    json={"content": content},
+                    timeout=15,
+                )
+            except requests.RequestException as e:
+                logger.error("outbox send network error: %s -- will retry next tick", e)
+                return sent  # don't advance watermark; retry this line later
         if r.status_code in (200, 201):
             sent += 1
             wm["last_outbox_line_no"] = i + 1
             save_watermarks(wm)
-            logger.info("outbox -> %s (%d chars)", channel_id, len(content))
+            kind = "file+content" if file_path else "content"
+            logger.info("outbox -> %s (%s, %d chars)", channel_id, kind, len(content))
         elif r.status_code == 429:
             # Rate limited.
             retry_after = float(r.headers.get("Retry-After", "5"))

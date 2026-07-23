@@ -4,12 +4,19 @@ Reads automation/state/gamma-narrative.json (written by gamma_narrative.py),
 synthesizes speech with Kokoro-82M (Apache-2.0, runs on CPU in seconds), writes
 automation/state/gamma-voice-{date}.wav for the dashboard / J to play.
 
+GENERIC MODE (added 2026-07-22 for daily_brief.py's morning/EOD presence briefs --
+J directive: reuse the existing TTS pipeline, never build a second one): pass
+--text-file PATH [--out PATH] [--voice NAME] to synthesize ARBITRARY already-composed
+text instead of reading gamma-narrative.json. With no args, behavior is UNCHANGED
+(the evening-narrative caller keeps working exactly as before).
+
 Runs in its own venv: setup/.tts-venv/Scripts/python.exe setup/scripts/gamma_speak.py
 Model weights live in setup/tts/ (gitignored -- 340MB, never in the public repo).
 Chained after gamma_narrative.py by the Gamma_EveningNarrative task.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import sys
@@ -47,11 +54,31 @@ def speech_text(narrative: dict) -> str:
 
 
 def main() -> int:
-    try:
-        narrative = json.loads((STATE / "gamma-narrative.json").read_text(encoding="utf-8"))
-    except (OSError, ValueError) as exc:
-        print(f"NO NARRATIVE TO SPEAK: {exc}", file=sys.stderr)
-        return 1
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--text-file", default=None,
+                    help="synthesize this file's raw text instead of gamma-narrative.json")
+    ap.add_argument("--out", default=None, help="output wav path (default: gamma-voice-{date}.wav)")
+    ap.add_argument("--voice", default=VOICE)
+    args = ap.parse_args()
+
+    if args.text_file:
+        try:
+            text = Path(args.text_file).read_text(encoding="utf-8").strip()
+        except OSError as exc:
+            print(f"NO TEXT FILE: {exc}", file=sys.stderr)
+            return 1
+        if not text:
+            print("EMPTY TEXT FILE", file=sys.stderr)
+            return 1
+        out = Path(args.out) if args.out else (STATE / "gamma-voice-adhoc.wav")
+    else:
+        try:
+            narrative = json.loads((STATE / "gamma-narrative.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            print(f"NO NARRATIVE TO SPEAK: {exc}", file=sys.stderr)
+            return 1
+        text = speech_text(narrative)
+        out = Path(args.out) if args.out else (STATE / f"gamma-voice-{narrative.get('date', 'unknown')}.wav")
 
     try:
         import soundfile as sf
@@ -66,11 +93,10 @@ def main() -> int:
         print(f"MODEL FILES MISSING in {TTS_DIR} (see module docstring)", file=sys.stderr)
         return 1
 
-    text = speech_text(narrative)
     kokoro = Kokoro(str(model), str(voices))
-    samples, sample_rate = kokoro.create(text, voice=VOICE, speed=1.05, lang="en-us")
+    samples, sample_rate = kokoro.create(text, voice=args.voice, speed=1.05, lang="en-us")
 
-    out = STATE / f"gamma-voice-{narrative.get('date', 'unknown')}.wav"
+    out.parent.mkdir(parents=True, exist_ok=True)
     sf.write(str(out), samples, sample_rate)
     dur = len(samples) / float(sample_rate)
     print(f"spoke {len(text)} chars -> {out} ({dur:.1f}s @ {sample_rate}Hz)")
