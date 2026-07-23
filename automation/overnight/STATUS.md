@@ -42,7 +42,9 @@
 > unaffected (different question).
 
 > **Cost: ~$1.8** (STAGE 0/1 reads, tracing the watcher gate + pre-reg + results files, queue.md
-> resolution write-up, lesson-inbox filing, STATUS write-up).
+> resolution write-up, lesson-inbox filing, STATUS write-up). `conductor_outcome.py metric`:
+> `trend=regressing` (cost/drained \$3.08 over the last 20 fires) -- noting per protocol; next
+> fire should prefer another loop-closer over a fresh artifact.
 
 ---
 
