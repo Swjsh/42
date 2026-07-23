@@ -394,3 +394,36 @@ for full detail. "Chef-inbox backlog growth" -- verified via live count: 78 file
 `.DONE` (85%), 12 open (15%) -- a healthy throughput ratio for an active research pipeline,
 NOT unbounded growth; no action needed. -->
 
+
+## 2026-07-23T17:31:49 -- 9 new gap(s) Gamma self-identified
+- OP‑33 (falsification test)
+- The shared swing‑shelf primitive (`flat_side` in `market_structure.py`) operates at a timescale too coarse to capture th
+- The system lacks a reliable pre‑ship validation step that confirms a rule actually fires on the specific anchor bars J i
+- Existing production rules that depend on the same primitive are silently degrading (e.g., `engulfing_at_level` drifted t
+- Technical‑debt flags in `self_check.py` (e.g., `TRENDLINE‑DRAW`) are being ignored as “non‑load‑bearing,” creating hidde
+- The pattern‑grammar registry is only exercised by offline statistical prescreens; there is no live‑feed validation or co
+- **Rule 9 violation claim** (Perspective 3) asserts the pattern‑registry change was made mid‑session, violating the weeke
+- **Quarantine vs. hook** (Perspective 4) suggests a quarantine mechanism for flawed rules, while Perspectives 1 & 5 argue
+- **Scope of fixes** (Perspective 5) lists many additional systemic improvements (confidence‑based sizing, dynamic SL/TP, 
+
+<!-- DONE 2026-07-23 ~17:55 ET conductor (AFTERHOURS, commit eea3f423) :: ACTIONED gap #3
+("The system lacks a reliable pre-ship validation step that confirms a rule actually fires
+on the specific anchor bars J identified"). Built backtest/tools/pattern_anchor_verify.py
++ a new optional anchors field on PatternRule (grammar.py) + declared
+engulfing_at_swing_shelf's two named anchors with the honest current state
+(expected_fire=False, matching the prior fire's manual OP-33 finding) + a guard test
+(test_pattern_anchor_verify.py, 63/63 green incl. existing pattern-grammar suite) that
+asserts every declared anchor's actual predicate-fire state matches its declared
+expected_fire -- for ALL future rules that cite specific live-tape exhibits, not just this
+one. This is the reusable version of the ad-hoc manual check the prior fire ran by hand.
+Verified against the real cached bars (2/2 match; needed a NEW freshest-CSV picker,
+find_freshest_csv, because pattern_prescreen.find_master_csv's widest-history selection
+picked a file one day stale vs today's live tape -- a real, previously-latent gotcha this
+build surfaced and fixed). Gap #4 ("existing production rules... silently degrading, e.g.
+engulfing_at_level drifted to noise-kill") is a DIFFERENT check (frequency drift over
+time, not anchor-fire-state) already partially covered by pattern_prescreen.py's
+recent-90-day drift_flag -- named as a follow-up, not chased this fire (scope discipline,
+one bounded task). Gap #5 ("Rule 9 violation claim") is the SAME false-positive class the
+2026-07-21 T17:31:28 batch's DONE-triage already refuted (an after-hours change on a
+NO-WIRING research module is not a Rule-9 event); not re-argued here. Curated safety gate
+(31+5) PASS at commit time. -->
