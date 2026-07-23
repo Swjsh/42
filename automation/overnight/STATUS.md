@@ -1,3 +1,55 @@
+## [2026-07-23 ~17:42-17:58 ET] OK -- conductor (AFTERHOURS): closed self-audit gap PATTERN-ANCHOR-PRE-SHIP-CHECK (priority-3), commits `eea3f423` + `fad447e1`
+
+> **STAGE 0/1:** ET confirmed 17:42 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. Priority-3 (self-audit gaps) outranked `task_scorer.py --top`'s
+> `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED): today's 17:31:49 self-audit batch named a real,
+> actionable gap the PRIOR fire's own ENGULFING-AT-STRUCTURE-TRIGGER work had just exposed by
+> hand -- "the system lacks a reliable pre-ship validation step that confirms a rule actually
+> fires on the specific anchor bars J identified."
+
+> **What shipped:** a reusable anchor pre-ship + drift contract for the pattern-grammar
+> registry. New optional `anchors` field on `PatternRule` (grammar.py, validated at
+> construction) + `backtest/tools/pattern_anchor_verify.py` (loads the freshest cached bar,
+> runs the rule's live predicate, reports actual vs declared fire state; CLI +
+> `check_registry_anchors()`) + `engulfing_at_swing_shelf` now declares its own two named
+> anchors (2026-07-21 11:05 bullish, 2026-07-23 10:40 bearish) with the HONEST current state
+> (`expected_fire=False`, matching the prior fire's manual OP-33 finding) inline in the
+> registry itself. Guard test `test_pattern_anchor_verify.py` (63/63 green incl. the existing
+> pattern-grammar suite) asserts every declared anchor's actual state matches `expected_fire`
+> -- catches both a future rule shipping without checking its own cited anchors AND silent
+> drift in an already-shipped one.
+
+> **Side-finding caught while building it:** `pattern_prescreen.find_master_csv`'s
+> widest-history file selection picked a CSV one day stale vs today's live tape -- would have
+> silently made any "today" anchor check vacuous. Fixed with a dedicated `find_freshest_csv`
+> picker in the new tool (verified: re-ran against the real cache, 2/2 anchors now correctly
+> found and matched).
+
+> **Verified this fire (OP-33):** direct CLI run against live cached bars (2/2 OK before
+> committing). `git show eea3f423 --stat --name-status` confirms exactly the 4 intended files
+> (grammar.py, registry.py, 2 new files) landed; `git show fad447e1` confirms only the
+> self-audit doc landed in the follow-up commit. Curated safety gate (31+5) PASS at both
+> commits.
+
+> **Scope + revert:** pure `backtest/lib/patterns/` + `backtest/tools/` + `backtest/tests/`
+> authoring (registry.py's own docstring: "NO WIRING") + a self-audit doc triage note. Zero
+> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched. Ships per OP-22/26
+> (engine-benefit research authoring, no J ratification needed). Revert: `git revert
+> fad447e1` then `git revert eea3f423`.
+
+> **Does NOT advance ENGULFING-AT-STRUCTURE-TRIGGER's live thread** (the rolling-K-bar
+> cluster primitive is still the next actual step, not started this fire) -- it hardens the
+> PROCESS so verifying that primitive against these exact 2 anchors, once built, is one CLI
+> command instead of another hand-run falsification pass. Queue item stays `status:pending`,
+> note appended there too.
+
+> **Cost: ~$3.4** (STAGE 0/1 reads incl. task_scorer + self-audit gap file, registry/grammar/
+> context/prescreen code study, building + testing the anchor-verify tool + guard test,
+> curated-gate x2, self-audit doc triage, queue/STATUS write-up, conductor_outcome
+> record+metric).
+
+---
+
 ## [2026-07-23 ~17:12-18:15 ET] OK -- conductor (AFTERHOURS): ENGINE-VECTORIZATION layer 1/3 shipped, honestly quantified (~6%, not 1.8x), commit `2c6eaf75`
 
 > **STAGE 0/1:** ET confirmed 17:12 (Thursday, market closed since 15:55). `engine-health.json`

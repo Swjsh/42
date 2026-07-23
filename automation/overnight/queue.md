@@ -97,6 +97,29 @@
 > 31+5 PASS) -- it just doesn't (yet) explain these 2 exact exhibits. Item stays `status:pending`,
 > NOT closed -- the swing-shelf angle is exhausted, the tight-cluster primitive is the live thread.
 
+> **INFRA CLOSED THE LOOP 2026-07-23 ~17:40-17:58 ET (conductor, AFTERHOURS), commits
+> `eea3f423` + `fad447e1`.** The self-audit swarm independently surfaced the exact process
+> gap this item's own falsification pass exposed by hand: "the system lacks a reliable
+> pre-ship validation step that confirms a rule actually fires on the specific anchor bars
+> J identified." Built that step as a reusable contract instead of a one-off check: a new
+> optional `anchors` field on `PatternRule` (date/time_et/bias/expected_fire/note) +
+> `backtest/tools/pattern_anchor_verify.py` (loads the real cached bar, runs the rule's
+> live predicate, reports actual vs declared) + a guard test
+> (`test_pattern_anchor_verify.py`, 63/63 green) that fails LOUD if any declared anchor's
+> actual fire state drifts from what's recorded. `engulfing_at_swing_shelf` now carries
+> its own two anchors HONESTLY declared `expected_fire=False` (matching this item's own
+> 16:15-16:50 finding) with the root-cause note inline in the registry itself -- so the
+> next person/fire reading `registry.py` sees the true state without re-deriving it from
+> `queue.md` prose. Side-finding while building it: `pattern_prescreen.find_master_csv`'s
+> widest-history file selection picked a CSV one day stale vs today's tape (silently would
+> have made any anchor check on "today" vacuous) -- fixed with a dedicated
+> `find_freshest_csv` picker in the new tool. **This does NOT advance the live
+> thread itself** (the rolling-K-bar cluster primitive is still the next actual step,
+> not started this fire) -- it hardens the PROCESS so that whenever that primitive does
+> land, verifying it against these exact 2 anchors is one command
+> (`pattern_anchor_verify.py --rule <new_rule_name>`) instead of another hand-run OP-33
+> pass. Curated safety gate (31+5) PASS at both commits. Item stays `status:pending`.
+
 ### DOUBLE-BOTTOM-DISARM-DECISION (HIGH, 24h re-audit then act, filed 2026-07-23 overnight kitchen)
 
 - [x] DOUBLE-BOTTOM-DISARM-DECISION (HIGH) :: **RESOLVED 2026-07-23 ~01:55 ET (conductor,
