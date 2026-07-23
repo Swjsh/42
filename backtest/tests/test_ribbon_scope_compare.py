@@ -165,3 +165,35 @@ def test_to_dict_shape(rsc):
     r = rsc.compare_at("2026-06-16", "2026-06-16 09:30:00")
     d = r.to_dict()
     assert set(d.keys()) == {"day", "bar_et", "rth_stack", "eth_stack", "agree", "max_ema_diff"}
+
+
+# =====================================================================================
+# 6. latest_available_day() -- RIBBON-SESSION-SCOPE-DIVERGENCE Lane-A wiring (queue.md
+#    2026-07-23, PART-2-RESOLVED remainder: daily_brief.py's premarket morning-brief needs
+#    a day it can HONESTLY report on since today's own bars don't exist yet at 08:45 ET).
+# =====================================================================================
+def test_latest_available_day_no_before_returns_latest_overall(rsc):
+    rth_df, _ = rsc._ribbons_cached()
+    valid = rth_df[rth_df["stack"] != "WARMUP"]
+    expected = max(ts.date().isoformat() for ts in valid["timestamp_et"])
+    assert rsc.latest_available_day() == expected
+
+
+def test_latest_available_day_strictly_before_cutoff(rsc):
+    """A `before` date that IS in the cache must never be returned itself -- strictly less
+    than, so a caller asking "the day before today" never gets told today is the answer."""
+    d = rsc.latest_available_day(before="2026-06-16")
+    assert d is not None
+    assert d < "2026-06-16"
+
+
+def test_latest_available_day_far_future_cutoff_matches_no_cutoff(rsc):
+    """A `before` date far past the end of the cache must land on the same day as the
+    no-cutoff call -- never a fabricated future date."""
+    assert rsc.latest_available_day(before="2099-01-01") == rsc.latest_available_day()
+
+
+def test_latest_available_day_before_all_data_returns_none(rsc):
+    """A `before` date earlier than every cached day must return None, never fabricate a
+    day with no data behind it."""
+    assert rsc.latest_available_day(before="1990-01-01") is None

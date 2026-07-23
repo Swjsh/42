@@ -142,11 +142,15 @@ def cmd_step(session_id: str, cursor_epoch: int) -> dict:
     # sim executor advances any open directed positions (Agent C); graceful if not built
     events = _advance_sim(st, bar_et, bars_df)
     whisper = dojo_whisper.render(decisions, bar_et)
+    scope_cmp = _ribbon_scope_line(st.replay_day, bar_et)
+    if scope_cmp is not None:
+        whisper = whisper + "\n" + scope_cmp["line"]
     _append_ledger(st, {"event": "step", "cursor_epoch": cursor_epoch,
                         "cursor_et": cursor_et.isoformat(), "bar_et": bar_et.isoformat(),
                         "rth": clock.is_rth(cursor_et),
                         "decisions": [_decision_row(d) for d in decisions],
-                        "sim_events": events})
+                        "sim_events": events,
+                        "ribbon_scope": scope_cmp["data"] if scope_cmp else None})
     _write_state(st)
     return {"ok": True, "session_id": session_id, "bar_et": bar_et.isoformat(), "whisper": whisper}
 
@@ -219,6 +223,30 @@ def _arm_sim(st: SessionState, directive) -> None:
 
 
 # --------------------------------------------------------------------------- helpers
+def _ribbon_scope_line(replay_day: str, bar_et: datetime) -> "dict | None":
+    """RIBBON-SESSION-SCOPE-DIVERGENCE Lane-A wiring (queue.md 2026-07-23, PART-2-RESOLVED
+    remainder): at each stepped bar, ask backtest/tools/ribbon_scope_compare.compare_at()
+    whether the RTH-scope ribbon (what the engine trades on) and the ETH-scope ribbon
+    (validated J's-eyes stand-in for the TV chart) AGREE on stack classification. If they
+    disagree, return a whisper line + the raw comparison dict for the ledger; if they agree,
+    or the comparator/data isn't available (lazy import, mirrors engine_step/whisper's own
+    graceful-degrade pattern), return None -- NEVER raises, never blocks the step loop."""
+    try:
+        from tools import ribbon_scope_compare as rsc  # backtest/tools/, "backtest" on sys.path
+    except ImportError:
+        return None
+    try:
+        cmp = rsc.compare_at(replay_day, bar_et)
+    except Exception:
+        return None
+    if not cmp.rth_stack or not cmp.eth_stack or cmp.agree:
+        return None
+    line = (f"  [!] ribbon scope divergence: my (RTH) ribbon reads {cmp.rth_stack}, the full "
+            f"extended-hours chart reads {cmp.eth_stack} (max EMA gap ${cmp.max_ema_diff}) -- "
+            f"my ribbon differs from your chart's by ${cmp.max_ema_diff} here")
+    return {"line": line, "data": cmp.to_dict()}
+
+
 def _decision_row(d) -> dict:
     if hasattr(d, "_asdict"):
         return d._asdict()

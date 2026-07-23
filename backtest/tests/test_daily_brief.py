@@ -103,6 +103,58 @@ def test_morning_all_inputs_none_never_raises_and_says_no_data():
 
 
 # --------------------------------------------------------------------------- #
+# RIBBON-SESSION-SCOPE-DIVERGENCE Lane-A wiring (queue.md 2026-07-23, PART-2-RESOLVED
+# remainder: "wire compare_at into ... the morning-brief gap-day line").
+# --------------------------------------------------------------------------- #
+
+def test_morning_ribbon_scope_disagreement_shows_heads_up_line():
+    disagree = {"day": "2026-07-21", "agree": False, "rth_stack": "BEAR",
+                "eth_stack": "MIXED", "max_ema_diff": 2.26}
+    facts = db.gather_morning_facts(
+        "2026-07-22", today_bias=_BIAS, key_levels=_KEY_LEVELS,
+        safe_breaker=_SAFE_BREAKER, bold_breaker=_BOLD_BREAKER, status_headers=_STATUS_HEADERS,
+        ribbon_scope=disagree,
+    )
+    text = db.compose_morning_text(facts)
+    assert "Heads up" in text
+    assert "2026-07-21" in text and "BEAR" in text and "MIXED" in text and "$2.26" in text
+
+
+def test_morning_ribbon_scope_agreement_says_nothing_extra():
+    """A day where the two scopes agree is NOT news -- never spam the brief with an agreeing
+    read (OP-22: quiet on the common case, only speak up on genuine divergence)."""
+    agree = {"day": "2026-07-16", "agree": True, "rth_stack": "BULL",
+              "eth_stack": "BULL", "max_ema_diff": 0.4}
+    facts = db.gather_morning_facts(
+        "2026-07-22", today_bias=_BIAS, key_levels=_KEY_LEVELS,
+        safe_breaker=_SAFE_BREAKER, bold_breaker=_BOLD_BREAKER, status_headers=_STATUS_HEADERS,
+        ribbon_scope=agree,
+    )
+    text = db.compose_morning_text(facts)
+    assert "Heads up" not in text
+
+
+def test_morning_ribbon_scope_none_never_raises():
+    """No comparator data available (import failure / no prior day / warmup) -> the brief
+    composes exactly as it did before this feature existed, no crash, no line."""
+    facts = db.gather_morning_facts(
+        "2026-07-22", today_bias=_BIAS, key_levels=_KEY_LEVELS,
+        safe_breaker=_SAFE_BREAKER, bold_breaker=_BOLD_BREAKER, status_headers=_STATUS_HEADERS,
+        ribbon_scope=None,
+    )
+    text = db.compose_morning_text(facts)
+    assert "Heads up" not in text
+
+
+def test_ribbon_scope_note_before_all_cached_data_returns_none():
+    """Real integration path (backtest/tools/ribbon_scope_compare.latest_available_day),
+    not a fixture: a cutoff earlier than every cached trading day must fail open to None,
+    never fabricate a day/stack. This is the exact path daily_brief.py's morning mode calls
+    live at 08:45 ET premarket, before today's own bars exist."""
+    assert db._ribbon_scope_note("1990-01-01") is None
+
+
+# --------------------------------------------------------------------------- #
 # EOD -- fixtures + composition.
 # --------------------------------------------------------------------------- #
 

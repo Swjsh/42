@@ -163,6 +163,36 @@ def _breaker_armed_str(breaker: Optional[dict], date_field: str, today: str) -> 
     return "armed" if bdate == today else "armed (stale re-arm)"
 
 
+def _ribbon_scope_note(day: str) -> Optional[dict]:
+    """RIBBON-SESSION-SCOPE-DIVERGENCE Lane-A wiring, morning-brief half (queue.md
+    2026-07-23, PART-2-RESOLVED remainder). The morning brief runs premarket (08:45 ET) --
+    `day`'s own intraday bars don't exist yet, so this reports on the most recent day that
+    DOES have data (typically yesterday's open) via
+    backtest/tools/ribbon_scope_compare.latest_available_day()/compare_at(): does the
+    engine's RTH-scope ribbon agree with the full extended-hours (J's-chart-validated) ribbon
+    at that day's open? Returns None (never fabricated) on any import/data failure, or when
+    that day's open bar hasn't warmed up in either scope -- degrades the brief to silence on
+    this point, never a crash or a guessed value."""
+    try:
+        backtest_dir = REPO / "backtest"
+        if str(backtest_dir) not in sys.path:
+            sys.path.insert(0, str(backtest_dir))
+        from tools import ribbon_scope_compare as rsc  # noqa: E402 -- lazy, mirrors dojo/session.py
+    except ImportError:
+        return None
+    try:
+        prior = rsc.latest_available_day(before=day)
+        if prior is None:
+            return None
+        cmp = rsc.compare_at(prior, f"{prior} 09:30:00")
+    except Exception:  # noqa: BLE001 -- fail-open, never blocks the brief (C7)
+        return None
+    if not cmp.rth_stack or not cmp.eth_stack:
+        return None
+    return {"day": prior, "agree": cmp.agree, "rth_stack": cmp.rth_stack,
+            "eth_stack": cmp.eth_stack, "max_ema_diff": cmp.max_ema_diff}
+
+
 def _dojo_brief_info(day: str) -> dict:
     path = DOJO_BRIEFS_DIR / f"{day}.md"
     if not path.exists():
@@ -246,6 +276,7 @@ def gather_morning_facts(
     safe_breaker: Optional[dict] = None,
     bold_breaker: Optional[dict] = None,
     status_headers: Optional[list[str]] = None,
+    ribbon_scope: Optional[dict] = None,
 ) -> dict:
     return {
         "day": day,
@@ -255,6 +286,7 @@ def gather_morning_facts(
         "safe_breaker": _breaker_armed_str(safe_breaker, BREAKER_DATE_FIELD["safe"], day),
         "bold_breaker": _breaker_armed_str(bold_breaker, BREAKER_DATE_FIELD["bold"], day),
         "overnight_headers": status_headers or [],
+        "ribbon_scope": ribbon_scope,
     }
 
 
@@ -273,6 +305,15 @@ def compose_morning_text(facts: dict) -> str:
         lines.append("Overnight I shipped: " + "; ".join(overnight) + ".")
     else:
         lines.append("Quiet overnight -- nothing shipped.")
+    rs = facts.get("ribbon_scope")
+    if rs and not rs.get("agree"):
+        diff = rs.get("max_ema_diff")
+        diff_txt = f"${diff:.2f}" if isinstance(diff, (int, float)) else "an unknown amount"
+        lines.append(
+            f"Heads up: at {rs['day']}'s open my ribbon read {rs['rth_stack']} while the full "
+            f"extended-hours chart read {rs['eth_stack']}, {diff_txt} apart -- worth a gap "
+            f"check this morning."
+        )
     return truncate_to_word_cap(" ".join(lines))
 
 
@@ -450,6 +491,7 @@ def main() -> int:
             safe_breaker=_read_json(SAFE_BREAKER_PATH),
             bold_breaker=_read_json(BOLD_BREAKER_PATH),
             status_headers=_status_headers(STATUS_MD_PATH, n=3),
+            ribbon_scope=_ribbon_scope_note(day),
         )
         text = compose_morning_text(facts)
     else:

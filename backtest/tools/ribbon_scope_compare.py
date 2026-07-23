@@ -98,6 +98,22 @@ def clear_cache() -> None:
     _CACHE.clear()
 
 
+def latest_available_day(before: "str | None" = None) -> "str | None":
+    """Most recent trading day with at least one non-WARMUP RTH ribbon stack in the cached
+    frame, strictly before `before` (YYYY-MM-DD) if given, else the latest day overall.
+    Callers (e.g. daily_brief.py's premarket morning-brief, which runs BEFORE today's own
+    bars exist) use this to find the most recent day they CAN honestly report on -- never
+    fabricates a day that has no data. Returns None if no such day exists."""
+    rth_df, _eth_df = _ribbons_cached()
+    valid = rth_df[rth_df["stack"] != "WARMUP"]
+    if valid.empty:
+        return None
+    days = sorted({ts.date().isoformat() for ts in valid["timestamp_et"]})
+    if before is not None:
+        days = [d for d in days if d < before]
+    return days[-1] if days else None
+
+
 def compare_at(day: str, bar_et) -> ScopeComparison:
     """Given a trading day (str, informational -- not used to filter, `bar_et` alone
     resolves the row) and a specific RTH bar timestamp, return whether the RTH-scope and
