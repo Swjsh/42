@@ -1,3 +1,49 @@
+## [2026-07-23 ~21:42-22:00 ET] OK -- conductor (AFTERHOURS): OPEN-BELL-STATUS-PUSH closed (stale checkbox, work already fully shipped)
+
+> **STAGE 0/1:** ET confirmed 21:42 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again -- still
+> correctly `status:pending` on J's REVOKE surface (`gp-2026-07-23-twin-doctrine-001`, filed
+> last fire, nothing new until J responds). Read the full ranked list: 2nd item was
+> `OPEN-BELL-STATUS-PUSH` (HIGH, visibility, OP-33e, `depends:none`).
+
+> **What I found:** the queue item's own text describes a build (09:36 ET one-shot Discord
+> push of engine-health + kill-switch status + tick freshness + fills-so-far, retiring J's
+> repeated "is it running today?" question). Investigated before building anything (tiebreak
+> rule: closing a loop > creating an artifact) -- `setup/scripts/open_bell_status.py` +
+> `install-open-bell-status.ps1` already exist, fully match the spec, and
+> `Get-ScheduledTask -TaskName Gamma_OpenBellStatus` confirms `State=Ready`, registered.
+
+> **Verified this fire (OP-33):** `automation/state/open-bell-pinged.json` +
+> `discord-outbox.jsonl` show the task has fired correctly for 3 CONSECUTIVE trading days
+> (2026-07-21, 07-22, 07-23, all `queued_at` 09:36:00 ET, `source: open_bell_status`).
+> Today's actually-delivered message: `🟡 OPEN-BELL STATUS 2026-07-23 09:36 ET -- engine:
+> YELLOW | Kill-switches: Safe armed re-armed-today YES | Bold armed re-armed-today YES |
+> Ticks: last bold tick 09:35:04 (0.9m ago) | Fills: none yet`. Guard test re-run this fire:
+> `python -m pytest backtest/tests/test_open_bell_status.py -q` -> 11/11 green. This is the
+> stale-checkbox pattern task_scorer's own `--all` fix (previous fire, commit `6d42d211`) was
+> built to surface -- work shipped, box never flipped.
+
+> **What shipped this fire:** zero code changes (nothing to build -- verification-only).
+> `automation/overnight/queue.md` `OPEN-BELL-STATUS-PUSH` flipped `[ ] -> [x]`,
+> `status:pending -> status:done`, with the full evidence trail above appended inline
+> (repo convention: completed items stay inline with `[x]`/`status:done`, not moved to a
+> separate section -- matches `TASK-SCORER-SECTION-SCOPE-FIX` and `CRYPTO-TWIN-T1-T4`
+> precedent in the same file).
+
+> **Learn (STAGE 4.5):** none new -- this fire's discipline was the SAME scoping-before-
+> building step the last fire used on GATE-TIERS-IMPLEMENT (check what's already shipped
+> before re-doing it). No lesson-inbox item filed; the general pattern is already covered
+> by the existing queue-hygiene discipline (OP-22 compound-don't-accumulate).
+
+> **Scope + revert:** 1 file (`queue.md`, 1 checkbox + evidence block). Zero
+> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched. Not a trading-path
+> change -- pure bookkeeping, trivially revertible (`git checkout -- automation/overnight/
+> queue.md` or `git revert` the commit).
+
+> **Cost: ~$1.1** (STAGE 0/1 reads, task_scorer full ranking, targeted queue.md grep,
+> open_bell_status.py read, scheduled-task + pinged-file + outbox verification, guard-test
+> re-run, STATUS/queue write-up, conductor_outcome record+metric).
+
 ## [2026-07-23 ~21:12-21:50 ET] OK -- conductor (AFTERHOURS): GATE-TIERS-IMPLEMENT rank #3 shipped (per-arm hard-skip override), commit `ecde12f8`
 
 > **STAGE 0/1:** ET confirmed 21:12 (Thursday, market closed since 15:55). `engine-health.json`
@@ -623,75 +669,6 @@
 > **Cost: ~$2.4** (STAGE 0/1 reads, git status/add/commit x2, writing+testing the guard script +
 > install script + 9 pytest cases, registering + verifying the scheduled task live, lesson
 > filing, SCHEDULED-TASKS.md registry update, STATUS write-up).
-
----
-
-## [2026-07-23 ~07:42-08:00 ET] OK -- conductor (AFTERHOURS): triaged the 15-item chef-inbox backlog -- 8 closed, 7 reframed, commit `e0354f3c`
-
-> **STAGE 0/1:** ET confirmed 07:42 (Thursday, market closed, opens 09:30 -- clear runway).
-> `engine-health.json` GREEN 13/13 (all quiet-OK, market closed). Self-audit gaps: all
-> triaged through the last batch, nothing new due. `task_scorer.py --top` resurfaced
-> `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED) -- checked the full HIGH tier first: every HIGH item is
-> `[x]`/status:CLOSED* except `DOJO-BUILD-HANDOFF` (confirmed AGAIN this fire via the actual
-> bound tool list that no `tradingview`-prefixed tool exists for this session type) and
-> `PULLBACK-HOLD-BULL-TRIGGER` (checkbox stale `[ ]` but body text reads
-> `status:CLOSED-NO-SHIP` -- the exact `task_scorer` multiline-status-parsing gap L245/L246
-> already documented). With HIGH exhausted, priority-5 (author inboxes) won: `_chef-inbox` had
-> **15** un-processed prospector items dated 2026-07-10..07-23 (validator/skill/lesson inboxes
-> all empty).
-
-> **What shipped (acting as chef):** read all 15 files. **Closed 8** with evidence-backed
-> disposition notes, renamed `.DONE`: 2 S/R-zone-clustering duplicates (Zeiierman/LuxAlgo =
-> same swing-clustering technique, folded to the LuxAlgo item as canonical) + Market-Profile-
-> TPO folded into the volume-shelf item (same value-area/POC hypothesis) + 2 MES/MNQ futures
-> items (CFTC-COT, term-structure -- the 'instrument' rung is ALREADY CLOSED per memory,
-> 2026-06-20/06-28 controls) + 3 redundant 3rd-party SPY price feeds (IEX Cloud, Alpha
-> Vantage, Polygon.io -- we already have Alpaca broker + SIP 5m cache, no new signal type) +
-> 1 CBOE Dealer-Gamma-Exposure duplicate of the ALREADY-BUILT free `gex_regime.py` +
-> `cboe_oi_bank.py` pipeline (24 sessions accrued, calendar-gated not vendor-gated).
-> **Kept 7 open, reframed** with concrete next steps: volume-shelf + LuxAlgo S/R-zone items
-> don't actually need TV MCP (verified this session's bound tool list has zero `tradingview`-
-> prefixed tools) -- both are plain-Python-computable from the already-cached SPY 5m
-> OHLCV+volume bars; harmonic-pattern-finder is genuinely TV-independent (public zigzag+Fib
-> algorithm) but flagged for a C27 fire-rate audit before any backtest $; order-flow-imbalance
-> is genuinely blocked on missing tick/quote data (real fork, not a TV illusion, left open for
-> a J cost/vendor decision); put/call-ratio, IV-skew, and max-pain all had their "Cost: paid"
-> tag downgraded -- `fleet_broker.get_option_greeks` (fleet_broker.py:139) already pulls free
-> per-contract IV/greeks from Alpaca's options-snapshots endpoint (G8 log-only today), so all
-> three are plausibly computable free by extending that same pull across the chain, no new
-> paid vendor needed.
-
-> **Foot-gun graduated:** filed `_lesson-inbox/2026-07-23-prospector-paid-tag-ignores-already-
-> built-free-pipe.md` -- the prospector tagged `Cost: paid` on 4 items without checking
-> whether the repo already has a free pipe for that data class (GEX, options greeks/IV/OI);
-> proposes a small "already-free" registry lookup as the guard.
-
-> **Verified this fire (OP-33):** `git status --short -- strategy/candidates/_chef-inbox
-> strategy/candidates/_lesson-inbox` showed exactly the 16 intended entries before staging;
-> `git add` scoped to those 2 paths (no `-A`); **post-commit** `git show HEAD --stat
-> --name-status` confirms commit `e0354f3c` contains EXACTLY 16 files (7 `R`, 1 `A`+1 new,
-> etc. -- matches intent, applying the L247 post-commit-not-just-pre-commit lesson from the
-> prior fire immediately). Curated safety gate (31 tests) PASS at commit time (auto-run by the
-> pre-commit hook, output captured in the commit transcript).
-
-> **Scope + revert:** pure doc/inbox triage (8 dispositions + 7 reframing notes + 1 lesson
-> filing) -- zero params/heartbeat_core/filters/placement/exit/CLAUDE.md touched. Ships per
-> OP-22/OP-26 (engine-benefit authoring, no J ratification needed). Revert: `git revert
-> e0354f3c`.
-
-> **Cost: ~$2.3** (STAGE 0/1 reads, reading 15 full inbox files + 3 code files to verify the
-> Alpaca-greeks-already-free claim + memory files to verify the futures-rung-closed claim,
-> drafting 15 disposition notes, scoped commit + post-commit verification, lesson filing,
-> STATUS write-up).
-
-> **Outcome metric (`conductor_outcome.py metric`, 20-fire window):** `trend: regressing`,
-> `cost_per_drained: $1.64`, `function_latest`: 0 ENTERs / 0 orders / 3 fills / 1 distinct
-> setup on the last trading day (2026-07-22) -- the fill count is from the `extra_exec`
-> secondary lane (already-diagnosed, matches prior fires' notes), the core primary path saw
-> 0 ENTERs that session. This fire itself was loop-closing (backlog drain, not a new
-> artifact) per the tiebreak rule; next fire should keep preferring drain-over-create while
-> the trend reads regressing, and the low-ENTER function score is worth a dedicated look if
-> it persists past tonight's session close.
 
 ---
 

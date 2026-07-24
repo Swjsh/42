@@ -1,13 +1,13 @@
 {
-  "computed_at": "2026-07-24T01:21:10+00:00",
+  "computed_at": "2026-07-24T01:44:34+00:00",
   "window": 20,
   "net_improvement": 35,
   "total_drained": 35,
   "total_regressions": 0,
-  "total_cost_usd": 65.53,
-  "cost_per_drained_usd": 1.8723,
+  "total_cost_usd": 63.73,
+  "cost_per_drained_usd": 1.8209,
   "fires_counted": 20,
-  "function_score_avg": 15.9,
+  "function_score_avg": 16.55,
   "function_latest": {
     "trading_day": "2026-07-23",
     "enters_last_trading_day": 17,
