@@ -264,3 +264,7 @@
 - [ ] HARVEST-REGIMEEXT-20260718-100042 (LOW) :: v09_regime TREND_DOWN dominant: 60/80 bars (75%) | last_regime=TREND_UP atr_14=73 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T10:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260718-100043 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=118 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T19:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260718-100044 (LOW) :: v09_regime TREND_UP dominant: 58/81 bars (72%) | last_regime=CHOP atr_14=99 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-17T20:00:00+00:00:TREND_UP :: depends:none :: status:queued
+
+## Archived 2026-07-23 10:00:54Z — 1 catalogue row(s) over cap (15)
+
+- [ ] HARVEST-RIBBONFLIP-20260721-100052 (MED) :: v08_ribbon flip MIXED -> BULL | spread=231.28>100 | recent dist BULL=100 BEAR=23 MIXED=77 :: key=EDGE_RIBBON_FLIP:2026-07-21T09:00:00+00:00:BULL :: depends:none :: status:queued
