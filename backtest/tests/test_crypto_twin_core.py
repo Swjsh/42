@@ -329,7 +329,11 @@ def test_manage_positions_trailing_runner_ratchets_then_stops(tmp_path, fake_bro
     assert r3[0]["actions"][0]["stage"] == "trail"
     assert "BTC/USD" not in ctc._load_positions(cfg)
     journal = [json.loads(l) for l in (cfg.state_dir / "journal.jsonl").read_text().splitlines()]
-    assert journal[-1]["event"] == "CLOSED" and journal[-1]["stage"] == "trail"
+    # B6: EXIT_FILLED is now journaled AFTER CLOSED (additive telemetry) -- CLOSED is no
+    # longer guaranteed journal[-1], but it must still be present with the right stage.
+    closed_rows = [r for r in journal if r["event"] == "CLOSED"]
+    assert closed_rows[-1]["stage"] == "trail"
+    assert journal[-1]["event"] == "EXIT_FILLED" and journal[-1]["kind"] == "SELL_ALL"
 
 
 def test_manage_positions_structure_stop_closes_all(tmp_path, fake_broker):
@@ -348,8 +352,17 @@ def test_manage_positions_structure_stop_closes_all(tmp_path, fake_broker):
     positions = ctc._load_positions(cfg)
     assert "BTC/USD" not in positions  # fully closed, pruned
     journal = [json.loads(l) for l in (cfg.state_dir / "journal.jsonl").read_text().splitlines()]
-    assert journal[-1]["event"] == "CLOSED"
-    assert journal[-1]["stage"] == "structure_stop"
+    # B6: EXIT_FILLED now trails CLOSED (additive telemetry, see test_manage_positions_
+    # trailing_runner_ratchets_then_stops for the same pattern).
+    closed_rows = [r for r in journal if r["event"] == "CLOSED"]
+    assert closed_rows[-1]["stage"] == "structure_stop"
+    exit_filled_rows = [r for r in journal if r["event"] == "EXIT_FILLED"]
+    # reason is "structure_stop @ {trigger_level}" -- trigger_level=63500.0 for this fixture
+    assert exit_filled_rows[-1]["expected_price"] == pytest.approx(63500.0)
+    # fake_broker.poll_fill always returns filled_avg_price=64000.0
+    assert exit_filled_rows[-1]["fill_price"] == pytest.approx(64000.0)
+    assert exit_filled_rows[-1]["slippage_bps"] == pytest.approx(
+        (64000.0 - 63500.0) / 63500.0 * 10_000.0)
 
 
 def test_manage_positions_max_hold_flattens(tmp_path, fake_broker):
@@ -391,6 +404,70 @@ def test_manage_positions_catastrophe_cap_when_no_trigger_level(tmp_path, fake_b
     now = entered + timedelta(minutes=10)
     results = ctc.manage_positions(cfg, creds=_CREDS, now_utc=now, live=True)
     assert results[0]["actions"][0]["stage"] == "premium_stop"
+
+
+# ============================================================================
+# B6 friction calibration -- real exit-fill capture (TWIN-B6-SIM-FRICTION-CALIBRATION)
+# ============================================================================
+def test_parse_reason_price_extracts_trigger_level():
+    assert ctc._parse_reason_price("structure_stop @ 64314.98") == pytest.approx(64314.98)
+    assert ctc._parse_reason_price("runner_stop @ 64191.71") == pytest.approx(64191.71)
+    assert ctc._parse_reason_price("structure_stop @ 64353.43 (runner)") == pytest.approx(64353.43)
+    # no embedded trigger price -> genuinely undefined, not zero
+    assert ctc._parse_reason_price("time_stop_15:50") is None
+    assert ctc._parse_reason_price("max_hold_flatten") is None
+    assert ctc._parse_reason_price("ribbon_flip_back") is None
+    assert ctc._parse_reason_price(None) is None
+
+
+def test_manage_positions_watch_mode_never_journals_exit_filled(tmp_path, fake_broker):
+    """WATCH mode (live=False): market_sell_crypto returns {"_skipped": ...} with no "id" --
+    the B6 poll must never fire (mirrors the pre-existing live-only guard on every other
+    broker-touching branch in this module)."""
+    cfg = _twin_cfg(tmp_path, notional_usd=200.0)
+    fake_broker.position_qty = ctc.entry_qty_btc(cfg)
+    entered = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
+    ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0, trigger_level=63500.0, live=True,
+                    now_utc=entered)
+    fake_broker.quote = (64100.0, 64050.0)
+    now = entered + timedelta(minutes=10)
+    ctc.manage_positions(cfg, creds=_CREDS, now_utc=now, live=False, last_closed_close=63400.0)
+    journal = [json.loads(l) for l in (cfg.state_dir / "journal.jsonl").read_text().splitlines()]
+    assert not any(r["event"] == "EXIT_FILLED" for r in journal)
+
+
+def test_manage_positions_failed_sell_all_never_journals_exit_filled(tmp_path, fake_broker, monkeypatch):
+    """A broker-rejected SELL_ALL (close_failed=True) must never poll for a fill that was
+    never accepted -- same guard class as test_manage_positions_failed_sell_all_keeps_
+    position_for_retry, extended to the new B6 telemetry call."""
+    cfg = _twin_cfg(tmp_path, notional_usd=200.0)
+    fake_broker.position_qty = ctc.entry_qty_btc(cfg)
+    entered = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
+    ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0, trigger_level=None, live=True,
+                    now_utc=entered)
+    monkeypatch.setattr(ctc.broker, "market_sell_crypto",
+                        lambda creds, *, symbol, qty, live: {"_error": "HTTP Error 403: Forbidden",
+                                                             "_status": 403})
+    fake_broker.quote = (62000.0, 61900.0)  # crosses the -3% premium fallback -> SELL_ALL
+    now = entered + timedelta(minutes=10)
+    ctc.manage_positions(cfg, creds=_CREDS, now_utc=now, live=True)
+    journal = [json.loads(l) for l in (cfg.state_dir / "journal.jsonl").read_text().splitlines()]
+    assert not any(r["event"] == "EXIT_FILLED" for r in journal)
+
+
+def test_journal_exit_fill_capture_error_fails_open(tmp_path, monkeypatch):
+    """A poll_fill exception must never propagate -- it's telemetry captured AFTER the
+    real exit already happened; a capture bug must not become a trading-path incident."""
+    cfg = _twin_cfg(tmp_path)
+
+    def _boom(creds, order_id, attempts=4, sleep_sec=1.5):
+        raise RuntimeError("network blip")
+    monkeypatch.setattr(ctc.broker, "poll_fill", _boom)
+    ctc._journal_exit_fill(cfg, creds=_CREDS, order_id="sell-1", kind="SELL_ALL",
+                           reason="structure_stop @ 64000.0", scenario=None)  # must not raise
+    journal = [json.loads(l) for l in (cfg.state_dir / "journal.jsonl").read_text().splitlines()]
+    assert journal[-1]["event"] == "EXIT_FILLED_CAPTURE_ERROR"
+    assert "network blip" in journal[-1]["error"]
 
 
 def test_manage_positions_blocked_no_account_when_creds_none(tmp_path, fake_broker):

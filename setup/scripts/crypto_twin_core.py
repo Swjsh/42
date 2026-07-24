@@ -86,10 +86,25 @@ enough to trip them, since n_orders_lifetime was 0 before this session):
     max-hold instead. Fixed by passing `last_closed_close=price` (mirrors
     automation/state/fleet/exit_actuator.manage_tick's own real wiring of the same
     parameter -- the twin had simply never adopted it).
+
+B6 EXIT-FILL CAPTURE (2026-07-23, queue TWIN-B6-SIM-FRICTION-CALIBRATION): a real gap found
+while scoping B6 -- entries already poll_fill() + journal a FILLED row with the true
+filled_avg_price (place_entry, TWIN-B3's entry-quality machinery), but SELL_PARTIAL/SELL_ALL
+never did the same: the CLOSED/MANAGED journal row's "broker" field was always the raw PLACE
+response (status="pending_new", filled_avg_price=null) -- the true exit fill price was placed
+but never captured anywhere, so exit-side friction (structure_stop/runner_stop/cat_cap slippage
+vs the trigger price named in `a.reason`) was silently un-measurable. Fixed: manage_positions
+now polls the SAME broker.poll_fill() helper after a live SELL_PARTIAL/SELL_ALL and journals an
+additive "EXIT_FILLED" row (expected_price parsed from `a.reason`'s "kind @ price" convention,
+fill_price, time_to_fill_sec, slippage_bps) alongside the existing CLOSED/MANAGED row -- purely
+additive telemetry, zero change to close_failed/dec.closes_position control flow (poll failures
+fail open, same fail-open contract as the entry-side poll). Calibration reader:
+setup/scripts/crypto_twin_friction_calibration.py.
 """
 from __future__ import annotations
 
 import json
+import re
 import sys
 import time
 from dataclasses import dataclass, field, replace
@@ -459,6 +474,51 @@ def _risk_gate_check(cfg: TwinConfig, *, equity: float, sod_equity: float,
                "min_contracts": cfg.min_contracts})
 
 
+_REASON_PRICE_RE = re.compile(r"@\s*([0-9]+(?:\.[0-9]+)?)")
+
+
+def _parse_reason_price(reason: Optional[str]) -> Optional[float]:
+    """Extract the trigger price from exit_manager's "kind @ price" reason convention
+    (e.g. "structure_stop @ 64314.98", "runner_stop @ 64191.71", "premium_stop @ 64186.49").
+    Returns None for reasons with no embedded price (time_stop_15:50, max_hold_flatten,
+    ribbon_flip_back, chaos_drill_restore) -- those have no single trigger level to diff
+    a fill against, so slippage is genuinely undefined for them, not zero."""
+    if not reason:
+        return None
+    m = _REASON_PRICE_RE.search(reason)
+    return float(m.group(1)) if m else None
+
+
+def _journal_exit_fill(cfg: TwinConfig, *, creds: dict, order_id: Optional[str],
+                       kind: str, reason: Optional[str], scenario: Optional[str]) -> None:
+    """B6 friction calibration (TWIN-B6-SIM-FRICTION-CALIBRATION): poll the REAL exit fill
+    (same broker.poll_fill() helper place_entry already uses on the entry side) and journal
+    an additive "EXIT_FILLED" row -- expected_price (parsed from `reason`), fill_price,
+    latency, and slippage_bps (positive = fill better than the reason-stated trigger price
+    for a sell, i.e. filled ABOVE the stop/target level; negative = worse/gapped-through).
+    Fail-open by design: any exception here is swallowed -- this function runs AFTER the
+    real sell order has already been placed and journaled (CLOSED/MANAGED), so a failure
+    to capture calibration telemetry must never mask or retry the underlying exit."""
+    if not order_id:
+        return
+    try:
+        t0 = time.monotonic()
+        fill = broker.poll_fill(creds, order_id, attempts=4, sleep_sec=1.5)
+        latency = round(time.monotonic() - t0, 3)
+        fill_price = fill.get("filled_avg_price")
+        expected_price = _parse_reason_price(reason)
+        slippage_bps = None
+        if fill_price and expected_price:
+            slippage_bps = round((float(fill_price) - expected_price) / expected_price * 10_000.0, 4)
+        _journal(cfg, "EXIT_FILLED", symbol=cfg.symbol, order_id=order_id, kind=kind,
+                reason=reason, scenario=scenario, expected_price=expected_price,
+                fill_price=fill_price, time_to_fill_sec=latency, slippage_bps=slippage_bps,
+                fill_status=fill.get("status"))
+    except Exception as e:  # noqa: BLE001 -- fail-open telemetry, see docstring
+        _journal(cfg, "EXIT_FILLED_CAPTURE_ERROR", symbol=cfg.symbol, order_id=order_id,
+                error=f"{type(e).__name__}: {e}")
+
+
 # --- exit management (T2) -- mirrors fleet's exit_actuator.manage_tick shape -------------
 def _make_ribbon_flip_fn(ribbon_stack: Optional[str]):
     if not ribbon_stack:
@@ -591,6 +651,12 @@ def manage_positions(cfg: TwinConfig, *, creds: Optional[dict], now_utc: datetim
                 _journal(cfg, event, symbol=symbol,
                         kind=a.kind, units=units_sold, btc_qty=btc_qty, stage=a.stage, reason=a.reason,
                         broker=res, scenario=scenario)
+                # B6 friction calibration: capture the REAL exit fill (additive telemetry
+                # only -- see _journal_exit_fill docstring; never runs on a close_failed/
+                # unaccepted order, never affects close_failed/dec.closes_position above).
+                if live and not close_failed and res.get("id"):
+                    _journal_exit_fill(cfg, creds=creds, order_id=res.get("id"), kind=a.kind,
+                                       reason=a.reason, scenario=scenario)
             elif a.kind == "RATCHET_STOP":
                 executed.append({"kind": "RATCHET_STOP", "stage": a.stage,
                                  "new_stop_premium": a.new_stop_premium, "reason": a.reason})

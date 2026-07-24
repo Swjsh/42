@@ -517,9 +517,14 @@ def _dry_tp1_trail(ctc, n: int, *, quotes=_TP1_TRAIL_QUOTES) -> dict:
                                          now_utc=entered + timedelta(minutes=10 * i), live=True)
             journal = _read_journal(cfg)
             stages_seen = [r.get("stage") for r in journal if r.get("event") in ("MANAGED", "CLOSED")]
-            closed = journal[-1] if journal else {}
-            ok = (closed.get("event") == "CLOSED" and closed.get("stage") == "trail"
-                  and "tp1" in stages_seen)
+            # B6 (TWIN-B6-SIM-FRICTION-CALIBRATION, 2026-07-23): an additive "EXIT_FILLED"
+            # telemetry row now trails every real CLOSED/MANAGED row -- CLOSED is no longer
+            # guaranteed journal[-1] (see crypto_twin_core._journal_exit_fill). Find the last
+            # CLOSED row specifically, matching the same fix applied to
+            # test_crypto_twin_core.py::test_manage_positions_trailing_runner_ratchets_then_stops.
+            closed_rows = [r for r in journal if r.get("event") == "CLOSED"]
+            closed = closed_rows[-1] if closed_rows else {}
+            ok = (closed.get("stage") == "trail" and "tp1" in stages_seen)
             results.append({"ok": ok, "stages_seen": stages_seen, "journal_tail": journal[-3:]})
     return _summarize_dry("tp1_trail", results)
 
@@ -542,8 +547,10 @@ def _dry_structure_stop(ctc, n: int, *, last_closed_close=63400.0) -> dict:
                 ctc.manage_positions(cfg, creds=_DRY_CREDS, now_utc=entered + timedelta(minutes=10),
                                      live=True, last_closed_close=last_closed_close)
             journal = _read_journal(cfg)
-            closed = journal[-1] if journal else {}
-            ok = closed.get("event") == "CLOSED" and closed.get("stage") == "structure_stop"
+            # B6: see _dry_tp1_trail's comment -- CLOSED no longer guaranteed journal[-1].
+            closed_rows = [r for r in journal if r.get("event") == "CLOSED"]
+            closed = closed_rows[-1] if closed_rows else {}
+            ok = closed.get("stage") == "structure_stop"
             results.append({"ok": ok, "journal_tail": journal[-2:]})
     return _summarize_dry("structure_stop", results)
 
@@ -567,8 +574,10 @@ def _dry_catastrophe_cap(ctc, n: int, *, adverse_quote=(62000.0, 61900.0)) -> di
                 fb.quote = adverse_quote
                 ctc.manage_positions(cfg, creds=_DRY_CREDS, now_utc=entered + timedelta(minutes=10), live=True)
             journal = _read_journal(cfg)
-            closed = journal[-1] if journal else {}
-            ok = closed.get("event") == "CLOSED" and closed.get("stage") == "premium_stop"
+            # B6: see _dry_tp1_trail's comment -- CLOSED no longer guaranteed journal[-1].
+            closed_rows = [r for r in journal if r.get("event") == "CLOSED"]
+            closed = closed_rows[-1] if closed_rows else {}
+            ok = closed.get("stage") == "premium_stop"
             results.append({"ok": ok, "journal_tail": journal[-2:]})
     return _summarize_dry("catastrophe_cap", results)
 

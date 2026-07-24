@@ -240,6 +240,52 @@ layer, mapped broadly/conservatively); `strategies.py`/`build_shared_signal.py`/
 sites: `run-conductor.ps1` primary, `setup/guard_runner_slow.py` nightly fallback --
 idempotent, dedup by newest implicated commit sha).
 
+## B6 shipped (2026-07-23, conductor overnight lane) — exit-fill capture + friction calibration
+
+Queue item TWIN-B6-SIM-FRICTION-CALIBRATION. Scoping found a real gap: entries already
+`poll_fill()` + journal the TRUE `filled_avg_price` (TWIN-B3's entry-quality machinery), but
+`manage_positions`' SELL_PARTIAL/SELL_ALL never did the same — the CLOSED/MANAGED journal
+row's `"broker"` field was always the raw PLACE response (`status="pending_new"`,
+`filled_avg_price=null`), so exit-side friction (structure_stop/runner_stop/cat_cap slippage
+vs the trigger price named in `a.reason`) was silently un-measurable despite 70 real CLOSED
+events already on file.
+
+**Shipped:** `crypto_twin_core.manage_positions` now polls the SAME `broker.poll_fill()`
+helper after a live SELL_PARTIAL/SELL_ALL and journals an additive `"EXIT_FILLED"` row
+(`expected_price` parsed from `a.reason`'s `"kind @ price"` convention via `_parse_reason_price`,
+`fill_price`, `time_to_fill_sec`, `slippage_bps`) — purely additive telemetry, zero change to
+`close_failed`/`dec.closes_position` control flow (fails open on a poll exception, same
+contract as the entry-side poll). Reader: `setup/scripts/crypto_twin_friction_calibration.py`
+— reads `entry-quality.json`'s existing "marketable" cohort (ENTRY market-order friction,
+already n=51: avg slippage ≈ **+0.80bps favorable**, avg latency 0.29s) plus the new
+`EXIT_FILLED` rows (0 samples yet, will accrue from every live twin exit going forward),
+cross-references `backtest/lib/simulator_real.py`'s `DEFAULT_ENTRY_SLIPPAGE`/
+`DEFAULT_EXIT_SLIPPAGE` ($0.02/contract) live via import (not a hand-copied number), and
+writes `automation/state/crypto-twin/friction-calibration.json`.
+
+**Honest caveat found while scoping (not fixed this fire):** every twin exit stage —
+structure_stop / catastrophe cap / TP1-trail / premium_stop / runner_stop / time_stop /
+max_hold — is placed as a **market** order (`manage_positions` → `broker.market_sell_crypto`
+unconditionally). The twin has no exit-side passive/limit lane (only entries got the TWIN-B3
+passive-limit graduation), so its exit calibration data will only ever be comparable to
+`simulator_real.py`'s `DEFAULT_EXIT_SLIPPAGE` (market-exit) bucket — it can **never** validate
+the "TP1/premium_stop/BE-stop fill exactly at the bracket level, zero slippage" limit-exit
+assumption the SPY sim also makes. Flagged, not built — a future TWIN-B6b (exit-side
+passive-limit lane, mirroring TWIN-B3) would be the fix if that assumption ever needs testing.
+
+**Guards:** 6 new tests in `test_crypto_twin_core.py` (`_parse_reason_price` on real reason
+strings incl. no-price reasons; WATCH-mode never journals `EXIT_FILLED`; a broker-rejected
+SELL_ALL never journals `EXIT_FILLED`; a `poll_fill` exception fails open via
+`EXIT_FILLED_CAPTURE_ERROR`), 2 existing `journal[-1]==CLOSED` assertions updated to find the
+CLOSED row explicitly (EXIT_FILLED now legitimately trails it) — same fix ALSO required in
+`twin_gauntlet.py`'s `_dry_tp1_trail`/`_dry_structure_stop`/`_dry_catastrophe_cap` (caught live
+this fire: `--dry` mode FAILED 3/4 touched paths before the fix, PASSED 6/6 after — the
+gauntlet is exactly the "diffs vs expected" backpressure it's designed to be). 7 new tests in
+`test_crypto_twin_friction_calibration.py` (sign convention, stage grouping, accruing verdict,
+real backtest-constant import resolves non-None). 268/268 crypto-twin+gauntlet suite green,
+curated safety gate PASS. Revert: `git revert` the commit — zero decision/action logic touched,
+purely additive journal rows + a new read-only reader script.
+
 ## Doctrine proposal (drafted 2026-07-23, conductor, TWIN-DOCTRINE-FIRST-DEPLOY — propose-only, PENDING J RATIFICATION)
 
 This closes the last open "Build order" line above. The conductor rail-4 carve-out that
