@@ -54,7 +54,8 @@ the next SPY session). If not accumulating within ~2 weeks, re-examine the progr
   ledger. See "B4 shipped" section below.
 - **B5 (queued):** pattern-grammar shadow telemetry on twin.
 - **Doctrine:** CLAUDE.md one-liner proposal (propose-only) folding the amended crypto
-  boundary + this program's existence; memory entry.
+  boundary + this program's existence; memory entry. **DRAFTED 2026-07-23 (conductor,
+  TWIN-DOCTRINE-FIRST-DEPLOY) — pending J ratification, see "Doctrine proposal" below.**
 
 ## B3 shipped (2026-07-15) — passive-limit entry LIVE A/B (stream 3, EDGE-1 graduation)
 
@@ -238,3 +239,36 @@ layer, mapped broadly/conservatively); `strategies.py`/`build_shared_signal.py`/
 `automation/state/crypto-twin/gauntlet-conductor-watermark.json` (shared by both call
 sites: `run-conductor.ps1` primary, `setup/guard_runner_slow.py` nightly fallback --
 idempotent, dedup by newest implicated commit sha).
+
+## Doctrine proposal (drafted 2026-07-23, conductor, TWIN-DOCTRINE-FIRST-DEPLOY — propose-only, PENDING J RATIFICATION)
+
+This closes the last open "Build order" line above. The conductor rail-4 carve-out that
+lets an autonomous fire ship PAPER trading-path edits does NOT cover `CLAUDE.md` itself
+(doctrine stays J-first, full stop) — so this section is a DRAFT for J to ratify, not a
+shipped change. Nothing in CLAUDE.md has been edited by this fire.
+
+**Why now, not invented:** the conductor hook (`twin_gauntlet_conductor_hook.py`) has
+been advisory-flagging trading-path commits without a gauntlet pass since B2 (2026-07-11)
+— this proposal is the practice that's already running getting a doctrine anchor, not a
+new behavior being bolted on.
+
+**Proposed CLAUDE.md text** (one sentence appended to existing OP-31, same bullet the
+Kitchen already lives in — both are 24/7 free-tier-ish autonomous R&D loops, so folding
+saves a whole new numbered OP and its context-budget cost):
+
+> **Twin-first deploy (2026-07-23):** any new watcher/detector/exit-lifecycle feature runs
+> 24-48h on the 24/7 crypto twin (paper, mechanism-validation only — twin P&L is never SPY
+> evidence) before touching a SPY execution path. Spec: [`TWIN-PROGRAM.md`](markdown/planning/TWIN-PROGRAM.md).
+
+**Context-budget honesty (OP-33):** `check-context-budget.ps1` reads YELLOW 8848/9000
+(98%) as of this draft. The proposed sentence is ~60 tokens — lands at ~8923/9000, stays
+YELLOW, does NOT cross the 9000 RED line, but leaves near-zero headroom for the next
+addition. Flagging this rather than silently accepting it; a dedicated context-leanness
+trim pass (last one: 2026-07-21) is due again soon, independent of this proposal.
+
+**Ratification path:** filed as `conductor-proposals.jsonl` proposal id
+`gp-2026-07-23-twin-doctrine-001` (no `eval_bar_cleared` — this is doctrine, not a
+validated edge, so it does NOT auto-apply; it sits pending until J replies `ship
+gp-2026-07-23-twin-doctrine-001` on Discord or approves on the companion wrist card).
+Once approved, `AutoApply` performs the single exact-string OP-31 replacement, runs the
+safety gate, commits, and the memory entry below is confirmed live.

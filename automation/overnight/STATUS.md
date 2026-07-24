@@ -1,3 +1,63 @@
+## [2026-07-23 ~20:42-20:56 ET] OK -- conductor (AFTERHOURS): TWIN-DOCTRINE-FIRST-DEPLOY drafted (propose-only, pending J), commit pending
+
+> **STAGE 0/1:** ET confirmed 20:42 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` (MED, doctrine,
+> propose-only, `depends:TWIN-B1`). Verified the dependency: TWIN-B1 has no standalone
+> checkbox but every downstream twin task (B1.5/B3/B4/B5/B6/B7) references it as `done` in
+> practice (CRYPTO-TWIN-T1-T4 closed 07-11, superseded straight into B1-B2) -- dependency
+> satisfied. This is TWIN-PROGRAM.md's last open "Build order" line: "CLAUDE.md one-liner
+> proposal (propose-only) folding the amended crypto boundary + this program's existence."
+
+> **What shipped (drafted, not applied to CLAUDE.md -- doctrine stays J-first per rail-4):**
+> a new "Doctrine proposal" section in `markdown/planning/TWIN-PROGRAM.md` with the exact
+> proposed text -- one sentence appended to existing OP-31 (folds into the Kitchen bullet,
+> not a new numbered OP, to avoid extra context-budget cost): "**Twin-first deploy
+> (2026-07-23):** any new watcher/detector/exit-lifecycle feature runs 24-48h on the 24/7
+> crypto twin (paper, mechanism-validation only -- twin P&L is never SPY evidence) before
+> touching a SPY execution path." This formalizes practice `twin_gauntlet_conductor_hook.py`
+> has already been advisory-enforcing since B2 (2026-07-11) -- doctrine anchor for an
+> existing behavior, not a new one.
+
+> **Context-budget checked before drafting (OP-33):** ran `check-context-budget.ps1` --
+> YELLOW 8848/9000 (98%) BEFORE this fire. The proposed sentence is ~60 tokens, landing at
+> ~8923/9000 if applied -- stays YELLOW, does NOT cross the 9000 RED line, but leaves
+> near-zero headroom. Flagged honestly in the proposal/draft rather than silently absorbed;
+> did not scope-creep into an unrelated trim pass this fire (last trim: 2026-07-21).
+
+> **Filed for J's REVOKE/APPROVE surface:** `conductor-proposals.jsonl` id
+> `gp-2026-07-23-twin-doctrine-001` (apply_ops targets the exact, verified-unique OP-31
+> string in CLAUDE.md; NO `eval_bar_cleared` -- doctrine, not a validated edge, so it will
+> NOT auto-apply). Discord ping queued (`gamma-ops`). Companion wrist-card enqueued
+> (`gamma-companion/lib/approvals.enqueueApproval`, same id). Reply `ship
+> gp-2026-07-23-twin-doctrine-001` (or thumbs-up / wrist Approve) to have `AutoApply`
+> perform the edit + safety gate + commit; `shelve ...` / thumbs-down to drop.
+
+> **queue.md** `TWIN-DOCTRINE-FIRST-DEPLOY` updated with the same evidence, left
+> `status:pending` (correctly -- CLAUDE.md itself is untouched pending J).
+
+> **Verified this fire (OP-33):** re-ran `check-context-budget.ps1` post-edit -- still
+> YELLOW 8848/9000 (CLAUDE.md itself untouched, as intended). Confirmed the `find` string
+> occurs exactly once in CLAUDE.md via a Python occurrence-count check before filing
+> apply_ops (a non-unique `find` would be refused by AutoApply). Confirmed the discord-bridge
+> reads `content` (used) with `message` fallback -- correct schema.
+
+> **Learn (STAGE 4.5):** none new this fire -- straightforward propose-only doctrine
+> authoring, no foot-gun hit.
+
+> **Scope + revert:** `markdown/planning/TWIN-PROGRAM.md` (1 new section) +
+> `automation/overnight/queue.md` (1 item annotated) + `conductor-proposals.jsonl` (1 append)
+> + `discord-outbox.jsonl` (1 append) + 1 new gamma-memory file + `MEMORY.md` index line.
+> Zero params/heartbeat_core/filters/placement/exit/CLAUDE.md touched this fire (CLAUDE.md
+> change is a PROPOSAL only, applied later by AutoApply if/when J approves). Revert: `git
+> revert <this-commit>` (once committed); the CLAUDE.md edit itself has never landed, so
+> there is nothing to revert there yet.
+
+> **Cost: ~$2.3** (STAGE 0/1 reads, dependency trace, draft authoring across 2 docs, exact
+> unique-string verification, proposal + Discord + companion filing, STATUS/queue write-up,
+> conductor_outcome record+metric).
+
+---
+
 ## [2026-07-23 ~19:48-19:58 ET] OK -- conductor (AFTERHOURS): fixed participation-cascade misclassifying real fills as stale_trigger_bar, corrected today's false RED alert, commit `9d79939c`
 
 > **STAGE 0/1:** ET confirmed 19:48 (Thursday, market closed since 15:55). `engine-health.json`
@@ -642,56 +702,3 @@
 
 ---
 
-## [2026-07-23 ~20:12-20:30 ET] OK -- conductor (AFTERHOURS): PARTICIPATION-DAILY-SELF-CHECK-WIRE closed -- goal-layer verdict now surfaces through self_check's DEGRADED/BROKEN pipeline
-
-> **STAGE 0/1:** ET confirmed 20:12 (Thursday, market closed since 15:55). `engine-health.json`
-> GREEN 13/13. `task_scorer.py --top` returned `PARTICIPATION-DAILY-SELF-CHECK-WIRE` (MED) --
-> the same item the 19:48 fire correctly re-scoped (phantom dependency removed, real blocker =
-> "simply not yet done"). Self-audit gaps file fully triaged through the 17:31 batch, nothing
-> new to action there.
-
-> **What shipped:** `check_participation_daily(now, path=None)` added to `setup/scripts/
-> self_check.py`, same shape as `check_fill_funnel` (participation_cascade.py's own module
-> docstring names this exact hookup as the intended next step). Reads `automation/state/
-> participation-daily.json`'s per-account goal-layer verdict (safe/bold fills-vs-target,
-> written daily 16:10 ET by `participation_daily.py`) instead of recomputing anything:
-> RED (a CONFIRMED hole -- an account formed >=5 ENTER verdicts today and filled ZERO,
-> `RED_ENTER_VERDICT_FLOOR`) -> BROKEN; YELLOW (fills below the account's own daily-min
-> target, not zero) -> DEGRADED; IDLE (nothing scored today) / GREEN (target met) stay silent.
-> Staleness (missing/wrong-dated artifact) is only judged BROKEN after 16:20 ET on a weekday --
-> mirrors `check_dress_rehearsal`'s evening-only staleness window so it never false-alarms
-> mid-session or before the daily 16:10 ET fire has run. Wired into `run()` as step 8b, right
-> after `check_fill_funnel`.
-
-> **Verified this fire (OP-33):** 15 new tests in `backtest/tests/test_self_check_participation_
-> daily.py` (severity mapping RED->BROKEN/YELLOW->DEGRADED/IDLE+GREEN silent, staleness window
-> midday/evening/weekend, run()-wiring) all green; full self_check+participation test slice
-> `pytest -k "self_check or participation"` 161/161 green. **Live-verified, not just unit-
-> tested:** ran `self_check.run()` against the REAL repo state and it surfaced a genuine,
-> previously-invisible-to-self_check finding -- `PARTICIPATION DEGRADED (YELLOW): below
-> daily-min target -- bold=1/2-4` -- confirmed independently moments later when the live
-> `Gamma_SelfCheck` scheduled task (running on its own ~30min cadence, unrelated to this
-> session) picked up the same code and appended the identical finding to this very file (see
-> the two `### DEGRADED: self-check 2026-07-23T20:2{0,1}:*` blocks immediately above this
-> entry) -- the wiring is proven end-to-end in production, same session, same fire.
-
-> **Learn (STAGE 4.5):** no new foot-gun this fire -- this closes a previously-filed gap
-> rather than surfacing a new one. Noted for the record: the "verify live, not just via
-> pytest" discipline (OP-33) caught this instrument actually firing in production within the
-> same fire that shipped it, rather than trusting the unit tests alone.
-
-> **Scope + revert:** `setup/scripts/self_check.py` (1 new function + 1 call-site line) +
-> `backtest/tests/test_self_check_participation_daily.py` (new, 15 tests) + `queue.md`
-> (checkbox flip + evidence) + this STATUS.md entry. Also included in this commit: STATUS.md's
-> own live self-check appends (2 DEGRADED blocks, written by the independently-running
-> `Gamma_SelfCheck` task during this fire) and a live `crypto-twin` sentinel append to
-> queue.md (`TWIN-ESCALATION-20260723-...BREAKER_TRIPPED`, unrelated background monitor
-> output, not investigated this fire -- flagged for a future pick). Zero params/heartbeat_core/
-> filters/placement/exit/CLAUDE.md touched -- pure observability-instrument authoring,
-> engine-benefit, ships per OP-22/26, no J ratification needed.
-
-> **Cost: ~$2.9** (STAGE 0/1 reads, tracing participation_cascade.py's suggested hookup +
-> participation_daily.py's verdict schema + self_check.py's existing check patterns, new
-> function + wiring, 15 new tests, curated self_check+participation test slice, live
-> `self_check.run()` verification against real repo state, queue/STATUS write-up,
-> conductor_outcome record+metric).
