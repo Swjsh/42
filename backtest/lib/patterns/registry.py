@@ -4,17 +4,23 @@
 slash, which TA-PATTERN-REFERENCE.md sec C.3/C.4 treats as two genuinely different
 patterns — different bias, different Bulkowski stats, different predicate composition —
 so this registry seeds BOTH as separate entries; every other brief item maps 1:1) PLUS
-one live-tape-driven addition, engulfing_at_swing_shelf (2026-07-23, filed from
-queue.md ENGULFING-AT-STRUCTURE-TRIGGER — an engulfing-candle-at-a-fresh-intraday-
-swing-shelf composition J called live on two mirror-symmetric days that neither
-engulfing_at_level (named-level anchor) nor double_top_bottom_at_level (neckline-break
-resolution, not a same-bar reaction) covers) — 12 rules total as of that addition.
+two live-tape-driven additions filed the same day from queue.md
+ENGULFING-AT-STRUCTURE-TRIGGER: engulfing_at_swing_shelf (an engulfing-candle-at-a-
+fresh-intraday-swing-shelf composition J called live on two mirror-symmetric days that
+neither engulfing_at_level (named-level anchor) nor double_top_bottom_at_level
+(neckline-break resolution, not a same-bar reaction) covers — but which ITSELF turned
+out not to fire on either exhibit, see its anchors) and its direct follow-up
+engulfing_at_local_cluster (same 2 exhibits, swaps the swing-pivot anchor for the new
+no-confirmation-lag local_extreme_cluster primitive — VERIFIED to fire on both via
+pattern_anchor_verify.py) — 13 rules total as of that addition.
 
 Full citation table + Tier-1/2 rationale + the "why 15 predicates not exactly 10-14, why
 these 11 seed rules, what's deliberately excluded (harmonics/Elliott)" design discussion
 lives in markdown/research/PATTERN-GRAMMAR.md sec 2 (engulfing_at_swing_shelf's own
-rationale is inline on its PatternRule + _engulfing_at_swing_shelf_predicate below).
-This file is the executable contract; the doc is the reasoning.
+rationale is inline on its PatternRule + _engulfing_at_swing_shelf_predicate below;
+engulfing_at_local_cluster's is inline on its own PatternRule +
+_engulfing_at_local_cluster_predicate). This file is the executable contract; the doc
+is the reasoning.
 
 NO WIRING: nothing here is imported by the live engine, setup_dispatch, or any watcher.
 This registry is consumed ONLY by backtest/tools/pattern_prescreen.py (frequency/
@@ -37,6 +43,7 @@ from .predicates import (
     gap_event,
     inside_bar,
     level_proximity,
+    local_extreme_cluster,
     monotone_swings,
     near_vwap,
     pullback_depth,
@@ -62,6 +69,19 @@ GAP_MAX_PCT = 0.015                 # matches backtest/lib/watchers/gap_and_go_w
 NR7_LOOKBACK = 7                    # Toby Crabel's "narrowest range of 7" -- no published failure-rate stat
 NR7_BREAK_WINDOW = 6
 VWAP_PROXIMITY_DOLLARS = 0.15
+LOCAL_CLUSTER_TOLERANCE_DOLLARS = 0.20  # matches FLAT_TOLERANCE_DOLLARS -- same "same level" convention
+LOCAL_CLUSTER_LOOKBACK_BARS = 8         # 40min on 5m bars -- covers both 07-21 (6-bar span) and 07-23 (7-bar span) anchors
+LOCAL_CLUSTER_MIN_TOUCHES = 3           # C27 prescreen forced this up from 2 (NOISE-KILL, 100%days/8.5 fires-day) --
+                                         # both anchors independently carry exactly 3 touches at this tolerance/lookback
+                                         # (grid-searched: n_touches=3 is the MAX achievable while both anchors still
+                                         # fire -- the bearish anchor's 3rd touch needs tolerance>=0.13, and even the
+                                         # loosest still-anchor-passing config stayed NOISE-KILL on pct_days alone, so
+                                         # n_touches was necessary-but-not-sufficient; see MIN_BODY_DOLLARS below)
+LOCAL_CLUSTER_MIN_BODY_DOLLARS = 0.40   # engulfing()'s own geometry has NO minimum body size -- a large fraction of
+                                         # its fires are small-body noise-band flips. Grid-searched discriminator: both
+                                         # anchors' real bodies (0.769 bullish / 1.40 bearish) clear this with margin,
+                                         # and it is what actually pushes pct_days_fired under the C27 80% NOISE-KILL
+                                         # line (touches=3 alone stayed 91-99% NOISE-KILL across every tolerance tried)
 
 
 # ── rule-local predicates (geometry specific enough to one rule that decomposing it
@@ -201,6 +221,41 @@ def _engulfing_at_swing_shelf_predicate(ctx: PatternContext, t: int) -> Optional
         shelf = flat_side(kind="swing_high", n_touches=2, tolerance=FLAT_TOLERANCE_DOLLARS)(ctx, t)
         if shelf is not None and abs(bar.close - shelf["trigger_level"]) <= LEVEL_PROXIMITY_DOLLARS:
             return {"bias": "bearish", "touch_spread": shelf["touch_spread"], **shelf, **bear}
+    return None
+
+
+def _engulfing_at_local_cluster_predicate(ctx: PatternContext, t: int) -> Optional[dict]:
+    """Bullish engulfing at a rolling-K-bar LOW cluster, or bearish engulfing at a
+    rolling-K-bar HIGH cluster -- the follow-up primitive named in
+    engulfing_at_swing_shelf's own anchor notes (queue.md ENGULFING-AT-STRUCTURE-
+    TRIGGER, 2026-07-23): flat_side()/labeled_swings' pivot-confirmation timescale
+    cannot see J's two exhibits (both resolve in 1-5 bars, ~8 cents apart); this rule
+    swaps that anchor for local_extreme_cluster(), which reads raw ctx.bars[<=t]
+    directly with zero confirmation lag. Same zero-shared-state two-branch shape as
+    _engulfing_at_swing_shelf_predicate/_engulfing_at_level_predicate."""
+    bar = ctx.bars[t]
+    bull = engulfing(direction="bullish")(ctx, t)
+    if bull is not None and bull["engulfed_body_dollars"] >= LOCAL_CLUSTER_MIN_BODY_DOLLARS:
+        cluster = local_extreme_cluster(
+            kind="low", n_touches=LOCAL_CLUSTER_MIN_TOUCHES, tolerance=LOCAL_CLUSTER_TOLERANCE_DOLLARS, lookback=LOCAL_CLUSTER_LOOKBACK_BARS,
+        )(ctx, t)
+        # NOTE: proximity is checked against the bar's LOW (the wick that touches the
+        # cluster), not its close -- an engulfing reversal bar's close is, BY
+        # DEFINITION, on the far side of the level from the wick that reacted to it
+        # (same reasoning as wick_rejection's own near-level convention). Checking
+        # close here (as engulfing_at_swing_shelf/engulfing_at_level both do, since
+        # their anchor is a NAMED level the bar merely needs to be "at", not
+        # necessarily wick into) silently fails the exact reversal-wick shape this
+        # rule targets -- found via this fire's own anchor falsification, not assumed.
+        if cluster is not None and abs(bar.low - cluster["trigger_level"]) <= LEVEL_PROXIMITY_DOLLARS:
+            return {"bias": "bullish", **cluster, **bull}
+    bear = engulfing(direction="bearish")(ctx, t)
+    if bear is not None and bear["engulfed_body_dollars"] >= LOCAL_CLUSTER_MIN_BODY_DOLLARS:
+        cluster = local_extreme_cluster(
+            kind="high", n_touches=LOCAL_CLUSTER_MIN_TOUCHES, tolerance=LOCAL_CLUSTER_TOLERANCE_DOLLARS, lookback=LOCAL_CLUSTER_LOOKBACK_BARS,
+        )(ctx, t)
+        if cluster is not None and abs(bar.high - cluster["trigger_level"]) <= LEVEL_PROXIMITY_DOLLARS:
+            return {"bias": "bearish", **cluster, **bear}
     return None
 
 
@@ -461,6 +516,67 @@ REGISTRY: tuple[PatternRule, ...] = (
                         "root cause as the 07-21 anchor above -- see that note.",
             },
         ),
+    ),
+    PatternRule(
+        name="engulfing_at_local_cluster",
+        tier=2,
+        timeframes=TIMEFRAMES_ALL,
+        direction="bidirectional",
+        predicate=_engulfing_at_local_cluster_predicate,
+        citation="Standard OHLC engulfing-candle geometry (see engulfing_at_level's citation) +"
+                 " local_extreme_cluster (predicates.py sec 12b, NEW 2026-07-23 -- no published"
+                 " TA-PATTERN-REFERENCE.md citation; a raw-OHLC rolling-window cluster check built"
+                 " specifically because flat_side()/labeled_swings' pivot-confirmation timescale"
+                 " cannot see fast/tight double-top-or-bottom clusters). Filed as the direct"
+                 " follow-up engulfing_at_swing_shelf's own anchor notes named: queue.md"
+                 " ENGULFING-AT-STRUCTURE-TRIGGER (2026-07-23), same 2 live-tape exhibits. The"
+                 " min-body-dollars floor is a grid-searched discriminator (this fire), not a"
+                 " published stat -- disclosed as such, see LOCAL_CLUSTER_MIN_BODY_DOLLARS comment.",
+        thresholds={
+            "local_cluster_tolerance_dollars": LOCAL_CLUSTER_TOLERANCE_DOLLARS,
+            "local_cluster_lookback_bars": LOCAL_CLUSTER_LOOKBACK_BARS,
+            "local_cluster_min_touches": LOCAL_CLUSTER_MIN_TOUCHES,
+            "local_cluster_min_body_dollars": LOCAL_CLUSTER_MIN_BODY_DOLLARS,
+            "shelf_proximity_dollars": LEVEL_PROXIMITY_DOLLARS,
+        },
+        description="A bullish engulfing candle (body >= $0.40) within $0.30 of a rolling 8-bar LOW "
+                    "cluster (>=3 bars within $0.20 of bar t's own low), or a bearish engulfing "
+                    "candle (body >= $0.40) within $0.30 of a rolling 8-bar HIGH cluster -- the "
+                    "no-pivot-confirmation-lag sibling of engulfing_at_swing_shelf, built to catch "
+                    "fast/tight double-tops and double-bottoms the swing-pivot family structurally "
+                    "cannot see. min_touches=3 and min_body=$0.40 are BOTH load-bearing: the bare "
+                    "engulfing+cluster composition (2 touches, no body floor) is C27 NOISE-KILL "
+                    "(fires 92-99% of days across every tolerance tried) -- these are the tightest "
+                    "settings found (grid search, this fire) that still keep BOTH live-tape anchors "
+                    "firing.",
+        anchors=(
+            {
+                "date": "2026-07-21", "time_et": "11:05", "bias": "bullish",
+                "expected_fire": True,
+                "note": "J's original bullish exhibit (see engulfing_at_swing_shelf's matching "
+                        "anchor for the full falsification history of WHY the swing-pivot version "
+                        "doesn't fire here). VERIFIED this fire (pattern_anchor_verify.py, before "
+                        "committing): local_extreme_cluster(kind='low', lookback=8, tolerance=0.20) "
+                        "DOES register the 10:40/11:00/11:05 tri-touch cluster (~8c apart) that "
+                        "flat_side's confirmed-pivot read misses -- fires as declared.",
+            },
+            {
+                "date": "2026-07-23", "time_et": "10:40", "bias": "bearish",
+                "expected_fire": True,
+                "note": "J's mirror-symmetric bearish exhibit. VERIFIED this fire "
+                        "(pattern_anchor_verify.py, before committing): local_extreme_cluster"
+                        "(kind='high', lookback=8, tolerance=0.20) registers the adjacent-bar "
+                        "10:35/10:40 double-top (~8c apart) -- fires as declared.",
+            },
+        ),
+        # C27 PRESCREEN VERDICT (this fire, full history 2025-01-02..2026-07-22, 5m):
+        # TESTABLE -- 33.3% days, 0.460 fires/day, 9.66/month, recent-90d stable (no
+        # drift). Reached only AFTER adding local_cluster_min_touches=3 (from 2) +
+        # local_cluster_min_body_dollars=0.40 (from none) -- the bare composition was
+        # C27 NOISE-KILL (92-99% days across every tolerance grid-searched). Next step
+        # (not this fire, per rail 3): a frozen pre-reg + real-fills replay through
+        # exit_manager_walk, per the item's original BUILD spec (queue.md
+        # ENGULFING-AT-STRUCTURE-TRIGGER).
     ),
     PatternRule(
         name="island_reversal",

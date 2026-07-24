@@ -21,6 +21,10 @@ showing it DOES catch a deliberately future-peeking predicate.
 Primitive -> Step-1 inventory primitive it wraps or is modeled on (see
 markdown/research/PATTERN-GRAMMAR.md sec 1 for the full citation table):
   swing_label, monotone_swings, flat_side  -> crypto/lib/market_structure.py (HH/HL/LH/LL)
+  local_extreme_cluster                    -> NEW 2026-07-23 (no existing-codebase primitive --
+                                               a raw-OHLC rolling-window cluster check, deliberately
+                                               NOT built on ctx.structure/labeled_swings; see its
+                                               own docstring + queue.md ENGULFING-AT-STRUCTURE-TRIGGER)
   structure_event                          -> crypto/lib/market_structure.py (BOS/CHoCH)
   close_above, close_below, level_proximity -> backtest/lib/watchers/level_memory.py +
                                                 automation/state/key-levels.json
@@ -371,6 +375,68 @@ def flat_side(*, kind: str, n_touches: int = 2, tolerance: float = 0.20, window:
         return {
             "trigger_level": round(level, 2), "touch_count": n_touches,
             "touch_spread": round(max(prices) - min(prices), 4),
+        }
+    return _p
+
+
+# ── 12b. rolling-K-bar local-extreme cluster (no pivot-confirmation lag) ─────
+
+def local_extreme_cluster(*, kind: str, n_touches: int = 2, tolerance: float = 0.20, lookback: int = 8) -> Predicate:
+    """True iff at least `n_touches` bars within the `lookback`-bar window ending at t
+    (inclusive) have their extreme (low for kind="low", high for kind="high") within
+    `tolerance` $ of BAR T's OWN extreme -- a causal, NO-PIVOT-CONFIRMATION-LAG
+    alternative to flat_side()/labeled_swings for tight, fast-forming clusters that
+    resolve within a handful of bars.
+
+    Filed from queue.md ENGULFING-AT-STRUCTURE-TRIGGER's own falsification finding
+    (2026-07-23): flat_side()/ctx.structure.labeled_swings shares ONE confirmation
+    timescale across every swing-family rule (flat_side, monotone_swings,
+    double_top_bottom_at_level, engulfing_at_swing_shelf) that is too coarse to ever
+    register a double-top/bottom resolving within 2-5 bars and a few cents of price --
+    by the time a pivot is "confirmed" (needs `ctx.swing_window` bars of confirmation
+    AFTER it), a fast cluster has already been overtaken by the next swing and is read
+    as trend continuation, not a reversal touch. This primitive sidesteps confirmation
+    entirely, using only ctx.bars[<=t] directly (no ctx.structure dependency at all) --
+    structurally different from, not a tuning of, the swing-pivot family.
+
+    DELIBERATE DESIGN CHOICE (found via anchor falsification, not assumed): the cluster
+    is anchored to BAR T'S OWN extreme, not the window's global min/max. An earlier
+    version anchored to the window-wide extreme and FAILED both of this rule's own
+    falsification anchors -- a single unrelated spike bar earlier in the lookback
+    window (e.g. a brief overshoot 30-40min prior) becomes the window's global extreme
+    and swamps the real, tighter, MORE RECENT cluster the current bar is actually
+    reacting to. Anchoring to bar t directly (the bar under evaluation) finds "does
+    THIS bar revisit a level touched recently" and naturally ignores an unrelated
+    older spike that bar t itself is nowhere near. "trigger_level" = the mean of the
+    matched touches' extremes (matches flat_side's "trigger_level = mean of touch
+    prices" convention).
+
+    kind: "low" (support / double-bottom cluster) | "high" (resistance / double-top
+    cluster). Reads ctx.bars[max(0,t-lookback+1) : t+1] only -- C6-safe (never a bar
+    index beyond t)."""
+    if kind not in ("low", "high"):
+        raise ValueError("kind must be 'low' or 'high'")
+
+    def _p(ctx: PatternContext, t: int) -> Optional[dict]:
+        lo_idx = max(0, t - lookback + 1)
+        window = ctx.bars[lo_idx: t + 1]
+        if len(window) < n_touches:
+            return None
+        anchor = window[-1].low if kind == "low" else window[-1].high
+        if kind == "low":
+            touches = [b for b in window if abs(b.low - anchor) <= tolerance]
+            touch_prices = [b.low for b in touches]
+        else:
+            touches = [b for b in window if abs(b.high - anchor) <= tolerance]
+            touch_prices = [b.high for b in touches]
+        if len(touches) < n_touches:
+            return None
+        level = sum(touch_prices) / len(touch_prices)
+        return {
+            "trigger_level": round(level, 2),
+            "cluster_touch_count": len(touches),
+            "cluster_lookback_bars": lookback,
+            "cluster_touch_spread": round(max(touch_prices) - min(touch_prices), 4),
         }
     return _p
 
