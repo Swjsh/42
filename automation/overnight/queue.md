@@ -135,6 +135,31 @@
 > (`pattern_anchor_verify.py --rule <new_rule_name>`) instead of another hand-run OP-33
 > pass. Curated safety gate (31+5) PASS at both commits. Item stays `status:pending`.
 
+> **ROLLING-K-BAR CLUSTER PRIMITIVE BUILT + SHIPPED 2026-07-23 ~22:42-23:35 ET (conductor,
+> AFTERHOURS), commit `8aed997a`.** The exact next step named above: built
+> `local_extreme_cluster()` (predicates.py sec 12b) -- anchors clustering to BAR T's own
+> extreme (not the window's global min/max; a grid-search falsification found the naive
+> global-extreme version gets swamped by an unrelated earlier spike bar 30-40min prior,
+> failing BOTH anchors) -- and the composed rule `engulfing_at_local_cluster` (registry.py,
+> 13th entry). **VERIFIED via `pattern_anchor_verify.py` to fire on BOTH real exhibits**
+> (07-21 11:05 bullish, 07-23 10:40 bearish) -- unlike `engulfing_at_swing_shelf`, which
+> honestly does not. Ran the bare composition through C27 prescreen first (OP-33 discipline
+> -- verify before disclosing as clean): **NOISE-KILL, 92-99% days fired across every
+> tolerance grid-searched (0.05-0.20)**. Grid-searched two discriminators until both anchors
+> still fired AND the prescreen cleared: `local_cluster_min_touches` 2->3, plus a NEW
+> `local_cluster_min_body_dollars=0.40` floor on the engulfing candle itself (engulfing()'s
+> geometry has no minimum body size by design -- most of its raw fires are small-body noise
+> flips). **Final C27 verdict: TESTABLE** -- 33.3% days, 0.460 fires/day, 9.66/month,
+> recent-90d stable (no drift) -- comparable selectivity to `engulfing_at_swing_shelf`
+> (28.9%, 0.419/day). Tests: 81/81 pattern-suite green (registry count 12->13, tier-2 set
+> +1, ratchet tests updated), 4/4 registry anchors match declared state, curated safety
+> gate (31+5) PASS. **NO WIRING preserved** -- registry.py stays prescreen/discovery-only,
+> zero live consumers, same as every other rule here. **NEXT STEP (not this fire, rail 3):**
+> the item's original BUILD spec's step (c) -- a frozen pre-reg (<=16 cells) + real-fills
+> replay through `exit_manager_walk` over the 386-day history, standing gates + BH,
+> confirming the winning cell still fires on both anchor bars. Item stays `status:pending`
+> until that replay runs and clears (or doesn't).
+
 ### DOUBLE-BOTTOM-DISARM-DECISION (HIGH, 24h re-audit then act, filed 2026-07-23 overnight kitchen)
 
 - [x] DOUBLE-BOTTOM-DISARM-DECISION (HIGH) :: **RESOLVED 2026-07-23 ~01:55 ET (conductor,
