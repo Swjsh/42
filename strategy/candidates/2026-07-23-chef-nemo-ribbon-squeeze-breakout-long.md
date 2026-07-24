@@ -5,19 +5,34 @@
 
 # CANDIDATE: RIBBON_SQUEEZE_BREAKOUT_LONG
 
-**Filed:** 2026-07-09  
-**Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** new_trigger  
+**Filed:** 2026-07-09
+**Filer:** chef-nemotron (free-tier autonomous R&D)
+**Type:** new_trigger
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-A tightly contracted EMA ribbon (indicating low volatility and equilibrium) that expands on a strong bullish volume bar signals institutional participation and breakout continuation. The edge exists because volatility contractions often precede explosive moves, and a volume-surge confirmation filters false breakouts in choppy conditions.
+A contracted EMA ribbon (low volatility) precedes an expansion breakout to the upside. When ribbon width (EMA55 − EMA8) stays below 0.3*ATR for at least six consecutive bars, and price breaks above the high of the squeeze candle on volume >1.2× the 20‑bar average volume, enter long at the breakout candle close. Exit uses chart-stop at squeeze candle low, TP1 at 2R, and chandelier-tailed runner.
 
 ## Mechanism
 
-**Entry:** When the ribbon width (EMA55-EMA8) / price < 0.005 for at least three consecutive bars, then go long on the first bar that closes above the highest EMA in the ribbon with volume ≥1.5× the 20‑bar average volume.  
-**Exit:** Chart‑stop at the low of the breakout bar, TP1 at 2R (measured from entry to stop), runner trail 12% off the high‑water mark (trailing stop activated after TP1 fills).
+**Entry:**
+- Calculate EMA8 and EMA55 on 5-minute SPY bars.
+- Ribbon width = \|EMA55 - EMA8\| (absolute value to capture contraction regardless of trend direction).
+- Require ribbon width < 0.3 * ATR(14) for ≥6 consecutive 5-minute bars.
+- Identify the "squeeze candle" as the bar completing the sixth consecutive contraction bar.
+- Wait for a breakout bar where:
+  - High > squeeze candle's high
+  - Volume > 1.2 * 20-bar average volume
+- Enter long at the breakout bar's close.
+
+**Exit:**
+- Initial stop: chart-stop at low of squeeze candle (same candle used for entry condition).
+- TP1: 2R (R = entry price - squeeze candle low).
+- Runner: If TP1 hit, trail remaining position with chandelier stop (ATR(14) * 2.5 below highest high since entry).
+- Time exit: 15:45 ET (avoid close).
+- Regime filter: Only trade when VIX (15-min close) is between 15 and 25.
+- Session filter: Skip first 15 minutes after open (9:30-9:45 ET) to avoid opening noise.
 
 ## Expected impact on OP-16 anchors
 
@@ -33,24 +48,29 @@ A tightly contracted EMA ribbon (indicating low volatility and equilibrium) that
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline (per OP-20 disclosure rule).
-2. **Sample bias:** Zero historical samples; proposal is purely theoretical. Selection method is conceptual (no data-driven optimization). High overfit risk without empirical validation.
-3. **Out-of-sample:** NEEDS-OOS
-4. **Real-fills:** NEEDS-REAL-FILLS
+1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper account would trade ~2 contracts (14% of headline size) due to 50% risk cap and ~$1.00 average entry premium.
+2. **Sample bias:** Zero historical bars tested; pure conceptual proposal. High overfit risk due to unconstrained parameter choices (ATR multiplier, volume threshold, squeeze duration).
+3. **Out-of-sample:** NEEDS-OOS (no walk-forward or held-out window tested).
+4. **Real-fills:** NEEDS-REAL-FILLS (no realistic OPPA simulation on anchor days).
 5. **Failure modes:** 
-   - Worst day: False breakout during low-volume chop triggers entry, stopped by chart-stop at breakout bar low (small loss). 
-   - Max drawdown: Unknown without backtest; risk defined by chart-stop and volume filter may limit losses but consecutive failures possible.
-   - Blow-up scenario: Multiple false breakouts in sideways market (e.g., pre-FOMC consolidation) causing series of small losses that accumulate.
-6. **Concentration:** Unknown without backtest; if trigger fires infrequently (e.g., only during specific volatility regimes), top-5 days could represent high % of P&L.
+   - Worst day: Failed breakout during low-VIX chop (multiple squeezes without expansion) → repeated stop-outs at squeeze candle low.
+   - Max drawdown: Potential -50% per trade if breakout fails immediately (chart-stop hit).
+   - Blow-up scenario: Volatility expansion after entry but reversal below squeeze candle low before TP1 → full stop loss.
+6. **Concentration:** unknown -- requires Stage-1 backtest (no data to compute top-5 days contribution).
 
 ## Pre-merge gate
 
-needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification
+Needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification. Must include:
+- Equity curve over 16-month SPY 5-minute dataset (2025-01-02 to 2026-06-18)
+- OP-16 anchor day validation (winners/losers)
+- Walk-forward OOS test (ratio ≥0.70)
+- Concentration analysis (top5_pct ≤200%)
+- Real-fills check on top 3 J days (diff < ±20% vs BS-sim)
 
 ## Confidence
 
-3 / 10 -- Hypothesis is structurally sound but requires empirical validation; no historical testing performed to date.
+5 / 10 -- Novel mechanism with no empirical validation; relies on untested volatility expansion hypothesis. Requires rigorous backtest to avoid overfit to recent low-vol regimes.
 
 ## Pre-existing leaderboard impact
 
-Does not conflict with top 9 candidates (QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS, WEEKLY_DTE_NOT_0DTE, VWAPCONT_DTE_OVERRIDE_2DTE, TRENDLINE_BREAK_CALL_VETO, STRUCTURE_VETO_DIR_VS_TREND, REQUIRE_BEARISH_FILL_BAR_REVAL, ENTRY_BODY_GATE_BEAR_REVAL, UNBLOCK_MIDDAY_TRENDLINE_GATE, BULL_SCOPE_LOCK_REVAL). All top 9 are gates, filters, or structural changes; this proposal is a new entry trigger, making it complementary by adding a distinct mechanism.
+Does not conflict with existing candidates in _LEADERBOARD.md. Structurally distinct from BEARISH_REJECTION_RIDE_THE_RIBBON (which trades ribbon *rejections*, not squeezes). No overlap in trigger logic or exit mechanics. Complements existing watchers (e.g., could run alongside VWAP_CONTINUATION as a separate long-bias setup). No parameter/engine changes proposed -- pure new trigger addition.
