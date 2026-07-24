@@ -370,24 +370,37 @@ def _bold_passed_blocks_from_row(row: "dict | None") -> dict:
     action = row.get("action")
     trigs, trig0, fired = _row_trigger_args(row)
     has_conf = _has_confluence(trigs)
-    bull_p = passed_scoring_peak("bull", action, row.get("bull_score", 0), trig0, fired)
-    bear_p = passed_scoring_peak("bear", action, row.get("bear_score", 0), trig0, fired)
+    bull_peak = _score_peak_check("bull", action, row.get("bull_score", 0), trig0, fired)
+    bear_peak = _score_peak_check("bear", action, row.get("bear_score", 0), trig0, fired)
+    hard_skip = action in _HARD_SKIP_VERDICTS
+    bull_p = bull_peak and not hard_skip
+    bear_p = bear_peak and not hard_skip
     setup = row.get("setup_name")
     # LEVEL PROVENANCE (G12, 2026-07-09 night): same win-gated passthrough as build()'s
     # top-level bear/bull blocks (see comment there) -- sourced from the BOLD row itself,
     # since _latest_today_decision(..., account="bold") already routed _map_core_row here.
     _tl_exact = row.get("trigger_level_exact")
+    # GATE-TIERS-IMPLEMENT (2026-07-23): "score_peak_passed"/"hard_skip_action" ride ALONGSIDE
+    # the unchanged "passed" so fleet_executor._effective_passed() can rescue a hard-skip-only
+    # block for an arm whose gate_params.hard_skip_verdicts opts out. triggers_fired/setup_name/
+    # confluence/trigger_level_exact are now gated on the PEAK check (a superset of "passed" --
+    # true whenever passed is true, plus the hard-skip-only cases) so a rescued arm has real
+    # data to act on; an arm that does NOT opt out still reads "passed" and never sees this.
     return {
         "bull": {"passed": bull_p, "score": row.get("bull_score", 0),
-                 "triggers_fired": trigs if bull_p else [],
-                 "setup_name": setup if bull_p else None,
-                 "confluence": bool(bull_p and has_conf),
-                 "trigger_level_exact": (_tl_exact if bull_p else None)},
+                 "score_peak_passed": bull_peak,
+                 "hard_skip_action": action if (hard_skip and bull_peak) else None,
+                 "triggers_fired": trigs if bull_peak else [],
+                 "setup_name": setup if bull_peak else None,
+                 "confluence": bool(bull_peak and has_conf),
+                 "trigger_level_exact": (_tl_exact if bull_peak else None)},
         "bear": {"passed": bear_p, "score": row.get("bear_score", 0),
-                 "triggers_fired": trigs if bear_p else [],
-                 "setup_name": setup if bear_p else None,
-                 "confluence": bool(bear_p and has_conf),
-                 "trigger_level_exact": (_tl_exact if bear_p else None)},
+                 "score_peak_passed": bear_peak,
+                 "hard_skip_action": action if (hard_skip and bear_peak) else None,
+                 "triggers_fired": trigs if bear_peak else [],
+                 "setup_name": setup if bear_peak else None,
+                 "confluence": bool(bear_peak and has_conf),
+                 "trigger_level_exact": (_tl_exact if bear_peak else None)},
     }
 
 
@@ -586,17 +599,31 @@ ENTRY_TRIGGERS = frozenset({
 _HARD_SKIP_VERDICTS = frozenset({"SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY"})
 
 
-def passed_scoring_peak(side: str, action, score, trigger, fired) -> bool:
-    """Looser-than-production 'passed': production ENTERED this side, OR the score hit the
-    peak threshold WITH a real entry-trigger fired (the quality gate that stops pure-score
-    over-emission). This is what lets a loose arm take a setup production's gates blocked.
-    Hard gates in _HARD_SKIP_VERDICTS always return False regardless of score."""
-    if action in _HARD_SKIP_VERDICTS:
-        return False
+def _score_peak_check(side: str, action, score, trigger, fired) -> bool:
+    """The score/trigger half of passed_scoring_peak, WITHOUT the hard-skip filter --
+    'would this side have passed on quality alone'. Exposed separately (GATE-TIERS-
+    IMPLEMENT, 2026-07-23) so a per-arm gate_params.hard_skip_verdicts override can
+    rescue a setup that only the GLOBAL _HARD_SKIP_VERDICTS blocked (audit rank #3,
+    markdown/audits/GATE-PROVENANCE-AUDIT-2026-07-02.md section 4: 'require_bearish_
+    fill_bar ... not inherited via _HARD_SKIP' for RISKY-tier arms)."""
     enter = "ENTER_BULL" if side == "bull" else "ENTER_BEAR"
     peak = BULL_PEAK_THRESHOLD if side == "bull" else BEAR_PEAK_THRESHOLD
     trig_ok = bool(fired) and (trigger in ENTRY_TRIGGERS)
     return (action == enter) or (int(score or 0) >= peak and trig_ok)
+
+
+def passed_scoring_peak(side: str, action, score, trigger, fired) -> bool:
+    """Looser-than-production 'passed': production ENTERED this side, OR the score hit the
+    peak threshold WITH a real entry-trigger fired (the quality gate that stops pure-score
+    over-emission). This is what lets a loose arm take a setup production's gates blocked.
+    Hard gates in _HARD_SKIP_VERDICTS always return False regardless of score.
+
+    UNCHANGED signature/behavior (byte-identical) -- this is now a thin wrapper over
+    _score_peak_check + the global hard-skip filter; per-arm overrides are consumed at
+    fleet_executor.py's _effective_passed(), not here."""
+    if action in _HARD_SKIP_VERDICTS:
+        return False
+    return _score_peak_check(side, action, score, trigger, fired)
 
 
 # --- PROBE ARM cohort-bypass block (2026-07-10 ship, NARROWED same session) ---------------

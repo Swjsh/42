@@ -115,6 +115,29 @@ def _perception_for_arm(signal: Mapping[str, Any], arm: Optional[Mapping[str, An
     return signal
 
 
+def _effective_passed(block: Mapping[str, Any], arm: Optional[Mapping[str, Any]]) -> bool:
+    """Per-arm hard-skip override (GATE-TIERS-IMPLEMENT, 2026-07-23, audit rank #3:
+    markdown/audits/GATE-PROVENANCE-AUDIT-2026-07-02.md section 4 -- 'require_bearish_
+    fill_bar ... not inherited via _HARD_SKIP' for RISKY-tier arms).
+
+    Default (arm has no `gate_params.hard_skip_verdicts` key) reads block['passed']
+    EXACTLY as today -- byte-identical for every arm that doesn't opt in. An arm whose
+    accounts.json carries `gate_params: {"hard_skip_verdicts": [...]}` instead honors
+    ONLY the verdicts named in that list as hard blocks; a verdict in
+    build_shared_signal.py's GLOBAL _HARD_SKIP_VERDICTS but absent from the arm's own
+    list is RESCUED via the block's score_peak_passed (the quality check computed
+    ignoring the hard-skip filter). An empty list means the arm ignores every global
+    hard-skip gate (the RISKY/minimum-viable tier)."""
+    gate_params = (arm or {}).get("gate_params") or {}
+    if "hard_skip_verdicts" not in gate_params:
+        return block.get("passed") is True
+    allowed_hard_skips = set(gate_params.get("hard_skip_verdicts") or [])
+    hard_skip_reason = block.get("hard_skip_action")
+    if hard_skip_reason and hard_skip_reason in allowed_hard_skips:
+        return False  # this arm still honors this specific hard-skip verdict
+    return block.get("score_peak_passed") is True
+
+
 def _chosen_side(signal: Mapping[str, Any], arm: Optional[Mapping[str, Any]] = None):
     """Pick the candidate side from the shared signal: (side, side_block, setup).
 
@@ -123,8 +146,8 @@ def _chosen_side(signal: Mapping[str, Any], arm: Optional[Mapping[str, Any]] = N
     src = _perception_for_arm(signal, arm)
     bear = src.get("bear") or {}
     bull = src.get("bull") or {}
-    bear_go = bear.get("passed") is True
-    bull_go = bull.get("passed") is True
+    bear_go = _effective_passed(bear, arm)
+    bull_go = _effective_passed(bull, arm)
     if bear_go and bull_go:
         if (signal.get("production_action") or "").upper() == "ENTER_BULL":
             return "C", bull, bull.get("setup_name", "BULLISH_RECLAIM_RIDE_THE_RIBBON")

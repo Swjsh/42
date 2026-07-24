@@ -329,6 +329,72 @@ def test_chosen_side_no_arm_is_v1_top_level():
     assert fx._chosen_side(NO_SETUP)[0] is None
 
 
+# --- GATE-TIERS-IMPLEMENT (2026-07-23): per-arm hard-skip override ------------
+# Audit rank #3 (markdown/audits/GATE-PROVENANCE-AUDIT-2026-07-02.md section 4):
+# require_bearish_fill_bar's global hard-skip should NOT be inherited by the RISKY/
+# minimum-viable-gate tier. An arm opts in via accounts.json `gate_params.hard_skip_
+# verdicts` (empty list = ignore every global hard-skip gate); absence of the key is
+# byte-identical to pre-change behavior.
+RISKY_TIER_NO_HARD_SKIP = {
+    "id": "risky-3", "status": "active",
+    "gate_override": {"min_triggers": 1},
+    "gate_params": {"hard_skip_verdicts": []},
+}
+_HARD_SKIP_BLOCKED_BLOCK = {
+    "passed": False, "score": 8, "score_peak_passed": True,
+    "hard_skip_action": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+    "triggers_fired": ["level_rejection"],
+    "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+}
+
+
+def test_effective_passed_default_is_byte_identical():
+    """An arm with NO gate_params.hard_skip_verdicts key reads block['passed'] verbatim --
+    the exact pre-change behavior -- even though score_peak_passed/hard_skip_action are
+    now present on the block."""
+    assert fx._effective_passed(_HARD_SKIP_BLOCKED_BLOCK, BOLD_LOOSE) is False
+    assert fx._effective_passed(_HARD_SKIP_BLOCKED_BLOCK, None) is False
+    passing_block = {"passed": True, "score_peak_passed": True, "hard_skip_action": None}
+    assert fx._effective_passed(passing_block, BOLD_LOOSE) is True
+
+
+def test_effective_passed_rescues_for_opted_out_arm():
+    """An arm whose gate_params.hard_skip_verdicts is [] (ignore-all) is RESCUED by
+    score_peak_passed even though the block's baked-in 'passed' is False."""
+    assert fx._effective_passed(_HARD_SKIP_BLOCKED_BLOCK, RISKY_TIER_NO_HARD_SKIP) is True
+
+
+def test_effective_passed_still_honors_named_hard_skip():
+    """An arm that explicitly names the SAME verdict in its own hard_skip_verdicts list
+    still treats it as a hard block (opt-out is per-verdict, not blanket)."""
+    arm = {"id": "risky-3", "gate_params":
+           {"hard_skip_verdicts": ["SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY"]}}
+    assert fx._effective_passed(_HARD_SKIP_BLOCKED_BLOCK, arm) is False
+
+
+def test_effective_passed_no_hard_skip_present_unaffected():
+    """A normally-passing block (no hard_skip_action) is unaffected by an arm's opt-out --
+    opting out only matters when a hard-skip verdict actually fired."""
+    block = {"passed": True, "score_peak_passed": True, "hard_skip_action": None,
+             "triggers_fired": ["level_reclaim"], "setup_name": "X"}
+    assert fx._effective_passed(block, RISKY_TIER_NO_HARD_SKIP) is True
+
+
+def test_chosen_side_hard_skip_rescue_end_to_end():
+    """Integration: _chosen_side rescues a hard-skip-blocked BOLD-role signal for the
+    opted-out RISKY-tier arm, but a control arm reading the SAME block stays blocked."""
+    dual = {
+        "spot": 735.0, "production_action": "HOLD",
+        "bear": {"passed": False}, "bull": {"passed": False},
+        "safe": {"bear": {"passed": False}, "bull": {"passed": False}},
+        "bold": {"bear": dict(_HARD_SKIP_BLOCKED_BLOCK), "bull": {"passed": False}},
+    }
+    control_side = fx._chosen_side(dual, BOLD_LOOSE)[0]       # no gate_params key
+    rescued_side = fx._chosen_side(dual, RISKY_TIER_NO_HARD_SKIP)[0]
+    assert control_side is None      # unchanged: still honors the global hard-skip
+    assert rescued_side == "P"       # opted-out arm sees the rescued bear
+
+
 # --- SAFE3-CONFIDENCE-ALWAYS-BLOCK-FIX guard (GATE-PROVENANCE-AUDIT-2026-07-02 E5/F6) ---
 def test_min_confidence_gate_removed_and_inert():
     """build_shared_signal.py has NEVER populated a "confidence" field on any signal it

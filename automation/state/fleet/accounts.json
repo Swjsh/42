@@ -141,6 +141,8 @@
    "starting_equity": 2000.0,
    "frozen_at": "2026-06-25",
    "gate_override": {"min_triggers": 1},
+   "gate_params": {"hard_skip_verdicts": []},
+   "gate_params_doc": "GATE-TIERS-IMPLEMENT (2026-07-23, audit rank #3): this arm is the live RISKY/minimum-viable-gate tier (safe-1's loose cell retired 2026-07-11, leaving risky-3 the only active RISKY-tier arm) -- an empty hard_skip_verdicts list means it does NOT inherit build_shared_signal.py's GLOBAL _HARD_SKIP_VERDICTS (require_bearish_fill_bar's SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY) the way bold-2/risky-1 still do. Fill-bar quality stays a hard block on Bold control (validated OOS +$1,153/WF 18.5) and on risky-1 (tight/SAFE-analog tier) -- only the loose tier trades through it, per fleet_executor._effective_passed. Revert: delete this key (byte-identical to before).",
    "params_patch": {
     "exit_patch": {"stop_mode": "structure", "profit_lock_mode": "trailing", "trail_pct": 0.20}
    },
