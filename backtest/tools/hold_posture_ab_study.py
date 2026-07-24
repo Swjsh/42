@@ -128,14 +128,17 @@ def replay_with_gate(long_bars: list, side: str, shape: dict, time_stop_et: dt.t
                 target = entry_premium * (1.0 + state.tp1_premium_pct)
             elif a.stage == "runner_target":
                 target = entry_premium * (1.0 + state.runner_target_pct)
-            elif a.stage == "premium_stop":
-                # NOTE: under profit_lock_arm_scope="full" (TRAIL_ONLY_60), a "premium_stop"-
-                # labeled exit can actually be a pre-TP1 profit-lock floor/trail ratchet, not
-                # the static catastrophe level -- exit_manager.py's own stage naming does not
-                # distinguish them (see plan_exit_actions' floor_active/reason logic). Always
-                # use the ACTUAL just-computed runner_stop_premium (correct in both arm-scope
-                # modes: under the default "post_tp1" scope this is byte-identical to the
-                # static entry*(1+premium_stop_pct) value already seeded at from_entry).
+            elif a.stage in ("premium_stop", "profit_lock_floor"):
+                # EXITMGR-STAGE-LABEL-CONFLATION (2026-07-23): exit_manager.py used to
+                # hardcode "premium_stop" for BOTH the static catastrophe level AND (under
+                # profit_lock_arm_scope="full", this study's TRAIL_ONLY_60 variant) a pre-TP1
+                # profit-lock floor/trail ratchet -- it now emits "profit_lock_floor" as its
+                # own stage, widened here so this branch still catches it (was previously a
+                # same-file NOTE documenting the ambiguity as a caveat; now a real distinct
+                # label, not just a caveat). Always use the ACTUAL just-computed
+                # runner_stop_premium (correct in both arm-scope modes: under the default
+                # "post_tp1" scope this is byte-identical to the static
+                # entry*(1+premium_stop_pct) value already seeded at from_entry).
                 target = (dec.state.runner_stop_premium if dec.state.runner_stop_premium is not None
                           else entry_premium * (1.0 + state.premium_stop_pct))
             elif a.stage in ("trail", "be_stop"):

@@ -293,7 +293,8 @@ class ExitAction:
     qty: int = 0
     reason: str = ""
     new_stop_premium: Optional[float] = None
-    stage: str = ""    # "tp1" | "runner_target" | "premium_stop" | "time_stop" | "trail" | ""
+    stage: str = ""    # "tp1" | "runner_target" | "premium_stop" | "profit_lock_floor" |
+                        # "time_stop" | "trail" | "structure_stop" | ""
 
 
 @dataclass(frozen=True)
@@ -408,10 +409,17 @@ def plan_exit_actions(
             floor_active = (profit_lock_armed
                             and state.profit_lock_arm_scope == ARM_SCOPE_FULL
                             and runner_stop > entry * (1.0 + state.premium_stop_pct) + 1e-9)
+            # EXITMGR-STAGE-LABEL-CONFLATION fix (2026-07-23): stage now matches reason --
+            # this was previously hardcoded "premium_stop" even when floor_active, silently
+            # conflating the static -50% catastrophe cap with a pre-TP1 profit-lock-floor
+            # scratch under profit_lock_arm_scope="full". Two distinct stage names now, so
+            # exit-reason analytics (and any future journal-row consumer) can tell them apart
+            # without re-parsing the human-readable `reason` string.
             reason = (f"profit_lock_floor @ {round(runner_stop,2)}" if floor_active
                       else f"premium_stop @ {round(runner_stop,2)}")
             actions.append(ExitAction("SELL_ALL", qty=open_qty, reason=reason,
-                                      stage="premium_stop"))
+                                      stage=("profit_lock_floor" if floor_active
+                                             else "premium_stop")))
             return ExitDecision(pre_state, tuple(actions))
         # (b) time stop pre-TP1 -> exit ALL at market
         if time_stop_now:

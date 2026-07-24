@@ -600,7 +600,9 @@ def test_pre_tp1_lock_full_arms_then_scratches_at_floor():
     d2 = decs[1]
     assert d2.closes_position
     a = d2.actions[0]
-    assert a.kind == "SELL_ALL" and a.stage == "premium_stop"
+    # EXITMGR-STAGE-LABEL-CONFLATION: stage must match reason, not the static "premium_stop"
+    # label the catastrophe cap uses -- this is the profit-lock floor scratch, not the cap.
+    assert a.kind == "SELL_ALL" and a.stage == "profit_lock_floor"
     assert "profit_lock_floor" in a.reason
 
 
@@ -630,6 +632,22 @@ def test_pre_tp1_lock_full_same_tick_arm_and_floor_exit():
     assert d.closes_position
     assert d.state.profit_lock_armed is True
     assert "profit_lock_floor" in d.actions[0].reason
+    assert d.actions[0].stage == "profit_lock_floor"
+
+
+def test_stage_disambiguates_catastrophe_cap_from_profit_lock_floor():
+    """EXITMGR-STAGE-LABEL-CONFLATION guard: the static -50% catastrophe cap (scope=default,
+    no lock ever arms) and the pre-TP1 profit-lock floor scratch (scope='full', armed then
+    trades back through the floor) must NOT share a stage name, even though both are
+    SELL_ALL pre-TP1 hard exits hitting the same `runner_stop` check. A regression that
+    re-hardcodes stage="premium_stop" for both cases REDs here."""
+    cap_decs, _ = _walk(VWAP_BODY, [(1.06, 1.01), (1.01, 0.99), (0.95, 0.93)])
+    assert cap_decs[2].closes_position
+    assert cap_decs[2].actions[0].stage == "premium_stop"
+    floor_decs, _ = _walk(VWAP_FULL_SCOPE, [(1.06, 1.01), (1.01, 0.99)])
+    assert floor_decs[1].closes_position
+    assert floor_decs[1].actions[0].stage == "profit_lock_floor"
+    assert cap_decs[2].actions[0].stage != floor_decs[1].actions[0].stage
 
 
 def test_pre_tp1_lock_full_trailing_trails_hwm_before_tp1():

@@ -141,6 +141,17 @@ def replay(entry_premium: float, bars: list, side: str, shape: dict, time_stop_e
                 fp = entry_premium * (1.0 + state.premium_stop_pct)
                 stopped = True
                 stop_i = i
+            elif a.stage == "profit_lock_floor":
+                # EXITMGR-STAGE-LABEL-CONFLATION (2026-07-23): exit_manager.py now emits
+                # "profit_lock_floor" as its own stage under profit_lock_arm_scope="full"
+                # (was hardcoded "premium_stop" for both, silently falling through to the
+                # static premium_stop_pct level above -- WRONG for a ratcheted floor). Added
+                # here so a sim-scope run (strike_ab_convention_reconciliation.py's shape_sim)
+                # fills at the ACTUAL ratcheted floor, not the static catastrophe level.
+                fp = (dec.state.runner_stop_premium if dec.state.runner_stop_premium is not None
+                      else entry_premium * (1.0 + state.premium_stop_pct))
+                stopped = True
+                stop_i = i
             elif a.stage in ("trail", "be_stop"):
                 fp = dec.state.runner_stop_premium
             else:  # time_stop / other market exit

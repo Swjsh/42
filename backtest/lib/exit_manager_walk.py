@@ -115,7 +115,11 @@ def _stage_fill_level(stage: str, state_in: em.ExitState, state_after: em.ExitSt
         return state_in.entry_premium * (1.0 + state_in.tp1_premium_pct)
     if stage == "runner_target":
         return state_in.entry_premium * (1.0 + state_in.runner_target_pct)
-    if stage == "premium_stop":
+    if stage in ("premium_stop", "profit_lock_floor"):
+        # EXITMGR-STAGE-LABEL-CONFLATION (2026-07-23): exit_manager.py now emits
+        # "profit_lock_floor" as its own stage (was hardcoded "premium_stop" even when the
+        # pre-TP1 lock floor -- not the static catastrophe cap -- fired). Same runner_stop
+        # check, same limit-style fill level either way; only the live journal label split.
         return (state_in.runner_stop_premium if state_in.runner_stop_premium is not None
                 else state_in.entry_premium * (1.0 + state_in.premium_stop_pct))
     if stage in ("trail", "be_stop"):
