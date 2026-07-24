@@ -1,3 +1,88 @@
+## [2026-07-23 ~21:52-22:20 ET] OK -- conductor (AFTERHOURS): TWIN-B6-SIM-FRICTION-CALIBRATION infra shipped, commit `465487f7`
+
+> **STAGE 0/1:** ET confirmed 21:48 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again -- still
+> correctly `status:pending` on J's REVOKE surface (`gp-2026-07-23-twin-doctrine-001`, nothing
+> new until J responds -- 3rd fire in a row confirming this, per STATUS.md precedent). Next
+> ranked ready item: `TWIN-B6-SIM-FRICTION-CALIBRATION` (HIGH, score 6.0, `depends:TWIN-B1`
+> done). TWIN-PROGRAM.md has NO existing "B6"/"stream 6" spec -- the queue item's own text was
+> the only spec, so this fire scoped it from scratch before building.
+
+> **What scoping found (a real gap, not a design choice):** entries already capture the TRUE
+> `filled_avg_price` via `poll_fill()` + a "FILLED" journal row (TWIN-B3 entry-quality
+> machinery, `entry-quality.json` already has n=51 "marketable"-cohort real fills: avg
+> slippage ≈ **+0.80bps favorable**, avg latency 0.29s -- directly usable friction data).
+> EXITS never did the same: `manage_positions`' SELL_PARTIAL/SELL_ALL journals a CLOSED/
+> MANAGED row whose `"broker"` field is the raw un-polled PLACE response (`status=
+> "pending_new"`, `filled_avg_price=null`) -- confirmed by reading all 70 real CLOSED events
+> + all 70 FILLED events in `journal.jsonl` directly: zero sell-side FILLED rows exist. Exit
+> friction was silently un-measurable despite 70 real exits already on file.
+
+> **Shipped:** `crypto_twin_core.manage_positions` now polls the SAME `broker.poll_fill()`
+> helper after a live SELL_PARTIAL/SELL_ALL and journals an additive `"EXIT_FILLED"` row
+> (`expected_price` parsed from `a.reason`'s `"kind @ price"` convention, `fill_price`,
+> `time_to_fill_sec`, `slippage_bps`) -- purely additive telemetry, zero change to
+> `close_failed`/`dec.closes_position` control flow (fails open on a poll exception via
+> `EXIT_FILLED_CAPTURE_ERROR`). New reader `setup/scripts/crypto_twin_friction_calibration.py`
+> combines both legs and cross-references `backtest/lib/simulator_real.py`'s
+> `DEFAULT_ENTRY_SLIPPAGE`/`DEFAULT_EXIT_SLIPPAGE` via a LIVE import (not a hand-copied
+> number -- caught the `backtest.lib` relative-import footgun mid-build: `simulator_real.py`
+> uses `from .et_frame import ...`, so it must be imported as `backtest.lib.simulator_real`
+> with the repo root on `sys.path`, not by putting `backtest/lib` on `sys.path` directly).
+> Ran live against real state: `n=51 avg_slippage_bps=-0.8045` (entry), `n=0 verdict=ACCRUING`
+> (exit, correctly honest about zero samples at ship time).
+
+> **Honest caveat surfaced, not fixed this fire:** every twin exit stage (structure_stop /
+> catastrophe cap / TP1-trail / premium_stop / runner_stop / time_stop / max_hold) is placed
+> as a MARKET order unconditionally -- the twin has no exit-side passive/limit lane (only
+> entries got the TWIN-B3 passive-limit graduation). So exit calibration data will only ever
+> be comparable to `simulator_real.py`'s market-exit slippage bucket, never its "TP1/
+> premium_stop/BE-stop fill exactly at the bracket level, zero slippage" limit-exit
+> assumption. Flagged in TWIN-PROGRAM.md's new "B6 shipped" section as a TWIN-B6b follow-up
+> (not queued as a separate item yet -- deliberately, per rail 3 one-bounded-task-per-fire;
+> a future fire can promote it if J/conductor wants the exit-limit-lane build).
+
+> **Verified this fire (OP-33) -- caught+fixed a REAL regression before it could ship:**
+> `python -m pytest backtest/tests/test_crypto_twin_core.py` initially passed (44/44) because
+> the fixture's `poll_fill` always returns a fixed price -- but running
+> `python setup/scripts/twin_gauntlet.py --paths tp1_trail,structure_stop,catastrophe_cap,
+> max_hold --dry` (the "diffs vs expected" backpressure TWIN-PROGRAM.md names as the
+> conductor hook for exactly this class of bug) showed **3/4 touched paths FAIL**
+> (`git stash` isolation confirmed 4/4 PASS pre-change, 1/4 PASS post-change -- root cause,
+> not coincidence). Mechanism: `twin_gauntlet.py`'s `_dry_tp1_trail`/`_dry_structure_stop`/
+> `_dry_catastrophe_cap` all assumed `journal[-1]["event"] == "CLOSED"` -- an assumption that
+> was ALSO baked into 2 pre-existing `test_crypto_twin_core.py` assertions (same class, same
+> fire, same root cause: EXIT_FILLED now legitimately trails CLOSED). Fixed both: find the
+> last CLOSED row explicitly rather than assuming journal-tail position. Re-ran
+> `--dry` over all 6 known paths (`tp1_trail,structure_stop,catastrophe_cap,max_hold,
+> restart_open_position,entry`): **6/6 PASS**. Full suite:
+> `test_crypto_twin_core.py` + `test_crypto_twin_friction_calibration.py` (7 new tests:
+> sign-convention, stage-grouping, accruing-verdict, real-import-resolves-non-None) +
+> `test_crypto_twin_scenarios/_entry_quality/_health/_broker/_sim_bear/_soak_report/
+> _reaper_exemption.py` + `test_twin_gauntlet.py` = **268/268 green**. Curated safety gate
+> (`backtest/tests/run_safety_gate.py`): 31+5 PASS. Post-commit
+> `git show 465487f7 --stat --name-status` confirms exactly the 6 intended files landed.
+
+> **Learn (STAGE 4.5):** the gauntlet caught a real bug this fire was about to ship blind on
+> (pytest alone would have shipped it green) -- this is TWIN-PROGRAM.md's "Conductor hook"
+> value stream #2 working exactly as designed, not a new lesson to encode; no lesson-inbox
+> item filed (the guardrail that caught it already exists and just did its job).
+
+> **Scope + revert:** 6 files (`crypto_twin_core.py`, `crypto_twin_friction_calibration.py`
+> [new], `twin_gauntlet.py`, `test_crypto_twin_core.py`, `test_crypto_twin_friction_
+> calibration.py` [new], `TWIN-PROGRAM.md`). Zero `params.json`/`heartbeat_core.py`/
+> `filters.py`/`CLAUDE.md` touched -- twin-only (paper, crypto gym-only per project scope),
+> rail-4 clear, purely additive telemetry + a read-only reader. Revert: `git revert 465487f7`.
+> `automation/state/crypto-twin/friction-calibration.json` is a regenerated report artifact
+> (same untracked-by-design precedent as `entry-quality.json`) -- not committed.
+
+> **Cost: ~$4.3** (STAGE 0/1 reads, TWIN-PROGRAM.md scope search, journal.jsonl/entry-
+> quality.json direct data investigation to find the real gap, crypto_twin_core.py edit +
+> docstring, 6 new/updated core tests, calibration script build + 7 tests, live script run +
+> import-path debug, twin_gauntlet.py regression hunt via git-stash isolation + 3-function
+> fix + full 6-path re-verify, TWIN-PROGRAM.md fold, commit + verify, queue/STATUS write-up,
+> conductor_outcome record+metric).
+
 ## [2026-07-23 ~21:42-22:00 ET] OK -- conductor (AFTERHOURS): OPEN-BELL-STATUS-PUSH closed (stale checkbox, work already fully shipped)
 
 > **STAGE 0/1:** ET confirmed 21:42 (Thursday, market closed since 15:55). `engine-health.json`
@@ -621,54 +706,6 @@
 > different ways, reading heartbeat_core's extra_exec routing + fill_funnel's prior fix for
 > precedent, implementing + testing the conductor_outcome fix, curated-gate commit, queue +
 > STATUS write-up).
-
----
-
-## [2026-07-23 ~08:12-08:20 ET] OK -- conductor (AFTERHOURS): backfilled 41 untracked strategy/candidates/ files + shipped the L242 re-violation prevention guard, commits `8a9e4902` + `a9efcab5`
-
-> **STAGE 0/1:** ET confirmed 08:12 (Thursday, market closed, opens 09:30). `engine-health.json`
-> GREEN 13/13. `self-check-last.json` reported **DEGRADED**: 39 (actually 41 via live git
-> status) untracked `strategy/candidates/` files -- same class as the L242 scar (2026-07-22,
-> 1,176 files) and its threshold-20 detector, now re-violating just 24h later. This outranked
-> the `task_scorer.py --top` pick (`TRENDLINE-TIGHT-EXIT-ACCRETE`, MED) as an engine-health flag.
-
-> **What shipped:** (1) backfilled the 41 files (chef-nemo strategy proposals + grinder-stage
-> keeper analyses) via scoped `git add --pathspec-from-file`, commit `8a9e4902` -- `self_check.py`
-> confirmed GREEN 0 problems immediately after. (2) Recognized this as a RE-VIOLATED lesson
-> (L242's detector fired again within 24h with no automatic remediation) and graduated it to a
-> guard per OP-25: `setup/scripts/auto_commit_candidates.py` + `Gamma_AutoCommitCandidates`
-> scheduled task (every 2h, every day) stages+commits `strategy/candidates/` ONLY once >=10
-> untracked/modified entries accrue -- below `self_check.py`'s 20-threshold DEGRADED bar, so the
-> preventer acts before the detector would ever need to complain again. Scoped to that path only
-> (never `-A`), local commit only (no push), fail-open on any git error including the repo's own
-> pre-commit safety-gate hook rejecting the commit. Commit `a9efcab5`.
-
-> **Verified this fire (OP-33):** 9/9 new guard tests green (`test_auto_commit_candidates.py`),
-> curated safety gate (31 tests) PASS at both commits. Task registered LIVE and verified via
-> `Get-ScheduledTask` (`State=Ready`, real `MSFT_TaskDailyTrigger` w/ 2h repetition, not a dark
-> one-time trigger -- L per project_scheduled_task_onetime_trigger_dark). Real smoke-run of the
-> script against the live repo (post-backfill) logged `QUIET, untracked_or_modified: 0` --
-> correct behavior, nothing to commit right after the manual clear. Post-commit (not just
-> pre-commit `--cached`, L247): `git show HEAD --stat --name-status` on both commits confirms
-> exactly the intended files landed (41 candidate files in the first; 5 infra files in the
-> second) -- nothing else swept in.
-
-> **Scope + revert:** pure infra/tooling + doc backfill -- zero params/heartbeat_core/filters/
-> placement/exit/CLAUDE.md touched. Ships per OP-22/OP-26 (engine-benefit, no J ratification
-> needed) + rail 4 (guard test + git-revert path, both satisfied). Revert: `git revert 8a9e4902`
-> + `git revert a9efcab5`; disable the task via `Unregister-ScheduledTask Gamma_AutoCommitCandidates`
-> or `setup/scripts/install-auto-commit-candidates.ps1 -Uninstall`.
-
-> **Foot-gun graduated:** filed `_lesson-inbox/2026-07-23-l242-detector-reviolated-within-24h-
-> graduated-to-preventer.md` for lesson-author -- the generalizable point: a detector for a
-> re-violated lesson is necessary but not sufficient if the underlying condition re-accrues on
-> its own (a continuously-running producer) between the moments a human/conductor happens to
-> look. Ask a second question when graduating a lesson to "a check that flags it": does anything
-> *act* on the flag without a human in the loop?
-
-> **Cost: ~$2.4** (STAGE 0/1 reads, git status/add/commit x2, writing+testing the guard script +
-> install script + 9 pytest cases, registering + verifying the scheduled task live, lesson
-> filing, SCHEDULED-TASKS.md registry update, STATUS write-up).
 
 ---
 
