@@ -1,4 +1,74 @@
-## [2026-07-23 ~20:42-20:56 ET] OK -- conductor (AFTERHOURS): TWIN-DOCTRINE-FIRST-DEPLOY drafted (propose-only, pending J), commit pending
+## [2026-07-23 ~21:12-21:50 ET] OK -- conductor (AFTERHOURS): GATE-TIERS-IMPLEMENT rank #3 shipped (per-arm hard-skip override), commit `ecde12f8`
+
+> **STAGE 0/1:** ET confirmed 21:12 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again, but it is
+> ALREADY drafted + filed for J's REVOKE/APPROVE (last fire, `gp-2026-07-23-twin-doctrine-001`,
+> still `status:pending` on J's side -- nothing new to do until J responds). Read the full
+> ranked list (`task_scorer.py` with no args): next-highest ready items were `GATE-TIERS-
+> IMPLEMENT` (HIGH, trading-path-eligible), `OPEN-BELL-STATUS-PUSH` (HIGH), `TWIN-B6-SIM-
+> FRICTION-CALIBRATION` (HIGH). Picked GATE-TIERS-IMPLEMENT: a HIGH, `depends:none`, fully
+> pre-specified engineering task (the referenced audit, `markdown/audits/GATE-PROVENANCE-
+> AUDIT-2026-07-02.md`, already contains the design + a ranked action list) that is squarely
+> a PAPER trading-path change (rail 4 -- ships directly with guard+revert+REVOKE, no J-first
+> needed).
+
+> **Scoped BEFORE building (the audit's plan is a 6-step epic; one bounded task per fire,
+> rail 3):** re-read `accounts.json` + `build_shared_signal.py` + `fleet_executor.py` first
+> to check what the 3 weeks since the audit had already absorbed. Found: ranks #2 (G8 momentum
+> bug) and #5 (E5 confidence gate) were ALREADY closed 2026-07-11 by earlier fires; the existing
+> tight/base/loose `min_triggers` grid + the `probe_arm` cohort-bypass mechanism (2026-07-10/11)
+> already cover a good chunk of "risky arm takes the one-gate-away trade" for OTHER gates. The
+> ONE piece still genuinely open and cleanly scoped: rank #3, `_HARD_SKIP_VERDICTS` (require_
+> bearish_fill_bar) is a MODULE-LEVEL constant baked into the shared signal's "bold" perception
+> block at BUILD time -- every non-safe arm (bold-2 control, risky-1 tight, risky-3 loose)
+> inherits the IDENTICAL hard-skip regardless of its own gate tier, so this ONE gate was
+> structurally un-relaxable for a risky arm no matter what `gate_override` said.
+
+> **What shipped:** `build_shared_signal.py`'s `_bold_passed_blocks_from_row` now exposes
+> `score_peak_passed` (the score/trigger quality check WITHOUT the hard-skip filter) and
+> `hard_skip_action` (which global hard-skip verdict fired, if any) alongside the UNCHANGED
+> `passed` field -- byte-identical for any reader that only looks at `passed`.
+> `fleet_executor._effective_passed(block, arm)` is the new consume-time gate: an arm with NO
+> `gate_params.hard_skip_verdicts` key reads `passed` exactly as before (every existing arm,
+> unchanged); an arm that carries the key opts INTO a per-verdict allowlist of what it still
+> honors as a hard block (empty list = ignore all global hard-skips). Wired risky-3 --
+> the only LIVE RISKY/minimum-viable-gate-tier arm since safe-1 retired 2026-07-11 -- with
+> `gate_params: {"hard_skip_verdicts": []}`. bold-2 (control) and risky-1 (tight) get zero
+> code-path change since they never set the key.
+
+> **Verified this fire (OP-33):** direct smoke-test of `_bold_passed_blocks_from_row` on 3
+> synthetic rows (hard-skip-blocked / clean ENTER / HOLD) confirmed the new fields compute
+> correctly and `passed` is unchanged in all 3 cases. 6 new guard tests added to
+> `test_fleet_executor.py` (byte-identical default for both a blocked and a passing block,
+> rescue for the opted-out arm, still-honors-a-named-verdict, unaffected-when-no-hard-skip-
+> fired, and an end-to-end `_chosen_side` integration proving a control arm and the rescued
+> arm diverge on the SAME input block). `python -m pytest` on `automation/state/fleet/`:
+> 283/283 green (was 277 pre-change). Also re-ran `test_probe_arm.py` / `test_plan_all.py` /
+> `test_six_account_routing.py` / `test_duplicate_account_guard.py` / `test_arm_display_names.py`
+> / `test_exit_patch_overlay.py` / `backtest/tests/test_participation_cascade.py` -- all green,
+> nothing else in the fleet path regressed. Curated pre-commit safety gate PASS. Post-commit
+> `git show ecde12f8 --stat --name-status` confirms exactly the 4 intended files landed
+> (`accounts.json`, `build_shared_signal.py`, `fleet_executor.py`, `test_fleet_executor.py`).
+
+> **Learn (STAGE 4.5):** none new -- this fire's foot-gun-avoidance was the SCOPING step
+> itself (checking which ranked audit items were already closed before re-doing them), not
+> a fresh bug. No lesson-inbox item filed.
+
+> **Scope + revert:** exactly the 4 files above. Zero `heartbeat_core.py`/`params.json`/
+> `CLAUDE.md` touched -- this is a fleet_rest-only (paper) trading-path change per rail 4.
+> Revert: delete `accounts.json`'s risky-3 `gate_params`/`gate_params_doc` keys (byte-identical
+> to before this fire), or `git revert ecde12f8` for the full mechanism.
+
+> **queue.md** `GATE-TIERS-IMPLEMENT` status updated to `rank3-shipped-ranks1-4-open` with the
+> same evidence + an explicit list of what's still open (rank #1 block_elite_bull-relax-for-
+> RISKY is the #1 blocker per the audit, ~4.2 eps/wk -- next-fire-ready; rank #4 doji-gate
+> relax-for-RISKY needs the same mechanism extended to a score-side gate, not just hard-skip;
+> per-arm fill-funnel N=10-day measurement needs live days to accrue before it can run).
+
+> **Cost: ~$3.5** (STAGE 0/1 reads + audit re-read + accounts.json/build_shared_signal.py/
+> fleet_executor.py investigation, scoped design, 3-file implementation + 1 test file, smoke
+> tests, full fleet suite + adjacent suites, commit + verify, STATUS/queue write-up,
+> conductor_outcome record+metric).
 
 > **STAGE 0/1:** ET confirmed 20:42 (Thursday, market closed since 15:55). `engine-health.json`
 > GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` (MED, doctrine,
@@ -622,83 +692,6 @@
 > artifact) per the tiebreak rule; next fire should keep preferring drain-over-create while
 > the trend reads regressing, and the low-ENTER function score is worth a dedicated look if
 > it persists past tonight's session close.
-
----
-
-## [2026-07-23 ~06:42-06:50 ET] OK -- conductor (AFTERHOURS): cleared the 8-item lesson-inbox backlog -- L242-L249 graduated, commit `9e0850b8`
-
-> **STAGE 0/1:** ET confirmed 06:42 (re-verified 06:50 via `et_clock.py`), Thursday, market
-> closed since 15:55 prior session (opens 09:30). `engine-health.json` GREEN 13/13 (all
-> quiet-OK, market closed). Self-audit gaps: all batches through 2026-07-22T17:32:32 already
-> triaged -- no new batch due yet. `task_scorer.py --top` surfaced `TRENDLINE-TIGHT-EXIT-
-> ACCRETE` (MED); checked the full HIGH tier first (16 HIGH section headers) -- every one is
-> either `[x]`-closed, `status:CLOSED*`, or documented NOT-PICKABLE this session
-> (`DOJO-BUILD-HANDOFF` -- confirmed AGAIN this fire that no `tradingview`-prefixed tool
-> appears in this session's actual bound tool list, despite the MCP-instructions block always
-> being injected regardless of binding). With HIGH exhausted, STAGE 1 priority-5 (author
-> inboxes, oldest-first) won on tiebreak over the MED queue pick: `_lesson-inbox` had **8**
-> un-DONE items dated 2026-07-22/23, a real backlog nobody had cleared yet.
-
-> **What shipped (acting as lesson-author -- no `Agent`/Task tool is bound to this session's
-> tool list, confirmed by checking the actual available functions before assuming I could
-> fan out):** read all 8 inbox files in full, appended **L242-L249** to
-> `markdown/doctrine/LESSONS-LEARNED.md` (condensed from each file's own symptom/root-cause/
-> fix writeup, not re-derived from scratch): L242 (1,176 untracked `strategy/candidates/`
-> files), L243 (entry-side sibling to C28 -- a confirmation qualifier built to fix a late
-> trigger was itself too lagging to see J's anchor bar), L244 (fill-funnel blind to the
-> `extra_exec` secondary path, reported a real trading day IDLE), L245/L246 (two
-> `task_scorer.py` multiline-parsing bugs -- a wrapped priority-paren drops an item entirely;
-> a status field lines below the checkbox reads as empty/ready), L247 (a pre-commit `--cached`
-> check != a post-commit `git show --stat` -- extends C35/L239), L248 (a harness-baseline knob
-> unconditional in production but optional in the study -- quote the refinement cell, not
-> `|BASELINE`), L249 (a stub docstring cited a never-built dependency script, unchecked
-> across 3+ prior conductor fires). Folded all 8 into the CLAUDE.md OP-25 index (C7/C14/C28/
-> C34/C35 rows).
-
-> **Budget discipline caught mid-fire:** the first-pass index edit pushed CLAUDE.md to
-> **RED (9103/9000 tok)** -- caught via `check-context-budget.ps1`, not assumed clean. Trimmed
-> the newly-added inline examples (dropped older parenthetical call-outs already superseded by
-> the newest L#, kept the numeric list intact) back to **YELLOW (8848/9000, 98%)** without
-> losing any L# reference. Renamed all 8 processed files to `.DONE` via `git mv`.
-
-> **Verified this fire (OP-33, applying L247's own lesson immediately):** `git status --short`
-> on the FULL tree showed ~100+ unrelated `M` entries (other running processes' live-state
-> churn -- crypto-twin, kitchen, swarm, scout JSON/JSONL) -- staged ONLY the 2 intended files
-> (`git add CLAUDE.md markdown/doctrine/LESSONS-LEARNED.md`) plus the 8 `git mv`-staged
-> renames, confirmed via `git status --short -- <exact paths>` showing exactly 10 entries
-> before committing. **Post-commit** (not just pre-commit `--cached`): `git show HEAD --stat
-> --name-status` confirms the landed commit `9e0850b8` contains EXACTLY 2 `M` + 8 `R100` --
-> nothing else swept in. Curated safety gate (31 tests) PASS at commit time.
-
-> **Scope + revert:** pure doc/lesson authoring (LESSONS-LEARNED.md append, CLAUDE.md index
-> fold + trim, 8 inbox renames) -- zero params/heartbeat_core/filters/placement/exit/live
-> wiring touched. Ships per OP-22/OP-26 (engine-benefit authoring, no J ratification needed).
-> Revert: `git revert 9e0850b8`.
-
-> **Item status:** lesson-inbox backlog: 8 -> 0 open (all 8 now `.DONE`). No queue.md item
-> needed for this one (author-inbox clearing is its own standing STAGE-1 tier, not a tracked
-> backlog item) -- `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED) remains the next `task_scorer.py --top`
-> pick for a future fire.
-
-> **Cost: ~$3.1** (STAGE 0/1 reads incl. re-checking all 16 HIGH section headers' true status,
-> reading 8 full inbox files, drafting + trimming the LESSONS-LEARNED.md + CLAUDE.md edits,
-> budget-RED catch-and-fix, git mv + scoped commit + post-commit verification, STATUS
-> write-up). `conductor_outcome.py metric` to be recorded next.
-
----
-
-
-### DEGRADED: self-check 2026-07-23T20:20:43
-- BROKER UNREACHABLE: safe-2 TimeoutError (network/timeout -- likely transient).
-- BROKER UNREACHABLE: bold-2 TimeoutError (network/timeout -- likely transient).
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
-- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### DEGRADED: self-check 2026-07-23T20:21:17
-- BROKER UNREACHABLE: safe-2 account-ping HTTP 500.
-- BROKER UNREACHABLE: bold-2 TimeoutError (network/timeout -- likely transient).
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
-- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 
 ---
 
