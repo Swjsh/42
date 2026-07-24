@@ -1,3 +1,77 @@
+## [2026-07-23 ~22:12-22:29 ET] OK -- conductor (AFTERHOURS): EXITMGR-STAGE-LABEL-CONFLATION closed, commit `c4ee425a`
+
+> **STAGE 0/1:** ET confirmed 22:12 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again -- STILL
+> correctly `status:pending` on J's REVOKE surface (`gp-2026-07-23-twin-doctrine-001` confirmed
+> via `conductor-proposals.jsonl`, 4th fire in a row confirming, nothing new until J responds).
+> Full ranked list: 4 items tied at score 5.0 (`CATASTROPHE-CAP-WIDEN-WATCH` accrue-only n=4,
+> `EXIT-ENGINE-PARITY-RESIDUAL` research-diagnosis, `EXITMGR-STAGE-LABEL-CONFLATION`,
+> `TRENDLINE-TIGHT-EXIT-ACCRETE` accrue-only shadow). Picked `EXITMGR-STAGE-LABEL-CONFLATION`
+> (MED, ledger-hygiene, filed 2026-07-14) -- a bounded, closable bugfix vs. the other three
+> which are all "keep accruing / keep watching" (no new action available this fire).
+
+> **What I found:** `exit_manager.py`'s pre-TP1 exit-ALL check hardcoded
+> `stage="premium_stop"` even when `profit_lock_arm_scope="full"` made the actual exit a
+> pre-TP1 profit-lock-floor scratch -- the human-readable `reason` string already said
+> `"profit_lock_floor @ X"`, but the machine-readable `stage` field didn't, so any analytics
+> keyed off `stage` (not `reason`) would silently conflate the static -50% catastrophe cap
+> with the lock-floor exit. Fixed at the source: `stage` now reads `"profit_lock_floor"` when
+> `floor_active`, matching `reason`.
+
+> **Blast-radius audit (the actual work, not just the 1-line fix) found + fixed 2 REAL
+> downstream consumers** that read `ExitAction.stage` and would have silently mis-fired on
+> the new label: (1) `backtest/lib/exit_manager_walk.py`'s `_stage_fill_level` -- the
+> live-parity bar walker several backtest tools ride -- would have fallen through to
+> `None` -> market-fill for a floor exit instead of its correct limit-style fill; (2)
+> `backtest/tools/t4_exit_matrix.py` + `backtest/tools/hold_posture_ab_study.py`'s
+> `ARM_SCOPE_FULL` branches (the FIRST feeds `strike_ab_convention_reconciliation.py`'s
+> `shape_sim`; the SECOND is the `TRAIL60-REOPEN-WATCH` queue item's planned re-run once
+> >=50 new fills accrue -- so this was a live landmine for a FUTURE fire, not just a stale
+> comment). Both fixed with the actual ratcheted floor level, not a naive fallback. Checked
+> and confirmed SAFE/unaffected: `fleet_live.py`'s `first-entry-lock.json` reader (the file
+> is never written anywhere in the repo -- dead code, always returns `[]`, out of scope to
+> fix this fire); `debit_spread_ab_study.py`'s 2 defensive comments (never actually sets
+> `scope="full"`, so its branch is unreachable either way); `ribbon_ride_strike_exit_ab.py`,
+> `p5_topcell_real_fills_confirm.py`, `edge_matrix_range_*.py` (all pin `ARM_SCOPE_POST_TP1`
+> explicitly, never full).
+
+> **Verified this fire (OP-33):** new guard test
+> `test_stage_disambiguates_catastrophe_cap_from_profit_lock_floor` in
+> `automation/state/fleet/test_exit_manager.py` (REDs if stage is ever re-conflated) + 2
+> existing assertions updated to the correct label + new
+> `backtest/tests/test_exit_manager_walk_stage_labels.py` (3 tests pinning
+> `exit_manager_walk.py`'s fill-level parity between the two stages). Ran the full relevant
+> surface: `test_exit_manager.py` + `test_exit_actuator.py` + `test_exit_manager_replay.py`
+> + `test_profit_lock_scope_pin.py` + `test_ssb_certification.py` + `test_structure_stop_
+> study.py` + `test_exit_manager_walk_stage_labels.py` + `test_t4_exit_matrix.py` +
+> `test_audit_fix_heartbeat.py` + `test_audit_fix_exit.py` + `test_dojo_sim_executor.py` +
+> the 3 crypto-twin exit-touching suites = **265/265 green**. Curated safety gate
+> (`run_safety_gate.py`): 31+5 PASS (also ran automatically via the pre-commit hook).
+> Post-commit `git show c4ee425a --stat --name-status` confirms exactly the 6 intended
+> files landed (5 modified + 1 new test file).
+
+> **Zero live behavior change today:** no live/paper shape currently sets
+> `profit_lock_arm_scope="full"` (STOP-B stays unarmed per the 2026-07-09 doctrine) --
+> this only activates the correct label the day that scope is armed, or a frozen
+> full-scope study is re-run. This is why it shipped directly under rail 4 (guard test +
+> clean revert + this REVOKE report) rather than needing a J ping: it's a ledger-hygiene
+> correctness fix with a verified-empty live blast radius, not a behavior/edge change.
+
+> **Learn (STAGE 4.5):** no new lesson filed -- this is the existing blast-radius discipline
+> (grep every consumer of a shared field before shipping, per C34/`/fable-blast-radius`)
+> working exactly as designed on a real case, not a novel foot-gun.
+
+> **Scope + revert:** 6 files (`exit_manager.py`, `test_exit_manager.py`,
+> `exit_manager_walk.py`, `t4_exit_matrix.py`, `hold_posture_ab_study.py`,
+> `test_exit_manager_walk_stage_labels.py` [new]). Zero `params.json`/`heartbeat_core.py`/
+> `filters.py`/`CLAUDE.md` touched. Revert: `git revert c4ee425a`.
+
+> **Cost: ~$4.8** (STAGE 0/1 reads, task_scorer + 4-way tied-item comparison, exit_manager.py
+> source read + edit, blast-radius grep sweep across ~30 files for `stage`/`exit_reason`
+> consumers, 2 downstream-consumer investigations that each needed their own read-through
+> before deciding safe-vs-fix, 2 real fixes + 1 new test file, 3 rounds of test verification
+> at increasing scope, safety gate, commit + verify, queue/STATUS write-up).
+
 ## [2026-07-23 ~21:52-22:20 ET] OK -- conductor (AFTERHOURS): TWIN-B6-SIM-FRICTION-CALIBRATION infra shipped, commit `465487f7`
 
 > **STAGE 0/1:** ET confirmed 21:48 (Thursday, market closed since 15:55). `engine-health.json`
@@ -651,61 +725,6 @@
 > registering the new rule, 2 prescreen runs (~140s), targeted anchor verification against 2
 > separate cached CSVs incl. today's live data, curated-gate x2, lesson-inbox authoring,
 > queue/STATUS write-up, conductor_outcome record+metric).
-
----
-
-## [2026-07-23 ~09:12-09:35 ET] OK -- conductor (AFTERHOURS): closed FUNCTION-SCORE-ZERO-ENTER-CHECK (HIGH) -- diagnosed benign + fixed a real metric blind spot, commit `56b4bd2b`
-
-> **STAGE 0/1:** ET confirmed 09:12 (Thursday, market not yet open -- opens 09:30, clean
-> runway). `engine-health.json` GREEN 13/13. `self_check.py` DEGRADED on 1 non-load-bearing
-> item (trendline-draw not marked today -- explicitly skipped this morning's premarket fire
-> under its own $3 budget cap, visibility-only). Inboxes small (skill=1, lesson=2, chef=8,
-> validator=0). `task_scorer.py --top` picked `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED), but
-> `queue.md`'s HIGH-priority `FUNCTION-SCORE-ZERO-ENTER-CHECK` outranked it -- a 3rd
-> conductor fire re-flagging the same "0 orders_accepted" reading on 2026-07-22 as "worth a
-> dedicated look" is exactly the priority-1 function-first check this loop is built to chase
-> down, not another re-cite.
-
-> **What I found:** pulled 2026-07-22's `core-decisions.jsonl` tick-by-tick (774 rows):
-> 733/774 reasoned "no setup passed scoring" with an EMPTY triggers list -- bear score never
-> exceeded 9 with a live trigger, a genuinely quiet bear day, not a gate eating triggers. The
-> other 40 were the bull side hitting the ALREADY-AUDITED, ALREADY-CLOSED `block_elite_bull`
-> data-gate (BULL-UNBLOCK-REPLAY-PROBE thread, verdict KEEP, closed 2026-06-30) -- not new,
-> not a bug. `fill_funnel.py --date 2026-07-22` independently verdicts **GREEN**: core:safe
-> had 2 real fills/2 exits via the `extra_exec` secondary lane (vwap_continuation +
-> bollinger_squeeze -- a designed, armed, cooldown-gated execution path in
-> `heartbeat_core._route_extra_setups`, not a workaround).
-
-> **The actual bug (why this kept re-triggering):** `conductor_outcome.py`'s
-> `trading_function_snapshot()` only read the PRIMARY verdict/exec pipeline for
-> `orders_accepted` -- it never learned about the `extra_exec` lane that `fill_funnel.py`
-> already fixed visibility for on 2026-07-22 (a prior fire's fix to ONE consumer of
-> `core-decisions.jsonl` that never propagated to this SECOND consumer of the same file --
-> the exact producer/consumer-mismatch class C14/C7 exist to catch). Result: the function
-> metric kept reading "0 orders_accepted" on a day that actually placed 4 real extra_exec
-> orders (2 filled), making 3 straight fires flag a non-issue as a concern.
-
-> **Fix shipped:** added `extra_exec_orders_accepted` (a NEW field, kept separate from
-> `orders_accepted` -- mirrors `fill_funnel.py`'s own scoping choice so the primary-pipeline
-> signal stays uncontaminated), folded into `distinct_setups_traded` + the weighted function
-> score (x2, same weight as `orders_accepted`). **Verified this fire (OP-33):** direct call to
-> `trading_function_snapshot()` against the live repo now reads
-> `extra_exec_orders_accepted=4, distinct_setups_traded=2` for 2026-07-22 -- matches
-> `fill_funnel.py`'s independently-computed funnel exactly (4 PLACED = 3 vwap_continuation + 1
-> bollinger_squeeze). 2 new guard tests (`test_conductor_outcome_function.py`, scoping
-> isolation + record/metric plumbing), 23/23 in the module pass, curated safety gate (31
-> tests) PASS at commit time. Post-commit `git show 56b4bd2b --stat --name-status` confirms
-> exactly the 2 intended files landed, nothing else swept in.
-
-> **Scope + revert:** pure observability/metric code (`conductor_outcome.py` +
-> its test file) -- zero params/heartbeat_core/filters/placement/exit/CLAUDE.md touched.
-> Ships per OP-22/OP-26 (engine-benefit, no J ratification needed) + rail 4 (guard test +
-> git-revert path, both satisfied). Revert: `git revert 56b4bd2b`.
-
-> **Cost: ~$2.9** (STAGE 0/1 reads, pulling + cross-checking 07-22's decision ledger 3
-> different ways, reading heartbeat_core's extra_exec routing + fill_funnel's prior fix for
-> precedent, implementing + testing the conductor_outcome fix, curated-gate commit, queue +
-> STATUS write-up).
 
 ---
 
