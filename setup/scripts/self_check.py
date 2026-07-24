@@ -772,6 +772,58 @@ def check_candidates_untracked_backlog(run_git=None) -> list:
             f"STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22)."]
 
 
+def check_participation_daily(now, path=None) -> list:
+    """GOAL-LAYER reader for participation_daily.py's own automation/state/participation-daily.json
+    (Gamma_ParticipationDaily, 16:10 ET weekdays -- per-account safe/bold fills-vs-target
+    verdict). Wires that standing instrument into self_check's DEGRADED/BROKEN pipeline the
+    same way check_fill_funnel already does -- participation_cascade.py's own module docstring
+    names exactly this hookup as the intended next step (PARTICIPATION-DAILY-SELF-CHECK-WIRE,
+    filed off the same instrument). Until this landed, a real participation hole only ever
+    reached J via participation_daily's own de-duped discord-outbox line -- never STATUS.md's
+    '## Known broken' surface or engine-health.json.
+
+    RED -> BROKEN: a CONFIRMED participation hole (an account formed >= RED_ENTER_VERDICT_FLOOR
+    ENTER verdicts today and filled ZERO -- participation_daily.account_verdict's own predicate,
+    not re-derived here). YELLOW -> DEGRADED (fills below the account's own daily-min target,
+    but not zero). IDLE (nothing scored all day -- holiday/feed-down, never itself a fault) and
+    GREEN (target met) are silent.
+
+    STALENESS: the artifact only refreshes once/day at 16:10 ET, so its `date` field lags
+    "today" for the entire session -- judged (missing-or-stale -> BROKEN) only after 16:20 ET
+    on a weekday, mirroring check_dress_rehearsal's evening-only staleness window. Before that,
+    or on a not-yet-written day, this is silent (nothing to judge yet). Fail-open: any
+    read/parse error outside the weekday-evening window returns []."""
+    p = path or (STATE / "participation-daily.json")
+    weekday_evening = now.weekday() < 5 and now.strftime("%H:%M") >= "16:20"
+    today = now.strftime("%Y-%m-%d")
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        if weekday_evening:
+            return ["PARTICIPATION-DAILY MISSING (RED): no goal-layer artifact on a weekday "
+                    "evening -- Gamma_ParticipationDaily may not be firing. Run "
+                    "setup/scripts/participation_daily.py."]
+        return []
+    if d.get("date") != today:
+        if weekday_evening:
+            return [f"PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated "
+                    f"{d.get('date')}, not today {today} -- Gamma_ParticipationDaily likely "
+                    f"did not fire."]
+        return []  # not yet run for today -- no verdict to judge
+    verdict = d.get("verdict")
+    accounts = d.get("accounts") or {}
+    if verdict == "RED":
+        parts = [f"{acc}={a.get('fills')}/{a.get('target_min')}-{a.get('target_max')} "
+                 f"[{a.get('verdict')}]" for acc, a in accounts.items()]
+        return [f"PARTICIPATION RED: confirmed goal-layer hole today -- " + " ".join(parts) +
+                f" -- see analysis/participation-cascade/{today}.md for the top blockers."]
+    if verdict == "YELLOW":
+        parts = [f"{acc}={a.get('fills')}/{a.get('target_min')}-{a.get('target_max')}"
+                 for acc, a in accounts.items() if a.get("verdict") == "YELLOW"]
+        return [f"PARTICIPATION DEGRADED (YELLOW): below daily-min target -- " + " ".join(parts)]
+    return []
+
+
 def _problem_is_broken(p: str) -> bool:
     """BROKEN (vs DEGRADED) classifier for a problem string. Module-level so the
     graduated guards can assert the mapping (e.g. PLACEMENT BROKEN -> BROKEN)."""
@@ -839,6 +891,10 @@ def run() -> dict:
 
     # 8. FILL FUNNEL (content) -- placement broken / late ENTER / fill-without-exit
     problems.extend(check_fill_funnel(now))
+
+    # 8b. PARTICIPATION-DAILY GOAL LAYER (content) -- per-account fills-vs-target verdict
+    # (participation_daily.py, 16:10 ET). RED = confirmed hole; YELLOW = below target.
+    problems.extend(check_participation_daily(now))
 
     # 9. NIGHTLY DRESS REHEARSAL (real broker boundary) -- "are we good for tomorrow" reader
     problems.extend(check_dress_rehearsal(now))

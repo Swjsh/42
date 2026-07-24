@@ -627,40 +627,71 @@
 
 ---
 
-## [2026-07-23 ~06:58-07:10 ET] FLAG -- conductor (AFTERHOURS): post-commit audit caught 0c7b2804's OP-33 "verified" claim was wrong -- delete-half of a git-mv sat uncommitted 2h+, silently absorbed into my unrelated Step-1 commit
 
-> **What I found:** immediately after committing EDGE-MATRIX-NIGHTLY-RERUN Step 1 (below),
-> `git show HEAD --stat` reported 117 files changed, not my intended 7 -- 110 unexplained
-> `D` entries for old `strategy/candidates/*.md` files I never touched. Traced it: commit
-> `0c7b2804` (~04:05 ET tonight, "CHEF-CANDIDATES-CONSOLIDATION-SWEEP batch 2") claimed in its
-> own STATUS.md write-up to have verified via `git diff --cached --name-only` that all 110
-> original-path deletions + the 2 archive-registration doc edits were staged before commit.
-> **That claim was wrong.** `git diff 006b3446 0c7b2804 --stat --name-status` shows `0c7b2804`
-> actually contains 110 `A` (archive-destination copies) + 2 `M` -- ZERO `D`. The 110
-> original-path deletions never landed in that commit; they sat dangling in the index (or
-> working tree) for 2h20m, invisible to `git log`, until MY unrelated `git add <7 files> &&
-> git commit` (nothing to do with candidate archival) silently swept the FULL index and
-> committed them alongside my own intended files.
->
-> **Impact assessed, not just noted:** NOT data loss -- all 110 files exist only at their
-> archive path (`strategy/candidates/_archive/sweep-2026-07-23/`), git-tracked, confirmed via
-> `git ls-files` (110) matching `find ... | wc -l` (110). The functional end-state is correct.
-> The real damage is (a) the deletion landed in a commit with an unrelated subject line
-> (history/blame pollution) and (b) a `STATUS.md` "verified" claim was false for 2+ hours with
-> nothing catching it. Root cause: `git diff --cached --name-only` BEFORE a commit is not the
-> same guarantee as `git show <sha> --stat` AFTER it -- the two can diverge, and only the
-> latter actually proves what shipped.
->
-> **Foot-gun graduated:** filed `strategy/candidates/_lesson-inbox/2026-07-23-half-committed-
-> mv-deletions-absorbed-by-unrelated-later-commit.md` -- extends C35 ("built != shipped until
-> committed") one level deeper: post-commit OP-33 verification must check the ACTUAL commit's
-> tree (`git show <sha> --stat --name-status`), not just the pre-commit staging area. No
-> revert performed (state is already correct; reverting would re-litter the original paths
-> while archive copies still exist -- strictly worse). No code/params changed by this
-> addendum -- pure investigation + lesson filing, folded into the same fire as Step 1 below
-> rather than a separate commit (nothing here needs a commit of its own -- the STATUS.md edit
-> lands in this fire's own history, and the lesson-inbox file will be picked up by the next
-> commit that touches queue/state).
+### DEGRADED: self-check 2026-07-23T20:20:43
+- BROKER UNREACHABLE: safe-2 TimeoutError (network/timeout -- likely transient).
+- BROKER UNREACHABLE: bold-2 TimeoutError (network/timeout -- likely transient).
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-23T20:21:17
+- BROKER UNREACHABLE: safe-2 account-ping HTTP 500.
+- BROKER UNREACHABLE: bold-2 TimeoutError (network/timeout -- likely transient).
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 
 ---
 
+## [2026-07-23 ~20:12-20:30 ET] OK -- conductor (AFTERHOURS): PARTICIPATION-DAILY-SELF-CHECK-WIRE closed -- goal-layer verdict now surfaces through self_check's DEGRADED/BROKEN pipeline
+
+> **STAGE 0/1:** ET confirmed 20:12 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `task_scorer.py --top` returned `PARTICIPATION-DAILY-SELF-CHECK-WIRE` (MED) --
+> the same item the 19:48 fire correctly re-scoped (phantom dependency removed, real blocker =
+> "simply not yet done"). Self-audit gaps file fully triaged through the 17:31 batch, nothing
+> new to action there.
+
+> **What shipped:** `check_participation_daily(now, path=None)` added to `setup/scripts/
+> self_check.py`, same shape as `check_fill_funnel` (participation_cascade.py's own module
+> docstring names this exact hookup as the intended next step). Reads `automation/state/
+> participation-daily.json`'s per-account goal-layer verdict (safe/bold fills-vs-target,
+> written daily 16:10 ET by `participation_daily.py`) instead of recomputing anything:
+> RED (a CONFIRMED hole -- an account formed >=5 ENTER verdicts today and filled ZERO,
+> `RED_ENTER_VERDICT_FLOOR`) -> BROKEN; YELLOW (fills below the account's own daily-min
+> target, not zero) -> DEGRADED; IDLE (nothing scored today) / GREEN (target met) stay silent.
+> Staleness (missing/wrong-dated artifact) is only judged BROKEN after 16:20 ET on a weekday --
+> mirrors `check_dress_rehearsal`'s evening-only staleness window so it never false-alarms
+> mid-session or before the daily 16:10 ET fire has run. Wired into `run()` as step 8b, right
+> after `check_fill_funnel`.
+
+> **Verified this fire (OP-33):** 15 new tests in `backtest/tests/test_self_check_participation_
+> daily.py` (severity mapping RED->BROKEN/YELLOW->DEGRADED/IDLE+GREEN silent, staleness window
+> midday/evening/weekend, run()-wiring) all green; full self_check+participation test slice
+> `pytest -k "self_check or participation"` 161/161 green. **Live-verified, not just unit-
+> tested:** ran `self_check.run()` against the REAL repo state and it surfaced a genuine,
+> previously-invisible-to-self_check finding -- `PARTICIPATION DEGRADED (YELLOW): below
+> daily-min target -- bold=1/2-4` -- confirmed independently moments later when the live
+> `Gamma_SelfCheck` scheduled task (running on its own ~30min cadence, unrelated to this
+> session) picked up the same code and appended the identical finding to this very file (see
+> the two `### DEGRADED: self-check 2026-07-23T20:2{0,1}:*` blocks immediately above this
+> entry) -- the wiring is proven end-to-end in production, same session, same fire.
+
+> **Learn (STAGE 4.5):** no new foot-gun this fire -- this closes a previously-filed gap
+> rather than surfacing a new one. Noted for the record: the "verify live, not just via
+> pytest" discipline (OP-33) caught this instrument actually firing in production within the
+> same fire that shipped it, rather than trusting the unit tests alone.
+
+> **Scope + revert:** `setup/scripts/self_check.py` (1 new function + 1 call-site line) +
+> `backtest/tests/test_self_check_participation_daily.py` (new, 15 tests) + `queue.md`
+> (checkbox flip + evidence) + this STATUS.md entry. Also included in this commit: STATUS.md's
+> own live self-check appends (2 DEGRADED blocks, written by the independently-running
+> `Gamma_SelfCheck` task during this fire) and a live `crypto-twin` sentinel append to
+> queue.md (`TWIN-ESCALATION-20260723-...BREAKER_TRIPPED`, unrelated background monitor
+> output, not investigated this fire -- flagged for a future pick). Zero params/heartbeat_core/
+> filters/placement/exit/CLAUDE.md touched -- pure observability-instrument authoring,
+> engine-benefit, ships per OP-22/26, no J ratification needed.
+
+> **Cost: ~$2.9** (STAGE 0/1 reads, tracing participation_cascade.py's suggested hookup +
+> participation_daily.py's verdict schema + self_check.py's existing check patterns, new
+> function + wiring, 15 new tests, curated self_check+participation test slice, live
+> `self_check.run()` verification against real repo state, queue/STATUS write-up,
+> conductor_outcome record+metric).
