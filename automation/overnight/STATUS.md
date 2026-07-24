@@ -1,3 +1,86 @@
+## [2026-07-23 ~22:42-23:03 ET] OK -- conductor (AFTERHOURS): ENGULFING-AT-STRUCTURE-TRIGGER's rolling-K-bar cluster primitive shipped, commits `8aed997a` + `77e048be`
+
+> **STAGE 0/1:** ET confirmed 22:42 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again -- still
+> correctly `status:pending` on J's REVOKE surface (5th fire in a row confirming, nothing new
+> until J responds). Next 3 ranked MED items (`CATASTROPHE-CAP-WIDEN-WATCH`,
+> `EXIT-ENGINE-PARITY-RESIDUAL`, `TRENDLINE-TIGHT-EXIT-ACCRETE`) are all "keep accruing/watching"
+> per prior fires' own notes (no new action available). `DOJO-BUILD-HANDOFF` (HIGH) confirmed
+> still not pickable (no TV MCP tools bound to this conductor session). Picked
+> `ENGULFING-AT-STRUCTURE-TRIGGER`'s own named next step from its progress thread: build the
+> rolling-K-bar local-extreme-cluster primitive `engulfing_at_swing_shelf`'s anchor notes called
+> for, and re-run the 2-anchor falsification BEFORE any pre-reg.
+
+> **Built `local_extreme_cluster()`** (predicates.py sec 12b) -- causal, C6-safe, reads only
+> `ctx.bars[<=t]`, zero `ctx.structure` dependency. First design (anchor clustering to the
+> window's GLOBAL min/max) FAILED both anchors on first verification run -- debugged with a
+> standalone reproducer (OP-33: verify before disclosing): an unrelated spike bar 30-40min prior
+> in the lookback window swamps the real, tighter, more-recent cluster the current bar is
+> actually reacting to. Redesigned to anchor clustering to BAR T's OWN extreme instead --
+> `pattern_anchor_verify.py --rule engulfing_at_local_cluster` then confirmed 2/2 anchors match
+> (unlike `engulfing_at_swing_shelf`, which honestly does not fire on either).
+
+> **Caught a real near-miss before shipping (the actual discipline, not just the headline):** ran
+> the bare composition through the C27 prescreen immediately after anchor verification passed --
+> NOISE-KILL, 92-99% days fired across every tolerance grid-searched (0.05-0.20). Anchor-pass and
+> prescreen-pass are INDEPENDENT properties (precision on 2 named exhibits vs population-level
+> selectivity); shipping on the anchor pass alone would have shipped a rule with near-zero
+> cross-day signal. Grid-searched two discriminators (`local_cluster_min_touches` 2->3,
+> `local_cluster_min_body_dollars` 0->0.40) re-checking BOTH anchors after every candidate --
+> final config clears C27 (**TESTABLE, 33.3% days, 0.46 fires/day, recent-90d stable, no drift**,
+> comparable selectivity to `engulfing_at_swing_shelf`'s 28.9%/0.42) while both anchors still
+> fire. Filed the methodology gap to `_lesson-inbox` (anchor-verified != not-noise, the inverse
+> of the swing-shelf fire's own "clean prescreen can still fail a targeted anchor" finding).
+
+> **Verified this fire (OP-33):** `test_pattern_grammar.py` + `test_pattern_anchor_verify.py` +
+> `test_pattern_prescreen.py` = 81/81 green (registry count 12->13, tier-2 set +1, ratchet tests
+> updated in the same commit -- not left to silently drift). `pattern_anchor_verify.py` (no
+> `--rule` filter, whole registry) = 4/4 anchors match declared state. Curated safety gate
+> (31+5) PASS at both commits. Post-commit `git show 8aed997a --stat --name-status` confirmed
+> exactly the 4 intended files (predicates.py, registry.py, test_pattern_grammar.py,
+> pattern-prescreen.json evidence).
+
+> **NO WIRING preserved** (unchanged from every other registry rule): `registry.py` has zero
+> live-engine/watcher/setup_dispatch consumers -- this is prescreen/discovery-only, PAPER-safe
+> by construction (nothing to revert on a real account). **Scope + revert:** 2 commits, 6 files
+> total (4 code/test + queue.md progress note + 1 new lesson-inbox candidate). Revert:
+> `git revert 77e048be 8aed997a`.
+
+> **Next step (not this fire, rail 3):** the item's own BUILD spec's step (c) -- a frozen
+> pre-reg (<=16 cells) + real-fills replay through `exit_manager_walk` over the 386-day history,
+> confirming the winning cell still fires on both anchor bars. Item stays `status:pending` in
+> queue.md pending that replay.
+
+> **Cost: ~$6.7** (STAGE 0/1 reads incl. 3475-line queue.md targeted sections, task_scorer +
+> 4-way item comparison, pattern-grammar/registry/predicates source reads (~600 lines), 2 failed
+> design iterations debugged with standalone reproducers before the working design, C27
+> prescreen run x3 (bare/touches-only/final-tuned, ~70s each), grid-search script across 20
+> tolerance/touches combos + a targeted per-anchor touch-count sweep, 2 commits + verification,
+> queue/STATUS/lesson-inbox write-up).
+
+## [2026-07-23] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
+
+> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
+> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
+> -   bollinger_squeeze (armed 2026-07-02): since-arm 3tr $+75.00 ($+25.00/tr, 66.7% WR)
+> -   double_bottom_base_quiet (armed 2026-07-01, 22d ago): 0 fills since arm — no live signal yet
+> -   vix_regime_dayside (armed 2026-07-01): since-arm 5tr $-153.00 ($-30.60/tr, 0.0% WR)
+> -   vwap_continuation (armed 2026-07-01): since-arm 7tr $-204.00 ($-29.14/tr, 0.0% WR)
+> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 1tr $+18.00 ($+18.00/tr, 100.0% WR)
+> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
+
+---
+
+## [2026-07-23] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-17..2026-07-23), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-23). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-276.48); Bold_ATM_1+2=YELLOW ($-166.9)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-07-23 ~22:12-22:29 ET] OK -- conductor (AFTERHOURS): EXITMGR-STAGE-LABEL-CONFLATION closed, commit `c4ee425a`
 
 > **STAGE 0/1:** ET confirmed 22:12 (Thursday, market closed since 15:55). `engine-health.json`
@@ -602,129 +685,6 @@
 > context/prescreen code study, building + testing the anchor-verify tool + guard test,
 > curated-gate x2, self-audit doc triage, queue/STATUS write-up, conductor_outcome
 > record+metric).
-
----
-
-## [2026-07-23 ~17:12-18:15 ET] OK -- conductor (AFTERHOURS): ENGINE-VECTORIZATION layer 1/3 shipped, honestly quantified (~6%, not 1.8x), commit `2c6eaf75`
-
-> **STAGE 0/1:** ET confirmed 17:12 (Thursday, market closed since 15:55). `engine-health.json`
-> GREEN 13/13. `self_check.py` DEGRADED only on the pre-existing non-load-bearing TRENDLINE-DRAW
-> flag. `fill_funnel.py` GREEN 2026-07-23 (core:bold 1/1 fill/exit; core:safe 8 ENTER signals, 0
-> attempted -- attempted==0 is not RED, consistent with an upstream rule-block, not a funnel
-> break). Self-audit gaps: everything through 2026-07-22 already triaged, next batch fires 17:30
-> (after this fire started). `task_scorer.py --top` picked `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED),
-> but the queue's own HIGH tier had `ENGINE-VECTORIZATION` -- a fully-specced, pre-baselined
-> "one layer at a time, hash-validated" perf build with concrete layer-1 instructions already
-> written out, outranking a MED accrual-watch item.
-
-> **What shipped:** `_detect_from_history` (backtest/lib/levels.py) was unconditionally
-> re-deriving "date"/"time" via `.dt.date`/`.dt.time` on the SAME ever-growing history slice
-> every trading day (called once per day through orchestrator's `_level_per_day` cache), even
-> though `orchestrator.py`'s `spy_df_full` already carries a precomputed "date" column. Fixed:
-> skip the recompute when the caller already supplies the columns (mirrors the pre-existing
-> `_find_swept_levels` precedent in the SAME file -- this pattern was already proven safe
-> elsewhere in levels.py, not invented fresh); `orchestrator.py` now precomputes "time" once
-> up front alongside "date" so the hot path benefits automatically.
-
-> **Verified this fire (OP-33):** ran the FULL real-OPRA-fills reproducer
-> (`strategy_space_grind --cell OTM-2:L2:pct_-8`) before AND after the change: n=308,
-> total=$3982.94, edge_capture=$1100.97, wf=2.762, wr=0.1786, max_dd=-$988.33 -- byte-identical
-> to the last decimal both times (confirms the pre-existing `_vectorize_baseline.json`'s n=159/
-> $2593.09 is stale to the 2026-06-24 data window, not a live regression -- noted in queue.md).
-> 3 new guard tests (`test_levels_precomputed_columns_parity.py`) + 23/23 pre-existing
-> `test_level_quality_guards.py` + 31+5 curated safety gate + a broader `-k "levels or
-> orchestrator"` sweep (82/82, 930s, real integration-weight tests) ALL PASS -- zero
-> regressions at every scope checked. Post-commit `git show 2c6eaf75 --stat --name-status`
-> confirms exactly the 3 intended files landed.
-
-> **Reported honestly, not oversold (no-oversell doctrine, `/fable-too-good` discipline):**
-> cProfile'd the same cell (205s profiled vs 83s real -- profiler overhead, relative shares are
-> the signal) and ran a clean isolated microbenchmark of `_detect_from_history` alone (365 real
-> calls, no profiler): 27.33s -> 25.74s, a genuine but MODEST ~6% win at this layer -- not the
-> item's speculated "~1.8x alone". Root cause of the shortfall, precisely pinned: the dominant
-> remaining cost inside this layer is the boolean-mask slice construction
-> (`spy_df_full[spy_df_full["timestamp_et"] <= bar_time]`, still O(n) per day), which this fix
-> does not touch. Full wall-clock A/B on the whole grind cell (83.4s vs 87.2s) showed NO
-> measurable difference -- within run-to-run noise, because real-OPRA-fills I/O + layer 2's
-> ~1.6M `.iloc`/`fast_xs` calls (confirmed via cProfile: `filters.py:evaluate_bullish_setup`
-> ~90s cumulative, `evaluate_bearish_setup` ~40s, `engine/score.py:score_bar` ~65s) dominate
-> total runtime, not this layer.
-
-> **Scope + revert:** pure `backtest/lib/` perf + 1 new test file -- zero params/heartbeat_core/
-> filters/placement/exit/CLAUDE.md touched. Ships per OP-22/26 (engine-benefit research infra,
-> no J ratification needed). Revert: `git revert 2c6eaf75`.
-
-> **Item stays open (HIGH), status `layer1-shipped-layer2-3-open`** -- 1 of 3 hot layers done
-> and honestly quantified with a cProfile-backed next-step (layer 2: filters.py's `.iloc`-per-bar
-> lookback loops are the real "big multiplier", numpy-array precompute + `BarContext` injection
-> is the concrete next build), not closed. Full detail in queue.md's own entry.
-
-> **Cost: ~$4.7** (STAGE 0/1 reads, code study of `_detect_from_history`+orchestrator+3
-> intervening layers, 2 full real-fills reproducer runs (~83s+87s), cProfile run (~205s),
-> isolated microbenchmark (~53s), implementing+guard-testing the fix, curated gate x2, a
-> background 82-test/930s broad sweep, queue+STATUS write-up, conductor_outcome record+metric).
-
----
-
-## [2026-07-23 ~16:12-16:52 ET] OK -- conductor (AFTERHOURS): ENGULFING-AT-STRUCTURE-TRIGGER (HIGH) -- shipped a real grammar rule, honestly falsified against both anchors, commits `31c5089e` + `e15f85dd`
-
-> **STAGE 0/1:** ET confirmed 16:12 (Thursday, market closed since 15:55 -- clean after-hours
-> runway). `engine-health.json` GREEN 13/13. `self_check.py` DEGRADED only on the pre-existing
-> non-load-bearing TRENDLINE-DRAW flag. `fill_funnel.py` GREEN for 2026-07-23: core:bold 1
-> fill/1 exit; core:safe 8 ENTER signals but 0 attempts (not RED -- RED requires attempted>0 &
-> accepted==0; this is attempted==0, consistent with a rule-block upstream of placement, not a
-> funnel break). Self-audit gaps: all triaged through 07-22, nothing new due yet (next batch
-> fires 17:30). `task_scorer.py --top` picked `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED) but the queue's
-> own HIGH tier had a live, un-actioned item: `ENGULFING-AT-STRUCTURE-TRIGGER`, filed today from
-> 3 live-tape exhibits J called (engine had ZERO trigger every time, both directions, mirror-
-> symmetric) -- outranks MED per priority order.
-
-> **What I found before building anything:** the pattern-grammar registry
-> (`backtest/lib/patterns/`, built 2026-07-09, "NO WIRING" -- consumed only by the C27 prescreen)
-> ALREADY had both raw ingredients: an `engulfing` candlestick predicate and a `flat_side` swing-
-> shelf primitive (powers `double_top_bottom_at_level`/`rectangle_range_break`/`triangle_*`) --
-> just never composed together anchored to the intraday shelf (the existing `engulfing_at_level`
-> anchors to NAMED DAILY levels only). Built + shipped `engulfing_at_swing_shelf` (commit
-> `31c5089e`): 12th registry rule, 57/57 pattern-grammar tests green, curated safety gate 31+5
-> PASS. C27 prescreen came back clean -- TESTABLE full-history (28.9% days, 0.42 fires/day) AND
-> stable recent-90d (no drift), notably CLEANER than `engulfing_at_level` itself, which this same
-> prescreen run showed has DRIFTED to NOISE-KILL recently (undisclosed before this fire).
-
-> **Ran the falsification test anyway (OP-33 / `/fable-too-good`) -- and it FAILED both anchors.**
-> A clean prescreen number is not proof the rule captures the SPECIFIC mechanism it was built
-> for. Checked the shipped predicate directly against both bars J named: 07-21 11:05 bullish and
-> 07-23 10:40 bearish (verified against the freshest cache including today,
-> `spy_5m_2026-05-19_2026-07-23.csv`) -- neither fires. Root cause, precisely pinned with direct
-> evidence (not re-asserted): the tight touch clusters J read (~$0.08 apart, 5 min apart) never
-> register as 2+ DISTINCT confirmed swing pivots under `crypto/lib/market_structure.py`'s
-> labeling timescale -- the SAME shared primitive every swing-family rule (`flat_side`,
-> `monotone_swings`, `double_top_bottom_at_level`, and now `engulfing_at_swing_shelf`) is built
-> on. This is not a missing-vocabulary problem after all; it's a timescale mismatch in a shared
-> primitive that bounds every rule composed on it. Full detail + refined next step (a genuinely
-> new rolling-K-bar local-extreme-cluster primitive, to be falsified BEFORE any pre-reg/replay is
-> built on it) filed in `queue.md`'s own item (commit `e15f85dd`) + `_lesson-inbox` for
-> graduation (`2026-07-23-swing-primitive-timescale-bounds-every-composed-rule.md`).
-
-> **Verified this fire (OP-33):** direct Python calls against both live commits' code (not
-> assumed) reproduced the exact pivot lists showing `flat_side` returns `None` at both anchor
-> bars; `git show --stat --name-status` on both commits confirms exactly the intended files (2
-> code files first commit, queue+lesson-inbox second commit, nothing else swept in).
-
-> **Scope + revert:** pure `backtest/lib/patterns/` authoring + docs -- registry.py's own
-> docstring: "NO WIRING: nothing here is imported by the live engine... consumed ONLY by
-> pattern_prescreen.py." Zero params/heartbeat_core/filters/placement/exit/CLAUDE.md touched.
-> Ships per OP-22/26 (engine-benefit research authoring, no J ratification needed). Revert:
-> `git revert e15f85dd` then `git revert 31c5089e`.
-
-> **Item stays `status:pending`, NOT closed** -- this is genuine progress (a vague 3-mechanism
-> hypothesis narrowed to one precisely falsified composition + a concrete named next primitive),
-> not a stall; per OP-22's tiebreak this counts as advancing a HIGH item, the right call over
-> starting a fresh MED item cold.
-
-> **Cost: ~$5.3** (STAGE 0/1 reads, registry/predicates/grammar/context code study, composing +
-> registering the new rule, 2 prescreen runs (~140s), targeted anchor verification against 2
-> separate cached CSVs incl. today's live data, curated-gate x2, lesson-inbox authoring,
-> queue/STATUS write-up, conductor_outcome record+metric).
 
 ---
 
