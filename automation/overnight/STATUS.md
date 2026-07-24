@@ -1,3 +1,71 @@
+## [2026-07-23 ~23:12-23:45 ET] OK -- conductor (AFTERHOURS): EXIT-ENGINE-PARITY-RESIDUAL root-caused (91% of a $40/tr research-parity gap explained + confirmed via ablation), commit pending
+
+> **STAGE 0/1:** ET confirmed 23:12 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again -- STILL
+> `status:pending` on J's REVOKE surface (`gp-2026-07-23-twin-doctrine-001`, 6th fire confirming,
+> nothing new). Self-audit gaps file: 2026-07-23's own batch already actioned earlier today, no
+> new un-triaged batches. Next 3 MED items (`CATASTROPHE-CAP-WIDEN-WATCH` n=4 accrue-to-10,
+> `TRENDLINE-TIGHT-EXIT-ACCRETE` shadow-accrual) confirmed still watch-only, no action possible.
+> `EXIT-ENGINE-PARITY-RESIDUAL` (MED, filed 2026-07-09, re-flagged "research-diagnosis" not
+> "watch-only" by the prior 2 fires but never picked) DID have a concrete, doable-now diagnosis
+> step ("per-trade exit-reason diff on the 149-trade control set") -- picked it.
+
+> **What I found:** built `backtest/tools/vwapcont_parity_diagnose.py` (per-signal diff, reuses
+> `vwapcont_entry_exit_matrix.py`'s own signal-loading/prep helpers verbatim, ANALYSIS ONLY).
+> Reproduced the known scorecard exactly (bar-replay $15.02/tr vs simulate_trade_real $54.73/tr,
+> n=149 both -- preflight hash/version/parity all OK, confirms the diagnostic is aligned with the
+> frozen study). Bucketed per-trade by (bar-replay terminal stage, sim exit_reason): the single
+> biggest driver is 19/149 trades where bar-replay says `premium_stop` but sim says
+> `TP1_THEN_RUNNER_*` (sum delta -$4,164 of the -$5,917 total gap); the 96 trades where both
+> engines agree on the terminal mechanism still carry a consistent -$16.72/tr drag.
+
+> **Root-caused with a controlled experiment, not hand-waved (OP-33 discipline):** code-read
+> found `lib/simulator_real.py:534-535` (`spy_idx=entry_bar_idx+2` / `opt_idx=entry_idx_opt+1`)
+> never checks the ENTRY bar's own high/low for a stop/TP1 -- sim's exit loop starts at the bar
+> AFTER entry. `structure_stop_study.replay_structure_aware`'s `norm_bars` (every bar-replay-family
+> tool's own `load_atm_bars`) start AT the entry bar itself, and the exit loop evaluates that
+> SAME bar's high/low on iteration 1 -- one bar earlier than sim. **Confirmatory ablation:**
+> re-ran bar-replay on the identical 149-signal population with `norm_bars[1:]` (entry bar
+> excluded, matching sim's convention) -- exp $15.02 -> $58.28 vs sim $54.73, closing **91.1% of
+> the $39.71/tr gap**; residual -$3.55/tr fully consistent with the two ALREADY-confirmed smaller
+> mechanisms (pre-TP1 profit-lock scope ~$0.72/tr + ribbon-flip-back). This **supersedes** the
+> queue item's own prior guess ("mostly ribbon-flip modeling + fill conventions") -- those are
+> real but minor; the entry-bar-eligibility convention is the dominant driver by an order of
+> magnitude.
+
+> **Deliberately NOT adjudicated this fire (escalated instead):** which convention -- bar-replay's
+> entry-bar-inclusion (precedented by `t4_exit_matrix`/`structure_stop_study`) vs
+> `simulate_trade_real`'s entry-bar-exclusion (the ratified ship-gate C1 authority's own
+> long-standing convention) -- is more faithful to live risk exposure is a genuine real-money-
+> adjacent judgment call per the conductor's own FABLE-ESCALATION criterion (a wrong guess here
+> could plausibly move real money or ship a validated-looking edge that isn't). Filed
+> `FABLE-ESCALATION: EXIT-ENGINE-ENTRY-BAR-CONVENTION-AUDIT` (queue.md, HIGH) for a top-tier
+> session to adjudicate + scope whether any already-ratified study's conclusion (not just its
+> absolute $/tr) is sensitive to this.
+
+> **Verified this fire (OP-33):** preflight hash/version/parity all matched the frozen
+> pre-registration both runs (no population drift). `test_vwapcont_entry_exit_matrix.py` 23/23
+> green (nothing in the existing study touched -- new script only imports its functions).
+> `py_compile` clean. Re-ran the diagnostic script twice (once without, once with the
+> confirmatory ablation) -- identical base numbers both times ($15.02/$54.73/n=149), confirming
+> determinism. Full writeup: `analysis/recommendations/vwapcont-parity-diagnose-2026-07-23.{json,md}`.
+
+> **Zero trading-path touched:** ANALYSIS ONLY -- no `params.json`/`heartbeat_core.py`/
+> `filters.py`/live decision-core (`exit_manager.plan_exit_actions`) file modified; both replay
+> engines' HARNESS code (`simulator_real.py`, `structure_stop_study.py`) left byte-unchanged, the
+> ablation ran on a throwaway `norm_bars[1:]` slice inside the new diagnostic script only.
+
+> **Learn (STAGE 4.5):** filed
+> `_lesson-inbox/2026-07-23-entry-bar-eligibility-diverges-between-replay-engines.md` -- the
+> generalizable rule (fold target C6 or a C4 sibling): when two independently-implemented replay
+> engines disagree, diff PER-TRADE by terminal exit stage before trusting an aggregate $/tr gap,
+> and CONFIRM a root-cause hypothesis with a targeted ablation experiment rather than a hand-waved
+> list of partial explanations.
+
+> **Scope + revert:** 5 files, all additive (1 new tool, 2 new analysis outputs, 1 new
+> lesson-inbox item, 1 queue.md edit closing this item + filing the escalation). Revert:
+> `git revert <this commit>`.
+
 ## [2026-07-23 ~22:42-23:03 ET] OK -- conductor (AFTERHOURS): ENGULFING-AT-STRUCTURE-TRIGGER's rolling-K-bar cluster primitive shipped, commits `8aed997a` + `77e048be`
 
 > **STAGE 0/1:** ET confirmed 22:42 (Thursday, market closed since 15:55). `engine-health.json`
@@ -633,58 +701,6 @@
 > trace of the section-scope bug, implementing + testing the fix, RED-proof stash round-trip,
 > curated gate x2, live before/after verification, lesson-inbox write-up, STATUS/queue write-up,
 > conductor_outcome record+metric).
-
----
-
-## [2026-07-23 ~17:42-17:58 ET] OK -- conductor (AFTERHOURS): closed self-audit gap PATTERN-ANCHOR-PRE-SHIP-CHECK (priority-3), commits `eea3f423` + `fad447e1`
-
-> **STAGE 0/1:** ET confirmed 17:42 (Thursday, market closed since 15:55). `engine-health.json`
-> GREEN 13/13. Priority-3 (self-audit gaps) outranked `task_scorer.py --top`'s
-> `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED): today's 17:31:49 self-audit batch named a real,
-> actionable gap the PRIOR fire's own ENGULFING-AT-STRUCTURE-TRIGGER work had just exposed by
-> hand -- "the system lacks a reliable pre-ship validation step that confirms a rule actually
-> fires on the specific anchor bars J identified."
-
-> **What shipped:** a reusable anchor pre-ship + drift contract for the pattern-grammar
-> registry. New optional `anchors` field on `PatternRule` (grammar.py, validated at
-> construction) + `backtest/tools/pattern_anchor_verify.py` (loads the freshest cached bar,
-> runs the rule's live predicate, reports actual vs declared fire state; CLI +
-> `check_registry_anchors()`) + `engulfing_at_swing_shelf` now declares its own two named
-> anchors (2026-07-21 11:05 bullish, 2026-07-23 10:40 bearish) with the HONEST current state
-> (`expected_fire=False`, matching the prior fire's manual OP-33 finding) inline in the
-> registry itself. Guard test `test_pattern_anchor_verify.py` (63/63 green incl. the existing
-> pattern-grammar suite) asserts every declared anchor's actual state matches `expected_fire`
-> -- catches both a future rule shipping without checking its own cited anchors AND silent
-> drift in an already-shipped one.
-
-> **Side-finding caught while building it:** `pattern_prescreen.find_master_csv`'s
-> widest-history file selection picked a CSV one day stale vs today's live tape -- would have
-> silently made any "today" anchor check vacuous. Fixed with a dedicated `find_freshest_csv`
-> picker in the new tool (verified: re-ran against the real cache, 2/2 anchors now correctly
-> found and matched).
-
-> **Verified this fire (OP-33):** direct CLI run against live cached bars (2/2 OK before
-> committing). `git show eea3f423 --stat --name-status` confirms exactly the 4 intended files
-> (grammar.py, registry.py, 2 new files) landed; `git show fad447e1` confirms only the
-> self-audit doc landed in the follow-up commit. Curated safety gate (31+5) PASS at both
-> commits.
-
-> **Scope + revert:** pure `backtest/lib/patterns/` + `backtest/tools/` + `backtest/tests/`
-> authoring (registry.py's own docstring: "NO WIRING") + a self-audit doc triage note. Zero
-> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched. Ships per OP-22/26
-> (engine-benefit research authoring, no J ratification needed). Revert: `git revert
-> fad447e1` then `git revert eea3f423`.
-
-> **Does NOT advance ENGULFING-AT-STRUCTURE-TRIGGER's live thread** (the rolling-K-bar
-> cluster primitive is still the next actual step, not started this fire) -- it hardens the
-> PROCESS so verifying that primitive against these exact 2 anchors, once built, is one CLI
-> command instead of another hand-run falsification pass. Queue item stays `status:pending`,
-> note appended there too.
-
-> **Cost: ~$3.4** (STAGE 0/1 reads incl. task_scorer + self-audit gap file, registry/grammar/
-> context/prescreen code study, building + testing the anchor-verify tool + guard test,
-> curated-gate x2, self-audit doc triage, queue/STATUS write-up, conductor_outcome
-> record+metric).
 
 ---
 
