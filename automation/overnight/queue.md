@@ -67,7 +67,8 @@
 
 ### ENGULFING-AT-STRUCTURE-TRIGGER (HIGH, THE build -- 3 live exhibits, mirror-symmetric, untested by the 181-cell matrix)
 
-- [ ] ENGULFING-AT-STRUCTURE-TRIGGER (HIGH, Lane-A vocabulary + Lane-B pre-reg) :: J called this
+- [x] ENGULFING-AT-STRUCTURE-TRIGGER (HIGH, Lane-A vocabulary + Lane-B pre-reg) :: **CLOSED
+  2026-07-25 ~14:55-15:35 ET (conductor, AFTERHOURS/weekend), commit pending.** J called this
   pattern live on THREE separate days, both directions, and the engine had ZERO trigger every
   time. VERIFIED FROM TAPE + core-decisions.jsonl:
     * 2026-07-21 BULLISH: engulfing at a double bottom (lows 744.790 / 744.795, 3 taps of one
@@ -196,6 +197,35 @@
 > replay through `exit_manager_walk` over the 386-day history, standing gates + BH,
 > confirming the winning cell still fires on both anchor bars. Item stays `status:pending`
 > until that replay runs and clears (or doesn't).
+
+> **CLOSED 2026-07-25 ~14:55-15:35 ET (conductor, AFTERHOURS/weekend).** Ran exactly the
+> named next step above -- built a ZERO-FORK grid adapter
+> (`backtest/tools/engulfing_at_local_cluster_detector.py`, imports the registry's own
+> `engulfing`/`local_extreme_cluster` predicate factories, grid-sweeps their params;
+> proven byte-identical to the live registry predicate over the FULL 30k-bar sequence,
+> not just the 2 anchors) + a frozen pre-reg (16 cells:
+> `min_touches`in{3,4} x `min_body_dollars`in{0,0.40,0.60,0.80} x `tolerance`in{0.15,0.20},
+> shipped config = `touch3|body0.40|tol0.20`) + the standard edge-matrix real-fills
+> harness (same `exit_manager_walk`/RIBBON_RIDE/386-day-inventory/4-gate+BH convention
+> as every other family). **Result: HONEST NULL, 0/16 cells clear the ship bar.** Both
+> anchors fire on 6/16 cells including the exact shipped/anchor-verified config, which
+> is itself solidly negative (n=87, expectancy -$20.11/tr, total -$1,749.14, held-out
+> -$2,314.82, 0/4 gates). Loosening the body floor toward 0 makes it MUCH worse
+> (-$10,201 to -$11,672), not better -- same "wider admits noisier reactions" pattern
+> Lane-B found independently. **This closes the item for good**: both tracks that grew
+> out of J's 07-21/07-23 live exhibits (Lane-B one-sided-shelf detector, commit
+> `83dce261`, HONEST NULL 2026-07-23; Lane-A local-cluster detector, this fire) now
+> agree -- an engulfing candle at a fast local high/low structure fires correctly on
+> both of J's calls but carries no measurable real-fills edge under the live
+> RIBBON_RIDE exit shape. Not wired; `engulfing_at_local_cluster` stays registry.py
+> discovery-only (a real, tested, anchor-verified grammar addition regardless of its
+> economics). Guard tests: `test_engulfing_at_local_cluster.py` (6 new, incl.
+> byte-identical-vs-registry + C6 causality), full pattern-grammar suite 106/106 green.
+> Full writeup: `analysis/recommendations/engulfing-at-local-cluster-2026-07-25.{json,md}`.
+> **Named next honest lever (not attempted, new pre-reg if pursued):** the EXIT side --
+> both lanes tuned entry only against RIBBON_RIDE, which wasn't built for this
+> trigger's hold profile; an entry that marks real reversals but loses under a fixed
+> exit shape is an exit-fit question, not proof the entry itself is noise.
 
 ### DOUBLE-BOTTOM-DISARM-DECISION (HIGH, 24h re-audit then act, filed 2026-07-23 overnight kitchen)
 

@@ -1,0 +1,44 @@
+{
+ "family": "engulfing-at-local-cluster",
+ "prereg_version": 1,
+ "frozen_at": "2026-07-25T14:55:00-06:00",
+ "frozen_before_any_run": true,
+ "frozen_before_note": "This grid is frozen BEFORE the full real-fills replay (section below) has been run. The shipped registry cell (touch3|body0.40|tol0.20) was already anchor-verified + C27-prescreen-cleared on 2026-07-23 (commit 8aed997a) -- that prior work fixed WHICH knob values are even worth including in this grid; it did not touch P&L, gates, or the 386-day population. Zero-fork check (grid module byte-identical to the live registry predicate at the shipped cell, over the full bar sequence, not just the 2 anchors) run and PASSED before this file was frozen -- see backtest/tests/test_engulfing_at_local_cluster.py::test_shipped_cell_matches_registry_predicate.",
+ "origin": {
+  "queue_item": "ENGULFING-AT-STRUCTURE-TRIGGER (automation/overnight/queue.md) -- Lane-A track",
+  "prior_attempt_1": "engulfing_at_swing_shelf (commit 31c5089e) -- FAILED both anchors (flat_side/labeled_swings pivot-confirmation lag can't see a shelf that resolves within 1-5 bars).",
+  "prior_attempt_2_lane_b": "A SEPARATE, independently-built one-sided-shelf detector (backtest/tools/engulfing_at_structure_detector.py, commit 83dce261) already ran this exact kind of frozen-pre-reg + real-fills-replay on 2026-07-23 for a mechanistically similar (but not identical) composite -- verdict HONEST NULL, 0/12 cells cleared any gate, expectancy WORSE as the zone-band widened. That result is prior evidence, not a substitute: this grid tests the SHIPPED registry primitive (local_extreme_cluster, anchored to bar t's OWN extreme, C27-prescreen-cleared) specifically, per the item's own still-open next step.",
+  "shipped_primitive": "backtest/lib/patterns/registry.py::engulfing_at_local_cluster (commit 8aed997a) -- local_extreme_cluster() anchors clustering to bar t's OWN extreme (not the window's global min/max, which was found via falsification to be swamped by an unrelated earlier spike). VERIFIED via pattern_anchor_verify.py to fire on BOTH real exhibits. C27 prescreen: TESTABLE (33.3% days, 0.460 fires/day, 9.66/month, recent-90d stable) -- reached only after tightening local_cluster_min_touches 2->3 and adding local_cluster_min_body_dollars=0.40 (bare composition was NOISE-KILL, 92-99% days)."
+ },
+ "runner": "backtest/tools/edge_matrix_engulfing_at_local_cluster.py",
+ "detector": "backtest/tools/engulfing_at_local_cluster_detector.py",
+ "episodes_output": "analysis/recommendations/engulfing-at-local-cluster-episodes-2026-07-25.json",
+ "results_output": "analysis/recommendations/engulfing-at-local-cluster-2026-07-25.json",
+ "hypothesis": "An engulfing candle (standard OHLC body-containment, prior-bar-body-dollars floor gated) whose reaction bar's wick sits within `tolerance` $ of at least `min_touches` bars' matching extreme within an 8-bar (40min) lookback, anchored to the reaction bar's own extreme -- carries positive real-fills edge under the live RIBBON_RIDE exit shape over the 386-day frozen history.",
+ "grid": {
+  "axes": {
+   "min_touches": [3, 4],
+   "min_body_dollars": [0.0, 0.40, 0.60, 0.80],
+   "tolerance": [0.15, 0.20]
+  },
+  "n_cells": 16,
+  "shipped_cell_id": "touch3|body0.40|tol0.20",
+  "structural_not_swept": {
+   "lookback_bars": 8,
+   "level_proximity_dollars": 0.30
+  },
+  "direction_note": "Bearish engulfing only ever pairs with a HIGH cluster (put); bullish only with a LOW cluster (call) -- structural, not a 4th grid axis, matches every sibling rule in the registry family."
+ },
+ "exits": "Identical for all 16 cells (entry-side tuning ONLY): the LIVE RIBBON_RIDE shape via dojo sim_executor._resolve_exit_shape(safe arm, 'ribbon_ride', None), walked through backtest/lib/exit_manager_walk.walk_exit_manager (the REAL production exit_manager core) -- verbatim convention from engulfing-at-structure-2026-07-23 (Lane-B) and every other edge-matrix family.",
+ "dollars": "Real OPRA fills only (option_pricing_real.load_contract_bars). NO BS-synthetic anywhere -- uncached contracts counted + disclosed as NO_OPRA skips, never priced.",
+ "day_inventory": "analysis/edge-matrix/day-inventory-2026-07-23.json (386-day frozen inventory, reused verbatim -- unchanged since Lane-B's run 2 days ago, per C34 one implementation not a fork).",
+ "gates": "Standing 4-gate convention (g1 positive aggregate, g2 day-majority, g3 survives drop-best-1, g4 held-out positive) + Benjamini-Hochberg FDR q=0.10 across all 16 cells' p_raw -- identical convention + code path (_bh_fdr) as engulfing-at-structure-2026-07-23 and edge_matrix_bear_level_rejection.",
+ "ship_bar": "gates_passed==4 AND bh_significant AND both_anchors_fire AND n_real_fills>=15 -- identical bar to every other edge-matrix family (C34).",
+ "anchors": [
+  {"date": "2026-07-23", "time_et": "10:40", "bias": "bearish",
+   "note": "10:40 bearish engulfing at the 10:35/10:40 twin-high cluster -- SPY 738.86 -> 736.63"},
+  {"date": "2026-07-21", "time_et": "11:05", "bias": "bullish",
+   "note": "11:05 bullish engulfing at the 10:40/11:00/11:05 cluster -- SPY 746.77 -> 748.97"}
+ ],
+ "rail_4_clear": "Research tool + JSON outputs only. Touches NO params/orders/filters/heartbeat_core/strategies.py/CLAUDE.md. No broker import. No git operations beyond this commit. No live wiring -- engulfing_at_local_cluster remains registry.py discovery-only regardless of this grid's verdict."
+}
