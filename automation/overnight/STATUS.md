@@ -1,3 +1,47 @@
+## [2026-07-25 ~17:42-17:54 ET] OK -- conductor (AFTERHOURS/weekend): ZERO-FOR-TWELVE-POSTMORTEM entry-layer follow-up, commit `6b7c07ac`
+
+> **STAGE 0/1:** ET confirmed 17:42 Saturday (market closed). Budget gate PROCEED ($14.30/$30,
+> 1/4 fires). `engine-health.json` GREEN/YELLOW (14 checks, 0 RED, only gex_archive 1-day-stale
+> YELLOW, non-critical). `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again
+> (still J's REVOKE surface, unchanged). Picked `ZERO-FOR-TWELVE-POSTMORTEM` (HIGH, filed today
+> with the vwap_continuation/vix_regime_dayside disarm) instead: it named a concrete, doable-now
+> next step (the already-RULED `EXIT-ENGINE-ENTRY-BAR-CONVENTION-AUDIT` escalation pointed at
+> `engine_fullhist_replay`'s entry-layer divergence -- "matched an 11:40 live fill to a 13:55
+> replay entry, 2h15m apart" -- as the next suspect after partially exonerating the entry-bar
+> convention itself).
+
+> **What I found:** reproduced the raw divergence directly (`run_backtest` on 2026-07-17): the
+> batch engine fires only 2 signals that day vs 4 live fills. Then found the deeper bug: the
+> anchor-matcher paired on strike+side ALONE with no time bound, so it silently accepted the
+> 11:40->13:55 pairing (a genuinely different signal, not a near-miss) as a PASS -- true
+> trade-level fidelity on that day is **1/4, not the previously-reported 2/4**. Root cause of the
+> gap itself was already disclosed pre-fire (live sources levels from a curated + multi-day
+> memory-merged key-levels.json feed; `orchestrator.run_backtest` recomputes from bars only) --
+> this fire's contribution is correcting the magnitude (3/4 missing, not 2/4) and killing the
+> false-positive matcher class.
+
+> **Scope discipline (OP-33, did not over-claim):** this does NOT explain the 0-for-12 directly
+> -- `vwap_continuation`/`vix_regime_dayside` were validated by a DIFFERENT harness
+> (`backtest/autoresearch/_b5_vix_regime_dayside.py` + siblings), not `orchestrator.run_backtest`
+> (confirmed via each script's own scope disclosure + `analysis/recommendations/
+> vix_regime_dayside.json#generated_by`). Named the concrete next step in queue.md: audit
+> whether that autoresearch harness family has the same batch-computed-only level source.
+
+> **Verified this fire (OP-33):** `match_entries_by_strike_side_time` extracted top-level +
+> unit-tested (2 new tests: rejects the 2h15m collision, still matches an exact-time hit) --
+> `test_engine_fullhist_replay.py` 7/7 fast tests pass. Curated safety gate (31+5) PASS pre- and
+> post-commit. Post-commit `git show 6b7c07ac --stat --name-status` + `git status --porcelain`
+> on touched paths confirmed clean (L247 discipline).
+
+> **Learn:** filed `_lesson-inbox/2026-07-25-anchor-matcher-strike-side-only-false-positive.md`
+> -- generalizable rule: any anchor/ground-truth matcher joining on a coarse key (strike+side,
+> symbol, setup name) needs a time-proximity bound, or a coincidental collision silently reports
+> as a false PASS.
+
+> **Scope + revert:** 6 files (1 fix, 1 test, 2 scorecard corrections appended not overwritten,
+> 1 new lesson-inbox item, 1 queue.md progress note). Zero trading-path touched (no params/
+> heartbeat_core/filters/CLAUDE.md). Revert: `git revert 6b7c07ac`.
+
 ## [2026-07-25 ~14:42-15:00 ET] OK -- conductor (WEEKEND): ENGULFING-AT-STRUCTURE-TRIGGER CLOSED, commit `73902fa1`
 
 > **STAGE 0/1:** ET confirmed 14:42 Saturday (market closed, weekend mode). Budget gate
@@ -601,129 +645,3 @@
 
 ---
 
-## [2026-07-23 ~19:42-19:55 ET] OK -- conductor (AFTERHOURS): closed stale checkbox BREAKER-REARM-STALENESS (fix already shipped 07-09), commit `78b2018f`
-
-> **STAGE 0/1:** ET confirmed 19:42 (Thursday, market closed since 15:55). `engine-health.json`
-> GREEN 13/13. Self-audit gaps file fully triaged through today's 17:31 batch. `task_scorer.py
-> --top` returned `BREAKER-REARM-STALENESS` (MED, filed 2026-07-09). Traced it against live
-> code before executing (this exact re-verify-before-trusting discipline is why the last fire's
-> ranker fix + the `_lesson-inbox/2026-07-18-stale-queue-item-outranked-real-work.md` lesson
-> exist) and found the fix had ALREADY shipped the SAME DAY the ticket was filed: commit
-> `1b2cfeeb` (2026-07-09 11:34 MT) added `daily_loss_guard.py#rearm()` + `engine_health.py
-> #check_breaker_rearm()` ("re-armed TODAY" canary for both breakers). The queue checkbox was
-> never flipped -- 14 days stale on a same-day-fixed bug.
-
-> **What shipped:** re-verified `test_engine_health_breaker_rearm.py` 14/14 green, confirmed
-> live `engine-health.json` this fire shows `breaker_rearm_safe`/`breaker_rearm_bold` GREEN with
-> TODAY's date (last_reset=2026-07-23, session_id=2026-07-23) -- the exact "GREEN-while-stale
-> hole" the ticket exists to close no longer exists. Closed the checkbox in `queue.md` with the
-> full evidence trail. `task_scorer.py --top` now returns a different, real item
-> (`PARTICIPATION-DAILY-SELF-CHECK-WIRE`), confirmed post-fix.
-
-> **Learn (STAGE 4.5):** this is the 3rd confirmed instance of "work shipped, queue checkbox
-> left open" (T-W8-HEADROOM 07-11, FUTURES-PHASE1-BATTERY 07-14, this one) -- a re-violated
-> pattern per OP-25. Filed `_lesson-inbox/2026-07-23-stale-queue-checkbox-work-done-ticket-
-> open.md` proposing a pre-flight cross-reference guard (ticket names a file with a
-> post-filing commit touching it + still status:pending -> flag "possibly-already-shipped,
-> re-verify" before trusting `task_scorer --top` blindly) for graduation.
-
-> **Scope + revert:** `queue.md` (1 checkbox flip + evidence) + 1 new lesson-inbox file. Zero
-> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched -- pure queue-hygiene/
-> engine-benefit authoring, ships per OP-22/26, no J ratification needed. Curated safety gate
-> (31+5) PASS. Revert: `git revert 78b2018f`.
-
-> **Cost: ~$1.7** (STAGE 0/1 reads, root-cause trace against live code + git blame, guard
-> re-verification, lesson-inbox write-up, STATUS/queue write-up, conductor_outcome
-> record+metric).
-
----
-
-## [2026-07-23 ~18:42-18:55 ET] OK -- conductor (AFTERHOURS): VWAP-TREND-PULLBACK-VERIFY-FAILED closed -- ran the frozen honest study, verdict KEEP-DORMANT (confirmed reskin)
-
-> **STAGE 0/1:** ET confirmed 18:42 (Thursday, market closed since 15:55). `engine-health.json`
-> GREEN 13/13. `task_scorer.py --top` picked `VWAP-TREND-PULLBACK-VERIFY-FAILED` (HIGH) --
-> the queue item itself carried an explicit re-verify-before-trusting warning (this exact class
-> of stale-HIGH-item risk, per `_lesson-inbox/2026-07-18-stale-queue-item-outranked-real-work.md`).
-> Traced it: the item asked to run a pre-registered, frozen (2026-07-10), NEVER-EXECUTED study
-> spec (`analysis/recommendations/vwap-trend-pullback-study-spec.json`) -- real, current, ready
-> work, not stale. Self-audit gaps fully triaged through today's 17:31 batch.
-
-> **What shipped:** built `backtest/autoresearch/vwap_trend_pullback_honest_study.py`, reusing
-> the spec's named modules verbatim (C14): `infinite_ammo_discovery` (detector/load/sim/summarize),
-> `vwap_pullback_ratify` (causality/walk-forward/sub-window), `j_daily_pattern_ratify.detect_j_vwap_continuation`
-> + `_sub_struct_vwap_reclaim_failed_break` + `_b5_vix_regime_dayside` (gate_11 book comparison),
-> `null_baseline` (gate_5). One new thin wrapper (`simulate_signals_with_stop`) to thread
-> `premium_stop_pct` through -- the one gap in the reused `simulate_signals` (it hardcoded the
-> simulator default -0.08, and the whole point of this study is the LIVE chart-stop-only config).
-> Ran on 387 trading days through 2026-07-22 (~13 months more than the original 2026-06-21
-> independence check).
-
-> **VERDICT: KEEP-DORMANT (confirmed reskin of #1 vwap_continuation, gate_11 HARD BLOCK).**
-> ATM PRIMARY (chart-stop-only) exp -$1.09/trade, WF median -0.857 (FAILS >=0.70 gate), sub-window
-> 3/4 hurt, drop-top3/top5 both negative. gate_11 (independence re-check, mandatory/blocking per
-> the frozen spec REGARDLESS of gates 1-10) reproduces the 2026-06-21 finding on the extended
-> dataset: same-side day-overlap vs live `vwap_continuation` = **1.000** (>= 0.80 reskin
-> threshold). The spec's own escape hatch (an after-10:30-only subset clearing its own bar) does
-> NOT save it: only 20.2% of H4's 104 signals land after 10:30 (spec's own hard threshold is 30%
-> -- FALSIFIES the "fills the afternoon coverage-hole" framing that motivated re-opening this
-> thread), and that n=21 subset is itself expectancy-negative (-$16.90/tr) and OOS-unstable.
-> Scorecard: `analysis/recommendations/vwap-trend-pullback-honest-study.json` + paired `.md`.
-
-> **Corrected the watcher's live-visible strings** (docstring + the `reason=`/`metadata` fields
-> the WATCH_ONLY signal actually emits) to cite the closed study instead of the never-run spec +
-> a stale "OOS +$69/trade" claim that was still sitting in the live `reason=` f-string.
-> `promotion_status` stays `WATCH_ONLY` (unchanged, correct, and the only field the guard test
-> asserts). Verified this fire (OP-33): `test_vwap_trend_pullback_watcher.py` 5/5 green,
-> curated safety gate (31+5) PASS, study script itself run live (not a dry-run) with printed
-> per-tier/per-gate output quoted above.
-
-> **Scope + revert:** pure `backtest/autoresearch/` (1 new file) + `backtest/lib/watchers/`
-> (docstring/string-only edit to the ALREADY-dormant watcher, zero logic/behavior change) +
-> `analysis/recommendations/` (2 new scorecard files) + queue.md. Zero params/heartbeat_core/
-> filters/placement/exit/CLAUDE.md touched -- this is engine-benefit research authoring (closes
-> a HIGH backlog item with a real answer), ships per OP-22/26, no J ratification needed.
-> Revert: `git revert <this commit>`.
-
-> **Does NOT wire vwap_trend_pullback** (explicit non-goal in the frozen spec, honored) -- the
-> detector stays WATCH_ONLY forever absent genuinely new detector logic; the reskin finding is
-> exit-config-independent and now confirmed TWICE (2026-06-21 master frame + 2026-07-23 extended
-> frame). No further re-litigation of H4 as a standalone edge is warranted.
-
-> **Cost: ~$1.7** (STAGE 0/1 reads, tracing the queue item against current reality, reading 4
-> reused-module signatures to avoid re-implementing them, writing + debugging the study script
-> against real API signatures, one live run, docstring/metadata correction, guard test + curated
-> gate, STATUS/queue write-up, conductor_outcome record+metric).
-
----
-
-
-### BROKEN: self-check 2026-07-25T11:39:56
-- MACRO-CALENDAR STALE (RED): freshness_stamp 2026-07-23T07:45:02.213562 predates the expected 2026-07-24T07:45:00 ET fire (~51.9h old) -- Gamma_MacroCalendar (07:45 ET weekdays) may have missed its fire or the producer is dead; the engine's no-trade-window coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales event may be blind. Re-run setup/scripts/macro_calendar.py by hand, or check `schtasks /query /tn Gamma_MacroCalendar /v`.
-
-### BROKEN: self-check 2026-07-25T11:50:08
-- MACRO-CALENDAR STALE (RED): freshness_stamp 2026-07-23T07:45:02.213562 predates the expected 2026-07-24T07:45:00 ET fire (~52.1h old) -- Gamma_MacroCalendar (07:45 ET weekdays) may have missed its fire or the producer is dead; the engine's no-trade-window coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales event may be blind. Re-run setup/scripts/macro_calendar.py by hand, or check `schtasks /query /tn Gamma_MacroCalendar /v`.
-
-### BROKEN: self-check 2026-07-25T11:50:40
-- MACRO-CALENDAR STALE (RED): freshness_stamp 2026-07-23T07:45:02.213562 predates the expected 2026-07-24T07:45:00 ET fire (~52.1h old) -- Gamma_MacroCalendar (07:45 ET weekdays) may have missed its fire or the producer is dead; the engine's no-trade-window coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales event may be blind. Re-run setup/scripts/macro_calendar.py by hand, or check `schtasks /query /tn Gamma_MacroCalendar /v`.
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-25T11:52:30
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-25T12:09:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-25T12:39:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-25T13:09:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-25T13:39:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-25T14:09:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-25T14:39:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
