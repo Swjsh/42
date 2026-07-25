@@ -95,6 +95,46 @@ def test_merged_data_files_cover_full_window_and_are_monotonic():
         "own assertion should have caught this at merge time")
 
 
+def test_match_entries_rejects_time_distant_strike_side_collision():
+    """L250 (ZERO-FOR-TWELVE-POSTMORTEM follow-up, 2026-07-25): the original inline matcher
+    paired on strike+side ALONE (no time bound, first-hit-wins) and silently reported a live
+    11:40 fill "matched" to a replay 13:55 entry -- 2h15m apart, a genuinely different signal
+    that happened to share strike+side. That false-positive match hid the true entry-count gap
+    (replay produced only 2/4 live entries that day) behind an apparent partial-pass. This pins
+    the FIXED behavior: a same-strike+side replay entry more than time_tol_minutes away must be
+    reported as unmatched (and surfaced as an extra, unexplained replay entry), never silently
+    accepted as the same trade."""
+    expected = [("11:40", 745, "P", "ELITE", -102.0), ("13:01", 746, "P", "TRENDLINE", 241.0)]
+    replayed = [
+        {"time_et": "13:15", "side": "P", "tier": "TRENDLINE", "symbol": "SPY260717P00746000",
+         "dollar_pnl": -54.6},
+        {"time_et": "13:55", "side": "P", "tier": "SUPER", "symbol": "SPY260717P00745000",
+         "dollar_pnl": 459.0},
+    ]
+    out = efr.match_entries_by_strike_side_time(expected, replayed)
+    # 13:01 -> 13:15 is a genuine 14-minute near-miss: matched.
+    assert out["n_matched_by_strike_side"] == 1
+    matched_times = {(m["expected_time"], m["replay_time"]) for m in out["matched"]}
+    assert ("13:01", "13:15") in matched_times
+    # 11:40 -> 13:55 is 2h15m apart: must NOT be silently accepted as a match.
+    assert any(u["expected_time"] == "11:40" for u in out["unmatched_expected_live_entries"])
+    # the 13:55 replay entry must surface as an unexplained extra, not get absorbed into the
+    # 11:40 expected-entry's match.
+    assert any(r_["time_et"] == "13:55" for r_ in out["extra_replay_entries_not_in_live"])
+
+
+def test_match_entries_still_matches_exact_same_bar():
+    """Anti-vacuity: a same-time, same-strike, same-side replay entry still matches (the fix
+    must not turn every match into a reject)."""
+    expected = [("14:58", 748, "P", "TRENDLINE", 0.0)]
+    replayed = [{"time_et": "14:58", "side": "P", "tier": "TRENDLINE",
+                 "symbol": "SPY260721P00748000", "dollar_pnl": -12.0}]
+    out = efr.match_entries_by_strike_side_time(expected, replayed)
+    assert out["n_matched_by_strike_side"] == 1
+    assert out["extra_replay_entries_not_in_live"] == []
+    assert out["unmatched_expected_live_entries"] == []
+
+
 @pytest.mark.slow
 def test_anchor_2026_07_21_quiet_day_reproduces_at_trade_level():
     """Single-day run (fast, ~seconds) -- the one anchor day that passed full-history trade-

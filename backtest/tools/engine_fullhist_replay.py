@@ -132,6 +132,57 @@ def log(msg: str) -> None:
     print(f"[fullhist-replay] {msg}", flush=True)
 
 
+def _hhmm_to_minutes(t_et: str) -> int:
+    h, m = (int(x) for x in t_et.split(":")[:2])
+    return h * 60 + m
+
+
+# L250 (2026-07-25, ZERO-FOR-TWELVE-POSTMORTEM follow-up): the original inline matcher paired
+# expected-vs-replayed entries on strike+side ALONE, with no time bound and "first hit wins" --
+# it silently "matched" a live 11:40 fill to a replay 13:55 entry (2h15m apart, a genuinely
+# DIFFERENT signal that happened to share strike+side) and reported the anchor as a false PASS
+# on that pairing. Extracted to a top-level, independently-testable function with a time-window
+# bound (default 20min -- wide enough for the one real near-miss precedent this file has seen,
+# 13:01 live -> 13:15 replay = 14min, but tight enough to reject a >1hr coincidental strike+side
+# collision) and closest-in-time tie-break instead of first-hit-in-iteration-order.
+def match_entries_by_strike_side_time(
+    expected: list[tuple], replayed: list[dict], time_tol_minutes: int = 20,
+) -> dict:
+    """expected: list of (time_et 'HH:MM', strike, side, tier, live_pnl) tuples.
+    replayed: list of dicts with time_et/side/tier/symbol/dollar_pnl (as produced by
+    replay_entries_for). A replayed entry is consumed by at most ONE expected entry
+    (closest-in-time among same strike+side candidates within time_tol_minutes)."""
+    matched: list[dict] = []
+    unmatched_expected: list[dict] = []
+    used_idx: set[int] = set()
+    for (t_et, strike, side, tier, live_pnl) in expected:
+        exp_min = _hhmm_to_minutes(t_et)
+        best_j, best_diff, best_r = None, None, None
+        for j, r_ in enumerate(replayed):
+            if j in used_idx:
+                continue
+            if r_["side"] != side or f"{strike:05d}000" not in r_["symbol"]:
+                continue
+            diff = abs(_hhmm_to_minutes(r_["time_et"]) - exp_min)
+            if diff <= time_tol_minutes and (best_diff is None or diff < best_diff):
+                best_j, best_diff, best_r = j, diff, r_
+        if best_r is not None:
+            used_idx.add(best_j)
+            matched.append({"expected_time": t_et, "expected_tier": tier,
+                             "expected_pnl": live_pnl, "replay_time": best_r["time_et"],
+                             "replay_tier": best_r["tier"], "replay_pnl": best_r["dollar_pnl"],
+                             "time_diff_minutes": best_diff})
+        else:
+            unmatched_expected.append({"expected_time": t_et, "strike": strike, "side": side,
+                                        "tier": tier, "live_pnl": live_pnl})
+    extra_replay = [r_ for j, r_ in enumerate(replayed) if j not in used_idx]
+    return {
+        "n_expected": len(expected), "n_matched_by_strike_side": len(matched),
+        "matched": matched, "unmatched_expected_live_entries": unmatched_expected,
+        "extra_replay_entries_not_in_live": extra_replay,
+    }
+
+
 def naive_dt(ts) -> dt.datetime:
     if hasattr(ts, "to_pydatetime"):
         ts = ts.to_pydatetime()
@@ -339,28 +390,7 @@ def write_scorecard(rows, r, n_no_opra, n_no_spy_day, spy_df, entry_elapsed, exi
                  for _, row in g.iterrows()]
 
     def match_entries(expected: list[tuple], d: dt.date) -> dict:
-        replayed = replay_entries_for(d)
-        matched, unmatched_expected = [], []
-        for (t_et, strike, side, tier, live_pnl) in expected:
-            hit = None
-            for r_ in replayed:
-                if r_["side"] == side and f"{strike:05d}000" in r_["symbol"]:
-                    hit = r_
-                    break
-            if hit is not None:
-                matched.append({"expected_time": t_et, "expected_tier": tier,
-                                 "expected_pnl": live_pnl, "replay_time": hit["time_et"],
-                                 "replay_tier": hit["tier"], "replay_pnl": hit["dollar_pnl"]})
-            else:
-                unmatched_expected.append({"expected_time": t_et, "strike": strike, "side": side,
-                                            "tier": tier, "live_pnl": live_pnl})
-        extra_replay = [r_ for r_ in replayed
-                         if not any(f"{e[1]:05d}000" in r_["symbol"] and r_["side"] == e[2] for e in expected)]
-        return {
-            "n_expected": len(expected), "n_matched_by_strike_side": len(matched),
-            "matched": matched, "unmatched_expected_live_entries": unmatched_expected,
-            "extra_replay_entries_not_in_live": extra_replay,
-        }
+        return match_entries_by_strike_side_time(expected, replay_entries_for(d))
 
     anchor_day_pnl = round(float(day_series.get(str(ANCHOR_DAY), 0.0)), 2)
     anchor_day_pnl_pass = abs(anchor_day_pnl - ANCHOR_DAY_EXPECT_PNL) <= ANCHOR_DAY_TOL

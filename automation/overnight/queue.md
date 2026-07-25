@@ -31,6 +31,53 @@
   is faithful to live risk, and a re-scored list of every currently-armed setup under the correct
   one. Until then, treat every "+$X/tr OOS" arm-time claim as suspect. depends:none :: status:pending
 
+> **PROGRESS 2026-07-25 ~17:45-18:15 ET (conductor, AFTERHOURS/weekend).** The
+> EXIT-ENGINE-ENTRY-BAR-CONVENTION-AUDIT escalation was already RULED by the time this fire
+> picked the item up (see `markdown/audits/ENTRY-BAR-CONVENTION-RULING-2026-07-25.md`): entry+1
+> IS live-faithful, no migration needed -- **this PARTIALLY EXONERATES the prime suspect** (the
+> ruling's own words: "must NOT close on entry-bar convention explained it"). The ruling named
+> the real next suspect: `engine_fullhist_replay`'s ENTRY-layer divergence (2 replay entries vs
+> 4 live on 07-17, matcher paired on strike+side alone -- matched an 11:40 live fill to a 13:55
+> replay entry, 2h15m apart). Picked that up and CONFIRMED + CORRECTED it this fire:
+>
+> - **Reproduced the raw entry divergence directly** (`lib.orchestrator.run_backtest` for
+>   2026-07-17): the batch engine fires only 2 raw signals that day (13:15 P746, 13:55 P745) vs
+>   4 live fills (11:06 P744, 11:40 P745, 13:01 P746, 14:49 P743) -- confirms the entry-layer gap
+>   is real, not a reporting artifact.
+> - **Found + fixed a REAL bug in the anchor-matcher itself** (separate from, but compounding,
+>   the entry-layer gap): `engine_fullhist_replay.py`'s sanity-anchor `match_entries` paired
+>   expected-vs-replayed entries on strike+side ALONE, no time bound, first-hit-wins -- so it
+>   silently accepted the 11:40->13:55 pairing (2h15m apart, a genuinely different signal that
+>   happened to share strike+side) as a PASS, reporting "2/4 matched" when the true, time-bounded
+>   number is **1/4** (only 13:01->13:15, a real 14-min near-miss). Fixed:
+>   `match_entries_by_strike_side_time` (20min bound, closest-in-time tiebreak, extracted
+>   top-level + guard-tested: `backtest/tests/test_engine_fullhist_replay.py` 2 new tests, 7/7
+>   in the module pass). Scorecard corrected in-place (append-only `_corrected_2026_07_25` block
+>   in both `.json`/`.md`, original disclosure preserved per OP-22).
+> - **Root cause of the entry-layer gap itself was ALREADY disclosed** (not new this fire) in
+>   that same test file's docstring: live sources levels from a curated + multi-day
+>   memory-merged `key-levels.json` feed; `orchestrator.run_backtest` recomputes levels from
+>   bars only, a scope limitation of that specific harness. This fire's contribution is
+>   quantifying it correctly (3/4 missing, not 2/4) and killing the false-positive matcher class.
+> - **Does NOT itself explain the 0-for-12** (important scope discipline, OP-33): `vwap_continuation`
+>   and `vix_regime_dayside` were validated by a DIFFERENT harness family entirely
+>   (`backtest/autoresearch/_b5_vix_regime_dayside.py` and its vwap_continuation sibling, per
+>   `analysis/recommendations/vix_regime_dayside.json#generated_by`) -- NOT
+>   `orchestrator.run_backtest`, which the scope-disclosure at the top of
+>   `engine_fullhist_replay.py` confirms only models the RIDE_THE_RIBBON family. This finding
+>   confirms the RISK CLASS (entry-generation-vs-live parity gaps exist, and anchor-matchers can
+>   hide them) but is NOT itself the smoking gun for the disarmed setups.
+> - **NEXT STEP (concrete, not yet done):** audit whether `backtest/autoresearch/
+>   _b5_vix_regime_dayside.py` (and the vwap_continuation autoresearch script) source their
+>   entry levels/triggers the same batch-computed-only way vs live's curated+memory-merged feed
+>   -- if yes, THAT is the mechanism. Needs a similar reproduce-on-a-verified-day pass, on those
+>   specific scripts, not `engine_fullhist_replay.py` again.
+> - Lesson filed: `_lesson-inbox/2026-07-25-anchor-matcher-strike-side-only-false-positive.md`
+>   (generalizable rule: any anchor matcher joining on a coarse key needs a time-proximity bound,
+>   or a coincidental collision silently reports as a false PASS).
+> - Zero trading-path touched (analysis/tooling/test files only, no params/heartbeat_core/
+>   filters/CLAUDE.md). Revert: `git revert <this commit>`.
+
 ### AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS (MED, filed 2026-07-25)
 
 - [ ] AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS (MED) :: `audit_scheduled_tasks.py` and

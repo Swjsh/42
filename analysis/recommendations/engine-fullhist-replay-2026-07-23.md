@@ -29,6 +29,18 @@ Correct exit shape used: `{'premium_stop_pct': -0.2, 'tp1_premium_pct': 1.0, 'tp
 | 11:06 strike=744P tier=ELITE live_pnl=$-37 | **NO MATCH -- replay never took this trade** |
 | 14:49 strike=743P tier=TRENDLINE live_pnl=$-56 | **NO MATCH -- replay never took this trade** |
 
+> **CORRECTED 2026-07-25 (conductor, AFTERHOURS/weekend, ZERO-FOR-TWELVE-POSTMORTEM follow-up):**
+> the original matcher above paired on strike+side ALONE with no time bound -- the "11:40 ->
+> 13:55" row is NOT the same trade (2h15m apart, a genuinely different signal that happened to
+> share strike+side); it was a false-positive match, not a near-miss. Fixed matcher
+> (`match_entries_by_strike_side_time`, 20min bound + closest-in-time tiebreak, guard-tested:
+> `backtest/tests/test_engine_fullhist_replay.py`) shows **TRUE trade-level fidelity is 1/4, not
+> 2/4** -- only 13:01->13:15 (14min) is a real match; 11:40, 11:06, and 14:49 all have zero
+> batch counterpart. Root cause is unchanged from the original disclosure (live sources levels
+> from a curated + multi-day memory-merged `key-levels.json` feed; `orchestrator.run_backtest`
+> recomputes levels from bars only) -- this correction quantifies that the gap is 3x worse than
+> first reported. Machine-readable: `sanity_anchors._corrected_2026_07_25` in the sibling JSON.
+
 ## Headline
 
 | Metric | Value |

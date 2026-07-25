@@ -2755,7 +2755,74 @@
       "n_entries": 0,
       "pass": true
     },
-    "all_anchors_trade_level_pass": false
+    "all_anchors_trade_level_pass": false,
+    "_corrected_2026_07_25": "CORRECTED via ZERO-FOR-TWELVE-POSTMORTEM follow-up (conductor, AFTERHOURS/weekend): the original 2026-07-23 matcher paired on strike+side ALONE with no time bound, and silently reported the 11:40 live fill as \"matched\" to a 13:55 replay entry -- 2h15m apart, a genuinely different signal. Re-run with match_entries_by_strike_side_time (20min bound, closest-in-time tiebreak, guard-tested: backtest/tests/test_engine_fullhist_replay.py). TRUE trade-level fidelity on the 07-17 anchor day is 1/4 (only 13:01->13:15, 14min), not 2/4 as originally reported. This does NOT change the known root cause already disclosed in this script's own test docstring (live sources levels from a curated + multi-day memory-merged key-levels.json feed; orchestrator.run_backtest recomputes levels from bars only) -- it corrects how badly that gap actually bites: 3 of 4 live entries have literally no batch counterpart, not 2 of 4.",
+    "2026-07-17_core_safe_TRADE_LEVEL_match_CORRECTED": {
+      "n_expected": 4,
+      "n_matched_by_strike_side": 1,
+      "matched": [
+        {
+          "expected_time": "13:01",
+          "expected_tier": "TRENDLINE",
+          "expected_pnl": 241.0,
+          "replay_time": "13:15",
+          "replay_tier": "TRENDLINE",
+          "replay_pnl": -54.6,
+          "time_diff_minutes": 14
+        }
+      ],
+      "unmatched_expected_live_entries": [
+        {
+          "expected_time": "11:06",
+          "strike": 744,
+          "side": "P",
+          "tier": "ELITE",
+          "live_pnl": -37.0
+        },
+        {
+          "expected_time": "11:40",
+          "strike": 745,
+          "side": "P",
+          "tier": "ELITE",
+          "live_pnl": -102.0
+        },
+        {
+          "expected_time": "14:49",
+          "strike": 743,
+          "side": "P",
+          "tier": "TRENDLINE",
+          "live_pnl": -56.0
+        }
+      ],
+      "extra_replay_entries_not_in_live": [
+        {
+          "time_et": "13:55",
+          "side": "P",
+          "tier": "SUPER",
+          "symbol": "SPY260717P00745000",
+          "dollar_pnl": 459.0
+        }
+      ]
+    },
+    "2026-07-17_trade_level_pass_CORRECTED": false,
+    "2026-07-21_quiet_day_TRADE_LEVEL_match_CORRECTED": {
+      "n_expected": 1,
+      "n_matched_by_strike_side": 1,
+      "matched": [
+        {
+          "expected_time": "14:58",
+          "expected_tier": "TRENDLINE",
+          "expected_pnl": 0.0,
+          "replay_time": "14:50",
+          "replay_tier": "TRENDLINE",
+          "replay_pnl": -12.0,
+          "time_diff_minutes": 8
+        }
+      ],
+      "unmatched_expected_live_entries": [],
+      "extra_replay_entries_not_in_live": []
+    },
+    "2026-07-21_trade_level_pass_CORRECTED": true
   },
   "runtime_seconds": {
     "entry_layer": 113.1,
