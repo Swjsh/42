@@ -356,8 +356,26 @@ def _pnl_oneliner(total_pnl) -> str:
     return f"{sign} ${abs(total_pnl):.0f}"
 
 
+def _liveness_alarm(day: str) -> Optional[str]:
+    """LEAD-LINE alarm when the engine did not run on a day the market was open.
+
+    The 2026-07-24 incident: machine off, zero ticks, and NOTHING said so -- engine-health.json
+    read GREEN because its checks all degrade to "(market closed -- quiet OK)". The brief is the
+    one surface that reaches J off-box, so the alarm leads here, ahead of P&L. Fail-open: any
+    import/read problem returns None and the brief composes exactly as before (C7)."""
+    try:
+        from engine_liveness_check import alarm_line, check_day  # noqa: PLC0415 -- optional dep
+        return alarm_line(check_day(day))
+    except Exception:  # noqa: BLE001 -- a broken check must never break the brief
+        return None
+
+
 def compose_eod_text(facts: dict) -> str:
     lines = [f"Gamma here. End of day, {facts['day']}."]
+    alarm = _liveness_alarm(facts["day"])
+    if alarm:
+        # Ahead of P&L on purpose: "$0 today" and "the engine was dead today" must never sound alike.
+        lines.append(alarm)
     by_arm = facts.get("by_arm") or []
     if by_arm:
         arm_txt = "; ".join(

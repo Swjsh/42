@@ -54,8 +54,22 @@ except Exception:  # noqa: BLE001 -- fail-open fallback, mirrors self_check.py's
 
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
-WAKE_DEBOUNCE_MIN = 30  # max 1 event-fire per 30 min, per the build spec
-RED_PATTERN = re.compile(r"\b(RED|BROKEN|DEGRADED|KILL_SWITCH|CRITICAL)\b|\U0001F6A8")
+# COST GOVERNOR (2026-07-25): was 30 min. A measured census (07-18..07-23 session transcripts)
+# found the conductor family = 93% of ALL automation token burn ($149.57/day), and THIS constant
+# was the multiplier: 22 conductor fires on 07-23 vs 12 scheduled. Each event-fire launches the
+# full high-effort $10-cap Gamma_Conductor (measured $7.69/fire), so a 30-min debounce against a
+# near-continuously-matching pattern (below) meant ~10 unscheduled $7.69 fires per night.
+WAKE_DEBOUNCE_MIN = 180  # max 1 event-fire per 3h
+
+# RED_PATTERN was: \b(RED|BROKEN|DEGRADED|KILL_SWITCH|CRITICAL)\b
+# DEGRADED and RED are removed DELIBERATELY. self-check has carried a cosmetic
+# "TRENDLINE-DRAW never marked today ... Non-load-bearing (visibility only)" DEGRADED flag for
+# 4+ consecutive days; because that string reaches discord-outbox.jsonl, a visibility-only flag
+# was literally summoning $7.69 conductor fires all night. This watcher must wake the conductor
+# for things that STOP OR ENDANGER TRADING, not for anything that merely reads unwell -- a
+# routine DEGRADED still surfaces in self-check/engine-health/the daily brief, which is where a
+# non-urgent flag belongs (L189: a perpetually-RED signal trains everyone to skim past it).
+RED_PATTERN = re.compile(r"\b(BROKEN|KILL_SWITCH|CRITICAL)\b|\U0001F6A8")
 KNOWN_BROKEN_HEADER = "## Known broken"
 TS_TOKEN = re.compile(r"\[([0-9]{4}-[0-9]{2}-[0-9]{2}[T ][0-9:.+\-Z]{5,25})\]")
 
