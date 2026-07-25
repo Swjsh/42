@@ -14,8 +14,8 @@ The injected runtime-context header's `Task:` field (set by the wrapper that wok
 
 | `Task:` value | MODE | Fires | Budget/effort | What you do |
 |---|---|---|---|---|
-| `conductor` | **AFTERHOURS** | hourly, 18:00–07:00 ET, every day (incl. weekends' overnight hours) | $10 cap, high effort | the full STAGE 0→5 loop below, unchanged from the original design |
-| `conductor-rth` | **RTH_LIGHT** | every 30 min, 09:30–15:55 ET, weekdays ONLY | $0.50 cap, low effort | **STAGE 0-RTH ONLY** — verify + flag, NEVER fan out an agent, NEVER ship anything. Exit after STAGE 0-RTH; never fall through to STAGE 1. This is the ONE J-authorized exception to "never during market hours" (rail 1) — and it is an exception for reading + flagging, not for the heavy loop. |
+| `conductor` | **AFTERHOURS** | **3 fires/night: 20:30 / 01:00 / 05:30 ET** (cut 2026-07-25 from a 2h repetition that had NO day filter — it was firing 24/7, ~16/day) | $10 cap, high effort, **+ rail-0 budget gate** | the full STAGE 0→5 loop below |
+| `conductor-rth` | **RTH_LIGHT** | **DISABLED 2026-07-25** | — | Retired in the cost pass: 24.5 fires/weekday at $0.86 each, and its verify-and-flag job is already covered by the $0 deterministic path (`engine-health.json` + `self_check.py` + `fill_funnel.py`). The STAGE 0-RTH section below is kept for reference in case J re-enables it. |
 | `conductor-weekend` | **WEEKEND** | every 2h, Saturday + Sunday, all day | $10 cap, high effort | the full STAGE 0→5 loop below, WITH the WEEKEND nudge in STAGE 1 (crypto-twin + Kitchen checked first — nobody else reads them on a weekday-only cadence) |
 | (fired manually, or `Task:` missing/unrecognized) | **AFTERHOURS** (default) | on demand | as AFTERHOURS | the conservative default — full rails, market-hours gate still applies |
 
@@ -68,6 +68,13 @@ RTH_LIGHT is the one J-authorized exception to "never during market hours" (rail
 
 RTH_LIGHT already exited above; everything from here on is AFTERHOURS or WEEKEND mode. Run in order. Any failure short-circuits to the stated action.
 
+0. **BUDGET GATE (rail 0 — run this FIRST, before any other read).** Run:
+   `backtest\.venv\Scripts\python.exe setup\scripts\conductor_budget.py --check`
+   - **Exit code 3 → EXIT NOW.** Write one line to STATUS.md (`[ts] conductor: QUIET — nightly budget spent`), record a QUIET outcome via `conductor_outcome.py`, and stop. Do **zero** model work: no queue read, no task pick, no fan-out. Cost discipline is not negotiable and "just one small look" is how a 4× ramp happens.
+   - Exit code 0 → proceed to step 1.
+   - **Why (measured 2026-07-25):** the conductor family was **93.3% of ALL automation token burn** ($149.57/day of $160.26). Cadence + the wake-watcher were fixed at the same time; this gate is the backstop that survives a future fire deciding to launch a big battery. The cap lives in `automation/state/conductor-budget.json` (default $30/day corrected, 4 fires) — J tunes it there, never in code.
+   - **The governor corrects your self-report ×2.2.** Your own `cost_usd` in `conductor-outcomes.jsonl` under-reports real token cost by that factor (measured $3.44 reported vs $7.69 actual per fire). Do not "helpfully" adjust your reported number to compensate — report honestly and let the governor apply the factor, or the correction double-counts.
+
 1. **MARKET-HOURS GATE (rail 1).** Compute current ET. If it is a weekday and `09:30 <= ET < 15:55` and not a holiday → **EXIT NOW.** Write one line to STATUS.md (`[ts] conductor: SKIP — market open, deferring to heartbeat`) and stop. Do no further work. (The wrapper also gates this, but you re-check — defense in depth.) The runtime-context header injected by the wrapper gives you the current ET time; trust it.
 
 2. **READ ENGINE HEALTH (backpressure).** Read `automation/state/engine-health.json`. This is the fused GREEN/YELLOW/RED verdict (both heartbeats + watcher feed + TV watchdog + kill-switches + positions).
@@ -107,6 +114,8 @@ Priority order (first ready, eligible item wins):
 **"Highest-value" tiebreak:** prefer the item that (a) closes a loop (ships a fix / promotes / ratifies / prunes) over one that creates a new artifact — *compound, don't accumulate* (OP-22); (b) unblocks the most downstream work; (c) reduces a known RED/risk. A 371st untriaged candidate is debt, not progress.
 
 ### Hard calls escalate, they don't get guessed (FABLE-ESCALATION)
+
+**PIN THE TIER ON EVERY FAN-OUT (2026-07-23 scar, cost-verified).** If you spawn agents — `Agent(...)` or any `agent()` call site inside a `Workflow` script — **every single call must carry `model: "sonnet"` explicitly.** Subagents cannot switch their own model, and the "worker-tier: run /model sonnet first" line inside a prompt is a NO-OP. Workflow `agent()` opts default to the *session* model: on 2026-07-23 an 11-agent matrix workflow inherited the top tier and burned 2.2M tokens on mechanical grid work. Before launching any Workflow, grep your own script for `agent(` and confirm each one is pinned. The Workflow tool's own docs say "default to omitting model" — that guidance is **overridden** in this project.
 
 Per CLAUDE.md's model-routing law: Sonnet (this fire, any MODE) is the workhorse; top-tier judgment is reserved for genuine ship/kill calls, methodology audits, and anomalies that look like real money. If the item you picked turns out to be one of those — not "which knob value is better" but "should this edge exist at all" / "is this data trustworthy" / "did we lose money to a bug, and how much" — do **not** decide it here. Append a `queue.md` item prefixed `FABLE-ESCALATION:` with the concrete evidence you've already gathered (never a bare "look into this" — a wrong guess here can cost real money or ship a bad edge, so the escalation must hand the next session a running start, not a blank page), and a matching one-line STATUS.md flag so it surfaces on J's next glance. The next interactive session (or J directly, invoking `/think-like-fable`) picks it up with full top-tier judgment tools. This is not a cop-out — a routine tick that escalates everything is exactly as broken as one that never escalates anything; the bar is "would a wrong call here plausibly move real money or ship a validated-looking edge that isn't."
 

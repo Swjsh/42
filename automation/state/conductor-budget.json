@@ -1,0 +1,6 @@
+{
+  "_doc": "Nightly spend governor for the conductor family (setup/scripts/conductor_budget.py, STAGE 0 of automation/prompts/conductor.md). Created 2026-07-25 after a measured census found the conductor family = 93.3% of automation token burn ($149.57/day of $160.26). daily_cap_usd is compared against CORRECTED spend: conductor-outcomes.jsonl's self-reported cost_usd is multiplied by 2.2 because the conductor under-reports its own cost by that factor (measured $7.69/fire real vs $3.44 self-reported). Tune these numbers here -- no code change needed. Set enabled=false to bypass the governor entirely.",
+  "daily_cap_usd": 30.0,
+  "max_fires": 4,
+  "enabled": true
+}
