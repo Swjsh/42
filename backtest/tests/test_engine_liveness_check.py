@@ -134,3 +134,41 @@ def test_brief_survives_a_broken_liveness_module(monkeypatch):
         {"day": "2026-07-23", "by_arm": [], "total_pnl": 0.0, "n_filled": 0, "n_unfilled": 0}
     )
     assert "Gamma here" in txt
+
+
+# --------------------------------------------------------------- engine-health integration
+def test_engine_health_session_ran_flags_the_real_outage():
+    """engine_health must go RED on 2026-07-24 -- the day it wrongly reported GREEN 13/13."""
+    import datetime as dt
+    from zoneinfo import ZoneInfo
+
+    import engine_health as eh
+
+    ET = ZoneInfo("America/New_York")
+    res = eh.check_session_ran(dt.datetime(2026, 7, 24, 18, 0, tzinfo=ET))
+    assert res["status"] == "RED"
+    assert "DID NOT RUN" in res["detail"]
+
+
+def test_engine_health_session_ran_is_not_market_open_suppressed():
+    """The bug was 'market closed -> quiet OK'. This check must NOT suppress after the close."""
+    import datetime as dt
+    from zoneinfo import ZoneInfo
+
+    import engine_health as eh
+
+    ET = ZoneInfo("America/New_York")
+    # 20:00 ET Friday: market long closed, yet the verdict must still be RED.
+    res = eh.check_session_ran(dt.datetime(2026, 7, 24, 20, 0, tzinfo=ET))
+    assert res["status"] == "RED", "post-close suppression is exactly the 07-24 bug"
+
+
+def test_engine_health_session_ran_quiet_on_weekend_and_midsession():
+    import datetime as dt
+    from zoneinfo import ZoneInfo
+
+    import engine_health as eh
+
+    ET = ZoneInfo("America/New_York")
+    assert eh.check_session_ran(dt.datetime(2026, 7, 25, 18, 0, tzinfo=ET))["status"] == "GREEN"
+    assert eh.check_session_ran(dt.datetime(2026, 7, 23, 11, 0, tzinfo=ET))["status"] == "GREEN"

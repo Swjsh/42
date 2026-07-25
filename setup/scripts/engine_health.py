@@ -375,6 +375,50 @@ def check_heartbeat(name: str, path: Path, market_open: bool, now_utc: datetime)
     return _chk(name, "GREEN", detail, critical=True)
 
 
+def check_session_ran(et: datetime) -> dict:
+    """DID THE ENGINE RUN TODAY? -- the check that was missing on 2026-07-24.
+
+    Every other check in this file takes `market_open`, a RIGHT-NOW boolean, and suppresses
+    itself to "GREEN (market closed -- quiet OK)" when it is False. On 2026-07-24 the machine was
+    off all day; by the time anything evaluated, the market had closed, so EVERY check suppressed
+    and the fused verdict read GREEN 13/13 on a day the engine logged **zero** ticks. A dead
+    engine and a closed market were literally indistinguishable.
+
+    This check asks about the DAY, not the moment: on a weekday, did core-decisions.jsonl record
+    a real session? It is deliberately NOT market_open-suppressed -- that suppression is the bug.
+    Evaluated only after the session is over (>= 16:05 ET) so a mid-morning run doesn't cry wolf.
+    """
+    name = "session_ran"
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from engine_liveness_check import (STATUS_DID_NOT_RUN, STATUS_PARTIAL,
+                                           STATUS_UNKNOWN, check_day)
+    except Exception as e:  # noqa: BLE001 -- never let this check break the report
+        return _chk(name, "YELLOW", f"liveness module unavailable ({e})", critical=False)
+
+    day = et.strftime("%Y-%m-%d")
+    if et.weekday() >= 5:
+        return _chk(name, "GREEN", f"{day} is a weekend -- no session expected", critical=False)
+    if et.hour < 16:
+        return _chk(name, "GREEN", f"{day} session not finished yet -- checked after 16:05 ET",
+                    critical=False)
+
+    res = check_day(day)
+    st = res.get("status")
+    if st == STATUS_DID_NOT_RUN:
+        return _chk(name, "RED",
+                    f"ENGINE DID NOT RUN {day} -- ZERO ticks on a weekday "
+                    "(machine off / tasks dead / market holiday)", critical=True)
+    if st == STATUS_PARTIAL:
+        return _chk(name, "YELLOW",
+                    f"{day} only {res.get('ticks')} ticks -- engine down for part of the session",
+                    critical=False)
+    if st == STATUS_UNKNOWN:
+        return _chk(name, "YELLOW", f"{day} liveness unverifiable: {res.get('reason')}",
+                    critical=False)
+    return _chk(name, "GREEN", f"{day} session ran ({res.get('ticks')} ticks)", critical=True)
+
+
 def check_watcher_feed(market_open: bool, et: datetime) -> dict:
     """Producer-dark detector: newest watcher-observations bar date must be today.
     This is the bug that blinded the fleet -- a dark producer looks identical to
@@ -829,6 +873,7 @@ def build_report() -> dict:
     # on the trade hot path -- Gamma_TvWatchdog owns premarket TV liveness separately). The
     # check NAMES are preserved so the transition-alert idempotency keys stay stable.
     checks = [
+        check_session_ran(et),
         check_engine_core("heartbeat_safe", "safe", mkt, et),
         check_engine_core("heartbeat_bold", "bold", mkt, et),
         check_sight_beacon(mkt, now_utc),
