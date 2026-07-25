@@ -15,6 +15,43 @@
 
 ## Active backlog
 
+### ZERO-FOR-TWELVE-POSTMORTEM (HIGH, filed 2026-07-25 with the disarm)
+
+- [ ] ZERO-FOR-TWELVE-POSTMORTEM (HIGH) :: vwap_continuation (7tr, 0% WR, -$204) and
+  vix_regime_dayside (5tr, 0% WR, -$153) were DISARMED 2026-07-25. Both were armed on 8/8-gate
+  backtests claiming +$32-79/tr. **0-for-12 combined at a claimed ~55-64% WR is p<1%** -- that is
+  a falsification of the VALIDATION PIPELINE, not two unlucky setups, and it is the single most
+  important research question open. PRIME SUSPECT (already escalated separately):
+  EXIT-ENGINE-ENTRY-BAR-CONVENTION-AUDIT -- replay engines disagree by $39.71/tr on whether the
+  ENTRY bar's own high/low is eligible for stop/TP1 (simulator_real.py:534-535 starts the exit loop
+  at entry+1; the bar-replay family starts AT the entry bar). That is exactly the sign and
+  magnitude that would turn a +$32/tr paper cell into a live loser. ALSO CHECK: both cells' own
+  arm-time caveats were written down and armed anyway (n=18-21 OOS; params.json carries an
+  "L174 NOT INDEPENDENT / lift is largely day+side selection" note). DELIVERABLE: which convention
+  is faithful to live risk, and a re-scored list of every currently-armed setup under the correct
+  one. Until then, treat every "+$X/tr OOS" arm-time claim as suspect. depends:none :: status:pending
+
+### AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS (MED, filed 2026-07-25)
+
+- [ ] AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS (MED) :: `audit_scheduled_tasks.py` and
+  SCHEDULED-TASKS.md only know about `Gamma_*` WINDOWS tasks. Claude-native scheduled tasks in
+  `~/.claude/scheduled-tasks/` are invisible to every governance surface -- which is how a daily
+  **opus** fire (`gamma-sniper-shadow-eod`, ~$100/mo) survived 2 months processing data frozen
+  since 2026-05-22, while the registry believed it had been "retired 2026-06-18". Both offenders
+  moved to `~/.claude/scheduled-tasks-retired-2026-07-25/` on 07-25. FIX: teach the audit script to
+  enumerate that directory and flag anything not cross-referenced in the registry. A task the audit
+  tool cannot see is the exact shape of this failure class. depends:none :: status:pending
+
+### OFF-BOX-DEADMAN-SWITCH (MED, filed 2026-07-25 -- the part the liveness fix CANNOT do)
+
+- [ ] OFF-BOX-DEADMAN-SWITCH (MED) :: 2026-07-24 the machine was off all day, 0 engine ticks, and
+  nothing reported it -- the watchdog shares a failure domain with the thing it watches. Shipped
+  07-25: `engine_liveness_check.py` + a calendar-aware `session_ran` health check + an EOD-brief
+  lead-line alarm. Those make the NEXT run loud; they still cannot page J WHILE the box is off.
+  Only an off-box heartbeat can (cheap options: a free uptime-monitor pinging a tiny endpoint the
+  rig writes to, or a phone-side cron reading the Discord bridge's last-post timestamp). Scope it
+  small -- this is a monitoring nicety, not an engine feature. depends:none :: status:pending
+
 ### CATASTROPHE-CAP-WIDEN-WATCH (MED, accrue-then-decide, filed 2026-07-23 EOD)
 
 - [ ] CATASTROPHE-CAP-WIDEN-WATCH (MED) :: The stop-forensics A/B (catastrophe-stop-shakeout-2026-07-23)
