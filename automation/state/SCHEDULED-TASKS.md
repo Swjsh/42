@@ -1,5 +1,35 @@
 # SCHEDULED-TASKS.md — single source of truth for all Gamma_* scheduled tasks
 
+> **⚠️ COST PASS 2026-07-25 — read before trusting any cost figure in this file.** A measured
+> census (per-session tokens from `~/.claude/projects/.../*.jsonl`, priced with
+> `spend_summary.py`, attributed via the `RUNTIME CONTEXT` header) found this registry's cost
+> estimates are **off by 6-58x**. Registry said conductor "~$1/fire"; measured **$7.69**. The
+> file's own summary line claimed "~$2.75/day LLM, within the $100/mo Max-5x budget" — real
+> automation burn was **$160/day**, of which the conductor family alone was **93.3%**.
+> **Treat every `~$X/fire` annotation below as UNVERIFIED unless it cites a measured census.**
+>
+> Changes applied 2026-07-25 (see commits e0356fb1 / c96bdaf0 / d71b87e0):
+> - `Gamma_Conductor`: was a `PT2H` repetition with **no DaysOfWeek filter** (24/7, ~16 fires/day,
+>   NOT the "hourly 18:00-07:00 after-hours ONLY" documented) → now **3 daily fires**
+>   18:30 / 23:00 / 03:30 MT (= 20:30 / 01:00 / 05:30 ET).
+> - `Gamma_ConductorRTH`: **DISABLED** (24.5 fires/weekday; its verify-and-flag job is already
+>   covered by the $0 deterministic `engine-health` + `self_check` + `fill_funnel` path).
+> - `Gamma_EveningNarrative`: **DISABLED** (duplicate of `Gamma_EodBrief` — both composed a
+>   first-person narrative and voiced it through the same Kokoro pipeline at 16:20).
+> - `Gamma_CcrKeepalive`: **RE-ENABLED** (disabled since 07-14; its absence once silently killed
+>   premarket when the router died overnight).
+> - **NEW rail-0 budget gate:** `setup/scripts/conductor_budget.py` is STAGE 0 of `conductor.md`.
+>   Cap in `automation/state/conductor-budget.json` ($30/day corrected, 4 fires). It multiplies
+>   the conductor's self-reported `cost_usd` by **2.2** — measured under-report factor.
+> - **Retired 2 ungoverned Claude-native tasks** (`~/.claude/scheduled-tasks/`, invisible to
+>   `audit_scheduled_tasks.py` because they are not `Gamma_*` Windows tasks — moved to
+>   `~/.claude/scheduled-tasks-retired-2026-07-25/`): `gamma-sniper-shadow-eod` (daily **opus**,
+>   ~$100/mo, output frozen since 2026-05-23, exits immediately past its own `DATA_END`) and
+>   `autoresearch-fleet` (8 agents/hr aimed at a different repo, untouched since March).
+>   **Any future audit of scheduled work must check that directory too.**
+> - **Live task count is 101**, this file's header says 92 — 9 tasks of drift, not reconciled here.
+
+
 > **Last reconciled:** 2026-06-01 (full audit + EOD/review/premarket pipeline re-added per J. Registry had drifted to claim 35 active vs 15 real; brought to truth, then 12 tasks re-registered → 27 active).
 >
 > **Governance:** Every active task must have an entry in "## Active". Registered-but-missing → ORPHAN_TASK. Active-entry-with-no-task → STALE_REGISTRY_ENTRY. Tasks under "## Reference" are intentionally NOT parsed (knowledge only).
