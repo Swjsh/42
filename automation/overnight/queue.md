@@ -2216,6 +2216,21 @@ These are exactly the OP-22 "371st untriaged candidate is debt" pattern. The `gy
 
 ## Completed
 
+### 2026-07-26 ~00:12-00:25 ET — conductor (AFTERHOURS): DRESS-REHEARSAL-WEEKEND-FALSE-RED fixed, commits `e370b0dc` + `41c335ca`
+
+- [x] DRESS-REHEARSAL-WEEKEND-FALSE-RED (CRITICAL, self-check BROKEN flag, not a pre-filed
+  queue item) :: `Gamma_DressRehearsal` (`DaysInterval=1`, every calendar day incl. weekends)
+  RED'd `overall` every Sat/Sun night because `check3_sanity`'s beacon-freshness sub-check had
+  no market-closed exemption (unlike `engine_health.py`'s consistent "market closed -- quiet
+  OK" idiom). Fixed: `is_weekend` param derived via `et_clock.et_weekday() >= 5`, mirrors
+  `is_market_hours`' own convention. 5 new guard tests, RED-proofed via scoped `git stash`,
+  34/34 pass. Live-verified: re-ran `dress_rehearsal.py` post-fix -> `overall=GREEN`; re-ran
+  `self_check.py` -> `DRESS-REHEARSAL RED` problem gone (only the already-tracked
+  `OFF-BOX-DEADMAN-SWITCH`/`ENGINE DARK ALL DAY` item below remains, untouched, correct to
+  leave alone). Lesson filed:
+  `_lesson-inbox/2026-07-26-dress-rehearsal-weekend-beacon-false-red.md`. Full detail:
+  STATUS.md same timestamp. Revert: `git revert 41c335ca e370b0dc`. :: depends:none :: status:done
+
 ### 2026-07-22 ~22:42-23:05 ET — conductor (AFTERHOURS): STRATEGY-CANDIDATES-UNTRACKED-BACKFILL closed in full (parts 1-3), commits `d148f7e8` + `2d8c7594`
 
 - [x] STRATEGY-CANDIDATES-UNTRACKED-BACKFILL (HIGH) :: all 3 named fix-parts shipped this fire
