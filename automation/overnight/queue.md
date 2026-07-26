@@ -78,6 +78,43 @@
 > - Zero trading-path touched (analysis/tooling/test files only, no params/heartbeat_core/
 >   filters/CLAUDE.md). Revert: `git revert <this commit>`.
 
+> **PROGRESS 2026-07-25 ~20:30-21:05 ET (conductor, AFTERHOURS), analysis-only, no commit.**
+> Picked up the prior fire's own NEXT STEP verbatim: does `_b5_vix_regime_dayside.py` (vix_regime_dayside)
+> and `_edgehunt_vwap_continuation.py` (vwap_continuation) source entry levels/triggers the same
+> batch-computed-only way `orchestrator.run_backtest` does (vs live's curated+memory-merged
+> key-levels.json feed)? **Answer: NO -- this mechanism does NOT apply to either disarmed setup.**
+> Code-read, not guessed (OP-33):
+> - Both entry triggers are computed from `session_vwap_asof` (shared single implementation in
+>   `autoresearch/infinite_ammo_discovery.py`, imported by both scripts verbatim) -- a pure
+>   cumulative-VWAP-from-RTH-bars calculation. Grepped both files for `key.levels`/`key_levels`:
+>   zero hits in either. Neither setup's trigger touches the curated/memory-merged level feed at
+>   all -- unlike the RIDE_THE_RIBBON family (`engine_fullhist_replay.py`'s own scope), there is no
+>   batch-vs-live level-source divergence possible here because there is no level source; VWAP and
+>   VIX-regime are both derivable identically from the same OHLCV bars live and in backtest.
+> - Both scripts' exit simulation is `lib.simulator_real.simulate_trade_real` (grepped: both
+>   import + call it directly, not a re-derivation) -- the SAME entry+1 convention that
+>   `markdown/audits/ENTRY-BAR-CONVENTION-RULING-2026-07-25.md` ruled live-faithful earlier today.
+>   So both the entry-generation layer AND the exit-simulation layer for these two setups already
+>   use the mechanisms already confirmed correct -- **this fully closes off the
+>   entry-bar-convention / batch-vs-live-level-source hypothesis for vwap_continuation and
+>   vix_regime_dayside specifically** (it was never a live candidate for these two once you read
+>   what their triggers actually depend on; it only ever applied to the RIDE_THE_RIBBON family).
+> - **What's left as the leading hypothesis** (already named by the item's own arm-time
+>   disclosure, not new): the params.json "L174 NOT INDEPENDENT / lift is largely day+side
+>   selection" caveat + small OOS n (EDGE-HUNT-VERIFIED.json shows vwap_continuation's ITM2/-8%
+>   cell at n=149 full / oos_n=42 -- NOT tiny, which weakens a pure-small-n explanation and
+>   strengthens the "selection, not independent trials" reading: if day+side was itself chosen
+>   post-hoc from the same data used to grade it, the nominal n overstates the effective
+>   independent-trial count, and a 0-for-12 on an unlucky forward stretch stops looking like
+>   p<1% and starts looking like ordinary post-hoc-selection decay).
+> - **NOT DONE (concrete next step, if this thread is picked up again):** quantify the effective
+>   independent-trial count under L174's own selection mechanism (e.g. day-cluster the historical
+>   OOS trades and check how many genuinely distinct day+side buckets fed the "day+side selection"
+>   vs how many the 0-for-12 forward sample drew from) -- that is the test that would either
+>   confirm or refute "this was foreseeable overfitting" vs "this is genuinely a new regime".
+>   Scope: research-only, no engine change implied either way.
+> - Zero trading-path touched, zero files edited this fire (pure code-read + queue note).
+
 ### AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS (MED, filed 2026-07-25)
 
 - [ ] AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS (MED) :: `audit_scheduled_tasks.py` and

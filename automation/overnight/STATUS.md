@@ -1,4 +1,43 @@
-## [2026-07-25 ~17:42-17:54 ET] OK -- conductor (AFTERHOURS/weekend): ZERO-FOR-TWELVE-POSTMORTEM entry-layer follow-up, commit `6b7c07ac`
+## [2026-07-25 ~20:30-21:05 ET] OK -- conductor (AFTERHOURS): ZERO-FOR-TWELVE-POSTMORTEM mechanism ruled out (analysis-only, no commit)
+
+> **STAGE 0/1:** ET confirmed 20:30 Saturday (market closed). Budget gate PROCEED ($22/$30, 2/4
+> fires). `engine-health.json` GREEN/YELLOW (14 checks, 0 RED; gex_archive 1-day-stale YELLOW,
+> non-critical). `self-check-last.json` BROKEN flag is the known, already-diagnosed 2026-07-24
+> off-box incident (`OFF-BOX-DEADMAN-SWITCH` queue item already tracks it; position_safe/bold
+> confirmed flat, kill-switches armed-not-tripped -- nothing live-risk pending). `task_scorer.py
+> --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again (still J's REVOKE surface, unchanged, Nth
+> fire confirming). Picked the prior fire's own named NEXT STEP on `ZERO-FOR-TWELVE-POSTMORTEM`
+> (HIGH) instead: audit whether `_b5_vix_regime_dayside.py`/`_edgehunt_vwap_continuation.py`
+> source entry levels the same batch-only way as `orchestrator.run_backtest` (the mechanism that
+> explained the RIDE_THE_RIBBON entry-layer gap).
+
+> **What I found:** NO -- ruled out for both disarmed setups. Both entry triggers compute from
+> `session_vwap_asof` (one shared implementation in `autoresearch/infinite_ammo_discovery.py`,
+> imported verbatim by both scripts) -- a pure cumulative-VWAP-from-RTH-bars calc with zero
+> `key_levels`/`key.levels` references in either file (grepped). There is no curated/memory-merged
+> level source for either setup to diverge on, live vs backtest. Both scripts' exit sim is also
+> `lib.simulator_real.simulate_trade_real` directly -- the SAME entry+1 convention
+> `ENTRY-BAR-CONVENTION-RULING-2026-07-25.md` ruled live-faithful earlier today. So the
+> entry-bar-convention / batch-vs-live-level-divergence hypothesis is now fully closed off for
+> these two setups specifically (it only ever applied to the RIDE_THE_RIBBON family).
+
+> **Leading remaining hypothesis (not new, already disclosed at arm-time):** params.json's own
+> "L174 NOT INDEPENDENT / lift is largely day+side selection" caveat. vwap_continuation's arm-time
+> evidence shows oos_n=42 (not tiny) -- which actually strengthens the selection-bias reading over
+> a pure small-n one: if day+side was itself chosen post-hoc against the same data used to grade
+> it, effective independent trials < nominal n, and 0-for-12 stops looking like p<1% surprise and
+> starts looking like ordinary post-hoc-selection decay. Named the concrete next test (day-cluster
+> the OOS trades, compare distinct day+side buckets vs the 0-for-12 sample) as NOT DONE -- research
+> only, no engine implication either way yet.
+
+> **Verified this fire (OP-33):** every claim above is a direct grep/read quote, not an inference
+> (`session_vwap_asof` single-source import confirmed both files; zero `key_levels` hits confirmed
+> both files; `simulate_trade_real` import+call confirmed both files; EDGE-HUNT-VERIFIED.json n/oos_n
+> quoted directly). Zero files edited except `queue.md` (progress note) + this STATUS entry -- no
+> code/trading-path touched, nothing to revert beyond the doc note.
+
+> **Scope + revert:** 2 files (queue.md progress append, this STATUS entry). No commit needed
+> (doc-only progress note on an already-tracked item) -- next fire: `git add automation/overnight/{queue.md,STATUS.md}` if J wants it committed, else it rides the next commit that touches these files.
 
 > **STAGE 0/1:** ET confirmed 17:42 Saturday (market closed). Budget gate PROCEED ($14.30/$30,
 > 1/4 fires). `engine-health.json` GREEN/YELLOW (14 checks, 0 RED, only gex_archive 1-day-stale
@@ -645,3 +684,18 @@
 
 ---
 
+
+### BROKEN: self-check 2026-07-25T18:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T18:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T19:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T19:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T20:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
