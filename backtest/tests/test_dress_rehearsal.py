@@ -221,6 +221,62 @@ class TestEndStateRetryTolerance:
         assert calls["open_orders"] == 1, "the common case must not pay retry latency"
 
 
+# ── check3 beacon-freshness weekend exemption (2026-07-26 false-RED root-cause) ─
+#
+# Gamma_DressRehearsal fires every calendar day (DaysInterval=1), including
+# weekends. Before this fix, check3_sanity's beacon-freshness sub-check had no
+# weekend exemption (unlike engine_health.py's "market closed -- quiet OK"
+# idiom), so it RED'd every Sat/Sun night forever on a beacon that is CORRECTLY
+# stale since Friday's close. Root-caused live: automation/state/dress-
+# rehearsal.json 2026-07-25T20:45:01 (Saturday), beacon age 52.3h.
+
+class TestCheck3SanityWeekendExemption:
+    def _rig(self, monkeypatch, dr, *, beacon_age_h: float, beacon_exists: bool = True):
+        import fleet_broker as fb
+        creds_map = {"safe": _CREDS}
+        monkeypatch.setattr(fb, "_request",
+                            lambda creds, endpoint, method="GET", data=None, timeout=15:
+                            {"next_open": "2026-07-27T09:30:00-04:00"})
+        monkeypatch.setattr(fb, "get_account",
+                            lambda creds: {"status": "ACTIVE", "options_approved_level": 3})
+        fake_mtime = __import__("time").time() - beacon_age_h * 3600.0
+        fake_beacon = type("FakeBeacon", (), {
+            "exists": staticmethod(lambda: beacon_exists),
+            "stat": staticmethod(lambda: type("S", (), {"st_mtime": fake_mtime})()),
+        })()
+        monkeypatch.setattr(dr, "BEACON", fake_beacon)
+        return creds_map
+
+    def test_stale_beacon_on_weekday_is_red(self, dr, monkeypatch):
+        creds_map = self._rig(monkeypatch, dr, beacon_age_h=52.3)
+        out = dr.check3_sanity(creds_map, "2026-07-27", is_weekend=False)
+        assert out["verdict"] == "RED"
+        assert any("FAIL: beacon stale" in e for e in out["evidence"])
+
+    def test_stale_beacon_on_weekend_is_green_quiet_ok(self, dr, monkeypatch):
+        creds_map = self._rig(monkeypatch, dr, beacon_age_h=52.3)
+        out = dr.check3_sanity(creds_map, "2026-07-27", is_weekend=True)
+        assert out["verdict"] == "GREEN", out["evidence"]
+        assert any("quiet OK" in e for e in out["evidence"])
+
+    def test_fresh_beacon_on_weekday_is_green_regardless(self, dr, monkeypatch):
+        creds_map = self._rig(monkeypatch, dr, beacon_age_h=2.0)
+        out = dr.check3_sanity(creds_map, "2026-07-27", is_weekend=False)
+        assert out["verdict"] == "GREEN"
+
+    def test_missing_beacon_stays_red_even_on_weekend(self, dr, monkeypatch):
+        """A MISSING beacon is a genuine unknown (never ran, or the file was deleted) --
+        the weekend exemption only softens KNOWN-stale-by-design, never absence."""
+        creds_map = self._rig(monkeypatch, dr, beacon_age_h=0, beacon_exists=False)
+        out = dr.check3_sanity(creds_map, "2026-07-27", is_weekend=True)
+        assert out["verdict"] == "RED"
+        assert any("MISSING" in e for e in out["evidence"])
+
+    def test_main_passes_et_weekday_derived_is_weekend(self, dr):
+        import inspect
+        assert "is_weekend=et_weekday() >= 5" in inspect.getsource(dr.main)
+
+
 # ── artifact schema (validates the LIVE artifact when present) ────────────────
 
 class TestArtifactSchema:

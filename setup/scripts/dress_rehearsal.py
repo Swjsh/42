@@ -67,7 +67,7 @@ REPO = Path(__file__).resolve().parents[2]
 for _p in ("setup/scripts", "automation/state/fleet"):
     sys.path.insert(0, str(REPO / _p))
 
-from et_clock import et_now  # noqa: E402
+from et_clock import et_now, et_weekday  # noqa: E402
 import fleet_broker as fb  # noqa: E402
 
 STATE = REPO / "automation" / "state"
@@ -353,7 +353,16 @@ def check2_crypto_roundtrip(creds: dict) -> dict:
 
 # ── CHECK 3: key/clock/feed sanity ─────────────────────────────────────────────
 
-def check3_sanity(creds_map: dict, next_day: str | None) -> dict:
+def check3_sanity(creds_map: dict, next_day: str | None, *, is_weekend: bool = False) -> dict:
+    """is_weekend: True when the rehearsal itself is running on a Sat/Sun (ET). The
+    beacon only ticks during weekday RTH (heartbeat_core's eye) -- on a weekend night
+    it is CORRECTLY >24h stale by design, same as engine_health.py's sight_beacon check
+    ("market closed -- quiet OK"). Without this exemption, DaysInterval=1 nightly cadence
+    (Gamma_DressRehearsal runs every calendar day, incl. weekends) produced a false RED
+    every Sat+Sun night forever -- root-caused 2026-07-26 conductor fire from the
+    2026-07-25T20:45:01 RED artifact (beacon age 52.3h, correctly quiet since Friday's
+    close). Does not cover market holidays (weekday-only check) -- named follow-up, not
+    chased this fire to stay bounded."""
     ev: list = []
     out = {"verdict": "GREEN", "evidence": ev}
     for account, creds in creds_map.items():
@@ -373,10 +382,14 @@ def check3_sanity(creds_map: dict, next_day: str | None) -> dict:
             out["verdict"] = "RED"
     if BEACON.exists():
         age_h = (datetime.now().timestamp() - BEACON.stat().st_mtime) / 3600.0
-        ev.append(f"sight-beacon.json age {age_h:.1f}h (must be <24h — beacon ran today)")
+        ev.append(f"sight-beacon.json age {age_h:.1f}h (must be <24h on a weekday — beacon ran today)")
         if age_h >= 24:
-            ev.append("FAIL: beacon stale — the engine's eye did not run today")
-            out["verdict"] = "RED"
+            if is_weekend:
+                ev.append("beacon stale but rehearsal is running on a weekend — "
+                           "engine correctly quiet since Friday's close (market closed -- quiet OK)")
+            else:
+                ev.append("FAIL: beacon stale — the engine's eye did not run today")
+                out["verdict"] = "RED"
     else:
         ev.append("FAIL: sight-beacon.json MISSING")
         out["verdict"] = "RED"
@@ -436,7 +449,8 @@ def main() -> int:
             checks["check2_crypto_safe"] = check2_crypto_roundtrip(safe_creds)
         else:
             checks["check2_crypto_safe"] = {"verdict": "RED", "evidence": ["no safe creds"]}
-        checks["check3_sanity"] = check3_sanity(creds_map, next_day)
+        checks["check3_sanity"] = check3_sanity(
+            creds_map, next_day, is_weekend=et_weekday() >= 5)
         result["overall"] = compute_overall(checks)
     except Exception as e:  # noqa: BLE001 — fail-open: a crash is a RED artifact, never a silent death
         checks["_crash"] = {"verdict": "RED", "evidence": [f"{type(e).__name__}: {e}"]}
