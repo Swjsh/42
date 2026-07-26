@@ -115,6 +115,43 @@
 >   Scope: research-only, no engine change implied either way.
 > - Zero trading-path touched, zero files edited this fire (pure code-read + queue note).
 
+> **PROGRESS 2026-07-25 ~21:12-21:50 ET (conductor, AFTERHOURS), commit `9ad0a907`.** Did the
+> LIVE-sample half of the prior fire's NOT-DONE step (day-clustered the actual 0-for-12 rows from
+> `journal/trades.csv`, not yet the historical OOS(2026) signal population -- that half is still
+> open, see below).
+>
+> - **Finding:** the 12 CSV rows are only **4 distinct calendar days** (07-16/07-20/07-21/07-22)
+>   and **4 distinct (day,side) buckets** -- same-day re-entries + same-signal TP1/runner leg
+>   splits (2026-07-20 vix_regime_dayside: 4 rows, 2 sharing an IDENTICAL entry timestamp
+>   09:54:19; 2026-07-21 vwap_continuation: 2 rows both at 10:11:29) collapse row-count well below
+>   trial-count. AND on 2026-07-21 both `vix_regime_dayside` AND `vwap_continuation` fired PUT
+>   the SAME day -- confirms in DATA the mechanism the earlier fire proved in CODE (both derive
+>   `side` from the identical `session_vwap_asof` classifier): a wrong day-trend read shows up as
+>   2 "setup failures", not 1.
+> - **Reframe (not a reversal of the disarm, a correction of HOW SURPRISING the evidence is):**
+>   "0-for-12 at 55-64% claimed WR is p<1%" -> honestly "0-for-4 correlated day-outcomes at the
+>   same claimed WR is ~1.7%-4.1%" -- still worth the disarm-and-investigate call that was already
+>   made, but no longer reads as a clean statistical-pipeline-falsification signal on its own.
+> - **Graduated to code** (not just a one-off finding): `trade_to_learn_digest.py` now reports
+>   `n_distinct_days` / `n_distinct_day_side_buckets` per setup + a `cross_setup_same_day_side`
+>   field for any future setup-pair sharing a classifier -- so the next since-arm read never
+>   needs a by-hand CSV pull to catch this again. 4 new guard tests + fixed 1 unrelated
+>   pre-existing stale-hardcoded-list test failure (verified via git-stash: identical failure
+>   with/without this commit, caused by today's earlier disarm changing params.json, not by this
+>   change). Lesson filed:
+>   `_lesson-inbox/2026-07-25-since-arm-fills-are-not-independent-trials.md`.
+> - **STILL NOT DONE (the other half):** the HISTORICAL OOS(2026) side of the original ask --
+>   day-cluster the 42-trade (vwap_continuation ITM2/-8%) / 21-trade (vix_regime_dayside) OOS
+>   populations used to VALIDATE these cells, to quantify L174's "lift is largely day+side
+>   selection" claim on the validation side (not the live-sample side just closed). Needs
+>   `detect_signals()` re-run over the 2026 window from each autoresearch script (detection only,
+>   no full sim sweep) -- tractable, not yet done.
+> - Verified this fire (OP-33): all dates/times/pnl above are direct `journal/trades.csv` reads,
+>   not inferred; `n_distinct_days`/`cross_setup_same_day_side` values reproduced by running
+>   `trade_to_learn_digest.py --dry-run` post-commit. Zero trading-path touched (no params/
+>   heartbeat_core/filters/CLAUDE.md) -- pure observability tooling + tests + docs. Revert:
+>   `git revert 9ad0a907`.
+
 ### AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS (MED, filed 2026-07-25)
 
 - [ ] AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS (MED) :: `audit_scheduled_tasks.py` and

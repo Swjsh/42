@@ -1,4 +1,56 @@
-## [2026-07-25 ~20:30-21:05 ET] OK -- conductor (AFTERHOURS): ZERO-FOR-TWELVE-POSTMORTEM mechanism ruled out (analysis-only, no commit)
+## [2026-07-25 ~21:12-21:50 ET] OK -- conductor (AFTERHOURS): ZERO-FOR-TWELVE-POSTMORTEM live sample day-clustered (12 rows = 4 days), commit `9ad0a907`
+
+> **STAGE 0/1:** ET confirmed 21:12 Saturday (market closed). Budget gate PROCEED ($22/$30,
+> 2/4 fires -> this fire pushes to 3/4). `engine-health.json` GREEN/YELLOW (14 checks, 0 RED,
+> gex_archive 1-day-stale YELLOW non-critical). `task_scorer.py --top` returned
+> `TWIN-DOCTRINE-FIRST-DEPLOY` again (still J's REVOKE surface, unpicked, Nth fire confirming).
+> Picked up `ZERO-FOR-TWELVE-POSTMORTEM` (HIGH) again -- the prior fire's own named NOT-DONE
+> step: "day-cluster the OOS trades and check how many genuinely distinct day+side buckets fed
+> the sample."
+
+> **What I found:** pulled the actual 12 CSV rows behind the "0-for-12" headline
+> (`journal/trades.csv`, setup=vwap_continuation/vix_regime_dayside since 2026-07-01 arm). They
+> are **4 distinct calendar days** (07-16, 07-20, 07-21, 07-22) and **4 distinct (day,side)
+> buckets** -- not 12 independent trials. Two mechanisms: (a) same-day re-entries / same-signal
+> TP1+runner leg splits (2026-07-20 vix_regime_dayside logged 4 rows, two sharing an IDENTICAL
+> entry timestamp 09:54:19; 2026-07-21 vwap_continuation logged 2 rows both at 10:11:29); (b) on
+> 2026-07-21 BOTH setups fired PUT the SAME day -- confirms in DATA the mechanism an earlier fire
+> today proved in CODE (both derive `side` from the identical `session_vwap_asof` day-trend
+> classifier) -- one wrong day-read counted as two setup failures.
+
+> **Reframe (correction of surprise-magnitude, not a reversal of the disarm):** "0-for-12 at
+> claimed 55-64% WR is p<1%" reframes to "0-for-4 correlated day-outcomes at the same claimed WR
+> is ~1.7%-4.1%" -- still worth the disarm-and-investigate call already made, no longer a clean
+> statistical-pipeline-falsification signal standing alone.
+
+> **Graduated to code** (`backtest/autoresearch/trade_to_learn_digest.py`, commit `9ad0a907`):
+> `compute_since_arm()` now reports `n_distinct_days` / `n_distinct_day_side_buckets` per setup
+> + a new `cross_setup_same_day_side` field flagging when 2+ armed setups fire the same
+> (date,side) -- generalizes past this one pair. `format_lines()` warns inline. 4 new guard
+> tests (`backtest/tests/test_trade_to_learn_digest.py`, 13/13 pass) + fixed 1 unrelated
+> pre-existing stale test (hardcoded 2026-07-18 arm-list assertion broke when today's earlier
+> disarm changed params.json -- verified via `git stash` that the failure is identical with or
+> without this commit, so this fix is incidental cleanup not scope creep).
+
+> **Learn:** lesson filed
+> `_lesson-inbox/2026-07-25-since-arm-fills-are-not-independent-trials.md` (generalizable:
+> "N fills, X% WR" is a row count, not a trial count -- any since-arm digest needs distinct-day
+> disclosure before it's used for a disarm/keep call).
+
+> **Verified this fire (OP-33):** all dates/sides/timestamps are direct `journal/trades.csv`
+> reads (quoted above), not inferred. Ran `trade_to_learn_digest.py --dry-run` post-commit --
+> output matches. `pytest backtest/tests/test_trade_to_learn_digest.py -q` = 13/13 PASS. Curated
+> safety gate (pre-commit hook) PASS. Post-commit `git show 9ad0a907 --stat --name-status` +
+> `git status --porcelain` on touched paths confirmed clean (L247 discipline).
+
+> **Scope + revert:** 2 files (digest script + its test file) + this STATUS entry + queue.md
+> progress note + 1 new lesson-inbox item. Zero trading-path touched (no params/heartbeat_core/
+> filters/CLAUDE.md). Revert: `git revert 9ad0a907`.
+
+> **STILL OPEN (named next step):** the HISTORICAL OOS(2026) side of the original ask (day-cluster
+> the 42-trade/21-trade validation-time OOS populations to quantify L174's "day+side selection"
+> claim on the VALIDATION side, not the live-sample side just closed) -- needs a `detect_signals()`
+> re-run over 2026 from each autoresearch script (detection only, no full sim sweep), not yet done.
 
 > **STAGE 0/1:** ET confirmed 20:30 Saturday (market closed). Budget gate PROCEED ($22/$30, 2/4
 > fires). `engine-health.json` GREEN/YELLOW (14 checks, 0 RED; gex_archive 1-day-stale YELLOW,
@@ -620,82 +672,3 @@
 
 ---
 
-## [2026-07-23 ~19:48-19:58 ET] OK -- conductor (AFTERHOURS): fixed participation-cascade misclassifying real fills as stale_trigger_bar, corrected today's false RED alert, commit `9d79939c`
-
-> **STAGE 0/1:** ET confirmed 19:48 (Thursday, market closed since 15:55). `engine-health.json`
-> GREEN 13/13. Gym scorecard YELLOW (detector_verdict GREEN, not blocking). Self-audit gaps
-> fully triaged through today's 17:31 batch. `task_scorer.py --top` returned
-> `PARTICIPATION-DAILY-SELF-CHECK-WIRE` (MED) but its stated `depends:self-check-hygiene-lane`
-> is a phantom dependency (grepped: no such task id exists anywhere, and `self_check.py` has
-> been actively co-edited by conductor fires 15+ times since -- the "owned by another agent"
-> caveat is stale, matching the recurring stale-dependency pattern from the last 2 fires'
-> lessons). Before chasing that, ran the STAGE 1 FUNCTION-FIRST check (read
-> `automation/state/participation-daily.json`) and found something more urgent: TODAY's file
-> showed `verdict: RED` both accounts, `fills: 0` both -- contradicting the known fact (this
-> STATUS file's own EOD entry above) that bold placed+filled a real SPY735P at 11:29 ET.
-
-> **Root cause traced, not assumed (OP-33):** `participation_cascade.py#classify_core_row`'s
-> staleness fallback (`action==SKIP_STALE_TRIGGER or row.get("trigger_bar_et")`) was sound
-> only while `trigger_bar_et` had exactly one writer in `heartbeat_core.py` (true 2026-07-10).
-> The UNRELATED 2026-07-20 DECISION-ROW-SPY-STALENESS visibility fix made that field universal
-> (every row, stale or not) -- nobody revisited the 07-10 consumer-side fallback when the 07-20
-> producer-side change shipped, 10 days and two unrelated PRs apart. Confirmed against the real
-> ledger: bold's 11:29 PLACED/filled row and all 13 same-day SKIP_LATE_ENTRY rows were
-> misclassified as `stale_trigger_bar`, driving the false RED + a real Discord alert to J at
-> 16:10:03 ET ("orders=0").
-
-> **What shipped:** `_trigger_bar_cross_session(row)` -- compares trigger_bar_et's calendar day
-> vs the row's OWN ts_et day (mirrors heartbeat_core's actual `_stale_trigger_bar` predicate)
-> instead of a bare truthy check. 2 new regression tests pin the exact 2026-07-23 exhibit
-> (same-day SKIP_LATE_ENTRY + same-day PLACED); 1 existing test updated (its premise --
-> "trigger_bar_et has exactly one writer" -- is now false, so it needed ts_et added to still
-> exercise genuine cross-session staleness). Re-ran `participation_daily.py --date 2026-07-23`
-> against the fix: verdict corrected RED->YELLOW, bold now shows fills=1, safe's REAL blockers
-> are visible (entry_ceiling_15:00, min_premium_floor, entry_bar_body_pct_min,
-> require_bearish_fill_bar, block_level_rejection) instead of one opaque bucket. Posted an
-> explicit Discord correction alongside the naturally-refreshed line (verdict changed so
-> dedup didn't suppress it).
-
-> **Verified this fire (OP-33):** 51/51 `test_participation_cascade.py` + `test_participation_daily.py`
-> green, curated safety gate (31+5) PASS, commit `9d79939c` confirmed in HEAD via `git show --stat`.
-
-> **Learn (STAGE 4.5):** filed `_lesson-inbox/2026-07-23-participation-cascade-universal-field-
-> broke-presence-heuristic.md` -- same class as L234 (producer widens a field's scope, consumer's
-> bare-presence heuristic silently breaks). Proposed guard-graduation: when a shared-ledger field
-> gets a second writer / widened scope, grep every consumer for a bare-truthy check on that field
-> name before shipping.
-
-> **Scope + revert:** `backtest/tools/participation_cascade.py` (1 helper + 1 branch) +
-> `backtest/tests/test_participation_cascade.py` (1 updated + 2 new) + regenerated
-> `automation/state/participation-daily.json` + `participation-cascade.json` + appended
-> `analysis/participation-cascade/2026-07-23.md` + 2 Discord lines + 1 lesson-inbox file. Zero
-> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched -- pure observability-instrument
-> bugfix, engine-benefit, ships per OP-22/26, no J ratification needed. Revert:
-> `git revert 9d79939c`.
-
-> **PARTICIPATION-DAILY-SELF-CHECK-WIRE still not started** (its real blocker isn't the phantom
-> dependency -- it's simply not yet done); left as next-fire-ready in queue.md, dependency note
-> corrected.
-
-> **Cost: ~$3.8** (STAGE 0/1 reads + phantom-dependency trace, live-data root-cause investigation
-> across 2 modules, fix + 2 regression tests + 1 test correction, curated gate, live re-run +
-> state regeneration + Discord correction, lesson-inbox write-up, STATUS/queue write-up,
-> conductor_outcome record+metric).
-
----
-
-
-### BROKEN: self-check 2026-07-25T18:09:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-25T18:39:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-25T19:09:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-25T19:39:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-25T20:09:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
