@@ -78,12 +78,13 @@ def live_armed_setups(params_path: Path = PARAMS_JSON) -> list[str]:
 def load_real_fills(csv_path: Path = TRADES_CSV) -> list[dict]:
     """Read journal/trades.csv rows with a parseable date/setup/dollar_pnl.
 
-    Only reads the EARLY columns (date, setup, dollar_pnl) — a known pre-existing CSV
-    quoting defect in some rows' `archetype_match_json` field (unescaped literal `"` in
+    Only reads the EARLY columns (date, setup, c_or_p, dollar_pnl) — a known pre-existing
+    CSV quoting defect in some rows' `archetype_match_json` field (unescaped literal `"` in
     embedded notes text) corrupts LATER columns (account_id, notes_short) for those rows,
     but never the early ones csv.DictReader parses before hitting the bad quote
-    (verified 2026-07-18: dollar_pnl parses clean for all 179 rows regardless). Flagged
-    as a separate lesson-inbox note, not fixed here (out of this bounded task's scope).
+    (verified 2026-07-18: dollar_pnl parses clean for all 179 rows regardless; c_or_p sits
+    even earlier in the header than dollar_pnl, same guarantee applies). Flagged as a
+    separate lesson-inbox note, not fixed here (out of this bounded task's scope).
     """
     if not csv_path.exists():
         return []
@@ -93,6 +94,7 @@ def load_real_fills(csv_path: Path = TRADES_CSV) -> list[dict]:
             setup = (raw.get("setup") or "").strip()
             date_s = (raw.get("date") or "").strip()
             pnl_s = (raw.get("dollar_pnl") or "").strip()
+            side = (raw.get("c_or_p") or "").strip().upper()
             if not setup or not date_s or not pnl_s:
                 continue
             try:
@@ -100,13 +102,25 @@ def load_real_fills(csv_path: Path = TRADES_CSV) -> list[dict]:
                 pnl = float(pnl_s)
             except Exception:
                 continue
-            rows.append({"date": d, "setup_key": setup.lower(), "pnl": pnl})
+            rows.append({"date": d, "setup_key": setup.lower(), "pnl": pnl, "side": side})
     return rows
 
 
 def compute_since_arm(*, csv_path: Path = TRADES_CSV, params_path: Path = PARAMS_JSON,
                        today: dt.date | None = None) -> dict:
-    """Per-setup cumulative real-fill P&L since each setup's documented arm date."""
+    """Per-setup cumulative real-fill P&L since each setup's documented arm date.
+
+    Also reports EFFECTIVE INDEPENDENT TRIALS (ZERO-FOR-TWELVE-POSTMORTEM, 2026-07-25):
+    n_fills counts CSV rows, which over-counts same-day re-entries and same-signal
+    TP1/runner leg splits as independent trials. n_distinct_days / n_distinct_day_side
+    are the honest lower bound — a losing STREAK measured in n_fills can be a losing
+    streak of 4 correlated DAYS wearing a 12-trial costume. Verified mechanism (this
+    date): vwap_continuation + vix_regime_dayside both derive `side` from the identical
+    `session_vwap_asof`/day-trend-side classifier (autoresearch/infinite_ammo_discovery.py,
+    imported verbatim by both) — so cross_setup_same_day_side below also surfaces when
+    two DIFFERENT armed setups are riding the same underlying day-call, not two
+    independent bets, even though they show up as separate setups in n_fills.
+    """
     today = today or dt.date.today()
     fills = load_real_fills(csv_path)
     armed = live_armed_setups(params_path)
@@ -124,10 +138,14 @@ def compute_since_arm(*, csv_path: Path = TRADES_CSV, params_path: Path = PARAMS
         total = round(sum(r["pnl"] for r in matched), 2)
         wins = sum(1 for r in matched if r["pnl"] > 0)
         days_armed = (today - arm_date).days
+        distinct_days = sorted({str(r["date"]) for r in matched})
+        distinct_day_side = sorted({(str(r["date"]), r["side"]) for r in matched})
         setups_out[setup] = {
             "arm_date": arm_date_s,
             "days_since_arm": days_armed,
             "n_fills": n,
+            "n_distinct_days": len(distinct_days),
+            "n_distinct_day_side_buckets": len(distinct_day_side),
             "total_dollar_pnl": total,
             "avg_dollar_pnl": round(total / n, 2) if n else None,
             "wr_pct": round(100 * wins / n, 1) if n else None,
@@ -136,6 +154,23 @@ def compute_since_arm(*, csv_path: Path = TRADES_CSV, params_path: Path = PARAMS
             "status": "ACTIVE" if n else "NO_FILLS_SINCE_ARM",
         }
 
+    # Cross-setup correlation: (date, side) buckets hit by 2+ DIFFERENT armed setups.
+    # A shared bucket means those setups' fills that day are NOT independent evidence
+    # of each other — they likely rode the same underlying day-trend/side call.
+    by_date_side: dict[tuple, set] = {}
+    for r in fills:
+        if r["setup_key"] not in armed:
+            continue
+        arm_date_s = ARM_DATES.get(r["setup_key"])
+        if arm_date_s is None or r["date"] < dt.date.fromisoformat(arm_date_s):
+            continue
+        key = (str(r["date"]), r["side"])
+        by_date_side.setdefault(key, set()).add(r["setup_key"])
+    cross_setup_same_day_side = [
+        {"date": k[0], "side": k[1], "setups": sorted(v)}
+        for k, v in sorted(by_date_side.items()) if len(v) >= 2
+    ]
+
     return {
         "digest": "TRADE-TO-LEARN-CUMULATIVE-DIGEST — since-arm real-fill P&L per armed setup",
         "generated_at": today.isoformat(),
@@ -143,6 +178,7 @@ def compute_since_arm(*, csv_path: Path = TRADES_CSV, params_path: Path = PARAMS
         "fills_authority": "journal/trades.csv (actual placed-and-filled paper trades, not a re-sim)",
         "setups": setups_out,
         "unmapped_armed_setups": unmapped,  # non-empty = a new arm with no ARM_DATES entry (drift)
+        "cross_setup_same_day_side": cross_setup_same_day_side,
     }
 
 
@@ -153,9 +189,16 @@ def format_lines(digest: dict) -> list[str]:
             lines.append(f"{setup} (armed {s['arm_date']}, {s['days_since_arm']}d ago): "
                          f"0 fills since arm — no live signal yet")
         else:
+            days_note = ""
+            if s["n_distinct_days"] < s["n_fills"]:
+                days_note = (f" [{s['n_distinct_days']}d/{s['n_distinct_day_side_buckets']} "
+                             f"day+side buckets -- {s['n_fills']} rows are NOT independent trials]")
             lines.append(f"{setup} (armed {s['arm_date']}): since-arm {s['n_fills']}tr "
                          f"${s['total_dollar_pnl']:+.2f} (${s['avg_dollar_pnl']:+.2f}/tr, "
-                         f"{s['wr_pct']}% WR)")
+                         f"{s['wr_pct']}% WR){days_note}")
+    for c in digest.get("cross_setup_same_day_side", []):
+        lines.append(f"WARNING CORRELATED: {c['date']} side={c['side']} fired in BOTH "
+                     f"{'+'.join(c['setups'])} -- same underlying day-call, not independent")
     if digest.get("unmapped_armed_setups"):
         lines.append(f"⚠️ ARM_DATES missing for: {', '.join(digest['unmapped_armed_setups'])} "
                      f"(newly armed, digest can't date it — add to trade_to_learn_digest.ARM_DATES)")

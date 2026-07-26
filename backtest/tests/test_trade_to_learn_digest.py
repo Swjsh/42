@@ -135,16 +135,80 @@ def test_unmapped_armed_setup_is_surfaced_not_silently_dropped(synthetic_csv, tm
 
 def test_smoke_against_real_journal_and_params():
     """End-to-end smoke on the REAL journal/trades.csv + params.json -- must not crash,
-    must return a dict with the 5 currently-known armed setups (as of 2026-07-18)."""
+    and every currently-armed setup (per live params.json, NOT a hardcoded snapshot --
+    vwap_continuation/vix_regime_dayside were DISARMED 2026-07-25 by the
+    ZERO-FOR-TWELVE-POSTMORTEM, so a fixed list here would go stale on the next arm
+    change) must appear in the digest with an ARM_DATES mapping."""
     d = t2l.compute_since_arm()
     assert d["unmapped_armed_setups"] == []
-    for expected in ("vwap_continuation", "vwap_reclaim_failed_break",
-                      "vix_regime_dayside", "double_bottom_base_quiet", "bollinger_squeeze"):
+    live_safe = t2l.live_armed_setups(t2l.PARAMS_JSON)
+    assert live_safe, "expected at least one live-armed trade-to-learn setup"
+    for expected in live_safe:
         assert expected in d["setups"]
     # real evidence pinned 2026-07-18 (verified live this fire): bollinger_squeeze has
     # fired twice since arm and is net positive; this is a LOOSE non-regression pin
     # (>= 2, not an exact literal) since fresh fills will only ever ADD to it going forward.
-    assert d["setups"]["bollinger_squeeze"]["n_fills"] >= 2
+    if "bollinger_squeeze" in d["setups"]:
+        assert d["setups"]["bollinger_squeeze"]["n_fills"] >= 2
+
+
+@pytest.fixture()
+def correlated_params(tmp_path):
+    p = tmp_path / "params.json"
+    p.write_text(json.dumps({
+        "extra_setup_exec_armed": {
+            "vwap_continuation": True,
+            "vix_regime_dayside": True,
+        }
+    }), encoding="utf-8")
+    return p
+
+
+@pytest.fixture()
+def correlated_csv(tmp_path):
+    """ZERO-FOR-TWELVE-POSTMORTEM (2026-07-25) shape: same-day re-entries collapse to
+    fewer independent trials than n_fills, and two DIFFERENT setups riding the same
+    day-trend-side classifier fire on the same (date, side)."""
+    p = tmp_path / "trades.csv"
+    header = "date,time_entry,time_exit,setup,c_or_p,dollar_pnl,account_id\n"
+    rows = [
+        # vwap_continuation: 3 rows, all 2026-07-16, all P -> 1 distinct day, 1 day+side bucket
+        "2026-07-16,09:51,09:53,vwap_continuation,P,-54,safe",
+        "2026-07-16,09:53,09:54,vwap_continuation,P,-14,safe",
+        "2026-07-16,09:55,09:56,vwap_continuation,P,-10,safe",
+        # vix_regime_dayside: SAME day, SAME side P -> correlated with the above
+        "2026-07-16,09:52,09:54,vix_regime_dayside,P,-20,safe",
+        # vix_regime_dayside: a different day/side -> not correlated
+        "2026-07-20,09:51,09:52,vix_regime_dayside,C,-6,safe",
+    ]
+    p.write_text(header + "\n".join(rows) + "\n", encoding="utf-8")
+    return p
+
+
+def test_n_distinct_days_lower_than_n_fills_on_same_day_reentries(correlated_csv, correlated_params):
+    d = t2l.compute_since_arm(csv_path=correlated_csv, params_path=correlated_params)
+    vc = d["setups"]["vwap_continuation"]
+    assert vc["n_fills"] == 3
+    assert vc["n_distinct_days"] == 1
+    assert vc["n_distinct_day_side_buckets"] == 1
+
+
+def test_cross_setup_same_day_side_flags_shared_day_trend_call(correlated_csv, correlated_params):
+    d = t2l.compute_since_arm(csv_path=correlated_csv, params_path=correlated_params)
+    shared = d["cross_setup_same_day_side"]
+    assert {"date": "2026-07-16", "side": "P",
+            "setups": ["vix_regime_dayside", "vwap_continuation"]} in shared
+    # the 2026-07-20 C fill only has one setup (vwap_reclaim_failed_break has 0 fills
+    # here, vix_regime_dayside is disabled in synthetic_params) -> must NOT appear
+    assert not any(c["date"] == "2026-07-20" for c in shared)
+
+
+def test_format_lines_warns_on_non_independent_trials_and_correlation(correlated_csv, correlated_params):
+    d = t2l.compute_since_arm(csv_path=correlated_csv, params_path=correlated_params)
+    lines = t2l.format_lines(d)
+    vc_line = [ln for ln in lines if ln.startswith("vwap_continuation")][0]
+    assert "day+side buckets" in vc_line and "NOT independent trials" in vc_line
+    assert any("CORRELATED" in ln and "2026-07-16" in ln for ln in lines)
 
 
 def test_real_csv_malformed_quoting_rows_still_parse_early_columns():
