@@ -154,14 +154,30 @@
 
 ### AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS (MED, filed 2026-07-25)
 
-- [ ] AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS (MED) :: `audit_scheduled_tasks.py` and
-  SCHEDULED-TASKS.md only know about `Gamma_*` WINDOWS tasks. Claude-native scheduled tasks in
-  `~/.claude/scheduled-tasks/` are invisible to every governance surface -- which is how a daily
-  **opus** fire (`gamma-sniper-shadow-eod`, ~$100/mo) survived 2 months processing data frozen
-  since 2026-05-22, while the registry believed it had been "retired 2026-06-18". Both offenders
-  moved to `~/.claude/scheduled-tasks-retired-2026-07-25/` on 07-25. FIX: teach the audit script to
-  enumerate that directory and flag anything not cross-referenced in the registry. A task the audit
-  tool cannot see is the exact shape of this failure class. depends:none :: status:pending
+- [x] AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS (MED) :: **DONE 2026-07-26 ~15:50-16:20 ET
+  (conductor, WEEKEND).** `audit_scheduled_tasks.py` and SCHEDULED-TASKS.md only know about
+  `Gamma_*` WINDOWS tasks. Claude-native scheduled tasks in `~/.claude/scheduled-tasks/` are
+  invisible to every governance surface -- which is how a daily **opus** fire
+  (`gamma-sniper-shadow-eod`, ~$100/mo) survived 2 months processing data frozen since
+  2026-05-22, while the registry believed it had been "retired 2026-06-18". Both offenders
+  moved to `~/.claude/scheduled-tasks-retired-2026-07-25/` on 07-25.
+  **FIX SHIPPED:** new `_claude_native_tasks()` in `audit_scheduled_tasks.py` enumerates
+  `~/.claude/scheduled-tasks/*/SKILL.md` (frontmatter `name:` field, falls back to dirname),
+  wired into `audit()` as a new `CLAUDE_NATIVE_TASK_UNGOVERNED` flag against a new
+  `KNOWN_CLAUDE_NATIVE_TASKS` allowlist (empty by design -- both prior offenders are retired,
+  not allowlisted; any future one must be reviewed + added there + given a real
+  SCHEDULED-TASKS.md row, or retired). New `claude_native_registered` count in the JSON
+  output for visibility. Deliberately only scans the LIVE directory, never a
+  `-retired-*` sibling (verified by a dedicated test). **Verified live** (OP-33): real run
+  against the actual box shows `claude_native_registered: 0`, no false flag (the dir is
+  genuinely empty right now -- both offenders correctly moved out). 11 new guard tests
+  (`backtest/tests/test_audit_scheduled_tasks_claude_native.py`), RED-proofed via a scoped
+  `git stash -- setup/scripts/audit_scheduled_tasks.py` (all 11 failed with the expected
+  `AttributeError`/behavior gap pre-fix, popped clean, re-verified 11/11 green). Curated
+  safety gate (31+5) PASS. Zero trading-path touched (observability tooling only). Revert:
+  `git revert <this commit>`. Also closes the matching 2026-07-25T17:32:35 self-audit gap
+  ("Governance has no visibility into Claude-native scheduled tasks") -- see
+  `analysis/self-audit/new-gaps-flagged.md`. depends:none :: status:done
 
 ### OFF-BOX-DEADMAN-SWITCH (MED, filed 2026-07-25 -- the part the liveness fix CANNOT do)
 
@@ -2572,21 +2588,21 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 
 ## HARVESTED-FROM-GYM (auto-queued by crypto/benchmarks/gym_harvester.py)
 
+- [ ] HARVEST-REGIMEEXT-20260726-174950 (LOW) :: v09_regime TREND_UP dominant: 69/81 bars (85%) | last_regime=TREND_UP atr_14=41 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-25T17:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260726-174951 (LOW) :: v09_regime TREND_UP dominant: 69/81 bars (85%) | last_regime=TREND_UP atr_14=40 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-25T18:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260726-174952 (LOW) :: v09_regime TREND_UP dominant: 69/81 bars (85%) | last_regime=TREND_UP atr_14=44 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-25T19:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260726-174953 (LOW) :: v09_regime TREND_UP dominant: 69/81 bars (85%) | last_regime=TREND_DOWN atr_14=37 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-25T20:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260726-174954 (LOW) :: v09_regime TREND_UP dominant: 59/81 bars (73%) | last_regime=TREND_DOWN atr_14=32 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-25T21:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260726-174955 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=37 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-25T22:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260726-174956 (LOW) :: v09_regime TREND_UP dominant: 57/81 bars (70%) | last_regime=TREND_UP atr_14=35 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-25T23:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260726-174957 (LOW) :: v09_regime TREND_UP dominant: 57/81 bars (70%) | last_regime=CHOP atr_14=28 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-26T00:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260726-174958 (LOW) :: v09_regime TREND_UP dominant: 57/81 bars (70%) | last_regime=TREND_UP atr_14=35 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-26T03:00:00+00:00:TREND_UP :: depends:none :: status:queued
+- [ ] HARVEST-REGIMEEXT-20260726-174959 (LOW) :: v09_regime TREND_UP dominant: 63/81 bars (78%) | last_regime=TREND_UP atr_14=31 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-26T04:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-SWEEP-20260723-100054 (MED) :: v14_sweep liquidity-grab at level=66000 dir=up bar_idx=12 | wick_excess=0.0379% close_back=0.2331% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-07-23T09:57:03.671131+00:00:66000:up:12 :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260722-100050 (LOW) :: v09_regime TREND_UP dominant: 75/81 bars (93%) | last_regime=CHOP atr_14=67 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T10:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260722-100051 (LOW) :: v09_regime TREND_UP dominant: 69/81 bars (85%) | last_regime=TREND_DOWN atr_14=70 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T11:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260722-100052 (LOW) :: v09_regime TREND_UP dominant: 63/81 bars (78%) | last_regime=TREND_UP atr_14=59 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T12:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260722-100053 (LOW) :: v09_regime TREND_UP dominant: 69/81 bars (85%) | last_regime=TREND_UP atr_14=81 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T13:00:00+00:00:TREND_UP :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260722-100054 (LOW) :: v09_regime TREND_UP dominant: 58/80 bars (72%) | last_regime=BREAKOUT atr_14=116 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T14:00:00+00:00:TREND_UP :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260722-100055 (LOW) :: v09_regime TREND_DOWN dominant: 56/80 bars (70%) | last_regime=TREND_DOWN atr_14=68 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-22T07:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260722-100056 (LOW) :: v09_regime TREND_DOWN dominant: 68/81 bars (84%) | last_regime=TREND_DOWN atr_14=69 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-22T08:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260722-100057 (LOW) :: v09_regime TREND_DOWN dominant: 57/81 bars (70%) | last_regime=TREND_UP atr_14=70 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-22T09:00:00+00:00:TREND_DOWN :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260721-100046 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=183 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-20T16:00:00+00:00:TREND_UP :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260721-100047 (LOW) :: v09_regime TREND_UP dominant: 57/80 bars (71%) | last_regime=TREND_UP atr_14=89 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T05:00:00+00:00:TREND_UP :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260721-100048 (LOW) :: v09_regime TREND_UP dominant: 59/81 bars (73%) | last_regime=TREND_UP atr_14=89 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T06:00:00+00:00:TREND_UP :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260721-100049 (LOW) :: v09_regime TREND_UP dominant: 63/81 bars (78%) | last_regime=TREND_UP atr_14=86 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T07:00:00+00:00:TREND_UP :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260721-100050 (LOW) :: v09_regime TREND_UP dominant: 65/81 bars (80%) | last_regime=TREND_UP atr_14=94 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T08:00:00+00:00:TREND_UP :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260721-100051 (LOW) :: v09_regime TREND_UP dominant: 69/81 bars (85%) | last_regime=TREND_UP atr_14=93 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-07-21T09:00:00+00:00:TREND_UP :: depends:none :: status:queued
 
 ### T-GYM-20260619 HIGH gym-session RED for 2026-06-19
 
@@ -3049,6 +3065,7 @@ CAVEATS: best-fixed is IN-SAMPLE (needs OOS confirm), grid coarse 3x3, this is t
 - [ ] TWIN-ESCALATION-20260717-1784333700 2026-07-17 TICK_GAP (TICK_GAP: last tick 4095.0 min ago (threshold 20 min)) :: dispatch a Sonnet investigation :: status:pending
 - [ ] TWIN-ESCALATION-20260719-1784506738 2026-07-19 TICK_GAP (TICK_GAP: last tick 1090.1 min ago (threshold 20 min)) :: dispatch a Sonnet investigation :: status:pending
 - [ ] TWIN-ESCALATION-20260723-1784851199 2026-07-23 BREAKER_TRIPPED (BREAKER_TRIPPED: twin-health.json reports breaker_tripped=true) :: dispatch a Sonnet investigation :: status:pending
+- [ ] TWIN-ESCALATION-20260726-1785088066 2026-07-26 TICK_GAP+LOW_UPTIME (TICK_GAP: last tick 773.9 min ago (threshold 20 min); LOW_UPTIME: 59/213 ticks today (27.7%, threshold 70%)) :: dispatch a Sonnet investigation :: status:pending
 ## Needs J's own hands (system/power settings -- outside what I'm allowed to change)
 
 - [ ] PC-SLEEP-7H-OVERNIGHT-2026-07-14 (HIGH, infra, crypto-twin-uptime) :: **Root-caused, report-only (ultracode-review JOB 4).** Box slept 2026-07-13 22:01:46 local (MT) -> 2026-07-14 05:35:27 local (7h33m) = 2026-07-14T00:01:45..07:35:26 ET once correctly TZ-converted (task's own "22:01->05:35 ET" framing was local-time-as-ET, corrected in STATUS.md). Cause = a MANUAL Start-Menu Sleep click by the logged-in user (Event 1074 StartMenuExperienceHost.exe + Event 42 "Sleep Reason: Application API"), NOT an idle timeout -- `powercfg` confirms STANDBYIDLE/HIBERNATEIDLE already 0 (Never) on both AC/DC, nothing to fix there. **J action (one-liner, NOT run by me):** `reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v NoStartMenuSleepOption /t REG_DWORD /d 1 /f` (hides Sleep from the Start Menu power button; may need sign-out or `gpupdate /force`) -- I have not verified this value against a live registry read beyond confirming the parent policy key path exists, so J should confirm it actually suppresses the tile after running it. Alternative/belt-and-suspenders if J wants to keep manual sleep available: enable "Wake the computer to run this task" on a pre-market task (e.g. `Gamma_LaunchTV`) -- `RTCWAKE` is already `Enable` on AC, so this needs no other change; treats the symptom not the cause, not applied. Full evidence: STATUS.md 2026-07-14 "PC SLEPT 7.5h OVERNIGHT" entry. :: depends:none :: status:pending-needs-J

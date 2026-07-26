@@ -1,3 +1,57 @@
+## [2026-07-26 ~15:47-16:25 ET] OK -- conductor (WEEKEND): AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS closed, commit pending
+
+> **STAGE 0/1:** ET confirmed 15:47 Sunday (market closed, weekend mode). Budget gate PROCEED
+> ($20.35/$30, 3/4 fires -- this fire pushes toward the daily cap). `engine-health.json`
+> GREEN/YELLOW (14 checks, 0 RED, gex_archive 1-day-stale YELLOW non-critical). `task_scorer.py`
+> top item `TWIN-DOCTRINE-FIRST-DEPLOY` (MED, 6.5) is still J's REVOKE surface, propose-only,
+> correctly not picked (Nth fire confirming). Next 3 tied at 5.0: `CATASTROPHE-CAP-WIDEN-WATCH`
+> and `TRENDLINE-TIGHT-EXIT-ACCRETE` are both accrue-then-decide watch-only items (no new
+> action per multiple prior fires' own notes); `OFF-BOX-DEADMAN-SWITCH` is a real but separate
+> monitoring-nicety build. Per STAGE-1 priority-3 (self-audit gaps outrank queue HIGH), read
+> `analysis/self-audit/new-gaps-flagged.md`'s newest un-triaged batch (2026-07-25T17:32:35, 10
+> items) and found one of its 8 real (non-scaffold) lines pointed at a still-open, concretely
+> actionable queue item: `AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS` (MED) -- picked it, since closing
+> it closes BOTH the queue item and the matching self-audit gap in one shot (compound, not
+> accumulate).
+
+> **What I found + built:** `audit_scheduled_tasks.py` only ever knew about `Gamma_*` Windows
+> Task Scheduler entries -- Claude-native scheduled skills at `~/.claude/scheduled-tasks/`
+> (a completely separate scheduling mechanism) were invisible to every governance surface,
+> which is how `gamma-sniper-shadow-eod` (a daily **opus** fire, ~$100/mo) ran ungoverned for
+> 2 months before the 2026-07-25 cost pass caught and retired it by hand. Built
+> `_claude_native_tasks()` (enumerates `~/.claude/scheduled-tasks/*/SKILL.md`, extracts the
+> `name:` frontmatter field, falls back to the dirname) wired into `audit()` as a new
+> `CLAUDE_NATIVE_TASK_UNGOVERNED` flag against a new `KNOWN_CLAUDE_NATIVE_TASKS` allowlist
+> (empty by design -- both prior offenders are retired, not allowlisted; a future one must be
+> reviewed + added there + given a real SCHEDULED-TASKS.md row, or retired). Deliberately scans
+> ONLY the live directory, never a `-retired-*` sibling. New `claude_native_registered` count
+> added to the JSON summary for visibility.
+
+> **Verified this fire (OP-33), not claimed:** 11 new guard tests
+> (`backtest/tests/test_audit_scheduled_tasks_claude_native.py`) -- RED-proofed via a scoped
+> `git stash -- setup/scripts/audit_scheduled_tasks.py` (all 11 failed with the exact expected
+> `AttributeError`/behavior gap against pre-fix code, `git stash pop` restored cleanly,
+> re-verified 11/11 green). Ran the real script against the live box: `claude_native_registered:
+> 0`, no false `CLAUDE_NATIVE_TASK_UNGOVERNED` flag (the directory is genuinely empty right now
+> -- both prior offenders correctly live under the `-retired-2026-07-25` sibling, confirmed by a
+> direct `ls`). Curated safety gate (`run_safety_gate.py`): 31+5 PASS. `py_compile` clean on both
+> touched files.
+
+> **Also closed the matching self-audit gap:** the 2026-07-25T17:32:35 batch in
+> `analysis/self-audit/new-gaps-flagged.md` had 10 un-triaged lines; appended a DONE marker
+> disposing all 10 (2 scaffold headers, 1 already-ruled, 2 already-fixed via the existing
+> `conductor_budget.py` `SELF_REPORT_CORRECTION=2.2` governor, 1 tracked-but-not-yet-built
+> (`OFF-BOX-DEADMAN-SWITCH`), 1 closed this fire (the Claude-native-tasks gap itself), 1 tracked
+> HIGH item (`ZERO-FOR-TWELVE-POSTMORTEM`), 2 synthesis-commentary noise) -- so the batch stops
+> reading as open on the next fire.
+
+> **Scope + revert:** 3 files (`setup/scripts/audit_scheduled_tasks.py`,
+> `backtest/tests/test_audit_scheduled_tasks_claude_native.py` [new], plus the queue.md +
+> self-audit-gaps.md doc updates). Zero trading-path touched (no params/heartbeat_core/
+> filters/CLAUDE.md) -- pure observability tooling. Revert: `git revert <this commit>`.
+
+---
+
 ## [2026-07-26 ~00:12-00:20 ET] OK -- conductor (AFTERHOURS): DRESS-REHEARSAL false-RED root-caused + fixed, commit `e370b0dc`
 
 > **STAGE 0/1:** ET confirmed 00:12 Sunday (market closed). Budget gate PROCEED ($10.67/$30,
@@ -753,11 +807,37 @@
 - ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
 
 ## Kitchen
-Kitchen: alive, queue 34 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 16 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### BROKEN: self-check 2026-07-26T00:09:56
 - DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-25T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
 - ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
 
 ### BROKEN: self-check 2026-07-26T00:19:17
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T00:39:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- CANDIDATES-UNTRACKED: 25 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
+
+### BROKEN: self-check 2026-07-26T13:47:46
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- CANDIDATES-UNTRACKED: 37 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
+
+- [2026-07-26 11:47:47] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-07-26 11:47:47] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-07-26 11:47:47] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-26.md
+
+### BROKEN: self-check 2026-07-26T14:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T14:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T15:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T15:39:56
 - ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.

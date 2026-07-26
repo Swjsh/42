@@ -427,3 +427,47 @@ one bounded task). Gap #5 ("Rule 9 violation claim") is the SAME false-positive 
 2026-07-21 T17:31:28 batch's DONE-triage already refuted (an after-hours change on a
 NO-WIRING research module is not a Rule-9 event); not re-argued here. Curated safety gate
 (31+5) PASS at commit time. -->
+
+## 2026-07-25T17:32:35 -- 10 new gap(s) Gamma self-identified
+- Rule 9 / Rule 10 / OP violations
+- Entry-bar convention fix propagation
+- Budget governor distortion
+- Self‑improvement loop contamination
+- An off‑box dead‑man‑switch/watchdog is missing; the system cannot detect silent outages (local health checks suppress on
+- Governance has no visibility into Claude‑native scheduled tasks (`~/.claude/scheduled-tasks`), allowing hidden cost burn
+- The validation pipeline is falsified: back‑test gates do not reflect live‑fill reality (entry‑bar convention bug, 0/12 l
+- The conductor’s cost model is wildly inaccurate (self‑reported ~$1/fire vs measured $7.69/fire), making the budget gate 
+- **Priority ranking**: Persp1 ranks re‑validation of the 0‑for‑12 losing trades top; Persp5 ranks wiring a missing exit r
+- **Most rigorous**: Persp4 and Persp5 provide the clearest, commit‑backed evidence of structural gaps (fe0007fe explicitl
+<!-- DONE 2026-07-26 ~15:50-16:20 ET (conductor, WEEKEND): TRIAGED, all 10 disposed --
+2 lines are pure scaffold headers ("Rule 9 / Rule 10 / OP violations", "Self-improvement
+loop contamination" -- no concrete failure mode cited, same class as prior batches' filtered
+noise). The remaining 8 are ALL real and were already resolved or actively tracked by the
+time this fire read them:
+  - "Entry-bar convention fix propagation" -> ALREADY RULED
+    (markdown/audits/ENTRY-BAR-CONVENTION-RULING-2026-07-25.md, confirmed still present):
+    entry+1 is live-faithful, no migration needed.
+  - "Budget governor distortion" + "conductor's cost model wildly inaccurate (self-reported
+    ~$1 vs measured $7.69)" -> SAME finding, ALREADY FIXED same day: read
+    setup/scripts/conductor_budget.py this fire and confirmed SELF_REPORT_CORRECTION = 2.2
+    is live (multiplies every self-reported cost_usd before comparing to the cap) -- this
+    IS the budget-governor-distortion fix these two lines are describing.
+  - "Off-box dead-man-switch/watchdog missing" -> TRACKED, OFF-BOX-DEADMAN-SWITCH (MED,
+    queue.md, status:pending) -- correctly scoped as a monitoring nicety, not yet built.
+  - "Governance has no visibility into Claude-native scheduled tasks" -> ACTIONED THIS FIRE:
+    AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS closed in full (see queue.md DONE marker same
+    timestamp) -- audit_scheduled_tasks.py now enumerates ~/.claude/scheduled-tasks/ and
+    flags any task not in a reviewed allowlist. 11 new guard tests, RED-proofed via git
+    stash, curated safety gate (31+5) PASS, live-verified 0 ungoverned tasks currently.
+  - "Validation pipeline falsified (entry-bar convention bug, 0/12 losers)" -> TRACKED,
+    ZERO-FOR-TWELVE-POSTMORTEM (HIGH, queue.md) -- the single most-worked item across the
+    last several fires (day-clustering done, historical-OOS side still open, named as the
+    next step).
+  - The 2 synthesis-commentary lines ("Priority ranking: Persp1 ranks... Persp5 ranks...",
+    "Most rigorous: Persp4 and Persp5...") are cross-perspective narration, not gaps -- same
+    already-documented scaffold class the 2026-07-01/07-19 fixes target (not re-chased here,
+    conservative "when in doubt keep, don't over-filter" policy already stated at those DONE
+    markers).
+No new code action needed beyond the AUDIT-BLINDSPOT fix shipped this fire -- everything else
+in this batch was already a tracked queue item or an already-shipped fix by the time it was
+re-read, so this triage closes the loop rather than re-deriving known work. -->

@@ -11,6 +11,19 @@ Runs daily via Gamma_CryptoDaily. Flags:
   - SILENT_TASK            : active task hasn't fired in (cadence x 3) window
   - PYTHON_NOT_PYTHONW     : long-running python.exe launch (should use pythonw.exe)
   - CANDIDATE_FOR_REMOVAL  : disabled > 30 days
+  - CLAUDE_NATIVE_TASK_UNGOVERNED : a Claude-native scheduled task (~/.claude/scheduled-tasks/)
+                             exists that isn't in KNOWN_CLAUDE_NATIVE_TASKS below (see
+                             AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS, queue.md 2026-07-25)
+
+GOVERNANCE BLIND SPOT CLOSED (2026-07-25, self-audit gap -> queue item -> this fix): this
+script only ever knew about `Gamma_*` WINDOWS tasks. A SEPARATE scheduling mechanism --
+Claude-native scheduled skills living at `~/.claude/scheduled-tasks/<name>/SKILL.md` -- was
+invisible to every governance surface here and in SCHEDULED-TASKS.md. That is how a daily
+**opus** fire (`gamma-sniper-shadow-eod`, ~$100/mo) survived 2 months processing data frozen
+since 2026-05-22 while the registry believed it had been "retired 2026-06-18": nothing ever
+looked at that directory. Both offenders were moved to
+`~/.claude/scheduled-tasks-retired-2026-07-25/` by hand on 2026-07-25; this audit now makes
+sure a THIRD one can't grow there unnoticed.
 
 Enumeration: `setup/scripts/_list-gamma-tasks-json.ps1` returns every `Gamma_*` task PLUS
 a small explicit `$ExtraTaskNames` allowlist of other repo-managed automation registered
@@ -61,6 +74,22 @@ _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 # will never appear in it, so they're exempt from ORPHAN_TASK/STALE_REGISTRY_ENTRY,
 # but every window-leak safety check still runs against them normally.
 KNOWN_EXTERNAL_TASKS = {"SwjshAK-BrainSync"}
+
+# Claude-native scheduled skills (~/.claude/scheduled-tasks/<name>/SKILL.md) -- a completely
+# DIFFERENT scheduling mechanism from Windows Task Scheduler, invisible to `_registered_tasks()`
+# above. Empty by design as of 2026-07-25: the only 2 that ever existed
+# (`gamma-sniper-shadow-eod`, `autoresearch-fleet`) were both retired to
+# `~/.claude/scheduled-tasks-retired-2026-07-25/` for being ungoverned cost sinks (one was a
+# daily **opus** fire, ~$100/mo, dead for 2 months and nobody noticed). Any name found under
+# the LIVE directory that isn't in this set gets flagged CLAUDE_NATIVE_TASK_UNGOVERNED --
+# review its SKILL.md (model tier, cadence, cost) before adding it here, and give it a real
+# row in SCHEDULED-TASKS.md the same way any Gamma_* task gets one.
+KNOWN_CLAUDE_NATIVE_TASKS: set[str] = set()
+
+# Resolve the actual Windows user profile dir even when this runs under a service account or
+# a shell with HOME unset -- Path.home() is the correct cross-platform fallback (C9: anchor to
+# a reliable base, never assume an env var is set).
+CLAUDE_NATIVE_TASKS_DIR = Path.home() / ".claude" / "scheduled-tasks"
 
 
 def _powershell_file(path: Path) -> str:
@@ -236,6 +265,41 @@ def _audit_hooks() -> list[dict]:
     return flags
 
 
+def _claude_native_tasks(base: Path | None = None) -> list[dict]:
+    """Enumerate Claude-native scheduled skills under `~/.claude/scheduled-tasks/`.
+
+    Each task is a subdirectory containing a `SKILL.md` whose YAML frontmatter has a
+    `name:` field (see any `.claude/skills/*/SKILL.md` for the same convention this repo
+    already uses). Returns `[{"name": ..., "dir": ...}, ...]`, using the directory's own
+    name as a fallback if `SKILL.md` is missing or unparseable.
+
+    Fail-open by construction: a missing directory or an unreadable file yields fewer
+    entries, never an exception -- this is a VISIBILITY check (mirrors `_registered_tasks`'
+    own "0 tasks could mean a scan failure" caution), not a gate that can block anything.
+    Only scans the LIVE directory -- `scheduled-tasks-retired-*` dirs are deliberately
+    excluded (they hold tasks already reviewed and pulled out of governance on purpose).
+    """
+    root = base if base is not None else CLAUDE_NATIVE_TASKS_DIR
+    out: list[dict] = []
+    if not root.is_dir():
+        return out
+    for child in sorted(root.iterdir()):
+        if not child.is_dir():
+            continue
+        name = child.name
+        skill = child / "SKILL.md"
+        if skill.exists():
+            try:
+                text = skill.read_text(encoding="utf-8", errors="replace")
+                m = re.search(r"^name:\s*(.+?)\s*$", text, re.MULTILINE)
+                if m:
+                    name = m.group(1).strip()
+            except OSError:
+                pass
+        out.append({"name": name, "dir": str(child)})
+    return out
+
+
 def _parse_iso(ts: str) -> datetime | None:
     try:
         return datetime.fromisoformat(ts.replace("Z", "+00:00"))
@@ -278,6 +342,20 @@ def audit() -> dict:
     # Claude Code hook commands (.claude/settings.local.json) -- separate surface from
     # Task Scheduler actions, same hidden-window requirement. See _audit_hooks docstring.
     flags.extend(_audit_hooks())
+
+    # Claude-native scheduled skills (~/.claude/scheduled-tasks/) -- the governance blind
+    # spot that let gamma-sniper-shadow-eod run ungoverned for 2 months. See module
+    # docstring + AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS.
+    for ct in _claude_native_tasks():
+        if ct["name"] not in KNOWN_CLAUDE_NATIVE_TASKS:
+            flags.append({
+                "flag": "CLAUDE_NATIVE_TASK_UNGOVERNED", "task": ct["name"],
+                "note": (f"Claude-native scheduled task at {ct['dir']} is not in "
+                         f"KNOWN_CLAUDE_NATIVE_TASKS (audit_scheduled_tasks.py) -- review "
+                         f"its SKILL.md (model tier/cadence/cost), then either allowlist it "
+                         f"there + give it a real SCHEDULED-TASKS.md row, or retire it "
+                         f"(move to ~/.claude/scheduled-tasks-retired-<date>/)."),
+            })
 
     # Registered but not in registry (external repo-managed tasks are known-external
     # by design -- see KNOWN_EXTERNAL_TASKS -- not an accidental orphan).
@@ -338,6 +416,7 @@ def audit() -> dict:
         "disabled_registered": sum(1 for t in tasks if t["state"] == "Disabled"),
         "registry_active": len(active_registry),
         "registry_disabled": len(disabled_registry),
+        "claude_native_registered": len(_claude_native_tasks()),
         "flags_count": len(flags),
         "flags": flags,
         "health": health,
