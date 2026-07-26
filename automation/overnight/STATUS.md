@@ -1,3 +1,78 @@
+## [2026-07-26 ~00:12-00:20 ET] OK -- conductor (AFTERHOURS): DRESS-REHEARSAL false-RED root-caused + fixed, commit `e370b0dc`
+
+> **STAGE 0/1:** ET confirmed 00:12 Sunday (market closed). Budget gate PROCEED ($10.67/$30,
+> 2/4 fires). `engine-health.json` GREEN/YELLOW (14 checks, 0 RED, gex_archive 1-day-stale
+> YELLOW non-critical). `self-check-last.json` verdict **BROKEN** — 2 problems: `DRESS-
+> REHEARSAL RED` (fresh, un-triaged) + `ENGINE DARK ALL DAY` (already tracked as
+> `OFF-BOX-DEADMAN-SWITCH`, queue.md, status:pending). Per STAGE-1 priority-2 (Engine
+> RED/BROKEN flags outrank queue HIGH/self-audit-gaps/inboxes), picked the fresh
+> DRESS-REHEARSAL RED to investigate + fix.
+
+> **Root cause (confirmed, not theorized):** `Gamma_DressRehearsal` is registered
+> `DaysInterval=1` (every calendar day, incl. weekends — verified via `Get-ScheduledTask`).
+> Its `check3_sanity` beacon-freshness sub-check enforced a hard `<24h` threshold with
+> **no weekend exemption** — unlike `engine_health.py`'s `check_sight_beacon`/
+> `check_engine_core`/etc., which all carry the `market_open` -> "(market closed -- quiet
+> OK)" idiom. Every Saturday/Sunday night the beacon is CORRECTLY >24h stale (last ticked
+> Friday's RTH close) and the rehearsal RED'd on it forever. Tonight's artifact
+> (`dress-rehearsal.json`, 2026-07-25T20:45:01, Saturday): check1/check2 (real broker
+> order-acceptance + crypto round-trip) both GREEN; only `check3_sanity` RED'd, on
+> "sight-beacon.json age 52.3h (must be <24h)".
+
+> **Fix:** `check3_sanity(creds_map, next_day, *, is_weekend: bool = False)` — `main()`
+> derives `is_weekend` via the canonical `et_clock.et_weekday() >= 5` (same convention as
+> `is_market_hours`, no new logic invented). A stale-but-PRESENT beacon on a weekend is now
+> GREEN "quiet OK"; a MISSING beacon still RED's regardless of day (genuine unknown, not
+> known-quiet). 5 new guard tests (`TestCheck3SanityWeekendExemption`,
+> `backtest/tests/test_dress_rehearsal.py`) — RED-proofed via a **scoped** `git stash --
+> setup/scripts/dress_rehearsal.py` (single-pathspec, not tree-wide) confirming all 5 fail
+> against pre-fix code with the exact expected `TypeError`/`AssertionError`, then popped
+> clean. Full suite 34/34 pass. Curated pre-commit safety gate (5 suites) PASS.
+
+> **Verified this fire (OP-33), not claimed:** re-ran `dress_rehearsal.py` live post-fix
+> (real paper-broker round-trips, $0/idempotent/self-cleaning per its own docstring) —
+> `overall=GREEN` (was RED), all 4 checks GREEN including `check3_sanity`. Re-ran
+> `self_check.py` — `DRESS-REHEARSAL RED` problem gone; only the already-tracked
+> `ENGINE DARK ALL DAY` (OFF-BOX-DEADMAN-SWITCH, untouched, correctly left alone — separate
+> scope) remains. Post-commit `git show e370b0dc --stat --name-status` confirms exactly the
+> 2 intended files (L247 discipline).
+
+> **Scope + revert:** 2 files (`setup/scripts/dress_rehearsal.py`, its test file). No
+> trading-path touched (params/heartbeat_core/filters/placement/exit code untouched) — this
+> is an observability-instrument fix (dress_rehearsal is a nightly diagnostic, not a live
+> trading path). Revert: `git revert e370b0dc`.
+
+> **Learn:** this is the SAME lexical class as engine_health.py's existing weekend/market-
+> closed exemption pattern, just not applied consistently to a sibling instrument built
+> later — filed `_lesson-inbox/2026-07-26-dress-rehearsal-weekend-beacon-false-red.md` for
+> `lesson-author` (generalizable: any freshness/liveness check built against a producer that
+> only runs during weekday RTH needs the SAME weekend/holiday exemption idiom as
+> engine_health.py, not a bespoke re-derivation — check for the idiom before shipping a new
+> one).
+
+---
+
+## [2026-07-25] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
+
+> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
+> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
+> -   bollinger_squeeze (armed 2026-07-02): since-arm 3tr $+75.00 ($+25.00/tr, 66.7% WR) [2d/2 day+side buckets -- 3 rows are NOT independent trials]
+> -   double_bottom_base_quiet (armed 2026-07-01, 24d ago): 0 fills since arm — no live signal yet
+> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 1tr $+18.00 ($+18.00/tr, 100.0% WR)
+> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
+
+---
+
+## [2026-07-25] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-17..2026-07-23), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-23). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-276.48); Bold_ATM_1+2=YELLOW ($-166.9)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-07-25 ~21:12-21:50 ET] OK -- conductor (AFTERHOURS): ZERO-FOR-TWELVE-POSTMORTEM live sample day-clustered (12 rows = 4 days), commit `9ad0a907`
 
 > **STAGE 0/1:** ET confirmed 21:12 Saturday (market closed). Budget gate PROCEED ($22/$30,
@@ -186,19 +261,6 @@
 > 1 markdown summary) + 1 queue.md edit (closing this item). Zero trading-path touched
 > (no params/heartbeat_core/filters/CLAUDE.md). Revert: `git revert 73902fa1`.
 
-## [2026-07-23] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
-
-> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
-> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
-> -   bollinger_squeeze (armed 2026-07-02): since-arm 3tr $+75.00 ($+25.00/tr, 66.7% WR)
-> -   double_bottom_base_quiet (armed 2026-07-01, 24d ago): 0 fills since arm — no live signal yet
-> -   vix_regime_dayside (armed 2026-07-01): since-arm 5tr $-153.00 ($-30.60/tr, 0.0% WR)
-> -   vwap_continuation (armed 2026-07-01): since-arm 7tr $-204.00 ($-29.14/tr, 0.0% WR)
-> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 1tr $+18.00 ($+18.00/tr, 100.0% WR)
-> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
-
----
-
 ## [2026-07-23 ~23:12-23:45 ET] OK -- conductor (AFTERHOURS): EXIT-ENGINE-PARITY-RESIDUAL root-caused (91% of a $40/tr research-parity gap explained + confirmed via ablation), commit pending
 
 > **STAGE 0/1:** ET confirmed 23:12 (Thursday, market closed since 15:55). `engine-health.json`
@@ -326,16 +388,6 @@
 > prescreen run x3 (bare/touches-only/final-tuned, ~70s each), grid-search script across 20
 > tolerance/touches combos + a targeted per-anchor touch-count sweep, 2 commits + verification,
 > queue/STATUS/lesson-inbox write-up).
-
-## [2026-07-23] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-17..2026-07-23), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-23). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-276.48); Bold_ATM_1+2=YELLOW ($-166.9)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
 
 ## [2026-07-23 ~22:12-22:29 ET] OK -- conductor (AFTERHOURS): EXITMGR-STAGE-LABEL-CONFLATION closed, commit `c4ee425a`
 
@@ -672,3 +724,40 @@
 
 ---
 
+
+### BROKEN: self-check 2026-07-25T21:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-25T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T22:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-25T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T22:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-25T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T23:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-25T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### WARN: spend-summary threshold breach
+- ts: 2026-07-26T03:30:14+00:00
+- date_et: 2026-07-25
+- total: $423.39 (threshold $30.00)
+- claude: $423.39  minimax: $0.00
+- claude_sessions: 12
+
+### BROKEN: self-check 2026-07-25T23:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-25T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+## Kitchen
+Kitchen: alive, queue 34 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+### BROKEN: self-check 2026-07-26T00:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-25T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T00:19:17
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
