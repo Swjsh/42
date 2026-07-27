@@ -490,7 +490,9 @@ def _parse_reason_price(reason: Optional[str]) -> Optional[float]:
 
 
 def _journal_exit_fill(cfg: TwinConfig, *, creds: dict, order_id: Optional[str],
-                       kind: str, reason: Optional[str], scenario: Optional[str]) -> None:
+                       kind: str, reason: Optional[str], scenario: Optional[str],
+                       entry_price: Optional[float] = None,
+                       btc_qty: Optional[float] = None) -> None:
     """B6 friction calibration (TWIN-B6-SIM-FRICTION-CALIBRATION): poll the REAL exit fill
     (same broker.poll_fill() helper place_entry already uses on the entry side) and journal
     an additive "EXIT_FILLED" row -- expected_price (parsed from `reason`), fill_price,
@@ -498,7 +500,15 @@ def _journal_exit_fill(cfg: TwinConfig, *, creds: dict, order_id: Optional[str],
     for a sell, i.e. filled ABOVE the stop/target level; negative = worse/gapped-through).
     Fail-open by design: any exception here is swallowed -- this function runs AFTER the
     real sell order has already been placed and journaled (CLOSED/MANAGED), so a failure
-    to capture calibration telemetry must never mask or retry the underlying exit."""
+    to capture calibration telemetry must never mask or retry the underlying exit.
+
+    REALIZED P&L (2026-07-26, TWIN-PNL): when `entry_price` and `btc_qty` are supplied, this
+    row also carries `realized_usd` / `realized_pct` for the leg just sold. Until now NO row
+    in the entire journal carried a P&L field of any kind -- 96 closed round trips with no
+    recoverable outcome (the CLOSED row's `broker` blob is the raw PLACE response, whose
+    filled_avg_price is null). Long/spot only, so the sign convention is simply
+    (exit - entry); if a short leg ever exists (perps), this must become side-aware.
+    """
     if not order_id:
         return
     try:
@@ -510,10 +520,21 @@ def _journal_exit_fill(cfg: TwinConfig, *, creds: dict, order_id: Optional[str],
         slippage_bps = None
         if fill_price and expected_price:
             slippage_bps = round((float(fill_price) - expected_price) / expected_price * 10_000.0, 4)
+        realized_usd = realized_pct = None
+        if fill_price and entry_price:
+            try:
+                ep, xp = float(entry_price), float(fill_price)
+                if ep > 0:
+                    realized_pct = round((xp - ep) / ep * 100.0, 6)
+                    if btc_qty:
+                        realized_usd = round((xp - ep) * float(btc_qty), 6)
+            except (TypeError, ValueError):
+                pass  # never let P&L arithmetic break exit telemetry
         _journal(cfg, "EXIT_FILLED", symbol=cfg.symbol, order_id=order_id, kind=kind,
                 reason=reason, scenario=scenario, expected_price=expected_price,
                 fill_price=fill_price, time_to_fill_sec=latency, slippage_bps=slippage_bps,
-                fill_status=fill.get("status"))
+                fill_status=fill.get("status"), entry_price=entry_price, btc_qty=btc_qty,
+                realized_usd=realized_usd, realized_pct=realized_pct)
     except Exception as e:  # noqa: BLE001 -- fail-open telemetry, see docstring
         _journal(cfg, "EXIT_FILLED_CAPTURE_ERROR", symbol=cfg.symbol, order_id=order_id,
                 error=f"{type(e).__name__}: {e}")
@@ -650,13 +671,19 @@ def manage_positions(cfg: TwinConfig, *, creds: Optional[dict], now_utc: datetim
                          else ("CLOSE_FAILED" if close_failed else "CLOSED"))
                 _journal(cfg, event, symbol=symbol,
                         kind=a.kind, units=units_sold, btc_qty=btc_qty, stage=a.stage, reason=a.reason,
-                        broker=res, scenario=scenario)
+                        broker=res, scenario=scenario,
+                        # TWIN-PNL 2026-07-26: stamp the entry price on the exit row so realized
+                        # P&L stays reconstructible even when the EXIT_FILLED poll below fails
+                        # (fail-open telemetry must not be the ONLY place outcome data lives).
+                        entry_price=getattr(st, "entry_premium", None))
                 # B6 friction calibration: capture the REAL exit fill (additive telemetry
                 # only -- see _journal_exit_fill docstring; never runs on a close_failed/
                 # unaccepted order, never affects close_failed/dec.closes_position above).
                 if live and not close_failed and res.get("id"):
                     _journal_exit_fill(cfg, creds=creds, order_id=res.get("id"), kind=a.kind,
-                                       reason=a.reason, scenario=scenario)
+                                       reason=a.reason, scenario=scenario,
+                                       entry_price=getattr(st, "entry_premium", None),
+                                       btc_qty=btc_qty)
             elif a.kind == "RATCHET_STOP":
                 executed.append({"kind": "RATCHET_STOP", "stage": a.stage,
                                  "new_stop_premium": a.new_stop_premium, "reason": a.reason})

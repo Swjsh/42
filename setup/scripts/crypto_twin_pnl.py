@@ -1,0 +1,210 @@
+"""crypto_twin_pnl -- realized P&L reconstruction + morning report for the crypto twin.
+
+WHY THIS EXISTS (2026-07-26): the twin placed 105 orders and closed 96 round trips without a
+single P&L field anywhere in its schema. `journal.jsonl`'s CLOSED rows carry the raw PLACE
+response, whose `filled_avg_price` is null, so outcome was not merely untracked -- it was
+unrecoverable. TWIN-PNL wired `realized_usd`/`realized_pct` onto EXIT_FILLED rows going
+forward; this module reads those AND reconstructs the historical trips by chronological
+pairing, so there is one number to look at.
+
+THE DISTINCTION THIS MODULE EXISTS TO ENFORCE: most of the twin's history is FORCED -- entries
+scheduled by the `crypto_twin_scenarios` coverage battery to exercise code paths, not decisions.
+Forced-trade P&L measures spread and random walk, nothing else, and must NEVER be read as
+strategy performance. Organic trades (scenario ORGANIC_SIGNAL, or no forcing scenario) are the
+only rows that mean anything. The report splits them and refuses to print a combined headline.
+
+Pure Python, $0, READ-ONLY: never places an order, never mutates twin state, never imports a
+broker. Safe to run at any time, including while the twin loop is mid-tick.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+from typing import Iterable, Optional
+
+REPO = Path(__file__).resolve().parents[2]
+JOURNAL = REPO / "automation" / "state" / "crypto-twin" / "journal.jsonl"
+
+# Scenario tags written by the coverage battery. Anything in here was NOT a decision.
+FORCED_SCENARIOS = frozenset({
+    "ENTRY_TP1_TRAIL", "ENTRY_STRUCTURE_STOP", "ENTRY_CAT_CAP", "ENTRY_MAX_HOLD",
+    "RESTART_OPEN_POSITION", "CHAOS_DRILL_PROCESS_KILL",
+})
+ORGANIC = "ORGANIC_SIGNAL"
+
+
+def _rows(path: Path) -> list[dict]:
+    out: list[dict] = []
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    r = json.loads(line)
+                except (json.JSONDecodeError, ValueError):
+                    continue
+                if isinstance(r, dict):
+                    out.append(r)
+    except OSError:
+        return []
+    return out
+
+
+def reconstruct_trips(path: Optional[Path] = None) -> list[dict]:
+    """Round trips, newest last. Prefers the wired `realized_*` fields; falls back to
+    chronological entry/exit pairing for the historical rows that predate TWIN-PNL.
+
+    Pairing is valid ONLY because the twin holds at most one position at a time (enforced by
+    the NOT_FLAT branch in crypto_twin_core). If a multi-position mode is ever added, this must
+    switch to order-id linkage or it will silently mis-pair.
+    """
+    rows = _rows(path or JOURNAL)
+    seq = [r for r in rows
+           if r.get("event") in ("ENTRY_QUALITY", "EXIT_FILLED") and r.get("fill_price")]
+    seq.sort(key=lambda r: str(r.get("ts_utc") or ""))
+
+    trips: list[dict] = []
+    open_row: Optional[dict] = None
+    for r in seq:
+        if r.get("event") == "ENTRY_QUALITY" and open_row is None:
+            open_row = r
+        elif r.get("event") == "EXIT_FILLED" and open_row is not None:
+            trips.append(_mk_trip(open_row, r))
+            open_row = None
+    return trips
+
+
+def _mk_trip(entry: dict, exit_: dict) -> dict:
+    """One round trip. `source` records whether P&L was wired at exit time or inferred."""
+    ep = float(entry.get("fill_price") or 0.0)
+    xp = float(exit_.get("fill_price") or 0.0)
+    scenario = exit_.get("scenario") or entry.get("scenario")
+    wired_pct = exit_.get("realized_pct")
+
+    if wired_pct is not None:
+        pct, source = float(wired_pct), "wired"
+    else:
+        pct = ((xp - ep) / ep * 100.0) if ep > 0 else 0.0
+        source = "reconstructed"
+
+    usd = exit_.get("realized_usd")
+    if usd is None and exit_.get("btc_qty"):
+        usd = (xp - ep) * float(exit_["btc_qty"])
+
+    return {
+        "entry_ts": entry.get("ts_utc"), "exit_ts": exit_.get("ts_utc"),
+        "entry_price": ep, "exit_price": xp,
+        "pct": round(pct, 6), "usd": round(float(usd), 6) if usd is not None else None,
+        "reason": (exit_.get("reason") or "").split(" @")[0],
+        "scenario": scenario,
+        "bucket": _bucket(scenario),
+        "source": source,
+    }
+
+
+def _bucket(scenario: Optional[str]) -> str:
+    """ORGANIC / FORCED / UNKNOWN.
+
+    UNTAGGED IS NOT ORGANIC. An earlier cut of this module treated "no scenario field" as
+    organic and reported 10 real decisions when the true count was zero -- every one of those
+    rows was simply missing its tag. Absence of evidence got printed as evidence. Only an
+    explicit ORGANIC_SIGNAL counts; anything unrecognised is quarantined in UNKNOWN so it can
+    never inflate the only number that matters.
+    """
+    if scenario == ORGANIC:
+        return "ORGANIC"
+    if scenario in FORCED_SCENARIOS:
+        return "FORCED"
+    return "UNKNOWN"
+
+
+def summarize(trips: Iterable[dict]) -> dict:
+    trips = list(trips)
+    if not trips:
+        return {"n": 0, "wins": 0, "win_rate": None, "total_pct": 0.0,
+                "avg_pct": None, "total_usd": None, "n_with_usd": 0}
+    pcts = [t["pct"] for t in trips]
+    wins = sum(1 for p in pcts if p > 0)
+    usd = [t["usd"] for t in trips if t["usd"] is not None]
+    return {
+        "n": len(trips), "wins": wins, "win_rate": round(100.0 * wins / len(trips), 1),
+        "total_pct": round(sum(pcts), 4), "avg_pct": round(sum(pcts) / len(pcts), 5),
+        # None, not 0.0: no dollar data and zero dollars must not look identical.
+        "total_usd": round(sum(usd), 2) if usd else None, "n_with_usd": len(usd),
+    }
+
+
+def _usd(s: dict) -> str:
+    return f"${s['total_usd']:+.2f}" if s["total_usd"] is not None else "$ n/a"
+
+
+def _line(s: dict) -> str:
+    return (f"{s['n']} round trips | {s['win_rate']}% WR | total {s['total_pct']:+.3f}% "
+            f"| avg {s['avg_pct']:+.4f}%/trip | {_usd(s)}")
+
+
+def _table(trips: list[dict]) -> list[str]:
+    L = ["", "| exit_ts (UTC) | entry | exit | % | $ | exit reason |", "|---|---|---|---|---|---|"]
+    for t in trips[-15:]:
+        usd = f"{t['usd']:+.2f}" if t["usd"] is not None else "n/a"
+        L.append(f"| {str(t['exit_ts'])[:19]} | {t['entry_price']:.2f} | {t['exit_price']:.2f} "
+                 f"| {t['pct']:+.3f} | {usd} | {t['reason']} |")
+    return L
+
+
+def report(path: Optional[Path] = None) -> str:
+    trips = reconstruct_trips(path)
+    by = {b: [t for t in trips if t["bucket"] == b] for b in ("ORGANIC", "FORCED", "UNKNOWN")}
+    s = {b: summarize(v) for b, v in by.items()}
+
+    L = ["# Crypto twin -- realized P&L", "",
+         "## ORGANIC -- real decisions. The ONLY rows that mean anything.", ""]
+    if s["ORGANIC"]["n"] == 0:
+        L.append("**ZERO organic round trips. The twin has never made a trade of its own.** "
+                 "Every closed position was force-scheduled by the coverage battery or is "
+                 "untagged. There is no strategy result to report -- stated plainly, not hedged.")
+    else:
+        L.append(f"- **{_line(s['ORGANIC'])}**")
+        L += _table(by["ORGANIC"])
+
+    L += ["", "## FORCED -- coverage battery. NOT a strategy result.", ""]
+    L.append(f"- {_line(s['FORCED'])}" if s["FORCED"]["n"] else "- none")
+    if s["FORCED"]["n"]:
+        L.append("- NOT EDGE: scheduled by a test battery, not decided. Measures spread and "
+                 "random walk only. Must never enter a scorecard.")
+
+    L += ["", "## UNKNOWN -- untagged, provenance unclear. Also not evidence.", ""]
+    L.append(f"- {_line(s['UNKNOWN'])}" if s["UNKNOWN"]["n"] else "- none")
+    if s["UNKNOWN"]["n"]:
+        L.append("- These rows carry no scenario tag, so we cannot prove they were decisions. "
+                 "They are quarantined here deliberately: counting untagged trips as organic "
+                 "once reported 10 real trades when the true count was zero.")
+        L += _table(by["UNKNOWN"])
+
+    wired = sum(1 for t in trips if t["source"] == "wired")
+    L += ["", "---",
+          f"_{len(trips)} total round trips | {wired} with P&L wired at exit time, "
+          f"{len(trips) - wired} reconstructed by chronological pairing._"]
+    return "\n".join(L)
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--json", action="store_true", help="machine-readable summary")
+    a = ap.parse_args(argv)
+    if a.json:
+        trips = reconstruct_trips()
+        print(json.dumps({
+            b.lower(): summarize([t for t in trips if t["bucket"] == b])
+            for b in ("ORGANIC", "FORCED", "UNKNOWN")
+        } | {"n_trips": len(trips)}, indent=2))
+    else:
+        print(report())
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
