@@ -184,3 +184,6 @@ automation/state/fleet/shared-signal.json
 automation/state/futures/mirror-shadow-state.json
 automation/state/futures/mirror-positions.json
 automation/state/j-intents.json
+
+# Crypto twin signal-backtest bar cache (3.9MB, regenerable from Alpaca)
+analysis/crypto-twin/btc_5m_cache.json

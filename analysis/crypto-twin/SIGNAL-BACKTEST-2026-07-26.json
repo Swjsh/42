@@ -1,0 +1,3119 @@
+{
+  "generated_by": "backtest/tools/crypto_twin_signal_backtest.py",
+  "generated_at_utc": "2026-07-27T04:23:25.409923+00:00",
+  "provenance": {
+    "source": "alpaca_v1beta3_crypto_us_bars",
+    "symbol": "BTC/USD",
+    "granularity_seconds": 300,
+    "requested_days": 120,
+    "actual_bars": 34558,
+    "date_range": [
+      "2026-03-29T04:15:00+00:00",
+      "2026-07-27T04:05:00+00:00"
+    ],
+    "fetched_at_utc": "2026-07-27T04:13:23.353434+00:00",
+    "gaps_gt_2x_granularity": 0,
+    "auth": "twin_creds"
+  },
+  "pre_registration": {
+    "level_set_variants": [
+      "A",
+      "B",
+      "C"
+    ],
+    "max_distance_pcts": [
+      0.25,
+      0.5,
+      1.0
+    ],
+    "min_stack_bars_values": [
+      2,
+      3
+    ],
+    "leverage_ms": [
+      20,
+      40,
+      80
+    ],
+    "bh_alpha": 0.1,
+    "min_trades_gate": 30,
+    "max_hold_bars": 48
+  },
+  "exit_shape_constants": {
+    "catastrophe_lens": -0.5,
+    "tp1_target_lens": 0.5,
+    "tp1_qty_fraction": 0.667,
+    "runner_target_lens": 1.5,
+    "profit_lock_arm_lens": 0.05,
+    "profit_lock_trail_lens": 0.125,
+    "runner_be_floor_after_tp1": true,
+    "friction_round_trip": 0.0009,
+    "fixed_control_tp_pct": 0.005,
+    "fixed_control_stop_pct": -0.005
+  },
+  "tuning_dates": [
+    "2026-03-29",
+    "2026-03-30",
+    "2026-03-31",
+    "2026-04-01",
+    "2026-04-02",
+    "2026-04-03",
+    "2026-04-04",
+    "2026-04-05",
+    "2026-04-06",
+    "2026-04-07",
+    "2026-04-08",
+    "2026-04-09",
+    "2026-04-10",
+    "2026-04-11",
+    "2026-04-12",
+    "2026-04-13",
+    "2026-04-14",
+    "2026-04-15",
+    "2026-04-16",
+    "2026-04-17",
+    "2026-04-18",
+    "2026-04-19",
+    "2026-04-20",
+    "2026-04-21",
+    "2026-04-22",
+    "2026-04-23",
+    "2026-04-24",
+    "2026-04-25",
+    "2026-04-26",
+    "2026-04-27",
+    "2026-04-28",
+    "2026-04-29",
+    "2026-04-30",
+    "2026-05-01",
+    "2026-05-02",
+    "2026-05-03",
+    "2026-05-04",
+    "2026-05-05",
+    "2026-05-06",
+    "2026-05-07",
+    "2026-05-08",
+    "2026-05-09",
+    "2026-05-10",
+    "2026-05-11",
+    "2026-05-12",
+    "2026-05-13",
+    "2026-05-14",
+    "2026-05-15",
+    "2026-05-16",
+    "2026-05-17",
+    "2026-05-18",
+    "2026-05-19",
+    "2026-05-20",
+    "2026-05-21",
+    "2026-05-22",
+    "2026-05-23",
+    "2026-05-24",
+    "2026-05-25",
+    "2026-05-26",
+    "2026-05-27",
+    "2026-05-28",
+    "2026-05-29",
+    "2026-05-30",
+    "2026-05-31",
+    "2026-06-01",
+    "2026-06-02",
+    "2026-06-03",
+    "2026-06-04",
+    "2026-06-05",
+    "2026-06-06",
+    "2026-06-07",
+    "2026-06-08",
+    "2026-06-09",
+    "2026-06-10",
+    "2026-06-11",
+    "2026-06-12",
+    "2026-06-13",
+    "2026-06-14",
+    "2026-06-15",
+    "2026-06-16",
+    "2026-06-17",
+    "2026-06-18",
+    "2026-06-19",
+    "2026-06-20",
+    "2026-06-21"
+  ],
+  "holdout_dates": [
+    "2026-06-22",
+    "2026-06-23",
+    "2026-06-24",
+    "2026-06-25",
+    "2026-06-26",
+    "2026-06-27",
+    "2026-06-28",
+    "2026-06-29",
+    "2026-06-30",
+    "2026-07-01",
+    "2026-07-02",
+    "2026-07-03",
+    "2026-07-04",
+    "2026-07-05",
+    "2026-07-06",
+    "2026-07-07",
+    "2026-07-08",
+    "2026-07-09",
+    "2026-07-10",
+    "2026-07-11",
+    "2026-07-12",
+    "2026-07-13",
+    "2026-07-14",
+    "2026-07-15",
+    "2026-07-16",
+    "2026-07-17",
+    "2026-07-18",
+    "2026-07-19",
+    "2026-07-20",
+    "2026-07-21",
+    "2026-07-22",
+    "2026-07-23",
+    "2026-07-24",
+    "2026-07-25",
+    "2026-07-26",
+    "2026-07-27"
+  ],
+  "n_cells_passing": 0,
+  "cells": [
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 339,
+      "n_bull_triggers": 175,
+      "n_bear_triggers": 164,
+      "n_trades_total": 339,
+      "tuning": {
+        "n_trades": 251,
+        "win_rate": 0.3825,
+        "total_return_pct": -614.3902,
+        "avg_per_trade_pct": -2.4478,
+        "max_drawdown_pct": 738.0224
+      },
+      "holdout": {
+        "n_trades": 88,
+        "win_rate": 0.4545,
+        "total_return_pct": -101.6647,
+        "avg_per_trade_pct": -1.1553,
+        "max_drawdown_pct": 161.0482
+      },
+      "bull_only": {
+        "n_trades": 175,
+        "win_rate": 0.3829,
+        "total_return_pct": -479.8965,
+        "avg_per_trade_pct": -2.7423,
+        "max_drawdown_pct": 630.6854
+      },
+      "p_value_tuning": 0.988152,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.011111,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 339,
+      "n_bull_triggers": 175,
+      "n_bear_triggers": 164,
+      "n_trades_total": 339,
+      "tuning": {
+        "n_trades": 251,
+        "win_rate": 0.3904,
+        "total_return_pct": -1277.7953,
+        "avg_per_trade_pct": -5.0908,
+        "max_drawdown_pct": 1408.3064
+      },
+      "holdout": {
+        "n_trades": 88,
+        "win_rate": 0.4886,
+        "total_return_pct": 129.9818,
+        "avg_per_trade_pct": 1.4771,
+        "max_drawdown_pct": 262.3894
+      },
+      "bull_only": {
+        "n_trades": 175,
+        "win_rate": 0.4057,
+        "total_return_pct": -688.083,
+        "avg_per_trade_pct": -3.9319,
+        "max_drawdown_pct": 971.1698
+      },
+      "p_value_tuning": 0.996903,
+      "positive_on_tuning": false,
+      "positive_on_holdout": true,
+      "meets_n_gate": true,
+      "bh_threshold": 0.030556,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 339,
+      "n_bull_triggers": 175,
+      "n_bear_triggers": 164,
+      "n_trades_total": 339,
+      "tuning": {
+        "n_trades": 251,
+        "win_rate": 0.4223,
+        "total_return_pct": -1772.282,
+        "avg_per_trade_pct": -7.0609,
+        "max_drawdown_pct": 2040.7132
+      },
+      "holdout": {
+        "n_trades": 88,
+        "win_rate": 0.4545,
+        "total_return_pct": -585.0479,
+        "avg_per_trade_pct": -6.6483,
+        "max_drawdown_pct": 658.4738
+      },
+      "bull_only": {
+        "n_trades": 175,
+        "win_rate": 0.4114,
+        "total_return_pct": -1472.7363,
+        "avg_per_trade_pct": -8.4156,
+        "max_drawdown_pct": 1763.6885
+      },
+      "p_value_tuning": 0.995915,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.023611,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 2,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 339,
+      "n_bull_triggers": 175,
+      "n_bear_triggers": 164,
+      "n_trades_total": 339,
+      "tuning": {
+        "n_trades": 251,
+        "win_rate": 0.4104,
+        "total_return_pct": -30.9342,
+        "avg_per_trade_pct": -0.1232,
+        "max_drawdown_pct": 32.4312
+      },
+      "holdout": {
+        "n_trades": 88,
+        "win_rate": 0.4886,
+        "total_return_pct": -5.3564,
+        "avg_per_trade_pct": -0.0609,
+        "max_drawdown_pct": 6.4572
+      },
+      "bull_only": {
+        "n_trades": 175,
+        "win_rate": 0.4171,
+        "total_return_pct": -21.1427,
+        "avg_per_trade_pct": -0.1208,
+        "max_drawdown_pct": 22.8397
+      },
+      "p_value_tuning": 0.999993,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.081944,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 336,
+      "n_bull_triggers": 172,
+      "n_bear_triggers": 164,
+      "n_trades_total": 336,
+      "tuning": {
+        "n_trades": 249,
+        "win_rate": 0.3815,
+        "total_return_pct": -729.2851,
+        "avg_per_trade_pct": -2.9289,
+        "max_drawdown_pct": 845.8356
+      },
+      "holdout": {
+        "n_trades": 87,
+        "win_rate": 0.4483,
+        "total_return_pct": -102.3505,
+        "avg_per_trade_pct": -1.1764,
+        "max_drawdown_pct": 161.734
+      },
+      "bull_only": {
+        "n_trades": 172,
+        "win_rate": 0.3721,
+        "total_return_pct": -581.5159,
+        "avg_per_trade_pct": -3.3809,
+        "max_drawdown_pct": 725.1345
+      },
+      "p_value_tuning": 0.996833,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.029167,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 336,
+      "n_bull_triggers": 172,
+      "n_bear_triggers": 164,
+      "n_trades_total": 336,
+      "tuning": {
+        "n_trades": 249,
+        "win_rate": 0.3855,
+        "total_return_pct": -1502.4832,
+        "avg_per_trade_pct": -6.0341,
+        "max_drawdown_pct": 1618.6534
+      },
+      "holdout": {
+        "n_trades": 87,
+        "win_rate": 0.4828,
+        "total_return_pct": 97.4516,
+        "avg_per_trade_pct": 1.1201,
+        "max_drawdown_pct": 300.9968
+      },
+      "bull_only": {
+        "n_trades": 172,
+        "win_rate": 0.3895,
+        "total_return_pct": -924.7461,
+        "avg_per_trade_pct": -5.3764,
+        "max_drawdown_pct": 1166.0483
+      },
+      "p_value_tuning": 0.999427,
+      "positive_on_tuning": false,
+      "positive_on_holdout": true,
+      "meets_n_gate": true,
+      "bh_threshold": 0.056944,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 336,
+      "n_bull_triggers": 172,
+      "n_bear_triggers": 164,
+      "n_trades_total": 336,
+      "tuning": {
+        "n_trades": 249,
+        "win_rate": 0.3976,
+        "total_return_pct": -2410.6614,
+        "avg_per_trade_pct": -9.6814,
+        "max_drawdown_pct": 2650.4109
+      },
+      "holdout": {
+        "n_trades": 87,
+        "win_rate": 0.4483,
+        "total_return_pct": -629.0898,
+        "avg_per_trade_pct": -7.2309,
+        "max_drawdown_pct": 702.5157
+      },
+      "bull_only": {
+        "n_trades": 172,
+        "win_rate": 0.3895,
+        "total_return_pct": -1858.4565,
+        "avg_per_trade_pct": -10.805,
+        "max_drawdown_pct": 2120.7269
+      },
+      "p_value_tuning": 0.999869,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.066667,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 3,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 336,
+      "n_bull_triggers": 172,
+      "n_bear_triggers": 164,
+      "n_trades_total": 336,
+      "tuning": {
+        "n_trades": 249,
+        "win_rate": 0.3896,
+        "total_return_pct": -35.9927,
+        "avg_per_trade_pct": -0.1445,
+        "max_drawdown_pct": 37.4898
+      },
+      "holdout": {
+        "n_trades": 87,
+        "win_rate": 0.4828,
+        "total_return_pct": -5.7828,
+        "avg_per_trade_pct": -0.0665,
+        "max_drawdown_pct": 6.8836
+      },
+      "bull_only": {
+        "n_trades": 172,
+        "win_rate": 0.4012,
+        "total_return_pct": -23.4171,
+        "avg_per_trade_pct": -0.1361,
+        "max_drawdown_pct": 25.114
+      },
+      "p_value_tuning": 1.0,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.094444,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 342,
+      "n_bull_triggers": 177,
+      "n_bear_triggers": 165,
+      "n_trades_total": 342,
+      "tuning": {
+        "n_trades": 252,
+        "win_rate": 0.377,
+        "total_return_pct": -629.1275,
+        "avg_per_trade_pct": -2.4965,
+        "max_drawdown_pct": 752.7596
+      },
+      "holdout": {
+        "n_trades": 90,
+        "win_rate": 0.4333,
+        "total_return_pct": -165.116,
+        "avg_per_trade_pct": -1.8346,
+        "max_drawdown_pct": 224.4995
+      },
+      "bull_only": {
+        "n_trades": 177,
+        "win_rate": 0.3672,
+        "total_return_pct": -500.2471,
+        "avg_per_trade_pct": -2.8263,
+        "max_drawdown_pct": 651.036
+      },
+      "p_value_tuning": 0.98964,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.016667,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 342,
+      "n_bull_triggers": 177,
+      "n_bear_triggers": 165,
+      "n_trades_total": 342,
+      "tuning": {
+        "n_trades": 252,
+        "win_rate": 0.3849,
+        "total_return_pct": -1321.3291,
+        "avg_per_trade_pct": -5.2434,
+        "max_drawdown_pct": 1451.8402
+      },
+      "holdout": {
+        "n_trades": 90,
+        "win_rate": 0.4778,
+        "total_return_pct": 62.0001,
+        "avg_per_trade_pct": 0.6889,
+        "max_drawdown_pct": 262.3894
+      },
+      "bull_only": {
+        "n_trades": 177,
+        "win_rate": 0.3955,
+        "total_return_pct": -723.8737,
+        "avg_per_trade_pct": -4.0897,
+        "max_drawdown_pct": 992.5788
+      },
+      "p_value_tuning": 0.997614,
+      "positive_on_tuning": false,
+      "positive_on_holdout": true,
+      "meets_n_gate": true,
+      "bh_threshold": 0.036111,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 342,
+      "n_bull_triggers": 177,
+      "n_bear_triggers": 165,
+      "n_trades_total": 342,
+      "tuning": {
+        "n_trades": 252,
+        "win_rate": 0.4167,
+        "total_return_pct": -1816.4545,
+        "avg_per_trade_pct": -7.2082,
+        "max_drawdown_pct": 2084.8858
+      },
+      "holdout": {
+        "n_trades": 90,
+        "win_rate": 0.4444,
+        "total_return_pct": -699.4479,
+        "avg_per_trade_pct": -7.7716,
+        "max_drawdown_pct": 772.8738
+      },
+      "bull_only": {
+        "n_trades": 177,
+        "win_rate": 0.4011,
+        "total_return_pct": -1572.7543,
+        "avg_per_trade_pct": -8.8856,
+        "max_drawdown_pct": 1863.7065
+      },
+      "p_value_tuning": 0.996658,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.027778,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 2,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 342,
+      "n_bull_triggers": 177,
+      "n_bear_triggers": 165,
+      "n_trades_total": 342,
+      "tuning": {
+        "n_trades": 252,
+        "win_rate": 0.4048,
+        "total_return_pct": -31.4694,
+        "avg_per_trade_pct": -0.1249,
+        "max_drawdown_pct": 32.9664
+      },
+      "holdout": {
+        "n_trades": 90,
+        "win_rate": 0.4778,
+        "total_return_pct": -6.5364,
+        "avg_per_trade_pct": -0.0726,
+        "max_drawdown_pct": 7.6372
+      },
+      "bull_only": {
+        "n_trades": 177,
+        "win_rate": 0.4068,
+        "total_return_pct": -22.268,
+        "avg_per_trade_pct": -0.1258,
+        "max_drawdown_pct": 23.9649
+      },
+      "p_value_tuning": 0.999995,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.084722,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 340,
+      "n_bull_triggers": 175,
+      "n_bear_triggers": 165,
+      "n_trades_total": 340,
+      "tuning": {
+        "n_trades": 250,
+        "win_rate": 0.376,
+        "total_return_pct": -739.0257,
+        "avg_per_trade_pct": -2.9561,
+        "max_drawdown_pct": 855.5762
+      },
+      "holdout": {
+        "n_trades": 90,
+        "win_rate": 0.4222,
+        "total_return_pct": -171.6303,
+        "avg_per_trade_pct": -1.907,
+        "max_drawdown_pct": 231.0138
+      },
+      "bull_only": {
+        "n_trades": 175,
+        "win_rate": 0.3543,
+        "total_return_pct": -607.6951,
+        "avg_per_trade_pct": -3.4725,
+        "max_drawdown_pct": 751.3136
+      },
+      "p_value_tuning": 0.997119,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.031944,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 340,
+      "n_bull_triggers": 175,
+      "n_bear_triggers": 165,
+      "n_trades_total": 340,
+      "tuning": {
+        "n_trades": 250,
+        "win_rate": 0.38,
+        "total_return_pct": -1537.0511,
+        "avg_per_trade_pct": -6.1482,
+        "max_drawdown_pct": 1653.2213
+      },
+      "holdout": {
+        "n_trades": 90,
+        "win_rate": 0.4667,
+        "total_return_pct": 17.8127,
+        "avg_per_trade_pct": 0.1979,
+        "max_drawdown_pct": 312.654
+      },
+      "bull_only": {
+        "n_trades": 175,
+        "win_rate": 0.3771,
+        "total_return_pct": -972.194,
+        "avg_per_trade_pct": -5.5554,
+        "max_drawdown_pct": 1213.4962
+      },
+      "p_value_tuning": 0.999539,
+      "positive_on_tuning": false,
+      "positive_on_holdout": true,
+      "meets_n_gate": true,
+      "bh_threshold": 0.058333,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 340,
+      "n_bull_triggers": 175,
+      "n_bear_triggers": 165,
+      "n_trades_total": 340,
+      "tuning": {
+        "n_trades": 250,
+        "win_rate": 0.392,
+        "total_return_pct": -2443.9245,
+        "avg_per_trade_pct": -9.7757,
+        "max_drawdown_pct": 2683.6739
+      },
+      "holdout": {
+        "n_trades": 90,
+        "win_rate": 0.4444,
+        "total_return_pct": -704.8523,
+        "avg_per_trade_pct": -7.8317,
+        "max_drawdown_pct": 778.2782
+      },
+      "bull_only": {
+        "n_trades": 175,
+        "win_rate": 0.3829,
+        "total_return_pct": -1919.8369,
+        "avg_per_trade_pct": -10.9705,
+        "max_drawdown_pct": 2182.1073
+      },
+      "p_value_tuning": 0.999891,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.069444,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 3,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 340,
+      "n_bull_triggers": 175,
+      "n_bear_triggers": 165,
+      "n_trades_total": 340,
+      "tuning": {
+        "n_trades": 250,
+        "win_rate": 0.388,
+        "total_return_pct": -35.528,
+        "avg_per_trade_pct": -0.1421,
+        "max_drawdown_pct": 37.025
+      },
+      "holdout": {
+        "n_trades": 90,
+        "win_rate": 0.4778,
+        "total_return_pct": -6.5528,
+        "avg_per_trade_pct": -0.0728,
+        "max_drawdown_pct": 7.6536
+      },
+      "bull_only": {
+        "n_trades": 175,
+        "win_rate": 0.3943,
+        "total_return_pct": -24.1323,
+        "avg_per_trade_pct": -0.1379,
+        "max_drawdown_pct": 25.8292
+      },
+      "p_value_tuning": 1.0,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.090278,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 343,
+      "n_bull_triggers": 177,
+      "n_bear_triggers": 166,
+      "n_trades_total": 343,
+      "tuning": {
+        "n_trades": 252,
+        "win_rate": 0.377,
+        "total_return_pct": -643.2204,
+        "avg_per_trade_pct": -2.5525,
+        "max_drawdown_pct": 766.8525
+      },
+      "holdout": {
+        "n_trades": 91,
+        "win_rate": 0.4505,
+        "total_return_pct": -42.5198,
+        "avg_per_trade_pct": -0.4673,
+        "max_drawdown_pct": 140.8285
+      },
+      "bull_only": {
+        "n_trades": 177,
+        "win_rate": 0.3729,
+        "total_return_pct": -477.7606,
+        "avg_per_trade_pct": -2.6992,
+        "max_drawdown_pct": 628.5496
+      },
+      "p_value_tuning": 0.990856,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.018056,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 343,
+      "n_bull_triggers": 177,
+      "n_bear_triggers": 166,
+      "n_trades_total": 343,
+      "tuning": {
+        "n_trades": 252,
+        "win_rate": 0.3849,
+        "total_return_pct": -1361.3672,
+        "avg_per_trade_pct": -5.4023,
+        "max_drawdown_pct": 1491.8783
+      },
+      "holdout": {
+        "n_trades": 91,
+        "win_rate": 0.4945,
+        "total_return_pct": 204.7061,
+        "avg_per_trade_pct": 2.2495,
+        "max_drawdown_pct": 262.3894
+      },
+      "bull_only": {
+        "n_trades": 177,
+        "win_rate": 0.4011,
+        "total_return_pct": -688.7987,
+        "avg_per_trade_pct": -3.8915,
+        "max_drawdown_pct": 979.0169
+      },
+      "p_value_tuning": 0.998089,
+      "positive_on_tuning": false,
+      "positive_on_holdout": true,
+      "meets_n_gate": true,
+      "bh_threshold": 0.041667,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 343,
+      "n_bull_triggers": 177,
+      "n_bear_triggers": 166,
+      "n_trades_total": 343,
+      "tuning": {
+        "n_trades": 252,
+        "win_rate": 0.4127,
+        "total_return_pct": -1916.7488,
+        "avg_per_trade_pct": -7.6061,
+        "max_drawdown_pct": 2185.1801
+      },
+      "holdout": {
+        "n_trades": 91,
+        "win_rate": 0.4615,
+        "total_return_pct": -560.0906,
+        "avg_per_trade_pct": -6.1548,
+        "max_drawdown_pct": 652.9434
+      },
+      "bull_only": {
+        "n_trades": 177,
+        "win_rate": 0.4011,
+        "total_return_pct": -1609.7913,
+        "avg_per_trade_pct": -9.0949,
+        "max_drawdown_pct": 1900.7435
+      },
+      "p_value_tuning": 0.997896,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.040278,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 2,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 343,
+      "n_bull_triggers": 177,
+      "n_bear_triggers": 166,
+      "n_trades_total": 343,
+      "tuning": {
+        "n_trades": 252,
+        "win_rate": 0.4008,
+        "total_return_pct": -32.4694,
+        "avg_per_trade_pct": -0.1288,
+        "max_drawdown_pct": 33.9664
+      },
+      "holdout": {
+        "n_trades": 91,
+        "win_rate": 0.4835,
+        "total_return_pct": -6.1264,
+        "avg_per_trade_pct": -0.0673,
+        "max_drawdown_pct": 7.2272
+      },
+      "bull_only": {
+        "n_trades": 177,
+        "win_rate": 0.4011,
+        "total_return_pct": -23.268,
+        "avg_per_trade_pct": -0.1315,
+        "max_drawdown_pct": 24.9649
+      },
+      "p_value_tuning": 0.999998,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.0875,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 341,
+      "n_bull_triggers": 175,
+      "n_bear_triggers": 166,
+      "n_trades_total": 341,
+      "tuning": {
+        "n_trades": 250,
+        "win_rate": 0.376,
+        "total_return_pct": -753.1187,
+        "avg_per_trade_pct": -3.0125,
+        "max_drawdown_pct": 869.6692
+      },
+      "holdout": {
+        "n_trades": 91,
+        "win_rate": 0.4286,
+        "total_return_pct": -80.674,
+        "avg_per_trade_pct": -0.8865,
+        "max_drawdown_pct": 149.0007
+      },
+      "bull_only": {
+        "n_trades": 175,
+        "win_rate": 0.3543,
+        "total_return_pct": -616.8486,
+        "avg_per_trade_pct": -3.5248,
+        "max_drawdown_pct": 760.4671
+      },
+      "p_value_tuning": 0.997505,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.034722,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 341,
+      "n_bull_triggers": 175,
+      "n_bear_triggers": 166,
+      "n_trades_total": 341,
+      "tuning": {
+        "n_trades": 250,
+        "win_rate": 0.38,
+        "total_return_pct": -1577.0892,
+        "avg_per_trade_pct": -6.3084,
+        "max_drawdown_pct": 1693.2594
+      },
+      "holdout": {
+        "n_trades": 91,
+        "win_rate": 0.4725,
+        "total_return_pct": 107.1369,
+        "avg_per_trade_pct": 1.1773,
+        "max_drawdown_pct": 312.654
+      },
+      "bull_only": {
+        "n_trades": 175,
+        "win_rate": 0.3771,
+        "total_return_pct": -990.5009,
+        "avg_per_trade_pct": -5.66,
+        "max_drawdown_pct": 1231.8031
+      },
+      "p_value_tuning": 0.999641,
+      "positive_on_tuning": false,
+      "positive_on_holdout": true,
+      "meets_n_gate": true,
+      "bh_threshold": 0.059722,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 341,
+      "n_bull_triggers": 175,
+      "n_bear_triggers": 166,
+      "n_trades_total": 341,
+      "tuning": {
+        "n_trades": 250,
+        "win_rate": 0.388,
+        "total_return_pct": -2544.2187,
+        "avg_per_trade_pct": -10.1769,
+        "max_drawdown_pct": 2783.9682
+      },
+      "holdout": {
+        "n_trades": 91,
+        "win_rate": 0.4505,
+        "total_return_pct": -628.7523,
+        "avg_per_trade_pct": -6.9094,
+        "max_drawdown_pct": 721.6051
+      },
+      "bull_only": {
+        "n_trades": 175,
+        "win_rate": 0.3771,
+        "total_return_pct": -2020.1312,
+        "avg_per_trade_pct": -11.5436,
+        "max_drawdown_pct": 2282.4016
+      },
+      "p_value_tuning": 0.999942,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.070833,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 3,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 341,
+      "n_bull_triggers": 175,
+      "n_bear_triggers": 166,
+      "n_trades_total": 341,
+      "tuning": {
+        "n_trades": 250,
+        "win_rate": 0.384,
+        "total_return_pct": -36.528,
+        "avg_per_trade_pct": -0.1461,
+        "max_drawdown_pct": 38.025
+      },
+      "holdout": {
+        "n_trades": 91,
+        "win_rate": 0.4835,
+        "total_return_pct": -6.1428,
+        "avg_per_trade_pct": -0.0675,
+        "max_drawdown_pct": 7.2436
+      },
+      "bull_only": {
+        "n_trades": 175,
+        "win_rate": 0.3886,
+        "total_return_pct": -25.1323,
+        "avg_per_trade_pct": -0.1436,
+        "max_drawdown_pct": 26.8292
+      },
+      "p_value_tuning": 1.0,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.095833,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 512,
+      "n_bull_triggers": 244,
+      "n_bear_triggers": 268,
+      "n_trades_total": 512,
+      "tuning": {
+        "n_trades": 366,
+        "win_rate": 0.3852,
+        "total_return_pct": -743.9649,
+        "avg_per_trade_pct": -2.0327,
+        "max_drawdown_pct": 988.0024
+      },
+      "holdout": {
+        "n_trades": 146,
+        "win_rate": 0.3836,
+        "total_return_pct": -451.9396,
+        "avg_per_trade_pct": -3.0955,
+        "max_drawdown_pct": 581.553
+      },
+      "bull_only": {
+        "n_trades": 244,
+        "win_rate": 0.3566,
+        "total_return_pct": -643.0386,
+        "avg_per_trade_pct": -2.6354,
+        "max_drawdown_pct": 847.1036
+      },
+      "p_value_tuning": 0.988158,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.0125,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 512,
+      "n_bull_triggers": 244,
+      "n_bear_triggers": 268,
+      "n_trades_total": 512,
+      "tuning": {
+        "n_trades": 366,
+        "win_rate": 0.3934,
+        "total_return_pct": -1729.5566,
+        "avg_per_trade_pct": -4.7256,
+        "max_drawdown_pct": 1949.834
+      },
+      "holdout": {
+        "n_trades": 146,
+        "win_rate": 0.4041,
+        "total_return_pct": -492.2094,
+        "avg_per_trade_pct": -3.3713,
+        "max_drawdown_pct": 780.2549
+      },
+      "bull_only": {
+        "n_trades": 244,
+        "win_rate": 0.3648,
+        "total_return_pct": -1375.2171,
+        "avg_per_trade_pct": -5.6361,
+        "max_drawdown_pct": 1584.7163
+      },
+      "p_value_tuning": 0.99907,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.051389,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 512,
+      "n_bull_triggers": 244,
+      "n_bear_triggers": 268,
+      "n_trades_total": 512,
+      "tuning": {
+        "n_trades": 366,
+        "win_rate": 0.4153,
+        "total_return_pct": -3159.3274,
+        "avg_per_trade_pct": -8.632,
+        "max_drawdown_pct": 3311.9559
+      },
+      "holdout": {
+        "n_trades": 146,
+        "win_rate": 0.3904,
+        "total_return_pct": -1544.6666,
+        "avg_per_trade_pct": -10.5799,
+        "max_drawdown_pct": 1692.1582
+      },
+      "bull_only": {
+        "n_trades": 244,
+        "win_rate": 0.377,
+        "total_return_pct": -2866.8792,
+        "avg_per_trade_pct": -11.7495,
+        "max_drawdown_pct": 3003.781
+      },
+      "p_value_tuning": 0.999944,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.072222,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 2,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 512,
+      "n_bull_triggers": 244,
+      "n_bear_triggers": 268,
+      "n_trades_total": 512,
+      "tuning": {
+        "n_trades": 366,
+        "win_rate": 0.418,
+        "total_return_pct": -46.0646,
+        "avg_per_trade_pct": -0.1259,
+        "max_drawdown_pct": 46.5246
+      },
+      "holdout": {
+        "n_trades": 146,
+        "win_rate": 0.4589,
+        "total_return_pct": -11.8327,
+        "avg_per_trade_pct": -0.081,
+        "max_drawdown_pct": 13.2697
+      },
+      "bull_only": {
+        "n_trades": 244,
+        "win_rate": 0.418,
+        "total_return_pct": -30.1055,
+        "avg_per_trade_pct": -0.1234,
+        "max_drawdown_pct": 30.6818
+      },
+      "p_value_tuning": 1.0,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.097222,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 510,
+      "n_bull_triggers": 249,
+      "n_bear_triggers": 261,
+      "n_trades_total": 510,
+      "tuning": {
+        "n_trades": 365,
+        "win_rate": 0.3918,
+        "total_return_pct": -740.8395,
+        "avg_per_trade_pct": -2.0297,
+        "max_drawdown_pct": 998.6558
+      },
+      "holdout": {
+        "n_trades": 145,
+        "win_rate": 0.3655,
+        "total_return_pct": -589.4482,
+        "avg_per_trade_pct": -4.0652,
+        "max_drawdown_pct": 638.3121
+      },
+      "bull_only": {
+        "n_trades": 249,
+        "win_rate": 0.3534,
+        "total_return_pct": -694.1085,
+        "avg_per_trade_pct": -2.7876,
+        "max_drawdown_pct": 920.9912
+      },
+      "p_value_tuning": 0.988288,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.013889,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 510,
+      "n_bull_triggers": 249,
+      "n_bear_triggers": 261,
+      "n_trades_total": 510,
+      "tuning": {
+        "n_trades": 365,
+        "win_rate": 0.3973,
+        "total_return_pct": -1691.5587,
+        "avg_per_trade_pct": -4.6344,
+        "max_drawdown_pct": 1912.7134
+      },
+      "holdout": {
+        "n_trades": 145,
+        "win_rate": 0.3793,
+        "total_return_pct": -763.4759,
+        "avg_per_trade_pct": -5.2654,
+        "max_drawdown_pct": 853.6299
+      },
+      "bull_only": {
+        "n_trades": 249,
+        "win_rate": 0.3614,
+        "total_return_pct": -1433.682,
+        "avg_per_trade_pct": -5.7578,
+        "max_drawdown_pct": 1691.1041
+      },
+      "p_value_tuning": 0.998855,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.048611,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 510,
+      "n_bull_triggers": 249,
+      "n_bear_triggers": 261,
+      "n_trades_total": 510,
+      "tuning": {
+        "n_trades": 365,
+        "win_rate": 0.4164,
+        "total_return_pct": -3000.6854,
+        "avg_per_trade_pct": -8.2211,
+        "max_drawdown_pct": 3158.0772
+      },
+      "holdout": {
+        "n_trades": 145,
+        "win_rate": 0.3724,
+        "total_return_pct": -1754.4899,
+        "avg_per_trade_pct": -12.0999,
+        "max_drawdown_pct": 1900.6678
+      },
+      "bull_only": {
+        "n_trades": 249,
+        "win_rate": 0.3775,
+        "total_return_pct": -2798.8148,
+        "avg_per_trade_pct": -11.2402,
+        "max_drawdown_pct": 2957.2709
+      },
+      "p_value_tuning": 0.999887,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.068056,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 3,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 510,
+      "n_bull_triggers": 249,
+      "n_bear_triggers": 261,
+      "n_trades_total": 510,
+      "tuning": {
+        "n_trades": 365,
+        "win_rate": 0.4274,
+        "total_return_pct": -42.1579,
+        "avg_per_trade_pct": -0.1155,
+        "max_drawdown_pct": 42.6179
+      },
+      "holdout": {
+        "n_trades": 145,
+        "win_rate": 0.4621,
+        "total_return_pct": -11.0587,
+        "avg_per_trade_pct": -0.0763,
+        "max_drawdown_pct": 12.4794
+      },
+      "bull_only": {
+        "n_trades": 249,
+        "win_rate": 0.4137,
+        "total_return_pct": -30.4262,
+        "avg_per_trade_pct": -0.1222,
+        "max_drawdown_pct": 31.0361
+      },
+      "p_value_tuning": 0.999999,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.088889,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 514,
+      "n_bull_triggers": 242,
+      "n_bear_triggers": 272,
+      "n_trades_total": 514,
+      "tuning": {
+        "n_trades": 368,
+        "win_rate": 0.3886,
+        "total_return_pct": -982.5459,
+        "avg_per_trade_pct": -2.67,
+        "max_drawdown_pct": 1192.7011
+      },
+      "holdout": {
+        "n_trades": 146,
+        "win_rate": 0.3836,
+        "total_return_pct": -461.1508,
+        "avg_per_trade_pct": -3.1586,
+        "max_drawdown_pct": 643.0632
+      },
+      "bull_only": {
+        "n_trades": 242,
+        "win_rate": 0.3719,
+        "total_return_pct": -643.3467,
+        "avg_per_trade_pct": -2.6585,
+        "max_drawdown_pct": 865.4684
+      },
+      "p_value_tuning": 0.998189,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.044444,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 514,
+      "n_bull_triggers": 242,
+      "n_bear_triggers": 272,
+      "n_trades_total": 514,
+      "tuning": {
+        "n_trades": 368,
+        "win_rate": 0.3967,
+        "total_return_pct": -1775.2208,
+        "avg_per_trade_pct": -4.824,
+        "max_drawdown_pct": 1994.8412
+      },
+      "holdout": {
+        "n_trades": 146,
+        "win_rate": 0.3973,
+        "total_return_pct": -662.8153,
+        "avg_per_trade_pct": -4.5398,
+        "max_drawdown_pct": 936.1454
+      },
+      "bull_only": {
+        "n_trades": 242,
+        "win_rate": 0.376,
+        "total_return_pct": -1322.491,
+        "avg_per_trade_pct": -5.4648,
+        "max_drawdown_pct": 1670.6179
+      },
+      "p_value_tuning": 0.999136,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.052778,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 514,
+      "n_bull_triggers": 242,
+      "n_bear_triggers": 272,
+      "n_trades_total": 514,
+      "tuning": {
+        "n_trades": 368,
+        "win_rate": 0.413,
+        "total_return_pct": -3173.6323,
+        "avg_per_trade_pct": -8.624,
+        "max_drawdown_pct": 3326.2608
+      },
+      "holdout": {
+        "n_trades": 146,
+        "win_rate": 0.3836,
+        "total_return_pct": -1630.0008,
+        "avg_per_trade_pct": -11.1644,
+        "max_drawdown_pct": 1777.4924
+      },
+      "bull_only": {
+        "n_trades": 242,
+        "win_rate": 0.376,
+        "total_return_pct": -2751.5079,
+        "avg_per_trade_pct": -11.3699,
+        "max_drawdown_pct": 3048.6811
+      },
+      "p_value_tuning": 0.999946,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.073611,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 2,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 514,
+      "n_bull_triggers": 242,
+      "n_bear_triggers": 272,
+      "n_trades_total": 514,
+      "tuning": {
+        "n_trades": 368,
+        "win_rate": 0.4103,
+        "total_return_pct": -49.0923,
+        "avg_per_trade_pct": -0.1334,
+        "max_drawdown_pct": 50.0781
+      },
+      "holdout": {
+        "n_trades": 146,
+        "win_rate": 0.4521,
+        "total_return_pct": -12.8327,
+        "avg_per_trade_pct": -0.0879,
+        "max_drawdown_pct": 14.2697
+      },
+      "bull_only": {
+        "n_trades": 242,
+        "win_rate": 0.4215,
+        "total_return_pct": -28.8663,
+        "avg_per_trade_pct": -0.1193,
+        "max_drawdown_pct": 31.8146
+      },
+      "p_value_tuning": 1.0,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.098611,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 513,
+      "n_bull_triggers": 247,
+      "n_bear_triggers": 266,
+      "n_trades_total": 513,
+      "tuning": {
+        "n_trades": 368,
+        "win_rate": 0.3995,
+        "total_return_pct": -899.0492,
+        "avg_per_trade_pct": -2.4431,
+        "max_drawdown_pct": 1120.5554
+      },
+      "holdout": {
+        "n_trades": 145,
+        "win_rate": 0.3655,
+        "total_return_pct": -621.2922,
+        "avg_per_trade_pct": -4.2848,
+        "max_drawdown_pct": 670.1561
+      },
+      "bull_only": {
+        "n_trades": 247,
+        "win_rate": 0.3725,
+        "total_return_pct": -678.3969,
+        "avg_per_trade_pct": -2.7465,
+        "max_drawdown_pct": 920.9085
+      },
+      "p_value_tuning": 0.996298,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.025,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 513,
+      "n_bull_triggers": 247,
+      "n_bear_triggers": 266,
+      "n_trades_total": 513,
+      "tuning": {
+        "n_trades": 368,
+        "win_rate": 0.4049,
+        "total_return_pct": -1653.083,
+        "avg_per_trade_pct": -4.4921,
+        "max_drawdown_pct": 1868.7252
+      },
+      "holdout": {
+        "n_trades": 145,
+        "win_rate": 0.3862,
+        "total_return_pct": -755.4075,
+        "avg_per_trade_pct": -5.2097,
+        "max_drawdown_pct": 894.5999
+      },
+      "bull_only": {
+        "n_trades": 247,
+        "win_rate": 0.3765,
+        "total_return_pct": -1293.1571,
+        "avg_per_trade_pct": -5.2355,
+        "max_drawdown_pct": 1679.6027
+      },
+      "p_value_tuning": 0.998167,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.043056,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 513,
+      "n_bull_triggers": 247,
+      "n_bear_triggers": 266,
+      "n_trades_total": 513,
+      "tuning": {
+        "n_trades": 368,
+        "win_rate": 0.4185,
+        "total_return_pct": -2866.5071,
+        "avg_per_trade_pct": -7.7894,
+        "max_drawdown_pct": 3023.8989
+      },
+      "holdout": {
+        "n_trades": 145,
+        "win_rate": 0.3793,
+        "total_return_pct": -1650.5941,
+        "avg_per_trade_pct": -11.3834,
+        "max_drawdown_pct": 1796.7719
+      },
+      "bull_only": {
+        "n_trades": 247,
+        "win_rate": 0.3765,
+        "total_return_pct": -2651.1396,
+        "avg_per_trade_pct": -10.7334,
+        "max_drawdown_pct": 2946.9991
+      },
+      "p_value_tuning": 0.999772,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.063889,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 3,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 513,
+      "n_bull_triggers": 247,
+      "n_bear_triggers": 266,
+      "n_trades_total": 513,
+      "tuning": {
+        "n_trades": 368,
+        "win_rate": 0.4212,
+        "total_return_pct": -44.4388,
+        "avg_per_trade_pct": -0.1208,
+        "max_drawdown_pct": 45.4246
+      },
+      "holdout": {
+        "n_trades": 145,
+        "win_rate": 0.4621,
+        "total_return_pct": -11.0587,
+        "avg_per_trade_pct": -0.0763,
+        "max_drawdown_pct": 12.4794
+      },
+      "bull_only": {
+        "n_trades": 247,
+        "win_rate": 0.413,
+        "total_return_pct": -29.8502,
+        "avg_per_trade_pct": -0.1209,
+        "max_drawdown_pct": 32.782
+      },
+      "p_value_tuning": 1.0,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.091667,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 515,
+      "n_bull_triggers": 243,
+      "n_bear_triggers": 272,
+      "n_trades_total": 515,
+      "tuning": {
+        "n_trades": 368,
+        "win_rate": 0.3859,
+        "total_return_pct": -989.4073,
+        "avg_per_trade_pct": -2.6886,
+        "max_drawdown_pct": 1210.5929
+      },
+      "holdout": {
+        "n_trades": 147,
+        "win_rate": 0.381,
+        "total_return_pct": -471.6782,
+        "avg_per_trade_pct": -3.2087,
+        "max_drawdown_pct": 653.5905
+      },
+      "bull_only": {
+        "n_trades": 243,
+        "win_rate": 0.3663,
+        "total_return_pct": -671.7659,
+        "avg_per_trade_pct": -2.7645,
+        "max_drawdown_pct": 875.9957
+      },
+      "p_value_tuning": 0.998298,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.045833,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 515,
+      "n_bull_triggers": 243,
+      "n_bear_triggers": 272,
+      "n_trades_total": 515,
+      "tuning": {
+        "n_trades": 368,
+        "win_rate": 0.394,
+        "total_return_pct": -1807.0524,
+        "avg_per_trade_pct": -4.9105,
+        "max_drawdown_pct": 2030.6248
+      },
+      "holdout": {
+        "n_trades": 147,
+        "win_rate": 0.3946,
+        "total_return_pct": -696.1209,
+        "avg_per_trade_pct": -4.7355,
+        "max_drawdown_pct": 969.451
+      },
+      "bull_only": {
+        "n_trades": 243,
+        "win_rate": 0.3704,
+        "total_return_pct": -1391.5802,
+        "avg_per_trade_pct": -5.7267,
+        "max_drawdown_pct": 1739.7071
+      },
+      "p_value_tuning": 0.99929,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.054167,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 515,
+      "n_bull_triggers": 243,
+      "n_bear_triggers": 272,
+      "n_trades_total": 515,
+      "tuning": {
+        "n_trades": 368,
+        "win_rate": 0.4103,
+        "total_return_pct": -3277.3603,
+        "avg_per_trade_pct": -8.9059,
+        "max_drawdown_pct": 3425.9738
+      },
+      "holdout": {
+        "n_trades": 147,
+        "win_rate": 0.381,
+        "total_return_pct": -1683.6981,
+        "avg_per_trade_pct": -11.4537,
+        "max_drawdown_pct": 1831.1896
+      },
+      "bull_only": {
+        "n_trades": 243,
+        "win_rate": 0.3704,
+        "total_return_pct": -2904.9182,
+        "avg_per_trade_pct": -11.9544,
+        "max_drawdown_pct": 3202.0914
+      },
+      "p_value_tuning": 0.999969,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.076389,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 2,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 515,
+      "n_bull_triggers": 243,
+      "n_bear_triggers": 272,
+      "n_trades_total": 515,
+      "tuning": {
+        "n_trades": 368,
+        "win_rate": 0.4103,
+        "total_return_pct": -49.0923,
+        "avg_per_trade_pct": -0.1334,
+        "max_drawdown_pct": 50.0781
+      },
+      "holdout": {
+        "n_trades": 147,
+        "win_rate": 0.449,
+        "total_return_pct": -13.4227,
+        "avg_per_trade_pct": -0.0913,
+        "max_drawdown_pct": 14.8597
+      },
+      "bull_only": {
+        "n_trades": 243,
+        "win_rate": 0.4198,
+        "total_return_pct": -29.4563,
+        "avg_per_trade_pct": -0.1212,
+        "max_drawdown_pct": 32.4046
+      },
+      "p_value_tuning": 1.0,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.1,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 514,
+      "n_bull_triggers": 248,
+      "n_bear_triggers": 266,
+      "n_trades_total": 514,
+      "tuning": {
+        "n_trades": 368,
+        "win_rate": 0.3967,
+        "total_return_pct": -905.9106,
+        "avg_per_trade_pct": -2.4617,
+        "max_drawdown_pct": 1138.4472
+      },
+      "holdout": {
+        "n_trades": 146,
+        "win_rate": 0.3699,
+        "total_return_pct": -630.3275,
+        "avg_per_trade_pct": -4.3173,
+        "max_drawdown_pct": 679.1914
+      },
+      "bull_only": {
+        "n_trades": 248,
+        "win_rate": 0.3669,
+        "total_return_pct": -706.8161,
+        "avg_per_trade_pct": -2.8501,
+        "max_drawdown_pct": 931.4358
+      },
+      "p_value_tuning": 0.996509,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.026389,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 514,
+      "n_bull_triggers": 248,
+      "n_bear_triggers": 266,
+      "n_trades_total": 514,
+      "tuning": {
+        "n_trades": 368,
+        "win_rate": 0.4022,
+        "total_return_pct": -1684.9146,
+        "avg_per_trade_pct": -4.5786,
+        "max_drawdown_pct": 1904.5089
+      },
+      "holdout": {
+        "n_trades": 146,
+        "win_rate": 0.3904,
+        "total_return_pct": -785.7289,
+        "avg_per_trade_pct": -5.3817,
+        "max_drawdown_pct": 924.9213
+      },
+      "bull_only": {
+        "n_trades": 248,
+        "win_rate": 0.371,
+        "total_return_pct": -1362.2464,
+        "avg_per_trade_pct": -5.4929,
+        "max_drawdown_pct": 1712.9083
+      },
+      "p_value_tuning": 0.998473,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.047222,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 514,
+      "n_bull_triggers": 248,
+      "n_bear_triggers": 266,
+      "n_trades_total": 514,
+      "tuning": {
+        "n_trades": 368,
+        "win_rate": 0.4158,
+        "total_return_pct": -2970.2351,
+        "avg_per_trade_pct": -8.0713,
+        "max_drawdown_pct": 3123.6119
+      },
+      "holdout": {
+        "n_trades": 146,
+        "win_rate": 0.3836,
+        "total_return_pct": -1698.3231,
+        "avg_per_trade_pct": -11.6323,
+        "max_drawdown_pct": 1844.501
+      },
+      "bull_only": {
+        "n_trades": 248,
+        "win_rate": 0.371,
+        "total_return_pct": -2804.5498,
+        "avg_per_trade_pct": -11.3087,
+        "max_drawdown_pct": 3100.4093
+      },
+      "p_value_tuning": 0.99986,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.065278,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "B",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 3,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 514,
+      "n_bull_triggers": 248,
+      "n_bear_triggers": 266,
+      "n_trades_total": 514,
+      "tuning": {
+        "n_trades": 368,
+        "win_rate": 0.4212,
+        "total_return_pct": -44.4388,
+        "avg_per_trade_pct": -0.1208,
+        "max_drawdown_pct": 45.4246
+      },
+      "holdout": {
+        "n_trades": 146,
+        "win_rate": 0.4589,
+        "total_return_pct": -11.6487,
+        "avg_per_trade_pct": -0.0798,
+        "max_drawdown_pct": 13.0694
+      },
+      "bull_only": {
+        "n_trades": 248,
+        "win_rate": 0.4113,
+        "total_return_pct": -30.4402,
+        "avg_per_trade_pct": -0.1227,
+        "max_drawdown_pct": 33.372
+      },
+      "p_value_tuning": 1.0,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.093056,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 441,
+      "n_bull_triggers": 214,
+      "n_bear_triggers": 227,
+      "n_trades_total": 441,
+      "tuning": {
+        "n_trades": 318,
+        "win_rate": 0.3962,
+        "total_return_pct": -431.3355,
+        "avg_per_trade_pct": -1.3564,
+        "max_drawdown_pct": 603.9198
+      },
+      "holdout": {
+        "n_trades": 123,
+        "win_rate": 0.374,
+        "total_return_pct": -379.1956,
+        "avg_per_trade_pct": -3.0829,
+        "max_drawdown_pct": 427.8998
+      },
+      "bull_only": {
+        "n_trades": 214,
+        "win_rate": 0.3364,
+        "total_return_pct": -554.2959,
+        "avg_per_trade_pct": -2.5902,
+        "max_drawdown_pct": 757.3682
+      },
+      "p_value_tuning": 0.921755,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.001389,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 441,
+      "n_bull_triggers": 214,
+      "n_bear_triggers": 227,
+      "n_trades_total": 441,
+      "tuning": {
+        "n_trades": 318,
+        "win_rate": 0.4025,
+        "total_return_pct": -1135.9428,
+        "avg_per_trade_pct": -3.5721,
+        "max_drawdown_pct": 1331.8134
+      },
+      "holdout": {
+        "n_trades": 123,
+        "win_rate": 0.3902,
+        "total_return_pct": -501.4184,
+        "avg_per_trade_pct": -4.0766,
+        "max_drawdown_pct": 591.253
+      },
+      "bull_only": {
+        "n_trades": 214,
+        "win_rate": 0.3551,
+        "total_return_pct": -1008.8919,
+        "avg_per_trade_pct": -4.7144,
+        "max_drawdown_pct": 1276.5563
+      },
+      "p_value_tuning": 0.986903,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.009722,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 441,
+      "n_bull_triggers": 214,
+      "n_bear_triggers": 227,
+      "n_trades_total": 441,
+      "tuning": {
+        "n_trades": 318,
+        "win_rate": 0.4277,
+        "total_return_pct": -2072.6168,
+        "avg_per_trade_pct": -6.5177,
+        "max_drawdown_pct": 2434.7391
+      },
+      "holdout": {
+        "n_trades": 123,
+        "win_rate": 0.4146,
+        "total_return_pct": -1037.7048,
+        "avg_per_trade_pct": -8.4366,
+        "max_drawdown_pct": 1141.6104
+      },
+      "bull_only": {
+        "n_trades": 214,
+        "win_rate": 0.3925,
+        "total_return_pct": -1850.465,
+        "avg_per_trade_pct": -8.647,
+        "max_drawdown_pct": 2291.8168
+      },
+      "p_value_tuning": 0.997177,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.033333,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 2,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 441,
+      "n_bull_triggers": 214,
+      "n_bear_triggers": 227,
+      "n_trades_total": 441,
+      "tuning": {
+        "n_trades": 318,
+        "win_rate": 0.4371,
+        "total_return_pct": -32.6078,
+        "avg_per_trade_pct": -0.1025,
+        "max_drawdown_pct": 33.0178
+      },
+      "holdout": {
+        "n_trades": 123,
+        "win_rate": 0.4797,
+        "total_return_pct": -7.0491,
+        "avg_per_trade_pct": -0.0573,
+        "max_drawdown_pct": 9.0812
+      },
+      "bull_only": {
+        "n_trades": 214,
+        "win_rate": 0.4159,
+        "total_return_pct": -23.9842,
+        "avg_per_trade_pct": -0.1121,
+        "max_drawdown_pct": 24.9157
+      },
+      "p_value_tuning": 0.999974,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.077778,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 436,
+      "n_bull_triggers": 215,
+      "n_bear_triggers": 221,
+      "n_trades_total": 436,
+      "tuning": {
+        "n_trades": 314,
+        "win_rate": 0.3949,
+        "total_return_pct": -522.4585,
+        "avg_per_trade_pct": -1.6639,
+        "max_drawdown_pct": 704.3229
+      },
+      "holdout": {
+        "n_trades": 122,
+        "win_rate": 0.3607,
+        "total_return_pct": -395.3758,
+        "avg_per_trade_pct": -3.2408,
+        "max_drawdown_pct": 443.7516
+      },
+      "bull_only": {
+        "n_trades": 215,
+        "win_rate": 0.3256,
+        "total_return_pct": -617.5118,
+        "avg_per_trade_pct": -2.8721,
+        "max_drawdown_pct": 847.8482
+      },
+      "p_value_tuning": 0.959183,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.004167,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 436,
+      "n_bull_triggers": 215,
+      "n_bear_triggers": 221,
+      "n_trades_total": 436,
+      "tuning": {
+        "n_trades": 314,
+        "win_rate": 0.3981,
+        "total_return_pct": -1309.5897,
+        "avg_per_trade_pct": -4.1707,
+        "max_drawdown_pct": 1546.1358
+      },
+      "holdout": {
+        "n_trades": 122,
+        "win_rate": 0.3852,
+        "total_return_pct": -538.7589,
+        "avg_per_trade_pct": -4.4161,
+        "max_drawdown_pct": 627.9367
+      },
+      "bull_only": {
+        "n_trades": 215,
+        "win_rate": 0.3442,
+        "total_return_pct": -1187.6143,
+        "avg_per_trade_pct": -5.5238,
+        "max_drawdown_pct": 1536.1887
+      },
+      "p_value_tuning": 0.995297,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.022222,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 436,
+      "n_bull_triggers": 215,
+      "n_bear_triggers": 221,
+      "n_trades_total": 436,
+      "tuning": {
+        "n_trades": 314,
+        "win_rate": 0.4108,
+        "total_return_pct": -2547.301,
+        "avg_per_trade_pct": -8.1124,
+        "max_drawdown_pct": 2918.6737
+      },
+      "holdout": {
+        "n_trades": 122,
+        "win_rate": 0.4016,
+        "total_return_pct": -1204.5864,
+        "avg_per_trade_pct": -9.8737,
+        "max_drawdown_pct": 1307.1784
+      },
+      "bull_only": {
+        "n_trades": 215,
+        "win_rate": 0.3721,
+        "total_return_pct": -2328.7698,
+        "avg_per_trade_pct": -10.8315,
+        "max_drawdown_pct": 2734.3976
+      },
+      "p_value_tuning": 0.999681,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.061111,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 3,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 436,
+      "n_bull_triggers": 215,
+      "n_bear_triggers": 221,
+      "n_trades_total": 436,
+      "tuning": {
+        "n_trades": 314,
+        "win_rate": 0.4204,
+        "total_return_pct": -36.6882,
+        "avg_per_trade_pct": -0.1168,
+        "max_drawdown_pct": 37.0982
+      },
+      "holdout": {
+        "n_trades": 122,
+        "win_rate": 0.4672,
+        "total_return_pct": -8.1453,
+        "avg_per_trade_pct": -0.0668,
+        "max_drawdown_pct": 9.1609
+      },
+      "bull_only": {
+        "n_trades": 215,
+        "win_rate": 0.3907,
+        "total_return_pct": -29.0452,
+        "avg_per_trade_pct": -0.1351,
+        "max_drawdown_pct": 29.9602
+      },
+      "p_value_tuning": 0.999998,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.086111,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 444,
+      "n_bull_triggers": 215,
+      "n_bear_triggers": 229,
+      "n_trades_total": 444,
+      "tuning": {
+        "n_trades": 319,
+        "win_rate": 0.3887,
+        "total_return_pct": -526.1115,
+        "avg_per_trade_pct": -1.6493,
+        "max_drawdown_pct": 678.0467
+      },
+      "holdout": {
+        "n_trades": 125,
+        "win_rate": 0.384,
+        "total_return_pct": -363.5481,
+        "avg_per_trade_pct": -2.9084,
+        "max_drawdown_pct": 412.2523
+      },
+      "bull_only": {
+        "n_trades": 215,
+        "win_rate": 0.3395,
+        "total_return_pct": -504.8567,
+        "avg_per_trade_pct": -2.3482,
+        "max_drawdown_pct": 679.9524
+      },
+      "p_value_tuning": 0.959061,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.002778,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 444,
+      "n_bull_triggers": 215,
+      "n_bear_triggers": 229,
+      "n_trades_total": 444,
+      "tuning": {
+        "n_trades": 319,
+        "win_rate": 0.4013,
+        "total_return_pct": -1180.4394,
+        "avg_per_trade_pct": -3.7004,
+        "max_drawdown_pct": 1417.9326
+      },
+      "holdout": {
+        "n_trades": 125,
+        "win_rate": 0.408,
+        "total_return_pct": -360.8062,
+        "avg_per_trade_pct": -2.8864,
+        "max_drawdown_pct": 479.5929
+      },
+      "bull_only": {
+        "n_trades": 215,
+        "win_rate": 0.3581,
+        "total_return_pct": -901.0357,
+        "avg_per_trade_pct": -4.1909,
+        "max_drawdown_pct": 1180.6814
+      },
+      "p_value_tuning": 0.989242,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.015278,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 444,
+      "n_bull_triggers": 215,
+      "n_bear_triggers": 229,
+      "n_trades_total": 444,
+      "tuning": {
+        "n_trades": 319,
+        "win_rate": 0.4232,
+        "total_return_pct": -2127.8114,
+        "avg_per_trade_pct": -6.6703,
+        "max_drawdown_pct": 2464.6968
+      },
+      "holdout": {
+        "n_trades": 125,
+        "win_rate": 0.432,
+        "total_return_pct": -865.3325,
+        "avg_per_trade_pct": -6.9227,
+        "max_drawdown_pct": 1041.9
+      },
+      "bull_only": {
+        "n_trades": 215,
+        "win_rate": 0.3953,
+        "total_return_pct": -1715.6413,
+        "avg_per_trade_pct": -7.9797,
+        "max_drawdown_pct": 2190.3844
+      },
+      "p_value_tuning": 0.997722,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.038889,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 2,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 444,
+      "n_bull_triggers": 215,
+      "n_bear_triggers": 229,
+      "n_trades_total": 444,
+      "tuning": {
+        "n_trades": 319,
+        "win_rate": 0.442,
+        "total_return_pct": -31.2968,
+        "avg_per_trade_pct": -0.0981,
+        "max_drawdown_pct": 32.9814
+      },
+      "holdout": {
+        "n_trades": 125,
+        "win_rate": 0.496,
+        "total_return_pct": -5.2291,
+        "avg_per_trade_pct": -0.0418,
+        "max_drawdown_pct": 9.0812
+      },
+      "bull_only": {
+        "n_trades": 215,
+        "win_rate": 0.4279,
+        "total_return_pct": -21.6732,
+        "avg_per_trade_pct": -0.1008,
+        "max_drawdown_pct": 23.8358
+      },
+      "p_value_tuning": 0.999946,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.075,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 441,
+      "n_bull_triggers": 217,
+      "n_bear_triggers": 224,
+      "n_trades_total": 441,
+      "tuning": {
+        "n_trades": 316,
+        "win_rate": 0.3892,
+        "total_return_pct": -601.8826,
+        "avg_per_trade_pct": -1.9047,
+        "max_drawdown_pct": 753.8177
+      },
+      "holdout": {
+        "n_trades": 125,
+        "win_rate": 0.352,
+        "total_return_pct": -446.6969,
+        "avg_per_trade_pct": -3.5736,
+        "max_drawdown_pct": 495.0727
+      },
+      "bull_only": {
+        "n_trades": 217,
+        "win_rate": 0.3226,
+        "total_return_pct": -614.881,
+        "avg_per_trade_pct": -2.8336,
+        "max_drawdown_pct": 817.2409
+      },
+      "p_value_tuning": 0.97821,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.006944,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 441,
+      "n_bull_triggers": 217,
+      "n_bear_triggers": 224,
+      "n_trades_total": 441,
+      "tuning": {
+        "n_trades": 316,
+        "win_rate": 0.3987,
+        "total_return_pct": -1298.5283,
+        "avg_per_trade_pct": -4.1093,
+        "max_drawdown_pct": 1545.4828
+      },
+      "holdout": {
+        "n_trades": 125,
+        "win_rate": 0.392,
+        "total_return_pct": -467.2996,
+        "avg_per_trade_pct": -3.7384,
+        "max_drawdown_pct": 573.5811
+      },
+      "bull_only": {
+        "n_trades": 217,
+        "win_rate": 0.3456,
+        "total_return_pct": -1083.7368,
+        "avg_per_trade_pct": -4.9942,
+        "max_drawdown_pct": 1444.2925
+      },
+      "p_value_tuning": 0.994592,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.019444,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 441,
+      "n_bull_triggers": 217,
+      "n_bear_triggers": 224,
+      "n_trades_total": 441,
+      "tuning": {
+        "n_trades": 316,
+        "win_rate": 0.4114,
+        "total_return_pct": -2432.5616,
+        "avg_per_trade_pct": -7.698,
+        "max_drawdown_pct": 2886.0326
+      },
+      "holdout": {
+        "n_trades": 125,
+        "win_rate": 0.408,
+        "total_return_pct": -1205.6345,
+        "avg_per_trade_pct": -9.6451,
+        "max_drawdown_pct": 1308.2264
+      },
+      "bull_only": {
+        "n_trades": 217,
+        "win_rate": 0.3733,
+        "total_return_pct": -2267.6036,
+        "avg_per_trade_pct": -10.4498,
+        "max_drawdown_pct": 2706.6226
+      },
+      "p_value_tuning": 0.999425,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.055556,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 3,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 441,
+      "n_bull_triggers": 217,
+      "n_bear_triggers": 224,
+      "n_trades_total": 441,
+      "tuning": {
+        "n_trades": 316,
+        "win_rate": 0.4304,
+        "total_return_pct": -33.8278,
+        "avg_per_trade_pct": -0.1071,
+        "max_drawdown_pct": 35.5124
+      },
+      "holdout": {
+        "n_trades": 125,
+        "win_rate": 0.472,
+        "total_return_pct": -7.9153,
+        "avg_per_trade_pct": -0.0633,
+        "max_drawdown_pct": 8.9015
+      },
+      "bull_only": {
+        "n_trades": 217,
+        "win_rate": 0.4009,
+        "total_return_pct": -27.3102,
+        "avg_per_trade_pct": -0.1259,
+        "max_drawdown_pct": 29.4564
+      },
+      "p_value_tuning": 0.999987,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.080556,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 448,
+      "n_bull_triggers": 215,
+      "n_bear_triggers": 233,
+      "n_trades_total": 448,
+      "tuning": {
+        "n_trades": 322,
+        "win_rate": 0.3851,
+        "total_return_pct": -551.1412,
+        "avg_per_trade_pct": -1.7116,
+        "max_drawdown_pct": 703.0764
+      },
+      "holdout": {
+        "n_trades": 126,
+        "win_rate": 0.3889,
+        "total_return_pct": -362.5867,
+        "avg_per_trade_pct": -2.8777,
+        "max_drawdown_pct": 411.291
+      },
+      "bull_only": {
+        "n_trades": 215,
+        "win_rate": 0.3349,
+        "total_return_pct": -522.4929,
+        "avg_per_trade_pct": -2.4302,
+        "max_drawdown_pct": 679.6968
+      },
+      "p_value_tuning": 0.963693,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.005556,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 448,
+      "n_bull_triggers": 215,
+      "n_bear_triggers": 233,
+      "n_trades_total": 448,
+      "tuning": {
+        "n_trades": 322,
+        "win_rate": 0.3944,
+        "total_return_pct": -1330.8383,
+        "avg_per_trade_pct": -4.133,
+        "max_drawdown_pct": 1568.3315
+      },
+      "holdout": {
+        "n_trades": 126,
+        "win_rate": 0.4127,
+        "total_return_pct": -358.8835,
+        "avg_per_trade_pct": -2.8483,
+        "max_drawdown_pct": 479.5929
+      },
+      "bull_only": {
+        "n_trades": 215,
+        "win_rate": 0.3535,
+        "total_return_pct": -936.308,
+        "avg_per_trade_pct": -4.3549,
+        "max_drawdown_pct": 1180.17
+      },
+      "p_value_tuning": 0.994961,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.020833,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 448,
+      "n_bull_triggers": 215,
+      "n_bear_triggers": 233,
+      "n_trades_total": 448,
+      "tuning": {
+        "n_trades": 322,
+        "win_rate": 0.4193,
+        "total_return_pct": -2307.6538,
+        "avg_per_trade_pct": -7.1666,
+        "max_drawdown_pct": 2544.8262
+      },
+      "holdout": {
+        "n_trades": 126,
+        "win_rate": 0.4365,
+        "total_return_pct": -861.4871,
+        "avg_per_trade_pct": -6.8372,
+        "max_drawdown_pct": 1041.9
+      },
+      "bull_only": {
+        "n_trades": 215,
+        "win_rate": 0.3907,
+        "total_return_pct": -1797.5565,
+        "avg_per_trade_pct": -8.3607,
+        "max_drawdown_pct": 2172.5866
+      },
+      "p_value_tuning": 0.998919,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.05,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 2,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 448,
+      "n_bull_triggers": 215,
+      "n_bear_triggers": 233,
+      "n_trades_total": 448,
+      "tuning": {
+        "n_trades": 322,
+        "win_rate": 0.4379,
+        "total_return_pct": -33.0668,
+        "avg_per_trade_pct": -0.1027,
+        "max_drawdown_pct": 34.7514
+      },
+      "holdout": {
+        "n_trades": 126,
+        "win_rate": 0.5,
+        "total_return_pct": -4.8191,
+        "avg_per_trade_pct": -0.0382,
+        "max_drawdown_pct": 9.0812
+      },
+      "bull_only": {
+        "n_trades": 215,
+        "win_rate": 0.4279,
+        "total_return_pct": -21.6732,
+        "avg_per_trade_pct": -0.1008,
+        "max_drawdown_pct": 23.8358
+      },
+      "p_value_tuning": 0.999976,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.079167,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M20",
+      "n_triggers_total": 445,
+      "n_bull_triggers": 217,
+      "n_bear_triggers": 228,
+      "n_trades_total": 445,
+      "tuning": {
+        "n_trades": 319,
+        "win_rate": 0.3856,
+        "total_return_pct": -626.9122,
+        "avg_per_trade_pct": -1.9652,
+        "max_drawdown_pct": 778.8474
+      },
+      "holdout": {
+        "n_trades": 126,
+        "win_rate": 0.3571,
+        "total_return_pct": -445.7355,
+        "avg_per_trade_pct": -3.5376,
+        "max_drawdown_pct": 494.1113
+      },
+      "bull_only": {
+        "n_trades": 217,
+        "win_rate": 0.318,
+        "total_return_pct": -632.5172,
+        "avg_per_trade_pct": -2.9148,
+        "max_drawdown_pct": 816.9852
+      },
+      "p_value_tuning": 0.980758,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.008333,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 445,
+      "n_bull_triggers": 217,
+      "n_bear_triggers": 228,
+      "n_trades_total": 445,
+      "tuning": {
+        "n_trades": 319,
+        "win_rate": 0.3918,
+        "total_return_pct": -1448.9272,
+        "avg_per_trade_pct": -4.5421,
+        "max_drawdown_pct": 1686.4204
+      },
+      "holdout": {
+        "n_trades": 126,
+        "win_rate": 0.3968,
+        "total_return_pct": -465.3769,
+        "avg_per_trade_pct": -3.6935,
+        "max_drawdown_pct": 571.6584
+      },
+      "bull_only": {
+        "n_trades": 217,
+        "win_rate": 0.341,
+        "total_return_pct": -1119.0091,
+        "avg_per_trade_pct": -5.1567,
+        "max_drawdown_pct": 1443.7812
+      },
+      "p_value_tuning": 0.997626,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.0375,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M80",
+      "n_triggers_total": 445,
+      "n_bull_triggers": 217,
+      "n_bear_triggers": 228,
+      "n_trades_total": 445,
+      "tuning": {
+        "n_trades": 319,
+        "win_rate": 0.4075,
+        "total_return_pct": -2612.4041,
+        "avg_per_trade_pct": -8.1894,
+        "max_drawdown_pct": 2966.1621
+      },
+      "holdout": {
+        "n_trades": 126,
+        "win_rate": 0.4127,
+        "total_return_pct": -1201.789,
+        "avg_per_trade_pct": -9.538,
+        "max_drawdown_pct": 1304.381
+      },
+      "bull_only": {
+        "n_trades": 217,
+        "win_rate": 0.3687,
+        "total_return_pct": -2349.5187,
+        "avg_per_trade_pct": -10.8273,
+        "max_drawdown_pct": 2688.8248
+      },
+      "p_value_tuning": 0.999751,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.0625,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "C",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 3,
+      "exit_variant": "fixed_control",
+      "n_triggers_total": 445,
+      "n_bull_triggers": 217,
+      "n_bear_triggers": 228,
+      "n_trades_total": 445,
+      "tuning": {
+        "n_trades": 319,
+        "win_rate": 0.4263,
+        "total_return_pct": -35.5978,
+        "avg_per_trade_pct": -0.1116,
+        "max_drawdown_pct": 37.2824
+      },
+      "holdout": {
+        "n_trades": 126,
+        "win_rate": 0.4762,
+        "total_return_pct": -7.5053,
+        "avg_per_trade_pct": -0.0596,
+        "max_drawdown_pct": 8.7509
+      },
+      "bull_only": {
+        "n_trades": 217,
+        "win_rate": 0.4009,
+        "total_return_pct": -27.3102,
+        "avg_per_trade_pct": -0.1259,
+        "max_drawdown_pct": 29.4564
+      },
+      "p_value_tuning": 0.999994,
+      "positive_on_tuning": false,
+      "positive_on_holdout": false,
+      "meets_n_gate": true,
+      "bh_threshold": 0.083333,
+      "bh_significant": false,
+      "passes_all_gates": false
+    }
+  ],
+  "ranked_top5": [
+    {
+      "level_set": "A",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 343,
+      "n_bull_triggers": 177,
+      "n_bear_triggers": 166,
+      "n_trades_total": 343,
+      "tuning": {
+        "n_trades": 252,
+        "win_rate": 0.3849,
+        "total_return_pct": -1361.3672,
+        "avg_per_trade_pct": -5.4023,
+        "max_drawdown_pct": 1491.8783
+      },
+      "holdout": {
+        "n_trades": 91,
+        "win_rate": 0.4945,
+        "total_return_pct": 204.7061,
+        "avg_per_trade_pct": 2.2495,
+        "max_drawdown_pct": 262.3894
+      },
+      "bull_only": {
+        "n_trades": 177,
+        "win_rate": 0.4011,
+        "total_return_pct": -688.7987,
+        "avg_per_trade_pct": -3.8915,
+        "max_drawdown_pct": 979.0169
+      },
+      "p_value_tuning": 0.998089,
+      "positive_on_tuning": false,
+      "positive_on_holdout": true,
+      "meets_n_gate": true,
+      "bh_threshold": 0.041667,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 339,
+      "n_bull_triggers": 175,
+      "n_bear_triggers": 164,
+      "n_trades_total": 339,
+      "tuning": {
+        "n_trades": 251,
+        "win_rate": 0.3904,
+        "total_return_pct": -1277.7953,
+        "avg_per_trade_pct": -5.0908,
+        "max_drawdown_pct": 1408.3064
+      },
+      "holdout": {
+        "n_trades": 88,
+        "win_rate": 0.4886,
+        "total_return_pct": 129.9818,
+        "avg_per_trade_pct": 1.4771,
+        "max_drawdown_pct": 262.3894
+      },
+      "bull_only": {
+        "n_trades": 175,
+        "win_rate": 0.4057,
+        "total_return_pct": -688.083,
+        "avg_per_trade_pct": -3.9319,
+        "max_drawdown_pct": 971.1698
+      },
+      "p_value_tuning": 0.996903,
+      "positive_on_tuning": false,
+      "positive_on_holdout": true,
+      "meets_n_gate": true,
+      "bh_threshold": 0.030556,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 1.0,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 341,
+      "n_bull_triggers": 175,
+      "n_bear_triggers": 166,
+      "n_trades_total": 341,
+      "tuning": {
+        "n_trades": 250,
+        "win_rate": 0.38,
+        "total_return_pct": -1577.0892,
+        "avg_per_trade_pct": -6.3084,
+        "max_drawdown_pct": 1693.2594
+      },
+      "holdout": {
+        "n_trades": 91,
+        "win_rate": 0.4725,
+        "total_return_pct": 107.1369,
+        "avg_per_trade_pct": 1.1773,
+        "max_drawdown_pct": 312.654
+      },
+      "bull_only": {
+        "n_trades": 175,
+        "win_rate": 0.3771,
+        "total_return_pct": -990.5009,
+        "avg_per_trade_pct": -5.66,
+        "max_drawdown_pct": 1231.8031
+      },
+      "p_value_tuning": 0.999641,
+      "positive_on_tuning": false,
+      "positive_on_holdout": true,
+      "meets_n_gate": true,
+      "bh_threshold": 0.059722,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.25,
+      "min_stack_bars": 3,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 336,
+      "n_bull_triggers": 172,
+      "n_bear_triggers": 164,
+      "n_trades_total": 336,
+      "tuning": {
+        "n_trades": 249,
+        "win_rate": 0.3855,
+        "total_return_pct": -1502.4832,
+        "avg_per_trade_pct": -6.0341,
+        "max_drawdown_pct": 1618.6534
+      },
+      "holdout": {
+        "n_trades": 87,
+        "win_rate": 0.4828,
+        "total_return_pct": 97.4516,
+        "avg_per_trade_pct": 1.1201,
+        "max_drawdown_pct": 300.9968
+      },
+      "bull_only": {
+        "n_trades": 172,
+        "win_rate": 0.3895,
+        "total_return_pct": -924.7461,
+        "avg_per_trade_pct": -5.3764,
+        "max_drawdown_pct": 1166.0483
+      },
+      "p_value_tuning": 0.999427,
+      "positive_on_tuning": false,
+      "positive_on_holdout": true,
+      "meets_n_gate": true,
+      "bh_threshold": 0.056944,
+      "bh_significant": false,
+      "passes_all_gates": false
+    },
+    {
+      "level_set": "A",
+      "max_distance_pct": 0.5,
+      "min_stack_bars": 2,
+      "exit_variant": "lens_M40",
+      "n_triggers_total": 342,
+      "n_bull_triggers": 177,
+      "n_bear_triggers": 165,
+      "n_trades_total": 342,
+      "tuning": {
+        "n_trades": 252,
+        "win_rate": 0.3849,
+        "total_return_pct": -1321.3291,
+        "avg_per_trade_pct": -5.2434,
+        "max_drawdown_pct": 1451.8402
+      },
+      "holdout": {
+        "n_trades": 90,
+        "win_rate": 0.4778,
+        "total_return_pct": 62.0001,
+        "avg_per_trade_pct": 0.6889,
+        "max_drawdown_pct": 262.3894
+      },
+      "bull_only": {
+        "n_trades": 177,
+        "win_rate": 0.3955,
+        "total_return_pct": -723.8737,
+        "avg_per_trade_pct": -4.0897,
+        "max_drawdown_pct": 992.5788
+      },
+      "p_value_tuning": 0.997614,
+      "positive_on_tuning": false,
+      "positive_on_holdout": true,
+      "meets_n_gate": true,
+      "bh_threshold": 0.036111,
+      "bh_significant": false,
+      "passes_all_gates": false
+    }
+  ],
+  "breakeven_summary": {
+    "spot_breakeven_move_pct_per_trade": 0.09,
+    "note": "Friction is charged in SPOT space before the leverage lens multiply, so the breakeven hurdle in the underlying BTC move is 0.09% round-trip REGARDLESS of M -- M only rescales wins/losses/friction together in lens-% space, it never creates edge that wasn't in the spot move itself.",
+    "lens_return_hurdle_by_M": {
+      "20": 1.8,
+      "40": 3.6,
+      "80": 7.2
+    }
+  }
+}
