@@ -64,6 +64,42 @@ def test_unrecognised_scenario_string_also_quarantines(tmp_path):
     assert p.reconstruct_trips(f)[0]["bucket"] == "UNKNOWN"
 
 
+# ------------------------------------------------- evidence-based classification (2nd fix)
+def _decisions(tmp_path: Path, rows: list[dict]) -> Path:
+    f = tmp_path / "decisions.jsonl"
+    with open(f, "w", encoding="utf-8") as fh:
+        for r in rows:
+            fh.write(json.dumps(r) + "\n")
+    return f
+
+
+TS_E, TS_X = "2026-07-26T01:00:00+00:00", "2026-07-26T01:20:00+00:00"
+
+
+def test_untagged_plus_natural_reason_IS_organic(tmp_path):
+    """The twin leaves organic entries untagged BY DESIGN (crypto_twin_core.py:730).
+    A matching decision row proving it wasn't forced must resolve it to ORGANIC."""
+    j = _journal(tmp_path, _pair(TS_E, TS_X, 100.0, 101.0, scenario=None))
+    d = _decisions(tmp_path, [{"action": "ENTERED", "ts_utc": TS_E,
+                               "reason": "BULL stack 52b + hold of Prior-UTC-day H @ 64412.5"}])
+    assert p.reconstruct_trips(j, d)[0]["bucket"] == "ORGANIC"
+
+
+def test_untagged_plus_force_entry_reason_is_forced(tmp_path):
+    j = _journal(tmp_path, _pair(TS_E, TS_X, 100.0, 101.0, scenario=None))
+    d = _decisions(tmp_path, [{"action": "ENTERED", "ts_utc": TS_E,
+                               "reason": "--force-entry test flag (bypasses scoring)"}])
+    assert p.reconstruct_trips(j, d)[0]["bucket"] == "FORCED"
+
+
+def test_no_matching_decision_stays_unknown(tmp_path):
+    """No evidence either way -> UNKNOWN. Never guess from absence in either direction."""
+    j = _journal(tmp_path, _pair(TS_E, TS_X, 100.0, 101.0, scenario=None))
+    d = _decisions(tmp_path, [{"action": "ENTERED", "ts_utc": "2026-07-26T09:00:00+00:00",
+                               "reason": "BULL stack 9b"}])  # hours away, must not match
+    assert p.reconstruct_trips(j, d)[0]["bucket"] == "UNKNOWN"
+
+
 # ------------------------------------------------------------------ P&L math + provenance
 def test_reconstructed_pct_math(tmp_path):
     f = _journal(tmp_path, _pair("t1", "t2", 100.0, 101.0, scenario=p.ORGANIC))

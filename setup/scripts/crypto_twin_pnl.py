@@ -24,7 +24,18 @@ from pathlib import Path
 from typing import Iterable, Optional
 
 REPO = Path(__file__).resolve().parents[2]
-JOURNAL = REPO / "automation" / "state" / "crypto-twin" / "journal.jsonl"
+TWIN_DIR = REPO / "automation" / "state" / "crypto-twin"
+JOURNAL = TWIN_DIR / "journal.jsonl"
+DECISIONS = TWIN_DIR / "decisions.jsonl"
+
+# The twin marks forced entries with a scenario tag and leaves organic ones None
+# (crypto_twin_core.py:730 -- "None for every organic entry"). Absence is therefore the
+# DOCUMENTED organic marker, but absence is also what a dropped tag looks like, so this module
+# refuses to classify on absence alone and cross-checks the decision row's `reason`, which
+# carries a POSITIVE discriminator: forced entries say "--force-entry test flag (bypasses
+# scoring...)", organic ones read like "BULL stack 52b + hold of Prior-UTC-day H @ 64412.5".
+FORCE_MARKER = "force-entry"
+_MATCH_WINDOW_SEC = 120.0
 
 # Scenario tags written by the coverage battery. Anything in here was NOT a decision.
 FORCED_SCENARIOS = frozenset({
@@ -53,7 +64,42 @@ def _rows(path: Path) -> list[dict]:
     return out
 
 
-def reconstruct_trips(path: Optional[Path] = None) -> list[dict]:
+def _entry_evidence(decisions_path: Optional[Path] = None) -> list[tuple[float, bool]]:
+    """[(epoch, was_forced)] for every decision row that actually ENTERED, sorted by time."""
+    out: list[tuple[float, bool]] = []
+    for r in _rows(decisions_path or DECISIONS):
+        if r.get("action") != "ENTERED":
+            continue
+        ts = _epoch(r.get("ts_utc"))
+        if ts is None:
+            continue
+        forced = bool(r.get("scenario")) or FORCE_MARKER in str(r.get("reason", "")).lower()
+        out.append((ts, forced))
+    out.sort()
+    return out
+
+
+def _epoch(ts: object) -> Optional[float]:
+    from datetime import datetime
+    if not ts:
+        return None
+    try:
+        return datetime.fromisoformat(str(ts).replace("Z", "+00:00")).timestamp()
+    except (TypeError, ValueError):
+        return None
+
+
+def _evidence_for(entry_ts: object, evidence: list[tuple[float, bool]]) -> Optional[bool]:
+    """was_forced for the ENTERED decision nearest this entry, or None if none is close."""
+    t = _epoch(entry_ts)
+    if t is None or not evidence:
+        return None
+    best = min(evidence, key=lambda e: abs(e[0] - t))
+    return best[1] if abs(best[0] - t) <= _MATCH_WINDOW_SEC else None
+
+
+def reconstruct_trips(path: Optional[Path] = None,
+                      decisions_path: Optional[Path] = None) -> list[dict]:
     """Round trips, newest last. Prefers the wired `realized_*` fields; falls back to
     chronological entry/exit pairing for the historical rows that predate TWIN-PNL.
 
@@ -66,18 +112,20 @@ def reconstruct_trips(path: Optional[Path] = None) -> list[dict]:
            if r.get("event") in ("ENTRY_QUALITY", "EXIT_FILLED") and r.get("fill_price")]
     seq.sort(key=lambda r: str(r.get("ts_utc") or ""))
 
+    evidence = _entry_evidence(decisions_path)
+
     trips: list[dict] = []
     open_row: Optional[dict] = None
     for r in seq:
         if r.get("event") == "ENTRY_QUALITY" and open_row is None:
             open_row = r
         elif r.get("event") == "EXIT_FILLED" and open_row is not None:
-            trips.append(_mk_trip(open_row, r))
+            trips.append(_mk_trip(open_row, r, _evidence_for(open_row.get("ts_utc"), evidence)))
             open_row = None
     return trips
 
 
-def _mk_trip(entry: dict, exit_: dict) -> dict:
+def _mk_trip(entry: dict, exit_: dict, was_forced: Optional[bool] = None) -> dict:
     """One round trip. `source` records whether P&L was wired at exit time or inferred."""
     ep = float(entry.get("fill_price") or 0.0)
     xp = float(exit_.get("fill_price") or 0.0)
@@ -100,24 +148,33 @@ def _mk_trip(entry: dict, exit_: dict) -> dict:
         "pct": round(pct, 6), "usd": round(float(usd), 6) if usd is not None else None,
         "reason": (exit_.get("reason") or "").split(" @")[0],
         "scenario": scenario,
-        "bucket": _bucket(scenario),
+        "bucket": _bucket(scenario, was_forced),
         "source": source,
     }
 
 
-def _bucket(scenario: Optional[str]) -> str:
-    """ORGANIC / FORCED / UNKNOWN.
+def _bucket(scenario: Optional[str], was_forced: Optional[bool] = None) -> str:
+    """ORGANIC / FORCED / UNKNOWN -- classified on POSITIVE evidence, never on absence.
 
-    UNTAGGED IS NOT ORGANIC. An earlier cut of this module treated "no scenario field" as
-    organic and reported 10 real decisions when the true count was zero -- every one of those
-    rows was simply missing its tag. Absence of evidence got printed as evidence. Only an
-    explicit ORGANIC_SIGNAL counts; anything unrecognised is quarantined in UNKNOWN so it can
-    never inflate the only number that matters.
+    History worth keeping: the first cut read "no scenario tag" as organic and announced 10
+    real decisions. The second over-corrected and quarantined every untagged trip as UNKNOWN,
+    reporting ZERO organic trades -- which was equally wrong, because the twin's documented
+    convention is that organic entries are deliberately left untagged
+    (crypto_twin_core.py:730). Both cuts were guessing from a missing field.
+
+    The fix is to stop inferring from absence: `was_forced` comes from the matching decision
+    row, which carries a real discriminator (a forcing scenario, or a "--force-entry" reason).
+    Absence of a match still means UNKNOWN -- we just no longer treat "untagged" as evidence
+    in either direction.
     """
     if scenario == ORGANIC:
         return "ORGANIC"
     if scenario in FORCED_SCENARIOS:
         return "FORCED"
+    if was_forced is True:
+        return "FORCED"
+    if was_forced is False:
+        return "ORGANIC"
     return "UNKNOWN"
 
 
@@ -155,8 +212,8 @@ def _table(trips: list[dict]) -> list[str]:
     return L
 
 
-def report(path: Optional[Path] = None) -> str:
-    trips = reconstruct_trips(path)
+def report(path: Optional[Path] = None, decisions_path: Optional[Path] = None) -> str:
+    trips = reconstruct_trips(path, decisions_path)
     by = {b: [t for t in trips if t["bucket"] == b] for b in ("ORGANIC", "FORCED", "UNKNOWN")}
     s = {b: summarize(v) for b, v in by.items()}
 
