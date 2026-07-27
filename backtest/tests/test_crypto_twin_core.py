@@ -538,11 +538,22 @@ def test_manage_positions_time_stop_uses_et_not_raw_utc_clock(tmp_path, fake_bro
 
 
 def test_manage_positions_time_stop_fires_at_real_et_1550(tmp_path, fake_broker):
-    """The inverse of the bugfix guard above: a GENUINE ET 15:50+ crossing must still
-    force-close pre-TP1 (proves the fix converts correctly, doesn't just disable
-    time_stop outright). UTC 19:55 during EDT == ET 15:55. max_hold_hours is widened
-    so the (unrelated) duration guard can't preempt the specific stage under test."""
-    cfg = _twin_cfg(tmp_path, notional_usd=200.0, max_hold_hours=24.0)
+    """The ET-conversion guarantee, preserved after TWIN-TIMESTOP (2026-07-26).
+
+    RETARGETED, NOT DELETED. This test's original job was to prove the 2026-07-11 ET bugfix
+    converts UTC->ET correctly rather than disabling time_stop outright. TWIN-TIMESTOP then
+    DID disable the wall clock -- deliberately -- because `now_et >= time_stop_et` is true
+    for every tick from 15:50 ET to ET midnight, which on a 24/7 instrument force-closed the
+    twin for ~34% of every day (6 of its first 8 organic round trips died this way).
+
+    What still matters is that IF a wall-clock stop is configured, it fires on the real ET
+    boundary and not on raw UTC. So the stop is now passed explicitly, and the companion
+    assertion below pins that the 24/7 DEFAULT does not fire at that same instant.
+    See backtest/tests/test_crypto_twin_time_stop_24_7.py for the disabled-by-default guards.
+    """
+    from datetime import time as _t
+    cfg = _twin_cfg(tmp_path, notional_usd=200.0, max_hold_hours=24.0,
+                    wall_clock_time_stop_et=_t(15, 50))
     fake_broker.position_qty = ctc.entry_qty_btc(cfg)
     entered = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
     ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0, trigger_level=None, live=True,
@@ -552,6 +563,21 @@ def test_manage_positions_time_stop_fires_at_real_et_1550(tmp_path, fake_broker)
     results = ctc.manage_positions(cfg, creds=_CREDS, now_utc=now_utc, live=True)
     assert results[0]["actions"][0]["stage"] == "time_stop"
     assert len(fake_broker.sells) == 1
+
+
+def test_default_24_7_config_does_not_time_stop_at_et_1555(tmp_path, fake_broker):
+    """Companion to the above: the SAME instant, with the shipped 24/7 default, must HOLD."""
+    cfg = _twin_cfg(tmp_path, notional_usd=200.0, max_hold_hours=24.0)  # default sentinel
+    fake_broker.position_qty = ctc.entry_qty_btc(cfg)
+    ctc.place_entry(cfg, creds=_CREDS, side="bull", price=64000.0, trigger_level=None, live=True,
+                    now_utc=datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc))
+    fake_broker.quote = (64100.0, 64050.0)
+    results = ctc.manage_positions(cfg, creds=_CREDS,
+                                   now_utc=datetime(2026, 7, 10, 19, 55, tzinfo=timezone.utc),
+                                   live=True)
+    stages = [a.get("stage") for a in (results[0].get("actions") or [])]
+    assert "time_stop" not in stages, "SPY's EOD flatten leaked back into the 24/7 twin"
+    assert fake_broker.sells == []
 
 
 # ============================================================================

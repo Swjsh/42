@@ -108,7 +108,7 @@ import re
 import sys
 import time
 from dataclasses import dataclass, field, replace
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, time as dt_time, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -159,6 +159,19 @@ class TwinConfig:
                                                     # mechanism-fidelity doesn't need to track the
                                                     # unit-lot's exact dollar size.
     max_hold_hours: float = 6.0                   # flatten backstop (EOD-flatten analog)
+    # WALL-CLOCK TIME STOP -- DISABLED FOR 24/7 (2026-07-26, TWIN-TIMESTOP).
+    # exit_manager defaults time_stop_et to SPY's 15:50 ET EOD flatten and tests it as
+    # `now_et >= time_stop_et` (exit_manager.py:357). That `>=` is not a single daily
+    # boundary -- it is TRUE for every tick from 15:50 ET until ET midnight. On a 24/7
+    # instrument that meant ~8h10m of every day (~34% of all ticks) in which the twin
+    # opened a position and force-closed it on the very next tick, paying the spread for
+    # nothing. MEASURED: 6 of the twin's first 8 organic round trips exited on
+    # "time_stop_15:50" at 21:13-22:38 ET, ~5-minute holds, every one a loss.
+    # BTC has no session close, so there is no honest wall-clock analog -- duration is
+    # bounded by max_hold_hours above, which is the correct 24/7 mechanism. The sentinel
+    # is the last representable instant of the ET day, i.e. unreachable at 5-min cadence.
+    # Re-enable by setting a real time here (kept configurable, not hard-deleted).
+    wall_clock_time_stop_et: dt_time = dt_time(23, 59, 59, 999999)
     account_label: str = "twin"
     state_dir: Path = TWIN_DIR                    # injectable for tests; PRODUCTION DEFAULT below
 
@@ -628,7 +641,11 @@ def manage_positions(cfg: TwinConfig, *, creds: Optional[dict], now_utc: datetim
         flip = bool(flip_fn(symbol, st.side)) if flip_fn else False
         dec = em.plan_exit_actions(st, best_premium=best, worst_premium=worst, open_qty=cfg.units_per_entry,
                                    now_et=now_et_time, ribbon_flip_back=flip,
-                                   last_closed_5m_close=last_closed_close)
+                                   last_closed_5m_close=last_closed_close,
+                                   # Was omitted, so exit_manager's SPY 15:50 default silently
+                                   # won -- see TwinConfig.wall_clock_time_stop_et for the
+                                   # ~34%-of-day force-close this caused on a 24/7 instrument.
+                                   time_stop_et=cfg.wall_clock_time_stop_et)
         rec["exit_state"] = dec.state.to_dict()
         changed = True
         executed = []
