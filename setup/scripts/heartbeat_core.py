@@ -938,6 +938,36 @@ def run_account(account: str) -> dict:
            "side": verdict.get("side"), "setup": verdict.get("setup_name"),
            "bear_score": verdict.get("bear_score"), "bull_score": verdict.get("bull_score"),
            "triggers": verdict.get("triggers_fired"), "reason": verdict.get("reason"),
+           # WHY-NOT PROVENANCE (2026-07-27, TRIGGER-BLINDNESS). LOGGED ONLY, additive.
+           #
+           # THE INCIDENT: on 2026-07-27 the engine detected J's setup perfectly at 09:40
+           # (level_rejection @744.9 + confluence, bear_score 9/10) and refused it on ONE
+           # structural blocker -- filter 5, ribbon not BEAR-stacked. The ledger showed
+           # `triggers: []`, which cost hours of investigation and sent a 6-agent teardown
+           # down a false "the detectors are blind" path.
+           #
+           # ROOT OF THE BLINDNESS: `triggers` above is engine_cli's WINNING-side list --
+           # _derive_routing (engine_cli.py:458-474) returns (None, [], None) whenever
+           # NEITHER side passes, so `triggers: []` is genuinely ambiguous between
+           # "detected nothing" and "detected everything and got hard-blocked". The raw
+           # per-side detections and the blocker list were BOTH already computed and
+           # returned by decide_payload (engine_cli.py:565-566) and simply dropped here.
+           #
+           # These four keys make a no-trade tick self-explaining: blockers say WHICH rule
+           # refused it, *_triggers_raw say what the detectors actually saw regardless of
+           # who won routing. Never influences verdict/side/gate -- pure telemetry (same
+           # contract as shadow_triggers_fired above). Consumers must treat a missing key
+           # as "older row shape", never as an empty detection.
+           #
+           # NOTE for anyone reading trigger counts: "trigger-ticks per day" computed off
+           # `triggers` counts scoring PASSES, not detections, and will report a fully
+           # sighted engine as blind. Use bear_triggers_raw/bull_triggers_raw instead.
+           "bear_blockers": list(verdict.get("bear_blockers") or []),
+           "bull_blockers": (None if verdict.get("bull_blockers") is None
+                             else list(verdict.get("bull_blockers"))),
+           "bear_triggers_raw": list(verdict.get("bear_triggers_raw") or []),
+           "bull_triggers_raw": list(verdict.get("bull_triggers_raw") or []),
+           "levels_active": list(bc.get("levels_active") or []),
            # LEVEL PROVENANCE (G12, 2026-07-09 night): the EXACT level the winning side's
            # entry trigger fired against -- ground truth from filters.detect_level_rejection/
            # detect_level_reclaim (backtest/lib/filters.py), threaded verbatim through

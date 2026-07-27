@@ -566,6 +566,17 @@ def decide_payload(payload: Mapping[str, Any]) -> dict:
         "bear_blockers": list(score.bear_blockers),
         "bull_blockers": (None if score.bull_blockers is None else list(score.bull_blockers)),
         "triggers_fired": list(winning_triggers),
+        # RAW PER-SIDE DETECTIONS (2026-07-27, TRIGGER-BLINDNESS). LOGGED-ONLY, additive.
+        # "triggers_fired" above is the WINNING side's list, and _derive_routing returns
+        # (None, [], None) when neither side passes -- so an empty triggers_fired cannot be
+        # distinguished from "the detectors saw nothing". On 2026-07-27 that ambiguity hid a
+        # perfect level_rejection @744.9 (+confluence, bear_score 9) that was refused by a
+        # single structural blocker, and cost hours of misdirected investigation.
+        # These two carry what each side's detectors ACTUALLY fired, independent of routing.
+        # Never read by any decision logic -- telemetry only, same contract as
+        # shadow_triggers_fired.
+        "bear_triggers_raw": list(score.bear.triggers_fired),
+        "bull_triggers_raw": (list(score.bull.triggers_fired) if score.bull is not None else []),
         "rejection_level": winning_level,
         "quality_tier": None,
         "gate": None,
