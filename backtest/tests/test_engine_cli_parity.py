@@ -191,6 +191,14 @@ def _direct_verdict(ctx: BarContext, gate_params: dict, *, enable_bullish=True,
         "bear_blockers": list(score.bear_blockers),
         "bull_blockers": (None if score.bull_blockers is None else list(score.bull_blockers)),
         "triggers_fired": list(trigs), "rejection_level": level,
+        # 2026-07-27 (TRIGGER-BLINDNESS): decide_payload also emits the RAW per-side
+        # detections, because "triggers_fired" is the WINNING side's list and is empty
+        # whenever neither side passes -- which made "detected nothing" and "detected
+        # everything then got hard-blocked" indistinguishable in the live ledger. Re-derived
+        # here from the score result rather than copied, so this stays a genuine
+        # "the shim adds no logic" proof (same discipline as shadow_triggers_fired below).
+        "bear_triggers_raw": list(score.bear.triggers_fired),
+        "bull_triggers_raw": (list(bull.triggers_fired) if bull is not None else []),
         "quality_tier": None, "gate": None,
         # 2026-07-19 (TRENDLINE-FIXES item 4): must match decide_payload's own
         # additive "shadow_triggers_fired" tag exactly -- independently re-derived
