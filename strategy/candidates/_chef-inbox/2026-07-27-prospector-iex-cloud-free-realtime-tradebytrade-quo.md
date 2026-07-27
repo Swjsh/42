@@ -1,0 +1,23 @@
+# Chef Inbox — IEX Cloud free real‑time trade‑by‑trade quote flow for SPY
+
+**Routed by:** Gamma_Prospector 2026-07-27
+**Priority:** MED
+**Category:** New data signal / exogenous idea
+**Source:** swarm:openai/gpt-oss-120b:free
+
+## The Finding
+Prospector beat `data_feeds_free` surfaced: IEX Cloud free real‑time trade‑by‑trade quote flow for SPY -- High‑resolution quote pressure (bid/ask imbalance) can flag imminent directional moves for 0DTE options. Data source: IEX Cloud API (free tier, https://iexcloud.io/docs/api/). Cost: $0. Instrument fit: 0dte.
+
+## Research Question for Chef
+IEX Cloud free real‑time trade‑by‑trade quote flow for SPY -- this carries a testable directional/timing edge for 0dte.
+
+## Backtest Request
+Data: IEX Cloud API (free tier, https://iexcloud.io/docs/api/)
+Null hypothesis: the signal has no measurable effect on entry/exit quality vs the existing engine baseline over the same days.
+Pass bar: OOS positive AND walk-forward >= 0.70 AND sub-window stable AND anchor-day no-regression (the standing OP-11/OP-16 autoresearch bar) before any wiring proposal reaches conductor-proposals.jsonl.
+
+## Files for Reference
+analysis/prospector/ideas-ledger.jsonl (dedupe_key: data_feeds_free:iex-cloud-free-realtime-tradebytrade-quo) · markdown/infra/PROSPECTOR-SPEC.md
+
+## Priority / Dependencies
+depends:none
