@@ -290,6 +290,30 @@ def gather_morning_facts(
     }
 
 
+def _crypto_overnight_line() -> str:
+    """One spoken sentence on what the crypto twin did on ITS OWN signal overnight.
+
+    J's standing question is "did Gamma make money on crypto" -- a repeated question is a
+    missing instrument (OP-33e), so it goes in the brief rather than waiting to be asked.
+    Reports the ORGANIC bucket only: forced coverage-battery trades measure spread and random
+    walk, and quoting them as performance is the exact overstatement this whole surface exists
+    to prevent. Fail-open -- the brief must compose even if the twin's journal is unreadable.
+    """
+    try:
+        import crypto_twin_pnl as ctp
+        trips = ctp.reconstruct_trips()
+        s = ctp.summarize([t for t in trips if t["bucket"] == "ORGANIC"])
+        if not s["n"]:
+            return ("On crypto, the twin has not yet taken a trade on its own signal "
+                    "overnight -- no organic round trips to report.")
+        verb = "up" if s["total_pct"] > 0 else "down"
+        return (f"On crypto, I traded my own signal {s['n']} times overnight: "
+                f"{s['win_rate']:.0f} percent win rate, {verb} "
+                f"{abs(s['total_pct']):.2f} percent. Paper, and not SPY evidence.")
+    except Exception:  # noqa: BLE001 -- never let a telemetry read break the brief
+        return "Crypto twin P&L unavailable this morning -- worth a look."
+
+
 def compose_morning_text(facts: dict) -> str:
     lines = [f"Gamma here. Morning brief, {facts['day']}."]
     lines.append(f"Bias is {facts['bias']}: {facts['bias_reason']}")
@@ -300,6 +324,7 @@ def compose_morning_text(facts: dict) -> str:
     else:
         lines.append("No fresh key levels on file.")
     lines.append(f"Kill switches: Safe {facts['safe_breaker']}, Bold {facts['bold_breaker']}.")
+    lines.append(_crypto_overnight_line())
     overnight = facts.get("overnight_headers") or []
     if overnight:
         lines.append("Overnight I shipped: " + "; ".join(overnight) + ".")
