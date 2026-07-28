@@ -1,3 +1,46 @@
+## [2026-07-28 ~01:16-01:30 ET] OK -- conductor (AFTERHOURS): DRESS-REHEARSAL-NARROW-STRIKE-BAND closed, commit `96cf82b4`
+
+> **STAGE 0/1:** ET confirmed 01:16 Tuesday (market closed). Budget gate PROCEED
+> ($0.60/$30, 3/4 fires). `engine-health.json` GREEN/YELLOW (14 checks, 0 RED, gex_archive
+> 1-day interior-gap YELLOW non-critical). Ran `self_check.py` per STAGE-1 priority-1
+> (function-first) and it reported **BROKEN**: `DRESS-REHEARSAL RED` off the real
+> 2026-07-27T20:45:01 nightly artifact -- `check1_options_{safe,bold}` both RED. This
+> outranked `task_scorer.py --top`'s `TWIN-DOCTRINE-FIRST-DEPLOY` (still J's REVOKE
+> surface, correctly skipped again) and every queue item -- an active self-check BROKEN
+> flag on the "are we good for tomorrow" probe is priority-2 CRITICAL.
+
+> **Root cause, verified against the REAL Alpaca chain (spot 738.85):**
+> `_pick_deep_otm_put` searched a fixed $10-wide strike window below the 5%-OTM target;
+> SPY's far-OTM chain there is only 3 strikes (695/700/701, not $1-spaced), all pricing
+> $0.06-$0.08 -- above the $0.05 ceiling -- so the probe never reached order placement on
+> EITHER account, every night this happens to be the shape of the chain. Fixed: escalating
+> `STRIKE_SEARCH_BANDS = (10, 30, 60, 100)`; live-verified band=30 immediately surfaces
+> strike 690 @ $0.05. **Second bug found while verifying live:** `_next_trading_day`
+> guessed via `calendar?start=today+1` -- correct only when called after today's close.
+> My own off-schedule verification run (01:xx ET, before today's open) skipped today and
+> disagreed with `check3_sanity`'s own `/v2/clock` read, false-RED-ing the very rehearsal
+> I'd just fixed. Fixed by deriving `next_day` from the broker's own `clock.next_open`
+> (C11: broker is the source of truth), calendar endpoint kept only as a fallback --
+> this was going to leave a MISLEADING RED artifact sitting on disk for the ~8h until
+> today's real open if left unfixed (self_check has no time-gate on `overall=="RED"`).
+
+> **Verified this fire (OP-33), not claimed:** 6 new guard tests, RED-proofed via scoped
+> `git stash -- setup/scripts/dress_rehearsal.py` (all 6 failed against pre-fix code with
+> the exact expected pre-fix behavior/AttributeError, popped clean, 40/40 green post-fix).
+> **Live end-to-end re-verification, not just unit tests:** re-ran `dress_rehearsal.py`
+> for real -> `overall=GREEN` (was RED), both `check1_options` GREEN with a genuine
+> ACCEPTED+CANCELED probe order on each account (order ids in the artifact); re-ran
+> `self_check.py` -> `GREEN, 0 problem(s)` (was BROKEN). Curated safety gate 59/59 PASS
+> both before and after the commit. Post-commit `git show 96cf82b4 --stat --name-status`
+> confirms exactly the 2 intended files (L247 discipline).
+
+> **Scope + revert:** 2 files (`setup/scripts/dress_rehearsal.py`,
+> `backtest/tests/test_dress_rehearsal.py`). Zero trading-path touched (no params/
+> heartbeat_core/filters/placement/exit/CLAUDE.md) -- this is the nightly rehearsal
+> PROBE script, not the live entry path. Revert: `git revert 96cf82b4`.
+
+---
+
 ## [2026-07-28 ~01:00-01:15 ET] OK -- conductor (AFTERHOURS): SAFETY-GATE-MISSES-PARITY-SUITE closed, commit `b0129034`
 
 > **STAGE 0/1:** ET confirmed 01:00 Monday->Tuesday rollover (market closed). Budget gate
@@ -589,463 +632,6 @@
 > before deciding safe-vs-fix, 2 real fixes + 1 new test file, 3 rounds of test verification
 > at increasing scope, safety gate, commit + verify, queue/STATUS write-up).
 
-## [2026-07-23 ~21:52-22:20 ET] OK -- conductor (AFTERHOURS): TWIN-B6-SIM-FRICTION-CALIBRATION infra shipped, commit `465487f7`
 
-> **STAGE 0/1:** ET confirmed 21:48 (Thursday, market closed since 15:55). `engine-health.json`
-> GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again -- still
-> correctly `status:pending` on J's REVOKE surface (`gp-2026-07-23-twin-doctrine-001`, nothing
-> new until J responds -- 3rd fire in a row confirming this, per STATUS.md precedent). Next
-> ranked ready item: `TWIN-B6-SIM-FRICTION-CALIBRATION` (HIGH, score 6.0, `depends:TWIN-B1`
-> done). TWIN-PROGRAM.md has NO existing "B6"/"stream 6" spec -- the queue item's own text was
-> the only spec, so this fire scoped it from scratch before building.
-
-> **What scoping found (a real gap, not a design choice):** entries already capture the TRUE
-> `filled_avg_price` via `poll_fill()` + a "FILLED" journal row (TWIN-B3 entry-quality
-> machinery, `entry-quality.json` already has n=51 "marketable"-cohort real fills: avg
-> slippage ≈ **+0.80bps favorable**, avg latency 0.29s -- directly usable friction data).
-> EXITS never did the same: `manage_positions`' SELL_PARTIAL/SELL_ALL journals a CLOSED/
-> MANAGED row whose `"broker"` field is the raw un-polled PLACE response (`status=
-> "pending_new"`, `filled_avg_price=null`) -- confirmed by reading all 70 real CLOSED events
-> + all 70 FILLED events in `journal.jsonl` directly: zero sell-side FILLED rows exist. Exit
-> friction was silently un-measurable despite 70 real exits already on file.
-
-> **Shipped:** `crypto_twin_core.manage_positions` now polls the SAME `broker.poll_fill()`
-> helper after a live SELL_PARTIAL/SELL_ALL and journals an additive `"EXIT_FILLED"` row
-> (`expected_price` parsed from `a.reason`'s `"kind @ price"` convention, `fill_price`,
-> `time_to_fill_sec`, `slippage_bps`) -- purely additive telemetry, zero change to
-> `close_failed`/`dec.closes_position` control flow (fails open on a poll exception via
-> `EXIT_FILLED_CAPTURE_ERROR`). New reader `setup/scripts/crypto_twin_friction_calibration.py`
-> combines both legs and cross-references `backtest/lib/simulator_real.py`'s
-> `DEFAULT_ENTRY_SLIPPAGE`/`DEFAULT_EXIT_SLIPPAGE` via a LIVE import (not a hand-copied
-> number -- caught the `backtest.lib` relative-import footgun mid-build: `simulator_real.py`
-> uses `from .et_frame import ...`, so it must be imported as `backtest.lib.simulator_real`
-> with the repo root on `sys.path`, not by putting `backtest/lib` on `sys.path` directly).
-> Ran live against real state: `n=51 avg_slippage_bps=-0.8045` (entry), `n=0 verdict=ACCRUING`
-> (exit, correctly honest about zero samples at ship time).
-
-> **Honest caveat surfaced, not fixed this fire:** every twin exit stage (structure_stop /
-> catastrophe cap / TP1-trail / premium_stop / runner_stop / time_stop / max_hold) is placed
-> as a MARKET order unconditionally -- the twin has no exit-side passive/limit lane (only
-> entries got the TWIN-B3 passive-limit graduation). So exit calibration data will only ever
-> be comparable to `simulator_real.py`'s market-exit slippage bucket, never its "TP1/
-> premium_stop/BE-stop fill exactly at the bracket level, zero slippage" limit-exit
-> assumption. Flagged in TWIN-PROGRAM.md's new "B6 shipped" section as a TWIN-B6b follow-up
-> (not queued as a separate item yet -- deliberately, per rail 3 one-bounded-task-per-fire;
-> a future fire can promote it if J/conductor wants the exit-limit-lane build).
-
-> **Verified this fire (OP-33) -- caught+fixed a REAL regression before it could ship:**
-> `python -m pytest backtest/tests/test_crypto_twin_core.py` initially passed (44/44) because
-> the fixture's `poll_fill` always returns a fixed price -- but running
-> `python setup/scripts/twin_gauntlet.py --paths tp1_trail,structure_stop,catastrophe_cap,
-> max_hold --dry` (the "diffs vs expected" backpressure TWIN-PROGRAM.md names as the
-> conductor hook for exactly this class of bug) showed **3/4 touched paths FAIL**
-> (`git stash` isolation confirmed 4/4 PASS pre-change, 1/4 PASS post-change -- root cause,
-> not coincidence). Mechanism: `twin_gauntlet.py`'s `_dry_tp1_trail`/`_dry_structure_stop`/
-> `_dry_catastrophe_cap` all assumed `journal[-1]["event"] == "CLOSED"` -- an assumption that
-> was ALSO baked into 2 pre-existing `test_crypto_twin_core.py` assertions (same class, same
-> fire, same root cause: EXIT_FILLED now legitimately trails CLOSED). Fixed both: find the
-> last CLOSED row explicitly rather than assuming journal-tail position. Re-ran
-> `--dry` over all 6 known paths (`tp1_trail,structure_stop,catastrophe_cap,max_hold,
-> restart_open_position,entry`): **6/6 PASS**. Full suite:
-> `test_crypto_twin_core.py` + `test_crypto_twin_friction_calibration.py` (7 new tests:
-> sign-convention, stage-grouping, accruing-verdict, real-import-resolves-non-None) +
-> `test_crypto_twin_scenarios/_entry_quality/_health/_broker/_sim_bear/_soak_report/
-> _reaper_exemption.py` + `test_twin_gauntlet.py` = **268/268 green**. Curated safety gate
-> (`backtest/tests/run_safety_gate.py`): 31+5 PASS. Post-commit
-> `git show 465487f7 --stat --name-status` confirms exactly the 6 intended files landed.
-
-> **Learn (STAGE 4.5):** the gauntlet caught a real bug this fire was about to ship blind on
-> (pytest alone would have shipped it green) -- this is TWIN-PROGRAM.md's "Conductor hook"
-> value stream #2 working exactly as designed, not a new lesson to encode; no lesson-inbox
-> item filed (the guardrail that caught it already exists and just did its job).
-
-> **Scope + revert:** 6 files (`crypto_twin_core.py`, `crypto_twin_friction_calibration.py`
-> [new], `twin_gauntlet.py`, `test_crypto_twin_core.py`, `test_crypto_twin_friction_
-> calibration.py` [new], `TWIN-PROGRAM.md`). Zero `params.json`/`heartbeat_core.py`/
-> `filters.py`/`CLAUDE.md` touched -- twin-only (paper, crypto gym-only per project scope),
-> rail-4 clear, purely additive telemetry + a read-only reader. Revert: `git revert 465487f7`.
-> `automation/state/crypto-twin/friction-calibration.json` is a regenerated report artifact
-> (same untracked-by-design precedent as `entry-quality.json`) -- not committed.
-
-> **Cost: ~$4.3** (STAGE 0/1 reads, TWIN-PROGRAM.md scope search, journal.jsonl/entry-
-> quality.json direct data investigation to find the real gap, crypto_twin_core.py edit +
-> docstring, 6 new/updated core tests, calibration script build + 7 tests, live script run +
-> import-path debug, twin_gauntlet.py regression hunt via git-stash isolation + 3-function
-> fix + full 6-path re-verify, TWIN-PROGRAM.md fold, commit + verify, queue/STATUS write-up,
-> conductor_outcome record+metric).
-
-
-### BROKEN: self-check 2026-07-26T17:39:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-26T18:09:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-26T18:39:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-26T19:09:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-26T19:39:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-## Kitchen
-Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-### BROKEN: self-check 2026-07-26T20:09:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-26T20:39:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-26T21:09:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-26T21:39:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-26T22:09:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-26T22:39:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-26T23:09:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### WARN: spend-summary threshold breach
-- ts: 2026-07-27T03:30:16+00:00
-- date_et: 2026-07-26
-- total: $65.90 (threshold $30.00)
-- claude: $65.90  minimax: $0.00
-- claude_sessions: 14
-
-### BROKEN: self-check 2026-07-26T23:39:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-[2026-07-26T23:42:33] conductor: QUIET — nightly budget spent (7 fires today >= max_fires 4)
-
-### BROKEN: self-check 2026-07-27T00:09:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-27T00:39:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-27T01:09:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-27T01:39:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-27T02:09:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-27T02:39:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-27T03:09:56
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-27T03:39:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-27T04:09:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-27T04:39:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-27T05:09:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-27T05:39:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-- [2026-07-27 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
-
-- [2026-07-27 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
-
-[2026-07-27 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-27.md
-
-### BROKEN: self-check 2026-07-27T06:09:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-27T06:39:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-27T07:09:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-27T07:39:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-27T08:09:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-
-### BROKEN: self-check 2026-07-27T08:39:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- [07-27 09:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 3896s - kill+relaunch
-
-### BROKEN: self-check 2026-07-27T09:09:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
-- [07-27 09:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 4196s - kill+relaunch
-- [07-27 09:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 4496s - kill+relaunch
-- [07-27 09:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 4796s - kill+relaunch
-- [07-27 09:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 5096s - kill+relaunch
-- [07-27 09:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 5397s - kill+relaunch
-- [07-27 09:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5696s - kill+relaunch
-
-### BROKEN: self-check 2026-07-27T09:39:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
-- [07-27 09:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5996s - kill+relaunch
-- [07-27 09:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6296s - kill+relaunch
-- [07-27 09:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6596s - kill+relaunch
-- [07-27 09:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6896s - kill+relaunch
-- [07-27 10:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7195s - kill+relaunch
-- [07-27 10:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7496s - kill+relaunch
-
-### BROKEN: self-check 2026-07-27T10:09:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
-- [07-27 10:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7796s - kill+relaunch
-- [07-27 10:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8096s - kill+relaunch
-- [07-27 10:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8396s - kill+relaunch
-- [07-27 10:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8696s - kill+relaunch
-
-### BROKEN: self-check 2026-07-27T10:39:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-27T11:09:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- [07-27 11:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 3897s - kill+relaunch
-
-### BROKEN: self-check 2026-07-27T11:39:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
-- [07-27 11:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4197s - kill+relaunch
-- [07-27 11:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4497s - kill+relaunch
-- [07-27 11:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4797s - kill+relaunch
-- [07-27 11:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5097s - kill+relaunch
-- [07-27 12:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5396s - kill+relaunch
-- [07-27 12:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5697s - kill+relaunch
-
-### BROKEN: self-check 2026-07-27T12:09:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
-- [07-27 12:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5997s - kill+relaunch
-- [07-27 12:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6297s - kill+relaunch
-- [07-27 12:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6597s - kill+relaunch
-- [07-27 12:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6897s - kill+relaunch
-- [07-27 12:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7197s - kill+relaunch
-- [07-27 12:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7497s - kill+relaunch
-
-### BROKEN: self-check 2026-07-27T12:39:57
-- ENGINE CANNOT ENTER: 190 ticks today, 0 ENTER, 5x SKIP_DOJI_ENTRY_BAR -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
-- [07-27 12:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7797s - kill+relaunch
-- [07-27 12:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8097s - kill+relaunch
-- [07-27 12:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8397s - kill+relaunch
-- [07-27 12:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8697s - kill+relaunch
-- [07-27 13:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8997s - kill+relaunch
-- [07-27 13:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9297s - kill+relaunch
-
-### BROKEN: self-check 2026-07-27T13:09:57
-- ENGINE CANNOT ENTER: 220 ticks today, 0 ENTER, 12x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
-- [07-27 13:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9597s - kill+relaunch
-- [07-27 13:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9897s - kill+relaunch
-- [07-27 13:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10197s - kill+relaunch
-- [07-27 13:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10497s - kill+relaunch
-- [07-27 13:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10797s - kill+relaunch
-- [07-27 13:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11097s - kill+relaunch
-
-### BROKEN: self-check 2026-07-27T13:39:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
-- [07-27 13:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11397s - kill+relaunch
-- [07-27 13:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11697s - kill+relaunch
-- [07-27 13:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11997s - kill+relaunch
-- [07-27 13:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12297s - kill+relaunch
-- [07-27 14:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12596s - kill+relaunch
-- [07-27 14:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12897s - kill+relaunch
-
-### BROKEN: self-check 2026-07-27T14:09:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
-- [07-27 14:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13197s - kill+relaunch
-- [07-27 14:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13497s - kill+relaunch
-- [07-27 14:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13797s - kill+relaunch
-- [07-27 14:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14097s - kill+relaunch
-- [07-27 14:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14397s - kill+relaunch
-- [07-27 14:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14697s - kill+relaunch
-- [07-27 14:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14997s - kill+relaunch
-
-### BROKEN: self-check 2026-07-27T14:39:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
-- [07-27 14:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 15297s - kill+relaunch
-- [07-27 14:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 15597s - kill+relaunch
-- [07-27 14:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 15897s - kill+relaunch
-- [07-27 15:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 16197s - kill+relaunch
-- [07-27 15:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 16497s - kill+relaunch
-
-### BROKEN: self-check 2026-07-27T15:09:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
-- [07-27 15:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 16797s - kill+relaunch
-- [07-27 15:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 17097s - kill+relaunch
-- [07-27 15:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 17397s - kill+relaunch
-- [07-27 15:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 17697s - kill+relaunch
-- [07-27 15:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 17997s - kill+relaunch
-- [07-27 15:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 18297s - kill+relaunch
-
-### BROKEN: self-check 2026-07-27T15:39:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
-- [07-27 15:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 18597s - kill+relaunch
-- [07-27 15:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 18897s - kill+relaunch
-- [07-27 15:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 19197s - kill+relaunch
-- [07-27 15:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 19497s - kill+relaunch
-- [07-27 16:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 19796s - kill+relaunch
-
-### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
-- ts: 2026-07-27T20:00:26+00:00
-- task: eod-summary
-- date_et: 2026-07-27
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-### BROKEN: self-check 2026-07-27T16:09:57
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-27T16:39:57
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
-- ts: 2026-07-27T20:45:31+00:00
-- task: analyst
-- date_et: 2026-07-27
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-- [2026-07-27 21:00:02] gym-session (2026-07-27) → **YELLOW** :: see `automation\state\gym-scorecard-2026-07-27.json`
-### BROKEN: self-check 2026-07-27T17:09:57
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### INFO: eod-analytics manager used free-tier model (free-tier-primary)
-- ts: 2026-07-27T21:31:19+00:00
-- task: manager
-- date_et: 2026-07-27
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-### BROKEN: self-check 2026-07-27T17:39:57
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-27T18:09:57
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-27T18:39:57
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-27T19:09:57
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-27T19:39:57
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-27T20:09:57
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-27T20:39:57
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-27T21:09:57
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-27T21:39:57
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-[2026-07-27T21:42 ET] conductor: QUIET — nightly budget exhausted (11 fires today >= max_fires 4) — zero model work, rail-0 gate
-
-### BROKEN: self-check 2026-07-27T22:09:57
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-27T22:39:57
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-27T23:09:57
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### WARN: spend-summary threshold breach
-- ts: 2026-07-28T03:30:17+00:00
-- date_et: 2026-07-27
-- total: $289.99 (threshold $30.00)
-- claude: $289.94  minimax: $0.05
-- claude_sessions: 21
-
-### BROKEN: self-check 2026-07-27T23:39:57
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
-- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
-- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
-- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-28T00:09:57
-- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
-
-### BROKEN: self-check 2026-07-28T00:39:57
+### BROKEN: self-check 2026-07-28T01:12:25
 - DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
