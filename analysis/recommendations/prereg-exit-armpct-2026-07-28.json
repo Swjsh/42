@@ -1,0 +1,40 @@
+{
+  "prereg_id": "EXIT-ARM-THRESHOLD (J flag 1, iteration 2)",
+  "frozen_at_et": "2026-07-28T19:4x",
+  "frozen_before_any_run": true,
+
+  "what_iteration_1_established": {
+    "result": "ARM NOTHING -- E1 (arm_scope=full at the shipped arm_pct=0.05) FAILED G1/G3/G4. exit-armscope-tp1-ab-2026-07-28.md, commit c53922a9.",
+    "the_mechanism_traced_to_one_tick": "E1 fixes today's incident (-$305 -> $0) but destroys the profit engine: the 15% trail armed at +5% favor gets whipsawed out almost immediately. Today's own trade arms 11:29 at +5.8% and stops at breakeven 11:30 -- ONE MINUTE later -- never reaching the $2.16 HWM it hit at 12:57. Same mechanism scratched 22 of the 35 RUNNER_TRAIL winners: runner cohort -$7,758.85.",
+    "conclusion_carried_forward": "Pre-TP1 protection is not wrong; arming it at +5% is. The knob under test moves from WHETHER to arm pre-TP1 to WHEN."
+  },
+
+  "hypothesis": "H: a pre-TP1 trailing lock armed at a HIGHER favor threshold protects round-trippers (today's class) without scratching runners in their first minutes, because a winner that has already run +20-40% has demonstrated the move the trail is meant to protect.",
+
+  "cells_frozen_entire_search_space": [
+    "CONTROL: live as-is (arm_scope=post_tp1, arm_pct=0.05 -- inert pre-TP1)",
+    "F1: arm_scope=full, profit_lock_arm_pct=0.20",
+    "F2: arm_scope=full, profit_lock_arm_pct=0.30",
+    "F3: arm_scope=full, profit_lock_arm_pct=0.40"
+  ],
+  "why_these_values_and_not_a_sweep": "0.30 is NOT picked from E1's failure -- it is the independently-derived threshold from the overnight EXIT-LEAK study (analysis/deep-research/EXIT-LEAK-2026-07-28.json): 33 losers touched >=+30% MFE and round-tripped to a stop for -$3,829.60. 0.20/0.40 bracket it as a dose-response axis. trail_pct stays 0.15, TP1 stays 1.0, everything else untouched.",
+
+  "dose_response_requirement": "The three cells form a monotone axis. If results do NOT show coherent structure across 0.20/0.30/0.40 (e.g. one cell positive and its neighbours both sharply negative), treat the positive as NOISE and do not arm regardless of gate arithmetic. A real mechanism should degrade gracefully, not spike at one point.",
+
+  "multiplicity_honesty": "Cumulative exit-shape cells tested this week: ~181 (edge-matrix + kitchen campaigns, 0 ships) + 4 (iteration 1) + 3 (here) = ~188. The prior on any single exit cell shipping is LOW and this pre-reg does not pretend otherwise. That is precisely why G4 is a hard veto and why the dose-response requirement exists.",
+
+  "method": "Identical harness to iteration 1 (backtest/tools/exit_armscope_ab_2026_07_28.py -- extend it, do not rewrite): same frozen 190-trade population from engine-fullhist-replay-2026-07-23.json, entries unchanged, exits re-derived ONLY through exit_manager_walk.walk_exit_manager driving the real plan_exit_actions core (never simulate_trade_real -- the 2026-07-09 sim-parity scar). entry+1 convention. Real-OPRA-only P&L, synthetic excluded. CONTROL must reconcile byte-for-byte against the source population as it did in iteration 1.",
+
+  "gates_frozen": [
+    "G1 positive aggregate delta vs CONTROL",
+    "G2 majority of changed trades positive",
+    "G3 survives dropping the single best changed trade",
+    "G4 RUNNER-COHORT VETO (n=35, +$15,774.05): any degradation of that cohort FAILS the cell outright, regardless of aggregate. This is the gate that killed iteration 1 and it is not negotiable.",
+    "G5 look-ahead guard (reuse iteration 1's RED-proofed test)",
+    "G6 today's 2026-07-28 Bold trade (entry 1.38, HWM 2.16 at 12:57, actual exit ~0.795) must improve -- signal-level from core-decisions.jsonl tick data, disclosed, no OPRA cache for today",
+    "G7 DOSE-RESPONSE coherence across F1/F2/F3 (see above)"
+  ],
+
+  "arming_rule": "Arm at most ONE cell, and only if it clears G1-G7. Flag-gated in the strategy exit shape, guard tests RED-proofed, REVOKE = revert the key. If none clear: record the second null, arm nothing, and escalate the exit leak to a DIFFERENT mechanism class (candidates for a future separate pre-reg, NOT tested here: minimum-hold-bars before any arm; BE floor instead of a trail; time-of-day-conditioned arming). Two nulls on the arm-threshold axis would be strong evidence that the trail mechanism itself is the wrong tool for this leak.",
+  "kill_criteria_post_arm": "Forward 10 sessions or n>=8 fills; realized expectancy worse than counterfactual control -> revert."
+}
