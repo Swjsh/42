@@ -1,0 +1,20 @@
+{
+  "prereg_id": "STRUCTURE-SHIFT-IN-CASCADE (pre-reg #2)",
+  "frozen_at_et": "2026-07-28T12:15:25",
+  "frozen_before_any_run": true,
+  "relationship_to_prereg_1": "Pre-reg #1 (prereg-structure-shift-confirmation-2026-07-28.json, frozen 11:40:27) tested the shift predicate STANDALONE -- trigger + shift = enter, replacing the ENTIRE gate stack. VERDICT: NULL, 1/5 gates (K=3 +$931 over 1,668 trades vs baseline level-tied +$7,039 over 68; structure-shift-replay-2026-07-28.md). That hypothesis is DEAD -- it reproduced the broad-ladder failure shape (no selectivity floor, 15,303 candidates ~40/day vs the philosophy's own once-per-6-sessions cadence). HOWEVER: the staged live wiring (commit 459342c8, flag off) implements a DIFFERENT and stricter semantics that pre-reg #1 did not test -- the shift as an OR-ALTERNATIVE to filter 5 (bear) / the HTF demerit (bull) INSIDE the full scoring cascade, with every other filter still gating. This divergence between the tested predicate and the staged wiring was a spec inconsistency between the two build briefs -- Gamma's error, caught before arming. Pre-reg #2 tests the wiring's ACTUAL semantics. This is a distinct hypothesis stated before its run, not a post-hoc rescue of #1: #1's kill stands on its own population.",
+  "hypothesis": "H2: with the full filter cascade intact, allowing the structure-shift to satisfy filter 5 (bear) / waive the HTF-disagreement demerit (bull) for LEVEL-TIED setups adds a small number of high-quality entries -- the blocked-by-exactly-the-lagging-gate class (2026-07-27 09:40: blockers=[5] ONLY; 2026-07-28 11:05 shape) -- without degrading the existing book.",
+  "method": "True A/B of the exact armed change: the fullhist replay machinery run twice -- CONTROL: live config as-is. TREATMENT: identical plus structure_shift_confirmation=True threaded into the scoring (the staged wiring's own code path, engine_cli/filters as committed in 459342c8 -- NOT a reimplementation). Same population, same entry+1 + walk_exit_manager real-exit discipline, real-OPRA-only P&L, one position at a time.",
+  "expected_population_note": "The affected cohort should be SMALL (the blockers-subset-of-{5}/HTF-decisive class was ~10 ticks over 22 recent days). If the treatment changes fewer than 10 trades over 390 days, report it as evidence-thin regardless of sign and do not arm on this replay alone -- forward paper becomes the primary evidence.",
+  "gates_frozen": [
+    "G1 positive aggregate delta (treatment minus control) over the full window",
+    "G2 majority of CHANGED days positive",
+    "G3 survives dropping the single best changed trade",
+    "G4 preemption check: baseline winners preempted by an earlier shift-entry on the same day (one-position discipline) must not turn the day negative -- report every preemption explicitly",
+    "G5 the 2026-07-27 09:40 bear anchor must be an ADDED trade in the treatment (the 07-28 bull anchor is signal-only, no OPRA cache)",
+    "EVIDENCE FLOOR: n_changed >= 10 for replay-based arming; below that, arm ONLY as forward-paper trial with the kill criteria below",
+  ],
+  "kill_criteria_post_arm": "Forward: 10 sessions or n>=8 shift-path fills, whichever first; negative expectancy vs counterfactual lagging-gate behavior -> revert the flag, record.",
+  "no_new_knobs": "K=3 only (pre-reg #1's primary; K=2 sensitivity is dropped -- it was worse and adds a comparison). No other parameters exist.",
+  "arming_authority": "J's standing 2026-07-28 directive (rule-9 waiver documented in pre-reg #1) applies; arming on a PASS may happen same-day. A FAIL or evidence-thin result stays off and gets recorded."
+}
