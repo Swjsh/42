@@ -199,6 +199,9 @@ def _direct_verdict(ctx: BarContext, gate_params: dict, *, enable_bullish=True,
         # "the shim adds no logic" proof (same discipline as shadow_triggers_fired below).
         "bear_triggers_raw": list(score.bear.triggers_fired),
         "bull_triggers_raw": (list(bull.triggers_fired) if bull is not None else []),
+        # 2026-07-27 SCORE-LADDER: raw per-side levels, re-derived (not copied) like above.
+        "bear_rejection_level_raw": score.bear.rejection_level,
+        "bull_reclaim_level_raw": (getattr(bull, "reclaim_level", None) if bull is not None else None),
         "quality_tier": None, "gate": None,
         # 2026-07-19 (TRENDLINE-FIXES item 4): must match decide_payload's own
         # additive "shadow_triggers_fired" tag exactly -- independently re-derived

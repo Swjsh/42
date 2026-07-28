@@ -577,6 +577,13 @@ def decide_payload(payload: Mapping[str, Any]) -> dict:
         # shadow_triggers_fired.
         "bear_triggers_raw": list(score.bear.triggers_fired),
         "bull_triggers_raw": (list(score.bull.triggers_fired) if score.bull is not None else []),
+        # Raw per-side LEVELS (2026-07-27, SCORE-LADDER lane): the exact level the raw
+        # detection fired against, independent of routing -- "rejection_level" below is the
+        # WINNING side's and is None on every blocked tick, which would leave a ladder entry
+        # with no stop anchor. Same logged-only contract as *_triggers_raw above.
+        "bear_rejection_level_raw": score.bear.rejection_level,
+        "bull_reclaim_level_raw": (getattr(score.bull, "reclaim_level", None)
+                                   if score.bull is not None else None),
         "rejection_level": winning_level,
         "quality_tier": None,
         "gate": None,

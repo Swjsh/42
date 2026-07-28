@@ -967,6 +967,11 @@ def run_account(account: str) -> dict:
                              else list(verdict.get("bull_blockers"))),
            "bear_triggers_raw": list(verdict.get("bear_triggers_raw") or []),
            "bull_triggers_raw": list(verdict.get("bull_triggers_raw") or []),
+           # SCORE-LADDER (2026-07-27): the raw detection's own level, so a ladder entry on a
+           # blocked tick has a real stop anchor (trigger_level_exact above is winning-side
+           # only and None whenever nothing passed).
+           "bear_rejection_level_raw": verdict.get("bear_rejection_level_raw"),
+           "bull_reclaim_level_raw": verdict.get("bull_reclaim_level_raw"),
            "levels_active": list(bc.get("levels_active") or []),
            # LEVEL PROVENANCE (G12, 2026-07-09 night): the EXACT level the winning side's
            # entry trigger fired against -- ground truth from filters.detect_level_rejection/
