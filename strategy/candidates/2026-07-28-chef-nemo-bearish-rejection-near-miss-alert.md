@@ -12,55 +12,45 @@
 
 ## Hypothesis
 
-We want to surface near-miss BEARISH_REJECTION setups that are blocked by filters 9 or 10 despite having a bear score ≥8, so the trader can review potentially missed opportunities and assess whether filter tightening is warranted. The alert does not alter trading behavior; it only logs and triggers a dialogue notification.
+We aim to capture near-miss events where the BEARISH_REJECTION setup triggers but is blocked by engine filters 9 (close < Fast EMA) or 10 (HTF disagreement). This alert will help study whether these filters are overly restrictive or if blocked signals contain exploitable edge, without altering core engine behavior.
 
 ## Mechanism
 
-When the BEARISH_REJECTION trigger fires, compute the current bear score (number of passing structural/quality filters). If the bear score is ≥8 and either filter 9 (`VIX_BULL_LOW_THRESHOLD`) or filter 10 (`MIN_TRIGGERS_BULL`) blocks the setup (i.e., returns false), then:
-1. Log a near-miss event to `automation/state/near_miss.jsonl` with timestamp, bear score, which filter(s) blocked, and the relevant context (price, VIX, time).
-2. Trigger a dialogue alert via a desktop notification (or Discord DM if configured) with message: “BEARISH_REJECTION near‑miss: bear score ≥8 blocked by filter {9|10} – reason: {filter name}”.
-
-The alert runs as a watcher after the existing BEARISH_REJECTION evaluation in `heartbeat.md` and does not interfere with order placement.
+The BEARISH_REJECTION watcher will, upon detecting a full signal (all internal conditions met), check if the engine's entry was blocked specifically by filter 9 or filter 10. If so, it writes the string 'ALERT' to `dashboard-dialogue.json` and logs the blocked reason (e.g., "BLOCKED_BY_FILTER_9" or "BLOCKED_BY_FILTER_10") to the same file for diagnostic tracing. Engine entry/exit logic remains unchanged.
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | engine takes trade (+$342) | unchanged (alert only) | 0 |
-| 5/01 winner | engine takes trade (+$470) | unchanged | 0 |
-| 5/04 winner | engine takes trade (+$730) | unchanged | 0 |
-| 5/05 loser | engine skips or loses less (–$260) | unchanged | 0 |
-| 5/06 loser | engine skips or loses less (–$300) | unchanged | 0 |
-| 5/07 loser 1 | engine skips or loses less (–$45) | unchanged | 0 |
-| 5/07 loser 2 | engine skips or loses less (–$120) | unchanged | 0 |
-
-*No change to PnL; delta is zero for all anchor days.*
+| 4/29 winner | unknown -- requires Stage-1 backtest | same as current | 0 |
+| 5/01 winner | unknown -- requires Stage-1 backtest | same as current | 0 |
+| 5/04 winner | unknown -- requires Stage-1 backtest | same as current | 0 |
+| 5/05 loser | unknown -- requires Stage-1 backtest | same as current | 0 |
+| 5/06 loser | unknown -- requires Stage-1 backtest | same as current | 0 |
+| 5/07 loser 1 | unknown -- requires Stage-1 backtest | same as current | 0 |
+| 5/07 loser 2 | unknown -- requires Stage-1 backtest | same as current | 0 |
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** Same as BEARISH_REJECTION_RIDE_THE_RIBBON – qty=28 requires $25K+ account; $1K paper ≈14% of headline P&L (if any).  
-2. **Sample bias:** Proposal based on logical inspection of filter behavior; no historical sample of near‑miss events yet. Overfit risk is low because the alert does not affect trading. not alter strategy parameters.  
-3. **Out-of-sample:** NEEDS-OOS (no backtest performed; alert does not affect returns).  
-4. **Real-fills:** NEEDS-REAL-FILLS (no change to order execution; real‑fill validation not required).  
-5. **Failure modes:**  
-   - Alert fatigue if too many near‑misses fire.  
-   - False alerts if bear score calculation is mis‑aligned with actual filter counts.  
-   - Missed alerts due to bug in watcher logic or dashboard integration.  
-   - Potential distraction causing delayed reaction to genuine setups.  
-6. **Concentration:** Not applicable – alert generates zero P&L, so concentration = 0%.
+1. **Account-size assumption:** No change to account-size assumption; alert writes to dashboard-dialogue.json with negligible resource impact.
+2. **Sample bias:** Alert mechanism untested on historical data; potential for overfit if alert conditions correlate with specific regimes. Requires OOS validation.
+3. **Out-of-sample:** NEEDS-OOS
+4. **Real-fills:** NEEDS-REAL-FILLS
+5. **Failure modes:** 
+   - Alert spam: frequent blocks by filters 9/10 could flood dashboard-dialogue.json.
+   - Missed alert: watcher may fail to detect block reason due to communication gaps.
+   - File I/O error: write failures to dashboard-dialogue.json could lose alerts.
+   - Incorrect reason logging: multiple simultaneous blocks may log only one reason.
+6. **Concentration:** No change to engine P&L; concentration remains as per current system. Alert itself is non-P&L factor.
 
 ## Pre-merge gate
 
-- Unit test for bear‑score ≥8 and filter‑9/10 block logic (`test_bearish_rejection_near_miss.py`).  
-- Integration test verifying that a near‑miss writes to `near_miss.jsonl` and triggers a dialogue alert (mocked notification).  
-- Gym validator suite must pass (no regression in edge capture or Sharpe).  
-- Verify that the alert does not alter order placement decisions on any historical bar (shadow‑mode diff = 0).  
-- Documentation update: add near‑miss event description to `markdown/0dte/playbook.md` under BEARISH_REJECTION.
+Unit tests for watcher alert logic, integration test verifying 'ALERT' in dashboard-dialogue.json when signal blocked by filter 9/10, and test confirming no alert when blocked by other filters or no block.
 
 ## Confidence
 
-8 / 10 – The mechanism is straightforward, non‑intrusive, and addresses a clear observability gap. The main risk is alert fatigue, which can be mitigated by tuning the bear‑score threshold or adding cooldown.
+8 / 10 -- Change is localized to watcher logging; no engine behavior alteration. Requires validation to ensure correct alert firing and file I/O robustness.
 
 ## Pre-existing leaderboard impact
 
-No conflict with existing candidates 1‑24; this is a pure observability add‑on that does not interfere with any trading logic. It complements all watcher‑type candidates by providing additional situational awareness.
+No impact on existing candidates' edge capture or Sharpe; pure alerting addition does not alter P&L or trade counts. Complements all candidates by providing diagnostic visibility without modifying core logic.
