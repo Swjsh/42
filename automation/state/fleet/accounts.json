@@ -37,7 +37,8 @@
    "instrument": "SPY_0DTE_OPTION",
    "starting_equity": 2000.0,
    "frozen_at": "2026-06-25",
-   "gate_override": {"min_triggers": 2, "require_confluence_or_sequence": true},
+   "gate_override": {"min_triggers": 2, "require_confluence_or_sequence": true, "score_ladder_floor": 9},
+   "score_ladder_doc": "SCORE_LADDER floor=9 armed 2026-07-27 late (J: 'I specifically said I wanted 7/10 and 8/10 being traded' -- full ladder per his 7/8/8/9/9 spec after reviewing ARM-LADDER-V1). Same lane/fences as risky-3's entry (see its doc). REVOKE: delete score_ladder_floor.",
    "params_patch": {
     "strike_tier_table": "bold",
     "exit_patch": {"stop_mode": "structure", "profit_lock_mode": "trailing"}
@@ -100,7 +101,8 @@
    "config_source": "inherit bold",
    "starting_equity": 2000.0,
    "frozen_at": "2026-06-25",
-   "gate_override": {"min_triggers": 2, "require_confluence_or_sequence": true},
+   "gate_override": {"min_triggers": 2, "require_confluence_or_sequence": true, "score_ladder_floor": 8},
+   "score_ladder_doc": "SCORE_LADDER floor=8 armed 2026-07-27 late (J's full 7/8/8/9/9 ladder after table review). Same lane/fences as risky-3's entry (see its doc). REVOKE: delete score_ladder_floor.",
    "params_patch": {},
    "exit_profile": "TRIG-EXACT",
    "note": "RISKY sizing, TIGHT gate. PUT_ONLY REMOVED -- trades BOTH directions on the full strategy set; the account only adds selectivity + bold sizing. EXIT A/B (2026-07-20): deliberately NO exit_patch -- the untouched control lane, each strategy's REGISTRY exit shape verbatim (today's exact trigger-level structure/premium stop, unchanged). See update_note_2026_07_20."
