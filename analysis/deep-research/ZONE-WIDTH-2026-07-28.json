@@ -1,0 +1,3411 @@
+{
+  "_doc": "zone_width_fullhist_replay.py -- ZONE-WIDTH pre-registered 3-cell band study (2026-07-28).\n\nLANE: \"LEVELS ARE ZONES\" (J standing doctrine, LESSONS-LEARNED.md:5048 -- 2026-07-17 10:15,\nSPY 747.27 vs PDL 747.88, 61c shy, zero triggers: \"levels are not ever exact to the penny!\nits zones!!\"). detect_level_rejection (backtest/lib/filters.py:540) demands a strict cross:\nhigh > level AND close < level. This study measures what a symmetric proximity band adds --\nMARGINAL trades only, separated from the shared base -- through the FULL production cascade.\n\n===========================================================================================\nPRE-REGISTRATION (frozen BEFORE the run; stated verbatim in the session transcript first)\n===========================================================================================\nHYPOTHESIS: widening the rejection test symmetrically by band b adds marginal trades whose\nexpectancy is comparable to the base engine's; concretely, the marginal cohort at b=10c\nand/or b=25c is profitable through the full production entry cascade + real exit walk.\n\nBANDED PREDICATE (exact, frozen) -- in-process monkeypatch of lib.filters.\ndetect_level_rejection (established pattern: zone_rejection_band_study.py:263), reaching\nBOTH production call sites (levels_active filters.py:1480 + FHH filters.py:1541; bull-side\ndetect_level_reclaim untouched -- lane is the REJECTION test only, disclosed asymmetry):\n  1. STRICT-PRESERVING: if the production strict predicate fires on any level (high > lvl\n     AND close < lvl), return the production result unchanged (max such lvl). The shared\n     base is preserved bit-for-bit.\n  2. WICK-DEFERENCE: else, if production's wick fall-through detect_wick_rejection_bearish\n     (module constants WICK_MIN_PCT_OF_RANGE/WICK_MIN_DOLLARS/WICK_CLOSE_TOLERANCE, read at\n     call time) would fire on the SAME levels list, return None -- so filters.py:1528-1536's\n     wick-promotion path executes unchanged. Without this the patch would intercept and\n     potentially re-level existing wick trades, contaminating the shared base. (Side effect,\n     disclosed: production never wick-tests the FHH level, so banded-FHH fires are also\n     suppressed on bars where a wick pattern exists vs FHH -- slightly conservative.)\n  3. BANDED FALL-THROUGH: else fire on any lvl with high > lvl - b AND close < lvl + b;\n     return max such lvl (production tiebreak). At b=0 this is algebraically the production\n     predicate, so the control cell is run with the UNPATCHED engine.\n     KNOWN PROPERTY, DISCLOSED NOT PATCHED: the touch-side relaxation (high in (lvl-b, lvl])\n     has no effective close constraint (close <= high <= lvl < lvl+b auto-satisfies), so\n     green approach bars can fire. Deliberately NO unregistered red-close knob is added;\n     the engine's own downstream gates (entry_bar_body_pct_min etc.) are the only screens.\n     If green approaches poison the marginal cohort, the cells will show it -- that IS the\n     answer, not a reason to re-tune mid-run.\n\nCELLS (3 ONLY): b in {0.00 (control == unpatched production), 0.10, 0.25} dollars.\n\nPOPULATION / MACHINERY (reused, not re-derived): 390-RTH-day window 2025-01-02..2026-07-27\nvia ladder_fullhist_replay.load_extended_data(); entries via lib.orchestrator.run_backtest(\n**engine_fullhist_replay.SAFE_BASE_LIVE) -- the full production cascade including\nblock_level_rejection=True, the sweep blocker, the L96 trendline_only interaction, NOT_FLAT\nand the audited entry+1 convention (markdown/audits/ENTRY-BAR-CONVENTION-RULING-2026-07-25.md\n-- run_backtest's own entry layer, same as the engine-fullhist scorecard); exits via\nbacktest/lib/exit_manager_walk.walk_exit_manager under strategies.py#RIBBON_RIDE.exit.\nto_dict() -- byte-identical to ladder_fullhist_replay.run_baseline. Real OPRA fills only\n(run_backtest(use_real_fills=True) refuses uncached entries at the entry layer; the exit\nwalk's own OPRA lookup is a second check, counted).\n\nMARGINAL DECOMPOSITION: trades matched control<->cell on the key (entry_time_et, side,\nstrike, qty, entry_premium@4dp, rejection_level@2dp). Matched = SHARED (control's walked\nexit reused -- identical inputs => identical deterministic walk). Cell-only = MARGINAL\n(walked fresh). Control-only = DISPLACED (control P&L foregone -- NOT_FLAT crowd-out or\ngate flips, e.g. a banded level_rejection fire un-setting trendline_only_setup and\nre-enabling filters 5/8, the L96 mechanism). Same-bar displaced+marginal pairs (shifted\ntrades) are counted as a separate diagnostic but stay in the marginal cohort (disclosed).\n\nPASS BAR (frozen): a band cell is ship-eligible ONLY if its MARGINAL cohort has\n  (a) positive aggregate P&L, (b) day-majority (win days > half of days with >=1 marginal\n  trade), (c) survives-drop-best, (d) held-out (dates >= 2026-03-06, the same last-25%\n  cutoff LADDER-FULLHIST-2026-07-27 used, touched once) positive\nAND (e) net effect (marginal_total - displaced_total) >= 0.\nMarginal n < 15 => evidence_thin advisory. ALL 3 cells reported, nulls plainly.\n\nVERIFICATION ANCHOR: the control run must reproduce analysis/arm-ladder/\nLADDER-FULLHIST-2026-07-27.json baseline_binary_engine.stats exactly (n=191,\ntotal +$5,306.95, WR 0.2984, n_excluded_no_opra=18). Mismatch => VERIFICATION FAILED,\nloud halt, no cell numbers reported as valid.\n\nPRIOR ART (cited, not re-derived): backtest/tools/zone_rejection_band_study.py (2026-07-17)\ntested a DIFFERENT predicate (approach-side only, red-close required, SS-B exits, window\n..2026-07-08) -- NULL both accounts. markdown/research/EDGE-MATRIX-FULLHIST-2026-07-23.md:172\nmeasured the raw bear-level-rejection signal family at -$28.84/trade (n=518, BH-significant\nloser) OUTSIDE the engine cascade. This study is the first ZONE test run THROUGH the full\nproduction engine on the full 390-day window with the real exit core.\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/zone_width_fullhist_replay.py\n",
+  "generated_at": "2026-07-27T22:19:13.532564",
+  "window": {
+    "start": "2025-01-02",
+    "end": "2026-07-27",
+    "n_calendar_rth_days": 390
+  },
+  "held_out_split": {
+    "cutoff_date": "2026-03-06",
+    "note": "last ~25% by date, touched once, reported not tuned (same cutoff as LADDER-FULLHIST-2026-07-27)"
+  },
+  "verification_anchor": {
+    "expected": {
+      "n_trades": 191,
+      "total_pnl": 5306.95,
+      "win_rate": 0.2984,
+      "n_excluded_no_opra": 18
+    },
+    "observed": {
+      "n_trades": 191,
+      "total_pnl": 5306.95,
+      "win_rate": 0.2984,
+      "n_excluded_no_opra": 18
+    },
+    "pass": true
+  },
+  "cells": {
+    "0c": {
+      "band_dollars": 0.0,
+      "n_raw_entries": 209,
+      "n_shared": 191,
+      "n_marginal": 0,
+      "n_marginal_no_opra": 0,
+      "n_displaced": 0,
+      "n_band_branch_fires": 0,
+      "full_book_stats": {
+        "n_trades": 191,
+        "total_pnl": 5306.95,
+        "win_rate": 0.2984,
+        "avg_pnl_per_trade": 27.79,
+        "max_drawdown": -2233.4,
+        "max_drawdown_date": "2025-06-12",
+        "day_majority": {
+          "win_days": 49,
+          "total_trading_days": 142,
+          "is_majority": false
+        },
+        "survives_dropping_best_trade": {
+          "best_trade_pnl": 859.95,
+          "total_minus_best": 4447.0,
+          "still_positive": true
+        },
+        "held_out_last_25pct": {
+          "cutoff_date": "2026-03-06",
+          "n_trades": 58,
+          "total_pnl": 1548.4,
+          "win_rate": 0.3621
+        }
+      },
+      "net_effect_vs_control": 0.0,
+      "note": "control == unpatched production engine; marginal is definitionally empty"
+    },
+    "10c": {
+      "band_dollars": 0.1,
+      "n_raw_entries": 183,
+      "n_shared": 154,
+      "n_marginal": 13,
+      "n_marginal_no_opra": 2,
+      "n_displaced": 37,
+      "n_shifted_pairs_same_bar": 2,
+      "n_band_branch_fires": 6822,
+      "fire_mode_counts": {
+        "approach_touch": 4312,
+        "pierced_close_in_zone": 2510
+      },
+      "fire_log_sample_first_50": [
+        {
+          "ts": "2025-01-03T10:35:00",
+          "level": 589.39,
+          "mode": "approach_touch",
+          "high": 589.38,
+          "close": 589.38
+        },
+        {
+          "ts": "2025-01-03T10:35:00",
+          "level": 589.39,
+          "mode": "approach_touch",
+          "high": 589.38,
+          "close": 589.38
+        },
+        {
+          "ts": "2025-01-03T10:55:00",
+          "level": 588.0,
+          "mode": "pierced_close_in_zone",
+          "high": 588.095,
+          "close": 588.0
+        },
+        {
+          "ts": "2025-01-03T10:55:00",
+          "level": 588.0,
+          "mode": "pierced_close_in_zone",
+          "high": 588.095,
+          "close": 588.0
+        },
+        {
+          "ts": "2025-01-03T11:00:00",
+          "level": 589.0,
+          "mode": "pierced_close_in_zone",
+          "high": 589.1,
+          "close": 589.07
+        },
+        {
+          "ts": "2025-01-03T11:00:00",
+          "level": 589.0,
+          "mode": "pierced_close_in_zone",
+          "high": 589.1,
+          "close": 589.07
+        },
+        {
+          "ts": "2025-01-03T11:05:00",
+          "level": 589.39,
+          "mode": "approach_touch",
+          "high": 589.35,
+          "close": 589.07
+        },
+        {
+          "ts": "2025-01-03T11:05:00",
+          "level": 589.39,
+          "mode": "approach_touch",
+          "high": 589.35,
+          "close": 589.07
+        },
+        {
+          "ts": "2025-01-03T11:20:00",
+          "level": 588.0,
+          "mode": "approach_touch",
+          "high": 588.0,
+          "close": 587.87
+        },
+        {
+          "ts": "2025-01-03T11:20:00",
+          "level": 588.0,
+          "mode": "approach_touch",
+          "high": 588.0,
+          "close": 587.87
+        },
+        {
+          "ts": "2025-01-03T11:25:00",
+          "level": 588.4,
+          "mode": "approach_touch",
+          "high": 588.325,
+          "close": 588.3
+        },
+        {
+          "ts": "2025-01-03T11:25:00",
+          "level": 588.4,
+          "mode": "approach_touch",
+          "high": 588.325,
+          "close": 588.3
+        },
+        {
+          "ts": "2025-01-03T11:30:00",
+          "level": 588.59,
+          "mode": "approach_touch",
+          "high": 588.56,
+          "close": 588.56
+        },
+        {
+          "ts": "2025-01-03T11:30:00",
+          "level": 588.59,
+          "mode": "approach_touch",
+          "high": 588.56,
+          "close": 588.56
+        },
+        {
+          "ts": "2025-01-03T12:10:00",
+          "level": 588.59,
+          "mode": "approach_touch",
+          "high": 588.58,
+          "close": 588.5
+        },
+        {
+          "ts": "2025-01-03T12:10:00",
+          "level": 588.59,
+          "mode": "approach_touch",
+          "high": 588.58,
+          "close": 588.5
+        },
+        {
+          "ts": "2025-01-03T13:05:00",
+          "level": 591.09,
+          "mode": "approach_touch",
+          "high": 591.005,
+          "close": 590.76
+        },
+        {
+          "ts": "2025-01-03T13:05:00",
+          "level": 591.09,
+          "mode": "approach_touch",
+          "high": 591.005,
+          "close": 590.76
+        },
+        {
+          "ts": "2025-01-03T14:20:00",
+          "level": 591.09,
+          "mode": "approach_touch",
+          "high": 591.01,
+          "close": 590.78
+        },
+        {
+          "ts": "2025-01-03T14:20:00",
+          "level": 591.09,
+          "mode": "approach_touch",
+          "high": 591.01,
+          "close": 590.78
+        },
+        {
+          "ts": "2025-01-06T14:40:00",
+          "level": 597.0,
+          "mode": "approach_touch",
+          "high": 596.92,
+          "close": 596.45
+        },
+        {
+          "ts": "2025-01-06T14:40:00",
+          "level": 597.0,
+          "mode": "approach_touch",
+          "high": 596.92,
+          "close": 596.45
+        },
+        {
+          "ts": "2025-01-06T15:15:00",
+          "level": 595.915,
+          "mode": "approach_touch",
+          "high": 595.83,
+          "close": 595.56
+        },
+        {
+          "ts": "2025-01-06T15:15:00",
+          "level": 595.915,
+          "mode": "approach_touch",
+          "high": 595.83,
+          "close": 595.56
+        },
+        {
+          "ts": "2025-01-07T10:40:00",
+          "level": 596.97,
+          "mode": "approach_touch",
+          "high": 596.94,
+          "close": 596.94
+        },
+        {
+          "ts": "2025-01-07T10:40:00",
+          "level": 596.97,
+          "mode": "approach_touch",
+          "high": 596.94,
+          "close": 596.94
+        },
+        {
+          "ts": "2025-01-07T12:35:00",
+          "level": 592.09,
+          "mode": "pierced_close_in_zone",
+          "high": 592.245,
+          "close": 592.14
+        },
+        {
+          "ts": "2025-01-07T12:35:00",
+          "level": 592.09,
+          "mode": "pierced_close_in_zone",
+          "high": 592.245,
+          "close": 592.14
+        },
+        {
+          "ts": "2025-01-07T14:15:00",
+          "level": 592.09,
+          "mode": "approach_touch",
+          "high": 592.01,
+          "close": 591.95
+        },
+        {
+          "ts": "2025-01-07T14:15:00",
+          "level": 592.09,
+          "mode": "approach_touch",
+          "high": 592.01,
+          "close": 591.95
+        },
+        {
+          "ts": "2025-01-08T11:00:00",
+          "level": 588.68,
+          "mode": "approach_touch",
+          "high": 588.64,
+          "close": 588.55
+        },
+        {
+          "ts": "2025-01-08T11:00:00",
+          "level": 588.68,
+          "mode": "approach_touch",
+          "high": 588.64,
+          "close": 588.55
+        },
+        {
+          "ts": "2025-01-08T11:45:00",
+          "level": 587.505,
+          "mode": "approach_touch",
+          "high": 587.5,
+          "close": 587.43
+        },
+        {
+          "ts": "2025-01-08T11:45:00",
+          "level": 587.505,
+          "mode": "approach_touch",
+          "high": 587.5,
+          "close": 587.43
+        },
+        {
+          "ts": "2025-01-08T12:05:00",
+          "level": 588.0,
+          "mode": "pierced_close_in_zone",
+          "high": 588.11,
+          "close": 588.08
+        },
+        {
+          "ts": "2025-01-08T12:05:00",
+          "level": 588.0,
+          "mode": "pierced_close_in_zone",
+          "high": 588.11,
+          "close": 588.08
+        },
+        {
+          "ts": "2025-01-08T12:20:00",
+          "level": 588.68,
+          "mode": "approach_touch",
+          "high": 588.645,
+          "close": 588.4
+        },
+        {
+          "ts": "2025-01-08T12:20:00",
+          "level": 588.68,
+          "mode": "approach_touch",
+          "high": 588.645,
+          "close": 588.4
+        },
+        {
+          "ts": "2025-01-08T12:30:00",
+          "level": 588.68,
+          "mode": "approach_touch",
+          "high": 588.64,
+          "close": 588.64
+        },
+        {
+          "ts": "2025-01-08T12:30:00",
+          "level": 588.68,
+          "mode": "approach_touch",
+          "high": 588.64,
+          "close": 588.64
+        },
+        {
+          "ts": "2025-01-08T12:40:00",
+          "level": 589.66,
+          "mode": "pierced_close_in_zone",
+          "high": 589.89,
+          "close": 589.72
+        },
+        {
+          "ts": "2025-01-08T12:40:00",
+          "level": 589.66,
+          "mode": "pierced_close_in_zone",
+          "high": 589.89,
+          "close": 589.72
+        },
+        {
+          "ts": "2025-01-08T12:45:00",
+          "level": 589.66,
+          "mode": "approach_touch",
+          "high": 589.66,
+          "close": 589.53
+        },
+        {
+          "ts": "2025-01-08T12:45:00",
+          "level": 589.66,
+          "mode": "approach_touch",
+          "high": 589.66,
+          "close": 589.53
+        },
+        {
+          "ts": "2025-01-08T14:20:00",
+          "level": 588.68,
+          "mode": "approach_touch",
+          "high": 588.59,
+          "close": 588.59
+        },
+        {
+          "ts": "2025-01-08T14:20:00",
+          "level": 588.68,
+          "mode": "approach_touch",
+          "high": 588.59,
+          "close": 588.59
+        },
+        {
+          "ts": "2025-01-10T09:35:00",
+          "level": 584.58,
+          "mode": "approach_touch",
+          "high": 584.58,
+          "close": 584.58
+        },
+        {
+          "ts": "2025-01-10T09:35:00",
+          "level": 584.58,
+          "mode": "approach_touch",
+          "high": 584.58,
+          "close": 584.58
+        },
+        {
+          "ts": "2025-01-10T09:45:00",
+          "level": 585.0,
+          "mode": "pierced_close_in_zone",
+          "high": 585.01,
+          "close": 585.01
+        },
+        {
+          "ts": "2025-01-10T09:45:00",
+          "level": 585.0,
+          "mode": "pierced_close_in_zone",
+          "high": 585.01,
+          "close": 585.01
+        }
+      ],
+      "marginal_stats": {
+        "n_trades": 13,
+        "total_pnl": 214.0,
+        "win_rate": 0.3846,
+        "avg_pnl_per_trade": 16.46,
+        "max_drawdown": -364.2,
+        "max_drawdown_date": "2026-07-21",
+        "day_majority": {
+          "win_days": 5,
+          "total_trading_days": 13,
+          "is_majority": false
+        },
+        "survives_dropping_best_trade": {
+          "best_trade_pnl": 442.5,
+          "total_minus_best": -228.5,
+          "still_positive": false
+        },
+        "held_out_last_25pct": {
+          "cutoff_date": "2026-03-06",
+          "n_trades": 4,
+          "total_pnl": -83.4,
+          "win_rate": 0.25
+        }
+      },
+      "displaced_stats": {
+        "n_trades": 37,
+        "total_pnl": 632.0,
+        "win_rate": 0.3243,
+        "avg_pnl_per_trade": 17.08,
+        "max_drawdown": -789.95,
+        "max_drawdown_date": "2026-05-01",
+        "day_majority": {
+          "win_days": 11,
+          "total_trading_days": 30,
+          "is_majority": false
+        },
+        "survives_dropping_best_trade": {
+          "best_trade_pnl": 545.65,
+          "total_minus_best": 86.35,
+          "still_positive": true
+        },
+        "held_out_last_25pct": {
+          "cutoff_date": "2026-03-06",
+          "n_trades": 12,
+          "total_pnl": 465.05,
+          "win_rate": 0.3333
+        }
+      },
+      "full_book_stats": {
+        "n_trades": 167,
+        "total_pnl": 4888.95,
+        "win_rate": 0.2994,
+        "avg_pnl_per_trade": 29.28,
+        "max_drawdown": -2011.65,
+        "max_drawdown_date": "2026-07-15",
+        "day_majority": {
+          "win_days": 44,
+          "total_trading_days": 129,
+          "is_majority": false
+        },
+        "survives_dropping_best_trade": {
+          "best_trade_pnl": 859.95,
+          "total_minus_best": 4029.0,
+          "still_positive": true
+        },
+        "held_out_last_25pct": {
+          "cutoff_date": "2026-03-06",
+          "n_trades": 50,
+          "total_pnl": 999.95,
+          "win_rate": 0.36
+        }
+      },
+      "net_effect_vs_control": -418.0,
+      "gates": {
+        "a_positive_aggregate": true,
+        "b_day_majority": false,
+        "c_survives_drop_best": false,
+        "d_held_out_positive": false,
+        "e_net_effect_nonnegative": false,
+        "ship_eligible": false,
+        "evidence_thin": true
+      },
+      "marginal_trades": [
+        {
+          "date": "2025-01-08",
+          "entry_time_et": "2025-01-08T12:55:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250108P00589000",
+          "qty": 3,
+          "entry_premium": 1.28,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 442.5,
+          "exit_reason": "runner_stop @ 3.15",
+          "hold_minutes": 50,
+          "resolved": true,
+          "band_fire_mode": "approach_touch",
+          "band_fire_level": 589.66,
+          "band_fire_ts": "2025-01-08T12:45:00"
+        },
+        {
+          "date": "2025-01-29",
+          "entry_time_et": "2025-01-29T13:00:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250129P00602000",
+          "qty": 3,
+          "entry_premium": 1.82,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -109.2,
+          "exit_reason": "premium_stop @ 1.46",
+          "hold_minutes": 5,
+          "resolved": true,
+          "band_fire_mode": "approach_touch",
+          "band_fire_level": 603.0,
+          "band_fire_ts": "2025-01-29T12:50:00"
+        },
+        {
+          "date": "2025-02-07",
+          "entry_time_et": "2025-02-07T14:50:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250207P00602000",
+          "qty": 5,
+          "entry_premium": 0.99,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 55.0,
+          "exit_reason": "time_stop_15:50",
+          "hold_minutes": 50,
+          "resolved": true,
+          "band_fire_mode": null,
+          "band_fire_level": null,
+          "band_fire_ts": null
+        },
+        {
+          "date": "2025-02-24",
+          "entry_time_et": "2025-02-24T14:50:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250224P00601000",
+          "qty": 7,
+          "entry_premium": 0.73,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 91.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true,
+          "band_fire_mode": null,
+          "band_fire_level": null,
+          "band_fire_ts": null
+        },
+        {
+          "date": "2025-08-07",
+          "entry_time_et": "2025-08-07T12:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250807P00631000",
+          "qty": 3,
+          "entry_premium": 1.32,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -79.2,
+          "exit_reason": "premium_stop @ 1.06",
+          "hold_minutes": 10,
+          "resolved": true,
+          "band_fire_mode": null,
+          "band_fire_level": null,
+          "band_fire_ts": null
+        },
+        {
+          "date": "2025-09-10",
+          "entry_time_et": "2025-09-10T13:15:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250910P00653000",
+          "qty": 3,
+          "entry_premium": 0.54,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 178.1,
+          "exit_reason": "runner_stop @ 1.24",
+          "hold_minutes": 80,
+          "resolved": true,
+          "band_fire_mode": "approach_touch",
+          "band_fire_level": 653.49,
+          "band_fire_ts": "2025-09-10T13:05:00"
+        },
+        {
+          "date": "2025-10-07",
+          "entry_time_et": "2025-10-07T12:10:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251007P00668000",
+          "qty": 3,
+          "entry_premium": 1.05,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -63.0,
+          "exit_reason": "premium_stop @ 0.84",
+          "hold_minutes": 20,
+          "resolved": true,
+          "band_fire_mode": null,
+          "band_fire_level": null,
+          "band_fire_ts": null
+        },
+        {
+          "date": "2025-11-04",
+          "entry_time_et": "2025-11-04T12:35:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251104P00678000",
+          "qty": 3,
+          "entry_premium": 1.2,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -72.0,
+          "exit_reason": "premium_stop @ 0.96",
+          "hold_minutes": 5,
+          "resolved": true,
+          "band_fire_mode": null,
+          "band_fire_level": null,
+          "band_fire_ts": null
+        },
+        {
+          "date": "2026-02-17",
+          "entry_time_et": "2026-02-17T10:30:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260217P00680000",
+          "qty": 3,
+          "entry_premium": 2.43,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -145.8,
+          "exit_reason": "premium_stop @ 1.94",
+          "hold_minutes": 5,
+          "resolved": true,
+          "band_fire_mode": null,
+          "band_fire_level": null,
+          "band_fire_ts": null
+        },
+        {
+          "date": "2026-05-07",
+          "entry_time_et": "2026-05-07T13:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260507P00731000",
+          "qty": 3,
+          "entry_premium": 1.13,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -67.8,
+          "exit_reason": "premium_stop @ 0.9",
+          "hold_minutes": 15,
+          "resolved": true,
+          "band_fire_mode": null,
+          "band_fire_level": null,
+          "band_fire_ts": null
+        },
+        {
+          "date": "2026-05-22",
+          "entry_time_et": "2026-05-22T13:15:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260522P00748000",
+          "qty": 3,
+          "entry_premium": 1.18,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 45.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true,
+          "band_fire_mode": "approach_touch",
+          "band_fire_level": 747.97,
+          "band_fire_ts": "2026-05-22T13:05:00"
+        },
+        {
+          "date": "2026-06-16",
+          "entry_time_et": "2026-06-16T13:35:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260616P00752000",
+          "qty": 3,
+          "entry_premium": 0.71,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -42.6,
+          "exit_reason": "premium_stop @ 0.57",
+          "hold_minutes": 20,
+          "resolved": true,
+          "band_fire_mode": "approach_touch",
+          "band_fire_level": 752.5,
+          "band_fire_ts": "2026-06-16T13:25:00"
+        },
+        {
+          "date": "2026-07-21",
+          "entry_time_et": "2026-07-21T14:55:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260721P00748000",
+          "qty": 3,
+          "entry_premium": 0.37,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -18.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true,
+          "band_fire_mode": "approach_touch",
+          "band_fire_level": 748.73,
+          "band_fire_ts": "2026-07-21T14:45:00"
+        }
+      ],
+      "displaced_trades": [
+        {
+          "date": "2025-01-06",
+          "entry_time_et": "2025-01-06T14:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250106P00596000",
+          "qty": 3,
+          "entry_premium": 0.57,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 180.25,
+          "exit_reason": "runner_stop @ 1.23",
+          "hold_minutes": 25,
+          "resolved": true
+        },
+        {
+          "date": "2025-01-08",
+          "entry_time_et": "2025-01-08T12:50:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250108P00590000",
+          "qty": 3,
+          "entry_premium": 1.64,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 545.65,
+          "exit_reason": "runner_stop @ 3.82",
+          "hold_minutes": 55,
+          "resolved": true
+        },
+        {
+          "date": "2025-01-29",
+          "entry_time_et": "2025-01-29T12:40:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250129P00602000",
+          "qty": 3,
+          "entry_premium": 1.91,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -114.6,
+          "exit_reason": "premium_stop @ 1.53",
+          "hold_minutes": 25,
+          "resolved": true
+        },
+        {
+          "date": "2025-02-06",
+          "entry_time_et": "2025-02-06T12:40:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250206P00605000",
+          "qty": 3,
+          "entry_premium": 1.16,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -21.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2025-02-06",
+          "entry_time_et": "2025-02-06T13:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250206P00605000",
+          "qty": 5,
+          "entry_premium": 0.94,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -100.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2025-02-07",
+          "entry_time_et": "2025-02-07T14:25:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250207P00603000",
+          "qty": 5,
+          "entry_premium": 0.95,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -95.0,
+          "exit_reason": "premium_stop @ 0.76",
+          "hold_minutes": 15,
+          "resolved": true
+        },
+        {
+          "date": "2025-02-24",
+          "entry_time_et": "2025-02-24T13:50:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250224P00601000",
+          "qty": 7,
+          "entry_premium": 0.72,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 77.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 20,
+          "resolved": true
+        },
+        {
+          "date": "2025-05-20",
+          "entry_time_et": "2025-05-20T12:15:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250520P00593000",
+          "qty": 3,
+          "entry_premium": 1.27,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -76.2,
+          "exit_reason": "premium_stop @ 1.02",
+          "hold_minutes": 25,
+          "resolved": true
+        },
+        {
+          "date": "2025-07-07",
+          "entry_time_et": "2025-07-07T11:00:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250707P00622000",
+          "qty": 3,
+          "entry_premium": 0.91,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 276.3,
+          "exit_reason": "runner_stop @ 1.85",
+          "hold_minutes": 90,
+          "resolved": true
+        },
+        {
+          "date": "2025-07-07",
+          "entry_time_et": "2025-07-07T14:20:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250707P00619000",
+          "qty": 5,
+          "entry_premium": 0.99,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -99.0,
+          "exit_reason": "premium_stop @ 0.79",
+          "hold_minutes": 20,
+          "resolved": true
+        },
+        {
+          "date": "2025-08-07",
+          "entry_time_et": "2025-08-07T11:50:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250807P00631000",
+          "qty": 3,
+          "entry_premium": 1.04,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -62.4,
+          "exit_reason": "premium_stop @ 0.83",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2025-08-07",
+          "entry_time_et": "2025-08-07T13:05:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250807P00631000",
+          "qty": 4,
+          "entry_premium": 1.13,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -90.4,
+          "exit_reason": "premium_stop @ 0.9",
+          "hold_minutes": 50,
+          "resolved": true
+        },
+        {
+          "date": "2025-09-10",
+          "entry_time_et": "2025-09-10T13:10:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250910P00653000",
+          "qty": 3,
+          "entry_premium": 0.49,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 136.55,
+          "exit_reason": "runner_stop @ 0.88",
+          "hold_minutes": 25,
+          "resolved": true
+        },
+        {
+          "date": "2025-10-07",
+          "entry_time_et": "2025-10-07T11:40:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251007P00669000",
+          "qty": 3,
+          "entry_premium": 1.33,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -79.8,
+          "exit_reason": "premium_stop @ 1.06",
+          "hold_minutes": 55,
+          "resolved": true
+        },
+        {
+          "date": "2025-10-24",
+          "entry_time_et": "2025-10-24T14:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251024P00678000",
+          "qty": 3,
+          "entry_premium": 0.39,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -9.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2025-11-04",
+          "entry_time_et": "2025-11-04T11:10:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251104P00679000",
+          "qty": 3,
+          "entry_premium": 1.68,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -100.8,
+          "exit_reason": "premium_stop @ 1.34",
+          "hold_minutes": 10,
+          "resolved": true
+        },
+        {
+          "date": "2025-11-04",
+          "entry_time_et": "2025-11-04T12:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251104P00678000",
+          "qty": 4,
+          "entry_premium": 1.11,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 418.2,
+          "exit_reason": "runner_stop @ 2.09",
+          "hold_minutes": 40,
+          "resolved": true
+        },
+        {
+          "date": "2025-11-04",
+          "entry_time_et": "2025-11-04T14:00:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251104P00676000",
+          "qty": 4,
+          "entry_premium": 1.21,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -96.8,
+          "exit_reason": "premium_stop @ 0.97",
+          "hold_minutes": 55,
+          "resolved": true
+        },
+        {
+          "date": "2025-12-08",
+          "entry_time_et": "2025-12-08T12:05:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251208P00683000",
+          "qty": 3,
+          "entry_premium": 1.13,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -67.8,
+          "exit_reason": "premium_stop @ 0.9",
+          "hold_minutes": 20,
+          "resolved": true
+        },
+        {
+          "date": "2025-12-09",
+          "entry_time_et": "2025-12-09T10:30:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251209P00683000",
+          "qty": 3,
+          "entry_premium": 1.4,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -84.0,
+          "exit_reason": "premium_stop @ 1.12",
+          "hold_minutes": 10,
+          "resolved": true
+        },
+        {
+          "date": "2025-12-10",
+          "entry_time_et": "2025-12-10T10:30:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251210P00683000",
+          "qty": 3,
+          "entry_premium": 2.51,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -150.6,
+          "exit_reason": "premium_stop @ 2.01",
+          "hold_minutes": 50,
+          "resolved": true
+        },
+        {
+          "date": "2026-02-04",
+          "entry_time_et": "2026-02-04T10:30:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260204P00690000",
+          "qty": 3,
+          "entry_premium": 2.17,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 6.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 55,
+          "resolved": true
+        },
+        {
+          "date": "2026-02-17",
+          "entry_time_et": "2026-02-17T10:30:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260217P00679000",
+          "qty": 3,
+          "entry_premium": 2.06,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -123.6,
+          "exit_reason": "premium_stop @ 1.65",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2026-02-17",
+          "entry_time_et": "2026-02-17T13:10:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260217P00682000",
+          "qty": 3,
+          "entry_premium": 1.64,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 42.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2026-03-02",
+          "entry_time_et": "2026-03-02T10:55:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260302P00683000",
+          "qty": 3,
+          "entry_premium": 2.4,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -144.0,
+          "exit_reason": "premium_stop @ 1.92",
+          "hold_minutes": 10,
+          "resolved": true
+        },
+        {
+          "date": "2026-03-17",
+          "entry_time_et": "2026-03-17T11:50:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260317P00671000",
+          "qty": 3,
+          "entry_premium": 1.36,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -81.6,
+          "exit_reason": "premium_stop @ 1.09",
+          "hold_minutes": 30,
+          "resolved": true
+        },
+        {
+          "date": "2026-04-29",
+          "entry_time_et": "2026-04-29T12:15:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260429P00710000",
+          "qty": 3,
+          "entry_premium": 2.09,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -125.4,
+          "exit_reason": "premium_stop @ 1.67",
+          "hold_minutes": 165,
+          "resolved": true
+        },
+        {
+          "date": "2026-05-01",
+          "entry_time_et": "2026-05-01T13:40:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260501P00723000",
+          "qty": 3,
+          "entry_premium": 0.75,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -24.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2026-05-07",
+          "entry_time_et": "2026-05-07T12:50:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260507P00733000",
+          "qty": 3,
+          "entry_premium": 1.41,
+          "triggers": [
+            "ribbon_flip",
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 382.4,
+          "exit_reason": "runner_stop @ 2.41",
+          "hold_minutes": 130,
+          "resolved": true
+        },
+        {
+          "date": "2026-05-07",
+          "entry_time_et": "2026-05-07T13:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260507P00731000",
+          "qty": 4,
+          "entry_premium": 1.13,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -90.4,
+          "exit_reason": "premium_stop @ 0.9",
+          "hold_minutes": 15,
+          "resolved": true
+        },
+        {
+          "date": "2026-05-18",
+          "entry_time_et": "2026-05-18T10:00:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260518P00741000",
+          "qty": 3,
+          "entry_premium": 1.77,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 504.25,
+          "exit_reason": "runner_stop @ 3.27",
+          "hold_minutes": 60,
+          "resolved": true
+        },
+        {
+          "date": "2026-05-22",
+          "entry_time_et": "2026-05-22T13:00:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260522P00747000",
+          "qty": 3,
+          "entry_premium": 0.94,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -56.4,
+          "exit_reason": "premium_stop @ 0.75",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2026-06-16",
+          "entry_time_et": "2026-06-16T11:40:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260616P00753000",
+          "qty": 3,
+          "entry_premium": 1.16,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 93.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2026-07-02",
+          "entry_time_et": "2026-07-02T13:05:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260702P00741000",
+          "qty": 3,
+          "entry_premium": 1.48,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -88.8,
+          "exit_reason": "premium_stop @ 1.18",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2026-07-14",
+          "entry_time_et": "2026-07-14T14:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260714P00752000",
+          "qty": 3,
+          "entry_premium": 0.54,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -54.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2026-07-15",
+          "entry_time_et": "2026-07-15T14:30:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260715P00755000",
+          "qty": 3,
+          "entry_premium": 0.74,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 18.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2026-07-21",
+          "entry_time_et": "2026-07-21T14:50:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260721P00748000",
+          "qty": 3,
+          "entry_premium": 0.32,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -12.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        }
+      ]
+    },
+    "25c": {
+      "band_dollars": 0.25,
+      "n_raw_entries": 163,
+      "n_shared": 130,
+      "n_marginal": 19,
+      "n_marginal_no_opra": 3,
+      "n_displaced": 61,
+      "n_shifted_pairs_same_bar": 2,
+      "n_band_branch_fires": 13378,
+      "fire_mode_counts": {
+        "pierced_close_in_zone": 4656,
+        "approach_touch": 8722
+      },
+      "fire_log_sample_first_50": [
+        {
+          "ts": "2025-01-02T14:30:00",
+          "level": 580.96,
+          "mode": "pierced_close_in_zone",
+          "high": 582.325,
+          "close": 581.08
+        },
+        {
+          "ts": "2025-01-02T14:30:00",
+          "level": 580.96,
+          "mode": "pierced_close_in_zone",
+          "high": 582.325,
+          "close": 581.08
+        },
+        {
+          "ts": "2025-01-03T10:35:00",
+          "level": 589.39,
+          "mode": "approach_touch",
+          "high": 589.38,
+          "close": 589.38
+        },
+        {
+          "ts": "2025-01-03T10:35:00",
+          "level": 589.39,
+          "mode": "approach_touch",
+          "high": 589.38,
+          "close": 589.38
+        },
+        {
+          "ts": "2025-01-03T10:40:00",
+          "level": 589.39,
+          "mode": "pierced_close_in_zone",
+          "high": 589.54,
+          "close": 589.53
+        },
+        {
+          "ts": "2025-01-03T10:40:00",
+          "level": 589.39,
+          "mode": "pierced_close_in_zone",
+          "high": 589.54,
+          "close": 589.53
+        },
+        {
+          "ts": "2025-01-03T10:55:00",
+          "level": 588.0,
+          "mode": "pierced_close_in_zone",
+          "high": 588.095,
+          "close": 588.0
+        },
+        {
+          "ts": "2025-01-03T10:55:00",
+          "level": 588.0,
+          "mode": "pierced_close_in_zone",
+          "high": 588.095,
+          "close": 588.0
+        },
+        {
+          "ts": "2025-01-03T11:00:00",
+          "level": 589.0,
+          "mode": "pierced_close_in_zone",
+          "high": 589.1,
+          "close": 589.07
+        },
+        {
+          "ts": "2025-01-03T11:00:00",
+          "level": 589.0,
+          "mode": "pierced_close_in_zone",
+          "high": 589.1,
+          "close": 589.07
+        },
+        {
+          "ts": "2025-01-03T11:05:00",
+          "level": 589.39,
+          "mode": "approach_touch",
+          "high": 589.35,
+          "close": 589.07
+        },
+        {
+          "ts": "2025-01-03T11:05:00",
+          "level": 589.39,
+          "mode": "approach_touch",
+          "high": 589.35,
+          "close": 589.07
+        },
+        {
+          "ts": "2025-01-03T11:20:00",
+          "level": 588.0,
+          "mode": "approach_touch",
+          "high": 588.0,
+          "close": 587.87
+        },
+        {
+          "ts": "2025-01-03T11:20:00",
+          "level": 588.0,
+          "mode": "approach_touch",
+          "high": 588.0,
+          "close": 587.87
+        },
+        {
+          "ts": "2025-01-03T11:25:00",
+          "level": 588.4,
+          "mode": "approach_touch",
+          "high": 588.325,
+          "close": 588.3
+        },
+        {
+          "ts": "2025-01-03T11:25:00",
+          "level": 588.4,
+          "mode": "approach_touch",
+          "high": 588.325,
+          "close": 588.3
+        },
+        {
+          "ts": "2025-01-03T11:30:00",
+          "level": 588.59,
+          "mode": "approach_touch",
+          "high": 588.56,
+          "close": 588.56
+        },
+        {
+          "ts": "2025-01-03T11:30:00",
+          "level": 588.59,
+          "mode": "approach_touch",
+          "high": 588.56,
+          "close": 588.56
+        },
+        {
+          "ts": "2025-01-03T11:55:00",
+          "level": 589.39,
+          "mode": "approach_touch",
+          "high": 589.29,
+          "close": 589.16
+        },
+        {
+          "ts": "2025-01-03T11:55:00",
+          "level": 589.39,
+          "mode": "approach_touch",
+          "high": 589.29,
+          "close": 589.16
+        },
+        {
+          "ts": "2025-01-03T12:00:00",
+          "level": 589.39,
+          "mode": "pierced_close_in_zone",
+          "high": 589.79,
+          "close": 589.575
+        },
+        {
+          "ts": "2025-01-03T12:00:00",
+          "level": 589.39,
+          "mode": "pierced_close_in_zone",
+          "high": 589.79,
+          "close": 589.575
+        },
+        {
+          "ts": "2025-01-03T12:10:00",
+          "level": 588.59,
+          "mode": "approach_touch",
+          "high": 588.58,
+          "close": 588.5
+        },
+        {
+          "ts": "2025-01-03T12:10:00",
+          "level": 588.59,
+          "mode": "approach_touch",
+          "high": 588.58,
+          "close": 588.5
+        },
+        {
+          "ts": "2025-01-03T12:15:00",
+          "level": 588.59,
+          "mode": "pierced_close_in_zone",
+          "high": 588.74,
+          "close": 588.74
+        },
+        {
+          "ts": "2025-01-03T12:15:00",
+          "level": 588.59,
+          "mode": "pierced_close_in_zone",
+          "high": 588.74,
+          "close": 588.74
+        },
+        {
+          "ts": "2025-01-03T12:25:00",
+          "level": 589.39,
+          "mode": "pierced_close_in_zone",
+          "high": 589.635,
+          "close": 589.51
+        },
+        {
+          "ts": "2025-01-03T12:25:00",
+          "level": 589.39,
+          "mode": "pierced_close_in_zone",
+          "high": 589.635,
+          "close": 589.51
+        },
+        {
+          "ts": "2025-01-03T12:50:00",
+          "level": 591.09,
+          "mode": "approach_touch",
+          "high": 590.98,
+          "close": 590.84
+        },
+        {
+          "ts": "2025-01-03T12:50:00",
+          "level": 591.09,
+          "mode": "approach_touch",
+          "high": 590.98,
+          "close": 590.84
+        },
+        {
+          "ts": "2025-01-03T12:55:00",
+          "level": 591.09,
+          "mode": "approach_touch",
+          "high": 590.94,
+          "close": 590.625
+        },
+        {
+          "ts": "2025-01-03T12:55:00",
+          "level": 591.09,
+          "mode": "approach_touch",
+          "high": 590.94,
+          "close": 590.625
+        },
+        {
+          "ts": "2025-01-03T13:05:00",
+          "level": 591.09,
+          "mode": "approach_touch",
+          "high": 591.005,
+          "close": 590.76
+        },
+        {
+          "ts": "2025-01-03T13:05:00",
+          "level": 591.09,
+          "mode": "approach_touch",
+          "high": 591.005,
+          "close": 590.76
+        },
+        {
+          "ts": "2025-01-03T13:15:00",
+          "level": 591.09,
+          "mode": "approach_touch",
+          "high": 590.855,
+          "close": 590.19
+        },
+        {
+          "ts": "2025-01-03T13:15:00",
+          "level": 591.09,
+          "mode": "approach_touch",
+          "high": 590.855,
+          "close": 590.19
+        },
+        {
+          "ts": "2025-01-03T14:15:00",
+          "level": 591.09,
+          "mode": "approach_touch",
+          "high": 590.865,
+          "close": 590.865
+        },
+        {
+          "ts": "2025-01-03T14:15:00",
+          "level": 591.09,
+          "mode": "approach_touch",
+          "high": 590.865,
+          "close": 590.865
+        },
+        {
+          "ts": "2025-01-03T14:20:00",
+          "level": 591.09,
+          "mode": "approach_touch",
+          "high": 591.01,
+          "close": 590.78
+        },
+        {
+          "ts": "2025-01-03T14:20:00",
+          "level": 591.09,
+          "mode": "approach_touch",
+          "high": 591.01,
+          "close": 590.78
+        },
+        {
+          "ts": "2025-01-03T14:30:00",
+          "level": 591.09,
+          "mode": "pierced_close_in_zone",
+          "high": 591.75,
+          "close": 591.26
+        },
+        {
+          "ts": "2025-01-03T14:30:00",
+          "level": 591.09,
+          "mode": "pierced_close_in_zone",
+          "high": 591.75,
+          "close": 591.26
+        },
+        {
+          "ts": "2025-01-03T14:55:00",
+          "level": 591.09,
+          "mode": "pierced_close_in_zone",
+          "high": 591.71,
+          "close": 591.3
+        },
+        {
+          "ts": "2025-01-03T14:55:00",
+          "level": 591.09,
+          "mode": "pierced_close_in_zone",
+          "high": 591.71,
+          "close": 591.3
+        },
+        {
+          "ts": "2025-01-06T14:00:00",
+          "level": 597.11,
+          "mode": "pierced_close_in_zone",
+          "high": 597.75,
+          "close": 597.35
+        },
+        {
+          "ts": "2025-01-06T14:00:00",
+          "level": 597.11,
+          "mode": "pierced_close_in_zone",
+          "high": 597.75,
+          "close": 597.35
+        },
+        {
+          "ts": "2025-01-06T14:10:00",
+          "level": 597.11,
+          "mode": "pierced_close_in_zone",
+          "high": 597.345,
+          "close": 597.3
+        },
+        {
+          "ts": "2025-01-06T14:10:00",
+          "level": 597.11,
+          "mode": "pierced_close_in_zone",
+          "high": 597.345,
+          "close": 597.3
+        },
+        {
+          "ts": "2025-01-06T14:20:00",
+          "level": 597.11,
+          "mode": "pierced_close_in_zone",
+          "high": 597.55,
+          "close": 597.24
+        },
+        {
+          "ts": "2025-01-06T14:20:00",
+          "level": 597.11,
+          "mode": "pierced_close_in_zone",
+          "high": 597.55,
+          "close": 597.24
+        }
+      ],
+      "marginal_stats": {
+        "n_trades": 19,
+        "total_pnl": -1247.2,
+        "win_rate": 0.1053,
+        "avg_pnl_per_trade": -65.64,
+        "max_drawdown": -1380.0,
+        "max_drawdown_date": "2026-02-17",
+        "day_majority": {
+          "win_days": 2,
+          "total_trading_days": 17,
+          "is_majority": false
+        },
+        "survives_dropping_best_trade": {
+          "best_trade_pnl": 428.0,
+          "total_minus_best": -1675.2,
+          "still_positive": false
+        },
+        "held_out_last_25pct": {
+          "cutoff_date": "2026-03-06",
+          "n_trades": 2,
+          "total_pnl": -223.8,
+          "win_rate": 0.0
+        }
+      },
+      "displaced_stats": {
+        "n_trades": 61,
+        "total_pnl": -106.2,
+        "win_rate": 0.2459,
+        "avg_pnl_per_trade": -1.74,
+        "max_drawdown": -1476.35,
+        "max_drawdown_date": "2026-02-19",
+        "day_majority": {
+          "win_days": 14,
+          "total_trading_days": 51,
+          "is_majority": false
+        },
+        "survives_dropping_best_trade": {
+          "best_trade_pnl": 616.0,
+          "total_minus_best": -722.2,
+          "still_positive": false
+        },
+        "held_out_last_25pct": {
+          "cutoff_date": "2026-03-06",
+          "n_trades": 14,
+          "total_pnl": 331.25,
+          "win_rate": 0.2857
+        }
+      },
+      "full_book_stats": {
+        "n_trades": 149,
+        "total_pnl": 4165.95,
+        "win_rate": 0.2953,
+        "avg_pnl_per_trade": 27.96,
+        "max_drawdown": -1969.05,
+        "max_drawdown_date": "2026-07-15",
+        "day_majority": {
+          "win_days": 39,
+          "total_trading_days": 113,
+          "is_majority": false
+        },
+        "survives_dropping_best_trade": {
+          "best_trade_pnl": 859.95,
+          "total_minus_best": 3306.0,
+          "still_positive": true
+        },
+        "held_out_last_25pct": {
+          "cutoff_date": "2026-03-06",
+          "n_trades": 46,
+          "total_pnl": 993.35,
+          "win_rate": 0.3696
+        }
+      },
+      "net_effect_vs_control": -1141.0,
+      "gates": {
+        "a_positive_aggregate": false,
+        "b_day_majority": false,
+        "c_survives_drop_best": false,
+        "d_held_out_positive": false,
+        "e_net_effect_nonnegative": false,
+        "ship_eligible": false,
+        "evidence_thin": false
+      },
+      "marginal_trades": [
+        {
+          "date": "2025-01-29",
+          "entry_time_et": "2025-01-29T13:00:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250129P00602000",
+          "qty": 3,
+          "entry_premium": 1.82,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -109.2,
+          "exit_reason": "premium_stop @ 1.46",
+          "hold_minutes": 5,
+          "resolved": true,
+          "band_fire_mode": "approach_touch",
+          "band_fire_level": 603.165,
+          "band_fire_ts": "2025-01-29T12:50:00"
+        },
+        {
+          "date": "2025-02-07",
+          "entry_time_et": "2025-02-07T14:55:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250207P00602000",
+          "qty": 4,
+          "entry_premium": 1.15,
+          "triggers": [
+            "ribbon_flip",
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -20.0,
+          "exit_reason": "time_stop_15:50",
+          "hold_minutes": 45,
+          "resolved": true,
+          "band_fire_mode": "approach_touch",
+          "band_fire_level": 602.63,
+          "band_fire_ts": "2025-02-07T14:45:00"
+        },
+        {
+          "date": "2025-02-24",
+          "entry_time_et": "2025-02-24T14:50:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250224P00601000",
+          "qty": 7,
+          "entry_premium": 0.73,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 91.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true,
+          "band_fire_mode": null,
+          "band_fire_level": null,
+          "band_fire_ts": null
+        },
+        {
+          "date": "2025-03-20",
+          "entry_time_et": "2025-03-20T14:15:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250320P00566000",
+          "qty": 4,
+          "entry_premium": 1.2,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -96.0,
+          "exit_reason": "premium_stop @ 0.96",
+          "hold_minutes": 65,
+          "resolved": true,
+          "band_fire_mode": null,
+          "band_fire_level": null,
+          "band_fire_ts": null
+        },
+        {
+          "date": "2025-05-21",
+          "entry_time_et": "2025-05-21T15:00:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250521P00584000",
+          "qty": 3,
+          "entry_premium": 1.02,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -61.2,
+          "exit_reason": "premium_stop @ 0.82",
+          "hold_minutes": 40,
+          "resolved": true,
+          "band_fire_mode": "approach_touch",
+          "band_fire_level": 585.1,
+          "band_fire_ts": "2025-05-21T14:50:00"
+        },
+        {
+          "date": "2025-07-28",
+          "entry_time_et": "2025-07-28T13:55:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250728P00636000",
+          "qty": 3,
+          "entry_premium": 0.4,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -24.0,
+          "exit_reason": "premium_stop @ 0.32",
+          "hold_minutes": 60,
+          "resolved": true,
+          "band_fire_mode": "approach_touch",
+          "band_fire_level": 636.9,
+          "band_fire_ts": "2025-07-28T13:45:00"
+        },
+        {
+          "date": "2025-07-28",
+          "entry_time_et": "2025-07-28T15:00:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250728P00636000",
+          "qty": 14,
+          "entry_premium": 0.35,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -98.0,
+          "exit_reason": "premium_stop @ 0.28",
+          "hold_minutes": 30,
+          "resolved": true,
+          "band_fire_mode": null,
+          "band_fire_level": null,
+          "band_fire_ts": null
+        },
+        {
+          "date": "2025-08-07",
+          "entry_time_et": "2025-08-07T12:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250807P00631000",
+          "qty": 3,
+          "entry_premium": 1.32,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -79.2,
+          "exit_reason": "premium_stop @ 1.06",
+          "hold_minutes": 10,
+          "resolved": true,
+          "band_fire_mode": null,
+          "band_fire_level": null,
+          "band_fire_ts": null
+        },
+        {
+          "date": "2025-09-17",
+          "entry_time_et": "2025-09-17T12:15:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250917P00659000",
+          "qty": 3,
+          "entry_premium": 2.5,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -150.0,
+          "exit_reason": "premium_stop @ 2.0",
+          "hold_minutes": 110,
+          "resolved": true,
+          "band_fire_mode": null,
+          "band_fire_level": null,
+          "band_fire_ts": null
+        },
+        {
+          "date": "2025-10-07",
+          "entry_time_et": "2025-10-07T12:10:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251007P00668000",
+          "qty": 3,
+          "entry_premium": 1.05,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -63.0,
+          "exit_reason": "premium_stop @ 0.84",
+          "hold_minutes": 20,
+          "resolved": true,
+          "band_fire_mode": null,
+          "band_fire_level": null,
+          "band_fire_ts": null
+        },
+        {
+          "date": "2025-10-09",
+          "entry_time_et": "2025-10-09T13:20:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251009P00670000",
+          "qty": 5,
+          "entry_premium": 0.99,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -99.0,
+          "exit_reason": "premium_stop @ 0.79",
+          "hold_minutes": 20,
+          "resolved": true,
+          "band_fire_mode": "pierced_close_in_zone",
+          "band_fire_level": 669.5,
+          "band_fire_ts": "2025-10-09T13:10:00"
+        },
+        {
+          "date": "2025-11-04",
+          "entry_time_et": "2025-11-04T12:35:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251104P00678000",
+          "qty": 3,
+          "entry_premium": 1.2,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -72.0,
+          "exit_reason": "premium_stop @ 0.96",
+          "hold_minutes": 5,
+          "resolved": true,
+          "band_fire_mode": null,
+          "band_fire_level": null,
+          "band_fire_ts": null
+        },
+        {
+          "date": "2025-11-06",
+          "entry_time_et": "2025-11-06T11:05:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "ELITE",
+          "symbol": "SPY251106P00673000",
+          "qty": 3,
+          "entry_premium": 2.15,
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 674.22,
+          "dollar_pnl": -330.0,
+          "exit_reason": "structure_stop @ 674.22",
+          "hold_minutes": 20,
+          "resolved": true,
+          "band_fire_mode": "approach_touch",
+          "band_fire_level": 674.22,
+          "band_fire_ts": "2025-11-06T11:00:00"
+        },
+        {
+          "date": "2025-12-12",
+          "entry_time_et": "2025-12-12T12:40:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251212P00680000",
+          "qty": 3,
+          "entry_premium": 2.06,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -123.6,
+          "exit_reason": "premium_stop @ 1.65",
+          "hold_minutes": 5,
+          "resolved": true,
+          "band_fire_mode": "approach_touch",
+          "band_fire_level": 681.32,
+          "band_fire_ts": "2025-12-12T12:30:00"
+        },
+        {
+          "date": "2026-02-17",
+          "entry_time_et": "2026-02-17T10:30:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260217P00680000",
+          "qty": 3,
+          "entry_premium": 2.43,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -145.8,
+          "exit_reason": "premium_stop @ 1.94",
+          "hold_minutes": 5,
+          "resolved": true,
+          "band_fire_mode": null,
+          "band_fire_level": null,
+          "band_fire_ts": null
+        },
+        {
+          "date": "2026-02-23",
+          "entry_time_et": "2026-02-23T13:50:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260223P00681000",
+          "qty": 3,
+          "entry_premium": 1.19,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -71.4,
+          "exit_reason": "premium_stop @ 0.95",
+          "hold_minutes": 5,
+          "resolved": true,
+          "band_fire_mode": "approach_touch",
+          "band_fire_level": 681.865,
+          "band_fire_ts": "2026-02-23T13:40:00"
+        },
+        {
+          "date": "2026-02-23",
+          "entry_time_et": "2026-02-23T14:55:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260223P00683000",
+          "qty": 4,
+          "entry_premium": 1.14,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 428.0,
+          "exit_reason": "time_stop_15:50",
+          "hold_minutes": 45,
+          "resolved": true,
+          "band_fire_mode": null,
+          "band_fire_level": null,
+          "band_fire_ts": null
+        },
+        {
+          "date": "2026-05-07",
+          "entry_time_et": "2026-05-07T13:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260507P00731000",
+          "qty": 3,
+          "entry_premium": 1.13,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -67.8,
+          "exit_reason": "premium_stop @ 0.9",
+          "hold_minutes": 15,
+          "resolved": true,
+          "band_fire_mode": null,
+          "band_fire_level": null,
+          "band_fire_ts": null
+        },
+        {
+          "date": "2026-05-19",
+          "entry_time_et": "2026-05-19T10:30:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "ELITE",
+          "symbol": "SPY260519P00732000",
+          "qty": 3,
+          "entry_premium": 1.67,
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 733.3900146484375,
+          "dollar_pnl": -156.0,
+          "exit_reason": "structure_stop @ 733.3900146484375",
+          "hold_minutes": 45,
+          "resolved": true,
+          "band_fire_mode": "approach_touch",
+          "band_fire_level": 733.39,
+          "band_fire_ts": "2026-05-19T10:25:00"
+        }
+      ],
+      "displaced_trades": [
+        {
+          "date": "2025-01-06",
+          "entry_time_et": "2025-01-06T14:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250106P00596000",
+          "qty": 3,
+          "entry_premium": 0.57,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 180.25,
+          "exit_reason": "runner_stop @ 1.23",
+          "hold_minutes": 25,
+          "resolved": true
+        },
+        {
+          "date": "2025-01-08",
+          "entry_time_et": "2025-01-08T12:50:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250108P00590000",
+          "qty": 3,
+          "entry_premium": 1.64,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 545.65,
+          "exit_reason": "runner_stop @ 3.82",
+          "hold_minutes": 55,
+          "resolved": true
+        },
+        {
+          "date": "2025-01-29",
+          "entry_time_et": "2025-01-29T12:40:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250129P00602000",
+          "qty": 3,
+          "entry_premium": 1.91,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -114.6,
+          "exit_reason": "premium_stop @ 1.53",
+          "hold_minutes": 25,
+          "resolved": true
+        },
+        {
+          "date": "2025-02-06",
+          "entry_time_et": "2025-02-06T12:40:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250206P00605000",
+          "qty": 3,
+          "entry_premium": 1.16,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -21.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2025-02-06",
+          "entry_time_et": "2025-02-06T13:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250206P00605000",
+          "qty": 5,
+          "entry_premium": 0.94,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -100.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2025-02-07",
+          "entry_time_et": "2025-02-07T14:25:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250207P00603000",
+          "qty": 5,
+          "entry_premium": 0.95,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -95.0,
+          "exit_reason": "premium_stop @ 0.76",
+          "hold_minutes": 15,
+          "resolved": true
+        },
+        {
+          "date": "2025-02-14",
+          "entry_time_et": "2025-02-14T13:25:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250214P00609000",
+          "qty": 3,
+          "entry_premium": 0.68,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -40.8,
+          "exit_reason": "premium_stop @ 0.54",
+          "hold_minutes": 25,
+          "resolved": true
+        },
+        {
+          "date": "2025-02-14",
+          "entry_time_et": "2025-02-14T15:00:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250214P00610000",
+          "qty": 13,
+          "entry_premium": 0.4,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -117.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2025-02-24",
+          "entry_time_et": "2025-02-24T13:50:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250224P00601000",
+          "qty": 7,
+          "entry_premium": 0.72,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 77.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 20,
+          "resolved": true
+        },
+        {
+          "date": "2025-03-20",
+          "entry_time_et": "2025-03-20T13:50:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250320P00566000",
+          "qty": 4,
+          "entry_premium": 1.26,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -100.8,
+          "exit_reason": "premium_stop @ 1.01",
+          "hold_minutes": 65,
+          "resolved": true
+        },
+        {
+          "date": "2025-04-02",
+          "entry_time_et": "2025-04-02T15:00:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250402P00561000",
+          "qty": 3,
+          "entry_premium": 2.03,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -121.8,
+          "exit_reason": "premium_stop @ 1.62",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2025-05-20",
+          "entry_time_et": "2025-05-20T12:15:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250520P00593000",
+          "qty": 3,
+          "entry_premium": 1.27,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -76.2,
+          "exit_reason": "premium_stop @ 1.02",
+          "hold_minutes": 25,
+          "resolved": true
+        },
+        {
+          "date": "2025-06-17",
+          "entry_time_et": "2025-06-17T11:20:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250617P00601000",
+          "qty": 3,
+          "entry_premium": 0.93,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -55.8,
+          "exit_reason": "premium_stop @ 0.74",
+          "hold_minutes": 55,
+          "resolved": true
+        },
+        {
+          "date": "2025-06-20",
+          "entry_time_et": "2025-06-20T12:15:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250620P00594000",
+          "qty": 3,
+          "entry_premium": 0.99,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -59.4,
+          "exit_reason": "premium_stop @ 0.79",
+          "hold_minutes": 15,
+          "resolved": true
+        },
+        {
+          "date": "2025-07-07",
+          "entry_time_et": "2025-07-07T11:00:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250707P00622000",
+          "qty": 3,
+          "entry_premium": 0.91,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 276.3,
+          "exit_reason": "runner_stop @ 1.85",
+          "hold_minutes": 90,
+          "resolved": true
+        },
+        {
+          "date": "2025-07-07",
+          "entry_time_et": "2025-07-07T14:20:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250707P00619000",
+          "qty": 5,
+          "entry_premium": 0.99,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -99.0,
+          "exit_reason": "premium_stop @ 0.79",
+          "hold_minutes": 20,
+          "resolved": true
+        },
+        {
+          "date": "2025-07-29",
+          "entry_time_et": "2025-07-29T14:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250729P00636000",
+          "qty": 3,
+          "entry_premium": 0.61,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 192.0,
+          "exit_reason": "time_stop_15:50",
+          "hold_minutes": 55,
+          "resolved": true
+        },
+        {
+          "date": "2025-08-07",
+          "entry_time_et": "2025-08-07T11:50:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250807P00631000",
+          "qty": 3,
+          "entry_premium": 1.04,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -62.4,
+          "exit_reason": "premium_stop @ 0.83",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2025-08-07",
+          "entry_time_et": "2025-08-07T13:05:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250807P00631000",
+          "qty": 4,
+          "entry_premium": 1.13,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -90.4,
+          "exit_reason": "premium_stop @ 0.9",
+          "hold_minutes": 50,
+          "resolved": true
+        },
+        {
+          "date": "2025-08-11",
+          "entry_time_et": "2025-08-11T14:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250811P00636000",
+          "qty": 3,
+          "entry_premium": 0.83,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -49.8,
+          "exit_reason": "premium_stop @ 0.66",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2025-08-29",
+          "entry_time_et": "2025-08-29T13:20:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250829P00644000",
+          "qty": 3,
+          "entry_premium": 1.05,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -63.0,
+          "exit_reason": "premium_stop @ 0.84",
+          "hold_minutes": 10,
+          "resolved": true
+        },
+        {
+          "date": "2025-09-03",
+          "entry_time_et": "2025-09-03T13:30:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250903P00642000",
+          "qty": 3,
+          "entry_premium": 0.53,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 168.6,
+          "exit_reason": "runner_stop @ 1.16",
+          "hold_minutes": 60,
+          "resolved": true
+        },
+        {
+          "date": "2025-09-10",
+          "entry_time_et": "2025-09-10T13:10:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250910P00653000",
+          "qty": 3,
+          "entry_premium": 0.49,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 136.55,
+          "exit_reason": "runner_stop @ 0.88",
+          "hold_minutes": 25,
+          "resolved": true
+        },
+        {
+          "date": "2025-09-17",
+          "entry_time_et": "2025-09-17T11:55:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250917P00659000",
+          "qty": 3,
+          "entry_premium": 2.4,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -144.0,
+          "exit_reason": "premium_stop @ 1.92",
+          "hold_minutes": 130,
+          "resolved": true
+        },
+        {
+          "date": "2025-09-17",
+          "entry_time_et": "2025-09-17T13:20:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY250917P00659000",
+          "qty": 3,
+          "entry_premium": 2.57,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -154.2,
+          "exit_reason": "premium_stop @ 2.06",
+          "hold_minutes": 45,
+          "resolved": true
+        },
+        {
+          "date": "2025-10-06",
+          "entry_time_et": "2025-10-06T11:40:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251006P00671000",
+          "qty": 3,
+          "entry_premium": 0.55,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -51.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2025-10-07",
+          "entry_time_et": "2025-10-07T11:40:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251007P00669000",
+          "qty": 3,
+          "entry_premium": 1.33,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -79.8,
+          "exit_reason": "premium_stop @ 1.06",
+          "hold_minutes": 55,
+          "resolved": true
+        },
+        {
+          "date": "2025-10-09",
+          "entry_time_et": "2025-10-09T13:15:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251009P00670000",
+          "qty": 6,
+          "entry_premium": 0.84,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -100.8,
+          "exit_reason": "premium_stop @ 0.67",
+          "hold_minutes": 25,
+          "resolved": true
+        },
+        {
+          "date": "2025-10-24",
+          "entry_time_et": "2025-10-24T14:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251024P00678000",
+          "qty": 3,
+          "entry_premium": 0.39,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -9.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2025-11-04",
+          "entry_time_et": "2025-11-04T11:10:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251104P00679000",
+          "qty": 3,
+          "entry_premium": 1.68,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -100.8,
+          "exit_reason": "premium_stop @ 1.34",
+          "hold_minutes": 10,
+          "resolved": true
+        },
+        {
+          "date": "2025-11-04",
+          "entry_time_et": "2025-11-04T12:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251104P00678000",
+          "qty": 4,
+          "entry_premium": 1.11,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 418.2,
+          "exit_reason": "runner_stop @ 2.09",
+          "hold_minutes": 40,
+          "resolved": true
+        },
+        {
+          "date": "2025-11-04",
+          "entry_time_et": "2025-11-04T14:00:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251104P00676000",
+          "qty": 4,
+          "entry_premium": 1.21,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -96.8,
+          "exit_reason": "premium_stop @ 0.97",
+          "hold_minutes": 55,
+          "resolved": true
+        },
+        {
+          "date": "2025-11-06",
+          "entry_time_et": "2025-11-06T14:05:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251106P00670000",
+          "qty": 3,
+          "entry_premium": 1.21,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -72.6,
+          "exit_reason": "premium_stop @ 0.97",
+          "hold_minutes": 25,
+          "resolved": true
+        },
+        {
+          "date": "2025-11-12",
+          "entry_time_et": "2025-11-12T14:25:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251112P00684000",
+          "qty": 3,
+          "entry_premium": 1.14,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -36.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2025-12-02",
+          "entry_time_et": "2025-12-02T15:00:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251202P00681000",
+          "qty": 3,
+          "entry_premium": 0.69,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -41.4,
+          "exit_reason": "premium_stop @ 0.55",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2025-12-08",
+          "entry_time_et": "2025-12-08T12:05:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251208P00683000",
+          "qty": 3,
+          "entry_premium": 1.13,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -67.8,
+          "exit_reason": "premium_stop @ 0.9",
+          "hold_minutes": 20,
+          "resolved": true
+        },
+        {
+          "date": "2025-12-09",
+          "entry_time_et": "2025-12-09T10:30:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251209P00683000",
+          "qty": 3,
+          "entry_premium": 1.4,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -84.0,
+          "exit_reason": "premium_stop @ 1.12",
+          "hold_minutes": 10,
+          "resolved": true
+        },
+        {
+          "date": "2025-12-10",
+          "entry_time_et": "2025-12-10T10:30:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251210P00683000",
+          "qty": 3,
+          "entry_premium": 2.51,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -150.6,
+          "exit_reason": "premium_stop @ 2.01",
+          "hold_minutes": 50,
+          "resolved": true
+        },
+        {
+          "date": "2025-12-12",
+          "entry_time_et": "2025-12-12T12:25:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY251212P00680000",
+          "qty": 3,
+          "entry_premium": 1.8,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -108.0,
+          "exit_reason": "premium_stop @ 1.44",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2026-02-04",
+          "entry_time_et": "2026-02-04T10:30:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260204P00690000",
+          "qty": 3,
+          "entry_premium": 2.17,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 6.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 55,
+          "resolved": true
+        },
+        {
+          "date": "2026-02-17",
+          "entry_time_et": "2026-02-17T10:30:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260217P00679000",
+          "qty": 3,
+          "entry_premium": 2.06,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -123.6,
+          "exit_reason": "premium_stop @ 1.65",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2026-02-17",
+          "entry_time_et": "2026-02-17T13:10:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260217P00682000",
+          "qty": 3,
+          "entry_premium": 1.64,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 42.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2026-02-19",
+          "entry_time_et": "2026-02-19T12:05:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260219P00685000",
+          "qty": 3,
+          "entry_premium": 1.76,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -105.6,
+          "exit_reason": "premium_stop @ 1.41",
+          "hold_minutes": 15,
+          "resolved": true
+        },
+        {
+          "date": "2026-02-23",
+          "entry_time_et": "2026-02-23T13:35:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260223P00681000",
+          "qty": 3,
+          "entry_premium": 1.16,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -69.6,
+          "exit_reason": "premium_stop @ 0.93",
+          "hold_minutes": 20,
+          "resolved": true
+        },
+        {
+          "date": "2026-02-23",
+          "entry_time_et": "2026-02-23T14:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260223P00683000",
+          "qty": 6,
+          "entry_premium": 0.87,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 616.0,
+          "exit_reason": "time_stop_15:50 (runner)",
+          "hold_minutes": 55,
+          "resolved": true
+        },
+        {
+          "date": "2026-02-27",
+          "entry_time_et": "2026-02-27T14:20:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260227P00684000",
+          "qty": 3,
+          "entry_premium": 1.49,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -89.4,
+          "exit_reason": "premium_stop @ 1.19",
+          "hold_minutes": 25,
+          "resolved": true
+        },
+        {
+          "date": "2026-03-02",
+          "entry_time_et": "2026-03-02T10:55:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260302P00683000",
+          "qty": 3,
+          "entry_premium": 2.4,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -144.0,
+          "exit_reason": "premium_stop @ 1.92",
+          "hold_minutes": 10,
+          "resolved": true
+        },
+        {
+          "date": "2026-03-17",
+          "entry_time_et": "2026-03-17T11:50:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260317P00671000",
+          "qty": 3,
+          "entry_premium": 1.36,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -81.6,
+          "exit_reason": "premium_stop @ 1.09",
+          "hold_minutes": 30,
+          "resolved": true
+        },
+        {
+          "date": "2026-04-10",
+          "entry_time_et": "2026-04-10T14:05:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260410P00679000",
+          "qty": 3,
+          "entry_premium": 0.74,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -44.4,
+          "exit_reason": "premium_stop @ 0.59",
+          "hold_minutes": 15,
+          "resolved": true
+        },
+        {
+          "date": "2026-04-29",
+          "entry_time_et": "2026-04-29T12:15:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260429P00710000",
+          "qty": 3,
+          "entry_premium": 2.09,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -125.4,
+          "exit_reason": "premium_stop @ 1.67",
+          "hold_minutes": 165,
+          "resolved": true
+        },
+        {
+          "date": "2026-05-01",
+          "entry_time_et": "2026-05-01T13:40:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260501P00723000",
+          "qty": 3,
+          "entry_premium": 0.75,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -24.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2026-05-07",
+          "entry_time_et": "2026-05-07T12:50:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260507P00733000",
+          "qty": 3,
+          "entry_premium": 1.41,
+          "triggers": [
+            "ribbon_flip",
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 382.4,
+          "exit_reason": "runner_stop @ 2.41",
+          "hold_minutes": 130,
+          "resolved": true
+        },
+        {
+          "date": "2026-05-07",
+          "entry_time_et": "2026-05-07T13:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260507P00731000",
+          "qty": 4,
+          "entry_premium": 1.13,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -90.4,
+          "exit_reason": "premium_stop @ 0.9",
+          "hold_minutes": 15,
+          "resolved": true
+        },
+        {
+          "date": "2026-05-15",
+          "entry_time_et": "2026-05-15T11:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260515P00740000",
+          "qty": 3,
+          "entry_premium": 1.49,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -89.4,
+          "exit_reason": "premium_stop @ 1.19",
+          "hold_minutes": 30,
+          "resolved": true
+        },
+        {
+          "date": "2026-05-18",
+          "entry_time_et": "2026-05-18T10:00:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260518P00741000",
+          "qty": 3,
+          "entry_premium": 1.77,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 504.25,
+          "exit_reason": "runner_stop @ 3.27",
+          "hold_minutes": 60,
+          "resolved": true
+        },
+        {
+          "date": "2026-05-22",
+          "entry_time_et": "2026-05-22T13:00:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260522P00747000",
+          "qty": 3,
+          "entry_premium": 0.94,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -56.4,
+          "exit_reason": "premium_stop @ 0.75",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2026-06-16",
+          "entry_time_et": "2026-06-16T11:40:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260616P00753000",
+          "qty": 3,
+          "entry_premium": 1.16,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 93.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2026-07-02",
+          "entry_time_et": "2026-07-02T13:05:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260702P00741000",
+          "qty": 3,
+          "entry_premium": 1.48,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -88.8,
+          "exit_reason": "premium_stop @ 1.18",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2026-07-14",
+          "entry_time_et": "2026-07-14T14:45:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260714P00752000",
+          "qty": 3,
+          "entry_premium": 0.54,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -54.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2026-07-15",
+          "entry_time_et": "2026-07-15T14:30:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260715P00755000",
+          "qty": 3,
+          "entry_premium": 0.74,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": 18.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        },
+        {
+          "date": "2026-07-21",
+          "entry_time_et": "2026-07-21T14:50:00",
+          "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+          "side": "P",
+          "tier": "TRENDLINE",
+          "symbol": "SPY260721P00748000",
+          "qty": 3,
+          "entry_premium": 0.32,
+          "triggers": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "dollar_pnl": -12.0,
+          "exit_reason": "ribbon_flip_back",
+          "hold_minutes": 5,
+          "resolved": true
+        }
+      ]
+    }
+  },
+  "runtime_seconds": 221.3
+}
