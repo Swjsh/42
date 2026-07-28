@@ -918,6 +918,91 @@ def _adopt_untracked_positions(arm: str, creds: dict, positions: list) -> list:
     return out
 
 
+# --- SCORE LADDER hook for the CORE arms (2026-07-27, J: "I specifically said I wanted
+# seven out of ten and eight out of tens being traded") -----------------------------------
+# The fleet arms (risky-3/risky-1/safe-3) already got this lane via
+# automation/state/fleet/build_shared_signal.py#_ladder_block +
+# automation/state/fleet/fleet_executor.py#_ladder_plan (commits deb781ea/d6fc72a6) -- but
+# safe-2/bold-2 execute HERE, directly (mcp/REST inside run_account/_execute), not through
+# fleet_executor, so the ladder needs its own hook on the CORE verdict. Same fail-closed
+# contract as the fleet twin, collapsed into ONE function because run_account already HAS
+# the raw verdict in hand (no separate producer/ledger-row round-trip needed here).
+#
+# J's 7/8/8/9/9 spec: safe (Gamma-Safe-2) floor=9, bold (Gamma-Bold-2) floor=8 -- each
+# account's OWN params.json carries its own score_ladder_floor (see that key's
+# _score_ladder_floor_doc in params.json / aggressive/params.json). BEAR ONLY -- bull
+# waits for its own pre-registered evidence (2026-07-27's bull-9 fired mid-fade and would
+# have lost); every check below is inherently bear-only (it never reads a bull_* field),
+# so there is no bull mirror to accidentally wire in.
+#
+# FAIL-CLOSED (mirrors fleet's _ladder_block_from_row + _ladder_plan gates exactly):
+#   * params has no (or non-numeric) score_ladder_floor      -> unchanged (REVOKE path:
+#                                                                 delete the key, next
+#                                                                 tick reverts byte-
+#                                                                 identical)
+#   * verdict isn't a plain scoring HOLD ("no setup passed
+#     scoring" in reason)                                    -> unchanged (gate-skip
+#                                                                 verdicts like
+#                                                                 SKIP_STRUCTURE_VETO and
+#                                                                 real ENTERs stay untouched)
+#   * bear_score missing/non-numeric or < floor               -> unchanged
+#   * bear_triggers_raw has no LEVEL-TIED member               -> unchanged
+#   * bear_rejection_level_raw missing/non-numeric             -> unchanged (no stop
+#                                                                 anchor, no trade)
+# Any single failure returns the SAME verdict object, unmutated -- this function never
+# mutates its input, it only ever returns it unchanged or builds a NEW dict (repo
+# immutability convention). A caller can `is`-compare before/after to know whether the
+# ladder fired, which is exactly how run_account tags entry_lane below.
+LADDER_LEVEL_TIED = frozenset({"level_rejection", "fhh_level_rejection", "confluence",
+                               "sequence_rejection"})
+
+
+def _apply_score_ladder(verdict: dict, params: dict) -> dict:
+    """Pure verdict -> verdict rescue for a SCORING-failed bear tick. See the module
+    comment directly above for the full fail-closed contract. Returns the ORIGINAL
+    verdict object unchanged when any condition fails; returns a NEW dict
+    (verdict="ENTER_BEAR", side="P", setup_name="BEARISH_REJECTION_RIDE_THE_RIBBON",
+    rejection_level=<the raw detection's own level>, quality_tier="LADDER",
+    entry_lane="score_ladder", reason PREPENDED with the ladder provenance) when the
+    ladder fires. Never touches sizing/risk_gate/exit registration -- those stay entirely
+    inside _execute, reached only via the normal ENTER_BEAR path this function reroutes
+    into (the caller applies this BEFORE any of the entry-ceiling/floor/staleness/free-
+    model-veto/risk_gate checks, so a ladder entry clears every guard an organic
+    ENTER_BEAR clears).
+    Guard: backtest/tests/test_core_score_ladder.py."""
+    floor = (params or {}).get("score_ladder_floor")
+    if floor is None:
+        return verdict
+    try:
+        floor_i = int(floor)
+    except (TypeError, ValueError):
+        return verdict
+    if verdict.get("verdict") != "HOLD":
+        return verdict
+    reason = str(verdict.get("reason") or "")
+    if "no setup passed scoring" not in reason:
+        return verdict
+    score = verdict.get("bear_score")
+    if not isinstance(score, (int, float)) or score < floor_i:
+        return verdict
+    raw = [t for t in (verdict.get("bear_triggers_raw") or []) if isinstance(t, str)]
+    if not any(t in LADDER_LEVEL_TIED for t in raw):
+        return verdict
+    level = verdict.get("bear_rejection_level_raw")
+    if not isinstance(level, (int, float)):
+        return verdict
+    new = dict(verdict)
+    new["verdict"] = "ENTER_BEAR"
+    new["side"] = "P"
+    new["setup_name"] = "BEARISH_REJECTION_RIDE_THE_RIBBON"
+    new["rejection_level"] = float(level)
+    new["quality_tier"] = "LADDER"
+    new["entry_lane"] = "score_ladder"
+    new["reason"] = (f"SCORE_LADDER floor={floor_i} score={int(score)} "
+                     f"blockers={verdict.get('bear_blockers')}: {reason}")
+    return new
+
+
 def run_account(account: str) -> dict:
     cfg = ACCOUNTS[account]
     params = json.loads(cfg["params"].read_text(encoding="utf-8"))
@@ -1036,6 +1121,34 @@ def run_account(account: str) -> dict:
             rec["extra_signals"] = extra
     except Exception as _disp_err:  # noqa: BLE001
         logger.warning("[DISPATCH] setup_dispatch import/run failed: %s", _disp_err)
+
+    # SCORE LADDER (2026-07-27): core-arm hook -- rescue a SCORING-failed bear tick per
+    # J's 7/8/8/9/9 spec (see _apply_score_ladder's docstring above for the full
+    # fail-closed contract). Placed HERE -- after every decision-row field above is
+    # computed, AND after the extra-setup dispatch just above has already run off the
+    # ORIGINAL verdict (dispatch_extra_setups' own detectors read their own
+    # sameday_5m_bars slice, never the `verdict` param, so ordering relative to them is
+    # inert either way; kept last, not first, for minimal blast radius) -- and BEFORE `v`
+    # below claims the execution branch, so a ladder rewrite rides the EXACT SAME
+    # untouched path (stale-trigger/entry-ceiling/entry-floor/sight-staleness guards,
+    # free-model veto, then _execute's own FLAT-verify + risk_gate + settlement/PDT/
+    # kill-switch checks) any organic ENTER_BEAR clears -- _execute/sizing/risk_gate/exit
+    # registration are UNTOUCHED by this hook. `_apply_score_ladder` returns the SAME
+    # object when it doesn't fire (`is`-comparable), so the ledger resync below only
+    # touches the row on an actual rescue.
+    _pre_ladder_verdict = verdict
+    verdict = _apply_score_ladder(verdict, params)
+    if verdict is not _pre_ladder_verdict:
+        # Ledger honesty (OP-33): the row's verdict/reason/side/setup/trigger_level_exact
+        # must show the REWRITTEN values -- entry_lane below is the discriminator that
+        # lets analytics separate this from an organic pass (the verdict fields alone are
+        # deliberately indistinguishable from an organic ENTER_BEAR, per design).
+        rec["verdict"] = verdict.get("verdict")
+        rec["side"] = verdict.get("side")
+        rec["setup"] = verdict.get("setup_name")
+        rec["reason"] = verdict.get("reason")
+        rec["trigger_level_exact"] = verdict.get("rejection_level")
+        rec["entry_lane"] = "score_ladder"
 
     v = verdict.get("verdict", "")
     # FIX (2026-07-10, GATE-PROVENANCE-SWEEP): staleness must be resolved BEFORE any
