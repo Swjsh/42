@@ -1,3 +1,45 @@
+## [2026-07-28 ~01:00-01:15 ET] OK -- conductor (AFTERHOURS): SAFETY-GATE-MISSES-PARITY-SUITE closed, commit `b0129034`
+
+> **STAGE 0/1:** ET confirmed 01:00 Monday->Tuesday rollover (market closed). Budget gate
+> PROCEED ($0/$30, 2/4 fires). `engine-health.json` GREEN/YELLOW (14 checks, 0 RED,
+> gex_archive 1-day-interior-gap YELLOW non-critical). Self-audit gaps: newest two batches
+> (2026-07-26T17:32 4-line, 2026-07-27T17:31 12-line) are scaffold/perspective-header noise
+> with no new concrete action beyond what's already tracked (budget-governor distortion
+> already fixed via SELF_REPORT_CORRECTION=2.2; off-box deadman + zero-for-twelve postmortem
+> already queued) -- left un-triaged rather than spending the fire on noise-disposition,
+> picked the concrete HIGH item instead. `task_scorer.py --top` named
+> `TWIN-DOCTRINE-FIRST-DEPLOY` (still J's REVOKE surface, propose-only, correctly skipped
+> per multiple prior fires) -- next-highest ready HIGH item was `SAFETY-GATE-MISSES-PARITY-
+> SUITE` (filed 2026-07-27: commit 3ced7457 broke 16 engine_cli parity cases and still
+> PASSED the pre-commit gate because the suite wasn't wired in + a lying exit-code was
+> trusted). Picked it -- process-integrity gap on the exact contract this whole autonomous
+> loop depends on to ship safely.
+
+> **What I built:** `backtest/tests/run_safety_gate.py` -- added `test_engine_cli_parity.py`
+> to `GATE_TESTS` (curated gate 5->6 suites, still ~5s). New `_parse_pytest_counts()` parses
+> pytest's summary line out of captured stdout+stderr; `run()` now FAILS if the subprocess
+> exit code is 0 but the parsed summary shows `failed`/`error` > 0 (C7: audit outputs, not
+> exit codes -- directly the failure mode that let the exit-0-but-17-failed incident happen).
+> 10 new guard tests (`test_run_safety_gate.py`): GATE_TESTS membership, `_parse_pytest_counts`
+> unit coverage (passed/failed/error/errors/no-summary), and 3 `run()`-level RED-proofs via
+> `monkeypatch.setattr(gate_mod.subprocess, "run", ...)` feeding a fake `CompletedProcess`
+> with `returncode=0` + a `"1 failed"` summary -- confirms `run()` returns non-zero, not 0.
+
+> **Verified this fire (OP-33), not claimed:** RED-proofed via scoped
+> `git stash -- backtest/tests/run_safety_gate.py` (single pathspec, not tree-wide): 6 of the
+> 10 new tests failed against pre-fix code with the exact expected
+> `AttributeError: module 'run_safety_gate' has no attribute '_parse_pytest_counts'` /
+> `AssertionError: run() returned 0 (PASS) even though...` -- `git stash pop` restored
+> cleanly, re-verified 10/10 green. Live curated gate re-run post-fix: `59 passed` (was
+> the prior-fires' "31+5" baseline -- now includes the parity suite's 28 + this fire's own
+> 10, net of the 5 originally-curated suites' counts). Post-commit
+> `git show b0129034 --stat --name-status` confirms exactly the 2 intended files
+> (`run_safety_gate.py` modified, `test_run_safety_gate.py` added) -- L247 discipline.
+
+> **Scope + revert:** 2 files. Zero trading-path touched (no params/heartbeat_core/
+> filters/placement/exit/CLAUDE.md) -- pure process-integrity tooling that protects every
+> future autonomous commit through this same gate. Revert: `git revert b0129034`.
+
 [2026-07-27T23:40 ET] fable-session: LADDER DISARMED ON EVIDENCE -- the fast loop worked. The 390-day replay J demanded ("prove it, don't wait for tomorrow's tape") came back an honest NULL: floor 7 = -$31,015 (1,538 tr), floor 8 = -$16,642 (725 tr), floor 9 = -$10,903 (332 tr) vs binary-engine baseline +$5,307; similar WR, much worse loss/win magnitude; day-majority + drop-best FAIL on all lanes; baseline parity byte-identical to the published scorecard. All 5 floors REMOVED (fleet accounts.json x3 + params.json + aggressive/params.json) ~6h after arming, BEFORE the open -- the machinery/guards stay intact and inert, the why-not provenance rows are the $0 forward shadow, and the crypto twin's ladder-variant SIM lane keeps accruing its own mechanism evidence 24/7. Pre-registered narrow hypothesis (score>=9 + confluence + htf BEAR -- frozen BEFORE slicing) queued as LADDER-SUBSET-PREREG. RE-ARM = restore the keys (docs at each site carry the numbers). This is process>P&L: we armed on n=10, the n=1,538 answer arrived 6 hours later, and we acted on it the same night instead of discovering it live over two weeks.
 ## [2026-07-27] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
 
@@ -649,7 +691,7 @@
 - ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
 
 ## Kitchen
-Kitchen: alive, queue 29 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### BROKEN: self-check 2026-07-26T20:09:56
 - ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
@@ -988,3 +1030,22 @@ Kitchen: alive, queue 29 pending, last cook 0 min ago, today $0.00, model=openro
 - DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
 - ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
 - TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### WARN: spend-summary threshold breach
+- ts: 2026-07-28T03:30:17+00:00
+- date_et: 2026-07-27
+- total: $289.99 (threshold $30.00)
+- claude: $289.94  minimax: $0.05
+- claude_sessions: 21
+
+### BROKEN: self-check 2026-07-27T23:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T00:09:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-28T00:39:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
