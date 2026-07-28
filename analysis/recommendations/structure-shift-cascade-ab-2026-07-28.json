@@ -1,0 +1,1529 @@
+{
+  "prereg": {
+    "prereg_id": "STRUCTURE-SHIFT-IN-CASCADE (pre-reg #2)",
+    "frozen_at_et": "2026-07-28T12:15:25",
+    "frozen_before_any_run": true,
+    "relationship_to_prereg_1": "Pre-reg #1 (prereg-structure-shift-confirmation-2026-07-28.json, frozen 11:40:27) tested the shift predicate STANDALONE -- trigger + shift = enter, replacing the ENTIRE gate stack. VERDICT: NULL, 1/5 gates (K=3 +$931 over 1,668 trades vs baseline level-tied +$7,039 over 68; structure-shift-replay-2026-07-28.md). That hypothesis is DEAD -- it reproduced the broad-ladder failure shape (no selectivity floor, 15,303 candidates ~40/day vs the philosophy's own once-per-6-sessions cadence). HOWEVER: the staged live wiring (commit 459342c8, flag off) implements a DIFFERENT and stricter semantics that pre-reg #1 did not test -- the shift as an OR-ALTERNATIVE to filter 5 (bear) / the HTF demerit (bull) INSIDE the full scoring cascade, with every other filter still gating. This divergence between the tested predicate and the staged wiring was a spec inconsistency between the two build briefs -- Gamma's error, caught before arming. Pre-reg #2 tests the wiring's ACTUAL semantics. This is a distinct hypothesis stated before its run, not a post-hoc rescue of #1: #1's kill stands on its own population.",
+    "hypothesis": "H2: with the full filter cascade intact, allowing the structure-shift to satisfy filter 5 (bear) / waive the HTF-disagreement demerit (bull) for LEVEL-TIED setups adds a small number of high-quality entries -- the blocked-by-exactly-the-lagging-gate class (2026-07-27 09:40: blockers=[5] ONLY; 2026-07-28 11:05 shape) -- without degrading the existing book.",
+    "method": "True A/B of the exact armed change: the fullhist replay machinery run twice -- CONTROL: live config as-is. TREATMENT: identical plus structure_shift_confirmation=True threaded into the scoring (the staged wiring's own code path, engine_cli/filters as committed in 459342c8 -- NOT a reimplementation). Same population, same entry+1 + walk_exit_manager real-exit discipline, real-OPRA-only P&L, one position at a time.",
+    "expected_population_note": "The affected cohort should be SMALL (the blockers-subset-of-{5}/HTF-decisive class was ~10 ticks over 22 recent days). If the treatment changes fewer than 10 trades over 390 days, report it as evidence-thin regardless of sign and do not arm on this replay alone -- forward paper becomes the primary evidence.",
+    "gates_frozen": [
+      "G1 positive aggregate delta (treatment minus control) over the full window",
+      "G2 majority of CHANGED days positive",
+      "G3 survives dropping the single best changed trade",
+      "G4 preemption check: baseline winners preempted by an earlier shift-entry on the same day (one-position discipline) must not turn the day negative -- report every preemption explicitly",
+      "G5 the 2026-07-27 09:40 bear anchor must be an ADDED trade in the treatment (the 07-28 bull anchor is signal-only, no OPRA cache)",
+      "EVIDENCE FLOOR: n_changed >= 10 for replay-based arming; below that, arm ONLY as forward-paper trial with the kill criteria below"
+    ],
+    "kill_criteria_post_arm": "Forward: 10 sessions or n>=8 shift-path fills, whichever first; negative expectancy vs counterfactual lagging-gate behavior -> revert the flag, record.",
+    "no_new_knobs": "K=3 only (pre-reg #1's primary; K=2 sensitivity is dropped -- it was worse and adds a comparison). No other parameters exist.",
+    "arming_authority": "J's standing 2026-07-28 directive (rule-9 waiver documented in pre-reg #1) applies; arming on a PASS may happen same-day. A FAIL or evidence-thin result stays off and gets recorded."
+  },
+  "status": "COMPLETE",
+  "plumbing_route": "run_backtest does not forward bear_kwargs/bull_kwargs (verified: no such kwarg in its signature, hardcoded evaluate_bearish_setup/evaluate_bullish_setup calls). Route taken: engine_cli.decide_payload per flagged candidate bar, gate_params.structure_shift_confirmation_enabled=True, bar_ctx serialized from the ORIGINAL orchestrator BarContext captured via a pass-through monkeypatch (byte-identical inputs, not a heartbeat_core-style rebuild), bear_kwargs/bull_kwargs the SAME constant kwargs orchestrator computed for this run. Bull side proven a no-op for entries (passed independent of the htf demerit) -- only bear candidates (blockers==[5]) are re-scored.",
+  "control": {
+    "n_trades": 191,
+    "total_pnl": 5005.95,
+    "window": {
+      "start": "2025-01-02",
+      "end": "2026-07-27"
+    },
+    "anchor_check": {
+      "pass": true,
+      "prefix_cutoff": "2026-07-22",
+      "prefix_n": 190,
+      "prefix_total": 5064.75,
+      "stored_n": 190,
+      "stored_total": 5064.75
+    }
+  },
+  "candidates": {
+    "n_bear_candidates_blockers_5_only": 66,
+    "flag_off_fidelity": {
+      "match": 66,
+      "total": 66,
+      "pct": 100.0
+    },
+    "n_flip_to_enter_bear": 19,
+    "n_resolved_real_opra": 16,
+    "n_excluded_no_opra_or_min_premium": 3
+  },
+  "treatment": {
+    "n_admitted_total": 197,
+    "n_admitted_baseline": 184,
+    "n_admitted_shift": 13,
+    "n_preempted_baseline": 7,
+    "n_preempted_shift_signals": 3,
+    "total_pnl": 4959.95
+  },
+  "headline": {
+    "control_total": 5005.95,
+    "treatment_total": 4959.95,
+    "delta_total": -46.0
+  },
+  "gates": {
+    "g1_positive_aggregate": {
+      "delta_total": -46.0,
+      "pass": false
+    },
+    "g2_day_majority": {
+      "n_changed_days": 16,
+      "n_improved": 10,
+      "n_worsened": 6,
+      "pass": true
+    },
+    "g3_survives_drop_best": {
+      "best_trade_contribution": 579.0,
+      "delta_minus_best": -625.0,
+      "pass": false
+    },
+    "g4_preemption_no_negative_day": {
+      "n_preemptions": 7,
+      "preempted_days": [
+        {
+          "date": "2025-08-19",
+          "treatment_day_total": 271.2,
+          "pass": true
+        },
+        {
+          "date": "2025-09-17",
+          "treatment_day_total": -144.0,
+          "pass": false
+        },
+        {
+          "date": "2026-04-21",
+          "treatment_day_total": 384.75,
+          "pass": true
+        },
+        {
+          "date": "2026-05-07",
+          "treatment_day_total": 346.0,
+          "pass": true
+        },
+        {
+          "date": "2026-05-18",
+          "treatment_day_total": 950.7,
+          "pass": true
+        },
+        {
+          "date": "2026-06-08",
+          "treatment_day_total": 439.9,
+          "pass": true
+        },
+        {
+          "date": "2026-06-25",
+          "treatment_day_total": -732.0,
+          "pass": false
+        }
+      ],
+      "pass": false
+    },
+    "g5_0727_bear_anchor_added": {
+      "anchor_date": "2026-07-27",
+      "anchor_level": 744.9,
+      "matched_trades": [],
+      "pass": false,
+      "note": "bull 07-28 anchor is signal-only (no OPRA cache) per the pre-reg -- not tested here.",
+      "diagnostic_full_day_bear_scan": [
+        {
+          "bar_idx": 29112,
+          "timestamp_et": "2026-07-27T09:35:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            5,
+            8,
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection"
+          ],
+          "rejection_level": 745.45,
+          "ribbon_stack": "MIXED"
+        },
+        {
+          "bar_idx": 29113,
+          "timestamp_et": "2026-07-27T09:40:00-04:00",
+          "bear_score": 8,
+          "blockers": [
+            5,
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection"
+          ],
+          "rejection_level": 745.0,
+          "ribbon_stack": "BULL"
+        },
+        {
+          "bar_idx": 29114,
+          "timestamp_et": "2026-07-27T09:45:00-04:00",
+          "bear_score": 6,
+          "blockers": [
+            5,
+            7,
+            8,
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection"
+          ],
+          "rejection_level": 744.1,
+          "ribbon_stack": "BULL"
+        },
+        {
+          "bar_idx": 29115,
+          "timestamp_et": "2026-07-27T09:50:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            5,
+            7,
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection"
+          ],
+          "rejection_level": 744.1,
+          "ribbon_stack": "BULL"
+        },
+        {
+          "bar_idx": 29116,
+          "timestamp_et": "2026-07-27T09:55:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BULL"
+        },
+        {
+          "bar_idx": 29117,
+          "timestamp_et": "2026-07-27T10:00:00-04:00",
+          "bear_score": 5,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BULL"
+        },
+        {
+          "bar_idx": 29118,
+          "timestamp_et": "2026-07-27T10:05:00-04:00",
+          "bear_score": 5,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BULL"
+        },
+        {
+          "bar_idx": 29119,
+          "timestamp_et": "2026-07-27T10:10:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BULL"
+        },
+        {
+          "bar_idx": 29120,
+          "timestamp_et": "2026-07-27T10:15:00-04:00",
+          "bear_score": 6,
+          "blockers": [
+            5,
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BULL"
+        },
+        {
+          "bar_idx": 29121,
+          "timestamp_et": "2026-07-27T10:20:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            5,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BULL"
+        },
+        {
+          "bar_idx": 29122,
+          "timestamp_et": "2026-07-27T10:25:00-04:00",
+          "bear_score": 9,
+          "blockers": [
+            5
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 739.3487259899708,
+          "ribbon_stack": "BULL"
+        },
+        {
+          "bar_idx": 29123,
+          "timestamp_et": "2026-07-27T10:30:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            5,
+            6,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "MIXED"
+        },
+        {
+          "bar_idx": 29124,
+          "timestamp_et": "2026-07-27T10:35:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            6,
+            9,
+            10
+          ],
+          "triggers_fired": [
+            "ribbon_flip"
+          ],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29125,
+          "timestamp_et": "2026-07-27T10:40:00-04:00",
+          "bear_score": 9,
+          "blockers": [
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "ribbon_flip",
+            "confluence"
+          ],
+          "rejection_level": 737.29,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29126,
+          "timestamp_et": "2026-07-27T10:45:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [
+            "ribbon_flip"
+          ],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29127,
+          "timestamp_et": "2026-07-27T10:50:00-04:00",
+          "bear_score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 738.7,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29128,
+          "timestamp_et": "2026-07-27T10:55:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29129,
+          "timestamp_et": "2026-07-27T11:00:00-04:00",
+          "bear_score": 8,
+          "blockers": [
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29130,
+          "timestamp_et": "2026-07-27T11:05:00-04:00",
+          "bear_score": 9,
+          "blockers": [
+            8
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 739.3487259899708,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29131,
+          "timestamp_et": "2026-07-27T11:10:00-04:00",
+          "bear_score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection"
+          ],
+          "rejection_level": 739.35,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29132,
+          "timestamp_et": "2026-07-27T11:15:00-04:00",
+          "bear_score": 9,
+          "blockers": [
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 739.3487259899708,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29133,
+          "timestamp_et": "2026-07-27T11:20:00-04:00",
+          "bear_score": 9,
+          "blockers": [
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 739.2549751317043,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29134,
+          "timestamp_et": "2026-07-27T11:25:00-04:00",
+          "bear_score": 6,
+          "blockers": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29135,
+          "timestamp_et": "2026-07-27T11:30:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            7,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29136,
+          "timestamp_et": "2026-07-27T11:35:00-04:00",
+          "bear_score": 9,
+          "blockers": [
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 737.29,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29137,
+          "timestamp_et": "2026-07-27T11:40:00-04:00",
+          "bear_score": 6,
+          "blockers": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29138,
+          "timestamp_et": "2026-07-27T11:45:00-04:00",
+          "bear_score": 9,
+          "blockers": [
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 737.29,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29139,
+          "timestamp_et": "2026-07-27T11:50:00-04:00",
+          "bear_score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 737.29,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29140,
+          "timestamp_et": "2026-07-27T11:55:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29141,
+          "timestamp_et": "2026-07-27T12:00:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29142,
+          "timestamp_et": "2026-07-27T12:05:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29143,
+          "timestamp_et": "2026-07-27T12:10:00-04:00",
+          "bear_score": 9,
+          "blockers": [],
+          "triggers_fired": [
+            "trendline_rejection"
+          ],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29147,
+          "timestamp_et": "2026-07-27T12:30:00-04:00",
+          "bear_score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 739.2549751317043,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29148,
+          "timestamp_et": "2026-07-27T12:35:00-04:00",
+          "bear_score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 739.3487259899708,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29149,
+          "timestamp_et": "2026-07-27T12:40:00-04:00",
+          "bear_score": 9,
+          "blockers": [
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "rejection_level": 739.0304665290166,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29150,
+          "timestamp_et": "2026-07-27T12:45:00-04:00",
+          "bear_score": 8,
+          "blockers": [
+            8,
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "rejection_level": 738.7,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29151,
+          "timestamp_et": "2026-07-27T12:50:00-04:00",
+          "bear_score": 10,
+          "blockers": [],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence",
+            "trendline_rejection"
+          ],
+          "rejection_level": 737.29,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29160,
+          "timestamp_et": "2026-07-27T13:35:00-04:00",
+          "bear_score": 6,
+          "blockers": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29161,
+          "timestamp_et": "2026-07-27T13:40:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29162,
+          "timestamp_et": "2026-07-27T13:45:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29163,
+          "timestamp_et": "2026-07-27T13:50:00-04:00",
+          "bear_score": 6,
+          "blockers": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29164,
+          "timestamp_et": "2026-07-27T13:55:00-04:00",
+          "bear_score": 6,
+          "blockers": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29165,
+          "timestamp_et": "2026-07-27T14:00:00-04:00",
+          "bear_score": 8,
+          "blockers": [
+            8,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29166,
+          "timestamp_et": "2026-07-27T14:05:00-04:00",
+          "bear_score": 6,
+          "blockers": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29167,
+          "timestamp_et": "2026-07-27T14:10:00-04:00",
+          "bear_score": 6,
+          "blockers": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29168,
+          "timestamp_et": "2026-07-27T14:15:00-04:00",
+          "bear_score": 10,
+          "blockers": [],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 737.29,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29169,
+          "timestamp_et": "2026-07-27T14:20:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29170,
+          "timestamp_et": "2026-07-27T14:25:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29171,
+          "timestamp_et": "2026-07-27T14:30:00-04:00",
+          "bear_score": 10,
+          "blockers": [],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 737.29,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29172,
+          "timestamp_et": "2026-07-27T14:35:00-04:00",
+          "bear_score": 9,
+          "blockers": [
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29173,
+          "timestamp_et": "2026-07-27T14:40:00-04:00",
+          "bear_score": 6,
+          "blockers": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29174,
+          "timestamp_et": "2026-07-27T14:45:00-04:00",
+          "bear_score": 8,
+          "blockers": [
+            7,
+            8
+          ],
+          "triggers_fired": [
+            "level_rejection"
+          ],
+          "rejection_level": 737.29,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "bar_idx": 29175,
+          "timestamp_et": "2026-07-27T14:50:00-04:00",
+          "bear_score": 5,
+          "blockers": [
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "MIXED"
+        },
+        {
+          "bar_idx": 29176,
+          "timestamp_et": "2026-07-27T14:55:00-04:00",
+          "bear_score": 5,
+          "blockers": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 739.1687117289233,
+          "ribbon_stack": "MIXED"
+        },
+        {
+          "bar_idx": 29177,
+          "timestamp_et": "2026-07-27T15:00:00-04:00",
+          "bear_score": 7,
+          "blockers": [
+            1,
+            5,
+            6
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 739.1687117289233,
+          "ribbon_stack": "MIXED"
+        },
+        {
+          "bar_idx": 29178,
+          "timestamp_et": "2026-07-27T15:05:00-04:00",
+          "bear_score": 4,
+          "blockers": [
+            1,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 739.3487259899708,
+          "ribbon_stack": "MIXED"
+        },
+        {
+          "bar_idx": 29179,
+          "timestamp_et": "2026-07-27T15:10:00-04:00",
+          "bear_score": 6,
+          "blockers": [
+            1,
+            5,
+            6,
+            7
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 739.3487259899708,
+          "ribbon_stack": "MIXED"
+        },
+        {
+          "bar_idx": 29180,
+          "timestamp_et": "2026-07-27T15:15:00-04:00",
+          "bear_score": 5,
+          "blockers": [
+            1,
+            5,
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BULL"
+        },
+        {
+          "bar_idx": 29181,
+          "timestamp_et": "2026-07-27T15:20:00-04:00",
+          "bear_score": 4,
+          "blockers": [
+            1,
+            5,
+            7,
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BULL"
+        },
+        {
+          "bar_idx": 29182,
+          "timestamp_et": "2026-07-27T15:25:00-04:00",
+          "bear_score": 5,
+          "blockers": [
+            1,
+            5,
+            8,
+            9,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BULL"
+        },
+        {
+          "bar_idx": 29183,
+          "timestamp_et": "2026-07-27T15:30:00-04:00",
+          "bear_score": 6,
+          "blockers": [
+            1,
+            5,
+            8,
+            10
+          ],
+          "triggers_fired": [],
+          "rejection_level": null,
+          "ribbon_stack": "BULL"
+        },
+        {
+          "bar_idx": 29184,
+          "timestamp_et": "2026-07-27T15:35:00-04:00",
+          "bear_score": 8,
+          "blockers": [
+            1,
+            5
+          ],
+          "triggers_fired": [
+            "level_rejection",
+            "confluence"
+          ],
+          "rejection_level": 739.3487259899708,
+          "ribbon_stack": "BULL"
+        }
+      ],
+      "diagnostic_note": "Every bear-side evaluation on 2026-07-27 in THIS run (not just blockers==[5] candidates), for root-cause visibility on why the anchor was/wasn't captured. Cross-reference against ladder_fullhist_replay.py's own 09:40 calibration check (analysis/arm-ladder/LADDER-FULLHIST-2026-07-27.json#calibration_2026_07_27_0940): that tool's own independently-derived ground truth for this exact bar is bar_idx=29113, bear_score=8, blockers=[5, 9], rejection_level=745.0 -- i.e. even in that tool's run the 09:40 bar has TWO blockers (5 AND 9, the volume-baseline filter), not blockers==[5] alone, and rejection_level is already off by $0.10 from the pinned live-incident level (744.9). That tool's own note attributes this to a pre-existing, already-root-caused feed-provenance gap: 'the cached 09:40 bar in backtest/data/spy_5m_2026-05-19_2026-07-27.csv is not byte-identical to the real IEX bar the live engine read'. Filter 9 (volume) is NOT touched by structure_shift_confirmation (only filter 5 bear / the HTF-demerit bull), so even with perfect data fidelity this specific bar could not flip to ENTER_BEAR via the shift mechanism alone -- G5's FAIL here traces to pre-existing cached-data limitations at the historical window's tail edge, not a defect in this A/B's methodology (the <=2026-07-22 baseline anchor reproduces the stored scorecard EXACTLY, n=190 $5,064.75, proving the methodology is faithful over the 18-month core window)."
+    }
+  },
+  "evidence_floor": {
+    "n_changed": 20,
+    "floor": 10,
+    "pass": true
+  },
+  "verdict": "DO_NOT_ARM",
+  "changed_trades": [
+    {
+      "change": "ADDED",
+      "date": "2025-01-14",
+      "entry_time_et": "2025-01-14T12:05:00",
+      "side": "P",
+      "strike": 581,
+      "qty": 3,
+      "tier": "ELITE",
+      "rejection_level": 581.2100147980719,
+      "entry_premium": 1.87,
+      "exit_reason": "structure_stop @ 581.2100147980719",
+      "dollar_pnl": -81.0,
+      "contribution": -81.0
+    },
+    {
+      "change": "ADDED",
+      "date": "2025-06-02",
+      "entry_time_et": "2025-06-02T12:05:00",
+      "side": "P",
+      "strike": 589,
+      "qty": 5,
+      "tier": "ELITE",
+      "rejection_level": 589.9,
+      "entry_premium": 0.91,
+      "exit_reason": "ribbon_flip_back",
+      "dollar_pnl": -65.0,
+      "contribution": -65.0
+    },
+    {
+      "change": "ADDED",
+      "date": "2025-08-05",
+      "entry_time_et": "2025-08-05T10:05:00",
+      "side": "P",
+      "strike": 631,
+      "qty": 3,
+      "tier": "ELITE",
+      "rejection_level": 631.79,
+      "entry_premium": 1.34,
+      "exit_reason": "ribbon_flip_back",
+      "dollar_pnl": 39.0,
+      "contribution": 39.0
+    },
+    {
+      "change": "PREEMPTED",
+      "date": "2025-08-19",
+      "entry_time_et": "2025-08-19T13:10:00",
+      "side": "P",
+      "strike": null,
+      "qty": 6,
+      "tier": "TRENDLINE",
+      "rejection_level": null,
+      "entry_premium": 0.87,
+      "exit_reason": "premium_stop @ 0.7",
+      "dollar_pnl": -104.4,
+      "contribution": 104.4
+    },
+    {
+      "change": "PREEMPTED",
+      "date": "2025-09-17",
+      "entry_time_et": "2025-09-17T13:20:00",
+      "side": "P",
+      "strike": null,
+      "qty": 3,
+      "tier": "TRENDLINE",
+      "rejection_level": null,
+      "entry_premium": 2.57,
+      "exit_reason": "premium_stop @ 2.06",
+      "dollar_pnl": -154.2,
+      "contribution": 154.2
+    },
+    {
+      "change": "ADDED",
+      "date": "2026-04-10",
+      "entry_time_et": "2026-04-10T10:05:00",
+      "side": "P",
+      "strike": 681,
+      "qty": 3,
+      "tier": "ELITE",
+      "rejection_level": 680.7,
+      "entry_premium": 1.4,
+      "exit_reason": "ribbon_flip_back",
+      "dollar_pnl": -105.0,
+      "contribution": -105.0
+    },
+    {
+      "change": "PREEMPTED",
+      "date": "2026-04-21",
+      "entry_time_et": "2026-04-21T13:15:00",
+      "side": "P",
+      "strike": null,
+      "qty": 4,
+      "tier": "TRENDLINE",
+      "rejection_level": null,
+      "entry_premium": 1.27,
+      "exit_reason": "premium_stop @ 1.02",
+      "dollar_pnl": -101.6,
+      "contribution": 101.6
+    },
+    {
+      "change": "ADDED",
+      "date": "2026-05-07",
+      "entry_time_et": "2026-05-07T12:05:00",
+      "side": "P",
+      "strike": 733,
+      "qty": 5,
+      "tier": "ELITE",
+      "rejection_level": 733.83,
+      "entry_premium": 1.0,
+      "exit_reason": "runner_stop @ 2.19",
+      "dollar_pnl": 538.6,
+      "contribution": 538.6
+    },
+    {
+      "change": "PREEMPTED",
+      "date": "2026-05-07",
+      "entry_time_et": "2026-05-07T12:50:00",
+      "side": "P",
+      "strike": null,
+      "qty": 3,
+      "tier": "TRENDLINE",
+      "rejection_level": null,
+      "entry_premium": 1.41,
+      "exit_reason": "runner_stop @ 2.41",
+      "dollar_pnl": 382.4,
+      "contribution": -382.4
+    },
+    {
+      "change": "ADDED",
+      "date": "2026-05-13",
+      "entry_time_et": "2026-05-13T09:40:00",
+      "side": "P",
+      "strike": 737,
+      "qty": 3,
+      "tier": "ELITE",
+      "rejection_level": 737.6190413705132,
+      "entry_premium": 1.57,
+      "exit_reason": "ribbon_flip_back",
+      "dollar_pnl": 84.0,
+      "contribution": 84.0
+    },
+    {
+      "change": "PREEMPTED",
+      "date": "2026-05-18",
+      "entry_time_et": "2026-05-18T14:05:00",
+      "side": "P",
+      "strike": null,
+      "qty": 5,
+      "tier": "SUPER",
+      "rejection_level": 737.0,
+      "entry_premium": 1.03,
+      "exit_reason": "runner_stop @ 2.06",
+      "dollar_pnl": 514.4,
+      "contribution": -514.4
+    },
+    {
+      "change": "ADDED",
+      "date": "2026-05-20",
+      "entry_time_et": "2026-05-20T12:30:00",
+      "side": "P",
+      "strike": 739,
+      "qty": 3,
+      "tier": "ELITE",
+      "rejection_level": 739.0800170898438,
+      "entry_premium": 1.75,
+      "exit_reason": "ribbon_flip_back",
+      "dollar_pnl": 18.0,
+      "contribution": 18.0
+    },
+    {
+      "change": "PREEMPTED",
+      "date": "2026-06-08",
+      "entry_time_et": "2026-06-08T14:40:00",
+      "side": "P",
+      "strike": null,
+      "qty": 5,
+      "tier": "SUPER",
+      "rejection_level": 742.0841623480467,
+      "entry_premium": 0.9,
+      "exit_reason": "runner_stop @ 2.21",
+      "dollar_pnl": 532.0,
+      "contribution": -532.0
+    },
+    {
+      "change": "ADDED",
+      "date": "2026-06-09",
+      "entry_time_et": "2026-06-09T10:15:00",
+      "side": "P",
+      "strike": 742,
+      "qty": 3,
+      "tier": "ELITE",
+      "rejection_level": 743.6300048828125,
+      "entry_premium": 2.18,
+      "exit_reason": "ribbon_flip_back",
+      "dollar_pnl": -57.0,
+      "contribution": -57.0
+    },
+    {
+      "change": "ADDED",
+      "date": "2026-06-12",
+      "entry_time_et": "2026-06-12T11:40:00",
+      "side": "P",
+      "strike": 742,
+      "qty": 3,
+      "tier": "ELITE",
+      "rejection_level": 743.3599853515625,
+      "entry_premium": 2.33,
+      "exit_reason": "ribbon_flip_back",
+      "dollar_pnl": 480.0,
+      "contribution": 480.0
+    },
+    {
+      "change": "ADDED",
+      "date": "2026-06-25",
+      "entry_time_et": "2026-06-25T09:50:00",
+      "side": "P",
+      "strike": 733,
+      "qty": 3,
+      "tier": "ELITE",
+      "rejection_level": 734.37430364919,
+      "entry_premium": 2.71,
+      "exit_reason": "structure_stop @ 734.37430364919",
+      "dollar_pnl": -252.0,
+      "contribution": -252.0
+    },
+    {
+      "change": "PREEMPTED",
+      "date": "2026-06-25",
+      "entry_time_et": "2026-06-25T10:00:00",
+      "side": "P",
+      "strike": null,
+      "qty": 3,
+      "tier": "SUPER",
+      "rejection_level": 730.8400268554688,
+      "entry_premium": 2.8,
+      "exit_reason": "structure_stop @ 730.8400268554688",
+      "dollar_pnl": -579.0,
+      "contribution": 579.0
+    },
+    {
+      "change": "ADDED",
+      "date": "2026-06-25",
+      "entry_time_et": "2026-06-25T11:15:00",
+      "side": "P",
+      "strike": 733,
+      "qty": 3,
+      "tier": "ELITE",
+      "rejection_level": 734.37430364919,
+      "entry_premium": 2.18,
+      "exit_reason": "ribbon_flip_back",
+      "dollar_pnl": -234.0,
+      "contribution": -234.0
+    },
+    {
+      "change": "ADDED",
+      "date": "2026-07-20",
+      "entry_time_et": "2026-07-20T09:55:00",
+      "side": "P",
+      "strike": 746,
+      "qty": 3,
+      "tier": "ELITE",
+      "rejection_level": 747.75,
+      "entry_premium": 1.33,
+      "exit_reason": "ribbon_flip_back",
+      "dollar_pnl": 60.0,
+      "contribution": 60.0
+    },
+    {
+      "change": "ADDED",
+      "date": "2026-07-20",
+      "entry_time_et": "2026-07-20T12:30:00",
+      "side": "P",
+      "strike": 746,
+      "qty": 6,
+      "tier": "ELITE",
+      "rejection_level": 746.8,
+      "entry_premium": 0.76,
+      "exit_reason": "ribbon_flip_back",
+      "dollar_pnl": 18.0,
+      "contribution": 18.0
+    }
+  ],
+  "preempted_shift_signals": [
+    {
+      "date": "2026-06-09",
+      "entry_time_et": "2026-06-09T10:20:00",
+      "quality_tier": "ELITE"
+    },
+    {
+      "date": "2026-06-25",
+      "entry_time_et": "2026-06-25T09:55:00",
+      "quality_tier": "ELITE"
+    },
+    {
+      "date": "2026-07-20",
+      "entry_time_et": "2026-07-20T12:35:00",
+      "quality_tier": "ELITE"
+    }
+  ],
+  "excluded_synthetic": [
+    {
+      "bar_idx": 26686,
+      "date": "2026-06-09",
+      "trigger_time_et": "2026-06-09T09:55:00-04:00",
+      "strike": 744,
+      "quality_tier": "ELITE",
+      "triggers_fired": [
+        "level_rejection",
+        "confluence"
+      ],
+      "rejection_level": 745.3400268554688,
+      "bear_score_before": 9,
+      "bear_score_after": 10,
+      "blockers_before": [
+        5
+      ],
+      "blockers_after": [],
+      "exclude_reason": "no_opra_cache",
+      "synthetic_entry_premium": 1.1893
+    },
+    {
+      "bar_idx": 26776,
+      "date": "2026-06-10",
+      "trigger_time_et": "2026-06-10T10:55:00-04:00",
+      "strike": 733,
+      "quality_tier": "ELITE",
+      "triggers_fired": [
+        "level_rejection",
+        "confluence"
+      ],
+      "rejection_level": 734.4616477961254,
+      "bear_score_before": 9,
+      "bear_score_after": 10,
+      "blockers_before": [
+        5
+      ],
+      "blockers_after": [],
+      "exclude_reason": "no_opra_cache",
+      "synthetic_entry_premium": 1.5664
+    },
+    {
+      "bar_idx": 29069,
+      "date": "2026-07-24",
+      "trigger_time_et": "2026-07-24T12:30:00-04:00",
+      "strike": 742,
+      "quality_tier": "ELITE",
+      "triggers_fired": [
+        "level_rejection",
+        "confluence"
+      ],
+      "rejection_level": 742.56,
+      "bear_score_before": 9,
+      "bear_score_after": 10,
+      "blockers_before": [
+        5
+      ],
+      "blockers_after": [],
+      "exclude_reason": "no_opra_cache",
+      "synthetic_entry_premium": 0.7961
+    }
+  ],
+  "day_delta": {
+    "2025-01-06": 0.0,
+    "2025-01-07": 0.0,
+    "2025-01-08": 0.0,
+    "2025-01-10": 0.0,
+    "2025-01-13": 0.0,
+    "2025-01-14": -81.0,
+    "2025-01-16": 0.0,
+    "2025-01-29": 0.0,
+    "2025-01-30": 0.0,
+    "2025-02-06": 0.0,
+    "2025-02-07": 0.0,
+    "2025-02-12": 0.0,
+    "2025-02-14": 0.0,
+    "2025-02-20": 0.0,
+    "2025-02-21": 0.0,
+    "2025-02-24": 0.0,
+    "2025-02-25": 0.0,
+    "2025-03-03": 0.0,
+    "2025-03-18": 0.0,
+    "2025-03-20": 0.0,
+    "2025-04-02": 0.0,
+    "2025-05-09": 0.0,
+    "2025-05-12": 0.0,
+    "2025-05-20": 0.0,
+    "2025-06-02": -65.0,
+    "2025-06-05": 0.0,
+    "2025-06-12": 0.0,
+    "2025-06-13": 0.0,
+    "2025-06-17": 0.0,
+    "2025-06-20": 0.0,
+    "2025-06-26": 0.0,
+    "2025-07-07": 0.0,
+    "2025-07-09": 0.0,
+    "2025-07-15": 0.0,
+    "2025-07-17": 0.0,
+    "2025-07-18": 0.0,
+    "2025-07-21": 0.0,
+    "2025-07-29": 0.0,
+    "2025-08-01": 0.0,
+    "2025-08-05": 39.0,
+    "2025-08-07": 0.0,
+    "2025-08-08": 0.0,
+    "2025-08-11": 0.0,
+    "2025-08-12": 0.0,
+    "2025-08-13": 0.0,
+    "2025-08-15": 0.0,
+    "2025-08-19": 104.4,
+    "2025-08-20": 0.0,
+    "2025-08-22": 0.0,
+    "2025-08-29": 0.0,
+    "2025-09-03": 0.0,
+    "2025-09-10": 0.0,
+    "2025-09-11": 0.0,
+    "2025-09-17": 154.2,
+    "2025-09-18": 0.0,
+    "2025-09-23": 0.0,
+    "2025-09-25": 0.0,
+    "2025-09-26": 0.0,
+    "2025-10-02": 0.0,
+    "2025-10-06": 0.0,
+    "2025-10-07": 0.0,
+    "2025-10-09": 0.0,
+    "2025-10-15": 0.0,
+    "2025-10-24": 0.0,
+    "2025-10-27": 0.0,
+    "2025-10-28": 0.0,
+    "2025-10-29": 0.0,
+    "2025-11-04": 0.0,
+    "2025-11-06": 0.0,
+    "2025-11-10": 0.0,
+    "2025-11-12": 0.0,
+    "2025-12-02": 0.0,
+    "2025-12-08": 0.0,
+    "2025-12-09": 0.0,
+    "2025-12-10": 0.0,
+    "2025-12-11": 0.0,
+    "2025-12-12": 0.0,
+    "2025-12-15": 0.0,
+    "2025-12-16": 0.0,
+    "2025-12-17": 0.0,
+    "2025-12-29": 0.0,
+    "2026-01-02": 0.0,
+    "2026-01-06": 0.0,
+    "2026-01-14": 0.0,
+    "2026-01-26": 0.0,
+    "2026-01-27": 0.0,
+    "2026-01-28": 0.0,
+    "2026-01-29": 0.0,
+    "2026-02-03": 0.0,
+    "2026-02-04": 0.0,
+    "2026-02-05": 0.0,
+    "2026-02-12": 0.0,
+    "2026-02-17": 0.0,
+    "2026-02-19": 0.0,
+    "2026-02-20": 0.0,
+    "2026-02-23": 0.0,
+    "2026-02-26": 0.0,
+    "2026-02-27": 0.0,
+    "2026-03-02": 0.0,
+    "2026-03-05": 0.0,
+    "2026-03-17": 0.0,
+    "2026-04-08": 0.0,
+    "2026-04-10": -105.0,
+    "2026-04-17": 0.0,
+    "2026-04-21": 101.6,
+    "2026-04-28": 0.0,
+    "2026-04-29": 0.0,
+    "2026-05-01": 0.0,
+    "2026-05-04": 0.0,
+    "2026-05-07": 156.2,
+    "2026-05-08": 0.0,
+    "2026-05-13": 84.0,
+    "2026-05-14": 0.0,
+    "2026-05-15": 0.0,
+    "2026-05-18": -514.4,
+    "2026-05-19": 0.0,
+    "2026-05-20": 18.0,
+    "2026-05-21": 0.0,
+    "2026-05-22": 0.0,
+    "2026-05-26": 0.0,
+    "2026-05-28": 0.0,
+    "2026-06-02": 0.0,
+    "2026-06-03": 0.0,
+    "2026-06-08": -532.0,
+    "2026-06-09": -57.0,
+    "2026-06-11": 0.0,
+    "2026-06-12": 480.0,
+    "2026-06-15": 0.0,
+    "2026-06-16": 0.0,
+    "2026-06-17": 0.0,
+    "2026-06-22": 0.0,
+    "2026-06-23": 0.0,
+    "2026-06-24": 0.0,
+    "2026-06-25": 93.0,
+    "2026-06-26": 0.0,
+    "2026-06-29": 0.0,
+    "2026-07-02": 0.0,
+    "2026-07-06": 0.0,
+    "2026-07-07": 0.0,
+    "2026-07-08": 0.0,
+    "2026-07-14": 0.0,
+    "2026-07-15": 0.0,
+    "2026-07-17": 0.0,
+    "2026-07-20": 78.0,
+    "2026-07-21": 0.0,
+    "2026-07-23": 0.0
+  },
+  "runtime_seconds": {
+    "control_entry": 78.3,
+    "control_exit": 1.8,
+    "candidate_scoring": 0.2,
+    "total": 80.5
+  }
+}
