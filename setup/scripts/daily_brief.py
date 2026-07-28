@@ -48,6 +48,7 @@ import fill_funnel as ff  # noqa: E402  -- pure-ledger reader, $0, NO broker imp
 
 TODAY_BIAS_PATH = STATE / "today-bias.json"
 KEY_LEVELS_PATH = STATE / "key-levels.json"
+PREMARKET_READINESS_PATH = STATE / "premarket-readiness.json"
 SAFE_BREAKER_PATH = STATE / "circuit-breaker.json"
 BOLD_BREAKER_PATH = AGG / "circuit-breaker.json"
 STATUS_MD_PATH = REPO / "automation" / "overnight" / "STATUS.md"
@@ -161,6 +162,35 @@ def _breaker_armed_str(breaker: Optional[dict], date_field: str, today: str) -> 
     raw_date = breaker.get(date_field)
     bdate = str(raw_date)[:10] if raw_date else None
     return "armed" if bdate == today else "armed (stale re-arm)"
+
+
+def _premarket_readiness_line(day: str, data: Optional[dict]) -> str:
+    """PURE. Leads the morning brief with the standing WS2 premarket-readiness verdict
+    (built 2026-07-27: J had to ask "are we ready to trade?" after a review missed 3 of 6
+    accounts -- the SECOND time that class of miss happened -- and later the same day TV/CDP
+    was found dead with nothing flagging it). `premarket_readiness.py` runs standalone at
+    09:00 ET and writes automation/state/premarket-readiness.json; this just RENDERS it.
+
+    ORDERING CAVEAT: Gamma_MorningBrief fires 08:45 ET, 15 minutes BEFORE
+    Gamma_PremarketReadiness (09:00 ET) -- on a normal morning this degrades to the neutral
+    "not yet run" phrasing below until that ordering is revisited. It still reports the real
+    verdict on any day the gate happened to run earlier (manual re-run, a later brief re-fire).
+    Fail-open (C7): missing/stale/garbled -> a neutral line, never a crash -- the brief must
+    compose exactly as before even if this file was never written."""
+    if not data:
+        return "Premarket readiness check: not yet run today."
+    checked_day = str(data.get("ts_et", ""))[:10]
+    if checked_day != day:
+        return "Premarket readiness check: not yet run today (fires 09:00 ET)."
+    verdict = str(data.get("verdict", "UNKNOWN")).upper()
+    if verdict == "GREEN":
+        return "Premarket readiness check: GREEN, every trading-critical system checked out."
+    reds = data.get("reds") or []
+    if not reds:
+        return f"Premarket readiness check: {verdict}."
+    checks = data.get("checks") or []
+    head = next((c.get("detail") for c in checks if c.get("name") == reds[0]), reds[0])
+    return f"Premarket readiness check: {verdict} -- {head}."
 
 
 def _ribbon_scope_note(day: str) -> Optional[dict]:
@@ -277,6 +307,7 @@ def gather_morning_facts(
     bold_breaker: Optional[dict] = None,
     status_headers: Optional[list[str]] = None,
     ribbon_scope: Optional[dict] = None,
+    premarket_readiness: Optional[dict] = None,
 ) -> dict:
     return {
         "day": day,
@@ -287,6 +318,7 @@ def gather_morning_facts(
         "bold_breaker": _breaker_armed_str(bold_breaker, BREAKER_DATE_FIELD["bold"], day),
         "overnight_headers": status_headers or [],
         "ribbon_scope": ribbon_scope,
+        "readiness_line": _premarket_readiness_line(day, premarket_readiness),
     }
 
 
@@ -316,6 +348,9 @@ def _crypto_overnight_line() -> str:
 
 def compose_morning_text(facts: dict) -> str:
     lines = [f"Gamma here. Morning brief, {facts['day']}."]
+    # LEADS with the readiness verdict (WS2, 2026-07-27): "ready to trade?" must never again
+    # require J to ask -- ahead of bias, on purpose, same precedent as the EOD liveness alarm.
+    lines.append(facts.get("readiness_line") or "Premarket readiness check: not yet run today.")
     lines.append(f"Bias is {facts['bias']}: {facts['bias_reason']}")
     levels = facts.get("levels") or []
     if levels:
@@ -535,6 +570,7 @@ def main() -> int:
             bold_breaker=_read_json(BOLD_BREAKER_PATH),
             status_headers=_status_headers(STATUS_MD_PATH, n=3),
             ribbon_scope=_ribbon_scope_note(day),
+            premarket_readiness=_read_json(PREMARKET_READINESS_PATH),
         )
         text = compose_morning_text(facts)
     else:

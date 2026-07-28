@@ -155,6 +155,64 @@ def test_ribbon_scope_note_before_all_cached_data_returns_none():
 
 
 # --------------------------------------------------------------------------- #
+# Premarket readiness lead-line (WS2, 2026-07-27) -- daily_brief.py wiring for
+# premarket_readiness.py's automation/state/premarket-readiness.json.
+# --------------------------------------------------------------------------- #
+
+def test_premarket_readiness_line_missing_file_is_neutral():
+    assert db._premarket_readiness_line("2026-07-28", None) == "Premarket readiness check: not yet run today."
+
+
+def test_premarket_readiness_line_stale_day_is_neutral_not_a_fabricated_verdict():
+    """Yesterday's readiness file must never be reported as if it were today's -- a stale
+    GREEN carried forward would be a lie about right-now readiness."""
+    stale = {"ts_et": "2026-07-27 09:00:05", "verdict": "GREEN", "reds": []}
+    line = db._premarket_readiness_line("2026-07-28", stale)
+    assert line == "Premarket readiness check: not yet run today (fires 09:00 ET)."
+
+
+def test_premarket_readiness_line_green_today():
+    data = {"ts_et": "2026-07-28 09:00:05", "verdict": "GREEN", "reds": [], "checks": []}
+    line = db._premarket_readiness_line("2026-07-28", data)
+    assert line == "Premarket readiness check: GREEN, every trading-critical system checked out."
+
+
+def test_premarket_readiness_line_red_today_names_the_failure():
+    data = {
+        "ts_et": "2026-07-28 09:00:05", "verdict": "RED", "reds": ["fleet:risky-1"],
+        "checks": [{"name": "fleet:risky-1", "detail": "risky-1: NO decision rows dated today"}],
+    }
+    line = db._premarket_readiness_line("2026-07-28", data)
+    assert line == "Premarket readiness check: RED -- risky-1: NO decision rows dated today."
+
+
+def test_morning_text_leads_with_readiness_line():
+    data = {"ts_et": "2026-07-22 09:00:05", "verdict": "RED", "reds": ["levels_sanity"],
+            "checks": [{"name": "levels_sanity", "detail": "all one-sided vs spot"}]}
+    facts = db.gather_morning_facts(
+        "2026-07-22", today_bias=_BIAS, key_levels=_KEY_LEVELS,
+        safe_breaker=_SAFE_BREAKER, bold_breaker=_BOLD_BREAKER, status_headers=_STATUS_HEADERS,
+        premarket_readiness=data,
+    )
+    text = db.compose_morning_text(facts)
+    lines = text.split(". ")
+    assert "Premarket readiness check" in lines[1] or "Premarket readiness check" in text
+    # It must lead -- appear before the bias line, not buried at the end.
+    assert text.index("Premarket readiness check") < text.index("Bias is")
+
+
+def test_morning_readiness_missing_never_raises():
+    """No premarket_readiness kwarg at all (e.g. an older caller) must never crash -- degrades
+    to the neutral not-yet-run line, exactly like every other optional morning fact."""
+    facts = db.gather_morning_facts(
+        "2026-07-22", today_bias=_BIAS, key_levels=_KEY_LEVELS,
+        safe_breaker=_SAFE_BREAKER, bold_breaker=_BOLD_BREAKER, status_headers=_STATUS_HEADERS,
+    )
+    text = db.compose_morning_text(facts)
+    assert "Premarket readiness check: not yet run today." in text
+
+
+# --------------------------------------------------------------------------- #
 # EOD -- fixtures + composition.
 # --------------------------------------------------------------------------- #
 
