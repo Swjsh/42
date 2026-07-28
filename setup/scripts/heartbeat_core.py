@@ -130,6 +130,14 @@ GATE_KEYS = [
     "midday_trendline_gate", "block_conf_lvl_rej_midday_afternoon", "block_conf_lvl_rec_afternoon",
     "entry_bar_body_pct_min", "entry_bar_body_pct_min_bull", "vix_bear_hard_cap",
     "structure_veto_enabled",
+    # STRUCTURE-SHIFT-CONFIRMATION-AT-LEVELS (2026-07-28) — wiring-only addition. Listing
+    # the key here does NOT arm anything: pass-through only fires if the key is later added
+    # to params.json (a separate ratification decision per the pre-reg's arming_plan).
+    # Absent from params.json today -> gate_params never contains the key -> engine_cli's
+    # `gate_params.get("structure_shift_confirmation_enabled", False)` stays False ->
+    # byte-identical scoring. Pre-reg: analysis/recommendations/
+    # prereg-structure-shift-confirmation-2026-07-28.json.
+    "structure_shift_confirmation_enabled",
 ]
 
 

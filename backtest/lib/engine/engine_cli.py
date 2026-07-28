@@ -60,9 +60,16 @@ stdin: a single JSON object. Top-level keys:
   gate_params  (object, optional) — the armed gate knobs, keyed by the
       run_backtest gate-kwarg names (block_level_rejection, vix_bear_hard_cap,
       entry_bar_body_pct_min, block_elite_bull_vix_low/high,
-      midday_trendline_gate_start_minutes, ...). Default {} = all gates disarmed,
+      midday_trendline_gate_start_minutes, structure_veto_enabled,
+      structure_shift_confirmation_enabled, ...). Default {} = all gates disarmed,
       exactly as the orchestrator's default-valued kwargs (gate off). Reads use
       ``params.get(key, <orchestrator default>)``.
+      ``structure_shift_confirmation_enabled`` (default absent -> False) is a SCORING-side
+      flip point, not a post-score gate like structure_veto_enabled: when True it threads
+      ``structure_shift_confirmation=True`` into both bear_kwargs and bull_kwargs before
+      score_bar runs (see ``backtest/lib/structure_shift.py`` + ``filters.py``'s filter-5 /
+      HTF-demerit OR-alternative wiring). Absent/False leaves bear_kwargs/bull_kwargs
+      untouched — byte-identical scoring.
 
   score_params (object, optional) — forwarded to the scorers:
       enable_bullish  bool   default true — when false the bull side is not scored
@@ -531,6 +538,26 @@ def decide_payload(payload: Mapping[str, Any]) -> dict:
     bear_kwargs = _coerce_score_kwargs(score_params.get("bear_kwargs"), "score_params.bear_kwargs")
     bull_kwargs = _coerce_score_kwargs(score_params.get("bull_kwargs"), "score_params.bull_kwargs")
 
+    # gate_params is read here (moved above score_bar, was below it) so the
+    # structure-shift flip point below can run before scoring. Parsed once; the
+    # STRUCTURE VETO gate further down reuses this same `gate_params` object.
+    gate_params = payload.get("gate_params", {})
+    if not isinstance(gate_params, Mapping):
+        raise BadPayload("payload.gate_params: expected an object")
+
+    # ── STRUCTURE-SHIFT CONFIRMATION (gate_params["structure_shift_confirmation_enabled"]) ──
+    # Single flip point, mirroring structure_veto_enabled's gate_params-key pattern, instead
+    # of requiring every payload builder (heartbeat_core.py, replay tools, tests) to
+    # duplicate the flag inside both score_params.bear_kwargs AND .bull_kwargs by hand.
+    # Default absent/False -> bear_kwargs/bull_kwargs are untouched, so score_bar's output is
+    # BYTE-IDENTICAL to before this key existed (evaluate_bearish_setup/evaluate_bullish_setup
+    # already default structure_shift_confirmation=False on their own). Pre-reg: analysis/
+    # recommendations/prereg-structure-shift-confirmation-2026-07-28.json. DO NOT add this key
+    # to any params.json — arming is a separate ratification decision.
+    if gate_params.get("structure_shift_confirmation_enabled", False):
+        bear_kwargs = dict(bear_kwargs, structure_shift_confirmation=True)
+        bull_kwargs = dict(bull_kwargs, structure_shift_confirmation=True)
+
     # 1) SCORE both sides (the shared scoring entry point).
     score: ScoreResult = score_bar(
         ctx,
@@ -541,10 +568,6 @@ def decide_payload(payload: Mapping[str, Any]) -> dict:
 
     # 2) ROUTE to a winning side + quality tier (orchestrator-verbatim glue).
     winning_side, winning_triggers, winning_level = _derive_routing(score)
-
-    gate_params = payload.get("gate_params", {})
-    if not isinstance(gate_params, Mapping):
-        raise BadPayload("payload.gate_params: expected an object")
 
     # Historical frames the two context-needing gates read (optional unless armed).
     spy_df = (

@@ -28,6 +28,11 @@ import numpy as np
 import pandas as pd
 
 from .ribbon import RibbonState
+from .structure_shift import (
+    STRUCTURE_SHIFT_K_DEFAULT,
+    detect_structure_shift_bear,
+    detect_structure_shift_bull,
+)
 
 
 # Thresholds — pulled from playbook / chart-anatomy / params.
@@ -1114,6 +1119,13 @@ def evaluate_bullish_setup(
     sweep_min_close_back_pct: float = 0.0005,
     sweep_block_window_bars: int = 3,
     sweep_clean_prior_bars: int = 3,
+    # --- STRUCTURE-SHIFT-CONFIRMATION-AT-LEVELS (mirror of evaluate_bearish_setup's flag;
+    # see that docstring block for the full pre-reg/doctrine citation). Bull side: waives
+    # the htf_15m-disagreement SOFT score demerit (never a hard blocker to begin with) when
+    # a structure shift confirms — the OR-alternative to HTF agreement. FLAG-GATED, DEFAULT
+    # FALSE, byte-identical when off (see the bull_score block below).
+    structure_shift_confirmation: bool = False,
+    structure_shift_k: int = STRUCTURE_SHIFT_K_DEFAULT,
 ) -> BullishSetupResult:
     """Run all 11 bullish filters + trigger checks. Mirror of evaluate_bearish_setup
     with the v11-ratified parameters.
@@ -1255,8 +1267,20 @@ def evaluate_bullish_setup(
             blockers.append(11)
 
     bull_score = 11 - len(blockers)
+    # HTF disagreement demerit — waived by a positive structure-shift confirmation when
+    # structure_shift_confirmation is armed (the OR-alternative to HTF agreement; see the
+    # signature docstring block). Byte-identical when the flag is off: structure_shift_bull
+    # is never computed (stays None), so the demerit always applies exactly as before.
     if htf_disagrees and 11 not in disable:
-        bull_score = max(0, bull_score - 1)
+        structure_shift_bull = (
+            detect_structure_shift_bull(
+                ctx.prior_bars, ctx.bar_idx, ctx.levels_active, k=structure_shift_k,
+            )
+            if structure_shift_confirmation
+            else None
+        )
+        if structure_shift_bull is None:
+            bull_score = max(0, bull_score - 1)
 
     # ── SHADOW-LOGGED bull trigger mirrors (2026-07-15 fix-ship-repeat root-cause task) ──
     # markdown/audits/DIRECTIONAL-GATE-DEEP-RESEARCH-2026-07-15.md §4 "New-trigger work
@@ -1374,6 +1398,18 @@ def evaluate_bearish_setup(
     #   None = off for both (backward compatible default).
     fhh_quality_proximity: Optional[float] = None,
     fhh_above_max_prior_min: Optional[float] = None,
+    # --- STRUCTURE-SHIFT-CONFIRMATION-AT-LEVELS (2026-07-28, Rule-9 mid-session waiver
+    # documented in the pre-reg) — Gap 1 fix from J-MARKET-PHILOSOPHY.md: replaces the
+    # LAGGING ribbon-stack confirmation with an immediate price-structure confirmation
+    # (failed retest + break of the prior swing low) for level-tied setups. FLAG-GATED,
+    # DEFAULT FALSE. When False, `structure_shift_bear` below is never computed (the
+    # `structure_shift_confirmation and ...` guard short-circuits) so filter 5 is
+    # BYTE-IDENTICAL to pre-flag behavior. The ribbon check is NEVER removed — this is a
+    # pure OR-alternative. Pre-reg: analysis/recommendations/
+    # prereg-structure-shift-confirmation-2026-07-28.json. Predicate:
+    # backtest/lib/structure_shift.py#detect_structure_shift_bear.
+    structure_shift_confirmation: bool = False,
+    structure_shift_k: int = STRUCTURE_SHIFT_K_DEFAULT,
 ) -> SetupResult:
     """Run all 10 bearish filters + trigger checks. Return SetupResult.
 
@@ -1424,9 +1460,22 @@ def evaluate_bearish_setup(
     # Filter 2: news clear (backtest stub — assumes clear unless wired)
     # Filters 3, 4: always pass in backtest (budget, day-trades)
 
-    # Filter 5: ribbon BEAR-stacked
+    # Filter 5: ribbon BEAR-stacked (OR structure-shift confirmation when flag-armed —
+    # see the structure_shift_confirmation docstring block above the signature).
+    # Byte-identical to the pre-flag check when structure_shift_confirmation=False: the
+    # `structure_shift_confirmation and not ribbon_bear_ok` guard short-circuits, leaving
+    # `structure_shift_bear` at None, so `not (ribbon_bear_ok or False)` == the original
+    # `ctx.ribbon_now is None or ctx.ribbon_now.stack != "BEAR"` (De Morgan's).
     if 5 not in disable:
-        if ctx.ribbon_now is None or ctx.ribbon_now.stack != "BEAR":
+        ribbon_bear_ok = ctx.ribbon_now is not None and ctx.ribbon_now.stack == "BEAR"
+        structure_shift_bear = (
+            detect_structure_shift_bear(
+                ctx.prior_bars, ctx.bar_idx, ctx.levels_active, k=structure_shift_k,
+            )
+            if structure_shift_confirmation and not ribbon_bear_ok
+            else None
+        )
+        if not (ribbon_bear_ok or structure_shift_bear is not None):
             blockers.append(5)
 
     # Filter 6: spread >= 30 cents
