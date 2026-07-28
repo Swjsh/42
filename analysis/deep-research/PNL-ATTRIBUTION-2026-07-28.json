@@ -1,0 +1,1545 @@
+{
+  "_doc": "pnl_attribution_2026_07_28.py -- P&L ATTRIBUTION of the engine full-history replay\n(analysis/recommendations/engine-fullhist-replay-2026-07-23.json, 190 trades, +$5,064.75)\nplus an INDEPENDENT live-fills check (journal/trades.csv joined to\nautomation/state/core-decisions.jsonl ENTER verdicts).\n\nTHE question (per 2026-07-27 night lane brief): where does the +$5k actually come from,\nand where does it leak? Critical axis: trigger class -- trendline-ONLY vs level-tied vs\nboth (the live 233-vs-28 bear ENTER split has never been P&L-attributed).\n\nDESCRIPTIVE ONLY -- slices existing trades by pre-existing fields. No search, no BH\n(per the standing discipline: descriptive attribution needs no BH; any cohort-derived\nRULE proposal must separately clear positive-aggregate AND day-majority AND\nsurvives-drop-best AND held-out-positive -- that A/B lives in\nbacktest/tools/min_triggers_bear2_gate_ab_2026_07_28.py, pre-registered there).\n\nOutputs: analysis/deep-research/PNL-ATTRIBUTION-2026-07-28.json (+ the .md is composed\nby this script too; the gate A/B tool appends its own section afterwards).\n\nRun: python backtest/tools/pnl_attribution_2026_07_28.py   (stdlib only)\n",
+  "generated_at": "2026-07-27T22:12:42.060203",
+  "replay_source": "analysis\\recommendations\\engine-fullhist-replay-2026-07-23.json",
+  "replay_headline_checked": {
+    "total_pnl": 5064.75,
+    "n_trades": 190,
+    "win_rate": 0.2947,
+    "profit_factor": 1.333,
+    "avg_pnl_per_trade": 26.66,
+    "max_drawdown": -2233.4,
+    "max_drawdown_date": "2025-06-12",
+    "dollar_per_calendar_day_avg": 13.09,
+    "dollar_per_calendar_day_median": 0.0,
+    "dollar_per_trading_day_avg": 35.92,
+    "dollar_per_trading_day_median": -63.0,
+    "n_trading_days": 141,
+    "n_calendar_days": 387,
+    "pct_days_traded": 36.4
+  },
+  "replay_total_recomputed": 5064.75,
+  "replay_n_trades": 190,
+  "day_inventory_source": "analysis\\edge-matrix\\day-inventory-extended.json",
+  "heldout_definition": "day-inventory-extended.json heldout_days (last ceil(25%) of opra_days by date; 96 days 2026-02-25..2026-07-17-ish)",
+  "trigger_class_definition": {
+    "level_tied_triggers": [
+      "confluence",
+      "level_reclaim",
+      "level_rejection",
+      "sequence_reclaim",
+      "sequence_rejection"
+    ],
+    "TL_only": "has trendline_rejection, zero level-tied triggers",
+    "LEVEL_tied": "has >=1 level-tied trigger, no trendline_rejection",
+    "BOTH": "both",
+    "NEITHER": "neither (n=0 in this population)"
+  },
+  "replay_slices": {
+    "trigger_class": {
+      "BOTH": {
+        "n": 9,
+        "total": 1796.8,
+        "per_trade": 199.64,
+        "wr": 0.5556,
+        "drop_best": 1140.8,
+        "drop_worst": 2152.3,
+        "n_days": 7,
+        "n_up_days": 4,
+        "n_down_days": 3
+      },
+      "LEVEL_tied": {
+        "n": 57,
+        "total": 5098.05,
+        "per_trade": 89.44,
+        "wr": 0.4737,
+        "drop_best": 4238.1,
+        "drop_worst": 5677.05,
+        "n_days": 51,
+        "n_up_days": 25,
+        "n_down_days": 26
+      },
+      "TL_only": {
+        "n": 124,
+        "total": -1830.1,
+        "per_trade": -14.76,
+        "wr": 0.1935,
+        "drop_best": -2446.1,
+        "drop_worst": -1524.1,
+        "n_days": 97,
+        "n_up_days": 21,
+        "n_down_days": 76
+      }
+    },
+    "tier": {
+      "ELITE": {
+        "n": 11,
+        "total": 2758.2,
+        "per_trade": 250.75,
+        "wr": 0.7273,
+        "drop_best": 2052.65,
+        "drop_worst": 3226.2,
+        "n_days": 10,
+        "n_up_days": 7,
+        "n_down_days": 3
+      },
+      "LEVEL": {
+        "n": 18,
+        "total": -990.45,
+        "per_trade": -55.03,
+        "wr": 0.2778,
+        "drop_best": -1448.8,
+        "drop_worst": -666.45,
+        "n_days": 17,
+        "n_up_days": 5,
+        "n_down_days": 12
+      },
+      "SUPER": {
+        "n": 37,
+        "total": 5127.1,
+        "per_trade": 138.57,
+        "wr": 0.5135,
+        "drop_best": 4267.15,
+        "drop_worst": 5706.1,
+        "n_days": 32,
+        "n_up_days": 18,
+        "n_down_days": 14
+      },
+      "TRENDLINE": {
+        "n": 124,
+        "total": -1830.1,
+        "per_trade": -14.76,
+        "wr": 0.1935,
+        "drop_best": -2446.1,
+        "drop_worst": -1524.1,
+        "n_days": 97,
+        "n_up_days": 21,
+        "n_down_days": 76
+      }
+    },
+    "setup": {
+      "BEARISH_REJECTION_RIDE_THE_RIBBON": {
+        "n": 151,
+        "total": 2729.35,
+        "per_trade": 18.08,
+        "wr": 0.2649,
+        "drop_best": 2023.8,
+        "drop_worst": 3308.35,
+        "n_days": 113,
+        "n_up_days": 33,
+        "n_down_days": 80
+      },
+      "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+        "n": 39,
+        "total": 2335.4,
+        "per_trade": 59.88,
+        "wr": 0.4103,
+        "drop_best": 1475.45,
+        "drop_worst": 2659.4,
+        "n_days": 37,
+        "n_up_days": 16,
+        "n_down_days": 21
+      }
+    },
+    "side": {
+      "C": {
+        "n": 39,
+        "total": 2335.4,
+        "per_trade": 59.88,
+        "wr": 0.4103,
+        "drop_best": 1475.45,
+        "drop_worst": 2659.4,
+        "n_days": 37,
+        "n_up_days": 16,
+        "n_down_days": 21
+      },
+      "P": {
+        "n": 151,
+        "total": 2729.35,
+        "per_trade": 18.08,
+        "wr": 0.2649,
+        "drop_best": 2023.8,
+        "drop_worst": 3308.35,
+        "n_days": 113,
+        "n_up_days": 33,
+        "n_down_days": 80
+      }
+    },
+    "entry_hour": {
+      "09": {
+        "n": 23,
+        "total": 1470.7,
+        "per_trade": 63.94,
+        "wr": 0.4348,
+        "drop_best": 610.75,
+        "drop_worst": 1938.7,
+        "n_days": 23,
+        "n_up_days": 10,
+        "n_down_days": 13
+      },
+      "10": {
+        "n": 18,
+        "total": -621.4,
+        "per_trade": -34.52,
+        "wr": 0.3333,
+        "drop_best": -1326.95,
+        "drop_worst": -42.4,
+        "n_days": 18,
+        "n_up_days": 6,
+        "n_down_days": 12
+      },
+      "11": {
+        "n": 32,
+        "total": 575.25,
+        "per_trade": 17.98,
+        "wr": 0.2188,
+        "drop_best": -81.6,
+        "drop_worst": 817.25,
+        "n_days": 32,
+        "n_up_days": 7,
+        "n_down_days": 25
+      },
+      "12": {
+        "n": 33,
+        "total": 269.3,
+        "per_trade": 8.16,
+        "wr": 0.2424,
+        "drop_best": -276.35,
+        "drop_worst": 429.3,
+        "n_days": 33,
+        "n_up_days": 8,
+        "n_down_days": 25
+      },
+      "13": {
+        "n": 40,
+        "total": 2573.5,
+        "per_trade": 64.34,
+        "wr": 0.35,
+        "drop_best": 1821.5,
+        "drop_worst": 2819.5,
+        "n_days": 39,
+        "n_up_days": 14,
+        "n_down_days": 25
+      },
+      "14": {
+        "n": 40,
+        "total": 1127.6,
+        "per_trade": 28.19,
+        "wr": 0.275,
+        "drop_best": 471.6,
+        "drop_worst": 1483.1,
+        "n_days": 40,
+        "n_up_days": 11,
+        "n_down_days": 29
+      },
+      "15": {
+        "n": 4,
+        "total": -330.2,
+        "per_trade": -82.55,
+        "wr": 0.0,
+        "drop_best": -288.8,
+        "drop_worst": -208.4,
+        "n_days": 4,
+        "n_up_days": 0,
+        "n_down_days": 4
+      }
+    },
+    "exit_family": {
+      "premium_stop": {
+        "n": 92,
+        "total": -8584.3,
+        "per_trade": -93.31,
+        "wr": 0.0,
+        "drop_best": -8565.7,
+        "drop_worst": -8194.3,
+        "n_days": 80,
+        "n_up_days": 0,
+        "n_down_days": 80
+      },
+      "ribbon_flip_back": {
+        "n": 19,
+        "total": 205.0,
+        "per_trade": 10.79,
+        "wr": 0.4211,
+        "drop_best": -119.0,
+        "drop_worst": 322.0,
+        "n_days": 18,
+        "n_up_days": 8,
+        "n_down_days": 10
+      },
+      "runner_stop": {
+        "n": 35,
+        "total": 15774.05,
+        "per_trade": 450.69,
+        "wr": 1.0,
+        "drop_best": 14914.1,
+        "drop_worst": 15637.5,
+        "n_days": 32,
+        "n_up_days": 32,
+        "n_down_days": 0
+      },
+      "structure_stop": {
+        "n": 34,
+        "total": -5166.0,
+        "per_trade": -151.94,
+        "wr": 0.1471,
+        "drop_best": -5546.0,
+        "drop_worst": -4587.0,
+        "n_days": 32,
+        "n_up_days": 5,
+        "n_down_days": 27
+      },
+      "time_stop_15:50": {
+        "n": 6,
+        "total": 280.0,
+        "per_trade": 46.67,
+        "wr": 0.6667,
+        "drop_best": -29.0,
+        "drop_worst": 586.0,
+        "n_days": 6,
+        "n_up_days": 4,
+        "n_down_days": 2
+      },
+      "time_stop_15:50 (runner)": {
+        "n": 4,
+        "total": 2556.0,
+        "per_trade": 639.0,
+        "wr": 1.0,
+        "drop_best": 1804.0,
+        "drop_worst": 1984.0,
+        "n_days": 4,
+        "n_up_days": 4,
+        "n_down_days": 0
+      }
+    },
+    "resolved_stop_mode": {
+      "premium": {
+        "n": 124,
+        "total": -1830.1,
+        "per_trade": -14.76,
+        "wr": 0.1935,
+        "drop_best": -2446.1,
+        "drop_worst": -1524.1,
+        "n_days": 97,
+        "n_up_days": 21,
+        "n_down_days": 76
+      },
+      "structure": {
+        "n": 66,
+        "total": 6894.85,
+        "per_trade": 104.47,
+        "wr": 0.4848,
+        "drop_best": 6034.9,
+        "drop_worst": 7473.85,
+        "n_days": 56,
+        "n_up_days": 29,
+        "n_down_days": 27
+      }
+    },
+    "vix_band": {
+      "elevated": {
+        "n": 25,
+        "total": 767.55,
+        "per_trade": 30.7,
+        "wr": 0.28,
+        "drop_best": 15.55,
+        "drop_worst": 1157.55,
+        "n_days": 21,
+        "n_up_days": 5,
+        "n_down_days": 16
+      },
+      "low": {
+        "n": 15,
+        "total": 1768.65,
+        "per_trade": 117.91,
+        "wr": 0.3333,
+        "drop_best": 908.7,
+        "drop_worst": 2020.65,
+        "n_days": 10,
+        "n_up_days": 5,
+        "n_down_days": 5
+      },
+      "mid": {
+        "n": 149,
+        "total": 2462.55,
+        "per_trade": 16.53,
+        "wr": 0.2886,
+        "drop_best": 1757.0,
+        "drop_worst": 3041.55,
+        "n_days": 109,
+        "n_up_days": 37,
+        "n_down_days": 72
+      },
+      "unknown": {
+        "n": 1,
+        "total": 66.0,
+        "per_trade": 66.0,
+        "wr": 1.0,
+        "drop_best": 0.0,
+        "drop_worst": 0.0,
+        "n_days": 1,
+        "n_up_days": 1,
+        "n_down_days": 0
+      }
+    },
+    "day_type": {
+      "chop": {
+        "n": 47,
+        "total": -1797.0,
+        "per_trade": -38.23,
+        "wr": 0.1277,
+        "drop_best": -2239.0,
+        "drop_worst": -1561.0,
+        "n_days": 41,
+        "n_up_days": 5,
+        "n_down_days": 36
+      },
+      "range": {
+        "n": 80,
+        "total": 2629.1,
+        "per_trade": 32.86,
+        "wr": 0.35,
+        "drop_best": 1923.55,
+        "drop_worst": 3097.1,
+        "n_days": 58,
+        "n_up_days": 23,
+        "n_down_days": 35
+      },
+      "trend": {
+        "n": 59,
+        "total": 3516.95,
+        "per_trade": 59.61,
+        "wr": 0.322,
+        "drop_best": 2657.0,
+        "drop_worst": 4095.95,
+        "n_days": 38,
+        "n_up_days": 17,
+        "n_down_days": 21
+      },
+      "unclassified": {
+        "n": 3,
+        "total": 649.7,
+        "per_trade": 216.57,
+        "wr": 0.6667,
+        "drop_best": 104.05,
+        "drop_worst": 725.9,
+        "n_days": 3,
+        "n_up_days": 2,
+        "n_down_days": 1
+      },
+      "unknown": {
+        "n": 1,
+        "total": 66.0,
+        "per_trade": 66.0,
+        "wr": 1.0,
+        "drop_best": 0.0,
+        "drop_worst": 0.0,
+        "n_days": 1,
+        "n_up_days": 1,
+        "n_down_days": 0
+      }
+    },
+    "regime": {
+      "2025H1": {
+        "n": 38,
+        "total": -55.55,
+        "per_trade": -1.46,
+        "wr": 0.2368,
+        "drop_best": -761.1,
+        "drop_worst": 250.45,
+        "n_days": 29,
+        "n_up_days": 6,
+        "n_down_days": 23
+      },
+      "2025H2": {
+        "n": 72,
+        "total": 1633.6,
+        "per_trade": 22.69,
+        "wr": 0.2361,
+        "drop_best": 773.65,
+        "drop_worst": 1915.6,
+        "n_days": 50,
+        "n_up_days": 17,
+        "n_down_days": 33
+      },
+      "2026": {
+        "n": 80,
+        "total": 3486.7,
+        "per_trade": 43.58,
+        "wr": 0.375,
+        "drop_best": 2734.7,
+        "drop_worst": 4065.7,
+        "n_days": 62,
+        "n_up_days": 25,
+        "n_down_days": 37
+      }
+    },
+    "premium_band": {
+      "0.30-0.50": {
+        "n": 5,
+        "total": -20.05,
+        "per_trade": -4.01,
+        "wr": 0.2,
+        "drop_best": -156.6,
+        "drop_worst": 96.95,
+        "n_days": 5,
+        "n_up_days": 1,
+        "n_down_days": 4
+      },
+      "0.50-1.00": {
+        "n": 64,
+        "total": 868.05,
+        "per_trade": 13.56,
+        "wr": 0.2344,
+        "drop_best": 212.05,
+        "drop_worst": 1150.05,
+        "n_days": 55,
+        "n_up_days": 15,
+        "n_down_days": 40
+      },
+      ">=1.00": {
+        "n": 121,
+        "total": 4216.75,
+        "per_trade": 34.85,
+        "wr": 0.3306,
+        "drop_best": 3356.8,
+        "drop_worst": 4795.75,
+        "n_days": 102,
+        "n_up_days": 35,
+        "n_down_days": 67
+      }
+    },
+    "trigger_class_x_regime": {
+      "BOTH|2025H1": {
+        "n": 1,
+        "total": 656.0,
+        "per_trade": 656.0,
+        "wr": 1.0,
+        "drop_best": 0.0,
+        "drop_worst": 0.0,
+        "n_days": 1,
+        "n_up_days": 1,
+        "n_down_days": 0
+      },
+      "BOTH|2026": {
+        "n": 8,
+        "total": 1140.8,
+        "per_trade": 142.6,
+        "wr": 0.5,
+        "drop_best": 608.8,
+        "drop_worst": 1496.3,
+        "n_days": 6,
+        "n_up_days": 3,
+        "n_down_days": 3
+      },
+      "LEVEL_tied|2025H1": {
+        "n": 10,
+        "total": 575.35,
+        "per_trade": 57.53,
+        "wr": 0.4,
+        "drop_best": -130.2,
+        "drop_worst": 824.35,
+        "n_days": 9,
+        "n_up_days": 3,
+        "n_down_days": 6
+      },
+      "LEVEL_tied|2025H2": {
+        "n": 20,
+        "total": 2884.45,
+        "per_trade": 144.22,
+        "wr": 0.45,
+        "drop_best": 2024.5,
+        "drop_worst": 3166.45,
+        "n_days": 19,
+        "n_up_days": 9,
+        "n_down_days": 10
+      },
+      "LEVEL_tied|2026": {
+        "n": 27,
+        "total": 1638.25,
+        "per_trade": 60.68,
+        "wr": 0.5185,
+        "drop_best": 886.25,
+        "drop_worst": 2217.25,
+        "n_days": 23,
+        "n_up_days": 13,
+        "n_down_days": 10
+      },
+      "TL_only|2025H1": {
+        "n": 27,
+        "total": -1286.9,
+        "per_trade": -47.66,
+        "wr": 0.1481,
+        "drop_best": -1832.55,
+        "drop_worst": -980.9,
+        "n_days": 20,
+        "n_up_days": 2,
+        "n_down_days": 18
+      },
+      "TL_only|2025H2": {
+        "n": 52,
+        "total": -1250.85,
+        "per_trade": -24.05,
+        "wr": 0.1538,
+        "drop_best": -1772.85,
+        "drop_worst": -1096.65,
+        "n_days": 38,
+        "n_up_days": 8,
+        "n_down_days": 30
+      },
+      "TL_only|2026": {
+        "n": 45,
+        "total": 707.65,
+        "per_trade": 15.73,
+        "wr": 0.2667,
+        "drop_best": 91.65,
+        "drop_worst": 857.65,
+        "n_days": 39,
+        "n_up_days": 11,
+        "n_down_days": 28
+      }
+    },
+    "trigger_class_x_heldout": {
+      "BOTH|HELDOUT": {
+        "n": 6,
+        "total": 836.4,
+        "per_trade": 139.4,
+        "wr": 0.5,
+        "drop_best": 304.4,
+        "drop_worst": 1191.9,
+        "n_days": 5,
+        "n_up_days": 2,
+        "n_down_days": 3
+      },
+      "BOTH|IS": {
+        "n": 3,
+        "total": 960.4,
+        "per_trade": 320.13,
+        "wr": 0.6667,
+        "drop_best": 304.4,
+        "drop_worst": 1145.4,
+        "n_days": 2,
+        "n_up_days": 2,
+        "n_down_days": 0
+      },
+      "LEVEL_tied|HELDOUT": {
+        "n": 20,
+        "total": 474.4,
+        "per_trade": 23.72,
+        "wr": 0.45,
+        "drop_best": -277.6,
+        "drop_worst": 1053.4,
+        "n_days": 16,
+        "n_up_days": 8,
+        "n_down_days": 8
+      },
+      "LEVEL_tied|IS": {
+        "n": 37,
+        "total": 4623.65,
+        "per_trade": 124.96,
+        "wr": 0.4865,
+        "drop_best": 3763.7,
+        "drop_worst": 4905.65,
+        "n_days": 35,
+        "n_up_days": 17,
+        "n_down_days": 18
+      },
+      "TL_only|HELDOUT": {
+        "n": 29,
+        "total": 68.45,
+        "per_trade": 2.36,
+        "wr": 0.2069,
+        "drop_best": -435.8,
+        "drop_worst": 212.45,
+        "n_days": 26,
+        "n_up_days": 6,
+        "n_down_days": 20
+      },
+      "TL_only|IS": {
+        "n": 95,
+        "total": -1898.55,
+        "per_trade": -19.98,
+        "wr": 0.1895,
+        "drop_best": -2514.55,
+        "drop_worst": -1592.55,
+        "n_days": 71,
+        "n_up_days": 15,
+        "n_down_days": 56
+      }
+    },
+    "tier_x_side": {
+      "ELITE|P": {
+        "n": 11,
+        "total": 2758.2,
+        "per_trade": 250.75,
+        "wr": 0.7273,
+        "drop_best": 2052.65,
+        "drop_worst": 3226.2,
+        "n_days": 10,
+        "n_up_days": 7,
+        "n_down_days": 3
+      },
+      "LEVEL|C": {
+        "n": 18,
+        "total": -990.45,
+        "per_trade": -55.03,
+        "wr": 0.2778,
+        "drop_best": -1448.8,
+        "drop_worst": -666.45,
+        "n_days": 17,
+        "n_up_days": 5,
+        "n_down_days": 12
+      },
+      "SUPER|C": {
+        "n": 21,
+        "total": 3325.85,
+        "per_trade": 158.37,
+        "wr": 0.5238,
+        "drop_best": 2465.9,
+        "drop_worst": 3607.85,
+        "n_days": 20,
+        "n_up_days": 11,
+        "n_down_days": 9
+      },
+      "SUPER|P": {
+        "n": 16,
+        "total": 1801.25,
+        "per_trade": 112.58,
+        "wr": 0.5,
+        "drop_best": 1145.25,
+        "drop_worst": 2380.25,
+        "n_days": 13,
+        "n_up_days": 7,
+        "n_down_days": 6
+      },
+      "TRENDLINE|P": {
+        "n": 124,
+        "total": -1830.1,
+        "per_trade": -14.76,
+        "wr": 0.1935,
+        "drop_best": -2446.1,
+        "drop_worst": -1524.1,
+        "n_days": 97,
+        "n_up_days": 21,
+        "n_down_days": 76
+      }
+    }
+  },
+  "live_meta": {
+    "n_csv_rows": 201,
+    "n_valid": 195,
+    "n_malformed_excluded": 6,
+    "malformed_pnl_excluded": 584.0
+  },
+  "live_join_meta": {
+    "n_live": 195,
+    "n_joined": 70,
+    "join_rate": 0.359,
+    "tolerance_minutes": 5.0,
+    "note": "core-decisions.jsonl only spans 2026-06-25.. ; live fills before that date can never join (older LLM-heartbeat decisions.jsonl has no usable ENTER rows). Unjoined class is reported, never guessed."
+  },
+  "live_total_all_rows": -1322.0,
+  "live_slices": {
+    "account_group": {
+      "core_bold": {
+        "n": 5,
+        "total": -469.0,
+        "per_trade": -93.8,
+        "wr": 0.6,
+        "drop_best": -563.0,
+        "drop_worst": -114.0,
+        "n_days": 3,
+        "n_up_days": 1,
+        "n_down_days": 2
+      },
+      "core_safe": {
+        "n": 36,
+        "total": 1246.0,
+        "per_trade": 34.61,
+        "wr": 0.2778,
+        "drop_best": -254.0,
+        "drop_worst": 2016.0,
+        "n_days": 13,
+        "n_up_days": 5,
+        "n_down_days": 8
+      },
+      "fleet_risky": {
+        "n": 74,
+        "total": -857.0,
+        "per_trade": -11.58,
+        "wr": 0.0811,
+        "drop_best": -1205.0,
+        "drop_worst": -705.0,
+        "n_days": 12,
+        "n_up_days": 2,
+        "n_down_days": 10
+      },
+      "fleet_safe": {
+        "n": 60,
+        "total": -643.0,
+        "per_trade": -10.72,
+        "wr": 0.0667,
+        "drop_best": -807.0,
+        "drop_worst": -548.0,
+        "n_days": 11,
+        "n_up_days": 1,
+        "n_down_days": 9
+      },
+      "other": {
+        "n": 20,
+        "total": -599.0,
+        "per_trade": -29.95,
+        "wr": 0.2,
+        "drop_best": -677.0,
+        "drop_worst": -362.0,
+        "n_days": 5,
+        "n_up_days": 1,
+        "n_down_days": 4
+      }
+    },
+    "attribution": {
+      "(blank)": {
+        "n": 29,
+        "total": 948.0,
+        "per_trade": 32.69,
+        "wr": 0.2759,
+        "drop_best": -552.0,
+        "drop_worst": 1718.0,
+        "n_days": 13,
+        "n_up_days": 5,
+        "n_down_days": 8
+      },
+      "engine": {
+        "n": 165,
+        "total": -2359.0,
+        "per_trade": -14.3,
+        "wr": 0.1091,
+        "drop_best": -2707.0,
+        "drop_worst": -2004.0,
+        "n_days": 16,
+        "n_up_days": 2,
+        "n_down_days": 14
+      },
+      "j_called": {
+        "n": 1,
+        "total": 89.0,
+        "per_trade": 89.0,
+        "wr": 1.0,
+        "drop_best": 0.0,
+        "drop_worst": 0.0,
+        "n_days": 1,
+        "n_up_days": 1,
+        "n_down_days": 0
+      }
+    },
+    "setup_family": {
+      "extra_setup": {
+        "n": 16,
+        "total": -250.0,
+        "per_trade": -15.62,
+        "wr": 0.1875,
+        "drop_best": -306.0,
+        "drop_worst": -184.0,
+        "n_days": 5,
+        "n_up_days": 1,
+        "n_down_days": 4
+      },
+      "other/manual": {
+        "n": 20,
+        "total": -992.0,
+        "per_trade": -49.6,
+        "wr": 0.2,
+        "drop_best": -1081.0,
+        "drop_worst": -692.0,
+        "n_days": 6,
+        "n_up_days": 1,
+        "n_down_days": 5
+      },
+      "ribbon_ride": {
+        "n": 159,
+        "total": -80.0,
+        "per_trade": -0.5,
+        "wr": 0.1258,
+        "drop_best": -1580.0,
+        "drop_worst": 690.0,
+        "n_days": 24,
+        "n_up_days": 7,
+        "n_down_days": 16
+      }
+    },
+    "setup": {
+      "BEARISH_REJECTION_RIDE_THE_RIBBON": {
+        "n": 58,
+        "total": -104.0,
+        "per_trade": -1.79,
+        "wr": 0.2759,
+        "drop_best": -834.0,
+        "drop_worst": 666.0,
+        "n_days": 14,
+        "n_up_days": 5,
+        "n_down_days": 8
+      },
+      "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+        "n": 101,
+        "total": 24.0,
+        "per_trade": 0.24,
+        "wr": 0.0396,
+        "drop_best": -1476.0,
+        "drop_worst": 99.0,
+        "n_days": 12,
+        "n_up_days": 2,
+        "n_down_days": 10
+      },
+      "TRENDLINE_BREAK_RETEST": {
+        "n": 1,
+        "total": 89.0,
+        "per_trade": 89.0,
+        "wr": 1.0,
+        "drop_best": 0.0,
+        "drop_worst": 0.0,
+        "n_days": 1,
+        "n_up_days": 1,
+        "n_down_days": 0
+      },
+      "UNCATEGORIZED_HOLD_TO_EXPIRY": {
+        "n": 1,
+        "total": -300.0,
+        "per_trade": -300.0,
+        "wr": 0.0,
+        "drop_best": 0.0,
+        "drop_worst": 0.0,
+        "n_days": 1,
+        "n_up_days": 0,
+        "n_down_days": 1
+      },
+      "UNCATEGORIZED_PROBE": {
+        "n": 1,
+        "total": -260.0,
+        "per_trade": -260.0,
+        "wr": 0.0,
+        "drop_best": 0.0,
+        "drop_worst": 0.0,
+        "n_days": 1,
+        "n_up_days": 0,
+        "n_down_days": 1
+      },
+      "UNCATEGORIZED_PROBE_MANUAL": {
+        "n": 1,
+        "total": -120.0,
+        "per_trade": -120.0,
+        "wr": 0.0,
+        "drop_best": 0.0,
+        "drop_worst": 0.0,
+        "n_days": 1,
+        "n_up_days": 0,
+        "n_down_days": 1
+      },
+      "UNKNOWN": {
+        "n": 16,
+        "total": -401.0,
+        "per_trade": -25.06,
+        "wr": 0.1875,
+        "drop_best": -410.0,
+        "drop_worst": -327.0,
+        "n_days": 2,
+        "n_up_days": 0,
+        "n_down_days": 2
+      },
+      "bollinger_squeeze": {
+        "n": 5,
+        "total": 21.0,
+        "per_trade": 4.2,
+        "wr": 0.4,
+        "drop_best": -35.0,
+        "drop_worst": 57.0,
+        "n_days": 3,
+        "n_up_days": 1,
+        "n_down_days": 2
+      },
+      "vix_regime_dayside": {
+        "n": 5,
+        "total": -153.0,
+        "per_trade": -30.6,
+        "wr": 0.0,
+        "drop_best": -147.0,
+        "drop_worst": -87.0,
+        "n_days": 2,
+        "n_up_days": 0,
+        "n_down_days": 2
+      },
+      "vwap_continuation": {
+        "n": 5,
+        "total": -136.0,
+        "per_trade": -27.2,
+        "wr": 0.0,
+        "drop_best": -126.0,
+        "drop_worst": -91.0,
+        "n_days": 2,
+        "n_up_days": 0,
+        "n_down_days": 2
+      },
+      "vwap_reclaim_failed_break": {
+        "n": 1,
+        "total": 18.0,
+        "per_trade": 18.0,
+        "wr": 1.0,
+        "drop_best": 0.0,
+        "drop_worst": 0.0,
+        "n_days": 1,
+        "n_up_days": 1,
+        "n_down_days": 0
+      }
+    },
+    "tier": {
+      "(blank)": {
+        "n": 34,
+        "total": -903.0,
+        "per_trade": -26.56,
+        "wr": 0.1765,
+        "drop_best": -959.0,
+        "drop_worst": -666.0,
+        "n_days": 8,
+        "n_up_days": 1,
+        "n_down_days": 7
+      },
+      "AUTO": {
+        "n": 1,
+        "total": -24.0,
+        "per_trade": -24.0,
+        "wr": 0.0,
+        "drop_best": 0.0,
+        "drop_worst": 0.0,
+        "n_days": 1,
+        "n_up_days": 0,
+        "n_down_days": 1
+      },
+      "BASE": {
+        "n": 23,
+        "total": 510.0,
+        "per_trade": 22.17,
+        "wr": 0.2609,
+        "drop_best": 162.0,
+        "drop_worst": 662.0,
+        "n_days": 5,
+        "n_up_days": 2,
+        "n_down_days": 2
+      },
+      "CORRECT": {
+        "n": 6,
+        "total": 2350.0,
+        "per_trade": 391.67,
+        "wr": 0.8333,
+        "drop_best": 850.0,
+        "drop_worst": 3120.0,
+        "n_days": 6,
+        "n_up_days": 5,
+        "n_down_days": 1
+      },
+      "ELITE": {
+        "n": 114,
+        "total": -2149.0,
+        "per_trade": -18.85,
+        "wr": 0.0351,
+        "drop_best": -2158.0,
+        "drop_worst": -2047.0,
+        "n_days": 10,
+        "n_up_days": 0,
+        "n_down_days": 10
+      },
+      "LEVEL": {
+        "n": 1,
+        "total": -305.0,
+        "per_trade": -305.0,
+        "wr": 0.0,
+        "drop_best": 0.0,
+        "drop_worst": 0.0,
+        "n_days": 1,
+        "n_up_days": 0,
+        "n_down_days": 1
+      },
+      "SUPER": {
+        "n": 1,
+        "total": -355.0,
+        "per_trade": -355.0,
+        "wr": 0.0,
+        "drop_best": 0.0,
+        "drop_worst": 0.0,
+        "n_days": 1,
+        "n_up_days": 0,
+        "n_down_days": 1
+      },
+      "TRENDLINE": {
+        "n": 11,
+        "total": 279.0,
+        "per_trade": 25.36,
+        "wr": 0.5455,
+        "drop_best": 123.0,
+        "drop_worst": 441.0,
+        "n_days": 4,
+        "n_up_days": 1,
+        "n_down_days": 2
+      },
+      "WRONG": {
+        "n": 4,
+        "total": -725.0,
+        "per_trade": -181.25,
+        "wr": 0.0,
+        "drop_best": -680.0,
+        "drop_worst": -425.0,
+        "n_days": 3,
+        "n_up_days": 0,
+        "n_down_days": 3
+      }
+    },
+    "side": {
+      "C": {
+        "n": 119,
+        "total": -480.0,
+        "per_trade": -4.03,
+        "wr": 0.042,
+        "drop_best": -1980.0,
+        "drop_worst": -360.0,
+        "n_days": 15,
+        "n_up_days": 3,
+        "n_down_days": 12
+      },
+      "P": {
+        "n": 76,
+        "total": -842.0,
+        "per_trade": -11.08,
+        "wr": 0.2895,
+        "drop_best": -1572.0,
+        "drop_worst": -72.0,
+        "n_days": 17,
+        "n_up_days": 6,
+        "n_down_days": 11
+      }
+    },
+    "entry_hour": {
+      "09": {
+        "n": 30,
+        "total": -506.0,
+        "per_trade": -16.87,
+        "wr": 0.0333,
+        "drop_best": -2006.0,
+        "drop_worst": 264.0,
+        "n_days": 9,
+        "n_up_days": 1,
+        "n_down_days": 8
+      },
+      "10": {
+        "n": 27,
+        "total": 497.0,
+        "per_trade": 18.41,
+        "wr": 0.1481,
+        "drop_best": -233.0,
+        "drop_worst": 572.0,
+        "n_days": 10,
+        "n_up_days": 3,
+        "n_down_days": 7
+      },
+      "11": {
+        "n": 24,
+        "total": 128.0,
+        "per_trade": 5.33,
+        "wr": 0.25,
+        "drop_best": -220.0,
+        "drop_worst": 433.0,
+        "n_days": 6,
+        "n_up_days": 1,
+        "n_down_days": 5
+      },
+      "12": {
+        "n": 22,
+        "total": -747.0,
+        "per_trade": -33.95,
+        "wr": 0.0455,
+        "drop_best": -836.0,
+        "drop_worst": -392.0,
+        "n_days": 8,
+        "n_up_days": 1,
+        "n_down_days": 7
+      },
+      "13": {
+        "n": 41,
+        "total": -1.0,
+        "per_trade": -0.02,
+        "wr": 0.3171,
+        "drop_best": -471.0,
+        "drop_worst": 299.0,
+        "n_days": 9,
+        "n_up_days": 2,
+        "n_down_days": 7
+      },
+      "14": {
+        "n": 44,
+        "total": -609.0,
+        "per_trade": -13.84,
+        "wr": 0.0455,
+        "drop_best": -665.0,
+        "drop_worst": -372.0,
+        "n_days": 9,
+        "n_up_days": 1,
+        "n_down_days": 7
+      },
+      "15": {
+        "n": 7,
+        "total": -84.0,
+        "per_trade": -12.0,
+        "wr": 0.0,
+        "drop_best": -79.0,
+        "drop_worst": -66.0,
+        "n_days": 1,
+        "n_up_days": 0,
+        "n_down_days": 1
+      }
+    },
+    "vix_band": {
+      "mid": {
+        "n": 192,
+        "total": -1346.0,
+        "per_trade": -7.01,
+        "wr": 0.1354,
+        "drop_best": -2846.0,
+        "drop_worst": -576.0,
+        "n_days": 26,
+        "n_up_days": 6,
+        "n_down_days": 20
+      },
+      "unknown": {
+        "n": 3,
+        "total": 24.0,
+        "per_trade": 8.0,
+        "wr": 0.3333,
+        "drop_best": -54.0,
+        "drop_worst": 60.0,
+        "n_days": 2,
+        "n_up_days": 1,
+        "n_down_days": 1
+      }
+    },
+    "day_type": {
+      "chop": {
+        "n": 98,
+        "total": -1040.0,
+        "per_trade": -10.61,
+        "wr": 0.0816,
+        "drop_best": -1510.0,
+        "drop_worst": -780.0,
+        "n_days": 13,
+        "n_up_days": 2,
+        "n_down_days": 11
+      },
+      "range": {
+        "n": 78,
+        "total": -121.0,
+        "per_trade": -1.55,
+        "wr": 0.2179,
+        "drop_best": -851.0,
+        "drop_worst": 649.0,
+        "n_days": 7,
+        "n_up_days": 3,
+        "n_down_days": 4
+      },
+      "trend": {
+        "n": 10,
+        "total": 894.0,
+        "per_trade": 89.4,
+        "wr": 0.1,
+        "drop_best": -606.0,
+        "drop_worst": 1194.0,
+        "n_days": 4,
+        "n_up_days": 1,
+        "n_down_days": 3
+      },
+      "unknown": {
+        "n": 9,
+        "total": -1055.0,
+        "per_trade": -117.22,
+        "wr": 0.1111,
+        "drop_best": -1133.0,
+        "drop_worst": -700.0,
+        "n_days": 3,
+        "n_up_days": 1,
+        "n_down_days": 2
+      }
+    },
+    "trigger_class_joined": {
+      "BOTH": {
+        "n": 8,
+        "total": -507.0,
+        "per_trade": -63.38,
+        "wr": 0.25,
+        "drop_best": -563.0,
+        "drop_worst": -152.0,
+        "n_days": 2,
+        "n_up_days": 1,
+        "n_down_days": 1
+      },
+      "LEVEL_tied": {
+        "n": 27,
+        "total": -1049.0,
+        "per_trade": -38.85,
+        "wr": 0.0741,
+        "drop_best": -1058.0,
+        "drop_worst": -744.0,
+        "n_days": 5,
+        "n_up_days": 0,
+        "n_down_days": 5
+      },
+      "TL_only": {
+        "n": 35,
+        "total": 565.0,
+        "per_trade": 16.14,
+        "wr": 0.3143,
+        "drop_best": 217.0,
+        "drop_worst": 727.0,
+        "n_days": 8,
+        "n_up_days": 2,
+        "n_down_days": 4
+      },
+      "unjoined": {
+        "n": 125,
+        "total": -331.0,
+        "per_trade": -2.65,
+        "wr": 0.096,
+        "drop_best": -1831.0,
+        "drop_worst": 439.0,
+        "n_days": 23,
+        "n_up_days": 6,
+        "n_down_days": 17
+      }
+    },
+    "trigger_class_x_setup_family": {
+      "BOTH|extra_setup": {
+        "n": 2,
+        "total": 105.0,
+        "per_trade": 52.5,
+        "wr": 1.0,
+        "drop_best": 49.0,
+        "drop_worst": 56.0,
+        "n_days": 1,
+        "n_up_days": 1,
+        "n_down_days": 0
+      },
+      "BOTH|ribbon_ride": {
+        "n": 6,
+        "total": -612.0,
+        "per_trade": -102.0,
+        "wr": 0.0,
+        "drop_best": -612.0,
+        "drop_worst": -257.0,
+        "n_days": 2,
+        "n_up_days": 0,
+        "n_down_days": 1
+      },
+      "LEVEL_tied|other/manual": {
+        "n": 1,
+        "total": -39.0,
+        "per_trade": -39.0,
+        "wr": 0.0,
+        "drop_best": 0.0,
+        "drop_worst": 0.0,
+        "n_days": 1,
+        "n_up_days": 0,
+        "n_down_days": 1
+      },
+      "LEVEL_tied|ribbon_ride": {
+        "n": 26,
+        "total": -1010.0,
+        "per_trade": -38.85,
+        "wr": 0.0769,
+        "drop_best": -1019.0,
+        "drop_worst": -705.0,
+        "n_days": 5,
+        "n_up_days": 0,
+        "n_down_days": 5
+      },
+      "TL_only|other/manual": {
+        "n": 2,
+        "total": -135.0,
+        "per_trade": -67.5,
+        "wr": 0.0,
+        "drop_best": -69.0,
+        "drop_worst": -66.0,
+        "n_days": 1,
+        "n_up_days": 0,
+        "n_down_days": 1
+      },
+      "TL_only|ribbon_ride": {
+        "n": 33,
+        "total": 700.0,
+        "per_trade": 21.21,
+        "wr": 0.3333,
+        "drop_best": 352.0,
+        "drop_worst": 862.0,
+        "n_days": 8,
+        "n_up_days": 2,
+        "n_down_days": 4
+      },
+      "unjoined|extra_setup": {
+        "n": 14,
+        "total": -355.0,
+        "per_trade": -25.36,
+        "wr": 0.0714,
+        "drop_best": -373.0,
+        "drop_worst": -289.0,
+        "n_days": 4,
+        "n_up_days": 0,
+        "n_down_days": 4
+      },
+      "unjoined|other/manual": {
+        "n": 17,
+        "total": -818.0,
+        "per_trade": -48.12,
+        "wr": 0.2353,
+        "drop_best": -907.0,
+        "drop_worst": -518.0,
+        "n_days": 6,
+        "n_up_days": 1,
+        "n_down_days": 5
+      },
+      "unjoined|ribbon_ride": {
+        "n": 94,
+        "total": 842.0,
+        "per_trade": 8.96,
+        "wr": 0.0745,
+        "drop_best": -658.0,
+        "drop_worst": 1612.0,
+        "n_days": 16,
+        "n_up_days": 5,
+        "n_down_days": 11
+      }
+    }
+  },
+  "live_ribbon_ride_engine_only_slices": {
+    "trigger_class_joined": {
+      "BOTH": {
+        "n": 6,
+        "total": -612.0,
+        "per_trade": -102.0,
+        "wr": 0.0,
+        "drop_best": -612.0,
+        "drop_worst": -257.0,
+        "n_days": 2,
+        "n_up_days": 0,
+        "n_down_days": 1
+      },
+      "LEVEL_tied": {
+        "n": 24,
+        "total": -758.0,
+        "per_trade": -31.58,
+        "wr": 0.0833,
+        "drop_best": -767.0,
+        "drop_worst": -453.0,
+        "n_days": 4,
+        "n_up_days": 0,
+        "n_down_days": 4
+      },
+      "TL_only": {
+        "n": 33,
+        "total": 700.0,
+        "per_trade": 21.21,
+        "wr": 0.3333,
+        "drop_best": 352.0,
+        "drop_worst": 862.0,
+        "n_days": 8,
+        "n_up_days": 2,
+        "n_down_days": 4
+      },
+      "unjoined": {
+        "n": 86,
+        "total": -1439.0,
+        "per_trade": -16.73,
+        "wr": 0.0233,
+        "drop_best": -1446.0,
+        "drop_worst": -1364.0,
+        "n_days": 8,
+        "n_up_days": 0,
+        "n_down_days": 8
+      }
+    },
+    "tier": {
+      "BASE": {
+        "n": 23,
+        "total": 510.0,
+        "per_trade": 22.17,
+        "wr": 0.2609,
+        "drop_best": 162.0,
+        "drop_worst": 662.0,
+        "n_days": 5,
+        "n_up_days": 2,
+        "n_down_days": 2
+      },
+      "ELITE": {
+        "n": 114,
+        "total": -2149.0,
+        "per_trade": -18.85,
+        "wr": 0.0351,
+        "drop_best": -2158.0,
+        "drop_worst": -2047.0,
+        "n_days": 10,
+        "n_up_days": 0,
+        "n_down_days": 10
+      },
+      "LEVEL": {
+        "n": 1,
+        "total": -305.0,
+        "per_trade": -305.0,
+        "wr": 0.0,
+        "drop_best": 0.0,
+        "drop_worst": 0.0,
+        "n_days": 1,
+        "n_up_days": 0,
+        "n_down_days": 1
+      },
+      "SUPER": {
+        "n": 1,
+        "total": -355.0,
+        "per_trade": -355.0,
+        "wr": 0.0,
+        "drop_best": 0.0,
+        "drop_worst": 0.0,
+        "n_days": 1,
+        "n_up_days": 0,
+        "n_down_days": 1
+      },
+      "TRENDLINE": {
+        "n": 10,
+        "total": 190.0,
+        "per_trade": 19.0,
+        "wr": 0.5,
+        "drop_best": 34.0,
+        "drop_worst": 352.0,
+        "n_days": 4,
+        "n_up_days": 1,
+        "n_down_days": 2
+      }
+    },
+    "side": {
+      "C": {
+        "n": 97,
+        "total": -1485.0,
+        "per_trade": -15.31,
+        "wr": 0.0206,
+        "drop_best": -1492.0,
+        "drop_worst": -1410.0,
+        "n_days": 8,
+        "n_up_days": 0,
+        "n_down_days": 8
+      },
+      "P": {
+        "n": 52,
+        "total": -624.0,
+        "per_trade": -12.0,
+        "wr": 0.25,
+        "drop_best": -972.0,
+        "drop_worst": -269.0,
+        "n_days": 9,
+        "n_up_days": 2,
+        "n_down_days": 6
+      }
+    }
+  },
+  "live_ribbon_ride_engine_only_n": 149
+}
