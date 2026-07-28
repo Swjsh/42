@@ -5,15 +5,66 @@
 
 # CANDIDATE: SHOTGUN_SCALPER_STAGE4_TOP_KEEPER
 
-**Filed:** 2026-07-21
+**Filed:** 2026-07-22
 **Filer:** chef-nemotron (free-tier autonomous R&D)
-**Type:** parameter_change
+**Type:** quality_gate
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-The shotgun scalper strategy with HTF-gated directional scoring aims to capture directional moves in SPY 0DTE options. This specific parameter set attempts to improve the edge capture on J's winner days while reducing losses on loser days by tightening stops and using volume confirmation.
+The strategy uses a quick-profit, tight-stop approach (75% TP, 35% SL, 12-min time stop) with OTM strikes (strike_offset=2) and a chandelier profit-lock arming at 60% of premium. The hypothesis is that this setup captures small, frequent wins while avoiding large losses by exiting quickly. However, the strategy fails to capture sufficient edge on J's winner days and wins on loser days, resulting in an edge_capture below the OP-16 floor.
 
 ## Mechanism
 
-Entry: Triggered by HTF-gated directional scoring (details abstracted from the strategy
+- Entry: Triggered by a volume ratio above 1.2 (vol_ratio_threshold) and other unspecified conditions (from the shotgun_scalper framework).
+- Exit: 
+    - Take profit at 75% of premium (tp_premium_pct=0.75) for 2/3 of position (assuming standard playbook scaling, though not specified in combo).
+    - Stop loss at 35% of premium (stop_premium_pct=-0.35) or 12-minute time stop (time_stop_min=12), whichever comes first.
+    - Chandelier profit-lock arms at 60% of premium (chandelier_arm_pct=0.6) and trails 15% (assumed from playbook default, though not in combo).
+- Position sizing: Follows playbook rules (risk-rules.md) based on account size.
+- Strike selection: OTM by 2 strikes (strike_offset=2) for puts (assuming bearish setup, as the J anchors are put days).
+
+## Expected impact on OP-16 anchors
+
+| J day | Current engine behavior | Proposed behavior | Delta |
+|---|---|---|---|
+| 4/29 winner | +$342 (engine must take) | +$297.0 | -$45.0 |
+| 5/01 winner | +$470 (engine must take) | +$231.0 | -$239.0 |
+| 5/04 winner | +$730 (engine must take) | +$177.0 | -$553.0 |
+| 5/05 loser | -$260 (engine must skip or lose less) | -$3.0 | +$257.0 (improved loss) |
+| 5/06 loser | -$300 (engine must skip or lose less) | +$231.0 | -$531.0 (worse: turned loss into win) |
+| 5/07 loser 1 | -$45 (engine must skip or lose less) | +$95.85 | -$140.85 (worse: turned loss into win) |
+| 5/07 loser 2 | -$120 (engine must skip or lose less) | (aggregated into 5/07 above) | (included in 5/07) |
+
+(Note: The by_day for 5/07 is $95.85, which aggregates both loser trades on that day. The delta for 5/07 is computed as the proposed behavior minus the sum of the two loser day P&Ls: -$45 + -$120 = -$165. So delta = $95.85 - (-$165) = +$260.85? But we are comparing to the required behavior: we want to skip or lose less. The current engine behavior on loser days is to lose $260 total. The proposed behavior wins $95.85, which is worse than losing less (it's a win). So the delta in terms of edge_capture is negative because we are adding to the losers_added term.)
+
+## OP-20 disclosures
+
+1. **Account-size assumption:** The strategy follows the playbook's position sizing (see risk-rules.md). For a $1K account, 3 contracts are traded. The wide_pnl of $22,084.2 over 1199 trades implies an average of $18.42 per trade. At 3 contracts, this would require an average profit of about $6.14 per contract per trade, which is unrealistic for 0DTE options. Therefore, the actual qty used in the backtest is likely higher than 3, implying a larger account size. Without the exact qty used in the backtest, we cannot specify the account size. However, the playbook's minimum account for 3 contracts is $1K, and the strategy scales up from there.
+
+2. **Sample bias:** The backtest covers approximately 16 months of data (2025-01 to 2026-06) as per the project's standard window. The keeper was selected from Stage 4 of the shotgun_scalper grinder, which evaluated hundreds of combinations. The top keeper is selected based on in-sample performance, posing a significant overfit risk. The edge_capture of 506.55 is below the OP-16 floor of 771, indicating that the strategy fails to capture the required edge on the anchor days, which further suggests overfit to non-anchor days.
+
+3. **Out-of-sample:** NEEDS-OOS (no OOS test performed)
+
+4. **Real-fills:** NEEDS-REAL-FILLS (no real-fills check on top 3 J days)
+
+5. **Failure modes:** 
+   - Worst day: -$195.45 (2026-05-15)
+   - Max drawdown: unknown -- requires Stage-1 backtest
+   - Blow-up scenario: The strategy's tight stop loss (35%) and short time stop (12 min) may lead to excessive stops in volatile markets, turning potential winners into losers. Additionally, the strategy's tendency to win on loser days (as seen on 5/06 and 5/07) indicates it may be trading against the intended bias, which could accumulate losses if the loser days are frequent and large.
+
+6. **Concentration:** top-5 days = 13.9% of P&L.
+
+## Pre-merge gate
+
+<what tests need to pass: gym validators, walk-forward, real-fills>
+
+Given the edge_capture is below the OP-16 floor of 771, this candidate is not eligible for promotion regardless of other gates. It requires a fundamental redesign to improve edge_capture on the anchor days.
+
+## Confidence
+
+2 / 10 -- The candidate fails the OP-16 anchor requirement (edge_capture < 771) and shows signs of overfit (winning on loser days). The mechanism is not aligned with the J edge.
+
+## Pre-existing leaderboard impact
+
+This candidate conflicts with the leaderboard's requirement of edge_capture >= 771. It does not complement any existing candidate because it fails the core anchor test. It should not be added to the leaderboard in its current form.
