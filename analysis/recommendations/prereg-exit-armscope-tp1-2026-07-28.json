@@ -1,0 +1,40 @@
+{
+  "prereg_id": "EXIT-ARMSCOPE-TP1 (J flag 1)",
+  "frozen_at_et": "2026-07-28T19:0x",
+  "frozen_before_any_run": true,
+  "authority": "J 2026-07-28 post-close: 'TP1 fifty percent... being up twenty two percent and then going to zero sucks. Should we put a trailing stop loss or something?' Market CLOSED -- normal after-hours work block, no rule-9 waiver needed.",
+
+  "the_incident_that_motivates_it": {
+    "trade": "2026-07-28 Bold, 5x SPY260728C00741000, level_reclaim @741.0",
+    "entry_premium": 1.38,
+    "hwm_premium": 2.16,
+    "hwm_pct": "+56.5% at 12:57 ET",
+    "tp1_threshold": "2.76 (+100%, RIBBON_RIDE registry tp1_premium_pct=1.0) -- NEVER REACHED even at HWM",
+    "actual_exit": "~0.795 structure_stop @741.0 = -42%",
+    "mechanism": "RIBBON_RIDE declares profit_lock_mode=trailing, trail_pct=0.15, profit_lock_arm_pct=0.05 -- BUT profit_lock_arm_scope=post_tp1, so the trail only arms at/after TP1. TP1 unreachable -> trail never armed -> full round-trip.",
+    "counterfactual_if_scope_full": "trail 15% off 2.16 = 1.836 exit = +33% (a ~$520 swing on this one trade)",
+    "status_of_the_knob": "exit_manager.py:73-81 documents ARM_SCOPE_FULL as expressible-but-never-armed: 'NOTHING declares full until a live-machine scorecard + STOP-B arms it.' This pre-reg IS that scorecard.",
+    "prior_art_warning": "The 2026-07-09 scope-mismatch finding: simulator_real arms the lock pre-TP1, this live core arms post-TP1, so EVERY sim scorecard crediting profit_lock overstated live protection. Therefore this test MUST run through exit_manager_walk at LIVE scope, never simulate_trade_real, and must not credit a same-bar ratchet (look-ahead)."
+  },
+
+  "cells_frozen_entire_search_space": [
+    "CONTROL: live config as-is (arm_scope=post_tp1, tp1=1.0)",
+    "E1: profit_lock_arm_scope=full (arm the existing trail at +5% favor, pre-TP1). ONE key.",
+    "E2: tp1_premium_pct 1.0 -> 0.5 (a reachable TP1; scope stays post_tp1)",
+    "E3: E1+E2 combined"
+  ],
+  "no_other_knobs": "trail_pct stays 0.15, arm_pct stays 0.05, catastrophe cap stays -0.50, stop_mode stays structure. Not swept. If E1 passes, trail_pct tuning is a SEPARATE future pre-reg.",
+
+  "population": "The 390-day full-history replay population, entries UNCHANGED from control (this is an exit-only test -- same trades, different exit walk). Exits re-derived through backtest/lib/exit_manager_walk.walk_exit_manager (the REAL live exit core) at live scope. entry+1 convention. Real-OPRA-only P&L; synthetic counted+excluded.",
+
+  "gates_frozen": [
+    "G1 positive aggregate delta vs CONTROL",
+    "G2 majority of changed trades positive",
+    "G3 survives dropping the single best changed trade",
+    "G4 ANCHOR-NO-REGRESSION on the 35 RUNNER_TRAIL winners (+$15,774 total): this is the book's entire profit engine and the reason blanket-tighter exits were killed. A cell that degrades the runner tail FAILS regardless of aggregate.",
+    "G5 no look-ahead: assert the ratchet cannot fire on the same bar as the favorable extreme it ratchets against (the 2026-07-09 sim defect); guard-tested.",
+    "G6 today's 2026-07-28 trade must improve materially under E1 (the motivating case; signal-level check, OPRA for today may be uncached -- disclose)"
+  ],
+  "arming_rule": "Arm ONLY the single best-performing cell that clears G1-G6. If two cells clear, prefer the SIMPLER (fewer keys changed). Arm flag-gated per-strategy in the registry shape, guard tests RED-proofed, REVOKE = revert the key. If none clear: record the null, arm nothing, and the exit leak goes back to the queue with what we learned.",
+  "kill_criteria_post_arm": "Forward 10 sessions or n>=8 fills: if realized expectancy is worse than the counterfactual control behavior, revert."
+}

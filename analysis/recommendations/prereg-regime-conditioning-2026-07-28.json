@@ -1,0 +1,43 @@
+{
+  "prereg_id": "REGIME-CONDITIONING-RESLICE (J flag 2)",
+  "frozen_at_et": "2026-07-28T19:0x",
+  "frozen_before_any_run": true,
+  "authority": "J 2026-07-28 post-close, verbatim: 'Are you sure that you're not trying to apply the same strategy every day? The same thing is not gonna work every day. We'll have to adapt for the market. Some days we might just scalp a little bit, some days we might ride the wave. Just because it failed every day doesn't necessarily mean it should be a kill.'",
+
+  "the_critique_conceded": "Every variant killed this week was tested UNCONDITIONALLY -- one rule applied at every trigger regardless of market state. A rule that is strongly positive in one regime and strongly negative in another nets to ~zero and gets killed, and we would never know. Supporting evidence already on file: the P&L attribution found chop days = -$1,797 while the same engine is positive overall, i.e. regime dependence is measurable in THIS book.",
+
+  "hypothesis": "H: at least one variant in the graveyard is consistently positive INSIDE a morning-knowable regime, even though it nets negative unconditionally.",
+
+  "graveyard_under_test": [
+    "score ladder floors 7/8/9 (LADDER-FULLHIST-2026-07-27.json)",
+    "ladder subset score>=9+confluence+htf (LADDER-SUBSET-VERDICT-2026-07-28)",
+    "structure-shift standalone K=3/K=2 (structure-shift-replay-2026-07-28.json)",
+    "structure-shift in-cascade (structure-shift-cascade-ab-2026-07-28.json)",
+    "zone bands 10c/25c (ZONE-WIDTH-2026-07-28.json)",
+    "min_triggers_bear=2 (min-triggers-bear2-ab-2026-07-28.json) -- already staged, re-slice for regime too"
+  ],
+
+  "regime_axes_frozen_MORNING_KNOWABLE_ONLY": {
+    "rule": "A conditioning variable is admissible ONLY if it is fully determined before the entry decision. Backward-looking / same-day-outcome classifiers are FORBIDDEN -- that defect is exactly how structure_veto labelled an $8 down day 'uptrend' (C22).",
+    "axes": [
+      "gap_state: gap up / gap down / flat, from prior close vs today's open (known at 09:30)",
+      "prior_day_type: trend / range / chop from analysis/edge-matrix/day-inventory-extended.json for the PRIOR session (known before open)",
+      "vix_band at entry (known at the tick)",
+      "premarket_range_pct: premarket high-low as % of price (known at 09:30, from the SIP premarket feed)",
+      "entry_hour bucket (known at the tick)"
+    ],
+    "forbidden_examples": "same-day day_type, same-day realized range, anything computed from bars after the entry bar."
+  },
+
+  "method": "DESCRIPTIVE re-slice of ALREADY-COMPUTED per-trade records. No new replays, no new variants, no re-optimization. For each graveyard variant x each regime axis: n, total, per-trade, WR, day-majority, drop-best, computed from the stored per-trade JSONs.",
+
+  "multiplicity_discipline": "This is a systematic search over ~6 variants x ~5 axes x ~3 buckets = up to ~90 slices. That IS a search and it WILL manufacture false positives if reported raw. Therefore: (a) report ALL slices, (b) apply Benjamini-Hochberg FDR across the ENTIRE slice surface at once, (c) NOTHING is armed or even proposed off this run -- a surviving slice earns exactly one thing: its own fresh pre-registration on a frozen forward/held-out window, run separately.",
+
+  "gates_frozen": [
+    "A slice is a CANDIDATE only if: n>=25 trades in the bucket AND positive aggregate AND day-majority AND survives-drop-best AND BH-significant at q<=0.10 across the full slice surface",
+    "Any candidate then requires a SEPARATE pre-registered confirmation before any arming discussion",
+    "If ZERO slices qualify: the unconditional kills stand under J's own lens, and that is the reportable answer"
+  ],
+
+  "expected_outcome_stated_up_front": "Most likely outcome is zero qualifying slices -- the graveyard variants lost by large margins (e.g. -$31,015 at ladder floor 7), which regime conditioning is unlikely to rescue. The value of this run is that it ANSWERS J's question with data instead of assertion, and it establishes the regime-conditioning harness for future candidates whose unconditional result is marginal rather than catastrophic."
+}
