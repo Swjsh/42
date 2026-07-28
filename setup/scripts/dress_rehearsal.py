@@ -141,6 +141,19 @@ def _data_get(creds: dict, path: str) -> dict:
 
 
 def _next_trading_day(creds: dict, today: datetime) -> str | None:
+    """The next date the market OPENS, per the broker's own /v2/clock — never guessed
+    from calendar-days-after-today. 2026-07-28 scar: a `calendar?start=today+1` query
+    is correct ONLY when called after today's close; called before today's own open
+    (e.g. an off-schedule manual run at 01:xx ET) it skips today entirely and disagrees
+    with check3_sanity's clock read, false-RED-ing a rehearsal whose options-order-
+    acceptance check (the actual point of the probe) is fine. The broker's `next_open`
+    is authoritative and self-consistent regardless of what time the script runs
+    (C11: broker is the source of truth) — use it, with the old calendar-endpoint
+    query kept ONLY as a fallback if the clock call itself is unreadable."""
+    clock = fb._request(creds, "clock")
+    nxt = clock.get("next_open") if isinstance(clock, dict) else None
+    if isinstance(nxt, str) and len(nxt) >= 10:
+        return nxt[:10]
     start = (today + timedelta(days=1)).strftime("%Y-%m-%d")
     end = (today + timedelta(days=10)).strftime("%Y-%m-%d")
     cal = fb._request(creds, f"calendar?start={start}&end={end}")
@@ -157,33 +170,51 @@ def _spy_spot(creds: dict) -> float | None:
         return None
 
 
+# 2026-07-28 L(pending): the original fixed target-10 window found only 3 tradable
+# contracts (SPY's far-OTM chain is sparsely listed -- 695/700/701, not $1-spaced) and
+# NONE closed <= MAX_PREMIUM (closest $0.06-0.08) -- a false RED on BOTH accounts every
+# night the near-target strikes happen to price a few cents rich. Verified live 2026-07-28
+# (spot 738.85): widening to target-30 immediately surfaces strike 690 @ $0.05. Escalate
+# through successively wider bands so a temporarily-rich near-target strike can never
+# starve the probe of a real deep-OTM candidate.
+STRIKE_SEARCH_BANDS = (10, 30, 60, 100)  # widening offsets below target, in strike-price $
+
+
 def _pick_deep_otm_put(creds: dict, expiry: str, spot: float, ev: list) -> dict | None:
     """Deep-OTM put ~5% below spot with premium <= MAX_PREMIUM. Returns the broker
     contract dict (carries the authoritative symbol + strike) or None."""
     target = spot * (1.0 - DEEP_OTM_PCT)
-    q = (f"options/contracts?underlying_symbols=SPY&expiration_date={expiry}"
-         f"&type=put&strike_price_gte={target - 10:.2f}&strike_price_lte={target:.2f}"
-         f"&status=active&limit=200")
-    res = fb._request(creds, q)
-    contracts = res.get("option_contracts") if isinstance(res, dict) else None
-    if not contracts:
-        ev.append(f"contracts query FAILED or empty: {json.dumps(res)[:400]}")
-        return None
-    # closest to the 5%-away target first (strike descending), tradable only
-    cands = sorted([c for c in contracts if c.get("tradable", True)],
-                   key=lambda c: -float(c.get("strike_price", 0)))
-    for c in cands:
-        cp = c.get("close_price")
-        try:
-            premium = float(cp) if cp not in (None, "") else None
-        except (TypeError, ValueError):
-            premium = None
-        if premium is None or premium <= MAX_PREMIUM:
-            ev.append(f"picked {c.get('symbol')} strike={c.get('strike_price')} "
-                      f"close_price={cp!r} (target ~{target:.0f}, spot {spot:.2f})")
-            return c
-    ev.append(f"no candidate <= ${MAX_PREMIUM:.2f} among {len(cands)} contracts "
-              f"(closest close_price={cands[0].get('close_price')!r})")
+    closest_seen = None
+    for band in STRIKE_SEARCH_BANDS:
+        q = (f"options/contracts?underlying_symbols=SPY&expiration_date={expiry}"
+             f"&type=put&strike_price_gte={target - band:.2f}&strike_price_lte={target:.2f}"
+             f"&status=active&limit=200")
+        res = fb._request(creds, q)
+        contracts = res.get("option_contracts") if isinstance(res, dict) else None
+        if not contracts:
+            ev.append(f"band={band}: contracts query FAILED or empty: {json.dumps(res)[:400]}")
+            continue
+        # closest to the 5%-away target first (strike descending), tradable only
+        cands = sorted([c for c in contracts if c.get("tradable", True)],
+                       key=lambda c: -float(c.get("strike_price", 0)))
+        if cands and closest_seen is None:
+            closest_seen = cands[0]
+        for c in cands:
+            cp = c.get("close_price")
+            try:
+                premium = float(cp) if cp not in (None, "") else None
+            except (TypeError, ValueError):
+                premium = None
+            if premium is None or premium <= MAX_PREMIUM:
+                ev.append(f"picked {c.get('symbol')} strike={c.get('strike_price')} "
+                          f"close_price={cp!r} (target ~{target:.0f}, spot {spot:.2f}, band={band})")
+                return c
+    if closest_seen is not None:
+        ev.append(f"no candidate <= ${MAX_PREMIUM:.2f} across bands {STRIKE_SEARCH_BANDS} "
+                  f"(closest close_price={closest_seen.get('close_price')!r})")
+    else:
+        ev.append(f"no tradable contracts found in any band {STRIKE_SEARCH_BANDS} "
+                  f"below target {target:.2f}")
     return None
 
 

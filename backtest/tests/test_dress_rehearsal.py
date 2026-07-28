@@ -336,3 +336,120 @@ class TestSelfCheckReader:
     def test_wired_into_run(self, sc):
         import inspect
         assert "check_dress_rehearsal(now)" in inspect.getsource(sc.run)
+
+
+# ── deep-OTM band widening (2026-07-28 false-RED fix) ──────────────────────────
+# Live-verified 2026-07-28 (spot 738.85): the original fixed target-10 window found
+# only strikes 695/700/701 (SPY's far-OTM chain is NOT $1-spaced), all pricing
+# $0.06-$0.08 -- above MAX_PREMIUM $0.05 -- so the probe RED'd on BOTH accounts every
+# night without ever reaching order placement. _pick_deep_otm_put must escalate
+# through wider bands rather than give up after one narrow query.
+
+class TestDeepOtmBandWidening:
+    def _rig(self, monkeypatch, dr, bands_and_contracts: dict):
+        """bands_and_contracts: {band_offset: [contract dicts]} — fake _request routes
+        on the strike_price_gte value implied by each band so we can assert exactly
+        which bands got queried."""
+        import fleet_broker as fb
+
+        target = 738.85 * (1.0 - dr.DEEP_OTM_PCT)
+        gte_by_band = {band: round(target - band, 2) for band in bands_and_contracts}
+        calls = []
+
+        def fake_request(creds, endpoint, method="GET", data=None, timeout=15):
+            calls.append(endpoint)
+            for band, gte in gte_by_band.items():
+                if f"strike_price_gte={gte:.2f}" in endpoint:
+                    return {"option_contracts": bands_and_contracts[band]}
+            raise AssertionError(f"unexpected endpoint {endpoint!r}")
+
+        monkeypatch.setattr(fb, "_request", fake_request)
+        return calls
+
+    def _contract(self, strike, close_price):
+        return {"symbol": f"SPY_TEST_{strike}", "strike_price": str(strike),
+                "close_price": close_price, "tradable": True}
+
+    def test_narrow_band_all_rich_escalates_to_wider_band(self, dr, monkeypatch):
+        """The exact 2026-07-28 shape: band=10 has only rich contracts (no <= MAX_PREMIUM);
+        a wider band has a qualifying one. Must NOT RED — must pick from the wider band."""
+        ev: list = []
+        calls = self._rig(monkeypatch, dr, {
+            10: [self._contract(701, "0.08"), self._contract(700, "0.06"),
+                 self._contract(695, "0.06")],
+            30: [self._contract(701, "0.08"), self._contract(700, "0.06"),
+                 self._contract(695, "0.06"), self._contract(690, "0.05")],
+        })
+        picked = dr._pick_deep_otm_put(_CREDS, "2026-07-28", 738.85, ev)
+        assert picked is not None, f"should have escalated to band=30 and found strike 690; evidence={ev}"
+        assert picked["strike_price"] == "690"
+        assert len(calls) == 2, "must query band=10 first, then escalate to band=30 — not skip ahead"
+
+    def test_first_band_success_never_queries_wider_bands(self, dr, monkeypatch):
+        """When band=10 already has a qualifying contract, don't waste calls widening."""
+        calls = self._rig(monkeypatch, dr, {
+            10: [self._contract(701, "0.04")],
+        })
+        ev: list = []
+        picked = dr._pick_deep_otm_put(_CREDS, "2026-07-28", 738.85, ev)
+        assert picked is not None
+        assert picked["strike_price"] == "701"
+        assert len(calls) == 1, "must not escalate once the narrowest band already qualifies"
+
+    def test_all_bands_rich_still_reds_with_evidence(self, dr, monkeypatch):
+        """If every band is genuinely rich, still return None (RED) — never fabricate a pick —
+        but the evidence must name the full escalation, not just the first band."""
+        rich = {10: [self._contract(701, "0.08")], 30: [self._contract(690, "0.07")],
+                60: [self._contract(670, "0.09")], 100: [self._contract(640, "0.06")]}
+        monkeypatch.setattr(dr, "STRIKE_SEARCH_BANDS", tuple(rich.keys()))
+        self._rig(monkeypatch, dr, rich)
+        ev: list = []
+        picked = dr._pick_deep_otm_put(_CREDS, "2026-07-28", 738.85, ev)
+        assert picked is None
+        assert any("across bands" in e for e in ev)
+
+    def test_all_bands_empty_reds_distinctly_from_all_bands_rich(self, dr, monkeypatch):
+        """Empty-chain and rich-chain are different failure modes — evidence must distinguish
+        them (a genuinely broken chain read vs a real-but-rich market)."""
+        monkeypatch.setattr(dr, "STRIKE_SEARCH_BANDS", (10, 30))
+        self._rig(monkeypatch, dr, {10: [], 30: []})
+        ev: list = []
+        picked = dr._pick_deep_otm_put(_CREDS, "2026-07-28", 738.85, ev)
+        assert picked is None
+        assert any("no tradable contracts found" in e for e in ev)
+
+
+# ── next-trading-day: broker clock is authoritative, not a calendar guess ──────
+# 2026-07-28 scar: _next_trading_day guessed via calendar?start=today+1, which is only
+# correct when called AFTER today's close. An off-schedule run before today's own open
+# (e.g. manual verification at 01:xx ET) skipped today and returned tomorrow, disagreeing
+# with check3_sanity's own clock read and false-RED-ing an otherwise-fixed rehearsal.
+
+class TestNextTradingDayUsesClock:
+    def test_uses_clock_next_open_not_calendar_endpoint(self, dr, monkeypatch):
+        import fleet_broker as fb
+
+        calls = []
+
+        def fake_request(creds, endpoint, method="GET", data=None, timeout=15):
+            calls.append(endpoint)
+            if endpoint == "clock":
+                return {"is_open": False, "next_open": "2026-07-28T09:30:00-04:00"}
+            raise AssertionError(f"should not query the calendar endpoint: {endpoint!r}")
+
+        monkeypatch.setattr(fb, "_request", fake_request)
+        result = dr._next_trading_day(_CREDS, dt.datetime(2026, 7, 28, 1, 16))
+        assert result == "2026-07-28"
+        assert calls == ["clock"], "must read the clock, never fall through to the calendar guess when it succeeds"
+
+    def test_falls_back_to_calendar_when_clock_unreadable(self, dr, monkeypatch):
+        import fleet_broker as fb
+
+        def fake_request(creds, endpoint, method="GET", data=None, timeout=15):
+            if endpoint == "clock":
+                return {"_error": "boom"}
+            return [{"date": "2026-07-29"}]
+
+        monkeypatch.setattr(fb, "_request", fake_request)
+        result = dr._next_trading_day(_CREDS, dt.datetime(2026, 7, 28, 1, 16))
+        assert result == "2026-07-29"
