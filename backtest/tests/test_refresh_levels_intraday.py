@@ -48,13 +48,22 @@ def _make_df(rth_bars, pre_bars=()):
 
 
 # RTH high (739.90) ABOVE last close (736.00) — the exact 06-29 geometry.
+# Volumes are realistic 5m SPY magnitudes (2026-07-27 degeneracy guard: DEGENERACY_MIN_BARS=3,
+# DEGENERACY_MIN_VOLUME=10,000 — these fixtures must clear both bars to test the INTENDED
+# behavior of the code they exercise; the guard's OWN refusal path gets its own dedicated
+# guard fixtures below, deliberately built thin).
 _RTH = [
-    ("09:35", 738.0, 736.0, 737.5, 1000),
-    ("09:45", 739.9, 738.0, 738.5, 2000),   # <- live intraday high
-    ("09:55", 738.5, 736.5, 737.0, 3000),
-    ("10:05", 737.5, 735.5, 736.0, 2500),   # <- last close == spot 736.0
+    ("09:35", 738.0, 736.0, 737.5, 100_000),
+    ("09:45", 739.9, 738.0, 738.5, 200_000),   # <- live intraday high
+    ("09:55", 738.5, 736.5, 737.0, 300_000),
+    ("10:05", 737.5, 735.5, 736.0, 250_000),   # <- last close == spot 736.0
 ]
-_PRE = [("09:00", 738.1, 737.0, 737.8, 500)]  # stale PMH 738.10 (the frozen top)
+# stale PMH 738.10 (the frozen top) — 3 bars (clears DEGENERACY_MIN_BARS), realistic volume.
+_PRE = [
+    ("08:00", 736.5, 735.5, 736.0, 40_000),
+    ("08:30", 737.5, 736.0, 737.0, 35_000),
+    ("09:00", 738.1, 737.0, 737.8, 45_000),
+]
 
 
 @pytest.fixture
@@ -290,15 +299,22 @@ def test_memory_merge_enabled_false_and_absent(tmp_path, monkeypatch):
 
 
 # --- _merge_memory_levels selection ---------------------------------------------
-def test_merge_selects_nearest_six_incl_both_j_levels(tmp_path, monkeypatch):
+def test_merge_selects_nearest_three_per_side_incl_both_j_levels(tmp_path, monkeypatch):
+    """DIRECTIONAL BALANCE (2026-07-27): _MEM_LEVELS has only 2 candidates ABOVE spot
+    (747.93, 748.78) and 6 BELOW — capped independently at 3-per-side, so this yields
+    2 above (both, pool exhausted) + 3 nearest below = 5, NOT the old nearest-6-overall
+    (which would have picked 5 below + 1 above, still lopsided, and dropped 745.34).
+    This is the exact failure class the change fixes: a side-blind nearest-N can starve
+    the thinner side even when it has qualifying candidates."""
     _write_mem(tmp_path, monkeypatch)
     out = rli._merge_memory_levels([], spot=747.5, now_iso=_NOW)
     mem = [lv for lv in out if lv["source"] == "level_memory"]
     prices = sorted(lv["price"] for lv in mem)
-    assert len(mem) == 6                                   # cap respected
+    assert len(mem) == 5                                   # 2 above (pool-limited) + 3 below (cap)
     assert 747.13 in prices and 747.93 in prices           # BOTH J-called levels kept (ACCEPTANCE)
     assert 746.49 in prices and 748.78 in prices
-    assert 742.89 not in prices and 740.46 not in prices   # 2 furthest in-window dropped by the cap
+    assert 745.34 in prices                                # 3rd-nearest below now included (was dropped pre-fix)
+    assert 744.38 not in prices and 742.89 not in prices and 740.46 not in prices  # beyond the per-side cap
     assert 732.84 not in prices                            # out of +/-1.5% window
     assert 747.40 not in prices                            # score < 60
     assert 747.20 not in prices                            # tier != Active
@@ -356,11 +372,14 @@ def test_normalize_non_memory_still_price_relative():
 # --- refresh() end-to-end: flag on vs off ---------------------------------------
 def _mixed_df():
     # premarket + 4 RTH bars; extremes chosen NOT within 0.10 of any memory pick; last close = spot 747.5.
-    pre = [("09:00", 749.5, 743.5, 748.0, 500)]
-    rth = [("09:35", 748.0, 747.0, 747.6, 1000),
-           ("09:40", 748.5, 747.2, 747.8, 1000),
-           ("09:45", 747.9, 743.9, 744.5, 1000),
-           ("09:50", 747.8, 747.1, 747.5, 1000)]   # last close == spot 747.5
+    # Realistic volumes (2026-07-27 degeneracy guard, see _RTH/_PRE note above).
+    pre = [("08:00", 746.0, 744.5, 745.5, 20_000),
+           ("08:30", 747.0, 745.5, 746.5, 25_000),
+           ("09:00", 749.5, 743.5, 748.0, 30_000)]
+    rth = [("09:35", 748.0, 747.0, 747.6, 100_000),
+           ("09:40", 748.5, 747.2, 747.8, 100_000),
+           ("09:45", 747.9, 743.9, 744.5, 100_000),
+           ("09:50", 747.8, 747.1, 747.5, 100_000)]   # last close == spot 747.5
     return _make_df(rth, pre)
 
 
@@ -369,7 +388,7 @@ def test_refresh_flag_on_injects_memory(tmp_path, monkeypatch, _state):
     _write_mem(tmp_path, monkeypatch)
     _set_flag(tmp_path, monkeypatch, True)
     out = rli.refresh(df=_mixed_df())
-    assert out["ok"] and out["memory_merged"] == 6
+    assert out["ok"] and out["memory_merged"] == 5   # directional balance: 2 above (pool-limited) + 3 below
     data = json.loads(kl.read_text())
     prices = {lv["price"] for lv in data["levels"] if lv.get("source") == "level_memory"}
     assert 747.13 in prices and 747.93 in prices           # ACCEPTANCE: both J levels in the live file

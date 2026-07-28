@@ -61,6 +61,7 @@ DECISION_GATING_SNAPSHOTS = [
     "automation/state/crypto-twin/sim-bear-scenario-state.json",
     "automation/state/crypto-twin/sim-bear-positions.json",
     "automation/state/key-levels.json",
+    "automation/state/daily-context.json",
     "automation/state/sight-beacon.json",
     "automation/state/fleet/shared-signal.json",
     "automation/state/futures/mirror-shadow-state.json",
