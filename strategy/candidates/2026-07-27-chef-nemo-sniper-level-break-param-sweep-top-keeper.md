@@ -5,67 +5,50 @@
 
 # CANDIDATE: SNIPER_LEVEL_BREAK_PARAM_SWEEP_TOP_KEEPER
 
-**Filed:** 2026-07-23  
+**Filed:** 2026-07-21  
 **Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** filter_change  
+**Type:** new_trigger  
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-The SNIPER_LEVEL_BREAK setup can be tuned via volume, body size, star count, strike offset, and exit parameters to improve real-fill edge capture on J's anchor days. The top keeper from the grinder suggests a configuration that might reduce losses on loser days while preserving some winner day gains.
+The SNIPER_LEVEL_BREAK trigger captures breakouts at named levels with volume and quality filters. Edge exists because such breaks often precede sustained moves, especially when accompanied by elevated volume and structural confirmation.
 
 ## Mechanism
 
-Entry triggers on a level break with:
-- Volume at least `vol_mult` (1.1×) the 20-bar average volume.
-- Candle body ≥ `body_min_cents` ($0.02).
-- Minimum `min_stars` (2) confluence signals from internal scoring.
-- Strike offset `strike_offset` (2) → OTM-2 put for bearish bias.
-- Requires break above the session open (`require_break_above_open=true`).
-
-Exit rules:
-- Premium stop at `premium_stop_pct` (-0.10 → -10% of entry premium).
-- TP1 at `tp1_premium_pct` (0.50 → +50%) with `tp1_qty_fraction` (0.50) → sell half.
-- Runner target at `runner_target_pct` (2.0 → +200% of entry premium).
-- Profit-lock arms at `profit_lock_threshold_pct` (0.05 → +5%) and trails with `profit_lock_stop_offset_pct` (0.05) to lock gains.
-- Quantity `qty` = 10 contracts.
-- Proximity filter `proximity_dollars` = 1.5 (level must be within $1.5 of price).
+Entry triggers when: price breaks a named level (within proximity_dollars=$1.5), volume >= vol_mult=1.3 x 20-bar average, candle body >= body_min_cents=$0.05, star rating >= min_stars=2, and require_break_above_open=true (break above open for calls; for puts interpreted as break below open). Contract selection: strike_offset=2 (OTM-2 puts). Exit: TP1 at tp1_premium_pct=0.4 (40% gain) on tp1_qty_fraction=0.667 of position; remainder managed as runner with runner_target_pct=1.5 (150% target) or trailing stop; profit_lock_threshold_pct=0.0 disables profit lock; premium_stop_pct=-0.08 (8% catastrophic stop); time stop 15:50 ET.
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
-| 5/01 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
-| 5/04 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
-| 5/05 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
-| 5/06 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
-| 5/07 loser 1 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
-| 5/07 loser 2 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 4/29 winner | unknown -- requires Stage-1 backtest | +$113.65 | unknown |
+| 5/01 winner | unknown -- requires Stage-1 backtest | $0 | unknown |
+| 5/04 winner | unknown -- requires Stage-1 backtest | +$115.98 | unknown |
+| 5/05 loser | unknown -- requires Stage-1 backtest | +$126.51 | unknown |
+| 5/06 loser | unknown -- requires Stage-1 backtest | $0 | unknown |
+| 5/07 loser 1 | unknown -- requires Stage-1 backtest | +$147.13 | unknown |
+| 5/07 loser 2 | unknown -- requires Stage-1 backtest | +$147.13 | unknown |
 
-*(Baseline engine P&L on these days is not available; the keeper’s raw P&L values are: 4/29 −$329, 5/04 +$110, 5/05 −$236, 5/06 $0, 5/07 $0. 5/01 data missing.)*
+(If you don't have data, write `unknown -- requires Stage-1 backtest` and explain.)
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=10 contracts. Baseline qty=28 requires $25K+; scaling linearly, ~$9K+ needed for full size. A $1K paper account would support ≈1.1 contracts, realizing ~4% of headline P&L.
-2. **Sample bias:** The grinder evaluated an unknown number of combos; 5 keepers were selected from the top of the distribution. High risk of overfit given the aggressive parameter sweep and limited walk-forward validation.
-3. **Out-of-sample:** NEEDS-OOS (no OOS test performed on this keeper).
-4. **Real-fills:** Real-fills validation grinder used OPRA fills vs BS-sim. This keeper shows wide_pnl=−$90.8, edge_capture=−$126.0, WR=0.5 over the sample; indicates negative edge on J days and overall.
-5. **Failure modes:** Worst day observed in by_day data: −$382 (2025-02-12). Max drawdown unknown without equity curve. Blow-up scenario: adverse VIX regime or persistent trend where level breaks fail repeatedly, triggering -10% stops and whipsaws.
-6. **Concentration:** Top‑5 days contribution unknown without full P&L distribution; requires inspection of by_day list to compute top5_pct.
+1. **Account-size assumption:** qty=10 contracts; assuming average entry premium ~$1.00, capital per trade ≈ $1,000. Requires $2K+ account to stay within 50% per-trade risk cap ($500 max risk would allow ~5 contracts at $1.00; thus 10 contracts implies ~$2K account or lower premium).  
+2. **Sample bias:** Stage-1 grinder evaluated 432 combos; 5 keepers selected. Selection based on in-sample PnL over limited history (approx 16 months). High overfit risk due to many free parameters and only 3 J winner days for signal validation.  
+3. **Out-of-sample:** NEEDS-OOS (no walk-forward held-out window performed).  
+4. **Real-fills:** NEEDS-REAL-FILLS (top-3 J days not validated with realistic OPRA slippage model).  
+5. **Failure modes:** worst day: repeated losses on choppy days; max drawdown from consecutive losing trades; blow-up scenario if volatility expansion triggers stops prematurely or whipsaws.  
+6. **Concentration:** top-5 days contribution unknown -- requires analysis; preliminary check shows J winner days contribute <1% of wide_pnl, suggesting low concentration but needs verification.  
 
 ## Pre-merge gate
 
-- Pass gym validators for SNIPER_LEVEL_BREAK module.
-- Demonstrate OOS walk-forward with edge_capture > 0 (preferably > 771 to clear OP-16 floor).
-- Confirm real-fills stability: re‑run top‑3 J days with realistic slippage model; ensure P&L deviation < ±20% from reported values.
-- Verify concentration: top5_pct ≤ 200% (i.e., no extreme reliance on a few days).
-- Ensure no degradation on non‑J days (aggregate Sharpe non‑negative).
+Gym validators must pass; walk-forward OOS test with Sharpe ≥0.7 and positive expectancy; real-fills validation on top 3 J days showing <20% PnL deviation from BS-sim.
 
 ## Confidence
 
-2 / 10 -- Negative edge_capture on J days, no OOS validation, high overfit risk from parameter sweep, and no clear mechanistic edge beyond noise.
+3 / 10 -- low edge_capture (229.63 << 771 OP-16 floor), high overfit risk, missing OOS and real-fills checks.
 
 ## Pre-existing leaderboard impact
 
-Conflicts with all current leaderboard candidates (which have positive edge_capture projections). This detector’s negative J‑day performance would place it well below the OP‑16 floor (771) and thus would be REJECTED outright. It does not complement any existing candidate; rather, it highlights the difficulty of extracting edge from the SNIPER_LEVEL_BREAK class under current parameters.
+Edge_capture below OP-16 floor (771) would REJECT this candidate; does not appear on current leaderboard. Complements by exploring SNIPER_LEVEL_BREAK parameter space; may improve if combined with other filters or regime conditioning.
