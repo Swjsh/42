@@ -3,7 +3,7 @@
   2. WHY-NOT provenance (3ced7457+79fafbe0): every tick now logs raw detections + blockers + levels + raw rejection level. "Zero triggers" can never lie again.
   3. Premarket readiness gate (98dd919a, WS2): Gamma_PremarketReadiness 09:00 ET -- fleet+MCP+levels+bias+TV+engine+task, ONE verdict, leads the morning brief.
   4. Escalation cord (36e78164, WS4): Gamma_EntryBlockWatch every 2min RTH -- bear>=8/bull>=9 + raw trigger + no entry -> ONE voice alert per episode, max 3/day. J hears the block AT the moment.
-  5. Premarket level-compiler v2 (WS1): SIP premarket + weighted/zoned levels + daily-context (gap/shelf/backside-retest) -- IN FLIGHT at write time, lands under its own commit.
+  5. Premarket level-compiler v2 (7b4aa3f4, WS1): LANDED -- SIP premarket (66 bars/744k shares vs IEX's 1 bar/80 shares on 07-27), degeneracy guard (an 80-share print can never be PMH again), 3-above+3-below directional balance, weight+zone_width on every level, daily_context.py (gap/shelf/backside-retest -- calibrated on real 07-27: gap +0.81% filled, shelf [744.18,745.78] 10 touches broken 07-23, backside_retest=true). 141 tests green, SIP-feed guard RED-proofed live.
   Trading path deltas: ladder lane only. Losses today -$571.64 (Safe -$216.44 / Bold -$355.20) -- root-caused (filter 5 structural ribbon gate; ruling + teardown in queue.md + ENTRY-BAR + G1/G2/PMH items). Kill switches never tripped.
 [2026-07-27T01:00 ET] conductor: QUIET — nightly budget exhausted (5 fires today >= max_fires 4) — zero model work, rail-0 gate
 [2026-07-27T01:12 ET] conductor: QUIET — nightly budget exhausted (6 fires today >= max_fires 4) — zero model work, rail-0 gate

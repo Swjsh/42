@@ -29,6 +29,8 @@
 
 - [ ] FLEET-PARITY-TESTS-READ-LIVE-STATE (MED, test-integrity) :: Filed 2026-07-27 during the score-ladder ship. 9 of test_fleet_arm_parity.py's cases fail tonight because _apply_recency_min_sizing reads the LIVE recency verdict from disk, which is genuinely RED after the 07-23/07-27 losses -- the tests assert unclamped elite sizing (e.g. qty 12) and get the RED-floor clamp (qty 5, 'qty clamped 12->5: recency RED'). A guard whose verdict depends on the rig's live P&L state is not a guard (same class as PYTEST-CROSS-SUITE-SYSPATH-POLLUTION): it cries wolf when cold and would mask a real sizing regression when hot. Fix: monkeypatch/fixture _recency_verdict in the parity suite (both clamped and unclamped branches tested explicitly, vary-and-assert per C14). Structural innocence of the same-day ladder commit verified: deb781ea is pure insertions in plan_all's probe region; the clamp fires in plan_entry, untouched. :: depends:none :: status:pending
 
+- [ ] BOLD-LOOP-STATE-SCHEMA-VIOLATION (LOW, state-integrity) :: Filed 2026-07-27 (WS1 flagged in passing, pre-existing): test_state_contracts.py::test_live_json_file_validates fails on automation/state/aggressive/loop-state.json -- a `ribbon` field schema violation written by live Bold-side automation. Find the writer, decide schema-vs-writer, fix whichever is wrong (C7: a contract test failing on live state is a real signal, not noise). :: depends:none :: status:pending
+
 ### ZERO-FOR-TWELVE-POSTMORTEM (HIGH, filed 2026-07-25 with the disarm)
 
 - [ ] ZERO-FOR-TWELVE-POSTMORTEM (HIGH) :: vwap_continuation (7tr, 0% WR, -$204) and
