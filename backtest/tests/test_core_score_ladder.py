@@ -179,15 +179,26 @@ def test_g_function_never_sets_side_c(hc):
 
 
 # ------------------------------------------------------------------ per-account floor sanity
-def test_safe_and_bold_floors_match_j_spec(hc):
-    """J's 7/8/8/9/9 ladder: safe (Gamma-Safe-2, this file's most conservative core arm)
-    floor=9, bold (Gamma-Bold-2) floor=8 -- pins the shipped params.json values so a
-    future edit can't silently drift from the ratified spec."""
+def test_score_ladder_is_disarmed_with_evidence_on_record(hc):
+    """HISTORY, both directions honest: J's 7/8/8/9/9 ladder was ARMED 2026-07-27 evening
+    (floors 9/8 pinned here then), and DISARMED ~23:30 ET the SAME NIGHT on evidence -- the
+    390-day full-history replay (analysis/arm-ladder/LADDER-FULLHIST-2026-07-27.md, commit
+    e65ed269) measured every floor as a substantial net loser (7: -$31,015 / 8: -$16,642 /
+    9: -$10,903) against the binary engine's +$5,307 baseline, with day-majority and
+    drop-best-trade failing on all three lanes.
+
+    This test now pins the DISARMED state + its documentation trail: the floor keys must be
+    ABSENT (hook inert, byte-identical ticks -- the REVOKE contract other tests prove) and
+    each file must carry its dated disarm doc so nobody re-arms without finding the number.
+    If J overrules on the evidence, re-arm by restoring the keys AND flip this test back to
+    pin his chosen floors -- never delete it."""
     import json
     safe = json.loads((REPO / "automation" / "state" / "params.json").read_text(encoding="utf-8"))
     bold = json.loads((REPO / "automation" / "state" / "aggressive" / "params.json").read_text(encoding="utf-8"))
-    assert safe.get("score_ladder_floor") == 9
-    assert bold.get("score_ladder_floor") == 8
+    assert "score_ladder_floor" not in safe, "ladder re-armed on safe without updating this pin"
+    assert "score_ladder_floor" not in bold, "ladder re-armed on bold without updating this pin"
+    assert "_score_ladder_floor_DISARMED_2026_07_27" in safe
+    assert "_score_ladder_floor_DISARMED_2026_07_27" in bold
 
 
 # ------------------------------------------------------------------ run_account wiring smoke test

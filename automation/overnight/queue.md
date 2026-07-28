@@ -31,6 +31,8 @@
 
 - [ ] BOLD-LOOP-STATE-SCHEMA-VIOLATION (LOW, state-integrity) :: Filed 2026-07-27 (WS1 flagged in passing, pre-existing): test_state_contracts.py::test_live_json_file_validates fails on automation/state/aggressive/loop-state.json -- a `ribbon` field schema violation written by live Bold-side automation. Find the writer, decide schema-vs-writer, fix whichever is wrong (C7: a contract test failing on live state is a real signal, not noise). :: depends:none :: status:pending
 
+- [ ] LADDER-SUBSET-PREREG (HIGH, engine-edge, PRE-REGISTERED BEFORE ANY SLICING) :: Filed 2026-07-27 ~23:35 ET, at DISARM time, before reading any per-trade slice of the replay JSON. The broad ladder (score>=floor + any level-tied raw trigger) measured -$10.9K..-$31K across floors over 390 days (LADDER-FULLHIST-2026-07-27.md) and was disarmed the same night it was armed. FROZEN HYPOTHESIS (today's 09:40 anatomy, stated from the incident, NOT from the data): entries restricted to bear_score >= 9 AND 'confluence' in bear_triggers_raw AND htf_15m == 'BEAR' at the trigger tick. Prediction to beat: positive aggregate AND day-majority AND survives-drop-best on the SAME replay population (analysis/arm-ladder/LADDER-FULLHIST-2026-07-27.json per-trade detail), held-out last-25% split reported separately. If it fails: the ladder concept is dead at every granularity we can currently express -- record the null and stop. If it passes: propose re-arm of the SUBSET rule only, min-size, one arm, J notified with both numbers side by side. Run after-hours 2026-07-28. :: depends:none :: status:pending
+
 ### ZERO-FOR-TWELVE-POSTMORTEM (HIGH, filed 2026-07-25 with the disarm)
 
 - [ ] ZERO-FOR-TWELVE-POSTMORTEM (HIGH) :: vwap_continuation (7tr, 0% WR, -$204) and

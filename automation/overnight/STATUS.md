@@ -1,3 +1,25 @@
+[2026-07-27T23:40 ET] fable-session: LADDER DISARMED ON EVIDENCE -- the fast loop worked. The 390-day replay J demanded ("prove it, don't wait for tomorrow's tape") came back an honest NULL: floor 7 = -$31,015 (1,538 tr), floor 8 = -$16,642 (725 tr), floor 9 = -$10,903 (332 tr) vs binary-engine baseline +$5,307; similar WR, much worse loss/win magnitude; day-majority + drop-best FAIL on all lanes; baseline parity byte-identical to the published scorecard. All 5 floors REMOVED (fleet accounts.json x3 + params.json + aggressive/params.json) ~6h after arming, BEFORE the open -- the machinery/guards stay intact and inert, the why-not provenance rows are the $0 forward shadow, and the crypto twin's ladder-variant SIM lane keeps accruing its own mechanism evidence 24/7. Pre-registered narrow hypothesis (score>=9 + confluence + htf BEAR -- frozen BEFORE slicing) queued as LADDER-SUBSET-PREREG. RE-ARM = restore the keys (docs at each site carry the numbers). This is process>P&L: we armed on n=10, the n=1,538 answer arrived 6 hours later, and we acted on it the same night instead of discovering it live over two weeks.
+## [2026-07-27] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
+
+> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
+> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
+> -   bollinger_squeeze (armed 2026-07-02): since-arm 5tr $+21.00 ($+4.20/tr, 40.0% WR) [3d/3 day+side buckets -- 5 rows are NOT independent trials]
+> -   double_bottom_base_quiet (armed 2026-07-01, 26d ago): 0 fills since arm — no live signal yet
+> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 1tr $+18.00 ($+18.00/tr, 100.0% WR)
+> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
+
+---
+
+## [2026-07-27] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-17..2026-07-23), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-23). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-276.48); Bold_ATM_1+2=YELLOW ($-166.9)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 [2026-07-27T21:22 ET] fable-session: SHIPPED + ARMED overnight (J directive "stop making me prompt") -- REVOKE surface:
   1. SCORE LADDER LIVE (deb781ea): risky-3 (paper, $1,852) enters MIN-SIZE at bear_score>=7 on scoring-failed ticks w/ raw level-tied trigger + level (the 07-27 bear-9 class). BEAR only. REVOKE: delete score_ladder_floor from risky-3's gate_override in fleet/accounts.json -- next tick reverts. Evidence: analysis/arm-ladder/ARM-LADDER-V1-2026-07-27.md (n=10 anchors, SMALL -- the fleet paper ledger is the forward A/B). Other arms UNARMED pending J's table look (proposed 8/8/9/9).
   2. WHY-NOT provenance (3ced7457+79fafbe0): every tick now logs raw detections + blockers + levels + raw rejection level. "Zero triggers" can never lie again.
@@ -12,27 +34,6 @@
 [2026-07-27T09:12 ET] conductor: QUIET — nightly budget exhausted (9 fires today >= max_fires 4) — zero model work, rail-0 gate
 [2026-07-27T18:42 ET] conductor: QUIET — nightly budget exhausted (10 fires today >= max_fires 4) — zero model work, rail-0 gate
 [2026-07-27T20:30 ET] conductor: QUIET — nightly budget exhausted (11 fires today >= max_fires 4) — zero model work, rail-0 gate
-
-## [2026-07-26] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
-
-> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
-> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
-> -   bollinger_squeeze (armed 2026-07-02): since-arm 3tr $+75.00 ($+25.00/tr, 66.7% WR) [2d/2 day+side buckets -- 3 rows are NOT independent trials]
-> -   double_bottom_base_quiet (armed 2026-07-01, 25d ago): 0 fills since arm — no live signal yet
-> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 1tr $+18.00 ($+18.00/tr, 100.0% WR)
-> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
-
----
-
-## [2026-07-26] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-17..2026-07-23), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-23). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-276.48); Bold_ATM_1+2=YELLOW ($-166.9)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
 
 ## [2026-07-26 23:47 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (8 fires today >= max_fires 4) -- zero model work, exiting per rail-0
 
@@ -648,7 +649,7 @@
 - ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
 
 ## Kitchen
-Kitchen: alive, queue 35 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 29 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### BROKEN: self-check 2026-07-26T20:09:56
 - ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
@@ -958,6 +959,31 @@ Kitchen: alive, queue 35 pending, last cook 0 min ago, today $0.00, model=openro
 - TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 
 ### BROKEN: self-check 2026-07-27T21:09:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-27T21:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+[2026-07-27T21:42 ET] conductor: QUIET — nightly budget exhausted (11 fires today >= max_fires 4) — zero model work, rail-0 gate
+
+### BROKEN: self-check 2026-07-27T22:09:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-27T22:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-27T23:09:57
 - PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
 - DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
 - ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
