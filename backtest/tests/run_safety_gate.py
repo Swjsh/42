@@ -19,6 +19,7 @@ Anchored to the repo root; runs under backtest/.venv if present.
 from __future__ import annotations
 
 import argparse
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -35,12 +36,33 @@ GATE_TESTS = [
     "test_killswitch_threshold_parity.py",  # risk kill-switch parity (Rule 5) -- guards params applies
     "test_params_filters_drift.py",    # params.json <-> filters.py stay in sync (C14) -- guards params applies
     "test_scheduled_tasks_doc.py",     # SCHEDULED-TASKS.md registry matches reality
+    "test_engine_cli_parity.py",       # engine_cli.decide_payload output contract (SAFETY-GATE-MISSES-PARITY-SUITE,
+                                        # 2026-07-27: commit 3ced7457 broke 16 parity cases and PASSED this gate
+                                        # because this suite wasn't in it -- ~3.3s, no reason to keep it out)
 ]
 # Heavy guards that are too slow (backtests) or validate mutable LIVE runtime state --
 # NOT suitable for a per-commit gate. They run in CI / `--full` and in the scheduled
 # lesson-regression audit instead, where minutes are acceptable.
 #   test_graduated_guards.py   (>180s -- runs backtests)
 #   test_state_contracts.py    (validates live loop-state.json -- transient runtime state)
+
+
+_SUMMARY_COUNT_RE = re.compile(r"(\d+) (passed|failed|error|errors|skipped|xfailed|xpassed)")
+
+
+def _parse_pytest_counts(output: str) -> dict[str, int]:
+    """Parse pytest's short-summary counts (passed/failed/error/...) out of captured
+    stdout+stderr. Defends against a trusted-but-wrong exit code (C7: audit outputs, not
+    exit codes -- SAFETY-GATE-MISSES-PARITY-SUITE, 2026-07-27: a backgrounded `pytest -k`
+    run once reported exit 0 while 17 cases had actually failed, and the exit code was
+    trusted instead of the output). Returns {} if no recognizable summary line exists
+    (e.g. a collection crash) -- callers must still honor the raw exit code in that case."""
+    counts: dict[str, int] = {}
+    for m in _SUMMARY_COUNT_RE.finditer(output):
+        n, word = int(m.group(1)), m.group(2)
+        key = "error" if word in ("error", "errors") else word
+        counts[key] = counts.get(key, 0) + n
+    return counts
 
 
 def _venv_python() -> str:
@@ -76,11 +98,28 @@ def run(full: bool = False) -> int:
 
     print(f"[safety-gate] running {label} via {Path(py).name} ...")
     cmd = [py, "-m", "pytest", "-q", "--no-header", "-p", "no:cacheprovider", *targets]
-    proc = subprocess.run(cmd, cwd=str(REPO))
+    proc = subprocess.run(cmd, cwd=str(REPO), capture_output=True, text=True)
+    output = (proc.stdout or "") + (proc.stderr or "")
+    print(output, end="" if output.endswith("\n") else "\n")
+
+    # Never trust the exit code alone (C7 / SAFETY-GATE-MISSES-PARITY-SUITE): parse the
+    # pytest summary counts out of the captured output and cross-check.
+    counts = _parse_pytest_counts(output)
+    failed_or_errored = counts.get("failed", 0) + counts.get("error", 0)
+
+    if proc.returncode == 0 and failed_or_errored > 0:
+        print(
+            f"[safety-gate] FAIL -- exit code was 0 but the parsed summary shows "
+            f"{failed_or_errored} failed/errored ({counts}) -- trusting the output, "
+            f"not the exit status. Do NOT commit."
+        )
+        return 1
+
     if proc.returncode == 0:
-        print(f"[safety-gate] PASS -- {label} green. Safe to commit.")
-    else:
-        print(f"[safety-gate] FAIL -- a guard tripped (exit {proc.returncode}). Do NOT commit.")
+        print(f"[safety-gate] PASS -- {label} green ({counts or 'no summary line found'}). Safe to commit.")
+        return 0
+
+    print(f"[safety-gate] FAIL -- a guard tripped (exit {proc.returncode}, parsed {counts}). Do NOT commit.")
     return proc.returncode
 
 
