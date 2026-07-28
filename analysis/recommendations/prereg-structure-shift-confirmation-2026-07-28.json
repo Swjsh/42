@@ -1,0 +1,28 @@
+{
+  "prereg_id": "STRUCTURE-SHIFT-CONFIRMATION-AT-LEVELS",
+  "frozen_at_et": "2026-07-28T11:40:27",
+  "frozen_before_any_run": true,
+  "authority": "J verbal directive 2026-07-28 ~11:38 ET: 'don't wait until tonight, just do it right now. The engine isn't in a good enough state for us to properly give it the full respect of not editing during the day.' Rule-9 mid-session waiver DOCUMENTED here per rule 9's own 'in writing, with documented reason' clause. Doctrine source: markdown/doctrine/J-MARKET-PHILOSOPHY.md (verbatim dictation, same morning).",
+  "hypothesis": "For LEVEL-TIED setups, replacing the lagging-EMA confirmations (bear: filter 5 ribbon-stack; bull: htf_15m agreement) with a MICRO STRUCTURE-SHIFT confirmation at the zone enters the same winners 2-4 bars earlier and additionally captures the blocked-incident class (2026-07-27 bear-9, 2026-07-28 bull-7@11:05), without admitting the mid-air losers the lagging gates also exclude.",
+  "predicate_frozen": {
+    "scope": "level-tied triggers ONLY (level_rejection / fhh_level_rejection / confluence / sequence_rejection detected on the trigger bar). Trendline-only cohort explicitly OUT (stays under its staged kill).",
+    "bear": "Trigger bar = level rejection (existing detectors, unchanged). CONFIRMATION replacing filter 5 + htf for this path: within K bars after the trigger bar, a bar prints a LOWER HIGH than the trigger bar's high AND price trades below min(trigger bar low, level). Entry at the confirmation bar close, exits from entry+1 per ENTRY-BAR-CONVENTION-RULING-2026-07-25.",
+    "bull": "Mirror: trigger = level reclaim; confirmation = within K bars, a HIGHER LOW above the level AND price trades above max(trigger bar high). Same entry/exit conventions.",
+    "K_primary": 3,
+    "K_sensitivity": 2,
+    "no_other_knobs": "K in {3 primary, 2 sensitivity} is the ENTIRE search space. No band widths, no score floors, no time windows. Everything else inherited verbatim from the live config (exit shape, sizing, all non-replaced gates still apply)."
+  },
+  "population": "390-day full-history replay via the engine_fullhist/ladder_fullhist machinery (orchestrator entries + walk_exit_manager real exit core), real-OPRA-only P&L, synthetic-premium candidates counted and excluded.",
+  "baseline": "The live engine's own book on the same population (190 trades, +$5,064.75) AND the level-tied cohort subtable (66 trades, +$6,895).",
+  "gates_frozen": [
+    "G1 positive aggregate delta vs baseline on the affected (level-tied) cohort",
+    "G2 day-majority of changed days positive",
+    "G3 survives dropping the single best changed trade",
+    "G4 anchor-no-regression: the 35 RUNNER_TRAIL winners (+$15,774) must not degrade",
+    "G5 the two live incident anchors (2026-07-27 09:40 bear, 2026-07-28 11:05 bull) must be CAPTURED by the new confirmation (this is the class the build exists for)",
+    "CONFIRMATORY: forward paper fills only -- the historical held-out is EXHAUSTED for trigger-class questions per FIND-THE-MONEY discipline note. Arm on G1-G5, judge on forward."
+  ],
+  "arming_plan": "If G1-G5 pass: flag-gated params key (structure_shift_confirmation_enabled, default false -> true on core Safe + Bold for level-tied setups only), guard tests RED-proofed, REVOKE = flip the flag. May arm mid-session TODAY per J's waiver above. If any gate fails: record the null in analysis/recommendations/, do NOT arm, philosophy doctrine unchanged (measurement gates arming, not direction).",
+  "kill_criteria_post_arm": "Forward: 10 sessions or n>=8 structure-shift fills, whichever first. Negative expectancy vs the counterfactual lagging-gate entries -> auto-revert the flag and record.",
+  "known_costs_disclosed": "Confirmation costs 1-3 bars of entry price vs the raw trigger; it replaces gates that cost 5-61 minutes or block entirely. The replay prices this honestly (entry at confirmation close). Replay entry layer remains PROVISIONAL vs live (07-17 anchors) -- cohort CONTRASTS are the signal."
+}
