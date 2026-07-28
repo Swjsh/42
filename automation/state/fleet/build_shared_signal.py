@@ -570,6 +570,11 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
         sig["strategies"] = _strategies_block(s_bear, s_bull, row.get("spy"), now, do_vwap)
     if do_probe:
         sig["probe"] = _probe_passed_blocks(today, now)
+    # SCORE LADDER (2026-07-27): additive block, same inertness contract as 'probe' -- every
+    # reader that doesn't know the key ignores it; only arms with gate_override.
+    # score_ladder_floor consume it (fleet_executor._ladder_plan). Fail-closed producer:
+    # absent raw fields (all rows before 2026-07-28) -> available=False.
+    sig["ladder"] = _ladder_block(today)
     OUT.write_text(json.dumps(sig, indent=2), encoding="utf-8")
     return sig
 
@@ -761,6 +766,59 @@ def _probe_passed_blocks_from_row(row: "dict | None") -> dict:
                  "blocked_verdict": (action if bear_p else None),
                  "trigger_level_exact": (_tl_exact if bear_p else None)},
     }
+
+
+# --- SCORE LADDER (2026-07-27, J directive after the 09:40 bear_score-9 miss) -------------
+# The probe lane above rescues GATE-blocked ticks (verdict on PROBE_ALLOWED_VERDICTS). This
+# lane rescues SCORING-failed ticks -- the 2026-07-27 class: bear_score 9/10, raw detections
+# level_rejection+confluence @744.9, refused because filter 5 (ribbon stack, STRUCTURAL,
+# unforgivable) left passed=False and _derive_routing emitted a bare HOLD. J's standing arm
+# design ("the riskiest arm can hop in at a seven out of ten") -- each arm applies its OWN
+# score floor (gate_override.score_ladder_floor in accounts.json) to this block downstream in
+# fleet_executor._ladder_plan; this producer only reports what the engine SAW.
+#
+# HARD REQUIREMENTS (all fail-closed -- absent data means NO block, never a guess):
+#   * verdict must be a plain scoring HOLD ("no setup passed scoring") -- gate-skip verdicts
+#     stay probe's turf, ENTER ticks stay the normal path's;
+#   * a RAW LEVEL-TIED trigger must have fired (bear_triggers_raw, from decide_payload as of
+#     3ced7457 -- rows before 2026-07-28 lack the field and correctly produce no block);
+#   * the raw detection's own level must exist (bear_rejection_level_raw) -- it is the ladder
+#     entry's chart-stop anchor; no level, no trade.
+LADDER_LEVEL_TIED = frozenset({"level_rejection", "fhh_level_rejection", "confluence",
+                                "sequence_rejection"})
+_LADDER_EMPTY = {"available": False, "score": 0, "triggers_raw": [], "level": None,
+                 "blockers": [], "reason": None}
+
+
+def _ladder_block_from_row(row: "dict | None") -> dict:
+    """Pure row -> ladder block (bear side only for v1 -- bull stays out until its own
+    pre-registered evidence exists; the 2026-07-27 10:06 bull-9 fired mid-fade and would
+    have lost, so bull needs the study first, not a mirror-image flip)."""
+    out = {"bear": dict(_LADDER_EMPTY)}
+    if row is None:
+        return out
+    verdict = str(row.get("verdict") or "")
+    reason = str(row.get("reason") or "")
+    if verdict != "HOLD" or "no setup passed scoring" not in reason:
+        return out
+    raw = [t for t in (row.get("bear_triggers_raw") or []) if isinstance(t, str)]
+    level = row.get("bear_rejection_level_raw")
+    score = row.get("bear_score") or 0
+    if not any(t in LADDER_LEVEL_TIED for t in raw):
+        return out
+    if not isinstance(level, (int, float)):
+        return out
+    out["bear"] = {"available": True, "score": int(score), "triggers_raw": raw,
+                   "level": float(level),
+                   "blockers": list(row.get("bear_blockers") or []),
+                   "reason": f"score {score} blocked (blockers {row.get('bear_blockers')})"}
+    return out
+
+
+def _ladder_block(today: str) -> dict:
+    row = _latest_today_decision(today, account=PROBE_LEDGER_ACCOUNT) if USE_CORE_LEDGER \
+        else _latest_today_decision(today)
+    return _ladder_block_from_row(row)
 
 
 def build_from_rows(row: "dict | None", now: datetime, *, bold_row: "dict | None" = None,

@@ -723,7 +723,76 @@ def plan_all(
                                  cap, probe_entries_today)
         if probe_plan is not None:
             plans.append(probe_plan)
+    # SCORE LADDER (2026-07-27, J's graduated-arm design -- "the riskiest arm can hop in at
+    # a seven out of ten"): the probe's sibling lane for SCORING-failed ticks. The :549
+    # invariant ("nothing here can ever RESCUE a passed=False tick") is deliberately and
+    # EXPLICITLY amended by this lane -- rescue is its entire purpose, so it is a separately
+    # named mechanism behind its own per-arm config key, never a loosening of gate_override's
+    # tighten-only semantics. Fires ONLY when: this arm sets gate_override.score_ladder_floor
+    # (only risky-3 at ship, floor 7), no ENTER and no probe plan exists this tick, and the
+    # signal's ladder block (build_shared_signal._ladder_block, fail-closed producer) carries
+    # an available bear setup at/above the floor. Instant de-arm: delete the config key.
+    if not any(p.action == "ENTER" for p in plans):
+        ladder_plan = _ladder_plan(arm, signal, equity, params, arm_id, spot)
+        if ladder_plan is not None:
+            plans.append(ladder_plan)
     return plans
+
+
+def _ladder_plan(
+    arm: Mapping[str, Any], signal: Mapping[str, Any], equity: float,
+    params: Mapping[str, Any], arm_id: str, spot: Any,
+) -> Optional[EntryPlan]:
+    """Min-size ribbon_ride entry off signal['ladder']['bear'] when this arm's score floor
+    admits it. Mirrors _probe_plan's shape deliberately: min_contracts hard clamp (never
+    _qty_for), PROBE_STRIKE_TIERS (same premium-floor reasoning), risk_gate/finalize()
+    downstream completely untouched. BEAR ONLY at ship -- the bull mirror waits for its own
+    pre-registered evidence (2026-07-27's bull-9 fired mid-fade and would have lost).
+
+    The raw detection's own level (bear_rejection_level_raw upstream) rides as
+    trigger_level, so the entry gets the standard chart-stop anchor -- a ladder entry is
+    never stop-less."""
+    g = arm.get("gate_override") or {}
+    floor = g.get("score_ladder_floor")
+    if floor is None:
+        return None
+    # SCOPE FENCE (caught by test_ladder_never_doubles_a_normal_enter's first RED): the lane
+    # rescues SCORING-FAILED ticks only. If the shared signal's bear block PASSED and this
+    # arm still produced no ENTER (sizing hole, gate_check, spot missing), that is a
+    # different failure with its own remedies -- the ladder must not become a general-purpose
+    # fallback that papers over sizing/config problems at min-size.
+    if (signal.get("bear") or {}).get("passed") is True:
+        return None
+    ladder = signal.get("ladder")
+    if not isinstance(ladder, Mapping):
+        return None
+    blk = ladder.get("bear")
+    if not isinstance(blk, Mapping) or blk.get("available") is not True:
+        return None
+    try:
+        floor_i = int(floor)
+    except (TypeError, ValueError):
+        return None
+    score = int(blk.get("score") or 0)
+    level = blk.get("level")
+    if score < floor_i or not isinstance(level, (int, float)):
+        return None
+    if spot is None:
+        return _hold(arm_id, "P", "SCORE_LADDER", "score-ladder: no spot in signal")
+    strike = strike_selection.pick_strike(float(spot), float(equity), "P", PROBE_STRIKE_TIERS)
+    try:
+        qty = int(params.get("min_contracts", 3))
+    except (TypeError, ValueError):
+        qty = 3
+    trigs = list(blk.get("triggers_raw") or [])
+    quality = "ELITE" if any("confluence" in str(t).lower() for t in trigs) else "BASE"
+    return EntryPlan(arm_id, "ENTER", "P", "BEARISH_REJECTION_RIDE_THE_RIBBON", strike, qty,
+                     quality,
+                     f"SCORE_LADDER floor={floor_i} score={score} "
+                     f"blockers={blk.get('blockers')} trig={'+'.join(trigs)}",
+                     strategy=strategies.RIBBON_RIDE.name,
+                     exit_shape=_exit_shape_dict(strategies.RIBBON_RIDE, arm),
+                     trigger_level=float(level))
 
 
 # --- phase B: risk gate (reuses the single authority) ------------------------
