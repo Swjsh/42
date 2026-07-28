@@ -1,0 +1,303 @@
+{
+  "date": "2026-06-08",
+  "cause": "GREEN",
+  "cause_detail": "day_pnl>=focus_floor",
+  "cause_dollars": 971.9,
+  "engine": {
+    "n_walked_trades": 2,
+    "day_pnl": 971.9,
+    "n_unpriceable_raw_entries": 0,
+    "trades": [
+      {
+        "date": "2026-06-08",
+        "entry_time_et": "2026-06-08T13:35:00",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "side": "P",
+        "symbol": "SPY260608P00742000",
+        "qty": 3,
+        "entry_premium": 1.39,
+        "triggers": [
+          "level_rejection",
+          "confluence",
+          "trendline_rejection"
+        ],
+        "tier": "SUPER",
+        "dollar_pnl": 439.9,
+        "exit_reason": "runner_stop @ 3.01",
+        "exit_time_et": "2026-06-08T15:30:00",
+        "hold_minutes": 115,
+        "mfe_pct": 1.5468,
+        "peak_dollars": 645.0,
+        "left_dollars": 0.0
+      },
+      {
+        "date": "2026-06-08",
+        "entry_time_et": "2026-06-08T14:40:00",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "side": "P",
+        "symbol": "SPY260608P00741000",
+        "qty": 5,
+        "entry_premium": 0.9,
+        "triggers": [
+          "level_rejection",
+          "confluence",
+          "trendline_rejection"
+        ],
+        "tier": "SUPER",
+        "dollar_pnl": 532.0,
+        "exit_reason": "runner_stop @ 2.21",
+        "exit_time_et": "2026-06-08T15:30:00",
+        "hold_minutes": 50,
+        "mfe_pct": 1.8889,
+        "peak_dollars": 850.0,
+        "left_dollars": 0.0
+      }
+    ],
+    "best_mfe_pct": 1.8889,
+    "best_peak_dollars": 850.0,
+    "best_left_dollars": 0.0
+  },
+  "qualifying_moments": {
+    "n": 19,
+    "note": "descriptive only -- day classified by traded tree",
+    "oracle_bound_dollars": null,
+    "oracle_label": null,
+    "n_synthetic_excluded": 0,
+    "candidates": [
+      {
+        "trigger_time_et": "2026-06-08T09:35:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 742.0841623480467
+      },
+      {
+        "trigger_time_et": "2026-06-08T09:55:00",
+        "bear_score": 8,
+        "blockers": [
+          5,
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "trendline_rejection"
+        ],
+        "rejection_level": 743.3
+      },
+      {
+        "trigger_time_et": "2026-06-08T10:10:00",
+        "bear_score": 8,
+        "blockers": [
+          5,
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 742.0841623480467
+      },
+      {
+        "trigger_time_et": "2026-06-08T10:40:00",
+        "bear_score": 8,
+        "blockers": [
+          5,
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "trendline_rejection"
+        ],
+        "rejection_level": 743.3599853515625
+      },
+      {
+        "trigger_time_et": "2026-06-08T11:25:00",
+        "bear_score": 9,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 744.73
+      },
+      {
+        "trigger_time_et": "2026-06-08T11:30:00",
+        "bear_score": 9,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 743.3599853515625
+      },
+      {
+        "trigger_time_et": "2026-06-08T11:45:00",
+        "bear_score": 8,
+        "blockers": [
+          5,
+          8
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 743.36
+      },
+      {
+        "trigger_time_et": "2026-06-08T11:55:00",
+        "bear_score": 9,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 743.3599853515625
+      },
+      {
+        "trigger_time_et": "2026-06-08T12:20:00",
+        "bear_score": 9,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 743.3599853515625
+      },
+      {
+        "trigger_time_et": "2026-06-08T12:55:00",
+        "bear_score": 9,
+        "blockers": [
+          6
+        ],
+        "triggers": [
+          "level_rejection",
+          "ribbon_flip",
+          "confluence"
+        ],
+        "rejection_level": 742.0841623480467
+      },
+      {
+        "trigger_time_et": "2026-06-08T13:05:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 741.0
+      },
+      {
+        "trigger_time_et": "2026-06-08T13:20:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 740.7
+      },
+      {
+        "trigger_time_et": "2026-06-08T14:25:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 742.0841623480467
+      },
+      {
+        "trigger_time_et": "2026-06-08T14:30:00",
+        "bear_score": 9,
+        "blockers": [
+          8
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 742.0841623480467
+      },
+      {
+        "trigger_time_et": "2026-06-08T15:05:00",
+        "bear_score": 9,
+        "blockers": [
+          1
+        ],
+        "triggers": [
+          "level_rejection",
+          "trendline_rejection"
+        ],
+        "rejection_level": 741.0
+      },
+      {
+        "trigger_time_et": "2026-06-08T15:10:00",
+        "bear_score": 9,
+        "blockers": [
+          1
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 740.0942636367159
+      },
+      {
+        "trigger_time_et": "2026-06-08T15:15:00",
+        "bear_score": 9,
+        "blockers": [
+          1
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 739.45
+      },
+      {
+        "trigger_time_et": "2026-06-08T15:20:00",
+        "bear_score": 9,
+        "blockers": [
+          1
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 739.45
+      },
+      {
+        "trigger_time_et": "2026-06-08T15:35:00",
+        "bear_score": 8,
+        "blockers": [
+          1,
+          8
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 739.805450344633
+      }
+    ]
+  },
+  "day_context": {
+    "spy_range_pct": 0.962,
+    "n_scored_bars": 63,
+    "any_trigger_fired": true
+  }
+}

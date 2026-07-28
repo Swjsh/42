@@ -1,0 +1,332 @@
+{
+  "date": "2026-07-13",
+  "cause": "GATE_BLOCKED",
+  "cause_detail": "filter_8",
+  "cause_dollars": 375.0,
+  "engine": {
+    "n_walked_trades": 0,
+    "day_pnl": null,
+    "n_unpriceable_raw_entries": 0,
+    "trades": [],
+    "best_mfe_pct": 0.0,
+    "best_peak_dollars": 0.0,
+    "best_left_dollars": 0.0
+  },
+  "qualifying_moments": {
+    "n": 18,
+    "note": null,
+    "oracle_bound_dollars": 375.0,
+    "oracle_label": "ORACLE BOUND -- best same-day candidate with hindsight, NOT achievable",
+    "n_synthetic_excluded": 0,
+    "candidates": [
+      {
+        "trigger_time_et": "2026-07-13T10:15:00",
+        "bear_score": 8,
+        "blockers": [
+          8
+        ],
+        "triggers": [
+          "level_rejection",
+          "ribbon_flip"
+        ],
+        "rejection_level": 753.29,
+        "strike": 752,
+        "symbol": "SPY260713P00752000",
+        "entry_premium": 1.37,
+        "dollar_pnl": 375.0,
+        "exit_reason": "runner_stop @ 2.38"
+      },
+      {
+        "trigger_time_et": "2026-07-13T10:50:00",
+        "bear_score": 8,
+        "blockers": [
+          7,
+          8
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 752.4000244140625,
+        "strike": 752,
+        "symbol": "SPY260713P00752000",
+        "entry_premium": 1.25,
+        "dollar_pnl": -111.0,
+        "exit_reason": "structure_stop @ 752.4000244140625"
+      },
+      {
+        "trigger_time_et": "2026-07-13T11:00:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 753.0,
+        "strike": 752,
+        "symbol": "SPY260713P00752000",
+        "entry_premium": 0.89,
+        "dollar_pnl": 307.45,
+        "exit_reason": "runner_stop @ 2.18"
+      },
+      {
+        "trigger_time_et": "2026-07-13T11:05:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 752.469970703125,
+        "strike": 752,
+        "symbol": "SPY260713P00752000",
+        "entry_premium": 0.9,
+        "dollar_pnl": 308.45,
+        "exit_reason": "runner_stop @ 2.18"
+      },
+      {
+        "trigger_time_et": "2026-07-13T11:10:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "trendline_rejection"
+        ],
+        "rejection_level": 752.469970703125,
+        "strike": 752,
+        "symbol": "SPY260713P00752000",
+        "entry_premium": 0.95,
+        "dollar_pnl": 313.45,
+        "exit_reason": "runner_stop @ 2.18"
+      },
+      {
+        "trigger_time_et": "2026-07-13T11:20:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 752.469970703125,
+        "strike": 752,
+        "symbol": "SPY260713P00752000",
+        "entry_premium": 0.76,
+        "dollar_pnl": 294.45,
+        "exit_reason": "runner_stop @ 2.18"
+      },
+      {
+        "trigger_time_et": "2026-07-13T11:25:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 752.469970703125,
+        "strike": 752,
+        "symbol": "SPY260713P00752000",
+        "entry_premium": 0.77,
+        "dollar_pnl": 295.45,
+        "exit_reason": "runner_stop @ 2.18"
+      },
+      {
+        "trigger_time_et": "2026-07-13T11:30:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 752.469970703125,
+        "strike": 752,
+        "symbol": "SPY260713P00752000",
+        "entry_premium": 0.88,
+        "dollar_pnl": 306.45,
+        "exit_reason": "runner_stop @ 2.18"
+      },
+      {
+        "trigger_time_et": "2026-07-13T12:30:00",
+        "bear_score": 9,
+        "blockers": [
+          8
+        ],
+        "triggers": [
+          "level_rejection",
+          "trendline_rejection"
+        ],
+        "rejection_level": 749.85,
+        "strike": 750,
+        "symbol": "SPY260713P00750000",
+        "entry_premium": 1.26,
+        "dollar_pnl": -141.0,
+        "exit_reason": "structure_stop @ 749.85"
+      },
+      {
+        "trigger_time_et": "2026-07-13T12:50:00",
+        "bear_score": 9,
+        "blockers": [
+          8
+        ],
+        "triggers": [
+          "level_rejection",
+          "trendline_rejection"
+        ],
+        "rejection_level": 749.85,
+        "strike": 749,
+        "symbol": "SPY260713P00749000",
+        "entry_premium": 0.87,
+        "dollar_pnl": -72.0,
+        "exit_reason": "structure_stop @ 749.85"
+      },
+      {
+        "trigger_time_et": "2026-07-13T13:00:00",
+        "bear_score": 9,
+        "blockers": [
+          8
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 749.85,
+        "strike": 750,
+        "symbol": "SPY260713P00750000",
+        "entry_premium": 1.05,
+        "dollar_pnl": -60.0,
+        "exit_reason": "structure_stop @ 749.85"
+      },
+      {
+        "trigger_time_et": "2026-07-13T13:20:00",
+        "bear_score": 9,
+        "blockers": [
+          8
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 749.85,
+        "strike": 750,
+        "symbol": "SPY260713P00750000",
+        "entry_premium": 1.06,
+        "dollar_pnl": -27.0,
+        "exit_reason": "structure_stop @ 749.85"
+      },
+      {
+        "trigger_time_et": "2026-07-13T13:35:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 749.85,
+        "strike": 750,
+        "symbol": "SPY260713P00750000",
+        "entry_premium": 0.99,
+        "dollar_pnl": -12.0,
+        "exit_reason": "structure_stop @ 749.85"
+      },
+      {
+        "trigger_time_et": "2026-07-13T14:05:00",
+        "bear_score": 8,
+        "blockers": [
+          7,
+          8
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 749.85,
+        "strike": 750,
+        "symbol": "SPY260713P00750000",
+        "entry_premium": 0.94,
+        "dollar_pnl": 57.0,
+        "exit_reason": "time_stop_15:50"
+      },
+      {
+        "trigger_time_et": "2026-07-13T14:45:00",
+        "bear_score": 9,
+        "blockers": [
+          8
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 749.85,
+        "strike": 750,
+        "symbol": "SPY260713P00750000",
+        "entry_premium": 0.78,
+        "dollar_pnl": 223.35,
+        "exit_reason": "runner_stop @ 1.45"
+      },
+      {
+        "trigger_time_et": "2026-07-13T14:50:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 749.85,
+        "strike": 750,
+        "symbol": "SPY260713P00750000",
+        "entry_premium": 0.75,
+        "dollar_pnl": 220.35,
+        "exit_reason": "runner_stop @ 1.45"
+      },
+      {
+        "trigger_time_et": "2026-07-13T14:55:00",
+        "bear_score": 9,
+        "blockers": [
+          8
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 749.85,
+        "strike": 750,
+        "symbol": "SPY260713P00750000",
+        "entry_premium": 0.85,
+        "dollar_pnl": 230.35,
+        "exit_reason": "runner_stop @ 1.45"
+      },
+      {
+        "trigger_time_et": "2026-07-13T15:05:00",
+        "bear_score": 8,
+        "blockers": [
+          1,
+          8
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 749.85,
+        "strike": 750,
+        "symbol": "SPY260713P00750000",
+        "entry_premium": 0.85,
+        "dollar_pnl": 230.35,
+        "exit_reason": "runner_stop @ 1.45"
+      }
+    ]
+  },
+  "day_context": {
+    "spy_range_pct": 0.785,
+    "n_scored_bars": 73,
+    "any_trigger_fired": true
+  }
+}

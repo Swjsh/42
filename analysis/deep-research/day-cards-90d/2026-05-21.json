@@ -1,0 +1,154 @@
+{
+  "date": "2026-05-21",
+  "cause": "GREEN",
+  "cause_detail": "day_pnl>=focus_floor",
+  "cause_dollars": 298.9,
+  "engine": {
+    "n_walked_trades": 2,
+    "day_pnl": 298.9,
+    "n_unpriceable_raw_entries": 0,
+    "trades": [
+      {
+        "date": "2026-05-21",
+        "entry_time_et": "2026-05-21T11:35:00",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "side": "P",
+        "symbol": "SPY260521P00738000",
+        "qty": 3,
+        "entry_premium": 1.6,
+        "triggers": [
+          "level_rejection",
+          "confluence",
+          "trendline_rejection"
+        ],
+        "tier": "SUPER",
+        "dollar_pnl": -189.0,
+        "exit_reason": "structure_stop @ 738.85",
+        "exit_time_et": "2026-05-21T11:40:00",
+        "hold_minutes": 5,
+        "mfe_pct": 0.0,
+        "peak_dollars": 0.0,
+        "left_dollars": 6.0
+      },
+      {
+        "date": "2026-05-21",
+        "entry_time_et": "2026-05-21T13:25:00",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "side": "C",
+        "symbol": "SPY260521C00742000",
+        "qty": 4,
+        "entry_premium": 1.2,
+        "triggers": [
+          "level_reclaim",
+          "ribbon_flip",
+          "confluence"
+        ],
+        "tier": "SUPER",
+        "dollar_pnl": 487.9,
+        "exit_reason": "runner_stop @ 2.44",
+        "exit_time_et": "2026-05-21T14:00:00",
+        "hold_minutes": 35,
+        "mfe_pct": 1.3917,
+        "peak_dollars": 668.0,
+        "left_dollars": 0.0
+      }
+    ],
+    "best_mfe_pct": 1.3917,
+    "best_peak_dollars": 668.0,
+    "best_left_dollars": 6.0
+  },
+  "qualifying_moments": {
+    "n": 6,
+    "note": "descriptive only -- day classified by traded tree",
+    "oracle_bound_dollars": null,
+    "oracle_label": null,
+    "n_synthetic_excluded": 0,
+    "candidates": [
+      {
+        "trigger_time_et": "2026-05-21T10:15:00",
+        "bear_score": 8,
+        "blockers": [
+          6
+        ],
+        "triggers": [
+          "level_rejection",
+          "ribbon_flip",
+          "confluence"
+        ],
+        "rejection_level": 739.0800170898438
+      },
+      {
+        "trigger_time_et": "2026-05-21T10:40:00",
+        "bear_score": 8,
+        "blockers": [
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 738.85
+      },
+      {
+        "trigger_time_et": "2026-05-21T11:05:00",
+        "bear_score": 8,
+        "blockers": [
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "trendline_rejection"
+        ],
+        "rejection_level": 738.0
+      },
+      {
+        "trigger_time_et": "2026-05-21T11:20:00",
+        "bear_score": 8,
+        "blockers": [
+          8
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence",
+          "trendline_rejection"
+        ],
+        "rejection_level": 739.0800170898438
+      },
+      {
+        "trigger_time_et": "2026-05-21T12:35:00",
+        "bear_score": 8,
+        "blockers": [
+          6,
+          8
+        ],
+        "triggers": [
+          "level_rejection",
+          "ribbon_flip",
+          "confluence",
+          "trendline_rejection"
+        ],
+        "rejection_level": 739.0800170898438
+      },
+      {
+        "trigger_time_et": "2026-05-21T12:45:00",
+        "bear_score": 8,
+        "blockers": [
+          6,
+          8
+        ],
+        "triggers": [
+          "level_rejection",
+          "ribbon_flip",
+          "confluence",
+          "trendline_rejection"
+        ],
+        "rejection_level": 739.0800170898438
+      }
+    ]
+  },
+  "day_context": {
+    "spy_range_pct": 1.061,
+    "n_scored_bars": 63,
+    "any_trigger_fired": true
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "date": "2026-07-21",
+  "cause": "SHOULD_NOT_HAVE_TRADED",
+  "cause_detail": "never_reached_+30pct",
+  "cause_dollars": -12.0,
+  "engine": {
+    "n_walked_trades": 1,
+    "day_pnl": -12.0,
+    "n_unpriceable_raw_entries": 0,
+    "trades": [
+      {
+        "date": "2026-07-21",
+        "entry_time_et": "2026-07-21T14:50:00",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "side": "P",
+        "symbol": "SPY260721P00748000",
+        "qty": 3,
+        "entry_premium": 0.32,
+        "triggers": [
+          "trendline_rejection"
+        ],
+        "tier": "TRENDLINE",
+        "dollar_pnl": -12.0,
+        "exit_reason": "ribbon_flip_back",
+        "exit_time_et": "2026-07-21T14:55:00",
+        "hold_minutes": 5,
+        "mfe_pct": 0.0937,
+        "peak_dollars": 9.0,
+        "left_dollars": 21.0
+      }
+    ],
+    "best_mfe_pct": 0.0937,
+    "best_peak_dollars": 9.0,
+    "best_left_dollars": 21.0
+  },
+  "qualifying_moments": {
+    "n": 5,
+    "note": "descriptive only -- day classified by traded tree",
+    "oracle_bound_dollars": null,
+    "oracle_label": null,
+    "n_synthetic_excluded": 0,
+    "candidates": [
+      {
+        "trigger_time_et": "2026-07-21T09:35:00",
+        "bear_score": 9,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 746.15
+      },
+      {
+        "trigger_time_et": "2026-07-21T09:40:00",
+        "bear_score": 8,
+        "blockers": [
+          5,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 745.12
+      },
+      {
+        "trigger_time_et": "2026-07-21T10:35:00",
+        "bear_score": 8,
+        "blockers": [
+          5,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 746.68
+      },
+      {
+        "trigger_time_et": "2026-07-21T10:50:00",
+        "bear_score": 8,
+        "blockers": [
+          5,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 746.68
+      },
+      {
+        "trigger_time_et": "2026-07-21T11:35:00",
+        "bear_score": 8,
+        "blockers": [
+          5,
+          8
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 747.75
+      }
+    ]
+  },
+  "day_context": {
+    "spy_range_pct": 0.651,
+    "n_scored_bars": 68,
+    "any_trigger_fired": true
+  }
+}

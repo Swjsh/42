@@ -1,0 +1,50 @@
+{
+  "date": "2026-05-26",
+  "cause": "EXIT_TOO_LATE",
+  "cause_detail": "held_+30pct_winner_exited<=0",
+  "cause_dollars": 464.0,
+  "engine": {
+    "n_walked_trades": 1,
+    "day_pnl": -236.0,
+    "n_unpriceable_raw_entries": 0,
+    "trades": [
+      {
+        "date": "2026-05-26",
+        "entry_time_et": "2026-05-26T09:45:00",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "side": "C",
+        "symbol": "SPY260526C00751000",
+        "qty": 4,
+        "entry_premium": 1.24,
+        "triggers": [
+          "level_reclaim",
+          "ribbon_flip"
+        ],
+        "tier": "LEVEL",
+        "dollar_pnl": -236.0,
+        "exit_reason": "structure_stop @ 749.9",
+        "exit_time_et": "2026-05-26T11:30:00",
+        "hold_minutes": 105,
+        "mfe_pct": 0.4597,
+        "peak_dollars": 228.0,
+        "left_dollars": 12.0
+      }
+    ],
+    "best_mfe_pct": 0.4597,
+    "best_peak_dollars": 228.0,
+    "best_left_dollars": 12.0
+  },
+  "qualifying_moments": {
+    "n": 0,
+    "note": null,
+    "oracle_bound_dollars": null,
+    "oracle_label": null,
+    "n_synthetic_excluded": 0,
+    "candidates": []
+  },
+  "day_context": {
+    "spy_range_pct": 0.501,
+    "n_scored_bars": 68,
+    "any_trigger_fired": true
+  }
+}

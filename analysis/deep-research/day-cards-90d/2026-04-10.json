@@ -1,0 +1,97 @@
+{
+  "date": "2026-04-10",
+  "cause": "SHOULD_NOT_HAVE_TRADED",
+  "cause_detail": "never_reached_+30pct",
+  "cause_dollars": -44.4,
+  "engine": {
+    "n_walked_trades": 1,
+    "day_pnl": -44.4,
+    "n_unpriceable_raw_entries": 0,
+    "trades": [
+      {
+        "date": "2026-04-10",
+        "entry_time_et": "2026-04-10T14:05:00",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "side": "P",
+        "symbol": "SPY260410P00679000",
+        "qty": 3,
+        "entry_premium": 0.74,
+        "triggers": [
+          "trendline_rejection"
+        ],
+        "tier": "TRENDLINE",
+        "dollar_pnl": -44.4,
+        "exit_reason": "premium_stop @ 0.59",
+        "exit_time_et": "2026-04-10T14:20:00",
+        "hold_minutes": 15,
+        "mfe_pct": 0.0,
+        "peak_dollars": 0.0,
+        "left_dollars": 0.0
+      }
+    ],
+    "best_mfe_pct": 0.0,
+    "best_peak_dollars": 0.0,
+    "best_left_dollars": 0.0
+  },
+  "qualifying_moments": {
+    "n": 4,
+    "note": "descriptive only -- day classified by traded tree",
+    "oracle_bound_dollars": null,
+    "oracle_label": null,
+    "n_synthetic_excluded": 0,
+    "candidates": [
+      {
+        "trigger_time_et": "2026-04-10T10:00:00",
+        "bear_score": 8,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 680.7
+      },
+      {
+        "trigger_time_et": "2026-04-10T12:40:00",
+        "bear_score": 8,
+        "blockers": [
+          8
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 678.91
+      },
+      {
+        "trigger_time_et": "2026-04-10T13:20:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 678.91
+      },
+      {
+        "trigger_time_et": "2026-04-10T13:25:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 678.91
+      }
+    ]
+  },
+  "day_context": {
+    "spy_range_pct": 0.525,
+    "n_scored_bars": 68,
+    "any_trigger_fired": true
+  }
+}

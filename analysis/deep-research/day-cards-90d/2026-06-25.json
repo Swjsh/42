@@ -1,0 +1,296 @@
+{
+  "date": "2026-06-25",
+  "cause": "EXIT_TOO_LATE",
+  "cause_detail": "held_+30pct_winner_exited<=0",
+  "cause_dollars": 1008.0,
+  "engine": {
+    "n_walked_trades": 2,
+    "day_pnl": -825.0,
+    "n_unpriceable_raw_entries": 0,
+    "trades": [
+      {
+        "date": "2026-06-25",
+        "entry_time_et": "2026-06-25T10:00:00",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "side": "P",
+        "symbol": "SPY260625P00730000",
+        "qty": 3,
+        "entry_premium": 2.8,
+        "triggers": [
+          "level_rejection",
+          "ribbon_flip",
+          "confluence"
+        ],
+        "tier": "SUPER",
+        "dollar_pnl": -579.0,
+        "exit_reason": "structure_stop @ 730.8400268554688",
+        "exit_time_et": "2026-06-25T10:05:00",
+        "hold_minutes": 5,
+        "mfe_pct": 0.0,
+        "peak_dollars": 0.0,
+        "left_dollars": 75.0
+      },
+      {
+        "date": "2026-06-25",
+        "entry_time_et": "2026-06-25T13:35:00",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "side": "P",
+        "symbol": "SPY260625P00733000",
+        "qty": 3,
+        "entry_premium": 1.34,
+        "triggers": [
+          "level_rejection",
+          "confluence",
+          "sequence_rejection"
+        ],
+        "tier": "SUPER",
+        "dollar_pnl": -246.0,
+        "exit_reason": "structure_stop @ 733.4773412770263",
+        "exit_time_et": "2026-06-25T14:20:00",
+        "hold_minutes": 45,
+        "mfe_pct": 0.4552,
+        "peak_dollars": 183.0,
+        "left_dollars": 225.0
+      }
+    ],
+    "best_mfe_pct": 0.4552,
+    "best_peak_dollars": 183.0,
+    "best_left_dollars": 225.0
+  },
+  "qualifying_moments": {
+    "n": 18,
+    "note": "descriptive only -- day classified by traded tree",
+    "oracle_bound_dollars": null,
+    "oracle_label": null,
+    "n_synthetic_excluded": 0,
+    "candidates": [
+      {
+        "trigger_time_et": "2026-06-25T09:35:00",
+        "bear_score": 8,
+        "blockers": [
+          5,
+          8
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 737.0
+      },
+      {
+        "trigger_time_et": "2026-06-25T09:40:00",
+        "bear_score": 9,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 737.0
+      },
+      {
+        "trigger_time_et": "2026-06-25T09:45:00",
+        "bear_score": 9,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 734.37430364919
+      },
+      {
+        "trigger_time_et": "2026-06-25T09:50:00",
+        "bear_score": 9,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 733.4773412770263
+      },
+      {
+        "trigger_time_et": "2026-06-25T10:40:00",
+        "bear_score": 8,
+        "blockers": [
+          5,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 736.41
+      },
+      {
+        "trigger_time_et": "2026-06-25T10:55:00",
+        "bear_score": 9,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 737.0
+      },
+      {
+        "trigger_time_et": "2026-06-25T11:05:00",
+        "bear_score": 8,
+        "blockers": [
+          5,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 736.41
+      },
+      {
+        "trigger_time_et": "2026-06-25T11:10:00",
+        "bear_score": 9,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 734.37430364919
+      },
+      {
+        "trigger_time_et": "2026-06-25T12:15:00",
+        "bear_score": 8,
+        "blockers": [
+          5,
+          8
+        ],
+        "triggers": [
+          "level_rejection",
+          "trendline_rejection"
+        ],
+        "rejection_level": 736.0
+      },
+      {
+        "trigger_time_et": "2026-06-25T12:20:00",
+        "bear_score": 8,
+        "blockers": [
+          5,
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "trendline_rejection"
+        ],
+        "rejection_level": 734.37
+      },
+      {
+        "trigger_time_et": "2026-06-25T12:40:00",
+        "bear_score": 9,
+        "blockers": [
+          6
+        ],
+        "triggers": [
+          "level_rejection",
+          "ribbon_flip",
+          "confluence"
+        ],
+        "rejection_level": 732.5
+      },
+      {
+        "trigger_time_et": "2026-06-25T13:00:00",
+        "bear_score": 9,
+        "blockers": [
+          8
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 732.5
+      },
+      {
+        "trigger_time_et": "2026-06-25T13:25:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 733.4773412770263
+      },
+      {
+        "trigger_time_et": "2026-06-25T14:05:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 733.4773412770263
+      },
+      {
+        "trigger_time_et": "2026-06-25T14:30:00",
+        "bear_score": 8,
+        "blockers": [
+          5,
+          6
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 734.37430364919
+      },
+      {
+        "trigger_time_et": "2026-06-25T15:15:00",
+        "bear_score": 9,
+        "blockers": [
+          1
+        ],
+        "triggers": [
+          "level_rejection",
+          "ribbon_flip",
+          "confluence"
+        ],
+        "rejection_level": 732.5
+      },
+      {
+        "trigger_time_et": "2026-06-25T15:25:00",
+        "bear_score": 8,
+        "blockers": [
+          1,
+          8
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 732.5
+      },
+      {
+        "trigger_time_et": "2026-06-25T15:30:00",
+        "bear_score": 8,
+        "blockers": [
+          1,
+          8
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 732.3599853515625
+      }
+    ]
+  },
+  "day_context": {
+    "spy_range_pct": 1.322,
+    "n_scored_bars": 63,
+    "any_trigger_fired": true
+  }
+}

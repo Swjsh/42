@@ -1,0 +1,249 @@
+{
+  "generated_at": "2026-07-27T22:20:14.305308",
+  "tool": "backtest/tools/day_report_card.py",
+  "window": {
+    "start": "2026-03-18",
+    "end": "2026-07-27",
+    "n_days": 90
+  },
+  "taxonomy": [
+    "CORRECTLY_FLAT",
+    "EXIT_LEFT_MONEY",
+    "EXIT_TOO_LATE",
+    "GATE_BLOCKED",
+    "GREEN",
+    "NO_VOCABULARY",
+    "SHOULD_NOT_HAVE_TRADED"
+  ],
+  "thresholds": {
+    "FOCUS_DAILY_FLOOR": 100.0,
+    "MFE_WINNER_PCT": 0.3,
+    "QUALIFYING_SCORE_FLOOR": 8
+  },
+  "anchor_crosscheck": {
+    "all_pass": true,
+    "baseline_n_trades": {
+      "got": 191,
+      "expected": 191,
+      "pass": true
+    },
+    "baseline_total_pnl": {
+      "got": 5306.95,
+      "expected": 5306.95,
+      "pass": true
+    },
+    "candidates_at_floor8": {
+      "got": 2308,
+      "expected": 2308,
+      "pass": true
+    },
+    "source": "analysis/arm-ladder/LADDER-FULLHIST-2026-07-27.json"
+  },
+  "engine_window_pnl": 1630.0,
+  "aggregate": {
+    "n_days": 90,
+    "ranked": [
+      {
+        "cause_key": "EXIT_LEFT_MONEY",
+        "cause": "EXIT_LEFT_MONEY",
+        "n_days": 9,
+        "total_dollars": 8172.9,
+        "n_days_dollars_unknown": 0,
+        "dates": [
+          "2026-05-01",
+          "2026-05-04",
+          "2026-05-22",
+          "2026-06-09",
+          "2026-06-15",
+          "2026-06-16",
+          "2026-06-17",
+          "2026-06-22",
+          "2026-06-29"
+        ],
+        "avg_dollars_per_day": 908.1
+      },
+      {
+        "cause_key": "GATE_BLOCKED[filter_8]",
+        "cause": "GATE_BLOCKED",
+        "n_days": 19,
+        "total_dollars": 6663.55,
+        "n_days_dollars_unknown": 2,
+        "dates": [
+          "2026-03-18",
+          "2026-03-19",
+          "2026-03-20",
+          "2026-03-24",
+          "2026-03-26",
+          "2026-03-27",
+          "2026-03-30",
+          "2026-04-07",
+          "2026-04-13",
+          "2026-04-20",
+          "2026-04-23",
+          "2026-05-12",
+          "2026-05-20",
+          "2026-05-27",
+          "2026-06-04",
+          "2026-06-05",
+          "2026-06-18",
+          "2026-07-13",
+          "2026-07-16"
+        ],
+        "avg_dollars_per_day": 391.97
+      },
+      {
+        "cause_key": "GREEN",
+        "cause": "GREEN",
+        "n_days": 15,
+        "total_dollars": 6348.7,
+        "n_days_dollars_unknown": 0,
+        "dates": [
+          "2026-04-21",
+          "2026-04-28",
+          "2026-05-07",
+          "2026-05-08",
+          "2026-05-18",
+          "2026-05-21",
+          "2026-05-28",
+          "2026-06-08",
+          "2026-06-11",
+          "2026-06-12",
+          "2026-06-23",
+          "2026-06-24",
+          "2026-07-06",
+          "2026-07-17",
+          "2026-07-20"
+        ],
+        "avg_dollars_per_day": 423.25
+      },
+      {
+        "cause_key": "EXIT_TOO_LATE",
+        "cause": "EXIT_TOO_LATE",
+        "n_days": 6,
+        "total_dollars": 2500.4,
+        "n_days_dollars_unknown": 0,
+        "dates": [
+          "2026-04-17",
+          "2026-04-29",
+          "2026-05-14",
+          "2026-05-26",
+          "2026-06-25",
+          "2026-07-15"
+        ],
+        "avg_dollars_per_day": 416.73
+      },
+      {
+        "cause_key": "SHOULD_NOT_HAVE_TRADED",
+        "cause": "SHOULD_NOT_HAVE_TRADED",
+        "n_days": 13,
+        "total_dollars": -1783.4,
+        "n_days_dollars_unknown": 0,
+        "dates": [
+          "2026-04-08",
+          "2026-04-10",
+          "2026-05-15",
+          "2026-05-19",
+          "2026-06-02",
+          "2026-06-03",
+          "2026-06-26",
+          "2026-07-02",
+          "2026-07-07",
+          "2026-07-08",
+          "2026-07-14",
+          "2026-07-21",
+          "2026-07-23"
+        ],
+        "avg_dollars_per_day": -137.18
+      },
+      {
+        "cause_key": "GATE_BLOCKED[filter_9]",
+        "cause": "GATE_BLOCKED",
+        "n_days": 3,
+        "total_dollars": -342.0,
+        "n_days_dollars_unknown": 1,
+        "dates": [
+          "2026-04-02",
+          "2026-06-10",
+          "2026-07-27"
+        ],
+        "avg_dollars_per_day": -171.0
+      },
+      {
+        "cause_key": "GATE_BLOCKED[filter_5]",
+        "cause": "GATE_BLOCKED",
+        "n_days": 13,
+        "total_dollars": 333.0,
+        "n_days_dollars_unknown": 3,
+        "dates": [
+          "2026-03-23",
+          "2026-03-25",
+          "2026-03-31",
+          "2026-04-01",
+          "2026-04-06",
+          "2026-04-15",
+          "2026-04-16",
+          "2026-04-24",
+          "2026-04-30",
+          "2026-05-05",
+          "2026-05-13",
+          "2026-07-09",
+          "2026-07-24"
+        ],
+        "avg_dollars_per_day": 33.3
+      },
+      {
+        "cause_key": "GATE_BLOCKED[filter_6]",
+        "cause": "GATE_BLOCKED",
+        "n_days": 1,
+        "total_dollars": -63.0,
+        "n_days_dollars_unknown": 0,
+        "dates": [
+          "2026-06-01"
+        ],
+        "avg_dollars_per_day": -63.0
+      },
+      {
+        "cause_key": "GATE_BLOCKED[filter_1]",
+        "cause": "GATE_BLOCKED",
+        "n_days": 1,
+        "total_dollars": 9.0,
+        "n_days_dollars_unknown": 0,
+        "dates": [
+          "2026-07-22"
+        ],
+        "avg_dollars_per_day": 9.0
+      },
+      {
+        "cause_key": "CORRECTLY_FLAT",
+        "cause": "CORRECTLY_FLAT",
+        "n_days": 9,
+        "total_dollars": 0.0,
+        "n_days_dollars_unknown": 0,
+        "dates": [
+          "2026-04-09",
+          "2026-04-22",
+          "2026-04-27",
+          "2026-05-06",
+          "2026-05-11",
+          "2026-05-29",
+          "2026-06-30",
+          "2026-07-01",
+          "2026-07-10"
+        ],
+        "avg_dollars_per_day": 0.0
+      },
+      {
+        "cause_key": "NO_VOCABULARY",
+        "cause": "NO_VOCABULARY",
+        "n_days": 1,
+        "total_dollars": 0.0,
+        "n_days_dollars_unknown": 0,
+        "dates": [
+          "2026-04-14"
+        ],
+        "avg_dollars_per_day": 0.0
+      }
+    ]
+  },
+  "runtime_seconds": 74.9
+}

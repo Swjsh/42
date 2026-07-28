@@ -1,0 +1,49 @@
+{
+  "date": "2026-04-17",
+  "cause": "EXIT_TOO_LATE",
+  "cause_detail": "held_+30pct_winner_exited<=0",
+  "cause_dollars": 181.8,
+  "engine": {
+    "n_walked_trades": 1,
+    "day_pnl": -40.8,
+    "n_unpriceable_raw_entries": 0,
+    "trades": [
+      {
+        "date": "2026-04-17",
+        "entry_time_et": "2026-04-17T14:50:00",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "side": "P",
+        "symbol": "SPY260417P00710000",
+        "qty": 3,
+        "entry_premium": 0.68,
+        "triggers": [
+          "trendline_rejection"
+        ],
+        "tier": "TRENDLINE",
+        "dollar_pnl": -40.8,
+        "exit_reason": "premium_stop @ 0.54",
+        "exit_time_et": "2026-04-17T15:40:00",
+        "hold_minutes": 50,
+        "mfe_pct": 0.6912,
+        "peak_dollars": 141.0,
+        "left_dollars": 0.0
+      }
+    ],
+    "best_mfe_pct": 0.6912,
+    "best_peak_dollars": 141.0,
+    "best_left_dollars": 0.0
+  },
+  "qualifying_moments": {
+    "n": 0,
+    "note": null,
+    "oracle_bound_dollars": null,
+    "oracle_label": null,
+    "n_synthetic_excluded": 0,
+    "candidates": []
+  },
+  "day_context": {
+    "spy_range_pct": 0.939,
+    "n_scored_bars": 68,
+    "any_trigger_fired": true
+  }
+}

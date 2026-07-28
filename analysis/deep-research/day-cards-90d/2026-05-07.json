@@ -1,0 +1,103 @@
+{
+  "date": "2026-05-07",
+  "cause": "GREEN",
+  "cause_detail": "day_pnl>=focus_floor",
+  "cause_dollars": 189.8,
+  "engine": {
+    "n_walked_trades": 3,
+    "day_pnl": 189.8,
+    "n_unpriceable_raw_entries": 0,
+    "trades": [
+      {
+        "date": "2026-05-07",
+        "entry_time_et": "2026-05-07T12:50:00",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "side": "P",
+        "symbol": "SPY260507P00733000",
+        "qty": 3,
+        "entry_premium": 1.41,
+        "triggers": [
+          "ribbon_flip",
+          "trendline_rejection"
+        ],
+        "tier": "TRENDLINE",
+        "dollar_pnl": 382.4,
+        "exit_reason": "runner_stop @ 2.41",
+        "exit_time_et": "2026-05-07T15:00:00",
+        "hold_minutes": 130,
+        "mfe_pct": 1.0142,
+        "peak_dollars": 429.0,
+        "left_dollars": 58.6
+      },
+      {
+        "date": "2026-05-07",
+        "entry_time_et": "2026-05-07T13:45:00",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "side": "P",
+        "symbol": "SPY260507P00731000",
+        "qty": 4,
+        "entry_premium": 1.13,
+        "triggers": [
+          "trendline_rejection"
+        ],
+        "tier": "TRENDLINE",
+        "dollar_pnl": -90.4,
+        "exit_reason": "premium_stop @ 0.9",
+        "exit_time_et": "2026-05-07T14:00:00",
+        "hold_minutes": 15,
+        "mfe_pct": 0.0531,
+        "peak_dollars": 24.0,
+        "left_dollars": 138.4
+      },
+      {
+        "date": "2026-05-07",
+        "entry_time_et": "2026-05-07T14:45:00",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "side": "P",
+        "symbol": "SPY260507P00730000",
+        "qty": 7,
+        "entry_premium": 0.73,
+        "triggers": [
+          "trendline_rejection"
+        ],
+        "tier": "TRENDLINE",
+        "dollar_pnl": -102.2,
+        "exit_reason": "premium_stop @ 0.58",
+        "exit_time_et": "2026-05-07T14:55:00",
+        "hold_minutes": 10,
+        "mfe_pct": 0.0,
+        "peak_dollars": 0.0,
+        "left_dollars": 0.0
+      }
+    ],
+    "best_mfe_pct": 1.0142,
+    "best_peak_dollars": 429.0,
+    "best_left_dollars": 138.4
+  },
+  "qualifying_moments": {
+    "n": 1,
+    "note": "descriptive only -- day classified by traded tree",
+    "oracle_bound_dollars": null,
+    "oracle_label": null,
+    "n_synthetic_excluded": 0,
+    "candidates": [
+      {
+        "trigger_time_et": "2026-05-07T12:00:00",
+        "bear_score": 8,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 733.83
+      }
+    ]
+  },
+  "day_context": {
+    "spy_range_pct": 0.864,
+    "n_scored_bars": 58,
+    "any_trigger_fired": true
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "date": "2026-04-06",
+  "cause": "GATE_BLOCKED",
+  "cause_detail": "filter_5",
+  "cause_dollars": -45.0,
+  "engine": {
+    "n_walked_trades": 0,
+    "day_pnl": null,
+    "n_unpriceable_raw_entries": 0,
+    "trades": [],
+    "best_mfe_pct": 0.0,
+    "best_peak_dollars": 0.0,
+    "best_left_dollars": 0.0
+  },
+  "qualifying_moments": {
+    "n": 4,
+    "note": null,
+    "oracle_bound_dollars": -45.0,
+    "oracle_label": "ORACLE BOUND -- best same-day candidate with hindsight, NOT achievable",
+    "n_synthetic_excluded": 0,
+    "candidates": [
+      {
+        "trigger_time_et": "2026-04-06T10:00:00",
+        "bear_score": 8,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 658.73,
+        "strike": 656,
+        "symbol": "SPY260406P00656000",
+        "entry_premium": 1.79,
+        "dollar_pnl": -237.0,
+        "exit_reason": "ribbon_flip_back"
+      },
+      {
+        "trigger_time_et": "2026-04-06T12:00:00",
+        "bear_score": 8,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence",
+          "trendline_rejection"
+        ],
+        "rejection_level": 657.9099731445312,
+        "strike": 657,
+        "symbol": "SPY260406P00657000",
+        "entry_premium": 1.04,
+        "dollar_pnl": -45.0,
+        "exit_reason": "ribbon_flip_back"
+      },
+      {
+        "trigger_time_et": "2026-04-06T13:00:00",
+        "bear_score": 8,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 657.9099731445312,
+        "strike": 657,
+        "symbol": "SPY260406P00657000",
+        "entry_premium": 1.02,
+        "dollar_pnl": -207.0,
+        "exit_reason": "structure_stop @ 657.9099731445312"
+      },
+      {
+        "trigger_time_et": "2026-04-06T13:10:00",
+        "bear_score": 8,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 657.0,
+        "strike": 656,
+        "symbol": "SPY260406P00656000",
+        "entry_premium": 1.28,
+        "dollar_pnl": -213.0,
+        "exit_reason": "structure_stop @ 657.0"
+      }
+    ]
+  },
+  "day_context": {
+    "spy_range_pct": 0.64,
+    "n_scored_bars": 73,
+    "any_trigger_fired": true
+  }
+}

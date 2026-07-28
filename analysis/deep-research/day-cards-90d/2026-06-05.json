@@ -1,0 +1,62 @@
+{
+  "date": "2026-06-05",
+  "cause": "GATE_BLOCKED",
+  "cause_detail": "filter_8",
+  "cause_dollars": null,
+  "engine": {
+    "n_walked_trades": 0,
+    "day_pnl": null,
+    "n_unpriceable_raw_entries": 1,
+    "trades": [],
+    "best_mfe_pct": 0.0,
+    "best_peak_dollars": 0.0,
+    "best_left_dollars": 0.0
+  },
+  "qualifying_moments": {
+    "n": 2,
+    "note": null,
+    "oracle_bound_dollars": null,
+    "oracle_label": null,
+    "n_synthetic_excluded": 2,
+    "candidates": [
+      {
+        "trigger_time_et": "2026-06-05T09:35:00",
+        "bear_score": 9,
+        "blockers": [
+          8
+        ],
+        "triggers": [
+          "level_rejection",
+          "ribbon_flip"
+        ],
+        "rejection_level": 752.3099975585938,
+        "strike": 752,
+        "excluded": "no_opra_cache",
+        "synthetic_entry_premium": 1.4974,
+        "dollar_pnl": null
+      },
+      {
+        "trigger_time_et": "2026-06-05T09:40:00",
+        "bear_score": 9,
+        "blockers": [
+          8
+        ],
+        "triggers": [
+          "level_rejection",
+          "ribbon_flip",
+          "confluence"
+        ],
+        "rejection_level": 751.469970703125,
+        "strike": 750,
+        "excluded": "no_opra_cache",
+        "synthetic_entry_premium": 1.1419,
+        "dollar_pnl": null
+      }
+    ]
+  },
+  "day_context": {
+    "spy_range_pct": 2.299,
+    "n_scored_bars": 70,
+    "any_trigger_fired": true
+  }
+}

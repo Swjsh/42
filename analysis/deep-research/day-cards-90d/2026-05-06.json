@@ -1,0 +1,28 @@
+{
+  "date": "2026-05-06",
+  "cause": "CORRECTLY_FLAT",
+  "cause_detail": "triggers_seen_none_qualifying",
+  "cause_dollars": 0.0,
+  "engine": {
+    "n_walked_trades": 0,
+    "day_pnl": null,
+    "n_unpriceable_raw_entries": 0,
+    "trades": [],
+    "best_mfe_pct": 0.0,
+    "best_peak_dollars": 0.0,
+    "best_left_dollars": 0.0
+  },
+  "qualifying_moments": {
+    "n": 0,
+    "note": null,
+    "oracle_bound_dollars": null,
+    "oracle_label": null,
+    "n_synthetic_excluded": 0,
+    "candidates": []
+  },
+  "day_context": {
+    "spy_range_pct": 0.93,
+    "n_scored_bars": 73,
+    "any_trigger_fired": true
+  }
+}

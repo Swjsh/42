@@ -1,0 +1,227 @@
+{
+  "date": "2026-06-04",
+  "cause": "GATE_BLOCKED",
+  "cause_detail": "filter_8",
+  "cause_dollars": 0.0,
+  "engine": {
+    "n_walked_trades": 0,
+    "day_pnl": null,
+    "n_unpriceable_raw_entries": 0,
+    "trades": [],
+    "best_mfe_pct": 0.0,
+    "best_peak_dollars": 0.0,
+    "best_left_dollars": 0.0
+  },
+  "qualifying_moments": {
+    "n": 11,
+    "note": null,
+    "oracle_bound_dollars": 0.0,
+    "oracle_label": "ORACLE BOUND -- best same-day candidate with hindsight, NOT achievable",
+    "n_synthetic_excluded": 0,
+    "candidates": [
+      {
+        "trigger_time_et": "2026-06-04T09:35:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 753.0,
+        "strike": 753,
+        "symbol": "SPY260604P00753000",
+        "entry_premium": 1.55,
+        "dollar_pnl": 0.0,
+        "exit_reason": "structure_stop @ 753.0"
+      },
+      {
+        "trigger_time_et": "2026-06-04T09:40:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 752.25,
+        "strike": 752,
+        "symbol": "SPY260604P00752000",
+        "entry_premium": 1.51,
+        "dollar_pnl": -126.0,
+        "exit_reason": "structure_stop @ 752.25"
+      },
+      {
+        "trigger_time_et": "2026-06-04T09:50:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 753.0,
+        "strike": 753,
+        "symbol": "SPY260604P00753000",
+        "entry_premium": 1.55,
+        "dollar_pnl": 0.0,
+        "exit_reason": "structure_stop @ 753.0"
+      },
+      {
+        "trigger_time_et": "2026-06-04T09:55:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 753.5700073242188,
+        "strike": 753,
+        "symbol": "SPY260604P00753000",
+        "entry_premium": 1.29,
+        "dollar_pnl": -144.0,
+        "exit_reason": "structure_stop @ 753.5700073242188"
+      },
+      {
+        "trigger_time_et": "2026-06-04T10:00:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 753.3900146484375,
+        "strike": 753,
+        "symbol": "SPY260604P00753000",
+        "entry_premium": 1.58,
+        "dollar_pnl": -231.0,
+        "exit_reason": "structure_stop @ 753.3900146484375"
+      },
+      {
+        "trigger_time_et": "2026-06-04T10:15:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence",
+          "trendline_rejection"
+        ],
+        "rejection_level": 753.5700073242188,
+        "strike": 753,
+        "symbol": "SPY260604P00753000",
+        "entry_premium": 1.26,
+        "dollar_pnl": -135.0,
+        "exit_reason": "structure_stop @ 753.5700073242188"
+      },
+      {
+        "trigger_time_et": "2026-06-04T10:35:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence",
+          "trendline_rejection"
+        ],
+        "rejection_level": 753.9512536247029,
+        "strike": 754,
+        "symbol": "SPY260604P00754000",
+        "entry_premium": 1.35,
+        "dollar_pnl": -147.0,
+        "exit_reason": "structure_stop @ 753.9512536247029"
+      },
+      {
+        "trigger_time_et": "2026-06-04T10:40:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 754.1900024414062,
+        "strike": 754,
+        "symbol": "SPY260604P00754000",
+        "entry_premium": 1.27,
+        "dollar_pnl": -123.0,
+        "exit_reason": "structure_stop @ 754.1900024414062"
+      },
+      {
+        "trigger_time_et": "2026-06-04T10:45:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence",
+          "trendline_rejection"
+        ],
+        "rejection_level": 754.1900024414062,
+        "strike": 754,
+        "symbol": "SPY260604P00754000",
+        "entry_premium": 1.32,
+        "dollar_pnl": -138.0,
+        "exit_reason": "structure_stop @ 754.1900024414062"
+      },
+      {
+        "trigger_time_et": "2026-06-04T11:00:00",
+        "bear_score": 8,
+        "blockers": [
+          8,
+          9
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 754.5559457532615,
+        "strike": 755,
+        "symbol": "SPY260604P00755000",
+        "entry_premium": 1.33,
+        "dollar_pnl": -153.0,
+        "exit_reason": "structure_stop @ 754.5559457532615"
+      },
+      {
+        "trigger_time_et": "2026-06-04T12:30:00",
+        "bear_score": 8,
+        "blockers": [
+          5,
+          8
+        ],
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "rejection_level": 756.4,
+        "strike": 756,
+        "symbol": "SPY260604P00756000",
+        "entry_premium": 0.65,
+        "dollar_pnl": -60.0,
+        "exit_reason": "structure_stop @ 756.4"
+      }
+    ]
+  },
+  "day_context": {
+    "spy_range_pct": 0.909,
+    "n_scored_bars": 73,
+    "any_trigger_fired": true
+  }
+}

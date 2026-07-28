@@ -1,0 +1,52 @@
+{
+  "date": "2026-05-28",
+  "cause": "GREEN",
+  "cause_detail": "day_pnl>=focus_floor",
+  "cause_dollars": 172.0,
+  "engine": {
+    "n_walked_trades": 1,
+    "day_pnl": 172.0,
+    "n_unpriceable_raw_entries": 0,
+    "trades": [
+      {
+        "date": "2026-05-28",
+        "entry_time_et": "2026-05-28T10:15:00",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "side": "C",
+        "symbol": "SPY260528C00753000",
+        "qty": 4,
+        "entry_premium": 1.31,
+        "triggers": [
+          "level_reclaim",
+          "ribbon_flip",
+          "confluence",
+          "sequence_reclaim"
+        ],
+        "tier": "SUPER",
+        "dollar_pnl": 172.0,
+        "exit_reason": "time_stop_15:50",
+        "exit_time_et": "2026-05-28T15:40:00",
+        "hold_minutes": 325,
+        "mfe_pct": 0.6565,
+        "peak_dollars": 344.0,
+        "left_dollars": 0.0
+      }
+    ],
+    "best_mfe_pct": 0.6565,
+    "best_peak_dollars": 344.0,
+    "best_left_dollars": 0.0
+  },
+  "qualifying_moments": {
+    "n": 0,
+    "note": null,
+    "oracle_bound_dollars": null,
+    "oracle_label": null,
+    "n_synthetic_excluded": 0,
+    "candidates": []
+  },
+  "day_context": {
+    "spy_range_pct": 0.789,
+    "n_scored_bars": 68,
+    "any_trigger_fired": true
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "date": "2026-06-29",
+  "cause": "EXIT_LEFT_MONEY",
+  "cause_detail": "exited<=0_then_ran>=focus_floor",
+  "cause_dollars": 444.0,
+  "engine": {
+    "n_walked_trades": 1,
+    "day_pnl": -324.0,
+    "n_unpriceable_raw_entries": 0,
+    "trades": [
+      {
+        "date": "2026-06-29",
+        "entry_time_et": "2026-06-29T09:45:00",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "side": "C",
+        "symbol": "SPY260629C00739000",
+        "qty": 3,
+        "entry_premium": 1.76,
+        "triggers": [
+          "level_reclaim",
+          "ribbon_flip"
+        ],
+        "tier": "LEVEL",
+        "dollar_pnl": -324.0,
+        "exit_reason": "structure_stop @ 737.5",
+        "exit_time_et": "2026-06-29T10:00:00",
+        "hold_minutes": 15,
+        "mfe_pct": 0.0,
+        "peak_dollars": 0.0,
+        "left_dollars": 444.0
+      }
+    ],
+    "best_mfe_pct": 0.0,
+    "best_peak_dollars": 0.0,
+    "best_left_dollars": 444.0
+  },
+  "qualifying_moments": {
+    "n": 2,
+    "note": "descriptive only -- day classified by traded tree",
+    "oracle_bound_dollars": null,
+    "oracle_label": null,
+    "n_synthetic_excluded": 0,
+    "candidates": [
+      {
+        "trigger_time_et": "2026-06-29T09:35:00",
+        "bear_score": 9,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 738.1
+      },
+      {
+        "trigger_time_et": "2026-06-29T10:10:00",
+        "bear_score": 8,
+        "blockers": [
+          5
+        ],
+        "triggers": [
+          "level_rejection"
+        ],
+        "rejection_level": 735.2999877929688
+      }
+    ]
+  },
+  "day_context": {
+    "spy_range_pct": 1.236,
+    "n_scored_bars": 68,
+    "any_trigger_fired": true
+  }
+}
