@@ -528,8 +528,29 @@ def run_scenario_tick(cfg: ctc.TwinConfig = ctc.TwinConfig(), *, live: bool = Fa
     except Exception as e:  # noqa: BLE001 -- the SIM lane must never mask the LIVE row's own tick.
         sim_bear_error = f"{type(e).__name__}: {e}"
 
+    # LADDER-VARIANT-SIM-WIRE (2026-07-27, queue: ladder-variant fast falsifier): every
+    # production tick ALSO ticks the ladder-variant dual-lane sim (crypto_twin_ladder_sim.
+    # run_ladder_tick) -- run strictly AFTER the sim-bear tick above, same sequential-
+    # single-threaded-tick reasoning (no shared-file race). This is the BTC fast falsifier
+    # for the "ribbon lags at extremes" mechanism (see that module's docstring for the full
+    # SPY 2026-07-27 $571 miss this mirrors). Local import (not a top-of-file import) is
+    # DELIBERATE: if crypto_twin_ladder_sim.py ever fails to import (syntax error, missing
+    # dependency), a top-level import would crash THIS module's own import and take the
+    # LIVE lane down with it -- catching the import inside this try/except keeps a ladder-
+    # sim bug fully contained to `ladder_sim_error`, never the LIVE row above. SIM fills
+    # only, never a real order (see that module's docstring fences); mechanism evidence
+    # only, never SPY edge evidence.
+    ladder_sim_result: Optional[dict] = None
+    ladder_sim_error: Optional[str] = None
+    try:
+        import crypto_twin_ladder_sim as ladder_sim  # noqa: PLC0415 -- see comment above
+        ladder_sim_result = ladder_sim.run_ladder_tick(cfg, now_utc=now, raw_bars=raw_bars)
+    except Exception as e:  # noqa: BLE001 -- the ladder-sim lane must never mask the LIVE row's own tick.
+        ladder_sim_error = f"{type(e).__name__}: {e}"
+
     return {"row": row, "scheduler_decision": scheduler_decision, "bookkeeping_error": bookkeeping_error,
-            "sim_bear": sim_bear_result, "sim_bear_error": sim_bear_error}
+            "sim_bear": sim_bear_result, "sim_bear_error": sim_bear_error,
+            "ladder_sim": ladder_sim_result, "ladder_sim_error": ladder_sim_error}
 
 
 # ==========================================================================================
@@ -971,6 +992,10 @@ def main(argv: Optional[list[str]] = None) -> int:
             # cycle alongside the LIVE row above -- surfaced here so a manual CLI run shows it.
             "sim_bear_action": (result.get("sim_bear") or {}).get("action"),
             "sim_bear_error": result.get("sim_bear_error"),
+            # LADDER-VARIANT-SIM-WIRE (2026-07-27): same "surfaced here" discipline.
+            "ladder_sim_lanes": {lane: v.get("action") for lane, v in
+                                 ((result.get("ladder_sim") or {}).get("lanes") or {}).items()},
+            "ladder_sim_error": result.get("ladder_sim_error"),
         }, indent=2))
     return 0
 

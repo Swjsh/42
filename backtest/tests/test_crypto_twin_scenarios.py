@@ -738,5 +738,39 @@ def test_run_scenario_tick_enter_bear_skip_still_gets_a_sim_bear_row(tmp_path, f
     assert result["sim_bear"]["action"] == "SIM_ENTERED"
 
 
+# ============================================================================
+# LADDER-VARIANT-SIM-WIRE (2026-07-27) -- the ladder-variant dual-lane sim ticks every
+# production cycle, same "TWIN-B1.5-WIRE" discipline as the SIM bear lane above.
+# ============================================================================
+def test_run_scenario_tick_ladder_sim_lane_ticks_every_call(tmp_path, fake_broker):
+    """RED-PROOF (mirrors test_run_scenario_tick_sim_bear_lane_ticks_every_call): before
+    this wiring, run_scenario_tick's return dict had no "ladder_sim" key at all. Post-
+    wiring, every call to run_scenario_tick (the function crypto_twin_health.
+    run_tick_with_health calls each 5-min production tick) ALSO ticks the ladder-variant
+    dual-lane sim (crypto_twin_ladder_sim.run_ladder_tick) and returns its result -- both
+    lanes evaluated, neither placing a real order (fake_broker's order-placing stubs are
+    never touched by this lane; only get_crypto_quote_hilo, which fake_broker ALSO stubs
+    on the SAME underlying crypto_twin_broker module object the ladder-sim module imports)."""
+    cfg = _twin_cfg(tmp_path)
+    now = datetime(2026, 7, 27, 12, 0, tzinfo=timezone.utc)
+    fake_broker.quote = (64010.0, 63990.0)
+    result = cts.run_scenario_tick(cfg, live=True, now_utc=now, raw_bars=_flat_bars(now),
+                                   **_paths(cfg))
+    assert "ladder_sim" in result  # would KeyError pre-wiring
+    assert result["ladder_sim_error"] is None
+    assert result["ladder_sim"] is not None
+    assert result["ladder_sim"]["action"] == "OK"
+    assert set(result["ladder_sim"]["lanes"].keys()) == {"variant", "baseline"}
+    for lane_result in result["ladder_sim"]["lanes"].values():
+        assert lane_result["action"] != "LANE_ERROR"
+
+    # own private ledger -- never blended with the LIVE files (the LIVE scheduler above
+    # may itself force a real forced-branch entry on a fresh account via fake_broker --
+    # that is expected/unrelated; the ladder-sim lane's own no-broker-order guarantee is
+    # covered structurally by test_crypto_twin_ladder_sim.py's AST guard, not re-asserted
+    # here via order-count, which would conflate the two lanes' independent behavior).
+    assert (cfg.state_dir / "ladder-sim-positions.json").exists()
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-v"]))

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 from typing import Iterable, Optional
 
@@ -245,6 +246,29 @@ def report(path: Optional[Path] = None, decisions_path: Optional[Path] = None) -
     L += ["", "---",
           f"_{len(trips)} total round trips | {wired} with P&L wired at exit time, "
           f"{len(trips) - wired} reconstructed by chronological pairing._"]
+
+    # LADDER-VARIANT-SIM (2026-07-27): one additive footer line pointing at the ladder-sim
+    # mechanism scorecard (crypto_twin_ladder_sim.py -- 15m-HTF-gate vs ribbon-stack-gate,
+    # both lanes fully simulated, never a real order). Local import + try/except so a bug
+    # in that module can never break THIS report (same fail-open discipline as every other
+    # cross-module read in this file). Full per-lane numbers: `python -m
+    # crypto_twin_ladder_sim --report`.
+    try:
+        _scripts_dir = str(Path(__file__).resolve().parent)
+        if _scripts_dir not in sys.path:
+            sys.path.insert(0, _scripts_dir)  # this file has no sys.path setup of its own
+        import crypto_twin_ladder_sim as _ladder_sim  # noqa: PLC0415
+        _lsum = _ladder_sim.summarize()
+        _v, _b = _lsum["variant"], _lsum["baseline"]
+        L += ["", "## Ladder-variant sim (mechanism only, never SPY/BTC edge)", "",
+             f"- variant (15m-HTF-gate): {_v['n']} round trips" +
+             (f" | {_v['win_rate']}% WR | avg {_v['avg_pct']:+.4f}%/trip" if _v["n"] else ""),
+             f"- baseline (ribbon-stack-gate): {_b['n']} round trips" +
+             (f" | {_b['win_rate']}% WR | avg {_b['avg_pct']:+.4f}%/trip" if _b["n"] else ""),
+             "- full report: `python -m crypto_twin_ladder_sim --report`"]
+    except Exception:  # noqa: BLE001 -- this footer must never break the P&L report itself
+        pass
+
     return "\n".join(L)
 
 
