@@ -162,8 +162,19 @@ def test_empty_episodes_never_crashes_and_never_ships():
 # exit-profile provenance -- pulled from accounts.json verbatim, not hand-copied (C14)
 # =====================================================================================
 def test_exit_profiles_pulled_from_live_accounts_json():
+    """Pins the LIVE per-arm exit lanes. Updated 2026-07-29 when BE-FLOOR was added.
+
+    HISTORY: this guard used to assert exactly {CONTROL, RIBBON, ZONE-RIDE} -- the state when
+    every fleet arm shared one exit shape apart from a trail-width tweak. J's 2026-07-29
+    directive ("all five arms still share one exit shape -- rip it apart") added a genuinely
+    distinct fourth lane on risky-1: BE-FLOOR (profit_lock_mode=fixed = a breakeven floor,
+    armed PRE-TP1 at +30% MFE, with a REACHABLE tp1 of 0.5 vs the registry's unreachable 1.0).
+    The guard's job is unchanged -- prove the study reads the LIVE lanes and that they are
+    genuinely different -- so it now pins the new set. If a lane is added/removed, update this
+    list deliberately; do not delete the test.
+    """
     profiles = ddr._load_exit_profiles()
-    assert set(profiles.keys()) == {"CONTROL", "RIBBON", "ZONE-RIDE"}
+    assert set(profiles.keys()) == {"CONTROL", "RIBBON", "ZONE-RIDE", "BE-FLOOR"}
     assert profiles["CONTROL"] == {}
     assert profiles["RIBBON"].get("stop_mode") == "structure"
     assert profiles["ZONE-RIDE"].get("trail_pct") == pytest.approx(0.20)
@@ -171,6 +182,16 @@ def test_exit_profiles_pulled_from_live_accounts_json():
     # make ZONE-RIDE diverge from CONTROL for this study's ribbon_ride-only entry population).
     assert profiles["ZONE-RIDE"].get("stop_mode") == profiles["RIBBON"].get("stop_mode")
     assert profiles["ZONE-RIDE"].get("trail_pct") != profiles["RIBBON"].get("trail_pct")
+    # BE-FLOOR is the 2026-07-29 challenger lane and must be structurally distinct from the
+    # trailing lanes: a FIXED (breakeven) lock armed pre-TP1, not a chandelier post-TP1.
+    be = profiles["BE-FLOOR"]
+    assert be.get("profit_lock_mode") == "fixed"
+    assert be.get("profit_lock_arm_scope") == "full"
+    assert be.get("profit_lock_arm_pct") == pytest.approx(0.30)
+    assert be.get("tp1_premium_pct") == pytest.approx(0.5), (
+        "the whole point is a REACHABLE tp1 -- the registry's 1.0 never fires on 0DTE, which "
+        "is why the post_tp1-scoped lock stayed dead on the 2026-07-28 +56% trade")
+    assert be.get("profit_lock_mode") != profiles["RIBBON"].get("profit_lock_mode")
 
 
 # =====================================================================================
