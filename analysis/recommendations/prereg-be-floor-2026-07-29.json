@@ -1,0 +1,59 @@
+{
+  "prereg_id": "BE-FLOOR-PRETP1 (J flag, iteration 3 of the exit-leak arm axis)",
+  "frozen_at_et": "2026-07-29T09:58:15 Wednesday EDT",
+  "frozen_before_any_run": true,
+  "authority": "J urgent 2026-07-29 09:5x ET, market OPEN, rule-9 mid-session waiver explicitly granted for this analysis-only research task (no live/prod files touched, no pushes).",
+
+  "the_incident_that_motivates_it": {
+    "trade": "2026-07-28 Bold, 5x SPY260728C00741000, level_reclaim @741.0",
+    "entry_premium": 1.38,
+    "hwm_premium": 2.16,
+    "hwm_pct": "+56.5% at 12:57 ET",
+    "actual_exit": "0.795 structure_stop @741.0 = -42%, SPY essentially FLAT (741.33 entry -> 741.09 exit)",
+    "mechanism": "RIBBON_RIDE declares profit_lock_mode=trailing, tp1_premium_pct=1.0 (unreachable on 0DTE), profit_lock_arm_scope=post_tp1 -- the profit lock is structurally DEAD pre-TP1 by design, so a +56% trade had zero protection."
+  },
+
+  "what_iterations_1_and_2_established": {
+    "iteration_1": {
+      "file": "analysis/recommendations/exit-armscope-tp1-ab-2026-07-28.md",
+      "cells": "arm_scope=full with the SHIPPED TRAILING lock (trail_pct=0.15) at arm_pct=0.05",
+      "result": "ARM_NOTHING -- runner cohort (n=35, +$15,774.05 anchor) degraded to -$7,758.85"
+    },
+    "iteration_2": {
+      "file": "analysis/recommendations/exit-armpct-ab-2026-07-28.md",
+      "cells": "same TRAILING lock, arm_scope=full, arm_pct swept 0.20/0.30/0.40",
+      "result": "ARM_NOTHING -- runner cohort damage monotonically SHRINKS with higher arm_pct (-$6,700.90 / -$4,888.50 / -$3,897.55) but NEVER turns positive -- G4 fails uniformly"
+    },
+    "conclusion_carried_forward": "A TRAILING lock (floor = HWM*(1-trail_pct)) clips runners because it exits on premium PULLBACK, which on 0DTE is often theta rather than reversal. The prior iteration-2 pre-reg explicitly named 'BE floor instead of a trail' as a candidate for a future SEPARATE pre-reg, not tested by either prior run. THIS is that pre-reg."
+  },
+
+  "hypothesis": "profit_lock_mode=\"fixed\" is a BREAKEVEN floor (exit_manager.py plan_exit_actions: pre-TP1 arm sets runner_stop = max(runner_stop, entry); post-TP1, 'fixed' mode never ratchets further -- the trailing branch is skipped entirely), NOT a trail. A BE floor can only exit a position that returns ALL THE WAY to its entry price -- it structurally CANNOT clip a runner that stays above entry mid-trade, while it converts a round-trip-to-loss (yesterday's shape) into a scratch. This combination -- profit_lock_mode=\"fixed\" + profit_lock_arm_scope=\"full\" (arm pre-TP1) -- has NEVER been tested.",
+
+  "structural_note_disclosed_before_running": "profit_lock_mode is read by BOTH the pre-TP1 arm_scope=full branch AND the post-TP1 runner branch (exit_manager.py:465-468). Because TP1 fill UNCONDITIONALLY resets runner_stop_premium=entry and profit_lock_armed=True regardless of arm_pct/arm_scope (exit_manager.py:442-444), switching profit_lock_mode to \"fixed\" ALSO removes the post-TP1 15%-trailing protection for any trade that reaches TP1 -- not just adding a pre-TP1 floor. This is a THIRD key changed (not two) relative to CONTROL, and a materially different (larger) structural change than iterations 1-2 (which held profit_lock_mode=\"trailing\" fixed throughout and only moved arm_scope/arm_pct/tp1, so any trade reaching TP1 in those cells rode IDENTICALLY to CONTROL post-TP1 -- the runner-cohort damage in iterations 1-2 came entirely from trades knocked out PRE-TP1). Disclosed here, before any run, precisely because it changes what a 'runner cohort' result even means for this cell: a degradation here could come from a genuine pre-TP1 round-trip-to-entry (the mechanism the hypothesis predicts is rare) OR from the loss of post-TP1 trailing protection on trades that DO reach TP1 (a different, structural mechanism the hypothesis does not address). Both must be checked and reported separately -- see gates_frozen G4 detail requirement below.",
+
+  "cells_frozen_entire_search_space": [
+    "CONTROL: live config as-is (profit_lock_mode=trailing, profit_lock_arm_scope=post_tp1, tp1_premium_pct=1.0)",
+    "B1: profit_lock_mode=fixed, profit_lock_arm_scope=full, profit_lock_arm_pct=0.30",
+    "B2: profit_lock_mode=fixed, profit_lock_arm_scope=full, profit_lock_arm_pct=0.20",
+    "B3: profit_lock_mode=fixed, profit_lock_arm_scope=full, profit_lock_arm_pct=0.50"
+  ],
+  "no_other_knobs": "trail_pct stays 0.15 (irrelevant under fixed mode but left untouched, not deleted, per no_other_knobs convention), tp1_premium_pct stays 1.0, tp1_qty_fraction stays 0.667, catastrophe_stop_pct stays -0.50, stop_mode stays structure, runner_target_pct stays 99.0. Not swept. arm_pct is the dose-response axis: 0.20 (B2) < 0.30 (B1) < 0.50 (B3).",
+
+  "population": "The SAME frozen 190-trade population, entries UNCHANGED from control (exit-only test) -- analysis/recommendations/engine-fullhist-replay-2026-07-23.json, identical source iterations 1-2 used. Exits re-derived through backtest/lib/exit_manager_walk.walk_exit_manager (the REAL live exit core), NEVER simulator_real.simulate_trade_real (2026-07-09 sim-parity scar). entry+1 convention. Real-OPRA-only P&L; synthetic counted+excluded.",
+
+  "method_reuse_not_rewrite": "Extends/imports backtest/tools/exit_armscope_ab_2026_07_28.py (as ab1) for: SOURCE_REPLAY population load, build_ribbon_lookup/ribbon_tick_df_for, naive_dt, load_contract_bars, exit_family() classification (extended here for the BE-floor-specific reason string, which is identical text 'profit_lock_floor @ X' to the trailing cells' pre-TP1 floor -- exit_manager.py does not distinguish fixed vs trailing in the reason string, only in whether it ratchets further), the runner-cohort anchor constants (n=35, +$15,774.05), the CONTROL byte-for-byte reconciliation convention, and load_today_bold_ticks/replay_today_trade for G6 (same signal-level real-tick reconstruction, no OPRA cache exists for 2026-07-28).",
+
+  "gates_frozen": [
+    "G1 positive aggregate delta vs CONTROL",
+    "G2 majority of changed trades positive",
+    "G3 survives dropping the single best changed trade",
+    "G4 RUNNER-COHORT VETO (n=35, +$15,774.05 anchor, classified from THIS tool's own CONTROL walk): ANY degradation of that cohort's aggregate FAILS the cell regardless of G1. Per the structural_note above, if G4 fails, the per-trade breakdown MUST separately report (a) how many cohort trades round-tripped fully back to entry pre-TP1 (the hypothesis's predicted, rare mechanism) vs (b) how many reached TP1 normally but then gave back gains post-TP1 purely because the trailing 15%-off-HWM protection was replaced by a static BE floor (the structural side-effect named above, not addressed by the hypothesis) -- both are important findings and must not be conflated in the writeup.",
+    "G5 dose-response coherence across the three arm_pct values (0.20/0.30/0.50), evaluated on the runner-cohort delta axis (deciding) with the aggregate-delta axis as cross-check, same coherence rubric as iteration 2 (assess_dose_response: monotone-improving / monotone-worsening / flat = coherent; a lone spike beyond a material band at the middle-ordered point = incoherent/noise). If incoherent, any positive individual cell is treated as noise and arming is refused regardless of per-cell gate arithmetic.",
+    "G6 today's 2026-07-28 Bold trade (entry 1.38, HWM 2.16 at 12:57, actual exit ~0.795) must improve MATERIALLY (>$50 swing on the 5-lot, same bar iterations 1-2 used) -- signal-level from automation/state/core-decisions.jsonl exit_pass tick data (real live IEX-derived best/worst premium the engine observed each minute), no same-day OPRA cache exists for 2026-07-28, disclosed as such throughout, walked through the SAME em.plan_exit_actions core as every other check in this pre-reg."
+  ],
+
+  "key_prediction_to_check_explicitly": "Because a BE floor cannot fire above entry, G4 should be MUCH less damaged by PRE-TP1 whipsaw than the trailing cells (iterations 1-2). If the runner cohort is STILL degraded, the report must identify exactly which trades and via which of the two mechanisms named in structural_note_disclosed_before_running (pre-TP1 round-trip-to-entry vs post-TP1 loss-of-trailing-protection) -- a very important finding either way, and NOT to be treated as refuting the hypothesis if the damage is entirely mechanism (b), since the hypothesis is specifically about the PRE-TP1 whipsaw axis.",
+
+  "arming_rule": "Arm ONLY the single best-performing cell that clears ALL required gates (G1-G6). If two cells clear, prefer the SIMPLER (fewer keys changed; here all three B-cells change the same 3 keys, so ties break on the LOWER arm_pct -- smallest deviation from immediate/default arming). Arm flag-gated per-strategy in the registry shape, guard tests RED-proofed, REVOKE = revert the key. If none clear: record the third null on this arm-mechanism axis, arm nothing, report the mechanism finding regardless.",
+  "kill_criteria_post_arm": "Forward 10 sessions or n>=8 fills: if realized expectancy is worse than the counterfactual control behavior, revert."
+}
