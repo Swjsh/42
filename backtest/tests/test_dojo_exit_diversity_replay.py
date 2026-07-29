@@ -174,7 +174,7 @@ def test_exit_profiles_pulled_from_live_accounts_json():
     list deliberately; do not delete the test.
     """
     profiles = ddr._load_exit_profiles()
-    assert set(profiles.keys()) == {"CONTROL", "RIBBON", "ZONE-RIDE", "BE-FLOOR"}
+    assert set(profiles.keys()) == {"CONTROL", "RIBBON", "ZONE-RIDE", "REACHABLE-TP1"}
     assert profiles["CONTROL"] == {}
     assert profiles["RIBBON"].get("stop_mode") == "structure"
     assert profiles["ZONE-RIDE"].get("trail_pct") == pytest.approx(0.20)
@@ -182,16 +182,18 @@ def test_exit_profiles_pulled_from_live_accounts_json():
     # make ZONE-RIDE diverge from CONTROL for this study's ribbon_ride-only entry population).
     assert profiles["ZONE-RIDE"].get("stop_mode") == profiles["RIBBON"].get("stop_mode")
     assert profiles["ZONE-RIDE"].get("trail_pct") != profiles["RIBBON"].get("trail_pct")
-    # BE-FLOOR is the 2026-07-29 challenger lane and must be structurally distinct from the
-    # trailing lanes: a FIXED (breakeven) lock armed pre-TP1, not a chandelier post-TP1.
-    be = profiles["BE-FLOOR"]
-    assert be.get("profit_lock_mode") == "fixed"
-    assert be.get("profit_lock_arm_scope") == "full"
-    assert be.get("profit_lock_arm_pct") == pytest.approx(0.30)
+    # REACHABLE-TP1 is the 2026-07-29 challenger lane. It began as BE-FLOOR (a fixed
+    # breakeven lock armed pre-TP1) and was REVERTED the same session: profit_lock_mode="fixed"
+    # is read by BOTH the pre-TP1 and post-TP1 branches, so it silently disabled post-TP1
+    # ratcheting (25 of 27 degraded runner trades came from that side effect, not the tested
+    # hypothesis -- be-floor-ab-2026-07-29). What survives is the reachable TP1 alone.
+    be = profiles["REACHABLE-TP1"]
     assert be.get("tp1_premium_pct") == pytest.approx(0.5), (
-        "the whole point is a REACHABLE tp1 -- the registry's 1.0 never fires on 0DTE, which "
-        "is why the post_tp1-scoped lock stayed dead on the 2026-07-28 +56% trade")
-    assert be.get("profit_lock_mode") != profiles["RIBBON"].get("profit_lock_mode")
+        "the registry's 1.0 never fires on 0DTE, so the TP1 partial AND the post_tp1-scoped "
+        "lock both stayed dead on the 2026-07-28 +56% trade")
+    assert be.get("profit_lock_mode") is None, (
+        "the lock mode must be INHERITED from the registry here -- overriding it to 'fixed' is "
+        "the confounded change that was reverted")
 
 
 # =====================================================================================

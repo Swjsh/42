@@ -517,10 +517,12 @@ def test_exit_profile_matches_live_accounts_json():
     try:
         assert w._exit_profile_for_arm("safe-3") == "RIBBON"
         # risky-1 was TRIG-EXACT (the untouched registry-verbatim control) until 2026-07-29,
-        # when J's "rip apart the shared exit shape" directive made it the BE-FLOOR challenger
-        # lane (fixed breakeven lock armed pre-TP1 at +30% MFE, reachable tp1 0.5). The control
+        # when J's "rip apart the shared exit shape" directive made it a challenger lane. BE-FLOOR
+        # was armed then REVERTED the same session (its backtest showed profit_lock_mode="fixed"
+        # also disables post-TP1 ratcheting -- confounded); what survives is REACHABLE-TP1
+        # (tp1 1.0 -> 0.5 only). The control
         # role moved to the core arms (safe-2/bold-2), which still run the registry shape.
-        assert w._exit_profile_for_arm("risky-1") == "BE-FLOOR"
+        assert w._exit_profile_for_arm("risky-1") == "REACHABLE-TP1"
         assert w._exit_profile_for_arm("risky-3") == "ZONE-RIDE"
         assert w._exit_profile_for_arm("safe-2") == "CORE"
         assert w._exit_profile_for_arm("bold-2") == "CORE"

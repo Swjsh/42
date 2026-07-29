@@ -117,7 +117,7 @@ def _load_exit_profiles() -> dict:
     # which still run the registry shape verbatim -- so CONTROL is now sourced from safe-2's
     # (empty) patch rather than risky-1's. This guard's contract is unchanged: any future
     # relabelling still fails LOUD here instead of silently racing the wrong profile (C14).
-    expected_labels = {"safe-2": "CORE", "risky-1": "BE-FLOOR", "safe-3": "RIBBON", "risky-3": "ZONE-RIDE"}
+    expected_labels = {"safe-2": "CORE", "risky-1": "REACHABLE-TP1", "safe-3": "RIBBON", "risky-3": "ZONE-RIDE"}
     for arm_id, want in expected_labels.items():
         got = arms[arm_id].get("exit_profile")
         if got != want:
@@ -137,11 +137,11 @@ def _load_exit_profiles() -> dict:
     be_patch = (risky1.get("params_patch") or {}).get("exit_patch") or {}
     if not be_patch:
         raise ValueError(
-            "BE-FLOOR source (risky-1) has an EMPTY exit_patch -- the 2026-07-29 challenger "
+            "REACHABLE-TP1 source (risky-1) has an EMPTY exit_patch -- the 2026-07-29 challenger "
             "lane was reverted or lost; re-check accounts.json before trusting this study"
         )
     return {"CONTROL": {}, "RIBBON": dict(ribbon_patch), "ZONE-RIDE": dict(zone_patch),
-            "BE-FLOOR": dict(be_patch)}
+            "REACHABLE-TP1": dict(be_patch)}
 
 
 def _discover_option_days() -> list[str]:
