@@ -111,7 +111,13 @@ def _load_exit_profiles() -> dict:
     accounts = json.loads(ACCOUNTS_PATH.read_text(encoding="utf-8"))
     arms = {a["id"]: a for a in accounts["arms"]}
     safe2, risky1, safe3, risky3 = arms["safe-2"], arms["risky-1"], arms["safe-3"], arms["risky-3"]
-    expected_labels = {"safe-2": "CORE", "risky-1": "TRIG-EXACT", "safe-3": "RIBBON", "risky-3": "ZONE-RIDE"}
+    # 2026-07-29: risky-1 stopped being the CONTROL. J's "rip apart the shared exit shape"
+    # directive turned it into the BE-FLOOR challenger lane (fixed breakeven lock armed pre-TP1
+    # at +30% MFE, reachable tp1 0.5). The CONTROL role moved to the CORE arms (safe-2/bold-2),
+    # which still run the registry shape verbatim -- so CONTROL is now sourced from safe-2's
+    # (empty) patch rather than risky-1's. This guard's contract is unchanged: any future
+    # relabelling still fails LOUD here instead of silently racing the wrong profile (C14).
+    expected_labels = {"safe-2": "CORE", "risky-1": "BE-FLOOR", "safe-3": "RIBBON", "risky-3": "ZONE-RIDE"}
     for arm_id, want in expected_labels.items():
         got = arms[arm_id].get("exit_profile")
         if got != want:
@@ -119,16 +125,23 @@ def _load_exit_profiles() -> dict:
                 f"accounts.json arm {arm_id!r} exit_profile changed shape: "
                 f"expected {want!r}, got {got!r} -- exit-diversity profile mapping is stale"
             )
-    control_patch = (risky1.get("params_patch") or {}).get("exit_patch") or {}
+    control_patch = (safe2.get("params_patch") or {}).get("exit_patch") or {}
     if control_patch:
         raise ValueError(
-            "CONTROL source (risky-1) now carries a non-empty exit_patch -- accounts.json "
-            "changed shape; this pre-reg's CONTROL definition ('today's untouched trigger-exact "
-            "structure stop') is no longer accurate without a human re-check"
+            "CONTROL source (safe-2, the CORE registry-verbatim arm) now carries a non-empty "
+            "exit_patch -- accounts.json changed shape; this pre-reg's CONTROL definition "
+            "('the untouched registry exit shape') is no longer accurate without a human re-check"
         )
     ribbon_patch = (safe3.get("params_patch") or {}).get("exit_patch") or {}
     zone_patch = (risky3.get("params_patch") or {}).get("exit_patch") or {}
-    return {"CONTROL": {}, "RIBBON": dict(ribbon_patch), "ZONE-RIDE": dict(zone_patch)}
+    be_patch = (risky1.get("params_patch") or {}).get("exit_patch") or {}
+    if not be_patch:
+        raise ValueError(
+            "BE-FLOOR source (risky-1) has an EMPTY exit_patch -- the 2026-07-29 challenger "
+            "lane was reverted or lost; re-check accounts.json before trusting this study"
+        )
+    return {"CONTROL": {}, "RIBBON": dict(ribbon_patch), "ZONE-RIDE": dict(zone_patch),
+            "BE-FLOOR": dict(be_patch)}
 
 
 def _discover_option_days() -> list[str]:
