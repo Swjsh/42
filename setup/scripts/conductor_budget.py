@@ -66,6 +66,42 @@ def load_config(path: Optional[Path] = None) -> dict:
     return cfg
 
 
+def _stamp_to_et_date(stamp: str) -> Optional[str]:
+    """Convert a row's timestamp to its true ET calendar date 'YYYY-MM-DD'.
+
+    BUG THIS FIXES (found 2026-07-29, self-audit flagged "far more than max_fires" 3 nights
+    running -- 07-27/07-28/07-29): `fired_at` is UTC ISO. ET is UTC-4 (EDT) / UTC-5 (EST), so
+    any fire between ~20:00-23:59 ET has a `fired_at` whose UTC CALENDAR DATE is already
+    tomorrow (e.g. the scheduled 20:30 ET fire on day D writes `fired_at` with a UTC date of
+    D+1). The old code matched rows to a day via plain substring search on the raw `fired_at`
+    string -- so that evening fire's own EXHAUSTED-check (which correctly asked "how many
+    fires happened on ET day D so far") would ALSO be picked up by the NEXT calendar day's
+    first budget check (which asks about ET day D+1) as if it were one of D+1's fires. Every
+    day silently started already "1 fire spent" before its own first legitimate tick -- exactly
+    the drift the self-audit kept re-flagging. Returns None (fail-open: caller falls back to
+    the old substring behavior) on any parse failure -- a malformed timestamp must never crash
+    the governor (C7)."""
+    if not stamp:
+        return None
+    s = stamp.strip()
+    try:
+        if s.endswith("Z"):
+            s = s[:-1] + "+00:00"
+        parsed = dt.datetime.fromisoformat(s)
+    except (ValueError, TypeError):
+        return None
+    try:
+        if parsed.tzinfo is not None:
+            utc = parsed.astimezone(dt.timezone.utc)
+            sys.path.insert(0, str(REPO / "setup" / "scripts"))
+            from et_clock import et_now  # noqa: PLC0415 -- optional dep, fail-open below
+            return et_now(now_utc=utc).strftime("%Y-%m-%d")
+        # Naive stamp (the ts_et convention) is already ET-local -- no conversion needed.
+        return parsed.strftime("%Y-%m-%d")
+    except Exception:  # noqa: BLE001 -- fail-open: caller falls back to substring matching
+        return None
+
+
 def spend_today(day: Optional[str] = None, path: Optional[Path] = None) -> dict:
     """Corrected spend + fire count for `day` (ET). Never raises."""
     day = day or _et_today()
@@ -74,7 +110,8 @@ def spend_today(day: Optional[str] = None, path: Optional[Path] = None) -> dict:
     try:
         with open(p, "r", encoding="utf-8", errors="replace") as fh:
             for line in fh:
-                if day not in line:
+                line = line.strip()
+                if not line:
                     continue
                 try:
                     row = json.loads(line)
@@ -82,10 +119,13 @@ def spend_today(day: Optional[str] = None, path: Optional[Path] = None) -> dict:
                     continue
                 if not isinstance(row, dict):
                     continue
-                # fired_at is UTC ISO; the ET-day substring test above already filtered, but a UTC
-                # evening maps to the same ET date only part of the time -- accept either stamp.
                 stamp = str(row.get("fired_at") or row.get("ts_et") or "")
-                if day not in stamp:
+                et_date = _stamp_to_et_date(stamp)
+                if et_date is not None:
+                    if et_date != day:
+                        continue
+                elif day not in stamp:
+                    # Fail-open fallback for an unparseable stamp: old substring behavior.
                     continue
                 fires += 1
                 try:

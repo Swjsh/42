@@ -26,10 +26,13 @@ DAY = "2026-07-25"
 
 
 def _outcomes(tmp_path: Path, rows) -> Path:
+    # T16:00:00+00:00 = noon ET (EDT, UTC-4) -- safely mid-day, so it maps to `DAY`'s own ET
+    # calendar date under BOTH the old substring match and the corrected UTC->ET conversion.
+    # (T02:00:00+00:00 would map to the PREVIOUS ET day -- see test_conductor_budget below.)
     p = tmp_path / "conductor-outcomes.jsonl"
     with open(p, "w", encoding="utf-8") as fh:
         for cost in rows:
-            fh.write(json.dumps({"fired_at": f"{DAY}T02:00:00+00:00",
+            fh.write(json.dumps({"fired_at": f"{DAY}T16:00:00+00:00",
                                  "task_id": "T", "cost_usd": cost}) + "\n")
     return p
 
@@ -109,6 +112,40 @@ def test_other_days_do_not_count(tmp_path):
     p.write_text(json.dumps({"fired_at": "2026-07-24T02:00:00", "cost_usd": 500.0}) + "\n",
                  encoding="utf-8")
     assert spend_today(DAY, p)["fires"] == 0
+
+
+# ------------------------------------------------------- cross-midnight ET/UTC boundary (bug fix)
+# 2026-07-29: the self-audit flagged "conductor firing far more than max_fires" 3 nights running
+# (07-27/07-28/07-29). Root cause: ET is UTC-4 (EDT), so the scheduled 20:30 ET evening fire on
+# day D writes `fired_at` with a UTC CALENDAR DATE of D+1 (20:30 ET + 4h = 00:30 UTC next day).
+# The old substring-match code counted that row against BOTH D's own check (correct, it ran
+# then) AND D+1's very first check the next morning (wrong -- it leaked forward), so every ET
+# day silently started already "1 fire spent" before its own first legitimate tick.
+def test_evening_et_fire_does_not_leak_into_next_day():
+    """A 20:30 ET fire on 07-28 (fired_at UTC date 07-29) must count toward 07-28's budget,
+    NOT 07-29's -- pins the exact incident shape (3-night repeat self-audit flag)."""
+    evening_et_fire_utc = "2026-07-29T00:30:52+00:00"  # 20:30 ET on 2026-07-28
+    assert _stamp_to_et_date_helper(evening_et_fire_utc) == "2026-07-28"
+
+
+def test_late_night_fire_counts_for_its_own_et_day_not_the_next(tmp_path):
+    p = tmp_path / "conductor-outcomes.jsonl"
+    # The 20:30 ET fire on 07-28 -- UTC date is already 07-29.
+    p.write_text(json.dumps({"fired_at": "2026-07-29T00:30:52+00:00", "cost_usd": 1.0}) + "\n",
+                 encoding="utf-8")
+    assert spend_today("2026-07-28", p)["fires"] == 1, "must count toward the ET day it fired in"
+    assert spend_today("2026-07-29", p)["fires"] == 0, "must NOT leak forward into the next ET day"
+
+
+def test_early_morning_utc_fire_counts_for_previous_et_day():
+    """Symmetric case: a fire just after UTC midnight (~20:xx ET the evening before) must map
+    back to the EARLIER ET date, not the UTC date."""
+    assert _stamp_to_et_date_helper("2026-07-26T02:15:00+00:00") == "2026-07-25"
+
+
+def _stamp_to_et_date_helper(stamp: str) -> str:
+    import conductor_budget as cb
+    return cb._stamp_to_et_date(stamp)
 
 
 # ------------------------------------------------------- CLI exit codes (what conductor.md reads)
