@@ -93,21 +93,51 @@ if ($mins -ge 575 -and $mins -le 955) {
     } catch { $hbFlag = "unknown" }
 }
 
-# --- 3. Persist status + alert on real problems -----------------------------
+# --- 3. key-levels.json freshness self-heal (2026-07-30 incident) -----------
+# Gamma_LevelRefresh's own PT5M scheduled cadence can go silently dark for hours with
+# zero Task Scheduler error signal (root-caused 2026-07-30: ~20h stall, 770/770 RTH
+# decision rows blind, engine fell through to its worst trendline-only cohort). Nothing
+# previously force-killed+relaunched a stuck instance -- this closes that gap the same
+# way section 1 closes the analogous TV/CDP one. RTH-scoped with a 12min post-open
+# warmup (matches levels_blind_check.py's own LEVELS_FILE_WARMUP_MIN=12) so a normal
+# cold pre-open file never false-triggers, and the 12min stale threshold heals BEFORE
+# levels_blind_check.py's own 20min RED-alarm threshold ever needs to fire.
+$levelsRefreshAction = "none"
+if ($mins -ge 942 -and $mins -le 955) {
+    $keyLevelsPath = Join-Path $WorkDir "automation\state\key-levels.json"
+    if (Test-Path $keyLevelsPath) {
+        $klAgeMin = ((Get-Date) - (Get-Item $keyLevelsPath).LastWriteTime).TotalMinutes
+        if ($klAgeMin -gt 12) {
+            $levelsRefreshAction = "self_heal"
+            $lrLogFile = Join-Path $LogDir "level-refresh-watchdog-$($et.ToString('yyyy-MM-dd')).log"
+            $lrScript  = Join-Path $WorkDir "setup\scripts\run-level-refresh.ps1"
+            Write-TaskLog -TaskName $task -Message "LEVEL_REFRESH_SELF_HEAL key-levels.json stale $([int]$klAgeMin)min - kill+relaunch"
+            $lr = Invoke-LevelRefreshSafe -Script $lrScript -LogFile $lrLogFile
+            if ($lr.skipped) { Write-TaskLog -TaskName $task -Message "SKIP_LOCK_HELD $($lr.reason)"; $levelsRefreshAction = "lock_held" }
+        } else {
+            $levelsRefreshAction = "fresh"
+        }
+    } else {
+        $levelsRefreshAction = "missing_file"
+    }
+}
+
+# --- 4. Persist status + alert on real problems -----------------------------
 $rec = [ordered]@{
-    ts        = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
-    et        = $et.ToString("yyyy-MM-dd HH:mm")
-    cdp_up    = $cdpReady
-    tv_action = $tvAction
-    tv_detail = $tvDetail
-    heartbeat = $hbFlag
+    ts             = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+    et             = $et.ToString("yyyy-MM-dd HH:mm")
+    cdp_up         = $cdpReady
+    tv_action      = $tvAction
+    tv_detail      = $tvDetail
+    heartbeat      = $hbFlag
+    levels_refresh = $levelsRefreshAction
 }
 $rec | ConvertTo-Json | Set-Content -Path $statusFile -Encoding utf8
 
-$problem = ($tvAction -like "relaunch*") -or ($hbFlag -like "STALE*") -or ($hbFlag -like "ERR_*")
+$problem = ($tvAction -like "relaunch*") -or ($hbFlag -like "STALE*") -or ($hbFlag -like "ERR_*") -or ($levelsRefreshAction -eq "self_heal")
 if ($problem) {
     ($rec | ConvertTo-Json -Compress) | Add-Content -Path $eventLog -Encoding utf8
-    $alert = "- [$($et.ToString('MM-dd HH:mm')) ET] TvWatchdog: tv=$tvAction heartbeat=$hbFlag $tvDetail"
+    $alert = "- [$($et.ToString('MM-dd HH:mm')) ET] TvWatchdog: tv=$tvAction heartbeat=$hbFlag levels_refresh=$levelsRefreshAction $tvDetail"
     try { Add-Content -Path $statusMd -Value $alert -Encoding utf8 } catch { }
 }
 exit 0

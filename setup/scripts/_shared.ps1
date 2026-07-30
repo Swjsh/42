@@ -835,6 +835,66 @@ function Invoke-TvLaunchSafe {
     return @{ skipped = $false }
 }
 
+function Invoke-LevelRefreshSafe {
+    # Self-heal a stalled Gamma_LevelRefresh: kill any stuck level-refresh process tree
+    # (WMI command-line match -- no assumption about which wrapper layer hung) and relaunch
+    # run-level-refresh.ps1 directly via a hidden powershell.exe -File call, bypassing the
+    # wscript->pythonw->run_ps1_hidden.py double-hop Task Scheduler normally uses (fewer
+    # hops = fewer places for a hang to hide from ExecutionTimeLimit).
+    #
+    # WHY (2026-07-30 incident, root-caused by Gamma_Conductor): Gamma_LevelRefresh's own
+    # PT5M-repetition / IgnoreNew / PT3M-ExecutionTimeLimit Task Scheduler config went
+    # silently dark for ~20h -- last good run 07-29 22:43 ET, nothing until a manual repair
+    # at 18:57 ET on 07-30 -- with ZERO errors in either day's level-refresh log and ZERO
+    # Task Scheduler recovery of its own. Every one of the day's 770 RTH decision rows
+    # carried levels_active=[], falling the engine through to its worst cohort
+    # (trendline-only, -$1,830/WR .19 vs +$6,895/66 for level-tied trades). Nothing
+    # previously force-killed+relaunched a stuck instance -- this closes that gap the same
+    # way Invoke-TvLaunchSafe closes the analogous TV/CDP-hang gap (identical shape: a
+    # scheduled 5-min refresher can wedge with no signal, and the fix is the same
+    # kill-the-tree-then-relaunch pattern, not a diagnosis of the original hang mechanism).
+    #
+    # Lock file mirrors Invoke-TvLaunchSafe's lock pattern but with a longer hold (200s,
+    # not 30s) because a real refresh_levels_intraday.py run can legitimately take up to
+    # the task's own PT3M ExecutionTimeLimit before Task Scheduler itself would kill it --
+    # a shorter lock would let the watchdog's OWN relaunch look "stale" and double-fire.
+    param(
+        [Parameter(Mandatory)][string]$Script,
+        [Parameter(Mandatory)][string]$LogFile
+    )
+    $lockFile = Join-Path $WorkDir "automation\state\level-refresh-watchdog.lock"
+    if (Test-Path $lockFile) {
+        $ageSec = ((Get-Date) - (Get-Item $lockFile).LastWriteTime).TotalSeconds
+        if ($ageSec -lt 200) {
+            return @{ skipped = $true; reason = "lock_held age=$([int]$ageSec)s"; killed_pids = @() }
+        }
+        Remove-Item $lockFile -Force -ErrorAction SilentlyContinue
+    }
+    New-Item -ItemType File -Path $lockFile -Force -ErrorAction SilentlyContinue | Out-Null
+    $killedPids = @()
+    try {
+        $procs = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {
+            $_.CommandLine -and (
+                $_.CommandLine -like "*refresh_levels_intraday.py*" -or
+                $_.CommandLine -like "*run-level-refresh.ps1*"
+            )
+        })
+        foreach ($p in $procs) {
+            $killedPids += Stop-ProcessTree -ParentId ([int]$p.ProcessId)
+        }
+    } catch { }
+    $prevEAP = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -NonInteractive -File $Script 2>&1 |
+            Out-File -Append -Encoding utf8 -FilePath $LogFile
+    } finally {
+        $ErrorActionPreference = $prevEAP
+        Remove-Item $lockFile -Force -ErrorAction SilentlyContinue
+    }
+    return @{ skipped = $false; killed_pids = $killedPids }
+}
+
 function Enter-ConductorFireLock {
     # Cross-fire mutual-exclusion lock shared by run-conductor.ps1 and
     # run-conductor-weekend.ps1 -- the two heavy STAGE 1-5 loop wrappers that pick
