@@ -603,6 +603,33 @@ ENTRY_TRIGGERS = frozenset({
 # should bypass it via high score. Added 2026-06-28 (C14 fix: require_bearish_fill_bar).
 _HARD_SKIP_VERDICTS = frozenset({"SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY"})
 
+# SIGHT FAILURES (2026-07-30, SKIP_NO_LEVELS) — categorically NOT gates, and therefore not
+# something ANY arm may trade through, however loose its tier.
+#
+# Every other verdict in this file describes a JUDGMENT the brain made about a setup it could
+# see. SKIP_NO_LEVELS describes the brain being UNABLE TO SEE: on 2026-07-30 key-levels.json
+# went 19.8h without a refresh, levels_active was [] on 386 of 386 rows, and the engine fell
+# through to trendline-only entries (-$1,830 / WR .19 / n=124) — 11 ENTER_BEAR verdicts at
+# SPY 734.885, the LOW OF THE DAY, before SPY rallied 6.7 points into the close.
+#
+# WHY NOT _HARD_SKIP_VERDICTS: that set is explicitly per-arm-overridable via accounts.json
+# gate_params.hard_skip_verdicts, and risky-3 ships with `[]` (inherits NO global hard skip).
+# Routing blindness through it would leave risky-3 entering blind trades off this exact
+# ledger row — the bypass this repair exists to close. A sight failure is checked INSIDE
+# _score_peak_check, ahead of the score/trigger math, so it suppresses `passed` AND
+# `score_peak_passed` together and fleet_executor._effective_passed has nothing left to
+# rescue for any tier.
+#
+# The score math is what makes this necessary rather than belt-and-suspenders: today's blind
+# rows carry bear_score 8 (== BEAR_PEAK_THRESHOLD) with triggers [ribbon_flip,
+# trendline_rejection], and trig0 "ribbon_flip" IS in ENTRY_TRIGGERS — so a loose arm would
+# have scored these as "passed on quality alone" despite the brain having refused them.
+#
+# ZERO BEHAVIOR CHANGE ON HISTORY: "SKIP_NO_LEVELS" is a verdict string that did not exist
+# before 2026-07-30, so no historical row carries it and every replay
+# (replay_fleet_arms/DOJO) is byte-identical. Guard: test_blind_no_levels_2026_07_30.py.
+_SIGHT_FAILURE_VERDICTS = frozenset({"SKIP_NO_LEVELS"})
+
 
 def _score_peak_check(side: str, action, score, trigger, fired) -> bool:
     """The score/trigger half of passed_scoring_peak, WITHOUT the hard-skip filter --
@@ -610,7 +637,13 @@ def _score_peak_check(side: str, action, score, trigger, fired) -> bool:
     IMPLEMENT, 2026-07-23) so a per-arm gate_params.hard_skip_verdicts override can
     rescue a setup that only the GLOBAL _HARD_SKIP_VERDICTS blocked (audit rank #3,
     markdown/audits/GATE-PROVENANCE-AUDIT-2026-07-02.md section 4: 'require_bearish_
-    fill_bar ... not inherited via _HARD_SKIP' for RISKY-tier arms)."""
+    fill_bar ... not inherited via _HARD_SKIP' for RISKY-tier arms).
+
+    SIGHT-FAILURE GUARD (2026-07-30): a blind tick has no computable quality, so the question
+    this function asks is unanswerable and the only honest return is False -- for every tier,
+    including the arms that opt out of _HARD_SKIP_VERDICTS. See _SIGHT_FAILURE_VERDICTS."""
+    if action in _SIGHT_FAILURE_VERDICTS:
+        return False
     enter = "ENTER_BULL" if side == "bull" else "ENTER_BEAR"
     peak = BULL_PEAK_THRESHOLD if side == "bull" else BEAR_PEAK_THRESHOLD
     trig_ok = bool(fired) and (trigger in ENTRY_TRIGGERS)
