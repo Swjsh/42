@@ -185,9 +185,23 @@ def test_empty_extra_is_noop(hc):
 # dangerous") must block every execution path on the account, not just the primary
 # ribbon path.
 def _payload_stub():
+    # RETARGETED 2026-07-30 (BLINDNESS BLOCK / SKIP_NO_LEVELS): `levels_active` added.
+    # This stub previously omitted the key entirely, which the new blind-entry rail reads
+    # (fail-closed) as "the engine cannot see" -- so test_non_veto_hold_still_routes_extra_
+    # setup below correctly went RED: on a blind tick the G4 extra-setup route is now
+    # suppressed too (setup_dispatch.py:344 builds those detectors' BarContext from this
+    # SAME levels_active list, so they are blind in the literal sense as well).
+    # The guard was RIGHT to fire; the FIXTURE was wrong. These tests are about G4 ROUTING
+    # semantics on a normal sighted tick, and production is always sighted here --
+    # heartbeat_core._build_payload writes `"levels_active": active` unconditionally, so a
+    # payload with no such key never occurs live. Modelling a populated level set makes the
+    # fixture faithful to production and keeps these tests testing what they were written to
+    # test. Blind-tick G4 behavior has its own dedicated coverage:
+    # test_blind_no_levels_2026_07_30.py::test_blind_also_blocks_the_extra_setup_side_channel.
     return {"bar_ctx": {"bar": {"close": 751.0},
                         "ribbon_now": {"stack": "BULL", "spread_cents": 10},
-                        "htf_15m_stack": "BULL", "vix_now": 16.0}}
+                        "htf_15m_stack": "BULL", "vix_now": 16.0,
+                        "levels_active": [749.5, 751.2]}}
 
 
 def test_structure_veto_blocks_extra_setup_route(hc, monkeypatch):

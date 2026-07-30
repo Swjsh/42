@@ -430,12 +430,41 @@ def _liveness_alarm(day: str) -> Optional[str]:
         return None
 
 
+def _blind_alarm(day: str) -> Optional[str]:
+    """LEAD-LINE alarm when the engine traded with ZERO key levels loaded (2026-07-30).
+
+    Sibling of _liveness_alarm and additive to it. On 2026-07-30 the engine ran a full 772
+    ticks -- so the liveness alarm above stayed silent, correctly -- but every one of those
+    ticks carried `levels_active: []`, and the engine silently fell through to its worst
+    entry mode and produced 11 ENTER_BEAR verdicts at the low of the day. "I ran today" and
+    "I could see today" are different claims; this is the second one. J must hear it BEFORE
+    P&L, because a blind day's P&L means nothing. Fail-open: any import/read problem returns
+    None and the brief composes exactly as before (C7)."""
+    try:
+        from levels_blind_check import (alarm_line, check_day,  # noqa: PLC0415 -- optional dep
+                                        check_levels_file)
+        rows = check_day(day)
+        file_res = None
+        try:
+            from et_clock import et_now  # noqa: PLC0415
+            file_res = check_levels_file(et_now().replace(tzinfo=None))
+        except Exception:  # noqa: BLE001 -- the file half is context only, never required
+            file_res = None
+        return alarm_line(rows, file_res)
+    except Exception:  # noqa: BLE001 -- a broken check must never break the brief
+        return None
+
+
 def compose_eod_text(facts: dict) -> str:
     lines = [f"Gamma here. End of day, {facts['day']}."]
     alarm = _liveness_alarm(facts["day"])
     if alarm:
         # Ahead of P&L on purpose: "$0 today" and "the engine was dead today" must never sound alike.
         lines.append(alarm)
+    blind = _blind_alarm(facts["day"])
+    if blind:
+        # Also ahead of P&L: a day traded with no levels is not a P&L result, it is an outage.
+        lines.append(blind)
     by_arm = facts.get("by_arm") or []
     if by_arm:
         arm_txt = "; ".join(

@@ -62,6 +62,18 @@ def _wire(monkeypatch, *, now: dt.datetime, bar_ts: str, verdict: dict):
         "bar": {"close": 751.55},
         "ribbon_now": {"stack": "BULL", "spread_cents": 47.77194042433166},
         "vix_now": 15.73, "vix_prior": 15.74, "htf_15m_stack": "BULL",
+        # RETARGETED 2026-07-30 (BLINDNESS BLOCK / SKIP_NO_LEVELS): `levels_active` added.
+        # The stub previously omitted the key, which the new blind-entry rail reads
+        # (fail-closed) as "the engine cannot see", so the G4 sibling case below
+        # (test_g4_extra_setup_dispatch_survives_staleness_relabel) correctly went RED --
+        # a blind tick now suppresses the extra-setup route as well. The guard was RIGHT;
+        # the FIXTURE was wrong: this file is about STALENESS vs gate-name provenance on a
+        # tick whose levels are perfectly fine, and production always populates this key
+        # (heartbeat_core._build_payload writes it unconditionally). The real 2026-07-10
+        # rows this file replays carried triggers [level_reclaim, ribbon_flip, confluence]
+        # -- i.e. levels WERE loaded that day; 751.19 is the row's own rejection_level.
+        # Blind-tick coverage lives in test_blind_no_levels_2026_07_30.py.
+        "levels_active": [751.19],
     }}
     monkeypatch.setattr(hc, "_et_now", lambda: now)
     monkeypatch.setattr(hc, "_fetch_spy_5m", lambda: None)

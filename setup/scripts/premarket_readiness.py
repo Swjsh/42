@@ -395,9 +395,85 @@ def assess_core_mcp(snapshots: dict, servers_present: dict) -> list:
     return checks
 
 
+def _levels_file_mtime_age_min(et: datetime, path: Optional[Path] = None) -> Optional[float]:
+    """Age in minutes of key-levels.json's real mtime, as naive-ET-vs-naive-ET. None when the
+    file cannot be stat'd (fail-open -- an unreadable stat must never block the morning).
+
+    NEVER a raw `datetime.fromtimestamp(mtime)`: that is naive LOCAL and this rig runs
+    MOUNTAIN (ET = local + 2), which would report every file 120 minutes fresher than it is.
+    Delegates to levels_blind_check.mtime_as_et, which converts via aware-UTC + ET offset."""
+    p = path or KEY_LEVELS_PATH
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import levels_blind_check  # noqa: PLC0415 -- optional dep, fail-open below
+        mtime = levels_blind_check.mtime_as_et(p)
+    except Exception:  # noqa: BLE001 -- fail-open: never block the morning on a stat helper
+        return None
+    if mtime is None:
+        return None
+    return max(0.0, (et - mtime).total_seconds() / 60.0)
+
+
+def _level_expired_engine_rule(lv: Any, today: str, et: datetime) -> bool:
+    """Is this level expired AS THE LIVE ENGINE JUDGES IT? (heartbeat_core._level_expired:
+    DATE-ONLY, `expires_at[:10] < today`, fail-open on missing/unparseable.)
+
+    WHY (found live 2026-07-30 while hardening this gate): this module used to re-derive
+    expiry with a FULL-DATETIME comparison (`exp <= et`), which disagrees with the engine
+    the moment the wall clock passes a level's time-of-day. Run at 19:06 ET against a
+    healthy file whose levels expire at 16:00 today, the old rule reported "0 non-expired
+    valid levels" (RED) while the engine still saw all 19 -- two parallel re-derivations of
+    one rule, drifting exactly as C14 warns. Harmless at the 09:00 ET fire, a false-RED at
+    any other hour, and always the WRONG question: this gate exists to predict what the
+    engine will see, so it must use the engine's own predicate.
+
+    Fail-open: if the shared module cannot be imported, fall back to the previous
+    datetime rule so a missing helper never silently passes a bad file."""
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import levels_blind_check  # noqa: PLC0415 -- optional dep, fallback below
+        return levels_blind_check.level_expired(lv, today)
+    except Exception:  # noqa: BLE001
+        exp = _parse_naive_et(lv.get("expires_at") if isinstance(lv, dict) else None)
+        return exp is not None and exp <= et
+
+
+def _engine_visible_count(data: Optional[dict], today: str) -> Optional[int]:
+    """How many levels the LIVE engine (heartbeat_core._read_levels -> _level_expired) would
+    still see today, computed by that predicate's pinned clone in levels_blind_check. None
+    when the module is unavailable (caller then skips the parity assertion -- fail-open).
+
+    WHY (2026-07-30): this gate re-derives expiry with a full-datetime comparison while the
+    ENGINE uses a DATE-ONLY one, and it fails-open in the opposite direction (an unparseable
+    expires_at is KEPT by the engine, DROPPED-as-valid here). Two parallel re-derivations of
+    the same rule drift (C14), and the only opinion that matters is the consumer's. So the
+    gate now also asserts what the engine itself would see."""
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import levels_blind_check  # noqa: PLC0415 -- optional dep, fail-open below
+        return len(levels_blind_check.engine_visible_levels(data, today))
+    except Exception:  # noqa: BLE001 -- a broken helper must never block the morning
+        return None
+
+
 def assess_levels_sanity(data: Optional[dict], et: datetime) -> dict:
     """Check 3. RED-proofed against: missing file, wrong session date, too few valid levels,
-    an all-one-sided level file (the "engine sees only resistance" foot-gun), and staleness."""
+    an all-one-sided level file (the "engine sees only resistance" foot-gun), and staleness.
+
+    HARDENED 2026-07-30 (the blind-session incident). This check WOULD have caught that day
+    -- key-levels.json was dated 2026-07-29 -- it simply never ran (Gamma_PremarketReadiness'
+    trigger was broken, the same class of failure as Gamma_LevelRefresh's). Three holes closed
+    so the check itself is airtight when it does run:
+      (a) `date` and `for_session` are now BOTH asserted. The refresher stamps both
+          (refresh_levels_intraday.py L508-509); a half-written file that updates only one is
+          exactly the stale-dated-but-parses case this workstream was asked to catch.
+      (b) ENGINE-PARITY: the file must leave a non-empty active set under the ENGINE's own
+          expiry predicate, not this module's parallel re-derivation of it (see
+          _engine_visible_count). A file dated today whose every level carries a yesterday
+          expires_at parses perfectly and still leaves the engine blind.
+      (c) FILE MTIME, not just the self-reported `as_of` string: a writer that dies after
+          stamping as_of leaves a fresh-looking timestamp on a file nothing has touched.
+    """
     name = "levels_sanity"
     if not data:
         return _chk(name, "RED", "key-levels.json missing/unreadable", True)
@@ -407,9 +483,26 @@ def assess_levels_sanity(data: Optional[dict], et: datetime) -> dict:
     if for_session != today:
         return _chk(name, "RED", f"key-levels.json for_session={for_session!r} != today {today}", True)
 
+    # (a) the sibling date field the live refresher stamps in the same write -- a file where
+    # these two disagree is a half-written refresh, stale-dated even though it parses.
+    file_date = str(data.get("date") or "")
+    if file_date and file_date != today:
+        return _chk(name, "RED",
+                    f"key-levels.json date={file_date!r} != today {today} (for_session says "
+                    f"{for_session!r}) -- half-written/stale-dated level file", True)
+
     levels = data.get("levels")
     if not isinstance(levels, list):
         return _chk(name, "RED", "key-levels.json has no levels[] array", True)
+
+    # (b) ENGINE PARITY -- the only expiry opinion that matters is heartbeat_core's.
+    n_engine_visible = _engine_visible_count(data, today)
+    if n_engine_visible == 0:
+        return _chk(name, "RED",
+                    f"ENGINE WOULD SEE ZERO LEVELS: all {len(levels)} level(s) fail "
+                    "heartbeat_core's own expiry rule (expires_at before today) -- the file "
+                    "parses but levels_active would be [] every tick (2026-07-30 signature)", True)
+
 
     valid, degenerate = [], 0
     for lv in levels:
@@ -420,8 +513,9 @@ def assess_levels_sanity(data: Optional[dict], et: datetime) -> dict:
         if not isinstance(price, (int, float)) or isinstance(price, bool) or price <= 0:
             degenerate += 1
             continue
-        exp = _parse_naive_et(lv.get("expires_at"))
-        if exp is not None and exp <= et:
+        # ENGINE PARITY (2026-07-30): judged by heartbeat_core's own DATE-ONLY rule, not a
+        # parallel datetime re-derivation -- see _level_expired_engine_rule.
+        if _level_expired_engine_rule(lv, today, et):
             continue  # expired -- silently excluded, not counted as degenerate
         valid.append(lv)
 
@@ -454,9 +548,25 @@ def assess_levels_sanity(data: Optional[dict], et: datetime) -> dict:
         return _chk(name, "RED",
                     f"key-levels.json stale: age {age_min:.0f}m (> {LEVELS_MAX_AGE_MIN}m), as_of={data.get('as_of')}", True)
 
+    # (c) GROUND TRUTH: as_of is a string the writer chose; mtime is what the filesystem
+    # observed. A writer that stamps as_of and then dies leaves a fresh-looking file nobody
+    # rewrote. Fail-open -- an unreadable stat never blocks the morning.
+
+    # (c) GROUND TRUTH: as_of is a string the writer chose; mtime is what the filesystem
+    # observed. A writer that stamps as_of and then dies leaves a fresh-looking file nobody
+    # rewrote. Fail-open -- an unreadable stat never blocks the morning.
+    mtime_age = _levels_file_mtime_age_min(et)
+    if mtime_age is not None and mtime_age > LEVELS_MAX_AGE_MIN:
+        return _chk(name, "RED",
+                    f"key-levels.json NOT REWRITTEN {mtime_age:.0f}m (> {LEVELS_MAX_AGE_MIN}m) on "
+                    f"disk despite as_of claiming {age_min:.0f}m -- the refresher is not running "
+                    "(check Gamma_LevelRefresh's trigger)", True)
+
+    mt = "unknown" if mtime_age is None else f"{mtime_age:.0f}m"
+    vis = "n/a" if n_engine_visible is None else str(n_engine_visible)
     return _chk(name, "GREEN",
                 f"{len(valid)} valid levels ({len(above)} above / {len(below)} below spot ${spot:.2f}), "
-                f"age {age_min:.0f}m, dated {for_session}", True)
+                f"age {age_min:.0f}m (mtime {mt}), {vis} visible to the engine, dated {for_session}", True)
 
 
 def assess_bias_freshness(data: Optional[dict], et: datetime) -> dict:
