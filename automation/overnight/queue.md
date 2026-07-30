@@ -13,6 +13,8 @@
 
 ---
 
+- [x] CONDUCTOR-BUDGET-CROSS-MIDNIGHT-BUG (HIGH, self-audit gap, **DONE 2026-07-29 ~20:30-21:05 ET conductor, commit `631798f0`**) :: Self-audit flagged "conductor firing far more than max_fires (4/day)" 3 nights running (07-27/07-28/07-29). Root cause: `conductor_budget.py#spend_today()` matched rows to an ET day via substring on the raw UTC `fired_at` string; the scheduled 20:30 ET evening fire's UTC calendar date is already tomorrow (ET=UTC-4), so it leaked forward into the next ET day's own fire count -- live-verified this fire's own STAGE-0 check read "2/4 fires" for 2026-07-29 pre-fix, correctly 0 post-fix. Fixed via `_stamp_to_et_date()` (proper UTC->ET conversion through `et_clock`, fail-open fallback to substring on parse failure). 3 new regression tests, RED-proofed via git stash, 16/16 green; curated gate 59/59 PASS. Full detail: STATUS.md same timestamp. Lesson filed: `_lesson-inbox/ET-UTC-midnight-boundary-fire-miscounting.md` (L250 suggested). Zero trading-path touched. Revert: `git revert 631798f0`. :: depends:none :: status:done
+
 ## Active backlog
 
 - [ ] FLEET-LIVENESS-IN-ENGINE-HEALTH (HIGH, instrument-gap, after-hours) :: Filed 2026-07-27 ~10:00 ET after J caught a 2-of-6 account review for the SECOND time (first: 2026-06-25). A memory note existed and did not prevent it -> structural fix required (same-mistake-twice rule). BUILD: add `check_fleet_ticked` to setup/scripts/engine_health.py -- on a weekday during/after RTH, every ENABLED arm in automation/state/fleet/accounts.json must have >=1 row dated today in automation/state/fleet/<arm>/decisions.jsonl; RED names the silent arm. Mirror the calendar-aware pattern of check_session_ran (NOT market_open-suppressed; skip frozen/disabled arms -- safe-1 is frozen-by-design since 2026-07-10). Guard test RED-proofed per the engine-wins loop. Blind-spot class: L244 (monitor blind to a 2nd execution path) -- fleet arms trade via fleet_broker REST, so "MCP is up" checks structurally cannot see them. :: depends:none :: status:pending
@@ -3746,4 +3748,14 @@ sufficient proof, as this incident demonstrated twice.**
 ### T-AUTOPSY-H-2026-07-21-left-on-table MED — autopsy hypothesis: exit_shape_dominated
 
 **Claim:** a fixed counterfactual shape beats the shipped exits by more than 2x the window's net P&L -- the exit shape, not the signal, is the bottleneck. **Evidence:** `{"sum_stop_cost": 3197.9, "window_net_pnl": -79.0, "n_dominated": 11, "window_n": 30}` (analysis/autopsies/2026-07-21.md).
+**Action:** STOP-A sign-off -> T-W7 confirmatory on the frozen v2 candidates · enumerate levers beyond exit shape per markdown/trading-knowledge/GENERATIVE-LENS.md (DTE / spread / strike / sizing) :: depends:none :: status:proposed
+
+### T-AUTOPSY-H-2026-07-29-entry-spike MED — autopsy hypothesis: paying_the_signal_spike
+
+**Claim:** entries fill materially above the signal-minute low -- the marketable ask+buffer buys the local premium spike (defect #2). **Evidence:** `{"median_paid_above_min_low": 0.103, "n": 30}` (analysis/autopsies/2026-07-29.md).
+**Action:** entry_manager shadow (T-W5): log limit-below/patience counterfactual fills next to real entries for 3+ sessions :: depends:none :: status:proposed
+
+### T-AUTOPSY-H-2026-07-29-left-on-table MED — autopsy hypothesis: exit_shape_dominated
+
+**Claim:** a fixed counterfactual shape beats the shipped exits by more than 2x the window's net P&L -- the exit shape, not the signal, is the bottleneck. **Evidence:** `{"sum_stop_cost": 2697.4, "window_net_pnl": -286.0, "n_dominated": 11, "window_n": 30}` (analysis/autopsies/2026-07-29.md).
 **Action:** STOP-A sign-off -> T-W7 confirmatory on the frozen v2 candidates · enumerate levers beyond exit shape per markdown/trading-knowledge/GENERATIVE-LENS.md (DTE / spread / strike / sizing) :: depends:none :: status:proposed
