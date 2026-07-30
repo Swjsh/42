@@ -10,7 +10,21 @@ Runs daily via Gamma_CryptoDaily. Flags:
                              including the retired wscript->run_hidden.vbs ShellExecute path)
   - SILENT_TASK            : active task hasn't fired in (cadence x 3) window
   - PYTHON_NOT_PYTHONW     : long-running python.exe launch (should use pythonw.exe)
-  - CANDIDATE_FOR_REMOVAL  : disabled > 30 days
+  - CANDIDATE_FOR_REMOVAL  : registry-disabled AND last ran > 30 days ago
+  - DISABLED_BUT_DOCUMENTED_ACTIVE : registry says Active, Task Scheduler says Disabled,
+                             and the row carries no intentional-disable annotation
+  - NON_REPEATING_TRIGGER  : registry documents an "every N min/h" cadence but no enabled
+                             trigger repeats (one-shot trigger -> fires once, dark forever)
+  - REPETITION_INTERVAL_MISMATCH : live repetition >2x slower than the documented cadence
+
+BLIND SPOT CLOSED (2026-07-30, the LEVELS-BLINDNESS incident): the engine ran 772 ticks
+with ZERO key levels because `Gamma_LevelRefresh` was Disabled -- as were 48 other tasks
+this registry documents as Active, including `Gamma_PremarketReadiness`, the gate built
+to catch precisely that. This audit reported nothing, because every per-task check sat
+below a `if state == "Disabled": continue` in `audit()`: disabling a task did not make it
+FAIL a check, it removed the task from checking altogether. Silence read as health.
+`evaluate_trigger_health()` now runs BEFORE that skip and is a pure function, so
+`backtest/tests/test_scheduled_task_triggers_live.py` can RED-proof it against fixtures.
   - CLAUDE_NATIVE_TASK_UNGOVERNED : a Claude-native scheduled task (~/.claude/scheduled-tasks/)
                              exists that isn't in KNOWN_CLAUDE_NATIVE_TASKS below (see
                              AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS, queue.md 2026-07-25)
@@ -123,8 +137,202 @@ def _parse_registry(text: str) -> tuple[set[str], set[str]]:
     return active, disabled
 
 
+# ---------------------------------------------------------------------------
+# TRIGGER / DISABLED-DRIFT CHECKS  (added 2026-07-30 after the LEVELS-BLINDNESS
+# incident -- see the three flag docstrings below and the module header.)
+#
+# THE INCIDENT: on 2026-07-30 the engine ran 772 ticks with ZERO key levels.
+# `Gamma_LevelRefresh` (the 5-min intraday level refresher) and
+# `Gamma_PremarketReadiness` (the gate BUILT to catch exactly that) were both
+# State=Disabled -- along with 47 other tasks this registry documents as Active.
+# NOTHING flagged it. The reason is one line in `audit()`'s task loop:
+#
+#     if state == "Disabled":
+#         continue
+#
+# Every per-task check lived BELOW that `continue`, so flipping a documented-Active
+# task to Disabled did not make it fail a check -- it removed it from checking
+# entirely. Silence read as health: the audit that night emitted 2 unrelated
+# SILENT_TASK flags and nothing else. That is the C7 failure mode (silent success
+# is failure) applied to the monitor itself.
+#
+# The module docstring also advertised a `CANDIDATE_FOR_REMOVAL: disabled > 30 days`
+# flag that was never implemented -- an L249-class stub (a docstring citing a
+# never-built check, unchallenged across many fires). It is implemented below.
+# ---------------------------------------------------------------------------
+
+# Explicit "this task is off ON PURPOSE" markers used in the Active table's Why column.
+# A row carrying one of these is an ACKNOWLEDGED pause (J's call, or a documented
+# retirement) and must NOT be flagged -- otherwise the new flag fires 8 permanent
+# false positives and gets ignored, which is how monitors die.
+_INTENTIONAL_DISABLE_RE = re.compile(
+    r"(⚠\s*DISABLED"                 # "⚠ DISABLED as of 2026-07-08 (T10 drift-fix ...)"
+    r"|\*\*DISABLED\*\*"                  # "**DISABLED** -- shares Max plan rate-limit pool ..."
+    r"|RETIRED[^|]{0,60}?DISABLED"        # "RETIRED 2026-06-25 -> DISABLED."
+    r")",
+    re.I,
+)
+
+# "every 5 min" / "every 2h" / "relaunch-check every 30 min" -> a REPEATING cadence.
+# Deliberately does NOT match discrete multi-fire cadences like
+# "08:35/09:30/12:00/15:50 ET weekdays" (4 separate one-shot triggers, correctly
+# shaped) or "daily 21:30 ET" -- those must never be told they need a repetition.
+_CADENCE_EVERY_RE = re.compile(r"every\s+(\d+)\s*(min|minute|minutes|h|hr|hour|hours)\b", re.I)
+
+_ISO_DUR_RE = re.compile(
+    r"^P(?:(?P<d>\d+(?:\.\d+)?)D)?"
+    r"(?:T(?:(?P<h>\d+(?:\.\d+)?)H)?(?:(?P<m>\d+(?:\.\d+)?)M)?(?:(?P<s>\d+(?:\.\d+)?)S)?)?$",
+    re.I,
+)
+
+
+def _iso_duration_minutes(value: str | None) -> float | None:
+    """ISO-8601 duration ('PT5M', 'PT6H25M', 'P3650D') -> minutes. None if unparseable.
+
+    Task Scheduler emits repetition Interval/Duration in this form. An EMPTY duration
+    is legal and means "repeat indefinitely" -- callers must distinguish that (None)
+    from "no repetition at all".
+    """
+    if not value or not isinstance(value, str):
+        return None
+    m = _ISO_DUR_RE.match(value.strip())
+    if not m:
+        return None
+    d = float(m.group("d") or 0)
+    h = float(m.group("h") or 0)
+    mi = float(m.group("m") or 0)
+    s = float(m.group("s") or 0)
+    total = d * 1440 + h * 60 + mi + s / 60
+    return total or None
+
+
+def _parse_active_rows(text: str) -> dict[str, dict]:
+    """Return {task: {'cadence':..., 'why':..., 'row':...}} for '## Active' table rows.
+
+    Mirrors `_parse_registry`'s section walk so the two never disagree about which
+    rows are 'Active'.
+    """
+    rows: dict[str, dict] = {}
+    section = None
+    for line in text.splitlines():
+        s = line.strip()
+        if s.startswith("## Active"):
+            section = "active"
+            continue
+        if s.startswith("## "):
+            section = None
+            continue
+        if section != "active" or not s.startswith("| `Gamma_"):
+            continue
+        m = re.match(r"^\|\s*`(Gamma_[^`]+)`\s*\|([^|]*)\|([^|]*)\|(.*)$", s)
+        if m:
+            rows[m.group(1)] = {
+                "cadence": m.group(2).strip(),
+                "cost": m.group(3).strip(),
+                "why": m.group(4),
+                "row": s,
+            }
+    return rows
+
+
+def _intentionally_disabled(text: str) -> set[str]:
+    """Task names whose Active-table row EXPLICITLY documents an intentional disable."""
+    return {
+        name for name, row in _parse_active_rows(text).items()
+        if _INTENTIONAL_DISABLE_RE.search(row["row"])
+    }
+
+
+def _documented_repeat_minutes(cadence: str) -> int | None:
+    """'every 5 min, 09:30-16:00 ET wd' -> 5.  Non-repeating cadence -> None."""
+    m = _CADENCE_EVERY_RE.search(cadence or "")
+    if not m:
+        return None
+    n = int(m.group(1))
+    return n * 60 if m.group(2).lower().startswith(("h", "hr", "hour")) else n
+
+
+def _trigger_repeat_minutes(triggers: list[dict] | None) -> float | None:
+    """Smallest repetition interval across a task's triggers, in minutes.
+
+    None means NO trigger on this task repeats -- the one-shot-goes-dark shape.
+    """
+    best: float | None = None
+    for tr in triggers or []:
+        if not tr.get("enabled", True):
+            continue
+        mins = _iso_duration_minutes(tr.get("repetition_interval"))
+        if mins is not None and (best is None or mins < best):
+            best = mins
+    return best
+
+
+def evaluate_trigger_health(registry_text: str, tasks: list[dict]) -> list[dict]:
+    """Pure evaluator for the three drift classes the 2026-07-30 blindness exposed.
+
+    Kept PURE (registry text + task dicts in, flags out -- no PowerShell, no clock)
+    so `backtest/tests/test_scheduled_task_triggers_live.py` can RED-proof it against
+    fixtures rather than by breaking the live box.
+
+    Flags:
+      DISABLED_BUT_DOCUMENTED_ACTIVE -- registry says Active, live says Disabled, and
+        the row carries NO explicit intentional-disable annotation. THE 2026-07-30 flag.
+      NON_REPEATING_TRIGGER -- registry documents an 'every N min/h' cadence but no
+        enabled trigger carries a repetition interval. This is the historical
+        one-shot-trigger-goes-dark failure mode (project_scheduled_task_onetime_
+        trigger_dark): fires once, then never again, while every other field still
+        looks healthy.
+      REPETITION_INTERVAL_MISMATCH -- the live repetition interval is >2x the
+        documented cadence (e.g. doc says every 5 min, task actually repeats hourly).
+    """
+    active_rows = _parse_active_rows(registry_text)
+    exempt = _intentionally_disabled(registry_text)
+    by_name = {t["name"]: t for t in tasks}
+    flags: list[dict] = []
+
+    for name in sorted(active_rows):
+        task = by_name.get(name)
+        if task is None:
+            continue  # STALE_REGISTRY_ENTRY already covers this
+        if name in exempt:
+            continue
+
+        if task.get("state") == "Disabled":
+            flags.append({
+                "flag": "DISABLED_BUT_DOCUMENTED_ACTIVE", "task": name,
+                "note": (f"registry documents this task as ACTIVE (cadence: "
+                         f"{active_rows[name]['cadence']!r}) but Task Scheduler state is "
+                         f"Disabled, and its row carries no intentional-disable annotation. "
+                         f"It fires NEVER. Re-enable with `Enable-ScheduledTask -TaskName "
+                         f"{name}`, or annotate the row if the pause is deliberate."),
+            })
+            continue
+
+        want = _documented_repeat_minutes(active_rows[name]["cadence"])
+        if want is None:
+            continue
+        have = _trigger_repeat_minutes(task.get("triggers"))
+        if have is None:
+            flags.append({
+                "flag": "NON_REPEATING_TRIGGER", "task": name,
+                "note": (f"registry documents a repeating cadence "
+                         f"({active_rows[name]['cadence']!r} = every {want} min) but no enabled "
+                         f"trigger carries a repetition interval -- a one-shot trigger fires "
+                         f"once and then goes dark forever. Re-register with "
+                         f"-RepetitionInterval."),
+            })
+        elif have > want * 2:
+            flags.append({
+                "flag": "REPETITION_INTERVAL_MISMATCH", "task": name,
+                "note": (f"registry documents every {want} min but the live trigger repeats "
+                         f"every {have:g} min (>2x slower)."),
+            })
+
+    return flags
+
+
 def _registered_tasks() -> list[dict]:
-    """Return list of {name, state, execute, arguments, last_run, last_result, next_run}."""
+    """Return list of {name, state, execute, arguments, last_run, last_result, next_run, triggers}."""
     helper = Path("setup/scripts/_list-gamma-tasks-json.ps1")
     raw = _powershell_file(helper)
     if not raw.strip():
@@ -372,11 +580,34 @@ def audit() -> dict:
             flags.append({"flag": "STALE_REGISTRY_ENTRY", "task": name,
                           "note": "registry says active but task not registered"})
 
+    # Trigger shape + disabled-drift (2026-07-30 LEVELS-BLINDNESS incident).
+    # MUST run BEFORE the loop below, which deliberately skips disabled tasks for the
+    # window/console/silence checks -- that skip is what made a documented-Active task
+    # going Disabled completely invisible. See evaluate_trigger_health's docstring.
+    flags.extend(evaluate_trigger_health(registry_text, tasks))
+
+    # CANDIDATE_FOR_REMOVAL -- advertised in this module's docstring since it was
+    # written, never actually implemented until 2026-07-30 (L249 class: a docstring
+    # citing a check nobody built). Only fires for tasks the registry ALREADY agrees
+    # are disabled, so it is a de-sprawl nudge, never noise about a live pause.
+    for name in sorted(disabled_registry):
+        t = by_name.get(name)
+        if t is None or t.get("state") != "Disabled":
+            continue
+        age_h = _last_run_age_hours(t.get("last_run"))
+        if age_h is not None and age_h > 30 * 24:
+            flags.append({"flag": "CANDIDATE_FOR_REMOVAL", "task": name,
+                          "note": f"disabled and last ran {age_h / 24:.0f} days ago -- "
+                                  f"consider Unregister-ScheduledTask + move to Reference."})
+
     # Window visibility + python console + silent task
     for t in tasks:
         name = t["name"]
         state = t["state"]
         if state == "Disabled":
+            # Intentional: the checks below are about how a RUNNING task behaves.
+            # Disabled-state drift is caught by evaluate_trigger_health() above --
+            # do NOT let this `continue` be the only thing a disabled task meets.
             continue
         if _is_bare_console_launcher(t["execute"]):
             # HARD FAIL: bare cmd.exe / powershell.exe flashes a window on EVERY fire.

@@ -26,6 +26,40 @@ foreach ($t in $allTasks) {
     $lastRun = if ($info -and $info.LastRunTime) { $info.LastRunTime.ToString("o") } else { $null }
     $nextRun = if ($info -and $info.NextRunTime) { $info.NextRunTime.ToString("o") } else { $null }
     $lastResult = if ($info) { $info.LastTaskResult } else { $null }
+
+    # TRIGGER SHAPE (2026-07-30, LEVELS-BLINDNESS incident): the audit was structurally
+    # unable to see WHETHER a task still repeats. A task registered with a one-shot
+    # trigger (or whose repetition was dropped) fires once and goes dark forever, and
+    # every field emitted above still looks healthy -- NextRunTime even keeps advancing.
+    # Emit the trigger definition so audit_scheduled_tasks.py can compare live cadence
+    # against the cadence SCHEDULED-TASKS.md documents. Purely additive field.
+    $trigs = @()
+    if ($t.Triggers) {
+        foreach ($tr in $t.Triggers) {
+            $cls = ""
+            if ($tr.CimClass -and $tr.CimClass.CimClassName) {
+                $cls = $tr.CimClass.CimClassName -replace '^MSFT_Task', ''
+            }
+            $repInt = $null; $repDur = $null
+            if ($tr.Repetition) {
+                if ($tr.Repetition.Interval) { $repInt = [string]$tr.Repetition.Interval }
+                if ($tr.Repetition.Duration) { $repDur = [string]$tr.Repetition.Duration }
+            }
+            $dow = $null
+            if (($tr.PSObject.Properties.Name -contains 'DaysOfWeek') -and ($null -ne $tr.DaysOfWeek)) {
+                $dow = [int]$tr.DaysOfWeek
+            }
+            $trigs += [PSCustomObject]@{
+                type = $cls
+                start_boundary = if ($tr.StartBoundary) { [string]$tr.StartBoundary } else { $null }
+                repetition_interval = $repInt
+                repetition_duration = $repDur
+                days_of_week = $dow
+                enabled = [bool]$tr.Enabled
+            }
+        }
+    }
+
     $out += [PSCustomObject]@{
         name = $t.TaskName
         state = $t.State.ToString()
@@ -34,6 +68,7 @@ foreach ($t in $allTasks) {
         last_run = $lastRun
         last_result = $lastResult
         next_run = $nextRun
+        triggers = @($trigs)
     }
 }
-$out | ConvertTo-Json -Depth 5 -Compress
+$out | ConvertTo-Json -Depth 7 -Compress
