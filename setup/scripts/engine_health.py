@@ -11,6 +11,11 @@ the bridge drains it idempotently. Outside RTH / weekends / holidays a quiet
 engine reads GREEN (no crying wolf overnight).
 
 Checks (critical ones gate RED during RTH):
+  levels_blind                     -- engine's own rows carried ZERO active levels on a
+                                      weekday (CRIT) -- the 2026-07-30 blind-session
+                                      signature; NOT market_open-suppressed, on purpose
+  levels_file_stale                -- key-levels.json mtime/session-date staleness, ground
+                                      truth, asserted through the close (non-crit)
   heartbeat_safe / heartbeat_bold  -- loop-state last_change_at staleness (CRIT)
   watcher_feed                     -- newest observation date == today (CRIT):
                                       distinguishes "producer dark" from "no signal"
@@ -419,6 +424,94 @@ def check_session_ran(et: datetime) -> dict:
     return _chk(name, "GREEN", f"{day} session ran ({res.get('ticks')} ticks)", critical=True)
 
 
+def _import_levels_blind():
+    """Import setup/scripts/levels_blind_check.py, or None. Fail-open (mirrors
+    check_session_ran's engine_liveness_check import)."""
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import levels_blind_check  # noqa: PLC0415 -- optional dep, callers fail open
+        return levels_blind_check
+    except Exception:  # noqa: BLE001 -- never let a monitor import break the beacon
+        return None
+
+
+def check_levels_blind(et: datetime) -> dict:
+    """DID THE ENGINE SEE ANY LEVELS TODAY? -- the check that was missing on 2026-07-30.
+
+    On 2026-07-30 all 772 core decision rows carried `levels_active: []` because
+    key-levels.json had not been rewritten since 2026-07-29 and every level in it had
+    expired. The engine did not halt or warn -- it silently switched to trendline-only
+    entries (its worst cohort) and fired 11 ENTER_BEAR verdicts at the LOW of the day.
+    `check_level_feed` below stayed quiet the entire time: it is market_open-suppressed,
+    so after 15:55 it read "market closed -- refresh idle, quiet OK".
+
+    Like `check_session_ran`, this check asks about the DAY, not the moment, and is
+    DELIBERATELY NOT market_open-suppressed -- that suppression is the bug. It reads the
+    CONSUMER side (what the engine's own rows say it saw), so it is true regardless of
+    which producer, cache, or expiry rule emptied the set.
+
+    critical=True on a genuine blind day: this is the same severity class as
+    `session_ran` (an engine that ran blind is no better than one that did not run), and
+    engine-health.json is NOT on the heartbeat's read path -- verified 2026-07-30, the
+    only consumers are self_check/gym_session/gamma_status/open_bell_status/crypto_twin_
+    health/handoff_paul/daily_brief plus the conductor+healer PowerShell -- so critical
+    here drives the fused verdict and the alerter, and can never trade-halt the engine.
+    Fail-open: any import/read/assess failure degrades to a benign YELLOW.
+    """
+    name = "levels_blind"
+    mod = _import_levels_blind()
+    if mod is None:
+        return _chk(name, "YELLOW", "levels_blind_check module unavailable", critical=False)
+    day = et.strftime("%Y-%m-%d")
+    try:
+        res = mod.check_day(day)
+    except Exception as e:  # noqa: BLE001 -- a broken checker must never break the report
+        return _chk(name, "YELLOW", f"blindness assess failed ({type(e).__name__})", critical=False)
+    st = res.get("status")
+    if st == mod.STATUS_BLIND:
+        return _chk(name, "RED", res.get("reason", "engine traded blind"), critical=True)
+    if st == mod.STATUS_NOT_APPLICABLE:
+        return _chk(name, "GREEN", f"{day} is a weekend -- no session expected", critical=False)
+    if st == mod.STATUS_INSUFFICIENT:
+        return _chk(name, "GREEN", res.get("reason", "insufficient rows"), critical=False)
+    if st == mod.STATUS_UNKNOWN:
+        return _chk(name, "YELLOW", f"{day} level-sight unverifiable: {res.get('reason')}",
+                    critical=False)
+    return _chk(name, "GREEN", res.get("reason", "levels visible"), critical=True)
+
+
+def check_levels_file_stale(et: datetime) -> dict:
+    """IS key-levels.json ACTUALLY BEING REFRESHED? -- the PRODUCER-side half of the
+    2026-07-30 repair, and deliberately distinct from `check_level_feed` below:
+
+      * check_level_feed  -- reads the SELF-REPORTED `as_of` string, RTH-only, and goes
+                             "GREEN (market closed -- refresh idle, quiet OK)" outside RTH.
+      * this check        -- reads the file's real MTIME (ground truth) plus the `date` /
+                             `for_session` fields the refresher itself stamps, and stays
+                             ASSERTED from 09:30 ET right through the close on a weekday.
+                             At 18:45 ET on 2026-07-30 it REDs; check_level_feed reads GREEN.
+
+    It also runs the levels through the ENGINE'S OWN expiry predicate, so a file that is
+    dated today but whose every level expired yesterday (parses fine, engine sees nothing)
+    is caught too. NON-CRITICAL: a producer-side stall degrades level-awareness but must
+    never trade-halt (same stance as check_level_feed); a genuine stall still returns RED
+    *status* so the transition-only alerter pings J once. Fail-open on everything else."""
+    name = "levels_file_stale"
+    mod = _import_levels_blind()
+    if mod is None:
+        return _chk(name, "YELLOW", "levels_blind_check module unavailable", critical=False)
+    try:
+        res = mod.check_levels_file(et)
+    except Exception as e:  # noqa: BLE001
+        return _chk(name, "YELLOW", f"levels-file assess failed ({type(e).__name__})", critical=False)
+    st = res.get("status")
+    if st == mod.STATUS_STALE:
+        return _chk(name, "RED", res.get("reason", "key-levels.json stale"), critical=False)
+    if st == mod.STATUS_UNKNOWN:
+        return _chk(name, "YELLOW", f"level file unverifiable: {res.get('reason')}", critical=False)
+    return _chk(name, "GREEN", res.get("reason", "level file fresh"), critical=False)
+
+
 def check_watcher_feed(market_open: bool, et: datetime) -> dict:
     """Producer-dark detector: newest watcher-observations bar date must be today.
     This is the bug that blinded the fleet -- a dark producer looks identical to
@@ -825,6 +918,62 @@ def check_dispatch_health(et: datetime) -> dict:
     return _chk(name, status, r.get("detail", "?"), critical=False)
 
 
+def check_state_freshness(et: datetime) -> dict:
+    """CROSS-PRODUCER state freshness -- the 2026-07-30 SIBLING AUDIT check.
+
+    The `levels_blind` / `levels_file_stale` pair above watches ONE file
+    (key-levels.json). This watches every OTHER state file the live decision path
+    reads, against a declarative manifest
+    (automation/state/state-freshness-manifest.json) of
+    path / max_age_min / date_field / criticality. It exists because 2026-07-30 was
+    not a single-file outage: the same silent-producer-death shape was ALSO running
+    on key-levels-memory.json, prior-rth-close.json, context-bundle.json,
+    trendlines-live.json, confluence-zones.json, ema-snapshot.json,
+    trade-today.json, pnl-statement.json and premarket-readiness.json -- nine more
+    files, all frozen at 2026-07-29, none of which any check would have named.
+
+    Checks the CONSEQUENCE (a stale file), not any single cause, so it also catches
+    a producer that still fires but writes nothing / writes yesterday's payload --
+    failure modes no task-liveness check can see (and `audit_scheduled_tasks.py`
+    structurally cannot: its SILENT_TASK loop opens with
+    ``if state == "Disabled": continue``).
+
+    OVERLAP IS INTENTIONAL: key-levels.json is in the manifest too. It is the
+    canonical example and the manifest must stay a complete registry; a second RED
+    on the same root cause is defence in depth, not noise.
+
+    NON-CRITICAL always (monitoring fails OPEN -- never trade-halts, never REDs the
+    critical verdict). A genuine stall returns RED *status* so the transition-only
+    alerter pings J once. UNKNOWN (unreadable manifest / import failure) maps to a
+    benign YELLOW: an audit that cannot run must never look like an audit that passed.
+    Guard: backtest/tests/test_state_freshness_audit.py."""
+    name = "state_freshness"
+    try:
+        import state_freshness_audit as sfa  # noqa: PLC0415 -- optional dep, fail open
+    except Exception as e:  # noqa: BLE001
+        return _chk(name, "YELLOW", f"state_freshness_audit unavailable ({type(e).__name__})",
+                    critical=False)
+    try:
+        rep = sfa.audit(now_et=et)
+    except Exception as e:  # noqa: BLE001 -- belt-and-braces; audit() already fails open
+        return _chk(name, "YELLOW", f"audit raised ({type(e).__name__})", critical=False)
+
+    verdict = rep.get("verdict", "UNKNOWN")
+    stale = [r for r in rep.get("entries", []) if r.get("status") in ("RED", "YELLOW")]
+    if verdict == "UNKNOWN":
+        return _chk(name, "YELLOW", f"audit UNKNOWN ({rep.get('reason') or 'unreadable manifest'})",
+                    critical=False)
+    if verdict == "GREEN":
+        return _chk(name, "GREEN", f"{rep.get('n_entries', 0)} live-path state files fresh",
+                    critical=False)
+    named = ", ".join(Path(r["path"]).name for r in stale[:6])
+    more = f" (+{len(stale) - 6} more)" if len(stale) > 6 else ""
+    return _chk(name, verdict,
+                f"{len(stale)}/{rep.get('n_entries', 0)} live-path state files STALE -- "
+                f"{named}{more}. Their producers stopped writing; consumers did not notice.",
+                critical=False)
+
+
 def check_position(name: str, path: Path) -> dict:
     data, err = _read_json(path)
     if data is None:
@@ -874,6 +1023,12 @@ def build_report() -> dict:
     # check NAMES are preserved so the transition-alert idempotency keys stay stable.
     checks = [
         check_session_ran(et),
+        # 2026-07-30 blindness pair. NEITHER is market_open-suppressed -- that suppression
+        # is what let a full day of zero-level trading read GREEN. levels_blind watches the
+        # CONSUMER (the engine's own rows); levels_file_stale watches the PRODUCER (file
+        # mtime + session date, asserted through the close). Either alone catches 07-30.
+        check_levels_blind(et),
+        check_levels_file_stale(et),
         check_engine_core("heartbeat_safe", "safe", mkt, et),
         check_engine_core("heartbeat_bold", "bold", mkt, et),
         check_sight_beacon(mkt, now_utc),
@@ -903,6 +1058,12 @@ def build_report() -> dict:
         # (an enabled detector emitting ZERO extra_signals all session, the exact bug
         # that was invisible for weeks). Never trade-halts; RED status pings J once.
         check_dispatch_health(et),
+        # NON-CRITICAL cross-producer state freshness (2026-07-30 SIBLING AUDIT). The pair
+        # above watches key-levels.json specifically; THIS watches every OTHER live-path
+        # state file for the same shape (producer stopped writing, consumers carried on).
+        # It found 9 further files already stale on 2026-07-30. Additive by construction:
+        # one check name, manifest-driven, never trade-halts, fails open to UNKNOWN.
+        check_state_freshness(et),
     ]
     verdict, reds = fuse(checks)
     red_checks = sorted(c["name"] for c in checks if c["status"] == "RED")
