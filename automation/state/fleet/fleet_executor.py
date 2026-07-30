@@ -95,6 +95,12 @@ class ArmDecision:
     # STRUCTURE-STOP (2026-07-09, additive/default-None): carries the ENTER plan's
     # trigger_level through to the placement layer (_place_live reads decision.trigger_level).
     trigger_level: Optional[float] = None
+    # SIZING-DEADLOCK TELEMETRY (2026-07-30, additive/default-None): on a per-order sizing
+    # refusal, risk_gate.explain_block's dict — says whether the deny was "size down" or
+    # "NO legal qty exists at this premium" (deadlock). Rides into the arm's decisions.jsonl
+    # via fleet_live's `**asdict(decision)`. Populated ONLY on a deny; None everywhere else,
+    # so every ALLOW row is byte-identical to before.
+    binding: Optional[dict] = None
 
 
 # --- pure helpers ------------------------------------------------------------
@@ -863,9 +869,17 @@ def finalize(
         params=_fleet_params,
     )
     if not decision.allowed:
+        # BINDING-CONSTRAINT TELEMETRY (2026-07-30 incident) — see ArmDecision.binding and
+        # risk_gate.explain_block. Distinguishes a sizing miss from a structural deadlock
+        # (no legal qty at this premium). FAILS OPEN: telemetry never breaks a decision.
+        try:
+            _binding = risk_gate.explain_block(equity=equity, premium=premium,
+                                               params=_fleet_params, proposed_qty=plan.qty)
+        except Exception:  # noqa: BLE001
+            _binding = None
         return ArmDecision(plan.arm_id, "HOLD", plan.side, plan.setup_name, plan.strike,
                            plan.qty, premium, plan.quality, decision.code,
-                           f"risk_gate denied: {decision.reason}")
+                           f"risk_gate denied: {decision.reason}", binding=_binding)
     action = "ENTER_BEAR" if plan.side == "P" else "ENTER_BULL"
     return ArmDecision(plan.arm_id, action, plan.side, plan.setup_name, plan.strike,
                        plan.qty, premium, plan.quality, "ALLOW", plan.reason,

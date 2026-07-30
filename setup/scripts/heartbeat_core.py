@@ -965,6 +965,92 @@ LADDER_LEVEL_TIED = frozenset({"level_rejection", "fhh_level_rejection", "conflu
                                "sequence_rejection"})
 
 
+# ── BLINDNESS BLOCK — SKIP_NO_LEVELS (2026-07-30) ────────────────────────────────────
+# THE INCIDENT (2026-07-30): Gamma_LevelRefresh last fired 2026-07-29 20:43 ET, so
+# automation/state/key-levels.json still carried yesterday's date and EVERY level in it an
+# expires_at of 2026-07-29. _read_levels' expiry filter (_level_expired) did its job
+# CORRECTLY and returned ([], []) -- the read was right, the DATA was 19.8h stale. Result:
+# levels_active == [] on 386 of 386 safe rows (yesterday: 0 of 375).
+#
+# WHAT THE ENGINE DID WITH NO EYES: nothing. It did not halt, warn, or degrade. With no
+# levels, detect_level_rejection cannot fire, so scoring fell through to the ONLY bear
+# trigger that survives blindness -- trendline_rejection -- and the engine silently switched
+# to its statistically WORST entry mode: the trendline-only cohort is -$1,830 / WR .19 over
+# 124 trades and 89% of every bear ENTER verdict ever recorded, while every dollar the engine
+# has ever made is level-tied (+$6,895 / 66 trades)
+# (analysis/deep-research/PNL-ATTRIBUTION-2026-07-28). At 11:31-11:46 ET it produced 11
+# ENTER_BEAR verdicts at SPY 734.885 -- the LOW OF THE DAY, tier TRENDLINE,
+# trigger_level_exact null, triggers [ribbon_flip, trendline_rejection]. SPY then rallied to
+# 741.6 into the close: ~-6.7 SPY points wrong. Only RISK_DENY_RISK_CAP / RISK_DENY_PDT
+# stopped the fills -- luck, not design.
+#
+# THE RULE: blind must mean DO NOT TRADE, never "trade the worst cohort". When the engine
+# has no usable levels, an ENTER with no level anchor becomes SKIP_NO_LEVELS.
+#
+# WHY *not* "block every entry when blind": fhh_level_rejection (the first-hour-high
+# supplement, computed from TODAY'S OWN BARS in _build_payload -- not from key-levels.json)
+# can still fire with levels_active empty, and it is a genuine, price-anchored, level-tied
+# trigger from the PROFITABLE cohort. Blocking it would suppress a sighted entry and turn a
+# safety rail into an edge change. The rail therefore blocks exactly the cohort the incident
+# exposed: an entry with NO price anchor at all.
+#
+# LEVEL_ANCHOR_TRIGGERS is LADDER_LEVEL_TIED (bear) plus the bull-side names. Deliberately
+# EXCLUDED: "trendline_rejection" and "ribbon_flip" -- those two ARE the blind cohort
+# (filters.py sets `rejection_level` only from detect_level_rejection/wick/fhh; a
+# trendline_rejection never populates it, which is exactly why today's 11:31 row carried
+# trigger_level_exact null). Note filters.py has its OWN local `level_tied` set for
+# filter-10 that DOES include trendline_rejection -- that one answers "is this more than a
+# bare ribbon flip", a different question. Do not merge them.
+LEVEL_ANCHOR_TRIGGERS = frozenset(LADDER_LEVEL_TIED | {"level_reclaim", "sequence_reclaim"})
+
+
+def _is_blind(bar_ctx: dict) -> bool:
+    """True when the engine has NO usable key levels this tick.
+
+    FAIL-CLOSED (house rule: fail-open for MONITORING, fail-CLOSED for ENTRY): a MISSING
+    levels_active key counts as blind, not as "unknown, proceed". In production the key is
+    always present -- _build_payload writes `"levels_active": active` unconditionally -- so
+    absence only ever means a synthetic/partial payload, and a payload that cannot state
+    what the engine can see must never be allowed to authorize an entry.
+    """
+    return not (bar_ctx.get("levels_active") or [])
+
+
+def _level_anchored(verdict: dict) -> bool:
+    """True when the winning entry has a real PRICE ANCHOR to trade and stop against.
+
+    Two independent sources, either one sufficient:
+      1. a level-tied trigger name in the winning side's triggers_fired, and
+      2. a numeric `rejection_level` (engine_cli's winning-side level provenance, logged as
+         trigger_level_exact) -- this is what keeps a synthetic extra-setup verdict that
+         carries its own concrete level (e.g. VIX_REGIME_DAYSIDE @746.87) correctly
+         classified as anchored even though its trigger names are not core-ribbon names.
+    A trendline-only entry satisfies NEITHER (proven by today's 11:31 row: triggers
+    [ribbon_flip, trendline_rejection], trigger_level_exact null).
+    """
+    trigs = [t for t in (verdict.get("triggers_fired") or []) if isinstance(t, str)]
+    if any(t in LEVEL_ANCHOR_TRIGGERS for t in trigs):
+        return True
+    return isinstance(verdict.get("rejection_level"), (int, float))
+
+
+def _blind_block_enabled(params: dict) -> bool:
+    """The `block_entries_when_blind` flag. DEFAULT TRUE, including when the key is ABSENT.
+
+    This ships ON because it is a SAFETY RAIL, not an edge experiment -- the failure it
+    prevents (shorting the low of the day with no eyes) is unbounded, while the cost of a
+    false positive is one skipped trade in the cohort that has lost money on 124 of 124
+    measured trades. Only a literal JSON `false` disables it; a null/garbage value still
+    blocks (fail-closed).
+
+    REVOKE PATH (no restart, no deploy): add `"block_entries_when_blind": false` to
+    automation/state/params.json (Safe) and/or automation/state/aggressive/params.json
+    (Bold). run_account re-reads params from disk on EVERY tick, so the next 1-minute
+    heartbeat reverts to the exact pre-2026-07-30 behavior.
+    """
+    return (params or {}).get("block_entries_when_blind", True) is not False
+
+
 def _apply_score_ladder(verdict: dict, params: dict) -> dict:
     """Pure verdict -> verdict rescue for a SCORING-failed bear tick. See the module
     comment directly above for the full fail-closed contract. Returns the ORIGINAL
@@ -1066,6 +1152,15 @@ def run_account(account: str) -> dict:
            "bear_rejection_level_raw": verdict.get("bear_rejection_level_raw"),
            "bull_reclaim_level_raw": verdict.get("bull_reclaim_level_raw"),
            "levels_active": list(bc.get("levels_active") or []),
+           # BLINDNESS FLAG (2026-07-30, SKIP_NO_LEVELS). LOGGED ON EVERY ROW, additive,
+           # mirroring the why-not provenance fields above. `levels_active: []` already
+           # implied this, but only to a reader who knew to look -- on 2026-07-30 it sat
+           # empty on 386 of 386 rows and nothing named the condition, so no monitor, no
+           # digest and no engine-health surface could ever have alerted on it. A named
+           # boolean makes "was the engine blind?" greppable forever, on blocked AND
+           # unblocked ticks alike (it is logged independently of whether the block fired,
+           # so a revoked flag still leaves the evidence trail intact).
+           "blind": _is_blind(bc),
            # LEVEL PROVENANCE (G12, 2026-07-09 night): the EXACT level the winning side's
            # entry trigger fired against -- ground truth from filters.detect_level_rejection/
            # detect_level_reclaim (backtest/lib/filters.py), threaded verbatim through
@@ -1194,6 +1289,58 @@ def run_account(account: str) -> dict:
     if _stale_trigger_bar(payload, et):
         rec["action"] = "SKIP_STALE_TRIGGER"
         rec["trigger_bar_et"] = str(payload["bar_ctx"].get("timestamp_et"))
+    elif (v in ("ENTER_BEAR", "ENTER_BULL") and _blind_block_enabled(params)
+          and _is_blind(bc) and not _level_anchored(verdict)):
+        # BLINDNESS BLOCK (2026-07-30) -- see the LEVEL_ANCHOR_TRIGGERS block above for the
+        # incident. The engine has NO usable levels AND this entry has no price anchor:
+        # that is precisely the trendline-only cohort (-$1,830 / WR .19 / n=124), taken for
+        # the only reason it could be -- the engine could not see. Blind => HOLD.
+        #
+        # WHY HERE, and not in engine_cli.decide_payload: decide_payload/evaluate_gates are
+        # PURE and SHARED with the backtest orchestrator, where they are reused as the
+        # parity-oracle assert-agree check. Emitting a verdict there that the orchestrator
+        # does not emit would break that parity assert and would silently change every
+        # historical replay over a bar whose levels_active happened to be empty -- an EDGE
+        # change wearing a safety fix's clothes. This is the same reasoning, and the same
+        # seam, that GATE-PROVENANCE-SWEEP-2026-07-10 used for SKIP_STALE_TRIGGER: a
+        # live-only data-sight condition belongs in heartbeat_core's post-verdict ladder.
+        #
+        # WHY THIS POSITION IN THE LADDER -- first of the ENTER_*-conditional guards:
+        #   * It is the CHEAPEST check (pure in-memory; no clock math, no REST call), so a
+        #     blind tick short-circuits before _sight_staleness_check spends a live quote.
+        #   * It cannot be bypassed by the SCORE LADDER: _apply_score_ladder runs ABOVE this
+        #     line and can rewrite a HOLD into ENTER_BEAR, so any check placed before it
+        #     would be jumpable. (A ladder rescue always sets a numeric rejection_level, so
+        #     an anchored ladder entry stays allowed -- it is only ever blocked here if it
+        #     somehow produced no anchor at all.)
+        #   * PRECEDENCE, deliberate: a blind tick that is ALSO late/early now logs
+        #     SKIP_NO_LEVELS instead of SKIP_LATE_ENTRY/SKIP_EARLY_ENTRY. Both are
+        #     no-entries, so no trading behavior differs -- but "we were blind" is a
+        #     SYSTEMIC failure that must reach engine-health, while late/early are routine.
+        #     Masking blindness behind a routine label is how this went unseen for 386 ticks.
+        #
+        # VERDICT IS REWRITTEN, not just the action (the score-ladder precedent above does
+        # the same). This is load-bearing, not cosmetic: automation/state/fleet/
+        # build_shared_signal.py#_map_core_row takes the fleet's ENTRY DECISION from this
+        # row's `verdict` field, NOT its `action` -- leaving verdict=ENTER_BEAR would block
+        # safe-2/bold-2 here while the other fleet arms happily entered the same blind
+        # trade off the same ledger row. The original engine verdict is preserved verbatim
+        # in blind_blocked_verdict, so ledger honesty (OP-33) is intact.
+        rec["blind_blocked_verdict"] = v
+        rec["verdict"] = "SKIP_NO_LEVELS"
+        rec["side"] = None
+        rec["reason"] = (
+            f"BLIND: levels_active is empty (key-levels.json stale/unrefreshed) and this "
+            f"{v} has no level anchor (triggers={verdict.get('triggers_fired')}, "
+            f"trigger_level_exact={verdict.get('rejection_level')!r}) -- refusing the "
+            f"trendline-only cohort. Original engine verdict: {v}."
+        )
+        rec["action"] = "SKIP_NO_LEVELS"
+        logger.critical(
+            "[BLIND] %s %s refused: no key levels loaded (levels_active empty) and no level "
+            "anchor on the entry. Check Gamma_LevelRefresh / key-levels.json freshness.",
+            account, v,
+        )
     elif v in ("ENTER_BEAR", "ENTER_BULL") and _past_entry_ceiling(params, et):
         # FIX1 (2026-07-01): entry-time ceiling — a late ENTER is a logged SKIP, never an
         # order attempt (2026-06-30: all 10 ENTER verdicts fired 15:51-15:55, all rejected
@@ -1278,13 +1425,25 @@ def run_account(account: str) -> dict:
     # (corrected 2026-07-10: this test lives here, not in test_graduated_guards.py -- the
     # old comment predates the test's move/split into its own dedicated file) +
     # test_gate_provenance_ordering_2026_07_10.py.
+    #
+    # BLINDNESS (2026-07-30): the extra-setup route is the ONLY other order-placing path in
+    # this file, so a blind block that ignored it would be trivially bypassable -- and 6 of
+    # these detectors are flag-ON in params.json today (j_vwap_cont, j_vix_dayside,
+    # gap_and_go, bollinger_squeeze, db_base_quiet, j_lbfs), so this is a live lane, not a
+    # dormant one. They are blind in the literal sense too: setup_dispatch.py:344 builds
+    # their BarContext with `levels_active=list(bar_ctx_d.get("levels_active", []))` -- the
+    # SAME empty list the core path just refused to trade on. This mirrors the structure_veto
+    # carve-out immediately above verbatim (same premise: an account-wide entry-safety
+    # condition applies to every lane, not just the primary one), and rides the SAME
+    # block_entries_when_blind flag, so one revoke restores both lanes at once.
     if v not in ("ENTER_BEAR", "ENTER_BULL"):
-        if extra and v != "SKIP_STRUCTURE_VETO":
+        _blind_now = _blind_block_enabled(params) and _is_blind(bc)
+        if extra and v != "SKIP_STRUCTURE_VETO" and not _blind_now:
             routed = _route_extra_setups(account, extra, payload, params)
             if routed:
                 rec["extra_exec"] = routed
         elif extra:
-            rec["extra_exec_blocked_by"] = "structure_veto"
+            rec["extra_exec_blocked_by"] = "structure_veto" if v == "SKIP_STRUCTURE_VETO" else "no_levels"
     _log(rec)
     return rec
 
@@ -1686,8 +1845,26 @@ def _execute(account: str, verdict: dict, payload: dict, params: dict, *, dry: b
         settled_cash_available=_settlement["settled_cash_remaining"],
         same_day_entries_used=_settlement["entries_used_today"])
     if not getattr(decision, "allowed", False):
-        return {"status": f"RISK_DENY_{getattr(decision,'code','?')}", "reason": getattr(decision, "reason", ""),
+        _row = {"status": f"RISK_DENY_{getattr(decision,'code','?')}", "reason": getattr(decision, "reason", ""),
                 "symbol": symbol, "qty": qty, "premium": mid}
+        # BINDING-CONSTRAINT TELEMETRY (2026-07-30 incident). The `reason` above already
+        # carries the notional-vs-cap arithmetic, but it cannot distinguish "proposal too
+        # big, size down" from "NO legal qty exists at this premium" — on 2026-07-30 core
+        # Safe logged 9 identical-looking RISK_DENY_RISK_CAP rows that were all the second
+        # kind (equity $1,160 => $1.16/contract ceiling vs $1.42-$2.01 ATM prices), and
+        # nothing in the ledger said so. `binding.deadlock` makes that explicit and
+        # machine-readable for downstream monitors.
+        # ADDITIVE ONLY: a new key inside `exec`; `status`/`reason`/`qty`/`premium` are
+        # untouched (free_model_audit_heartbeat_veto.py regex-scrapes "equity $N" out of
+        # the serialized row, so `reason` must keep its exact wording — and this block
+        # deliberately emits NO "equity $" substring, only numeric fields).
+        # FAILS OPEN: telemetry must never break a ledger write or an entry decision.
+        try:
+            _row["binding"] = rg.explain_block(equity=equity, premium=mid, params=params,
+                                               proposed_qty=qty)
+        except Exception:  # noqa: BLE001
+            pass
+        return _row
     # TRADE-TO-LEARN (2026-07-01): per-setup ISOLATED exit knobs — an armed extra setup
     # trades ITS validated stop/TP1 (see _SETUP_EXIT_OVERRIDES); every other setup keeps
     # the global knobs byte-identical (-50% catastrophe cap; chart-stop is a v2 enhancement).

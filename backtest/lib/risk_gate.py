@@ -641,6 +641,178 @@ def max_affordable_qty(
     return max_qty
 
 
+# --- SIZING-DEADLOCK DIAGNOSTIC (2026-07-30) ---------------------------------
+#
+# WHY THIS EXISTS. `check_order` already returns an arithmetically honest RISK_CAP
+# reason ("notional $426 exceeds per-trade cap $348 (30% of $1,160)"), and that
+# string is what the 2026-07-30 ledger carries on all 9 Safe denies. But it is
+# arithmetic about ONE PROPOSED ORDER, and a reader — human or downstream monitor —
+# cannot tell from it which of two VERY different situations they are looking at:
+#
+#   (1) SIZING MISS  — the proposal was simply too big; a smaller qty still fits.
+#                      max_affordable_qty >= min_contracts. Fix = size down.
+#   (2) DEADLOCK     — NO legal qty exists at this premium, because the smallest
+#                      order Rule 6 permits (min_contracts) already blows the cap:
+#                          premium * min_contracts * 100 > effective_cap
+#                      max_affordable_qty == 0. Fix is NOT sizing; the arm is
+#                      structurally unable to trade ANY contract at this price.
+#
+# On 2026-07-30 core Safe hit (2) nine times and the ledger could not say so: at
+# equity $1,160.42 the cap is $348.13 and min_contracts is 3, so the arm cannot buy
+# ANY contract priced above $1.16 — while ATM 0DTE SPY was $1.42–$2.01 all session.
+# That is a silent, total participation loss, and it reads in the log exactly like
+# an ordinary oversize deny. This function makes the difference explicit.
+#
+# CONTRACT — this decides NOTHING.
+#   * `check_order` does not call it and its behavior is unchanged. This is pure
+#     TELEMETRY, attached to a deny row AFTER the decision is already made.
+#   * MONITORING => FAILS OPEN. Every unreadable input returns
+#     {"available": False, ...} instead of raising, so a caller can attach it to a
+#     log row inside a try/except and a diagnostic bug can never block an entry or
+#     break a ledger write. (Contrast check_order, which fails CLOSED because it
+#     gates capital.) The two fail-directions are deliberate and opposite.
+#   * NO RE-TYPED LITERALS (C14 dead-knob trap): every threshold is obtained by
+#     calling `_effective_per_trade_cap_dollars` / `max_affordable_qty` — the SAME
+#     helpers `check_order` itself uses — never by re-deriving cap math here. If
+#     the caps ever change, this diagnostic changes with them automatically.
+#     `test_sizing_deadlock_diag.py` cross-checks `deadlock` against a real
+#     `check_order` call over a grid so the two can never silently diverge.
+#
+# NOTE ON `premium_ceiling`: this is the number an operator actually wants — the
+# highest premium at which the arm can place its smallest legal order. Above it the
+# arm is blind. It is reported as the exact cap quotient; callers that want a
+# quote-safe figure should floor it to the cent (the CLI does).
+
+
+def explain_block(
+    *,
+    equity: Any,
+    premium: Any,
+    params: Optional[Mapping[str, Any]],
+    proposed_qty: Any = None,
+) -> dict:
+    """Explain WHY a per-order sizing refusal happened and WHICH constraint binds.
+
+    Pure + fail-OPEN telemetry (see module comment above). Never raises, never
+    decides anything, never consulted by `check_order`.
+
+    Returns a dict that always carries `available`. When True it additionally has:
+        min_contracts, risk_cap_pct, risk_cap_dollars, tier_pct, tier_cap_dollars,
+        effective_cap_dollars, binding_cap ("risk_cap"|"max_premium_tier"),
+        max_affordable_qty, premium_ceiling, deadlock, headline.
+
+    `deadlock` is True iff max_affordable_qty == 0 — i.e. not even `min_contracts`
+    fits under the effective cap, so no legal order exists at this premium.
+    """
+    try:
+        if params is None or not isinstance(params, Mapping):
+            return {"available": False, "why": "params missing or not a mapping"}
+        if _is_bad_number(equity) or _is_bad_number(premium):
+            return {"available": False, "why": "equity/premium unreadable"}
+        equity_f = _as_float(equity)
+        premium_f = _as_float(premium)
+        if equity_f <= 0 or premium_f <= 0:
+            return {"available": False, "why": "equity/premium must be > 0"}
+        min_contracts_raw = params.get("min_contracts")
+        if _is_bad_number(min_contracts_raw):
+            return {"available": False, "why": "params.min_contracts unreadable"}
+        min_contracts = int(_as_float(min_contracts_raw))
+
+        cap = _effective_per_trade_cap_dollars(equity_f, params)
+        if cap is None:
+            # Same uncertainty check_order fails closed on; report it, don't guess.
+            return {"available": False,
+                    "why": "effective cap unresolvable (bad risk-cap pct, or equity "
+                           "outside every v15_max_premium_pct_of_account tier)"}
+
+        risk_cap_pct = _as_float(params.get("per_trade_risk_cap_pct"))
+        risk_cap_dollars = equity_f * risk_cap_pct
+        tier_pct = _max_premium_pct_for_equity(
+            params.get("v15_max_premium_pct_of_account"), equity_f
+        ) if "v15_max_premium_pct_of_account" in params else None
+        tier_cap_dollars = (equity_f * tier_pct) if tier_pct is not None else None
+        binding_cap = ("max_premium_tier"
+                       if tier_cap_dollars is not None and tier_cap_dollars < risk_cap_dollars
+                       else "risk_cap")
+
+        afford = max_affordable_qty(equity=equity_f, premium=premium_f, params=params)
+        deadlock = (afford == 0)
+        # The highest premium at which min_contracts still fits under the cap.
+        premium_ceiling = cap / (min_contracts * 100.0)
+        # Quote-safe display value: FLOOR to the cent, never round. Rounding up would
+        # print a premium the gate actually refuses (bold-2: ceiling 1.1975 renders as
+        # "$1.20", but 5 x $1.20 x 100 = $600 > the $598.76 cap -> still a deadlock).
+        ceiling_cents = math.floor(premium_ceiling * 100.0) / 100.0
+
+        if deadlock:
+            headline = (
+                f"DEADLOCK: min_contracts {min_contracts} x ${premium_f:.2f} x 100 = "
+                f"${premium_f * min_contracts * 100.0:,.0f} > effective cap ${cap:,.0f} "
+                f"({binding_cap}) -- NO legal qty exists at this premium. "
+                f"Ceiling at this equity: ${ceiling_cents:.2f}/contract."
+            )
+        else:
+            headline = (
+                f"SIZING: up to {afford} contracts fit under the ${cap:,.0f} cap "
+                f"({binding_cap}) at ${premium_f:.2f}."
+            )
+
+        out = {
+            "available": True,
+            "min_contracts": min_contracts,
+            "risk_cap_pct": round(risk_cap_pct, 6),
+            "risk_cap_dollars": round(risk_cap_dollars, 2),
+            "tier_pct": (round(tier_pct, 6) if tier_pct is not None else None),
+            "tier_cap_dollars": (round(tier_cap_dollars, 2)
+                                 if tier_cap_dollars is not None else None),
+            "effective_cap_dollars": round(cap, 2),
+            "binding_cap": binding_cap,
+            "max_affordable_qty": afford,
+            "premium_ceiling": round(premium_ceiling, 4),
+            "premium_ceiling_cents": round(ceiling_cents, 2),
+            "deadlock": deadlock,
+            "headline": headline,
+        }
+        if not _is_bad_number(proposed_qty):
+            q = _as_float(proposed_qty)
+            out["proposed_qty"] = int(q) if q == int(q) else q
+            out["proposed_notional"] = round(premium_f * q * 100.0, 2)
+        return out
+    except Exception as exc:  # noqa: BLE001 - monitoring must never raise into the entry path
+        return {"available": False, "why": f"diagnostic error: {type(exc).__name__}: {exc}"}
+
+
+def min_equity_for_premium(
+    *,
+    premium: Any,
+    params: Optional[Mapping[str, Any]],
+    ceiling: float = 100_000.0,
+    step: float = 1.0,
+) -> Optional[float]:
+    """Smallest equity at which `min_contracts` at `premium` clears the caps, or None.
+
+    Deliberately an ASCENDING SCAN over the real `max_affordable_qty`, NOT a binary
+    search: the effective cap is NOT monotonic in equity. `v15_max_premium_pct_of_account`
+    steps DOWN across bands (0.40 -> 0.30 -> 0.25 -> 0.20), so e.g. cap($9,999) =
+    $2,999.70 but cap($10,000) = $2,500 — a bisection would happily land in a
+    band where the answer is wrong. Scanning the real function is slower and correct.
+
+    Fail-open (returns None) on unreadable input. CLI-only by design — never call this
+    on the per-tick entry path.
+    """
+    try:
+        if _is_bad_number(premium) or params is None or not isinstance(params, Mapping):
+            return None
+        e = float(step)
+        while e <= ceiling:
+            if max_affordable_qty(equity=e, premium=premium, params=params) > 0:
+                return e
+            e += step
+        return None
+    except Exception:  # noqa: BLE001
+        return None
+
+
 # --- WP-0: per-setup exit-param dispatch (the order-bracket stop resolver) ----
 #
 # The order path historically applied ONE global premium stop to EVERY entry. Two
