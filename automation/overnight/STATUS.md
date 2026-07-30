@@ -1,3 +1,116 @@
+## [2026-07-29 ~20:30-21:05 ET] OK -- conductor (AFTERHOURS): CONDUCTOR-BUDGET-CROSS-MIDNIGHT-BUG closed, commit `631798f0`
+
+> **STAGE 0/1:** ET confirmed 20:30 Wednesday (market closed). Budget gate PROCEED ($0.04/$30,
+> 2/4 fires reported -- see finding below, that count was itself wrong). `engine-health.json`
+> GREEN/YELLOW (14 checks, 0 RED, gex_archive 1-day interior-gap YELLOW non-critical).
+> `self-check-last.json` DEGRADED (rule-enforcement-working fill-funnel blocks, PDT-blocked bold,
+> LLM-narrative-fallback premarket, trendline-draw not marked -- none a bug). Priority-3 self-audit
+> gap won the pick: `analysis/self-audit/new-gaps-flagged.md` flagged "conductor firing far more
+> than max_fires (4/day)" on THREE consecutive nights (07-27/07-28/07-29 17:31 entries), matching
+> the prior 07-28 QUIET-EXHAUSTED entries below that speculated about duplicate scheduled triggers.
+
+> **ROOT CAUSE, verified live (OP-33, not guessed):** Task Scheduler triggers for the whole
+> `Gamma_Conductor*` family are exactly the documented cadence (3x/day for `Gamma_Conductor`,
+> confirmed via `Get-ScheduledTask` -- no duplicate/rogue trigger). The real bug was in
+> `setup/scripts/conductor_budget.py`'s own `spend_today()`: it matched a `conductor-outcomes.jsonl`
+> row to an ET calendar day by SUBSTRING-searching the day string against the row's raw `fired_at`
+> (UTC ISO) field. ET is UTC-4 in July, so the scheduled 20:30 ET evening fire on day D writes
+> `fired_at` with a UTC calendar date of D+1 (20:30 ET + 4h = 00:30 UTC next day) -- so that
+> fire's row leaked forward into day D+1's own budget check the next morning, silently starting
+> every ET day at "1 fire already spent" (compounding with late-night fires). Live-verified the
+> real bite: THIS fire's own STAGE-0 check read "2/4 fires" for 2026-07-29 before the fix; after
+> the fix, `spend_today('2026-07-29')` correctly reads 0 (those 2 were 07-28's own evening/
+> late-night fires that had leaked across midnight). The Task Scheduler Operational event log
+> needed for direct forensics was DISABLED (`IsEnabled=False`) -- a genuine but secondary gap,
+> not required for this fix, left as a follow-up if J wants that visibility restored.
+
+> **Fix:** `_stamp_to_et_date()` converts an aware/UTC `fired_at` to its true ET calendar date via
+> `et_clock.et_now(now_utc=...)` before comparing, falling back to the old substring match only
+> when a stamp fails to parse (fail-open, C7). `ts_et` (already ET-local, naive) stamps pass
+> through unconverted. **Bonus find:** the project's OWN existing test fixtures had independently
+> fallen into the identical trap (`f"{DAY}T02:00:00+00:00"` is actually 22:00 ET the PREVIOUS
+> day) -- corrected to `T16:00:00+00:00` (genuinely mid-day ET) so the fixtures test what they
+> claim to. 3 new regression tests pin the exact incident shape, RED-proofed via `git stash`
+> (all 3 failed pre-fix with the predicted mis-count, 13 pre-existing tests unaffected, 16/16
+> green post-fix). Curated safety gate 59/59 PASS. Post-commit `git show 631798f0 --stat
+> --name-status` confirms exactly the 2 intended files (L247 discipline).
+
+> **Scope + revert:** 2 files (`setup/scripts/conductor_budget.py`,
+> `backtest/tests/test_conductor_budget.py`) -- pure conductor-scheduling infra, zero trading-path
+> touched (no params/heartbeat_core/filters/placement/exit/CLAUDE.md). Revert: `git revert 631798f0`.
+> Lesson filed: `strategy/candidates/_lesson-inbox/ET-UTC-midnight-boundary-fire-miscounting.md`
+> (generalizable rule: bucketing a UTC-stamped event by ET calendar date needs a real conversion,
+> never a substring/prefix match against the raw UTC string).
+
+> **NOTE on the 07-28 QUIET-EXHAUSTED entries below:** those are the STALE evidence this exact
+> bug produced (the "5/4, 6/4, 7/4 fires" readings were themselves inflated by the leak) -- left
+> in place per OP-22 (preserve the original disclosure) rather than rewritten; this entry is the
+> correction. The self-audit swarm re-flagged them 3 nights running partly because they were still
+> sitting fresh in this file; now resolved with a code fix, not just a note.
+
+---
+
+## [2026-07-28] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
+
+> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
+> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
+> -   bollinger_squeeze (armed 2026-07-02): since-arm 6tr $+36.00 ($+6.00/tr, 50.0% WR) [4d/4 day+side buckets -- 6 rows are NOT independent trials]
+> -   double_bottom_base_quiet (armed 2026-07-01, 27d ago): 0 fills since arm — no live signal yet
+> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 2tr $-15.00 ($-7.50/tr, 50.0% WR)
+> -   WARNING CORRELATED: 2026-07-28 side=P fired in BOTH bollinger_squeeze+vwap_reclaim_failed_break -- same underlying day-call, not independent
+> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
+
+---
+
+## [2026-07-28] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-17..2026-07-23), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-23). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-276.48); Bold_ATM_1+2=YELLOW ($-166.9)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
+## [2026-07-28 ~20:30 ET] QUIET -- conductor (AFTERHOURS): nightly budget EXHAUSTED, zero work
+
+> **STAGE 0 rail-0 gate:** `conductor_budget.py --check` returned exit 3 -- `7 fires today >= max_fires 4`.
+> Per rail 0, exited immediately with zero model work (no queue read, no task pick, no fan-out).
+> This is the FOURTH QUIET-EXHAUSTED fire today (03:30 at 4/4, 08:42 at 5/4, 18:12 at 6/4, now 20:30
+> at 7/4). The counter keeps climbing well past the documented 3-fire/night AFTERHOURS cadence
+> (20:30/01:00/05:30 ET) -- something is waking `conductor` extra times on 2026-07-28. Worth a
+> FABLE-ESCALATION next non-exhausted fire: audit Task Scheduler history for `Gamma_Conductor*`
+> triggers today and confirm whether extra manual/interactive invocations (like this one) or a
+> duplicate/misconfigured scheduled trigger is the source -- 7 fires in one day is nearly double
+> the 4/day cap and burns through budget before the after-hours cadence gets a real turn.
+
+## [2026-07-28 ~18:12 ET] QUIET -- conductor (AFTERHOURS): nightly budget EXHAUSTED, zero work
+
+> **STAGE 0 rail-0 gate:** `conductor_budget.py --check` returned exit 3 -- `6 fires today >= max_fires 4`.
+> Per rail 0, exited immediately with zero model work (no queue read, no task pick, no fan-out).
+> This is the THIRD QUIET-EXHAUSTED fire today (03:30 ET at 4/4, ~08:42 ET at 5/4, now ~18:12 ET
+> at 6/4) -- the daily counter is climbing past `max_fires` across multiple wake sources on the
+> same calendar day (2026-07-28), not resetting between them as the ~08:42 note assumed it would
+> after midnight. Worth a look next non-exhausted fire: confirm which scheduled tasks are firing
+> conductor beyond the documented 20:30/01:00/05:30 ET cadence (6 fires by 18:12 ET implies extra
+> wakes, possibly manual/interactive invocations like this one, which still correctly count
+> against the shared daily cap). Next fire after local midnight resets the counter.
+
+## [2026-07-28 ~08:42 ET] QUIET -- conductor (AFTERHOURS): nightly budget EXHAUSTED, zero work
+
+> **STAGE 0 rail-0 gate:** `conductor_budget.py --check` returned exit 3 -- `5 fires today >= max_fires 4`.
+> Per rail 0, exited immediately with zero model work (no queue read, no task pick, no fan-out).
+> Note: this is the SECOND QUIET-EXHAUSTED fire today (was 4/4 at ~03:30 ET, now 5/4) --
+> the counter did not reset overnight as the prior entry assumed; it resets at local midnight,
+> and this fire landed on the same calendar day. Next fire (20:30 / 01:00 / 05:30 ET cadence)
+> should land after local midnight and reset.
+
+## [2026-07-28 ~03:30 ET] QUIET -- conductor (AFTERHOURS): nightly budget EXHAUSTED, zero work
+
+> **STAGE 0 rail-0 gate:** `conductor_budget.py --check` returned exit 3 -- `4 fires today >= max_fires 4`.
+> Per rail 0, exited immediately with zero model work (no queue read, no task pick, no fan-out).
+> Next fire (per cadence: 20:30 / 01:00 / 05:30 ET) resets the daily counter at local midnight.
+
 ## [2026-07-28 ~01:16-01:30 ET] OK -- conductor (AFTERHOURS): DRESS-REHEARSAL-NARROW-STRIKE-BAND closed, commit `96cf82b4`
 
 > **STAGE 0/1:** ET confirmed 01:16 Tuesday (market closed). Budget gate PROCEED
@@ -84,27 +197,6 @@
 > future autonomous commit through this same gate. Revert: `git revert b0129034`.
 
 [2026-07-27T23:40 ET] fable-session: LADDER DISARMED ON EVIDENCE -- the fast loop worked. The 390-day replay J demanded ("prove it, don't wait for tomorrow's tape") came back an honest NULL: floor 7 = -$31,015 (1,538 tr), floor 8 = -$16,642 (725 tr), floor 9 = -$10,903 (332 tr) vs binary-engine baseline +$5,307; similar WR, much worse loss/win magnitude; day-majority + drop-best FAIL on all lanes; baseline parity byte-identical to the published scorecard. All 5 floors REMOVED (fleet accounts.json x3 + params.json + aggressive/params.json) ~6h after arming, BEFORE the open -- the machinery/guards stay intact and inert, the why-not provenance rows are the $0 forward shadow, and the crypto twin's ladder-variant SIM lane keeps accruing its own mechanism evidence 24/7. Pre-registered narrow hypothesis (score>=9 + confluence + htf BEAR -- frozen BEFORE slicing) queued as LADDER-SUBSET-PREREG. RE-ARM = restore the keys (docs at each site carry the numbers). This is process>P&L: we armed on n=10, the n=1,538 answer arrived 6 hours later, and we acted on it the same night instead of discovering it live over two weeks.
-## [2026-07-27] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
-
-> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
-> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
-> -   bollinger_squeeze (armed 2026-07-02): since-arm 5tr $+21.00 ($+4.20/tr, 40.0% WR) [3d/3 day+side buckets -- 5 rows are NOT independent trials]
-> -   double_bottom_base_quiet (armed 2026-07-01, 26d ago): 0 fills since arm — no live signal yet
-> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 1tr $+18.00 ($+18.00/tr, 100.0% WR)
-> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
-
----
-
-## [2026-07-27] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-17..2026-07-23), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-23). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-276.48); Bold_ATM_1+2=YELLOW ($-166.9)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
 [2026-07-27T21:22 ET] fable-session: SHIPPED + ARMED overnight (J directive "stop making me prompt") -- REVOKE surface:
   1. SCORE LADDER LIVE (deb781ea): risky-3 (paper, $1,852) enters MIN-SIZE at bear_score>=7 on scoring-failed ticks w/ raw level-tied trigger + level (the 07-27 bear-9 class). BEAR only. REVOKE: delete score_ladder_floor from risky-3's gate_override in fleet/accounts.json -- next tick reverts. Evidence: analysis/arm-ladder/ARM-LADDER-V1-2026-07-27.md (n=10 anchors, SMALL -- the fleet paper ledger is the forward A/B). Other arms UNARMED pending J's table look (proposed 8/8/9/9).
   2. WHY-NOT provenance (3ced7457+79fafbe0): every tick now logs raw detections + blockers + levels + raw rejection level. "Zero triggers" can never lie again.
@@ -558,80 +650,583 @@
 > tolerance/touches combos + a targeted per-anchor touch-count sweep, 2 commits + verification,
 > queue/STATUS/lesson-inbox write-up).
 
-## [2026-07-23 ~22:12-22:29 ET] OK -- conductor (AFTERHOURS): EXITMGR-STAGE-LABEL-CONFLATION closed, commit `c4ee425a`
+- [07-28 08:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 80097s - kill+relaunch
+- [07-28 08:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 80397s - kill+relaunch
+- [07-28 08:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 80697s - kill+relaunch
+- [07-28 09:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 80997s - kill+relaunch
+- [07-28 09:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 81297s - kill+relaunch
 
-> **STAGE 0/1:** ET confirmed 22:12 (Thursday, market closed since 15:55). `engine-health.json`
-> GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again -- STILL
-> correctly `status:pending` on J's REVOKE surface (`gp-2026-07-23-twin-doctrine-001` confirmed
-> via `conductor-proposals.jsonl`, 4th fire in a row confirming, nothing new until J responds).
-> Full ranked list: 4 items tied at score 5.0 (`CATASTROPHE-CAP-WIDEN-WATCH` accrue-only n=4,
-> `EXIT-ENGINE-PARITY-RESIDUAL` research-diagnosis, `EXITMGR-STAGE-LABEL-CONFLATION`,
-> `TRENDLINE-TIGHT-EXIT-ACCRETE` accrue-only shadow). Picked `EXITMGR-STAGE-LABEL-CONFLATION`
-> (MED, ledger-hygiene, filed 2026-07-14) -- a bounded, closable bugfix vs. the other three
-> which are all "keep accruing / keep watching" (no new action available this fire).
+### BROKEN: self-check 2026-07-28T09:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-27 != today 2026-07-28 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 09:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 81597s - kill+relaunch
+- [07-28 09:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 81897s - kill+relaunch
+- [07-28 09:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 82197s - kill+relaunch
+- [07-28 09:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 82497s - kill+relaunch
+- [07-28 09:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 82797s - kill+relaunch
+- [07-28 09:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 83097s - kill+relaunch
 
-> **What I found:** `exit_manager.py`'s pre-TP1 exit-ALL check hardcoded
-> `stage="premium_stop"` even when `profit_lock_arm_scope="full"` made the actual exit a
-> pre-TP1 profit-lock-floor scratch -- the human-readable `reason` string already said
-> `"profit_lock_floor @ X"`, but the machine-readable `stage` field didn't, so any analytics
-> keyed off `stage` (not `reason`) would silently conflate the static -50% catastrophe cap
-> with the lock-floor exit. Fixed at the source: `stage` now reads `"profit_lock_floor"` when
-> `floor_active`, matching `reason`.
+### BROKEN: self-check 2026-07-28T09:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-27 != today 2026-07-28 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 09:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 83397s - kill+relaunch
+- [07-28 09:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 83697s - kill+relaunch
+- [07-28 09:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 83997s - kill+relaunch
+- [07-28 09:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 84297s - kill+relaunch
+- [07-28 10:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 84597s - kill+relaunch
+- [07-28 10:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 84897s - kill+relaunch
 
-> **Blast-radius audit (the actual work, not just the 1-line fix) found + fixed 2 REAL
-> downstream consumers** that read `ExitAction.stage` and would have silently mis-fired on
-> the new label: (1) `backtest/lib/exit_manager_walk.py`'s `_stage_fill_level` -- the
-> live-parity bar walker several backtest tools ride -- would have fallen through to
-> `None` -> market-fill for a floor exit instead of its correct limit-style fill; (2)
-> `backtest/tools/t4_exit_matrix.py` + `backtest/tools/hold_posture_ab_study.py`'s
-> `ARM_SCOPE_FULL` branches (the FIRST feeds `strike_ab_convention_reconciliation.py`'s
-> `shape_sim`; the SECOND is the `TRAIL60-REOPEN-WATCH` queue item's planned re-run once
-> >=50 new fills accrue -- so this was a live landmine for a FUTURE fire, not just a stale
-> comment). Both fixed with the actual ratcheted floor level, not a naive fallback. Checked
-> and confirmed SAFE/unaffected: `fleet_live.py`'s `first-entry-lock.json` reader (the file
-> is never written anywhere in the repo -- dead code, always returns `[]`, out of scope to
-> fix this fire); `debit_spread_ab_study.py`'s 2 defensive comments (never actually sets
-> `scope="full"`, so its branch is unreachable either way); `ribbon_ride_strike_exit_ab.py`,
-> `p5_topcell_real_fills_confirm.py`, `edge_matrix_range_*.py` (all pin `ARM_SCOPE_POST_TP1`
-> explicitly, never full).
+### BROKEN: self-check 2026-07-28T10:09:56
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 10:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 85197s - kill+relaunch
+- [07-28 10:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 85497s - kill+relaunch
+- [07-28 10:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 85797s - kill+relaunch
+- [07-28 10:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 86097s - kill+relaunch
+- [07-28 10:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 86397s - kill+relaunch
+- [07-28 10:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 86697s - kill+relaunch
 
-> **Verified this fire (OP-33):** new guard test
-> `test_stage_disambiguates_catastrophe_cap_from_profit_lock_floor` in
-> `automation/state/fleet/test_exit_manager.py` (REDs if stage is ever re-conflated) + 2
-> existing assertions updated to the correct label + new
-> `backtest/tests/test_exit_manager_walk_stage_labels.py` (3 tests pinning
-> `exit_manager_walk.py`'s fill-level parity between the two stages). Ran the full relevant
-> surface: `test_exit_manager.py` + `test_exit_actuator.py` + `test_exit_manager_replay.py`
-> + `test_profit_lock_scope_pin.py` + `test_ssb_certification.py` + `test_structure_stop_
-> study.py` + `test_exit_manager_walk_stage_labels.py` + `test_t4_exit_matrix.py` +
-> `test_audit_fix_heartbeat.py` + `test_audit_fix_exit.py` + `test_dojo_sim_executor.py` +
-> the 3 crypto-twin exit-touching suites = **265/265 green**. Curated safety gate
-> (`run_safety_gate.py`): 31+5 PASS (also ran automatically via the pre-commit hook).
-> Post-commit `git show c4ee425a --stat --name-status` confirms exactly the 6 intended
-> files landed (5 modified + 1 new test file).
+### BROKEN: self-check 2026-07-28T10:39:56
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 10:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 86997s - kill+relaunch
+- [07-28 10:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 87297s - kill+relaunch
+- [07-28 10:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 87597s - kill+relaunch
+- [07-28 10:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 87897s - kill+relaunch
 
-> **Zero live behavior change today:** no live/paper shape currently sets
-> `profit_lock_arm_scope="full"` (STOP-B stays unarmed per the 2026-07-09 doctrine) --
-> this only activates the correct label the day that scope is armed, or a frozen
-> full-scope study is re-run. This is why it shipped directly under rail 4 (guard test +
-> clean revert + this REVOKE report) rather than needing a J ping: it's a ledger-hygiene
-> correctness fix with a verified-empty live blast radius, not a behavior/edge change.
+## Kitchen
+Kitchen: alive, queue 23 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+- [07-28 11:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 88197s - kill+relaunch
+- [07-28 11:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 88497s - kill+relaunch
 
-> **Learn (STAGE 4.5):** no new lesson filed -- this is the existing blast-radius discipline
-> (grep every consumer of a shared field before shipping, per C34/`/fable-blast-radius`)
-> working exactly as designed on a real case, not a novel foot-gun.
+### BROKEN: self-check 2026-07-28T11:09:56
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 11:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 88797s - kill+relaunch
+- [07-28 11:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 89097s - kill+relaunch
+- [07-28 11:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 89397s - kill+relaunch
+- [07-28 11:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 89697s - kill+relaunch
+- [07-28 11:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 89997s - kill+relaunch
+- [07-28 11:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 90297s - kill+relaunch
 
-> **Scope + revert:** 6 files (`exit_manager.py`, `test_exit_manager.py`,
-> `exit_manager_walk.py`, `t4_exit_matrix.py`, `hold_posture_ab_study.py`,
-> `test_exit_manager_walk_stage_labels.py` [new]). Zero `params.json`/`heartbeat_core.py`/
-> `filters.py`/`CLAUDE.md` touched. Revert: `git revert c4ee425a`.
+### BROKEN: self-check 2026-07-28T11:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 11:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 90597s - kill+relaunch
+- [07-28 11:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 90897s - kill+relaunch
+- [07-28 11:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 91197s - kill+relaunch
+- [07-28 11:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 91497s - kill+relaunch
+- [07-28 12:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 91797s - kill+relaunch
+- [07-28 12:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 92097s - kill+relaunch
 
-> **Cost: ~$4.8** (STAGE 0/1 reads, task_scorer + 4-way tied-item comparison, exit_manager.py
-> source read + edit, blast-radius grep sweep across ~30 files for `stage`/`exit_reason`
-> consumers, 2 downstream-consumer investigations that each needed their own read-through
-> before deciding safe-vs-fix, 2 real fixes + 1 new test file, 3 rounds of test verification
-> at increasing scope, safety gate, commit + verify, queue/STATUS write-up).
+### BROKEN: self-check 2026-07-28T12:09:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 12:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 92397s - kill+relaunch
+- [07-28 12:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 92697s - kill+relaunch
+- [07-28 12:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 92997s - kill+relaunch
+- [07-28 12:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 93297s - kill+relaunch
+- [07-28 12:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 93597s - kill+relaunch
+- [07-28 12:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 93897s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T12:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 12:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 94197s - kill+relaunch
+- [07-28 12:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 94497s - kill+relaunch
+- [07-28 12:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 94797s - kill+relaunch
+- [07-28 12:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 95097s - kill+relaunch
+- [07-28 13:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 95397s - kill+relaunch
+- [07-28 13:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 95697s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T13:09:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 13:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 95997s - kill+relaunch
+- [07-28 13:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 96297s - kill+relaunch
+- [07-28 13:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 96597s - kill+relaunch
+- [07-28 13:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 96897s - kill+relaunch
+- [07-28 13:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 97197s - kill+relaunch
+- [07-28 13:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 97497s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T13:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 13:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 97797s - kill+relaunch
+- [07-28 13:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 98097s - kill+relaunch
+- [07-28 13:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 98397s - kill+relaunch
+- [07-28 13:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 98697s - kill+relaunch
+- [07-28 14:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 98996s - kill+relaunch
+- [07-28 14:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 99297s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T14:09:56
+- ENGINE CANNOT ENTER: 280 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 14:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 99597s - kill+relaunch
+- [07-28 14:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 99897s - kill+relaunch
+- [07-28 14:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 100197s - kill+relaunch
+- [07-28 14:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 100497s - kill+relaunch
+- [07-28 14:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 100797s - kill+relaunch
+- [07-28 14:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 101097s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T14:39:56
+- ENGINE CANNOT ENTER: 310 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 14:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 101397s - kill+relaunch
+- [07-28 14:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 101697s - kill+relaunch
+- [07-28 14:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 101997s - kill+relaunch
+- [07-28 14:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 102297s - kill+relaunch
+- [07-28 15:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 102597s - kill+relaunch
+- [07-28 15:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 102897s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T15:09:56
+- ENGINE CANNOT ENTER: 340 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 15:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 103197s - kill+relaunch
+- [07-28 15:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 103497s - kill+relaunch
+- [07-28 15:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 103797s - kill+relaunch
+- [07-28 15:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 104097s - kill+relaunch
+- [07-28 15:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 104397s - kill+relaunch
+- [07-28 15:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 104697s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T15:39:56
+- ENGINE CANNOT ENTER: 370 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 15:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 104997s - kill+relaunch
+- [07-28 15:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 105297s - kill+relaunch
+- [07-28 15:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 105597s - kill+relaunch
+- [07-28 15:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 105897s - kill+relaunch
+- [07-28 16:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 106196s - kill+relaunch
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-28T20:00:30+00:00
+- task: eod-summary
+- date_et: 2026-07-28
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### BROKEN: self-check 2026-07-28T16:09:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T16:39:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-28T20:45:38+00:00
+- task: analyst
+- date_et: 2026-07-28
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-07-28 21:00:02] gym-session (2026-07-28) → **YELLOW** :: see `automation\state\gym-scorecard-2026-07-28.json`
+### BROKEN: self-check 2026-07-28T17:09:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-07-28T21:31:13+00:00
+- task: manager
+- date_et: 2026-07-28
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### BROKEN: self-check 2026-07-28T17:39:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T18:09:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T18:39:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T19:09:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T19:39:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T20:09:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T20:39:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T21:09:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+[2026-07-28 21:12:35 Tuesday EDT
+market_hours=False] conductor: QUIET — nightly budget spent (7 fires today >= max 4)
+
+### BROKEN: self-check 2026-07-28T21:39:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T22:09:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T22:39:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T23:09:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### WARN: spend-summary threshold breach
+- ts: 2026-07-29T03:30:17+00:00
+- date_et: 2026-07-28
+- total: $226.66 (threshold $30.00)
+- claude: $226.61  minimax: $0.05
+- claude_sessions: 15
+
+### BROKEN: self-check 2026-07-28T23:39:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T00:09:56
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+
+### BROKEN: self-check 2026-07-29T09:46:44
+- Gamma_SightBeacon STALE in RTH: beacon 1037m old (should be <2m). Engine eye may be dark.
+- Gamma_HeartbeatCore STALE in RTH: last decision 1072m ago (should be ~1m). Engine may not be ticking.
+- PREMARKET STALE: today-bias.json date=2026-07-28 != today 2026-07-29 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: URLError: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it> -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+
+### BROKEN: premarket 2026-07-29
+- PREMARKET SILENT FAILURE: claude exit=1 but today-bias.date=2026-07-28 != today 2026-07-29 (no fresh bias written). Engine would open on a STALE bias.
 
 
-### BROKEN: self-check 2026-07-28T01:12:25
-- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+### DEGRADED: premarket 2026-07-29
+- PREMARKET DEGRADED: deterministic fallback covered for the failed LLM step (today-bias.date=2026-07-28 != today 2026-07-29 (no fresh bias written). Engine would open on a STALE bias.)
+
+
+- [2026-07-29 07:46:48] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-07-29 07:46:48] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-07-29 07:46:48] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-29.md
+
+### DEGRADED: self-check 2026-07-29T10:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T10:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- [07-29 10:51 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 3880s - kill+relaunch
+- [07-29 10:56 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4180s - kill+relaunch
+- [07-29 11:01 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4480s - kill+relaunch
+- [07-29 11:06 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4782s - kill+relaunch
+
+### BROKEN: self-check 2026-07-29T11:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-29 11:11 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5080s - kill+relaunch
+- [07-29 11:16 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5380s - kill+relaunch
+- [07-29 11:21 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5680s - kill+relaunch
+- [07-29 11:26 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5981s - kill+relaunch
+- [07-29 11:31 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6280s - kill+relaunch
+- [07-29 11:36 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6580s - kill+relaunch
+
+### BROKEN: self-check 2026-07-29T11:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-29 11:41 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6880s - kill+relaunch
+- [07-29 11:46 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7180s - kill+relaunch
+- [07-29 11:51 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7480s - kill+relaunch
+
+### DEGRADED: self-check 2026-07-29T12:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T12:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- [07-29 13:01 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 3897s - kill+relaunch
+- [07-29 13:06 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4198s - kill+relaunch
+
+### BROKEN: self-check 2026-07-29T13:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-29 13:11 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4497s - kill+relaunch
+- [07-29 13:16 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4797s - kill+relaunch
+- [07-29 13:21 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5097s - kill+relaunch
+- [07-29 13:26 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5398s - kill+relaunch
+- [07-29 13:31 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5697s - kill+relaunch
+- [07-29 13:36 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5997s - kill+relaunch
+
+### BROKEN: self-check 2026-07-29T13:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-29 13:41 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6297s - kill+relaunch
+- [07-29 13:46 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6598s - kill+relaunch
+- [07-29 13:51 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6897s - kill+relaunch
+- [07-29 13:56 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7197s - kill+relaunch
+- [07-29 14:01 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7497s - kill+relaunch
+- [07-29 14:06 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7798s - kill+relaunch
+
+### BROKEN: self-check 2026-07-29T14:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-29 14:11 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8097s - kill+relaunch
+- [07-29 14:16 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8397s - kill+relaunch
+- [07-29 14:21 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8697s - kill+relaunch
+- [07-29 14:26 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8998s - kill+relaunch
+- [07-29 14:31 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9297s - kill+relaunch
+- [07-29 14:36 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9597s - kill+relaunch
+
+### BROKEN: self-check 2026-07-29T14:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-29 14:41 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9897s - kill+relaunch
+- [07-29 14:46 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10197s - kill+relaunch
+- [07-29 14:51 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10497s - kill+relaunch
+- [07-29 14:56 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10797s - kill+relaunch
+- [07-29 15:01 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11097s - kill+relaunch
+- [07-29 15:06 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11398s - kill+relaunch
+
+### BROKEN: self-check 2026-07-29T15:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-29 15:11 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11697s - kill+relaunch
+- [07-29 15:16 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11997s - kill+relaunch
+- [07-29 15:21 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12297s - kill+relaunch
+- [07-29 15:26 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12598s - kill+relaunch
+- [07-29 15:31 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12897s - kill+relaunch
+- [07-29 15:36 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13197s - kill+relaunch
+
+### BROKEN: self-check 2026-07-29T15:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-29 15:41 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13497s - kill+relaunch
+- [07-29 15:46 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13798s - kill+relaunch
+- [07-29 15:51 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14097s - kill+relaunch
+- [07-29 15:56 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 14397s - kill+relaunch
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-29T20:00:15+00:00
+- task: eod-summary
+- date_et: 2026-07-29
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+- [07-29 16:01 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 14697s - kill+relaunch
+- [07-29 16:06 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 14998s - kill+relaunch
+
+### DEGRADED: self-check 2026-07-29T16:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- [07-29 16:11 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 15297s - kill+relaunch
+- [07-29 16:16 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 15597s - kill+relaunch
+- [07-29 16:21 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 15897s - kill+relaunch
+- [07-29 16:26 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 16197s - kill+relaunch
+- [07-29 16:31 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 16497s - kill+relaunch
+- [07-29 16:36 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 16797s - kill+relaunch
+
+### DEGRADED: self-check 2026-07-29T16:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- [07-29 16:41 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 17096s - kill+relaunch
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-29T20:45:23+00:00
+- task: analyst
+- date_et: 2026-07-29
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+- [07-29 16:46 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 17397s - kill+relaunch
+- [07-29 16:51 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 17697s - kill+relaunch
+- [07-29 16:56 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 17996s - kill+relaunch
+
+- [2026-07-29 21:00:02] gym-session (2026-07-29) → **YELLOW** :: see `automation\state\gym-scorecard-2026-07-29.json`- [07-29 17:01 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 18296s - kill+relaunch
+- [07-29 17:06 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 18597s - kill+relaunch
+
+### DEGRADED: self-check 2026-07-29T17:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- [07-29 17:11 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 18896s - kill+relaunch
+- [07-29 17:16 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 19197s - kill+relaunch
+- [07-29 17:21 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 19496s - kill+relaunch
+- [07-29 17:26 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 19797s - kill+relaunch
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-07-29T21:30:47+00:00
+- task: manager
+- date_et: 2026-07-29
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+- [07-29 17:31 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 20096s - kill+relaunch
+- [07-29 17:36 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 20396s - kill+relaunch
+
+### DEGRADED: self-check 2026-07-29T17:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- [07-29 17:41 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 20696s - kill+relaunch
+
+### DEGRADED: self-check 2026-07-29T18:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T18:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T19:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T19:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T20:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T20:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
