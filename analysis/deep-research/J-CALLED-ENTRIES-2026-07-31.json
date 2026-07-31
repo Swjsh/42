@@ -1,0 +1,482 @@
+{
+ "frozen_et_clock": "2026-07-31 16:51:57 Friday EDT",
+ "prereg": "see module docstring (frozen before any fetch/run)",
+ "qty": 3,
+ "lanes": {
+  "CORE-CONTROL": {
+   "premium_stop_pct": -0.2,
+   "tp1_premium_pct": 1.0,
+   "tp1_qty_fraction": 0.667,
+   "profit_lock_mode": "trailing",
+   "runner_target_pct": 99.0,
+   "trail_pct": 0.15,
+   "profit_lock_arm_pct": 0.05,
+   "stop_mode": "structure",
+   "catastrophe_stop_pct": -0.5,
+   "profit_lock_arm_scope": "post_tp1"
+  },
+  "ZONE-RIDE": {
+   "premium_stop_pct": -0.2,
+   "tp1_premium_pct": 1.0,
+   "tp1_qty_fraction": 0.667,
+   "profit_lock_mode": "trailing",
+   "runner_target_pct": 99.0,
+   "trail_pct": 0.2,
+   "profit_lock_arm_pct": 0.05,
+   "stop_mode": "structure",
+   "catastrophe_stop_pct": -0.5,
+   "profit_lock_arm_scope": "post_tp1"
+  }
+ },
+ "label": "n=4 (+1 alt) ANECDOTE -- real OPRA only, nothing arms",
+ "entries": [
+  {
+   "tag": "e1",
+   "day": "2026-07-31",
+   "trig_bar": "10:15",
+   "trig_close": 738.605,
+   "strike": 739,
+   "side_letter": "C",
+   "level": 737.68,
+   "j_call": "long off the 737.68 wick/bottom ~10:15-10:20 ET",
+   "engine_verdict": "HOLD all window; bull_score peak 9 (blockers 5,8,10); wick_reclaim fired SHADOW-only 10:21-10:35",
+   "symbol": "SPY260731C00739000",
+   "entry_ts": "2026-07-31 10:20:00",
+   "entry_premium": 1.98,
+   "opt_bars": 80,
+   "path": {
+    "mfe_pct": 392.4,
+    "mae_pct": 9.6,
+    "close_pct": 314.1
+   },
+   "walks": [
+    {
+     "lane": "CORE-CONTROL",
+     "pnl": 550.75,
+     "exit_reason": "runner_stop @ 3.53",
+     "exit_time": "2026-07-31 11:10:00",
+     "resolved": true,
+     "legs": [
+      {
+       "stage": "tp1",
+       "qty": 2,
+       "fill": 3.96,
+       "ts": "2026-07-31 10:50:00",
+       "leg_pnl": 396.0
+      },
+      {
+       "stage": "trail",
+       "qty": 1,
+       "fill": 3.53,
+       "ts": "2026-07-31 11:10:00",
+       "leg_pnl": 154.75
+      }
+     ]
+    },
+    {
+     "lane": "ZONE-RIDE",
+     "pnl": 530.0,
+     "exit_reason": "runner_stop @ 3.32",
+     "exit_time": "2026-07-31 11:25:00",
+     "resolved": true,
+     "legs": [
+      {
+       "stage": "tp1",
+       "qty": 2,
+       "fill": 3.96,
+       "ts": "2026-07-31 10:50:00",
+       "leg_pnl": 396.0
+      },
+      {
+       "stage": "trail",
+       "qty": 1,
+       "fill": 3.32,
+       "ts": "2026-07-31 11:25:00",
+       "leg_pnl": 134.0
+      }
+     ]
+    },
+    {
+     "lane": "HOLD-to-15:45 (diagnostic)",
+     "pnl": 2142.0,
+     "exit_reason": "fixed_hold",
+     "exit_time": "2026-07-31 15:45:00",
+     "resolved": true,
+     "legs": []
+    },
+    {
+     "lane": "ORACLE peak (unachievable)",
+     "pnl": 2331.0,
+     "exit_reason": "oracle",
+     "exit_time": null,
+     "resolved": true,
+     "legs": []
+    }
+   ]
+  },
+  {
+   "tag": "e2",
+   "day": "2026-07-31",
+   "trig_bar": "11:30",
+   "trig_close": 740.74,
+   "strike": 741,
+   "side_letter": "C",
+   "level": 739.73,
+   "j_call": "long ~11:30 at the 739.7x level",
+   "engine_verdict": "HOLD; no live trigger class for touch-and-hold (level_reclaim needs low<level<close cross); pullback_hold/wick_reclaim SHADOW-only",
+   "symbol": "SPY260731C00741000",
+   "entry_ts": "2026-07-31 11:35:00",
+   "entry_premium": 1.46,
+   "opt_bars": 80,
+   "path": {
+    "mfe_pct": 434.2,
+    "mae_pct": 5.5,
+    "close_pct": 291.1
+   },
+   "walks": [
+    {
+     "lane": "CORE-CONTROL",
+     "pnl": 605.85,
+     "exit_reason": "runner_stop @ 4.6",
+     "exit_time": "2026-07-31 13:50:00",
+     "resolved": true,
+     "legs": [
+      {
+       "stage": "tp1",
+       "qty": 2,
+       "fill": 2.92,
+       "ts": "2026-07-31 12:15:00",
+       "leg_pnl": 292.0
+      },
+      {
+       "stage": "trail",
+       "qty": 1,
+       "fill": 4.6,
+       "ts": "2026-07-31 13:50:00",
+       "leg_pnl": 313.85
+      }
+     ]
+    },
+    {
+     "lane": "ZONE-RIDE",
+     "pnl": 914.0,
+     "exit_reason": "time_stop_15:50 (runner)",
+     "exit_time": "2026-07-31 15:50:00",
+     "resolved": true,
+     "legs": [
+      {
+       "stage": "tp1",
+       "qty": 2,
+       "fill": 2.92,
+       "ts": "2026-07-31 12:15:00",
+       "leg_pnl": 292.0
+      },
+      {
+       "stage": "time_stop",
+       "qty": 1,
+       "fill": 7.68,
+       "ts": "2026-07-31 15:50:00",
+       "leg_pnl": 622.0
+      }
+     ]
+    },
+    {
+     "lane": "HOLD-to-15:45 (diagnostic)",
+     "pnl": 1695.0,
+     "exit_reason": "fixed_hold",
+     "exit_time": "2026-07-31 15:45:00",
+     "resolved": true,
+     "legs": []
+    },
+    {
+     "lane": "ORACLE peak (unachievable)",
+     "pnl": 1902.0,
+     "exit_reason": "oracle",
+     "exit_time": null,
+     "resolved": true,
+     "legs": []
+    }
+   ]
+  },
+  {
+   "tag": "e3",
+   "day": "2026-07-31",
+   "trig_bar": "12:10",
+   "trig_close": 743.55,
+   "strike": 744,
+   "side_letter": "C",
+   "level": 743.25,
+   "j_call": "long ~12:10-12:15 off the 742.97-retest bounce (primo entry)",
+   "engine_verdict": "bull 11/11 PASSED 12:16-12:18 -> SKIP_ELITE_BULL_LEVEL_RECLAIM (block_elite_bull, old-feed evidence)",
+   "symbol": "SPY260731C00744000",
+   "entry_ts": "2026-07-31 12:15:00",
+   "entry_premium": 1.06,
+   "opt_bars": 80,
+   "path": {
+    "mfe_pct": 350.9,
+    "mae_pct": -12.3,
+    "close_pct": 191.5
+   },
+   "walks": [
+    {
+     "lane": "CORE-CONTROL",
+     "pnl": 330.4,
+     "exit_reason": "runner_stop @ 2.24",
+     "exit_time": "2026-07-31 13:40:00",
+     "resolved": true,
+     "legs": [
+      {
+       "stage": "tp1",
+       "qty": 2,
+       "fill": 2.12,
+       "ts": "2026-07-31 13:25:00",
+       "leg_pnl": 212.0
+      },
+      {
+       "stage": "trail",
+       "qty": 1,
+       "fill": 2.24,
+       "ts": "2026-07-31 13:40:00",
+       "leg_pnl": 118.4
+      }
+     ]
+    },
+    {
+     "lane": "ZONE-RIDE",
+     "pnl": 317.2,
+     "exit_reason": "runner_stop @ 2.11",
+     "exit_time": "2026-07-31 13:50:00",
+     "resolved": true,
+     "legs": [
+      {
+       "stage": "tp1",
+       "qty": 2,
+       "fill": 2.12,
+       "ts": "2026-07-31 13:25:00",
+       "leg_pnl": 212.0
+      },
+      {
+       "stage": "trail",
+       "qty": 1,
+       "fill": 2.11,
+       "ts": "2026-07-31 13:50:00",
+       "leg_pnl": 105.2
+      }
+     ]
+    },
+    {
+     "lane": "HOLD-to-15:45 (diagnostic)",
+     "pnl": 906.0,
+     "exit_reason": "fixed_hold",
+     "exit_time": "2026-07-31 15:45:00",
+     "resolved": true,
+     "legs": []
+    },
+    {
+     "lane": "ORACLE peak (unachievable)",
+     "pnl": 1116.0,
+     "exit_reason": "oracle",
+     "exit_time": null,
+     "resolved": true,
+     "legs": []
+    }
+   ]
+  },
+  {
+   "tag": "e4",
+   "day": "2026-07-30",
+   "trig_bar": "12:40",
+   "trig_close": 738.03,
+   "strike": 738,
+   "side_letter": "C",
+   "level": 737.6,
+   "j_call": "07-30: bounced 12:40 off the 737.6-737.85 line and rode",
+   "engine_verdict": "BLIND day (0 levels all RTH) -> no level trigger possible; engine instead ENTER_BEAR 11:31-11:46 near the low",
+   "symbol": "SPY260730C00738000",
+   "entry_ts": "2026-07-30 12:45:00",
+   "entry_premium": 1.51,
+   "opt_bars": 80,
+   "path": {
+    "mfe_pct": 276.2,
+    "mae_pct": 7.9,
+    "close_pct": 257.6
+   },
+   "walks": [
+    {
+     "lane": "CORE-CONTROL",
+     "pnl": 522.45,
+     "exit_reason": "runner_stop @ 3.71",
+     "exit_time": "2026-07-30 15:50:00",
+     "resolved": true,
+     "legs": [
+      {
+       "stage": "tp1",
+       "qty": 2,
+       "fill": 3.02,
+       "ts": "2026-07-30 15:05:00",
+       "leg_pnl": 302.0
+      },
+      {
+       "stage": "trail",
+       "qty": 1,
+       "fill": 3.71,
+       "ts": "2026-07-30 15:50:00",
+       "leg_pnl": 220.45
+      }
+     ]
+    },
+    {
+     "lane": "ZONE-RIDE",
+     "pnl": 508.0,
+     "exit_reason": "time_stop_15:50 (runner)",
+     "exit_time": "2026-07-30 15:50:00",
+     "resolved": true,
+     "legs": [
+      {
+       "stage": "tp1",
+       "qty": 2,
+       "fill": 3.02,
+       "ts": "2026-07-30 15:05:00",
+       "leg_pnl": 302.0
+      },
+      {
+       "stage": "time_stop",
+       "qty": 1,
+       "fill": 3.57,
+       "ts": "2026-07-30 15:50:00",
+       "leg_pnl": 206.0
+      }
+     ]
+    },
+    {
+     "lane": "HOLD-to-15:45 (diagnostic)",
+     "pnl": 699.0,
+     "exit_reason": "fixed_hold",
+     "exit_time": "2026-07-30 15:45:00",
+     "resolved": true,
+     "legs": []
+    },
+    {
+     "lane": "ORACLE peak (unachievable)",
+     "pnl": 1251.0,
+     "exit_reason": "oracle",
+     "exit_time": null,
+     "resolved": true,
+     "legs": []
+    }
+   ]
+  },
+  {
+   "tag": "e4alt",
+   "day": "2026-07-30",
+   "trig_bar": "12:00",
+   "trig_close": 738.28,
+   "strike": 738,
+   "side_letter": "C",
+   "level": 737.6,
+   "j_call": "07-30: broke back through on the 12:00 power candle (secondary read)",
+   "engine_verdict": "same blind-day context as e4",
+   "symbol": "SPY260730C00738000",
+   "entry_ts": "2026-07-30 12:05:00",
+   "entry_premium": 1.77,
+   "opt_bars": 80,
+   "path": {
+    "mfe_pct": 220.9,
+    "mae_pct": -22.6,
+    "close_pct": 205.1
+   },
+   "walks": [
+    {
+     "lane": "CORE-CONTROL",
+     "pnl": 548.45,
+     "exit_reason": "runner_stop @ 3.71",
+     "exit_time": "2026-07-30 15:50:00",
+     "resolved": true,
+     "legs": [
+      {
+       "stage": "tp1",
+       "qty": 2,
+       "fill": 3.54,
+       "ts": "2026-07-30 15:10:00",
+       "leg_pnl": 354.0
+      },
+      {
+       "stage": "trail",
+       "qty": 1,
+       "fill": 3.71,
+       "ts": "2026-07-30 15:50:00",
+       "leg_pnl": 194.45
+      }
+     ]
+    },
+    {
+     "lane": "ZONE-RIDE",
+     "pnl": 534.0,
+     "exit_reason": "time_stop_15:50 (runner)",
+     "exit_time": "2026-07-30 15:50:00",
+     "resolved": true,
+     "legs": [
+      {
+       "stage": "tp1",
+       "qty": 2,
+       "fill": 3.54,
+       "ts": "2026-07-30 15:10:00",
+       "leg_pnl": 354.0
+      },
+      {
+       "stage": "time_stop",
+       "qty": 1,
+       "fill": 3.57,
+       "ts": "2026-07-30 15:50:00",
+       "leg_pnl": 180.0
+      }
+     ]
+    },
+    {
+     "lane": "HOLD-to-15:45 (diagnostic)",
+     "pnl": 621.0,
+     "exit_reason": "fixed_hold",
+     "exit_time": "2026-07-30 15:45:00",
+     "resolved": true,
+     "legs": []
+    },
+    {
+     "lane": "ORACLE peak (unachievable)",
+     "pnl": 1173.0,
+     "exit_reason": "oracle",
+     "exit_time": null,
+     "resolved": true,
+     "legs": []
+    }
+   ]
+  }
+ ],
+ "validation": {
+  "tag": "v1-risky3-real",
+  "day": "2026-07-31",
+  "symbol": "SPY260731C00746000",
+  "entry_tick": "12:19:03",
+  "entry_premium": 0.33,
+  "qty": 5,
+  "level": 743.25,
+  "broker_truth": "+$126 realized on this position (tp1 3@0.65 +$96, trail 2@0.48 +$30)",
+  "walk_pnl": 138.6,
+  "walk_exit_reason": "runner_stop @ 0.53",
+  "walk_legs": [
+   {
+    "stage": "tp1",
+    "qty": 3,
+    "fill": 0.66,
+    "ts": "2026-07-31 12:35:00",
+    "leg_pnl": 99.0
+   },
+   {
+    "stage": "trail",
+    "qty": 2,
+    "fill": 0.53,
+    "ts": "2026-07-31 12:45:00",
+    "leg_pnl": 39.6
+   }
+  ]
+ }
+}
