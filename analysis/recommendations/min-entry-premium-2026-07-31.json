@@ -1,0 +1,88 @@
+{
+ "_doc": "min_entry_premium gate-provenance audit + blocked-trade replay, triggered by J's 2026-07-31 12:19 ET discovery: an 11/11 bull setup at level 743.25 was taken by risky-3 (SPY260731C00746000 @ $0.33, WON) but refused for safe-3/risky-1 whose own strike priced under the $0.30 floor; forensics found risky-1 alone logged 15/16 named-setup ticks today dying on this exact floor. Standing rule invoked: every gate needs documented provenance + evidence or it gets deleted (J directive 2026-07-02).",
+ "pre_registration": {
+  "written_at_et": "2026-07-31 17:19:08 EDT (setup/scripts/et_clock.py, market_hours=False)",
+  "written_before_replay_run": true,
+  "hypothesis": "H1 (floor-is-the-problem): the min_entry_premium=0.30 floor has no real provenance and is silently costing the fleet money by refusing tradeable setups -> replay should show the blocked cohort net POSITIVE or at least not clearly toxic. H2 (floor-is-correct, strike-tier-is-the-problem): the floor's 2026-07-09 provenance (T2/T3/T5, entry-exit-matrix-2026-07-09.json) is real and the sub-$0.30 cohort it excludes IS the toxic 2-tick/spread-noise cohort -> replay should show the blocked cohort net NEGATIVE or marginal, AND the root cause of WHY these 3 arms keep colliding with the floor is fleet_executor._tiers_for_arm defaulting non-safe arms (safe-3 explicitly too) to strike_selection.V15_BOLD_TIERS (OTM-2/OTM-3), the SAME mechanism accounts.json's probe_arm._doc already diagnosed on 2026-07-10 (18/31 arm-events) and bold-strike-axis-2026-07-15.json already quantified for core Bold (OTM-3 = 34% floor-clearance vs ATM's 97.95%, ATM +$28.77/tr OOS) -- a fix that ALREADY EXISTS (V15_BOLD_CORE_TIERS) and was wired for core Bold on 2026-07-17 but never extended to the fleet lane.",
+  "method": "Real OPRA 5-min option bars (Alpaca /v1beta1/options/bars). Fill = open of first option bar at/after the decision tick (today_blocked_replay_2026_07_29.py convention -- 'next available print'). Walked through the REAL live exit_manager core (backtest/lib/exit_manager_walk.walk_exit_manager), never simulator_real (2026-07-09 sim-parity scar). Each cell uses the ARM'S OWN registered exit shape (RIBBON_RIDE registry + that arm's accounts.json params_patch.exit_patch overlay) and the qty actually logged at that tick. trigger_level backfilled from any arm's real ENTER_* row at the identical decision tick where one exists; else left null, which exit_manager.ExitState.from_entry resolves to stop_mode='premium' by its own documented inertness contract (not a fabricated level) -- disclosed per-cell in the output.",
+  "cohort": "Every SKIP_MIN_PREMIUM_FLOOR row on the 3 fleet_rest arms (safe-3, risky-1, risky-3) 2026-07-28..2026-07-31, clustered into distinct signal-instances (consecutive floor-hit rows, same day/side/setup_name, gap <=15min = one instance). Core lane (safe-2/bold-2) excluded from the cohort -- 0 SKIP_MIN_PREMIUM_FLOOR fires in this window (their ATM/near-ATM strikes essentially never collide with the floor), which is itself disclosed as evidence for H2.",
+  "gates_and_disclosure": [
+   "n is SMALL BY CONSTRUCTION (4 trading days, 1 gate) -- report as ANECDOTE per this repo's own today_blocked_replay_2026_07_29.py convention, not as an auto-ratify-eligible battery.",
+   "Report ALL cells, no cherry-picking -- including excluded (no_option_data/no_entry_print) cells.",
+   "Report n, total $, WR, expectancy/trade, and drop-best (exclude the single largest winner) as a robustness check against one anchor trade carrying the whole result.",
+   "The floor itself is NOT touched by this file regardless of the replay's sign -- see provenance_verdict below. This replay's job is to inform whether the ALREADY-EXISTING strike-tier fix (V15_BOLD_CORE_TIERS) is worth extending to the fleet lane, not to justify deleting or lowering the floor."
+  ]
+ },
+ "provenance_verdict": {
+  "claim_in_the_mission": "Treat min_entry_premium as a suspect Claude-invented lock; delete if unvalidated.",
+  "finding": "NOT an unvalidated lock. Real, dated, scorecard-backed provenance found and verified by direct file read.",
+  "evidence": [
+   "Shipped 2026-07-09, STOP-B disposition, analysis/recommendations/entry-exit-matrix-2026-07-09.md (T-W7 layers a+b confirmatory pass).",
+   "Mechanism (T2, cited in heartbeat_core.py:1825-1829 comment and test_min_entry_premium_floor.py docstring): sub-$0.20 fills are a toxic cohort, ~2-tick stops, ~42% spread proxy -- the stop reads bid/ask spread noise, not price action. This is the SAME mechanism CLAUDE.md's noise-floor lesson memory describes.",
+   "T3 full population (n=157): control $22.91/tr -> $36.62/tr at the floor (cited in accounts.json's probe_arm._doc and engine-contract.md).",
+   "T5 (this scorecard's own anchor, entry-exit-matrix-2026-07-09.json layer_b): entry-1+control anchor $-72.5 vs unfiltered control $-757.1 over the SAME 79-position population -- the floor mechanically dropped 63 positions (the toxic sub-floor cohort) and left 16 that netted -$72.5 instead of the full population's -$757.1.",
+   "Independently re-audited 2026-07-09 same night: markdown/audits/GATE-PROVENANCE-CENSUS-2026-07-09.md section 2b marks it KEEP, freshest gate in a 45-gate census, explicitly '0 days -- co-designed with tonight's exit-shape ship, not riding stale P&L', and the census's own TLDR states '0 gates found with zero provenance' repo-wide at that time.",
+   "Guard-tested both lanes: backtest/tests/test_min_entry_premium_floor.py, 10 tests, RED-proofed (vary-and-assert: floor 0/absent is byte-identical to pre-ship behavior in BOTH heartbeat_core._execute and fleet_executor.finalize)."
+  ],
+  "verdict": "KEEP. Do not delete or lower the floor. It is doing exactly the job it was built and measured to do."
+ },
+ "mechanism_check": {
+  "question": "Is a $0.30 floor coherent, or does it just block trades?",
+  "finding": "Coherent AND already known to interact badly with ONE specific consumer: the fleet lane's non-core arms. The floor's own evidence (T2/T3/T5) is real and unrelated to this interaction. Separately, and BEFORE this investigation, the codebase had already diagnosed that safe-3/risky-1/risky-3 systematically price their strikes cheap enough to collide with this floor on a majority of afternoon signals, because fleet_executor.py:175-187 `_tiers_for_arm` defaults every non-'safe'-prefixed arm id (and safe-3 explicitly, via params_patch.strike_tier_table='bold') to crypto/lib/strike_selection.py's V15_BOLD_TIERS (OTM-2 at $2K-10K equity / OTM-3 below $2K) instead of the ATM-at-low-equity V15_BOLD_CORE_TIERS table.",
+  "prior_diagnosis_1": "automation/state/fleet/accounts.json probe_arm._doc, AMENDMENT 1 (2026-07-10): 'min_entry_premium -- NOT the cohort gates -- is the real #1 blocker in practice (18 of 31 arm-events on 07-10 alone), because the fleet's own far-OTM/bold sizing tiers price their natural 0DTE contracts under the $0.30 floor.'",
+  "prior_diagnosis_2": "crypto/lib/strike_selection.py V15_BOLD_CORE_TIERS docstring + analysis/recommendations/bold-strike-axis-2026-07-15.json: OTM-3 at the $0-2K tier shows 'a structural floor-collision (afternoon premium-floor clearance 0.3376, i.e. ~66% of afternoon signals never clear min_entry_premium and are silently skipped)... ATM clears floor at 0.9688 afternoon / 0.9795 overall and is +$28.77/tr OOS, beats control, BH-FDR survivor, sub_window_stable, anchor no-regression (4 of 5 gates)'.",
+  "already_partially_fixed": "2026-07-17 evening, J explicit in-chat authorization ('Yes -- wire Bold to ATM'): core Bold's heartbeat_core.py bold branch AND j_intent_executor.py's bold branch were repointed from V15_BOLD_TIERS to V15_BOLD_CORE_TIERS. Per strike_selection.py's own module comment, this deliberately did NOT touch fleet_executor.py's _tiers_for_arm -- a THIRD consumer of V15_BOLD_TIERS that the fix's own author flagged but left unwired, because safe-3's OTM choice there is DELIBERATE for a different reason (see next field).",
+  "confound_not_a_bug": "safe-3's accounts.json grid.sizing_profiles.safe note: 'OTM strikes (params_patch strike_tier_table=bold to fit the $600 notional cap at $2K equity -- ATM doesn't place this small)'. Moving safe-3 to ATM strikes would raise per-contract notional and may break its qty/risk-cap sizing table -- this is a genuine trade-off that was never evaluated, not an oversight to mechanically copy the core-Bold fix onto.",
+  "verdict": "The stop/spread mechanism the floor guards against is real (T2) and NOT what's happening here -- these are plan-time refusals, never a stop misfire. The actual lever is strike depth, not stop mode. An ALREADY-VALIDATED fix for this exact mechanism (V15_BOLD_CORE_TIERS) exists in the codebase but was scoped to core Bold only; extending it to risky-1/risky-3 (which have no notional-cap justification for staying OTM, unlike safe-3) is the correct next study -- PRE-REGISTERED below, NOT armed this session (unvalidated-for-this-consumer, and one arm has a genuine competing sizing constraint that needs its own review)."
+ },
+ "cost_measurement": {
+  "window": "2026-07-28..2026-07-31",
+  "method_note": "See backtest/tools/min_entry_premium_blocked_replay_2026_07_31.py and its output analysis/recommendations/min-entry-premium-blocked-replay-2026-07-31.json for the full per-cell replay (real OPRA quotes, entry+1 convention, real exit_manager walk). Results folded into this file's `replay_results` field after the script ran (same session, after this pre-registration was written and committed to disk first).",
+  "raw_floor_hit_counts_2026_07_28_to_2026_07_31": {
+   "core_safe_bold": 0,
+   "safe-3": 20,
+   "risky-1": 24,
+   "risky-3": 14,
+   "note": "raw tick counts (not deduped). risky-1's 24 fires include the 15/16 named-setup ticks J flagged from 2026-07-31 alone. Deduped into distinct signal-instances (<=15min gap = one instance) for the replay: safe-3 n=8, risky-1 n=10, risky-3 n=7, total n=25 cells."
+  }
+ },
+ "replay_results": {
+  "ran_at": "2026-07-31 (same session, after pre_registration written to disk)",
+  "script": "backtest/tools/min_entry_premium_blocked_replay_2026_07_31.py",
+  "full_output": "analysis/recommendations/min-entry-premium-blocked-replay-2026-07-31.json",
+  "n_cells": 25,
+  "n_excluded": 0,
+  "total_pnl": -145.20,
+  "wr": 0.36,
+  "expectancy_per_trade": -5.81,
+  "expectancy_drop_best": -9.59,
+  "by_arm": {
+   "safe-3": {"n": 8, "total": 27.40, "wr": 0.50},
+   "risky-1": {"n": 10, "total": -92.10, "wr": 0.40},
+   "risky-3": {"n": 7, "total": -80.50, "wr": 0.1429}
+  },
+  "headline": "The exact cohort the floor excluded, replayed through the REAL exit_manager on real OPRA quotes, nets MILDLY NEGATIVE (-$145.20 / 25 cells, -$5.81/trade, still negative on drop-best at -$9.59/trade -- not one lucky trade carrying the total). This is NOT the wipeout the original T2/T3/T5 study found (control -$757 vs floor -$72.5 on the July-9 anchor population) -- this fresh window is far smaller and milder -- but the SIGN agrees: the floor did not leave meaningful money on the table in 2026-07-28..2026-07-31. Two of 25 cells were the single 07-31 12:19 signal (743.25 level) risky-3 actually won live at its nearer strike (+ish); replayed at safe-3/risky-1's own further-OTM strikes the SAME signal is smaller-but-still a winner (+$47.60 safe-3, +$52.70 risky-1) -- so the floor is not costing NOTHING, but the very next signal 66 minutes later (13:25, level 745.31) is a clean structure-stop loser at every arm's strike (-$60 to -$100), and the late-day (14:00-15:52 ET) theta-decayed tail is a wash. n=25 across 4 days is SMALL -- this is a disclosed anecdote, not a battery result, and should NOT be read as 'the floor is proven correct to the penny' -- only as 'nothing here argues for touching it.'",
+  "small_n_disclosure": "4 trading days, 3 arms, 1 gate. Not auto-ratify-eligible by this repo's own OP-16/OP-22 bar (needs n>=15-30 per gate depending on context). Reported in full per the pre-registration's no-cherry-picking gate -- every cell above is in the linked full_output file, including the two biggest losers (risky-1 -$100.00, safe-3 -$60.00, same 13:25 signal) and the two biggest winners (risky-3 +$85.00, risky-1 +$52.70)."
+ },
+ "recommendation": {
+  "on_the_floor": "DO NOT TOUCH min_entry_premium. Provenance is real (T2/T3/T5 + independent 2026-07-09 gate census + 10-test RED-proofed guard). The fresh 4-day replay of exactly what it blocked is mildly negative, which REINFORCES rather than contradicts the original decision -- deleting or lowering it would knowingly re-admit a cohort this session's own evidence (on top of three prior studies) says is not profitable.",
+  "on_the_real_lever": "The participation loss J is feeling (risky-1's 15/16 named-setup HOLDs on 2026-07-31) is real and worth fixing, but the lever is STRIKE DEPTH, not the floor threshold. fleet_executor._tiers_for_arm still defaults risky-1/risky-3 (id-prefix) and safe-3 (explicit params_patch) to strike_selection.V15_BOLD_TIERS (OTM-2/OTM-3), the same table whose $0-2K-tier OTM-3 cell was independently measured (bold-strike-axis-2026-07-15.json) to clear this exact floor only 33.76% of the time on afternoon signals, versus V15_BOLD_CORE_TIERS' ATM cell at 96.88% -- and ALSO +$28.77/tr OOS, beats-control, BH-FDR-survivor, sub-window-stable, anchor-no-regression (4 of the 5 OP-22 gates; only WF fails, and queue.md's own WF-GATE-STRUCTURALLY-NULL entry says that gate is known-broken repo-wide, not a real red flag on this candidate). This fix ALREADY EXISTS and was wired for core Bold on 2026-07-17 by J's explicit go-ahead -- it was simply never extended to the 3 fleet_rest arms.",
+  "why_not_armed_this_session": "Extending V15_BOLD_CORE_TIERS to fleet_executor._tiers_for_arm is a DIFFERENT consumer decision than the one J already authorized (core Bold only), and one of the three arms (safe-3) has a documented, un-evaluated competing constraint: its OTM choice exists 'to fit the $600 notional cap at $2K equity -- ATM doesn't place this small' (accounts.json). Moving safe-3 to ATM without checking its position_sizing_tiers compatibility could break its sizing, not just its floor-clearance. risky-1/risky-3 have no such documented constraint and are the cleaner candidates. Per this repo's own OP-16/OP-32 (gate-provenance/gate-redefinition routes to judgment, not mechanical execution) and the precedent this exact table's own docstring sets (J's explicit in-chat 'yes' was required even with the P&L evidence already in hand, because participation-not-P&L was the deciding argument), this is PRE-REGISTERED as the next study, not silently armed.",
+  "proposed_next_study_PRE_REGISTERED_NOT_ARMED": {
+   "candidate": "Repoint fleet_executor._tiers_for_arm's default (risky-1, risky-3 only -- NOT safe-3 pending its own notional-cap review) from strike_selection.V15_BOLD_TIERS to strike_selection.V15_BOLD_CORE_TIERS.",
+   "hypothesis": "Floor-clearance on risky-1/risky-3's afternoon signals rises from ~34% to ~90%+ (mirroring the core-Bold measurement), converting a material fraction of today's 15/16 HOLDs into real entries, at a strike depth already shown OOS-positive for the SAME $0-2K equity tier.",
+   "gates_before_arming": ["n>=20 live fleet fills under the new tier (falls back to the existing OP-16 bar: OOS_positive AND WF>=0.70-or-disclosed-null AND sub_window_stable AND anchor_no_regression)", "explicit check that risky-1/risky-3's position_sizing_tiers still clamp to a sane qty at ATM-class premiums (higher notional per contract than OTM-3)", "safe-3 excluded from this candidate until its notional-cap trade-off gets its own review"],
+   "falsification_rail": "First 20 live fleet fills under the new tier get an expectancy check against bold-strike-axis-2026-07-15.json's +$28.77/tr OOS figure, same pattern as strike_selection.py's own V15_BOLD_CORE_TIERS docstring falsification rail for core Bold."
+  }
+ },
+ "disposition": {
+  "floor_min_entry_premium": "KEEP, unchanged. No code or config edit shipped.",
+  "shipped_this_session": [
+   "This scorecard (provenance verdict + mechanism check + pre-registered, real-quote blocked-trade replay).",
+   "backtest/tools/min_entry_premium_blocked_replay_2026_07_31.py -- the replay tool, reusable for future floor-cost checks.",
+   "analysis/recommendations/min-entry-premium-blocked-replay-2026-07-31.json -- full per-cell replay output, no cherry-picking.",
+   "backtest/tests/test_fleet_strike_tier_floor_collision_2026_07_31.py -- guard pinning today's mechanism finding (fleet arms' OTM-table default + the already-validated ATM alternative's strike math) so it can't silently rot or silently get 'fixed' without this provenance chain being read first. 6/6 green; RED-proofed by simulated mutation (see test file's own module docstring for the RED-proof method)."
+  ],
+  "not_shipped": "No repoint of fleet_executor._tiers_for_arm. That is a live-fleet strike-selection change on 3 real paper accounts and needs its own falsification rail (see proposed_next_study above) before arming, per this repo's own precedent for the identical change on core Bold (required J's explicit go-ahead even with P&L evidence already in hand)."
+ }
+}
