@@ -1,3 +1,10 @@
+## Known broken
+
+- [2026-07-31T15:30:22] GATE-EXPIRY RED :: block_elite_bull :: refused cohort would have EARNED $13.15/tr, n=97 >= floor 10 -- COSTING money :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate block_elite_bull
+_Standing OP-25 flag surface. Producers append ONE loud line here on a transition into a broken/RED state (never re-spam a persisting flag) -- see `setup/guard_runner_slow.py::_flag_status_md` and `backtest/autoresearch/gate_expiry_check.py::flag_status_md` for the exact pattern. STRUCTURAL NOTE (found + fixed 2026-07-31, gate-expiry-instrument build): this header used to live INSIDE individual dated `## [...]` entries, so `setup/scripts/status_retention.py`'s byte-budget rolling (which only ever preserves the file's PREAMBLE -- everything before the first `## [` entry -- forever) carried it off to the monthly archive the moment the entry containing it aged out. Every producer targeting this marker was silently no-op'ing (marker not found -> fail-open no-write) for an unknown span before this fix. Moving it into the permanent preamble makes it immune to retention rolls going forward. If this section grows large, prune resolved lines by hand (OP-22 consolidation) rather than letting status_retention.py touch it -- it never will._
+
+---
+
 ## [2026-07-31 ~09:12-09:35 ET] OK -- conductor (AFTERHOURS): LIVE TV-CDP outage fixed pre-open + self-heal blind-spot closed, commit `c941567c`
 
 > **STAGE 0/1:** ET 09:12 Friday (pre-open, market closed until 09:30). Budget gate
@@ -665,7 +672,7 @@
 
 
 ## Kitchen
-Kitchen: alive, queue 36 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 34 pending, last cook 0 min ago, today $0.00, model=scorecard-python
 
 - [2026-07-31 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
 
@@ -695,4 +702,439 @@ Kitchen: alive, queue 36 pending, last cook 0 min ago, today $0.00, model=openro
 - TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 
 ### DEGRADED: self-check 2026-07-31T09:26:18
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T09:39:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T10:09:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- [07-31 10:20 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 3666s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 10:20 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 3666s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 10:25 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 3966s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 10:25 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 3966s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 10:30 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 4266s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 10:30 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 4266s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 10:35 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 4566s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 10:35 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 4566s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T10:39:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 10:40 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 4866s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 10:40 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 4866s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 10:45 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 5166s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 10:45 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 5166s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 10:50 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 5466s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 10:50 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 5466s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 10:55 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 5766s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 10:55 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 5766s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:00 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 6066s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:00 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 6066s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:05 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 6366s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:05 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 6366s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T11:09:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 11:10 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 6666s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:10 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 6666s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:15 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 6966s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:15 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 6966s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:20 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 7266s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:20 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 7266s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:25 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 7566s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:25 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 7566s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:30 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 7866s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:30 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 7866s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:35 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 8166s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:35 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 8166s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T11:39:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 11:40 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 8466s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:40 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 8466s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:45 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 8766s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:45 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 8766s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:50 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 9066s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:50 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 9066s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:55 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 9366s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:55 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 9366s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:00 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 9666s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:00 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 9666s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:05 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 9966s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:05 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 9966s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T12:09:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 12:10 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 10266s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:10 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 10266s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:15 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 10566s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:15 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 10566s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:20 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 10866s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:20 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 10866s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:25 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 11166s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:25 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 11166s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:30 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 11466s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:30 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 11466s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:35 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 11766s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:35 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 11766s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T12:39:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 12:40 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 12066s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:40 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 12066s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:45 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 12366s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:45 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 12366s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:50 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 12666s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:50 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 12666s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:55 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 12966s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:55 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 12966s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:00 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 13266s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:00 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 13266s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:05 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 13566s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:05 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 13566s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T13:09:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 13:10 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 13866s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:10 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 13866s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:15 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 14166s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:15 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 14166s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:20 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 14466s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:20 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 14466s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:25 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 14766s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:25 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 14766s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:30 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 15066s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:30 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 15066s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:35 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 15366s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:35 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 15366s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T13:39:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 13:40 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 15666s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:40 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 15666s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:45 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 15966s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:45 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 15966s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:50 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 16266s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:50 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 16266s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:55 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 16566s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:55 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 16566s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:00 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 16866s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:00 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 16866s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:05 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 17166s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:05 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 17166s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T14:09:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 14:10 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 17466s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:10 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 17466s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:15 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 17766s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:15 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 17766s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:20 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 18066s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:20 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 18066s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:25 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 18366s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:25 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 18366s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:30 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 18666s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:30 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 18666s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:35 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 18966s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:35 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 18966s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T14:39:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 14:40 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 19266s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:40 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 19266s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:45 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 19566s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:45 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 19566s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:50 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 19866s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:50 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 19866s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:55 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 20166s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:55 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 20166s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:00 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 20466s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:00 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 20466s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:05 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 20766s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:05 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 20766s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T15:09:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 15:10 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 21066s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:10 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 21066s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:15 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 21366s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:15 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 21366s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:20 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 21666s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:20 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 21666s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:25 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 21966s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:25 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 21966s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:30 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 22266s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:30 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 22266s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:35 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 22566s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:35 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 22566s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T15:39:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 15:40 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 22866s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:40 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 22866s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:45 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 23166s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:45 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 23166s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:50 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 23466s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:50 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 23466s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:55 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 23766s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:55 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 23766s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 16:00 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=na levels_refresh=none fresh_heal=ran TV up but CDP dead for 24066s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 16:00 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 24066s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-31T20:00:27+00:00
+- task: eod-summary
+- date_et: 2026-07-31
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-07-31T16:09:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T16:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-31T20:45:35+00:00
+- task: analyst
+- date_et: 2026-07-31
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-07-31 21:00:01] gym-session (2026-07-31) → **YELLOW** :: see `automation\state\gym-scorecard-2026-07-31.json`
+### DEGRADED: self-check 2026-07-31T17:09:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-07-31T21:30:25+00:00
+- task: manager
+- date_et: 2026-07-31
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-07-31T17:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
 - TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.

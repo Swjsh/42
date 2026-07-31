@@ -1,0 +1,585 @@
+{
+  "checker": "gate-expiry instrument (J directive 2026-07-31)",
+  "run_date": "2026-07-31",
+  "recent_window": "2026-06-26..2026-07-31",
+  "opra_cache_last": "2026-07-31",
+  "confirm_n_floor": 10,
+  "lookback_trading_days": 25,
+  "event_cluster_gap_minutes": 15,
+  "never_blocks_never_kills": true,
+  "gates": {
+    "block_level_rejection": {
+      "id": "block_level_rejection",
+      "category": "core_gate_order",
+      "evidence_age_days": 44,
+      "revalidation_interval_days": 21,
+      "evidence_stale": true,
+      "pnl_check": {
+        "by_account": {
+          "safe": {
+            "n_raw_fires": 1,
+            "n_events": 1,
+            "status_counts": {
+              "ok": 1
+            },
+            "window": "2026-06-26..2026-07-31",
+            "n": 1,
+            "n_days": 1,
+            "wr_pct": 0.0,
+            "exp_per_trade": -41.76,
+            "total_dollar": -41.76,
+            "sign": "NEGATIVE",
+            "best_day": -41.76,
+            "worst_day": -41.76,
+            "win_days": 0,
+            "loss_days": 1,
+            "first_fill": "2026-07-23",
+            "last_fill": "2026-07-23"
+          }
+        },
+        "combined": {
+          "window": "2026-06-26..2026-07-31",
+          "n": 1,
+          "n_days": 1,
+          "wr_pct": 0.0,
+          "exp_per_trade": -41.76,
+          "total_dollar": -41.76,
+          "sign": "NEGATIVE",
+          "best_day": -41.76,
+          "worst_day": -41.76,
+          "win_days": 0,
+          "loss_days": 1,
+          "first_fill": "2026-07-23",
+          "last_fill": "2026-07-23"
+        },
+        "verdict": "GREEN",
+        "reason": "refused cohort would have LOST $-41.76/tr, n=1 -- still justified on recent data"
+      },
+      "overall": "GREEN"
+    },
+    "trendline_requires_ribbon_flip": {
+      "id": "trendline_requires_ribbon_flip",
+      "category": "core_gate_order",
+      "evidence_age_days": null,
+      "revalidation_interval_days": null,
+      "evidence_stale": false,
+      "pnl_check": {
+        "verdict": "INERT",
+        "reason": "not armed on either account -- nothing to measure"
+      },
+      "overall": "GREEN"
+    },
+    "block_elite_bull": {
+      "id": "block_elite_bull",
+      "category": "core_gate_order",
+      "evidence_age_days": 21,
+      "revalidation_interval_days": 14,
+      "evidence_stale": true,
+      "pnl_check": {
+        "by_account": {
+          "safe": {
+            "n_raw_fires": 293,
+            "n_events": 49,
+            "status_counts": {
+              "ok": 49
+            },
+            "window": "2026-06-26..2026-07-31",
+            "n": 49,
+            "n_days": 17,
+            "wr_pct": 18.4,
+            "exp_per_trade": 9.93,
+            "total_dollar": 486.56,
+            "sign": "POSITIVE",
+            "best_day": 511.88,
+            "worst_day": -137.16,
+            "win_days": 6,
+            "loss_days": 11,
+            "first_fill": "2026-06-29",
+            "last_fill": "2026-07-31"
+          },
+          "bold": {
+            "n_raw_fires": 290,
+            "n_events": 48,
+            "status_counts": {
+              "ok": 48
+            },
+            "window": "2026-06-26..2026-07-31",
+            "n": 48,
+            "n_days": 17,
+            "wr_pct": 16.7,
+            "exp_per_trade": 16.44,
+            "total_dollar": 789.3,
+            "sign": "POSITIVE",
+            "best_day": 943.8,
+            "worst_day": -233.9,
+            "win_days": 5,
+            "loss_days": 12,
+            "first_fill": "2026-06-29",
+            "last_fill": "2026-07-31"
+          }
+        },
+        "combined": {
+          "window": "2026-06-26..2026-07-31",
+          "n": 97,
+          "n_days": 17,
+          "wr_pct": 17.5,
+          "exp_per_trade": 13.15,
+          "total_dollar": 1275.86,
+          "sign": "POSITIVE",
+          "best_day": 1455.68,
+          "worst_day": -371.06,
+          "win_days": 6,
+          "loss_days": 11,
+          "first_fill": "2026-06-29",
+          "last_fill": "2026-07-31"
+        },
+        "verdict": "RED",
+        "reason": "refused cohort would have EARNED $13.15/tr, n=97 >= floor 10 -- COSTING money"
+      },
+      "overall": "RED"
+    },
+    "block_bull_ribbon_flip": {
+      "id": "block_bull_ribbon_flip",
+      "category": "core_gate_order",
+      "evidence_age_days": null,
+      "revalidation_interval_days": null,
+      "evidence_stale": false,
+      "pnl_check": {
+        "verdict": "INERT",
+        "reason": "not armed on either account -- nothing to measure"
+      },
+      "overall": "GREEN"
+    },
+    "block_bull_1100_1200": {
+      "id": "block_bull_1100_1200",
+      "category": "core_gate_order",
+      "evidence_age_days": 43,
+      "revalidation_interval_days": 21,
+      "evidence_stale": true,
+      "pnl_check": {
+        "by_account": {
+          "safe": {
+            "n_raw_fires": 6,
+            "n_events": 1,
+            "status_counts": {
+              "ok": 1
+            },
+            "window": "2026-06-26..2026-07-31",
+            "n": 1,
+            "n_days": 1,
+            "wr_pct": 0.0,
+            "exp_per_trade": -23.76,
+            "total_dollar": -23.76,
+            "sign": "NEGATIVE",
+            "best_day": -23.76,
+            "worst_day": -23.76,
+            "win_days": 0,
+            "loss_days": 1,
+            "first_fill": "2026-07-10",
+            "last_fill": "2026-07-10"
+          }
+        },
+        "combined": {
+          "window": "2026-06-26..2026-07-31",
+          "n": 1,
+          "n_days": 1,
+          "wr_pct": 0.0,
+          "exp_per_trade": -23.76,
+          "total_dollar": -23.76,
+          "sign": "NEGATIVE",
+          "best_day": -23.76,
+          "worst_day": -23.76,
+          "win_days": 0,
+          "loss_days": 1,
+          "first_fill": "2026-07-10",
+          "last_fill": "2026-07-10"
+        },
+        "verdict": "GREEN",
+        "reason": "refused cohort would have LOST $-23.76/tr, n=1 -- still justified on recent data"
+      },
+      "overall": "GREEN"
+    },
+    "block_bull_morning_agg": {
+      "id": "block_bull_morning_agg",
+      "category": "core_gate_order",
+      "evidence_age_days": 37,
+      "revalidation_interval_days": null,
+      "evidence_stale": false,
+      "pnl_check": {
+        "verdict": "INERT",
+        "reason": "not armed on either account -- nothing to measure"
+      },
+      "overall": "GREEN"
+    },
+    "require_bearish_fill_bar": {
+      "id": "require_bearish_fill_bar",
+      "category": "core_gate_order",
+      "evidence_age_days": 44,
+      "revalidation_interval_days": 21,
+      "evidence_stale": true,
+      "pnl_check": {
+        "by_account": {
+          "bold": {
+            "n_raw_fires": 160,
+            "n_events": 34,
+            "status_counts": {
+              "ok": 29,
+              "no_contract": 5
+            },
+            "window": "2026-06-26..2026-07-31",
+            "n": 29,
+            "n_days": 11,
+            "wr_pct": 24.1,
+            "exp_per_trade": -20.46,
+            "total_dollar": -593.3,
+            "sign": "NEGATIVE",
+            "best_day": 467.1,
+            "worst_day": -665.0,
+            "win_days": 4,
+            "loss_days": 7,
+            "first_fill": "2026-06-26",
+            "last_fill": "2026-07-23"
+          }
+        },
+        "combined": {
+          "window": "2026-06-26..2026-07-31",
+          "n": 29,
+          "n_days": 11,
+          "wr_pct": 24.1,
+          "exp_per_trade": -20.46,
+          "total_dollar": -593.3,
+          "sign": "NEGATIVE",
+          "best_day": 467.1,
+          "worst_day": -665.0,
+          "win_days": 4,
+          "loss_days": 7,
+          "first_fill": "2026-06-26",
+          "last_fill": "2026-07-23"
+        },
+        "verdict": "GREEN",
+        "reason": "refused cohort would have LOST $-20.46/tr, n=29 -- still justified on recent data"
+      },
+      "overall": "GREEN"
+    },
+    "min_ribbon_momentum_cents": {
+      "id": "min_ribbon_momentum_cents",
+      "category": "core_gate_order",
+      "evidence_age_days": 23,
+      "revalidation_interval_days": null,
+      "evidence_stale": false,
+      "pnl_check": {
+        "verdict": "INERT",
+        "reason": "not armed on either account -- nothing to measure"
+      },
+      "overall": "GREEN"
+    },
+    "max_ribbon_duration_bars": {
+      "id": "max_ribbon_duration_bars",
+      "category": "core_gate_order",
+      "evidence_age_days": 45,
+      "revalidation_interval_days": null,
+      "evidence_stale": false,
+      "pnl_check": {
+        "by_account": {
+          "safe": {
+            "n_raw_fires": 0,
+            "n_events": 0,
+            "status_counts": {},
+            "n": 0
+          }
+        },
+        "combined": {
+          "n": 0
+        },
+        "verdict": "INSUFFICIENT_DATA",
+        "reason": "no refused signals survived mining in the recent window"
+      },
+      "overall": "GREEN"
+    },
+    "midday_trendline_gate": {
+      "id": "midday_trendline_gate",
+      "category": "core_gate_order",
+      "evidence_age_days": 43,
+      "revalidation_interval_days": null,
+      "evidence_stale": false,
+      "pnl_check": {
+        "verdict": "INERT",
+        "reason": "not armed on either account -- nothing to measure"
+      },
+      "overall": "GREEN"
+    },
+    "block_conf_lvl_rej_midday_afternoon": {
+      "id": "block_conf_lvl_rej_midday_afternoon",
+      "category": "core_gate_order",
+      "evidence_age_days": 43,
+      "revalidation_interval_days": null,
+      "evidence_stale": false,
+      "pnl_check": {
+        "verdict": "INERT",
+        "reason": "not armed on either account -- nothing to measure"
+      },
+      "overall": "GREEN"
+    },
+    "block_conf_lvl_rec_afternoon": {
+      "id": "block_conf_lvl_rec_afternoon",
+      "category": "core_gate_order",
+      "evidence_age_days": 43,
+      "revalidation_interval_days": 21,
+      "evidence_stale": true,
+      "pnl_check": {
+        "by_account": {
+          "bold": {
+            "n_raw_fires": 33,
+            "n_events": 7,
+            "status_counts": {
+              "ok": 7
+            },
+            "window": "2026-06-26..2026-07-31",
+            "n": 7,
+            "n_days": 5,
+            "wr_pct": 14.3,
+            "exp_per_trade": -27.94,
+            "total_dollar": -195.6,
+            "sign": "NEGATIVE",
+            "best_day": 129.4,
+            "worst_day": -225.8,
+            "win_days": 1,
+            "loss_days": 4,
+            "first_fill": "2026-07-06",
+            "last_fill": "2026-07-29"
+          }
+        },
+        "combined": {
+          "window": "2026-06-26..2026-07-31",
+          "n": 7,
+          "n_days": 5,
+          "wr_pct": 14.3,
+          "exp_per_trade": -27.94,
+          "total_dollar": -195.6,
+          "sign": "NEGATIVE",
+          "best_day": 129.4,
+          "worst_day": -225.8,
+          "win_days": 1,
+          "loss_days": 4,
+          "first_fill": "2026-07-06",
+          "last_fill": "2026-07-29"
+        },
+        "verdict": "GREEN",
+        "reason": "refused cohort would have LOST $-27.94/tr, n=7 -- still justified on recent data"
+      },
+      "overall": "GREEN"
+    },
+    "entry_bar_body_pct_min": {
+      "id": "entry_bar_body_pct_min",
+      "category": "core_gate_order",
+      "evidence_age_days": 43,
+      "revalidation_interval_days": 21,
+      "evidence_stale": true,
+      "pnl_check": {
+        "by_account": {
+          "safe": {
+            "n_raw_fires": 29,
+            "n_events": 7,
+            "status_counts": {
+              "ok": 6,
+              "no_contract": 1
+            },
+            "window": "2026-06-26..2026-07-31",
+            "n": 6,
+            "n_days": 5,
+            "wr_pct": 33.3,
+            "exp_per_trade": 6.86,
+            "total_dollar": 41.16,
+            "sign": "POSITIVE",
+            "best_day": 72.0,
+            "worst_day": -25.44,
+            "win_days": 2,
+            "loss_days": 3,
+            "first_fill": "2026-07-02",
+            "last_fill": "2026-07-23"
+          }
+        },
+        "combined": {
+          "window": "2026-06-26..2026-07-31",
+          "n": 6,
+          "n_days": 5,
+          "wr_pct": 33.3,
+          "exp_per_trade": 6.86,
+          "total_dollar": 41.16,
+          "sign": "POSITIVE",
+          "best_day": 72.0,
+          "worst_day": -25.44,
+          "win_days": 2,
+          "loss_days": 3,
+          "first_fill": "2026-07-02",
+          "last_fill": "2026-07-23"
+        },
+        "verdict": "YELLOW",
+        "reason": "refused cohort positive ($6.86/tr) but n=6 < floor 10 -- watch, not yet actionable"
+      },
+      "overall": "YELLOW"
+    },
+    "entry_bar_body_pct_min_bull": {
+      "id": "entry_bar_body_pct_min_bull",
+      "category": "core_gate_order",
+      "evidence_age_days": null,
+      "revalidation_interval_days": null,
+      "evidence_stale": false,
+      "pnl_check": {
+        "verdict": "INERT",
+        "reason": "not armed on either account -- nothing to measure"
+      },
+      "overall": "GREEN"
+    },
+    "vix_bear_hard_cap": {
+      "id": "vix_bear_hard_cap",
+      "category": "core_gate_order",
+      "evidence_age_days": 43,
+      "revalidation_interval_days": 21,
+      "evidence_stale": true,
+      "pnl_check": {
+        "by_account": {
+          "safe": {
+            "n_raw_fires": 0,
+            "n_events": 0,
+            "status_counts": {},
+            "n": 0
+          }
+        },
+        "combined": {
+          "n": 0
+        },
+        "verdict": "INSUFFICIENT_DATA",
+        "reason": "no refused signals survived mining in the recent window"
+      },
+      "overall": "STALE_UNVERIFIED"
+    },
+    "structure_veto_enabled": {
+      "id": "structure_veto_enabled",
+      "category": "non_gate_order_veto",
+      "evidence_age_days": 35,
+      "revalidation_interval_days": 21,
+      "evidence_stale": true,
+      "pnl_check": {
+        "by_account": {
+          "safe": {
+            "n_raw_fires": 75,
+            "n_events": 11,
+            "status_counts": {
+              "ok": 9,
+              "no_contract": 2
+            },
+            "window": "2026-06-26..2026-07-31",
+            "n": 9,
+            "n_days": 7,
+            "wr_pct": 22.2,
+            "exp_per_trade": -3.65,
+            "total_dollar": -32.88,
+            "sign": "NEGATIVE",
+            "best_day": 93.6,
+            "worst_day": -58.32,
+            "win_days": 2,
+            "loss_days": 5,
+            "first_fill": "2026-07-06",
+            "last_fill": "2026-07-28"
+          }
+        },
+        "combined": {
+          "window": "2026-06-26..2026-07-31",
+          "n": 9,
+          "n_days": 7,
+          "wr_pct": 22.2,
+          "exp_per_trade": -3.65,
+          "total_dollar": -32.88,
+          "sign": "NEGATIVE",
+          "best_day": 93.6,
+          "worst_day": -58.32,
+          "win_days": 2,
+          "loss_days": 5,
+          "first_fill": "2026-07-06",
+          "last_fill": "2026-07-28"
+        },
+        "verdict": "GREEN",
+        "reason": "refused cohort would have LOST $-3.65/tr, n=9 -- still justified on recent data"
+      },
+      "overall": "GREEN"
+    },
+    "free_model_veto": {
+      "id": "free_model_veto",
+      "category": "non_gate_order_veto",
+      "evidence_age_days": 22,
+      "revalidation_interval_days": 30,
+      "evidence_stale": false,
+      "pnl_check": {
+        "by_account": {
+          "safe": {
+            "n_raw_fires": 0,
+            "n_events": 0,
+            "status_counts": {},
+            "n": 0
+          },
+          "bold": {
+            "n_raw_fires": 0,
+            "n_events": 0,
+            "status_counts": {},
+            "n": 0
+          }
+        },
+        "combined": {
+          "n": 0
+        },
+        "verdict": "INSUFFICIENT_DATA",
+        "reason": "no refused signals survived mining in the recent window"
+      },
+      "overall": "GREEN"
+    },
+    "risk_gate_safety_class": {
+      "id": "risk_gate_safety_class",
+      "category": "safety_doctrine",
+      "evidence_age_days": null,
+      "revalidation_interval_days": null,
+      "evidence_stale": false,
+      "pnl_check": {
+        "verdict": "NOT_MEASURED",
+        "reason": "doctrine/regulatory gate (J's Rule 4/5/6/7), not a statistical edge -- excluded by design"
+      },
+      "overall": "GREEN"
+    },
+    "fleet_gate_override_tight": {
+      "id": "fleet_gate_override_tight",
+      "category": "fleet_config",
+      "evidence_age_days": null,
+      "revalidation_interval_days": null,
+      "evidence_stale": false,
+      "pnl_check": {
+        "verdict": "NOT_MEASURED",
+        "reason": "fleet-scoped; not yet wired to this checker's core-decisions.jsonl miner (future extension)"
+      },
+      "overall": "GREEN"
+    },
+    "fleet_score_ladder_floor": {
+      "id": "fleet_score_ladder_floor",
+      "category": "fleet_config",
+      "evidence_age_days": 4,
+      "revalidation_interval_days": 14,
+      "evidence_stale": false,
+      "pnl_check": {
+        "verdict": "NOT_MEASURED",
+        "reason": "fleet-scoped; not yet wired to this checker's core-decisions.jsonl miner (future extension)"
+      },
+      "overall": "GREEN"
+    },
+    "fleet_hard_skip_verdicts_override": {
+      "id": "fleet_hard_skip_verdicts_override",
+      "category": "fleet_config",
+      "evidence_age_days": 8,
+      "revalidation_interval_days": 21,
+      "evidence_stale": false,
+      "pnl_check": {
+        "verdict": "NOT_MEASURED",
+        "reason": "fleet-scoped; not yet wired to this checker's core-decisions.jsonl miner (future extension)"
+      },
+      "overall": "GREEN"
+    }
+  }
+}
