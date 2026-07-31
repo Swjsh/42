@@ -791,6 +791,30 @@ function Test-HolidayFromAlpaca {
     return ($cal.holidays -contains $today)
 }
 
+function Test-CdpReady {
+    # Poll the CDP /json/version endpoint with retries. Used to VERIFY a relaunch actually
+    # worked instead of assuming "we ran the launch script" == "CDP is back" (2026-07-31
+    # incident: Gamma_TvWatchdog logged RELAUNCH_KILL at both 09:05 and 09:10 ET while CDP
+    # stayed down the whole time -- self_check.py was the only thing that eventually caught
+    # it, ~5-10min later. Neither STATUS.md alert line distinguished "attempted" from
+    # "worked", so the outage silently ran ~70+ min across multiple watchdog cycles before
+    # a human/session noticed via a DIFFERENT producer. This closes that visibility gap.)
+    param(
+        [int]$Port = 9222,
+        [int]$TimeoutSec = 12,
+        [int]$PollIntervalSec = 2
+    )
+    $deadline = (Get-Date).AddSeconds($TimeoutSec)
+    while ((Get-Date) -lt $deadline) {
+        try {
+            $r = Invoke-WebRequest "http://localhost:$Port/json/version" -UseBasicParsing -TimeoutSec 3 -ErrorAction Stop
+            if ($r.StatusCode -eq 200) { return $true }
+        } catch { }
+        Start-Sleep -Seconds $PollIntervalSec
+    }
+    return $false
+}
+
 function Invoke-TvLaunchSafe {
     # FIX (2026-07-06): serialized, crash-safe wrapper around launch_tv_debug.ps1.
     #
@@ -805,19 +829,26 @@ function Invoke-TvLaunchSafe {
     #     tick (confirmed 2026-07-06: both fired the identical -Kill command at the
     #     identical second, 09:43:32 ET, after an overnight PC-off gap). A short lock file
     #     serializes them so only one kill+relaunch runs at a time.
+    # (3) FIX (2026-07-31, live incident): the return value used to be {skipped} only -- a
+    #     caller had NO way to know whether the relaunch actually restored CDP, only that it
+    #     was attempted. Now self-verifies via Test-CdpReady and returns `healed` too, so
+    #     run-tv-watchdog.ps1 can escalate LOUDLY the same tick a relaunch fails to fix CDP,
+    #     instead of silently re-logging "relaunch_kill" every 5min while the outage grows.
     #
     # Guard OWED (executor died pre-guard, 2026-07-09): text-assertion test over this .ps1 (no
     # Pester harness, so the guard checks the shipped .ps1 text for the fixed pattern).
     param(
         [Parameter(Mandatory)][string]$LaunchScript,
         [Parameter(Mandatory)][string]$LogFile,
-        [switch]$Kill
+        [switch]$Kill,
+        [int]$Port = 9222,
+        [int]$CdpTimeoutSec = 12
     )
     $lockFile = Join-Path $WorkDir "automation\state\tv-launch.lock"
     if (Test-Path $lockFile) {
         $ageSec = ((Get-Date) - (Get-Item $lockFile).LastWriteTime).TotalSeconds
         if ($ageSec -lt 30) {
-            return @{ skipped = $true; reason = "lock_held age=$([int]$ageSec)s" }
+            return @{ skipped = $true; healed = $false; reason = "lock_held age=$([int]$ageSec)s" }
         }
         Remove-Item $lockFile -Force -ErrorAction SilentlyContinue
     }
@@ -832,7 +863,8 @@ function Invoke-TvLaunchSafe {
         $ErrorActionPreference = $prevEAP
         Remove-Item $lockFile -Force -ErrorAction SilentlyContinue
     }
-    return @{ skipped = $false }
+    $healed = Test-CdpReady -Port $Port -TimeoutSec $CdpTimeoutSec
+    return @{ skipped = $false; healed = $healed }
 }
 
 function Invoke-LevelRefreshSafe {

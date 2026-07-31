@@ -52,14 +52,32 @@ if ($cdpReady) {
             # FIX 2026-07-06: was missing the 2026-06-15 ErrorActionPreference='Continue'
             # fix (this exact call site is one of 3 -- see Invoke-TvLaunchSafe in _shared.ps1).
             $r = Invoke-TvLaunchSafe -LaunchScript $launchScript -LogFile $logFile -Kill
-            if ($r.skipped) { Write-TaskLog -TaskName $task -Message "SKIP_LOCK_HELD $($r.reason)"; $tvAction = "lock_held" }
+            if ($r.skipped) {
+                Write-TaskLog -TaskName $task -Message "SKIP_LOCK_HELD $($r.reason)"; $tvAction = "lock_held"
+            } elseif ($r.healed) {
+                $tvAction = "relaunch_kill_healed"
+            } else {
+                # 2026-07-31 live incident: relaunch RAN but CDP is still down -- do not let
+                # this look identical to a routine "relaunch_kill" line next to a working
+                # fix. Escalate now instead of waiting for the next 5min cycle (or self_check)
+                # to notice the outage is still ongoing.
+                $tvAction = "relaunch_kill_FAILED"
+                Write-TaskLog -TaskName $task -Message "RELAUNCH_KILL_FAILED CDP still unreachable after relaunch attempt"
+            }
         }
     } else {
         $tvAction = "relaunch_fresh"
         $tvDetail = "no TV process and CDP dead - launching"
         Write-TaskLog -TaskName $task -Message "RELAUNCH_FRESH $tvDetail"
         $r = Invoke-TvLaunchSafe -LaunchScript $launchScript -LogFile $logFile
-        if ($r.skipped) { Write-TaskLog -TaskName $task -Message "SKIP_LOCK_HELD $($r.reason)"; $tvAction = "lock_held" }
+        if ($r.skipped) {
+            Write-TaskLog -TaskName $task -Message "SKIP_LOCK_HELD $($r.reason)"; $tvAction = "lock_held"
+        } elseif ($r.healed) {
+            $tvAction = "relaunch_fresh_healed"
+        } else {
+            $tvAction = "relaunch_fresh_FAILED"
+            Write-TaskLog -TaskName $task -Message "RELAUNCH_FRESH_FAILED CDP still unreachable after relaunch attempt"
+        }
     }
 }
 
@@ -88,7 +106,14 @@ if ($mins -ge 575 -and $mins -le 955) {
             $lLogFile = Join-Path $LogDir "tv-watchdog-$($et.ToString('yyyy-MM-dd')).log"
             Write-TaskLog -TaskName $task -Message "RELAUNCH_HUNG_BRIDGE $tvDetail"
             $r = Invoke-TvLaunchSafe -LaunchScript $lsScript -LogFile $lLogFile -Kill
-            if ($r.skipped) { Write-TaskLog -TaskName $task -Message "SKIP_LOCK_HELD $($r.reason)"; $tvAction = "lock_held" }
+            if ($r.skipped) {
+                Write-TaskLog -TaskName $task -Message "SKIP_LOCK_HELD $($r.reason)"; $tvAction = "lock_held"
+            } elseif ($r.healed) {
+                $tvAction = "relaunch_hung_bridge_healed"
+            } else {
+                $tvAction = "relaunch_hung_bridge_FAILED"
+                Write-TaskLog -TaskName $task -Message "RELAUNCH_HUNG_BRIDGE_FAILED CDP still unreachable after relaunch attempt"
+            }
         }
     } catch { $hbFlag = "unknown" }
 }
@@ -177,5 +202,15 @@ if ($problem) {
     ($rec | ConvertTo-Json -Compress) | Add-Content -Path $eventLog -Encoding utf8
     $alert = "- [$($et.ToString('MM-dd HH:mm')) ET] TvWatchdog: tv=$tvAction heartbeat=$hbFlag levels_refresh=$levelsRefreshAction fresh_heal=$freshHealAction $tvDetail"
     try { Add-Content -Path $statusMd -Value $alert -Encoding utf8 } catch { }
+
+    # ESCALATION (2026-07-31): a *_FAILED tvAction means the self-heal ran but CDP is STILL
+    # down -- this is the exact shape that ran silently for 70+min on 2026-07-31 (RELAUNCH_KILL
+    # logged twice at 09:05/09:10 ET with no distinguishing signal that it hadn't worked; only
+    # self_check.py eventually caught it). Write a BROKEN block so it can't blend into the
+    # routine "relaunch_kill" noise, and never overwrite a prior BROKEN entry (append-only).
+    if ($tvAction -like "*_FAILED") {
+        $broken = "`n### BROKEN: TV-CDP self-heal failed`n- [$($et.ToString('yyyy-MM-dd HH:mm')) ET] Gamma_TvWatchdog: $tvAction -- $tvDetail. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: `curl http://localhost:9222/json/version`; if empty, `taskkill /F /IM TradingView.exe` then `setup\launch_tv_debug.ps1` by hand.`n"
+        try { Add-Content -Path $statusMd -Value $broken -Encoding utf8 } catch { }
+    }
 }
 exit 0
