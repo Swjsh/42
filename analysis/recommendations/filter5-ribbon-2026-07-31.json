@@ -1,6 +1,6 @@
 {
   "_doc": "filter5_ribbon_fate_2026_07_31 -- measure what FILTER 5 (the ribbon MA-stack veto) costs,\nthen decide its fate on evidence.\n\nFROZEN PRE-REG: analysis/recommendations/prereg-filter5-ribbon-2026-07-31.json\n(FILTER5-RIBBON-MA-STACK-FATE-2026-07-31, frozen 2026-07-31 17:34 ET, BEFORE this file ran).\nRead that file for the hypothesis, arms, cohorts, gates and ship rule; this module is the\nRUNNER, not a second copy of the spec.\n\nWHAT FILTER 5 IS (read from backtest/lib/filters.py this session, not from memory):\n  BULL (line ~1174):  ribbon_now.stack != \"BULL\"  -> blockers.append(5)\n  BEAR (line ~1506):  not (stack == \"BEAR\" or structure_shift)  -> blockers.append(5)\n  stack is the Saty Pivot Ribbon (EMA 13 / 20 / 48 on 5-min SPY closes, backtest/lib/ribbon.py)\n  and demands a STRICT fast>pivot>slow (or fast<pivot<slow) ordering AT THE TRIGGER BAR.\n  Anything else is \"MIXED\" and vetoes the trade.\n\nWHY THIS EXISTS: on 2026-07-31 J called a long off the 737.68 low at 10:15 ET. Bull score hit\n9-10/11, the level was tracked, a wick_reclaim shadow signal fired at 10:21 -- and the counted\npath was blocked on FILTER 5, which flipped BULL->MIXED at 10:16 and never restacked through a\n+4.82 bounce. It blocked all 5 live arms. That is n=1 and proves nothing on its own; this\nmodule measures the gate over the whole population instead.\n\nMETHOD (three arms, one shared population, real exits):\n  CONTROL  run_backtest(**SAFE_BASE_LIVE) -- live production config.\n  ARM_A    CONTROL + disable_filters=[5]           -- delete filter 5 outright (both sides).\n  ARM_B    CONTROL + filter5_level_anchored_bypass -- remove blocker 5 (and charge a -1 score\n           demerit) ONLY for setups carrying a static-level-tied trigger. Shaped exactly like\n           the 2026-05-09 trendline_only_setup precedent that already strips 5/8/9 in\n           production for trendline-only bear setups.\n  ARM_C    NOT RUN. The structure-shift-as-filter-5-replacement was already pre-registered and\n           tested on 2026-07-28 (structure-shift-cascade-ab-2026-07-28.json): delta -$46,\n           g1/g3/g4/g5 FAIL. Re-running it would be retesting a graveyard entry. Cited in the\n           scorecard's `arm_c_not_run` block rather than silently omitted.\n\nARM_B PLUMBING: the flag lives in filters.py (default False, byte-identical when off, guarded\nby backtest/tests/test_filter5_level_anchored_bypass.py, RED-proofed against 3 mutants). It is\ndeliberately NOT yet threaded through run_backtest / engine_cli / params.json -- production\nwiring is built only if the arm WINS, never speculatively. The arm is run here by a pure\npass-through monkeypatch that injects the kwarg into orch_mod.evaluate_* (the same technique\nstructure_shift_cascade_ab.py uses for candidate capture; originals restored in `finally`).\n\nEXITS: every entry in every arm is re-walked through the REAL live exit core\n(automation/state/fleet/exit_manager.plan_exit_actions via lib/exit_manager_walk) with the\nRIBBON_RIDE registry exit shape. Each arm's own run_backtest `dollar_pnl` is DISCARDED --\nsimulate_trade_real is known-divergent from the live exit manager (2026-07-09 sim-parity scar).\nentry+1 convention is enforced by walk_exit_manager itself (first bar STRICTLY after entry).\n\nP&L: real cached OPRA contracts ONLY. Contracts with no cached CSV are excluded and COUNTED\nper arm; nothing is Black-Scholes-synthesized into a total.\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/filter5_ribbon_fate_2026_07_31.py\n",
-  "generated_at_et": "2026-07-31 16:03:03",
+  "generated_at_et": "2026-07-31 17:04:17",
   "prereg_path": "analysis/recommendations/prereg-filter5-ribbon-2026-07-31.json",
   "prereg_id": "FILTER5-RIBBON-MA-STACK-FATE-2026-07-31",
   "prereg_frozen_at_et": "2026-07-31 17:34 Friday EDT",
@@ -40,19 +40,51 @@
   "cohort_A_blocked_by_filter5_alone": {
     "_doc": "Bars where filter 5 was the ONLY blocker -- captured during the CONTROL run by a pure pass-through monkeypatch. These are raw SIGNAL bars, not trades: the engine's escalation lock / one-position-at-a-time rules mean only some become entries. The REALIZED version of this cohort is each arm's `added_stats` below, which is walked through real exits.",
     "bear": {
-      "n_bars_full": 152,
+      "n_bars_full": 76,
       "n_days_full": 42,
-      "n_bars_recent25": 48,
+      "n_bars_recent25": 24,
       "n_days_recent25": 10,
       "sample_recent": [
         {
-          "date": "2026-07-31",
-          "timestamp_et": "2026-07-31T09:40:00-04:00",
-          "score": 8,
+          "date": "2026-07-29",
+          "timestamp_et": "2026-07-29T13:25:00-04:00",
+          "score": 9,
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "level": 735.98,
+          "ribbon_stack": "MIXED"
+        },
+        {
+          "date": "2026-07-29",
+          "timestamp_et": "2026-07-29T14:10:00-04:00",
+          "score": 9,
           "triggers": [
             "level_rejection"
           ],
-          "level": 744.11,
+          "level": 738.2,
+          "ribbon_stack": "BULL"
+        },
+        {
+          "date": "2026-07-29",
+          "timestamp_et": "2026-07-29T14:55:00-04:00",
+          "score": 9,
+          "triggers": [
+            "level_rejection",
+            "confluence"
+          ],
+          "level": 742.55,
+          "ribbon_stack": "BULL"
+        },
+        {
+          "date": "2026-07-30",
+          "timestamp_et": "2026-07-30T10:50:00-04:00",
+          "score": 9,
+          "triggers": [
+            "level_rejection"
+          ],
+          "level": 736.27,
           "ribbon_stack": "BULL"
         },
         {
@@ -77,16 +109,6 @@
         },
         {
           "date": "2026-07-31",
-          "timestamp_et": "2026-07-31T09:45:00-04:00",
-          "score": 8,
-          "triggers": [
-            "level_rejection"
-          ],
-          "level": 742.79,
-          "ribbon_stack": "BULL"
-        },
-        {
-          "date": "2026-07-31",
           "timestamp_et": "2026-07-31T09:50:00-04:00",
           "score": 8,
           "triggers": [
@@ -94,28 +116,6 @@
             "confluence"
           ],
           "level": 742.45,
-          "ribbon_stack": "BULL"
-        },
-        {
-          "date": "2026-07-31",
-          "timestamp_et": "2026-07-31T09:50:00-04:00",
-          "score": 8,
-          "triggers": [
-            "level_rejection",
-            "confluence"
-          ],
-          "level": 742.45,
-          "ribbon_stack": "BULL"
-        },
-        {
-          "date": "2026-07-31",
-          "timestamp_et": "2026-07-31T10:00:00-04:00",
-          "score": 8,
-          "triggers": [
-            "level_rejection",
-            "confluence"
-          ],
-          "level": 742.2027591087055,
           "ribbon_stack": "BULL"
         },
         {
@@ -132,20 +132,53 @@
       ]
     },
     "bull": {
-      "n_bars_full": 346,
+      "n_bars_full": 173,
       "n_days_full": 77,
-      "n_bars_recent25": 56,
+      "n_bars_recent25": 28,
       "n_days_recent25": 12,
       "sample_recent": [
         {
-          "date": "2026-07-29",
-          "timestamp_et": "2026-07-29T13:00:00-04:00",
+          "date": "2026-07-17",
+          "timestamp_et": "2026-07-17T09:45:00-04:00",
+          "score": 9,
+          "triggers": [
+            "level_reclaim",
+            "sequence_reclaim"
+          ],
+          "level": 741.0,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "date": "2026-07-24",
+          "timestamp_et": "2026-07-24T14:45:00-04:00",
           "score": 9,
           "triggers": [
             "level_reclaim",
             "confluence"
           ],
-          "level": 735.21,
+          "level": 737.9,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "date": "2026-07-27",
+          "timestamp_et": "2026-07-27T13:55:00-04:00",
+          "score": 9,
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "level": 737.29,
+          "ribbon_stack": "BEAR"
+        },
+        {
+          "date": "2026-07-27",
+          "timestamp_et": "2026-07-27T14:40:00-04:00",
+          "score": 9,
+          "triggers": [
+            "level_reclaim",
+            "confluence"
+          ],
+          "level": 737.29,
           "ribbon_stack": "BEAR"
         },
         {
@@ -172,17 +205,6 @@
         },
         {
           "date": "2026-07-29",
-          "timestamp_et": "2026-07-29T13:10:00-04:00",
-          "score": 9,
-          "triggers": [
-            "level_reclaim",
-            "confluence"
-          ],
-          "level": 735.98,
-          "ribbon_stack": "MIXED"
-        },
-        {
-          "date": "2026-07-29",
           "timestamp_et": "2026-07-29T13:50:00-04:00",
           "score": 9,
           "triggers": [
@@ -190,28 +212,6 @@
             "confluence"
           ],
           "level": 735.98,
-          "ribbon_stack": "MIXED"
-        },
-        {
-          "date": "2026-07-29",
-          "timestamp_et": "2026-07-29T13:50:00-04:00",
-          "score": 9,
-          "triggers": [
-            "level_reclaim",
-            "confluence"
-          ],
-          "level": 735.98,
-          "ribbon_stack": "MIXED"
-        },
-        {
-          "date": "2026-07-31",
-          "timestamp_et": "2026-07-31T10:20:00-04:00",
-          "score": 10,
-          "triggers": [
-            "level_reclaim",
-            "confluence"
-          ],
-          "level": 738.85,
           "ribbon_stack": "MIXED"
         },
         {
@@ -262,6 +262,333 @@
     },
     "ARM_B": null,
     "note": "excluded from every total, never BS-synthesized"
+  },
+  "opra_measurability": {
+    "_doc": "OPRA exclusions stratified by window. Exclusions are NEVER BS-synthesized; an excluded entry is absent from every total, so an arm's measured delta is a delta over the PRICEABLE subset of its book, not over its whole book.",
+    "windows": {
+      "full": {
+        "CONTROL": {
+          "walked": 191,
+          "excluded_no_opra": 20,
+          "excluded_no_spy_day": 0
+        },
+        "ARM_A": {
+          "walked": 204,
+          "excluded_no_opra": 25,
+          "excluded_no_spy_day": 0
+        },
+        "added_by_arm": {
+          "raw_entries": 27,
+          "measurable": 21,
+          "unmeasurable_no_opra": 6,
+          "measurable_pct": 77.8,
+          "unmeasurable_detail": [
+            {
+              "date": "2026-06-09",
+              "entry_time_et": "2026-06-09T09:50:00",
+              "symbol": "SPY260609P00745000",
+              "side": "P",
+              "reason": "no_opra"
+            },
+            {
+              "date": "2026-06-10",
+              "entry_time_et": "2026-06-10T10:55:00",
+              "symbol": "SPY260610P00733000",
+              "side": "P",
+              "reason": "no_opra"
+            },
+            {
+              "date": "2026-07-24",
+              "entry_time_et": "2026-07-24T12:10:00",
+              "symbol": "SPY260724P00743000",
+              "side": "P",
+              "reason": "no_opra"
+            },
+            {
+              "date": "2026-07-27",
+              "entry_time_et": "2026-07-27T10:25:00",
+              "symbol": "SPY260727P00738000",
+              "side": "P",
+              "reason": "no_opra"
+            },
+            {
+              "date": "2026-07-28",
+              "entry_time_et": "2026-07-28T09:35:00",
+              "symbol": "SPY260728P00738000",
+              "side": "P",
+              "reason": "no_opra"
+            },
+            {
+              "date": "2026-07-31",
+              "entry_time_et": "2026-07-31T09:50:00",
+              "symbol": "SPY260731P00742000",
+              "side": "P",
+              "reason": "no_opra"
+            }
+          ]
+        }
+      },
+      "recent25": {
+        "CONTROL": {
+          "walked": 17,
+          "excluded_no_opra": 5,
+          "excluded_no_spy_day": 0
+        },
+        "ARM_A": {
+          "walked": 20,
+          "excluded_no_opra": 8,
+          "excluded_no_spy_day": 0
+        },
+        "added_by_arm": {
+          "raw_entries": 7,
+          "measurable": 3,
+          "unmeasurable_no_opra": 4,
+          "measurable_pct": 42.9,
+          "unmeasurable_detail": [
+            {
+              "date": "2026-07-24",
+              "entry_time_et": "2026-07-24T12:10:00",
+              "symbol": "SPY260724P00743000",
+              "side": "P",
+              "reason": "no_opra"
+            },
+            {
+              "date": "2026-07-27",
+              "entry_time_et": "2026-07-27T10:25:00",
+              "symbol": "SPY260727P00738000",
+              "side": "P",
+              "reason": "no_opra"
+            },
+            {
+              "date": "2026-07-28",
+              "entry_time_et": "2026-07-28T09:35:00",
+              "symbol": "SPY260728P00738000",
+              "side": "P",
+              "reason": "no_opra"
+            },
+            {
+              "date": "2026-07-31",
+              "entry_time_et": "2026-07-31T09:50:00",
+              "symbol": "SPY260731P00742000",
+              "side": "P",
+              "reason": "no_opra"
+            }
+          ]
+        }
+      }
+    },
+    "cached_contracts_per_day_recent25": {
+      "2026-06-26": 22,
+      "2026-06-29": 22,
+      "2026-06-30": 22,
+      "2026-07-01": 22,
+      "2026-07-02": 22,
+      "2026-07-06": 22,
+      "2026-07-07": 22,
+      "2026-07-08": 22,
+      "2026-07-09": 22,
+      "2026-07-10": 22,
+      "2026-07-13": 22,
+      "2026-07-14": 22,
+      "2026-07-15": 26,
+      "2026-07-16": 30,
+      "2026-07-17": 62,
+      "2026-07-20": 30,
+      "2026-07-21": 26,
+      "2026-07-22": 24,
+      "2026-07-23": 3,
+      "2026-07-24": 0,
+      "2026-07-27": 0,
+      "2026-07-28": 2,
+      "2026-07-29": 3,
+      "2026-07-30": 0,
+      "2026-07-31": 4
+    },
+    "recent25_days_with_zero_opra_coverage": {
+      "n": 3,
+      "days": [
+        "2026-07-24",
+        "2026-07-27",
+        "2026-07-30"
+      ]
+    }
+  },
+  "day_forensics_2026_07_31": {
+    "_doc": "ARM_A on 2026-07-31: entries walked, entries EXCLUDED for missing data (NOT refused by a gate), and gate refusals -- reported separately on purpose.",
+    "arm": "ARM_A",
+    "date": "2026-07-31",
+    "entries_walked": [],
+    "entries_excluded_for_missing_data": [
+      {
+        "entry_time_et": "2026-07-31T09:50:00",
+        "side": "P",
+        "symbol": "SPY260731P00742000",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON::BS_FALLBACK",
+        "triggers": [
+          "level_rejection",
+          "confluence"
+        ],
+        "level": 742.45,
+        "reason": "no_opra"
+      }
+    ],
+    "gate_refusals": [
+      {
+        "timestamp_et": "2026-07-31 09:40:00-04:00",
+        "blockers": [
+          "LEVEL_REJECTION_GATE"
+        ],
+        "action": "SKIP_LEVEL_REJECTION_GATE",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "triggers": [
+          "level_rejection"
+        ],
+        "level": 744.11,
+        "ribbon_stack": "BULL"
+      },
+      {
+        "timestamp_et": "2026-07-31 09:45:00-04:00",
+        "blockers": [
+          "LEVEL_REJECTION_GATE"
+        ],
+        "action": "SKIP_LEVEL_REJECTION_GATE",
+        "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+        "triggers": [
+          "level_rejection"
+        ],
+        "level": 742.79,
+        "ribbon_stack": "BULL"
+      },
+      {
+        "timestamp_et": "2026-07-31 10:20:00-04:00",
+        "blockers": [
+          "BLOCK_ELITE_BULL"
+        ],
+        "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "triggers": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "level": 738.85,
+        "ribbon_stack": "MIXED"
+      },
+      {
+        "timestamp_et": "2026-07-31 11:35:00-04:00",
+        "blockers": [
+          "BLOCK_BULL_1100_1200"
+        ],
+        "action": "SKIP_BULL_1100_1200",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "triggers": [
+          "level_reclaim",
+          "ribbon_flip",
+          "confluence"
+        ],
+        "level": 741.34275341957,
+        "ribbon_stack": "BULL"
+      },
+      {
+        "timestamp_et": "2026-07-31 12:30:00-04:00",
+        "blockers": [
+          "BLOCK_ELITE_BULL"
+        ],
+        "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "triggers": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "level": 744.68,
+        "ribbon_stack": "BULL"
+      },
+      {
+        "timestamp_et": "2026-07-31 13:00:00-04:00",
+        "blockers": [
+          "BLOCK_ELITE_BULL"
+        ],
+        "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "triggers": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "level": 744.68,
+        "ribbon_stack": "BULL"
+      },
+      {
+        "timestamp_et": "2026-07-31 13:10:00-04:00",
+        "blockers": [
+          "BLOCK_ELITE_BULL"
+        ],
+        "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "triggers": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "level": 744.68,
+        "ribbon_stack": "BULL"
+      },
+      {
+        "timestamp_et": "2026-07-31 13:20:00-04:00",
+        "blockers": [
+          "BLOCK_ELITE_BULL"
+        ],
+        "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "triggers": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "level": 745.53,
+        "ribbon_stack": "BULL"
+      },
+      {
+        "timestamp_et": "2026-07-31 14:00:00-04:00",
+        "blockers": [
+          "BLOCK_ELITE_BULL"
+        ],
+        "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "triggers": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "level": 745.53,
+        "ribbon_stack": "BULL"
+      },
+      {
+        "timestamp_et": "2026-07-31 14:05:00-04:00",
+        "blockers": [
+          "BLOCK_ELITE_BULL"
+        ],
+        "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "triggers": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "level": 745.53,
+        "ribbon_stack": "BULL"
+      },
+      {
+        "timestamp_et": "2026-07-31 14:15:00-04:00",
+        "blockers": [
+          "BLOCK_ELITE_BULL"
+        ],
+        "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+        "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "triggers": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "level": 745.8,
+        "ribbon_stack": "BULL"
+      }
+    ],
+    "bars_blocked_at_scoring_no_named_gate": 68,
+    "reading": "An entry under `entries_excluded_for_missing_data` was PRODUCED by the arm and then dropped for want of a cached contract. It is NOT evidence that a gate held; quoting it as such reports a data hole as a gating decision. Gate evidence lives in `gate_refusals`, which names the blocker that actually fired."
   },
   "arms": {
     "ARM_A_delete": {
@@ -372,30 +699,37 @@
       "gates": {
         "G1_recent_window_positive": {
           "delta_total_recent": -68.0,
-          "pass": false
+          "pass": false,
+          "status": "UNDETERMINED",
+          "undetermined_because": "4 of 7 raw entries this arm ADDS in the recent window could not be priced (no cached OPRA contract), so only 3 are in the measured delta of $-68.00. G1 is a strict SIGN test on that sum: the missing entries would only need to average $+17.00 each to flip it, which is well inside this book's per-trade dispersion. The sign is therefore UNDETERMINED on the evidence, not measured-negative.",
+          "verdict_unchanged": "UNCHANGED EITHER WAY. UNDETERMINED is not a PASS, the ship rule requires all five gates to pass, and G2/G3 fail independently on measured data. ARM_A still NULLs and filter 5 still STAYS. This is a GAP in the evidence, not a refutation of the verdict."
         },
         "G2_day_majority_recent": {
           "improved": 1,
           "worsened": 1,
-          "pass": false
+          "pass": false,
+          "status": "FAIL"
         },
         "G3_survives_drop_best_recent": {
           "delta_minus_best": -122.0,
-          "pass": false
+          "pass": false,
+          "status": "FAIL"
         },
         "G4_runner_anchor_no_regression": {
           "control_n": 39,
           "arm_n": 39,
           "control_total": 18330.05,
           "arm_total": 18488.25,
-          "pass": true
+          "pass": true,
+          "status": "PASS"
         },
         "G5_fire_count": {
           "n_added_full": 21,
           "n_added_recent": 3,
           "floor_full": 10,
           "floor_recent": 2,
-          "pass": true
+          "pass": true,
+          "status": "PASS"
         }
       },
       "all_gates_pass": false,
@@ -420,26 +754,33 @@
       "gates": {
         "G1_recent_window_positive": {
           "delta_total_recent": -68.0,
-          "pass": false
+          "pass": false,
+          "status": "UNDETERMINED",
+          "undetermined_because": "Inherits ARM_A's recent-window measurability gap verbatim: this arm measured byte-identical to ARM_A (same 21 added / 8 dropped trades), so it adds the SAME raw entries in the recent window and the same ones are unpriceable for want of a cached OPRA contract. See `opra_measurability` for the live numbers. Not a PASS either way -- the arm still NULLs and filter 5 stays.",
+          "verdict_unchanged": "UNCHANGED. UNDETERMINED is not a PASS; G2 and G3 fail independently on measured data and the ship rule needs all five. ARM_B NULLs."
         },
         "G2_day_majority_recent": {
           "improved": 1,
           "worsened": 1,
-          "pass": false
+          "pass": false,
+          "status": "FAIL"
         },
         "G3_survives_drop_best_recent": {
           "delta_minus_best": -122.0,
-          "pass": false
+          "pass": false,
+          "status": "FAIL"
         },
         "G4_runner_anchor_no_regression": {
           "control_n": 39,
           "arm_n": 39,
-          "pass": true
+          "pass": true,
+          "status": "PASS"
         },
         "G5_fire_count": {
           "n_added_full": 21,
           "n_added_recent": 3,
-          "pass": true
+          "pass": true,
+          "status": "PASS"
         }
       },
       "all_gates_pass": false,

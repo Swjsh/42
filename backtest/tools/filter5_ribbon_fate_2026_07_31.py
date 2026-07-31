@@ -76,7 +76,7 @@ import lib.orchestrator as orch_mod  # noqa: E402
 import lib.engine.score as score_mod  # noqa: E402 -- holds its OWN by-name bindings (score.py:66)
 from lib.orchestrator import run_backtest  # noqa: E402
 from lib.exit_manager_walk import walk_exit_manager  # noqa: E402
-from lib.option_pricing_real import load_contract_bars, option_symbol  # noqa: E402
+from lib.option_pricing_real import CACHE_DIR, load_contract_bars, option_symbol  # noqa: E402
 
 DATA = REPO / "data"
 OLD_SPY = DATA / "spy_5m_2025-01-01_2026-07-22.csv"
@@ -109,11 +109,26 @@ ARM_B_RUN_2026_07_31 = {
     "full": {"delta_total": 738.60, "n_added": 21, "n_dropped": 8},
     "recent25": {"delta_total": -68.00, "n_added": 3, "n_dropped": 0},
     "gates": {
-        "G1_recent_window_positive": {"delta_total_recent": -68.0, "pass": False},
-        "G2_day_majority_recent": {"improved": 1, "worsened": 1, "pass": False},
-        "G3_survives_drop_best_recent": {"delta_minus_best": -122.0, "pass": False},
-        "G4_runner_anchor_no_regression": {"control_n": 39, "arm_n": 39, "pass": True},
-        "G5_fire_count": {"n_added_full": 21, "n_added_recent": 3, "pass": True},
+        "G1_recent_window_positive": {
+            "delta_total_recent": -68.0, "pass": False, "status": "UNDETERMINED",
+            "undetermined_because": (
+                "Inherits ARM_A's recent-window measurability gap verbatim: this arm measured "
+                "byte-identical to ARM_A (same 21 added / 8 dropped trades), so it adds the "
+                "SAME raw entries in the recent window and the same ones are unpriceable for "
+                "want of a cached OPRA contract. See `opra_measurability` for the live "
+                "numbers. Not a PASS either way -- the arm still NULLs and filter 5 stays."),
+            "verdict_unchanged": (
+                "UNCHANGED. UNDETERMINED is not a PASS; G2 and G3 fail independently on "
+                "measured data and the ship rule needs all five. ARM_B NULLs."),
+        },
+        "G2_day_majority_recent": {"improved": 1, "worsened": 1, "pass": False,
+                                   "status": "FAIL"},
+        "G3_survives_drop_best_recent": {"delta_minus_best": -122.0, "pass": False,
+                                         "status": "FAIL"},
+        "G4_runner_anchor_no_regression": {"control_n": 39, "arm_n": 39, "pass": True,
+                                           "status": "PASS"},
+        "G5_fire_count": {"n_added_full": 21, "n_added_recent": 3, "pass": True,
+                          "status": "PASS"},
     },
     "all_gates_pass": False,
     "verdict": "NULL",
@@ -175,6 +190,61 @@ def recent_window_dates(spy_df: pd.DataFrame, n: int = RECENT_TRADING_DAYS) -> s
 
 # ============================================================================== arms
 
+class Blockers5Capture:
+    """Records blockers==[5] bars EXACTLY ONCE per (side, timestamp).
+
+    THE DEDUPE IS LOAD-BEARING, NOT COSMETIC. `run_arm` patches BOTH `lib.orchestrator` and
+    `lib.engine.score` with the SAME closure (they hold independent by-name bindings), and
+    orchestrator.py's per-bar parity cross-check `_ENGINE_SCORE_ASSERT` drives EVERY bar
+    through BOTH of them. A plain `list.append` therefore records every qualifying bar TWICE.
+
+    That is exactly the defect that shipped in the first 2026-07-31 run: cohort A was reported
+    as "346 bull / 152 bear" full-window and "56 / 48" recent, when the true bar counts are
+    173 / 76 and 28 / 24. Day counts were unaffected (a set of dates absorbs the duplicate),
+    which is why the inflation survived review -- only the BAR counts were wrong, and they were
+    the numbers quoted to J.
+
+    Keying on the timestamp makes the double-count structurally impossible rather than
+    merely corrected-once: re-introducing the dual patch, or adding a THIRD patched module,
+    cannot re-inflate the counts. `duplicate_hits` stays non-zero as positive proof that the
+    dual-patch path is still live (see `assert_dual_patch_observed`) -- if it ever reads 0 the
+    parity cross-check has stopped running and the capture is only seeing one code path.
+
+    Guard: backtest/tests/test_filter5_capture_no_double_count.py (RED-proofed against the
+    original `list.append` implementation).
+    """
+
+    __slots__ = ("_rows", "duplicate_hits")
+
+    def __init__(self) -> None:
+        self._rows: dict[str, dict[str, dict]] = {"bear": {}, "bull": {}}
+        self.duplicate_hits: int = 0
+
+    def add(self, side: str, row: dict) -> None:
+        bucket = self._rows[side]
+        key = row["timestamp_et"]
+        if key in bucket:
+            self.duplicate_hits += 1
+            return
+        bucket[key] = row
+
+    def rows(self, side: str) -> list[dict]:
+        return list(self._rows[side].values())
+
+    def assert_dual_patch_observed(self) -> None:
+        """Positive proof the orchestrator/engine.score parity cross-check is still running.
+
+        Deliberately an assert, not a warning: a silent drop to zero would mean the capture
+        is blind to one of the two scoring paths, which is the failure this whole class exists
+        to make visible (C7 -- audit the output, never the exit code).
+        """
+        assert self.duplicate_hits > 0, (
+            "capture saw ZERO duplicate (side, timestamp) hits -- the orchestrator/engine.score "
+            "parity cross-check that drives every bar through both patched bindings appears to "
+            "have stopped running. Cohort A is now measuring only ONE scoring path."
+        )
+
+
 def run_arm(label: str, spy_df, vix_df, *, disable_filters=None,
             level_anchored_bypass: bool = False, capture_blockers5: bool = False):
     """One arm. Monkeypatches the evaluate_* bindings as a PURE PASS-THROUGH -- it either
@@ -199,14 +269,14 @@ def run_arm(label: str, spy_df, vix_df, *, disable_filters=None,
     assert score_mod.evaluate_bullish_setup is orig_bull, (
         "lib.engine.score no longer shares filters.evaluate_bullish_setup with lib.orchestrator"
     )
-    cand = {"bear": [], "bull": []}
+    cand = Blockers5Capture()
 
     def _bear(ctx, **kw):
         if level_anchored_bypass:
             kw = dict(kw, filter5_level_anchored_bypass=True)
         res = orig_bear(ctx, **kw)
         if capture_blockers5 and res.blockers == [5]:
-            cand["bear"].append({
+            cand.add("bear", {
                 "date": ctx.timestamp_et.date().isoformat(),
                 "timestamp_et": ctx.timestamp_et.isoformat(),
                 "score": res.bear_score,
@@ -221,7 +291,7 @@ def run_arm(label: str, spy_df, vix_df, *, disable_filters=None,
             kw = dict(kw, filter5_level_anchored_bypass=True)
         res = orig_bull(ctx, **kw)
         if capture_blockers5 and res.blockers == [5]:
-            cand["bull"].append({
+            cand.add("bull", {
                 "date": ctx.timestamp_et.date().isoformat(),
                 "timestamp_et": ctx.timestamp_et.isoformat(),
                 "score": res.bull_score,
@@ -255,18 +325,37 @@ def run_arm(label: str, spy_df, vix_df, *, disable_filters=None,
 
 def derive_rows(label: str, r, spy_df: pd.DataFrame, ribbon_lookup, exit_shape: dict):
     """Re-walk every entry through the REAL exit manager. Byte-identical machinery to
-    engine_fullhist_replay.py's own loop."""
-    rows, skipped = [], {"no_opra": 0, "no_spy_day": 0}
+    engine_fullhist_replay.py's own loop.
+
+    Returns (walked_rows, skipped_counts, excluded_rows). `excluded_rows` carries the SAME
+    identity tuple as a walked row (date / entry_time_et / symbol / side), so an excluded
+    entry can be diffed against the other arm's book exactly like a walked one. Without that,
+    an entry an arm ADDED but which no OPRA contract could price is indistinguishable from an
+    entry a GATE refused -- the C7 misreport this study shipped on its first run
+    ("zero trades on 2026-07-31 in ANY arm" was true only of the WALKED book; ARM_A did
+    produce a 07-31 09:50 P742 entry and it was dropped for a missing contract, not by a gate).
+    """
+    rows, skipped, excluded = [], {"no_opra": 0, "no_spy_day": 0}, []
+
+    def _excluded(edate, symbol, t, reason):
+        return {"arm": label, "date": edate.isoformat(),
+                "entry_time_et": naive_dt(t.entry_time_et).isoformat(),
+                "side": t.side, "symbol": symbol, "reason": reason,
+                "setup": t.setup, "triggers": list(t.triggers_fired),
+                "level": float(t.rejection_level) if t.rejection_level else None}
+
     for t in r.trades:
         edate = eb.entry_date(t)
         symbol = option_symbol(edate, int(t.strike), t.side)
         opt_df = load_contract_bars(symbol)
         if opt_df is None:
             skipped["no_opra"] += 1
+            excluded.append(_excluded(edate, symbol, t, "no_opra"))
             continue
         day_spy = spy_df.loc[spy_df["timestamp_et"].dt.date == edate].reset_index(drop=True)
         if day_spy.empty:
             skipped["no_spy_day"] += 1
+            excluded.append(_excluded(edate, symbol, t, "no_spy_day"))
             continue
         entry_time_et = naive_dt(t.entry_time_et)
         trigger_level = float(t.rejection_level) if t.rejection_level else None
@@ -288,7 +377,7 @@ def derive_rows(label: str, r, spy_df: pd.DataFrame, ribbon_lookup, exit_shape: 
         })
     log(f"  {label}: {len(rows)} real-OPRA walks "
         f"(excluded: no_opra={skipped['no_opra']} no_spy_day={skipped['no_spy_day']})")
-    return rows, skipped
+    return rows, skipped, excluded
 
 
 # ============================================================================== stats
@@ -395,6 +484,8 @@ def score_arm(label: str, control_rows: list[dict], arm_rows: list[dict],
             "pass": (out["full"]["n_added"] >= FIRE_FLOOR_FULL
                      and out["recent25"]["n_added"] >= FIRE_FLOOR_RECENT)},
     }
+    for g in out["gates"].values():
+        g["status"] = "PASS" if g["pass"] else "FAIL"
     out["all_gates_pass"] = all(g["pass"] for g in out["gates"].values())
     out["verdict"] = "SHIP_CANDIDATE" if out["all_gates_pass"] else "NULL"
     return out
@@ -452,6 +543,175 @@ def attribution_block(control_rows: list[dict], arm_rows: list[dict]) -> dict:
     }
 
 
+# ====================================================== OPRA measurability (window-stratified)
+
+def cached_contracts_per_day(dates) -> dict:
+    """Cached OPRA contract count per trading day, read from the contract cache itself.
+
+    This is the DENOMINATOR behind every exclusion in this study. It is measured, not
+    assumed: coverage is ~22-30 contracts/day through 2026-07-22 and then collapses to
+    single digits, so an arm's newest-week entries are far likelier to be unpriceable than
+    its older ones. Reporting a bare `no_opra: 25` total hides that entirely.
+    """
+    counts = {d: 0 for d in dates}
+    for p in CACHE_DIR.glob("SPY*.csv"):
+        stem = p.stem
+        if len(stem) < 9 or not stem[3:9].isdigit():
+            continue
+        try:
+            d = dt.date(2000 + int(stem[3:5]), int(stem[5:7]), int(stem[7:9]))
+        except ValueError:
+            continue
+        if d in counts:
+            counts[d] += 1
+    return counts
+
+
+def opra_measurability(control_rows, control_excl, arm_rows, arm_excl, recent_dates) -> dict:
+    """Window-stratified OPRA exclusions + whether G1's recent-window verdict is MEASURABLE.
+
+    G1 (recent-window-positive) is the PRIMARY gate, and it is a strict SIGN test on a sum
+    over a handful of trades. If some of the arm's ADDED entries in that window could not be
+    priced at all, the sign is not merely uncertain -- it is undefined on the evidence. That
+    is a GAP, not a refutation: the arm still does not PASS, so filter 5 stays either way.
+    Recording it as a flat FAIL would claim the recent window was measured and came out
+    negative. It was not fully measured.
+    """
+    def keyset(rows):
+        return {_key(r) for r in rows}
+
+    def in_window(rows):
+        return [r for r in rows if dt.date.fromisoformat(r["date"]) in recent_dates]
+
+    ctrl_raw = keyset(control_rows) | keyset(control_excl)
+    out = {
+        "_doc": "OPRA exclusions stratified by window. Exclusions are NEVER BS-synthesized; "
+                "an excluded entry is absent from every total, so an arm's measured delta is "
+                "a delta over the PRICEABLE subset of its book, not over its whole book.",
+        "windows": {},
+    }
+    for wname, rows_c, excl_c, rows_a, excl_a in (
+        ("full", control_rows, control_excl, arm_rows, arm_excl),
+        ("recent25", in_window(control_rows), in_window(control_excl),
+         in_window(arm_rows), in_window(arm_excl)),
+    ):
+        added_walked = [r for r in rows_a if _key(r) not in ctrl_raw]
+        added_excluded = [r for r in excl_a if _key(r) not in ctrl_raw]
+        n_unmeas = len(added_excluded)
+        n_raw = len(added_walked) + n_unmeas
+        out["windows"][wname] = {
+            "CONTROL": {"walked": len(rows_c), "excluded_no_opra":
+                        sum(1 for r in excl_c if r["reason"] == "no_opra"),
+                        "excluded_no_spy_day":
+                        sum(1 for r in excl_c if r["reason"] == "no_spy_day")},
+            "ARM_A": {"walked": len(rows_a), "excluded_no_opra":
+                      sum(1 for r in excl_a if r["reason"] == "no_opra"),
+                      "excluded_no_spy_day":
+                      sum(1 for r in excl_a if r["reason"] == "no_spy_day")},
+            "added_by_arm": {
+                "raw_entries": n_raw,
+                "measurable": len(added_walked),
+                "unmeasurable_no_opra": n_unmeas,
+                "measurable_pct": round(100.0 * len(added_walked) / n_raw, 1) if n_raw else None,
+                "unmeasurable_detail": sorted(
+                    ({"date": r["date"], "entry_time_et": r["entry_time_et"],
+                      "symbol": r["symbol"], "side": r["side"], "reason": r["reason"]}
+                     for r in added_excluded),
+                    key=lambda r: (r["date"], r["entry_time_et"])),
+            },
+        }
+    out["cached_contracts_per_day_recent25"] = {
+        d.isoformat(): n for d, n in
+        sorted(cached_contracts_per_day(recent_dates).items())}
+    zero_days = [d for d, n in out["cached_contracts_per_day_recent25"].items() if n == 0]
+    out["recent25_days_with_zero_opra_coverage"] = {"n": len(zero_days), "days": zero_days}
+    return out
+
+
+def relabel_g1_measurability(scored: dict, meas: dict) -> dict:
+    """FAIL -> UNDETERMINED on G1 when any ADDED recent-window entry could not be priced.
+
+    The pass/fail BOOLEAN is deliberately untouched: the frozen pre-reg's ship rule is
+    `all(gates pass)`, UNDETERMINED is not a pass, so the arm still nulls and filter 5 still
+    stays. Only the LABEL changes, plus the arithmetic showing how little the missing entries
+    would have to earn to flip the sign -- which is the whole reason a flat FAIL overclaims.
+    """
+    g1 = scored["gates"]["G1_recent_window_positive"]
+    add = meas["windows"]["recent25"]["added_by_arm"]
+    n_missing = add["unmeasurable_no_opra"]
+    delta = g1["delta_total_recent"]
+    if n_missing <= 0:
+        g1["status"] = "PASS" if g1["pass"] else "FAIL"
+        return scored
+    g1["status"] = "UNDETERMINED"
+    g1["undetermined_because"] = (
+        f"{n_missing} of {add['raw_entries']} raw entries this arm ADDS in the recent window "
+        f"could not be priced (no cached OPRA contract), so only {add['measurable']} are in "
+        f"the measured delta of ${delta:+,.2f}. G1 is a strict SIGN test on that sum: the "
+        f"missing entries would only need to average "
+        f"${(-delta) / n_missing:+,.2f} each to flip it, which is well inside this book's "
+        f"per-trade dispersion. The sign is therefore UNDETERMINED on the evidence, not "
+        f"measured-negative."
+    )
+    g1["verdict_unchanged"] = (
+        "UNCHANGED EITHER WAY. UNDETERMINED is not a PASS, the ship rule requires all five "
+        "gates to pass, and G2/G3 fail independently on measured data. ARM_A still NULLs and "
+        "filter 5 still STAYS. This is a GAP in the evidence, not a refutation of the verdict."
+    )
+    return scored
+
+
+def day_forensics(day: dt.date, arm_label: str, arm_result, arm_rows, arm_excl) -> dict:
+    """Everything an arm did on ONE day: entries WALKED, entries EXCLUDED, and gate REFUSALS.
+
+    Exists because "no trades on <day>" is three different facts wearing one coat -- the arm
+    produced no entry, the arm produced an entry a GATE refused, or the arm produced an entry
+    that was silently dropped because no OPRA contract could price it. The first two are
+    findings about the engine; the third is a hole in the data that says nothing about gating.
+    Collapsing them is the C7 silent-success shape, and this study shipped exactly that on
+    2026-07-31. Emitting all three side by side makes the conflation impossible to repeat.
+    """
+    iso = day.isoformat()
+    walked = [{k: r[k] for k in ("entry_time_et", "side", "symbol", "setup", "triggers",
+                                 "level", "dollar_pnl", "exit_reason")}
+              for r in arm_rows if r["date"] == iso]
+    excluded = [{k: r[k] for k in ("entry_time_et", "side", "symbol", "setup", "triggers",
+                                   "level", "reason")}
+                for r in arm_excl if r["date"] == iso]
+    # A decision row carries EITHER a named gate action (a cohort gate refused a qualifying
+    # setup -- real gating evidence) OR a bare list of numeric filter blockers (the bar simply
+    # never cleared scoring). Mixing them buries the handful of real refusals under ~80 rows of
+    # routine no-setup bars, so they are counted separately and only the named ones are quoted.
+    refusals, scored_out = [], 0
+    for d in arm_result.decisions:
+        ts = str(d.get("timestamp_et", ""))
+        if not ts.startswith(iso) or d.get("passed"):
+            continue
+        blk = list(d.get("blockers") or [])
+        if not blk:
+            continue
+        if not d.get("action"):
+            scored_out += 1
+            continue
+        refusals.append({"timestamp_et": ts, "blockers": blk, "action": d.get("action"),
+                         "setup": d.get("setup"), "triggers": list(d.get("triggers_fired") or []),
+                         "level": d.get("rejection_level"), "ribbon_stack": d.get("ribbon_stack")})
+    return {
+        "_doc": f"{arm_label} on {iso}: entries walked, entries EXCLUDED for missing data "
+                f"(NOT refused by a gate), and gate refusals -- reported separately on purpose.",
+        "arm": arm_label, "date": iso,
+        "entries_walked": walked,
+        "entries_excluded_for_missing_data": excluded,
+        "gate_refusals": refusals,
+        "bars_blocked_at_scoring_no_named_gate": scored_out,
+        "reading": (
+            "An entry under `entries_excluded_for_missing_data` was PRODUCED by the arm and "
+            "then dropped for want of a cached contract. It is NOT evidence that a gate held; "
+            "quoting it as such reports a data hole as a gating decision. Gate evidence lives "
+            "in `gate_refusals`, which names the blocker that actually fired."),
+    }
+
+
 # ============================================================================== main
 
 def main() -> int:
@@ -498,16 +758,21 @@ def main() -> int:
             "measured byte-identical to ARM_A on 2026-07-31, see module docstring)")
         r_b = None
 
+    cand.assert_dual_patch_observed()
+    log(f"capture dedupe: {cand.duplicate_hits} duplicate (side, timestamp) hits suppressed "
+        f"-- the orchestrator/engine.score dual patch is live and each bar is recorded ONCE")
+
     log("walking exits through the REAL exit_manager")
-    ctrl_rows, ctrl_skip = derive_rows("CONTROL", r_ctrl, spy_df, ribbon_lookup, exit_shape)
-    a_rows, a_skip = derive_rows("ARM_A", r_a, spy_df, ribbon_lookup, exit_shape)
+    ctrl_rows, ctrl_skip, ctrl_excl = derive_rows(
+        "CONTROL", r_ctrl, spy_df, ribbon_lookup, exit_shape)
+    a_rows, a_skip, a_excl = derive_rows("ARM_A", r_a, spy_df, ribbon_lookup, exit_shape)
     if r_b is not None:
-        b_rows, b_skip = derive_rows("ARM_B", r_b, spy_df, ribbon_lookup, exit_shape)
+        b_rows, b_skip, b_excl = derive_rows("ARM_B", r_b, spy_df, ribbon_lookup, exit_shape)
     else:
-        b_rows, b_skip = None, None
+        b_rows, b_skip, b_excl = None, None, None
 
     def cand_stats(side: str) -> dict:
-        rows = cand[side]
+        rows = cand.rows(side)
         recent = [c for c in rows if dt.date.fromisoformat(c["date"]) in recent_dates]
         return {
             "n_bars_full": len(rows), "n_days_full": len({c['date'] for c in rows}),
@@ -515,7 +780,9 @@ def main() -> int:
             "sample_recent": recent[-8:],
         }
 
-    scored = {"ARM_A_delete": score_arm("ARM_A_delete", ctrl_rows, a_rows, recent_dates)}
+    measurability = opra_measurability(ctrl_rows, ctrl_excl, a_rows, a_excl, recent_dates)
+    scored = {"ARM_A_delete": relabel_g1_measurability(
+        score_arm("ARM_A_delete", ctrl_rows, a_rows, recent_dates), measurability)}
     if b_rows is not None:
         scored["ARM_B_level_anchored_bypass"] = score_arm(
             "ARM_B_level_anchored_bypass", ctrl_rows, b_rows, recent_dates)
@@ -551,6 +818,8 @@ def main() -> int:
         },
         "opra_exclusions": {"CONTROL": ctrl_skip, "ARM_A": a_skip, "ARM_B": b_skip,
                             "note": "excluded from every total, never BS-synthesized"},
+        "opra_measurability": measurability,
+        "day_forensics_2026_07_31": day_forensics(FULL_END, "ARM_A", r_a, a_rows, a_excl),
         "arms": scored,
         "attribution": attribution_block(ctrl_rows, a_rows),
         "gates_frozen": prereg["gates_frozen"],
@@ -570,6 +839,117 @@ def main() -> int:
             f"recent25 delta ${s['recent25']['delta_total']:+,.2f} | "
             f"added {s['full']['n_added']} | verdict {s['verdict']}")
     return 0
+
+
+def _measurability_md(out: dict) -> str:
+    m = out.get("opra_measurability")
+    if not m:
+        return ""
+    L = ["## OPRA coverage — window-stratified exclusions (why G1 is UNDETERMINED)", ""]
+    L.append("Every entry with no cached OPRA contract is excluded from every total and is "
+             "NEVER Black-Scholes-synthesized. That is the right call for P&L honesty, but it "
+             "means a measured delta covers only the PRICEABLE subset of an arm's book — so "
+             "the exclusions have to be shown per window, not as one lump total.")
+    L.append("")
+    L.append("| window | arm | walked | excluded (no OPRA) | excluded (no SPY day) |")
+    L.append("|---|---|--:|--:|--:|")
+    for w, wd in m["windows"].items():
+        for arm in ("CONTROL", "ARM_A"):
+            a = wd[arm]
+            L.append(f"| {w} | {arm} | {a['walked']} | {a['excluded_no_opra']} | "
+                     f"{a['excluded_no_spy_day']} |")
+    L.append("")
+    L.append("**The entries the arm ADDS — how many are even measurable:**")
+    L.append("")
+    L.append("| window | raw added entries | measurable | unmeasurable (no OPRA) | measurable % |")
+    L.append("|---|--:|--:|--:|--:|")
+    for w, wd in m["windows"].items():
+        a = wd["added_by_arm"]
+        L.append(f"| {w} | {a['raw_entries']} | {a['measurable']} | "
+                 f"{a['unmeasurable_no_opra']} | {a['measurable_pct']}% |")
+    L.append("")
+    det = m["windows"]["recent25"]["added_by_arm"]["unmeasurable_detail"]
+    if det:
+        L.append("Recent-window added entries that could NOT be priced:")
+        L.append("")
+        L.append("| date | entry (ET) | side | contract | reason |")
+        L.append("|---|---|---|---|---|")
+        for d in det:
+            L.append(f"| {d['date']} | {d['entry_time_et']} | {d['side']} | "
+                     f"`{d['symbol']}` | {d['reason']} |")
+        L.append("")
+    L.append("**The coverage collapse** — cached contracts per trading day, recent 25 days:")
+    L.append("")
+    L.append("| day | cached contracts |")
+    L.append("|---|--:|")
+    for d, n in m["cached_contracts_per_day_recent25"].items():
+        flag = "  ⬅ **collapse**" if n and n < 10 else ("  ⬅ **ZERO**" if n == 0 else "")
+        L.append(f"| {d} | {n}{flag} |")
+    z = m["recent25_days_with_zero_opra_coverage"]
+    L.append("")
+    L.append(f"**{z['n']} trading days in the decisive recent window have ZERO cached OPRA "
+             f"coverage** ({', '.join(z['days']) if z['days'] else 'none'}) — no arm can be "
+             "measured on them at all. Coverage runs ~22–30 contracts/day through 2026-07-22 "
+             "and then falls to single digits. **The recent window is exactly the stretch J's "
+             "dynamic-market directive weights hardest, and it is the worst-covered stretch in "
+             "the study.** An OPRA backfill is the single highest-value input to re-deciding "
+             "this gate; nothing else about the design needs to change.")
+    L.append("")
+    return "\n".join(L)
+
+
+def _join(vals) -> str:
+    """Render a decision-row list. Blockers arrive as raw filter NUMBERS on some paths and as
+    named strings (BLOCK_ELITE_BULL) on others -- coercing here keeps both readable instead of
+    crashing the renderer after the JSON has already been written."""
+    return ", ".join(str(v) for v in (vals or [])) or "—"
+
+
+def _day_forensics_md(out: dict) -> str:
+    f = out.get("day_forensics_2026_07_31")
+    if not f:
+        return ""
+    L = [f"## {f['date']} forensics ({f['arm']}) — walked vs excluded vs refused", ""]
+    L.append("**CORRECTED.** The first run of this study reported *\"zero trades on "
+             "2026-07-31 in ANY arm\"* and read that as a gate holding. That was true only of "
+             "the WALKED book. Reporting a data hole as a gating decision is the C7 "
+             "silent-success shape, so the three cases are now separated by construction.")
+    L.append("")
+    L.append(f"**Entries WALKED:** {len(f['entries_walked'])}")
+    if f["entries_walked"]:
+        L.append("")
+        L.append("| entry (ET) | side | contract | setup | P&L | exit |")
+        L.append("|---|---|---|---|--:|---|")
+        for r in f["entries_walked"]:
+            L.append(f"| {r['entry_time_et']} | {r['side']} | `{r['symbol']}` | {r['setup']} | "
+                     f"${r['dollar_pnl']:,.2f} | {r['exit_reason']} |")
+    L.append("")
+    L.append(f"**Entries PRODUCED then EXCLUDED for missing data (NOT refused by a gate):** "
+             f"{len(f['entries_excluded_for_missing_data'])}")
+    if f["entries_excluded_for_missing_data"]:
+        L.append("")
+        L.append("| entry (ET) | side | contract | setup | triggers | reason |")
+        L.append("|---|---|---|---|---|---|")
+        for r in f["entries_excluded_for_missing_data"]:
+            L.append(f"| {r['entry_time_et']} | {r['side']} | `{r['symbol']}` | {r['setup']} | "
+                     f"{_join(r['triggers'])} | **{r['reason']}** |")
+    L.append("")
+    L.append(f"**Gate REFUSALS — named cohort gates that refused a qualifying setup. THIS is "
+             f"the actual gating evidence:** {len(f['gate_refusals'])} "
+             f"(plus {f.get('bars_blocked_at_scoring_no_named_gate', 0)} bars that simply never "
+             f"cleared scoring — routine, not a gate decision)")
+    if f["gate_refusals"]:
+        L.append("")
+        L.append("| bar (ET) | setup | triggers | level | blockers | action |")
+        L.append("|---|---|---|--:|---|---|")
+        for r in f["gate_refusals"]:
+            lvl = f"{r['level']:.2f}" if isinstance(r["level"], (int, float)) else "—"
+            L.append(f"| {r['timestamp_et']} | {r['setup']} | {_join(r['triggers'])} | "
+                     f"{lvl} | `{_join(r['blockers'])}` | `{r['action']}` |")
+    L.append("")
+    L.append(f"> {f['reading']}")
+    L.append("")
+    return "\n".join(L)
 
 
 def write_markdown(out: dict) -> None:
@@ -603,6 +983,17 @@ def write_markdown(out: dict) -> None:
         L.append(f"| {side} | {s['n_bars_full']} | {s['n_days_full']} | "
                  f"{s['n_bars_recent25']} | {s['n_days_recent25']} |")
     L.append("")
+    L.append("> **CORRECTED 2026-07-31 (n-inflation).** The first run of this study reported "
+             "these BAR counts at exactly **2x** — 346 bull / 152 bear full-window and 56 / 48 "
+             "recent — because the capture monkeypatch patches both `lib.orchestrator` and "
+             "`lib.engine.score` and the per-bar parity cross-check drives every bar through "
+             "both bindings, appending each qualifying bar twice. DAY counts were never "
+             "affected (a set of dates absorbs the duplicate), which is why it survived review: "
+             "only the bar counts were wrong, and they were the ones quoted to J. Deduped at "
+             "source by `Blockers5Capture`, guarded by "
+             "`backtest/tests/test_filter5_capture_no_double_count.py`. **No gate, delta or "
+             "verdict depended on these counts — they are descriptive only.**")
+    L.append("")
     L.append("## Cohort B — the book filter 5 ALLOWED (CONTROL)")
     cb = out["cohort_B_allowed_by_filter5"]
     L.append("")
@@ -632,6 +1023,25 @@ def write_markdown(out: dict) -> None:
     L.append("")
     L.append(f"**{at['finding']}**")
     L.append("")
+    L.append("### ⚠️ The by-product that outlives the null: filter 5 is largely REDUNDANT "
+             "with the ribbon-flip EXIT")
+    L.append("")
+    _am = at["added_exit_reason_mix"].get("ribbon_flip_back", {"pct": 0.0, "n": 0})
+    _cm = at["control_exit_reason_mix"].get("ribbon_flip_back", {"pct": 0.0, "n": 0})
+    L.append(f"**{_am['pct']}% of the trades this deletion unlocks exit on `ribbon_flip_back` "
+             f"(n={_am['n']}), against {_cm['pct']}% of the control book (n={_cm['n']}).** The "
+             "entry veto and the exit rule read the SAME lagging ribbon, so a setup admitted "
+             "against a non-stacked ribbon is closed by that ribbon within minutes. The block-set "
+             "does not get a chance to be right or wrong — it gets round-tripped.")
+    L.append("")
+    L.append("**This pre-refutes any future \"loosen the ribbon\" that moves only the entry "
+             "gate.** Relaxing filter 5 while `ribbon_flip_back` still owns the exit will null "
+             "the same way this arm did, for this mechanism, no matter how the entry gate is "
+             "scoped. The only version of that change worth running is the PAIRED one: relax "
+             "the entry gate AND suppress the ribbon-flip exit for the same cohort, in ONE "
+             "pre-registered change. That paired arm has never been measured. (L243's shape, "
+             "on the exit side.)")
+    L.append("")
     L.append("## Arms")
     for name, s in out["arms"].items():
         if "full" not in s or "control" not in s.get("full", {}):
@@ -643,7 +1053,13 @@ def write_markdown(out: dict) -> None:
             L.append(f"- recent25 delta ${s['recent25']['delta_total']:+,.2f} "
                      f"(added {s['recent25']['n_added']})")
             L.append(f"- gates: " + ", ".join(
-                f"{g}={'PASS' if v['pass'] else 'FAIL'}" for g, v in s["gates"].items()))
+                f"{g}={v.get('status', 'PASS' if v['pass'] else 'FAIL')}"
+                for g, v in s["gates"].items()))
+            _g1 = s["gates"].get("G1_recent_window_positive", {})
+            if _g1.get("status") == "UNDETERMINED":
+                L.append("")
+                L.append(f"> **G1 is UNDETERMINED, not FAIL.** {_g1['undetermined_because']} "
+                         f"{_g1['verdict_unchanged']}")
             L.append("")
             L.append(f"{s['why_identical_to_arm_a']}")
             continue
@@ -664,12 +1080,22 @@ def write_markdown(out: dict) -> None:
                  f"total=${add['total']:,.2f} WR={add['wr']} per-trade=${add['per_trade'] or 0:,.2f} "
                  f"ex-best=${add['total_ex_best'] or 0:,.2f}")
         L.append("")
-        L.append("| gate | result | pass |")
+        L.append("| gate | result | status |")
         L.append("|---|---|:--:|")
+        _hide = {"pass", "status", "undetermined_because", "verdict_unchanged"}
         for gid, g in s["gates"].items():
-            detail = ", ".join(f"{k}={v}" for k, v in g.items() if k != "pass")
-            L.append(f"| {gid} | {detail} | {'PASS' if g['pass'] else 'FAIL'} |")
+            detail = ", ".join(f"{k}={v}" for k, v in g.items() if k not in _hide)
+            L.append(f"| {gid} | {detail} | "
+                     f"{g.get('status', 'PASS' if g['pass'] else 'FAIL')} |")
+        g1 = s["gates"].get("G1_recent_window_positive", {})
+        if g1.get("status") == "UNDETERMINED":
+            L.append("")
+            L.append(f"> **G1 is UNDETERMINED, not FAIL.** {g1['undetermined_because']}")
+            L.append(">")
+            L.append(f"> **{g1['verdict_unchanged']}**")
     L.append("")
+    L.append(_measurability_md(out))
+    L.append(_day_forensics_md(out))
     L.append("## ARM_C (structure-shift replacement) — not run")
     L.append("")
     L.append(out["arm_c_not_run"])
