@@ -14,6 +14,15 @@ SELECTION. The live arm additionally hard-clamps qty to min_contracts; because 0
 exits here are per-contract percentages, per-trade P&L scales ~linearly with qty, so the
 min-size figure is reported as a disclosed scaling alongside the raw one.
 
+MIN-SIZE ESTIMATOR CORRECTION (2026-07-31 evening, adversarial verifier):
+the original implementation computed `scale_factor = MIN_CONTRACTS / mean_qty` and applied
+that ONE scalar to the SUM of P&L. That is a BIASED RATIO ESTIMATOR: over a qty range of
+3-22 it weights each trade by its own lot size, so large-lot outcomes dominate a figure that
+is supposed to describe a uniform 5-lot book. Both headlines INVERTED when corrected
+(full population +$1,951 -> negative; recent +$63 -> negative). The correct estimator is
+per-trade: MIN_CONTRACTS * SUM(pnl_i / qty_i). See `_minsize()`. Any future edit that
+reintroduces a single scale_factor over a sum is the same defect returning.
+
 REAL OPRA FILLS ONLY (use_real_fills=True). Entry+1 convention is the orchestrator's own.
 $0, offline. Run: python backtest/full_send_arm_ab.py
 """
@@ -97,11 +106,20 @@ def summarize(res, label: str) -> dict:
     total = sum(pnl)
     by_day = defaultdict(float)
     qtys = []
+    # Per-CONTRACT P&L (pnl_i / qty_i) -- the basis of the unbiased min-size estimator.
+    per_contract: list[float] = []
+    pc_by_day = defaultdict(float)
+    n_missing_qty = 0
     for t in trades:
         by_day[_tdate(t)] += float(t.dollar_pnl)
         q = getattr(t, "contracts", None) or getattr(t, "qty", None)
         if q:
             qtys.append(int(q))
+            pc = float(t.dollar_pnl) / int(q)
+            per_contract.append(pc)
+            pc_by_day[_tdate(t)] += pc
+        else:
+            n_missing_qty += 1
     days_traded = len(by_day)
     wins = [p for p in pnl if p > 0]
     return {
@@ -116,8 +134,45 @@ def summarize(res, label: str) -> dict:
         "worst_day": round(min(by_day.values()), 2) if by_day else 0.0,
         "best_day": round(max(by_day.values()), 2) if by_day else 0.0,
         "mean_qty": round(sum(qtys) / len(qtys), 2) if qtys else None,
+        "min_qty": min(qtys) if qtys else None,
+        "max_qty": max(qtys) if qtys else None,
+        # Unbiased per-contract aggregates (see module docstring + _minsize).
+        "_pc_sum": round(sum(per_contract), 6) if per_contract else None,
+        "_pc_worst_trade": round(min(per_contract), 6) if per_contract else None,
+        "_pc_worst_day": round(min(pc_by_day.values()), 6) if pc_by_day else None,
+        "_n_trades_with_qty": len(per_contract),
+        "_n_trades_missing_qty": n_missing_qty,
         "_by_day": {str(k): round(v, 2) for k, v in sorted(by_day.items())},
         "_setups": dict(Counter(str(getattr(t, "setup_name", "?")) for t in trades)),
+    }
+
+
+def _minsize(s: dict) -> dict | None:
+    """UNBIASED min-size projection: MIN_CONTRACTS * SUM(pnl_i / qty_i).
+
+    NOT `(MIN_CONTRACTS / mean_qty) * SUM(pnl_i)` -- that biased ratio estimator was the
+    original implementation and it INVERTED both headline signs (see module docstring).
+    Every field here is a per-trade recomputation, never a scalar rescale of an aggregate."""
+    if not s.get("_n_trades_with_qty"):
+        return None
+    return {
+        "method": "MIN_CONTRACTS * sum(pnl_i / qty_i)  [per-trade, unbiased]",
+        "min_contracts": MIN_CONTRACTS,
+        "total_pnl_minsize": round(MIN_CONTRACTS * s["_pc_sum"], 2),
+        "worst_trade_minsize": round(MIN_CONTRACTS * s["_pc_worst_trade"], 2),
+        "worst_day_minsize": round(MIN_CONTRACTS * s["_pc_worst_day"], 2),
+        "n_trades_scaled": s["_n_trades_with_qty"],
+        "n_trades_missing_qty": s["_n_trades_missing_qty"],
+        "observed_qty_range": [s.get("min_qty"), s.get("max_qty")],
+        "_disclosure": (
+            "Per-trade rescale to a uniform MIN_CONTRACTS lot. Exits are per-contract "
+            "percentages, so pnl_i/qty_i is the per-contract outcome of trade i and the sum "
+            "is the min-size book. NOT exact: the per-trade risk cap and the min_entry_premium "
+            "floor could have admitted or refused a DIFFERENT trade set at a 5-lot, and this "
+            "reweights the SAME trades rather than re-running selection at min size. "
+            "SUPERSEDES the original scale_factor=MIN_CONTRACTS/mean_qty applied to a SUM, "
+            "which was a biased ratio estimator over qty 3-22 and inverted both headline signs."
+        ),
     }
 
 
@@ -137,21 +192,10 @@ def run_window(s: dt.date, e: dt.date, n_sessions: int, tag: str) -> dict:
     full["fills_per_session"] = round(full["n_trades"] / n_sessions, 4) if n_sessions else 0.0
     uplift = (full["n_trades"] / base["n_trades"]) if base["n_trades"] else float("inf")
 
-    # Min-size scaling disclosure: the live arm clamps to MIN_CONTRACTS. Both arms above ran
-    # at the same equity-derived qty; scale FULL_SEND's P&L to the min-size lot it would
-    # actually trade. Linear because exits are per-contract percentages.
-    scale = (MIN_CONTRACTS / full["mean_qty"]) if full["mean_qty"] else None
-    full_minsize = None
-    if scale is not None:
-        full_minsize = {
-            "scale_factor": round(scale, 4),
-            "total_pnl_minsize": round(full["total_pnl"] * scale, 2),
-            "worst_trade_minsize": round(full["worst_trade"] * scale, 2),
-            "worst_day_minsize": round(full["worst_day"] * scale, 2),
-            "_disclosure": ("linear qty scaling of the SAME trades; exits are per-contract "
-                            "percentages so this is exact except where the per-trade risk cap "
-                            "would have bound differently at the larger lot."),
-        }
+    # Min-size projection: the live arm clamps every entry to MIN_CONTRACTS. Both arms above
+    # ran at the same equity-derived qty, so restate FULL_SEND's book at a uniform min lot --
+    # PER TRADE (see _minsize), never as one scale factor over the sum.
+    full_minsize = _minsize(full)
 
     # --- pre-registered failure checks -------------------------------------
     kill_threshold = -0.50 * SHARED["initial_equity"]
@@ -174,16 +218,9 @@ def run_window(s: dt.date, e: dt.date, n_sessions: int, tag: str) -> dict:
             "FAIL": bool(uplift < 2.0),
         },
     }
-    # ATM cell -- the LIVE arm's actual strike. Scaled to min size the same way.
-    atm_scale = (MIN_CONTRACTS / full_atm["mean_qty"]) if full_atm["mean_qty"] else None
-    atm_minsize = None
-    if atm_scale is not None:
-        atm_minsize = {
-            "scale_factor": round(atm_scale, 4),
-            "total_pnl_minsize": round(full_atm["total_pnl"] * atm_scale, 2),
-            "worst_trade_minsize": round(full_atm["worst_trade"] * atm_scale, 2),
-            "worst_day_minsize": round(full_atm["worst_day"] * atm_scale, 2),
-        }
+    # ATM cell -- the LIVE arm's actual strike. Restated at min size the same (unbiased) way.
+    atm_minsize = _minsize(full_atm)
+    if atm_minsize is not None:
         checks["F1_kill_switch_breach_ATM"] = {
             "threshold": kill_threshold,
             "observed_worst_day_minsize": atm_minsize["worst_day_minsize"],
@@ -216,6 +253,37 @@ if __name__ == "__main__":
         "rule_id": "full-send-arm-2026-07-31",
         "prereg": "analysis/recommendations/prereg-full-send-arm-2026-07-31.json",
         "generated_at_et": "2026-07-31 (after-hours build window)",
+        "corrected_at_et": "2026-07-31 evening (min-size estimator correction, see _corrections)",
+        "_corrections": [
+            {
+                "id": "minsize-biased-ratio-estimator",
+                "found_by": "adversarial verifier, 2026-07-31 evening",
+                "defect": ("min-size P&L used scale_factor = MIN_CONTRACTS / mean_qty applied to "
+                           "the SUM of P&L -- a biased ratio estimator over an observed qty range "
+                           "of 3-22, which weights each trade by its own lot size."),
+                "correct_estimator": "MIN_CONTRACTS * sum(pnl_i / qty_i)  [per-trade]",
+                "superseded_values": {"full_population_minsize": 1951.0, "recent_minsize": 63.0},
+                "effect": "BOTH headline signs INVERT to negative. See windows.*.full_send_minsize.",
+                "also_removed": ("the _disclosure claim that the scaling 'is exact' -- an "
+                                 "affirmatively false statement of method."),
+            },
+            {
+                "id": "atm-strike-not-reverted-on-the-shipped-path",
+                "found_by": "adversarial verifier, 2026-07-31 evening",
+                "defect": ("this scorecard and commit e28d210c said the ATM strike override was "
+                           "REVERTED. It was reverted in fleet_executor._tiers_for_arm ONLY, and "
+                           "the shipped full-send lane (_full_send_plan) never calls that -- it "
+                           "prices PROBE_STRIKE_TIERS, offset 0 (ATM) at $2K equity."),
+                "resolution": ("KEEP ATM (it is what clears the $0.30 min_entry_premium floor "
+                               "that refused risky-1 all of 2026-07-31 -- the point of the arm) "
+                               "and label every surface ATM + UNMEASURED-AT-THIS-STRIKE."),
+                "measurement_status": ("the headline full_send cell was measured at "
+                                       "strike_offset=2 (OTM-2); production trades offset=0. "
+                                       "That cell DOES NOT APPLY to the shipped lane -- OP-16 "
+                                       "sim-accuracy. The incremental trades this arm adds have "
+                                       "NO valid measurement at their actual strike."),
+            },
+        ],
         "fidelity": "REAL OPRA FILLS (use_real_fills=True). No synthetic pricing anywhere.",
         "design": ("BASELINE vs FULL_SEND at IDENTICAL sizing/exits so the delta isolates "
                    "SELECTION. FULL_SEND = the 5 cohort vetoes not inherited."),
@@ -244,11 +312,12 @@ if __name__ == "__main__":
               f"WR={a['win_rate']:.1%}  worstday=${a['worst_day']:,.2f}")
         if w["full_send_atm_minsize"]:
             m = w["full_send_atm_minsize"]
-            print(f"  FS_ATM @min-size(x{m['scale_factor']}): total=${m['total_pnl_minsize']:,.2f}"
+            print(f"  FS_ATM @min-size(5*sum(pnl/qty)): total=${m['total_pnl_minsize']:,.2f}"
                   f"  worstday=${m['worst_day_minsize']:,.2f}  worsttrade=${m['worst_trade_minsize']:,.2f}")
         if w["full_send_minsize"]:
             m = w["full_send_minsize"]
-            print(f"  FULL_SEND @min-size(x{m['scale_factor']}): total=${m['total_pnl_minsize']:,.2f}"
-                  f"  worstday=${m['worst_day_minsize']:,.2f}  worsttrade=${m['worst_trade_minsize']:,.2f}")
+            print(f"  FULL_SEND @min-size(5*sum(pnl/qty)): total=${m['total_pnl_minsize']:,.2f}"
+                  f"  worstday=${m['worst_day_minsize']:,.2f}  worsttrade=${m['worst_trade_minsize']:,.2f}"
+                  f"  n_scaled={m['n_trades_scaled']} qty_range={m['observed_qty_range']}")
         for k, v in w["prereg_checks"].items():
             print(f"    {k}: {'FAIL' if v['FAIL'] else 'pass'}  {v}")

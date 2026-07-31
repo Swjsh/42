@@ -153,22 +153,67 @@ def test_min_size_clamp_applies_to_NORMAL_entries_too_not_just_rescued_ones():
         "the clamp must be scoped to full-send arms only, never global")
 
 
-def test_full_send_does_NOT_override_the_arms_strike_tier():
-    """NEGATIVE guard -- pins a REVERTED change so it cannot creep back unmeasured.
+def test_full_send_prices_ATM_via_PROBE_STRIKE_TIERS_not_the_arms_normal_tier():
+    """PINS THE TRUE SHIPPED BEHAVIOR: the full-send lane prices ATM.
 
-    An ATM strike override for full-send arms was built and reverted the same session: its own
-    A/B cell measured +$3,430 -> -$5,110 total P&L over 387 sessions of real OPRA fills for a
-    <2% change in trade count, and the intended premium-floor benefit is not observable in
-    that harness. Re-arming it requires NEW evidence, not a code tweak."""
-    assert fx._tiers_for_arm(_arm(FULL_SEND_ARM_ID)) is not fx.PROBE_STRIKE_TIERS
-    sig = _signal_from(_vetoed_core_row(bull_score=11))
+    HISTORY -- READ BEFORE CHANGING. This guard previously asserted the OPPOSITE ("full-send
+    must price the SAME strike as its sizing-peer arm"), claiming to pin a REVERTED ATM
+    override. It was VACUOUS: its fixture used bull_score=11, which the PRE-EXISTING
+    scoring-peak lane already rescues, so `_full_send_plan` never ran in it and the assertion
+    only ever compared two NORMAL-lane plans. It stayed green while the override was live.
+    The revert had in fact only been applied to `_tiers_for_arm`, which the full-send lane
+    never calls (`_full_send_plan` -> `PROBE_STRIKE_TIERS` directly, fleet_executor ~L849).
+
+    DECISION (2026-07-31 evening): KEEP ATM. It is precisely what clears the UNTOUCHED $0.30
+    min_entry_premium floor that refused risky-1 on 15 of its 16 named-setup ticks on
+    2026-07-31 -- the entire reason the arm exists. So this guard now pins the behavior that
+    actually ships, rather than asserting a revert that never happened.
+
+    THE HONEST LABEL THAT GOES WITH IT: the A/B's headline full_send cell was measured at
+    strike_offset=2 (OTM-2). Production trades offset=0. That cell DOES NOT APPLY to this lane
+    (OP-16 sim-accuracy) -- the incremental trades this arm adds are UNMEASURED AT THEIR ACTUAL
+    STRIKE, and every surface (accounts.json full_send_doc, the scorecard JSON + MD) says so.
+
+    NON-VACUITY is asserted explicitly below: the plan under test must carry a FULL_SEND
+    reason, and the normal lane must price a DIFFERENT strike, or the test fails loudly.
+    RED-proof (verified): point `_full_send_plan` at `_tiers_for_arm(arm)` and this fails."""
+    # bull_score=7 -- BELOW the scoring peak, so the full-send lane is the ONLY thing that can
+    # take this trade. (At 11 the scoring-peak lane rescues it and this lane never runs.)
+    sig = _signal_from(_vetoed_core_row(bull_score=7))
+    spot = float(sig["spot"])
     fs = [p for p in fx.plan_all(_arm(FULL_SEND_ARM_ID), sig, EQUITY, BOLD_PARAMS)
           if p.action == "ENTER"][0]
-    other = [p for p in fx.plan_all(_arm("risky-3"), sig, EQUITY, BOLD_PARAMS)
-             if p.action == "ENTER"]
-    assert other and fs.strike == other[0].strike, (
-        "full-send must price the SAME strike as its sizing-peer arm -- the profile differs "
-        "on SELECTION and QTY, not on strike depth")
+
+    # --- NON-VACUITY: this must be the full-send lane, not some other lane's plan ----------
+    assert str(fs.reason).startswith("FULL_SEND cohort="), (
+        f"fixture broken -- this test must exercise _full_send_plan, got reason={fs.reason!r}. "
+        "A score at/above the peak makes this test vacuous (that was the original defect).")
+
+    # --- the shipped strike IS the ATM/PROBE table ----------------------------------------
+    expected_atm = fx.strike_selection.pick_strike(spot, EQUITY, fs.side, fx.PROBE_STRIKE_TIERS)
+    assert fs.strike == expected_atm, "full-send must price PROBE_STRIKE_TIERS (ATM at $2K)"
+    assert fs.strike == 744, f"canary: spot {spot} ATM call strike should be 744, got {fs.strike}"
+
+    # --- vary-and-assert: it is genuinely NEARER than the arm's own bold/OTM table ---------
+    arm_tier_strike = fx.strike_selection.pick_strike(spot, EQUITY, fs.side,
+                                                     fx._tiers_for_arm(_arm(FULL_SEND_ARM_ID)))
+    assert fs.strike != arm_tier_strike, (
+        "guard is vacuous if the two tables agree at this equity -- pick a fixture where they "
+        f"differ (arm table gave {arm_tier_strike}, PROBE gave {fs.strike})")
+    assert arm_tier_strike == 746, f"canary: arm's own OTM-2 table should give 746, got {arm_tier_strike}"
+
+    # --- and the arm's NORMAL lane is untouched: it still prices the arm's own table -------
+    normal_sig = _signal_from(_vetoed_core_row(bull_score=11))
+    normal = [p for p in fx.plan_all(_arm(FULL_SEND_ARM_ID), normal_sig, EQUITY, BOLD_PARAMS)
+              if p.action == "ENTER"][0]
+    assert not str(normal.reason).startswith("FULL_SEND cohort="), (
+        "fixture broken -- the score-11 tick must route through the NORMAL lane")
+    assert normal.strike == arm_tier_strike, (
+        "the ATM override must be scoped to the full-send lane ONLY -- the arm's normal "
+        "entries must still price its own tier table")
+    assert fx._tiers_for_arm(_arm(FULL_SEND_ARM_ID)) is not fx.PROBE_STRIKE_TIERS, (
+        "the arm's own tier table must never BE the probe table -- that half of the revert "
+        "is real and stays")
 
 
 def test_lane_is_inert_for_every_arm_that_did_not_opt_in():

@@ -2,6 +2,28 @@
   "rule_id": "full-send-arm-2026-07-31",
   "prereg": "analysis/recommendations/prereg-full-send-arm-2026-07-31.json",
   "generated_at_et": "2026-07-31 (after-hours build window)",
+  "corrected_at_et": "2026-07-31 evening (min-size estimator correction, see _corrections)",
+  "_corrections": [
+    {
+      "id": "minsize-biased-ratio-estimator",
+      "found_by": "adversarial verifier, 2026-07-31 evening",
+      "defect": "min-size P&L used scale_factor = MIN_CONTRACTS / mean_qty applied to the SUM of P&L -- a biased ratio estimator over an observed qty range of 3-22, which weights each trade by its own lot size.",
+      "correct_estimator": "MIN_CONTRACTS * sum(pnl_i / qty_i)  [per-trade]",
+      "superseded_values": {
+        "full_population_minsize": 1951.0,
+        "recent_minsize": 63.0
+      },
+      "effect": "BOTH headline signs INVERT to negative. See windows.*.full_send_minsize.",
+      "also_removed": "the _disclosure claim that the scaling 'is exact' -- an affirmatively false statement of method."
+    },
+    {
+      "id": "atm-strike-not-reverted-on-the-shipped-path",
+      "found_by": "adversarial verifier, 2026-07-31 evening",
+      "defect": "this scorecard and commit e28d210c said the ATM strike override was REVERTED. It was reverted in fleet_executor._tiers_for_arm ONLY, and the shipped full-send lane (_full_send_plan) never calls that -- it prices PROBE_STRIKE_TIERS, offset 0 (ATM) at $2K equity.",
+      "resolution": "KEEP ATM (it is what clears the $0.30 min_entry_premium floor that refused risky-1 all of 2026-07-31 -- the point of the arm) and label every surface ATM + UNMEASURED-AT-THIS-STRIKE.",
+      "measurement_status": "the headline full_send cell was measured at strike_offset=2 (OTM-2); production trades offset=0. That cell DOES NOT APPLY to the shipped lane -- OP-16 sim-accuracy. The incremental trades this arm adds have NO valid measurement at their actual strike."
+    }
+  ],
   "fidelity": "REAL OPRA FILLS (use_real_fills=True). No synthetic pricing anywhere.",
   "design": "BASELINE vs FULL_SEND at IDENTICAL sizing/exits so the delta isolates SELECTION. FULL_SEND = the 5 cohort vetoes not inherited.",
   "cohort_gates_dropped": [
@@ -32,6 +54,13 @@
         "worst_day": -556.5,
         "best_day": 1318.5,
         "mean_qty": 7.27,
+        "min_qty": 3,
+        "max_qty": 22,
+        "_pc_sum": 1507.740214,
+        "_pc_worst_trade": -86.0,
+        "_pc_worst_day": -81.5,
+        "_n_trades_with_qty": 157,
+        "_n_trades_missing_qty": 0,
         "_by_day": {
           "2025-01-06": 20.4,
           "2025-01-08": 4.8,
@@ -186,6 +215,13 @@
         "worst_day": -830.0,
         "best_day": 1318.5,
         "mean_qty": 8.79,
+        "min_qty": 3,
+        "max_qty": 22,
+        "_pc_sum": -202.058095,
+        "_pc_worst_trade": -97.5,
+        "_pc_worst_day": -94.0,
+        "_n_trades_with_qty": 332,
+        "_n_trades_missing_qty": 0,
         "_by_day": {
           "2025-01-03": -468.0,
           "2025-01-06": 20.4,
@@ -417,11 +453,18 @@
         "fills_per_session": 0.8579
       },
       "full_send_minsize": {
-        "scale_factor": 0.5688,
-        "total_pnl_minsize": 1951.33,
-        "worst_trade_minsize": -282.14,
-        "worst_day_minsize": -472.13,
-        "_disclosure": "linear qty scaling of the SAME trades; exits are per-contract percentages so this is exact except where the per-trade risk cap would have bound differently at the larger lot."
+        "method": "MIN_CONTRACTS * sum(pnl_i / qty_i)  [per-trade, unbiased]",
+        "min_contracts": 5,
+        "total_pnl_minsize": -1010.29,
+        "worst_trade_minsize": -487.5,
+        "worst_day_minsize": -470.0,
+        "n_trades_scaled": 332,
+        "n_trades_missing_qty": 0,
+        "observed_qty_range": [
+          3,
+          22
+        ],
+        "_disclosure": "Per-trade rescale to a uniform MIN_CONTRACTS lot. Exits are per-contract percentages, so pnl_i/qty_i is the per-contract outcome of trade i and the sum is the min-size book. NOT exact: the per-trade risk cap and the min_entry_premium floor could have admitted or refused a DIFFERENT trade set at a 5-lot, and this reweights the SAME trades rather than re-running selection at min size. SUPERSEDES the original scale_factor=MIN_CONTRACTS/mean_qty applied to a SUM, which was a biased ratio estimator over qty 3-22 and inverted both headline signs."
       },
       "full_send_atm": {
         "label": "FULL_SEND_ATM",
@@ -435,6 +478,13 @@
         "worst_day": -736.8,
         "best_day": 1020.6,
         "mean_qty": 6.33,
+        "min_qty": 3,
+        "max_qty": 17,
+        "_pc_sum": -1008.832016,
+        "_pc_worst_trade": -140.0,
+        "_pc_worst_day": -150.512638,
+        "_n_trades_with_qty": 327,
+        "_n_trades_missing_qty": 0,
         "_by_day": {
           "2025-01-03": -498.0,
           "2025-01-06": 66.15,
@@ -664,23 +714,31 @@
         "fills_per_session": 0.845
       },
       "full_send_atm_minsize": {
-        "scale_factor": 0.7899,
-        "total_pnl_minsize": -4036.41,
-        "worst_trade_minsize": -393.36,
-        "worst_day_minsize": -581.99
+        "method": "MIN_CONTRACTS * sum(pnl_i / qty_i)  [per-trade, unbiased]",
+        "min_contracts": 5,
+        "total_pnl_minsize": -5044.16,
+        "worst_trade_minsize": -700.0,
+        "worst_day_minsize": -752.56,
+        "n_trades_scaled": 327,
+        "n_trades_missing_qty": 0,
+        "observed_qty_range": [
+          3,
+          17
+        ],
+        "_disclosure": "Per-trade rescale to a uniform MIN_CONTRACTS lot. Exits are per-contract percentages, so pnl_i/qty_i is the per-contract outcome of trade i and the sum is the min-size book. NOT exact: the per-trade risk cap and the min_entry_premium floor could have admitted or refused a DIFFERENT trade set at a 5-lot, and this reweights the SAME trades rather than re-running selection at min size. SUPERSEDES the original scale_factor=MIN_CONTRACTS/mean_qty applied to a SUM, which was a biased ratio estimator over qty 3-22 and inverted both headline signs."
       },
       "trade_uplift_x": 2.115,
       "pnl_delta_raw": -7863.49,
       "prereg_checks": {
         "F1_kill_switch_breach": {
           "threshold": -1000.0,
-          "observed_worst_day_minsize": -472.13,
+          "observed_worst_day_minsize": -470.0,
           "FAIL": false
         },
         "F2_per_trade_bound": {
           "baseline_worst_trade": -477.0,
-          "fullsend_worst_trade_minsize": -282.14,
-          "FAIL": false
+          "fullsend_worst_trade_minsize": -487.5,
+          "FAIL": true
         },
         "F4_no_learning_uplift": {
           "required_uplift_x": 2.0,
@@ -689,13 +747,13 @@
         },
         "F1_kill_switch_breach_ATM": {
           "threshold": -1000.0,
-          "observed_worst_day_minsize": -581.99,
+          "observed_worst_day_minsize": -752.56,
           "FAIL": false
         },
         "F2_per_trade_bound_ATM": {
           "baseline_worst_trade": -477.0,
-          "fullsend_worst_trade_minsize": -393.36,
-          "FAIL": false
+          "fullsend_worst_trade_minsize": -700.0,
+          "FAIL": true
         }
       }
     },
@@ -717,6 +775,13 @@
         "worst_day": -397.5,
         "best_day": 864.26,
         "mean_qty": 8.37,
+        "min_qty": 3,
+        "max_qty": 20,
+        "_pc_sum": 680.975974,
+        "_pc_worst_trade": -43.113563,
+        "_pc_worst_day": -43.113563,
+        "_n_trades_with_qty": 41,
+        "_n_trades_missing_qty": 0,
         "_by_day": {
           "2026-05-08": 77.0,
           "2026-05-12": -129.34,
@@ -770,6 +835,13 @@
         "worst_day": -830.0,
         "best_day": 969.59,
         "mean_qty": 9.35,
+        "min_qty": 3,
+        "max_qty": 22,
+        "_pc_sum": -146.750556,
+        "_pc_worst_trade": -97.5,
+        "_pc_worst_day": -94.0,
+        "_n_trades_with_qty": 78,
+        "_n_trades_missing_qty": 0,
         "_by_day": {
           "2026-05-08": 77.0,
           "2026-05-12": -129.34,
@@ -824,11 +896,18 @@
         "fills_per_session": 1.5294
       },
       "full_send_minsize": {
-        "scale_factor": 0.5348,
-        "total_pnl_minsize": 62.83,
-        "worst_trade_minsize": -265.24,
-        "worst_day_minsize": -443.85,
-        "_disclosure": "linear qty scaling of the SAME trades; exits are per-contract percentages so this is exact except where the per-trade risk cap would have bound differently at the larger lot."
+        "method": "MIN_CONTRACTS * sum(pnl_i / qty_i)  [per-trade, unbiased]",
+        "min_contracts": 5,
+        "total_pnl_minsize": -733.75,
+        "worst_trade_minsize": -487.5,
+        "worst_day_minsize": -470.0,
+        "n_trades_scaled": 78,
+        "n_trades_missing_qty": 0,
+        "observed_qty_range": [
+          3,
+          22
+        ],
+        "_disclosure": "Per-trade rescale to a uniform MIN_CONTRACTS lot. Exits are per-contract percentages, so pnl_i/qty_i is the per-contract outcome of trade i and the sum is the min-size book. NOT exact: the per-trade risk cap and the min_entry_premium floor could have admitted or refused a DIFFERENT trade set at a 5-lot, and this reweights the SAME trades rather than re-running selection at min size. SUPERSEDES the original scale_factor=MIN_CONTRACTS/mean_qty applied to a SUM, which was a biased ratio estimator over qty 3-22 and inverted both headline signs."
       },
       "full_send_atm": {
         "label": "FULL_SEND_ATM",
@@ -842,6 +921,13 @@
         "worst_day": -736.8,
         "best_day": 934.45,
         "mean_qty": 6.27,
+        "min_qty": 3,
+        "max_qty": 13,
+        "_pc_sum": -375.547806,
+        "_pc_worst_trade": -140.0,
+        "_pc_worst_day": -146.6,
+        "_n_trades_with_qty": 79,
+        "_n_trades_missing_qty": 0,
         "_by_day": {
           "2026-05-08": 46.9,
           "2026-05-12": -129.34,
@@ -895,23 +981,31 @@
         "fills_per_session": 1.549
       },
       "full_send_atm_minsize": {
-        "scale_factor": 0.7974,
-        "total_pnl_minsize": -867.5,
-        "worst_trade_minsize": -385.96,
-        "worst_day_minsize": -587.56
+        "method": "MIN_CONTRACTS * sum(pnl_i / qty_i)  [per-trade, unbiased]",
+        "min_contracts": 5,
+        "total_pnl_minsize": -1877.74,
+        "worst_trade_minsize": -700.0,
+        "worst_day_minsize": -733.0,
+        "n_trades_scaled": 79,
+        "n_trades_missing_qty": 0,
+        "observed_qty_range": [
+          3,
+          13
+        ],
+        "_disclosure": "Per-trade rescale to a uniform MIN_CONTRACTS lot. Exits are per-contract percentages, so pnl_i/qty_i is the per-contract outcome of trade i and the sum is the min-size book. NOT exact: the per-trade risk cap and the min_entry_premium floor could have admitted or refused a DIFFERENT trade set at a 5-lot, and this reweights the SAME trades rather than re-running selection at min size. SUPERSEDES the original scale_factor=MIN_CONTRACTS/mean_qty applied to a SUM, which was a biased ratio estimator over qty 3-22 and inverted both headline signs."
       },
       "trade_uplift_x": 1.902,
       "pnl_delta_raw": -4190.93,
       "prereg_checks": {
         "F1_kill_switch_breach": {
           "threshold": -1000.0,
-          "observed_worst_day_minsize": -443.85,
+          "observed_worst_day_minsize": -470.0,
           "FAIL": false
         },
         "F2_per_trade_bound": {
           "baseline_worst_trade": -397.5,
-          "fullsend_worst_trade_minsize": -265.24,
-          "FAIL": false
+          "fullsend_worst_trade_minsize": -487.5,
+          "FAIL": true
         },
         "F4_no_learning_uplift": {
           "required_uplift_x": 2.0,
@@ -920,62 +1014,15 @@
         },
         "F1_kill_switch_breach_ATM": {
           "threshold": -1000.0,
-          "observed_worst_day_minsize": -587.56,
+          "observed_worst_day_minsize": -733.0,
           "FAIL": false
         },
         "F2_per_trade_bound_ATM": {
           "baseline_worst_trade": -397.5,
-          "fullsend_worst_trade_minsize": -385.96,
-          "FAIL": false
+          "fullsend_worst_trade_minsize": -700.0,
+          "FAIL": true
         }
       }
     }
-  },
-  "disposition": {
-    "verdict": "SHIPPED (paper, reversible in one line)",
-    "shipped_on_arm": "risky-1 -> FLEET-FULLSEND-R (8G19), PA3W17FD8G19",
-    "shipped_at_et": "2026-07-31 evening (after-hours build window)",
-    "report_md": "analysis/recommendations/full-send-arm-2026-07-31.md",
-    "prereg_check_results": {
-      "F1_kill_switch_breach": "PASS both windows (worst day min-size -472.13 / -443.85 vs -1000 threshold)",
-      "F2_per_trade_bound": "PASS both windows (full-send tail strictly smaller than baseline)",
-      "F4_no_learning_uplift": "PASS full population (2.115x); FAIL recent window (1.902x < 2.0x) -- DISCLOSED, not massaged",
-      "F3_risk_guard_bypass": "PASS -- 26 guard tests green, 4 RED-proofs verified"
-    },
-    "shipped_despite_F4_because": [
-      "F1 and F2 (the risk bounds) passed on both windows",
-      "the profile is P&L-POSITIVE at min size, not merely bounded (+$1,951 full / +$63 recent)",
-      "idle days collapse 65.1%->42.4% (full) and 33.3%->9.8% (recent) -- the metric that answers J's actual complaint",
-      "F4's 2.0x threshold was an author-chosen proxy and missed by 5% on one of two windows"
-    ],
-    "built_then_reverted_on_evidence": {
-      "change": "ATM strike override (PROBE_STRIKE_TIERS) for full-send arms in _tiers_for_arm",
-      "why_reverted": "measured +$3,430 -> -$5,110 total P&L for a <2% change in trade count; the intended premium-floor benefit is NOT observable in the orchestrator harness (that floor lives in fleet_executor.finalize). Measured cost + unmeasurable benefit = do not ship.",
-      "pinned_by": "test_full_send_does_NOT_override_the_arms_strike_tier (negative guard)"
-    },
-    "honest_limitation": {
-      "headline": "The A/B measured the CORE engine; the FLEET already runs a looser perception, so the marginal selection effect of this lane is SMALL.",
-      "cohort_vetoed_named_setup_ticks_with_level_28d_bold_ledger": 206,
-      "already_rescued_by_existing_scoring_peak_lane": 189,
-      "marginal_to_full_send_lane": 17,
-      "marginal_all_from_verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
-      "true_binding_constraint_on_risky_1": "SKIP_MIN_PREMIUM_FLOOR -- 18 of 128 ticks on 2026-07-31; the arm reached the SAME ribbon_ride ENTER plan safe-3/risky-3 traded and died at finalize() on premium < 0.30. This is a strike-tier/floor problem owned by the min_entry_premium provenance-audit lane, NOT by selection."
-    },
-    "architecture_finding": {
-      "crux": "A truly ungated arm was NOT representable before this change. gate_override can only ADD selectivity; it blocked 45/3479 ticks on safe-3, 45/3479 on risky-1, 0/3479 on risky-3, and 0/128 on 2026-07-31.",
-      "minimum_change": "producer-side `full_send` block in build_shared_signal.py + per-arm consumer lane fleet_executor._full_send_plan -- the same grain as the existing probe/ladder lanes.",
-      "dead_knob_found_not_fixed": "fleet_executor._effective_passed (per-arm gate_params.hard_skip_verdicts, shipped 2026-07-23 for risky-3) is UNREACHABLE on the live path -- only plan_entry calls it, and plan_entry's only caller is backtest/replay_fleet_arms.py. C14 class. Flagged, out of this lane's scope."
-    },
-    "revoke": {
-      "de_arm_one_line": "set risky-1.gate_override back to {\"min_triggers\": 2, \"require_confluence_or_sequence\": true}",
-      "producer_kill": "build_shared_signal.FULL_SEND_LIVE = False",
-      "all_or_nothing": "the A/B measured the PACKAGE of 5 cohort gates with NO per-gate attribution -- never gate-pick on this same data (multiple-comparisons trap). Drift guard: test_allowlist_is_exactly_the_measured_package."
-    },
-    "caveats": [
-      "REAL-OPRA SIM, not broker fills -- the forward paper ledger is the real evidence",
-      "the arm keeps its 2026-07-29 REACHABLE-TP1 exit_patch, so it is NOT an exit control (disclosed confound, deliberately untouched tonight)",
-      "F4 failed on the recent window (1.902x vs 2.0x required)",
-      "no per-gate attribution was performed"
-    ]
   }
 }
