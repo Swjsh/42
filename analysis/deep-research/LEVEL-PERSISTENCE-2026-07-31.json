@@ -1,0 +1,2385 @@
+{
+ "_doc": "Level persistence formalization. Prereg frozen 2026-07-31 16:43:52 ET in backtest/tools/level_persistence_2026_07_31.py module docstring BEFORE any run.",
+ "generated_at": "2026-07-31T14:47:44.048060",
+ "prereg": {
+  "primary_tol": 0.4,
+  "primary_lookback": 5,
+  "touch_min": 2,
+  "tol_grid": [
+   0.25,
+   0.4,
+   0.6
+  ],
+  "lookback_grid": [
+   1,
+   5,
+   10
+  ],
+  "bh_q": 0.1,
+  "frozen_at_et": "2026-07-31 16:43:52"
+ },
+ "verdict": "TV_OUTPERFORMS_DESCRIPTIVE_ONLY",
+ "part1_continuity": {
+  "days": [
+   "2026-07-28",
+   "2026-07-29",
+   "2026-07-31"
+  ],
+  "missing_snapshot_days": [
+   "2026-07-30"
+  ],
+  "per_day": {
+   "2026-07-28": {
+    "n": 20,
+    "levels": [
+     {
+      "price": 731.22,
+      "label": "PRIOR_CLOSE_2026-06-26",
+      "source": "prior_session_ah_close_proxy",
+      "weight": null,
+      "zone_width": null
+     },
+     {
+      "price": 734.52,
+      "label": "PML_2026-06-29",
+      "source": "premarket_low",
+      "weight": null,
+      "zone_width": null
+     },
+     {
+      "price": 735.1,
+      "label": "SHELF_734.30_735.90_2026-07-28",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8
+     },
+     {
+      "price": 736.16,
+      "label": "INTRADAY_PML_2026-07-28",
+      "source": "premarket_low",
+      "weight": 2,
+      "zone_width": 0.3681
+     },
+     {
+      "price": 736.9,
+      "label": "MEMORY_SUP_84",
+      "source": "level_memory",
+      "weight": null,
+      "zone_width": null
+     },
+     {
+      "price": 737.75,
+      "label": "MEMORY_SUP_114",
+      "source": "level_memory",
+      "weight": null,
+      "zone_width": null
+     },
+     {
+      "price": 737.85,
+      "label": "SHELF_737.05_738.65_2026-07-28",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8
+     },
+     {
+      "price": 738.46,
+      "label": "MEMORY_SUP_132",
+      "source": "level_memory",
+      "weight": null,
+      "zone_width": null
+     },
+     {
+      "price": 739.73,
+      "label": "SHELF_738.93_740.53_2026-07-28",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8
+     },
+     {
+      "price": 741.0,
+      "label": "INTRADAY_PMH_2026-07-28",
+      "source": "premarket_high",
+      "weight": 2,
+      "zone_width": 0.3705
+     },
+     {
+      "price": 741.6,
+      "label": "SHELF_740.80_742.40_2026-07-28",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8
+     },
+     {
+      "price": 743.36,
+      "label": "SHELF_742.56_744.16_2026-07-28",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8
+     },
+     {
+      "price": 744.13,
+      "label": "MEMORY_RES_85",
+      "source": "level_memory",
+      "weight": null,
+      "zone_width": null
+     },
+     {
+      "price": 744.91,
+      "label": "MEMORY_RES_78",
+      "source": "level_memory",
+      "weight": null,
+      "zone_width": null
+     },
+     {
+      "price": 745.72,
+      "label": "MEMORY_RES_117",
+      "source": "level_memory",
+      "weight": null,
+      "zone_width": null
+     },
+     {
+      "price": 748.09,
+      "label": "SHELF_747.29_748.89_2026-07-28",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8
+     },
+     {
+      "price": 750.98,
+      "label": "SHELF_750.18_751.78_2026-07-28",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8
+     },
+     {
+      "price": 752.77,
+      "label": "SHELF_751.97_753.57_2026-07-28",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8
+     },
+     {
+      "price": 754.71,
+      "label": "SHELF_753.91_755.51_2026-07-28",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8
+     },
+     {
+      "price": 756.38,
+      "label": "SHELF_755.58_757.18_2026-07-28",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8
+     }
+    ]
+   },
+   "2026-07-29": {
+    "n": 20,
+    "levels": [
+     {
+      "price": 731.22,
+      "label": "PRIOR_CLOSE_2026-06-26",
+      "source": "prior_session_ah_close_proxy",
+      "weight": null,
+      "zone_width": null,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "PRIOR_CLOSE_2026-06-26"
+      ]
+     },
+     {
+      "price": 734.52,
+      "label": "PML_2026-06-29",
+      "source": "premarket_low",
+      "weight": null,
+      "zone_width": null,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "PML_2026-06-29",
+       "SHELF_734.30_735.90_2026-07-28"
+      ]
+     },
+     {
+      "price": 735.83,
+      "label": "SHELF_735.03_736.63_2026-07-29",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "SHELF_734.30_735.90_2026-07-28",
+       "INTRADAY_PML_2026-07-28"
+      ]
+     },
+     {
+      "price": 737.57,
+      "label": "MEMORY_SUP_138",
+      "source": "level_memory",
+      "weight": null,
+      "zone_width": null,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "MEMORY_SUP_114",
+       "SHELF_737.05_738.65_2026-07-28"
+      ]
+     },
+     {
+      "price": 737.85,
+      "label": "SHELF_737.05_738.65_2026-07-29",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "MEMORY_SUP_114",
+       "SHELF_737.05_738.65_2026-07-28",
+       "MEMORY_SUP_132"
+      ]
+     },
+     {
+      "price": 738.2,
+      "label": "INTRADAY_PML_2026-07-29",
+      "source": "premarket_low",
+      "weight": 2,
+      "zone_width": 0.3691,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "SHELF_737.05_738.65_2026-07-28",
+       "MEMORY_SUP_132"
+      ]
+     },
+     {
+      "price": 738.37,
+      "label": "MEMORY_SUP_151",
+      "source": "level_memory",
+      "weight": null,
+      "zone_width": null,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "SHELF_737.05_738.65_2026-07-28",
+       "MEMORY_SUP_132"
+      ]
+     },
+     {
+      "price": 739.34,
+      "label": "MEMORY_SUP_85",
+      "source": "level_memory",
+      "weight": null,
+      "zone_width": null,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "SHELF_738.93_740.53_2026-07-28"
+      ]
+     },
+     {
+      "price": 739.52,
+      "label": "SHELF_738.72_740.32_2026-07-29",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "SHELF_738.93_740.53_2026-07-28"
+      ]
+     },
+     {
+      "price": 740.89,
+      "label": "MEMORY_SUP_94",
+      "source": "level_memory",
+      "weight": null,
+      "zone_width": null,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "INTRADAY_PMH_2026-07-28",
+       "SHELF_740.80_742.40_2026-07-28"
+      ]
+     },
+     {
+      "price": 741.19,
+      "label": "SHELF_740.39_741.99_2026-07-29",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "INTRADAY_PMH_2026-07-28",
+       "SHELF_740.80_742.40_2026-07-28"
+      ]
+     },
+     {
+      "price": 741.49,
+      "label": "MEMORY_SUP_131",
+      "source": "level_memory",
+      "weight": null,
+      "zone_width": null,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "SHELF_740.80_742.40_2026-07-28"
+      ]
+     },
+     {
+      "price": 742.89,
+      "label": "SHELF_742.09_743.69_2026-07-29",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "SHELF_742.56_744.16_2026-07-28"
+      ]
+     },
+     {
+      "price": 743.48,
+      "label": "INTRADAY_PMH_2026-07-29",
+      "source": "premarket_high",
+      "weight": 2,
+      "zone_width": 0.3717,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "SHELF_742.56_744.16_2026-07-28"
+      ]
+     },
+     {
+      "price": 744.98,
+      "label": "SHELF_744.18_745.78_2026-07-29",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "MEMORY_RES_78",
+       "MEMORY_RES_117"
+      ]
+     },
+     {
+      "price": 748.09,
+      "label": "SHELF_747.29_748.89_2026-07-29",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "SHELF_747.29_748.89_2026-07-28"
+      ]
+     },
+     {
+      "price": 750.98,
+      "label": "SHELF_750.18_751.78_2026-07-29",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "SHELF_750.18_751.78_2026-07-28"
+      ]
+     },
+     {
+      "price": 752.77,
+      "label": "SHELF_751.97_753.57_2026-07-29",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "SHELF_751.97_753.57_2026-07-28"
+      ]
+     },
+     {
+      "price": 754.71,
+      "label": "SHELF_753.91_755.51_2026-07-29",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "SHELF_753.91_755.51_2026-07-28"
+      ]
+     },
+     {
+      "price": 756.38,
+      "label": "SHELF_755.58_757.18_2026-07-29",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-28",
+      "matched_labels": [
+       "SHELF_755.58_757.18_2026-07-28"
+      ]
+     }
+    ],
+    "n_persisted_from_prior_snapshot": 20,
+    "n_new": 0
+   },
+   "2026-07-31": {
+    "n": 20,
+    "levels": [
+     {
+      "price": 729.79,
+      "label": "SHELF_728.99_730.59_2026-07-31",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": null,
+      "matched_labels": []
+     },
+     {
+      "price": 731.22,
+      "label": "PRIOR_CLOSE_2026-06-26",
+      "source": "prior_session_ah_close_proxy",
+      "weight": null,
+      "zone_width": null,
+      "persisted_from": "2026-07-29",
+      "matched_labels": [
+       "PRIOR_CLOSE_2026-06-26"
+      ]
+     },
+     {
+      "price": 734.52,
+      "label": "PML_2026-06-29",
+      "source": "premarket_low",
+      "weight": null,
+      "zone_width": null,
+      "persisted_from": "2026-07-29",
+      "matched_labels": [
+       "PML_2026-06-29"
+      ]
+     },
+     {
+      "price": 735.1,
+      "label": "SHELF_734.30_735.90_2026-07-31",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-29",
+      "matched_labels": [
+       "PML_2026-06-29",
+       "SHELF_735.03_736.63_2026-07-29"
+      ]
+     },
+     {
+      "price": 737.85,
+      "label": "SHELF_737.05_738.65_2026-07-31",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-29",
+      "matched_labels": [
+       "MEMORY_SUP_138",
+       "SHELF_737.05_738.65_2026-07-29",
+       "INTRADAY_PML_2026-07-29"
+      ]
+     },
+     {
+      "price": 739.73,
+      "label": "SHELF_738.93_740.53_2026-07-31",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-29",
+      "matched_labels": [
+       "MEMORY_SUP_85",
+       "SHELF_738.72_740.32_2026-07-29"
+      ]
+     },
+     {
+      "price": 740.76,
+      "label": "MEMORY_SUP_90",
+      "source": "level_memory",
+      "weight": null,
+      "zone_width": null,
+      "persisted_from": "2026-07-29",
+      "matched_labels": [
+       "MEMORY_SUP_94",
+       "SHELF_740.39_741.99_2026-07-29"
+      ]
+     },
+     {
+      "price": 741.6,
+      "label": "SHELF_740.80_742.40_2026-07-31",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-29",
+      "matched_labels": [
+       "MEMORY_SUP_94",
+       "SHELF_740.39_741.99_2026-07-29",
+       "MEMORY_SUP_131"
+      ]
+     },
+     {
+      "price": 742.79,
+      "label": "INTRADAY_PML_2026-07-31",
+      "source": "premarket_low",
+      "weight": 2,
+      "zone_width": 0.3714,
+      "persisted_from": "2026-07-29",
+      "matched_labels": [
+       "SHELF_742.09_743.69_2026-07-29"
+      ]
+     },
+     {
+      "price": 742.9,
+      "label": "MEMORY_RES_80",
+      "source": "level_memory",
+      "weight": null,
+      "zone_width": null,
+      "persisted_from": "2026-07-29",
+      "matched_labels": [
+       "SHELF_742.09_743.69_2026-07-29"
+      ]
+     },
+     {
+      "price": 743.25,
+      "label": "SHELF_742.45_744.05_2026-07-31",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-29",
+      "matched_labels": [
+       "SHELF_742.09_743.69_2026-07-29",
+       "INTRADAY_PMH_2026-07-29"
+      ]
+     },
+     {
+      "price": 744.13,
+      "label": "MEMORY_RES_85",
+      "source": "level_memory",
+      "weight": null,
+      "zone_width": null,
+      "persisted_from": null,
+      "matched_labels": []
+     },
+     {
+      "price": 744.91,
+      "label": "MEMORY_RES_78",
+      "source": "level_memory",
+      "weight": null,
+      "zone_width": null,
+      "persisted_from": "2026-07-29",
+      "matched_labels": [
+       "SHELF_744.18_745.78_2026-07-29"
+      ]
+     },
+     {
+      "price": 745.72,
+      "label": "MEMORY_RES_117",
+      "source": "level_memory",
+      "weight": null,
+      "zone_width": null,
+      "persisted_from": "2026-07-29",
+      "matched_labels": [
+       "SHELF_744.18_745.78_2026-07-29"
+      ]
+     },
+     {
+      "price": 746.55,
+      "label": "INTRADAY_PMH_2026-07-31",
+      "source": "premarket_high",
+      "weight": 2,
+      "zone_width": 0.3733,
+      "persisted_from": null,
+      "matched_labels": []
+     },
+     {
+      "price": 748.09,
+      "label": "SHELF_747.29_748.89_2026-07-31",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-29",
+      "matched_labels": [
+       "SHELF_747.29_748.89_2026-07-29"
+      ]
+     },
+     {
+      "price": 750.98,
+      "label": "SHELF_750.18_751.78_2026-07-31",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-29",
+      "matched_labels": [
+       "SHELF_750.18_751.78_2026-07-29"
+      ]
+     },
+     {
+      "price": 752.77,
+      "label": "SHELF_751.97_753.57_2026-07-31",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-29",
+      "matched_labels": [
+       "SHELF_751.97_753.57_2026-07-29"
+      ]
+     },
+     {
+      "price": 754.71,
+      "label": "SHELF_753.91_755.51_2026-07-31",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-29",
+      "matched_labels": [
+       "SHELF_753.91_755.51_2026-07-29"
+      ]
+     },
+     {
+      "price": 756.38,
+      "label": "SHELF_755.58_757.18_2026-07-31",
+      "source": "daily_context_shelf",
+      "weight": 5,
+      "zone_width": 0.8,
+      "persisted_from": "2026-07-29",
+      "matched_labels": [
+       "SHELF_755.58_757.18_2026-07-29"
+      ]
+     }
+    ],
+    "n_persisted_from_prior_snapshot": 17,
+    "n_new": 3
+   }
+  },
+  "n_full_chain_0728_to_0731": 17
+ },
+ "part2_replay": {
+  "grid": {
+   "tol0.25_lb1": {
+    "tol": 0.25,
+    "lookback": 1,
+    "cohorts": {
+     "FRESH": {
+      "n": 24,
+      "total": 1877.05,
+      "per_trade": 78.21,
+      "wr": 0.4167,
+      "drop_best": 1125.05,
+      "drop_worst": 2201.05
+     },
+     "PERSISTENT": {
+      "n": 5,
+      "total": 880.65,
+      "per_trade": 176.13,
+      "wr": 0.8,
+      "drop_best": 223.8,
+      "drop_worst": 1132.65
+     },
+     "TOUCH_VALIDATED": {
+      "n": 37,
+      "total": 4137.15,
+      "per_trade": 111.81,
+      "wr": 0.4865,
+      "drop_best": 3277.2,
+      "drop_worst": 4716.15
+     },
+     "UNKNOWN": {
+      "n": 0,
+      "total": 0.0,
+      "per_trade": null,
+      "wr": null,
+      "drop_best": null,
+      "drop_worst": null
+     }
+    },
+    "p_persistent_vs_fresh": 0.862420053029798,
+    "p_touchvalidated_vs_fresh": 0.97644340741449,
+    "bh_sig_persistent_vs_fresh": false,
+    "bh_sig_touchvalidated_vs_fresh": false
+   },
+   "tol0.25_lb5": {
+    "tol": 0.25,
+    "lookback": 5,
+    "cohorts": {
+     "FRESH": {
+      "n": 13,
+      "total": 91.75,
+      "per_trade": 7.06,
+      "wr": 0.3077,
+      "drop_best": -524.25,
+      "drop_worst": 415.75
+     },
+     "PERSISTENT": {
+      "n": 4,
+      "total": 1669.75,
+      "per_trade": 417.44,
+      "wr": 1.0,
+      "drop_best": 1012.9,
+      "drop_worst": 1603.75
+     },
+     "TOUCH_VALIDATED": {
+      "n": 49,
+      "total": 5133.35,
+      "per_trade": 104.76,
+      "wr": 0.4898,
+      "drop_best": 4273.4,
+      "drop_worst": 5712.35
+     },
+     "UNKNOWN": {
+      "n": 0,
+      "total": 0.0,
+      "per_trade": null,
+      "wr": null,
+      "drop_best": null,
+      "drop_worst": null
+     }
+    },
+    "p_persistent_vs_fresh": 0.3883507980706293,
+    "p_touchvalidated_vs_fresh": 0.5623743608983336,
+    "bh_sig_persistent_vs_fresh": false,
+    "bh_sig_touchvalidated_vs_fresh": false
+   },
+   "tol0.25_lb10": {
+    "tol": 0.25,
+    "lookback": 10,
+    "cohorts": {
+     "FRESH": {
+      "n": 9,
+      "total": -522.45,
+      "per_trade": -58.05,
+      "wr": 0.2222,
+      "drop_best": -1006.0,
+      "drop_worst": -273.45
+     },
+     "PERSISTENT": {
+      "n": 3,
+      "total": 463.9,
+      "per_trade": 154.63,
+      "wr": 0.6667,
+      "drop_best": -24.0,
+      "drop_worst": 553.9
+     },
+     "TOUCH_VALIDATED": {
+      "n": 54,
+      "total": 6953.4,
+      "per_trade": 128.77,
+      "wr": 0.5185,
+      "drop_best": 6093.45,
+      "drop_worst": 7532.4
+     },
+     "UNKNOWN": {
+      "n": 0,
+      "total": 0.0,
+      "per_trade": null,
+      "wr": null,
+      "drop_best": null,
+      "drop_worst": null
+     }
+    },
+    "p_persistent_vs_fresh": 0.29108241478943814,
+    "p_touchvalidated_vs_fresh": 0.33579995895928527,
+    "bh_sig_persistent_vs_fresh": false,
+    "bh_sig_touchvalidated_vs_fresh": false
+   },
+   "tol0.4_lb1": {
+    "tol": 0.4,
+    "lookback": 1,
+    "cohorts": {
+     "FRESH": {
+      "n": 18,
+      "total": 1989.05,
+      "per_trade": 110.5,
+      "wr": 0.4444,
+      "drop_best": 1237.05,
+      "drop_worst": 2313.05
+     },
+     "PERSISTENT": {
+      "n": 9,
+      "total": 976.65,
+      "per_trade": 108.52,
+      "wr": 0.5556,
+      "drop_best": 319.8,
+      "drop_worst": 1228.65
+     },
+     "TOUCH_VALIDATED": {
+      "n": 39,
+      "total": 3929.15,
+      "per_trade": 100.75,
+      "wr": 0.4872,
+      "drop_best": 3069.2,
+      "drop_worst": 4508.15
+     },
+     "UNKNOWN": {
+      "n": 0,
+      "total": 0.0,
+      "per_trade": null,
+      "wr": null,
+      "drop_best": null,
+      "drop_worst": null
+     }
+    },
+    "p_persistent_vs_fresh": 0.8684861539835335,
+    "p_touchvalidated_vs_fresh": 0.8167172008450738,
+    "bh_sig_persistent_vs_fresh": false,
+    "bh_sig_touchvalidated_vs_fresh": false
+   },
+   "tol0.4_lb5": {
+    "tol": 0.4,
+    "lookback": 5,
+    "cohorts": {
+     "FRESH": {
+      "n": 7,
+      "total": 177.75,
+      "per_trade": 25.39,
+      "wr": 0.2857,
+      "drop_best": -305.8,
+      "drop_worst": 426.75
+     },
+     "PERSISTENT": {
+      "n": 5,
+      "total": 861.85,
+      "per_trade": 172.37,
+      "wr": 0.6,
+      "drop_best": 205.0,
+      "drop_worst": 1097.85
+     },
+     "TOUCH_VALIDATED": {
+      "n": 54,
+      "total": 5855.25,
+      "per_trade": 108.43,
+      "wr": 0.5,
+      "drop_best": 4995.3,
+      "drop_worst": 6434.25
+     },
+     "UNKNOWN": {
+      "n": 0,
+      "total": 0.0,
+      "per_trade": null,
+      "wr": null,
+      "drop_best": null,
+      "drop_worst": null
+     }
+    },
+    "p_persistent_vs_fresh": 0.581032708181975,
+    "p_touchvalidated_vs_fresh": 0.6346329567251265,
+    "bh_sig_persistent_vs_fresh": false,
+    "bh_sig_touchvalidated_vs_fresh": false
+   },
+   "tol0.4_lb10": {
+    "tol": 0.4,
+    "lookback": 10,
+    "cohorts": {
+     "FRESH": {
+      "n": 5,
+      "total": -718.0,
+      "per_trade": -143.6,
+      "wr": 0.0,
+      "drop_best": -688.0,
+      "drop_worst": -469.0
+     },
+     "PERSISTENT": {
+      "n": 3,
+      "total": -254.0,
+      "per_trade": -84.67,
+      "wr": 0.3333,
+      "drop_best": -320.0,
+      "drop_worst": -18.0
+     },
+     "TOUCH_VALIDATED": {
+      "n": 58,
+      "total": 7866.85,
+      "per_trade": 135.64,
+      "wr": 0.5345,
+      "drop_best": 7006.9,
+      "drop_worst": 8445.85
+     },
+     "UNKNOWN": {
+      "n": 0,
+      "total": 0.0,
+      "per_trade": null,
+      "wr": null,
+      "drop_best": null,
+      "drop_worst": null
+     }
+    },
+    "p_persistent_vs_fresh": 0.17863310256099396,
+    "p_touchvalidated_vs_fresh": 0.17774977305260428,
+    "bh_sig_persistent_vs_fresh": false,
+    "bh_sig_touchvalidated_vs_fresh": false
+   },
+   "tol0.6_lb1": {
+    "tol": 0.6,
+    "lookback": 1,
+    "cohorts": {
+     "FRESH": {
+      "n": 11,
+      "total": 1079.2,
+      "per_trade": 98.11,
+      "wr": 0.3636,
+      "drop_best": 327.2,
+      "drop_worst": 1403.2
+     },
+     "PERSISTENT": {
+      "n": 10,
+      "total": 1599.05,
+      "per_trade": 159.91,
+      "wr": 0.7,
+      "drop_best": 942.2,
+      "drop_worst": 1851.05
+     },
+     "TOUCH_VALIDATED": {
+      "n": 45,
+      "total": 4216.6,
+      "per_trade": 93.7,
+      "wr": 0.4667,
+      "drop_best": 3356.65,
+      "drop_worst": 4795.6
+     },
+     "UNKNOWN": {
+      "n": 0,
+      "total": 0.0,
+      "per_trade": null,
+      "wr": null,
+      "drop_best": null,
+      "drop_worst": null
+     }
+    },
+    "p_persistent_vs_fresh": 0.910948256716146,
+    "p_touchvalidated_vs_fresh": 0.9424564649958922,
+    "bh_sig_persistent_vs_fresh": false,
+    "bh_sig_touchvalidated_vs_fresh": false
+   },
+   "tol0.6_lb5": {
+    "tol": 0.6,
+    "lookback": 5,
+    "cohorts": {
+     "FRESH": {
+      "n": 3,
+      "total": 313.2,
+      "per_trade": 104.4,
+      "wr": 0.3333,
+      "drop_best": -99.0,
+      "drop_worst": 382.2
+     },
+     "PERSISTENT": {
+      "n": 3,
+      "total": 289.0,
+      "per_trade": 96.33,
+      "wr": 0.6667,
+      "drop_best": -170.0,
+      "drop_worst": 525.0
+     },
+     "TOUCH_VALIDATED": {
+      "n": 60,
+      "total": 6292.65,
+      "per_trade": 104.88,
+      "wr": 0.4833,
+      "drop_best": 5432.7,
+      "drop_worst": 6871.65
+     },
+     "UNKNOWN": {
+      "n": 0,
+      "total": 0.0,
+      "per_trade": null,
+      "wr": null,
+      "drop_best": null,
+      "drop_worst": null
+     }
+    },
+    "p_persistent_vs_fresh": 0.8174016675283163,
+    "p_touchvalidated_vs_fresh": 0.7962438490199402,
+    "bh_sig_persistent_vs_fresh": false,
+    "bh_sig_touchvalidated_vs_fresh": false
+   },
+   "tol0.6_lb10": {
+    "tol": 0.6,
+    "lookback": 10,
+    "cohorts": {
+     "FRESH": {
+      "n": 2,
+      "total": -99.0,
+      "per_trade": -49.5,
+      "wr": 0.0,
+      "drop_best": -69.0,
+      "drop_worst": -30.0
+     },
+     "PERSISTENT": {
+      "n": 0,
+      "total": 0.0,
+      "per_trade": null,
+      "wr": null,
+      "drop_best": null,
+      "drop_worst": null
+     },
+     "TOUCH_VALIDATED": {
+      "n": 64,
+      "total": 6993.85,
+      "per_trade": 109.28,
+      "wr": 0.5,
+      "drop_best": 6133.9,
+      "drop_worst": 7572.85
+     },
+     "UNKNOWN": {
+      "n": 0,
+      "total": 0.0,
+      "per_trade": null,
+      "wr": null,
+      "drop_best": null,
+      "drop_worst": null
+     }
+    },
+    "p_persistent_vs_fresh": 0.9106454150192399,
+    "p_touchvalidated_vs_fresh": 0.9106454150192399,
+    "bh_sig_persistent_vs_fresh": false,
+    "bh_sig_touchvalidated_vs_fresh": false
+   }
+  },
+  "per_trade_primary": [
+   {
+    "date": "2025-01-10",
+    "entry": "10:35",
+    "tier": "ELITE",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence"
+    ],
+    "trigger_level": 585.195,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 3,
+    "dollar_pnl": 705.55
+   },
+   {
+    "date": "2025-01-10",
+    "entry": "12:05",
+    "tier": "ELITE",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence"
+    ],
+    "trigger_level": 580.51,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 5,
+    "touches": 4,
+    "dollar_pnl": 12.0
+   },
+   {
+    "date": "2025-01-16",
+    "entry": "12:05",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip",
+     "confluence"
+    ],
+    "trigger_level": 593.38,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 19,
+    "dollar_pnl": -160.0
+   },
+   {
+    "date": "2025-01-30",
+    "entry": "10:40",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 603.71,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 16,
+    "dollar_pnl": -159.0
+   },
+   {
+    "date": "2025-02-12",
+    "entry": "14:40",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "confluence",
+     "sequence_reclaim"
+    ],
+    "trigger_level": 603.6,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 2,
+    "touches": 38,
+    "dollar_pnl": -230.0
+   },
+   {
+    "date": "2025-02-21",
+    "entry": "14:05",
+    "tier": "ELITE",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence"
+    ],
+    "trigger_level": 603.6,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 2,
+    "touches": 4,
+    "dollar_pnl": 616.0
+   },
+   {
+    "date": "2025-03-03",
+    "entry": "10:35",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 596.0,
+    "cohort": "FRESH",
+    "matched_prior_days": 0,
+    "touches": 0,
+    "dollar_pnl": -249.0
+   },
+   {
+    "date": "2025-06-05",
+    "entry": "14:05",
+    "tier": "ELITE",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence"
+    ],
+    "trigger_level": 595.98,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 2,
+    "touches": 49,
+    "dollar_pnl": -230.0
+   },
+   {
+    "date": "2025-06-13",
+    "entry": "14:05",
+    "tier": "SUPER",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence",
+     "trendline_rejection"
+    ],
+    "trigger_level": 600.0,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 4,
+    "touches": 62,
+    "dollar_pnl": 656.0
+   },
+   {
+    "date": "2025-06-20",
+    "entry": "13:05",
+    "tier": "ELITE",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence"
+    ],
+    "trigger_level": 595.52,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 4,
+    "touches": 5,
+    "dollar_pnl": 397.8
+   },
+   {
+    "date": "2025-06-26",
+    "entry": "09:45",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 609.0,
+    "cohort": "FRESH",
+    "matched_prior_days": 0,
+    "touches": 0,
+    "dollar_pnl": -128.0
+   },
+   {
+    "date": "2025-07-09",
+    "entry": "09:45",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 623.87,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 2,
+    "touches": 7,
+    "dollar_pnl": -252.0
+   },
+   {
+    "date": "2025-07-15",
+    "entry": "09:45",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 626.0,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 4,
+    "touches": 42,
+    "dollar_pnl": -54.0
+   },
+   {
+    "date": "2025-07-17",
+    "entry": "09:40",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "confluence",
+     "sequence_reclaim"
+    ],
+    "trigger_level": 624.72,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 5,
+    "touches": 133,
+    "dollar_pnl": 541.0
+   },
+   {
+    "date": "2025-07-21",
+    "entry": "09:45",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip",
+     "confluence"
+    ],
+    "trigger_level": 629.305,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 6,
+    "dollar_pnl": 418.2
+   },
+   {
+    "date": "2025-08-08",
+    "entry": "09:40",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 634.11,
+    "cohort": "FRESH",
+    "matched_prior_days": 0,
+    "touches": 0,
+    "dollar_pnl": 412.2
+   },
+   {
+    "date": "2025-08-11",
+    "entry": "09:40",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip",
+     "confluence"
+    ],
+    "trigger_level": 637.0461014596233,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 2,
+    "touches": 54,
+    "dollar_pnl": -282.0
+   },
+   {
+    "date": "2025-08-12",
+    "entry": "09:55",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip",
+     "confluence"
+    ],
+    "trigger_level": 637.26,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 3,
+    "touches": 81,
+    "dollar_pnl": 572.0
+   },
+   {
+    "date": "2025-08-22",
+    "entry": "09:40",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip",
+     "confluence"
+    ],
+    "trigger_level": 637.755,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 3,
+    "touches": 23,
+    "dollar_pnl": 859.95
+   },
+   {
+    "date": "2025-09-11",
+    "entry": "09:50",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 653.87,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 20,
+    "dollar_pnl": 458.35
+   },
+   {
+    "date": "2025-09-23",
+    "entry": "09:55",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "confluence",
+     "sequence_reclaim"
+    ],
+    "trigger_level": 666.864279493517,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 30,
+    "dollar_pnl": -35.0
+   },
+   {
+    "date": "2025-09-26",
+    "entry": "09:40",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 660.72,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 4,
+    "touches": 56,
+    "dollar_pnl": -189.0
+   },
+   {
+    "date": "2025-09-26",
+    "entry": "12:25",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 660.38,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 2,
+    "touches": 4,
+    "dollar_pnl": -119.0
+   },
+   {
+    "date": "2025-10-02",
+    "entry": "10:05",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "confluence",
+     "sequence_reclaim"
+    ],
+    "trigger_level": 669.0719879985901,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 22,
+    "dollar_pnl": -164.0
+   },
+   {
+    "date": "2025-10-15",
+    "entry": "13:05",
+    "tier": "ELITE",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence"
+    ],
+    "trigger_level": 663.8275103924964,
+    "cohort": "FRESH",
+    "matched_prior_days": 0,
+    "touches": 0,
+    "dollar_pnl": 483.55
+   },
+   {
+    "date": "2025-10-24",
+    "entry": "09:40",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 677.0,
+    "cohort": "FRESH",
+    "matched_prior_days": 0,
+    "touches": 0,
+    "dollar_pnl": -69.0
+   },
+   {
+    "date": "2025-10-27",
+    "entry": "09:40",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 682.72,
+    "cohort": "FRESH",
+    "matched_prior_days": 0,
+    "touches": 0,
+    "dollar_pnl": -30.0
+   },
+   {
+    "date": "2025-10-28",
+    "entry": "12:10",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 685.97,
+    "cohort": "PERSISTENT",
+    "matched_prior_days": 1,
+    "touches": 0,
+    "dollar_pnl": -84.0
+   },
+   {
+    "date": "2025-10-29",
+    "entry": "09:40",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip",
+     "confluence"
+    ],
+    "trigger_level": 688.72,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 6,
+    "dollar_pnl": 21.0
+   },
+   {
+    "date": "2025-11-10",
+    "entry": "13:05",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 677.0,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 3,
+    "touches": 17,
+    "dollar_pnl": -90.0
+   },
+   {
+    "date": "2025-12-11",
+    "entry": "12:40",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "confluence",
+     "sequence_reclaim"
+    ],
+    "trigger_level": 685.25,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 5,
+    "touches": 63,
+    "dollar_pnl": 486.2
+   },
+   {
+    "date": "2026-01-06",
+    "entry": "10:55",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip",
+     "confluence"
+    ],
+    "trigger_level": 689.43,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 3,
+    "touches": 7,
+    "dollar_pnl": -252.0
+   },
+   {
+    "date": "2026-01-26",
+    "entry": "10:45",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 692.0,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 2,
+    "touches": 33,
+    "dollar_pnl": 24.0
+   },
+   {
+    "date": "2026-01-27",
+    "entry": "10:50",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "confluence",
+     "sequence_reclaim"
+    ],
+    "trigger_level": 694.2,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 2,
+    "touches": 16,
+    "dollar_pnl": 442.0
+   },
+   {
+    "date": "2026-01-29",
+    "entry": "11:05",
+    "tier": "ELITE",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence"
+    ],
+    "trigger_level": 690.485,
+    "cohort": "PERSISTENT",
+    "matched_prior_days": 3,
+    "touches": 1,
+    "dollar_pnl": 656.85
+   },
+   {
+    "date": "2026-02-03",
+    "entry": "13:05",
+    "tier": "ELITE",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence"
+    ],
+    "trigger_level": 690.545,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 4,
+    "touches": 53,
+    "dollar_pnl": 380.0
+   },
+   {
+    "date": "2026-02-26",
+    "entry": "11:05",
+    "tier": "SUPER",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "ribbon_flip",
+     "confluence"
+    ],
+    "trigger_level": 690.6,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 20,
+    "dollar_pnl": 636.05
+   },
+   {
+    "date": "2026-05-08",
+    "entry": "09:50",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 735.45,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 16,
+    "dollar_pnl": 32.0
+   },
+   {
+    "date": "2026-05-18",
+    "entry": "11:05",
+    "tier": "ELITE",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence"
+    ],
+    "trigger_level": 739.0,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 4,
+    "touches": 65,
+    "dollar_pnl": 446.45
+   },
+   {
+    "date": "2026-05-18",
+    "entry": "14:05",
+    "tier": "SUPER",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "ribbon_flip",
+     "sequence_rejection"
+    ],
+    "trigger_level": 737.0,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 3,
+    "touches": 21,
+    "dollar_pnl": 514.4
+   },
+   {
+    "date": "2026-05-19",
+    "entry": "14:10",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "confluence",
+     "sequence_reclaim"
+    ],
+    "trigger_level": 736.6849381647099,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 5,
+    "touches": 68,
+    "dollar_pnl": -280.0
+   },
+   {
+    "date": "2026-05-21",
+    "entry": "11:35",
+    "tier": "SUPER",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence",
+     "trendline_rejection"
+    ],
+    "trigger_level": 738.85,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 4,
+    "touches": 48,
+    "dollar_pnl": -189.0
+   },
+   {
+    "date": "2026-05-21",
+    "entry": "13:25",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip",
+     "confluence"
+    ],
+    "trigger_level": 741.3,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 2,
+    "touches": 2,
+    "dollar_pnl": 487.9
+   },
+   {
+    "date": "2026-05-26",
+    "entry": "09:45",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 749.9,
+    "cohort": "PERSISTENT",
+    "matched_prior_days": 4,
+    "touches": 0,
+    "dollar_pnl": -236.0
+   },
+   {
+    "date": "2026-05-28",
+    "entry": "10:15",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip",
+     "confluence",
+     "sequence_reclaim"
+    ],
+    "trigger_level": 750.2376720496296,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 2,
+    "touches": 75,
+    "dollar_pnl": 172.0
+   },
+   {
+    "date": "2026-06-08",
+    "entry": "13:35",
+    "tier": "SUPER",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence",
+     "trendline_rejection"
+    ],
+    "trigger_level": 742.0841623480467,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 4,
+    "dollar_pnl": 439.9
+   },
+   {
+    "date": "2026-06-08",
+    "entry": "14:40",
+    "tier": "SUPER",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence",
+     "trendline_rejection"
+    ],
+    "trigger_level": 742.0841623480467,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 4,
+    "dollar_pnl": 532.0
+   },
+   {
+    "date": "2026-06-09",
+    "entry": "10:50",
+    "tier": "SUPER",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "ribbon_flip",
+     "confluence"
+    ],
+    "trigger_level": 738.1900024414062,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 2,
+    "touches": 13,
+    "dollar_pnl": -390.0
+   },
+   {
+    "date": "2026-06-11",
+    "entry": "13:35",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip",
+     "confluence"
+    ],
+    "trigger_level": 732.5,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 15,
+    "dollar_pnl": 752.0
+   },
+   {
+    "date": "2026-06-15",
+    "entry": "09:40",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 753.0,
+    "cohort": "PERSISTENT",
+    "matched_prior_days": 2,
+    "touches": 0,
+    "dollar_pnl": 66.0
+   },
+   {
+    "date": "2026-06-17",
+    "entry": "14:05",
+    "tier": "SUPER",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence",
+     "trendline_rejection"
+    ],
+    "trigger_level": 750.8286009873198,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 2,
+    "touches": 10,
+    "dollar_pnl": -355.5
+   },
+   {
+    "date": "2026-06-22",
+    "entry": "11:50",
+    "tier": "ELITE",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence"
+    ],
+    "trigger_level": 746.1,
+    "cohort": "FRESH",
+    "matched_prior_days": 0,
+    "touches": 0,
+    "dollar_pnl": -242.0
+   },
+   {
+    "date": "2026-06-22",
+    "entry": "15:00",
+    "tier": "SUPER",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "ribbon_flip",
+     "confluence",
+     "trendline_rejection"
+    ],
+    "trigger_level": 743.8599853515625,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 2,
+    "touches": 7,
+    "dollar_pnl": -50.0
+   },
+   {
+    "date": "2026-06-24",
+    "entry": "13:20",
+    "tier": "SUPER",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "ribbon_flip",
+     "confluence",
+     "sequence_rejection"
+    ],
+    "trigger_level": 735.15,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 2,
+    "touches": 28,
+    "dollar_pnl": 309.0
+   },
+   {
+    "date": "2026-06-25",
+    "entry": "10:00",
+    "tier": "SUPER",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "ribbon_flip",
+     "confluence"
+    ],
+    "trigger_level": 730.8400268554688,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 5,
+    "dollar_pnl": -579.0
+   },
+   {
+    "date": "2026-06-25",
+    "entry": "13:35",
+    "tier": "SUPER",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence",
+     "sequence_rejection"
+    ],
+    "trigger_level": 733.4773412770263,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 2,
+    "touches": 23,
+    "dollar_pnl": -246.0
+   },
+   {
+    "date": "2026-06-26",
+    "entry": "09:50",
+    "tier": "ELITE",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence"
+    ],
+    "trigger_level": 729.7,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 2,
+    "dollar_pnl": -468.0
+   },
+   {
+    "date": "2026-06-26",
+    "entry": "14:55",
+    "tier": "SUPER",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "ribbon_flip",
+     "confluence"
+    ],
+    "trigger_level": 732.0982057689337,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 3,
+    "touches": 52,
+    "dollar_pnl": -240.0
+   },
+   {
+    "date": "2026-06-29",
+    "entry": "09:45",
+    "tier": "LEVEL",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip"
+    ],
+    "trigger_level": 737.5,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 12,
+    "dollar_pnl": -324.0
+   },
+   {
+    "date": "2026-07-06",
+    "entry": "09:45",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip",
+     "confluence"
+    ],
+    "trigger_level": 747.75,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 4,
+    "touches": 49,
+    "dollar_pnl": 421.6
+   },
+   {
+    "date": "2026-07-06",
+    "entry": "14:20",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip",
+     "confluence"
+    ],
+    "trigger_level": 751.3099975585938,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 5,
+    "dollar_pnl": -132.0
+   },
+   {
+    "date": "2026-07-08",
+    "entry": "13:30",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "ribbon_flip",
+     "confluence"
+    ],
+    "trigger_level": 745.2977294921875,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 4,
+    "touches": 20,
+    "dollar_pnl": -160.0
+   },
+   {
+    "date": "2026-07-15",
+    "entry": "09:55",
+    "tier": "SUPER",
+    "side": "C",
+    "triggers": [
+     "level_reclaim",
+     "confluence",
+     "sequence_reclaim"
+    ],
+    "trigger_level": 753.2,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 2,
+    "touches": 19,
+    "dollar_pnl": -153.0
+   },
+   {
+    "date": "2026-07-17",
+    "entry": "13:55",
+    "tier": "SUPER",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "ribbon_flip",
+     "trendline_rejection"
+    ],
+    "trigger_level": 745.2,
+    "cohort": "PERSISTENT",
+    "matched_prior_days": 2,
+    "touches": 0,
+    "dollar_pnl": 459.0
+   },
+   {
+    "date": "2026-07-20",
+    "entry": "13:40",
+    "tier": "SUPER",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence",
+     "trendline_rejection"
+    ],
+    "trigger_level": 744.5112751919311,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 28,
+    "dollar_pnl": -185.0
+   },
+   {
+    "date": "2026-07-20",
+    "entry": "14:35",
+    "tier": "SUPER",
+    "side": "P",
+    "triggers": [
+     "level_rejection",
+     "confluence",
+     "trendline_rejection"
+    ],
+    "trigger_level": 744.1598866941566,
+    "cohort": "TOUCH_VALIDATED",
+    "matched_prior_days": 1,
+    "touches": 26,
+    "dollar_pnl": 489.4
+   }
+  ],
+  "n_level_tied": 66
+ },
+ "part4_today": {
+  "n": 20,
+  "counts": {
+   "NEW": 3,
+   "PERSISTED": 11,
+   "TOUCH_VALIDATED": 6
+  },
+  "rows": [
+   {
+    "price": 729.79,
+    "label": "SHELF_728.99_730.59_2026-07-31",
+    "source": "daily_context_shelf",
+    "weight": 5,
+    "class": "NEW",
+    "matched_0729": [],
+    "touches_0730_tape": 0,
+    "j_call": ""
+   },
+   {
+    "price": 731.22,
+    "label": "PRIOR_CLOSE_2026-06-26",
+    "source": "prior_session_ah_close_proxy",
+    "weight": null,
+    "class": "PERSISTED",
+    "matched_0729": [
+     "PRIOR_CLOSE_2026-06-26"
+    ],
+    "touches_0730_tape": 0,
+    "j_call": ""
+   },
+   {
+    "price": 734.52,
+    "label": "PML_2026-06-29",
+    "source": "premarket_low",
+    "weight": null,
+    "class": "TOUCH_VALIDATED",
+    "matched_0729": [
+     "PML_2026-06-29"
+    ],
+    "touches_0730_tape": 5,
+    "j_call": ""
+   },
+   {
+    "price": 735.1,
+    "label": "SHELF_734.30_735.90_2026-07-31",
+    "source": "daily_context_shelf",
+    "weight": 5,
+    "class": "TOUCH_VALIDATED",
+    "matched_0729": [
+     "PML_2026-06-29",
+     "SHELF_735.03_736.63_2026-07-29"
+    ],
+    "touches_0730_tape": 13,
+    "j_call": ""
+   },
+   {
+    "price": 737.85,
+    "label": "SHELF_737.05_738.65_2026-07-31",
+    "source": "daily_context_shelf",
+    "weight": 5,
+    "class": "TOUCH_VALIDATED",
+    "matched_0729": [
+     "MEMORY_SUP_138",
+     "SHELF_737.05_738.65_2026-07-29"
+    ],
+    "touches_0730_tape": 27,
+    "j_call": "J called 737.68 -- today's exact low (called live)"
+   },
+   {
+    "price": 739.73,
+    "label": "SHELF_738.93_740.53_2026-07-31",
+    "source": "daily_context_shelf",
+    "weight": 5,
+    "class": "TOUCH_VALIDATED",
+    "matched_0729": [
+     "MEMORY_SUP_85",
+     "SHELF_738.72_740.32_2026-07-29"
+    ],
+    "touches_0730_tape": 35,
+    "j_call": "J called 739.72 -- bounce target (called live)"
+   },
+   {
+    "price": 740.76,
+    "label": "MEMORY_SUP_90",
+    "source": "level_memory",
+    "weight": null,
+    "class": "TOUCH_VALIDATED",
+    "matched_0729": [
+     "MEMORY_SUP_94",
+     "SHELF_740.39_741.99_2026-07-29"
+    ],
+    "touches_0730_tape": 14,
+    "j_call": ""
+   },
+   {
+    "price": 741.6,
+    "label": "SHELF_740.80_742.40_2026-07-31",
+    "source": "daily_context_shelf",
+    "weight": 5,
+    "class": "TOUCH_VALIDATED",
+    "matched_0729": [
+     "MEMORY_SUP_94",
+     "SHELF_740.39_741.99_2026-07-29"
+    ],
+    "touches_0730_tape": 13,
+    "j_call": ""
+   },
+   {
+    "price": 742.79,
+    "label": "INTRADAY_PML_2026-07-31",
+    "source": "premarket_low",
+    "weight": 2,
+    "class": "PERSISTED",
+    "matched_0729": [
+     "SHELF_742.09_743.69_2026-07-29"
+    ],
+    "touches_0730_tape": 1,
+    "j_call": "J called 742.97 -- premarket low call"
+   },
+   {
+    "price": 742.9,
+    "label": "MEMORY_RES_80",
+    "source": "level_memory",
+    "weight": null,
+    "class": "PERSISTED",
+    "matched_0729": [
+     "SHELF_742.09_743.69_2026-07-29"
+    ],
+    "touches_0730_tape": 0,
+    "j_call": "J called 742.97 -- premarket low call"
+   },
+   {
+    "price": 743.25,
+    "label": "SHELF_742.45_744.05_2026-07-31",
+    "source": "daily_context_shelf",
+    "weight": 5,
+    "class": "PERSISTED",
+    "matched_0729": [
+     "SHELF_742.09_743.69_2026-07-29",
+     "INTRADAY_PMH_2026-07-29"
+    ],
+    "touches_0730_tape": 1,
+    "j_call": "J called 742.97 -- premarket low call"
+   },
+   {
+    "price": 744.13,
+    "label": "MEMORY_RES_85",
+    "source": "level_memory",
+    "weight": null,
+    "class": "NEW",
+    "matched_0729": [],
+    "touches_0730_tape": 0,
+    "j_call": ""
+   },
+   {
+    "price": 744.91,
+    "label": "MEMORY_RES_78",
+    "source": "level_memory",
+    "weight": null,
+    "class": "PERSISTED",
+    "matched_0729": [
+     "SHELF_744.18_745.78_2026-07-29"
+    ],
+    "touches_0730_tape": 0,
+    "j_call": ""
+   },
+   {
+    "price": 745.72,
+    "label": "MEMORY_RES_117",
+    "source": "level_memory",
+    "weight": null,
+    "class": "PERSISTED",
+    "matched_0729": [
+     "SHELF_744.18_745.78_2026-07-29"
+    ],
+    "touches_0730_tape": 0,
+    "j_call": ""
+   },
+   {
+    "price": 746.55,
+    "label": "INTRADAY_PMH_2026-07-31",
+    "source": "premarket_high",
+    "weight": 2,
+    "class": "NEW",
+    "matched_0729": [],
+    "touches_0730_tape": 0,
+    "j_call": ""
+   },
+   {
+    "price": 748.09,
+    "label": "SHELF_747.29_748.89_2026-07-31",
+    "source": "daily_context_shelf",
+    "weight": 5,
+    "class": "PERSISTED",
+    "matched_0729": [
+     "SHELF_747.29_748.89_2026-07-29"
+    ],
+    "touches_0730_tape": 0,
+    "j_call": ""
+   },
+   {
+    "price": 750.98,
+    "label": "SHELF_750.18_751.78_2026-07-31",
+    "source": "daily_context_shelf",
+    "weight": 5,
+    "class": "PERSISTED",
+    "matched_0729": [
+     "SHELF_750.18_751.78_2026-07-29"
+    ],
+    "touches_0730_tape": 0,
+    "j_call": ""
+   },
+   {
+    "price": 752.77,
+    "label": "SHELF_751.97_753.57_2026-07-31",
+    "source": "daily_context_shelf",
+    "weight": 5,
+    "class": "PERSISTED",
+    "matched_0729": [
+     "SHELF_751.97_753.57_2026-07-29"
+    ],
+    "touches_0730_tape": 0,
+    "j_call": ""
+   },
+   {
+    "price": 754.71,
+    "label": "SHELF_753.91_755.51_2026-07-31",
+    "source": "daily_context_shelf",
+    "weight": 5,
+    "class": "PERSISTED",
+    "matched_0729": [
+     "SHELF_753.91_755.51_2026-07-29"
+    ],
+    "touches_0730_tape": 0,
+    "j_call": ""
+   },
+   {
+    "price": 756.38,
+    "label": "SHELF_755.58_757.18_2026-07-31",
+    "source": "daily_context_shelf",
+    "weight": 5,
+    "class": "PERSISTED",
+    "matched_0729": [
+     "SHELF_755.58_757.18_2026-07-29"
+    ],
+    "touches_0730_tape": 0,
+    "j_call": ""
+   }
+  ],
+  "note": "PERSISTED matched vs the 07-29 morning snapshot (07-30 snapshot missing, disclosed); touch-validation uses the 07-30 SIP tape."
+ },
+ "provenance": {
+  "replay_source": "engine-fullhist-replay-2026-07-23.json",
+  "replay_levels": "OHLC-derived (lib/levels.py), NOT the live v2 compiler feed",
+  "bars_fullhist": "spy_5m_2025-01-01_2026-07-22.csv",
+  "bars_live": "spy_5m_2026-05-19_2026-07-31.csv",
+  "missing_snapshot_days": [
+   "2026-07-30"
+  ],
+  "pnl": "real-OPRA-only per-trade dollar_pnl from the replay JSON"
+ },
+ "posthoc_robustness": {
+  "_label": "POST-HOC (not prereg) -- disclosed robustness slices on the primary cell",
+  "dynamic_level_trades": {
+   "n": 18,
+   "total": -981.65,
+   "definition": "trigger_level with >4 decimal places (aVWAP-style dynamic constructs; POC/premarket buckets are <=3dp)",
+   "cohorts": {
+    "TOUCH_VALIDATED": 17,
+    "FRESH": 1
+   }
+  },
+  "tv_all": {
+   "n": 54,
+   "total": 5855.25,
+   "per_trade": 108.43,
+   "wr": 0.5
+  },
+  "tv_static_only": {
+   "n": 37,
+   "total": 7320.45,
+   "per_trade": 197.85,
+   "wr": 0.622
+  },
+  "tv_touch_depth_dose_response": {
+   "2-9": {
+    "n": 16,
+    "total": 1778.35,
+    "per_trade": 111.15,
+    "wr": 0.562
+   },
+   "10-29": {
+    "n": 20,
+    "total": 2106.65,
+    "per_trade": 105.33,
+    "wr": 0.45
+   },
+   "30+": {
+    "n": 18,
+    "total": 1970.25,
+    "per_trade": 109.46,
+    "wr": 0.5
+   },
+   "read": "flat -- the discriminator is binary (>=2 touches), not linear in touch count"
+  }
+ },
+ "part3_spec": {
+  "_label": "SPEC ONLY -- NOT ARMED. Evidence-thin per frozen verdict rule (TV outperforms directionally, not BH-significant). A/B prereg required before any arming.",
+  "target": "levels compiler v2 weight field (refresh_levels_intraday.py / daily_context.py output; shelves w5, intraday w2, memory w None today)",
+  "computation": {
+   "source_bars": "prior trading day SIP 5m RTH bars",
+   "zone": "[price - zone_width, price + zone_width] (the level's own half-width; 0.40 floor)",
+   "touches": "count of 5m bars whose [low,high] intersects the zone",
+   "flips": "sign changes of (close - price) across consecutive RTH closes (rode-then-flipped)",
+   "bounces": "bar tests zone AND closes >= 1 zone-width away from it (rejection candle)"
+  },
+  "weight_upgrade": "weight_effective = weight + 1 if touches>=2 else 0, +1 more if (flips>=1 or bounces>=1); binary threshold per the flat dose-response -- no deep-touch bonus",
+  "ab_prereg_sketch": {
+   "harness": "engine_fullhist_replay entry-layer variant: level-tied entries REQUIRE touch-validated trigger level (>=2 prior-day zone touches) vs baseline; plus fleet-parallel live arm pair (score-ladder pattern) for forward evidence",
+   "gates": "standard 4-gate (positive aggregate, day-majority, drop-best, held-out positive) + sub-window stability; primary metric = per-trade expectancy on the level-tied cohort; freeze via et_clock stamp before the run",
+   "kill": "if TV-gating drops level-tied n below ~40 in replay without raising $/trade, kill",
+   "note": "static structural levels only -- the post-hoc slice shows the drag is concentrated in dynamic aVWAP-style levels, which the v2 compiler does not emit anyway"
+  }
+ }
+}
