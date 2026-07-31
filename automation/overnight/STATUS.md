@@ -1,3 +1,57 @@
+## [2026-07-30 ~20:30-20:50 ET] OK -- conductor (AFTERHOURS): LEVEL-REFRESH-WATCHDOG-WINDOW-BUG closed, commit `d7774638` -- plus closing the visibility gap on 4 earlier undocumented fixes
+
+> **STAGE 0/1:** ET 20:30 Thursday (market closed). Budget gate PROCEED ($1.98/$30, 1/4
+> fires). `engine-health.json` showed 2 RED checks at fire start: `levels_blind` (0/770 RTH
+> rows today carried an active key level) and `state_freshness` (3/17 live-path files
+> stale). Per STAGE-1 priority-1/2 (function-first / Engine RED), investigated first.
+
+> **FOUND: the whole `levels_blind` incident had ALREADY been root-caused, fixed, tested,
+> and doc-synthesized by 4 earlier fires TONIGHT (commits `90a0e826`, `54b27c00`,
+> `3a5d3246`, `9b25aa79`, `0d70b109`, between ~19:06-20:24 ET) -- but NONE of that work was
+> ever reported to STATUS.md** (only `queue.md` and a standalone doc,
+> `analysis/deep-research/BLIND-ENGINE-REPAIR-2026-07-30.md`, carried it). Closing that
+> visibility gap now: `Gamma_LevelRefresh`'s Task Scheduler cadence silently stalled ~20h
+> (last good run 07-29 22:43 ET, zero errors, zero self-recovery); every one of today's 770
+> RTH decision rows carried `levels_active: []`; the engine fell through to its worst cohort
+> (trendline-only) and fired 11 unanchored `ENTER_BEAR` verdicts at the day's low before SPY
+> rallied 6.7pts -- only `RISK_DENY_RISK_CAP`/`RISK_DENY_PDT` stopped the fills. Fixed with
+> THREE layers: (1) `SKIP_NO_LEVELS` entry-side rail in `heartbeat_core.py` -- an ENTER with
+> no level anchor now refuses instead of trading blind; (2) `Invoke-LevelRefreshSafe`
+> (`_shared.ps1`) -- kill-the-stuck-tree + relaunch self-heal, wired into the existing 5-min
+> `Gamma_TvWatchdog` cadence; (3) `levels_blind_check.py` -- a day-scoped, RTH-ratio,
+> non-market-hours-suppressed consumer+producer monitor. Lesson filed:
+> `_lesson-inbox/level-refresh-silent-stall-2026-07-30.md`.
+
+> **THIS FIRE'S OWN FINDING (re-verifying rather than trusting the prior work, OP-33):** the
+> self-heal window guard in `run-tv-watchdog.ps1` read `$mins -ge 942 -and $mins -le 955`.
+> `$mins` is `Hour*60+Minute` (minutes-since-midnight) -- the SAME convention the adjacent
+> `hbFlag` window correctly uses via `575`/`955`. `942` minutes-since-midnight is **15:42
+> ET, not 09:42 ET** -- so the safety net built to prevent tonight's exact incident from
+> recurring only ever activated in the final **13 minutes** before the close (942-955), not
+> the intended ~373-minute RTH window (582-955). Its own guard test asserted the literal
+> substring `"942" in src`, which is true under BOTH readings, so it could not catch this by
+> construction. **Fix:** `942 -> 582` (9*60+42); test rewritten to regex-extract the real
+> `$mins` bound and assert on the DECODED wall-clock time (09:42/15:55) plus a width check
+> (>300min). RED-proofed via `git stash` (fails with the predicted 15:42 readout
+> pre-fix); 5/5 green post-fix; full related suite (blind-no-levels,
+> levels-blind-detection, tv-launch-safe) 85/85 green; curated safety gate 59/59 PASS.
+> `git show d7774638 --stat --name-status` confirms exactly the 2 intended files (L247).
+> Lesson filed: `_lesson-inbox/substring-guard-cant-verify-magic-number-semantics-2026-07-30.md`
+> (C14 family: a unit-bearing magic-number guard must assert the DECODED value, not the
+> substring's presence).
+
+> **Scope + revert:** 2 files, pure watchdog infra -- no params/heartbeat_core/filters/
+> placement/exit/CLAUDE.md touched. Revert: `git revert d7774638`.
+
+> **Left open for next fire (not this fire's scope):** the synthesis doc
+> (`BLIND-ENGINE-REPAIR-2026-07-30.md`) flags a separate finding worth a follow-up look --
+> "49 documented-Active scheduled tasks sat `State=Disabled`" -- and a sizing-deadlock
+> per-arm ceiling table with 4 ranked remediation options left UNCHOSEN. Neither touched
+> here; flagging so they don't silently age out of visibility the same way this whole chain
+> almost did.
+
+---
+
 ## [2026-07-29] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
 
 > - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
@@ -664,7 +718,7 @@
 - [07-30 14:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 21596s - kill+relaunch
 
 ## Kitchen
-Kitchen: alive, queue 24 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 23 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 - [07-30 14:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 21896s - kill+relaunch
 - [07-30 14:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 22196s - kill+relaunch
 - [07-30 14:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 22496s - kill+relaunch
@@ -699,72 +753,3 @@ Kitchen: alive, queue 24 pending, last cook 0 min ago, today $0.00, model=openro
 
 - [2026-07-30 21:00:04] gym-session (2026-07-30) → **YELLOW** :: see `automation\state\gym-scorecard-2026-07-30.json`
 
-## [2026-07-30 ~19:12-19:29 ET] OK -- conductor (AFTERHOURS): LEVEL-REFRESH-SILENT-STALL-SELF-HEAL closed, commit `54b27c00`
-
-> **STAGE 0/1:** budget gate PROCEED ($0/$30, 0/4 fires). `engine-health.json` **RED**
-> (`levels_blind`: 0 of 770 RTH decision rows today carried ANY active key level -- engine
-> traded blind, fell through to its worst cohort, trendline-only). Per rail-1/STAGE-1
-> priority-2 (Engine RED outranks everything), this fire's only task was investigate +
-> repair this RED.
-
-> **Root cause, verified live:** Gamma_LevelRefresh's own Task Scheduler config (`PT5M`
-> repetition / `MultipleInstances=IgnoreNew` / `PT3M` `ExecutionTimeLimit`) went dark for
-> ~20h -- last good run 2026-07-29 22:43 ET (`level-refresh-2026-07-29.log`, zero errors),
-> nothing until a manual repair at 18:57 ET today (`level-refresh-2026-07-30.log`'s first
-> entry). All OTHER scheduled tasks (`Gamma_TvWatchdog`) kept firing fine in the same
-> window -- rules out a machine-wide sleep/reboot, isolates the stall to this one task's
-> `IgnoreNew` + multi-hop hidden-launch-wrapper chain (wscript->pythonw->run_ps1_hidden.py
-> ->powershell->python). **Confirmed the alerting itself was NOT broken:** `self_check.py`
-> + `engine_health`'s fail-loud beacon correctly paged J via Discord starting 09:42 ET
-> (first RTH tick) and repeatedly through the evening -- the gap was purely on the
-> REMEDIATION side, the exact class `Invoke-TvLaunchSafe` already closed for TV/CDP hangs
-> but nothing analogous existed for LevelRefresh.
-
-> **Fix:** `Invoke-LevelRefreshSafe` (`_shared.ps1`) -- kills any stuck level-refresh
-> process tree by command-line match and relaunches `run-level-refresh.ps1` directly via a
-> hidden `powershell.exe -File` call (bypassing the wrapper double-hop). Wired into the
-> already-proven 5-min `Gamma_TvWatchdog` cadence (no new scheduled task): checks
-> `key-levels.json` staleness 09:42-15:55 ET, self-heals past 12min stale -- healing
-> BEFORE `levels_blind_check.py`'s own 20min RED-alarm threshold fires.
-
-> **Verified (OP-33):** 10 new/existing guard tests (`test_level_refresh_watchdog_2026_07_30.py`)
-> RED-proofed via `git stash` (4 of 5 new tests failed pre-fix with the exact expected
-> `CommandNotFoundException`, popped clean, 10/10 green post-fix); curated safety gate
-> 59/59 PASS. Post-commit `git show 54b27c00 --stat --name-status` confirms exactly the 3
-> intended files.
-
-> **Scope + revert:** 3 files (`_shared.ps1`, `run-tv-watchdog.ps1`, new guard test) --
-> pure infra self-heal, zero params/heartbeat_core/filters/placement/exit/CLAUDE.md
-> touched. Revert: `git revert 54b27c00`. Lesson filed:
-> `_lesson-inbox/level-refresh-silent-stall-2026-07-30.md`.
-
-> **NOTE for the next fire:** today's `levels_blind` RED will NOT flip GREEN tonight -- it
-> is a historical fact about 2026-07-30's 770 already-blind rows and clears naturally at
-> the next ET calendar-day rollover per `levels_blind_check.py`'s own day-scoped logic.
-> Don't re-diagnose it as still-broken tomorrow morning; check that `key-levels.json`
-> mtime is fresh instead. `state_freshness` RED (10/17 stale incl. `key-levels.json`,
-> `context-bundle.json`, `trendlines-live.json`, `confluence-zones.json` +4 more) --
-> **correction, checked before claiming (OP-33):** `context-bundle.json`/`trendlines-live
-> .json`/`confluence-zones.json` are written by SEPARATE producers
-> (`context_bundle_producer.py`, `confluence_producer.py`, not `refresh_levels_intraday
-> .py`), so this is NOT provably the same root cause -- only `key-levels.json` itself is.
-> Worth a quick next-fire look at whether those other producers' OWN scheduled tasks share
-> the identical `IgnoreNew`-latent-stall shape (same audit this lesson recommends), or are
-> independently stale for unrelated reasons.
-### INFO: eod-analytics manager used free-tier model (free-tier-primary)
-- ts: 2026-07-30T21:30:20+00:00
-- task: manager
-- date_et: 2026-07-30
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-### BROKEN: self-check 2026-07-30T19:09:57
-- engine-health RED: reds=['levels_blind: ENGINE TRADED BLIND on 2026-07-30 -- 0 of 770 RTH decision rows carried ANY active key level (bold 0/385; safe 0/385). With no levels the engine cannot detect level rejections/reclaims and falls through to its WORST cohort (trendline-only). Check Gamma_LevelRefresh + key-levels.json expires_at dates.', 'state_freshness: 3/17 live-path state files STALE -- trade-today.json, pnl-statement.json, ema-snapshot.json. Their producers stopped writing; consumers did not notice.']
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: 3 day-trades in 5d at equity $1,198 < $25,000 — PDT rule blocks a 4th day-trade
-- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $603 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $600 exceeds per-trade cap $348 (30% of $1,160)
-- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-29, not today 2026-07-30 -- Gamma_ParticipationDaily likely did not fire.
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
-- TRENDLINE-DRAW never marked today (2026-07-30) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- CANDIDATES-UNTRACKED: 28 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
