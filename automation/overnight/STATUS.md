@@ -1,3 +1,54 @@
+## [2026-07-31 ~09:12-09:35 ET] OK -- conductor (AFTERHOURS): LIVE TV-CDP outage fixed pre-open + self-heal blind-spot closed, commit `c941567c`
+
+> **STAGE 0/1:** ET 09:12 Friday (pre-open, market closed until 09:30). Budget gate
+> PROCEED ($11.44/$30, 2/4 fires). `self-check-last.json` showed `BROKEN`: TV-CDP
+> unreachable on :9222, ~18 min before market open. Per STAGE-1 priority-1/2
+> (function-first / Engine RED), investigated + fixed first before anything else.
+
+> **LIVE-VERIFIED (OP-33), not guessed:** `curl :9222/json/version` confirmed CDP
+> genuinely down. `Gamma_TvWatchdog` log showed it had ALREADY tried to self-heal twice
+> (RELAUNCH_KILL at 09:05 and 09:10 ET, `CDP dead for 3896s` -> `4196s` -- growing, not
+> shrinking) -- both attempts silently failed with no distinguishing signal from a
+> successful relaunch. Manual `taskkill /F /IM TradingView.exe` + relaunch fixed it live
+> (`curl` now returns a valid CDP payload, `self_check.py` flipped `BROKEN` -> `DEGRADED`).
+
+> **ROOT GAP (C7 silent-success-is-failure):** `Invoke-TvLaunchSafe` (`_shared.ps1`)
+> returned only `{skipped}` -- no signal whether the relaunch it just ran actually
+> restored CDP. `run-tv-watchdog.ps1`'s 3 call sites logged the identical `relaunch_kill`
+> shape whether the fix worked or not, so a genuinely-failing self-heal looked the same
+> in STATUS.md as a working one for 70+ minutes until an unrelated producer
+> (`self_check.py`) caught it independently.
+
+> **FIX SHIPPED:** `Test-CdpReady` poll helper + `Invoke-TvLaunchSafe` now self-verifies
+> post-launch and returns `{skipped, healed}`; the 3 watchdog call sites branch into
+> `*_healed` / `*_FAILED` tvActions, and a `*_FAILED` outcome writes a distinct
+> append-only `### BROKEN:` STATUS.md block instead of blending into routine noise.
+> **Also closed a separate small gap while touching this file:** `test_tv_launch_safe_
+> 2026_07_06.py` existed on disk (dated 2026-07-06) but had NEVER been `git add`-ed
+> (L242-shape) -- committed it now alongside the new assertions it needed anyway.
+
+> **Verified (OP-33):** 7/7 tv-launch-safe tests green (incl. 2 new), 40/40 related
+> infra-watchdog suite green, 59/59 curated safety gate green. Live CDP re-confirmed up
+> AFTER the code change (not just before). `git show c941567c --stat --name-status`
+> confirms exactly the 3 intended files (L247 discipline).
+
+> **Open question, logged not chased further (debugging-discipline discipline):** WHY
+> the 09:05/09:10 production relaunches failed while 2 manual reproductions of the
+> identical code path (same Interactive-logon task principal) both succeeded minutes
+> later was not fully root-caused -- ruled out AppX-query flakiness (5/5 manual reps
+> clean) and window-station mismatch (principal confirmed Interactive). The shipped fix
+> makes a recurrence LOUD regardless of the underlying mechanism, which is the
+> higher-leverage response; chasing the exact intermittent trigger further was not a
+> good use of this fire's budget. Lesson filed:
+> `_lesson-inbox/tv-selfheal-silent-failure-2026-07-31.md` (also flags
+> `Invoke-LevelRefreshSafe` + `state_freshness_selfheal.py` as worth auditing for the
+> same verify-the-effect-not-just-the-attempt gap).
+
+> **Scope + revert:** 2 infra scripts + 1 test file. Zero params/heartbeat_core/filters/
+> placement/exit/CLAUDE.md touched. Revert: `git revert c941567c`.
+
+---
+
 ## [2026-07-31 ~05:30-05:57 ET] OK -- conductor (AFTERHOURS): 4 un-actioned self-audit batches triaged + closed, commit `aed731f2`
 
 > **STAGE 0/1:** ET 05:30 Friday (market closed). Budget gate PROCEED ($10.78/$30, 1/4 fires).
@@ -612,3 +663,36 @@
 > 1 new lesson-inbox item, 1 queue.md progress note). Zero trading-path touched (no params/
 > heartbeat_core/filters/CLAUDE.md). Revert: `git revert 6b7c07ac`.
 
+
+## Kitchen
+Kitchen: alive, queue 36 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+- [2026-07-31 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-07-31 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-07-31 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-31.md
+
+### DEGRADED: self-check 2026-07-31T07:39:57
+- CANDIDATES-UNTRACKED: 26 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
+
+## 2026-07-31 Premarket
+- Bias: no-trade. Ribbon flat/compressed, swarm deadlocked 2-2 (confidence 25/100). VIX 17.12 MID.
+- Safe equity $1160.36 / Bold equity $1197.52. Both kill-switches re-armed clean, no positions.
+- Known broken: Step 5/5b/5c (chart level wipe+redraw, trendline detect+draw) SKIPPED this premarket -- USD session budget ran low (~$0.90 left of $3 cap) before reaching the TV-drawing steps. Not load-bearing for entries; J's manual chart lines untouched. Re-run `trendline-draw` skill manually if desired before open.
+- [07-31 09:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=na levels_refresh=none fresh_heal=ran TV up but CDP dead for 3896s - kill+relaunch
+- [07-31 09:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=na levels_refresh=none fresh_heal=ran TV up but CDP dead for 4196s - kill+relaunch
+
+### BROKEN: self-check 2026-07-31T09:09:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+
+### BROKEN: self-check 2026-07-31T09:13:09
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+
+### DEGRADED: self-check 2026-07-31T09:17:31
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T09:26:18
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
