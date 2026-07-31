@@ -1187,3 +1187,7 @@ Kitchen: alive, queue 34 pending, last cook 0 min ago, today $0.00, model=scorec
 ### DEGRADED: self-check 2026-07-31T17:39:57
 - PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
 - TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T18:09:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.

@@ -1,0 +1,302 @@
+{
+ "generated_at_et": "2026-07-31T15:57:11",
+ "prereg": "analysis/deep-research/SHADOW-SIGNAL-PREREG-2026-07-31.md",
+ "method": {
+  "event_unit": "(signal, date, 5-min bar)",
+  "entry": "entry+1, VWAP of containing 5m option bar",
+  "strike": "ATM (V15_SAFE_TIERS, verified)",
+  "exit": "REAL exit_manager via walk_exit_manager, RIBBON_RIDE shape",
+  "qty": 3,
+  "pricing": "real OPRA cache only; synthetic excluded",
+  "multiplicity": "BH-FDR q<=0.10 across 3 signals"
+ },
+ "exit_shape": {
+  "premium_stop_pct": -0.2,
+  "tp1_premium_pct": 1.0,
+  "tp1_qty_fraction": 0.667,
+  "profit_lock_mode": "trailing",
+  "runner_target_pct": 99.0,
+  "trail_pct": 0.15,
+  "profit_lock_arm_pct": 0.05,
+  "stop_mode": "structure",
+  "catastrophe_stop_pct": -0.5,
+  "profit_lock_arm_scope": "post_tp1"
+ },
+ "coverage_audit": {
+  "unbiased_days": [
+   "2026-07-20",
+   "2026-07-21",
+   "2026-07-22"
+  ],
+  "per_day": {
+   "2026-07-20": {
+    "spy_lo": 742.0,
+    "spy_hi": 748.54,
+    "atm_strikes_needed": 8,
+    "cached": 15,
+    "missing_atm_strikes": [],
+    "unbiased": true
+   },
+   "2026-07-21": {
+    "spy_lo": 744.89,
+    "spy_hi": 748.97,
+    "atm_strikes_needed": 5,
+    "cached": 13,
+    "missing_atm_strikes": [],
+    "unbiased": true
+   },
+   "2026-07-22": {
+    "spy_lo": 747.31,
+    "spy_hi": 749.98,
+    "atm_strikes_needed": 4,
+    "cached": 12,
+    "missing_atm_strikes": [],
+    "unbiased": true
+   },
+   "2026-07-23": {
+    "spy_lo": 736.37,
+    "spy_hi": 741.85,
+    "atm_strikes_needed": 7,
+    "cached": 0,
+    "missing_atm_strikes": [
+     736,
+     737,
+     738,
+     739,
+     740,
+     741,
+     742
+    ],
+    "unbiased": false
+   },
+   "2026-07-27": {
+    "spy_lo": 736.45,
+    "spy_hi": 744.66,
+    "atm_strikes_needed": 10,
+    "cached": 0,
+    "missing_atm_strikes": [
+     736,
+     737,
+     738,
+     739,
+     740,
+     741,
+     742,
+     743,
+     744,
+     745
+    ],
+    "unbiased": false
+   },
+   "2026-07-28": {
+    "spy_lo": 737.23,
+    "spy_hi": 742.59,
+    "atm_strikes_needed": 7,
+    "cached": 2,
+    "missing_atm_strikes": [
+     737,
+     738,
+     739,
+     741,
+     743
+    ],
+    "unbiased": false
+   },
+   "2026-07-29": {
+    "spy_lo": 731.9,
+    "spy_hi": 742.62,
+    "atm_strikes_needed": 12,
+    "cached": 3,
+    "missing_atm_strikes": [
+     732,
+     733,
+     734,
+     735,
+     736,
+     738,
+     739,
+     740,
+     741
+    ],
+    "unbiased": false
+   },
+   "2026-07-30": {
+    "spy_lo": 736.64,
+    "spy_hi": 739.08,
+    "atm_strikes_needed": 3,
+    "cached": 0,
+    "missing_atm_strikes": [
+     737,
+     738,
+     739
+    ],
+    "unbiased": false
+   },
+   "2026-07-31": {
+    "spy_lo": 738.61,
+    "spy_hi": 748.47,
+    "atm_strikes_needed": 10,
+    "cached": 4,
+    "missing_atm_strikes": [
+     739,
+     740,
+     741,
+     742,
+     743,
+     747
+    ],
+    "unbiased": false
+   }
+  }
+ },
+ "selectivity": {
+  "tick_firings": {
+   "trendline_reclaim": 653,
+   "wick_reclaim": 2118,
+   "pullback_hold": 948
+  },
+  "bars_per_day": {
+   "2026-06-25": 26,
+   "2026-06-26": 78,
+   "2026-06-29": 78,
+   "2026-06-30": 78,
+   "2026-07-01": 78,
+   "2026-07-02": 78,
+   "2026-07-03": 76,
+   "2026-07-06": 78,
+   "2026-07-07": 78,
+   "2026-07-08": 79,
+   "2026-07-09": 86,
+   "2026-07-10": 85,
+   "2026-07-11": 1,
+   "2026-07-13": 78,
+   "2026-07-14": 81,
+   "2026-07-15": 85,
+   "2026-07-16": 84,
+   "2026-07-17": 80,
+   "2026-07-18": 2,
+   "2026-07-20": 86,
+   "2026-07-21": 78,
+   "2026-07-22": 79,
+   "2026-07-23": 78,
+   "2026-07-27": 80,
+   "2026-07-28": 78,
+   "2026-07-29": 76,
+   "2026-07-30": 86,
+   "2026-07-31": 78
+  }
+ },
+ "per_signal": {
+  "wick_reclaim": {
+   "all_days_BIASED": {
+    "n_events_total": 362,
+    "n_resolved": 191,
+    "coverage_pct": 52.8,
+    "excluded": {
+     "UNCOVERED_NO_OPRA": 171
+    },
+    "total_pnl": 603.47,
+    "win_rate_pct": 23.0,
+    "per_trade": 3.16,
+    "drop_best_total": -120.15,
+    "per_day": {
+     "2026-07-20": -2519.97,
+     "2026-07-21": 1737.18,
+     "2026-07-22": -1773.4,
+     "2026-07-28": -1310.27,
+     "2026-07-29": -64.67,
+     "2026-07-31": 4534.6
+    },
+    "n_days": 6,
+    "WARNING": "OPRA cache selection is NOT random -- see coverage_audit. Do not draw conclusions from this block; it exists for disclosure only."
+   },
+   "unbiased_days_only": {
+    "n_resolved": 133,
+    "total_pnl": -2556.19,
+    "win_rate_pct": 16.5,
+    "per_trade": -19.22,
+    "drop_best_total": -3074.82,
+    "p_value": 0.058865426872725245,
+    "per_day": {
+     "2026-07-20": -2519.97,
+     "2026-07-21": 1737.18,
+     "2026-07-22": -1773.4
+    },
+    "n_days": 3,
+    "bh_fdr_q010_significant": true
+   },
+   "fires_per_trading_bar": 0.572
+  },
+  "trendline_reclaim": {
+   "all_days_BIASED": {
+    "n_events_total": 104,
+    "n_resolved": 30,
+    "coverage_pct": 28.8,
+    "excluded": {
+     "UNCOVERED_NO_OPRA": 74
+    },
+    "total_pnl": -1545.04,
+    "win_rate_pct": 13.3,
+    "per_trade": -51.5,
+    "drop_best_total": -1568.87,
+    "per_day": {
+     "2026-07-20": -397.04,
+     "2026-07-21": -165.81,
+     "2026-07-22": -534.39,
+     "2026-07-29": -447.8
+    },
+    "n_days": 4,
+    "WARNING": "OPRA cache selection is NOT random -- see coverage_audit. Do not draw conclusions from this block; it exists for disclosure only."
+   },
+   "unbiased_days_only": {
+    "n_resolved": 27,
+    "total_pnl": -1097.24,
+    "win_rate_pct": 14.8,
+    "per_trade": -40.64,
+    "drop_best_total": -1121.07,
+    "p_value": 1.858493575577974e-08,
+    "per_day": {
+     "2026-07-20": -397.04,
+     "2026-07-21": -165.81,
+     "2026-07-22": -534.39
+    },
+    "n_days": 3,
+    "bh_fdr_q010_significant": true
+   },
+   "fires_per_trading_bar": 0.162
+  },
+  "pullback_hold": {
+   "all_days_BIASED": {
+    "n_events_total": 141,
+    "n_resolved": 38,
+    "coverage_pct": 27.0,
+    "excluded": {
+     "UNCOVERED_NO_OPRA": 103
+    },
+    "total_pnl": 1664.7,
+    "win_rate_pct": 34.2,
+    "per_trade": 43.81,
+    "drop_best_total": 1034.7,
+    "per_day": {
+     "2026-07-28": -704.02,
+     "2026-07-29": -1000.78,
+     "2026-07-31": 3369.5
+    },
+    "n_days": 3,
+    "WARNING": "OPRA cache selection is NOT random -- see coverage_audit. Do not draw conclusions from this block; it exists for disclosure only."
+   },
+   "unbiased_days_only": {
+    "n_resolved": 0,
+    "total_pnl": null,
+    "win_rate_pct": null,
+    "per_trade": null,
+    "drop_best_total": null,
+    "p_value": null,
+    "per_day": {},
+    "n_days": 0,
+    "bh_fdr_q010_significant": false
+   },
+   "fires_per_trading_bar": 0.362
+  }
+ }
+}
