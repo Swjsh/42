@@ -121,7 +121,16 @@ def main() -> int:
     try:
         proc = subprocess.run(
             [sys.executable.replace("pythonw", "python"), "-m", "pytest",
-             "tests/test_graduated_guards.py", "-m", "slow", "-q", "--no-header"],
+             "tests/test_graduated_guards.py",
+             # 2026-07-30 (blind-engine repair follow-up): the live scheduled-task drift guard.
+             # SCHEDULED-TASKS.md:39 documented this suite as "runs under Gamma_GuardsNightly"
+             # but nothing actually invoked it -- a false wiring claim the repair's own
+             # adversarial verifier caught (the exact silent-gap class this suite exists to
+             # detect: 49 documented-Active tasks were sitting Disabled for days, including the
+             # level refresher that blinded the engine on 2026-07-30). Wiring it here makes the
+             # doc claim TRUE instead of editing the doc to match the gap.
+             "tests/test_scheduled_task_triggers_live.py",
+             "-m", "slow", "-q", "--no-header"],
             cwd=str(BT), capture_output=True, text=True, timeout=TIMEOUT_S,
             creationflags=CREATE_NO_WINDOW,
         )
