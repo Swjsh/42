@@ -103,7 +103,16 @@ if ($mins -ge 575 -and $mins -le 955) {
 # cold pre-open file never false-triggers, and the 12min stale threshold heals BEFORE
 # levels_blind_check.py's own 20min RED-alarm threshold ever needs to fire.
 $levelsRefreshAction = "none"
-if ($mins -ge 942 -and $mins -le 955) {
+# FIX (2026-07-30, conductor AFTERHOURS re-audit): $mins is Hour*60+Minute (minutes since
+# midnight, same convention as the hbFlag window above) -- the window boundary for "09:42
+# ET" is therefore 582 (9*60+42), NOT the literal clock digits "942". The original fix used
+# 942, which numerically means 15:42 ET (942/60 = 15h42m) -- so the self-heal only ever ran
+# in the last 13 minutes before the 15:55 close (942-955) instead of across the intended
+# ~373-minute RTH window (582-955). The guard test made the identical mistake (asserted the
+# literal substring "942" is present, which is true either way) so it never caught this.
+# Caught by re-verifying the fix this fire, not by the test -- the incident's own self-heal
+# would have covered ~3% of the session it was built to protect.
+if ($mins -ge 582 -and $mins -le 955) {
     $keyLevelsPath = Join-Path $WorkDir "automation\state\key-levels.json"
     if (Test-Path $keyLevelsPath) {
         $klAgeMin = ((Get-Date) - (Get-Item $keyLevelsPath).LastWriteTime).TotalMinutes

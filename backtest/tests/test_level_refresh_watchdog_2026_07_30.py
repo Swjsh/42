@@ -45,9 +45,30 @@ def test_watchdog_wires_the_self_heal():
     src = WATCHDOG.read_text(encoding="utf-8")
     assert "Invoke-LevelRefreshSafe" in src
     assert "key-levels.json" in src
-    # RTH-scoped (matches levels_blind_check.py's own 12min warmup / 09:30 session start).
-    assert "942" in src, "self-heal window must start at 09:42 ET (09:30 + 12min warmup)"
-    assert "955" in src, "self-heal window must end at 15:55 ET (session close)"
+    # $mins in run-tv-watchdog.ps1 is Hour*60+Minute (minutes-since-midnight -- see the
+    # hbFlag window a few lines above, which correctly uses 575/955 for 09:35/15:55). The
+    # window boundary for 09:42 ET is therefore 582 (9*60+42), NOT the literal clock digits
+    # "942" -- 942 minutes since midnight is 15:42 ET, which would shrink the intended
+    # ~373-minute RTH self-heal window down to 13 minutes (942-955). Regression-pinned
+    # 2026-07-30 (conductor AFTERHOURS re-audit): the ORIGINAL version of this test asserted
+    # the literal substring "942" and passed even though the shipped code carried this exact
+    # bug -- a substring check can't tell "09:42 as clock digits" from "942 as minutes", so
+    # this now extracts the real $mins bound out of the source and asserts on the computed
+    # ET wall-clock time instead.
+    m = re.search(r"if\s*\(\$mins\s+-ge\s+(\d+)\s+-and\s+\$mins\s+-le\s+(\d+)\)\s*\{\s*\n\s*\$keyLevelsPath",
+                  src)
+    assert m, "could not find the levels-refresh self-heal window guard in run-tv-watchdog.ps1"
+    lo, hi = int(m.group(1)), int(m.group(2))
+    assert (lo // 60, lo % 60) == (9, 42), (
+        f"self-heal window must start at 09:42 ET (582 minutes-since-midnight), got "
+        f"{lo} minutes = {lo // 60:02d}:{lo % 60:02d} ET")
+    assert (hi // 60, hi % 60) == (15, 55), (
+        f"self-heal window must end at 15:55 ET (955 minutes-since-midnight), got "
+        f"{hi} minutes = {hi // 60:02d}:{hi % 60:02d} ET")
+    assert hi - lo > 300, (
+        f"self-heal window is only {hi - lo} minutes wide -- should cover most of the RTH "
+        "session (09:42-15:55 = 373min), not a narrow tail near the close"
+    )
     # The staleness threshold must be a real number, not accidentally deleted.
     assert re.search(r"\$klAgeMin\s+-gt\s+12", src), "stale threshold must be 12 minutes"
     # levels_refresh must feed the same problem/alert surface as tv_action/heartbeat.
