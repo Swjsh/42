@@ -1,3 +1,42 @@
+## [2026-07-31 ~05:30-05:57 ET] OK -- conductor (AFTERHOURS): 4 un-actioned self-audit batches triaged + closed, commit `aed731f2`
+
+> **STAGE 0/1:** ET 05:30 Friday (market closed). Budget gate PROCEED ($10.78/$30, 1/4 fires).
+> `engine-health.json` clean (14 GREEN, gex_archive 1-day interior-gap YELLOW non-critical,
+> no RED). `self-check-last.json` GREEN. STAGE-1 priority order: function-first (fill-funnel)
+> clean, no Engine RED -- landed on priority-3, self-audit gaps: `analysis/self-audit/
+> new-gaps-flagged.md` had 4 CONSECUTIVE un-triaged daily-swarm batches (2026-07-26 through
+> 2026-07-29, ~32 lines), the longest un-actioned backlog since this pipeline started
+> (normal cadence closes same-day or next-day).
+
+> **Live-verified every substantive claim rather than re-deriving (OP-33):** the recurring
+> "conductor firing far more than max_fires" line (named in 3 of the 4 batches) was already
+> root-caused and fixed 2026-07-29 (commit `631798f0`, cross-midnight substring bug in
+> `conductor_budget.py::spend_today`) -- re-confirmed live this fire (`PROCEED $10.78/$30,
+> 1/4 fires`, correct for today). "Claude-native task governance requires manual
+> intervention / hard-stop risk" -- read `audit_scheduled_tasks.py` live: read-only,
+> fail-open, surfaces to STATUS.md only, no hard-stop code path exists. "Auto-commit of
+> strategy/candidates without validation creates noise" (appeared twice) -- read
+> `auto_commit_candidates.py` live: scoped to `strategy/candidates/` only, pathspec (never
+> `-A`), fail-open, fires at >=10 pending changes; live `git status --porcelain
+> strategy/candidates` showed only 2 pending -- working as designed, not a noise source.
+> "No live-to-paper shadow mode while RED-blocked" -- already built (TRADE-TO-LEARN,
+> CLAUDE.md rail-4). "Git commits abused as a runtime config toggle (DO_NOT_ARM/FROZEN)" --
+> grepped every hit across `setup/scripts`+`backtest/autoresearch`: all are `FROZEN_CONFIG`
+> frozen-dataclasses (C1 no-repick discipline) or anchor-freeze comments -- no such code
+> path exists, this was a misread. "Correlated arm signals not filtered" -- already
+> detected+disclosed via `trade_to_learn_digest.py`'s `cross_setup_same_day_side` (confirmed
+> live in the 2026-07-30 LICENSE-MONITOR STATUS entry's own "WARNING CORRELATED" line).
+
+> **Disposition:** every substantive claim across all 4 batches was either already fixed,
+> already built, or intentional doctrine -- zero new code needed. Wrote 4 `<!-- DONE -->`
+> triage blocks (one per batch, citing the live evidence above) so the next fire doesn't
+> re-derive this. Doc-only commit (`analysis/self-audit/new-gaps-flagged.md`, +132/-0),
+> curated safety gate 59/59 PASS at commit time. No params/heartbeat_core/filters/placement/
+> exit/CLAUDE.md touched -- outside rail-4's scope entirely (pure analysis-log append).
+> Revert: `git revert aed731f2`.
+
+---
+
 ## [2026-07-31 ~00:59-01:15 ET] OK -- conductor (AFTERHOURS): STATE-FRESHNESS-SILENT-TASK-STALL-SELFHEAL closed, commit `33a42102`
 
 > **STAGE 0/1:** ET 01:00 Friday (market closed). Budget gate PROCEED ($0/$30, 0/4 fires).
@@ -573,93 +612,3 @@
 > 1 new lesson-inbox item, 1 queue.md progress note). Zero trading-path touched (no params/
 > heartbeat_core/filters/CLAUDE.md). Revert: `git revert 6b7c07ac`.
 
-## [2026-07-25 ~14:42-15:00 ET] OK -- conductor (WEEKEND): ENGULFING-AT-STRUCTURE-TRIGGER CLOSED, commit `73902fa1`
-
-> **STAGE 0/1:** ET confirmed 14:42 Saturday (market closed, weekend mode). Budget gate
-> PROCEED ($0/$30, 0/4 fires). `engine-health.json` GREEN/YELLOW (13 checks, 0 RED,
-> only gex_archive 1-day-stale YELLOW, non-critical). `task_scorer.py --top` returned
-> `TWIN-DOCTRINE-FIRST-DEPLOY` (still pending J's REVOKE surface, gp-2026-07-23-twin-
-> doctrine-001 -- Nth fire confirming, propose-only doctrine edit, correctly not picked).
-> Next-ranked ready item: `ENGULFING-AT-STRUCTURE-TRIGGER` (HIGH) -- its own queue text
-> named a concrete, doable-now next step ("frozen pre-reg <=16 cells + real-fills
-> replay ... confirming the winning cell still fires on both anchor bars"), unlike the
-> other MED items (`CATASTROPHE-CAP-WIDEN-WATCH`/`TRENDLINE-TIGHT-EXIT-ACCRETE`, both
-> accrue-only, no new action) or `DOJO-BUILD-HANDOFF` (no TV MCP tools bound this fire).
-
-> **What I found before building anything (avoided duplicate work):** the item has TWO
-> parallel tracks. Lane-B (`edge_matrix_engulfing_at_structure.py`, commit `83dce261`,
-> 2026-07-23 16:31) already ran this exact kind of frozen-pre-reg + real-fills replay
-> for a DIFFERENT (one-sided-shelf) detector -- HONEST NULL, 0/12 cells, already
-> committed. That did NOT close the item because Lane-A's own SHIPPED, anchor-verified
-> primitive (`engulfing_at_local_cluster`, commit `8aed997a`, 2026-07-23 ~23:03) never
-> got its own real-fills replay -- the queue text's "NEXT STEP" was still open.
-
-> **Built + ran it.** Zero-fork grid adapter
-> (`backtest/tools/engulfing_at_local_cluster_detector.py`) imports the registry's own
-> `engulfing`/`local_extreme_cluster` predicate factories (not a re-derivation) and
-> grid-sweeps their params -- verified byte-identical to the live registry predicate
-> over the full 30k-bar sequence (not just the 2 anchors) before freezing the pre-reg.
-> 16-cell grid (`min_touches`{3,4} x `min_body_dollars`{0,0.40,0.60,0.80} x
-> `tolerance`{0.15,0.20}), same edge-matrix harness (RIBBON_RIDE exit via
-> `exit_manager_walk`, 386-day frozen OPRA inventory, 4-gate+BH) as every other family.
-
-> **Result: HONEST NULL, 0/16 cells clear the ship bar.** Both anchors fire on 6/16
-> cells incl. the exact shipped config (`touch3|body0.40|tol0.20`) -- itself solidly
-> negative (n=87, expectancy -$20.11/tr, total -$1,749.14, held-out -$2,314.82, 0/4
-> gates). Loosening the body floor toward 0 makes it MUCH worse (-$10,201 to
-> -$11,672), not better -- same "wider admits noisier reactions" shape Lane-B found
-> independently. **ENGULFING-AT-STRUCTURE-TRIGGER is now CLOSED** -- both independent
-> tracks born from J's 07-21/07-23 live exhibits agree: correct entry vocabulary, zero
-> real-fills edge under the live exit shape. Not wired; `engulfing_at_local_cluster`
-> stays registry.py discovery-only. Named next honest lever (new pre-reg, not
-> attempted): the EXIT side, since both lanes only tuned entry against a fixed
-> RIBBON_RIDE shape not built for this trigger's hold profile.
-
-> **Verified this fire (OP-33):** `test_engulfing_at_local_cluster.py` 6/6 new (incl.
-> byte-identical-vs-registry over the full bar sequence + C6 causality RED-proof via
-> future-bar mutation). Full pattern-grammar suite 106/106 green. Curated safety gate
-> (31+5) PASS pre- and post-commit (pre-commit hook ran it automatically). Post-commit
-> `git show 73902fa1 --stat --name-status` + `git status --porcelain` on the touched
-> paths confirmed clean (L247 discipline -- verified committed, not just staged).
-
-> **Scope + revert:** 7 new files (detector, runner, guard tests, pre-reg + 2 results +
-> 1 markdown summary) + 1 queue.md edit (closing this item). Zero trading-path touched
-> (no params/heartbeat_core/filters/CLAUDE.md). Revert: `git revert 73902fa1`.
-
-
-### BROKEN: self-check 2026-07-30T22:39:57
-- engine-health RED: reds=['levels_blind: ENGINE TRADED BLIND on 2026-07-30 -- 0 of 770 RTH decision rows carried ANY active key level (bold 0/385; safe 0/385). With no levels the engine cannot detect level rejections/reclaims and falls through to its WORST cohort (trendline-only). Check Gamma_LevelRefresh + key-levels.json expires_at dates.', 'state_freshness: 3/17 live-path state files STALE -- trade-today.json, pnl-statement.json, ema-snapshot.json. Their producers stopped writing; consumers did not notice.']
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: 3 day-trades in 5d at equity $1,198 < $25,000 — PDT rule blocks a 4th day-trade
-- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $603 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $600 exceeds per-trade cap $348 (30% of $1,160)
-- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-29, not today 2026-07-30 -- Gamma_ParticipationDaily likely did not fire.
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
-- TRENDLINE-DRAW never marked today (2026-07-30) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### BROKEN: self-check 2026-07-30T23:09:57
-- engine-health RED: reds=['levels_blind: ENGINE TRADED BLIND on 2026-07-30 -- 0 of 770 RTH decision rows carried ANY active key level (bold 0/385; safe 0/385). With no levels the engine cannot detect level rejections/reclaims and falls through to its WORST cohort (trendline-only). Check Gamma_LevelRefresh + key-levels.json expires_at dates.', 'state_freshness: 3/17 live-path state files STALE -- trade-today.json, pnl-statement.json, ema-snapshot.json. Their producers stopped writing; consumers did not notice.']
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: 3 day-trades in 5d at equity $1,198 < $25,000 — PDT rule blocks a 4th day-trade
-- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $603 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $600 exceeds per-trade cap $348 (30% of $1,160)
-- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-29, not today 2026-07-30 -- Gamma_ParticipationDaily likely did not fire.
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
-- TRENDLINE-DRAW never marked today (2026-07-30) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-### WARN: spend-summary threshold breach
-- ts: 2026-07-31T03:30:20+00:00
-- date_et: 2026-07-30
-- total: $180.87 (threshold $30.00)
-- claude: $180.87  minimax: $0.00
-- claude_sessions: 12
-
-### BROKEN: self-check 2026-07-30T23:39:57
-- engine-health RED: reds=['levels_blind: ENGINE TRADED BLIND on 2026-07-30 -- 0 of 770 RTH decision rows carried ANY active key level (bold 0/385; safe 0/385). With no levels the engine cannot detect level rejections/reclaims and falls through to its WORST cohort (trendline-only). Check Gamma_LevelRefresh + key-levels.json expires_at dates.', 'state_freshness: 3/17 live-path state files STALE -- trade-today.json, pnl-statement.json, ema-snapshot.json. Their producers stopped writing; consumers did not notice.']
-- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: 3 day-trades in 5d at equity $1,198 < $25,000 — PDT rule blocks a 4th day-trade
-- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $603 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $600 exceeds per-trade cap $348 (30% of $1,160)
-- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-29, not today 2026-07-30 -- Gamma_ParticipationDaily likely did not fire.
-- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
-- TRENDLINE-DRAW never marked today (2026-07-30) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-
-## Kitchen
-Kitchen: alive, queue 30 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
