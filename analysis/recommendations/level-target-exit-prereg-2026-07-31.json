@@ -1,0 +1,173 @@
+{
+  "rule_id": "level-target-exit",
+  "title": "Is a KEY LEVEL a better take-profit target than a fixed premium percentage?",
+  "status": "PRE-REGISTERED -- NOT RUN. No study has been executed against this spec.",
+  "frozen_at_et": "2026-07-31T17:49:07-04:00",
+  "frozen_at_provenance": "setup/scripts/et_clock.py (DST-aware). Box runs Mountain time; bash TZ is unusable here.",
+  "frozen_at_git_sha": "a965c8499efacf38fed741c9d7c96abce24eb721",
+  "author": "n=1 winner-autopsy lane, 2026-07-31 evening (market closed)",
+  "urgency": "MEDIUM",
+  "arming": "NONE. This file authorizes a STUDY, not a change. Nothing may be armed off this document, and nothing may be armed off the n=1 anecdote that motivated it.",
+
+  "motivation": {
+    "j_verbatim": "what's the height of day, um, the start of the day, nine thirty, that would be a good take profit, uh, high day in the beginning of the day or something",
+    "j_intent_decoded": "A LEVEL is a better take-profit target than a fixed premium percentage, because a level is where the market actually turns.",
+    "existing_evidence_that_makes_this_plausible": "Our own entry attribution says the money is level-tied: +$6,895 over 66 level-anchored entries vs -$1,830 over 124 trendline-only entries. That asymmetry has NEVER been tested on the EXIT side.",
+    "doctrinal_fit": "J's market philosophy (MEMORY feedback_j_market_philosophy_2026_07_28): supply/demand zones, wait for the return, structure shift AT the zone. A level-referenced exit is the exit-side expression of the same frame.",
+    "known_schema_gap": "accounts.json risky-3 note already records this: 'the ideal stop referenced to the nearest key level ABOVE the entry trigger knob does not exist in ExitShape yet (stop_mode=structure only references THIS position's own entry trigger_level)'. This pre-reg targets the TAKE-PROFIT sibling of that same gap."
+  },
+
+  "hypothesis": {
+    "H1": "For directional 0DTE SPY option positions, a take-profit referenced to the nearest QUALIFYING key level in the direction of the trade produces higher realized dollar P&L than the incumbent fixed-premium TP1, measured on real OPRA fills.",
+    "H0": "Level-referenced take-profit is indistinguishable from, or worse than, the incumbent fixed-premium TP1.",
+    "directionality_note": "H1 is NOT 'exit at the level'. It is 'the level, not a premium percentage, is the right REFERENCE for where to take profit'. The action taken AT the level is a separate declared axis (see cells)."
+  },
+
+  "n1_anecdote_disclosure": {
+    "_STATUS": "PRIOR ONLY -- EXPLICITLY NOT EVIDENCE. n=1.",
+    "trade": "risky-3 SPY260731C00746000, 5 @ $0.33 entered 12:19:03 ET 2026-07-31, realized +$126.00",
+    "artifact": "analysis/recommendations/exit-grid-n1-2026-07-31-746c.json",
+    "what_it_showed": "A level-referenced TP at INTRADAY_RTH_HIGH 746.30 (a level ALREADY PRESENT in the engine's own 12:00 key-levels snapshot) would have returned +$430 vs the actual +$126.",
+    "why_it_proves_nothing": [
+      "One trade, one day, a V-recovery uptrend that melted up into the close. Every 'hold longer' rule wins on that day by construction.",
+      "A NAIVE 'nearest eligible level above spot' detector would have picked 744.31, returning +$85 to +$100 -- WORSE than baseline. The result depends entirely on which level qualifies, which is precisely what is being pre-registered here and must not be chosen by looking at this day.",
+      "Two of the level cells that scored highest (748.09, 748.50) scored highest because the level was NEVER REACHED and the position silently fell through to the time stop. That is a hold-to-EOD result wearing a level-target label.",
+      "The replay harness reproduces this position at +$147.80 vs the real +$126.00 -- it is 17.3% optimistic on this exact trade."
+    ],
+    "binding_effect_on_this_prereg": "NONE. The cell list below was chosen for coverage, not because 746.30 won. No threshold in this file was tuned to the 2026-07-31 outcome."
+  },
+
+  "detector_specification": {
+    "_PRINCIPLE": "Frozen at ENTRY, never re-derived mid-trade -- mirrors exit_manager.ExitState.from_entry resolving stop_mode exactly once so it cannot flap.",
+
+    "step_1_level_source": {
+      "file": "automation/state/key-levels-history/{DATE}/{HHMM}.json",
+      "as_of_rule": "Use the LATEST snapshot whose as_of timestamp is STRICTLY BEFORE the entry timestamp. Never automation/state/key-levels.json (the live file), which is refreshed intraday and post-session and therefore contains levels derived from price action that had not happened at entry time.",
+      "look_ahead_guard": "A position whose date has no snapshot at-or-before its entry time is EXCLUDED from the primary cohort and reported in n_excluded_no_snapshot. Never impute, never fall back to the live file.",
+      "KNOWN_HARD_CONSTRAINT": "As of freeze, key-levels-history contains only 6 dates (2026-07-22, 07-23, 07-27, 07-28, 07-29, 07-31) at ~4 snapshots/day. This is very likely FATAL to reaching the minimum n on the primary cohort. See population.contingency."
+    },
+
+    "step_2_eligibility": {
+      "directional": "CALL: level.price > spot_at_entry. PUT: level.price < spot_at_entry.",
+      "tier": "level.tier in {Active}. Reference-tier levels are excluded (they are context, not reaction predictors).",
+      "exclude_own_trigger": "The position's own trigger_level is excluded -- that level is the STOP reference (stop_mode=structure), not the target.",
+      "max_reach": "abs(level.price - spot_at_entry) <= MAX_REACH. MAX_REACH is a DECLARED SWEEP AXIS, not a chosen value: {1.50, 3.00, 5.00} SPY dollars.",
+      "min_reach": "abs(level.price - spot_at_entry) >= 0.25 SPY dollars, so a level sitting on top of spot cannot produce a same-tick degenerate exit. FIXED, not swept. Provenance: the n=1 PDH cell fired at 12:20 for +$5 purely because the target was already behind spot -- that failure mode is real and must be designed out, not measured."
+    },
+
+    "step_3_which_level_is_the_TARGET": {
+      "_THIS_IS_THE_CRUX": "Everything hinges here. Three candidate rules, all declared up front, all counted in the FDR correction.",
+      "RULE_A_NEAREST": "The nearest eligible level. Simplest, and the one the n=1 anecdote suggests is WORST.",
+      "RULE_B_SECOND": "The second-nearest eligible level (skip the first). Tests 'the first level is a speed bump, the second is the destination'.",
+      "RULE_C_STRONGEST": "The eligible level with the highest `weight` field, ties broken by nearest. Uses the level's own recorded strength rather than distance."
+    },
+
+    "step_4_levels_are_ZONES_not_prices": {
+      "_DOCTRINE": "J standing correction 2026-07-17: levels are ZONES. Proximity must be judged by a band. The band is a PRE-REGISTERED SWEEP, never hand-picked.",
+      "band_source": "Where level.zone_width is present, BAND = zone_width / 2 (the observed shelf half-band). Where absent, BAND = the swept default.",
+      "band_sweep": [0.0, 0.15, 0.25, 0.40],
+      "band_semantics": "For a CALL, the target is considered met at (level.price - BAND) -- the NEAR edge of the zone, i.e. profit is taken on entering the zone, not on piercing it."
+    },
+
+    "step_5_trigger_form": {
+      "ARM_T_touch": "Fire when the live SPY print >= (target - BAND) for calls (<= (target + BAND) for puts).",
+      "ARM_C_close5": "Fire when the last CLOSED 5-minute SPY bar's close >= (target - BAND). Uses exit_manager_walk.last_closed_bar_close_at, the same closed-bar resolver production uses for the structure stop."
+    },
+
+    "step_6_action_at_the_level": {
+      "ARM_FULL": "Close the entire remaining position at market.",
+      "ARM_RUNNER_ONLY": "The incumbent TP1 still fires on its own premium trigger; the level closes only the RUNNER."
+    },
+
+    "fallthrough_rule": {
+      "_MANDATORY": "When the level is never reached, the position resolves on the INCUMBENT exit shape (structure stop / catastrophe / trail / time stop) -- exactly as today.",
+      "_REPORTING_GUARD": "Every such position MUST be tagged level_fired=false and reported separately. A cell's headline P&L may NOT be quoted without also quoting its level_fired rate. A cell where the level rarely fires is measuring the incumbent, not the hypothesis -- this is the single easiest way to fake a win here and it already happened twice in the n=1 grid."
+    }
+  },
+
+  "population": {
+    "universe": "Every real-fills round-trip option position in automation/state/fills-ledger.jsonl (FIFO pairing, the same reconstruction exit_shape_parity_study.reconstruct_positions uses), all arms, both directions.",
+    "fidelity_filter": "fidelity == real_fills only. BS-synthetic and ranking-only arms are EXCLUDED and their exclusion count reported.",
+    "date_range": "All dates with (a) a key-levels snapshot at-or-before entry AND (b) cached or fetchable real OPRA 1-min bars for the traded contract.",
+    "minimum_n": 30,
+    "underpowered_verdict": "If fewer than 30 positions resolve a target under a given cell, that cell returns INCONCLUSIVE_UNDERPOWERED. It does NOT return a P&L verdict, and it may not be quoted as a result.",
+    "contingency": {
+      "_HONEST": "The 6-date snapshot history will almost certainly NOT yield n>=30. This is a known blocker and is stated BEFORE the run rather than discovered after.",
+      "path_A_preferred": "Reconstruct historical key-levels as-of files deterministically from cached SPY bars using the SAME producer the live path uses (refresh_levels_intraday.py / daily_context.py), re-running it with a hard as-of cutoff. This is only admissible if the producer is provably causal (reads no bar later than the cutoff). That causality property MUST be proven with a vary-and-assert test BEFORE any reconstructed level file is used, and the proof cited in the results file.",
+      "path_B": "Run the study on the 6 available dates as an explicitly UNDERPOWERED PILOT whose only permitted output is a power estimate and a go/no-go on Path A. A pilot may never ratify.",
+      "path_C": "Declare the hypothesis UNTESTABLE-TODAY, file the blocker, and stop. This is an acceptable and honest terminal state."
+    },
+    "stratification_reported": ["direction C/P", "arm_id", "VIX character regime", "target-distance bucket", "level source (shelf / memory / intraday / premarket)"]
+  },
+
+  "comparison": {
+    "incumbent_control": "The position's OWN production exit shape as actually resolved at entry time (fleet_executor._exit_shape_dict with the arm's params_patch.exit_patch applied). NOT a registry default -- arms genuinely differ (risky-3 trails 0.20, registry ribbon_ride trails 0.15).",
+    "engine": "backtest/lib/exit_manager_walk.walk_exit_manager driving the REAL automation/state/fleet/exit_manager.plan_exit_actions decision core. No parallel re-implementation of exit logic is permitted.",
+    "conventions": {
+      "entry_eligibility": "entry+1 strict > (markdown/audits/ENTRY-BAR-CONVENTION-RULING-2026-07-25.md)",
+      "point_sample": "best=worst=bar OPEN at each tick",
+      "fill_model": "limit-style stages fill at the level; market-style stages fill at bar close minus DEFAULT_EXIT_SLIPPAGE. level_target is MARKET-style.",
+      "data": "100% real OPRA. Any position whose contract has no real OPRA bars is DROPPED and counted in n_missing_bars, never imputed or synthesized."
+    },
+    "MANDATORY_PARITY_DISCLOSURE": "Before any verdict, the harness must be run on the control arm and its aggregate compared against the ACTUAL realized fills for the same positions. The gap must be published. On the single position measured so far the harness was +17.3% optimistic; any cell whose advantage is smaller than the measured parity gap must be reported as INSIDE MODEL ERROR and cannot pass."
+  },
+
+  "cells": {
+    "_FROZEN": "The cell list is frozen at this timestamp. Any cell run later that is not listed here is EXPLORATORY, must be labelled as such, and may not be used for ratification.",
+    "axes": {
+      "target_rule": ["RULE_A_NEAREST", "RULE_B_SECOND", "RULE_C_STRONGEST"],
+      "max_reach": [1.5, 3.0, 5.0],
+      "band": [0.0, 0.15, 0.25, 0.4],
+      "trigger_form": ["ARM_T_touch", "ARM_C_close5"],
+      "action": ["ARM_FULL", "ARM_RUNNER_ONLY"]
+    },
+    "total_cells": 144,
+    "_FDR_NOTE": "144 cells is the number that enters the Benjamini-Hochberg correction. It is declared here so the correction cannot be quietly computed on a smaller post-hoc subset."
+  },
+
+  "gates": {
+    "_ALL_MUST_PASS": true,
+    "G1_aggregate": "Cell aggregate dollar P&L > incumbent aggregate on the same positions, on real OPRA.",
+    "G2_day_majority": "Strictly more than 50% of distinct trading days are flat-or-better vs incumbent.",
+    "G3_drop_best": "Still positive vs incumbent after removing the single best DAY and, separately, after removing the single best TRADE.",
+    "G4_runner_cohort_no_regression": {
+      "_SANCTITY": "The 35 RUNNER_TRAIL winners totalling +$15,774 are the book's entire profit engine.",
+      "test": "The cell's P&L restricted to the RUNNER_TRAIL cohort must be >= the incumbent's on that same cohort.",
+      "tolerance": 0.0,
+      "on_fail": "HARD FAIL regardless of aggregate. A cell that improves the book by degrading the runner cohort is rejected outright."
+    },
+    "G5_oos": "Date-ordered split, IS = first 60% of trading days, OOS = last 40%. The OOS segment must be independently positive vs incumbent. Walk-forward efficiency >= 0.70.",
+    "G6_bh_fdr": "Benjamini-Hochberg at q = 0.10 across all 144 declared cells. A cell that survives G1-G5 but not FDR is reported as NOT SIGNIFICANT.",
+    "G7_level_fired_rate": "The winning cell must have level_fired == true on at least 50% of its positions. Below that the cell is measuring the incumbent fallthrough, not the hypothesis.",
+    "G8_parity": "The cell's advantage over incumbent must EXCEED the measured harness-vs-live parity gap (comparison.MANDATORY_PARITY_DISCLOSURE)."
+  },
+
+  "kill_criterion": {
+    "kill_if": "No cell passes G1-G8, OR fewer than 30 positions resolve a target on the primary cohort and Path A is not admissible.",
+    "on_kill": "The hypothesis is recorded DEAD in the exit graveyard as 'level-referenced take-profit (frozen 2026-07-31)'. No band value may be moved and re-run; the swept values are frozen in this file. A later attempt must be a NEW pre-registration citing this one and stating what changed and why.",
+    "no_partial_credit": "A cell that passes G1 and fails G4 is a KILL, not a 'promising direction'."
+  },
+
+  "graveyard_check": {
+    "_REQUIRED_BEFORE_RUN": "Confirmed against the standing exit graveyard at freeze time.",
+    "take_profit_earlier_x3": "NOT this. Those iterations moved the PREMIUM percentage. This changes the REFERENCE FRAME from premium to price level. Distinct mechanism -- but if the winning cell turns out to be equivalent to 'take profit sooner', that equivalence must be stated and the cell treated as a graveyard re-run.",
+    "trailing_lock_pre_TP1_x4": "NOT this. No change to the profit lock or its arm scope is proposed.",
+    "BE_floor_via_profit_lock_mode_fixed": "NOT this. profit_lock_mode is untouched.",
+    "exit_all_at_touch": "ADJACENT AND MUST BE FLAGGED. ARM_FULL + ARM_T_touch + band 0.0 is close to the graveyarded exit-all-at-touch shape. That specific cell is retained as a REFERENCE arm only; if it is the sole winner, the result is treated as a graveyard contradiction requiring separate adjudication, not a ship.",
+    "zone_banded_CLOSE_cross_detector": "ADJACENT. That detector was built for ENTRY/stop-side use. Re-using its zone-band form on the TAKE-PROFIT side is the novel part; the band mechanics are deliberately inherited rather than reinvented."
+  },
+
+  "deliverables_when_run": [
+    "analysis/recommendations/level-target-exit-2026-XX-XX.json  (A/B scorecard, all 144 cells, losers included)",
+    "Per-cell: n, n_level_fired, level_fired_rate, aggregate delta, day-majority, drop-best, runner-cohort delta, IS/OOS split, BH-FDR q, inside_model_error_band flag",
+    "The harness-vs-live parity number for the control arm",
+    "An explicit VERDICT line: SHIP / KILL / INCONCLUSIVE_UNDERPOWERED / UNTESTABLE"
+  ],
+
+  "what_this_does_NOT_authorize": [
+    "Any change to params.json, strategies.py, ExitShape, or any arm's params_patch.",
+    "Any live or paper arming, on any arm, including the probe arm.",
+    "Quoting the n=1 anecdote as support for a level-target exit.",
+    "Running a subset of cells and computing FDR on that subset."
+  ]
+}

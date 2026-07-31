@@ -1,0 +1,1435 @@
+{
+  "_HONEST_FRAME": [
+    "n=1. ONE trade, ONE day, a V-recovery uptrend into a 15:5x melt-up.",
+    "This is an ANECDOTE. It is not evidence and it ratifies NOTHING.",
+    "Any variant that beats baseline here may be the SAME variant already",
+    "NULLED across hundreds of trades -- see graveyard_matches per family.",
+    "The winning cells all win for ONE reason: SPY went up and kept going up",
+    "after 12:19. On any of the many days it does not, the same cells are the",
+    "ones that give back the whole trade. n=1 cannot distinguish those worlds.",
+    "Real OPRA only. No synthetic premiums anywhere in this file."
+  ],
+  "graveyard_matches": {
+    "tp1_sweep": "MATCHES GRAVEYARD: 'take-profit-earlier' x3 iterations. Every TP1_PCT cell below 1.00 is a re-run of an already-NULLED family. Cell E2 of exit-armscope-tp1-ab-2026-07-28 tested a uniform tp1 1.0->0.5 and returned -$2,491 aggregate / -$5,616 runner.",
+    "hold": "PARTIAL MATCH: the 'no floor at all / ride to EOD' shape is the inverse of the trailing-lock family, but the CATASTROPHE-ONLY runner has not been swept as its own cell. Note NO_TP1_ALL5_ON_CHANDELIER_scope_full IS the pre-TP1 trailing lock -- graveyard, 4 thresholds, clipped the runner cohort at every one (-$7,759 -> -$3,898).",
+    "level_target": "NO DIRECT MATCH for a level-referenced TAKE-PROFIT. Adjacent graveyard entries are 'exit-all-at-touch' and the 'zone-banded CLOSE-cross detector' -- both were ENTRY/stop-side detectors, not profit targets. This is the one genuinely untested family in the grid, which is exactly why it gets a pre-registration and not a ship.",
+    "trail_sweep": "NOT graveyarded as such, but trail_pct is a live A/B axis already (risky-3 runs 0.20 vs the registry 0.15) -- n=1 cannot move it.",
+    "ribbon": "Ribbon-flip exit is SHIPPED production behavior (since G14), not a proposal. C28 already documents it as a LAGGING exit."
+  },
+  "ribbon_flip_diagnostic": {
+    "question": "J: 'did we sell it at ~13:45 when we closed in the ribbon?'",
+    "answer": "NO. The 5m ribbon never printed a BEAR bar after entry, so the ribbon_flip_back exit was structurally incapable of firing on this trade.",
+    "rth_transitions": [
+      {
+        "ts_et": "09:30",
+        "stack": "MIXED"
+      },
+      {
+        "ts_et": "09:40",
+        "stack": "BEAR"
+      },
+      {
+        "ts_et": "11:55",
+        "stack": "MIXED"
+      },
+      {
+        "ts_et": "12:30",
+        "stack": "BULL"
+      }
+    ],
+    "bear_bars_after_entry": [],
+    "stack_at_entry_last_closed_5m": "MIXED"
+  },
+  "late_session_fragility": {
+    "_WHY": "Every 'hold longer' cell resolves inside a 20-minute window where the 746C ran 1.58 -> 2.83 -> 0.71. The exit MINUTE, not the exit RULE, dominates the P&L there. Read this table before believing any hold-to-EOD number.",
+    "curve": [
+      {
+        "exit_minute_et": "15:30",
+        "opt_close": 1.31,
+        "prints_in_minute": 201,
+        "contracts_in_minute": 1821,
+        "pnl_all5_market_exit": 480.0
+      },
+      {
+        "exit_minute_et": "15:31",
+        "opt_close": 1.25,
+        "prints_in_minute": 88,
+        "contracts_in_minute": 896,
+        "pnl_all5_market_exit": 450.0
+      },
+      {
+        "exit_minute_et": "15:32",
+        "opt_close": 1.3,
+        "prints_in_minute": 84,
+        "contracts_in_minute": 356,
+        "pnl_all5_market_exit": 475.0
+      },
+      {
+        "exit_minute_et": "15:33",
+        "opt_close": 1.24,
+        "prints_in_minute": 137,
+        "contracts_in_minute": 1101,
+        "pnl_all5_market_exit": 445.0
+      },
+      {
+        "exit_minute_et": "15:34",
+        "opt_close": 1.35,
+        "prints_in_minute": 75,
+        "contracts_in_minute": 379,
+        "pnl_all5_market_exit": 500.0
+      },
+      {
+        "exit_minute_et": "15:35",
+        "opt_close": 1.54,
+        "prints_in_minute": 134,
+        "contracts_in_minute": 969,
+        "pnl_all5_market_exit": 595.0
+      },
+      {
+        "exit_minute_et": "15:36",
+        "opt_close": 1.66,
+        "prints_in_minute": 126,
+        "contracts_in_minute": 701,
+        "pnl_all5_market_exit": 655.0
+      },
+      {
+        "exit_minute_et": "15:37",
+        "opt_close": 1.65,
+        "prints_in_minute": 80,
+        "contracts_in_minute": 262,
+        "pnl_all5_market_exit": 650.0
+      },
+      {
+        "exit_minute_et": "15:38",
+        "opt_close": 1.64,
+        "prints_in_minute": 80,
+        "contracts_in_minute": 191,
+        "pnl_all5_market_exit": 645.0
+      },
+      {
+        "exit_minute_et": "15:39",
+        "opt_close": 1.69,
+        "prints_in_minute": 65,
+        "contracts_in_minute": 231,
+        "pnl_all5_market_exit": 670.0
+      },
+      {
+        "exit_minute_et": "15:40",
+        "opt_close": 1.58,
+        "prints_in_minute": 103,
+        "contracts_in_minute": 767,
+        "pnl_all5_market_exit": 615.0
+      },
+      {
+        "exit_minute_et": "15:41",
+        "opt_close": 1.5,
+        "prints_in_minute": 55,
+        "contracts_in_minute": 337,
+        "pnl_all5_market_exit": 575.0
+      },
+      {
+        "exit_minute_et": "15:42",
+        "opt_close": 1.61,
+        "prints_in_minute": 60,
+        "contracts_in_minute": 249,
+        "pnl_all5_market_exit": 630.0
+      },
+      {
+        "exit_minute_et": "15:43",
+        "opt_close": 2.0,
+        "prints_in_minute": 131,
+        "contracts_in_minute": 645,
+        "pnl_all5_market_exit": 825.0
+      },
+      {
+        "exit_minute_et": "15:44",
+        "opt_close": 2.16,
+        "prints_in_minute": 134,
+        "contracts_in_minute": 1005,
+        "pnl_all5_market_exit": 905.0
+      },
+      {
+        "exit_minute_et": "15:45",
+        "opt_close": 2.23,
+        "prints_in_minute": 289,
+        "contracts_in_minute": 2851,
+        "pnl_all5_market_exit": 940.0
+      },
+      {
+        "exit_minute_et": "15:46",
+        "opt_close": 2.44,
+        "prints_in_minute": 51,
+        "contracts_in_minute": 461,
+        "pnl_all5_market_exit": 1045.0
+      },
+      {
+        "exit_minute_et": "15:47",
+        "opt_close": 2.18,
+        "prints_in_minute": 94,
+        "contracts_in_minute": 1054,
+        "pnl_all5_market_exit": 915.0
+      },
+      {
+        "exit_minute_et": "15:48",
+        "opt_close": 2.24,
+        "prints_in_minute": 50,
+        "contracts_in_minute": 1550,
+        "pnl_all5_market_exit": 945.0
+      },
+      {
+        "exit_minute_et": "15:49",
+        "opt_close": 2.5,
+        "prints_in_minute": 48,
+        "contracts_in_minute": 96,
+        "pnl_all5_market_exit": 1075.0
+      },
+      {
+        "exit_minute_et": "15:50",
+        "opt_close": 2.33,
+        "prints_in_minute": 82,
+        "contracts_in_minute": 791,
+        "pnl_all5_market_exit": 990.0
+      },
+      {
+        "exit_minute_et": "15:51",
+        "opt_close": 2.08,
+        "prints_in_minute": 29,
+        "contracts_in_minute": 106,
+        "pnl_all5_market_exit": 865.0
+      },
+      {
+        "exit_minute_et": "15:52",
+        "opt_close": 2.36,
+        "prints_in_minute": 21,
+        "contracts_in_minute": 603,
+        "pnl_all5_market_exit": 1005.0
+      },
+      {
+        "exit_minute_et": "15:53",
+        "opt_close": 2.73,
+        "prints_in_minute": 66,
+        "contracts_in_minute": 1491,
+        "pnl_all5_market_exit": 1190.0
+      },
+      {
+        "exit_minute_et": "15:54",
+        "opt_close": 2.58,
+        "prints_in_minute": 19,
+        "contracts_in_minute": 59,
+        "pnl_all5_market_exit": 1115.0
+      },
+      {
+        "exit_minute_et": "15:55",
+        "opt_close": 2.32,
+        "prints_in_minute": 21,
+        "contracts_in_minute": 49,
+        "pnl_all5_market_exit": 985.0
+      },
+      {
+        "exit_minute_et": "15:56",
+        "opt_close": 2.2,
+        "prints_in_minute": 9,
+        "contracts_in_minute": 31,
+        "pnl_all5_market_exit": 925.0
+      },
+      {
+        "exit_minute_et": "15:57",
+        "opt_close": 2.03,
+        "prints_in_minute": 17,
+        "contracts_in_minute": 86,
+        "pnl_all5_market_exit": 840.0
+      },
+      {
+        "exit_minute_et": "15:58",
+        "opt_close": 2.25,
+        "prints_in_minute": 16,
+        "contracts_in_minute": 1022,
+        "pnl_all5_market_exit": 950.0
+      },
+      {
+        "exit_minute_et": "15:59",
+        "opt_close": 0.71,
+        "prints_in_minute": 83,
+        "contracts_in_minute": 343,
+        "pnl_all5_market_exit": 180.0
+      },
+      {
+        "exit_minute_et": "16:00",
+        "opt_close": 1.23,
+        "prints_in_minute": 46,
+        "contracts_in_minute": 1359,
+        "pnl_all5_market_exit": 440.0
+      }
+    ]
+  },
+  "generated_et": "2026-07-31T15:48:56",
+  "position": {
+    "symbol": "SPY260731C00746000",
+    "arm": "risky-3",
+    "entry_ts_et": "2026-07-31T12:19:03.936711",
+    "entry_fill": 0.33,
+    "entry_registered_in_exitstate": 0.34,
+    "qty": 5,
+    "trigger_level": 743.25,
+    "exit_shape": {
+      "premium_stop_pct": -0.2,
+      "tp1_premium_pct": 1.0,
+      "tp1_qty_fraction": 0.667,
+      "profit_lock_mode": "trailing",
+      "runner_target_pct": 99.0,
+      "trail_pct": 0.2,
+      "profit_lock_arm_pct": 0.05,
+      "stop_mode": "structure",
+      "catastrophe_stop_pct": -0.5,
+      "profit_lock_arm_scope": "post_tp1"
+    }
+  },
+  "day_frame_ET_SIP": {
+    "session_open_0930": 744.68,
+    "session_high": 748.895,
+    "session_low": 737.68,
+    "session_close_1559": 746.82,
+    "hod_so_far_at_entry_1219": 746.301,
+    "prior_day_high_0730_rth": 742.45,
+    "spot_at_entry_approx": 743.3
+  },
+  "level_snapshot_at_entry": {
+    "_SOURCE": "automation/state/key-levels-history/2026-07-31/1200.json",
+    "as_of": "2026-07-31T11:58:37-04:00",
+    "_FINDING": "The level J is describing as 'the high of day' was ALREADY IN THE ENGINE'S OWN FILE at entry time as INTRADAY_RTH_HIGH_2026-07-31 = 746.30 (zone_width 0.3731). The engine had the number and no mechanism to use a level as a take-profit target.",
+    "_NAIVE_DETECTOR_WARNING": "A naive 'nearest eligible level above spot' rule picks 744.31, NOT 746.30. Which level qualifies as a TARGET is the entire hypothesis -- it must be pre-registered, never chosen after seeing this day.",
+    "eligible_upside_levels": [
+      {
+        "price": 744.31,
+        "tier": "Active",
+        "label": "MEMORY_RES_65",
+        "zone_width": null,
+        "source": "level_memory"
+      },
+      {
+        "price": 744.98,
+        "tier": "Active",
+        "label": "SHELF_744.18_745.78_2026-07-31",
+        "zone_width": 0.8,
+        "source": "daily_context_shelf"
+      },
+      {
+        "price": 746.3,
+        "tier": "Active",
+        "label": "INTRADAY_RTH_HIGH_2026-07-31",
+        "zone_width": 0.3731,
+        "source": "intraday_rth_high"
+      },
+      {
+        "price": 746.55,
+        "tier": "Active",
+        "label": "INTRADAY_PMH_2026-07-31",
+        "zone_width": 0.3733,
+        "source": "premarket_high"
+      },
+      {
+        "price": 748.09,
+        "tier": "Active",
+        "label": "SHELF_747.29_748.89_2026-07-31",
+        "zone_width": 0.8,
+        "source": "daily_context_shelf"
+      },
+      {
+        "price": 748.5,
+        "tier": "Active",
+        "label": "MEMORY_RES_95",
+        "zone_width": null,
+        "source": "level_memory"
+      },
+      {
+        "price": 750.98,
+        "tier": "Active",
+        "label": "SHELF_750.18_751.78_2026-07-31",
+        "zone_width": 0.8,
+        "source": "daily_context_shelf"
+      },
+      {
+        "price": 752.77,
+        "tier": "Active",
+        "label": "SHELF_751.97_753.57_2026-07-31",
+        "zone_width": 0.8,
+        "source": "daily_context_shelf"
+      },
+      {
+        "price": 754.71,
+        "tier": "Active",
+        "label": "SHELF_753.91_755.51_2026-07-31",
+        "zone_width": 0.8,
+        "source": "daily_context_shelf"
+      },
+      {
+        "price": 756.38,
+        "tier": "Active",
+        "label": "SHELF_755.58_757.18_2026-07-31",
+        "zone_width": 0.8,
+        "source": "daily_context_shelf"
+      }
+    ]
+  },
+  "baseline_pnl": 126.0,
+  "harness_vs_live_parity": {
+    "_WHY_IT_MATTERS": "Every delta in the grid is measured through a harness that is demonstrably OPTIMISTIC vs the real fills on this exact position. Deltas smaller than this gap are model error, not findings.",
+    "actual_live_pnl": 126.0,
+    "harness_repro_pnl": 147.8,
+    "gap_dollars": 21.8,
+    "gap_pct_of_actual": 0.173,
+    "mechanism_1_fill_model": "Harness fills limit-style EXACTLY at the trigger level (tp1 0.68, trail floor 0.544). Live places a market_sell and takes the bid (0.65, 0.48). Live was 3c worse on TP1 and 6.4c worse on the runner.",
+    "mechanism_2_tick_cadence": "This fleet arm decides every 3 MINUTES (12:19, 12:22 ... 12:43), the harness every 1 minute. The 12:39 dip to 0.52 that trips the harness's 0.544 floor happened in a minute the live arm never evaluated; live's next look (12:40) saw 0.58, above the floor, and it did not exit until 12:43.",
+    "leg_attribution": {
+      "tp1_3ct": 9.0,
+      "runner_2ct": 12.8
+    }
+  },
+  "grid": [
+    {
+      "variant": "BASELINE_ACTUAL_LIVE",
+      "legs": [
+        {
+          "ts_et": "12:34:04",
+          "qty": 3,
+          "price": 0.65,
+          "stage": "tp1"
+        },
+        {
+          "ts_et": "12:43:03",
+          "qty": 2,
+          "price": 0.48,
+          "stage": "trail"
+        }
+      ],
+      "pnl": 126.0,
+      "exit_reason": "tp1 + chandelier trail",
+      "exit_ts": "12:43:03",
+      "family": "actual",
+      "delta_vs_actual_live": 0.0,
+      "delta_vs_harness_baseline": -21.8,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "HARNESS_REPRO_PRODUCTION_SHAPE",
+      "legs": [
+        {
+          "ts_et": "12:36:00",
+          "qty": 3,
+          "price": 0.68,
+          "stage": "tp1",
+          "reason": "tp1 @ +100%"
+        },
+        {
+          "ts_et": "12:39:00",
+          "qty": 2,
+          "price": 0.544,
+          "stage": "trail",
+          "reason": "runner_stop @ 0.54"
+        }
+      ],
+      "pnl": 147.8,
+      "exit_reason": "runner_stop @ 0.54",
+      "exit_ts": "12:39:00",
+      "family": "parity",
+      "delta_vs_actual_live": 21.8,
+      "delta_vs_harness_baseline": 0.0,
+      "inside_model_error_band": true
+    },
+    {
+      "variant": "LEVELTP_SNAP_744.31_MEMORY_RES_65_touch_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "12:24:00",
+          "qty": 5,
+          "price": 0.5,
+          "stage": "level_target",
+          "reason": "level_target 744.31 (touch)"
+        }
+      ],
+      "pnl": 85.0,
+      "exit_reason": "level_target 744.31 (touch)",
+      "exit_ts": "12:24:00",
+      "family": "level_target_from_snapshot",
+      "delta_vs_actual_live": -41.0,
+      "delta_vs_harness_baseline": -62.8,
+      "level_actually_fired": true,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_SNAP_744.31_MEMORY_RES_65_close5_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "12:30:00",
+          "qty": 5,
+          "price": 0.53,
+          "stage": "level_target",
+          "reason": "level_target 744.31 (close5)"
+        }
+      ],
+      "pnl": 100.0,
+      "exit_reason": "level_target 744.31 (close5)",
+      "exit_ts": "12:30:00",
+      "family": "level_target_from_snapshot",
+      "delta_vs_actual_live": -26.0,
+      "delta_vs_harness_baseline": -47.8,
+      "level_actually_fired": true,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_SNAP_744.98_SHELF_744.18_745.78_20_touch_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "12:35:00",
+          "qty": 5,
+          "price": 0.67,
+          "stage": "level_target",
+          "reason": "level_target 744.98 (touch)"
+        }
+      ],
+      "pnl": 170.0,
+      "exit_reason": "level_target 744.98 (touch)",
+      "exit_ts": "12:35:00",
+      "family": "level_target_from_snapshot",
+      "delta_vs_actual_live": 44.0,
+      "delta_vs_harness_baseline": 22.2,
+      "level_actually_fired": true,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_SNAP_744.98_SHELF_744.18_745.78_20_close5_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "13:05:00",
+          "qty": 5,
+          "price": 0.59,
+          "stage": "level_target",
+          "reason": "level_target 744.98 (close5)"
+        }
+      ],
+      "pnl": 130.0,
+      "exit_reason": "level_target 744.98 (close5)",
+      "exit_ts": "13:05:00",
+      "family": "level_target_from_snapshot",
+      "delta_vs_actual_live": 4.0,
+      "delta_vs_harness_baseline": -17.8,
+      "level_actually_fired": true,
+      "inside_model_error_band": true
+    },
+    {
+      "variant": "LEVELTP_SNAP_746.3_INTRADAY_RTH_HIGH_2026_touch_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "13:27:00",
+          "qty": 5,
+          "price": 0.99,
+          "stage": "level_target",
+          "reason": "level_target 746.3 (touch)"
+        }
+      ],
+      "pnl": 330.0,
+      "exit_reason": "level_target 746.3 (touch)",
+      "exit_ts": "13:27:00",
+      "family": "level_target_from_snapshot",
+      "delta_vs_actual_live": 204.0,
+      "delta_vs_harness_baseline": 182.2,
+      "level_actually_fired": true,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_SNAP_746.3_INTRADAY_RTH_HIGH_2026_close5_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "13:35:00",
+          "qty": 5,
+          "price": 1.19,
+          "stage": "level_target",
+          "reason": "level_target 746.3 (close5)"
+        }
+      ],
+      "pnl": 430.0,
+      "exit_reason": "level_target 746.3 (close5)",
+      "exit_ts": "13:35:00",
+      "family": "level_target_from_snapshot",
+      "delta_vs_actual_live": 304.0,
+      "delta_vs_harness_baseline": 282.2,
+      "level_actually_fired": true,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_SNAP_746.55_INTRADAY_PMH_2026-07-3_touch_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "15:00:00",
+          "qty": 5,
+          "price": 0.92,
+          "stage": "level_target",
+          "reason": "level_target 746.55 (touch)"
+        }
+      ],
+      "pnl": 295.0,
+      "exit_reason": "level_target 746.55 (touch)",
+      "exit_ts": "15:00:00",
+      "family": "level_target_from_snapshot",
+      "delta_vs_actual_live": 169.0,
+      "delta_vs_harness_baseline": 147.2,
+      "level_actually_fired": true,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_SNAP_746.55_INTRADAY_PMH_2026-07-3_close5_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "15:20:00",
+          "qty": 5,
+          "price": 1.72,
+          "stage": "level_target",
+          "reason": "level_target 746.55 (close5)"
+        }
+      ],
+      "pnl": 695.0,
+      "exit_reason": "level_target 746.55 (close5)",
+      "exit_ts": "15:20:00",
+      "family": "level_target_from_snapshot",
+      "delta_vs_actual_live": 569.0,
+      "delta_vs_harness_baseline": 547.2,
+      "level_actually_fired": true,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_SNAP_748.09_SHELF_747.29_748.89_20_touch_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "15:40:00",
+          "qty": 5,
+          "price": 1.56,
+          "stage": "time_stop",
+          "reason": "time_stop_15:50"
+        }
+      ],
+      "pnl": 615.0,
+      "exit_reason": "time_stop_15:50",
+      "exit_ts": "15:40:00",
+      "family": "level_target_from_snapshot",
+      "delta_vs_actual_live": 489.0,
+      "delta_vs_harness_baseline": 467.2,
+      "level_actually_fired": false,
+      "_NO_OP_WARNING": "level never reached -- this cell is really time_stop_15:50, NOT a level-target result",
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_SNAP_748.09_SHELF_747.29_748.89_20_close5_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "15:40:00",
+          "qty": 5,
+          "price": 1.56,
+          "stage": "time_stop",
+          "reason": "time_stop_15:50"
+        }
+      ],
+      "pnl": 615.0,
+      "exit_reason": "time_stop_15:50",
+      "exit_ts": "15:40:00",
+      "family": "level_target_from_snapshot",
+      "delta_vs_actual_live": 489.0,
+      "delta_vs_harness_baseline": 467.2,
+      "level_actually_fired": false,
+      "_NO_OP_WARNING": "level never reached -- this cell is really time_stop_15:50, NOT a level-target result",
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_SNAP_748.5_MEMORY_RES_95_touch_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "15:40:00",
+          "qty": 5,
+          "price": 1.56,
+          "stage": "time_stop",
+          "reason": "time_stop_15:50"
+        }
+      ],
+      "pnl": 615.0,
+      "exit_reason": "time_stop_15:50",
+      "exit_ts": "15:40:00",
+      "family": "level_target_from_snapshot",
+      "delta_vs_actual_live": 489.0,
+      "delta_vs_harness_baseline": 467.2,
+      "level_actually_fired": false,
+      "_NO_OP_WARNING": "level never reached -- this cell is really time_stop_15:50, NOT a level-target result",
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_SNAP_748.5_MEMORY_RES_95_close5_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "15:40:00",
+          "qty": 5,
+          "price": 1.56,
+          "stage": "time_stop",
+          "reason": "time_stop_15:50"
+        }
+      ],
+      "pnl": 615.0,
+      "exit_reason": "time_stop_15:50",
+      "exit_ts": "15:40:00",
+      "family": "level_target_from_snapshot",
+      "delta_vs_actual_live": 489.0,
+      "delta_vs_harness_baseline": 467.2,
+      "level_actually_fired": false,
+      "_NO_OP_WARNING": "level never reached -- this cell is really time_stop_15:50, NOT a level-target result",
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_HOD_SO_FAR_746.30_touch_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "13:27:00",
+          "qty": 5,
+          "price": 0.99,
+          "stage": "level_target",
+          "reason": "level_target 746.301 (touch)"
+        }
+      ],
+      "pnl": 330.0,
+      "exit_reason": "level_target 746.301 (touch)",
+      "exit_ts": "13:27:00",
+      "family": "level_target",
+      "delta_vs_actual_live": 204.0,
+      "delta_vs_harness_baseline": 182.2,
+      "level_actually_fired": true,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_HOD_SO_FAR_746.30_touch_TP1_THEN_LEVEL",
+      "legs": [
+        {
+          "ts_et": "12:36:00",
+          "qty": 3,
+          "price": 0.68,
+          "stage": "tp1",
+          "reason": "tp1 @ +100%"
+        },
+        {
+          "ts_et": "12:39:00",
+          "qty": 2,
+          "price": 0.53,
+          "stage": "trail",
+          "reason": "runner_stop @ 0.54"
+        }
+      ],
+      "pnl": 145.0,
+      "exit_reason": "runner_stop @ 0.54",
+      "exit_ts": "12:39:00",
+      "family": "level_target",
+      "delta_vs_actual_live": 19.0,
+      "delta_vs_harness_baseline": -2.8,
+      "level_actually_fired": false,
+      "_NO_OP_WARNING": "level never reached -- this cell is really runner_stop @ 0.54, NOT a level-target result",
+      "inside_model_error_band": true
+    },
+    {
+      "variant": "LEVELTP_HOD_SO_FAR_746.30_close5_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "13:35:00",
+          "qty": 5,
+          "price": 1.19,
+          "stage": "level_target",
+          "reason": "level_target 746.301 (close5)"
+        }
+      ],
+      "pnl": 430.0,
+      "exit_reason": "level_target 746.301 (close5)",
+      "exit_ts": "13:35:00",
+      "family": "level_target",
+      "delta_vs_actual_live": 304.0,
+      "delta_vs_harness_baseline": 282.2,
+      "level_actually_fired": true,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_HOD_SO_FAR_746.30_close5_TP1_THEN_LEVEL",
+      "legs": [
+        {
+          "ts_et": "12:36:00",
+          "qty": 3,
+          "price": 0.68,
+          "stage": "tp1",
+          "reason": "tp1 @ +100%"
+        },
+        {
+          "ts_et": "12:39:00",
+          "qty": 2,
+          "price": 0.53,
+          "stage": "trail",
+          "reason": "runner_stop @ 0.54"
+        }
+      ],
+      "pnl": 145.0,
+      "exit_reason": "runner_stop @ 0.54",
+      "exit_ts": "12:39:00",
+      "family": "level_target",
+      "delta_vs_actual_live": 19.0,
+      "delta_vs_harness_baseline": -2.8,
+      "level_actually_fired": false,
+      "_NO_OP_WARNING": "level never reached -- this cell is really runner_stop @ 0.54, NOT a level-target result",
+      "inside_model_error_band": true
+    },
+    {
+      "variant": "LEVELTP_OPEN_0930_744.68_touch_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "12:30:00",
+          "qty": 5,
+          "price": 0.53,
+          "stage": "level_target",
+          "reason": "level_target 744.68 (touch)"
+        }
+      ],
+      "pnl": 100.0,
+      "exit_reason": "level_target 744.68 (touch)",
+      "exit_ts": "12:30:00",
+      "family": "level_target",
+      "delta_vs_actual_live": -26.0,
+      "delta_vs_harness_baseline": -47.8,
+      "level_actually_fired": true,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_OPEN_0930_744.68_touch_TP1_THEN_LEVEL",
+      "legs": [
+        {
+          "ts_et": "12:30:00",
+          "qty": 5,
+          "price": 0.53,
+          "stage": "level_target",
+          "reason": "level_target 744.68 (touch)"
+        }
+      ],
+      "pnl": 100.0,
+      "exit_reason": "level_target 744.68 (touch)",
+      "exit_ts": "12:30:00",
+      "family": "level_target",
+      "delta_vs_actual_live": -26.0,
+      "delta_vs_harness_baseline": -47.8,
+      "level_actually_fired": true,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_OPEN_0930_744.68_close5_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "12:35:00",
+          "qty": 5,
+          "price": 0.67,
+          "stage": "level_target",
+          "reason": "level_target 744.68 (close5)"
+        }
+      ],
+      "pnl": 170.0,
+      "exit_reason": "level_target 744.68 (close5)",
+      "exit_ts": "12:35:00",
+      "family": "level_target",
+      "delta_vs_actual_live": 44.0,
+      "delta_vs_harness_baseline": 22.2,
+      "level_actually_fired": true,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_OPEN_0930_744.68_close5_TP1_THEN_LEVEL",
+      "legs": [
+        {
+          "ts_et": "12:35:00",
+          "qty": 5,
+          "price": 0.67,
+          "stage": "level_target",
+          "reason": "level_target 744.68 (close5)"
+        }
+      ],
+      "pnl": 170.0,
+      "exit_reason": "level_target 744.68 (close5)",
+      "exit_ts": "12:35:00",
+      "family": "level_target",
+      "delta_vs_actual_live": 44.0,
+      "delta_vs_harness_baseline": 22.2,
+      "level_actually_fired": true,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_PDH_742.45_touch_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "12:20:00",
+          "qty": 5,
+          "price": 0.34,
+          "stage": "level_target",
+          "reason": "level_target 742.45 (touch)"
+        }
+      ],
+      "pnl": 5.0,
+      "exit_reason": "level_target 742.45 (touch)",
+      "exit_ts": "12:20:00",
+      "family": "level_target",
+      "delta_vs_actual_live": -121.0,
+      "delta_vs_harness_baseline": -142.8,
+      "level_actually_fired": true,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_PDH_742.45_touch_TP1_THEN_LEVEL",
+      "legs": [
+        {
+          "ts_et": "12:20:00",
+          "qty": 5,
+          "price": 0.34,
+          "stage": "level_target",
+          "reason": "level_target 742.45 (touch)"
+        }
+      ],
+      "pnl": 5.0,
+      "exit_reason": "level_target 742.45 (touch)",
+      "exit_ts": "12:20:00",
+      "family": "level_target",
+      "delta_vs_actual_live": -121.0,
+      "delta_vs_harness_baseline": -142.8,
+      "level_actually_fired": true,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_PDH_742.45_close5_LEVEL_ONLY",
+      "legs": [
+        {
+          "ts_et": "12:20:00",
+          "qty": 5,
+          "price": 0.34,
+          "stage": "level_target",
+          "reason": "level_target 742.45 (close5)"
+        }
+      ],
+      "pnl": 5.0,
+      "exit_reason": "level_target 742.45 (close5)",
+      "exit_ts": "12:20:00",
+      "family": "level_target",
+      "delta_vs_actual_live": -121.0,
+      "delta_vs_harness_baseline": -142.8,
+      "level_actually_fired": true,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "LEVELTP_PDH_742.45_close5_TP1_THEN_LEVEL",
+      "legs": [
+        {
+          "ts_et": "12:20:00",
+          "qty": 5,
+          "price": 0.34,
+          "stage": "level_target",
+          "reason": "level_target 742.45 (close5)"
+        }
+      ],
+      "pnl": 5.0,
+      "exit_reason": "level_target 742.45 (close5)",
+      "exit_ts": "12:20:00",
+      "family": "level_target",
+      "delta_vs_actual_live": -121.0,
+      "delta_vs_harness_baseline": -142.8,
+      "level_actually_fired": true,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "HOLD_ALL_TO_TIMESTOP_1540",
+      "legs": [
+        {
+          "ts_et": "15:40:00",
+          "qty": 5,
+          "price": 1.56,
+          "stage": "time_stop",
+          "reason": "time_stop_15:50"
+        }
+      ],
+      "pnl": 615.0,
+      "exit_reason": "time_stop_15:50",
+      "exit_ts": "15:40:00",
+      "family": "hold",
+      "delta_vs_actual_live": 489.0,
+      "delta_vs_harness_baseline": 467.2,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "HOLD_ALL_TO_EOD_FLATTEN_1555",
+      "legs": [
+        {
+          "ts_et": "15:55:00",
+          "qty": 5,
+          "price": 2.3,
+          "stage": "time_stop",
+          "reason": "time_stop_15:50"
+        }
+      ],
+      "pnl": 985.0,
+      "exit_reason": "time_stop_15:50",
+      "exit_ts": "15:55:00",
+      "family": "hold",
+      "delta_vs_actual_live": 859.0,
+      "delta_vs_harness_baseline": 837.2,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "NO_TP1_ALL5_ON_CHANDELIER_scope_post_tp1",
+      "legs": [
+        {
+          "ts_et": "15:40:00",
+          "qty": 5,
+          "price": 1.56,
+          "stage": "time_stop",
+          "reason": "time_stop_15:50"
+        }
+      ],
+      "pnl": 615.0,
+      "exit_reason": "time_stop_15:50",
+      "exit_ts": "15:40:00",
+      "family": "hold",
+      "delta_vs_actual_live": 489.0,
+      "delta_vs_harness_baseline": 467.2,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "NO_TP1_ALL5_ON_CHANDELIER_scope_full",
+      "legs": [
+        {
+          "ts_et": "12:28:00",
+          "qty": 5,
+          "price": 0.424,
+          "stage": "profit_lock_floor",
+          "reason": "profit_lock_floor @ 0.42"
+        }
+      ],
+      "pnl": 47.0,
+      "exit_reason": "profit_lock_floor @ 0.42",
+      "exit_ts": "12:28:00",
+      "family": "hold",
+      "delta_vs_actual_live": -79.0,
+      "delta_vs_harness_baseline": -100.8,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "TP1_THEN_RUNNER_TO_EOD_NO_TRAIL",
+      "legs": [
+        {
+          "ts_et": "12:36:00",
+          "qty": 3,
+          "price": 0.68,
+          "stage": "tp1",
+          "reason": "tp1 @ +100%"
+        },
+        {
+          "ts_et": "15:55:00",
+          "qty": 2,
+          "price": 2.3,
+          "stage": "time_stop",
+          "reason": "time_stop_15:50 (runner)"
+        }
+      ],
+      "pnl": 499.0,
+      "exit_reason": "time_stop_15:50 (runner)",
+      "exit_ts": "15:55:00",
+      "family": "hold",
+      "delta_vs_actual_live": 373.0,
+      "delta_vs_harness_baseline": 351.2,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "TRAIL_0.100",
+      "legs": [
+        {
+          "ts_et": "12:36:00",
+          "qty": 3,
+          "price": 0.68,
+          "stage": "tp1",
+          "reason": "tp1 @ +100%"
+        },
+        {
+          "ts_et": "12:37:00",
+          "qty": 2,
+          "price": 0.612,
+          "stage": "trail",
+          "reason": "runner_stop @ 0.61"
+        }
+      ],
+      "pnl": 161.4,
+      "exit_reason": "runner_stop @ 0.61",
+      "exit_ts": "12:37:00",
+      "family": "trail_sweep",
+      "delta_vs_actual_live": 35.4,
+      "delta_vs_harness_baseline": 13.6,
+      "inside_model_error_band": true
+    },
+    {
+      "variant": "TRAIL_0.125",
+      "legs": [
+        {
+          "ts_et": "12:36:00",
+          "qty": 3,
+          "price": 0.68,
+          "stage": "tp1",
+          "reason": "tp1 @ +100%"
+        },
+        {
+          "ts_et": "12:37:00",
+          "qty": 2,
+          "price": 0.595,
+          "stage": "trail",
+          "reason": "runner_stop @ 0.6"
+        }
+      ],
+      "pnl": 158.0,
+      "exit_reason": "runner_stop @ 0.6",
+      "exit_ts": "12:37:00",
+      "family": "trail_sweep",
+      "delta_vs_actual_live": 32.0,
+      "delta_vs_harness_baseline": 10.2,
+      "inside_model_error_band": true
+    },
+    {
+      "variant": "TRAIL_0.150",
+      "legs": [
+        {
+          "ts_et": "12:36:00",
+          "qty": 3,
+          "price": 0.68,
+          "stage": "tp1",
+          "reason": "tp1 @ +100%"
+        },
+        {
+          "ts_et": "12:37:00",
+          "qty": 2,
+          "price": 0.578,
+          "stage": "trail",
+          "reason": "runner_stop @ 0.58"
+        }
+      ],
+      "pnl": 154.6,
+      "exit_reason": "runner_stop @ 0.58",
+      "exit_ts": "12:37:00",
+      "family": "trail_sweep",
+      "delta_vs_actual_live": 28.6,
+      "delta_vs_harness_baseline": 6.8,
+      "inside_model_error_band": true
+    },
+    {
+      "variant": "TRAIL_0.200_LIVE",
+      "legs": [
+        {
+          "ts_et": "12:36:00",
+          "qty": 3,
+          "price": 0.68,
+          "stage": "tp1",
+          "reason": "tp1 @ +100%"
+        },
+        {
+          "ts_et": "12:39:00",
+          "qty": 2,
+          "price": 0.544,
+          "stage": "trail",
+          "reason": "runner_stop @ 0.54"
+        }
+      ],
+      "pnl": 147.8,
+      "exit_reason": "runner_stop @ 0.54",
+      "exit_ts": "12:39:00",
+      "family": "trail_sweep",
+      "delta_vs_actual_live": 21.8,
+      "delta_vs_harness_baseline": 0.0,
+      "inside_model_error_band": true
+    },
+    {
+      "variant": "TRAIL_0.250",
+      "legs": [
+        {
+          "ts_et": "12:36:00",
+          "qty": 3,
+          "price": 0.68,
+          "stage": "tp1",
+          "reason": "tp1 @ +100%"
+        },
+        {
+          "ts_et": "12:42:00",
+          "qty": 2,
+          "price": 0.51,
+          "stage": "trail",
+          "reason": "runner_stop @ 0.51"
+        }
+      ],
+      "pnl": 141.0,
+      "exit_reason": "runner_stop @ 0.51",
+      "exit_ts": "12:42:00",
+      "family": "trail_sweep",
+      "delta_vs_actual_live": 15.0,
+      "delta_vs_harness_baseline": -6.8,
+      "inside_model_error_band": true
+    },
+    {
+      "variant": "TRAIL_0.300",
+      "legs": [
+        {
+          "ts_et": "12:36:00",
+          "qty": 3,
+          "price": 0.68,
+          "stage": "tp1",
+          "reason": "tp1 @ +100%"
+        },
+        {
+          "ts_et": "12:42:00",
+          "qty": 2,
+          "price": 0.476,
+          "stage": "trail",
+          "reason": "runner_stop @ 0.48"
+        }
+      ],
+      "pnl": 134.2,
+      "exit_reason": "runner_stop @ 0.48",
+      "exit_ts": "12:42:00",
+      "family": "trail_sweep",
+      "delta_vs_actual_live": 8.2,
+      "delta_vs_harness_baseline": -13.6,
+      "inside_model_error_band": true
+    },
+    {
+      "variant": "TRAIL_0.400",
+      "legs": [
+        {
+          "ts_et": "12:36:00",
+          "qty": 3,
+          "price": 0.68,
+          "stage": "tp1",
+          "reason": "tp1 @ +100%"
+        },
+        {
+          "ts_et": "13:48:00",
+          "qty": 2,
+          "price": 0.726,
+          "stage": "trail",
+          "reason": "runner_stop @ 0.73"
+        }
+      ],
+      "pnl": 184.2,
+      "exit_reason": "runner_stop @ 0.73",
+      "exit_ts": "13:48:00",
+      "family": "trail_sweep",
+      "delta_vs_actual_live": 58.2,
+      "delta_vs_harness_baseline": 36.4,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "TRAIL_0.500",
+      "legs": [
+        {
+          "ts_et": "12:36:00",
+          "qty": 3,
+          "price": 0.68,
+          "stage": "tp1",
+          "reason": "tp1 @ +100%"
+        },
+        {
+          "ts_et": "15:40:00",
+          "qty": 2,
+          "price": 1.56,
+          "stage": "time_stop",
+          "reason": "time_stop_15:50 (runner)"
+        }
+      ],
+      "pnl": 351.0,
+      "exit_reason": "time_stop_15:50 (runner)",
+      "exit_ts": "15:40:00",
+      "family": "trail_sweep",
+      "delta_vs_actual_live": 225.0,
+      "delta_vs_harness_baseline": 203.2,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "TP1_PCT_0.30",
+      "legs": [
+        {
+          "ts_et": "12:25:00",
+          "qty": 3,
+          "price": 0.442,
+          "stage": "tp1",
+          "reason": "tp1 @ +30%"
+        },
+        {
+          "ts_et": "12:28:00",
+          "qty": 2,
+          "price": 0.424,
+          "stage": "trail",
+          "reason": "runner_stop @ 0.42"
+        }
+      ],
+      "pnl": 52.4,
+      "exit_reason": "runner_stop @ 0.42",
+      "exit_ts": "12:28:00",
+      "family": "tp1_sweep",
+      "delta_vs_actual_live": -73.6,
+      "delta_vs_harness_baseline": -95.4,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "TP1_PCT_0.50",
+      "legs": [
+        {
+          "ts_et": "12:25:00",
+          "qty": 3,
+          "price": 0.51,
+          "stage": "tp1",
+          "reason": "tp1 @ +50%"
+        },
+        {
+          "ts_et": "12:28:00",
+          "qty": 2,
+          "price": 0.424,
+          "stage": "trail",
+          "reason": "runner_stop @ 0.42"
+        }
+      ],
+      "pnl": 72.8,
+      "exit_reason": "runner_stop @ 0.42",
+      "exit_ts": "12:28:00",
+      "family": "tp1_sweep",
+      "delta_vs_actual_live": -53.2,
+      "delta_vs_harness_baseline": -75.0,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "TP1_PCT_0.75",
+      "legs": [
+        {
+          "ts_et": "12:32:00",
+          "qty": 3,
+          "price": 0.595,
+          "stage": "tp1",
+          "reason": "tp1 @ +75%"
+        },
+        {
+          "ts_et": "12:39:00",
+          "qty": 2,
+          "price": 0.544,
+          "stage": "trail",
+          "reason": "runner_stop @ 0.54"
+        }
+      ],
+      "pnl": 122.3,
+      "exit_reason": "runner_stop @ 0.54",
+      "exit_ts": "12:39:00",
+      "family": "tp1_sweep",
+      "delta_vs_actual_live": -3.7,
+      "delta_vs_harness_baseline": -25.5,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "TP1_PCT_1.00_LIVE",
+      "legs": [
+        {
+          "ts_et": "12:36:00",
+          "qty": 3,
+          "price": 0.68,
+          "stage": "tp1",
+          "reason": "tp1 @ +100%"
+        },
+        {
+          "ts_et": "12:39:00",
+          "qty": 2,
+          "price": 0.544,
+          "stage": "trail",
+          "reason": "runner_stop @ 0.54"
+        }
+      ],
+      "pnl": 147.8,
+      "exit_reason": "runner_stop @ 0.54",
+      "exit_ts": "12:39:00",
+      "family": "tp1_sweep",
+      "delta_vs_actual_live": 21.8,
+      "delta_vs_harness_baseline": 0.0,
+      "inside_model_error_band": true
+    },
+    {
+      "variant": "TP1_PCT_1.50",
+      "legs": [
+        {
+          "ts_et": "13:25:00",
+          "qty": 3,
+          "price": 0.85,
+          "stage": "tp1",
+          "reason": "tp1 @ +150%"
+        },
+        {
+          "ts_et": "13:40:00",
+          "qty": 2,
+          "price": 0.968,
+          "stage": "trail",
+          "reason": "runner_stop @ 0.97"
+        }
+      ],
+      "pnl": 283.6,
+      "exit_reason": "runner_stop @ 0.97",
+      "exit_ts": "13:40:00",
+      "family": "tp1_sweep",
+      "delta_vs_actual_live": 157.6,
+      "delta_vs_harness_baseline": 135.8,
+      "inside_model_error_band": false
+    },
+    {
+      "variant": "RIBBON_FLIP_EXIT_ARMED",
+      "legs": [
+        {
+          "ts_et": "12:36:00",
+          "qty": 3,
+          "price": 0.68,
+          "stage": "tp1",
+          "reason": "tp1 @ +100%"
+        },
+        {
+          "ts_et": "12:39:00",
+          "qty": 2,
+          "price": 0.544,
+          "stage": "trail",
+          "reason": "runner_stop @ 0.54"
+        }
+      ],
+      "pnl": 147.8,
+      "exit_reason": "runner_stop @ 0.54",
+      "exit_ts": "12:39:00",
+      "family": "ribbon",
+      "delta_vs_actual_live": 21.8,
+      "delta_vs_harness_baseline": 0.0,
+      "inside_model_error_band": true
+    },
+    {
+      "variant": "RIBBON_FLIP_ARMED_NO_TP1",
+      "legs": [
+        {
+          "ts_et": "15:40:00",
+          "qty": 5,
+          "price": 1.56,
+          "stage": "time_stop",
+          "reason": "time_stop_15:50"
+        }
+      ],
+      "pnl": 615.0,
+      "exit_reason": "time_stop_15:50",
+      "exit_ts": "15:40:00",
+      "family": "ribbon",
+      "delta_vs_actual_live": 489.0,
+      "delta_vs_harness_baseline": 467.2,
+      "inside_model_error_band": false
+    }
+  ],
+  "oracle_bound": {
+    "_LABEL": "UNREACHABLE ORACLE BOUND -- requires hindsight, NOT a variant",
+    "peak_premium_full_session": 2.83,
+    "peak_ts_et": "15:54",
+    "oracle_pnl_all5_at_peak": 1250.0,
+    "peak_premium_before_timestop_1540": 2.05,
+    "peak_ts_before_timestop": "15:22",
+    "oracle_pnl_all5_before_timestop": 860.0,
+    "baseline_capture_rate_vs_full_session_oracle": 0.1008
+  }
+}
