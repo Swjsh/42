@@ -471,3 +471,135 @@ time this fire read them:
 No new code action needed beyond the AUDIT-BLINDSPOT fix shipped this fire -- everything else
 in this batch was already a tracked queue item or an already-shipped fix by the time it was
 re-read, so this triage closes the loop rather than re-deriving known work. -->
+
+## 2026-07-26T17:32:16 -- 4 new gap(s) Gamma self-identified
+- Task lifecycle confusion
+- The current audit of Claude‑native scheduled tasks creates a governance gap that requires manual operator intervention (
+- This manual process risks alert fatigue, silent failures, or inadvertent mid‑session disruptions if not handled carefull
+- There is shared concern that the system should not introduce a hard‑stop that halts trading based solely on a governance
+
+<!-- DONE 2026-07-31 ~05:35-05:55 ET (conductor, AFTERHOURS): TRIAGED, live-verified against
+`setup/scripts/audit_scheduled_tasks.py` rather than trusting the synthesis prose. "Task
+lifecycle confusion" is a scaffold header (no concrete claim, same class as prior filtered
+noise). The 3 substantive lines describe a risk that DOES NOT EXIST in the shipped design:
+the auditor is READ-ONLY (writes `scheduled-tasks-audit.json` + a console summary; exit code
+1 only SIGNALS via STATUS.md, per its own docstring "Daily routine reads the JSON and
+surfaces RED to STATUS.md") -- it has no code path that disables/blocks a task or halts
+trading, so "requires manual operator intervention" is true only in the sense that EVERY
+detector in this codebase surfaces findings for a human/next-fire to act on (self_check.py,
+engine-health.json, fill_funnel.py all work the same way) -- that is the intended
+fail-open governance shape (OP-25), not a gap. "Hard-stop halting trading based solely on
+governance" was never built and nothing in the queue proposes building it. No action
+needed -- confirms the existing design is already correct, not a new gap. -->
+
+
+## 2026-07-27T17:31:46 -- 12 new gap(s) Gamma self-identified
+- Auto‑commit of strategy/candidates
+- Monday 09:30 ET
+- Heartbeat (Haiku) still runs
+- J sees no popup, no lockout, no ping
+- J's edge decays silently
+- First trade of week
+- Missed profitable trades
+- The “nightly budget exhausted → zero model work” loop (fires ≥ max_fires) repeatedly halts research, back‑testing, and s
+- This idle state leads to stale strategy parameters, RED/BLOCKED recency‑confirmation, and missed trading opportunities.
+- The system lacks autonomous self‑healing: it only counts fires and shuts down instead of diagnosing and fixing the root 
+- Auto‑committing strategy candidates without validation creates noise and wastes downstream processing.
+- There is no live‑to‑paper‑trade shadow mode to validate new candidates while live trading is RED‑blocked.
+
+<!-- DONE 2026-07-31 ~05:35-05:55 ET (conductor, AFTERHOURS): TRIAGED, all 12 disposed --
+live-verified rather than re-derived. The narrative lines ("Monday 09:30 ET", "Heartbeat
+(Haiku) still runs", "J sees no popup, no lockout, no ping", "J's edge decays silently",
+"First trade of week", "Missed profitable trades") describe the CONSEQUENCE of the
+max_fires-exhaustion bug this same batch's core line names ("nightly budget exhausted ->
+zero model work loop ... repeatedly halts research") -- that bug is ALREADY ROOT-CAUSED AND
+FIXED (see the 2026-07-29 STATUS.md entry: `conductor_budget.py`'s `spend_today()` cross-
+midnight substring bug, commit `631798f0`; re-read the live source this fire, `SELF_REPORT_
+CORRECTION` + the fixed day-boundary match are present). "Auto-committing strategy
+candidates without validation creates noise" -- checked `setup/scripts/auto_commit_
+candidates.py` live: it is scoped ONLY to `strategy/candidates/` (pathspec, never `-A`),
+fail-open, fires at >=10 untracked/modified (below self_check's own DEGRADED threshold of
+20), commits research NOTES (chef/kitchen/prospector markdown output, not trading-path
+code) -- "validation" in the trading-edge sense doesn't apply to housekeeping-commit of
+research artifacts, and the design already prevents the L242 data-loss scar (1,176 files
+sat uncommitted for weeks) this guard exists to close. Live `git status --porcelain
+strategy/candidates` this fire: only 2 pending changes -- the preventer is working, not
+producing noise. "No live-to-paper-trade shadow mode to validate new candidates while
+RED-blocked" is ALREADY BUILT: TRADE-TO-LEARN (CLAUDE.md rail-4) arms validated setups on
+paper even while recency is not CONFIRMed -- exactly this ask, shipped before this batch
+fired. No new action needed; this triage closes the loop. -->
+
+## 2026-07-28T17:31:34 -- 11 new gap(s) Gamma self-identified
+- Cascade to downstream services
+- OP‑32‑style lockout risk
+- The fire‑counter/budget gate (`conductor_budget.py`) does not reset reliably, causing premature “QUIET”/exhaustion state
+- Time/date logic is fragmented: scripts mix `calendar?start=` calls with broker `clock.next_open`, producing drift bugs (
+- Hard‑coded constants (strike‑search windows, `max_fires`) create brittle behavior that requires code changes to adapt.
+- Git commits are being abused as a runtime configuration toggle (e.g., `DO_NOT_ARM`, `FROZEN`, auto‑committing raw candid
+- Status reporting (“QUIET”) conflates true exhaustion with idle/noise, hiding operational problems from the operator.
+- Auto‑committing large numbers of candidate files adds noise to the repository and obscures signal.
+- **Priority of fixes:** Perspectives 1 & 5 emphasize adaptive strike search and liquidity checks as the top gap; Perspect
+- **Severity of strike‑search expansion:** Perspective 5 warns that widening the band can select illiquid strikes and caus
+- **Most rigorous view:** The budget‑gate/time‑drift issue is corroborated by four independent perspectives (1‑4) with con
+
+<!-- DONE 2026-07-31 ~05:35-05:55 ET (conductor, AFTERHOURS): TRIAGED. "Cascade to downstream
+services" / "OP-32-style lockout risk" are scaffold headers (no concrete failure mode named,
+same class as prior filtered noise). "Fire-counter/budget gate does not reset reliably,
+causing premature QUIET/exhaustion" is the SAME max_fires-cross-midnight bug named in the
+07-27 batch above -- already fixed 2026-07-29, commit `631798f0`, re-verified live this
+fire ("PROCEED $10.78 of $30.00 used, 1/4 fires" at STAGE-0). "Time/date logic fragmented
+(calendar?start= vs broker clock.next_open)" is a real but low-value hygiene note with no
+concrete incident cited (unlike the ET/et_clock lesson family, C9/L21/L42/L49/L56/L60,
+which IS enforced) -- named as a future consolidation candidate, not chased this fire
+(scope discipline, one bounded item). "Hard-coded constants (strike-search windows,
+max_fires) brittle" -- `max_fires`/`daily_cap_usd` are ALREADY externalized to
+`automation/state/conductor-budget.json` (confirmed: this very conductor prompt's STAGE-0
+text says "the cap lives in conductor-budget.json, J tunes it there, never in code") --
+already addressed for the cited example; strike-search-window externalization not
+separately verified this fire, left open (no incident cited). "Git commits abused as a
+runtime configuration toggle (DO_NOT_ARM, FROZEN, auto-committing raw candidates)" --
+CHECKED LIVE, this is a MISREAD: grepped every `FROZEN`/`DO_NOT_ARM` hit across
+`setup/scripts` + `backtest/autoresearch` -- every instance is a `FROZEN_CONFIG` frozen-
+dataclass (the C1 no-repick-after-seeing-results discipline) or a docstring/comment
+describing anchor-freeze semantics; there is no code path anywhere that reads a git commit
+message as a config toggle. Not a real gap. "Status reporting (QUIET) conflates true
+exhaustion with idle/noise" -- checked `conductor_budget.py --check` live this fire: it
+prints `PROCEED $X of $Y used, N/M fires` on a normal tick and only emits `QUIET` on genuine
+cap-hit (exit code 3) -- the distinction already exists in the tool's own output. "Auto-
+committing large numbers of candidate files adds noise" -- same finding as the 07-27
+batch's identical line, already resolved there (auto_commit_candidates.py scoped+fail-open,
+verified only 2 pending files live). The 2 synthesis-commentary lines ("Priority of fixes...
+/ Severity of strike-search expansion...") are cross-perspective narration, not gaps --
+same already-documented scaffold class. No new code action needed this batch. -->
+
+## 2026-07-29T17:31:41 -- 5 new gap(s) Gamma self-identified
+- Audit trail fragmentation
+- The Conductor scheduler is firing far more than the documented `max_fires` (4/day), exhausting the after‑hours budget an
+- Recency‑confirmation relies on a static OPRA cache and a binary RED/YELLOW flag, providing no graded confidence or real‑
+- Correlated arm signals (e.g., bollinger_squeeze and vwap_reclaim_failed_break firing on the same underlying day‑call) ar
+- Budget‑exhaustion events are logged but not automatically diagnosed or mitigated; there is no self‑healing alert or diag
+
+<!-- DONE 2026-07-31 ~05:35-05:55 ET (conductor, AFTERHOURS): TRIAGED, all 5 disposed.
+"Audit trail fragmentation" is a scaffold header (no concrete claim). "Conductor scheduler
+firing far more than max_fires (4/day)" -- ALREADY FIXED same evening this batch was
+flagged (commit `631798f0`, 2026-07-29 fire, cross-midnight substring bug in
+`spend_today()`) -- re-verified live this fire: `conductor_budget.py --check` correctly
+reads "1/4 fires" for today (2026-07-31) rather than leaking a prior day's late-night fire
+forward. "Recency-confirmation relies on a static OPRA cache and binary RED/YELLOW, no
+graded confidence" -- this is INTENTIONAL doctrine, not a gap: CLAUDE.md OP-11's
+CONFIRM-BEFORE-CAPITAL gate is deliberately conservative/binary (RED blocks live-flip, full
+stop) because a graded/fuzzy confidence score on a capital-scaling gate is exactly the kind
+of soft threshold that erodes under optimizer pressure -- no incident or J directive asks
+for this to change. "Correlated arm signals (bollinger_squeeze + vwap_reclaim_failed_break
+same day-call) not filtered" -- ALREADY DETECTED: `trade_to_learn_digest.py`'s
+`cross_setup_same_day_side` computes exactly this and surfaces a `WARNING CORRELATED` line
+in the daily digest (confirmed live in STATUS.md's own 2026-07-30 LICENSE-MONITOR entry:
+"WARNING CORRELATED: 2026-07-28 side=P fired in BOTH bollinger_squeeze+vwap_reclaim_failed_
+break") -- detection+disclosure exists; "filtered" (excluded from independence n-counts) is
+a stricter ask with no cited harm yet (n is already small, both setups are WATCH/
+trade-to-learn tier, not capital-scaling-gated) -- named as a possible follow-up, not built
+this fire (scope discipline: one bounded item). "Budget-exhaustion events logged but not
+self-healing/auto-diagnosed" -- the ROOT CAUSE of the ONLY exhaustion event this quarter
+(the cross-midnight bug) has already been diagnosed and fixed; building a general
+auto-diagnoser for a class of bug that has occurred once and is now fixed is premature
+generalization, not chased. Batch closed. -->
