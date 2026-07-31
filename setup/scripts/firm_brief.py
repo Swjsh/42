@@ -445,7 +445,9 @@ def render_autopsy_lines(data: dict) -> list[str]:
         return [f"- {data.get('date', '?')}: P&L_UNVERIFIED/NO_BARS -- {n_found} closed engine "
                 f"position(s) found, bars unavailable for {n_no_bars}{partial_s} "
                 f"(NOT a flat day -- re-run trade_autopsy.py --date {data.get('date', '?')}) "
-                f"({md_path})"]
+                f"({md_path})",
+            "- ⚠ winners-only sample — NOT a policy comparison; an exit change needs a "
+            "pre-registered A/B over the FULL population."]
     hyp = data.get("new_hypotheses") or []
     hyp_s = f"; NEW hypotheses: {', '.join(hyp)}" if hyp else "; no new hypotheses"
     net_pnl = data.get("net_pnl")
@@ -453,6 +455,49 @@ def render_autopsy_lines(data: dict) -> list[str]:
     return [f"- {data.get('date', '?')}: {data.get('n_positions', 0)} engine positions, "
             f"net {_fmt_money(net_pnl)}, "
             f"{data.get('n_stopped_then_paid', 0)} stopped-then-paid{hyp_s} ({md_path})"]
+
+
+def render_winner_autopsy_lines(data: dict) -> list[str]:
+    """PURE: render the "Winner autopsy (capture rate)" section body from
+    automation/state/winner-autopsy-last.json. Same fail-open shape as
+    render_autopsy_lines above.
+
+    WHY THIS SECTION EXISTS (J 2026-07-31): "We need to analyze these winners just as much
+    as the losers so we can figure out how to either stay in them longer or get better
+    exits." The loss autopsy had a standing surface; the winner side did not, so J had to
+    ask by hand. This is the standing answer.
+
+    HONESTY RAILS, all three load-bearing:
+      * The capture rate is ALWAYS printed with its n, and below MIN_N_FOR_AGGREGATE it is
+        labelled ANECDOTE rather than quoted as a statistic (`sufficient_n`).
+      * The winners-only conditioning warning rides on the line itself -- a reader who only
+        ever sees the brief must not walk away thinking this is a policy comparison.
+      * A capture rate >100% is a REAL and reportable outcome (our shipped exits beat every
+        fixed policy on the winner sample); it is stated plainly, not massaged."""
+    if not data:
+        return ["- no winner autopsy yet (Gamma_WinnerAutopsy fires 16:25 ET)."]
+    if data.get("error"):
+        return [f"- winner autopsy FAILED ({str(data['error'])[:100]}) -- fix me."]
+    md_path = data.get("md", "analysis/winner-autopsies/")
+    n = data.get("n_winners_scored") or 0
+    if not n:
+        return [f"- no replayable winners yet ({data.get('n_winners_found', 0)} found, "
+                f"{data.get('n_no_bars', 0)} without bars) ({md_path})"]
+    cap = data.get("capture_vs_best_policy")
+    cap_s = "n/a" if cap is None else f"{cap * 100:.0f}%"
+    anecdote = "" if data.get("sufficient_n") else " ⚠ ANECDOTE (n below floor)"
+    rc = data.get("runner_cohort") or {}
+    runner_s = ""
+    if rc.get("n_scaled_out_winners"):
+        med = rc.get("median_runner_giveback_pct")
+        runner_s = (f"; runners: {rc.get('n_runner_below_tp1', 0)}/"
+                    f"{rc['n_scaled_out_winners']} exited BELOW their own TP1"
+                    + (f", median giveback {med * 100:.0f}%" if med is not None else ""))
+    return [f"- capture {cap_s} of the best single fixed exit policy "
+            f"(`{data.get('best_policy')}`) over n={n} winners{anecdote}{runner_s} "
+            f"({md_path})",
+            "- ⚠ winners-only sample — NOT a policy comparison; an exit change needs a "
+            "pre-registered A/B over the FULL population."]
 
 
 def render_prospector_lines(data: dict) -> list[str]:
@@ -581,6 +626,15 @@ def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) 
     if stale_note:
         lines.append(stale_note)
     lines.extend(render_autopsy_lines(autopsy))
+    lines.append("")
+
+    # The WINNER side of the same organ (winner_autopsy.py, Gamma_WinnerAutopsy 16:25 ET) --
+    # J 2026-07-31: "We need to analyze these winners just as much as the losers." The loss
+    # autopsy above answers "why did we lose"; this answers "how much of what our winners
+    # offered did we actually keep". Fail-open, same shape as the section above.
+    winner = load_json(STATE / "winner-autopsy-last.json")
+    lines.append("## Winner autopsy (capture rate)")
+    lines.extend(render_winner_autopsy_lines(winner))
     lines.append("")
 
     # Prospector -- the exogenous-idea organ (J 2026-07-09: "gamma hasn't introduced a single

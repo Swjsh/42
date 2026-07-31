@@ -1,0 +1,30 @@
+{
+  "scope": "all winners to date",
+  "generated_at": "2026-07-31T17:54:15.965391",
+  "n_winners_found": 21,
+  "n_winners_scored": 21,
+  "n_no_bars": 0,
+  "sufficient_n": true,
+  "realized_total": 3479.0,
+  "best_policy": "all_out_at_tp1_100",
+  "best_policy_total": 3414.5,
+  "capture_vs_best_policy": 1.0189,
+  "capture_vs_per_trade_best": 0.6366,
+  "capture_vs_oracle": 0.2629,
+  "n_runner_underperformed_tp1": 7,
+  "n_shipped_beat_menu": 10,
+  "runner_cohort": {
+    "n_scaled_out_winners": 11,
+    "n_runner_below_tp1": 7,
+    "n_runner_material_giveback": 7,
+    "median_runner_giveback_pct": 0.3239,
+    "n_runner_legs_measured": 11
+  },
+  "attribution": {
+    "legs_total": 36,
+    "legs_unattributed": 5,
+    "attribution_pct": 0.8611
+  },
+  "winners_only_sample": true,
+  "md": "analysis/winner-autopsies/all.md"
+}
