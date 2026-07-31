@@ -1,3 +1,75 @@
+## [2026-07-31 ~00:59-01:15 ET] OK -- conductor (AFTERHOURS): STATE-FRESHNESS-SILENT-TASK-STALL-SELFHEAL closed, commit `33a42102`
+
+> **STAGE 0/1:** ET 01:00 Friday (market closed). Budget gate PROCEED ($0/$30, 0/4 fires).
+> `engine-health.json` showed 1 RED at fire start: `state_freshness` -- 3/17 live-path state
+> files STALE (`trade-today.json`, `pnl-statement.json`, `ema-snapshot.json`). Per STAGE-1
+> priority-2 (Engine RED), investigated first.
+
+> **FOUND, live-verified (OP-33, not guessed):** `Gamma_TradeToday` / `Gamma_BrokerFills` /
+> `Gamma_EmaSnapshot` all last fired 2026-07-29 despite `Enabled=True`/`State=Ready`/
+> `LastTaskResult=0` (their last run succeeded), no hung process anywhere on the box
+> (`Win32_Process` sweep clean), no reboot (`LastBootUpTime` 2026-07-17), `Schedule` service
+> `Running` the whole time, `NumberOfMissedRuns` nonzero (195/43/1 -- Task Scheduler itself
+> knew it missed occurrences) and a manual `Start-ScheduledTask` succeeded immediately. A
+> wider `Get-ScheduledTaskInfo` sweep found ~17 more `Gamma_*` tasks in the identical
+> last-ran-2026-07-29 shape (trigger times spanning 07:46-15:30 local) while dozens of OTHER
+> tasks -- including 1-min-cadence `Gamma_HeartbeatCore` -- fired normally all through
+> 2026-07-30, ruling out a machine-wide sleep/reboot/AV cause. **Root cause of WHY Task
+> Scheduler silently stopped dispatching these triggers was NOT determined** -- the
+> `Microsoft-Windows-TaskScheduler/Operational` event log is disabled on this box, zero
+> forensic trail available. Rather than over-invest chasing an unfalsifiable Windows mystery,
+> filed the open question as a lesson with a queued (not executed) follow-up: re-enable that
+> event log so a recurrence leaves evidence.
+
+> **FIX SHIPPED (remediation, not the forensics):** `state_freshness_selfheal.py` -- for any
+> RED `state_freshness_audit` entry, resolves the manifest's `task` field to a single
+> `Gamma_*` task name and force-starts it via `Start-ScheduledTask` (cooldown-guarded 20min,
+> fail-open, never guesses an ambiguous/manual/multi-writer field). Wired into the existing
+> 5-min `Gamma_TvWatchdog` cadence (`run-tv-watchdog.ps1`, no new scheduled task) --
+> structurally the SAME self-heal shape `Invoke-LevelRefreshSafe` established for
+> `key-levels.json` on 2026-07-30, but for a genuinely different failure mode: there was no
+> stuck process to kill here, the scheduled trigger itself silently never fired, so the fix
+> is a direct force-start rather than kill-tree+relaunch. **Manually ran the real (non-dry-run)
+> heal live tonight:** all 3 producers restored (`Start-ScheduledTask` returncode 0 each,
+> output files' mtimes updated within seconds), `state_freshness_audit` verdict flipped
+> RED -> GREEN, confirmed via a fresh audit re-run.
+
+> **Verified (OP-33):** 20 new guard tests (`test_state_freshness_selfheal.py` -- resolve/
+> skip-ambiguous/cooldown/dry-run/fail-open-on-audit-raise/logging), all green; full related
+> suite (level-refresh, tv-launch-safe, engine-liveness, state-freshness) 87/87 green;
+> curated safety gate 59/59 PASS. `git show 33a42102 --stat --name-status` confirms exactly
+> the 3 intended files (L247 discipline): `state_freshness_selfheal.py` (new),
+> `test_state_freshness_selfheal.py` (new), `run-tv-watchdog.ps1` (+33/-2 lines, one new
+> wired section + a status-field addition).
+
+> **Scope + revert:** 3 files, pure infra self-heal -- zero params/heartbeat_core/filters/
+> placement/exit/CLAUDE.md touched. Revert: `git revert 33a42102`. Lesson filed:
+> `_lesson-inbox/2026-07-31-scheduled-task-silent-stop-firing.md`.
+
+---
+
+## [2026-07-30] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
+
+> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
+> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
+> -   bollinger_squeeze (armed 2026-07-02): since-arm 6tr $+36.00 ($+6.00/tr, 50.0% WR) [4d/4 day+side buckets -- 6 rows are NOT independent trials]
+> -   double_bottom_base_quiet (armed 2026-07-01, 29d ago): 0 fills since arm — no live signal yet
+> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 2tr $-15.00 ($-7.50/tr, 50.0% WR)
+> -   WARNING CORRELATED: 2026-07-28 side=P fired in BOTH bollinger_squeeze+vwap_reclaim_failed_break -- same underlying day-call, not independent
+> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
+
+---
+
+## [2026-07-30] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-17..2026-07-23), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-23). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-276.48); Bold_ATM_1+2=YELLOW ($-166.9)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-07-30 ~20:30-20:50 ET] OK -- conductor (AFTERHOURS): LEVEL-REFRESH-WATCHDOG-WINDOW-BUG closed, commit `d7774638` -- plus closing the visibility gap on 4 earlier undocumented fixes
 
 > **STAGE 0/1:** ET 20:30 Thursday (market closed). Budget gate PROCEED ($1.98/$30, 1/4
@@ -49,28 +121,6 @@
 > per-arm ceiling table with 4 ranked remediation options left UNCHOSEN. Neither touched
 > here; flagging so they don't silently age out of visibility the same way this whole chain
 > almost did.
-
----
-
-## [2026-07-29] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
-
-> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
-> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
-> -   bollinger_squeeze (armed 2026-07-02): since-arm 6tr $+36.00 ($+6.00/tr, 50.0% WR) [4d/4 day+side buckets -- 6 rows are NOT independent trials]
-> -   double_bottom_base_quiet (armed 2026-07-01, 28d ago): 0 fills since arm — no live signal yet
-> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 2tr $-15.00 ($-7.50/tr, 50.0% WR)
-> -   WARNING CORRELATED: 2026-07-28 side=P fired in BOTH bollinger_squeeze+vwap_reclaim_failed_break -- same underlying day-call, not independent
-> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
-
----
-
-## [2026-07-29] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-17..2026-07-23), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-23). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-276.48); Bold_ATM_1+2=YELLOW ($-166.9)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
 
 ---
 
@@ -576,180 +626,40 @@
 > 1 markdown summary) + 1 queue.md edit (closing this item). Zero trading-path touched
 > (no params/heartbeat_core/filters/CLAUDE.md). Revert: `git revert 73902fa1`.
 
-## [2026-07-23 ~23:12-23:45 ET] OK -- conductor (AFTERHOURS): EXIT-ENGINE-PARITY-RESIDUAL root-caused (91% of a $40/tr research-parity gap explained + confirmed via ablation), commit pending
 
-> **STAGE 0/1:** ET confirmed 23:12 (Thursday, market closed since 15:55). `engine-health.json`
-> GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again -- STILL
-> `status:pending` on J's REVOKE surface (`gp-2026-07-23-twin-doctrine-001`, 6th fire confirming,
-> nothing new). Self-audit gaps file: 2026-07-23's own batch already actioned earlier today, no
-> new un-triaged batches. Next 3 MED items (`CATASTROPHE-CAP-WIDEN-WATCH` n=4 accrue-to-10,
-> `TRENDLINE-TIGHT-EXIT-ACCRETE` shadow-accrual) confirmed still watch-only, no action possible.
-> `EXIT-ENGINE-PARITY-RESIDUAL` (MED, filed 2026-07-09, re-flagged "research-diagnosis" not
-> "watch-only" by the prior 2 fires but never picked) DID have a concrete, doable-now diagnosis
-> step ("per-trade exit-reason diff on the 149-trade control set") -- picked it.
+### BROKEN: self-check 2026-07-30T22:39:57
+- engine-health RED: reds=['levels_blind: ENGINE TRADED BLIND on 2026-07-30 -- 0 of 770 RTH decision rows carried ANY active key level (bold 0/385; safe 0/385). With no levels the engine cannot detect level rejections/reclaims and falls through to its WORST cohort (trendline-only). Check Gamma_LevelRefresh + key-levels.json expires_at dates.', 'state_freshness: 3/17 live-path state files STALE -- trade-today.json, pnl-statement.json, ema-snapshot.json. Their producers stopped writing; consumers did not notice.']
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: 3 day-trades in 5d at equity $1,198 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $603 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $600 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-29, not today 2026-07-30 -- Gamma_ParticipationDaily likely did not fire.
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-30) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 
-> **What I found:** built `backtest/tools/vwapcont_parity_diagnose.py` (per-signal diff, reuses
-> `vwapcont_entry_exit_matrix.py`'s own signal-loading/prep helpers verbatim, ANALYSIS ONLY).
-> Reproduced the known scorecard exactly (bar-replay $15.02/tr vs simulate_trade_real $54.73/tr,
-> n=149 both -- preflight hash/version/parity all OK, confirms the diagnostic is aligned with the
-> frozen study). Bucketed per-trade by (bar-replay terminal stage, sim exit_reason): the single
-> biggest driver is 19/149 trades where bar-replay says `premium_stop` but sim says
-> `TP1_THEN_RUNNER_*` (sum delta -$4,164 of the -$5,917 total gap); the 96 trades where both
-> engines agree on the terminal mechanism still carry a consistent -$16.72/tr drag.
+### BROKEN: self-check 2026-07-30T23:09:57
+- engine-health RED: reds=['levels_blind: ENGINE TRADED BLIND on 2026-07-30 -- 0 of 770 RTH decision rows carried ANY active key level (bold 0/385; safe 0/385). With no levels the engine cannot detect level rejections/reclaims and falls through to its WORST cohort (trendline-only). Check Gamma_LevelRefresh + key-levels.json expires_at dates.', 'state_freshness: 3/17 live-path state files STALE -- trade-today.json, pnl-statement.json, ema-snapshot.json. Their producers stopped writing; consumers did not notice.']
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: 3 day-trades in 5d at equity $1,198 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $603 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $600 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-29, not today 2026-07-30 -- Gamma_ParticipationDaily likely did not fire.
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-30) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 
-> **Root-caused with a controlled experiment, not hand-waved (OP-33 discipline):** code-read
-> found `lib/simulator_real.py:534-535` (`spy_idx=entry_bar_idx+2` / `opt_idx=entry_idx_opt+1`)
-> never checks the ENTRY bar's own high/low for a stop/TP1 -- sim's exit loop starts at the bar
-> AFTER entry. `structure_stop_study.replay_structure_aware`'s `norm_bars` (every bar-replay-family
-> tool's own `load_atm_bars`) start AT the entry bar itself, and the exit loop evaluates that
-> SAME bar's high/low on iteration 1 -- one bar earlier than sim. **Confirmatory ablation:**
-> re-ran bar-replay on the identical 149-signal population with `norm_bars[1:]` (entry bar
-> excluded, matching sim's convention) -- exp $15.02 -> $58.28 vs sim $54.73, closing **91.1% of
-> the $39.71/tr gap**; residual -$3.55/tr fully consistent with the two ALREADY-confirmed smaller
-> mechanisms (pre-TP1 profit-lock scope ~$0.72/tr + ribbon-flip-back). This **supersedes** the
-> queue item's own prior guess ("mostly ribbon-flip modeling + fill conventions") -- those are
-> real but minor; the entry-bar-eligibility convention is the dominant driver by an order of
-> magnitude.
+### WARN: spend-summary threshold breach
+- ts: 2026-07-31T03:30:20+00:00
+- date_et: 2026-07-30
+- total: $180.87 (threshold $30.00)
+- claude: $180.87  minimax: $0.00
+- claude_sessions: 12
 
-> **Deliberately NOT adjudicated this fire (escalated instead):** which convention -- bar-replay's
-> entry-bar-inclusion (precedented by `t4_exit_matrix`/`structure_stop_study`) vs
-> `simulate_trade_real`'s entry-bar-exclusion (the ratified ship-gate C1 authority's own
-> long-standing convention) -- is more faithful to live risk exposure is a genuine real-money-
-> adjacent judgment call per the conductor's own FABLE-ESCALATION criterion (a wrong guess here
-> could plausibly move real money or ship a validated-looking edge that isn't). Filed
-> `FABLE-ESCALATION: EXIT-ENGINE-ENTRY-BAR-CONVENTION-AUDIT` (queue.md, HIGH) for a top-tier
-> session to adjudicate + scope whether any already-ratified study's conclusion (not just its
-> absolute $/tr) is sensitive to this.
-
-> **Verified this fire (OP-33):** preflight hash/version/parity all matched the frozen
-> pre-registration both runs (no population drift). `test_vwapcont_entry_exit_matrix.py` 23/23
-> green (nothing in the existing study touched -- new script only imports its functions).
-> `py_compile` clean. Re-ran the diagnostic script twice (once without, once with the
-> confirmatory ablation) -- identical base numbers both times ($15.02/$54.73/n=149), confirming
-> determinism. Full writeup: `analysis/recommendations/vwapcont-parity-diagnose-2026-07-23.{json,md}`.
-
-> **Zero trading-path touched:** ANALYSIS ONLY -- no `params.json`/`heartbeat_core.py`/
-> `filters.py`/live decision-core (`exit_manager.plan_exit_actions`) file modified; both replay
-> engines' HARNESS code (`simulator_real.py`, `structure_stop_study.py`) left byte-unchanged, the
-> ablation ran on a throwaway `norm_bars[1:]` slice inside the new diagnostic script only.
-
-> **Learn (STAGE 4.5):** filed
-> `_lesson-inbox/2026-07-23-entry-bar-eligibility-diverges-between-replay-engines.md` -- the
-> generalizable rule (fold target C6 or a C4 sibling): when two independently-implemented replay
-> engines disagree, diff PER-TRADE by terminal exit stage before trusting an aggregate $/tr gap,
-> and CONFIRM a root-cause hypothesis with a targeted ablation experiment rather than a hand-waved
-> list of partial explanations.
-
-> **Scope + revert:** 5 files, all additive (1 new tool, 2 new analysis outputs, 1 new
-> lesson-inbox item, 1 queue.md edit closing this item + filing the escalation). Revert:
-> `git revert <this commit>`.
-
-
-- [2026-07-30 06:07:51] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
-
-[2026-07-30 06:07:51] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-30.md
-
-### BROKEN: premarket 2026-07-30
-- PREMARKET SILENT FAILURE: claude exit=0 but today-bias.updated_by='premarket_interactive_claude' looks like a non-LLM hand-rebuild (matched 'interactive') -- the premarket LLM did NOT author this run's deliverable.
-
-
-### DEGRADED: premarket 2026-07-30
-- PREMARKET DEGRADED: deterministic fallback covered for the failed LLM step (today-bias.updated_by='premarket_interactive_claude' looks like a non-LLM hand-rebuild (matched 'interactive') -- the premarket LLM did NOT author this run's deliverable.)
-
-- [07-30 09:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 3896s - kill+relaunch
-- [07-30 09:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 4196s - kill+relaunch
-- [07-30 09:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 4496s - kill+relaunch
-- [07-30 09:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 4796s - kill+relaunch
-- [07-30 09:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 5096s - kill+relaunch
-- [07-30 09:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5396s - kill+relaunch
-- [07-30 09:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5696s - kill+relaunch
-- [07-30 09:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5996s - kill+relaunch
-- [07-30 09:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6296s - kill+relaunch
-- [07-30 09:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6596s - kill+relaunch
-- [07-30 10:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6896s - kill+relaunch
-- [07-30 10:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7196s - kill+relaunch
-- [07-30 10:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7496s - kill+relaunch
-- [07-30 10:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7796s - kill+relaunch
-- [07-30 10:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8096s - kill+relaunch
-- [07-30 10:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8396s - kill+relaunch
-- [07-30 10:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8696s - kill+relaunch
-- [07-30 10:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8996s - kill+relaunch
-- [07-30 10:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9296s - kill+relaunch
-- [07-30 10:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9596s - kill+relaunch
-- [07-30 10:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9896s - kill+relaunch
-- [07-30 10:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10196s - kill+relaunch
-- [07-30 11:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10496s - kill+relaunch
-- [07-30 11:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10796s - kill+relaunch
-- [07-30 11:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11096s - kill+relaunch
-- [07-30 11:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11396s - kill+relaunch
-- [07-30 11:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11696s - kill+relaunch
-- [07-30 11:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11996s - kill+relaunch
-- [07-30 11:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12296s - kill+relaunch
-- [07-30 11:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12596s - kill+relaunch
-- [07-30 11:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12896s - kill+relaunch
-- [07-30 11:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13196s - kill+relaunch
-- [07-30 11:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13496s - kill+relaunch
-- [07-30 11:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13796s - kill+relaunch
-- [07-30 12:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14096s - kill+relaunch
-- [07-30 12:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14396s - kill+relaunch
-- [07-30 12:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14696s - kill+relaunch
-- [07-30 12:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14996s - kill+relaunch
-- [07-30 12:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 15296s - kill+relaunch
-- [07-30 12:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 15596s - kill+relaunch
-- [07-30 12:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 15896s - kill+relaunch
-- [07-30 12:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 16196s - kill+relaunch
-- [07-30 12:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 16496s - kill+relaunch
-- [07-30 12:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 16796s - kill+relaunch
-- [07-30 12:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 17096s - kill+relaunch
-- [07-30 12:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 17396s - kill+relaunch
-- [07-30 13:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 17696s - kill+relaunch
-- [07-30 13:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 17996s - kill+relaunch
-- [07-30 13:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 18296s - kill+relaunch
-- [07-30 13:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 18596s - kill+relaunch
-- [07-30 13:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 18896s - kill+relaunch
-- [07-30 13:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 19196s - kill+relaunch
-- [07-30 13:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 19496s - kill+relaunch
-- [07-30 13:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 19796s - kill+relaunch
-- [07-30 13:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 20096s - kill+relaunch
-- [07-30 13:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 20396s - kill+relaunch
-- [07-30 13:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 20696s - kill+relaunch
-- [07-30 13:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 20996s - kill+relaunch
-- [07-30 14:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 21296s - kill+relaunch
-- [07-30 14:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 21596s - kill+relaunch
+### BROKEN: self-check 2026-07-30T23:39:57
+- engine-health RED: reds=['levels_blind: ENGINE TRADED BLIND on 2026-07-30 -- 0 of 770 RTH decision rows carried ANY active key level (bold 0/385; safe 0/385). With no levels the engine cannot detect level rejections/reclaims and falls through to its WORST cohort (trendline-only). Check Gamma_LevelRefresh + key-levels.json expires_at dates.', 'state_freshness: 3/17 live-path state files STALE -- trade-today.json, pnl-statement.json, ema-snapshot.json. Their producers stopped writing; consumers did not notice.']
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: 3 day-trades in 5d at equity $1,198 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $603 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $600 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-29, not today 2026-07-30 -- Gamma_ParticipationDaily likely did not fire.
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-30) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
 
 ## Kitchen
-Kitchen: alive, queue 23 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-- [07-30 14:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 21896s - kill+relaunch
-- [07-30 14:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 22196s - kill+relaunch
-- [07-30 14:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 22496s - kill+relaunch
-- [07-30 14:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 22796s - kill+relaunch
-- [07-30 14:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 23096s - kill+relaunch
-- [07-30 14:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 23396s - kill+relaunch
-- [07-30 14:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 23696s - kill+relaunch
-- [07-30 14:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 23996s - kill+relaunch
-- [07-30 14:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 24296s - kill+relaunch
-- [07-30 14:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 24596s - kill+relaunch
-- [07-30 15:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 24896s - kill+relaunch
-- [07-30 15:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 25196s - kill+relaunch
-- [07-30 15:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 25496s - kill+relaunch
-- [07-30 15:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 25796s - kill+relaunch
-- [07-30 15:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 26096s - kill+relaunch
-- [07-30 15:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 26396s - kill+relaunch
-- [07-30 15:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 26696s - kill+relaunch
-- [07-30 15:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 26996s - kill+relaunch
-- [07-30 15:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 27296s - kill+relaunch
-- [07-30 15:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 27596s - kill+relaunch
-- [07-30 15:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 27896s - kill+relaunch
-- [07-30 15:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 28196s - kill+relaunch
-- [07-30 16:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 28496s - kill+relaunch
-
-### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
-- ts: 2026-07-30T20:45:30+00:00
-- task: analyst
-- date_et: 2026-07-30
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-- [2026-07-30 21:00:04] gym-session (2026-07-30) → **YELLOW** :: see `automation\state\gym-scorecard-2026-07-30.json`
-
+Kitchen: alive, queue 30 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
