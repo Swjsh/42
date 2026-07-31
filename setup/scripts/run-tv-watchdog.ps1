@@ -131,6 +131,34 @@ if ($mins -ge 582 -and $mins -le 955) {
     }
 }
 
+# --- 3b. Cross-fleet state-freshness self-heal (2026-07-31 generalization) --
+# LIVE FINDING: Gamma_TradeToday / Gamma_BrokerFills / Gamma_EmaSnapshot all last fired
+# 2026-07-29 despite Enabled=True, State=Ready, LastTaskResult=0 (no crash), no hung
+# process on the box -- the scheduled trigger silently stopped firing for >24h with ZERO
+# Task Scheduler error signal, and a manual Start-ScheduledTask succeeded immediately.
+# state_freshness_audit.py (section above's sibling, 2026-07-30) already DETECTS this
+# shape for every manifest-listed file but only reports -- nothing previously
+# remediated it, same "nothing recovers it" gap section 3 closed for key-levels.json
+# specifically. state_freshness_selfheal.py generalizes the fix: force-start the mapped
+# Gamma_* task for any RED entry (cooldown-guarded on the Python side, so a genuinely
+# broken producer is not hammered every 5 min). Pure Python, $0, fails open.
+$freshHealScript = Join-Path $WorkDir "setup\scripts\state_freshness_selfheal.py"
+$freshHealAction = "skipped_no_script"
+$fhOut = ""
+if (Test-Path $freshHealScript) {
+    $venvPy = Join-Path $WorkDir "backtest\.venv\Scripts\pythonw.exe"
+    try {
+        $fhOut = & $venvPy $freshHealScript --json 2>&1 | Out-String
+        $freshHealAction = "ran"
+        if ($fhOut -match '"outcome":\s*"start_attempted"') {
+            Write-TaskLog -TaskName $task -Message "STATE_FRESHNESS_HEAL $fhOut"
+        }
+    } catch {
+        $freshHealAction = "error"
+        Write-TaskLog -TaskName $task -Message "STATE_FRESHNESS_HEAL_ERROR $($_.Exception.Message)"
+    }
+}
+
 # --- 4. Persist status + alert on real problems -----------------------------
 $rec = [ordered]@{
     ts             = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
@@ -140,13 +168,14 @@ $rec = [ordered]@{
     tv_detail      = $tvDetail
     heartbeat      = $hbFlag
     levels_refresh = $levelsRefreshAction
+    fresh_heal     = $freshHealAction
 }
 $rec | ConvertTo-Json | Set-Content -Path $statusFile -Encoding utf8
 
-$problem = ($tvAction -like "relaunch*") -or ($hbFlag -like "STALE*") -or ($hbFlag -like "ERR_*") -or ($levelsRefreshAction -eq "self_heal")
+$problem = ($tvAction -like "relaunch*") -or ($hbFlag -like "STALE*") -or ($hbFlag -like "ERR_*") -or ($levelsRefreshAction -eq "self_heal") -or ($fhOut -match '"outcome":\s*"start_attempted"')
 if ($problem) {
     ($rec | ConvertTo-Json -Compress) | Add-Content -Path $eventLog -Encoding utf8
-    $alert = "- [$($et.ToString('MM-dd HH:mm')) ET] TvWatchdog: tv=$tvAction heartbeat=$hbFlag levels_refresh=$levelsRefreshAction $tvDetail"
+    $alert = "- [$($et.ToString('MM-dd HH:mm')) ET] TvWatchdog: tv=$tvAction heartbeat=$hbFlag levels_refresh=$levelsRefreshAction fresh_heal=$freshHealAction $tvDetail"
     try { Add-Content -Path $statusMd -Value $alert -Encoding utf8 } catch { }
 }
 exit 0
