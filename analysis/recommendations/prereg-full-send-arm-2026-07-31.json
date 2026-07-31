@@ -1,0 +1,79 @@
+{
+  "rule_id": "full-send-arm-2026-07-31",
+  "status": "PRE-REGISTERED",
+  "registered_at_et": "2026-07-31T17:35:46-04:00",
+  "registered_by": "full-send-arm lane (Opus)",
+  "clock_source": "setup/scripts/et_clock.py -> 2026-07-31 17:35:46 Friday EDT, market_hours=False",
+  "frozen_before_any_run": true,
+
+  "motivation": {
+    "j_directive_2026_07_31": "we're paper trading. We have six arms, and we should just be getting in shit and seeing if it works.",
+    "j_market_view": "the market's dynamic... the same thing that worked on day 372 ago is not gonna work on day 162 ago",
+    "observed_2026_07_31": "risky-3 (the only arm reaching the signal at a clearing premium) entered and won; risky-1 logged 128 HOLDs and ZERO trades.",
+    "doctrine_constraint": "ARMS ARE RISK PROFILES, NOT STRATEGIES (memory: feedback_arms_are_risk_profiles_not_strategies). FULL-SEND trades the SAME validated setups. What differs: how much COHORT-LEVEL VETOING it inherits, and how small it sizes."
+  },
+
+  "hypothesis": "A FULL-SEND risk profile -- identical validated setups, cohort-level vetoes NOT inherited, hard-clamped to minimum size -- materially raises FILLS PER DAY (the learning rate) at a BOUNDED P&L cost. Its job is evidence generation, not P&L.",
+
+  "primary_metric": "fills per trading day (learning rate)",
+  "secondary_metrics": [
+    "total real-OPRA P&L (disclosed, expected NEGATIVE vs the gated baseline)",
+    "per-trade expectancy",
+    "worst single-day P&L",
+    "worst single-trade P&L"
+  ],
+
+  "pre_registered_failure_conditions": {
+    "_doc": "These are the conditions under which the arm is NOT shipped, or is de-armed after shipping. MERELY UNPROFITABLE IS NOT A FAILURE -- that is the expected outcome and the accepted price of the learning rate.",
+    "F1_kill_switch_breach": "Any single replay day where the full-send profile's own day P&L is <= -50% of that day's start-of-day equity (the Bold kill-switch threshold). A profile that trips the daily kill switch is a hole, not a learning arm.",
+    "F2_per_trade_bound": "Full-send's WORST single-trade dollar loss exceeds the gated baseline's worst single-trade dollar loss. Min-size must make the tail SMALLER in dollars; if it does not, the sizing clamp is not doing its job.",
+    "F3_risk_guard_bypass": "Any guard test proving kill switch / risk gate / no-add / EOD-flatten still binds on the arm FAILS. This is an absolute bar -- no P&L result overrides it.",
+    "F4_no_learning_uplift": "Full-send admits < 2.0x the gated baseline's trades over the same window. The arm's entire justification is fills/day; below 2x it is not buying enough evidence to be worth any P&L cost."
+  },
+
+  "explicitly_not_failure": [
+    "Negative aggregate P&L vs the gated arms (EXPECTED -- report it, do not hide it)",
+    "Sub-50% win rate",
+    "Worse per-trade expectancy than the control arms"
+  ],
+
+  "guards_that_stay_on": [
+    "daily loss kill switch (Rule 5, per-account, isolated)",
+    "risk_gate.check_order -- per-trade risk cap (Rule 6), PDT (Rule 7)",
+    "no-add / one-position (Rule 4) -- risk_gate NOT_FLAT",
+    "EOD flatten (15:55 ET)",
+    "broker-flat verification before entry (C11)",
+    "min_entry_premium floor (anti-spread-noise; NEVER bypassed)",
+    "entry-time floor/ceiling (09:35 gate, late-entry ceiling)",
+    "SIGHT-FAILURE block (SKIP_NO_LEVELS) -- blindness is not a veto, it is an inability to see; no tier trades through it",
+    "no level -> no trade (a full-send entry is never stop-less)"
+  ],
+
+  "vetoes_that_drop": {
+    "_class": "COHORT / TIER vetoes only -- backward-looking population filters fitted on a prior regime",
+    "list": [
+      "block_elite_bull (SKIP_ELITE_BULL_LEVEL_RECLAIM)",
+      "block_bull_1100_1200 (SKIP_BULL_1100_1200)",
+      "block_conf_lvl_rec_afternoon (SKIP_CONF_LVL_REC_AFTERNOON)",
+      "block_level_rejection (SKIP_LEVEL_REJECTION_GATE)",
+      "require_bearish_fill_bar (SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY)"
+    ],
+    "justification": "Every one is a backward-looking cohort filter whose evidence is a prior VIX/structure regime (C22, C23). J's standing rule is that a gate needs live provenance or it dies; this arm converts each into FORWARD evidence at minimum size instead of silence."
+  },
+  "vetoes_that_do_NOT_drop": [
+    "SKIP_NO_LEVELS (sight failure, not a judgment)",
+    "SKIP_EARLY_ENTRY / SKIP_LATE_ENTRY / SKIP_STALE_TRIGGER (time gates -- entry was never actionable at this wall clock)",
+    "SKIP_BAD_INPUT / ERROR (data integrity)",
+    "SKIP_STRUCTURE_VETO (structural, and the 2026-07-30 blindness cluster sits behind it)"
+  ],
+
+  "method": {
+    "engine": "backtest/lib/orchestrator.py run_backtest(use_real_fills=True) -- REAL OPRA fills only, no synthetic",
+    "entry_bar_convention": "entry+1 (markdown/audits/ENTRY-BAR-CONVENTION-RULING-2026-07-25.md)",
+    "arms_compared": "BASELINE (cohort gates ON, as shipped) vs FULL_SEND (the 5 cohort gates OFF); IDENTICAL sizing/exits so the delta isolates SELECTION",
+    "sizing_disclosure": "the A/B runs at identical equity/risk-cap so selection is isolated; the live arm additionally hard-clamps qty to min_contracts, which scales per-trade P&L DOWN roughly linearly (exits are per-contract percentages). Both raw and min-size-scaled figures are reported.",
+    "windows": "recent window AND full population, both reported; no cherry-picking of either"
+  },
+
+  "reporting_commitment": "ALL cells reported including the ones that make the arm look bad. If FULL_SEND is worse on aggregate P&L -- which is the expectation -- that number is headlined, not buried."
+}

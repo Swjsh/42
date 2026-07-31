@@ -164,10 +164,20 @@ def test_absent_exit_patch_is_byte_identical_noop():
                == strat.exit.to_dict())
 
 
-def test_risky1_control_arm_has_no_exit_patch():
-    """risky-1 (FLEET-TIGHT-R) is the designated untouched control lane -- accounts.json must
-    NOT carry an exit_patch for it (2026-07-20 build)."""
-    assert not (_arm("risky-1").get("params_patch") or {}).get("exit_patch")
+def test_core_control_arms_have_no_exit_patch():
+    """The CONTROL lane must stay registry-verbatim on exits.
+
+    HISTORY (why this test changed rather than being deleted): at the 2026-07-20 exit-A/B
+    build, risky-1 was the designated untouched control and this asserted risky-1 carried no
+    exit_patch. That stopped being true on 2026-07-29 when risky-1 was deliberately given the
+    REACHABLE-TP1 patch (tp1_premium_pct 1.0 -> 0.5) -- and this assertion was left stale and
+    RED from that day until 2026-07-31. On 2026-07-31 risky-1 became the FULL-SEND arm, so it
+    is now doubly not a control. The REAL controls have always been the two CORE arms
+    (safe-2 / bold-2, production params, registry-verbatim); the invariant is re-pointed at
+    them, NOT weakened -- an exit_patch appearing on either core arm still fails loudly."""
+    for arm_id in ("safe-2", "bold-2"):
+        assert not (_arm(arm_id).get("params_patch") or {}).get("exit_patch"), (
+            f"{arm_id} is a CORE CONTROL arm -- it must stay registry-verbatim on exits")
 
 
 # --- FAIL LOUD on an unknown exit_patch key -------------------------------------------------

@@ -172,12 +172,30 @@ def _is_elite(side_block: Mapping[str, Any]) -> bool:
     return any("sequence" in str(t).lower() for t in side_block.get("triggers_fired", []) or [])
 
 
+def _is_full_send(arm: Optional[Mapping[str, Any]]) -> bool:
+    """True iff this arm carries gate_override.full_send (the FULL-SEND risk profile)."""
+    return bool(((arm or {}).get("gate_override") or {}).get("full_send"))
+
+
 def _tiers_for_arm(arm: Mapping[str, Any]):
     """Pick the strike-offset table (SAFE=ATM / BOLD=OTM) for this arm.
 
     strike_tier_table may be set as a TOP-LEVEL arm key OR inside the arm's params_patch
     (the design files some arms' table under params_patch). The explicit value wins; absent
     one, default by side-class from the arm id. .lower() is applied defensively.
+
+    FULL-SEND ARMS ARE **NOT** SPECIAL-CASED HERE -- and that is a MEASURED decision, not an
+    oversight (2026-07-31). An ATM override for the full-send arm was built, then REVERTED the
+    same session when its own A/B cell came back: over 387 sessions of real OPRA fills, moving
+    the full-send profile from OTM-2 to ATM changed total P&L from +$3,430 to -$5,110 (min-size
+    scaled: +$1,951 -> -$4,036) while changing trade count by less than 2% (332 -> 327). The
+    intended benefit -- clearing the $0.30 min_entry_premium floor that killed 15 of risky-1's
+    16 named-setup ticks on 2026-07-31 -- is NOT observable in this harness at all, because
+    that floor lives in fleet_executor.finalize(), not in the orchestrator. So the change had a
+    measured cost and an unmeasurable benefit; shipping it would have been exactly the
+    "tune a knob before the cause is known" anti-pattern. The arm's premium-floor problem is a
+    FLOOR/strike-tier question and is owned by the min_entry_premium provenance audit, not by
+    the full-send lane. See analysis/recommendations/full-send-arm-2026-07-31.md.
     """
     patch = arm.get("params_patch") or {}
     table = arm.get("strike_tier_table") or (patch.get("strike_tier_table") if isinstance(patch, Mapping) else None)
@@ -248,6 +266,28 @@ def _recency_verdict(path: Optional[Path] = None) -> str:
     if headline.get("edges_confirmed_on_recent") is True:
         return "GREEN"
     return "YELLOW"
+
+
+def _apply_full_send_min_sizing(
+    qty: Optional[int], arm: Optional[Mapping[str, Any]], params: Mapping[str, Any],
+) -> "tuple[Optional[int], Optional[str]]":
+    """FULL-SEND (2026-07-31): clamp qty DOWN to params.min_contracts on EVERY entry a
+    full-send arm makes -- the "never loose on RISK" half of the profile. J's design is
+    "get in more, at minimum size"; without this the arm would take MORE trades at its normal
+    BOLD qty, which is the opposite of the intent and the one way this lane could actually
+    hurt. Non-full-send arms pass through byte-identical (vary-and-assert, C14). min() is a
+    ceiling, never a floor-raise: a qty already at/below min_contracts is left alone.
+    Returns (qty, clamp_note); clamp_note is None unless the clamp actually fired."""
+    if qty is None or not _is_full_send(arm):
+        return qty, None
+    try:
+        min_qty = int(params.get("min_contracts", 3))
+    except (TypeError, ValueError):
+        min_qty = 3
+    clamped = min(int(qty), min_qty)
+    if clamped == qty:
+        return qty, None
+    return clamped, f"qty clamped {qty}->{clamped}: FULL_SEND min size"
 
 
 def _apply_recency_min_sizing(
@@ -529,6 +569,8 @@ def _plan_from_strategies(arm, signal, equity, params, arm_id, tiers, spot) -> l
                                    "no sizing tier covers equity", strategy=strat.name))
             continue
         qty, _clamp_note = _apply_recency_min_sizing(qty, strat.name, params)
+        qty, _fs_note = _apply_full_send_min_sizing(qty, arm, params)
+        _clamp_note = _fs_note or _clamp_note
         # LEVEL PROVENANCE (G12, 2026-07-09 night): prefer the EXACT trigger level the entry
         # signal fired against (build_shared_signal's trigger_level_exact -- ground truth,
         # sourced verbatim from filters.detect_level_rejection/detect_level_reclaim via
@@ -711,6 +753,8 @@ def plan_all(
                                            "no sizing tier covers equity", strategy=strat.name))
                     continue
                 qty, _clamp_note = _apply_recency_min_sizing(qty, strat.name, params)
+                qty, _fs_note = _apply_full_send_min_sizing(qty, arm, params)
+                _clamp_note = _fs_note or _clamp_note
                 # LEVEL PROVENANCE: same exact-over-heuristic preference as _plan_from_strategies
                 # (see comment there) -- the side-block fallback path mirrors it for parity.
                 _tl_exact = blk.get("trigger_level_exact")
@@ -742,7 +786,79 @@ def plan_all(
         ladder_plan = _ladder_plan(arm, signal, equity, params, arm_id, spot)
         if ladder_plan is not None:
             plans.append(ladder_plan)
+    # FULL-SEND (2026-07-31, J directive: "we should just be getting in shit and seeing if it
+    # works"). Third and loosest rescue lane, same shape/contract as probe + ladder: fires ONLY
+    # for an arm carrying gate_override.full_send, ONLY when no other lane produced an ENTER,
+    # and ONLY off the producer's explicitly-allowlisted COHORT-veto block. Min size, real
+    # level as the chart stop, every risk guard downstream untouched.
+    if not any(p.action == "ENTER" for p in plans):
+        fs_plan = _full_send_plan(arm, signal, equity, params, arm_id, spot)
+        if fs_plan is not None:
+            plans.append(fs_plan)
     return plans
+
+
+# --- FULL-SEND lane (2026-07-31) ----------------------------------------------------------
+# Consumer half of build_shared_signal.py's `full_send` block -- read that module comment for
+# the full rationale, the allowlist, and the pre-registered A/B behind it.
+#
+# THE ARCHITECTURAL FINDING THIS EXISTS TO FIX: an arm's gate_override can only ever ADD
+# selectivity. Measured across ALL fleet history, gate_override blocked 45/3479 ticks on
+# safe-3, 45/3479 on risky-1, 0/3479 on risky-3 -- and 0 of 128 on 2026-07-31, the day J called
+# three entries the fleet did not take. Entry ADMISSION is decided upstream in the producer,
+# which emits ONE strategies[] list every arm shares, so no accounts.json edit can express
+# "this arm inherits fewer vetoes". This lane is the minimum change that makes it expressible.
+#
+# LOOSE ON SELECTION, NEVER LOOSE ON RISK. Dropped: cohort/tier vetoes (allowlist upstream).
+# Fully retained and untouched downstream: the daily kill switch, risk_gate.check_order
+# (per-trade cap Rule 6, PDT Rule 7, NOT_FLAT/no-add Rule 4), the min_entry_premium floor,
+# entry-time floor/ceiling, EOD flatten, and broker-flat verification in fleet_live._place_live.
+# Guard: test_full_send_arm.py (both directions -- it enters where gated arms are blocked, AND
+# every risk guard provably still binds on it).
+def _full_send_plan(
+    arm: Mapping[str, Any], signal: Mapping[str, Any], equity: float,
+    params: Mapping[str, Any], arm_id: str, spot: Any,
+) -> Optional[EntryPlan]:
+    """Min-size ribbon_ride entry off signal['full_send'] for an arm with
+    gate_override.full_send. Returns None whenever the arm is not armed for this lane or the
+    producer emitted nothing to rescue -- the caller's normal HOLD reasoning then stands
+    unmodified. qty is HARD-CLAMPED to params.min_contracts (never _qty_for, never
+    _apply_recency_min_sizing -- already at the floor). Strike uses PROBE_STRIKE_TIERS for the
+    same reason the probe lane does: a nearer, ATM-class contract clears the UNTOUCHED
+    min_entry_premium floor on its own merits instead of colliding with the arm's far-OTM
+    table (the #1 practical blocker, 15 of risky-1's 16 named-setup ticks on 2026-07-31)."""
+    g = arm.get("gate_override") or {}
+    if not g.get("full_send"):
+        return None
+    fs = signal.get("full_send")
+    if not isinstance(fs, Mapping):
+        return None
+    for side, key in (("P", "bear"), ("C", "bull")):
+        blk = fs.get(key)
+        if not isinstance(blk, Mapping) or blk.get("available") is not True:
+            continue
+        setup = str(blk.get("setup_name") or "")
+        if setup.upper() not in PROBE_RIBBON_SETUPS:
+            continue  # scope = ribbon_ride's validated setups only -- never a new strategy
+        level = blk.get("level")
+        if not isinstance(level, (int, float)):
+            continue  # no chart-stop anchor -> no trade (a full-send entry is never stop-less)
+        cohort = _cohort_tag(blk.get("blocked_verdict"))
+        if spot is None:
+            return _hold(arm_id, side, setup, f"FULL_SEND cohort={cohort} blocked: no spot in signal")
+        strike = strike_selection.pick_strike(float(spot), float(equity), side, PROBE_STRIKE_TIERS)
+        try:
+            qty = int(params.get("min_contracts", 3))
+        except (TypeError, ValueError):
+            qty = 3
+        trigs = list(blk.get("triggers_fired") or [])
+        quality = "ELITE" if _is_elite({"triggers_fired": trigs}) else "BASE"
+        return EntryPlan(arm_id, "ENTER", side, setup, strike, qty, quality,
+                         f"FULL_SEND cohort={cohort} trig={'+'.join(trigs)}",
+                         strategy=strategies.RIBBON_RIDE.name,
+                         exit_shape=_exit_shape_dict(strategies.RIBBON_RIDE, arm),
+                         trigger_level=float(level))
+    return None
 
 
 def _ladder_plan(

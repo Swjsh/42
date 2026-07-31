@@ -427,7 +427,7 @@ def _bold_passed_blocks(today: str, now: datetime) -> dict:
 
 def build(now: datetime | None = None, scoring_peak: bool | None = None,
           emit_strategies: bool | None = None, run_vwap: bool | None = None,
-          probe_cohort: bool | None = None) -> dict:
+          probe_cohort: bool | None = None, full_send: bool | None = None) -> dict:
     """Write shared-signal.json. DEFAULT (scoring_peak False/None and SCORING_PEAK_LIVE
     False) is byte-identical to v1. When scoring_peak is True (or the module flag is set)
     the signal ALSO carries dual-perception 'safe'/'bold' blocks for the loose arms.
@@ -447,6 +447,7 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
     do_strats = EMIT_STRATEGIES if emit_strategies is None else bool(emit_strategies)
     do_vwap = RUN_VWAP if run_vwap is None else bool(run_vwap)
     do_probe = PROBE_COHORT_LIVE if probe_cohort is None else bool(probe_cohort)
+    do_full = FULL_SEND_LIVE if full_send is None else bool(full_send)
     row = _latest_today_decision(today)
 
     # NEVER-BLIND fallback (2026-06-25): if the heartbeat ledger is missing/stale/blind,
@@ -479,6 +480,9 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
                 sig["strategies"] = []  # blind/beacon fallback: no scored setup -> empty set
             if do_probe:
                 sig["probe"] = {"bull": dict(_PROBE_EMPTY), "bear": dict(_PROBE_EMPTY)}
+            if do_full:
+                # blind/beacon fallback: no scored setup -> nothing for full-send to rescue
+                sig["full_send"] = {"bull": dict(_FULL_SEND_EMPTY), "bear": dict(_FULL_SEND_EMPTY)}
             OUT.write_text(json.dumps(sig, indent=2), encoding="utf-8")
             return sig
         # beacon also unavailable -> fall through to the original no-decision / stale-row path
@@ -500,6 +504,8 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
             sig["strategies"] = []  # no today row -> no scored setup -> empty set
         if do_probe:
             sig["probe"] = {"bull": dict(_PROBE_EMPTY), "bear": dict(_PROBE_EMPTY)}
+        if do_full:
+            sig["full_send"] = {"bull": dict(_FULL_SEND_EMPTY), "bear": dict(_FULL_SEND_EMPTY)}
         OUT.write_text(json.dumps(sig, indent=2), encoding="utf-8")
         return sig
 
@@ -575,6 +581,10 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
     # score_ladder_floor consume it (fleet_executor._ladder_plan). Fail-closed producer:
     # absent raw fields (all rows before 2026-07-28) -> available=False.
     sig["ladder"] = _ladder_block(today)
+    # FULL-SEND (2026-07-31): additive block, same inertness contract as 'probe'/'ladder' --
+    # only an arm with gate_override.full_send consumes it (fleet_executor._full_send_plan).
+    if do_full:
+        sig["full_send"] = _full_send_block(today)
     OUT.write_text(json.dumps(sig, indent=2), encoding="utf-8")
     return sig
 
@@ -854,10 +864,133 @@ def _ladder_block(today: str) -> dict:
     return _ladder_block_from_row(row)
 
 
+# --- FULL-SEND lane (2026-07-31, J directive) --------------------------------------------
+# J, 2026-07-31: "we're paper trading. We have six arms, and we should just be getting in shit
+# and seeing if it works." That day the engine produced ZERO ENTER verdicts on 386 ticks x 2
+# accounts; every named setup it reached (55 safe / 56 bold, all BULLISH_RECLAIM_RIDE_THE_
+# RIBBON) was vetoed SKIP_ELITE_BULL_LEVEL_RECLAIM. Meanwhile risky-1 logged 128 straight
+# HOLDs and zero trades.
+#
+# WHY A PRODUCER BLOCK AND NOT AN ACCOUNTS.JSON FLAG: an arm's gate_override can only ever ADD
+# selectivity (fleet_executor._gate_check / plan_entry) -- it cannot rescue a tick the producer
+# never emitted. Measured over ALL fleet history (3,479 ticks/arm): gate_override blocked 45
+# ticks on safe-3, 45 on risky-1, and 0 on risky-3 -- 1.3%, and 0 on 2026-07-31. The looseness
+# axis of the 2x3 grid is therefore inert; ~83% of fleet HOLDs are "no qualifying setup (no
+# strategy fired)", i.e. the PRODUCER emitted nothing. So a genuinely-looser arm is NOT
+# representable downstream and must be a producer-side lane, exactly like `probe` and `ladder`.
+#
+# WHAT THIS LANE IS (doctrine: ARMS ARE RISK PROFILES, NOT STRATEGIES): the SAME validated
+# setups, at MINIMUM size, with the COHORT-LEVEL vetoes not inherited. It is NOT a new strategy
+# and NOT a new trigger -- every entry it produces was already NAMED by the engine as a
+# playbook setup and merely refused by a backward-looking population filter.
+#
+# ALLOWLIST (explicit, never a blocklist -- same model as PROBE_ALLOWED_VERDICTS). These are
+# EXACTLY the five cohort gates measured in the pre-registered A/B
+# (analysis/recommendations/prereg-full-send-arm-2026-07-31.json, frozen 17:35:46 ET BEFORE the
+# run; results in full-send-arm-2026-07-31.json). Verdict strings taken verbatim from
+# backtest/lib/engine/gates.py GATE_ORDER -- the single source of truth for gate->verdict.
+#
+# NOT on the allowlist, deliberately: SKIP_NO_LEVELS (a SIGHT failure -- the brain could not
+# see, which no tier may trade through), SKIP_EARLY/LATE_ENTRY + SKIP_STALE_TRIGGER (time
+# gates -- the entry was never actionable at that wall clock), SKIP_BAD_INPUT/ERROR (data
+# integrity), SKIP_STRUCTURE_VETO (structural), and SKIP_RIBBON_MOMENTUM_GATE /
+# SKIP_DOJI_ENTRY_BAR (real cohort gates, but NOT part of the measured package -- ship only
+# what was tested).
+#
+# DISCLOSURE (the most debatable member): SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY is also in the
+# GLOBAL _HARD_SKIP_VERDICTS above, whose comment argues no loose arm should bypass it via a
+# high score. This lane does not bypass it via score -- it bypasses it via an explicit,
+# per-arm, pre-registered allowlist backed by its own A/B. Different mechanism, own evidence.
+# The A/B measured the PACKAGE of five; no per-gate attribution was done, so de-arming is
+# all-or-nothing (delete the arm's gate_override.full_send key), never gate-picking on the
+# same data (that would be the multiple-comparisons trap this repo has been burned by).
+FULL_SEND_ALLOWED_VERDICTS = frozenset({
+    "SKIP_ELITE_BULL_LEVEL_RECLAIM",       # block_elite_bull
+    "SKIP_BULL_1100_1200",                 # block_bull_1100_1200
+    "SKIP_CONF_LVL_REC_AFTERNOON",         # block_conf_lvl_rec_afternoon
+    "SKIP_LEVEL_REJECTION_GATE",           # block_level_rejection
+    "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY", # require_bearish_fill_bar
+})
+
+# Perception source. The designated full-send arm (risky-1) is a RISKY-class arm, so it reads
+# the BOLD ledger -- the same role routing fleet_executor._perception_for_arm applies.
+FULL_SEND_LEDGER_ACCOUNT = "bold"
+
+# DEFAULT ON: like `probe`/`ladder`, the emitted block is pure additive data. Every reader that
+# does not know the key ignores it; ONLY an arm carrying gate_override.full_send acts on it.
+# Set False (or build(full_send=False)) for a byte-identical producer-side revert.
+FULL_SEND_LIVE = True
+
+_FULL_SEND_EMPTY = {"available": False, "score": 0, "triggers_fired": [], "setup_name": None,
+                    "blocked_verdict": None, "level": None}
+
+
+def passed_full_send(action, trigger, fired) -> bool:
+    """True only when `action` is an explicitly allowlisted COHORT veto AND a real named
+    ENTRY_TRIGGERS-member trigger actually fired. Fail-closed on everything else, including a
+    bare HOLD and every verdict not named in FULL_SEND_ALLOWED_VERDICTS."""
+    if action not in FULL_SEND_ALLOWED_VERDICTS:
+        return False
+    return bool(fired) and (trigger in ENTRY_TRIGGERS)
+
+
+def _full_send_level(row: dict, side: str):
+    """The chart-stop anchor for a full-send entry. Prefers the engine's ground-truth
+    trigger_level_exact; falls back to the side's RAW detection level (fields added
+    2026-07-28, absent on older rows). None when neither exists -- and a None level means
+    NO ENTRY: a full-send trade is never stop-less."""
+    tl = row.get("trigger_level_exact")
+    if isinstance(tl, (int, float)) and not isinstance(tl, bool):
+        return float(tl)
+    raw = row.get("bull_reclaim_level_raw") if side == "C" else row.get("bear_rejection_level_raw")
+    if isinstance(raw, (int, float)) and not isinstance(raw, bool):
+        return float(raw)
+    return None
+
+
+def _full_send_block_from_row(row: "dict | None") -> dict:
+    """Pure row -> full_send block (same replay-friendly shape as _probe_passed_blocks_from_row
+    and _ladder_block_from_row). One side only -- the row's OWN `side` field decides, never a
+    score-based inference."""
+    out = {"bull": dict(_FULL_SEND_EMPTY), "bear": dict(_FULL_SEND_EMPTY)}
+    if row is None:
+        return out
+    action = row.get("action")
+    trigs, trig0, fired = _row_trigger_args(row)
+    if not passed_full_send(action, trig0, fired):
+        return out
+    setup = row.get("setup_name")
+    if not setup:
+        return out  # a NAMED setup is the doctrine floor: same validated setups, nothing new
+    side = row.get("side")
+    if side not in ("C", "P"):
+        return out
+    level = _full_send_level(row, side)
+    if level is None:
+        return out  # no chart-stop anchor -> no trade
+    key = "bull" if side == "C" else "bear"
+    out[key] = {
+        "available": True,
+        "score": row.get("bull_score" if side == "C" else "bear_score", 0),
+        "triggers_fired": trigs,
+        "setup_name": setup,
+        "blocked_verdict": action,
+        "level": level,
+    }
+    return out
+
+
+def _full_send_block(today: str) -> dict:
+    row = _latest_today_decision(today, account=FULL_SEND_LEDGER_ACCOUNT) if USE_CORE_LEDGER \
+        else _latest_today_decision(today)
+    return _full_send_block_from_row(row)
+
+
 def build_from_rows(row: "dict | None", now: datetime, *, bold_row: "dict | None" = None,
                      probe_row: "dict | None" = None, scoring_peak: bool | None = None,
                      emit_strategies: bool | None = None, run_vwap: bool | None = None,
-                     probe_cohort: bool | None = None, write: bool = False) -> dict:
+                     probe_cohort: bool | None = None, full_send: bool | None = None,
+                     write: bool = False) -> dict:
     """Replay-aware sibling of build() (2026-07-20 DOJO-FLEET-HISTORICAL-SIGNAL). Produces the
     IDENTICAL shared-signal shape build() writes, but fed an ALREADY-MAPPED row (the exact shape
     _map_core_row/a DojoDecision->row mapping produces) instead of reading today's on-disk
@@ -884,6 +1017,7 @@ def build_from_rows(row: "dict | None", now: datetime, *, bold_row: "dict | None
     do_strats = EMIT_STRATEGIES if emit_strategies is None else bool(emit_strategies)
     do_vwap = RUN_VWAP if run_vwap is None else bool(run_vwap)
     do_probe = PROBE_COHORT_LIVE if probe_cohort is None else bool(probe_cohort)
+    do_full = FULL_SEND_LIVE if full_send is None else bool(full_send)
 
     if row is None:
         sig = {
@@ -903,6 +1037,8 @@ def build_from_rows(row: "dict | None", now: datetime, *, bold_row: "dict | None
             sig["strategies"] = []
         if do_probe:
             sig["probe"] = {"bull": dict(_PROBE_EMPTY), "bear": dict(_PROBE_EMPTY)}
+        if do_full:
+            sig["full_send"] = {"bull": dict(_FULL_SEND_EMPTY), "bear": dict(_FULL_SEND_EMPTY)}
         if write:
             OUT.write_text(json.dumps(sig, indent=2), encoding="utf-8")
         return sig
@@ -958,6 +1094,10 @@ def build_from_rows(row: "dict | None", now: datetime, *, bold_row: "dict | None
         sig["strategies"] = _strategies_block(s_bear, s_bull, row.get("spy"), now, do_vwap)
     if do_probe:
         sig["probe"] = _probe_passed_blocks_from_row(probe_row)
+    if do_full:
+        # FULL-SEND reads the BOLD perception (FULL_SEND_LEDGER_ACCOUNT); on the replay path
+        # that is the caller-supplied bold_row, falling back to the primary row when absent.
+        sig["full_send"] = _full_send_block_from_row(bold_row if bold_row is not None else row)
     if write:
         OUT.write_text(json.dumps(sig, indent=2), encoding="utf-8")
     return sig

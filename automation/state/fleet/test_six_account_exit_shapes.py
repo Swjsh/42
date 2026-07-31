@@ -106,10 +106,14 @@ def test_every_arm_exit_shape_matches_registry_plus_its_own_patch():
 
 
 def test_control_arms_stay_registry_verbatim():
-    """PARITY INVARIANT preserved for arms with NO exit_patch (safe-2, bold-2, risky-1): still
-    byte-identical to the strategy's REGISTRY ExitShape, unaffected by the 2026-07-20 overlay
-    mechanism existing at all."""
-    for arm_id in ("safe-2", "bold-2", "risky-1"):
+    """PARITY INVARIANT preserved for arms with NO exit_patch: still byte-identical to the
+    strategy's REGISTRY ExitShape, unaffected by the 2026-07-20 overlay mechanism existing.
+
+    2026-07-31: risky-1 REMOVED from the control set. It gained the REACHABLE-TP1 exit_patch
+    on 2026-07-29 (so this assertion had been stale/RED since then) and became the FULL-SEND
+    arm on 2026-07-31. The CORE arms are the controls. The invariant itself is UNCHANGED --
+    an exit_patch appearing on either core arm still fails loudly."""
+    for arm_id in ("safe-2", "bold-2"):
         assert not (_arm(arm_id).get("params_patch") or {}).get("exit_patch"), (
             f"{arm_id} was expected to be a control arm (no exit_patch) -- update this test "
             "if that's an intentional accounts.json change"
@@ -146,7 +150,11 @@ def test_ribbon_and_vwap_shapes_are_distinct_per_strategy_on_control_arms():
     ribbon pins updated 2026-07-09 (SS-B structure-stop cell, STOP-B second ship:
     structure-stop-2026-07-09.json): stop_mode=structure + cat -50%, TP1 +100% sell66,
     trailing 15% runner. Distinctness now lives on the stop_mode axis too."""
-    for arm_id in ("safe-2", "bold-2", "risky-1"):
+    # 2026-07-31: risky-1 REMOVED from this control set. It stopped being a control on
+    # 2026-07-29 (REACHABLE-TP1 exit_patch, tp1 1.0 -> 0.5) and this pin sat stale/RED from
+    # then until now; on 2026-07-31 it also became the FULL-SEND arm. The CORE arms are the
+    # controls. Not a weakening -- the registry pins below are unchanged and still asserted.
+    for arm_id in ("safe-2", "bold-2"):
         s = _planned_exit_shapes(arm_id)
         assert s["ribbon_ride"]["premium_stop_pct"] == -0.20  # flag-OFF fallback field
         assert s["ribbon_ride"]["tp1_premium_pct"] == 1.0
