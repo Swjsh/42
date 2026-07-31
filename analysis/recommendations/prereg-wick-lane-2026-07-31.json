@@ -1,0 +1,55 @@
+{
+  "prereg_id": "WICK-ENTRY-LANE-PERSISTENT-SHELF",
+  "frozen_at_et": "2026-07-31T16:47:56",
+  "frozen_before_any_run": true,
+  "authority": "J directive 2026-07-31: 'have one of the risky accounts get in off the wick.' Lane brief: design + pre-registered study for the risky arms' wick-entry lane; ARM NOTHING this session. Motivating incidents (both OUTSIDE the P&L population, used only to SHAPE the predicate, disclosed): 2026-07-31 10:15 ET SPY low 737.68 into SHELF 737.03-738.63 with V-recovery (J called 737.68 live); 2026-07-30 ~12:40 ET wick to 737.75 into the same shelf, recovery bar 12:45.",
+  "graveyard_constraints_honored": [
+    "ZONE-WIDTH-2026-07-28: banding the CLOSE-cross detector tested negative (10c/25c both NO). This predicate is NOT a widened cross -- it is WICK-TOUCH (bar low penetrates INTO the zone) + RECOVERY (close back at/above the zone top) with the zone never lost on a close.",
+    "Exit graveyard untouched: no pre-TP1 trailing lock, no profit_lock_mode=fixed, no exit-all-at-touch, no zone-banded cross detector, no score ladders, no structure-shift cascade. Exit shape = risky-3's LIVE ZONE-RIDE verbatim (registry ribbon_ride + accounts.json exit_patch), zero new exit knobs."
+  ],
+  "hypothesis": "A closed-bar BULL wick-hold at a PERSISTENT multi-week shelf zone (the shape J called at 737.68 on 2026-07-31 and at 737.75 on 2026-07-30) is a positive-expectancy standalone entry lane for the loose risky arm (risky-3), sized min-size, exited by risky-3's live ZONE-RIDE shape with the zone's far edge as the structure-stop anchor.",
+  "detector_frozen": {
+    "name_closed_bar": "shelf_wick_hold_closed_bar_v1 (THIS study; historically testable)",
+    "name_live_tick": "shelf_wick_hold_live_tick_v1 (forward-only spec, NOT run here: intra-bar tick low prints inside a persistent shelf zone AND live bid recovers to >= zone_hi - 0.10 before bar close -> immediate entry, per the standing Bold live-trigger convention. No historical tick/bid path exists in the cache; forward shadow only. Kept separately named per lane brief.)",
+    "zone_universe": "daily_context.py shelf zones ONLY (_find_shelf_candidates + _merge_shelf_candidates imported from setup/scripts/daily_context.py, byte-identical production constants: band $1.60, >=3 touches, >=10 session span), computed per session D from daily SIP bars in [D-60 calendar days, D) -- strictly prior sessions, no look-ahead (C6). This is the w>=4 restriction: the levels compiler's weight scale assigns w5 to shelves and nothing else reaches w4 (LEVEL_WEIGHT_SHELF=5, prior-day HLC=3, intraday=2).",
+    "persistence_rule": "PERSISTENT(D) = shelf zone whose band overlaps (non-empty intersection) some shelf zone computed identically for the PRIOR RTH session. Entries fire ONLY at persistent zones. DISCLOSED FALLBACK: lane 3's FRESH/PERSISTENT classification artifacts had not landed at freeze time (checked analysis/ 2026-07-31 ~16:45 ET); prior-session-existence-by-overlap is the pre-declared substitute from the lane brief.",
+    "bull_predicate": "For persistent zone [lo, hi], on a closed RTH 5m bar: F1 open >= lo (bar begins at/above the shelf -- tests it as support, excludes upward breakouts from below); F2 low <= hi (wick penetrates into the zone); F3 close >= hi - WICK_CLOSE_TOLERANCE (recovered to/above the zone top; the zone was never lost on a close); F4 (close - low) >= max(WICK_MIN_DOLLARS, WICK_MIN_PCT_OF_RANGE * (high - low)) (significant lower wick). Constants are the PRODUCTION wick-detector module constants imported from backtest/lib/filters.py (0.10 / 0.15 / 0.50) -- zero new tunables. Tiebreak among multiple fired zones: highest band_high (nearest defended shelf). Same-bar bull+bear collision: bull wins (primary lane), collisions counted.",
+    "bear_predicate_secondary": "Exact mirror at an overhead persistent zone: F1 open <= hi; F2 high >= lo; F3 close <= lo + WICK_CLOSE_TOLERANCE; F4 (high - close) >= same threshold. Tiebreak lowest band_low. SECONDARY cohort -- own tracker, own gates, reported regardless.",
+    "trigger_level_for_structure_stop": "FAR zone edge: bull -> band_low, bear -> band_high (invalidation = the zone actually fails on a closed 5m bar, J zone doctrine). NOT swept.",
+    "no_other_knobs": "Zero search space. One predicate per side, production constants throughout, one exit shape, one sizing. Dose-response gate is N/A because NOTHING is swept."
+  },
+  "incident_capture_check_frozen": "The predicate must fire on the 2026-07-31 10:15 bar (O 738.47 H 739.50 L 737.68 C 738.61, zone [737.03, 738.63]: wick 0.93 >= threshold 0.91) and on the 2026-07-30 12:45 recovery bar (O 738.04 H 738.75 L 738.00 C 738.56: wick 0.56 >= 0.375), and must NOT fire on the 2026-07-30 12:40 bar itself (close 738.03 sits mid-zone, F3 fails). Encoded as RED-proofed guard fixtures from the SIP tape quoted above; these dates are OUTSIDE the P&L population (which ends 2026-07-27), so the anchors that shaped the predicate never contribute P&L.",
+  "population": "390-RTH-day window 2025-01-02..2026-07-27 via ladder_fullhist_replay.load_extended_data() + build_rth_frame (the frozen LADDER-FULLHIST population). Daily bars for zone computation: Alpaca 1Day SIP feed adjustment=raw (the levels-compiler-v2 feed, commit 7b4aa3f4), fetched 2024-10-01..2026-07-27, snapshot cached beside the outputs for reproducibility.",
+  "entry_mechanics_frozen": {
+    "signal_bar": "closed RTH 5m bar satisfying the predicate",
+    "entry": "entry+1 per markdown/audits/ENTRY-BAR-CONVENTION-RULING-2026-07-25.md: option bar at-or-after the NEXT 5m bar's timestamp, entry premium = that option bar's OPEN (ladder_fullhist_replay's disclosed point-sample convention, internally consistent with walk_exit_manager's own open-sample fills)",
+    "entry_window": "entry bar timestamp in [09:35, 15:00) ET (production entry_no_trade_before_et / entry_no_trade_after_et)",
+    "strike": "pick_strike(signal close, $2000 ref, side, fleet_executor.PROBE_STRIKE_TIERS) -> ATM (the table _ladder_plan uses for risky-3's min-size lane)",
+    "qty": "3 contracts (house min-size replay convention, matches LADDER-FULLHIST; live risky-3 inherits the Bold-family min_contracts=5 -- dollars scale linearly, every gate below is scale-invariant, disclosed)",
+    "premium_floor": "entry premium < $0.30 refused and counted (params.json min_entry_premium, live-wide gate)",
+    "position_model": "one-position-at-a-time per cohort (PositionTracker convention); bull and bear cohorts tracked independently (separate hypotheses), disclosed",
+    "pnl": "real OPRA cached fills ONLY; signals whose contract has no cached OPRA bar at/after entry are EXCLUDED and counted (synthetic disclosed + excluded, C1)",
+    "exit": "backtest/lib/exit_manager_walk.walk_exit_manager (the REAL exit_manager.plan_exit_actions core), exit_shape = strategies.py ribbon_ride registry .to_dict() shallow-merged with risky-3's accounts.json params_patch.exit_patch READ AT RUNTIME (stop_mode structure, profit_lock_mode trailing, trail_pct 0.20) -- the live ZONE-RIDE shape, never hand-copied (C14); structure_stop_enabled=True; trigger_level = far zone edge; strategy='ribbon_ride'; time_stop 15:40 ET (engine_fullhist_replay.TIME_STOP_ET)"
+  },
+  "gates_frozen": [
+    "G1 positive aggregate P&L (real-OPRA cohort)",
+    "G2 day-majority: win days > half of days with >=1 lane trade",
+    "G3 survives dropping the single best trade",
+    "G4 held-out positive: dates >= 2026-03-06 (the LADDER-FULLHIST last-25% cutoff, touched once) with >=1 trade and total > 0",
+    "G5 runner-anchor-no-regression: SATISFIED BY CONSTRUCTION -- standalone lane, zero engine patching (no lib.filters/orchestrator monkeypatch anywhere in the runner), the core book's 35 RUNNER_TRAIL winners are untouched because the core engine is never re-run or modified; the runner asserts this structurally",
+    "G6 incident-capture: the frozen fixtures above pass in the guard suite (RED-proofed)",
+    "ADVISORY: n < 15 real fills = evidence_thin",
+    "N/A: dose-response (nothing swept)"
+  ],
+  "ship_bar": "BULL cohort ships only if G1-G4 all pass (G5/G6 structural+fixture). BEAR cohort judged independently on the same bar; J named the bull shape, so bear passing alone ships nothing without its own review.",
+  "arming_plan_if_pass": "risky-3 ONLY (the loose lane J named), min-size (its own min_contracts floor), live-tick variant stays forward-shadow. Forward kill-criterion frozen NOW: 10 sessions or n>=8 wick-lane fills, whichever first; negative aggregate expectancy -> auto-revert and record. Arming itself is a SEPARATE evening's work with its own guards -- NOTHING is armed by this study (lane brief: ARM NOTHING).",
+  "if_null": "Record the null in analysis/recommendations/wick-lane-2026-07-31.{md,json}; the wick idea then waits for shelf_wick_hold_live_tick_v1's forward shadow (the closed-bar null does not kill the intra-bar shape -- a closed-bar proxy underestimates the live-tick entry price advantage; disclosed either way).",
+  "outputs": [
+    "analysis/recommendations/wick-lane-2026-07-31.json",
+    "analysis/recommendations/wick-lane-2026-07-31.md",
+    "analysis/recommendations/wick-lane-2026-07-31-daily-bars.json (data snapshot)",
+    "backtest/tools/wick_zone_lane.py (detector module)",
+    "backtest/tools/wick_lane_fullhist_replay.py (runner)",
+    "backtest/tests/test_wick_zone_lane.py (guards)"
+  ]
+}
