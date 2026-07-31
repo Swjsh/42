@@ -1,0 +1,1597 @@
+{
+  "_doc": "block_elite_bull POST-FIX (corrected level feed) requalification. Executed against the frozen prereg elite-bull-requal-prereg-2026-07-31.json. All cells reported. Real OPRA only; missing contracts dropped + counted, never imputed.",
+  "generated_at": "2026-07-31T15:15:08.317064",
+  "window": [
+    "2026-07-28",
+    "2026-07-31"
+  ],
+  "exit_shape_used": {
+    "premium_stop_pct": -0.2,
+    "tp1_premium_pct": 1.0,
+    "tp1_qty_fraction": 0.667,
+    "profit_lock_mode": "trailing",
+    "runner_target_pct": 99.0,
+    "trail_pct": 0.15,
+    "profit_lock_arm_pct": 0.05,
+    "stop_mode": "structure",
+    "catastrophe_stop_pct": -0.5,
+    "profit_lock_arm_scope": "post_tp1"
+  },
+  "mining": {
+    "safe": {
+      "n_raw_ticks": 73,
+      "n_events": 13,
+      "n_kept": 10,
+      "excluded": [
+        {
+          "first_ts": "2026-07-31T15:11:03",
+          "status": "E3",
+          "reason": "first tick >= 15:00 ET entry ceiling (SKIP_LATE_ENTRY even if unblocked)"
+        },
+        {
+          "first_ts": "2026-07-31T15:21:02",
+          "status": "E3",
+          "reason": "first tick >= 15:00 ET entry ceiling (SKIP_LATE_ENTRY even if unblocked)"
+        },
+        {
+          "first_ts": "2026-07-31T15:46:02",
+          "status": "E3",
+          "reason": "first tick >= 15:00 ET entry ceiling (SKIP_LATE_ENTRY even if unblocked)"
+        }
+      ]
+    },
+    "bold": {
+      "n_raw_ticks": 58,
+      "n_events": 11,
+      "n_kept": 8,
+      "excluded": [
+        {
+          "first_ts": "2026-07-31T15:11:04",
+          "status": "E3",
+          "reason": "first tick >= 15:00 ET entry ceiling (SKIP_LATE_ENTRY even if unblocked)"
+        },
+        {
+          "first_ts": "2026-07-31T15:21:42",
+          "status": "E3",
+          "reason": "first tick >= 15:00 ET entry ceiling (SKIP_LATE_ENTRY even if unblocked)"
+        },
+        {
+          "first_ts": "2026-07-31T15:46:03",
+          "status": "E3",
+          "reason": "first tick >= 15:00 ET entry ceiling (SKIP_LATE_ENTRY even if unblocked)"
+        }
+      ]
+    }
+  },
+  "distinct_setups_cross_account": 11,
+  "contracts": {
+    "needed": [
+      [
+        "2026-07-28",
+        740
+      ],
+      [
+        "2026-07-28",
+        742
+      ],
+      [
+        "2026-07-29",
+        737
+      ],
+      [
+        "2026-07-29",
+        742
+      ],
+      [
+        "2026-07-29",
+        743
+      ],
+      [
+        "2026-07-31",
+        744
+      ],
+      [
+        "2026-07-31",
+        745
+      ],
+      [
+        "2026-07-31",
+        746
+      ],
+      [
+        "2026-07-31",
+        748
+      ]
+    ],
+    "fetch": {
+      "skipped": "run with --fetch"
+    }
+  },
+  "data_provenance": {
+    "SPY260728C00740000": "Alpaca /options/trades OPRA prints, aggregated to 5-min client-side",
+    "SPY260728C00742000": "Alpaca /options/trades OPRA prints, aggregated to 5-min client-side",
+    "SPY260729C00737000": "Alpaca /options/trades OPRA prints, aggregated to 5-min client-side",
+    "SPY260729C00742000": "Alpaca /options/trades OPRA prints, aggregated to 5-min client-side",
+    "SPY260729C00743000": "Alpaca /options/trades OPRA prints, aggregated to 5-min client-side",
+    "SPY260731C00744000": "TradingView OPRA_DLY 5-min bars (Alpaca options-data 403'd 'OPRA agreement is not signed' mid-fetch); cross-validated vs real fleet fill prints on C746 (3/3 fills inside bar ranges)",
+    "SPY260731C00745000": "TradingView OPRA_DLY 5-min bars (same as C744)",
+    "SPY260731C00746000": "TradingView OPRA_DLY 5-min bars (same as C744; the cross-validated contract)",
+    "SPY260731C00748000": "TradingView OPRA_DLY 5-min bars (same as C744)",
+    "note": "ALL sources are real OPRA prints -- no synthetic/BS pricing anywhere. The Alpaca /options/bars endpoint 403s ('OPRA agreement is not signed') on both mcp keys as of 2026-07-31 evening; it worked 2026-07-23. Standing repair needed for future backfills (J dashboard action or trades-agg migration)."
+  },
+  "cohorts": {
+    "safe_per_event_qty10": {
+      "n": 10,
+      "win_rate": 0.4,
+      "total_pnl": 3130.0,
+      "expectancy_per_trade": 313.0,
+      "drop_top1_remainder": 771.6,
+      "drop_top1_positive": true,
+      "by_day_pnl": {
+        "2026-07-28": -530.0,
+        "2026-07-29": 898.4,
+        "2026-07-31": 2761.6
+      },
+      "trades": [
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T11:22:03",
+          "strike": 740,
+          "symbol": "SPY260728C00740000",
+          "entry_premium": 2.1,
+          "trigger_level": 739.34,
+          "qty": 10,
+          "pnl": -340.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2026-07-28T15:50:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T13:36:03",
+          "strike": 742,
+          "symbol": "SPY260728C00742000",
+          "entry_premium": 0.58,
+          "trigger_level": 741.56,
+          "qty": 10,
+          "pnl": -190.0,
+          "exit_reason": "structure_stop @ 741.56",
+          "exit_time_et": "2026-07-28T13:40:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:31:47",
+          "strike": 737,
+          "symbol": "SPY260729C00737000",
+          "entry_premium": 2.0,
+          "trigger_level": 736.76,
+          "qty": 10,
+          "pnl": 2358.4,
+          "exit_reason": "runner_stop @ 4.9",
+          "exit_time_et": "2026-07-29T15:05:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:52:46",
+          "strike": 742,
+          "symbol": "SPY260729C00742000",
+          "entry_premium": 1.82,
+          "trigger_level": 741.6,
+          "qty": 10,
+          "pnl": -1460.0,
+          "exit_reason": "structure_stop @ 741.6",
+          "exit_time_et": "2026-07-29T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:16:02",
+          "strike": 744,
+          "symbol": "SPY260731C00744000",
+          "entry_premium": 0.94,
+          "trigger_level": 743.25,
+          "qty": 10,
+          "pnl": 1085.6,
+          "exit_reason": "runner_stop @ 2.24",
+          "exit_time_et": "2026-07-31T13:40:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:27:02",
+          "strike": 744,
+          "symbol": "SPY260731C00744000",
+          "entry_premium": 1.46,
+          "trigger_level": 743.56,
+          "qty": 10,
+          "pnl": 2096.0,
+          "exit_reason": "time_stop_15:50 (runner)",
+          "exit_time_et": "2026-07-31T15:50:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T13:24:03",
+          "strike": 745,
+          "symbol": "SPY260731C00745000",
+          "entry_premium": 1.57,
+          "trigger_level": 745.31,
+          "qty": 10,
+          "pnl": -320.0,
+          "exit_reason": "structure_stop @ 745.31",
+          "exit_time_et": "2026-07-31T13:50:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T13:36:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.83,
+          "trigger_level": 746.3,
+          "qty": 10,
+          "pnl": 30.0,
+          "exit_reason": "structure_stop @ 746.3",
+          "exit_time_et": "2026-07-31T13:40:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:26:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.77,
+          "trigger_level": 746.09,
+          "qty": 10,
+          "pnl": -20.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T14:30:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:51:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.84,
+          "trigger_level": 746.09,
+          "qty": 10,
+          "pnl": -110.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        }
+      ],
+      "n_missing_bars": 0
+    },
+    "safe_sequential_hold_qty10": {
+      "n": 5,
+      "win_rate": 0.4,
+      "total_pnl": 2974.0,
+      "expectancy_per_trade": 594.8,
+      "drop_top1_remainder": 615.6,
+      "drop_top1_positive": true,
+      "by_day_pnl": {
+        "2026-07-28": -340.0,
+        "2026-07-29": 2358.4,
+        "2026-07-31": 955.6
+      },
+      "trades": [
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T11:22:03",
+          "strike": 740,
+          "symbol": "SPY260728C00740000",
+          "entry_premium": 2.1,
+          "trigger_level": 739.34,
+          "qty": 10,
+          "pnl": -340.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2026-07-28T15:50:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:31:47",
+          "strike": 737,
+          "symbol": "SPY260729C00737000",
+          "entry_premium": 2.0,
+          "trigger_level": 736.76,
+          "qty": 10,
+          "pnl": 2358.4,
+          "exit_reason": "runner_stop @ 4.9",
+          "exit_time_et": "2026-07-29T15:05:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:16:02",
+          "strike": 744,
+          "symbol": "SPY260731C00744000",
+          "entry_premium": 0.94,
+          "trigger_level": 743.25,
+          "qty": 10,
+          "pnl": 1085.6,
+          "exit_reason": "runner_stop @ 2.24",
+          "exit_time_et": "2026-07-31T13:40:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:26:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.77,
+          "trigger_level": 746.09,
+          "qty": 10,
+          "pnl": -20.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T14:30:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:51:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.84,
+          "trigger_level": 746.09,
+          "qty": 10,
+          "pnl": -110.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        }
+      ],
+      "n_missing_bars": 0
+    },
+    "safe_sequential_hold_conservative_qty10": {
+      "n": 5,
+      "win_rate": 0.4,
+      "total_pnl": 2974.0,
+      "expectancy_per_trade": 594.8,
+      "drop_top1_remainder": 615.6,
+      "drop_top1_positive": true,
+      "by_day_pnl": {
+        "2026-07-28": -340.0,
+        "2026-07-29": 2358.4,
+        "2026-07-31": 955.6
+      },
+      "trades": [
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T11:22:03",
+          "strike": 740,
+          "symbol": "SPY260728C00740000",
+          "entry_premium": 2.1,
+          "trigger_level": 739.34,
+          "qty": 10,
+          "pnl": -340.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2026-07-28T15:50:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:31:47",
+          "strike": 737,
+          "symbol": "SPY260729C00737000",
+          "entry_premium": 2.0,
+          "trigger_level": 736.76,
+          "qty": 10,
+          "pnl": 2358.4,
+          "exit_reason": "runner_stop @ 4.9",
+          "exit_time_et": "2026-07-29T15:05:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:16:02",
+          "strike": 744,
+          "symbol": "SPY260731C00744000",
+          "entry_premium": 0.94,
+          "trigger_level": 743.25,
+          "qty": 10,
+          "pnl": 1085.6,
+          "exit_reason": "runner_stop @ 2.24",
+          "exit_time_et": "2026-07-31T13:40:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:26:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.77,
+          "trigger_level": 746.09,
+          "qty": 10,
+          "pnl": -20.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T14:30:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:51:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.84,
+          "trigger_level": 746.09,
+          "qty": 10,
+          "pnl": -110.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        }
+      ]
+    },
+    "safe_per_event_qty3": {
+      "n": 10,
+      "win_rate": 0.4,
+      "total_pnl": 882.0,
+      "expectancy_per_trade": 88.2,
+      "drop_top1_remainder": 192.4,
+      "drop_top1_positive": true,
+      "by_day_pnl": {
+        "2026-07-28": -159.0,
+        "2026-07-29": 251.6,
+        "2026-07-31": 789.4
+      },
+      "trades": [
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T11:22:03",
+          "strike": 740,
+          "symbol": "SPY260728C00740000",
+          "entry_premium": 2.1,
+          "trigger_level": 739.34,
+          "qty": 3,
+          "pnl": -102.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2026-07-28T15:50:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T13:36:03",
+          "strike": 742,
+          "symbol": "SPY260728C00742000",
+          "entry_premium": 0.58,
+          "trigger_level": 741.56,
+          "qty": 3,
+          "pnl": -57.0,
+          "exit_reason": "structure_stop @ 741.56",
+          "exit_time_et": "2026-07-28T13:40:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:31:47",
+          "strike": 737,
+          "symbol": "SPY260729C00737000",
+          "entry_premium": 2.0,
+          "trigger_level": 736.76,
+          "qty": 3,
+          "pnl": 689.6,
+          "exit_reason": "runner_stop @ 4.9",
+          "exit_time_et": "2026-07-29T15:05:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:52:46",
+          "strike": 742,
+          "symbol": "SPY260729C00742000",
+          "entry_premium": 1.82,
+          "trigger_level": 741.6,
+          "qty": 3,
+          "pnl": -438.0,
+          "exit_reason": "structure_stop @ 741.6",
+          "exit_time_et": "2026-07-29T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:16:02",
+          "strike": 744,
+          "symbol": "SPY260731C00744000",
+          "entry_premium": 0.94,
+          "trigger_level": 743.25,
+          "qty": 3,
+          "pnl": 318.4,
+          "exit_reason": "runner_stop @ 2.24",
+          "exit_time_et": "2026-07-31T13:40:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:27:02",
+          "strike": 744,
+          "symbol": "SPY260731C00744000",
+          "entry_premium": 1.46,
+          "trigger_level": 743.56,
+          "qty": 3,
+          "pnl": 597.0,
+          "exit_reason": "time_stop_15:50 (runner)",
+          "exit_time_et": "2026-07-31T15:50:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T13:24:03",
+          "strike": 745,
+          "symbol": "SPY260731C00745000",
+          "entry_premium": 1.57,
+          "trigger_level": 745.31,
+          "qty": 3,
+          "pnl": -96.0,
+          "exit_reason": "structure_stop @ 745.31",
+          "exit_time_et": "2026-07-31T13:50:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T13:36:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.83,
+          "trigger_level": 746.3,
+          "qty": 3,
+          "pnl": 9.0,
+          "exit_reason": "structure_stop @ 746.3",
+          "exit_time_et": "2026-07-31T13:40:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:26:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.77,
+          "trigger_level": 746.09,
+          "qty": 3,
+          "pnl": -6.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T14:30:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:51:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.84,
+          "trigger_level": 746.09,
+          "qty": 3,
+          "pnl": -33.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        }
+      ],
+      "n_missing_bars": 0
+    },
+    "safe_sequential_hold_qty3": {
+      "n": 5,
+      "win_rate": 0.4,
+      "total_pnl": 867.0,
+      "expectancy_per_trade": 173.4,
+      "drop_top1_remainder": 177.4,
+      "drop_top1_positive": true,
+      "by_day_pnl": {
+        "2026-07-28": -102.0,
+        "2026-07-29": 689.6,
+        "2026-07-31": 279.4
+      },
+      "trades": [
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T11:22:03",
+          "strike": 740,
+          "symbol": "SPY260728C00740000",
+          "entry_premium": 2.1,
+          "trigger_level": 739.34,
+          "qty": 3,
+          "pnl": -102.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2026-07-28T15:50:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:31:47",
+          "strike": 737,
+          "symbol": "SPY260729C00737000",
+          "entry_premium": 2.0,
+          "trigger_level": 736.76,
+          "qty": 3,
+          "pnl": 689.6,
+          "exit_reason": "runner_stop @ 4.9",
+          "exit_time_et": "2026-07-29T15:05:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:16:02",
+          "strike": 744,
+          "symbol": "SPY260731C00744000",
+          "entry_premium": 0.94,
+          "trigger_level": 743.25,
+          "qty": 3,
+          "pnl": 318.4,
+          "exit_reason": "runner_stop @ 2.24",
+          "exit_time_et": "2026-07-31T13:40:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:26:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.77,
+          "trigger_level": 746.09,
+          "qty": 3,
+          "pnl": -6.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T14:30:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:51:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.84,
+          "trigger_level": 746.09,
+          "qty": 3,
+          "pnl": -33.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        }
+      ],
+      "n_missing_bars": 0
+    },
+    "safe_sequential_hold_conservative_qty3": {
+      "n": 5,
+      "win_rate": 0.4,
+      "total_pnl": 867.0,
+      "expectancy_per_trade": 173.4,
+      "drop_top1_remainder": 177.4,
+      "drop_top1_positive": true,
+      "by_day_pnl": {
+        "2026-07-28": -102.0,
+        "2026-07-29": 689.6,
+        "2026-07-31": 279.4
+      },
+      "trades": [
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T11:22:03",
+          "strike": 740,
+          "symbol": "SPY260728C00740000",
+          "entry_premium": 2.1,
+          "trigger_level": 739.34,
+          "qty": 3,
+          "pnl": -102.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2026-07-28T15:50:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:31:47",
+          "strike": 737,
+          "symbol": "SPY260729C00737000",
+          "entry_premium": 2.0,
+          "trigger_level": 736.76,
+          "qty": 3,
+          "pnl": 689.6,
+          "exit_reason": "runner_stop @ 4.9",
+          "exit_time_et": "2026-07-29T15:05:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:16:02",
+          "strike": 744,
+          "symbol": "SPY260731C00744000",
+          "entry_premium": 0.94,
+          "trigger_level": 743.25,
+          "qty": 3,
+          "pnl": 318.4,
+          "exit_reason": "runner_stop @ 2.24",
+          "exit_time_et": "2026-07-31T13:40:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:26:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.77,
+          "trigger_level": 746.09,
+          "qty": 3,
+          "pnl": -6.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T14:30:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:51:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.84,
+          "trigger_level": 746.09,
+          "qty": 3,
+          "pnl": -33.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        }
+      ]
+    },
+    "bold_per_event_qty10": {
+      "n": 8,
+      "win_rate": 0.375,
+      "total_pnl": 1821.6,
+      "expectancy_per_trade": 227.7,
+      "drop_top1_remainder": -274.4,
+      "drop_top1_positive": false,
+      "by_day_pnl": {
+        "2026-07-28": -190.0,
+        "2026-07-29": -750.0,
+        "2026-07-31": 2761.6
+      },
+      "trades": [
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T13:36:04",
+          "strike": 742,
+          "symbol": "SPY260728C00742000",
+          "entry_premium": 0.58,
+          "trigger_level": 741.56,
+          "qty": 10,
+          "pnl": -190.0,
+          "exit_reason": "structure_stop @ 741.56",
+          "exit_time_et": "2026-07-28T13:40:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:58:48",
+          "strike": 743,
+          "symbol": "SPY260729C00743000",
+          "entry_premium": 0.96,
+          "trigger_level": 741.49,
+          "qty": 10,
+          "pnl": -750.0,
+          "exit_reason": "structure_stop @ 741.49",
+          "exit_time_et": "2026-07-29T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:16:03",
+          "strike": 744,
+          "symbol": "SPY260731C00744000",
+          "entry_premium": 0.94,
+          "trigger_level": 743.25,
+          "qty": 10,
+          "pnl": 1085.6,
+          "exit_reason": "runner_stop @ 2.24",
+          "exit_time_et": "2026-07-31T13:40:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:27:03",
+          "strike": 744,
+          "symbol": "SPY260731C00744000",
+          "entry_premium": 1.46,
+          "trigger_level": 743.56,
+          "qty": 10,
+          "pnl": 2096.0,
+          "exit_reason": "time_stop_15:50 (runner)",
+          "exit_time_et": "2026-07-31T15:50:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T13:24:03",
+          "strike": 745,
+          "symbol": "SPY260731C00745000",
+          "entry_premium": 1.57,
+          "trigger_level": 745.31,
+          "qty": 10,
+          "pnl": -320.0,
+          "exit_reason": "structure_stop @ 745.31",
+          "exit_time_et": "2026-07-31T13:50:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T13:36:03",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.83,
+          "trigger_level": 746.3,
+          "qty": 10,
+          "pnl": 30.0,
+          "exit_reason": "structure_stop @ 746.3",
+          "exit_time_et": "2026-07-31T13:40:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:26:03",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.77,
+          "trigger_level": 746.09,
+          "qty": 10,
+          "pnl": -20.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T14:30:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:51:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.84,
+          "trigger_level": 746.09,
+          "qty": 10,
+          "pnl": -110.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        }
+      ],
+      "n_missing_bars": 0
+    },
+    "bold_sequential_hold_qty10": {
+      "n": 5,
+      "win_rate": 0.2,
+      "total_pnl": 15.6,
+      "expectancy_per_trade": 3.12,
+      "drop_top1_remainder": -1070.0,
+      "drop_top1_positive": false,
+      "by_day_pnl": {
+        "2026-07-28": -190.0,
+        "2026-07-29": -750.0,
+        "2026-07-31": 955.6
+      },
+      "trades": [
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T13:36:04",
+          "strike": 742,
+          "symbol": "SPY260728C00742000",
+          "entry_premium": 0.58,
+          "trigger_level": 741.56,
+          "qty": 10,
+          "pnl": -190.0,
+          "exit_reason": "structure_stop @ 741.56",
+          "exit_time_et": "2026-07-28T13:40:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:58:48",
+          "strike": 743,
+          "symbol": "SPY260729C00743000",
+          "entry_premium": 0.96,
+          "trigger_level": 741.49,
+          "qty": 10,
+          "pnl": -750.0,
+          "exit_reason": "structure_stop @ 741.49",
+          "exit_time_et": "2026-07-29T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:16:03",
+          "strike": 744,
+          "symbol": "SPY260731C00744000",
+          "entry_premium": 0.94,
+          "trigger_level": 743.25,
+          "qty": 10,
+          "pnl": 1085.6,
+          "exit_reason": "runner_stop @ 2.24",
+          "exit_time_et": "2026-07-31T13:40:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:26:03",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.77,
+          "trigger_level": 746.09,
+          "qty": 10,
+          "pnl": -20.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T14:30:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:51:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.84,
+          "trigger_level": 746.09,
+          "qty": 10,
+          "pnl": -110.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        }
+      ],
+      "n_missing_bars": 0
+    },
+    "bold_sequential_hold_conservative_qty10": {
+      "n": 5,
+      "win_rate": 0.2,
+      "total_pnl": 15.6,
+      "expectancy_per_trade": 3.12,
+      "drop_top1_remainder": -1070.0,
+      "drop_top1_positive": false,
+      "by_day_pnl": {
+        "2026-07-28": -190.0,
+        "2026-07-29": -750.0,
+        "2026-07-31": 955.6
+      },
+      "trades": [
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T13:36:04",
+          "strike": 742,
+          "symbol": "SPY260728C00742000",
+          "entry_premium": 0.58,
+          "trigger_level": 741.56,
+          "qty": 10,
+          "pnl": -190.0,
+          "exit_reason": "structure_stop @ 741.56",
+          "exit_time_et": "2026-07-28T13:40:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:58:48",
+          "strike": 743,
+          "symbol": "SPY260729C00743000",
+          "entry_premium": 0.96,
+          "trigger_level": 741.49,
+          "qty": 10,
+          "pnl": -750.0,
+          "exit_reason": "structure_stop @ 741.49",
+          "exit_time_et": "2026-07-29T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:16:03",
+          "strike": 744,
+          "symbol": "SPY260731C00744000",
+          "entry_premium": 0.94,
+          "trigger_level": 743.25,
+          "qty": 10,
+          "pnl": 1085.6,
+          "exit_reason": "runner_stop @ 2.24",
+          "exit_time_et": "2026-07-31T13:40:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:26:03",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.77,
+          "trigger_level": 746.09,
+          "qty": 10,
+          "pnl": -20.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T14:30:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:51:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.84,
+          "trigger_level": 746.09,
+          "qty": 10,
+          "pnl": -110.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        }
+      ]
+    },
+    "bold_per_event_qty3": {
+      "n": 8,
+      "win_rate": 0.375,
+      "total_pnl": 507.4,
+      "expectancy_per_trade": 63.42,
+      "drop_top1_remainder": -89.6,
+      "drop_top1_positive": false,
+      "by_day_pnl": {
+        "2026-07-28": -57.0,
+        "2026-07-29": -225.0,
+        "2026-07-31": 789.4
+      },
+      "trades": [
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T13:36:04",
+          "strike": 742,
+          "symbol": "SPY260728C00742000",
+          "entry_premium": 0.58,
+          "trigger_level": 741.56,
+          "qty": 3,
+          "pnl": -57.0,
+          "exit_reason": "structure_stop @ 741.56",
+          "exit_time_et": "2026-07-28T13:40:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:58:48",
+          "strike": 743,
+          "symbol": "SPY260729C00743000",
+          "entry_premium": 0.96,
+          "trigger_level": 741.49,
+          "qty": 3,
+          "pnl": -225.0,
+          "exit_reason": "structure_stop @ 741.49",
+          "exit_time_et": "2026-07-29T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:16:03",
+          "strike": 744,
+          "symbol": "SPY260731C00744000",
+          "entry_premium": 0.94,
+          "trigger_level": 743.25,
+          "qty": 3,
+          "pnl": 318.4,
+          "exit_reason": "runner_stop @ 2.24",
+          "exit_time_et": "2026-07-31T13:40:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:27:03",
+          "strike": 744,
+          "symbol": "SPY260731C00744000",
+          "entry_premium": 1.46,
+          "trigger_level": 743.56,
+          "qty": 3,
+          "pnl": 597.0,
+          "exit_reason": "time_stop_15:50 (runner)",
+          "exit_time_et": "2026-07-31T15:50:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T13:24:03",
+          "strike": 745,
+          "symbol": "SPY260731C00745000",
+          "entry_premium": 1.57,
+          "trigger_level": 745.31,
+          "qty": 3,
+          "pnl": -96.0,
+          "exit_reason": "structure_stop @ 745.31",
+          "exit_time_et": "2026-07-31T13:50:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T13:36:03",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.83,
+          "trigger_level": 746.3,
+          "qty": 3,
+          "pnl": 9.0,
+          "exit_reason": "structure_stop @ 746.3",
+          "exit_time_et": "2026-07-31T13:40:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:26:03",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.77,
+          "trigger_level": 746.09,
+          "qty": 3,
+          "pnl": -6.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T14:30:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:51:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.84,
+          "trigger_level": 746.09,
+          "qty": 3,
+          "pnl": -33.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        }
+      ],
+      "n_missing_bars": 0
+    },
+    "bold_sequential_hold_qty3": {
+      "n": 5,
+      "win_rate": 0.2,
+      "total_pnl": -2.6,
+      "expectancy_per_trade": -0.52,
+      "drop_top1_remainder": -321.0,
+      "drop_top1_positive": false,
+      "by_day_pnl": {
+        "2026-07-28": -57.0,
+        "2026-07-29": -225.0,
+        "2026-07-31": 279.4
+      },
+      "trades": [
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T13:36:04",
+          "strike": 742,
+          "symbol": "SPY260728C00742000",
+          "entry_premium": 0.58,
+          "trigger_level": 741.56,
+          "qty": 3,
+          "pnl": -57.0,
+          "exit_reason": "structure_stop @ 741.56",
+          "exit_time_et": "2026-07-28T13:40:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:58:48",
+          "strike": 743,
+          "symbol": "SPY260729C00743000",
+          "entry_premium": 0.96,
+          "trigger_level": 741.49,
+          "qty": 3,
+          "pnl": -225.0,
+          "exit_reason": "structure_stop @ 741.49",
+          "exit_time_et": "2026-07-29T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:16:03",
+          "strike": 744,
+          "symbol": "SPY260731C00744000",
+          "entry_premium": 0.94,
+          "trigger_level": 743.25,
+          "qty": 3,
+          "pnl": 318.4,
+          "exit_reason": "runner_stop @ 2.24",
+          "exit_time_et": "2026-07-31T13:40:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:26:03",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.77,
+          "trigger_level": 746.09,
+          "qty": 3,
+          "pnl": -6.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T14:30:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:51:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.84,
+          "trigger_level": 746.09,
+          "qty": 3,
+          "pnl": -33.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        }
+      ],
+      "n_missing_bars": 0
+    },
+    "bold_sequential_hold_conservative_qty3": {
+      "n": 5,
+      "win_rate": 0.2,
+      "total_pnl": -2.6,
+      "expectancy_per_trade": -0.52,
+      "drop_top1_remainder": -321.0,
+      "drop_top1_positive": false,
+      "by_day_pnl": {
+        "2026-07-28": -57.0,
+        "2026-07-29": -225.0,
+        "2026-07-31": 279.4
+      },
+      "trades": [
+        {
+          "date": "2026-07-28",
+          "entry_ts_et": "2026-07-28T13:36:04",
+          "strike": 742,
+          "symbol": "SPY260728C00742000",
+          "entry_premium": 0.58,
+          "trigger_level": 741.56,
+          "qty": 3,
+          "pnl": -57.0,
+          "exit_reason": "structure_stop @ 741.56",
+          "exit_time_et": "2026-07-28T13:40:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-29",
+          "entry_ts_et": "2026-07-29T14:58:48",
+          "strike": 743,
+          "symbol": "SPY260729C00743000",
+          "entry_premium": 0.96,
+          "trigger_level": 741.49,
+          "qty": 3,
+          "pnl": -225.0,
+          "exit_reason": "structure_stop @ 741.49",
+          "exit_time_et": "2026-07-29T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T12:16:03",
+          "strike": 744,
+          "symbol": "SPY260731C00744000",
+          "entry_premium": 0.94,
+          "trigger_level": 743.25,
+          "qty": 3,
+          "pnl": 318.4,
+          "exit_reason": "runner_stop @ 2.24",
+          "exit_time_et": "2026-07-31T13:40:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:26:03",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.77,
+          "trigger_level": 746.09,
+          "qty": 3,
+          "pnl": -6.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T14:30:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T14:51:02",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.84,
+          "trigger_level": 746.09,
+          "qty": 3,
+          "pnl": -33.0,
+          "exit_reason": "structure_stop @ 746.09",
+          "exit_time_et": "2026-07-31T15:05:00",
+          "structure_fired": true,
+          "elevated_stale_risk": false
+        }
+      ]
+    },
+    "late_cluster_UNTRADEABLE_qty3": {
+      "n": 6,
+      "win_rate": 0.6667,
+      "total_pnl": 634.7,
+      "expectancy_per_trade": 105.78,
+      "drop_top1_remainder": 407.35,
+      "drop_top1_positive": true,
+      "by_day_pnl": {
+        "2026-07-31": 634.7
+      },
+      "trades": [
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T15:11:03",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.82,
+          "trigger_level": 746.09,
+          "qty": 3,
+          "pnl": 227.35,
+          "exit_reason": "runner_stop @ 1.45",
+          "exit_time_et": "2026-07-31T15:35:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false,
+          "account": "safe"
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T15:11:04",
+          "strike": 746,
+          "symbol": "SPY260731C00746000",
+          "entry_premium": 0.82,
+          "trigger_level": 746.09,
+          "qty": 3,
+          "pnl": 227.35,
+          "exit_reason": "runner_stop @ 1.45",
+          "exit_time_et": "2026-07-31T15:35:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false,
+          "account": "bold"
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T15:21:02",
+          "strike": 748,
+          "symbol": "SPY260731C00748000",
+          "entry_premium": 0.38,
+          "trigger_level": 746.54,
+          "qty": 3,
+          "pnl": 111.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2026-07-31T15:50:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false,
+          "account": "safe"
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T15:21:42",
+          "strike": 748,
+          "symbol": "SPY260731C00748000",
+          "entry_premium": 0.38,
+          "trigger_level": 746.54,
+          "qty": 3,
+          "pnl": 111.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2026-07-31T15:50:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false,
+          "account": "bold"
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T15:46:02",
+          "strike": 748,
+          "symbol": "SPY260731C00748000",
+          "entry_premium": 0.82,
+          "trigger_level": 747.92,
+          "qty": 3,
+          "pnl": -21.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2026-07-31T15:50:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false,
+          "account": "safe"
+        },
+        {
+          "date": "2026-07-31",
+          "entry_ts_et": "2026-07-31T15:46:03",
+          "strike": 748,
+          "symbol": "SPY260731C00748000",
+          "entry_premium": 0.82,
+          "trigger_level": 747.92,
+          "qty": 3,
+          "pnl": -21.0,
+          "exit_reason": "time_stop_15:50",
+          "exit_time_et": "2026-07-31T15:50:00",
+          "structure_fired": false,
+          "elevated_stale_risk": false,
+          "account": "bold"
+        }
+      ]
+    }
+  },
+  "fleet_real_fills": {
+    "episodes": [
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260729C00740000",
+        "date": "2026-07-29",
+        "entry_ts_et": "2026-07-29T14:34:49.770062",
+        "exit_ts_et": "2026-07-29T15:04:49.395195",
+        "pnl": 418.0,
+        "mapped_blocked_cluster": "2026-07-29T14:31:47"
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260729C00740000",
+        "date": "2026-07-29",
+        "entry_ts_et": "2026-07-29T14:34:50.723107",
+        "exit_ts_et": "2026-07-29T15:04:50.364439",
+        "pnl": 471.0,
+        "mapped_blocked_cluster": "2026-07-29T14:31:47"
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260731C00746000",
+        "date": "2026-07-31",
+        "entry_ts_et": "2026-07-31T12:19:03.936711",
+        "exit_ts_et": "2026-07-31T12:43:03.846536",
+        "pnl": 126.0,
+        "mapped_blocked_cluster": "2026-07-31T12:16:02"
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260731C00747000",
+        "date": "2026-07-31",
+        "entry_ts_et": "2026-07-31T13:25:05.848140",
+        "exit_ts_et": "2026-07-31T13:52:04.641783",
+        "pnl": -80.0,
+        "mapped_blocked_cluster": "2026-07-31T13:24:03"
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260728C00744000",
+        "date": "2026-07-28",
+        "entry_ts_et": "2026-07-28T11:28:03.805932",
+        "exit_ts_et": "2026-07-28T12:28:04.372354",
+        "pnl": -33.0,
+        "mapped_blocked_cluster": "2026-07-28T11:22:03"
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260729C00740000",
+        "date": "2026-07-29",
+        "entry_ts_et": "2026-07-29T14:34:48.802155",
+        "exit_ts_et": "2026-07-29T15:04:48.546829",
+        "pnl": 265.0,
+        "mapped_blocked_cluster": "2026-07-29T14:31:47"
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260731C00747000",
+        "date": "2026-07-31",
+        "entry_ts_et": "2026-07-31T12:31:03.407108",
+        "exit_ts_et": "2026-07-31T13:40:04.913224",
+        "pnl": 75.0,
+        "mapped_blocked_cluster": "2026-07-31T12:27:02"
+      }
+    ],
+    "net_mapped": 1242.0,
+    "net_all_calls": 1242.0,
+    "arms": [
+      "safe-3",
+      "risky-1",
+      "risky-3"
+    ],
+    "map_window_min": 15.0
+  },
+  "core_real_fills_on_cohort": [
+    {
+      "arm": "bold-2",
+      "symbol": "SPY260728C00741000",
+      "date": "2026-07-28",
+      "entry_ts_et": "2026-07-28T11:28:20.226696",
+      "exit_ts_et": "2026-07-28T13:46:25.044077",
+      "pnl": -295.0
+    }
+  ],
+  "old_era_evidence_cited": {
+    "raw_real_fills_since_ssb": {
+      "n": 24,
+      "wr": 0.0,
+      "total": -885.0,
+      "source": "bull-requalification-2026-07-22.md item 3"
+    },
+    "decision_log_mining_atm": {
+      "n": 30,
+      "total": 665.6,
+      "drop_top1": -1420.8,
+      "wr": 0.167,
+      "source": "bull-elite-atm-decision-log-mining-2026-07-22.json"
+    },
+    "backtest_detection_atm": {
+      "n": 9,
+      "total": -1720.5,
+      "source": "bull-requalification-2026-07-22.json"
+    },
+    "otm2_ssb_2026_07_10": {
+      "n": 28,
+      "total": -3873.6,
+      "wr": 0.286,
+      "source": "block-elite-bull-ssb-revalidation.json"
+    }
+  },
+  "verdict_rule_inputs": {
+    "primary_cell": "safe_sequential_hold_qty3",
+    "primary_total": 867.0,
+    "primary_n": 5,
+    "fleet_net_mapped": 1242.0
+  },
+  "verdict": "a"
+}

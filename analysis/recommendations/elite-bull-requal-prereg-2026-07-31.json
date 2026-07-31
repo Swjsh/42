@@ -1,0 +1,83 @@
+{
+  "_doc": "PRE-REGISTRATION (FROZEN) -- block_elite_bull POST-FIX requalification. Frozen BEFORE any OPRA fetch or replay ran. Question: does the levels-compiler-v2 fix (SIP + shelves + weights, commit 7b4aa3f4, shipped 2026-07-27 evening) change the signal quality of the ELITE bull level_reclaim cohort that block_elite_bull suppresses? The gate's own written re-eval condition was 're-eval at n>=20 under corrected feed'; post-fix days available: 2026-07-28..2026-07-31 (4 sessions). J, 2026-07-31, after 111 blocks on a day the ungated fleet arms went green: 'being blocked on an elite bull setup is not really ideal.'",
+  "frozen_at_et": "2026-07-31 16:46:41 EDT (et_clock.py, market_hours=False)",
+  "author_lane": "requalify block_elite_bull on post-fix data (subagent, after-hours grind window)",
+  "prereg_version": 1,
+
+  "population": {
+    "source": "automation/state/core-decisions.jsonl",
+    "filter": "action == 'SKIP_ELITE_BULL_LEVEL_RECLAIM'",
+    "window_et_dates": ["2026-07-28", "2026-07-31"],
+    "window_rationale": "corrected-feed era only: levels compiler v2 shipped 2026-07-27 evening; first corrected session 2026-07-28.",
+    "raw_row_count_at_freeze": 131,
+    "note": "131 = rows where action==SKIP_ELITE_BULL_LEVEL_RECLAIM; 141 rows carry the string in the verdict field but 10 cascade into a different terminal action -- mining uses action, same as bull_elite_atm_decision_log_mining.py (2026-07-22 precedent)."
+  },
+
+  "dedupe": {
+    "per_account_event_clustering": "sort by ts_et per account; consecutive rows with gap <= 5 min form ONE event; event ts = first tick ts (identical to bull_elite_atm_decision_log_mining.py DEDUPE_GAP_MINUTES=5).",
+    "cross_account_distinct_setups": "headline 'distinct setups' count merges safe+bold events whose first ticks are within 5 min of each other (same underlying shared signal); replay cohorts stay PER ACCOUNT because the gate and the counterfactual entry are per account."
+  },
+
+  "exclusions_frozen": [
+    {"id": "E1", "rule": "cross-account SKIP_STALE_TRIGGER within 90s of event first tick => exclude (stale echo), same as the 2026-07-10 and 2026-07-22 studies."},
+    {"id": "E2", "rule": "trigger_bar_et date < event ts_et date => exclude as prior-day stale echo (a 'reclaim' of yesterday's 15:55 bar re-seen at today's open is not a fresh tradeable setup). New field, available post-fix only; excluded events listed in output."},
+    {"id": "E3", "rule": "event first tick time >= 15:00 ET => exclude from tradeable cohorts (entry_no_trade_after_et = 15:00 in BOTH params files; the engine would emit SKIP_LATE_ENTRY even with block_elite_bull lifted). Reported separately as the 'late cluster' cell -- shown, never graded."},
+    {"id": "F1", "rule": "event first tick in [09:35, 09:41) => KEEP but flag elevated_stale_risk (open-adjacent), mirroring the 2026-07-22 study; conservative cohort excluding flagged events also reported."}
+  ],
+
+  "replay_method": {
+    "strike": "ATM: round(spy at event first tick) + 0, side C (mirrors 2026-07-22 study STRIKE_OFFSET_ATM=0)",
+    "entry_premium": "first cached real-OPRA 5-min bar with timestamp_et >= event first tick, .open; entry_premium <= 0 or no bars => dropped, counted in n_missing_bars, never imputed",
+    "entry_bar_convention": "entry+1 strict '>' via backtest/lib/exit_manager_walk.py#walk_exit_manager (ENTRY-BAR-CONVENTION-RULING-2026-07-25.md); the walk never evaluates the entry bar",
+    "exit_shape": "strategies.by_name('ribbon_ride').exit.to_dict() -- the LIVE core registry CONTROL shape (heartbeat_core.py:1983-1985 registers core entries under exactly this): premium_stop -0.20 (flag-off fallback), tp1 +100% sell 0.667, trailing lock 15%, runner_target 99, stop_mode structure, catastrophe -50%",
+    "structure_stop_enabled": true,
+    "trigger_level": "trigger_level_exact from the logged row (present on 131/131 post-fix rows; no recovery fallback needed)",
+    "time_stop_et": "15:50",
+    "spy_5m_source": "backtest/data/spy_5m master covering 2026-07-28..31 (SIP-append era per DATA-PROVENANCE registry)",
+    "option_data": "real OPRA 5-min bars via backtest/data/options cache; post-fix dates NOT cached at freeze time -> fetched via expand_opra_cache.fetch_contract_bars (same auth path _alpaca_creds.resolve_alpaca_creds, same CSV schema) BEFORE replay; fetch is data acquisition, not a run cell",
+    "qty_cells": {
+      "qty10": "ELITE-tier sizing, direct comparability with the 2026-07-22 mining study (QTY_ELITE=10)",
+      "qty3": "min-size (Rule 6 floor: 2 TP + 1 runner) -- the sizing a lift-gate trial would actually use; PRIMARY for the verdict rule"
+    }
+  },
+
+  "cohorts_reported_all_cells": [
+    "safe_sequential_hold (PRIMARY): events in time order; an event whose first tick falls at or before the prior replayed trade's exit_time_et is consumed by the open position and skipped (the core holds one position at a time); n, total, WR, per-trade, drop-best, by-day, half-split at qty10 and qty3",
+    "safe_per_event (sensitivity): every kept event replayed independently (upper bound on n)",
+    "bold_sequential_hold and bold_per_event (same definitions)",
+    "late_cluster (E3 excluded): replayed for information only, clearly labeled UNTRADEABLE-under-live-entry-ceiling, never graded",
+    "conservative variants excluding F1-flagged events"
+  ],
+
+  "fleet_real_fills_reconciliation": {
+    "source": "automation/state/fills-ledger.jsonl, arms safe-3/risky-1/risky-3 (ungated loose/tight fleet lanes), is_option CALL round trips, date_et in window",
+    "pnl": "FIFO within (arm, symbol, date): realized $ = sum(sell qty*price*100) - sum(buy qty*price*100) matched",
+    "mapping_rule": "a fleet CALL entry maps to the blocked core cluster whose first tick is nearest in time within +/-15 min; unmapped entries disclosed",
+    "core_real_fills_on_cohort": "core PLACED rows on BULLISH_RECLAIM in window (gate not binding, e.g. VIX outside Bold band) reported as their own real-fill cell -- found at freeze time: bold 2026-07-28T11:28:04 C741 VIX 18.38"
+  },
+
+  "old_era_evidence_cited_not_rerun": {
+    "raw_real_fills": "n=24, WR 0%, -$885 (all 6 arms, since SS-B 2026-07-09; core Safe subset n=8, -$312) -- bull-requalification-2026-07-22.md item 3",
+    "decision_log_mining_atm": "n=30, +$665.60, drop-top-1 -$1,420.80, WR 16.7% -- bull-elite-atm-decision-log-mining-2026-07-22.json",
+    "backtest_detection_atm": "n=9, -$1,720.50 -- bull-requalification-2026-07-22.json",
+    "otm2_ssb": "n=28, -$3,873.60, WR 28.6% -- block-elite-bull-ssb-revalidation.json (2026-07-10)",
+    "mechanism_story_under_test": "old evidence gathered ENTIRELY under the broken level feed (IEX premarket, fabricated PMH, stale levels -> bad reclaim levels -> 0% WR). Levels compiler v2 = SIP + shelves + weights; J's chart reads land on the file's shelves to within pennies post-fix. Question: do reclaims of REAL shelves resolve differently?"
+  },
+
+  "verdict_rule_frozen": {
+    "PRIMARY_cell": "safe_sequential_hold at qty3, tradeable events only (E1/E2/E3 applied)",
+    "FLEET_cell": "net realized $ of mapped fleet CALL round trips in window",
+    "a_LIFT_GATE_TRIAL": "PRIMARY.total > 0 AND FLEET.net > 0 => recommend unblocking elite-bull on ONE core arm (bold-2) at min-size (3 contracts) with forward kill-criterion: after n>=10 fills OR 10 sessions (whichever first), net < 0 => re-block. Paper-only gate flip on a paper account = covered by ratified paper autonomy (feedback_j_ratified_paper_autonomy_2026_07_01) -- does NOT need J unless it touches the 10 rules (it does not; Rule 9 satisfied: weekend, in writing, documented reason). THIS SESSION'S LANE DOES NOT EDIT PARAMS -- the rec ships the exact edit + revert for the conductor/J-wake to apply.",
+    "b_INSUFFICIENT": "mixed signs (PRIMARY.total and FLEET.net disagree) OR PRIMARY.n == 0 => keep gate; forward re-eval trigger: post-fix distinct tradeable safe events >= 20 OR 10 corrected-feed sessions elapsed (2026-08-08), whichever first",
+    "c_AGAINST": "PRIMARY.total < 0 AND FLEET.net < 0 => gate stays, question closed for the corrected-feed era at this n",
+    "drop_best_role": "reported in all cells; if (a) fires while PRIMARY drop-best < 0, the rec states this explicitly as a concentration risk marker -- the forward kill-criterion, not the entry bar, is the guard",
+    "honesty_clause": "n will be SMALL (4 post-fix sessions). Every cell reports n. No cell is presented without the old-era table beside it."
+  },
+
+  "outputs": [
+    "analysis/recommendations/elite-bull-requal-2026-07-31.json",
+    "analysis/recommendations/elite-bull-requal-2026-07-31.md",
+    "backtest/tools/elite_bull_postfix_requal_2026_07_31.py",
+    "backtest/tests/test_elite_bull_postfix_requal_2026_07_31.py (guard, RED-proofed)"
+  ]
+}
