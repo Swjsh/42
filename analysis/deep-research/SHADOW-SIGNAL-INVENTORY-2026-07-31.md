@@ -12,16 +12,98 @@
 The 10:15 archetype said the engine sees more than it can act on, and that the silence was
 costing money. **Half of that is true.** The engine does see more than it can act on. But when
 the shadow signals are measured against real OPRA through the real exit manager, taking every
-firing as an entry **loses money** — and two of the three lose significantly under BH-FDR.
+firing as an entry **loses money** — and **one of the three** (`trendline_reclaim`) loses
+significantly at the day level. `wick_reclaim`'s loss is a negative point estimate that is
+**not** significant once overlapping positions are blocked by day (Correction 1 below), and
+`pullback_hold` is underpowered with **no verdict issued**.
 
-| signal | unbiased n | days | total P&L | per-trade | WR | drop-best | p | BH q≤0.10 | verdict |
-|---|---|---|---|---|---|---|---|---|---|
-| `trendline_reclaim` | 27 | 3 | **−$1,097** | −$40.64 | 14.8% | −$1,121 | 1.9e−08 | **SIG** | NEGATIVE — keep quarantined |
-| `wick_reclaim` | 133 | 3 | **−$2,556** | −$19.22 | 16.5% | −$3,075 | 0.059 | **SIG** | NEGATIVE — keep quarantined |
-| `pullback_hold` | 0 | 0 | — | — | — | — | — | — | **UNDERPOWERED — no verdict** |
+> **CORRECTED 2026-07-31 18:57 ET** by the lane's own adversarial verifier. Two disclosure
+> defects were found in the first write-up and are landed below: (1) `wick_reclaim`'s
+> significance claim was **n-inflated** and is DOWNGRADED; (2) 90% of trades ran a **−20%
+> premium fallback**, not the validated structure cell. **Neither changes a verdict** — the
+> exit bias runs CONSERVATIVE, so the null strengthens. Every number on this page was
+> re-derived this session by re-running `backtest/tools/shadow_signal_edge_2026_07_31.py`;
+> the baseline block is byte-identical to the original run.
+
+| signal | unbiased n | days | total P&L | per-trade | WR | drop-best | **day-level test** | verdict |
+|---|---|---|---|---|---|---|---|---|
+| `trendline_reclaim` | 27 | 3 | **−$1,097** | −$40.64 | 14.8% | −$1,121 | **stat −3.401, p=0.00067, 3/3 days negative** | **SIGNIFICANT NEGATIVE — stands unqualified**, keep quarantined |
+| `wick_reclaim` | 133 | 3 | **−$2,556** | −$19.22 | 16.5% | −$3,075 | **stat −0.649, p=0.516, 2/3 days negative** | **Negative point estimate, NOT significant at day level** ⬅ downgraded — keep quarantined |
+| `pullback_hold` | 0 | 0 | — | — | — | — | — | **UNDERPOWERED — NO VERDICT ISSUED (untested, not dead)** |
 
 For both measured signals, `drop_best` makes the total **worse**, not better: there is no single
 lucky trade propping these up. They are consistently unprofitable as standalone entry triggers.
+
+### ⬅ CORRECTION 1 — `wick_reclaim` is NOT statistically significant (downgraded)
+
+The first write-up called it "BH-SIG NEGATIVE" off a **per-trade** p of 0.059. That test treats
+133 firings as 133 independent draws, and they are not: on 2026-07-20 alone **52 trades ran
+across only 8 distinct contracts**, and the detector fires on **57% of RTH 5-min bars**, so
+positions overlap near-continuously. The pre-registration promised day-level block aggregation;
+day sums were printed but **no day-level test was ever computed.**
+
+It is computed now (`day_level_test()`, in the harness, so a re-run reproduces it):
+
+| signal | day sums | statistic | p | days negative | reading |
+|---|---|---|---|---|---|
+| `wick_reclaim` | −2,520 / **+1,737** / −1,773 | −0.649 | **0.516** | 2/3 | one strongly positive day; the mean is not distinguishable from zero |
+| `trendline_reclaim` | −397 / −166 / −534 | −3.401 | **0.00067** | 3/3 | every block negative — **this one stands** |
+
+The per-trade BH result is retained in the JSON as `bh_fdr_q010_significant_PER_TRADE` for
+provenance, but it is **no longer the verdict field.** Method disclosed: statistic = mean/SE over
+day-sums, two-sided p by normal approximation (`one_sample_p`) — the same estimator the per-trade
+screen uses, on n=3 blocks. Both signals stay quarantined either way; the *claim* is what changed,
+not the decision.
+
+> ⚠️ **ESTIMATOR SENSITIVITY — read before quoting `trendline_reclaim`'s p to anyone.** The p
+> above is a **normal approximation**, which is optimistic at n=3 blocks. Under a proper Student-t
+> with df=2 the same statistics give **`trendline_reclaim` p=0.077** (not 0.00067) and
+> **`wick_reclaim` p=0.583** (not 0.516). `trendline_reclaim` keeps its **significant-negative**
+> label here — it is the verdict of record, and its qualitative case is strong independent of the
+> estimator (3/3 day-blocks negative, −$40.64/trade, worse at the true −50% cap). But **the
+> headline "p=0.0007" is an artifact of the normal approximation, not a robust n=3 result** — do
+> not carry that number into a promotion argument without more days. **No decision changes:** both
+> signals stay quarantined, nothing is armed, and `pullback_hold` still has no verdict. What is
+> disclosed here is the *strength* of the claim, not its direction.
+
+### ⬅ CORRECTION 2 — the validated exit cell never reached 90% of these trades
+
+The harness intended to walk exits under the **validated structure cell** (structure stop primary,
+−50% catastrophe cap). `ExitState.from_entry` resolves structure mode only when the shape declares
+it **AND** `structure_stop_enabled` **AND** a `trigger_level` is present. `trigger_level` is absent
+on most shadow firings, so those trades silently fell back to **premium mode at −20%** — which
+`RIBBON_RIDE`'s own source note calls the flag-OFF emergency fallback, **not** the validated cell.
+Textbook C14 / L248 dead-knob-by-omission, inside a harness whose docstring promised otherwise.
+
+Re-derived this session (now emitted as `exit_fallback_correction` in the JSON):
+
+| fact | value |
+|---|---|
+| resolved trades on unbiased days | 160 |
+| **missing `trigger_level`** | **144 = 90.0%** |
+| exit stages | premium_stop **87**, ribbon_flip_back 37, structure_stop **16**, time_stop 12, runner_stop 8 |
+| realized premium-stop range | **−20.9% … −19.0%** — every one at the −20% fallback, **none near −50%** |
+| structure_stop legs | **16 — exactly the 16 trades that carried a `trigger_level`** |
+
+**Direction of bias: CONSERVATIVE. The reported figures FLATTER these signals.** Re-walked with
+the stop set to the true −50% catastrophe cap:
+
+| signal | as reported (−20% fallback) | at the true −50% cap |
+|---|---|---|
+| `wick_reclaim` | −$2,556 | **−$6,462** |
+| `trendline_reclaim` | −$1,097 | **−$1,588** |
+
+Negative in both configurations. **The NULL verdict survives and strengthens** — which is exactly
+why this is a disclosure correction, not a re-opened question. Reproduce:
+`python backtest/tools/shadow_signal_edge_2026_07_31.py` → `counterfactual_true_cap`.
+
+### ⬅ SCOPE — what was tested, and what must NOT be graveyarded
+
+Only the **STANDALONE-TRIGGER** form was measured: "take every firing as an entry." Their use as
+**score contributors, tiebreakers, or vetoes is UNTESTED** and must not be swept into the
+graveyard — gate interactions are multiplicative (C15), and a signal that is useless alone can
+still be additive in a cascade. `pullback_hold` likewise: **n=0 resolvable, NO verdict issued.
+It is untested, not dead.**
 
 `pullback_hold` began firing 2026-07-23; **no day after 07-22 has unbiased OPRA coverage**, so it
 has n=0 measurable events. Per the pre-registration it gets a coverage number and no verdict.
@@ -50,8 +132,12 @@ with the detector's geometry; it simply is not a scarce event, and 0DTE theta pu
 non-scarcity.
 
 **This vindicates the 2026-07-15 decision to log these and keep them off the score.** That
-quarantine was not over-caution — it prevented two significantly-negative triggers from reaching
-live scoring. The eval-first gate did its job.
+quarantine was not over-caution — it kept a **significantly-negative** trigger
+(`trendline_reclaim`) and a **negative-but-underdetermined** one (`wick_reclaim`) out of live
+scoring, and it held the line on a third nobody has been able to measure yet. The eval-first gate
+did its job. (Precision matters here: only ONE of the three is statistically significant — see
+Correction 1. The quarantine is still right; the *reason* is one signal proven bad and two not
+proven good, which is a weaker and more honest claim than the original write-up made.)
 
 ---
 
@@ -94,18 +180,24 @@ implies, computed from the cache and the observed range — never hand-listed.
   $10K), verified against the live table rather than assumed — the BS-sim-ignored-`strike_offset`
   scar cost a weekend of research.
 - **Exit** = the **real** `exit_manager.plan_exit_actions` core via `lib.exit_manager_walk`, driven
-  with the `RIBBON_RIDE` `ExitShape` heartbeat_core actually registers (structure stop primary,
-  −50% catastrophe cap, TP1 +100% sell 66.7%, trailing runner 15% off HWM) — not `simulate_trade_real`,
-  which is known-divergent.
+  with the `RIBBON_RIDE` `ExitShape` heartbeat_core actually registers — not `simulate_trade_real`,
+  which is known-divergent. ⚠️ **AS INTENDED, NOT AS RUN:** the shape declares structure-stop
+  primary with a −50% catastrophe cap, but **144/160 trades (90%) had no `trigger_level`** and
+  therefore ran the **−20% premium fallback** instead. See Correction 2 — bias is CONSERVATIVE
+  and the verdicts are unchanged, but this bullet described an exit cell most trades never got.
 - **Size** = qty 3 (Rule 6 minimum: 2 TP + 1 runner). All dollars are minimum-size.
 - **Real OPRA only.** Nothing Black-Scholes-synthesized; uncovered cells are excluded and counted.
-- **BH-FDR q≤0.10** across all three signals, run on the *unbiased* slice — testing the biased one
-  would be significance-shopping on a known artifact.
+- **Multiplicity** — BH-FDR q≤0.10 across all three signals on the *unbiased* slice (testing the
+  biased one would be significance-shopping on a known artifact). ⚠️ **The per-trade BH result is
+  no longer the verdict** — it is n-inflated by overlapping positions; the **day-level block test**
+  adjudicates (Correction 1).
 
 **Harness sanity (checked before believing the negative):** exit stages are diverse
-(premium_stop 54%, ribbon_flip_back 23%, structure_stop 10%, time_stop 8%, runner_stop 5%), the
-worst loss is −43.5% of position cost (inside the configured −50% cap), and wins reach +$518.63 —
-the walk is not clipping upside or short-circuiting into a single stop path.
+(premium_stop 87, ribbon_flip_back 37, structure_stop 16, time_stop 12, runner_stop 8 of 160), the
+worst loss is −43.5% of position cost, and wins reach +$518.63 — the walk is not clipping upside or
+short-circuiting into a single stop path. **The stage mix is also the evidence for Correction 2:**
+all 16 `structure_stop` legs come from the 16 trades that carried a `trigger_level`, and all 87
+`premium_stop` legs fired between −20.9% and −19.0% — the −20% fallback, never the −50% cap.
 
 ### What this does NOT prove
 
@@ -114,6 +206,10 @@ show they carry zero information as a *score contributor*, a *tiebreaker*, or a 
 that is unprofitable alone can still be additive in a cascade. That is a different, larger
 experiment (and gate interactions are multiplicative — cluster C15). What is now measured and
 closed: **no shadow signal should be promoted to a standalone trigger.**
+
+It also does **not** prove `wick_reclaim` is a losing signal *at all*: its day-level test is
+p=0.516 on 3 blocks. The honest statement is "not shown to be good," not "shown to be bad."
+And it says **nothing** about `pullback_hold`, which has zero resolvable events.
 
 ---
 
@@ -165,9 +261,9 @@ check watches its mtime.
 
 | rank | candidate | status | why |
 |---|---|---|---|
-| — | `wick_reclaim` → trigger | **REJECTED** | −$19.22/trade, BH-significant negative, 57% of bars |
-| — | `trendline_reclaim` → trigger | **REJECTED** | −$40.64/trade, p=1.9e−08 negative |
-| 1 | `pullback_hold` → trigger | **BLOCKED — no data** | n=0 unbiased; needs OPRA for 07-23+ |
+| — | `wick_reclaim` → trigger | **REJECTED** | −$19.22/trade over 133 firings, 57% of bars (ambient, not a trigger), −$6,462 at the true −50% cap. **Not significant at day level (p=0.516)** — rejected as "not shown to be good", not "proven bad" |
+| — | `trendline_reclaim` → trigger | **REJECTED** | −$40.64/trade, **day-level p=0.00067, 3/3 days negative**, −$1,588 at the true −50% cap |
+| 1 | `pullback_hold` → trigger | **BLOCKED — no data, NO VERDICT** | n=0 unbiased; needs OPRA for 07-23+. Untested, **not** graveyarded |
 | 2 | `trendlines-live.json` → engine consumer | **not evaluated** | RTH-only + shadow; another agent owns the multi-day lane |
 | 3 | shadow signals as *score contributors* (not triggers) | **open question** | the standalone test does not settle it; C15 says gates interact multiplicatively |
 
@@ -184,22 +280,87 @@ cache automatically, so it will simply widen when the data lands.
 
 ---
 
+## 🔧 REVERT PROCEDURE — commit `bc1263e4` (READ BEFORE REVERTING)
+
+**`git revert bc1263e4` ALONE IS NOT ENOUGH AND LEAVES A SILENT FAILURE.** The commit shipped a
+Windows scheduled task that is NOT tracked in git. Reverting deletes
+`setup/scripts/shadow_signal_audit.py` while `Gamma_ShadowSignalAudit` stays registered against a
+now-missing absolute path, firing nightly into nothing. It fails OPEN (a dead task cannot block
+trading or J's session), but it is exactly the C7 silent-failure shape this lane was built to
+detect — so it is written down instead of remembered.
+
+**Both steps, in this order:**
+
+```powershell
+# 1. Unregister the nightly task FIRST (before the script disappears)
+Unregister-ScheduledTask -TaskName Gamma_ShadowSignalAudit -Confirm:$false
+
+# 2. Then revert the commit
+git revert bc1263e4        # from C:\Users\jackw\Desktop\42, after-hours only
+
+# 3. Verify nothing is left pointing at a deleted script
+Get-ScheduledTask -TaskName Gamma_ShadowSignalAudit -ErrorAction SilentlyContinue   # -> nothing
+```
+
+**Leftovers that are safe to keep or delete by hand** (untracked, no consumer once the script is
+gone): `automation/state/shadow-signal-audit.json`,
+`automation/state/logs/shadow-signal-audit.std{out,err}.log`. The
+`## Known broken` line in `automation/overnight/STATUS.md` is a human log entry — prune it by hand
+per OP-22, do not expect the revert to touch it.
+
+**Current task state, verified 2026-07-31 19:03 ET (`Get-ScheduledTask` / `Get-ScheduledTaskInfo`):**
+
+| field | value |
+|---|---|
+| TaskName / TaskPath | `Gamma_ShadowSignalAudit` / `\` |
+| State | **Ready** |
+| LastRunTime | 2026-07-31 17:02:50 MT = **19:02:50 ET** (post-TZ-fix re-fire) |
+| LastTaskResult | **0** |
+| NextRunTime | 2026-08-01 15:25 MT = **17:25 ET** |
+| Action | `wscript.exe //nologo run_exe_hidden.vbs backtest\.venv\Scripts\pythonw.exe setup\scripts\shadow_signal_audit.py` |
+
+Re-registering after a revert-of-the-revert: `setup/install-shadow-signal-audit.ps1` (shipped in
+the same commit) is idempotent and re-creates the task.
+
+---
+
+## 🐛 FIXED 2026-07-31 evening — the instrument's own TZ bug
+
+`shadow_signal_audit.py` stamped every artifact with `dt.datetime.now()` — **bare Mountain local
+time rendered with an " ET" suffix.** This box is on Mountain time (ET = local + 2h), so the
+machine state, this doc's AUTOGEN header, and the STATUS.md line it wrote were all **2h early and
+mislabeled** — the repo's most-scarred defect class, committed by the instrument that exists to
+catch exactly this kind of silent wrongness.
+
+- **Fix:** a single `stamp_et()` helper backed by `setup/scripts/et_clock.py` (DST-aware).
+- **Guard:** `backtest/tests/test_shadow_signal_audit_2026_07_31.py::test_generated_stamp_is_real_ET`
+  asserts the emitted `generated_at_et` is within 60s of `et_clock`, plus two companions covering
+  `stamp_et()` itself and both rendered surfaces.
+- **RED-PROOF:** reverting `stamp_et()` to `dt.datetime.now()` fails the guard with
+  `AssertionError: generated_at_et=2026-07-31T16:50:05 is 7201s from et_clock ET (2026-07-31T18:50:05)`.
+- **Same bug, same commit:** `backtest/tools/shadow_signal_edge_2026_07_31.py:338` had an identical
+  `dt.datetime.now()` stamp on the measurement JSON — fixed in the same pass.
+- All stamps on this page and in `automation/state/shadow-signal-audit.json` have been **restamped**
+  by re-running the corrected instrument through the real scheduled task (empty stderr).
+
+---
+
 <!-- BEGIN AUTOGEN: shadow_signal_audit.py -- do not hand-edit below -->
 
-_Regenerated by `setup/scripts/shadow_signal_audit.py` at 2026-07-31T16:10:10 ET._
+_Regenerated by `setup/scripts/shadow_signal_audit.py` at 2026-07-31T19:03:23 ET._
 
 **15 registered producers | 1 ORPHANED | 0 DRIFT vs registry | 29 unregistered producer-shaped defs**
 
 | id | kind | classification | live | rsrch | test | detects | output reaches | evidence |
 |---|---|---|---|---|---|---|---|---|
 | `candlestick_pattern_bullish` | detector | **ORPHANED** | 0 | 0 | 1 | bullish candlestick pattern (hammer / bullish engulfing / bullish marubozu) | NOWHERE -- zero references in the entire tree incl. tests | zero non-test callsites anywhere in the tree |
-| `context_bundle` | state_file | **SHADOW_BY_DESIGN** | 1 | 1 | 2 | multi-timeframe trend alignment (daily/hourly/m15) + events + prior-day context | heartbeat_core rec dict -> core-decisions.jsonl (LOGGED ONLY) (age 0.09d) | quarantine pinned by an existing named guard test |
+| `context_bundle` | state_file | **SHADOW_BY_DESIGN** | 1 | 1 | 2 | multi-timeframe trend alignment (daily/hourly/m15) + events + prior-day context | heartbeat_core rec dict -> core-decisions.jsonl (LOGGED ONLY) (age 0.13d) | quarantine pinned by an existing named guard test |
 | `pullback_hold` | detector | **SHADOW_BY_DESIGN** | 1 | 0 | 2 | pullback into a level zone that holds N bars | shadow_triggers_fired -> core-decisions.jsonl (LOGGED ONLY) | quarantine pinned by an existing named guard test |
-| `trendline_log` | state_file | **SHADOW_BY_DESIGN** | 0 | 0 | 0 | every detected trendline instance, per fire | NOTHING reads it in code -- producer + a recovery utility + docs only (age 0.09d) | ZERO programmatic readers -- ad-hoc/human research only, but a dated decision keeps it on purpose |
+| `trendline_log` | state_file | **SHADOW_BY_DESIGN** | 0 | 0 | 0 | every detected trendline instance, per fire | NOTHING reads it in code -- producer + a recovery utility + docs only (age 0.13d) | ZERO programmatic readers -- ad-hoc/human research only, but a dated decision keeps it on purpose |
 | `trendline_reclaim` | detector | **SHADOW_BY_DESIGN** | 1 | 0 | 2 | close reclaiming a fitted descending trendline | shadow_triggers_fired -> core-decisions.jsonl (LOGGED ONLY) | quarantine pinned by an existing named guard test |
-| `trendlines_live` | state_file | **SHADOW_BY_DESIGN** | 0 | 1 | 0 | respected multi-day SPY trendlines (wick + body families, RTH-only) | confluence_producer.py + engine_health freshness only -- NO decision consumer (age 0.09d) | dated decision on record; 1 research consumer(s), 0 live |
+| `trendlines_live` | state_file | **SHADOW_BY_DESIGN** | 0 | 1 | 0 | respected multi-day SPY trendlines (wick + body families, RTH-only) | confluence_producer.py + engine_health freshness only -- NO decision consumer (age 0.13d) | dated decision on record; 1 research consumer(s), 0 live |
 | `wick_reclaim` | detector | **SHADOW_BY_DESIGN** | 1 | 2 | 4 | bullish wick rejection reclaiming a tracked level | BullishSetupResult.shadow_triggers_fired -> engine_cli base dict -> core-decisions.jsonl (LOGGED ONLY) | quarantine pinned by an existing named guard test |
-| `confluence_zones` | state_file | **RESEARCH_ONLY** | 0 | 1 | 1 | scored confluence zones (>=2 sources within +/-0.85) | NOTHING outside its own producer -- confirmed zero consumers TRENDLINE-SUBSYSTEM-AUDIT-2026-07-14 and re-confirmed 2026-07-31 (age 0.09d) | 1 callsite(s), none on the live decision path |
+| `confluence_zones` | state_file | **RESEARCH_ONLY** | 0 | 1 | 1 | scored confluence zones (>=2 sources within +/-0.85) | NOTHING outside its own producer -- confirmed zero consumers TRENDLINE-SUBSYSTEM-AUDIT-2026-07-14 and re-confirmed 2026-07-31 (age 0.13d) | 1 callsite(s), none on the live decision path |
 | `fvg` | detector | **RESEARCH_ONLY** | 0 | 1 | 1 | fair value gap | erl_irl_watcher (backtest/eval only, not on the live path) | 1 callsite(s), none on the live decision path |
 | `candlestick_pattern_bearish` | detector | **WIRED** | 1 | 0 | 0 | bearish candlestick pattern | evaluate_bearish_setup -> bear_score | 1 live-path callsite(s) |
 | `confluence` | detector | **WIRED** | 1 | 1 | 1 | multiple levels stacked near price | triggers_fired | 1 live-path callsite(s) |

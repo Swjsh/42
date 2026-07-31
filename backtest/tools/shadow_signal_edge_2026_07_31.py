@@ -26,6 +26,18 @@ METHOD (locked in the pre-reg, not chosen after seeing results)
     RIBBON_RIDE ExitShape that heartbeat_core actually registers for bull ribbon-ride
     entries (structure stop primary, -50% catastrophe cap, TP1 +100% sell 66.7%,
     trailing runner 15% off HWM).
+    !! CORRECTION 2026-07-31 evening (L249 -- this docstring was WRONG for 90% of trades):
+    ExitState.from_entry silently resolves to PREMIUM mode at -20% whenever trigger_level
+    is absent, and it is absent on 144/160 shadow firings. The structure cell above is
+    what was INTENDED, not what most trades RAN. See exit_fallback_correction and
+    counterfactual_true_cap in the output -- both are now first-class fields, and the
+    bias runs CONSERVATIVE (at the true -50% cap both signals get WORSE).
+  * SIGNIFICANCE: the per-trade p-value is n-INFLATED -- ~45 firings/day overlap across a
+    handful of contracts, so they are not independent draws. The DAY-LEVEL block test
+    (day_level_test) is the adjudicating statistic; the per-trade BH result is kept only
+    as `bh_fdr_q010_significant_PER_TRADE` for provenance.
+  * SCOPE: STANDALONE-TRIGGER form only. Score-contributor / tiebreaker / veto use of these
+    signals is UNTESTED here and must not be swept into the graveyard (C15).
   * SIZE: qty=3 (Rule 6 minimum: 2 TP + 1 runner). Per-trade dollars are therefore the
     minimum-size figure, never a scaled-up projection.
   * REAL OPRA ONLY. A (date, strike) with no cached contract is reported as UNCOVERED and
@@ -52,7 +64,9 @@ import pandas as pd
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "backtest"))
 sys.path.insert(0, str(REPO))
+sys.path.insert(0, str(REPO / "setup" / "scripts"))
 
+from et_clock import et_now  # noqa: E402 -- this box is MOUNTAIN time; ET = local + 2h
 from lib.exit_manager_walk import walk_exit_manager  # noqa: E402
 from lib.option_pricing_real import load_contract_bars, option_symbol  # noqa: E402
 from lib.ribbon import compute_ribbon  # noqa: E402
@@ -221,6 +235,71 @@ def run_one(ev: dict, spy_day: pd.DataFrame) -> dict:
     return out
 
 
+def exit_fallback_audit(ok_rows: list[dict]) -> dict:
+    """CORRECTION 2026-07-31 evening: the validated exit cell never reached 90% of trades.
+
+    ExitState.from_entry resolves stop_mode="structure" ONLY when the shape declares it AND
+    structure_stop_enabled AND a trigger_level is present. `trigger_level` comes from the
+    ledger's bull_reclaim_level_raw / trigger_level_exact, which are ABSENT on most shadow
+    firings -- so those trades silently fell back to PREMIUM mode at premium_stop_pct
+    (-20%), which RIBBON_RIDE's own source note calls the flag-OFF emergency fallback, NOT
+    the validated cell. That is C14/L248 dead-knob-by-omission, and it happened inside a
+    harness whose docstring promised the validated cell.
+
+    This function makes the defect a FIRST-CLASS FIELD of the output instead of a footnote:
+    how many trades lost the structure stop, and what the premium stops actually fired at.
+    Direction of bias is CONSERVATIVE -- see counterfactual_true_cap below.
+    """
+    missing = [r for r in ok_rows if r.get("trigger_level") is None]
+    stops = [r for r in ok_rows if str(r.get("exit_reason", "")).startswith("premium_stop")]
+    pcts = []
+    for r in stops:
+        try:
+            px = float(str(r["exit_reason"]).split(" @ ")[1])
+            pcts.append(round(100.0 * (px / r["entry_premium"] - 1.0), 1))
+        except (IndexError, ValueError, KeyError, ZeroDivisionError):
+            continue
+    stages: dict[str, int] = defaultdict(int)
+    for r in ok_rows:
+        stages[str(r.get("exit_reason", "?")).split(" @ ")[0]] += 1
+    return dict(
+        n_resolved=len(ok_rows),
+        n_missing_trigger_level=len(missing),
+        pct_missing_trigger_level=round(100.0 * len(missing) / max(1, len(ok_rows)), 1),
+        n_premium_stop_legs=len(stops),
+        premium_stop_realized_pct_min=min(pcts) if pcts else None,
+        premium_stop_realized_pct_max=max(pcts) if pcts else None,
+        exit_stage_histogram=dict(sorted(stages.items())),
+        note="premium stops all cluster at the -20% FALLBACK, none near the -50% "
+             "catastrophe cap -- proof the structure cell was not applied. structure_stop "
+             "legs come only from the minority of trades that carried a trigger_level.",
+    )
+
+
+def day_level_test(per_day: dict) -> dict:
+    """Day-level block test -- the pre-reg promised it and the first run never computed it.
+
+    ~45 firings inside one session are NOT independent draws: on 2026-07-20 alone 52
+    wick_reclaim trades ran across only 8 distinct contracts, and the detector fires on 57%
+    of RTH bars, so positions overlap near-continuously. The per-trade p-value therefore
+    OVERSTATES significance. The day is the honest block.
+    """
+    days = [v for _, v in sorted(per_day.items())]
+    if len(days) < 3:
+        return dict(n_days=len(days), statistic=None, p_value=None,
+                    n_days_negative=sum(1 for d in days if d < 0),
+                    note="fewer than 3 day-blocks -- no day-level test")
+    mean = sum(days) / len(days)
+    var = sum((d - mean) ** 2 for d in days) / (len(days) - 1)
+    stat = mean / math.sqrt(var / len(days)) if var > 0 else 0.0
+    return dict(n_days=len(days), day_sums=[round(d, 2) for d in days],
+                mean_per_day=round(mean, 2), statistic=round(stat, 3),
+                p_value=one_sample_p(days),
+                n_days_negative=sum(1 for d in days if d < 0),
+                method="mean/SE over day-sums, two-sided p by normal approximation "
+                       "(one_sample_p) -- same estimator as the per-trade screen")
+
+
 def bh_fdr(pvals: list[float], q: float = 0.10) -> list[bool]:
     """Benjamini-Hochberg. Returns per-input significance at FDR<=q."""
     m = len(pvals)
@@ -332,13 +411,72 @@ def main() -> int:
         )
     keep = bh_fdr(pvals, q=0.10)
     for sig, k in zip(sig_order, keep):
-        per_signal[sig]["unbiased_days_only"]["bh_fdr_q010_significant"] = bool(k)
+        u = per_signal[sig]["unbiased_days_only"]
+        u["bh_fdr_q010_significant_PER_TRADE"] = bool(k)
+        # The per-trade BH result is retained for provenance but is NO LONGER the verdict:
+        # it treats overlapping same-contract positions as independent draws (n-inflation).
+        u["day_level"] = day_level_test(u["per_day"])
+
+    # ---- CORRECTION: what the exits ACTUALLY did, and the counterfactual at the true cap
+    ok_unb = [r for r in results if r.get("status") == "OK" and r["date"] in unbiased_days]
+    fallback = exit_fallback_audit(ok_unb)
+    _orig_stop = EXIT_SHAPE.get("premium_stop_pct")
+    EXIT_SHAPE["premium_stop_pct"] = EXIT_SHAPE.get("catastrophe_stop_pct", -0.5)
+    cf_tot: dict[str, float] = defaultdict(float)
+    cf_n: dict[str, int] = defaultdict(int)
+    for ev in events:
+        if ev["date"] not in unbiased_days or spy_by_day.get(ev["date"]) is None:
+            continue
+        r = run_one(ev, spy_by_day[ev["date"]])
+        if r.get("status") == "OK":
+            cf_tot[r["signal"]] += r["pnl"]
+            cf_n[r["signal"]] += 1
+    EXIT_SHAPE["premium_stop_pct"] = _orig_stop
+    counterfactual = dict(
+        what="every trade re-walked with the stop set to the TRUE -50% catastrophe cap "
+             "instead of the -20% premium fallback the missing trigger_level forced",
+        stop_pct_used=EXIT_SHAPE.get("catastrophe_stop_pct", -0.5),
+        per_signal={s: dict(n=cf_n[s], total_pnl=round(cf_tot[s], 2)) for s in sorted(cf_n)},
+        bias_direction="CONSERVATIVE -- the reported figures FLATTER these signals. At the "
+                       "true cap both measured signals get WORSE, so the NULL verdict "
+                       "survives and strengthens. Nothing here reverses a verdict.",
+    )
+    for sig in SIGNALS:
+        per_signal[sig]["unbiased_days_only"]["counterfactual_true_50pct_cap"] = (
+            dict(n=cf_n[sig], total_pnl=round(cf_tot[sig], 2)) if cf_n.get(sig) else None)
+
+    # ---- explicit verdict strings (so no downstream surface has to infer one)
+    verdicts = {}
+    for sig in SIGNALS:
+        u = per_signal[sig]["unbiased_days_only"]
+        dl = u.get("day_level") or {}
+        if not u["n_resolved"]:
+            verdicts[sig] = ("UNDERPOWERED -- NO VERDICT ISSUED. n=0 resolvable events. "
+                             "Untested, NOT dead: do not graveyard it.")
+        elif dl.get("p_value") is not None and dl["p_value"] <= 0.05 and dl["n_days_negative"] == dl["n_days"]:
+            verdicts[sig] = (f"SIGNIFICANT NEGATIVE at day level (stat={dl['statistic']}, "
+                             f"p={dl['p_value']:.4g}, {dl['n_days_negative']}/{dl['n_days']} "
+                             "days negative) -- stands unqualified.")
+        else:
+            verdicts[sig] = (f"NEGATIVE POINT ESTIMATE, NOT SIGNIFICANT at day level "
+                             f"(stat={dl.get('statistic')}, p={dl.get('p_value'):.4g}, "
+                             f"{dl.get('n_days_negative')}/{dl.get('n_days')} days negative). "
+                             "The per-trade p-value is n-inflated by overlapping positions.")
 
     report = dict(
-        generated_at_et=dt.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+        generated_at_et=et_now().strftime("%Y-%m-%dT%H:%M:%S"),  # REAL ET (box is Mountain)
+        verdicts=verdicts,
+        scope="STANDALONE-TRIGGER form ONLY -- 'take every firing as an entry'. Their use as "
+              "SCORE CONTRIBUTORS, tiebreakers or vetoes is UNTESTED here and must not be "
+              "swept into the graveyard (gate interactions are multiplicative, C15).",
+        exit_fallback_correction=fallback,
+        counterfactual_true_cap=counterfactual,
         prereg="analysis/deep-research/SHADOW-SIGNAL-PREREG-2026-07-31.md",
         method=dict(event_unit="(signal, date, 5-min bar)", entry="entry+1, VWAP of containing 5m option bar",
-                    strike="ATM (V15_SAFE_TIERS, verified)", exit="REAL exit_manager via walk_exit_manager, RIBBON_RIDE shape",
+                    strike="ATM (V15_SAFE_TIERS, verified)",
+                    exit="REAL exit_manager via walk_exit_manager, RIBBON_RIDE shape -- BUT "
+                         "see exit_fallback_correction: 90% of trades lacked trigger_level "
+                         "and ran the -20% PREMIUM fallback, not the validated structure cell",
                     qty=QTY, pricing="real OPRA cache only; synthetic excluded",
                     multiplicity=f"BH-FDR q<=0.10 across {len(SIGNALS)} signals"),
         exit_shape=EXIT_SHAPE,
@@ -363,9 +501,13 @@ def main() -> int:
               f"WR={b['win_rate_pct']}% drop_best={b['drop_best_total']}")
         print(f"   [UNBIASED slice]    n={u['n_resolved']} days={u['n_days']} "
               f"total={u['total_pnl']} per_tr={u['per_trade']} WR={u['win_rate_pct']}% "
-              f"drop_best={u['drop_best_total']} p={u['p_value']} "
-              f"BH_sig={u['bh_fdr_q010_significant']}")
+              f"drop_best={u['drop_best_total']} p_per_trade={u['p_value']} "
+              f"BH_sig_per_trade={u['bh_fdr_q010_significant_PER_TRADE']}")
         print(f"   [UNBIASED per_day]  {u['per_day']}")
+        print(f"   [DAY-LEVEL]         {u['day_level']}")
+        print(f"   [-50% CAP CF]       {u['counterfactual_true_50pct_cap']}")
+        print(f"   VERDICT: {report['verdicts'][sig]}")
+    print(f"\n[EXIT FALLBACK] {fallback}")
     print(f"\n[wrote] {OUT.relative_to(REPO).as_posix()}")
     return 0
 

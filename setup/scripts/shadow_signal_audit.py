@@ -71,6 +71,18 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+
+# TZ-SYSTEMIC (CLAUDE.md "TIME = et_clock, NEVER local"): this box runs MOUNTAIN time,
+# so dt.datetime.now() is ET-2h. The first build of this script stamped the inventory,
+# the machine state and its STATUS.md line with bare local time rendered with an " ET"
+# suffix -- every stamp this nightly instrument emitted was 2h early AND mislabeled.
+# Pinned by backtest/tests/test_shadow_signal_audit_2026_07_31.py::test_generated_stamp_is_real_ET.
+_SCRIPTS = ROOT / "setup" / "scripts"
+if str(_SCRIPTS) not in _sys.path:
+    _sys.path.insert(0, str(_SCRIPTS))
+
+from et_clock import et_now  # noqa: E402 -- path shim above must run first
+
 STATE = ROOT / "automation" / "state"
 OUT_JSON = STATE / "shadow-signal-audit.json"
 INVENTORY_MD = ROOT / "analysis" / "deep-research" / "SHADOW-SIGNAL-INVENTORY-2026-07-31.md"
@@ -354,10 +366,22 @@ def classify(entry: dict, refs: dict) -> tuple[str, str]:
     return "WIRED", f"{n_live} live-path callsite(s)"
 
 
+def stamp_et() -> str:
+    """The ONE place this script produces a timestamp -- always real Eastern Time.
+
+    Every emitted stamp (machine state, inventory AUTOGEN header, STATUS.md line) is
+    rendered with an " ET" suffix, so it MUST come from the DST-aware canonical clock.
+    Never dt.datetime.now(): this rig is on Mountain time and that reads 2h early.
+    """
+    return et_now().strftime("%Y-%m-%dT%H:%M:%S")
+
+
 def state_file_age_days(sym: str) -> float | None:
     p = ROOT / sym
     if not p.exists():
         return None
+    # NOT a TZ bug: .timestamp() on both sides is epoch seconds, so this delta is
+    # timezone-invariant. Only *rendered* stamps must go through stamp_et().
     age = dt.datetime.now().timestamp() - p.stat().st_mtime
     return round(age / 86400.0, 2)
 
@@ -419,7 +443,7 @@ def build_report() -> dict:
     orphans = [r for r in rows if r["actual"] in ("ORPHANED", "UNPROVEN_SHADOW")]
     drifted = [r for r in rows if r["drift"]]
     return dict(
-        generated_at_et=dt.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+        generated_at_et=stamp_et(),   # real ET, never local (see stamp_et docstring)
         n_registered=len(rows), n_orphaned=len(orphans), n_drift=len(drifted),
         n_unregistered=len(unregistered),
         orphan_ids=[r["id"] for r in orphans], drift_ids=[r["id"] for r in drifted],

@@ -17,13 +17,18 @@ the fixes hold.
    content as a signal. Counting it would let a completely dead shadow file look wired
    purely because a health check watches it.
 
-Plus the two invariants the instrument's honesty rests on:
+Plus the three invariants the instrument's honesty rests on:
 4. SHADOW_BY_DESIGN on a live-path file requires a NAMED, EXISTING guard test; otherwise
    the claim is downgraded to UNPROVEN_SHADOW (L249: never take a docstring's word).
 5. The script is FAIL-OPEN -- it is an instrument, never a gate (OP-25).
+6. EVERY EMITTED STAMP IS REAL ET (added 2026-07-31 evening, after the verifier caught the
+   bug). The first build used dt.datetime.now() -- bare MOUNTAIN local -- and rendered it
+   with an " ET" suffix into the machine state, the inventory AUTOGEN header and STATUS.md.
+   Every stamp was 2h early and mislabeled: the repo's most-scarred defect class.
 """
 from __future__ import annotations
 
+import datetime as dt
 import importlib.util
 import sys
 from pathlib import Path
@@ -32,6 +37,8 @@ import pytest
 
 REPO = Path(__file__).resolve().parents[2]
 SCRIPT = REPO / "setup" / "scripts" / "shadow_signal_audit.py"
+sys.path.insert(0, str(REPO / "setup" / "scripts"))
+from et_clock import et_now  # noqa: E402
 
 
 def _load():
@@ -168,3 +175,67 @@ def test_first_run_seeds_baseline_silently(mod, tmp_path, monkeypatch):
              drift_ids=["c"], unregistered=[dict(module="m.py", symbol="detect_x")]))
     assert spoke is None, "first run must seed the baseline without shouting"
     assert not (tmp_path / "STATUS.md").exists(), "first run must not touch STATUS.md"
+
+
+# ---------------------------------------------------------------------------
+# 6. EVERY EMITTED STAMP IS REAL ET  (TZ-SYSTEMIC scar -- CLAUDE.md, C9/L-TZ)
+# ---------------------------------------------------------------------------
+def test_generated_stamp_is_real_ET(mod, monkeypatch):
+    """build_report()'s `generated_at_et` must match et_clock ET within 60s.
+
+    This is the END-TO-END assertion: it runs the REAL build_report and reads the REAL
+    field that gets written to automation/state/shadow-signal-audit.json, spliced into
+    the inventory AUTOGEN header and appended to STATUS.md -- all three rendered with an
+    " ET" suffix. The scan itself is stubbed out (empty registry / no source files) so
+    the guard costs milliseconds; the timestamp path is untouched and fully exercised.
+
+    RED-PROOF: revert stamp_et() to `dt.datetime.now().strftime(...)` and this fails on
+    this rig with a ~7200s delta (box is MOUNTAIN time; ET = local + 2h).
+    """
+    monkeypatch.setattr(mod, "REGISTRY", [])
+    monkeypatch.setattr(mod, "SCAN_MODULES", ())
+    monkeypatch.setattr(mod, "iter_source_files", lambda: [])
+
+    rep = mod.build_report()
+    stamp = dt.datetime.strptime(rep["generated_at_et"], "%Y-%m-%dT%H:%M:%S")
+    delta = abs((stamp - et_now()).total_seconds())
+    assert delta <= 60, (
+        f"generated_at_et={rep['generated_at_et']} is {delta:.0f}s from et_clock ET "
+        f"({et_now():%Y-%m-%dT%H:%M:%S}). Every emitted stamp carries an ' ET' suffix, so "
+        "it MUST come from et_clock.et_now() -- this rig is on Mountain time and bare "
+        "dt.datetime.now() reads 2h early (7200s)."
+    )
+
+
+def test_stamp_et_is_the_single_source_and_uses_et_clock(mod):
+    """One stamping helper, wired to the canonical clock -- not a second local-now copy.
+
+    Behavioral half: stamp_et() itself tracks et_now(). Structural half: the emitter does
+    not reintroduce a rendered local-time stamp elsewhere (a `.timestamp()` epoch delta is
+    timezone-invariant and stays legal).
+    """
+    delta = abs((dt.datetime.strptime(mod.stamp_et(), "%Y-%m-%dT%H:%M:%S")
+                 - et_now()).total_seconds())
+    assert delta <= 60, f"stamp_et() is {delta:.0f}s off et_clock ET"
+
+    src = SCRIPT.read_text(encoding="utf-8")
+    assert "from et_clock import et_now" in src, "must import the canonical DST-aware clock"
+    assert "dt.datetime.now().strftime" not in src, (
+        "a RENDERED stamp must never come from local time -- use stamp_et()"
+    )
+
+
+def test_status_line_and_autogen_carry_the_ET_stamp(mod, tmp_path, monkeypatch):
+    """The two human-facing surfaces must print the stamp they were handed, with ' ET'."""
+    rep = dict(generated_at_et="2026-07-31T18:44:27", n_registered=0, n_orphaned=1,
+               n_drift=0, n_unregistered=0, orphan_ids=["x"], drift_ids=[],
+               rows=[], unregistered=[])
+    assert "2026-07-31T18:44:27 ET" in mod.render_autogen(rep)
+
+    monkeypatch.setattr(mod, "OUT_JSON", tmp_path / "prev.json")
+    (tmp_path / "prev.json").write_text('{"orphan_ids": [], "drift_ids": [], '
+                                        '"unregistered": []}', encoding="utf-8")
+    monkeypatch.setattr(mod, "STATUS_MD", tmp_path / "STATUS.md")
+    (tmp_path / "STATUS.md").write_text("# S\n## Known broken\n", encoding="utf-8")
+    line = mod.fail_loud_on_transition(rep)
+    assert line is not None and line.startswith("- [2026-07-31T18:44:27 ET] "), line

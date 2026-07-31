@@ -1,11 +1,48 @@
 {
- "generated_at_et": "2026-07-31T15:57:11",
+ "generated_at_et": "2026-07-31T19:15:41",
+ "verdicts": {
+  "wick_reclaim": "NEGATIVE POINT ESTIMATE, NOT SIGNIFICANT at day level (stat=-0.649, p=0.5162, 2/3 days negative). The per-trade p-value is n-inflated by overlapping positions.",
+  "trendline_reclaim": "SIGNIFICANT NEGATIVE at day level (stat=-3.401, p=0.0006717, 3/3 days negative) -- stands unqualified.",
+  "pullback_hold": "UNDERPOWERED -- NO VERDICT ISSUED. n=0 resolvable events. Untested, NOT dead: do not graveyard it."
+ },
+ "scope": "STANDALONE-TRIGGER form ONLY -- 'take every firing as an entry'. Their use as SCORE CONTRIBUTORS, tiebreakers or vetoes is UNTESTED here and must not be swept into the graveyard (gate interactions are multiplicative, C15).",
+ "exit_fallback_correction": {
+  "n_resolved": 160,
+  "n_missing_trigger_level": 144,
+  "pct_missing_trigger_level": 90.0,
+  "n_premium_stop_legs": 87,
+  "premium_stop_realized_pct_min": -20.9,
+  "premium_stop_realized_pct_max": -19.0,
+  "exit_stage_histogram": {
+   "premium_stop": 87,
+   "ribbon_flip_back": 37,
+   "runner_stop": 8,
+   "structure_stop": 16,
+   "time_stop_15:50": 12
+  },
+  "note": "premium stops all cluster at the -20% FALLBACK, none near the -50% catastrophe cap -- proof the structure cell was not applied. structure_stop legs come only from the minority of trades that carried a trigger_level."
+ },
+ "counterfactual_true_cap": {
+  "what": "every trade re-walked with the stop set to the TRUE -50% catastrophe cap instead of the -20% premium fallback the missing trigger_level forced",
+  "stop_pct_used": -0.5,
+  "per_signal": {
+   "trendline_reclaim": {
+    "n": 27,
+    "total_pnl": -1587.83
+   },
+   "wick_reclaim": {
+    "n": 133,
+    "total_pnl": -6462.16
+   }
+  },
+  "bias_direction": "CONSERVATIVE -- the reported figures FLATTER these signals. At the true cap both measured signals get WORSE, so the NULL verdict survives and strengthens. Nothing here reverses a verdict."
+ },
  "prereg": "analysis/deep-research/SHADOW-SIGNAL-PREREG-2026-07-31.md",
  "method": {
   "event_unit": "(signal, date, 5-min bar)",
   "entry": "entry+1, VWAP of containing 5m option bar",
   "strike": "ATM (V15_SAFE_TIERS, verified)",
-  "exit": "REAL exit_manager via walk_exit_manager, RIBBON_RIDE shape",
+  "exit": "REAL exit_manager via walk_exit_manager, RIBBON_RIDE shape -- BUT see exit_fallback_correction: 90% of trades lacked trigger_level and ran the -20% PREMIUM fallback, not the validated structure cell",
   "qty": 3,
   "pricing": "real OPRA cache only; synthetic excluded",
   "multiplicity": "BH-FDR q<=0.10 across 3 signals"
@@ -223,7 +260,24 @@
      "2026-07-22": -1773.4
     },
     "n_days": 3,
-    "bh_fdr_q010_significant": true
+    "bh_fdr_q010_significant_PER_TRADE": true,
+    "day_level": {
+     "n_days": 3,
+     "day_sums": [
+      -2519.97,
+      1737.18,
+      -1773.4
+     ],
+     "mean_per_day": -852.06,
+     "statistic": -0.649,
+     "p_value": 0.5161949129436922,
+     "n_days_negative": 2,
+     "method": "mean/SE over day-sums, two-sided p by normal approximation (one_sample_p) -- same estimator as the per-trade screen"
+    },
+    "counterfactual_true_50pct_cap": {
+     "n": 133,
+     "total_pnl": -6462.16
+    }
    },
    "fires_per_trading_bar": 0.572
   },
@@ -261,7 +315,24 @@
      "2026-07-22": -534.39
     },
     "n_days": 3,
-    "bh_fdr_q010_significant": true
+    "bh_fdr_q010_significant_PER_TRADE": true,
+    "day_level": {
+     "n_days": 3,
+     "day_sums": [
+      -397.04,
+      -165.81,
+      -534.39
+     ],
+     "mean_per_day": -365.75,
+     "statistic": -3.401,
+     "p_value": 0.0006716523867680672,
+     "n_days_negative": 3,
+     "method": "mean/SE over day-sums, two-sided p by normal approximation (one_sample_p) -- same estimator as the per-trade screen"
+    },
+    "counterfactual_true_50pct_cap": {
+     "n": 27,
+     "total_pnl": -1587.83
+    }
    },
    "fires_per_trading_bar": 0.162
   },
@@ -294,7 +365,15 @@
     "p_value": null,
     "per_day": {},
     "n_days": 0,
-    "bh_fdr_q010_significant": false
+    "bh_fdr_q010_significant_PER_TRADE": false,
+    "day_level": {
+     "n_days": 0,
+     "statistic": null,
+     "p_value": null,
+     "n_days_negative": 0,
+     "note": "fewer than 3 day-blocks -- no day-level test"
+    },
+    "counterfactual_true_50pct_cap": null
    },
    "fires_per_trading_bar": 0.362
   }
