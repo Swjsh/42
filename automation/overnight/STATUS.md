@@ -1,9 +1,58 @@
 ## Known broken
+- [2026-07-31 16:00 ET] shadow_signal_audit (NEW nightly instrument, baseline run): 1 true ORPHAN -- `detect_candlestick_pattern_bullish` (backtest/lib/filters.py:334) has ZERO references tree-wide incl. tests, while its bearish twin is wired. Flagged, not deleted. Full inventory + the shadow-signal edge measurement (verdict: promote NOTHING) -> analysis/deep-research/SHADOW-SIGNAL-INVENTORY-2026-07-31.md
 
 - [2026-07-31T15:30:22] GATE-EXPIRY RED :: block_elite_bull :: refused cohort would have EARNED $13.15/tr, n=97 >= floor 10 -- COSTING money :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate block_elite_bull
 _Standing OP-25 flag surface. Producers append ONE loud line here on a transition into a broken/RED state (never re-spam a persisting flag) -- see `setup/guard_runner_slow.py::_flag_status_md` and `backtest/autoresearch/gate_expiry_check.py::flag_status_md` for the exact pattern. STRUCTURAL NOTE (found + fixed 2026-07-31, gate-expiry-instrument build): this header used to live INSIDE individual dated `## [...]` entries, so `setup/scripts/status_retention.py`'s byte-budget rolling (which only ever preserves the file's PREAMBLE -- everything before the first `## [` entry -- forever) carried it off to the monthly archive the moment the entry containing it aged out. Every producer targeting this marker was silently no-op'ing (marker not found -> fail-open no-write) for an unknown span before this fix. Moving it into the permanent preamble makes it immune to retention rolls going forward. If this section grows large, prune resolved lines by hand (OP-22 consolidation) rather than letting status_retention.py touch it -- it never will._
 
 ---
+
+## [2026-07-31 ~17:30-18:30 ET] OK -- filter-5 (ribbon MA-stack) fate lane: MEASURED, **NULL**, gate STAYS, zero net hot-path change
+
+> **Signal J wakes to (OP-25).** Filter 5 -- the ribbon MA-stack veto that blocked all 5 live
+> arms on your 10:15 bounce Friday -- has now been **measured over 390 trading days on real
+> OPRA fills**. Verdict: **NULL. It is not costing you money. It is also not earning any.**
+> It stays, and three future re-litigations of it are now closed.
+
+- **Provenance finding (stated before measuring):** filter 5 had **NO ratification scorecard**.
+  `git log -S'blockers.append(5)'` returns one squashed snapshot commit; all 36 `ribbon-*` /
+  `filter-*` scorecards tune ADJACENT knobs or test bypasses OF it -- none ever armed it. It was
+  inherited doctrine, not evidence-armed. It now has a measurement either way.
+- **Cohort A (what it blocks alone, `blockers == [5]`):** 346 bull bars / 77 days + 152 bear bars
+  / 42 days full history; 56 bull + 48 bear bars over the recent 25 days.
+- **The measurement (pre-reg frozen 17:34 ET, before any run):** deleting filter 5 outright ->
+  full-window **+$738.60**, recent-25-day **-$68.00**. **G1 (recent window positive) is the
+  PRIMARY gate per your dynamic-market directive -- it FAILS.** G2 and G3 also fail; G4
+  (runner-anchor) and G5 (fire count) pass. 2/5 -> NULL.
+- **The headline was an artifact, and the harness caught it.** Of that +$738.60, only **+$103.60**
+  came from the 21 trades filter 5 was actually blocking (**+$4.93/trade, and -$437 once the
+  single best trade is dropped**). The other **+$635 (86%)** is 8 CONTROL trades that merely
+  VANISH because an unlocked earlier entry ate the one-position slot -- **6 of 6** dropped days
+  also carry an added trade. That is sequencing luck, not evidence about the gate.
+- **The real mechanism (new, cited):** 76% of the unlocked trades exit on `ribbon_flip_back` vs
+  10% of the control book. **Filter 5 is largely REDUNDANT with the ribbon-flip EXIT** -- entries
+  admitted against a non-stacked ribbon get closed by the ribbon almost immediately. Loosening
+  ribbon-based ENTRY gating without moving the ribbon-based EXIT in the same change will null
+  the same way. (L243's shape, on the exit side.)
+- **Cross-lane fact worth knowing: deleting filter 5 does NOT recover your 10:15 Friday long.**
+  Zero trades on 2026-07-31 in ANY arm. The engine DID see it -- 10:20 bar, bull score 10,
+  triggers `[level_reclaim, confluence]`, level 738.85, ribbon MIXED, `blockers == [5]` -- but a
+  second gate sits behind filter 5. **Filter 5 was the first veto in a stack, not the binding
+  one.** Whoever holds the `block_elite_bull` lane owns the rest of that chain.
+- **ARM_C (structure-shift replacing the ribbon) was NOT re-run** -- exactly that semantics
+  already nulled on 2026-07-28 (`structure-shift-cascade-ab-2026-07-28.json`, delta -$46,
+  g1/g3/g4/g5 FAIL). Cited, not silently skipped.
+- **Net code change: ZERO.** A scoped level-anchored bypass flag (ARM_B) was built, guard-tested,
+  RED-proofed against 3 mutants and run -- it measured **byte-identical to outright deletion**
+  (229 entries, same 21 added / 8 dropped), because when the ribbon is not BULL-stacked
+  `detect_ribbon_flip_bullish` cannot fire, so every filter-5-blocked bull setup is level-anchored
+  BY CONSTRUCTION. Provably redundant + nulled -> **the flag was reverted out of `filters.py`**
+  rather than left as a dead default-off knob in the repo's most consumer-heavy hot-path file
+  (C14). `git diff backtest/lib/filters.py` is empty. ARM_A reproduces the whole finding using an
+  existing production kwarg.
+- **Artifacts:** pre-reg `analysis/recommendations/prereg-filter5-ribbon-2026-07-31.json` ·
+  scorecard `analysis/recommendations/filter5-ribbon-2026-07-31.json` / `.md` ·
+  runner `backtest/tools/filter5_ribbon_fate_2026_07_31.py` ·
+  lesson inbox `strategy/candidates/_lesson-inbox/2026-07-31-gate-ab-delta-dominated-by-preemption-not-the-block-set.md`.
 
 ## [2026-07-31 ~09:12-09:35 ET] OK -- conductor (AFTERHOURS): LIVE TV-CDP outage fixed pre-open + self-heal blind-spot closed, commit `c941567c`
 
