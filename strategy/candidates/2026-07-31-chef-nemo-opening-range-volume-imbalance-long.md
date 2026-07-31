@@ -5,25 +5,18 @@
 
 # CANDIDATE: OPENING_RANGE_VOLUME_IMBALANCE_LONG
 
-**Filed:** 2026-07-09  
-**Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** new_trigger  
+**Filed:** 2026-07-09
+**Filer:** chef-nemotron (free-tier autonomous R&D)
+**Type:** new_trigger
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-A strong volume bias in the first 30‑minute opening range predicts continuation of that direction for the rest of the session. Specifically, when buy volume (volume on bars where close>open) exceeds 1.5 times sell volume (volume on bars where close<open) and the price breaks above the opening range high with a close above that high on the breakout bar, the session is likely to continue upward. This edge exists because institutional order flow often imbalances during the opening auction, setting the directional bias for the day.
+Early session volume surge with price closing above the opening range high signals institutional participation and offers a long edge. The first 5-minute bar capturing abnormal volume and a close above the ORH indicates strong buying interest likely to persist through the morning session, providing a directional edge for long entries.
 
 ## Mechanism
 
-- Calculate the opening range (09:30‑10:00 ET) high (ORH) and low (ORL).
-- For each bar in the opening range, sum volume where close>open (buy volume) and where close<open (sell volume).
-- If buy volume > 1.5 × sell volume and the price breaks above ORH (i.e., a bar's high > ORH) and that bar closes above ORH, then go long at the close of that bar.
-- Exit: 
-  * Initial stop: chart stop at the opening range low (ORL) (structure invalidation).
-  * Initial target: 1.5R (i.e., 1.5 times the risk from entry to ORL).
-  * After reaching the initial target, trail the remaining position with a chandelier exit (ATR×3).
-- Regime filters: Only trade when VIX < 15 and time is between 10:00‑11:30 ET; avoid when VIX > 25 or during choppy midday periods.
+At 09:35 ET (close of first 5-min bar), check: volume > 2x average volume of prior 20 five-minute bars (from previous day's 13:30-15:55 ET) AND close > opening range high (highest high from 09:30-09:45 ET). If true, enter long at the close of that bar. Exit: stop at opening range low (lowest low from 09:30-09:45 ET); profit target at 1.5R (risk = entry - stop) or trail using 10% of ATR(14) from highest close since entry. Regime filters: only active when VIX < 20 and time between 09:30-10:30 ET; skip if VIX > 30 or during FOMC/CPI/NFP events.
 
 ## Expected impact on OP-16 anchors
 
@@ -39,24 +32,28 @@ A strong volume bias in the first 30‑minute opening range predicts continuatio
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** The strategy assumes a minimum account size of $25K+ to trade the full quantity (qty=28) as per the position sizing rules. For a $1K paper account, the realized headline P&L would be approximately 14% of the full account size trade.
-2. **Sample bias:** The hypothesis is based on intraday price and volume patterns. Without a historical backtest, we cannot assess sample size or selection method. Overfit risk is high if the pattern is not validated on out-of-sample data.
-3. **Out-of-sample:** NEEDS-OOS (no out-of-sample test performed yet).
-4. **Real-fills:** NEEDS-REAL-FILLS (no real-fills validation on the top 3 J days).
+1. **Account-size assumption:** Based on the entry logic (long at close of first 5-min bar), we estimate typical entry premium around $0.50-$2.00. For qty=28 (as in J's anchor trades), requires $25K+ account to risk 50% per trade ($350 risk at $1.25 entry). $1K paper account would realize ~14% of headline P&L (3 contracts vs 28).
+2. **Sample bias:** No historical sample tested; proposal based on price action theory. High overfit risk due to specific volume threshold (2x) and OR timing without validation.
+3. **Out-of-sample:** NEEDS-OOS (no walk-forward or held-out window tested)
+4. **Real-fills:** NEEDS-REAL-FILLS (no realistic simulation of entry/exit slippage on OPRA data)
 5. **Failure modes:** 
-   - Worst day: A false breakout that quickly reverses, triggering the chart stop at ORL for a loss.
-   - Max drawdown: Could be significant if multiple false breakouts occur in a row during a choppy market.
-   - Blow-up scenario: A strong breakout that reverses sharply after the initial target, causing the chandelier exit to give back most of the gains and then stop out at a loss.
-6. **Concentration:** Without backtest results, we cannot state what percentage of P&L comes from the top 5 days. This requires a Stage-1 backtest.
+   - Worst day: whipsaw during low-volume chop (false volume surge triggers losing longs)
+   - Max drawdown: consecutive losing days during high-VIX (>30) regime breaks
+   - Blow-up scenario: sustained trend day where OR low stop gets hit repeatedly on pullbacks before major move
+6. **Concentration:** unknown -- requires Stage-1 backtest to determine if top-5 days drive P&L
 
 ## Pre-merge gate
 
-needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification
+Needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification. Must include: 
+- OP-16 anchor day validation (edge_capture calculation)
+- Walk-forward OOS test (IS/OOS Sharpe ratio > 0.70)
+- Regime filter efficacy (VIX < 20 window)
+- Real-fills check on top 3 J days (slippage < 20% vs BS sim)
 
 ## Confidence
 
-5 / 10 -- The hypothesis is intuitive and has some anecdotal support, but without empirical validation on the OP-16 anchor days and out-of-sample testing, confidence is moderate.
+5 / 10 -- Novel mechanism with theoretical plausibility but zero empirical validation; requires Stage-1 backtest to assess edge potential and failure rates.
 
 ## Pre-existing leaderboard impact
 
-This candidate is a new trigger and does not directly conflict with any existing candidates in the leaderboard. It is complementary in the sense that it adds a new entry condition based on opening range volume imbalance, which is not currently used by any registered candidate. No known overlap with current top candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND, MIDDAY_TRENDLINE_GATE).
+unknown -- requires Stage-1 backtest to determine if this complements or conflicts with existing candidates (1-9 in _LEADERBOARD.md). Likely orthogonal to structural/gate candidates as it's a pure trigger-based long strategy.
