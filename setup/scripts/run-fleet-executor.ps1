@@ -1,8 +1,11 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-  Fleet executor -- fires every 3 min during 09:30-15:55 ET (mirrors the heartbeat
-  cadence, 1 min behind it so decisions.jsonl is fresh). Two pure-Python steps,
+  Fleet executor -- fires every 1 min during 09:30-15:55 ET (2026-08-02: tightened
+  from 3 min once the order-level idempotency guard in fleet_live.py shipped --
+  see analysis/deep-research/FLEET-RACE-AND-LATENCY-2026-08-01.md section 3. Now
+  matches Gamma_HeartbeatCore's own cadence exactly, 1 min behind it so
+  decisions.jsonl is always the freshest possible read). Two pure-Python steps,
   serial (read-after-write):
     1. build_shared_signal.py -- derive shared-signal.json from the heartbeat's
        latest decisions.jsonl row (the "one perception").
