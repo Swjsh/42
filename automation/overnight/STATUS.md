@@ -1,3 +1,59 @@
+## [2026-08-01 01:13 ET] OK -- conductor (AFTERHOURS): FLEET-STRIKE-TIER-ATM-EXTENSION armed on paper (pre-registered), commit `43bb979d`
+
+**Signal J wakes to (OP-25).** Budget gate PASS ($0.33 of $30, 1/4 fires), market-hours gate
+PASS (Saturday). `task_scorer.py --top` surfaced `TWIN-DOCTRINE-FIRST-DEPLOY` (still pending J's
+Discord reply on `gp-2026-07-23-twin-doctrine-001`, nothing new to do there), so picked the
+next-ranked ready HIGH item: `FLEET-STRIKE-TIER-ATM-EXTENSION`.
+
+**What shipped:** risky-1/risky-3 (fleet_rest, PAPER, real_fills) repointed from
+`V15_BOLD_TIERS` (OTM-2/OTM-3 under $2K) to `V15_BOLD_CORE_TIERS` (ATM under $2K) -- the SAME
+table core Bold was validated+wired to on 2026-07-17/18. Mechanism: risky-1 alone lost 15 of
+16 named-setup ticks to the $0.30 `min_entry_premium` floor on 2026-07-31 (2026-07-15 study:
+OTM-3 clears that floor on only 33.76% of afternoon signals vs ATM's 96.88%). The queue item
+explicitly said "pre-register, do NOT hand-wire" -- so pre-registered the n>=20-fill gates
+BEFORE arming: `analysis/recommendations/fleet-strike-tier-atm-extension-prereg-2026-08-01.json`
+(OOS_positive, WF>=0.70-or-disclosed-null, sub_window_stable, anchor_no_regression, all frozen
+before any evidence exists). safe-3 explicitly EXCLUDED -- its OTM choice has its own documented
+$600-notional-cap reason, out of scope.
+
+**Mechanism:** `fleet_executor._tiers_for_arm` gained a third table string `'bold_core'` ->
+`strike_selection.V15_BOLD_CORE_TIERS` (previously only `'safe'`/anything-else->`'bold'`).
+`accounts.json` sets `params_patch.strike_tier_table='bold_core'` on risky-1 and risky-3 only.
+Both arms' rescue lanes (`_full_send_plan`/`_ladder_plan`) price via `PROBE_STRIKE_TIERS`
+directly and never call `_tiers_for_arm`, so this only affects each arm's NORMAL (gated) lane --
+documented explicitly in each arm's new `strike_tier_table_doc` field.
+
+**Validated + RED-proofed:** updated/added guard tests across 3 files
+(`test_bold_core_strike_tier_2026_07_15.py`, `test_fleet_strike_tier_floor_collision_2026_07_31.py`,
+`test_fleet_arm_parity.py`). Confirmed the fix introduces ZERO new failures: backed up all 4
+touched files, `git checkout HEAD --` to get pristine baseline copies, ran the full targeted
+suite (10 pre-existing failures -- `FLEET-PARITY-TESTS-READ-LIVE-STATE`, filed 2026-07-27, live
+recency-state test rot, unrelated to this change), restored my edits, re-ran -- identical 10
+failures, 99 additional passes including the new pins. Curated safety gate 59/59 PASS.
+
+**Process note (honest disclosure):** an initial `git stash` attempt during the RED-proof step
+got interrupted by a chained `&&` short-circuiting on pytest's nonzero exit code, leaving my
+edits stashed while unrelated live-daemon-written files (gym log, prospector ledger, twin
+journal, etc.) had moved on underneath. Recovered cleanly via `git stash pop` (partial apply,
+my 4 files restored) + `git stash drop` (the conflicting daemon files were correctly left at
+their newer state, never regressed) -- verified `STATUS.md`/`queue.md` content matched HEAD
+before and after, no data lost. Switched to backup+checkout+restore for the rest of the
+RED-proof, per C34/L214/L228/L238 (never bare `git stash` in this repo). Noted for the record,
+not swept under the rug (OP-33). Two PRE-EXISTING unrelated stashes (`stash@{0}`, `stash@{1}`,
+predating this fire) were left untouched -- out of scope, risk of harm from touching someone
+else's WIP exceeds the benefit of tidying them this fire.
+
+**Rail-4 (PAPER trading-path, guard+revert+REVOKE, J ratified 2026-07-01):** ships now, no J
+pre-approval needed. Revert: delete `'strike_tier_table':'bold_core'` from risky-1/risky-3's
+`params_patch` in `automation/state/fleet/accounts.json` (one line each, byte-identical) --
+or `git revert 43bb979d`.
+
+**Not yet resolved:** the change needs n>=20 real fleet fills to accumulate (next trading week,
+market is closed this weekend) before the pre-registered gates can be scored. Follow-up item
+queued: `FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01` (blocked on fill count, not time).
+
+---
+
 ## [2026-08-01 00:09 ET] OK -- conductor (WEEKEND): PMH-IS-FABRICATED-IEX-PREMARKET closed, 2 rotted guards repaired, commits `155ab21e` + `7837db7e`
 
 **Signal J wakes to (OP-25).** Budget gate PASS ($0 of $30), market-hours gate PASS (Saturday,
