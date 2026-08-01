@@ -38,6 +38,14 @@ KEY_LEVELS = REPO_ROOT / "automation" / "state" / "key-levels.json"
 # fleet-wiring redirect; the old DECISIONS LLM ledger is DEAD and kept only behind
 # USE_CORE_LEDGER=False for a byte-identical revert.
 CORE_DECISIONS = REPO_ROOT / "automation" / "state" / "core-decisions.jsonl"
+# TICK-COMPLETE MARKER (2026-08-01, WEEKEND-TWELVE #4 race fix). heartbeat_core.py writes
+# this file (overwritten, never appended) AFTER both the safe and bold rows for a tick are
+# confirmed on disk -- see heartbeat_core.TICK_MARKER's module comment. Reading it lets this
+# producer pin ONE tick (core_tick_id) across its safe+bold reads instead of two independent
+# "latest for this account" scans, which is what let a fleet read land in the ~1s gap between
+# the safe write and the bold write and pair a fresh safe row with a stale bold row (or vice
+# versa). Incident: analysis/deep-research/WINNER-AUTOPSY-2026-07-31-1219.md.
+TICK_MARKER = REPO_ROOT / "automation" / "state" / "core-decisions-tick.json"
 BEACON = REPO_ROOT / "automation" / "state" / "sight-beacon.json"
 OUT = FLEET_DIR / "shared-signal.json"
 
@@ -141,12 +149,49 @@ def _map_core_row(row: dict) -> dict:
     }
 
 
-def _latest_today_core(today: str, account: str) -> dict | None:
+def _last_complete_core_tick_id(today: str) -> str | None:
+    """The core_tick_id of the last core-decisions.jsonl tick with BOTH safe+bold rows
+    confirmed on disk -- read from the marker heartbeat_core.py writes AFTER logging both
+    accounts for a tick (never on a tick where either errored). None on any failure to
+    resolve one (missing file, corrupt JSON, wrong/missing date, incomplete accounts list) --
+    callers MUST treat None as "fall back to the pre-marker last-row-per-account scan"
+    (byte-identical to before this fix), never as an error. This is the single fail-open
+    seam: a missing/stale marker never blocks a read, it just loses the tick-pairing
+    guarantee for that one build() call.
+
+    RACE FIX (2026-08-01, WEEKEND-TWELVE #4): see TICK_MARKER's module comment + heartbeat_
+    core.TICK_MARKER's for the full incident (WINNER-AUTOPSY-2026-07-31-1219.md)."""
+    if not TICK_MARKER.exists():
+        return None
+    try:
+        m = json.loads(TICK_MARKER.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(m, dict) or m.get("date") != today:
+        return None
+    tick_id = m.get("core_tick_id")
+    accounts = m.get("accounts") or []
+    if not tick_id or not {"safe", "bold"}.issubset(set(accounts)):
+        return None
+    return tick_id
+
+
+def _latest_today_core(today: str, account: str, core_tick_id: str | None = None) -> dict | None:
     """Latest core-decisions.jsonl row for `today` and `account` ("safe"|"bold"),
-    mapped to build()'s internal row shape. File is append-order; last match wins."""
+    mapped to build()'s internal row shape. File is append-order; last match wins.
+
+    `core_tick_id` (2026-08-01, WEEKEND-TWELVE #4 race fix), when given, changes the
+    contract: return ONLY the row matching that exact tick (or None if this account has no
+    row for it yet) -- NEVER silently substitute a different tick's "latest" for this
+    account. That substitution is exactly the mismatched-pair race this parameter exists to
+    close (a fresh safe row paired with a stale bold row, or vice versa). The caller
+    (`_latest_today_decision`) is expected to resolve `core_tick_id` from the LAST COMPLETE
+    tick marker, so in practice both rows always exist by the time this is called -- the
+    None branch is a defensive fallback, not the expected path."""
     if not CORE_DECISIONS.exists():
         return None
     latest = None
+    latest_for_tick = None
     try:
         for line in CORE_DECISIONS.read_text(encoding="utf-8").splitlines():
             line = line.strip()
@@ -162,18 +207,25 @@ def _latest_today_core(today: str, account: str) -> dict | None:
             if ts[:10] != today:
                 continue
             latest = row  # append-order; last today+account row wins
+            if core_tick_id is not None and row.get("core_tick_id") == core_tick_id:
+                latest_for_tick = row
     except OSError:
         return None
+    if core_tick_id is not None:
+        return _map_core_row(latest_for_tick) if latest_for_tick is not None else None
     return _map_core_row(latest) if latest is not None else None
 
 
-def _latest_today_decision(today: str, account: str = "safe") -> dict | None:
+def _latest_today_decision(today: str, account: str = "safe",
+                           core_tick_id: str | None = None) -> dict | None:
     """Latest decision row for `today`. When USE_CORE_LEDGER (default) reads the
     DETERMINISTIC core-decisions.jsonl filtered by `account` ("safe"|"bold"); else
     falls back to the DEAD LLM decisions.jsonl (the byte-identical-v1 revert path).
-    The `account` arg is honored only on the core path (the old ledger is safe-only)."""
+    The `account` arg is honored only on the core path (the old ledger is safe-only).
+    `core_tick_id` (race fix, see _latest_today_core) is honored only on the core path too --
+    the dead LLM ledger predates and is unaffected by the safe/bold pairing race."""
     if USE_CORE_LEDGER:
-        return _latest_today_core(today, account)
+        return _latest_today_core(today, account, core_tick_id=core_tick_id)
     if not DECISIONS.exists():
         return None
     latest = None
@@ -404,7 +456,7 @@ def _bold_passed_blocks_from_row(row: "dict | None") -> dict:
     }
 
 
-def _bold_passed_blocks(today: str, now: datetime) -> dict:
+def _bold_passed_blocks(today: str, now: datetime, core_tick_id: str | None = None) -> dict:
     """Scoring-peak passed blocks derived off the BOLD perception (the 'bold' core row).
 
     Returns {'bull': {...}, 'bear': {...}} mirroring build()'s side-block shape. Used
@@ -412,9 +464,14 @@ def _bold_passed_blocks(today: str, now: datetime) -> dict:
     (safe arms judged on the SAFE row, bold arms on the BOLD row). Under USE_CORE_LEDGER
     the bold row is the account=="bold" core-decisions row; on the revert path it falls
     back to the dead BOLD_DECISIONS LLM ledger. Thin disk-read wrapper over
-    _bold_passed_blocks_from_row (the pure mapping) -- unchanged behavior, just factored."""
+    _bold_passed_blocks_from_row (the pure mapping) -- unchanged behavior, just factored.
+
+    `core_tick_id` (2026-08-01, WEEKEND-TWELVE #4 race fix): build() resolves this ONCE
+    (the last COMPLETE tick per the TICK_MARKER) and passes it here AND to the top-level
+    safe row read, so both perceptions in one build() call are pinned to the SAME tick --
+    the fix for the safe-fresh/bold-stale mismatched-pair race."""
     if USE_CORE_LEDGER:
-        row = _latest_today_decision(today, account="bold")
+        row = _latest_today_decision(today, account="bold", core_tick_id=core_tick_id)
     else:
         global DECISIONS
         _safe, DECISIONS = DECISIONS, BOLD_DECISIONS
@@ -448,7 +505,14 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
     do_vwap = RUN_VWAP if run_vwap is None else bool(run_vwap)
     do_probe = PROBE_COHORT_LIVE if probe_cohort is None else bool(probe_cohort)
     do_full = FULL_SEND_LIVE if full_send is None else bool(full_send)
-    row = _latest_today_decision(today)
+    # RACE FIX (2026-08-01, WEEKEND-TWELVE #4): resolve the last COMPLETE core tick ONCE per
+    # build() call (None when USE_CORE_LEDGER is off, or the marker is missing/stale/corrupt
+    # -- fails open to the pre-fix per-account last-row scan, byte-identical to before this
+    # change) and pass the SAME value into every block below that reads core-decisions.jsonl.
+    # This is what stops a fresh safe row from ever being paired with a stale bold row (or
+    # vice versa) within one signal -- see TICK_MARKER's module comment for the incident.
+    _core_tick_id = _last_complete_core_tick_id(today) if USE_CORE_LEDGER else None
+    row = _latest_today_decision(today, core_tick_id=_core_tick_id)
 
     # NEVER-BLIND fallback (2026-06-25): if the heartbeat ledger is missing/stale/blind,
     # derive the live market read from the sight beacon (direct REST, no MCP/CDP) so the
@@ -461,7 +525,8 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
                 "_doc": "Derived from sight-beacon.json (NEVER-BLIND fallback) — the heartbeat "
                         "decisions.jsonl was stale/blind. ribbon/price are live via direct REST; "
                         "no scored setup so production_action=HOLD.",
-                "tick_id": None, "date": today, "time_et": now.strftime("%H:%M"),
+                "tick_id": None, "core_tick_id": _core_tick_id,
+                "date": today, "time_et": now.strftime("%H:%M"),
                 "spot": beacon.get("spy"), "vix": None, "vix_dir": None,
                 "ribbon_stack": beacon.get("ribbon_stack"),
                 "ribbon_spread_cents": beacon.get("spread_cents"),
@@ -490,7 +555,8 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
     if row is None:
         sig = {
             "_doc": "Derived from decisions.jsonl by build_shared_signal.py (no today row yet).",
-            "tick_id": None, "date": today, "time_et": now.strftime("%H:%M"),
+            "tick_id": None, "core_tick_id": _core_tick_id,
+            "date": today, "time_et": now.strftime("%H:%M"),
             "spot": None, "production_action": "HOLD",
             "bear": {"passed": False, "score": 0}, "bull": {"passed": False, "score": 0},
             "written_at": now.strftime("%Y-%m-%dT%H:%M:%S%z"),
@@ -541,6 +607,13 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
                 "confidence/est_premium omitted -> safe-3 conservative; confluence flag "
                 "emitted for ELITE parity; fleet runner fetches real option mid for premium.",
         "tick_id": row.get("tick_id"),
+        # LATENCY INSTRUMENT (2026-08-01, WEEKEND-TWELVE #5): the exact core-decisions.jsonl
+        # tick this signal is pinned to (None pre-fix / when USE_CORE_LEDGER is off) -- the
+        # join key a downstream latency decomposition (setup/scripts/fill_latency.py) uses to
+        # walk core_verdict_ts -> signal_written_ts -> plan_ts -> submit_ts -> fill_ts. Purely
+        # additive; distinct from the "tick_id" key above (that one is the DEAD LLM ledger's
+        # own concept, always None on the core path -- see _map_core_row's comment).
+        "core_tick_id": _core_tick_id,
         "date": today,
         "time_et": row.get("time_et") or now.strftime("%H:%M"),
         "spot": row.get("spy"),
@@ -560,7 +633,7 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
         # bold/loose arms read signal['bold'] (the BOLD core row, scoring-peak). Top-level bear/bull
         # stay production-faithful for backward-compat (controls + un-routed consumers).
         sig["safe"] = {"bull": dict(bull), "bear": dict(bear)}
-        sig["bold"] = _bold_passed_blocks(today, now)
+        sig["bold"] = _bold_passed_blocks(today, now, core_tick_id=_core_tick_id)
         sig["scoring_peak_live"] = True
         sig["source"] = f"derived-from-{'core' if USE_CORE_LEDGER else 'decisions'}-v2-dualperception"
     if do_strats:
@@ -575,16 +648,16 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
                 s_bear, s_bull = bold.get("bear") or bear, bold.get("bull") or bull
         sig["strategies"] = _strategies_block(s_bear, s_bull, row.get("spy"), now, do_vwap)
     if do_probe:
-        sig["probe"] = _probe_passed_blocks(today, now)
+        sig["probe"] = _probe_passed_blocks(today, now, core_tick_id=_core_tick_id)
     # SCORE LADDER (2026-07-27): additive block, same inertness contract as 'probe' -- every
     # reader that doesn't know the key ignores it; only arms with gate_override.
     # score_ladder_floor consume it (fleet_executor._ladder_plan). Fail-closed producer:
     # absent raw fields (all rows before 2026-07-28) -> available=False.
-    sig["ladder"] = _ladder_block(today)
+    sig["ladder"] = _ladder_block(today, core_tick_id=_core_tick_id)
     # FULL-SEND (2026-07-31): additive block, same inertness contract as 'probe'/'ladder' --
     # only an arm with gate_override.full_send consumes it (fleet_executor._full_send_plan).
     if do_full:
-        sig["full_send"] = _full_send_block(today)
+        sig["full_send"] = _full_send_block(today, core_tick_id=_core_tick_id)
     OUT.write_text(json.dumps(sig, indent=2), encoding="utf-8")
     return sig
 
@@ -757,7 +830,7 @@ def passed_probe_cohort(action, trigger, fired) -> bool:
     return bool(fired) and (trigger in ENTRY_TRIGGERS)
 
 
-def _probe_passed_blocks(today: str, now: datetime) -> dict:
+def _probe_passed_blocks(today: str, now: datetime, core_tick_id: str | None = None) -> dict:
     """Raw cohort-block-bypass blocks off the PROBE_LEDGER_ACCOUNT ledger ("safe" -- FIXED
     2026-07-11, was hardcoded "bold" at ship. Every verdict on PROBE_ALLOWED_VERDICTS maps to
     a SAFE-only params.json gate (see the PROBE_COHORT_GATE_KEYS module comment above); the
@@ -768,9 +841,12 @@ def _probe_passed_blocks(today: str, now: datetime) -> dict:
     SKIP_BULL_1100_1200 -> reason 'PROBE_ARM cohort=bull_1100_1200'). Side discrimination uses
     the ledger's OWN `side` field (row['side'], 'C'|'P') rather than a score-based inference
     (passed_scoring_peak's implicit protection: the LOSING side's raw score is usually too low
-    to matter) -- explicit is correct here since this function does not consult score at all."""
+    to matter) -- explicit is correct here since this function does not consult score at all.
+
+    `core_tick_id` (2026-08-01, WEEKEND-TWELVE #4 race fix): threaded through from build() so
+    the probe block is pinned to the same tick as every other block in this signal."""
     if USE_CORE_LEDGER:
-        row = _latest_today_decision(today, account=PROBE_LEDGER_ACCOUNT)
+        row = _latest_today_decision(today, account=PROBE_LEDGER_ACCOUNT, core_tick_id=core_tick_id)
     elif PROBE_LEDGER_ACCOUNT == "bold":
         global DECISIONS
         _safe_decisions, DECISIONS = DECISIONS, BOLD_DECISIONS
@@ -858,9 +934,11 @@ def _ladder_block_from_row(row: "dict | None") -> dict:
     return out
 
 
-def _ladder_block(today: str) -> dict:
-    row = _latest_today_decision(today, account=PROBE_LEDGER_ACCOUNT) if USE_CORE_LEDGER \
-        else _latest_today_decision(today)
+def _ladder_block(today: str, core_tick_id: str | None = None) -> dict:
+    # core_tick_id (2026-08-01, WEEKEND-TWELVE #4 race fix): threaded through from build()
+    # so the ladder block is pinned to the same tick as every other block in this signal.
+    row = _latest_today_decision(today, account=PROBE_LEDGER_ACCOUNT, core_tick_id=core_tick_id) \
+        if USE_CORE_LEDGER else _latest_today_decision(today)
     return _ladder_block_from_row(row)
 
 
@@ -980,9 +1058,13 @@ def _full_send_block_from_row(row: "dict | None") -> dict:
     return out
 
 
-def _full_send_block(today: str) -> dict:
-    row = _latest_today_decision(today, account=FULL_SEND_LEDGER_ACCOUNT) if USE_CORE_LEDGER \
-        else _latest_today_decision(today)
+def _full_send_block(today: str, core_tick_id: str | None = None) -> dict:
+    # core_tick_id (2026-08-01, WEEKEND-TWELVE #4 race fix): threaded through from build() so
+    # the full-send block (reads the BOLD ledger, same as _bold_passed_blocks) is pinned to
+    # the same tick as the rest of this signal -- it has the exact same mismatched-pair
+    # exposure _bold_passed_blocks does, since FULL_SEND_LEDGER_ACCOUNT == "bold".
+    row = _latest_today_decision(today, account=FULL_SEND_LEDGER_ACCOUNT, core_tick_id=core_tick_id) \
+        if USE_CORE_LEDGER else _latest_today_decision(today)
     return _full_send_block_from_row(row)
 
 

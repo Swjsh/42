@@ -64,6 +64,16 @@ def _nn(x):
 
 STATE = REPO / "automation" / "state"
 LEDGER = STATE / "core-decisions.jsonl"
+# TICK-COMPLETE MARKER (2026-08-01, WEEKEND-TWELVE #4 race fix). heartbeat_core writes the
+# safe row, then the bold row ~1s later (see run_account/main below) -- a reader with its own
+# independent cadence (Gamma_FleetExecutor, every 3 min) can land in that gap and pair a fresh
+# safe row with a stale bold row from the PRIOR tick (or vice versa). This file is overwritten
+# (never appended) with the id of the last tick where BOTH rows are confirmed on disk; see
+# main()'s _write_tick_marker call. build_shared_signal.py reads it to pin one tick_id across
+# its safe+bold reads instead of two independent last-row scans. Incident:
+# analysis/deep-research/WINNER-AUTOPSY-2026-07-31-1219.md (12:16:02.508 fleet read, 0.45s
+# after the safe row / 0.5s before the bold row -- forfeited a full 3-min cadence slot).
+TICK_MARKER = STATE / "core-decisions-tick.json"
 import os  # noqa: E402
 import logging  # noqa: E402
 
@@ -805,6 +815,33 @@ def _log(rec: dict) -> None:
         f.write(json.dumps(rec) + "\n")
 
 
+def _write_tick_marker(core_tick_id: str, et: datetime) -> None:
+    """RACE FIX (2026-08-01, WEEKEND-TWELVE #4). Called from main() ONLY after BOTH accounts
+    logged a real (non-exception) row this invocation -- see main()'s ok_accounts check. That
+    ordering is what makes the marker trustworthy: by the time this runs, both `_log()` calls
+    above have already returned, and each one's `with open(LEDGER, "a") as f: ...` context has
+    already closed (flushed) before returning -- so any reader that resolves a row via this
+    marker's core_tick_id is guaranteed that row already exists on disk.
+
+    Atomic write (temp file + os.replace): os.replace is a single filesystem rename, all-or-
+    nothing on both NTFS and POSIX, so a concurrent reader on its own independent cadence
+    (Gamma_FleetExecutor, every 3 min -- NOT synchronized with this 1-min task) can never
+    observe a torn/partial marker file.
+
+    Fails open: any error here is swallowed -- a missed marker update just means the NEXT
+    tick's readers keep using the prior complete tick (never a crash, never a half-tick
+    surfaced). This is a pure visibility/pairing instrument; it never gates ARMED/placement."""
+    try:
+        STATE.mkdir(parents=True, exist_ok=True)
+        payload = {"core_tick_id": core_tick_id, "date": et.strftime("%Y-%m-%d"),
+                   "ts_et": et.strftime("%Y-%m-%dT%H:%M:%S"), "accounts": sorted(ACCOUNTS)}
+        tmp = TICK_MARKER.with_name(TICK_MARKER.name + ".tmp")
+        tmp.write_text(json.dumps(payload), encoding="utf-8")
+        os.replace(tmp, TICK_MARKER)
+    except Exception:  # noqa: BLE001 -- visibility instrument must never abort the tick
+        pass
+
+
 def _ribbon_flip_fn(ribbon_stack: str):
     """Return a ribbon_flip_back_fn for exit_actuator.manage_tick.
     Fires when the ribbon reverses against the open position's direction:
@@ -1097,7 +1134,12 @@ def _apply_score_ladder(verdict: dict, params: dict) -> dict:
     return new
 
 
-def run_account(account: str) -> dict:
+def run_account(account: str, core_tick_id: str | None = None) -> dict:
+    """`core_tick_id` (2026-08-01, WEEKEND-TWELVE #4 race fix): the SAME id main() generates
+    once per invocation and passes to every account's run_account call this tick -- purely
+    additive ledger field (older rows / any direct caller that omits it get None, unchanged).
+    Lets a reader pair the safe+bold rows that belong together instead of two independent
+    last-row-per-account scans. See TICK_MARKER's module comment for the full incident."""
     cfg = ACCOUNTS[account]
     params = json.loads(cfg["params"].read_text(encoding="utf-8"))
     df = _fetch_spy_5m()
@@ -1105,12 +1147,13 @@ def run_account(account: str) -> dict:
     et = _et_now()
     if payload is None:
         rec = {"ts_et": et.strftime("%Y-%m-%dT%H:%M:%S"), "account": account,
-               "verdict": "SKIP_NO_DATA", "armed": ARMED}
+               "verdict": "SKIP_NO_DATA", "armed": ARMED, "core_tick_id": core_tick_id}
         _log(rec)
         return rec
     verdict = _engine_verdict(payload)
     bc = payload["bar_ctx"]
     rec = {"ts_et": et.strftime("%Y-%m-%dT%H:%M:%S"), "account": account, "armed": ARMED,
+           "core_tick_id": core_tick_id,
            "spy": bc["bar"]["close"], "ribbon": bc["ribbon_now"]["stack"],
            "spread_cents": bc["ribbon_now"]["spread_cents"], "vix": round(bc["vix_now"], 2),
            "htf_15m": bc["htf_15m_stack"], "verdict": verdict.get("verdict"),
@@ -2176,18 +2219,36 @@ def main() -> int:
     if not _is_rth(et):
         print("skipped (not RTH)")
         return 0
+    # TICK-COMPLETE MARKER (2026-08-01, WEEKEND-TWELVE #4 race fix): one id per main()
+    # invocation, threaded into BOTH accounts' ledger rows below (additive "core_tick_id"
+    # field) so a reader can pair the safe+bold rows that belong to the SAME tick instead of
+    # two independent "latest for this account" scans that can straddle the ~1s safe->bold
+    # write gap. Microsecond precision off THIS SAME et -> trivially unique per invocation.
+    core_tick_id = et.strftime("%Y-%m-%dT%H:%M:%S.%f")
     out = {}
+    ok_accounts = []
     for account in ACCOUNTS:
         try:
-            out[account] = run_account(account)
+            out[account] = run_account(account, core_tick_id=core_tick_id)
+            ok_accounts.append(account)
         except Exception as e:  # noqa: BLE001
-            out[account] = {"account": account, "error": f"{type(e).__name__}: {e}"}
+            # PRE-EXISTING GAP, FIXED IN PASSING (2026-08-01, caught by this fire's own new
+            # marker test exercising the error branch for the first time): this in-memory dict
+            # never carried "verdict", so the summary print below (f"{r.get('verdict'):16}")
+            # raised TypeError on a real account exception -- the loop's OWN error path could
+            # not run to completion. "ERROR" now mirrors the ledger row's verdict one line down.
+            out[account] = {"account": account, "verdict": "ERROR", "error": f"{type(e).__name__}: {e}"}
             _log({"ts_et": et.strftime("%Y-%m-%dT%H:%M:%S"), "account": account,
-                  "verdict": "ERROR", "error": str(e)[:200]})
+                  "verdict": "ERROR", "error": str(e)[:200], "core_tick_id": core_tick_id})
     for a, r in out.items():
         print(f"{a:5} verdict={r.get('verdict'):16} ribbon={r.get('ribbon')} "
               f"spread={r.get('spread_cents')}c bear={r.get('bear_score')} bull={r.get('bull_score')} "
               f"action={r.get('action')}")
+    # Mark this tick COMPLETE only when BOTH accounts logged a real row this invocation -- an
+    # errored account withholds the marker update entirely, so every consumer keeps reading
+    # the last GOOD paired tick until this one recovers (never a half-tick surfaced).
+    if set(ok_accounts) == set(ACCOUNTS):
+        _write_tick_marker(core_tick_id, et)
     return 0
 
 

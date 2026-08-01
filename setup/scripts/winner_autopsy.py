@@ -990,6 +990,7 @@ def main() -> int:
             "attribution": attribution_coverage(rows),
             "winners_only_sample": True,  # consumers MUST NOT read this as a policy comparison
             "pain_ledger": None,  # WS9 fold fills this below; None on scoped fires / if killed
+            "fill_latency": None,  # Next-Twelve #5 fold fills this below; same fold contract
             "md": f"analysis/winner-autopsies/{base}.md",
         }
         LAST_JSON.write_text(json.dumps(last_payload, indent=2), encoding="utf-8")
@@ -1008,6 +1009,15 @@ def main() -> int:
                 last_payload["pain_ledger"] = pain_ledger.build_ledger(bar_cache=bar_cache)
             except Exception as pe:  # noqa: BLE001 -- descriptive side-product, never fatal
                 last_payload["pain_ledger"] = {"error": f"{type(pe).__name__}: {pe}"[:200]}
+            # --- Next-Twelve #5 (2026-08-01): the fill-pipeline latency decomposition rides
+            # this SAME nightly fire, SAME fold contract as pain_ledger immediately above (no
+            # new scheduled task, fail-open, population-product only). Pure JSONL joins, zero
+            # OPRA/network cost -- runs after pain_ledger so a failure there never blocks this.
+            try:
+                import fill_latency
+                last_payload["fill_latency"] = fill_latency.build_ledger()
+            except Exception as le:  # noqa: BLE001 -- descriptive side-product, never fatal
+                last_payload["fill_latency"] = {"error": f"{type(le).__name__}: {le}"[:200]}
             LAST_JSON.write_text(json.dumps(last_payload, indent=2), encoding="utf-8")
 
         print(f"[winner-autopsy] {scope}: {len(winners)} winners found, {len(rows)} autopsied, "

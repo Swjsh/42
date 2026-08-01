@@ -359,6 +359,11 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
         return {"mode": "LIVE", "placed": False, "reason": f"invalid qty {qty}"}
     _order = {"symbol": symbol, "qty": str(int(qty)), "side": "buy", "type": "limit",
               "limit_price": str(round(float(entry_px), 2)), "time_in_force": "day"}
+    # LATENCY INSTRUMENT (2026-08-01, WEEKEND-TWELVE #5): our OWN wall-clock right before the
+    # broker POST -- distinct from the broker's own created_at/submitted_at already riding
+    # inside `res` below (that is Alpaca's clock; this is ours, so the gap between the two is
+    # a real network-latency measurement, not just a duplicate). Logging only.
+    submit_ts = _now_et().isoformat()
     res = fb._request(creds, "orders", method="POST", data=_order)
     if not isinstance(res, dict):
         res = {"_error": f"unexpected broker response: {res!r}"}
@@ -411,7 +416,8 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
             "tp1_qty_fraction": ex.get("tp1_qty_fraction"),
             "profit_lock_mode": ex.get("profit_lock_mode"),
             "exit_managed": placed,
-            "entry_px": entry_px, "broker": res, "placed": placed}
+            "entry_px": entry_px, "broker": res, "placed": placed,
+            "submit_ts": submit_ts}
 
 
 def run(signal_path: Path, master_live: bool) -> list[dict]:
@@ -438,6 +444,16 @@ def run(signal_path: Path, master_live: bool) -> list[dict]:
         creds = creds_all.get(arm_id)
         row: dict[str, Any] = {
             "tick_id": (signal or {}).get("tick_id"),
+            # LATENCY INSTRUMENT (2026-08-01, WEEKEND-TWELVE #5, additive/logging-only):
+            # core_tick_id + signal_written_at let a later join (setup/scripts/
+            # fill_latency.py) walk core_verdict_ts (core-decisions.jsonl, via core_tick_id)
+            # -> signal_written_ts (this signal's own written_at, captured here since
+            # shared-signal.json itself is overwritten every tick and not archived) ->
+            # plan_ts/submit_ts below -> fill_ts (broker). ts_et (unchanged) IS this tick's
+            # read/plan-start timestamp -- documented here so a reader never has to
+            # rediscover that mapping.
+            "core_tick_id": (signal or {}).get("core_tick_id"),
+            "signal_written_at": (signal or {}).get("written_at"),
             "ts_et": now.isoformat(), "arm_id": arm_id,
             "signal_status": sig_err or "ok",
         }
@@ -529,7 +545,15 @@ def run(signal_path: Path, master_live: bool) -> list[dict]:
 
         arm_live = bool(master_live) and bool(arm.get("live")) and not killed
         if arm_live and decision.action in ("ENTER_BEAR", "ENTER_BULL") and flat and usable_signal:
+            # LATENCY INSTRUMENT (2026-08-01, WEEKEND-TWELVE #5): plan_ts is THIS arm's own
+            # "about to act" instant -- more precise than the shared per-tick `now` above
+            # (row["ts_et"]), which is captured once before ANY per-arm work (account fetch,
+            # exit-management pass, premium pre-fetch) and can trail plan_ts by real time on
+            # a slow tick. Logging only -- _place_live's decision/pricing/placement logic is
+            # unchanged; this just timestamps the moment right before it runs.
+            plan_ts = _now_et()
             placement = _place_live(creds, arm, decision, exit_shape, usable_signal, params, now)
+            placement["plan_ts"] = plan_ts.isoformat()
         else:
             placement = {"mode": "WATCH" if not arm_live else "LIVE",
                          "placed": False,
