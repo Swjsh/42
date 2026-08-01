@@ -1,3 +1,58 @@
+## [2026-08-01 00:09 ET] OK -- conductor (WEEKEND): PMH-IS-FABRICATED-IEX-PREMARKET closed, 2 rotted guards repaired, commits `155ab21e` + `7837db7e`
+
+**Signal J wakes to (OP-25).** Budget gate PASS ($0 of $30), market-hours gate PASS (Saturday,
+weekend mode). `task_scorer.py --top` surfaced `PMH-IS-FABRICATED-IEX-PREMARKET` (HIGH, ready,
+score 6.0) as the top HIGH-priority ready item. Before executing it, checked git history first
+(per the standing stale-checkbox lesson) -- **the fix was already shipped same-day it was filed**
+(commit `7b4aa3f4`, 2026-07-27: SIP feed + degeneracy guard + provenance, all three sub-fixes
+verified present verbatim in `refresh_levels_intraday.py`). Checkbox was just never flipped
+(5-day lag) -- 4th confirmed instance of the stale-queue-checkbox class.
+
+**What this fire actually shipped:** verifying "is this really done?" surfaced that the ticket's
+OWN guard suite (`test_level_compiler_v2_guards.py` + `test_refresh_levels_intraday.py`) had gone
+silently RED on 2026-07-28 with **zero code regression** -- two independent test-rot mechanisms:
+(1) a fixture `expires_at` hardcoded to the day the test was authored, compared against real
+wall-clock `_et_now()` inside `heartbeat_core._level_expired()` -- expired the instant the date
+rolled over, making the "byte-identical" assertion pass vacuously on two empty lists; (2) a test
+never isolated from `daily_context.py`'s REAL live shelf-zone union, so a synthetic PMH fixture
+collided with an actual live SPY shelf zone and lost the dedup tie. Fixed both (far-future
+constant date; `monkeypatch.setattr(rli, "daily_context", None)` in the shared `_state` fixture),
+**RED-proofed** (scoped `git stash` reproduced the identical 3 failures pre-fix, restored, 38/38
+green post-fix), curated safety gate 59/59 PASS both commits. Test-only change -- zero production
+code touched.
+
+**Closed the loop:** `queue.md` checkbox flipped `[ ]`->`[x]` with the verification evidence
+inline; existing stale-checkbox lesson-inbox item updated with this 4th instance; new lesson-inbox
+item filed for the two guard-rot mechanisms (fold target C6/C7). No J ratification needed --
+test/observability-only, rail-4 not invoked (nothing on the trading path touched).
+
+**Revert:** `git revert 7837db7e` then `git revert 155ab21e` (both additive-only, no other file
+depends on these two test files or the queue.md text).
+
+---
+
+## [2026-07-31] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
+
+> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
+> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
+> -   bollinger_squeeze (armed 2026-07-02): since-arm 6tr $+36.00 ($+6.00/tr, 50.0% WR) [4d/4 day+side buckets -- 6 rows are NOT independent trials]
+> -   double_bottom_base_quiet (armed 2026-07-01, 30d ago): 0 fills since arm — no live signal yet
+> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 2tr $-15.00 ($-7.50/tr, 50.0% WR)
+> -   WARNING CORRELATED: 2026-07-28 side=P fired in BOTH bollinger_squeeze+vwap_reclaim_failed_break -- same underlying day-call, not independent
+> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
+
+---
+
+## [2026-07-31] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-26..2026-07-31), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-31). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=RED ($-276.48); Bold_ATM_1+2=YELLOW ($-166.9)
+> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## Known broken
 - [2026-07-31 18:00 ET] shadow_signal_audit (NEW nightly instrument, baseline run): 1 true ORPHAN -- `detect_candlestick_pattern_bullish` (backtest/lib/filters.py:334) has ZERO references tree-wide incl. tests, while its bearish twin is wired. Flagged, not deleted. Full inventory + the shadow-signal edge measurement (verdict: promote NOTHING) -> analysis/deep-research/SHADOW-SIGNAL-INVENTORY-2026-07-31.md _(RESTAMPED 2026-07-31 19:03 ET: this line originally read "16:00 ET" -- bare MOUNTAIN local time mislabeled as ET by the instrument's own TZ bug, now fixed + guarded. True ET of the baseline run was 18:00.)_
 
@@ -324,28 +379,6 @@ backtest\.venv\Scripts\pythonw.exe setup\scripts\shadow_signal_audit.py`. Re-reg
 
 ---
 
-## [2026-07-30] LICENSE-MONITOR (deploy-timing for WP-5/6/8/0)
-
-> - #1 ATM (Safe-2)=YELLOW(ELIGIBLE); #1 ATM (Bold)=YELLOW(ELIGIBLE); #2 ATM=YELLOW(ELIGIBLE); #4 ATM=YELLOW(ELIGIBLE)
-> - **Trade-to-learn cumulative (since arm, real fills, Rule-9 visibility-only):**
-> -   bollinger_squeeze (armed 2026-07-02): since-arm 6tr $+36.00 ($+6.00/tr, 50.0% WR) [4d/4 day+side buckets -- 6 rows are NOT independent trials]
-> -   double_bottom_base_quiet (armed 2026-07-01, 29d ago): 0 fills since arm — no live signal yet
-> -   vwap_reclaim_failed_break (armed 2026-07-01): since-arm 2tr $-15.00 ($-7.50/tr, 50.0% WR)
-> -   WARNING CORRELATED: 2026-07-28 side=P fired in BOTH bollinger_squeeze+vwap_reclaim_failed_break -- same underlying day-call, not independent
-> - Files: `automation/state/license-monitor-last.json`, `backtest/autoresearch/license_monitor.py`.
-
----
-
-## [2026-07-30] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-06-17..2026-07-23), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-07-23). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=YELLOW; #1 ATM (Bold)=YELLOW; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=RED ($-276.48); Bold_ATM_1+2=YELLOW ($-166.9)
-> - **edges_confirmed_on_recent = False** (any RED=True). All live tiers still small-n / not-yet-confirmed on the freshest weeks — full-OOS-2026 base remains the larger-n companion read; HOLD capital scaling until an edge CONFIRMs. RED-BLOCKED: Safe2_ATM_1+2+4 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
 ## [2026-07-30 ~20:30-20:50 ET] OK -- conductor (AFTERHOURS): LEVEL-REFRESH-WATCHDOG-WINDOW-BUG closed, commit `d7774638` -- plus closing the visibility gap on 4 earlier undocumented fixes
 
 > **STAGE 0/1:** ET 20:30 Thursday (market closed). Budget gate PROCEED ($1.98/$30, 1/4
@@ -592,3 +625,38 @@ backtest\.venv\Scripts\pythonw.exe setup\scripts\shadow_signal_audit.py`. Re-reg
 [2026-07-27T18:42 ET] conductor: QUIET — nightly budget exhausted (10 fires today >= max_fires 4) — zero model work, rail-0 gate
 [2026-07-27T20:30 ET] conductor: QUIET — nightly budget exhausted (11 fires today >= max_fires 4) — zero model work, rail-0 gate
 
+
+### DEGRADED: self-check 2026-07-31T20:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T21:09:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T21:39:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T22:09:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T22:39:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T23:09:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### WARN: spend-summary threshold breach
+- ts: 2026-08-01T03:30:11+00:00
+- date_et: 2026-07-31
+- total: $125.97 (threshold $30.00)
+- claude: $125.93  minimax: $0.05
+- claude_sessions: 13
+
+### DEGRADED: self-check 2026-07-31T23:39:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
