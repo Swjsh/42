@@ -1,4 +1,4 @@
-## [2026-08-01 12:37 ET] OK -- theta_clock (WEEKEND): THETA COCKPIT built (J directive, verbatim tonight), commit TBD (filled in next commit)
+## [2026-08-01 12:37 ET] OK -- theta_clock (WEEKEND): THETA COCKPIT built (J directive, verbatim tonight), commit `a363bd5f`
 
 **Signal J wakes to (OP-25).** Built the in-trade Greeks visibility instrument J ordered:
 "We can't just be getting in options trades and have Theta kick our ass without us knowing."
