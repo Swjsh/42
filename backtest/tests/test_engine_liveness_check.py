@@ -26,11 +26,18 @@ from engine_liveness_check import (  # noqa: E402
 )
 
 
-def _ledger(tmp_path: Path, day: str, n: int) -> Path:
+def _ledger(tmp_path: Path, day: str, n: int, *, armed: bool = True) -> Path:
+    """A day's worth of decision rows.
+
+    `armed` mirrors production: 19,316 of 19,625 real rows carry `armed: true`; only off-hours
+    diagnostic / gym-harness calls carry `armed: false`. The fixture was armed-less until
+    2026-08-01, which made it silently unfaithful once liveness started counting armed ticks only.
+    """
     p = tmp_path / "core-decisions.jsonl"
     with open(p, "w", encoding="utf-8") as fh:
         for i in range(n):
-            fh.write(json.dumps({"ts_et": f"{day}T10:{i % 60:02d}:00", "account": "safe"}) + "\n")
+            fh.write(json.dumps({"ts_et": f"{day}T10:{i % 60:02d}:00",
+                                 "account": "safe", "armed": armed}) + "\n")
     return p
 
 
@@ -41,6 +48,48 @@ def test_weekday_with_zero_ticks_is_a_fault(tmp_path):
     res = check_day("2026-07-24", path=led)   # a real Friday, the real outage
     assert res["status"] == STATUS_DID_NOT_RUN
     assert res["ticks"] == 0
+
+
+def test_diagnostic_only_weekday_is_still_a_fault(tmp_path):
+    """The 2026-08-01 latent hole: a DEAD weekday that caught a big off-hours diagnostic sweep
+    must still read DID_NOT_RUN.
+
+    The ledger receives gym-harness / off-hours calls carrying `armed: false` -- 148 of them on
+    2026-06-25 alone, well over MIN_RTH_TICKS. Counting those as liveness would let a genuinely
+    dead weekday read RAN and alarm nothing, which is precisely the silent-miss this module was
+    built for. RED-proof: revert _tick_count to counting every row and this test fails
+    (STATUS_RAN != STATUS_DID_NOT_RUN).
+    """
+    led = _ledger(tmp_path, "2026-07-23", MIN_RTH_TICKS * 3, armed=False)
+    res = check_day("2026-07-23", path=led)
+    assert res["status"] == STATUS_DID_NOT_RUN, \
+        "unarmed diagnostic rows must never stand in for a live armed session"
+    assert res["ticks"] == 0
+    assert res["diagnostic_ticks"] == MIN_RTH_TICKS * 3
+    assert alarm_line(res), "a dead weekday must still raise its alarm"
+
+
+def test_diagnostic_rows_are_reported_not_merely_dropped(tmp_path):
+    """A bare 'ticks: 0' is ambiguous (empty file? missing day? engine off?). The unarmed count
+    rides along on every verdict so a human can tell 'nothing at all' from 'diagnostics only'."""
+    led = _ledger(tmp_path, "2026-07-23", 5, armed=False)
+    res = check_day("2026-07-23", path=led)
+    assert res["diagnostic_ticks"] == 5
+    assert "5 unarmed diagnostic rows present" in res["reason"]
+
+
+def test_healthy_day_with_some_diagnostic_rows_still_reads_ran(tmp_path):
+    """Real days mix both (2026-07-30: 772 armed + 24 diagnostic). Must not cry wolf."""
+    p = tmp_path / "core-decisions.jsonl"
+    with open(p, "w", encoding="utf-8") as fh:
+        for i in range(772):
+            fh.write(json.dumps({"ts_et": f"2026-07-23T10:{i % 60:02d}:00", "armed": True}) + "\n")
+        for i in range(24):
+            fh.write(json.dumps({"ts_et": f"2026-07-23T20:{i % 60:02d}:00", "armed": False}) + "\n")
+    res = check_day("2026-07-23", path=p)
+    assert res["status"] == STATUS_RAN
+    assert res["ticks"] == 772 and res["diagnostic_ticks"] == 24
+    assert alarm_line(res) is None
 
 
 def test_zero_tick_weekday_produces_a_spoken_alarm():
@@ -87,7 +136,7 @@ def test_malformed_ledger_lines_are_skipped_not_fatal(tmp_path):
     p = tmp_path / "core-decisions.jsonl"
     p.write_text(
         "{not json at all\n"
-        + json.dumps({"ts_et": "2026-07-23T10:00:00"}) + "\n"
+        + json.dumps({"ts_et": "2026-07-23T10:00:00", "armed": True}) + "\n"
         + "2026-07-23 bare text line\n",
         encoding="utf-8",
     )

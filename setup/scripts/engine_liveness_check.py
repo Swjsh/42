@@ -30,7 +30,7 @@ import datetime as dt
 import json
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 
 REPO = Path(__file__).resolve().parents[2]
 CORE_DECISIONS = REPO / "automation" / "state" / "core-decisions.jsonl"
@@ -54,15 +54,29 @@ def _is_weekday(day: dt.date) -> bool:
     return day.weekday() < 5
 
 
-def _tick_count(day: str, path: Optional[Path] = None) -> Optional[int]:
-    """Count decision rows stamped with `day`. None if the ledger is unreadable (-> UNKNOWN).
+def _tick_count(day: str, path: Optional[Path] = None) -> Optional[Tuple[int, int]]:
+    """(armed_ticks, diagnostic_ticks) for `day`. None if the ledger is unreadable (-> UNKNOWN).
+
+    ARMED-ONLY IS THE LIVENESS SIGNAL (2026-08-01). The ledger also receives off-hours
+    diagnostic / gym-harness calls carrying `armed: false` -- 309 of 19,625 rows repo-wide,
+    and 148 on 2026-06-25 alone. Those prove a python process ran; they do NOT prove the
+    ARMED RTH engine ran, which is the only thing this alarm exists to assert. Counting them
+    would let a genuinely dead weekday that happened to catch a large diagnostic sweep read
+    RAN and alarm nothing -- the exact silent-miss class this module was built for after the
+    2026-07-24 outage. Verified when this changed: no weekday's verdict moves today (all
+    current diagnostic-heavy days also have a full 758-772 armed ticks); this closes a LATENT
+    hole, it did not fix a live misread. Same `armed is True` convention as
+    gate_expiry_check.py and monday_verify.py.
+
+    Diagnostic rows are still COUNTED and REPORTED so a human reading a DID_NOT_RUN sees
+    "0 armed / 148 diagnostic" rather than a bare zero that looks like a missing file.
 
     Substring prefilter before json.loads (mirrors fill_funnel._read_jsonl_day) -- the ledger is
     ~23MB and this runs inside a brief that must stay fast.
     """
     p = path or CORE_DECISIONS
     try:
-        n = 0
+        armed = diagnostic = 0
         with open(p, "r", encoding="utf-8", errors="replace") as fh:
             for line in fh:
                 if day not in line:
@@ -72,8 +86,11 @@ def _tick_count(day: str, path: Optional[Path] = None) -> Optional[int]:
                 except (json.JSONDecodeError, ValueError):
                     continue
                 if isinstance(row, dict) and str(row.get("ts_et", "")).startswith(day):
-                    n += 1
-        return n
+                    if row.get("armed") is True:
+                        armed += 1
+                    else:
+                        diagnostic += 1
+        return armed, diagnostic
     except OSError:
         return None
 
@@ -90,20 +107,27 @@ def check_day(day: str, path: Optional[Path] = None, min_ticks: int = MIN_RTH_TI
         return {"date": day, "status": STATUS_NOT_APPLICABLE, "ticks": None,
                 "reason": "weekend -- market closed, absence is expected"}
 
-    ticks = _tick_count(day, path)
-    if ticks is None:
-        return {"date": day, "status": STATUS_UNKNOWN, "ticks": None,
+    counts = _tick_count(day, path)
+    if counts is None:
+        return {"date": day, "status": STATUS_UNKNOWN, "ticks": None, "diagnostic_ticks": None,
                 "reason": "decision ledger unreadable"}
+    ticks, diagnostic = counts
+    # Surfaced on every verdict so a bare 0 is never confused with a missing/!empty ledger.
+    diag_note = f" ({diagnostic} unarmed diagnostic rows present)" if diagnostic else ""
     if ticks == 0:
         # NB: a market holiday also lands here. Holidays are rare and a loud false alarm on one is
         # far cheaper than a silent miss on a real outage -- fail toward noticing.
         return {"date": day, "status": STATUS_DID_NOT_RUN, "ticks": 0,
-                "reason": "weekday with ZERO engine ticks -- engine did not run "
-                          "(or the market was closed for a holiday)"}
+                "diagnostic_ticks": diagnostic,
+                "reason": "weekday with ZERO armed engine ticks -- engine did not run "
+                          f"(or the market was closed for a holiday){diag_note}"}
     if ticks < min_ticks:
         return {"date": day, "status": STATUS_PARTIAL, "ticks": ticks,
-                "reason": f"only {ticks} ticks (< {min_ticks}) -- engine ran for part of the session"}
-    return {"date": day, "status": STATUS_RAN, "ticks": ticks, "reason": f"{ticks} ticks"}
+                "diagnostic_ticks": diagnostic,
+                "reason": f"only {ticks} armed ticks (< {min_ticks}) -- engine ran for part "
+                          f"of the session{diag_note}"}
+    return {"date": day, "status": STATUS_RAN, "ticks": ticks, "diagnostic_ticks": diagnostic,
+            "reason": f"{ticks} armed ticks{diag_note}"}
 
 
 def alarm_line(result: dict) -> Optional[str]:
