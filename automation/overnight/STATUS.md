@@ -1,3 +1,39 @@
+## [2026-08-01 13:15 ET] NULL (deliverable) -- WS5 (WEEKEND MAIN EVENT): SHELF_HOLD_RECLAIM full-population study -- "enter on the defense" CLOSED with numbers
+
+**All 4 admission geometries NULL over the verified 391-day population; 0 of 96 cells survive
+BH-FDR q=0.10. J's question is answered: entering the DEFENDED TOUCH of a w5 shelf early does
+NOT beat the late close-cross, and the dose-response is INVERTED** (exp: C_cross +$0.47 >=
+A_wick +$0.29 >> B_hold -$14.79/tr; the grid's strongest raw p, 0.045, belongs to B's LOSS).
+Nothing ships, nothing arms; graveyard entry filed in the results doc.
+
+- **Prereg-first, git-provable:** prereg `96a85efc` (et_clock 12:45:56, BEFORE runner) ->
+  runner `21b6ba99` -> results. Real OPRA only, entry+1, qty=3, structure stop at zone floor,
+  CONTROL(registry byte-asserted)-vs-ZONE-RIDE paired lanes. Frame: et-v2 opt-in (wall-v1
+  would inject winter VIX look-ahead + clip the last true hour on 129 EST days; decided
+  pre-run, disclosed).
+- **Harness fidelity proven, so the NULL is believable:** 3/3 tape anchors live-fire at J's
+  exact Friday moments; e1 re-walks to the PENNY vs the broker-validated n=4 tool
+  (+$550.75, runner_stop 3.53); on 07-31 itself the lane made +$1,175 -- Friday was real,
+  the population says it is not a standing edge.
+- **Data completed mid-study:** 117 missing OPRA contracts (30% of July-2026 signals!)
+  backfilled via canonical fetch conventions -> re-ran on ZERO exclusions. Pass-1 preserved
+  (`.pass1-precache.json`); verdicts identical, but pass-1's recent-25 was materially
+  distorted (A: -$137 -> +$1,035) -- the missing contracts were exactly J's called-day class.
+- **The one real structure (post-hoc, NOT shipped):** F5 ribbon-stack -- the filter the spec
+  demoted -- is the strongest separator, monotone drop<htf<require for A/C
+  (C|require: +$5,447/168tr, positive in held-out AND recent-25, p=0.187, BH x). That cell IS
+  the `block_elite_bull`-refused ELITE class -> converges with WS1's gap finding: the money
+  lane is the GATE RE-QUAL (`bull_gate_atm_ssb_requalification.py`), not a new detector.
+  B_hold is negative under every filter mode (mechanism: buys chop at zone floors, theta
+  bleeds into ribbon_flip_back exits ~63%).
+- **ZONE-RIDE (trail .20) loses to CONTROL (trail .15) on every primary combo** (-$380..-$550)
+  -- the n=4 anecdote's ZONE-RIDE edge does not generalize.
+- Artifacts: `analysis/recommendations/shelf-hold-reclaim-2026-08-01.{md,json,pass1-precache.json}`
+  + prereg. Side-finds: `exit_manager.py` hardcodes label `time_stop_15:50` while enforcing the
+  configured 15:40 (mechanism verified; label-only; chip task_30a7b291 filed);
+  SCHEDULED-TASKS stated-count 99->100 reconciled in passing (gate fix-forward). Runner-cohort
+  untouched by construction (entry-additive; registry exit shape byte-asserted). $0 LLM.
+
 ## [2026-08-01 12:57 ET] OK -- WS7 (WEEKEND): LIVE WATCH shipped -- the "are we in a trade / what's it doing" surface
 
 **One canonical state surface + two renderers, registered and smoke-fired.** J never has
@@ -394,6 +430,8 @@ depends on these two test files or the queue.md text).
 ---
 
 ## Known broken
+
+- [2026-08-01T11:01:44] GATE-EXPIRY RED :: core_strategy_bear :: CORE STRATEGY BEAR recency RED: real-fills exp $-60.9/tr NEGATIVE-or-flat, n=10 >= floor 10 -- the core strategy itself is losing on the freshest window; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=12 exp=$-23.58/tr recent [semantics: RED here = the strategy ITSELF is losing on recent real fills, not a gate costing money] :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate core_strategy_bear
 - [2026-07-31 18:00 ET] shadow_signal_audit (NEW nightly instrument, baseline run): 1 true ORPHAN -- `detect_candlestick_pattern_bullish` (backtest/lib/filters.py:334) has ZERO references tree-wide incl. tests, while its bearish twin is wired. Flagged, not deleted. Full inventory + the shadow-signal edge measurement (verdict: promote NOTHING) -> analysis/deep-research/SHADOW-SIGNAL-INVENTORY-2026-07-31.md _(RESTAMPED 2026-07-31 19:03 ET: this line originally read "16:00 ET" -- bare MOUNTAIN local time mislabeled as ET by the instrument's own TZ bug, now fixed + guarded. True ET of the baseline run was 18:00.)_
 
 - [2026-07-31T15:30:22] GATE-EXPIRY RED :: block_elite_bull :: refused cohort would have EARNED $13.15/tr, n=97 >= floor 10 -- COSTING money :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate block_elite_bull
@@ -782,3 +820,45 @@ Kitchen: alive, queue 36 pending, last cook 0 min ago, today $0.00, model=ollama
 - [2026-08-01 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
 
 [2026-08-01 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-08-01.md
+
+---
+
+## [2026-08-01 ~13:05 ET] WS3 — LEVEL-FLICKER FIX shipped (hysteresis in the level refresher)
+
+**The incident:** Friday 07-31, shelf level 743.25 blinked out of `levels_active` on 14
+transitions (present 331/386 core ticks, safe+bold identical); the day's 12:19 746C winner
+filled on a snapshot the core had retired ~1s earlier.
+
+**Root cause (named + reproduced):** every 5-min `Gamma_LevelRefresh` re-derives shelf zones
+from scratch with today's live-FORMING daily bar as both candidate seed and touch-counter
+(`daily_context._find_shelf_candidates`); two near-tied overlapping bands (742.45-744.05 @8t
+vs 741.56-743.16 @10t only while today's bar sits in-band) swap the greedy winner-take-all
+merge as spot wobbles, re-tiling the region and renaming the level (743.25 <-> 742.36);
+`refresh_levels_intraday` strips+rewrites all families with zero cross-run identity, so the
+wobble went straight to the engine. Deterministic reproduction off the real daily bars + 5m
+SIP tape matches the observed state at 76-77/89 fires (boundary misses = partial-bar
+reconstruction). Alternates killed: proximity band (|Δspot| ≤5.6 all day), sub-5-min race
+(all flips on fire boundaries), rounding (bands differ $0.89).
+
+**Fix:** `_hysteresis_carry` in `setup/scripts/refresh_levels_intraday.py` — a written ACTIVE
+level missing from the fresh set is carried verbatim until absent N=5 CONSECUTIVE refreshes
+(observed absence-run distribution {1:x5, 2:x1, 4:x1} → max gap 4 → N=5 bridges all observed
+flicker; genuine retirement ≤ ~25 min) or session expiry (never carried across sessions).
+Conservative by construction: only re-emits prior-file levels; label identity retires a MOVED
+detector price instantly. `hysteresis_held` logged in every run output (C7).
+
+**Proof:** replay of Friday's observed per-refresh sequence through the production carry
+(`backtest/tools/level_flicker_replay_2026_08_01.py`): **743.25: 331/386 + 14 flips →
+386/386 + 0 flips**; per-level superset + no-wrongly-sticky assertions pass for ALL 68 Friday
+levels (max extra hold = 4 windows = N-1; transients still retire). Full table:
+`analysis/deep-research/LEVEL-FLICKER-FIX-2026-08-01.md`. Guards: 14/14
+`test_level_hysteresis_2026_08_01.py` incl. RED-proof (carry neutered → 7 tests fail,
+reproducing the observed series); adjacent suites 131 passed. LIVE: scheduled fires 12:53+
+ran the new code (`hysteresis_held` in log, last fire ok:true, key-levels.json integrity
+CLEAN, Saturday session-boundary no-carry proven live).
+
+**Known flake (NOT this fix):** `test_level_refresh_watchdog_2026_07_30.py::
+test_no_lock_allows_refresh_and_cleans_up` intermittently returns empty PowerShell subprocess
+output under tonight's multi-lane load (real lock path + real powershell spawn); passes
+standalone repeatedly, fails ~50% in paired runs, identical on unmodified code. Chip filed to
+de-flake (tmp lock path + bounded retry).
