@@ -1,0 +1,96 @@
+{
+  "_doc": "PRE-REGISTRATION (FROZEN) -- block_elite_bull re-qualification on the f5=require (ribbon BULL-stacked) subclass. WEEKEND-TWELVE Next-Twelve #2 (analysis/deep-research/WEEKEND-TWELVE-2026-08-01.md line 88): 'the weekend's only all-window-positive structure (+$32.4/tr incl. held-out) is exactly what the gate refuses 111x/day; gate re-eval beats new detectors.' Frozen BEFORE the runner exists or any cell is computed.",
+  "frozen_at_et": "2026-08-01 14:14:45 Saturday EDT (et_clock.py, market_hours=False)",
+  "author_lane": "WEEKEND-TWELVE Next-Twelve #2 (after-hours weekend grind, paper/no-J per OP-0)",
+  "prereg_version": 1,
+
+  "provenance_chain": {
+    "origin": "analysis/deep-research/J-CALLED-ENTRIES-2026-07-31.md section 5 (parent spec) -> shelf_hold_reclaim_study.py (WS5, 96a85efc/54073ff6, 2026-08-01) discovers F5 (ribbon BULL-stacked) as the strongest post-hoc separator on an INDEPENDENT shelf/geometry detector, converging on: 'the money lane is re-qualifying block_elite_bull under its own written condition, not wiring a new admission geometry' -> this study takes that finding and tests it DIRECTLY on the PRODUCTION block_elite_bull refused cohort (not WS5's own geometry detector) via the elite-bull requal lineage's mining/replay machinery.",
+    "cited_ws5_evidence": {
+      "cell": "C_cross|f5=require|CONTROL (analysis/recommendations/shelf-hold-reclaim-2026-08-01.json)",
+      "n": 168, "total_pnl": 5447.0, "expectancy_per_trade": 32.4,
+      "held_out_pnl": 1254.0, "recent_25_pnl": 2462.0, "concentration_top_day_share_pct": 15.8,
+      "raw_p": 0.187, "bh_fdr_significant": false,
+      "note": "WS5's own characterization: 'What that cell IS: the engine's existing ELITE bull class -- detect_level_reclaim at a persistent shelf with the ribbon already BULL-stacked -- i.e., the exact signal class block_elite_bull refused 111x on Friday.' This is a DIFFERENT population (WS5's own shelf/geometry detector, not the production gates.py ELITE-tier classifier) -- structurally related, not identical. This study tests the claim on the ACTUAL production-refused cohort."
+    },
+    "elite_bull_requal_lineage_reused": [
+      "backtest/tools/bull_gate_atm_ssb_requalification.py (2026-07-22): added_bull_cohort() BASE-vs-UNBLOCK diff method, _trade_key()/_et_naive() helpers, requalify_trade() walk_exit_manager wiring, drop_top1()/half_split_stability()/N_FLOOR=20 grading vocabulary -- REUSED (imported/ported, not reinvented)",
+      "backtest/tools/elite_bull_postfix_requal_2026_07_31.py (2026-07-31): decision-log-mined post-fix cohort (source of the 'under the corrected feed' claim) -- its OUTPUT analysis/recommendations/elite-bull-requal-2026-07-31.json is REUSED AS INPUT (trades re-classified by f5, not re-mined) for the post-fix-era cell, since re-deriving the E1/E2/E3/F1 dedupe ladder from core-decisions.jsonl is already done and committed",
+      "backtest/tools/shelf_hold_reclaim_study.py (WS5, 2026-08-01): F5 classification method (lib.ribbon.compute_ribbon 'stack' column, backward merge_asof onto the trade's own timestamp, BULL == require) -- REUSED VERBATIM (same function, same threshold, same backward-asof convention)"
+    ]
+  },
+
+  "filename_collision_disclosure": {
+    "finding": "The synthesis (WEEKEND-TWELVE line 88) names 'bull_gate_atm_ssb_requalification.py' as this study's harness. That file ALREADY EXISTS (committed for the 2026-07-22 study, frozen prereg analysis/recommendations/bull-requalification-prereg-2026-07-22.json, window 2026-05-21..2026-07-17, no F5 classification, produces analysis/recommendations/bull-requalification-2026-07-22.json -- cited as 'old_era_evidence_cited.backtest_detection_atm' in elite-bull-requal-2026-07-31.json). It is a DIFFERENT, already-shipped, differently-scoped study -- not a match for this task.",
+    "resolution": "This repo's standing convention (100% of 2026-08-01's other lanes: paired_ribbon_ab_2026_08_01.py, shelf_hold_reclaim_study.py, g2_trendline_bypass_ab_2026_08_01.py, plus elite_bull_postfix_requal_2026_07_31.py, filter5_ribbon_fate_2026_07_31.py the night before) is ONE UNIQUELY-DATED SCRIPT PER STUDY -- never overwrite a prior lane's runner (it would corrupt that study's own reproducibility trail even though git history technically preserves it). This study's runner is therefore a NEW file: backtest/tools/bull_gate_f5class_requal_2026_08_01.py. It satisfies the synthesis's actual intent (reuse the elite-bull requal lane's mining/replay machinery -- see provenance_chain above) under a name that does not collide. OP-0 #4 applied: obvious call, stated, not asked."
+  },
+
+  "hypothesis": {
+    "H1_primary": "On the f5=require (ribbon BULL-stacked at entry) bull subclass, block_elite_bull's refused cohort (tier=ELITE, level_reclaim trigger, Safe VIX band [0,25) -- the exact production gate condition) is net-positive: the gate is costing money on exactly the subclass with the strongest structure.",
+    "falsification": "H1 is falsified for a given cell if total_pnl <= 0, OR if positive but fails enough of the gates below to not clear UNDERPOWERED/evidence status.",
+    "scope_lock": "block_elite_bull ONLY (Safe side). block_bull_1100_1200 (gate_order #5, a different gate) is explicitly OUT OF SCOPE -- the task and WEEKEND-TWELVE line 88 name block_elite_bull specifically; conflating two gates in one BH-FDR family would blur both. Bold is OUT OF SCOPE (already disarmed 2026-08-01 for its own lift-gate trial with its own kill criterion, aggressive/params.json block_elite_bull=false, gate-registry.json 'trial' block) -- this study feeds SAFE'S forward re-eval only."
+  },
+
+  "f5_classification": {
+    "definition": "Ribbon BULL-stacked at the trade's entry_time_et: lib.ribbon.compute_ribbon(spy_close_series)['stack'] == 'BULL' (fast EMA > pivot EMA > slow EMA, strict ordering), backward merge_asof (direction='backward', no look-ahead) onto entry_time_et. IDENTICAL method/threshold to shelf_hold_reclaim_study.py's f5_bull (WS5 line ~288), so this study's f5=require cell is directly comparable to WS5's.",
+    "modes_reported": {
+      "require": "PRIMARY/hypothesis -- f5_bull must be True",
+      "drop": "comparison baseline -- no f5 filter (the gate's FULL refused cohort, unfiltered; equivalent to the original bull_gate_atm_ssb_requalification.py method extended to the new windows)"
+    },
+    "modes_not_reported": "f5=htf (15m-stack-not-BEAR) is WS5's third mode; skipped here -- out of scope (the task's hypothesis is specifically about f5=require, and WS5 already published the 3-way dose-response for its own geometry population; re-deriving htf for this population is not needed to answer the block_elite_bull question)."
+  },
+
+  "population": {
+    "cell_A_full_391": {
+      "window_et_dates": ["2025-01-02", "2026-07-31"],
+      "n_sessions_expected": 391,
+      "half_days_excluded": ["2025-07-03", "2025-11-28", "2025-12-24"],
+      "frame": "et-v2 (lib/et_frame.py parse_timestamp_et, frame='et-v2') -- DST-correct, matches WS5/WS6's 'VERIFIED 391-day population' convention. wall-v1 (this lineage's own 07-22 default) is NOT used here because the window crosses two winters (~129/391 days EST) and f5 classification must be frame-consistent with the entry detection (mixing wall-v1 entries against an et-v2 ribbon series is the exact violation lib/et_frame.py's docstring bans).",
+      "data": "backtest/data/spy_5m_2025-01-01_2026-07-22.csv (OLD) + strictly-after-07-22 tail of backtest/data/spy_5m_2026-05-19_2026-07-31.csv (NEW), same merge as shelf_hold_reclaim_study.load_merged(). VIX: same construction from the vix_5m siblings.",
+      "method": "Method A -- backtest simulation. run_backtest(use_real_fills=True) twice: BASE (block_elite_bull=True, production) and UNBLOCK_ELITE (block_elite_bull=False), current ATM strike (strike_offset=0) + current Safe gate stack + current exit shape (strategies.RIBBON_RIDE.exit.to_dict(), asserted byte-identical to the live registry at run time) held fixed across the whole window (this repo's established full-window-study convention per engine_fullhist_replay.py's own disclosure -- NOT a compounding account curve). Added cohort = trades in UNBLOCK_ELITE not in BASE, side=='C' (added_bull_cohort(), reused verbatim from the 07-22 script).",
+      "level_detection_disclosure": "run_backtest's ELITE/level_reclaim trigger detection sources levels from lib.levels._detect_from_history (backtest-native, retro-computed per-day from the SPY price history itself, cached per LevelSet) -- NOT from the live refresh_levels_intraday.py / key-levels.json pipeline that carried the IEX-premarket / SIP bug (fixed 2026-07-27 evening, commit 7b4aa3f4). This means cell_A tests whether the f5=require structure GENERALIZES across the full production-parity backtest history using a level-detection path that was NEVER subject to the live-feed bug -- it is a structural/durability test, not a direct test of 'under the corrected feed.' That direct test is cell_B below. Disclosed up front so cell_A's result is not mis-sold as validating the live-feed fix."
+    },
+    "cell_B_post_fix_era": {
+      "window_et_dates": ["2026-07-28", "2026-07-31"],
+      "n_sessions": 4,
+      "method": "Method B -- reuse the ALREADY-MINED, ALREADY-COMMITTED decision-log cohort from analysis/recommendations/elite-bull-requal-2026-07-31.json (cohorts.safe_per_event_qty3 / safe_per_event_qty10, n=10 events each, mined from automation/state/core-decisions.jsonl action==SKIP_ELITE_BULL_LEVEL_RECLAIM, E1/E2/E3/F1 dedupe/exclusion ladder already applied, replayed through the SAME walk_exit_manager + RIBBON_RIDE CONTROL shape). This IS a genuine 'under the corrected feed' population: these are real engine refusals logged live during the levels-compiler-v2 era, not a backtest re-simulation. f5 is computed post-hoc on each of the 10 trades' logged entry_ts_et/strike against the same et-v2 SPY close series (no re-mining, no re-walk of the exit -- only the classification label is new).",
+      "honesty_clause": "n WILL be small (4 sessions, 10 pre-f5-filter events; f5=require will likely shrink this further). Reported regardless of size; below N_FLOOR is UNDERPOWERED, not a verdict, per the gates below."
+    }
+  },
+
+  "gates": {
+    "g1_positive_aggregate": "total_pnl > 0 on the cell's f5=require trades",
+    "g2_day_majority": "of the DAYS containing >=1 f5=require trade, a majority are net-positive (win_days > days/2) -- shelf_hold_reclaim_study.lane_stats definition, reused verbatim",
+    "g3_drop_best": "total_pnl minus the single largest-winning TRADE remains positive (drop_top1 / drop_best, identical trade-level definition in BOTH reused lineages -- bull_gate_atm_ssb_requalification.drop_top1 and shelf_hold_reclaim_study.lane_stats.drop_best agree on trade-level, not day-level)",
+    "g4_recent_25_first_class": "recent-25-TRADING-DAY window (last 25 sessions of cell_A's population, ending 2026-07-31) total_pnl >= 0, ELEVATED to primary signal per J's standing directive (memory: 'Dynamic market: recency > aggregate, 2026-07-31' -- every armed gate needs a revalidation clock, bias toward TAKING the trade on paper). For cell_B (4-day window) recent-25 is definitionally the whole cell -- reported as N/A-collapsed, not a separate check.",
+    "g5_bh_fdr": "Benjamini-Hochberg FDR q=0.10 across the full reported cell family (cell_A x {require,drop} + cell_B x {require,drop}, 4 raw p-values, one-sample t-test on per-trade pnls per shelf_hold_reclaim_study.one_sample_p/bh_fdr, reused verbatim) -- reported per cell, never used alone to force a verdict (thin-n families make BH-FDR conservative almost by construction; disclosed).",
+    "n_floor": {
+      "value": 20,
+      "citation": "OP-16's own evidence_n bar (CLAUDE.md: 'stays enabled pending honest re-eval at n>=20'), matching this exact lineage's established constant (bull_gate_atm_ssb_requalification.N_FLOOR, elite_bull_postfix_requal's shared floor, both pinned by test_n_floor_matches_op16_evidence_bar in backtest/tests/test_bull_requalification_2026_07_22.py).",
+      "rule": "n < 20 => verdict = UNDERPOWERED, not a pass/fail gate result of any kind. Both cell_B cells (n<=10 before f5 filtering) are expected to land here -- disclosed in advance, not a post-hoc excuse."
+    }
+  },
+
+  "verdict_routing": {
+    "rule": "This study produces EVIDENCE for Safe's forward block_elite_bull re-eval trigger (gate-registry.json: 'post-fix distinct tradeable safe events >= 20 OR 10 corrected-feed sessions elapsed (2026-08-08), whichever first'). It is NOT an automatic flip. Safe's block_elite_bull stays ARMED regardless of this study's outcome -- the scheduled re-eval trigger is unchanged; this artifact feeds that trigger's evidence base (evidence_artifact list appended in automation/state/gate-registry.json).",
+    "explicit_non_actions": "This study does NOT edit automation/state/params.json. It does NOT touch aggressive/params.json (Bold's trial is separate, already applied, out of scope). It does NOT change block_elite_bull's accounts_armed value for Safe.",
+    "reporting_tiers": {
+      "EVIDENCE_FOR_REEVAL": "cell clears n_floor AND g1 AND (g2 OR g3) AND g4 -- strengthens the case that Safe's scheduled re-eval should be accelerated or should lean toward unblocking",
+      "EVIDENCE_AGAINST": "cell clears n_floor AND total_pnl <= 0 -- strengthens the case for keeping the gate",
+      "UNDERPOWERED": "n < 20 -- reported, not verdict-bearing",
+      "MIXED": "n>=20, g1 true, but neither g2 nor g3 clears -- reported as ambiguous, feeds evidence base without a directional lean"
+    }
+  },
+
+  "runner_not_yet_created": "backtest/tools/bull_gate_f5class_requal_2026_08_01.py does not exist at this commit -- freeze order git-provable (this prereg's commit precedes the runner's first commit and any run output, per this repo's standing prereg-before-runner discipline).",
+
+  "outputs": [
+    "analysis/recommendations/bull-gate-f5class-requal-2026-08-01.json",
+    "analysis/recommendations/bull-gate-f5class-requal-2026-08-01.md",
+    "backtest/tools/bull_gate_f5class_requal_2026_08_01.py",
+    "backtest/tests/test_bull_gate_f5class_requal_2026_08_01.py (guard, RED-proofed)",
+    "automation/state/gate-registry.json (block_elite_bull row: evidence_artifact list appended only, surgical edit)"
+  ],
+
+  "rail_clear": "Analysis only. Touches NO trading-path file at run time (params.json/aggressive/params.json untouched by the runner). gate-registry.json evidence_artifact append happens as a SEPARATE, disclosed, surgical edit after the study runs -- it is a registry/evidence-index update, not a gate value change. No live network reads (real OPRA cache only, missing contracts dropped and counted, never imputed -- C7). No commits/pushes beyond this session's own disclosed commits. Does not arm, disarm, or modify Safe's or Bold's block_elite_bull value."
+}
