@@ -424,6 +424,48 @@ def check_session_ran(et: datetime) -> dict:
     return _chk(name, "GREEN", f"{day} session ran ({res.get('ticks')} ticks)", critical=True)
 
 
+def check_fleet_ticked(et: datetime) -> dict:
+    """DID EVERY ENABLED FLEET ARM TICK TODAY? -- the check missing when J caught a 2-of-6
+    fleet-account review TWICE (2026-06-25, then again 2026-07-27). Filed
+    FLEET-LIVENESS-IN-ENGINE-HEALTH 2026-07-27; a memory note after the first incident did not
+    prevent the second, so this is the structural fix (same-mistake-twice rule).
+
+    Fleet arms (safe-3, risky-1, risky-3) trade via `fleet_broker` REST -- a SECOND execution
+    path, entirely separate from the mcp_heartbeat core engines that check_engine_core /
+    check_heartbeat already watch (L244: a monitor blind to a 2nd execution path). "MCP is up"
+    checks structurally cannot see them.
+
+    Like check_session_ran / check_levels_blind, this is DELIBERATELY NOT market_open-suppressed
+    (that suppression is the bug class this whole file exists to close) and is evaluated only
+    after the session is over (>= 16:05 ET) so a mid-morning run doesn't cry wolf. Frozen/retired
+    (safe-1)/dormant/pending_build arms (mes-*) are skipped by the underlying module -- not
+    expected to tick. Fail-open: any import/read/assess failure degrades to a benign YELLOW.
+    """
+    name = "fleet_ticked"
+    day = et.strftime("%Y-%m-%d")
+    if et.weekday() >= 5:
+        return _chk(name, "GREEN", f"{day} is a weekend -- no session expected", critical=False)
+    if et.hour < 16:
+        return _chk(name, "GREEN", f"{day} session not finished yet -- checked after 16:05 ET",
+                    critical=False)
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from fleet_liveness_check import (STATUS_SOME_SILENT, STATUS_UNKNOWN, check_day)
+    except Exception as e:  # noqa: BLE001 -- never let this check break the report
+        return _chk(name, "YELLOW", f"fleet liveness module unavailable ({e})", critical=False)
+
+    res = check_day(day)
+    st = res.get("status")
+    if st == STATUS_SOME_SILENT:
+        return _chk(name, "RED",
+                    f"{day}: fleet arm(s) recorded ZERO decisions today: {res['silent_arms']} "
+                    f"(checked: {res['checked_arms']})", critical=True)
+    if st == STATUS_UNKNOWN:
+        return _chk(name, "YELLOW", f"{day} fleet liveness unverifiable: {res.get('reason')}",
+                    critical=False)
+    return _chk(name, "GREEN", res.get("reason", "all fleet arms ticked"), critical=True)
+
+
 def _import_levels_blind():
     """Import setup/scripts/levels_blind_check.py, or None. Fail-open (mirrors
     check_session_ran's engine_liveness_check import)."""
@@ -1029,6 +1071,10 @@ def build_report() -> dict:
         # mtime + session date, asserted through the close). Either alone catches 07-30.
         check_levels_blind(et),
         check_levels_file_stale(et),
+        # NEW 2026-07-31 (FLEET-LIVENESS-IN-ENGINE-HEALTH): the fleet_rest arms (safe-3,
+        # risky-1, risky-3) trade via a SECOND execution path invisible to the mcp_heartbeat
+        # checks below -- same day-not-moment discipline as session_ran/levels_blind.
+        check_fleet_ticked(et),
         check_engine_core("heartbeat_safe", "safe", mkt, et),
         check_engine_core("heartbeat_bold", "bold", mkt, et),
         check_sight_beacon(mkt, now_utc),
