@@ -5,8 +5,25 @@
   ground (markdown/planning/CRYPTO-TWIN-TRAINING-GROUND.md, J requirement
   2026-07-10: "get an MCP that trades crypto and just replicate the engine there and
   use that as a training ground... I can't keep fixing four things and waiting for
-  the next day"). Fires every 5 min, 24/7 -- crypto never closes, so unlike every
+  the next day"). Fires every 1 min, 24/7 -- crypto never closes, so unlike every
   RTH-gated SPY task there is deliberately NO day/time restriction here.
+
+  CADENCE-TUNE (2026-08-01, J latency drill): was every 5 min 2026-07-10..2026-07-31,
+  now every 1 min. Real measured latency drill (5 forced round trips, real Alpaca paper
+  fills) found the twin's J-visible glance file (twin-health.json) can lag a real fill
+  by up to a full cadence period (observed: one forced entry landed off-cycle and
+  twin-health.json didn't reflect it until the next scheduled tick, ~4m36s later).
+  Separately, 1-min BTC/USD realized-vol evidence (48h weekend sample) showed a 5-min
+  look-away exposes ~2-2.6x the adverse-move blind spot of a 1-min one (median adverse
+  move per window: $35.04 @ 5min vs $13.25 @ 1min; p95: $115.72 vs $57.59) -- and
+  crypto_twin_core.manage_positions reads a LIVE bid/ask quote every tick (not just the
+  5m bar close), so a tighter task cadence genuinely shortens catastrophe-cap/TP1/
+  trailing-stop reaction time, not just visibility latency. Cost: $0 either way (pure
+  Python, no LLM on this path) -- the existing task Settings already carry
+  `-MultipleInstances IgnoreNew` + a 3-min ExecutionTimeLimit, so a tick that
+  occasionally overruns 60s (e.g. a full 3x20s passive-entry-miss poll) is safely
+  skipped rather than double-run; no settings change needed for that safety property.
+  Twin-only -- the SPY heartbeat (Gamma_HeartbeatCore, already 1-min) is untouched.
 
   Each fire runs setup/scripts/crypto_twin_health.py --live, which wraps
   crypto_twin_core.run_tick() (T1/T2, tested 40/40: SEE bars -> DECIDE ribbon+level
@@ -47,11 +64,12 @@
   AND because it is the interpreter that already has this repo's test/runtime
   environment set up (crypto_twin_core imports exit_manager/risk_gate/crypto.lib.*).
 
-  CADENCE: `-Once` base trigger + `-RepetitionInterval 5min` + a ~10-year
-  `-RepetitionDuration` -- the verified-live pattern (install-ccr-keepalive.ps1,
-  matches Gamma_CryptoGrinderKeepalive's real NextRunTime behavior: recalculates
-  every fire, never goes dark; this is NOT the one-time-trigger foot-gun where a
-  trigger has no repetition set at all).
+  CADENCE: `-Once` base trigger + `-RepetitionInterval 1min` (was 5min, see the
+  2026-08-01 CADENCE-TUNE note above) + a ~10-year `-RepetitionDuration` -- the
+  verified-live pattern (install-ccr-keepalive.ps1, matches
+  Gamma_CryptoGrinderKeepalive's real NextRunTime behavior: recalculates every fire,
+  never goes dark; this is NOT the one-time-trigger foot-gun where a trigger has no
+  repetition set at all).
 
   To verify after running: Get-ScheduledTask -TaskName Gamma_CryptoTwin
 #>
@@ -86,10 +104,12 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
 $wscriptArgs = "//nologo `"$vbs`" `"$pythonwVenv`" `"$script`" `"--live`""
 $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs -WorkingDirectory $root
 
-# Every 5 min, 24/7 -- crypto never closes, no day/time restriction (unlike RTH tasks).
+# Every 1 min, 24/7 -- crypto never closes, no day/time restriction (unlike RTH tasks).
+# CADENCE-TUNE 2026-08-01: was 5 min 2026-07-10..2026-07-31 -- see the docstring's
+# CADENCE-TUNE block for the measured-latency + realized-vol evidence.
 $startBoundary = (Get-Date).AddMinutes(1)
 $trigger = New-ScheduledTaskTrigger -Once -At $startBoundary `
-    -RepetitionInterval (New-TimeSpan -Minutes 5) `
+    -RepetitionInterval (New-TimeSpan -Minutes 1) `
     -RepetitionDuration ([System.TimeSpan]::FromDays(365 * 10))
 
 $settings = New-ScheduledTaskSettingsSet `
@@ -107,7 +127,7 @@ Register-ScheduledTask `
     -Trigger $trigger `
     -Settings $settings `
     -Principal $principal `
-    -Description "CRYPTO TWIN -- 24/7 mechanism-validation training ground (J requirement 2026-07-10, markdown/planning/CRYPTO-TWIN-TRAINING-GROUND.md). Every 5 min, 24/7: crypto_twin_health.py --live wraps crypto_twin_core.run_tick() (SEE BTC/USD bars -> DECIDE ribbon+level trigger -> risk_gate -> ACT place -> manage exit_manager -> journal, T1/T2 tested 40/40) with error-capture, and writes automation/state/twin-health.json + automation/state/crypto-twin/soak-log.jsonl every tick (T3). T2's order path is a safe no-op (BLOCKED_NO_ACCOUNT) until J adds a dedicated Alpaca paper account to automation/state/crypto-twin/secrets.json (template: secrets.json.example in the same dir) -- zero code changes needed once added. Reaper-exempt: pythonw.exe is outside Stop-StaleClaudeProcesses's Name filter, plus backtest\.venv path match as defense in depth (guard: test_crypto_twin_reaper_exemption.py). Built 2026-07-10." `
+    -Description "CRYPTO TWIN -- 24/7 mechanism-validation training ground (J requirement 2026-07-10, markdown/planning/CRYPTO-TWIN-TRAINING-GROUND.md). Every 1 min, 24/7 (CADENCE-TUNE 2026-08-01, was 5 min -- see this script's docstring for the measured-latency + realized-vol evidence): crypto_twin_health.py --live wraps crypto_twin_core.run_tick() (SEE BTC/USD bars -> DECIDE ribbon+level trigger -> risk_gate -> ACT place -> manage exit_manager -> journal, T1/T2 tested 40/40) with error-capture, and writes automation/state/twin-health.json + automation/state/crypto-twin/soak-log.jsonl every tick (T3). T2's order path is LIVE (dedicated Alpaca paper account PA38EG1JTFBT, configured 2026-07-11). Reaper-exempt: pythonw.exe is outside Stop-StaleClaudeProcesses's Name filter, plus backtest\.venv path match as defense in depth (guard: test_crypto_twin_reaper_exemption.py). Built 2026-07-10, cadence-tuned 2026-08-01." `
     -Force | Out-Null
 
 $info = Get-ScheduledTask -TaskName $taskName | Get-ScheduledTaskInfo

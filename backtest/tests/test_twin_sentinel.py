@@ -134,9 +134,12 @@ def test_tick_freshness_counts_today_via_session_date_utc():
         {"ts_utc": "2026-07-11T00:10:00+00:00", "session_date_utc": "2026-07-11"},
     ]
     facts = tsm.evaluate_tick_freshness(rows, datetime(2026, 7, 11, 0, 20, tzinfo=UTC))
+    # Computed off the live constant (not hardcoded) so this stays correct across any
+    # future CADENCE_MINUTES retune -- see twin_sentinel.py's 2026-08-01 cadence-tune note.
+    expected = 20 // tsm.CADENCE_MINUTES  # 20 minutes elapsed / the twin's real tick cadence
     assert facts["ticks_today_utc"] == 2
-    assert facts["expected_ticks_utc"] == 4  # 20 minutes / 5-min cadence
-    assert facts["uptime_pct"] == 50.0
+    assert facts["expected_ticks_utc"] == expected
+    assert facts["uptime_pct"] == round(min(100.0, 100.0 * 2 / expected), 1)
 
 
 def test_tick_freshness_falls_back_to_ts_utc_date_when_session_date_missing():
@@ -319,10 +322,10 @@ def test_evaluate_no_ticks_ever_is_red_tick_gap(tmp_path):
 
 def test_evaluate_low_uptime_is_yellow(tmp_path):
     paths = _isolated_paths(tmp_path)
-    now = datetime(2026, 7, 11, 1, 0, tzinfo=UTC)  # 60 min elapsed -> 12 expected ticks
+    now = datetime(2026, 7, 11, 1, 0, tzinfo=UTC)  # 60 min elapsed -> 60 expected ticks @ 1-min cadence
     rows = [
         {"ts_utc": f"2026-07-11T00:{m:02d}:00+00:00", "session_date_utc": "2026-07-11", "action": "HOLD"}
-        for m in (0, 55)  # only 2 of the 12 expected ticks -- also keeps the LAST tick fresh
+        for m in (0, 55)  # only 2 of the 60 expected ticks -- also keeps the LAST tick fresh
     ]
     _write_jsonl(paths["decisions_path"], rows)
     result = tsm.evaluate(now_utc=now, now_et=now, **paths)

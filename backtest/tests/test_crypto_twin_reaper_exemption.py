@@ -5,7 +5,8 @@ class in this codebase (CLAUDE.md debugging-discipline scar; C7/C8 lesson themes
 setup/scripts/_shared.ps1's Stop-StaleClaudeProcesses reaps any Win32_Process named
 claude.exe/node.exe/python.exe/uv.exe/uvx.exe whose CommandLine references this repo
 and is older than ~5 min, UNLESS its CommandLine matches one of $EXEMPT_DAEMONS.
-Gamma_CryptoTwin (setup/install-crypto-twin.ps1) fires every 5 min, 24/7 -- if its
+Gamma_CryptoTwin (setup/install-crypto-twin.ps1) fires every 1 min, 24/7 (was 5 min
+2026-07-10..2026-07-31, CADENCE-TUNE 2026-08-01) -- if its
 process shape ever fell inside the reaper's blast radius, soak data would go dark
 exactly like the historical grind-killer incidents this lesson is named after, and
 nobody would notice until the soak report came up suspiciously thin.
@@ -189,15 +190,24 @@ class TestInstallerCommandLineMatchesExemption:
 
     def test_installer_registers_24_7_with_no_day_restriction(self) -> None:
         """Crypto never closes -- confirms no Test-MarketHours/weekday gating was
-        copy-pasted in from an RTH-only installer template."""
+        copy-pasted in from an RTH-only installer template.
+
+        CADENCE-TUNE (2026-08-01, J latency drill): the exact repetition value is
+        checked against the string ACTUALLY in the installer today (was 5min
+        2026-07-10..2026-07-31, now 1min -- see install-crypto-twin.ps1's docstring
+        for the measured-latency + realized-vol evidence) rather than a value
+        independently hardcoded here, so this test's real purpose -- confirming NO
+        day/RTH gating exists -- doesn't silently pin a stale cadence number again on
+        the next legitimate retune."""
         text = _installer_text()
         assert "Test-MarketHours" not in text
         assert "Test-WeekDay" not in text
-        assert "RepetitionInterval (New-TimeSpan -Minutes 5)" in text
+        assert "RepetitionInterval (New-TimeSpan -Minutes 1)" in text
         assert "RepetitionDuration" in text
 
     def test_installer_multiple_instances_ignore_new(self) -> None:
-        """A slow tick must not stack a second instance on top of itself every 5 min."""
+        """A slow tick must not stack a second instance on top of itself (guards ANY
+        cadence -- currently 1 min, CADENCE-TUNE 2026-08-01, was 5 min)."""
         text = _installer_text()
         assert "-MultipleInstances IgnoreNew" in text
 

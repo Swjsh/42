@@ -128,15 +128,30 @@ DISCORD_CFG = STATE / ".discord-config.json"
 TWIN_ESCALATIONS_HEADER = "## Twin escalations"
 
 # ── Thresholds (see module docstring VERDICT RULES for provenance of each) ───────────────
-CADENCE_MINUTES = 5                    # the TWIN's own tick cadence (Gamma_CryptoTwin), NOT
+# CADENCE-TUNE (2026-08-01, J latency drill): Gamma_CryptoTwin's own tick cadence went
+# 5min -> 1min (see install-crypto-twin.ps1 + SCHEDULED-TASKS.md for the full rationale --
+# real 1-min-BTC adverse-excursion data showed 5min cadence exposes ~2-2.6x the blind-spot
+# risk of 1min between looks, and exit management already reads LIVE quotes every tick so
+# the tighter cadence genuinely shortens reaction time, not just visibility). Both
+# CADENCE_MINUTES and LOW_UPTIME_MIN_EXPECTED are updated TOGETHER so the ">=1h of expected
+# ticks" invariant LOW_UPTIME_MIN_EXPECTED's own comment promises stays true at the new
+# cadence -- these two constants are mathematically coupled (expected_ticks =
+# minutes_elapsed // CADENCE_MINUTES; the "~1h" gate is LOW_UPTIME_MIN_EXPECTED *
+# CADENCE_MINUTES minutes), so changing one without the other would silently break that
+# promise (LOW_UPTIME_MIN_EXPECTED=12 at a 1-min cadence would only wait 12 real minutes,
+# not 1 hour, causing premature LOW_UPTIME judgments in the first hour of every UTC day).
+CADENCE_MINUTES = 1                    # the TWIN's own tick cadence (Gamma_CryptoTwin), NOT
                                         # this sentinel's 15-min fire cadence
-TICK_GAP_RED_MINUTES = 20              # spec-given
+TICK_GAP_RED_MINUTES = 20              # spec-given, unchanged by the cadence tune (absolute
+                                        # staleness trip-wire, not cadence-derived)
 INCIDENT_SPIKE_RED_COUNT = 3           # spec-given
 COVERAGE_LAG_YELLOW_RATIO = 0.5        # spec-given ("<half branches green")
 COVERAGE_LAG_HOUR_UTC = 18             # spec-given ("by 18:00 UTC")
 LOW_UPTIME_YELLOW_RATIO = 0.70         # derived judgment call -- see docstring
-LOW_UPTIME_MIN_EXPECTED = 12           # >=1h of expected ticks before judging uptime (avoids
-                                        # false YELLOW in the first few minutes of a UTC day)
+LOW_UPTIME_MIN_EXPECTED = 60           # >=1h of expected ticks before judging uptime (avoids
+                                        # false YELLOW in the first few minutes of a UTC day) --
+                                        # 60 * CADENCE_MINUTES(1) = 60min, same "~1h" invariant
+                                        # the old 12 * 5min = 60min value encoded pre-cadence-tune
 REVIEW_TRIGGER_HOUR_UTC = 23           # spec-given ("after 23:30 UTC")
 REVIEW_TRIGGER_MINUTE_UTC = 30
 

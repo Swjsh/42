@@ -6,7 +6,9 @@ glance wiring + Gamma_CryptoTwin registration + 48h soak". This module is the
 T1/T2's tested (40/40) surface is imported and called, NEVER edited by this file.
 
 Gamma_CryptoTwin's scheduled task invokes THIS file (not crypto_twin_core.py
-directly) every 5 min, 24/7, because:
+directly) every 1 min, 24/7 (CADENCE-TUNE 2026-08-01: was 5 min 2026-07-10..2026-07-31
+-- see install-crypto-twin.ps1's docstring for the measured-latency + realized-vol
+evidence behind the tighter cadence; twin-only, the SPY heartbeat is untouched), because:
 
   1. crypto_twin_broker deliberately fail-louds on a genuine HTTP/network failure
      (see its module docstring: "Raises on a genuine HTTP/network failure"). Under

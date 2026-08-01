@@ -130,6 +130,151 @@ def test_nearest_directional_level_filters_by_side():
 
 
 # ============================================================================
+# STARVATION FIX (2026-08-01, J drill): widened level families -- session H/L
+# (Asia/Europe/US), a $500 round-number grid, and the most recent swing H/L.
+# ============================================================================
+def test_build_level_set_round_numbers_bracket_spot():
+    """A $63,180 spot with the default $500 grid must bracket it: 63000 below, 63500 above."""
+    t0 = datetime(2026, 7, 10, tzinfo=timezone.utc)
+    bars = [Bar(open_time=t0 + timedelta(minutes=5 * i), open=63180, high=63185, low=63175,
+               close=63180, volume=1, granularity_seconds=300, source="test") for i in range(3)]
+    now = t0 + timedelta(minutes=20)
+    levels = ctl.build_level_set(bars, now)
+    prices = {lv.price for lv in levels.round_numbers}
+    assert 63000.0 in prices
+    assert 63500.0 in prices
+
+
+def test_build_level_set_session_levels_same_day_when_completed():
+    """Asia session [00:00,08:00) UTC on TODAY, with now_utc AFTER it has fully closed --
+    must use TODAY's Asia bars, not fall back to yesterday, even though yesterday also
+    has Asia-window bars (today should win once it's actually available)."""
+    today = datetime(2026, 7, 10, tzinfo=timezone.utc)
+    yesterday = today - timedelta(days=1)
+    bars = [
+        Bar(open_time=yesterday + timedelta(hours=3), open=50, high=55, low=45, close=52,
+           volume=1, granularity_seconds=300, source="test"),   # yesterday's Asia -- must lose
+        Bar(open_time=today + timedelta(hours=3), open=100, high=110, low=90, close=105,
+           volume=1, granularity_seconds=300, source="test"),   # today's Asia -- must win
+    ]
+    now = today + timedelta(hours=9)  # Asia window (ends 08:00) has fully closed
+    levels = ctl.build_level_set(bars, now)
+    assert levels.session_asia_high.price == 110
+    assert levels.session_asia_low.price == 90
+
+
+def test_build_level_set_session_levels_falls_back_to_prior_day():
+    """Europe session [08:00,16:00) UTC on TODAY has NOT completed yet (now_utc is still
+    mid-session) -- must fall back to YESTERDAY's Europe session, never the in-progress
+    one (no-look-ahead, mirrors build_level_set's own prior-period discipline)."""
+    today = datetime(2026, 7, 10, tzinfo=timezone.utc)
+    yesterday = today - timedelta(days=1)
+    bars = [
+        Bar(open_time=yesterday + timedelta(hours=10), open=50, high=60, low=40, close=55,
+           volume=1, granularity_seconds=300, source="test"),   # yesterday's Europe -- must win
+        Bar(open_time=today + timedelta(hours=9), open=100, high=105, low=95, close=102,
+           volume=1, granularity_seconds=300, source="test"),   # today's Europe, still forming -- must lose
+    ]
+    now = today + timedelta(hours=10)  # still inside today's Europe window [08:00,16:00)
+    levels = ctl.build_level_set(bars, now)
+    assert levels.session_europe_high.price == 60
+    assert levels.session_europe_low.price == 40
+
+
+def test_build_level_set_swing_levels_from_recent_pivot():
+    """A clean V-shaped bar sequence (down then up) with SWING_WINDOW_BARS=3 bars either
+    side of the pivot must register a swing low at the pivot bar's low."""
+    t0 = datetime(2026, 7, 10, tzinfo=timezone.utc)
+    highs_lows = [(110, 100), (108, 98), (106, 96), (104, 90), (106, 96), (108, 98), (110, 100), (112, 102)]
+    bars = [Bar(open_time=t0 + timedelta(minutes=5 * i), open=(h + l) / 2, high=h, low=l,
+               close=(h + l) / 2, volume=1, granularity_seconds=300, source="test")
+           for i, (h, l) in enumerate(highs_lows)]
+    now = t0 + timedelta(minutes=5 * len(bars))
+    levels = ctl.build_level_set(bars, now)
+    assert levels.swing_low is not None
+    assert levels.swing_low.price == 90
+
+
+def test_build_level_set_new_families_never_crash_on_minimal_bars():
+    """A single-bar tick (deep warmup) must not crash computing the new level families --
+    every new field degrades to None/() gracefully, same fail-soft discipline as the
+    pre-existing prior_day/intraday fields."""
+    t0 = datetime(2026, 7, 10, 3, tzinfo=timezone.utc)
+    bars = [Bar(open_time=t0, open=100, high=101, low=99, close=100,
+               volume=1, granularity_seconds=300, source="test")]
+    now = t0 + timedelta(minutes=5)
+    levels = ctl.build_level_set(bars, now)
+    assert levels.swing_high is None and levels.swing_low is None
+    assert isinstance(levels.round_numbers, tuple)
+
+
+# ============================================================================
+# STARVATION-FIX HOLD-REASON PRECISION (2026-08-01): evaluate()'s fallback HOLD reason
+# must distinguish "no candidate level at all" from "a candidate WAS in range but this
+# bar's reaction didn't qualify" -- otherwise widening the level set (tests above) could
+# populate levels_active every tick while the reason text still always claimed no level
+# existed. Zero change to the ENTER_BULL/ENTER_BEAR verdict paths themselves.
+# ============================================================================
+def _monotonic_decline_bars(n: int = 60, close_offset: float = 0.28):
+    bars = []
+    t0 = datetime(2026, 7, 1, tzinfo=timezone.utc)
+    price = 200.0
+    for i in range(n):
+        price -= 1.0
+        bars.append(Bar(open_time=t0 + timedelta(minutes=5 * i), open=price + 0.3, high=price + 0.35,
+                        low=price + 0.25, close=price + close_offset,
+                        volume=1, granularity_seconds=300, source="test"))
+    return bars, t0
+
+
+def test_evaluate_hold_reason_distinguishes_level_seen_no_reaction():
+    bars, _ = _monotonic_decline_bars()
+    spot = bars[-1].close
+    far_level = ctl.Level(price=round(spot + spot * 0.002, 2), kind=ctl.LevelKind.ROUND_NUMBER,
+                          strength=1, label="Test R")
+    levels = ctl.TwinLevelSet(prior_day_high=None, prior_day_low=None, prior_day_close=None,
+                              intraday_high=None, intraday_low=None, session_date_utc="2026-07-01",
+                              round_numbers=(far_level,))
+    v = cts.evaluate(bars, levels)
+    assert v.verdict == "HOLD"
+    assert v.ribbon_stack == "BEAR"  # fixture precondition -- a clean monotonic decline
+    assert "Test R" in v.reason
+    assert "in range but bar showed" in v.reason
+    assert "no level in range" not in v.reason
+
+
+def test_evaluate_hold_reason_no_level_in_range_when_truly_none():
+    """Regression guard: an EMPTY level set must keep the original generic message."""
+    bars, _ = _monotonic_decline_bars()
+    empty_levels = ctl.TwinLevelSet(prior_day_high=None, prior_day_low=None, prior_day_close=None,
+                                    intraday_high=None, intraday_low=None, session_date_utc="2026-07-01")
+    v = cts.evaluate(bars, empty_levels)
+    assert v.verdict == "HOLD"
+    assert v.reason == "no level in range for the current ribbon stack"
+
+
+def test_evaluate_enter_bear_unaffected_by_reason_precision_refactor():
+    """A genuinely qualifying reaction must still ENTER exactly as before -- the
+    reason-precision refactor touches only the fallback HOLD branch."""
+    bars, t0 = _monotonic_decline_bars(n=59)
+    last_price = bars[-1].close - 0.28 - 1.0  # continue the same $1/bar decline one more step
+    level_price = round(last_price + 0.5, 2)
+    trig = Bar(open_time=t0 + timedelta(minutes=5 * 59), open=last_price, high=level_price + 0.2,
+              low=last_price - 0.3, close=last_price - 0.1,
+              volume=1, granularity_seconds=300, source="test")
+    bars = bars + [trig]
+    lvl = ctl.Level(price=level_price, kind=ctl.LevelKind.ROUND_NUMBER, strength=1, label="Test Resistance")
+    levels = ctl.TwinLevelSet(prior_day_high=None, prior_day_low=None, prior_day_close=None,
+                              intraday_high=None, intraday_low=None, session_date_utc="2026-07-01",
+                              round_numbers=(lvl,))
+    v = cts.evaluate(bars, levels)
+    assert v.verdict == "ENTER_BEAR"
+    assert v.side == "bear"
+    assert v.trigger_level_exact == level_price
+    assert "Test Resistance" in v.reason
+
+
+# ============================================================================
 # Breaker (UTC-day kill-switch) -- reuses crypto.lib.kill_switch
 # ============================================================================
 def test_breaker_fresh_day_seeds_from_starting_equity(tmp_path):
@@ -840,6 +985,39 @@ def test_decision_row_is_jsonl_appendable(tmp_path):
     lines = (cfg.state_dir / "decisions.jsonl").read_text(encoding="utf-8").splitlines()
     assert len(lines) == 1
     assert json.loads(lines[0]) == row
+
+
+# ============================================================================
+# STARVATION FIX (2026-08-01): the widened level set must be VISIBLE per tick via a new
+# `levels_active` decision-row field, provenance-tagged, not just inferable after an
+# eventual ENTER.
+# ============================================================================
+def test_decision_row_levels_active_has_provenance_and_exceeds_old_five(tmp_path):
+    cfg = _twin_cfg(tmp_path)
+    now = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
+    bars = [ctc._to_bar(_raw_bar(now - timedelta(minutes=5 * i), 100, 101, 99, 100), 300)
+           for i in range(60, 0, -1)]
+    raw = [{"t": b.open_time.strftime("%Y-%m-%dT%H:%M:%SZ"), "o": b.open, "h": b.high,
+           "l": b.low, "c": b.close, "v": b.volume} for b in bars]
+    row = ctc.run_tick(cfg, live=False, now_utc=now, raw_bars=raw)
+    active = row["levels_active"]
+    assert isinstance(active, list) and len(active) > 0
+    for entry in active:
+        assert set(entry.keys()) == {"price", "kind", "label", "strength"}
+    # the OLD fixed 5-key `levels` dict has only 2 non-null values for this exact
+    # fixture (no prior-day bars exist) -- levels_active must exceed that, proving the
+    # widened set is genuinely feeding this tick, not just present in the schema.
+    old_non_null = sum(1 for v in row["levels"].values() if v is not None)
+    assert len(active) > old_non_null
+    assert row["levels"] is not None  # byte-compat: old field still present, unchanged
+
+
+def test_decision_row_levels_active_empty_on_bad_bars(tmp_path):
+    cfg = _twin_cfg(tmp_path)
+    now = datetime(2026, 7, 10, 14, 0, 0, tzinfo=timezone.utc)
+    row = ctc.run_tick(cfg, live=False, now_utc=now, raw_bars=[])
+    assert row["action"] == "HOLD_BAD_BARS"
+    assert row["levels_active"] == []
 
 
 # ============================================================================

@@ -415,8 +415,18 @@ def _decision_row(cfg: TwinConfig, *, now_utc: datetime, armed: bool, price: Opt
     B3 ADDITIVE field: "entry_mode" (2026-07-14) -- "passive"/"marketable" when this tick
     attempted an entry (the A/B cohort, see place_entry_ab), else None. Default None so
     every pre-B3 caller is unaffected.
+
+    STARVATION-FIX ADDITIVE field: "levels_active" (2026-08-01, J drill) -- every level
+    crypto_twin_levels.build_level_set computed THIS tick (the original 5 UTC-day levels
+    PLUS the new session/round-number/swing families), each tagged with its own
+    provenance (`kind`, `label`, `strength`) rather than folded into the fixed 5-key
+    `levels` dict above (kept byte-identical for back-compat). This is the field a reader
+    checks to see the widened candidate set actually populate per tick -- not just
+    inferred after the fact from an eventual ENTER. `[]` when levels is None (bad-bars
+    ticks) or has no computed levels yet (cold warmup).
     """
     lvl_dict = None
+    levels_active: list[dict] = []
     if levels is not None:
         lvl_dict = {
             "prior_day_high": levels.prior_day_high.price if levels.prior_day_high else None,
@@ -425,6 +435,10 @@ def _decision_row(cfg: TwinConfig, *, now_utc: datetime, armed: bool, price: Opt
             "intraday_high": levels.intraday_high.price if levels.intraday_high else None,
             "intraday_low": levels.intraday_low.price if levels.intraday_low else None,
         }
+        levels_active = [
+            {"price": lv.price, "kind": lv.kind.value, "label": lv.label, "strength": lv.strength}
+            for lv in levels.all_levels
+        ]
     return {
         "ts_et": et_now().isoformat(),
         "ts_utc": now_utc.isoformat(),
@@ -448,6 +462,7 @@ def _decision_row(cfg: TwinConfig, *, now_utc: datetime, armed: bool, price: Opt
         "action": action,
         "session_date_utc": levels.session_date_utc if levels is not None else None,
         "levels": lvl_dict,
+        "levels_active": levels_active,
         "risk_gate": ({"code": risk_decision.code, "reason": risk_decision.reason}
                      if risk_decision is not None else None),
         "breaker": ({"tripped": breaker_state.tripped,

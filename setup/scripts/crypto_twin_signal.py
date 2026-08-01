@@ -97,11 +97,23 @@ def evaluate(bars: Sequence[Bar], levels: tl.TwinLevelSet, *,
     stack_n = _stack_duration(ribbons, trig_idx)
     spot = trig_bar.close
     triggers: list[str] = []
+    # STARVATION-FIX HOLD-REASON PRECISION (2026-08-01, J drill): track the nearest
+    # candidate level even when its reaction doesn't qualify, so the fallback reason
+    # below can distinguish "no candidate at all" from "a candidate WAS in range but
+    # this bar didn't react at it" -- purely diagnostic text, ZERO change to the
+    # ENTER/HOLD verdict itself (every early return above is untouched). Without this,
+    # widening the level set (crypto_twin_levels.py) could populate levels_active with
+    # real candidates on every tick while the HOLD reason still always read "no level in
+    # range" -- silently false once a candidate exists but the bar's own shape doesn't
+    # qualify (e.g. reaction is BREAK/NONE, not RECLAIM/REJECT/HOLD).
+    nearest_seen: Optional[Level] = None
+    nearest_reaction: Optional[LevelEvent] = None
 
     if rib.status == "BULL" and stack_n >= min_stack_bars:
         lvl = tl.nearest_directional_level(levels.all_levels, spot, side="bull")
         if lvl is not None:
             reaction = tl.classify_reactions(trig_bar, [lvl])[lvl.price]
+            nearest_seen, nearest_reaction = lvl, reaction
             if reaction in (LevelEvent.RECLAIM, LevelEvent.HOLD):
                 triggers.append(f"bull_ribbon_stack_{stack_n}bars")
                 triggers.append(f"level_{reaction.value}_{lvl.label}")
@@ -113,6 +125,7 @@ def evaluate(bars: Sequence[Bar], levels: tl.TwinLevelSet, *,
         lvl = tl.nearest_directional_level(levels.all_levels, spot, side="bear")
         if lvl is not None:
             reaction = tl.classify_reactions(trig_bar, [lvl])[lvl.price]
+            nearest_seen, nearest_reaction = lvl, reaction
             if reaction in (LevelEvent.REJECT, LevelEvent.HOLD):
                 triggers.append(f"bear_ribbon_stack_{stack_n}bars")
                 triggers.append(f"level_{reaction.value}_{lvl.label}")
@@ -121,7 +134,11 @@ def evaluate(bars: Sequence[Bar], levels: tl.TwinLevelSet, *,
                                    trigger_level_exact=lvl.price, ribbon_stack=rib.status,
                                    ribbon_spread=rib.spread, stack_bars=stack_n)
 
-    return TwinVerdict("HOLD", None, None,
-                       reason=("no level in range for the current ribbon stack" if rib.status != "MIXED"
-                              else "ribbon MIXED"),
+    if nearest_seen is not None:
+        reason = (f"nearest level {nearest_seen.label} @ {nearest_seen.price} in range "
+                 f"but bar showed {nearest_reaction.value}, not a qualifying reaction")
+    else:
+        reason = ("no level in range for the current ribbon stack" if rib.status != "MIXED"
+                  else "ribbon MIXED")
+    return TwinVerdict("HOLD", None, None, reason=reason,
                        ribbon_stack=rib.status, ribbon_spread=rib.spread, stack_bars=stack_n)
