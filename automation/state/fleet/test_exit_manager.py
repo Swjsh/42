@@ -199,6 +199,54 @@ def test_runner_time_stop_exit():
     assert dec.closes_position and dec.actions[0].stage == "time_stop"
 
 
+# --- EXITMGR-TIME-STOP-LABEL guard (2026-08-01, chip task_30a7b291) -----------
+# `reason` used to be the hardcoded literal "time_stop_15:50" no matter what time_stop_et
+# was actually passed in -- label-only (stage was always correct). Live params.json has
+# carried time_stop_et="15:40" for a while, so every real time-stop exit journaled a reason
+# 10 minutes later than what actually fired. These pin the reason string to the CONFIGURED
+# value, both pre-TP1 and runner stages, and RED-proof that a non-default value is not
+# coincidentally correct.
+def test_pre_tp1_time_stop_reason_matches_configured_time_stop_et():
+    """The live-configured value (params.json time_stop_et="15:40"), not the 15:50 default."""
+    s = _state(RIBBON_SHAPE, qty=5)
+    dec = em.plan_exit_actions(s, best_premium=1.10, worst_premium=1.05, open_qty=5,
+                               now_et=time(15, 45), time_stop_et=time(15, 40))
+    a = dec.actions[0]
+    assert a.stage == "time_stop"
+    assert a.reason == "time_stop_15:40", a.reason
+    assert "15:50" not in a.reason, "must not silently fall back to the stale default label"
+
+
+def test_runner_time_stop_reason_matches_configured_time_stop_et():
+    s = _state(RIBBON_SHAPE, qty=5, entry=1.00)
+    st = em.plan_exit_actions(s, best_premium=2.55, worst_premium=2.40, open_qty=5,
+                              now_et=MORNING, time_stop_et=time(15, 40)).state
+    dec = em.plan_exit_actions(st, best_premium=1.50, worst_premium=1.40, open_qty=1,
+                               now_et=time(15, 45), time_stop_et=time(15, 40))
+    a = dec.actions[0]
+    assert a.stage == "time_stop"
+    assert a.reason == "time_stop_15:40 (runner)", a.reason
+
+
+def test_bite_time_stop_reason_tracks_an_arbitrary_non_default_value():
+    """RED-PROOF / non-vacuous: 15:40 happens to be the live value, so also prove the label
+    tracks an arbitrary DIFFERENT configured time (16:05) -- not a value the fix could have
+    hardcoded by coincidence."""
+    s = _state(RIBBON_SHAPE, qty=5)
+    dec = em.plan_exit_actions(s, best_premium=1.10, worst_premium=1.05, open_qty=5,
+                               now_et=time(16, 10), time_stop_et=time(16, 5))
+    assert dec.actions[0].reason == "time_stop_16:05", dec.actions[0].reason
+
+
+def test_pre_tp1_time_stop_reason_default_still_15_50_when_unconfigured():
+    """Regression pin: the DEFAULT (no time_stop_et override, matching TIME_STOP_ET) must
+    still read 15:50 -- the fix changes WHICH value is reported, not the default itself."""
+    s = _state(RIBBON_SHAPE, qty=5)
+    dec = em.plan_exit_actions(s, best_premium=1.10, worst_premium=1.05,
+                               open_qty=5, now_et=AFTER_STOP)
+    assert dec.actions[0].reason == "time_stop_15:50", dec.actions[0].reason
+
+
 # --- idempotency / flat / serialization ---------------------------------------
 def test_flat_position_is_noop():
     s = _state(RIBBON_SHAPE, qty=5)

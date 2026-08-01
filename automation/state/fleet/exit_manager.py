@@ -326,7 +326,11 @@ def plan_exit_actions(
     Inputs (all read live by the caller, broker = source of truth):
       best_premium / worst_premium : this tick's option bar high / low (or last+spread).
       open_qty                     : contracts the broker still shows open for this symbol.
-      now_et                       : current ET wall-clock time (for the 15:50 time stop).
+      now_et                       : current ET wall-clock time (for the time_stop_et time
+                                     stop -- defaults to 15:50 but is params.json-configurable
+                                     via parse_time_stop_et; the exit `reason` string reflects
+                                     whichever value is ACTUALLY armed this tick, see
+                                     EXITMGR-TIME-STOP-LABEL fix below).
       ribbon_flip_back             : True if the opposite ribbon stack invalidated the trade
                                      (caller computes from the live ribbon, same rule as sim).
       last_closed_5m_close         : the latest CLOSED 5m SPY bar's close, or None when the
@@ -422,9 +426,18 @@ def plan_exit_actions(
                                              else "premium_stop")))
             return ExitDecision(pre_state, tuple(actions))
         # (b) time stop pre-TP1 -> exit ALL at market
+        # EXITMGR-TIME-STOP-LABEL fix (2026-08-01, chip task_30a7b291): `reason` used to be
+        # the hardcoded literal "time_stop_15:50" regardless of the ACTUAL time_stop_et this
+        # call was given -- label-only bug (the mechanism itself, time_stop_now above, always
+        # compared against the real configured value; only the human-readable string lied).
+        # Live params.json has carried time_stop_et="15:40" since before this fix, so every
+        # real 0DTE time-stop exit journaled a reason 10 minutes later than what actually
+        # fired. stage stays the untouched machine-readable key ("time_stop") -- only the
+        # prose reason now reports the value that was actually enforced this tick.
         if time_stop_now:
             actions.append(ExitAction("SELL_ALL", qty=open_qty,
-                                      reason="time_stop_15:50", stage="time_stop"))
+                                      reason=f"time_stop_{time_stop_et.strftime('%H:%M')}",
+                                      stage="time_stop"))
             return ExitDecision(pre_state, tuple(actions))
         # (c) ribbon-flip-back -> exit ALL at market (caller already applied spread+buffer rule)
         if ribbon_flip_back:
@@ -498,9 +511,12 @@ def plan_exit_actions(
                                   stage="trail" if state.profit_lock_mode == "trailing" else "be_stop"))
         return ExitDecision(replace(state, hwm_premium=hwm, profit_lock_armed=profit_lock_armed,
                                     runner_stop_premium=round(new_runner_stop, 4)), tuple(actions))
+    # EXITMGR-TIME-STOP-LABEL fix (2026-08-01, chip task_30a7b291) -- runner-stage twin of
+    # the pre-TP1 fix above; same bug (hardcoded "15:50" label vs the real configured value).
     if time_stop_now:
         actions.append(ExitAction("SELL_ALL", qty=open_qty,
-                                  reason="time_stop_15:50 (runner)", stage="time_stop"))
+                                  reason=f"time_stop_{time_stop_et.strftime('%H:%M')} (runner)",
+                                  stage="time_stop"))
         return ExitDecision(replace(state, hwm_premium=hwm, profit_lock_armed=profit_lock_armed,
                                     runner_stop_premium=round(new_runner_stop, 4)), tuple(actions))
 
