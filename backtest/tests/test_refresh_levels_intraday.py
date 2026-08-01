@@ -73,6 +73,19 @@ def _state(tmp_path, monkeypatch):
     bias.write_text(json.dumps({"key_levels": {}}), encoding="utf-8")
     monkeypatch.setattr(rli, "KEY_LEVELS", kl)
     monkeypatch.setattr(rli, "TODAY_BIAS", bias)
+    # Isolation fix (2026-08-01, conductor-weekend): this file's tests exercise the intraday
+    # RTH/PMH/memory-merge logic with SYNTHETIC df fixtures, but refresh() also unconditionally
+    # unions REAL multi-week shelf zones from daily_context.py (module-level global, WS1 v2
+    # 2026-07-27). That makes every _state-based test's PASS/FAIL depend on today's actual live
+    # SPY price action -- a synthetic PMH at 749.5 silently collided with a real shelf zone at
+    # 748.66-750.26 and the intraday level lost the dedup tie (weight 5 shelf > weight 2
+    # intraday), dropping the INTRADAY_PMH label the test asserted on
+    # (test_refresh_flag_on_injects_memory, first observed red 2026-08-01, root cause: no test
+    # here ever isolated the real daily_context call). daily_context=None is an
+    # already-supported fail-open path (`if daily_context is not None:` in refresh()) -- shelf
+    # zones have their own dedicated coverage in test_level_compiler_v2_guards.py, so disabling
+    # them here makes this file deterministic without losing shelf test coverage anywhere.
+    monkeypatch.setattr(rli, "daily_context", None)
     return kl, bias
 
 

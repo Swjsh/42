@@ -309,16 +309,25 @@ def test_gap_math_bite_wrong_prior_close_changes_the_answer():
 # live decide path is untouched by the new optional fields).
 # =====================================================================================
 
+# expires_at is intentionally a FAR-FUTURE constant, not the day this fixture was authored
+# (2026-07-27) -- heartbeat_core._level_expired() compares expires_at's date against the REAL
+# current ET date (_et_now(), unmocked here), so a same-day-authored date silently rots the
+# moment wall-clock time crosses it: both tests below went RED from 2026-07-28 onward with
+# ZERO code change (_read_levels(740.00) returned ([], []) for both old- and new-style input,
+# making the "byte-identical" assertion vacuously true and the explicit non-vacuous bite fail).
+# First observed red 2026-08-01 (conductor-weekend); root cause confirmed via
+# heartbeat_core._level_expired -> today's real date > 2026-07-27 -> every fixture level
+# expired -> both active/multi lists empty. Far-future date sidesteps this permanently.
 _OLD_STYLE_LEVELS = [
     {"price": 745.40, "role": "resistance", "type": "resistance", "label": "PMH_2026-07-27",
      "tier": "Active", "source": "premarket_high",
-     "expires_at": "2026-07-27T16:00:00-04:00"},
+     "expires_at": "2099-12-31T16:00:00-04:00"},
     {"price": 738.20, "role": "support", "type": "support", "label": "PML_2026-07-27",
      "tier": "Active", "source": "premarket_low",
-     "expires_at": "2026-07-27T16:00:00-04:00"},
+     "expires_at": "2099-12-31T16:00:00-04:00"},
     {"price": 744.10, "role": "resistance", "type": "resistance", "label": "SHELF_744_2026-07-27",
      "tier": "Active", "source": "daily_context_shelf",
-     "expires_at": "2026-07-27T16:00:00-04:00"},
+     "expires_at": "2099-12-31T16:00:00-04:00"},
 ]
 
 _NEW_STYLE_LEVELS = [
