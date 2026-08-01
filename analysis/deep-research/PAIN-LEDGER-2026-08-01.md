@@ -4,7 +4,7 @@
 >
 > Nothing in this file is a pass/fail verdict, a knob proposal, or evidence sufficient for one. It answers ONE question: *what did our filled trades actually live through?*
 
-_Generated 2026-08-01T12:53:05.925584 ET · prereg `analysis/pain-ledger/PREREG-2026-08-01.md` (committed before the builder existed) · real OPRA 1-min bars · entry+1 holding-window · $0._
+_Generated 2026-08-01T15:18:39.467327 ET · prereg `analysis/pain-ledger/PREREG-2026-08-01.md` (committed before the builder existed) · real OPRA 1-min bars · entry+1 holding-window · $0._
 
 ## Population + provenance
 
@@ -16,6 +16,14 @@ _Generated 2026-08-01T12:53:05.925584 ET · prereg `analysis/pain-ledger/PREREG-
   outside the builder's code path — exact match (`SPY260706C00755000`, min_low 0.01 /
   max_high 0.03). Winner-side capture rate re-derived same run at 101.9%, matching the
   registered `Gamma_WinnerAutopsy` first-fire number.
+- **stop_mode recovery (2026-08-01 update):** 16 of the original 123 `premium_unverified`
+  rows recovered a verified `stop_mode` from the engine's own `exit_pass` tick history
+  (`pain_ledger.recover_stop_mode_from_exit_trace` — direct tick-logged value where every
+  non-null tick agreed, or an unambiguous `structure_stop` action stage). 107 remain
+  unrecoverable (dated 2026-06-26..2026-07-09, before the tick-level `stop_mode` field
+  existed) and stay labelled `premium_unverified`, honestly — no date heuristic, no guess.
+  Cut 5's table below reflects the recovered rows; cuts 1-4 are numerically UNCHANGED (MAE/
+  MFE/timing never depended on stop_basis).
 
 ## Findings at a glance (DESCRIPTIVE — restating the banner: none of this validates a stop change)
 
@@ -24,8 +32,10 @@ _Generated 2026-08-01T12:53:05.925584 ET · prereg `analysis/pain-ledger/PREREG-
   only 3/21 never ticked below entry at all. A winner cohort that mostly survives a
   10–25% drawdown before paying is what these entries actually look like on real bars.
 - **Zero winners ever traded through their configured premium-stop level** (0/21
-  `stop_inside_mae`) vs **82/128 losers** that did. Definitionally entangled with the exit
-  policy that produced the cohorts (see limitations) — descriptive, not causal.
+  `stop_inside_mae`) vs **82/128 losers** that did. UNCHANGED by the stop_mode recovery
+  above (this count was always basis-independent — see cut 5's note). Definitionally
+  entangled with the exit policy that produced the cohorts (see limitations) — descriptive,
+  not causal.
 - **The separation lives in MFE, not MAE overlap:** winners' median MFE **+115%** (p90
   +285%) vs losers' **+9.6%** (p90 +44%). 30/128 losers did touch ≥+30% favorable at some
   point before dying — recorded here as the evidence base any future exit study must cite.
@@ -84,15 +94,16 @@ _⚠ The **older cohort is EMPTY today**: the population spans only 22 distinct 
 
 | Cohort | stop basis | n | stop inside MAE | stop outside MAE | unknown |
 |---|---|---:|---:|---:|---:|
-| winners | `premium_unverified` | 9 | 0 | 9 | 0 |
+| winners | `premium` | 2 | 0 | 2 | 0 |
+| winners | `premium_unverified` | 7 | 0 | 7 | 0 |
 | winners | `structure_catastrophe_cap` | 12 | 0 | 12 | 0 |
-| losers | `premium` | 2 | 2 | 0 | 0 |
-| losers | `premium_unverified` | 108 | 72 | 36 | 0 |
-| losers | `structure_catastrophe_cap` | 18 | 8 | 10 | 0 |
+| losers | `premium` | 15 | 2 | 13 | 0 |
+| losers | `premium_unverified` | 94 | 72 | 22 | 0 |
+| losers | `structure_catastrophe_cap` | 19 | 8 | 11 | 0 |
 | scratches | `premium_unverified` | 6 | 2 | 4 | 0 |
 | scratches | `structure_catastrophe_cap` | 5 | 2 | 3 | 0 |
 
-_`structure_catastrophe_cap` rows: the operative stop was a CHART level; the premium number tested here is only the −50% catastrophe cap. `premium_unverified`: stop_mode was not recoverable from the decision ledger._
+_`structure_catastrophe_cap` rows: the operative stop was a CHART level; the premium number tested here is only the −50% catastrophe cap. `premium_unverified`: stop_mode was not recoverable from the decision ledger OR the engine's own exit_pass tick history — no date-based heuristic or majority-vote guess is ever used to shrink this bucket (16 rows WERE recovered this way vs the original 123; see the population note above)._
 
 ---
 

@@ -1,6 +1,6 @@
 {
  "_meta": {
-  "generated_at_et": "2026-08-01T12:53:05.925584",
+  "generated_at_et": "2026-08-01T15:18:39.467327",
   "builder": "setup/scripts/pain_ledger.py",
   "prereg": "analysis/pain-ledger/PREREG-2026-08-01.md",
   "descriptive_only": "\u26d4 DESCRIPTIVE ONLY \u2014 this ledger VALIDATES NO STOP CHANGE. MAE knowledge is hindsight by definition (C6): a live stop cannot condition on a trade's eventual maximum heat. Any stop-placement change is its own future pre-registered A/B that may cite this ledger only as its evidence base.",
@@ -77,6 +77,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.105,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -110,6 +111,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.112,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -143,6 +145,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.112,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -176,6 +179,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.112,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -209,6 +213,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.088,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -242,6 +247,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.488,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -275,6 +281,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.488,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -308,6 +315,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.48,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -341,6 +349,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.464,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -374,6 +383,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.08,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -407,6 +417,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.08,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -440,6 +451,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.08,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -473,6 +485,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.096,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -506,6 +519,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.064,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -539,6 +553,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.056,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -572,6 +587,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.056,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -605,6 +621,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.056,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -638,6 +655,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.072,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -671,6 +689,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.064,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -704,6 +723,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.056,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -737,6 +757,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.072,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -770,6 +791,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.04,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -803,6 +825,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.064,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -836,6 +859,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.064,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -869,6 +893,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.024,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -902,6 +927,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.024,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -935,6 +961,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.208,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -968,6 +995,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.208,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -1001,6 +1029,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.208,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -1034,6 +1063,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.208,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -1067,6 +1097,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.635,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -1100,6 +1131,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.384,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -1133,6 +1165,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.24,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -1166,6 +1199,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.4,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -1199,6 +1233,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.815,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -1232,6 +1267,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.8317,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -1265,6 +1301,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.745,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -1298,6 +1335,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.152,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -1331,6 +1369,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.152,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -1364,6 +1403,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.152,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -1397,6 +1437,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.152,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -1430,6 +1471,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.47,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -1463,6 +1505,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.42,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -1496,6 +1539,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.38,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -1529,6 +1573,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.4,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -1562,6 +1607,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.392,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -1595,6 +1641,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.68,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -1628,6 +1675,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.21,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -1661,6 +1709,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.36,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -1694,6 +1743,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.36,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -1727,6 +1777,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.02,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -1760,6 +1811,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.064,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -1793,6 +1845,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.032,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -1826,6 +1879,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.064,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -1859,6 +1913,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.015,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -1892,6 +1947,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.048,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -1925,6 +1981,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.024,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -1958,6 +2015,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.048,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -1991,6 +2049,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.405,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -2024,6 +2083,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.025,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -2057,6 +2117,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.08,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -2090,6 +2151,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.04,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -2123,6 +2185,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.08,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -2156,6 +2219,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.365,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -2189,6 +2253,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.27,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -2222,6 +2287,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.25,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -2255,6 +2321,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.26,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -2288,6 +2355,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.305,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -2321,6 +2389,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.4,
     "source": "default",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -2354,6 +2423,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.02,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -2387,6 +2457,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.088,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -2420,6 +2491,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.032,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -2453,6 +2525,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.032,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -2486,6 +2559,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.016,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -2519,6 +2593,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.04,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -2552,6 +2627,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.01,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -2585,6 +2661,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.016,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -2618,6 +2695,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.352,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -2651,6 +2729,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.36,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -2684,6 +2763,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.192,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -2717,6 +2797,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.192,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -2750,6 +2831,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.088,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -2783,6 +2865,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.08,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -2816,6 +2899,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.8,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -2849,6 +2933,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.768,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -2882,6 +2967,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.752,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -2915,6 +3001,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.752,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -2948,6 +3035,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.2,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -2981,6 +3069,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.2,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -3014,6 +3103,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.104,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3047,6 +3137,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.104,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3080,6 +3171,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.104,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3113,6 +3205,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.104,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3146,6 +3239,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.072,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3179,6 +3273,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.08,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3212,6 +3307,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.08,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3245,6 +3341,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.08,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3278,6 +3375,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.408,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3311,6 +3409,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.4,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3344,6 +3443,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.4,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3377,6 +3477,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.392,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3410,6 +3511,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.432,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3443,6 +3545,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.424,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -3476,6 +3579,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.384,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3509,6 +3613,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.392,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3542,6 +3647,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.392,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3575,6 +3681,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.384,
     "source": "placement",
+    "stop_mode_source": "unrecoverable",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3608,6 +3715,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.135,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -3641,6 +3749,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.15,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3674,6 +3783,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.155,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3707,6 +3817,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.155,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3740,6 +3851,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.4,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -3768,11 +3880,12 @@
    "time_to_mfe_min": 2,
    "mfe_before_first_exit": false,
    "stop": {
-    "stop_mode": null,
-    "stop_basis": "premium_unverified",
+    "stop_mode": "premium",
+    "stop_basis": "premium",
     "premium_stop_pct": -0.5,
     "stop_premium": 0.61,
     "source": "default",
+    "stop_mode_source": "ticks",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -3801,11 +3914,12 @@
    "time_to_mfe_min": 1,
    "mfe_before_first_exit": false,
    "stop": {
-    "stop_mode": null,
-    "stop_basis": "premium_unverified",
+    "stop_mode": "premium",
+    "stop_basis": "premium",
     "premium_stop_pct": -0.5,
     "stop_premium": 0.6183,
     "source": "default",
+    "stop_mode_source": "ticks",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -3834,11 +3948,12 @@
    "time_to_mfe_min": 2,
    "mfe_before_first_exit": true,
    "stop": {
-    "stop_mode": null,
-    "stop_basis": "premium_unverified",
+    "stop_mode": "premium",
+    "stop_basis": "premium",
     "premium_stop_pct": -0.5,
     "stop_premium": 0.45,
     "source": "default",
+    "stop_mode_source": "ticks",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -3872,6 +3987,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.7067,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -3905,6 +4021,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.24,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -3938,6 +4055,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.24,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -3971,6 +4089,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.23,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4004,6 +4123,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.545,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4037,6 +4157,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.39,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4070,6 +4191,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.19,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4103,6 +4225,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.195,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4136,6 +4259,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.165,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -4169,6 +4293,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.165,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -4202,6 +4327,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.5,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4235,6 +4361,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.265,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4263,11 +4390,12 @@
    "time_to_mfe_min": null,
    "mfe_before_first_exit": null,
    "stop": {
-    "stop_mode": null,
-    "stop_basis": "premium_unverified",
+    "stop_mode": "premium",
+    "stop_basis": "premium",
     "premium_stop_pct": -0.5,
     "stop_premium": 0.565,
     "source": "default",
+    "stop_mode_source": "ticks",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4296,11 +4424,12 @@
    "time_to_mfe_min": null,
    "mfe_before_first_exit": null,
    "stop": {
-    "stop_mode": null,
-    "stop_basis": "premium_unverified",
+    "stop_mode": "premium",
+    "stop_basis": "premium",
     "premium_stop_pct": -0.5,
     "stop_premium": 0.395,
     "source": "default",
+    "stop_mode_source": "ticks",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4329,11 +4458,12 @@
    "time_to_mfe_min": null,
    "mfe_before_first_exit": null,
    "stop": {
-    "stop_mode": null,
-    "stop_basis": "premium_unverified",
+    "stop_mode": "premium",
+    "stop_basis": "premium",
     "premium_stop_pct": -0.5,
     "stop_premium": 0.38,
     "source": "default",
+    "stop_mode_source": "ticks",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4367,6 +4497,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.39,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4395,11 +4526,12 @@
    "time_to_mfe_min": 1,
    "mfe_before_first_exit": true,
    "stop": {
-    "stop_mode": null,
-    "stop_basis": "premium_unverified",
+    "stop_mode": "premium",
+    "stop_basis": "premium",
     "premium_stop_pct": -0.5,
     "stop_premium": 0.4,
     "source": "default",
+    "stop_mode_source": "ticks",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4428,11 +4560,12 @@
    "time_to_mfe_min": 3,
    "mfe_before_first_exit": true,
    "stop": {
-    "stop_mode": null,
-    "stop_basis": "premium_unverified",
+    "stop_mode": "premium",
+    "stop_basis": "premium",
     "premium_stop_pct": -0.5,
     "stop_premium": 0.745,
     "source": "default",
+    "stop_mode_source": "ticks",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4461,11 +4594,12 @@
    "time_to_mfe_min": null,
    "mfe_before_first_exit": null,
    "stop": {
-    "stop_mode": null,
-    "stop_basis": "premium_unverified",
+    "stop_mode": "premium",
+    "stop_basis": "premium",
     "premium_stop_pct": -0.5,
     "stop_premium": 0.695,
     "source": "default",
+    "stop_mode_source": "ticks",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4494,11 +4628,12 @@
    "time_to_mfe_min": 1,
    "mfe_before_first_exit": false,
    "stop": {
-    "stop_mode": null,
-    "stop_basis": "premium_unverified",
+    "stop_mode": "premium",
+    "stop_basis": "premium",
     "premium_stop_pct": -0.5,
     "stop_premium": 0.64,
     "source": "default",
+    "stop_mode_source": "ticks",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4532,6 +4667,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.165,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4560,11 +4696,12 @@
    "time_to_mfe_min": 1,
    "mfe_before_first_exit": false,
    "stop": {
-    "stop_mode": null,
-    "stop_basis": "premium_unverified",
+    "stop_mode": "premium",
+    "stop_basis": "premium",
     "premium_stop_pct": -0.5,
     "stop_premium": 0.72,
     "source": "default",
+    "stop_mode_source": "ticks",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4593,11 +4730,12 @@
    "time_to_mfe_min": 4,
    "mfe_before_first_exit": true,
    "stop": {
-    "stop_mode": null,
-    "stop_basis": "premium_unverified",
+    "stop_mode": "premium",
+    "stop_basis": "premium",
     "premium_stop_pct": -0.5,
     "stop_premium": 0.675,
     "source": "default",
+    "stop_mode_source": "ticks",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4626,11 +4764,12 @@
    "time_to_mfe_min": 1,
    "mfe_before_first_exit": true,
    "stop": {
-    "stop_mode": null,
-    "stop_basis": "premium_unverified",
+    "stop_mode": "premium",
+    "stop_basis": "premium",
     "premium_stop_pct": -0.5,
     "stop_premium": 0.62,
     "source": "default",
+    "stop_mode_source": "ticks",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4664,6 +4803,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.64,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -4697,6 +4837,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.685,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -4730,6 +4871,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.22,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -4763,6 +4905,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.215,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4796,6 +4939,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.215,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4829,6 +4973,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.575,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4862,6 +5007,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.495,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -4890,11 +5036,12 @@
    "time_to_mfe_min": 1,
    "mfe_before_first_exit": false,
    "stop": {
-    "stop_mode": null,
-    "stop_basis": "premium_unverified",
+    "stop_mode": "premium",
+    "stop_basis": "premium",
     "premium_stop_pct": -0.5,
     "stop_premium": 0.565,
     "source": "default",
+    "stop_mode_source": "ticks",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4928,6 +5075,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.155,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4956,11 +5104,12 @@
    "time_to_mfe_min": 88,
    "mfe_before_first_exit": true,
    "stop": {
-    "stop_mode": null,
-    "stop_basis": "premium_unverified",
+    "stop_mode": "structure",
+    "stop_basis": "structure_catastrophe_cap",
     "premium_stop_pct": -0.5,
     "stop_premium": 0.69,
     "source": "default",
+    "stop_mode_source": "ticks",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -4989,11 +5138,12 @@
    "time_to_mfe_min": 1,
    "mfe_before_first_exit": false,
    "stop": {
-    "stop_mode": null,
-    "stop_basis": "premium_unverified",
+    "stop_mode": "premium",
+    "stop_basis": "premium",
     "premium_stop_pct": -0.5,
     "stop_premium": 0.425,
     "source": "default",
+    "stop_mode_source": "ticks",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -5027,6 +5177,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.78,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -5060,6 +5211,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.78,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -5093,6 +5245,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.425,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -5126,6 +5279,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.42,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -5159,6 +5313,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.421,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -5192,6 +5347,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.928,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -5225,6 +5381,7 @@
     "premium_stop_pct": -0.2,
     "stop_premium": 0.832,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": true
    },
    "recency": "recent25"
@@ -5258,6 +5415,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.165,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -5291,6 +5449,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.15,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"
@@ -5324,6 +5483,7 @@
     "premium_stop_pct": -0.5,
     "stop_premium": 0.26,
     "source": "placement",
+    "stop_mode_source": "placement",
     "stop_inside_mae": false
    },
    "recency": "recent25"

@@ -21,6 +21,7 @@ this ledger as its evidence base:
 """
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -185,10 +186,189 @@ def test_stop_basis_labels_structure_mode_as_catastrophe_cap():
     -- mislabelling it would let a reader 'validate' a stop that never existed."""
     s = pl.stop_fields(1.0, {"stop_mode": "structure"}, None)
     assert s["stop_basis"] == "structure_catastrophe_cap"
+    assert s["stop_mode_source"] == "placement"
     s = pl.stop_fields(1.0, {"stop_mode": "premium"}, None)
     assert s["stop_basis"] == "premium"
+    assert s["stop_mode_source"] == "placement"
     s = pl.stop_fields(1.0, None, None)                      # stop_mode unrecoverable
     assert s["stop_basis"] == "premium_unverified"
+    assert s["stop_mode_source"] == "unrecoverable"
+
+
+# ---------------------------------------------------------------------------------
+# 4b. STOP_MODE RECOVERY FROM exit_pass TICK HISTORY (2026-08-01 review fix)
+# ---------------------------------------------------------------------------------
+
+def _tick(stop_mode=None, actions=None) -> dict:
+    return {"stop_mode": stop_mode, "actions": actions or []}
+
+
+def test_recover_stop_mode_empty_trace_is_unrecoverable():
+    """No trace at all (position had no matched exit_pass ticks) -- honest absence, no guess."""
+    assert pl.recover_stop_mode_from_exit_trace([]) == (None, "unrecoverable")
+
+
+def test_recover_stop_mode_from_agreeing_ticks():
+    """The common case for positions after the 2026-07-09 visibility build: every non-null
+    tick agrees -- that value IS the position's stop_mode (resolved once at from_entry)."""
+    trace = [_tick(stop_mode=None), _tick(stop_mode="premium"), _tick(stop_mode="premium")]
+    assert pl.recover_stop_mode_from_exit_trace(trace) == ("premium", "ticks")
+    trace2 = [_tick(stop_mode="structure")]
+    assert pl.recover_stop_mode_from_exit_trace(trace2) == ("structure", "ticks")
+
+
+def test_recover_stop_mode_disagreeing_ticks_is_contradiction_not_a_guess():
+    """stop_mode is resolved ONCE at from_entry and never re-evaluated mid-trade
+    (exit_manager.py's own invariant) -- if ticks ever disagree, that invariant broke.
+    Surfaced loudly as a distinct 'contradiction' state, never resolved by picking either
+    value (majority vote, first-seen, last-seen -- all would be a guess)."""
+    trace = [_tick(stop_mode="premium"), _tick(stop_mode="structure")]
+    assert pl.recover_stop_mode_from_exit_trace(trace) == (None, "contradiction")
+
+
+def test_recover_stop_mode_structure_action_is_unambiguous_even_with_no_tick_field():
+    """Pre-2026-07-09 positions never logged the stop_mode field at all, but a fired
+    structure_stop action is STILL unambiguous evidence: exit_manager.py only ever emits that
+    stage when state.stop_mode == 'structure'."""
+    trace = [_tick(actions=[{"stage": "trail"}]),
+             _tick(actions=[{"kind": "SELL_ALL", "stage": "structure_stop",
+                            "reason": "structure_stop @ 750.3"}])]
+    assert pl.recover_stop_mode_from_exit_trace(trace) == ("structure", "structure_action")
+
+
+def test_recover_stop_mode_premium_stop_action_is_NOT_evidence_of_premium_mode():
+    """THE subtle judgment call this function encodes: a 'premium_stop' stage action does
+    NOT imply stop_mode=='premium' -- the SAME stage label fires as the -50% catastrophe cap
+    in structure mode too (EXITMGR-STAGE-LABEL-CONFLATION, exit_manager.py 2026-07-23).
+    Using it as recovery evidence would silently mislabel catastrophe-cap exits as verified
+    premium-mode stops. A trace with ONLY a premium_stop action (no tick field, no
+    structure_stop action) must stay unrecoverable."""
+    trace = [_tick(actions=[{"kind": "SELL_ALL", "stage": "premium_stop",
+                            "reason": "premium_stop @ 0.17"}])]
+    assert pl.recover_stop_mode_from_exit_trace(trace) == (None, "unrecoverable")
+
+
+def test_stop_fields_recovers_from_exit_trace_when_placement_lacks_it():
+    """Integration: stop_fields falls back to the trace when placement has nothing -- the
+    exact 89+34-row gap this fix closes (placement found but pre-visibility-build, or no
+    placement at all but management ticks still exist)."""
+    s = pl.stop_fields(1.0, None, None,
+                       exit_trace=[_tick(stop_mode="premium"), _tick(stop_mode="premium")])
+    assert s["stop_basis"] == "premium"
+    assert s["stop_mode"] == "premium"
+    assert s["stop_mode_source"] == "ticks"
+
+
+def test_stop_fields_placement_always_wins_over_trace_recovery():
+    """Precedence pin: a placement-provided stop_mode is NEVER overridden by trace recovery,
+    even if they'd disagree -- placement is the as-placed, most-authoritative record; the
+    trace is only a fallback for when placement had nothing to say."""
+    s = pl.stop_fields(1.0, {"stop_mode": "premium"}, None,
+                       exit_trace=[_tick(stop_mode="structure")])
+    assert s["stop_mode"] == "premium"
+    assert s["stop_mode_source"] == "placement"
+
+
+def test_build_rows_wires_exit_trace_for_into_recovery():
+    """End-to-end: build_rows must actually call the injected exit_trace_for and let it
+    recover a row that would otherwise land in premium_unverified."""
+    pos = _pos(symbol="SPY260731C00750000")
+    built = pl.build_rows(
+        [pos], bars_for=lambda p: _good_bars(), placement_for=lambda p: None, patches={},
+        setup_for=lambda p, placement: None,
+        exit_trace_for=lambda p: [_tick(stop_mode="structure")],
+    )
+    assert built["n_scored"] == 1
+    assert built["rows"][0]["stop"]["stop_basis"] == "structure_catastrophe_cap"
+    assert built["rows"][0]["stop"]["stop_mode_source"] == "ticks"
+
+
+def test_build_rows_default_exit_trace_for_matches_pre_fix_behavior():
+    """Backward compatibility: a caller that never passes exit_trace_for (every pre-2026-08-01
+    call site, and any future one that doesn't need recovery) gets the EXACT pre-fix
+    behavior -- no trace, no recovery attempt, premium_unverified exactly as before."""
+    pos = _pos(symbol="SPY260731C00751000")
+    built = pl.build_rows([pos], bars_for=lambda p: _good_bars(), placement_for=lambda p: None,
+                          patches={}, setup_for=lambda p, placement: None)
+    assert built["rows"][0]["stop"]["stop_basis"] == "premium_unverified"
+    assert built["rows"][0]["stop"]["stop_mode_source"] == "unrecoverable"
+
+
+# ---------------------------------------------------------------------------------
+# 4c. MIN-POPULATION FLOOR (2026-08-01 review fix)
+# ---------------------------------------------------------------------------------
+
+def test_population_floor_ok_no_prior_always_passes():
+    """First-ever build (or an unreadable prior, per _read_prior_n_scored's own fail-open) --
+    nothing to compare against, never blocks a bootstrap."""
+    out = pl.population_floor_ok(None, 0)
+    assert out == {"ok": True, "floor": None}
+    out2 = pl.population_floor_ok(None, 999)
+    assert out2 == {"ok": True, "floor": None}
+
+
+def test_population_floor_ok_boundary_exact():
+    """At n=160 the floor is ceil(160*0.90)=144: 144 passes, 143 does not."""
+    assert pl.population_floor_ok(160, 144) == {"ok": True, "floor": 144}
+    assert pl.population_floor_ok(160, 143) == {"ok": False, "floor": 144}
+    assert pl.population_floor_ok(160, 160) == {"ok": True, "floor": 144}
+    assert pl.population_floor_ok(160, 200) == {"ok": True, "floor": 144}  # growth always OK
+
+
+def test_population_floor_ok_zero_prior_imposes_no_floor():
+    assert pl.population_floor_ok(0, 0) == {"ok": True, "floor": 0}
+
+
+def test_read_prior_n_scored_missing_file_is_none(tmp_path):
+    assert pl._read_prior_n_scored(tmp_path / "does-not-exist.json") is None
+
+
+def test_read_prior_n_scored_corrupt_json_is_none(tmp_path):
+    p = tmp_path / "corrupt.json"
+    p.write_text("{not valid json", encoding="utf-8")
+    assert pl._read_prior_n_scored(p) is None
+
+
+def test_read_prior_n_scored_reads_real_shape(tmp_path):
+    p = tmp_path / "ledger.json"
+    p.write_text(json.dumps({"_meta": {"population": {"n_scored": 42}}}), encoding="utf-8")
+    assert pl._read_prior_n_scored(p) == 42
+
+
+def test_flag_population_floor_status_md_transition_only_no_respam(tmp_path):
+    """Byte-for-byte the same transition-only pattern as guard_runner_slow.py: the FIRST
+    trip appends one line under '## Known broken'; a SECOND trip (persisting failure) must
+    NOT append a second line."""
+    status_md = tmp_path / "STATUS.md"
+    status_md.write_text("# STATUS\n\n## Known broken\n\n(nothing yet)\n", encoding="utf-8")
+    state_path = tmp_path / ".floor-state.json"
+
+    pl._flag_population_floor_status_md("first trip", status_md=status_md, state_path=state_path)
+    text1 = status_md.read_text(encoding="utf-8")
+    assert text1.count("PAIN-LEDGER-POPULATION-FLOOR") == 1
+    assert "first trip" in text1
+
+    pl._flag_population_floor_status_md("second trip", status_md=status_md, state_path=state_path)
+    text2 = status_md.read_text(encoding="utf-8")
+    assert text2.count("PAIN-LEDGER-POPULATION-FLOOR") == 1   # NOT 2 -- no respam
+    assert "second trip" not in text2
+
+    # recovery clears the state; a THIRD, later trip is then a fresh transition again
+    pl._clear_population_floor_state(state_path=state_path)
+    pl._flag_population_floor_status_md("third trip", status_md=status_md, state_path=state_path)
+    text3 = status_md.read_text(encoding="utf-8")
+    assert text3.count("PAIN-LEDGER-POPULATION-FLOOR") == 2
+    assert "third trip" in text3
+
+
+def test_flag_population_floor_status_md_no_marker_is_a_noop(tmp_path):
+    """No '## Known broken' section in the target file -- fail open, never crash the nightly
+    fire over a missing marker in some other file."""
+    status_md = tmp_path / "STATUS.md"
+    status_md.write_text("# STATUS\n\nno marker here\n", encoding="utf-8")
+    state_path = tmp_path / ".floor-state.json"
+    pl._flag_population_floor_status_md("x", status_md=status_md, state_path=state_path)
+    assert status_md.read_text(encoding="utf-8") == "# STATUS\n\nno marker here\n"
 
 
 # ---------------------------------------------------------------------------------

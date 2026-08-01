@@ -77,6 +77,7 @@ if _os.path.basename(_sys.executable).lower().startswith("pythonw"):
 
 import argparse
 import json
+import math
 import sys
 import time as _time_mod
 from datetime import datetime
@@ -91,9 +92,21 @@ for _p in (REPO / "backtest" / "tools", REPO / "automation" / "state" / "fleet",
 from et_clock import et_now  # noqa: E402
 
 LEDGER_OUT = REPO / "analysis" / "pain-ledger" / "mae-mfe.json"
+LEDGER_CANDIDATE = REPO / "analysis" / "pain-ledger" / "mae-mfe.json.candidate"
+FLOOR_GUARD_STATE = REPO / "analysis" / "pain-ledger" / ".mae-mfe-floor-state.json"
+STATUS_MD = REPO / "automation" / "overnight" / "STATUS.md"
 PREREG = "analysis/pain-ledger/PREREG-2026-08-01.md"
 RECENT_N_DATES = 25            # frozen in the prereg: recent-25-distinct-ET-dates vs older
 SMALL_N = 5                    # report cells below this n are flagged, never dropped
+# MIN-POPULATION FLOOR (2026-08-01, review fix): this ledger's population is every closed
+# engine position EVER -- monotonically growing under normal operation (new trades close
+# every day; the only path DOWN is a transient OPRA-cache miss moving a handful of rows into
+# n_no_bars, or a real bug). A single-rebuild drop below 90% of the prior on-disk n_scored is
+# therefore treated as a bug signal, not honest population noise: 90% gives headroom for a
+# handful of cache misses (at n=160 that is up to 16 rows) while still catching the class of
+# failure this guard exists for (a read/date-range bug silently truncating the population).
+# Documented here, not tuned post-hoc against any specific run.
+MIN_POPULATION_RETENTION_FRAC = 0.90
 _EPS = 1e-9
 
 DESCRIPTIVE_BANNER = (
@@ -184,7 +197,53 @@ def excursion_metrics(entry_price: float, qty: float, entry_ts_utc: str,
     return out
 
 
-def stop_fields(entry_price: float, placement: dict | None, arm_patch: dict | None) -> dict:
+def recover_stop_mode_from_exit_trace(trace: list[dict]) -> tuple[str | None, str]:
+    """PURE: derive stop_mode from the engine's own exit_pass tick history for a position,
+    for use when the ENTRY decision's placement/exec block didn't carry it directly (review
+    finding, 2026-08-01: 123/160 rows landed in premium_unverified -- 89 had a `placement`
+    block but it predated the 2026-07-09 visibility build (no `stop_mode` key at all), 34 had
+    no matching ENTER row, or only an `exec`-shaped block, which never carried the key).
+
+    `trace` is winner_autopsy.load_exit_trace(arm_rows, symbol)'s output: one dict per tick,
+    each with `stop_mode` (may be None) and `actions` (list of {"stage": ..., ...}).
+
+    Two INDEPENDENT signals, most direct first, NEITHER is a guess:
+      1. exit_pass[].stop_mode -- the engine's own resolved-at-entry stop_mode, tick-logged
+         since the 2026-07-09 visibility build (automation/state/fleet/exit_actuator.py:338).
+         If every non-null tick value AGREES, that IS the position's stop_mode (it is
+         resolved ONCE at from_entry and never re-evaluated mid-trade -- exit_manager.py's
+         own invariant) -- return it, source="ticks". Disagreement across ticks would mean
+         that invariant broke; this is surfaced as ("contradiction"), never silently resolved
+         by picking one.
+      2. A "structure_stop" action stage anywhere in the trace is UNAMBIGUOUS even with no
+         tick-level field: exit_manager.py's structure-stop branch fires ONLY when
+         `state.stop_mode == "structure"` (see plan_exit_actions), so its presence proves
+         structure mode regardless of when it was logged. The CONVERSE is deliberately NOT
+         used: a "premium_stop" stage does NOT imply stop_mode=="premium" -- the identical
+         stage label also fires as the -50% catastrophe cap in structure mode
+         (EXITMGR-STAGE-LABEL-CONFLATION, exit_manager.py 2026-07-23), so it is ambiguous and
+         is never treated as recovery evidence here.
+
+    Neither present -> (None, "unrecoverable"). NEVER guesses (no date-based heuristic, no
+    majority vote, no "premium_stop fired so it must be premium mode") -- an unrecoverable
+    row stays premium_unverified, honestly, exactly as before this function existed.
+    """
+    tick_modes = sorted({t["stop_mode"] for t in trace if t.get("stop_mode") is not None})
+    if len(tick_modes) == 1:
+        return tick_modes[0], "ticks"
+    if len(tick_modes) > 1:
+        return None, "contradiction"
+    has_structure_action = any(
+        a.get("stage") == "structure_stop"
+        for t in trace for a in (t.get("actions") or [])
+    )
+    if has_structure_action:
+        return "structure", "structure_action"
+    return None, "unrecoverable"
+
+
+def stop_fields(entry_price: float, placement: dict | None, arm_patch: dict | None,
+                exit_trace: list[dict] | None = None) -> dict:
     """PURE: the as-configured-at-the-time stop, in premium terms, layered exactly like the
     live actuator resolves it (winner_autopsy.resolve_shipped_shape: engine default <- arm
     exit_patch <- as-placed placement block, most authoritative last).
@@ -194,6 +253,14 @@ def stop_fields(entry_price: float, placement: dict | None, arm_patch: dict | No
       structure_catastrophe_cap-- stop_mode 'structure': the operative stop was a chart
                                   level; the premium number is only the -50% catastrophe cap.
       premium_unverified       -- stop_mode unrecoverable: premium math shown, provenance not.
+
+    `exit_trace` (optional, 2026-08-01 recovery fix): when the placement block doesn't carry
+    stop_mode directly, falls back to recover_stop_mode_from_exit_trace(exit_trace) -- NEVER
+    overrides a placement-provided value (placement stays most-authoritative; the fallback
+    only fires when placement had nothing to say). `stop_mode_source` in the return dict
+    records exactly which of {placement, ticks, structure_action, contradiction,
+    unrecoverable} produced the value, so a reader can always tell a directly-observed
+    stop_mode from a recovered one.
     """
     import winner_autopsy as wa
     shape = wa.resolve_shipped_shape(placement, arm_patch)
@@ -205,6 +272,10 @@ def stop_fields(entry_price: float, placement: dict | None, arm_patch: dict | No
     else:
         source = "default"
     stop_mode = (placement or {}).get("stop_mode")
+    if stop_mode is not None:
+        stop_mode_source = "placement"
+    else:
+        stop_mode, stop_mode_source = recover_stop_mode_from_exit_trace(exit_trace or [])
     if stop_mode == "structure":
         basis = "structure_catastrophe_cap"
     elif stop_mode == "premium":
@@ -212,7 +283,8 @@ def stop_fields(entry_price: float, placement: dict | None, arm_patch: dict | No
     else:
         basis = "premium_unverified"
     return {"stop_mode": stop_mode, "stop_basis": basis, "premium_stop_pct": pct,
-            "stop_premium": round(entry_price * (1.0 + pct), 4), "source": source}
+            "stop_premium": round(entry_price * (1.0 + pct), 4), "source": source,
+            "stop_mode_source": stop_mode_source}
 
 
 def stop_inside_mae(min_low: float | None, stop_premium: float | None) -> bool | None:
@@ -239,6 +311,20 @@ def recent_older_split(all_dates: list[str], n_recent: int = RECENT_N_DATES) -> 
     distinct = sorted(set(all_dates))
     recent = set(distinct[-n_recent:]) if n_recent > 0 else set()
     return recent, set(distinct) - recent
+
+
+def population_floor_ok(prior_n_scored: int | None, new_n_scored: int,
+                        retention_frac: float = MIN_POPULATION_RETENTION_FRAC) -> dict:
+    """PURE: the min-population-floor decision (see MIN_POPULATION_RETENTION_FRAC docstring
+    for why 90%). No prior population (first-ever build, or an unreadable/missing prior file
+    -- the caller's job to decide that, not this function's) always passes: this guard exists
+    to catch a rebuild silently LOSING data relative to a known-good prior, not to block a
+    bootstrap. Returns {"ok": bool, "floor": int|None} -- floor is None exactly when there
+    was no prior to compare against."""
+    if prior_n_scored is None:
+        return {"ok": True, "floor": None}
+    floor = math.ceil(prior_n_scored * retention_frac)
+    return {"ok": new_n_scored >= floor, "floor": floor}
 
 
 def percentile(sorted_vals: list[float], p: float) -> float | None:
@@ -272,13 +358,17 @@ def dist(values: list[float]) -> dict:
 
 
 def build_rows(positions: list[dict], bars_for, placement_for, patches: dict,
-               setup_for) -> dict:
+               setup_for, exit_trace_for=lambda pos: []) -> dict:
     """Assemble every ledger row + the exclusion counters. All I/O is INJECTED (bars_for /
-    placement_for / setup_for are callables) so the guard suite can drive this with fixtures
-    and the accounting invariant is testable end-to-end:
+    placement_for / setup_for / exit_trace_for are callables) so the guard suite can drive
+    this with fixtures and the accounting invariant is testable end-to-end:
 
         n_positions == n_scored + n_no_bars + n_no_window + n_bad_entry   (asserted)
-    """
+
+    exit_trace_for (2026-08-01, additive): pos -> winner_autopsy.load_exit_trace(...)-shaped
+    list, fed to stop_fields as the premium_unverified recovery fallback. Defaults to "no
+    trace available" (matches pre-2026-08-01 behavior exactly for any caller that doesn't
+    pass it)."""
     rows: list[dict] = []
     no_bars: list[str] = []
     no_window: list[str] = []
@@ -301,7 +391,8 @@ def build_rows(positions: list[dict], bars_for, placement_for, patches: dict,
             no_window.append(tag)
             continue
         placement = placement_for(pos)
-        stop = stop_fields(entry_price, placement, patches.get(pos["arm"]))
+        stop = stop_fields(entry_price, placement, patches.get(pos["arm"]),
+                           exit_trace=exit_trace_for(pos))
         stop["stop_inside_mae"] = stop_inside_mae(core["min_low"], stop["stop_premium"])
         realized = round(float(pos["actual_exit_pnl"]), 2)
         rows.append({
@@ -337,6 +428,59 @@ def _load_all_positions() -> list[dict]:
     for d in sorted(wa._all_ledger_dates()):
         positions.extend(ta.load_engine_positions(d))
     return positions
+
+
+def _read_prior_n_scored(out_path: Path) -> int | None:
+    """I/O: n_scored from the ledger currently on disk. None on no-prior-file OR any read/
+    parse failure -- fails OPEN (population_floor_ok(None, ...) always passes): this guard
+    protects against a rebuild silently losing data relative to a known-good prior, not
+    against a corrupt-file edge case it has no evidence to judge."""
+    try:
+        prior = json.loads(out_path.read_text(encoding="utf-8"))
+        return int(prior["_meta"]["population"]["n_scored"])
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+
+
+def _flag_population_floor_status_md(summary_line: str, status_md: Path = STATUS_MD,
+                                     state_path: Path = FLOOR_GUARD_STATE) -> None:
+    """Append ONE loud line under '## Known broken' on a transition into blocked -- byte-for-
+    byte the same transition-only, no-respam pattern as setup/guard_runner_slow.py::
+    _flag_status_md (and backtest/autoresearch/gate_expiry_check.py's copy of it). A tiny
+    sidecar state file (not the candidate ledger itself, which is always overwritten with the
+    latest blocked attempt) tracks whether the PREVIOUS run was already blocked, so a
+    persisting failure gets exactly one STATUS.md line, not one per night."""
+    try:
+        was_blocked = json.loads(state_path.read_text(encoding="utf-8")).get("blocked", False)
+    except (OSError, ValueError):
+        was_blocked = False
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    state_path.write_text(json.dumps({"blocked": True, "at_et": et_now().isoformat()}),
+                          encoding="utf-8")
+    if was_blocked:
+        return   # persisting failure, already flagged -- don't re-spam
+    try:
+        text = status_md.read_text(encoding="utf-8")
+    except OSError:
+        return
+    marker = "## Known broken"
+    if marker not in text:
+        return
+    line = (f"- [{et_now().isoformat()}] PAIN-LEDGER-POPULATION-FLOOR RED :: {summary_line} :: "
+            "re-run: backtest\\.venv\\Scripts\\python.exe setup\\scripts\\pain_ledger.py")
+    head, _, tail = text.partition(marker + "\n")
+    status_md.write_text(f"{head}{marker}\n\n{line}\n{tail.lstrip(chr(10))}", encoding="utf-8")
+
+
+def _clear_population_floor_state(state_path: Path = FLOOR_GUARD_STATE) -> None:
+    """On a build that clears the floor: mark not-blocked (so a FUTURE trip is a fresh
+    transition, not suppressed as a continuation of an old one) -- mirrors WATCH_SLOW's
+    unconditional-write-every-run pattern in guard_runner_slow.py."""
+    try:
+        state_path.parent.mkdir(parents=True, exist_ok=True)
+        state_path.write_text(json.dumps({"blocked": False}), encoding="utf-8")
+    except OSError:
+        pass
 
 
 def build_ledger(bar_cache: dict | None = None, out_path: Path = LEDGER_OUT) -> dict:
@@ -378,7 +522,15 @@ def build_ledger(bar_cache: dict | None = None, out_path: Path = LEDGER_OUT) -> 
             return row.get("setup_name") or row.get("setup")
         return ta.lookup_strategy(pos["arm"], pos["symbol"], pos["entry_ts_utc"])
 
-    built = build_rows(positions, bars_for, placement_for, patches, setup_for)
+    def exit_trace_for(pos: dict) -> list[dict]:
+        # 2026-08-01 stop_mode recovery fallback (see recover_stop_mode_from_exit_trace):
+        # scans the SAME cached arm_rows placement_for/setup_for already load for this
+        # arm+date, so this costs zero extra I/O. Independent of find_entry_decision -- a
+        # position with no matched ENTER row can still have exit_pass ticks (they are logged
+        # by every subsequent MANAGEMENT tick, not just the entry one).
+        return wa.load_exit_trace(_arm_rows(pos), pos["symbol"])
+
+    built = build_rows(positions, bars_for, placement_for, patches, setup_for, exit_trace_for)
     dates = sorted({r["date"] for r in built["rows"]})
     recent, older = recent_older_split([r["date"] for r in built["rows"]])
     for r in built["rows"]:
@@ -425,16 +577,41 @@ def build_ledger(bar_cache: dict | None = None, out_path: Path = LEDGER_OUT) -> 
         },
         "trades": built["rows"],
     }
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(ledger, indent=1), encoding="utf-8")
-    summary = {
+    payload = json.dumps(ledger, indent=1)
+
+    # MIN-POPULATION FLOOR (2026-08-01): check BEFORE writing -- out_path must still hold the
+    # PRIOR build's content when _read_prior_n_scored reads it.
+    prior_n_scored = _read_prior_n_scored(out_path)
+    floor = population_floor_ok(prior_n_scored, built["n_scored"])
+    summary_base = {
         "generated_at_et": started.isoformat(),
-        "out": str(out_path.relative_to(REPO)).replace("\\", "/"),
         "n_positions": built["n_positions"], "n_scored": built["n_scored"],
         "n_no_bars": len(built["no_bars"]), "n_no_window": len(built["no_window"]),
         "n_bad_entry": len(built["bad_entry"]),
         "descriptive_only": True,
+        "population_floor": {"ok": floor["ok"], "prior_n_scored": prior_n_scored,
+                             "floor": floor["floor"]},
     }
+
+    if not floor["ok"]:
+        LEDGER_CANDIDATE.parent.mkdir(parents=True, exist_ok=True)
+        LEDGER_CANDIDATE.write_text(payload, encoding="utf-8")
+        msg = (f"rebuild scored {built['n_scored']} rows, prior on-disk had {prior_n_scored} "
+               f"(floor {floor['floor']}) -- wrote {LEDGER_CANDIDATE.name}, did NOT overwrite "
+               f"the live ledger ({out_path.name} left at its last-good state)")
+        _flag_population_floor_status_md(msg)
+        summary = {**summary_base, "out": None,
+                   "candidate": str(LEDGER_CANDIDATE.relative_to(REPO)).replace("\\", "/")}
+        print(f"[pain-ledger] POPULATION FLOOR TRIPPED -- {msg}")
+        return summary
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(payload, encoding="utf-8")
+    _clear_population_floor_state()
+    if LEDGER_CANDIDATE.exists():
+        LEDGER_CANDIDATE.unlink()   # clear a stale candidate from a now-resolved prior block
+
+    summary = {**summary_base, "out": str(out_path.relative_to(REPO)).replace("\\", "/")}
     print(f"[pain-ledger] {built['n_scored']}/{built['n_positions']} positions scored "
           f"({len(built['no_bars'])} no-bars, {len(built['no_window'])} no-window, "
           f"{len(built['bad_entry'])} bad-entry) -> {summary['out']}")
@@ -461,7 +638,15 @@ def _median_int(vals: list) -> str:
 
 
 def render_report(ledger: dict) -> str:
-    """The frozen report cuts (prereg §'Frozen report cuts'), ALL cells rendered."""
+    """The frozen report cuts (prereg §'Frozen report cuts'), ALL cells rendered.
+
+    WARNING (foot-gun hit 2026-08-01 during the stop_mode recovery fix): `--report` FULLY
+    REGENERATES the target file from this function alone -- any hand-authored addition made
+    on top of a prior render (e.g. a "Findings at a glance" summary, an independent
+    verification note) is NOT preserved and gets silently clobbered on the next `--report`
+    run. If analysis/deep-research/PAIN-LEDGER-2026-08-01.md (or any future report target)
+    carries hand-authored content, diff before overwriting and re-merge it -- this function
+    has no merge logic, only full replace."""
     meta = ledger["_meta"]
     rows = ledger["trades"]
     pop = meta["population"]
