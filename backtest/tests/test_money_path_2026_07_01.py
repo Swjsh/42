@@ -17,9 +17,14 @@ Pins, RED-on-regression:
     GATE_KEYS, so gates.py ran defaults [0.0, 999.0) and the elite-bull block applied at ALL
     VIX instead of the ratified band (Safe [0,25)).
 
-  FIX4 — vwap_continuation ARMED on Safe (J trade-to-learn mandate): params.json now carries
-    extra_setup_exec_armed.vwap_continuation=true; the routed _execute trades the VALIDATED
-    cell (WP-5 ATM strike override, qty=3). gap_and_go NOT armed; Bold NOT armed.
+  FIX4 — EXTRA-SETUP ARMING (was: "vwap_continuation ARMED on Safe", J trade-to-learn
+    mandate 2026-07-01). SUPERSEDED 2026-07-25, J-approved: vwap_continuation and
+    vix_regime_dayside were DISARMED after going 0-for-12 live (-$357; they caused 2 of the
+    3 losing days that week). This class now pins the LIVE arming map in both directions --
+    armed setups must route, disarmed setups must NOT -- rather than a frozen 07-01 snapshot.
+    Refreshed 2026-08-01 after the stale assertions had sat RED for a week, masking the rest
+    of this file. Mechanism guards use vwap_reclaim_failed_break (still armed) as their
+    vehicle. gap_and_go NOT armed; Bold NOT armed.
 
 Run:  backtest/.venv/Scripts/python.exe -m pytest -q backtest/tests/test_money_path_2026_07_01.py
 """
@@ -161,8 +166,12 @@ class TestEntryCeiling:
         assert out["status"] == "SKIP_LATE_ENTRY"
 
     def test_extra_route_late_fire_is_skip_late_entry(self, hc, monkeypatch):
-        """An ARMED vwap_continuation fire at 15:30 dies at _execute's ceiling check —
-        logged SKIP, no broker touch (the extra-setup route is covered too)."""
+        """An ARMED extra-setup fire at 15:30 dies at _execute's ceiling check —
+        logged SKIP, no broker touch (the extra-setup route is covered too).
+
+        Vehicle switched 2026-08-01 vwap_continuation -> vwap_reclaim_failed_break: the old
+        one was disarmed 2026-07-25, so this stopped exercising the entry ceiling at all and
+        was passing-by-the-wrong-reason territory."""
         import fleet_broker as fb
 
         def _boom(*a, **k):
@@ -171,8 +180,8 @@ class TestEntryCeiling:
         monkeypatch.setattr(hc, "_et_now", lambda: dt.datetime(2026, 7, 2, 15, 30))
         monkeypatch.setattr(hc, "_free_model_eval", lambda *a, **k: {"veto": False})
         monkeypatch.setattr(hc, "CORE_PLACES_ORDERS", True)
-        extra = [{"setup_name": "vwap_continuation", "fired": True, "direction": "short",
-                  "triggers": ["vwap_continuation"]}]
+        extra = [{"setup_name": "vwap_reclaim_failed_break", "fired": True, "direction": "short",
+                  "triggers": ["vwap_reclaim_failed_break"]}]
         out = hc._route_extra_setups("safe", extra, {"bar_ctx": {}}, SAFE_PARAMS)
         assert out[0]["action"] == "SKIP_LATE_ENTRY"
 
@@ -367,14 +376,32 @@ class TestGateKeysVixBand:
 # =============================================================================
 # FIX4 — vwap_continuation armed on Safe; validated cell (ATM strike, qty 3)
 # =============================================================================
-class TestVwapContinuationArmed:
-    def test_safe_params_arm_vwap_continuation_only(self, hc):
+class TestExtraSetupArming:
+    def test_safe_params_arming_matches_current_doctrine(self, hc):
+        """The arming map must match the CURRENT doctrine, not the 2026-07-01 one.
+
+        Refreshed 2026-08-01: this class originally asserted vwap_continuation was ARMED
+        (the J trade-to-learn mandate of 2026-07-01). It was DISARMED 2026-07-25, J-approved,
+        after 0-for-12 live (-$357 across vwap_continuation + vix_regime_dayside, which caused
+        2 of the 3 losing days that week -- see params.json
+        `_extra_setup_exec_armed_disarm_doc_2026_07_25`). The stale assertions sat RED for a
+        week and masked the rest of this file's signal. Asserting the LIVE arming map keeps
+        the guard load-bearing in both directions: an accidental re-arm now fails too.
+        """
         armed = SAFE_PARAMS.get("extra_setup_exec_armed")
-        assert isinstance(armed, dict) and armed.get("vwap_continuation") is True, \
-            "Safe params must arm vwap_continuation (J trade-to-learn mandate 2026-07-01)"
+        assert isinstance(armed, dict)
+        # Disarmed on live falsification -- must stay off until re-validated.
+        assert armed.get("vwap_continuation") is False, \
+            "vwap_continuation disarmed 2026-07-25 (0-for-12 live); re-arming needs a fresh scorecard"
+        assert armed.get("vix_regime_dayside") is False, \
+            "vix_regime_dayside disarmed 2026-07-25 (0-for-12 live)"
+        # Still armed at their validated cells.
+        assert armed.get("vwap_reclaim_failed_break") is True
+        # Never armed.
         assert armed.get("gap_and_go") is not True, \
             "gap_and_go must NOT be armed (0 robust cells on 06-28 re-validation + broken feed)"
-        assert hc._extra_exec_armed(SAFE_PARAMS, "vwap_continuation") is True
+        assert hc._extra_exec_armed(SAFE_PARAMS, "vwap_continuation") is False
+        assert hc._extra_exec_armed(SAFE_PARAMS, "vwap_reclaim_failed_break") is True
         assert hc._extra_exec_armed(SAFE_PARAMS, "gap_and_go") is False
 
     def test_bold_params_not_armed(self, hc):
@@ -385,8 +412,13 @@ class TestVwapContinuationArmed:
         assert SAFE_PARAMS["j_vwap_cont_strike_override_enabled"] is True
         assert SAFE_PARAMS["j_vwap_cont_strike_offset_safe"] == 0  # ATM
 
-    def test_fired_armed_vwap_routes_to_execute(self, hc, monkeypatch):
-        """Mission guard (d): fired + REAL-params-armed vwap_continuation reaches _execute."""
+    def test_fired_armed_setup_routes_to_execute(self, hc, monkeypatch):
+        """Mission guard (d): fired + REAL-params-armed extra setup reaches _execute.
+
+        Vehicle switched 2026-08-01 from vwap_continuation to vwap_reclaim_failed_break --
+        the mechanism under test is the ARMED routing path, and the old vehicle was disarmed
+        2026-07-25, which silently turned this mechanism guard into a params assertion.
+        """
         captured: dict = {}
 
         def fake_execute(account, verdict, payload, params, *, dry):
@@ -397,12 +429,27 @@ class TestVwapContinuationArmed:
         monkeypatch.setattr(hc, "_free_model_eval", lambda *a, **k: {"veto": False})
         monkeypatch.setattr(hc, "CORE_PLACES_ORDERS", True)
         monkeypatch.setattr(hc, "_et_now", lambda: dt.datetime(2026, 7, 2, 11, 0))
+        extra = [{"setup_name": "vwap_reclaim_failed_break", "fired": True, "direction": "short",
+                  "triggers": ["vwap_reclaim_failed_break"]}]
+        out = hc._route_extra_setups("safe", extra, {"bar_ctx": {}}, SAFE_PARAMS)
+        assert captured["verdict"]["verdict"] == "ENTER_BEAR"
+        assert captured["verdict"]["setup_name"] == "vwap_reclaim_failed_break"
+        assert out[0]["action"] == "WOULD_PLACE"
+
+    def test_fired_but_disarmed_setup_does_not_execute(self, hc, monkeypatch):
+        """The other half of the arming invariant, and the one that now matters most:
+        a DISARMED setup that fires must never reach _execute, even with orders enabled.
+        Added 2026-08-01 -- disarming is a live risk control (0-for-12, -$357), so it needs
+        a guard, not just a config value."""
+        monkeypatch.setattr(hc, "_execute",
+                            lambda *a, **k: pytest.fail("disarmed setup must not execute"))
+        monkeypatch.setattr(hc, "_free_model_eval", lambda *a, **k: {"veto": False})
+        monkeypatch.setattr(hc, "CORE_PLACES_ORDERS", True)
+        monkeypatch.setattr(hc, "_et_now", lambda: dt.datetime(2026, 7, 2, 11, 0))
         extra = [{"setup_name": "vwap_continuation", "fired": True, "direction": "short",
                   "triggers": ["vwap_continuation"]}]
         out = hc._route_extra_setups("safe", extra, {"bar_ctx": {}}, SAFE_PARAMS)
-        assert captured["verdict"]["verdict"] == "ENTER_BEAR"
-        assert captured["verdict"]["setup_name"] == "vwap_continuation"
-        assert out[0]["action"] == "WOULD_PLACE"
+        assert out == [{"setup": "vwap_continuation", "action": "WATCH_NOT_ARMED"}]
 
     def test_missing_key_stays_watch_not_armed(self, hc, monkeypatch):
         """Mission guard (d): without the armed key the same fire is WATCH-only."""
