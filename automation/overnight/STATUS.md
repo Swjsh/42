@@ -1,3 +1,38 @@
+## [2026-08-01 14:43 ET] NULL (deliverable) -- WEEKEND-TWELVE Next-Twelve #7: shelf bistability SOURCE-FIX A/B -- hysteresis-only STANDS
+
+**All 3 source-fix arms unanimously FAIL the pre-registered steady-state-fidelity gate; WS3's
+hysteresis (`114a7a6b`) is not just a stopgap -- on this evidence it is currently BETTER
+calibrated than any of the three natural source-level alternatives.** `daily_context.py` /
+`refresh_levels_intraday.py` untouched (git diff empty, guard-pinned).
+
+- **Mechanism named + reproduced:** `daily_context._merge_shelf_candidates` re-derives shelf
+  zones every 5-min refresh with today's still-forming daily bar as both seed and
+  touch-counter; concrete flip quoted (2026-07-31 09:43->09:48 ET, forming-bar low
+  $742.79->$741.98, ONE ordinary 5m bar, no level broken) with exact candidate touch counts,
+  validated 81.8% (63/77 fires) against the real observed production A/B sequence.
+- **Prereg-first, git-provable:** prereg `07697c7d` (et_clock 14:23:21, BEFORE runner) ->
+  runner `52a26e91`. Full 391-day population, real SIP daily bars (fetched fresh) + real
+  5m SPY/OPRA, 77 simulated fires/day, REAL unmodified `_hysteresis_carry` driven over each
+  arm. $0, pure Python, 63.5s runtime.
+- **All 3 arms (ARM_A incumbent-tie-break, ARM_B exclude-forming-bar, ARM_AB both) cut
+  flicker hard** (written flips -25% to -83% full-pop, -41% to -91% recent-25) **and improve
+  proxy entry-population real-OPRA P&L** (+$1,438 to +$4,442 full-pop, all positive
+  recent-25) **-- but ALL THREE fail steady-state fidelity:** 198-276/391 days (51-71%) show a
+  level whose end-of-session identity permanently differs from baseline, median $0.52-0.58.
+  By 15:53 ET today's forming bar is real, completed price action -- baseline legitimately
+  uses it as a tie-break; every tested arm's "stability" mechanism resolves the same contested
+  regions toward a DIFFERENT stable point instead. Structural trade-off, not a single-arm bug.
+- **Guard suite (6 tests, RED-proofed) caught a real bug before any number was trusted:**
+  ARM_A's first-draft incumbent match used band-overlap (too loose in a contested region --
+  every candidate overlaps every other there by definition), silently defeating the tie-break;
+  fixed to mid-within-$0.10 identity (reuses `HYSTERESIS_MATCH_EPS`, zero new magic numbers),
+  full population re-run post-fix.
+- Artifacts: `analysis/recommendations/shelf-bistability-2026-08-01.{md,json}` + prereg.
+  Runner: `backtest/tools/shelf_bistability_source_fix_2026_08_01.py`. Guards:
+  `backtest/tests/test_shelf_bistability_2026_08_01.py` (6/6 green).
+
+---
+
 ## [2026-08-01 14:32 ET] SHIPPED -- WEEKEND-TWELVE Next-Twelve #3: shared-index absorption guard + 2 WS4 lessons (Next-Twelve #12 lesson half)
 
 **Guard shipped, not just proposed.** 5 confirmed shared-index-absorption incidents in one
