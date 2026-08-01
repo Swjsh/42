@@ -27,7 +27,7 @@
 | `safe-2` | `CORE-SAFE (KIQE)` | `PA3DHPT7KIQE` | production core Safe, live heartbeat |
 | `bold-2` | `CORE-BOLD (AT40)` | `PA33W2KUAT40` | production core Bold, live heartbeat |
 | `safe-3` | `FLEET-TIGHT-S (OB0Q)` | `PA32RD49OB0Q` | safe sizing, tight gate (fleet_rest) |
-| `risky-1` | `FLEET-TIGHT-R (8G19)` | `PA3W17FD8G19` | risky sizing, tight gate (fleet_rest) |
+| `risky-1` | `FLEET-FULLSEND-R (8G19)` | `PA3W17FD8G19` | FULL-SEND learning arm since 2026-07-31 (`e28d210c` — was `FLEET-TIGHT-R`, risky x tight): min-size, ATM, no cohort vetoes |
 | `risky-3` | `FLEET-LOOSE-R (X15Q)` | `PA31WIU8X15Q` | risky sizing, loose gate (fleet_rest); also the probe arm |
 | `safe-1` | `RETIRED (=CORE-SAFE acct KIQE)` | `PA3DHPT7KIQE` | **shares CORE-SAFE's account** — retired 2026-07-11, never places orders (status-gated), left in place as historical trading record |
 | `mes-mnq-div-futures` | `FUTURES-DIV (dormant, 3759)` | `5WW73759` (TT sandbox) | edge3 MES/MNQ divergence, `enabled=false` |

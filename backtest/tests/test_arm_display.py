@@ -46,7 +46,7 @@ class TestDisplayNameForArmId:
             "safe-2": "CORE-SAFE (KIQE)",
             "bold-2": "CORE-BOLD (AT40)",
             "safe-3": "FLEET-TIGHT-S (OB0Q)",
-            "risky-1": "FLEET-TIGHT-R (8G19)",
+            "risky-1": "FLEET-FULLSEND-R (8G19)",  # renamed 2026-07-31 (full-send arm, e28d210c)
             "risky-3": "FLEET-LOOSE-R (X15Q)",
             "safe-1": "RETIRED (=CORE-SAFE acct KIQE)",
             "mes-mnq-div-futures": "FUTURES-DIV (dormant, 3759)",
@@ -84,7 +84,7 @@ class TestDisplayNameForLabel:
 
     def test_fleet_prefixed_labels_from_fill_funnel(self):
         assert ad.display_name_for_label("fleet:safe-3") == "FLEET-TIGHT-S (OB0Q)"
-        assert ad.display_name_for_label("fleet:risky-1") == "FLEET-TIGHT-R (8G19)"
+        assert ad.display_name_for_label("fleet:risky-1") == "FLEET-FULLSEND-R (8G19)"
 
     def test_bare_arm_id_passthrough(self):
         assert ad.display_name_for_label("safe-2") == "CORE-SAFE (KIQE)"
