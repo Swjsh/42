@@ -1,6 +1,18 @@
 """TRADE-TO-LEARN guards for the 2026-07-01 batch-2 arming (J ratified: validated setups
 arm on PAPER even while recency is not CONFIRMed; strict gates apply to live money only).
 
+SUPERSEDED 2026-07-25, J-approved (refreshed here 2026-08-01 after sitting RED for a week):
+vix_regime_dayside and vwap_continuation were DISARMED FOR EXECUTION after going 0-for-12
+live (-$357 combined), which caused 2 of that week's 3 losing days — see params.json
+`_extra_setup_exec_armed_disarm_doc_2026_07_25`. This is an execution-arm change only
+(`extra_setup_exec_armed[setup]`): the underlying DETECTOR stays enabled (perception/WATCH
+continues — `j_vix_dayside_enabled` etc. are untouched on disk) and the validated cell
+configs (strike/stop/tp1) are untouched; disarming only stops a FIRED signal from reaching
+`_execute`. ARM1 (vwap_reclaim_failed_break) and ARM3 (double_bottom_base_quiet) remain
+armed for execution and are this file's routing-mechanism vehicles; vix_regime_dayside and
+vwap_continuation get their own disarmed-invariant guard instead
+(`test_fired_but_disarmed_setup_does_not_execute`) so an accidental re-arm still fails loud.
+
 Pins, RED-on-regression — three setups armed on SAFE ONLY, each at its VALIDATED cell
 (C29: cells don't transfer across strike tiers):
 
@@ -59,6 +71,12 @@ BOLD_PARAMS = json.loads(BOLD_PARAMS_PATH.read_text(encoding="utf-8"))
 
 _CREDS = {"key": "k", "secret": "s", "base_url": "https://paper-api.example.invalid"}
 
+# The original 2026-07-01 trade-to-learn DETECTOR trio (perception/WATCH -- j_*_enabled).
+# Detector-enable is decoupled from EXECUTION-arm (extra_setup_exec_armed[setup]): all three
+# stayed enabled here even after vix_regime_dayside's execution-arm was disarmed 2026-07-25,
+# so THE_THREE remains correct for detector-level assertions (test_bold_not_armed,
+# test_missing_armed_key_stays_watch_not_armed, the dispatch-inclusion test below). For the
+# CURRENT execution-arm state see TestParamsArming.test_safe_arming_matches_current_doctrine.
 THE_THREE = ("vwap_reclaim_failed_break", "vix_regime_dayside", "double_bottom_base_quiet")
 
 
@@ -97,6 +115,13 @@ def _wire_execute(hc, monkeypatch, tmp_path, *, equity="25000.0", manages_exits=
     monkeypatch.setattr(fb, "marketable_limit_price",
                         lambda c, s, side="buy", buffer=0.03: 1.08)
     monkeypatch.setattr(fb, "open_buy_orders", lambda c, s: [])
+    # ORDER-LEVEL IDEMPOTENCY GUARD (2026-08-02): this file is about trade-to-learn per-setup
+    # exit overrides, not the guard -- stub its two broker primitives to "confirmed clear"
+    # (see test_core_entry_idempotency_guard_2026_08_02.py for the guard's own dedicated
+    # coverage). hc.STATE is already sandboxed to tmp_path below, which is where the guard's
+    # claim file lives too -- no extra wiring needed.
+    monkeypatch.setattr(fb, "open_buy_orders_checked", lambda c, s: ([], True))
+    monkeypatch.setattr(fb, "symbol_position_qty_checked", lambda c, s: (0, True))
     monkeypatch.setattr(fb, "cancel_order", lambda *a, **k: {})
     monkeypatch.setattr(hc, "STATE", tmp_path)  # no circuit-breaker / kill-switch files
     # (_quality_lock_check monkeypatch removed -- lock DELETED 2026-07-02 per J directive)
@@ -121,12 +146,30 @@ def _wire_execute(hc, monkeypatch, tmp_path, *, equity="25000.0", manages_exits=
 # ARM0 — params.json pins (the arming state itself)
 # =============================================================================
 class TestParamsArming:
-    def test_safe_arms_all_three_plus_vwap_cont(self, hc):
+    def test_safe_arming_matches_current_doctrine(self, hc):
+        """The EXECUTION-arm map must match the LIVE doctrine, not the frozen 2026-07-01
+        snapshot.
+
+        Refreshed 2026-08-01: this test originally asserted THE_THREE + vwap_continuation
+        were ALL armed (the 2026-07-01 trade-to-learn batch). vix_regime_dayside and
+        vwap_continuation were DISARMED 2026-07-25, J-approved, after going 0-for-12 live
+        (-$357 combined -- vwap_continuation 7 trades 0% WR -$204, vix_regime_dayside 5
+        trades 0% WR -$153 -- causing 2 of the 3 losing days that week; see params.json
+        `_extra_setup_exec_armed_disarm_doc_2026_07_25`). The stale assertions sat RED for a
+        week, masking the rest of this file's signal. Asserting the LIVE map in BOTH
+        directions keeps this guard load-bearing either way: an accidental re-arm of the
+        disarmed pair, or an accidental disarm of the still-validated pair, both now fail.
+        """
         armed = SAFE_PARAMS.get("extra_setup_exec_armed")
         assert isinstance(armed, dict)
-        for s in THE_THREE + ("vwap_continuation",):
-            assert armed.get(s) is True, f"Safe must arm {s} (trade-to-learn 2026-07-01)"
+        # Still armed for execution -- unchanged 2026-07-01 validated cells.
+        for s in ("vwap_reclaim_failed_break", "double_bottom_base_quiet"):
+            assert armed.get(s) is True, f"Safe must keep {s} armed (still-validated cell)"
             assert hc._extra_exec_armed(SAFE_PARAMS, s) is True
+        # Disarmed 2026-07-25 on live falsification -- must stay off until re-validated.
+        for s in ("vix_regime_dayside", "vwap_continuation"):
+            assert armed.get(s) is False, f"{s} disarmed 2026-07-25 (0-for-12 live, -$357)"
+            assert hc._extra_exec_armed(SAFE_PARAMS, s) is False
         assert armed.get("gap_and_go") is not True, \
             "gap_and_go must NOT be armed (0 robust cells on 06-28 re-validation)"
 
@@ -165,13 +208,15 @@ class TestParamsArming:
 
 
 # =============================================================================
-# Routing — fired + REAL-disk-armed rows reach _execute; unarmed stays WATCH
+# Routing — fired + REAL-disk-EXECUTION-armed rows reach _execute; unarmed stays WATCH.
+# vix_regime_dayside removed 2026-08-01 (disarmed 2026-07-25) -- bear+bull mechanism
+# coverage is unaffected: vwap_reclaim_failed_break already exercises both directions
+# below. Its disarmed-invariant is covered instead by
+# test_fired_but_disarmed_setup_does_not_execute.
 # =============================================================================
 ROUTES = [
     ("vwap_reclaim_failed_break", "short", "ENTER_BEAR"),
     ("vwap_reclaim_failed_break", "long", "ENTER_BULL"),
-    ("vix_regime_dayside", "long", "ENTER_BULL"),
-    ("vix_regime_dayside", "short", "ENTER_BEAR"),
     ("double_bottom_base_quiet", "long", "ENTER_BULL"),  # calls-only bullish family
 ]
 
@@ -196,6 +241,24 @@ class TestRouting:
         assert captured["verdict"]["verdict"] == expected_verdict
         assert captured["verdict"]["setup_name"] == setup
         assert out[0]["action"] == "WOULD_PLACE"
+
+    @pytest.mark.parametrize("setup", ("vix_regime_dayside", "vwap_continuation"))
+    def test_fired_but_disarmed_setup_does_not_execute(self, hc, monkeypatch, setup):
+        """The other half of the arming invariant, against REAL disk params: a setup
+        DISARMED 2026-07-25 (extra_setup_exec_armed[setup] is False) must never reach
+        _execute, even when fired with orders enabled. Added 2026-08-01 -- disarming is a
+        live risk control (0-for-12, -$357) so it needs a guard against the REAL SAFE_PARAMS,
+        not just the all-keys-absent `{}` case already covered by
+        test_missing_armed_key_stays_watch_not_armed."""
+        monkeypatch.setattr(hc, "_execute",
+                            lambda *a, **k: pytest.fail(f"{setup} is disarmed and must not execute"))
+        monkeypatch.setattr(hc, "_free_model_eval", lambda *a, **k: {"veto": False})
+        monkeypatch.setattr(hc, "CORE_PLACES_ORDERS", True)
+        monkeypatch.setattr(hc, "_et_now", lambda: dt.datetime(2026, 7, 2, 11, 0))
+        extra = [{"setup_name": setup, "fired": True, "direction": "long",
+                  "triggers": [setup]}]
+        out = hc._route_extra_setups("safe", extra, {"bar_ctx": {}}, SAFE_PARAMS)
+        assert out == [{"setup": setup, "action": "WATCH_NOT_ARMED"}]
 
     def test_one_entry_per_tick_second_fire_is_skipped(self, hc, monkeypatch):
         """With 4 setups armed, two same-tick fires must NOT both place (flat-verify reads
@@ -226,7 +289,12 @@ class TestRouting:
 
     def test_non_placing_first_fire_does_not_block_second(self, hc, monkeypatch):
         """A first fire that DIDN'T take the entry (e.g. NOT_FLAT/risk-deny) must not
-        suppress a second, independent fire on the same tick."""
+        suppress a second, independent fire on the same tick.
+
+        Second vehicle switched 2026-08-01 vix_regime_dayside -> double_bottom_base_quiet
+        (direction short -> long, its calls-only family): vix_regime_dayside was disarmed
+        2026-07-25, so it stopped reaching _extra_exec_armed's True branch at all and this
+        test was silently exercising nothing past the first row."""
         statuses = iter([{"status": "NOT_FLAT"}, {"status": "WOULD_PLACE"}])
         executed: list = []
 
@@ -240,11 +308,11 @@ class TestRouting:
         extra = [
             {"setup_name": "vwap_reclaim_failed_break", "fired": True, "direction": "short",
              "triggers": ["x"]},
-            {"setup_name": "vix_regime_dayside", "fired": True, "direction": "short",
+            {"setup_name": "double_bottom_base_quiet", "fired": True, "direction": "long",
              "triggers": ["y"]},
         ]
         out = hc._route_extra_setups("safe", extra, {"bar_ctx": {}}, SAFE_PARAMS)
-        assert executed == ["vwap_reclaim_failed_break", "vix_regime_dayside"]
+        assert executed == ["vwap_reclaim_failed_break", "double_bottom_base_quiet"]
         assert [r["action"] for r in out] == ["NOT_FLAT", "WOULD_PLACE"]
 
     @pytest.mark.parametrize("setup", THE_THREE)
