@@ -20,6 +20,22 @@ via daily_context.py, multi-week shelf zones with their own break/backside-retes
 NOTE: heartbeat_core.py's OWN live-tick fetch stays IEX untouched — this file only feeds
 the premarket/intraday level FILE, not the engine's hot-path bar read.
 
+WS3 LEVEL-FLICKER FIX (2026-08-01): on 2026-07-31 the 28-session shelf level 743.25
+blinked out of the engine's levels_active on 14 transitions (present only 331/386 core
+ticks) and the day's winning trade filled on a snapshot the core had retired ~1s earlier.
+Root cause (reproduced from Friday's tape through the real daily_context._shelf_zones):
+every 5-min refresh re-derives shelf zones FROM SCRATCH with today's live-FORMING daily
+bar included as both candidate seed and touch-counter; two near-tied overlapping candidate
+bands (742.45-744.05 @8 touches vs 741.56-743.16 @10 touches once today's bar lands
+in-band) swap the greedy winner-take-all merge as spot wobbles, re-tiling the region and
+RENAMING the written level (743.25 <-> 742.36) — and this script wholesale strips +
+re-derives shelf/memory/INTRADAY families each run with zero cross-run identity, so every
+upstream wobble goes straight to the engine. Fix: _hysteresis_carry below — a previously
+written ACTIVE level that fails to re-qualify is carried forward until it has been missing
+HYSTERESIS_MISS_N consecutive refreshes (or its session expiry passes), never introducing
+a level that never qualified. Evidence + replay: analysis/deep-research/
+LEVEL-FLICKER-FIX-2026-08-01.md; guard: backtest/tests/test_level_hysteresis_2026_08_01.py.
+
 WHAT THIS DOES (purely ADDITIVE + idempotent — never deletes premarket/structural levels):
   * Fetch today's SPY 5m bars via the SAME direct Alpaca REST path the engine uses
     (TV-independent — the TV crashes that corrupted the premarket draw don't touch this),
@@ -309,6 +325,87 @@ def _normalize_levels(levels: list[dict], spot: float) -> list[dict]:
     return out + expired
 
 
+# --- WS3 hysteresis (2026-08-01) -----------------------------------------------------------
+# N chosen from the OBSERVED 2026-07-31 flicker distribution (core-decisions.jsonl, safe+bold
+# identical): 743.25's absence runs lasted {1 refresh: 5 times, 2 refreshes: 1, 4 refreshes: 1}
+# — max observed flicker gap = 4 consecutive refreshes, so N=5 bridges every observed flicker
+# while a GENUINELY retired level still leaves the file <= 5 fires (~25 min at the 5-min
+# Gamma_LevelRefresh cadence) after it last qualified. Session expiry is untouched: an
+# expired-for-today level is NEVER carried, so nothing leaks across sessions.
+HYSTERESIS_MISS_N = 5
+# Zone identity, not exact float: a fresh level within this $ of a prior level RE-QUALIFIES it
+# (the fresh copy is written; no carry, streak resets by construction). Same $0.10 as
+# ROLE_EPSILON so hysteresis identity and the cluster-collapse dedup agree on "same level".
+HYSTERESIS_MATCH_EPS = ROLE_EPSILON
+
+
+def _hysteresis_carry(prior_levels: list[dict], fresh_levels: list[dict],
+                      today_et: str, now_iso: str) -> list[dict]:
+    """WS3 (2026-08-01): the conservative anti-flicker layer. Returns the PRIOR-file levels
+    that must be CARRIED FORWARD alongside `fresh_levels` this run.
+
+    A prior ACTIVE level is carried iff ALL of:
+      * it is not tier=='expired' AND not expired-by-date for today (expires_at date < today,
+        mirroring heartbeat_core._level_expired — an expired level is never resurrected, so
+        hysteresis cannot leak levels across sessions);
+      * it has a parseable price (malformed entries are never resurrected);
+      * NO fresh level re-qualifies it — re-qualified means a fresh level within
+        HYSTERESIS_MATCH_EPS $ of it OR sharing its prefix-stripped label key (_dedup_key), so
+        a detector that legitimately MOVES its level (e.g. INTRADAY_SWING_HIGH re-anchoring to
+        a new swing) retires the old price INSTANTLY — label identity — while a level that
+        VANISHED outright (the shelf re-tiling flicker) is held;
+      * it has been missing fewer than HYSTERESIS_MISS_N consecutive refreshes (streak carried
+        in the level's own hyst_miss_streak field, reset implicitly when re-qualified because
+        the fresh copy replaces the held one).
+
+    PROVABLY CONSERVATIVE by construction: every carried dict is a verbatim prior-file level
+    (plus hyst_* bookkeeping) — this function can only KEEP what an earlier run qualified and
+    wrote, never synthesize a price that never qualified. Retire paths all survive: session
+    expiry (instant at the date boundary), miss-streak N (<= ~25 min), and the engine's own
+    +/-$12 proximity gate at read time. Guard (incl. RED-proof on Friday's real flicker
+    sequence): backtest/tests/test_level_hysteresis_2026_08_01.py."""
+    fresh_prices: list[float] = []
+    fresh_keys: set[str] = set()
+    for lv in fresh_levels:
+        try:
+            fresh_prices.append(round(float(lv["price"]), 2))
+        except (KeyError, TypeError, ValueError):
+            pass
+        k = _dedup_key(lv.get("label"))
+        if k:
+            fresh_keys.add(k)
+
+    held: list[dict] = []
+    for lv in prior_levels:
+        if not isinstance(lv, dict) or str(lv.get("tier", "")).lower() == "expired":
+            continue
+        try:
+            price = round(float(lv["price"]), 2)
+        except (KeyError, TypeError, ValueError):
+            continue  # malformed price — never resurrect
+        exp = str(lv.get("expires_at") or "")[:10]
+        if exp:
+            try:
+                datetime.strptime(exp, "%Y-%m-%d")
+                if exp < today_et:
+                    continue  # expired on a prior ET day — never carried across sessions
+            except (TypeError, ValueError):
+                pass  # unparseable date -> fail open (carry is still bounded by miss-streak N)
+        key = _dedup_key(lv.get("label"))
+        requalified = (key and key in fresh_keys) or any(
+            abs(price - fp) <= HYSTERESIS_MATCH_EPS for fp in fresh_prices)
+        if requalified:
+            continue  # the fresh copy represents this level; no carry, streak resets
+        try:
+            streak = int(lv.get("hyst_miss_streak") or 0) + 1
+        except (TypeError, ValueError):
+            streak = 1
+        if streak >= HYSTERESIS_MISS_N:
+            continue  # genuinely gone — retire after N consecutive missing refreshes
+        held.append({**lv, "price": price, "hyst_miss_streak": streak, "hyst_held_at": now_iso})
+    return held
+
+
 def _memory_merge_enabled() -> bool:
     """G11 feature flag: params.level_memory_live_merge (absent/false = wire OFF, exact
     pre-change behavior). FAIL-OFF: a missing/unreadable params never turns the wire on."""
@@ -430,6 +527,9 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
         kl = json.loads(KEY_LEVELS.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         kl = {"schema_version": 1, "levels": []}
+    # WS3 (2026-08-01): capture the AS-READ prior file for the hysteresis diff below, BEFORE
+    # any family gets stripped/re-derived — the carry decision compares prior vs fresh sets.
+    prior_levels = [lv for lv in (kl.get("levels") or []) if isinstance(lv, dict)]
     levels = [lv for lv in (kl.get("levels") or []) if not str(lv.get("label", "")).startswith("INTRADAY_")]
 
     added = []
@@ -493,6 +593,16 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
                 }
                 levels.append(lvl)
                 shelf_upserted += 1
+
+    # WS3 (2026-08-01): HYSTERESIS — carry forward prior ACTIVE levels that failed to
+    # re-qualify this run, until they've been missing HYSTERESIS_MISS_N consecutive
+    # refreshes or expire for the session. Kills the 07-31 flicker class (a bistable
+    # upstream re-derivation renaming its level every few fires) at the single choke-point
+    # every level family flows through. Conservative by construction: only re-emits
+    # verbatim prior-file levels, never synthesizes. Runs BEFORE _normalize_levels so the
+    # one-role-per-price + dedup invariants apply to the held+fresh union too.
+    held = _hysteresis_carry(prior_levels, levels, today, now_iso)
+    levels = levels + held
 
     # Normalize the FULL written set: one polarity role per price + collapse near-equal
     # duplicates, so the engine never reads a price as both resistance and support and the
@@ -560,7 +670,11 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
     active = sorted({lv["price"] for lv in levels if abs(lv["price"] - spot) <= ACTIVE_BAND})
     return {"ok": True, "ts_et": now_iso, "spot": round(spot, 2), "added": added,
             "refused": refused, "shelf_upserted": shelf_upserted,
-            "memory_merged": memory_merged, "engine_active_levels": active, "ema": ema_patch}
+            "memory_merged": memory_merged, "engine_active_levels": active, "ema": ema_patch,
+            # WS3 (2026-08-01): held-by-hysteresis visibility (C7 — a carry must be loud in
+            # the run output, not silently indistinguishable from a fresh qualification).
+            "hysteresis_held": [{"label": lv.get("label"), "price": lv.get("price"),
+                                 "miss_streak": lv.get("hyst_miss_streak")} for lv in held]}
 
 
 if __name__ == "__main__":

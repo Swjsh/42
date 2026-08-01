@@ -1,0 +1,636 @@
+{
+ "_doc": "WS3 level-flicker fix replay \u2014 observed Friday windows through the production _hysteresis_carry. See module docstring for method + caveats.",
+ "day": "2026-07-31",
+ "n_ticks": 386,
+ "n_windows": 78,
+ "nonuniform_windows": 19,
+ "hysteresis_n": 5,
+ "verdict": "FIXED",
+ "target_743_25": {
+  "old_present": 331,
+  "old_flips": 14,
+  "new_present": 386,
+  "new_flips": 0,
+  "extra_ticks": 55,
+  "extra_windows_after_last_old": 0,
+  "band_edge_note": ""
+ },
+ "per_level": {
+  "729.79": {
+   "old_present": 81,
+   "old_flips": 9,
+   "new_present": 81,
+   "new_flips": 9,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": "near +/-12 band edge some ticks"
+  },
+  "735.10": {
+   "old_present": 351,
+   "old_flips": 1,
+   "new_present": 351,
+   "new_flips": 1,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": "near +/-12 band edge some ticks"
+  },
+  "736.78": {
+   "old_present": 20,
+   "old_flips": 4,
+   "new_present": 45,
+   "new_flips": 2,
+   "extra_ticks": 25,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": "near +/-12 band edge some ticks"
+  },
+  "737.33": {
+   "old_present": 5,
+   "old_flips": 2,
+   "new_present": 25,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "737.57": {
+   "old_present": 10,
+   "old_flips": 2,
+   "new_present": 10,
+   "new_flips": 2,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "737.58": {
+   "old_present": 10,
+   "old_flips": 2,
+   "new_present": 10,
+   "new_flips": 2,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "737.68": {
+   "old_present": 312,
+   "old_flips": 1,
+   "new_present": 312,
+   "new_flips": 1,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "737.85": {
+   "old_present": 376,
+   "old_flips": 2,
+   "new_present": 386,
+   "new_flips": 0,
+   "extra_ticks": 10,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "737.97": {
+   "old_present": 5,
+   "old_flips": 2,
+   "new_present": 25,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "738.36": {
+   "old_present": 45,
+   "old_flips": 4,
+   "new_present": 85,
+   "new_flips": 4,
+   "extra_ticks": 40,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "738.98": {
+   "old_present": 5,
+   "old_flips": 2,
+   "new_present": 25,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "739.15": {
+   "old_present": 65,
+   "old_flips": 6,
+   "new_present": 115,
+   "new_flips": 4,
+   "extra_ticks": 50,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "739.34": {
+   "old_present": 5,
+   "old_flips": 2,
+   "new_present": 25,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "739.73": {
+   "old_present": 361,
+   "old_flips": 8,
+   "new_present": 386,
+   "new_flips": 0,
+   "extra_ticks": 25,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "739.91": {
+   "old_present": 10,
+   "old_flips": 2,
+   "new_present": 10,
+   "new_flips": 2,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "739.93": {
+   "old_present": 115,
+   "old_flips": 4,
+   "new_present": 135,
+   "new_flips": 4,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "740.17": {
+   "old_present": 15,
+   "old_flips": 6,
+   "new_present": 60,
+   "new_flips": 4,
+   "extra_ticks": 45,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "740.29": {
+   "old_present": 5,
+   "old_flips": 2,
+   "new_present": 25,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "740.76": {
+   "old_present": 179,
+   "old_flips": 7,
+   "new_present": 234,
+   "new_flips": 1,
+   "extra_ticks": 55,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "741.12": {
+   "old_present": 20,
+   "old_flips": 2,
+   "new_present": 40,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "741.55": {
+   "old_present": 30,
+   "old_flips": 2,
+   "new_present": 30,
+   "new_flips": 2,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "741.60": {
+   "old_present": 306,
+   "old_flips": 12,
+   "new_present": 306,
+   "new_flips": 12,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "741.62": {
+   "old_present": 5,
+   "old_flips": 2,
+   "new_present": 5,
+   "new_flips": 2,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "741.63": {
+   "old_present": 45,
+   "old_flips": 10,
+   "new_present": 45,
+   "new_flips": 10,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "741.98": {
+   "old_present": 5,
+   "old_flips": 2,
+   "new_present": 25,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "742.34": {
+   "old_present": 20,
+   "old_flips": 2,
+   "new_present": 40,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "742.36": {
+   "old_present": 40,
+   "old_flips": 12,
+   "new_present": 100,
+   "new_flips": 6,
+   "extra_ticks": 60,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "742.46": {
+   "old_present": 40,
+   "old_flips": 2,
+   "new_present": 40,
+   "new_flips": 2,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "742.49": {
+   "old_present": 10,
+   "old_flips": 2,
+   "new_present": 10,
+   "new_flips": 2,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "742.51": {
+   "old_present": 312,
+   "old_flips": 7,
+   "new_present": 332,
+   "new_flips": 5,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "742.79": {
+   "old_present": 386,
+   "old_flips": 0,
+   "new_present": 386,
+   "new_flips": 0,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "742.90": {
+   "old_present": 4,
+   "old_flips": 1,
+   "new_present": 24,
+   "new_flips": 1,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "742.95": {
+   "old_present": 15,
+   "old_flips": 2,
+   "new_present": 35,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "743.10": {
+   "old_present": 25,
+   "old_flips": 2,
+   "new_present": 45,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "743.25": {
+   "old_present": 331,
+   "old_flips": 14,
+   "new_present": 386,
+   "new_flips": 0,
+   "extra_ticks": 55,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "743.56": {
+   "old_present": 10,
+   "old_flips": 2,
+   "new_present": 30,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "743.66": {
+   "old_present": 10,
+   "old_flips": 2,
+   "new_present": 30,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "743.99": {
+   "old_present": 65,
+   "old_flips": 2,
+   "new_present": 85,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "744.13": {
+   "old_present": 4,
+   "old_flips": 1,
+   "new_present": 24,
+   "new_flips": 1,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "744.31": {
+   "old_present": 337,
+   "old_flips": 5,
+   "new_present": 367,
+   "new_flips": 3,
+   "extra_ticks": 30,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "744.43": {
+   "old_present": 15,
+   "old_flips": 2,
+   "new_present": 35,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "744.91": {
+   "old_present": 4,
+   "old_flips": 1,
+   "new_present": 4,
+   "new_flips": 1,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "744.98": {
+   "old_present": 382,
+   "old_flips": 1,
+   "new_present": 382,
+   "new_flips": 1,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "745.19": {
+   "old_present": 50,
+   "old_flips": 2,
+   "new_present": 70,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "745.20": {
+   "old_present": 40,
+   "old_flips": 2,
+   "new_present": 40,
+   "new_flips": 2,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "745.31": {
+   "old_present": 35,
+   "old_flips": 2,
+   "new_present": 55,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "745.67": {
+   "old_present": 25,
+   "old_flips": 2,
+   "new_present": 45,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "745.72": {
+   "old_present": 4,
+   "old_flips": 1,
+   "new_present": 24,
+   "new_flips": 1,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "745.79": {
+   "old_present": 25,
+   "old_flips": 2,
+   "new_present": 27,
+   "new_flips": 1,
+   "extra_ticks": 2,
+   "extra_windows_after_last_old": 1,
+   "band_edge_note": ""
+  },
+  "746.04": {
+   "old_present": 15,
+   "old_flips": 2,
+   "new_present": 15,
+   "new_flips": 2,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "746.09": {
+   "old_present": 87,
+   "old_flips": 3,
+   "new_present": 87,
+   "new_flips": 3,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "746.30": {
+   "old_present": 225,
+   "old_flips": 2,
+   "new_present": 245,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "746.40": {
+   "old_present": 5,
+   "old_flips": 2,
+   "new_present": 5,
+   "new_flips": 2,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "746.43": {
+   "old_present": 30,
+   "old_flips": 2,
+   "new_present": 50,
+   "new_flips": 2,
+   "extra_ticks": 20,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "746.44": {
+   "old_present": 5,
+   "old_flips": 2,
+   "new_present": 5,
+   "new_flips": 2,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "746.50": {
+   "old_present": 50,
+   "old_flips": 2,
+   "new_present": 50,
+   "new_flips": 2,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "746.54": {
+   "old_present": 15,
+   "old_flips": 2,
+   "new_present": 15,
+   "new_flips": 2,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "746.55": {
+   "old_present": 321,
+   "old_flips": 4,
+   "new_present": 321,
+   "new_flips": 4,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "746.87": {
+   "old_present": 2,
+   "old_flips": 1,
+   "new_present": 2,
+   "new_flips": 1,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "747.54": {
+   "old_present": 5,
+   "old_flips": 2,
+   "new_present": 15,
+   "new_flips": 2,
+   "extra_ticks": 10,
+   "extra_windows_after_last_old": 2,
+   "band_edge_note": ""
+  },
+  "747.55": {
+   "old_present": 5,
+   "old_flips": 2,
+   "new_present": 22,
+   "new_flips": 1,
+   "extra_ticks": 17,
+   "extra_windows_after_last_old": 4,
+   "band_edge_note": ""
+  },
+  "747.92": {
+   "old_present": 17,
+   "old_flips": 1,
+   "new_present": 17,
+   "new_flips": 1,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "748.09": {
+   "old_present": 381,
+   "old_flips": 2,
+   "new_present": 386,
+   "new_flips": 0,
+   "extra_ticks": 5,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "748.50": {
+   "old_present": 317,
+   "old_flips": 7,
+   "new_present": 357,
+   "new_flips": 3,
+   "extra_ticks": 40,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": ""
+  },
+  "750.98": {
+   "old_present": 376,
+   "old_flips": 2,
+   "new_present": 376,
+   "new_flips": 2,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": "near +/-12 band edge some ticks"
+  },
+  "752.77": {
+   "old_present": 341,
+   "old_flips": 4,
+   "new_present": 341,
+   "new_flips": 4,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": "near +/-12 band edge some ticks"
+  },
+  "754.71": {
+   "old_present": 255,
+   "old_flips": 3,
+   "new_present": 255,
+   "new_flips": 3,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": "near +/-12 band edge some ticks"
+  },
+  "756.38": {
+   "old_present": 205,
+   "old_flips": 5,
+   "new_present": 205,
+   "new_flips": 5,
+   "extra_ticks": 0,
+   "extra_windows_after_last_old": 0,
+   "band_edge_note": "near +/-12 band edge some ticks"
+  }
+ },
+ "proofs": {
+  "superset": "asserted per level: fixed presence is a superset of observed presence",
+  "no_wrongly_sticky": "asserted per level: presence beyond a level's last observed qualification is <= 5 refresh windows"
+ }
+}
