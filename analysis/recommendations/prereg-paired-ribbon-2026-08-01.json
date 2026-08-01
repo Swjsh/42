@@ -1,0 +1,107 @@
+{
+  "prereg_id": "PAIRED-RIBBON-AB-2026-08-01",
+  "frozen_at_et": "2026-08-01 12:43:22 Saturday EDT",
+  "frozen_at_et_source": "python setup/scripts/et_clock.py (run this session; NEVER bash TZ -- box is Mountain, ET = local+2)",
+  "frozen_before_any_run": true,
+  "frozen_before_runner_exists": "backtest/tools/paired_ribbon_ab_2026_08_01.py does NOT exist at freeze time (verified: `ls backtest/tools | grep -i paired` empty at 12:43 ET). This prereg is committed FIRST; the runner is built after. Freeze order is git-provable by commit order.",
+  "author_lane": "WS4 -- the PAIRED ribbon change: relax filter 5 at ENTRY and suppress ribbon_flip_back at EXIT for level-anchored setups, in ONE pre-registered change",
+
+  "why_this_study_exists": {
+    "the_standalone_null": "filter5-ribbon-2026-07-31.json (prereg frozen 2026-07-31 17:34 ET): deleting filter 5 standalone is NULL -- full delta +$738.60 is ~all position-sequencing pre-emption, recent25 delta -$68.00, G2/G3 FAIL. ARM_B (level-anchored scoped bypass with -1 demerit) measured BYTE-IDENTICAL to deletion and NULLs the same way.",
+    "the_mechanism_that_pre_refutes_entry_only_changes": "76.2% of the trades the deletion unlocks exit on ribbon_flip_back (vs 9.9% of the control book). The entry veto and the exit trigger read the SAME lagging Saty ribbon (EMA 13/20/48 stack on 5m closes), so a setup admitted against a non-stacked ribbon is round-tripped by that ribbon within minutes -- the block-set never gets a chance to be right or wrong. Any future entry-only 'loosen the ribbon' will null this same way (recorded in filter5-ribbon-2026-07-31.md as the by-product finding).",
+    "the_untested_change": "The PAIRED arm: for LEVEL-ANCHORED setups only, (a) filter 5 does not veto the entry AND (b) ribbon_flip_back is not their exit. They keep every other exit: structure_stop (v15.3 chart-stop-primary -- the level thesis owns the invalidation), -50% catastrophe cap, TP1 +100%/66.7%, chandelier trail 15% off HWM post-TP1, runner_target, 15:40 time stop. This paired arm has NEVER been measured (confirmed by the 07-31 study's own closing note).",
+    "adjacent_prior_art_not_this_study": "G2-TRENDLINE-BYPASS-INVERTS-PRIORITY (decided 2026-08-01, commit dbd35729, neither arm shipped): tested extending the BEAR trendline-only bypass (filters 5+8+9 with score demerits, filters.py trendline_bypass_scope='all_level_tied') to all level-tied bear setups -- ENTRY-ONLY, bear-only, and bundled VIX filter 8 + filter 9 relief. Different mechanism from this study (both directions, filter 5 only, no demerit, PAIRED with exit suppression). Cited so nobody mistakes this for a retest of that null; its entry-only shape is exactly what the 76.2% mechanism above pre-refutes."
+  },
+
+  "hypothesis": "H1: for level-anchored setups, the level thesis (chart structure stop + catastrophe cap + profit ladder) is the honest invalidation and the lagging ribbon is noise on BOTH sides of the trade. Removing the ribbon from both the entry gate AND the exit path for this cohort -- as ONE paired change -- yields a positive book delta over the PRIMARY recent-25-trading-day window, without regressing the sacred runner cohort.",
+
+  "cohort_definition": {
+    "level_anchored": "a setup whose triggers_fired contains >=1 STATIC-level-tied trigger. Bull: {level_reclaim, confluence, sequence_reclaim} (filters.py:1265's own level_tied set). Bear: {level_rejection, fhh_level_rejection, confluence, sequence_rejection} (filters.py:1723's set MINUS trendline_rejection).",
+    "why_fhh_included": "fhh_level_rejection is a STATIC intraday level (first-hour high), fires only when base levels produced no rejection, and populates rejection_level so the chart structure-stop works (filters.py:1602-1609, L96). ARM_B's 07-31 frozen set predates consideration of fhh; including it is the faithful 'static level' semantics. Disclosed as the one delta from ARM_B's cohort definition.",
+    "why_trendline_excluded": "trendline_rejection is a dynamic line, its cohort is the established LOSING book (trendline-only -$1,830/124tr vs level-tied +$6,895/66tr, PNL-ATTRIBUTION-2026-07-28), and the bear trendline-only shape ALREADY bypasses filter 5 in production (2026-05-09 precedent, filters.py:1619-1630) -- there is nothing left to relax for it at entry, and extending exit relief to a losing cohort is not this hypothesis."
+  },
+
+  "arms_frozen": {
+    "CONTROL": "run_backtest(**SAFE_BASE_LIVE) -- live production config, standard walk_exit_manager for every trade (ribbon_flip_back live). Byte-identical config to filter5-ribbon-2026-07-31's CONTROL.",
+    "PAIRED": "ENTRY: run_backtest(**SAFE_BASE_LIVE, disable_filters=[5]). EXIT: every trade in the PAIRED book whose triggers_fired is level-anchored (definition above) is walked with ribbon_flip_back structurally suppressed (walk_exit_manager ribbon_tick_df=None -- plan_exit_actions consumes the flag at exactly its 2 exit-trigger sites, automation/state/fleet/exit_manager.py:430+483, nothing else reads it); every non-level-anchored trade keeps the standard walk. All other exit stages unchanged.",
+    "entry_mechanism_note": "disable_filters=[5] is used as the entry mechanism because ARM_B (the properly scoped filter5_level_anchored_bypass flag, run 2026-07-31 before being reverted per C14) measured BYTE-IDENTICAL to deletion on this exact population -- structural reason recorded in filter5_ribbon_fate_2026_07_31.py: a bull setup blocked by filter 5 alone cannot carry ribbon_flip (detect_ribbon_flip_bullish requires stack==BULL), so it met min_triggers=2 via static-level triggers BY CONSTRUCTION; bear trendline-only already bypasses 5. HARD INVARIANT (run aborts if violated): every entry ADDED by PAIRED vs CONTROL must satisfy the level_anchored predicate. If any added entry is not level-anchored, the deletion-equals-scoped-bypass equivalence has broken on this population and the study STOPS rather than silently measuring a different cohort.",
+    "no_variant_grid": "Exactly ONE treatment arm. No sweeps, no thresholds, no tuning knobs. m=1, so BH-FDR reduces to the single advisory p-value at alpha=0.10. If the paired change needs a tuned variant to clear its gates, it fails."
+  },
+
+  "population": {
+    "window_start": "2025-01-02",
+    "window_end": "2026-07-31",
+    "n_trading_days_expected": 391,
+    "population_rule": "the VERIFIED 391-day population ONLY. The 2024 OPRA backfill that ran overnight is NOT declared complete (analysis/deep-research/OPRA-BACKFILL-2026-07-31.md does not exist at freeze time) -- the 2024 range is untouched by this study.",
+    "spy_source": "backtest/data/spy_5m_2025-01-01_2026-07-22.csv + strictly-later tail of spy_5m_2026-05-19_2026-07-31.csv (filter5_ribbon_fate_2026_07_31.load_extended_data, reused verbatim)",
+    "vix_source": "backtest/data/vix_5m_2025-01-01_2026-07-22.csv + strictly-later tail of vix_5m_2026-05-19_2026-07-31.csv; vix timestamp_et stays a RAW STRING column (DST-seam scar, do not 'fix')",
+    "pnl_rule": "REAL cached OPRA contracts ONLY. Unpriceable trades are EXCLUDED and COUNTED per arm/window, never Black-Scholes-synthesized into any total.",
+    "opra_cache_snapshot_rule": "the contract cache symbol set is SNAPSHOTTED once at run start; a contract absent from the snapshot is excluded even if a concurrent process writes it mid-run. Belt-and-braces on top of load_contract_bars' process-lifetime memo -- guarantees CONTROL and PAIRED price against the IDENTICAL cache.",
+    "exit_rule": "backtest/lib/exit_manager_walk.walk_exit_manager -- the REAL live exit_manager.plan_exit_actions decision core, RIBBON_RIDE registry exit shape (strategies.py:95-105: structure stop primary, -50% catastrophe, TP1 +100% sell 66.7%, trailing 15% off HWM, runner_target 99.0), structure_stop_enabled=True, time_stop 15:40 ET (efr.TIME_STOP_ET). NEVER simulate_trade_real.",
+    "entry_convention": "entry+1 -- walk begins at the first bar STRICTLY AFTER the entry timestamp, enforced by walk_exit_manager itself (markdown/audits/ENTRY-BAR-CONVENTION-RULING-2026-07-25.md)."
+  },
+
+  "recent_window": {
+    "definition": "newest 25 distinct trading dates present in the population frame, ending 2026-07-31",
+    "convention_source": "backtest/autoresearch/recency_check.py RECENCY_LOOKBACK_TRADING_DAYS = 25"
+  },
+
+  "changed_trade_semantics": {
+    "why_extended": "unlike the 07-31 study, this change touches EXITS of trades common to both books, so the 07-31 added/dropped-only diff would be blind to exit-side deltas (C7 shape). Trade identity stays (date, entry_time_et, symbol, side).",
+    "contribution_of_a_change": "added trade: +arm_pnl. dropped trade: -ctrl_pnl. common trade with pnl delta: (arm_pnl - ctrl_pnl).",
+    "changed_day": "any day carrying an added trade, a dropped trade, OR a common trade whose dollar_pnl differs from CONTROL's.",
+    "delta_identity_check": "window delta_total MUST equal sum(added) - sum(dropped ctrl pnl) + sum(common deltas); asserted at runtime."
+  },
+
+  "gates_frozen": [
+    {
+      "id": "G1_recent_window_positive",
+      "primary": true,
+      "rule": "delta_total (PAIRED minus CONTROL) over the RECENT 25-trading-day window must be > 0",
+      "measurability_labeling": "if any recent-window ADDED entry is unpriceable (no cached OPRA), a failing G1 is labeled UNDETERMINED per the 07-31 relabel convention -- the boolean stays FAIL either way; UNDETERMINED is never a pass."
+    },
+    {
+      "id": "G2_day_majority_recent",
+      "rule": "among RECENT-window changed days (extended definition above), n_improved > n_worsened"
+    },
+    {
+      "id": "G3_survives_drop_best_recent",
+      "rule": "RECENT-window delta minus the single largest positive per-trade CONTRIBUTION (max over added contributions AND common-trade exit deltas AND dropped contributions) must remain > 0"
+    },
+    {
+      "id": "G4_runner_cohort_zero_tolerance",
+      "rule": "PAIRED runner-cohort (exit_reason containing 'runner' or 'trail', filter5_ribbon_fate.runner_cohort reused verbatim) must satisfy BOTH count >= CONTROL count AND total >= CONTROL total, over the FULL population. Floor = 1.00 exactly (tonight's directive: zero tolerance), stricter than the 07-31 study's 0.95.",
+      "anchor": "under the 07-31 cache state CONTROL's runner cohort was n=39 / +$18,330.05; the gate is computed against THIS run's own CONTROL, whatever the cache now holds."
+    },
+    {
+      "id": "G5_fire_count_L243_both_levers",
+      "rule": "(a) entries ADDED >= 10 full-population AND >= 2 recent-window; (b) the EXIT lever must itself fire: >= 5 full-population PAIRED-book level-anchored trades whose suppressed walk differs from the standard walk on the same entry (computed by walking those entries BOTH ways and diffing (exit_reason, dollar_pnl)). A paired change whose suppression never changes an outcome is ARM_A wearing a coat, and ARM_A is already in the graveyard.",
+      "rationale": "L243: a fix that never fires is not a fix -- applied to BOTH levers of the pair."
+    }
+  ],
+
+  "advisory_not_gating": {
+    "full_population_delta": "reported, never the ship criterion",
+    "p_value": "one-sided permutation test (10,000 resamples, seed 20260801) on mean per-changed-trade contribution > 0, recent window and full window; BH-FDR note: m=1 (single pre-registered arm), so the raw p at alpha=0.10 is the whole correction",
+    "evidence_floor": "n_changed >= 10 advisory floor",
+    "exit_reason_mix_shift": "added-cohort and changed-common-cohort exit-reason mixes reported vs CONTROL's -- the mechanism must be visible in the mix (ribbon_flip_back share collapsing toward structure_stop/trail), not just in the total"
+  },
+
+  "control_parity_anchors": {
+    "raw_entry_count": "CONTROL raw entries must equal 211 EXACTLY (the 07-31 run's 191 walked + 20 no_opra; raw entry production is OPRA-cache-independent and run_backtest is deterministic). Mismatch aborts the run -- the entry engine drifted and the study must not report against a moved baseline.",
+    "walked_book": "if the OPRA cache is unchanged since 07-31, CONTROL walked/total must reproduce 191 / +$5,005.95 to the cent; if the overnight backfill added 2025-2026 contracts, walked counts may rise -- the deviation is DISCLOSED with the cache-snapshot diff, and both arms use the identical snapshot either way."
+  },
+
+  "ship_rule": "SHIP only if G1 AND G2 AND G3 AND G4 AND G5 all pass. Target: ONE fleet arm as a forward-paper TRIAL -- FLEET-LOOSE-R (display risky-3), the free loose-gate arm (bold-2 carries the block_elite_bull-lift trial, risky-1 carries the full-send experiment, safe-3 stays clean control). Wiring (built ONLY on a pass, never speculatively): re-add the filters.py scoped-bypass flag exactly as reverted + a per-entry exit-side ribbon-suppression flag threaded to that arm only, each with a RED-proofed guard test. KILL CRITERION (pre-registered): auto-revert if the arm's level-anchored cohort reaches (a) n>=10 fills with cumulative cohort P&L < $0, OR (b) 5 consecutive cohort losers, OR (c) any single day cohort P&L <= -$120 (2 catastrophe-cap losses at min size); the standing nightly gate-expiry/revalidation clock applies on top. If ANY gate fails: NULL -- filter 5 STAYS, ribbon_flip_back STAYS, and the ribbon question is declared CLOSED BOTH WAYS (entry-only null 2026-07-31, paired null 2026-08-01) in the graveyard with the numbers; no further ribbon-loosening variants without genuinely new information (a regime break in the population or a structural change to the exit stack).",
+
+  "reporting_rule": "ALL cells reported -- both arms, both windows, added/dropped/changed-common cohorts each with n/total/WR/per-trade/ex-best, fire counts for BOTH levers, OPRA measurability stratified by window, attribution decomposition (added vs pre-empted vs exit-delta) via filter5_ribbon_fate.attribution_block PLUS the common-trade exit-delta extension. Synthetic P&L is disclosed AND excluded (there is none: real-OPRA-only).",
+
+  "machinery_reuse": "backtest/tools/filter5_ribbon_fate_2026_07_31.py is imported, not copied: load_extended_data, recent_window_dates, run_arm (pass-through monkeypatch incl. Blockers5Capture dedupe + dual-patch assert), cohort_stats, window_slice, runner_cohort, _key, attribution_block, opra_measurability, relabel_g1_measurability. New code is limited to: per-trade exit-suppression walk, extended changed-trade scoring, both-ways walk for the G5 exit-lever fire count, cache snapshot guard.",
+
+  "out_of_lane_do_not_touch": [
+    "crypto-twin latency drill (setup/scripts/crypto_twin_core.py, twin task cadence, twin level-set widening)",
+    "theta-cockpit build (setup/scripts/theta_clock.py, delta_at_entry capture in trades.csv writer, theta-clock scheduled task, firm_brief theta line; theta-clock.json is read-only interface if needed -- it is not needed)",
+    "other WS lanes (WS1 Monday preview, WS3 level flicker, WS6 data recon, WS7 live watch, WS9 pain ledger, WS10 dojo, WS11 core recency, WS12 reset plan)",
+    "2024 OPRA range (backfill not declared complete)"
+  ]
+}
