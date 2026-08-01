@@ -94,6 +94,10 @@ DISCIPLINE RAILS BUILT INTO THIS MODULE
 COST: $0. Pure Python + the Alpaca OPRA bars endpoint already used by the loss autopsy.
 No LLM anywhere. Cheap enough to run every night forever.
 
+WS9 FOLD (2026-08-01): each full-population nightly fire also refreshes the MAE/MFE pain
+ledger (`pain_ledger.build_ledger`, sharing this run's bar cache) -> analysis/pain-ledger/
+mae-mfe.json. Prereg: analysis/pain-ledger/PREREG-2026-08-01.md. Fail-open, additive only.
+
 Manual run:
     python setup/scripts/winner_autopsy.py              # full population
     python setup/scripts/winner_autopsy.py --date 2026-07-31
@@ -965,7 +969,7 @@ def main() -> int:
         (OUT_DIR / f"{base}.md").write_text(
             render_md(rows, agg, scope, n_no_bars), encoding="utf-8")
 
-        LAST_JSON.write_text(json.dumps({
+        last_payload = {
             "scope": scope,
             "generated_at": started.isoformat(),
             "n_winners_found": len(winners),
@@ -985,8 +989,26 @@ def main() -> int:
             "runner_cohort": runner_cohort_stats(rows),
             "attribution": attribution_coverage(rows),
             "winners_only_sample": True,  # consumers MUST NOT read this as a policy comparison
+            "pain_ledger": None,  # WS9 fold fills this below; None on scoped fires / if killed
             "md": f"analysis/winner-autopsies/{base}.md",
-        }, indent=2), encoding="utf-8")
+        }
+        LAST_JSON.write_text(json.dumps(last_payload, indent=2), encoding="utf-8")
+
+        # --- WS9 (2026-08-01): the MAE/MFE pain ledger rides this SAME nightly fire -------
+        # (prereg: analysis/pain-ledger/PREREG-2026-08-01.md -- deliberately NO new scheduled
+        # task). Runs LAST, after every winner-autopsy surface is already on disk, so a slow
+        # pain walk (no-bars retry backoff ~300s/symbol worst case) hitting the task's 30-min
+        # ExecutionTimeLimit can never cost the capture-rate product. Shares this run's
+        # bar_cache so winners' bars are fetched once per fire. Fail-open. Population-product
+        # only: a --date/--symbol scoped manual fire must not overwrite the ledger with a
+        # slice. LAST_JSON is then re-written with the summary (idempotent second write).
+        if not args.date and not args.symbol:
+            try:
+                import pain_ledger
+                last_payload["pain_ledger"] = pain_ledger.build_ledger(bar_cache=bar_cache)
+            except Exception as pe:  # noqa: BLE001 -- descriptive side-product, never fatal
+                last_payload["pain_ledger"] = {"error": f"{type(pe).__name__}: {pe}"[:200]}
+            LAST_JSON.write_text(json.dumps(last_payload, indent=2), encoding="utf-8")
 
         print(f"[winner-autopsy] {scope}: {len(winners)} winners found, {len(rows)} autopsied, "
               f"{n_no_bars} no-bars; capture_vs_best_policy="
