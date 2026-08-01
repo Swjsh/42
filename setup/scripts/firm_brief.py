@@ -500,6 +500,57 @@ def render_winner_autopsy_lines(data: dict) -> list[str]:
             "pre-registered A/B over the FULL population."]
 
 
+def render_core_recency_lines(data: dict, now_et) -> list[str]:
+    """PURE: render the CORE-STRATEGY RECENCY line (WS11 2026-08-01; J's standing rule
+    2026-07-31: "day 372 ago is not gonna work like day 162 ago") from
+    automation/state/core-strategy-recency.json -- written by
+    backtest/autoresearch/core_strategy_recency.py and refreshed by the nightly
+    Gamma_GateExpiryCheck fire (the core_strategy registry rows route through it).
+
+    HONESTY RAILS (all pinned by test_firm_brief_core_recency_section.py):
+      * every direction prints verdict AND n ("bear RED n=15, bull UNDERPOWERED n=2") --
+        an n-free verdict is the oversell OP-33 bans;
+      * UNDERPOWERED is never dressed as a verdict; the Safe-shape engine replay
+        supplement is quoted alongside, never blended into the broker n;
+      * a run_date >2 calendar days old renders STALE rather than quietly quoting old
+        numbers (OP-33b: registered != firing).
+    Fail-open: missing/errored source degrades this section only."""
+    if not data or not data.get("verdicts"):
+        return ["- no core-strategy recency run yet (backtest/autoresearch/"
+                "core_strategy_recency.py; refreshed by the nightly Gamma_GateExpiryCheck)."]
+    lines: list[str] = []
+    run_date = str(data.get("run_date", "?"))
+    try:
+        import datetime as _dt
+        age_days = (now_et.date() - _dt.date.fromisoformat(run_date)).days
+        if age_days > 2:
+            lines.append(f"- ⚠ STALE: last recency run is {run_date} ({age_days}d old) -- "
+                         f"Gamma_GateExpiryCheck may not be firing; numbers below are old.")
+    except ValueError:
+        lines.append(f"- ⚠ STALE: unparseable run_date {run_date!r} in core-strategy-recency.json.")
+    win = data.get("window") or {}
+    v = data.get("verdicts") or {}
+    parts = []
+    for name in ("bear", "bull"):
+        d = v.get(name) or {}
+        exp = d.get("exp_per_trade")
+        exp_s = f" ({_fmt_money(float(exp))}/tr)" if exp is not None else ""
+        parts.append(f"{name} {d.get('verdict', '?')} n={d.get('n', '?')}{exp_s}")
+    supp = ((data.get("strata") or {}).get("replay_supplement_safe_shape") or {})
+    supp_recent = supp.get("recent") or {}
+    supp_parts = []
+    for name in ("bear", "bull"):
+        rc = supp_recent.get(name) or {}
+        if rc.get("n"):
+            supp_parts.append(f"{name} n={rc['n']} ${rc.get('exp_per_trade')}/tr")
+    supp_s = ("; replay suppl (Safe shape, sim, not blended): " + ", ".join(supp_parts)
+              if supp_parts else "")
+    lines.append(f"- {win.get('n_trading_days', '?')}d real fills to {win.get('end', '?')} "
+                 f"(floor {data.get('confirm_n_floor', '?')}): {', '.join(parts)}{supp_s} "
+                 f"(automation/state/core-strategy-recency.json)")
+    return lines
+
+
 def render_prospector_lines(data: dict) -> list[str]:
     """PURE: render the Prospector (exogenous-idea organ, J 2026-07-09: "gamma
     hasn't introduced a single new idea like this at all yet") section body
@@ -664,6 +715,16 @@ def build_brief(statement: dict, self_check: dict, queue_j_items: list, now_et) 
     winner = load_json(STATE / "winner-autopsy-last.json")
     lines.append("## Winner autopsy (capture rate)")
     lines.extend(render_winner_autopsy_lines(winner))
+    lines.append("")
+
+    # Core-strategy recency -- the revalidation clock for the strategy ITSELF (WS11
+    # 2026-08-01; J 2026-07-31: "day 372 ago is not gonna work like day 162 ago"). The
+    # gates got their expiry instrument tonight; this line is the same clock pointed at
+    # the thing the gates protect. One line; full strata in
+    # automation/state/core-strategy-recency.json. Fail-open, same shape as above.
+    core_recency = load_json(STATE / "core-strategy-recency.json")
+    lines.append("## Core strategy recency (25d real fills)")
+    lines.extend(render_core_recency_lines(core_recency, now_et))
     lines.append("")
 
     # Prospector -- the exogenous-idea organ (J 2026-07-09: "gamma hasn't introduced a single

@@ -322,7 +322,21 @@ def check_gate(gate: dict, spy: pd.DataFrame, ribbon: pd.DataFrame, spy_ts: pd.S
     evidence_stale = bool(interval and age is not None and age > interval)
 
     category = gate.get("category")
-    if category in _NOT_MEASURED_CATEGORIES:
+    if category == "core_strategy":
+        # WS11 (2026-08-01): the CORE RIDE_THE_RIBBON strategy's own recency rows
+        # (core_strategy_bear / core_strategy_bull). Not a refusal gate -- there is no
+        # SKIP verdict to mine -- so the category routes to the sibling instrument
+        # (real-broker-fills authority + disclosed Safe-shape replay supplement).
+        # SEMANTICS NOTE: RED here means the strategy ITSELF is losing on recent real
+        # fills, not "a gate is costing money" -- both mean look-now on this surface.
+        # Fail-open like every other row: an eval failure degrades to ERROR, never
+        # sinks the other gates.
+        try:
+            from autoresearch import core_strategy_recency as _csr
+            pnl_check = _csr.evaluate_for_registry(gate, floor=floor)
+        except Exception as exc:  # noqa: BLE001
+            pnl_check = {"verdict": "ERROR", "reason": f"core-strategy recency eval failed: {exc}"}
+    elif category in _NOT_MEASURED_CATEGORIES:
         pnl_check = {"verdict": "NOT_MEASURED", "reason": _NOT_MEASURED_CATEGORIES[category]}
     else:
         try:

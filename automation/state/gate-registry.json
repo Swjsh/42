@@ -1,5 +1,5 @@
 {
-  "_doc": "GATE-EXPIRY INSTRUMENT registry (J directive 2026-07-31, verbatim: 'the same thing that worked on day 372 ago is not gonna work on day 162 ago'). One row per armed gate/veto/filter that can refuse an entry. Every armed gate carries a validation timestamp + a re-validation clock; when its evidence goes stale OR its recent-window real-fills performance stops supporting it, backtest/autoresearch/gate_expiry_check.py SAYS SO on automation/overnight/STATUS.md instead of silently blocking forever. Flagship case that motivated this build: block_elite_bull was last revalidated 2026-07-10 (SS-B exit shape, KEEP, 'SS-B ~6.9x worse without it') under a level feed that was later found broken; the engine kept blocking on the STALE verdict through 2026-07-31, including a 11/11 bull setup 111 times same-session, while the fleet_rest arms (which never inherited GATE_ORDER at all -- GATE-PROVENANCE-CENSUS-2026-07-09 finding) took the identical setup and made +$1,242 net (analysis/recommendations/elite-bull-requal-2026-07-31.json). NEVER auto-disarms anything -- report only, arming/disarming stays a human/ratification decision (OP-16).",
+  "_doc": "GATE-EXPIRY INSTRUMENT registry (J directive 2026-07-31, verbatim: 'the same thing that worked on day 372 ago is not gonna work on day 162 ago'). EXTENDED 2026-08-01 (WS11): two category='core_strategy' rows put the CORE RIDE_THE_RIBBON strategy itself (per direction) on the same revalidation clock -- measured by backtest/autoresearch/core_strategy_recency.py (real-broker-fills authority, legs grouped per entry; fleet same-family fills + Safe-shape fullhist replay as disclosed supplements, never blended) and routed through the same nightly checker; for those two rows RED means the STRATEGY is losing on recent real fills, not that a gate is costing money. One row per armed gate/veto/filter that can refuse an entry. Every armed gate carries a validation timestamp + a re-validation clock; when its evidence goes stale OR its recent-window real-fills performance stops supporting it, backtest/autoresearch/gate_expiry_check.py SAYS SO on automation/overnight/STATUS.md instead of silently blocking forever. Flagship case that motivated this build: block_elite_bull was last revalidated 2026-07-10 (SS-B exit shape, KEEP, 'SS-B ~6.9x worse without it') under a level feed that was later found broken; the engine kept blocking on the STALE verdict through 2026-07-31, including a 11/11 bull setup 111 times same-session, while the fleet_rest arms (which never inherited GATE_ORDER at all -- GATE-PROVENANCE-CENSUS-2026-07-09 finding) took the identical setup and made +$1,242 net (analysis/recommendations/elite-bull-requal-2026-07-31.json). NEVER auto-disarms anything -- report only, arming/disarming stays a human/ratification decision (OP-16).",
   "schema": "gate-registry-v1",
   "generated_at": "2026-07-31",
   "sources_consulted": [
@@ -398,6 +398,47 @@
       "revalidation_interval_days": 21,
       "provenance_type": "fleet_config_design",
       "notes": "Correctly scoped to the loosest/riskiest fleet tier per the audit's own tier design. Not independently P&L-revalidated since arming."
+    },
+    {
+      "id": "core_strategy_bear",
+      "category": "core_strategy",
+      "description": "The CORE strategy itself, BEAR side (BEARISH_REJECTION_RIDE_THE_RIBBON) -- the thing every gate above exists to protect, and until WS11 the largest armed thing in the system with NO revalidation clock. Trades every day on both core accounts.",
+      "where_defined": "backtest/lib/orchestrator.py + setup/scripts/heartbeat_core.py (live core lane, setups_allowed); measured by backtest/autoresearch/core_strategy_recency.py",
+      "params_key": "setups_allowed (params.json / aggressive/params.json)",
+      "skip_action": "n/a (not a refusal gate -- category routed to core_strategy_recency.evaluate_for_registry)",
+      "scope": "core",
+      "accounts_armed": {"safe": true, "bold": true},
+      "armed_date": {"safe": "strategy inception (v14/v15 lineage; SS-B exit shape 2026-07-09/10)", "bold": "same lineage (Bold v15.2 by design)"},
+      "evidence_artifact": [
+        "analysis/recommendations/engine-fullhist-replay-2026-07-23.json (fullhist production-parity replay: bear +$2,729/151tr, Safe shape, window ..2026-07-22)",
+        "automation/state/core-strategy-recency.json (this clock's standing output, refreshed by the nightly checker)"
+      ],
+      "cohort_validated_on": "full-history production-parity replay 2025-01-02..2026-07-22 (+$5,064.75/190tr both directions) + the live real-fills lineage; recent-window verdict authority = real broker fills on the core lanes (legs grouped per entry)",
+      "last_revalidated": "2026-08-01 (WS11 first standing run; prior standing anchors: SS-B exit ratification 2026-07-09/10, level-tied-entries study 2026-08-01)",
+      "revalidation_interval_days": 14,
+      "provenance_type": "core_strategy",
+      "notes": "WS11 (2026-08-01), J's recency rule applied to the strategy itself. VERDICT SEMANTICS INVERTED vs the gate rows: RED = the strategy is LOSING on the recent-window real fills (n >= floor), UNDERPOWERED->YELLOW = n below floor with the Safe-shape replay supplement quoted alongside (never blended). Fleet same-family fills are disclosed context only."
+    },
+    {
+      "id": "core_strategy_bull",
+      "category": "core_strategy",
+      "description": "The CORE strategy, BULL side (BULLISH_RECLAIM_RIDE_THE_RIBBON). Direction unlocked 2026-06-28 (OP-16: validation is the scope, not direction); evidence corrected 2026-07-11 (the old '+$5,586 real fills' claim was a SIM; honest live paper record then was n=80 WR 1.2% -$1,573 over a 9-day VIX-pinned stretch) -- stays enabled pending honest re-eval at n>=20 under SS-B + corrected strike tier. THIS ROW is the standing n-counter and recency clock for that re-eval.",
+      "where_defined": "backtest/lib/orchestrator.py + setup/scripts/heartbeat_core.py (enable_bullish=true both accounts); measured by backtest/autoresearch/core_strategy_recency.py",
+      "params_key": "enable_bullish + setups_allowed",
+      "skip_action": "n/a (not a refusal gate -- category routed to core_strategy_recency.evaluate_for_registry)",
+      "scope": "core",
+      "accounts_armed": {"safe": true, "bold": true},
+      "armed_date": {"safe": "2026-06-28 (OP-16 unlock)", "bold": "2026-06-28 (OP-16 unlock)"},
+      "evidence_artifact": [
+        "analysis/recommendations/engine-fullhist-replay-2026-07-23.json (fullhist replay bull +$2,335/39tr -- ENGINE-SIM, Safe shape, disclosed as such)",
+        "markdown/deep-research 2026-07-11 bull evidence correction (live n=80 WR 1.2% -$1,573; see CLAUDE.md OP-16)",
+        "automation/state/core-strategy-recency.json (this clock's standing output)"
+      ],
+      "cohort_validated_on": "OP-16 pending re-eval cohort: live bull fills under SS-B + ATM tier, target n>=20; recent-window verdict authority = real broker fills on the core lanes (legs grouped per entry)",
+      "last_revalidated": "2026-08-01 (WS11 first standing run; prior: 2026-07-11 evidence correction)",
+      "revalidation_interval_days": 14,
+      "provenance_type": "core_strategy",
+      "notes": "WS11 (2026-08-01). Same inverted semantics as core_strategy_bear (RED = strategy losing on recent real fills). Core-lane bull fills are scarce (Safe bull especially -- block_elite_bull and bull gates suppress most candidates on Safe), so expect UNDERPOWERED verdicts here until the OP-16 n>=20 cohort accrues; the row exists precisely so that accrual is WATCHED, not remembered."
     }
   ]
 }

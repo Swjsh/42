@@ -1,3 +1,31 @@
+## [2026-08-01 13:0x ET] NEEDS-J (one click only) -- WS12 (WEEKEND): RESET PREP + TIER NORMALIZATION complete; recommendation = $2,500/arm
+
+**Everything except the dashboard click landed tonight.** The Alpaca paper reset is
+dashboard-only (no API); J signs in, the `alpaca-paper-reset` skill drives the clicks.
+
+- **Brief + runbook:** `analysis/deep-research/RESET-PLAN-2026-08-01.md` — live REST
+  equities of all 6 accounts (12:35-12:47 ET: safe-2 $1,160.30 / safe-3 $1,967.81 /
+  bold-2 $1,197.52 / risky-1 $1,756.87 / risky-3 $2,121.61 / twin $9,826.97, all SPY arms
+  FLAT), per-arm tier + floor-clearance + ceiling tables, and the post-reset runbook with
+  EVERY verification command dry-run tonight (accounts_status, sizing_deadlock_diag live +
+  `--equity 2000/2500`, daily_loss_guard `--rearm --dry-run` both accounts, forced-rearm
+  mechanics proven on breaker COPIES).
+- **Recommendation: $2,500 per SPY arm, NOT the $2,000 default** — $2,000.00 sits EXACTLY
+  ON the half-open [$2K,$10K) tier boundary ($1,999.99 vs $2,000.00 flips ATM→OTM-2 on
+  bold_core) and its $2.00 ceiling refuses the $2.01-2.50 top of the typical ATM band;
+  $2,500 = every arm cleanly inside [2K,10K), ceiling $2.50, $500 tier-flap buffer.
+  Crypto twin NOT reset (evidence continuity + concurrent latency-drill lane).
+- **Disclosures (in the brief):** ATM-under-$2K prereg evidence clocks PAUSE (nothing
+  waived); full-send fill-rate covariate shifts (annotate reset date); broker-side history
+  destroyed per account (local ledgers are the record); kill-switch $ anchors roughly
+  double with the fresh SoD; bold-2 multiplier reads 1 again (reconcile pdt_gate_mode
+  post-reset, runbook step 5).
+- **Guard:** `backtest/tests/test_reset_plan_tier_boundaries_2026_08_01.py` — 10/10 green;
+  RED-proofed (mutated the 2K boundary → 3 fails → byte-identical restore → green). A
+  future tier edit invalidates the plan loudly.
+- **Skill updated** with the chosen targets + runbook pointer.
+- **BLOCKED-ON-J:** the dashboard reset click itself, nothing else. Runbook §7 step 1.
+
 ## [2026-08-01 12:37 ET] OK -- theta_clock (WEEKEND): THETA COCKPIT built (J directive, verbatim tonight), commit `a363bd5f`
 
 **Signal J wakes to (OP-25).** Built the in-trade Greeks visibility instrument J ordered:
