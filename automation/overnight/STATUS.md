@@ -1,3 +1,40 @@
+## [2026-08-01 13:21 ET] NULL (deliverable) -- WS4 (WEEKEND): PAIRED RIBBON A/B -- the ribbon question is now CLOSED BOTH WAYS
+
+**The only honest "loosen the ribbon" left -- relax filter 5 at ENTRY + suppress ribbon_flip_back
+at EXIT for level-anchored setups, ONE paired pre-registered change -- is NULL.** Prereg frozen
+12:43 ET + committed `e5e323f2` BEFORE the runner existed (git-provable); runner `4814e6bb`;
+results `96ae89bb`. Population 394 frame dates (= 391 full sessions + 3 half days, disclosed),
+real OPRA only, entry+1, real exit_manager walks.
+
+- **Gates:** G1 recent25 **+$57.00 PASS-but-UNDETERMINED** (4 of 7 recent added entries
+  unpriceable -- sign not fully measured) | **G2 FAIL** (recent 1 improved/1 worsened; full-window
+  7/14 -- the majority of changed days get WORSE) | **G3 FAIL** (recent delta minus best single
+  contribution = **-$498.50**; the entire recent positive is ONE +$555.50 trade) | G4 PASS
+  (runner cohort 42/$20,184 vs control 39/$18,330 -- grew, zero-tolerance met) | G5 PASS
+  (23 added, 3 recent, **16 exit-lever fires** -- both levers fired; L243 satisfied).
+- **The mechanism answer (the real payload):** the filter-5 block-set **loses money even under
+  its best-shot exit regime** -- added cohort n=23, WR 26.1%, -$21.30/trade (-$489.85 total).
+  The suppression itself nets **-$109.45 over its 16 fires**: 11 freed trades die BIGGER at the
+  structure stop (-$982) vs 3 that become runners (+$1,339). The +$500.65 full-window delta is
+  pre-emption luck again (unlocked entries occupy the slot and skip -$990.50 of control losers)
+  -- same artifact shape as 07-31. p one-sided: 0.39 full / 0.50 recent.
+- **GRAVEYARD (both ways, do NOT retest):** entry-only filter-5 deletion NULL (07-31, round-
+  tripped by the ribbon exit) + paired relax-entry-AND-suppress-exit NULL (08-01, the blocked
+  cohort is genuinely bad). **Filter 5 -- provenance-free until 07-31 -- now EARNS its keep on a
+  two-study evidence trail.** No further ribbon-loosening variants without genuinely NEW
+  information (regime break or a structural change to the exit stack).
+- **By-catch (disclosed in the JSON):** (a) prereg's primary entry mechanism tripped its own
+  HARD INVARIANT twice -> pre-registered fallback (scoped per-bar bypass) engaged; the repro
+  under pure production semantics PROVED the invariant-breaker was a sequencing KNOCK-ON
+  (2 trendline-only entries reachable only because the book upstream changed), not a gate leak.
+  (b) filters.py:1654-57 really does un-demerit trendline-only setups under raw
+  disable_filters=[5] -- a crack in the 07-31 ARM_A==ARM_B narrative (verdict unaffected).
+  (c) the concurrent OPRA backfill grew the cache 14225->14400 MID-SESSION and use_real_fills
+  reads cached premiums at ENTRY (simulator_real:420) -- control drifted 211->212 raw entries
+  from coverage alone; fixed with a process-wide frozen cache view so both arms share one truth.
+  Guards: `backtest/tests/test_paired_ribbon_suppression_2026_08_01.py` 4/4 green, RED-proofed
+  (mutant A exit-core `if True`, mutant B trendline-in-cohort).
+
 ## [2026-08-01 13:15 ET] NULL (deliverable) -- WS5 (WEEKEND MAIN EVENT): SHELF_HOLD_RECLAIM full-population study -- "enter on the defense" CLOSED with numbers
 
 **All 4 admission geometries NULL over the verified 391-day population; 0 of 96 cells survive
@@ -813,7 +850,7 @@ backtest\.venv\Scripts\pythonw.exe setup\scripts\shadow_signal_audit.py`. Re-reg
 
 
 ## Kitchen
-Kitchen: alive, queue 36 pending, last cook 0 min ago, today $0.00, model=ollama::qwen3:14b
+Kitchen: alive, queue 37 pending, last cook 0 min ago, today $0.00, model=grinder-python
 
 - [2026-08-01 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
 
