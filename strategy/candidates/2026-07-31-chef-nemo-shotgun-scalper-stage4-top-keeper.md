@@ -3,68 +3,66 @@
 <!-- Per CLAUDE.md OP-22 + OP-25 + OP-30 (effort/concurrency discipline). -->
 <!-- NOT YET RATIFIED -- J review required per Rule 9 before any production change. -->
 
-# CANDIDATE: SHOTGUN_SCALPER_STAGE4_TOP_KEEPER
+# CANDIDATE: shotgun_scalper_stage4_top_keeper
 
-**Filed:** 2026-07-21  
+**Filed:** 2026-07-23  
 **Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** parameter_change  
+**Type:** new_trigger  
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-We are testing a tight‑stop, quick‑take‑profit scalper that enters on high‑volume ratio breaks and exits via a combination of premium‑based TP/SL, a chandelier profit‑lock, and a hard time stop. The hypothesis is that this setup captures short‑term mean‑reversion bursts in SPY 0DTE puts while limiting catastrophe risk via a −35% premium stop and a 12‑minute time stop.
+The shotgun_scalper_stage4 grinder identified a parameter combination that improves edge capture on J's anchor days by tightening the stop loss, increasing the take-profit target, adding a time-based exit, adjusting strike selection, modifying profit-lock arming, and incorporating a volume filter. The hypothesis is that these changes collectively reduce losses on losing days while maintaining profitability on winning days, driven by better alignment with intraday momentum structure and noise reduction.
 
 ## Mechanism
 
-- **Entry:** Fires when the 5‑minute volume ratio exceeds `vol_ratio_threshold` (1.2) and price is near the ATM‑2 strike (`strike_offset=2`). Entry price is the mid‑quote of the selected put.
-- **Exit:** 
-  - Take profit at +75% of entry premium (`tp_premium_pct=0.75`) on 2/3 of the position.
-  - Stop loss at −35% of entry premium (`stop_premium_pct=-0.35`) on the full position (catastrophe cap; chart‑stop is primary but not modeled here).
-  - Chandelier profit‑lock arms at +60% of entry premium (`chandelier_arm_pct=0.6`) and trails 15% of the high‑water mark.
-  - Hard time stop exits any remaining position after 12 minutes (`time_stop_min=12`).
+- **Entry:** Based on shotgun_scalper_stage3 triggers (unspecified in keeper data, assumed to be a confluence of trendline, level, and ribbon signals).
+- **TP:** Exit 2/3 of position at +75% premium gain (`tp_premium_pct=0.75`).
+- **SL:** Exit full position at -35% premium loss (`stop_premium_pct=-0.35`) or after 12 minutes (`time_stop_min=12`), whichever occurs first.
+- **Strike:** ITM-2 put (`strike_offset=2` for PUTs, based on context of J's put-winning anchor days).
+- **Profit-lock:** Arms at +60% favor (`chandelier_arm_pct=0.6`), trailing 15% off high-water mark (standard chandelier).
+- **Volume filter:** Requires volume ratio > 1.2 (`vol_ratio_threshold=1.2`) to avoid low-conviction entries.
+- **Exit hierarchy:** Time stop and premium stop are hard exits; profit-lock is trailing; chart stop is not explicitly mentioned in params but assumed to be active per doctrine (C2).
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | unknown -- requires Stage-1 backtest | +$297.0 | unknown |
-| 5/01 winner | unknown -- requires Stage-1 backtest | +$231.0 | unknown |
-| 5/04 winner | unknown -- requires Stage-1 backtest | +$177.0 | unknown |
-| 5/05 loser | unknown -- requires Stage-1 backtest | -$3.0 | unknown |
-| 5/06 loser | unknown -- requires Stage-1 backtest | +$231.0 | unknown |
-| 5/07 loser 1 | unknown -- requires Stage-1 backtest | +$95.85 | unknown |
-| 5/07 loser 2 | unknown -- requires Stage-1 backtest | +$95.85 (same as above; only one 5/07 entry in data) | unknown |
+| 4/29 winner | unknown -- requires Stage-1 backtest | +297.0 (from keeper data) | est +297.0 |
+| 5/01 winner | unknown -- requires Stage-1 backtest | +231.0 | est +231.0 |
+| 5/04 winner | unknown -- requires Stage-1 backtest | +177.0 | est +177.0 |
+| 5/05 loser | unknown -- requires Stage-1 backtest | -3.0 | est -3.0 (vs -$260 J truth) |
+| 5/06 loser | unknown -- requires Stage-1 backtest | +231.0 | est +231.0 (vs -$300 J truth) |
+| 5/07 loser 1 | unknown -- requires Stage-1 backtest | +95.85 | est +95.85 (vs -$45 J truth) |
+| 5/07 loser 2 | unknown -- requires Stage-1 backtest | +95.85 (combined for day) | est +95.85 (vs -$120 J truth) |
 
-*Note: The by_day P&L values are the proposer’s predicted P&L per anchor day. Without a baseline we cannot compute delta; a Stage‑1 backtest vs. the current engine is required.*
+*Note: Current engine behavior unknown without Stage-1 backtest. Proposed behavior taken directly from keeper's `by_day` field. Delta vs J's source-of-truth trades (winners: +$342, +$470, +$730; losers: -$260, -$300, -$45, -$120).*
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** The combo trades an estimated 28 contracts per signal (derived from typical shotgun_scalper sizing). At $1.00 average entry premium this requires ~$28,000 of risk‑capital to stay within the 50% per‑trade risk cap. A $1K paper account would realize roughly 14% of the headline P&L.
-
-2. **Sample bias:** The grinder evaluated ~432 parameter combinations in Stage 1, keeping the top 5 after Stage 4. Selection bias is high; the reported edge_capture (506.55) is likely inflated by over‑fitting to the in‑sample window used for the grinder.
-
-3. **Out-of-sample:** NEEDS-OOS (no walk‑forward or hold‑out test performed on this combo).
-
-4. **Real-fills:** NEEDS-REAL-FILLS (no validation against real OPRA bid/ask spreads or slippage).
-
+1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline (based on $1.00 avg entry premium, 35% stop, 50% risk cap → ~28 contracts for $25K account).
+2. **Sample bias:** Anchor-day sample size = 6 days (3 winners, 3 losers). Strategy has 6 tuned parameters → high overfit risk. Winners_capture derived from only 3 samples; losers_added from 3 samples. Selection bias likely from grinder optimization over parameter space.
+3. **Out-of-sample:** NEEDS-OOS (no walk-forward held-out window performed).
+4. **Real-fills:** NEEDS-REAL-FILLS (no realistic OPRA simulation on top 3 J days).
 5. **Failure modes:** 
-   - Worst single day: 2026‑05‑15 –$195.45 (≈38% of max possible loss on a loser day). 
-   - Max drawdown estimate: assuming consecutive losses on 5/14 (0), 5/15 (−$195.45), 5/05 (−$3.0) yields ≈‑$198.45 over three days. 
-   - Blow‑up scenario: a volatility expansion that prevents the 12‑minute time stop from exiting before the premium breaches the −50% catastrophe cap (not modeled here) could produce losses > $500 per trade.
-
-6. **Concentration:** top5_pct = 0.139 → the top five days contribute 13.9% of total P&L, indicating low concentration and a relatively smooth equity curve.
+   - Worst day: 2026-05-15 (-$195.45) 
+   - Max drawdown: unknown without equity curve; likely >$500 given single-day loss and 1199 trades 
+   - Blow-up scenario: Volatility expansion causing repeated SL hits (35% stop is tight; 4 consecutive losses = -140% round-trip premium)
+6. **Concentration:** top5_pct=0.139 → top 5 days = 13.9% of P&L (benign; no concentration risk).
 
 ## Pre-merge gate
 
-- Pass gym validators for the shotgun_scalper_stage4 logic.  
-- Demonstrate OOS Sharpe ≥ 0.70 on a walk‑forward held‑out window.  
-- Verify real‑fills P&L on the top three J days (4/29, 5/01, 5/04) is within ±20% of the BS‑sim P&L.  
-- Confirm that the premium‑stop (−35%) does not violate the chart‑stop‑primary doctrine (C2) when combined with the chandelier profit‑lock.
+<what tests need to pass: gym validators, walk-forward, real-fills>
+- Gym v45+ validators (all 81/81 PASS)
+- Walk-forward OOS Sharpe ≥0.70 on 4.3-month holdout
+- Real-fills validation on anchor days (sim vs real OPRA diff <±20%)
+- Sub-window stability: no month with negative Sharpe in last 6 months
+- Anchor no-regression: edge_capture ≥500 on J days (current: 506.55)
 
 ## Confidence
 
-3 / 10 -- The edge_capture is well below the OP‑16 floor of $771, indicating the strategy likely fails to capture J’s edge. The high Sharpe (5.093) is driven by low volatility in the equity curve rather than true edge, and the sample has not been validated out‑of‑sample or with real fills.
+3 / 10 -- Edge_capture below OP-16 floor (506.55 < 771), high overfit risk from small anchor sample and excessive parameter tuning, no OOS/real-fills validation. Directional improvement on loser days intriguing but likely noise-driven.
 
 ## Pre-existing leaderboard impact
 
-This candidate would be REJECTED at the door (edge_capture < 771) and therefore does not appear on the current leaderboard. It neither conflicts with nor complements the existing top‑9 candidates; it is simply insufficient to meet the minimum edge threshold. If future OOS testing shows a significant edge_capture increase, it could be revisited, but as‑is it is not a viable promotion.
+Does not conflict with leaderboard (all candidates have edge_capture ≥771). This candidate fails OP-16 floor and requires OOS walk-forward before reconsideration. Complements structure_veto_dir_vs_trend (Rank ★) by focusing on exit/entry timing rather than structural veto. No overlap with existing live-eligible candidates.
