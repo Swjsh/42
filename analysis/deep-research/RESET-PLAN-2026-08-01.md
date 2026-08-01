@@ -91,7 +91,7 @@ OTM-3 0.4167 / 0.3376 · ITM 1.0.
 | safe-3 | $1,967.81 | BOLD [0,2K) | OTM-3 | 0.42 / 0.34 | $1.96 | risk_cap |
 | bold-2 | $1,197.52 | BOLD_CORE [0,2K) | ATM | 0.98 / 0.97 | **$1.19** | risk_cap |
 | risky-1 | $1,756.87 | BOLD_CORE [0,2K) | ATM (both lanes) | 0.98 / 0.97 | $1.75 | risk_cap |
-| risky-3 | $2,121.61 | BOLD_CORE [2K,10K) | OTM-2 (ATM ladder/probe) | 0.63 / 0.53 | $2.12 | risk_cap |
+| risky-3 | $2,121.61 | BOLD_CORE [2K,10K) | OTM-2 (ATM ladder/probe) | 0.63/0.53 normal · 0.98/0.97 ladder/probe | $2.12 | risk_cap |
 
 Reading: safe-2 and bold-2 clear the FLOOR fine (ATM) but their **ceilings ($1.16/$1.19)
 refuse most of the typical ATM band $1.30–$2.50** — the 2026-07-30 deadlock, still live
@@ -137,8 +137,8 @@ signals (66% afternoon)**. Two different starvation mechanisms, both equity-posi
 | safe-2 | SAFE → ATM | ATM | 0.98 / 0.97 | $2.50 | ceiling unblinds ($1.16→$2.50); strike unchanged |
 | safe-3 | BOLD → OTM-2 | OTM-2 | 0.63 / 0.53 | $2.50 | floor-refusal halves (0.42→0.63 clearance); keeps its deliberate OTM lane |
 | bold-2 | BOLD_CORE → OTM-2 | OTM-2 | 0.63 / 0.53 | $2.50 | ceiling unblinds ($1.19→$2.50); strike ATM→OTM-2 (§6a) |
-| risky-1 | BOLD_CORE → OTM-2; full-send ATM | OTM-2 / ATM | 0.63 / 0.98 | $2.50 | full-send strike UNCHANGED; its refusal band $1.75–2.50 opens (§6b) |
-| risky-3 | BOLD_CORE → OTM-2; ladder+probe ATM | OTM-2 / ATM | 0.63 / 0.98 | $2.50 | same tier as today, +$378 capital, ceiling $2.12→$2.50 |
+| risky-1 | BOLD_CORE → OTM-2; full-send ATM | OTM-2 / ATM | 0.63/0.53 normal · 0.98/0.97 full-send | $2.50 | full-send strike UNCHANGED; its refusal band $1.75–2.50 opens (§6b) |
+| risky-3 | BOLD_CORE → OTM-2; ladder+probe ATM | OTM-2 / ATM | 0.63/0.53 normal · 0.98/0.97 ladder/probe | $2.50 | same tier as today, +$378 capital, ceiling $2.12→$2.50 |
 
 ## 6. Honest disclosures — what the reset changes, pauses, or destroys
 
