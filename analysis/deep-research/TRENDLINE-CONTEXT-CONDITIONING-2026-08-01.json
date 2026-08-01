@@ -1,0 +1,5415 @@
+{
+ "_doc": "trendline_context_conditioning_2026_08_01.py -- WS8: does multi-day trendline",
+ "prereg": "analysis/recommendations/prereg-trendline-context-conditioning-2026-08-01.json (commit 9d4d242c; absorbed by a same-second concurrent commit -- disclosed)",
+ "generated_et": "2026-08-01T12:56:09",
+ "population": {
+  "n": 66,
+  "total_pnl": 6894.85,
+  "window": "2025-01-06..2026-07-22 (subset of verified 391-day population)",
+  "n_lookback_truncated": 0,
+  "n_trigger_bar_gaps": 0,
+  "n_r2026": 35
+ },
+ "tests_preregistered": [
+  {
+   "test": "C1_aligned|FULL|B1.00",
+   "band": "B1.00",
+   "contrast": "C1_aligned",
+   "stratum": "FULL",
+   "cell": {
+    "n": 19,
+    "total": 4005.8,
+    "per_trade": 210.83,
+    "wr": 0.579,
+    "n_tl_rejection_tag": 4
+   },
+   "complement": {
+    "n": 47,
+    "total": 2889.05,
+    "per_trade": 61.47,
+    "wr": 0.447,
+    "n_tl_rejection_tag": 5
+   },
+   "obs_diff": 149.36,
+   "p": 0.1342432878356082,
+   "degenerate": null,
+   "bh_survives": false,
+   "bh_rank": 1,
+   "bh_threshold": 0.00714
+  },
+  {
+   "test": "C1_aligned|R2026|B1.00",
+   "band": "B1.00",
+   "contrast": "C1_aligned",
+   "stratum": "R2026",
+   "cell": {
+    "n": 12,
+    "total": 2273.8,
+    "per_trade": 189.48,
+    "wr": 0.583,
+    "n_tl_rejection_tag": 3
+   },
+   "complement": {
+    "n": 23,
+    "total": 505.25,
+    "per_trade": 21.97,
+    "wr": 0.478,
+    "n_tl_rejection_tag": 5
+   },
+   "obs_diff": 167.52,
+   "p": 0.2216389180540973,
+   "degenerate": null,
+   "bh_survives": false,
+   "bh_rank": 2,
+   "bh_threshold": 0.01429
+  },
+  {
+   "test": "C2_opposing|FULL|B1.00",
+   "band": "B1.00",
+   "contrast": "C2_opposing",
+   "stratum": "FULL",
+   "cell": {
+    "n": 23,
+    "total": 2298.45,
+    "per_trade": 99.93,
+    "wr": 0.435,
+    "n_tl_rejection_tag": 5
+   },
+   "complement": {
+    "n": 43,
+    "total": 4596.4,
+    "per_trade": 106.89,
+    "wr": 0.512,
+    "n_tl_rejection_tag": 4
+   },
+   "obs_diff": -6.96,
+   "p": 0.9429528523573821,
+   "degenerate": null,
+   "bh_survives": false,
+   "bh_rank": 13,
+   "bh_threshold": 0.09286
+  },
+  {
+   "test": "C2_opposing|R2026|B1.00",
+   "band": "B1.00",
+   "contrast": "C2_opposing",
+   "stratum": "R2026",
+   "cell": {
+    "n": 13,
+    "total": 1762.45,
+    "per_trade": 135.57,
+    "wr": 0.538,
+    "n_tl_rejection_tag": 4
+   },
+   "complement": {
+    "n": 22,
+    "total": 1016.6,
+    "per_trade": 46.21,
+    "wr": 0.5,
+    "n_tl_rejection_tag": 4
+   },
+   "obs_diff": 89.36,
+   "p": 0.5100244987750613,
+   "degenerate": null,
+   "bh_survives": false,
+   "bh_rank": 8,
+   "bh_threshold": 0.05714
+  },
+  {
+   "test": "C1_aligned|FULL|B0.50",
+   "band": "B0.50",
+   "contrast": "C1_aligned",
+   "stratum": "FULL",
+   "cell": {
+    "n": 10,
+    "total": 1523.75,
+    "per_trade": 152.38,
+    "wr": 0.5,
+    "n_tl_rejection_tag": 1
+   },
+   "complement": {
+    "n": 56,
+    "total": 5371.1,
+    "per_trade": 95.91,
+    "wr": 0.482,
+    "n_tl_rejection_tag": 8
+   },
+   "obs_diff": 56.46,
+   "p": 0.6553172341382931,
+   "degenerate": null,
+   "bh_survives": false,
+   "bh_rank": 11,
+   "bh_threshold": 0.07857
+  },
+  {
+   "test": "C1_aligned|R2026|B0.50",
+   "band": "B0.50",
+   "contrast": "C1_aligned",
+   "stratum": "R2026",
+   "cell": {
+    "n": 5,
+    "total": 933.95,
+    "per_trade": 186.79,
+    "wr": 0.6,
+    "n_tl_rejection_tag": 1
+   },
+   "complement": {
+    "n": 30,
+    "total": 1845.1,
+    "per_trade": 61.5,
+    "wr": 0.5,
+    "n_tl_rejection_tag": 7
+   },
+   "obs_diff": 125.29,
+   "p": 0.5090745462726863,
+   "degenerate": null,
+   "bh_survives": false,
+   "bh_rank": 7,
+   "bh_threshold": 0.05
+  },
+  {
+   "test": "C2_opposing|FULL|B0.50",
+   "band": "B0.50",
+   "contrast": "C2_opposing",
+   "stratum": "FULL",
+   "cell": {
+    "n": 20,
+    "total": 1456.6,
+    "per_trade": 72.83,
+    "wr": 0.4,
+    "n_tl_rejection_tag": 5
+   },
+   "complement": {
+    "n": 46,
+    "total": 5438.25,
+    "per_trade": 118.22,
+    "wr": 0.522,
+    "n_tl_rejection_tag": 4
+   },
+   "obs_diff": -45.39,
+   "p": 0.6459177041147942,
+   "degenerate": null,
+   "bh_survives": false,
+   "bh_rank": 10,
+   "bh_threshold": 0.07143
+  },
+  {
+   "test": "C2_opposing|R2026|B0.50",
+   "band": "B0.50",
+   "contrast": "C2_opposing",
+   "stratum": "R2026",
+   "cell": {
+    "n": 11,
+    "total": 801.6,
+    "per_trade": 72.87,
+    "wr": 0.455,
+    "n_tl_rejection_tag": 4
+   },
+   "complement": {
+    "n": 24,
+    "total": 1977.45,
+    "per_trade": 82.39,
+    "wr": 0.542,
+    "n_tl_rejection_tag": 4
+   },
+   "obs_diff": -9.52,
+   "p": 0.9472526373681316,
+   "degenerate": null,
+   "bh_survives": false,
+   "bh_rank": 14,
+   "bh_threshold": 0.1
+  },
+  {
+   "test": "C1_aligned|FULL|B2.00",
+   "band": "B2.00",
+   "contrast": "C1_aligned",
+   "stratum": "FULL",
+   "cell": {
+    "n": 31,
+    "total": 3979.75,
+    "per_trade": 128.38,
+    "wr": 0.452,
+    "n_tl_rejection_tag": 8
+   },
+   "complement": {
+    "n": 35,
+    "total": 2915.1,
+    "per_trade": 83.29,
+    "wr": 0.514,
+    "n_tl_rejection_tag": 1
+   },
+   "obs_diff": 45.09,
+   "p": 0.616519174041298,
+   "degenerate": null,
+   "bh_survives": false,
+   "bh_rank": 9,
+   "bh_threshold": 0.06429
+  },
+  {
+   "test": "C1_aligned|R2026|B2.00",
+   "band": "B2.00",
+   "contrast": "C1_aligned",
+   "stratum": "R2026",
+   "cell": {
+    "n": 19,
+    "total": 2363.2,
+    "per_trade": 124.38,
+    "wr": 0.474,
+    "n_tl_rejection_tag": 7
+   },
+   "complement": {
+    "n": 16,
+    "total": 415.85,
+    "per_trade": 25.99,
+    "wr": 0.562,
+    "n_tl_rejection_tag": 1
+   },
+   "obs_diff": 98.39,
+   "p": 0.4490275486225689,
+   "degenerate": null,
+   "bh_survives": false,
+   "bh_rank": 6,
+   "bh_threshold": 0.04286
+  },
+  {
+   "test": "C2_opposing|FULL|B2.00",
+   "band": "B2.00",
+   "contrast": "C2_opposing",
+   "stratum": "FULL",
+   "cell": {
+    "n": 28,
+    "total": 3385.95,
+    "per_trade": 120.93,
+    "wr": 0.464,
+    "n_tl_rejection_tag": 6
+   },
+   "complement": {
+    "n": 38,
+    "total": 3508.9,
+    "per_trade": 92.34,
+    "wr": 0.5,
+    "n_tl_rejection_tag": 3
+   },
+   "obs_diff": 28.59,
+   "p": 0.7577121143942803,
+   "degenerate": null,
+   "bh_survives": false,
+   "bh_rank": 12,
+   "bh_threshold": 0.08571
+  },
+  {
+   "test": "C2_opposing|R2026|B2.00",
+   "band": "B2.00",
+   "contrast": "C2_opposing",
+   "stratum": "R2026",
+   "cell": {
+    "n": 16,
+    "total": 2596.4,
+    "per_trade": 162.28,
+    "wr": 0.562,
+    "n_tl_rejection_tag": 5
+   },
+   "complement": {
+    "n": 19,
+    "total": 182.65,
+    "per_trade": 9.61,
+    "wr": 0.474,
+    "n_tl_rejection_tag": 3
+   },
+   "obs_diff": 152.66,
+   "p": 0.23973801309934503,
+   "degenerate": null,
+   "bh_survives": false,
+   "bh_rank": 4,
+   "bh_threshold": 0.02857
+  },
+  {
+   "test": "C1_aligned|FULL|ANY",
+   "band": "ANY",
+   "contrast": "C1_aligned",
+   "stratum": "FULL",
+   "cell": {
+    "n": 66,
+    "total": 6894.85,
+    "per_trade": 104.47,
+    "wr": 0.485,
+    "n_tl_rejection_tag": 9
+   },
+   "complement": {
+    "n": 0,
+    "total": 0.0,
+    "per_trade": null,
+    "wr": null,
+    "n_tl_rejection_tag": 0
+   },
+   "p": null,
+   "obs_diff": null,
+   "degenerate": "cell n=66, complement n=0",
+   "bh_survives": false
+  },
+  {
+   "test": "C1_aligned|R2026|ANY",
+   "band": "ANY",
+   "contrast": "C1_aligned",
+   "stratum": "R2026",
+   "cell": {
+    "n": 35,
+    "total": 2779.05,
+    "per_trade": 79.4,
+    "wr": 0.514,
+    "n_tl_rejection_tag": 8
+   },
+   "complement": {
+    "n": 0,
+    "total": 0.0,
+    "per_trade": null,
+    "wr": null,
+    "n_tl_rejection_tag": 0
+   },
+   "p": null,
+   "obs_diff": null,
+   "degenerate": "cell n=35, complement n=0",
+   "bh_survives": false
+  },
+  {
+   "test": "C2_opposing|FULL|ANY",
+   "band": "ANY",
+   "contrast": "C2_opposing",
+   "stratum": "FULL",
+   "cell": {
+    "n": 29,
+    "total": 4245.9,
+    "per_trade": 146.41,
+    "wr": 0.483,
+    "n_tl_rejection_tag": 6
+   },
+   "complement": {
+    "n": 37,
+    "total": 2648.95,
+    "per_trade": 71.59,
+    "wr": 0.486,
+    "n_tl_rejection_tag": 3
+   },
+   "obs_diff": 74.82,
+   "p": 0.415729213539323,
+   "degenerate": null,
+   "bh_survives": false,
+   "bh_rank": 5,
+   "bh_threshold": 0.03571
+  },
+  {
+   "test": "C2_opposing|R2026|ANY",
+   "band": "ANY",
+   "contrast": "C2_opposing",
+   "stratum": "R2026",
+   "cell": {
+    "n": 16,
+    "total": 2596.4,
+    "per_trade": 162.28,
+    "wr": 0.562,
+    "n_tl_rejection_tag": 5
+   },
+   "complement": {
+    "n": 19,
+    "total": 182.65,
+    "per_trade": 9.61,
+    "wr": 0.474,
+    "n_tl_rejection_tag": 3
+   },
+   "obs_diff": 152.66,
+   "p": 0.23913804309784512,
+   "degenerate": null,
+   "bh_survives": false,
+   "bh_rank": 3,
+   "bh_threshold": 0.02143
+  }
+ ],
+ "mutually_exclusive_cells": {
+  "B1.00|FULL": {
+   "ALIGNED_ONLY": {
+    "n": 6,
+    "total": 1586.95,
+    "per_trade": 264.49,
+    "wr": 0.667,
+    "n_tl_rejection_tag": 1
+   },
+   "OPPOSING_ONLY": {
+    "n": 10,
+    "total": -120.4,
+    "per_trade": -12.04,
+    "wr": 0.3,
+    "n_tl_rejection_tag": 2
+   },
+   "BOTH_SIDES": {
+    "n": 13,
+    "total": 2418.85,
+    "per_trade": 186.07,
+    "wr": 0.538,
+    "n_tl_rejection_tag": 3
+   },
+   "NO_LINE": {
+    "n": 37,
+    "total": 3009.45,
+    "per_trade": 81.34,
+    "wr": 0.486,
+    "n_tl_rejection_tag": 3
+   }
+  },
+  "B1.00|R2026": {
+   "ALIGNED_ONLY": {
+    "n": 4,
+    "total": 1275.95,
+    "per_trade": 318.99,
+    "wr": 0.75,
+    "n_tl_rejection_tag": 1
+   },
+   "OPPOSING_ONLY": {
+    "n": 5,
+    "total": 764.6,
+    "per_trade": 152.92,
+    "wr": 0.6,
+    "n_tl_rejection_tag": 2
+   },
+   "BOTH_SIDES": {
+    "n": 8,
+    "total": 997.85,
+    "per_trade": 124.73,
+    "wr": 0.5,
+    "n_tl_rejection_tag": 2
+   },
+   "NO_LINE": {
+    "n": 18,
+    "total": -259.35,
+    "per_trade": -14.41,
+    "wr": 0.444,
+    "n_tl_rejection_tag": 3
+   }
+  },
+  "B0.50|FULL": {
+   "ALIGNED_ONLY": {
+    "n": 5,
+    "total": 1144.95,
+    "per_trade": 228.99,
+    "wr": 0.6,
+    "n_tl_rejection_tag": 1
+   },
+   "OPPOSING_ONLY": {
+    "n": 15,
+    "total": 1077.8,
+    "per_trade": 71.85,
+    "wr": 0.4,
+    "n_tl_rejection_tag": 5
+   },
+   "BOTH_SIDES": {
+    "n": 5,
+    "total": 378.8,
+    "per_trade": 75.76,
+    "wr": 0.4,
+    "n_tl_rejection_tag": 0
+   },
+   "NO_LINE": {
+    "n": 41,
+    "total": 4293.3,
+    "per_trade": 104.71,
+    "wr": 0.512,
+    "n_tl_rejection_tag": 3
+   }
+  },
+  "B0.50|R2026": {
+   "ALIGNED_ONLY": {
+    "n": 3,
+    "total": 833.95,
+    "per_trade": 277.98,
+    "wr": 0.667,
+    "n_tl_rejection_tag": 1
+   },
+   "OPPOSING_ONLY": {
+    "n": 9,
+    "total": 701.6,
+    "per_trade": 77.96,
+    "wr": 0.444,
+    "n_tl_rejection_tag": 4
+   },
+   "BOTH_SIDES": {
+    "n": 2,
+    "total": 100.0,
+    "per_trade": 50.0,
+    "wr": 0.5,
+    "n_tl_rejection_tag": 0
+   },
+   "NO_LINE": {
+    "n": 21,
+    "total": 1143.5,
+    "per_trade": 54.45,
+    "wr": 0.524,
+    "n_tl_rejection_tag": 3
+   }
+  },
+  "B2.00|FULL": {
+   "ALIGNED_ONLY": {
+    "n": 7,
+    "total": 878.4,
+    "per_trade": 125.49,
+    "wr": 0.429,
+    "n_tl_rejection_tag": 2
+   },
+   "OPPOSING_ONLY": {
+    "n": 4,
+    "total": 284.6,
+    "per_trade": 71.15,
+    "wr": 0.5,
+    "n_tl_rejection_tag": 0
+   },
+   "BOTH_SIDES": {
+    "n": 24,
+    "total": 3101.35,
+    "per_trade": 129.22,
+    "wr": 0.458,
+    "n_tl_rejection_tag": 6
+   },
+   "NO_LINE": {
+    "n": 31,
+    "total": 2630.5,
+    "per_trade": 84.85,
+    "wr": 0.516,
+    "n_tl_rejection_tag": 1
+   }
+  },
+  "B2.00|R2026": {
+   "ALIGNED_ONLY": {
+    "n": 5,
+    "total": 497.4,
+    "per_trade": 99.48,
+    "wr": 0.4,
+    "n_tl_rejection_tag": 2
+   },
+   "OPPOSING_ONLY": {
+    "n": 2,
+    "total": 730.6,
+    "per_trade": 365.3,
+    "wr": 1.0,
+    "n_tl_rejection_tag": 0
+   },
+   "BOTH_SIDES": {
+    "n": 14,
+    "total": 1865.8,
+    "per_trade": 133.27,
+    "wr": 0.5,
+    "n_tl_rejection_tag": 5
+   },
+   "NO_LINE": {
+    "n": 14,
+    "total": -314.75,
+    "per_trade": -22.48,
+    "wr": 0.5,
+    "n_tl_rejection_tag": 1
+   }
+  },
+  "ANY|FULL": {
+   "ALIGNED_ONLY": {
+    "n": 37,
+    "total": 2648.95,
+    "per_trade": 71.59,
+    "wr": 0.486,
+    "n_tl_rejection_tag": 3
+   },
+   "OPPOSING_ONLY": {
+    "n": 0,
+    "total": 0.0,
+    "per_trade": null,
+    "wr": null,
+    "n_tl_rejection_tag": 0
+   },
+   "BOTH_SIDES": {
+    "n": 29,
+    "total": 4245.9,
+    "per_trade": 146.41,
+    "wr": 0.483,
+    "n_tl_rejection_tag": 6
+   },
+   "NO_LINE": {
+    "n": 0,
+    "total": 0.0,
+    "per_trade": null,
+    "wr": null,
+    "n_tl_rejection_tag": 0
+   }
+  },
+  "ANY|R2026": {
+   "ALIGNED_ONLY": {
+    "n": 19,
+    "total": 182.65,
+    "per_trade": 9.61,
+    "wr": 0.474,
+    "n_tl_rejection_tag": 3
+   },
+   "OPPOSING_ONLY": {
+    "n": 0,
+    "total": 0.0,
+    "per_trade": null,
+    "wr": null,
+    "n_tl_rejection_tag": 0
+   },
+   "BOTH_SIDES": {
+    "n": 16,
+    "total": 2596.4,
+    "per_trade": 162.28,
+    "wr": 0.562,
+    "n_tl_rejection_tag": 5
+   },
+   "NO_LINE": {
+    "n": 0,
+    "total": 0.0,
+    "per_trade": null,
+    "wr": null,
+    "n_tl_rejection_tag": 0
+   }
+  }
+ },
+ "day_level_robustness": [],
+ "verdict": "NULL",
+ "signal_tests": [],
+ "per_trade": [
+  {
+   "date": "2025-01-10",
+   "entry_time_et": "2025-01-10T10:35:00",
+   "side": "P",
+   "tier": "ELITE",
+   "dollar_pnl": 705.55,
+   "trigger_level": 585.195,
+   "ref_close": 585.03,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 585.76
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 589.71
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 586.26
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 589.46
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-01-10",
+   "entry_time_et": "2025-01-10T12:05:00",
+   "side": "P",
+   "tier": "ELITE",
+   "dollar_pnl": 12.0,
+   "trigger_level": 580.51,
+   "ref_close": 580.315,
+   "n_active_lines": 4,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 582.36
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 588.86
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 581.97
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 588.58
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 582.77
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 583.91
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 582.46
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-01-16",
+   "entry_time_et": "2025-01-16T12:05:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": -160.0,
+   "trigger_level": 593.38,
+   "ref_close": 593.88,
+   "n_active_lines": 4,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 578.99
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 593.3
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 582.3
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 592.51
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 592.11
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 592.62
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 592.4
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 592.45
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-01-30",
+   "entry_time_et": "2025-01-30T10:40:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": -159.0,
+   "trigger_level": 603.71,
+   "ref_close": 604.49,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 599.76
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 603.42
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 600.18
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 603.2
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-02-12",
+   "entry_time_et": "2025-02-12T14:40:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": -230.0,
+   "trigger_level": 603.6,
+   "ref_close": 603.695,
+   "n_active_lines": 6,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 600.79
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 605.63
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 600.68
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 605.49
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 603.15
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 596.45
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 603.65
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 600.87
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": true,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-02-21",
+   "entry_time_et": "2025-02-21T14:05:00",
+   "side": "P",
+   "tier": "ELITE",
+   "dollar_pnl": 616.0,
+   "trigger_level": 603.6,
+   "ref_close": 603.18,
+   "n_active_lines": 3,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 604.57
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 605.87
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 604.78
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 609.36
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 606.45
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 607.03
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 606.3
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-03-03",
+   "entry_time_et": "2025-03-03T10:35:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": -249.0,
+   "trigger_level": 596.0,
+   "ref_close": 596.93,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 589.8
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 596.12
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 589.6
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 595.98
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-06-05",
+   "entry_time_et": "2025-06-05T14:05:00",
+   "side": "P",
+   "tier": "ELITE",
+   "dollar_pnl": -230.0,
+   "trigger_level": 595.98,
+   "ref_close": 595.25,
+   "n_active_lines": 6,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 595.08
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 597.85
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 595.0
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 596.5
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 594.49
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 594.85
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-06-13",
+   "entry_time_et": "2025-06-13T14:05:00",
+   "side": "P",
+   "tier": "SUPER",
+   "dollar_pnl": 656.0,
+   "trigger_level": 600.0,
+   "ref_close": 599.11,
+   "n_active_lines": 7,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 597.58
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 602.84
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 597.78
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 603.3
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 599.2
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 599.97
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 599.49
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 599.81
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": true
+  },
+  {
+   "date": "2025-06-20",
+   "entry_time_et": "2025-06-20T13:05:00",
+   "side": "P",
+   "tier": "ELITE",
+   "dollar_pnl": 397.8,
+   "trigger_level": 595.52,
+   "ref_close": 595.1,
+   "n_active_lines": 6,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 594.88
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 599.14
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 595.2
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 598.9
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 596.06
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 595.43
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-06-26",
+   "entry_time_et": "2025-06-26T09:45:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": -128.0,
+   "trigger_level": 609.0,
+   "ref_close": 609.25,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 606.1
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 607.19
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 606.36
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 607.1
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-07-09",
+   "entry_time_et": "2025-07-09T09:45:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": -252.0,
+   "trigger_level": 623.87,
+   "ref_close": 624.06,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 620.04
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 620.97
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 620.12
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 620.65
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-07-15",
+   "entry_time_et": "2025-07-15T09:45:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": -54.0,
+   "trigger_level": 626.0,
+   "ref_close": 626.47,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 623.29
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 624.79
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 623.3
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 624.93
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-07-17",
+   "entry_time_et": "2025-07-17T09:40:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": 541.0,
+   "trigger_level": 624.72,
+   "ref_close": 624.795,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 624.21
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 624.69
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 624.35
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 624.66
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": true,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-07-21",
+   "entry_time_et": "2025-07-21T09:45:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": 418.2,
+   "trigger_level": 629.305,
+   "ref_close": 629.42,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 626.9
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 627.55
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 626.73
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 627.24
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-08-08",
+   "entry_time_et": "2025-08-08T09:40:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": 412.2,
+   "trigger_level": 634.11,
+   "ref_close": 634.32,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 630.17
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 631.44
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 629.48
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 631.12
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-08-11",
+   "entry_time_et": "2025-08-11T09:40:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": -282.0,
+   "trigger_level": 637.0461014596233,
+   "ref_close": 637.5,
+   "n_active_lines": 4,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 631.29
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 637.57
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 630.21
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 637.51
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-08-12",
+   "entry_time_et": "2025-08-12T09:55:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": 572.0,
+   "trigger_level": 637.26,
+   "ref_close": 638.265,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 632.45
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 635.76
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 630.97
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 635.72
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-08-22",
+   "entry_time_et": "2025-08-22T09:40:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": 859.95,
+   "trigger_level": 637.755,
+   "ref_close": 638.51,
+   "n_active_lines": 4,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 635.1
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 642.89
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 635.52
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 644.15
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-09-11",
+   "entry_time_et": "2025-09-11T09:50:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": 458.35,
+   "trigger_level": 653.87,
+   "ref_close": 654.44,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 650.86
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 651.49
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 651.17
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 652.15
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-09-23",
+   "entry_time_et": "2025-09-23T09:55:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": -35.0,
+   "trigger_level": 666.864279493517,
+   "ref_close": 667.02,
+   "n_active_lines": 3,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 666.66
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 666.42
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 666.92
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 667.1
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-09-26",
+   "entry_time_et": "2025-09-26T09:40:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": -189.0,
+   "trigger_level": 660.72,
+   "ref_close": 661.02,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 657.22
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 657.46
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 657.31
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 657.73
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-09-26",
+   "entry_time_et": "2025-09-26T12:25:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": -119.0,
+   "trigger_level": 660.38,
+   "ref_close": 660.54,
+   "n_active_lines": 6,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 658.78
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 661.79
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 658.61
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 661.22
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 658.77
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 659.15
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 658.86
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 658.89
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-10-02",
+   "entry_time_et": "2025-10-02T10:05:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": -164.0,
+   "trigger_level": 669.0719879985901,
+   "ref_close": 669.395,
+   "n_active_lines": 3,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 662.57
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 669.15
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 662.72
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 669.34
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-10-15",
+   "entry_time_et": "2025-10-15T13:05:00",
+   "side": "P",
+   "tier": "ELITE",
+   "dollar_pnl": 483.55,
+   "trigger_level": 663.8275103924964,
+   "ref_close": 663.04,
+   "n_active_lines": 6,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 661.16
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 669.47
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 661.97
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 673.0
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 666.97
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 664.97
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 665.21
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 664.28
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-10-24",
+   "entry_time_et": "2025-10-24T09:40:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": -69.0,
+   "trigger_level": 677.0,
+   "ref_close": 677.15,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 673.1
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 672.61
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 665.25
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 672.51
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-10-27",
+   "entry_time_et": "2025-10-27T09:40:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": -30.0,
+   "trigger_level": 682.72,
+   "ref_close": 682.825,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 678.1
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 678.31
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 677.22
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 678.25
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-10-28",
+   "entry_time_et": "2025-10-28T12:10:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": -84.0,
+   "trigger_level": 685.97,
+   "ref_close": 685.985,
+   "n_active_lines": 5,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 685.14
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 686.18
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 685.22
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 685.55
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 685.94
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 686.15
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 686.1
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-10-29",
+   "entry_time_et": "2025-10-29T09:40:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": 21.0,
+   "trigger_level": 688.72,
+   "ref_close": 688.89,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 686.48
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 687.07
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 686.64
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 688.1
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-11-10",
+   "entry_time_et": "2025-11-10T13:05:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": -90.0,
+   "trigger_level": 677.0,
+   "ref_close": 677.48,
+   "n_active_lines": 8,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 674.14
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 678.69
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 675.73
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 678.73
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 675.98
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 678.5
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 675.55
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 677.95
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2025-12-11",
+   "entry_time_et": "2025-12-11T12:40:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": 486.2,
+   "trigger_level": 685.25,
+   "ref_close": 685.64,
+   "n_active_lines": 7,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 682.32
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 686.13
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 682.25
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 685.55
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 684.67
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 685.52
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 684.68
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 685.64
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-01-06",
+   "entry_time_et": "2026-01-06T10:55:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": -252.0,
+   "trigger_level": 689.43,
+   "ref_close": 689.705,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 687.83
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 688.73
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 687.7
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 688.78
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-01-26",
+   "entry_time_et": "2026-01-26T10:45:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": 24.0,
+   "trigger_level": 692.0,
+   "ref_close": 692.185,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 689.18
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 689.95
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 689.13
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 690.17
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-01-27",
+   "entry_time_et": "2026-01-27T10:50:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": 442.0,
+   "trigger_level": 694.2,
+   "ref_close": 694.475,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 693.38
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 693.7
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 693.7
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 693.6
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-01-29",
+   "entry_time_et": "2026-01-29T11:05:00",
+   "side": "P",
+   "tier": "ELITE",
+   "dollar_pnl": 656.85,
+   "trigger_level": 690.485,
+   "ref_close": 690.28,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 694.51
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 696.24
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 695.11
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 696.07
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-02-03",
+   "entry_time_et": "2026-02-03T13:05:00",
+   "side": "P",
+   "tier": "ELITE",
+   "dollar_pnl": 380.0,
+   "trigger_level": 690.545,
+   "ref_close": 690.49,
+   "n_active_lines": 5,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 690.35
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 696.66
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 690.98
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 696.7
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 691.51
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 690.86
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 690.94
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 690.5
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-02-26",
+   "entry_time_et": "2026-02-26T11:05:00",
+   "side": "P",
+   "tier": "SUPER",
+   "dollar_pnl": 636.05,
+   "trigger_level": 690.6,
+   "ref_close": 690.35,
+   "n_active_lines": 3,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 693.42
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 690.83
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 688.51
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 693.09
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": true,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-05-08",
+   "entry_time_et": "2026-05-08T09:50:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": 32.0,
+   "trigger_level": 735.45,
+   "ref_close": 736.04,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 730.38
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 731.46
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 730.49
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 735.28
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-05-18",
+   "entry_time_et": "2026-05-18T11:05:00",
+   "side": "P",
+   "tier": "ELITE",
+   "dollar_pnl": 446.45,
+   "trigger_level": 739.0,
+   "ref_close": 737.280029296875,
+   "n_active_lines": 5,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 736.44
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 746.02
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 737.52
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 747.25
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 741.5
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 738.25
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 737.57
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 740.01
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-05-18",
+   "entry_time_et": "2026-05-18T14:05:00",
+   "side": "P",
+   "tier": "SUPER",
+   "dollar_pnl": 514.4,
+   "trigger_level": 737.0,
+   "ref_close": 735.8599853515625,
+   "n_active_lines": 6,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 735.22
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 736.79
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 734.97
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 736.75
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 736.78
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 737.04
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 736.91
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 737.16
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-05-19",
+   "entry_time_et": "2026-05-19T14:10:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": -280.0,
+   "trigger_level": 736.6849381647099,
+   "ref_close": 737.11,
+   "n_active_lines": 7,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 732.05
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 737.29
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 732.29
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 737.27
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 732.93
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 737.2
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 736.91
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 736.74
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-05-21",
+   "entry_time_et": "2026-05-21T11:35:00",
+   "side": "P",
+   "tier": "SUPER",
+   "dollar_pnl": -189.0,
+   "trigger_level": 738.85,
+   "ref_close": 738.0,
+   "n_active_lines": 8,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 737.95
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 740.87
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 737.8
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 740.73
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 737.74
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 738.96
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 737.67
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 738.67
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": true
+  },
+  {
+   "date": "2026-05-21",
+   "entry_time_et": "2026-05-21T13:25:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": 487.9,
+   "trigger_level": 741.3,
+   "ref_close": 741.98,
+   "n_active_lines": 4,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 738.81
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 740.37
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 738.73
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 740.23
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 738.2
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 739.2
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 738.65
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 739.63
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-05-26",
+   "entry_time_et": "2026-05-26T09:45:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": -236.0,
+   "trigger_level": 749.9,
+   "ref_close": 750.63,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 743.16
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 747.73
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 742.93
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 747.76
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-05-28",
+   "entry_time_et": "2026-05-28T10:15:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": 172.0,
+   "trigger_level": 750.2376720496296,
+   "ref_close": 753.06,
+   "n_active_lines": 3,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 750.03
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 750.76
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 749.39
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 750.77
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 750.14
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-06-08",
+   "entry_time_et": "2026-06-08T13:35:00",
+   "side": "P",
+   "tier": "SUPER",
+   "dollar_pnl": 439.9,
+   "trigger_level": 742.0841623480467,
+   "ref_close": 741.6199951171875,
+   "n_active_lines": 6,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 740.33
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 758.11
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 740.61
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 757.06
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 741.83
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 741.9
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 741.89
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 741.92
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": true,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": true
+  },
+  {
+   "date": "2026-06-08",
+   "entry_time_et": "2026-06-08T14:40:00",
+   "side": "P",
+   "tier": "SUPER",
+   "dollar_pnl": 532.0,
+   "trigger_level": 742.0841623480467,
+   "ref_close": 740.989990234375,
+   "n_active_lines": 7,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 741.43
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 758.03
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 741.01
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 756.94
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 740.94
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 741.79
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 740.5
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 741.89
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": true
+  },
+  {
+   "date": "2026-06-09",
+   "entry_time_et": "2026-06-09T10:50:00",
+   "side": "P",
+   "tier": "SUPER",
+   "dollar_pnl": -390.0,
+   "trigger_level": 738.1900024414062,
+   "ref_close": 735.260009765625,
+   "n_active_lines": 3,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 738.55
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 756.19
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 739.16
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 756.64
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 741.28
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 738.52
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-06-11",
+   "entry_time_et": "2026-06-11T13:35:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": 752.0,
+   "trigger_level": 732.5,
+   "ref_close": 734.22998046875,
+   "n_active_lines": 4,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 725.68
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 728.99
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 725.7
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 728.74
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 725.86
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 729.89
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 725.68
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 729.33
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-06-15",
+   "entry_time_et": "2026-06-15T09:40:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": 66.0,
+   "trigger_level": 753.0,
+   "ref_close": 753.0712890625,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 740.58
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 742.19
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 727.24
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 741.98
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-06-17",
+   "entry_time_et": "2026-06-17T14:05:00",
+   "side": "P",
+   "tier": "SUPER",
+   "dollar_pnl": -355.5,
+   "trigger_level": 750.8286009873198,
+   "ref_close": 745.1500244140625,
+   "n_active_lines": 4,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 749.62
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 750.29
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 749.6
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 750.2
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 749.3
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 750.59
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 749.31
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 750.85
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": true
+  },
+  {
+   "date": "2026-06-22",
+   "entry_time_et": "2026-06-22T11:50:00",
+   "side": "P",
+   "tier": "ELITE",
+   "dollar_pnl": -242.0,
+   "trigger_level": 746.1,
+   "ref_close": 744.4099731445312,
+   "n_active_lines": 6,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 743.39
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 749.63
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 741.29
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 749.67
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 744.59
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 744.84
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 744.61
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 745.68
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": true,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-06-22",
+   "entry_time_et": "2026-06-22T15:00:00",
+   "side": "P",
+   "tier": "SUPER",
+   "dollar_pnl": -50.0,
+   "trigger_level": 743.8599853515625,
+   "ref_close": 743.7249755859375,
+   "n_active_lines": 4,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 744.17
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 745.1
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 744.09
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 749.15
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 744.62
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 745.31
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 744.54
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 745.4
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": true
+  },
+  {
+   "date": "2026-06-24",
+   "entry_time_et": "2026-06-24T13:20:00",
+   "side": "P",
+   "tier": "SUPER",
+   "dollar_pnl": 309.0,
+   "trigger_level": 735.15,
+   "ref_close": 733.8200073242188,
+   "n_active_lines": 5,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 734.83
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 740.87
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 733.82
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 740.62
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 735.5
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 737.87
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 735.71
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 737.62
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-06-25",
+   "entry_time_et": "2026-06-25T10:00:00",
+   "side": "P",
+   "tier": "SUPER",
+   "dollar_pnl": -579.0,
+   "trigger_level": 730.8400268554688,
+   "ref_close": 729.8350219726562,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 731.06
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 739.2
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 731.74
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 745.04
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-06-25",
+   "entry_time_et": "2026-06-25T13:35:00",
+   "side": "P",
+   "tier": "SUPER",
+   "dollar_pnl": -246.0,
+   "trigger_level": 733.4773412770263,
+   "ref_close": 732.9299926757812,
+   "n_active_lines": 8,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 732.19
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 735.17
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 732.57
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 735.01
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 732.47
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 733.55
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 732.72
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 733.87
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-06-26",
+   "entry_time_et": "2026-06-26T09:50:00",
+   "side": "P",
+   "tier": "ELITE",
+   "dollar_pnl": -468.0,
+   "trigger_level": 729.7,
+   "ref_close": 728.7100219726562,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 731.71
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 735.21
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 731.79
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 733.48
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-06-26",
+   "entry_time_et": "2026-06-26T14:55:00",
+   "side": "P",
+   "tier": "SUPER",
+   "dollar_pnl": -240.0,
+   "trigger_level": 732.0982057689337,
+   "ref_close": 731.7899780273438,
+   "n_active_lines": 6,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 731.73
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 734.87
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 732.1
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 734.96
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 731.74
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 733.33
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 732.89
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 733.59
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-06-29",
+   "entry_time_et": "2026-06-29T09:45:00",
+   "side": "C",
+   "tier": "LEVEL",
+   "dollar_pnl": -324.0,
+   "trigger_level": 737.5,
+   "ref_close": 739.239990234375,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 731.78
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 733.69
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 732.13
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 738.64
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-07-06",
+   "entry_time_et": "2026-07-06T09:45:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": 421.6,
+   "trigger_level": 747.75,
+   "ref_close": 748.6400146484375,
+   "n_active_lines": 4,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 740.26
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 749.44
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 740.32
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 749.13
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-07-06",
+   "entry_time_et": "2026-07-06T14:20:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": -132.0,
+   "trigger_level": 751.3099975585938,
+   "ref_close": 751.3699951171875,
+   "n_active_lines": 4,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 740.32
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 751.11
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 740.49
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 750.85
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 750.07
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 751.04
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 750.13
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 749.71
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-07-08",
+   "entry_time_et": "2026-07-08T13:30:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": -160.0,
+   "trigger_level": 745.2977294921875,
+   "ref_close": 745.719970703125,
+   "n_active_lines": 5,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 744.66
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 745.67
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 740.5
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 745.81
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 744.73
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 745.04
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 743.62
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-07-15",
+   "entry_time_et": "2026-07-15T09:55:00",
+   "side": "C",
+   "tier": "SUPER",
+   "dollar_pnl": -153.0,
+   "trigger_level": 753.2,
+   "ref_close": 754.08,
+   "n_active_lines": 2,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 751.38
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 752.48
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 751.47
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 752.45
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": false
+  },
+  {
+   "date": "2026-07-17",
+   "entry_time_et": "2026-07-17T13:55:00",
+   "side": "P",
+   "tier": "SUPER",
+   "dollar_pnl": 459.0,
+   "trigger_level": 745.2,
+   "ref_close": 744.9,
+   "n_active_lines": 6,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 744.94
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 754.46
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 744.9
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 754.53
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 746.98
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 746.87
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": true
+  },
+  {
+   "date": "2026-07-20",
+   "entry_time_et": "2026-07-20T13:40:00",
+   "side": "P",
+   "tier": "SUPER",
+   "dollar_pnl": -185.0,
+   "trigger_level": 744.5112751919311,
+   "ref_close": 744.01,
+   "n_active_lines": 7,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 743.65
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 752.36
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "TESTING",
+     "cv": 743.98
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 753.38
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "TESTING",
+     "cv": 743.9
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 746.05
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 746.76
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 746.0
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": true
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": true
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": true
+    }
+   },
+   "has_tl_rejection_tag": true
+  },
+  {
+   "date": "2026-07-20",
+   "entry_time_et": "2026-07-20T14:35:00",
+   "side": "P",
+   "tier": "SUPER",
+   "dollar_pnl": 489.4,
+   "trigger_level": 744.1598866941566,
+   "ref_close": 743.665,
+   "n_active_lines": 4,
+   "lines": [
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 743.9
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 752.24
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "primary",
+     "status": "BROKEN",
+     "cv": 743.97
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "primary",
+     "status": "INTACT",
+     "cv": 753.31
+    },
+    {
+     "kind": "support",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 743.98
+    },
+    {
+     "kind": "resistance",
+     "family": "wick",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 745.2
+    },
+    {
+     "kind": "support",
+     "family": "body",
+     "tier": "same_day",
+     "status": "BROKEN",
+     "cv": 744.41
+    },
+    {
+     "kind": "resistance",
+     "family": "body",
+     "tier": "same_day",
+     "status": "INTACT",
+     "cv": 745.26
+    }
+   ],
+   "cells": {
+    "B1.00": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B0.50": {
+     "aligned": false,
+     "opposing": false
+    },
+    "B2.00": {
+     "aligned": true,
+     "opposing": false
+    },
+    "ANY": {
+     "aligned": true,
+     "opposing": false
+    }
+   },
+   "has_tl_rejection_tag": true
+  }
+ ]
+}

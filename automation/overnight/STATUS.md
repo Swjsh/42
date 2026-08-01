@@ -1,3 +1,37 @@
+## [2026-08-01 12:57 ET] OK -- WS7 (WEEKEND): LIVE WATCH shipped -- the "are we in a trade / what's it doing" surface
+
+**One canonical state surface + two renderers, registered and smoke-fired.** J never has
+to ask again: `automation/state/live-watch.json` (rewritten every 1 min, 09:25-16:10 ET
+wd) carries, per arm across all 5 active SPY accounts: position (symbol/qty/entry/current
+mid), unrealized P&L $ + %, distance to stop AND to the current TP target (from the
+engine's own `exit-state.json` -- TP1 flips to runner target after `tp1_filled`),
+high-water mark + profit-lock flag, time in trade, last decision verdict+reason+age,
+kill-switch state (all 3 breaker vocabularies normalized -- C9), and a READ-ONLY
+`theta-clock.json` link-in (the theta lane owns that file; guard asserts mtime untouched).
+
+- **Watcher:** `setup/scripts/live_watch.py` -- standalone, fail-open (raising broker ->
+  arm `degraded:`, crashed build -> loud `errors[]`, ALWAYS exit 0), atomic writes,
+  market-closed = ONE `state=CLOSED` marker then silence (no-spam RED-proofed live:
+  2nd run printed `snapshot already CLOSED -- no write`).
+- **Task:** `Gamma_LiveWatch` registered (install-live-watch.ps1): `State=Ready`, weekly
+  Mon-Fri trigger + real `PT1M` repetition x6h45m, NextRun 2026-08-03 09:25 ET.
+  Smoke-fired through the REAL wscript->pythonw chain, verified by OUTPUT artifact
+  (stdout log 0->67 bytes, correct no-spam line), not by `LastTaskResult`.
+- **Renderers:** dashboard **Live Watch panel** (`LiveWatchPanel.tsx` + `/api/live-watch`,
+  SWR 5s, STALE>3min flag) -- BOTH branches verified rendering in the running dashboard
+  (CLOSED live; IN-TRADE via the labeled synthetic snapshot, then restored + re-verified
+  CLOSED); `tsc --noEmit` clean. Plus `live_watch.py --brief` compact text for
+  Discord/brief use.
+- **Proof:** `--dry-run-synthetic` PASS -- all 18 required fields populate on both the
+  direct view AND the full assemble_arm path. Guards `backtest/tests/test_live_watch.py`
+  23/23 green; 3 RED-proofs executed (CLOSED no-spam, C9 aggressive-breaker mapping,
+  broker fail-open: mutate -> FAIL -> revert -> green).
+- **MONDAY-VERIFY (2026-08-03):** during the first RTH session with a REAL open position,
+  confirm live-watch.json shows non-null mid/uPnL/dist-to-stop/dist-to-TP/HWM/
+  time-in-trade for that arm within 2 min of fill, dashboard panel flips to IN TRADE, and
+  `--brief` renders the row; if `entry time unknown` appears in arm status, the orders
+  lookup needs the fix. $0, no LLM, places nothing.
+
 ## [2026-08-01 13:0x ET] NEEDS-J (one click only) -- WS12 (WEEKEND): RESET PREP + TIER NORMALIZATION complete; recommendation = $2,500/arm
 
 **Everything except the dashboard click landed tonight.** The Alpaca paper reset is

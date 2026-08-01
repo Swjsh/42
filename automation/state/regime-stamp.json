@@ -1,0 +1,28 @@
+{
+ "_doc": "Post-hoc day archetypes (analysis/regime-library). DESCRIPTIVE ONLY -- never a live entry input for the current day.",
+ "artifact_fresh": true,
+ "date": "2026-08-01",
+ "generated_at_et": "2026-08-01T12:57:27-04:00",
+ "last_25_mix": {
+  "V-reversal": 3,
+  "gap-fade": 4,
+  "gap-go": 5,
+  "inverted-V": 1,
+  "pin-day": 1,
+  "range-chop": 9,
+  "trend-down": 1,
+  "trend-up": 1
+ },
+ "one_liner": "Yesterday 2026-07-31 (Fri) = V-reversal (range 1.51%, gap +0.40%, close_loc 0.81). Last-25 mix: range-chop 9/25, gap-go 5/25, gap-fade 4/25; population baseline range-chop 40.5% over 393d.",
+ "spec_version": "1.0.0",
+ "yesterday": {
+  "archetype": "V-reversal",
+  "close_loc": 0.815,
+  "date": "2026-07-31",
+  "gap_pct": 0.4004,
+  "range_pct": 1.506,
+  "session": "full",
+  "vix_close": 16.05,
+  "vix_open": 16.78
+ }
+}

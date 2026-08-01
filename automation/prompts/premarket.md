@@ -214,6 +214,8 @@ Compute today's session structure:
 
 Store iv_source = "vix_proxy" with iv_value = VIX.
 
+**Regime stamp (WS6, 2026-08-01 — deterministic, pre-seeded at 08:22 ET by `Gamma_RegimeStamp`):** read `automation/state/regime-stamp.json`. If `date` == today, carry it into Step 4's today-bias.json as the `regime_context` field (`{ one_liner, yesterday_archetype, stamp_date, source }`) and open `bias_note` context with the stamp's one-liner fact ("yesterday was X, recent mix is Y") — ONE clause, no elaboration. If the stamp is missing or `date` != today, write `regime_context: { stale: true, stamp_date: <found-or-null> }` and continue — never reconstruct archetypes by hand (they are deterministic post-hoc labels from `analysis/regime-library/`, not chart reads).
+
 ## Step 4 — write today-bias.json
 
 Required fields (object):
@@ -229,6 +231,7 @@ Required fields (object):
 - `safe_equity_confirmed` — the **live Safe account equity** from the Step 1 `mcp__alpaca__get_account_info` call (the same LIVE `equity` value used for circuit-breaker `starting_equity_today`; when `SAFE_EQUITY_BOD_PENDING` is true, write the preserved prior value, matching what Step 1 wrote to `starting_equity_today`). **LOAD-BEARING — DO NOT TRIM:** the Safe heartbeat (`heartbeat.md` ~line 235) reads this as the PRIMARY input for strike-tier selection + max-premium gate, falling back to `circuit-breaker.json#starting_equity_today` only if absent. Dropping it silently degrades the heartbeat to BOD-snapshot equity (stale on a new-account BOD-race morning → wrong strike tier).
 - `bold_equity` — the **live Bold (aggressive) account equity** from the Step 1 `mcp__alpaca_aggressive__get_account_info` call (the same LIVE `equity` value used for aggressive `circuit-breaker.json#equity_start_of_day`). **LOAD-BEARING — DO NOT TRIM:** the Bold heartbeat (`aggressive/heartbeat.md` ~line 108) reads this as the PRIMARY input for strike-tier selection + max-premium gate, falling back to `aggressive/circuit-breaker.json#equity_start_of_day` only if absent. Dropping it silently degrades the Bold heartbeat to BOD-snapshot equity.
 - `prior_day_review_hint` (lifted from dashboard-dialogue.ticker_speech, optional)
+- `regime_context` — **lifted from Step 3's regime-stamp read** (`{ one_liner, yesterday_archetype, stamp_date, source }`, or `{ stale: true, ... }` when the stamp is missing/old). Descriptive morning context only — NEVER an entry input.
 - `updated_at`
 
 **Specificity gate (per prediction):**
