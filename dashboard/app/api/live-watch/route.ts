@@ -9,6 +9,54 @@ import { readJson } from "@/lib/state";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+// WS8→WS7 READ-SIDE MERGE (2026-08-01, Next-Twelve #11): trendline-watch.json (WS8,
+// written by backtest/autoresearch/trendline_watch.py) and live-watch.json (WS7, written
+// by setup/scripts/live_watch.py) are two separate producers/files — live_watch.py is
+// owned by another lane tonight, so this merges trendline data into the API RESPONSE
+// only, never onto disk and never by editing live_watch.py. trendline-watch.json's own
+// `_merge_note` names this exact contract: "READ this file and embed this payload under
+// an additive 'trendlines' key. One writer per state file -- this producer never writes
+// live-watch.json." `trendlines` below is populated by THIS route at request time, not
+// by the live-watch.json file itself — see GET().
+export interface TrendlineLine {
+  kind?: string; // "support" | "resistance"
+  flavor?: string; // "wick" | "body"
+  tier?: string;
+  status?: string; // "TESTING" | "BROKEN" | ...
+  current_value?: number | null;
+  break_level?: number | null;
+  respect_count?: number;
+  violations?: number;
+  slope_per_bar?: number;
+  summary?: string;
+}
+
+export interface TrendlineEvent {
+  type?: string; // "break" | "retest"
+  ts_et?: string;
+  date_et?: string;
+  kind?: string;
+  flavor?: string;
+  tier?: string;
+  level?: number | null;
+  summary?: string;
+}
+
+export interface TrendlineWatchFile {
+  schema_version?: number;
+  ts_et?: string;
+  live_state_ts_et?: string;
+  live_state_date_et?: string;
+  n_total?: number;
+  n_active?: number;
+  last_close?: number | null;
+  active_lines?: TrendlineLine[];
+  nearest_active?: (TrendlineLine & { distance_dollars?: number | null; side?: string }) | null;
+  last_break?: TrendlineEvent | null;
+  last_retest?: TrendlineEvent | null;
+  premarket_line?: string;
+}
+
 export interface LiveWatchFile {
   schema_version?: number;
   written_at_et?: string;
@@ -19,6 +67,9 @@ export interface LiveWatchFile {
   arms?: Record<string, LiveWatchArm>;
   theta_clock?: { ts_et?: string; n_positions?: number } | null;
   errors?: string[];
+  // Additive, API-layer-injected (NOT part of the raw live-watch.json file on disk) —
+  // see the WS8→WS7 READ-SIDE MERGE note above.
+  trendlines?: TrendlineWatchFile | null;
 }
 
 export interface LiveWatchArm {
@@ -66,9 +117,14 @@ export interface LiveWatchPosition {
 
 export async function GET() {
   const data = await readJson<LiveWatchFile>(paths.liveWatch);
+  // Independent read, independent failure mode: trendline-watch.json missing/stale/
+  // garbled must never affect availability of the live-watch payload itself (fail-open,
+  // matches this route's existing readJson-returns-null-on-any-error contract).
+  const trendlines = await readJson<TrendlineWatchFile>(paths.trendlineWatch);
+  const watch: LiveWatchFile | null = data ? { ...data, trendlines } : data;
   return NextResponse.json({
     fetched_at: new Date().toISOString(),
     available: data !== null,
-    watch: data,
+    watch,
   });
 }

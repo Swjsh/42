@@ -19,6 +19,7 @@ export const paths = {
   decisionsJsonlBold: st("aggressive", "decisions.jsonl"),
   kitchenStatus: st("kitchen-status.json"),
   liveWatch: st("live-watch.json"),
+  trendlineWatch: st("trendline-watch.json"),
   dialogue: st("dashboard-dialogue.json"),
   journal: (dateYYYYMMDD: string) =>
     path.join(WORKSPACE_ROOT, "journal", `${dateYYYYMMDD}.md`),

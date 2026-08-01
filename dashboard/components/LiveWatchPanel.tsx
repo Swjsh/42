@@ -2,7 +2,12 @@
 
 import React from "react";
 import useSWR from "swr";
-import type { LiveWatchFile, LiveWatchArm, LiveWatchPosition } from "@/app/api/live-watch/route";
+import type {
+  LiveWatchFile,
+  LiveWatchArm,
+  LiveWatchPosition,
+  TrendlineWatchFile,
+} from "@/app/api/live-watch/route";
 
 // ─── WS7 LIVE WATCH panel ─────────────────────────────────────────────────────
 // "J should never have to ask: are we in a trade / what's it doing."
@@ -164,6 +169,52 @@ function ArmRow({ armId, arm }: { armId: string; arm: LiveWatchArm }) {
   );
 }
 
+// ─── WS8→WS7 read-side merge: trendline context (2026-08-01, Next-Twelve #11) ─────────
+// Read-only render of watch.trendlines, injected additively by /api/live-watch (never
+// part of live-watch.json on disk, never touches setup/scripts/live_watch.py — see that
+// route's WS8→WS7 READ-SIDE MERGE comment). Doctrine: visibility-only (WS8 closed both
+// entry-path NULLs 2026-08-01) — this section informs, never gates a trade decision.
+function TrendlinesBlock({ tl }: { tl: TrendlineWatchFile | null | undefined }) {
+  if (!tl || (tl.n_active ?? 0) === 0) return null;
+  const near = tl.nearest_active;
+  const brk = tl.last_break;
+  return (
+    <div
+      style={{
+        border: `1px solid ${G.border}`,
+        background: G.card,
+        borderRadius: 4,
+        padding: "5px 7px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+        <span style={LBL}>TRENDLINES</span>
+        <span style={{ fontFamily: MONO, fontSize: 8, color: G.label }}>
+          {tl.n_active}/{tl.n_total ?? "?"} active
+        </span>
+      </div>
+      {near ? (
+        <div style={{ fontFamily: MONO, fontSize: 9, color: G.text }}>
+          nearest: {near.kind ?? "?"} [{near.flavor ?? "?"}] {num(near.current_value)}
+          {typeof near.distance_dollars === "number"
+            ? ` (${near.distance_dollars.toFixed(2)} ${near.side ?? ""})`
+            : ""}
+          {near.status ? ` · ${near.status}` : ""}
+        </div>
+      ) : null}
+      {brk?.summary || brk?.level ? (
+        <div style={{ fontFamily: MONO, fontSize: 8, color: G.yellow }}>
+          last break: {brk.kind ?? "?"} [{brk.flavor ?? "?"}] {num(brk.level)}
+          {brk.ts_et ? ` @ ${brk.ts_et.slice(11, 16)}` : ""}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function LiveWatchPanel() {
   const { data } = useSWR<ApiResponse>("/api/live-watch", fetcher, {
     refreshInterval: 5000,
@@ -222,6 +273,7 @@ export default function LiveWatchPanel() {
           <ArmRow key={armId} armId={armId} arm={arm} />
         ))
       )}
+      {watch ? <TrendlinesBlock tl={watch.trendlines} /> : null}
       {watch && !closed && (watch.errors?.length ?? 0) > 0 ? (
         <div style={{ fontFamily: MONO, fontSize: 8, color: G.yellow }}>
           {watch.errors!.slice(0, 3).join(" · ").slice(0, 120)}
