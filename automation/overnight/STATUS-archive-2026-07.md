@@ -86,6 +86,3354 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- rolled off 2026-07-31 by status_retention.py (L181 consolidation): 10 entries / 745 lines -->
+
+## [2026-07-26 23:47 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (8 fires today >= max_fires 4) -- zero model work, exiting per rail-0
+
+## [2026-07-26 21:48 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (7 fires today >= max_fires 4) -- zero model work, exiting per rail-0
+
+## [2026-07-26 20:42 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (7 fires today >= max_fires 4) -- zero model work, exiting per rail-0
+
+## [2026-07-26 20:30 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (7 fires today >= max_fires 4) -- zero model work, exiting per rail-0
+
+## [2026-07-26 19:48 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (6 fires today >= max_fires 4) -- zero model work, exiting per rail-0
+
+## [2026-07-26 17:48 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (5 fires today >= max_fires 4) -- zero model work, exiting per rail-0
+
+## [2026-07-26 17:12 ET] QUIET -- conductor (WEEKEND): nightly budget EXHAUSTED (4/4 fires today) -- zero model work, exiting per rail-0
+
+## [2026-07-26 ~15:47-16:25 ET] OK -- conductor (WEEKEND): AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS closed, commit pending
+
+> **STAGE 0/1:** ET confirmed 15:47 Sunday (market closed, weekend mode). Budget gate PROCEED
+> ($20.35/$30, 3/4 fires -- this fire pushes toward the daily cap). `engine-health.json`
+> GREEN/YELLOW (14 checks, 0 RED, gex_archive 1-day-stale YELLOW non-critical). `task_scorer.py`
+> top item `TWIN-DOCTRINE-FIRST-DEPLOY` (MED, 6.5) is still J's REVOKE surface, propose-only,
+> correctly not picked (Nth fire confirming). Next 3 tied at 5.0: `CATASTROPHE-CAP-WIDEN-WATCH`
+> and `TRENDLINE-TIGHT-EXIT-ACCRETE` are both accrue-then-decide watch-only items (no new
+> action per multiple prior fires' own notes); `OFF-BOX-DEADMAN-SWITCH` is a real but separate
+> monitoring-nicety build. Per STAGE-1 priority-3 (self-audit gaps outrank queue HIGH), read
+> `analysis/self-audit/new-gaps-flagged.md`'s newest un-triaged batch (2026-07-25T17:32:35, 10
+> items) and found one of its 8 real (non-scaffold) lines pointed at a still-open, concretely
+> actionable queue item: `AUDIT-BLINDSPOT-CLAUDE-NATIVE-TASKS` (MED) -- picked it, since closing
+> it closes BOTH the queue item and the matching self-audit gap in one shot (compound, not
+> accumulate).
+
+> **What I found + built:** `audit_scheduled_tasks.py` only ever knew about `Gamma_*` Windows
+> Task Scheduler entries -- Claude-native scheduled skills at `~/.claude/scheduled-tasks/`
+> (a completely separate scheduling mechanism) were invisible to every governance surface,
+> which is how `gamma-sniper-shadow-eod` (a daily **opus** fire, ~$100/mo) ran ungoverned for
+> 2 months before the 2026-07-25 cost pass caught and retired it by hand. Built
+> `_claude_native_tasks()` (enumerates `~/.claude/scheduled-tasks/*/SKILL.md`, extracts the
+> `name:` frontmatter field, falls back to the dirname) wired into `audit()` as a new
+> `CLAUDE_NATIVE_TASK_UNGOVERNED` flag against a new `KNOWN_CLAUDE_NATIVE_TASKS` allowlist
+> (empty by design -- both prior offenders are retired, not allowlisted; a future one must be
+> reviewed + added there + given a real SCHEDULED-TASKS.md row, or retired). Deliberately scans
+> ONLY the live directory, never a `-retired-*` sibling. New `claude_native_registered` count
+> added to the JSON summary for visibility.
+
+> **Verified this fire (OP-33), not claimed:** 11 new guard tests
+> (`backtest/tests/test_audit_scheduled_tasks_claude_native.py`) -- RED-proofed via a scoped
+> `git stash -- setup/scripts/audit_scheduled_tasks.py` (all 11 failed with the exact expected
+> `AttributeError`/behavior gap against pre-fix code, `git stash pop` restored cleanly,
+> re-verified 11/11 green). Ran the real script against the live box: `claude_native_registered:
+> 0`, no false `CLAUDE_NATIVE_TASK_UNGOVERNED` flag (the directory is genuinely empty right now
+> -- both prior offenders correctly live under the `-retired-2026-07-25` sibling, confirmed by a
+> direct `ls`). Curated safety gate (`run_safety_gate.py`): 31+5 PASS. `py_compile` clean on both
+> touched files.
+
+> **Also closed the matching self-audit gap:** the 2026-07-25T17:32:35 batch in
+> `analysis/self-audit/new-gaps-flagged.md` had 10 un-triaged lines; appended a DONE marker
+> disposing all 10 (2 scaffold headers, 1 already-ruled, 2 already-fixed via the existing
+> `conductor_budget.py` `SELF_REPORT_CORRECTION=2.2` governor, 1 tracked-but-not-yet-built
+> (`OFF-BOX-DEADMAN-SWITCH`), 1 closed this fire (the Claude-native-tasks gap itself), 1 tracked
+> HIGH item (`ZERO-FOR-TWELVE-POSTMORTEM`), 2 synthesis-commentary noise) -- so the batch stops
+> reading as open on the next fire.
+
+> **Scope + revert:** 3 files (`setup/scripts/audit_scheduled_tasks.py`,
+> `backtest/tests/test_audit_scheduled_tasks_claude_native.py` [new], plus the queue.md +
+> self-audit-gaps.md doc updates). Zero trading-path touched (no params/heartbeat_core/
+> filters/CLAUDE.md) -- pure observability tooling. Revert: `git revert <this commit>`.
+
+---
+
+## [2026-07-26 ~00:12-00:20 ET] OK -- conductor (AFTERHOURS): DRESS-REHEARSAL false-RED root-caused + fixed, commit `e370b0dc`
+
+> **STAGE 0/1:** ET confirmed 00:12 Sunday (market closed). Budget gate PROCEED ($10.67/$30,
+> 2/4 fires). `engine-health.json` GREEN/YELLOW (14 checks, 0 RED, gex_archive 1-day-stale
+> YELLOW non-critical). `self-check-last.json` verdict **BROKEN** — 2 problems: `DRESS-
+> REHEARSAL RED` (fresh, un-triaged) + `ENGINE DARK ALL DAY` (already tracked as
+> `OFF-BOX-DEADMAN-SWITCH`, queue.md, status:pending). Per STAGE-1 priority-2 (Engine
+> RED/BROKEN flags outrank queue HIGH/self-audit-gaps/inboxes), picked the fresh
+> DRESS-REHEARSAL RED to investigate + fix.
+
+> **Root cause (confirmed, not theorized):** `Gamma_DressRehearsal` is registered
+> `DaysInterval=1` (every calendar day, incl. weekends — verified via `Get-ScheduledTask`).
+> Its `check3_sanity` beacon-freshness sub-check enforced a hard `<24h` threshold with
+> **no weekend exemption** — unlike `engine_health.py`'s `check_sight_beacon`/
+> `check_engine_core`/etc., which all carry the `market_open` -> "(market closed -- quiet
+> OK)" idiom. Every Saturday/Sunday night the beacon is CORRECTLY >24h stale (last ticked
+> Friday's RTH close) and the rehearsal RED'd on it forever. Tonight's artifact
+> (`dress-rehearsal.json`, 2026-07-25T20:45:01, Saturday): check1/check2 (real broker
+> order-acceptance + crypto round-trip) both GREEN; only `check3_sanity` RED'd, on
+> "sight-beacon.json age 52.3h (must be <24h)".
+
+> **Fix:** `check3_sanity(creds_map, next_day, *, is_weekend: bool = False)` — `main()`
+> derives `is_weekend` via the canonical `et_clock.et_weekday() >= 5` (same convention as
+> `is_market_hours`, no new logic invented). A stale-but-PRESENT beacon on a weekend is now
+> GREEN "quiet OK"; a MISSING beacon still RED's regardless of day (genuine unknown, not
+> known-quiet). 5 new guard tests (`TestCheck3SanityWeekendExemption`,
+> `backtest/tests/test_dress_rehearsal.py`) — RED-proofed via a **scoped** `git stash --
+> setup/scripts/dress_rehearsal.py` (single-pathspec, not tree-wide) confirming all 5 fail
+> against pre-fix code with the exact expected `TypeError`/`AssertionError`, then popped
+> clean. Full suite 34/34 pass. Curated pre-commit safety gate (5 suites) PASS.
+
+> **Verified this fire (OP-33), not claimed:** re-ran `dress_rehearsal.py` live post-fix
+> (real paper-broker round-trips, $0/idempotent/self-cleaning per its own docstring) —
+> `overall=GREEN` (was RED), all 4 checks GREEN including `check3_sanity`. Re-ran
+> `self_check.py` — `DRESS-REHEARSAL RED` problem gone; only the already-tracked
+> `ENGINE DARK ALL DAY` (OFF-BOX-DEADMAN-SWITCH, untouched, correctly left alone — separate
+> scope) remains. Post-commit `git show e370b0dc --stat --name-status` confirms exactly the
+> 2 intended files (L247 discipline).
+
+> **Scope + revert:** 2 files (`setup/scripts/dress_rehearsal.py`, its test file). No
+> trading-path touched (params/heartbeat_core/filters/placement/exit code untouched) — this
+> is an observability-instrument fix (dress_rehearsal is a nightly diagnostic, not a live
+> trading path). Revert: `git revert e370b0dc`.
+
+> **Learn:** this is the SAME lexical class as engine_health.py's existing weekend/market-
+> closed exemption pattern, just not applied consistently to a sibling instrument built
+> later — filed `_lesson-inbox/2026-07-26-dress-rehearsal-weekend-beacon-false-red.md` for
+> `lesson-author` (generalizable: any freshness/liveness check built against a producer that
+> only runs during weekday RTH needs the SAME weekend/holiday exemption idiom as
+> engine_health.py, not a bespoke re-derivation — check for the idiom before shipping a new
+> one).
+
+---
+
+## [2026-07-25 ~21:12-21:50 ET] OK -- conductor (AFTERHOURS): ZERO-FOR-TWELVE-POSTMORTEM live sample day-clustered (12 rows = 4 days), commit `9ad0a907`
+
+> **STAGE 0/1:** ET confirmed 21:12 Saturday (market closed). Budget gate PROCEED ($22/$30,
+> 2/4 fires -> this fire pushes to 3/4). `engine-health.json` GREEN/YELLOW (14 checks, 0 RED,
+> gex_archive 1-day-stale YELLOW non-critical). `task_scorer.py --top` returned
+> `TWIN-DOCTRINE-FIRST-DEPLOY` again (still J's REVOKE surface, unpicked, Nth fire confirming).
+> Picked up `ZERO-FOR-TWELVE-POSTMORTEM` (HIGH) again -- the prior fire's own named NOT-DONE
+> step: "day-cluster the OOS trades and check how many genuinely distinct day+side buckets fed
+> the sample."
+
+> **What I found:** pulled the actual 12 CSV rows behind the "0-for-12" headline
+> (`journal/trades.csv`, setup=vwap_continuation/vix_regime_dayside since 2026-07-01 arm). They
+> are **4 distinct calendar days** (07-16, 07-20, 07-21, 07-22) and **4 distinct (day,side)
+> buckets** -- not 12 independent trials. Two mechanisms: (a) same-day re-entries / same-signal
+> TP1+runner leg splits (2026-07-20 vix_regime_dayside logged 4 rows, two sharing an IDENTICAL
+> entry timestamp 09:54:19; 2026-07-21 vwap_continuation logged 2 rows both at 10:11:29); (b) on
+> 2026-07-21 BOTH setups fired PUT the SAME day -- confirms in DATA the mechanism an earlier fire
+> today proved in CODE (both derive `side` from the identical `session_vwap_asof` day-trend
+> classifier) -- one wrong day-read counted as two setup failures.
+
+> **Reframe (correction of surprise-magnitude, not a reversal of the disarm):** "0-for-12 at
+> claimed 55-64% WR is p<1%" reframes to "0-for-4 correlated day-outcomes at the same claimed WR
+> is ~1.7%-4.1%" -- still worth the disarm-and-investigate call already made, no longer a clean
+> statistical-pipeline-falsification signal standing alone.
+
+> **Graduated to code** (`backtest/autoresearch/trade_to_learn_digest.py`, commit `9ad0a907`):
+> `compute_since_arm()` now reports `n_distinct_days` / `n_distinct_day_side_buckets` per setup
+> + a new `cross_setup_same_day_side` field flagging when 2+ armed setups fire the same
+> (date,side) -- generalizes past this one pair. `format_lines()` warns inline. 4 new guard
+> tests (`backtest/tests/test_trade_to_learn_digest.py`, 13/13 pass) + fixed 1 unrelated
+> pre-existing stale test (hardcoded 2026-07-18 arm-list assertion broke when today's earlier
+> disarm changed params.json -- verified via `git stash` that the failure is identical with or
+> without this commit, so this fix is incidental cleanup not scope creep).
+
+> **Learn:** lesson filed
+> `_lesson-inbox/2026-07-25-since-arm-fills-are-not-independent-trials.md` (generalizable:
+> "N fills, X% WR" is a row count, not a trial count -- any since-arm digest needs distinct-day
+> disclosure before it's used for a disarm/keep call).
+
+> **Verified this fire (OP-33):** all dates/sides/timestamps are direct `journal/trades.csv`
+> reads (quoted above), not inferred. Ran `trade_to_learn_digest.py --dry-run` post-commit --
+> output matches. `pytest backtest/tests/test_trade_to_learn_digest.py -q` = 13/13 PASS. Curated
+> safety gate (pre-commit hook) PASS. Post-commit `git show 9ad0a907 --stat --name-status` +
+> `git status --porcelain` on touched paths confirmed clean (L247 discipline).
+
+> **Scope + revert:** 2 files (digest script + its test file) + this STATUS entry + queue.md
+> progress note + 1 new lesson-inbox item. Zero trading-path touched (no params/heartbeat_core/
+> filters/CLAUDE.md). Revert: `git revert 9ad0a907`.
+
+> **STILL OPEN (named next step):** the HISTORICAL OOS(2026) side of the original ask (day-cluster
+> the 42-trade/21-trade validation-time OOS populations to quantify L174's "day+side selection"
+> claim on the VALIDATION side, not the live-sample side just closed) -- needs a `detect_signals()`
+> re-run over 2026 from each autoresearch script (detection only, no full sim sweep), not yet done.
+
+> **STAGE 0/1:** ET confirmed 20:30 Saturday (market closed). Budget gate PROCEED ($22/$30, 2/4
+> fires). `engine-health.json` GREEN/YELLOW (14 checks, 0 RED; gex_archive 1-day-stale YELLOW,
+> non-critical). `self-check-last.json` BROKEN flag is the known, already-diagnosed 2026-07-24
+> off-box incident (`OFF-BOX-DEADMAN-SWITCH` queue item already tracks it; position_safe/bold
+> confirmed flat, kill-switches armed-not-tripped -- nothing live-risk pending). `task_scorer.py
+> --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again (still J's REVOKE surface, unchanged, Nth
+> fire confirming). Picked the prior fire's own named NEXT STEP on `ZERO-FOR-TWELVE-POSTMORTEM`
+> (HIGH) instead: audit whether `_b5_vix_regime_dayside.py`/`_edgehunt_vwap_continuation.py`
+> source entry levels the same batch-only way as `orchestrator.run_backtest` (the mechanism that
+> explained the RIDE_THE_RIBBON entry-layer gap).
+
+> **What I found:** NO -- ruled out for both disarmed setups. Both entry triggers compute from
+> `session_vwap_asof` (one shared implementation in `autoresearch/infinite_ammo_discovery.py`,
+> imported verbatim by both scripts) -- a pure cumulative-VWAP-from-RTH-bars calc with zero
+> `key_levels`/`key.levels` references in either file (grepped). There is no curated/memory-merged
+> level source for either setup to diverge on, live vs backtest. Both scripts' exit sim is also
+> `lib.simulator_real.simulate_trade_real` directly -- the SAME entry+1 convention
+> `ENTRY-BAR-CONVENTION-RULING-2026-07-25.md` ruled live-faithful earlier today. So the
+> entry-bar-convention / batch-vs-live-level-divergence hypothesis is now fully closed off for
+> these two setups specifically (it only ever applied to the RIDE_THE_RIBBON family).
+
+> **Leading remaining hypothesis (not new, already disclosed at arm-time):** params.json's own
+> "L174 NOT INDEPENDENT / lift is largely day+side selection" caveat. vwap_continuation's arm-time
+> evidence shows oos_n=42 (not tiny) -- which actually strengthens the selection-bias reading over
+> a pure small-n one: if day+side was itself chosen post-hoc against the same data used to grade
+> it, effective independent trials < nominal n, and 0-for-12 stops looking like p<1% surprise and
+> starts looking like ordinary post-hoc-selection decay. Named the concrete next test (day-cluster
+> the OOS trades, compare distinct day+side buckets vs the 0-for-12 sample) as NOT DONE -- research
+> only, no engine implication either way yet.
+
+> **Verified this fire (OP-33):** every claim above is a direct grep/read quote, not an inference
+> (`session_vwap_asof` single-source import confirmed both files; zero `key_levels` hits confirmed
+> both files; `simulate_trade_real` import+call confirmed both files; EDGE-HUNT-VERIFIED.json n/oos_n
+> quoted directly). Zero files edited except `queue.md` (progress note) + this STATUS entry -- no
+> code/trading-path touched, nothing to revert beyond the doc note.
+
+> **Scope + revert:** 2 files (queue.md progress append, this STATUS entry). No commit needed
+> (doc-only progress note on an already-tracked item) -- next fire: `git add automation/overnight/{queue.md,STATUS.md}` if J wants it committed, else it rides the next commit that touches these files.
+
+> **STAGE 0/1:** ET confirmed 17:42 Saturday (market closed). Budget gate PROCEED ($14.30/$30,
+> 1/4 fires). `engine-health.json` GREEN/YELLOW (14 checks, 0 RED, only gex_archive 1-day-stale
+> YELLOW, non-critical). `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again
+> (still J's REVOKE surface, unchanged). Picked `ZERO-FOR-TWELVE-POSTMORTEM` (HIGH, filed today
+> with the vwap_continuation/vix_regime_dayside disarm) instead: it named a concrete, doable-now
+> next step (the already-RULED `EXIT-ENGINE-ENTRY-BAR-CONVENTION-AUDIT` escalation pointed at
+> `engine_fullhist_replay`'s entry-layer divergence -- "matched an 11:40 live fill to a 13:55
+> replay entry, 2h15m apart" -- as the next suspect after partially exonerating the entry-bar
+> convention itself).
+
+> **What I found:** reproduced the raw divergence directly (`run_backtest` on 2026-07-17): the
+> batch engine fires only 2 signals that day vs 4 live fills. Then found the deeper bug: the
+> anchor-matcher paired on strike+side ALONE with no time bound, so it silently accepted the
+> 11:40->13:55 pairing (a genuinely different signal, not a near-miss) as a PASS -- true
+> trade-level fidelity on that day is **1/4, not the previously-reported 2/4**. Root cause of the
+> gap itself was already disclosed pre-fire (live sources levels from a curated + multi-day
+> memory-merged key-levels.json feed; `orchestrator.run_backtest` recomputes from bars only) --
+> this fire's contribution is correcting the magnitude (3/4 missing, not 2/4) and killing the
+> false-positive matcher class.
+
+> **Scope discipline (OP-33, did not over-claim):** this does NOT explain the 0-for-12 directly
+> -- `vwap_continuation`/`vix_regime_dayside` were validated by a DIFFERENT harness
+> (`backtest/autoresearch/_b5_vix_regime_dayside.py` + siblings), not `orchestrator.run_backtest`
+> (confirmed via each script's own scope disclosure + `analysis/recommendations/
+> vix_regime_dayside.json#generated_by`). Named the concrete next step in queue.md: audit
+> whether that autoresearch harness family has the same batch-computed-only level source.
+
+> **Verified this fire (OP-33):** `match_entries_by_strike_side_time` extracted top-level +
+> unit-tested (2 new tests: rejects the 2h15m collision, still matches an exact-time hit) --
+> `test_engine_fullhist_replay.py` 7/7 fast tests pass. Curated safety gate (31+5) PASS pre- and
+> post-commit. Post-commit `git show 6b7c07ac --stat --name-status` + `git status --porcelain`
+> on touched paths confirmed clean (L247 discipline).
+
+> **Learn:** filed `_lesson-inbox/2026-07-25-anchor-matcher-strike-side-only-false-positive.md`
+> -- generalizable rule: any anchor/ground-truth matcher joining on a coarse key (strike+side,
+> symbol, setup name) needs a time-proximity bound, or a coincidental collision silently reports
+> as a false PASS.
+
+> **Scope + revert:** 6 files (1 fix, 1 test, 2 scorecard corrections appended not overwritten,
+> 1 new lesson-inbox item, 1 queue.md progress note). Zero trading-path touched (no params/
+> heartbeat_core/filters/CLAUDE.md). Revert: `git revert 6b7c07ac`.
+
+
+## Kitchen
+Kitchen: alive, queue 27 pending, last cook 0 min ago, today $0.00, model=grinder-python
+
+- [2026-07-31 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-07-31 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-07-31 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-31.md
+
+### DEGRADED: self-check 2026-07-31T07:39:57
+- CANDIDATES-UNTRACKED: 26 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
+
+## 2026-07-31 Premarket
+- Bias: no-trade. Ribbon flat/compressed, swarm deadlocked 2-2 (confidence 25/100). VIX 17.12 MID.
+- Safe equity $1160.36 / Bold equity $1197.52. Both kill-switches re-armed clean, no positions.
+- Known broken: Step 5/5b/5c (chart level wipe+redraw, trendline detect+draw) SKIPPED this premarket -- USD session budget ran low (~$0.90 left of $3 cap) before reaching the TV-drawing steps. Not load-bearing for entries; J's manual chart lines untouched. Re-run `trendline-draw` skill manually if desired before open.
+- [07-31 09:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=na levels_refresh=none fresh_heal=ran TV up but CDP dead for 3896s - kill+relaunch
+- [07-31 09:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=na levels_refresh=none fresh_heal=ran TV up but CDP dead for 4196s - kill+relaunch
+
+### BROKEN: self-check 2026-07-31T09:09:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+
+### BROKEN: self-check 2026-07-31T09:13:09
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+
+### DEGRADED: self-check 2026-07-31T09:17:31
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T09:26:18
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T09:39:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T10:09:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- [07-31 10:20 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 3666s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 10:20 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 3666s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 10:25 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 3966s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 10:25 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 3966s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 10:30 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 4266s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 10:30 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 4266s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 10:35 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 4566s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 10:35 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 4566s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T10:39:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 10:40 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 4866s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 10:40 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 4866s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 10:45 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 5166s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 10:45 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 5166s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 10:50 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 5466s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 10:50 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 5466s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 10:55 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 5766s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 10:55 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 5766s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:00 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 6066s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:00 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 6066s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:05 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 6366s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:05 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 6366s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T11:09:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 11:10 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 6666s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:10 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 6666s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:15 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 6966s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:15 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 6966s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:20 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 7266s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:20 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 7266s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:25 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 7566s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:25 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 7566s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:30 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 7866s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:30 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 7866s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:35 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 8166s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:35 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 8166s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T11:39:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 11:40 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 8466s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:40 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 8466s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:45 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 8766s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:45 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 8766s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:50 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 9066s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:50 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 9066s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 11:55 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 9366s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 11:55 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 9366s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:00 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 9666s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:00 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 9666s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:05 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 9966s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:05 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 9966s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T12:09:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 12:10 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 10266s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:10 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 10266s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:15 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 10566s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:15 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 10566s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:20 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 10866s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:20 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 10866s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:25 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 11166s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:25 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 11166s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:30 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 11466s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:30 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 11466s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:35 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 11766s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:35 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 11766s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T12:39:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 12:40 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 12066s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:40 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 12066s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:45 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 12366s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:45 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 12366s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:50 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 12666s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:50 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 12666s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 12:55 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 12966s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 12:55 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 12966s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:00 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 13266s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:00 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 13266s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:05 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 13566s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:05 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 13566s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T13:09:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 13:10 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 13866s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:10 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 13866s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:15 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 14166s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:15 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 14166s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:20 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 14466s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:20 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 14466s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:25 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 14766s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:25 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 14766s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:30 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 15066s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:30 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 15066s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:35 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 15366s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:35 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 15366s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T13:39:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 13:40 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 15666s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:40 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 15666s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:45 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 15966s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:45 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 15966s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:50 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 16266s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:50 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 16266s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 13:55 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 16566s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 13:55 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 16566s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:00 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 16866s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:00 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 16866s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:05 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 17166s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:05 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 17166s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T14:09:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 14:10 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 17466s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:10 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 17466s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:15 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 17766s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:15 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 17766s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:20 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 18066s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:20 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 18066s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:25 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 18366s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:25 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 18366s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:30 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 18666s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:30 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 18666s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:35 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 18966s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:35 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 18966s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T14:39:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 14:40 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 19266s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:40 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 19266s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:45 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 19566s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:45 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 19566s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:50 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 19866s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:50 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 19866s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 14:55 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 20166s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 14:55 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 20166s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:00 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 20466s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:00 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 20466s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:05 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 20766s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:05 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 20766s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T15:09:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 15:10 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 21066s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:10 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 21066s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:15 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 21366s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:15 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 21366s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:20 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 21666s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:20 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 21666s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:25 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 21966s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:25 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 21966s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:30 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 22266s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:30 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 22266s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:35 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 22566s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:35 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 22566s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### BROKEN: self-check 2026-07-31T15:39:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-31 15:40 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 22866s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:40 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 22866s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:45 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 23166s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:45 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 23166s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:50 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 23466s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:50 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 23466s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 15:55 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=fresh levels_refresh=fresh fresh_heal=ran TV up but CDP dead for 23766s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 15:55 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 23766s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+- [07-31 16:00 ET] TvWatchdog: tv=relaunch_kill_FAILED heartbeat=na levels_refresh=none fresh_heal=ran TV up but CDP dead for 24066s - kill+relaunch
+
+### BROKEN: TV-CDP self-heal failed
+- [2026-07-31 16:00 ET] Gamma_TvWatchdog: relaunch_kill_FAILED -- TV up but CDP dead for 24066s - kill+relaunch. Invoke-TvLaunchSafe ran the relaunch but Test-CdpReady still could not reach :9222 afterward. Manual check: curl http://localhost:9222/json/version; if empty, 	askkill /F /IM TradingView.exe then setup\launch_tv_debug.ps1 by hand.
+
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-31T20:00:27+00:00
+- task: eod-summary
+- date_et: 2026-07-31
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-07-31T16:09:57
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T16:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-31T20:45:35+00:00
+- task: analyst
+- date_et: 2026-07-31
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-07-31 21:00:01] gym-session (2026-07-31) → **YELLOW** :: see `automation\state\gym-scorecard-2026-07-31.json`
+### DEGRADED: self-check 2026-07-31T17:09:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-07-31T21:30:25+00:00
+- task: manager
+- date_et: 2026-07-31
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### DEGRADED: self-check 2026-07-31T17:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T18:09:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T18:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T19:10:04
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T19:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-31T20:09:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4 bold=0/2-4
+- TRENDLINE-DRAW never marked today (2026-07-31) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+<!-- rolled off 2026-07-31 by status_retention.py (L181 consolidation): 1 entries / 90 lines -->
+
+## [2026-07-25 ~14:42-15:00 ET] OK -- conductor (WEEKEND): ENGULFING-AT-STRUCTURE-TRIGGER CLOSED, commit `73902fa1`
+
+> **STAGE 0/1:** ET confirmed 14:42 Saturday (market closed, weekend mode). Budget gate
+> PROCEED ($0/$30, 0/4 fires). `engine-health.json` GREEN/YELLOW (13 checks, 0 RED,
+> only gex_archive 1-day-stale YELLOW, non-critical). `task_scorer.py --top` returned
+> `TWIN-DOCTRINE-FIRST-DEPLOY` (still pending J's REVOKE surface, gp-2026-07-23-twin-
+> doctrine-001 -- Nth fire confirming, propose-only doctrine edit, correctly not picked).
+> Next-ranked ready item: `ENGULFING-AT-STRUCTURE-TRIGGER` (HIGH) -- its own queue text
+> named a concrete, doable-now next step ("frozen pre-reg <=16 cells + real-fills
+> replay ... confirming the winning cell still fires on both anchor bars"), unlike the
+> other MED items (`CATASTROPHE-CAP-WIDEN-WATCH`/`TRENDLINE-TIGHT-EXIT-ACCRETE`, both
+> accrue-only, no new action) or `DOJO-BUILD-HANDOFF` (no TV MCP tools bound this fire).
+
+> **What I found before building anything (avoided duplicate work):** the item has TWO
+> parallel tracks. Lane-B (`edge_matrix_engulfing_at_structure.py`, commit `83dce261`,
+> 2026-07-23 16:31) already ran this exact kind of frozen-pre-reg + real-fills replay
+> for a DIFFERENT (one-sided-shelf) detector -- HONEST NULL, 0/12 cells, already
+> committed. That did NOT close the item because Lane-A's own SHIPPED, anchor-verified
+> primitive (`engulfing_at_local_cluster`, commit `8aed997a`, 2026-07-23 ~23:03) never
+> got its own real-fills replay -- the queue text's "NEXT STEP" was still open.
+
+> **Built + ran it.** Zero-fork grid adapter
+> (`backtest/tools/engulfing_at_local_cluster_detector.py`) imports the registry's own
+> `engulfing`/`local_extreme_cluster` predicate factories (not a re-derivation) and
+> grid-sweeps their params -- verified byte-identical to the live registry predicate
+> over the full 30k-bar sequence (not just the 2 anchors) before freezing the pre-reg.
+> 16-cell grid (`min_touches`{3,4} x `min_body_dollars`{0,0.40,0.60,0.80} x
+> `tolerance`{0.15,0.20}), same edge-matrix harness (RIBBON_RIDE exit via
+> `exit_manager_walk`, 386-day frozen OPRA inventory, 4-gate+BH) as every other family.
+
+> **Result: HONEST NULL, 0/16 cells clear the ship bar.** Both anchors fire on 6/16
+> cells incl. the exact shipped config (`touch3|body0.40|tol0.20`) -- itself solidly
+> negative (n=87, expectancy -$20.11/tr, total -$1,749.14, held-out -$2,314.82, 0/4
+> gates). Loosening the body floor toward 0 makes it MUCH worse (-$10,201 to
+> -$11,672), not better -- same "wider admits noisier reactions" shape Lane-B found
+> independently. **ENGULFING-AT-STRUCTURE-TRIGGER is now CLOSED** -- both independent
+> tracks born from J's 07-21/07-23 live exhibits agree: correct entry vocabulary, zero
+> real-fills edge under the live exit shape. Not wired; `engulfing_at_local_cluster`
+> stays registry.py discovery-only. Named next honest lever (new pre-reg, not
+> attempted): the EXIT side, since both lanes only tuned entry against a fixed
+> RIBBON_RIDE shape not built for this trigger's hold profile.
+
+> **Verified this fire (OP-33):** `test_engulfing_at_local_cluster.py` 6/6 new (incl.
+> byte-identical-vs-registry over the full bar sequence + C6 causality RED-proof via
+> future-bar mutation). Full pattern-grammar suite 106/106 green. Curated safety gate
+> (31+5) PASS pre- and post-commit (pre-commit hook ran it automatically). Post-commit
+> `git show 73902fa1 --stat --name-status` + `git status --porcelain` on the touched
+> paths confirmed clean (L247 discipline -- verified committed, not just staged).
+
+> **Scope + revert:** 7 new files (detector, runner, guard tests, pre-reg + 2 results +
+> 1 markdown summary) + 1 queue.md edit (closing this item). Zero trading-path touched
+> (no params/heartbeat_core/filters/CLAUDE.md). Revert: `git revert 73902fa1`.
+
+
+### BROKEN: self-check 2026-07-30T22:39:57
+- engine-health RED: reds=['levels_blind: ENGINE TRADED BLIND on 2026-07-30 -- 0 of 770 RTH decision rows carried ANY active key level (bold 0/385; safe 0/385). With no levels the engine cannot detect level rejections/reclaims and falls through to its WORST cohort (trendline-only). Check Gamma_LevelRefresh + key-levels.json expires_at dates.', 'state_freshness: 3/17 live-path state files STALE -- trade-today.json, pnl-statement.json, ema-snapshot.json. Their producers stopped writing; consumers did not notice.']
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: 3 day-trades in 5d at equity $1,198 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $603 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $600 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-29, not today 2026-07-30 -- Gamma_ParticipationDaily likely did not fire.
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-30) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-30T23:09:57
+- engine-health RED: reds=['levels_blind: ENGINE TRADED BLIND on 2026-07-30 -- 0 of 770 RTH decision rows carried ANY active key level (bold 0/385; safe 0/385). With no levels the engine cannot detect level rejections/reclaims and falls through to its WORST cohort (trendline-only). Check Gamma_LevelRefresh + key-levels.json expires_at dates.', 'state_freshness: 3/17 live-path state files STALE -- trade-today.json, pnl-statement.json, ema-snapshot.json. Their producers stopped writing; consumers did not notice.']
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: 3 day-trades in 5d at equity $1,198 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $603 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $600 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-29, not today 2026-07-30 -- Gamma_ParticipationDaily likely did not fire.
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-30) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### WARN: spend-summary threshold breach
+- ts: 2026-07-31T03:30:20+00:00
+- date_et: 2026-07-30
+- total: $180.87 (threshold $30.00)
+- claude: $180.87  minimax: $0.00
+- claude_sessions: 12
+
+### BROKEN: self-check 2026-07-30T23:39:57
+- engine-health RED: reds=['levels_blind: ENGINE TRADED BLIND on 2026-07-30 -- 0 of 770 RTH decision rows carried ANY active key level (bold 0/385; safe 0/385). With no levels the engine cannot detect level rejections/reclaims and falls through to its WORST cohort (trendline-only). Check Gamma_LevelRefresh + key-levels.json expires_at dates.', 'state_freshness: 3/17 live-path state files STALE -- trade-today.json, pnl-statement.json, ema-snapshot.json. Their producers stopped writing; consumers did not notice.']
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: 3 day-trades in 5d at equity $1,198 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $603 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $600 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-29, not today 2026-07-30 -- Gamma_ParticipationDaily likely did not fire.
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-30) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+## Kitchen
+Kitchen: alive, queue 30 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+<!-- rolled off 2026-07-30 by status_retention.py (L181 consolidation): 1 entries / 213 lines -->
+
+## [2026-07-23 ~23:12-23:45 ET] OK -- conductor (AFTERHOURS): EXIT-ENGINE-PARITY-RESIDUAL root-caused (91% of a $40/tr research-parity gap explained + confirmed via ablation), commit pending
+
+> **STAGE 0/1:** ET confirmed 23:12 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again -- STILL
+> `status:pending` on J's REVOKE surface (`gp-2026-07-23-twin-doctrine-001`, 6th fire confirming,
+> nothing new). Self-audit gaps file: 2026-07-23's own batch already actioned earlier today, no
+> new un-triaged batches. Next 3 MED items (`CATASTROPHE-CAP-WIDEN-WATCH` n=4 accrue-to-10,
+> `TRENDLINE-TIGHT-EXIT-ACCRETE` shadow-accrual) confirmed still watch-only, no action possible.
+> `EXIT-ENGINE-PARITY-RESIDUAL` (MED, filed 2026-07-09, re-flagged "research-diagnosis" not
+> "watch-only" by the prior 2 fires but never picked) DID have a concrete, doable-now diagnosis
+> step ("per-trade exit-reason diff on the 149-trade control set") -- picked it.
+
+> **What I found:** built `backtest/tools/vwapcont_parity_diagnose.py` (per-signal diff, reuses
+> `vwapcont_entry_exit_matrix.py`'s own signal-loading/prep helpers verbatim, ANALYSIS ONLY).
+> Reproduced the known scorecard exactly (bar-replay $15.02/tr vs simulate_trade_real $54.73/tr,
+> n=149 both -- preflight hash/version/parity all OK, confirms the diagnostic is aligned with the
+> frozen study). Bucketed per-trade by (bar-replay terminal stage, sim exit_reason): the single
+> biggest driver is 19/149 trades where bar-replay says `premium_stop` but sim says
+> `TP1_THEN_RUNNER_*` (sum delta -$4,164 of the -$5,917 total gap); the 96 trades where both
+> engines agree on the terminal mechanism still carry a consistent -$16.72/tr drag.
+
+> **Root-caused with a controlled experiment, not hand-waved (OP-33 discipline):** code-read
+> found `lib/simulator_real.py:534-535` (`spy_idx=entry_bar_idx+2` / `opt_idx=entry_idx_opt+1`)
+> never checks the ENTRY bar's own high/low for a stop/TP1 -- sim's exit loop starts at the bar
+> AFTER entry. `structure_stop_study.replay_structure_aware`'s `norm_bars` (every bar-replay-family
+> tool's own `load_atm_bars`) start AT the entry bar itself, and the exit loop evaluates that
+> SAME bar's high/low on iteration 1 -- one bar earlier than sim. **Confirmatory ablation:**
+> re-ran bar-replay on the identical 149-signal population with `norm_bars[1:]` (entry bar
+> excluded, matching sim's convention) -- exp $15.02 -> $58.28 vs sim $54.73, closing **91.1% of
+> the $39.71/tr gap**; residual -$3.55/tr fully consistent with the two ALREADY-confirmed smaller
+> mechanisms (pre-TP1 profit-lock scope ~$0.72/tr + ribbon-flip-back). This **supersedes** the
+> queue item's own prior guess ("mostly ribbon-flip modeling + fill conventions") -- those are
+> real but minor; the entry-bar-eligibility convention is the dominant driver by an order of
+> magnitude.
+
+> **Deliberately NOT adjudicated this fire (escalated instead):** which convention -- bar-replay's
+> entry-bar-inclusion (precedented by `t4_exit_matrix`/`structure_stop_study`) vs
+> `simulate_trade_real`'s entry-bar-exclusion (the ratified ship-gate C1 authority's own
+> long-standing convention) -- is more faithful to live risk exposure is a genuine real-money-
+> adjacent judgment call per the conductor's own FABLE-ESCALATION criterion (a wrong guess here
+> could plausibly move real money or ship a validated-looking edge that isn't). Filed
+> `FABLE-ESCALATION: EXIT-ENGINE-ENTRY-BAR-CONVENTION-AUDIT` (queue.md, HIGH) for a top-tier
+> session to adjudicate + scope whether any already-ratified study's conclusion (not just its
+> absolute $/tr) is sensitive to this.
+
+> **Verified this fire (OP-33):** preflight hash/version/parity all matched the frozen
+> pre-registration both runs (no population drift). `test_vwapcont_entry_exit_matrix.py` 23/23
+> green (nothing in the existing study touched -- new script only imports its functions).
+> `py_compile` clean. Re-ran the diagnostic script twice (once without, once with the
+> confirmatory ablation) -- identical base numbers both times ($15.02/$54.73/n=149), confirming
+> determinism. Full writeup: `analysis/recommendations/vwapcont-parity-diagnose-2026-07-23.{json,md}`.
+
+> **Zero trading-path touched:** ANALYSIS ONLY -- no `params.json`/`heartbeat_core.py`/
+> `filters.py`/live decision-core (`exit_manager.plan_exit_actions`) file modified; both replay
+> engines' HARNESS code (`simulator_real.py`, `structure_stop_study.py`) left byte-unchanged, the
+> ablation ran on a throwaway `norm_bars[1:]` slice inside the new diagnostic script only.
+
+> **Learn (STAGE 4.5):** filed
+> `_lesson-inbox/2026-07-23-entry-bar-eligibility-diverges-between-replay-engines.md` -- the
+> generalizable rule (fold target C6 or a C4 sibling): when two independently-implemented replay
+> engines disagree, diff PER-TRADE by terminal exit stage before trusting an aggregate $/tr gap,
+> and CONFIRM a root-cause hypothesis with a targeted ablation experiment rather than a hand-waved
+> list of partial explanations.
+
+> **Scope + revert:** 5 files, all additive (1 new tool, 2 new analysis outputs, 1 new
+> lesson-inbox item, 1 queue.md edit closing this item + filing the escalation). Revert:
+> `git revert <this commit>`.
+
+
+- [2026-07-30 06:07:51] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+[2026-07-30 06:07:51] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-30.md
+
+### BROKEN: premarket 2026-07-30
+- PREMARKET SILENT FAILURE: claude exit=0 but today-bias.updated_by='premarket_interactive_claude' looks like a non-LLM hand-rebuild (matched 'interactive') -- the premarket LLM did NOT author this run's deliverable.
+
+
+### DEGRADED: premarket 2026-07-30
+- PREMARKET DEGRADED: deterministic fallback covered for the failed LLM step (today-bias.updated_by='premarket_interactive_claude' looks like a non-LLM hand-rebuild (matched 'interactive') -- the premarket LLM did NOT author this run's deliverable.)
+
+- [07-30 09:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 3896s - kill+relaunch
+- [07-30 09:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 4196s - kill+relaunch
+- [07-30 09:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 4496s - kill+relaunch
+- [07-30 09:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 4796s - kill+relaunch
+- [07-30 09:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 5096s - kill+relaunch
+- [07-30 09:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5396s - kill+relaunch
+- [07-30 09:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5696s - kill+relaunch
+- [07-30 09:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5996s - kill+relaunch
+- [07-30 09:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6296s - kill+relaunch
+- [07-30 09:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6596s - kill+relaunch
+- [07-30 10:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6896s - kill+relaunch
+- [07-30 10:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7196s - kill+relaunch
+- [07-30 10:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7496s - kill+relaunch
+- [07-30 10:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7796s - kill+relaunch
+- [07-30 10:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8096s - kill+relaunch
+- [07-30 10:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8396s - kill+relaunch
+- [07-30 10:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8696s - kill+relaunch
+- [07-30 10:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8996s - kill+relaunch
+- [07-30 10:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9296s - kill+relaunch
+- [07-30 10:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9596s - kill+relaunch
+- [07-30 10:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9896s - kill+relaunch
+- [07-30 10:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10196s - kill+relaunch
+- [07-30 11:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10496s - kill+relaunch
+- [07-30 11:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10796s - kill+relaunch
+- [07-30 11:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11096s - kill+relaunch
+- [07-30 11:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11396s - kill+relaunch
+- [07-30 11:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11696s - kill+relaunch
+- [07-30 11:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11996s - kill+relaunch
+- [07-30 11:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12296s - kill+relaunch
+- [07-30 11:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12596s - kill+relaunch
+- [07-30 11:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12896s - kill+relaunch
+- [07-30 11:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13196s - kill+relaunch
+- [07-30 11:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13496s - kill+relaunch
+- [07-30 11:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13796s - kill+relaunch
+- [07-30 12:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14096s - kill+relaunch
+- [07-30 12:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14396s - kill+relaunch
+- [07-30 12:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14696s - kill+relaunch
+- [07-30 12:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14996s - kill+relaunch
+- [07-30 12:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 15296s - kill+relaunch
+- [07-30 12:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 15596s - kill+relaunch
+- [07-30 12:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 15896s - kill+relaunch
+- [07-30 12:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 16196s - kill+relaunch
+- [07-30 12:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 16496s - kill+relaunch
+- [07-30 12:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 16796s - kill+relaunch
+- [07-30 12:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 17096s - kill+relaunch
+- [07-30 12:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 17396s - kill+relaunch
+- [07-30 13:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 17696s - kill+relaunch
+- [07-30 13:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 17996s - kill+relaunch
+- [07-30 13:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 18296s - kill+relaunch
+- [07-30 13:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 18596s - kill+relaunch
+- [07-30 13:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 18896s - kill+relaunch
+- [07-30 13:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 19196s - kill+relaunch
+- [07-30 13:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 19496s - kill+relaunch
+- [07-30 13:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 19796s - kill+relaunch
+- [07-30 13:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 20096s - kill+relaunch
+- [07-30 13:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 20396s - kill+relaunch
+- [07-30 13:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 20696s - kill+relaunch
+- [07-30 13:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 20996s - kill+relaunch
+- [07-30 14:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 21296s - kill+relaunch
+- [07-30 14:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 21596s - kill+relaunch
+
+## Kitchen
+Kitchen: alive, queue 22 pending, last cook 0 min ago, today $0.00, model=grinder-python
+- [07-30 14:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 21896s - kill+relaunch
+- [07-30 14:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 22196s - kill+relaunch
+- [07-30 14:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 22496s - kill+relaunch
+- [07-30 14:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 22796s - kill+relaunch
+- [07-30 14:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 23096s - kill+relaunch
+- [07-30 14:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 23396s - kill+relaunch
+- [07-30 14:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 23696s - kill+relaunch
+- [07-30 14:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 23996s - kill+relaunch
+- [07-30 14:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 24296s - kill+relaunch
+- [07-30 14:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 24596s - kill+relaunch
+- [07-30 15:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 24896s - kill+relaunch
+- [07-30 15:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 25196s - kill+relaunch
+- [07-30 15:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 25496s - kill+relaunch
+- [07-30 15:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 25796s - kill+relaunch
+- [07-30 15:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 26096s - kill+relaunch
+- [07-30 15:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 26396s - kill+relaunch
+- [07-30 15:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 26696s - kill+relaunch
+- [07-30 15:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 26996s - kill+relaunch
+- [07-30 15:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 27296s - kill+relaunch
+- [07-30 15:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 27596s - kill+relaunch
+- [07-30 15:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 27896s - kill+relaunch
+- [07-30 15:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 28196s - kill+relaunch
+- [07-30 16:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 28496s - kill+relaunch
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-30T20:45:30+00:00
+- task: analyst
+- date_et: 2026-07-30
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-07-30 21:00:04] gym-session (2026-07-30) → **YELLOW** :: see `automation\state\gym-scorecard-2026-07-30.json`
+
+
+### BROKEN: self-check 2026-07-30T20:39:56
+- engine-health RED: reds=['levels_blind: ENGINE TRADED BLIND on 2026-07-30 -- 0 of 770 RTH decision rows carried ANY active key level (bold 0/385; safe 0/385). With no levels the engine cannot detect level rejections/reclaims and falls through to its WORST cohort (trendline-only). Check Gamma_LevelRefresh + key-levels.json expires_at dates.', 'state_freshness: 3/17 live-path state files STALE -- trade-today.json, pnl-statement.json, ema-snapshot.json. Their producers stopped writing; consumers did not notice.']
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: 3 day-trades in 5d at equity $1,198 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $603 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $600 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-29, not today 2026-07-30 -- Gamma_ParticipationDaily likely did not fire.
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-30) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-30T21:09:57
+- engine-health RED: reds=['levels_blind: ENGINE TRADED BLIND on 2026-07-30 -- 0 of 770 RTH decision rows carried ANY active key level (bold 0/385; safe 0/385). With no levels the engine cannot detect level rejections/reclaims and falls through to its WORST cohort (trendline-only). Check Gamma_LevelRefresh + key-levels.json expires_at dates.', 'state_freshness: 3/17 live-path state files STALE -- trade-today.json, pnl-statement.json, ema-snapshot.json. Their producers stopped writing; consumers did not notice.']
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: 3 day-trades in 5d at equity $1,198 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $603 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $600 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-29, not today 2026-07-30 -- Gamma_ParticipationDaily likely did not fire.
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-30) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-30T21:39:57
+- engine-health RED: reds=['levels_blind: ENGINE TRADED BLIND on 2026-07-30 -- 0 of 770 RTH decision rows carried ANY active key level (bold 0/385; safe 0/385). With no levels the engine cannot detect level rejections/reclaims and falls through to its WORST cohort (trendline-only). Check Gamma_LevelRefresh + key-levels.json expires_at dates.', 'state_freshness: 3/17 live-path state files STALE -- trade-today.json, pnl-statement.json, ema-snapshot.json. Their producers stopped writing; consumers did not notice.']
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: 3 day-trades in 5d at equity $1,198 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $603 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $600 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-29, not today 2026-07-30 -- Gamma_ParticipationDaily likely did not fire.
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-30) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-30T22:09:57
+- engine-health RED: reds=['levels_blind: ENGINE TRADED BLIND on 2026-07-30 -- 0 of 770 RTH decision rows carried ANY active key level (bold 0/385; safe 0/385). With no levels the engine cannot detect level rejections/reclaims and falls through to its WORST cohort (trendline-only). Check Gamma_LevelRefresh + key-levels.json expires_at dates.', 'state_freshness: 4/17 live-path state files STALE -- key-levels.json, trade-today.json, pnl-statement.json, ema-snapshot.json. Their producers stopped writing; consumers did not notice.']
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: 3 day-trades in 5d at equity $1,198 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $603 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $600 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-29, not today 2026-07-30 -- Gamma_ParticipationDaily likely did not fire.
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-30) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+<!-- rolled off 2026-07-30 by status_retention.py (L181 consolidation): 1 entries / 88 lines -->
+
+## [2026-07-30 ~19:12-19:29 ET] OK -- conductor (AFTERHOURS): LEVEL-REFRESH-SILENT-STALL-SELF-HEAL closed, commit `54b27c00`
+
+> **STAGE 0/1:** budget gate PROCEED ($0/$30, 0/4 fires). `engine-health.json` **RED**
+> (`levels_blind`: 0 of 770 RTH decision rows today carried ANY active key level -- engine
+> traded blind, fell through to its worst cohort, trendline-only). Per rail-1/STAGE-1
+> priority-2 (Engine RED outranks everything), this fire's only task was investigate +
+> repair this RED.
+
+> **Root cause, verified live:** Gamma_LevelRefresh's own Task Scheduler config (`PT5M`
+> repetition / `MultipleInstances=IgnoreNew` / `PT3M` `ExecutionTimeLimit`) went dark for
+> ~20h -- last good run 2026-07-29 22:43 ET (`level-refresh-2026-07-29.log`, zero errors),
+> nothing until a manual repair at 18:57 ET today (`level-refresh-2026-07-30.log`'s first
+> entry). All OTHER scheduled tasks (`Gamma_TvWatchdog`) kept firing fine in the same
+> window -- rules out a machine-wide sleep/reboot, isolates the stall to this one task's
+> `IgnoreNew` + multi-hop hidden-launch-wrapper chain (wscript->pythonw->run_ps1_hidden.py
+> ->powershell->python). **Confirmed the alerting itself was NOT broken:** `self_check.py`
+> + `engine_health`'s fail-loud beacon correctly paged J via Discord starting 09:42 ET
+> (first RTH tick) and repeatedly through the evening -- the gap was purely on the
+> REMEDIATION side, the exact class `Invoke-TvLaunchSafe` already closed for TV/CDP hangs
+> but nothing analogous existed for LevelRefresh.
+
+> **Fix:** `Invoke-LevelRefreshSafe` (`_shared.ps1`) -- kills any stuck level-refresh
+> process tree by command-line match and relaunches `run-level-refresh.ps1` directly via a
+> hidden `powershell.exe -File` call (bypassing the wrapper double-hop). Wired into the
+> already-proven 5-min `Gamma_TvWatchdog` cadence (no new scheduled task): checks
+> `key-levels.json` staleness 09:42-15:55 ET, self-heals past 12min stale -- healing
+> BEFORE `levels_blind_check.py`'s own 20min RED-alarm threshold fires.
+
+> **Verified (OP-33):** 10 new/existing guard tests (`test_level_refresh_watchdog_2026_07_30.py`)
+> RED-proofed via `git stash` (4 of 5 new tests failed pre-fix with the exact expected
+> `CommandNotFoundException`, popped clean, 10/10 green post-fix); curated safety gate
+> 59/59 PASS. Post-commit `git show 54b27c00 --stat --name-status` confirms exactly the 3
+> intended files.
+
+> **Scope + revert:** 3 files (`_shared.ps1`, `run-tv-watchdog.ps1`, new guard test) --
+> pure infra self-heal, zero params/heartbeat_core/filters/placement/exit/CLAUDE.md
+> touched. Revert: `git revert 54b27c00`. Lesson filed:
+> `_lesson-inbox/level-refresh-silent-stall-2026-07-30.md`.
+
+> **NOTE for the next fire:** today's `levels_blind` RED will NOT flip GREEN tonight -- it
+> is a historical fact about 2026-07-30's 770 already-blind rows and clears naturally at
+> the next ET calendar-day rollover per `levels_blind_check.py`'s own day-scoped logic.
+> Don't re-diagnose it as still-broken tomorrow morning; check that `key-levels.json`
+> mtime is fresh instead. `state_freshness` RED (10/17 stale incl. `key-levels.json`,
+> `context-bundle.json`, `trendlines-live.json`, `confluence-zones.json` +4 more) --
+> **correction, checked before claiming (OP-33):** `context-bundle.json`/`trendlines-live
+> .json`/`confluence-zones.json` are written by SEPARATE producers
+> (`context_bundle_producer.py`, `confluence_producer.py`, not `refresh_levels_intraday
+> .py`), so this is NOT provably the same root cause -- only `key-levels.json` itself is.
+> Worth a quick next-fire look at whether those other producers' OWN scheduled tasks share
+> the identical `IgnoreNew`-latent-stall shape (same audit this lesson recommends), or are
+> independently stale for unrelated reasons.
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-07-30T21:30:20+00:00
+- task: manager
+- date_et: 2026-07-30
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### BROKEN: self-check 2026-07-30T19:09:57
+- engine-health RED: reds=['levels_blind: ENGINE TRADED BLIND on 2026-07-30 -- 0 of 770 RTH decision rows carried ANY active key level (bold 0/385; safe 0/385). With no levels the engine cannot detect level rejections/reclaims and falls through to its WORST cohort (trendline-only). Check Gamma_LevelRefresh + key-levels.json expires_at dates.', 'state_freshness: 3/17 live-path state files STALE -- trade-today.json, pnl-statement.json, ema-snapshot.json. Their producers stopped writing; consumers did not notice.']
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: 3 day-trades in 5d at equity $1,198 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $603 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $600 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-29, not today 2026-07-30 -- Gamma_ParticipationDaily likely did not fire.
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-30) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CANDIDATES-UNTRACKED: 28 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
+
+### BROKEN: self-check 2026-07-30T19:39:57
+- engine-health RED: reds=['levels_blind: ENGINE TRADED BLIND on 2026-07-30 -- 0 of 770 RTH decision rows carried ANY active key level (bold 0/385; safe 0/385). With no levels the engine cannot detect level rejections/reclaims and falls through to its WORST cohort (trendline-only). Check Gamma_LevelRefresh + key-levels.json expires_at dates.', 'state_freshness: 3/17 live-path state files STALE -- trade-today.json, pnl-statement.json, ema-snapshot.json. Their producers stopped writing; consumers did not notice.']
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: 3 day-trades in 5d at equity $1,198 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $603 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $600 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-29, not today 2026-07-30 -- Gamma_ParticipationDaily likely did not fire.
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-30) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CANDIDATES-UNTRACKED: 28 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
+
+### BROKEN: self-check 2026-07-30T20:09:56
+- engine-health RED: reds=['levels_blind: ENGINE TRADED BLIND on 2026-07-30 -- 0 of 770 RTH decision rows carried ANY active key level (bold 0/385; safe 0/385). With no levels the engine cannot detect level rejections/reclaims and falls through to its WORST cohort (trendline-only). Check Gamma_LevelRefresh + key-levels.json expires_at dates.', 'state_freshness: 3/17 live-path state files STALE -- trade-today.json, pnl-statement.json, ema-snapshot.json. Their producers stopped writing; consumers did not notice.']
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 1 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: 3 day-trades in 5d at equity $1,198 < $25,000 — PDT rule blocks a 4th day-trade
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 9 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $603 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $600 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION-DAILY STALE (RED): last goal-layer check is dated 2026-07-29, not today 2026-07-30 -- Gamma_ParticipationDaily likely did not fire.
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-30) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+<!-- rolled off 2026-07-30 by status_retention.py (L181 consolidation): 1 entries / 675 lines -->
+
+## [2026-07-23 ~22:42-23:03 ET] OK -- conductor (AFTERHOURS): ENGULFING-AT-STRUCTURE-TRIGGER's rolling-K-bar cluster primitive shipped, commits `8aed997a` + `77e048be`
+
+> **STAGE 0/1:** ET confirmed 22:42 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again -- still
+> correctly `status:pending` on J's REVOKE surface (5th fire in a row confirming, nothing new
+> until J responds). Next 3 ranked MED items (`CATASTROPHE-CAP-WIDEN-WATCH`,
+> `EXIT-ENGINE-PARITY-RESIDUAL`, `TRENDLINE-TIGHT-EXIT-ACCRETE`) are all "keep accruing/watching"
+> per prior fires' own notes (no new action available). `DOJO-BUILD-HANDOFF` (HIGH) confirmed
+> still not pickable (no TV MCP tools bound to this conductor session). Picked
+> `ENGULFING-AT-STRUCTURE-TRIGGER`'s own named next step from its progress thread: build the
+> rolling-K-bar local-extreme-cluster primitive `engulfing_at_swing_shelf`'s anchor notes called
+> for, and re-run the 2-anchor falsification BEFORE any pre-reg.
+
+> **Built `local_extreme_cluster()`** (predicates.py sec 12b) -- causal, C6-safe, reads only
+> `ctx.bars[<=t]`, zero `ctx.structure` dependency. First design (anchor clustering to the
+> window's GLOBAL min/max) FAILED both anchors on first verification run -- debugged with a
+> standalone reproducer (OP-33: verify before disclosing): an unrelated spike bar 30-40min prior
+> in the lookback window swamps the real, tighter, more-recent cluster the current bar is
+> actually reacting to. Redesigned to anchor clustering to BAR T's OWN extreme instead --
+> `pattern_anchor_verify.py --rule engulfing_at_local_cluster` then confirmed 2/2 anchors match
+> (unlike `engulfing_at_swing_shelf`, which honestly does not fire on either).
+
+> **Caught a real near-miss before shipping (the actual discipline, not just the headline):** ran
+> the bare composition through the C27 prescreen immediately after anchor verification passed --
+> NOISE-KILL, 92-99% days fired across every tolerance grid-searched (0.05-0.20). Anchor-pass and
+> prescreen-pass are INDEPENDENT properties (precision on 2 named exhibits vs population-level
+> selectivity); shipping on the anchor pass alone would have shipped a rule with near-zero
+> cross-day signal. Grid-searched two discriminators (`local_cluster_min_touches` 2->3,
+> `local_cluster_min_body_dollars` 0->0.40) re-checking BOTH anchors after every candidate --
+> final config clears C27 (**TESTABLE, 33.3% days, 0.46 fires/day, recent-90d stable, no drift**,
+> comparable selectivity to `engulfing_at_swing_shelf`'s 28.9%/0.42) while both anchors still
+> fire. Filed the methodology gap to `_lesson-inbox` (anchor-verified != not-noise, the inverse
+> of the swing-shelf fire's own "clean prescreen can still fail a targeted anchor" finding).
+
+> **Verified this fire (OP-33):** `test_pattern_grammar.py` + `test_pattern_anchor_verify.py` +
+> `test_pattern_prescreen.py` = 81/81 green (registry count 12->13, tier-2 set +1, ratchet tests
+> updated in the same commit -- not left to silently drift). `pattern_anchor_verify.py` (no
+> `--rule` filter, whole registry) = 4/4 anchors match declared state. Curated safety gate
+> (31+5) PASS at both commits. Post-commit `git show 8aed997a --stat --name-status` confirmed
+> exactly the 4 intended files (predicates.py, registry.py, test_pattern_grammar.py,
+> pattern-prescreen.json evidence).
+
+> **NO WIRING preserved** (unchanged from every other registry rule): `registry.py` has zero
+> live-engine/watcher/setup_dispatch consumers -- this is prescreen/discovery-only, PAPER-safe
+> by construction (nothing to revert on a real account). **Scope + revert:** 2 commits, 6 files
+> total (4 code/test + queue.md progress note + 1 new lesson-inbox candidate). Revert:
+> `git revert 77e048be 8aed997a`.
+
+> **Next step (not this fire, rail 3):** the item's own BUILD spec's step (c) -- a frozen
+> pre-reg (<=16 cells) + real-fills replay through `exit_manager_walk` over the 386-day history,
+> confirming the winning cell still fires on both anchor bars. Item stays `status:pending` in
+> queue.md pending that replay.
+
+> **Cost: ~$6.7** (STAGE 0/1 reads incl. 3475-line queue.md targeted sections, task_scorer +
+> 4-way item comparison, pattern-grammar/registry/predicates source reads (~600 lines), 2 failed
+> design iterations debugged with standalone reproducers before the working design, C27
+> prescreen run x3 (bare/touches-only/final-tuned, ~70s each), grid-search script across 20
+> tolerance/touches combos + a targeted per-anchor touch-count sweep, 2 commits + verification,
+> queue/STATUS/lesson-inbox write-up).
+
+- [07-28 08:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 80097s - kill+relaunch
+- [07-28 08:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 80397s - kill+relaunch
+- [07-28 08:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 80697s - kill+relaunch
+- [07-28 09:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 80997s - kill+relaunch
+- [07-28 09:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 81297s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T09:09:56
+- PREMARKET STALE: today-bias.json date=2026-07-27 != today 2026-07-28 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 09:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 81597s - kill+relaunch
+- [07-28 09:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 81897s - kill+relaunch
+- [07-28 09:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 82197s - kill+relaunch
+- [07-28 09:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 82497s - kill+relaunch
+- [07-28 09:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 82797s - kill+relaunch
+- [07-28 09:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 83097s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T09:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-27 != today 2026-07-28 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 09:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 83397s - kill+relaunch
+- [07-28 09:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 83697s - kill+relaunch
+- [07-28 09:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 83997s - kill+relaunch
+- [07-28 09:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 84297s - kill+relaunch
+- [07-28 10:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 84597s - kill+relaunch
+- [07-28 10:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 84897s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T10:09:56
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 10:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 85197s - kill+relaunch
+- [07-28 10:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 85497s - kill+relaunch
+- [07-28 10:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 85797s - kill+relaunch
+- [07-28 10:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 86097s - kill+relaunch
+- [07-28 10:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 86397s - kill+relaunch
+- [07-28 10:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 86697s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T10:39:56
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 10:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 86997s - kill+relaunch
+- [07-28 10:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 87297s - kill+relaunch
+- [07-28 10:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 87597s - kill+relaunch
+- [07-28 10:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 87897s - kill+relaunch
+
+## Kitchen
+Kitchen: alive, queue 22 pending, last cook 0 min ago, today $0.00, model=grinder-python
+- [07-28 11:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 88197s - kill+relaunch
+- [07-28 11:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 88497s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T11:09:56
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 11:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 88797s - kill+relaunch
+- [07-28 11:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 89097s - kill+relaunch
+- [07-28 11:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 89397s - kill+relaunch
+- [07-28 11:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 89697s - kill+relaunch
+- [07-28 11:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 89997s - kill+relaunch
+- [07-28 11:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 90297s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T11:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 11:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 90597s - kill+relaunch
+- [07-28 11:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 90897s - kill+relaunch
+- [07-28 11:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 91197s - kill+relaunch
+- [07-28 11:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 91497s - kill+relaunch
+- [07-28 12:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 91797s - kill+relaunch
+- [07-28 12:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 92097s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T12:09:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 12:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 92397s - kill+relaunch
+- [07-28 12:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 92697s - kill+relaunch
+- [07-28 12:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 92997s - kill+relaunch
+- [07-28 12:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 93297s - kill+relaunch
+- [07-28 12:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 93597s - kill+relaunch
+- [07-28 12:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 93897s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T12:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 12:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 94197s - kill+relaunch
+- [07-28 12:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 94497s - kill+relaunch
+- [07-28 12:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 94797s - kill+relaunch
+- [07-28 12:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 95097s - kill+relaunch
+- [07-28 13:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 95397s - kill+relaunch
+- [07-28 13:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 95697s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T13:09:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 13:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 95997s - kill+relaunch
+- [07-28 13:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 96297s - kill+relaunch
+- [07-28 13:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 96597s - kill+relaunch
+- [07-28 13:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 96897s - kill+relaunch
+- [07-28 13:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 97197s - kill+relaunch
+- [07-28 13:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 97497s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T13:39:56
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 13:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 97797s - kill+relaunch
+- [07-28 13:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 98097s - kill+relaunch
+- [07-28 13:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 98397s - kill+relaunch
+- [07-28 13:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 98697s - kill+relaunch
+- [07-28 14:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 98996s - kill+relaunch
+- [07-28 14:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 99297s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T14:09:56
+- ENGINE CANNOT ENTER: 280 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 14:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 99597s - kill+relaunch
+- [07-28 14:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 99897s - kill+relaunch
+- [07-28 14:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 100197s - kill+relaunch
+- [07-28 14:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 100497s - kill+relaunch
+- [07-28 14:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 100797s - kill+relaunch
+- [07-28 14:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 101097s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T14:39:56
+- ENGINE CANNOT ENTER: 310 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 14:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 101397s - kill+relaunch
+- [07-28 14:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 101697s - kill+relaunch
+- [07-28 14:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 101997s - kill+relaunch
+- [07-28 14:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 102297s - kill+relaunch
+- [07-28 15:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 102597s - kill+relaunch
+- [07-28 15:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 102897s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T15:09:56
+- ENGINE CANNOT ENTER: 340 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 15:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 103197s - kill+relaunch
+- [07-28 15:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 103497s - kill+relaunch
+- [07-28 15:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 103797s - kill+relaunch
+- [07-28 15:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 104097s - kill+relaunch
+- [07-28 15:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 104397s - kill+relaunch
+- [07-28 15:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 104697s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T15:39:56
+- ENGINE CANNOT ENTER: 370 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 15:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 104997s - kill+relaunch
+- [07-28 15:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 105297s - kill+relaunch
+- [07-28 15:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 105597s - kill+relaunch
+- [07-28 15:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 105897s - kill+relaunch
+- [07-28 16:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 106196s - kill+relaunch
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-28T20:00:30+00:00
+- task: eod-summary
+- date_et: 2026-07-28
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### BROKEN: self-check 2026-07-28T16:09:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T16:39:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-28T20:45:38+00:00
+- task: analyst
+- date_et: 2026-07-28
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-07-28 21:00:02] gym-session (2026-07-28) → **YELLOW** :: see `automation\state\gym-scorecard-2026-07-28.json`
+### BROKEN: self-check 2026-07-28T17:09:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-07-28T21:31:13+00:00
+- task: manager
+- date_et: 2026-07-28
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### BROKEN: self-check 2026-07-28T17:39:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T18:09:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T18:39:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T19:09:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T19:39:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T20:09:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T20:39:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T21:09:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+[2026-07-28 21:12:35 Tuesday EDT
+market_hours=False] conductor: QUIET — nightly budget spent (7 fires today >= max 4)
+
+### BROKEN: self-check 2026-07-28T21:39:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T22:09:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T22:39:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T23:09:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### WARN: spend-summary threshold breach
+- ts: 2026-07-29T03:30:17+00:00
+- date_et: 2026-07-28
+- total: $226.66 (threshold $30.00)
+- claude: $226.61  minimax: $0.05
+- claude_sessions: 15
+
+### BROKEN: self-check 2026-07-28T23:39:56
+- ENGINE CANNOT ENTER: 386 ticks today, 0 ENTER, 1x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x bold: notional $1,005 exceeds per-trade cap $746 (50% of $1,493); 1x bold: notional $1,060 exceeds per-trade cap $746 (50% of $1,493)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-28) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T00:09:56
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.70 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+
+### BROKEN: self-check 2026-07-29T09:46:44
+- Gamma_SightBeacon STALE in RTH: beacon 1037m old (should be <2m). Engine eye may be dark.
+- Gamma_HeartbeatCore STALE in RTH: last decision 1072m ago (should be ~1m). Engine may not be ticking.
+- PREMARKET STALE: today-bias.json date=2026-07-28 != today 2026-07-29 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: URLError: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it> -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+
+### BROKEN: premarket 2026-07-29
+- PREMARKET SILENT FAILURE: claude exit=1 but today-bias.date=2026-07-28 != today 2026-07-29 (no fresh bias written). Engine would open on a STALE bias.
+
+
+### DEGRADED: premarket 2026-07-29
+- PREMARKET DEGRADED: deterministic fallback covered for the failed LLM step (today-bias.date=2026-07-28 != today 2026-07-29 (no fresh bias written). Engine would open on a STALE bias.)
+
+
+- [2026-07-29 07:46:48] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-07-29 07:46:48] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-07-29 07:46:48] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-29.md
+
+### DEGRADED: self-check 2026-07-29T10:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T10:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- [07-29 10:51 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 3880s - kill+relaunch
+- [07-29 10:56 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4180s - kill+relaunch
+- [07-29 11:01 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4480s - kill+relaunch
+- [07-29 11:06 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4782s - kill+relaunch
+
+### BROKEN: self-check 2026-07-29T11:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-29 11:11 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5080s - kill+relaunch
+- [07-29 11:16 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5380s - kill+relaunch
+- [07-29 11:21 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5680s - kill+relaunch
+- [07-29 11:26 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5981s - kill+relaunch
+- [07-29 11:31 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6280s - kill+relaunch
+- [07-29 11:36 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6580s - kill+relaunch
+
+### BROKEN: self-check 2026-07-29T11:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-29 11:41 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6880s - kill+relaunch
+- [07-29 11:46 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7180s - kill+relaunch
+- [07-29 11:51 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7480s - kill+relaunch
+
+### DEGRADED: self-check 2026-07-29T12:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T12:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- [07-29 13:01 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 3897s - kill+relaunch
+- [07-29 13:06 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4198s - kill+relaunch
+
+### BROKEN: self-check 2026-07-29T13:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-29 13:11 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4497s - kill+relaunch
+- [07-29 13:16 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4797s - kill+relaunch
+- [07-29 13:21 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5097s - kill+relaunch
+- [07-29 13:26 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5398s - kill+relaunch
+- [07-29 13:31 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5697s - kill+relaunch
+- [07-29 13:36 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5997s - kill+relaunch
+
+### BROKEN: self-check 2026-07-29T13:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-29 13:41 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6297s - kill+relaunch
+- [07-29 13:46 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6598s - kill+relaunch
+- [07-29 13:51 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6897s - kill+relaunch
+- [07-29 13:56 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7197s - kill+relaunch
+- [07-29 14:01 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7497s - kill+relaunch
+- [07-29 14:06 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7798s - kill+relaunch
+
+### BROKEN: self-check 2026-07-29T14:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-29 14:11 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8097s - kill+relaunch
+- [07-29 14:16 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8397s - kill+relaunch
+- [07-29 14:21 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8697s - kill+relaunch
+- [07-29 14:26 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8998s - kill+relaunch
+- [07-29 14:31 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9297s - kill+relaunch
+- [07-29 14:36 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9597s - kill+relaunch
+
+### BROKEN: self-check 2026-07-29T14:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-29 14:41 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9897s - kill+relaunch
+- [07-29 14:46 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10197s - kill+relaunch
+- [07-29 14:51 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10497s - kill+relaunch
+- [07-29 14:56 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10797s - kill+relaunch
+- [07-29 15:01 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11097s - kill+relaunch
+- [07-29 15:06 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11398s - kill+relaunch
+
+### BROKEN: self-check 2026-07-29T15:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-29 15:11 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11697s - kill+relaunch
+- [07-29 15:16 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11997s - kill+relaunch
+- [07-29 15:21 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12297s - kill+relaunch
+- [07-29 15:26 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12598s - kill+relaunch
+- [07-29 15:31 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12897s - kill+relaunch
+- [07-29 15:36 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13197s - kill+relaunch
+
+### BROKEN: self-check 2026-07-29T15:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-29 15:41 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13497s - kill+relaunch
+- [07-29 15:46 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13798s - kill+relaunch
+- [07-29 15:51 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14097s - kill+relaunch
+- [07-29 15:56 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 14397s - kill+relaunch
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-29T20:00:15+00:00
+- task: eod-summary
+- date_et: 2026-07-29
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+- [07-29 16:01 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 14697s - kill+relaunch
+- [07-29 16:06 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 14998s - kill+relaunch
+
+### DEGRADED: self-check 2026-07-29T16:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- [07-29 16:11 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 15297s - kill+relaunch
+- [07-29 16:16 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 15597s - kill+relaunch
+- [07-29 16:21 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 15897s - kill+relaunch
+- [07-29 16:26 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 16197s - kill+relaunch
+- [07-29 16:31 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 16497s - kill+relaunch
+- [07-29 16:36 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 16797s - kill+relaunch
+
+### DEGRADED: self-check 2026-07-29T16:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- [07-29 16:41 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 17096s - kill+relaunch
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-29T20:45:23+00:00
+- task: analyst
+- date_et: 2026-07-29
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+- [07-29 16:46 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 17397s - kill+relaunch
+- [07-29 16:51 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 17697s - kill+relaunch
+- [07-29 16:56 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 17996s - kill+relaunch
+
+- [2026-07-29 21:00:02] gym-session (2026-07-29) → **YELLOW** :: see `automation\state\gym-scorecard-2026-07-29.json`- [07-29 17:01 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 18296s - kill+relaunch
+- [07-29 17:06 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 18597s - kill+relaunch
+
+### DEGRADED: self-check 2026-07-29T17:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- [07-29 17:11 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 18896s - kill+relaunch
+- [07-29 17:16 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 19197s - kill+relaunch
+- [07-29 17:21 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 19496s - kill+relaunch
+- [07-29 17:26 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 19797s - kill+relaunch
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-07-29T21:30:47+00:00
+- task: manager
+- date_et: 2026-07-29
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+- [07-29 17:31 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 20096s - kill+relaunch
+- [07-29 17:36 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 20396s - kill+relaunch
+
+### DEGRADED: self-check 2026-07-29T17:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- [07-29 17:41 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 20696s - kill+relaunch
+
+### DEGRADED: self-check 2026-07-29T18:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T18:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T19:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T19:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T20:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T20:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T21:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T21:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T22:09:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### DEGRADED: self-check 2026-07-29T22:39:56
+- PREMARKET DEGRADED: today-bias.json is fresh-dated but LLM-authored narrative failed this morning -- running on the deterministic fallback's mechanical bias only (no chart/ribbon/trendline read, zero falsifiable_predictions).
+- FILL-FUNNEL RULE-BLOCKED[core:safe]: 6 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 1x safe: notional $765 exceeds per-trade cap $348 (30% of $1,160); 1x safe: notional $789 exceeds per-trade cap $348 (30% of $1,160)
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=0/2-4
+- PDT-BLOCKED[bold]: 3/3 day-trades used (rolling 5bd) at equity $1,197.52 -- blocks a 4th day-trade until it rolls off 2026-07-31.
+- TRENDLINE-DRAW never marked today (2026-07-29) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### WARN: spend-summary threshold breach
+- ts: 2026-07-30T03:30:12+00:00
+- date_et: 2026-07-29
+- total: $249.00 (threshold $30.00)
+- claude: $249.00  minimax: $0.00
+- claude_sessions: 11
+
+<!-- rolled off 2026-07-28 by status_retention.py (L181 consolidation): 1 entries / 98 lines -->
+
+## [2026-07-23 ~22:12-22:29 ET] OK -- conductor (AFTERHOURS): EXITMGR-STAGE-LABEL-CONFLATION closed, commit `c4ee425a`
+
+> **STAGE 0/1:** ET confirmed 22:12 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again -- STILL
+> correctly `status:pending` on J's REVOKE surface (`gp-2026-07-23-twin-doctrine-001` confirmed
+> via `conductor-proposals.jsonl`, 4th fire in a row confirming, nothing new until J responds).
+> Full ranked list: 4 items tied at score 5.0 (`CATASTROPHE-CAP-WIDEN-WATCH` accrue-only n=4,
+> `EXIT-ENGINE-PARITY-RESIDUAL` research-diagnosis, `EXITMGR-STAGE-LABEL-CONFLATION`,
+> `TRENDLINE-TIGHT-EXIT-ACCRETE` accrue-only shadow). Picked `EXITMGR-STAGE-LABEL-CONFLATION`
+> (MED, ledger-hygiene, filed 2026-07-14) -- a bounded, closable bugfix vs. the other three
+> which are all "keep accruing / keep watching" (no new action available this fire).
+
+> **What I found:** `exit_manager.py`'s pre-TP1 exit-ALL check hardcoded
+> `stage="premium_stop"` even when `profit_lock_arm_scope="full"` made the actual exit a
+> pre-TP1 profit-lock-floor scratch -- the human-readable `reason` string already said
+> `"profit_lock_floor @ X"`, but the machine-readable `stage` field didn't, so any analytics
+> keyed off `stage` (not `reason`) would silently conflate the static -50% catastrophe cap
+> with the lock-floor exit. Fixed at the source: `stage` now reads `"profit_lock_floor"` when
+> `floor_active`, matching `reason`.
+
+> **Blast-radius audit (the actual work, not just the 1-line fix) found + fixed 2 REAL
+> downstream consumers** that read `ExitAction.stage` and would have silently mis-fired on
+> the new label: (1) `backtest/lib/exit_manager_walk.py`'s `_stage_fill_level` -- the
+> live-parity bar walker several backtest tools ride -- would have fallen through to
+> `None` -> market-fill for a floor exit instead of its correct limit-style fill; (2)
+> `backtest/tools/t4_exit_matrix.py` + `backtest/tools/hold_posture_ab_study.py`'s
+> `ARM_SCOPE_FULL` branches (the FIRST feeds `strike_ab_convention_reconciliation.py`'s
+> `shape_sim`; the SECOND is the `TRAIL60-REOPEN-WATCH` queue item's planned re-run once
+> >=50 new fills accrue -- so this was a live landmine for a FUTURE fire, not just a stale
+> comment). Both fixed with the actual ratcheted floor level, not a naive fallback. Checked
+> and confirmed SAFE/unaffected: `fleet_live.py`'s `first-entry-lock.json` reader (the file
+> is never written anywhere in the repo -- dead code, always returns `[]`, out of scope to
+> fix this fire); `debit_spread_ab_study.py`'s 2 defensive comments (never actually sets
+> `scope="full"`, so its branch is unreachable either way); `ribbon_ride_strike_exit_ab.py`,
+> `p5_topcell_real_fills_confirm.py`, `edge_matrix_range_*.py` (all pin `ARM_SCOPE_POST_TP1`
+> explicitly, never full).
+
+> **Verified this fire (OP-33):** new guard test
+> `test_stage_disambiguates_catastrophe_cap_from_profit_lock_floor` in
+> `automation/state/fleet/test_exit_manager.py` (REDs if stage is ever re-conflated) + 2
+> existing assertions updated to the correct label + new
+> `backtest/tests/test_exit_manager_walk_stage_labels.py` (3 tests pinning
+> `exit_manager_walk.py`'s fill-level parity between the two stages). Ran the full relevant
+> surface: `test_exit_manager.py` + `test_exit_actuator.py` + `test_exit_manager_replay.py`
+> + `test_profit_lock_scope_pin.py` + `test_ssb_certification.py` + `test_structure_stop_
+> study.py` + `test_exit_manager_walk_stage_labels.py` + `test_t4_exit_matrix.py` +
+> `test_audit_fix_heartbeat.py` + `test_audit_fix_exit.py` + `test_dojo_sim_executor.py` +
+> the 3 crypto-twin exit-touching suites = **265/265 green**. Curated safety gate
+> (`run_safety_gate.py`): 31+5 PASS (also ran automatically via the pre-commit hook).
+> Post-commit `git show c4ee425a --stat --name-status` confirms exactly the 6 intended
+> files landed (5 modified + 1 new test file).
+
+> **Zero live behavior change today:** no live/paper shape currently sets
+> `profit_lock_arm_scope="full"` (STOP-B stays unarmed per the 2026-07-09 doctrine) --
+> this only activates the correct label the day that scope is armed, or a frozen
+> full-scope study is re-run. This is why it shipped directly under rail 4 (guard test +
+> clean revert + this REVOKE report) rather than needing a J ping: it's a ledger-hygiene
+> correctness fix with a verified-empty live blast radius, not a behavior/edge change.
+
+> **Learn (STAGE 4.5):** no new lesson filed -- this is the existing blast-radius discipline
+> (grep every consumer of a shared field before shipping, per C34/`/fable-blast-radius`)
+> working exactly as designed on a real case, not a novel foot-gun.
+
+> **Scope + revert:** 6 files (`exit_manager.py`, `test_exit_manager.py`,
+> `exit_manager_walk.py`, `t4_exit_matrix.py`, `hold_posture_ab_study.py`,
+> `test_exit_manager_walk_stage_labels.py` [new]). Zero `params.json`/`heartbeat_core.py`/
+> `filters.py`/`CLAUDE.md` touched. Revert: `git revert c4ee425a`.
+
+> **Cost: ~$4.8** (STAGE 0/1 reads, task_scorer + 4-way tied-item comparison, exit_manager.py
+> source read + edit, blast-radius grep sweep across ~30 files for `stage`/`exit_reason`
+> consumers, 2 downstream-consumer investigations that each needed their own read-through
+> before deciding safe-vs-fix, 2 real fixes + 1 new test file, 3 rounds of test verification
+> at increasing scope, safety gate, commit + verify, queue/STATUS write-up).
+
+
+### BROKEN: self-check 2026-07-28T01:12:25
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+## Kitchen
+Kitchen: alive, queue 32 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+- [2026-07-28 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-07-28 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-07-28 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-28.md
+- [07-28 08:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 77696s - kill+relaunch
+- [07-28 08:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 77997s - kill+relaunch
+- [07-28 08:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 78297s - kill+relaunch
+- [07-28 08:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 78597s - kill+relaunch
+- [07-28 08:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 78897s - kill+relaunch
+- [07-28 08:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 79197s - kill+relaunch
+- [07-28 08:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 79497s - kill+relaunch
+
+### BROKEN: self-check 2026-07-28T08:39:56
+- PREMARKET STALE: today-bias.json date=2026-07-27 != today 2026-07-28 -- Gamma_Premarket likely silent-failed (exit-0, no write). Engine opening on a stale bias.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-28 08:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 79797s - kill+relaunch
+
+<!-- rolled off 2026-07-27 by status_retention.py (L181 consolidation): 1 entries / 463 lines -->
+
+## [2026-07-23 ~21:52-22:20 ET] OK -- conductor (AFTERHOURS): TWIN-B6-SIM-FRICTION-CALIBRATION infra shipped, commit `465487f7`
+
+> **STAGE 0/1:** ET confirmed 21:48 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again -- still
+> correctly `status:pending` on J's REVOKE surface (`gp-2026-07-23-twin-doctrine-001`, nothing
+> new until J responds -- 3rd fire in a row confirming this, per STATUS.md precedent). Next
+> ranked ready item: `TWIN-B6-SIM-FRICTION-CALIBRATION` (HIGH, score 6.0, `depends:TWIN-B1`
+> done). TWIN-PROGRAM.md has NO existing "B6"/"stream 6" spec -- the queue item's own text was
+> the only spec, so this fire scoped it from scratch before building.
+
+> **What scoping found (a real gap, not a design choice):** entries already capture the TRUE
+> `filled_avg_price` via `poll_fill()` + a "FILLED" journal row (TWIN-B3 entry-quality
+> machinery, `entry-quality.json` already has n=51 "marketable"-cohort real fills: avg
+> slippage ≈ **+0.80bps favorable**, avg latency 0.29s -- directly usable friction data).
+> EXITS never did the same: `manage_positions`' SELL_PARTIAL/SELL_ALL journals a CLOSED/
+> MANAGED row whose `"broker"` field is the raw un-polled PLACE response (`status=
+> "pending_new"`, `filled_avg_price=null`) -- confirmed by reading all 70 real CLOSED events
+> + all 70 FILLED events in `journal.jsonl` directly: zero sell-side FILLED rows exist. Exit
+> friction was silently un-measurable despite 70 real exits already on file.
+
+> **Shipped:** `crypto_twin_core.manage_positions` now polls the SAME `broker.poll_fill()`
+> helper after a live SELL_PARTIAL/SELL_ALL and journals an additive `"EXIT_FILLED"` row
+> (`expected_price` parsed from `a.reason`'s `"kind @ price"` convention, `fill_price`,
+> `time_to_fill_sec`, `slippage_bps`) -- purely additive telemetry, zero change to
+> `close_failed`/`dec.closes_position` control flow (fails open on a poll exception via
+> `EXIT_FILLED_CAPTURE_ERROR`). New reader `setup/scripts/crypto_twin_friction_calibration.py`
+> combines both legs and cross-references `backtest/lib/simulator_real.py`'s
+> `DEFAULT_ENTRY_SLIPPAGE`/`DEFAULT_EXIT_SLIPPAGE` via a LIVE import (not a hand-copied
+> number -- caught the `backtest.lib` relative-import footgun mid-build: `simulator_real.py`
+> uses `from .et_frame import ...`, so it must be imported as `backtest.lib.simulator_real`
+> with the repo root on `sys.path`, not by putting `backtest/lib` on `sys.path` directly).
+> Ran live against real state: `n=51 avg_slippage_bps=-0.8045` (entry), `n=0 verdict=ACCRUING`
+> (exit, correctly honest about zero samples at ship time).
+
+> **Honest caveat surfaced, not fixed this fire:** every twin exit stage (structure_stop /
+> catastrophe cap / TP1-trail / premium_stop / runner_stop / time_stop / max_hold) is placed
+> as a MARKET order unconditionally -- the twin has no exit-side passive/limit lane (only
+> entries got the TWIN-B3 passive-limit graduation). So exit calibration data will only ever
+> be comparable to `simulator_real.py`'s market-exit slippage bucket, never its "TP1/
+> premium_stop/BE-stop fill exactly at the bracket level, zero slippage" limit-exit
+> assumption. Flagged in TWIN-PROGRAM.md's new "B6 shipped" section as a TWIN-B6b follow-up
+> (not queued as a separate item yet -- deliberately, per rail 3 one-bounded-task-per-fire;
+> a future fire can promote it if J/conductor wants the exit-limit-lane build).
+
+> **Verified this fire (OP-33) -- caught+fixed a REAL regression before it could ship:**
+> `python -m pytest backtest/tests/test_crypto_twin_core.py` initially passed (44/44) because
+> the fixture's `poll_fill` always returns a fixed price -- but running
+> `python setup/scripts/twin_gauntlet.py --paths tp1_trail,structure_stop,catastrophe_cap,
+> max_hold --dry` (the "diffs vs expected" backpressure TWIN-PROGRAM.md names as the
+> conductor hook for exactly this class of bug) showed **3/4 touched paths FAIL**
+> (`git stash` isolation confirmed 4/4 PASS pre-change, 1/4 PASS post-change -- root cause,
+> not coincidence). Mechanism: `twin_gauntlet.py`'s `_dry_tp1_trail`/`_dry_structure_stop`/
+> `_dry_catastrophe_cap` all assumed `journal[-1]["event"] == "CLOSED"` -- an assumption that
+> was ALSO baked into 2 pre-existing `test_crypto_twin_core.py` assertions (same class, same
+> fire, same root cause: EXIT_FILLED now legitimately trails CLOSED). Fixed both: find the
+> last CLOSED row explicitly rather than assuming journal-tail position. Re-ran
+> `--dry` over all 6 known paths (`tp1_trail,structure_stop,catastrophe_cap,max_hold,
+> restart_open_position,entry`): **6/6 PASS**. Full suite:
+> `test_crypto_twin_core.py` + `test_crypto_twin_friction_calibration.py` (7 new tests:
+> sign-convention, stage-grouping, accruing-verdict, real-import-resolves-non-None) +
+> `test_crypto_twin_scenarios/_entry_quality/_health/_broker/_sim_bear/_soak_report/
+> _reaper_exemption.py` + `test_twin_gauntlet.py` = **268/268 green**. Curated safety gate
+> (`backtest/tests/run_safety_gate.py`): 31+5 PASS. Post-commit
+> `git show 465487f7 --stat --name-status` confirms exactly the 6 intended files landed.
+
+> **Learn (STAGE 4.5):** the gauntlet caught a real bug this fire was about to ship blind on
+> (pytest alone would have shipped it green) -- this is TWIN-PROGRAM.md's "Conductor hook"
+> value stream #2 working exactly as designed, not a new lesson to encode; no lesson-inbox
+> item filed (the guardrail that caught it already exists and just did its job).
+
+> **Scope + revert:** 6 files (`crypto_twin_core.py`, `crypto_twin_friction_calibration.py`
+> [new], `twin_gauntlet.py`, `test_crypto_twin_core.py`, `test_crypto_twin_friction_
+> calibration.py` [new], `TWIN-PROGRAM.md`). Zero `params.json`/`heartbeat_core.py`/
+> `filters.py`/`CLAUDE.md` touched -- twin-only (paper, crypto gym-only per project scope),
+> rail-4 clear, purely additive telemetry + a read-only reader. Revert: `git revert 465487f7`.
+> `automation/state/crypto-twin/friction-calibration.json` is a regenerated report artifact
+> (same untracked-by-design precedent as `entry-quality.json`) -- not committed.
+
+> **Cost: ~$4.3** (STAGE 0/1 reads, TWIN-PROGRAM.md scope search, journal.jsonl/entry-
+> quality.json direct data investigation to find the real gap, crypto_twin_core.py edit +
+> docstring, 6 new/updated core tests, calibration script build + 7 tests, live script run +
+> import-path debug, twin_gauntlet.py regression hunt via git-stash isolation + 3-function
+> fix + full 6-path re-verify, TWIN-PROGRAM.md fold, commit + verify, queue/STATUS write-up,
+> conductor_outcome record+metric).
+
+
+### BROKEN: self-check 2026-07-26T17:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T18:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T18:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T19:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T19:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+## Kitchen
+Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+### BROKEN: self-check 2026-07-26T20:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T20:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T21:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T21:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T22:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T22:39:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T23:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### WARN: spend-summary threshold breach
+- ts: 2026-07-27T03:30:16+00:00
+- date_et: 2026-07-26
+- total: $65.90 (threshold $30.00)
+- claude: $65.90  minimax: $0.00
+- claude_sessions: 14
+
+### BROKEN: self-check 2026-07-26T23:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+[2026-07-26T23:42:33] conductor: QUIET — nightly budget spent (7 fires today >= max_fires 4)
+
+### BROKEN: self-check 2026-07-27T00:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-27T00:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-27T01:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-27T01:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-27T02:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-27T02:39:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-27T03:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-27T03:39:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-27T04:09:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-27T04:39:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-27T05:09:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-27T05:39:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+- [2026-07-27 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-07-27 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-07-27 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-27.md
+
+### BROKEN: self-check 2026-07-27T06:09:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-27T06:39:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-27T07:09:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-27T07:39:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-27T08:09:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-27T08:39:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- [07-27 09:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 3896s - kill+relaunch
+
+### BROKEN: self-check 2026-07-27T09:09:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-27 09:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 4196s - kill+relaunch
+- [07-27 09:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 4496s - kill+relaunch
+- [07-27 09:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 4796s - kill+relaunch
+- [07-27 09:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 5096s - kill+relaunch
+- [07-27 09:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 5397s - kill+relaunch
+- [07-27 09:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5696s - kill+relaunch
+
+### BROKEN: self-check 2026-07-27T09:39:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-27 09:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5996s - kill+relaunch
+- [07-27 09:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6296s - kill+relaunch
+- [07-27 09:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6596s - kill+relaunch
+- [07-27 09:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6896s - kill+relaunch
+- [07-27 10:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7195s - kill+relaunch
+- [07-27 10:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7496s - kill+relaunch
+
+### BROKEN: self-check 2026-07-27T10:09:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-27 10:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7796s - kill+relaunch
+- [07-27 10:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8096s - kill+relaunch
+- [07-27 10:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8396s - kill+relaunch
+- [07-27 10:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8696s - kill+relaunch
+
+### BROKEN: self-check 2026-07-27T10:39:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-27T11:09:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- [07-27 11:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 3897s - kill+relaunch
+
+### BROKEN: self-check 2026-07-27T11:39:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-27 11:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4197s - kill+relaunch
+- [07-27 11:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4497s - kill+relaunch
+- [07-27 11:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 4797s - kill+relaunch
+- [07-27 11:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5097s - kill+relaunch
+- [07-27 12:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5396s - kill+relaunch
+- [07-27 12:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5697s - kill+relaunch
+
+### BROKEN: self-check 2026-07-27T12:09:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-27 12:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 5997s - kill+relaunch
+- [07-27 12:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6297s - kill+relaunch
+- [07-27 12:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6597s - kill+relaunch
+- [07-27 12:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 6897s - kill+relaunch
+- [07-27 12:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7197s - kill+relaunch
+- [07-27 12:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7497s - kill+relaunch
+
+### BROKEN: self-check 2026-07-27T12:39:57
+- ENGINE CANNOT ENTER: 190 ticks today, 0 ENTER, 5x SKIP_DOJI_ENTRY_BAR -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-27 12:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 7797s - kill+relaunch
+- [07-27 12:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8097s - kill+relaunch
+- [07-27 12:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8397s - kill+relaunch
+- [07-27 12:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8697s - kill+relaunch
+- [07-27 13:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 8997s - kill+relaunch
+- [07-27 13:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9297s - kill+relaunch
+
+### BROKEN: self-check 2026-07-27T13:09:57
+- ENGINE CANNOT ENTER: 220 ticks today, 0 ENTER, 12x SKIP_STRUCTURE_VETO -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-27 13:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9597s - kill+relaunch
+- [07-27 13:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 9897s - kill+relaunch
+- [07-27 13:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10197s - kill+relaunch
+- [07-27 13:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10497s - kill+relaunch
+- [07-27 13:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 10797s - kill+relaunch
+- [07-27 13:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11097s - kill+relaunch
+
+### BROKEN: self-check 2026-07-27T13:39:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-27 13:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11397s - kill+relaunch
+- [07-27 13:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11697s - kill+relaunch
+- [07-27 13:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 11997s - kill+relaunch
+- [07-27 13:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12297s - kill+relaunch
+- [07-27 14:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12596s - kill+relaunch
+- [07-27 14:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 12897s - kill+relaunch
+
+### BROKEN: self-check 2026-07-27T14:09:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-27 14:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13197s - kill+relaunch
+- [07-27 14:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13497s - kill+relaunch
+- [07-27 14:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 13797s - kill+relaunch
+- [07-27 14:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14097s - kill+relaunch
+- [07-27 14:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14397s - kill+relaunch
+- [07-27 14:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14697s - kill+relaunch
+- [07-27 14:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 14997s - kill+relaunch
+
+### BROKEN: self-check 2026-07-27T14:39:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-27 14:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 15297s - kill+relaunch
+- [07-27 14:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 15597s - kill+relaunch
+- [07-27 14:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 15897s - kill+relaunch
+- [07-27 15:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 16197s - kill+relaunch
+- [07-27 15:05 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 16497s - kill+relaunch
+
+### BROKEN: self-check 2026-07-27T15:09:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-27 15:10 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 16797s - kill+relaunch
+- [07-27 15:15 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 17097s - kill+relaunch
+- [07-27 15:20 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 17397s - kill+relaunch
+- [07-27 15:25 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 17697s - kill+relaunch
+- [07-27 15:30 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 17997s - kill+relaunch
+- [07-27 15:35 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 18297s - kill+relaunch
+
+### BROKEN: self-check 2026-07-27T15:39:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- TV-CDP UNREACHABLE (RED): CDP unreachable on :9222: TimeoutError: timed out -- TradingView's CDP endpoint is not responding. Premarket bias generation and named-level chart context may be degraded (2026-07-07/09 precedent: a 41+h outage produced a real 'no-trade-tv-fail' framing, unsurfaced here the whole time). Gamma_LaunchTV (08:00 ET) / Gamma_TvWatchdog (5min) should self-heal within a cycle; if this persists, manually `taskkill /F /IM TradingView.exe` then run `setup\launch_tv_debug.ps1` by hand.
+- [07-27 15:40 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 18597s - kill+relaunch
+- [07-27 15:45 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 18897s - kill+relaunch
+- [07-27 15:50 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 19197s - kill+relaunch
+- [07-27 15:55 ET] TvWatchdog: tv=relaunch_kill heartbeat=fresh TV up but CDP dead for 19497s - kill+relaunch
+- [07-27 16:00 ET] TvWatchdog: tv=relaunch_kill heartbeat=na TV up but CDP dead for 19796s - kill+relaunch
+
+### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-07-27T20:00:26+00:00
+- task: eod-summary
+- date_et: 2026-07-27
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### BROKEN: self-check 2026-07-27T16:09:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-27T16:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-07-27T20:45:31+00:00
+- task: analyst
+- date_et: 2026-07-27
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-07-27 21:00:02] gym-session (2026-07-27) → **YELLOW** :: see `automation\state\gym-scorecard-2026-07-27.json`
+### BROKEN: self-check 2026-07-27T17:09:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-07-27T21:31:19+00:00
+- task: manager
+- date_et: 2026-07-27
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### BROKEN: self-check 2026-07-27T17:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-27T18:09:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-27T18:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-27T19:09:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-27T19:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-27T20:09:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-27T20:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-27T21:09:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-27T21:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+[2026-07-27T21:42 ET] conductor: QUIET — nightly budget exhausted (11 fires today >= max_fires 4) — zero model work, rail-0 gate
+
+### BROKEN: self-check 2026-07-27T22:09:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-27T22:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-27T23:09:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### WARN: spend-summary threshold breach
+- ts: 2026-07-28T03:30:17+00:00
+- date_et: 2026-07-27
+- total: $289.99 (threshold $30.00)
+- claude: $289.94  minimax: $0.05
+- claude_sessions: 21
+
+### BROKEN: self-check 2026-07-27T23:39:57
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- TRENDLINE-DRAW never marked today (2026-07-27) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+### BROKEN: self-check 2026-07-28T00:09:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-28T00:39:57
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+### BROKEN: self-check 2026-07-28T01:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-27T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+
+<!-- rolled off 2026-07-26 by status_retention.py (L181 consolidation): 2 entries / 248 lines -->
+
+## [2026-07-23 ~21:42-22:00 ET] OK -- conductor (AFTERHOURS): OPEN-BELL-STATUS-PUSH closed (stale checkbox, work already fully shipped)
+
+> **STAGE 0/1:** ET confirmed 21:42 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again -- still
+> correctly `status:pending` on J's REVOKE surface (`gp-2026-07-23-twin-doctrine-001`, filed
+> last fire, nothing new until J responds). Read the full ranked list: 2nd item was
+> `OPEN-BELL-STATUS-PUSH` (HIGH, visibility, OP-33e, `depends:none`).
+
+> **What I found:** the queue item's own text describes a build (09:36 ET one-shot Discord
+> push of engine-health + kill-switch status + tick freshness + fills-so-far, retiring J's
+> repeated "is it running today?" question). Investigated before building anything (tiebreak
+> rule: closing a loop > creating an artifact) -- `setup/scripts/open_bell_status.py` +
+> `install-open-bell-status.ps1` already exist, fully match the spec, and
+> `Get-ScheduledTask -TaskName Gamma_OpenBellStatus` confirms `State=Ready`, registered.
+
+> **Verified this fire (OP-33):** `automation/state/open-bell-pinged.json` +
+> `discord-outbox.jsonl` show the task has fired correctly for 3 CONSECUTIVE trading days
+> (2026-07-21, 07-22, 07-23, all `queued_at` 09:36:00 ET, `source: open_bell_status`).
+> Today's actually-delivered message: `🟡 OPEN-BELL STATUS 2026-07-23 09:36 ET -- engine:
+> YELLOW | Kill-switches: Safe armed re-armed-today YES | Bold armed re-armed-today YES |
+> Ticks: last bold tick 09:35:04 (0.9m ago) | Fills: none yet`. Guard test re-run this fire:
+> `python -m pytest backtest/tests/test_open_bell_status.py -q` -> 11/11 green. This is the
+> stale-checkbox pattern task_scorer's own `--all` fix (previous fire, commit `6d42d211`) was
+> built to surface -- work shipped, box never flipped.
+
+> **What shipped this fire:** zero code changes (nothing to build -- verification-only).
+> `automation/overnight/queue.md` `OPEN-BELL-STATUS-PUSH` flipped `[ ] -> [x]`,
+> `status:pending -> status:done`, with the full evidence trail above appended inline
+> (repo convention: completed items stay inline with `[x]`/`status:done`, not moved to a
+> separate section -- matches `TASK-SCORER-SECTION-SCOPE-FIX` and `CRYPTO-TWIN-T1-T4`
+> precedent in the same file).
+
+> **Learn (STAGE 4.5):** none new -- this fire's discipline was the SAME scoping-before-
+> building step the last fire used on GATE-TIERS-IMPLEMENT (check what's already shipped
+> before re-doing it). No lesson-inbox item filed; the general pattern is already covered
+> by the existing queue-hygiene discipline (OP-22 compound-don't-accumulate).
+
+> **Scope + revert:** 1 file (`queue.md`, 1 checkbox + evidence block). Zero
+> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched. Not a trading-path
+> change -- pure bookkeeping, trivially revertible (`git checkout -- automation/overnight/
+> queue.md` or `git revert` the commit).
+
+> **Cost: ~$1.1** (STAGE 0/1 reads, task_scorer full ranking, targeted queue.md grep,
+> open_bell_status.py read, scheduled-task + pinged-file + outbox verification, guard-test
+> re-run, STATUS/queue write-up, conductor_outcome record+metric).
+
+## [2026-07-23 ~21:12-21:50 ET] OK -- conductor (AFTERHOURS): GATE-TIERS-IMPLEMENT rank #3 shipped (per-arm hard-skip override), commit `ecde12f8`
+
+> **STAGE 0/1:** ET confirmed 21:12 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` again, but it is
+> ALREADY drafted + filed for J's REVOKE/APPROVE (last fire, `gp-2026-07-23-twin-doctrine-001`,
+> still `status:pending` on J's side -- nothing new to do until J responds). Read the full
+> ranked list (`task_scorer.py` with no args): next-highest ready items were `GATE-TIERS-
+> IMPLEMENT` (HIGH, trading-path-eligible), `OPEN-BELL-STATUS-PUSH` (HIGH), `TWIN-B6-SIM-
+> FRICTION-CALIBRATION` (HIGH). Picked GATE-TIERS-IMPLEMENT: a HIGH, `depends:none`, fully
+> pre-specified engineering task (the referenced audit, `markdown/audits/GATE-PROVENANCE-
+> AUDIT-2026-07-02.md`, already contains the design + a ranked action list) that is squarely
+> a PAPER trading-path change (rail 4 -- ships directly with guard+revert+REVOKE, no J-first
+> needed).
+
+> **Scoped BEFORE building (the audit's plan is a 6-step epic; one bounded task per fire,
+> rail 3):** re-read `accounts.json` + `build_shared_signal.py` + `fleet_executor.py` first
+> to check what the 3 weeks since the audit had already absorbed. Found: ranks #2 (G8 momentum
+> bug) and #5 (E5 confidence gate) were ALREADY closed 2026-07-11 by earlier fires; the existing
+> tight/base/loose `min_triggers` grid + the `probe_arm` cohort-bypass mechanism (2026-07-10/11)
+> already cover a good chunk of "risky arm takes the one-gate-away trade" for OTHER gates. The
+> ONE piece still genuinely open and cleanly scoped: rank #3, `_HARD_SKIP_VERDICTS` (require_
+> bearish_fill_bar) is a MODULE-LEVEL constant baked into the shared signal's "bold" perception
+> block at BUILD time -- every non-safe arm (bold-2 control, risky-1 tight, risky-3 loose)
+> inherits the IDENTICAL hard-skip regardless of its own gate tier, so this ONE gate was
+> structurally un-relaxable for a risky arm no matter what `gate_override` said.
+
+> **What shipped:** `build_shared_signal.py`'s `_bold_passed_blocks_from_row` now exposes
+> `score_peak_passed` (the score/trigger quality check WITHOUT the hard-skip filter) and
+> `hard_skip_action` (which global hard-skip verdict fired, if any) alongside the UNCHANGED
+> `passed` field -- byte-identical for any reader that only looks at `passed`.
+> `fleet_executor._effective_passed(block, arm)` is the new consume-time gate: an arm with NO
+> `gate_params.hard_skip_verdicts` key reads `passed` exactly as before (every existing arm,
+> unchanged); an arm that carries the key opts INTO a per-verdict allowlist of what it still
+> honors as a hard block (empty list = ignore all global hard-skips). Wired risky-3 --
+> the only LIVE RISKY/minimum-viable-gate-tier arm since safe-1 retired 2026-07-11 -- with
+> `gate_params: {"hard_skip_verdicts": []}`. bold-2 (control) and risky-1 (tight) get zero
+> code-path change since they never set the key.
+
+> **Verified this fire (OP-33):** direct smoke-test of `_bold_passed_blocks_from_row` on 3
+> synthetic rows (hard-skip-blocked / clean ENTER / HOLD) confirmed the new fields compute
+> correctly and `passed` is unchanged in all 3 cases. 6 new guard tests added to
+> `test_fleet_executor.py` (byte-identical default for both a blocked and a passing block,
+> rescue for the opted-out arm, still-honors-a-named-verdict, unaffected-when-no-hard-skip-
+> fired, and an end-to-end `_chosen_side` integration proving a control arm and the rescued
+> arm diverge on the SAME input block). `python -m pytest` on `automation/state/fleet/`:
+> 283/283 green (was 277 pre-change). Also re-ran `test_probe_arm.py` / `test_plan_all.py` /
+> `test_six_account_routing.py` / `test_duplicate_account_guard.py` / `test_arm_display_names.py`
+> / `test_exit_patch_overlay.py` / `backtest/tests/test_participation_cascade.py` -- all green,
+> nothing else in the fleet path regressed. Curated pre-commit safety gate PASS. Post-commit
+> `git show ecde12f8 --stat --name-status` confirms exactly the 4 intended files landed
+> (`accounts.json`, `build_shared_signal.py`, `fleet_executor.py`, `test_fleet_executor.py`).
+
+> **Learn (STAGE 4.5):** none new -- this fire's foot-gun-avoidance was the SCOPING step
+> itself (checking which ranked audit items were already closed before re-doing them), not
+> a fresh bug. No lesson-inbox item filed.
+
+> **Scope + revert:** exactly the 4 files above. Zero `heartbeat_core.py`/`params.json`/
+> `CLAUDE.md` touched -- this is a fleet_rest-only (paper) trading-path change per rail 4.
+> Revert: delete `accounts.json`'s risky-3 `gate_params`/`gate_params_doc` keys (byte-identical
+> to before this fire), or `git revert ecde12f8` for the full mechanism.
+
+> **queue.md** `GATE-TIERS-IMPLEMENT` status updated to `rank3-shipped-ranks1-4-open` with the
+> same evidence + an explicit list of what's still open (rank #1 block_elite_bull-relax-for-
+> RISKY is the #1 blocker per the audit, ~4.2 eps/wk -- next-fire-ready; rank #4 doji-gate
+> relax-for-RISKY needs the same mechanism extended to a score-side gate, not just hard-skip;
+> per-arm fill-funnel N=10-day measurement needs live days to accrue before it can run).
+
+> **Cost: ~$3.5** (STAGE 0/1 reads + audit re-read + accounts.json/build_shared_signal.py/
+> fleet_executor.py investigation, scoped design, 3-file implementation + 1 test file, smoke
+> tests, full fleet suite + adjacent suites, commit + verify, STATUS/queue write-up,
+> conductor_outcome record+metric).
+
+> **STAGE 0/1:** ET confirmed 20:42 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` (MED, doctrine,
+> propose-only, `depends:TWIN-B1`). Verified the dependency: TWIN-B1 has no standalone
+> checkbox but every downstream twin task (B1.5/B3/B4/B5/B6/B7) references it as `done` in
+> practice (CRYPTO-TWIN-T1-T4 closed 07-11, superseded straight into B1-B2) -- dependency
+> satisfied. This is TWIN-PROGRAM.md's last open "Build order" line: "CLAUDE.md one-liner
+> proposal (propose-only) folding the amended crypto boundary + this program's existence."
+
+> **What shipped (drafted, not applied to CLAUDE.md -- doctrine stays J-first per rail-4):**
+> a new "Doctrine proposal" section in `markdown/planning/TWIN-PROGRAM.md` with the exact
+> proposed text -- one sentence appended to existing OP-31 (folds into the Kitchen bullet,
+> not a new numbered OP, to avoid extra context-budget cost): "**Twin-first deploy
+> (2026-07-23):** any new watcher/detector/exit-lifecycle feature runs 24-48h on the 24/7
+> crypto twin (paper, mechanism-validation only -- twin P&L is never SPY evidence) before
+> touching a SPY execution path." This formalizes practice `twin_gauntlet_conductor_hook.py`
+> has already been advisory-enforcing since B2 (2026-07-11) -- doctrine anchor for an
+> existing behavior, not a new one.
+
+> **Context-budget checked before drafting (OP-33):** ran `check-context-budget.ps1` --
+> YELLOW 8848/9000 (98%) BEFORE this fire. The proposed sentence is ~60 tokens, landing at
+> ~8923/9000 if applied -- stays YELLOW, does NOT cross the 9000 RED line, but leaves
+> near-zero headroom. Flagged honestly in the proposal/draft rather than silently absorbed;
+> did not scope-creep into an unrelated trim pass this fire (last trim: 2026-07-21).
+
+> **Filed for J's REVOKE/APPROVE surface:** `conductor-proposals.jsonl` id
+> `gp-2026-07-23-twin-doctrine-001` (apply_ops targets the exact, verified-unique OP-31
+> string in CLAUDE.md; NO `eval_bar_cleared` -- doctrine, not a validated edge, so it will
+> NOT auto-apply). Discord ping queued (`gamma-ops`). Companion wrist-card enqueued
+> (`gamma-companion/lib/approvals.enqueueApproval`, same id). Reply `ship
+> gp-2026-07-23-twin-doctrine-001` (or thumbs-up / wrist Approve) to have `AutoApply`
+> perform the edit + safety gate + commit; `shelve ...` / thumbs-down to drop.
+
+> **queue.md** `TWIN-DOCTRINE-FIRST-DEPLOY` updated with the same evidence, left
+> `status:pending` (correctly -- CLAUDE.md itself is untouched pending J).
+
+> **Verified this fire (OP-33):** re-ran `check-context-budget.ps1` post-edit -- still
+> YELLOW 8848/9000 (CLAUDE.md itself untouched, as intended). Confirmed the `find` string
+> occurs exactly once in CLAUDE.md via a Python occurrence-count check before filing
+> apply_ops (a non-unique `find` would be refused by AutoApply). Confirmed the discord-bridge
+> reads `content` (used) with `message` fallback -- correct schema.
+
+> **Learn (STAGE 4.5):** none new this fire -- straightforward propose-only doctrine
+> authoring, no foot-gun hit.
+
+> **Scope + revert:** `markdown/planning/TWIN-PROGRAM.md` (1 new section) +
+> `automation/overnight/queue.md` (1 item annotated) + `conductor-proposals.jsonl` (1 append)
+> + `discord-outbox.jsonl` (1 append) + 1 new gamma-memory file + `MEMORY.md` index line.
+> Zero params/heartbeat_core/filters/placement/exit/CLAUDE.md touched this fire (CLAUDE.md
+> change is a PROPOSAL only, applied later by AutoApply if/when J approves). Revert: `git
+> revert <this-commit>` (once committed); the CLAUDE.md edit itself has never landed, so
+> there is nothing to revert there yet.
+
+> **Cost: ~$2.3** (STAGE 0/1 reads, dependency trace, draft authoring across 2 docs, exact
+> unique-string verification, proposal + Discord + companion filing, STATUS/queue write-up,
+> conductor_outcome record+metric).
+
+---
+
+
+### BROKEN: self-check 2026-07-25T21:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-25T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T22:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-25T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T22:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-25T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T23:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-25T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### WARN: spend-summary threshold breach
+- ts: 2026-07-26T03:30:14+00:00
+- date_et: 2026-07-25
+- total: $423.39 (threshold $30.00)
+- claude: $423.39  minimax: $0.00
+- claude_sessions: 12
+
+### BROKEN: self-check 2026-07-25T23:39:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-25T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+## Kitchen
+Kitchen: alive, queue 16 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+### BROKEN: self-check 2026-07-26T00:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-25T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T00:19:17
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T00:39:57
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- CANDIDATES-UNTRACKED: 25 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
+
+### BROKEN: self-check 2026-07-26T13:47:46
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+- CANDIDATES-UNTRACKED: 37 untracked files under strategy/candidates/ (threshold 20) -- live chef/kitchen/prospector pipeline state accumulating with no commit history / no disk-loss recovery path. Batch `git add --pathspec-from-file` + commit to clear (see STRATEGY-CANDIDATES-UNTRACKED-BACKFILL precedent, 2026-07-22).
+
+- [2026-07-26 11:47:47] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-07-26 11:47:47] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-07-26 11:47:47] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-07-26.md
+
+### BROKEN: self-check 2026-07-26T14:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T14:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T15:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T15:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T16:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T16:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-26T17:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+<!-- rolled off 2026-07-25 by status_retention.py (L181 consolidation): 1 entries / 86 lines -->
+
+## [2026-07-23 ~19:48-19:58 ET] OK -- conductor (AFTERHOURS): fixed participation-cascade misclassifying real fills as stale_trigger_bar, corrected today's false RED alert, commit `9d79939c`
+
+> **STAGE 0/1:** ET confirmed 19:48 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. Gym scorecard YELLOW (detector_verdict GREEN, not blocking). Self-audit gaps
+> fully triaged through today's 17:31 batch. `task_scorer.py --top` returned
+> `PARTICIPATION-DAILY-SELF-CHECK-WIRE` (MED) but its stated `depends:self-check-hygiene-lane`
+> is a phantom dependency (grepped: no such task id exists anywhere, and `self_check.py` has
+> been actively co-edited by conductor fires 15+ times since -- the "owned by another agent"
+> caveat is stale, matching the recurring stale-dependency pattern from the last 2 fires'
+> lessons). Before chasing that, ran the STAGE 1 FUNCTION-FIRST check (read
+> `automation/state/participation-daily.json`) and found something more urgent: TODAY's file
+> showed `verdict: RED` both accounts, `fills: 0` both -- contradicting the known fact (this
+> STATUS file's own EOD entry above) that bold placed+filled a real SPY735P at 11:29 ET.
+
+> **Root cause traced, not assumed (OP-33):** `participation_cascade.py#classify_core_row`'s
+> staleness fallback (`action==SKIP_STALE_TRIGGER or row.get("trigger_bar_et")`) was sound
+> only while `trigger_bar_et` had exactly one writer in `heartbeat_core.py` (true 2026-07-10).
+> The UNRELATED 2026-07-20 DECISION-ROW-SPY-STALENESS visibility fix made that field universal
+> (every row, stale or not) -- nobody revisited the 07-10 consumer-side fallback when the 07-20
+> producer-side change shipped, 10 days and two unrelated PRs apart. Confirmed against the real
+> ledger: bold's 11:29 PLACED/filled row and all 13 same-day SKIP_LATE_ENTRY rows were
+> misclassified as `stale_trigger_bar`, driving the false RED + a real Discord alert to J at
+> 16:10:03 ET ("orders=0").
+
+> **What shipped:** `_trigger_bar_cross_session(row)` -- compares trigger_bar_et's calendar day
+> vs the row's OWN ts_et day (mirrors heartbeat_core's actual `_stale_trigger_bar` predicate)
+> instead of a bare truthy check. 2 new regression tests pin the exact 2026-07-23 exhibit
+> (same-day SKIP_LATE_ENTRY + same-day PLACED); 1 existing test updated (its premise --
+> "trigger_bar_et has exactly one writer" -- is now false, so it needed ts_et added to still
+> exercise genuine cross-session staleness). Re-ran `participation_daily.py --date 2026-07-23`
+> against the fix: verdict corrected RED->YELLOW, bold now shows fills=1, safe's REAL blockers
+> are visible (entry_ceiling_15:00, min_premium_floor, entry_bar_body_pct_min,
+> require_bearish_fill_bar, block_level_rejection) instead of one opaque bucket. Posted an
+> explicit Discord correction alongside the naturally-refreshed line (verdict changed so
+> dedup didn't suppress it).
+
+> **Verified this fire (OP-33):** 51/51 `test_participation_cascade.py` + `test_participation_daily.py`
+> green, curated safety gate (31+5) PASS, commit `9d79939c` confirmed in HEAD via `git show --stat`.
+
+> **Learn (STAGE 4.5):** filed `_lesson-inbox/2026-07-23-participation-cascade-universal-field-
+> broke-presence-heuristic.md` -- same class as L234 (producer widens a field's scope, consumer's
+> bare-presence heuristic silently breaks). Proposed guard-graduation: when a shared-ledger field
+> gets a second writer / widened scope, grep every consumer for a bare-truthy check on that field
+> name before shipping.
+
+> **Scope + revert:** `backtest/tools/participation_cascade.py` (1 helper + 1 branch) +
+> `backtest/tests/test_participation_cascade.py` (1 updated + 2 new) + regenerated
+> `automation/state/participation-daily.json` + `participation-cascade.json` + appended
+> `analysis/participation-cascade/2026-07-23.md` + 2 Discord lines + 1 lesson-inbox file. Zero
+> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched -- pure observability-instrument
+> bugfix, engine-benefit, ships per OP-22/26, no J ratification needed. Revert:
+> `git revert 9d79939c`.
+
+> **PARTICIPATION-DAILY-SELF-CHECK-WIRE still not started** (its real blocker isn't the phantom
+> dependency -- it's simply not yet done); left as next-fire-ready in queue.md, dependency note
+> corrected.
+
+> **Cost: ~$3.8** (STAGE 0/1 reads + phantom-dependency trace, live-data root-cause investigation
+> across 2 modules, fix + 2 regression tests + 1 test correction, curated gate, live re-run +
+> state regeneration + Discord correction, lesson-inbox write-up, STATUS/queue write-up,
+> conductor_outcome record+metric).
+
+---
+
+
+### BROKEN: self-check 2026-07-25T18:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T18:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T19:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T19:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T20:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T20:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T21:09:56
+- DRESS-REHEARSAL RED: broker-boundary rehearsal at 2026-07-25T20:45:01 FAILED -- see automation/state/dress-rehearsal.json. Tomorrow's open is NOT proven.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+<!-- rolled off 2026-07-25 by status_retention.py (L181 consolidation): 2 entries / 144 lines -->
+
+## [2026-07-23 ~19:42-19:55 ET] OK -- conductor (AFTERHOURS): closed stale checkbox BREAKER-REARM-STALENESS (fix already shipped 07-09), commit `78b2018f`
+
+> **STAGE 0/1:** ET confirmed 19:42 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. Self-audit gaps file fully triaged through today's 17:31 batch. `task_scorer.py
+> --top` returned `BREAKER-REARM-STALENESS` (MED, filed 2026-07-09). Traced it against live
+> code before executing (this exact re-verify-before-trusting discipline is why the last fire's
+> ranker fix + the `_lesson-inbox/2026-07-18-stale-queue-item-outranked-real-work.md` lesson
+> exist) and found the fix had ALREADY shipped the SAME DAY the ticket was filed: commit
+> `1b2cfeeb` (2026-07-09 11:34 MT) added `daily_loss_guard.py#rearm()` + `engine_health.py
+> #check_breaker_rearm()` ("re-armed TODAY" canary for both breakers). The queue checkbox was
+> never flipped -- 14 days stale on a same-day-fixed bug.
+
+> **What shipped:** re-verified `test_engine_health_breaker_rearm.py` 14/14 green, confirmed
+> live `engine-health.json` this fire shows `breaker_rearm_safe`/`breaker_rearm_bold` GREEN with
+> TODAY's date (last_reset=2026-07-23, session_id=2026-07-23) -- the exact "GREEN-while-stale
+> hole" the ticket exists to close no longer exists. Closed the checkbox in `queue.md` with the
+> full evidence trail. `task_scorer.py --top` now returns a different, real item
+> (`PARTICIPATION-DAILY-SELF-CHECK-WIRE`), confirmed post-fix.
+
+> **Learn (STAGE 4.5):** this is the 3rd confirmed instance of "work shipped, queue checkbox
+> left open" (T-W8-HEADROOM 07-11, FUTURES-PHASE1-BATTERY 07-14, this one) -- a re-violated
+> pattern per OP-25. Filed `_lesson-inbox/2026-07-23-stale-queue-checkbox-work-done-ticket-
+> open.md` proposing a pre-flight cross-reference guard (ticket names a file with a
+> post-filing commit touching it + still status:pending -> flag "possibly-already-shipped,
+> re-verify" before trusting `task_scorer --top` blindly) for graduation.
+
+> **Scope + revert:** `queue.md` (1 checkbox flip + evidence) + 1 new lesson-inbox file. Zero
+> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched -- pure queue-hygiene/
+> engine-benefit authoring, ships per OP-22/26, no J ratification needed. Curated safety gate
+> (31+5) PASS. Revert: `git revert 78b2018f`.
+
+> **Cost: ~$1.7** (STAGE 0/1 reads, root-cause trace against live code + git blame, guard
+> re-verification, lesson-inbox write-up, STATUS/queue write-up, conductor_outcome
+> record+metric).
+
+---
+
+## [2026-07-23 ~18:42-18:55 ET] OK -- conductor (AFTERHOURS): VWAP-TREND-PULLBACK-VERIFY-FAILED closed -- ran the frozen honest study, verdict KEEP-DORMANT (confirmed reskin)
+
+> **STAGE 0/1:** ET confirmed 18:42 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `task_scorer.py --top` picked `VWAP-TREND-PULLBACK-VERIFY-FAILED` (HIGH) --
+> the queue item itself carried an explicit re-verify-before-trusting warning (this exact class
+> of stale-HIGH-item risk, per `_lesson-inbox/2026-07-18-stale-queue-item-outranked-real-work.md`).
+> Traced it: the item asked to run a pre-registered, frozen (2026-07-10), NEVER-EXECUTED study
+> spec (`analysis/recommendations/vwap-trend-pullback-study-spec.json`) -- real, current, ready
+> work, not stale. Self-audit gaps fully triaged through today's 17:31 batch.
+
+> **What shipped:** built `backtest/autoresearch/vwap_trend_pullback_honest_study.py`, reusing
+> the spec's named modules verbatim (C14): `infinite_ammo_discovery` (detector/load/sim/summarize),
+> `vwap_pullback_ratify` (causality/walk-forward/sub-window), `j_daily_pattern_ratify.detect_j_vwap_continuation`
+> + `_sub_struct_vwap_reclaim_failed_break` + `_b5_vix_regime_dayside` (gate_11 book comparison),
+> `null_baseline` (gate_5). One new thin wrapper (`simulate_signals_with_stop`) to thread
+> `premium_stop_pct` through -- the one gap in the reused `simulate_signals` (it hardcoded the
+> simulator default -0.08, and the whole point of this study is the LIVE chart-stop-only config).
+> Ran on 387 trading days through 2026-07-22 (~13 months more than the original 2026-06-21
+> independence check).
+
+> **VERDICT: KEEP-DORMANT (confirmed reskin of #1 vwap_continuation, gate_11 HARD BLOCK).**
+> ATM PRIMARY (chart-stop-only) exp -$1.09/trade, WF median -0.857 (FAILS >=0.70 gate), sub-window
+> 3/4 hurt, drop-top3/top5 both negative. gate_11 (independence re-check, mandatory/blocking per
+> the frozen spec REGARDLESS of gates 1-10) reproduces the 2026-06-21 finding on the extended
+> dataset: same-side day-overlap vs live `vwap_continuation` = **1.000** (>= 0.80 reskin
+> threshold). The spec's own escape hatch (an after-10:30-only subset clearing its own bar) does
+> NOT save it: only 20.2% of H4's 104 signals land after 10:30 (spec's own hard threshold is 30%
+> -- FALSIFIES the "fills the afternoon coverage-hole" framing that motivated re-opening this
+> thread), and that n=21 subset is itself expectancy-negative (-$16.90/tr) and OOS-unstable.
+> Scorecard: `analysis/recommendations/vwap-trend-pullback-honest-study.json` + paired `.md`.
+
+> **Corrected the watcher's live-visible strings** (docstring + the `reason=`/`metadata` fields
+> the WATCH_ONLY signal actually emits) to cite the closed study instead of the never-run spec +
+> a stale "OOS +$69/trade" claim that was still sitting in the live `reason=` f-string.
+> `promotion_status` stays `WATCH_ONLY` (unchanged, correct, and the only field the guard test
+> asserts). Verified this fire (OP-33): `test_vwap_trend_pullback_watcher.py` 5/5 green,
+> curated safety gate (31+5) PASS, study script itself run live (not a dry-run) with printed
+> per-tier/per-gate output quoted above.
+
+> **Scope + revert:** pure `backtest/autoresearch/` (1 new file) + `backtest/lib/watchers/`
+> (docstring/string-only edit to the ALREADY-dormant watcher, zero logic/behavior change) +
+> `analysis/recommendations/` (2 new scorecard files) + queue.md. Zero params/heartbeat_core/
+> filters/placement/exit/CLAUDE.md touched -- this is engine-benefit research authoring (closes
+> a HIGH backlog item with a real answer), ships per OP-22/26, no J ratification needed.
+> Revert: `git revert <this commit>`.
+
+> **Does NOT wire vwap_trend_pullback** (explicit non-goal in the frozen spec, honored) -- the
+> detector stays WATCH_ONLY forever absent genuinely new detector logic; the reskin finding is
+> exit-config-independent and now confirmed TWICE (2026-06-21 master frame + 2026-07-23 extended
+> frame). No further re-litigation of H4 as a standalone edge is warranted.
+
+> **Cost: ~$1.7** (STAGE 0/1 reads, tracing the queue item against current reality, reading 4
+> reused-module signatures to avoid re-implementing them, writing + debugging the study script
+> against real API signatures, one live run, docstring/metadata correction, guard test + curated
+> gate, STATUS/queue write-up, conductor_outcome record+metric).
+
+---
+
+
+### BROKEN: self-check 2026-07-25T11:39:56
+- MACRO-CALENDAR STALE (RED): freshness_stamp 2026-07-23T07:45:02.213562 predates the expected 2026-07-24T07:45:00 ET fire (~51.9h old) -- Gamma_MacroCalendar (07:45 ET weekdays) may have missed its fire or the producer is dead; the engine's no-trade-window coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales event may be blind. Re-run setup/scripts/macro_calendar.py by hand, or check `schtasks /query /tn Gamma_MacroCalendar /v`.
+
+### BROKEN: self-check 2026-07-25T11:50:08
+- MACRO-CALENDAR STALE (RED): freshness_stamp 2026-07-23T07:45:02.213562 predates the expected 2026-07-24T07:45:00 ET fire (~52.1h old) -- Gamma_MacroCalendar (07:45 ET weekdays) may have missed its fire or the producer is dead; the engine's no-trade-window coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales event may be blind. Re-run setup/scripts/macro_calendar.py by hand, or check `schtasks /query /tn Gamma_MacroCalendar /v`.
+
+### BROKEN: self-check 2026-07-25T11:50:40
+- MACRO-CALENDAR STALE (RED): freshness_stamp 2026-07-23T07:45:02.213562 predates the expected 2026-07-24T07:45:00 ET fire (~52.1h old) -- Gamma_MacroCalendar (07:45 ET weekdays) may have missed its fire or the producer is dead; the engine's no-trade-window coverage for a fresh CPI/FOMC/NFP/PPI/Retail-Sales event may be blind. Re-run setup/scripts/macro_calendar.py by hand, or check `schtasks /query /tn Gamma_MacroCalendar /v`.
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T11:52:30
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T12:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T12:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T13:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T13:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T14:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T14:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T15:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T15:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T16:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T16:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T17:09:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+### BROKEN: self-check 2026-07-25T17:39:56
+- ENGINE DARK ALL DAY (RED): 2026-07-24 was a trading day with ZERO core-decisions.jsonl rows in the 09:30-15:55 ET RTH window -- the entire engine (both accounts) never ticked once. Root-cause candidates (2026-07-24 scar): the box went to sleep and never woke for the scheduled tasks (check `powercfg /lastwake`, System event log Kernel-Power id 42/1 around that evening/morning), Task Scheduler LogonType=Interactive silently dropping every task through the gap (WakeToRun=True alone did NOT fix this in the 2026-07-24 incident -- 3 of 6 critical tasks already had it set and none fired), or Gamma_HeartbeatCore itself disabled/crashed. Verify no position was left open that day (engine-health.json position_safe/position_bold) before treating this as cosmetic.
+
+<!-- rolled off 2026-07-23 by status_retention.py (L181 consolidation): 2 entries / 72 lines -->
+
+## [2026-07-23 EOD] LOSING DAY -$305 (Bold) -- honest report: bear day that CHOPPED, not trended; 4 setups, 4 blocks/losses, 2 fixes tested = both NULL/KEEP, 1 accountability correction
+
+> **The number: -$305** (Bold 735P; Safe 0 trades). Week-to-date net ~+\$49. NOT the +\$679-style harvest I promised "the next bear day."
+> **Why:** today gap-dropped 747->740 by 09:42 then BOUNCED and chopped 738-740, closing ~738.24 -- a gap-and-chop day, not a sustained trend. Bold's 735P (bearish, correct instinct) needed continuation that never came; catastrophe-stopped -$305 at 11:56 = the BEST of 4 exits (held-to-EOD = -\$615). Safe: 10:30 doji block CORRECT (next bar +green), 15:36 breakdown late-entry-blocked, 10:40 engulfing-at-double-top MISSED (no vocabulary).
+> **ACCOUNTABILITY (2 self-corrections, both from data):** (1) I told J "\$0 today" -- it was -\$305 (checked only Safe, missed Bold). (2) I told J the 735P was "shaken out before the payoff" -- FALSE, real OPRA shows holding lost MORE; SPY closed 738 not 735.91 (I read a stale decision-log spot). And "next bear day = payday" was overconfident: a bear day only pays with the engine's trigger shapes AND a sustained trend; today had neither.
+> **FIXES TESTED (Rule-9 after-hours, all real-fills / frozen pre-reg):** engulfing-at-structure = HONEST NULL (fires on both J anchors, 0/12 cells over 386d, best exp -\$1.85). Catastrophe-cap widen = REAL signal but n=4 = insufficient -> CATASTROPHE-CAP-WIDEN-WATCH accrual. Late-entry ceiling = KEEP (blocked afternoon signals net +\$44 but p=0.465, 3rd method same answer). NOTHING wired -- no edge cleared the bar.
+> Commits 83dce261 (engulfing null) + this fire. Guards 19+38 green.
+
+---
+
+## [2026-07-23 ~18:12-18:35 ET] OK -- conductor (AFTERHOURS): task_scorer.py silently ignored ~34 backlog items outside "## Active backlog", fixed, commit `6d42d211`
+
+> **STAGE 0/1:** ET confirmed 18:12 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. Self-audit gaps file fully triaged through today's 17:31 batch (no open items).
+> `task_scorer.py --top` returned `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED) again, but cross-checking
+> the queue's own HIGH tier by hand (`grep "(HIGH" queue.md`) surfaced several HIGH items
+> (`GATE-TIERS-IMPLEMENT`, `ENGINE-VECTORIZATION`, `OPEN-BELL-STATUS-PUSH`, `TWIN-B6-...`) that
+> `task_scorer.py --all` did NOT return at all -- not ready:false, just absent. Traced the root
+> cause instead of trusting the ranker: `_active_lines()` stopped parsing at the FIRST top-level
+> `## ` heading after `## Active backlog`, but `queue.md`'s real append history never matched
+> that assumption -- 34 items (18 `status:pending`, 9 of them HIGH) sit in later dated `##
+> <event>` sections that past fires filed instead of adding to Active backlog.
+
+> **What shipped:** `_active_lines()` now scans `## Active backlog` -> EOF, excluding only
+> sections whose heading matches `archived`/`completed` (provably resolved). Everything else,
+> including `## HARVESTED-FROM-GYM` (whose genuine auto-harvest rows already self-exclude via
+> `status:queued`, not in `READY_STATUSES`), is now visible. Verified live:
+> `task_scorer.py --all` went from 45 parsed items to 79; HIGH-ready went from 2 to 6
+> (`DOJO-BUILD-HANDOFF`, `ENGULFING-AT-STRUCTURE-TRIGGER`, `GATE-TIERS-IMPLEMENT`,
+> `OPEN-BELL-STATUS-PUSH`, `TWIN-B6-SIM-FRICTION-CALIBRATION`, `VWAP-TREND-PULLBACK-VERIFY-FAILED`).
+
+> **Verified this fire (OP-33):** 2 new regression tests (`test_only_active_section_parsed`
+> extended + `test_items_in_later_dated_sections_are_now_visible`) RED-proofed via `git stash`
+> round-trip -- both fail with the exact expected `AssertionError` on the pre-fix code, pass
+> clean after `stash pop`. Full `task_scorer` suite 63/63, curated safety gate (31+5) PASS.
+> `git show 6d42d211 --stat --name-status` confirms exactly the 3 intended files landed
+> (task_scorer.py, test_task_scorer.py, one new lesson-inbox file).
+
+> **Did NOT execute any of the newly-visible HIGH items this fire** -- rail 3 (one bounded
+> task per fire); the ranker fix itself is the deliverable. `VWAP-TREND-PULLBACK-VERIFY-FAILED`
+> now correctly triggers `task_scorer`'s own staleness advisory (HIGH-ranked #1) -- its own text
+> says "do-NOT-wire", so the next fire that considers it must re-verify against current reality
+> before treating it as "the study still needs running", not blind-execute.
+
+> **Scope + revert:** pure `setup/scripts/task_scorer.py` + `backtest/tests/test_task_scorer.py`
+> + a lesson-inbox file -- zero params/heartbeat_core/filters/placement/exit/CLAUDE.md touched.
+> Ships per OP-22/26 (engine-benefit infra authoring, no J ratification needed). Revert:
+> `git revert 6d42d211`.
+
+> **Lesson filed** (`strategy/candidates/_lesson-inbox/2026-07-23-task-scorer-section-scope-
+> blind-spot.md`) for graduation into C14 -- same class as L245/L246 but for SECTION scope
+> instead of field scope: a positional "stop at heading X" parser boundary is a silent-drop
+> risk; status/dependency fields should do the excluding, not section position.
+
+> **Cost: ~$3.1** (STAGE 0/1 reads incl. task_scorer/self-audit-gaps/queue greps, root-cause
+> trace of the section-scope bug, implementing + testing the fix, RED-proof stash round-trip,
+> curated gate x2, live before/after verification, lesson-inbox write-up, STATUS/queue write-up,
+> conductor_outcome record+metric).
+
+---
+
+
+### WARN: spend-summary threshold breach
+- ts: 2026-07-24T03:30:26+00:00
+- date_et: 2026-07-23
+- total: $375.23 (threshold $30.00)
+- claude: $375.19  minimax: $0.04
+- claude_sessions: 55
+
+### DEGRADED: self-check 2026-07-23T23:39:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+<!-- rolled off 2026-07-23 by status_retention.py (L181 consolidation): 1 entries / 56 lines -->
+
+## [2026-07-23 ~17:42-17:58 ET] OK -- conductor (AFTERHOURS): closed self-audit gap PATTERN-ANCHOR-PRE-SHIP-CHECK (priority-3), commits `eea3f423` + `fad447e1`
+
+> **STAGE 0/1:** ET confirmed 17:42 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. Priority-3 (self-audit gaps) outranked `task_scorer.py --top`'s
+> `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED): today's 17:31:49 self-audit batch named a real,
+> actionable gap the PRIOR fire's own ENGULFING-AT-STRUCTURE-TRIGGER work had just exposed by
+> hand -- "the system lacks a reliable pre-ship validation step that confirms a rule actually
+> fires on the specific anchor bars J identified."
+
+> **What shipped:** a reusable anchor pre-ship + drift contract for the pattern-grammar
+> registry. New optional `anchors` field on `PatternRule` (grammar.py, validated at
+> construction) + `backtest/tools/pattern_anchor_verify.py` (loads the freshest cached bar,
+> runs the rule's live predicate, reports actual vs declared fire state; CLI +
+> `check_registry_anchors()`) + `engulfing_at_swing_shelf` now declares its own two named
+> anchors (2026-07-21 11:05 bullish, 2026-07-23 10:40 bearish) with the HONEST current state
+> (`expected_fire=False`, matching the prior fire's manual OP-33 finding) inline in the
+> registry itself. Guard test `test_pattern_anchor_verify.py` (63/63 green incl. the existing
+> pattern-grammar suite) asserts every declared anchor's actual state matches `expected_fire`
+> -- catches both a future rule shipping without checking its own cited anchors AND silent
+> drift in an already-shipped one.
+
+> **Side-finding caught while building it:** `pattern_prescreen.find_master_csv`'s
+> widest-history file selection picked a CSV one day stale vs today's live tape -- would have
+> silently made any "today" anchor check vacuous. Fixed with a dedicated `find_freshest_csv`
+> picker in the new tool (verified: re-ran against the real cache, 2/2 anchors now correctly
+> found and matched).
+
+> **Verified this fire (OP-33):** direct CLI run against live cached bars (2/2 OK before
+> committing). `git show eea3f423 --stat --name-status` confirms exactly the 4 intended files
+> (grammar.py, registry.py, 2 new files) landed; `git show fad447e1` confirms only the
+> self-audit doc landed in the follow-up commit. Curated safety gate (31+5) PASS at both
+> commits.
+
+> **Scope + revert:** pure `backtest/lib/patterns/` + `backtest/tools/` + `backtest/tests/`
+> authoring (registry.py's own docstring: "NO WIRING") + a self-audit doc triage note. Zero
+> params/heartbeat_core/filters/placement/exit/CLAUDE.md touched. Ships per OP-22/26
+> (engine-benefit research authoring, no J ratification needed). Revert: `git revert
+> fad447e1` then `git revert eea3f423`.
+
+> **Does NOT advance ENGULFING-AT-STRUCTURE-TRIGGER's live thread** (the rolling-K-bar
+> cluster primitive is still the next actual step, not started this fire) -- it hardens the
+> PROCESS so verifying that primitive against these exact 2 anchors, once built, is one CLI
+> command instead of another hand-run falsification pass. Queue item stays `status:pending`,
+> note appended there too.
+
+> **Cost: ~$3.4** (STAGE 0/1 reads incl. task_scorer + self-audit gap file, registry/grammar/
+> context/prescreen code study, building + testing the anchor-verify tool + guard test,
+> curated-gate x2, self-audit doc triage, queue/STATUS write-up, conductor_outcome
+> record+metric).
+
+---
+
+
+### DEGRADED: self-check 2026-07-23T23:09:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+<!-- rolled off 2026-07-23 by status_retention.py (L181 consolidation): 2 entries / 127 lines -->
+
+## [2026-07-23 ~17:12-18:15 ET] OK -- conductor (AFTERHOURS): ENGINE-VECTORIZATION layer 1/3 shipped, honestly quantified (~6%, not 1.8x), commit `2c6eaf75`
+
+> **STAGE 0/1:** ET confirmed 17:12 (Thursday, market closed since 15:55). `engine-health.json`
+> GREEN 13/13. `self_check.py` DEGRADED only on the pre-existing non-load-bearing TRENDLINE-DRAW
+> flag. `fill_funnel.py` GREEN 2026-07-23 (core:bold 1/1 fill/exit; core:safe 8 ENTER signals, 0
+> attempted -- attempted==0 is not RED, consistent with an upstream rule-block, not a funnel
+> break). Self-audit gaps: everything through 2026-07-22 already triaged, next batch fires 17:30
+> (after this fire started). `task_scorer.py --top` picked `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED),
+> but the queue's own HIGH tier had `ENGINE-VECTORIZATION` -- a fully-specced, pre-baselined
+> "one layer at a time, hash-validated" perf build with concrete layer-1 instructions already
+> written out, outranking a MED accrual-watch item.
+
+> **What shipped:** `_detect_from_history` (backtest/lib/levels.py) was unconditionally
+> re-deriving "date"/"time" via `.dt.date`/`.dt.time` on the SAME ever-growing history slice
+> every trading day (called once per day through orchestrator's `_level_per_day` cache), even
+> though `orchestrator.py`'s `spy_df_full` already carries a precomputed "date" column. Fixed:
+> skip the recompute when the caller already supplies the columns (mirrors the pre-existing
+> `_find_swept_levels` precedent in the SAME file -- this pattern was already proven safe
+> elsewhere in levels.py, not invented fresh); `orchestrator.py` now precomputes "time" once
+> up front alongside "date" so the hot path benefits automatically.
+
+> **Verified this fire (OP-33):** ran the FULL real-OPRA-fills reproducer
+> (`strategy_space_grind --cell OTM-2:L2:pct_-8`) before AND after the change: n=308,
+> total=$3982.94, edge_capture=$1100.97, wf=2.762, wr=0.1786, max_dd=-$988.33 -- byte-identical
+> to the last decimal both times (confirms the pre-existing `_vectorize_baseline.json`'s n=159/
+> $2593.09 is stale to the 2026-06-24 data window, not a live regression -- noted in queue.md).
+> 3 new guard tests (`test_levels_precomputed_columns_parity.py`) + 23/23 pre-existing
+> `test_level_quality_guards.py` + 31+5 curated safety gate + a broader `-k "levels or
+> orchestrator"` sweep (82/82, 930s, real integration-weight tests) ALL PASS -- zero
+> regressions at every scope checked. Post-commit `git show 2c6eaf75 --stat --name-status`
+> confirms exactly the 3 intended files landed.
+
+> **Reported honestly, not oversold (no-oversell doctrine, `/fable-too-good` discipline):**
+> cProfile'd the same cell (205s profiled vs 83s real -- profiler overhead, relative shares are
+> the signal) and ran a clean isolated microbenchmark of `_detect_from_history` alone (365 real
+> calls, no profiler): 27.33s -> 25.74s, a genuine but MODEST ~6% win at this layer -- not the
+> item's speculated "~1.8x alone". Root cause of the shortfall, precisely pinned: the dominant
+> remaining cost inside this layer is the boolean-mask slice construction
+> (`spy_df_full[spy_df_full["timestamp_et"] <= bar_time]`, still O(n) per day), which this fix
+> does not touch. Full wall-clock A/B on the whole grind cell (83.4s vs 87.2s) showed NO
+> measurable difference -- within run-to-run noise, because real-OPRA-fills I/O + layer 2's
+> ~1.6M `.iloc`/`fast_xs` calls (confirmed via cProfile: `filters.py:evaluate_bullish_setup`
+> ~90s cumulative, `evaluate_bearish_setup` ~40s, `engine/score.py:score_bar` ~65s) dominate
+> total runtime, not this layer.
+
+> **Scope + revert:** pure `backtest/lib/` perf + 1 new test file -- zero params/heartbeat_core/
+> filters/placement/exit/CLAUDE.md touched. Ships per OP-22/26 (engine-benefit research infra,
+> no J ratification needed). Revert: `git revert 2c6eaf75`.
+
+> **Item stays open (HIGH), status `layer1-shipped-layer2-3-open`** -- 1 of 3 hot layers done
+> and honestly quantified with a cProfile-backed next-step (layer 2: filters.py's `.iloc`-per-bar
+> lookback loops are the real "big multiplier", numpy-array precompute + `BarContext` injection
+> is the concrete next build), not closed. Full detail in queue.md's own entry.
+
+> **Cost: ~$4.7** (STAGE 0/1 reads, code study of `_detect_from_history`+orchestrator+3
+> intervening layers, 2 full real-fills reproducer runs (~83s+87s), cProfile run (~205s),
+> isolated microbenchmark (~53s), implementing+guard-testing the fix, curated gate x2, a
+> background 82-test/930s broad sweep, queue+STATUS write-up, conductor_outcome record+metric).
+
+---
+
+## [2026-07-23 ~16:12-16:52 ET] OK -- conductor (AFTERHOURS): ENGULFING-AT-STRUCTURE-TRIGGER (HIGH) -- shipped a real grammar rule, honestly falsified against both anchors, commits `31c5089e` + `e15f85dd`
+
+> **STAGE 0/1:** ET confirmed 16:12 (Thursday, market closed since 15:55 -- clean after-hours
+> runway). `engine-health.json` GREEN 13/13. `self_check.py` DEGRADED only on the pre-existing
+> non-load-bearing TRENDLINE-DRAW flag. `fill_funnel.py` GREEN for 2026-07-23: core:bold 1
+> fill/1 exit; core:safe 8 ENTER signals but 0 attempts (not RED -- RED requires attempted>0 &
+> accepted==0; this is attempted==0, consistent with a rule-block upstream of placement, not a
+> funnel break). Self-audit gaps: all triaged through 07-22, nothing new due yet (next batch
+> fires 17:30). `task_scorer.py --top` picked `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED) but the queue's
+> own HIGH tier had a live, un-actioned item: `ENGULFING-AT-STRUCTURE-TRIGGER`, filed today from
+> 3 live-tape exhibits J called (engine had ZERO trigger every time, both directions, mirror-
+> symmetric) -- outranks MED per priority order.
+
+> **What I found before building anything:** the pattern-grammar registry
+> (`backtest/lib/patterns/`, built 2026-07-09, "NO WIRING" -- consumed only by the C27 prescreen)
+> ALREADY had both raw ingredients: an `engulfing` candlestick predicate and a `flat_side` swing-
+> shelf primitive (powers `double_top_bottom_at_level`/`rectangle_range_break`/`triangle_*`) --
+> just never composed together anchored to the intraday shelf (the existing `engulfing_at_level`
+> anchors to NAMED DAILY levels only). Built + shipped `engulfing_at_swing_shelf` (commit
+> `31c5089e`): 12th registry rule, 57/57 pattern-grammar tests green, curated safety gate 31+5
+> PASS. C27 prescreen came back clean -- TESTABLE full-history (28.9% days, 0.42 fires/day) AND
+> stable recent-90d (no drift), notably CLEANER than `engulfing_at_level` itself, which this same
+> prescreen run showed has DRIFTED to NOISE-KILL recently (undisclosed before this fire).
+
+> **Ran the falsification test anyway (OP-33 / `/fable-too-good`) -- and it FAILED both anchors.**
+> A clean prescreen number is not proof the rule captures the SPECIFIC mechanism it was built
+> for. Checked the shipped predicate directly against both bars J named: 07-21 11:05 bullish and
+> 07-23 10:40 bearish (verified against the freshest cache including today,
+> `spy_5m_2026-05-19_2026-07-23.csv`) -- neither fires. Root cause, precisely pinned with direct
+> evidence (not re-asserted): the tight touch clusters J read (~$0.08 apart, 5 min apart) never
+> register as 2+ DISTINCT confirmed swing pivots under `crypto/lib/market_structure.py`'s
+> labeling timescale -- the SAME shared primitive every swing-family rule (`flat_side`,
+> `monotone_swings`, `double_top_bottom_at_level`, and now `engulfing_at_swing_shelf`) is built
+> on. This is not a missing-vocabulary problem after all; it's a timescale mismatch in a shared
+> primitive that bounds every rule composed on it. Full detail + refined next step (a genuinely
+> new rolling-K-bar local-extreme-cluster primitive, to be falsified BEFORE any pre-reg/replay is
+> built on it) filed in `queue.md`'s own item (commit `e15f85dd`) + `_lesson-inbox` for
+> graduation (`2026-07-23-swing-primitive-timescale-bounds-every-composed-rule.md`).
+
+> **Verified this fire (OP-33):** direct Python calls against both live commits' code (not
+> assumed) reproduced the exact pivot lists showing `flat_side` returns `None` at both anchor
+> bars; `git show --stat --name-status` on both commits confirms exactly the intended files (2
+> code files first commit, queue+lesson-inbox second commit, nothing else swept in).
+
+> **Scope + revert:** pure `backtest/lib/patterns/` authoring + docs -- registry.py's own
+> docstring: "NO WIRING: nothing here is imported by the live engine... consumed ONLY by
+> pattern_prescreen.py." Zero params/heartbeat_core/filters/placement/exit/CLAUDE.md touched.
+> Ships per OP-22/26 (engine-benefit research authoring, no J ratification needed). Revert:
+> `git revert e15f85dd` then `git revert 31c5089e`.
+
+> **Item stays `status:pending`, NOT closed** -- this is genuine progress (a vague 3-mechanism
+> hypothesis narrowed to one precisely falsified composition + a concrete named next primitive),
+> not a stall; per OP-22's tiebreak this counts as advancing a HIGH item, the right call over
+> starting a fresh MED item cold.
+
+> **Cost: ~$5.3** (STAGE 0/1 reads, registry/predicates/grammar/context code study, composing +
+> registering the new rule, 2 prescreen runs (~140s), targeted anchor verification against 2
+> separate cached CSVs incl. today's live data, curated-gate x2, lesson-inbox authoring,
+> queue/STATUS write-up, conductor_outcome record+metric).
+
+---
+
+
+### DEGRADED: self-check 2026-07-23T22:39:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+<!-- rolled off 2026-07-23 by status_retention.py (L181 consolidation): 1 entries / 59 lines -->
+
+## [2026-07-23 ~09:12-09:35 ET] OK -- conductor (AFTERHOURS): closed FUNCTION-SCORE-ZERO-ENTER-CHECK (HIGH) -- diagnosed benign + fixed a real metric blind spot, commit `56b4bd2b`
+
+> **STAGE 0/1:** ET confirmed 09:12 (Thursday, market not yet open -- opens 09:30, clean
+> runway). `engine-health.json` GREEN 13/13. `self_check.py` DEGRADED on 1 non-load-bearing
+> item (trendline-draw not marked today -- explicitly skipped this morning's premarket fire
+> under its own $3 budget cap, visibility-only). Inboxes small (skill=1, lesson=2, chef=8,
+> validator=0). `task_scorer.py --top` picked `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED), but
+> `queue.md`'s HIGH-priority `FUNCTION-SCORE-ZERO-ENTER-CHECK` outranked it -- a 3rd
+> conductor fire re-flagging the same "0 orders_accepted" reading on 2026-07-22 as "worth a
+> dedicated look" is exactly the priority-1 function-first check this loop is built to chase
+> down, not another re-cite.
+
+> **What I found:** pulled 2026-07-22's `core-decisions.jsonl` tick-by-tick (774 rows):
+> 733/774 reasoned "no setup passed scoring" with an EMPTY triggers list -- bear score never
+> exceeded 9 with a live trigger, a genuinely quiet bear day, not a gate eating triggers. The
+> other 40 were the bull side hitting the ALREADY-AUDITED, ALREADY-CLOSED `block_elite_bull`
+> data-gate (BULL-UNBLOCK-REPLAY-PROBE thread, verdict KEEP, closed 2026-06-30) -- not new,
+> not a bug. `fill_funnel.py --date 2026-07-22` independently verdicts **GREEN**: core:safe
+> had 2 real fills/2 exits via the `extra_exec` secondary lane (vwap_continuation +
+> bollinger_squeeze -- a designed, armed, cooldown-gated execution path in
+> `heartbeat_core._route_extra_setups`, not a workaround).
+
+> **The actual bug (why this kept re-triggering):** `conductor_outcome.py`'s
+> `trading_function_snapshot()` only read the PRIMARY verdict/exec pipeline for
+> `orders_accepted` -- it never learned about the `extra_exec` lane that `fill_funnel.py`
+> already fixed visibility for on 2026-07-22 (a prior fire's fix to ONE consumer of
+> `core-decisions.jsonl` that never propagated to this SECOND consumer of the same file --
+> the exact producer/consumer-mismatch class C14/C7 exist to catch). Result: the function
+> metric kept reading "0 orders_accepted" on a day that actually placed 4 real extra_exec
+> orders (2 filled), making 3 straight fires flag a non-issue as a concern.
+
+> **Fix shipped:** added `extra_exec_orders_accepted` (a NEW field, kept separate from
+> `orders_accepted` -- mirrors `fill_funnel.py`'s own scoping choice so the primary-pipeline
+> signal stays uncontaminated), folded into `distinct_setups_traded` + the weighted function
+> score (x2, same weight as `orders_accepted`). **Verified this fire (OP-33):** direct call to
+> `trading_function_snapshot()` against the live repo now reads
+> `extra_exec_orders_accepted=4, distinct_setups_traded=2` for 2026-07-22 -- matches
+> `fill_funnel.py`'s independently-computed funnel exactly (4 PLACED = 3 vwap_continuation + 1
+> bollinger_squeeze). 2 new guard tests (`test_conductor_outcome_function.py`, scoping
+> isolation + record/metric plumbing), 23/23 in the module pass, curated safety gate (31
+> tests) PASS at commit time. Post-commit `git show 56b4bd2b --stat --name-status` confirms
+> exactly the 2 intended files landed, nothing else swept in.
+
+> **Scope + revert:** pure observability/metric code (`conductor_outcome.py` +
+> its test file) -- zero params/heartbeat_core/filters/placement/exit/CLAUDE.md touched.
+> Ships per OP-22/OP-26 (engine-benefit, no J ratification needed) + rail 4 (guard test +
+> git-revert path, both satisfied). Revert: `git revert 56b4bd2b`.
+
+> **Cost: ~$2.9** (STAGE 0/1 reads, pulling + cross-checking 07-22's decision ledger 3
+> different ways, reading heartbeat_core's extra_exec routing + fill_funnel's prior fix for
+> precedent, implementing + testing the conductor_outcome fix, curated-gate commit, queue +
+> STATUS write-up).
+
+---
+
+
+### DEGRADED: self-check 2026-07-23T22:09:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
+<!-- rolled off 2026-07-23 by status_retention.py (L181 consolidation): 1 entries / 48 lines -->
+
+## [2026-07-23 ~08:12-08:20 ET] OK -- conductor (AFTERHOURS): backfilled 41 untracked strategy/candidates/ files + shipped the L242 re-violation prevention guard, commits `8a9e4902` + `a9efcab5`
+
+> **STAGE 0/1:** ET confirmed 08:12 (Thursday, market closed, opens 09:30). `engine-health.json`
+> GREEN 13/13. `self-check-last.json` reported **DEGRADED**: 39 (actually 41 via live git
+> status) untracked `strategy/candidates/` files -- same class as the L242 scar (2026-07-22,
+> 1,176 files) and its threshold-20 detector, now re-violating just 24h later. This outranked
+> the `task_scorer.py --top` pick (`TRENDLINE-TIGHT-EXIT-ACCRETE`, MED) as an engine-health flag.
+
+> **What shipped:** (1) backfilled the 41 files (chef-nemo strategy proposals + grinder-stage
+> keeper analyses) via scoped `git add --pathspec-from-file`, commit `8a9e4902` -- `self_check.py`
+> confirmed GREEN 0 problems immediately after. (2) Recognized this as a RE-VIOLATED lesson
+> (L242's detector fired again within 24h with no automatic remediation) and graduated it to a
+> guard per OP-25: `setup/scripts/auto_commit_candidates.py` + `Gamma_AutoCommitCandidates`
+> scheduled task (every 2h, every day) stages+commits `strategy/candidates/` ONLY once >=10
+> untracked/modified entries accrue -- below `self_check.py`'s 20-threshold DEGRADED bar, so the
+> preventer acts before the detector would ever need to complain again. Scoped to that path only
+> (never `-A`), local commit only (no push), fail-open on any git error including the repo's own
+> pre-commit safety-gate hook rejecting the commit. Commit `a9efcab5`.
+
+> **Verified this fire (OP-33):** 9/9 new guard tests green (`test_auto_commit_candidates.py`),
+> curated safety gate (31 tests) PASS at both commits. Task registered LIVE and verified via
+> `Get-ScheduledTask` (`State=Ready`, real `MSFT_TaskDailyTrigger` w/ 2h repetition, not a dark
+> one-time trigger -- L per project_scheduled_task_onetime_trigger_dark). Real smoke-run of the
+> script against the live repo (post-backfill) logged `QUIET, untracked_or_modified: 0` --
+> correct behavior, nothing to commit right after the manual clear. Post-commit (not just
+> pre-commit `--cached`, L247): `git show HEAD --stat --name-status` on both commits confirms
+> exactly the intended files landed (41 candidate files in the first; 5 infra files in the
+> second) -- nothing else swept in.
+
+> **Scope + revert:** pure infra/tooling + doc backfill -- zero params/heartbeat_core/filters/
+> placement/exit/CLAUDE.md touched. Ships per OP-22/OP-26 (engine-benefit, no J ratification
+> needed) + rail 4 (guard test + git-revert path, both satisfied). Revert: `git revert 8a9e4902`
+> + `git revert a9efcab5`; disable the task via `Unregister-ScheduledTask Gamma_AutoCommitCandidates`
+> or `setup/scripts/install-auto-commit-candidates.ps1 -Uninstall`.
+
+> **Foot-gun graduated:** filed `_lesson-inbox/2026-07-23-l242-detector-reviolated-within-24h-
+> graduated-to-preventer.md` for lesson-author -- the generalizable point: a detector for a
+> re-violated lesson is necessary but not sufficient if the underlying condition re-accrues on
+> its own (a continuously-running producer) between the moments a human/conductor happens to
+> look. Ask a second question when graduating a lesson to "a check that flags it": does anything
+> *act* on the flag without a human in the loop?
+
+> **Cost: ~$2.4** (STAGE 0/1 reads, git status/add/commit x2, writing+testing the guard script +
+> install script + 9 pytest cases, registering + verifying the scheduled task live, lesson
+> filing, SCHEDULED-TASKS.md registry update, STATUS write-up).
+
+---
+
+<!-- rolled off 2026-07-23 by status_retention.py (L181 consolidation): 1 entries / 73 lines -->
+
+## [2026-07-23 ~07:42-08:00 ET] OK -- conductor (AFTERHOURS): triaged the 15-item chef-inbox backlog -- 8 closed, 7 reframed, commit `e0354f3c`
+
+> **STAGE 0/1:** ET confirmed 07:42 (Thursday, market closed, opens 09:30 -- clear runway).
+> `engine-health.json` GREEN 13/13 (all quiet-OK, market closed). Self-audit gaps: all
+> triaged through the last batch, nothing new due. `task_scorer.py --top` resurfaced
+> `TRENDLINE-TIGHT-EXIT-ACCRETE` (MED) -- checked the full HIGH tier first: every HIGH item is
+> `[x]`/status:CLOSED* except `DOJO-BUILD-HANDOFF` (confirmed AGAIN this fire via the actual
+> bound tool list that no `tradingview`-prefixed tool exists for this session type) and
+> `PULLBACK-HOLD-BULL-TRIGGER` (checkbox stale `[ ]` but body text reads
+> `status:CLOSED-NO-SHIP` -- the exact `task_scorer` multiline-status-parsing gap L245/L246
+> already documented). With HIGH exhausted, priority-5 (author inboxes) won: `_chef-inbox` had
+> **15** un-processed prospector items dated 2026-07-10..07-23 (validator/skill/lesson inboxes
+> all empty).
+
+> **What shipped (acting as chef):** read all 15 files. **Closed 8** with evidence-backed
+> disposition notes, renamed `.DONE`: 2 S/R-zone-clustering duplicates (Zeiierman/LuxAlgo =
+> same swing-clustering technique, folded to the LuxAlgo item as canonical) + Market-Profile-
+> TPO folded into the volume-shelf item (same value-area/POC hypothesis) + 2 MES/MNQ futures
+> items (CFTC-COT, term-structure -- the 'instrument' rung is ALREADY CLOSED per memory,
+> 2026-06-20/06-28 controls) + 3 redundant 3rd-party SPY price feeds (IEX Cloud, Alpha
+> Vantage, Polygon.io -- we already have Alpaca broker + SIP 5m cache, no new signal type) +
+> 1 CBOE Dealer-Gamma-Exposure duplicate of the ALREADY-BUILT free `gex_regime.py` +
+> `cboe_oi_bank.py` pipeline (24 sessions accrued, calendar-gated not vendor-gated).
+> **Kept 7 open, reframed** with concrete next steps: volume-shelf + LuxAlgo S/R-zone items
+> don't actually need TV MCP (verified this session's bound tool list has zero `tradingview`-
+> prefixed tools) -- both are plain-Python-computable from the already-cached SPY 5m
+> OHLCV+volume bars; harmonic-pattern-finder is genuinely TV-independent (public zigzag+Fib
+> algorithm) but flagged for a C27 fire-rate audit before any backtest $; order-flow-imbalance
+> is genuinely blocked on missing tick/quote data (real fork, not a TV illusion, left open for
+> a J cost/vendor decision); put/call-ratio, IV-skew, and max-pain all had their "Cost: paid"
+> tag downgraded -- `fleet_broker.get_option_greeks` (fleet_broker.py:139) already pulls free
+> per-contract IV/greeks from Alpaca's options-snapshots endpoint (G8 log-only today), so all
+> three are plausibly computable free by extending that same pull across the chain, no new
+> paid vendor needed.
+
+> **Foot-gun graduated:** filed `_lesson-inbox/2026-07-23-prospector-paid-tag-ignores-already-
+> built-free-pipe.md` -- the prospector tagged `Cost: paid` on 4 items without checking
+> whether the repo already has a free pipe for that data class (GEX, options greeks/IV/OI);
+> proposes a small "already-free" registry lookup as the guard.
+
+> **Verified this fire (OP-33):** `git status --short -- strategy/candidates/_chef-inbox
+> strategy/candidates/_lesson-inbox` showed exactly the 16 intended entries before staging;
+> `git add` scoped to those 2 paths (no `-A`); **post-commit** `git show HEAD --stat
+> --name-status` confirms commit `e0354f3c` contains EXACTLY 16 files (7 `R`, 1 `A`+1 new,
+> etc. -- matches intent, applying the L247 post-commit-not-just-pre-commit lesson from the
+> prior fire immediately). Curated safety gate (31 tests) PASS at commit time (auto-run by the
+> pre-commit hook, output captured in the commit transcript).
+
+> **Scope + revert:** pure doc/inbox triage (8 dispositions + 7 reframing notes + 1 lesson
+> filing) -- zero params/heartbeat_core/filters/placement/exit/CLAUDE.md touched. Ships per
+> OP-22/OP-26 (engine-benefit authoring, no J ratification needed). Revert: `git revert
+> e0354f3c`.
+
+> **Cost: ~$2.3** (STAGE 0/1 reads, reading 15 full inbox files + 3 code files to verify the
+> Alpaca-greeks-already-free claim + memory files to verify the futures-rung-closed claim,
+> drafting 15 disposition notes, scoped commit + post-commit verification, lesson filing,
+> STATUS write-up).
+
+> **Outcome metric (`conductor_outcome.py metric`, 20-fire window):** `trend: regressing`,
+> `cost_per_drained: $1.64`, `function_latest`: 0 ENTERs / 0 orders / 3 fills / 1 distinct
+> setup on the last trading day (2026-07-22) -- the fill count is from the `extra_exec`
+> secondary lane (already-diagnosed, matches prior fires' notes), the core primary path saw
+> 0 ENTERs that session. This fire itself was loop-closing (backlog drain, not a new
+> artifact) per the tiebreak rule; next fire should keep preferring drain-over-create while
+> the trend reads regressing, and the low-ENTER function score is worth a dedicated look if
+> it persists past tonight's session close.
+
+---
+
+
+### DEGRADED: self-check 2026-07-23T21:39:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- TRENDLINE-DRAW never marked today (2026-07-23) -- Step 5c may have silently skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+
 <!-- rolled off 2026-07-23 by status_retention.py (L181 consolidation): 1 entries / 84 lines -->
 
 ## [2026-07-23 ~06:42-06:50 ET] OK -- conductor (AFTERHOURS): cleared the 8-item lesson-inbox backlog -- L242-L249 graduated, commit `9e0850b8`
