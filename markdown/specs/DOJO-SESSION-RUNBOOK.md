@@ -1,5 +1,16 @@
 # DOJO SESSION RUNBOOK — how a Sonnet session agent runs a dojo session with J
 
+> **ONE-COMMAND MODE (WS10, 2026-08-01 — start here):** `setup/scripts/dojo_session.py`
+> now wraps this whole loop — `--start` (seeded no-repeat day picker + session + capture
+> file + TV drive block), `--step` (passthrough to `dojo.session step`), `--call "<J's
+> words>"` (light natural-language capture; the strict §3 directive JSON channel still
+> works alongside for per-arm exit overrides), `--finish` (engine counterfactual + real-
+> OPRA comparison card + two-lane harvest append + reviewed mark), `--fake` (end-to-end
+> smoke, no TV/J, never burns a population day). J-facing one-pager: [DOJO-READY.md]
+> (DOJO-READY.md). TV replay tools verified working 2026-08-01 (`replay_status` DOES
+> carry `current_date` as epoch seconds — the §0 open question is closed). This runbook
+> remains the deep reference for the per-bar loop and directive schema.
+
 > **Audience: a Sonnet session agent, alone with J, no Opus/Fable in the room** (spec success
 > criterion 4, `DOJO-REPLAY-TRAINING-SPEC.md`). This is a checklist, not prose — follow it
 > top to bottom. Read `markdown/specs/DOJO-ARCHITECTURE-DECISION.md` once before your first
@@ -359,22 +370,22 @@ Lane A (plumbing), no = Lane B (the engine's judgment would have to change).
 
 ---
 
-## 7. Build status as of 2026-07-20 (update this section as modules land)
+## 7. Build status as of 2026-08-01 (update this section as modules land)
 
 | Module | Owner | Status |
 |---|---|---|
 | `clock.py` | Opus (spine) | Shipped, guard-tested (`backtest/tests/test_dojo_clock.py`) |
 | `session.py` | Opus (spine) | Shipped, guard-tested (`backtest/tests/test_dojo_fence.py`). Its lazy-import bug (§3) was found and fixed same-session, 2026-07-20. |
-| `engine_step.py` | Agent A | Not yet on disk — `step` degrades gracefully with a clear "not built yet" whisper |
-| `whisper.py` | Agent B | **Shipped and wired** — blocked from actually rendering only by `engine_step.py`'s absence (`cmd_step` imports both together) |
-| `directive.py` | Agent B | **Shipped, wired, verified end-to-end through the CLI** (§3) — directives capture cleanly today |
-| `sim_executor.py` | Agent C | Not yet on disk — no-op (directives log + arm but don't sim-fill) |
-| `scorecard.py` | Agent C | Not yet on disk — `close` reports the placeholder string |
+| `engine_step.py` | Agent A | **Shipped** — real live decision path (safe/bold + 3 fleet arms), verified headless 2026-08-01 (~1.2s/bar) |
+| `whisper.py` | Agent B | **Shipped and wired** — renders for real now that `engine_step.py` exists |
+| `directive.py` | Agent B | **Shipped, wired, verified end-to-end through the CLI** (§3) — directives capture cleanly |
+| `sim_executor.py` | Agent C | **Shipped** — real-OPRA fills + `walk_exit_manager` walks (entry+1 canonical), guard-tested (`test_dojo_sim_executor.py`) |
+| `scorecard.py` | Agent C | **Shipped** — per-arm J-directed P&L + divergence points at `close` |
+| `dojo_session.py` (WS10) | one-command wrapper | **Shipped 2026-08-01** — day picker / light `--call` capture / `--finish` counterfactual + real-OPRA comparison card + harvest append. Guards: `test_dojo_session_oneshot.py` (14, RED-proofed). Fake session runs end-to-end clean. |
 
-A session is fully worth running now — directive capture (§3) already works end-to-end.
-Once `engine_step.py` lands, `step`'s whisper starts rendering for real with zero runbook
-changes needed. `sim_executor.py`/`scorecard.py` landing later loses nothing already
-captured — directives + harvest items logged today are real data the moment those ship.
+Every phase-1 module is on disk and guard-tested. The full sitting is one command
+(DOJO-READY.md); this runbook's per-bar loop and strict directive JSON remain the deep
+reference and the per-arm-exit channel.
 
 ---
 
