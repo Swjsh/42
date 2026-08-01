@@ -156,7 +156,8 @@ def test_write_twin_health_schema_keys(tmp_path, monkeypatch):
 
     expected_keys = {"last_tick_et", "ticks_today", "last_action", "breaker_tripped",
                      "account_status", "n_orders_lifetime", "last_error",
-                     "path_coverage", "branches_green_today", "incidents_today"}
+                     "path_coverage", "branches_green_today", "incidents_today",
+                     "position", "last_trade"}
     assert set(health.keys()) == expected_keys
     assert health["last_action"] == "HOLD"
     assert health["last_error"] is None
@@ -167,6 +168,14 @@ def test_write_twin_health_schema_keys(tmp_path, monkeypatch):
     assert health["path_coverage"] == {}
     assert health["branches_green_today"] == 0
     assert health["incidents_today"] == 0
+    # T3 latency-drill follow-up (2026-08-01): no exit-state.json/journal.jsonl anywhere
+    # in this fresh tmp_path -> flat position snapshot, no closed trades, never a crash.
+    assert health["position"] == {
+        "position_status": "flat", "symbol": None, "qty": None, "entry_price": None,
+        "current_mid": None, "current_mid_source": None,
+        "unrealized_usd": None, "unrealized_pct": None, "time_in_trade_min": None,
+    }
+    assert health["last_trade"] is None
 
 
 def test_write_twin_health_writes_real_file_and_round_trips(tmp_path, monkeypatch):
@@ -297,6 +306,207 @@ def test_write_twin_health_fail_open_on_malformed_path_coverage_file(tmp_path, m
                                    now_et=datetime(2026, 7, 10, 21, 0, 0), health_path=health_path)
     assert health["path_coverage"] == {}
     assert health["branches_green_today"] == 0
+
+
+# ============================================================================
+# T3 latency-drill follow-up (2026-08-01): position snapshot + last_trade -- J's
+# explicit weekend order "make sure we're able to properly watch trades" (a normal twin
+# trade was previously invisible on this glance file). summarize_position() /
+# summarize_last_trade() + write_twin_health()'s wiring of both.
+# ============================================================================
+def _write_exit_state(cfg, *, entry_premium, total_qty=3, tp1_qty=2, runner_qty=1,
+                      tp1_filled=False, entered_at_utc="2026-08-01T16:20:00+00:00",
+                      side="bull"):
+    p = cfg.state_dir / "exit-state.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({
+        cfg.symbol: {
+            "exit_state": {
+                "symbol": cfg.symbol, "side": "C", "entry_premium": entry_premium,
+                "total_qty": total_qty, "tp1_qty": tp1_qty, "runner_qty": runner_qty,
+                "tp1_filled": tp1_filled, "runner_stop_premium": None,
+            },
+            "entered_at_utc": entered_at_utc, "side": side, "order_id": "abc", "scenario": None,
+        }
+    }), encoding="utf-8")
+
+
+def test_summarize_position_flat_when_no_exit_state(tmp_path):
+    """FLAT FIXTURE: no exit-state.json at all -> the honest all-None flat snapshot,
+    never a crash."""
+    cfg = _twin_cfg(tmp_path)
+    now = datetime(2026, 8, 1, 16, 30, tzinfo=timezone.utc)
+    pos = cth.summarize_position(cfg, row=None, now_utc=now)
+    assert pos == {
+        "position_status": "flat", "symbol": None, "qty": None, "entry_price": None,
+        "current_mid": None, "current_mid_source": None,
+        "unrealized_usd": None, "unrealized_pct": None, "time_in_trade_min": None,
+    }
+
+
+def test_summarize_position_long_uses_tick_quote_mid_when_exit_pass_present(tmp_path):
+    """LONG FIXTURE, tier 1: manage_positions already fetched a real best/worst quote
+    for this symbol THIS tick (position was open before this tick) -- current_mid must
+    prefer that fresh quote, zero extra network calls."""
+    cfg = _twin_cfg(tmp_path)
+    _write_exit_state(cfg, entry_premium=62889.5789, entered_at_utc="2026-08-01T16:20:00+00:00")
+    now = datetime(2026, 8, 1, 16, 32, tzinfo=timezone.utc)  # 12 min after entry
+    row = {"exit_pass": [{"symbol": cfg.symbol, "best": 63000.0, "worst": 62998.0}]}
+    pos = cth.summarize_position(cfg, row=row, now_utc=now)
+    assert pos["position_status"] == "long"
+    assert pos["symbol"] == cfg.symbol
+    assert pos["qty"] == round(3 * cfg.unit_qty_btc, 8)  # tp1 not filled -> full total_qty
+    assert pos["entry_price"] == 62889.5789
+    assert pos["current_mid"] == 62999.0  # (63000+62998)/2
+    assert pos["current_mid_source"] == "tick_quote_mid"
+    assert pos["time_in_trade_min"] == 12.0
+    assert pos["unrealized_pct"] > 0  # mid above entry
+
+
+def test_summarize_position_falls_back_to_tick_bar_close_when_no_exit_pass(tmp_path):
+    """Tier 2: the entry tick itself -- manage_positions never quoted this brand-new
+    position (it didn't exist yet when manage_positions ran this tick), so exit_pass has
+    no matching entry. Must fall back to row['price'], the closed 5m bar's close
+    fetch_closed_bars already fetched this same tick -- still zero extra network calls."""
+    cfg = _twin_cfg(tmp_path)
+    _write_exit_state(cfg, entry_premium=62889.5789)
+    now = datetime(2026, 8, 1, 16, 20, tzinfo=timezone.utc)
+    row = {"exit_pass": [], "price": 62900.0}
+    pos = cth.summarize_position(cfg, row=row, now_utc=now)
+    assert pos["current_mid"] == 62900.0
+    assert pos["current_mid_source"] == "tick_bar_close"
+
+
+def test_summarize_position_falls_back_to_decisions_jsonl_on_tick_error(tmp_path):
+    """Tier 3 (off-tick/no-quote fallback): a TICK_ERROR row carries neither exit_pass
+    entries nor a 'price' key at all (see _tick_error_row) -- the last resort is the
+    latest decisions.jsonl row's own price for this symbol, read fresh from disk, per
+    the task's explicit fallback instruction. Also proves position_status stays
+    accurate (LONG) even though the errored row itself says position_status='unknown' --
+    this block reads exit-state.json directly rather than trusting the tick's own row."""
+    cfg = _twin_cfg(tmp_path)
+    _write_exit_state(cfg, entry_premium=62889.5789)
+    _write_jsonl(cfg.state_dir / "decisions.jsonl", [
+        {"symbol": cfg.symbol, "price": 62500.0, "ts_utc": "2026-08-01T16:10:00+00:00"},
+        {"symbol": cfg.symbol, "price": 62700.0, "ts_utc": "2026-08-01T16:15:00+00:00"},
+    ])
+    now = datetime(2026, 8, 1, 16, 20, tzinfo=timezone.utc)
+    row = {"exit_pass": [], "action": "TICK_ERROR", "position_status": "unknown"}  # no 'price' key
+    pos = cth.summarize_position(cfg, row=row, now_utc=now)
+    assert pos["current_mid"] == 62700.0  # the NEWEST decisions.jsonl row, not the older one
+    assert pos["current_mid_source"] == "decisions_jsonl_fallback"
+    assert pos["position_status"] == "long"
+
+
+def test_summarize_position_qty_reflects_tp1_filled_runner_only(tmp_path):
+    """UNIT-LOT MODE: once TP1 has filled, only the runner unit remains held -- qty must
+    shrink accordingly, not keep reporting the original full-size entry."""
+    cfg = _twin_cfg(tmp_path)
+    _write_exit_state(cfg, entry_premium=100.0, total_qty=3, tp1_qty=2, runner_qty=1, tp1_filled=True)
+    now = datetime(2026, 8, 1, 16, 30, tzinfo=timezone.utc)
+    pos = cth.summarize_position(cfg, row={"exit_pass": []}, now_utc=now)
+    assert pos["qty"] == round(1 * cfg.unit_qty_btc, 8)  # only the runner unit remains
+
+
+def test_summarize_position_unrealized_math(tmp_path):
+    cfg = _twin_cfg(tmp_path)
+    _write_exit_state(cfg, entry_premium=100.0, total_qty=3, tp1_qty=2, runner_qty=1, tp1_filled=False)
+    now = datetime(2026, 8, 1, 16, 30, tzinfo=timezone.utc)
+    row = {"exit_pass": [{"symbol": cfg.symbol, "best": 110.0, "worst": 110.0}]}
+    pos = cth.summarize_position(cfg, row=row, now_utc=now)
+    assert pos["current_mid"] == 110.0
+    assert pos["unrealized_pct"] == 10.0
+    qty = 3 * cfg.unit_qty_btc
+    assert abs(pos["unrealized_usd"] - (10.0 * qty)) < 1e-9
+
+
+def test_summarize_last_trade_none_when_never_closed(tmp_path):
+    cfg = _twin_cfg(tmp_path)
+    assert cth.summarize_last_trade(cfg.state_dir / "journal.jsonl") is None
+    assert cth.summarize_last_trade(tmp_path / "no-such-dir" / "journal.jsonl") is None
+
+
+def test_summarize_last_trade_prefers_exit_filled_over_closed(tmp_path):
+    """journal.jsonl is append-only -- EXIT_FILLED (when a real fill capture succeeds)
+    always lands AFTER its paired CLOSED row, so scanning newest-first must return the
+    EXIT_FILLED row's realized_usd/realized_pct, not the CLOSED row's (which has
+    neither)."""
+    cfg = _twin_cfg(tmp_path)
+    _write_jsonl(cfg.state_dir / "journal.jsonl", [
+        {"ts_utc": "t1", "event": "CLOSED", "symbol": cfg.symbol, "entry_price": 100.0},
+        {"ts_utc": "t2", "event": "EXIT_FILLED", "symbol": cfg.symbol,
+         "realized_usd": -0.07, "realized_pct": -0.05},
+    ])
+    lt = cth.summarize_last_trade(cfg.state_dir / "journal.jsonl")
+    assert lt == {"ts": "t2", "side": "long", "realized_usd": -0.07, "realized_pct": -0.05}
+
+
+def test_summarize_last_trade_falls_back_to_closed_when_no_exit_filled(tmp_path):
+    """A WATCH-mode or close-failed exit never gets an EXIT_FILLED row -- the CLOSED row
+    is the honest terminal fact, with realized_usd/pct left None, never fabricated."""
+    cfg = _twin_cfg(tmp_path)
+    _write_jsonl(cfg.state_dir / "journal.jsonl", [
+        {"ts_utc": "t1", "event": "CLOSED", "symbol": cfg.symbol, "entry_price": 100.0},
+    ])
+    lt = cth.summarize_last_trade(cfg.state_dir / "journal.jsonl")
+    assert lt == {"ts": "t1", "side": "long", "realized_usd": None, "realized_pct": None}
+
+
+def test_summarize_last_trade_picks_most_recent_of_multiple_round_trips(tmp_path):
+    cfg = _twin_cfg(tmp_path)
+    _write_jsonl(cfg.state_dir / "journal.jsonl", [
+        {"ts_utc": "t1", "event": "EXIT_FILLED", "realized_pct": -0.1},
+        {"ts_utc": "t2", "event": "CLOSED"},
+        {"ts_utc": "t3", "event": "EXIT_FILLED", "realized_pct": 0.5},
+    ])
+    lt = cth.summarize_last_trade(cfg.state_dir / "journal.jsonl")
+    assert lt["ts"] == "t3" and lt["realized_pct"] == 0.5
+
+
+def test_write_twin_health_wires_a_real_open_position(tmp_path, monkeypatch):
+    """Integration: write_twin_health actually threads summarize_position's output into
+    the written file, both in the returned dict and on disk."""
+    monkeypatch.setattr(cth.broker, "TWIN_SECRETS_PATH", tmp_path / "no-secrets.json")
+    cfg = _twin_cfg(tmp_path)
+    _write_exit_state(cfg, entry_premium=62889.5789, entered_at_utc="2026-08-01T16:20:00+00:00")
+    health_path = tmp_path / "twin-health.json"
+    row = {"action": "MANAGED", "exit_pass": [{"symbol": cfg.symbol, "best": 63000.0, "worst": 62998.0}]}
+    health = cth.write_twin_health(cfg, row=row, error=None,
+                                   now_et=datetime(2026, 8, 1, 12, 32, 0),
+                                   now_utc=datetime(2026, 8, 1, 16, 32, 0, tzinfo=timezone.utc),
+                                   health_path=health_path)
+    assert health["position"]["position_status"] == "long"
+    assert health["position"]["current_mid"] == 62999.0
+    on_disk = json.loads(health_path.read_text(encoding="utf-8"))
+    assert on_disk["position"]["position_status"] == "long"
+    assert on_disk["position"]["current_mid"] == 62999.0
+
+
+def test_write_twin_health_wires_last_trade_from_real_journal(tmp_path, monkeypatch):
+    monkeypatch.setattr(cth.broker, "TWIN_SECRETS_PATH", tmp_path / "no-secrets.json")
+    cfg = _twin_cfg(tmp_path)
+    _write_jsonl(cfg.state_dir / "journal.jsonl", [
+        {"ts_utc": "2026-08-01T16:34:15+00:00", "event": "EXIT_FILLED",
+         "realized_usd": -0.26, "realized_pct": -0.10},
+    ])
+    health_path = tmp_path / "twin-health.json"
+    health = cth.write_twin_health(cfg, row={"action": "HOLD"}, error=None,
+                                   now_et=datetime(2026, 8, 1, 12, 40, 0), health_path=health_path)
+    assert health["last_trade"] == {"ts": "2026-08-01T16:34:15+00:00", "side": "long",
+                                    "realized_usd": -0.26, "realized_pct": -0.10}
+
+
+def test_write_twin_health_position_defaults_to_real_wall_clock_when_now_utc_omitted(tmp_path, monkeypatch):
+    """Every pre-existing caller/test omits the new now_utc kwarg -- it must default
+    sanely (real wall clock, mirroring every other injectable-clock param in this
+    module) rather than crash or force every existing call site to learn about it."""
+    monkeypatch.setattr(cth.broker, "TWIN_SECRETS_PATH", tmp_path / "no-secrets.json")
+    cfg = _twin_cfg(tmp_path)
+    health_path = tmp_path / "twin-health.json"
+    health = cth.write_twin_health(cfg, row={"action": "HOLD"}, error=None,
+                                   now_et=datetime(2026, 8, 1, 12, 0, 0), health_path=health_path)
+    assert health["position"]["position_status"] == "flat"  # no exit-state.json -> flat, no crash
+    assert health["last_trade"] is None
 
 
 # ============================================================================

@@ -271,6 +271,34 @@ def test_read_health_facts_reads_real_fields(tmp_path):
     assert facts["breaker_tripped"] is False
 
 
+def test_read_health_facts_tolerates_new_position_and_last_trade_keys(tmp_path):
+    """READER-COMPAT (T3 latency-drill follow-up, 2026-08-01): crypto_twin_health.py's
+    write_twin_health now additively writes 'position'/'last_trade' keys onto
+    twin-health.json. This sentinel reads named keys via .get() and must extract the
+    SAME facts it always has, completely unbothered by the two new keys sitting
+    alongside them -- proves the additive schema change is genuinely additive from this
+    reader's point of view, not just by inspection."""
+    p = tmp_path / "twin-health.json"
+    _write_json(p, {
+        "account_status": "LIVE", "breaker_tripped": False,
+        "last_action": "MANAGED", "last_error": None,
+        "position": {"position_status": "long", "symbol": "BTC/USD", "qty": 0.0024,
+                     "entry_price": 62889.58, "current_mid": 62999.0,
+                     "current_mid_source": "tick_quote_mid", "unrealized_usd": 0.26,
+                     "unrealized_pct": 0.17, "time_in_trade_min": 12.0},
+        "last_trade": {"ts": "2026-08-01T16:34:15+00:00", "side": "long",
+                       "realized_usd": -0.26, "realized_pct": -0.10},
+    })
+    facts = tsm.read_health_facts(p)
+    assert facts["health_readable"] is True
+    assert facts["account_status"] == "LIVE"
+    assert facts["breaker_tripped"] is False
+    assert facts["last_action"] == "MANAGED"
+    # the sentinel's own fact set is unchanged -- it never absorbs the new keys itself
+    assert set(facts.keys()) == {"health_readable", "account_status", "breaker_tripped",
+                                 "last_action", "last_error"}
+
+
 # ============================================================================
 # evaluate() -- each RED/YELLOW rule, fixture-driven, non-vacuous bites
 # ============================================================================

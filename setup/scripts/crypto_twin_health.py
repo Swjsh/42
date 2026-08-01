@@ -227,18 +227,209 @@ def summarize_path_coverage(coverage_doc: dict) -> dict:
     return {"path_coverage": rendered, "branches_green_today": green, "incidents_today": incidents}
 
 
+# --- position snapshot + last-trade (T3 latency-drill follow-up, 2026-08-01) -------------
+# J's explicit weekend order after the watch-loop latency drill (commit af849657): "make
+# sure we're able to properly watch trades." That drill found this glance file carried NO
+# position/P&L fields at all -- only last_action/breaker/coverage -- so a normal twin trade
+# was invisible to every downstream surface (firm_brief renders straight off this file; the
+# dashboard has zero twin integration, confirmed by grep before this shipped). Both
+# summaries below are RE-DERIVED every call from the twin's own existing ledgers -- same
+# "never a second source of truth" discipline as summarize_path_coverage above -- and
+# NEITHER adds a network call.
+def _remaining_qty_btc(position: dict, cfg: ctc.TwinConfig) -> Optional[float]:
+    """UNIT-LOT MODE (crypto_twin_core.TwinConfig's own docstring): a position's REAL held
+    BTC size is always `remaining_units * cfg.unit_qty_btc` -- the exact conversion
+    manage_positions itself uses for a SELL_PARTIAL (`btc_qty = round(units_sold *
+    cfg.unit_qty_btc, 8)`). `remaining_units` is runner_qty once TP1 has filled (2 of the
+    default 3 units already sold), else the full total_qty."""
+    st = position.get("exit_state") or {}
+    total_qty = st.get("total_qty")
+    runner_qty = st.get("runner_qty")
+    tp1_filled = bool(st.get("tp1_filled", False))
+    units = runner_qty if (tp1_filled and runner_qty is not None) else total_qty
+    if units is None:
+        return None
+    try:
+        return round(float(units) * cfg.unit_qty_btc, 8)
+    except (TypeError, ValueError):
+        return None
+
+
+def _tick_quote_mid(row: Optional[dict], symbol: str) -> Optional[float]:
+    """(best+worst)/2 from THIS tick's own exit_pass entry for `symbol` -- manage_positions
+    already called broker.get_crypto_quote_hilo while managing an already-open position
+    this tick, so reading it back here is zero extra network calls. None when exit_pass
+    carries no entry for `symbol` (e.g. the very tick a position was just entered, before
+    it existed for manage_positions to have quoted)."""
+    for entry in (row or {}).get("exit_pass") or []:
+        if isinstance(entry, dict) and entry.get("symbol") == symbol:
+            best, worst = entry.get("best"), entry.get("worst")
+            if best is not None and worst is not None:
+                try:
+                    return round((float(best) + float(worst)) / 2.0, 4)
+                except (TypeError, ValueError):
+                    return None
+    return None
+
+
+def _latest_decisions_price(decisions_path: Path, symbol: str) -> Optional[float]:
+    """OFF-TICK / NO-QUOTE FALLBACK ONLY: the latest decisions.jsonl row's own `price`
+    field for `symbol` (scanned newest-first). Only reached when THIS tick's row carries
+    neither a fresh tick_quote_mid nor a bar-close price (a TICK_ERROR row has no `price`
+    key at all -- see _tick_error_row above) -- see summarize_position's current_mid_source
+    tiers for the full fallback order."""
+    rows = _read_jsonl(decisions_path)
+    for r in reversed(rows):
+        if r.get("symbol") == symbol and r.get("price") is not None:
+            try:
+                return float(r["price"])
+            except (TypeError, ValueError):
+                continue
+    return None
+
+
+def summarize_position(cfg: ctc.TwinConfig, *, row: Optional[dict], now_utc: datetime,
+                       decisions_path: Optional[Path] = None) -> dict:
+    """POSITION SNAPSHOT: position_status/symbol/qty/entry_price/current_mid/
+    unrealized_usd/unrealized_pct/time_in_trade_min -- RE-DERIVED every call from
+    exit-state.json (crypto_twin_core.get_open_position, the SAME source run_tick itself
+    reads for its own decision-row position_status) so this is never a second, possibly-
+    divergent store of position truth.
+
+    position_status is "flat"/"long" ONLY -- Alpaca crypto is cash/long-only (see
+    crypto_twin_core.place_entry's docstring: a bear verdict never reaches place_entry,
+    action=SKIP_NO_SHORT_CRYPTO instead), so there is no "short" to ever report. Read
+    directly from exit-state.json rather than trusting row['position_status'] (which reads
+    "unknown" on a TICK_ERROR/HOLD_BAD_BARS row even though the position itself, if any, is
+    perfectly well-known) -- so this block stays accurate even on an errored tick.
+
+    current_mid is sourced BEST-FIRST from data THIS tick already fetched -- this function
+    NEVER adds a new network call:
+      1. tick_quote_mid          -- exit_pass's own best/worst quote, fetched by
+                                    manage_positions THIS tick (only present when the
+                                    position was already open BEFORE this tick, i.e. not
+                                    the entry tick itself).
+      2. tick_bar_close          -- row['price'], the closed 5m bar's close
+                                    fetch_closed_bars fetches every healthy tick (present
+                                    on the entry tick too).
+      3. decisions_jsonl_fallback -- the latest decisions.jsonl row's own price for this
+                                    symbol, read fresh from disk. Only reached when `row`
+                                    itself carries neither of the above -- a TICK_ERROR row
+                                    (no price key at all) while a position from a PRIOR
+                                    tick is still open, or write_twin_health called
+                                    standalone with no fresh row.
+    `current_mid_source` names exactly which tier supplied it -- never silently blended,
+    and every field stays honestly None rather than fabricated when truly unknown."""
+    symbol = cfg.symbol
+    position = ctc.get_open_position(cfg)
+    if position is None:
+        return {
+            "position_status": "flat", "symbol": None, "qty": None, "entry_price": None,
+            "current_mid": None, "current_mid_source": None,
+            "unrealized_usd": None, "unrealized_pct": None, "time_in_trade_min": None,
+        }
+
+    st = position.get("exit_state") or {}
+    entry_price = st.get("entry_premium")
+    qty = _remaining_qty_btc(position, cfg)
+
+    current_mid = _tick_quote_mid(row, symbol)
+    source = "tick_quote_mid" if current_mid is not None else None
+    if current_mid is None:
+        price = (row or {}).get("price")
+        if price is not None:
+            try:
+                current_mid = float(price)
+                source = "tick_bar_close"
+            except (TypeError, ValueError):
+                current_mid = None
+    if current_mid is None:
+        dp = decisions_path or (cfg.state_dir / "decisions.jsonl")
+        current_mid = _latest_decisions_price(dp, symbol)
+        if current_mid is not None:
+            source = "decisions_jsonl_fallback"
+
+    unrealized_usd = unrealized_pct = None
+    if entry_price is not None and current_mid is not None:
+        try:
+            ep = float(entry_price)
+            if ep > 0:
+                unrealized_pct = round((current_mid - ep) / ep * 100.0, 4)
+                if qty is not None:
+                    unrealized_usd = round((current_mid - ep) * qty, 6)
+        except (TypeError, ValueError):
+            pass
+
+    time_in_trade_min = None
+    entered_at = position.get("entered_at_utc")
+    if entered_at:
+        try:
+            dt_ = datetime.fromisoformat(str(entered_at))
+            if dt_.tzinfo is None:
+                dt_ = dt_.replace(tzinfo=timezone.utc)
+            time_in_trade_min = round((now_utc - dt_).total_seconds() / 60.0, 2)
+        except ValueError:
+            time_in_trade_min = None
+
+    return {
+        "position_status": "long", "symbol": symbol, "qty": qty,
+        "entry_price": entry_price, "current_mid": current_mid,
+        "current_mid_source": source,
+        "unrealized_usd": unrealized_usd, "unrealized_pct": unrealized_pct,
+        "time_in_trade_min": time_in_trade_min,
+    }
+
+
+def summarize_last_trade(journal_path: Path) -> Optional[dict]:
+    """The most recent CLOSED/EXIT_FILLED journal.jsonl row (scanned newest-first).
+    journal.jsonl is append-only, so when a real fill capture succeeds EXIT_FILLED always
+    lands strictly AFTER its paired CLOSED row (see crypto_twin_core._journal_exit_fill,
+    called immediately after the CLOSED/MANAGED row for that same exit) -- scanning
+    newest-first therefore naturally prefers EXIT_FILLED (which carries realized_usd/
+    realized_pct) and only falls back to a bare CLOSED row (realized_usd/pct left honestly
+    None, never fabricated) for a WATCH-mode or close-failed exit that never got a fill
+    captured. Returns None when the twin has never closed a single round trip yet.
+
+    side is always the literal string 'long' -- Alpaca crypto is cash/long-only (bear
+    verdicts are SKIP_NO_SHORT_CRYPTO'd before place_entry is ever called, see
+    crypto_twin_core.run_tick), so every REAL completed trade in this ledger is
+    unambiguously a long round trip; this is a documented fact, not a guessed default."""
+    rows = _read_jsonl(journal_path)
+    for r in reversed(rows):
+        if r.get("event") in ("CLOSED", "EXIT_FILLED"):
+            return {
+                "ts": r.get("ts_utc"),
+                "side": "long",
+                "realized_usd": r.get("realized_usd"),
+                "realized_pct": r.get("realized_pct"),
+            }
+    return None
+
+
 # --- twin-health.json --------------------------------------------------------------------
 def write_twin_health(cfg: ctc.TwinConfig, *, row: Optional[dict], error: Optional[str],
-                      now_et: datetime, health_path: Path = HEALTH_PATH) -> dict:
+                      now_et: datetime, health_path: Path = HEALTH_PATH,
+                      now_utc: Optional[datetime] = None) -> dict:
     """Builds + writes the twin-health.json snapshot. `health_path` defaults to the
     production HEALTH_PATH but is an explicit override (mirrors run_tick's own
     injectable now_utc/raw_bars pattern) so tests never touch the real file.
 
     last_error reflects ONLY this tick -- None means THIS tick was clean, even if a
     prior tick errored (history lives in decisions.jsonl's TICK_ERROR rows + the
-    soak-log's per-hour n_errors, not here; this file is a "right now" glance)."""
+    soak-log's per-hour n_errors, not here; this file is a "right now" glance).
+
+    `now_utc` (new, optional, defaults to real wall-clock -- mirrors every other
+    injectable-clock parameter in this module) drives `position`'s time_in_trade_min.
+    `position` and `last_trade` are ADDITIVE keys (2026-08-01, see the section above) --
+    every existing reader (firm_brief.render_twin_lines, twin_sentinel.read_health_facts)
+    reads named keys via .get() and ignores unknown ones, confirmed by grep before this
+    shipped; every pre-existing caller/test that omits the new `now_utc` kwarg is
+    unaffected (it defaults to real wall-clock, same as every other clock param here)."""
+    now_utc = now_utc or datetime.now(timezone.utc)
     today_et = now_et.strftime("%Y-%m-%d")
     coverage_summary = summarize_path_coverage(_read_path_coverage_doc(cfg))
+    position = summarize_position(cfg, row=row, now_utc=now_utc)
+    last_trade = summarize_last_trade(cfg.state_dir / "journal.jsonl")
     health = {
         "last_tick_et": now_et.isoformat(),
         "ticks_today": count_ticks_today(cfg.state_dir / "decisions.jsonl", today_et),
@@ -248,6 +439,8 @@ def write_twin_health(cfg: ctc.TwinConfig, *, row: Optional[dict], error: Option
         "n_orders_lifetime": count_orders_lifetime(cfg.state_dir / "journal.jsonl"),
         "last_error": error,
         **coverage_summary,  # B1c: path_coverage, branches_green_today, incidents_today
+        "position": position,      # T3 latency-drill follow-up, 2026-08-01
+        "last_trade": last_trade,  # T3 latency-drill follow-up, 2026-08-01
     }
     health_path.parent.mkdir(parents=True, exist_ok=True)
     health_path.write_text(json.dumps(health, indent=2), encoding="utf-8")
@@ -373,7 +566,8 @@ def run_tick_with_health(cfg: ctc.TwinConfig = ctc.TwinConfig(), *, live: bool =
             pass
 
     try:
-        health = write_twin_health(cfg, row=row, error=error_str, now_et=now_et, health_path=health_path)
+        health = write_twin_health(cfg, row=row, error=error_str, now_et=now_et,
+                                   health_path=health_path, now_utc=now_utc)
     except Exception as e:  # noqa: BLE001 -- visibility must not itself become a crash.
         health = {"write_failed": f"{type(e).__name__}: {e}"}
 

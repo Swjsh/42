@@ -368,17 +368,58 @@ def _format_coverage_suffix(coverage_data: dict, gauntlet_data: Optional[dict]) 
     return f"| {cov_s}{gauntlet_s}."
 
 
+def _format_position_suffix(position: Optional[dict], last_trade: Optional[dict]) -> str:
+    """PURE: renders the POSITION SNAPSHOT (T3 latency-drill follow-up, 2026-08-01 -- J's
+    explicit weekend order: "make sure we're able to properly watch trades") as a suffix
+    for the TWIN line, e.g. " | twin: LONG 0.0024 BTC @62890 (+0.06%), 7.2min in trade" or
+    " | twin: flat, last trade -0.10% @16:34 UTC". Renders NOTHING (empty string) when
+    `position` is absent/empty -- a health_data dict written before this schema addition
+    (or any test fixture that omits the key) must render BYTE-IDENTICAL to before, exactly
+    like `coverage_data`/`gauntlet_data` above already default to "don't touch the line."
+
+    Timestamps render with an explicit "UTC" marker rather than silently implying ET (the
+    twin's own ledgers are UTC-anchored throughout -- see twin_sentinel.py's module
+    docstring: "NOT the ET day the rest of this repo usually reasons in") -- OP-33: never
+    let a bare HH:MM read as ET when it isn't. Guard: test_firm_brief_twin_section.py."""
+    if not position:
+        return ""
+    status = position.get("position_status")
+    if status == "long":
+        qty = position.get("qty")
+        entry = position.get("entry_price")
+        pct = position.get("unrealized_pct")
+        mins = position.get("time_in_trade_min")
+        qty_s = f"{qty:.4f}" if isinstance(qty, (int, float)) else "?"
+        entry_s = f"{entry:,.0f}" if isinstance(entry, (int, float)) else "?"
+        pct_s = f"{pct:+.2f}%" if isinstance(pct, (int, float)) else "n/a"
+        mins_s = f"{mins:.1f}min in trade" if isinstance(mins, (int, float)) else "? min in trade"
+        symbol = position.get("symbol") or "?"
+        base = symbol.split("/")[0] if "/" in symbol else symbol
+        return f" | twin: LONG {qty_s} {base} @{entry_s} ({pct_s}), {mins_s}"
+    if status == "flat":
+        if last_trade and last_trade.get("realized_pct") is not None:
+            pct = last_trade["realized_pct"]
+            ts = str(last_trade.get("ts") or "")
+            hm = f"{ts[11:16]} UTC" if len(ts) >= 16 else "?"
+            return f" | twin: flat, last trade {pct:+.2f}% @{hm}"
+        return " | twin: flat, no closed trades yet"
+    return ""  # unrecognized/malformed status -- say nothing rather than guess (OP-33)
+
+
 def render_twin_lines(health_data: dict, coverage_data: Optional[dict] = None,
                       gauntlet_data: Optional[dict] = None) -> list[str]:
     """PURE: render the Crypto Twin (24/7 mechanism-validation training ground, J
     requirement 2026-07-10) section body from its last-tick snapshot
-    (automation/state/twin-health.json, written every ~5 min by Gamma_CryptoTwin /
+    (automation/state/twin-health.json, written every ~1 min by Gamma_CryptoTwin /
     crypto_twin_health.py). Mirrors render_prospector_lines' fail-open shape
     immediately below it in build_brief() -- a missing/never-fired source degrades
     this section's text only, never the rest of the brief. Deliberately does NOT
-    report the twin's P&L (markdown/planning/CRYPTO-TWIN-TRAINING-GROUND.md's kill
-    criteria: "never appears in any edge scorecard" -- this is a MECHANISM-HEALTH
-    glance, not a trading result). Guard: test_firm_brief_twin_section.py.
+    report the twin's AGGREGATE P&L (markdown/planning/CRYPTO-TWIN-TRAINING-GROUND.md's
+    kill criteria: "never appears in any edge scorecard" -- this is a MECHANISM-HEALTH
+    glance, not a trading result) -- the PER-TRADE position/last_trade snapshot added
+    below is a visibility instrument (J: "watch trades"), not an edge claim, same
+    distinction the twin's own P&L fields (crypto_twin_pnl.py) already draw. Guard:
+    test_firm_brief_twin_section.py.
 
     B2c EXTENSION: `coverage_data` (path-coverage.json) and `gauntlet_data`
     (gauntlet-last.json) are OPTIONAL, additive, and both default to None so
@@ -387,7 +428,14 @@ def render_twin_lines(health_data: dict, coverage_data: Optional[dict] = None,
     passes an actual dict, possibly {} on a missing file, once wired below).
     When provided, they extend the SAME "- TWIN: ..." line with a path-coverage
     scoreboard, e.g. "...orders=3 lifetime. | coverage: 5/6 branches green
-    today, 1 incident(s), gauntlet: PASS 20:41." -- fail-open per field."""
+    today, 1 incident(s), gauntlet: PASS 20:41." -- fail-open per field.
+
+    T3 EXTENSION (2026-08-01): `health_data['position']`/`['last_trade']` (both new,
+    additive twin-health.json keys -- see crypto_twin_health.summarize_position/
+    summarize_last_trade) extend the SAME line further via _format_position_suffix,
+    e.g. "...orders=155 lifetime. | twin: LONG 0.0024 BTC @62890 (+0.06%), 7.2min in
+    trade." Renders nothing when the keys are absent (old-shaped health_data / any
+    fixture predating this addition) -- see that function's own docstring."""
     if not health_data:
         return ["- no tick yet (Gamma_CryptoTwin fires every 5 min, 24/7)."]
     last_tick = health_data.get("last_tick_et", "?")
@@ -402,6 +450,7 @@ def render_twin_lines(health_data: dict, coverage_data: Optional[dict] = None,
            f"orders={n_orders} lifetime.")
     if coverage_data is not None:
         line += " " + _format_coverage_suffix(coverage_data, gauntlet_data)
+    line += _format_position_suffix(health_data.get("position"), health_data.get("last_trade"))
     err = health_data.get("last_error")
     if err:
         line += f" ⚠ LAST ERROR: {str(err)[:160]}"

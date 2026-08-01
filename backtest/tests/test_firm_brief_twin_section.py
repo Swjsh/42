@@ -218,6 +218,129 @@ def test_build_brief_missing_coverage_files_degrades_gracefully(tmp_path, monkey
     assert "no tick yet" in brief   # twin-health.json also missing in this isolated STATE
 
 
+# ============================================================================
+# T3 EXTENSION (2026-08-01, latency-drill follow-up) -- position snapshot + last_trade
+# suffix. J's explicit weekend order: "make sure we're able to properly watch trades."
+# ============================================================================
+_LONG_POSITION = {
+    "position_status": "long", "symbol": "BTC/USD", "qty": 0.0024,
+    "entry_price": 62889.5789, "current_mid": 62999.0, "current_mid_source": "tick_quote_mid",
+    "unrealized_usd": 0.26, "unrealized_pct": 0.17, "time_in_trade_min": 12.0,
+}
+_FLAT_POSITION = {
+    "position_status": "flat", "symbol": None, "qty": None, "entry_price": None,
+    "current_mid": None, "current_mid_source": None,
+    "unrealized_usd": None, "unrealized_pct": None, "time_in_trade_min": None,
+}
+_LAST_TRADE = {"ts": "2026-08-01T16:34:15+00:00", "side": "long",
+              "realized_usd": -0.26, "realized_pct": -0.10}
+
+
+def test_render_twin_lines_omits_position_suffix_when_key_absent():
+    """RED-PROOF: a health_data dict predating this schema addition (no 'position' key
+    at all -- every fixture above this section in the file) must render BYTE-IDENTICAL
+    to before. This is the SAME pinned string test_single_arg_call_is_byte_for_byte_
+    unaffected_by_the_extension already asserts -- re-asserted here under this
+    section's own name so a future reviewer sees the T3 addition was proven additive,
+    not just the B2c one."""
+    line = fb.render_twin_lines(_HEALTHY_DATA)[0]
+    assert line == ("- TWIN: last tick 2026-07-11T22:00:00 (42 today), last_action=HOLD, "
+                    "breaker=OK, account=LIVE, orders=3 lifetime.")
+    assert "LONG" not in line and "flat" not in line and "|" not in line
+
+
+def test_format_position_suffix_empty_or_missing_renders_nothing():
+    assert fb._format_position_suffix(None, None) == ""
+    assert fb._format_position_suffix({}, None) == ""
+
+
+def test_format_position_suffix_malformed_status_renders_nothing_not_a_guess():
+    """OP-33: an unrecognized position_status must say nothing rather than guess."""
+    assert fb._format_position_suffix({"position_status": "short"}, None) == ""
+
+
+def test_format_position_suffix_long_exact_text():
+    """LONG FIXTURE, exact text (RED-proofs the render): qty to 4dp, entry price
+    comma-grouped whole dollars, signed 2dp percent, 1dp minutes."""
+    s = fb._format_position_suffix(_LONG_POSITION, None)
+    assert s == " | twin: LONG 0.0024 BTC @62,890 (+0.17%), 12.0min in trade"
+
+
+def test_format_position_suffix_long_missing_numeric_fields_renders_placeholders():
+    """A partially-populated long position (e.g. current_mid not yet resolved) must
+    render honest '?'/'n/a' placeholders, never crash or fabricate a number."""
+    partial = dict(_LONG_POSITION, qty=None, current_mid=None, current_mid_source=None,
+                   unrealized_pct=None, time_in_trade_min=None)
+    s = fb._format_position_suffix(partial, None)
+    assert s == " | twin: LONG ? BTC @62,890 (n/a), ? min in trade"
+
+
+def test_format_position_suffix_flat_with_last_trade_exact_text():
+    """FLAT FIXTURE, exact text: realized pct signed 2dp, UTC-labeled HH:MM (twin
+    ledgers are UTC-native -- never silently rendered as if it were ET)."""
+    s = fb._format_position_suffix(_FLAT_POSITION, _LAST_TRADE)
+    assert s == " | twin: flat, last trade -0.10% @16:34 UTC"
+
+
+def test_format_position_suffix_flat_no_trades_ever():
+    s = fb._format_position_suffix(_FLAT_POSITION, None)
+    assert s == " | twin: flat, no closed trades yet"
+
+
+def test_format_position_suffix_flat_ignores_last_trade_missing_realized_pct():
+    """A CLOSED-only last_trade (no EXIT_FILLED ever captured -- realized_pct honestly
+    None) must fall back to the 'no closed trades yet' phrasing rather than print a
+    fabricated 'None%'."""
+    lt = {"ts": "t1", "side": "long", "realized_usd": None, "realized_pct": None}
+    s = fb._format_position_suffix(_FLAT_POSITION, lt)
+    assert s == " | twin: flat, no closed trades yet"
+
+
+def test_render_twin_lines_long_position_renders_suffix():
+    data = dict(_HEALTHY_DATA, position=_LONG_POSITION)
+    line = fb.render_twin_lines(data)[0]
+    assert line.endswith(" | twin: LONG 0.0024 BTC @62,890 (+0.17%), 12.0min in trade")
+    assert line.startswith("- TWIN: last tick")  # base line untouched, suffix only appended
+
+
+def test_render_twin_lines_flat_with_last_trade_renders_suffix():
+    data = dict(_HEALTHY_DATA, position=_FLAT_POSITION, last_trade=_LAST_TRADE)
+    line = fb.render_twin_lines(data)[0]
+    assert line.endswith(" | twin: flat, last trade -0.10% @16:34 UTC")
+
+
+def test_render_twin_lines_position_suffix_stays_before_last_error():
+    """LAST ERROR must remain the loudest, TRAILING element even with the new position
+    suffix wired in -- mirrors the existing coverage-before-error invariant
+    (test_coverage_suffix_placed_before_last_error_which_still_appears_last)."""
+    data = dict(_HEALTHY_DATA, position=_LONG_POSITION, last_error="ConnectionError: simulated")
+    line = fb.render_twin_lines(data)[0]
+    assert line.index("twin: LONG") < line.index("LAST ERROR")
+    assert line.endswith("LAST ERROR: ConnectionError: simulated")
+
+
+def test_render_twin_lines_position_suffix_coexists_with_coverage_suffix():
+    """Both B2c's coverage suffix and T3's position suffix extend the SAME single line,
+    never fight over placement or drop one another."""
+    data = dict(_HEALTHY_DATA, position=_LONG_POSITION)
+    line = fb.render_twin_lines(data, {"branches": {"tp1_trail": {"status": "GREEN"}}})[0]
+    assert len(fb.render_twin_lines(data, {"branches": {"tp1_trail": {"status": "GREEN"}}})) == 1
+    assert "coverage:" in line
+    assert "twin: LONG" in line
+    assert line.index("coverage:") < line.index("twin: LONG")
+
+
+def test_build_brief_wires_a_real_open_position_into_the_footer_line(tmp_path, monkeypatch):
+    """Integration: build_brief() loads the REAL twin-health.json (not a hand-built
+    dict) and the position suffix survives the full load_json -> render_twin_lines ->
+    build_brief pipeline."""
+    (tmp_path / "twin-health.json").write_text(
+        json.dumps(dict(_HEALTHY_DATA, position=_LONG_POSITION)), encoding="utf-8")
+    monkeypatch.setattr(fb, "STATE", tmp_path)
+    brief = fb.build_brief({}, {}, [], _et(2026, 7, 11, 22, 0))
+    assert "twin: LONG 0.0024 BTC @62,890 (+0.17%), 12.0min in trade" in brief
+
+
 if __name__ == "__main__":
     import pytest
     raise SystemExit(pytest.main([__file__, "-v"]))
