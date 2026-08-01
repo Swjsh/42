@@ -17,6 +17,8 @@ with the exit_manager, (d) a broker error -> placed=False and NO exit registrati
 from __future__ import annotations
 
 import datetime as _dt
+import tempfile
+from pathlib import Path
 from types import SimpleNamespace
 
 import fleet_live as fl
@@ -30,6 +32,13 @@ def _stub_quotes(monkeypatch, mid=1.00, entry_px=1.08):
                         lambda creds, symbol, side="buy", buffer=0.03: entry_px)
     monkeypatch.setattr(fl.fb, "open_buy_orders", lambda creds, symbol: [])
     monkeypatch.setattr(fl.fb, "cancel_order", lambda *a, **k: {})
+    # ORDER-LEVEL IDEMPOTENCY GUARD (2026-08-02): this file is about the simple-first
+    # placement mechanics, not the guard -- stub its two broker primitives to "confirmed
+    # clear" and sandbox the claim file (see test_entry_idempotency_guard.py for the
+    # guard's own dedicated coverage).
+    monkeypatch.setattr(fl.fb, "open_buy_orders_checked", lambda creds, symbol: ([], True))
+    monkeypatch.setattr(fl.fb, "symbol_position_qty_checked", lambda creds, symbol: (0, True))
+    monkeypatch.setattr(fl, "FLEET_DIR", Path(tempfile.mkdtemp()))
 
 
 def test_place_live_simple_first_single_plain_limit(monkeypatch):

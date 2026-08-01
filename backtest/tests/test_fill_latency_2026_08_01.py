@@ -279,6 +279,13 @@ def test_place_live_returns_submit_ts_before_the_broker_post(monkeypatch, tmp_pa
     monkeypatch.setattr(fl.fb, "open_buy_orders", fake.open_buy_orders)
     monkeypatch.setattr(fl.fb, "cancel_order", fake.cancel_order)
     monkeypatch.setattr(fl.fb, "_request", fake.request)
+    # ORDER-LEVEL IDEMPOTENCY GUARD (2026-08-02): this file is about the submit_ts latency
+    # field, not the guard -- stub its two broker primitives to "confirmed clear" and
+    # sandbox the claim file (see test_entry_idempotency_guard.py for the guard's own
+    # dedicated coverage).
+    monkeypatch.setattr(fl.fb, "open_buy_orders_checked", lambda creds, symbol: ([], True))
+    monkeypatch.setattr(fl.fb, "symbol_position_qty_checked", lambda creds, symbol: (0, True))
+    monkeypatch.setattr(fl, "FLEET_DIR", tmp_path)
     monkeypatch.setattr(fl.ea, "FLEET_DIR", tmp_path)
     decision = fx.ArmDecision("risky-3", "ENTER_BEAR", "P", "BEARISH_REJECTION_RIDE_THE_RIBBON",
                               745, 5, 1.00, "BASE", "ALLOW", "test", trigger_level=None)

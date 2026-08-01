@@ -141,6 +141,13 @@ def _place_with(monkeypatch, exit_shape, mid=1.00):
     import tempfile
     from pathlib import Path
     monkeypatch.setattr(fl.ea, "FLEET_DIR", Path(tempfile.mkdtemp()))
+    # ORDER-LEVEL IDEMPOTENCY GUARD (2026-08-02): this file is about exit-shape selection,
+    # not the guard -- stub its two broker primitives to "confirmed clear" and sandbox the
+    # claim file the same way (see test_entry_idempotency_guard.py for the guard's own
+    # dedicated coverage).
+    monkeypatch.setattr(fl.fb, "open_buy_orders_checked", lambda creds, symbol: ([], True))
+    monkeypatch.setattr(fl.fb, "symbol_position_qty_checked", lambda creds, symbol: (0, True))
+    monkeypatch.setattr(fl, "FLEET_DIR", Path(tempfile.mkdtemp()))
     decision = fx.ArmDecision("risky-loose", "ENTER_BULL", "C", "BULLISH_RECLAIM_RIDE_THE_RIBBON",
                               600, 5, mid, "BASE", "ALLOW", "test")
     from datetime import datetime, timezone, timedelta

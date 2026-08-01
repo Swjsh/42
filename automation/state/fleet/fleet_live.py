@@ -176,6 +176,68 @@ def _load_prior_stops(arm_id: str, now: datetime) -> list[str]:
             and r.get("exit_reason") in ("premium_stop", "chart_stop", "ribbon_flip_back", "stop_market")]
 
 
+# --- ORDER-LEVEL IDEMPOTENCY GUARD (2026-08-02) -------------------------------------------
+# Closes the gap documented in analysis/deep-research/FLEET-RACE-AND-LATENCY-2026-08-01.md
+# section 3: the ONLY guard against a double-entry was run()'s POSITIONS-only `flat` check
+# (fb.is_flat_spy_options), which cannot see a still-WORKING order, and _place_live's old
+# stale-order cancel loop placed a fresh order unconditionally even when its own cancel
+# raced a fill at the broker. This is the LOCAL half of the fix (a short-TTL per-(arm,
+# symbol) claim file, consulted inline in _place_live below); the AUTHORITATIVE half (a
+# live broker open-orders query, fail-CLOSED on any query error) is
+# fleet_broker.open_buy_orders_checked / symbol_position_qty_checked. Deliberately mirrors
+# exit_actuator.same_bar_cooldown_active's claim-file shape/contract (same per-arm-file
+# pattern, same fail-OPEN-on-read-error contract -- a claim-file problem must never itself
+# block a legitimate entry; the broker query is what fails CLOSED). Guard:
+# test_entry_idempotency_guard.py.
+ENTRY_CLAIM_TTL_SEC = 180  # >= one full tick at today's 3-min cadence, several at the 1-min
+                           # candidate cadence; real fills resolve in ~0.1-0.2s (measured,
+                           # see the 2026-08-01 latency instrument) so this only needs to
+                           # bridge broker propagation lag, never a legitimate re-entry
+                           # minutes later (which requires an exit + a fresh trigger bar).
+
+
+def _claim_path(arm_id: str) -> Path:
+    d = FLEET_DIR / arm_id
+    d.mkdir(exist_ok=True)
+    return d / "entry-claim.json"
+
+
+def _claim_active(arm_id: str, symbol: str, now: datetime,
+                  ttl_sec: float = ENTRY_CLAIM_TTL_SEC) -> bool:
+    """True iff an unexpired entry claim already exists for this EXACT (arm, symbol) --
+    the FAST, local, broker-independent half of the idempotency guard (covers two ticks
+    landing inside one short signal window without waiting on broker propagation). Fail-
+    OPEN (False) on any missing/corrupt file or unparseable timestamp -- a claim-file
+    problem must never itself block a legitimate entry; the broker-side query in
+    _place_live is the fail-CLOSED authority."""
+    path = _claim_path(arm_id)
+    if not path.exists():
+        return False
+    try:
+        rec = json.loads(path.read_text(encoding="utf-8"))
+        if str(rec.get("symbol")) != symbol:
+            return False
+        claimed_at = datetime.fromisoformat(str(rec["claimed_at_et"]))
+        if claimed_at.tzinfo is None:
+            claimed_at = claimed_at.replace(tzinfo=ET)
+        age = (now - claimed_at).total_seconds()
+        return 0 <= age < ttl_sec
+    except (OSError, json.JSONDecodeError, KeyError, ValueError, TypeError):
+        return False
+
+
+def _write_claim(arm_id: str, symbol: str, now: datetime) -> None:
+    """Reserve the entry claim BEFORE the broker POST. Best-effort/fail-safe: a write
+    error here must never abort an otherwise-clean entry -- the broker-side open-orders
+    check on the NEXT tick remains the backstop if this local marker is lost."""
+    try:
+        _claim_path(arm_id).write_text(
+            json.dumps({"symbol": symbol, "claimed_at_et": now.isoformat()}),
+            encoding="utf-8")
+    except OSError:
+        pass
+
+
 _select_plan = fx.select_plan  # canonical one-position selection (REGISTRY-priority), shared
 
 
@@ -319,6 +381,7 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
     qty = decision.qty
     expiry = now  # 0DTE
     symbol = _occ_symbol(side, strike, expiry)
+    arm_id = str(arm.get("id") or "unknown")
     mid = fb.get_option_mid(creds, symbol)
     # MARKETABLE-LIMIT (#15): a limit @ mid rarely crosses on 0DTE -> the "zero fills ever" bug.
     # Price the ENTRY at ask+buffer so it actually fills; mid stays the base for the TP/stop pct
@@ -327,11 +390,56 @@ def _place_live(creds: dict, arm: dict, decision, exit_shape: dict | None,
                                          buffer=float(params.get("entry_cross_buffer", 0.03)))
     if mid is None or mid <= 0 or entry_px is None or entry_px <= 0:
         return {"mode": "LIVE", "placed": False, "reason": f"no quote for {symbol}"}
-    # CANCEL-REPLACE (#15): clear any stale never-crossed BUY limit on this symbol from a prior
-    # tick before placing a fresh marketable one (prevents a pile of dead pendings).
-    for _o in fb.open_buy_orders(creds, symbol):
-        if _o.get("id"):
-            fb.cancel_order(creds, _o["id"], live=True)
+
+    # ORDER-LEVEL IDEMPOTENCY GUARD (2026-08-02, closes the gap in FLEET-RACE-AND-LATENCY-
+    # 2026-08-01.md section 3). run()'s `flat` gate (fb.is_flat_spy_options, POSITIONS-only)
+    # was read once, earlier, BEFORE this arm's exit-management pass / premium pre-fetch /
+    # decide_arm -- real wall-clock time elapses between that read and this POST, and a
+    # still-WORKING order from a prior tick is invisible to a positions-only query anyway.
+    # Two layers, EITHER refusing is sufficient (fail CLOSED for placement -- a missed entry
+    # is cheap, a double entry is not). This function is ENTRY-only: every return below is a
+    # WATCH/SKIP row, never touches exits or the kill-switch (those are gated upstream in
+    # run(), untouched by this block).
+    #   LAYER 1 -- claim file (local, no network): an unexpired claim for this EXACT (arm,
+    #     symbol) refuses outright before ever reaching the broker.
+    if _claim_active(arm_id, symbol, now):
+        return {"mode": "LIVE", "placed": False, "reason": "SKIP_DUPLICATE_CLAIM",
+                "detail": f"entry claim already active for {symbol}"}
+    #   LAYER 2 -- broker open-orders query (authoritative). A query FAILURE refuses too
+    #     (uncertain state -> no placement). open_buy_orders_checked / symbol_position_qty_
+    #     checked are DISTINCT from open_buy_orders / is_flat_spy_options (which fail OPEN to
+    #     []/True -- correct for their original read-only/maintenance uses, wrong for a
+    #     placement gate) specifically so this guard can tell "confirmed empty" apart from
+    #     "broker didn't answer".
+    pending, ok = fb.open_buy_orders_checked(creds, symbol)
+    if not ok:
+        return {"mode": "LIVE", "placed": False, "reason": "SKIP_ORDER_QUERY_ERROR",
+                "detail": f"could not confirm no pending BUY order for {symbol}"}
+    if pending:
+        # CANCEL-REPLACE (#15, hardened 2026-08-02): clear stale never-crossed BUY limit(s)
+        # on this symbol, but RE-VERIFY before proceeding -- a blind cancel-then-place was
+        # the exact cancel-vs-fill race this guard exists to close (a cancel that raced a
+        # fill must refuse here, never stack a second order on top of the fill).
+        for _o in pending:
+            if _o.get("id"):
+                fb.cancel_order(creds, _o["id"], live=True)
+        still_open, ok2 = fb.open_buy_orders_checked(creds, symbol)
+        if not ok2:
+            return {"mode": "LIVE", "placed": False, "reason": "SKIP_POST_CANCEL_QUERY_ERROR",
+                    "detail": f"could not re-verify {symbol} after cancel"}
+        if still_open:
+            return {"mode": "LIVE", "placed": False, "reason": "SKIP_ORDER_STILL_OPEN_AFTER_CANCEL",
+                    "detail": f"{len(still_open)} BUY order(s) survived the cancel attempt"}
+        held_qty, ok3 = fb.symbol_position_qty_checked(creds, symbol)
+        if not ok3:
+            return {"mode": "LIVE", "placed": False, "reason": "SKIP_POST_CANCEL_POSITION_QUERY_ERROR",
+                    "detail": f"could not confirm flat on {symbol} after cancel"}
+        if held_qty > 0:
+            return {"mode": "LIVE", "placed": False, "reason": "SKIP_CANCEL_RACED_FILL",
+                    "detail": f"{symbol} shows {held_qty} filled contract(s) -- cancel raced a fill"}
+    # Reserve the claim BEFORE the broker POST (defense in depth, independent of the
+    # broker's own propagation timing -- see LAYER 1 above).
+    _write_claim(arm_id, symbol, now)
 
     ex = exit_shape or {}
     # TP1 from the strategy's exit shape (positive pct); fall back to params, then +30%.

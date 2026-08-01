@@ -51,6 +51,13 @@ def _place_with(monkeypatch, exit_shape, *, params, mid=1.00, trigger_level=None
     monkeypatch.setattr(fl.fb, "open_buy_orders", fake.open_buy_orders)
     monkeypatch.setattr(fl.fb, "cancel_order", fake.cancel_order)
     monkeypatch.setattr(fl.fb, "_request", fake.request)
+    # ORDER-LEVEL IDEMPOTENCY GUARD (2026-08-02): this file is about stop-display rendering,
+    # not the guard -- stub its two broker primitives to "confirmed clear" and sandbox the
+    # claim file, exactly like ea.FLEET_DIR is sandboxed below (see
+    # test_entry_idempotency_guard.py for the guard's own dedicated coverage).
+    monkeypatch.setattr(fl.fb, "open_buy_orders_checked", lambda creds, symbol: ([], True))
+    monkeypatch.setattr(fl.fb, "symbol_position_qty_checked", lambda creds, symbol: (0, True))
+    monkeypatch.setattr(fl, "FLEET_DIR", Path(tempfile.mkdtemp()))
     monkeypatch.setattr(fl.ea, "FLEET_DIR", Path(tempfile.mkdtemp()))
     decision = fx.ArmDecision("risky-loose", "ENTER_BEAR", "P", "BEARISH_REJECTION_RIDE_THE_RIBBON",
                               745, 5, mid, "BASE", "ALLOW", "test", trigger_level=trigger_level)

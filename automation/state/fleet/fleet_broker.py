@@ -318,6 +318,28 @@ def open_buy_orders(creds: dict[str, str], symbol: str) -> list:
             if str(o.get("symbol")) == symbol and str(o.get("side")) == "buy"]
 
 
+def open_buy_orders_checked(creds: dict[str, str], symbol: str) -> "tuple[list, bool]":
+    """ORDER-LEVEL IDEMPOTENCY GUARD (2026-08-02) primitive. Returns (orders, ok):
+    ok=False means the query ITSELF failed/returned something unparseable -- the caller
+    MUST NOT treat that the same as a confirmed-empty list. Deliberately DISTINCT from
+    open_buy_orders (which fails OPEN to [] -- correct for that function's original
+    cancel-replace MAINTENANCE use, where 'unknown' was historically treated as 'nothing
+    to cancel', a harmless interpretation for a no-op cleanup step). This variant exists
+    because fleet_live._place_live's entry guard must fail CLOSED on an unreadable broker
+    response (uncertain state -> no placement -- a missed entry is cheap, a double entry
+    is not), which open_buy_orders's collapsed-to-[] contract cannot express. Never raises
+    -- any exception from the request itself is caught and reported as ok=False, same as a
+    malformed response."""
+    try:
+        res = _request(creds, "orders?status=open&limit=100&nested=false")
+    except Exception:  # noqa: BLE001 -- a guard primitive must never crash the caller's tick
+        return [], False
+    if not isinstance(res, list):
+        return [], False
+    return [o for o in res
+            if str(o.get("symbol")) == symbol and str(o.get("side")) == "buy"], True
+
+
 def open_sell_orders(creds: dict[str, str], symbol: str) -> list:
     """Open (un-filled/still-resting) SELL orders for this exact OCC symbol.
 
@@ -347,6 +369,29 @@ def get_position_qty(creds: dict[str, str], symbol: str) -> int:
             except (TypeError, ValueError):
                 return 0
     return 0
+
+
+def symbol_position_qty_checked(creds: dict[str, str], symbol: str) -> "tuple[int, bool]":
+    """ORDER-LEVEL IDEMPOTENCY GUARD (2026-08-02) primitive, the position-side twin of
+    open_buy_orders_checked. Returns (qty, ok): ok=False means the positions query itself
+    failed/returned something unparseable -- the caller MUST NOT read that as '0 = flat'.
+    Distinct from get_position_qty (which fails OPEN to 0 -- correct for the exit manager's
+    per-tick re-derivation, which simply re-tries every minute regardless). Used by
+    fleet_live._place_live's post-cancel re-verify, which must fail CLOSED (refuse to
+    place) when it cannot confirm the cancel didn't race a fill. Never raises."""
+    try:
+        res = _request(creds, "positions")
+    except Exception:  # noqa: BLE001 -- a guard primitive must never crash the caller's tick
+        return 0, False
+    if not isinstance(res, list):
+        return 0, False
+    for p in res:
+        if str(p.get("symbol")) == symbol:
+            try:
+                return abs(int(float(p.get("qty", 0)))), True
+            except (TypeError, ValueError):
+                return 0, True
+    return 0, True
 
 
 def market_sell(creds: dict[str, str], *, symbol: str, qty: int, live: bool) -> dict:
