@@ -1,3 +1,77 @@
+## [2026-08-01 14:32 ET] SHIPPED -- WEEKEND-TWELVE Next-Twelve #3: shared-index absorption guard + 2 WS4 lessons (Next-Twelve #12 lesson half)
+
+**Guard shipped, not just proposed.** 5 confirmed shared-index-absorption incidents in one
+night (`482a662a`, `da18da34`, `a363bd5f`, `be9c1b58`, `90fd1e40` -- full per-incident detail
+in `strategy/candidates/_lesson-inbox/2026-08-01-shared-index-absorption-between-parallel-lanes.md`)
+close with a helper + a fail-open hook tripwire, both guard-tested and RED-proofed.
+
+- **`setup/scripts/commit_scoped.py "<message>" <path> [<path>...]`** -- pathspec-scoped
+  add+commit (`git add -- <paths>` then `git commit -m <msg> -- <paths>`). Empirically
+  VERIFIED, not assumed: `git commit -- <paths>` makes git build a TEMPORARY, pathspec-scoped
+  index for the duration of the commit (hooks included -- confirmed by inspecting
+  `GIT_INDEX_FILE` in an isolated sandbox repo: it points at a `.git/next-index-*.lock`
+  file, and `git diff --cached` inside the hook sees ONLY the named paths), so a foreign
+  staged file is structurally invisible to a scoped commit, not just conventionally
+  excluded. A bare `git commit` has no such scoping -- confirmed the same sandbox reproduces
+  the absorption bug on demand when no pathspec is given.
+- **`setup/git-hooks/pre-commit` extended** (found via `setup/install-git-hooks.ps1` +
+  `backtest/tests/run_safety_gate.py` -- did NOT replace either), new WARN-ONLY, fail-open
+  tripwire: if the staged set at commit time spans more than one top-level directory group,
+  print a loud stderr warning pointing at `commit_scoped.py` and append a line to
+  `automation/state/commit-scope-warnings.jsonl`. Never blocks -- verified exit 0 in every
+  tested scenario. Adds negligible time (pure shell/git-plumbing, no python startup); full
+  curated gate re-measured 7.3-8.8s before and after this addition, consistent with normal
+  run-to-run noise.
+- **Guard test `backtest/tests/test_commit_scoped.py`** -- 9 tests, real throwaway-git-repo
+  fixtures (same pattern as `test_verify_committed.py`). RED-proofed by hand: temporarily
+  reverted the helper's commit step to a bare `git commit` -- 5/9 tests failed with the
+  foreign file visibly swept into the commit (the exact bug, reproduced on demand);
+  restored, 9/9 green. **Deliberately excluded from the curated per-commit gate** (measured
+  cost across 2 A/B runs: 7.3-8.5s -> 12.6-13.1s with it added, +4.5-5s -- breaks the gate's
+  own "keep FAST, every commit" contract even though it is the same shape as the
+  already-curated `test_verify_committed.py`). Still runs under `--full` / CI. Documented
+  inline in `run_safety_gate.py` with the measured numbers so a future session doesn't add
+  it reflexively without re-measuring.
+- **Real bug caught mid-build, before it ever touched the live repo:** the hook's first
+  draft used a shell variable literally named `GROUPS` for the top-level-directory count --
+  collides with bash's special read-only `GROUPS` builtin (the current user's Unix group-id
+  list). Assignments to it silently no-op per the bash manual, so the count always read back
+  as a constant (197609 on this box, the real GID) regardless of actual input, which would
+  have made the tripwire fire on EVERY commit unconditionally -- noise indistinguishable
+  from signal, worse than not shipping it. Caught via isolated sandbox-repo testing (4
+  scenarios: bare 1-dir no-warn, bare 2-dir warn, pathspec-scoped multi-dir
+  warn-but-no-foreign-sweep, live absorption repro) before touching the real hook; fixed by
+  renaming to `N_TOPDIRS` and switching to pure `set --`/`$#` shell builtins (no `wc` /
+  second `sort` at all), re-verified correct across all 4 scenarios against the actual
+  installed hook.
+- **3 lesson-inbox items filed:**
+  `2026-08-01-shared-index-absorption-between-parallel-lanes.md` extended from its original
+  1 incident to all 5 + the shipped fix (was "candidate for a graduated guard," now built);
+  plus WS4's 2 lessons named in the WEEKEND-TWELVE synthesis (Next-Twelve #12) --
+  `2026-08-01-filters-py-demerit-vanishes-under-raw-disable-filters.md` (`filters.py:1653-1664`'s
+  trendline demerit only charges `if 5 in blockers`, so a raw `disable_filters=[5]` silently
+  un-demerits a trendline-only setup -- disclosed in WS4's own output, verdict unaffected)
+  and `2026-08-01-frozen-cache-view-required-during-concurrent-backfill.md` (WS4's
+  `freeze_contract_cache` fix for a concurrent OPRA backfill mutating the shared contract
+  cache mid-study -- same shared-mutable-state-race family as the git absorption bug, one
+  layer down the stack).
+- **Known limitation, disclosed not hidden:** incident 4 (`be9c1b58`) is a same-FILE
+  concurrent-edit case (two lanes editing different lines of `SCHEDULED-TASKS.md` inside the
+  same commit) -- pathspec-scoped commit does NOT fully close this sub-case, since the
+  working-tree file itself may already carry both edits before either session stages it.
+  Documented as an open gap in the extended lesson item, not oversold as solved.
+- **Doctrine pointer added:** `markdown/doctrine/fable-judgment/03-EXECUTION.md` E3 (already
+  named this class of bug from an earlier collision, pointed only at a bare
+  `git commit --only` flag with no standing tooling behind it -- now points at the concrete
+  helper + hook).
+
+Zero trading-path files touched. Rail: doctrine/tooling only (a git hook + a repo-ops
+script + its guard test + 3 lesson-inbox docs + one markdown doctrine pointer) -- no
+`params.json` / `heartbeat_core.py` / `filters.py` production semantics changed (the
+filters.py demerit finding is DISCLOSED-ONLY per WS4's own already-NULL verdict, nothing
+touched here). Revert: `git revert <this commit>` (single pathspec commit, made via
+`commit_scoped.py` itself as this fire's own smoke test).
+
 ## [2026-08-01 13:21 ET] NULL (deliverable) -- WS4 (WEEKEND): PAIRED RIBBON A/B -- the ribbon question is now CLOSED BOTH WAYS
 
 **The only honest "loosen the ribbon" left -- relax filter 5 at ENTRY + suppress ribbon_flip_back
@@ -578,324 +652,4 @@ backtest\.venv\Scripts\pythonw.exe setup\scripts\shadow_signal_audit.py`. Re-reg
 
 ---
 
-## [2026-07-31 ~17:30-18:30 ET] OK -- filter-5 (ribbon MA-stack) fate lane: MEASURED, **NULL**, gate STAYS, zero net hot-path change
-
-> **Signal J wakes to (OP-25).** Filter 5 -- the ribbon MA-stack veto that blocked all 5 live
-> arms on your 10:15 bounce Friday -- has now been **measured over 390 trading days on real
-> OPRA fills**. Verdict: **NULL. It is not costing you money. It is also not earning any.**
-> It stays, and three future re-litigations of it are now closed.
-
-- **Provenance finding (stated before measuring):** filter 5 had **NO ratification scorecard**.
-  `git log -S'blockers.append(5)'` returns one squashed snapshot commit; all 36 `ribbon-*` /
-  `filter-*` scorecards tune ADJACENT knobs or test bypasses OF it -- none ever armed it. It was
-  inherited doctrine, not evidence-armed. It now has a measurement either way.
-- **Cohort A (what it blocks alone, `blockers == [5]`):** **173 bull bars / 77 days + 76 bear bars
-  / 42 days** full history; **28 bull + 24 bear** bars over the recent 25 days.
-  **[CORRECTED 2026-07-31 evening -- these were first reported at exactly 2x.** The capture
-  monkeypatch patches both `lib.orchestrator` and `lib.engine.score`, and the per-bar parity
-  cross-check drives every bar through both, so each bar was recorded twice. DAY counts were
-  never wrong, which is why it survived review. Deduped at source (`Blockers5Capture`), guarded
-  + RED-proofed by `backtest/tests/test_filter5_capture_no_double_count.py`. **Descriptive only
-  -- no gate, delta or verdict depended on these numbers.]**
-- **The measurement (pre-reg frozen 17:34 ET, before any run):** deleting filter 5 outright ->
-  full-window **+$738.60**, recent-25-day **-$68.00**. G2 and G3 fail; G4 (runner-anchor) and G5
-  (fire count) pass. **NULL -- the gate stays.**
-- **G1 (the PRIMARY gate) is UNDETERMINED, not FAIL. [CORRECTED.]** OPRA coverage collapses after
-  2026-07-22 -- ~22-30 cached contracts/day through 07-22, then **3 / 0 / 0 / 2 / 3 / 0 / 4**, with
-  **three recent-window trading days (07-24, 07-27, 07-30) at ZERO coverage.** ARM_A adds **7 raw
-  entries** in the decisive recent window and **only 3 are measurable**; all 4 unpriceable ones sit
-  in the newest week -- exactly the days your dynamic-market directive weights hardest. G1 is a
-  strict sign test on that sum, and the 4 missing entries would only need to average **+$17.00**
-  each to flip it. **The verdict is unchanged either way** -- UNDETERMINED is not a PASS, G2/G3
-  fail on measured data, so no arm passes and filter 5 stays. **This is a GAP in the evidence, not
-  a refutation.** An OPRA backfill is the one input that would settle it. Window-stratified
-  exclusion table is now in the scorecard JSON + MD.
-- **The headline was an artifact, and the harness caught it.** Of that +$738.60, only **+$103.60**
-  came from the 21 trades filter 5 was actually blocking (**+$4.93/trade, and -$437 once the
-  single best trade is dropped**). The other **+$635 (86%)** is 8 CONTROL trades that merely
-  VANISH because an unlocked earlier entry ate the one-position slot -- **6 of 6** dropped days
-  also carry an added trade. That is sequencing luck, not evidence about the gate.
-- **⭐ THE FINDING WORTH MORE THAN THE NULL -- filter 5 is largely REDUNDANT with the ribbon-flip
-  EXIT.** **76.2% of the trades the deletion unlocks exit on `ribbon_flip_back` (n=16), against
-  9.9% of the control book (n=19)** -- the control book's own dominant exit is `premium_stop` at
-  48.7%. The entry veto and the exit rule read the SAME lagging ribbon, so a setup admitted
-  against a non-stacked ribbon is closed by that ribbon within minutes; the block-set never gets
-  a chance to be right or wrong, it gets round-tripped. **This PRE-REFUTES any future "loosen the
-  ribbon" that moves only the entry gate** -- it will null the same way, for this mechanism, no
-  matter how the entry gate is scoped. The only version worth running is the PAIRED one: relax
-  the entry gate AND suppress the ribbon-flip exit for the same cohort, in ONE pre-registered
-  change. **That paired arm has never been measured.** (L243's shape, on the exit side.)
-- **Cross-lane fact: deleting filter 5 does NOT recover your 10:15 Friday long -- and here is the
-  honest reason. [CORRECTED.]** The earlier line "zero trades on 2026-07-31 in ANY arm" was true
-  only of the WALKED book. **ARM_A DID produce a 07-31 09:50 entry (`SPY260731P00742000`,
-  level_rejection + confluence @ 742.45) -- it was dropped for a MISSING OPRA CONTRACT, not by a
-  gate.** Reporting an excluded-for-missing-data entry as "blocked by gating" is the C7
-  silent-success shape this rig keeps getting burned by. **The conclusion survives on better,
-  actual gating evidence:** under ARM_A the 10:20 bar fires `BULLISH_RECLAIM_RIDE_THE_RIBBON`
-  with triggers `[level_reclaim, confluence]` at level 738.85 and is refused with blockers
-  `[BLOCK_ELITE_BULL]`, action `SKIP_ELITE_BULL_LEVEL_RECLAIM` -- one of **8 BLOCK_ELITE_BULL
-  refusals on that single day** (11 named gate refusals total: 8 elite-bull, 2 level-rejection,
-  1 bull-1100-1200). **Filter 5 was the first veto in a stack, not the binding one.**
-  Whoever holds the `block_elite_bull` lane owns the rest of that chain. Walked-vs-excluded-vs-
-  refused is now separated by construction in the scorecard (`day_forensics_2026_07_31`).
-- **ARM_C (structure-shift replacing the ribbon) was NOT re-run** -- exactly that semantics
-  already nulled on 2026-07-28 (`structure-shift-cascade-ab-2026-07-28.json`, delta -$46,
-  g1/g3/g4/g5 FAIL). Cited, not silently skipped.
-- **Net code change: ZERO.** A scoped level-anchored bypass flag (ARM_B) was built, guard-tested,
-  RED-proofed against 3 mutants and run -- it measured **byte-identical to outright deletion**
-  (229 entries, same 21 added / 8 dropped), because when the ribbon is not BULL-stacked
-  `detect_ribbon_flip_bullish` cannot fire, so every filter-5-blocked bull setup is level-anchored
-  BY CONSTRUCTION. Provably redundant + nulled -> **the flag was reverted out of `filters.py`**
-  rather than left as a dead default-off knob in the repo's most consumer-heavy hot-path file
-  (C14). `git diff backtest/lib/filters.py` is empty. ARM_A reproduces the whole finding using an
-  existing production kwarg.
-- **Artifacts:** pre-reg `analysis/recommendations/prereg-filter5-ribbon-2026-07-31.json` ·
-  scorecard `analysis/recommendations/filter5-ribbon-2026-07-31.json` / `.md` ·
-  runner `backtest/tools/filter5_ribbon_fate_2026_07_31.py` ·
-  lesson inbox `strategy/candidates/_lesson-inbox/2026-07-31-gate-ab-delta-dominated-by-preemption-not-the-block-set.md`.
-
-## [2026-07-31 ~09:12-09:35 ET] OK -- conductor (AFTERHOURS): LIVE TV-CDP outage fixed pre-open + self-heal blind-spot closed, commit `c941567c`
-
-> **STAGE 0/1:** ET 09:12 Friday (pre-open, market closed until 09:30). Budget gate
-> PROCEED ($11.44/$30, 2/4 fires). `self-check-last.json` showed `BROKEN`: TV-CDP
-> unreachable on :9222, ~18 min before market open. Per STAGE-1 priority-1/2
-> (function-first / Engine RED), investigated + fixed first before anything else.
-
-> **LIVE-VERIFIED (OP-33), not guessed:** `curl :9222/json/version` confirmed CDP
-> genuinely down. `Gamma_TvWatchdog` log showed it had ALREADY tried to self-heal twice
-> (RELAUNCH_KILL at 09:05 and 09:10 ET, `CDP dead for 3896s` -> `4196s` -- growing, not
-> shrinking) -- both attempts silently failed with no distinguishing signal from a
-> successful relaunch. Manual `taskkill /F /IM TradingView.exe` + relaunch fixed it live
-> (`curl` now returns a valid CDP payload, `self_check.py` flipped `BROKEN` -> `DEGRADED`).
-
-> **ROOT GAP (C7 silent-success-is-failure):** `Invoke-TvLaunchSafe` (`_shared.ps1`)
-> returned only `{skipped}` -- no signal whether the relaunch it just ran actually
-> restored CDP. `run-tv-watchdog.ps1`'s 3 call sites logged the identical `relaunch_kill`
-> shape whether the fix worked or not, so a genuinely-failing self-heal looked the same
-> in STATUS.md as a working one for 70+ minutes until an unrelated producer
-> (`self_check.py`) caught it independently.
-
-> **FIX SHIPPED:** `Test-CdpReady` poll helper + `Invoke-TvLaunchSafe` now self-verifies
-> post-launch and returns `{skipped, healed}`; the 3 watchdog call sites branch into
-> `*_healed` / `*_FAILED` tvActions, and a `*_FAILED` outcome writes a distinct
-> append-only `### BROKEN:` STATUS.md block instead of blending into routine noise.
-> **Also closed a separate small gap while touching this file:** `test_tv_launch_safe_
-> 2026_07_06.py` existed on disk (dated 2026-07-06) but had NEVER been `git add`-ed
-> (L242-shape) -- committed it now alongside the new assertions it needed anyway.
-
-> **Verified (OP-33):** 7/7 tv-launch-safe tests green (incl. 2 new), 40/40 related
-> infra-watchdog suite green, 59/59 curated safety gate green. Live CDP re-confirmed up
-> AFTER the code change (not just before). `git show c941567c --stat --name-status`
-> confirms exactly the 3 intended files (L247 discipline).
-
-> **Open question, logged not chased further (debugging-discipline discipline):** WHY
-> the 09:05/09:10 production relaunches failed while 2 manual reproductions of the
-> identical code path (same Interactive-logon task principal) both succeeded minutes
-> later was not fully root-caused -- ruled out AppX-query flakiness (5/5 manual reps
-> clean) and window-station mismatch (principal confirmed Interactive). The shipped fix
-> makes a recurrence LOUD regardless of the underlying mechanism, which is the
-> higher-leverage response; chasing the exact intermittent trigger further was not a
-> good use of this fire's budget. Lesson filed:
-> `_lesson-inbox/tv-selfheal-silent-failure-2026-07-31.md` (also flags
-> `Invoke-LevelRefreshSafe` + `state_freshness_selfheal.py` as worth auditing for the
-> same verify-the-effect-not-just-the-attempt gap).
-
-> **Scope + revert:** 2 infra scripts + 1 test file. Zero params/heartbeat_core/filters/
-> placement/exit/CLAUDE.md touched. Revert: `git revert c941567c`.
-
----
-
-## [2026-07-31 ~05:30-05:57 ET] OK -- conductor (AFTERHOURS): 4 un-actioned self-audit batches triaged + closed, commit `aed731f2`
-
-> **STAGE 0/1:** ET 05:30 Friday (market closed). Budget gate PROCEED ($10.78/$30, 1/4 fires).
-> `engine-health.json` clean (14 GREEN, gex_archive 1-day interior-gap YELLOW non-critical,
-> no RED). `self-check-last.json` GREEN. STAGE-1 priority order: function-first (fill-funnel)
-> clean, no Engine RED -- landed on priority-3, self-audit gaps: `analysis/self-audit/
-> new-gaps-flagged.md` had 4 CONSECUTIVE un-triaged daily-swarm batches (2026-07-26 through
-> 2026-07-29, ~32 lines), the longest un-actioned backlog since this pipeline started
-> (normal cadence closes same-day or next-day).
-
-> **Live-verified every substantive claim rather than re-deriving (OP-33):** the recurring
-> "conductor firing far more than max_fires" line (named in 3 of the 4 batches) was already
-> root-caused and fixed 2026-07-29 (commit `631798f0`, cross-midnight substring bug in
-> `conductor_budget.py::spend_today`) -- re-confirmed live this fire (`PROCEED $10.78/$30,
-> 1/4 fires`, correct for today). "Claude-native task governance requires manual
-> intervention / hard-stop risk" -- read `audit_scheduled_tasks.py` live: read-only,
-> fail-open, surfaces to STATUS.md only, no hard-stop code path exists. "Auto-commit of
-> strategy/candidates without validation creates noise" (appeared twice) -- read
-> `auto_commit_candidates.py` live: scoped to `strategy/candidates/` only, pathspec (never
-> `-A`), fail-open, fires at >=10 pending changes; live `git status --porcelain
-> strategy/candidates` showed only 2 pending -- working as designed, not a noise source.
-> "No live-to-paper shadow mode while RED-blocked" -- already built (TRADE-TO-LEARN,
-> CLAUDE.md rail-4). "Git commits abused as a runtime config toggle (DO_NOT_ARM/FROZEN)" --
-> grepped every hit across `setup/scripts`+`backtest/autoresearch`: all are `FROZEN_CONFIG`
-> frozen-dataclasses (C1 no-repick discipline) or anchor-freeze comments -- no such code
-> path exists, this was a misread. "Correlated arm signals not filtered" -- already
-> detected+disclosed via `trade_to_learn_digest.py`'s `cross_setup_same_day_side` (confirmed
-> live in the 2026-07-30 LICENSE-MONITOR STATUS entry's own "WARNING CORRELATED" line).
-
-> **Disposition:** every substantive claim across all 4 batches was either already fixed,
-> already built, or intentional doctrine -- zero new code needed. Wrote 4 `<!-- DONE -->`
-> triage blocks (one per batch, citing the live evidence above) so the next fire doesn't
-> re-derive this. Doc-only commit (`analysis/self-audit/new-gaps-flagged.md`, +132/-0),
-> curated safety gate 59/59 PASS at commit time. No params/heartbeat_core/filters/placement/
-> exit/CLAUDE.md touched -- outside rail-4's scope entirely (pure analysis-log append).
-> Revert: `git revert aed731f2`.
-
----
-
-## [2026-07-31 ~00:59-01:15 ET] OK -- conductor (AFTERHOURS): STATE-FRESHNESS-SILENT-TASK-STALL-SELFHEAL closed, commit `33a42102`
-
-> **STAGE 0/1:** ET 01:00 Friday (market closed). Budget gate PROCEED ($0/$30, 0/4 fires).
-> `engine-health.json` showed 1 RED at fire start: `state_freshness` -- 3/17 live-path state
-> files STALE (`trade-today.json`, `pnl-statement.json`, `ema-snapshot.json`). Per STAGE-1
-> priority-2 (Engine RED), investigated first.
-
-> **FOUND, live-verified (OP-33, not guessed):** `Gamma_TradeToday` / `Gamma_BrokerFills` /
-> `Gamma_EmaSnapshot` all last fired 2026-07-29 despite `Enabled=True`/`State=Ready`/
-> `LastTaskResult=0` (their last run succeeded), no hung process anywhere on the box
-> (`Win32_Process` sweep clean), no reboot (`LastBootUpTime` 2026-07-17), `Schedule` service
-> `Running` the whole time, `NumberOfMissedRuns` nonzero (195/43/1 -- Task Scheduler itself
-> knew it missed occurrences) and a manual `Start-ScheduledTask` succeeded immediately. A
-> wider `Get-ScheduledTaskInfo` sweep found ~17 more `Gamma_*` tasks in the identical
-> last-ran-2026-07-29 shape (trigger times spanning 07:46-15:30 local) while dozens of OTHER
-> tasks -- including 1-min-cadence `Gamma_HeartbeatCore` -- fired normally all through
-> 2026-07-30, ruling out a machine-wide sleep/reboot/AV cause. **Root cause of WHY Task
-> Scheduler silently stopped dispatching these triggers was NOT determined** -- the
-> `Microsoft-Windows-TaskScheduler/Operational` event log is disabled on this box, zero
-> forensic trail available. Rather than over-invest chasing an unfalsifiable Windows mystery,
-> filed the open question as a lesson with a queued (not executed) follow-up: re-enable that
-> event log so a recurrence leaves evidence.
-
-> **FIX SHIPPED (remediation, not the forensics):** `state_freshness_selfheal.py` -- for any
-> RED `state_freshness_audit` entry, resolves the manifest's `task` field to a single
-> `Gamma_*` task name and force-starts it via `Start-ScheduledTask` (cooldown-guarded 20min,
-> fail-open, never guesses an ambiguous/manual/multi-writer field). Wired into the existing
-> 5-min `Gamma_TvWatchdog` cadence (`run-tv-watchdog.ps1`, no new scheduled task) --
-> structurally the SAME self-heal shape `Invoke-LevelRefreshSafe` established for
-> `key-levels.json` on 2026-07-30, but for a genuinely different failure mode: there was no
-> stuck process to kill here, the scheduled trigger itself silently never fired, so the fix
-> is a direct force-start rather than kill-tree+relaunch. **Manually ran the real (non-dry-run)
-> heal live tonight:** all 3 producers restored (`Start-ScheduledTask` returncode 0 each,
-> output files' mtimes updated within seconds), `state_freshness_audit` verdict flipped
-> RED -> GREEN, confirmed via a fresh audit re-run.
-
-> **Verified (OP-33):** 20 new guard tests (`test_state_freshness_selfheal.py` -- resolve/
-> skip-ambiguous/cooldown/dry-run/fail-open-on-audit-raise/logging), all green; full related
-> suite (level-refresh, tv-launch-safe, engine-liveness, state-freshness) 87/87 green;
-> curated safety gate 59/59 PASS. `git show 33a42102 --stat --name-status` confirms exactly
-> the 3 intended files (L247 discipline): `state_freshness_selfheal.py` (new),
-> `test_state_freshness_selfheal.py` (new), `run-tv-watchdog.ps1` (+33/-2 lines, one new
-> wired section + a status-field addition).
-
-> **Scope + revert:** 3 files, pure infra self-heal -- zero params/heartbeat_core/filters/
-> placement/exit/CLAUDE.md touched. Revert: `git revert 33a42102`. Lesson filed:
-> `_lesson-inbox/2026-07-31-scheduled-task-silent-stop-firing.md`.
-
----
-
-## [2026-07-30 ~20:30-20:50 ET] OK -- conductor (AFTERHOURS): LEVEL-REFRESH-WATCHDOG-WINDOW-BUG closed, commit `d7774638` -- plus closing the visibility gap on 4 earlier undocumented fixes
-
-> **STAGE 0/1:** ET 20:30 Thursday (market closed). Budget gate PROCEED ($1.98/$30, 1/4
-> fires). `engine-health.json` showed 2 RED checks at fire start: `levels_blind` (0/770 RTH
-> rows today carried an active key level) and `state_freshness` (3/17 live-path files
-> stale). Per STAGE-1 priority-1/2 (function-first / Engine RED), investigated first.
-
-> **FOUND: the whole `levels_blind` incident had ALREADY been root-caused, fixed, tested,
-> and doc-synthesized by 4 earlier fires TONIGHT (commits `90a0e826`, `54b27c00`,
-> `3a5d3246`, `9b25aa79`, `0d70b109`, between ~19:06-20:24 ET) -- but NONE of that work was
-> ever reported to STATUS.md** (only `queue.md` and a standalone doc,
-> `analysis/deep-research/BLIND-ENGINE-REPAIR-2026-07-30.md`, carried it). Closing that
-> visibility gap now: `Gamma_LevelRefresh`'s Task Scheduler cadence silently stalled ~20h
-> (last good run 07-29 22:43 ET, zero errors, zero self-recovery); every one of today's 770
-> RTH decision rows carried `levels_active: []`; the engine fell through to its worst cohort
-> (trendline-only) and fired 11 unanchored `ENTER_BEAR` verdicts at the day's low before SPY
-> rallied 6.7pts -- only `RISK_DENY_RISK_CAP`/`RISK_DENY_PDT` stopped the fills. Fixed with
-> THREE layers: (1) `SKIP_NO_LEVELS` entry-side rail in `heartbeat_core.py` -- an ENTER with
-> no level anchor now refuses instead of trading blind; (2) `Invoke-LevelRefreshSafe`
-> (`_shared.ps1`) -- kill-the-stuck-tree + relaunch self-heal, wired into the existing 5-min
-> `Gamma_TvWatchdog` cadence; (3) `levels_blind_check.py` -- a day-scoped, RTH-ratio,
-> non-market-hours-suppressed consumer+producer monitor. Lesson filed:
-> `_lesson-inbox/level-refresh-silent-stall-2026-07-30.md`.
-
-> **THIS FIRE'S OWN FINDING (re-verifying rather than trusting the prior work, OP-33):** the
-> self-heal window guard in `run-tv-watchdog.ps1` read `$mins -ge 942 -and $mins -le 955`.
-> `$mins` is `Hour*60+Minute` (minutes-since-midnight) -- the SAME convention the adjacent
-> `hbFlag` window correctly uses via `575`/`955`. `942` minutes-since-midnight is **15:42
-> ET, not 09:42 ET** -- so the safety net built to prevent tonight's exact incident from
-> recurring only ever activated in the final **13 minutes** before the close (942-955), not
-> the intended ~373-minute RTH window (582-955). Its own guard test asserted the literal
-> substring `"942" in src`, which is true under BOTH readings, so it could not catch this by
-> construction. **Fix:** `942 -> 582` (9*60+42); test rewritten to regex-extract the real
-> `$mins` bound and assert on the DECODED wall-clock time (09:42/15:55) plus a width check
-> (>300min). RED-proofed via `git stash` (fails with the predicted 15:42 readout
-> pre-fix); 5/5 green post-fix; full related suite (blind-no-levels,
-> levels-blind-detection, tv-launch-safe) 85/85 green; curated safety gate 59/59 PASS.
-> `git show d7774638 --stat --name-status` confirms exactly the 2 intended files (L247).
-> Lesson filed: `_lesson-inbox/substring-guard-cant-verify-magic-number-semantics-2026-07-30.md`
-> (C14 family: a unit-bearing magic-number guard must assert the DECODED value, not the
-> substring's presence).
-
-> **Scope + revert:** 2 files, pure watchdog infra -- no params/heartbeat_core/filters/
-> placement/exit/CLAUDE.md touched. Revert: `git revert d7774638`.
-
-> **Left open for next fire (not this fire's scope):** the synthesis doc
-> (`BLIND-ENGINE-REPAIR-2026-07-30.md`) flags a separate finding worth a follow-up look --
-> "49 documented-Active scheduled tasks sat `State=Disabled`" -- and a sizing-deadlock
-> per-arm ceiling table with 4 ranked remediation options left UNCHOSEN. Neither touched
-> here; flagging so they don't silently age out of visibility the same way this whole chain
-> almost did.
-
----
-
-
-## Kitchen
-Kitchen: alive, queue 37 pending, last cook 0 min ago, today $0.00, model=grinder-python
-
-- [2026-08-01 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
-
-- [2026-08-01 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
-
-[2026-08-01 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-08-01.md
-
----
-
-## [2026-08-01 ~13:05 ET] WS3 — LEVEL-FLICKER FIX shipped (hysteresis in the level refresher)
-
-**The incident:** Friday 07-31, shelf level 743.25 blinked out of `levels_active` on 14
-transitions (present 331/386 core ticks, safe+bold identical); the day's 12:19 746C winner
-filled on a snapshot the core had retired ~1s earlier.
-
-**Root cause (named + reproduced):** every 5-min `Gamma_LevelRefresh` re-derives shelf zones
-from scratch with today's live-FORMING daily bar as both candidate seed and touch-counter
-(`daily_context._find_shelf_candidates`); two near-tied overlapping bands (742.45-744.05 @8t
-vs 741.56-743.16 @10t only while today's bar sits in-band) swap the greedy winner-take-all
-merge as spot wobbles, re-tiling the region and renaming the level (743.25 <-> 742.36);
-`refresh_levels_intraday` strips+rewrites all families with zero cross-run identity, so the
-wobble went straight to the engine. Deterministic reproduction off the real daily bars + 5m
-SIP tape matches the observed state at 76-77/89 fires (boundary misses = partial-bar
-reconstruction). Alternates killed: proximity band (|Δspot| ≤5.6 all day), sub-5-min race
-(all flips on fire boundaries), rounding (bands differ $0.89).
-
-**Fix:** `_hysteresis_carry` in `setup/scripts/refresh_levels_intraday.py` — a written ACTIVE
-level missing from the fresh set is carried verbatim until absent N=5 CONSECUTIVE refreshes
-(observed absence-run distribution {1:x5, 2:x1, 4:x1} → max gap 4 → N=5 bridges all observed
-flicker; genuine retirement ≤ ~25 min) or session expiry (never carried across sessions).
-Conservative by construction: only re-emits prior-file levels; label identity retires a MOVED
-detector price instantly. `hysteresis_held` logged in every run output (C7).
-
-**Proof:** replay of Friday's observed per-refresh sequence through the production carry
-(`backtest/tools/level_flicker_replay_2026_08_01.py`): **743.25: 331/386 + 14 flips →
-386/386 + 0 flips**; per-level superset + no-wrongly-sticky assertions pass for ALL 68 Friday
-levels (max extra hold = 4 windows = N-1; transients still retire). Full table:
-`analysis/deep-research/LEVEL-FLICKER-FIX-2026-08-01.md`. Guards: 14/14
-`test_level_hysteresis_2026_08_01.py` incl. RED-proof (carry neutered → 7 tests fail,
-reproducing the observed series); adjacent suites 131 passed. LIVE: scheduled fires 12:53+
-ran the new code (`hysteresis_held` in log, last fire ok:true, key-levels.json integrity
-CLEAN, Saturday session-boundary no-carry proven live).
-
-**Known flake (NOT this fix):** `test_level_refresh_watchdog_2026_07_30.py::
-test_no_lock_allows_refresh_and_cleans_up` intermittently returns empty PowerShell subprocess
-output under tonight's multi-lane load (real lock path + real powershell spawn); passes
-standalone repeatedly, fails ~50% in paired runs, identical on unmodified code. Chip filed to
-de-flake (tmp lock path + bounded retry).
+[2026-08-01 14:00:32 Saturday EDT] conductor: QUIET — nightly budget exhausted (9 fires today >= max 4)

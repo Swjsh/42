@@ -45,6 +45,14 @@ GATE_TESTS = [
 # lesson-regression audit instead, where minutes are acceptable.
 #   test_graduated_guards.py   (>180s -- runs backtests)
 #   test_state_contracts.py    (validates live loop-state.json -- transient runtime state)
+#   test_commit_scoped.py      (2026-08-01: EVALUATED for this list, deliberately left out.
+#                               Same shape as test_verify_committed.py (real throwaway-repo
+#                               git subprocesses) but 9 tests vs 4 -- measured +4.5-5s on
+#                               this box (2 back-to-back A/B runs: baseline 6 suites 7.3-8.5s
+#                               -> 7 suites 12.6-13.1s with it added), which breaks this
+#                               gate's own "keep FAST, runs on EVERY commit" contract. Still
+#                               runs in `--full` / CI. Re-measure before adding -- don't
+#                               assume the test_verify_committed.py precedent transfers.
 
 
 _SUMMARY_COUNT_RE = re.compile(r"(\d+) (passed|failed|error|errors|skipped|xfailed|xpassed)")

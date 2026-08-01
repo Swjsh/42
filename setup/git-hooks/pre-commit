@@ -7,6 +7,86 @@
 #
 # Emergency bypass (use sparingly):  git commit --no-verify
 ROOT="$(git rev-parse --show-toplevel)"
+
+# --- shared-index absorption tripwire (2026-08-01, WEEKEND-TWELVE Next-Twelve #3) ---
+# WARN-ONLY, fail-open, NEVER blocks -- pure git-plumbing, no python startup cost.
+#
+# THE BUG: a bare `git commit` (no pathspec) commits the WHOLE index at commit
+# time, not just what the current invocation's `git add` staged. In this
+# multi-session shared checkout that has repeatedly swept OTHER concurrent
+# sessions' staged-but-uncommitted files into a commit under the wrong
+# message -- 5 confirmed incidents in one night (482a662a, da18da34, a363bd5f,
+# be9c1b58, 90fd1e40; see strategy/candidates/_lesson-inbox/
+# 2026-08-01-shared-index-absorption-between-parallel-lanes.md). Content
+# landed intact every time -- this is an attribution/history problem, not a
+# data-loss one -- but it's cheap to flag loudly.
+#
+# THE HEURISTIC (crude by design, see that lesson item for why a precise
+# "files this session never touched" check isn't feasible from a hook): if
+# the staged set about to be committed spans more than one top-level
+# directory group, warn. This will also fire on plenty of legitimate
+# multi-directory commits (a feature + its test + a doc update) -- that's an
+# accepted false-positive rate for a WARN that costs one glance and never
+# blocks. It naturally under-fires for a `git commit -- <paths>` /
+# `commit_scoped.py` invocation, because git swaps in a pathspec-scoped
+# TEMPORARY index for the duration of the commit (hooks included, verified
+# empirically 2026-08-01) -- so a properly-scoped commit shows this hook only
+# the paths actually being committed, not the full shared index.
+STAGED="$(git diff --cached --name-only 2>/dev/null)"
+if [ -n "$STAGED" ]; then
+  # Pure shell-builtin counting (no wc/second-sort external calls): a chained
+  # `... | sort -u | wc -l` inside THIS hook's real invocation context was
+  # empirically observed to return garbage on this box. Root cause found: the
+  # count was assigned to a variable literally named `GROUPS`, which collides
+  # with bash's special read-only builtin array of that name (the current
+  # user's Unix group-id list) -- "assignments to GROUPS have no effect" per
+  # the bash manual, so the read-back silently returned the builtin's
+  # constant value instead of the intended count, every single time,
+  # regardless of input. Renamed to N_TOPDIRS and switched to `set --`/`$#`
+  # (verified correct across 4 scenarios: bare 1-dir no-warn, bare 2-dir
+  # warn, pathspec-scoped multi-dir warn-but-no-foreign-sweep, and a live
+  # absorption repro) -- see the lesson-inbox item cited above for the full
+  # before/after transcript.
+  OLDIFS="$IFS"
+  IFS='
+'
+  set -f
+  set -- $STAGED
+  set +f
+  N="$#"
+  IFS="$OLDIFS"
+
+  TOPDIRS="$(printf '%s\n' "$STAGED" | awk -F/ '{print (NF>1)?$1:"(root)"}' | sort -u | tr '\n' ',' | sed 's/,$//')"
+
+  OLDIFS="$IFS"
+  IFS=','
+  set -f
+  set -- $TOPDIRS
+  set +f
+  N_TOPDIRS="$#"
+  IFS="$OLDIFS"
+
+  if [ "$N_TOPDIRS" -gt 1 ]; then
+    echo "" >&2
+    echo "[pre-commit] WARN: staged set spans $N_TOPDIRS top-level dirs ($TOPDIRS) across $N files." >&2
+    echo "[pre-commit] WARN: this MAY be shared-index absorption of another session's staged" >&2
+    echo "[pre-commit] WARN: work -- a bare 'git commit' commits the WHOLE shared index. If you" >&2
+    echo "[pre-commit] WARN: only meant to commit specific paths, Ctrl-C now and use:" >&2
+    echo "[pre-commit] WARN:   python setup/scripts/commit_scoped.py \"<message>\" <path> [<path>...]" >&2
+    echo "[pre-commit] WARN: Heuristic only (dir-count), NOT proof -- never blocks this commit." >&2
+    echo "[pre-commit] WARN: Logged to automation/state/commit-scope-warnings.jsonl" >&2
+    echo "" >&2
+    TS="$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo unknown)"
+    PARENT="$(git rev-parse --short HEAD 2>/dev/null || echo none)"
+    LOGDIR="$ROOT/automation/state"
+    if [ -d "$LOGDIR" ]; then
+      printf '{"ts":"%s","parent_head":"%s","n_files":%s,"n_top_dirs":%s,"top_dirs":"%s"}\n' \
+        "$TS" "$PARENT" "$N" "$N_TOPDIRS" "$TOPDIRS" >> "$LOGDIR/commit-scope-warnings.jsonl" 2>/dev/null
+    fi
+  fi
+fi
+# --- end tripwire: always falls through, exit code untouched by anything above ---
+
 PY="$ROOT/backtest/.venv/Scripts/python.exe"
 [ -x "$PY" ] || PY="$ROOT/backtest/.venv/bin/python"
 [ -x "$PY" ] || PY="python"
