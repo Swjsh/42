@@ -1,0 +1,435 @@
+{
+  "day": "2026-07-31",
+  "generated_at": "2026-08-01T11:13:24",
+  "recency_verdict_at_replay": "RED",
+  "friday_sod_equity": {
+    "safe-3": 1893.04,
+    "risky-1": 1756.87,
+    "risky-3": 2076.35
+  },
+  "tick_minutes": 386,
+  "errors": {},
+  "full_send_available_ticks": 51,
+  "full_send_unavailable_why": {},
+  "arms": {
+    "safe-3": {
+      "lanes": {
+        "NORMAL": 56
+      },
+      "enter_ticks_raw": 56,
+      "enter_ticks_in_window": 32,
+      "episodes": [
+        {
+          "start": "09:35",
+          "end": "09:35",
+          "n_ticks": 1
+        },
+        {
+          "start": "12:16",
+          "end": "12:34",
+          "n_ticks": 9
+        },
+        {
+          "start": "13:24",
+          "end": "13:40",
+          "n_ticks": 12
+        },
+        {
+          "start": "14:26",
+          "end": "14:30",
+          "n_ticks": 5
+        },
+        {
+          "start": "14:51",
+          "end": "14:55",
+          "n_ticks": 5
+        }
+      ],
+      "strikes": [
+        [
+          "C",
+          745
+        ],
+        [
+          "C",
+          747
+        ],
+        [
+          "C",
+          748
+        ],
+        [
+          "C",
+          749
+        ]
+      ],
+      "qtys": [
+        3
+      ],
+      "actual": [
+        [
+          "12:31",
+          "C",
+          747,
+          3,
+          0.33
+        ]
+      ],
+      "actual_covered": 1,
+      "regressions": [],
+      "sample_enters": [
+        {
+          "minute": "09:31",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 745,
+          "qty": 3,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 741.6,
+          "reason": "ribbon_ride C (ELITE)"
+        },
+        {
+          "minute": "09:32",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 745,
+          "qty": 3,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 741.6,
+          "reason": "ribbon_ride C (ELITE)"
+        },
+        {
+          "minute": "09:33",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 745,
+          "qty": 3,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 741.6,
+          "reason": "ribbon_ride C (ELITE)"
+        },
+        {
+          "minute": "15:53",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 751,
+          "qty": 3,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 748.09,
+          "reason": "ribbon_ride C (ELITE)"
+        },
+        {
+          "minute": "15:54",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 751,
+          "qty": 3,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 748.09,
+          "reason": "ribbon_ride C (ELITE)"
+        },
+        {
+          "minute": "15:55",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 751,
+          "qty": 3,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 748.09,
+          "reason": "ribbon_ride C (ELITE)"
+        }
+      ]
+    },
+    "risky-1": {
+      "lanes": {
+        "NORMAL": 56
+      },
+      "enter_ticks_raw": 56,
+      "enter_ticks_in_window": 32,
+      "episodes": [
+        {
+          "start": "09:35",
+          "end": "09:35",
+          "n_ticks": 1
+        },
+        {
+          "start": "12:16",
+          "end": "12:34",
+          "n_ticks": 9
+        },
+        {
+          "start": "13:24",
+          "end": "13:40",
+          "n_ticks": 12
+        },
+        {
+          "start": "14:26",
+          "end": "14:30",
+          "n_ticks": 5
+        },
+        {
+          "start": "14:51",
+          "end": "14:55",
+          "n_ticks": 5
+        }
+      ],
+      "strikes": [
+        [
+          "C",
+          742
+        ],
+        [
+          "C",
+          744
+        ],
+        [
+          "C",
+          745
+        ],
+        [
+          "C",
+          746
+        ]
+      ],
+      "qtys": [
+        5
+      ],
+      "actual": [],
+      "actual_covered": 0,
+      "regressions": [],
+      "sample_enters": [
+        {
+          "minute": "09:31",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 742,
+          "qty": 5,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 741.6,
+          "reason": "ribbon_ride C (ELITE)"
+        },
+        {
+          "minute": "09:32",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 742,
+          "qty": 5,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 741.6,
+          "reason": "ribbon_ride C (ELITE)"
+        },
+        {
+          "minute": "09:33",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 742,
+          "qty": 5,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 741.6,
+          "reason": "ribbon_ride C (ELITE)"
+        },
+        {
+          "minute": "15:53",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 748,
+          "qty": 5,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 748.09,
+          "reason": "ribbon_ride C (ELITE)"
+        },
+        {
+          "minute": "15:54",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 748,
+          "qty": 5,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 748.09,
+          "reason": "ribbon_ride C (ELITE)"
+        },
+        {
+          "minute": "15:55",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 748,
+          "qty": 5,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 748.09,
+          "reason": "ribbon_ride C (ELITE)"
+        }
+      ]
+    },
+    "risky-3": {
+      "lanes": {
+        "NORMAL": 56
+      },
+      "enter_ticks_raw": 56,
+      "enter_ticks_in_window": 32,
+      "episodes": [
+        {
+          "start": "09:35",
+          "end": "09:35",
+          "n_ticks": 1
+        },
+        {
+          "start": "12:16",
+          "end": "12:34",
+          "n_ticks": 9
+        },
+        {
+          "start": "13:24",
+          "end": "13:40",
+          "n_ticks": 12
+        },
+        {
+          "start": "14:26",
+          "end": "14:30",
+          "n_ticks": 5
+        },
+        {
+          "start": "14:51",
+          "end": "14:55",
+          "n_ticks": 5
+        }
+      ],
+      "strikes": [
+        [
+          "C",
+          744
+        ],
+        [
+          "C",
+          746
+        ],
+        [
+          "C",
+          747
+        ],
+        [
+          "C",
+          748
+        ]
+      ],
+      "qtys": [
+        5
+      ],
+      "actual": [
+        [
+          "12:19",
+          "C",
+          746,
+          5,
+          0.3
+        ],
+        [
+          "13:25",
+          "C",
+          747,
+          5,
+          0.54
+        ]
+      ],
+      "actual_covered": 2,
+      "regressions": [],
+      "sample_enters": [
+        {
+          "minute": "09:31",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 744,
+          "qty": 5,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 741.6,
+          "reason": "ribbon_ride C (ELITE); qty clamped 12->5: recency RED"
+        },
+        {
+          "minute": "09:32",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 744,
+          "qty": 5,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 741.6,
+          "reason": "ribbon_ride C (ELITE); qty clamped 12->5: recency RED"
+        },
+        {
+          "minute": "09:33",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 744,
+          "qty": 5,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 741.6,
+          "reason": "ribbon_ride C (ELITE); qty clamped 12->5: recency RED"
+        },
+        {
+          "minute": "15:53",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 750,
+          "qty": 5,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 748.09,
+          "reason": "ribbon_ride C (ELITE); qty clamped 12->5: recency RED"
+        },
+        {
+          "minute": "15:54",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 750,
+          "qty": 5,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 748.09,
+          "reason": "ribbon_ride C (ELITE); qty clamped 12->5: recency RED"
+        },
+        {
+          "minute": "15:55",
+          "lane": "NORMAL",
+          "side": "C",
+          "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+          "strike": 750,
+          "qty": 5,
+          "quality": "ELITE",
+          "strategy": "ribbon_ride",
+          "trigger_level": 748.09,
+          "reason": "ribbon_ride C (ELITE); qty clamped 12->5: recency RED"
+        }
+      ]
+    }
+  }
+}
